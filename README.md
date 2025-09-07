@@ -5,25 +5,22 @@
 <br>
 
 # 📷 스크린샷
-<img src="https://github.com/user-attachments/assets/2c941e15-d8df-46ed-9884-eef6e7010e68" width="180" height="324" /> 
-<img src="https://github.com/user-attachments/assets/0133708b-386b-4463-bb4b-c044e14f7e1e" width="180" height="324" /> 
-<img src="https://github.com/user-attachments/assets/1b71578a-7a15-41b1-bf0e-d8324e63c112" width="180" height="324" /> 
-<img src="https://github.com/user-attachments/assets/6c616f8e-d043-4a6a-af4b-8b5a49ba1540" width="180" height="324" /> 
-<img src="https://github.com/user-attachments/assets/75d22392-4fe4-4721-a8ff-d5905363595b" width="180" height="324" /> 
-<img src="https://github.com/user-attachments/assets/f7b6d969-1f80-41dd-808f-f59c73ddbcf3" width="180" height="324" />  
+<img src="https://github.com/user-attachments/assets/7ce84dea-878d-4948-902d-7ae501d0d9b7" width="180" height="324" /> 
+<img src="https://github.com/user-attachments/assets/88d595ad-af2d-4232-94ab-6db6f3b857f8" width="180" height="324" /> 
+<img src="https://github.com/user-attachments/assets/db682753-aeb2-405d-9a89-948fe74c2f08" width="180" height="324" /> 
+<img src="https://github.com/user-attachments/assets/0bd05396-0e7a-4ba8-981f-76b8058ce017" width="180" height="324" /> 
+<img src="https://github.com/user-attachments/assets/dc053af8-bce2-4b8b-9160-bf7758abb9ec" width="180" height="324" /> 
 <br>  
 <br>
 
 # 📝 프로젝트 소개
 ### 1일 1일기는 바쁜 현대인을 위해 간편하게 작성할 수 있는 심플한 일기장 앱 입니다.  
 
-> 제가 안드로이드를 공부하면서 처음으로 스토어에 출시한 앱이기 때문에,  
+> 안드로이드를 공부하면서 처음으로 스토어에 출시한 앱이기 때문에,  
 > 코드의 수준 및 기술 스택에 있어서 미흡하고 부족한 점이 많습니다.
 
 `Java` 를 이용해 개발하였으며, 출시 후 업데이트는 `Kotlin` 으로 진행하고 있습니다.   
-DB 에는 `SQLite`, 네트워크 통신은 `Volley` 를 사용했으며,    
-백업 및 복원에는 `Google Drive` 를 활용했습니다.
-<br>
+DB 에는 `SQLite`, 네트워크 통신은 `Volley` 를 사용했으며, 백업 및 복원에는 `Google Drive` 를 활용했습니다.  
 <br>
 
 # 📢 주요 기능
