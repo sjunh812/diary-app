@@ -15,7 +15,7 @@
 
 ## 어디에 두나
 
-서버를 두지 않는다. 일기와 사진은 **사용자 본인의 Google Drive**에 둔다. 우리 비용은 0원이고 저장 공간은 사용자 할당량(무료 15GB,
+서버를 두지 않는다(D1). 일기와 사진은 **사용자 본인의 Google Drive**에 둔다(D2, Android·iOS 모두, 2026-11-01 사용자 결정). 우리 비용은 0원이고 저장 공간은 사용자 할당량(무료 15GB,
 Gmail·Photos와 공유)을 쓴다.
 
 | 선택지 | 판단 | 근거 |
@@ -93,6 +93,7 @@ Gmail·Photos와 공유)을 쓴다.
 
 ## 서버
 
-일기와 사진을 다루는 서버는 두지 않는다. 공지, 강제 업데이트, 기능 스위치는 Firebase Remote Config로 한다(Spark 무료, 서버 코드 없음).
+일기와 사진을 다루는 서버는 두지 않는다. 공지, 강제 업데이트, 기능 스위치는 Firebase Remote Config로 한다(Spark 무료, 서버 코드 없음,
+D1 2026-11-01 사용자 결정).
 새 버전 소개 내용은 앱에 넣는다. Firebase를 쓰지 않기로 하면 같은 일을 Cloudflare Workers 무료 플랜(한도 넘으면 차단형)으로 한다
 ([Workers 한도](https://developers.cloudflare.com/workers/platform/limits/)).

@@ -49,7 +49,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
   설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 그림은 Compottie(Lottie),
   결제는 RevenueCat KMP, 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
   생체 인증은 expect/actual(BiometricPrompt, LAContext). 레거시 DB는 Room이 아니라 날 SQL로 읽는다(`docs/migration.md`).
-- `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 35보다 크게. 구글 드라이브 OAuth는 지금과
+- `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 35보다 크게, `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
   같은 Google Cloud 프로젝트를 쓴다(이전 백업이 보이려면 필요, `docs/migration.md`).
 - 레거시 `app/` 모듈은 이전 코드가 레거시 형식을 다 다룰 때까지 참고용으로 남긴다.
 - 구조와 코드는 Now in Android(Google)와 널리 쓰이는 CMP 오픈소스 프로젝트(JetBrains KotlinConf 앱 등)를 실제로 열어 보고 근거로

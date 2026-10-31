@@ -24,7 +24,7 @@ material3-adaptive(창 크기 등급). 차트·달력·이미지 축소는 직�
 **Testing**: `kotlin.test` + Turbine(commonTest: 서식 정리, 임시 저장, 휴지통 정리, 검색 조건, 통계 집계, ViewModel), Room 시험은 번들 드라이버 메모리 DB로
 Android 호스트와 iOS 시뮬레이터 양쪽, Compose UI 시험(쓰기 → 저장, 지우기 → 되돌리기, 창 폭 바꾸기), 에뮬레이터 수동 확인(폰, 폴더블, 태블릿).
 
-**Target Platform**: Android(minSdk는 열린 결정 D4, targetSdk 36 이상), iOS 17 이상(R2 출시지만 처음부터 iOS 시뮬레이터에서 돈다).
+**Target Platform**: Android(minSdk 24, D4 2026-11-01, targetSdk 36 이상), iOS 17 이상(R2 출시지만 처음부터 iOS 시뮬레이터에서 돈다).
 
 **Project Type**: 모바일 앱(Compose Multiplatform, 공유 모듈 + 플랫폼 앱 껍데기).
 
