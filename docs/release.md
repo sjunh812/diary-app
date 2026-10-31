@@ -80,7 +80,7 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
       심경하체, 강원교육모두체, 쿠키런체, 온글잎 만두몽키체, 온글잎 윤우체, 코트라 희망체, ACC 어린이 마음고운체). 안 되는 글꼴은 이전
       규칙(`docs/migration.md`)에서 가장 가까운 글꼴로 잇고 새 버전 소개에서 알린다.
 - [ ] 기분·날씨 아이콘 새로 그리기(지금 PNG 출처 미확인)
-- [ ] 공개 저장소에 올라간 네이버 지도 API 키 교체(`app/.../utils/ApiKey.kt`)
+- [ ] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(`app/.../utils/ApiKey.kt`). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
 - [ ] 위치정보지원센터 문의
 - [ ] 처리방침 URL을 Play Console, App Store Connect, 앱 설정에 걸기
 - [ ] Play 데이터 보안, App Store 개인정보 라벨, Privacy Manifest 작성(광고를 넣으므로 AdMob 항목 포함)
