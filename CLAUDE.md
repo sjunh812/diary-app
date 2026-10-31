@@ -88,7 +88,8 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 - **꼬리말**: 저장 형식(DB 스키마, 백업 형식)이나 이미 있는 동작을 바꾸면 type 뒤에 `!`를 붙이고 `BREAKING CHANGE: <무엇이 바뀌고 어떻게 옮기는지>`를
   쓴다. 근거는 `Refs: specs/002-diary-core FR-006`이나 `Refs: #12`. 공동 작성자 줄은 맨 끝.
 - 커밋 하나에 논리적 변경 하나, 빌드와 시험이 통과하는 상태로 남긴다. 포맷 정리와 기능 변경을 섞지 않는다.
-- 브랜치는 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`). 기본 브랜치에는 PR로 넣고 squash merge, PR 제목도 같은 형식.
+- 브랜치는 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`). 혼자 개발하는 동안은 PR 없이 작업 브랜치에 커밋하고 바로 푸시한다
+  (사용자 결정 2026-11-01). 기본 브랜치에 합칠 때는 사용자에게 묻는다.
 - 릴리스는 `chore(release): 2.0.0 (36)` 커밋과 `v2.0.0` 태그. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다.
 - 스펙 001에서 commit-msg 훅(저장소의 `.githooks/`, `git config core.hooksPath .githooks`)으로 형식을 검사한다.
 
