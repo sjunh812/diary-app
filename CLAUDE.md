@@ -1,6 +1,6 @@
 # 1일 1일기
 
-바쁜 사람을 위한 간편한 일기장. 지금 버전은 Java/Kotlin View 기반 안드로이드 앱(`app/`, 1.7.4(35), `org.sjhstudio.diary`)이고,
+바쁜 사람을 위한 간편한 일기장. 지금 버전은 Java/Kotlin View 기반 안드로이드 앱(`app/`, 1.7.4(35), `org.sjhstudio.diary`)이고(777 글꼴만 뺀 1.7.5(36)를 준비 중),
 Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store에는 새로 낸다. 리뉴얼 기획은 `docs/PRD.md`에 있다.
 
 ## 문서
@@ -49,7 +49,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
   설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 그림은 Compottie(Lottie),
   결제는 RevenueCat KMP, 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
   생체 인증은 expect/actual(BiometricPrompt, LAContext). 레거시 DB는 Room이 아니라 날 SQL로 읽는다(`docs/migration.md`).
-- `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 35보다 크게, `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
+- `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 36(1.7.5)보다 크게, `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
   같은 Google Cloud 프로젝트를 쓴다(이전 백업이 보이려면 필요, `docs/migration.md`).
 - 레거시 `app/` 모듈은 이전 코드가 레거시 형식을 다 다룰 때까지 참고용으로 남긴다.
 - 구조와 코드는 Now in Android(Google)와 널리 쓰이는 CMP 오픈소스 프로젝트(JetBrains KotlinConf 앱 등)를 실제로 열어 보고 근거로
@@ -90,7 +90,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 - 커밋 하나에 논리적 변경 하나, 빌드와 시험이 통과하는 상태로 남긴다. 포맷 정리와 기능 변경을 섞지 않는다.
 - 브랜치는 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`). 혼자 개발하는 동안은 PR 없이 작업 브랜치에 커밋하고 바로 푸시한다
   (사용자 결정 2026-11-01). 기본 브랜치에 합칠 때는 사용자에게 묻는다.
-- 릴리스는 `chore(release): 2.0.0 (36)` 커밋과 `v2.0.0` 태그. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다.
+- 릴리스는 `chore(release): 2.0.0 (37)` 커밋과 `v2.0.0` 태그. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다.
 - 스펙 001에서 commit-msg 훅(저장소의 `.githooks/`, `git config core.hooksPath .githooks`)으로 형식을 검사한다.
 
 ```text
