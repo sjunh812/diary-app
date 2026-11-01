@@ -40,7 +40,7 @@
 | 파일 | 키 | 기본 | 새 앱에서 |
 | --- | --- | --- | --- |
 | `pref` | `font_key` | -1 | 글꼴. -1·0 기본(Pretendard), 100 시스템, 1~13 assets `font.otf`·`font2`~`font13`. 아래 "글꼴 대응"대로 잇는다 |
-| `pref` | `font_size` | 2 | 글자 크기 단계. 새 단계표로 옮긴다 |
+| `pref` | `font_size` | 2 | 글자 크기 단계(앱 전체 배율 0.6~1.2). 새 앱의 일기 본문 글자 크기 같은 자리로: 0·1 작게, 2 보통, 3 크게, 4 더 크게(스펙 001 R17) |
 | `pref` | `mode_key` | 0 | 0 시스템, 1 라이트, 2 다크 |
 | `pref` | `use_pw`, `password` | false, "" | 잠금. 비밀번호가 **평문**으로 있다. 새 앱은 해시로 바꿔 담고 잠금을 켠 채로 연다 |
 | `pref` | `finger_print` | false | 생체 인증 |
@@ -86,10 +86,10 @@
 
 ## 이전 원칙
 
-1. **원본은 건드리지 않는다.** 이전하는 동안 `note.db`, `-wal`, `-shm`, 캐시의 사진, SharedPreferences를 고치거나 지우지 않는다. 지우는 것은 새 앱에서 첫 정상 백업이 끝나고 몇 버전 지난 뒤, 따로 결정한다.
-2. **먼저 안전한 곳에 사본을 둔다.** 새 앱 첫 실행에서 어떤 연결도 열기 전에 `note.db`, `note.db-wal`, `note.db-shm`을 바이트 그대로 함께 `filesDir/legacy-snapshot/`으로 복사한다. `shared_prefs/*.xml`과 DB가 가리키는 사진 파일도 복사한다. 캐시가 아니라 지워지지 않는 곳이다. DB를 한 번이라도 열면 닫을 때 WAL이 본 파일에 합쳐지므로 복사가 먼저다.
-3. **사본에서 읽고, 새 DB에 쓰고, 검증한 뒤에 바꾼다.** 원본이 아니라 사본(세 파일)을 날 SQL로 열어 줄 단위로 읽는다. 기존 파일에 Room Migration을 거는 방식은 쓰지 않는다. 원본을 고치게 되고, 이전 코드에 버그가 있으면 되돌릴 곳이 없다. 새 DB(Room)에 쓰고, 줄 수와 줄마다의 지문(레거시 열 값을 이은 문자열의 SHA-256)을 견준다. 하나라도 다르면 새 DB를 버리고 이전 실패 화면으로 간다.
-4. **다시 해도 같은 결과다.** 이전 상태(`NotStarted → Snapshot → Copying → Verifying → Done`)를 기록한다. 중간에 앱이 죽으면 새 DB를 버리고 처음부터 다시 한다. 원본이 그대로라 몇 번을 해도 안전하다.
+1. **원본은 건드리지 않는다.** 이전하는 동안 `note.db`, `-wal`, `-shm`, 캐시의 사진, SharedPreferences를 고치거나 지우지 않는다. 지우는 것은 새 앱에서 첫 정상 백업이 끝나고 몇 버전 지난 뒤, 따로 결정한다. 그때까지 사진은 캐시 원본과 `media/` 사본으로 두 번 자리를 차지한다(캐시 원본은 OS가 지울 수 있다).
+2. **먼저 안전한 곳에 사본을 둔다.** 새 앱 첫 실행에서 어떤 연결도 열기 전에 `note.db`, `note.db-wal`, `note.db-shm`을 바이트 그대로 함께 `filesDir/legacy-snapshot/`으로 복사한다. `shared_prefs/*.xml`도 복사하되 `pref.xml`에서는 `password` 줄을 뺀다. DB가 가리키는 사진은 `filesDir/media/<SHA-256>.<ext>`로 한 번만 복사하고 이전이 실패해도 지우지 않으며, 사본 폴더에는 "경로 → 해시" 목록만 둔다(스펙 001 research R8). 캐시가 아니라 지워지지 않는 곳이다. DB를 한 번이라도 열면 닫을 때 WAL이 본 파일에 합쳐지므로 복사가 먼저다.
+3. **사본에서 읽고, 새 DB에 쓰고, 검증한 뒤에 바꾼다.** 원본이 아니라 사본(세 파일)을 날 SQL로 열어 줄 단위로 읽는다. 기존 파일에 Room Migration을 거는 방식은 쓰지 않는다. 원본을 고치게 되고, 이전 코드에 버그가 있으면 되돌릴 곳이 없다. 임시 새 DB(Room)에 쓰고, 줄 수와 줄마다의 지문을 견준다. 지문은 레거시 줄의 값과, 새 DB의 값을 옛 표현으로 되돌린 값을 각각 이은 문자열의 SHA-256이다(형식은 스펙 001 `contracts/legacy-mapping.md`). 하나라도 다르면 새 DB를 버리고 이전 실패 화면으로 간다. 맞으면 이름 바꾸기로 한 번에 바꾼다.
+4. **다시 해도 같은 결과다.** 이전 상태(`NotStarted → Snapshotting → Copying → Verifying → Committing → Done`, 끝은 `Done`·`Partial`·`Failed`)를 기록한다(스펙 001 `contracts/migration-flow.md`). 중간에 앱이 죽으면 새 DB를 버리고 처음부터 다시 한다. 원본이 그대로라 몇 번을 해도 안전하다.
 5. **실패해도 기록을 보여 준다.** 이전이 실패하면 사용자는 레거시 DB를 읽기 전용으로 볼 수 있고, 원본 사본을 파일로 내보낼 수 있고, 문의 메일에 실패 단계(내용 없이 단계와 줄 수만)를 담을 수 있다.
 6. **일기 내용은 밖으로 보내지 않는다.** 사용 통계와 비정상 종료 보고에는 이전 단계, 줄 수 구간, 사진 찾음/못 찾음 수만 보낸다.
 
@@ -105,7 +105,7 @@
 | `weather` | `Entry.weather` | 0~6을 문자열 ID(`sunny`, `partly_cloudy`, `mostly_cloudy`, `cloudy`, `rain`, `sleet`, `snow`)로. -1은 null |
 | `address` | `Entry.placeName` | 빈 문자열은 null |
 | `star` | `Entry.isFavorite` | NULL은 false |
-| `picture` | `Media` 여러 줄 | 쉼표로 나눠 순서대로 `sortOrder`. 파일이 있으면 `filesDir/media/<SHA-256>.<ext>`로 복사하고 DB에는 절대경로가 아니라 파일 이름과 가로세로를 담는다(백업 형식의 사진 이름과 같다, `docs/backup.md`). 없으면 `Media.status = MISSING`과 원래 경로를 남겨 "찾을 수 없는 사진"으로 보여 준다 |
+| `picture` | `Media` 여러 줄 | 쉼표로 나눠 순서대로 `sortOrder`. 파일이 있으면 `filesDir/media/<SHA-256>.<ext>`로 복사하고 DB에는 절대경로가 아니라 파일 이름과 가로세로를 담는다(백업 형식의 사진 이름과 같다, `docs/backup.md`). 없으면 `Media.status = MISSING`으로 "찾을 수 없는 사진"을 보여 준다. 원래 경로는 찾은 사진에도 `legacy_path`로 남긴다 |
 | `year`, `month` | 담지 않음 | `create_date`에서 다시 만든다. 값이 어긋난 줄은 이전 보고에 수만 센다 |
 
 같은 파일을 가리키는 사진(같은 초 덮어쓰기)은 내용 해시가 같으니 파일은 하나만 두고 `Media` 줄은 레거시 순서대로 둔다.
@@ -127,7 +127,7 @@
 
 ## 시험
 
-이전 코드는 다른 기능보다 먼저, 더 많이 시험한다. 고정 파일(fixture)은 `shared/core/database/src/androidUnitTest/resources/legacy/`에 둔다.
+이전 코드는 다른 기능보다 먼저, 더 많이 시험한다. 고정 파일(fixture)은 `shared/core/migration/src/androidHostTest/resources/legacy/`에 둔다(스펙 001 tasks T031).
 
 - 버전 1 스키마로 만들고 2로 올린 DB(`star` NULL)
 - 빈 DB, 테이블만 있는 DB, 1만 줄 DB
