@@ -77,7 +77,7 @@ Android 시스템 백업(클라우드 자동 백업, 기기 간 이전)에는 �
 | `entry_id` | TEXT PK | 아님 | `entry.id` 외래 키, 영구 삭제하면 함께 지움 |
 | `kind` | TEXT | 아님 | `kept_both`(양쪽 다 고쳐 둘 다 남김), `legacy_same_time`(이전 버전 백업에서 같은 날짜·시각에 글이 다름) |
 | `pair_entry_id` | TEXT | 가능 | 짝이 되는 일기 |
-| `source` | TEXT | 아님 | `drive`·`file`·`legacy_drive` |
+| `source` | TEXT | 아님 | `drive`·`file`·`legacy_drive`·`legacy_file` |
 | `created_at` | INTEGER | 아님 | |
 
 사용자가 표시를 닫거나 둘 중 하나를 지우면 줄을 지운다.

@@ -64,6 +64,8 @@
 
 ## 이전 버전 백업(1.7.x `note.db`) 합치기
 
+드라이브의 예전 백업과, "파일에서 되살리기"로 고른 예전 형식 파일(고쳐 돌려받은 `note.db` 포함, `source = legacy_file`)이 이 규칙을 쓴다.
+
 값은 `docs/migration.md` "옮겨 담기"와 스펙 001 `contracts/legacy-mapping.md`를 그대로 쓴다. 레거시 줄 하나를 새 일기 후보 C로 바꾼 뒤 가른다.
 
 | 경우 | 조건 | 결과 |
