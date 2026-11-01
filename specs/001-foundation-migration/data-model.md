@@ -137,7 +137,7 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 ### MigrationState (`migration/state.json`)
 
 `version`(1), `step`(`NotStarted`·`Snapshotting`·`Copying`·`Verifying`·`Committing`·`Done`·`Partial`·`Failed`), `attempt`(몇 번째 시도),
-`retriedVersionCode`(`Partial`을 마지막으로 다시 읽은 앱 버전, 없으면 0), `photoRecheckAt`(찾을 수 없는 사진을 마지막으로 다시 본 시각), `startedAt`, `updatedAt`, `failure`(`step`, `kind`: `NO_SPACE`·`SNAPSHOT_IO`·`READ_ERROR`·`WRITE_ERROR`·`MISMATCH`·`UNKNOWN`). 일기 내용, 경로, 예외 메시지는 담지 않는다.
+`retriedVersionCode`(처음 옮겼거나 `Partial`을 마지막으로 다시 읽은 앱 버전, 없으면 0. 2026-11-01: 처음 옮긴 버전도 적어 같은 버전에서는 다시 읽지 않는다), `photoRecheckAt`(찾을 수 없는 사진을 마지막으로 다시 본 시각), `startedAt`, `updatedAt`, `failure`(`step`, `kind`: `NO_SPACE`·`SNAPSHOT_IO`·`READ_ERROR`·`WRITE_ERROR`·`MISMATCH`·`UNKNOWN`). 일기 내용, 경로, 예외 메시지는 담지 않는다.
 단계와 다시 시작 규칙은 [contracts/migration-flow.md](contracts/migration-flow.md).
 
 ### MigrationReport (`migration/report.json`)

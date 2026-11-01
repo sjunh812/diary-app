@@ -53,6 +53,14 @@
     <string name="migration_no_space_body">기록을 옮기려면 휴대폰에 %1$s가 더 필요해요. 사진이나 쓰지 않는 앱을 정리한 뒤 다시 확인해 주세요. 원래 기록은 그대로 있어요.</string>
     <string name="migration_check_again">다시 확인</string>
 
+    <!-- 관문을 지난 뒤 한 번 알림(FR-011) -->
+    <plurals name="migration_entries_recovered">
+        <item quantity="other">못 읽었던 일기 %1$s편을 옮겼어요</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="other">찾을 수 없던 사진 %1$s장을 찾았어요</item>
+    </plurals>
+
     <!-- 예전 일기 보기(M4) -->
     <string name="legacy_reader_title">예전 일기</string>
     <string name="legacy_reader_notice">읽기만 할 수 있어요. 다시 시도하면 새 앱으로 옮겨요.</string>

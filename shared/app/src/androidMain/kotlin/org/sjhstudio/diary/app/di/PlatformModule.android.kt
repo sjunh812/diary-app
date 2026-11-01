@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.app.di
 
+import android.content.Context
+import android.os.Build
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -52,7 +54,19 @@ internal actual val platformModule: Module =
                 freeBytes = ::freeBytes,
                 openDatabase = factory::createAt,
                 imageSize = AndroidImageSizeReader,
-                events = MigrationTelemetry(get())
+                events = MigrationTelemetry(get()),
+                versionCode = versionCode(androidContext())
             )
         }
     }
+
+/** 설치된 앱의 versionCode. 업데이트 뒤 다시 읽기(FR-011)가 버전을 견준다. */
+private fun versionCode(context: Context): Int {
+    val info = context.packageManager.getPackageInfo(context.packageName, 0)
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        info.longVersionCode.toInt()
+    } else {
+        @Suppress("DEPRECATION")
+        info.versionCode
+    }
+}

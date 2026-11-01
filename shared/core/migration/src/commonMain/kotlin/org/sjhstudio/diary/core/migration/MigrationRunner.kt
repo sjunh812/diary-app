@@ -98,6 +98,11 @@ class MigrationRunner(
     private val openDatabase: (String) -> DiaryDatabase,
     imageSize: ImageSizeReader,
     private val events: MigrationEvents = object : MigrationEvents {},
+    /**
+     * 지금 앱의 versionCode.
+     * 처음 옮긴 버전을 적어 두고, 일부만 옮겨진 기기는 이보다 높은 버전에서만 다시 읽는다(FR-011).
+     */
+    private val versionCode: Int = 0,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : LegacyMigration {
     private val store = MigrationStateStore(fileSystem, paths.migrationDir)
@@ -327,10 +332,10 @@ class MigrationRunner(
      * 새 DB를 버리지 않고, 아직 `entry`에 없는 레거시 줄만 더한다. 그 사이 쓴 일기는 그대로다.
      * 더한 줄 수를 돌려준다. 다시 읽을 때가 아니면 null.
      */
-    override suspend fun retryPartial(db: DiaryDatabase, currentVersionCode: Int): Int? = withContext(io) {
+    override suspend fun retryPartial(db: DiaryDatabase): Int? = withContext(io) {
         val state = store.readState()
-        if (state.step != MigrationStep.PARTIAL || currentVersionCode <= state.retriedVersionCode) return@withContext null
-        store.writeState(state.copy(retriedVersionCode = currentVersionCode, updatedAt = clock.now()))
+        if (state.step != MigrationStep.PARTIAL || versionCode <= state.retriedVersionCode) return@withContext null
+        store.writeState(state.copy(retriedVersionCode = versionCode, updatedAt = clock.now()))
         val (notes, summary) = readSnapshot() ?: return@withContext 0
         val known = db.entryDao().legacyIds().toHashSet()
         val missing = notes.filter { it.id.toInt() !in known }
@@ -441,12 +446,18 @@ class MigrationRunner(
     }
 
     private fun writeStep(step: MigrationStep, attempt: Int, startedAt: Instant) {
-        store.writeState(MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now()))
+        // 같은 버전에서는 같은 파일을 같은 방법으로 읽어 결과가 같으므로, 옮긴 버전을 다시 읽은 버전으로 적는다.
+        store.writeState(
+            MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now(), retriedVersionCode = versionCode)
+        )
         _progress.value = _progress.value.copy(step = step)
     }
 
     private fun writeFinal(step: MigrationStep, attempt: Int, startedAt: Instant) {
-        store.writeState(MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now()))
+        // 같은 버전에서는 같은 파일을 같은 방법으로 읽어 결과가 같으므로, 옮긴 버전을 다시 읽은 버전으로 적는다.
+        store.writeState(
+            MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now(), retriedVersionCode = versionCode)
+        )
         _progress.value = _progress.value.copy(step = step)
     }
 

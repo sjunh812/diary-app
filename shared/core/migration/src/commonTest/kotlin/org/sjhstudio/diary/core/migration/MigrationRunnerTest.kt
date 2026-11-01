@@ -53,7 +53,7 @@ class MigrationRunnerTest {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-        fun runner(openDb: (String) -> DiaryDatabase = ::open) = MigrationRunner(
+        fun runner(versionCode: Int = 37, openDb: (String) -> DiaryDatabase = ::open) = MigrationRunner(
             fileSystem = dir.fs,
             paths = paths,
             clock = clock,
@@ -61,7 +61,8 @@ class MigrationRunnerTest {
             newId = { "id-${ids++}" },
             freeBytes = { free },
             openDatabase = openDb,
-            imageSize = { 100 to 50 }
+            imageSize = { 100 to 50 },
+            versionCode = versionCode
         )
 
         fun photo(name: String, bytes: ByteArray): Path = dir.write("cache/$name", bytes)
@@ -270,19 +271,46 @@ class MigrationRunnerTest {
                 db.entryDao().insertAll(listOf(written.asEntity()))
 
                 // 같은 버전에서는 같은 파일을 같은 방법으로 읽어 결과가 같으므로 다시 읽지 않는다.
-                assertEquals(0, env.runner().retryPartial(db, currentVersionCode = 37))
-                assertNull(env.runner().retryPartial(db, currentVersionCode = 37))
+                assertNull(env.runner().retryPartial(db))
 
                 // 새 버전이 더 잘 읽는다고 치고 사본을 멀쩡한 파일로 바꾼다.
                 dir.fs.delete(env.paths.snapshotDir / "note.db")
                 dir.fs.copy(healthy, env.paths.snapshotDir / "note.db")
-                val added = env.runner().retryPartial(db, currentVersionCode = 38)
+                val added = env.runner(versionCode = 38).retryPartial(db)
 
                 assertEquals(first.report.entriesUnreadable, added)
                 assertEquals(2_001, db.entryDao().countAll())
                 assertTrue(db.entryDao().get("mine") != null)
                 assertEquals(MigrationStep.DONE, env.runner().state().step)
-                assertNull(env.runner().retryPartial(db, currentVersionCode = 39))
+                assertNull(env.runner(versionCode = 39).retryPartial(db))
+            } finally {
+                db.close()
+            }
+        }
+    }
+
+    @Test
+    fun follow_up_does_not_open_the_diary_database_before_migration() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00"))).close()
+            val result = MigrationFollowUp(env.runner()) { error("이전 전에는 일기 DB를 열지 않는다") }.run()
+            assertEquals(FollowUpResult(), result)
+            assertFalse(dir.fs.exists(env.paths.databasePath))
+        }
+    }
+
+    @Test
+    fun follow_up_finds_a_photo_that_came_back() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val later = dir.root / "cache" / "later.jpg"
+            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$later,"))).close()
+            assertIs<MigrationResult.Finished>(env.runner().run())
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                env.photo("later.jpg", jpeg)
+                assertEquals(FollowUpResult(entriesRecovered = 0, photosFound = 1), MigrationFollowUp(env.runner()) { db }.run())
             } finally {
                 db.close()
             }

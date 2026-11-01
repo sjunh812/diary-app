@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.MigrationScreen
 import org.sjhstudio.diary.feature.migration.MigrationUiState
 import org.sjhstudio.diary.feature.migration.MigrationViewModel
+import org.sjhstudio.diary.feature.migration.message
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 
 /**
@@ -43,16 +45,15 @@ import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 fun MigrationGate(content: @Composable () -> Unit) {
     val viewModel = koinViewModel<MigrationViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    if (state == MigrationUiState.Passed) {
-        content()
-        return
-    }
     val toast = remember { DiaryToastState() }
     val scope = rememberCoroutineScope()
-    val actions = rememberMigrationActions(MigrationMessage { message -> scope.launch { toast.show(message) } })
+    // 관문을 지난 뒤의 알림(FR-011)은 앱 틀 위에 한 번 띄운다.
+    LaunchedEffect(viewModel) { viewModel.notices.collect { toast.show(it.message()) } }
     var reading by rememberSaveable { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
-        if (reading && state is MigrationUiState.Failed) {
+        if (state == MigrationUiState.Passed) {
+            content()
+        } else if (reading && state is MigrationUiState.Failed) {
             BackHandler { reading = false }
             val reader = koinViewModel<LegacyReaderViewModel>()
             val readerState by reader.state.collectAsStateWithLifecycle()
@@ -63,6 +64,7 @@ fun MigrationGate(content: @Composable () -> Unit) {
                 onLoadMore = reader::loadMore
             )
         } else {
+            val actions = rememberMigrationActions(MigrationMessage { message -> scope.launch { toast.show(message) } })
             MigrationScreen(
                 state = state,
                 onStart = viewModel::acknowledgeResult,

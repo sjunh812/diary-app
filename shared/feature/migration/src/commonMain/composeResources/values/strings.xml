@@ -59,6 +59,16 @@
     <string name="migration_no_space_body">Moving your entries needs %1$s more space on your phone. Delete photos or apps you don’t use, then check again. Your original diary stays as it is.</string>
     <string name="migration_check_again">Check again</string>
 
+    <!-- 관문을 지난 뒤 한 번 알림(FR-011) -->
+    <plurals name="migration_entries_recovered">
+        <item quantity="one">Moved %1$s entry that couldn’t be read before</item>
+        <item quantity="other">Moved %1$s entries that couldn’t be read before</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="one">Found %1$s missing photo</item>
+        <item quantity="other">Found %1$s missing photos</item>
+    </plurals>
+
     <!-- 예전 일기 보기(M4). 날짜와 시각은 DiaryDateFormat이 만든다. -->
     <string name="legacy_reader_title">Old entries</string>
     <string name="legacy_reader_notice">You can only read these. Try again to move them to the new version.</string>

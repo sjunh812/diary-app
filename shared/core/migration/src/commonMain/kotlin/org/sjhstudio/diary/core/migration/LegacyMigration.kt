@@ -21,8 +21,10 @@ interface LegacyMigration {
 
     suspend fun run(): MigrationResult
 
-    suspend fun retryPartial(db: DiaryDatabase, currentVersionCode: Int): Int?
+    /** 일부만 옮겨진 기기에서 앱이 업데이트된 뒤 한 번 못 읽은 일기를 다시 읽는다. 더한 일기 수, 때가 아니면 null(FR-011). */
+    suspend fun retryPartial(db: DiaryDatabase): Int?
 
+    /** 찾을 수 없는 사진을 하루 한 번 원래 자리에서 다시 찾는다. 찾은 장 수, 때가 아니면 null(FR-011). */
     suspend fun recheckMissingPhotos(db: DiaryDatabase): Int?
 
     /** 문의 메일에 넣는 단계·종류·개수 구간. */
@@ -41,7 +43,7 @@ object NoLegacyMigration : LegacyMigration {
 
     override suspend fun run(): MigrationResult = MigrationResult.NoLegacy
 
-    override suspend fun retryPartial(db: DiaryDatabase, currentVersionCode: Int): Int? = null
+    override suspend fun retryPartial(db: DiaryDatabase): Int? = null
 
     override suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = null
 

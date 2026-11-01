@@ -53,6 +53,14 @@
     <string name="migration_no_space_body">記録を移すには、スマートフォンにあと%1$sの空き容量が必要です。使っていない写真やアプリを整理してから、もう一度確認してください。元の記録はそのまま残ります。</string>
     <string name="migration_check_again">もう一度確認</string>
 
+    <!-- ゲートを通ったあと一度だけ知らせる(FR-011) -->
+    <plurals name="migration_entries_recovered">
+        <item quantity="other">読み込めなかった日記%1$s件を移しました</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="other">見つからなかった写真%1$s枚が見つかりました</item>
+    </plurals>
+
     <!-- 以前の日記(M4) -->
     <string name="legacy_reader_title">以前の日記</string>
     <string name="legacy_reader_notice">読むことだけできます。もう一度試すと、新しいアプリに移します。</string>
