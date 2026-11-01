@@ -59,7 +59,7 @@ fun DiaryNoteBox(notes: List<DiaryNote>, modifier: Modifier = Modifier) {
  * 줄 높이가 sp라서 기기 글자 크기가 커져도 첫 줄 가운데에 맞는다.
  */
 @Composable
-internal fun FirstLineIcon(icon: ImageVector, line: TextStyle, tint: Color) {
+fun FirstLineIcon(icon: ImageVector, line: TextStyle, tint: Color) {
     val height = with(LocalDensity.current) { line.lineHeight.toDp() }
     Box(Modifier.height(height), contentAlignment = Alignment.Center) {
         DiaryIcon(icon, contentDescription = null, tint = tint, size = DiaryIconSize.i16)
