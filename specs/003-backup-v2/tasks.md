@@ -225,7 +225,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 - [ ] T084 [US6] Okio `openZip`이 Android·iOS 공통 코드에서 보이는지 확인하고(research R18), `{kt}/core/backup/BundleWriter.kt`(STORE + ZIP64), `BundleReader.kt`를 만든다. 안 보이면 Android `ZipInputStream`, iOS ZIPFoundation으로 읽기를 플랫폼에 둔다
 - [ ] T085 [US6] 저장 위치에 바로 흘려 쓰기(research O3): FileKit 0.17.0으로 되는지 보고, 안 되면 Android SAF 출력 스트림·iOS 앱 폴더 + 공유 시트. 결과를 research O3에 적는다
-- [ ] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/FileBackupScreen.kt`: 파일 기능의 입구 하나. [파일 만들기](크기 미리 보이기, 진행), "파일에서 되살리기"(파일 고르기 → 드라이브 복원과 같은 미리보기·합치기), 새 휴대폰으로 옮기는 방법 안내. 연결 전 화면·백업 설정·공간 부족 화면의 "파일로 백업하기" 줄이 모두 여기로 온다. Figma 묶음 파일 (B8)
+- [ ] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/FileBackupScreen.kt`: 파일 기능의 입구 하나. [파일 만들기](크기 미리 보이기, 진행), "파일에서 되살리기"(파일 고르기 → 드라이브 복원과 같은 미리보기·합치기), 새 휴대폰으로 옮기는 방법 안내. 연결 전 화면·백업 설정·공간 부족 화면의 "파일로 백업하기" 줄이 모두 여기로 온다. Figma 묶음 파일 (B8) 고쳐 받기 문의로 돌려받은 zip(`legacy-snapshot/note.db`만 든 예전 형식)도 받아 이전 버전 백업과 같은 규칙으로 합친다(스펙 001 FR-010a, `scripts/recover/README.md`)
 
 ---
 

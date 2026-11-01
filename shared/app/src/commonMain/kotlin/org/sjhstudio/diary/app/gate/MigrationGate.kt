@@ -31,6 +31,7 @@ import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.MigrationScreen
 import org.sjhstudio.diary.feature.migration.MigrationUiState
 import org.sjhstudio.diary.feature.migration.MigrationViewModel
+import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.message
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 
@@ -65,14 +66,29 @@ fun MigrationGate(content: @Composable () -> Unit) {
             )
         } else {
             val actions = rememberMigrationActions(MigrationMessage { message -> scope.launch { toast.show(message) } })
+            var asking by rememberSaveable { mutableStateOf(false) }
             MigrationScreen(
                 state = state,
                 onStart = viewModel::acknowledgeResult,
                 onRetry = viewModel::retry,
                 onViewLegacy = { reading = true },
                 onExportOriginal = actions?.exportOriginal,
-                onContact = actions?.contact
+                // 일부만 옮겨진 기기는 고쳐 받기 시트를 먼저 띄운다(FR-010a). 실패한 기기는 바로 메일을 쓴다.
+                onContact = actions?.let { a -> if (state is MigrationUiState.Result) ({ asking = true }) else a.contact }
             )
+            if (asking && actions != null) {
+                SupportAttachSheet(
+                    onDismiss = { asking = false },
+                    onContactWithout = {
+                        asking = false
+                        actions.contact()
+                    },
+                    onContactWith = {
+                        asking = false
+                        actions.contactWithAttachment()
+                    }
+                )
+            }
         }
         DiaryToastHost(
             toast,

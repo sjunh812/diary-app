@@ -20,6 +20,8 @@ import org.sjhstudio.diary.core.migration.MigrationRunner
 import org.sjhstudio.diary.core.migration.MigrationTelemetry
 import org.sjhstudio.diary.core.migration.OriginalExporter
 import org.sjhstudio.diary.core.migration.SnapshotLegacyArchive
+import org.sjhstudio.diary.core.migration.SupportBundle
+import org.sjhstudio.diary.core.migration.SupportFiles
 import org.sjhstudio.diary.core.migration.freeBytes
 import org.sjhstudio.diary.core.migration.legacyFiles
 import org.sjhstudio.diary.core.platform.AppFiles
@@ -41,6 +43,10 @@ internal actual val platformModule: Module =
         }
         single<LegacyArchive> { SnapshotLegacyArchive(FileSystem.SYSTEM, get(), Clock.System, TimeZone.currentSystemDefault()) }
         single { OriginalExporter(FileSystem.SYSTEM, get()) }
+        // 고쳐 받기 문의 묶음(FR-010a). 지우는 때는 SupportFiles가 정한다.
+        single {
+            SupportBundle(FileSystem.SYSTEM, get(), SupportFiles(FileSystem.SYSTEM, get<MigrationPaths>().migrationDir, Clock.System))
+        }
         // 1.7.x 원본이 같은 패키지에 남아 있으면 옮긴다(docs/migration.md).
         single<LegacyMigration> {
             val files = get<AppFiles>()

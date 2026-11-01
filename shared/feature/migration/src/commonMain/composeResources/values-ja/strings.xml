@@ -74,4 +74,16 @@
     <string name="migration_mail_subject">[1日1日記] 記録の移行についてのお問い合わせ</string>
     <string name="migration_mail_body">以下の内容は、問題を見つけて直すためだけに使います。日記の内容は含まれていません。\n\nアプリのバージョン: %1$s\n端末: %2$s\n止まった段階: %3$s\n問題の種類: %4$s\n試した回数: %5$s\n日記の数: %6$s\n写真の数: %7$s\n読み込めなかった日記の数: %8$s\n\n気になることや起きたことを書いてください。\n</string>
     <string name="migration_readme">1日1日記の元のファイルです。\n\n新しいアプリに移す前に、以前のアプリ（1.7.x）が使っていた記録をそのまま入れています。\n\n- legacy-snapshot: 日記のファイル（note.db）と設定。パスワードは入れていません。\n- media: 以前のアプリから移した写真\n\n記録を戻したいときは、このファイルを削除せずにsjunh812@naver.comまでお問い合わせください。\n</string>
+    <!-- 壊れた日記の修復のお問い合わせ(M5シート, FR-010a) -->
+    <string name="support_sheet_title">壊れた日記を直せます</string>
+    <string name="support_sheet_body">日記のファイルをメールに添付して送ると、読めるように直してお返しします。</string>
+    <string name="support_sheet_contains">日記の文章がそのまま入っています。写真とパスワードは除きます。</string>
+    <string name="support_sheet_deleted">直したファイルをお返ししたら、すぐに削除します。</string>
+    <string name="support_sheet_restore">受け取ったファイルは「ファイルから復元」で統合できます。</string>
+    <string name="support_without">添付なしで送る</string>
+    <string name="support_with">添付して送る</string>
+    <string name="support_file_name">1日1日記-お問い合わせ用-%1$s.zip</string>
+    <string name="support_failed">お問い合わせ用のファイルを作れませんでした。添付なしでお問い合わせください。</string>
+    <string name="support_mail_subject">[1日1日記] 壊れた日記の修復のお問い合わせ</string>
+    <string name="support_mail_body">お送りいただいたファイルは、直してお返ししたらすぐに削除します。日記のファイルだけを入れ、写真とパスワードは除いています。\n\nアプリのバージョン: %1$s\n端末: %2$s\n読み込めなかった日記の数: %3$s\n\n気になることや起きたことを書いてください。\n</string>
 </resources>

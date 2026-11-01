@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 고쳐 받기 문의 묶음만 내보낸다. 일기 DB와 사진 폴더는 넘기지 않는다. -->
+<paths>
+    <files-path name="support" path="migration/support/" />
+</paths>

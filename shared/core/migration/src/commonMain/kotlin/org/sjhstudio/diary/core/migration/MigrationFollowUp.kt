@@ -7,11 +7,13 @@ import org.sjhstudio.diary.core.model.MigrationStep
  * 이전이 끝난 기기에서 앱을 열 때 하는 뒷일(FR-011, contracts/migration-flow.md).
  * 일부만 옮겨진 기기는 앱이 업데이트된 뒤 처음 한 번 못 읽은 일기를 다시 읽고,
  * 찾을 수 없는 사진은 하루 한 번 원래 자리를 다시 본다.
+ * 하루가 지난 고쳐 받기 문의 묶음도 이때 지운다(FR-010a).
  * 일기 DB는 이전이 끝난 뒤에만 연다.
  * 이전 전에 열면 빈 DB가 먼저 생겨 옮긴 DB와 부딪힌다.
  */
 class MigrationFollowUp(private val migration: LegacyMigration, private val database: () -> DiaryDatabase) {
     suspend fun run(): FollowUpResult {
+        migration.cleanUpSupportFiles()
         val step = migration.state().step
         if (step != MigrationStep.DONE && step != MigrationStep.PARTIAL) return FollowUpResult()
         val db = database()

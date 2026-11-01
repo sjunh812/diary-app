@@ -395,6 +395,10 @@ class MigrationRunner(
         found
     }
 
+    override suspend fun cleanUpSupportFiles(): Boolean = withContext(io) {
+        SupportFiles(fileSystem, paths.migrationDir, clock).deleteExpired()
+    }
+
     override suspend fun supportSummary(): SupportSummary = withContext(io) {
         val state = store.readState()
         val report = store.readReport()

@@ -20,5 +20,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- 고쳐 받기 문의 묶음(files/migration/support)만 메일 앱에 읽기 권한으로 넘긴다(FR-010a). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.support"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/support_paths" />
+        </provider>
     </application>
 </manifest>

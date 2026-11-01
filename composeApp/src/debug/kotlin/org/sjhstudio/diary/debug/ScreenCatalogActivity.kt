@@ -10,6 +10,7 @@ import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
+import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportUiState
 
@@ -18,6 +19,7 @@ import org.sjhstudio.diary.feature.settings.MigrationReportUiState
  * 일기 DB나 설정은 건드리지 않는다.
  *
  *   adb shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
+ *   화면 이름: migration_report(M5), support_sheet(M5 · 고쳐 받기 문의)
  */
 class ScreenCatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,12 +29,15 @@ class ScreenCatalogActivity : ComponentActivity() {
         setContent {
             DiaryTheme(darkTheme = isSystemInDarkTheme()) {
                 when (screen) {
-                    MIGRATION_REPORT -> MigrationReportScreen(
-                        state = MigrationReportUiState(SAMPLE_REPORT, LocalDate(2026, 11, 1)),
-                        onBack = ::finish,
-                        onExportOriginal = {},
-                        onContact = {}
-                    )
+                    MIGRATION_REPORT, SUPPORT_SHEET -> {
+                        MigrationReportScreen(
+                            state = MigrationReportUiState(SAMPLE_REPORT, LocalDate(2026, 11, 1)),
+                            onBack = ::finish,
+                            onExportOriginal = {},
+                            onContact = {}
+                        )
+                        if (screen == SUPPORT_SHEET) SupportAttachSheet(onDismiss = ::finish, onContactWithout = {}, onContactWith = {})
+                    }
 
                     else -> finish()
                 }
@@ -43,6 +48,7 @@ class ScreenCatalogActivity : ComponentActivity() {
     private companion object {
         const val EXTRA_SCREEN = "screen"
         const val MIGRATION_REPORT = "migration_report"
+        const val SUPPORT_SHEET = "support_sheet"
 
         // Figma M5 · 일부만과 같은 숫자
         val SAMPLE_REPORT =

@@ -83,4 +83,17 @@
     <string name="migration_mail_subject">[1 Day 1 Diary] Help with moving entries</string>
     <string name="migration_mail_body">The details below are only used to find and fix the problem. Your entries aren’t included.\n\nApp version: %1$s\nDevice: %2$s\nStopped at: %3$s\nProblem type: %4$s\nAttempts: %5$s\nEntries: %6$s\nPhotos: %7$s\nUnreadable entries: %8$s\n\nTell us what happened or what you’d like to ask.\n</string>
     <string name="migration_readme">These are the original files of 1 Day 1 Diary.\n\nThey hold the diary the previous version (1.7.x) used, exactly as it was before moving to the new version.\n\n- legacy-snapshot: the diary file (note.db) and settings, without your password\n- media: photos moved from the previous version\n\nIf you want your entries restored, keep this file and write to sjunh812@naver.com.\n</string>
+    <!-- 고쳐 받기 문의(M5 시트, FR-010a). 일부만 옮겨진 기기에서 문의하기를 누르면 먼저 뜬다. -->
+    <string name="support_sheet_title">We can fix damaged entries</string>
+    <string name="support_sheet_body">Attach your diary file to an email, and we’ll fix it so it can be read and send it back.</string>
+    <string name="support_sheet_contains">Your entries are in the file as they are. Photos and your password are left out.</string>
+    <string name="support_sheet_deleted">We delete it right after sending back the fixed file.</string>
+    <string name="support_sheet_restore">Add the file you get back with “Restore from file.”</string>
+    <string name="support_without">Don’t attach</string>
+    <string name="support_with">Attach file</string>
+    <!-- 메일에 붙는 파일 이름. %1$s는 yyyyMMdd. -->
+    <string name="support_file_name">1Day1Diary-support-%1$s.zip</string>
+    <string name="support_failed">Couldn’t prepare the file. Please contact us without it.</string>
+    <string name="support_mail_subject">[1 Day 1 Diary] Help with damaged entries</string>
+    <string name="support_mail_body">We delete the attached file right after sending back the fixed one. It holds only your diary file, without photos or your password.\n\nApp version: %1$s\nDevice: %2$s\nUnreadable entries: %3$s\n\nTell us what happened or what you’d like to ask.\n</string>
 </resources>

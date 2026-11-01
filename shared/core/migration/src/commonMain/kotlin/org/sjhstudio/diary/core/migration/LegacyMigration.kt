@@ -29,6 +29,9 @@ interface LegacyMigration {
 
     /** 문의 메일에 넣는 단계·종류·개수 구간. */
     suspend fun supportSummary(): SupportSummary
+
+    /** 하루가 지난 고쳐 받기 문의 묶음을 지운다(FR-010a). 지웠으면 true. */
+    suspend fun cleanUpSupportFiles(): Boolean = false
 }
 
 /** 옛 앱이 없는 플랫폼(iOS)과 새 설치. */
