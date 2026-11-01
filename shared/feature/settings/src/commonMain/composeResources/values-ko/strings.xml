@@ -19,4 +19,34 @@
     </plurals>
     <string name="migration_report_export">원본 파일 내보내기</string>
     <string name="migration_report_contact">문의하기</string>
+
+    <!-- 설정 목록(S6) -->
+    <string name="settings_title">설정</string>
+    <string name="settings_group_style">꾸미기</string>
+    <string name="settings_group_security">보안</string>
+    <string name="settings_group_info">정보</string>
+    <string name="settings_text_size">본문 글자 크기</string>
+    <string name="settings_theme">화면 모드</string>
+    <string name="settings_lock">잠금</string>
+    <string name="lock_value_off">꺼짐</string>
+    <string name="lock_value_immediately">바로 잠금</string>
+    <string name="lock_value_one_minute">1분 뒤 잠금</string>
+    <string name="lock_value_five_minutes">5분 뒤 잠금</string>
+    <string name="lock_value_cold_start">새로 열 때 잠금</string>
+
+    <!-- 본문 글자 크기(G2) -->
+    <string name="text_size_small">작게</string>
+    <string name="text_size_medium">보통</string>
+    <string name="text_size_large">크게</string>
+    <string name="text_size_xlarge">더 크게</string>
+    <string name="text_size_xxlarge">가장 크게</string>
+    <string name="text_size_sample_glyph">가</string>
+    <string name="text_size_sample_body">퇴근길에 한강까지 걸었다. 바람이 차가워졌는데 그래서 더 좋았다.</string>
+    <string name="text_size_note">일기 본문에만 적용돼요. 메뉴와 버튼 글자는 휴대폰 글자 크기를 따라요.</string>
+
+    <!-- 화면 모드(G3) -->
+    <string name="theme_system">시스템 설정</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
+    <string name="theme_note">시스템 설정을 따르면 휴대폰이 다크 모드일 때 앱도 함께 어두워져요.</string>
 </resources>

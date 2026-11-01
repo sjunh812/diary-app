@@ -19,4 +19,34 @@
     </plurals>
     <string name="migration_report_export">元のファイルを書き出す</string>
     <string name="migration_report_contact">お問い合わせ</string>
+
+    <!-- 設定(S6) -->
+    <string name="settings_title">設定</string>
+    <string name="settings_group_style">カスタマイズ</string>
+    <string name="settings_group_security">セキュリティ</string>
+    <string name="settings_group_info">情報</string>
+    <string name="settings_text_size">本文の文字サイズ</string>
+    <string name="settings_theme">表示モード</string>
+    <string name="settings_lock">ロック</string>
+    <string name="lock_value_off">オフ</string>
+    <string name="lock_value_immediately">すぐにロック</string>
+    <string name="lock_value_one_minute">1分後にロック</string>
+    <string name="lock_value_five_minutes">5分後にロック</string>
+    <string name="lock_value_cold_start">起動時にロック</string>
+
+    <!-- 本文の文字サイズ(G2) -->
+    <string name="text_size_small">小</string>
+    <string name="text_size_medium">標準</string>
+    <string name="text_size_large">大</string>
+    <string name="text_size_xlarge">特大</string>
+    <string name="text_size_xxlarge">最大</string>
+    <string name="text_size_sample_glyph">あ</string>
+    <string name="text_size_sample_body">帰り道に川沿いまで歩いた。風が冷たくなっていて、それがかえって心地よかった。</string>
+    <string name="text_size_note">日記の本文にだけ適用されます。メニューやボタンの文字はスマートフォンの文字サイズに従います。</string>
+
+    <!-- 表示モード(G3) -->
+    <string name="theme_system">システム設定</string>
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">ダーク</string>
+    <string name="theme_note">システム設定にすると、スマートフォンがダークモードのときアプリも暗くなります。</string>
 </resources>
