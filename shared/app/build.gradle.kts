@@ -24,6 +24,8 @@ kotlin {
             implementation(projects.shared.core.designsystem)
             implementation(projects.shared.core.ui)
             implementation(projects.shared.core.platform)
+            implementation(projects.shared.core.database)
+            implementation(projects.shared.core.datastore)
             implementation(projects.shared.feature.lock)
             implementation(projects.shared.feature.migration)
             implementation(projects.shared.feature.settings)
@@ -44,6 +46,10 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.androidx.navigation3.ui)
+            implementation(libs.koin.android)
+        }
+        commonTest.dependencies {
+            implementation(projects.shared.core.testing)
         }
     }
 }

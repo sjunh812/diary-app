@@ -19,6 +19,8 @@ android {
 
     buildFeatures {
         compose = true
+        // 개발 빌드에서 사용 통계 고정 표를 엄격하게 본다(BuildConfig.DEBUG).
+        buildConfig = true
     }
 
     buildTypes {

@@ -8,7 +8,8 @@ kotlin {
         commonMain.dependencies {
             api(projects.shared.core.model)
             api(libs.kotlinx.coroutines.core)
-            implementation(libs.androidx.datastore.preferences.core)
+            // SettingsStore·LockStore가 DataStore를 받으므로 쓰는 쪽도 그 타입을 본다.
+            api(libs.androidx.datastore.preferences.core)
         }
     }
 }

@@ -73,7 +73,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T026 [P] `shared/core/designsystem/{kt}/core/designsystem/component/`에 버튼(56/48/38/32), 상단 바(56, 오른쪽 글자 버튼), 시트(떠 있는 시트, 폭 480 상한), 토스트(5초, 누르는 동안 멈춤), 대화상자(312, "닫기" 왼쪽), 설정 줄(최소 56), 칩, 빈 상태를 `docs/design.md` 컴포넌트 규격대로 만든다
 - [x] T027 [P] `shared/core/platform/{test}/core/platform/TelemetryTest.kt`: 고정 표에 없는 이벤트·키는 개발 빌드에서 예외, 출시 빌드에서 버려지는지 본다
 - [ ] T028 `shared/core/platform/{kt}/core/platform/Telemetry.kt`, `AnalyticsEvents.kt`(`contracts/app-shell.md` 고정 표와 구간), `{android}` Firebase Analytics·Crashlytics 구현, `{ios}` Swift 쪽 구현을 받는 다리, `iosApp`에 Firebase SPM(research R21). 2026-11-01: `Telemetry.kt`, `AnalyticsEvents.kt`, 보내지 않는 `NoTelemetrySink`까지 했다. Firebase 프로젝트(설정 파일)를 만든 뒤 두 플랫폼 구현을 잇는다
-- [ ] T029 `shared/app/{kt}/app/Startup.kt`(설정·잠금 저장소와 `state.json` 읽기, `ready`), `DiaryApp.kt`(`DiaryTheme` → 관문 자리 → 빈 틀), `di/AppModules.kt`(Koin), `{ios}/app/MainViewController.kt`
+- [ ] T029 `shared/app/{kt}/app/Startup.kt`(설정·잠금 저장소와 `state.json` 읽기, `ready`), `DiaryApp.kt`(`DiaryTheme` → 관문 자리 → 빈 틀), `di/AppModules.kt`(Koin), `{ios}/app/MainViewController.kt`. 2026-11-01: `Startup`(설정·잠금 읽기, 폴더 만들기, DB는 열지 않음), `di/AppModules.kt`·`KoinInit.kt`, Android `DiaryApplication`과 iOS `iOSApp.init`(`startApp`) 연결까지 했다. `DiaryTheme`과 관문은 T025 뒤에 잇는다
 - [x] T030 `shared/core/data/{kt}/core/data/SettingsRepository.kt`와 `shared/core/testing/{kt}/core/testing/FakeSettingsRepository.kt`
 
 **Checkpoint**: 빈 앱이 Android·iOS에서 뜨고 `./gradlew spotlessCheck designTokenCheck allTests`가 통과한다
