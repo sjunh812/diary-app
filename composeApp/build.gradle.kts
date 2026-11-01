@@ -54,6 +54,8 @@ baselineProfile {
 
 dependencies {
     implementation(projects.shared.app)
+    // 잠금이 켜졌는지 보고 최근 앱 화면을 가린다(RecentsGuard).
+    implementation(projects.shared.core.data)
 
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
@@ -70,7 +72,6 @@ dependencies {
 
     debugImplementation(libs.compose.ui.tooling)
     // 개발 빌드의 화면 모음(ScreenCatalogActivity)이 아직 길이 없는 화면을 직접 띄운다.
-    debugImplementation(projects.shared.core.data)
     debugImplementation(projects.shared.core.designsystem)
     debugImplementation(projects.shared.core.ui)
     debugImplementation(libs.okio)

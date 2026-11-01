@@ -68,3 +68,24 @@ Google 공식 SDK 저장소에서 Google APIs arm64 이미지(API 24 rev 29, API
 - quickstart §2의 wal-only, restored-from-drive, low-space, corrupt, locked, fonts 견본은 `seed.sh`에 아직 없다.
   같은 경우를 `shared/core/migration`의 공통 시험(MigrationRunnerTest 등)이 견본 파일로 본다.
 
+
+## 2026-11-02 (2) · 잠금(US2)
+
+`LOCK=0427`로 1.7.4에 비밀번호 잠금을 켜 두고 업데이트했다(`scripts/legacy/upgrade-test.sh`, quickstart §4).
+
+| 기기 | 잠금 화면이 먼저 | 잠긴 동안 이전 | 비밀번호로 열기 | 이전 결과 | 최근 앱 화면 |
+| --- | --- | --- | --- | --- | --- |
+| API 36 폰(한국어) | 뜸 | 시작 안 함 | 열림, 이전 끝 | 일기 4, 원본 해시 그대로 | 가려짐(빈 화면) |
+| API 29 폰(한국어) | 뜸 | 시작 안 함 | 열림, 이전 끝 | 같음 | 가려짐(빈 화면) |
+| API 24 폰(한국어) | 뜸 | 시작 안 함 | 열림, 이전 끝 | 같음 | **보임**(이전 결과 화면이 그대로) |
+
+- 틀린 비밀번호: 점 넷이 빨갛게 바뀌고 "비밀번호가 맞지 않아요 · 남은 횟수 4번"이 Figma L1 상태와 같은 자리에 뜬다(API 36 캡처).
+- 잠금 키: `PinKeyStoreTest`(Android Keystore)가 API 36·24에서 통과했다. iOS 키체인은 시험 실행기에서 쓸 수 없어(errSecNotAvailable) 앱으로 확인해야 한다.
+- **열린 결정 O3**: Android 13 이상은 `setRecentsScreenshotEnabled(false)`로, Android 10(API 29)은 화면을 떠날 때 켜는 `FLAG_SECURE`로 가려진다.
+  Android 7(API 24)은 시스템이 그보다 먼저 미리보기를 찍어 가려지지 않는다. Android 8~9는 에뮬레이터가 없어 보지 못했다. 사용자에게 묻는다.
+
+### 못 한 것
+
+- 생체 인증(에뮬레이터 지문 등록 후 `adb -e emu finger touch 1`), 30초 기다림을 껐다 켜며 이어지는지, 비밀번호를 잊어버렸을 때 폰 PIN 확인은 아직 손으로 보지 않았다.
+  같은 규칙은 `LockRepositoryTest`, `LockControllerTest`, `LockViewModelTest`가 본다.
+- iOS 시뮬레이터에서 잠금 화면과 가림 창(`PrivacyCover.swift`)은 아직 없다.

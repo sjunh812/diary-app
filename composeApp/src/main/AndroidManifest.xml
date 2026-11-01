@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 시스템 백업 규칙(data_extraction_rules, backup_rules)은 스펙 001 T063과 스펙 003 T090에서 만든다.
-         그때까지는 일기가 시스템 백업으로 나가지 않게 꺼 둔다(헌법 II). -->
+    <!-- 일기·사진·설정·잠금은 시스템 백업과 기기 간 이전으로 나가지 않는다(헌법 II, 스펙 001 research O5).
+         Android 12부터는 allowBackup="false"여도 기기 간 이전이 돌아서 규칙 파일로도 모두 뺀다. -->
     <application
         android:name=".DiaryApplication"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
