@@ -27,6 +27,10 @@ class LockController(
     private var leftAt: ComparableTimeMark? = null
     private var holds = 0
 
+    /** 잠금이 켜져 있는가. 최근 앱 가림이 본다. */
+    val lockEnabled: Boolean
+        get() = lock.enabled
+
     init {
         // 다시 잠그기 시간과 켜짐만 따라간다. 잠금을 여는 일은 [onUnlocked]로만 한다.
         scope.launch { repository.settings.collect { lock = it } }
