@@ -1,6 +1,6 @@
 # 1일 1일기
 
-바쁜 사람을 위한 간편한 일기장. 지금 버전은 Java/Kotlin View 기반 안드로이드 앱(`app/`, 1.7.4(35), `org.sjhstudio.diary`)이고(777 글꼴만 뺀 1.7.5(36)를 준비 중),
+바쁜 사람을 위한 간편한 일기장. 지금 버전은 Java/Kotlin View 기반 안드로이드 앱(`app/`, Play에는 1.7.4(35), master는 777 글꼴만 뺀 1.7.5(36), `org.sjhstudio.diary`)이고,
 Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store에는 새로 낸다. 리뉴얼 기획은 `docs/PRD.md`에 있다.
 
 ## 문서

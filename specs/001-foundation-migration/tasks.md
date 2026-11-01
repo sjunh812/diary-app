@@ -8,7 +8,7 @@ description: "스펙 001 기반과 이전 작업 목록"
 **Input**: `specs/001-foundation-migration/`의 spec.md, plan.md, research.md, data-model.md, contracts/, quickstart.md, checklists/data-safety.md
 
 **Prerequisites**: Phase 1의 프로토타입·Figma 작업(T001~T007)은 지금 할 수 있다. 코드는 `docs/renewal-planning`에서 갈라진 `feat/foundation-migration` 브랜치에서 한다.
-레거시 1.7.x 수정은 master에서 한다(1.7.5는 `fix/remove-777-fonts`).
+레거시 1.7.x 수정은 master에서 한다(master는 1.7.5 `3cea98b`, 1.7.4는 `94179a4`).
 
 **Tests**: 스펙이 시험을 요구한다(FR-032, FR-034, SC-001~SC-012, 헌법 I·II). 각 이야기의 시험을 먼저 쓰고 실패하는 것을 본 뒤 구현한다.
 
@@ -108,7 +108,7 @@ description: "스펙 001 기반과 이전 작업 목록"
 - [ ] T047 [US1] `shared/app/{kt}/app/gate/MigrationGate.kt`: `contracts/migration-flow.md` 화면 상태 표대로, `Failed` 동안 앱 틀로 가지 않음, 결과는 한 번만
 - [ ] T048 [US1] `shared/feature/settings/{kt}/feature/settings/MigrationReportScreen.kt`: 이전한 기기에서만 설정에 보임, `Partial`이면 다시 시도(FR-010, FR-011)
 - [ ] T049 [P] [US1] 개발 빌드만: `composeApp/src/debug/kotlin/org/sjhstudio/diary/debug/KillAtHook.kt`(`files/debug/kill_at`의 단계에서 프로세스 종료)
-- [ ] T050 [US1] `scripts/legacy/build-legacy-apk.sh`(1.7.4는 master, 1.7.5는 `fix/remove-777-fonts`, JBR 17), `scripts/legacy/seed.sh`(`run-as`로 고정 자료 넣기), `scripts/legacy/upgrade-test.sh`와 `composeApp/src/androidTest/kotlin/org/sjhstudio/diary/UpgradeVerificationTest.kt`
+- [ ] T050 [US1] `scripts/legacy/build-legacy-apk.sh`(1.7.4는 `94179a4`, 1.7.5는 `3cea98b`를 임시 worktree로 꺼내 빌드, JBR 17), `scripts/legacy/seed.sh`(`run-as`로 고정 자료 넣기), `scripts/legacy/upgrade-test.sh`와 `composeApp/src/androidTest/kotlin/org/sjhstudio/diary/UpgradeVerificationTest.kt`
 - [ ] T051 [US1] quickstart.md §2·§3 조합을 API 24·29·35·36, 1.7.4·1.7.5로 돌리고 결과와 이전 시간(1,000편·사진 1,000장)을 `specs/001-foundation-migration/test-report.md`에 남긴다(FR-032, SC-001~SC-003). 이전 결과로 왕복 시험용 고정 자료(`diary.db`, `media/`)를 `shared/core/testing/src/androidHostTest/resources/migrated/`에 남겨 스펙 003이 쓰게 한다(FR-034)
 
 **Checkpoint**: 이전만으로 업데이트한 기기의 기록이 모두 보인다
