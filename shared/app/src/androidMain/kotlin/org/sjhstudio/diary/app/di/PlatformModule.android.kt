@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.migration.AndroidImageSizeReader
 import org.sjhstudio.diary.core.migration.LegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
+import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.migration.MigrationPaths
 import org.sjhstudio.diary.core.migration.MigrationRunner
@@ -52,10 +53,11 @@ internal actual val platformModule: Module =
         }
         // 이전 단계 알림. 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어쓴다(quickstart §3).
         single<MigrationEvents> { MigrationTelemetry(get()) }
-        // 1.7.x 잠금을 이전보다 먼저 잇는다(research R16). 이전을 시작한 뒤에는 하지 않는다.
+        // 1.7.x 잠금과 설정을 이전보다 먼저 잇는다(research R16). 이전을 시작한 뒤에는 하지 않는다.
         single {
             LegacyLockBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get(), get())
         }
+        single { LegacySettingsBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get()) }
         // 1.7.x 원본이 같은 패키지에 남아 있으면 옮긴다(docs/migration.md).
         single<LegacyMigration> {
             val files = get<AppFiles>()

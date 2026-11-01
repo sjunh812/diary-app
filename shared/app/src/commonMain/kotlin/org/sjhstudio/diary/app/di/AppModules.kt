@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.datastore.DataStoreFactory
 import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
+import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.ImageDecoder
@@ -58,9 +59,17 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single<TelemetrySink> { NoTelemetrySink }
         single { Telemetry(get(), strict = isDebug) }
         single {
-            // 옛 앱이 없는 iOS에는 잠금 잇기가 없다.
+            // 옛 앱이 없는 iOS에는 잠금·설정 잇기가 없다.
             val legacyLock = getOrNull<LegacyLockBootstrap>()
-            Startup(get<AppFiles>()::ensureDirectories, get(), get(), get(APP_SCOPE)) { legacyLock?.run() }
+            val legacySettings = getOrNull<LegacySettingsBootstrap>()
+            Startup(
+                get<AppFiles>()::ensureDirectories,
+                get(),
+                get(),
+                get(APP_SCOPE),
+                bootstrapLegacyLock = { legacyLock?.run() },
+                bootstrapLegacySettings = { legacySettings?.run() }
+            )
         }
         // 처음 쓸 때 연다. 시작 단계에서는 열지 않는다.
         single { get<DatabaseFactory>().create() }

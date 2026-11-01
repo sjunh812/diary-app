@@ -16,7 +16,7 @@ import org.sjhstudio.diary.core.model.LockSettings
  * 앱이 처음 그리기 전에 끝내야 하는 일(contracts/app-shell.md 시작 순서 1).
  * 설정과 잠금 파일을 읽어 첫 화면의 테마와 잠금 여부를 정한다.
  * 일기 DB(Room)는 열지 않는다. 목표는 300ms 안이다.
- * 옛 앱 잠금 잇기는 잠금을 읽기 전에 끝낸다(research R16). 옛 설정 잇기는 스펙 001 US3이 여기에 더한다.
+ * 옛 앱의 잠금과 설정 잇기는 읽기 전에 끝낸다(research R16). 잠금이 먼저다.
  */
 class Startup(
     /** 파일 폴더 만들기(`AppFiles.ensureDirectories`). */
@@ -25,7 +25,9 @@ class Startup(
     private val lockStore: LockStore,
     private val scope: CoroutineScope,
     /** 옛 앱(1.7.x) 잠금 잇기(`LegacyLockBootstrap`). 옛 앱이 없는 iOS는 아무것도 하지 않는다. */
-    private val bootstrapLegacyLock: suspend () -> Unit = {}
+    private val bootstrapLegacyLock: suspend () -> Unit = {},
+    /** 옛 앱 설정 잇기(`LegacySettingsBootstrap`). 실패해도 기본 설정으로 연다. */
+    private val bootstrapLegacySettings: suspend () -> Unit = {}
 ) {
     private val _state = MutableStateFlow<StartupState>(StartupState.Loading)
     val state: StateFlow<StartupState> = _state.asStateFlow()
@@ -46,6 +48,11 @@ class Startup(
                     if (e is CancellationException) throw e
                     false
                 }
+            try {
+                bootstrapLegacySettings()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
             val lock = lockStore.lock.first()
             // 잇기에 실패하면 옛 잠금이 있었는지 모른다. 풀어 두는 대신 잠근 채 새 비밀번호를 정하게 한다(헌법 II).
             _state.value =
