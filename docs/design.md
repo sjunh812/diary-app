@@ -72,13 +72,14 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | `title1` | 22/30 | Bold | 화면 제목, 상세 날짜 | TDS t3 22/31, SEED t8 22/30, HIG Title2 22 |
 | `title2` | 20/28 | Bold | 시트·대화상자 제목 | TDS t4 20/29, TDS 시트 제목 20 Bold, HIG Title3 20 |
 | `numeral` | 22/28 | Medium | 목록 날짜 숫자, 통계 숫자 | Day One·Things는 큰 날짜 숫자를 굵게 쓰지 않는다. M3 titleLarge 22/28 |
+| `keypad` | 28/34 | Regular | PIN 숫자판 숫자에만 | TDS NumberKeypad 30 Regular(`@toss/tds-mobile` 2.5.1)를 우리 단계 28에 맞춤(2026-11-01 점검) |
 | `headline` | 17/24 | SemiBold | 큰 버튼, 상단 바 제목 | TDS 버튼 17/600, HIG Headline 17 |
 | `reading` | 17/28 | Regular | 일기 본문 기본값, 설정 줄 이름 | HIG Body 17, M3 한국어 Body L 행간 1.69, WCAG 1.4.12 행간 1.5 이상 |
 | `body` | 15/22 | Regular | 목록 미리보기, 설명 | TDS t6 15/22.5, HIG Subhead 15 |
 | `bodyStrong` | 15/22 | SemiBold | 중간 버튼, 토스트 | TDS 토스트 15 Semibold |
-| `label` | 14/20 | Medium | 칩, 입력 라벨 | SEED Chip 14 Medium, M3 labelLarge 14/20 |
+| `label` | 14/20 | Medium | 칩, 입력 라벨, 설정 묶음 머리 | SEED Chip 14 Medium, M3 labelLarge 14/20 |
 | `caption` | 13/18 | Regular | 장소, 보조 글 | TDS t7 13/19.5, SEED t3 13/18, HIG Footnote 13/18 |
-| `captionStrong` | 13/18 | Medium | 시각, 요일, 묶음 머리, 작은 버튼 | |
+| `captionStrong` | 13/18 | Medium | 시각, 요일, 작은 버튼 | |
 | `micro` | 12/16 | Medium | 탭 이름, 날씨 이름, 사진 수 | SEED t2 12/16, M3 labelMedium 12/16 |
 
 - 읽어야 하는 글은 12보다 작게 두지 않는다.
@@ -133,6 +134,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 ## 간격, 모서리
 
 - 간격: 4 기반 `2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 56`(SEED dimension x0.5~x14). 2와 6은 아이콘과 글자 사이 같은 좁은 틈에만 쓴다.
+  아래 컴포넌트 규격 표의 10·14·28 같은 값은 그 컴포넌트 안에서만 쓰고, 화면 배치에는 간격 단계만 쓴다(2026-11-01 점검).
 - 화면 좌우: 폰 20(TDS 토스트·ListRow small 20, HIG 예시 20), 600dp부터 24(M3 medium·expanded). 누를 곳 사이는 8 이상(M3).
 - 모서리: `8`(작은 버튼, 뱃지), `10`(중간 버튼), `12`(입력칸, 검색, 사진, 날씨 칸), `14`(보통 버튼), `16`(큰 버튼, 쓰기 버튼, 카드,
   기분 칸), `20`(여러 줄 토스트), `28`(시트, 대화상자), `full`(칩, 한 줄 토스트). SEED radius 단계와 TDS 버튼 모서리, M3 시트·대화상자
@@ -164,7 +166,12 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 토스트 | 폭 화면 - 40 · 높이 48 · 한 줄 full, 여러 줄 20 · `bodyStrong` · 탭과 쓰기 버튼 위 · 버튼이 있으면 5초, 누르는 동안 멈춤 | TDS Toast 5000ms, SEED Snackbar |
 | 대화상자 | 폭 312(최대 560) · 모서리 28 · 안쪽 24 · 왼쪽 버튼은 "닫기" | M3 Dialog, 토스 UX 가이드 |
 | 빈 상태 | 아이콘 하나 · 제목 `title2` · 설명 `body` · 버튼 하나 · 긍정형 해요체 | SEED Result Section, 토스 UX 가이드 |
-| 누를 곳 | 48dp 이상(iOS 44pt도 충족) · 사이 8 이상 | M3, HIG |
+| 설정 묶음 머리 | `label` · `textSecondary` · 위 20 · 아래 8 · 좌우 20 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
+| 스위치 | 트랙 52×32 · full · 안쪽 3 · 손잡이 26 · 누르는 곳은 줄 전체 | SEED switchmark 32(52×32, 안쪽 3, 손잡이 26), M3 Switch 52×32 |
+| 진행 막대 | 높이 8 · full · 트랙 `sunken` · 채움 `accent` | TDS ProgressBar bold 8(모서리 4) |
+| 고르기 목록 | 설정 줄 + 오른쪽 체크 아이콘 24(`accentText`). 라디오 원은 쓰지 않는다 | TDS BottomSheet.Select·Checkbox.Line 24, HIG 체크 표시 목록 |
+| 숫자판 | 3열 · 키 높이 64 · 표 폭 최대 350 · 숫자 `keypad` · 지우기 아이콘 24 · 누르면 `sunken` 바탕 모서리 20 | TDS NumberKeypad(키 64, 표 340, 숫자 30 Regular, 누르면 모서리 20) |
+| 누를 곳 | 48dp 이상(iOS 44pt도 충족) · 사이 8 이상 · 보이는 크기가 48보다 작은 버튼·스위치는 누르는 영역을 48로 넓힌다 | M3 최소 누를 곳 48, HIG 44 |
 
 ## 상태, 움직임
 
@@ -191,6 +198,9 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 
 ## 아이콘과 그림
 
+- 아이콘 크기는 네 단계다: `16`(칩, 메타 덧붙임, 안내 상자), `20`(줄 끝 화살표, 검색, 작은 버튼), `24`(상단 바, 탭, 줄 앞, 체크, 숫자판),
+  `32`(큰 배지 안 그림). TDS·SEED·M3가 함께 쓰는 16·20·24에 M3 큰 아이콘 버튼 32를 더했다(TDS IconButton·ListRow 24, SEED 상단 바 24,
+  M3 목록·상단 바·내비 24, 2026-11-01 점검). 이 밖의 크기는 쓰지 않는다.
 - 아이콘은 선 굵기 1.75(고른 탭 2.25)의 한 세트만 쓴다. 출시 전에 라이선스가 Apache-2.0, MIT, ISC인 세트(예: Lucide, ISC)로 확정한다.
 - 기분 9종과 날씨 7종 아이콘은 새로 그린다. 지금 PNG는 해상도가 낮고 출처 라이선스를 확인하지 못했다. 레거시 값(0~8, 0~6)은 새 아이콘의
   ID로 그대로 이어진다.
@@ -249,7 +259,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 ## 남은 일
 
 - [x] 색(라이트·다크), 기분 색, 본문 서식 팔레트와 Figma 변수
-- [x] 글자 스타일 12종
+- [x] 글자 스타일 13종(2026-11-01 점검에서 `keypad`를 더함)
 - [x] 레퍼런스 시각 규격 점검(TDS, SEED, HIG, M3, 일기 앱) 반영
 - [ ] Figma 컴포넌트(variant) 등록: 탭 바, 레일, 상단 바, 버튼, 칩, 일기 줄, 카드, 시트, 토스트, 대화상자, 빈 상태, 설정 줄
 - [ ] 아이콘 세트 확정, 기분·날씨 아이콘 새로 그리기
