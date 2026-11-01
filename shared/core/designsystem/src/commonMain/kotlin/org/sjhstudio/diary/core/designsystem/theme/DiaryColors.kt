@@ -113,7 +113,7 @@ internal val LightDiaryColors =
                 laugh = Color(0xFFFDFA87),
                 meh = Color(0xFFDFD4E4),
                 bad = Color(0xFF808080),
-                good = Color(0xFFF2CFA5),
+                good = Color(0xFFFFD4A8),
                 tired = Color(0xFFFCC6F7)
             ),
         ink =
@@ -165,7 +165,7 @@ internal val DarkDiaryColors =
                 laugh = Color(0xFFFDFA87),
                 meh = Color(0xFFDFD4E4),
                 bad = Color(0xFF808080),
-                good = Color(0xFFF2CFA5),
+                good = Color(0xFFFFD4A8),
                 tired = Color(0xFFFCC6F7)
             ),
         ink =
