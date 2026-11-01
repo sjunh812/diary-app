@@ -8,6 +8,9 @@ kotlin {
         commonMain.dependencies {
             api(projects.shared.core.model)
             api(libs.kotlinx.coroutines.core)
+            api(libs.androidx.paging.common)
+            // DB 파일 자리(AppFiles)
+            implementation(projects.shared.core.platform)
             implementation(libs.androidx.room3.paging)
         }
     }

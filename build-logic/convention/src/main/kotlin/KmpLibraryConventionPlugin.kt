@@ -69,6 +69,19 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             }
         }
 
+        // 안드로이드 호스트 시험은 기기가 아니라 이 컴퓨터의 JVM에서 돈다.
+        // 번들 SQLite의 안드로이드 판에는 기기용 네이티브만 들어 있어서 호스트 시험에서는 JVM 판(맥·리눅스 네이티브 포함)으로 바꿔 끼운다.
+        // 그래야 Room과 레거시 DB 읽기 시험이 Android 호스트와 iOS 시뮬레이터에서 같은 SQLite로 돈다(plan.md Testing).
+        val sqliteVersion = libs.findVersion("androidxSqlite").get().requiredVersion
+        configurations
+            .matching { it.name.contains("HostTest", ignoreCase = true) && it.name.endsWith("RuntimeClasspath") }
+            .configureEach {
+                resolutionStrategy.dependencySubstitution {
+                    substitute(module("androidx.sqlite:sqlite-bundled"))
+                        .using(module("androidx.sqlite:sqlite-bundled-jvm:$sqliteVersion"))
+                }
+            }
+
         // KMP 안드로이드 타깃은 DSL에 compilerOptions가 없어 컴파일 작업에서 잡는다.
         tasks.withType<KotlinJvmCompile>().configureEach {
             compilerOptions.jvmTarget.set(jvmTargetVersion)
