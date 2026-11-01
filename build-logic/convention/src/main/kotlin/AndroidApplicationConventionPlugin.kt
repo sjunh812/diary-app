@@ -25,8 +25,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             compileOptions {
                 sourceCompatibility = libs.javaVersion
                 targetCompatibility = libs.javaVersion
+                // minSdk 24를 지키는데 kotlinx-datetime이 Android 8(API 26)부터 있는 java.time을 쓴다.
+                // 켜지 않으면 Android 7 기기에서 앱이 켜자마자 꺼진다(2026-11-02 API 24 업그레이드 시험에서 찾음).
+                isCoreLibraryDesugaringEnabled = true
             }
         }
+
+        dependencies.add("coreLibraryDesugaring", libs.findLibrary("android-desugar-jdk-libs").get())
 
         extensions.configure<KotlinAndroidProjectExtension> {
             compilerOptions {
