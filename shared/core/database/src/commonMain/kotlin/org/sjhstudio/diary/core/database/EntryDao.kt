@@ -15,6 +15,13 @@ interface EntryDao {
     @Query("SELECT * FROM entry WHERE id = :id")
     suspend fun get(id: String): EntryEntity?
 
+    /** 기록 이전 검증과 다시 읽기에 쓴다. */
+    @Query("SELECT * FROM entry WHERE legacy_id = :legacyId")
+    suspend fun getByLegacyId(legacyId: Int): EntryEntity?
+
+    @Query("SELECT legacy_id FROM entry WHERE legacy_id IS NOT NULL")
+    suspend fun legacyIds(): List<Int>
+
     @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL")
     suspend fun countVisible(): Int
 
