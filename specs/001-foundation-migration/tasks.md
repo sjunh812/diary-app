@@ -71,8 +71,8 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [x] T024 [P] `shared/core/datastore/{kt}/core/datastore/SettingsStore.kt`, `LockStore.kt`(키 이름·타입·기본값은 data-model.md 표 그대로), `DataStoreFactory.kt`(폴더는 `AppFiles`가 플랫폼마다 정하므로 공통 코드 하나로 둠)
 - [ ] T025 [P] `shared/core/designsystem/{kt}/core/designsystem/theme/`에 `DiaryColors.kt`(라이트·다크, `docs/design.md` 색 표 그대로), `DiaryTypography.kt`(12단계, 자간 0, sp), `DiarySpacing.kt`, `DiaryRadius.kt`, `DiaryMotion.kt`, `DiaryTheme.kt`와 Pretendard 4굵기 `{res}/font/`
 - [ ] T026 [P] `shared/core/designsystem/{kt}/core/designsystem/component/`에 버튼(56/48/38/32), 상단 바(56, 오른쪽 글자 버튼), 시트(떠 있는 시트, 폭 480 상한), 토스트(5초, 누르는 동안 멈춤), 대화상자(312, "닫기" 왼쪽), 설정 줄(최소 56), 칩, 빈 상태를 `docs/design.md` 컴포넌트 규격대로 만든다
-- [ ] T027 [P] `shared/core/platform/{test}/core/platform/TelemetryTest.kt`: 고정 표에 없는 이벤트·키는 개발 빌드에서 예외, 출시 빌드에서 버려지는지 본다
-- [ ] T028 `shared/core/platform/{kt}/core/platform/Telemetry.kt`, `AnalyticsEvents.kt`(`contracts/app-shell.md` 고정 표와 구간), `{android}` Firebase Analytics·Crashlytics 구현, `{ios}` Swift 쪽 구현을 받는 다리, `iosApp`에 Firebase SPM(research R21)
+- [x] T027 [P] `shared/core/platform/{test}/core/platform/TelemetryTest.kt`: 고정 표에 없는 이벤트·키는 개발 빌드에서 예외, 출시 빌드에서 버려지는지 본다
+- [ ] T028 `shared/core/platform/{kt}/core/platform/Telemetry.kt`, `AnalyticsEvents.kt`(`contracts/app-shell.md` 고정 표와 구간), `{android}` Firebase Analytics·Crashlytics 구현, `{ios}` Swift 쪽 구현을 받는 다리, `iosApp`에 Firebase SPM(research R21). 2026-11-01: `Telemetry.kt`, `AnalyticsEvents.kt`, 보내지 않는 `NoTelemetrySink`까지 했다. Firebase 프로젝트(설정 파일)를 만든 뒤 두 플랫폼 구현을 잇는다
 - [ ] T029 `shared/app/{kt}/app/Startup.kt`(설정·잠금 저장소와 `state.json` 읽기, `ready`), `DiaryApp.kt`(`DiaryTheme` → 관문 자리 → 빈 틀), `di/AppModules.kt`(Koin), `{ios}/app/MainViewController.kt`
 - [x] T030 `shared/core/data/{kt}/core/data/SettingsRepository.kt`와 `shared/core/testing/{kt}/core/testing/FakeSettingsRepository.kt`
 
