@@ -36,6 +36,8 @@ Gmail·Photos와 공유)을 쓴다.
   두지 않는다([authorization](https://developer.android.com/identity/authorization)).
 - iOS: GoogleSignIn-iOS로 토큰을 받고 REST를 직접 부른다.
 - 같은 Google Cloud 프로젝트를 쓴다. 다른 프로젝트의 클라이언트가 레거시 `drive.file` 파일을 볼 수 있는지는 공식 문서에서 확인하지 못했다. 같은 프로젝트를 쓰면 이 위험이 없다.
+- 같은 프로젝트 안에서도 Android 클라이언트가 만든 파일을 iOS 클라이언트가 보는지는 문서에 없다(같은 프로젝트의 클라이언트를 하나의 앱으로 본다는 문서만 있음,
+  [cross-client](https://developers.google.com/identity/protocols/oauth2/cross-client-identity)). 스펙 003 계획의 첫 작업으로 실제로 확인한다.
 
 ## 백업 형식 v2
 
@@ -56,7 +58,9 @@ Gmail·Photos와 공유)을 쓴다.
 - **사진**: 내용 해시를 이름으로 쓰니 같은 사진은 한 번만 올라가고, 백업마다 새 사진만 올린다.
 - **매니페스트**: 형식 버전, 앱 버전, 플랫폼, 일기 수, 사진 수, 스냅샷의 SHA-256, 이 스냅샷이 가리키는 사진 해시 목록.
 - **올리는 순서**: 사진 → 스냅샷 → 매니페스트. 매니페스트가 없는 스냅샷은 미완성으로 보고 복원 목록에 띄우지 않는다.
-- **완료 확인**: 올린 뒤 Drive가 돌려주는 `md5Checksum`과 로컬 값을 견준다. 다 맞아야 "백업 완료"라고 말한다.
+- **완료 확인**: 올린 뒤 Drive가 돌려주는 `sha256Checksum`을 파일 이름(내용 SHA-256)과 견준다. `md5Checksum`은 보조로 본다. 다 맞아야 "백업 완료"라고
+  말한다([Drive files](https://developers.google.com/workspace/drive/api/reference/rest/v3/files), 2026-11-01 조사).
+- **지운 폴더**: 사용자가 드라이브에서 백업 폴더를 지우면 드라이브 휴지통에 30일 남는다. 다음 백업은 폴더를 새로 만들고, 휴지통에서 되살릴 수 있다고 알린다.
 - **보관**: 스냅샷은 최근 5개와 월별 1개를 남긴다. 사진은 남은 스냅샷 어느 것도 가리키지 않은 지 30일이 지나야 지운다.
 - **할당량**: 백업 전에 `about.get`으로 남은 용량을 보고 모자라면 무엇이 얼마나 모자란지 알려 준다.
 
