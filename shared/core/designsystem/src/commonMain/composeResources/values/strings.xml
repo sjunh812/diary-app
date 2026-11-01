@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 대화상자 왼쪽 버튼은 늘 "닫기"다(토스 UX 라이팅, docs/design.md 대화상자). -->
+    <string name="ds_close">닫기</string>
+    <!-- 상단 바 뒤로 가기 버튼을 화면 읽기 프로그램이 읽는 이름 -->
+    <string name="ds_back">뒤로 가기</string>
+    <string name="ds_selected">선택됨</string>
+</resources>
