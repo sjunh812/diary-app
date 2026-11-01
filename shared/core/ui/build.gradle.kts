@@ -10,6 +10,8 @@ kotlin {
         commonMain.dependencies {
             api(projects.shared.core.designsystem)
             api(libs.compose.material3.adaptive)
+            // 일기 사진 칸. 앱 저장소 파일만 읽는다(네트워크 없음).
+            implementation(libs.coil.compose)
         }
     }
 }

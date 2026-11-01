@@ -5,6 +5,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -59,6 +61,11 @@ fun pretendardFamily(): FontFamily = FontFamily(
     Font(Res.font.pretendard_bold, FontWeight.Bold)
 )
 
+private val KOREAN = LocaleList("ko-KR")
+
+/** 한국어 줄바꿈. Android 13 이상은 구절(띄어쓰기) 단위, 그 밖은 플랫폼 기본값이다. */
+internal expect val KOREAN_LINE_BREAK: LineBreak
+
 @Composable
 internal fun diaryTypography(): DiaryTypography {
     val family = pretendardFamily()
@@ -69,7 +76,11 @@ internal fun diaryTypography(): DiaryTypography {
         fontWeight = weight,
         letterSpacing = 0.sp,
         // Figma처럼 줄 높이 안에서 글자를 가운데 둔다.
-        lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None)
+        lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None),
+        // 한국어는 낱말 가운데서 줄을 바꾸지 않고 띄어쓰기 단위로 바꾼다(Android 13 이상 구절 단위, 2026-11-01 에뮬레이터 확인).
+        lineBreak = KOREAN_LINE_BREAK,
+        // 구절 단위 줄바꿈은 글의 언어가 한국어일 때만 돈다. 기기 언어가 영어여도 앱 글은 한국어로 다룬다.
+        localeList = KOREAN
     )
     return DiaryTypography(
         display = style(28.sp, 38.sp, FontWeight.Bold),
