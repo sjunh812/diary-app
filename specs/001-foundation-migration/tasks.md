@@ -55,7 +55,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [x] T015 [P] `build-logic/convention/src/main/kotlin/DesignTokenCheckTask.kt`와 루트 등록: `shared/feature/**`, `shared/app/**`의 Kotlin에서 `Color(0x`, 숫자 `.dp`·`.sp`, `RoundedCornerShape(숫자`, `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `Text("`를 찾으면 실패, `check`에 묶음(FR-028, FR-030, `contracts/app-shell.md` 빌드 검사)
 - [ ] T016 [P] `.github/workflows/ci.yml`: Ubuntu `spotlessCheck designTokenCheck allTests assembleDebug`, macOS `iosSimulatorArm64Test`와 `xcodebuild -scheme iosApp -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build`, 업그레이드 시험은 `workflow_dispatch`
 - [x] T017 `composeApp/src/main/AndroidManifest.xml`(applicationId `org.sjhstudio.diary`, minSdk 24, targetSdk 36, compileSdk 37(research R2), `versionCode` 37 이상), `composeApp/src/main/kotlin/org/sjhstudio/diary/DiaryApplication.kt`, `MainActivity.kt`(빈 `setContent`)
-- [ ] T018 [P] `iosApp/iosApp.xcodeproj`, `iosApp/iosApp/iOSApp.swift`, `ContentView.swift`(`ComposeUIViewController`), `shared/app`을 static framework `Shared`로 내보내기, 최소 iOS 17(research R22)
+- [x] T018 [P] `iosApp/iosApp.xcodeproj`, `iosApp/iosApp/iOSApp.swift`, `ContentView.swift`(`ComposeUIViewController`), `shared/app`을 static framework `Shared`로 내보내기, 최소 iOS 17(research R22)
 - [x] T019 [P] `shared/core/testing/{kt}/core/testing/TestClock.kt`(벽시계·단조 시계를 함께 움직임)와 모듈 뼈대
 
 ---
