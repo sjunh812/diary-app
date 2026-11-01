@@ -158,15 +158,15 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 ### Tests for User Story 3 ⚠️
 
 - [x] T065 [P] [US3] `shared/core/migration/{test}/core/migration/LegacySettingsMapperTest.kt`: `font_key` 전체 표(-1·0·100·1~13·그 밖, -1·0·1·3·100이 아니면 `font_replaced_from`, data-model.md DiaryFont 표 그대로), `font_size` 0·1 `small`·2와 없음 `medium`·3 `large`·4 `xlarge`, `mode_key`, `ask_location` 없음 → true, 알림 시각 범위 밖 → 22:00
-- [ ] T066 [P] [US3] `shared/core/data/{test}/core/data/reminder/ReminderRepositoryTest.kt`: 다음 알림 시각(오늘 지났으면 내일), 시간대 바뀜, 꺼짐
+- [x] T066 [P] [US3] `shared/core/data/{test}/core/data/reminder/ReminderRepositoryTest.kt`: 다음 알림 시각(오늘 지났으면 내일), 시간대 바뀜, 꺼짐
 
 ### Implementation for User Story 3
 
 - [ ] T067 [US3] `shared/core/migration/{kt}/core/migration/LegacySettingsMapper.kt`와 스플래시 동안 `SettingsStore`에 쓰기(이미 했으면 건너뜀), `LegacyBackupLink` 담기(FR-012). 옮긴 글꼴이 받아야 하는 글꼴이면 이전 직후 `FontInstaller`로 받기 시작(받을 때까지 Pretendard). 2026-11-02: 대응표(`LegacySettingsMapper`)와 스플래시 동안 쓰기(`LegacySettingsBootstrap`, 잠금 잇기처럼 이전을 시작하기 전에만)를 했다. 바뀐 글꼴의 옛 이름은 1.7.4 글꼴 화면 이름을 남긴다. API 36 업그레이드로 확인했다. 글꼴 받기와 결과의 `settingsMigrated` 목록은 남았다
 - [ ] T068 [P] [US3] 본문 글꼴 가운데 앱에 넣는 3종(Pretendard, 국립공원 꼬미, 나눔손글씨 펜, 카페24 써라운드는 3.5MB 이하면)을 `shared/core/designsystem/{res}/font/`에 원본 그대로 넣고, 나머지 6종은 `composeApp/fonts/<id>/` 필요할 때 설치 모듈(자산만)로 두고 `shared/core/platform/{kt}/core/platform/FontInstaller.kt` expect/actual(받기, 진행, 실패, `files/fonts/<id>.ttf`로 복사)과 글꼴마다 미리보기 그림을 넣고 `shared/core/designsystem/{kt}/core/designsystem/theme/DiaryFonts.kt`(ID → FontFamily, 고른 것만 읽음), 본문 글자 크기를 `DiaryTypography`의 본문 스타일에 거는 `BodyTextStyle.kt`(기기 글자 크기 위에 곱함, research R17)
 - [ ] T069 [P] [US3] `shared/feature/settings/{kt}/feature/settings/`에 `SettingsScreen.kt`(틀), `FontSettingsScreen.kt`(10종 + 시스템, 미리보기 그림, "받기 · 크기"와 받는 중 진행, 인터넷 없음 안내), `TextSizeSettingsScreen.kt`(5단계, 미리보기 문장), `ThemeSettingsScreen.kt`, `ReminderSettingsScreen.kt`(허락 필요 줄), `LicensesScreen.kt`(OFL 전문, 네이버 글꼴 라이선스, 카페24 약관, 공공누리 출처), "글꼴이 바뀌었어요" 토스트 한 번
-- [ ] T070 [US3] `shared/core/platform/{kt}/core/platform/ReminderScheduler.kt` expect, `{android}` `AlarmManager.setWindow(RTC_WAKEUP, 시각, 10분)`과 알림 채널, `{ios}` `UNCalendarNotificationTrigger(repeats: true)`, `shared/core/data/{kt}/core/data/reminder/ReminderRepository.kt`
-- [ ] T071 [US3] `composeApp/src/main/kotlin/org/sjhstudio/diary/helper/AlarmReceiver.kt`(옛 이름 그대로, 알림 띄우고 다음 예약), `BOOT_COMPLETED`·`MY_PACKAGE_REPLACED` 받기, 이전 전이면 옛 `pref2.xml`을 읽기만 해서 시각 얻기(research R15)
+- [ ] T070 [US3] `shared/core/platform/{kt}/core/platform/ReminderScheduler.kt` expect, `{android}` `AlarmManager.setWindow(RTC_WAKEUP, 시각, 10분)`과 알림 채널, `{ios}` `UNCalendarNotificationTrigger(repeats: true)`, `shared/core/data/{kt}/core/data/reminder/ReminderRepository.kt`. 2026-11-02: Android와 `ReminderRepository`(앱을 열 때 다시 예약)를 했다. 옛 앱과 같은 수신기 이름·요청 번호로 예약해 옛 예약을 덮어쓰고, 채널 ID `alarm_id`를 이어 써서 사용자의 채널 설정이 남는다. iOS는 알림 설정 화면(T069)과 함께 붙인다
+- [x] T071 [US3] `composeApp/src/main/kotlin/org/sjhstudio/diary/helper/AlarmReceiver.kt`(옛 이름 그대로, 알림 띄우고 다음 예약), `BOOT_COMPLETED`·`MY_PACKAGE_REPLACED` 받기, 이전 전이면 옛 `pref2.xml`을 읽기만 해서 시각 얻기(research R15). 2026-11-02: 수신기도 시작 단계(옛 설정 잇기)가 끝나기를 기다린 뒤 새 설정으로 예약한다. 시각·시간대 바뀜(`TIME_SET`, `TIMEZONE_CHANGED`)에도 다시 예약한다
 - [ ] T072 [US3] 화면 모드를 `DiaryTheme`에 잇고(시스템·라이트·다크) iOS도 같게 한다
 - [ ] T073 [US3] `locked` 조합으로 업데이트한 뒤 앱을 열지 않고 다음 알림이 오는지, 앱이 멈추지 않는지 본다(FR-022, `test-report.md`)
 

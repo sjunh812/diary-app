@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
+import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.DataStoreFactory
@@ -55,6 +56,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         // 잠금 확인값은 기기 키로 만든다(research R11).
         single<LockRepository> { DefaultLockRepository(get(), devicePinKeyStore()) }
         single { LockController(get(), get(APP_SCOPE)) }
+        // 매일 알림(FR-022). 앱을 열 때와 알림 수신기가 다시 예약한다.
+        single { ReminderRepository(get(), get()) }
         // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
         single<TelemetrySink> { NoTelemetrySink }
         single { Telemetry(get(), strict = isDebug) }
@@ -68,7 +71,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 get(),
                 get(APP_SCOPE),
                 bootstrapLegacyLock = { legacyLock?.run() },
-                bootstrapLegacySettings = { legacySettings?.run() }
+                bootstrapLegacySettings = { legacySettings?.run() },
+                afterReady = { get<ReminderRepository>().reschedule() }
             )
         }
         // 처음 쓸 때 연다. 시작 단계에서는 열지 않는다.

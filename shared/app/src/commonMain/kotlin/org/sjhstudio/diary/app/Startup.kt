@@ -27,7 +27,9 @@ class Startup(
     /** 옛 앱(1.7.x) 잠금 잇기(`LegacyLockBootstrap`). 옛 앱이 없는 iOS는 아무것도 하지 않는다. */
     private val bootstrapLegacyLock: suspend () -> Unit = {},
     /** 옛 앱 설정 잇기(`LegacySettingsBootstrap`). 실패해도 기본 설정으로 연다. */
-    private val bootstrapLegacySettings: suspend () -> Unit = {}
+    private val bootstrapLegacySettings: suspend () -> Unit = {},
+    /** 첫 화면을 그린 뒤 해도 되는 일(매일 알림 다시 예약). 실패해도 앱은 연다. */
+    private val afterReady: suspend () -> Unit = {}
 ) {
     private val _state = MutableStateFlow<StartupState>(StartupState.Loading)
     val state: StateFlow<StartupState> = _state.asStateFlow()
@@ -60,6 +62,11 @@ class Startup(
                     settings = settingsStore.settings.first(),
                     lock = if (bootstrapped || lock.enabled) lock else lock.copy(enabled = true, pinMac = null, pinSalt = null)
                 )
+            try {
+                afterReady()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+            }
         }
     }
 }

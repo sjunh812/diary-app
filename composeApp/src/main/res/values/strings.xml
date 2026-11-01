@@ -2,4 +2,6 @@
 <resources>
     <!-- 영어·일본어 앱 이름은 임시다(열린 결정 D12). -->
     <string name="app_name">1 Day 1 Diary</string>
+    <string name="reminder_channel">Daily reminder</string>
+    <string name="reminder_body">How was your day? Leave just one line.</string>
 </resources>

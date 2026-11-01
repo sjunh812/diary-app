@@ -89,3 +89,12 @@ Google 공식 SDK 저장소에서 Google APIs arm64 이미지(API 24 rev 29, API
 - 생체 인증(에뮬레이터 지문 등록 후 `adb -e emu finger touch 1`), 30초 기다림을 껐다 켜며 이어지는지, 비밀번호를 잊어버렸을 때 폰 PIN 확인은 아직 손으로 보지 않았다.
   같은 규칙은 `LockRepositoryTest`, `LockControllerTest`, `LockViewModelTest`가 본다.
 - iOS 시뮬레이터에서 잠금 화면과 가림 창(`PrivacyCover.swift`)은 아직 없다.
+
+## 2026-11-02 (3) · 매일 알림(US3, FR-022)
+
+API 29 에뮬레이터(한국어)에서 1.7.4에 알림 21:30을 켜 두고(`ALARM=1`) 앱을 강제 종료하지 않은 채 새 APK로 덮어 설치했다. 새 앱은 열지 않았다.
+
+- 업데이트 알림(`MY_PACKAGE_REPLACED`)으로 수신기가 돌아 옛 설정을 옮기고 그날 21:30(KST)에 `RTC_WAKEUP` 예약을 걸었다(`dumpsys alarm`, 창 10분).
+- 수신기를 직접 불러(루트 셸) 알림을 띄웠다: 채널 `alarm_id`, 연필 작은 아이콘, "오늘 하루는 어땠나요? 한 줄만 남겨 보세요." 앱은 멈추지 않았다.
+- 시험하면서 `am force-stop`으로 앱을 멈춰 둔 상태(`stopped=true`)에서는 시스템이 업데이트 알림을 보내지 않아 예약이 걸리지 않았다.
+  사용자가 강제 종료하지 않았다면 해당하지 않고, 앱을 한 번 열면 다시 예약한다.

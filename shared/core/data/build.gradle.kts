@@ -14,6 +14,8 @@ kotlin {
             implementation(projects.shared.core.platform)
             // 썸네일 파일(ThumbnailRepository)
             implementation(libs.okio)
+            // 매일 알림 다음 시각(ReminderRepository)
+            implementation(libs.kotlinx.datetime)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
         }

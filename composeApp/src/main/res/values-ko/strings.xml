@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">1일 1일기</string>
+    <string name="reminder_channel">매일 알림</string>
+    <string name="reminder_body">오늘 하루는 어땠나요? 한 줄만 남겨 보세요.</string>
 </resources>

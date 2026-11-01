@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">1日1日記</string>
+    <string name="reminder_channel">毎日の通知</string>
+    <string name="reminder_body">今日はどんな一日でしたか？一行だけ残してみましょう。</string>
 </resources>
