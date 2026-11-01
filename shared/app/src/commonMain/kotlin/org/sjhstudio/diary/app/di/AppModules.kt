@@ -10,8 +10,11 @@ import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
+import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
+import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
@@ -19,12 +22,14 @@ import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.DataStoreFactory
 import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.datastore.SettingsStore
+import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
+import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
 import org.sjhstudio.diary.feature.settings.settingsFeatureModule
 
@@ -44,10 +49,17 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single { SettingsStore(get<DataStoreFactory>().settings()) }
         single { LockStore(get<DataStoreFactory>().lock()) }
         single<SettingsRepository> { DefaultSettingsRepository(get()) }
+        // 잠금 확인값은 기기 키로 만든다(research R11).
+        single<LockRepository> { DefaultLockRepository(get(), devicePinKeyStore()) }
+        single { LockController(get(), get(APP_SCOPE)) }
         // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
         single<TelemetrySink> { NoTelemetrySink }
         single { Telemetry(get(), strict = isDebug) }
-        single { Startup(get<AppFiles>()::ensureDirectories, get(), get(), get(APP_SCOPE)) }
+        single {
+            // 옛 앱이 없는 iOS에는 잠금 잇기가 없다.
+            val legacyLock = getOrNull<LegacyLockBootstrap>()
+            Startup(get<AppFiles>()::ensureDirectories, get(), get(), get(APP_SCOPE)) { legacyLock?.run() }
+        }
         // 처음 쓸 때 연다. 시작 단계에서는 열지 않는다.
         single { get<DatabaseFactory>().create() }
         // 썸네일(research R9). 사진 칸과 기록 이전이 같이 쓴다.

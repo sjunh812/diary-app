@@ -128,17 +128,17 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T052 [P] [US2] `shared/core/data/{test}/core/data/lock/LockRepositoryTest.kt`: 확인값 형식(`HMAC-SHA256(key, salt ‖ PIN)`, Base64), 맞음·틀림, 5번째에 30초 `Waiting`과 다시 켜도 이어짐, `KeyMissing`, `disable`은 맞을 때만
-- [ ] T053 [P] [US2] `shared/app/{test}/app/lock/LockControllerTest.kt`: `immediately`·`one_minute`·`five_minutes`·`cold_start`, 벽시계를 바꿔도 단조 시계 기준, 프로세스 새로 시작은 늘 잠금
-- [ ] T054 [P] [US2] `shared/core/migration/{host}/core/migration/LegacyLockBootstrapTest.kt`: `use_pw` + 4자리 → 켜짐·확인값, 잘못된 모양 → 켜짐·확인값 없음, `finger_print`는 잠금이 켜질 때만, 사본에 비밀번호 없음
+- [x] T052 [P] [US2] `shared/core/data/{test}/core/data/lock/LockRepositoryTest.kt`: 확인값 형식(`HMAC-SHA256(key, salt ‖ PIN)`, Base64), 맞음·틀림, 5번째에 30초 `Waiting`과 다시 켜도 이어짐, `KeyMissing`, `disable`은 맞을 때만. 2026-11-02: 기기 시각을 뒤로 돌려도 30초보다 오래 묶이지 않는 것, 확인할 수 있으면 비밀번호 없이 끌 수 없는 것, 쓰고 난 PIN을 지우는 것도 본다
+- [x] T053 [P] [US2] `shared/app/{test}/app/lock/LockControllerTest.kt`: `immediately`·`one_minute`·`five_minutes`·`cold_start`, 벽시계를 바꿔도 단조 시계 기준, 프로세스 새로 시작은 늘 잠금
+- [x] T054 [P] [US2] `shared/core/migration/{test}/core/migration/LegacyLockBootstrapTest.kt`: `use_pw` + 4자리 → 켜짐·확인값, 잘못된 모양 → 켜짐·확인값 없음, `finger_print`는 잠금이 켜질 때만, 저장소에 비밀번호 없음. 2026-11-02: 이전을 시작한 뒤(`NotStarted`가 아니면)에는 옛 파일로 잠금을 다시 켜지 않는다. 사용자가 새 앱에서 끈 잠금이 되살아나지 않게 하려고 새 표시값 없이 이전 단계로 가린다. 공통 코드라 `{test}`에 둔다
 - [ ] T055 [P] [US2] `shared/app/{host}/app/lock/LockGateUiTest.kt`: 잠긴 동안 안쪽 화면을 그리지 않음, 열면 보던 화면 키로 돌아감, 생체 취소 → 숫자판
 
 ### Implementation for User Story 2
 
-- [ ] T056 [P] [US2] `shared/core/platform/{kt}/core/platform/PinKeyStore.kt` expect, `{android}` Keystore HMAC-SHA256(별칭 `diary.pin.v1`, 사용자 인증 요구 없음), `{ios}` 키체인 256비트 키(`kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) + `CCHmac`, 각 플랫폼 계측·시뮬레이터 시험
-- [ ] T057 [US2] `shared/core/data/{kt}/core/data/lock/LockRepository.kt`(`contracts/lock.md` 인터페이스, 상수 시간 비교, PIN 배열 지우기)와 `shared/core/testing/{kt}/core/testing/FakeLockRepository.kt`
+- [x] T056 [P] [US2] `shared/core/platform/{kt}/core/platform/PinKeyStore.kt` expect, `{android}` Keystore HMAC-SHA256(별칭 `diary.pin.v1`, 사용자 인증 요구 없음), `{ios}` 키체인 256비트 키(`kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`) + `CCHmac`, 각 플랫폼 계측·시뮬레이터 시험. 2026-11-02: Android는 `composeApp/src/androidTest/.../PinKeyStoreTest.kt`로 API 36·24 에뮬레이터에서 통과. iOS 시험 실행기는 앱 묶음 없이 돌아 키체인을 쓸 수 없어서(errSecNotAvailable) HMAC 계산만 RFC 4231 시험값으로 보고, 키체인 저장은 T064에서 앱을 올려 본다
+- [x] T057 [US2] `shared/core/data/{kt}/core/data/lock/LockRepository.kt`(`contracts/lock.md` 인터페이스, 상수 시간 비교, PIN 배열 지우기)와 `shared/core/testing/{kt}/core/testing/FakeLockRepository.kt`. 2026-11-02: 시험은 대역 저장소 대신 실제 `DefaultLockRepository`에 `FakePinKeyStore`(키를 잃는 흉내 포함)와 메모리 DataStore를 끼워 쓴다
 - [ ] T058 [P] [US2] `shared/core/platform/{kt}/core/platform/DeviceAuthenticator.kt` expect, `{android}` `androidx.biometric` 1.1.0(열기 `BIOMETRIC_WEAK`, 분실 `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`, `isDeviceSecure`), `{ios}` `LAContext`, `iosApp/iosApp/Info.plist`에 `NSFaceIDUsageDescription`, `FakeDeviceAuthenticator.kt`
-- [ ] T059 [US2] `shared/core/migration/{android}/core/migration/legacy/LegacyLockBootstrap.kt`와 `Startup`에서 스플래시 동안 부르기(research R16)
+- [x] T059 [US2] `shared/core/migration/{android}/core/migration/legacy/LegacyLockBootstrap.kt`와 `Startup`에서 스플래시 동안 부르기(research R16). 2026-11-02: 원본 자리만 Android가 알면 되어 공통 코드(`core/migration/LegacyLockBootstrap.kt`)에 두었다. 잇기가 실패하면 시작 단계가 잠근 채 새 비밀번호를 정하게 한다
 - [ ] T060 [US2] `shared/core/platform/{kt}/core/platform/AppForeground.kt`(Android `ProcessLifecycleOwner`, iOS 앱 상태 알림, 단조 시계)와 `shared/app/{kt}/app/lock/LockController.kt`, `shared/app/{kt}/app/gate/LockGate.kt`
 - [ ] T061 [P] [US2] `shared/feature/lock/{kt}/feature/lock/`에 `LockScreen.kt`(4칸 점, 숫자판, 생체 버튼, 기다림 남은 시간), `PinSetupScreen.kt`(두 번 입력, 폰 잠금 안내), `ForgotPinFlow.kt`(폰 잠금 확인 → 새 비밀번호, 없으면 백업 안내), `LockSettingsScreen.kt`(켜기·끄기, 바꾸기, 생체, 다시 잠기는 시간, 생체 못 씀 안내), 문구는 `{res}/values/strings.xml`
 - [ ] T062 [US2] 최근 앱 가림: `composeApp/src/main/kotlin/org/sjhstudio/diary/RecentsGuard.kt`(API 33+ `setRecentsScreenshotEnabled(false)`, 24~32 `onPause` `FLAG_SECURE`·`onResume` 끔), `iosApp/iosApp/PrivacyCover.swift`(비활성 때 가림 창). 잠금이 켜졌을 때만

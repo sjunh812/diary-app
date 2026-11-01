@@ -81,6 +81,8 @@ dependencies {
     // 1.7.4에서 올린 기기를 기기 안에서 확인하는 계측 시험(스펙 001 T050, scripts/legacy/upgrade-test.sh).
     androidTestImplementation(projects.shared.core.database)
     androidTestImplementation(projects.shared.core.model)
+    // 잠금 키(Android Keystore)는 기기에서만 돈다(스펙 001 T056).
+    androidTestImplementation(projects.shared.core.platform)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.test.runner)
 

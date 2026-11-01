@@ -32,4 +32,32 @@ class StartupTest {
         assertEquals(ThemeMode.DARK, ready.settings.themeMode)
         assertTrue(ready.lock.enabled)
     }
+
+    /** 옛 잠금을 이은 뒤에 잠금을 읽어야 첫 화면이 잠금 화면이다. */
+    @Test
+    fun legacy_lock_is_bootstrapped_before_reading_lock() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({}, settings, lock, this) { lock.update { it.copy(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==") } }
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue((startup.state.value as StartupState.Ready).lock.hasPin)
+    }
+
+    /** 잇기가 실패하면 잠근 채 새 비밀번호를 정하게 한다. 앱이 열린 채로 시작하지 않는다. */
+    @Test
+    fun failed_bootstrap_starts_locked_without_pin() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({}, settings, lock, this) { error("pref.xml을 읽지 못함") }
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        val ready = startup.state.value as StartupState.Ready
+        assertTrue(ready.lock.enabled)
+        assertFalse(ready.lock.hasPin)
+    }
 }

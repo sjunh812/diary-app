@@ -3,13 +3,15 @@
 구현은 `shared/core/data`(저장소), `shared/core/platform`(키, 인증), `shared/app`(관문), `shared/feature/lock`(화면)에 둔다. 대역은 `shared/core/testing`.
 
 ```kotlin
-@JvmInline value class Pin(val digits: String)        // ASCII 숫자 정확히 4자리, 아니면 만들 수 없다
+class Pin                                              // ASCII 숫자 정확히 4자리(Pin.of), 글자 배열로 들고 쓰고 나면 clear()
 
 interface LockRepository {
-    val settings: Flow<LockSettings>                   // enabled, biometricEnabled, relockAfter, hasPin, keyAvailable
+    val settings: Flow<LockSettings>                   // enabled, pinMac, pinSalt, biometricEnabled, relockAfter, failedAttempts, retryAfter
+    suspend fun needsNewPin(): Boolean                 // 켜졌는데 확인값이나 기기 키가 없음
     suspend fun setPin(pin: Pin)                       // 새 salt, 확인값 저장, enabled = true, 틀린 횟수 0
     suspend fun verify(pin: Pin, now: Instant): VerifyResult
-    suspend fun disable(current: Pin): VerifyResult    // 맞을 때만 끔
+    suspend fun disable(current: Pin, now: Instant): VerifyResult   // 맞을 때만 끔
+    suspend fun turnOffWithoutPin(): Boolean           // needsNewPin일 때만 끔(폰에 화면 잠금이 없을 때)
     suspend fun setBiometric(enabled: Boolean)
     suspend fun setRelockAfter(value: RelockAfter)
 }
@@ -34,12 +36,14 @@ interface DeviceAuthenticator {
     suspend fun authenticateDeviceOwner(): AuthResult  // 분실용: 생체 또는 폰 PIN·패턴·암호
 }
 
-class LockController(/* LockRepository, AppForeground, Clock */) {
-    val state: StateFlow<LockState>                    // Locked, Unlocked, Waiting(until)
-    fun onColdStart()
-    fun onBackground(monotonicMillis: Long)
-    fun onForeground(monotonicMillis: Long)
+class LockController(/* LockRepository, 앱 범위, 단조 시계 */) {
+    val state: StateFlow<LockState>                    // Starting, Unlocked, Locked, NeedsNewPin
+    fun onColdStart(initial: LockSettings)
+    fun onBackground()
+    fun onForeground()
     fun onUnlocked()
+    fun onKeyMissing()
+    suspend fun <T> withoutRelock(block: suspend () -> T): T   // 폰 잠금 확인으로 앱이 잠시 뒤로 가는 동안
 }
 ```
 
@@ -47,9 +51,12 @@ class LockController(/* LockRepository, AppForeground, Clock */) {
 
 - 확인값은 `HMAC-SHA256(key, salt ‖ PIN의 ASCII 바이트)`이고 상수 시간으로 비교한다. PIN은 메모리에서도 쓰고 나면 바로 버린다(문자 배열을 0으로).
 - 틀리면 `failed_attempts`를 올린다. 5번째에 `retry_after = now + 30초`, 그 사이 `verify`는 `Waiting`. 맞으면 0으로.
+  기다림을 시작할 때 횟수를 0으로 돌려, 기다림이 끝나면 다시 다섯 번을 준다. 기기 시각을 뒤로 돌려도 기다림은 30초를 넘지 않는다(2026-11-02).
 - 잠금 화면: 4칸 점, 숫자판, 생체 버튼(켜져 있고 쓸 수 있을 때), "비밀번호를 잊었어요". 열 때 생체 인증이 켜져 있으면 바로 띄운다.
   취소·실패·생체 잠김이면 숫자판이 그대로 남는다.
 - 생체 인증을 켰는데 지금 쓸 수 없으면(`NoneEnrolled`, `Unavailable`) 생체 설정을 끄지 않고 잠금 설정에 "지금 기기에서 생체 인증을 쓸 수 없어요"를 보인다.
+- 다시 잠그기는 앱 전체가 뒤로 갈 때만 잰다(Android `ProcessLifecycleOwner`, iOS 백그라운드 알림). 화면 돌리기로 화면이 다시 만들어지거나
+  생체 인증 창이 뜰 때는 재지 않는다. 폰 잠금 확인처럼 다른 화면을 다녀오는 동안은 `withoutRelock`으로 재지 않는다(2026-11-02).
 - 다시 잠그기: `onBackground`에서 단조 시각을 적고 `onForeground`에서 `relock_after`(`immediately` 0, `one_minute` 60초, `five_minutes` 300초)가 지났으면 잠근다.
   `cold_start`는 `onColdStart`에서만 잠근다. 모든 값에서 프로세스 새로 시작은 잠근다.
 - 비밀번호를 잊었어요: `isDeviceSecure()`가 참이면 `authenticateDeviceOwner()` 성공 뒤 새 비밀번호 두 번 입력 → `setPin`. 거짓이면
