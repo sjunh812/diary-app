@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.koinInject
+import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AppSettings
@@ -33,6 +34,8 @@ fun DiaryApp() {
             ThemeMode.DARK -> true
         }
     DiaryTheme(darkTheme = darkTheme) {
-        Box(modifier = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
+        MigrationGate {
+            Box(modifier = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
+        }
     }
 }

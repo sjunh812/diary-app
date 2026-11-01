@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
+import org.sjhstudio.diary.feature.migration.migrationFeatureModule
 
 /** 앱 프로세스와 함께 사는 코루틴 범위. DataStore와 시작 작업이 쓴다. */
 internal val APP_SCOPE = named("appScope")
@@ -27,6 +28,7 @@ internal expect val platformModule: Module
 
 internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     platformModule,
+    migrationFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
