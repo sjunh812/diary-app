@@ -42,7 +42,7 @@ import org.sjhstudio.diary.feature.lock.resources.relock_one_minute
 /**
  * 잠금 설정(Figma "잠금 설정 (L4)", FR-017~FR-019).
  * 잠금을 켜면 비밀번호 줄과 생체 인증, 다시 잠그기가 나온다.
- * 생체 인증을 켰는데 지금 기기에서 쓸 수 없으면 끄지 않고 그 까닭만 보인다(contracts/lock.md).
+ * 생체 인증을 지금 기기에서 쓸 수 없으면 그 까닭을 보인다. 켜 둔 것은 끄지 않는다(contracts/lock.md).
  */
 @Composable
 fun LockSettingsScreen(
@@ -71,13 +71,7 @@ fun LockSettingsScreen(
                     stringResource(Res.string.lock_biometric),
                     checked = settings.biometricEnabled,
                     onCheckedChange = onBiometricChange,
-                    description = if (settings.biometricEnabled &&
-                        !biometricAvailable
-                    ) {
-                        stringResource(Res.string.lock_settings_biometric_unavailable)
-                    } else {
-                        null
-                    },
+                    description = if (biometricAvailable) null else stringResource(Res.string.lock_settings_biometric_unavailable),
                     enabled = biometricAvailable || settings.biometricEnabled
                 )
                 DiarySettingsHeader(stringResource(Res.string.lock_settings_relock))
