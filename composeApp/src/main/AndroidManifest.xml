@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 시스템 백업 규칙(data_extraction_rules, backup_rules)은 스펙 001 T063과 스펙 003 T090에서 만든다.
+         그때까지는 일기가 시스템 백업으로 나가지 않게 꺼 둔다(헌법 II). -->
+    <application
+        android:name=".DiaryApplication"
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <!-- 옛 런처 이름(.SplashActivity)을 남기는 activity-alias는 스펙 001 US4(시작 화면)에서 더한다. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

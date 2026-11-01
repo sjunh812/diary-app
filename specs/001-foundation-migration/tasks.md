@@ -45,18 +45,18 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 
 ## Phase 2: Setup (프로젝트 뼈대)
 
-- [ ] T008 `feat/foundation-migration` 브랜치를 만들고 루트 `settings.gradle.kts`, `build.gradle.kts`, `gradle.properties`, Gradle 래퍼를 새로 쓴다. 레거시 `app/`은 `include`에서 빼고 폴더는 남긴다(plan.md Structure Decision)
-- [ ] T009 `gradle/libs.versions.toml`에 research R2 표의 버전을 그대로 고정한다(알파·베타 없음)
-- [ ] T010 [P] `build-logic/settings.gradle.kts`, `build-logic/convention/build.gradle.kts`와 `build-logic/convention/src/main/kotlin/`의 `AndroidApplicationConventionPlugin.kt`, `KmpLibraryConventionPlugin.kt`(android + iosArm64 + iosSimulatorArm64, JDK 17), `KmpFeatureConventionPlugin.kt`, `RoomConventionPlugin.kt`(KSP + 스키마 `shared/core/database/schemas`)를 만든다
-- [ ] T011 [P] 루트 `compose_compiler_config.conf`에 `org.sjhstudio.diary.core.model.*`, `kotlinx.datetime.*`를 적고 `KmpLibraryConventionPlugin`이 읽게 한다(research R10)
-- [ ] T012 plan.md의 모듈마다 `build.gradle.kts`와 빈 소스 폴더를 만든다: `shared/app`, `shared/core/{model,database,datastore,data,migration,designsystem,ui,platform,testing}`, `shared/feature/{lock,migration,settings}`, `composeApp`, `benchmarks`
-- [ ] T013 [P] 루트 `build.gradle.kts`에 Spotless + ktlint, `.editorconfig`를 둔다(research R20)
-- [ ] T014 [P] `.githooks/commit-msg`(정규식은 research R19 그대로, `Merge `·`Revert "` 통과)와 루트 `installGitHooks` 작업(`git config core.hooksPath .githooks`, `preBuild`에 묶음), 훅 시험 `scripts/test-commit-msg.sh`를 만든다(FR-031)
-- [ ] T015 [P] `build-logic/convention/src/main/kotlin/DesignTokenCheckTask.kt`와 루트 등록: `shared/feature/**`, `shared/app/**`의 Kotlin에서 `Color(0x`, 숫자 `.dp`·`.sp`, `RoundedCornerShape(숫자`, `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `Text("`를 찾으면 실패, `check`에 묶음(FR-028, FR-030, `contracts/app-shell.md` 빌드 검사)
+- [x] T008 `feat/foundation-migration` 브랜치를 만들고 루트 `settings.gradle.kts`, `build.gradle.kts`, `gradle.properties`, Gradle 래퍼를 새로 쓴다. 레거시 `app/`은 `include`에서 빼고 폴더는 남긴다(plan.md Structure Decision)
+- [x] T009 `gradle/libs.versions.toml`에 research R2 표의 버전을 그대로 고정한다(알파·베타 없음)
+- [x] T010 [P] `build-logic/settings.gradle.kts`, `build-logic/convention/build.gradle.kts`와 `build-logic/convention/src/main/kotlin/`의 `AndroidApplicationConventionPlugin.kt`, `KmpLibraryConventionPlugin.kt`(android + iosArm64 + iosSimulatorArm64, JDK 17), `KmpFeatureConventionPlugin.kt`, `RoomConventionPlugin.kt`(KSP + 스키마 `shared/core/database/schemas`)를 만든다
+- [x] T011 [P] 루트 `compose_compiler_config.conf`에 `org.sjhstudio.diary.core.model.*`, `kotlinx.datetime.*`를 적고 `KmpLibraryConventionPlugin`이 읽게 한다(research R10)
+- [x] T012 plan.md의 모듈마다 `build.gradle.kts`와 빈 소스 폴더를 만든다: `shared/app`, `shared/core/{model,database,datastore,data,migration,designsystem,ui,platform,testing}`, `shared/feature/{lock,migration,settings}`, `composeApp`, `benchmarks`
+- [x] T013 [P] 루트 `build.gradle.kts`에 Spotless + ktlint, `.editorconfig`를 둔다(research R20)
+- [x] T014 [P] `.githooks/commit-msg`(정규식은 research R19 그대로, `Merge `·`Revert "` 통과)와 루트 `installGitHooks` 작업(`git config core.hooksPath .githooks`, `preBuild`에 묶음), 훅 시험 `scripts/test-commit-msg.sh`를 만든다(FR-031)
+- [x] T015 [P] `build-logic/convention/src/main/kotlin/DesignTokenCheckTask.kt`와 루트 등록: `shared/feature/**`, `shared/app/**`의 Kotlin에서 `Color(0x`, 숫자 `.dp`·`.sp`, `RoundedCornerShape(숫자`, `MaterialTheme.colorScheme`, `MaterialTheme.typography`, `Text("`를 찾으면 실패, `check`에 묶음(FR-028, FR-030, `contracts/app-shell.md` 빌드 검사)
 - [ ] T016 [P] `.github/workflows/ci.yml`: Ubuntu `spotlessCheck designTokenCheck allTests assembleDebug`, macOS `iosSimulatorArm64Test`와 `xcodebuild -scheme iosApp -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build`, 업그레이드 시험은 `workflow_dispatch`
-- [ ] T017 `composeApp/src/main/AndroidManifest.xml`(applicationId `org.sjhstudio.diary`, minSdk 24, targetSdk·compileSdk 36, `versionCode` 37 이상), `composeApp/src/main/kotlin/org/sjhstudio/diary/DiaryApplication.kt`, `MainActivity.kt`(빈 `setContent`)
+- [x] T017 `composeApp/src/main/AndroidManifest.xml`(applicationId `org.sjhstudio.diary`, minSdk 24, targetSdk 36, compileSdk 37(research R2), `versionCode` 37 이상), `composeApp/src/main/kotlin/org/sjhstudio/diary/DiaryApplication.kt`, `MainActivity.kt`(빈 `setContent`)
 - [ ] T018 [P] `iosApp/iosApp.xcodeproj`, `iosApp/iosApp/iOSApp.swift`, `ContentView.swift`(`ComposeUIViewController`), `shared/app`을 static framework `Shared`로 내보내기, 최소 iOS 17(research R22)
-- [ ] T019 [P] `shared/core/testing/{kt}/core/testing/TestClock.kt`(벽시계·단조 시계를 함께 움직임)와 모듈 뼈대
+- [x] T019 [P] `shared/core/testing/{kt}/core/testing/TestClock.kt`(벽시계·단조 시계를 함께 움직임)와 모듈 뼈대
 
 ---
 

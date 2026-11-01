@@ -51,6 +51,10 @@
 | Coil 3 / FileKit / Compottie | 3.6.3 / 0.17.0 / 2.3.3 | Compottie는 스펙 006 |
 | core-splashscreen / biometric | 1.2.0 / 1.1.0 | Android 전용, 정식 |
 | coroutines / datetime / serialization | 1.11.0 / 0.8.0 / 1.11.0 | |
+| compileSdk / targetSdk / minSdk | 37 / 36 / 24 | core 1.19.0과 navigation3-ui 1.2.0의 AAR이 `minCompileSdk=37`이라 컴파일 SDK는 37(2026-11-01 확인). 타깃은 Play 요구 36 |
+| Gradle / 데몬 JDK | 9.7.1 / 17 | `gradle/gradle-daemon-jvm.properties`가 JDK 17을 받아 쓴다(오발있과 같은 방식) |
+| 그 밖 androidx | activity-compose 1.13.0, core-ktx 1.19.0, profileinstaller 1.4.1, benchmark·baselineprofile 1.5.0 | 오발있과 같다 |
+| 정적 분석 | Spotless 8.10.4 + ktlint 1.8.0(`android_studio` 형식, 한 줄 140자) | R20 |
 
 - Decision: 위 표를 `gradle/libs.versions.toml`에 고정한다. 알파·베타는 쓰지 않는다. JDK 17 툴체인으로 빌드한다(이 기기 기본 JDK 25에서는
   레거시 Gradle 8.9가 돌지 않아 레거시 빌드에는 JBR 17을 쓴다).

@@ -24,3 +24,9 @@ scripts/drive-probe/android/build/
 scripts/drive-probe/ios/Local.xcconfig
 scripts/drive-probe/ios/DriveCheck.xcodeproj/
 scripts/drive-probe/ios/build/
+# 새 빌드(Compose Multiplatform)
+.kotlin/
+**/build/
+iosApp/build/
+xcuserdata/
+*.xcuserstate

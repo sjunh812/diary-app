@@ -1,0 +1,61 @@
+// 안드로이드 앱 껍데기. 패키지·서명 키·minSdk는 1.7.4 그대로다(CLAUDE.md 아키텍처, D4).
+plugins {
+    alias(libs.plugins.diary.android.application)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose.compiler)
+    // 릴리스를 본떠 nonMinifiedRelease(프로필을 만들 때)와 benchmarkRelease(잴 때) 빌드 타입을 만든다.
+    alias(libs.plugins.baselineprofile)
+}
+
+android {
+    namespace = "org.sjhstudio.diary"
+
+    defaultConfig {
+        applicationId = "org.sjhstudio.diary"
+        // 36은 만들고 내지 않은 1.7.5가 썼다. 2.0.0은 37부터다.
+        versionCode = 37
+        versionName = "2.0.0"
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+}
+
+baselineProfile {
+    // 프로필은 :composeApp:generateBaselineProfile로 손수 만들어 저장소에 둔다(research R10).
+    // 릴리스를 빌드할 때마다 만들면 CI와 로컬 빌드가 기기를 요구한다.
+    automaticGenerationDuringBuild = false
+    mergeIntoMain = true
+    dexLayoutOptimization = true
+}
+
+dependencies {
+    implementation(projects.shared.app)
+
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.ui)
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.profileinstaller)
+
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+
+    debugImplementation(libs.compose.ui.tooling)
+
+    baselineProfile(projects.benchmarks)
+}

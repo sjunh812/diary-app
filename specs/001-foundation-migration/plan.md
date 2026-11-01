@@ -35,7 +35,7 @@ Android 호스트와 iOS 시뮬레이터 양쪽, 레거시 DB 고정 파일로 �
 실제 1.7.4 APK → 새 APK 업그레이드 계측 시험(에뮬레이터 API 24, 29, 35, 36), Compose UI 시험(잠금, 이전 화면, 앱 틀 폭 바꾸기),
 Macrobenchmark(시작 시간, 목록 넘기기). 대역(fake)만 쓰고 mock 라이브러리는 쓰지 않는다(NIA 관행).
 
-**Target Platform**: Android minSdk 24(D4), targetSdk·compileSdk 36. iOS 17 이상(R2 출시지만 처음부터 시뮬레이터에서 돈다).
+**Target Platform**: Android minSdk 24(D4), targetSdk 36, compileSdk 37(최신 androidx가 요구, research R2). iOS 17 이상(R2 출시지만 처음부터 시뮬레이터에서 돈다).
 
 **Project Type**: 모바일 앱(Compose Multiplatform 공유 모듈 + Android 앱 껍데기 + Xcode iOS 앱).
 
@@ -91,8 +91,8 @@ specs/001-foundation-migration/
 ### Source Code (repository root)
 
 ```text
-build-logic/convention/              convention plugin: diary.android.application, diary.kmp.library,
-                                     diary.kmp.feature, diary.room, 루트의 spotless·디자인 토큰 검사·git 훅 설치
+build-logic/convention/              convention plugin: diary.android.application, diary.android.test, diary.kmp.library,
+                                     diary.kmp.feature, diary.room, diary.root(디자인 토큰 검사·git 훅 설치), 루트의 spotless
 gradle/libs.versions.toml            버전 표(research R2)
 composeApp/                          Android 앱 껍데기 org.sjhstudio.diary
 │   src/main/AndroidManifest.xml     MainActivity, activity-alias .SplashActivity(옛 런처 이름), helper.AlarmReceiver(옛 알림 이름)
