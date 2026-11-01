@@ -30,3 +30,5 @@ scripts/drive-probe/ios/build/
 iosApp/build/
 xcuserdata/
 *.xcuserstate
+# 레거시 업그레이드 시험 산출물
+scripts/legacy/out/
