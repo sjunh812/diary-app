@@ -1,13 +1,38 @@
 package org.sjhstudio.diary.app
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.koinInject
+import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.AppSettings
+import org.sjhstudio.diary.core.model.ThemeMode
 
-// 안드로이드와 iOS가 같이 띄우는 앱의 뿌리.
-// 테마, 시작 관문, 앱 틀은 다음 단계(스펙 001 T029)에서 채운다.
+/**
+ * 안드로이드와 iOS가 같이 띄우는 앱의 뿌리(contracts/app-shell.md 시작 순서 3).
+ * `DiaryTheme` → 잠금 관문 → 이전 관문 → 앱 틀 순서다.
+ * 관문과 앱 틀은 스펙 001 US1·US2와 스펙 002가 채운다.
+ */
 @Composable
 fun DiaryApp() {
-    Box(modifier = Modifier.fillMaxSize())
+    val startup = koinInject<Startup>()
+    val repository = koinInject<SettingsRepository>()
+    // 시작 단계에서 읽은 설정으로 첫 프레임부터 화면 모드를 맞춘다.
+    val initial = (startup.state.value as? StartupState.Ready)?.settings ?: AppSettings()
+    val settings by repository.settings.collectAsStateWithLifecycle(initialValue = initial)
+    val darkTheme =
+        when (settings.themeMode) {
+            ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            ThemeMode.LIGHT -> false
+            ThemeMode.DARK -> true
+        }
+    DiaryTheme(darkTheme = darkTheme) {
+        Box(modifier = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
+    }
 }
