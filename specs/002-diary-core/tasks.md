@@ -71,7 +71,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 ### 모델과 저장
 
 - [ ] T020 [P] `Mood`(소문자 ID `angry` … `tired`, 레거시 0~8), `Weather`(소문자 ID `sunny` … `snow`, 레거시 0~6), `MoodColor` 토큰 키를 `shared/core/model/{kt}/core/model/Mood.kt`, `Weather.kt`에 만든다
-- [ ] T021 [P] `SearchFilter`, `StatsPeriod`(이전·다음, "오늘이 든 기간 뒤로는 가지 않는다"), `ListPreferences`(기본 `previewThreeLines = true`)를 `shared/core/model/{kt}/core/model/`에 만든다
+- [ ] T021 [P] `SearchFilter`, `StatsPeriod`(이전·다음, "오늘이 든 기간 뒤로는 가지 않는다"), `ListPreferences`(`listStyle` 기본 `FEED`, `favoritesOnly`)를 `shared/core/model/{kt}/core/model/`에 만든다
 - [ ] T022 `contracts/rich-text-html.md`대로 `RichTextSanitizer`, `toPlainText`, `fromLegacy`를 `shared/core/model/{kt}/core/model/RichText.kt`에 만들어 T017·T018을 통과시킨다
 - [ ] T023 001 DB에 `Draft`(키 `"new"` 또는 `Entry.id`, `weatherAutoFilled`), `DraftMedia`, `Entry.deletedAt`과 색인 `(deletedAt, date DESC, time DESC)`, `(deletedAt, isFavorite)`를 001 첫 DB 버전 안에 더한다 `shared/core/database/{kt}/core/database/`
 - [ ] T024 [P] `ImageProcessor` expect와 Android actual(표본 축소, EXIF 방향, "긴 변 2,560px을 넘을 때만" 축소, JPEG 85, SHA-256)을 `shared/core/platform/{kt}/core/platform/ImageProcessor.kt`, `shared/core/platform/{android}/core/platform/ImageProcessor.android.kt`에 만든다
@@ -83,7 +83,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 - [ ] T028 [P] 디자인 시스템 컴포넌트(버튼 셋, 시트, 스낵바(누르고 있으면 멈춤), 칩, 빈 상태, 내비게이션 바·레일)를 Figma T011과 같은 이름으로 `shared/core/designsystem/{kt}/core/designsystem/component/`에 만든다
 - [ ] T029 [P] `MoodIcon`, `WeatherIcon`(아이콘 + 이름으로 구별), `EntryRow`(글/사진 보기), `DateHeader`, `MonthHeader`, `RichTextView`(팔레트 hex → 테마 토큰, 001 설정의 본문 글꼴과 글자 크기 단계를 따름, FR-014), `PhotoGrid`를 `shared/core/ui/{kt}/core/ui/`에 만든다
-- [ ] T030 `contracts/navigation.md`의 화면 키, 하단 탭(600dp 미만)·레일(600dp 이상), 늘 보이는 쓰기 버튼, 두 칸 Scene 전략(840dp 이상, research O3)을 `shared/app/{kt}/app/DiaryNavigation.kt`, `DiaryScaffold.kt`, `ListDetailScene.kt`에 만든다
+- [ ] T030 `contracts/navigation.md`의 화면 키, 하단 탭(600dp 미만)·레일(600dp 이상), 늘 보이는 쓰기 버튼, 두 칸 Scene 전략(840dp 이상, 직접 만든 `SceneStrategy`, 스펙 001 research R25)을 `shared/app/{kt}/app/DiaryNavigation.kt`, `DiaryScaffold.kt`, `ListDetailScene.kt`에 만든다
 - [ ] T031 하드웨어 키보드 단축키(Ctrl/⌘ + N, S, F)를 `shared/app/{kt}/app/KeyboardShortcuts.kt`에 만든다
 
 **Checkpoint**: 빈 화면 넷을 탭·레일로 오가고 창 폭에 따라 칸이 바뀐다
@@ -130,7 +130,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ### Implementation for User Story 2
 
-- [ ] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(research O2: 페이징 가능 여부에 따라)
+- [ ] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(Paging 3, 스펙 001 research R4. 줄임 사진은 001 `ThumbnailRepository`)
 - [ ] T046 [P] [US2] `ListPreferencesRepository`(레거시 `skip_note`를 001이 이은 값)를 `shared/core/data/{kt}/core/data/ListPreferencesRepository.kt`에 만든다
 - [ ] T047 [US2] 홈 ViewModel과 화면(달 머리, 날짜 머리, 3줄 미리보기, 즐겨찾기만, 목록 모양, 연·월 고르기 시트, 빈 상태 "아직 쓴 일기가 없어요" [오늘 일기 쓰기]와 "즐겨찾기한 일기가 없어요")을 `shared/feature/home/{kt}/feature/home/HomeViewModel.kt`, `HomeScreen.kt`에 만든다
 - [ ] T048 [US2] 상세 화면(서식 본문, 사진, 고치기, 지우기, 즐겨찾기, 공유 = 서식 없는 글)을 `shared/feature/home/{kt}/feature/home/EntryDetailScreen.kt`에 만든다

@@ -5,7 +5,7 @@
 
 ```kotlin
 interface EntryRepository {
-    fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> // O2: 페이징이 안 되면 달 단위 Flow 목록
+    fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> // Paging 3(스펙 001 research R4)
     fun entry(id: String): Flow<EntryDetail?>
     fun day(date: LocalDate): Flow<List<EntryRow>>
     fun month(yearMonth: YearMonth): Flow<Map<LocalDate, DayMood>> // 달력 칸: 마지막 일기의 기분, 편수

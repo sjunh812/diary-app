@@ -107,8 +107,8 @@ shared/
 | 001 산출물 | 002가 쓰는 곳 |
 | --- | --- |
 | `build-logic`, `composeApp`, `shared/app` 뼈대, Koin 시작 | 모든 기능 모듈 |
-| Room DB와 `Entry`, `Media` 엔티티, 레거시 이전 | 모든 저장·질의. 002의 테이블 추가는 001 DB 버전 계획에 넣는다 |
-| `DiaryTheme` 토큰(색 · 글자 · 간격 · 모서리), 글꼴 14종 | 모든 화면, 본문 글꼴 |
+| Room DB와 `Entry`, `Media` 엔티티, 레거시 이전, Paging 3(001 research R4로 O2 닫음), 줄임 사진(`ThumbnailRepository`) | 모든 저장·질의. 002의 테이블 추가는 001 DB 버전 1에 넣는다 |
+| `DiaryTheme` 토큰(색 · 글자 · 간격 · 모서리), 본문 글꼴 10종과 본문 글자 크기 5단계 | 모든 화면, 본문 글꼴 |
 | DataStore 설정 저장소(목록 모양, 즐겨찾기만 보기). 레거시 `skip_note`(3줄 보기)는 잇지 않는다 | 목록 설정 |
 | Firebase 붙이기와 `AnalyticsEvents` 고정 표 | 화면 이름·버튼 이벤트 |
 

@@ -37,8 +37,10 @@ HTML에는 라이트 hex만 저장한다. 그릴 때는 hex로 키를 찾아 지
 ## 레거시 글
 
 서식 없는 레거시 `contents`는 HTML 이스케이프 뒤 빈 줄로 나눈 덩어리를 `p`로, 덩어리 안 줄바꿈을 `br`로 바꾼다. `plainText`는 원문 그대로다.
+나누는 정확한 규칙과 고정 시험 값은 스펙 001 `contracts/legacy-mapping.md` "본문 변환"이다.
 `toPlainText(bodyHtml) == plainText`가 이전 검증에 들어간다(`docs/migration.md`).
 
 ## 서식 없는 글 만들기
 
-`p` 사이는 빈 줄 하나, `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `. 엔티티는 풀어서 쓴다.
+`p` 사이는 빈 줄 하나, `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `. 엔티티는 풀어서 쓴다. 공백, 탭, `\r`은 줄이거나 바꾸지 않는다
+(HTML 표시의 `white-space: pre-wrap`과 같은 뜻, 2026-11-01 스펙 001 R23).

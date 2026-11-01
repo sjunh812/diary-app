@@ -39,12 +39,15 @@
 | --- | --- | --- |
 | `id` | String(UUID) | |
 | `entryId` | String | `Entry.id`. 일기가 영구 삭제되면 함께 지운다 |
-| `fileName` | String | `<sha256>.<ext>`. 새로 붙인 사진은 늘 `jpg`, 이전된 사진은 원래 확장자. 앱 저장소 `files/media/` 아래. 절대경로를 담지 않는다. 백업 `media/`와 같은 이름 |
-| `sha256` | String | 백업 사진 이름과 같다 |
-| `width`, `height` | Int | 축소 뒤 크기(긴 변 2,560 이하, 레거시 이전분은 원래 크기) |
+| `fileName` | String? | `<sha256>.<ext>`. 새로 붙인 사진은 늘 `jpg`, 이전된 사진은 원래 확장자. 앱 저장소 `files/media/` 아래. 절대경로를 담지 않는다. 백업 `media/`와 같은 이름. MISSING이면 null |
+| `sha256` | String? | 백업 사진 이름과 같다. MISSING이면 null |
+| `width`, `height` | Int? | 축소 뒤 크기(긴 변 2,560 이하, 레거시 이전분은 원래 크기, EXIF 방향 반영). MISSING이면 null |
+| `byteSize` | Long? | 파일 크기 |
 | `sortOrder` | Int | 0부터 |
 | `status` | NORMAL / MISSING | MISSING은 001 이전에서 원본을 못 찾은 사진 |
-| `legacyPath` | String? | MISSING일 때 원래 경로 |
+| `legacyPath` | String? | 이전된 사진은 찾았든 못 찾았든 원래 경로(001 검증과 003 옛 백업 합치기에 씀) |
+
+DB 열 이름과 타입은 스펙 001 `data-model.md`(확정 2026-11-01)가 원본이다. 줄임 사진은 `thumbs/<sha256>.jpg`로 따로 두고 DB에 담지 않는다(001 research R9).
 
 한도(002): 새로 더할 때 `count(entryId) < limit`(무료 10, Plus 30). 이미 한도를 넘은 일기는 그대로 두고 더하기만 막는다(헌법 III 예외).
 
@@ -102,4 +105,4 @@ DB와 백업에는 소문자 ID(`angry`, `cool`, `sad`, `sick`, `laugh`, `meh`, 
 
 ## ListPreferences (DataStore)
 
-`previewThreeLines: Boolean`(레거시 `skip_note`, 기본 true), `viewMode: TEXT | PHOTO`, `favoritesOnly: Boolean`.
+`listStyle: FEED | CARD | PHOTO_GRID`(기본 FEED, 설정 키 `list_style`), `favoritesOnly: Boolean`. 목록 미리보기는 늘 3줄이고 레거시 `skip_note`는 잇지 않는다(2026-11-01).
