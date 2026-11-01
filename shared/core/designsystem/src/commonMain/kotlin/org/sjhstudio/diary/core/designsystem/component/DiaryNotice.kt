@@ -12,13 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 한 줄 안내(Figma 예전 일기 보기·잠금 설정의 안내 상자). 바탕 sunken · 모서리 12 · 안쪽 12 · 아이콘 16 · `caption`.
+ * 한 줄 안내(Figma 예전 일기 보기·잠금 설정의 안내, `docs/design.md` 한 줄 안내).
+ * 바탕 sunken · 모서리 12 · 안쪽 12 · 아이콘 16과 글 사이 8 · `caption`. 아이콘은 첫 줄 가운데에 둔다.
  * 화면 위쪽이나 목록 아래에서 지금 화면의 규칙을 짧게 알린다.
  */
 @Composable
@@ -29,16 +29,7 @@ fun DiaryNotice(text: String, modifier: Modifier = Modifier, icon: ImageVector =
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
         verticalAlignment = Alignment.Top
     ) {
-        DiaryIcon(
-            icon,
-            contentDescription = null,
-            tint = colors.textSecondary,
-            size = DiaryIconSize.i16,
-            modifier = Modifier.padding(
-                top =
-                    DiarySpacing.x0_5 / 2
-            )
-        )
+        FirstLineIcon(icon, DiaryTheme.typography.caption, colors.textSecondary)
         BasicText(text, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
 }

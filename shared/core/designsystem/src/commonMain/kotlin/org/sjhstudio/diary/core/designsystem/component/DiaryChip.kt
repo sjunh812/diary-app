@@ -22,7 +22,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 칩(`docs/design.md` 칩, SEED Chip). 32 · 좌우 12 · full · label · 아이콘 16 · 누를 곳 48. */
+/** 칩(`docs/design.md` 칩, SEED Chip). 32 · 좌우 12(아이콘이 있으면 왼쪽 10) · full · label · 아이콘 16 · 누를 곳 48. */
 @Composable
 fun DiaryChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, leadingIcon: ImageVector? = null) {
     val colors = DiaryTheme.colors
@@ -40,7 +40,9 @@ fun DiaryChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Mo
                     interactionSource = remember { MutableInteractionSource() },
                     indication = PressOverlay(colors.textPrimary),
                     onClick = onClick
-                ).padding(horizontal = DiarySpacing.x3),
+                )
+                // 아이콘 쪽은 아이콘 자체 여백이 있어 10으로 줄여 눈으로 좌우를 맞춘다(이 칩 안에서만 쓰는 값).
+                .padding(start = if (leadingIcon != null) 10.dp else DiarySpacing.x3, end = DiarySpacing.x3),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
         verticalAlignment = Alignment.CenterVertically
     ) {
