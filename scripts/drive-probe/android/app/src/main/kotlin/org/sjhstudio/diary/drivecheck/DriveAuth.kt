@@ -17,5 +17,6 @@ object DriveAuth {
 
     // 다른 클라이언트가 만든 파일도 찾기 위해 같은 질의를 Android·iOS 확인 빌드가 함께 쓴다.
     const val PROBE_FILES = "appProperties has { key='diary.kind' and value='probe-file' } and trashed = false"
+    const val PROBE_ROOTS = "appProperties has { key='diary.kind' and value='probe-root' } and trashed = false"
     const val LEGACY_BACKUP = "name = 'note.db' and trashed = false"
 }

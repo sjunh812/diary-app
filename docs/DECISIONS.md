@@ -246,6 +246,14 @@ Android에는 맞지 않으며, "종이 위의 조용한 하루" 방향과도 �
 - 고친 파일은 정상 `note.db`가 든 zip이고 사용자는 "파일에서 되살리기"로 합친다(이전 버전 백업과 같은 규칙이라 같은 일기는 한 번만).
 - 고친 곳: 헌법 II(0.5.0), `CLAUDE.md` 지켜야 할 선 2, 스펙 001 FR-010a와 `contracts/migration-flow.md`, 스펙 003 FR-031, `docs/release.md` 처리방침 항목.
 
+### 2026-11-01 드라이브 확인 결과와 자동 백업 조건 (확인 결과, 스펙 003)
+
+- 같은 클라우드 프로젝트(`diary-app`, GoogleMapProject에서 이름만 바꿈) 안에서는 Android·iOS 클라이언트가 서로 만든 `drive.file` 파일을 본다. 실기기 Play 1.7.4가
+  올린 `note.db`가 iOS와 새 Android 디버그 클라이언트에서 보였고, iOS가 만든 파일도 Android에서 보였다. 대안(Picker, 묶음 파일로 옮기기)은 쓰지 않는다.
+- Android 자동 백업은 네트워크 연결됨 조건을 건다. 처음 계획은 조건 없이 작업 안에서 네트워크를 보는 것이었는데, Android 16에서 앱이 뒤로 간 뒤 앱 안에서
+  돈 작업은 드라이브에 닿지 못했다. 7일 실패 알림은 미리 예약해 두므로 이 바꿈으로 잃는 것이 없다.
+- 근거와 기록: `scripts/drive-probe/README.md`, `specs/003-backup-v2/research.md` R1·R14·O1·O4.
+
 ## 열린 결정
 
 정하는 사람은 사용자다. 조사 근거와 추천은 각 문서에 있다.

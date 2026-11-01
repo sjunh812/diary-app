@@ -12,6 +12,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.gms.auth.api.identity.AuthorizationResult
@@ -43,6 +45,7 @@ class MainActivity : ComponentActivity() {
         column.addView(button(R.string.find) { withToken { find(it) } })
         column.addView(button(R.string.worker) { enqueueWorker() })
         column.addView(button(R.string.worker_result) { showWorkerResult() })
+        column.addView(button(R.string.cleanup) { withToken { cleanup(it) } })
         column.addView(button(R.string.clear) { log.text = "" })
         log = TextView(this).apply { typeface = Typeface.MONOSPACE; textSize = 12f; setTextIsSelectable(true); setPadding(0, 32, 0, 0) }
         column.addView(log)
@@ -95,8 +98,19 @@ class MainActivity : ComponentActivity() {
         legacy.forEach { f -> write("  · ${f.getString("name")} ${f.optString("size")}바이트, ${f.optString("createdTime")}") }
     }
 
+    // 확인용으로 만든 폴더와 파일만 휴지통으로 옮긴다. 예전 앱 note.db는 건드리지 않는다.
+    private fun cleanup(token: String) {
+        val targets = DriveRest.list(token, DriveAuth.PROBE_FILES) + DriveRest.list(token, DriveAuth.PROBE_ROOTS)
+        targets.forEach { DriveRest.trash(token, it.getString("id")) }
+        write("휴지통으로 옮김: ${targets.size}개(${targets.joinToString { it.getString("name") }})")
+    }
+
     private fun enqueueWorker() {
-        val work = OneTimeWorkRequestBuilder<TokenWorker>().setInitialDelay(15, TimeUnit.SECONDS).build()
+        // 네트워크 조건이 없으면 백그라운드 작업에 네트워크가 열리지 않을 수 있어 연결됨 조건을 건다(2026-11-01 확인).
+        val work = OneTimeWorkRequestBuilder<TokenWorker>()
+            .setInitialDelay(15, TimeUnit.SECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .build()
         WorkManager.getInstance(this).enqueue(work)
         write("15초 뒤 작업 관리자가 돌아요. 홈으로 나가 20초쯤 기다린 뒤 다시 와서 5번을 눌러 주세요.")
     }

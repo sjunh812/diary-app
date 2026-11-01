@@ -7,5 +7,6 @@
     <string name="find">3. 다른 클라이언트 파일 찾기</string>
     <string name="worker">4. 작업 관리자 안에서 토큰 받기</string>
     <string name="worker_result">5. 작업 관리자 결과 보기</string>
+    <string name="cleanup">6. 시험 파일 휴지통으로</string>
     <string name="clear">기록 지우기</string>
 </resources>

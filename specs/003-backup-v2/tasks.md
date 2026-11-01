@@ -45,8 +45,8 @@ description: "스펙 003 백업 v2 작업 목록"
 ## Phase 2: 첫 확인 (사용자와 같이, 다른 개발보다 먼저)
 
 - [x] T008 사용자와 구글 클라우드 콘솔에서 지금 앱과 같은 프로젝트에 디버그 서명용 Android 클라이언트와 iOS 클라이언트를 만든다. 클라이언트 ID는 `local.properties`와 Xcode 설정 파일(저장소 밖)에 둔다. 동의 화면 범위에 `drive.file`, `openid`, `email`이 있는지 본다
-- [ ] T009 `scripts/drive-probe/`에 시험용 최소 앱 둘(Android 액티비티 하나, iOS SwiftUI 화면 하나)을 만들고 `quickstart.md` 1의 네 방향(Android 생성 → iOS 찾기, iOS 생성 → Android 찾기, 1.7.4 `note.db` → 새 Android·iOS 찾기)을 시험 계정으로 돌린다. 결과를 research R1과 `docs/backup.md` 인증 절에 적는다
-- [ ] T010 같은 시험 앱으로 WorkManager 작업 안에서 `AuthorizationClient.authorize()`가 화면 없이 토큰을 주는지, iOS `BGProcessingTask` 안에서 `refreshTokensIfNeeded`가 되는지 본다. 결과로 research O4를 닫는다
+- [x] T009 `scripts/drive-probe/`에 시험용 최소 앱 둘(Android 액티비티 하나, iOS SwiftUI 화면 하나)을 만들고 `quickstart.md` 1의 네 방향(Android 생성 → iOS 찾기, iOS 생성 → Android 찾기, 1.7.4 `note.db` → 새 Android·iOS 찾기)을 시험 계정으로 돌린다. 결과를 research R1과 `docs/backup.md` 인증 절에 적는다
+- [x] T010 같은 시험 앱으로 WorkManager 작업 안에서 `AuthorizationClient.authorize()`가 화면 없이 토큰을 주는지, iOS `BGProcessingTask` 안에서 `refreshTokensIfNeeded`가 되는지 본다. 결과로 research O4를 닫는다
 - [x] T011 (해당 없음, 2026-11-01 iOS에서 보임) T009에서 하나라도 안 보이면 research R1 "안 보일 때" 1(Picker 폴더 고르기 → 안의 파일 권한)을 시험하고, 결과와 바꿀 스펙(US3, SC-001, Assumptions)을 사용자에게 알린 뒤 정한다. 정한 것은 `docs/DECISIONS.md`에 남긴다
 
 ---
@@ -181,7 +181,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ### Implementation for User Story 4
 
-- [ ] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(배터리 부족 아님만), 네트워크는 안에서, `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각(research R14)
+- [ ] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(네트워크 연결됨 + 배터리 부족 아님), `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각, 앱이 뒤로 간 뒤 앱 안 코루틴으로 잇지 않기(research R14, 2026-11-01 확인)
 - [ ] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
 - [ ] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
 - [ ] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기

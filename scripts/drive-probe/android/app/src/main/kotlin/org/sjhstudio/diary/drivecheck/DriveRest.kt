@@ -61,9 +61,26 @@ object DriveRest {
         return (0 until files.length()).map { files.getJSONObject(it) }
     }
 
+    // 지우지 않고 드라이브 휴지통으로 옮긴다(30일 안에 되살릴 수 있음).
+    fun trash(token: String, fileId: String) {
+        request(
+            "PATCH",
+            "https://www.googleapis.com/drive/v3/files/$fileId?fields=id,trashed",
+            token,
+            """{"trashed":true}""".toByteArray(),
+            "application/json; charset=UTF-8",
+        )
+    }
+
     private fun request(method: String, url: String, token: String, body: ByteArray? = null, contentType: String? = null): String {
         val conn = URL(url).openConnection() as HttpURLConnection
-        conn.requestMethod = method
+        // HttpURLConnection은 PATCH를 몰라서 POST에 덮어쓰기 머리글을 단다.
+        if (method == "PATCH") {
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("X-HTTP-Method-Override", "PATCH")
+        } else {
+            conn.requestMethod = method
+        }
         conn.setRequestProperty("Authorization", "Bearer $token")
         if (body != null) {
             conn.doOutput = true
