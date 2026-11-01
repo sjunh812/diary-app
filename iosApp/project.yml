@@ -41,6 +41,9 @@ targets:
         MARKETING_VERSION: "2.0.0"
         CURRENT_PROJECT_VERSION: "37"
         TARGETED_DEVICE_FAMILY: "1,2"
+        # 공유 모듈은 Apple Silicon 시뮬레이터(iosSimulatorArm64)만 만든다(스펙 001 research R3).
+        # 일반 시뮬레이터 대상으로 빌드할 때 Intel(x86_64)까지 묶지 않게 뺀다.
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
         CODE_SIGN_STYLE: Automatic
         # Gradle이 만든 static framework Shared를 찾는 자리와 링크 옵션.
         FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
