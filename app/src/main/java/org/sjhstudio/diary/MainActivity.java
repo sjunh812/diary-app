@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -93,6 +94,7 @@ public class MainActivity extends BaseActivity implements OnTabItemSelectedListe
     private int selectedTabIndex = 0;                   // 현재 선택되어있는 탭 번호 (onSaveInstanceState() 호출시 Bundle 객체로 저장)
     private Date calDate = null;
     private long backPressTime = 0;
+    private OnBackPressedCallback backPressedCallback;
     private boolean isSelected2 = false;                // 일기작성 취소시, 다른메뉴를 선택했을 때 setSelectedTabItem() 호출을 위한 flag
 
     @Override
@@ -111,6 +113,16 @@ public class MainActivity extends BaseActivity implements OnTabItemSelectedListe
         setContentView(R.layout.activity_main);
 
         ViewExtensionKt.enableSystemBarPadding(findViewById(R.id.root));
+
+        // Android 16(타깃 36)부터는 onBackPressed가 불리지 않는다.
+        // 뒤로 가기는 콜백으로 받는다.
+        backPressedCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBackPressed();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, backPressedCallback);
 
         if (Pref.consumePRemovedFontNotice(this)) {
             Toast.makeText(this, R.string.notice_removed_font, Toast.LENGTH_LONG).show();
@@ -671,8 +683,7 @@ public class MainActivity extends BaseActivity implements OnTabItemSelectedListe
         onTabSelected(2);
     }
 
-    @Override
-    public void onBackPressed() {
+    private void handleBackPressed() {
         if (bottomNavigationView.getSelectedItemId() == R.id.tab1) {
             if (System.currentTimeMillis() > backPressTime + 2000) {
                 backPressTime = System.currentTimeMillis();
@@ -681,7 +692,12 @@ public class MainActivity extends BaseActivity implements OnTabItemSelectedListe
                 return;
             }
 
-            if (System.currentTimeMillis() <= backPressTime + 2000) super.onBackPressed();
+            // 두 번째로 누르면 콜백을 잠시 끄고 시스템 기본 동작(앱 닫기)에 맡긴다.
+            if (System.currentTimeMillis() <= backPressTime + 2000) {
+                backPressedCallback.setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+                backPressedCallback.setEnabled(true);
+            }
         } else if (bottomNavigationView.getSelectedItemId() == R.id.tab3) {
             DialogUtils.INSTANCE.showStopWriteDialog(this, () -> {
                 if (writeFragment != null) writeFragment.deleteFilesCache(true);

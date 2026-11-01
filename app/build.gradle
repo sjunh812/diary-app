@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId "org.sjhstudio.diary"
         minSdkVersion 24
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode 36
         versionName "1.7.5"
         multiDexEnabled true
