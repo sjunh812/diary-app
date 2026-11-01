@@ -29,7 +29,7 @@
 `serialization-kotlinx-json`), Okio 3.18.2(확인값, 파일 흘리기, zip 읽기), Android `play-services-auth` 22.0.0과 WorkManager 2.12.0, iOS GoogleSignIn-iOS
 10.1.0(SPM)과 `BackgroundTasks`. 버전과 근거는 research R19. zip 쓰기는 라이브러리 없이 직접 만든다(R18).
 
-**Storage**: 스펙 001 `diary.db` 버전 1에 `backup_media`, `sync_base`, `merge_mark`를 더하고 `media.status`에 `pending`을 더한다(사용자 확인 필요).
+**Storage**: 스펙 001 `diary.db` 버전 1에 `backup_media`, `sync_base`, `merge_mark`를 더하고 `media.status`에 `pending`을 더한다(사용자 확인 2026-11-01).
 백업 설정·상태는 새 DataStore `backup.preferences_pb`, 진행 상태는 `backup/state.json`·`restore.json`, 되돌리기 사본은 `backup/rollback/`.
 드라이브에는 `1일 1일기 백업/` 폴더(스냅샷, 목록 파일, 사진, README). 자세한 것은 [data-model.md](data-model.md), [contracts/backup-format.md](contracts/backup-format.md).
 
@@ -65,8 +65,8 @@
 | VI. 어떤 기기에서도 편하다 | Android·iOS 같은 공통 코드와 화면. 플랫폼마다 다른 것은 권한 받기와 백그라운드 실행뿐. 태블릿은 설정 두 칸 규칙(스펙 001 R25) | 통과(R1 결과에 따라 Android↔iOS 길을 다시 정할 수 있음) |
 | VII. 근거를 갖고 만든다 | 레퍼런스(스펙 근거)와 플랫폼 문서(research 출처). 확인 못 한 세 가지(R1 파일 보임, 작업 관리자 안 토큰, iOS 백그라운드 토큰 갱신)는 첫 작업에서 시험 | 통과 |
 
-Phase 1 설계 뒤 다시 봄: 데이터 모델과 계약에 원칙을 어기는 것이 없다. 스펙 001 표를 바꾸는 곳(`media.status`에 `pending`)과 새 표는 사용자 확인을
-받은 뒤 확정한다(`/diary-flow` "꼭 묻는 곳").
+Phase 1 설계 뒤 다시 봄: 데이터 모델과 계약에 원칙을 어기는 것이 없다. 스펙 001 표를 바꾸는 곳(`media.status`에 `pending`), 새 표 셋, 영구 삭제
+흔적을 두지 않는 것, Android 시스템 백업 범위는 2026-11-01 사용자가 확인했다(`/diary-flow` "꼭 묻는 곳").
 
 ## Project Structure
 
@@ -124,7 +124,7 @@ iosApp/                            GoogleSignIn 연결(Swift DriveAuthorizer), B
 
 | 003이 쓰거나 바꾸는 것 | 가진 스펙 | 내용 |
 | --- | --- | --- |
-| `media.status`에 `pending` | 001 | 복원 중·백업에 없는 사진. 사용자 확인 뒤 001 data-model과 함께 고친다 |
+| `media.status`에 `pending` | 001 | 복원 중·백업에 없는 사진. 001·002 data-model에 반영함(2026-11-01) |
 | `updated_at` 규칙(즐겨찾기·휴지통도 바꿈) | 002 | 002 저장·즐겨찾기·휴지통 작업에 더한다 |
 | 사진 정리 멈춤(되돌리기 7일, `pending` 줄 보호) | 002 | 002 사진 정리 조건에 더한다 |
 | 홈 백업 상태 줄과 권하기 카드 자리 | 002 | 홈 머리 상태 줄(`docs/design.md`), 목록 맨 위 카드 |

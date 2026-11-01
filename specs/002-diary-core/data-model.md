@@ -44,7 +44,7 @@
 | `width`, `height` | Int? | 축소 뒤 크기(긴 변 2,560 이하, 레거시 이전분은 원래 크기, EXIF 방향 반영). MISSING이면 null |
 | `byteSize` | Long? | 파일 크기 |
 | `sortOrder` | Int | 0부터 |
-| `status` | NORMAL / MISSING | MISSING은 001 이전에서 원본을 못 찾은 사진 |
+| `status` | NORMAL / MISSING / PENDING | MISSING은 원본을 찾을 수 없는 사진(001 이전, 003 복원 확인값 불일치). PENDING은 복원 중이거나 백업에 없어 아직 기기에 없는 사진(스펙 003). 화면은 "원래 기기에 있는 사진"이나 받는 중 표시를 보이고, 사진 정리는 지우지 않는다 |
 | `legacyPath` | String? | 이전된 사진은 찾았든 못 찾았든 원래 경로(001 검증과 003 옛 백업 합치기에 씀) |
 
 DB 열 이름과 타입은 스펙 001 `data-model.md`(확정 2026-11-01)가 원본이다. 줄임 사진은 `thumbs/<sha256>.jpg`로 따로 두고 DB에 담지 않는다(001 research R9).

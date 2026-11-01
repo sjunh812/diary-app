@@ -52,7 +52,7 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | `id` | TEXT PK | 아님 | UUID |
 | `entry_id` | TEXT | 아님 | `entry.id` 외래 키, 일기를 영구 삭제하면 함께 지움 |
 | `sort_order` | INTEGER | 아님 | 0부터. `(entry_id, sort_order)` 유일 |
-| `status` | TEXT | 아님 | `normal` 또는 `missing`(이전 때 원본을 못 찾음) |
+| `status` | TEXT | 아님 | `normal`, `missing`(이전 때 원본을 못 찾음, 받은 파일이 확인값과 다름), `pending`(이름과 확인값은 알고 파일은 아직 기기에 없음, 스펙 003이 더함 2026-11-01). `pending`은 `file_name`·`sha256`이 있다 |
 | `file_name` | TEXT | 가능 | `<sha256>.<ext>`. `missing`이면 null. 절대경로를 담지 않는다 |
 | `sha256` | TEXT | 가능 | 소문자 hex. `missing`이면 null. 색인 |
 | `width`, `height` | INTEGER | 가능 | EXIF 방향을 반영한 픽셀 크기. `missing`이면 null |

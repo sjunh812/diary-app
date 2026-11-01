@@ -4,7 +4,8 @@
 드라이브에 놓는 파일과 목록 파일 형식은 [contracts/backup-format.md](contracts/backup-format.md), 합치기 규칙은 [contracts/merge-rules.md](contracts/merge-rules.md)다.
 근거는 [research.md](research.md)다.
 
-**상태**: 초안. 스펙 001 표를 바꾸는 곳(`media.status`에 `pending` 더하기)과 새 표는 사용자 확인 뒤 확정한다.
+**상태**: 확정(2026-11-01 사용자 확인). `media.status`에 `pending`을 더하고, 백업용 표 셋을 일기 표와 따로 두고, 영구 삭제 흔적은 두지 않고,
+Android 클라우드 자동 백업은 빼고 기기 간 이전에는 담는다. 바꾸려면 백업 형식 버전·이전 시험과 함께 고치고 `docs/DECISIONS.md`에 남긴다.
 
 ## 파일 자리 (더하는 것)
 
@@ -25,7 +26,7 @@
 
 스펙 001 R4대로 R1 출시 전까지 같은 버전 1에 모은다.
 
-### `media.status`에 `pending` 더하기 (스펙 001 표를 바꿈, 사용자 확인 필요)
+### `media.status`에 `pending` 더하기 (스펙 001 표를 바꿈, 사용자 확인 2026-11-01)
 
 | 값 | 뜻 | `file_name`·`sha256` | 파일 |
 | --- | --- | --- | --- |
