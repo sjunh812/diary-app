@@ -12,7 +12,7 @@ expect class AppFiles {
     /** 사진 원본 `<sha256>.<ext>`. 백업에 올린다. */
     val mediaDirectory: String
 
-    /** 줄임 사진. 다시 만들 수 있어 백업에서 뺀다. */
+    /** 썸네일. 다시 만들 수 있어 백업에서 뺀다. */
     val thumbnailDirectory: String
 
     /** 설정과 잠금 DataStore 파일. */

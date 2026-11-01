@@ -18,7 +18,7 @@
 - [ ] CHK004 이전이 실패한 동안 앱 틀(새 일기 쓰기)로 들어갈 수 없다는 요구와 그 까닭이 스펙에 있는가? [Gap, Spec §FR-009, contracts/migration-flow.md 화면 상태]
 - [ ] CHK005 "일부만"에서 다시 시도할 때 그 사이 사용자가 쓴 일기를 지킨다는 요구가 있는가? [Gap, Spec §FR-011]
 - [ ] CHK006 이전된 "찾을 수 없는 사진" 줄이 백업 스냅샷에 남고 파일은 올리지 않으며 복원 뒤에도 같은 상태라는 것이 백업 문서에 있는가? [Gap, docs/backup.md, Spec §FR-034]
-- [ ] CHK007 줄임 사진을 백업에서 빼고 복원 뒤 다시 만든다는 것이 백업 문서에 있는가? [Gap, Spec §FR-037, docs/backup.md]
+- [ ] CHK007 썸네일을 백업에서 빼고 복원 뒤 다시 만든다는 것이 백업 문서에 있는가? [Gap, Spec §FR-037, docs/backup.md]
 - [ ] CHK008 잠금 확인값을 백업·기기 간 이전에서 빼고, 복원한 기기에서 잠금이 어떻게 되는지 정해져 있는가? [Gap, research R11, docs/backup.md]
 - [ ] CHK009 옛 드라이브 백업 연결 정보(계정, 파일 ID)를 스펙 003이 받는 자리와 iOS에서 없음이 적혀 있는가? [Completeness, Spec §FR-012, data-model.md LegacyBackupLink]
 - [ ] CHK010 원본과 이전 사본을 지우기 전까지 사진이 캐시 원본과 `media/` 사본으로 두 번 자리를 차지한다는 영향이 적혀 있는가? [Gap, docs/migration.md 원칙 1, research R8]
@@ -50,13 +50,13 @@
 
 ## Non-Functional Requirements
 
-- [ ] CHK027 이전 시간(SC-003)에 줄임 사진 만들기가 들어가는지와 줄임 사진 실패가 이전 실패가 아니라는 것이 함께 적혀 있는가? [Clarity, Spec §FR-037, Edge Cases]
+- [ ] CHK027 이전 시간(SC-003)에 썸네일 만들기가 들어가는지와 썸네일 실패가 이전 실패가 아니라는 것이 함께 적혀 있는가? [Clarity, Spec §FR-037, Edge Cases]
 - [ ] CHK028 이전 진행 중 화면 꺼짐·백그라운드 전환 처리가 정해져 있는가? [Coverage, research R7]
 - [ ] CHK029 사용 통계와 오류 보고로 나가는 이전 값이 고정 표와 구간으로 정해져 측정할 수 있는가? [Measurability, Spec §FR-013, contracts/migration-flow.md]
 
 ## Dependencies & Assumptions
 
-- [ ] CHK030 스펙 003이 이 스펙의 결과(이전 고정 자료, `legacy_*` 열, `LegacyBackupLink`, 줄임 사진 제외)를 이어받는다는 연결이 `docs/backup.md`나 `docs/PRD.md`에 있는가? [Traceability, Spec §FR-034]
+- [ ] CHK030 스펙 003이 이 스펙의 결과(이전 견본 자료, `legacy_*` 열, `LegacyBackupLink`, 썸네일 제외)를 이어받는다는 연결이 `docs/backup.md`나 `docs/PRD.md`에 있는가? [Traceability, Spec §FR-034]
 - [ ] CHK031 R1 출시 전에 002·003 표를 같은 DB 버전 1에 더한다는 가정과 출시 뒤 바꿈 규칙이 적혀 있는가? [Assumption, research R4, plan.md 다른 스펙과 나누는 것]
 
 ## Notes

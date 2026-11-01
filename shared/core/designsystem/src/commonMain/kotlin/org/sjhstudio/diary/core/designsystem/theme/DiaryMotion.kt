@@ -3,7 +3,7 @@ package org.sjhstudio.diary.core.designsystem.theme
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
 
-/** 움직임과 상태 덮개(`docs/design.md` 상태, 움직임, M3 motion·state layer). */
+/** 움직임과 상태 오버레이(`docs/design.md` 상태, 움직임, M3 motion·state layer). */
 object DiaryMotion {
     /** 누름, 켜고 끄기 같은 반응. */
     const val QUICK_MILLIS = 200

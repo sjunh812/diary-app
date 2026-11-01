@@ -18,7 +18,7 @@ data class MigrationReport(
     val dateDiffers: Int,
     /** 날짜를 읽지 못해 대체 규칙을 쓴 일기 수. */
     val dateUnparsed: Int,
-    /** 줄임 사진을 못 만든 수. 이전 실패가 아니다. */
+    /** 썸네일을 못 만든 수. 이전 실패가 아니다. */
     val thumbnailsFailed: Int,
     val settingsMigrated: List<MigratedSetting>,
     val finishedAt: Instant,

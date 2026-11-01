@@ -15,7 +15,7 @@
   사진은 `media/<sha256>.<ext>`로 한 번만 복사하고 실패해도 남긴다(R5~R9).
 - 잠금: 4자리 비밀번호는 기기 보안 저장소의 HMAC 키로 만든 확인값만 둔다. 잠금은 화면 하나가 아니라 앱 전체를 덮는 관문이다(R11~R13).
 - 시작: 시스템 스플래시 하나, 작은 값만 읽는 동안만 붙잡는다. 옛 시작 화면 이름과 옛 알림 수신기 이름은 그대로 남겨 업데이트 직후에도 깨지지 않게 한다(R14, R15).
-- 성능: 나눠 읽기(Paging 3), 미리 만든 줄임 사진, 안정된 키와 불변 화면 모델로 바뀐 줄만 다시 그리기, baseline profile(R9, R10).
+- 성능: 나눠 읽기(Paging 3), 미리 만든 썸네일, 안정된 키와 불변 화면 모델로 바뀐 줄만 다시 그리기, baseline profile(R9, R10).
 
 ## Technical Context
 
@@ -27,11 +27,11 @@ Room 3.0.3 + `sqlite-bundled` 2.7.1, Paging 3.5.3(KMP) + `room3-paging`, DataSto
 kotlinx-serialization 1.11.0, Coil 3.6.3, FileKit 0.17.0(원본 내보내기 저장 창), material3-adaptive 1.3.0(창 크기), Android 전용
 `core-splashscreen` 1.2.0과 `androidx.biometric` 1.1.0, iOS `LocalAuthentication`·`Security`(키체인), Firebase Analytics·Crashlytics(헌법 IV 예외).
 
-**Storage**: 앱 전용 저장소만 쓴다(캐시 아님). Room DB `diary.db`, 사진 `media/<sha256>.<ext>`, 줄임 사진 `thumbs/<sha256>.jpg`(백업 제외),
+**Storage**: 앱 전용 저장소만 쓴다(캐시 아님). Room DB `diary.db`, 사진 `media/<sha256>.<ext>`, 썸네일 `thumbs/<sha256>.jpg`(백업 제외),
 설정과 잠금은 DataStore 두 파일, 이전 상태·결과·원본 사본은 `migration/`과 `legacy-snapshot/`. 자세한 자리는 [data-model.md](data-model.md) "파일 자리".
 
 **Testing**: `kotlin.test` + Turbine(commonTest: 매핑, 본문 변환 왕복, 지문, 상태 기계, 잠금 규칙, ViewModel), Room 시험은 번들 드라이버로
-Android 호스트와 iOS 시뮬레이터 양쪽, 레거시 DB 고정 파일로 이전 시험(Android 호스트, `docs/migration.md` 시험 전부),
+Android 호스트와 iOS 시뮬레이터 양쪽, 레거시 DB 견본 파일로 이전 시험(Android 호스트, `docs/migration.md` 시험 전부),
 실제 1.7.4 APK → 새 APK 업그레이드 계측 시험(에뮬레이터 API 24, 29, 35, 36), Compose UI 시험(잠금, 이전 화면, 앱 틀 폭 바꾸기),
 Macrobenchmark(시작 시간, 목록 넘기기). 대역(fake)만 쓰고 mock 라이브러리는 쓰지 않는다(NIA 관행).
 
@@ -63,7 +63,7 @@ Macrobenchmark(시작 시간, 목록 넘기기). 대역(fake)만 쓰고 mock 라
 | VII. 근거를 갖고 만든다 | 구조는 NIA·KotlinConf·FeedFlow·오발있 비교(R1), 라이브러리 버전은 Maven 메타데이터, 잠금·스플래시·최근 앱은 플랫폼 문서. 확인 못 한 것은 research "열린 결정"에 남긴다 | 통과 |
 
 Phase 1 설계 뒤 다시 봄: 데이터 모델과 계약에 원칙을 어기는 것이 없다. 원본 사본과 사진 사본을 지우는 시점은 이 스펙에서 정하지 않는다(헌법 I,
-`docs/migration.md` 원칙 1). 줄임 사진은 원본에서 다시 만들 수 있는 파생 파일이라 백업에서 빼지만 캐시 폴더에 두지 않는다(R9).
+`docs/migration.md` 원칙 1). 썸네일은 원본에서 다시 만들 수 있는 파생 파일이라 백업에서 빼지만 캐시 폴더에 두지 않는다(R9).
 
 ## Project Structure
 
@@ -117,9 +117,9 @@ shared/
 │   │                                레일, 시트, 토스트, 대화상자, 설정 줄, 칩), 디자인 견본 화면(개발 빌드만)
 │   ├── ui/                          창 폭 등급, 공통 상태 화면, 미리보기 도구
 │   ├── platform/                    expect/actual: PinKeyStore(HMAC 키), DeviceAuthenticator, AppForeground(단조 시계),
-│   │                                ReminderScheduler, ImageDecoder(줄임 사진), Telemetry, RecentsGuard, AppFiles
+│   │                                ReminderScheduler, ImageDecoder(썸네일), Telemetry, RecentsGuard, AppFiles
 │   └── testing/                     FakeSettingsRepository, FakeLockRepository, FakeDeviceAuthenticator, TestClock,
-│                                    LegacyFixtures(레거시 DB·설정 XML·사진 고정 파일 만들기)
+│                                    LegacyFixtures(레거시 DB·설정 XML·사진 견본 파일 만들기)
 └── feature/
     ├── lock/                        잠금 화면, 비밀번호 정하기·바꾸기, 잊었을 때, 잠금 설정
     ├── migration/                   이전 진행, 결과, 실패(다시 시도·옛 일기 읽기·원본 내보내기·문의)
@@ -127,7 +127,7 @@ shared/
 benchmarks/                          Macrobenchmark(시작, 목록 넘기기)와 baseline profile 만들기
 .githooks/commit-msg                 커밋 형식 검사(FR-031)
 .github/workflows/ci.yml             Android 검사·시험·빌드, iOS 시험·xcodebuild
-scripts/legacy/                      1.7.x APK 만들기와 고정 자료 넣기(업그레이드 시험용)
+scripts/legacy/                      1.7.x APK 만들기와 견본 자료 넣기(업그레이드 시험용)
 ```
 
 **Structure Decision**: 오발있의 `shared/core/*` + `shared/feature/*`를 따르고 NIA처럼 `core/datastore`와 `core/testing`을 따로 둔다.
@@ -141,8 +141,8 @@ scripts/legacy/                      1.7.x APK 만들기와 고정 자료 넣기
 | 빌드 뼈대, 앱 틀, 시작 관문, Koin, 화면 키 | 002~006 전부 |
 | `DiaryTheme`와 컴포넌트, 본문 글꼴 10종, 글자 크기 5단계 | 002 화면, 004 소개, 006 결제 화면 |
 | Room DB 버전 1의 `entry`, `media`. 002는 `draft`, `draft_media`, 003은 백업 표를 같은 버전에 더한다 | 002, 003 |
-| `media/`, `thumbs/` 파일 규칙과 `ThumbnailRepository` | 002 목록·쓰기, 003 백업(줄임 사진은 올리지 않음) |
-| 이전 결과의 고정 자료(이전 → 백업 → 복원 왕복 시험용, FR-034) | 003 |
+| `media/`, `thumbs/` 파일 규칙과 `ThumbnailRepository` | 002 목록·쓰기, 003 백업(썸네일은 올리지 않음) |
+| 이전 결과의 견본 자료(이전 → 백업 → 복원 왕복 시험용, FR-034) | 003 |
 | `LegacyBackupLink`(옛 드라이브 계정과 파일 ID) | 003 이전 버전 백업 불러오기 |
 | 매일 알림 다시 예약과 옛 알림 수신기 | 004(알림 허락 묻기) |
 | `Telemetry`와 사용 통계 고정 표 | 모든 스펙, 006 광고 |

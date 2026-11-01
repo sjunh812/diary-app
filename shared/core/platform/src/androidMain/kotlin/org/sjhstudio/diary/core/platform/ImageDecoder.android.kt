@@ -9,7 +9,7 @@ import kotlin.math.max
 
 actual object ImageDecoder {
     actual fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean {
-        // 크기만 먼저 읽고, 긴 변이 maxSide 아래로 내려가지 않는 가장 큰 2의 거듭제곱으로 표본 축소해 읽는다.
+        // 크기만 먼저 읽고, 긴 변이 maxSide 아래로 내려가지 않는 가장 큰 2의 거듭제곱으로 다운샘플링해 읽는다.
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(source, bounds)
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return false

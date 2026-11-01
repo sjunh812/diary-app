@@ -8,7 +8,7 @@ description: "스펙 003 백업 v2 작업 목록"
 **Input**: `specs/003-backup-v2/`의 spec.md, plan.md, research.md, data-model.md, contracts/, quickstart.md, checklists/data-safety.md
 
 **Prerequisites**: Phase 1의 프로토타입·Figma 작업은 지금 할 수 있다. Phase 2(첫 확인)는 구글 클라우드 콘솔에서 시험 클라이언트를 만들어야 해서
-사용자와 같이 한다. 코드는 스펙 001 뼈대(빌드, `diary.db` 버전 1, `media/`, 이전 고정 자료)와 스펙 002의 일기 저장 뒤에 `feat/backup-v2`에서 한다.
+사용자와 같이 한다. 코드는 스펙 001 뼈대(빌드, `diary.db` 버전 1, `media/`, 이전 견본 자료)와 스펙 002의 일기 저장 뒤에 `feat/backup-v2`에서 한다.
 
 **Tests**: 스펙이 시험을 요구한다(FR-034, SC-001~SC-011, 헌법 I·II). `docs/backup.md` "시험" 13묶음과 `contracts/merge-rules.md`의 표를 먼저 시험으로
 쓰고 실패하는 것을 본 뒤 구현한다. 백업·복원 시험은 기능 시험보다 먼저, 더 많이 한다(사용자 요청 2026-11-01).
@@ -39,7 +39,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T005 흐름 시작점("백업 · 처음 연결", "· 새 폰에서 되살리기", "· 이전 버전 백업", "· 공간 부족", "· 바꾸기와 되돌리기")을 두고 캡처를 보내 사용자 확정을 받는다. 확정하면 `prototype.md`에 날짜와 바뀐 점을 쓰고 스펙에 되먹인다(지금 앱 백업 화면과 크게 달라지는 곳은 먼저 묻는다)
 - [x] T006 "화면" 페이지에 12줄을 라이트 폰(왼쪽 여백 번호)·설명 패널·다크 폰·태블릿과 상태 섹션으로 그렸다(2026-11-01, y 17460부터): 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2), 백업에서 되살리기 (B3), 되살리기 전에 확인 (B4), 되살리는 중 (B5), 되살린 결과 (B6), 예전 앱 백업 (B7), 파일로 백업하기 (B8), 되돌리기 (B9), 드라이브 공간이 모자라요 (B10), 홈 백업 상태와 권하기 (B11, 7일 실패 알림 B12는 상태에). 홈 태블릿은 스펙 002 홈 디자인 때 같이 그린다. 문구는 토스 UX 라이팅 기준으로 다듬었고 맞춤법 검사기는 개발 때 문자열 리소스로 옮기며 돌린다
 - [x] T007 "표지 · 흐름" 페이지의 진행 현황 표에 003 화면을 더했다(프로토타입 "확정 2026-11-01(27장)", 디자인 "12줄", 2026-11-01)
-- [ ] T098 개발 전 디자인 점검: "화면" 페이지 003 12줄과 상태 섹션을 토스 TDS·당근 SEED·Apple HIG·Material 3와 유명 앱에 대어 보고(흐름과 UX 패턴, 여백·간격, 글자 크기·굵기·줄 높이, 모서리, 누를 곳, 색 대비, 폰·태블릿·다크가 같은 규칙인지, 문구) `specs/003-backup-v2/design-review.md`에 남긴다. 고칠 것은 `docs/design.md` → Figma 변수·컴포넌트 → 화면 순서로 고친 뒤 백업 화면 작업에 들어간다(2026-11-01 사용자 요청, 헌법 V) 2026-11-01 전체 점검(아이콘 크기·선 굵기, 상자와 설정 줄 여백)은 `specs/001-foundation-migration/design-review.md` "전체 점검"에서 프로토타입까지 마쳤다. 남은 것은 이 점검의 나머지 항목(흐름, 글자, 색 대비)과 태블릿 틀 맞추기다
+- [ ] T098 개발 전 디자인 점검: "화면" 페이지 003 12줄과 상태 섹션을 토스 TDS·당근 SEED·Apple HIG·Material 3와 유명 앱에 대어 보고(흐름과 UX 패턴, 여백·간격, 글자 크기·굵기·줄 높이, 모서리, 터치 영역, 색 대비, 폰·태블릿·다크가 같은 규칙인지, 문구) `specs/003-backup-v2/design-review.md`에 남긴다. 고칠 것은 `docs/design.md` → Figma 변수·컴포넌트 → 화면 순서로 고친 뒤 백업 화면 작업에 들어간다(2026-11-01 사용자 요청, 헌법 V) 2026-11-01 전체 점검(아이콘 크기·선 굵기, 상자와 설정 줄 여백)은 `specs/001-foundation-migration/design-review.md` "전체 점검"에서 프로토타입까지 마쳤다. 남은 것은 이 점검의 나머지 항목(흐름, 글자, 색 대비)과 태블릿 틀 맞추기다
 
 ---
 
@@ -129,7 +129,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [ ] T052 [P] [US2] `{test}/core/backup/RestoreInterruptionTest.kt`: 받기·확인 중 끊김(기기 그대로, 처음부터), 합치기 트랜잭션 중 실패(아무것도 안 바뀜), 사진 받는 중 끊김(`pending`만 이어 받기), 깨진 사진 하나만 `missing`, 스냅샷 확인값 불일치면 쓰지 않음(FR-021)
 - [ ] T053 [P] [US2] `{test}/core/backup/RestoreListTest.kt`: 끝까지 된 백업만, 기기별 묶음, 깨진 목록 파일·스냅샷 없음·스냅샷 깨짐·새 앱 필요의 이유, 다른 계정 백업 안 보임
 - [ ] T054 [P] [US2] `{test}/core/backup/RestoreSettingsTest.kt`: 설정은 백업 값, 잠금은 꺼짐 + `lockEnabled`면 한 번 안내, 백업 설정·옛 백업 연결 값은 그대로, 알림 다시 예약
-- [ ] T055 [P] [US2] `{test}/core/backup/RoundTripTest.kt`: 스펙 001 이전 고정 자료로 이전 → 백업 → 빈 기기 복원, 일기 모든 칸·사진 확인값·순서·`missing`과 `legacy_path` 100% 같음(SC-001). 시간대 다른 기기에서 날짜 그대로. Android 호스트와 `iosSimulatorArm64Test` 양쪽에서 돈다
+- [ ] T055 [P] [US2] `{test}/core/backup/RoundTripTest.kt`: 스펙 001 이전 견본 자료로 이전 → 백업 → 빈 기기 복원, 일기 모든 칸·사진 확인값·순서·`missing`과 `legacy_path` 100% 같음(SC-001). 시간대 다른 기기에서 날짜 그대로. Android 호스트와 `iosSimulatorArm64Test` 양쪽에서 돈다
 
 ### Implementation for User Story 2
 

@@ -40,7 +40,7 @@ class MigrationViewModelTest {
             outcome = MigrationOutcome.DONE
         )
 
-    /** 옮길 것이 이미 끝난 기기: 앱을 열면 뒷일을 한 번 하고 찾은 것만 알린다. */
+    /** 옮길 것이 이미 끝난 기기: 앱을 열면 후속 작업을 한 번 하고 찾은 것만 알린다. */
     @Test
     fun finished_device_runs_follow_up_once_and_notifies() = runTest(dispatcher) {
         var calls = 0
@@ -57,7 +57,7 @@ class MigrationViewModelTest {
         assertEquals(listOf<MigrationNotice>(MigrationNotice.EntriesRecovered(2)), notices)
     }
 
-    /** 방금 옮긴 기기: 결과 화면을 닫은 뒤에야 뒷일을 하고, 시작하기를 여러 번 눌러도 한 번이다. */
+    /** 방금 옮긴 기기: 결과 화면을 닫은 뒤에야 후속 작업을 하고, 시작하기를 여러 번 눌러도 한 번이다. */
     @Test
     fun follow_up_waits_for_the_result_screen() = runTest(dispatcher) {
         var calls = 0
@@ -86,7 +86,7 @@ class MigrationViewModelTest {
         assertEquals(listOf<MigrationNotice>(MigrationNotice.PhotosFound(1)), notices)
     }
 
-    /** 뒷일이 실패해도 앱 틀로 가고 아무것도 알리지 않는다. */
+    /** 후속 작업이 실패해도 앱 틀로 가고 아무것도 알리지 않는다. */
     @Test
     fun failing_follow_up_does_not_block_the_app() = runTest(dispatcher) {
         val vm = MigrationViewModel(NoLegacyMigration, followUp = { error("읽기 실패") }, background = dispatcher)

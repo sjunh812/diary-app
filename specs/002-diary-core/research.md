@@ -31,7 +31,7 @@
 
 ### R5. 사진 축소와 해시는 직접
 
-- Decision: `core/platform`의 `ImageProcessor`를 expect/actual로 둔다. Android는 `BitmapFactory`의 표본 축소 후 정확한 크기로 줄이고 EXIF 방향을 반영해 JPEG(품질 85)로 쓴다. iOS는 `UIGraphicsImageRenderer`로 같은 일을 한다. 긴 변 2,560px을 넘을 때만 줄인다. 결과 바이트의 SHA-256을 파일 이름으로 쓴다.
+- Decision: `core/platform`의 `ImageProcessor`를 expect/actual로 둔다. Android는 `BitmapFactory`의 다운샘플링 후 정확한 크기로 줄이고 EXIF 방향을 반영해 JPEG(품질 85)로 쓴다. iOS는 `UIGraphicsImageRenderer`로 같은 일을 한다. 긴 변 2,560px을 넘을 때만 줄인다. 결과 바이트의 SHA-256을 파일 이름으로 쓴다.
 - Rationale: 사용자 결정(긴 변 약 2,500px). 내용 해시 이름은 백업 형식 v2의 사진 이름과 같아서 백업 때 다시 해시할 필요가 없다(`docs/backup.md`).
 - Alternatives: 원본 보관(용량), Coil로 축소(저장용 인코딩이 목적이 아니다).
 

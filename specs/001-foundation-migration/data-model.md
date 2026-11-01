@@ -13,7 +13,7 @@
 | --- | --- | --- | --- |
 | 일기 DB | `databases/diary.db` | `Application Support/diary.db` | 스냅샷으로 올림 |
 | 사진 | `files/media/<sha256>.<ext>` | `Application Support/media/` | 올림 |
-| 줄임 사진 | `no_backup/thumbs/<sha256>.jpg` | `Application Support/thumbs/`(백업 제외) | 안 올림 |
+| 썸네일 | `no_backup/thumbs/<sha256>.jpg` | `Application Support/thumbs/`(백업 제외) | 안 올림 |
 | 설정 | `files/datastore/settings.preferences_pb` | `Application Support/datastore/` | 목록 파일의 `settings`로 올림(스펙 003 `contracts/backup-format.md`) |
 | 잠금 | `files/datastore/lock.preferences_pb` | 같음 | 안 올림. Android 자동 백업에서도 뺀다 |
 | 이전 상태·결과·작업 DB | `files/migration/state.json`, `report.json`, `diary-new.db` | 없음 | 안 올림 |
@@ -150,7 +150,7 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | `photosFound`, `photosMissing` | 찾은 사진, 못 찾은 사진(경로 기준) |
 | `dateDiffers` | 앞 10글자 날짜와 옛 앱의 느슨한 해석 날짜가 다른 일기 수 |
 | `dateUnparsed` | 날짜를 읽지 못해 대체 규칙을 쓴 일기 수 |
-| `thumbnailsFailed` | 줄임 사진을 못 만든 수(이전 실패 아님) |
+| `thumbnailsFailed` | 썸네일을 못 만든 수(이전 실패 아님) |
 | `settingsMigrated` | 옮긴 설정 이름 목록(글꼴, 글자 크기, 화면 모드, 위치 안내, 잠금, 생체, 알림, 알림 시각) |
 | `finishedAt`, `outcome` | `Done` 또는 `Partial` |
 

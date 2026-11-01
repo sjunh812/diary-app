@@ -1,7 +1,7 @@
 # 레거시 → 새 모델 대응 계약
 
 `shared/core/migration`이 지키는 규칙이다. 기준 문서는 `docs/migration.md` "옮겨 담기"이고, 여기서는 코드와 시험이 그대로 따를 수 있게 모호한 곳을 정한다.
-이 규칙을 바꾸면 이전 고정 파일 시험의 기대값과 `docs/migration.md`를 같은 커밋에서 고친다.
+이 규칙을 바꾸면 이전 견본 파일 시험의 기대값과 `docs/migration.md`를 같은 커밋에서 고친다.
 
 ## 일기 줄 (`Note` → `entry`)
 

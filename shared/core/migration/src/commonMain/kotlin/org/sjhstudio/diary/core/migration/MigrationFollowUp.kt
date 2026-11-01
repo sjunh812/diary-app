@@ -4,7 +4,7 @@ import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.model.MigrationStep
 
 /**
- * 이전이 끝난 기기에서 앱을 열 때 하는 뒷일(FR-011, contracts/migration-flow.md).
+ * 이전이 끝난 기기에서 앱을 열 때 하는 후속 작업(FR-011, contracts/migration-flow.md).
  * 일부만 옮겨진 기기는 앱이 업데이트된 뒤 처음 한 번 못 읽은 일기를 다시 읽고,
  * 찾을 수 없는 사진은 하루 한 번 원래 자리를 다시 본다.
  * 하루가 지난 고쳐 받기 문의 묶음도 이때 지운다(FR-010a).

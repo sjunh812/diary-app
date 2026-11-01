@@ -30,7 +30,7 @@ object DiarySpacing {
     /** 600dp부터 화면 좌우(M3 medium·expanded 24). */
     val screenWide: Dp = x6
 
-    /** 누를 곳 최소 크기(M3 48, HIG 44). 보이는 크기가 작으면 누르는 영역을 이만큼 넓힌다. */
+    /** 터치 영역 최소 크기(M3 48, HIG 44). 보이는 크기가 작으면 누르는 영역을 이만큼 넓힌다. */
     val minTouchTarget: Dp = 48.dp
 }
 

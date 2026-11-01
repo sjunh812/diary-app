@@ -15,8 +15,8 @@
 ./gradlew spotlessCheck designTokenCheck allTests
 ```
 
-기대: 모두 통과. `allTests`는 Android 호스트 시험과 iOS 시뮬레이터 시험을 함께 돈다. 이전 고정 파일 시험(`docs/migration.md` "시험"의 모든 경우)은
-`shared/core/migration`에 있고 원본 고정 파일의 SHA-256이 시험 전후로 같은지도 본다(SC-001, SC-002).
+기대: 모두 통과. `allTests`는 Android 호스트 시험과 iOS 시뮬레이터 시험을 함께 돈다. 이전 견본 파일 시험(`docs/migration.md` "시험"의 모든 경우)은
+`shared/core/migration`에 있고 원본 견본 파일의 SHA-256이 시험 전후로 같은지도 본다(SC-001, SC-002).
 
 ```bash
 git commit --allow-empty -m "아무 말"
@@ -37,14 +37,14 @@ ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 COUNT=1000 sh scripts/legacy/u
 
 2026-11-01: 처음 적은 `--api`, `--fixture` 인자 대신 환경 변수를 쓴다. 기기는 `ANDROID_SERIAL`로 고른다. `INSTRUMENT=1`이면 먼저
 `./gradlew :composeApp:assembleDebug :composeApp:assembleDebugAndroidTest`로 두 APK를 만든다. 아래 표에서 `seed.sh`에 있는 견본은
-기본(`basic`, `photos-missing` 포함)과 `COUNT`(`big`의 1,000편판)이다. 나머지는 공통 시험이 고정 파일로 본다(test-report.md).
+기본(`basic`, `photos-missing` 포함)과 `COUNT`(`big`의 1,000편판)이다. 나머지는 공통 시험이 견본 파일로 본다(test-report.md).
 
-`upgrade-test.sh`가 하는 일: 에뮬레이터를 깨끗이 → 옛 APK 설치 → `run-as`로 고정 자료(DB 세 파일, 설정 XML, 캐시 사진) 넣기 → 새 APK를 `adb install -r`로
-덮어 설치 → 계측 시험 `UpgradeVerificationTest`가 이전 끝을 기다려 새 DB를 고정 자료의 기대값과 견주고 원본 파일 해시가 그대로인지 본다.
+`upgrade-test.sh`가 하는 일: 에뮬레이터를 깨끗이 → 옛 APK 설치 → `run-as`로 견본 자료(DB 세 파일, 설정 XML, 캐시 사진) 넣기 → 새 APK를 `adb install -r`로
+덮어 설치 → 계측 시험 `UpgradeVerificationTest`가 이전 끝을 기다려 새 DB를 견본 자료의 기대값과 견주고 원본 파일 해시가 그대로인지 본다.
 
 돌릴 조합(각 API 24, 29, 35, 36):
 
-| 고정 자료 | 확인할 것 |
+| 견본 자료 | 확인할 것 |
 | --- | --- |
 | `basic`(수백 편, 사진·기분·날씨·장소·즐겨찾기·고른 날짜) | 모든 일기 값과 사진 순서가 같다 |
 | `wal-only`(마지막 일기가 WAL에만) | 그 일기도 옮겨진다 |
@@ -68,7 +68,7 @@ ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 KILL_AT=Copying sh scripts/leg
 
 ## 4. 잠금 (US2, SC-005)
 
-1. `locked` 고정 자료로 업그레이드한 뒤 앱을 연다: 잠금 화면 → 지문(에뮬레이터 `adb -e emu finger touch 1`) → 열림.
+1. `locked` 견본 자료로 업그레이드한 뒤 앱을 연다: 잠금 화면 → 지문(에뮬레이터 `adb -e emu finger touch 1`) → 열림.
 2. 지문 취소 → 숫자판, 틀린 비밀번호 5번 → 30초 기다림 표시, 앱을 껐다 켜도 이어짐.
 3. 홈으로 나갔다가 61초 뒤 돌아오기 → 잠금. 최근 앱 화면을 찍는다(`adb shell input keyevent KEYCODE_APP_SWITCH`, `adb exec-out screencap -p`)
    → 일기 내용이 없다. API 24·29·31·35에서 본다(research O3).

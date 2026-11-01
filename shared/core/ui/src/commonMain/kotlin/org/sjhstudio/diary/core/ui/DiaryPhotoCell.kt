@@ -69,7 +69,7 @@ private fun Photo(path: String?, modifier: Modifier) {
         if (path == null) {
             DiaryIcon(DiaryIcons.ImageOff, contentDescription = null, tint = DiaryTheme.colors.textTertiary, size = DiaryIconSize.i16)
         } else {
-            // 목록 칸은 원본이 아니라 줄임 사진을 읽는다(FR-036, ThumbnailFetcher).
+            // 목록 칸은 원본이 아니라 썸네일을 읽는다(FR-036, ThumbnailFetcher).
             AsyncImage(
                 model = Thumbnail(path),
                 contentDescription = null,

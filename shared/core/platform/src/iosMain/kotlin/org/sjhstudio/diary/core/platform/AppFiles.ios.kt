@@ -32,7 +32,7 @@ actual class AppFiles {
         listOf(root, mediaDirectory, thumbnailDirectory, dataStoreDirectory).forEach { path ->
             manager.createDirectoryAtPath(path, withIntermediateDirectories = true, attributes = null, error = null)
         }
-        // 줄임 사진은 다시 만들 수 있어 iCloud·기기 백업에서 뺀다.
+        // 썸네일은 다시 만들 수 있어 iCloud·기기 백업에서 뺀다.
         NSURL.fileURLWithPath(thumbnailDirectory, isDirectory = true)
             .setResourceValue(NSNumber(bool = true), forKey = NSURLIsExcludedFromBackupKey, error = null)
     }

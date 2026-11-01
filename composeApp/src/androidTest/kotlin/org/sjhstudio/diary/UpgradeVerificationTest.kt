@@ -50,7 +50,7 @@ class UpgradeVerificationTest {
             assertEquals(listOf("jpg", "png"), photos.map { it.fileName!!.substringAfterLast('.') })
             for (photo in photos) {
                 assertTrue(File(context.filesDir, "media/${photo.fileName}").exists())
-                // 줄임 사진도 이전할 때 만든다(FR-037).
+                // 썸네일도 이전할 때 만든다(FR-037).
                 assertTrue(File(context.noBackupFilesDir, "thumbs/${photo.sha256}.jpg").exists())
             }
 

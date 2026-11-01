@@ -21,7 +21,7 @@
 | --- | --- | --- |
 | `Snapshotting` | 남은 공간 확인(research R8 식). `note.db`, `-wal`, `-shm`을 스트림으로 `legacy-snapshot/`에 복사하며 원본 SHA-256을 잰다. `pref.xml`(비밀번호 줄 뺌), `pref2.xml` 복사. `snapshot.json` 쓰기 | `NO_SPACE`(필요한 양 함께), `SNAPSHOT_IO` |
 | (판단) | 사본을 열어 `Note` 줄 수를 센다. 0이면 `Done`(결과 화면 없음, US1-9) | `READ_ERROR` |
-| `Copying` | 사본을 `_id` 순으로 읽어 `contracts/legacy-mapping.md`대로 바꾸고 `diary-new.db`에 200줄씩 트랜잭션으로 쓴다. 사진은 `media/`로 복사하고 `photos.json`에 적는다. 줄임 사진은 최대 3개씩 나란히(실패는 세기만). 깨진 범위는 반씩 나눠 읽히는 줄만 건진다 | `READ_ERROR`, `WRITE_ERROR` |
+| `Copying` | 사본을 `_id` 순으로 읽어 `contracts/legacy-mapping.md`대로 바꾸고 `diary-new.db`에 200줄씩 트랜잭션으로 쓴다. 사진은 `media/`로 복사하고 `photos.json`에 적는다. 썸네일은 최대 3개씩 나란히(실패는 세기만). 깨진 범위는 반씩 나눠 읽히는 줄만 건진다 | `READ_ERROR`, `WRITE_ERROR` |
 | `Verifying` | 사본을 다시 읽어 줄마다 `legacyCanonical`과 새 DB의 `restoredCanonical`을 견주고, 사진 파일 해시와 개수를 본다 | `MISMATCH` |
 | `Committing` | `diary-new.db`를 닫고 `diary.db`로 이름을 바꾼 뒤 `report.json`, `Done`(못 읽은 줄이 있으면 `Partial`)을 쓴다 | 다음 시작에서 지문만 다시 보고 맞으면 `Done` |
 
@@ -62,7 +62,7 @@
 한 번 다시 읽고 `retriedVersionCode`를 지금 버전으로 쓴다. 새 DB를 버리지 않는다. 사본에서 `legacy_id`가 아직 `entry`에 없는 줄만 다시 읽어 더하고,
 더한 줄만 지문으로 검증한다. 그 사이 사용자가 쓴 일기는 그대로다. 더한 일기가 있으면 "못 읽었던 일기 n편을 옮겼어요"를 한 번 알리고,
 모두 읽히면 `Done`으로 바꾼다. 처음 옮길 때도 그 버전을 `retriedVersionCode`에 적어 같은 버전에서는 다시 읽지 않는다.
-두 뒷일은 `MigrationFollowUp`이 관문을 지난 뒤 한 번 돌리고, 알림은 앱 틀의 토스트로 띄운다.
+두 후속 작업은 `MigrationFollowUp`이 관문을 지난 뒤 한 번 돌리고, 알림은 앱 틀의 토스트로 띄운다.
 
 ## 찾을 수 없는 사진 다시 찾기 (FR-011)
 

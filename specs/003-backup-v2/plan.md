@@ -35,7 +35,7 @@
 
 **Testing**: `docs/backup.md` "시험" 13묶음을 `shared/core/backup` 공통 시험으로 모두 돈다. 드라이브는 `FakeDrive`(메모리, 확인값, 공간 한도,
 끊김·깨짐·만료·속도 제한 주입)로 흉내 내고, 실제 드라이브 시험 계정으로 밤마다 왕복·끊김·공간 부족을 돈다. 합치기 표는 경우마다 시험 하나.
-스펙 001 이전 고정 자료로 "이전 → 백업 → 다른 기기 복원"을 Android 호스트와 iOS 시뮬레이터에서 돈다. Room 시험은 번들 드라이버로 양쪽.
+스펙 001 이전 견본 자료로 "이전 → 백업 → 다른 기기 복원"을 Android 호스트와 iOS 시뮬레이터에서 돈다. Room 시험은 번들 드라이버로 양쪽.
 화면은 Compose UI 시험(설정 > 백업, 복원 미리보기, 권하기 카드). 대역만 쓰고 mock 라이브러리는 쓰지 않는다(스펙 001과 같음).
 
 **Target Platform**: Android minSdk 24, targetSdk 36. iOS 17 이상.
@@ -108,7 +108,7 @@ shared/
 │   ├── migration/                 레거시 note.db 읽기·매핑을 LegacyBackupImporter가 같이 쓰도록 공개
 │   ├── platform/                  expect/actual: DriveAuthorizer, BackupScheduler, NetworkState(데이터 요금 없는 연결인지),
 │   │                              BackupNotifier, DeviceName, FreeSpace
-│   └── testing/                   FakeDrive, FakeDriveAuthorizer, FakeBackupScheduler, 큰 양 고정 자료 만들기
+│   └── testing/                   FakeDrive, FakeDriveAuthorizer, FakeBackupScheduler, 큰 양 견본 자료 만들기
 └── feature/
     └── backup/                    설정 > 백업, 복원 목록·미리보기·진행·결과, 묶음 파일, 권하기 카드 컴포넌트
 composeApp/                        BackupWorker(작업 관리자), 진행 알림 서비스 선언, 알림 채널 "백업", 데이터 추출 규칙(기기 간 이전)

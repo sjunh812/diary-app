@@ -12,7 +12,7 @@
 
 ## Requirement Completeness
 
-- [ ] CHK001 백업에 들어가는 것과 빠지는 것(줄임 사진, 잠금, 임시 저장본, 기기 표, 백업 설정)이 스펙·계약·`docs/backup.md` 세 곳에 같게 열거돼 있는가? [Completeness, Spec §FR-011, contracts/backup-format.md 스냅샷]
+- [ ] CHK001 백업에 들어가는 것과 빠지는 것(썸네일, 잠금, 임시 저장본, 기기 표, 백업 설정)이 스펙·계약·`docs/backup.md` 세 곳에 같게 열거돼 있는가? [Completeness, Spec §FR-011, contracts/backup-format.md 스냅샷]
 - [ ] CHK002 임시 저장본을 다른 기기로 옮기지 않는다는 것이 스펙에 사용자 눈높이로 적혀 있는가? [Gap, research R5]
 - [ ] CHK003 공간이 모자라 백업에 못 올라간 사진을 복원했을 때 화면에 무엇으로 보이는지("원래 기기에 있는 사진")가 스펙에 있는가? [Gap, Spec §FR-018, data-model.md `pending`]
 - [ ] CHK004 영구 삭제한 일기가 옛 백업을 합치면 다시 생길 수 있다는 것이 스펙(가정 또는 경계 상황)에 있는가? [Gap, research R11, 사용자 확인 2026-11-01]

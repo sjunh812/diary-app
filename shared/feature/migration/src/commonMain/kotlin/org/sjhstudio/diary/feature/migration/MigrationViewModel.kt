@@ -51,7 +51,7 @@ sealed interface MigrationNotice {
 
 class MigrationViewModel(
     private val migration: LegacyMigration,
-    /** 이전이 끝난 기기의 뒷일(`MigrationFollowUp.run`). 관문을 지난 뒤 한 번만 부른다. */
+    /** 이전이 끝난 기기의 후속 작업(`MigrationFollowUp.run`). 관문을 지난 뒤 한 번만 부른다. */
     private val followUp: suspend () -> FollowUpResult,
     /** 파일을 읽는 일을 돌리는 곳. 시험에서는 시험 디스패처로 바꾼다. */
     private val background: CoroutineDispatcher = Dispatchers.Default
@@ -81,7 +81,7 @@ class MigrationViewModel(
         if (followedUp) return
         followedUp = true
         viewModelScope.launch {
-            // 뒷일이 실패해도 일기를 쓰고 읽는 것은 막지 않는다. 다음에 앱을 열 때 다시 본다.
+            // 후속 작업이 실패해도 일기를 쓰고 읽는 것은 막지 않는다. 다음에 앱을 열 때 다시 본다.
             val result = runCatching { withContext(background) { followUp() } }.getOrNull() ?: return@launch
             if (result.entriesRecovered > 0) _notices.send(MigrationNotice.EntriesRecovered(result.entriesRecovered))
             if (result.photosFound > 0) _notices.send(MigrationNotice.PhotosFound(result.photosFound))

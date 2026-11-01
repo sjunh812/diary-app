@@ -14,7 +14,7 @@ fun interface ThumbnailEncoder {
 }
 
 /**
- * 줄임 사진(스펙 001 research R9, FR-036·FR-037). `thumbs/<sha256>.jpg`, 긴 변 480px, JPEG 80.
+ * 썸네일(스펙 001 research R9, FR-036·FR-037). `thumbs/<sha256>.jpg`, 긴 변 480px, JPEG 80.
  * 원본에서 다시 만들 수 있는 파생 파일이라 백업에 넣지 않고, 캐시가 아닌 백업 제외 폴더에 둔다.
  * 없거나 지워졌으면 처음 찾을 때 만든다. 사진 폴더(`media/`) 밖의 파일은 맡지 않는다.
  */
@@ -25,10 +25,10 @@ class ThumbnailRepository(
     private val encoder: ThumbnailEncoder,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) {
-    /** [media]의 줄임 사진 경로. 이름은 원본과 같은 해시다. */
+    /** [media]의 썸네일 경로. 이름은 원본과 같은 해시다. */
     fun pathFor(media: Path): Path = thumbnailDir / "${media.name.substringBefore('.')}.$EXTENSION"
 
-    /** 줄임 사진을 돌려준다. 없으면 원본에서 만든다. 사진 폴더 밖이거나 만들지 못하면 null. */
+    /** 썸네일을 돌려준다. 없으면 원본에서 만든다. 사진 폴더 밖이거나 만들지 못하면 null. */
     suspend fun thumbnail(media: Path): Path? = withContext(io) {
         if (media.parent != mediaDir) return@withContext null
         val target = pathFor(media)

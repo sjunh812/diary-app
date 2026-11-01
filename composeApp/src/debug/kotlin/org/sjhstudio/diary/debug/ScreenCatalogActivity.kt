@@ -87,8 +87,8 @@ class ScreenCatalogActivity : ComponentActivity() {
 }
 
 /**
- * 옮긴 사진(`files/media`)으로 일기 줄 사진 칸을 그린다. 사진 칸은 줄임 사진만 읽고, 없으면 처음 보일 때 만든다(FR-036·FR-037).
- * 앱 틀처럼 이미지 로더를 줄임 사진 저장소에 잇는다.
+ * 옮긴 사진(`files/media`)으로 일기 줄 사진 칸을 그린다. 사진 칸은 썸네일만 읽고, 없으면 처음 보일 때 만든다(FR-036·FR-037).
+ * 앱 틀처럼 이미지 로더를 썸네일 저장소에 잇는다.
  */
 @Composable
 private fun PhotoCellSample() {

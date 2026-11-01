@@ -324,7 +324,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 줄임 사진을 못 만들어도 이전은 끝나고 수만 센다. 한 번에 3개를 넘게 만들지 않는다(FR-037, R9). */
+    /** 썸네일을 못 만들어도 이전은 끝나고 수만 센다. 한 번에 3개를 넘게 만들지 않는다(FR-037, R9). */
     @Test
     fun thumbnail_failures_are_counted_not_fatal() = runTest {
         TempDir().use { dir ->
@@ -340,7 +340,7 @@ class MigrationRunnerTest {
                 )
             }
             LegacyFixtures.create(env.legacy.noteDb, rows).close()
-            // 이전은 IO 스레드에서 돌아 줄임 사진 만들기가 정말로 나란히 불린다. 세는 값은 잠금 안에서만 바꾼다.
+            // 이전은 IO 스레드에서 돌아 썸네일 만들기가 정말로 나란히 불린다. 세는 값은 잠금 안에서만 바꾼다.
             val lock = Mutex()
             var running = 0
             var most = 0

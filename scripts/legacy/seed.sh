@@ -54,7 +54,7 @@ SQL
 fi
 printf '{"extra":%s}' "$COUNT" > "$WORK/seed.json"
 
-# 사진 두 장. 줄임 사진과 크기 읽기를 보려고 진짜 그림을 쓴다(fixtures/README.md). gone.jpg는 일부러 넣지 않는다(캐시에서 지워진 사진).
+# 사진 두 장. 썸네일과 크기 읽기를 보려고 진짜 그림을 쓴다(fixtures/README.md). gone.jpg는 일부러 넣지 않는다(캐시에서 지워진 사진).
 cp "$ROOT/scripts/legacy/fixtures/photo-landscape-exif6.jpg" "$WORK/1699000000001.jpg"
 cp "$ROOT/scripts/legacy/fixtures/photo-portrait.png" "$WORK/1699000000002.png"
 

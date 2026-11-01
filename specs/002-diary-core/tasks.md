@@ -50,7 +50,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 - [ ] T012 [P] Figma "화면" 페이지에 섹션 "홈 (S1)", "홈 상태", "일기 상세 (S3)"를 [라이트 | 설명 | 다크 | 태블릿] 줄로 그린다
 - [ ] T013 [P] Figma "화면" 페이지에 섹션 "쓰기 (S2)", "쓰기 상태"를 그린다
 - [ ] T014 [P] Figma "화면" 페이지에 섹션 "달력 (S4)", "검색 (S1-a)", "돌아보기 (S5)", "휴지통 (S6-7)"과 각 상태를 그리고, "표지 · 흐름"의 화면 흐름 지도와 진행 현황을 고친다
-- [ ] T076 개발 전 디자인 점검: T010~T014로 그린 컴포넌트와 "화면" 페이지 002 줄을 토스 TDS·당근 SEED·Apple HIG·Material 3와 유명 앱에 대어 보고(흐름과 UX 패턴, 여백·간격, 글자 크기·굵기·줄 높이, 모서리, 누를 곳, 색 대비, 폰·태블릿·다크가 같은 규칙인지, 문구) `specs/002-diary-core/design-review.md`에 남긴다. 고칠 것은 `docs/design.md` → Figma 변수·컴포넌트 → 화면 순서로 고친 뒤 디자인 시스템 컴포넌트 코드(T028)와 화면 작업에 들어간다(2026-11-01 사용자 요청, 헌법 V) 2026-11-01 전체 점검(아이콘 크기·선 굵기, 상자와 설정 줄 여백)은 `specs/001-foundation-migration/design-review.md` "전체 점검"에서 프로토타입까지 마쳤다. 남은 것은 이 점검의 나머지 항목(흐름, 글자, 색 대비)과 태블릿 틀 맞추기다
+- [ ] T076 개발 전 디자인 점검: T010~T014로 그린 컴포넌트와 "화면" 페이지 002 줄을 토스 TDS·당근 SEED·Apple HIG·Material 3와 유명 앱에 대어 보고(흐름과 UX 패턴, 여백·간격, 글자 크기·굵기·줄 높이, 모서리, 터치 영역, 색 대비, 폰·태블릿·다크가 같은 규칙인지, 문구) `specs/002-diary-core/design-review.md`에 남긴다. 고칠 것은 `docs/design.md` → Figma 변수·컴포넌트 → 화면 순서로 고친 뒤 디자인 시스템 컴포넌트 코드(T028)와 화면 작업에 들어간다(2026-11-01 사용자 요청, 헌법 V) 2026-11-01 전체 점검(아이콘 크기·선 굵기, 상자와 설정 줄 여백)은 `specs/001-foundation-migration/design-review.md` "전체 점검"에서 프로토타입까지 마쳤다. 남은 것은 이 점검의 나머지 항목(흐름, 글자, 색 대비)과 태블릿 틀 맞추기다
 
 ### 모듈 (스펙 001 뒤)
 
@@ -75,7 +75,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 - [ ] T021 [P] `SearchFilter`, `StatsPeriod`(이전·다음, "오늘이 든 기간 뒤로는 가지 않는다"), `ListPreferences`(`listStyle` 기본 `FEED`, `favoritesOnly`)를 `shared/core/model/{kt}/core/model/`에 만든다
 - [ ] T022 `contracts/rich-text-html.md`대로 `RichTextSanitizer`, `toPlainText`, `fromLegacy`를 `shared/core/model/{kt}/core/model/RichText.kt`에 만들어 T017·T018을 통과시킨다
 - [ ] T023 001 DB에 `Draft`(키 `"new"` 또는 `Entry.id`, `weatherAutoFilled`), `DraftMedia`, `Entry.deletedAt`과 색인 `(deletedAt, date DESC, time DESC)`, `(deletedAt, isFavorite)`를 001 첫 DB 버전 안에 더한다 `shared/core/database/{kt}/core/database/`
-- [ ] T024 [P] `ImageProcessor` expect와 Android actual(표본 축소, EXIF 방향, "긴 변 2,560px을 넘을 때만" 축소, JPEG 85, SHA-256)을 `shared/core/platform/{kt}/core/platform/ImageProcessor.kt`, `shared/core/platform/{android}/core/platform/ImageProcessor.android.kt`에 만든다
+- [ ] T024 [P] `ImageProcessor` expect와 Android actual(다운샘플링, EXIF 방향, "긴 변 2,560px을 넘을 때만" 축소, JPEG 85, SHA-256)을 `shared/core/platform/{kt}/core/platform/ImageProcessor.kt`, `shared/core/platform/{android}/core/platform/ImageProcessor.android.kt`에 만든다
 - [ ] T025 [P] `ImageProcessor` iOS actual(`UIGraphicsImageRenderer`)을 `shared/core/platform/{ios}/core/platform/ImageProcessor.ios.kt`에 만든다
 - [ ] T026 [P] 시스템 공유 창, 햅틱, 고정 가능한 시계를 `shared/core/platform/{kt}/core/platform/ShareSheet.kt`, `Haptics.kt`, `Clock.kt`(+ android/ios actual)에 만든다
 - [ ] T027 [P] 대역 `FakeEntryRepository`, `FakeDraftRepository`, `FakeImageProcessor`, `FixedClock`을 `shared/core/testing/{kt}/core/testing/`에 만든다
@@ -131,7 +131,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ### Implementation for User Story 2
 
-- [ ] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(Paging 3, 스펙 001 research R4. 줄임 사진은 001 `ThumbnailRepository`)
+- [ ] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(Paging 3, 스펙 001 research R4. 썸네일은 001 `ThumbnailRepository`)
 - [ ] T046 [P] [US2] `ListPreferencesRepository`(레거시 `skip_note`를 001이 이은 값)를 `shared/core/data/{kt}/core/data/ListPreferencesRepository.kt`에 만든다
 - [ ] T047 [US2] 홈 ViewModel과 화면(달 머리, 날짜 머리, 3줄 미리보기, 즐겨찾기만, 목록 모양, 연·월 고르기 시트, 빈 상태 "아직 쓴 일기가 없어요" [오늘 일기 쓰기]와 "즐겨찾기한 일기가 없어요")을 `shared/feature/home/{kt}/feature/home/HomeViewModel.kt`, `HomeScreen.kt`에 만든다
 - [ ] T048 [US2] 상세 화면(서식 본문, 사진, 고치기, 지우기, 즐겨찾기, 공유 = 서식 없는 글)을 `shared/feature/home/{kt}/feature/home/EntryDetailScreen.kt`에 만든다

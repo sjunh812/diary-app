@@ -8,7 +8,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// 차가운 시작 시간을 잰다. 목록 넘기기와 Baseline Profile 생성기는 화면이 생기면 더한다.
+// 콜드 스타트 시간을 잰다. 목록 넘기기와 Baseline Profile 생성기는 화면이 생기면 더한다.
 @RunWith(AndroidJUnit4::class)
 class StartupBenchmark {
     @get:Rule

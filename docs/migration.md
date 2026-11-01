@@ -127,7 +127,7 @@
 
 ## 시험
 
-이전 코드는 다른 기능보다 먼저, 더 많이 시험한다. 고정 파일(fixture)은 `shared/core/migration/src/androidHostTest/resources/legacy/`에 둔다(스펙 001 tasks T031).
+이전 코드는 다른 기능보다 먼저, 더 많이 시험한다. 견본 파일(fixture)은 `shared/core/migration/src/androidHostTest/resources/legacy/`에 둔다(스펙 001 tasks T031).
 
 - 버전 1 스키마로 만들고 2로 올린 DB(`star` NULL)
 - 빈 DB, 테이블만 있는 DB, 1만 줄 DB

@@ -112,7 +112,7 @@ class MigrationRunner(
      */
     private val versionCode: Int = 0,
     /**
-     * 옮긴 사진의 줄임 사진을 만든다(research R9, FR-037). 실패해도 이전은 계속하고 수만 센다.
+     * 옮긴 사진의 썸네일을 만든다(research R9, FR-037). 실패해도 이전은 계속하고 수만 센다.
      * 앱은 `ThumbnailRepository.ensure`를 넘긴다.
      */
     private val makeThumbnail: (suspend (Path) -> Boolean)? = null,
@@ -285,7 +285,7 @@ class MigrationRunner(
         writePhotosJson(records)
     }
 
-    /** 줄임 사진을 최대 3개씩 나란히 만든다(contracts/migration-flow.md `Copying`). 못 만든 수를 돌려준다. */
+    /** 썸네일을 최대 3개씩 나란히 만든다(contracts/migration-flow.md `Copying`). 못 만든 수를 돌려준다. */
     private suspend fun makeThumbnails(files: List<Path>): Int {
         val make = makeThumbnail ?: return 0
         val permits = Semaphore(THUMBNAIL_PARALLEL)
@@ -549,10 +549,10 @@ class MigrationRunner(
         /** 한 트랜잭션에 쓰는 줄 수(contracts/migration-flow.md Copying). */
         const val CHUNK = 200
 
-        /** 줄임 사진을 나란히 만드는 수. 큰 사진을 한꺼번에 풀어 메모리가 모자라지 않게 3으로 둔다(R9). */
+        /** 썸네일을 나란히 만드는 수. 큰 사진을 한꺼번에 풀어 메모리가 모자라지 않게 3으로 둔다(R9). */
         const val THUMBNAIL_PARALLEL = 3
 
-        /** 사진 한 장의 줄임 사진 자리(research R8). */
+        /** 사진 한 장의 썸네일 자리(research R8). */
         const val THUMBNAIL_BYTES = 40L * 1024
 
         /** 여유 50MB(research R8). */

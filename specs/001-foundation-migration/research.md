@@ -15,7 +15,7 @@
 | 화면 전환 | Navigation 3 + ViewModel 장식자 | JB navigation3-ui + 같은 장식자 | Navigation 3 | Navigation 3 + 탭 상태 장식자 | Navigation 3 + 표준 ViewModel 장식자 |
 | 저장 | Room 2.8 + Proto DataStore | 설정만 | SQLDelight | DataStore(DB 없음) | Room 3 + DataStore |
 | UI 상태 | sealed UiState, `stateIn(WhileSubscribed(5_000))`, `collectAsStateWithLifecycle` | 비슷 | 비슷 | 비슷 | NIA 방식 |
-| 시험 | mock 금지·대역, Roborazzi | 저장소 이전 시험(commonTest) | 대역 + Turbine + Maestro | kotlin.test + Turbine, iOS UI 시험 | 대역 + Turbine, 레거시 고정 파일 이전 시험 |
+| 시험 | mock 금지·대역, Roborazzi | 저장소 이전 시험(commonTest) | 대역 + Turbine + Maestro | kotlin.test + Turbine, iOS UI 시험 | 대역 + Turbine, 레거시 견본 파일 이전 시험 |
 | 성능 | benchmarks, baseline profile, `compose_compiler_config.conf`, lazy 키 | 없음 | baseline-prof.txt 커밋 | 없음 | NIA 방식 |
 | 정적 분석 | Spotless + ktlint, 디자인 시스템 lint | 없음 | detekt + compose-rules | 없음 | Spotless + ktlint + 디자인 토큰 검사 |
 | iOS | - | static framework + Xcode 프로젝트, SKIE 없음 | SwiftUI + SKIE | Xcode 없이 .app 묶음 | static framework + Xcode 프로젝트, SKIE 없음 |
@@ -93,7 +93,7 @@
   만들어 SHA-256을 견준다. 되돌리기는 기분·날씨 ID → 숫자, `toPlainText(bodyHtml)`과 `plainText`가 둘 다 `contents`와 같은지, 사진 줄 → 원래
   경로 목록이다. 줄 수, 찾은 사진 + 못 찾은 사진 = 경로 수, 복사한 사진 파일의 SHA-256 재계산도 본다. 형식은 `contracts/legacy-mapping.md`.
 - Rationale: 같은 함수로 양쪽을 만들면 매핑 버그가 그대로 통과한다(판단). 앞으로 가는 변환과 되돌리는 변환이 둘 다 맞아야 같은 값이 나온다.
-  매핑 자체의 정답은 고정 파일 시험의 기대값으로 따로 지킨다.
+  매핑 자체의 정답은 견본 파일 시험의 기대값으로 따로 지킨다.
 
 ### R7. 이전은 임시 DB에 쓰고 이름 바꾸기로 한 번에 바꾼다
 
@@ -120,11 +120,11 @@
   SELinux에 막혔다(`avc: denied { link } … tcontext=app_data_file`, 2026-11-01 `run-as`로 시험). 앱 자신의 도메인도 같은 제한일 가능성이 커서(판단)
   복사를 그대로 둔다. 원본을 옮기는(rename) 방법은 공간은 안 들지만 원본을 건드려 헌법 I에 어긋난다.
 
-### R9. 줄임 사진은 긴 변 480px, 백업에서 빼고 캐시 폴더 밖에 둔다
+### R9. 썸네일은 긴 변 480px, 백업에서 빼고 캐시 폴더 밖에 둔다
 
 - Decision: `thumbs/<sha256>.jpg`(긴 변 480px, JPEG 80). Android는 `noBackupFilesDir/thumbs`, iOS는 `Application Support/thumbs`(백업 제외 표시).
   이전의 `Copying` 단계에서 사진을 복사한 직후 최대 3개씩 나란히 만들고, 실패해도 이전은 계속한다(FR-037). 화면은 Coil 3의 사용자 정의 Fetcher가
-  줄임 사진을 읽고, 없으면 원본에서 표본 축소로 만들어 저장한 뒤 돌려준다. 원본 크기는 사진 크게 보기에서만 화면 크기로 줄여 읽는다(FR-036).
+  썸네일을 읽고, 없으면 원본에서 다운샘플링로 만들어 저장한 뒤 돌려준다. 원본 크기는 사진 크게 보기에서만 화면 크기로 줄여 읽는다(FR-036).
 - Rationale: 지금 앱은 목록 칸마다 원본을 통째로 디코딩한다(`PhotoAdapter.setPhoto`). 목록 사진 칸 64dp는 4배 밀도에서 256px, 폰 격자 칸 약 130dp는
   3배 밀도에서 390px라 480px이면 충분하다(판단, 출시 전 측정으로 조정). 다시 만들 수 있으니 백업에 넣지 않는다. 헌법 I은 사진과 DB를 캐시에 두지
   말라고 하므로 파생 파일도 캐시 폴더에는 두지 않는다.
@@ -287,7 +287,7 @@
 
 | 번호 | 무엇 | 정하는 조건 | 기본값 |
 | --- | --- | --- | --- |
-| O1 | 줄임 사진 크기(480px)와 품질 | 1만 편·사진 5천 장 기기에서 넘기기(SC-010)와 용량을 재고 정한다 | 480px, JPEG 80 |
+| O1 | 썸네일 크기(480px)와 품질 | 1만 편·사진 5천 장 기기에서 넘기기(SC-010)와 용량을 재고 정한다 | 480px, JPEG 80 |
 | O2 | UI 글꼴 Pretendard를 줄일지 | 닫음(2026-11-01, 조건대로): Pretendard 1.3.9 OTF 4굵기가 6.3MB이고 개발 빌드 APK가 24.7MB라 지금 앱(118MB)보다 작다. 줄이지 않고 전체를 넣었다. 예전 앱 `main_font.ttf`와 같은 글꼴(해시 같음)이다 | 전체 |
 | O3 | Android 7~12 최근 앱 가림 | `onPause`의 `FLAG_SECURE`가 미리보기를 가리는지 API 24·29·31 에뮬레이터에서 본다. 안 되면 잠금이 켜진 동안 늘 `FLAG_SECURE`(그 버전에서 화면 캡처도 막힘)로 바꾸고 스펙 FR-018을 고칠지 사용자에게 묻는다 | `onPause`에서 켬 |
 | O4 | 편집기가 공백을 줄이는지 | 스펙 002 쓰기 화면 개발 첫 작업에서 연속 공백·앞뒤 공백·탭으로 확인 | 저장 형식은 그대로, 편집기 경계에서 고침 |
