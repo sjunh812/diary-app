@@ -5,7 +5,7 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 ## 업데이트가 이어지려면 (Play)
 
 - `applicationId = "org.sjhstudio.diary"`를 `composeApp`에 **명시**한다. 안 쓰면 namespace를 따라가 다른 앱이 된다([configure-app-module](https://developer.android.com/build/configure-app-module)).
-- 같은 앱 서명 키, `versionCode` 37 이상(1.7.5가 36). 직접 관리하는 앱 서명 키는 잃으면 다시 만들 수 없다([앱 서명](https://support.google.com/googleplay/android-developer/answer/9842756?hl=en)).
+- 같은 앱 서명 키, `versionCode` 37 이상(36은 내지 않은 1.7.5가 썼다). 직접 관리하는 앱 서명 키는 잃으면 다시 만들 수 없다([앱 서명](https://support.google.com/googleplay/android-developer/answer/9842756?hl=en)).
 - targetSdk 36 이상(2026-08-31부터 신규·업데이트 앱)([target-sdk](https://developer.android.com/google/play/requirements/target-sdk)).
 - Play 결제 라이브러리 8 이상.
 - 단계적 출시와 이전 실패 시 멈춤은 `docs/migration.md` 출시 순서를 따른다.
@@ -79,10 +79,9 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 - [ ] 글꼴 10종 라이선스 마무리(`docs/design.md` 일기 본문 글꼴): 교보문고(교보손글씨 2019)와 온글잎(윤우체, ownglyph@voyagerx.com)에 앱 번들
       허용을 서면으로 확인하고, 안 되면 대체 글꼴(나눔손글씨 펜, Gaegu)로 바꾼다. "오픈소스와 글꼴 고지" 화면에 네이버·쿠키런 라이선스 전문과
       공공누리·강원교육 출처 표시를 넣는다.
-- [ ] 1.7.5(36) 서명 빌드를 만들어 Play에 올린다. 777미니콩다방·777꼬마나비를 빼고 고르던 사람은 꼬미·코트라 희망체로 바꾼다
-      (2026-11-01 사용자 결정, master `3cea98b`에 합침). 올리기 전에는 Play 사용자에게 777 글꼴이 그대로 배포된다
+- [ ] 777미니콩다방·777꼬마나비는 2.0.0에서 빠진다. 1.7.5로 먼저 빼는 안은 내지 않기로 했고(2026-11-01), 그때까지 1.7.4가 그대로 배포된다
 - [ ] 기분·날씨 아이콘 새로 그리기(지금 PNG 출처 미확인)
-- [ ] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(`app/.../utils/ApiKey.kt`). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
+- [x] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(2026-11-01 해제, 시험 호출이 401 "Authentication Failed"). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
 - [ ] 위치정보지원센터 문의
 - [ ] 처리방침 URL을 Play Console, App Store Connect, 앱 설정에 걸기
 - [ ] Play 데이터 보안, App Store 개인정보 라벨, Privacy Manifest 작성(광고를 넣으므로 AdMob 항목 포함)

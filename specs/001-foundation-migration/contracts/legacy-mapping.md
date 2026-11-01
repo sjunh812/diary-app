@@ -77,7 +77,7 @@
 | - | `lock.relock_after` | `one_minute`(스펙 FR-017) |
 | `is_alarm_key`, `hour_key`, `minute_key` | `reminder_enabled`, `reminder_minute_of_day` | 시 0~23, 분 0~59가 아니면 22:00 |
 | 값이 `true`인 이메일 모양 키, `"<계정>'s id"` | `legacy_backup_account`, `legacy_backup_file_id` | `data-model.md` LegacyBackupLink |
-| `skip_note`, `permission_guide`, `removed_font_notice` | 옮기지 않음 | FR-021, FR-023 |
+| `skip_note`, `permission_guide` | 옮기지 않음 | FR-021, FR-023 |
 
 ## 검증 지문
 

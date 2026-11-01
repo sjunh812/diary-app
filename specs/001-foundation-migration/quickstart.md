@@ -51,8 +51,6 @@ scripts/legacy/upgrade-test.sh --api 24 --legacy 1.7.4 --fixture photos-missing
 | `locked`(잠금·지문 켬, 알림 22:00) | 잠금 화면이 먼저, 옛 비밀번호로 열림, 다음 22:00 알림 |
 | `fonts`(font_key 5, font_size 3, mode_key 2) | 꼬미, `large`, 다크, 글꼴 바뀜 안내 한 번 |
 
-1.7.5(`--legacy 1.7.5`)로 `fonts`를 돌리면 글꼴은 꼬미이고 안내가 다시 뜨지 않는다.
-
 ## 3. 끊겼다 다시 (FR-007)
 
 개발 빌드는 `files/debug/kill_at` 파일에 단계 이름이 있으면 그 단계에서 프로세스를 끝낸다.

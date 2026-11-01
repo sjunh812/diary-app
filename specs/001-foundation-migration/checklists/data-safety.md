@@ -67,3 +67,4 @@
 - `checklists/requirements.md` has a separate built-in lifecycle maintained by `/speckit-specify` and `/speckit-clarify`
 - 2026-11-01 작성자 수정(확인 표시는 검토자가 한다): CHK004·CHK005·CHK022·CHK023·CHK025는 스펙 FR-009, FR-011, FR-022, FR-024와 Edge Cases에 더했다.
   CHK006·CHK007·CHK008·CHK030은 `docs/backup.md` "스펙 001에서 넘어오는 것"에, CHK010·CHK016~CHK019는 `docs/migration.md` 원칙 1~4와 옮겨 담기에 고쳤다.
+- 2026-11-01 1.7.5를 내지 않기로 해서(`docs/DECISIONS.md`) CHK003, CHK024는 해당하는 사용자가 없다. 검토자가 해당 없음으로 닫는다.

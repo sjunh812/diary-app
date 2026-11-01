@@ -53,7 +53,7 @@
 | coroutines / datetime / serialization | 1.11.0 / 0.8.0 / 1.11.0 | |
 
 - Decision: 위 표를 `gradle/libs.versions.toml`에 고정한다. 알파·베타는 쓰지 않는다. JDK 17 툴체인으로 빌드한다(이 기기 기본 JDK 25에서는
-  레거시 Gradle 8.9가 돌지 않아 1.7.5 빌드에도 JBR 17을 썼다).
+  레거시 Gradle 8.9가 돌지 않아 레거시 빌드에는 JBR 17을 쓴다).
 
 ### R3. convention plugin
 

@@ -95,7 +95,7 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | `maru_buri` | 마루 부리 | 없음(새 글꼴) |
 
 교보·온글잎 서면 확인이 안 되면 `kyobo_2019` → `nanum_pen`, `ownglyph_yunwoo` → `gaegu`로 ID째 바꾸고 대응표도 그쪽을 가리킨다.
-옛 `font_key`가 4, 5, 6, 10, 13이면 `font_replaced_from`에 옛 이름을 남긴다(1.7.5가 이미 5·6을 1·12로 바꾼 사람은 해당 없음).
+옛 `font_key`가 4, 5, 6, 10, 13이면 `font_replaced_from`에 옛 이름을 남긴다.
 
 ### BodyTextSize
 

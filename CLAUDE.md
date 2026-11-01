@@ -1,6 +1,6 @@
 # 1일 1일기
 
-바쁜 사람을 위한 간편한 일기장. 지금 버전은 Java/Kotlin View 기반 안드로이드 앱(`app/`, Play에는 1.7.4(35), master는 777 글꼴만 뺀 1.7.5(36), `org.sjhstudio.diary`)이고,
+바쁜 사람을 위한 간편한 일기장. 지금 버전은 Java/Kotlin View 기반 안드로이드 앱(`app/`, 1.7.4(35), `org.sjhstudio.diary`)이고,
 Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store에는 새로 낸다. 리뉴얼 기획은 `docs/PRD.md`에 있다.
 
 ## 문서
@@ -50,7 +50,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
   설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 그림은 Compottie(Lottie),
   결제는 RevenueCat KMP, 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
   생체 인증은 expect/actual(BiometricPrompt, LAContext). 레거시 DB는 Room이 아니라 날 SQL로 읽는다(`docs/migration.md`).
-- `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 36(1.7.5)보다 크게, `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
+- `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 37부터(36은 만들고 내지 않은 1.7.5가 썼다), `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
   같은 Google Cloud 프로젝트를 쓴다(이전 백업이 보이려면 필요, `docs/migration.md`).
 - 레거시 `app/` 모듈은 이전 코드가 레거시 형식을 다 다룰 때까지 참고용으로 남긴다.
 - 구조와 코드는 Now in Android(Google)와 널리 쓰이는 CMP 오픈소스 프로젝트(JetBrains KotlinConf 앱 등)를 실제로 열어 보고 근거로
@@ -103,5 +103,5 @@ feat(write): 사진 여러 장 한 번에 고르기
 Refs: specs/002-diary-core FR-006
 ```
 - 비밀값(API 키, 서명 정보)은 저장소에 올리지 않는다. 레거시 `app/.../utils/ApiKey.kt`의 네이버 지도 키는 2022년부터 공개
-  저장소에 올라가 있다. 네이버 지도 API는 유료로 바뀌어 리뉴얼에서는 쓰지 않는다(사용자 확인 2026-11-01). 결제가 연결된 계정이면 남이 쓴
-  요금이 나올 수 있으니 네이버 클라우드 콘솔에서 그 키(앱)를 삭제하거나 막는다.
+  저장소에 올라가 있다. 네이버 지도 API는 유료로 바뀌어 리뉴얼에서는 쓰지 않는다(사용자 확인 2026-11-01). 사용자가 콘솔에서 해제했고
+  같은 날 그 키로 부른 시험이 401 "Authentication Failed"로 거절되는 것을 확인했다. 기록에 남은 키는 더 쓸 수 없다.
