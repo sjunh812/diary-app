@@ -7,4 +7,5 @@ val lockFeatureModule =
     module {
         viewModel { LockViewModel(get()) }
         viewModel { PinSetupViewModel(get()) }
+        viewModel { LockSettingsViewModel(get()) }
     }

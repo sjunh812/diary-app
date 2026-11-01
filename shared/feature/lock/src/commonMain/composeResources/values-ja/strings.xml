@@ -28,4 +28,18 @@
     <string name="forgot_no_device_lock_title">スマートフォンに画面ロックがありません</string>
     <string name="forgot_no_device_lock_body">画面ロックがないとパスコードを決め直せません。バックアップがあれば、アプリを入れ直してバックアップから日記を復元できます。</string>
     <string name="lock_turned_off">スマートフォンに画面ロックがないため、日記のロックをオフにしました。設定で新しいパスコードを決めてください</string>
+
+    <!-- ロック設定(L4) -->
+    <string name="lock_settings_title">ロック</string>
+    <string name="lock_settings_enable">ロックを使う</string>
+    <string name="lock_settings_change">パスコードを変更</string>
+    <string name="lock_settings_biometric_unavailable">この端末では今は生体認証を使えません</string>
+    <string name="lock_settings_relock">再ロック</string>
+    <string name="lock_settings_relock_body">他のアプリから戻ったとき、選んだ時間が過ぎていれば再びロックします。</string>
+    <string name="relock_immediately">すぐに</string>
+    <string name="relock_one_minute">1分後</string>
+    <string name="relock_five_minutes">5分後</string>
+    <string name="relock_cold_start">アプリを新しく開いたときだけ</string>
+    <string name="lock_settings_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば決め直せます。</string>
+    <string name="lock_confirm_title">現在のパスコードを入力してください</string>
 </resources>

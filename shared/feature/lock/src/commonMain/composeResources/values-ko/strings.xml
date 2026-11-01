@@ -28,4 +28,18 @@
     <string name="forgot_no_device_lock_title">휴대폰에 화면 잠금이 없어요</string>
     <string name="forgot_no_device_lock_body">화면 잠금이 없으면 비밀번호를 다시 정할 수 없어요. 백업이 있다면 앱을 다시 설치하고 백업에서 일기를 되살릴 수 있어요.</string>
     <string name="lock_turned_off">휴대폰에 화면 잠금이 없어 일기 잠금을 껐어요. 설정에서 새 비밀번호를 정해 주세요</string>
+
+    <!-- 잠금 설정(L4) -->
+    <string name="lock_settings_title">잠금</string>
+    <string name="lock_settings_enable">잠금 사용</string>
+    <string name="lock_settings_change">비밀번호 바꾸기</string>
+    <string name="lock_settings_biometric_unavailable">지금 기기에서 생체 인증을 쓸 수 없어요</string>
+    <string name="lock_settings_relock">다시 잠그기</string>
+    <string name="lock_settings_relock_body">다른 앱을 쓰다가 돌아왔을 때 고른 시간이 지났으면 다시 잠가요.</string>
+    <string name="relock_immediately">바로</string>
+    <string name="relock_one_minute">1분 뒤</string>
+    <string name="relock_five_minutes">5분 뒤</string>
+    <string name="relock_cold_start">앱을 새로 열 때만</string>
+    <string name="lock_settings_note">비밀번호를 잊어버리면 휴대폰 화면 잠금으로 확인하고 다시 정할 수 있어요.</string>
+    <string name="lock_confirm_title">지금 비밀번호를 입력해 주세요</string>
 </resources>

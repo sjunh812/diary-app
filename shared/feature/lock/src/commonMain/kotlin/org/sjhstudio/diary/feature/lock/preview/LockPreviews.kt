@@ -3,8 +3,11 @@ package org.sjhstudio.diary.feature.lock.preview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.LockSettings
+import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.feature.lock.LockMessage
 import org.sjhstudio.diary.feature.lock.LockScreen
+import org.sjhstudio.diary.feature.lock.LockSettingsScreen
 import org.sjhstudio.diary.feature.lock.LockUiState
 import org.sjhstudio.diary.feature.lock.PinSetupScreen
 import org.sjhstudio.diary.feature.lock.PinSetupUiState
@@ -57,3 +60,35 @@ private fun SetupAgain() = Setup(PinSetupUiState(entered = 1, again = true))
 @Preview(name = "L2 서로 달라요", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun SetupMismatch() = Setup(PinSetupUiState(mismatch = true))
+
+@Composable
+private fun Settings(settings: LockSettings, dark: Boolean = false, biometricAvailable: Boolean = true) = DiaryTheme(darkTheme = dark) {
+    LockSettingsScreen(
+        settings,
+        biometricAvailable = biometricAvailable,
+        onBack = {},
+        onEnabledChange = {},
+        onChangePin = {},
+        onBiometricChange = {},
+        onRelockChange = {}
+    )
+}
+
+private val lockOn =
+    LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", biometricEnabled = true, relockAfter = RelockAfter.ONE_MINUTE)
+
+@Preview(name = "L4 잠금 설정 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsLight() = Settings(lockOn)
+
+@Preview(name = "L4 잠금 설정 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsDark() = Settings(lockOn, dark = true)
+
+@Preview(name = "L4 생체 인증을 쓸 수 없어요", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsNoBiometric() = Settings(lockOn, biometricAvailable = false)
+
+@Preview(name = "L4 잠금 꺼짐", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsOff() = Settings(LockSettings())

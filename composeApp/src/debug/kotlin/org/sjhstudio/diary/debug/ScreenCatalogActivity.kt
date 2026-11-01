@@ -25,6 +25,10 @@ import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
+import org.sjhstudio.diary.feature.lock.ForgotPinSheet
+import org.sjhstudio.diary.feature.lock.LockScreen
+import org.sjhstudio.diary.feature.lock.LockSettingsRoute
+import org.sjhstudio.diary.feature.lock.LockUiState
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportUiState
@@ -34,7 +38,9 @@ import org.sjhstudio.diary.feature.settings.MigrationReportUiState
  * 일기 DB나 설정은 건드리지 않는다.
  *
  *   adb shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
- *   화면 이름: migration_report(M5), support_sheet(M5 · 고쳐 받기 문의), photo_cell(일기 줄 사진 칸, 옮긴 사진으로)
+ *   화면 이름: migration_report(M5), support_sheet(M5 · 고쳐 받기 문의), photo_cell(일기 줄 사진 칸, 옮긴 사진으로),
+ *   lock_forgot(L3 · 비밀번호를 잊어버렸을 때), lock_settings(L4 잠금 설정)
+ * lock_settings만 실제 잠금 설정을 바꾼다. 에뮬레이터에서 잠금을 켜 보는 데 쓴다.
  */
 class ScreenCatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +62,13 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     PHOTO_CELL -> PhotoCellSample()
 
+                    LOCK_FORGOT -> {
+                        LockScreen(LockUiState(), showBiometric = false, onDigit = {}, onDelete = {}, onBiometric = {}, onForgot = {})
+                        ForgotPinSheet(deviceSecure = true, onDismiss = ::finish, onConfirm = {})
+                    }
+
+                    LOCK_SETTINGS -> LockSettingsRoute(onBack = ::finish)
+
                     else -> finish()
                 }
             }
@@ -67,6 +80,8 @@ class ScreenCatalogActivity : ComponentActivity() {
         const val MIGRATION_REPORT = "migration_report"
         const val SUPPORT_SHEET = "support_sheet"
         const val PHOTO_CELL = "photo_cell"
+        const val LOCK_FORGOT = "lock_forgot"
+        const val LOCK_SETTINGS = "lock_settings"
 
         // Figma M5 · 일부만과 같은 숫자
         val SAMPLE_REPORT =

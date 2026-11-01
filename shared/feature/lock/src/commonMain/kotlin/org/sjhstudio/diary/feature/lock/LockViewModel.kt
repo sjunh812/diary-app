@@ -31,7 +31,11 @@ sealed interface LockMessage {
     data class Waiting(val seconds: Int) : LockMessage
 }
 
+/** 넣은 비밀번호로 무엇을 하는가. 잠금 화면은 [Verify], 잠금 설정의 "잠금 사용" 끄기는 [Disable]이다. */
+enum class PinCheck { Verify, Disable }
+
 sealed interface LockEvent {
+    /** 비밀번호가 맞았다([PinCheck.Disable]이면 잠금도 껐다). */
     data object Unlocked : LockEvent
 
     /** 비밀번호를 대어 볼 수 없다. 폰 화면 잠금 확인으로 간다. */
@@ -46,6 +50,7 @@ class LockViewModel(private val repository: LockRepository, private val clock: C
     private val digits = CharArray(Pin.LENGTH)
     private var count = 0
     private var ticker: Job? = null
+    private var check = PinCheck.Verify
 
     private val _state = MutableStateFlow(LockUiState())
     val state: StateFlow<LockUiState> = _state.asStateFlow()
@@ -76,6 +81,13 @@ class LockViewModel(private val repository: LockRepository, private val clock: C
         _state.update { it.copy(entered = count) }
     }
 
+    /** 잠금 설정에서 지금 비밀번호를 다시 받을 때 처음부터 시작한다. */
+    fun start(check: PinCheck) {
+        this.check = check
+        clearDigits()
+        if (_state.value.message !is LockMessage.Waiting) _state.value = LockUiState()
+    }
+
     /** 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없을 때 잠금을 끈다. */
     suspend fun turnOffWithoutPin(): Boolean = repository.turnOffWithoutPin()
 
@@ -85,7 +97,8 @@ class LockViewModel(private val repository: LockRepository, private val clock: C
         if (pin == null) return
         _state.update { it.copy(checking = true) }
         viewModelScope.launch {
-            when (val result = repository.verify(pin, clock.now())) {
+            val result = if (check == PinCheck.Disable) repository.disable(pin, clock.now()) else repository.verify(pin, clock.now())
+            when (result) {
                 VerifyResult.Ok -> {
                     _state.value = LockUiState()
                     _events.send(LockEvent.Unlocked)
