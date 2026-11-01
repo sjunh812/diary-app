@@ -201,7 +201,13 @@
 
 - Decision: 본문 글꼴 10종과 UI 글꼴 Pretendard 4굵기를 `core/designsystem`의 Compose 리소스에 넣고, 고른 글꼴만 그릴 때 읽는다. 글꼴 ID는
   `pretendard`, `gowun_dodum`, `cafe24_surround`, `maru_buri`, `gowun_batang`, `nanum_pen`, `nanum_jeomggol`, `kkomi`, `gamja_flower`, `hi_melody`와
-  `system`이다(2026-11-01 다시 고름, `docs/design.md`). 감자꽃·하이멜로디는 각 12.6MB라 앱 크기가 문제면 Play Asset Delivery로 먼저 돌린다.
+  `system`이다(2026-11-01 다시 고름, `docs/design.md`).
+- 글꼴 내려받기(2026-11-01 사용자 요청): Pretendard·국립공원 꼬미·나눔손글씨 펜(3.5MB 이하)만 Compose 리소스로 넣고, 나머지 6종은 Android에서 글꼴마다
+  Play Feature Delivery 필요할 때 설치 모듈(`fonts:<id>`, 자산만 있는 모듈)로 둔다. 받으면 `SplitCompat`으로 모듈 자산을 읽어 `files/fonts/<id>.ttf`로
+  복사하고 파일에서 `FontFamily`를 만든다. 받기 전에는 미리보기 그림만 보인다. iOS는 R2에 On-Demand Resources(또는 그때 Apple 권장 방식)로 같은 일을 한다.
+  근거: [Play Feature Delivery](https://developer.android.com/guide/playcore/feature-delivery), [On-Demand Resources](https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/On_Demand_Resources_Guide/Managing.html).
+  Google Play 서비스의 Downloadable Fonts([문서](https://developer.android.com/guide/topics/ui/look-and-feel/downloadable-fonts))는 Google Fonts에 있는 4종에만 쓸 수 있고
+  마루 부리·점꼴체에는 못 써서, 한 가지 방식으로 맞추려고 쓰지 않는다. Play Asset Delivery는 문서가 게임을 기준으로 설명해 앱에 쓰는지 확인하지 못했다.
 - 글자 크기: 앱 틀(탭, 설정, 버튼)은 앱 설정 없이 기기 글자 크기를 따른다(Android sp·글꼴 배율, iOS Dynamic Type). 앱 설정 "본문 글자 크기"는
   일기 본문(쓰기·상세·목록 미리보기)에만 걸리고 기기 글자 크기 위에 곱해진다. 단계는 5개 15/24, 17/28(기본, `reading`), 19/30, 21/34, 24/38이고
   미리보기 문장을 보며 고른다. 옛 `font_size`는 같은 자리로 옮긴다: 0·1 → 15, 2 → 17, 3 → 19, 4 → 21(사용자 결정 2026-11-01, 옛 동작에 묶이지 않는다).
