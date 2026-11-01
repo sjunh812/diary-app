@@ -194,7 +194,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 
 **Independent Test**: quickstart.md §6
 
-- [ ] T079 [P] [US5] `build-logic/convention/src/test/kotlin/DesignTokenCheckTaskTest.kt`: 금지 패턴이 든 견본 파일이 실패하고 디자인 시스템·미리보기 파일은 통과한다
+- [x] T079 [P] [US5] `build-logic/convention/src/test/kotlin/DesignTokenCheckTaskTest.kt`: 금지 패턴이 든 견본 파일이 실패하고 디자인 시스템·미리보기 파일은 통과한다
 - [ ] T080 [US5] `shared/app/{kt}/app/navigation/`에 화면 키(`contracts/app-shell.md` 표), `NavDisplay`와 표준 장식자(`rememberSaveableStateHolderNavEntryDecorator`, `rememberViewModelStoreNavEntryDecorator`), `screen_view` 이벤트
 - [ ] T081 [US5] `shared/app/{kt}/app/scaffold/AppScaffold.kt`: material3-adaptive로 폭 600dp 미만 하단 탭(64 + 안전 영역), 이상 레일(80), 탭 홈·달력·돌아보기·설정, 쓰기 버튼 자리, 홈·달력·돌아보기는 빈 상태 컴포넌트(스펙 002가 채움)
 - [ ] T082 [P] [US5] `shared/core/designsystem/{kt}/core/designsystem/catalog/DesignCatalogScreen.kt`를 개발 빌드에서만 설정에 연결하고 출시 빌드에서 빠지는지 본다(FR-029)

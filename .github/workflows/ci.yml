@@ -27,6 +27,8 @@ jobs:
         run: sh scripts/test-commit-msg.sh
       - name: 검사·시험·빌드
         run: ./gradlew spotlessCheck designTokenCheck stringResourceCheck allTests assembleDebug
+      - name: 빌드 규칙 시험(디자인 토큰 검사)
+        run: ./gradlew -p build-logic :convention:test
 
   ios:
     name: iOS 시험과 Xcode 빌드

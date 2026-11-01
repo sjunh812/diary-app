@@ -26,6 +26,9 @@ dependencies {
     compileOnly(libs.composeCompiler.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
     compileOnly(libs.room3.gradlePlugin)
+
+    // 검사 작업 시험(DesignTokenCheckTaskTest)
+    testImplementation(kotlin("test-junit"))
 }
 
 gradlePlugin {
