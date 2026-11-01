@@ -15,6 +15,9 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
+            // 본문을 서식 없는 글로 되돌리는 함수(toPlainText)를 일기 핵심과 같이 쓴다.
+            implementation(projects.shared.core.data)
+            implementation(libs.okio)
         }
         commonTest.dependencies {
             implementation(projects.shared.core.testing)

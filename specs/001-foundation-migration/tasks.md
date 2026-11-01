@@ -89,17 +89,17 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 ### Tests for User Story 1 ⚠️
 
 - [ ] T031 [P] [US1] `shared/core/testing/{android}/core/testing/legacy/LegacyFixtures.kt`: 버전 1로 만들고 2로 올린 DB(`star` NULL), 빈 DB, 테이블만 있는 DB, 1만 줄 DB, WAL에만 있는 줄(연결을 닫지 않고 복사), 깨진 페이지 DB, `pref.xml`·`pref2.xml`(이메일 키, 잘못된 비밀번호 모양 포함), 캐시 사진(있음, 없음, 같은 파일 두 번, 캐시 밖 경로, 공백 경로, 확장자 없음)을 만든다. 고정 파일은 `shared/core/migration/src/androidHostTest/resources/legacy/`에 둔다
-- [ ] T032 [P] [US1] `shared/core/migration/{test}/core/migration/LegacyTextTest.kt`: `contracts/legacy-mapping.md` 본문 변환 표의 11가지 값, 10만 자 글, 덩어리 경계의 서로게이트 쌍, 무작위 글 왕복 `toPlainText(legacyToHtml(c)) == c`
-- [ ] T033 [P] [US1] `shared/core/migration/{test}/core/migration/LegacyEntryMapperTest.kt`: 날짜 앞 10글자, `modify_date` 대체, 이전한 날 대체와 `dateUnparsed`, `HH:mm`과 `00:00` 대체, `2024-03-01 23:59:457`의 `dateDiffers`, 기분 0~8·날씨 0~6과 범위 밖 null, 장소 공백, `star` NULL, `legacy_location`
-- [ ] T034 [P] [US1] `shared/core/migration/{test}/core/migration/PhotoPathsTest.kt`: 빈 값, 끝 쉼표, 빈 조각, 앞뒤 공백 다시 찾기, 확장자 소문자, 머리 바이트(JPEG, PNG, WebP, HEIF), 모르면 `bin`
-- [ ] T035 [P] [US1] `shared/core/migration/{test}/core/migration/FingerprintTest.kt`: 같은 일기의 `legacyCanonical`과 `restoredCanonical`이 같고, 글 한 글자·사진 순서·해시·기분 하나만 바꿔도 다르다
+- [x] T032 [P] [US1] `shared/core/migration/{test}/core/migration/LegacyTextTest.kt`: `contracts/legacy-mapping.md` 본문 변환 표의 11가지 값, 10만 자 글, 덩어리 경계의 서로게이트 쌍, 무작위 글 왕복 `toPlainText(legacyToHtml(c)) == c`
+- [x] T033 [P] [US1] `shared/core/migration/{test}/core/migration/LegacyEntryMapperTest.kt`: 날짜 앞 10글자, `modify_date` 대체, 이전한 날 대체와 `dateUnparsed`, `HH:mm`과 `00:00` 대체, `2024-03-01 23:59:457`의 `dateDiffers`, 기분 0~8·날씨 0~6과 범위 밖 null, 장소 공백, `star` NULL, `legacy_location`
+- [x] T034 [P] [US1] `shared/core/migration/{test}/core/migration/PhotoPathsTest.kt`: 빈 값, 끝 쉼표, 빈 조각, 앞뒤 공백 다시 찾기, 확장자 소문자, 머리 바이트(JPEG, PNG, WebP, HEIF), 모르면 `bin`
+- [x] T035 [P] [US1] `shared/core/migration/{test}/core/migration/FingerprintTest.kt`: 같은 일기의 `legacyCanonical`과 `restoredCanonical`이 같고, 글 한 글자·사진 순서·해시·기분 하나만 바꿔도 다르다
 - [ ] T036 [P] [US1] `shared/core/migration/{host}/core/migration/LegacyPrefsReaderTest.kt`: `pref.xml`·`pref2.xml` 읽기, 사본에서 `password` 줄 빠짐, 이메일 키와 `"<계정>'s id"`
 - [ ] T037 [US1] `shared/core/migration/{host}/core/migration/MigrationRunnerTest.kt`: `docs/migration.md` "시험"의 모든 경우, 원본 SHA-256 전후 같음(SC-002), 단계마다 끊고 다시(`Snapshotting`·`Copying`·`Verifying`·`Committing`), `Partial` 뒤 업데이트하면 한 번만 다시 읽고 그 사이 쓴 일기를 지킴, 같은 버전에서는 다시 읽지 않음, 찾을 수 없는 사진의 원래 경로에 파일이 생기면 하루 한 번 다시 찾아 옮김, 공간 부족이면 시작 안 함, 일기 0편이면 결과 화면 없이 `Done`, 실패해도 `media/` 사본 남음, `photos.json`·`snapshot.json` 내용
 
 ### Implementation for User Story 1
 
-- [ ] T038 [P] [US1] `shared/core/migration/{kt}/core/migration/LegacyText.kt`(`legacyToHtml`)와 `shared/core/data/{kt}/core/data/richtext/PlainText.kt`(`toPlainText`, 스펙 002와 같이 쓰는 함수)
-- [ ] T039 [P] [US1] `shared/core/migration/{kt}/core/migration/LegacyEntryMapper.kt`, `PhotoPaths.kt`, `Fingerprint.kt`(`contracts/legacy-mapping.md` 그대로)
+- [x] T038 [P] [US1] `shared/core/migration/{kt}/core/migration/LegacyText.kt`(`legacyToHtml`)와 `shared/core/data/{kt}/core/data/richtext/PlainText.kt`(`toPlainText`, 스펙 002와 같이 쓰는 함수)
+- [x] T039 [P] [US1] `shared/core/migration/{kt}/core/migration/LegacyEntryMapper.kt`, `PhotoPaths.kt`, `Fingerprint.kt`(`contracts/legacy-mapping.md` 그대로)
 - [ ] T040 [US1] `shared/core/migration/{android}/core/migration/legacy/LegacyProbe.kt`(원본 있음 판정), `LegacySnapshotter.kt`(스트림 복사 + SHA-256, `pref.xml` 비밀번호 줄 빼기, `snapshot.json`), `LegacyDbReader.kt`(번들 드라이버로 사본 열기, `PRAGMA table_info`, `_id` 순 읽기, `integrity_check` 실패 시 반씩 나눠 건지기), `LegacyPrefsReader.kt`(XML 직접 읽기)
 - [ ] T041 [US1] `shared/core/migration/{android}/core/migration/legacy/MediaImporter.kt`: `media/<sha256>.<ext>` 복사(임시 이름 → 이름 바꾸기), 같은 해시 건너뜀, 복사본 해시 다시 재기, EXIF 방향 반영 가로세로, `photos.json`
 - [ ] T042 [P] [US1] `shared/core/platform/{kt}/core/platform/ImageDecoder.kt` expect와 `{android}`(표본 축소 + 정확한 크기, EXIF)·`{ios}`(`CGImageSource` 썸네일) actual, `shared/core/data/{kt}/core/data/ThumbnailRepository.kt`(`thumbs/<sha256>.jpg`, 긴 변 480px, JPEG 80)와 Coil 3 Fetcher `ThumbnailFetcher.kt`(없으면 만들어 저장)
