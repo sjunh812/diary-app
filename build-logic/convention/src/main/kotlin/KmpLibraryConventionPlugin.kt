@@ -47,6 +47,11 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             iosArm64()
             iosSimulatorArm64()
 
+            // 파일 자리, 잠금 키처럼 플랫폼마다 다른 클래스를 expect/actual로 둔다.
+            compilerOptions {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+
             sourceSets.getByName("commonTest").dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.library("kotlinx-coroutines-test"))
