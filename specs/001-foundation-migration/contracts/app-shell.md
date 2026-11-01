@@ -33,7 +33,7 @@
 | `FontSettingsKey`, `TextSizeSettingsKey`, `ThemeSettingsKey` | settings | 있음 |
 | `LockSettingsKey`, `PinSetupKey(mode)` | lock | 있음 |
 | `ReminderSettingsKey` | settings | 켜기·시각. 알림 허용이 없으면 "알림이 꺼져 있어요"와 [허용하기](허용 묻기는 004) |
-| `MigrationReportKey` | migration | 이전한 기기에서만 설정에 보인다 |
+| `MigrationReportKey` | migration | 일부만 옮겨진 기기에서만 설정에 보인다. 결과, 원본 파일 내보내기, 문의하기 |
 | `LicensesKey` | settings | 오픈소스와 글꼴 고지 |
 | `DesignCatalogKey` | designsystem | 개발 빌드에서만(FR-029) |
 

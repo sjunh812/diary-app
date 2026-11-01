@@ -38,6 +38,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [x] T005 흐름 시작점("기반과 이전 · 업데이트한 사용자", "· 잠금 켠 사용자", "· 새 설치")을 두고 캡처를 보내 사용자 확정을 받는다. 확정하면 `prototype.md`에 날짜와 바뀐 점을 쓰고 스펙에 되먹인다(지금 앱과 크게 달라지는 곳은 먼저 묻는다)
 - [x] T006 "화면" 페이지에 15줄을 라이트 폰(왼쪽 여백 번호)·설명 패널·다크 폰·태블릿과 상태 섹션으로 그렸다(2026-11-01): 시작 화면 (SP), 잠금 (L1), 비밀번호 정하기 (L2), 비밀번호를 잊었을 때 (L3), 잠금 설정 (L4), 기록 이전 중 (M1), 기록 이전 결과 (M2), 기록 이전 실패 (M3), 예전 일기 보기 (M4), 설정 (S6), 글꼴 (G1, 받기·받는 중·인터넷 없음 상태 포함), 본문 글자 크기 (G2), 화면 모드 (G3), 매일 알림 (R1), 기록 이전 결과(설정) (M5)
 - [x] T007 "표지 · 흐름" 페이지에 진행 현황 표를 만들고 001 화면을 더한다(2026-11-01, 섹션 "진행 현황")
+- [ ] T091 "화면" 페이지의 기록 이전 결과 (M5)를 일부만 옮겨진 경우(읽지 못한 일기, 원본 파일 내보내기, 문의하기)로 바꾸고, S6과 태블릿 왼쪽 설정 목록(L4·G1·G2·G3·R1·M5 태블릿)에서 "기록 이전 결과" 줄을 뺀다(2026-11-01 결정, 프로토타입은 반영함)
 
 ---
 
@@ -92,7 +93,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T034 [P] [US1] `shared/core/migration/{test}/core/migration/PhotoPathsTest.kt`: 빈 값, 끝 쉼표, 빈 조각, 앞뒤 공백 다시 찾기, 확장자 소문자, 머리 바이트(JPEG, PNG, WebP, HEIF), 모르면 `bin`
 - [ ] T035 [P] [US1] `shared/core/migration/{test}/core/migration/FingerprintTest.kt`: 같은 일기의 `legacyCanonical`과 `restoredCanonical`이 같고, 글 한 글자·사진 순서·해시·기분 하나만 바꿔도 다르다
 - [ ] T036 [P] [US1] `shared/core/migration/{host}/core/migration/LegacyPrefsReaderTest.kt`: `pref.xml`·`pref2.xml` 읽기, 사본에서 `password` 줄 빠짐, 이메일 키와 `"<계정>'s id"`
-- [ ] T037 [US1] `shared/core/migration/{host}/core/migration/MigrationRunnerTest.kt`: `docs/migration.md` "시험"의 모든 경우, 원본 SHA-256 전후 같음(SC-002), 단계마다 끊고 다시(`Snapshotting`·`Copying`·`Verifying`·`Committing`), `Partial`과 다시 시도가 그 사이 쓴 일기를 지킴, 공간 부족이면 시작 안 함, 일기 0편이면 결과 화면 없이 `Done`, 실패해도 `media/` 사본 남음, `photos.json`·`snapshot.json` 내용
+- [ ] T037 [US1] `shared/core/migration/{host}/core/migration/MigrationRunnerTest.kt`: `docs/migration.md` "시험"의 모든 경우, 원본 SHA-256 전후 같음(SC-002), 단계마다 끊고 다시(`Snapshotting`·`Copying`·`Verifying`·`Committing`), `Partial` 뒤 업데이트하면 한 번만 다시 읽고 그 사이 쓴 일기를 지킴, 같은 버전에서는 다시 읽지 않음, 찾을 수 없는 사진의 원래 경로에 파일이 생기면 하루 한 번 다시 찾아 옮김, 공간 부족이면 시작 안 함, 일기 0편이면 결과 화면 없이 `Done`, 실패해도 `media/` 사본 남음, `photos.json`·`snapshot.json` 내용
 
 ### Implementation for User Story 1
 
@@ -101,12 +102,12 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T040 [US1] `shared/core/migration/{android}/core/migration/legacy/LegacyProbe.kt`(원본 있음 판정), `LegacySnapshotter.kt`(스트림 복사 + SHA-256, `pref.xml` 비밀번호 줄 빼기, `snapshot.json`), `LegacyDbReader.kt`(번들 드라이버로 사본 열기, `PRAGMA table_info`, `_id` 순 읽기, `integrity_check` 실패 시 반씩 나눠 건지기), `LegacyPrefsReader.kt`(XML 직접 읽기)
 - [ ] T041 [US1] `shared/core/migration/{android}/core/migration/legacy/MediaImporter.kt`: `media/<sha256>.<ext>` 복사(임시 이름 → 이름 바꾸기), 같은 해시 건너뜀, 복사본 해시 다시 재기, EXIF 방향 반영 가로세로, `photos.json`
 - [ ] T042 [P] [US1] `shared/core/platform/{kt}/core/platform/ImageDecoder.kt` expect와 `{android}`(표본 축소 + 정확한 크기, EXIF)·`{ios}`(`CGImageSource` 썸네일) actual, `shared/core/data/{kt}/core/data/ThumbnailRepository.kt`(`thumbs/<sha256>.jpg`, 긴 변 480px, JPEG 80)와 Coil 3 Fetcher `ThumbnailFetcher.kt`(없으면 만들어 저장)
-- [ ] T043 [US1] `shared/core/migration/{kt}/core/migration/MigrationRunner.kt`: `contracts/migration-flow.md` 단계, `state.json`·`report.json` 임시 파일 + 이름 바꾸기, `diary-new.db`(저널 TRUNCATE)에 200줄씩, 줄임 사진 최대 3개씩 나란히, 검증, `diary.db`로 이름 바꾸기, `Committing` 재검증, `Partial` 다시 시도는 없는 `legacy_id`만 더함. `{ios}`는 늘 "없음"
+- [ ] T043 [US1] `shared/core/migration/{kt}/core/migration/MigrationRunner.kt`: `contracts/migration-flow.md` 단계, `state.json`·`report.json` 임시 파일 + 이름 바꾸기, `diary-new.db`(저널 TRUNCATE)에 200줄씩, 줄임 사진 최대 3개씩 나란히, 검증, `diary.db`로 이름 바꾸기, `Committing` 재검증, `Partial`은 앱 업데이트 뒤 첫 실행에 한 번만 자동으로 다시 읽어 없는 `legacy_id`만 더함(`retriedVersionCode`), 찾을 수 없는 사진 하루 한 번 다시 찾기(`photoRecheckAt`, `contracts/migration-flow.md`). `{ios}`는 늘 "없음"
 - [ ] T044 [US1] `shared/core/migration/{kt}/core/migration/MigrationTelemetry.kt`: `migration_started`·`finished`·`failed`와 구간, 예외를 `MigrationError(kind)`로 바꿔 보냄(FR-013)
 - [ ] T045 [P] [US1] `shared/feature/migration/{kt}/feature/migration/MigrationViewModel.kt`, `MigrationProgressScreen.kt`(일기 n/N·사진 n/N, 0.25초 갱신, 사본 만드는 동안 진행 표시, 화면 꺼짐 막기), `MigrationResultScreen.kt`, `MigrationFailedScreen.kt`(다시 시도, 옛 일기 읽기, 원본 내보내기, 문의하기), 문구는 `{res}/values/strings.xml`
 - [ ] T046 [P] [US1] `shared/feature/migration/{kt}/feature/migration/LegacyReaderScreen.kt`(사본 읽기 전용, `_id` 역순 60줄씩), `LegacyExport.kt`(FileKit 저장 창으로 `1일1일기-원본-yyyyMMdd.zip`: 사본, `media/` 이전 사진, `README.txt`), `ContactMail.kt`(`sjunh812@naver.com`, 단계·종류·구간만)
 - [ ] T047 [US1] `shared/app/{kt}/app/gate/MigrationGate.kt`: `contracts/migration-flow.md` 화면 상태 표대로, `Failed` 동안 앱 틀로 가지 않음, 결과는 한 번만
-- [ ] T048 [US1] `shared/feature/settings/{kt}/feature/settings/MigrationReportScreen.kt`: 이전한 기기에서만 설정에 보임, `Partial`이면 다시 시도(FR-010, FR-011)
+- [ ] T048 [US1] `shared/feature/settings/{kt}/feature/settings/MigrationReportScreen.kt`: `Partial`인 기기에서만 설정에 보임. 결과, 원본 파일 내보내기, 문의하기, "앱을 업데이트하면 한 번 더 읽어 봐요" 안내. 다시 시도 버튼은 없음(FR-010, FR-011)
 - [ ] T049 [P] [US1] 개발 빌드만: `composeApp/src/debug/kotlin/org/sjhstudio/diary/debug/KillAtHook.kt`(`files/debug/kill_at`의 단계에서 프로세스 종료)
 - [ ] T050 [US1] `scripts/legacy/build-legacy-apk.sh`(1.7.4 `94179a4`를 임시 worktree로 꺼내 빌드, JBR 17), `scripts/legacy/seed.sh`(`run-as`로 고정 자료 넣기), `scripts/legacy/upgrade-test.sh`와 `composeApp/src/androidTest/kotlin/org/sjhstudio/diary/UpgradeVerificationTest.kt`
 - [ ] T051 [US1] quickstart.md §2·§3 조합을 API 24·29·35·36에서 1.7.4로 돌리고 결과와 이전 시간(1,000편·사진 1,000장)을 `specs/001-foundation-migration/test-report.md`에 남긴다(FR-032, SC-001~SC-003). 이전 결과로 왕복 시험용 고정 자료(`diary.db`, `media/`)를 `shared/core/testing/src/androidHostTest/resources/migrated/`에 남겨 스펙 003이 쓰게 한다(FR-034)
