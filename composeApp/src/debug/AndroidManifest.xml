@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 개발 빌드에만 있다. 아직 들어갈 길이 없는 화면을 에뮬레이터에서 띄워 본다(ScreenCatalogActivity). -->
+        <activity
+            android:name=".debug.ScreenCatalogActivity"
+            android:exported="true" />
+    </application>
+</manifest>
