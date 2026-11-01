@@ -91,6 +91,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - 화면 문구는 문자열 리소스에 둔다. 코드에 문자열 상수를 두지 않는다. `values`(영어), `values-ko`, `values-ja`를 같은 커밋에서 채운다.
   날짜·시각은 문자열로 조립하지 않고 플랫폼 형식을 쓴다.
 - 주석은 자연스러운 한국말로, 문장마다 줄을 바꾼다.
+- Composable 화면과 컴포넌트를 만들면 같은 모듈 `preview/`에 프리뷰를 함께 둔다. 한국어(`locale = "ko"`)를 먼저, 라이트·다크와 상태마다 하나씩(사용자 요청 2026-11-02).
 - 커밋과 푸시는 사용자가 요청할 때만. 형식은 아래 "커밋 규칙".
 
 ## 커밋 규칙
