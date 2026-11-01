@@ -53,9 +53,9 @@ class LockController(/* LockRepository, AppForeground, Clock */) {
 - 다시 잠그기: `onBackground`에서 단조 시각을 적고 `onForeground`에서 `relock_after`(`immediately` 0, `one_minute` 60초, `five_minutes` 300초)가 지났으면 잠근다.
   `cold_start`는 `onColdStart`에서만 잠근다. 모든 값에서 프로세스 새로 시작은 잠근다.
 - 비밀번호를 잊었어요: `isDeviceSecure()`가 참이면 `authenticateDeviceOwner()` 성공 뒤 새 비밀번호 두 번 입력 → `setPin`. 거짓이면
-  "폰에 화면 잠금이 없어서 다시 정할 수 없어요. 백업에서 되살릴 수 있어요"와 백업 안내(스펙 003)를 보인다.
+  "휴대폰에 화면 잠금이 없어요. 화면 잠금이 없으면 비밀번호를 다시 정할 수 없어요"와 백업 안내(스펙 003)를 보인다.
 - 키 없음(`KeyMissing`, 레거시 비밀번호가 잘못된 모양): 잠금 화면 대신 바로 폰 화면 잠금 확인 → 새 비밀번호. 폰에 화면 잠금이 없으면 잠금을 끄고 알린다.
-- 비밀번호 정하기 화면은 "폰 화면 잠금을 아는 사람은 비밀번호를 잊었을 때 이 방법으로 일기를 열 수 있어요"를 보인다(FR-019).
+- 비밀번호 정하기 화면은 "휴대폰 잠금을 아는 사람도 이 방법으로 일기를 열 수 있어요"를 보인다(FR-019).
 - 잠금을 끄거나 비밀번호를 바꾸려면 지금 비밀번호를 넣는다(잊었으면 위 흐름).
 - 최근 앱 가림(FR-018): 잠금이 켜져 있을 때만. Android 13 이상 `setRecentsScreenshotEnabled(false)`, 7~12 `onPause` `FLAG_SECURE` 켬·`onResume` 끔,
   iOS 비활성 때 가림 창. 잠금이 꺼져 있으면 아무것도 하지 않는다.
