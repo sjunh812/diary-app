@@ -6,7 +6,8 @@ import org.koin.android.ext.koin.androidContext
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.di.initKoin
 
-class DiaryApplication : Application() {
+// 개발 빌드는 DebugApplication이 이어받아 시험용 훅을 끼운다(src/debug).
+open class DiaryApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         initKoin(isDebug = BuildConfig.DEBUG) { androidContext(this@DiaryApplication) }

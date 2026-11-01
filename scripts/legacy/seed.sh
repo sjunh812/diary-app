@@ -4,6 +4,7 @@
 #   ANDROID_SERIAL=emulator-5554 sh scripts/legacy/seed.sh
 #
 # 1.7.4를 한 번 연 뒤(DB와 설정 파일이 생긴 뒤) 돌린다. ALARM=0을 주면 매일 알림을 끈 설정을 넣는다.
+# COUNT=1000을 주면 사진이 한 장씩 든 일기를 그만큼 더 넣는다(T051 큰 견본). 넣은 수는 files/debug/seed.json에 적어 계측 시험이 읽는다.
 # 1.7.4는 알림이 켜져 있으면 Android 14 이상에서 정확한 알람 권한이 없어 꺼진다(2026-11-01 Android 16 에뮬레이터에서 확인). 옛 앱과 같은 SQL로 만든 note.db, 캐시 사진,
 # pref.xml·pref2.xml을 run-as로 앱 자리에 넣는다. 디버그 빌드라 run-as가 된다.
 set -eu
@@ -33,6 +34,25 @@ INSERT INTO Note(weather, address, contents, mood, picture, create_date, modify_
  (4, '집', '비 오는 소리 들으면서 책 한 권. "작은 아씨들" & 따뜻한 차.', 5, '$DATA/cache/gone.jpg,', '2024-10-29 15:10:22', '2024-10-29 15:10:22', 2024, 10, 0),
  (-1, '', '', 0, '$DATA/cache/1699000000001.jpg,', '2024-10-28 08:00:00', '2024-10-28 08:00:00', 2024, 10, 0);
 SQL
+COUNT=${COUNT:-0}
+if [ "$COUNT" -gt 0 ]; then
+  sqlite3 "$WORK/note.db" <<SQL
+WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c WHERE x < $COUNT)
+INSERT INTO Note(weather, address, contents, mood, picture, create_date, modify_date, year, month, star)
+SELECT x % 7, '', printf('큰 견본 %d번째 일기. 오늘도 한강까지 걸었다.', x), x % 9, printf('$DATA/cache/big-%d.jpg,', x),
+       datetime('2023-01-01 00:00:00', printf('+%d minutes', x)), datetime('2023-01-01 00:00:00', printf('+%d minutes', x)), 2023, 1, 0
+FROM c;
+SQL
+  # 사진마다 해시가 다르게 JPEG 끝(EOI) 뒤에 번호를 붙인다. 그림은 그대로 읽힌다.
+  mkdir -p "$WORK/big"
+  i=1
+  while [ $i -le "$COUNT" ]; do
+    cp "$ROOT/scripts/legacy/fixtures/photo-landscape-exif6.jpg" "$WORK/big/big-$i.jpg"
+    printf '%s' "$i" >> "$WORK/big/big-$i.jpg"
+    i=$((i + 1))
+  done
+fi
+printf '{"extra":%s}' "$COUNT" > "$WORK/seed.json"
 
 # 사진 두 장. 줄임 사진과 크기 읽기를 보려고 진짜 그림을 쓴다(fixtures/README.md). gone.jpg는 일부러 넣지 않는다(캐시에서 지워진 사진).
 cp "$ROOT/scripts/legacy/fixtures/photo-landscape-exif6.jpg" "$WORK/1699000000001.jpg"
@@ -60,6 +80,9 @@ XML
 adb shell am force-stop $PKG
 adb shell mkdir -p /data/local/tmp/diary-seed
 for f in note.db 1699000000001.jpg 1699000000002.png pref.xml pref2.xml; do adb push -q "$WORK/$f" /data/local/tmp/diary-seed/$f; done
-adb shell run-as $PKG sh -c "'mkdir -p databases cache shared_prefs && rm -f databases/note.db-wal databases/note.db-shm databases/note.db-journal && cp /data/local/tmp/diary-seed/note.db databases/note.db && cp /data/local/tmp/diary-seed/1699000000001.jpg /data/local/tmp/diary-seed/1699000000002.png cache/ && cp /data/local/tmp/diary-seed/pref.xml /data/local/tmp/diary-seed/pref2.xml shared_prefs/'"
+adb push -q "$WORK/seed.json" /data/local/tmp/diary-seed/seed.json
+if [ "$COUNT" -gt 0 ]; then adb push -q "$WORK/big" /data/local/tmp/diary-seed/; fi
+adb shell run-as $PKG sh -c "'mkdir -p databases cache shared_prefs && rm -f databases/note.db-wal databases/note.db-shm databases/note.db-journal && cp /data/local/tmp/diary-seed/note.db databases/note.db && cp /data/local/tmp/diary-seed/1699000000001.jpg /data/local/tmp/diary-seed/1699000000002.png cache/ && cp /data/local/tmp/diary-seed/pref.xml /data/local/tmp/diary-seed/pref2.xml shared_prefs/ && mkdir -p files/debug && cp /data/local/tmp/diary-seed/seed.json files/debug/seed.json'"
+if [ "$COUNT" -gt 0 ]; then adb shell run-as $PKG sh -c "'cp /data/local/tmp/diary-seed/big/* cache/'"; fi
 adb shell rm -rf /data/local/tmp/diary-seed
-echo "넣었어요: 일기 4편, 사진 경로 5개(그중 1개는 없는 파일), 설정 두 파일"
+echo "넣었어요: 일기 $((4 + COUNT))편, 사진 경로 $((5 + COUNT))개(그중 1개는 없는 파일), 설정 두 파일"

@@ -16,6 +16,7 @@ import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.migration.AndroidImageSizeReader
 import org.sjhstudio.diary.core.migration.LegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyMigration
+import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.migration.MigrationPaths
 import org.sjhstudio.diary.core.migration.MigrationRunner
 import org.sjhstudio.diary.core.migration.MigrationTelemetry
@@ -48,6 +49,8 @@ internal actual val platformModule: Module =
         single {
             SupportBundle(FileSystem.SYSTEM, get(), SupportFiles(FileSystem.SYSTEM, get<MigrationPaths>().migrationDir, Clock.System))
         }
+        // 이전 단계 알림. 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어쓴다(quickstart §3).
+        single<MigrationEvents> { MigrationTelemetry(get()) }
         // 1.7.x 원본이 같은 패키지에 남아 있으면 옮긴다(docs/migration.md).
         single<LegacyMigration> {
             val files = get<AppFiles>()
@@ -61,7 +64,7 @@ internal actual val platformModule: Module =
                 freeBytes = ::freeBytes,
                 openDatabase = factory::createAt,
                 imageSize = AndroidImageSizeReader,
-                events = MigrationTelemetry(get()),
+                events = get(),
                 versionCode = versionCode(androidContext()),
                 makeThumbnail = get<ThumbnailRepository>()::ensure
             )

@@ -79,6 +79,9 @@ sealed interface MigrationResult {
 interface MigrationEvents {
     fun started(entries: Int, photos: Int, attempt: Int) = Unit
 
+    /** 단계(Snapshotting, Copying, Verifying, Committing)에 들어서 `state.json`에 적은 직후. */
+    fun stepStarted(step: MigrationStep) = Unit
+
     fun finished(report: MigrationReport, durationMillis: Long) = Unit
 
     fun failed(step: MigrationStep, kind: MigrationFailureKind, attempt: Int) = Unit
@@ -483,11 +486,10 @@ class MigrationRunner(
     }
 
     private fun writeStep(step: MigrationStep, attempt: Int, startedAt: Instant) {
-        // 같은 버전에서는 같은 파일을 같은 방법으로 읽어 결과가 같으므로, 옮긴 버전을 다시 읽은 버전으로 적는다.
-        store.writeState(
-            MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now(), retriedVersionCode = versionCode)
-        )
+        store.writeState(MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now()))
         _progress.value = _progress.value.copy(step = step)
+        // 상태를 적은 뒤에 알린다. 개발 빌드의 강제 종료 훅은 여기서 끊어 다시 시작을 시험한다(quickstart §3).
+        events.stepStarted(step)
     }
 
     private fun writeFinal(step: MigrationStep, attempt: Int, startedAt: Instant) {

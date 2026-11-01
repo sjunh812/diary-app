@@ -15,6 +15,8 @@ android {
         // 36은 만들고 내지 않은 1.7.5가 썼다. 2.0.0은 37부터다.
         versionCode = 37
         versionName = "2.0.0"
+        // 업그레이드 계측 시험(UpgradeVerificationTest)을 돌린다.
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     androidResources {
@@ -70,10 +72,17 @@ dependencies {
     debugImplementation(projects.shared.core.designsystem)
     debugImplementation(projects.shared.core.ui)
     debugImplementation(libs.okio)
+    debugImplementation(projects.shared.core.migration)
     debugImplementation(projects.shared.core.model)
     debugImplementation(projects.shared.feature.migration)
     debugImplementation(projects.shared.feature.settings)
     debugImplementation(libs.kotlinx.datetime)
+
+    // 1.7.4에서 올린 기기를 기기 안에서 확인하는 계측 시험(스펙 001 T050, scripts/legacy/upgrade-test.sh).
+    androidTestImplementation(projects.shared.core.database)
+    androidTestImplementation(projects.shared.core.model)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
 
     baselineProfile(projects.benchmarks)
 }

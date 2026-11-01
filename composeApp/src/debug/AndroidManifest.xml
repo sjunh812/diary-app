@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <application>
+    <!-- 개발 빌드는 강제 종료 훅을 끼우는 앱 클래스를 쓴다(T049). -->
+    <application
+        android:name=".debug.DebugApplication"
+        tools:replace="android:name">
         <!-- 개발 빌드에만 있다. 아직 들어갈 길이 없는 화면을 에뮬레이터에서 띄워 본다(ScreenCatalogActivity). -->
         <activity
             android:name=".debug.ScreenCatalogActivity"

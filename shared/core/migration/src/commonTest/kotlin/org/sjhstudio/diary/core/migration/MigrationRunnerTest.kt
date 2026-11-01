@@ -294,6 +294,36 @@ class MigrationRunnerTest {
         }
     }
 
+    /** 단계마다 상태를 적은 뒤 알린다. 개발 빌드의 강제 종료 훅이 이 알림에서 끊는다(T049). */
+    @Test
+    fun steps_are_announced_in_order() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00"))).close()
+            val steps = mutableListOf<Pair<MigrationStep, MigrationStep>>()
+            val runner =
+                MigrationRunner(
+                    fileSystem = dir.fs,
+                    paths = env.paths,
+                    clock = env.clock,
+                    timeZone = TimeZone.of("Asia/Seoul"),
+                    newId = { "id" },
+                    freeBytes = { Long.MAX_VALUE },
+                    openDatabase = env::open,
+                    imageSize = { 100 to 50 },
+                    events =
+                        object : MigrationEvents {
+                            override fun stepStarted(step: MigrationStep) {
+                                steps += step to MigrationStateStore(dir.fs, env.paths.migrationDir).readState().step
+                            }
+                        }
+                )
+            assertIs<MigrationResult.Finished>(runner.run())
+            val expected = listOf(MigrationStep.SNAPSHOTTING, MigrationStep.COPYING, MigrationStep.VERIFYING, MigrationStep.COMMITTING)
+            assertEquals(expected.map { it to it }, steps)
+        }
+    }
+
     /** 줄임 사진을 못 만들어도 이전은 끝나고 수만 센다. 한 번에 3개를 넘게 만들지 않는다(FR-037, R9). */
     @Test
     fun thumbnail_failures_are_counted_not_fatal() = runTest {

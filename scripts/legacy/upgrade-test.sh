@@ -6,6 +6,9 @@
 # 순서: 지우기 → 1.7.4 깔고 한 번 열기 → seed.sh → 원본 해시 → 새 APK 덮어 설치 → 열기 → 이전 끝 기다리기 → 확인.
 # 확인: 원본 다섯 파일의 SHA-256이 전후로 같은지, 새 DB의 일기·사진 수, 남은 파일.
 # APP_LOCALE=ja-JP처럼 주면 새 앱을 열기 전에 앱별 언어를 정한다(Android 13 이상, docs/design.md 여러 언어).
+# COUNT=1000: 사진이 한 장씩 든 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본).
+# KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3). Snapshotting, Verifying, Committing도 된다.
+# INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050). 먼저 :composeApp:assembleDebugAndroidTest.
 set -eu
 : "${ANDROID_SERIAL:?ANDROID_SERIAL을 에뮬레이터로 정해 주세요(예: emulator-5554)}"
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
@@ -15,6 +18,7 @@ ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 PKG=org.sjhstudio.diary
 LEGACY_APK="$ROOT/scripts/legacy/out/diary-1.7.4-debug.apk"
 NEW_APK="$ROOT/composeApp/build/outputs/apk/debug/composeApp-debug.apk"
+TEST_APK="$ROOT/composeApp/build/outputs/apk/androidTest/debug/composeApp-debug-androidTest.apk"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 ORIGINALS="databases/note.db shared_prefs/pref.xml shared_prefs/pref2.xml cache/1699000000001.jpg cache/1699000000002.png"
@@ -31,11 +35,27 @@ adb shell run-as $PKG sha256sum $ORIGINALS > "$WORK/before"
 
 adb install -r "$NEW_APK" >/dev/null
 [ -z "${APP_LOCALE:-}" ] || adb shell cmd locale set-app-locales $PKG --locales "$APP_LOCALE"
+if [ -n "${KILL_AT:-}" ]; then
+  printf '%s' "$KILL_AT" > "$WORK/kill_at"
+  adb push -q "$WORK/kill_at" /data/local/tmp/diary-kill_at
+  adb shell run-as $PKG sh -c "'mkdir -p files/debug && cp /data/local/tmp/diary-kill_at files/debug/kill_at'"
+  adb shell rm -f /data/local/tmp/diary-kill_at
+fi
 START=$(date +%s)
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+if [ -n "${KILL_AT:-}" ]; then
+  # 훅이 그 단계에 들어서며 프로세스를 끝낸다. 끊긴 것을 본 뒤 다시 연다.
+  i=0
+  until ! adb shell pidof $PKG >/dev/null 2>&1 && adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -q "\"step\":\"$KILL_AT\""; do
+    i=$((i + 1)); [ $i -gt 300 ] && { echo "$KILL_AT 단계에서 끊기지 않았어요" >&2; exit 1; }
+    sleep 1
+  done
+  echo "끊김: $(adb shell run-as $PKG cat files/migration/state.json)"
+  adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+fi
 i=0
 until adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -qE '"step":"(Done|Partial|Failed)"'; do
-  i=$((i + 1)); [ $i -gt 120 ] && { echo "이전이 2분 안에 끝나지 않았어요" >&2; exit 1; }
+  i=$((i + 1)); [ $i -gt 600 ] && { echo "이전이 10분 안에 끝나지 않았어요" >&2; exit 1; }
   sleep 1
 done
 echo "이전 끝: $(( $(date +%s) - START ))초, $(adb shell run-as $PKG cat files/migration/state.json)"
@@ -46,3 +66,12 @@ adb exec-out run-as $PKG cat databases/diary.db > "$WORK/diary.db"
 echo "새 DB: 일기 $(sqlite3 "$WORK/diary.db" 'SELECT COUNT(*) FROM entry')편, 사진 줄 $(sqlite3 "$WORK/diary.db" "SELECT COUNT(*) FROM media WHERE status='normal'")개, 찾을 수 없는 사진 $(sqlite3 "$WORK/diary.db" "SELECT COUNT(*) FROM media WHERE status='missing'")개"
 echo "이전 폴더: $(adb shell run-as $PKG ls files/migration | tr '\n' ' ')"
 echo "결과: $(adb shell run-as $PKG cat files/migration/report.json)"
+# 이전 시간: 마지막 시도의 시작(state.startedAt)부터 끝(report.finishedAt)까지
+STARTED=$(adb shell run-as $PKG cat files/migration/state.json | sed -n 's/.*"startedAt":\([0-9]*\).*/\1/p')
+FINISHED=$(adb shell run-as $PKG cat files/migration/report.json | sed -n 's/.*"finishedAt":\([0-9]*\).*/\1/p')
+echo "이전 시간: $((FINISHED - STARTED))ms (API $(adb shell getprop ro.build.version.sdk | tr -d '\r'))"
+if [ "${INSTRUMENT:-0}" = 1 ]; then
+  adb install -r -t "$TEST_APK" >/dev/null
+  RESULT=$(adb shell am instrument -w -e class org.sjhstudio.diary.UpgradeVerificationTest $PKG.test/androidx.test.runner.AndroidJUnitRunner)
+  if echo "$RESULT" | grep -q "OK (1 test)"; then echo "계측 시험: 통과"; else echo "계측 시험이 실패했어요" >&2; echo "$RESULT" >&2; exit 1; fi
+fi

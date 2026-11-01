@@ -31,8 +31,13 @@ scripts/legacy/build-legacy-apk.sh 1.7.4
 ```
 
 ```bash
-scripts/legacy/upgrade-test.sh --api 24 --legacy 1.7.4 --fixture photos-missing
+ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 sh scripts/legacy/upgrade-test.sh            # 기본 견본(일기 4편, 찾을 수 없는 사진 1장)
+ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 COUNT=1000 sh scripts/legacy/upgrade-test.sh # 사진 든 일기 1,000편을 더한 큰 견본
 ```
+
+2026-11-01: 처음 적은 `--api`, `--fixture` 인자 대신 환경 변수를 쓴다. 기기는 `ANDROID_SERIAL`로 고른다. `INSTRUMENT=1`이면 먼저
+`./gradlew :composeApp:assembleDebug :composeApp:assembleDebugAndroidTest`로 두 APK를 만든다. 아래 표에서 `seed.sh`에 있는 견본은
+기본(`basic`, `photos-missing` 포함)과 `COUNT`(`big`의 1,000편판)이다. 나머지는 공통 시험이 고정 파일로 본다(test-report.md).
 
 `upgrade-test.sh`가 하는 일: 에뮬레이터를 깨끗이 → 옛 APK 설치 → `run-as`로 고정 자료(DB 세 파일, 설정 XML, 캐시 사진) 넣기 → 새 APK를 `adb install -r`로
 덮어 설치 → 계측 시험 `UpgradeVerificationTest`가 이전 끝을 기다려 새 DB를 고정 자료의 기대값과 견주고 원본 파일 해시가 그대로인지 본다.
@@ -56,7 +61,7 @@ scripts/legacy/upgrade-test.sh --api 24 --legacy 1.7.4 --fixture photos-missing
 개발 빌드는 `files/debug/kill_at` 파일에 단계 이름이 있으면 그 단계에서 프로세스를 끝낸다.
 
 ```bash
-scripts/legacy/upgrade-test.sh --api 35 --legacy 1.7.4 --fixture basic --kill-at Copying
+ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 KILL_AT=Copying sh scripts/legacy/upgrade-test.sh
 ```
 
 기대: 다시 열면 처음부터 하고 결과가 끊기지 않은 이전과 같다. `Snapshotting`, `Verifying`, `Committing`도 같은 결과.
