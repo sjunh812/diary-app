@@ -17,3 +17,10 @@
 local.properties
 /app/src/main/java/org/sjhstudio/diary/utils/ApiKey.kt
 /app/release
+# 드라이브 확인용 빌드(scripts/drive-probe)
+scripts/drive-probe/android/.gradle/
+scripts/drive-probe/android/app/build/
+scripts/drive-probe/android/build/
+scripts/drive-probe/ios/Local.xcconfig
+scripts/drive-probe/ios/DriveCheck.xcodeproj/
+scripts/drive-probe/ios/build/
