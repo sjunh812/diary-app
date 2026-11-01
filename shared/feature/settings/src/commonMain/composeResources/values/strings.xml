@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 영어 기본 문구. 한국어는 values-ko, 일본어는 values-ja(docs/design.md 여러 언어). 영어·일본어는 원어민 검수 전 초안이다. -->
+    <!-- 기록 이전 결과(M5). 일부만 옮겨진 기기의 설정에만 보인다. -->
+    <string name="migration_report_title">Transfer results</string>
+    <!-- %1$s는 옮긴 날(2026년 11월 1일처럼 화면 언어 형식). -->
+    <string name="migration_report_when">Moved from the previous version on %1$s.</string>
+    <string name="migration_report_entries">Entries moved</string>
+    <string name="migration_report_photos">Photos moved</string>
+    <string name="migration_report_missing_photos">Photos not found</string>
+    <string name="migration_report_date_fixed">Entries with a fixed date</string>
+    <string name="migration_report_unreadable">Entries that couldn’t be read</string>
+    <plurals name="migration_report_entry_count">
+        <item quantity="one">%1$s entry</item>
+        <item quantity="other">%1$s entries</item>
+    </plurals>
+    <plurals name="migration_report_photo_count">
+        <item quantity="one">%1$s photo</item>
+        <item quantity="other">%1$s photos</item>
+    </plurals>
+    <plurals name="migration_report_notice">
+        <item quantity="one">Part of the previous version’s file is damaged, so %1$s entry couldn’t be read. The app tries again after its next update. Your original diary stays on your phone.</item>
+        <item quantity="other">Part of the previous version’s file is damaged, so %1$s entries couldn’t be read. The app tries again after its next update. Your original diary stays on your phone.</item>
+    </plurals>
+    <string name="migration_report_export">Export original files</string>
+    <string name="migration_report_contact">Contact us</string>
+</resources>

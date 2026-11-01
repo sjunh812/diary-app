@@ -12,7 +12,7 @@ data class MigrationState(
     val step: MigrationStep = MigrationStep.NOT_STARTED,
     /** 몇 번째 시도인지. */
     val attempt: Int = 0,
-    /** `Partial`을 마지막으로 다시 읽은 앱 버전. 없으면 0. */
+    /** 처음 옮겼거나 `Partial`을 마지막으로 다시 읽은 앱 버전. 없으면 0. 같은 버전에서는 다시 읽지 않는다. */
     val retriedVersionCode: Int = 0,
     /** 찾을 수 없는 사진을 마지막으로 다시 본 시각. */
     val photoRecheckAt: Instant? = null,

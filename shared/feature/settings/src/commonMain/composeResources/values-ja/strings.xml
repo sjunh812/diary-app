@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 移行結果(M5) -->
+    <string name="migration_report_title">移行結果</string>
+    <string name="migration_report_when">%1$sに以前のアプリから移しました。</string>
+    <string name="migration_report_entries">移した日記</string>
+    <string name="migration_report_photos">移した写真</string>
+    <string name="migration_report_missing_photos">見つからない写真</string>
+    <string name="migration_report_date_fixed">日付を直した日記</string>
+    <string name="migration_report_unreadable">読み込めなかった日記</string>
+    <plurals name="migration_report_entry_count">
+        <item quantity="other">%1$s件</item>
+    </plurals>
+    <plurals name="migration_report_photo_count">
+        <item quantity="other">%1$s枚</item>
+    </plurals>
+    <plurals name="migration_report_notice">
+        <item quantity="other">以前のアプリのファイルの一部が壊れていて、日記%1$s件を読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の記録はスマートフォンにそのまま残っています。</item>
+    </plurals>
+    <string name="migration_report_export">元のファイルを書き出す</string>
+    <string name="migration_report_contact">お問い合わせ</string>
+</resources>

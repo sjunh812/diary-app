@@ -2,3 +2,13 @@
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }
+
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            // 기록 이전 결과(M5)가 이전 상태와 결과를 읽는다.
+            implementation(projects.shared.core.migration)
+            implementation(libs.kotlinx.datetime)
+        }
+    }
+}
