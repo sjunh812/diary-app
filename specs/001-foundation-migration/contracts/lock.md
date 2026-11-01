@@ -55,6 +55,8 @@ class LockController(/* LockRepository, AppForeground, Clock */) {
 - 비밀번호를 잊었어요: `isDeviceSecure()`가 참이면 `authenticateDeviceOwner()` 성공 뒤 새 비밀번호 두 번 입력 → `setPin`. 거짓이면
   "휴대폰에 화면 잠금이 없어요. 화면 잠금이 없으면 비밀번호를 다시 정할 수 없어요"와 백업 안내(스펙 003)를 보인다.
 - 키 없음(`KeyMissing`, 레거시 비밀번호가 잘못된 모양): 잠금 화면 대신 바로 폰 화면 잠금 확인 → 새 비밀번호. 폰에 화면 잠금이 없으면 잠금을 끄고 알린다.
+- 잠금 파일(`lock.preferences_pb`)이 깨졌거나 읽히지 않으면 잠금을 끄지 않고 "키 없음"으로 읽어 위 흐름으로 보낸다. 깨진 파일 때문에 잠금이
+  풀리는 일이 없게 한다(헌법 II, 2026-11-01 `LockStore`).
 - 비밀번호 정하기 화면은 "휴대폰 잠금을 아는 사람도 이 방법으로 일기를 열 수 있어요"를 보인다(FR-019).
 - 잠금을 끄거나 비밀번호를 바꾸려면 지금 비밀번호를 넣는다(잊었으면 위 흐름).
 - 최근 앱 가림(FR-018): 잠금이 켜져 있을 때만. Android 13 이상 `setRecentsScreenshotEnabled(false)`, 7~12 `onPause` `FLAG_SECURE` 켬·`onResume` 끔,
