@@ -42,4 +42,29 @@
     <string name="migration_no_space_title">휴대폰 저장 공간이 부족해요</string>
     <string name="migration_no_space_body">기록을 옮기려면 휴대폰에 %1$s가 더 필요해요. 사진이나 쓰지 않는 앱을 정리한 뒤 다시 확인해 주세요. 원래 기록은 그대로 있어요.</string>
     <string name="migration_check_again">다시 확인</string>
+    <!-- 예전 일기 보기(M4) -->
+    <string name="legacy_reader_title">예전 일기</string>
+    <string name="legacy_reader_notice">읽기만 할 수 있어요. 다시 시도하면 새 앱으로 옮겨요.</string>
+    <string name="legacy_reader_empty">읽을 수 있는 예전 일기가 없어요</string>
+    <string-array name="legacy_weekdays">
+        <item>월</item>
+        <item>화</item>
+        <item>수</item>
+        <item>목</item>
+        <item>금</item>
+        <item>토</item>
+        <item>일</item>
+    </string-array>
+    <string name="legacy_time_am">오전 %1$s</string>
+    <string name="legacy_time_pm">오후 %1$s</string>
+    <string name="legacy_month">%1$s월</string>
+    <string name="legacy_year_month">%1$s년 %2$s월</string>
+
+    <!-- 원본 내보내기, 문의하기 -->
+    <string name="migration_export_done">원본을 저장했어요</string>
+    <string name="migration_export_failed">원본을 저장하지 못했어요. 저장할 곳을 다시 골라 주세요.</string>
+    <string name="migration_mail_missing">메일 앱을 찾지 못했어요. sjunh812@naver.com으로 보내 주세요.</string>
+    <string name="migration_mail_subject">[1일 1일기] 기록 이전 문의</string>
+    <string name="migration_mail_body">아래 내용은 문제를 찾아 고칠 때만 써요. 일기 내용은 담지 않았어요.\n\n앱 버전: %1$s\n기기: %2$s\n멈춘 단계: %3$s\n문제 종류: %4$s\n시도 횟수: %5$s\n일기 수: %6$s\n사진 수: %7$s\n읽지 못한 일기 수: %8$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
+    <string name="migration_readme">1일 1일기 원본 파일이에요.\n\n새 앱으로 옮기기 전에 예전 앱(1.7.x)이 쓰던 기록을 그대로 담았어요.\n\n- legacy-snapshot: 일기 파일(note.db)과 설정. 비밀번호는 빼고 담았어요.\n- media: 예전 앱에서 옮겨 둔 사진\n\n기록을 되살리고 싶으면 이 파일을 지우지 말고 sjunh812@naver.com으로 문의해 주세요.\n</string>
 </resources>

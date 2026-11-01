@@ -390,6 +390,26 @@ class MigrationRunner(
         found
     }
 
+    override suspend fun supportSummary(): SupportSummary = withContext(io) {
+        val state = store.readState()
+        val report = store.readReport()
+        val entries =
+            report?.entriesTotal
+                ?: runCatching {
+                    val snapshot = paths.snapshotDir / paths.legacy.noteDb.name
+                    if (fileSystem.exists(snapshot)) LegacyDbReader.open(snapshot.toString()).use { it.count()?.toInt() } else null
+                }.getOrNull()
+                ?: 0
+        val photos = report?.let { it.photosFound + it.photosMissing } ?: runCatching { readPhotosJson().size }.getOrDefault(0)
+        SupportSummary(
+            failure = state.failure,
+            attempt = state.attempt,
+            entriesBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(entries),
+            photosBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(photos),
+            unreadableBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(report?.entriesUnreadable ?: 0)
+        )
+    }
+
     private fun emptyReport() = MigrationReport(
         entriesTotal = 0,
         entriesMigrated = 0,

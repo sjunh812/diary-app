@@ -24,6 +24,9 @@ interface LegacyMigration {
     suspend fun retryPartial(db: DiaryDatabase, currentVersionCode: Int): Int?
 
     suspend fun recheckMissingPhotos(db: DiaryDatabase): Int?
+
+    /** 문의 메일에 넣는 단계·종류·개수 구간. */
+    suspend fun supportSummary(): SupportSummary
 }
 
 /** 옛 앱이 없는 플랫폼(iOS)과 새 설치. */
@@ -41,4 +44,6 @@ object NoLegacyMigration : LegacyMigration {
     override suspend fun retryPartial(db: DiaryDatabase, currentVersionCode: Int): Int? = null
 
     override suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = null
+
+    override suspend fun supportSummary(): SupportSummary = SupportSummary(null, 0, "0", "0", "0")
 }

@@ -73,6 +73,42 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
         return LegacyReadSummary(read, unreadable)
     }
 
+    /**
+     * 예전 일기 보기(contracts/migration-flow.md 실패 화면): 일기 날짜 최근 순(`create_date` 역순, 같으면 `_id` 역순)으로 [limit]줄.
+     * 사용자가 지난 날짜를 골라 쓸 수 있어서 `_id`가 아니라 날짜로 줄을 세운다. [after]로 준 줄 다음부터 준다.
+     * 깨진 사본이면 읽히는 줄만 모아 같은 차례로 준다.
+     */
+    fun readNewestFirst(after: LegacyNote?, limit: Int): List<LegacyNote> {
+        if (!hasNoteTable) return emptyList()
+        return runCatching {
+            if (after == null) {
+                queryText("ORDER BY ifnull(create_date, '') DESC, _id DESC LIMIT $limit")
+            } else {
+                queryText(
+                    "WHERE ifnull(create_date, '') < ? OR (ifnull(create_date, '') = ? AND _id < ?) " +
+                        "ORDER BY ifnull(create_date, '') DESC, _id DESC LIMIT $limit",
+                    after.createDate.orEmpty(),
+                    after.createDate.orEmpty(),
+                    after.id
+                )
+            }
+        }.getOrElse {
+            val all = mutableListOf<LegacyNote>()
+            readAll { all += it }
+            val sorted = all.sortedWith(compareByDescending<LegacyNote> { it.createDate.orEmpty() }.thenByDescending { it.id })
+            val start = if (after == null) 0 else sorted.indexOfFirst { it.id == after.id } + 1
+            sorted.drop(start).take(limit)
+        }
+    }
+
+    private fun queryText(clause: String, vararg args: Any): List<LegacyNote> {
+        val sql = "SELECT ${SELECT.joinToString { if (it in columns) it else "NULL" }} FROM Note $clause"
+        return connection.prepare(sql).use { s ->
+            args.forEachIndexed { i, v -> if (v is Long) s.bindLong(i + 1, v) else s.bindText(i + 1, v.toString()) }
+            buildList { while (s.step()) add(s.toNote()) }
+        }
+    }
+
     private fun singleLongOrNull(sql: String, vararg args: Long): Long? = connection.prepare(sql).use { s ->
         args.forEachIndexed { i, v -> s.bindLong(i + 1, v) }
         s.step()

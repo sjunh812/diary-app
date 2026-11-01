@@ -6,4 +6,5 @@ import org.koin.dsl.module
 val migrationFeatureModule =
     module {
         viewModel { MigrationViewModel(get()) }
+        viewModel { LegacyReaderViewModel(get()) }
     }

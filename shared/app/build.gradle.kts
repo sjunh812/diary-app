@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.ui)
             implementation(libs.compose.resources)
+            implementation(libs.compose.ui.backhandler)
             implementation(libs.androidx.navigation3.runtime)
             implementation(libs.jb.navigation3.ui)
             implementation(libs.jb.lifecycle.runtime.compose)
