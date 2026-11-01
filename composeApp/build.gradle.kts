@@ -66,7 +66,10 @@ dependencies {
 
     debugImplementation(libs.compose.ui.tooling)
     // 개발 빌드의 화면 모음(ScreenCatalogActivity)이 아직 길이 없는 화면을 직접 띄운다.
+    debugImplementation(projects.shared.core.data)
     debugImplementation(projects.shared.core.designsystem)
+    debugImplementation(projects.shared.core.ui)
+    debugImplementation(libs.okio)
     debugImplementation(projects.shared.core.model)
     debugImplementation(projects.shared.feature.migration)
     debugImplementation(projects.shared.feature.settings)

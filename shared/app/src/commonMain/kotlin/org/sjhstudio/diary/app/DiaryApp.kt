@@ -8,12 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import okio.Path.Companion.toPath
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 
 /**
  * 안드로이드와 iOS가 같이 띄우는 앱의 뿌리(contracts/app-shell.md 시작 순서 3).
@@ -22,6 +25,8 @@ import org.sjhstudio.diary.core.model.ThemeMode
  */
 @Composable
 fun DiaryApp() {
+    val thumbnails = koinInject<ThumbnailRepository>()
+    ProvideDiaryImageLoader { thumbnails.thumbnail(it.toPath())?.toString() }
     val startup = koinInject<Startup>()
     val repository = koinInject<SettingsRepository>()
     // 시작 단계에서 읽은 설정으로 첫 프레임부터 화면 모드를 맞춘다.

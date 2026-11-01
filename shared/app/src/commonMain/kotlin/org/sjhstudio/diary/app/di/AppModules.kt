@@ -4,12 +4,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
+import okio.FileSystem
+import okio.Path.Companion.toPath
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
+import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.DataStoreFactory
@@ -17,6 +21,7 @@ import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
@@ -45,6 +50,16 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single { Startup(get<AppFiles>()::ensureDirectories, get(), get(), get(APP_SCOPE)) }
         // 처음 쓸 때 연다. 시작 단계에서는 열지 않는다.
         single { get<DatabaseFactory>().create() }
+        // 줄임 사진(research R9). 사진 칸과 기록 이전이 같이 쓴다.
+        single {
+            val files = get<AppFiles>()
+            ThumbnailRepository(
+                FileSystem.SYSTEM,
+                files.mediaDirectory.toPath(),
+                files.thumbnailDirectory.toPath(),
+                ThumbnailEncoder(ImageDecoder::writeThumbnail)
+            )
+        }
         // 이전이 끝난 기기의 뒷일(FR-011). 일기 DB는 이전이 끝난 뒤에만 꺼낸다.
         single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
     }

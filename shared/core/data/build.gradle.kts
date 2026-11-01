@@ -12,6 +12,8 @@ kotlin {
             implementation(projects.shared.core.database)
             api(projects.shared.core.datastore)
             implementation(projects.shared.core.platform)
+            // 줄임 사진 파일(ThumbnailRepository)
+            implementation(libs.okio)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
         }
