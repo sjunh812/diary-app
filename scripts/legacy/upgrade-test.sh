@@ -5,7 +5,7 @@
 #
 # 순서: 지우기 → 1.7.4 깔고 한 번 열기 → seed.sh → 원본 해시 → 새 APK 덮어 설치 → 열기 → 이전 끝 기다리기 → 확인.
 # 확인: 원본 다섯 파일의 SHA-256이 전후로 같은지, 새 DB의 일기·사진 수, 남은 파일.
-# APP_LOCALE=ja-JP처럼 주면 새 앱을 열기 전에 앱별 언어를 정한다(Android 13 이상, docs/design.md 여러 언어).
+# 새 앱은 한국어로 연다. APP_LOCALE=ja-JP처럼 주면 그 언어로 연다(Android 13 이상, 그 아래는 기기 언어, docs/design.md 여러 언어).
 # COUNT=1000: 사진이 한 장씩 든 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본).
 # KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3). Snapshotting, Verifying, Committing도 된다.
 # INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050). 먼저 :composeApp:assembleDebugAndroidTest.
@@ -23,6 +23,13 @@ WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 ORIGINALS="databases/note.db shared_prefs/pref.xml shared_prefs/pref2.xml cache/1699000000001.jpg cache/1699000000002.png"
 
+# 원본 다섯 파일의 SHA-256. API 24에는 기기 쪽 sha256sum이 없어 꺼내서 이 컴퓨터에서 잰다.
+hash_originals() {
+  for f in $ORIGINALS; do
+    printf '%s  %s\n' "$(adb exec-out run-as $PKG cat "$f" | shasum -a 256 | cut -d' ' -f1)" "$f"
+  done
+}
+
 [ -f "$LEGACY_APK" ] || sh "$ROOT/scripts/legacy/build-legacy-apk.sh"
 [ -f "$NEW_APK" ] || (cd "$ROOT" && ./gradlew :composeApp:assembleDebug -q)
 
@@ -31,10 +38,13 @@ adb install "$LEGACY_APK" >/dev/null
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 sleep 6
 sh "$ROOT/scripts/legacy/seed.sh"
-adb shell run-as $PKG sha256sum $ORIGINALS > "$WORK/before"
+hash_originals > "$WORK/before"
 
 adb install -r "$NEW_APK" >/dev/null
-[ -z "${APP_LOCALE:-}" ] || adb shell cmd locale set-app-locales $PKG --locales "$APP_LOCALE"
+# 앱 언어는 한국어가 기본이다. 앱별 언어는 Android 13(API 33)부터 있어 그 아래는 기기 언어를 따른다.
+if [ "$(adb shell getprop ro.build.version.sdk | tr -d '\r')" -ge 33 ]; then
+  adb shell cmd locale set-app-locales $PKG --locales "${APP_LOCALE:-ko-KR}"
+fi
 if [ -n "${KILL_AT:-}" ]; then
   printf '%s' "$KILL_AT" > "$WORK/kill_at"
   adb push -q "$WORK/kill_at" /data/local/tmp/diary-kill_at
@@ -60,7 +70,7 @@ until adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -q
 done
 echo "이전 끝: $(( $(date +%s) - START ))초, $(adb shell run-as $PKG cat files/migration/state.json)"
 
-adb shell run-as $PKG sha256sum $ORIGINALS > "$WORK/after"
+hash_originals > "$WORK/after"
 if diff "$WORK/before" "$WORK/after" >/dev/null; then echo "원본 해시: 그대로"; else echo "원본 해시가 바뀌었어요" >&2; diff "$WORK/before" "$WORK/after" >&2; exit 1; fi
 adb exec-out run-as $PKG cat databases/diary.db > "$WORK/diary.db"
 echo "새 DB: 일기 $(sqlite3 "$WORK/diary.db" 'SELECT COUNT(*) FROM entry')편, 사진 줄 $(sqlite3 "$WORK/diary.db" "SELECT COUNT(*) FROM media WHERE status='normal'")개, 찾을 수 없는 사진 $(sqlite3 "$WORK/diary.db" "SELECT COUNT(*) FROM media WHERE status='missing'")개"

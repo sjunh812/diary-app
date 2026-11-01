@@ -1,8 +1,8 @@
 # 업그레이드 시험 기록 (T051)
 
 1.7.4(`94179a4`) → 새 앱(2.0.0, 37) 업그레이드를 에뮬레이터에서 돌린 기록이다. 돌리는 법은 `scripts/legacy/upgrade-test.sh`.
-아래 두 번째 기록이 강제 종료, 계측 시험, 1,000편·사진 1,000장 시간 재기다. API 24·29와 quickstart §2의 나머지 견본(wal-only, restored-from-drive,
-low-space, corrupt, locked, fonts)은 아직이다(남은 일 참고).
+아래 기록이 강제 종료, 계측 시험, 1,000편·사진 1,000장 시간 재기다. API 24·29·35·36에서 돌렸다. quickstart §2의 나머지 견본(wal-only,
+restored-from-drive, low-space, corrupt, locked, fonts)은 아직이다(못 한 것 참고).
 
 ## 2026-11-01 · API 36(Android 16) 에뮬레이터 `Medium_Phone`, 시험 자료 `scripts/legacy/seed.sh`
 
@@ -42,11 +42,29 @@ low-space, corrupt, locked, fonts)은 아직이다(남은 일 참고).
   잰 것은 아니다.
 - 스펙 003 왕복 시험용 견본 자료를 `shared/core/testing/src/androidHostTest/resources/migrated/`에 남겼다(FR-034, 같은 폴더 README).
 
+## 2026-11-02 · API 24·29
+
+Google 공식 SDK 저장소에서 Google APIs arm64 이미지(API 24 rev 29, API 29 rev 13)를 받아 SHA-1을 맞춰 보고 돌렸다(사용자 허락).
+처음 API 26·31이 멈춘 것은 폰 설정 파일을 통째로 베낀 탓으로 보인다. 필요한 항목만 적은 설정으로는 API 24·29가 바로 켜졌다.
+
+| 기기 | 조합 | 원본 해시 | 새 DB | 이전 시간 | 계측 시험 |
+| --- | --- | --- | --- | --- | --- |
+| API 24 폰(한국어) | 기본, `KILL_AT` 네 단계 | 그대로 | 일기 4, 사진 normal 3·missing 1 | 0.03~0.05초 | 모두 통과 |
+| API 24 폰 | `COUNT=1000` | 그대로 | 일기 1,004, 사진 normal 1,003·missing 1 | 2.3초 | 통과 |
+| API 29 폰 | 기본, `KILL_AT=Copying`, `KILL_AT=Committing` | 그대로 | 같음 | 0.05~0.07초 | 모두 통과 |
+| API 29 폰 | `COUNT=1000` | 그대로 | 일기 1,004, 사진 normal 1,003·missing 1 | 2.2초 | 통과 |
+
+- **고친 결함**: 처음 API 24에서는 새 앱이 켜자마자 꺼졌다. kotlinx-datetime이 Android 8부터 있는 `java.time`을 쓰는데 Java 표준 라이브러리
+  desugaring을 켜지 않았기 때문이다(`NoClassDefFoundError: java.time.ZoneOffset`). 앱 모듈 설정에서 켜고 다시 돌려 통과했다. Android 7 기기의
+  예전 사용자는 이 수정이 없었으면 업데이트 직후 앱을 열 수 없었다.
+- **한국어 줄바꿈**: Android 12 이하에는 구절 단위 줄바꿈이 없어 결과 화면에서 "날/짜"처럼 낱말 가운데서 줄이 바뀐다. 설계 때 알던 제약이다
+  (`docs/design.md` 여러 언어, Android 13 이상만 구절 단위).
+- 업그레이드 시험의 원본 해시는 이제 기기에서 꺼내 이 컴퓨터에서 잰다. API 24에는 기기 쪽 `sha256sum`이 없다.
+- 같은 에뮬레이터에 시험을 둘 겹쳐 돌리면 서로 견본을 다시 넣어 "원본 해시가 바뀌었어요"가 나온다. 한 기기에는 한 번에 하나만 돌린다.
+
 ### 못 한 것
 
-- API 24·29: 이 Mac에 시스템 이미지가 없다. 있는 API 26(default)·API 31(Google Play) 이미지로 에뮬레이터를 만들었지만
-  에뮬레이터 37.1.11에서 켜지다 멈췄다("QEMU2 ... hanging thread", 그래픽을 소프트웨어로 바꿔도 같음). 만든 설정은 지웠다.
-  24·29 이미지를 새로 받아 다시 돌려야 한다(이미지마다 1GB 안팎).
+- API 26·31: 위 설정으로는 다시 시도하지 않았다. 24·29·35·36으로 가장 낮은 버전부터 최신까지 걸쳤다.
 - quickstart §2의 wal-only, restored-from-drive, low-space, corrupt, locked, fonts 견본은 `seed.sh`에 아직 없다.
   같은 경우를 `shared/core/migration`의 공통 시험(MigrationRunnerTest 등)이 견본 파일로 본다.
 
