@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 앱 아이콘 배경 겹(Figma "앱 아이콘 확정 · A2", 흰색에서 #EFE9FF로 흐르는 대각선 그라데이션). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+    <path android:pathData="M0,0h160v160h-160z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endColor="#FFEFE9FF"
+                android:endX="160"
+                android:endY="160"
+                android:startColor="#FFFFFFFF"
+                android:startX="0"
+                android:startY="0"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+</vector>
