@@ -167,7 +167,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T069 [P] [US3] `shared/feature/settings/{kt}/feature/settings/`에 `SettingsScreen.kt`(틀), `FontSettingsScreen.kt`(10종 + 시스템, 미리보기 그림, "받기 · 크기"와 받는 중 진행, 인터넷 없음 안내), `TextSizeSettingsScreen.kt`(5단계, 미리보기 문장), `ThemeSettingsScreen.kt`, `ReminderSettingsScreen.kt`(허락 필요 줄), `LicensesScreen.kt`(OFL 전문, 네이버 글꼴 라이선스, 카페24 약관, 공공누리 출처), "글꼴이 바뀌었어요" 토스트 한 번
 - [ ] T070 [US3] `shared/core/platform/{kt}/core/platform/ReminderScheduler.kt` expect, `{android}` `AlarmManager.setWindow(RTC_WAKEUP, 시각, 10분)`과 알림 채널, `{ios}` `UNCalendarNotificationTrigger(repeats: true)`, `shared/core/data/{kt}/core/data/reminder/ReminderRepository.kt`. 2026-11-02: Android와 `ReminderRepository`(앱을 열 때 다시 예약)를 했다. 옛 앱과 같은 수신기 이름·요청 번호로 예약해 옛 예약을 덮어쓰고, 채널 ID `alarm_id`를 이어 써서 사용자의 채널 설정이 남는다. iOS는 알림 설정 화면(T069)과 함께 붙인다
 - [x] T071 [US3] `composeApp/src/main/kotlin/org/sjhstudio/diary/helper/AlarmReceiver.kt`(옛 이름 그대로, 알림 띄우고 다음 예약), `BOOT_COMPLETED`·`MY_PACKAGE_REPLACED` 받기, 이전 전이면 옛 `pref2.xml`을 읽기만 해서 시각 얻기(research R15). 2026-11-02: 수신기도 시작 단계(옛 설정 잇기)가 끝나기를 기다린 뒤 새 설정으로 예약한다. 시각·시간대 바뀜(`TIME_SET`, `TIMEZONE_CHANGED`)에도 다시 예약한다
-- [ ] T072 [US3] 화면 모드를 `DiaryTheme`에 잇고(시스템·라이트·다크) iOS도 같게 한다
+- [x] T072 [US3] 화면 모드를 `DiaryTheme`에 잇고(시스템·라이트·다크) iOS도 같게 한다. 2026-11-02: 공통 `DiaryApp`이 설정의 화면 모드로 `DiaryTheme`을 고르고 iOS도 같은 코드를 쓴다. 시작 단계에서 읽은 값으로 첫 프레임부터 맞는다
 - [ ] T073 [US3] `locked` 조합으로 업데이트한 뒤 앱을 열지 않고 다음 알림이 오는지, 앱이 멈추지 않는지 본다(FR-022, `test-report.md`)
 
 **Checkpoint**: 옛 설정 여덟 가지가 이어진다(SC-006)
