@@ -181,8 +181,8 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 **Independent Test**: quickstart.md §5
 
 - [ ] T074 [P] [US4] Figma 섹션 "앱 아이콘 확정 · A2"에서 내보내기: `composeApp/src/main/res/mipmap-anydpi-v26/ic_launcher.xml`(전경·배경·단색), `mipmap-*dpi/` PNG(API 24·25용 둥근·사각), `iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/`(1024 라이트·다크·틴트), 스토어 512·1024는 `docs/store/`(research R24)
-- [ ] T075 [US4] 스플래시: `composeApp/src/main/res/values/themes.xml`·`values-night/themes.xml`의 `Theme.Diary.Starting`(바탕 `canvas`), `drawable/splash_pencil.xml`(움직임 없음), `MainActivity`의 `installSplashScreen()`과 `setKeepOnScreenCondition { !startup.ready }`, iOS `Info.plist` `UILaunchScreen`과 `LaunchBackground`·`LaunchPencil` 에셋(research R14)
-- [ ] T076 [US4] `composeApp/src/main/AndroidManifest.xml`에 `org.sjhstudio.diary.SplashActivity` → `MainActivity` `activity-alias`(런처)를 두고, 1.7.4 홈 화면 바로가기가 업데이트 뒤 열리는지 본다
+- [ ] T075 [US4] 스플래시: `composeApp/src/main/res/values/themes.xml`·`values-night/themes.xml`의 `Theme.Diary.Starting`(바탕 `canvas`), `drawable/splash_pencil.xml`(움직임 없음), `MainActivity`의 `installSplashScreen()`과 `setKeepOnScreenCondition { !startup.ready }`, iOS `Info.plist` `UILaunchScreen`과 `LaunchBackground`·`LaunchPencil` 에셋(research R14). 2026-11-02: Android를 했다. 연필은 Figma "SP 시작 화면"의 splash-pencil을 SVG로 뽑아 그대로 옮겼다. iOS 에셋은 남았다
+- [x] T076 [US4] `composeApp/src/main/AndroidManifest.xml`에 `org.sjhstudio.diary.SplashActivity` → `MainActivity` `activity-alias`(런처)를 두고, 1.7.4 홈 화면 바로가기가 업데이트 뒤 열리는지 본다. 2026-11-02: 런처를 옛 이름 하나만 두고 `MainActivity`는 내보내지 않는다. API 36·24에서 런처가 `.SplashActivity`로 잡히고 그 이름으로 열리는 것을 봤다(`cmd package resolve-activity`, `am start -n .../.SplashActivity`)
 - [ ] T077 [P] [US4] `benchmarks/src/main/kotlin/org/sjhstudio/diary/benchmarks/StartupBenchmark.kt`, `BaselineProfileGenerator.kt`, 만든 profile을 `composeApp/src/main/baseline-prof.txt`로 커밋(SC-007, research R10)
 - [ ] T078 [US4] Android 12 미만·이상, 라이트·다크에서 스플래시가 한 번만 뜨고 바탕색이 맞는지, 돌아올 때 스플래시가 없는지 캡처로 본다
 

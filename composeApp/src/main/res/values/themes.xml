@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 앱 바탕. 화면은 Compose가 그리고 창 바탕만 디자인 시스템 canvas에 맞춘다. -->
+    <style name="Theme.Diary" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/canvas</item>
+    </style>
+
+    <!-- 시작 화면 하나(research R14). 설정·잠금을 읽는 동안만 붙잡고 바로 앱으로 넘어간다. 움직임은 없다. -->
+    <style name="Theme.Diary.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/canvas</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_pencil</item>
+        <item name="postSplashScreenTheme">@style/Theme.Diary</item>
+    </style>
+</resources>

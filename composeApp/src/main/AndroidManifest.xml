@@ -14,18 +14,23 @@
         android:fullBackupContent="@xml/backup_rules"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:theme="@style/Theme.Diary">
 
-        <!-- 옛 런처 이름(.SplashActivity)을 남기는 activity-alias는 스펙 001 US4(시작 화면)에서 더한다. -->
         <activity
             android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Diary.Starting"
+            android:windowSoftInputMode="adjustResize" />
+        <!-- 런처는 옛 앱(1.7.x)의 이름 .SplashActivity를 그대로 쓴다. 이름이 바뀌면 홈 화면 아이콘과 바로가기가 깨질 수 있다(research R14). -->
+        <activity-alias
+            android:name=".SplashActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
         <!-- 매일 알림 수신기. 옛 앱의 이름(.helper.AlarmReceiver) 그대로라 업데이트 전에 걸어 둔 예약도 여기로 온다(research R15). -->
         <receiver
             android:name=".helper.AlarmReceiver"

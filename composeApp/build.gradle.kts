@@ -65,6 +65,8 @@ dependencies {
     // 잠금 화면의 생체 인증 창은 FragmentActivity 위에 뜬다.
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.core.ktx)
+    // 시작 화면(Android 12 미만도 같은 모양, research R14)
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.profileinstaller)
 
     implementation(platform(libs.koin.bom))
