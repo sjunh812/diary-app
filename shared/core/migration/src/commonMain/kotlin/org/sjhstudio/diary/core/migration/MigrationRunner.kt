@@ -8,9 +8,14 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -103,6 +108,11 @@ class MigrationRunner(
      * 처음 옮긴 버전을 적어 두고, 일부만 옮겨진 기기는 이보다 높은 버전에서만 다시 읽는다(FR-011).
      */
     private val versionCode: Int = 0,
+    /**
+     * 옮긴 사진의 줄임 사진을 만든다(research R9, FR-037). 실패해도 이전은 계속하고 수만 센다.
+     * 앱은 `ThumbnailRepository.ensure`를 넘긴다.
+     */
+    private val makeThumbnail: (suspend (Path) -> Boolean)? = null,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : LegacyMigration {
     private val store = MigrationStateStore(fileSystem, paths.migrationDir)
@@ -247,6 +257,7 @@ class MigrationRunner(
         for (chunk in notes.chunked(CHUNK)) {
             val entries = ArrayList<org.sjhstudio.diary.core.database.EntryEntity>(chunk.size)
             val media = ArrayList<MediaEntity>()
+            val copied = ArrayList<Path>()
             for (note in chunk) {
                 val mapped = mapper.map(note)
                 if (mapped.dateUnparsed) counts.dateUnparsed++
@@ -256,9 +267,11 @@ class MigrationRunner(
                     media += photo.media.asEntity()
                     records += photo.record
                     if (photo.found) counts.photosFound++ else counts.photosMissing++
+                    photo.media.fileName?.takeIf { photo.found }?.let { copied += paths.mediaDir / it }
                     photosDone++
                 }
             }
+            counts.thumbnailsFailed += makeThumbnails(copied)
             db.withWriteTransaction {
                 db.entryDao().insertAll(entries)
                 db.mediaDao().insertAll(media)
@@ -267,6 +280,18 @@ class MigrationRunner(
             _progress.value = MigrationProgress(MigrationStep.COPYING, done, notes.size, photosDone, photosTotal)
         }
         writePhotosJson(records)
+    }
+
+    /** 줄임 사진을 최대 3개씩 나란히 만든다(contracts/migration-flow.md `Copying`). 못 만든 수를 돌려준다. */
+    private suspend fun makeThumbnails(files: List<Path>): Int {
+        val make = makeThumbnail ?: return 0
+        val permits = Semaphore(THUMBNAIL_PARALLEL)
+        return coroutineScope {
+            files.distinct()
+                .map { file -> async { permits.withPermit { runCatching { make(file) }.getOrDefault(false) } } }
+                .awaitAll()
+                .count { !it }
+        }
     }
 
     /**
@@ -351,6 +376,7 @@ class MigrationRunner(
                 photosMissing = (old?.photosMissing ?: 0) + counts.photosMissing,
                 dateDiffers = (old?.dateDiffers ?: 0) + counts.dateDiffers,
                 dateUnparsed = (old?.dateUnparsed ?: 0) + counts.dateUnparsed,
+                thumbnailsFailed = (old?.thumbnailsFailed ?: 0) + counts.thumbnailsFailed,
                 finishedAt = clock.now(),
                 outcome = if (summary.unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
             )
@@ -377,6 +403,7 @@ class MigrationRunner(
             val photo = importer.importOne(row.entryId, row.sortOrder, row.legacyPath ?: continue)
             if (!photo.found) continue
             db.mediaDao().update(photo.media.copy(id = row.id, createdAt = Instant.fromEpochMilliseconds(row.createdAt)).asEntity())
+            photo.media.fileName?.let { makeThumbnails(listOf(paths.mediaDir / it)) }
             found++
         }
         if (found > 0) {
@@ -433,7 +460,13 @@ class MigrationRunner(
         outcome = MigrationOutcome.DONE
     )
 
-    private inner class Counts(var photosFound: Int = 0, var photosMissing: Int = 0, var dateDiffers: Int = 0, var dateUnparsed: Int = 0) {
+    private inner class Counts(
+        var photosFound: Int = 0,
+        var photosMissing: Int = 0,
+        var dateDiffers: Int = 0,
+        var dateUnparsed: Int = 0,
+        var thumbnailsFailed: Int = 0
+    ) {
         fun toReport(migrated: Int, unreadable: Int) = MigrationReport(
             entriesTotal = migrated + unreadable,
             entriesMigrated = migrated,
@@ -442,7 +475,7 @@ class MigrationRunner(
             photosMissing = photosMissing,
             dateDiffers = dateDiffers,
             dateUnparsed = dateUnparsed,
-            thumbnailsFailed = 0,
+            thumbnailsFailed = thumbnailsFailed,
             settingsMigrated = emptyList(),
             finishedAt = clock.now(),
             outcome = if (unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
@@ -513,6 +546,9 @@ class MigrationRunner(
     private companion object {
         /** 한 트랜잭션에 쓰는 줄 수(contracts/migration-flow.md Copying). */
         const val CHUNK = 200
+
+        /** 줄임 사진을 나란히 만드는 수. 큰 사진을 한꺼번에 풀어 메모리가 모자라지 않게 3으로 둔다(R9). */
+        const val THUMBNAIL_PARALLEL = 3
 
         /** 사진 한 장의 줄임 사진 자리(research R8). */
         const val THUMBNAIL_BYTES = 40L * 1024

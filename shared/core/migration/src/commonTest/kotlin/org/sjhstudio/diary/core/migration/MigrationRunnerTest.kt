@@ -9,6 +9,9 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -53,17 +56,19 @@ class MigrationRunnerTest {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-        fun runner(versionCode: Int = 37, openDb: (String) -> DiaryDatabase = ::open) = MigrationRunner(
-            fileSystem = dir.fs,
-            paths = paths,
-            clock = clock,
-            timeZone = TimeZone.of("Asia/Seoul"),
-            newId = { "id-${ids++}" },
-            freeBytes = { free },
-            openDatabase = openDb,
-            imageSize = { 100 to 50 },
-            versionCode = versionCode
-        )
+        fun runner(versionCode: Int = 37, makeThumbnail: (suspend (Path) -> Boolean)? = null, openDb: (String) -> DiaryDatabase = ::open) =
+            MigrationRunner(
+                fileSystem = dir.fs,
+                paths = paths,
+                clock = clock,
+                timeZone = TimeZone.of("Asia/Seoul"),
+                newId = { "id-${ids++}" },
+                freeBytes = { free },
+                openDatabase = openDb,
+                imageSize = { 100 to 50 },
+                versionCode = versionCode,
+                makeThumbnail = makeThumbnail
+            )
 
         fun photo(name: String, bytes: ByteArray): Path = dir.write("cache/$name", bytes)
 
@@ -230,7 +235,7 @@ class MigrationRunnerTest {
             val photo = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$photo,"))).close()
             // 쓰기가 실패하는 DB: 열자마자 닫는다.
-            val failed = assertIs<MigrationResult.Failed>(env.runner { path -> env.open(path).also { it.close() } }.run())
+            val failed = assertIs<MigrationResult.Failed>(env.runner(openDb = { path -> env.open(path).also { it.close() } }).run())
 
             assertEquals(MigrationFailureKind.WRITE_ERROR, failed.kind)
             assertTrue(dir.fs.exists(env.paths.mediaDir / "${env.sha(photo)}.jpg"))
@@ -286,6 +291,49 @@ class MigrationRunnerTest {
             } finally {
                 db.close()
             }
+        }
+    }
+
+    /** 줄임 사진을 못 만들어도 이전은 끝나고 수만 센다. 한 번에 3개를 넘게 만들지 않는다(FR-037, R9). */
+    @Test
+    fun thumbnail_failures_are_counted_not_fatal() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val names = (1..8).map { "p$it.jpg" }
+            val rows = names.mapIndexed { i, name ->
+                LegacyFixtures.Row(
+                    "2024-01-0${i % 9 + 1} 10:00:00",
+                    picture = "${env.photo(
+                        name,
+                        jpeg + byteArrayOf(i.toByte())
+                    )},"
+                )
+            }
+            LegacyFixtures.create(env.legacy.noteDb, rows).close()
+            // 이전은 IO 스레드에서 돌아 줄임 사진 만들기가 정말로 나란히 불린다. 세는 값은 잠금 안에서만 바꾼다.
+            val lock = Mutex()
+            var running = 0
+            var most = 0
+            val made = mutableListOf<String>()
+            val result =
+                env.runner(makeThumbnail = { media ->
+                    lock.withLock {
+                        running++
+                        most = maxOf(most, running)
+                    }
+                    delay(20)
+                    lock.withLock {
+                        running--
+                        made += media.name
+                        made.size % 4 != 0
+                    }
+                }).run()
+            val report = assertIs<MigrationResult.Finished>(result).report
+            assertEquals(MigrationOutcome.DONE, report.outcome)
+            assertEquals(8, made.size)
+            assertEquals(2, report.thumbnailsFailed)
+            assertTrue(most in 1..3)
+            assertTrue(made.all { it.endsWith(".jpg") && it.length > 10 })
         }
     }
 

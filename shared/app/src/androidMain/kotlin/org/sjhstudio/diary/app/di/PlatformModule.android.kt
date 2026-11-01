@@ -11,6 +11,7 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.migration.AndroidImageSizeReader
 import org.sjhstudio.diary.core.migration.LegacyArchive
@@ -61,7 +62,8 @@ internal actual val platformModule: Module =
                 openDatabase = factory::createAt,
                 imageSize = AndroidImageSizeReader,
                 events = MigrationTelemetry(get()),
-                versionCode = versionCode(androidContext())
+                versionCode = versionCode(androidContext()),
+                makeThumbnail = get<ThumbnailRepository>()::ensure
             )
         }
     }
