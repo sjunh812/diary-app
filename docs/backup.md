@@ -26,15 +26,17 @@ Gmail·Photos와 공유)을 쓴다.
 | Firebase Cloud Storage | 2026-02-03부터 Blaze(카드 등록) 필수라 제외 | [Firebase](https://firebase.google.com/docs/storage/faqs-storage-changes-announced-sept-2024) |
 | Supabase, Cloudflare R2 | 무료 용량(1GB, 10GB)이 사용자 수에 비해 작고, R2는 초과분이 과금이다 | [Supabase](https://supabase.com/pricing), [R2](https://developers.cloudflare.com/r2/pricing/) |
 
-지켜볼 것: Drive API는 지금 추가 비용이 없지만 쿼터 초과분 과금을 2026년 후반에 시작하고 90일 전에 공지한다고 적혀 있다(limits 페이지).
+지켜볼 것: Drive API는 지금 추가 비용이 없지만 쿼터 초과분 과금을 2026년 안에 시작할 계획이고 90일 전에 공지한다고 적혀 있다(limits 페이지,
+2026-10-30 갱신본에도 날짜 없음). 한도는 사용자 분당 325,000단위라 우리 쓰임과 멀다(스펙 003 research R3).
 공지가 나오면 다시 본다.
 
 ### 인증
 
-- Android: 레거시 `GoogleSignIn`은 deprecated다(제거 날짜는 공식 페이지에 없음). Drive 권한은 `Identity.getAuthorizationClient(activity).authorize()`로
+- Android: 레거시 `GoogleSignIn`은 `play-services-auth` 22.0.0(2026-08-25)에서 빠졌다. Drive 권한은 `Identity.getAuthorizationClient(activity).authorize()`로
   받는다. 로그인이 먼저 필요하지 않고, 토큰은 약 1시간이며 만료되면 다시 부른다(이미 허용했으면 화면 없이). refresh token은 기기에
-  두지 않는다([authorization](https://developer.android.com/identity/authorization)).
-- iOS: GoogleSignIn-iOS로 토큰을 받고 REST를 직접 부른다.
+  두지 않는다([authorization](https://developer.android.com/identity/authorization)). 응답에 계정이 없어 `openid`·`email`을 같이 받아 userinfo로
+  계정 고유 ID와 이메일을 얻는다(스펙 003 research R2).
+- iOS: GoogleSignIn-iOS 10.1.0(SPM)으로 토큰을 받고 REST를 직접 부른다. 공통 코드는 Ktor로 REST를 부른다(스펙 003 research R3).
 - 같은 Google Cloud 프로젝트를 쓴다. 다른 프로젝트의 클라이언트가 레거시 `drive.file` 파일을 볼 수 있는지는 공식 문서에서 확인하지 못했다. 같은 프로젝트를 쓰면 이 위험이 없다.
 - 같은 프로젝트 안에서도 Android 클라이언트가 만든 파일을 iOS 클라이언트가 보는지는 문서에 없다(같은 프로젝트의 클라이언트를 하나의 앱으로 본다는 문서만 있음,
   [cross-client](https://developers.google.com/identity/protocols/oauth2/cross-client-identity)). 스펙 003 계획의 첫 작업으로 실제로 확인한다.
@@ -83,8 +85,12 @@ Gmail·Photos와 공유)을 쓴다.
   - 홈 백업 상태 줄에 늘 "백업 꺼짐"과 켜는 길.
   - 일기 3편째나 첫 사진 일기 뒤(이전한 사용자는 첫 홈부터) 홈 목록 맨 위 카드. "나중에"는 14일 숨김, 세 번 넘기면 그만.
   - 화면을 막는 창, 쓰기·읽기 화면의 안내, 연결을 조르는 푸시는 쓰지 않는다.
-- Android: WorkManager 하루 1번, 네트워크 연결 시. 사진은 기본 Wi-Fi에서만(설정으로 바꿀 수 있다).
-- iOS: `BGProcessingTask`는 실행이 보장되지 않으니, 앱이 백그라운드로 갈 때 마지막 백업이 24시간 넘었으면 시작한다.
+- Android: WorkManager 하루 1번. 네트워크는 작업 안에서 보고, 사진은 기본 Wi-Fi에서만(설정으로 바꿀 수 있다). 지금 백업은 Android 14부터
+  사용자가 시작한 데이터 전송 작업, 그 아래는 앞에서 시작한 급한 작업으로 돈다(스펙 003 research R14).
+- iOS: `BGProcessingTask`는 실행이 보장되지 않으니, 앱이 백그라운드로 갈 때와 열릴 때 마지막 백업이 24시간 넘었으면 시작한다. 지금 백업은 iOS 26부터
+  `BGContinuedProcessingTask`로 앱을 떠나도 잇는다(R15).
+- 7일 실패 알림은 성공할 때마다 "마지막 성공 + 7일"에 미리 예약해 둔다. 기기가 한 번도 백업을 못 돌려도 알림이 온다(R16).
+- Android 클라우드 자동 백업(25MB)에는 일기를 넣지 않고, 기기 간 이전에는 `diary.db`, `media/`, 설정만 담는다(R20).
 - 홈이나 설정에 "마지막 백업 오늘 오후 9:30 · 사진 1,203장 모두 백업됨"처럼 상태를 늘 보여 준다. 7일 넘게 실패하면 알림으로 알린다.
 
 ## 내보내기
