@@ -44,7 +44,7 @@
 | `pref` | `mode_key` | 0 | 0 시스템, 1 라이트, 2 다크 |
 | `pref` | `use_pw`, `password` | false, "" | 잠금. 비밀번호가 **평문**으로 있다. 새 앱은 해시로 바꿔 담고 잠금을 켠 채로 연다 |
 | `pref` | `finger_print` | false | 생체 인증 |
-| `pref` | `skip_note` | true | 목록에서 3줄만 보기 |
+| `pref` | `skip_note` | true | 목록에서 3줄만 보기. 옮기지 않는다: 새 앱은 목록 미리보기를 늘 3줄로 두고 전체 글은 상세에서 본다(2026-11-01 결정) |
 | `pref` | `ask_location` | true | 위치 안내를 다시 물을지 |
 | `pref` | `permission_guide` | false | 권한 안내를 본 적 있는지. 새 온보딩에서는 쓰지 않는다 |
 | `pref` | `<이메일>`, `<이메일>'s id` | - | 구글 계정 로그인 여부와 드라이브 백업 파일 ID. 이전 백업 찾기에 쓴다 |
