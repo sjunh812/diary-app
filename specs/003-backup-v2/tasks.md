@@ -33,7 +33,7 @@ description: "스펙 003 백업 v2 작업 목록"
 ## Phase 1: 프로토타입과 디자인 (`/diary-flow` 3·4단계, 지금 가능)
 
 - [x] T001 이야기별로 지나가는 화면과 뒤로 가기, 상태(연결 안 함, 연결 중·취소, 백업 중, 완료, 사진 대기, 공간 부족, 다시 연결 필요, 7일 실패, 복원 받는 중·확인 실패, 새 앱 필요, 사진 받는 중, 되돌리기 기간)를 `specs/003-backup-v2/prototype.md`에 쓴다(`contracts/backup-flow.md`, `contracts/merge-rules.md` 기준). 레퍼런스(구글 포토 상태 줄, Day One 상태 줄, WhatsApp·카카오 백업 화면)의 배치를 출처와 함께 붙인다
-- [x] T002 [P] "표지 · 흐름"에 섹션 "프로토타입 · 백업"을 만들고 설정 > 백업(B1: 연결 안 함·연결됨·백업 중·사진 대기·실패), 백업 설정(B13: 계정, 사진은 Wi-Fi에서만, 파일로 내보내기, 연결 끊기), 드라이브 연결(B2: 계정 고르기, 옛 백업 계정 먼저, 취소), 지금 백업 진행과 완료, 공간 부족 안내(B10) 프레임을 만들고 잇는다
+- [x] T002 [P] "표지 · 흐름"에 섹션 "프로토타입 · 백업"을 만들고 설정 > 백업(B1: 연결 안 함·연결됨·백업 중·사진 대기·실패), 백업 설정(B13: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기), 드라이브 연결(B2: 계정 고르기, 옛 백업 계정 먼저, 취소), 지금 백업 진행과 완료, 공간 부족 안내(B10) 프레임을 만들고 잇는다
 - [x] T003 [P] 같은 섹션에 복원 목록(B3: 기기별, 깨진 백업, 새 앱 필요, 이전 버전 백업 칸, 묶음 파일 불러오기), 미리보기(B4: 합치기 기본, 바꾸기 다른 선택지, 설정 바뀜 줄), 복원 중(B5), 결과(B6: 찾을 수 없는 사진, 원래 기기에 있는 사진, 잠금 다시 정하기), 이전 버전 백업 불러오기(B7) 프레임을 만들고 잇는다
 - [x] T004 [P] 같은 섹션에 바꾸기 확인과 되돌리기(B9: "내일까지 되돌릴 수 있어요" 포함), 묶음 파일 내보내기·불러오기(B8), 홈 머리 상태 줄 상태들과 권하기 카드(B11), 7일 실패 알림과 진행 알림 모양 프레임을 만든다
 - [ ] T005 흐름 시작점("백업 · 처음 연결", "· 새 폰에서 되살리기", "· 이전 버전 백업", "· 공간 부족", "· 바꾸기와 되돌리기")을 두고 캡처를 보내 사용자 확정을 받는다. 확정하면 `prototype.md`에 날짜와 바뀐 점을 쓰고 스펙에 되먹인다(지금 앱 백업 화면과 크게 달라지는 곳은 먼저 묻는다)
@@ -105,7 +105,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [ ] T042 [US1] `{kt}/core/backup/RetentionPolicy.kt`, `MediaJanitor.kt`: `contracts/backup-format.md` "보관과 정리"
 - [ ] T043 [US1] `shared/core/platform/{android}/core/platform/AndroidBackupScheduler.kt` 지금 백업: Android 14 이상 `BackupTransferJobService`(사용자가 시작한 데이터 전송, 진행 알림), 13 이하 급한 작업 + `setForeground`(`dataSync`), `onTimeout`·작업 멈춤에서 상태 남기기(research R14)
 - [ ] T044 [P] [US1] `shared/core/platform/{ios}/core/platform/IosBackupScheduler.kt`와 `iosApp/iosApp/Backup/ContinuedBackupTask.swift`: 앞에서는 공통 코드로, iOS 26 이상은 `BGContinuedProcessingTask`로 넘겨 진행 보고, 17~25는 `beginBackgroundTask` 안에서 조각(research R15)
-- [ ] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 내보내기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
+- [ ] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
 - [ ] T046 [US1] 홈 머리 백업 상태 줄 컴포넌트 `shared/feature/backup/{kt}/feature/backup/BackupStatusLine.kt`를 내보내고 스펙 002 홈에 꽂는다(`contracts/backup-flow.md` 상태 표시). Figma 홈 백업 상태와 권하기 (B11)
 - [ ] T047 [P] [US1] `shared/feature/backup/{res}/values/strings.xml`: 백업 화면·상태 줄·README·진행 알림 문구(해요체, README 둘째 단락은 영어). 한국어 스킬로 다듬는다
 - [ ] T048 [US1] 실제 드라이브 시험 `shared/core/backup/src/androidDeviceTest/.../RealDriveBackupTest.kt`(시험 계정, CI 비밀값이 있을 때만): 왕복 준비용 백업, 끝나면 시험 폴더 지우기
@@ -205,7 +205,7 @@ description: "스펙 003 백업 v2 작업 목록"
 ### Implementation for User Story 5
 
 - [ ] T080 [US5] `UploadPlanner`에 공간 계획(`about.storageQuota`)과 `BackupRunner`에 중간 공간 부족 처리를 더한다(`contracts/backup-format.md` "공간이 모자랄 때")
-- [ ] T081 [US5] 공간 부족 안내 화면: 모자란 양, 사진 정리 방법, 드라이브 휴지통 비우기, 구글 계정 저장 공간 화면 열기, 묶음 파일로 내보내기. 우리가 공간을 팔지 않는다(FR-019). Figma 드라이브 공간이 모자라요 (B10)
+- [ ] T081 [US5] 공간 부족 안내 화면: 모자란 양, 사진 정리 방법, 드라이브 휴지통 비우기, 구글 계정 저장 공간 화면 열기, 파일로 백업하기. 우리가 공간을 팔지 않는다(FR-019). Figma 드라이브 공간이 모자라요 (B10)
 
 ---
 
@@ -224,7 +224,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 - [ ] T084 [US6] Okio `openZip`이 Android·iOS 공통 코드에서 보이는지 확인하고(research R18), `{kt}/core/backup/BundleWriter.kt`(STORE + ZIP64), `BundleReader.kt`를 만든다. 안 보이면 Android `ZipInputStream`, iOS ZIPFoundation으로 읽기를 플랫폼에 둔다
 - [ ] T085 [US6] 저장 위치에 바로 흘려 쓰기(research O3): FileKit 0.17.0으로 되는지 보고, 안 되면 Android SAF 출력 스트림·iOS 앱 폴더 + 공유 시트. 결과를 research O3에 적는다
-- [ ] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/ExportScreen.kt`와 불러오기 진입(복원 목록): 크기 미리 보이기, 진행, 불러오기는 드라이브 복원 미리보기·합치기를 그대로. Figma 묶음 파일 (B8)
+- [ ] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/FileBackupScreen.kt`: 파일 기능의 입구 하나. [파일 만들기](크기 미리 보이기, 진행), "파일에서 되살리기"(파일 고르기 → 드라이브 복원과 같은 미리보기·합치기), 새 휴대폰으로 옮기는 방법 안내. 연결 전 화면·백업 설정·공간 부족 화면의 "파일로 백업하기" 줄이 모두 여기로 온다. Figma 묶음 파일 (B8)
 
 ---
 
