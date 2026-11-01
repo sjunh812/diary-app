@@ -33,11 +33,11 @@ description: "스펙 003 백업 v2 작업 목록"
 ## Phase 1: 프로토타입과 디자인 (`/diary-flow` 3·4단계, 지금 가능)
 
 - [x] T001 이야기별로 지나가는 화면과 뒤로 가기, 상태(연결 안 함, 연결 중·취소, 백업 중, 완료, 사진 대기, 공간 부족, 다시 연결 필요, 7일 실패, 복원 받는 중·확인 실패, 새 앱 필요, 사진 받는 중, 되돌리기 기간)를 `specs/003-backup-v2/prototype.md`에 쓴다(`contracts/backup-flow.md`, `contracts/merge-rules.md` 기준). 레퍼런스(구글 포토 상태 줄, Day One 상태 줄, WhatsApp·카카오 백업 화면)의 배치를 출처와 함께 붙인다
-- [x] T002 [P] "표지 · 흐름"에 섹션 "프로토타입 · 백업"을 만들고 설정 > 백업(B1: 연결 안 함·연결됨·백업 중·사진 대기·실패), 드라이브 연결(B2: 계정 고르기, 옛 백업 계정 먼저, 취소), 지금 백업 진행과 완료, 공간 부족 안내(B10) 프레임을 만들고 잇는다
+- [x] T002 [P] "표지 · 흐름"에 섹션 "프로토타입 · 백업"을 만들고 설정 > 백업(B1: 연결 안 함·연결됨·백업 중·사진 대기·실패), 백업 설정(B13: 계정, 사진은 Wi-Fi에서만, 파일로 내보내기, 연결 끊기), 드라이브 연결(B2: 계정 고르기, 옛 백업 계정 먼저, 취소), 지금 백업 진행과 완료, 공간 부족 안내(B10) 프레임을 만들고 잇는다
 - [x] T003 [P] 같은 섹션에 복원 목록(B3: 기기별, 깨진 백업, 새 앱 필요, 이전 버전 백업 칸, 묶음 파일 불러오기), 미리보기(B4: 합치기 기본, 바꾸기 다른 선택지, 설정 바뀜 줄), 복원 중(B5), 결과(B6: 찾을 수 없는 사진, 원래 기기에 있는 사진, 잠금 다시 정하기), 이전 버전 백업 불러오기(B7) 프레임을 만들고 잇는다
 - [x] T004 [P] 같은 섹션에 바꾸기 확인과 되돌리기(B9: "내일까지 되돌릴 수 있어요" 포함), 묶음 파일 내보내기·불러오기(B8), 홈 머리 상태 줄 상태들과 권하기 카드(B11), 7일 실패 알림과 진행 알림 모양 프레임을 만든다
 - [ ] T005 흐름 시작점("백업 · 처음 연결", "· 새 폰에서 되살리기", "· 이전 버전 백업", "· 공간 부족", "· 바꾸기와 되돌리기")을 두고 캡처를 보내 사용자 확정을 받는다. 확정하면 `prototype.md`에 날짜와 바뀐 점을 쓰고 스펙에 되먹인다(지금 앱 백업 화면과 크게 달라지는 곳은 먼저 묻는다)
-- [ ] T006 "화면" 페이지에 줄을 라이트 폰(왼쪽 여백 번호)·설명 패널·다크 폰·태블릿과 상태 섹션으로 그린다: 백업 (B1), 드라이브 연결 (B2), 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6), 이전 버전 백업 불러오기 (B7), 묶음 파일 (B8), 되돌리기 (B9), 드라이브 공간이 모자라요 (B10), 홈 백업 상태와 권하기 (B11). 화면 문구는 한국어 스킬(korean-humanizer, korean-spell-check)로 다듬는다
+- [ ] T006 "화면" 페이지에 줄을 라이트 폰(왼쪽 여백 번호)·설명 패널·다크 폰·태블릿과 상태 섹션으로 그린다: 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2), 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6), 이전 버전 백업 불러오기 (B7), 묶음 파일 (B8), 되돌리기 (B9), 드라이브 공간이 모자라요 (B10), 홈 백업 상태와 권하기 (B11). 화면 문구는 한국어 스킬(korean-humanizer, korean-spell-check)로 다듬는다
 - [ ] T007 "표지 · 흐름" 페이지의 진행 현황 표에 003 화면을 더한다(2026-11-01 프로토타입 칸 "초안 26장"까지 적음, 디자인 칸은 T006 뒤)
 
 ---
@@ -105,7 +105,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [ ] T042 [US1] `{kt}/core/backup/RetentionPolicy.kt`, `MediaJanitor.kt`: `contracts/backup-format.md` "보관과 정리"
 - [ ] T043 [US1] `shared/core/platform/{android}/core/platform/AndroidBackupScheduler.kt` 지금 백업: Android 14 이상 `BackupTransferJobService`(사용자가 시작한 데이터 전송, 진행 알림), 13 이하 급한 작업 + `setForeground`(`dataSync`), `onTimeout`·작업 멈춤에서 상태 남기기(research R14)
 - [ ] T044 [P] [US1] `shared/core/platform/{ios}/core/platform/IosBackupScheduler.kt`와 `iosApp/iosApp/Backup/ContinuedBackupTask.swift`: 앞에서는 공통 코드로, iOS 26 이상은 `BGContinuedProcessingTask`로 넘겨 진행 보고, 17~25는 `beginBackgroundTask` 안에서 조각(research R15)
-- [ ] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 연결 끊기(드라이브 백업은 지우지 않음 안내), 복원으로 가는 줄은 지금 백업 버튼과 떨어뜨림(FR-027). Figma "화면" 백업 (B1), 드라이브 연결 (B2)
+- [ ] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 내보내기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
 - [ ] T046 [US1] 홈 머리 백업 상태 줄 컴포넌트 `shared/feature/backup/{kt}/feature/backup/BackupStatusLine.kt`를 내보내고 스펙 002 홈에 꽂는다(`contracts/backup-flow.md` 상태 표시). Figma 홈 백업 상태와 권하기 (B11)
 - [ ] T047 [P] [US1] `shared/feature/backup/{res}/values/strings.xml`: 백업 화면·상태 줄·README·진행 알림 문구(해요체, README 둘째 단락은 영어). 한국어 스킬로 다듬는다
 - [ ] T048 [US1] 실제 드라이브 시험 `shared/core/backup/src/androidDeviceTest/.../RealDriveBackupTest.kt`(시험 계정, CI 비밀값이 있을 때만): 왕복 준비용 백업, 끝나면 시험 폴더 지우기
@@ -184,7 +184,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [ ] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(배터리 부족 아님만), 네트워크는 안에서, `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각(research R14)
 - [ ] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
 - [ ] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
-- [ ] T076 [US4] 설정 > 백업에 자동 백업 켜기·끄기, 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
+- [ ] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
 - [ ] T077 [US4] `shared/core/data/{kt}/core/data/BackupNudgeRepository.kt`와 `shared/feature/backup/{kt}/feature/backup/BackupNudgeCard.kt`, 스펙 002 홈 목록 맨 위에 꽂기. [백업 켜기]는 연결 흐름(옛 백업 계정 먼저), [나중에]는 14일 숨김. Figma 홈 백업 상태와 권하기 (B11)
 - [ ] T078 [US4] 스펙 004 온보딩 "[자동 백업 켜기]"가 부를 연결 진입점(`BackupConnectEntry`)을 `feature/backup`에서 내보낸다
 
@@ -247,7 +247,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ## Phase 12: Polish & Cross-Cutting
 
-- [ ] T090 [P] Android 시스템 백업 규칙(research R20): `composeApp/src/main/res/xml/data_extraction_rules.xml`(클라우드 백업은 모두 빼고, 기기 간 이전은 `diary.db`·`media/`·설정만), Android 11 이하 `backup_rules.xml`(`requireFlags="deviceToDeviceTransfer"`, 공식 문서로 다시 확인), 기기 간 이전 뒤 이전이 다시 돌지 않는 시험
+- [ ] T090 [P] Android 시스템 백업 규칙(research R20): `composeApp/src/main/res/xml/data_extraction_rules.xml`(클라우드 백업과 기기 간 이전 모두 모든 영역 제외), Android 11 이하 `backup_rules.xml`(모든 영역 제외), `bmgr` 백업·복원과 기기 간 이전 뒤 일기가 따라가지 않고 빈 상태로 정상 시작하는 시험
 - [ ] T091 [P] SC-010 점검: Firebase DebugView로 `backup_*`, `restore_run`을 한 바퀴 돌려 고정 표 안인지, 로그·오류 보고에 토큰·이메일·파일 이름·경로가 없는지 `grep`과 함께 `specs/003-backup-v2/test-report.md`에 남긴다
 - [ ] T092 [P] 실제 드라이브 밤마다 시험을 `.github/workflows/ci.yml`에 더한다(왕복·끊김·공간 부족, 시험 계정 갱신 토큰은 저장소 비밀값)
 - [ ] T093 [P] SC-004 시간 재기(1,000편·1,000장 Wi-Fi 10분, 하루치 1분)와 research O5(조각 크기, 동시 장수), O6(모바일 데이터 스냅샷 크기)을 재서 닫는다

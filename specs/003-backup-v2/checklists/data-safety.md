@@ -76,4 +76,5 @@
   - 스펙: CHK002·CHK004·CHK005·CHK025는 Edge Cases에, CHK003은 FR-024에, CHK006·CHK007은 FR-027과 US7 시나리오 3에, CHK008은 FR-023에,
     CHK009는 FR-020에, CHK010은 Assumptions에, CHK016·CHK017은 FR-010에, CHK018은 FR-014와 research O6에 더했다.
   - 스펙 002 data-model: CHK011은 `updatedAt` 규칙에, CHK012는 사진 정리 조건에 더했다. `pending` 보호는 002 Media `status` 줄에 있다.
+  - 같은 날 사용자 결정으로 Android 기기 간 이전에서도 일기를 빼기로 바꿨다. CHK010은 "따라가지 않는다"는 가정(spec Assumptions, research R20)으로 다시 본다.
   - 계약: CHK019·CHK026·CHK030은 `contracts/backup-format.md`에 고쳤다. CHK001은 `docs/backup.md` "스펙 001에서 넘어오는 것"에 임시 저장본과 기기 표를 더했다.

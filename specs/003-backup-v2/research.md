@@ -202,19 +202,23 @@
 
 알파·베타는 쓰지 않는다. 유료 구간이 있는 것은 드라이브 API(R3)뿐이고 지금은 무료다.
 
-### R20. Android 자동 백업은 끄고, 기기 간 이전에는 일기를 담는다 (스펙 001 O5를 닫음, 사용자 결정 2026-11-01)
+### R20. Android 시스템 백업에는 일기를 넣지 않는다 (스펙 001 O5를 닫음, 사용자 결정 2026-11-01)
 
 - 사실: Android 클라우드 자동 백업은 앱당 25MB이고 넘으면 클라우드에 올리지 않는다. 기기 간 이전은 크기 한도가 적혀 있지 않다. Android 12부터
-  `dataExtractionRules`의 `cloud-backup`과 `device-transfer`를 따로 정하고, 11 이하는 `fullBackupContent`를 쓴다
-  ([자동 백업](https://developer.android.com/identity/data/autobackup)).
-- Decision:
-  - 클라우드 자동 백업: 일기 DB, 사진, 설정을 모두 뺀다. 사용자가 고른 저장소가 아니고(헌법 II), 25MB를 넘는 순간 말없이 멈춰 "백업되는 줄 알았다"를
-    다시 만든다. 백업은 이 스펙의 드라이브 백업 하나로 분명하게 둔다.
-  - 기기 간 이전(새 폰 설정 때 케이블·무선으로 옮기기): `diary.db`, `files/media/`, `settings.preferences_pb`만 담는다. 사용자가 자기 기기 사이에서
-    시작하는 이전이라 헌법 II 안이다. 레거시 `note.db`, `legacy-snapshot/`, `migration/`, 잠금, 백업 설정, `backup/`은 뺀다. 레거시 DB가 따라가면
-    새 기기에서 이전이 다시 돌아 일기가 두 번 생길 수 있다.
-  - 11 이하에는 기기 간 이전만 담는 `requireFlags="deviceToDeviceTransfer"`를 쓴다(개발 때 공식 문서로 다시 확인).
-- 시험: 기기 간 이전 뒤 새 기기에서 이전이 다시 돌지 않고 일기·사진이 같은지 본다(개발 작업).
+  `dataExtractionRules`의 `cloud-backup`과 `device-transfer`를 따로 정하고, 11 이하는 `fullBackupContent`를 쓴다. targetSdk 31 이상에서
+  `allowBackup="false"`는 일부 제조사 기기에서 기기 간 이전을 막지 못한다([자동 백업](https://developer.android.com/identity/data/autobackup)).
+  삼성 스마트 스위치는 다른 회사 앱(메신저 등)의 데이터를 옮기지 못할 수 있다고 안내한다
+  ([Samsung](https://www.samsung.com/sg/support/apps-services/how-to-use-the-smart-switch-app-to-transfer-data-between-galaxy-devices/)).
+- Decision: 클라우드 자동 백업과 기기 간 이전 모두에서 일기 DB, 사진, 설정, 잠금, 백업 설정, 이전 파일을 뺀다. `dataExtractionRules`의 두 칸과
+  `fullBackupContent`에서 모든 영역을 제외하고, `allowBackup`에만 기대지 않는다.
+- Rationale: 기기를 바꾸면 늘 드라이브(또는 묶음 파일)로 되살린다는 규칙 하나로 둔다. Android와 iOS가 같다(헌법 VI).
+  - 기기 간 이전을 담으면, 일기가 이미 새 폰에 있는데 드라이브는 연결되지 않아 권하기 카드와 "이 계정에 백업이 있어요"가 함께 떠서 헷갈린다.
+  - 국내 사용자가 많이 쓰는 스마트 스위치에서는 옮겨질지 보장이 없다. 픽셀에서는 되고 갤럭시에서는 안 되는 길은 "옮겨지는 줄 알았다"를 다시 만든다.
+  - 클라우드 자동 백업은 사용자가 고른 저장소가 아니고(헌법 II), 25MB를 넘는 순간 말없이 멈춘다.
+- 처음에는 기기 간 이전에 담기로 했다가 같은 날 사용자가 혼동을 걱정해 빼기로 바꿨다(`docs/DECISIONS.md`).
+- 새 폰에서 처음 열고 드라이브를 연결하면 이 계정의 다른 기기 백업을 바로 찾아 되살리기를 권한다(프로토타입 "B2 · 이 계정에 백업이 있어요"). 연결하지 않은 사람은
+  권하기 카드(R17)가 옛 폰을 정리하기 전에 백업하도록 이끈다.
+- 시험: 기기 간 이전과 `adb shell bmgr` 백업·복원 뒤 새 기기에 일기가 따라가지 않고, 앱이 빈 상태로 정상 시작하는지 본다(개발 작업).
 
 ### R21. 상태 표시와 문구
 
