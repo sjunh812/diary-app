@@ -10,7 +10,7 @@ kotlin {
             api(libs.kotlinx.coroutines.core)
             api(libs.androidx.paging.common)
             implementation(projects.shared.core.database)
-            implementation(projects.shared.core.datastore)
+            api(projects.shared.core.datastore)
             implementation(projects.shared.core.platform)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)

@@ -74,7 +74,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T027 [P] `shared/core/platform/{test}/core/platform/TelemetryTest.kt`: 고정 표에 없는 이벤트·키는 개발 빌드에서 예외, 출시 빌드에서 버려지는지 본다
 - [ ] T028 `shared/core/platform/{kt}/core/platform/Telemetry.kt`, `AnalyticsEvents.kt`(`contracts/app-shell.md` 고정 표와 구간), `{android}` Firebase Analytics·Crashlytics 구현, `{ios}` Swift 쪽 구현을 받는 다리, `iosApp`에 Firebase SPM(research R21)
 - [ ] T029 `shared/app/{kt}/app/Startup.kt`(설정·잠금 저장소와 `state.json` 읽기, `ready`), `DiaryApp.kt`(`DiaryTheme` → 관문 자리 → 빈 틀), `di/AppModules.kt`(Koin), `{ios}/app/MainViewController.kt`
-- [ ] T030 `shared/core/data/{kt}/core/data/SettingsRepository.kt`와 `shared/core/testing/{kt}/core/testing/FakeSettingsRepository.kt`
+- [x] T030 `shared/core/data/{kt}/core/data/SettingsRepository.kt`와 `shared/core/testing/{kt}/core/testing/FakeSettingsRepository.kt`
 
 **Checkpoint**: 빈 앱이 Android·iOS에서 뜨고 `./gradlew spotlessCheck designTokenCheck allTests`가 통과한다
 
