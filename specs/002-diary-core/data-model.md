@@ -17,7 +17,7 @@
 | `placeName` | String? | 앞뒤 공백을 뺀 30자 안팎. 빈 문자열은 null |
 | `isFavorite` | Boolean | |
 | `createdAt` | Instant | |
-| `updatedAt` | Instant | 내용이 바뀔 때마다 |
+| `updatedAt` | Instant | 일기에 보이는 값이 바뀔 때마다. 즐겨찾기, 휴지통 넣기·꺼내기도 바꾼다(스펙 003 합치기가 어느 쪽이 고쳐졌는지 가르는 데 쓴다) |
 | `deletedAt` | Instant? (002) | null이면 보이는 일기, 값이 있으면 휴지통 |
 | `legacyId`, `legacyCreateDate` | Int?, String? | 001 이전용 |
 
@@ -67,6 +67,7 @@ DB 열 이름과 타입은 스펙 001 `data-model.md`(확정 2026-11-01)가 원�
 ## 사진 파일 정리 (002)
 
 `files/media`의 파일 중 `Media`(휴지통 일기 포함), `DraftMedia` 어디에서도 쓰지 않고, 파일 수정 시각이 하루 넘게 지난 것만 지운다. 앱 시작 때 휴지통 비움 뒤에 돈다.
+스펙 003의 바꾸기 복원 뒤 되돌리기 기간(7일, `backup.preferences_pb`의 `rollback_until`)에는 돌지 않는다. 되돌리기 사본이 가리키는 사진을 남기기 위해서다.
 
 ## Mood, Weather
 
