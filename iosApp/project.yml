@@ -31,7 +31,10 @@ targets:
           - ja
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        UILaunchScreen: {}
+        # 시작 화면: 앱 바탕색(라이트·다크)과 가운데 연필 하나, 움직임 없음(research R14). 그림은 Android 시작 화면과 같다.
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchPencil
         # Compose가 시작할 때 이 키를 본다. 없으면 앱이 바로 꺼진다(ProMotion 120Hz 화면).
         CADisableMinimumFrameDurationOnPhone: true
         UISupportedInterfaceOrientations:
