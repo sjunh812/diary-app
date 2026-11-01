@@ -71,12 +71,6 @@ public class FontActivity extends BaseActivity {
                 case R.id.btn_font_4:
                     selectedFontIndex = 4;
                     break;
-                case R.id.btn_font_5:
-                    selectedFontIndex = 5;
-                    break;
-                case R.id.btn_font_6:
-                    selectedFontIndex = 6;
-                    break;
                 case R.id.btn_font_7:
                     selectedFontIndex = 7;
                     break;
@@ -155,12 +149,6 @@ public class FontActivity extends BaseActivity {
                 break;
             case 4:
                 ((RadioButton) findViewById(R.id.btn_font_4)).setChecked(true);
-                break;
-            case 5:
-                ((RadioButton) findViewById(R.id.btn_font_5)).setChecked(true);
-                break;
-            case 6:
-                ((RadioButton) findViewById(R.id.btn_font_6)).setChecked(true);
                 break;
             case 7:
                 ((RadioButton) findViewById(R.id.btn_font_7)).setChecked(true);

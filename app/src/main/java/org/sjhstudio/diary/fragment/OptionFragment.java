@@ -201,12 +201,6 @@ public class OptionFragment extends Fragment {
             case 4:
                 curFontTextView.setText("넥슨 배찌체");
                 break;
-            case 5:
-                curFontTextView.setText("미니콩다방체");
-                break;
-            case 6:
-                curFontTextView.setText("꼬마나비체");
-                break;
             case 7:
                 curFontTextView.setText("심경하체");
                 break;

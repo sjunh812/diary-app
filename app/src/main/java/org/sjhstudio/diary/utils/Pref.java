@@ -16,6 +16,7 @@ public class Pref {
     public static final String USE_PW = "use_pw";   // 비밀번호 사용
     public static final String FINGER_PRINT = "finger_print";   // 지문 사용
     public static final String SKIP_NOTE = "skip_note"; // 일기요약(3줄)
+    public static final String REMOVED_FONT_NOTICE = "removed_font_notice"; // 뺀 글꼴을 바꿨다는 안내(1회)
 
     // Pref2
     public static final String PREF_NAME_2 = "pref2";   // 알림관련
@@ -38,9 +39,37 @@ public class Pref {
     // 폰트
     public static int getPFontKey(Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        if(pref != null) return pref.getInt(FONT_KEY, -1);
+        if(pref != null) {
+            int key = pref.getInt(FONT_KEY, -1);
+            int replacedKey = replaceRemovedFontKey(key);
+
+            if (replacedKey != key) {
+                pref.edit().putInt(FONT_KEY, replacedKey).putBoolean(REMOVED_FONT_NOTICE, true).commit();
+            }
+
+            return replacedKey;
+        }
 
         return 0;
+    }
+
+    // 1.7.5에서 뺀 777 글꼴(5 미니콩다방체, 6 꼬마나비체)을 가장 비슷한 글꼴로 바꾼다.
+    // 새 앱의 기록 이전 대응표와 같다.
+    private static int replaceRemovedFontKey(int key) {
+        if (key == 5) return 1;     // 국립공원 꼬미체
+        if (key == 6) return 12;    // 코트라 희망체
+        return key;
+    }
+
+    // 뺀 글꼴 안내를 아직 안 보여 줬으면 true를 돌려주고 본 것으로 남긴다.
+    public static boolean consumePRemovedFontNotice(Context context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        if(pref != null && pref.getBoolean(REMOVED_FONT_NOTICE, false)) {
+            pref.edit().putBoolean(REMOVED_FONT_NOTICE, false).apply();
+            return true;
+        }
+
+        return false;
     }
     public static void setPFontKey(Context context, int key) {
         SharedPreferences pref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);

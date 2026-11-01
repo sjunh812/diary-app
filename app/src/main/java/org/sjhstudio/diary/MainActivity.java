@@ -112,6 +112,10 @@ public class MainActivity extends BaseActivity implements OnTabItemSelectedListe
 
         ViewExtensionKt.enableSystemBarPadding(findViewById(R.id.root));
 
+        if (Pref.consumePRemovedFontNotice(this)) {
+            Toast.makeText(this, R.string.notice_removed_font, Toast.LENGTH_LONG).show();
+        }
+
         if (!Pref.getPPermissionGuide(this)) {
             DialogUtils.INSTANCE.showPermissionGuideDialog(this, () -> {
                 AutoPermissions.Companion.loadAllPermissions(this, Constants.REQUEST_ALL_PERMISSIONS);

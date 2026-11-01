@@ -175,26 +175,6 @@
                                 android:textSize="14sp" />
 
                             <RadioButton
-                                android:id="@+id/btn_font_5"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="7dp"
-                                android:fontFamily="@font/font5"
-                                android:text=" 미니콩다방체"
-                                android:textColor="@color/font"
-                                android:textSize="14sp" />
-
-                            <RadioButton
-                                android:id="@+id/btn_font_6"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="7dp"
-                                android:fontFamily="@font/font6"
-                                android:text=" 꼬마나비체"
-                                android:textColor="@color/font"
-                                android:textSize="13sp" />
-
-                            <RadioButton
                                 android:id="@+id/btn_font_7"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"

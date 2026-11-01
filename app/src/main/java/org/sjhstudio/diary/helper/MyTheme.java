@@ -62,12 +62,6 @@ public class MyTheme {
             case 4:
                 context.setTheme(R.style.Theme_DiaryProject_4);
                 break;
-            case 5:
-                context.setTheme(R.style.Theme_DiaryProject_5);
-                break;
-            case 6:
-                context.setTheme(R.style.Theme_DiaryProject_6);
-                break;
             case 7:
                 context.setTheme(R.style.Theme_DiaryProject_7);
                 break;
