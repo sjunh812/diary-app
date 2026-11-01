@@ -100,7 +100,7 @@
 
 ### 광고를 넣으면 따라오는 일
 
-- 동의: UMP(유럽 등 동의 필요 지역), iOS ATT와 `SKAdNetworkItems`. 동의하지 않으면 비맞춤 광고만 받는다.
+- 동의: UMP(EEA·영국·스위스), iOS ATT와 `SKAdNetworkItems`. 동의하지 않으면 비맞춤 광고만 받는다. 처음 출시 국가에 세 지역이 없으면 UMP는 그 지역을 더할 때 넣는다(`docs/release.md` 출시 국가).
 - 신고: Play 광고 ID 선언과 데이터 보안, App Store 개인정보 라벨, 처리방침의 국외 이전 항목(`docs/release.md`).
 - 광고 요청에 일기 내용, 기분, 주소를 넣지 않는다(헌법 II).
 - 개발 빌드는 테스트 광고만 받는다. 개발 기기에서 실제 광고를 누르면 무효 트래픽으로 잡힌다(오발있과 같은 규칙).
@@ -180,6 +180,8 @@ Lottie: 움직이는 카드 다섯 장(광고 카드가 접혀 사라짐, 사진
 - 구현은 RevenueCat KMP SDK다(사용자 결정 2026-10-31). 월 추적 매출 $2,500까지 무료이고 그 위는 1%다. 서버 없이 두 스토어 결제와 구매 상태를 다루고, StoreKit 2(Swift 전용)를 위한 Swift 브리지를 직접 만들지 않아도 된다([요금](https://www.revenuecat.com/pricing/), [purchases-kmp 4.0.0](https://github.com/RevenueCat/purchases-kmp/releases/tag/4.0.0)).
 - 직접 구현하면 Google은 구매 검증과 승인을 백엔드에서 하라고 하고 기기 로직은 변조되기 쉽다고 한다([보안](https://developer.android.com/google/play/billing/security)). Plus 같은 저가 비소모품은 기기 검증으로 감수할 수 있는 수준이지만, 3일 안에 승인하지 않으면 자동 환불된다는 점은 꼭 지킨다.
 - Play 결제 라이브러리는 8 이상이어야 한다(2026-08-31부터 신규·업데이트 앱).
+- 팔기 전에: 한국 개발자가 유료 앱이나 인앱 상품을 내려면 Play는 사업자등록번호와 통신판매업 신고번호를, Apple은 사업자등록번호를 받는다.
+  일본에 팔면 특정상거래법 표시와 정기 결제 최종 확인 화면 항목을 지킨다(`docs/release.md` 출시 국가, D9와 같이 본다).
 
 ## 처음 비교한 안 (기록)
 

@@ -63,7 +63,7 @@ Apple HIG, Material 3(m3.material.io), Radix Colors(`@radix-ui/colors` 3.0.0), �
 
 ## 글자
 
-UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이다. **자간은 모두 0**이다(TDS·SEED 현행 버전 모두 자간 토큰이
+UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이다(일본어 화면은 아래 "여러 언어"). **자간은 모두 0**이다(TDS·SEED 현행 버전 모두 자간 토큰이
 없다). 줄 높이도 sp로 둬서 글자 크기 200%(Android 14)와 AX5(iOS)에서 함께 커진다. Figma 글자 스타일 이름이 코드 토큰 이름이다.
 
 | 토큰 | 크기/줄 높이 | 굵기 | 쓰임 | 근거 |
@@ -194,7 +194,34 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 - 달력: 일기 있는 날은 그날 기분 얼굴, 빈 날은 숫자만, 오늘은 날짜 숫자에 `accent` 원, 하루 여러 편은 얼굴 오른쪽 위 숫자 뱃지(18, 칸 바탕색 테두리 2), 일요일 `danger`·토요일
   `ink/blue`(하루콩, Daylio, 한국 달력 관례). 상세 규칙은 스펙 002 화면 디자인에서 정한다.
 - 통계: 막대와 점 위주, 해요체 요약 한 문장(Daylio, 하루콩).
-- 문구: 해요체, 능동형, 긍정형. 매달리는 말투를 쓰지 않는다. 다이얼로그 왼쪽 버튼은 "닫기"(토스 UX 가이드).
+- 문구: 해요체, 능동형, 긍정형. 매달리는 말투를 쓰지 않는다. 다이얼로그 왼쪽 버튼은 "닫기"(토스 UX 가이드). 영어와 일본어는 아래 "여러 언어".
+
+## 여러 언어
+
+한국어, 영어, 일본어로 낸다. 맞는 언어가 없으면 영어다(2026-11-01 사용자 요청, `docs/DECISIONS.md`).
+
+- **문자열**: 모듈마다 `composeResources/values`(영어), `values-ko`, `values-ja`에 같은 이름으로 둔다. Android 앱 껍데기(`composeApp/src/main/res`)와
+  iOS 앱 이름(`iosApp/iosApp/*.lproj/InfoPlist.strings`)도 같다. 빌드의 `stringResourceCheck`가 빠진 이름, 남는 이름, `%1$s` 자리가 다른 것을 잡는다.
+- **개수 문구**는 `plurals`로 둔다. 영어는 `one`·`other`, 한국어·일본어는 `other` 하나다. 숫자 둘이 든 문장은 앞 숫자로 꼴을 고른다.
+- **말투와 표기**
+  - 한국어: 위 "화면 배치 원칙"의 문구 줄.
+  - 영어: 첫 글자만 대문자(sentence case), 사용자는 you, 짧은 문장, 줄임꼴(can't, couldn't)을 쓴다. 주어 없이 "Couldn't move your entries"처럼
+    써도 된다. 버튼은 동사로 시작하고 제목과 버튼에 마침표를 쓰지 않는다. 근거는 Android 현지화 문서의 "friendly but brief"
+    ([Android 현지화](https://developer.android.com/guide/topics/resources/localization)). Material과 Apple 글쓰기 문서는 2026-11-01에 본문을
+    읽지 못해 원어민 검수 때 다시 대어 본다.
+  - 일본어: です・ます調, 경어는 지나치게 쓰지 않는다. 숫자·영문은 반각이고 일본어와 숫자 사이를 띄지 않는다(「5GB」「2026年」). 개수는 일기 「件」, 사진 「枚」.
+    오류는 무슨 일·까닭·할 일을 사용자 눈으로 쓴다([SmartHR Design System 표기](https://smarthr.design/products/contents/idiomatic-usage/count/),
+    [기호](https://smarthr.design/products/contents/idiomatic-usage/symbol/), [오류 메시지](https://smarthr.design/products/contents/error-messages/overview/)).
+  - 낱말은 플랫폼과 맞춘다. 권한 허용·Allow·許可, 설정·Settings·設定, 저장 공간·storage·ストレージ, 기록 이전·transfer·移行.
+- **글꼴**: 한국어·영어 화면은 Pretendard다. 일본어 화면은 시스템 글꼴이다(iOS 히라기노 산스, Android Noto Sans CJK JP, 열린 결정 D13 추천으로 임시).
+  Pretendard는 가나 184자는 있지만 한자가 없어 섞으면 한 낱말 안에서 글꼴이 바뀐다.
+- **줄바꿈**: 글의 언어를 따른다. 화면 글은 화면 언어다. 한국어·일본어는 Android 13 이상에서 구절 단위로 바꾼다(`LineBreak.WordBreak.Phrase`).
+  언어를 한국어로 묶지 않는다. 묶으면 일본어 한자가 한국어 글자 모양으로 그려진다(한중일 통합 한자).
+- **날짜와 시각**: 플랫폼의 언어별 형식으로 만든다(Android `DateFormat.getBestDateTimePattern`, iOS `DateFormatter.setLocalizedDateFormatFromTemplate`).
+  "%1$s월"처럼 문자열로 조립하지 않는다. 12시간·24시간은 기기 설정을 따른다. 달력은 양력이다.
+- **길이**: 영어는 한국어보다 길다. 버튼과 제목은 줄을 바꿀 수 있게 두고 고정 폭에 글을 넣지 않는다. 화면 확인은 세 언어로 하되 가장 긴 영어를 먼저 본다.
+- **일기 내용**은 번역하지 않는다. 일기 본문 글꼴 10종은 한국어 글꼴이라, 글꼴에 없는 가나·한자는 시스템 글꼴로 채워진다(스펙 002에서 화면으로 확인).
+- **Figma**: 화면 페이지는 한국어로 그린다. 영어가 길어 걸리는 화면만 영어 상태를 옆에 더한다.
 
 ## 아이콘과 그림
 

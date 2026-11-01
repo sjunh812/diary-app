@@ -67,7 +67,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 JDK는 Gradle이 고른다(`gradle/gradle-daemon-jvm.properties`가 JDK 17을 받아 쓴다). 설치는 에뮬레이터에만 한다(`ANDROID_SERIAL` 지정).
 
 ```bash
-./gradlew spotlessCheck designTokenCheck allTests assembleDebug   # CI와 같은 검사·시험·빌드(iOS 시뮬레이터 시험 포함)
+./gradlew spotlessCheck designTokenCheck stringResourceCheck allTests assembleDebug   # CI와 같은 검사·시험·빌드(iOS 시뮬레이터 시험 포함)
 ./gradlew spotlessApply                                           # 코드 형식 맞추기(ktlint)
 sh scripts/test-commit-msg.sh                                     # 커밋 형식 검사 훅 시험
 ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug   # 에뮬레이터에 설치
@@ -78,14 +78,16 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - 첫 안드로이드 빌드가 `installGitHooks`로 `.githooks`를 켠다. 그 뒤로는 제목이 커밋 규칙에 맞지 않으면 커밋이 막힌다.
 - `designTokenCheck`는 `shared/feature`와 `shared/app`의 Kotlin에서 원시 색, 숫자 `.dp`·`.sp`, 숫자 모서리, `MaterialTheme` 색·글자,
   `Text("`를 찾으면 실패한다. 디자인 시스템 모듈과 미리보기 파일은 뺀다.
+- `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
   빌드 단계가 `:shared:app:embedAndSignAppleFrameworkForXcode`를 불러 Shared 프레임워크를 만든다.
 - 레거시 `app/`은 이 빌드에 없다. 1.7.4 APK는 `94179a4`를 따로 체크아웃해 그 시절 래퍼(Gradle 8.9)와 JBR 17로 만든다.
 
 ## 관례
 
-- 화면 말투는 해요체, 법적 고지만 합니다체.
-- 화면 문구는 문자열 리소스에 둔다. 코드에 문자열 상수를 두지 않는다.
+- 화면은 한국어, 영어, 일본어(맞는 언어가 없으면 영어). 한국어 말투는 해요체, 법적 고지만 합니다체. 영어·일본어는 `docs/design.md` "여러 언어".
+- 화면 문구는 문자열 리소스에 둔다. 코드에 문자열 상수를 두지 않는다. `values`(영어), `values-ko`, `values-ja`를 같은 커밋에서 채운다.
+  날짜·시각은 문자열로 조립하지 않고 플랫폼 형식을 쓴다.
 - 주석은 자연스러운 한국말로, 문장마다 줄을 바꾼다.
 - 커밋과 푸시는 사용자가 요청할 때만. 형식은 아래 "커밋 규칙".
 

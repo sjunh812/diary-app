@@ -22,7 +22,8 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 | Play | 폰 스크린샷 | 최소 2장, 추천 노출 자격은 1080px 이상 4장 이상(9:16) | 같음 |
 | Play | 7"·10" 태블릿 | 각 최소 4장 추가 가능, 1,080~7,680px | 같음 |
 
-만드는 법: 스크린샷은 실제 앱 화면(에뮬레이터·시뮬레이터 캡처)에 짧은 머리말을 얹은 세로 틀로 만든다. 틀은 Figma "화면" 페이지 아래 "스토어"
+만드는 법: 스크린샷은 실제 앱 화면(에뮬레이터·시뮬레이터 캡처)에 짧은 머리말을 얹은 세로 틀로 만든다. 한국어, 영어, 일본어 세 벌을 만들고
+앱 화면도 그 언어로 찍는다. 틀은 Figma "화면" 페이지 아래 "스토어"
 섹션에 컴포넌트로 두고 폰·태블릿·iPad 크기 변형을 같이 둔다. 순서 초안:
 
 1. 오늘을 한 장에(쓰기 화면)
@@ -38,6 +39,8 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 - 짧은 설명(Play 80자, App Store 부제 30자)과 긴 설명을 새로 쓴다. 광고 없이 무료로 쓰던 이미지를 살리고, 사진 포함 백업과 태블릿·iPad를 앞에 둔다.
 - 긴 설명 구성: 한 줄 소개 → 이런 분께 → 주요 기능(무료) → Plus → 백업과 개인정보 → 문의.
 - 문구는 `korean-humanizer`로 번역투를 걷어 내고 `korean-spell-check`로 맞춤법을 본다.
+- 영어와 일본어 설명은 한국어를 옮기지 않고 그 언어로 새로 쓴 뒤 원어민 검수를 받는다. 앱 이름은 언어마다 따로 쓸 수 있다(열린 결정 D12).
+  스토어 화면에 나라별 법적 표시가 필요한지는 아래 "출시 국가"에 적는다.
 - 리뉴얼 첫 업데이트의 "새로운 기능" 란에는 "리뉴얼 전 기능은 계속 무료"와 "기존 일기와 사진은 자동으로 옮겨져요"를 먼저 쓴다.
 
 ## 개인정보
@@ -46,6 +49,7 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 
 모든 앱이 스토어와 앱 안 양쪽에 공개 URL로 둬야 한다(PDF 불가)([Play](https://support.google.com/googleplay/android-developer/answer/10144311?hl=en), App Store 5.1.1(i)).
 호스팅은 무료인 GitHub Pages(이 저장소 `docs/` 밖의 별도 폴더) 같은 곳에 둔다.
+한국어, 영어, 일본어 세 벌을 같은 내용으로 두고 앱은 화면 언어에 맞는 주소를 연다. 한국어판이 원본이고 어긋나면 한국어판을 따른다고 적는다.
 
 개인정보보호법 제30조와 시행령 제31조의 필수 항목을 넣는다: 처리 목적, 항목, 보유 기간, 제3자 제공, 위탁, 국외 이전(Firebase·AdMob을 쓰면),
 파기, 정보주체 권리와 행사 방법, 안전성 확보 조치, 보호책임자 연락처, 자동 수집 장치와 거부 방법([제30조](https://www.law.go.kr/법령/개인정보보호법/제30조),
@@ -74,6 +78,37 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 좌표를 제3자 역지오코딩·날씨 API로 보내는 것이 여기에 해당하는지는 확인하지 못했다. 출시 전에 위치정보지원센터(02-588-0185)에 묻고 답을 `docs/DECISIONS.md`에 남긴다.
 1인 창조기업은 신고 없이 시작하고 1개월 안에 신고할 수 있다(제9조의2).
 
+## 출시 국가
+
+열린 결정 D11이다. 정하는 것은 사용자이고, 아래는 2026-11-01 공식 문서로 확인한 사실과 추천이다.
+
+### 추천
+
+- **처음(2.0.0)**: 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드. 세 언어가 바로 맞고, 맞춤 광고 동의 창(Google 인증 CMP)을 두지 않아도 된다.
+- **나중에**: EEA·영국·스위스. 동의 창을 넣어야 하고, 광고나 결제가 있으면 판매자(trader)로 선언해 주소와 전화번호가 공개된다.
+  공개할 연락처(사업장 주소 같은 것)를 마련한 뒤 더한다.
+- **그 밖의 나라**: 영어로 보이니 국가만 더하면 된다. 두 스토어 모두 새 빌드 없이 국가를 더하고 뺄 수 있다.
+- 유료 기능(Plus)을 팔려면 나라와 상관없이 사업자등록번호가 필요하고, Play는 통신판매업 신고번호도 받는다(한국 개발자). D9(Plus 시기)와 함께 정한다.
+
+### 나라마다 걸리는 일
+
+| 나라 | 걸리는 일 | 근거 |
+| --- | --- | --- |
+| 한국 | 유료 기능: 사업자등록번호·통신판매업 신고번호(Play), 사업자등록번호(Apple, 제품 페이지에 보임). Play 판매자 상태 선언은 모든 계정이 2027-02-01까지 하고, EEA·영국에 내지 않으면 비판매자로 선언할 수 있다 | [Play 개발자 정보](https://support.google.com/googleplay/android-developer/answer/6223646), [Apple 한국](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-korea-compliance-information/), [Play 판매자 선언](https://support.google.com/googleplay/android-developer/answer/17594752) |
+| 일본 | 유료 기능: 특정상거래법 표시(이름·전화·주소, 청구하면 바로 알린다고 적으면 생략할 수 있는 경우가 있음), 정기 결제 최종 확인 화면 항목(가격, 기간, 자동 갱신, 해지 방법), Google 결제 프로필의 자금결제법 동의(2026-12-01까지)와 할부판매법 공시 | [Play 개발자 정보](https://support.google.com/googleplay/android-developer/answer/6223646), [소비자청 Q&A](https://www.no-trouble.caa.go.jp/qa/advertising.html), [최종 확인 화면 지침](https://www.no-trouble.caa.go.jp/pdf/20241119la02_09.pdf), [Google 결제](https://support.google.com/paymentscenter/answer/17595997) |
+| 미국 | 텍사스(2026-06-04)·유타(2026-05-06)·루이지애나(2026-07-01)의 새 Apple 계정에 연령 확인과 보호자 동의가 걸린다. 앱은 Declared Age Range API와 중대한 변경 동의를 다룰 수 있어야 한다. Play는 주 단위로 빼 주지 않는다 | [Apple](https://developer.apple.com/news/?id=sg176nne), [Apple 연령 확인](https://developer.apple.com/support/age-assurance/), [Play](https://support.google.com/googleplay/android-developer/answer/16569691) |
+| 캐나다·뉴질랜드 | 스토어 쪽에서 따로 찾은 요구가 없다(확인 못 함) | - |
+| 호주 | Apple이 성인 확인이 안 된 사용자에게 18+ 앱만 막는다. 우리 앱은 해당하지 않는다 | [Apple](https://developer.apple.com/news/?id=f5zj08ey) |
+| 영국 | 맞춤 광고에 인증 CMP(2024-01-16부터). Play 판매자 선언 대상이고, 개인 판매자는 전화·주소가 모든 나라에 보인다(2027-03-01부터) | [Google CMP](https://support.google.com/adsense/answer/13554116), [Play 판매자 선언](https://support.google.com/googleplay/android-developer/answer/17594752) |
+| EEA·스위스 | 인증 CMP(EEA 2024-01-16, 스위스 2024-07-31). Apple 판매자 정보(주소·전화·이메일, 주소 증빙)가 없으면 EU에서 내려간다(2025-02-17부터). Play 판매자 선언 | [Apple DSA](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements/), [Apple 공지](https://developer.apple.com/news/?id=einwn76m), [Google CMP](https://support.google.com/adsense/answer/13554116) |
+
+- 시장: 모바일 OS 중 iOS 비율은 일본 53.8%, 미국 52.0%, 영국 50.1%, 한국 39.3%다(StatCounter 2026년 10월,
+  [일본](https://gs.statcounter.com/os-market-share/mobile/japan/)). 일본과 영어권은 iOS가 절반을 넘는다.
+- 국가 바꾸기: App Store는 언제든 바꾸고 24시간 안에 반영되며, 뺀 나라의 기존 사용자도 업데이트를 받는다
+  ([Apple](https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-for-your-app-on-the-app-store/)).
+  Play는 Production의 국가 목록에서 더하고 빼고, 구독은 새 나라의 가격을 정해야 한다([Play](https://support.google.com/googleplay/android-developer/answer/7550024)).
+- 광고 동의 창은 EEA·영국·스위스에 내지 않으면 미룰 수 있다. 미국 주 개인정보 메시지는 선택이다([AdMob](https://developers.google.com/admob/android/privacy/us-states)).
+
 ## 출시 전 확인
 
 - [ ] 글꼴 10종 라이선스 마무리(`docs/design.md` 일기 본문 글꼴, 2026-11-01 다시 고름): "오픈소스와 글꼴 고지" 화면에 OFL 전문(Pretendard, 고운돋움,
@@ -93,4 +128,8 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 - [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 `SKAdNetworkItems`, UMP 동의
 - [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기
 - [ ] 스크린샷(폰, 7"·10" 태블릿, iPhone medium·large, iPad 13"), 피처 그래픽, 아이콘
+- [ ] 영어·일본어 화면 문구와 스토어 설명 원어민 검수(2026-11-01 초안은 개발자가 씀). 앱 이름(D12)과 일본어 화면 글꼴(D13)도 이때 정한다
+- [ ] 세 언어로 화면 확인: 가장 긴 영어에서 잘리거나 겹치는 곳이 없는지, 날짜·시각이 그 언어 형식인지
+- [ ] Play Console 판매자(trader) 상태 선언: 모든 계정이 2027-02-01까지 한다(위 "출시 국가")
+- [ ] 출시 국가(D11) 정하기. 일본에 유료 기능을 팔면 특정상거래법 표시와 결제 프로필 동의를 마친다
 - [ ] 이전 업그레이드 계측 테스트 통과(`docs/migration.md` 시험)
