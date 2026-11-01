@@ -170,6 +170,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 안내 상자 | 바탕 `sunken` · 모서리 16 · 줄마다 위아래 14, 좌우 16 · 아이콘 16(`textSecondary`) · 아이콘과 글 사이 12 · 제목 `bodyStrong` · 설명 `caption` | SEED Callout(안쪽 14, 사이 12, 아이콘 16) |
 | 상태 상자 | 안내 상자와 같은 바탕·모서리·안쪽 · 줄 사이 12 · 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong` · 아래 설명 `body`. 아이콘 + 문장 줄을 늘어놓는 목록은 아이콘 16, 사이 12, 줄 사이 16(`body` 글이 커서 안내 상자보다 넓게) | 안내 상자와 한 집안(2026-11-01 점검, 사용자가 사이 8이 좁다고 짚음) |
 | 한 줄 안내 | 바탕 `sunken` · 모서리 12 · 안쪽 12 · 아이콘 16 · 사이 8 · `caption` | SEED PageBanner(아이콘 16, 사이 6) |
+| 값 줄 | 최소 48 · 좌우 20 · 이름 `body`(`textSecondary`) 왼쪽 · 값 `bodyStrong` 오른쪽 · 누르지 않는 줄 | Figma M5 기록 이전 결과, TDS ListRow 오른쪽 값 |
 | 설정 묶음 머리 | `label` · `textSecondary` · 위 20 · 아래 8 · 좌우 20 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
 | 스위치 | 트랙 52×32 · full · 안쪽 3 · 손잡이 26 · 누르는 곳은 줄 전체 | SEED switchmark 32(52×32, 안쪽 3, 손잡이 26), M3 Switch 52×32 |
 | 진행 막대 | 높이 8 · full · 트랙 `sunken` · 채움 `accent` | TDS ProgressBar bold 8(모서리 4) |

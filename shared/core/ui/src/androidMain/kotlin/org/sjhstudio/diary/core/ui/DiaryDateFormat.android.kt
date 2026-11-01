@@ -27,12 +27,15 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
 private class AndroidDateFormat(locale: Locale, is24Hour: Boolean) : DiaryDateFormat {
     private val monthFormat = formatter(locale, DateSkeleton.MONTH)
     private val yearMonthFormat = formatter(locale, DateSkeleton.YEAR_MONTH)
+    private val fullDateFormat = formatter(locale, DateSkeleton.FULL_DATE)
     private val weekdayFormat = formatter(locale, DateSkeleton.WEEKDAY_SHORT)
     private val timeFormat = formatter(locale, if (is24Hour) DateSkeleton.TIME_24 else DateSkeleton.TIME_12)
 
     override fun month(date: LocalDate): String = monthFormat.format(Date(date.utcMillis()))
 
     override fun yearMonth(date: LocalDate): String = yearMonthFormat.format(Date(date.utcMillis()))
+
+    override fun fullDate(date: LocalDate): String = fullDateFormat.format(Date(date.utcMillis()))
 
     override fun weekdayShort(date: LocalDate): String = weekdayFormat.format(Date(date.utcMillis()))
 

@@ -21,6 +21,7 @@ class DiaryDateFormatIosTest {
         val f = format("ko-KR")
         assertEquals("11월", f.month(date))
         assertEquals("2026년 11월", f.yearMonth(date))
+        assertEquals("2026년 11월 1일", f.fullDate(date))
         assertEquals("일", f.weekdayShort(date))
         assertEquals("오후 3:05", f.time(time).plain())
     }
@@ -30,6 +31,7 @@ class DiaryDateFormatIosTest {
         val f = format("en-US")
         assertEquals("November", f.month(date))
         assertEquals("November 2026", f.yearMonth(date))
+        assertEquals("November 1, 2026", f.fullDate(date))
         assertEquals("Sun", f.weekdayShort(date))
         assertEquals("3:05 PM", f.time(time).plain())
     }
@@ -39,6 +41,7 @@ class DiaryDateFormatIosTest {
         val f = format("ja-JP")
         assertEquals("11月", f.month(date))
         assertEquals("2026年11月", f.yearMonth(date))
+        assertEquals("2026年11月1日", f.fullDate(date))
         assertEquals("日", f.weekdayShort(date))
         assertEquals("午後3:05", f.time(time).plain())
     }
