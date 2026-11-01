@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 이 폴더의 언어 태그. 날짜 형식과 글꼴이 화면 문구와 같은 언어를 고르게 한다. 번역하지 않는다. -->
+    <string name="ds_language">en</string>
     <!-- 대화상자 왼쪽 버튼은 늘 "닫기"다(토스 UX 라이팅, docs/design.md 대화상자). -->
-    <string name="ds_close">닫기</string>
+    <string name="ds_close">Close</string>
     <!-- 상단 바 뒤로 가기 버튼을 화면 읽기 프로그램이 읽는 이름 -->
-    <string name="ds_back">뒤로 가기</string>
-    <string name="ds_selected">선택됨</string>
+    <string name="ds_back">Back</string>
+    <string name="ds_selected">Selected</string>
 </resources>

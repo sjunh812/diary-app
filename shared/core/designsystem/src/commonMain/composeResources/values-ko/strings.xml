@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_language">ko</string>
+    <string name="ds_close">닫기</string>
+    <string name="ds_back">뒤로 가기</string>
+    <string name="ds_selected">선택됨</string>
+</resources>

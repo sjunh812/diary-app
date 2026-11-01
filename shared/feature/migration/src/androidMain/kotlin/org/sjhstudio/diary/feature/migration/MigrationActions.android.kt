@@ -20,10 +20,11 @@ import org.jetbrains.compose.resources.getString
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.OriginalExporter
-import org.sjhstudio.diary.core.migration.originalExportFileName
+import org.sjhstudio.diary.core.migration.exportDateStamp
 import org.sjhstudio.diary.feature.migration.resources.Res
 import org.sjhstudio.diary.feature.migration.resources.migration_export_done
 import org.sjhstudio.diary.feature.migration.resources.migration_export_failed
+import org.sjhstudio.diary.feature.migration.resources.migration_export_file_name
 import org.sjhstudio.diary.feature.migration.resources.migration_mail_body
 import org.sjhstudio.diary.feature.migration.resources.migration_mail_missing
 import org.sjhstudio.diary.feature.migration.resources.migration_mail_subject
@@ -56,7 +57,10 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
     return remember(saver) {
         MigrationActions(
             exportOriginal = {
-                saver.launch(originalExportFileName(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date))
+                scope.launch {
+                    val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                    saver.launch(getString(Res.string.migration_export_file_name, exportDateStamp(today)))
+                }
             },
             contact = {
                 scope.launch {

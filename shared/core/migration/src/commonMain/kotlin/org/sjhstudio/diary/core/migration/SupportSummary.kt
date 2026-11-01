@@ -15,6 +15,6 @@ data class SupportSummary(
     val unreadableBucket: String
 )
 
-/** `1일1일기-원본-yyyyMMdd.zip` */
-fun originalExportFileName(date: LocalDate): String =
-    "1일1일기-원본-${date.year}${date.month.ordinal.plus(1).toString().padStart(2, '0')}${date.day.toString().padStart(2, '0')}.zip"
+/** 원본 내보내기 파일 이름에 넣는 날짜(yyyyMMdd). 이름 자체는 화면 언어의 문자열 리소스가 정한다. */
+fun exportDateStamp(date: LocalDate): String =
+    "${date.year}${date.month.ordinal.plus(1).toString().padStart(2, '0')}${date.day.toString().padStart(2, '0')}"

@@ -1,70 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 영어 기본 문구. 한국어는 values-ko, 일본어는 values-ja(docs/design.md 여러 언어). 영어·일본어는 원어민 검수 전 초안이다. -->
     <!-- 이전 준비(M0) -->
-    <string name="migration_preparing_title">기록을 옮길 준비를 하고 있어요</string>
-    <string name="migration_preparing_body">새 앱으로 일기를 옮겨요. 원래 기록은 그대로 둬요.</string>
+    <string name="migration_preparing_title">Getting ready to move your diary</string>
+    <string name="migration_preparing_body">Your entries are moving to the new version. Your original diary stays as it is.</string>
 
     <!-- 이전 진행(M1) -->
-    <string name="migration_progress_title">일기를 옮기고 있어요</string>
-    <string name="migration_progress_body">옮기는 동안 화면을 켜 둘게요.</string>
-    <string name="migration_progress_entries">일기</string>
-    <string name="migration_progress_entries_value">%1$s / %2$s편</string>
-    <string name="migration_progress_photos">사진</string>
-    <string name="migration_progress_photos_value">%1$s / %2$s장</string>
-    <string name="migration_progress_note">중간에 앱이 꺼져도 처음부터 다시 옮겨요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_progress_title">Moving your entries</string>
+    <string name="migration_progress_body">The screen stays on until it’s done.</string>
+    <string name="migration_progress_entries">Entries</string>
+    <string name="migration_progress_entries_value">%1$s / %2$s</string>
+    <string name="migration_progress_photos">Photos</string>
+    <string name="migration_progress_photos_value">%1$s / %2$s</string>
+    <string name="migration_progress_note">If the app closes partway, moving starts over. Your original diary stays as it is.</string>
 
     <!-- 결과(M2) -->
-    <string name="migration_done_title">%1$s편을 모두 옮겼어요</string>
-    <string name="migration_done_photos">사진 %1$s장도 함께 옮겼어요.</string>
-    <string name="migration_missing_photos_title">찾을 수 없는 사진 %1$s장</string>
-    <string name="migration_missing_photos_body">예전 앱이 임시 공간에 두었다가 지워진 사진이에요. 일기 안에 자리를 남겨 뒀어요.</string>
-    <string name="migration_missing_photos_body_short">일기 안에 자리를 남겨 뒀어요.</string>
-    <string name="migration_date_fixed_title">날짜를 바로잡은 일기 %1$s편</string>
-    <string name="migration_date_fixed_body">예전 앱은 이 일기를 다음 날로 잘못 보여 줬어요. 쓸 때 고른 날짜로 고쳤어요.</string>
-    <string name="migration_start">시작하기</string>
+    <plurals name="migration_done_title">
+        <item quantity="one">%1$s entry moved</item>
+        <item quantity="other">All %1$s entries moved</item>
+    </plurals>
+    <plurals name="migration_done_photos">
+        <item quantity="one">%1$s photo moved too.</item>
+        <item quantity="other">%1$s photos moved too.</item>
+    </plurals>
+    <plurals name="migration_missing_photos_title">
+        <item quantity="one">%1$s photo couldn’t be found</item>
+        <item quantity="other">%1$s photos couldn’t be found</item>
+    </plurals>
+    <string name="migration_missing_photos_body">The previous version kept them in temporary storage, and they were deleted. Their places are kept in your entries.</string>
+    <string name="migration_missing_photos_body_short">Their places are kept in your entries.</string>
+    <plurals name="migration_date_fixed_title">
+        <item quantity="one">Date fixed on %1$s entry</item>
+        <item quantity="other">Dates fixed on %1$s entries</item>
+    </plurals>
+    <string name="migration_date_fixed_body">The previous version showed them a day late by mistake. They’re now on the date you picked when writing.</string>
+    <string name="migration_start">Get started</string>
 
-    <!-- 일부만(M2-b) -->
-    <string name="migration_partial_title">일부만 옮겨졌어요</string>
-    <string name="migration_partial_body">%1$s편을 옮겼고 %2$s편은 원본 파일이 손상돼서 읽지 못했어요. 앱을 업데이트하면 한 번 더 읽어 봐요. 원래 기록은 그대로 있어요.</string>
-    <string name="migration_partial_footnote">이 결과는 설정 > 기록 이전 결과에서 다시 볼 수 있어요</string>
-    <string name="migration_export_original">원본 파일 내보내기</string>
-    <string name="migration_contact">문의하기</string>
+    <!-- 일부만(M2-b). 숫자 둘 가운데 옮긴 일기 수로 꼴을 고른다. -->
+    <string name="migration_partial_title">Only some entries were moved</string>
+    <plurals name="migration_partial_body">
+        <item quantity="one">%1$s entry was moved, but %2$s couldn’t be read because the original file is damaged. The app tries again after its next update. Your original diary stays as it is.</item>
+        <item quantity="other">%1$s entries were moved, but %2$s couldn’t be read because the original file is damaged. The app tries again after its next update. Your original diary stays as it is.</item>
+    </plurals>
+    <string name="migration_partial_footnote">You can see this again in Settings > Transfer results</string>
+    <string name="migration_export_original">Export original files</string>
+    <string name="migration_contact">Contact us</string>
 
     <!-- 실패(M3) -->
-    <string name="migration_failed_title">기록을 옮기지 못했어요</string>
-    <string name="migration_failed_body_mismatch">옮긴 기록이 원본과 달라서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
-    <string name="migration_failed_body_snapshot">원래 기록을 복사하지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
-    <string name="migration_failed_body_read">예전 앱 파일을 읽지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
-    <string name="migration_failed_body_write">새 앱에 기록을 쓰지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
-    <string name="migration_failed_body_unknown">옮기는 중에 문제가 생겨서 멈췄어요. 원래 기록은 그대로 있어요.</string>
-    <string name="migration_view_legacy">예전 일기 보기</string>
-    <string name="migration_retry">다시 시도</string>
-    <string name="migration_no_space_title">휴대폰 저장 공간이 부족해요</string>
-    <string name="migration_no_space_body">기록을 옮기려면 휴대폰에 %1$s가 더 필요해요. 사진이나 쓰지 않는 앱을 정리한 뒤 다시 확인해 주세요. 원래 기록은 그대로 있어요.</string>
-    <string name="migration_check_again">다시 확인</string>
-    <!-- 예전 일기 보기(M4) -->
-    <string name="legacy_reader_title">예전 일기</string>
-    <string name="legacy_reader_notice">읽기만 할 수 있어요. 다시 시도하면 새 앱으로 옮겨요.</string>
-    <string name="legacy_reader_empty">읽을 수 있는 예전 일기가 없어요</string>
-    <string-array name="legacy_weekdays">
-        <item>월</item>
-        <item>화</item>
-        <item>수</item>
-        <item>목</item>
-        <item>금</item>
-        <item>토</item>
-        <item>일</item>
-    </string-array>
-    <string name="legacy_time_am">오전 %1$s</string>
-    <string name="legacy_time_pm">오후 %1$s</string>
-    <string name="legacy_month">%1$s월</string>
-    <string name="legacy_year_month">%1$s년 %2$s월</string>
+    <string name="migration_failed_title">Couldn’t move your diary</string>
+    <string name="migration_failed_body_mismatch">Moving stopped because the moved entries didn’t match the originals. Your original diary stays as it is.</string>
+    <string name="migration_failed_body_snapshot">Moving stopped because your original diary couldn’t be copied. It stays as it is.</string>
+    <string name="migration_failed_body_read">Moving stopped because the previous version’s files couldn’t be read. Your original diary stays as it is.</string>
+    <string name="migration_failed_body_write">Moving stopped because entries couldn’t be saved in the new version. Your original diary stays as it is.</string>
+    <string name="migration_failed_body_unknown">Moving stopped because something went wrong. Your original diary stays as it is.</string>
+    <string name="migration_view_legacy">View old entries</string>
+    <string name="migration_retry">Try again</string>
+    <string name="migration_no_space_title">Your phone is low on storage</string>
+    <string name="migration_no_space_body">Moving your entries needs %1$s more space on your phone. Delete photos or apps you don’t use, then check again. Your original diary stays as it is.</string>
+    <string name="migration_check_again">Check again</string>
+
+    <!-- 예전 일기 보기(M4). 날짜와 시각은 DiaryDateFormat이 만든다. -->
+    <string name="legacy_reader_title">Old entries</string>
+    <string name="legacy_reader_notice">You can only read these. Try again to move them to the new version.</string>
+    <string name="legacy_reader_empty">No old entries to read</string>
 
     <!-- 원본 내보내기, 문의하기 -->
-    <string name="migration_export_done">원본을 저장했어요</string>
-    <string name="migration_export_failed">원본을 저장하지 못했어요. 저장할 곳을 다시 골라 주세요.</string>
-    <string name="migration_mail_missing">메일 앱을 찾지 못했어요. sjunh812@naver.com으로 보내 주세요.</string>
-    <string name="migration_mail_subject">[1일 1일기] 기록 이전 문의</string>
-    <string name="migration_mail_body">아래 내용은 문제를 찾아 고칠 때만 써요. 일기 내용은 담지 않았어요.\n\n앱 버전: %1$s\n기기: %2$s\n멈춘 단계: %3$s\n문제 종류: %4$s\n시도 횟수: %5$s\n일기 수: %6$s\n사진 수: %7$s\n읽지 못한 일기 수: %8$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
-    <string name="migration_readme">1일 1일기 원본 파일이에요.\n\n새 앱으로 옮기기 전에 예전 앱(1.7.x)이 쓰던 기록을 그대로 담았어요.\n\n- legacy-snapshot: 일기 파일(note.db)과 설정. 비밀번호는 빼고 담았어요.\n- media: 예전 앱에서 옮겨 둔 사진\n\n기록을 되살리고 싶으면 이 파일을 지우지 말고 sjunh812@naver.com으로 문의해 주세요.\n</string>
+    <!-- 저장 창에 처음 보이는 파일 이름. %1$s는 yyyyMMdd. -->
+    <string name="migration_export_file_name">1Day1Diary-original-%1$s.zip</string>
+    <string name="migration_export_done">Original files saved</string>
+    <string name="migration_export_failed">Couldn’t save the original files. Choose where to save them again.</string>
+    <string name="migration_mail_missing">No email app found. Please write to sjunh812@naver.com.</string>
+    <string name="migration_mail_subject">[1 Day 1 Diary] Help with moving entries</string>
+    <string name="migration_mail_body">The details below are only used to find and fix the problem. Your entries aren’t included.\n\nApp version: %1$s\nDevice: %2$s\nStopped at: %3$s\nProblem type: %4$s\nAttempts: %5$s\nEntries: %6$s\nPhotos: %7$s\nUnreadable entries: %8$s\n\nTell us what happened or what you’d like to ask.\n</string>
+    <string name="migration_readme">These are the original files of 1 Day 1 Diary.\n\nThey hold the diary the previous version (1.7.x) used, exactly as it was before moving to the new version.\n\n- legacy-snapshot: the diary file (note.db) and settings, without your password\n- media: photos moved from the previous version\n\nIf you want your entries restored, keep this file and write to sjunh812@naver.com.\n</string>
 </resources>

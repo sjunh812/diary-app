@@ -17,6 +17,13 @@ android {
         versionName = "2.0.0"
     }
 
+    androidResources {
+        // 앱별 언어 설정(Android 13 이상)에 세 언어를 올린다(docs/design.md 여러 언어).
+        generateLocaleConfig = true
+        // 라이브러리에 든 다른 언어 문구를 빼서 화면이 한 언어로 보이게 한다.
+        localeFilters += listOf("en", "ko", "ja")
+    }
+
     buildFeatures {
         compose = true
         // 개발 빌드에서 사용 통계 고정 표를 엄격하게 본다(BuildConfig.DEBUG).

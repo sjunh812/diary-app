@@ -225,7 +225,8 @@
 
 ### R18. 화면 문구와 디자인 토큰을 빌드에서 지킨다
 
-- Decision: 화면 문구는 모듈마다 `composeResources/values/strings.xml`(`publicResClass = false`). 루트 `designTokenCheck` 작업이 `shared/feature/**`와
+- Decision: 화면 문구는 모듈마다 `composeResources/values/strings.xml`(영어 기본)과 `values-ko`, `values-ja`(`publicResClass = false`, 2026-11-01 세 언어).
+  루트 `stringResourceCheck`가 세 언어의 이름, 개수 문구 꼴(`one`·`other`), `%1$s` 자리를 견준다. 루트 `designTokenCheck` 작업이 `shared/feature/**`와
   `shared/app/**`의 Kotlin에서 `Color(0x`, 숫자 `.dp`·`.sp`, `RoundedCornerShape(숫자`, `MaterialTheme.colorScheme`, `MaterialTheme.typography`,
   `Text("`를 찾으면 실패한다(`designsystem`과 미리보기 파일은 뺀다). `check`에 묶는다.
 - Rationale: FR-028·FR-030, 헌법 V. NIA의 디자인 시스템 lint는 Android Lint라 commonMain을 보는지 확인하지 못했다(조사 메모). 단순한 문자열 검사로

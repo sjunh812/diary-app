@@ -5,6 +5,7 @@
 #
 # 순서: 지우기 → 1.7.4 깔고 한 번 열기 → seed.sh → 원본 해시 → 새 APK 덮어 설치 → 열기 → 이전 끝 기다리기 → 확인.
 # 확인: 원본 다섯 파일의 SHA-256이 전후로 같은지, 새 DB의 일기·사진 수, 남은 파일.
+# APP_LOCALE=ja-JP처럼 주면 새 앱을 열기 전에 앱별 언어를 정한다(Android 13 이상, docs/design.md 여러 언어).
 set -eu
 : "${ANDROID_SERIAL:?ANDROID_SERIAL을 에뮬레이터로 정해 주세요(예: emulator-5554)}"
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
@@ -29,6 +30,7 @@ sh "$ROOT/scripts/legacy/seed.sh"
 adb shell run-as $PKG sha256sum $ORIGINALS > "$WORK/before"
 
 adb install -r "$NEW_APK" >/dev/null
+[ -z "${APP_LOCALE:-}" ] || adb shell cmd locale set-app-locales $PKG --locales "$APP_LOCALE"
 START=$(date +%s)
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
 i=0

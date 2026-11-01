@@ -4,7 +4,7 @@ import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 
 // 루트 프로젝트에만 쓴다(research R3).
-// 디자인 토큰 검사와 git 훅 설치를 등록한다.
+// 디자인 토큰 검사, 문자열 검사, git 훅 설치를 등록한다.
 class RootConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         check(this == rootProject) { "diary.root는 루트 프로젝트에만 쓴다" }
@@ -26,6 +26,22 @@ class RootConventionPlugin : Plugin<Project> {
                 report.set(layout.buildDirectory.file("reports/designTokenCheck.txt"))
             }
         tasks.named("check").configure { dependsOn(designTokenCheck) }
+
+        val stringResourceCheck =
+            tasks.register<StringResourceCheckTask>("stringResourceCheck") {
+                group = "verification"
+                description = "화면 문구가 영어·한국어·일본어에 같은 이름과 자리로 있는지 본다"
+                sources.from(
+                    fileTree("shared") {
+                        include("**/composeResources/values*/strings.xml")
+                        exclude("**/build/**")
+                    },
+                    fileTree("composeApp/src/main/res") { include("values*/strings.xml") }
+                )
+                baseDirectory.set(layout.projectDirectory)
+                report.set(layout.buildDirectory.file("reports/stringResourceCheck.txt"))
+            }
+        tasks.named("check").configure { dependsOn(stringResourceCheck) }
 
         // 커밋 형식 검사 훅을 쓰게 한다(FR-031, research R19).
         // 소스 묶음처럼 git 저장소가 아닌 곳에서는 건너뛴다.

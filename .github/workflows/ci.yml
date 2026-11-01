@@ -26,7 +26,7 @@ jobs:
       - name: 커밋 형식 검사 시험
         run: sh scripts/test-commit-msg.sh
       - name: 검사·시험·빌드
-        run: ./gradlew spotlessCheck designTokenCheck allTests assembleDebug
+        run: ./gradlew spotlessCheck designTokenCheck stringResourceCheck allTests assembleDebug
 
   ios:
     name: iOS 시험과 Xcode 빌드

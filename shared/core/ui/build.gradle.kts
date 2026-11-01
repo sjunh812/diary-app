@@ -10,6 +10,8 @@ kotlin {
         commonMain.dependencies {
             api(projects.shared.core.designsystem)
             api(libs.compose.material3.adaptive)
+            // 날짜 형식(DiaryDateFormat)이 공개 API에 날짜 형을 쓴다.
+            api(libs.kotlinx.datetime)
             // 일기 사진 칸. 앱 저장소 파일만 읽는다(네트워크 없음).
             implementation(libs.coil.compose)
         }

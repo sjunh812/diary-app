@@ -19,8 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import kotlinx.datetime.LocalTime
-import org.jetbrains.compose.resources.stringArrayResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
@@ -32,15 +30,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.migration.LegacyEntryView
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
+import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.migration.resources.Res
-import org.sjhstudio.diary.feature.migration.resources.legacy_month
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_empty
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_notice
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_title
-import org.sjhstudio.diary.feature.migration.resources.legacy_time_am
-import org.sjhstudio.diary.feature.migration.resources.legacy_time_pm
-import org.sjhstudio.diary.feature.migration.resources.legacy_weekdays
-import org.sjhstudio.diary.feature.migration.resources.legacy_year_month
 
 /**
  * 예전 일기 보기(Figma M4). 기록 이전이 실패한 기기에서 사본을 읽기만 한다.
@@ -62,7 +56,7 @@ fun LegacyReaderScreen(
         }
     }
     LaunchedEffect(nearEnd, state.entries.size) { if (nearEnd && !state.end) onLoadMore() }
-    val weekdays = stringArrayResource(Res.array.legacy_weekdays)
+    val dates = rememberDiaryDateFormat()
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding()) {
         DiaryTopBar(title = stringResource(Res.string.legacy_reader_title), onBack = onBack)
@@ -89,19 +83,12 @@ fun LegacyReaderScreen(
                 val newDay = previous == null || previous.date != entry.date
                 Column {
                     if (newMonth && index > 0) {
-                        val month = (entry.date.month.ordinal + 1).toString()
-                        DiaryMonthHeader(
-                            if (entry.date.year == currentYear) {
-                                stringResource(Res.string.legacy_month, month)
-                            } else {
-                                stringResource(Res.string.legacy_year_month, entry.date.year.toString(), month)
-                            }
-                        )
+                        DiaryMonthHeader(if (entry.date.year == currentYear) dates.month(entry.date) else dates.yearMonth(entry.date))
                     }
                     DiaryEntryRow(
-                        weekday = if (newDay) weekdays.getOrNull(entry.date.dayOfWeek.ordinal) else null,
+                        weekday = if (newDay) dates.weekdayShort(entry.date) else null,
                         day = if (newDay) entry.date.day.toString() else null,
-                        meta = listOfNotNull(timeText(entry.time), entry.placeName),
+                        meta = listOfNotNull(dates.time(entry.time), entry.placeName),
                         preview = entry.text,
                         moodColor = entry.mood?.let { colors.moodColor(it) },
                         favorite = entry.favorite,
@@ -112,13 +99,6 @@ fun LegacyReaderScreen(
             }
         }
     }
-}
-
-@Composable
-private fun timeText(time: LocalTime): String {
-    val hour12 = if (time.hour % 12 == 0) 12 else time.hour % 12
-    val text = "$hour12:${time.minute.toString().padStart(2, '0')}"
-    return stringResource(if (time.hour < 12) Res.string.legacy_time_am else Res.string.legacy_time_pm, text)
 }
 
 private fun DiaryColors.moodColor(mood: Mood): Color = when (mood) {

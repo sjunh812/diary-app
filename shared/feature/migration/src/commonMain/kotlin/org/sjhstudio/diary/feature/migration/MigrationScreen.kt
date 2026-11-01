@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
@@ -156,7 +157,11 @@ private fun ResultContent(state: MigrationUiState.Result, onStart: () -> Unit, o
                 add(
                     DiaryNote(
                         DiaryIcons.ImageOff,
-                        stringResource(Res.string.migration_missing_photos_title, report.photosMissing.grouped()),
+                        pluralStringResource(
+                            Res.plurals.migration_missing_photos_title,
+                            report.photosMissing,
+                            report.photosMissing.grouped()
+                        ),
                         stringResource(
                             if (partial) Res.string.migration_missing_photos_body_short else Res.string.migration_missing_photos_body
                         )
@@ -167,7 +172,7 @@ private fun ResultContent(state: MigrationUiState.Result, onStart: () -> Unit, o
                 add(
                     DiaryNote(
                         DiaryIcons.CalendarCheck,
-                        stringResource(Res.string.migration_date_fixed_title, report.dateDiffers.grouped()),
+                        pluralStringResource(Res.plurals.migration_date_fixed_title, report.dateDiffers, report.dateDiffers.grouped()),
                         stringResource(Res.string.migration_date_fixed_body)
                     )
                 )
@@ -179,13 +184,18 @@ private fun ResultContent(state: MigrationUiState.Result, onStart: () -> Unit, o
             if (partial) {
                 stringResource(Res.string.migration_partial_title)
             } else {
-                stringResource(Res.string.migration_done_title, report.entriesMigrated.grouped())
+                pluralStringResource(Res.plurals.migration_done_title, report.entriesMigrated, report.entriesMigrated.grouped())
             },
         body =
             if (partial) {
-                stringResource(Res.string.migration_partial_body, report.entriesMigrated.grouped(), report.entriesUnreadable.grouped())
+                pluralStringResource(
+                    Res.plurals.migration_partial_body,
+                    report.entriesMigrated,
+                    report.entriesMigrated.grouped(),
+                    report.entriesUnreadable.grouped()
+                )
             } else if (report.photosFound > 0) {
-                stringResource(Res.string.migration_done_photos, report.photosFound.grouped())
+                pluralStringResource(Res.plurals.migration_done_photos, report.photosFound, report.photosFound.grouped())
             } else {
                 null
             },

@@ -46,7 +46,7 @@
 - **예전 일기 보기**: `legacy-snapshot/note.db`를 읽기 전용으로 열어 일기 날짜 최근 순(`create_date` 역순, 같으면 `_id` 역순)으로 60줄씩 보여 준다
   (날짜, 글, 기분, 날씨, 장소, 사진). 사용자가 지난 날짜를 골라 쓸 수 있어 `_id` 순은 날짜 순과 다르다(2026-11-01 에뮬레이터 확인).
   사진은 `photos.json`으로 `media/`에서 찾는다. 고치기·지우기는 없다.
-- **원본 내보내기**: 저장 창(Android SAF, FileKit)으로 고른 곳에 `1일1일기-원본-yyyyMMdd.zip`을 쓴다. 담는 것: `legacy-snapshot/`의 파일 전부
+- **원본 내보내기**: 저장 창(Android SAF, FileKit)으로 고른 곳에 `1일1일기-원본-yyyyMMdd.zip`(영어 `1Day1Diary-original-…`, 일본어 `1日1日記-元データ-…`, 문자열 `migration_export_file_name`)을 쓴다. 담는 것: `legacy-snapshot/`의 파일 전부
   (`pref.xml`은 비밀번호 줄을 뺀 사본), `media/`의 이전 사진, `README.txt`(무엇인지, 문의처).
 - **고쳐 받기 문의(일부만 옮겨진 기기, FR-010a)**: 시트에서 "첨부해서 문의"를 고르면 `files/migration/support/1일1일기-문의용-yyyyMMdd.zip`(`note.db`,
   `-wal`, `-shm`, 비밀번호 줄을 뺀 `pref.xml`, 사진 없음)을 만들어 메일 앱에 첨부로 넘기고, 공유가 끝나거나 하루가 지나면 지운다. 메일 본문 틀에는

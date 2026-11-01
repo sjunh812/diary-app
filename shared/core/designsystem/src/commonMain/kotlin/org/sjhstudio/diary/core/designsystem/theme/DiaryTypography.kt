@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.TextUnit
@@ -61,14 +60,14 @@ fun pretendardFamily(): FontFamily = FontFamily(
     Font(Res.font.pretendard_bold, FontWeight.Bold)
 )
 
-private val KOREAN = LocaleList("ko-KR")
-
-/** 한국어 줄바꿈. Android 13 이상은 구절(띄어쓰기) 단위, 그 밖은 플랫폼 기본값이다. */
-internal expect val KOREAN_LINE_BREAK: LineBreak
+/** 한국어·일본어 줄바꿈. Android 13 이상은 구절 단위, 그 밖은 플랫폼 기본값이다. 영어에는 영향이 없다. */
+internal expect val PHRASE_LINE_BREAK: LineBreak
 
 @Composable
 internal fun diaryTypography(): DiaryTypography {
-    val family = pretendardFamily()
+    // 일본어 화면은 시스템 글꼴을 쓴다(열린 결정 D13 추천, docs/design.md 여러 언어).
+    // Pretendard에는 가나는 있지만 한자가 없어서 섞으면 한 낱말 안에서 글꼴이 바뀐다.
+    val family = if (diaryLanguage() == "ja") FontFamily.Default else pretendardFamily()
     fun style(size: TextUnit, lineHeight: TextUnit, weight: FontWeight) = TextStyle(
         fontFamily = family,
         fontSize = size,
@@ -77,10 +76,10 @@ internal fun diaryTypography(): DiaryTypography {
         letterSpacing = 0.sp,
         // Figma처럼 줄 높이 안에서 글자를 가운데 둔다.
         lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None),
-        // 한국어는 낱말 가운데서 줄을 바꾸지 않고 띄어쓰기 단위로 바꾼다(Android 13 이상 구절 단위, 2026-11-01 에뮬레이터 확인).
-        lineBreak = KOREAN_LINE_BREAK,
-        // 구절 단위 줄바꿈은 글의 언어가 한국어일 때만 돈다. 기기 언어가 영어여도 앱 글은 한국어로 다룬다.
-        localeList = KOREAN
+        // 한국어·일본어는 낱말 가운데서 줄을 바꾸지 않고 구절 단위로 바꾼다(Android 13 이상, 2026-11-01 에뮬레이터 확인).
+        // 글의 언어는 정하지 않고 화면 언어를 따른다.
+        // 한국어로 묶으면 일본어 한자가 한국어 글자 모양으로 그려진다.
+        lineBreak = PHRASE_LINE_BREAK
     )
     return DiaryTypography(
         display = style(28.sp, 38.sp, FontWeight.Bold),
