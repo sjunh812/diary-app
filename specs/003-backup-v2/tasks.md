@@ -44,10 +44,10 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ## Phase 2: 첫 확인 (사용자와 같이, 다른 개발보다 먼저)
 
-- [ ] T008 사용자와 구글 클라우드 콘솔에서 지금 앱과 같은 프로젝트에 디버그 서명용 Android 클라이언트와 iOS 클라이언트를 만든다. 클라이언트 ID는 `local.properties`와 Xcode 설정 파일(저장소 밖)에 둔다. 동의 화면 범위에 `drive.file`, `openid`, `email`이 있는지 본다
+- [x] T008 사용자와 구글 클라우드 콘솔에서 지금 앱과 같은 프로젝트에 디버그 서명용 Android 클라이언트와 iOS 클라이언트를 만든다. 클라이언트 ID는 `local.properties`와 Xcode 설정 파일(저장소 밖)에 둔다. 동의 화면 범위에 `drive.file`, `openid`, `email`이 있는지 본다
 - [ ] T009 `scripts/drive-probe/`에 시험용 최소 앱 둘(Android 액티비티 하나, iOS SwiftUI 화면 하나)을 만들고 `quickstart.md` 1의 네 방향(Android 생성 → iOS 찾기, iOS 생성 → Android 찾기, 1.7.4 `note.db` → 새 Android·iOS 찾기)을 시험 계정으로 돌린다. 결과를 research R1과 `docs/backup.md` 인증 절에 적는다
 - [ ] T010 같은 시험 앱으로 WorkManager 작업 안에서 `AuthorizationClient.authorize()`가 화면 없이 토큰을 주는지, iOS `BGProcessingTask` 안에서 `refreshTokensIfNeeded`가 되는지 본다. 결과로 research O4를 닫는다
-- [ ] T011 T009에서 하나라도 안 보이면 research R1 "안 보일 때" 1(Picker 폴더 고르기 → 안의 파일 권한)을 시험하고, 결과와 바꿀 스펙(US3, SC-001, Assumptions)을 사용자에게 알린 뒤 정한다. 정한 것은 `docs/DECISIONS.md`에 남긴다
+- [x] T011 (해당 없음, 2026-11-01 iOS에서 보임) T009에서 하나라도 안 보이면 research R1 "안 보일 때" 1(Picker 폴더 고르기 → 안의 파일 권한)을 시험하고, 결과와 바꿀 스펙(US3, SC-001, Assumptions)을 사용자에게 알린 뒤 정한다. 정한 것은 `docs/DECISIONS.md`에 남긴다
 
 ---
 

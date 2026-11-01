@@ -39,7 +39,8 @@ Gmail·Photos와 공유)을 쓴다.
 - iOS: GoogleSignIn-iOS 10.1.0(SPM)으로 토큰을 받고 REST를 직접 부른다. 공통 코드는 Ktor로 REST를 부른다(스펙 003 research R3).
 - 같은 Google Cloud 프로젝트를 쓴다. 다른 프로젝트의 클라이언트가 레거시 `drive.file` 파일을 볼 수 있는지는 공식 문서에서 확인하지 못했다. 같은 프로젝트를 쓰면 이 위험이 없다.
 - 같은 프로젝트 안에서도 Android 클라이언트가 만든 파일을 iOS 클라이언트가 보는지는 문서에 없다(같은 프로젝트의 클라이언트를 하나의 앱으로 본다는 문서만 있음,
-  [cross-client](https://developers.google.com/identity/protocols/oauth2/cross-client-identity)). 스펙 003 계획의 첫 작업으로 실제로 확인한다.
+  [cross-client](https://developers.google.com/identity/protocols/oauth2/cross-client-identity)). 2026-11-01 실제로 확인했다: Play 1.7.4가 올린 `note.db`가
+  같은 프로젝트(`diary-app`, 2026-11-01 GoogleMapProject에서 이름만 바꿈)의 iOS 클라이언트에서 보였다(`scripts/drive-probe/README.md`).
 
 ## 백업 형식 v2
 

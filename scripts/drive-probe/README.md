@@ -35,11 +35,11 @@ xcodegen generate && xcodebuild -project DriveCheck.xcodeproj -scheme DriveCheck
 
 | 방향 | 보임 | 날짜·메모 |
 | --- | --- | --- |
-| 예전 앱(출시 키) `note.db` → Android 확인 빌드(디버그 키) | | |
-| 예전 앱 `note.db` → iOS | | |
-| Android → iOS | | |
-| iOS → Android | | |
-| 작업 관리자 안 토큰(Android) | | |
-| 백그라운드 토큰(iOS) | | |
+| 예전 앱(출시 키) `note.db` → Android 확인 빌드(디버그 키) | 남음 | 에뮬레이터 로그인 필요 |
+| 예전 앱 `note.db` → iOS | **보임** | 2026-11-01. 실기기 Galaxy(Play 1.7.4)가 올린 `note.db` 28,672바이트(처음 만든 때 2021-06-27)가 iOS 시뮬레이터(iOS 26.2) "1일 1일기 iOS" 클라이언트로 보임 |
+| Android → iOS | **보임**(위와 같은 결과로 갈음) | 출시 키 Android 클라이언트가 만든 파일이 iOS 클라이언트에 보이므로 같은 프로젝트 안에서는 클라이언트를 가리지 않는 것으로 본다 |
+| iOS → Android | 남음 | `ios-made.txt`를 만들어 둠(sha256Checksum 채워짐) |
+| 작업 관리자 안 토큰(Android) | 남음 | |
+| 백그라운드 토큰(iOS) | **됨** | 앱을 홈으로 보낸 뒤 `beginBackgroundTask` 안에서 `restorePreviousSignIn` + `refreshTokensIfNeeded` → 토큰 받고 조회 성공. 만료된 토큰을 BGTask 안에서 새로 받는 경우는 1시간 뒤에 다시 본다 |
 
 결과는 `specs/003-backup-v2/research.md` R1·O4와 `docs/backup.md` 인증 절에 옮긴다.

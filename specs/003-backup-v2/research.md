@@ -14,6 +14,9 @@
     ([스코프](https://developers.google.com/workspace/drive/api/guides/api-specific-auth), [files](https://developers.google.com/workspace/drive/api/reference/rest/v3/files)).
 - Decision: 계획의 첫 작업(T001)으로 같은 프로젝트의 Android·iOS 시험 클라이언트로 네 방향을 확인한다(`quickstart.md` 1). 이 결과가 나오기 전에는
   Android↔iOS 복원(SC-001)과 iOS의 이전 버전 백업(US3)을 만들지 않는다.
+- **결과(2026-11-01, `scripts/drive-probe/README.md`)**: 실기기 Galaxy의 Play 1.7.4(출시 키 Android 클라이언트)가 올린 `note.db`가 같은 프로젝트
+  `diary-app`의 iOS 클라이언트(번들 `org.sjhstudio.diary`)에서 `drive.file`로 **보였다**. 같은 프로젝트 안에서는 클라이언트가 달라도 파일이 보인다고 보고
+  설계를 그대로 간다. iOS → Android(새 디버그 클라이언트) 방향은 에뮬레이터로 마저 본다. 새로 올린 파일에는 `sha256Checksum`이 채워졌다(R6).
 - 안 보일 때(차례대로 시험한다):
   1. 구글 Picker(데스크톱·모바일용)로 사용자가 "1일 1일기 백업" 폴더나 `note.db`를 한 번 고르게 한다. 시스템 브라우저에서 열리고 `drive.file`만
      허용되며 `allow_folder_selection`이 있다([Picker for desktop & mobile](https://developers.google.com/workspace/drive/picker/guides/desktop-mobile-picker)).
@@ -229,10 +232,10 @@
 
 | 번호 | 무엇 | 정하는 조건 | 기본값 |
 | --- | --- | --- | --- |
-| O1 | Android가 만든 파일을 iOS가 보는지(R1) | 첫 작업 결과 | 보인다고 보고 설계, 안 보이면 Picker → 묶음 파일 |
+| O1 | Android가 만든 파일을 iOS가 보는지(R1) | 닫음(2026-11-01): 보인다 | - |
 | O2 | iOS 백그라운드 URLSession 올리기 | iOS 실제 사용에서 자동 백업 성공률(SC-008)이 낮으면 | 쓰지 않음 |
 | O3 | 묶음 파일을 저장 위치에 바로 흘려 쓰기 | FileKit 0.17.0이 큰 파일을 흘려 쓸 수 있는지 첫 개발에서 확인. 안 되면 Android SAF 출력 스트림, iOS는 앱 폴더에 만든 뒤 공유 시트 | 바로 흘려 쓰기 |
-| O4 | 작업 관리자·백그라운드 작업 안에서 토큰 받기(R2) | 첫 작업과 함께 시험 | 된다고 보고, 안 되면 앱을 열 때 잇기 |
+| O4 | 작업 관리자·백그라운드 작업 안에서 토큰 받기(R2) | iOS는 앱이 뒤로 간 뒤 되살리기·토큰 받기가 됨(2026-11-01). 만료 토큰 갱신과 Android 작업 관리자는 마저 본다 | 된다고 보고, 안 되면 앱을 열 때 잇기 |
 | O5 | 조각 크기 8MiB와 동시에 올릴 사진 수 | SC-004 시간을 재고 | 8MiB, 한 번에 2장 |
 | O6 | 모바일 데이터에서 스냅샷을 올리는 크기 한도 | 일기 1만 편 기기의 스냅샷 크기를 재서 하루 데이터 쓰임이 크면(예: 20MB 넘음) 한도나 압축을 사용자와 정한다 | 한도 없음 |
 
