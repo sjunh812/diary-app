@@ -82,7 +82,8 @@ Google 공식 SDK 저장소에서 Google APIs arm64 이미지(API 24 rev 29, API
 - 틀린 비밀번호: 점 넷이 빨갛게 바뀌고 "비밀번호가 맞지 않아요 · 남은 횟수 4번"이 Figma L1 상태와 같은 자리에 뜬다(API 36 캡처).
 - 잠금 키: `PinKeyStoreTest`(Android Keystore)가 API 36·24에서 통과했다. iOS 키체인은 시험 실행기에서 쓸 수 없어(errSecNotAvailable) 앱으로 확인해야 한다.
 - **열린 결정 O3**: Android 13 이상은 `setRecentsScreenshotEnabled(false)`로, Android 10(API 29)은 화면을 떠날 때 켜는 `FLAG_SECURE`로 가려진다.
-  Android 7(API 24)은 시스템이 그보다 먼저 미리보기를 찍어 가려지지 않는다. Android 8~9는 에뮬레이터가 없어 보지 못했다. 사용자에게 묻는다.
+  Android 7(API 24)은 시스템이 그보다 먼저 미리보기를 찍어 가려지지 않는다. Android 8~9는 에뮬레이터가 없어 보지 못했다.
+  사용자는 늘 화면 보호를 켜 캡처까지 막는 안 대신 지금 방식을 골랐다(2026-11-02, O3 닫음).
 
 ### 못 한 것
 
