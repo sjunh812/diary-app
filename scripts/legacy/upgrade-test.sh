@@ -9,6 +9,8 @@
 # COUNT=1000: 사진이 한 장씩 든 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본).
 # KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3). Snapshotting, Verifying, Committing도 된다.
 # INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050). 먼저 :composeApp:assembleDebugAndroidTest.
+# LOCK=0427: 1.7.4에 그 비밀번호로 잠금을 켜 두고(seed.sh), 새 앱이 잠금 화면부터 띄우는지와 잠긴 동안 이전이 시작되지 않는지 본 뒤
+# 하드웨어 키로 비밀번호를 넣는다(스펙 001 US2, quickstart §4). BIOMETRIC=1이면 지문 설정도 켠다.
 set -eu
 : "${ANDROID_SERIAL:?ANDROID_SERIAL을 에뮬레이터로 정해 주세요(예: emulator-5554)}"
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
@@ -51,8 +53,24 @@ if [ -n "${KILL_AT:-}" ]; then
   adb shell run-as $PKG sh -c "'mkdir -p files/debug && cp /data/local/tmp/diary-kill_at files/debug/kill_at'"
   adb shell rm -f /data/local/tmp/diary-kill_at
 fi
+# 잠금 화면이 뜨기를 기다려, 잠긴 동안 이전이 시작되지 않았는지 보고 비밀번호를 넣는다.
+unlock() {
+  i=0
+  until adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
+    adb shell cat /data/local/tmp/diary-ui.xml | grep -qE '비밀번호를 입력해 주세요|Enter your passcode|パスコードを入力してください'; do
+    i=$((i + 1)); [ $i -gt 60 ] && { echo "잠금 화면이 뜨지 않았어요" >&2; exit 1; }
+    sleep 1
+  done
+  adb shell rm -f /data/local/tmp/diary-ui.xml
+  if adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -qE '"step":"(Snapshotting|Copying|Verifying|Committing|Done|Partial|Failed)"'; then
+    echo "잠긴 동안 이전이 시작됐어요" >&2; exit 1
+  fi
+  echo "잠금 화면: 잠긴 동안 이전 시작 안 함"
+  for d in $(printf '%s' "$LOCK" | sed 's/./& /g'); do adb shell input keyevent "KEYCODE_$d"; done
+}
 START=$(date +%s)
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+if [ -n "${LOCK:-}" ]; then unlock; fi
 if [ -n "${KILL_AT:-}" ]; then
   # 훅이 그 단계에 들어서며 프로세스를 끝낸다. 끊긴 것을 본 뒤 다시 연다.
   i=0
@@ -62,6 +80,8 @@ if [ -n "${KILL_AT:-}" ]; then
   done
   echo "끊김: $(adb shell run-as $PKG cat files/migration/state.json)"
   adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+  # 프로세스가 새로 시작했으니 다시 잠겨 있다.
+  if [ -n "${LOCK:-}" ]; then unlock; fi
 fi
 i=0
 until adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -qE '"step":"(Done|Partial|Failed)"'; do

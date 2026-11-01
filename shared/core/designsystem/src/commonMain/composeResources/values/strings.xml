@@ -7,4 +7,6 @@
     <!-- 상단 바 뒤로 가기 버튼을 화면 읽기 프로그램이 읽는 이름 -->
     <string name="ds_back">Back</string>
     <string name="ds_selected">Selected</string>
+    <string name="ds_delete">Delete</string>
+    <string name="ds_pin_progress">%1$d of %2$d digits entered</string>
 </resources>

@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "1日1日記";
+"NSFaceIDUsageDescription" = "Face IDで日記のロックを解除します。";

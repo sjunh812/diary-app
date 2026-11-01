@@ -22,6 +22,8 @@ targets:
         # 앱 이름은 언어별 InfoPlist.strings가 바꾼다. 영어·일본어 이름은 임시다(열린 결정 D12).
         CFBundleDisplayName: 1 Day 1 Diary
         CFBundleDevelopmentRegion: en
+        # Face ID로 잠금을 열 때 처음 한 번 묻는 글. 언어별 InfoPlist.strings가 바꾼다.
+        NSFaceIDUsageDescription: Use Face ID to unlock your diary.
         # 설정 앱의 앱별 언어에 세 언어를 올린다(docs/design.md 여러 언어).
         CFBundleLocalizations:
           - en

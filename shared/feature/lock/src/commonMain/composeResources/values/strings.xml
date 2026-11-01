@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lock screen (L1) -->
+    <string name="lock_title">Enter your passcode</string>
+    <plurals name="lock_wrong">
+        <item quantity="one">Wrong passcode · %1$d try left</item>
+        <item quantity="other">Wrong passcode · %1$d tries left</item>
+    </plurals>
+    <string name="lock_wait_title">Please wait a moment</string>
+    <plurals name="lock_wait_body">
+        <item quantity="one">You can try again in %1$d second</item>
+        <item quantity="other">You can try again in %1$d seconds</item>
+    </plurals>
+    <string name="lock_forgot">I forgot my passcode</string>
+    <string name="lock_biometric">Unlock with biometrics</string>
+    <string name="lock_biometric_prompt_title">Unlock your diary</string>
+    <string name="lock_biometric_prompt_cancel">Use passcode</string>
+
+    <!-- Set passcode (L2) -->
+    <string name="pin_setup_title">Choose a new 4-digit passcode</string>
+    <string name="pin_setup_again">Enter it once more</string>
+    <string name="pin_setup_mismatch">The passcodes didn\'t match. Please start again</string>
+    <string name="pin_setup_note">If you forget your passcode, you can confirm with your phone\'s screen lock and set a new one. Anyone who knows your phone\'s screen lock can also open your diary this way.</string>
+
+    <!-- Forgot passcode (L3) -->
+    <string name="forgot_title">Confirm with your phone\'s screen lock</string>
+    <string name="forgot_body">After you confirm it\'s you with your phone\'s screen lock, you can set a new passcode. Your diary stays as it is.</string>
+    <string name="forgot_confirm">Confirm</string>
+    <string name="forgot_prompt_title">Set a new passcode</string>
+    <string name="forgot_no_device_lock_title">Your phone has no screen lock</string>
+    <string name="forgot_no_device_lock_body">Without a screen lock, you can\'t set a new passcode. If you have a backup, reinstall the app and restore your diary from it.</string>
+    <string name="lock_turned_off">Your phone has no screen lock, so the diary lock is now off. Set a new passcode in Settings</string>
+</resources>

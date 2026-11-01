@@ -69,10 +69,12 @@ ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 KILL_AT=Copying sh scripts/leg
 ## 4. 잠금 (US2, SC-005)
 
 1. `locked` 견본 자료로 업그레이드한 뒤 앱을 연다: 잠금 화면 → 지문(에뮬레이터 `adb -e emu finger touch 1`) → 열림.
+   `ANDROID_SERIAL=emulator-5554 LOCK=0427 sh scripts/legacy/upgrade-test.sh`가 1.7.4에 비밀번호 0427로 잠금을 켜 두고 업데이트한 뒤,
+   잠금 화면이 먼저 뜨는지와 잠긴 동안 이전이 시작되지 않는지 보고 하드웨어 키로 비밀번호를 넣는다(`BIOMETRIC=1`이면 지문 설정도 켠다).
 2. 지문 취소 → 숫자판, 틀린 비밀번호 5번 → 30초 기다림 표시, 앱을 껐다 켜도 이어짐.
 3. 홈으로 나갔다가 61초 뒤 돌아오기 → 잠금. 최근 앱 화면을 찍는다(`adb shell input keyevent KEYCODE_APP_SWITCH`, `adb exec-out screencap -p`)
    → 일기 내용이 없다. API 24·29·31·35에서 본다(research O3).
-4. "비밀번호를 잊었어요" → 폰 PIN 확인 → 새 비밀번호. 폰 화면 잠금을 끈 에뮬레이터에서는 백업 안내.
+4. "비밀번호를 잊어버렸어요" → 폰 PIN 확인 → 새 비밀번호. 폰 화면 잠금을 끈 에뮬레이터에서는 백업 안내.
 5. iOS 시뮬레이터: 잠금 켜고 앱 전환기 → 가림 창.
 
 ## 5. 시작과 성능 (US4, SC-007, SC-010, SC-011)

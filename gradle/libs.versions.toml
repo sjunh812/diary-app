@@ -21,6 +21,8 @@ androidxBenchmark = "1.5.0"
 androidxBiometric = "1.1.0"
 # 앱 전체가 뒤로 가고 돌아오는 때(잠금 다시 잠그기). jbLifecycle과 같은 판을 쓴다.
 androidxLifecycle = "2.11.0"
+# MainActivity가 생체 인증 창을 띄우려면 FragmentActivity여야 한다.
+androidxFragment = "1.8.9"
 androidxCoreKtx = "1.19.0"
 androidxCoreSplashscreen = "1.2.0"
 androidxDatastore = "1.3.0"
@@ -66,6 +68,7 @@ compose-material3-adaptive = { module = "org.jetbrains.compose.material3.adaptiv
 
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "androidxBiometric" }
+androidx-fragment = { module = "androidx.fragment:fragment", version.ref = "androidxFragment" }
 androidx-lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "androidxLifecycle" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCoreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidxCoreSplashscreen" }

@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.compose.ui)
 
     implementation(libs.androidx.activity.compose)
+    // 잠금 화면의 생체 인증 창은 FragmentActivity 위에 뜬다.
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.profileinstaller)
 

@@ -65,7 +65,7 @@ cat > "$WORK/pref.xml" <<XML
     <int name="font_size" value="3" />
     <int name="mode_key" value="0" />
     <boolean name="ask_location" value="false" />
-    <boolean name="use_pw" value="false" />
+$(if [ -n "${LOCK:-}" ]; then printf '    <string name="password">%s</string>\n    <boolean name="use_pw" value="true" />\n    <boolean name="finger_print" value="%s" />' "$LOCK" "$([ "${BIOMETRIC:-0}" = 1 ] && echo true || echo false)"; else printf '    <boolean name="use_pw" value="false" />'; fi)
 </map>
 XML
 cat > "$WORK/pref2.xml" <<XML

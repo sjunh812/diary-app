@@ -30,6 +30,7 @@ import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
+import org.sjhstudio.diary.feature.lock.lockFeatureModule
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
 import org.sjhstudio.diary.feature.settings.settingsFeatureModule
 
@@ -41,6 +42,7 @@ internal expect val platformModule: Module
 
 internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     platformModule,
+    lockFeatureModule,
     migrationFeatureModule,
     settingsFeatureModule,
     module {

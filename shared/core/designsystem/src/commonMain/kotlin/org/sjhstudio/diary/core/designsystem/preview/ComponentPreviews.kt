@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,9 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryNote
 import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
+import org.sjhstudio.diary.core.designsystem.component.DiaryNumberPad
+import org.sjhstudio.diary.core.designsystem.component.DiaryPadKey
+import org.sjhstudio.diary.core.designsystem.component.DiaryPinDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
@@ -134,3 +138,25 @@ private fun EntriesLight() = PreviewCanvas(dark = false) { Entries() }
 @Preview(name = "일기 줄과 빈 상태 · 다크", locale = "ko")
 @Composable
 private fun EntriesDark() = PreviewCanvas(dark = true) { Entries() }
+
+@Composable
+private fun Keypad() {
+    Column(
+        Modifier.padding(horizontal = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        DiaryPinDots(filled = 2)
+        DiaryPinDots(filled = 4, error = true)
+        DiaryNumberPad(onDigit = {}, onDelete = {}, bottomStart = DiaryPadKey(DiaryIcons.Fingerprint, "생체 인증으로 열기") {})
+        DiaryNumberPad(onDigit = {}, onDelete = {}, enabled = false)
+    }
+}
+
+@Preview(name = "숫자판과 점 · 라이트", locale = "ko")
+@Composable
+private fun KeypadLight() = PreviewCanvas(dark = false) { Keypad() }
+
+@Preview(name = "숫자판과 점 · 다크", locale = "ko")
+@Composable
+private fun KeypadDark() = PreviewCanvas(dark = true) { Keypad() }

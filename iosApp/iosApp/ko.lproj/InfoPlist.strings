@@ -1,1 +1,2 @@
 "CFBundleDisplayName" = "1일 1일기";
+"NSFaceIDUsageDescription" = "Face ID로 일기 잠금을 열어요.";

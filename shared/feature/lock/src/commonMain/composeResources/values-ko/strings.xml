@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 잠금 화면(L1) -->
+    <string name="lock_title">비밀번호를 입력해 주세요</string>
+    <plurals name="lock_wrong">
+        <item quantity="other">비밀번호가 맞지 않아요 · 남은 횟수 %1$d번</item>
+    </plurals>
+    <string name="lock_wait_title">잠시 기다려 주세요</string>
+    <plurals name="lock_wait_body">
+        <item quantity="other">%1$d초 뒤에 다시 입력할 수 있어요</item>
+    </plurals>
+    <string name="lock_forgot">비밀번호를 잊어버렸어요</string>
+    <string name="lock_biometric">생체 인증으로 열기</string>
+    <string name="lock_biometric_prompt_title">일기 열기</string>
+    <string name="lock_biometric_prompt_cancel">비밀번호 입력</string>
+
+    <!-- 비밀번호 정하기(L2) -->
+    <string name="pin_setup_title">새 비밀번호 4자리를 정해 주세요</string>
+    <string name="pin_setup_again">한 번 더 입력해 주세요</string>
+    <string name="pin_setup_mismatch">비밀번호가 서로 달라요. 처음부터 다시 입력해 주세요</string>
+    <string name="pin_setup_note">비밀번호를 잊어버리면 휴대폰 화면 잠금으로 확인하고 다시 정할 수 있어요. 휴대폰 잠금을 아는 사람도 이 방법으로 일기를 열 수 있어요.</string>
+
+    <!-- 비밀번호를 잊어버렸을 때(L3) -->
+    <string name="forgot_title">휴대폰 잠금으로 확인할게요</string>
+    <string name="forgot_body">휴대폰 화면 잠금으로 본인 확인을 하면 새 비밀번호를 정할 수 있어요. 일기는 그대로 남아요.</string>
+    <string name="forgot_confirm">확인하기</string>
+    <string name="forgot_prompt_title">새 비밀번호 정하기</string>
+    <string name="forgot_no_device_lock_title">휴대폰에 화면 잠금이 없어요</string>
+    <string name="forgot_no_device_lock_body">화면 잠금이 없으면 비밀번호를 다시 정할 수 없어요. 백업이 있다면 앱을 다시 설치하고 백업에서 일기를 되살릴 수 있어요.</string>
+    <string name="lock_turned_off">휴대폰에 화면 잠금이 없어 일기 잠금을 껐어요. 설정에서 새 비밀번호를 정해 주세요</string>
+</resources>
