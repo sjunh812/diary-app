@@ -68,7 +68,7 @@
 
 | 레거시(`pref.xml`, `pref2.xml`) | 새 값 | 규칙 |
 | --- | --- | --- |
-| `font_key` | `settings.font`, `font_replaced_from` | `data-model.md` DiaryFont 표. 4·5·6·10·13이면 옛 이름을 `font_replaced_from`에 |
+| `font_key` | `settings.font`, `font_replaced_from` | `data-model.md` DiaryFont 표. -1·0·1·3·100이 아니면 옛 이름을 `font_replaced_from`에 |
 | `font_size` | `settings.body_text_size` | 0·1 `small`, 2·없음 `medium`, 3 `large`, 4 `xlarge`, 그 밖 `medium` |
 | `mode_key` | `settings.theme_mode` | 0 `system`, 1 `light`, 2 `dark`, 그 밖 `system` |
 | `ask_location` | `settings.ask_location_again` | 없으면 true |

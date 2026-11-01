@@ -152,14 +152,14 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T065 [P] [US3] `shared/core/migration/{test}/core/migration/LegacySettingsMapperTest.kt`: `font_key` 전체 표(-1·0·100·1~13·그 밖, 4·5·6·10·13이면 `font_replaced_from`), `font_size` 0·1 `small`·2와 없음 `medium`·3 `large`·4 `xlarge`, `mode_key`, `ask_location` 없음 → true, 알림 시각 범위 밖 → 22:00
+- [ ] T065 [P] [US3] `shared/core/migration/{test}/core/migration/LegacySettingsMapperTest.kt`: `font_key` 전체 표(-1·0·100·1~13·그 밖, -1·0·1·3·100이 아니면 `font_replaced_from`, data-model.md DiaryFont 표 그대로), `font_size` 0·1 `small`·2와 없음 `medium`·3 `large`·4 `xlarge`, `mode_key`, `ask_location` 없음 → true, 알림 시각 범위 밖 → 22:00
 - [ ] T066 [P] [US3] `shared/core/data/{test}/core/data/reminder/ReminderRepositoryTest.kt`: 다음 알림 시각(오늘 지났으면 내일), 시간대 바뀜, 꺼짐
 
 ### Implementation for User Story 3
 
 - [ ] T067 [US3] `shared/core/migration/{kt}/core/migration/LegacySettingsMapper.kt`와 스플래시 동안 `SettingsStore`에 쓰기(이미 했으면 건너뜀), `LegacyBackupLink` 담기(FR-012)
-- [ ] T068 [P] [US3] 본문 글꼴 10종을 `shared/core/designsystem/{res}/font/`에 원본 그대로 넣고 `shared/core/designsystem/{kt}/core/designsystem/theme/DiaryFonts.kt`(ID → FontFamily, 고른 것만 읽음), 본문 글자 크기를 `DiaryTypography`의 본문 스타일에 거는 `BodyTextStyle.kt`(기기 글자 크기 위에 곱함, research R17)
-- [ ] T069 [P] [US3] `shared/feature/settings/{kt}/feature/settings/`에 `SettingsScreen.kt`(틀), `FontSettingsScreen.kt`(10종 + 시스템, 미리보기), `TextSizeSettingsScreen.kt`(5단계, 미리보기 문장), `ThemeSettingsScreen.kt`, `ReminderSettingsScreen.kt`(허락 필요 줄), `LicensesScreen.kt`(네이버·쿠키런 전문, 공공누리·강원교육 출처), "글꼴이 바뀌었어요" 토스트 한 번
+- [ ] T068 [P] [US3] 본문 글꼴 10종(data-model.md DiaryFont 표)을 `shared/core/designsystem/{res}/font/`에 원본 그대로 넣고 `shared/core/designsystem/{kt}/core/designsystem/theme/DiaryFonts.kt`(ID → FontFamily, 고른 것만 읽음), 본문 글자 크기를 `DiaryTypography`의 본문 스타일에 거는 `BodyTextStyle.kt`(기기 글자 크기 위에 곱함, research R17)
+- [ ] T069 [P] [US3] `shared/feature/settings/{kt}/feature/settings/`에 `SettingsScreen.kt`(틀), `FontSettingsScreen.kt`(10종 + 시스템, 미리보기), `TextSizeSettingsScreen.kt`(5단계, 미리보기 문장), `ThemeSettingsScreen.kt`, `ReminderSettingsScreen.kt`(허락 필요 줄), `LicensesScreen.kt`(OFL 전문, 네이버 글꼴 라이선스, 카페24 약관, 공공누리 출처), "글꼴이 바뀌었어요" 토스트 한 번
 - [ ] T070 [US3] `shared/core/platform/{kt}/core/platform/ReminderScheduler.kt` expect, `{android}` `AlarmManager.setWindow(RTC_WAKEUP, 시각, 10분)`과 알림 채널, `{ios}` `UNCalendarNotificationTrigger(repeats: true)`, `shared/core/data/{kt}/core/data/reminder/ReminderRepository.kt`
 - [ ] T071 [US3] `composeApp/src/main/kotlin/org/sjhstudio/diary/helper/AlarmReceiver.kt`(옛 이름 그대로, 알림 띄우고 다음 예약), `BOOT_COMPLETED`·`MY_PACKAGE_REPLACED` 받기, 이전 전이면 옛 `pref2.xml`을 읽기만 해서 시각 얻기(research R15)
 - [ ] T072 [US3] 화면 모드를 `DiaryTheme`에 잇고(시스템·라이트·다크) iOS도 같게 한다
@@ -202,7 +202,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 
 - [ ] T085 `CLAUDE.md` "빌드와 시험"에 실제 명령(검사, 시험, iOS, 업그레이드 시험, 벤치마크)을 옮긴다
 - [ ] T086 [P] SC-009 점검: Firebase DebugView로 한 바퀴 돈 이벤트가 고정 표 안에 있고 값에 글·장소·경로·기분이 없음을 `test-report.md`에 남긴다. 로그에 일기 값을 찍는 곳이 없는지 `grep`으로 본다
-- [ ] T087 [P] 오픈소스·글꼴 고지 문구와 `docs/release.md` 글꼴 항목(교보·온글잎 서면 확인 결과)을 맞춘다. 확인이 안 됐으면 `nanum_pen`·`gaegu`로 바꾸고 대응표를 고친다
+- [ ] T087 [P] 오픈소스·글꼴 고지 문구(OFL 전문, 네이버 글꼴, 카페24 약관, 공공누리 출처)를 `docs/release.md` 글꼴 항목과 맞추고, 카페24 써라운드 약관 원문과 파일 크기를 확인한다. 교보문고가 서면으로 허락하면 `kyobo_2019`를 더한다
 - [ ] T088 [P] research 열린 결정 O1(줄임 사진 크기), O2(Pretendard 서브셋)를 측정해 닫고 research.md·`docs/DECISIONS.md`에 남긴다
 - [ ] T089 문서 동기화: 바뀐 규칙이 `docs/migration.md`, `docs/backup.md`, `docs/design.md`, 헌법, 스펙 001·002, `docs/DECISIONS.md`에 같은 내용으로 있는지, Figma 진행 현황이 맞는지 본다
 - [ ] T090 quickstart.md 전체를 처음부터 돌려 통과를 확인하고 `checklists/data-safety.md`를 검토자에게 넘긴다

@@ -200,8 +200,8 @@
 ### R17. 글꼴 10종과 글자 크기 5단계
 
 - Decision: 본문 글꼴 10종과 UI 글꼴 Pretendard 4굵기를 `core/designsystem`의 Compose 리소스에 넣고, 고른 글꼴만 그릴 때 읽는다. 글꼴 ID는
-  `pretendard`, `maru_buri`, `gangwon_modu`, `kyobo_2019`, `nanum_jeomggol`, `simkyungha`, `ownglyph_yunwoo`, `kkomi`, `kotra_hope`, `cookierun`과
-  `system`이다(교보·온글잎 서면 확인이 안 되면 `nanum_pen`, `gaegu`로 바꾼다).
+  `pretendard`, `gowun_dodum`, `cafe24_surround`, `maru_buri`, `gowun_batang`, `nanum_pen`, `nanum_jeomggol`, `kkomi`, `gamja_flower`, `hi_melody`와
+  `system`이다(2026-11-01 다시 고름, `docs/design.md`). 감자꽃·하이멜로디는 각 12.6MB라 앱 크기가 문제면 Play Asset Delivery로 먼저 돌린다.
 - 글자 크기: 앱 틀(탭, 설정, 버튼)은 앱 설정 없이 기기 글자 크기를 따른다(Android sp·글꼴 배율, iOS Dynamic Type). 앱 설정 "본문 글자 크기"는
   일기 본문(쓰기·상세·목록 미리보기)에만 걸리고 기기 글자 크기 위에 곱해진다. 단계는 5개 15/24, 17/28(기본, `reading`), 19/30, 21/34, 24/38이고
   미리보기 문장을 보며 고른다. 옛 `font_size`는 같은 자리로 옮긴다: 0·1 → 15, 2 → 17, 3 → 19, 4 → 21(사용자 결정 2026-11-01, 옛 동작에 묶이지 않는다).

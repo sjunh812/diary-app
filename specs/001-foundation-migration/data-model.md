@@ -84,18 +84,18 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | --- | --- | --- |
 | `pretendard` | Pretendard | -1, 0, 그 밖의 값 |
 | `system` | 시스템 글꼴 | 100 |
-| `kkomi` | 국립공원 꼬미 | 1, 5 |
-| `kyobo_2019` | 교보손글씨 2019 | 2, 10 |
-| `nanum_jeomggol` | 나눔손글씨 점꼴체 | 3, 13 |
-| `kotra_hope` | 코트라 희망체 | 4, 6, 12 |
-| `simkyungha` | 심경하체 | 7 |
-| `gangwon_modu` | 강원교육모두 | 8 |
-| `cookierun` | 쿠키런 | 9 |
-| `ownglyph_yunwoo` | 온글잎 윤우체 | 11 |
+| `gowun_dodum` | 고운돋움 | 없음(새 글꼴) |
+| `cafe24_surround` | 카페24 써라운드 | 9, 12 |
 | `maru_buri` | 마루 부리 | 없음(새 글꼴) |
+| `gowun_batang` | 고운바탕 | 8 |
+| `nanum_pen` | 나눔손글씨 펜 | 2, 7, 11 |
+| `nanum_jeomggol` | 나눔손글씨 점꼴체 | 3 |
+| `kkomi` | 국립공원 꼬미 | 1, 5 |
+| `gamja_flower` | 감자꽃 | 4, 10 |
+| `hi_melody` | 하이멜로디 | 6, 13 |
 
-교보·온글잎 서면 확인이 안 되면 `kyobo_2019` → `nanum_pen`, `ownglyph_yunwoo` → `gaegu`로 ID째 바꾸고 대응표도 그쪽을 가리킨다.
-옛 `font_key`가 4, 5, 6, 10, 13이면 `font_replaced_from`에 옛 이름을 남긴다.
+옛 `font_key`가 1, 3, -1, 0, 100이 아니면(같은 글꼴이 없으면) `font_replaced_from`에 옛 이름을 남겨 처음 열 때 한 번 알린다.
+교보문고가 서면으로 허락하면 `kyobo_2019`를 더하고 2를 그쪽으로 잇는다.
 
 ### BodyTextSize
 
