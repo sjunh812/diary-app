@@ -11,6 +11,7 @@ set -eu
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
 export ANDROID_SERIAL
 
+ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 PKG=org.sjhstudio.diary
 DATA=/data/user/0/$PKG
 WORK=$(mktemp -d)
@@ -33,9 +34,9 @@ INSERT INTO Note(weather, address, contents, mood, picture, create_date, modify_
  (-1, '', '', 0, '$DATA/cache/1699000000001.jpg,', '2024-10-28 08:00:00', '2024-10-28 08:00:00', 2024, 10, 0);
 SQL
 
-# 사진 두 장(JPEG, PNG 머리 바이트). gone.jpg는 일부러 넣지 않는다(캐시에서 지워진 사진).
-printf '\377\330\377\340JFIF-diary-seed-1' > "$WORK/1699000000001.jpg"
-printf '\211PNG\r\n\032\ndiary-seed-2' > "$WORK/1699000000002.png"
+# 사진 두 장. 줄임 사진과 크기 읽기를 보려고 진짜 그림을 쓴다(fixtures/README.md). gone.jpg는 일부러 넣지 않는다(캐시에서 지워진 사진).
+cp "$ROOT/scripts/legacy/fixtures/photo-landscape-exif6.jpg" "$WORK/1699000000001.jpg"
+cp "$ROOT/scripts/legacy/fixtures/photo-portrait.png" "$WORK/1699000000002.png"
 
 cat > "$WORK/pref.xml" <<XML
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
