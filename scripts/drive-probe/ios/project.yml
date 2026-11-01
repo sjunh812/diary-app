@@ -1,0 +1,35 @@
+# 드라이브 확인용 iOS 빌드(스펙 003 T009, T010). xcodegen으로 DriveCheck.xcodeproj를 만든다.
+# 번들 ID는 실제 앱과 같은 org.sjhstudio.diary이고, 클라이언트 ID는 저장소 밖 Local.xcconfig에 둔다.
+name: DriveCheck
+options:
+  deploymentTarget:
+    iOS: "17.0"
+configFiles:
+  Debug: Local.xcconfig
+  Release: Local.xcconfig
+packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    exactVersion: 10.1.0
+targets:
+  DriveCheck:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    dependencies:
+      - package: GoogleSignIn
+        product: GoogleSignIn
+    info:
+      path: Sources/Info.plist
+      properties:
+        CFBundleDisplayName: 드라이브 확인
+        GIDClientID: $(GID_CLIENT_ID)
+        CFBundleURLTypes:
+          - CFBundleURLSchemes: [$(GID_REVERSED_CLIENT_ID)]
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.sjhstudio.diary
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
