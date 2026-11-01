@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -53,7 +54,8 @@ fun DiarySettingsRow(
     modifier: Modifier = Modifier,
     description: String? = null,
     value: String? = null,
-    selected: Boolean = false
+    selected: Boolean = false,
+    leadingIcon: ImageVector? = null
 ) {
     val colors = DiaryTheme.colors
     RowFrame(
@@ -67,7 +69,8 @@ fun DiarySettingsRow(
                     onClick = onClick
                 ),
         title = title,
-        description = description
+        description = description,
+        leadingIcon = leadingIcon
     ) {
         if (value != null) {
             BasicText(text = value, style = DiaryTheme.typography.body.copy(color = colors.textSecondary), maxLines = 1)
@@ -129,13 +132,20 @@ fun DiarySettingsChoiceRow(
 }
 
 @Composable
-private fun RowFrame(modifier: Modifier, title: String, description: String?, trailing: @Composable RowScope.() -> Unit) {
+private fun RowFrame(
+    modifier: Modifier,
+    title: String,
+    description: String?,
+    leadingIcon: ImageVector? = null,
+    trailing: @Composable RowScope.() -> Unit
+) {
     val colors = DiaryTheme.colors
     Row(
         modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = DiarySpacing.x5, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = colors.textPrimary)
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
             BasicText(
                 text = title,
