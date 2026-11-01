@@ -65,7 +65,7 @@ sealed interface MigrationResult {
     data class Failed(
         val step: MigrationStep,
         val kind: MigrationFailureKind,
-        /** 공간이 모자랄 때 필요한 바이트. */
+        /** 공간이 모자랄 때 더 있어야 하는 바이트(필요한 양 - 남은 양). */
         val neededBytes: Long? = null
     ) : MigrationResult
 }
@@ -99,24 +99,24 @@ class MigrationRunner(
     imageSize: ImageSizeReader,
     private val events: MigrationEvents = object : MigrationEvents {},
     private val io: CoroutineDispatcher = Dispatchers.IO
-) {
+) : LegacyMigration {
     private val store = MigrationStateStore(fileSystem, paths.migrationDir)
     private val snapshotter = LegacySnapshotter(fileSystem, clock)
     private val importer = MediaImporter(fileSystem, paths.mediaDir, imageSize, clock, newId)
     private val _progress = MutableStateFlow(MigrationProgress(MigrationStep.NOT_STARTED))
-    val progress: StateFlow<MigrationProgress> = _progress.asStateFlow()
+    override val progress: StateFlow<MigrationProgress> = _progress.asStateFlow()
 
-    fun state(): MigrationState = store.readState()
+    override fun state(): MigrationState = store.readState()
 
-    fun report(): MigrationReport? = store.readReport()
+    override fun report(): MigrationReport? = store.readReport()
 
     /** 원본이 있고 아직 끝나지 않았는가(관문이 이전 화면을 띄울지 정한다). */
-    fun needsMigration(): Boolean {
+    override fun needsMigration(): Boolean {
         val step = store.readState().step
         return step != MigrationStep.DONE && step != MigrationStep.PARTIAL && paths.legacy.exist(fileSystem)
     }
 
-    suspend fun run(): MigrationResult = withContext(io) {
+    override suspend fun run(): MigrationResult = withContext(io) {
         val previous = store.readState()
         if (previous.step == MigrationStep.DONE || previous.step == MigrationStep.PARTIAL) {
             return@withContext MigrationResult.AlreadyFinished(previous)
@@ -139,8 +139,9 @@ class MigrationRunner(
             writeStep(step, attempt, startedAt)
             val legacyBytes = listOf(paths.legacy.noteDb, paths.legacy.noteDbWal, paths.legacy.noteDbShm).sumOf(::sizeOf)
             val snapshotNeed = legacyBytes + sizeOf(paths.legacy.prefXml) + sizeOf(paths.legacy.pref2Xml) + MARGIN_BYTES
-            if (freeBytes(paths.migrationDir.parent ?: paths.migrationDir) < snapshotNeed) {
-                return fail(step, MigrationFailureKind.NO_SPACE, attempt, snapshotNeed)
+            val freeForSnapshot = freeBytes(paths.migrationDir.parent ?: paths.migrationDir)
+            if (freeForSnapshot < snapshotNeed) {
+                return fail(step, MigrationFailureKind.NO_SPACE, attempt, snapshotNeed - freeForSnapshot)
             }
             try {
                 snapshotter.snapshot(paths.legacy, paths.snapshotDir)
@@ -164,8 +165,9 @@ class MigrationRunner(
                     ?: 0
             }
             val copyNeed = legacyBytes + photoBytes + fragments.size * THUMBNAIL_BYTES + MARGIN_BYTES
-            if (freeBytes(paths.mediaDir.parent ?: paths.mediaDir) < copyNeed) {
-                return fail(step, MigrationFailureKind.NO_SPACE, attempt, copyNeed)
+            val freeForCopy = freeBytes(paths.mediaDir.parent ?: paths.mediaDir)
+            if (freeForCopy < copyNeed) {
+                return fail(step, MigrationFailureKind.NO_SPACE, attempt, copyNeed - freeForCopy)
             }
 
             step = MigrationStep.COPYING
@@ -185,7 +187,13 @@ class MigrationRunner(
 
             step = MigrationStep.COMMITTING
             writeStep(step, attempt, startedAt)
-            fileSystem.delete(paths.migrationDir / "diary-new.db-journal", mustExist = false)
+            // 닫은 뒤 남는 빈 저널·잠금 파일을 치운다. 옮기는 것은 DB 파일 하나다.
+            for (leftover in listOf(
+                "diary-new.db-journal",
+                "diary-new.db.lck"
+            )) {
+                fileSystem.delete(paths.migrationDir / leftover, mustExist = false)
+            }
             paths.databasePath.parent?.let(fileSystem::createDirectories)
             fileSystem.atomicMove(paths.newDatabase, paths.databasePath)
             val report = counts.toReport(notes.size, summary.unreadable)
@@ -319,7 +327,7 @@ class MigrationRunner(
      * 새 DB를 버리지 않고, 아직 `entry`에 없는 레거시 줄만 더한다. 그 사이 쓴 일기는 그대로다.
      * 더한 줄 수를 돌려준다. 다시 읽을 때가 아니면 null.
      */
-    suspend fun retryPartial(db: DiaryDatabase, currentVersionCode: Int): Int? = withContext(io) {
+    override suspend fun retryPartial(db: DiaryDatabase, currentVersionCode: Int): Int? = withContext(io) {
         val state = store.readState()
         if (state.step != MigrationStep.PARTIAL || currentVersionCode <= state.retriedVersionCode) return@withContext null
         store.writeState(state.copy(retriedVersionCode = currentVersionCode, updatedAt = clock.now()))
@@ -352,7 +360,7 @@ class MigrationRunner(
      * 찾을 수 없는 사진 가운데 원래 경로를 아는 것을 하루 한 번 다시 찾는다(FR-011).
      * 있으면 이전과 같은 방법으로 옮기고 `normal`로 바꾼다. 찾은 장 수를 돌려준다. 하루가 안 지났으면 null.
      */
-    suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = withContext(io) {
+    override suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = withContext(io) {
         val state = store.readState()
         if (state.step != MigrationStep.DONE && state.step != MigrationStep.PARTIAL) return@withContext null
         val now = clock.now()
@@ -434,7 +442,15 @@ class MigrationRunner(
     }
 
     private fun deleteDatabase(path: Path) {
-        for (suffix in listOf("", "-journal", "-wal", "-shm")) fileSystem.delete((path.toString() + suffix).toPath(), mustExist = false)
+        for (suffix in listOf(
+            "",
+            "-journal",
+            "-wal",
+            "-shm",
+            ".lck"
+        )) {
+            fileSystem.delete((path.toString() + suffix).toPath(), mustExist = false)
+        }
     }
 
     private fun sizeOf(path: Path): Long = fileSystem.metadataOrNull(path)?.size ?: 0

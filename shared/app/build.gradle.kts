@@ -26,6 +26,9 @@ kotlin {
             implementation(projects.shared.core.platform)
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.datastore)
+            implementation(projects.shared.core.migration)
+            implementation(libs.okio)
+            implementation(libs.kotlinx.datetime)
             implementation(projects.shared.feature.lock)
             implementation(projects.shared.feature.migration)
             implementation(projects.shared.feature.settings)
@@ -43,6 +46,7 @@ kotlin {
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
         }
         androidMain.dependencies {
             implementation(libs.androidx.navigation3.ui)

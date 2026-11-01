@@ -129,6 +129,8 @@ class MigrationRunnerTest {
             assertEquals(before, originals.map(env::sha))
             assertEquals(MigrationStep.DONE, env.runner().state().step)
             assertFalse(dir.fs.exists(env.paths.newDatabase))
+            // 임시 DB 자리에는 상태·결과 파일만 남는다(잠금·저널 파일까지 치운다).
+            assertEquals(setOf("state.json", "report.json"), dir.fs.list(env.paths.migrationDir).map { it.name }.toSet())
             assertTrue(dir.fs.exists(env.paths.snapshotDir / "snapshot.json"))
             assertEquals(4, dir.fs.read(env.paths.photosJson) { readUtf8() }.split("\"path\"").size - 1)
             // 같은 파일은 하나만 둔다.
