@@ -5,7 +5,7 @@ import org.koin.dsl.module
 
 val lockFeatureModule =
     module {
-        viewModel { LockViewModel(get()) }
+        viewModel { LockViewModel(get(), telemetry = get()) }
         viewModel { PinSetupViewModel(get()) }
-        viewModel { LockSettingsViewModel(get()) }
+        viewModel { LockSettingsViewModel(get(), get()) }
     }

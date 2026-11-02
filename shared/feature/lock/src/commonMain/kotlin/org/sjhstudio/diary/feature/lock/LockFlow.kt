@@ -70,7 +70,10 @@ fun LockFlow(
     LaunchedEffect(setup) { setup.done.collect { onUnlocked() } }
     // 열자마자 생체 인증을 띄운다. 취소하거나 실패하면 숫자판이 그대로 남는다.
     LaunchedEffect(showBiometric) {
-        if (showBiometric && authenticator.authenticateBiometric(biometricPrompt) == AuthResult.Success) onUnlocked()
+        if (!showBiometric) return@LaunchedEffect
+        val result = authenticator.authenticateBiometric(biometricPrompt)
+        if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
+        if (result == AuthResult.Success) onUnlocked()
     }
     LaunchedEffect(needsNewPin) {
         if (!needsNewPin) return@LaunchedEffect
@@ -90,7 +93,11 @@ fun LockFlow(
                 onDigit = lock::onDigit,
                 onDelete = lock::onDelete,
                 onBiometric = {
-                    scope.launch { if (authenticator.authenticateBiometric(biometricPrompt) == AuthResult.Success) onUnlocked() }
+                    scope.launch {
+                        val result = authenticator.authenticateBiometric(biometricPrompt)
+                        if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
+                        if (result == AuthResult.Success) onUnlocked()
+                    }
                 },
                 onForgot = { asking = true }
             )

@@ -19,6 +19,9 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.lock.VerifyResult
 import org.sjhstudio.diary.core.model.Pin
+import org.sjhstudio.diary.core.platform.AnalyticsEvents
+import org.sjhstudio.diary.core.platform.NoTelemetrySink
+import org.sjhstudio.diary.core.platform.Telemetry
 
 /** 잠금 화면(L1) 상태. 입력한 숫자는 담지 않고 몇 칸 찼는지만 둔다. */
 data class LockUiState(val entered: Int = 0, val message: LockMessage = LockMessage.None, val checking: Boolean = false)
@@ -46,7 +49,12 @@ sealed interface LockEvent {
  * 잠금 화면의 숫자 입력과 확인(contracts/lock.md).
  * 입력한 숫자는 글자 배열에만 두고 확인하자마자 지운다.
  */
-class LockViewModel(private val repository: LockRepository, private val clock: Clock = Clock.System) : ViewModel() {
+class LockViewModel(
+    private val repository: LockRepository,
+    private val clock: Clock = Clock.System,
+    /** 결과(`ok`·`wrong`·`waiting`)만 보낸다. 비밀번호와 횟수는 보내지 않는다(contracts/lock.md). */
+    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
+) : ViewModel() {
     private val digits = CharArray(Pin.LENGTH)
     private var count = 0
     private var ticker: Job? = null
@@ -98,6 +106,7 @@ class LockViewModel(private val repository: LockRepository, private val clock: C
         _state.update { it.copy(checking = true) }
         viewModelScope.launch {
             val result = if (check == PinCheck.Disable) repository.disable(pin, clock.now()) else repository.verify(pin, clock.now())
+            lockResult(result)?.let { telemetry.log(AnalyticsEvents.LOCK_RESULT, mapOf("result" to it)) }
             when (result) {
                 VerifyResult.Ok -> {
                     _state.value = LockUiState()
@@ -117,6 +126,17 @@ class LockViewModel(private val repository: LockRepository, private val clock: C
             }
         }
     }
+
+    private fun lockResult(result: VerifyResult): String? = when (result) {
+        VerifyResult.Ok -> "ok"
+        is VerifyResult.Wrong -> "wrong"
+        is VerifyResult.Waiting -> "waiting"
+        VerifyResult.KeyMissing -> null
+    }
+
+    /** 생체 인증 결과. 열렸으면 `biometric_ok`, 사용자가 닫았으면 `biometric_cancel`. */
+    fun logBiometric(opened: Boolean) =
+        telemetry.log(AnalyticsEvents.LOCK_RESULT, mapOf("result" to if (opened) "biometric_ok" else "biometric_cancel"))
 
     private fun waitUntil(until: Instant) {
         ticker?.cancel()

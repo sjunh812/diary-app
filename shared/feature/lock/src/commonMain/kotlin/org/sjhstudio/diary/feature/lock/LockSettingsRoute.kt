@@ -44,11 +44,17 @@ fun LockSettingsRoute(onBack: () -> Unit) {
                 setup.reset()
                 step = SettingsStep.NewPin
             } else {
+                viewModel.onLockChanged(enabled = false)
                 step = SettingsStep.Main
             }
         }
     }
-    LaunchedEffect(setup) { setup.done.collect { step = SettingsStep.Main } }
+    LaunchedEffect(setup) {
+        setup.done.collect {
+            if (!settings.enabled) viewModel.onLockChanged(enabled = true)
+            step = SettingsStep.Main
+        }
+    }
 
     when (step) {
         SettingsStep.Main ->

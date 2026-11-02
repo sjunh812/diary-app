@@ -9,6 +9,8 @@ kotlin {
             // 기록 이전 결과(M5)가 이전 상태와 결과를 읽는다.
             implementation(projects.shared.core.migration)
             implementation(libs.kotlinx.datetime)
+            // 설정을 바꾼 사용 통계(Telemetry)
+            implementation(projects.shared.core.platform)
         }
     }
 }
