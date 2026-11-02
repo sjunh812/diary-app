@@ -40,6 +40,7 @@ fun DiaryApp() {
             ThemeMode.LIGHT -> false
             ThemeMode.DARK -> true
         }
+    ApplyPlatformTheme(settings.themeMode)
     DiaryTheme(darkTheme = darkTheme) {
         LockGate {
             MigrationGate { AppScaffold() }
