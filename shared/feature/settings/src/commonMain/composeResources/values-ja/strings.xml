@@ -34,6 +34,10 @@
     <string name="lock_value_five_minutes">5分後にロック</string>
     <string name="lock_value_cold_start">起動時にロック</string>
 
+    <!-- 開発ビルドのみ(FR-029) -->
+    <string name="settings_group_developer">開発</string>
+    <string name="settings_design_catalog">デザインシステム見本</string>
+
     <!-- 本文の文字サイズ(G2) -->
     <string name="text_size_small">小</string>
     <string name="text_size_medium">標準</string>

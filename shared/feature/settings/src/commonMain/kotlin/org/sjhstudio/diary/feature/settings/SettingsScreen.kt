@@ -22,6 +22,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
+import org.sjhstudio.diary.feature.settings.resources.settings_design_catalog
+import org.sjhstudio.diary.feature.settings.resources.settings_group_developer
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
@@ -41,7 +43,9 @@ fun SettingsScreen(
     onTheme: () -> Unit,
     onLock: () -> Unit,
     onMigrationReport: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
+    onDesignCatalog: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -75,6 +79,10 @@ fun SettingsScreen(
             if (state.showsMigrationReport) {
                 DiarySettingsHeader(stringResource(Res.string.settings_group_info))
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
+            }
+            if (onDesignCatalog != null) {
+                DiarySettingsHeader(stringResource(Res.string.settings_group_developer))
+                DiarySettingsRow(stringResource(Res.string.settings_design_catalog), onClick = onDesignCatalog)
             }
         }
     }

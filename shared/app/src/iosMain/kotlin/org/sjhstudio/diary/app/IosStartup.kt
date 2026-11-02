@@ -1,7 +1,11 @@
 package org.sjhstudio.diary.app
 
 import kotlin.experimental.ExperimentalNativeApi
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
+import org.sjhstudio.diary.app.developer.DeveloperEntries
+import org.sjhstudio.diary.app.developer.designCatalogEntries
 import org.sjhstudio.diary.app.di.initKoin
 import org.sjhstudio.diary.app.lock.LockController
 
@@ -12,6 +16,8 @@ import org.sjhstudio.diary.app.lock.LockController
 @OptIn(ExperimentalNativeApi::class)
 fun startApp() {
     initKoin(isDebug = Platform.isDebugBinary)
+    // 디버그 바이너리에만 디자인 시스템 견본 화면을 연다(FR-029). 릴리스 프레임워크에는 길이 없다.
+    if (Platform.isDebugBinary) loadKoinModules(module { single<DeveloperEntries> { designCatalogEntries() } })
     KoinPlatform.getKoin().get<Startup>().start()
 }
 

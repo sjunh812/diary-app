@@ -6,4 +6,10 @@
     <string name="ds_selected">선택됨</string>
     <string name="ds_delete">지우기</string>
     <string name="ds_pin_progress">%2$d자리 중 %1$d자리 입력함</string>
+    <string name="ds_catalog_title">디자인 시스템</string>
+    <string name="ds_catalog_colors">색</string>
+    <string name="ds_catalog_typography">글자</string>
+    <string name="ds_catalog_spacing">간격과 모서리</string>
+    <string name="ds_catalog_components">컴포넌트</string>
+    <string name="ds_catalog_type_sample">다람쥐 헌 쳇바퀴에 타고파 1234</string>
 </resources>

@@ -37,3 +37,7 @@ data object LockSettingsKey : Screen
 
 @Serializable
 data object MigrationReportKey : Screen
+
+/** 디자인 시스템 견본. 개발 빌드에만 길이 있다(FR-029, `developer/DeveloperEntries.kt`). */
+@Serializable
+data object DesignCatalogKey : Screen

@@ -6,4 +6,10 @@
     <string name="ds_selected">選択中</string>
     <string name="ds_delete">削除</string>
     <string name="ds_pin_progress">%2$d桁中%1$d桁を入力済み</string>
+    <string name="ds_catalog_title">デザインシステム</string>
+    <string name="ds_catalog_colors">色</string>
+    <string name="ds_catalog_typography">文字</string>
+    <string name="ds_catalog_spacing">間隔と角丸</string>
+    <string name="ds_catalog_components">コンポーネント</string>
+    <string name="ds_catalog_type_sample">いろはにほへと ちりぬるを 1234</string>
 </resources>

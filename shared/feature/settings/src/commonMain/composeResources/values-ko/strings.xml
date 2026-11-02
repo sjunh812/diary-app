@@ -34,6 +34,10 @@
     <string name="lock_value_five_minutes">5분 뒤 잠금</string>
     <string name="lock_value_cold_start">새로 열 때 잠금</string>
 
+    <!-- 개발 빌드에만 있는 줄(FR-029) -->
+    <string name="settings_group_developer">개발</string>
+    <string name="settings_design_catalog">디자인 시스템 견본</string>
+
     <!-- 본문 글자 크기(G2) -->
     <string name="text_size_small">작게</string>
     <string name="text_size_medium">보통</string>

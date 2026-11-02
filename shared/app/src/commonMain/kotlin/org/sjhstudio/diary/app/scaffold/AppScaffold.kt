@@ -21,7 +21,9 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
+import org.sjhstudio.diary.app.developer.DeveloperEntries
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.InsightKey
@@ -95,6 +97,8 @@ private fun Content(backStack: NavBackStack<NavKey>, modifier: Modifier) {
     val pop: () -> Unit = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) }
     // 보는 화면이 바뀔 때마다 화면 키 이름만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
     val telemetry = koinInject<Telemetry>()
+    // 개발 빌드에만 등록되는 화면(FR-029). 출시 빌드는 null이다.
+    val developer = getKoin().getOrNull<DeveloperEntries>()
     val top = backStack.lastOrNull()
     LaunchedEffect(top) { if (top != null) telemetry.log(AnalyticsEvents.SCREEN_VIEW, mapOf("screen" to top.toString())) }
     NavDisplay(
@@ -107,7 +111,8 @@ private fun Content(backStack: NavBackStack<NavKey>, modifier: Modifier) {
                 entry<HomeKey> { EmptyTab() }
                 entry<CalendarKey> { EmptyTab() }
                 entry<InsightKey> { EmptyTab() }
-                settingsEntries(push = { backStack.add(it) }, pop = pop)
+                settingsEntries(push = { backStack.add(it) }, pop = pop, developer = developer != null)
+                developer?.run { register(pop) }
             }
     )
 }

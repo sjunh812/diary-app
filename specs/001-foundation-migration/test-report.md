@@ -136,3 +136,9 @@ iPhone 17 시뮬레이터(한국어)에서 앱 틀의 설정 탭 → 잠금 → 
 - API 35 태블릿(`Pixel_Tablet`, 한국어): 왼쪽 레일 80과 가운데 맞춘 설정 목록. Figma 태블릿처럼 840dp 이상에서 목록·상세 두 칸으로 나누는 것은 남았다(스펙 002와 함께).
 - iPhone 17 시뮬레이터: 하단 탭과 설정 탭이 Android와 같다.
 - 하드웨어 키로 비밀번호를 넣을 때, 잠금 화면이 막 뜬 순간에 보낸 키는 초점을 잡기 전이라 버려질 수 있다. 터치에는 해당하지 않는다.
+
+## 2026-11-02 (8) · 디자인 시스템 견본(US5, FR-029)
+
+- API 36 폰(개발 빌드): 설정 맨 아래 "개발 > 디자인 시스템 견본" 줄이 보이고, 누르면 견본 화면(색 토큰 전부와 #AARRGGBB 값, 글자 13단계, 간격·모서리, 컴포넌트)이 뜨고 뒤로 가기로 설정에 돌아온다. `screen_view`의 `DesignCatalogKey`는 고정 표에 있어 엄격 모드에서 예외가 없다.
+- 출시 빌드(`assembleRelease`, R8): `composeApp/build/outputs/mapping/release/mapping.txt`에 `core.designsystem.catalog`, `app.developer.DesignCatalogEntriesKt`, 프리뷰 클래스의 실제 항목이 없다(`DeveloperEntries` 인터페이스와 화면 키 `DesignCatalogKey`만 남는다. 키는 sealed 직렬화기 등록 때문이고 그 화면으로 가는 길은 없다). `ComposeStackTrace -> $$compose` 항목에 이름이 보이는 것은 Compose 컴파일러가 스택 추적용으로 남기는 표라 코드가 남은 것이 아니다.
+- iOS는 디버그 바이너리에서만 등록한다. 릴리스 프레임워크에 코드는 남지만 설정 줄과 화면 키가 생기지 않는다. 시뮬레이터에서 보는 것은 하지 않았다(K/N 컴파일만 확인).

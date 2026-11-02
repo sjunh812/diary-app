@@ -9,4 +9,11 @@
     <string name="ds_selected">Selected</string>
     <string name="ds_delete">Delete</string>
     <string name="ds_pin_progress">%1$d of %2$d digits entered</string>
+    <!-- 디자인 시스템 견본 화면(개발 빌드만, FR-029). 견본 문장은 글자 단계를 견주는 용도라 뜻이 없어도 된다. -->
+    <string name="ds_catalog_title">Design system</string>
+    <string name="ds_catalog_colors">Colors</string>
+    <string name="ds_catalog_typography">Type</string>
+    <string name="ds_catalog_spacing">Spacing and corners</string>
+    <string name="ds_catalog_components">Components</string>
+    <string name="ds_catalog_type_sample">The quick brown fox jumps over the lazy dog 1234</string>
 </resources>
