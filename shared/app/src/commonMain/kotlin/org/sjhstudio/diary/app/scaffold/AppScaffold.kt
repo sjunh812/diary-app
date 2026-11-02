@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -20,6 +21,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.InsightKey
@@ -38,6 +40,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNavigationRail
 import org.sjhstudio.diary.core.designsystem.component.DiaryRailMinWidth
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.platform.AnalyticsEvents
+import org.sjhstudio.diary.core.platform.Telemetry
 
 private val TABS: List<TabScreen> = listOf(HomeKey, CalendarKey, InsightKey, SettingsKey)
 
@@ -89,6 +93,10 @@ private fun NavBackStack<NavKey>.selectTab(tab: TabScreen) {
 @Composable
 private fun Content(backStack: NavBackStack<NavKey>, modifier: Modifier) {
     val pop: () -> Unit = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) }
+    // 보는 화면이 바뀔 때마다 화면 키 이름만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
+    val telemetry = koinInject<Telemetry>()
+    val top = backStack.lastOrNull()
+    LaunchedEffect(top) { if (top != null) telemetry.log(AnalyticsEvents.SCREEN_VIEW, mapOf("screen" to top.toString())) }
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
