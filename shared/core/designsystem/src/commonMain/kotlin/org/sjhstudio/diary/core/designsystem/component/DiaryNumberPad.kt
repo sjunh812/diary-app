@@ -43,7 +43,7 @@ data class DiaryPadKey(val icon: ImageVector, val label: String, val onClick: ()
 
 /**
  * 비밀번호 숫자판(`docs/design.md` 숫자판, TDS NumberKeypad).
- * 3열 · 키 높이 64 · 폭 최대 350 · 숫자 `keypad` · 지우기 24 · 왼쪽 아래 키 32 · 누르면 `sunken` 바탕 모서리 20.
+ * 3열 · 키 높이 64 · 폭 최대 350 · 숫자 `keypad` · 지우기 24 · 왼쪽 아래 키 32 · 누르면 모서리 20 면과 살짝 축소(누름 효과).
  * [enabled]가 거짓이면 38%로 흐리게 두고 누르지 못한다(5번 틀린 뒤 기다림).
  */
 @Composable
@@ -83,14 +83,12 @@ fun DiaryNumberPad(
 @Composable
 private fun RowScope.PadKey(enabled: Boolean, label: String?, onClick: () -> Unit, content: @Composable () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
     Box(
         modifier =
             Modifier
                 .weight(1f)
                 .height(64.dp)
-                .clip(DiaryShapes.r20)
-                .background(if (pressed) DiaryTheme.colors.sunken else Color.Transparent)
+                .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r20)
                 .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
                 .then(if (label != null) Modifier.semantics { contentDescription = label } else Modifier),
         contentAlignment = Alignment.Center

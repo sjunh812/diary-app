@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
@@ -89,15 +90,12 @@ fun DiaryNavigationRail(
 private fun NavCell(item: DiaryNavItem, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val tint = if (selected) colors.textPrimary else colors.textTertiary
+    val interaction = remember { MutableInteractionSource() }
     Column(
         modifier =
-            modifier.selectable(
-                selected = selected,
-                role = Role.Tab,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick
-            ),
+            modifier
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
+                .selectable(selected = selected, role = Role.Tab, interactionSource = interaction, indication = null, onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

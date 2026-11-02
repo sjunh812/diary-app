@@ -27,18 +27,20 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 fun DiaryChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, leadingIcon: ImageVector? = null) {
     val colors = DiaryTheme.colors
     val content = if (selected) colors.accentText else colors.textPrimary
+    val interaction = remember { MutableInteractionSource() }
     Row(
         modifier =
             modifier
                 .minimumInteractiveComponentSize()
                 .height(32.dp)
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
                 .clip(DiaryShapes.full)
                 .background(if (selected) colors.selected else colors.sunken)
                 .selectable(
                     selected = selected,
                     role = Role.Checkbox,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = PressOverlay(colors.textPrimary),
+                    interactionSource = interaction,
+                    indication = null,
                     onClick = onClick
                 )
                 // 아이콘 쪽은 아이콘 자체 여백이 있어 10으로 줄여 눈으로 좌우를 맞춘다(이 칩 안에서만 쓰는 값).

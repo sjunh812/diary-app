@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.feature.lock
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -16,7 +18,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryNumberPad
 import org.sjhstudio.diary.core.designsystem.component.DiaryPadKey
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.feature.lock.resources.Res
@@ -91,12 +95,14 @@ fun LockScreen(
             }
         )
         if (onForgot != null) {
+            val forgot = remember { MutableInteractionSource() }
             Spacer(Modifier.height(DiarySpacing.x1_5))
             Box(
                 modifier =
                     Modifier
                         .heightIn(min = DiarySpacing.minTouchTarget)
-                        .clickable(role = Role.Button, onClick = onForgot)
+                        .diaryPress(forgot, colors.textPrimary, DiaryShapes.r12)
+                        .clickable(forgot, indication = null, role = Role.Button, onClick = onForgot)
                         .padding(horizontal = DiarySpacing.x3),
                 contentAlignment = Alignment.Center
             ) {

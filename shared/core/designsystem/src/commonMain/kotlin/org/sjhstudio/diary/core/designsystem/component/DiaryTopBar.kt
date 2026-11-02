@@ -42,16 +42,18 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
     val colors = DiaryTheme.colors
     Box(modifier = modifier.fillMaxWidth().height(56.dp)) {
         if (onBack != null) {
+            val back = remember { MutableInteractionSource() }
             Box(
                 modifier =
                     Modifier
                         .align(Alignment.CenterStart)
                         .padding(start = DiarySpacing.x1)
                         .size(DiarySpacing.minTouchTarget)
+                        .diaryPress(back, colors.textPrimary, CircleShape)
                         .clip(CircleShape)
                         .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = PressOverlay(colors.textPrimary),
+                            interactionSource = back,
+                            indication = null,
                             role = Role.Button,
                             onClick = onBack
                         ),
@@ -68,6 +70,7 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
             modifier = Modifier.align(Alignment.Center).padding(horizontal = DiarySpacing.x14).semantics { heading() }
         )
         if (action != null) {
+            val press = remember { MutableInteractionSource() }
             BasicText(
                 text = action.label,
                 style = DiaryTheme.typography.headline.copy(color = colors.accentText),
@@ -76,10 +79,11 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
                         .align(Alignment.CenterEnd)
                         .padding(end = DiarySpacing.x2)
                         .alpha(if (action.enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+                        .diaryPress(press, colors.textPrimary, CircleShape)
                         .clip(CircleShape)
                         .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = PressOverlay(colors.textPrimary),
+                            interactionSource = press,
+                            indication = null,
                             enabled = action.enabled,
                             role = Role.Button,
                             onClick = action.onClick

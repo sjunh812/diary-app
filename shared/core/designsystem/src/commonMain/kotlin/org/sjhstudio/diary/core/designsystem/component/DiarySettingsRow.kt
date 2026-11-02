@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
+import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
@@ -58,13 +59,15 @@ fun DiarySettingsRow(
     leadingIcon: ImageVector? = null
 ) {
     val colors = DiaryTheme.colors
+    val interaction = remember { MutableInteractionSource() }
     RowFrame(
         modifier =
             modifier
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
                 .background(if (selected) colors.selected else Color.Transparent)
                 .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = PressOverlay(colors.textPrimary),
+                    interactionSource = interaction,
+                    indication = null,
                     role = Role.Button,
                     onClick = onClick
                 ),
@@ -89,14 +92,15 @@ fun DiarySettingsSwitchRow(
     description: String? = null,
     enabled: Boolean = true
 ) {
+    val interaction = remember { MutableInteractionSource() }
     RowFrame(
         modifier =
-            modifier.toggleable(
+            modifier.diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r12).toggleable(
                 value = checked,
                 enabled = enabled,
                 role = Role.Switch,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = PressOverlay(DiaryTheme.colors.textPrimary),
+                interactionSource = interaction,
+                indication = null,
                 onValueChange = onCheckedChange
             ),
         title = title,
@@ -115,13 +119,14 @@ fun DiarySettingsChoiceRow(
     modifier: Modifier = Modifier,
     description: String? = null
 ) {
+    val interaction = remember { MutableInteractionSource() }
     RowFrame(
         modifier =
-            modifier.selectable(
+            modifier.diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r12).selectable(
                 selected = selected,
                 role = Role.RadioButton,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = PressOverlay(DiaryTheme.colors.textPrimary),
+                interactionSource = interaction,
+                indication = null,
                 onClick = onClick
             ),
         title = title,

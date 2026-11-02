@@ -93,11 +93,12 @@ fun DiaryButton(
                 .minimumInteractiveComponentSize()
                 .height(spec.height)
                 .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+                .diaryPress(interaction, colors.textPrimary, spec.shape)
                 .clip(spec.shape)
                 .background(container)
                 .clickable(
                     interactionSource = interaction,
-                    indication = PressOverlay(colors.textPrimary),
+                    indication = null,
                     enabled = enabled,
                     role = Role.Button,
                     onClick = onClick

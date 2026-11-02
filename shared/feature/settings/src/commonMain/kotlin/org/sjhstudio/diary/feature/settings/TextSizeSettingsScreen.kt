@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.feature.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -86,8 +89,18 @@ fun TextSizeSettingsScreen(
 private fun SizeStep(size: BodyTextSize, selected: Boolean, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val tint = if (selected) colors.accentText else colors.textPrimary
+    val interaction = remember { MutableInteractionSource() }
     Column(
-        modifier = Modifier.selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
+        modifier =
+            Modifier
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
+                .selectable(
+                    selected = selected,
+                    role = Role.RadioButton,
+                    interactionSource = interaction,
+                    indication = null,
+                    onClick = onClick
+                ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
     ) {
