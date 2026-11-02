@@ -12,6 +12,7 @@ import okio.Path.Companion.toPath
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.gate.LockGate
 import org.sjhstudio.diary.app.gate.MigrationGate
+import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -22,7 +23,7 @@ import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 /**
  * 안드로이드와 iOS가 같이 띄우는 앱의 뿌리(contracts/app-shell.md 시작 순서 3).
  * `DiaryTheme` → 잠금 관문 → 이전 관문 → 앱 틀 순서다.
- * 앱 틀은 스펙 002가 채운다.
+ * 홈·달력·돌아보기 탭의 화면은 스펙 002가 채운다.
  */
 @Composable
 fun DiaryApp() {
@@ -41,9 +42,7 @@ fun DiaryApp() {
         }
     DiaryTheme(darkTheme = darkTheme) {
         LockGate {
-            MigrationGate {
-                Box(modifier = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
-            }
+            MigrationGate { AppScaffold() }
         }
     }
 }

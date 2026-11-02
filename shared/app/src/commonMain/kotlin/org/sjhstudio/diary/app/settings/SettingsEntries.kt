@@ -12,15 +12,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.backhandler.BackHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
 import kotlin.time.Clock
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.app.navigation.LockSettingsKey
+import org.sjhstudio.diary.app.navigation.MigrationReportKey
+import org.sjhstudio.diary.app.navigation.SettingsKey
+import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
+import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -35,46 +40,39 @@ import org.sjhstudio.diary.feature.settings.SettingsViewModel
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
-private enum class SettingsPage { List, TextSize, Theme, Lock, MigrationReport }
-
 /**
- * 설정 화면 묶음(설정 목록 → 본문 글자 크기, 화면 모드, 잠금, 기록 이전 결과).
+ * 설정 탭의 화면들(설정 목록 → 본문 글자 크기, 화면 모드, 잠금, 기록 이전 결과).
  * 기능 모듈끼리는 서로 모르므로 어디서 어디로 가는지는 여기서 정한다.
- * 스펙 002의 앱 틀(Navigation 3 화면 키)이 생기면 그쪽으로 옮긴다.
  */
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun SettingsGraph() {
-    val viewModel = koinViewModel<SettingsViewModel>()
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    var page by rememberSaveable { mutableStateOf(SettingsPage.List) }
-    val toList = { page = SettingsPage.List }
-    if (page != SettingsPage.List) BackHandler(onBack = toList)
-
-    when (page) {
-        SettingsPage.List ->
-            SettingsScreen(
-                state,
-                onTextSize = { page = SettingsPage.TextSize },
-                onTheme = { page = SettingsPage.Theme },
-                onLock = { page = SettingsPage.Lock },
-                onMigrationReport = { page = SettingsPage.MigrationReport }
-            )
-
-        SettingsPage.TextSize ->
-            TextSizeSettingsScreen(
-                selected = state.settings.bodyTextSize,
-                sampleDate = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date },
-                onSelect = viewModel::setBodyTextSize,
-                onBack = toList
-            )
-
-        SettingsPage.Theme -> ThemeSettingsScreen(state.settings.themeMode, onSelect = viewModel::setThemeMode, onBack = toList)
-
-        SettingsPage.Lock -> LockSettingsRoute(onBack = toList)
-
-        SettingsPage.MigrationReport -> MigrationReportPage(onBack = toList)
+fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit) {
+    entry<SettingsKey> {
+        val viewModel = koinViewModel<SettingsViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        SettingsScreen(
+            state,
+            onTextSize = { push(TextSizeSettingsKey) },
+            onTheme = { push(ThemeSettingsKey) },
+            onLock = { push(LockSettingsKey) },
+            onMigrationReport = { push(MigrationReportKey) }
+        )
     }
+    entry<TextSizeSettingsKey> {
+        val viewModel = koinViewModel<SettingsViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        TextSizeSettingsScreen(
+            selected = state.settings.bodyTextSize,
+            sampleDate = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date },
+            onSelect = viewModel::setBodyTextSize,
+            onBack = pop
+        )
+    }
+    entry<ThemeSettingsKey> {
+        val viewModel = koinViewModel<SettingsViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        ThemeSettingsScreen(state.settings.themeMode, onSelect = viewModel::setThemeMode, onBack = pop)
+    }
+    entry<LockSettingsKey> { LockSettingsRoute(onBack = pop) }
+    entry<MigrationReportKey> { MigrationReportPage(onBack = pop) }
 }
 
 /** 설정 > 기록 이전 결과. 문의하기는 고쳐 받기 시트를 먼저 띄운다(FR-010a). */

@@ -18,7 +18,8 @@ import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import okio.Path.Companion.toPath
 import org.koin.core.context.GlobalContext
-import org.sjhstudio.diary.app.settings.SettingsGraph
+import org.sjhstudio.diary.app.navigation.SettingsKey
+import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -40,7 +41,7 @@ import org.sjhstudio.diary.feature.settings.MigrationReportUiState
  *
  *   adb shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
  *   화면 이름: migration_report(M5), support_sheet(M5 · 고쳐 받기 문의), photo_cell(일기 줄 사진 칸, 옮긴 사진으로),
- *   lock_forgot(L3 · 비밀번호를 잊어버렸을 때), lock_settings(L4 잠금 설정), settings(S6 설정 목록과 G2·G3·L4·M5)
+ *   lock_forgot(L3 · 비밀번호를 잊어버렸을 때), lock_settings(L4 잠금 설정), settings(앱 틀의 설정 탭: S6과 G2·G3·L4·M5)
  * lock_settings와 settings는 실제 설정을 바꾼다. 에뮬레이터에서 잠금을 켜거나 설정을 바꿔 보는 데 쓴다.
  */
 class ScreenCatalogActivity : ComponentActivity() {
@@ -70,7 +71,7 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     LOCK_SETTINGS -> LockSettingsRoute(onBack = ::finish)
 
-                    SETTINGS -> SettingsGraph()
+                    SETTINGS -> AppScaffold(startTab = SettingsKey)
 
                     else -> finish()
                 }

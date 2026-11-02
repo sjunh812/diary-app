@@ -120,7 +120,59 @@ object DiaryIcons {
         )
     }
 
-    private fun lucide(name: String, vararg paths: String, filled: Boolean = false): ImageVector {
+    // 하단 탭·레일 아이콘(Figma "설정 (S6)"의 tab-bar 경로 그대로). 고른 탭은 선이 굵다(docs/design.md 하단 탭).
+    val TabHome: ImageVector by lazy {
+        tab(
+            "tab-home",
+            1.75f,
+            "M 4 10.5 L 12 4 L 20 10.5 L 20 20 C 20 20.265 19.895 20.52 19.707 20.707 C 19.52 20.895 19.265 21 19 21 L 14.5 21 L 14.5 15 L 9.5 15 L 9.5 21 L 5 21 C 4.735 21 4.48 20.895 4.293 20.707 C 4.105 20.52 4 20.265 4 20 L 4 10.5 Z"
+        )
+    }
+    val TabHomeSelected: ImageVector by lazy {
+        tab(
+            "tab-home-selected",
+            2.25f,
+            "M 4 10.5 L 12 4 L 20 10.5 L 20 20 C 20 20.265 19.895 20.52 19.707 20.707 C 19.52 20.895 19.265 21 19 21 L 14.5 21 L 14.5 15 L 9.5 15 L 9.5 21 L 5 21 C 4.735 21 4.48 20.895 4.293 20.707 C 4.105 20.52 4 20.265 4 20 L 4 10.5 Z"
+        )
+    }
+    val TabCalendar: ImageVector by lazy {
+        tab(
+            "tab-calendar",
+            1.75f,
+            "M 6.5 5.5 L 17.5 5.5 C 18.881 5.5 20 6.619 20 8 L 20 18 C 20 19.381 18.881 20.5 17.5 20.5 L 6.5 20.5 C 5.119 20.5 4 19.381 4 18 L 4 8 C 4 6.619 5.119 5.5 6.5 5.5 Z",
+            "M 4 10 L 20 10 M 8.5 3.5 L 8.5 7.5 M 15.5 3.5 L 15.5 7.5"
+        )
+    }
+    val TabCalendarSelected: ImageVector by lazy {
+        tab(
+            "tab-calendar-selected",
+            2.25f,
+            "M 6.5 5.5 L 17.5 5.5 C 18.881 5.5 20 6.619 20 8 L 20 18 C 20 19.381 18.881 20.5 17.5 20.5 L 6.5 20.5 C 5.119 20.5 4 19.381 4 18 L 4 8 C 4 6.619 5.119 5.5 6.5 5.5 Z",
+            "M 4 10 L 20 10 M 8.5 3.5 L 8.5 7.5 M 15.5 3.5 L 15.5 7.5"
+        )
+    }
+    val TabInsight: ImageVector by lazy { tab("tab-insight", 1.75f, "M 5 20 L 5 11 M 12 20 L 12 5 M 19 20 L 19 14") }
+    val TabInsightSelected: ImageVector by lazy { tab("tab-insight-selected", 2.25f, "M 5 20 L 5 11 M 12 20 L 12 5 M 19 20 L 19 14") }
+    val TabSettings: ImageVector by lazy {
+        tab(
+            "tab-settings",
+            1.75f,
+            "M 15 12 C 15 13.657 13.657 15 12 15 C 10.343 15 9 13.657 9 12 C 9 10.343 10.343 9 12 9 C 13.657 9 15 10.343 15 12 Z",
+            "M 12 3.5 L 12 5.7 M 12 18.3 L 12 20.5 M 3.5 12 L 5.7 12 M 18.3 12 L 20.5 12 M 6 6 L 7.6 7.6 M 16.4 16.4 L 18 18 M 6 18 L 7.6 16.4 M 16.4 7.6 L 18 6"
+        )
+    }
+    val TabSettingsSelected: ImageVector by lazy {
+        tab(
+            "tab-settings-selected",
+            2.25f,
+            "M 15 12 C 15 13.657 13.657 15 12 15 C 10.343 15 9 13.657 9 12 C 9 10.343 10.343 9 12 9 C 13.657 9 15 10.343 15 12 Z",
+            "M 12 3.5 L 12 5.7 M 12 18.3 L 12 20.5 M 3.5 12 L 5.7 12 M 18.3 12 L 20.5 12 M 6 6 L 7.6 7.6 M 16.4 16.4 L 18 18 M 6 18 L 7.6 16.4 M 16.4 7.6 L 18 6"
+        )
+    }
+
+    private fun tab(name: String, stroke: Float, vararg paths: String): ImageVector = lucide(name, *paths, strokeWidth = stroke)
+
+    private fun lucide(name: String, vararg paths: String, filled: Boolean = false, strokeWidth: Float = 1.75f): ImageVector {
         val builder = ImageVector.Builder(
             name = name,
             defaultWidth = 24.dp,
@@ -133,7 +185,7 @@ object DiaryIcons {
                 pathData = addPathNodes(path),
                 fill = if (filled) SolidColor(Color.Black) else null,
                 stroke = SolidColor(Color.Black),
-                strokeLineWidth = 1.75f,
+                strokeLineWidth = strokeWidth,
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = StrokeJoin.Round
             )
