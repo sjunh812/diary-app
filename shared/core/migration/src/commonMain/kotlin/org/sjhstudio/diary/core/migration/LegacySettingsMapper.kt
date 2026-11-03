@@ -4,6 +4,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LegacyBackupLink
+import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -41,6 +42,22 @@ object LegacySettingsMapper {
         )
     }
 
+    /**
+     * 옛 파일에 실제로 있던 설정(이전 결과의 `settingsMigrated`).
+     * 값이 없어 기본값을 쓴 설정은 넣지 않는다.
+     * 잠금과 생체 인증은 켜 두었을 때만 넣는다.
+     */
+    fun migrated(pref: Map<String, Any>, pref2: Map<String, Any>): List<MigratedSetting> = buildList {
+        if (FONT_KEY in pref) add(MigratedSetting.FONT)
+        if (FONT_SIZE in pref) add(MigratedSetting.BODY_TEXT_SIZE)
+        if (MODE_KEY in pref) add(MigratedSetting.THEME_MODE)
+        if (ASK_LOCATION in pref) add(MigratedSetting.ASK_LOCATION)
+        if (pref[USE_PW] == true) add(MigratedSetting.LOCK)
+        if (pref[USE_PW] == true && pref[FINGER_PRINT] == true) add(MigratedSetting.BIOMETRIC)
+        if (IS_ALARM_KEY in pref2) add(MigratedSetting.REMINDER)
+        if (HOUR_KEY in pref2 && MINUTE_KEY in pref2) add(MigratedSetting.REMINDER_TIME)
+    }
+
     private fun font(key: Int): DiaryFont = when (key) {
         100 -> DiaryFont.SYSTEM
         1, 5 -> DiaryFont.KKOMI
@@ -73,6 +90,10 @@ object LegacySettingsMapper {
     private const val IS_ALARM_KEY = "is_alarm_key"
     private const val HOUR_KEY = "hour_key"
     private const val MINUTE_KEY = "minute_key"
+
+    // 잠금은 LegacyLockBootstrap이 옮기고, 여기서는 옮겼는지만 센다.
+    private const val USE_PW = "use_pw"
+    private const val FINGER_PRINT = "finger_print"
     private val EMAIL = Regex("""[^@\s]+@[^@\s]+\.[^@\s]+""")
 
     /** 새 앱에도 같은 글꼴이 있어 바뀌었다고 알리지 않는 키(프리텐다드, 시스템, 국립공원 꼬미체, 점꼴체). */

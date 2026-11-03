@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.MigrationFailure
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
@@ -449,6 +450,18 @@ class MigrationRunner(
         )
     }
 
+    /**
+     * 사본에 있는 옛 설정 파일(비밀번호를 뺀 것)에서 옮긴 설정을 센다.
+     * 읽지 못하면 비워 둔다. 이 목록은 결과에 남길 뿐이라 이전을 막지 않는다.
+     */
+    private fun migratedSettings(): List<MigratedSetting> = runCatching {
+        fun read(name: String): Map<String, Any> {
+            val path = paths.snapshotDir / name
+            return if (fileSystem.exists(path)) LegacyPrefs.parse(fileSystem.read(path) { readUtf8() }) else emptyMap()
+        }
+        LegacySettingsMapper.migrated(read(paths.legacy.prefXml.name), read(paths.legacy.pref2Xml.name))
+    }.getOrDefault(emptyList())
+
     private fun emptyReport() = MigrationReport(
         entriesTotal = 0,
         entriesMigrated = 0,
@@ -479,7 +492,7 @@ class MigrationRunner(
             dateDiffers = dateDiffers,
             dateUnparsed = dateUnparsed,
             thumbnailsFailed = thumbnailsFailed,
-            settingsMigrated = emptyList(),
+            settingsMigrated = migratedSettings(),
             finishedAt = clock.now(),
             outcome = if (unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
         )

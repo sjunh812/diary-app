@@ -7,6 +7,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LegacyBackupLink
+import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.ThemeMode
 
 // 옛 설정 옮기기(스펙 001 T065, data-model.md DiaryFont·BodyTextSize 표).
@@ -93,5 +94,26 @@ class LegacySettingsMapperTest {
         assertEquals(LegacyBackupLink("diary&me@gmail.com", "1AbC_dEf"), map(pref).legacyBackup)
         assertEquals(LegacyBackupLink("a@b.co", null), map(mapOf("a@b.co" to true)).legacyBackup)
         assertNull(map(mapOf("a@b.co" to false)).legacyBackup)
+    }
+
+    @Test
+    fun migrated_lists_only_settings_the_old_file_had() {
+        assertEquals(emptyList(), LegacySettingsMapper.migrated(emptyMap(), emptyMap()))
+        val all =
+            LegacySettingsMapper.migrated(
+                mapOf(
+                    "font_key" to 3,
+                    "font_size" to 2,
+                    "mode_key" to 2,
+                    "ask_location" to false,
+                    "use_pw" to true,
+                    "finger_print" to true
+                ),
+                mapOf("is_alarm_key" to false, "hour_key" to 21, "minute_key" to 30)
+            )
+        assertEquals(MigratedSetting.entries.toList(), all)
+        // 잠금을 끈 채 남은 생체 인증 값은 옮긴 것이 아니다.
+        val noLock = LegacySettingsMapper.migrated(mapOf("use_pw" to false, "finger_print" to true), emptyMap())
+        assertEquals(emptyList(), noLock)
     }
 }

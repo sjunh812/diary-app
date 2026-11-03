@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationStep
@@ -130,6 +131,8 @@ class MigrationRunnerTest {
                 assertEquals(1, photosMissing)
                 assertEquals(1, dateDiffers)
                 assertEquals(MigrationOutcome.DONE, outcome)
+                // 옛 설정 파일에는 글꼴만 있었다.
+                assertEquals(listOf(MigratedSetting.FONT), settingsMigrated)
             }
             // 원본은 바이트 하나 바뀌지 않는다(SC-002).
             assertEquals(before, originals.map(env::sha))
