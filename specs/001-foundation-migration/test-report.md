@@ -183,3 +183,10 @@ API 36 폰 에뮬레이터(`Medium_Phone`)에 새로 깐 앱(옛 기록·잠금 
 | 프로필 있음 | 1,044 · 993ms | 962 · 795ms | 3,295 · 1,445ms |
 
 - 두 경우 모두 중앙값이 SC-007의 1.5초 안이다. 다만 에뮬레이터는 프로필 효과가 잡음보다 작게 나와(Macrobenchmark도 에뮬레이터 값은 실기기를 대신하지 못한다고 경고한다) 프로필이 얼마나 줄이는지는 중급 실기기에서 다시 재야 한다.
+
+## 2026-11-03 (4) · 글꼴 받기와 매일 알림(US3, iOS·Android)
+
+- API 36 폰 에뮬레이터: bundletool 1.18.3 `build-apks --local-testing`으로 깐 앱에서 글꼴 > 감자꽃을 눌렀다. 필요할 때 설치 모듈을 받고(`SplitCompat: Split 'gamja_flower' installation emulated`) `no_backup/fonts/gamja_flower.ttf`(12.6MB)로 복사한 뒤 바로 감자꽃으로 바뀌었다. 미리보기 상자도 감자꽃이다.
+- iPhone 17 시뮬레이터(개발 빌드, 자료를 앱 안에 담음): 글꼴 > 감자꽃 → "받는 중 0%" → On-Demand Resources로 받아 `Application Support/fonts/gamja_flower.ttf`(12.6MB)로 복사하고 바로 바뀌었다. 줄 이름과 받기 버튼 모양은 Android와 같다.
+- iPhone 17 시뮬레이터 매일 알림: 켜기 → 시스템 허용 창("'1일 1일기'에서 알림을 보내고자 합니다") → 허용 → 허용 안내가 사라짐 → 시각 휠로 오후 11:54(분 00에서 54로 이어 돌기) → 저장 → 홈으로 나감. 11:54에 알림 "1일 1일기 · 오늘 하루는 어땠나요? 한 줄만 남겨 보세요."가 왔다.
+- 실제 Play·App Store에서 받기(네트워크로 내려받기)는 출시 전 내부 테스트 트랙과 TestFlight에서 본다.
