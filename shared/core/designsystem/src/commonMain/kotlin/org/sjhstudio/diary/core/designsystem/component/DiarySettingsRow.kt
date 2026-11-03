@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
@@ -36,9 +37,13 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 // 설정 줄(`docs/design.md` 설정 줄, TDS ListRow, M3 1줄 56).
 // 최소 56 · 위아래 14 · 좌우 20 · 이름 reading. 설명이 붙으면 이름 아래 caption 두 줄짜리다.
 
-/** 설정 묶음 머리(SEED ListHeader 14 Medium). */
+/**
+ * 설정 묶음 머리(SEED ListHeader 14 Medium). [bandAbove]면 위에 두께 16의 `canvasGrouped` 띠(카드형 홈 바탕과 같은 색)를 깔아 앞 묶음과 나눈다
+ * (토스 TDS Border height16, 2026-11-04 사용자 결정). 화면의 첫 묶음은 띠 없이 둔다.
+ */
 @Composable
-fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier) {
+fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, bandAbove: Boolean = false) {
+    if (bandAbove) Box(Modifier.fillMaxWidth().height(DiarySpacing.x4).background(DiaryTheme.colors.canvasGrouped))
     BasicText(
         text = text,
         style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary),
