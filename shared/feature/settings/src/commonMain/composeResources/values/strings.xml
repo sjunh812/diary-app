@@ -30,6 +30,12 @@
     <string name="settings_group_style">Style</string>
     <string name="settings_group_security">Security</string>
     <string name="settings_group_info">About</string>
+    <string name="settings_licenses">Open source licenses</string>
+    <string name="licenses_group_fonts">Fonts</string>
+    <string name="licenses_group_libraries">Libraries</string>
+    <string name="license_ofl">SIL Open Font License 1.1</string>
+    <string name="license_naver">NAVER font license</string>
+    <string name="license_kogl">KOGL Type 1</string>
     <string name="settings_text_size">Diary text size</string>
     <string name="settings_theme">Appearance</string>
     <string name="settings_lock">Lock</string>

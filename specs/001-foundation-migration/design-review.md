@@ -102,3 +102,12 @@
 - 확인하지 못한 것: Material 3 시각 고르기 공식 페이지(열지 못함), Day One·Bear 글꼴 목록이 이름을 그 글꼴로 그리는지(공식 문서에서 찾지 못함).
 - 출처: [HIG 피커](https://developer-rno.apple.com/design/human-interface-guidelines/components/selection-and-input/pickers),
   [UIDatePickerStyle](https://developer.apple.com/documentation/uikit/uidatepickerstyle.md), [Day One 알림 안내](https://dayoneapp.com/guides/reminders/).
+
+## 2026-11-04 오픈소스 라이선스(I1, I2)
+
+- 견준 것: 토스·카카오톡 "오픈소스 라이선스"(이름 목록 → 전문), JetBrains KotlinConf 앱 라이선스 화면(이름·만든 곳·라이선스, 누르면 전문),
+  iOS 설정 > 일반 > 법적 고지(전문을 글로만). 모두 꾸밈 없이 목록과 글로 보인다.
+- 정한 것: 설정 줄(`DiarySettingsRow`)에 설명 한 줄(라이선스 이름, 라이브러리는 "만든 곳 · 라이선스"), 묶음 머리 "글꼴"·"라이브러리"(둘째 묶음 위 24).
+  전문 화면은 상단 바에 이름, 맨 위 라이선스 이름 `bodyStrong`, 전문 `caption` `textSecondary`, 좌우 20.
+- 고친 것: 이름을 "오픈소스와 글꼴 고지"에서 "오픈소스 라이선스"로(설정 S6 줄 포함, Figma와 문서). OFL 원문의 70자 줄바꿈은 보일 때만 이어 붙인다.
+

@@ -32,6 +32,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_notification
 import org.sjhstudio.diary.feature.settings.resources.settings_group_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
+import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
@@ -40,7 +41,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_title
 
 /**
  * 설정 목록(Figma "설정 (S6)"). 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 쓴다.
- * 스펙 001이 만든 줄만 둔다. 백업(스펙 003), 휴지통·목록 모양(스펙 002), 고지(스펙 001 T069)는 그 화면과 함께 더한다.
+ * 스펙 001이 만든 줄만 둔다. 백업(스펙 003), 휴지통·목록 모양(스펙 002)은 그 화면과 함께 더한다.
  */
 @Composable
 fun SettingsScreen(
@@ -51,6 +52,7 @@ fun SettingsScreen(
     onReminder: () -> Unit,
     onLock: () -> Unit,
     onMigrationReport: () -> Unit,
+    onLicenses: () -> Unit,
     modifier: Modifier = Modifier,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
     onDesignCatalog: (() -> Unit)? = null
@@ -98,10 +100,11 @@ fun SettingsScreen(
             DiarySettingsRow(stringResource(Res.string.settings_reminder), onClick = onReminder, value = reminderValue)
             DiarySettingsHeader(stringResource(Res.string.settings_group_security), gapAbove = true)
             DiarySettingsRow(stringResource(Res.string.settings_lock), onClick = onLock, value = stringResource(state.lock.label()))
+            DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
             if (state.showsMigrationReport) {
-                DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
+            DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
             if (onDesignCatalog != null) {
                 DiarySettingsHeader(stringResource(Res.string.settings_group_developer), gapAbove = true)
                 DiarySettingsRow(stringResource(Res.string.settings_design_catalog), onClick = onDesignCatalog)

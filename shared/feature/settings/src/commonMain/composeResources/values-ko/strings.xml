@@ -25,6 +25,12 @@
     <string name="settings_group_style">꾸미기</string>
     <string name="settings_group_security">보안</string>
     <string name="settings_group_info">정보</string>
+    <string name="settings_licenses">오픈소스 라이선스</string>
+    <string name="licenses_group_fonts">글꼴</string>
+    <string name="licenses_group_libraries">라이브러리</string>
+    <string name="license_ofl">SIL Open Font License 1.1</string>
+    <string name="license_naver">네이버 글꼴 라이선스</string>
+    <string name="license_kogl">공공누리 제1유형</string>
     <string name="settings_text_size">본문 글자 크기</string>
     <string name="settings_theme">화면 모드</string>
     <string name="settings_lock">잠금</string>

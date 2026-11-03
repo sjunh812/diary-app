@@ -44,6 +44,21 @@ data object LockSettingsKey : Screen
 @Serializable
 data object MigrationReportKey : Screen
 
+@Serializable
+data object LicensesKey : Screen
+
+/** 글꼴 하나의 라이선스 전문. [fontId]는 `DiaryFont.id`다. */
+@Serializable
+data class FontLicenseKey(val fontId: String) : Screen {
+    override fun toString(): String = "FontLicenseKey"
+}
+
+/** 라이브러리 하나의 라이선스 전문. [libraryId]는 `group:artifact`다. */
+@Serializable
+data class LibraryLicenseKey(val libraryId: String) : Screen {
+    override fun toString(): String = "LibraryLicenseKey"
+}
+
 /** 디자인 시스템 견본. 개발 빌드에만 길이 있다(FR-029, `developer/DeveloperEntries.kt`). */
 @Serializable
 data object DesignCatalogKey : Screen

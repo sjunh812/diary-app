@@ -22,7 +22,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.navigation.DesignCatalogKey
+import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
+import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
+import org.sjhstudio.diary.app.navigation.LicensesKey
 import org.sjhstudio.diary.app.navigation.LockSettingsKey
 import org.sjhstudio.diary.app.navigation.MigrationReportKey
 import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
@@ -36,7 +39,10 @@ import org.sjhstudio.diary.feature.lock.LockSettingsRoute
 import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
+import org.sjhstudio.diary.feature.settings.FontLicenseRoute
 import org.sjhstudio.diary.feature.settings.FontSettingsRoute
+import org.sjhstudio.diary.feature.settings.LibraryLicenseRoute
+import org.sjhstudio.diary.feature.settings.LicensesRoute
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportViewModel
 import org.sjhstudio.diary.feature.settings.ReminderSettingsRoute
@@ -46,7 +52,7 @@ import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
 /**
- * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과).
+ * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스).
  * 기능 모듈끼리는 서로 모르므로 어디서 어디로 가는지는 여기서 정한다.
  */
 fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit, developer: Boolean = false) {
@@ -61,6 +67,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onReminder = { push(ReminderSettingsKey) },
             onLock = { push(LockSettingsKey) },
             onMigrationReport = { push(MigrationReportKey) },
+            onLicenses = { push(LicensesKey) },
             // 개발 빌드에만 "개발" 묶음이 있다(FR-029).
             onDesignCatalog = if (developer) ({ push(DesignCatalogKey) }) else null
         )
@@ -85,6 +92,11 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<ReminderSettingsKey> { ReminderSettingsRoute(onBack = pop) }
     entry<LockSettingsKey> { LockSettingsRoute(onBack = pop) }
     entry<MigrationReportKey> { MigrationReportPage(onBack = pop) }
+    entry<LicensesKey> {
+        LicensesRoute(onFont = { push(FontLicenseKey(it.id)) }, onLibrary = { push(LibraryLicenseKey(it)) }, onBack = pop)
+    }
+    entry<FontLicenseKey> { key -> FontLicenseRoute(key.fontId, onBack = pop) }
+    entry<LibraryLicenseKey> { key -> LibraryLicenseRoute(key.libraryId, onBack = pop) }
 }
 
 /** 설정 > 기록 이전 결과. 문의하기는 고쳐 받기 시트를 먼저 띄운다(FR-010a). */

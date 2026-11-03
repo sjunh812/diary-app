@@ -1,5 +1,6 @@
 // 루트는 플러그인 버전만 고정하고 모듈에는 적용하지 않는다. 모듈 설정은 build-logic의 convention plugin이 한다.
 plugins {
+    alias(libs.plugins.aboutlibraries) apply false
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.kmp.library) apply false
     alias(libs.plugins.android.test) apply false

@@ -34,7 +34,9 @@
 | `LockSettingsKey`, `PinSetupKey(mode)` | lock | 있음 |
 | `ReminderSettingsKey` | settings | 켜기·시각. 알림 허용이 없으면 "알림이 꺼져 있어요"와 [허용하기](허용 묻기는 004) |
 | `MigrationReportKey` | migration | 일부만 옮겨진 기기에서만 설정에 보인다. 결과, 원본 파일 내보내기, 문의하기 |
-| `LicensesKey` | settings | 오픈소스와 글꼴 고지 |
+| `LicensesKey` | settings | 오픈소스 라이선스. 글꼴 10종과 앱에 들어간 라이브러리 |
+| `FontLicenseKey(fontId)` | settings | 글꼴 하나의 라이선스 전문 |
+| `LibraryLicenseKey(libraryId)` | settings | 라이브러리 하나의 라이선스 전문 |
 | `DesignCatalogKey` | designsystem | 개발 빌드에서만(FR-029) |
 
 뒤로 가기는 Navigation 3 기본. 잠금·이전 화면은 화면 키가 아니라 관문이라 뒤로 가기로 벗어날 수 없다.

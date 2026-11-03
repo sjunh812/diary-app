@@ -123,7 +123,7 @@ shared/
 └── feature/
     ├── lock/                        잠금 화면, 비밀번호 정하기·바꾸기, 잊었을 때, 잠금 설정
     ├── migration/                   이전 진행, 결과, 실패(다시 시도·옛 일기 읽기·원본 내보내기·문의)
-    └── settings/                    설정 틀(글꼴, 글자 크기, 화면 모드, 잠금, 알림, 이전 결과, 오픈소스와 글꼴 고지)
+    └── settings/                    설정 틀(글꼴, 글자 크기, 화면 모드, 잠금, 알림, 이전 결과, 오픈소스 라이선스)
 benchmarks/                          Macrobenchmark(시작, 목록 넘기기)와 baseline profile 만들기
 .githooks/commit-msg                 커밋 형식 검사(FR-031)
 .github/workflows/ci.yml             Android 검사·시험·빌드, iOS 시험·xcodebuild

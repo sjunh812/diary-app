@@ -30,7 +30,8 @@ private val sample =
 
 @Composable
 private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    SettingsScreen(sample, onFont = {}, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {})
+    SettingsScreen(sample, onFont = {
+    }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {})
 }
 
 @Preview(name = "S6 설정 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
@@ -46,7 +47,7 @@ private fun ListDark() = SettingsList(dark = true)
 @Composable
 private fun ListDeveloper() = DiaryTheme(darkTheme = false) {
     SettingsScreen(sample, onFont = {
-    }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onDesignCatalog = {})
+    }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {}, onDesignCatalog = {})
 }
 
 @Composable

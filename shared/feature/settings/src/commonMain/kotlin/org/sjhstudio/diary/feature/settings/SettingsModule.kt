@@ -10,4 +10,5 @@ val settingsFeatureModule =
         viewModel { SettingsViewModel(get(), get(), { showsMigrationReport(get()) }, get()) }
         viewModel { ReminderSettingsViewModel(get(), get(), get(), get()) }
         viewModel { FontSettingsViewModel(get(), get(), get()) }
+        viewModel { LicensesViewModel() }
     }

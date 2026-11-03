@@ -25,6 +25,12 @@
     <string name="settings_group_style">カスタマイズ</string>
     <string name="settings_group_security">セキュリティ</string>
     <string name="settings_group_info">情報</string>
+    <string name="settings_licenses">オープンソースライセンス</string>
+    <string name="licenses_group_fonts">フォント</string>
+    <string name="licenses_group_libraries">ライブラリ</string>
+    <string name="license_ofl">SIL Open Font License 1.1</string>
+    <string name="license_naver">NAVERフォントライセンス</string>
+    <string name="license_kogl">KOGL 第1類型</string>
     <string name="settings_text_size">本文の文字サイズ</string>
     <string name="settings_theme">表示モード</string>
     <string name="settings_lock">ロック</string>

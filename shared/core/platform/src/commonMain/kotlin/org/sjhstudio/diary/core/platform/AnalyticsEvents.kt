@@ -39,6 +39,8 @@ object AnalyticsEvents {
             "ReminderSettingsKey",
             "MigrationReportKey",
             "LicensesKey",
+            "FontLicenseKey",
+            "LibraryLicenseKey",
             "DesignCatalogKey"
         )
 

@@ -11,6 +11,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             // 설정을 바꾼 사용 통계(Telemetry)
             implementation(projects.shared.core.platform)
+            // 오픈소스 라이선스 화면이 빌드 때 만든 라이브러리 목록을 읽는다.
+            implementation(libs.aboutlibraries.core)
         }
         androidMain.dependencies {
             // 매일 알림을 켤 때 알림 권한 창을 띄운다(안드로이드 13부터).

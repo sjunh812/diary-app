@@ -5,6 +5,21 @@ plugins {
     alias(libs.plugins.compose.compiler)
     // 릴리스를 본떠 nonMinifiedRelease(프로필을 만들 때)와 benchmarkRelease(잴 때) 빌드 타입을 만든다.
     alias(libs.plugins.baselineprofile)
+    // 오픈소스 고지 목록을 만든다. 앱에 실제로 들어가는 의존성을 다 아는 곳이 여기라 여기에 단다.
+    alias(libs.plugins.aboutlibraries)
+}
+
+// `./gradlew :composeApp:exportLibraryDefinitions`로 다시 만든다. 의존성을 바꾸면 같은 커밋에서 다시 만든다.
+aboutLibraries {
+    // 같은 라이브러리의 플랫폼별 묶음(compose-ui와 compose-ui-android 같은)은 하나로 합친다(KotlinConf 앱과 같다).
+    library {
+        duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+        duplicationRule = com.mikepenz.aboutlibraries.plugin.DuplicateRule.SIMPLE
+    }
+    export {
+        outputFile = file("../shared/feature/settings/src/commonMain/composeResources/files/aboutlibraries.json")
+        variant = "release"
+    }
 }
 
 android {

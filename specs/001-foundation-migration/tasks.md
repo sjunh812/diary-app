@@ -207,7 +207,8 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 
 - [ ] T085 `CLAUDE.md` "빌드와 시험"에 실제 명령(검사, 시험, iOS, 업그레이드 시험, 벤치마크)을 옮긴다
 - [ ] T086 [P] SC-009 점검: Firebase DebugView로 한 바퀴 돈 이벤트가 고정 표 안에 있고 값에 글·장소·경로·기분이 없음을 `test-report.md`에 남긴다. 로그에 일기 값을 찍는 곳이 없는지 `grep`으로 본다
-- [ ] T087 [P] 오픈소스·글꼴 고지 문구(OFL 전문, 네이버 글꼴, 카페24 약관, 공공누리 출처)를 `docs/release.md` 글꼴 항목과 맞추고, 카페24 써라운드 약관 원문과 파일 크기를 확인한다. 교보문고가 서면으로 허락하면 `kyobo_2019`를 더한다
+- [x] T087 [P] 오픈소스·글꼴 고지 문구(OFL 전문, 네이버 글꼴, 카페24 약관, 공공누리 출처)를 `docs/release.md` 글꼴 항목과 맞추고, 카페24 써라운드 약관 원문과 파일 크기를 확인한다. 교보문고가 서면으로 허락하면 `kyobo_2019`를 더한다
+  (2026-11-04: 설정 > 정보 > 오픈소스 라이선스(I1·I2), 라이브러리 목록은 AboutLibraries. 네이버 전문 페이지 직접 확인은 `docs/release.md`에 남김. 교보는 허락 전이라 넣지 않음)
 - [ ] T088 [P] research 열린 결정 O1(썸네일 크기), O2(Pretendard 서브셋)를 측정해 닫고 research.md·`docs/DECISIONS.md`에 남긴다
 - [ ] T089 문서 동기화: 바뀐 규칙이 `docs/migration.md`, `docs/backup.md`, `docs/design.md`, 헌법, 스펙 001·002, `docs/DECISIONS.md`에 같은 내용으로 있는지, Figma 진행 현황이 맞는지 본다
 - [ ] T090 quickstart.md 전체를 처음부터 돌려 통과를 확인하고 `checklists/data-safety.md`를 검토자에게 넘긴다
