@@ -49,6 +49,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
+import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
+import org.sjhstudio.diary.core.designsystem.component.DiaryTimeWheel
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -92,6 +94,7 @@ fun DesignCatalogScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             CatalogButtons()
             Column { CatalogSettingsRows() }
             CatalogBoxes()
+            CatalogTimeWheel()
             Column { CatalogEntries() }
             CatalogKeypad()
         }
@@ -306,6 +309,22 @@ internal fun CatalogBoxes() {
         )
         DiaryNotice("예전 앱 파일 일부가 깨져 일기 12편을 읽지 못했어요. 원래 기록은 휴대폰 안에 그대로 있어요.", icon = DiaryIcons.ShieldCheck)
         DiaryProgressBar(0.62f)
+    }
+}
+
+/** 상태 상자와 시각 고르기 휠(오후 10:00). */
+@Composable
+internal fun CatalogTimeWheel() {
+    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+        DiaryStatusBox(
+            DiaryIcons.Bell,
+            "알림이 꺼져 있어요",
+            "휴대폰 설정에서 1일 1일기 알림을 허용해야 매일 알림이 와요.",
+            actionLabel = "허용하기",
+            onAction = {}
+        )
+        DiaryTimeWheel(minuteOfDay = 22 * 60, onChange = {}, is24Hour = false)
+        DiaryTimeWheel(minuteOfDay = 22 * 60, onChange = {}, is24Hour = true)
     }
 }
 

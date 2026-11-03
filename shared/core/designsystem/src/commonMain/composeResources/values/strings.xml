@@ -16,4 +16,12 @@
     <string name="ds_catalog_spacing">Spacing and corners</string>
     <string name="ds_catalog_components">Components</string>
     <string name="ds_catalog_type_sample">The quick brown fox jumps over the lazy dog 1234</string>
+    <!-- 시각 고르기 휠(docs/design.md 시각 고르기). 열 이름은 화면 읽기 프로그램이 읽는다. -->
+    <string name="ds_am">AM</string>
+    <string name="ds_pm">PM</string>
+    <string name="ds_wheel_ampm">AM or PM</string>
+    <string name="ds_wheel_hour">Hour</string>
+    <string name="ds_wheel_minute">Minute</string>
+    <string name="ds_previous">Previous</string>
+    <string name="ds_next">Next</string>
 </resources>

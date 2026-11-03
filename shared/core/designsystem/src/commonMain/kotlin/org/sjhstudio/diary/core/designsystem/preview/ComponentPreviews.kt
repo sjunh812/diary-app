@@ -15,6 +15,7 @@ import org.sjhstudio.diary.core.designsystem.catalog.CatalogEntries
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogKeypad
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogSettingsRows
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogSpacing
+import org.sjhstudio.diary.core.designsystem.catalog.CatalogTimeWheel
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogTypography
 import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -78,6 +79,14 @@ private fun BoxesLight() = PreviewCanvas(dark = false) { CatalogBoxes() }
 @Preview(name = "상자와 배지 · 다크", locale = "ko")
 @Composable
 private fun BoxesDark() = PreviewCanvas(dark = true) { CatalogBoxes() }
+
+@Preview(name = "상태 상자와 시각 휠 · 라이트", locale = "ko")
+@Composable
+private fun TimeWheelLight() = PreviewCanvas(dark = false) { CatalogTimeWheel() }
+
+@Preview(name = "상태 상자와 시각 휠 · 다크", locale = "ko")
+@Composable
+private fun TimeWheelDark() = PreviewCanvas(dark = true) { CatalogTimeWheel() }
 
 @Preview(name = "일기 줄과 빈 상태 · 라이트", locale = "ko")
 @Composable

@@ -12,4 +12,11 @@
     <string name="ds_catalog_spacing">간격과 모서리</string>
     <string name="ds_catalog_components">컴포넌트</string>
     <string name="ds_catalog_type_sample">다람쥐 헌 쳇바퀴에 타고파 1234</string>
+    <string name="ds_am">오전</string>
+    <string name="ds_pm">오후</string>
+    <string name="ds_wheel_ampm">오전·오후</string>
+    <string name="ds_wheel_hour">시</string>
+    <string name="ds_wheel_minute">분</string>
+    <string name="ds_previous">이전</string>
+    <string name="ds_next">다음</string>
 </resources>
