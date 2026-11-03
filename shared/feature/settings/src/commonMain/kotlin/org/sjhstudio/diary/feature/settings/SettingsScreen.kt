@@ -87,7 +87,7 @@ fun SettingsScreen(
                 onClick = onTheme,
                 value = stringResource(state.settings.themeMode.label())
             )
-            DiarySettingsHeader(stringResource(Res.string.settings_group_notification), bandAbove = true)
+            DiarySettingsHeader(stringResource(Res.string.settings_group_notification), gapAbove = true)
             val reminderValue =
                 if (state.settings.reminderEnabled) {
                     val minute = state.settings.reminderMinuteOfDay
@@ -96,14 +96,14 @@ fun SettingsScreen(
                     stringResource(Res.string.reminder_value_off)
                 }
             DiarySettingsRow(stringResource(Res.string.settings_reminder), onClick = onReminder, value = reminderValue)
-            DiarySettingsHeader(stringResource(Res.string.settings_group_security), bandAbove = true)
+            DiarySettingsHeader(stringResource(Res.string.settings_group_security), gapAbove = true)
             DiarySettingsRow(stringResource(Res.string.settings_lock), onClick = onLock, value = stringResource(state.lock.label()))
             if (state.showsMigrationReport) {
-                DiarySettingsHeader(stringResource(Res.string.settings_group_info), bandAbove = true)
+                DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
             if (onDesignCatalog != null) {
-                DiarySettingsHeader(stringResource(Res.string.settings_group_developer), bandAbove = true)
+                DiarySettingsHeader(stringResource(Res.string.settings_group_developer), gapAbove = true)
                 DiarySettingsRow(stringResource(Res.string.settings_design_catalog), onClick = onDesignCatalog)
             }
         }
