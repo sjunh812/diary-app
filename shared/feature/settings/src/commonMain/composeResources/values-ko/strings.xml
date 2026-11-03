@@ -74,6 +74,8 @@
     <string name="font_downloading">받는 중 %1$s</string>
     <string name="font_offline">인터넷에 연결되면 받을 수 있어요</string>
     <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 해 주세요</string>
+    <string name="font_replaced_notice">쓰던 글꼴 대신 %1$s 글꼴로 보여 드려요</string>
+    <string name="font_replaced_change">바꾸기</string>
 
     <!-- 본문 글자 크기(G2) -->
     <string name="text_size_small">작게</string>

@@ -11,4 +11,5 @@ val settingsFeatureModule =
         viewModel { ReminderSettingsViewModel(get(), get(), get(), get()) }
         viewModel { FontSettingsViewModel(get(), get(), get()) }
         viewModel { LicensesViewModel() }
+        viewModel { FontReplacedNoticeViewModel(get()) }
     }

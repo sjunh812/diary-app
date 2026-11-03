@@ -79,6 +79,8 @@
     <string name="font_downloading">Getting %1$s</string>
     <string name="font_offline">You can get it when you're online.</string>
     <string name="font_failed">Couldn't get the font. Please try again later.</string>
+    <string name="font_replaced_notice">Your old font isn\'t here, so we\'re showing %1$s</string>
+    <string name="font_replaced_change">Change</string>
 
     <!-- Diary text size (G2) -->
     <string name="text_size_small">Small</string>

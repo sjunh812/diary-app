@@ -74,6 +74,8 @@
     <string name="font_downloading">入手中 %1$s</string>
     <string name="font_offline">インターネットに接続すると入手できます</string>
     <string name="font_failed">フォントを入手できませんでした。しばらくしてからもう一度お試しください</string>
+    <string name="font_replaced_notice">以前のフォントの代わりに%1$sで表示しています</string>
+    <string name="font_replaced_change">変更</string>
 
     <!-- 本文の文字サイズ(G2) -->
     <string name="text_size_small">小</string>

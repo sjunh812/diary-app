@@ -6,9 +6,12 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
@@ -25,6 +28,7 @@ import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.developer.DeveloperEntries
 import org.sjhstudio.diary.app.navigation.CalendarKey
+import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.InsightKey
 import org.sjhstudio.diary.app.navigation.Screen
@@ -40,10 +44,14 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNavItem
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavigationBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavigationRail
 import org.sjhstudio.diary.core.designsystem.component.DiaryRailMinWidth
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.feature.settings.FontReplacedNotice
 
 private val TABS: List<TabScreen> = listOf(HomeKey, CalendarKey, InsightKey, SettingsKey)
 
@@ -70,19 +78,34 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         )
     val selected = TABS.indexOf(backStack.firstOrNull()).coerceAtLeast(0)
     val onSelect = { index: Int -> backStack.selectTab(TABS[index]) }
+    // 앱 틀 전체에 하나 두는 토스트. 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
+    val toast = remember { DiaryToastState() }
+    FontReplacedNotice(toast) {
+        backStack.selectTab(SettingsKey)
+        backStack.add(FontSettingsKey)
+    }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         if (maxWidth >= DiaryRailMinWidth) {
             Row(Modifier.fillMaxSize()) {
                 DiaryNavigationRail(items, selected, onSelect)
-                Content(backStack, Modifier.weight(1f))
+                ContentWithToast(backStack, toast, Modifier.weight(1f))
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                Content(backStack, Modifier.weight(1f))
+                ContentWithToast(backStack, toast, Modifier.weight(1f))
                 if (backStack.size <= 1) DiaryNavigationBar(items, selected, onSelect)
             }
         }
+    }
+}
+
+/** 토스트는 탭과 레일 위, 화면 아래쪽에 뜬다(`docs/design.md` 토스트). */
+@Composable
+private fun ContentWithToast(backStack: NavBackStack<NavKey>, toast: DiaryToastState, modifier: Modifier) {
+    Box(modifier) {
+        Content(backStack, Modifier.fillMaxSize())
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x6))
     }
 }
 
