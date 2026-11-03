@@ -89,7 +89,9 @@ Google 공식 SDK 저장소에서 Google APIs arm64 이미지(API 24 rev 29, API
 
 ### 못 한 것
 
-- 생체 인증(에뮬레이터 지문 등록 후 `adb -e emu finger touch 1`)은 아직 손으로 보지 않았다. 에뮬레이터 지문 등록 마지막에 Pixel Imprint 동의를 눌러야 해서 사용자 확인을 기다린다(2026-11-04).
+- 생체 인증(2026-11-04, API 36, 사용자 허락으로 에뮬레이터에 시험용 PIN과 지문을 등록했다가 지웠다): `LOCK=0427 BIOMETRIC=1`로 업데이트하면
+  잠금 화면 위에 생체 인증 창이 뜨고, 잠긴 동안 이전이 시작되지 않고, 지문을 대면 열리고 이전이 끝났다. 옮긴 설정에 잠금과 생체 인증이 들어갔다.
+  앱을 다시 켜도 창이 뜨고 지문으로 열렸다. 창 제목은 Figma대로 "1일 1일기 잠금 해제"로 고쳤다. 맨 위 로고와 앱 이름은 Android 15부터 시스템이 기기 언어로 그린다.
 - API 35는 폰 이미지가 없다(태블릿 이미지만 있다).
   같은 규칙은 `LockRepositoryTest`, `LockControllerTest`, `LockViewModelTest`가 본다.
 - iOS 시뮬레이터에서 잠금 화면과 가림 창(`PrivacyCover.swift`)은 아직 없다.

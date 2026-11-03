@@ -10,7 +10,7 @@
 # KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3). Snapshotting, Verifying, Committing도 된다.
 # INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050). 먼저 :composeApp:assembleDebugAndroidTest.
 # LOCK=0427: 1.7.4에 그 비밀번호로 잠금을 켜 두고(seed.sh), 새 앱이 잠금 화면부터 띄우는지와 잠긴 동안 이전이 시작되지 않는지 본 뒤
-# 하드웨어 키로 비밀번호를 넣는다(스펙 001 US2, quickstart §4). BIOMETRIC=1이면 지문 설정도 켠다.
+# 하드웨어 키로 비밀번호를 넣는다(스펙 001 US2, quickstart §4). BIOMETRIC=1이면 지문 설정도 켜고, 비밀번호 대신 에뮬레이터 지문(손가락 1, 미리 등록)으로 연다.
 set -eu
 : "${ANDROID_SERIAL:?ANDROID_SERIAL을 에뮬레이터로 정해 주세요(예: emulator-5554)}"
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
@@ -56,8 +56,9 @@ fi
 # 잠금 화면이 뜨기를 기다려, 잠긴 동안 이전이 시작되지 않았는지 보고 비밀번호를 넣는다.
 unlock() {
   i=0
+  # 생체 인증을 켜 두었으면(BIOMETRIC=1) 시스템 생체 인증 창이 잠금 화면을 덮는다. 그 창(지문 센서)도 잠금 화면으로 본다.
   until adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
-    adb shell cat /data/local/tmp/diary-ui.xml | grep -qE '비밀번호를 입력해 주세요|Enter your passcode|パスコードを入力してください'; do
+    adb shell cat /data/local/tmp/diary-ui.xml | grep -qE '비밀번호를 입력해 주세요|Enter your passcode|パスコードを入力してください|content-desc="Fingerprint sensor"'; do
     i=$((i + 1)); [ $i -gt 60 ] && { echo "잠금 화면이 뜨지 않았어요" >&2; exit 1; }
     sleep 1
   done
@@ -66,7 +67,20 @@ unlock() {
     echo "잠긴 동안 이전이 시작됐어요" >&2; exit 1
   fi
   echo "잠금 화면: 잠긴 동안 이전 시작 안 함"
-  for d in $(printf '%s' "$LOCK" | sed 's/./& /g'); do adb shell input keyevent "KEYCODE_$d"; done
+  if [ "${BIOMETRIC:-0}" = 1 ]; then
+    # 에뮬레이터에 등록한 지문(손가락 1)을 댄다. 에뮬레이터에서 지문을 먼저 등록해 둬야 한다.
+    # 창이 막 뜨는 중에 대면 인식하지 않아서, 창이 사라질 때까지 몇 번 댄다.
+    n=0
+    while adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
+      adb shell cat /data/local/tmp/diary-ui.xml | grep -q 'content-desc="Fingerprint sensor"'; do
+      n=$((n + 1)); [ $n -gt 5 ] && { echo "지문으로 열리지 않았어요" >&2; exit 1; }
+      sleep 2; adb emu finger touch 1 >/dev/null; sleep 1; adb emu finger remove 1 >/dev/null
+    done
+    adb shell rm -f /data/local/tmp/diary-ui.xml
+    echo "생체 인증으로 열기"
+  else
+    for d in $(printf '%s' "$LOCK" | sed 's/./& /g'); do adb shell input keyevent "KEYCODE_$d"; done
+  fi
 }
 START=$(date +%s)
 adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
