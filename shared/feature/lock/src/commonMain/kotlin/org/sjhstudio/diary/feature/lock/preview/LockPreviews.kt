@@ -30,7 +30,7 @@ private fun LockDark() = Lock(LockUiState(entered = 2), dark = true)
 
 @Preview(name = "L1 비밀번호가 맞지 않아요", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
-private fun LockWrong() = Lock(LockUiState(entered = 4, message = LockMessage.Wrong(3)))
+private fun LockWrong() = Lock(LockUiState(message = LockMessage.Wrong(3), wrongCount = 1))
 
 @Preview(name = "L1 잠시 기다려 주세요", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

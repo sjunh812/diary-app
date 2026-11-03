@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.component
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,14 +18,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -96,24 +104,52 @@ private fun RowScope.PadKey(enabled: Boolean, label: String?, onClick: () -> Uni
 }
 
 /**
- * 비밀번호 칸 점(Figma pin-dots). 지름 14 · 사이 20.
- * 빈 칸은 `lineStrong` 선 1.5, 찬 칸은 `textPrimary`, 틀렸을 때는 모두 `danger`로 채운다.
+ * 비밀번호 칸 점(Figma pin-dots, `docs/design.md` 숫자판). 지름 14 · 사이 20.
+ * 빈 칸은 `lineStrong` 선 1.5, 찬 칸은 `textPrimary`다.
+ * [wrongCount]가 늘 때마다(틀렸을 때) 점 넷을 `danger`로 채워 좌우로 0.4초 흔들고 진동한 뒤 [filled]대로 돌아간다.
+ * 틀린 입력은 그 뒤 바로 비어 있어 지우지 않고 다시 누른다(AOSP 잠금 화면, GNOME 잠금 화면).
+ * [error]는 흔들지 않고 빨간 점만 보이는 정지 화면용(미리보기, 디자인 견본)이다.
  */
 @Composable
-fun DiaryPinDots(filled: Int, modifier: Modifier = Modifier, length: Int = 4, error: Boolean = false) {
+fun DiaryPinDots(filled: Int, modifier: Modifier = Modifier, length: Int = 4, error: Boolean = false, wrongCount: Int = 0) {
     val colors = DiaryTheme.colors
     val progress = stringResource(Res.string.ds_pin_progress, filled, length)
+    val haptic = LocalHapticFeedback.current
+    val shake = remember { Animatable(0f) }
+    var shaking by remember { mutableStateOf(false) }
+    LaunchedEffect(wrongCount) {
+        if (wrongCount == 0) return@LaunchedEffect
+        shaking = true
+        haptic.performHapticFeedback(HapticFeedbackType.Reject)
+        shake.snapTo(0f)
+        shake.animateTo(
+            0f,
+            keyframes {
+                durationMillis = SHAKE_MILLIS
+                SHAKE_OFFSETS.forEachIndexed { index, offset -> offset at SHAKE_MILLIS * (index + 1) / (SHAKE_OFFSETS.size + 1) }
+            }
+        )
+        shaking = false
+    }
     Row(
-        modifier = modifier.semantics { contentDescription = progress },
+        modifier =
+            modifier
+                .graphicsLayer { translationX = shake.value * density }
+                .semantics { contentDescription = progress },
         horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         repeat(length) { index ->
             val dot = Modifier.size(14.dp).clip(DiaryShapes.full)
             when {
-                error -> Box(dot.background(colors.danger))
+                error || shaking -> Box(dot.background(colors.danger))
                 index < filled -> Box(dot.background(colors.textPrimary))
                 else -> Box(dot.border(1.5.dp, colors.lineStrong, DiaryShapes.full))
             }
         }
     }
 }
+
+private const val SHAKE_MILLIS = 400
+
+/** 흔들림 위치(dp). 점점 줄어들며 가운데로 돌아온다. */
+private val SHAKE_OFFSETS = listOf(-8f, 8f, -6f, 6f, -3f, 3f)

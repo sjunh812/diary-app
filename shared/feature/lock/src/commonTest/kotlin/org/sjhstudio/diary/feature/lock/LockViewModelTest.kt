@@ -55,11 +55,12 @@ class LockViewModelTest {
 
         vm.type("1111")
         advanceUntilIdle()
-        assertEquals(LockUiState(entered = 4, message = LockMessage.Wrong(4)), vm.state.value)
+        // 틀리면 점은 바로 비고, 흔들림 신호(wrongCount)가 는다.
+        assertEquals(LockUiState(message = LockMessage.Wrong(4), wrongCount = 1), vm.state.value)
 
-        // 새로 누르면 빨간 점과 안내를 지운다.
+        // 새로 누르면 안내를 지운다.
         vm.onDigit('0')
-        assertEquals(LockUiState(entered = 1), vm.state.value)
+        assertEquals(LockUiState(entered = 1, wrongCount = 1), vm.state.value)
         vm.type("427")
         advanceUntilIdle()
         assertEquals(listOf<LockEvent>(LockEvent.Unlocked), events)
@@ -97,7 +98,7 @@ class LockViewModelTest {
         "1234".forEach(vm::onDigit)
         assertEquals(PinSetupUiState(again = true), vm.state.value)
         "1235".forEach(vm::onDigit)
-        assertEquals(PinSetupUiState(mismatch = true), vm.state.value)
+        assertEquals(PinSetupUiState(mismatch = true, wrongCount = 1), vm.state.value)
         assertFalse(repository.settings.first().enabled)
 
         "2580".forEach(vm::onDigit)

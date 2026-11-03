@@ -23,8 +23,16 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 
-/** 잠금 화면(L1) 상태. 입력한 숫자는 담지 않고 몇 칸 찼는지만 둔다. */
-data class LockUiState(val entered: Int = 0, val message: LockMessage = LockMessage.None, val checking: Boolean = false)
+/**
+ * 잠금 화면(L1) 상태. 입력한 숫자는 담지 않고 몇 칸 찼는지만 둔다.
+ * [wrongCount]는 틀릴 때마다 는다. 점이 흔들리는 신호라 같은 수로 두 번 틀려도 다시 흔들린다.
+ */
+data class LockUiState(
+    val entered: Int = 0,
+    val message: LockMessage = LockMessage.None,
+    val checking: Boolean = false,
+    val wrongCount: Int = 0
+)
 
 sealed interface LockMessage {
     data object None : LockMessage
@@ -78,7 +86,7 @@ class LockViewModel(
         val current = _state.value
         if (current.checking || current.message is LockMessage.Waiting || count >= Pin.LENGTH) return
         digits[count++] = digit
-        // 틀린 뒤 새로 누르면 빨간 점과 안내를 지운다.
+        // 틀린 뒤 새로 누르면 안내를 지운다.
         _state.update { it.copy(entered = count, message = LockMessage.None) }
         if (count == Pin.LENGTH) check()
     }
@@ -113,9 +121,11 @@ class LockViewModel(
                     _events.send(LockEvent.Unlocked)
                 }
 
+                // 점은 흔들린 뒤 바로 비어 다시 누르면 된다. 남은 횟수 안내는 다음 숫자를 누를 때까지 남는다.
                 is VerifyResult.Wrong ->
-                    _state.value =
-                        LockUiState(entered = Pin.LENGTH, message = LockMessage.Wrong(result.remainingBeforeWait))
+                    _state.update {
+                        LockUiState(message = LockMessage.Wrong(result.remainingBeforeWait), wrongCount = it.wrongCount + 1)
+                    }
 
                 is VerifyResult.Waiting -> waitUntil(result.until)
 

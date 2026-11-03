@@ -33,7 +33,7 @@ fun PinSetupScreen(
         title = stringResource(if (state.again) Res.string.pin_setup_again else Res.string.pin_setup_title),
         line = if (state.mismatch) PinLine(stringResource(Res.string.pin_setup_mismatch), DiaryTheme.colors.danger) else null,
         entered = state.entered,
-        error = false,
+        wrongCount = state.wrongCount,
         modifier = modifier.pinKeys(enabled = !state.saving, onDigit = onDigit, onDelete = onDelete),
         top = {
             DiaryTopBar(title = "", onBack = onBack)

@@ -12,8 +12,17 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.Pin
 
-/** 비밀번호 정하기(L2) 상태. [again]이면 두 번째 입력이다. */
-data class PinSetupUiState(val entered: Int = 0, val again: Boolean = false, val mismatch: Boolean = false, val saving: Boolean = false)
+/**
+ * 비밀번호 정하기(L2) 상태. [again]이면 두 번째 입력이다.
+ * [wrongCount]는 두 번 입력이 다를 때마다 는다(점이 흔들리는 신호).
+ */
+data class PinSetupUiState(
+    val entered: Int = 0,
+    val again: Boolean = false,
+    val mismatch: Boolean = false,
+    val saving: Boolean = false,
+    val wrongCount: Int = 0
+)
 
 /**
  * 새 비밀번호를 두 번 받아 같으면 정한다(contracts/lock.md).
@@ -40,13 +49,13 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
         if (count < Pin.LENGTH) return
         count = 0
         when {
-            !current.again -> _state.value = PinSetupUiState(again = true)
+            !current.again -> _state.value = PinSetupUiState(again = true, wrongCount = current.wrongCount)
 
             first.contentEquals(second) -> save()
 
             else -> {
                 clear()
-                _state.value = PinSetupUiState(mismatch = true)
+                _state.value = PinSetupUiState(mismatch = true, wrongCount = current.wrongCount + 1)
             }
         }
     }

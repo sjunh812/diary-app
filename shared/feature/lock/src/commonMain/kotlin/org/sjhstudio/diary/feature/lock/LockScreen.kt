@@ -69,7 +69,7 @@ fun LockScreen(
         title = if (waiting) stringResource(Res.string.lock_wait_title) else title ?: stringResource(Res.string.lock_title),
         line = line,
         entered = if (waiting) 0 else state.entered,
-        error = message is LockMessage.Wrong,
+        wrongCount = state.wrongCount,
         modifier = modifier.pinKeys(enabled = !waiting && !state.checking, onDigit = onDigit, onDelete = onDelete),
         top = {
             if (onBack != null) {
