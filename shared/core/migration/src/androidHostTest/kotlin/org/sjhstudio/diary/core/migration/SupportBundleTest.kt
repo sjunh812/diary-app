@@ -22,9 +22,12 @@ class SupportBundleTest {
         databasePath = dir.root / "databases" / "diary.db"
     )
 
-    /** 일기 파일 사본과 비밀번호를 뺀 설정만 담는다. 사진과 다른 설정 파일은 담지 않는다(FR-010a). */
+    /**
+     * 일기 파일 사본만 담는다. 사진과 설정 파일은 담지 않는다(FR-010a).
+     * 설정에는 옛 백업 계정 이메일과 드라이브 파일 ID가 있을 수 있다(2026-11-04 사용자 결정).
+     */
     @Test
-    fun bundle_holds_only_the_diary_file_and_settings() {
+    fun bundle_holds_only_the_diary_file() {
         TempDir().use { dir ->
             val paths = paths(dir)
             dir.write("files/legacy-snapshot/note.db", "db")
@@ -40,7 +43,7 @@ class SupportBundleTest {
             ZipInputStream(dir.fs.source(zip).buffer().inputStream()).use { input ->
                 generateSequence { input.nextEntry }.forEach { names += it.name }
             }
-            assertEquals(listOf("legacy-snapshot/note.db", "legacy-snapshot/note.db-wal", "legacy-snapshot/pref.xml"), names)
+            assertEquals(listOf("legacy-snapshot/note.db", "legacy-snapshot/note.db-wal"), names)
         }
     }
 
