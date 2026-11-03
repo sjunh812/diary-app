@@ -38,7 +38,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 // 최소 56 · 위아래 14 · 좌우 20 · 이름 reading. 설명이 붙으면 이름 아래 caption 두 줄짜리다.
 
 /**
- * 설정 묶음 머리(SEED ListHeader 14 Medium). [gapAbove]면 위 여백을 20 대신 32로 넓혀 앞 묶음과 나눈다
+ * 설정 묶음 머리(SEED ListHeader 14 Medium). [gapAbove]면 위 여백을 20 대신 24로 넓혀 앞 묶음과 나눈다
  * (2026-11-04 사용자 결정, 여백 20은 줄 사이와 비슷해 묶음이 한 덩어리로 보였다). 화면의 첫 묶음은 20이다.
  */
 @Composable
@@ -52,7 +52,7 @@ fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: B
                 .padding(
                     start = DiarySpacing.x5,
                     end = DiarySpacing.x5,
-                    top = if (gapAbove) DiarySpacing.x8 else DiarySpacing.x5,
+                    top = if (gapAbove) DiarySpacing.x6 else DiarySpacing.x5,
                     bottom = DiarySpacing.x2
                 )
                 .semantics { heading() }
