@@ -6,6 +6,7 @@ import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -47,7 +48,7 @@ private fun ListDeveloper() = DiaryTheme(darkTheme = false) {
 
 @Composable
 private fun TextSize(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), onSelect = {}, onBack = {})
+    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), font = DiaryFont.KKOMI, onSelect = {}, onBack = {})
 }
 
 @Preview(name = "G2 본문 글자 크기 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)

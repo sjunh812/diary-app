@@ -68,6 +68,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         TextSizeSettingsScreen(
             selected = state.settings.bodyTextSize,
             sampleDate = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date },
+            font = state.settings.font,
             onSelect = viewModel::setBodyTextSize,
             onBack = pop
         )

@@ -206,7 +206,7 @@
 - Decision: 본문 글꼴 10종과 UI 글꼴 Pretendard 4굵기를 `core/designsystem`의 Compose 리소스에 넣고, 고른 글꼴만 그릴 때 읽는다. 글꼴 ID는
   `pretendard`, `gowun_dodum`, `cafe24_surround`, `maru_buri`, `gowun_batang`, `nanum_pen`, `nanum_jeomggol`, `kkomi`, `gamja_flower`, `hi_melody`와
   `system`이다(2026-11-01 다시 고름, `docs/design.md`).
-- 글꼴 내려받기(2026-11-01 사용자 요청): Pretendard·국립공원 꼬미·나눔손글씨 펜(3.5MB 이하)만 Compose 리소스로 넣고, 나머지 6종은 Android에서 글꼴마다
+- 글꼴 내려받기(2026-11-01 사용자 요청, 2026-11-03 크기를 재고 고침): Pretendard·국립공원 꼬미·나눔손글씨 펜·카페24 써라운드(OTF 1.6MB)·마루 부리(OTF 0.94MB)(3.5MB 이하)만 Compose 리소스로 넣고, 나머지 5종은 Android에서 글꼴마다
   Play Feature Delivery 필요할 때 설치 모듈(`fonts:<id>`, 자산만 있는 모듈)로 둔다. 받으면 `SplitCompat`으로 모듈 자산을 읽어 `files/fonts/<id>.ttf`로
   복사하고 파일에서 `FontFamily`를 만든다. 받기 전에는 미리보기 그림만 보인다. iOS는 R2에 On-Demand Resources(또는 그때 Apple 권장 방식)로 같은 일을 한다.
   근거: [Play Feature Delivery](https://developer.android.com/guide/playcore/feature-delivery), [On-Demand Resources](https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/On_Demand_Resources_Guide/Managing.html).

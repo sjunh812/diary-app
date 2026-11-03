@@ -29,6 +29,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
@@ -38,13 +40,13 @@ import org.sjhstudio.diary.feature.settings.resources.text_size_sample_glyph
 
 /**
  * 본문 글자 크기(Figma "본문 글자 크기 (G2)", research R17).
- * 위 견본 글이 고른 크기로 바로 바뀐다. 일기 본문에만 걸리고 앱 틀 글자는 기기 글자 크기를 따른다.
- * 글꼴을 고르는 화면(G1)이 생기면 견본 글도 고른 글꼴로 그린다.
+ * 위 견본 글이 고른 크기로 바로 바뀌고 고른 본문 글꼴로 그린다. 일기 본문에만 걸리고 앱 틀 글자는 기기 글자 크기를 따른다.
  */
 @Composable
 fun TextSizeSettingsScreen(
     selected: BodyTextSize,
     sampleDate: LocalDate,
+    font: DiaryFont,
     onSelect: (BodyTextSize) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -69,11 +71,7 @@ fun TextSizeSettingsScreen(
                 )
                 BasicText(
                     stringResource(Res.string.text_size_sample_body),
-                    style = DiaryTheme.typography.reading.copy(
-                        color = colors.textPrimary,
-                        fontSize = selected.fontSizeSp.sp,
-                        lineHeight = selected.lineHeightSp.sp
-                    )
+                    style = diaryBodyTextStyle(font, selected).copy(color = colors.textPrimary)
                 )
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

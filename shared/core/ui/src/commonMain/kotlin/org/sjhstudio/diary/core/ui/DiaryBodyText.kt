@@ -1,0 +1,48 @@
+package org.sjhstudio.diary.core.ui
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.Font
+import org.sjhstudio.diary.core.designsystem.resources.Res
+import org.sjhstudio.diary.core.designsystem.resources.cafe24_surround_regular
+import org.sjhstudio.diary.core.designsystem.resources.kkomi_regular
+import org.sjhstudio.diary.core.designsystem.resources.maru_buri_regular
+import org.sjhstudio.diary.core.designsystem.resources.nanum_pen_regular
+import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.pretendardFamily
+import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.DiaryFont
+
+/** 앱에 넣은 본문 글꼴(3.5MB 이하, `docs/design.md` 일기 본문 글꼴 10종). 나머지는 고를 때 받는다. */
+val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
+    setOf(DiaryFont.PRETENDARD, DiaryFont.SYSTEM, DiaryFont.KKOMI, DiaryFont.NANUM_PEN, DiaryFont.CAFE24_SURROUND, DiaryFont.MARU_BURI)
+
+/**
+ * 일기 본문 글꼴. 앱에 넣은 글꼴은 리소스에서 읽고, 받는 글꼴은 [installed]가 돌려주는 받은 파일로 만든다.
+ * 받기 전이거나 읽지 못하면 Pretendard로 보인다(글꼴을 받는 동안에도 일기는 읽힌다).
+ * 고른 글꼴 하나만 읽는다. 본문 글꼴은 일기 본문에만 쓴다(헌법 V).
+ */
+@Composable
+fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = when (font) {
+    DiaryFont.SYSTEM -> FontFamily.Default
+    DiaryFont.PRETENDARD -> pretendardFamily()
+    DiaryFont.KKOMI -> FontFamily(Font(Res.font.kkomi_regular))
+    DiaryFont.NANUM_PEN -> FontFamily(Font(Res.font.nanum_pen_regular))
+    DiaryFont.CAFE24_SURROUND -> FontFamily(Font(Res.font.cafe24_surround_regular))
+    DiaryFont.MARU_BURI -> FontFamily(Font(Res.font.maru_buri_regular))
+    else -> installed(font) ?: pretendardFamily()
+}
+
+/**
+ * 일기 본문 글자 스타일: 고른 글꼴과 본문 글자 크기 단계(research R17).
+ * 크기는 sp라 기기 글자 크기 위에 곱해진다. 메뉴와 버튼은 이 스타일을 쓰지 않는다.
+ */
+@Composable
+fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily? = { null }): TextStyle =
+    DiaryTheme.typography.reading.copy(
+        fontFamily = diaryBodyFontFamily(font, installed),
+        fontSize = size.fontSizeSp.sp,
+        lineHeight = size.lineHeightSp.sp
+    )
