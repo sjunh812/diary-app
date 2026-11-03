@@ -15,6 +15,9 @@ expect class AppFiles {
     /** 썸네일. 다시 만들 수 있어 백업에서 뺀다. */
     val thumbnailDirectory: String
 
+    /** 고를 때 받은 일기 글꼴 `<id>.ttf`. 다시 받을 수 있어 백업에서 뺀다. */
+    val fontDirectory: String
+
     /** 설정과 잠금 DataStore 파일. */
     val dataStoreDirectory: String
 

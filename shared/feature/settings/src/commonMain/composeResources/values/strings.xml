@@ -54,6 +54,26 @@
     <string name="reminder_permission_body">Allow notifications for 1 Day 1 Diary in your phone settings to get daily reminders.</string>
     <string name="reminder_permission_allow">Allow</string>
 
+    <!-- Font (G1). Font names are proper nouns and stay in Latin letters. %1$s in font_download is a size such as 7.2MB, in font_downloading a percent such as 42%. -->
+    <string name="settings_font">Font</string>
+    <string name="font_name_system">System font</string>
+    <string name="font_name_pretendard">Pretendard</string>
+    <string name="font_name_gowun_dodum">Gowun Dodum</string>
+    <string name="font_name_cafe24_surround">Cafe24 Ssurround</string>
+    <string name="font_name_maru_buri">Maru Buri</string>
+    <string name="font_name_gowun_batang">Gowun Batang</string>
+    <string name="font_name_nanum_pen">Nanum Pen</string>
+    <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
+    <string name="font_name_kkomi">Kkomi</string>
+    <string name="font_name_gamja_flower">Gamja Flower</string>
+    <string name="font_name_hi_melody">Hi Melody</string>
+    <string name="font_preview_label">Preview</string>
+    <string name="font_preview_sample">The breeze was cool today, so I walked all the way to the river.</string>
+    <string name="font_download">Get · %1$s</string>
+    <string name="font_downloading">Getting %1$s</string>
+    <string name="font_offline">You can get it when you're online.</string>
+    <string name="font_failed">Couldn't get the font. Please try again later.</string>
+
     <!-- Diary text size (G2) -->
     <string name="text_size_small">Small</string>
     <string name="text_size_medium">Default</string>

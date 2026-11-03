@@ -49,6 +49,26 @@
     <string name="reminder_permission_body">スマートフォンの設定で1日1日記の通知を許可すると、毎日リマインダーが届きます。</string>
     <string name="reminder_permission_allow">許可する</string>
 
+    <!-- フォント(G1)。フォント名は固有名詞なのでローマ字のまま -->
+    <string name="settings_font">フォント</string>
+    <string name="font_name_system">システムフォント</string>
+    <string name="font_name_pretendard">Pretendard</string>
+    <string name="font_name_gowun_dodum">Gowun Dodum</string>
+    <string name="font_name_cafe24_surround">Cafe24 Ssurround</string>
+    <string name="font_name_maru_buri">Maru Buri</string>
+    <string name="font_name_gowun_batang">Gowun Batang</string>
+    <string name="font_name_nanum_pen">Nanum Pen</string>
+    <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
+    <string name="font_name_kkomi">Kkomi</string>
+    <string name="font_name_gamja_flower">Gamja Flower</string>
+    <string name="font_name_hi_melody">Hi Melody</string>
+    <string name="font_preview_label">プレビュー</string>
+    <string name="font_preview_sample">今日は風が涼しくて、川沿いまで歩いた。</string>
+    <string name="font_download">入手 · %1$s</string>
+    <string name="font_downloading">入手中 %1$s</string>
+    <string name="font_offline">インターネットに接続すると入手できます</string>
+    <string name="font_failed">フォントを入手できませんでした。しばらくしてからもう一度お試しください</string>
+
     <!-- 本文の文字サイズ(G2) -->
     <string name="text_size_small">小</string>
     <string name="text_size_medium">標準</string>

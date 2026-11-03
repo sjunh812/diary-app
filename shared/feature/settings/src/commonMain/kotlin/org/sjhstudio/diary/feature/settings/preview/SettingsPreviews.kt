@@ -10,6 +10,8 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.feature.settings.FontSettingsScreen
+import org.sjhstudio.diary.feature.settings.FontUiState
 import org.sjhstudio.diary.feature.settings.ReminderSettingsScreen
 import org.sjhstudio.diary.feature.settings.ReminderUiState
 import org.sjhstudio.diary.feature.settings.SettingsScreen
@@ -17,18 +19,18 @@ import org.sjhstudio.diary.feature.settings.SettingsUiState
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
-// 설정 목록(S6), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰. 값은 Figma 화면과 같다.
+// 설정 목록(S6), 글꼴(G1), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰. 값은 Figma 화면과 같다.
 
 private val sample =
     SettingsUiState(
-        settings = AppSettings(bodyTextSize = BodyTextSize.LARGE, reminderEnabled = true),
+        settings = AppSettings(font = DiaryFont.KKOMI, bodyTextSize = BodyTextSize.LARGE, reminderEnabled = true),
         lock = LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", relockAfter = RelockAfter.ONE_MINUTE),
         showsMigrationReport = true
     )
 
 @Composable
 private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    SettingsScreen(sample, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {})
+    SettingsScreen(sample, onFont = {}, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {})
 }
 
 @Preview(name = "S6 설정 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
@@ -43,7 +45,8 @@ private fun ListDark() = SettingsList(dark = true)
 @Preview(name = "S6 설정 · 개발 빌드", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun ListDeveloper() = DiaryTheme(darkTheme = false) {
-    SettingsScreen(sample, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onDesignCatalog = {})
+    SettingsScreen(sample, onFont = {
+    }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onDesignCatalog = {})
 }
 
 @Composable
@@ -92,3 +95,20 @@ private fun ReminderNeedsPermission() = Reminder(dark = false, ReminderUiState(e
 @Preview(name = "R1 매일 알림 · 끔", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun ReminderOff() = Reminder(dark = false, ReminderUiState(enabled = false))
+
+private val fontSample = FontUiState(settings = AppSettings(font = DiaryFont.KKOMI))
+
+@Composable
+private fun Font(dark: Boolean, state: FontUiState) = DiaryTheme(darkTheme = dark) { FontSettingsScreen(state, onSelect = {}, onBack = {}) }
+
+@Preview(name = "G1 글꼴 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun FontLight() = Font(dark = false, fontSample)
+
+@Preview(name = "G1 글꼴 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun FontDark() = Font(dark = true, fontSample)
+
+@Preview(name = "G1 글꼴 · 받는 중", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun FontDownloading() = Font(dark = false, fontSample.copy(downloading = mapOf(DiaryFont.GAMJA_FLOWER to 0.42f)))

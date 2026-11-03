@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -20,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -133,6 +136,47 @@ fun DiarySettingsChoiceRow(
         description = description
     ) {
         if (selected) DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = DiaryTheme.colors.accentText)
+    }
+}
+
+/**
+ * 제목 자리를 직접 그리는 고르기 줄(글꼴 목록처럼 이름을 그 글꼴이나 그림으로 그릴 때).
+ * [label]은 화면 읽기 프로그램이 읽는 이름이다. 오른쪽은 [trailing]이 정하고, 없으면 고른 줄에 체크를 둔다.
+ */
+@Composable
+fun DiarySettingsChoiceRow(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    trailing: (@Composable RowScope.() -> Unit)? = null
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val colors = DiaryTheme.colors
+    Row(
+        modifier =
+            modifier
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                .selectable(
+                    selected = selected,
+                    role = Role.RadioButton,
+                    interactionSource = interaction,
+                    indication = null,
+                    onClick = onClick
+                )
+                .semantics(mergeDescendants = true) { contentDescription = label }
+                .fillMaxWidth()
+                .heightIn(min = 56.dp)
+                .padding(horizontal = DiarySpacing.x5, vertical = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(Modifier.weight(1f).clearAndSetSemantics {}) { title() }
+        when {
+            trailing != null -> trailing()
+            selected -> DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = colors.accentText)
+        }
     }
 }
 

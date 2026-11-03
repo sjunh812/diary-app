@@ -12,6 +12,7 @@ actual class AppFiles(context: Context) {
 
     // no_backup은 안드로이드 자동 백업에 들어가지 않는다.
     actual val thumbnailDirectory: String = File(noBackupDir, "thumbs").absolutePath
+    actual val fontDirectory: String = File(noBackupDir, "fonts").absolutePath
     actual val dataStoreDirectory: String = File(filesDir, "datastore").absolutePath
     actual val migrationDirectory: String? = File(filesDir, "migration").absolutePath
     actual val legacySnapshotDirectory: String? = File(filesDir, "legacy-snapshot").absolutePath
@@ -21,6 +22,7 @@ actual class AppFiles(context: Context) {
             File(databasePath).parent,
             mediaDirectory,
             thumbnailDirectory,
+            fontDirectory,
             dataStoreDirectory,
             migrationDirectory,
             legacySnapshotDirectory

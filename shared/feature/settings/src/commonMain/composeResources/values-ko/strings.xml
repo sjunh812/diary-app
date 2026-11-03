@@ -49,6 +49,26 @@
     <string name="reminder_permission_body">휴대폰 설정에서 1일 1일기 알림을 허용해야 매일 알림이 와요.</string>
     <string name="reminder_permission_allow">허용하기</string>
 
+    <!-- 글꼴(G1) -->
+    <string name="settings_font">글꼴</string>
+    <string name="font_name_system">시스템 글꼴</string>
+    <string name="font_name_pretendard">Pretendard</string>
+    <string name="font_name_gowun_dodum">고운돋움</string>
+    <string name="font_name_cafe24_surround">카페24 써라운드</string>
+    <string name="font_name_maru_buri">마루 부리</string>
+    <string name="font_name_gowun_batang">고운바탕</string>
+    <string name="font_name_nanum_pen">나눔손글씨 펜</string>
+    <string name="font_name_nanum_jeomggol">나눔손글씨 점꼴체</string>
+    <string name="font_name_kkomi">국립공원 꼬미</string>
+    <string name="font_name_gamja_flower">감자꽃</string>
+    <string name="font_name_hi_melody">하이멜로디</string>
+    <string name="font_preview_label">미리보기</string>
+    <string name="font_preview_sample">오늘은 바람이 선선해서 한강까지 걸었다.</string>
+    <string name="font_download">받기 · %1$s</string>
+    <string name="font_downloading">받는 중 %1$s</string>
+    <string name="font_offline">인터넷에 연결되면 받을 수 있어요</string>
+    <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 해 주세요</string>
+
     <!-- 본문 글자 크기(G2) -->
     <string name="text_size_small">작게</string>
     <string name="text_size_medium">보통</string>

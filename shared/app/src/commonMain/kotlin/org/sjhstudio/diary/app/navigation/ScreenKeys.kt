@@ -27,6 +27,9 @@ data object InsightKey : TabScreen
 data object SettingsKey : TabScreen
 
 @Serializable
+data object FontSettingsKey : Screen
+
+@Serializable
 data object TextSizeSettingsKey : Screen
 
 @Serializable

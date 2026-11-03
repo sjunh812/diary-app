@@ -42,6 +42,9 @@ include(":composeApp")
 // 앱 시작과 목록 넘기기를 재고 Baseline Profile을 만든다. 앱에 들어가지 않는다.
 include(":benchmarks")
 
+// 고를 때 받는 일기 글꼴. 글꼴마다 자산만 든 Play 필요할 때 설치 모듈이다(research R17). iOS도 같은 파일을 쓴다.
+include(":fonts:gowun_dodum", ":fonts:gowun_batang", ":fonts:nanum_jeomggol", ":fonts:gamja_flower", ":fonts:hi_melody")
+
 // 시작 관문과 화면 전환 뼈대. 안드로이드는 composeApp이 감싸고, iOS는 이 모듈을 Shared 프레임워크로 받는다.
 include(":shared:app")
 

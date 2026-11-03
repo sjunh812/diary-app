@@ -22,6 +22,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.navigation.DesignCatalogKey
+import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.LockSettingsKey
 import org.sjhstudio.diary.app.navigation.MigrationReportKey
 import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
@@ -35,6 +36,7 @@ import org.sjhstudio.diary.feature.lock.LockSettingsRoute
 import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
+import org.sjhstudio.diary.feature.settings.FontSettingsRoute
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportViewModel
 import org.sjhstudio.diary.feature.settings.ReminderSettingsRoute
@@ -44,7 +46,7 @@ import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
 /**
- * 설정 탭의 화면들(설정 목록 → 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과).
+ * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과).
  * 기능 모듈끼리는 서로 모르므로 어디서 어디로 가는지는 여기서 정한다.
  */
 fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit, developer: Boolean = false) {
@@ -53,6 +55,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val state by viewModel.state.collectAsStateWithLifecycle()
         SettingsScreen(
             state,
+            onFont = { push(FontSettingsKey) },
             onTextSize = { push(TextSizeSettingsKey) },
             onTheme = { push(ThemeSettingsKey) },
             onReminder = { push(ReminderSettingsKey) },
@@ -78,6 +81,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val state by viewModel.state.collectAsStateWithLifecycle()
         ThemeSettingsScreen(state.settings.themeMode, onSelect = viewModel::setThemeMode, onBack = pop)
     }
+    entry<FontSettingsKey> { FontSettingsRoute(onBack = pop) }
     entry<ReminderSettingsKey> { ReminderSettingsRoute(onBack = pop) }
     entry<LockSettingsKey> { LockSettingsRoute(onBack = pop) }
     entry<MigrationReportKey> { MigrationReportPage(onBack = pop) }

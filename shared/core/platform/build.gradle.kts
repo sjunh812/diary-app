@@ -12,6 +12,8 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.biometric)
             implementation(libs.androidx.lifecycle.process)
+            // 고를 때 받는 일기 글꼴(AndroidFontInstaller)
+            implementation(libs.play.feature.delivery)
         }
     }
 }

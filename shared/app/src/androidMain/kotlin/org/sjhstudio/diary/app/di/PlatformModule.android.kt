@@ -28,9 +28,11 @@ import org.sjhstudio.diary.core.migration.SupportBundle
 import org.sjhstudio.diary.core.migration.SupportFiles
 import org.sjhstudio.diary.core.migration.freeBytes
 import org.sjhstudio.diary.core.migration.legacyFiles
+import org.sjhstudio.diary.core.platform.AndroidFontInstaller
 import org.sjhstudio.diary.core.platform.AndroidNotificationPermission
 import org.sjhstudio.diary.core.platform.AndroidReminderScheduler
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 
@@ -40,6 +42,7 @@ internal actual val platformModule: Module =
         single { AppFiles(androidContext()) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }
+        single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }
         single { DatabaseFactory(androidContext(), get()) }
         single {
             val files = get<AppFiles>()

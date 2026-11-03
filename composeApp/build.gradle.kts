@@ -26,6 +26,10 @@ android {
         localeFilters += listOf("en", "ko", "ja")
     }
 
+    // 고를 때 받는 일기 글꼴 다섯 종(research R17). 받은 뒤 SplitCompat으로 자산을 읽는다.
+    dynamicFeatures +=
+        setOf(":fonts:gowun_dodum", ":fonts:gowun_batang", ":fonts:nanum_jeomggol", ":fonts:gamja_flower", ":fonts:hi_melody")
+
     buildFeatures {
         compose = true
         // 개발 빌드에서 사용 통계 고정 표를 엄격하게 본다(BuildConfig.DEBUG).
@@ -68,6 +72,8 @@ dependencies {
     // 시작 화면(Android 12 미만도 같은 모양, research R14)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.profileinstaller)
+    // 받은 글꼴 모듈의 자산을 앱이 바로 읽게 한다(SplitCompat).
+    implementation(libs.play.feature.delivery)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
