@@ -78,16 +78,19 @@ Google 공식 SDK 저장소에서 Google APIs arm64 이미지(API 24 rev 29, API
 | API 36 폰(한국어) | 뜸 | 시작 안 함 | 열림, 이전 끝 | 일기 4, 원본 해시 그대로 | 가려짐(빈 화면) |
 | API 29 폰(한국어) | 뜸 | 시작 안 함 | 열림, 이전 끝 | 같음 | 가려짐(빈 화면) |
 | API 24 폰(한국어) | 뜸 | 시작 안 함 | 열림, 이전 끝 | 같음 | **보임**(이전 결과 화면이 그대로) |
+| API 31 폰(한국어, 2026-11-04) | 뜸 | 시작 안 함 | 열림, 이전 끝 | 같음, 옮긴 설정에 잠금 | 홈을 거치면 가려짐, 앱에서 바로 최근 앱 버튼이면 **보임** |
 
 - 틀린 비밀번호: 점 넷이 빨갛게 바뀌고 "비밀번호가 맞지 않아요 · 남은 횟수 4번"이 Figma L1 상태와 같은 자리에 뜬다(API 36 캡처).
 - 잠금 키: `PinKeyStoreTest`(Android Keystore)가 API 36·24에서 통과했다. iOS 키체인은 시험 실행기에서 쓸 수 없어(errSecNotAvailable) 앱으로 확인해야 한다.
 - **열린 결정 O3**: Android 13 이상은 `setRecentsScreenshotEnabled(false)`로, Android 10(API 29)은 화면을 떠날 때 켜는 `FLAG_SECURE`로 가려진다.
   Android 7(API 24)은 시스템이 그보다 먼저 미리보기를 찍어 가려지지 않는다. Android 8~9는 에뮬레이터가 없어 보지 못했다.
+  Android 12(API 31)는 홈으로 나간 뒤에는 가려지지만, 앱 안에서 바로 최근 앱 버튼을 누르면 시스템이 먼저 미리보기를 찍어 보인다(2026-11-04).
   사용자는 늘 화면 보호를 켜 캡처까지 막는 안 대신 지금 방식을 골랐다(2026-11-02, O3 닫음).
 
 ### 못 한 것
 
-- 생체 인증(에뮬레이터 지문 등록 후 `adb -e emu finger touch 1`)은 아직 손으로 보지 않았다.
+- 생체 인증(에뮬레이터 지문 등록 후 `adb -e emu finger touch 1`)은 아직 손으로 보지 않았다. 에뮬레이터 지문 등록 마지막에 Pixel Imprint 동의를 눌러야 해서 사용자 확인을 기다린다(2026-11-04).
+- API 35는 폰 이미지가 없다(태블릿 이미지만 있다).
   같은 규칙은 `LockRepositoryTest`, `LockControllerTest`, `LockViewModelTest`가 본다.
 - iOS 시뮬레이터에서 잠금 화면과 가림 창(`PrivacyCover.swift`)은 아직 없다.
 
