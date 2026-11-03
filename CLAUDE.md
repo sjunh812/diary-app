@@ -74,6 +74,7 @@ sh scripts/test-commit-msg.sh                                     # 커밋 형�
 ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug   # 에뮬레이터에 설치
 adb -s emulator-5554 shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report  # 길이 없는 화면 띄우기(개발 빌드, design_catalog는 디자인 시스템 견본)
 ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 sh scripts/legacy/upgrade-test.sh  # 1.7.4 → 새 앱 업그레이드(COUNT=1000, KILL_AT=Copying, LOCK=0427 옵션)
+./gradlew :composeApp:assembleNonMinifiedRelease :benchmarks:assembleNonMinifiedRelease  # Baseline Profile 생성기 APK(설치·실행은 아래 메모)
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath iosApp/build build
 ```
@@ -83,6 +84,11 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
   `Text("`를 찾으면 실패한다. 디자인 시스템 모듈, 미리보기 파일, 시험(`src/*Test`)은 뺀다.
 - Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
+- Baseline Profile은 `adb -s emulator-5554`로 두 APK를 깔고 `am instrument -w -e class org.sjhstudio.diary.benchmarks.BaselineProfileGenerator
+  -e androidx.benchmark.enabledRules BaselineProfile org.sjhstudio.diary.benchmarks/androidx.test.runner.AndroidJUnitRunner`로 만든다. 결과
+  (`/sdcard/Android/media/org.sjhstudio.diary.benchmarks/*-prof.txt`)를 `composeApp/src/main/generated/baselineProfiles/`에 넣는다.
+  `generateBaselineProfile` 작업은 붙은 기기를 모두 쓰므로 실기기가 연결되어 있을 때는 쓰지 않는다. 시작 시간은 같은 방법으로 `StartupBenchmark`를
+  `benchmarkRelease` APK로 돌린다(에뮬레이터는 `-e androidx.benchmark.suppressErrors EMULATOR`).
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
   빌드 단계가 `:shared:app:embedAndSignAppleFrameworkForXcode`를 불러 Shared 프레임워크를 만든다.
