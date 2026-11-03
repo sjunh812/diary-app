@@ -11,7 +11,7 @@
     </plurals>
     <string name="lock_forgot">パスコードを忘れました</string>
     <string name="lock_biometric">生体認証で開く</string>
-    <string name="lock_biometric_prompt_title">日記を開く</string>
+    <string name="lock_biometric_prompt_title">1日1日記のロックを解除</string>
     <string name="lock_biometric_prompt_cancel">パスコードを入力</string>
 
     <!-- パスコードの設定(L2) -->
