@@ -142,3 +142,10 @@ iPhone 17 시뮬레이터(한국어)에서 앱 틀의 설정 탭 → 잠금 → 
 - API 36 폰(개발 빌드): 설정 맨 아래 "개발 > 디자인 시스템 견본" 줄이 보이고, 누르면 견본 화면(색 토큰 전부와 #AARRGGBB 값, 글자 13단계, 간격·모서리, 컴포넌트)이 뜨고 뒤로 가기로 설정에 돌아온다. `screen_view`의 `DesignCatalogKey`는 고정 표에 있어 엄격 모드에서 예외가 없다.
 - 출시 빌드(`assembleRelease`, R8): `composeApp/build/outputs/mapping/release/mapping.txt`에 `core.designsystem.catalog`, `app.developer.DesignCatalogEntriesKt`, 프리뷰 클래스의 실제 항목이 없다(`DeveloperEntries` 인터페이스와 화면 키 `DesignCatalogKey`만 남는다. 키는 sealed 직렬화기 등록 때문이고 그 화면으로 가는 길은 없다). `ComposeStackTrace -> $$compose` 항목에 이름이 보이는 것은 Compose 컴파일러가 스택 추적용으로 남기는 표라 코드가 남은 것이 아니다.
 - iOS는 디버그 바이너리에서만 등록한다. 릴리스 프레임워크에 코드는 남지만 설정 줄과 화면 키가 생기지 않는다. 시뮬레이터에서 보는 것은 하지 않았다(K/N 컴파일만 확인).
+
+## 2026-11-03 · 앱 틀과 잠금 관문 화면 시험(US5·US2)
+
+- iOS 시뮬레이터 Compose UI 시험: `AppScaffoldUiTest` 5건, `LockGateUiTest` 3건, `DiaryNavigationTest` 2건(한국어·영어·일본어 탭 이름, 글자 배율 1·1.3·2) 모두 통과.
+- 처음 돌렸을 때 글자 배율 2.0에서 하단 탭 이름 넷(홈·달력·돌아보기·설정)이 모두 칸 높이에 맞춰 잘렸다. 레일은 "돌아보기"가 잘렸다. 탭·레일 이름만 1.3배까지 커지게 고친 뒤 통과했다. 상한을 빼면 같은 시험이 다시 실패하는 것도 확인했다.
+- 잘림은 `hasVisualOverflow`로 보지 않는다. 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 1배에서도 폭이 넘친다고 나왔다. 글자 높이가 칸보다 큰지, 글자 제 폭이 보이는 폭보다 큰지로 본다.
+- API 36 폰 에뮬레이터, 기기 글꼴 크기 2.0: 설정 탭에서 본문과 줄 글자는 커지고 하단 탭 이름은 한 줄로 다 보인다.

@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.designsystem.resources.ds_close
 import org.sjhstudio.diary.core.platform.AuthPrompt
 import org.sjhstudio.diary.core.platform.AuthResult
 import org.sjhstudio.diary.core.platform.BiometricStatus
+import org.sjhstudio.diary.core.platform.DeviceAuthenticator
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.forgot_prompt_title
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric_prompt_cancel
@@ -32,6 +33,7 @@ private enum class LockStep { Enter, NewPin }
  * 잠금 화면 → "비밀번호를 잊어버렸어요" → 폰 화면 잠금 확인 → 새 비밀번호 정하기.
  * [needsNewPin]이면(키 없음) 숫자판 대신 바로 폰 화면 잠금 확인으로 가고, 폰에 화면 잠금이 없으면 잠금을 끄고 알린다.
  * [withoutRelock]은 폰 잠금 확인으로 앱이 잠깐 가려지는 동안 다시 잠그지 않게 감싼다.
+ * [authenticator]는 시험이 시스템 인증 창 대신 대역을 넣는 자리다.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -41,9 +43,9 @@ fun LockFlow(
     onUnlocked: () -> Unit,
     onKeyMissing: () -> Unit,
     onLockTurnedOff: (message: String) -> Unit,
-    withoutRelock: suspend (suspend () -> AuthResult) -> AuthResult
+    withoutRelock: suspend (suspend () -> AuthResult) -> AuthResult,
+    authenticator: DeviceAuthenticator = rememberDeviceAuthenticator()
 ) {
-    val authenticator = rememberDeviceAuthenticator()
     val lock = koinViewModel<LockViewModel>()
     val setup = koinViewModel<PinSetupViewModel>()
     val lockState by lock.state.collectAsStateWithLifecycle()

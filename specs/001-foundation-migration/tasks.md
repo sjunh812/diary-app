@@ -131,7 +131,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [x] T052 [P] [US2] `shared/core/data/{test}/core/data/lock/LockRepositoryTest.kt`: 확인값 형식(`HMAC-SHA256(key, salt ‖ PIN)`, Base64), 맞음·틀림, 5번째에 30초 `Waiting`과 다시 켜도 이어짐, `KeyMissing`, `disable`은 맞을 때만. 2026-11-02: 기기 시각을 뒤로 돌려도 30초보다 오래 묶이지 않는 것, 확인할 수 있으면 비밀번호 없이 끌 수 없는 것, 쓰고 난 PIN을 지우는 것도 본다
 - [x] T053 [P] [US2] `shared/app/{test}/app/lock/LockControllerTest.kt`: `immediately`·`one_minute`·`five_minutes`·`cold_start`, 벽시계를 바꿔도 단조 시계 기준, 프로세스 새로 시작은 늘 잠금
 - [x] T054 [P] [US2] `shared/core/migration/{test}/core/migration/LegacyLockBootstrapTest.kt`: `use_pw` + 4자리 → 켜짐·확인값, 잘못된 모양 → 켜짐·확인값 없음, `finger_print`는 잠금이 켜질 때만, 저장소에 비밀번호 없음. 2026-11-02: 이전을 시작한 뒤(`NotStarted`가 아니면)에는 옛 파일로 잠금을 다시 켜지 않는다. 사용자가 새 앱에서 끈 잠금이 되살아나지 않게 하려고 새 표시값 없이 이전 단계로 가린다. 공통 코드라 `{test}`에 둔다
-- [ ] T055 [P] [US2] `shared/app/{host}/app/lock/LockGateUiTest.kt`: 잠긴 동안 안쪽 화면을 그리지 않음, 열면 보던 화면 키로 돌아감, 생체 취소 → 숫자판. 2026-11-02: 화면 상태 시험(`shared/feature/lock/{test}/.../LockViewModelTest.kt`: 틀림·남은 횟수, 30초 기다림, 두 번 입력, 뒤로)과 업그레이드 스크립트의 `LOCK=0427`(잠긴 동안 이전 시작 안 함)까지 했다. Compose UI 시험은 남았다
+- [x] T055 [P] [US2] `shared/app/{host}/app/lock/LockGateUiTest.kt`: 잠긴 동안 안쪽 화면을 그리지 않음, 열면 보던 화면 키로 돌아감, 생체 취소 → 숫자판. 2026-11-02: 화면 상태 시험(`shared/feature/lock/{test}/.../LockViewModelTest.kt`: 틀림·남은 횟수, 30초 기다림, 두 번 입력, 뒤로)과 업그레이드 스크립트의 `LOCK=0427`(잠긴 동안 이전 시작 안 함)까지 했다. 2026-11-03: Compose UI 시험 `shared/app/src/iosTest/kotlin/org/sjhstudio/diary/app/gate/LockGateUiTest.kt`(잠긴 동안 안쪽 화면 없음, 다시 열면 저장 상태 그대로, 생체 취소 → 숫자판, 생체 성공 → 열림)를 iOS 시뮬레이터에서 돌린다. Android 호스트 JVM에서 그리려면 Robolectric이 있어야 해서 오발있처럼 iosTest에 두었다
 
 ### Implementation for User Story 2
 
@@ -199,7 +199,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T081 [US5] `shared/app/{kt}/app/scaffold/AppScaffold.kt`: material3-adaptive로 폭 600dp 미만 하단 탭(64 + 안전 영역), 이상 레일(80), 탭 홈·달력·돌아보기·설정, 쓰기 버튼 자리, 홈·달력·돌아보기는 빈 상태 컴포넌트(스펙 002가 채움) 2026-11-02: 폭 600dp 미만 하단 탭(64 + 안전 영역, 탭의 맨 위 화면에서만), 이상 레일(80)을 디자인 시스템 `DiaryNavigationBar`·`DiaryNavigationRail`로 만들었다. 탭 아이콘은 Figma S6 경로 그대로, 고른 탭은 굵은 선. 폭은 material3-adaptive 대신 `BoxWithConstraints`로 잰다. 쓰기 버튼과 840dp 두 칸은 스펙 002가 붙인다. API 36 에뮬레이터에서 잠금을 연 뒤 설정 탭까지 봤다
 - [x] T082 [P] [US5] `shared/core/designsystem/{kt}/core/designsystem/catalog/DesignCatalogScreen.kt`를 개발 빌드에서만 설정에 연결하고 출시 빌드에서 빠지는지 본다(FR-029). 2026-11-02: 견본 화면(색 토큰 전부와 값, 글자 13단계, 간격·모서리, 컴포넌트)을 만들고 프리뷰가 같은 묶음을 쓰게 했다. 설정의 "개발 > 디자인 시스템 견본" 줄과 화면 키 `DesignCatalogKey`는 Koin에 `DeveloperEntries`가 있을 때만 생기고, 그 등록은 Android `DebugApplication`(src/debug)과 iOS 디버그 바이너리만 한다. 출시 APK의 R8 mapping에 견본 화면 클래스가 없는 것을 봤다(`test-report.md`)
 - [ ] T083 [P] [US5] 성능 견본: 개발 빌드 견본에 "목록 성능" 화면(Paging 3 60줄씩, 일기 ID 키, 불변 줄 모델, 썸네일 칸)과 `benchmarks/src/main/kotlin/org/sjhstudio/diary/benchmarks/ScrollBenchmark.kt`(1만 편·사진 5천 장 견본 자료). 스펙 002 홈이 같은 방식을 쓴다(FR-035~FR-038, SC-010, SC-011)
-- [ ] T084 [US5] Compose UI 시험 `shared/app/{host}/app/scaffold/AppScaffoldUiTest.kt`: 폭 400·700·1000dp, 글자 배율 2.0, 라이트·다크에서 잘림·겹침 없음, 600dp에서 탭 ↔ 레일
+- [x] T084 [US5] Compose UI 시험 `shared/app/{host}/app/scaffold/AppScaffoldUiTest.kt`: 폭 400·700·1000dp, 글자 배율 2.0, 라이트·다크에서 잘림·겹침 없음, 600dp에서 탭 ↔ 레일 2026-11-03: `shared/app/src/iosTest/kotlin/org/sjhstudio/diary/app/scaffold/AppScaffoldUiTest.kt`(400·599 하단 탭, 600·700·1000 레일, 글자 배율 2.0 라이트·다크에서 탭 겹침·잘림 없음, 탭을 누르면 고른 탭과 `screen_view` 화면 키만)를 iOS 시뮬레이터에서 돌린다. 글자 배율 2.0에서 탭 이름 넷이 모두 잘리는 것을 찾아, 탭·레일 이름만 1.3배까지 커지게 고쳤다(`docs/design.md` 하단 탭, DECISIONS 2026-11-03, 세 언어 이름 시험 `DiaryNavigationTest`)
 
 ---
 

@@ -6,4 +6,4 @@ import org.sjhstudio.diary.core.platform.DeviceAuthenticator
 import org.sjhstudio.diary.core.platform.IosDeviceAuthenticator
 
 @Composable
-internal actual fun rememberDeviceAuthenticator(): DeviceAuthenticator = remember { IosDeviceAuthenticator() }
+actual fun rememberDeviceAuthenticator(): DeviceAuthenticator = remember { IosDeviceAuthenticator() }

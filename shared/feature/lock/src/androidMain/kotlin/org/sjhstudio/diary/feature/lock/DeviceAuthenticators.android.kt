@@ -12,7 +12,7 @@ import org.sjhstudio.diary.core.platform.NoDeviceAuthenticator
 
 // 생체 인증 창(BiometricPrompt)은 FragmentActivity 위에만 뜬다. 미리보기처럼 액티비티가 없으면 창을 띄우지 않는다.
 @Composable
-internal actual fun rememberDeviceAuthenticator(): DeviceAuthenticator {
+actual fun rememberDeviceAuthenticator(): DeviceAuthenticator {
     val context = LocalContext.current
     return remember(context) { context.fragmentActivity()?.let(::AndroidDeviceAuthenticator) ?: NoDeviceAuthenticator }
 }
