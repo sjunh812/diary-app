@@ -74,23 +74,27 @@ fun TextSizeSettingsScreen(
                     style = diaryBodyTextStyle(font, selected).copy(color = colors.textPrimary)
                 )
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                for (size in BodyTextSize.entries) SizeStep(size, selected == size) { onSelect(size) }
+            Row(Modifier.fillMaxWidth()) {
+                for (size in BodyTextSize.entries) SizeStep(size, selected == size, Modifier.weight(1f)) { onSelect(size) }
             }
             BasicText(stringResource(Res.string.text_size_note), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         }
     }
 }
 
-/** 단계 하나: 원 56 안의 견본 글자와 아래 이름. 고른 단계는 `selected` 바탕에 `accentText`. */
+/**
+ * 단계 하나: 원 56 안의 견본 글자와 아래 이름. 고른 단계는 `selected` 바탕에 `accentText`.
+ * 칸은 다섯이 폭을 똑같이 나누고, 누름 면이 원과 이름에 붙지 않게 위아래 8을 둔다.
+ * 폰 폭에서 칸은 70이라 원 둘레 좌우는 7이다(`docs/design.md` 누름).
+ */
 @Composable
-private fun SizeStep(size: BodyTextSize, selected: Boolean, onClick: () -> Unit) {
+private fun SizeStep(size: BodyTextSize, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val tint = if (selected) colors.accentText else colors.textPrimary
     val interaction = remember { MutableInteractionSource() }
     Column(
         modifier =
-            Modifier
+            modifier
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
                 .selectable(
                     selected = selected,
@@ -98,7 +102,7 @@ private fun SizeStep(size: BodyTextSize, selected: Boolean, onClick: () -> Unit)
                     interactionSource = interaction,
                     indication = null,
                     onClick = onClick
-                ),
+                ).padding(vertical = DiarySpacing.x2),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
     ) {
