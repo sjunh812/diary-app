@@ -80,7 +80,9 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 
 - 첫 안드로이드 빌드가 `installGitHooks`로 `.githooks`를 켠다. 그 뒤로는 제목이 커밋 규칙에 맞지 않으면 커밋이 막힌다.
 - `designTokenCheck`는 `shared/feature`와 `shared/app`의 Kotlin에서 원시 색, 숫자 `.dp`·`.sp`, 숫자 모서리, `MaterialTheme` 색·글자,
-  `Text("`를 찾으면 실패한다. 디자인 시스템 모듈과 미리보기 파일은 뺀다.
+  `Text("`를 찾으면 실패한다. 디자인 시스템 모듈, 미리보기 파일, 시험(`src/*Test`)은 뺀다.
+- Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
+  Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
   빌드 단계가 `:shared:app:embedAndSignAppleFrameworkForXcode`를 불러 Shared 프레임워크를 만든다.

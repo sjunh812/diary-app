@@ -18,7 +18,9 @@ class RootConventionPlugin : Plugin<Project> {
                     listOf("shared/feature", "shared/app").map { dir ->
                         fileTree(dir) {
                             include("**/*.kt")
-                            exclude("**/build/**", "**/preview/**", "**/*Preview.kt")
+                            // 미리보기와 시험(commonTest, iosTest 같은 src/*Test)은 화면 코드가 아니라 뺀다.
+                            // 시험은 폭 400dp처럼 숫자 크기를 직접 써야 한다.
+                            exclude("**/build/**", "**/preview/**", "**/*Preview.kt", "**/src/*Test/**")
                         }
                     }
                 )

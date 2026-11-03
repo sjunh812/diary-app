@@ -55,7 +55,7 @@ class DesignTokenCheckTaskTest {
     }
 
     @Test
-    fun tokens_comments_design_system_and_previews_pass() {
+    fun tokens_comments_design_system_previews_and_tests_pass() {
         write(
             "shared/feature/home/src/commonMain/kotlin/HomeScreen.kt",
             """
@@ -68,6 +68,8 @@ class DesignTokenCheckTaskTest {
         )
         write("shared/feature/home/src/commonMain/kotlin/preview/HomePreviews.kt", "val a = 12.dp")
         write("shared/feature/home/src/commonMain/kotlin/HomeScreenPreview.kt", "val a = Color(0xFF000000)")
+        write("shared/app/src/iosTest/kotlin/AppScaffoldUiTest.kt", "val a = 400.dp")
+        write("shared/feature/home/src/commonTest/kotlin/HomeTest.kt", "val a = Text(\"견본\")")
         write("shared/core/designsystem/src/commonMain/kotlin/Theme.kt", "val canvas = Color(0xFFFFFFFF)")
 
         val (result, report) = check()

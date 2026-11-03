@@ -57,6 +57,14 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
                 implementation(libs.library("kotlinx-coroutines-test"))
                 implementation(libs.library("turbine"))
             }
+
+            // Compose 화면 시험은 iosTest에 두고 iOS 시뮬레이터에서 돌린다(오발있과 같다).
+            // 안드로이드 호스트 JVM에서 그리려면 Robolectric이 따로 있어야 해서다.
+            pluginManager.withPlugin("org.jetbrains.compose") {
+                sourceSets.getByName("commonTest").dependencies {
+                    implementation(libs.library("compose-ui-test"))
+                }
+            }
         }
 
         // Compose를 쓰는 모듈은 모델과 날짜 타입을 안정 타입으로 본다(research R10).
