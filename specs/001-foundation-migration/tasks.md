@@ -168,7 +168,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T070 [US3] `shared/core/platform/{kt}/core/platform/ReminderScheduler.kt` expect, `{android}` `AlarmManager.setWindow(RTC_WAKEUP, 시각, 10분)`과 알림 채널, `{ios}` `UNCalendarNotificationTrigger(repeats: true)`, `shared/core/data/{kt}/core/data/reminder/ReminderRepository.kt`. 2026-11-02: Android와 `ReminderRepository`(앱을 열 때 다시 예약)를 했다. 옛 앱과 같은 수신기 이름·요청 번호로 예약해 옛 예약을 덮어쓰고, 채널 ID `alarm_id`를 이어 써서 사용자의 채널 설정이 남는다. iOS는 알림 설정 화면(T069)과 함께 붙인다
 - [x] T071 [US3] `composeApp/src/main/kotlin/org/sjhstudio/diary/helper/AlarmReceiver.kt`(옛 이름 그대로, 알림 띄우고 다음 예약), `BOOT_COMPLETED`·`MY_PACKAGE_REPLACED` 받기, 이전 전이면 옛 `pref2.xml`을 읽기만 해서 시각 얻기(research R15). 2026-11-02: 수신기도 시작 단계(옛 설정 잇기)가 끝나기를 기다린 뒤 새 설정으로 예약한다. 시각·시간대 바뀜(`TIME_SET`, `TIMEZONE_CHANGED`)에도 다시 예약한다
 - [x] T072 [US3] 화면 모드를 `DiaryTheme`에 잇고(시스템·라이트·다크) iOS도 같게 한다. 2026-11-02: 공통 `DiaryApp`이 설정의 화면 모드로 `DiaryTheme`을 고르고 iOS도 같은 코드를 쓴다. 시작 단계에서 읽은 값으로 첫 프레임부터 맞는다
-- [ ] T073 [US3] `locked` 조합으로 업데이트한 뒤 앱을 열지 않고 다음 알림이 오는지, 앱이 멈추지 않는지 본다(FR-022, `test-report.md`)
+- [x] T073 [US3] `locked` 조합으로 업데이트한 뒤 앱을 열지 않고 다음 알림이 오는지, 앱이 멈추지 않는지 본다(FR-022, `test-report.md`). 2026-11-03: API 29에서 잠금(0427)과 알림(21:30)을 켠 1.7.4를 새 앱으로 덮어 깔고 열지 않았다. 옛 수신기 이름으로 다음 21:30 예약이 걸리고, 알림이 뜨고(비공개 알림), 누르면 잠금 화면이 먼저 뜬다. 잠긴 동안 기록 이전은 시작하지 않았고 앱은 멈추지 않았다
 
 **Checkpoint**: 옛 설정 여덟 가지가 이어진다(SC-006)
 
@@ -184,7 +184,7 @@ Play의 레거시 버전은 1.7.4(`94179a4`)다. master에는 내지 않은 1.7.
 - [ ] T075 [US4] 스플래시: `composeApp/src/main/res/values/themes.xml`·`values-night/themes.xml`의 `Theme.Diary.Starting`(바탕 `canvas`), `drawable/splash_pencil.xml`(움직임 없음), `MainActivity`의 `installSplashScreen()`과 `setKeepOnScreenCondition { !startup.ready }`, iOS `Info.plist` `UILaunchScreen`과 `LaunchBackground`·`LaunchPencil` 에셋(research R14). 2026-11-02: Android를 했다. 연필은 Figma "SP 시작 화면"의 splash-pencil을 SVG로 뽑아 그대로 옮겼다. iOS도 했다: `LaunchBackground` 색(라이트 흰색, 다크 #16171B)과 `LaunchPencil`(같은 경로의 SVG, 벡터 유지)
 - [x] T076 [US4] `composeApp/src/main/AndroidManifest.xml`에 `org.sjhstudio.diary.SplashActivity` → `MainActivity` `activity-alias`(런처)를 두고, 1.7.4 홈 화면 바로가기가 업데이트 뒤 열리는지 본다. 2026-11-02: 런처를 옛 이름 하나만 두고 `MainActivity`는 내보내지 않는다. API 36·24에서 런처가 `.SplashActivity`로 잡히고 그 이름으로 열리는 것을 봤다(`cmd package resolve-activity`, `am start -n .../.SplashActivity`)
 - [ ] T077 [P] [US4] `benchmarks/src/main/kotlin/org/sjhstudio/diary/benchmarks/StartupBenchmark.kt`, `BaselineProfileGenerator.kt`, 만든 profile을 `composeApp/src/main/baseline-prof.txt`로 커밋(SC-007, research R10)
-- [ ] T078 [US4] Android 12 미만·이상, 라이트·다크에서 스플래시가 한 번만 뜨고 바탕색이 맞는지, 돌아올 때 스플래시가 없는지 캡처로 본다
+- [x] T078 [US4] Android 12 미만·이상, 라이트·다크에서 스플래시가 한 번만 뜨고 바탕색이 맞는지, 돌아올 때 스플래시가 없는지 캡처로 본다. 2026-11-03: API 29(Android 10)·API 36(Android 16) 런처에서 콜드 스타트를 녹화·연속 캡처로 보았다. 두 버전 모두 라이트는 흰 바탕, 다크는 #16171B 바탕에 연필 하나가 한 번만 뜨고 앱으로 넘어간다. 홈으로 갔다 돌아오면 스플래시 없이 바로 앱이다(`test-report.md`)
 
 ---
 
