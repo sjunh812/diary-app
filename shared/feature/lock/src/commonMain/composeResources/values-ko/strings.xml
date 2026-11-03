@@ -26,7 +26,7 @@
     <string name="forgot_confirm">확인하기</string>
     <string name="forgot_prompt_title">새 비밀번호 정하기</string>
     <string name="forgot_no_device_lock_title">휴대폰에 화면 잠금이 없어요</string>
-    <string name="forgot_no_device_lock_body">화면 잠금이 없으면 비밀번호를 다시 정할 수 없어요. 백업이 있다면 앱을 다시 설치하고 백업에서 일기를 되살릴 수 있어요.</string>
+    <string name="forgot_no_device_lock_body">화면 잠금이 없으면 비밀번호를 다시 정할 수 없어요. 백업이 있다면 앱을 다시 설치하고 백업에서 일기를 복원할 수 있어요.</string>
     <string name="lock_turned_off">휴대폰에 화면 잠금이 없어 일기 잠금을 껐어요. 설정에서 새 비밀번호를 정해 주세요</string>
 
     <!-- 잠금 설정(L4) -->

@@ -1,7 +1,6 @@
 package org.sjhstudio.diary.feature.lock
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -19,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
@@ -66,24 +64,18 @@ internal fun PinEntryLayout(
                 style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
                 modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact).semantics { heading() }
             )
-            // 안내 줄 자리는 늘 비워 둔다. 틀림·기다림 문구가 생겨도 점과 숫자판이 밀리지 않는다(AOSP 잠금 화면의 안내 자리).
-            Spacer(Modifier.height(DiarySpacing.x2))
-            val lineStyle = DiaryTheme.typography.body
-            val lineHeight = with(LocalDensity.current) { lineStyle.lineHeight.toDp() }
-            Box(
-                Modifier.fillMaxWidth().heightIn(min = lineHeight).padding(horizontal = DiarySpacing.screenCompact),
-                contentAlignment = Alignment.Center
-            ) {
-                if (line != null) {
-                    BasicText(
-                        line.text,
-                        style = lineStyle.copy(color = line.color, textAlign = TextAlign.Center),
-                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
-                    )
-                }
-            }
-            Spacer(Modifier.height(DiarySpacing.x6 + DiarySpacing.x1_5))
+            Spacer(Modifier.height(DiarySpacing.x10))
             DiaryPinDots(filled = entered, wrongCount = wrongCount)
+            // 틀림·기다림 문구는 점 아래에 둔다. 점 아래는 숫자판까지 빈 자리라 문구가 생겨도 점과 숫자판이 움직이지 않는다
+            // (제목과 점 사이를 벌리지 않는다, 2026-11-03 사용자 지적).
+            if (line != null) {
+                Spacer(Modifier.height(DiarySpacing.x4))
+                BasicText(
+                    line.text,
+                    style = DiaryTheme.typography.body.copy(color = line.color, textAlign = TextAlign.Center),
+                    modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact).semantics { liveRegion = LiveRegionMode.Polite }
+                )
+            }
             middle()
             Spacer(Modifier.weight(1f))
             Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), horizontalAlignment = Alignment.CenterHorizontally) {
