@@ -8,4 +8,5 @@ val settingsFeatureModule =
     module {
         viewModel { MigrationReportViewModel(get(), TimeZone.currentSystemDefault()) }
         viewModel { SettingsViewModel(get(), get(), { showsMigrationReport(get()) }, get()) }
+        viewModel { ReminderSettingsViewModel(get(), get(), get(), get()) }
     }

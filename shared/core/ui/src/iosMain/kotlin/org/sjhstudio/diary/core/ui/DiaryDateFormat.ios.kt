@@ -30,7 +30,7 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
 /** 기기가 24시간 표기를 쓰는지. 이 언어의 기본 시각 틀에 오전·오후(a)가 없으면 24시간이다. */
 internal fun usesTwentyFourHour(locale: NSLocale): Boolean = NSDateFormatter.dateFormatFromTemplate("j", 0u, locale)?.contains('a') == false
 
-internal class IosDateFormat(private val locale: NSLocale, is24Hour: Boolean) : DiaryDateFormat {
+internal class IosDateFormat(private val locale: NSLocale, override val is24Hour: Boolean) : DiaryDateFormat {
     private val utc = NSTimeZone.timeZoneForSecondsFromGMT(0)
     private val gregorian = NSCalendar.calendarWithIdentifier(NSCalendarIdentifierGregorian)?.also { it.timeZone = utc }
     private val monthFormat = formatter(DateSkeleton.MONTH)

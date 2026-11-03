@@ -9,23 +9,25 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.feature.settings.ReminderSettingsScreen
+import org.sjhstudio.diary.feature.settings.ReminderUiState
 import org.sjhstudio.diary.feature.settings.SettingsScreen
 import org.sjhstudio.diary.feature.settings.SettingsUiState
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
-// 설정 목록(S6), 본문 글자 크기(G2), 화면 모드(G3) 프리뷰. 값은 Figma 화면과 같다.
+// 설정 목록(S6), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰. 값은 Figma 화면과 같다.
 
 private val sample =
     SettingsUiState(
-        settings = AppSettings(bodyTextSize = BodyTextSize.LARGE),
+        settings = AppSettings(bodyTextSize = BodyTextSize.LARGE, reminderEnabled = true),
         lock = LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", relockAfter = RelockAfter.ONE_MINUTE),
         showsMigrationReport = true
     )
 
 @Composable
 private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    SettingsScreen(sample, onTextSize = {}, onTheme = {}, onLock = {}, onMigrationReport = {})
+    SettingsScreen(sample, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {})
 }
 
 @Preview(name = "S6 설정 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
@@ -40,7 +42,7 @@ private fun ListDark() = SettingsList(dark = true)
 @Preview(name = "S6 설정 · 개발 빌드", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun ListDeveloper() = DiaryTheme(darkTheme = false) {
-    SettingsScreen(sample, onTextSize = {}, onTheme = {}, onLock = {}, onMigrationReport = {}, onDesignCatalog = {})
+    SettingsScreen(sample, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onDesignCatalog = {})
 }
 
 @Composable
@@ -68,3 +70,24 @@ private fun ThemeLight() = Theme(dark = false)
 @Preview(name = "G3 화면 모드 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun ThemeDark() = Theme(dark = true)
+
+@Composable
+private fun Reminder(dark: Boolean, state: ReminderUiState) = DiaryTheme(darkTheme = dark) {
+    ReminderSettingsScreen(state, timeLabel = "오후 10:00", onEnabledChange = {}, onTime = {}, onAllow = {}, onBack = {})
+}
+
+@Preview(name = "R1 매일 알림 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ReminderLight() = Reminder(dark = false, ReminderUiState(enabled = true, notificationsAllowed = true))
+
+@Preview(name = "R1 매일 알림 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ReminderDark() = Reminder(dark = true, ReminderUiState(enabled = true, notificationsAllowed = true))
+
+@Preview(name = "R1 매일 알림 · 허용 필요", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ReminderNeedsPermission() = Reminder(dark = false, ReminderUiState(enabled = true, notificationsAllowed = false))
+
+@Preview(name = "R1 매일 알림 · 끔", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ReminderOff() = Reminder(dark = false, ReminderUiState(enabled = false))

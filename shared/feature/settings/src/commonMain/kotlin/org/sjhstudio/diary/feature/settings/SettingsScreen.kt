@@ -15,32 +15,38 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
+import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
 import org.sjhstudio.diary.feature.settings.resources.settings_design_catalog
 import org.sjhstudio.diary.feature.settings.resources.settings_group_developer
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
+import org.sjhstudio.diary.feature.settings.resources.settings_group_notification
 import org.sjhstudio.diary.feature.settings.resources.settings_group_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
+import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
 import org.sjhstudio.diary.feature.settings.resources.settings_title
 
 /**
  * 설정 목록(Figma "설정 (S6)"). 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 쓴다.
- * 스펙 001이 만든 줄만 둔다. 백업(스펙 003), 휴지통·목록 모양(스펙 002), 글꼴·매일 알림·고지(스펙 001 T068·T069)는 그 화면과 함께 더한다.
+ * 스펙 001이 만든 줄만 둔다. 백업(스펙 003), 휴지통·목록 모양(스펙 002), 글꼴·고지(스펙 001 T068·T069)는 그 화면과 함께 더한다.
  */
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
     onTextSize: () -> Unit,
     onTheme: () -> Unit,
+    onReminder: () -> Unit,
     onLock: () -> Unit,
     onMigrationReport: () -> Unit,
     modifier: Modifier = Modifier,
@@ -74,6 +80,15 @@ fun SettingsScreen(
                 onClick = onTheme,
                 value = stringResource(state.settings.themeMode.label())
             )
+            DiarySettingsHeader(stringResource(Res.string.settings_group_notification))
+            val reminderValue =
+                if (state.settings.reminderEnabled) {
+                    val minute = state.settings.reminderMinuteOfDay
+                    rememberDiaryDateFormat().time(LocalTime(minute / 60, minute % 60))
+                } else {
+                    stringResource(Res.string.reminder_value_off)
+                }
+            DiarySettingsRow(stringResource(Res.string.settings_reminder), onClick = onReminder, value = reminderValue)
             DiarySettingsHeader(stringResource(Res.string.settings_group_security))
             DiarySettingsRow(stringResource(Res.string.settings_lock), onClick = onLock, value = stringResource(state.lock.label()))
             if (state.showsMigrationReport) {

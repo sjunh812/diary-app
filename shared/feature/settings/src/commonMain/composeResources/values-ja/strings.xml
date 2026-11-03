@@ -38,6 +38,17 @@
     <string name="settings_group_developer">開発</string>
     <string name="settings_design_catalog">デザインシステム見本</string>
 
+
+    <!-- 毎日のリマインダー(R1) -->
+    <string name="settings_group_notification">通知</string>
+    <string name="settings_reminder">毎日のリマインダー</string>
+    <string name="reminder_value_off">オフ</string>
+    <string name="reminder_time">通知の時刻</string>
+    <string name="reminder_save">保存</string>
+    <string name="reminder_permission_title">通知がオフになっています</string>
+    <string name="reminder_permission_body">スマートフォンの設定で1日1日記の通知を許可すると、毎日リマインダーが届きます。</string>
+    <string name="reminder_permission_allow">許可する</string>
+
     <!-- 本文の文字サイズ(G2) -->
     <string name="text_size_small">小</string>
     <string name="text_size_medium">標準</string>

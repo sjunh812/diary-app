@@ -28,8 +28,10 @@ import org.sjhstudio.diary.core.migration.SupportBundle
 import org.sjhstudio.diary.core.migration.SupportFiles
 import org.sjhstudio.diary.core.migration.freeBytes
 import org.sjhstudio.diary.core.migration.legacyFiles
+import org.sjhstudio.diary.core.platform.AndroidNotificationPermission
 import org.sjhstudio.diary.core.platform.AndroidReminderScheduler
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 
 @OptIn(ExperimentalUuidApi::class)
@@ -37,6 +39,7 @@ internal actual val platformModule: Module =
     module {
         single { AppFiles(androidContext()) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
+        single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }
         single { DatabaseFactory(androidContext(), get()) }
         single {
             val files = get<AppFiles>()

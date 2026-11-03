@@ -12,5 +12,9 @@ kotlin {
             // 설정을 바꾼 사용 통계(Telemetry)
             implementation(projects.shared.core.platform)
         }
+        androidMain.dependencies {
+            // 매일 알림을 켤 때 알림 권한 창을 띄운다(안드로이드 13부터).
+            implementation(libs.androidx.activity.compose)
+        }
     }
 }

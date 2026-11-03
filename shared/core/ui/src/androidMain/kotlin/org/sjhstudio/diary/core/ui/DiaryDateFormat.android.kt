@@ -24,7 +24,7 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
     }
 }
 
-private class AndroidDateFormat(locale: Locale, is24Hour: Boolean) : DiaryDateFormat {
+private class AndroidDateFormat(locale: Locale, override val is24Hour: Boolean) : DiaryDateFormat {
     private val monthFormat = formatter(locale, DateSkeleton.MONTH)
     private val yearMonthFormat = formatter(locale, DateSkeleton.YEAR_MONTH)
     private val fullDateFormat = formatter(locale, DateSkeleton.FULL_DATE)

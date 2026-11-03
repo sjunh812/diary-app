@@ -43,6 +43,17 @@
     <string name="settings_group_developer">Developer</string>
     <string name="settings_design_catalog">Design system</string>
 
+
+    <!-- Daily reminder (R1) -->
+    <string name="settings_group_notification">Notifications</string>
+    <string name="settings_reminder">Daily reminder</string>
+    <string name="reminder_value_off">Off</string>
+    <string name="reminder_time">Reminder time</string>
+    <string name="reminder_save">Save</string>
+    <string name="reminder_permission_title">Notifications are off</string>
+    <string name="reminder_permission_body">Allow notifications for 1 Day 1 Diary in your phone settings to get daily reminders.</string>
+    <string name="reminder_permission_allow">Allow</string>
+
     <!-- Diary text size (G2) -->
     <string name="text_size_small">Small</string>
     <string name="text_size_medium">Default</string>

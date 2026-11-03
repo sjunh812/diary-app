@@ -33,6 +33,9 @@ data object TextSizeSettingsKey : Screen
 data object ThemeSettingsKey : Screen
 
 @Serializable
+data object ReminderSettingsKey : Screen
+
+@Serializable
 data object LockSettingsKey : Screen
 
 @Serializable

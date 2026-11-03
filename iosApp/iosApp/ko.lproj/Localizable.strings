@@ -1,0 +1,3 @@
+/* 매일 알림. Android composeApp의 reminder_body와 같은 문구다(스펙 001 FR-022). */
+"reminder_title" = "1일 1일기";
+"reminder_body" = "오늘 하루는 어땠나요? 한 줄만 남겨 보세요.";

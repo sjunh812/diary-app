@@ -31,6 +31,9 @@ interface DiaryDateFormat {
 
     /** 오후 3:05, 3:05 PM, 午後3:05. 기기가 24시간 표기면 15:05. */
     fun time(time: LocalTime): String
+
+    /** 기기가 24시간 표기를 쓰는지. 시각 휠이 오전·오후 열을 뺄지 정한다. */
+    val is24Hour: Boolean
 }
 
 @Composable
