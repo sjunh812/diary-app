@@ -201,3 +201,10 @@ API 36 폰 에뮬레이터(`Medium_Phone`)에 새로 깐 앱(옛 기록·잠금 
 - Figma A2의 다크·틴트·스토어 그림을 1024px로 뽑아 투명 채널을 뺐다. 빌드한 `Assets.car`에 `UIAppearanceDark`와 `ISAppearanceTintable`이 들어 있다.
 - iPhone 17 시뮬레이터에서 홈 화면 사용자화를 다크로 바꾸면 어두운 바탕의 연필, 틴트로 바꾸면 시스템 색으로 물든 연필이 보였다. 확인 뒤 기본으로 되돌렸다.
 
+## 2026-11-04 로그와 예외 메시지 점검 (T086 앞부분, SC-009)
+
+- 앱 코드(`shared`, `composeApp`, `benchmarks`, `iosApp`, 시험 제외)에 `Log.*`, `println`, `print`, `NSLog`, `printStackTrace` 호출이 하나도 없다.
+- 값이 들어가는 예외 메시지는 `DefaultSettingsRepository.setReminder`의 알림 시각(분 숫자) 하나뿐이다. 일기 글·장소·경로·기분은 없다.
+- 사용 통계는 고정 표(`AnalyticsEvents`) 밖의 값을 막고, 막을 때 설명에도 값을 넣지 않는다(`TelemetryTest`).
+- Firebase DebugView로 한 바퀴 도는 확인은 Firebase 연결(T028) 뒤에 한다.
+
