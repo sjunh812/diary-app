@@ -14,6 +14,7 @@
 | 일기 DB | `databases/diary.db` | `Application Support/diary.db` | 스냅샷으로 올림 |
 | 사진 | `files/media/<sha256>.<ext>` | `Application Support/media/` | 올림 |
 | 썸네일 | `no_backup/thumbs/<sha256>.jpg` | `Application Support/thumbs/`(백업 제외) | 안 올림 |
+| 받은 글꼴 | `no_backup/fonts/<id>.ttf` | `Application Support/fonts/`(백업 제외) | 안 올림. 스토어에서 다시 받는다 |
 | 설정 | `files/datastore/settings.preferences_pb` | `Application Support/datastore/` | 목록 파일의 `settings`로 올림(스펙 003 `contracts/backup-format.md`) |
 | 잠금 | `files/datastore/lock.preferences_pb` | 같음 | 안 올림. Android 자동 백업에서도 뺀다 |
 | 이전 상태·결과·작업 DB | `files/migration/state.json`, `report.json`, `diary-new.db` | 없음 | 안 올림 |

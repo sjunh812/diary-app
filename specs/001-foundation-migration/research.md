@@ -209,7 +209,7 @@
   `pretendard`, `gowun_dodum`, `cafe24_surround`, `maru_buri`, `gowun_batang`, `nanum_pen`, `nanum_jeomggol`, `kkomi`, `gamja_flower`, `hi_melody`와
   `system`이다(2026-11-01 다시 고름, `docs/design.md`).
 - 글꼴 내려받기(2026-11-01 사용자 요청, 2026-11-03 크기를 재고 고침): Pretendard·국립공원 꼬미·나눔손글씨 펜·카페24 써라운드(OTF 1.6MB)·마루 부리(OTF 0.94MB)(3.5MB 이하)만 Compose 리소스로 넣고, 나머지 5종은 Android에서 글꼴마다
-  Play Feature Delivery 필요할 때 설치 모듈(`fonts:<id>`, 자산만 있는 모듈)로 둔다. 받으면 `SplitCompat`으로 모듈 자산을 읽어 `files/fonts/<id>.ttf`로
+  Play Feature Delivery 필요할 때 설치 모듈(`fonts:<id>`, 자산만 있는 모듈)로 둔다. 받으면 `SplitCompat`으로 모듈 자산을 읽어 `no_backup/fonts/<id>.ttf`(백업 제외)로
   복사하고 파일에서 `FontFamily`를 만든다. 받기 전에는 미리보기 그림만 보인다. iOS는 R2에 On-Demand Resources(또는 그때 Apple 권장 방식)로 같은 일을 한다.
   근거: [Play Feature Delivery](https://developer.android.com/guide/playcore/feature-delivery), [On-Demand Resources](https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/On_Demand_Resources_Guide/Managing.html).
   Google Play 서비스의 Downloadable Fonts([문서](https://developer.android.com/guide/topics/ui/look-and-feel/downloadable-fonts))는 Google Fonts에 있는 4종에만 쓸 수 있고
@@ -217,6 +217,7 @@
 - 글자 크기: 앱 틀(탭, 설정, 버튼)은 앱 설정 없이 기기 글자 크기를 따른다(Android sp·글꼴 배율, iOS Dynamic Type). 앱 설정 "본문 글자 크기"는
   일기 본문(쓰기·상세·목록 미리보기)에만 걸리고 기기 글자 크기 위에 곱해진다. 단계는 5개 15/24, 17/28(기본, `reading`), 19/30, 21/34, 24/38이고
   미리보기 문장을 보며 고른다. 옛 `font_size`는 같은 자리로 옮긴다: 0·1 → 15, 2 → 17, 3 → 19, 4 → 21(사용자 결정 2026-11-01, 옛 동작에 묶이지 않는다).
+  틀의 글자는 기기 글자 크기를 따르되, 칸이 정해진 하단 탭·레일 이름과 시각 고르기 휠은 1.3배까지만 커진다(2026-11-03 결정, Apple 탭 막대도 커지지 않는다).
 - Rationale: Day One은 글꼴 크기 설정을 일기 본문에만 건다(iOS "font size (entries only)", Android "Editor Font Size",
   [iOS 설정](https://dayoneapp.com/?p=2220), [Android 설정](https://dayoneapp.com/?p=2234)). Bear도 본문 타이포그래피(크기, 줄 높이, 줄 폭)를 따로 둔다
   ([Bear](https://bear.app/faq/typography-options/)). 토스는 폰 글자 크기를 앱에 그대로 반영하고([토스피드](https://toss.im/tossfeed/article/mobile-accessibility)),

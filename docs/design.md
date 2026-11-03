@@ -28,7 +28,7 @@ Apple HIG, Material 3(m3.material.io), Radix Colors(`@radix-ui/colors` 3.0.0), �
 | 토큰 | 쓰임 | 라이트 | 근거 | 다크 | 근거 |
 | --- | --- | --- | --- | --- | --- |
 | `canvas` | 화면 바탕, 탭 바 | `#FFFFFF` | 흰색(사용자 결정) | `#16171B` | SEED 다크 기본 바탕(gray 100) |
-| `canvasGrouped` | 카드형 목록 바탕 | `#F8F8FF` | 지금 앱 바탕 그대로 = Radix iris 2(사용자 결정) | `#000000` | SEED gray 00 |
+| `canvasGrouped` | 묶음 바탕(지금은 카드형 목록 뒤) | `#F8F8FF` | 지금 앱 바탕 그대로 = Radix iris 2(사용자 결정) | `#000000` | SEED gray 00 |
 | `surface` | 시트, 대화상자, 카드 | `#FFFFFF` | | `#1D2025` | gray 200(떠 있을수록 밝게) |
 | `sunken` | 입력칸, 보조 버튼, 칩 | `#F3F4F5` | SEED gray 200 | `#2B2E35` | gray 300 |
 | `line` | 구분선 | `#EEEFF1` | gray 300 | `#2B2E35` | gray 300 |
@@ -99,7 +99,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 
 | 글꼴 | 계열 | 라이선스 | 지금 앱 | 크기(Regular) | 근거 |
 | --- | --- | --- | --- | --- | --- |
-| Pretendard | 기본 고딕 | SIL OFL 1.1 | 있음 | 2.7MB | UI 글꼴과 같음 |
+| Pretendard | 기본 고딕 | SIL OFL 1.1 | 있음 | 1.6MB(OTF, 앱에 넣는 네 굵기 6.3MB) | UI 글꼴과 같음 |
 | 고운돋움 | 부드러운 둥근 고딕 | SIL OFL 1.1 | 새로 | 7.2MB | Google Fonts 한국어 상위, 사용자 고름 |
 | 카페24 써라운드 | 둥근 고딕 | SIL OFL 1.1(카페24 안내, 앱 임베딩 허용 명시) | 새로 | 1.6MB(OTF) | 눈누 둥근 고딕 4위 |
 | 마루 부리 | 긴 글용 명조 | 네이버 글꼴(앱 번들 허용) | 새로 | 0.94MB(OTF, TTF는 8.0MB) | 눈누 바탕 3위 |
@@ -121,10 +121,10 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 - 시스템 글꼴은 10종과 별도로 고를 수 있다.
 - 설정 > 정보 > "오픈소스 라이선스"(Figma I1·I2)에 OFL 전문(Pretendard, 고운돋움, 고운바탕, 감자꽃, 하이멜로디, 나눔손글씨 펜), 네이버 글꼴 저작권 안내와 전문,
   카페24 안내와 OFL 전문, 공공누리 출처 표시(국립공원 꼬미)를 넣는다. 전문은 받은 원문 그대로 `shared/core/designsystem` `files/licenses/`에 둔다(2026-11-04).
-- 넣는 방식(2026-11-01 사용자 요청): 기본 글꼴과 작은 글꼴만 앱에 넣고, 나머지는 고를 때 받는다. 10종을 다 넣으면 약 65MB라 앱이 무거워진다.
-  - 앱에 넣음(3.5MB 이하): Pretendard(2.7MB, 기본이자 UI 글꼴), 국립공원 꼬미(0.9MB), 나눔손글씨 펜(3.2MB), 카페24 써라운드(1.6MB, OTF),
+- 넣는 방식(2026-11-01 사용자 요청): 기본 글꼴과 작은 글꼴만 앱에 넣고, 나머지는 고를 때 받는다. 10종을 다 넣으면 약 60MB라 앱이 무거워진다.
+  - 앱에 넣음(3.5MB 이하): Pretendard(네 굵기 6.3MB, 기본이자 UI 글꼴), 국립공원 꼬미(0.9MB), 나눔손글씨 펜(3.2MB), 카페24 써라운드(1.6MB, OTF),
     마루 부리(0.94MB, OTF). 2026-11-03 공식 배포 파일로 쟀더니 두 글꼴은 OTF가 작아 앱에 넣는 쪽으로 옮겼다.
-  - 고를 때 받음: 고운돋움(7.2MB), 고운바탕(8.4MB), 나눔손글씨 점꼴체(6.5MB), 감자꽃(12.6MB), 하이멜로디(12.6MB).
+  - 고를 때 받음: 고운돋움(7.2MB), 고운바탕(8.4MB), 나눔손글씨 점꼴체(6.7MB), 감자꽃(12.6MB), 하이멜로디(12.6MB).
     Android는 글꼴마다 Play Feature Delivery의 필요할 때 설치하는 모듈 하나, iOS는 App Store가 맡아 두는 자료(On-Demand Resources, iOS 출시 때 지금 권장 방식 확인)로
     받는다. 둘 다 스토어가 내려 주므로 우리 서버 비용이 없다. 우리 서버나 공개 CDN으로 글꼴을 내려주지 않는다.
   - 글꼴 목록의 줄 이름은 그 글꼴로 그린다(2026-11-03 사용자 결정). 받기 전 글꼴은 그 이름을 그린 작은 그림(수 KB)을 앱에 넣어 받기 전에도 모양을 보고
@@ -175,7 +175,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 상태 상자 | 안내 상자와 같은 바탕·모서리·안쪽 · 줄 사이 12 · 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong` · 아래 설명 `body`. 아이콘 + 문장 줄을 늘어놓는 목록은 아이콘 16, 사이 12, 줄 사이 16(`body` 글이 커서 안내 상자보다 넓게) | 안내 상자와 한 집안(2026-11-01 점검, 사용자가 사이 8이 좁다고 짚음) |
 | 한 줄 안내 | 바탕 `sunken` · 모서리 12 · 안쪽 12 · 아이콘 16 · 사이 8 · `caption` | SEED PageBanner(아이콘 16, 사이 6) |
 | 값 줄 | 최소 48 · 좌우 20 · 이름 `body`(`textSecondary`) 왼쪽 · 값 `bodyStrong` 오른쪽 · 누르지 않는 줄 | Figma M5 기록 이전 결과, TDS ListRow 오른쪽 값 |
-| 설정 묶음 머리 | `label` · `textSecondary` · 위 20 · 아래 8 · 좌우 20 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
+| 설정 묶음 머리 | `label` · `textSecondary` · 위 20(둘째 묶음부터 24, 위 "설정 묶음") · 아래 8 · 좌우 20 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
 | 스위치 | 트랙 52×32 · full · 안쪽 3 · 손잡이 26 · 누르는 곳은 줄 전체 | SEED switchmark 32(52×32, 안쪽 3, 손잡이 26), M3 Switch 52×32 |
 | 진행 막대 | 높이 8 · full · 트랙 `sunken` · 채움 `accent` | TDS ProgressBar bold 8(모서리 4) |
 | 고르기 목록 | 설정 줄 + 오른쪽 체크 아이콘 24(`accentText`). 라디오 원은 쓰지 않는다 | TDS BottomSheet.Select·Checkbox.Line 24, HIG 체크 표시 목록 |
