@@ -10,6 +10,7 @@ import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
+import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
@@ -58,6 +59,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single { LockController(get(), get(APP_SCOPE)) }
         // 매일 알림(FR-022). 앱을 열 때와 알림 수신기가 다시 예약한다.
         single { ReminderRepository(get(), get()) }
+        single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
         // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
         single<TelemetrySink> { NoTelemetrySink }
         single { Telemetry(get(), strict = isDebug) }
@@ -72,7 +74,11 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 get(APP_SCOPE),
                 bootstrapLegacyLock = { legacyLock?.run() },
                 bootstrapLegacySettings = { legacySettings?.run() },
-                afterReady = { get<ReminderRepository>().reschedule() }
+                afterReady = {
+                    get<ReminderRepository>().reschedule()
+                    // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작한다(이전 직후 포함). 따로 돌아 다른 일을 막지 않는다.
+                    get<ChosenFontDownload>().start()
+                }
             )
         }
         // 처음 쓸 때 연다. 시작 단계에서는 열지 않는다.
