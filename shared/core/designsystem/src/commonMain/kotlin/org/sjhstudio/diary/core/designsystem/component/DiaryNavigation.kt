@@ -21,7 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -101,6 +103,22 @@ private fun NavCell(item: DiaryNavItem, selected: Boolean, modifier: Modifier, o
     ) {
         DiaryIcon(if (selected) item.selectedIcon else item.icon, contentDescription = null, tint = tint)
         Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(item.label, style = DiaryTheme.typography.micro.copy(color = tint))
+        BasicText(item.label, style = navLabelStyle().copy(color = tint), maxLines = 1)
     }
+}
+
+/** 탭·레일 이름이 따라가는 기기 글자 크기의 끝(`docs/design.md` 하단 탭, DECISIONS 2026-11-03). */
+private const val NAV_LABEL_MAX_FONT_SCALE = 1.3f
+
+/**
+ * 탭 이름은 기기 글자 크기를 1.3배까지만 따른다.
+ * 더 키우면 칸 80 안에서 잘린다. Apple 탭 막대도 글자를 키우지 않는다.
+ */
+@Composable
+private fun navLabelStyle(): TextStyle {
+    val style = DiaryTheme.typography.micro
+    val fontScale = LocalDensity.current.fontScale
+    if (fontScale <= NAV_LABEL_MAX_FONT_SCALE) return style
+    val shrink = NAV_LABEL_MAX_FONT_SCALE / fontScale
+    return style.copy(fontSize = style.fontSize * shrink, lineHeight = style.lineHeight * shrink)
 }
