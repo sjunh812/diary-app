@@ -34,7 +34,7 @@ internal val FONT_DOWNLOAD_MB: Map<DiaryFont, Double> =
     mapOf(
         DiaryFont.GOWUN_DODUM to 7.2,
         DiaryFont.GOWUN_BATANG to 8.4,
-        DiaryFont.NANUM_JEOMGGOL to 6.5,
+        DiaryFont.NANUM_JEOMGGOL to 6.7,
         DiaryFont.GAMJA_FLOWER to 12.6,
         DiaryFont.HI_MELODY to 12.6
     )
