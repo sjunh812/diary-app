@@ -109,7 +109,7 @@ internal fun CatalogColors() {
     val swatches =
         listOf(
             "canvas" to c.canvas,
-            "canvasGrouped" to c.canvasGrouped,
+            "surfaceCard" to c.surfaceCard,
             "surface" to c.surface,
             "sunken" to c.sunken,
             "selected" to c.selected,

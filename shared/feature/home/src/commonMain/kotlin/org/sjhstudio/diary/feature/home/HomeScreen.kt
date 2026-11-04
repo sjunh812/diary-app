@@ -181,10 +181,7 @@ internal fun HomeScreen(
     onSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 카드는 묶음 바탕 위에 놓인다. 제목까지 같은 바탕이어야 목록 위에 띠가 생기지 않는다.
-    val colors = DiaryTheme.colors
-    val background = if (style == ListStyle.CARD && rows.itemCount > 0) colors.canvasGrouped else colors.canvas
-    Column(modifier.fillMaxSize().background(background).statusBarsPadding()) {
+    Column(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
         TopActions(favoritesOnly, onToggleFavorites, onSearch)
         Title(title, onPickMonth)
         Spacer(Modifier.height(DiarySpacing.x3))

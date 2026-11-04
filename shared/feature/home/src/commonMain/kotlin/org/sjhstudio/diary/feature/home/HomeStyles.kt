@@ -91,7 +91,7 @@ private fun EntryCard(
             .fillMaxWidth()
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
             .clip(DiaryShapes.r16)
-            .background(if (selected) colors.selected else colors.surface)
+            .background(if (selected) colors.selected else colors.surfaceCard)
             .combinedClickable(
                 interactionSource = interaction,
                 indication = null,

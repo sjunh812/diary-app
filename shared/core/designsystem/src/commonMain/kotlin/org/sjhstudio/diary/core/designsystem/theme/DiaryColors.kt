@@ -11,9 +11,9 @@ import androidx.compose.ui.graphics.Color
 data class DiaryColors(
     /** 화면 바탕, 탭 바 */
     val canvas: Color,
-    /** 묶음 바탕: 카드형 목록 뒤, 설정 묶음 사이 띠(Apple grouped background와 같은 쓰임) */
-    val canvasGrouped: Color,
-    /** 시트, 대화상자, 카드 */
+    /** 카드형 목록의 카드. 흰 바탕 위에 면으로 깔려서 입력칸 회색보다 한 단계 연하다. */
+    val surfaceCard: Color,
+    /** 시트, 대화상자 */
     val surface: Color,
     /** 입력칸, 보조 버튼, 칩, 진행 막대 트랙 */
     val sunken: Color,
@@ -85,7 +85,7 @@ data class DiaryMarkColors(val yellow: Color, val green: Color, val pink: Color)
 internal val LightDiaryColors =
     DiaryColors(
         canvas = Color(0xFFFFFFFF),
-        canvasGrouped = Color(0xFFF8F8FF),
+        surfaceCard = Color(0xFFF7F8F9),
         surface = Color(0xFFFFFFFF),
         sunken = Color(0xFFF3F4F5),
         selected = Color(0xFFEBE4FF),
@@ -137,7 +137,7 @@ internal val LightDiaryColors =
 internal val DarkDiaryColors =
     DiaryColors(
         canvas = Color(0xFF16171B),
-        canvasGrouped = Color(0xFF000000),
+        surfaceCard = Color(0xFF1D2025),
         surface = Color(0xFF1D2025),
         sunken = Color(0xFF2B2E35),
         selected = Color(0xFF291F43),

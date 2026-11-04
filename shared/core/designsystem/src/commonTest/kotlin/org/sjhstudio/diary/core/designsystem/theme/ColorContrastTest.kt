@@ -29,7 +29,7 @@ class ColorContrastTest {
                 "surface" to c.surface,
                 "sunken" to c.sunken,
                 "selected" to c.selected,
-                "canvasGrouped" to c.canvasGrouped
+                "surfaceCard" to c.surfaceCard
             )) {
                 assertReadable(mode, "textPrimary/$bgName", c.textPrimary, bg)
                 assertReadable(mode, "textSecondary/$bgName", c.textSecondary, bg)
