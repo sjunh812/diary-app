@@ -10,9 +10,11 @@ kotlin {
             api(projects.shared.core.model)
             api(projects.shared.core.drive)
             api(projects.shared.core.datastore)
-            implementation(projects.shared.core.database)
+            api(projects.shared.core.database)
             implementation(projects.shared.core.platform)
             implementation(libs.okio)
+            // 스냅샷 사본을 Room 없이 직접 연다.
+            implementation(libs.androidx.sqlite.bundled)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(project.dependencies.platform(libs.koin.bom))
