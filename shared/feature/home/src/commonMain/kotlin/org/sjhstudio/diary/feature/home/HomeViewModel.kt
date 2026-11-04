@@ -58,6 +58,13 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
         }
     }
 
+    fun toggleFavorite(id: String) {
+        viewModelScope.launch {
+            val entry = entries.entry(id).first()?.entry ?: return@launch
+            entries.setFavorite(id, !entry.isFavorite)
+        }
+    }
+
     /** 공유할 서식 없는 글. */
     suspend fun plainText(id: String): String? = entries.entry(id).first()?.entry?.plainText
 

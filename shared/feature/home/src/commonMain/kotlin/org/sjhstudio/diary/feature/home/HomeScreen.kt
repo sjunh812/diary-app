@@ -67,6 +67,8 @@ import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.feature.home.resources.Res
+import org.sjhstudio.diary.feature.home.resources.detail_edit
+import org.sjhstudio.diary.feature.home.resources.detail_favorite
 import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
@@ -86,6 +88,7 @@ fun HomeRoute(
     onOpen: (String) -> Unit,
     onWrite: () -> Unit,
     onSearch: () -> Unit,
+    onEdit: (String) -> Unit,
     onTrashed: (String) -> Unit,
     selectedId: String?,
     modifier: Modifier = Modifier
@@ -126,6 +129,14 @@ fun HomeRoute(
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
         val share = rememberShareText()
         DiaryBottomSheet(onDismiss = { menuFor = null }) {
+            SheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), DiaryTheme.colors.textPrimary) {
+                menuFor = null
+                onEdit(id)
+            }
+            SheetAction(DiaryIcons.StarOutline, stringResource(Res.string.detail_favorite), DiaryTheme.colors.textPrimary) {
+                menuFor = null
+                viewModel.toggleFavorite(id)
+            }
             SheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), DiaryTheme.colors.textPrimary) {
                 menuFor = null
                 scope.launch { viewModel.plainText(id)?.let(share) }
