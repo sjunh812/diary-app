@@ -6,8 +6,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -130,8 +132,9 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
 internal fun WeatherGrid(selected: Weather?, onSelect: (Weather) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.offset(x = -DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
         for (row in Weather.entries.chunked(WEATHER_COLUMNS)) {
-            Row(Modifier.fillMaxWidth()) {
-                for (weather in row) WeatherCell(weather, weather == selected, Modifier.weight(1f)) { onSelect(weather) }
+            // 이름이 두 줄인 칸이 있어도 한 줄의 칸은 높이가 같다.
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+                for (weather in row) WeatherCell(weather, weather == selected, Modifier.weight(1f).fillMaxHeight()) { onSelect(weather) }
                 repeat(WEATHER_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
