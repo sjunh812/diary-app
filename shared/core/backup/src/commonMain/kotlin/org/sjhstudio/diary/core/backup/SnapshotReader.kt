@@ -18,7 +18,8 @@ object SnapshotReader {
                     buildList { while (statement.step()) add(statement.media()) }
                 }.groupBy { it.entryId }
             return connection.prepare(
-                "SELECT id, date, time, body_html, plain_text, mood, weather, place_name, is_favorite, created_at, updated_at, deleted_at, " +
+                "SELECT id, date, time, body_html, plain_text, mood, weather, place_name, is_favorite, " +
+                    "created_at, updated_at, deleted_at, " +
                     "legacy_id, legacy_create_date, legacy_location FROM entry"
             ).use { statement ->
                 buildList {
