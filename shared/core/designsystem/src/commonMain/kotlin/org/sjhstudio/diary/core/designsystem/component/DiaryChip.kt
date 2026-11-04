@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
@@ -40,7 +41,7 @@ fun DiaryChip(
         modifier =
             modifier
                 .minimumInteractiveComponentSize()
-                .height(32.dp)
+                .heightIn(min = 32.dp)
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
                 .clip(DiaryShapes.full)
                 .background(if (selected) colors.selected else colors.sunken)

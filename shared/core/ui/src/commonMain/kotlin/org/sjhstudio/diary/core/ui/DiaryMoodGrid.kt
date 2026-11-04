@@ -64,7 +64,7 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
         modifier =
             Modifier
                 .width(DiaryWriteSize.moodCellWidth)
-                .height(DiaryWriteSize.moodCellHeight)
+                .heightIn(min = DiaryWriteSize.moodCellHeight)
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
                 .clip(DiaryShapes.r12)
                 .background(if (selected) colors.selected else colors.surface)

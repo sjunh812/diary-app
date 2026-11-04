@@ -197,8 +197,8 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ## Phase 10: Polish & Cross-Cutting
 
-- [ ] T069 [P] 다크 모드, 시스템 글꼴 200%, TalkBack·VoiceOver 순서를 모든 화면에서 확인하고 고친다(SC-005, SC-008)
-- [ ] T070 [P] 001 고정 DB(1만 편, 사진 5천 장)로 홈 첫 화면·검색 1초를 재고, 넘으면 research R10의 FTS5 trigram 또는 O2 페이징으로 고친다(SC-003)
+- [ ] T069 [P] 다크 모드, 시스템 글꼴 200%, TalkBack·VoiceOver 순서를 모든 화면에서 확인하고 고친다(SC-005, SC-008) 2026-11-04 진행: 다크와 글꼴 200%를 API 31에서 봤고 잘리던 달력·칩·탭·막대를 고쳤다. TalkBack·VoiceOver가 남았다
+- [ ] T070 [P] 001 고정 DB(1만 편, 사진 5천 장)로 홈 첫 화면·검색 1초를 재고, 넘으면 research R10의 FTS5 trigram 또는 O2 페이징으로 고친다(SC-003) 2026-11-04 진행: `LargeDiaryQueryTest`로 메모리 DB에서 쟀다. Android 호스트는 첫 화면 2ms, 드문 글자 6ms, 1만 편이 다 걸리는 찾기 83ms다. iOS 시험 빌드는 그 찾기가 1.4초다. 실제 기기 측정이 남았다
 - [ ] T071 [P] 강제 종료 100회 시험 스크립트로 SC-002를 확인한다 `scripts/qa/kill-while-writing.sh`
 - [ ] T072 quickstart.md "레거시 기능 대조표"(SC-006)와 spec.md 근거 표의 리뷰 요청 9개(SC-007)를 하나씩 확인하고 결과를 quickstart.md에 적는다
 - [ ] T073 에뮬레이터 스크린샷을 Figma "화면" 페이지와 나란히 보고 어긋난 곳을 고친다

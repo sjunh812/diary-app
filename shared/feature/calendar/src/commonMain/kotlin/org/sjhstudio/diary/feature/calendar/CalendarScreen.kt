@@ -7,12 +7,15 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -299,10 +302,13 @@ private fun MonthGrid(
     val cells: List<LocalDate?> = List(blanks) { null } + (1..month.numberOfDays).map { month.onDay(it) }
     Column {
         for (week in cells.chunked(DAYS_IN_WEEK)) {
-            Row(Modifier.fillMaxWidth()) {
+            // 기기 글자를 키워도 날짜가 잘리지 않게 칸은 내용만큼 자란다.
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
                 for (index in 0 until DAYS_IN_WEEK) {
                     val date = week.getOrNull(index)
-                    Box(Modifier.weight(1f).height(if (wide) DiaryCalendarSize.cellWide else DiaryCalendarSize.cell)) {
+                    Box(
+                        Modifier.weight(1f).heightIn(min = if (wide) DiaryCalendarSize.cellWide else DiaryCalendarSize.cell).fillMaxHeight()
+                    ) {
                         if (date != null) DayCell(date, days[date], date == today, date == selected, wide, dates) { onSelect(date) }
                     }
                 }
@@ -347,7 +353,7 @@ private fun DayCell(
     ) {
         Box(
             Modifier
-                .size(DiaryCalendarSize.todayWidth, DiaryCalendarSize.todayHeight)
+                .defaultMinSize(DiaryCalendarSize.todayWidth, DiaryCalendarSize.todayHeight)
                 .clip(DiaryShapes.full)
                 .background(if (today) colors.accent else Color.Transparent),
             contentAlignment = Alignment.Center
@@ -382,7 +388,7 @@ private fun Badge(count: Int, selected: Boolean, modifier: Modifier) {
     Box(
         modifier
             .offset(x = shift, y = -shift)
-            .size(DiaryCalendarSize.badge)
+            .defaultMinSize(DiaryCalendarSize.badge, DiaryCalendarSize.badge)
             .border(DiaryCalendarSize.badgeBorder, if (selected) colors.selected else colors.canvas, DiaryShapes.full)
             .padding(DiaryCalendarSize.badgeBorder)
             .clip(DiaryShapes.full)

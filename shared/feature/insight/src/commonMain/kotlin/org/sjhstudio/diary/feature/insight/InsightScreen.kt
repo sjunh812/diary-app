@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -32,6 +33,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -348,7 +350,7 @@ private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BasicText(
                     number.toString(),
-                    modifier = Modifier.width(DiaryInsightSize.mapLabel),
+                    modifier = Modifier.width(DiaryInsightSize.mapLabel * LocalDensity.current.fontScale),
                     style = DiaryTheme.typography.micro.copy(color = colors.textTertiary),
                     maxLines = 1
                 )
@@ -382,10 +384,12 @@ private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Moo
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     val percent = if (total == 0) 0 else count * PERCENT / total
+    // 이름과 숫자 칸은 기기 글자 크기만큼 넓어져야 잘리지 않는다.
+    val fontScale = LocalDensity.current.fontScale
     Row(
         Modifier
             .fillMaxWidth()
-            .height(DiaryInsightSize.barRow)
+            .heightIn(min = DiaryInsightSize.barRow)
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .clickable(enabled = count > 0, interactionSource = interaction, indication = null, role = Role.Button) { onClick(mood) },
         verticalAlignment = Alignment.CenterVertically,
@@ -394,7 +398,7 @@ private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Moo
         MoodFace(mood, DiaryInsightSize.barFace)
         BasicText(
             moodName(mood),
-            modifier = Modifier.width(DiaryInsightSize.barName),
+            modifier = Modifier.width(DiaryInsightSize.barName * fontScale),
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
             maxLines = 1
         )
@@ -406,7 +410,7 @@ private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Moo
         }
         BasicText(
             stringResource(Res.string.insight_count_percent, count, percent),
-            modifier = Modifier.width(DiaryInsightSize.barCount),
+            modifier = Modifier.width(DiaryInsightSize.barCount * fontScale),
             style = DiaryTheme.typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End),
             maxLines = 1
         )

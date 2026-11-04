@@ -48,7 +48,7 @@
 | `pref` | `ask_location` | true | 위치 안내를 다시 물을지 |
 | `pref` | `permission_guide` | false | 권한 안내를 본 적 있는지. 새 온보딩에서는 쓰지 않는다 |
 | `pref` | `<이메일>`, `<이메일>'s id` | - | 구글 계정 로그인 여부와 드라이브 백업 파일 ID. 이전 백업 찾기에 쓴다 |
-| `pref2` | `is_alarm_key`, `hour_key`, `minute_key` | false, 22, 0 | 매일 알림. 새 앱에서 다시 예약한다 |
+| `pref2` | `is_alarm_key`, `hour_key`, `minute_key` | false, 22, 0 | 쓰기 알림. 새 앱에서 다시 예약한다 |
 
 ### 글꼴 대응
 

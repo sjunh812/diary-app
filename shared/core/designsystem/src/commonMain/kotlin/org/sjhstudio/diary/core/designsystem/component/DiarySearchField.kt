@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -37,7 +38,7 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
     val focus = LocalFocusManager.current
     Row(
         modifier
-            .height(FIELD_HEIGHT)
+            .heightIn(min = FIELD_HEIGHT)
             .clip(DiaryShapes.r12)
             .background(colors.sunken)
             .padding(horizontal = DiarySpacing.x3),

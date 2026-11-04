@@ -3,9 +3,12 @@ package org.sjhstudio.diary.core.designsystem.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
@@ -27,7 +30,8 @@ fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> U
     Row(
         modifier
             .fillMaxWidth()
-            .height(TABS_HEIGHT)
+            .height(IntrinsicSize.Min)
+            .heightIn(min = TABS_HEIGHT)
             .clip(DiaryShapes.r12)
             .background(colors.sunken)
             .padding(DiarySpacing.x1)
@@ -38,7 +42,8 @@ fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> U
             Box(
                 Modifier
                     .weight(1f)
-                    .height(CELL_HEIGHT)
+                    .fillMaxHeight()
+                    .heightIn(min = CELL_HEIGHT)
                     .clip(DiaryShapes.r8)
                     .background(if (isSelected) colors.canvas else colors.sunken)
                     .selectable(isSelected, interactionSource = interaction, indication = null, role = Role.Tab) { onSelect(index) },
