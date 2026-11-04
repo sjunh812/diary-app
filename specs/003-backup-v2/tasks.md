@@ -154,14 +154,14 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ### Tests for User Story 3 ⚠️
 
-- [ ] T064 [P] [US3] `shared/core/backup/{test}/core/backup/LegacyBackupMergeTest.kt`: `contracts/merge-rules.md` 이전 버전 표 세 경우, `legacy_id`로 견주지 않음(다른 기기 `note.db`), 이 기기에서 이미 이전한 일기는 걸러짐, iOS에서는 사진이 모두 `missing`, WAL 없이 올라간 옛 백업은 들어 있는 만큼
-- [ ] T065 [P] [US3] `{test}/core/backup/LegacyBackupFinderTest.kt`: `legacy_backup_file_id`로 먼저, 없거나 실패하면 `name = 'note.db'` 질의, 여럿이면 최근 것을 위로
+- [x] T064 [P] [US3] `shared/core/backup/{test}/core/backup/LegacyBackupMergeTest.kt`: `contracts/merge-rules.md` 이전 버전 표 세 경우, `legacy_id`로 견주지 않음(다른 기기 `note.db`), 이 기기에서 이미 이전한 일기는 걸러짐, iOS에서는 사진이 모두 `missing`, WAL 없이 올라간 옛 백업은 들어 있는 만큼
+- [x] T065 [P] [US3] `{test}/core/backup/LegacyBackupFinderTest.kt`: `legacy_backup_file_id`로 먼저, 없거나 실패하면 `name = 'note.db'` 질의, 여럿이면 최근 것을 위로
 
 ### Implementation for User Story 3
 
-- [ ] T066 [US3] `shared/core/migration`의 레거시 DB 읽기와 매핑(스펙 001 `LegacyEntryMapper`, `PhotoPaths`)을 공통에서 부를 수 있게 공개한다. iOS에서도 `note.db` 사본을 날 SQL로 읽는다(번들 드라이버)
-- [ ] T067 [US3] `{kt}/core/backup/LegacyBackupImporter.kt`: `note.db` 받기 → 읽기 전용으로 열기 → 후보 만들기 → 날짜·시각·글로 가르기 → 한 트랜잭션 합치기 → Android는 레거시 경로 사진을 이전과 같은 방법으로 복사
-- [ ] T068 [US3] 복원 목록의 "이전 버전 백업" 칸과 불러오기 화면(사진이 없다는 안내, 최근 일기가 빠졌을 수 있다는 안내). Figma 이전 버전 백업 불러오기 (B7)
+- [x] T066 [US3] `shared/core/migration`의 레거시 DB 읽기와 매핑(스펙 001 `LegacyEntryMapper`, `PhotoPaths`)을 공통에서 부를 수 있게 공개한다. iOS에서도 `note.db` 사본을 날 SQL로 읽는다(번들 드라이버)
+- [x] T067 [US3] `{kt}/core/backup/LegacyBackupImporter.kt`: `note.db` 받기 → 읽기 전용으로 열기 → 후보 만들기 → 날짜·시각·글로 가르기 → 한 트랜잭션 합치기 → Android는 레거시 경로 사진을 이전과 같은 방법으로 복사
+- [x] T068 [US3] 복원 목록의 "이전 버전 백업" 칸과 불러오기 화면(사진이 없다는 안내, 최근 일기가 빠졌을 수 있다는 안내). Figma 이전 버전 백업 불러오기 (B7)
 - [ ] T069 [US3] 실제 1.7.4 기기 시험: `scripts/legacy/`로 1.7.4를 설치해 드라이브 백업 → 새 앱으로 업데이트 → 불러오기, 같은 일기 두 번 0(SC-009)
 
 **Checkpoint**: 예전 백업이 Android·iOS(R1 결과에 따름)에서 겹치지 않게 합쳐진다.

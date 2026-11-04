@@ -135,7 +135,8 @@ class RestoreRoundTripTest {
         val work = dir / "b" / "backup"
         val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
         return RestoreController(
-            lazy { catalog() }, lazy { planner() }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) }, lazy { phoneB },
+            lazy { catalog() }, lazy { planner() }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
+            lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) }, lazy { phoneB },
             BackupStore(InMemoryDataStore(emptyPreferences())), FakeNetworkState(), fs, { settings += it }, scope
         )
     }

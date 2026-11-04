@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
@@ -119,6 +120,20 @@ class ScreenCatalogActivity : ComponentActivity() {
                             onBack = ::finish
                         )
 
+                    RESTORE_LEGACY ->
+                        RestorePreviewScreen(
+                            RestorePreparation.Ready(
+                                SAMPLE_BACKUP.copy(platform = PLATFORM_LEGACY),
+                                SAMPLE_PREVIEW.copy(entriesAdded = 85, entriesUnchanged = 1_120, entriesKeptBoth = 3)
+                            ),
+                            onMerge = {},
+                            onRetry = {},
+                            onBack = ::finish
+                        )
+
+                    RESTORE_LEGACY_RESULT ->
+                        Progress(RestoreState.Done(RestoreResult(85, 0, 3, 0, 40, 0, fromLegacy = true)))
+
                     RESTORE_RUNNING -> Progress(RestoreState.FetchingPhotos(1_324, 120, 340))
 
                     RESTORE_RESULT -> Progress(
@@ -144,6 +159,8 @@ class ScreenCatalogActivity : ComponentActivity() {
         const val RESTORE_LIST = "restore_list"
         const val RESTORE_CHECK = "restore_check"
         const val RESTORE_NO_SPACE = "restore_no_space"
+        const val RESTORE_LEGACY = "restore_legacy"
+        const val RESTORE_LEGACY_RESULT = "restore_legacy_result"
         const val RESTORE_RUNNING = "restore_running"
         const val RESTORE_RESULT = "restore_result"
         const val RESTORE_FAILED = "restore_failed"

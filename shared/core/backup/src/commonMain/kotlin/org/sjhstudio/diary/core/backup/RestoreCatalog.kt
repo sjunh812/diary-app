@@ -10,24 +10,50 @@ import org.sjhstudio.diary.core.drive.listAll
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 
 /** 복원 목록의 한 줄과 받을 때 쓸 정보. */
-data class RestoreCandidate(val entry: BackupEntry, val manifest: Manifest?, val snapshot: DriveFile?)
+data class RestoreCandidate(val entry: BackupEntry, val manifest: Manifest?, val snapshot: DriveFile?, val legacy: DriveFile? = null)
 
 /** 목록 파일을 모아 읽고 끝까지 된 백업인지 본다(contracts/backup-format.md). 목록 파일이 없는 스냅샷은 목록에 없다. */
-class RestoreCatalog(private val drive: DriveApi, private val fileSystem: FileSystem, private val workDir: Path) {
+class RestoreCatalog(
+    private val drive: DriveApi,
+    private val fileSystem: FileSystem,
+    private val workDir: Path,
+    private val legacy: suspend () -> List<DriveFile> = { emptyList() }
+) {
     suspend fun list(): List<RestoreCandidate> {
         val manifests = drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_MANIFEST)))
         val snapshots = drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_SNAPSHOT))).associateBy { it.name }
         fileSystem.createDirectories(workDir)
-        return manifests.map { file ->
-            val path = workDir / "manifest.tmp"
-            drive.download(file.id, path)
-            val manifest = ManifestCodec.decode(fileSystem.read(path) { readUtf8() })
-            fileSystem.delete(path, mustExist = false)
-            candidate(file, manifest, manifest?.let { snapshots[it.snapshot.fileName] })
-        }.sortedByDescending { it.entry.createdAt }
+        val backups =
+            manifests.map { file ->
+                val path = workDir / "manifest.tmp"
+                drive.download(file.id, path)
+                val manifest = ManifestCodec.decode(fileSystem.read(path) { readUtf8() })
+                fileSystem.delete(path, mustExist = false)
+                candidate(file, manifest, manifest?.let { snapshots[it.snapshot.fileName] })
+            }.sortedByDescending { it.entry.createdAt }
+        return backups + legacy().map(::legacyCandidate)
     }
+
+    private fun legacyCandidate(file: DriveFile) = RestoreCandidate(
+        BackupEntry(
+            snapshotName = LEGACY_PREFIX + file.id,
+            deviceId = PLATFORM_LEGACY,
+            deviceName = "",
+            platform = PLATFORM_LEGACY,
+            createdAt = Instant.fromEpochMilliseconds(file.createdAt),
+            entryCount = 0,
+            photoCount = 0,
+            photosNotInBackup = 0,
+            appVersion = "",
+            state = BackupEntryState.Ready
+        ),
+        null,
+        null,
+        file
+    )
 
     private fun candidate(file: DriveFile, manifest: Manifest?, snapshot: DriveFile?): RestoreCandidate {
         val state =
@@ -63,3 +89,5 @@ class RestoreCatalog(private val drive: DriveApi, private val fileSystem: FileSy
         )
     }
 }
+
+private const val LEGACY_PREFIX = "legacy:"

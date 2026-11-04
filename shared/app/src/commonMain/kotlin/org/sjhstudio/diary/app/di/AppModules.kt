@@ -16,6 +16,7 @@ import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupRunner
+import org.sjhstudio.diary.core.backup.LegacyBackupImporter
 import org.sjhstudio.diary.core.backup.ManifestSettings
 import org.sjhstudio.diary.core.backup.MergeApplier
 import org.sjhstudio.diary.core.backup.PhotoFetcher
@@ -186,11 +187,18 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             val media = files.mediaDirectory.toPath()
             val system = FileSystem.SYSTEM
             val applier = lazy { MergeApplier(get(), { system.exists(media / it) }) }
+            val legacy = lazy { LegacyBackupImporter(get(), get(), get(), system, work) }
             RestoreController(
-                catalog = lazy { RestoreCatalog(get(), system, work) },
+                catalog =
+                    lazy {
+                        RestoreCatalog(get(), system, work) {
+                            legacy.value.find(get<SettingsRepository>().settings.first().legacyBackup?.fileId)
+                        }
+                    },
                 planner = lazy { RestorePlanner(get(), applier.value, get(), system, work) },
                 applier = applier,
                 fetcher = lazy { PhotoFetcher(get(), get(), system, media, work) },
+                legacy = legacy,
                 db = lazy { get<DiaryDatabase>() },
                 store = get(),
                 network = get(),

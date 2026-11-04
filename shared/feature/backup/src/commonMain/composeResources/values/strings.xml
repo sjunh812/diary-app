@@ -115,4 +115,17 @@
     <plurals name="restore_note_pending"><item quantity="one">%1$s photo still to download</item><item quantity="other">%1$s photos still to download</item></plurals>
     <plurals name="restore_note_missing"><item quantity="one">%1$s photo couldn’t be verified</item><item quantity="other">%1$s photos couldn’t be verified</item></plurals>
     <plurals name="restore_not_in_backup"><item quantity="one">%1$s photo isn’t in this backup. It’s on the original phone.</item><item quantity="other">%1$s photos aren’t in this backup. They’re on the original phone.</item></plurals>
+    <string name="restore_group_legacy">Old app backups</string>
+    <string name="restore_legacy_row">Uploaded by the old app · no photos</string>
+    <string name="restore_legacy_title">Bring in your old app backup</string>
+    <string name="restore_legacy_body">Uploaded by the old app on %1$s.</string>
+    <string name="restore_legacy_no_photos">Old backups don’t include photos</string>
+    <string name="restore_legacy_no_photos_body">Text, mood, weather, place and favorites come back.</string>
+    <string name="restore_legacy_recent">Entries written after that may be missing</string>
+    <string name="restore_value_existing">Entries already here</string>
+    <string name="restore_legacy_action">Bring in</string>
+    <string name="restore_legacy_same_time_body">Same date and time with different text. Both are kept and marked.</string>
+    <string name="restore_legacy_gaps_body">Old backups have no photos, so they’re marked as not found.</string>
+    <plurals name="restore_legacy_same_time"><item quantity="one">%1$s entry with different text</item><item quantity="other">%1$s entries with different text</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="one">%1$s photo spot</item><item quantity="other">%1$s photo spots</item></plurals>
 </resources>

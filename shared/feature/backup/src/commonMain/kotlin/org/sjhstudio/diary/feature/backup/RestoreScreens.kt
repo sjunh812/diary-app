@@ -52,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
@@ -77,8 +78,20 @@ import org.sjhstudio.diary.feature.backup.resources.restore_failed_mismatch_titl
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_other_body
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_other_title
 import org.sjhstudio.diary.feature.backup.resources.restore_fetching_body
+import org.sjhstudio.diary.feature.backup.resources.restore_group_legacy
 import org.sjhstudio.diary.feature.backup.resources.restore_join
 import org.sjhstudio.diary.feature.backup.resources.restore_keep_note
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_action
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_body
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_gaps
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_gaps_body
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_no_photos
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_no_photos_body
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_recent
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_same_time
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_same_time_body
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_title
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed_body
 import org.sjhstudio.diary.feature.backup.resources.restore_loading
@@ -120,6 +133,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_unit_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_value_added
 import org.sjhstudio.diary.feature.backup.resources.restore_value_both
 import org.sjhstudio.diary.feature.backup.resources.restore_value_entries
+import org.sjhstudio.diary.feature.backup.resources.restore_value_existing
 import org.sjhstudio.diary.feature.backup.resources.restore_value_merged
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photo
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photos
@@ -176,11 +190,18 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
             modifier = Modifier.padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x2)
         )
-        entries.groupBy { it.deviceId to it.deviceName }.values.forEachIndexed { index, group ->
+        val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
+        ordered.groupBy { it.deviceId to it.deviceName }.values.forEachIndexed { index, group ->
             DiarySettingsHeader(deviceLabel(group.first()), gapAbove = index > 0)
             group.forEach { entry ->
                 val problem = problemText(entry.state)
-                if (problem == null) {
+                if (entry.platform == PLATFORM_LEGACY) {
+                    DiarySettingsRow(
+                        legacyDate(entry),
+                        onClick = { onPick(entry.snapshotName) },
+                        description = stringResource(Res.string.restore_legacy_row)
+                    )
+                } else if (problem == null) {
                     DiarySettingsRow(whenText(entry), onClick = { onPick(entry.snapshotName) }, description = countsText(entry))
                 } else {
                     Unavailable(whenText(entry), problem)
@@ -233,8 +254,15 @@ fun RestorePreviewScreen(
     Page(stringResource(Res.string.restore_preview_top), onBack, modifier) {
         when (state) {
             null -> Hero(DiaryIcons.Restore, stringResource(Res.string.restore_preparing))
+
             is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack)
-            is RestorePreparation.Ready -> Preview(state.entry, state.preview, onMerge)
+
+            is RestorePreparation.Ready ->
+                if (state.entry.platform == PLATFORM_LEGACY) {
+                    LegacyPreview(state.entry, state.preview, onMerge)
+                } else {
+                    Preview(state.entry, state.preview, onMerge)
+                }
         }
     }
 }
@@ -290,6 +318,51 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
             size = DiaryButtonSize.XLarge,
             enabled = lacking <= 0
         )
+    }
+}
+
+/** 예전 앱 백업(Figma B7). 합치기로만 불러온다. */
+@Composable
+private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePreview, onImport: () -> Unit) {
+    Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
+        Hero(
+            DiaryIcons.Restore,
+            stringResource(Res.string.restore_legacy_title),
+            stringResource(Res.string.restore_legacy_body, legacyDate(entry)),
+            fill = false
+        )
+        Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+            Column(Modifier.padding(horizontal = DiarySpacing.x2)) {
+                val entries = Res.plurals.restore_unit_entries
+                DiaryValueRow(
+                    stringResource(Res.string.restore_value_added),
+                    pluralStringResource(entries, preview.entriesAdded, preview.entriesAdded.grouped())
+                )
+                DiaryValueRow(
+                    stringResource(Res.string.restore_value_existing),
+                    pluralStringResource(entries, preview.entriesUnchanged, preview.entriesUnchanged.grouped())
+                )
+                if (preview.entriesKeptBoth > 0) {
+                    DiaryValueRow(
+                        stringResource(Res.string.restore_value_both),
+                        pluralStringResource(entries, preview.entriesKeptBoth, preview.entriesKeptBoth.grouped())
+                    )
+                }
+            }
+            DiaryNoteBox(
+                listOf(
+                    DiaryNote(
+                        DiaryIcons.ImageOff,
+                        stringResource(Res.string.restore_legacy_no_photos),
+                        stringResource(Res.string.restore_legacy_no_photos_body)
+                    ),
+                    DiaryNote(DiaryIcons.Info, stringResource(Res.string.restore_legacy_recent), null)
+                )
+            )
+        }
+    }
+    Bottom {
+        DiaryButton(stringResource(Res.string.restore_legacy_action), onImport, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
     }
 }
 
@@ -425,7 +498,32 @@ private fun resultBody(result: RestoreResult): String {
 }
 
 @Composable
-private fun resultNotes(result: RestoreResult): List<DiaryNote> = buildList {
+private fun resultNotes(result: RestoreResult): List<DiaryNote> = if (result.fromLegacy) legacyNotes(result) else backupNotes(result)
+
+@Composable
+private fun legacyNotes(result: RestoreResult): List<DiaryNote> = buildList {
+    if (result.entriesKeptBoth > 0) {
+        add(
+            DiaryNote(
+                DiaryIcons.Copy,
+                pluralStringResource(Res.plurals.restore_legacy_same_time, result.entriesKeptBoth, result.entriesKeptBoth.grouped()),
+                stringResource(Res.string.restore_legacy_same_time_body)
+            )
+        )
+    }
+    if (result.photosMissing > 0) {
+        add(
+            DiaryNote(
+                DiaryIcons.ImageOff,
+                pluralStringResource(Res.plurals.restore_legacy_gaps, result.photosMissing, result.photosMissing.grouped()),
+                stringResource(Res.string.restore_legacy_gaps_body)
+            )
+        )
+    }
+}
+
+@Composable
+private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
     if (result.entriesKeptBoth > 0) {
         add(
             DiaryNote(
@@ -533,6 +631,7 @@ internal fun deviceName(entry: BackupEntry): String = entry.deviceName.ifEmpty {
 private fun deviceLabel(entry: BackupEntry): String {
     val platform =
         when (entry.platform) {
+            PLATFORM_LEGACY -> return stringResource(Res.string.restore_group_legacy)
             "android" -> stringResource(Res.string.restore_platform_android)
             "ios" -> stringResource(Res.string.restore_platform_ios)
             else -> return deviceName(entry)
@@ -546,6 +645,10 @@ internal fun whenText(entry: BackupEntry): String {
     val local = entry.createdAt.toLocalDateTime(TimeZone.currentSystemDefault())
     return stringResource(Res.string.restore_when, dates.monthDay(local.date), dates.time(local.time))
 }
+
+@Composable
+private fun legacyDate(entry: BackupEntry): String =
+    rememberDiaryDateFormat().fullDate(entry.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).date)
 
 @Composable
 internal fun countsText(entry: BackupEntry): String = stringResource(

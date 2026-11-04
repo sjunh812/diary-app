@@ -14,13 +14,16 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.backup.AndroidBackupScheduler
 import org.sjhstudio.diary.core.backup.BackupAppInfo
+import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
+import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.migration.AndroidImageSizeReader
 import org.sjhstudio.diary.core.migration.LegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
+import org.sjhstudio.diary.core.migration.MediaImporter
 import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.migration.MigrationPaths
 import org.sjhstudio.diary.core.migration.MigrationRunner
@@ -59,6 +62,16 @@ internal actual val platformModule: Module =
         single<NetworkState> { AndroidNetworkState(androidContext()) }
         single<DeviceName> { AndroidDeviceName(androidContext()) }
         single<BackupScheduler> { AndroidBackupScheduler(androidContext()) }
+        single {
+            val importer =
+                MediaImporter(FileSystem.SYSTEM, get<AppFiles>().mediaDirectory.toPath(), AndroidImageSizeReader, Clock.System) {
+                    Uuid.random().toString()
+                }
+            // 찾지 못한 사진은 합치는 쪽이 찾을 수 없는 사진 줄로 남긴다.
+            LegacyPhotoCopier { entryId, order, fragment ->
+                importer.importOne(entryId, order, fragment).takeIf { it.found }?.media?.asEntity()
+            }
+        }
         single {
             val info = androidContext().packageManager.getPackageInfo(androidContext().packageName, 0)
             BackupAppInfo(info.versionName.orEmpty(), PackageInfoCompat.getLongVersionCode(info).toInt(), "android")

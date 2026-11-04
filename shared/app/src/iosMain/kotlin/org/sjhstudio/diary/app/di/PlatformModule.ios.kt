@@ -4,6 +4,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.IosDrive
 import org.sjhstudio.diary.core.backup.BackupAppInfo
+import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.migration.EmptyLegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyArchive
@@ -38,6 +39,8 @@ internal actual val platformModule: Module =
         single<NetworkState> { IosNetworkState() }
         single<DeviceName> { IosDeviceName() }
         single<BackupScheduler> { NoBackupScheduler }
+        // iOS에는 레거시 사진 경로가 없어 예전 백업의 사진은 찾을 수 없는 사진으로 남는다(FR-030).
+        single { LegacyPhotoCopier { _, _, _ -> null } }
         single {
             val info = NSBundle.mainBundle.infoDictionary
             BackupAppInfo(

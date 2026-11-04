@@ -115,4 +115,17 @@
     <plurals name="restore_note_pending"><item quantity="other">아직 못 받은 사진 %1$s장</item></plurals>
     <plurals name="restore_note_missing"><item quantity="other">확인하지 못한 사진 %1$s장</item></plurals>
     <plurals name="restore_not_in_backup"><item quantity="other">사진 %1$s장은 백업에 없어요. 원래 휴대폰에 있어요.</item></plurals>
+    <string name="restore_group_legacy">예전 앱 백업</string>
+    <string name="restore_legacy_row">예전 앱이 올린 백업 · 사진 없음</string>
+    <string name="restore_legacy_title">예전 앱 백업을 불러올게요</string>
+    <string name="restore_legacy_body">%1$s에 예전 앱이 올린 백업이에요.</string>
+    <string name="restore_legacy_no_photos">예전 백업에는 사진이 없어요</string>
+    <string name="restore_legacy_no_photos_body">글, 기분, 날씨, 장소, 즐겨찾기를 되살려요.</string>
+    <string name="restore_legacy_recent">그 뒤에 쓴 일기는 빠져 있을 수 있어요</string>
+    <string name="restore_value_existing">이미 있는 일기</string>
+    <string name="restore_legacy_action">불러오기</string>
+    <string name="restore_legacy_same_time_body">같은 날 같은 시각에 글이 달라요. 둘 다 남기고 표시해 뒀어요.</string>
+    <string name="restore_legacy_gaps_body">예전 백업에는 사진이 없어서 찾을 수 없는 사진으로 남겼어요.</string>
+    <plurals name="restore_legacy_same_time"><item quantity="other">글이 다른 일기 %1$s편</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="other">사진 자리 %1$s곳</item></plurals>
 </resources>

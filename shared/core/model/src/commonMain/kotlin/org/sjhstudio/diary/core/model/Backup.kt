@@ -70,6 +70,9 @@ sealed interface BackupEntryState {
 
 enum class DamageReason { MANIFEST, SNAPSHOT_MISSING, SNAPSHOT_MISMATCH }
 
+/** 예전 앱 백업 줄의 [BackupEntry.platform] 값. */
+const val PLATFORM_LEGACY = "legacy"
+
 /** 복원 목록 한 줄. 일기 내용은 없다. */
 data class BackupEntry(
     val snapshotName: String,
@@ -111,7 +114,9 @@ data class RestoreResult(
     /** 공간이 모자라 백업에 없던 사진. 원래 기기에 있다. */
     val photosOnOriginal: Int = 0,
     /** 백업한 기기가 잠금을 쓰고 있었다. 비밀번호는 백업하지 않는다. */
-    val lockWasOn: Boolean = false
+    val lockWasOn: Boolean = false,
+    /** 1.7.x가 올린 `note.db`를 불러왔다. 사진 자리는 찾을 수 없는 사진으로 남는다. */
+    val fromLegacy: Boolean = false
 )
 
 enum class RestoreFailure { MISMATCH, OTHER }

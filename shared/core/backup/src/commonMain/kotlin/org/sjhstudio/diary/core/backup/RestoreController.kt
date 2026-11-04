@@ -24,6 +24,7 @@ class RestoreController(
     private val planner: Lazy<RestorePlanner>,
     private val applier: Lazy<MergeApplier>,
     private val fetcher: Lazy<PhotoFetcher>,
+    private val legacy: Lazy<LegacyBackupImporter>,
     private val db: Lazy<DiaryDatabase>,
     private val store: BackupStore,
     private val network: NetworkState,
@@ -37,6 +38,7 @@ class RestoreController(
     private val busy = Mutex()
     private var candidates = emptyList<RestoreCandidate>()
     private var prepared: PreparedRestore? = null
+    private var preparedLegacy: LegacyPlan? = null
 
     override suspend fun backups(): List<BackupEntry>? = guarded {
         candidates = catalog.value.list()
@@ -49,9 +51,18 @@ class RestoreController(
         val candidate =
             candidates.firstOrNull { it.entry.snapshotName == snapshotName } ?: return RestorePreparation.Failed(RestoreFailure.OTHER)
         return try {
-            val ready = planner.value.prepare(candidate)
-            prepared = ready
-            RestorePreparation.Ready(candidate.entry, ready.preview)
+            prepared = null
+            preparedLegacy = null
+            val file = candidate.legacy
+            if (file != null) {
+                val plan = legacy.value.prepare(file)
+                preparedLegacy = plan
+                RestorePreparation.Ready(candidate.entry, plan.preview)
+            } else {
+                val ready = planner.value.prepare(candidate)
+                prepared = ready
+                RestorePreparation.Ready(candidate.entry, ready.preview)
+            }
         } catch (_: RestoreMismatch) {
             RestorePreparation.Failed(RestoreFailure.MISMATCH)
         } catch (error: CancellationException) {
@@ -62,18 +73,14 @@ class RestoreController(
     }
 
     override fun merge() {
-        val ready = prepared ?: return
+        val ready = prepared
+        val old = preparedLegacy
+        if (ready == null && old == null) return
         if (!busy.tryLock()) return
         scope.launch {
             try {
                 _state.value = RestoreState.Merging
-                // 미리보기 뒤에 일기를 고쳤을 수 있어 합치기 직전의 기기 상태로 다시 가른다.
-                val plan = applier.value.plan(ready.plan.items.map { it.first })
-                val counts = applier.value.apply(plan, SOURCE_DRIVE)
-                applySettings(ready.manifest.settings)
-                fileSystem.delete(ready.snapshot, mustExist = false)
-                prepared = null
-                _state.value = RestoreState.Done(fetchPhotos(counts, ready))
+                _state.value = RestoreState.Done(if (ready != null) mergeBackup(ready) else importLegacy(requireNotNull(old)))
             } catch (error: CancellationException) {
                 throw error
             } catch (_: Exception) {
@@ -82,6 +89,22 @@ class RestoreController(
                 busy.unlock()
             }
         }
+    }
+
+    private suspend fun importLegacy(plan: LegacyPlan): RestoreResult {
+        val result = legacy.value.apply(plan)
+        preparedLegacy = null
+        return result
+    }
+
+    private suspend fun mergeBackup(ready: PreparedRestore): RestoreResult {
+        // 미리보기 뒤에 일기를 고쳤을 수 있어 합치기 직전의 기기 상태로 다시 가른다.
+        val plan = applier.value.plan(ready.plan.items.map { it.first })
+        val counts = applier.value.apply(plan, SOURCE_DRIVE)
+        applySettings(ready.manifest.settings)
+        fileSystem.delete(ready.snapshot, mustExist = false)
+        prepared = null
+        return fetchPhotos(counts, ready)
     }
 
     private suspend fun fetchPhotos(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
