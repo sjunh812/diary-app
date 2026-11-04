@@ -71,7 +71,7 @@ fun FontSettingsScreen(state: FontUiState, onSelect: (DiaryFont) -> Unit, onBack
                     .fillMaxWidth()
                     .clip(DiaryShapes.r16)
                     .background(colors.sunken)
-                    .padding(DiarySpacing.x4),
+                    .padding(DiarySpacing.x5),
                 verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
             ) {
                 BasicText(

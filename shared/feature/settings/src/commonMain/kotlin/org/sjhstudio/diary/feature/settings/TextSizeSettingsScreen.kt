@@ -62,8 +62,8 @@ fun TextSizeSettingsScreen(
             Column(
                 Modifier.padding(
                     top = DiarySpacing.x2
-                ).fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x4),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+                ).fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x5),
+                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
             ) {
                 BasicText(
                     dates.fullDate(sampleDate),

@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -28,7 +27,7 @@ class DiaryNote(val icon: ImageVector, val title: String, val body: String?)
 
 /**
  * 결과 안내 상자(Figma result-notes, `docs/design.md` 안내 상자, SEED Callout).
- * 바탕 sunken · 모서리 16 · 줄마다 위아래 14, 좌우 16 · 아이콘 16과 글 사이 12.
+ * 바탕 sunken · 모서리 16 · 안쪽 20 · 줄 사이 16 · 아이콘 16과 글 사이 12(`docs/design.md` 상자 여백).
  * 아이콘은 제목 첫 줄 가운데에 둔다.
  * 정보는 문장보다 상자로 모아 훑어보기 쉽게 한다(토스 UX 라이팅).
  */
@@ -36,11 +35,13 @@ class DiaryNote(val icon: ImageVector, val title: String, val body: String?)
 fun DiaryNoteBox(notes: List<DiaryNote>, modifier: Modifier = Modifier) {
     if (notes.isEmpty()) return
     val colors = DiaryTheme.colors
-    Column(modifier = modifier.fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken)) {
+    Column(
+        modifier = modifier.fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x5),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+    ) {
         for (note in notes) {
             Row(
-                // 위아래 14는 이 상자 안에서만 쓰는 값이다(SEED Callout).
-                modifier = Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x4, vertical = 14.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
                 verticalAlignment = Alignment.Top
             ) {

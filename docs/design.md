@@ -171,9 +171,10 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 대화상자 | 폭 312(최대 560) · 모서리 28 · 안쪽 24 · 왼쪽 버튼은 "닫기" | M3 Dialog, 토스 UX 가이드 |
 | 빈 상태 | 아이콘 32 하나 · 제목 `title2` · 설명 `body` · 버튼 하나 · 긍정형 해요체 | SEED Result Section, 토스 UX 가이드 |
 | 결과 배지 | 원 56 · 아이콘 32 · 결과 화면 맨 위 하나 | M3 아이콘 버튼 L의 아이콘 32. TDS·SEED의 같은 자리 명세는 확인 못 함 |
-| 안내 상자 | 바탕 `sunken` · 모서리 16 · 줄마다 위아래 14, 좌우 16 · 아이콘 16(`textSecondary`) · 아이콘과 글 사이 12 · 제목 `bodyStrong` · 설명 `caption` | SEED Callout(안쪽 14, 사이 12, 아이콘 16) |
-| 상태 상자 | 안내 상자와 같은 바탕·모서리·안쪽 · 줄 사이 12 · 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong` · 아래 설명 `body`. 아이콘 + 문장 줄을 늘어놓는 목록은 아이콘 16, 사이 12, 줄 사이 16(`body` 글이 커서 안내 상자보다 넓게) | 안내 상자와 한 집안(2026-11-01 점검, 사용자가 사이 8이 좁다고 짚음) |
-| 한 줄 안내 | 바탕 `sunken` · 모서리 12 · 안쪽 12 · 아이콘 16 · 사이 8 · `caption` | SEED PageBanner(아이콘 16, 사이 6) |
+| 상자 여백 | 모서리 16인 바탕 상자는 모두 같은 셋을 쓴다: 글 묶음 안(제목과 설명) 2~4 < 항목 사이 16 < 상자 안쪽 20(네 변 같게). 묶인 것일수록 가깝고 가장자리가 가장 넓어야 상자가 답답하지 않다. 상자 밖과는 위아래 16 이상 띄운다 | 게슈탈트 근접성, internal ≤ external 휴리스틱([Cieden](https://cieden.com/book/sub-atomic/spacing/spacing-best-practices), [Uxcel](https://app.uxcel.com/courses/design-systems-intro/spacing-sizing-803/managing-internal-and-external-spacing-0940)), SEED Callout(안쪽 14 ≥ 사이 12), 2026-11-04 사용자 지적(안쪽이 내용 사이보다 좁아 가장자리에 붙어 보임) |
+| 안내 상자 | 바탕 `sunken` · 모서리 16 · 위 "상자 여백" · 아이콘 16(`textSecondary`) · 아이콘과 글 사이 12 · 제목 `bodyStrong` · 설명 `caption`(제목과 사이 2) | SEED Callout(사이 12, 아이콘 16) |
+| 상태 상자 | 안내 상자와 같은 바탕·모서리·안쪽 · 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong` · 아래 설명 `body`(머리와 사이 4, 한 묶음) · 버튼은 설명과 사이 16. 아이콘 + 문장 줄을 늘어놓는 목록은 아이콘 16, 사이 12, 줄 사이 16 | 안내 상자와 한 집안(2026-11-01 점검, 사용자가 사이 8이 좁다고 짚음) |
+| 한 줄 안내 | 바탕 `sunken` · 모서리 12 · 안쪽 16(글이 여러 줄이 되어도 답답하지 않게) · 아이콘 16 · 사이 8 · `caption` | SEED PageBanner(아이콘 16, 사이 6) |
 | 값 줄 | 최소 48 · 좌우 20 · 이름 `body`(`textSecondary`) 왼쪽 · 값 `bodyStrong` 오른쪽 · 누르지 않는 줄 | Figma M5 기록 이전 결과, TDS ListRow 오른쪽 값 |
 | 설정 묶음 머리 | `label` · `textSecondary` · 위 20(둘째 묶음부터 24, 위 "설정 묶음") · 아래 8 · 좌우 20 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
 | 스위치 | 트랙 52×32 · full · 안쪽 3 · 손잡이 26 · 누르는 곳은 줄 전체 | SEED switchmark 32(52×32, 안쪽 3, 손잡이 26), M3 Switch 52×32 |

@@ -18,14 +18,14 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
  * 한 줄 안내(Figma 예전 일기 보기·잠금 설정의 안내, `docs/design.md` 한 줄 안내).
- * 바탕 sunken · 모서리 12 · 안쪽 12 · 아이콘 16과 글 사이 8 · `caption`. 아이콘은 첫 줄 가운데에 둔다.
+ * 바탕 sunken · 모서리 12 · 안쪽 16 · 아이콘 16과 글 사이 8 · `caption`. 아이콘은 첫 줄 가운데에 둔다.
  * 화면 위쪽이나 목록 아래에서 지금 화면의 규칙을 짧게 알린다.
  */
 @Composable
 fun DiaryNotice(text: String, modifier: Modifier = Modifier, icon: ImageVector = DiaryIcons.Info) {
     val colors = DiaryTheme.colors
     Row(
-        modifier = modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x3),
+        modifier = modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x4),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
         verticalAlignment = Alignment.Top
     ) {

@@ -39,9 +39,17 @@ import org.sjhstudio.diary.feature.migration.resources.support_without
 fun SupportAttachSheet(onDismiss: () -> Unit, onContactWithout: () -> Unit, onContactWith: () -> Unit) {
     val colors = DiaryTheme.colors
     DiaryBottomSheet(onDismiss = onDismiss) {
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-            BasicText(stringResource(Res.string.support_sheet_title), style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
-            BasicText(stringResource(Res.string.support_sheet_body), style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                BasicText(
+                    stringResource(Res.string.support_sheet_title),
+                    style = DiaryTheme.typography.title2.copy(color = colors.textPrimary)
+                )
+                BasicText(
+                    stringResource(Res.string.support_sheet_body),
+                    style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+                )
+            }
             // 아이콘 줄 목록(`docs/design.md` 상태 상자): 아이콘 16, 사이 12, 줄 사이 16
             Column(
                 modifier =
@@ -49,7 +57,7 @@ fun SupportAttachSheet(onDismiss: () -> Unit, onContactWithout: () -> Unit, onCo
                         .fillMaxWidth()
                         .clip(DiaryShapes.r16)
                         .background(colors.sunken)
-                        .padding(horizontal = DiarySpacing.x4, vertical = DiarySpacing.x3 + DiarySpacing.x0_5),
+                        .padding(DiarySpacing.x5),
                 verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
             ) {
                 Line(DiaryIcons.Copy, stringResource(Res.string.support_sheet_contains))
