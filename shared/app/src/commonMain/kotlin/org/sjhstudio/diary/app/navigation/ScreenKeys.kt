@@ -105,3 +105,6 @@ data class RestorePreviewKey(val snapshotName: String) : Screen {
 
 @Serializable
 data object RestoreProgressKey : Screen
+
+@Serializable
+data object FileBackupKey : Screen

@@ -9,6 +9,8 @@ kotlin {
             implementation(projects.shared.core.platform)
             implementation(libs.kotlinx.datetime)
             implementation(libs.compose.ui.backhandler)
+            implementation(libs.filekit.dialogs.compose)
+            implementation(libs.okio)
         }
     }
 }

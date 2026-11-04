@@ -15,8 +15,10 @@ import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.core.backup.BackupAlerts
+import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupRunner
+import org.sjhstudio.diary.core.backup.BundleExporter
 import org.sjhstudio.diary.core.backup.LegacyBackupImporter
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.backup.ManifestSettings
@@ -63,6 +65,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
@@ -197,6 +200,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             val settings = get<SettingsRepository>()
             val lock = get<LockRepository>()
             val store = get<BackupStore>()
+            val deviceName = get<DeviceName>()
+            val appInfo = get<BackupAppInfo>()
             val database = lazy { get<DiaryDatabase>() }
             val applier = lazy { MergeApplier(database.value, { system.exists(media / it) }) }
             val legacy = lazy { LegacyBackupImporter(database.value, drive, copier, system, work) }
@@ -212,6 +217,20 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 applier = applier,
                 fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work) },
                 legacy = legacy,
+                exporter =
+                    lazy {
+                        BundleExporter(
+                            db = database.value,
+                            store = store,
+                            deviceName = deviceName,
+                            fileSystem = system,
+                            mediaDir = media,
+                            workDir = work,
+                            app = appInfo,
+                            readme = { backupReadme() },
+                            settings = { currentBackupSettings(settings, lock) }
+                        )
+                    },
                 rollbackManager =
                     lazy {
                         RollbackManager(
@@ -229,6 +248,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 store = store,
                 network = get(),
                 fileSystem = system,
+                workDir = work,
                 applySettings = applyBackup,
                 scope = get(APP_SCOPE)
             )

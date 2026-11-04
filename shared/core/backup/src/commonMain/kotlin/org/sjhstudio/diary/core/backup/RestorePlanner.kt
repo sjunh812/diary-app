@@ -2,6 +2,9 @@ package org.sjhstudio.diary.core.backup
 
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
+import okio.openZip
+import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveFile
@@ -13,8 +16,18 @@ import org.sjhstudio.diary.core.platform.FreeSpace
 /** 받은 스냅샷이 목록 파일과 맞지 않는다. 기기의 기록은 그대로다(FR-021). */
 class RestoreMismatch : Exception("backup does not match its manifest")
 
+/** 더 새 앱이 만든 묶음 파일이다. */
+class RestoreNeedsUpdate : Exception("backup needs a newer app")
+
 /** 받아서 확인까지 끝난 백업. 사용자가 확인하면 이 계획대로 합친다. */
-data class PreparedRestore(val manifest: Manifest, val plan: MergePlan, val preview: RestorePreview, val snapshot: Path)
+data class PreparedRestore(
+    val manifest: Manifest,
+    val plan: MergePlan,
+    val preview: RestorePreview,
+    val snapshot: Path,
+    /** 파일에서 되살릴 때의 묶음 파일. 사진을 여기서 꺼낸다. */
+    val bundle: Path? = null
+)
 
 /** 스냅샷 받기 → 확인값·일기 수 확인 → 쓰기 없이 합치기를 돌려 숫자를 낸다(contracts/merge-rules.md). */
 class RestorePlanner(
@@ -31,6 +44,29 @@ class RestorePlanner(
         fileSystem.createDirectories(incoming)
         val path = incoming / manifest.snapshot.fileName
         drive.download(file.id, path)
+        return checked(manifest, path)
+    }
+
+    /** 묶음 파일의 `manifest.json`을 먼저 읽고 스냅샷을 꺼내 드라이브와 같은 확인을 거친다. */
+    suspend fun prepareBundle(zip: Path): PreparedRestore {
+        val archive = fileSystem.openZip(zip)
+        val root = "/".toPath()
+        val text = archive.read(root / BundleExporter.MANIFEST) { readUtf8() }
+        val manifest = ManifestCodec.decode(text)
+        when (ManifestCodec.check(manifest)) {
+            ManifestCheck.OK -> Unit
+            ManifestCheck.NEEDS_NEWER_APP -> throw RestoreNeedsUpdate()
+            ManifestCheck.BROKEN -> throw RestoreMismatch()
+        }
+        val incoming = workDir / INCOMING
+        fileSystem.createDirectories(incoming)
+        val path = incoming / BundleExporter.SNAPSHOT
+        fileSystem.delete(path, mustExist = false)
+        archive.source(root / BundleExporter.SNAPSHOT).use { source -> fileSystem.write(path) { writeAll(source) } }
+        return checked(requireNotNull(manifest), path).copy(bundle = zip)
+    }
+
+    private suspend fun checked(manifest: Manifest, path: Path): PreparedRestore {
         if (fileSystem.hashes(path).sha256 != manifest.snapshot.sha256) {
             fileSystem.delete(path, mustExist = false)
             throw RestoreMismatch()
@@ -82,24 +118,45 @@ class PhotoFetcher(
 ) {
     /** 받은 수와 깨져서 쓸 수 없던 수. */
     suspend fun fetch(onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): Pair<Int, Int> {
-        val dao = db.backupDao()
-        val waiting = dao.pendingFiles()
-        if (waiting.isEmpty()) return 0 to 0
+        if (db.backupDao().pendingFiles().isEmpty()) return 0 to 0
         val onDrive: Map<String, DriveFile> =
             drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO))).associateBy {
                 it.name.substringBefore('.')
             }
+        return settle(onProgress) { sha256, _, target ->
+            val file = onDrive[sha256] ?: return@settle false
+            drive.download(file.id, target)
+            true
+        }
+    }
+
+    /** 묶음 파일에서 꺼낸다. 맞지 않는 사진만 찾을 수 없는 사진이 되고 나머지는 합친다. */
+    suspend fun fetchFrom(zip: Path, onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): Pair<Int, Int> {
+        val archive = fileSystem.openZip(zip)
+        val media = "/".toPath() / BundleExporter.MEDIA
+        return settle(onProgress) { _, name, target ->
+            val entry = media / name
+            if (!archive.exists(entry)) return@settle false
+            archive.source(entry).use { source -> fileSystem.write(target) { writeAll(source) } }
+            true
+        }
+    }
+
+    private suspend fun settle(
+        onProgress: (done: Int, total: Int) -> Unit,
+        copy: suspend (sha256: String, name: String, target: Path) -> Boolean
+    ): Pair<Int, Int> {
+        val dao = db.backupDao()
+        val waiting = dao.pendingFiles()
         fileSystem.createDirectories(workDir)
         fileSystem.createDirectories(mediaDir)
         var fetched = 0
         var broken = 0
         waiting.forEachIndexed { index, photo ->
-            val file = onDrive[photo.sha256]
             val name = photo.fileName
+            val partial = name?.let { workDir / "$it.part" }
             // 백업에 없는 사진은 대기로 두어 "원래 기기에 있는 사진"으로 보인다.
-            if (file != null && name != null) {
-                val partial = workDir / "$name.part"
-                drive.download(file.id, partial)
+            if (name != null && partial != null && copy(photo.sha256, name, partial)) {
                 if (fileSystem.hashes(partial).sha256 == photo.sha256) {
                     fileSystem.atomicMove(partial, mediaDir / name)
                     dao.settlePending(photo.sha256, "normal")

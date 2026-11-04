@@ -65,6 +65,7 @@ import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
+import org.sjhstudio.diary.feature.backup.resources.file_restore
 import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_damaged
@@ -85,6 +86,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_failed_space_body
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_space_title
 import org.sjhstudio.diary.feature.backup.resources.restore_fetching_body
 import org.sjhstudio.diary.feature.backup.resources.restore_group_legacy
+import org.sjhstudio.diary.feature.backup.resources.restore_group_other
 import org.sjhstudio.diary.feature.backup.resources.restore_join
 import org.sjhstudio.diary.feature.backup.resources.restore_keep_note
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_action
@@ -129,6 +131,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_replace_action
 import org.sjhstudio.diary.feature.backup.resources.restore_replace_body
 import org.sjhstudio.diary.feature.backup.resources.restore_replace_entry
 import org.sjhstudio.diary.feature.backup.resources.restore_replace_title
+import org.sjhstudio.diary.feature.backup.resources.restore_replaced_body
+import org.sjhstudio.diary.feature.backup.resources.restore_replaced_title
 import org.sjhstudio.diary.feature.backup.resources.restore_retry
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_running_note
@@ -152,10 +156,10 @@ import org.sjhstudio.diary.feature.backup.resources.restore_when
 
 /** 백업에서 되살리기(Figma "백업에서 되살리기 (B3)"). 기기마다 묶어 보이고, 깨진 백업은 고를 수 없다. */
 @Composable
-fun RestoreListRoute(onBack: () -> Unit, onPick: (String) -> Unit, modifier: Modifier = Modifier) {
+fun RestoreListRoute(onBack: () -> Unit, onPick: (String) -> Unit, onFile: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestoreListViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    RestoreListScreen(state, onPick, viewModel::load, onBack, modifier)
+    RestoreListScreen(state, onPick, viewModel::load, onBack, modifier, onFile)
 }
 
 @Composable
@@ -164,7 +168,8 @@ fun RestoreListScreen(
     onPick: (String) -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFile: () -> Unit = {}
 ) {
     Page(stringResource(Res.string.restore_row), onBack, modifier) {
         when (state) {
@@ -184,15 +189,17 @@ fun RestoreListScreen(
             is RestoreListUi.Loaded ->
                 if (state.entries.isEmpty()) {
                     Hero(DiaryIcons.History, stringResource(Res.string.restore_empty_title), stringResource(Res.string.restore_empty_body))
+                    DiarySettingsRow(stringResource(Res.string.file_restore), onClick = onFile, leadingIcon = DiaryIcons.Download)
+                    Spacer(Modifier.height(DiarySpacing.x8))
                 } else {
-                    Entries(state.entries, onPick)
+                    Entries(state.entries, onPick, onFile)
                 }
         }
     }
 }
 
 @Composable
-private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
+private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit, onFile: () -> Unit) {
     val colors = DiaryTheme.colors
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         BasicText(
@@ -218,6 +225,8 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
                 }
             }
         }
+        DiarySettingsHeader(stringResource(Res.string.restore_group_other), gapAbove = true)
+        DiarySettingsRow(stringResource(Res.string.file_restore), onClick = onFile, leadingIcon = DiaryIcons.Download)
         Spacer(Modifier.height(DiarySpacing.x8))
     }
 }
@@ -515,6 +524,8 @@ private fun ColumnScope.Result(result: RestoreResult, onLock: () -> Unit, onStar
 
 @Composable
 private fun resultTitle(result: RestoreResult): String = when {
+    result.replaced -> stringResource(Res.string.restore_replaced_title)
+
     result.entriesAdded > 0 -> pluralStringResource(Res.plurals.restore_done_added, result.entriesAdded, result.entriesAdded.grouped())
 
     result.entriesUpdated > 0 -> pluralStringResource(
@@ -528,7 +539,7 @@ private fun resultTitle(result: RestoreResult): String = when {
 
 @Composable
 private fun resultBody(result: RestoreResult): String {
-    val kept = stringResource(Res.string.restore_done_body)
+    val kept = stringResource(if (result.replaced) Res.string.restore_replaced_body else Res.string.restore_done_body)
     val allPhotos = result.photosRestored > 0 && result.photosPending == 0 && result.photosMissing == 0 && result.photosOnOriginal == 0
     if (!allPhotos) return kept
     return "${pluralStringResource(Res.plurals.restore_done_photos, result.photosRestored, result.photosRestored.grouped())} $kept"
@@ -606,6 +617,7 @@ private fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onP
         when (reason) {
             RestoreFailure.MISMATCH -> Res.string.restore_failed_mismatch_title to Res.string.restore_failed_mismatch_body
             RestoreFailure.NO_SPACE -> Res.string.restore_failed_space_title to Res.string.restore_failed_space_body
+            RestoreFailure.NEEDS_UPDATE -> Res.string.restore_needs_update to Res.string.restore_failed_other_body
             RestoreFailure.OTHER -> Res.string.restore_failed_other_title to Res.string.restore_failed_other_body
         }
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
@@ -700,7 +712,7 @@ internal fun countsText(entry: BackupEntry): String = stringResource(
 )
 
 @Composable
-private fun sizeText(bytes: Long): String {
+internal fun sizeText(bytes: Long): String {
     if (bytes <
         GIGABYTE
     ) {

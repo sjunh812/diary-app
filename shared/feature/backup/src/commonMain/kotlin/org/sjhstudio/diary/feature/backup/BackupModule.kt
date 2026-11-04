@@ -19,6 +19,7 @@ val backupFeatureModule =
         viewModel { RestoreListViewModel(get()) }
         viewModel { parameters -> RestorePreviewViewModel(parameters.get(), get()) }
         viewModel { RestoreProgressViewModel(get()) }
+        viewModel { FileBackupViewModel(get()) }
     }
 
 /** 드라이브 폴더에 함께 올리는 안내 글. */

@@ -1,7 +1,10 @@
 package org.sjhstudio.diary.core.backup
 
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,11 +13,24 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withContext
+import okio.BufferedSink
+import okio.ByteString
+import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
+import okio.IOException
+import okio.Path
+import okio.Path.Companion.toPath
+import okio.Source
+import okio.openZip
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BundleEstimate
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreResult
@@ -30,10 +46,12 @@ class RestoreController(
     private val fetcher: Lazy<PhotoFetcher>,
     private val legacy: Lazy<LegacyBackupImporter>,
     private val rollbackManager: Lazy<RollbackManager>,
+    private val exporter: Lazy<BundleExporter>,
     private val db: Lazy<DiaryDatabase>,
     private val store: BackupStore,
     private val network: NetworkState,
     private val fileSystem: FileSystem,
+    private val workDir: Path,
     private val applySettings: suspend (ManifestSettings) -> Unit,
     private val scope: CoroutineScope
 ) : RestoreRepository {
@@ -44,6 +62,7 @@ class RestoreController(
     private var candidates = emptyList<RestoreCandidate>()
     private var prepared: PreparedRestore? = null
     private var preparedLegacy: LegacyPlan? = null
+    private var preparedFile: RestorePreparation? = null
 
     override val rollback: Flow<RollbackInfo?> = flow { emitAll(rollbackManager.value.info) }
 
@@ -61,7 +80,84 @@ class RestoreController(
         candidates.map { it.entry }
     }
 
+    override suspend fun bundleEstimate(): BundleEstimate = exporter.value.estimate()
+
+    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) =
+        exporter.value.write(sink, onProgress)
+
+    override suspend fun prepareFile(source: Source): RestorePreparation {
+        prepared = null
+        preparedLegacy = null
+        val result =
+            try {
+                withContext(Dispatchers.IO) { readFile(source) }
+            } catch (_: RestoreMismatch) {
+                RestorePreparation.Failed(RestoreFailure.MISMATCH)
+            } catch (_: RestoreNeedsUpdate) {
+                RestorePreparation.Failed(RestoreFailure.NEEDS_UPDATE)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: IOException) {
+                RestorePreparation.Failed(RestoreFailure.MISMATCH)
+            }
+        preparedFile = result
+        return result
+    }
+
+    private suspend fun readFile(source: Source): RestorePreparation {
+        val incoming = workDir / INCOMING
+        fileSystem.createDirectories(incoming)
+        val path = incoming / PICKED
+        fileSystem.delete(path, mustExist = false)
+        fileSystem.write(path) { writeAll(source) }
+        val head = fileSystem.read(path) { if (request(HEAD)) readByteString(HEAD) else ByteString.EMPTY }
+        return when {
+            head == ZIP_HEAD -> readZip(path)
+            head == SQLITE_HEAD -> readLegacy(path, zipped = false)
+            else -> throw RestoreMismatch()
+        }
+    }
+
+    private suspend fun readZip(path: Path): RestorePreparation {
+        val root = "/".toPath()
+        val archive = fileSystem.openZip(path)
+        if (!archive.exists(root / BundleExporter.MANIFEST)) {
+            if (!archive.exists(root / BundleExporter.LEGACY_DB)) throw RestoreMismatch()
+            return readLegacy(path, zipped = true)
+        }
+        val ready = planner.value.prepareBundle(path)
+        prepared = ready
+        return RestorePreparation.Ready(fileEntry(ready), ready.preview)
+    }
+
+    private suspend fun readLegacy(path: Path, zipped: Boolean): RestorePreparation {
+        val plan = legacy.value.prepareFile(path, zipped)
+        preparedLegacy = plan
+        val now = Instant.fromEpochMilliseconds(fileSystem.metadata(path).lastModifiedAtMillis ?: 0)
+        return RestorePreparation.Ready(
+            BackupEntry(RESTORE_FROM_FILE, PLATFORM_LEGACY, "", PLATFORM_LEGACY, now, 0, 0, 0, "", BackupEntryState.Ready),
+            plan.preview
+        )
+    }
+
+    private fun fileEntry(ready: PreparedRestore): BackupEntry {
+        val manifest = ready.manifest
+        return BackupEntry(
+            snapshotName = RESTORE_FROM_FILE,
+            deviceId = manifest.device.id,
+            deviceName = manifest.device.name,
+            platform = manifest.app.platform,
+            createdAt = Instant.fromEpochMilliseconds(manifest.createdAt),
+            entryCount = manifest.counts.entries,
+            photoCount = manifest.media.count { it.inBackup },
+            photosNotInBackup = manifest.media.count { !it.inBackup },
+            appVersion = manifest.app.versionName,
+            state = BackupEntryState.Ready
+        )
+    }
+
     override suspend fun prepare(snapshotName: String): RestorePreparation {
+        if (snapshotName == RESTORE_FROM_FILE) return preparedFile ?: RestorePreparation.Failed(RestoreFailure.OTHER)
         // 앱이 꺼졌다 돌아오면 목록이 비어 있다.
         if (candidates.isEmpty()) backups()
         val candidate =
@@ -123,7 +219,7 @@ class RestoreController(
     private suspend fun replaceWith(ready: PreparedRestore): RestoreResult {
         val backup = ready.plan.items.map { it.first }
         rollbackManager.value.replace(backup, SOURCE_DRIVE)
-        return settle(MergeCounts(backup.size, 0, 0), ready)
+        return settle(MergeCounts(backup.count { it.entry.deletedAt == null }, 0, 0), ready).copy(replaced = true)
     }
 
     private suspend fun mergeBackup(ready: PreparedRestore): RestoreResult {
@@ -147,7 +243,9 @@ class RestoreController(
         var fetched = 0
         var broken = 0
         try {
-            val result = fetcher.value.fetch { done, all -> _state.value = RestoreState.FetchingPhotos(entries, done, all) }
+            val progress = { done: Int, all: Int -> _state.value = RestoreState.FetchingPhotos(entries, done, all) }
+            val zip = ready.bundle
+            val result = if (zip != null) fetcher.value.fetchFrom(zip, progress) else fetcher.value.fetch(progress)
             fetched = result.first
             broken = result.second
         } catch (error: CancellationException) {
@@ -155,6 +253,7 @@ class RestoreController(
         } catch (_: Exception) {
             // 글은 이미 합쳤다. 남은 사진은 다음에 앱을 열 때 이어 받는다.
         }
+        ready.bundle?.let { fileSystem.delete(it, mustExist = false) }
         val left = dao.pendingFiles().size
         val onOriginal = minOf(left, ready.manifest.media.count { !it.inBackup })
         return RestoreResult(
@@ -196,5 +295,10 @@ class RestoreController(
 
     private companion object {
         const val SOURCE_DRIVE = "drive"
+        const val INCOMING = "incoming"
+        const val PICKED = "picked"
+        const val HEAD = 4L
+        val ZIP_HEAD = "504b0304".decodeHex()
+        val SQLITE_HEAD = "53514c69".decodeHex()
     }
 }

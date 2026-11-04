@@ -137,7 +137,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T057 [US2] `{kt}/core/backup/RestorePlanner.kt`: 스냅샷 받기(`backup/incoming/`, 이어 받기) → SHA-256·일기 수 확인 → 쓰기 없이 합치기 규칙 돌려 `RestorePreview`
 - [x] T058 [US2] `{kt}/core/backup/MergeApplier.kt`: 한 트랜잭션으로 `contracts/merge-rules.md` 드라이브 합치기(휴지통, 사진 줄, `merge_mark`, `sync_base`), 설정 적용
 - [x] T059 [US2] `{kt}/core/backup/PhotoFetcher.kt`: `pending` 줄의 사진을 받아 `media/`에 쓰고 확인값이 맞으면 `normal`, 다르면 `missing`. `backup/restore.json`으로 잇기. 지금 백업과 같은 스케줄러(T043, T044)로 돈다
-- [ ] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6) (합치기와 바꾸기 길은 됐다. 파일에서 되살리기, 문의하기 줄이 남았다)
+- [ ] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6) (문의하기 줄만 남았다)
 - [x] T061 [US2] 스펙 002 사진 칸·상세에서 `PENDING` 사진을 받는 중 표시와 "원래 기기에 있는 사진"으로, `MISSING`은 "찾을 수 없는 사진"으로 그린다. 스펙 002 사진 정리가 `pending`을 지우지 않는지 시험을 더한다
 - [x] T062 [US2] 둘 다 남긴 일기 표시: 스펙 002 목록·상세에 `merge_mark` 줄이 있으면 "두 가지로 남겼어요"와 닫기·짝 보기. 닫거나 하나를 지우면 줄을 지운다
 - [x] T063 [US2] 앱 시작 관문(스펙 001 `shared/app`)에 남은 복원 작업 잇기: `restore.json`이 `FetchingPhotos`면 사진 받기를 다시 건다
@@ -218,14 +218,14 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T082 [P] [US6] `shared/core/backup/{test}/core/backup/BundleWriterTest.kt`: STORE 항목, CRC·크기, 4GB·65,535개를 넘으면 ZIP64 기록(가짜 큰 항목), Okio `openZip`으로 다시 읽기. `{host}`에서 `java.util.zip.ZipInputStream`으로도 읽기
-- [ ] T083 [P] [US6] `{test}/core/backup/BundleImportTest.kt`: `manifest.json` 먼저, 깨진 사진 하나만 `missing`, `pending` 사진은 `inBackup=false`, 합치기 규칙이 드라이브 복원과 같음
+- [x] T082 [P] [US6] `shared/core/backup/{test}/core/backup/BundleWriterTest.kt`: STORE 항목, CRC·크기, 4GB·65,535개를 넘으면 ZIP64 기록(가짜 큰 항목), Okio `openZip`으로 다시 읽기. `{host}`에서 `java.util.zip.ZipInputStream`으로도 읽기
+- [x] T083 [P] [US6] `{test}/core/backup/BundleImportTest.kt`: `manifest.json` 먼저, 깨진 사진 하나만 `missing`, `pending` 사진은 `inBackup=false`, 합치기 규칙이 드라이브 복원과 같음
 
 ### Implementation for User Story 6
 
-- [ ] T084 [US6] Okio `openZip`이 Android·iOS 공통 코드에서 보이는지 확인하고(research R18), `{kt}/core/backup/BundleWriter.kt`(STORE + ZIP64), `BundleReader.kt`를 만든다. 안 보이면 Android `ZipInputStream`, iOS ZIPFoundation으로 읽기를 플랫폼에 둔다
-- [ ] T085 [US6] 저장 위치에 바로 흘려 쓰기(research O3): FileKit 0.17.0으로 되는지 보고, 안 되면 Android SAF 출력 스트림·iOS 앱 폴더 + 공유 시트. 결과를 research O3에 적는다
-- [ ] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/FileBackupScreen.kt`: 파일 기능의 입구 하나. [파일 만들기](크기 미리 보이기, 진행), "파일에서 되살리기"(파일 고르기 → 드라이브 복원과 같은 미리보기·합치기), 새 휴대폰으로 옮기는 방법 안내. 연결 전 화면·백업 설정·공간 부족 화면의 "파일로 백업하기" 줄이 모두 여기로 온다. Figma 묶음 파일 (B8) 고쳐 받기 문의로 돌려받은 zip(`legacy-snapshot/note.db`만 든 예전 형식)도 받아 이전 버전 백업과 같은 규칙으로 합친다(스펙 001 FR-010a, `scripts/recover/README.md`)
+- [x] T084 [US6] Okio `openZip`이 Android·iOS 공통 코드에서 보이는지 확인하고(research R18), `{kt}/core/backup/BundleWriter.kt`(STORE + ZIP64), `BundleReader.kt`를 만든다. 안 보이면 Android `ZipInputStream`, iOS ZIPFoundation으로 읽기를 플랫폼에 둔다
+- [x] T085 [US6] 저장 위치에 바로 흘려 쓰기(research O3): FileKit 0.17.0으로 되는지 보고, 안 되면 Android SAF 출력 스트림·iOS 앱 폴더 + 공유 시트. 결과를 research O3에 적는다
+- [x] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/FileBackupScreen.kt`: 파일 기능의 입구 하나. [파일 만들기](크기 미리 보이기, 진행), "파일에서 되살리기"(파일 고르기 → 드라이브 복원과 같은 미리보기·합치기), 새 휴대폰으로 옮기는 방법 안내. 연결 전 화면·백업 설정·공간 부족 화면의 "파일로 백업하기" 줄이 모두 여기로 온다. Figma 묶음 파일 (B8) 고쳐 받기 문의로 돌려받은 zip(`legacy-snapshot/note.db`만 든 예전 형식)도 받아 이전 버전 백업과 같은 규칙으로 합친다(스펙 001 FR-010a, `scripts/recover/README.md`)
 
 ---
 

@@ -9,6 +9,9 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import okio.FileSystem
 import okio.Path
+import okio.Path.Companion.toPath
+import okio.openZip
+import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
@@ -80,14 +83,35 @@ class LegacyBackupImporter(
     }
 
     suspend fun prepare(file: DriveFile): LegacyPlan {
+        val path = localPath()
+        drive.download(file.id, path)
+        return prepared(path)
+    }
+
+    /** 고쳐 돌려받은 `note.db`나 그것이 든 zip을 사용자가 고른 경우. */
+    suspend fun prepareFile(file: Path, zipped: Boolean): LegacyPlan {
+        val path = localPath()
+        fileSystem.delete(path, mustExist = false)
+        if (zipped) {
+            val archive = fileSystem.openZip(file)
+            archive.source("/".toPath() / BundleExporter.LEGACY_DB).use { source -> fileSystem.write(path) { writeAll(source) } }
+        } else {
+            fileSystem.copy(file, path)
+        }
+        return prepared(path)
+    }
+
+    private fun localPath(): Path {
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
-        val path = incoming / LOCAL_NAME
-        drive.download(file.id, path)
+        return incoming / LOCAL_NAME
+    }
+
+    private suspend fun prepared(path: Path): LegacyPlan {
         try {
             return plan(read(path))
         } finally {
-            for (suffix in listOf("", "-wal", "-shm")) fileSystem.delete(incoming / "$LOCAL_NAME$suffix", mustExist = false)
+            for (suffix in listOf("", "-wal", "-shm")) fileSystem.delete(workDir / INCOMING / "$LOCAL_NAME$suffix", mustExist = false)
         }
     }
 

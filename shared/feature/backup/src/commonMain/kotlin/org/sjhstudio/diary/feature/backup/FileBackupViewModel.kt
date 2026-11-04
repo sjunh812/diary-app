@@ -1,0 +1,85 @@
+package org.sjhstudio.diary.feature.backup
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import okio.BufferedSink
+import okio.Source
+import okio.use
+import org.sjhstudio.diary.core.data.RestoreRepository
+import org.sjhstudio.diary.core.model.BundleEstimate
+import org.sjhstudio.diary.core.model.RestoreFailure
+import org.sjhstudio.diary.core.model.RestorePreparation
+
+sealed interface FileBackupUi {
+    data object Idle : FileBackupUi
+
+    data class Writing(val done: Int, val total: Int) : FileBackupUi
+
+    data class Saved(val name: String) : FileBackupUi
+
+    data object WriteFailed : FileBackupUi
+
+    data object Reading : FileBackupUi
+
+    data class ReadFailed(val reason: RestoreFailure) : FileBackupUi
+}
+
+class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() {
+    private val _estimate = MutableStateFlow<BundleEstimate?>(null)
+    val estimate: StateFlow<BundleEstimate?> = _estimate.asStateFlow()
+
+    private val _state = MutableStateFlow<FileBackupUi>(FileBackupUi.Idle)
+    val state: StateFlow<FileBackupUi> = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch { _estimate.value = restore.bundleEstimate() }
+    }
+
+    /** 저장 위치가 정해지면 부른다. [open]은 그곳에 쓰는 흐름을 연다. */
+    fun write(name: String, open: () -> BufferedSink) {
+        _state.value = FileBackupUi.Writing(0, 1)
+        viewModelScope.launch {
+            _state.value =
+                try {
+                    open().use { sink -> restore.writeBundle(sink) { done, total -> _state.value = FileBackupUi.Writing(done, total) } }
+                    FileBackupUi.Saved(name)
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    FileBackupUi.WriteFailed
+                }
+        }
+    }
+
+    /** 고른 파일을 앱 안으로 옮겨 확인한다. 끝나면 [onReady]로 미리보기에 간다. */
+    fun read(open: () -> Source, onReady: () -> Unit) {
+        _state.value = FileBackupUi.Reading
+        viewModelScope.launch {
+            val result =
+                try {
+                    open().use { source -> restore.prepareFile(source) }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    RestorePreparation.Failed(RestoreFailure.MISMATCH)
+                }
+            when (result) {
+                is RestorePreparation.Ready -> {
+                    _state.value = FileBackupUi.Idle
+                    onReady()
+                }
+
+                is RestorePreparation.Failed -> _state.value = FileBackupUi.ReadFailed(result.reason)
+            }
+        }
+    }
+
+    fun clear() {
+        _state.value = FileBackupUi.Idle
+    }
+}

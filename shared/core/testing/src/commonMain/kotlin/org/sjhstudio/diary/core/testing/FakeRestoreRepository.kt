@@ -1,8 +1,11 @@
 package org.sjhstudio.diary.core.testing
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import okio.BufferedSink
+import okio.Source
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
@@ -26,6 +29,12 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
         rollback.value = null
         return true
     }
+
+    override suspend fun bundleEstimate() = BundleEstimate(0, 0, 0)
+
+    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) = Unit
+
+    override suspend fun prepareFile(source: Source): RestorePreparation = preparation
 
     override suspend fun backups(): List<BackupEntry>? = entries
 

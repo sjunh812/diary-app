@@ -55,7 +55,7 @@ object AnalyticsEvents {
             "TrashKey",
             "ListStyleSettingsKey",
             "BackupSettingsKey",
-            "BackupOptionsKey",
+            "BackupOptionsKey", "RestoreListKey", "RestorePreviewKey", "RestoreProgressKey", "FileBackupKey",
             "RestoreListKey",
             "RestorePreviewKey",
             "RestoreProgressKey",

@@ -139,8 +139,9 @@ class RestoreRoundTripTest {
             lazy { catalog() }, lazy { planner() }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
             lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) },
             lazy { RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {}) },
+            lazy { error("쓰지 않는다") },
             lazy { phoneB },
-            store, FakeNetworkState(), fs, { settings += it }, scope
+            store, FakeNetworkState(), fs, work, { settings += it }, scope
         )
     }
 

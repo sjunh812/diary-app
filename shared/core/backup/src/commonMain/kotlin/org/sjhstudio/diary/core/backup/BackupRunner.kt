@@ -171,7 +171,8 @@ class BackupRunner(
 
         step(BackupStep.UploadingManifest)
         val inBackup = driveHashes.keys + uploaded
-        val manifest = manifest(now, deviceId, snapshot, local2, dao.pendingPhotos(), inBackup)
+        val manifest =
+            manifestOf(now, timeZone(), app, deviceId, deviceName.current(), snapshot, local2, dao.pendingPhotos(), inBackup, settings())
         val manifestPath = workDir / OUTGOING / "$base.json"
         fileSystem.write(manifestPath) { writeUtf8(ManifestCodec.encode(manifest)) }
         upload(
@@ -281,37 +282,6 @@ class BackupRunner(
     }
 
     private fun deviceProps(kind: String, deviceId: String) = mapOf(DriveLayout.KEY_KIND to kind, DriveLayout.KEY_DEVICE to deviceId)
-
-    private suspend fun manifest(
-        now: Instant,
-        deviceId: String,
-        snapshot: Snapshot,
-        local: List<LocalPhotoRow>,
-        pending: List<LocalPhotoRow>,
-        inBackup: Set<String>
-    ) = Manifest(
-        createdAt = now.toEpochMilliseconds(),
-        timeZone = timeZone().id,
-        app = ManifestApp(app.versionName, app.versionCode, app.platform),
-        device = ManifestDevice(deviceId, deviceName.current()),
-        snapshot = ManifestSnapshot(snapshot.path.name, snapshot.hashes.byteSize, snapshot.hashes.sha256, Manifest.MAX_DB_VERSION),
-        counts = ManifestCounts(
-            snapshot.entries,
-            snapshot.entriesInTrash,
-            snapshot.mediaRows,
-            snapshot.mediaMissing,
-            snapshot.mediaPending
-        ),
-        media = (local + pending).distinctBy { it.sha256 }.map {
-            ManifestMedia(
-                it.sha256,
-                extOf(it.fileName),
-                it.byteSize ?: 0,
-                it.sha256 in inBackup
-            )
-        },
-        settings = settings()
-    )
 
     private fun syncBases(snapshot: Path): List<SyncBaseEntity> {
         val connection = BundledSQLiteDriver().open(snapshot.toString())

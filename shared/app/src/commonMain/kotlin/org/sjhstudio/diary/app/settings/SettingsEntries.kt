@@ -26,6 +26,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.navigation.BackupOptionsKey
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
+import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
@@ -46,8 +47,10 @@ import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
+import org.sjhstudio.diary.feature.backup.FileBackupRoute
 import org.sjhstudio.diary.feature.backup.RestoreListRoute
 import org.sjhstudio.diary.feature.backup.RestorePreviewRoute
 import org.sjhstudio.diary.feature.backup.RestoreProgressRoute
@@ -99,11 +102,13 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onBack = pop,
             onOptions = { push(BackupOptionsKey) },
             onRestore = { push(RestoreListKey) },
-            onRestoreEntry = { push(RestorePreviewKey(it)) }
+            onRestoreEntry = { push(RestorePreviewKey(it)) },
+            onFile = { push(FileBackupKey) }
         )
     }
-    entry<BackupOptionsKey> { BackupOptionsRoute(onBack = pop) }
-    entry<RestoreListKey> { RestoreListRoute(onBack = pop, onPick = { push(RestorePreviewKey(it)) }) }
+    entry<BackupOptionsKey> { BackupOptionsRoute(onBack = pop, onFile = { push(FileBackupKey) }) }
+    entry<RestoreListKey> { RestoreListRoute(onBack = pop, onPick = { push(RestorePreviewKey(it)) }, onFile = { push(FileBackupKey) }) }
+    entry<FileBackupKey> { FileBackupRoute(onBack = pop, onPreview = { push(RestorePreviewKey(RESTORE_FROM_FILE)) }) }
     entry<RestorePreviewKey> { key ->
         RestorePreviewRoute(key.snapshotName, onBack = pop, onMerged = {
             pop()

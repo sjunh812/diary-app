@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.backup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -70,6 +71,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_first_body
 import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_group_account
 import org.sjhstudio.diary.feature.backup.resources.backup_group_connection
+import org.sjhstudio.diary.feature.backup.resources.backup_group_other
 import org.sjhstudio.diary.feature.backup.resources.backup_group_upload
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_body
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_note
@@ -90,6 +92,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_title
 import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only_body
+import org.sjhstudio.diary.feature.backup.resources.file_row_body
+import org.sjhstudio.diary.feature.backup.resources.file_top
 import org.sjhstudio.diary.feature.backup.resources.restore_device_group
 import org.sjhstudio.diary.feature.backup.resources.restore_found_action
 import org.sjhstudio.diary.feature.backup.resources.restore_found_body
@@ -112,6 +116,7 @@ fun BackupSettingsRoute(
     onOptions: () -> Unit,
     onRestore: () -> Unit,
     onRestoreEntry: (String) -> Unit,
+    onFile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel = koinViewModel<BackupViewModel>()
@@ -123,7 +128,7 @@ fun BackupSettingsRoute(
         viewModel.backUpNow()
     }, {
         viewModel.backUpNow(cellularOnce = true)
-    }, viewModel::setAuto, onOptions, onRestore, onBack, modifier, rollback, viewModel::rollBack)
+    }, viewModel::setAuto, onOptions, onRestore, onBack, modifier, rollback, viewModel::rollBack, onFile)
     found?.let { entry ->
         BackupFoundSheet(entry, viewModel::foundShown) {
             viewModel.foundShown()
@@ -173,20 +178,31 @@ internal fun BackupSettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     rollback: RollbackInfo? = null,
-    onRollBack: () -> Unit = {}
+    onRollBack: () -> Unit = {},
+    onFile: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.backup_title), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
+            // 파일로 바꾼 사람은 연결이 없어도 되돌릴 수 있어야 한다.
+            rollback?.let {
+                Box(Modifier.padding(start = DiarySpacing.screenCompact, end = DiarySpacing.screenCompact, top = DiarySpacing.x2)) {
+                    Rollback(it, onRollBack)
+                }
+            }
             if (status.connection == BackupConnection.NotConnected) {
                 NotConnected(connecting, onConnect)
+                DiarySettingsRow(
+                    stringResource(Res.string.file_top),
+                    onClick = onFile,
+                    description = stringResource(Res.string.file_row_body)
+                )
             } else {
                 Column(
                     Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
                     verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
                 ) {
-                    rollback?.let { Rollback(it, onRollBack) }
                     Status(status, onCellular, onConnect)
                     if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
                         DiaryButton(stringResource(Res.string.backup_now), onBackUp, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
@@ -352,7 +368,7 @@ private fun lastBackupText(at: Instant): String {
 
 /** 백업 설정(Figma "백업 설정 (B13)"). */
 @Composable
-fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun BackupOptionsRoute(onBack: () -> Unit, onFile: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.status.collectAsStateWithLifecycle()
     var asking by remember { mutableStateOf(false) }
@@ -373,6 +389,8 @@ fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 { viewModel.setPhotosOnCellular(!it) },
                 description = stringResource(Res.string.backup_wifi_only_body)
             )
+            DiarySettingsHeader(stringResource(Res.string.backup_group_other), gapAbove = true)
+            DiarySettingsRow(stringResource(Res.string.file_top), onClick = onFile)
             DiarySettingsHeader(stringResource(Res.string.backup_group_connection), gapAbove = true)
             DiarySettingsRow(
                 stringResource(Res.string.backup_disconnect),

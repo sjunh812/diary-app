@@ -118,10 +118,18 @@ data class RestoreResult(
     /** 백업한 기기가 잠금을 쓰고 있었다. 비밀번호는 백업하지 않는다. */
     val lockWasOn: Boolean = false,
     /** 1.7.x가 올린 `note.db`를 불러왔다. 사진 자리는 찾을 수 없는 사진으로 남는다. */
-    val fromLegacy: Boolean = false
+    val fromLegacy: Boolean = false,
+    /** 합치지 않고 이 백업으로 바꿨다. 지금 일기가 그대로라고 말하면 안 된다. */
+    val replaced: Boolean = false
 )
 
-enum class RestoreFailure { MISMATCH, NO_SPACE, OTHER }
+enum class RestoreFailure { MISMATCH, NO_SPACE, NEEDS_UPDATE, OTHER }
+
+/** 파일로 만들 묶음의 크기. 파일 크기는 어림값이다. */
+data class BundleEstimate(val entries: Int, val photos: Int, val bytes: Long)
+
+/** 사용자가 고른 파일의 미리보기를 찾는 이름. */
+const val RESTORE_FROM_FILE = "file"
 
 /** 바꾸기를 되돌릴 수 있는 동안의 정보. 일기 수만 담는다. */
 data class RollbackInfo(val until: Instant, val entriesBefore: Int, val entriesAfter: Int)

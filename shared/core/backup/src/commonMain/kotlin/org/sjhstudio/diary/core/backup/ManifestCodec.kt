@@ -1,8 +1,11 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlin.time.Instant
+import kotlinx.datetime.TimeZone
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.sjhstudio.diary.core.database.LocalPhotoRow
 
 /** 목록 파일(contracts/backup-format.md). 일기 내용, 장소, 기분, 사진 경로, 잠금 확인값은 담지 않는다. */
 @Serializable
@@ -88,3 +91,29 @@ object ManifestCodec {
         else -> ManifestCheck.OK
     }
 }
+
+/** 드라이브 목록 파일과 묶음 파일의 `manifest.json`을 같은 모양으로 만든다. */
+internal fun manifestOf(
+    now: Instant,
+    timeZone: TimeZone,
+    app: BackupAppInfo,
+    deviceId: String,
+    deviceName: String,
+    snapshot: Snapshot,
+    local: List<LocalPhotoRow>,
+    pending: List<LocalPhotoRow>,
+    inBackup: Set<String>,
+    settings: ManifestSettings
+) = Manifest(
+    createdAt = now.toEpochMilliseconds(),
+    timeZone = timeZone.id,
+    app = ManifestApp(app.versionName, app.versionCode, app.platform),
+    device = ManifestDevice(deviceId, deviceName),
+    snapshot = ManifestSnapshot(snapshot.path.name, snapshot.hashes.byteSize, snapshot.hashes.sha256, Manifest.MAX_DB_VERSION),
+    counts = ManifestCounts(snapshot.entries, snapshot.entriesInTrash, snapshot.mediaRows, snapshot.mediaMissing, snapshot.mediaPending),
+    media =
+        (local + pending).distinctBy { it.sha256 }.map {
+            ManifestMedia(it.sha256, it.fileName?.substringAfterLast('.', "jpg") ?: "jpg", it.byteSize ?: 0, it.sha256 in inBackup)
+        },
+    settings = settings
+)
