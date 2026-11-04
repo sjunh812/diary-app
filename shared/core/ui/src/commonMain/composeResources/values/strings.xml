@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mood_angry">Angry</string>
+    <string name="mood_cool">Cool</string>
+    <string name="mood_sad">Sad</string>
+    <string name="mood_sick">Sick</string>
+    <string name="mood_laugh">Laughing</string>
+    <string name="mood_meh">Okay</string>
+    <string name="mood_bad">Bad</string>
+    <string name="mood_good">Good</string>
+    <string name="mood_tired">Tired</string>
+    <string name="weather_sunny">Sunny</string>
+    <string name="weather_partly_cloudy">Partly cloudy</string>
+    <string name="weather_mostly_cloudy">Mostly cloudy</string>
+    <string name="weather_cloudy">Overcast</string>
+    <string name="weather_rain">Rain</string>
+    <string name="weather_sleet">Sleet</string>
+    <string name="weather_snow">Snow</string>
+</resources>

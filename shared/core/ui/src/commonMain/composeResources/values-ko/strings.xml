@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mood_angry">화남</string>
+    <string name="mood_cool">쿨</string>
+    <string name="mood_sad">슬픔</string>
+    <string name="mood_sick">아픔</string>
+    <string name="mood_laugh">웃음</string>
+    <string name="mood_meh">보통</string>
+    <string name="mood_bad">나쁨</string>
+    <string name="mood_good">좋음</string>
+    <string name="mood_tired">피곤</string>
+    <string name="weather_sunny">맑음</string>
+    <string name="weather_partly_cloudy">구름 조금</string>
+    <string name="weather_mostly_cloudy">구름 많음</string>
+    <string name="weather_cloudy">흐림</string>
+    <string name="weather_rain">비</string>
+    <string name="weather_sleet">비/눈</string>
+    <string name="weather_snow">눈</string>
+</resources>
