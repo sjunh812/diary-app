@@ -13,7 +13,7 @@
     </plurals>
     <string name="lock_forgot">I forgot my passcode</string>
     <string name="lock_biometric">Unlock with biometrics</string>
-    <string name="lock_biometric_prompt_title">Unlock 1 Day 1 Diary</string>
+    <string name="lock_biometric_prompt_title">Unlock</string>
     <string name="lock_biometric_prompt_cancel">Use passcode</string>
 
     <!-- Set passcode (L2) -->
