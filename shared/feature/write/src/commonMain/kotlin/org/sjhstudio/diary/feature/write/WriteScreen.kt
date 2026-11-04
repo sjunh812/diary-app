@@ -193,7 +193,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             )
 
         Sheet.Place ->
-            PlaceSheet(state.placeName, onDone = {
+            PlaceSheet(state.placeName, state.recentPlaces, onDone = {
                 vm.setPlace(it)
                 sheet = null
             }, onDismiss = { sheet = null })

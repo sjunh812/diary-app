@@ -86,6 +86,19 @@ class DiaryReadRepositoryTest {
     }
 
     @Test
+    fun recent_places_are_unique_and_newest_first() = runTest {
+        db.seed(
+            entry("a", date = "2026-10-01", placeName = "망원동"),
+            entry("b", date = "2026-10-20", placeName = "연남동"),
+            entry("c", date = "2026-10-05", placeName = "망원동"),
+            entry("d", date = "2026-10-30", placeName = "제주", deletedAt = T0),
+            entry("e", date = "2026-10-31")
+        )
+
+        assertEquals(listOf("연남동", "망원동"), db.entryDao().recentPlaces(6))
+    }
+
+    @Test
     fun day_lists_the_latest_entry_first() = runTest {
         db.seed(entry("a", time = "08:00"), entry("b", time = "21:00"), entry("c", date = "2026-10-30"))
 

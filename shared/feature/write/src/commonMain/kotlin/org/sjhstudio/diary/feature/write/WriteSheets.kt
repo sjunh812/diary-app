@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -48,6 +49,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryTimeWheel
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -76,6 +78,7 @@ import org.sjhstudio.diary.feature.write.resources.write_new_entry
 import org.sjhstudio.diary.feature.write.resources.write_none
 import org.sjhstudio.diary.feature.write.resources.write_place
 import org.sjhstudio.diary.feature.write.resources.write_place_hint
+import org.sjhstudio.diary.feature.write.resources.write_place_recent
 import org.sjhstudio.diary.feature.write.resources.write_resume_body
 import org.sjhstudio.diary.feature.write.resources.write_resume_continue
 import org.sjhstudio.diary.feature.write.resources.write_resume_title
@@ -129,28 +132,48 @@ internal fun MoodWeatherSheet(
 }
 
 @Composable
-internal fun PlaceSheet(initial: String, onDone: (String) -> Unit, onDismiss: () -> Unit) {
+internal fun PlaceSheet(initial: String, recent: List<String>, onDone: (String) -> Unit, onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(initial) }
     val colors = DiaryTheme.colors
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.write_place)) {
-        Box(
+        Row(
             Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x3),
-            contentAlignment = Alignment.CenterStart
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
         ) {
-            if (text.isEmpty()) {
-                BasicText(
-                    stringResource(Res.string.write_place_hint),
-                    style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+            DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
+            Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                if (text.isEmpty()) {
+                    BasicText(
+                        stringResource(Res.string.write_place_hint),
+                        style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+                    )
+                }
+                BasicTextField(
+                    value = text,
+                    onValueChange = { text = it.take(30) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    textStyle = DiaryTheme.typography.body.copy(color = colors.textPrimary),
+                    cursorBrush = SolidColor(colors.accent)
                 )
             }
-            BasicTextField(
-                value = text,
-                onValueChange = { text = it.take(30) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                textStyle = DiaryTheme.typography.body.copy(color = colors.textPrimary),
-                cursorBrush = SolidColor(colors.accent)
-            )
+        }
+        // 전에 쓴 곳은 한 번에 고른다. 적는 글자에 맞는 곳만 남긴다.
+        val shown = recent.filter { it.contains(text.trim(), ignoreCase = true) && it != text }
+        if (shown.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                BasicText(
+                    stringResource(Res.string.write_place_recent),
+                    style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+                ) {
+                    for (place in shown) DiaryChip(place, selected = false, onClick = { onDone(place) }, leadingIcon = DiaryIcons.Pin)
+                }
+            }
         }
         SheetButtons(stringResource(Res.string.write_close), onDismiss, stringResource(Res.string.write_done), { onDone(text) })
     }

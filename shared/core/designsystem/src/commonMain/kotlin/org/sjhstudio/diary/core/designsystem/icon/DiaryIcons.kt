@@ -248,16 +248,13 @@ object DiaryIcons {
         )
     }
     val TextColor: ImageVector by lazy {
-        lucide(
-            "text-color",
-            "M 5 19 L 10 5 L 15 19 M 7 14 L 13 14 M 15.5 19 L 15.5 12.5 M 15.5 14.5 C 15.5 13.84 15.76 13.2 16.23 12.73 C 16.7 12.26 17.34 12 18 12 C 18.66 12 19.3 12.26 19.77 12.73 C 20.24 13.2 20.5 13.84 20.5 14.5 L 20.5 19"
-        )
+        lucide("text-color", "M 4 20 L 20 20", "M 6 16 L 12 4 L 18 16", "M 8 12 L 16 12")
     }
     val Highlight: ImageVector by lazy {
         lucide(
             "highlight",
-            "M 9 15 L 16.5 7.5 L 13.5 4.5 L 6 12 L 5 16 L 9 15 Z",
-            "M 4 20 L 20 20"
+            "M 9 11 L 3 17 L 3 20 L 12 20 L 15 17",
+            "M 22 12 L 17.4 16.6 C 16.63 17.37 15.37 17.37 14.6 16.6 L 9.4 11.4 C 8.63 10.63 8.63 9.37 9.4 8.6 L 14 4"
         )
     }
     val BulletList: ImageVector by lazy {

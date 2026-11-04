@@ -33,4 +33,5 @@
     <string name="write_discard_title">쓰던 글을 버릴까요?</string>
     <string name="write_discard_message">버리면 되돌릴 수 없어요</string>
     <string name="write_discard_confirm">버리기</string>
+    <string name="write_place_recent">최근 장소</string>
 </resources>

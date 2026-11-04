@@ -24,6 +24,13 @@ interface EntryDao {
     @Query(FAVORITE_ENTRIES)
     fun favoriteEntries(): PagingSource<Int, EntryEntity>
 
+    /** 최근에 쓴 장소. 같은 이름은 한 번만, 나중에 쓴 곳부터. */
+    @Query(
+        "SELECT place_name FROM entry WHERE deleted_at IS NULL AND place_name IS NOT NULL AND place_name != '' " +
+            "GROUP BY place_name ORDER BY MAX(date || ' ' || time) DESC LIMIT :limit"
+    )
+    suspend fun recentPlaces(limit: Int): List<String>
+
     /** 일기가 있는 달(`yyyy-MM`). */
     @Query("SELECT DISTINCT substr(date, 1, 7) FROM entry WHERE deleted_at IS NULL")
     fun months(): Flow<List<String>>

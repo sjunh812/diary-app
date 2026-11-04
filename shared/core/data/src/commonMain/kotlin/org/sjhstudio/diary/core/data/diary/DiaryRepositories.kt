@@ -50,6 +50,9 @@ interface EntryRepository {
 interface DraftRepository {
     fun draft(key: DraftKey): Flow<Draft?>
 
+    /** 장소를 고를 때 보일 최근 장소. */
+    suspend fun recentPlaces(): List<String>
+
     /** 새 일기 임시 저장본 가운데 가장 최근 것. 없으면 null이다. */
     suspend fun latestNew(): Draft?
 

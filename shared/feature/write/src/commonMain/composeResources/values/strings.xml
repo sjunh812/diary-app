@@ -33,4 +33,5 @@
     <string name="write_discard_title">Discard this entry?</string>
     <string name="write_discard_message">You cannot get it back.</string>
     <string name="write_discard_confirm">Discard</string>
+    <string name="write_place_recent">Recent places</string>
 </resources>

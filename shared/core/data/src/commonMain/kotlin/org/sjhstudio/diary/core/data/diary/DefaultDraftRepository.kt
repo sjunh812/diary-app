@@ -39,6 +39,8 @@ class DefaultDraftRepository(
     override fun draft(key: DraftKey): Flow<Draft?> =
         combine(drafts.observe(key.value), drafts.observeMedia(key.value)) { draft, rows -> draft?.asModel(rows) }
 
+    override suspend fun recentPlaces(): List<String> = db.entryDao().recentPlaces(RECENT_PLACES)
+
     override suspend fun latestNew(): Draft? = drafts.latestNew()?.let { it.asModel(drafts.media(it.key)) }
 
     override suspend fun openEdit(entryId: String): Draft? {
@@ -184,3 +186,5 @@ class DefaultDraftRepository(
 
     override suspend fun discard(key: DraftKey) = drafts.delete(key.value)
 }
+
+private const val RECENT_PLACES = 6

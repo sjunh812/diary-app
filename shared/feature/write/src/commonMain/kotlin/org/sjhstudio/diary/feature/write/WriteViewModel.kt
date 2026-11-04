@@ -79,6 +79,7 @@ data class WriteUiState(
     val bodyVersion: Int = 0,
     val photos: List<DraftPhoto> = emptyList(),
     val canSave: Boolean = false,
+    val recentPlaces: List<String> = emptyList(),
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
     val saveFailed: Boolean = false
@@ -142,6 +143,10 @@ class WriteViewModel(
     private var opened: Draft? = null
 
     init {
+        viewModelScope.launch {
+            val places = drafts.recentPlaces()
+            _state.update { it.copy(recentPlaces = places) }
+        }
         viewModelScope.launch {
             when (target) {
                 is WriteTarget.New -> openNew(target)

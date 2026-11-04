@@ -33,4 +33,5 @@
     <string name="write_discard_title">書きかけの日記を捨てますか</string>
     <string name="write_discard_message">捨てると元に戻せません</string>
     <string name="write_discard_confirm">捨てる</string>
+    <string name="write_place_recent">最近の場所</string>
 </resources>

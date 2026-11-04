@@ -31,6 +31,10 @@ class FakeDraftRepository(
 
     override fun draft(key: DraftKey): Flow<Draft?> = drafts.map { it[key] }
 
+    var places: List<String> = emptyList()
+
+    override suspend fun recentPlaces(): List<String> = places
+
     override suspend fun latestNew(): Draft? = drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
 
     override suspend fun openEdit(entryId: String): Draft? {

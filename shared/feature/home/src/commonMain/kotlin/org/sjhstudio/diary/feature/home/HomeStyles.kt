@@ -52,7 +52,7 @@ internal fun CardList(
     onMenu: (String) -> Unit
 ) {
     LazyColumn(
-        Modifier.fillMaxSize().background(DiaryTheme.colors.canvasGrouped),
+        Modifier.fillMaxSize(),
         state = list,
         contentPadding =
             PaddingValues(
