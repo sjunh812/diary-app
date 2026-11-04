@@ -24,10 +24,23 @@ import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
+import org.sjhstudio.diary.core.model.RestoreFailure
+import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RestorePreview
+import org.sjhstudio.diary.core.model.RestoreResult
+import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
+import org.sjhstudio.diary.feature.backup.BackupFoundSheet
+import org.sjhstudio.diary.feature.backup.RestoreListScreen
+import org.sjhstudio.diary.feature.backup.RestoreListUi
+import org.sjhstudio.diary.feature.backup.RestorePreviewScreen
+import org.sjhstudio.diary.feature.backup.RestoreProgressScreen
 import org.sjhstudio.diary.feature.lock.ForgotPinSheet
 import org.sjhstudio.diary.feature.lock.LockScreen
 import org.sjhstudio.diary.feature.lock.LockSettingsRoute
@@ -79,14 +92,78 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     LIST_PERFORMANCE -> ListPerformanceSample()
 
+                    RESTORE_LIST ->
+                        RestoreListScreen(
+                            RestoreListUi.Loaded(
+                                listOf(
+                                    SAMPLE_BACKUP,
+                                    SAMPLE_BACKUP.copy(snapshotName = "b", state = BackupEntryState.Damaged(DamageReason.SNAPSHOT_MISSING)),
+                                    SAMPLE_BACKUP.copy(snapshotName = "c", state = BackupEntryState.NeedsNewerApp),
+                                    SAMPLE_BACKUP.copy(snapshotName = "d", deviceId = "ipad", deviceName = "iPad", platform = "ios")
+                                )
+                            ),
+                            onPick = {},
+                            onRetry = {},
+                            onBack = ::finish
+                        )
+
+                    RESTORE_CHECK ->
+                        RestorePreviewScreen(RestorePreparation.Ready(SAMPLE_BACKUP, SAMPLE_PREVIEW), onMerge = {
+                        }, onRetry = {}, onBack = ::finish)
+
+                    RESTORE_NO_SPACE ->
+                        RestorePreviewScreen(
+                            RestorePreparation.Ready(SAMPLE_BACKUP, SAMPLE_PREVIEW.copy(deviceBytesFree = 200_000_000)),
+                            onMerge = {},
+                            onRetry = {},
+                            onBack = ::finish
+                        )
+
+                    RESTORE_RUNNING -> Progress(RestoreState.FetchingPhotos(1_324, 120, 340))
+
+                    RESTORE_RESULT -> Progress(
+                        RestoreState.Done(RestoreResult(120, 8, 2, 328, 0, 0, photosOnOriginal = 12, lockWasOn = true))
+                    )
+
+                    RESTORE_FAILED -> Progress(RestoreState.Failed(RestoreFailure.MISMATCH))
+
+                    RESTORE_FOUND -> BackupFoundSheet(SAMPLE_BACKUP, onLater = ::finish, onRestore = {})
+
                     else -> finish()
                 }
             }
         }
     }
 
+    @Composable
+    private fun Progress(state: RestoreState) =
+        RestoreProgressScreen(state, onSeeEntries = {}, onStart = {}, onLock = {}, onRetry = {}, onPickOther = {})
+
     private companion object {
         const val EXTRA_SCREEN = "screen"
+        const val RESTORE_LIST = "restore_list"
+        const val RESTORE_CHECK = "restore_check"
+        const val RESTORE_NO_SPACE = "restore_no_space"
+        const val RESTORE_RUNNING = "restore_running"
+        const val RESTORE_RESULT = "restore_result"
+        const val RESTORE_FAILED = "restore_failed"
+        const val RESTORE_FOUND = "restore_found"
+
+        // Figma B3·B4와 같은 숫자
+        val SAMPLE_BACKUP =
+            BackupEntry(
+                "a",
+                "phone",
+                "Galaxy S24",
+                "android",
+                Instant.parse("2026-10-31T12:30:00Z"),
+                1_204,
+                860,
+                0,
+                "2.0.0",
+                BackupEntryState.Ready
+            )
+        val SAMPLE_PREVIEW = RestorePreview(120, 8, 2, 1_074, 340, 1_200_000_000, 0, true, 8_000_000_000)
         const val MIGRATION_REPORT = "migration_report"
         const val SUPPORT_SHEET = "support_sheet"
         const val PHOTO_CELL = "photo_cell"

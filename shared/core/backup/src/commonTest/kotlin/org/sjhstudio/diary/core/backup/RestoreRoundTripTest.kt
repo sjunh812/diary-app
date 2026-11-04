@@ -10,7 +10,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
 import okio.Path
@@ -21,6 +25,8 @@ import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.testing.FakeDrive
@@ -122,6 +128,34 @@ class RestoreRoundTripTest {
 
         assertEquals(0, second.preview.entriesAdded)
         assertEquals(2, second.preview.entriesUnchanged)
+    }
+
+    private fun controller(settings: MutableList<ManifestSettings>, scope: kotlinx.coroutines.CoroutineScope): RestoreController {
+        val media = dir / "b" / "media"
+        val work = dir / "b" / "backup"
+        val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
+        return RestoreController(
+            lazy { catalog() }, lazy { planner() }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) }, lazy { phoneB },
+            BackupStore(InMemoryDataStore(emptyPreferences())), FakeNetworkState(), fs, { settings += it }, scope
+        )
+    }
+
+    @Test
+    fun controller_merges_then_fetches_and_applies_settings() = runTest {
+        backUp()
+        val settings = mutableListOf<ManifestSettings>()
+        val controller = controller(settings, backgroundScope)
+        val name = controller.backups()!!.single().snapshotName
+        assertIs<RestorePreparation.Ready>(controller.prepare(name))
+
+        controller.merge()
+        val done = withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
+
+        val result = (done as RestoreState.Done).result
+        assertEquals(2, result.entriesAdded)
+        assertEquals(1, result.photosRestored)
+        assertEquals(0, result.photosPending)
+        assertEquals(1, settings.size)
     }
 
     @Test

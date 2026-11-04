@@ -3,6 +3,7 @@ package org.sjhstudio.diary.feature.backup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +29,9 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
@@ -45,6 +48,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.BackupConnection
+import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -82,16 +86,64 @@ import org.sjhstudio.diary.feature.backup.resources.backup_title
 import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only_body
+import org.sjhstudio.diary.feature.backup.resources.restore_device_group
+import org.sjhstudio.diary.feature.backup.resources.restore_found_action
+import org.sjhstudio.diary.feature.backup.resources.restore_found_body
+import org.sjhstudio.diary.feature.backup.resources.restore_found_later
+import org.sjhstudio.diary.feature.backup.resources.restore_found_title
+import org.sjhstudio.diary.feature.backup.resources.restore_row
+import org.sjhstudio.diary.feature.backup.resources.restore_row_body
 
 /** 설정 > 백업(Figma "백업 (B1)"). */
 @Composable
-fun BackupSettingsRoute(onBack: () -> Unit, onOptions: () -> Unit, modifier: Modifier = Modifier) {
+fun BackupSettingsRoute(
+    onBack: () -> Unit,
+    onOptions: () -> Unit,
+    onRestore: () -> Unit,
+    onRestoreEntry: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.status.collectAsStateWithLifecycle()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
+    val found by viewModel.found.collectAsStateWithLifecycle()
     BackupSettingsScreen(status, connecting, viewModel::connect, {
         viewModel.backUpNow()
-    }, { viewModel.backUpNow(cellularOnce = true) }, viewModel::setAuto, onOptions, onBack, modifier)
+    }, { viewModel.backUpNow(cellularOnce = true) }, viewModel::setAuto, onOptions, onRestore, onBack, modifier)
+    found?.let { entry ->
+        BackupFoundSheet(entry, viewModel::foundShown) {
+            viewModel.foundShown()
+            onRestoreEntry(entry.snapshotName)
+        }
+    }
+}
+
+/** Figma "B2 · 드라이브에 백업이 있어요". 연결한 뒤 드라이브에서 찾은 백업을 권한다. */
+@Composable
+fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> Unit) {
+    DiaryBottomSheet(onDismiss = onLater, title = stringResource(Res.string.restore_found_title)) {
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+            DiaryStatusBox(
+                DiaryIcons.ShieldCheck,
+                stringResource(Res.string.restore_device_group, deviceName(entry), whenText(entry)),
+                countsText(entry)
+            )
+            BasicText(
+                stringResource(Res.string.restore_found_body),
+                style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                DiaryButton(
+                    stringResource(Res.string.restore_found_later),
+                    onLater,
+                    Modifier.weight(1f),
+                    size = DiaryButtonSize.XLarge,
+                    kind = DiaryButtonKind.Secondary
+                )
+                DiaryButton(stringResource(Res.string.restore_found_action), onRestore, Modifier.weight(1f), size = DiaryButtonSize.XLarge)
+            }
+        }
+    }
 }
 
 @Composable
@@ -103,6 +155,7 @@ internal fun BackupSettingsScreen(
     onCellular: () -> Unit,
     onAuto: (Boolean) -> Unit,
     onOptions: () -> Unit,
+    onRestore: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -135,6 +188,11 @@ internal fun BackupSettingsScreen(
                     status.autoEnabled,
                     onAuto,
                     description = stringResource(Res.string.backup_auto_body)
+                )
+                DiarySettingsRow(
+                    stringResource(Res.string.restore_row),
+                    onClick = onRestore,
+                    description = stringResource(Res.string.restore_row_body)
                 )
                 DiarySettingsRow(stringResource(Res.string.backup_options), onClick = onOptions)
             }

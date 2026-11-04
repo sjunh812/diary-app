@@ -44,4 +44,75 @@
     <string name="backup_line_today">今日 %1$s</string>
     <string name="backup_line_yesterday">昨日 %1$s</string>
     <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
+    <!-- 되살리기(B2~B6) -->
+    <string name="restore_row">バックアップから復元</string>
+    <string name="restore_row_body">別のスマホや以前のアプリのバックアップを統合します</string>
+    <string name="restore_keep_note">復元しても、このスマホの日記はそのまま残ります。</string>
+    <string name="restore_device_group">%1$s · %2$s</string>
+    <string name="restore_device_unknown">名前のない端末</string>
+    <string name="restore_platform_android">Android</string>
+    <string name="restore_platform_ios">iOS</string>
+    <string name="restore_when">%1$s %2$s</string>
+    <string name="restore_join">%1$s · %2$s</string>
+    <string name="restore_damaged">バックアップの一部が壊れているため復元できません</string>
+    <string name="restore_needs_update">アプリを更新すると復元できます</string>
+    <string name="restore_empty_title">ドライブにバックアップはまだありません</string>
+    <string name="restore_empty_body">このスマホでバックアップするとここに表示されます。</string>
+    <string name="restore_loading">バックアップを探しています</string>
+    <string name="restore_list_failed">バックアップ一覧を読み込めませんでした</string>
+    <string name="restore_list_failed_body">接続を確認して、もう一度お試しください。</string>
+    <string name="restore_retry">もう一度試す</string>
+    <string name="restore_preview_top">復元</string>
+    <string name="restore_preview_title">このバックアップを統合します</string>
+    <string name="restore_preview_body">%1$s · %2$s のバックアップです。\nこのスマホの日記はそのまま残して統合します。</string>
+    <string name="restore_value_added">追加される日記</string>
+    <string name="restore_value_updated">新しい方に更新される日記</string>
+    <string name="restore_value_both">両方残す日記</string>
+    <string name="restore_value_photos">受け取る写真</string>
+    <string name="restore_settings_note">フォント、本文の文字サイズ、画面モード、通知の設定もバックアップ時に戻ります。</string>
+    <string name="restore_no_space">写真を受け取る空き容量があと%1$s足りません。空き容量を増やしてもう一度お試しください。</string>
+    <string name="restore_merge">統合する</string>
+    <string name="restore_preparing">バックアップを確認しています</string>
+    <string name="restore_size_gb">%1$sGB</string>
+    <string name="restore_size_mb">%1$dMB</string>
+    <string name="restore_running_title">日記を復元しています</string>
+    <string name="restore_merging_body">日記を統合しています。</string>
+    <string name="restore_fetching_body">日記は統合しました。写真を受け取る間も日記を読めます。</string>
+    <string name="restore_value_entries">日記</string>
+    <string name="restore_value_merged">%1$s · 統合済み</string>
+    <string name="restore_value_photo">写真</string>
+    <string name="restore_photo_progress">%1$s / %2$s</string>
+    <string name="restore_running_note">途中でアプリが終了しても、残りの写真だけ続きから受け取ります。元の記録はそのままです。</string>
+    <string name="restore_see_entries">先に日記を見る</string>
+    <string name="restore_done_nothing">バックアップを統合しました</string>
+    <string name="restore_done_body">このスマホの日記はそのまま残っています。</string>
+    <string name="restore_note_both_body">両方で編集された日記です。一覧に印を付けました。</string>
+    <string name="restore_note_original_body">バックアップ時に容量が足りなかった写真です。元のスマホでもう一度バックアップするとここでも見られます。</string>
+    <string name="restore_note_pending_body">次にアプリを開くと続きから受け取ります。</string>
+    <string name="restore_note_missing_body">受け取ったファイルが異なるため、見つからない写真として残しました。</string>
+    <string name="restore_lock_title">ロックを設定し直してください</string>
+    <string name="restore_lock_body">バックアップしたスマホでロックを使っていました。パスコードはバックアップされません。</string>
+    <string name="restore_lock_action">設定する</string>
+    <string name="restore_start">はじめる</string>
+    <string name="restore_failed_mismatch_title">バックアップを確認できませんでした</string>
+    <string name="restore_failed_mismatch_body">受け取ったファイルがバックアップ時と異なるため中止しました。このスマホの記録はそのままです。</string>
+    <string name="restore_failed_other_title">復元できませんでした</string>
+    <string name="restore_failed_other_body">接続を確認して、もう一度お試しください。このスマホの記録はそのままです。</string>
+    <string name="restore_pick_other">別のバックアップを選ぶ</string>
+    <string name="restore_found_title">Google ドライブにバックアップがあります</string>
+    <string name="restore_found_body">このスマホの日記はそのまま残して統合します。</string>
+    <string name="restore_found_later">あとで</string>
+    <string name="restore_found_action">復元する</string>
+    <plurals name="restore_count_entries"><item quantity="other">日記%1$s件</item></plurals>
+    <plurals name="restore_count_photos"><item quantity="other">写真%1$s枚</item></plurals>
+    <plurals name="restore_unit_entries"><item quantity="other">%1$s件</item></plurals>
+    <plurals name="restore_unit_photos"><item quantity="other">%1$s枚</item></plurals>
+    <plurals name="restore_done_added"><item quantity="other">日記を%1$s件追加しました</item></plurals>
+    <plurals name="restore_done_updated"><item quantity="other">日記を%1$s件更新しました</item></plurals>
+    <plurals name="restore_done_photos"><item quantity="other">写真%1$s枚もすべて受け取りました。</item></plurals>
+    <plurals name="restore_note_both"><item quantity="other">両方残した日記 %1$s件</item></plurals>
+    <plurals name="restore_note_original"><item quantity="other">元のスマホにある写真 %1$s枚</item></plurals>
+    <plurals name="restore_note_pending"><item quantity="other">まだ受け取っていない写真 %1$s枚</item></plurals>
+    <plurals name="restore_note_missing"><item quantity="other">確認できなかった写真 %1$s枚</item></plurals>
+    <plurals name="restore_not_in_backup"><item quantity="other">写真%1$s枚はこのバックアップにありません。元のスマホにあります。</item></plurals>
 </resources>

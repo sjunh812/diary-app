@@ -58,9 +58,12 @@ class RestorePlanner(
     }
 
     private fun neededPhotos(plan: MergePlan, manifest: Manifest): List<ManifestMedia> {
-        val incoming = plan.items.filter { it.second != MergeAction.KEEP }.flatMap { it.first.media }.mapNotNull { it.sha256 }.toSet()
-        val here = plan.local.values.flatMap { it.media }.filter { it.status == "normal" }.mapNotNull { it.sha256 }.toSet()
-        return manifest.media.filter { it.inBackup && it.sha256 in incoming && it.sha256 !in here }
+        val local = plan.local.values.flatMap { it.media }
+        val here = local.filter { it.status == "normal" }.mapNotNull { it.sha256 }.toSet()
+        // 일기가 그대로여도 전에 못 받은 사진은 이번 백업에서 채운다.
+        val waiting = local.filter { it.status == "pending" }.mapNotNull { it.sha256 }
+        val incoming = plan.items.filter { it.second != MergeAction.KEEP }.flatMap { it.first.media }.mapNotNull { it.sha256 }
+        return manifest.media.filter { it.inBackup && it.sha256 !in here && (it.sha256 in incoming || it.sha256 in waiting) }
     }
 
     private companion object {

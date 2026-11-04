@@ -14,7 +14,7 @@ private val Connected =
 @Composable
 private fun Screen(status: BackupStatus, dark: Boolean) = DiaryTheme(darkTheme = dark) {
     BackupSettingsScreen(status, connecting = false, onConnect = {
-    }, onBackUp = {}, onCellular = {}, onAuto = {}, onOptions = {}, onBack = {})
+    }, onBackUp = {}, onCellular = {}, onAuto = {}, onOptions = {}, onRestore = {}, onBack = {})
 }
 
 @Preview(locale = "ko")

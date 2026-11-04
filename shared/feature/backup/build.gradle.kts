@@ -8,6 +8,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.shared.core.platform)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.compose.ui.backhandler)
         }
     }
 }

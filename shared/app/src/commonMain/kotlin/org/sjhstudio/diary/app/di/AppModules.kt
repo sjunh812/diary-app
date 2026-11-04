@@ -17,8 +17,14 @@ import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.ManifestSettings
+import org.sjhstudio.diary.core.backup.MergeApplier
+import org.sjhstudio.diary.core.backup.PhotoFetcher
+import org.sjhstudio.diary.core.backup.RestoreCatalog
+import org.sjhstudio.diary.core.backup.RestoreController
+import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
+import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
 import org.sjhstudio.diary.core.data.diary.DefaultEntryRepository
@@ -47,6 +53,10 @@ import org.sjhstudio.diary.core.drive.createDriveApi
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
+import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
@@ -159,7 +169,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                         themeMode = settings.themeMode.id,
                         reminderEnabled = settings.reminderEnabled,
                         reminderMinuteOfDay = settings.reminderMinuteOfDay,
-                        listStyle = settings.list.listStyle.name.lowercase(),
+                        listStyle = settings.list.listStyle.id,
                         favoritesOnly = settings.list.favoritesOnly,
                         askLocationAgain = settings.askLocationAgain,
                         lockEnabled = get<LockRepository>().settings.first().enabled
@@ -169,6 +179,25 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         }
         single<BackupRepository> {
             BackupController(get(), lazy { get<DiaryDatabase>() }, lazy { get<BackupRunner>() }, get(), get(), get(APP_SCOPE))
+        }
+        single<RestoreRepository> {
+            val files = get<AppFiles>()
+            val work = files.backupDirectory.toPath()
+            val media = files.mediaDirectory.toPath()
+            val system = FileSystem.SYSTEM
+            val applier = lazy { MergeApplier(get(), { system.exists(media / it) }) }
+            RestoreController(
+                catalog = lazy { RestoreCatalog(get(), system, work) },
+                planner = lazy { RestorePlanner(get(), applier.value, get(), system, work) },
+                applier = applier,
+                fetcher = lazy { PhotoFetcher(get(), get(), system, media, work) },
+                db = lazy { get<DiaryDatabase>() },
+                store = get(),
+                network = get(),
+                fileSystem = system,
+                applySettings = { applyBackupSettings(get(), it) },
+                scope = get(APP_SCOPE)
+            )
         }
         single<DraftRepository> { DefaultDraftRepository(get(), get()) }
         single<StatsRepository> { DefaultStatsRepository(get()) }
@@ -184,3 +213,16 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
     }
 )
+
+/** 잠금과 백업 설정은 바꾸지 않는다(contracts/merge-rules.md "설정"). 알림은 값이 바뀌면 다시 예약된다. */
+private suspend fun applyBackupSettings(repository: SettingsRepository, backup: ManifestSettings) {
+    DiaryFont.fromId(backup.font)?.let { repository.setFont(it) }
+    BodyTextSize.fromId(backup.bodyTextSize)?.let { repository.setBodyTextSize(it) }
+    ThemeMode.fromId(backup.themeMode)?.let { repository.setThemeMode(it) }
+    backup.listStyle?.let { repository.setListStyle(ListStyle.fromId(it)) }
+    backup.favoritesOnly?.let { repository.setFavoritesOnly(it) }
+    backup.askLocationAgain?.let { repository.setAskLocationAgain(it) }
+    val minute = backup.reminderMinuteOfDay
+    val enabled = backup.reminderEnabled
+    if (enabled != null && minute != null) repository.setReminder(enabled, minute)
+}

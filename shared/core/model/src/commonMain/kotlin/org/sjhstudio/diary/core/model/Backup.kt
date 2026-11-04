@@ -107,8 +107,34 @@ data class RestoreResult(
     val photosRestored: Int,
     val photosMissing: Int,
     val photosPending: Int,
-    val rollbackUntil: Instant? = null
+    val rollbackUntil: Instant? = null,
+    /** 공간이 모자라 백업에 없던 사진. 원래 기기에 있다. */
+    val photosOnOriginal: Int = 0,
+    /** 백업한 기기가 잠금을 쓰고 있었다. 비밀번호는 백업하지 않는다. */
+    val lockWasOn: Boolean = false
 )
+
+enum class RestoreFailure { MISMATCH, OTHER }
+
+/** 스냅샷을 받아 확인한 결과. */
+sealed interface RestorePreparation {
+    data class Ready(val entry: BackupEntry, val preview: RestorePreview) : RestorePreparation
+
+    data class Failed(val reason: RestoreFailure) : RestorePreparation
+}
+
+/** 되살리기 진행. 화면을 떠나도 앱이 켜져 있으면 계속 간다. */
+sealed interface RestoreState {
+    data object Idle : RestoreState
+
+    data object Merging : RestoreState
+
+    data class FetchingPhotos(val entries: Int, val done: Int, val total: Int) : RestoreState
+
+    data class Done(val result: RestoreResult) : RestoreState
+
+    data class Failed(val reason: RestoreFailure) : RestoreState
+}
 
 /** 권하기 카드(FR-036). */
 data class BackupNudge(val entryCount: Int, val photoCount: Int, val suggestedAccount: String? = null)

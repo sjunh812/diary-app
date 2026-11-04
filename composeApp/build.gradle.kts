@@ -108,6 +108,7 @@ dependencies {
     debugImplementation(libs.okio)
     debugImplementation(projects.shared.core.migration)
     debugImplementation(projects.shared.core.model)
+    debugImplementation(projects.shared.feature.backup)
     debugImplementation(projects.shared.feature.lock)
     debugImplementation(projects.shared.feature.migration)
     debugImplementation(projects.shared.feature.settings)

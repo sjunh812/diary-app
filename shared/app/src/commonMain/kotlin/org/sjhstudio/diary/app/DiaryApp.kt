@@ -19,6 +19,7 @@ import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -71,6 +72,8 @@ fun DiaryApp() {
                 // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 본다(FR-015). iOS에서는 이게 주된 길이다.
                 val backup = koinInject<BackupRepository>()
                 LaunchedEffect(backup) { backup.backUpIfDue() }
+                val restore = koinInject<RestoreRepository>()
+                LaunchedEffect(restore) { restore.resumePhotos() }
                 AppScaffold()
             }
         }

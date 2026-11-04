@@ -336,7 +336,7 @@ private fun Content(
                         }
                     )
                 }
-                settingsEntries(push = { backStack.add(it) }, pop = pop)
+                settingsEntries(push = { backStack.add(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })
                 entry<WriteKey> { key ->
                     val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
                     WriteRoute(

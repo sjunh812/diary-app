@@ -94,3 +94,14 @@ data object BackupSettingsKey : Screen
 
 @Serializable
 data object BackupOptionsKey : Screen
+
+@Serializable
+data object RestoreListKey : Screen
+
+@Serializable
+data class RestorePreviewKey(val snapshotName: String) : Screen {
+    override fun toString(): String = "RestorePreviewKey"
+}
+
+@Serializable
+data object RestoreProgressKey : Screen

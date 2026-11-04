@@ -123,21 +123,21 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T049 [P] [US2] `shared/core/backup/{test}/core/backup/MergeRulesTest.kt`: `contracts/merge-rules.md` 드라이브 합치기 표 경우 1~7을 하나씩, 둘 다 남길 때 새 `id`와 사진 줄 새 `id`·같은 `sha256`, `sync_base` 쓰기
+- [x] T049 [P] [US2] `shared/core/backup/{test}/core/backup/MergeRulesTest.kt`: `contracts/merge-rules.md` 드라이브 합치기 표 경우 1~7을 하나씩, 둘 다 남길 때 새 `id`와 사진 줄 새 `id`·같은 `sha256`, `sync_base` 쓰기
 - [ ] T050 [P] [US2] `{test}/core/backup/MergeTrashAndPhotosTest.kt`: 휴지통 일기 남은 날 그대로, 하루 미만이면 7일, 영구 삭제한 일기가 다시 생김(미리보기에 셈), 사진 줄 표(있음 → `normal`, 받을 것 → `pending`, 백업에 없음 → `pending` 유지, `missing` 그대로), 바뀌지 않은 일기의 `pending` 사진 채우기
 - [ ] T051 [P] [US2] `{test}/core/backup/RestorePreviewTest.kt`: 미리보기 숫자가 실제 적용 결과와 같음, 설정 바뀜 표시, 기기 공간 부족이면 시작 안 함(FR-025)
 - [ ] T052 [P] [US2] `{test}/core/backup/RestoreInterruptionTest.kt`: 받기·확인 중 끊김(기기 그대로, 처음부터), 합치기 트랜잭션 중 실패(아무것도 안 바뀜), 사진 받는 중 끊김(`pending`만 이어 받기), 깨진 사진 하나만 `missing`, 스냅샷 확인값 불일치면 쓰지 않음(FR-021)
-- [ ] T053 [P] [US2] `{test}/core/backup/RestoreListTest.kt`: 끝까지 된 백업만, 기기별 묶음, 깨진 목록 파일·스냅샷 없음·스냅샷 깨짐·새 앱 필요의 이유, 다른 계정 백업 안 보임
+- [x] T053 [P] [US2] `{test}/core/backup/RestoreListTest.kt`: 끝까지 된 백업만, 기기별 묶음, 깨진 목록 파일·스냅샷 없음·스냅샷 깨짐·새 앱 필요의 이유, 다른 계정 백업 안 보임
 - [ ] T054 [P] [US2] `{test}/core/backup/RestoreSettingsTest.kt`: 설정은 백업 값, 잠금은 꺼짐 + `lockEnabled`면 한 번 안내, 백업 설정·옛 백업 연결 값은 그대로, 알림 다시 예약
 - [ ] T055 [P] [US2] `{test}/core/backup/RoundTripTest.kt`: 스펙 001 이전 견본 자료로 이전 → 백업 → 빈 기기 복원, 일기 모든 칸·사진 확인값·순서·`missing`과 `legacy_path` 100% 같음(SC-001). 시간대 다른 기기에서 날짜 그대로. Android 호스트와 `iosSimulatorArm64Test` 양쪽에서 돈다
 
 ### Implementation for User Story 2
 
-- [ ] T056 [US2] `{kt}/core/backup/RestoreCatalog.kt`: 목록 파일 모아 읽기, `contracts/backup-format.md` "끝까지 된 백업인지" 확인, `BackupEntry` 만들기
-- [ ] T057 [US2] `{kt}/core/backup/RestorePlanner.kt`: 스냅샷 받기(`backup/incoming/`, 이어 받기) → SHA-256·일기 수 확인 → 쓰기 없이 합치기 규칙 돌려 `RestorePreview`
-- [ ] T058 [US2] `{kt}/core/backup/MergeApplier.kt`: 한 트랜잭션으로 `contracts/merge-rules.md` 드라이브 합치기(휴지통, 사진 줄, `merge_mark`, `sync_base`), 설정 적용
-- [ ] T059 [US2] `{kt}/core/backup/PhotoFetcher.kt`: `pending` 줄의 사진을 받아 `media/`에 쓰고 확인값이 맞으면 `normal`, 다르면 `missing`. `backup/restore.json`으로 잇기. 지금 백업과 같은 스케줄러(T043, T044)로 돈다
-- [ ] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6)
+- [x] T056 [US2] `{kt}/core/backup/RestoreCatalog.kt`: 목록 파일 모아 읽기, `contracts/backup-format.md` "끝까지 된 백업인지" 확인, `BackupEntry` 만들기
+- [x] T057 [US2] `{kt}/core/backup/RestorePlanner.kt`: 스냅샷 받기(`backup/incoming/`, 이어 받기) → SHA-256·일기 수 확인 → 쓰기 없이 합치기 규칙 돌려 `RestorePreview`
+- [x] T058 [US2] `{kt}/core/backup/MergeApplier.kt`: 한 트랜잭션으로 `contracts/merge-rules.md` 드라이브 합치기(휴지통, 사진 줄, `merge_mark`, `sync_base`), 설정 적용
+- [x] T059 [US2] `{kt}/core/backup/PhotoFetcher.kt`: `pending` 줄의 사진을 받아 `media/`에 쓰고 확인값이 맞으면 `normal`, 다르면 `missing`. `backup/restore.json`으로 잇기. 지금 백업과 같은 스케줄러(T043, T044)로 돈다
+- [ ] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6) (합치기 길은 됐다. 바꾸기, 파일에서 되살리기, 문의하기 줄이 남았다)
 - [ ] T061 [US2] 스펙 002 사진 칸·상세에서 `PENDING` 사진을 받는 중 표시와 "원래 기기에 있는 사진"으로, `MISSING`은 "찾을 수 없는 사진"으로 그린다. 스펙 002 사진 정리가 `pending`을 지우지 않는지 시험을 더한다
 - [ ] T062 [US2] 둘 다 남긴 일기 표시: 스펙 002 목록·상세에 `merge_mark` 줄이 있으면 "두 가지로 남겼어요"와 닫기·짝 보기. 닫거나 하나를 지우면 줄을 지운다
 - [ ] T063 [US2] 앱 시작 관문(스펙 001 `shared/app`)에 남은 복원 작업 잇기: `restore.json`이 `FetchingPhotos`면 사진 받기를 다시 건다
