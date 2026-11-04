@@ -23,10 +23,10 @@ enum class AuthResult { Success, Canceled, Failed }
 
 /**
  * 시스템 인증 창에 보일 글. 화면 문구라 부르는 쪽이 문자열 리소스에서 넘긴다.
- * [subtitle]은 왜 인증하는지 한 줄로 쓴다(Android 부제, iOS는 이유 문장).
- * 앱 이름은 넣지 않는다. 창에 시스템이 따로 보인다(Apple LocalAuthentication, Android 15 생체 인증 창).
+ * Android 창은 제목과 아래 버튼만 쓴다(토스 앱잠금과 같은 꼴). [reason]은 iOS 이유 문장으로, 왜 인증하는지와 그 결과를 짧게 쓴다.
+ * 둘 다 앱 이름은 넣지 않는다. 창에 시스템이 따로 보인다(Apple LocalAuthentication, Android 15 생체 인증 창).
  */
-data class AuthPrompt(val title: String, val cancel: String, val subtitle: String? = null)
+data class AuthPrompt(val title: String, val cancel: String, val reason: String? = null)
 
 /** 인증 창을 띄울 수 없는 자리(미리보기, 시험). */
 object NoDeviceAuthenticator : DeviceAuthenticator {

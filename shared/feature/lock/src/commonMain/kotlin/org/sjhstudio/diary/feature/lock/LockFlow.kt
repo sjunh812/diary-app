@@ -23,7 +23,7 @@ import org.sjhstudio.diary.core.platform.DeviceAuthenticator
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.forgot_prompt_title
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric_prompt_cancel
-import org.sjhstudio.diary.feature.lock.resources.lock_biometric_prompt_subtitle
+import org.sjhstudio.diary.feature.lock.resources.lock_biometric_prompt_reason
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric_prompt_title
 import org.sjhstudio.diary.feature.lock.resources.lock_turned_off
 
@@ -61,7 +61,7 @@ fun LockFlow(
         AuthPrompt(
             stringResource(Res.string.lock_biometric_prompt_title),
             stringResource(Res.string.lock_biometric_prompt_cancel),
-            subtitle = stringResource(Res.string.lock_biometric_prompt_subtitle)
+            reason = stringResource(Res.string.lock_biometric_prompt_reason)
         )
     val ownerPrompt = AuthPrompt(stringResource(Res.string.forgot_prompt_title), stringResource(DsRes.string.ds_close))
     val turnedOff = stringResource(Res.string.lock_turned_off)

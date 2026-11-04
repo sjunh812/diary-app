@@ -11,9 +11,9 @@
     </plurals>
     <string name="lock_forgot">비밀번호를 잊어버렸어요</string>
     <string name="lock_biometric">생체 인증으로 열기</string>
-    <string name="lock_biometric_prompt_title">잠금 해제</string>
-    <string name="lock_biometric_prompt_subtitle">일기를 열려면 본인 확인이 필요해요</string>
-    <string name="lock_biometric_prompt_cancel">비밀번호 입력</string>
+    <string name="lock_biometric_prompt_title">생체 정보로 인증해 주세요</string>
+    <string name="lock_biometric_prompt_reason">일기를 열려면 본인 확인이 필요해요</string>
+    <string name="lock_biometric_prompt_cancel">비밀번호로 인증</string>
 
     <!-- 비밀번호 정하기(L2) -->
     <string name="pin_setup_title">새 비밀번호 4자리를 정해 주세요</string>

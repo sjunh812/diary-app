@@ -27,7 +27,6 @@ class AndroidDeviceAuthenticator(private val activity: FragmentActivity) : Devic
     override suspend fun authenticateBiometric(prompt: AuthPrompt): AuthResult = authenticate(
         BiometricPrompt.PromptInfo.Builder()
             .setTitle(prompt.title)
-            .setSubtitle(prompt.subtitle)
             .setNegativeButtonText(prompt.cancel)
             .setAllowedAuthenticators(BIOMETRIC_WEAK)
             .build()

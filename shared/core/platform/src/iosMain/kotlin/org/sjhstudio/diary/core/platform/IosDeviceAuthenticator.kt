@@ -46,7 +46,7 @@ class IosDeviceAuthenticator : DeviceAuthenticator {
         // 생체 인증만 받을 때는 "암호 입력" 버튼을 숨긴다. 숫자판이 그 일을 한다.
         if (biometricOnly) context.localizedFallbackTitle = ""
         val policy = if (biometricOnly) LAPolicyDeviceOwnerAuthenticationWithBiometrics else LAPolicyDeviceOwnerAuthentication
-        context.evaluatePolicy(policy, localizedReason = prompt.subtitle ?: prompt.title) { success, error ->
+        context.evaluatePolicy(policy, localizedReason = prompt.reason ?: prompt.title) { success, error ->
             if (!continuation.isActive) return@evaluatePolicy
             val code = error?.code
             val result =
