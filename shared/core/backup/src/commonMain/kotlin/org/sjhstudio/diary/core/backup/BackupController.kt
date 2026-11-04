@@ -76,10 +76,18 @@ class BackupController(
     }
 
     override suspend fun backUpIfDue() {
+        if (isDue()) backUpNow()
+    }
+
+    override suspend fun runIfDue() {
+        if (isDue()) runner.value.run()
+    }
+
+    private suspend fun isDue(): Boolean {
         val prefs = store.current()
         val last = prefs.lastSuccessAt
-        if (prefs.accountKey == null || !prefs.autoEnabled || prefs.lastFailure == BackupFailure.AUTH) return
-        if (last == null || clock.now() - last >= 24.hours) backUpNow()
+        if (prefs.accountKey == null || !prefs.autoEnabled || prefs.lastFailure == BackupFailure.AUTH) return false
+        return last == null || clock.now() - last >= 24.hours
     }
 
     override suspend fun setAuto(enabled: Boolean) {

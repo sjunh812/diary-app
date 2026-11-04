@@ -183,7 +183,7 @@ description: "스펙 003 백업 v2 작업 목록"
 ### Implementation for User Story 4
 
 - [ ] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(네트워크 연결됨 + 배터리 부족 아님), `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각, 앱이 뒤로 간 뒤 앱 안 코루틴으로 잇지 않기(research R14, 2026-11-01 확인)
-- [ ] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
+- [x] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
 - [x] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
 - [ ] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
 - [ ] T077 [US4] `shared/core/data/{kt}/core/data/BackupNudgeRepository.kt`와 `shared/feature/backup/{kt}/feature/backup/BackupNudgeCard.kt`, 스펙 002 홈 목록 맨 위에 꽂기. [백업 켜기]는 연결 흐름(옛 백업 계정 먼저), [나중에]는 14일 숨김. Figma 홈 백업 상태와 권하기 (B11)

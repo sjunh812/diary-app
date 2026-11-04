@@ -1,9 +1,14 @@
 package org.sjhstudio.diary.app
 
 import kotlin.experimental.ExperimentalNativeApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform
+import org.sjhstudio.diary.app.di.APP_SCOPE
 import org.sjhstudio.diary.app.di.initKoin
 import org.sjhstudio.diary.app.lock.LockController
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.platform.IosDriveBridge
 
 /**
@@ -44,3 +49,16 @@ internal object IosDrive {
 
 /** 앱이 비활성일 때 화면을 덮을지(iosApp `PrivacyCover`, FR-018). 잠금이 켜져 있을 때만 덮는다. */
 fun isPrivacyCoverNeeded(): Boolean = KoinPlatform.getKoin().get<LockController>().lockEnabled
+
+/** Swift가 시스템의 남은 시간이 끝날 때 멈출 수 있게 돌려준다. */
+class BackupTaskHandle internal constructor(private val job: Job) {
+    fun cancel() = job.cancel()
+}
+
+/** 백그라운드 작업에서 부른다. 때가 됐으면 백업하고, 끝나거나 멈추면 [done]을 부른다(research R15). */
+fun runDailyBackup(done: () -> Unit): BackupTaskHandle {
+    val koin = KoinPlatform.getKoin()
+    val job = koin.get<CoroutineScope>(APP_SCOPE).launch { koin.get<BackupRepository>().runIfDue() }
+    job.invokeOnCompletion { done() }
+    return BackupTaskHandle(job)
+}

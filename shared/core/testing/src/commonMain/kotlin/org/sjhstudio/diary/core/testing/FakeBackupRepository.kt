@@ -18,6 +18,8 @@ class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepos
 
     override suspend fun backUpIfDue() = Unit
 
+    override suspend fun runIfDue() = Unit
+
     override suspend fun setAuto(enabled: Boolean) {
         status.value = status.value.copy(autoEnabled = enabled)
     }

@@ -17,6 +17,9 @@ interface BackupRepository {
     /** 앱을 열 때 부른다. 자동 백업을 켰고 마지막 성공이 24시간 넘었으면 돈다(FR-015). */
     suspend fun backUpIfDue()
 
+    /** 시스템이 준 시간 안에서 부른다. 때가 됐으면 백업이 끝날 때까지 기다린다(iOS 백그라운드 작업). */
+    suspend fun runIfDue()
+
     suspend fun setAuto(enabled: Boolean)
 
     suspend fun setPhotosOnCellular(enabled: Boolean)
