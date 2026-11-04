@@ -27,6 +27,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.TimeZone
@@ -66,6 +67,7 @@ import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.file_restore
+import org.sjhstudio.diary.feature.backup.resources.restore_contact
 import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_damaged
@@ -630,6 +632,10 @@ private fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onP
             fill = false
         )
         DiarySettingsRow(stringResource(Res.string.restore_pick_other), onClick = onPickOther, leadingIcon = DiaryIcons.History)
+        val links = LocalUriHandler.current
+        DiarySettingsRow(stringResource(Res.string.restore_contact), onClick = {
+            links.openUri(SUPPORT_MAIL)
+        }, leadingIcon = DiaryIcons.Mail)
     }
     Bottom { DiaryButton(stringResource(Res.string.restore_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge) }
 }
@@ -722,5 +728,6 @@ internal fun sizeText(bytes: Long): String {
     return stringResource(Res.string.restore_size_gb, "${tenths / 10}.${tenths % 10}")
 }
 
+private const val SUPPORT_MAIL = "mailto:sjunh812@naver.com"
 private const val MEGABYTE = 1_000_000L
 private const val GIGABYTE = 1_000_000_000L

@@ -23,8 +23,13 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.drive.DriveApi
+import org.sjhstudio.diary.core.drive.DriveException
+import org.sjhstudio.diary.core.drive.DriveFile
+import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.DriveAccount
 import org.sjhstudio.diary.core.platform.TokenResult
 import org.sjhstudio.diary.core.testing.DriveFault
 import org.sjhstudio.diary.core.testing.FakeBackupNotifier
@@ -62,8 +67,8 @@ class BackupRunnerTest {
         fs.deleteRecursively(dir)
     }
 
-    private fun runner() = BackupRunner(
-        db, drive, auth, store, network, DeviceName { "Galaxy S24" }, fs, dir / "media", dir / "backup",
+    private fun runner(api: DriveApi = drive, authorizer: FakeDriveAuthorizer = auth) = BackupRunner(
+        db, api, authorizer, store, network, DeviceName { "Galaxy S24" }, fs, dir / "media", dir / "backup",
         BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { TimeZone.UTC },
         BackupAlerts(notifier) { "제목" to (it?.name ?: "까닭 없음") }
     )
@@ -314,5 +319,71 @@ class BackupRunnerTest {
         assertEquals(1, outcome.photosLeft)
         assertEquals(BackupFailure.NO_SPACE, store.current().lastFailure)
         assertTrue(store.current().bytesShort > 0)
+    }
+
+    @Test
+    fun cut_before_the_list_file_leaves_the_last_backup_as_it_was() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        runner().run()
+        val manifests = drive.visible.count { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST }
+        db.entryDao().insertAll(listOf(entry("b", "2026-10-30")))
+        now += 1.days
+        val cut =
+            object : DriveApi by drive {
+                override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile {
+                    if (meta.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST) throw DriveException(BackupFailure.OFFLINE)
+                    return drive.uploadSmall(meta, body)
+                }
+            }
+
+        assertIs<BackupOutcome.Failed>(runner(cut).run())
+
+        assertEquals(manifests, drive.visible.count { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST })
+    }
+
+    @Test
+    fun photos_already_up_are_not_sent_again_after_a_cut() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        photo("a", 0, "첫째")
+        photo("a", 1, "둘째")
+        val cut =
+            object : DriveApi by drive {
+                override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile {
+                    if (meta.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_SNAPSHOT) throw DriveException(BackupFailure.OFFLINE)
+                    return drive.uploadSmall(meta, body)
+                }
+            }
+        assertIs<BackupOutcome.Failed>(runner(cut).run())
+        val photos = drive.visible.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO }.map { it.id }
+
+        assertIs<BackupOutcome.Done>(runner().run())
+
+        assertEquals(photos, drive.visible.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO }.map { it.id })
+    }
+
+    @Test
+    fun deleting_the_drive_folder_starts_over_with_everything() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        photo("a", 0, "내용")
+        runner().run()
+        drive.deleteByUser(drive.visible.first { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_ROOT }.id)
+        drive.visible.forEach { drive.deleteByUser(it.id) }
+
+        assertIs<BackupOutcome.Done>(runner().run())
+
+        assertEquals(1, drive.visible.count { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO })
+    }
+
+    @Test
+    fun another_account_does_not_inherit_uploaded_photos() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        photo("a", 0, "내용")
+        runner().run()
+        val otherDrive = FakeDrive(fs)
+        val other = FakeDriveAuthorizer(DriveAccount("other", "other@gmail.com"))
+
+        assertIs<BackupOutcome.Done>(runner(otherDrive, other).run())
+
+        assertEquals(1, otherDrive.visible.count { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO })
     }
 }

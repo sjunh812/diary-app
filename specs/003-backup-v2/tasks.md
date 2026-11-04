@@ -92,8 +92,8 @@ description: "스펙 003 백업 v2 작업 목록"
 ### Tests for User Story 1 ⚠️
 
 - [x] T033 [P] [US1] `shared/core/backup/{test}/core/backup/BackupRunnerTest.kt`: 처음 백업(폴더·README·`appProperties`), 두 번째 백업은 새 사진만, 같은 사진은 드라이브에 하나, 목록 파일이 마지막, 확인값이 다르면 다시 올림, 완료 뒤에만 `last_success_at`·`sync_base`
-- [ ] T034 [P] [US1] `{test}/core/backup/BackupInterruptionTest.kt`: 사진 올리는 중 끊김·앱 종료(상태 파일에서 잇기), 세션 만료, 목록 파일 전 끊김(목록에 안 보임, 이전 백업 그대로), 이미 올린 사진 재전송 0(SC-002)
-- [ ] T035 [P] [US1] `{test}/core/backup/BackupAccountTest.kt`: 토큰 만료 → 한 번 새로 받기 → `AUTH`, 다른 계정이면 `backup_media`가 섞이지 않음, 드라이브에서 폴더를 지우면 새로 만들고 처음부터, 폴더 이름을 바꿔도 `appProperties`로 이어짐
+- [x] T034 [P] [US1] `{test}/core/backup/BackupInterruptionTest.kt`: 사진 올리는 중 끊김·앱 종료(상태 파일에서 잇기), 세션 만료, 목록 파일 전 끊김(목록에 안 보임, 이전 백업 그대로), 이미 올린 사진 재전송 0(SC-002)
+- [x] T035 [P] [US1] `{test}/core/backup/BackupAccountTest.kt`: 토큰 만료 → 한 번 새로 받기 → `AUTH`, 다른 계정이면 `backup_media`가 섞이지 않음, 드라이브에서 폴더를 지우면 새로 만들고 처음부터, 폴더 이름을 바꿔도 `appProperties`로 이어짐
 - [x] T036 [P] [US1] `{test}/core/backup/RetentionPolicyTest.kt`, `MediaJanitorTest.kt`: 기기마다 최근 5개 + 달마다 1개, 다른 기기 백업 안 건드림, 목록 파일 없는 스냅샷 7일 뒤 정리, `diary.unrefSince` 30일, 다시 가리키면 지움, 모두 휴지통으로
 - [ ] T037 [P] [US1] `{test}/core/backup/BackupConcurrencyTest.kt`: 백업 중 일기 쓰기·고치기·지우기 → 다음 백업에 들어가고 이번 스냅샷은 한 시점. 이전·복원 중에는 백업이 시작되지 않음
 - [ ] T038 [P] [US1] `{test}/core/backup/LargeBackupTest.kt`: 일기 1만 편·사진 1만 장(가짜 바이트, 한 장 30MB 몇 개)이 메모리 상한 안에서 끝까지, 진행 숫자가 바이트 단위로 나아감(SC-005)
@@ -124,7 +124,7 @@ description: "스펙 003 백업 v2 작업 목록"
 ### Tests for User Story 2 ⚠️
 
 - [x] T049 [P] [US2] `shared/core/backup/{test}/core/backup/MergeRulesTest.kt`: `contracts/merge-rules.md` 드라이브 합치기 표 경우 1~7을 하나씩, 둘 다 남길 때 새 `id`와 사진 줄 새 `id`·같은 `sha256`, `sync_base` 쓰기
-- [ ] T050 [P] [US2] `{test}/core/backup/MergeTrashAndPhotosTest.kt`: 휴지통 일기 남은 날 그대로, 하루 미만이면 7일, 영구 삭제한 일기가 다시 생김(미리보기에 셈), 사진 줄 표(있음 → `normal`, 받을 것 → `pending`, 백업에 없음 → `pending` 유지, `missing` 그대로), 바뀌지 않은 일기의 `pending` 사진 채우기
+- [x] T050 [P] [US2] `{test}/core/backup/MergeTrashAndPhotosTest.kt`: 휴지통 일기 남은 날 그대로, 하루 미만이면 7일, 영구 삭제한 일기가 다시 생김(미리보기에 셈), 사진 줄 표(있음 → `normal`, 받을 것 → `pending`, 백업에 없음 → `pending` 유지, `missing` 그대로), 바뀌지 않은 일기의 `pending` 사진 채우기
 - [x] T051 [P] [US2] `{test}/core/backup/RestorePreviewTest.kt`: 미리보기 숫자가 실제 적용 결과와 같음, 설정 바뀜 표시, 기기 공간 부족이면 시작 안 함(FR-025)
 - [x] T052 [P] [US2] `{test}/core/backup/RestoreInterruptionTest.kt`: 받기·확인 중 끊김(기기 그대로, 처음부터), 합치기 트랜잭션 중 실패(아무것도 안 바뀜), 사진 받는 중 끊김(`pending`만 이어 받기), 깨진 사진 하나만 `missing`, 스냅샷 확인값 불일치면 쓰지 않음(FR-021)
 - [x] T053 [P] [US2] `{test}/core/backup/RestoreListTest.kt`: 끝까지 된 백업만, 기기별 묶음, 깨진 목록 파일·스냅샷 없음·스냅샷 깨짐·새 앱 필요의 이유, 다른 계정 백업 안 보임
@@ -137,7 +137,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T057 [US2] `{kt}/core/backup/RestorePlanner.kt`: 스냅샷 받기(`backup/incoming/`, 이어 받기) → SHA-256·일기 수 확인 → 쓰기 없이 합치기 규칙 돌려 `RestorePreview`
 - [x] T058 [US2] `{kt}/core/backup/MergeApplier.kt`: 한 트랜잭션으로 `contracts/merge-rules.md` 드라이브 합치기(휴지통, 사진 줄, `merge_mark`, `sync_base`), 설정 적용
 - [x] T059 [US2] `{kt}/core/backup/PhotoFetcher.kt`: `pending` 줄의 사진을 받아 `media/`에 쓰고 확인값이 맞으면 `normal`, 다르면 `missing`. `backup/restore.json`으로 잇기. 지금 백업과 같은 스케줄러(T043, T044)로 돈다
-- [ ] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6) (문의하기 줄만 남았다)
+- [x] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6)
 - [x] T061 [US2] 스펙 002 사진 칸·상세에서 `PENDING` 사진을 받는 중 표시와 "원래 기기에 있는 사진"으로, `MISSING`은 "찾을 수 없는 사진"으로 그린다. 스펙 002 사진 정리가 `pending`을 지우지 않는지 시험을 더한다
 - [x] T062 [US2] 둘 다 남긴 일기 표시: 스펙 002 목록·상세에 `merge_mark` 줄이 있으면 "두 가지로 남겼어요"와 닫기·짝 보기. 닫거나 하나를 지우면 줄을 지운다
 - [x] T063 [US2] 앱 시작 관문(스펙 001 `shared/app`)에 남은 복원 작업 잇기: `restore.json`이 `FetchingPhotos`면 사진 받기를 다시 건다

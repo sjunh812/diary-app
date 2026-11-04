@@ -183,4 +183,5 @@
     <string name="backup_space_note">못 올린 사진도 이 휴대폰에는 그대로 있어요.</string>
     <string name="backup_space_retry">다시 백업</string>
     <plurals name="backup_space_photos"><item quantity="other">일기 글은 모두 올렸어요. 사진 %1$s장을 마저 올리려면 드라이브에 %2$s가 더 필요해요.</item></plurals>
+    <string name="restore_contact">문의하기</string>
 </resources>

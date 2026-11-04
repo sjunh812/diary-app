@@ -183,4 +183,5 @@
     <string name="backup_space_note">保存できなかった写真もこのスマホにそのまま残っています。</string>
     <string name="backup_space_retry">もう一度バックアップ</string>
     <plurals name="backup_space_photos"><item quantity="other">日記の文章はすべて保存しました。残りの写真%1$s枚を保存するには、ドライブにあと%2$s必要です。</item></plurals>
+    <string name="restore_contact">お問い合わせ</string>
 </resources>

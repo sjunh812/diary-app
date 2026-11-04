@@ -120,6 +120,8 @@ Android 시스템 백업(클라우드 자동 백업, 기기 간 이전)에는 �
 
 ### BackupRun (`backup/state.json`)
 
+> 2026-11-05 구현에서는 상태 파일 없이 잇는다. 올린 사진은 내용 해시로 드라이브와 대어 다시 올리지 않고, 받을 사진은 `media.status = pending` 줄이 곧 남은 일이다. 아래 표는 처음 설계로 남겨 둔다.
+
 `version`(1), `runId`, `trigger`(`manual`·`auto`·`app_open`), `step`(`Preparing`·`Snapshotting`·`UploadingPhotos`·`UploadingSnapshot`·
 `UploadingManifest`·`Verifying`·`Pruning`·`Done`·`Failed`), `snapshotName`, `snapshotSha256`, `photosTotal`, `photosDone`, `photosSkippedForSpace`,
 `resumable`(올리던 파일 하나의 `sha256`, 세션 주소, 보낸 바이트), `startedAt`, `updatedAt`, `failure`(`step`, `kind`).

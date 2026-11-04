@@ -183,4 +183,5 @@
     <string name="backup_space_note">Photos that weren’t backed up are still on this phone.</string>
     <string name="backup_space_retry">Back up again</string>
     <plurals name="backup_space_photos"><item quantity="one">Your entries are backed up. You need %2$s more on Drive for the remaining photo.</item><item quantity="other">Your entries are backed up. You need %2$s more on Drive for the remaining %1$s photos.</item></plurals>
+    <string name="restore_contact">Contact us</string>
 </resources>
