@@ -33,6 +33,7 @@ kotlin {
             implementation(projects.shared.feature.migration)
             implementation(projects.shared.feature.settings)
             implementation(projects.shared.feature.write)
+            implementation(projects.shared.feature.home)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

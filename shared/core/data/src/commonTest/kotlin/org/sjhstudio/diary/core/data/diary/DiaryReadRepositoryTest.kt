@@ -1,8 +1,10 @@
 package org.sjhstudio.diary.core.data.diary
 
+import androidx.paging.PagingSource
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
@@ -14,6 +16,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import okio.fakefilesystem.FakeFileSystem
 import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
+import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.MediaStatus
@@ -36,6 +39,51 @@ class DiaryReadRepositoryTest {
     }
 
     private suspend fun ids(filter: SearchFilter) = entries.search(filter).first().map { it.id }
+
+    @Test
+    fun timeline_is_newest_first_and_skips_trash() = runTest {
+        db.seed(entry("old", date = "2026-09-01"), entry("new", date = "2026-10-02"), entry("gone", date = "2026-10-03", deletedAt = T0))
+
+        val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+
+        assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryEntity).id })
+    }
+
+    @Test
+    fun favorites_only_keeps_starred_entries() = runTest {
+        db.seed(entry("a", favorite = true), entry("b"))
+
+        val page = db.entryDao().favoriteEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+
+        assertEquals(listOf("a"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryEntity).id })
+    }
+
+    @Test
+    fun months_and_jump_position_follow_visible_entries() = runTest {
+        db.seed(
+            entry("a", date = "2026-10-20"),
+            entry("b", date = "2026-10-01"),
+            entry("c", date = "2026-09-15", favorite = true),
+            entry("gone", date = "2026-08-01", deletedAt = T0)
+        )
+
+        assertEquals(setOf(YearMonth(2026, 10), YearMonth(2026, 9)), entries.months().first())
+        assertEquals(0, entries.positionOf(YearMonth(2026, 10), favoritesOnly = false))
+        assertEquals(2, entries.positionOf(YearMonth(2026, 9), favoritesOnly = false))
+        assertEquals(0, entries.positionOf(YearMonth(2026, 9), favoritesOnly = true))
+    }
+
+    @Test
+    fun favorite_changes_updated_time() = runTest {
+        db.seed(entry("a"))
+        clock.advance(1.hours)
+
+        entries.setFavorite("a", true)
+
+        val saved = db.entryDao().get("a")!!.asModel()
+        assertTrue(saved.isFavorite)
+        assertEquals(T0 + 1.hours, saved.updatedAt)
+    }
 
     @Test
     fun day_lists_the_latest_entry_first() = runTest {

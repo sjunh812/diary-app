@@ -46,3 +46,18 @@ fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFon
         fontSize = size.fontSizeSp.sp,
         lineHeight = size.lineHeightSp.sp
     )
+
+/**
+ * 목록 미리보기. 고른 글꼴을 쓰고, 크기는 기본 단계에서 `body`가 되도록 같은 비율로 줄인다.
+ * 본문보다 한 단계 작아야 목록이 빽빽하지 않다.
+ */
+@Composable
+fun diaryPreviewTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily? = { null }): TextStyle {
+    val body = DiaryTheme.typography.body
+    val ratio = size.fontSizeSp.toFloat() / BodyTextSize.DEFAULT.fontSizeSp
+    return body.copy(
+        fontFamily = diaryBodyFontFamily(font, installed),
+        fontSize = body.fontSize * ratio,
+        lineHeight = body.lineHeight * ratio
+    )
+}

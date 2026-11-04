@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
  * 선 굵기는 1.75다(`docs/design.md` 아이콘과 그림). 아이콘 세트를 확정하면 이 파일을 바꾼다.
  */
 object DiaryIcons {
+    private const val STAR = "M 12 4 L 14.4 9 L 19.8 9.6 L 15.8 13.3 L 16.9 18.6 L 12 16 L 7.1 18.6 L 8.2 13.3 L 4.2 9.6 L 9.6 9 L 12 4 Z"
     private const val CIRCLE = "M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0"
 
     val ChevronLeft: ImageVector by lazy { lucide("chevron-left", "m15 18-6-6 6-6") }
@@ -338,6 +339,10 @@ object DiaryIcons {
             "M 9 18 L 9 18.01 M 12 20 L 12 20.01 M 15 18 L 15 18.01 M 12 17 L 12 17.01"
         )
     }
+
+    /** 즐겨찾기 빈 별과 찬 별(Figma 별 경로). */
+    val StarOutline: ImageVector by lazy { lucide("star-outline", STAR) }
+    val StarFilled: ImageVector by lazy { lucide("star-filled", STAR, filled = true) }
 
     private fun tab(name: String, stroke: Float, vararg paths: String): ImageVector = lucide(name, *paths, strokeWidth = stroke)
 

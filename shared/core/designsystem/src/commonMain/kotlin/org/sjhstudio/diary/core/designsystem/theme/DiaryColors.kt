@@ -53,6 +53,8 @@ data class DiaryColors(
     val scrim: Color,
     /** 사진 위 +N 뱃지 */
     val overlay: Color,
+    /** 사진 크게 보기 바탕. 두 테마 모두 검다 */
+    val photoBackdrop: Color = Color(0xFF000000),
     /** 기분 9색. 면과 점으로만 쓰고 글자색으로 쓰지 않는다. */
     val mood: DiaryMoodColors,
     /** 일기 본문 글자색(스펙 002 contracts/rich-text-html.md). */

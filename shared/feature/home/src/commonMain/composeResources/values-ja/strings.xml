@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_favorites_only">お気に入りのみ</string>
+    <string name="home_favorites_empty">お気に入りの日記はありません</string>
+    <string name="home_empty_title">まだ日記がありません</string>
+    <string name="home_empty_body">今日のことを一行だけでも大丈夫です</string>
+    <string name="home_empty_action">今日の日記を書く</string>
+    <string name="home_month_sheet_title">日付へ移動</string>
+    <string name="detail_back">戻る</string>
+    <string name="detail_favorite">お気に入り</string>
+    <string name="detail_edit">編集</string>
+    <string name="detail_more">その他</string>
+    <string name="detail_share">共有</string>
+    <string name="detail_trash">ゴミ箱に移動</string>
+    <string name="detail_photo_close">閉じる</string>
+    <string name="detail_photo_page">%1$d / %2$d</string>
+    <string name="detail_missing_photo">写真が見つかりません</string>
+</resources>

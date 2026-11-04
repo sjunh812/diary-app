@@ -32,8 +32,12 @@ internal fun EntryEntity.toRow(media: List<MediaEntity>, mediaDir: Path, query: 
     )
 }
 
+private val WHITESPACE = Regex("\\s+")
+
 /** 찾은 글자가 잘리지 않게 그 앞에서부터 보여 준다(FR-025). */
-internal fun preview(text: String, query: String): String {
+internal fun preview(source: String, query: String): String {
+    // 빈 줄이 미리보기 세 줄을 차지하지 않게 줄바꿈을 한 칸으로 줄인다.
+    val text = source.replace(WHITESPACE, " ").trim()
     val at = if (query.isEmpty()) -1 else text.indexOf(query, ignoreCase = true)
     if (at < PREVIEW_CHARS - query.length - PREVIEW_LEAD && at <= 60) return text.safeTake(PREVIEW_CHARS)
     return "…" + text.substring((at - PREVIEW_LEAD).coerceAtLeast(0)).safeTake(PREVIEW_CHARS)

@@ -8,4 +8,7 @@
     <string name="write_new">일기 쓰기</string>
     <string name="write_saved">저장했어요</string>
     <string name="write_draft_kept">임시 저장했어요</string>
+    <string name="detail_trashed">휴지통으로 옮겼어요</string>
+    <string name="detail_trashed_undo">되돌리기</string>
+    <string name="detail_pick_hint">일기를 고르면 여기에 보여요</string>
 </resources>

@@ -53,7 +53,8 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
         Image(
             painter = rememberVectorPainter(remember(face, size) { face.vector(size) }),
             contentDescription = contentDescription,
-            colorFilter = ColorFilter.tint(FACE_LINE)
+            // 나쁨만 바탕이 어두워 선을 희게 둔다.
+            colorFilter = ColorFilter.tint(if (mood == Mood.BAD) Color.White else FACE_LINE)
         )
     }
 }

@@ -30,19 +30,31 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.flow.emptyFlow
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
+import org.sjhstudio.diary.core.platform.FontInstallState
+import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
+import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
 
 // 앱 틀(스펙 001 T084, contracts/app-shell.md, docs/design.md 넓은 화면).
 // 폭 600dp 미만은 하단 탭, 이상은 레일이고, 글자 배율 2.0에서도 탭 칸끼리 겹치거나 글자가 칸 밖으로 나가지 않는다.
+private object NoFonts : FontInstaller {
+    override fun installedPath(id: String): String? = null
+
+    override fun install(id: String) = emptyFlow<FontInstallState>()
+}
+
 @OptIn(ExperimentalTestApi::class)
 class AppScaffoldUiTest {
     private val sink = RecordingSink()
@@ -54,6 +66,8 @@ class AppScaffoldUiTest {
                 module {
                     single { Telemetry(sink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
+                    single<EntryRepository> { FakeEntryRepository() }
+                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts) }
                 }
             )
         }

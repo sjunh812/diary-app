@@ -24,6 +24,17 @@ interface EntryDao {
     @Query(FAVORITE_ENTRIES)
     fun favoriteEntries(): PagingSource<Int, EntryEntity>
 
+    /** 일기가 있는 달(`yyyy-MM`). */
+    @Query("SELECT DISTINCT substr(date, 1, 7) FROM entry WHERE deleted_at IS NULL")
+    fun months(): Flow<List<String>>
+
+    /** [date]보다 나중 날짜의 일기 수. 그 달 첫 줄의 목록 위치가 된다. */
+    @Query(
+        "SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL AND date > :date " +
+            "AND (:favoritesOnly = 0 OR is_favorite = 1)"
+    )
+    suspend fun countAfter(date: String, favoritesOnly: Boolean): Int
+
     @Query("SELECT * FROM entry WHERE id = :id")
     suspend fun get(id: String): EntryEntity?
 

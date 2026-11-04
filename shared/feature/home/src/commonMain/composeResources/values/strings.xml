@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_favorites_only">Favorites only</string>
+    <string name="home_favorites_empty">No favorite entries</string>
+    <string name="home_empty_title">No entries yet</string>
+    <string name="home_empty_body">One line about today is enough</string>
+    <string name="home_empty_action">Write today</string>
+    <string name="home_month_sheet_title">Go to month</string>
+    <string name="detail_back">Back</string>
+    <string name="detail_favorite">Favorite</string>
+    <string name="detail_edit">Edit</string>
+    <string name="detail_more">More</string>
+    <string name="detail_share">Share</string>
+    <string name="detail_trash">Move to trash</string>
+    <string name="detail_photo_close">Close</string>
+    <string name="detail_photo_page">%1$d / %2$d</string>
+    <string name="detail_missing_photo">Photo not found</string>
+</resources>

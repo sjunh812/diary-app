@@ -1,0 +1,55 @@
+package org.sjhstudio.diary.feature.home
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.data.diary.EntryRepository
+import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.model.EntryDetail
+import org.sjhstudio.diary.core.platform.FontInstaller
+
+/** 사용자가 고른 본문 글꼴과 크기. 목록 미리보기와 상세가 같이 쓴다. */
+data class BodyLook(val font: DiaryFont = DiaryFont.DEFAULT, val size: BodyTextSize = BodyTextSize.DEFAULT, val fontPath: String? = null)
+
+/** 일기 상세. 휴지통으로 옮기면 [trashed]로 알리고 앱 틀이 되돌리기를 띄운다(FR-032). */
+class EntryDetailViewModel(
+    private val entryId: String,
+    private val entries: EntryRepository,
+    settings: SettingsRepository,
+    fonts: FontInstaller
+) : ViewModel() {
+    val detail: StateFlow<EntryDetail?> = entries.entry(entryId).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+
+    val look: StateFlow<BodyLook> =
+        settings.settings
+            .map { BodyLook(it.font, it.bodyTextSize, fonts.installedPath(it.font.id)) }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
+
+    private val _trashed = Channel<Unit>(Channel.BUFFERED)
+    val trashed: Flow<Unit> = _trashed.receiveAsFlow()
+
+    fun toggleFavorite() {
+        val entry = detail.value?.entry ?: return
+        viewModelScope.launch { entries.setFavorite(entryId, !entry.isFavorite) }
+    }
+
+    fun moveToTrash() {
+        viewModelScope.launch {
+            entries.moveToTrash(entryId)
+            _trashed.send(Unit)
+        }
+    }
+
+    private companion object {
+        const val STOP_MILLIS = 5_000L
+    }
+}

@@ -27,6 +27,12 @@ interface EntryRepository {
 
     fun entry(id: String): Flow<EntryDetail?>
 
+    /** 일기가 있는 달. */
+    fun months(): Flow<Set<YearMonth>>
+
+    /** 그 달 첫 일기의 목록 위치(최신순이라 그 달의 마지막 날 쪽). */
+    suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int
+
     fun day(date: LocalDate): Flow<List<EntryRow>>
 
     /** 달력 칸: 마지막 일기의 기분과 편수. */

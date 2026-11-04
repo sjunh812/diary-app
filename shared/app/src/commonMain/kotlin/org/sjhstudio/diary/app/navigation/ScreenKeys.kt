@@ -47,6 +47,18 @@ data object MigrationReportKey : Screen
 @Serializable
 data object LicensesKey : Screen
 
+/** 일기 상세. */
+@Serializable
+data class EntryDetailKey(val entryId: String) : Screen {
+    override fun toString(): String = "EntryDetailKey"
+}
+
+/** 사진 크게 보기. */
+@Serializable
+data class PhotoViewerKey(val entryId: String, val index: Int) : Screen {
+    override fun toString(): String = "PhotoViewerKey"
+}
+
 /** 쓰기. [date]는 `yyyy-MM-dd`로, 달력 빈 날에서 오면 있다. [entryId]가 있으면 고치기다. */
 @Serializable
 data class WriteKey(val date: String? = null, val entryId: String? = null) : Screen {

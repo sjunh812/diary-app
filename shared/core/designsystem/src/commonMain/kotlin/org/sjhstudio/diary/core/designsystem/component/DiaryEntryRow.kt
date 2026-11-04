@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -57,6 +58,7 @@ fun DiaryEntryRow(
     favorite: Boolean = false,
     dividerAbove: Boolean = true,
     photo: (@Composable () -> Unit)? = null,
+    previewStyle: TextStyle = DiaryTheme.typography.body,
     meta: @Composable RowScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
@@ -100,7 +102,7 @@ fun DiaryEntryRow(
                 if (preview.isNotEmpty()) {
                     BasicText(
                         preview,
-                        style = DiaryTheme.typography.body.copy(color = colors.textPrimary),
+                        style = previewStyle.copy(color = colors.textPrimary),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )

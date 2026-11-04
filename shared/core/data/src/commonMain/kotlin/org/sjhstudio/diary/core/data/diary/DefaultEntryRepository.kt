@@ -28,8 +28,8 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     private val entries get() = db.entryDao()
     private val media get() = db.mediaDao()
 
-    override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> =
-        Pager(PagingConfig(pageSize = PAGE, initialLoadSize = PAGE, prefetchDistance = PAGE / 2)) {
+    override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = // 자리 표시를 켜서 다른 달로 바로 건너뛸 수 있게 한다.
+        Pager(PagingConfig(pageSize = PAGE, initialLoadSize = PAGE, prefetchDistance = PAGE / 2, enablePlaceholders = true)) {
             if (favoritesOnly) entries.favoriteEntries() else entries.visibleEntries()
         }.flow.map { page -> page.map { it.toRow(media.forEntry(it.id), mediaDir) } }
 
@@ -41,6 +41,11 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
             )
         }
     }
+
+    override fun months(): Flow<Set<YearMonth>> = entries.months().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
+
+    override suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int =
+        entries.countAfter(month.onDay(month.numberOfDays).toString(), favoritesOnly)
 
     override fun day(date: LocalDate): Flow<List<EntryRow>> = entries.onDay(date.toString()).map { rows ->
         val photos = media.forRows(rows)

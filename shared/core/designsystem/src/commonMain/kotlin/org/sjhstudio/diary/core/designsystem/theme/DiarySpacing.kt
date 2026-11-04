@@ -86,6 +86,9 @@ object DiaryWriteSize {
     /** 본문 칸 최소 높이. */
     val editorMin: Dp = 240.dp
 
+    /** 두 칸의 왼쪽 목록 폭(M3 고정 판). */
+    val listPane: Dp = 360.dp
+
     /** 두 칸으로 나누는 폭. */
     val twoPaneMin: Dp = 840.dp
 }

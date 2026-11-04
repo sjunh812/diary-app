@@ -8,4 +8,7 @@
     <string name="write_new">New entry</string>
     <string name="write_saved">Saved</string>
     <string name="write_draft_kept">Saved as a draft</string>
+    <string name="detail_trashed">Moved to trash</string>
+    <string name="detail_trashed_undo">Undo</string>
+    <string name="detail_pick_hint">Pick an entry to read it here</string>
 </resources>

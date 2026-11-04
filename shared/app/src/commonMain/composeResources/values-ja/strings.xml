@@ -8,4 +8,7 @@
     <string name="write_new">日記を書く</string>
     <string name="write_saved">保存しました</string>
     <string name="write_draft_kept">下書きを保存しました</string>
+    <string name="detail_trashed">ゴミ箱に移動しました</string>
+    <string name="detail_trashed_undo">元に戻す</string>
+    <string name="detail_pick_hint">日記を選ぶとここに表示されます</string>
 </resources>

@@ -111,7 +111,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 - [x] T038 [US1] 키보드 위 서식 도구(굵게, 밑줄, 형광펜 3, 글자색 5, 글머리 목록, 사진, 기분, 날씨, 장소)를 `shared/feature/write/{kt}/feature/write/FormatToolbar.kt`에 만들고 지금 쓰는 줄이 키보드·도구에 가리지 않게 한다(FR-013) 2026-11-04: 라이트 hex와 테마 색을 편집기 앞뒤에서 바꾸는 `EditorColors`와 왕복 시험(`EditorRoundTripUiTest`, iOS 라이트·다크)
 - [x] T039 [US1] 기분·날씨 고르기 시트를 `shared/feature/write/{kt}/feature/write/MoodWeatherSheet.kt`에 만든다 2026-11-04: 기분 5칸, 날씨 4칸으로 줄마다 같은 칸을 쓴다
 - [x] T040 [US1] FileKit 여러 장 고르기(`maxItems = 남은 장수`)와 카메라를 쓰기 화면 루트에서 기억하는 런처로 `shared/feature/write/{kt}/feature/write/PhotoPicker.kt`에 붙인다(research R4) 2026-11-04: FileKit이 시스템 포토피커를 쓴다(API 35 확인). 포토피커가 없는 기기에 내려받게 하는 설정을 매니페스트에 더했다
-- [x] T041 [US1] "쓰던 일기가 있어요" [이어 쓰기]/[새로 쓰기], 뒤로 가면 "임시 저장했어요", [버리기] 확인, 저장 뒤 "저장했어요"와 상세 이동을 `shared/feature/write/{kt}/feature/write/WriteRoute.kt`에 만든다 2026-11-04: [버리기]는 Figma에 없어 "쓰던 일기" 시트에 글자 버튼으로 뒀다. 상세로 가는 것은 T048 뒤에 잇는다
+- [x] T041 [US1] "쓰던 일기가 있어요" [이어 쓰기]/[새로 쓰기], 뒤로 가면 "임시 저장했어요", [버리기] 확인, 저장 뒤 "저장했어요"와 상세 이동을 `shared/feature/write/{kt}/feature/write/WriteRoute.kt`에 만든다 2026-11-04: [버리기]는 Figma에 없어 "쓰던 일기" 시트에 글자 버튼으로 뒀다. 상세로 가는 것도 이었다
 - [x] T042 [US1] 넓은 화면(840dp 이상)에서 본문 가운데(최대 약 680dp) + 옆 칸 배치를 `WriteScreen.kt`에 더한다 2026-11-04: 태블릿 에뮬레이터 확인
 - [x] T043 [US1] 쓰기 화면 문구(해요체, 버튼·제목에 마침표 없음)를 `shared/feature/write/src/commonMain/composeResources/values/strings.xml`에 둔다 2026-11-04: 세 언어를 함께 채웠다
 
@@ -127,17 +127,17 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ### Tests for User Story 2
 
-- [ ] T044 [P] [US2] 타임라인 질의 시험: 휴지통 제외, 일기 날짜 최신순, 같은 날 묶음, 즐겨찾기만, 달 이동 위치 `shared/core/data/{test}/core/data/TimelineQueryTest.kt`
+- [x] T044 [P] [US2] 타임라인 질의 시험: 휴지통 제외, 일기 날짜 최신순, 같은 날 묶음, 즐겨찾기만, 달 이동 위치 `shared/core/data/{test}/core/data/TimelineQueryTest.kt` 2026-11-04: `DiaryReadRepositoryTest`에 넣었다
 
 ### Implementation for User Story 2
 
-- [ ] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(Paging 3, 스펙 001 research R4. 썸네일은 001 `ThumbnailRepository`)
-- [ ] T046 [P] [US2] `ListPreferencesRepository`(레거시 `skip_note`를 001이 이은 값)를 `shared/core/data/{kt}/core/data/ListPreferencesRepository.kt`에 만든다
-- [ ] T047 [US2] 홈 ViewModel과 화면(달 머리, 날짜 머리, 3줄 미리보기, 즐겨찾기만, 목록 모양, 연·월 고르기 시트, 빈 상태 "아직 쓴 일기가 없어요" [오늘 일기 쓰기]와 "즐겨찾기한 일기가 없어요")을 `shared/feature/home/{kt}/feature/home/HomeViewModel.kt`, `HomeScreen.kt`에 만든다
-- [ ] T048 [US2] 상세 화면(서식 본문, 사진, 고치기, 지우기, 즐겨찾기, 공유 = 서식 없는 글)을 `shared/feature/home/{kt}/feature/home/EntryDetailScreen.kt`에 만든다
-- [ ] T049 [P] [US2] 사진 크게 보기(넘기기, 확대, MISSING은 "찾을 수 없는 사진")를 `shared/feature/home/{kt}/feature/home/PhotoViewerScreen.kt`에 만든다
-- [ ] T050 [US2] 두 칸(840dp 이상)에서 고른 줄 강조, 고른 게 없을 때 안내, 폭이 줄면 상세가 한 칸으로 쌓이는 동작을 `shared/app/{kt}/app/ListDetailScene.kt`와 홈에 잇는다
-- [ ] T051 [P] [US2] 홈·상세 문구를 `shared/feature/home/src/commonMain/composeResources/values/strings.xml`에 둔다
+- [x] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(Paging 3, 스펙 001 research R4. 썸네일은 001 `ThumbnailRepository`) 2026-11-04: `DefaultEntryRepository`에 있다
+- [x] T046 [P] [US2] `ListPreferencesRepository`(레거시 `skip_note`를 001이 이은 값)를 `shared/core/data/{kt}/core/data/ListPreferencesRepository.kt`에 만든다 2026-11-04: 따로 저장소를 만들지 않고 `SettingsRepository`의 목록 설정으로 뒀다
+- [x] T047 [US2] 홈 ViewModel과 화면(달 머리, 날짜 머리, 3줄 미리보기, 즐겨찾기만, 목록 모양, 연·월 고르기 시트, 빈 상태 "아직 쓴 일기가 없어요" [오늘 일기 쓰기]와 "즐겨찾기한 일기가 없어요")을 `shared/feature/home/{kt}/feature/home/HomeViewModel.kt`, `HomeScreen.kt`에 만든다 2026-11-04: 피드만 먼저 만들었고 카드·사진 모양은 설정 > 목록 모양과 함께 남았다. 백업 줄은 스펙 003, 찾기 버튼은 US4에서 붙인다
+- [x] T048 [US2] 상세 화면(서식 본문, 사진, 고치기, 지우기, 즐겨찾기, 공유 = 서식 없는 글)을 `shared/feature/home/{kt}/feature/home/EntryDetailScreen.kt`에 만든다
+- [x] T049 [P] [US2] 사진 크게 보기(넘기기, 확대, MISSING은 "찾을 수 없는 사진")를 `shared/feature/home/{kt}/feature/home/PhotoViewerScreen.kt`에 만든다
+- [x] T050 [US2] 두 칸(840dp 이상)에서 고른 줄 강조, 고른 게 없을 때 안내, 폭이 줄면 상세가 한 칸으로 쌓이는 동작을 `shared/app/{kt}/app/ListDetailScene.kt`와 홈에 잇는다
+- [x] T051 [P] [US2] 홈·상세 문구를 `shared/feature/home/src/commonMain/composeResources/values/strings.xml`에 둔다
 
 **Checkpoint**: US1 + US2로 R1의 최소 일기 앱이 된다
 

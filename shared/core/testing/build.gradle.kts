@@ -13,6 +13,7 @@ kotlin {
             // 저장소 시험이 실제 SettingsStore·LockStore를 메모리 DataStore로 감싼다.
             api(projects.shared.core.datastore)
             api(libs.androidx.datastore.preferences.core)
+            implementation(libs.androidx.paging.common)
         }
     }
 }
