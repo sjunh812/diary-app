@@ -7,8 +7,8 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.cafe24_surround_regular
-import org.sjhstudio.diary.core.designsystem.resources.kkomi_regular
 import org.sjhstudio.diary.core.designsystem.resources.maru_buri_regular
+import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_pen_regular
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.pretendardFamily
@@ -17,7 +17,14 @@ import org.sjhstudio.diary.core.model.DiaryFont
 
 /** 앱에 넣은 본문 글꼴(3.5MB 이하, `docs/design.md` 일기 본문 글꼴 10종). 나머지는 고를 때 받는다. */
 val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
-    setOf(DiaryFont.PRETENDARD, DiaryFont.SYSTEM, DiaryFont.KKOMI, DiaryFont.NANUM_PEN, DiaryFont.CAFE24_SURROUND, DiaryFont.MARU_BURI)
+    setOf(
+        DiaryFont.PRETENDARD,
+        DiaryFont.SYSTEM,
+        DiaryFont.NANUM_CHEER,
+        DiaryFont.NANUM_PEN,
+        DiaryFont.CAFE24_SURROUND,
+        DiaryFont.MARU_BURI
+    )
 
 /**
  * 사용자가 고른 글꼴. 앱에 넣은 글꼴은 리소스에서 읽고, 받는 글꼴은 [installed]가 돌려주는 받은 파일로 만든다.
@@ -28,7 +35,7 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
 fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = when (font) {
     DiaryFont.SYSTEM -> FontFamily.Default
     DiaryFont.PRETENDARD -> pretendardFamily()
-    DiaryFont.KKOMI -> FontFamily(Font(Res.font.kkomi_regular))
+    DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
     DiaryFont.NANUM_PEN -> FontFamily(Font(Res.font.nanum_pen_regular))
     DiaryFont.CAFE24_SURROUND -> FontFamily(Font(Res.font.cafe24_surround_regular))
     DiaryFont.MARU_BURI -> FontFamily(Font(Res.font.maru_buri_regular))

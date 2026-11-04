@@ -23,7 +23,7 @@ import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
 private val sample =
     SettingsUiState(
-        settings = AppSettings(font = DiaryFont.KKOMI, bodyTextSize = BodyTextSize.LARGE, reminderEnabled = true),
+        settings = AppSettings(font = DiaryFont.NANUM_CHEER, bodyTextSize = BodyTextSize.LARGE, reminderEnabled = true),
         lock = LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", relockAfter = RelockAfter.ONE_MINUTE),
         showsMigrationReport = true
     )
@@ -44,7 +44,8 @@ private fun ListDark() = SettingsList(dark = true)
 
 @Composable
 private fun TextSize(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), font = DiaryFont.KKOMI, onSelect = {}, onBack = {})
+    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), font = DiaryFont.NANUM_CHEER, onSelect = {
+    }, onBack = {})
 }
 
 @Preview(name = "G2 본문 글자 크기 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
@@ -89,7 +90,7 @@ private fun ReminderNeedsPermission() = Reminder(dark = false, ReminderUiState(e
 @Composable
 private fun ReminderOff() = Reminder(dark = false, ReminderUiState(enabled = false))
 
-private val fontSample = FontUiState(settings = AppSettings(font = DiaryFont.KKOMI))
+private val fontSample = FontUiState(settings = AppSettings(font = DiaryFont.NANUM_CHEER))
 
 @Composable
 private fun Font(dark: Boolean, state: FontUiState) = DiaryTheme(darkTheme = dark) { FontSettingsScreen(state, onSelect = {}, onBack = {}) }

@@ -19,13 +19,13 @@ class DefaultSettingsRepositoryTest {
 
     @Test
     fun each_setter_changes_only_its_value() = runTest {
-        repository.setFont(DiaryFont.KKOMI)
+        repository.setFont(DiaryFont.NANUM_CHEER)
         repository.setBodyTextSize(BodyTextSize.LARGE)
         repository.setThemeMode(ThemeMode.DARK)
         repository.setReminder(enabled = true, minuteOfDay = 7 * 60)
 
         val settings = repository.settings.first()
-        assertEquals(DiaryFont.KKOMI, settings.font)
+        assertEquals(DiaryFont.NANUM_CHEER, settings.font)
         assertEquals(BodyTextSize.LARGE, settings.bodyTextSize)
         assertEquals(ThemeMode.DARK, settings.themeMode)
         assertEquals(true, settings.reminderEnabled)

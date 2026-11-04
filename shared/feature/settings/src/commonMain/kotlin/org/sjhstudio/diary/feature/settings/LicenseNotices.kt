@@ -3,15 +3,13 @@ package org.sjhstudio.diary.feature.settings
 import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
-import org.sjhstudio.diary.feature.settings.resources.license_kogl
 import org.sjhstudio.diary.feature.settings.resources.license_naver
 import org.sjhstudio.diary.feature.settings.resources.license_ofl
 
 /** 글꼴 라이선스 갈래. 줄 아래에 이름을 보인다. */
 internal enum class FontLicense(val label: StringResource) {
     OFL(Res.string.license_ofl),
-    NAVER(Res.string.license_naver),
-    KOGL(Res.string.license_kogl)
+    NAVER(Res.string.license_naver)
 }
 
 /**
@@ -30,7 +28,7 @@ internal val FONT_NOTICES: List<FontLicenseNotice> =
         FontLicenseNotice(DiaryFont.GOWUN_BATANG, FontLicense.OFL, "gowun_batang.txt"),
         FontLicenseNotice(DiaryFont.NANUM_PEN, FontLicense.OFL, "nanum_pen.txt"),
         FontLicenseNotice(DiaryFont.NANUM_JEOMGGOL, FontLicense.NAVER, "nanum_jeomggol.txt"),
-        FontLicenseNotice(DiaryFont.KKOMI, FontLicense.KOGL, "kkomi.txt"),
+        FontLicenseNotice(DiaryFont.NANUM_CHEER, FontLicense.NAVER, "nanum_cheer.txt"),
         FontLicenseNotice(DiaryFont.GAMJA_FLOWER, FontLicense.OFL, "gamja_flower.txt"),
         FontLicenseNotice(DiaryFont.HI_MELODY, FontLicense.OFL, "hi_melody.txt")
     )

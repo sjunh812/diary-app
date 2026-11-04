@@ -60,7 +60,7 @@ object LegacySettingsMapper {
 
     private fun font(key: Int): DiaryFont = when (key) {
         100 -> DiaryFont.SYSTEM
-        1, 5 -> DiaryFont.KKOMI
+        1, 5 -> DiaryFont.NANUM_CHEER
         2, 7, 11 -> DiaryFont.NANUM_PEN
         3 -> DiaryFont.NANUM_JEOMGGOL
         4, 10 -> DiaryFont.GAMJA_FLOWER
@@ -96,12 +96,13 @@ object LegacySettingsMapper {
     private const val FINGER_PRINT = "finger_print"
     private val EMAIL = Regex("""[^@\s]+@[^@\s]+\.[^@\s]+""")
 
-    /** 새 앱에도 같은 글꼴이 있어 바뀌었다고 알리지 않는 키(프리텐다드, 시스템, 국립공원 꼬미체, 점꼴체). */
-    private val SAME_FONT_KEYS = setOf(-1, 0, 1, 3, 100)
+    /** 새 앱에도 같은 글꼴이 있어 바뀌었다고 알리지 않는 키(프리텐다드, 시스템, 점꼴체). */
+    private val SAME_FONT_KEYS = setOf(-1, 0, 3, 100)
 
     /** 1.7.4 글꼴 고르기 화면의 이름(`activity_font.xml`). 바뀐 글꼴을 처음 열 때 한 번 알리는 데 쓴다. */
     private val LEGACY_FONT_NAMES =
         mapOf(
+            1 to "국립공원 꼬미체",
             2 to "교보손글씨체",
             4 to "넥슨배찌체",
             5 to "미니콩다방체",

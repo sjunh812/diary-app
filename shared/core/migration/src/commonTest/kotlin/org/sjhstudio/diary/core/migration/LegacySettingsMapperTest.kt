@@ -19,7 +19,7 @@ class LegacySettingsMapperTest {
         val expected =
             mapOf(
                 -1 to DiaryFont.PRETENDARD, 0 to DiaryFont.PRETENDARD, 100 to DiaryFont.SYSTEM,
-                1 to DiaryFont.KKOMI, 5 to DiaryFont.KKOMI,
+                1 to DiaryFont.NANUM_CHEER, 5 to DiaryFont.NANUM_CHEER,
                 2 to DiaryFont.NANUM_PEN, 7 to DiaryFont.NANUM_PEN, 11 to DiaryFont.NANUM_PEN,
                 3 to DiaryFont.NANUM_JEOMGGOL,
                 4 to DiaryFont.GAMJA_FLOWER, 10 to DiaryFont.GAMJA_FLOWER,
@@ -35,7 +35,8 @@ class LegacySettingsMapperTest {
     /** 같은 글꼴이 없으면 옛 이름을 남겨 처음 열 때 한 번 알린다. */
     @Test
     fun replaced_font_keeps_the_old_name() {
-        for (same in listOf(-1, 0, 1, 3, 100)) assertNull(map(mapOf("font_key" to same)).fontReplacedFrom, "font_key $same")
+        for (same in listOf(-1, 0, 3, 100)) assertNull(map(mapOf("font_key" to same)).fontReplacedFrom, "font_key $same")
+        assertEquals("국립공원 꼬미체", map(mapOf("font_key" to 1)).fontReplacedFrom)
         assertEquals("교보손글씨체", map(mapOf("font_key" to 2)).fontReplacedFrom)
         assertEquals("미니콩다방체", map(mapOf("font_key" to 5)).fontReplacedFrom)
         assertEquals("ACC 어린이 마음고운체", map(mapOf("font_key" to 13)).fontReplacedFrom)

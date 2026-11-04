@@ -30,7 +30,6 @@
     <string name="licenses_group_libraries">라이브러리</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_naver">네이버 글꼴 라이선스</string>
-    <string name="license_kogl">공공누리 제1유형</string>
     <string name="settings_text_size">본문 글자 크기</string>
     <string name="settings_theme">화면 모드</string>
     <string name="settings_lock">잠금</string>
@@ -63,7 +62,7 @@
     <string name="font_name_gowun_batang">고운바탕</string>
     <string name="font_name_nanum_pen">나눔손글씨 펜</string>
     <string name="font_name_nanum_jeomggol">나눔손글씨 점꼴체</string>
-    <string name="font_name_kkomi">국립공원 꼬미</string>
+    <string name="font_name_nanum_cheer">힘내라는 말보단</string>
     <string name="font_name_gamja_flower">감자꽃</string>
     <string name="font_name_hi_melody">하이멜로디</string>
     <string name="font_preview_label">미리보기</string>

@@ -22,6 +22,6 @@ class FontReplacedNoticeViewModelTest {
 
     @Test
     fun nothing_to_tell_when_the_font_was_kept() = runTest {
-        assertNull(FontReplacedNoticeViewModel(FakeSettingsRepository(AppSettings(font = DiaryFont.KKOMI))).take())
+        assertNull(FontReplacedNoticeViewModel(FakeSettingsRepository(AppSettings(font = DiaryFont.NANUM_CHEER))).take())
     }
 }

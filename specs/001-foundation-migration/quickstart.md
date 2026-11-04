@@ -54,7 +54,7 @@ ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 COUNT=1000 sh scripts/legacy/u
 | `low-space`(남은 공간 부족) | 시작하지 않고 필요한 양을 알린다, 원본 그대로 |
 | `corrupt`(깨진 페이지) | `Partial`과 못 읽은 수, 원본 그대로 |
 | `locked`(잠금·지문 켬, 알림 22:00) | 잠금 화면이 먼저, 옛 비밀번호로 열림, 다음 22:00 알림 |
-| `fonts`(font_key 5, font_size 3, mode_key 2) | 꼬미, `large`, 다크, 글꼴 바뀜 안내 한 번 |
+| `fonts`(font_key 5, font_size 3, mode_key 2) | 힘내라는 말보단, `large`, 다크, 글꼴 바뀜 안내 한 번 |
 
 ## 3. 끊겼다 다시 (FR-007)
 

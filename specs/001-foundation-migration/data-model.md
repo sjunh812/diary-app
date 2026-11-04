@@ -91,7 +91,7 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | `gowun_batang` | 고운바탕 | 8 |
 | `nanum_pen` | 나눔손글씨 펜 | 2, 7, 11 |
 | `nanum_jeomggol` | 나눔손글씨 점꼴체 | 3 |
-| `kkomi` | 국립공원 꼬미 | 1, 5 |
+| `nanum_cheer` | 나눔손글씨 힘내라는 말보단 | 1, 5 |
 | `gamja_flower` | 감자꽃 | 4, 10 |
 | `hi_melody` | 하이멜로디 | 6, 13 |
 

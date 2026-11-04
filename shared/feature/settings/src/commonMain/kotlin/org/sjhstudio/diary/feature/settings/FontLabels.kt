@@ -17,8 +17,8 @@ import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_dodum_lati
 import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody
 import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody_latin
-import org.sjhstudio.diary.feature.settings.resources.font_name_kkomi
 import org.sjhstudio.diary.feature.settings.resources.font_name_maru_buri
+import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_cheer
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_latin
@@ -48,7 +48,7 @@ internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.GOWUN_BATANG -> Res.string.font_name_gowun_batang
     DiaryFont.NANUM_PEN -> Res.string.font_name_nanum_pen
     DiaryFont.NANUM_JEOMGGOL -> Res.string.font_name_nanum_jeomggol
-    DiaryFont.KKOMI -> Res.string.font_name_kkomi
+    DiaryFont.NANUM_CHEER -> Res.string.font_name_nanum_cheer
     DiaryFont.GAMJA_FLOWER -> Res.string.font_name_gamja_flower
     DiaryFont.HI_MELODY -> Res.string.font_name_hi_melody
 }

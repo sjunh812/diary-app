@@ -41,7 +41,7 @@ class LegacySettingsBootstrapTest {
 
             assertTrue(dir.bootstrap())
             val settings = store.settings.first()
-            assertEquals(DiaryFont.KKOMI, settings.font)
+            assertEquals(DiaryFont.NANUM_CHEER, settings.font)
             assertEquals("미니콩다방체", settings.fontReplacedFrom)
             assertEquals(ThemeMode.DARK, settings.themeMode)
             assertEquals(7 * 60 + 5, settings.reminderMinuteOfDay)

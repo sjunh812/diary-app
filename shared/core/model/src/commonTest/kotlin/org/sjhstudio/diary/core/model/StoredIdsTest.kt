@@ -45,7 +45,7 @@ class StoredIdsTest {
                 "gowun_batang",
                 "nanum_pen",
                 "nanum_jeomggol",
-                "kkomi",
+                "nanum_cheer",
                 "gamja_flower",
                 "hi_melody"
             ),

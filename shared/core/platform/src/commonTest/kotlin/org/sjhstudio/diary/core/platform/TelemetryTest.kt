@@ -28,7 +28,7 @@ class TelemetryTest {
         val telemetry = Telemetry(sink, strict = true)
 
         telemetry.log(AnalyticsEvents.SCREEN_VIEW, mapOf("screen" to "SettingsKey"))
-        telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "font", "value" to "kkomi"))
+        telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "font", "value" to "nanum_cheer"))
         telemetry.log(AnalyticsEvents.MIGRATION_FINISHED, mapOf("outcome" to "partial", "unreadable_bucket" to "1-9"))
 
         assertEquals(3, sink.events.size)
@@ -43,7 +43,7 @@ class TelemetryTest {
         assertFailsWith<IllegalArgumentException> { telemetry.log(AnalyticsEvents.LOCK_RESULT, mapOf("result" to "1234")) }
         // 다른 설정의 값을 섞어 보내도 막는다.
         assertFailsWith<IllegalArgumentException> {
-            telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "theme", "value" to "kkomi"))
+            telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "theme", "value" to "nanum_cheer"))
         }
     }
 

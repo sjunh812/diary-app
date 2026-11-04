@@ -30,7 +30,6 @@
     <string name="licenses_group_libraries">ライブラリ</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_naver">NAVERフォントライセンス</string>
-    <string name="license_kogl">KOGL 第1類型</string>
     <string name="settings_text_size">本文の文字サイズ</string>
     <string name="settings_theme">表示モード</string>
     <string name="settings_lock">ロック</string>
@@ -63,7 +62,7 @@
     <string name="font_name_gowun_batang">Gowun Batang</string>
     <string name="font_name_nanum_pen">Nanum Pen</string>
     <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
-    <string name="font_name_kkomi">Kkomi</string>
+    <string name="font_name_nanum_cheer">Nanum Himnaeraneun</string>
     <string name="font_name_gamja_flower">Gamja Flower</string>
     <string name="font_name_hi_melody">Hi Melody</string>
     <string name="font_preview_label">プレビュー</string>

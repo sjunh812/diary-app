@@ -35,7 +35,7 @@ class ChosenFontDownloadTest {
     @Test
     fun skips_bundled_and_installed_fonts() = runTest {
         val installer = RecordingInstaller(installed = setOf("hi_melody"))
-        ChosenFontDownload(FakeSettingsRepository(AppSettings(font = DiaryFont.KKOMI)), installer, backgroundScope).start()
+        ChosenFontDownload(FakeSettingsRepository(AppSettings(font = DiaryFont.NANUM_CHEER)), installer, backgroundScope).start()
         ChosenFontDownload(FakeSettingsRepository(AppSettings(font = DiaryFont.HI_MELODY)), installer, backgroundScope).start()
         testScheduler.runCurrent()
         assertEquals(emptyList(), installer.requested)

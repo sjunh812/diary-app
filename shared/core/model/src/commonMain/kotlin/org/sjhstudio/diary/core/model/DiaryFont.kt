@@ -14,7 +14,7 @@ enum class DiaryFont(val id: String) {
     GOWUN_BATANG("gowun_batang"),
     NANUM_PEN("nanum_pen"),
     NANUM_JEOMGGOL("nanum_jeomggol"),
-    KKOMI("kkomi"),
+    NANUM_CHEER("nanum_cheer"),
     GAMJA_FLOWER("gamja_flower"),
     HI_MELODY("hi_melody")
     ;
