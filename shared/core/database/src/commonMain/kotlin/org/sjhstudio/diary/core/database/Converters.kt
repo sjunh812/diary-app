@@ -61,7 +61,7 @@ fun Entry.asEntity(): EntryEntity = EntryEntity(
 )
 
 fun DraftEntity.asModel(media: List<DraftMediaEntity>): Draft = Draft(
-    key = if (key == DraftKey.New.value) DraftKey.New else DraftKey.Edit(key),
+    key = if (key.startsWith(DraftKey.New.PREFIX)) DraftKey.New(key) else DraftKey.Edit(key),
     date = LocalDate.parse(date),
     time = LocalTime.parse(time, TIME_FORMAT),
     bodyHtml = bodyHtml,

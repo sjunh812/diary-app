@@ -4,12 +4,19 @@ import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
-/** 임시 저장본 열쇠. 새 일기는 하나, 고치는 일기는 일기마다 하나다(FR-009). */
+/**
+ * 임시 저장본 열쇠. 고치는 일기는 일기마다 하나다(FR-009).
+ * 새 일기는 보통 하나지만, 쓰던 글을 두고 [새로 쓰기]를 고르면 버리기 전까지 함께 남아야 해서 여럿일 수 있다(FR-010).
+ */
 sealed interface DraftKey {
     val value: String
 
-    data object New : DraftKey {
-        override val value: String = "new"
+    data class New(override val value: String = PREFIX) : DraftKey {
+        override fun toString(): String = "New"
+
+        companion object {
+            const val PREFIX = "new"
+        }
     }
 
     data class Edit(val entryId: String) : DraftKey {

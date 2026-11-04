@@ -24,12 +24,12 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
-import org.sjhstudio.diary.core.designsystem.theme.DiaryColors
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.migration.LegacyEntryView
-import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
+import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.migration.resources.Res
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_empty
@@ -88,27 +88,23 @@ fun LegacyReaderScreen(
                     DiaryEntryRow(
                         weekday = if (newDay) dates.weekdayShort(entry.date) else null,
                         day = if (newDay) entry.date.day.toString() else null,
-                        meta = listOfNotNull(dates.time(entry.time), entry.placeName),
                         preview = entry.text,
-                        moodColor = entry.mood?.let { colors.moodColor(it) },
                         favorite = entry.favorite,
                         dividerAbove = index > 0 && !newMonth,
-                        photo = if (entry.photos.isEmpty()) null else ({ DiaryPhotoCell(entry.photos) })
+                        photo = if (entry.photos.isEmpty()) null else ({ DiaryPhotoCell(entry.photos) }),
+                        meta = {
+                            entry.mood?.let { MoodFace(it, DiaryEntryFaceSize) }
+                            for (item in listOfNotNull(dates.time(entry.time), entry.placeName)) {
+                                BasicText(
+                                    item,
+                                    style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary),
+                                    maxLines = 1
+                                )
+                            }
+                        }
                     )
                 }
             }
         }
     }
-}
-
-private fun DiaryColors.moodColor(mood: Mood): Color = when (mood) {
-    Mood.ANGRY -> this.mood.angry
-    Mood.COOL -> this.mood.cool
-    Mood.SAD -> this.mood.sad
-    Mood.SICK -> this.mood.sick
-    Mood.LAUGH -> this.mood.laugh
-    Mood.MEH -> this.mood.meh
-    Mood.BAD -> this.mood.bad
-    Mood.GOOD -> this.mood.good
-    Mood.TIRED -> this.mood.tired
 }

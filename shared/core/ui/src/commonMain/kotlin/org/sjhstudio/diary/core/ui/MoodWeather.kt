@@ -104,7 +104,7 @@ private fun Mood.face(): DiaryMoodFace = when (this) {
     Mood.TIRED -> DiaryMoodFace.Tired
 }
 
-private fun Weather.icon(): ImageVector = when (this) {
+fun Weather.icon(): ImageVector = when (this) {
     Weather.SUNNY -> DiaryIcons.WeatherSunny
     Weather.PARTLY_CLOUDY -> DiaryIcons.WeatherPartlyCloudy
     Weather.MOSTLY_CLOUDY -> DiaryIcons.WeatherMostlyCloudy

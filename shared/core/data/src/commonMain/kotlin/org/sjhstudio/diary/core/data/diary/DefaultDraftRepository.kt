@@ -39,6 +39,8 @@ class DefaultDraftRepository(
     override fun draft(key: DraftKey): Flow<Draft?> =
         combine(drafts.observe(key.value), drafts.observeMedia(key.value)) { draft, rows -> draft?.asModel(rows) }
 
+    override suspend fun latestNew(): Draft? = drafts.latestNew()?.let { it.asModel(drafts.media(it.key)) }
+
     override suspend fun openEdit(entryId: String): Draft? {
         val existing = drafts.get(entryId)
         if (existing != null) return existing.asModel(drafts.media(entryId))

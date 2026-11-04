@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -45,21 +45,19 @@ val DiaryPhotoCellSize = 64.dp
  *
  * @param weekday 요일 한 글자. 같은 날 두 번째 줄부터 null.
  * @param day 날짜 숫자. 같은 날 두 번째 줄부터 null.
- * @param moodColor 기분 색 점(기분 얼굴 그림을 그리기 전까지). 없으면 null.
- * @param meta 시각, 장소 같은 덧붙임. 앞에서부터 차례로 보인다.
+ * @param meta 기분 얼굴, 시각, 날씨, 장소 같은 덧붙임. 사이 6으로 한 줄에 놓인다.
  * @param dividerAbove 위에 구분선을 그을지. 달 머리 바로 뒤와 첫 줄은 false.
  */
 @Composable
 fun DiaryEntryRow(
     weekday: String?,
     day: String?,
-    meta: List<String>,
     preview: String,
     modifier: Modifier = Modifier,
-    moodColor: Color? = null,
     favorite: Boolean = false,
     dividerAbove: Boolean = true,
-    photo: (@Composable () -> Unit)? = null
+    photo: (@Composable () -> Unit)? = null,
+    meta: @Composable RowScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxWidth()) {
@@ -89,10 +87,7 @@ fun DiaryEntryRow(
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
-                    if (moodColor != null) Box(Modifier.size(18.dp).clip(DiaryShapes.full).background(moodColor))
-                    for (item in meta) {
-                        BasicText(item, style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary), maxLines = 1)
-                    }
+                    meta()
                     if (favorite) {
                         DiaryIcon(
                             org.sjhstudio.diary.core.designsystem.icon.DiaryIcons.Star,

@@ -32,6 +32,9 @@ object DiarySpacing {
 
     /** 터치 영역 최소 크기(M3 48, HIG 44). 보이는 크기가 작으면 누르는 영역을 이만큼 넓힌다. */
     val minTouchTarget: Dp = 48.dp
+
+    /** 구분선 두께. */
+    val hairline: Dp = 1.dp
 }
 
 /** 아이콘 크기 네 단계(`docs/design.md` 아이콘과 그림, 2026-11-01 점검). */
@@ -47,4 +50,42 @@ object DiaryIconSize {
 
     /** 결과 배지, 빈 상태, 생체 인증. */
     val i32: Dp = 32.dp
+}
+
+/** 쓰기 화면 크기(Figma "쓰기 (S2)"). */
+object DiaryWriteSize {
+    /** 위 줄 사진 칸과 더하기 칸. */
+    val photo: Dp = 72.dp
+
+    /** 기분 칸(얼굴 44 + 이름). */
+    val moodCellWidth: Dp = 60.dp
+    val moodCellHeight: Dp = 84.dp
+    val moodFace: Dp = 44.dp
+
+    /** 날씨 칸. */
+    val weatherCellHeight: Dp = 60.dp
+
+    /** 서식 도구 줄. */
+    val toolbar: Dp = 52.dp
+
+    /** 글자색 점과 형광펜 칸. */
+    val swatch: Dp = 28.dp
+
+    /** 사진 지우기 표시. */
+    val removeBadge: Dp = 20.dp
+
+    /** 넓은 화면 옆 칸. */
+    val sidePanel: Dp = 360.dp
+
+    /** 넓은 화면 본문 폭. */
+    val bodyMax: Dp = 680.dp
+
+    /** 달력 고르기 칸. */
+    val dayCell: Dp = 40.dp
+
+    /** 본문 칸 최소 높이. */
+    val editorMin: Dp = 240.dp
+
+    /** 두 칸으로 나누는 폭. */
+    val twoPaneMin: Dp = 840.dp
 }

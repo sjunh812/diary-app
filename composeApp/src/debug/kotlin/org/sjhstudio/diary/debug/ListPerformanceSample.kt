@@ -113,10 +113,10 @@ private fun SampleList(sample: Sample) {
             DiaryEntryRow(
                 weekday = row.weekday,
                 day = row.day,
-                meta = emptyList(),
                 preview = row.preview,
                 dividerAbove = index > 0,
-                photo = if (row.photos.isEmpty()) null else ({ DiaryPhotoCell(row.photos) })
+                photo = if (row.photos.isEmpty()) null else ({ DiaryPhotoCell(row.photos) }),
+                meta = {}
             )
         }
     }

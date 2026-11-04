@@ -130,12 +130,10 @@ private fun PhotoCellSample() {
             DiaryEntryRow(
                 weekday = null,
                 day = (index + 1).toString(),
-                meta = emptyList(),
                 preview = cell.size.toString(),
-                moodColor = null,
-                favorite = false,
                 dividerAbove = index > 0,
-                photo = { DiaryPhotoCell(cell) }
+                photo = { DiaryPhotoCell(cell) },
+                meta = {}
             )
         }
     }

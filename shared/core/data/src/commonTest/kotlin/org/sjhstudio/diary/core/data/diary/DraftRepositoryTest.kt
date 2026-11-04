@@ -45,27 +45,27 @@ class DraftRepositoryTest {
 
         val reopened = DefaultDraftRepository(db, photoStore(files), clock)
 
-        assertEquals("<p>쓰던 글</p>", reopened.draft(DraftKey.New).first()?.bodyHtml)
+        assertEquals("<p>쓰던 글</p>", reopened.draft(DraftKey.New()).first()?.bodyHtml)
     }
 
     @Test
     fun commit_writes_entry_and_photos_and_removes_the_draft() = runTest {
         repository.save(newDraft("<p><strong>굵게</strong> 글</p>"))
-        repository.addPhotos(DraftKey.New, listOf(image("a"), image("b")))
+        repository.addPhotos(DraftKey.New(), listOf(image("a"), image("b")))
 
-        val id = repository.commit(DraftKey.New)
+        val id = repository.commit(DraftKey.New())
 
         val entry = assertNotNull(db.entryDao().get(id))
         assertEquals("<p><b>굵게</b> 글</p>", entry.bodyHtml)
         assertEquals("굵게 글", entry.plainText)
         assertEquals(listOf(0, 1), db.mediaDao().forEntry(id).map { it.sortOrder })
-        assertNull(repository.draft(DraftKey.New).first())
+        assertNull(repository.draft(DraftKey.New()).first())
     }
 
     @Test
     fun failed_commit_keeps_the_draft_and_writes_nothing() = runTest {
         repository.save(newDraft())
-        val draft = assertNotNull(db.draftDao().get(DraftKey.New.value))
+        val draft = assertNotNull(db.draftDao().get(DraftKey.New().value))
         val row = entry("e1").asEntity()
         // 같은 순서 번호 두 줄로 사진 쓰기를 실패시킨다.
         val photos = listOf(photo("p1", "e1", 0).asEntity(), photo("p2", "e1", 0).asEntity())
@@ -73,12 +73,12 @@ class DraftRepositoryTest {
         assertFailsWith<SQLiteException> { db.draftDao().commit(draft.key, row, photos, db.entryDao(), db.mediaDao()) }
 
         assertNull(db.entryDao().get("e1"))
-        assertEquals(draft, db.draftDao().get(DraftKey.New.value))
+        assertEquals(draft, db.draftDao().get(DraftKey.New().value))
     }
 
     @Test
     fun commit_without_a_draft_fails_and_writes_nothing() = runTest {
-        assertFailsWith<IllegalArgumentException> { repository.commit(DraftKey.New) }
+        assertFailsWith<IllegalArgumentException> { repository.commit(DraftKey.New()) }
         assertEquals(0, db.entryDao().countAll())
     }
 
@@ -126,8 +126,31 @@ class DraftRepositoryTest {
         repository.save(newDraft("<p>새 글</p>"))
         repository.openEdit("e1")
 
-        assertEquals("<p>새 글</p>", repository.draft(DraftKey.New).first()?.bodyHtml)
+        assertEquals("<p>새 글</p>", repository.draft(DraftKey.New()).first()?.bodyHtml)
         assertEquals("<p>글 e1</p>", repository.draft(DraftKey.Edit("e1")).first()?.bodyHtml)
+    }
+
+    @Test
+    fun a_second_new_draft_keeps_the_first_until_it_is_discarded() = runTest {
+        repository.save(newDraft("<p>쓰던 글</p>"))
+        clock.advance(1.hours)
+        val second = DraftKey.New("new-2")
+        repository.save(newDraft("<p>새 글</p>").copy(key = second, updatedAt = clock.now()))
+
+        assertEquals(second, repository.latestNew()?.key)
+        repository.commit(second)
+
+        assertEquals("<p>쓰던 글</p>", repository.latestNew()?.bodyHtml)
+    }
+
+    @Test
+    fun saving_twice_keeps_the_photos() = runTest {
+        repository.save(newDraft())
+        repository.addPhotos(DraftKey.New(), listOf(image("a")))
+
+        repository.save(newDraft("<p>더 씀</p>"))
+
+        assertEquals(1, repository.draft(DraftKey.New()).first()?.photos?.size)
     }
 
     @Test
@@ -142,22 +165,22 @@ class DraftRepositoryTest {
         limit = 2
         repository.save(newDraft())
 
-        val result = repository.addPhotos(DraftKey.New, listOf(image("a"), image("b"), image("c")))
+        val result = repository.addPhotos(DraftKey.New(), listOf(image("a"), image("b"), image("c")))
 
         assertEquals(AddPhotosResult.LimitReached(2, canUpgrade = true, added = 2), result)
-        assertEquals(2, repository.draft(DraftKey.New).first()?.photos?.size)
-        assertTrue(assertNotNull(repository.draft(DraftKey.New).first()).canSave())
+        assertEquals(2, repository.draft(DraftKey.New()).first()?.photos?.size)
+        assertTrue(assertNotNull(repository.draft(DraftKey.New()).first()).canSave())
     }
 
     @Test
     fun plus_limit_is_not_offered_an_upgrade() = runTest {
         limit = PhotoLimit.PLUS
         repository.save(newDraft())
-        repeat(PhotoLimit.PLUS) { repository.addPhotos(DraftKey.New, listOf(image("p$it"))) }
+        repeat(PhotoLimit.PLUS) { repository.addPhotos(DraftKey.New(), listOf(image("p$it"))) }
 
         assertEquals(
             AddPhotosResult.LimitReached(PhotoLimit.PLUS, canUpgrade = false, added = 0),
-            repository.addPhotos(DraftKey.New, listOf(image("more")))
+            repository.addPhotos(DraftKey.New(), listOf(image("more")))
         )
     }
 
@@ -178,18 +201,18 @@ class DraftRepositoryTest {
     fun same_photo_twice_is_one_file_and_two_rows() = runTest {
         repository.save(newDraft())
 
-        repository.addPhotos(DraftKey.New, listOf(image("a"), image("a")))
+        repository.addPhotos(DraftKey.New(), listOf(image("a"), image("a")))
 
         val jpgs = files.list(MEDIA_DIR).filter { it.name.endsWith(".jpg") }
         assertEquals(1, jpgs.size)
-        assertEquals(2, repository.draft(DraftKey.New).first()?.photos?.size)
+        assertEquals(2, repository.draft(DraftKey.New()).first()?.photos?.size)
     }
 
     @Test
     fun an_unreadable_image_is_counted_and_leaves_no_files() = runTest {
         repository.save(newDraft())
 
-        val result = repository.addPhotos(DraftKey.New, listOf(PickedImage { ByteArray(0) }, image("a")))
+        val result = repository.addPhotos(DraftKey.New(), listOf(PickedImage { ByteArray(0) }, image("a")))
 
         assertEquals(AddPhotosResult.Added(1, failed = 1), result)
         assertEquals(1, files.list(MEDIA_DIR).size)
@@ -200,30 +223,30 @@ class DraftRepositoryTest {
         repository.save(newDraft())
         val full = PickedImage { throw okio.IOException("no space") }
 
-        assertEquals(AddPhotosResult.NoSpace(1), repository.addPhotos(DraftKey.New, listOf(image("a"), full, image("b"))))
-        assertEquals(1, repository.draft(DraftKey.New).first()?.photos?.size)
+        assertEquals(AddPhotosResult.NoSpace(1), repository.addPhotos(DraftKey.New(), listOf(image("a"), full, image("b"))))
+        assertEquals(1, repository.draft(DraftKey.New()).first()?.photos?.size)
     }
 
     @Test
     fun photos_can_be_reordered_and_removed() = runTest {
         repository.save(newDraft())
-        repository.addPhotos(DraftKey.New, listOf(image("a"), image("b"), image("c")))
-        val before = assertNotNull(repository.draft(DraftKey.New).first()).photos
+        repository.addPhotos(DraftKey.New(), listOf(image("a"), image("b"), image("c")))
+        val before = assertNotNull(repository.draft(DraftKey.New()).first()).photos
 
-        repository.reorderPhotos(DraftKey.New, listOf(2, 0, 1))
-        repository.removePhoto(DraftKey.New, 1)
+        repository.reorderPhotos(DraftKey.New(), listOf(2, 0, 1))
+        repository.removePhoto(DraftKey.New(), 1)
 
-        assertEquals(listOf(before[2], before[1]), repository.draft(DraftKey.New).first()?.photos)
+        assertEquals(listOf(before[2], before[1]), repository.draft(DraftKey.New()).first()?.photos)
     }
 
     @Test
     fun discard_removes_only_that_draft() = runTest {
         repository.save(newDraft())
-        repository.addPhotos(DraftKey.New, listOf(image("a")))
+        repository.addPhotos(DraftKey.New(), listOf(image("a")))
 
-        repository.discard(DraftKey.New)
+        repository.discard(DraftKey.New())
 
-        assertNull(repository.draft(DraftKey.New).first())
+        assertNull(repository.draft(DraftKey.New()).first())
         assertEquals(0, db.entryDao().countAll())
     }
 

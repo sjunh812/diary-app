@@ -72,7 +72,7 @@ internal suspend fun DiaryDatabase.seed(vararg entries: Entry) = entryDao().inse
 internal suspend fun DiaryDatabase.seedPhotos(vararg media: Media) = mediaDao().insertAll(media.map { it.asEntity() })
 
 internal fun newDraft(body: String = "<p>오늘</p>", mood: Mood? = null) = Draft(
-    key = DraftKey.New,
+    key = DraftKey.New(),
     date = LocalDate(2026, 11, 1),
     time = LocalTime(21, 0),
     bodyHtml = body,

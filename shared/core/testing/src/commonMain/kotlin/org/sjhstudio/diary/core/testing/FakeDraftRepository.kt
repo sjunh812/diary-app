@@ -1,0 +1,79 @@
+package org.sjhstudio.diary.core.testing
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
+import org.sjhstudio.diary.core.data.diary.DraftRepository
+import org.sjhstudio.diary.core.model.AddPhotosResult
+import org.sjhstudio.diary.core.model.Draft
+import org.sjhstudio.diary.core.model.DraftKey
+import org.sjhstudio.diary.core.model.DraftPhoto
+import org.sjhstudio.diary.core.model.PickedImage
+
+/** 쓰기 화면 시험용 임시 저장소. 메모리에만 둔다. */
+class FakeDraftRepository(
+    initial: List<Draft> = emptyList(),
+    /** 고치기로 열면 돌려줄 임시 저장본. */
+    private val editable: Map<String, Draft> = emptyMap()
+) : DraftRepository {
+    private val drafts = MutableStateFlow(initial.associateBy { it.key })
+
+    /** [commit]이 실패하는 상황을 만든다. */
+    var failCommit = false
+
+    /** 다음 [addPhotos]가 돌려줄 값. 없으면 받은 수만큼 더한다. */
+    var nextAddResult: AddPhotosResult? = null
+
+    val saved: List<Draft> get() = drafts.value.values.toList()
+    val committed = mutableListOf<DraftKey>()
+    val discarded = mutableListOf<DraftKey>()
+
+    override fun draft(key: DraftKey): Flow<Draft?> = drafts.map { it[key] }
+
+    override suspend fun latestNew(): Draft? = drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
+
+    override suspend fun openEdit(entryId: String): Draft? {
+        val key = DraftKey.Edit(entryId)
+        drafts.value[key]?.let { return it }
+        val draft = editable[entryId] ?: return null
+        drafts.update { it + (key to draft) }
+        return draft
+    }
+
+    override suspend fun save(draft: Draft) = drafts.update { all ->
+        all + (draft.key to draft.copy(photos = all[draft.key]?.photos ?: draft.photos))
+    }
+
+    override suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult {
+        nextAddResult?.let { return it }
+        drafts.update { all ->
+            val draft = all[key] ?: return@update all
+            val added = picked.indices.map { DraftPhoto("p${draft.photos.size + it}.jpg", "p${draft.photos.size + it}", 10, 10, 1) }
+            all + (key to draft.copy(photos = draft.photos + added))
+        }
+        return AddPhotosResult.Added(picked.size)
+    }
+
+    override suspend fun removePhoto(key: DraftKey, index: Int) = drafts.update { all ->
+        val draft = all[key] ?: return@update all
+        all + (key to draft.copy(photos = draft.photos.filterIndexed { i, _ -> i != index }))
+    }
+
+    override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) = drafts.update { all ->
+        val draft = all[key] ?: return@update all
+        all + (key to draft.copy(photos = order.map { draft.photos[it] }))
+    }
+
+    override suspend fun commit(key: DraftKey): String {
+        check(!failCommit) { "저장 실패" }
+        drafts.update { it - key }
+        committed += key
+        return (key as? DraftKey.Edit)?.entryId ?: "saved-id"
+    }
+
+    override suspend fun discard(key: DraftKey) {
+        drafts.update { it - key }
+        discarded += key
+    }
+}

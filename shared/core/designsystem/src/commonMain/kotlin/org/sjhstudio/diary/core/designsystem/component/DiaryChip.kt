@@ -24,7 +24,14 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /** 칩(`docs/design.md` 칩, SEED Chip). 32 · 좌우 12(아이콘이 있으면 왼쪽 10) · full · label · 아이콘 16 · 터치 영역 48. */
 @Composable
-fun DiaryChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, leadingIcon: ImageVector? = null) {
+fun DiaryChip(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    leadingIcon: ImageVector? = null,
+    leading: (@Composable () -> Unit)? = null
+) {
     val colors = DiaryTheme.colors
     val content = if (selected) colors.accentText else colors.textPrimary
     val interaction = remember { MutableInteractionSource() }
@@ -44,10 +51,11 @@ fun DiaryChip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Mo
                     onClick = onClick
                 )
                 // 아이콘 쪽은 아이콘 자체 여백이 있어 10으로 줄여 눈으로 좌우를 맞춘다(이 칩 안에서만 쓰는 값).
-                .padding(start = if (leadingIcon != null) 10.dp else DiarySpacing.x3, end = DiarySpacing.x3),
+                .padding(start = if (leadingIcon != null || leading != null) 10.dp else DiarySpacing.x3, end = DiarySpacing.x3),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        leading?.invoke()
         if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = content, size = DiaryIconSize.i16)
         BasicText(text = text, style = DiaryTheme.typography.label.copy(color = content), maxLines = 1)
     }

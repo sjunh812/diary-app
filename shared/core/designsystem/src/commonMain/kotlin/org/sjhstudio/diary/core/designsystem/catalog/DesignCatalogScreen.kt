@@ -334,15 +334,19 @@ internal fun CatalogEntries() {
     DiaryEntryRow(
         weekday = "토",
         day = "31",
-        meta = listOf("오후 9:40", "망원동"),
         preview = "퇴근길에 한강까지 걸었다. 바람이 차가워졌는데 그래서 더 좋았다.",
-        moodColor = DiaryTheme.colors.mood.good,
         favorite = true,
-        dividerAbove = false
+        dividerAbove = false,
+        meta = { CatalogMeta("오후 9:40") }
     )
-    DiaryEntryRow(weekday = null, day = null, meta = listOf("오전 8:10"), preview = "아침 회의가 길었다.", moodColor = DiaryTheme.colors.mood.tired)
+    DiaryEntryRow(weekday = null, day = null, preview = "아침 회의가 길었다.", meta = { CatalogMeta("오전 8:10") })
     DiaryMonthHeader("9월")
     DiaryEmptyState(DiaryIcons.BookOpen, "아직 쓴 일기가 없어요", description = "오늘 있었던 일 한 줄이면 충분해요", actionLabel = "오늘 일기 쓰기", onAction = {})
+}
+
+@Composable
+private fun CatalogMeta(text: String) {
+    BasicText(text, style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary), maxLines = 1)
 }
 
 @Composable

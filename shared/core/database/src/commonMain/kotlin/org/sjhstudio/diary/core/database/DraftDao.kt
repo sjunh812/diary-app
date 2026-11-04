@@ -22,6 +22,10 @@ interface DraftDao {
     @Query("SELECT * FROM draft_media WHERE draft_key = :key ORDER BY sort_order")
     suspend fun media(key: String): List<DraftMediaEntity>
 
+    /** 가장 최근의 새 일기 임시 저장본. 일기 ID는 UUID라 `new`로 시작하지 않는다. */
+    @Query("SELECT * FROM draft WHERE `key` LIKE 'new%' ORDER BY updated_at DESC LIMIT 1")
+    suspend fun latestNew(): DraftEntity?
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertIfAbsent(draft: DraftEntity): Long
 

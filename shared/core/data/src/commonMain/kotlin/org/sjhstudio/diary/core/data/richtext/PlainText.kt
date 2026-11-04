@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.data.richtext
 
+import org.sjhstudio.diary.core.model.decodeHtmlEntity
+
 /**
  * 본문 HTML을 서식 없는 글로 바꾼다(스펙 002 contracts/rich-text-html.md "서식 없는 글 만들기").
  *
@@ -50,7 +52,7 @@ fun toPlainText(html: String): String {
                 tag.name == "br" -> out.append('\n')
             }
         } else if (c == '&') {
-            val decoded = decodeEntity(html, i)
+            val decoded = decodeHtmlEntity(html, i)
             if (decoded == null) {
                 out.append(c)
                 i++
@@ -79,34 +81,4 @@ private fun parseTag(inside: String): Tag {
     val body = trimmed.removePrefix("/").trimStart()
     val name = body.takeWhile { it.isLetterOrDigit() }.lowercase()
     return Tag(name, closing)
-}
-
-/** `&...;`를 풀어 (글자, 다음 위치)를 돌려준다. 모르는 엔티티면 null. */
-private fun decodeEntity(html: String, start: Int): Pair<String, Int>? {
-    val semi = html.indexOf(';', start)
-    if (semi < 0 || semi - start > 12) return null
-    val name = html.substring(start + 1, semi)
-    val text =
-        when {
-            name == "amp" -> "&"
-            name == "lt" -> "<"
-            name == "gt" -> ">"
-            name == "quot" -> "\""
-            name == "#39" || name == "apos" -> "'"
-            name == "nbsp" -> " "
-            name.startsWith("#x") || name.startsWith("#X") -> name.drop(2).toIntOrNull(16)?.let(::codePointToString)
-            name.startsWith("#") -> name.drop(1).toIntOrNull()?.let(::codePointToString)
-            else -> null
-        } ?: return null
-    return text to semi + 1
-}
-
-private fun codePointToString(codePoint: Int): String? {
-    if (codePoint < 0 || codePoint > 0x10FFFF || codePoint in 0xD800..0xDFFF) return null
-    return if (codePoint < 0x10000) {
-        codePoint.toChar().toString()
-    } else {
-        val v = codePoint - 0x10000
-        charArrayOf((0xD800 + (v shr 10)).toChar(), (0xDC00 + (v and 0x3FF)).toChar()).concatToString()
-    }
 }

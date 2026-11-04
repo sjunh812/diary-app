@@ -44,6 +44,9 @@ interface EntryRepository {
 interface DraftRepository {
     fun draft(key: DraftKey): Flow<Draft?>
 
+    /** 새 일기 임시 저장본 가운데 가장 최근 것. 없으면 null이다. */
+    suspend fun latestNew(): Draft?
+
     /** 고치기를 열 때 임시 저장본이 없으면 일기에서 만든다. 일기가 없으면 null이다. */
     suspend fun openEdit(entryId: String): Draft?
 
