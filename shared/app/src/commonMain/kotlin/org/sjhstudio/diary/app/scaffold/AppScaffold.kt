@@ -48,6 +48,7 @@ import org.sjhstudio.diary.app.navigation.InsightKey
 import org.sjhstudio.diary.app.navigation.ListDetailSceneStrategy
 import org.sjhstudio.diary.app.navigation.ListPane
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
+import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
@@ -86,6 +87,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
@@ -285,6 +287,7 @@ private fun Content(
                                 backStack.selectTab(SettingsKey)
                                 backStack.add(BackupSettingsKey)
                             })
+                            BackupNudgeCard(onRestoreEntry = { backStack.add(RestorePreviewKey(it)) })
                         },
                         onOpen = backStack::openEntry,
                         onWrite = onWrite,

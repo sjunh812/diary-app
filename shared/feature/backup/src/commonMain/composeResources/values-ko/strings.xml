@@ -134,4 +134,9 @@
     <string name="backup_alert_offline">인터넷에 연결되지 않았어요. 연결되면 이어서 올려요.</string>
     <string name="backup_alert_other">앱을 열어 백업 상태를 확인해 주세요.</string>
     <string name="backup_channel">백업</string>
+    <string name="backup_nudge_entries_photos">일기 %1$s편과 사진 %2$s장이 이 휴대폰에만 있어요</string>
+    <string name="backup_nudge_entries">일기 %1$s편이 이 휴대폰에만 있어요</string>
+    <string name="backup_nudge_body">구글 드라이브에 백업해 두면 휴대폰을 바꿔도 그대로예요.</string>
+    <string name="backup_nudge_action">백업 켜기</string>
+    <string name="backup_nudge_later">나중에</string>
 </resources>

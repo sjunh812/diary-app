@@ -134,4 +134,9 @@
     <string name="backup_alert_offline">インターネットに接続されていません。接続すると続きから保存します。</string>
     <string name="backup_alert_other">アプリを開いてバックアップの状態を確認してください。</string>
     <string name="backup_channel">バックアップ</string>
+    <string name="backup_nudge_entries_photos">日記%1$s件と写真%2$s枚はこのスマホにしかありません</string>
+    <string name="backup_nudge_entries">日記%1$s件はこのスマホにしかありません</string>
+    <string name="backup_nudge_body">Google ドライブにバックアップすれば、スマホを替えてもそのまま残ります。</string>
+    <string name="backup_nudge_action">バックアップをオンにする</string>
+    <string name="backup_nudge_later">あとで</string>
 </resources>

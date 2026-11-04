@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.backup
 
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -10,9 +11,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
@@ -28,7 +31,9 @@ class BackupController(
     private val scheduler: BackupScheduler,
     private val notifier: BackupNotifier,
     private val scope: CoroutineScope,
-    private val clock: Clock = Clock.System
+    private val clock: Clock = Clock.System,
+    private val migrated: () -> Boolean = { false },
+    private val legacyAccount: suspend () -> String? = { null }
 ) : BackupRepository {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override val status: Flow<BackupStatus> =
@@ -52,6 +57,28 @@ class BackupController(
                 )
             }
         }
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    override val nudge: Flow<BackupNudge?> =
+        store.prefs.flatMapLatest { prefs ->
+            if (!mayNudge(prefs)) {
+                flowOf(null)
+            } else {
+                val dao = db.value.backupDao()
+                combine(dao.visibleEntries(), dao.visiblePhotos()) { entries, photos ->
+                    if (migrated() || entries >= NUDGE_ENTRIES || photos > 0) BackupNudge(entries, photos, legacyAccount()) else null
+                }
+            }
+        }
+
+    private fun mayNudge(prefs: BackupPrefs): Boolean {
+        val hidden = prefs.nudgeHiddenUntil?.let { it > clock.now() } == true
+        return prefs.accountKey == null && !prefs.userDisconnected && prefs.nudgeDismissCount < NUDGE_LIMIT && !hidden
+    }
+
+    override suspend fun dismissNudge() {
+        store.update { it.copy(nudgeDismissCount = it.nudgeDismissCount + 1, nudgeHiddenUntil = clock.now() + NUDGE_HIDE.days) }
+    }
 
     override suspend fun connect(hint: String?): ConnectResult {
         val result = authorizer.connect(hint)
@@ -119,3 +146,7 @@ class BackupController(
         }
     }
 }
+
+private const val NUDGE_ENTRIES = 3
+private const val NUDGE_LIMIT = 3
+private const val NUDGE_HIDE = 14

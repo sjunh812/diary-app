@@ -53,6 +53,7 @@ import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.createDriveApi
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
+import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
 import org.sjhstudio.diary.core.model.BodyTextSize
@@ -182,7 +183,17 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             )
         }
         single<BackupRepository> {
-            BackupController(get(), lazy { get<DiaryDatabase>() }, lazy { get<BackupRunner>() }, get(), get(), get(), get(APP_SCOPE))
+            BackupController(
+                store = get(),
+                db = lazy { get<DiaryDatabase>() },
+                runner = lazy { get<BackupRunner>() },
+                authorizer = get(),
+                scheduler = get(),
+                notifier = get(),
+                scope = get(APP_SCOPE),
+                migrated = { get<LegacyMigration>().report() != null },
+                legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account }
+            )
         }
         single<RestoreRepository> {
             val files = get<AppFiles>()

@@ -5,7 +5,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlin.time.Instant
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupConnection
+import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.feature.backup.BackupNudgeContent
 import org.sjhstudio.diary.feature.backup.BackupSettingsScreen
 
 private val Connected =
@@ -40,3 +42,11 @@ private fun PhotosWaitingLight() = Screen(Connected.copy(photosNotBackedUp = 3),
 @Preview(locale = "ko")
 @Composable
 private fun NeedsReconnectLight() = Screen(Connected.copy(connection = BackupConnection.NeedsReconnect), dark = false)
+
+@Preview(locale = "ko")
+@Composable
+private fun NudgeLight() = DiaryTheme(darkTheme = false) { BackupNudgeContent(BackupNudge(1204, 860), {}, {}) }
+
+@Preview(locale = "ko")
+@Composable
+private fun NudgeDark() = DiaryTheme(darkTheme = true) { BackupNudgeContent(BackupNudge(3, 0), {}, {}) }

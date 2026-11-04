@@ -178,7 +178,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 - [ ] T070 [P] [US4] `shared/core/backup/{test}/core/backup/AutoBackupPolicyTest.kt`: 바뀐 것이 없으면 안 함, 모바일 데이터면 사진 없이 스냅샷과 목록 파일(`inBackup=false`), Wi-Fi 일회성 작업 넘김, 앱을 열 때 24시간 넘었으면 시작, 이전·복원 중이면 안 함
 - [x] T071 [P] [US4] `{test}/core/backup/FailureNotificationTest.kt`: 성공마다 "+7일" 다시 예약, 실패 기록마다 본문 바꿈, 실패 기록이 없을 때 문구, 다시 성공할 때까지 한 번만, 알림 허용이 없으면 빨간 점 상태
-- [ ] T072 [P] [US4] `shared/core/data/{test}/core/data/BackupNudgeRepositoryTest.kt`: `contracts/backup-flow.md` 권하기 조건 전부(이전한 사용자, 3편, 사진 일기, 14일 숨김, 세 번, 스스로 끊음, 홈에서만)
+- [x] T072 [P] [US4] `shared/core/data/{test}/core/data/BackupNudgeRepositoryTest.kt`: `contracts/backup-flow.md` 권하기 조건 전부(이전한 사용자, 3편, 사진 일기, 14일 숨김, 세 번, 스스로 끊음, 홈에서만)
 
 ### Implementation for User Story 4
 
@@ -186,7 +186,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
 - [x] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
 - [ ] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
-- [ ] T077 [US4] `shared/core/data/{kt}/core/data/BackupNudgeRepository.kt`와 `shared/feature/backup/{kt}/feature/backup/BackupNudgeCard.kt`, 스펙 002 홈 목록 맨 위에 꽂기. [백업 켜기]는 연결 흐름(옛 백업 계정 먼저), [나중에]는 14일 숨김. Figma 홈 백업 상태와 권하기 (B11)
+- [x] T077 [US4] `shared/core/data/{kt}/core/data/BackupNudgeRepository.kt`와 `shared/feature/backup/{kt}/feature/backup/BackupNudgeCard.kt`, 스펙 002 홈 목록 맨 위에 꽂기. [백업 켜기]는 연결 흐름(옛 백업 계정 먼저), [나중에]는 14일 숨김. Figma 홈 백업 상태와 권하기 (B11)
 - [ ] T078 [US4] 스펙 004 온보딩 "[자동 백업 켜기]"가 부를 연결 진입점(`BackupConnectEntry`)을 `feature/backup`에서 내보낸다
 
 **Checkpoint**: 연결한 사람은 매일 백업되고, 연결 안 한 사람은 홈에서 권하기를 본다.

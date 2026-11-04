@@ -75,6 +75,12 @@ interface BackupDao {
     @Query("SELECT entry_id FROM merge_mark")
     suspend fun markedIds(): List<String>
 
+    @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL")
+    fun visibleEntries(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM media WHERE entry_id IN (SELECT id FROM entry WHERE deleted_at IS NULL) AND status = 'normal'")
+    fun visiblePhotos(): Flow<Int>
+
     @Query("DELETE FROM merge_mark WHERE entry_id = :entryId")
     suspend fun clearMark(entryId: String)
 }

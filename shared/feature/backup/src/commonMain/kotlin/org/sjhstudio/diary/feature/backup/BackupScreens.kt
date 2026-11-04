@@ -107,7 +107,7 @@ fun BackupSettingsRoute(
     val status by viewModel.status.collectAsStateWithLifecycle()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
-    BackupSettingsScreen(status, connecting, viewModel::connect, {
+    BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
         viewModel.backUpNow()
     }, { viewModel.backUpNow(cellularOnce = true) }, viewModel::setAuto, onOptions, onRestore, onBack, modifier)
     found?.let { entry ->

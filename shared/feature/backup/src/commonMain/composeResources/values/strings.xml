@@ -134,4 +134,9 @@
     <string name="backup_alert_offline">You’re offline. Backup continues once you’re connected.</string>
     <string name="backup_alert_other">Open the app to check your backup.</string>
     <string name="backup_channel">Backup</string>
+    <string name="backup_nudge_entries_photos">%1$s entries and %2$s photos are only on this phone</string>
+    <string name="backup_nudge_entries">%1$s entries are only on this phone</string>
+    <string name="backup_nudge_body">Back up to Google Drive and they’ll stay with you when you change phones.</string>
+    <string name="backup_nudge_action">Turn on backup</string>
+    <string name="backup_nudge_later">Later</string>
 </resources>

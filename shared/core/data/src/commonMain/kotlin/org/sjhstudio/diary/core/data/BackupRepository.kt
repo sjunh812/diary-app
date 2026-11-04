@@ -1,12 +1,19 @@
 package org.sjhstudio.diary.core.data
 
 import kotlinx.coroutines.flow.Flow
+import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
 
 /** 화면이 쓰는 백업 입구. 홈과 설정이 같은 상태를 본다(contracts/backup-flow.md 상태 표시). */
 interface BackupRepository {
     val status: Flow<BackupStatus>
+
+    /** 홈의 권하기 카드(FR-036). 조건이 맞지 않으면 null이다. */
+    val nudge: Flow<BackupNudge?>
+
+    /** [나중에]. 14일 숨기고 세 번 넘기면 다시 띄우지 않는다. */
+    suspend fun dismissNudge()
 
     /** 처음 연결하면 자동 백업을 켜고 바로 백업한다(FR-013). */
     suspend fun connect(hint: String? = null): ConnectResult

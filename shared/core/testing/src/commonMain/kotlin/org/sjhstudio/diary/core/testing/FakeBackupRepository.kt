@@ -2,13 +2,19 @@ package org.sjhstudio.diary.core.testing
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
 
 class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepository {
     override val status = MutableStateFlow(initial)
+    override val nudge = MutableStateFlow<BackupNudge?>(null)
     var backups = 0
         private set
+
+    override suspend fun dismissNudge() {
+        nudge.value = null
+    }
 
     override suspend fun connect(hint: String?): ConnectResult = ConnectResult.Cancelled
 
