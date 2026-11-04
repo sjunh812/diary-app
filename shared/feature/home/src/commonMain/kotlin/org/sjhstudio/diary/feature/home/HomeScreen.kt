@@ -55,6 +55,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
@@ -81,6 +82,7 @@ fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, onSearch: () -> Uni
     val favoritesOnly by viewModel.favoritesOnly.collectAsStateWithLifecycle()
     val months by viewModel.months.collectAsStateWithLifecycle()
     val look by viewModel.look.collectAsStateWithLifecycle()
+    val style by viewModel.style.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -93,6 +95,7 @@ fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, onSearch: () -> Uni
         title = dates.yearMonth(shown),
         rows = rows,
         list = list,
+        style = style,
         favoritesOnly = favoritesOnly,
         selectedId = selectedId,
         today = today,
@@ -125,6 +128,7 @@ internal fun HomeScreen(
     title: String,
     rows: LazyPagingItems<EntryRow>,
     list: LazyListState,
+    style: ListStyle,
     favoritesOnly: Boolean,
     selectedId: String?,
     today: LocalDate,
@@ -141,7 +145,15 @@ internal fun HomeScreen(
         Title(title, onPickMonth)
         Spacer(Modifier.height(DiarySpacing.x3))
         when {
-            rows.itemCount > 0 -> Feed(rows, list, selectedId, today, previewStyle, rememberDiaryDateFormat(), onOpen)
+            rows.itemCount > 0 -> {
+                val dates = rememberDiaryDateFormat()
+                when (style) {
+                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen)
+                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen)
+                    ListStyle.PHOTO_GRID -> PhotoGrid(rows, selectedId, dates, onOpen)
+                }
+            }
+
             rows.loadState.refresh is LoadState.NotLoading -> Empty(favoritesOnly, onWrite)
         }
     }

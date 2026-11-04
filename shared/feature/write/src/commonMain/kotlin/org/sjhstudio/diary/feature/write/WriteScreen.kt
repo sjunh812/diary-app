@@ -39,6 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
@@ -137,7 +144,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             if (file != null) vm.addPhotos(listOf(PickedImage { file.readBytes() }))
         }
     val tools = remember(actions) { WriteTools(actions.rich, actions.colors) }
-    BoxWithConstraints(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding().imePadding()) {
+    // 하드웨어 키보드의 Ctrl/⌘+S로 저장한다(FR-039).
+    val keyboard =
+        Modifier.onPreviewKeyEvent { event ->
+            val save = event.type == KeyEventType.KeyDown && (event.isCtrlPressed || event.isMetaPressed) && event.key == Key.S
+            if (save && state.canSave) vm.save()
+            save
+        }
+    BoxWithConstraints(modifier.then(keyboard).fillMaxSize().background(colors.canvas).systemBarsPadding().imePadding()) {
         val wide = maxWidth >= DiaryWriteSize.twoPaneMin
         Column(Modifier.fillMaxSize()) {
             TopRow(state, onClose = vm::close, onDate = { sheet = Sheet.DateTime }, onSave = vm::save)

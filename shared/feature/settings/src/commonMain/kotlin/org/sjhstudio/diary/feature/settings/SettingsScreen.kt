@@ -33,6 +33,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_group_notificatio
 import org.sjhstudio.diary.feature.settings.resources.settings_group_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
+import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
@@ -56,6 +57,7 @@ fun SettingsScreen(
     onMigrationReport: () -> Unit,
     onLicenses: () -> Unit,
     modifier: Modifier = Modifier,
+    onListStyle: () -> Unit = {},
     onTrash: () -> Unit = {},
     trashCount: Int = 0,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
@@ -98,6 +100,11 @@ fun SettingsScreen(
                 stringResource(Res.string.settings_theme),
                 onClick = onTheme,
                 value = stringResource(state.settings.themeMode.label())
+            )
+            DiarySettingsRow(
+                stringResource(Res.string.settings_list_style),
+                onClick = onListStyle,
+                value = stringResource(state.settings.list.listStyle.label())
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_notification), gapAbove = true)
             val reminderValue =

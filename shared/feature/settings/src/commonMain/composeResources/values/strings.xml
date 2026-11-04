@@ -105,4 +105,8 @@
         <item quantity="one">%1$d entry</item>
         <item quantity="other">%1$d entries</item>
     </plurals>
+    <string name="settings_list_style">List style</string>
+    <string name="list_style_feed">Feed</string>
+    <string name="list_style_card">Cards</string>
+    <string name="list_style_photo">Photos</string>
 </resources>

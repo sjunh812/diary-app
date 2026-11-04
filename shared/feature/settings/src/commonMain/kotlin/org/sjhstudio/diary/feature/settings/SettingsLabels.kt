@@ -2,10 +2,14 @@ package org.sjhstudio.diary.feature.settings
 
 import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.list_style_card
+import org.sjhstudio.diary.feature.settings.resources.list_style_feed
+import org.sjhstudio.diary.feature.settings.resources.list_style_photo
 import org.sjhstudio.diary.feature.settings.resources.lock_value_cold_start
 import org.sjhstudio.diary.feature.settings.resources.lock_value_five_minutes
 import org.sjhstudio.diary.feature.settings.resources.lock_value_immediately
@@ -26,6 +30,12 @@ internal fun BodyTextSize.label(): StringResource = when (this) {
     BodyTextSize.LARGE -> Res.string.text_size_large
     BodyTextSize.XLARGE -> Res.string.text_size_xlarge
     BodyTextSize.XXLARGE -> Res.string.text_size_xxlarge
+}
+
+internal fun ListStyle.label(): StringResource = when (this) {
+    ListStyle.FEED -> Res.string.list_style_feed
+    ListStyle.CARD -> Res.string.list_style_card
+    ListStyle.PHOTO_GRID -> Res.string.list_style_photo
 }
 
 internal fun ThemeMode.label(): StringResource = when (this) {

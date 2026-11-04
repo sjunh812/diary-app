@@ -12,6 +12,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
@@ -27,22 +28,24 @@ private val Rows =
     )
 
 @Composable
-private fun Home(dark: Boolean, rows: List<EntryRow> = Rows, favoritesOnly: Boolean = false) = DiaryTheme(darkTheme = dark) {
-    HomeScreen(
-        title = "2026년 10월",
-        rows = flowOf(PagingData.from(rows)).collectAsLazyPagingItems(),
-        list = rememberLazyListState(),
-        favoritesOnly = favoritesOnly,
-        selectedId = null,
-        today = Today,
-        previewStyle = DiaryTheme.typography.body,
-        onToggleFavorites = {},
-        onPickMonth = {},
-        onOpen = {},
-        onWrite = {},
-        onSearch = {}
-    )
-}
+private fun Home(dark: Boolean, rows: List<EntryRow> = Rows, favoritesOnly: Boolean = false, style: ListStyle = ListStyle.FEED) =
+    DiaryTheme(darkTheme = dark) {
+        HomeScreen(
+            title = "2026년 10월",
+            rows = flowOf(PagingData.from(rows)).collectAsLazyPagingItems(),
+            list = rememberLazyListState(),
+            style = style,
+            favoritesOnly = favoritesOnly,
+            selectedId = null,
+            today = Today,
+            previewStyle = DiaryTheme.typography.body,
+            onToggleFavorites = {},
+            onPickMonth = {},
+            onOpen = {},
+            onWrite = {},
+            onSearch = {}
+        )
+    }
 
 @Preview(name = "홈 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
@@ -51,6 +54,14 @@ private fun HomeLight() = Home(dark = false)
 @Preview(name = "홈 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun HomeDark() = Home(dark = true)
+
+@Preview(name = "홈 · 카드", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeCard() = Home(dark = false, style = ListStyle.CARD)
+
+@Preview(name = "홈 · 사진 격자", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomePhotoGrid() = Home(dark = true, style = ListStyle.PHOTO_GRID)
 
 @Preview(name = "홈 · 빈 상태", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

@@ -99,4 +99,8 @@
     <plurals name="settings_trash_count">
         <item quantity="other">%1$d편</item>
     </plurals>
+    <string name="settings_list_style">목록 모양</string>
+    <string name="list_style_feed">피드</string>
+    <string name="list_style_card">카드</string>
+    <string name="list_style_photo">사진 격자</string>
 </resources>

@@ -52,6 +52,16 @@ object DiaryIconSize {
     val i32: Dp = 32.dp
 }
 
+/** 홈 목록 모양 크기. */
+object DiaryHomeSize {
+    /** 카드의 기분 얼굴과 날씨 아이콘. */
+    val cardFace: Dp = 28.dp
+    val cardIcon: Dp = 16.dp
+
+    /** 사진 격자 칸의 최소 폭. 폰에서 세 칸이 된다. */
+    val gridCell: Dp = 112.dp
+}
+
 /** 돌아보기 크기(Figma "돌아보기 (S5)"). */
 object DiaryInsightSize {
     /** 기분 막대 줄. */

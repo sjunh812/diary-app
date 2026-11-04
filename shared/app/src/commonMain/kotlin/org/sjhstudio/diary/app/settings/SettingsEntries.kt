@@ -28,6 +28,7 @@ import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
 import org.sjhstudio.diary.app.navigation.LicensesKey
+import org.sjhstudio.diary.app.navigation.ListStyleSettingsKey
 import org.sjhstudio.diary.app.navigation.LockSettingsKey
 import org.sjhstudio.diary.app.navigation.MigrationReportKey
 import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
@@ -47,6 +48,7 @@ import org.sjhstudio.diary.feature.settings.FontLicenseRoute
 import org.sjhstudio.diary.feature.settings.FontSettingsRoute
 import org.sjhstudio.diary.feature.settings.LibraryLicenseRoute
 import org.sjhstudio.diary.feature.settings.LicensesRoute
+import org.sjhstudio.diary.feature.settings.ListStyleSettingsScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportViewModel
 import org.sjhstudio.diary.feature.settings.ReminderSettingsRoute
@@ -75,11 +77,17 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onLock = { push(LockSettingsKey) },
             onMigrationReport = { push(MigrationReportKey) },
             onLicenses = { push(LicensesKey) },
+            onListStyle = { push(ListStyleSettingsKey) },
             onTrash = { push(TrashKey) },
             trashCount = trashCount
         )
     }
     entry<TrashKey> { TrashRoute(onBack = pop) }
+    entry<ListStyleSettingsKey> {
+        val viewModel = koinViewModel<SettingsViewModel>()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        ListStyleSettingsScreen(state.settings.list.listStyle, onSelect = viewModel::setListStyle, onBack = pop)
+    }
     entry<TextSizeSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()

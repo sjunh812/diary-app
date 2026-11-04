@@ -126,7 +126,11 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth
         val twoPane = maxWidth >= DiaryWriteSize.twoPaneMin
-        val shortcuts = Modifier.diaryShortcuts(onNewEntry = { if (!writing) onWrite() })
+        val shortcuts =
+            Modifier.diaryShortcuts(
+                onNewEntry = { if (!writing) onWrite() },
+                onSearch = { if (!fullScreen && backStack.none { it is SearchKey }) backStack.add(SearchKey()) }
+            )
         if (wide) {
             Row(Modifier.fillMaxSize().then(shortcuts)) {
                 if (!fullScreen) {

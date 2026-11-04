@@ -82,10 +82,10 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ### 공유 UI와 뼈대
 
-- [ ] T028 [P] 디자인 시스템 컴포넌트(버튼 셋, 시트, 스낵바(누르고 있으면 멈춤), 칩, 빈 상태, 내비게이션 바·레일)를 Figma T011과 같은 이름으로 `shared/core/designsystem/{kt}/core/designsystem/component/`에 만든다
-- [ ] T029 [P] `MoodIcon`, `WeatherIcon`(아이콘 + 이름으로 구별), `EntryRow`(글/사진 보기), `DateHeader`, `MonthHeader`, `RichTextView`(팔레트 hex → 테마 토큰, 001 설정의 본문 글꼴과 글자 크기 단계를 따름, FR-014), `PhotoGrid`를 `shared/core/ui/{kt}/core/ui/`에 만든다 2026-11-04 진행: `MoodFace`, `WeatherIcon`, 기분·날씨 이름(`core/ui/MoodWeather.kt`)과 일기 화면 아이콘을 Figma 경로에서 옮겼다. `EntryRow`, `DateHeader`, `RichTextView`는 남았다 `DiaryEntryLine`, `DiaryRichText`를 더했다. 날짜 머리는 일기 줄 안에 있다
-- [ ] T030 `contracts/navigation.md`의 화면 키, 하단 탭(600dp 미만)·레일(600dp 이상), 늘 보이는 쓰기 버튼, 두 칸 Scene 전략(840dp 이상, 직접 만든 `SceneStrategy`, 스펙 001 research R25)을 `shared/app/{kt}/app/DiaryNavigation.kt`, `DiaryScaffold.kt`, `ListDetailScene.kt`에 만든다 2026-11-04 진행: 쓰기 키, 쓰기 버튼, 쓰기 때 탭·레일 숨기기. 나머지 키와 두 칸은 홈과 함께
-- [ ] T031 하드웨어 키보드 단축키(Ctrl/⌘ + N, S, F)를 `shared/app/{kt}/app/KeyboardShortcuts.kt`에 만든다 2026-11-04 진행: 새 일기(Ctrl/⌘+N). 찾기·저장은 그 화면과 함께
+- [x] T028 [P] 디자인 시스템 컴포넌트(버튼 셋, 시트, 스낵바(누르고 있으면 멈춤), 칩, 빈 상태, 내비게이션 바·레일)를 Figma T011과 같은 이름으로 `shared/core/designsystem/{kt}/core/designsystem/component/`에 만든다 2026-11-04: 화면을 만들며 모두 쓰고 있다
+- [x] T029 [P] `MoodIcon`, `WeatherIcon`(아이콘 + 이름으로 구별), `EntryRow`(글/사진 보기), `DateHeader`, `MonthHeader`, `RichTextView`(팔레트 hex → 테마 토큰, 001 설정의 본문 글꼴과 글자 크기 단계를 따름, FR-014), `PhotoGrid`를 `shared/core/ui/{kt}/core/ui/`에 만든다 2026-11-04 진행: `MoodFace`, `WeatherIcon`, 기분·날씨 이름(`core/ui/MoodWeather.kt`)과 일기 화면 아이콘을 Figma 경로에서 옮겼다. `EntryRow`, `DateHeader`, `RichTextView`는 남았다 `DiaryEntryLine`, `DiaryRichText`를 더했다. 날짜 머리는 일기 줄 안에 있다 2026-11-04: 이름은 `MoodFace`, `DiaryEntryRow`, `DiaryRichText`로 만들었다
+- [x] T030 `contracts/navigation.md`의 화면 키, 하단 탭(600dp 미만)·레일(600dp 이상), 늘 보이는 쓰기 버튼, 두 칸 Scene 전략(840dp 이상, 직접 만든 `SceneStrategy`, 스펙 001 research R25)을 `shared/app/{kt}/app/DiaryNavigation.kt`, `DiaryScaffold.kt`, `ListDetailScene.kt`에 만든다 2026-11-04 진행: 쓰기 키, 쓰기 버튼, 쓰기 때 탭·레일 숨기기. 나머지 키와 두 칸은 홈과 함께 2026-11-04: `ListDetailSceneStrategy`까지 끝났다
+- [x] T031 하드웨어 키보드 단축키(Ctrl/⌘ + N, S, F)를 `shared/app/{kt}/app/KeyboardShortcuts.kt`에 만든다 2026-11-04: 새 일기·찾기는 `DiaryShortcuts.kt`, 저장은 쓰기 화면에 있다
 
 **Checkpoint**: 빈 화면 넷을 탭·레일로 오가고 창 폭에 따라 칸이 바뀐다
 
@@ -133,7 +133,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 - [x] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(Paging 3, 스펙 001 research R4. 썸네일은 001 `ThumbnailRepository`) 2026-11-04: `DefaultEntryRepository`에 있다
 - [x] T046 [P] [US2] `ListPreferencesRepository`(레거시 `skip_note`를 001이 이은 값)를 `shared/core/data/{kt}/core/data/ListPreferencesRepository.kt`에 만든다 2026-11-04: 따로 저장소를 만들지 않고 `SettingsRepository`의 목록 설정으로 뒀다
-- [x] T047 [US2] 홈 ViewModel과 화면(달 머리, 날짜 머리, 3줄 미리보기, 즐겨찾기만, 목록 모양, 연·월 고르기 시트, 빈 상태 "아직 쓴 일기가 없어요" [오늘 일기 쓰기]와 "즐겨찾기한 일기가 없어요")을 `shared/feature/home/{kt}/feature/home/HomeViewModel.kt`, `HomeScreen.kt`에 만든다 2026-11-04: 피드만 먼저 만들었고 카드·사진 모양은 설정 > 목록 모양과 함께 남았다. 백업 줄은 스펙 003, 찾기 버튼은 US4에서 붙인다
+- [x] T047 [US2] 홈 ViewModel과 화면(달 머리, 날짜 머리, 3줄 미리보기, 즐겨찾기만, 목록 모양, 연·월 고르기 시트, 빈 상태 "아직 쓴 일기가 없어요" [오늘 일기 쓰기]와 "즐겨찾기한 일기가 없어요")을 `shared/feature/home/{kt}/feature/home/HomeViewModel.kt`, `HomeScreen.kt`에 만든다 2026-11-04: 피드·카드·사진 격자를 설정 > 목록 모양에서 고른다. 백업 줄은 스펙 003에서 붙인다
 - [x] T048 [US2] 상세 화면(서식 본문, 사진, 고치기, 지우기, 즐겨찾기, 공유 = 서식 없는 글)을 `shared/feature/home/{kt}/feature/home/EntryDetailScreen.kt`에 만든다
 - [x] T049 [P] [US2] 사진 크게 보기(넘기기, 확대, MISSING은 "찾을 수 없는 사진")를 `shared/feature/home/{kt}/feature/home/PhotoViewerScreen.kt`에 만든다
 - [x] T050 [US2] 두 칸(840dp 이상)에서 고른 줄 강조, 고른 게 없을 때 안내, 폭이 줄면 상세가 한 칸으로 쌓이는 동작을 `shared/app/{kt}/app/ListDetailScene.kt`와 홈에 잇는다

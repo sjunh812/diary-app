@@ -11,6 +11,7 @@ import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
@@ -40,6 +41,10 @@ class SettingsViewModel(
     fun setBodyTextSize(size: BodyTextSize) {
         viewModelScope.launch { settings.setBodyTextSize(size) }
         changed("text_size", size.id)
+    }
+
+    fun setListStyle(style: ListStyle) {
+        viewModelScope.launch { settings.setListStyle(style) }
     }
 
     fun setThemeMode(mode: ThemeMode) {
