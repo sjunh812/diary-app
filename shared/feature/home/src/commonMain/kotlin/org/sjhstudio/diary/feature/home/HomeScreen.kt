@@ -68,13 +68,14 @@ import org.sjhstudio.diary.feature.home.resources.home_empty_title
 import org.sjhstudio.diary.feature.home.resources.home_favorites_empty
 import org.sjhstudio.diary.feature.home.resources.home_favorites_only
 import org.sjhstudio.diary.feature.home.resources.home_month_sheet_title
+import org.sjhstudio.diary.feature.home.resources.home_search
 
 /**
  * 홈(Figma "홈 (S1)"). 큰 제목은 지금 보이는 달을 보이고 누르면 그 달로 간다.
  * 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
  */
 @Composable
-fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, selectedId: String?, modifier: Modifier = Modifier) {
+fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, onSearch: () -> Unit, selectedId: String?, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
     val favoritesOnly by viewModel.favoritesOnly.collectAsStateWithLifecycle()
@@ -100,6 +101,7 @@ fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, selectedId: String?
         onPickMonth = { picking = true },
         onOpen = onOpen,
         onWrite = onWrite,
+        onSearch = onSearch,
         modifier = modifier
     )
     if (picking) {
@@ -131,10 +133,11 @@ internal fun HomeScreen(
     onPickMonth: () -> Unit,
     onOpen: (String) -> Unit,
     onWrite: () -> Unit,
+    onSearch: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
-        TopActions(favoritesOnly, onToggleFavorites)
+        TopActions(favoritesOnly, onToggleFavorites, onSearch)
         Title(title, onPickMonth)
         Spacer(Modifier.height(DiarySpacing.x3))
         when {
@@ -145,12 +148,22 @@ internal fun HomeScreen(
 }
 
 @Composable
-private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit) {
+private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: () -> Unit) {
     val colors = DiaryTheme.colors
     Row(
         Modifier.fillMaxWidth().padding(end = DiarySpacing.x1, top = DiarySpacing.x1),
         horizontalArrangement = Arrangement.End
     ) {
+        val searching = remember { MutableInteractionSource() }
+        Box(
+            Modifier
+                .size(DiarySpacing.minTouchTarget)
+                .diaryPress(searching, colors.textPrimary, DiaryShapes.full)
+                .clickable(interactionSource = searching, indication = null, role = Role.Button, onClick = onSearch),
+            contentAlignment = Alignment.Center
+        ) {
+            DiaryIcon(DiaryIcons.Search, contentDescription = stringResource(Res.string.home_search), tint = colors.textPrimary)
+        }
         val interaction = remember { MutableInteractionSource() }
         Box(
             Modifier

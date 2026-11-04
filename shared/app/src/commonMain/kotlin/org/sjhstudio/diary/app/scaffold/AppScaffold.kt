@@ -40,6 +40,7 @@ import org.sjhstudio.diary.app.navigation.ListDetailSceneStrategy
 import org.sjhstudio.diary.app.navigation.ListPane
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.Screen
+import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.TabScreen
 import org.sjhstudio.diary.app.navigation.WriteKey
@@ -69,12 +70,16 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.model.DateRange
+import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
 import org.sjhstudio.diary.feature.home.HomeRoute
 import org.sjhstudio.diary.feature.home.PhotoViewerRoute
+import org.sjhstudio.diary.feature.search.SearchRoute
 import org.sjhstudio.diary.feature.settings.FontReplacedNotice
 import org.sjhstudio.diary.feature.write.WriteRoute
 import org.sjhstudio.diary.feature.write.WriteTarget
@@ -190,6 +195,11 @@ private fun NavBackStack<NavKey>.selectTab(tab: TabScreen) {
     add(tab)
 }
 
+private fun SearchKey.toFilter() = SearchFilter(
+    moods = moods.mapNotNullTo(HashSet()) { Mood.fromId(it) },
+    period = if (from != null && to != null) DateRange(LocalDate.parse(from), LocalDate.parse(to)) else null
+)
+
 /** 상세를 연다. 넓은 화면에서 다른 줄을 고르면 상세가 쌓이지 않고 바뀐다. */
 private fun NavBackStack<NavKey>.openEntry(entryId: String) {
     if (lastOrNull() is EntryDetailKey) removeAt(lastIndex)
@@ -224,7 +234,16 @@ private fun Content(
                     HomeRoute(
                         onOpen = backStack::openEntry,
                         onWrite = onWrite,
+                        onSearch = { backStack.add(SearchKey()) },
                         selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane }
+                    )
+                }
+                entry<SearchKey>(clazzContentKey = { "search" }, metadata = ListPane) { key ->
+                    SearchRoute(
+                        initial = key.toFilter(),
+                        selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
+                        onBack = pop,
+                        onOpen = backStack::openEntry
                     )
                 }
                 // 화면 키의 문자열에는 일기 ID를 담지 않으니, 저장 자리 구분은 ID로 따로 준다.

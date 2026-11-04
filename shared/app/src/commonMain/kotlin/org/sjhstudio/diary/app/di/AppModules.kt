@@ -42,6 +42,7 @@ import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
 import org.sjhstudio.diary.feature.home.homeFeatureModule
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
+import org.sjhstudio.diary.feature.search.searchFeatureModule
 import org.sjhstudio.diary.feature.settings.settingsFeatureModule
 import org.sjhstudio.diary.feature.write.WriteMediaPath
 import org.sjhstudio.diary.feature.write.writeFeatureModule
@@ -60,6 +61,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     writeFeatureModule,
     homeFeatureModule,
     calendarFeatureModule,
+    searchFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }

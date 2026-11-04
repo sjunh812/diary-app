@@ -47,6 +47,12 @@ data object MigrationReportKey : Screen
 @Serializable
 data object LicensesKey : Screen
 
+/** 찾기. 돌아보기에서 오면 기분과 기간(`yyyy-MM-dd`)이 채워져 있다. */
+@Serializable
+data class SearchKey(val moods: List<String> = emptyList(), val from: String? = null, val to: String? = null) : Screen {
+    override fun toString(): String = "SearchKey"
+}
+
 /** 일기 상세. */
 @Serializable
 data class EntryDetailKey(val entryId: String) : Screen {

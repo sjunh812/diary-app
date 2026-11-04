@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_back">뒤로</string>
+    <string name="search_hint">일기 찾기</string>
+    <string name="search_clear">지우기</string>
+    <string name="search_chip_mood">기분</string>
+    <string name="search_chip_weather">날씨</string>
+    <string name="search_chip_period">기간</string>
+    <string name="search_chip_photo">사진 있음</string>
+    <string name="search_chip_favorite">즐겨찾기</string>
+    <string name="search_period_week">이번 주</string>
+    <string name="search_period_month">이번 달</string>
+    <string name="search_period_year">올해</string>
+    <string name="search_period_custom">직접 고르기</string>
+    <string name="search_clear_filter">지우기</string>
+    <string name="search_done">완료</string>
+    <string name="search_empty_title">찾는 일기가 없어요</string>
+    <string name="search_empty_body">다른 글자로 찾거나 조건을 줄여 보세요</string>
+    <plurals name="search_result_count">
+        <item quantity="other">%1$d편</item>
+    </plurals>
+</resources>

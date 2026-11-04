@@ -39,7 +39,8 @@ private fun Home(dark: Boolean, rows: List<EntryRow> = Rows, favoritesOnly: Bool
         onToggleFavorites = {},
         onPickMonth = {},
         onOpen = {},
-        onWrite = {}
+        onWrite = {},
+        onSearch = {}
     )
 }
 

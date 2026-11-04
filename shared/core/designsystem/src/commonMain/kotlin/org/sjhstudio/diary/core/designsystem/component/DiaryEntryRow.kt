@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,6 +40,19 @@ private val TEXT_START = 70.dp
 /** 사진 칸 크기. */
 val DiaryPhotoCellSize = 64.dp
 
+/** 강조 없는 미리보기. */
+@Composable
+fun DiaryEntryRow(
+    weekday: String?,
+    day: String?,
+    preview: String,
+    modifier: Modifier = Modifier,
+    favorite: Boolean = false,
+    dividerAbove: Boolean = true,
+    photo: (@Composable () -> Unit)? = null,
+    meta: @Composable RowScope.() -> Unit
+) = DiaryEntryRow(weekday, day, AnnotatedString(preview), modifier, favorite, dividerAbove, photo, meta = meta)
+
 /**
  * 일기 줄(피드, `docs/design.md` 일기 줄·구분선, Day One 목록).
  * 위아래 16 · 좌우 20 · 날짜 열 36 · 사이 14 · 메타 한 줄 · 미리보기 `body` 3줄 · 사진 칸 64.
@@ -53,7 +67,7 @@ val DiaryPhotoCellSize = 64.dp
 fun DiaryEntryRow(
     weekday: String?,
     day: String?,
-    preview: String,
+    preview: AnnotatedString,
     modifier: Modifier = Modifier,
     favorite: Boolean = false,
     dividerAbove: Boolean = true,
