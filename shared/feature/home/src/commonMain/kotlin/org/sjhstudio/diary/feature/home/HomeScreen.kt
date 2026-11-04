@@ -52,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
+import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -130,19 +131,19 @@ fun HomeRoute(
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
         val share = rememberShareText()
         DiaryBottomSheet(onDismiss = { menuFor = null }) {
-            SheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), DiaryTheme.colors.textPrimary) {
+            DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), DiaryTheme.colors.textPrimary) {
                 menuFor = null
                 onEdit(id)
             }
-            SheetAction(DiaryIcons.StarOutline, stringResource(Res.string.detail_favorite), DiaryTheme.colors.textPrimary) {
+            DiarySheetAction(DiaryIcons.StarOutline, stringResource(Res.string.detail_favorite), DiaryTheme.colors.textPrimary) {
                 menuFor = null
                 viewModel.toggleFavorite(id)
             }
-            SheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), DiaryTheme.colors.textPrimary) {
+            DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), DiaryTheme.colors.textPrimary) {
                 menuFor = null
                 scope.launch { viewModel.plainText(id)?.let(share) }
             }
-            SheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), DiaryTheme.colors.danger) {
+            DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), DiaryTheme.colors.danger) {
                 menuFor = null
                 viewModel.moveToTrash(id) { onTrashed(id) }
             }

@@ -41,6 +41,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
@@ -95,12 +96,12 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     }
     pickedId?.let { id ->
         DiaryBottomSheet(onDismiss = { pickedId = null }) {
-            SheetAction(DiaryIcons.Restore, stringResource(Res.string.trash_restore), DiaryTheme.colors.textPrimary) {
+            DiarySheetAction(DiaryIcons.Restore, stringResource(Res.string.trash_restore), DiaryTheme.colors.textPrimary) {
                 pickedId = null
                 viewModel.restore(id)
                 scope.launch { toast.show(restored) }
             }
-            SheetAction(DiaryIcons.Trash, stringResource(Res.string.trash_delete_forever), DiaryTheme.colors.danger) {
+            DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.trash_delete_forever), DiaryTheme.colors.danger) {
                 pickedId = null
                 confirmOne = id
             }
@@ -242,22 +243,5 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
                 maxLines = 1
             )
         }
-    }
-}
-
-@Composable
-private fun SheetAction(icon: ImageVector, label: String, tint: Color, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r12)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
-            .padding(vertical = DiarySpacing.x3),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        DiaryIcon(icon, contentDescription = null, tint = tint)
-        BasicText(label, style = DiaryTheme.typography.body.copy(color = tint))
     }
 }

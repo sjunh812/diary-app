@@ -40,6 +40,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -114,11 +115,11 @@ fun EntryDetailRoute(
     }
     if (more && current != null) {
         DiaryBottomSheet(onDismiss = { more = false }) {
-            SheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), colors.textPrimary) {
+            DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), colors.textPrimary) {
                 more = false
                 share(current.entry.plainText)
             }
-            SheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), colors.danger) {
+            DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), colors.danger) {
                 more = false
                 viewModel.moveToTrash()
             }
@@ -234,23 +235,6 @@ private fun ActionButton(icon: ImageVector, description: String, tint: Color, on
         contentAlignment = Alignment.Center
     ) {
         DiaryIcon(icon, contentDescription = description, tint = tint)
-    }
-}
-
-@Composable
-internal fun SheetAction(icon: ImageVector, label: String, tint: Color, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r12)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
-            .padding(vertical = DiarySpacing.x3),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        DiaryIcon(icon, contentDescription = null, tint = tint)
-        BasicText(label, style = DiaryTheme.typography.body.copy(color = tint))
     }
 }
 

@@ -71,7 +71,7 @@ class StoredIdsTest {
     fun setting_and_lock_ids() {
         assertEquals(listOf("system", "light", "dark"), ThemeMode.entries.map { it.id })
         assertEquals(listOf("immediately", "one_minute", "five_minutes", "cold_start"), RelockAfter.entries.map { it.id })
-        assertEquals(listOf("normal", "missing"), MediaStatus.entries.map { it.id })
+        assertEquals(listOf("normal", "missing", "pending"), MediaStatus.entries.map { it.id })
         assertEquals(
             listOf("NotStarted", "Snapshotting", "Copying", "Verifying", "Committing", "Done", "Partial", "Failed", "Deferred"),
             MigrationStep.entries.map { it.id }

@@ -1,10 +1,13 @@
 package org.sjhstudio.diary.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -17,10 +20,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -72,5 +79,32 @@ fun DiaryBottomSheet(
                 content()
             }
         }
+    }
+}
+
+/**
+ * 시트 안의 동작 줄(`docs/design.md` 누름). 글자는 시트 안쪽 선에 맞추고, 누름 면은 양옆으로 12 나와서 글자에 여백이 보인다.
+ * 면이 줄 폭과 같으면 아이콘이 면 끝에 붙어 보인다(2026-11-05 사용자 지적).
+ */
+@Composable
+fun DiarySheetAction(icon: ImageVector, label: String, tint: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    Row(
+        modifier
+            .fillMaxWidth()
+            .layout { measurable, constraints ->
+                val outset = DiarySpacing.x3.roundToPx()
+                val width = constraints.maxWidth + outset * 2
+                val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+                layout(constraints.maxWidth, placeable.height) { placeable.place(-outset, 0) }
+            }
+            .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r12)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            .padding(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x3),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        DiaryIcon(icon, contentDescription = null, tint = tint)
+        BasicText(label, style = DiaryTheme.typography.body.copy(color = tint))
     }
 }
