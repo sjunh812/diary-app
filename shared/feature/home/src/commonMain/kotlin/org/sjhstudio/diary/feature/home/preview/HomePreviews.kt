@@ -14,8 +14,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.feature.home.HomeScreen
-import org.sjhstudio.diary.feature.home.MonthSheet
 
 private val Today = LocalDate(2026, 10, 31)
 
@@ -63,10 +63,12 @@ private fun HomeNoFavorites() = Home(dark = true, rows = emptyList(), favoritesO
 @Composable
 private fun MonthPicker() = DiaryTheme(darkTheme = false) {
     Box {
-        MonthSheet(
+        DiaryMonthSheet(
+            title = "날짜로 가기",
             initialYear = 2026,
             shown = YearMonth(2026, 10),
-            months = setOf(YearMonth(2026, 9), YearMonth(2026, 10)),
+            hasYear = { it == 2026 },
+            enabled = { it == YearMonth(2026, 9) || it == YearMonth(2026, 10) },
             onPick = {},
             onDismiss = {}
         )

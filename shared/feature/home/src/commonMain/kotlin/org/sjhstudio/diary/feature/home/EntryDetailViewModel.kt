@@ -12,13 +12,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
-import org.sjhstudio.diary.core.model.BodyTextSize
-import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.platform.FontInstaller
-
-/** 사용자가 고른 본문 글꼴과 크기. 목록 미리보기와 상세가 같이 쓴다. */
-data class BodyLook(val font: DiaryFont = DiaryFont.DEFAULT, val size: BodyTextSize = BodyTextSize.DEFAULT, val fontPath: String? = null)
+import org.sjhstudio.diary.core.ui.BodyLook
 
 /** 일기 상세. 휴지통으로 옮기면 [trashed]로 알리고 앱 틀이 되돌리기를 띄운다(FR-032). */
 class EntryDetailViewModel(

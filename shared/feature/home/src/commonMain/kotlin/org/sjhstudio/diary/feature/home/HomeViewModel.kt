@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.platform.FontInstaller
+import org.sjhstudio.diary.core.ui.BodyLook
 
 /** 홈 목록(FR-015~FR-018, FR-021). 줄은 60편씩 읽어서 1만 편이어도 첫 화면이 빠르다. */
 class HomeViewModel(private val entries: EntryRepository, private val settings: SettingsRepository, fonts: FontInstaller) : ViewModel() {

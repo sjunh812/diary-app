@@ -52,6 +52,28 @@ object DiaryIconSize {
     val i32: Dp = 32.dp
 }
 
+/** 달력 크기(Figma "달력 (S4)"). */
+object DiaryCalendarSize {
+    /** 날짜 칸 높이. */
+    val cell: Dp = 60.dp
+    val cellWide: Dp = 76.dp
+
+    /** 기분 얼굴. */
+    val face: Dp = 30.dp
+    val faceWide: Dp = 36.dp
+
+    /** 오늘 표시. */
+    val todayWidth: Dp = 24.dp
+    val todayHeight: Dp = 20.dp
+
+    /** 하루 여러 편 뱃지. */
+    val badge: Dp = 18.dp
+    val badgeBorder: Dp = 2.dp
+
+    /** 넓은 화면의 달력 칸 폭. */
+    val pane: Dp = 560.dp
+}
+
 /** 쓰기 화면 크기(Figma "쓰기 (S2)"). */
 object DiaryWriteSize {
     /** 위 줄 사진 칸과 더하기 칸. */

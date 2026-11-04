@@ -38,6 +38,7 @@ import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
+import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
 import org.sjhstudio.diary.feature.home.homeFeatureModule
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
@@ -58,6 +59,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     settingsFeatureModule,
     writeFeatureModule,
     homeFeatureModule,
+    calendarFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }

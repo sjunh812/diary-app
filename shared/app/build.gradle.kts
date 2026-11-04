@@ -34,6 +34,7 @@ kotlin {
             implementation(projects.shared.feature.settings)
             implementation(projects.shared.feature.write)
             implementation(projects.shared.feature.home)
+            implementation(projects.shared.feature.calendar)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

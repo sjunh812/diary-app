@@ -59,6 +59,7 @@ fun DiaryEntryRow(
     dividerAbove: Boolean = true,
     photo: (@Composable () -> Unit)? = null,
     previewStyle: TextStyle = DiaryTheme.typography.body,
+    dateColumn: Boolean = true,
     meta: @Composable RowScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
@@ -66,7 +67,16 @@ fun DiaryEntryRow(
         if (dividerAbove) {
             Box(
                 Modifier
-                    .padding(start = if (day != null) DiarySpacing.screenCompact else TEXT_START, end = DiarySpacing.screenCompact)
+                    .padding(
+                        start = if (day != null ||
+                            !dateColumn
+                        ) {
+                            DiarySpacing.screenCompact
+                        } else {
+                            TEXT_START
+                        },
+                        end = DiarySpacing.screenCompact
+                    )
                     .fillMaxWidth()
                     .height(1.dp)
                     .background(colors.line)
@@ -76,15 +86,17 @@ fun DiaryEntryRow(
             Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
             horizontalArrangement = Arrangement.spacedBy(DATE_GAP)
         ) {
-            Column(Modifier.width(DATE_COLUMN), horizontalAlignment = Alignment.CenterHorizontally) {
-                if (weekday != null) {
-                    BasicText(
-                        weekday,
-                        style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
-                    )
-                }
-                if (day != null) {
-                    BasicText(day, style = DiaryTheme.typography.numeral.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
+            if (dateColumn) {
+                Column(Modifier.width(DATE_COLUMN), horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (weekday != null) {
+                        BasicText(
+                            weekday,
+                            style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+                        )
+                    }
+                    if (day != null) {
+                        BasicText(day, style = DiaryTheme.typography.numeral.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
+                    }
                 }
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {

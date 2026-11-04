@@ -71,6 +71,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
 import org.sjhstudio.diary.feature.home.HomeRoute
 import org.sjhstudio.diary.feature.home.PhotoViewerRoute
@@ -242,7 +243,13 @@ private fun Content(
                 entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }) { key ->
                     PhotoViewerRoute(key.entryId, key.index, onClose = pop)
                 }
-                entry<CalendarKey> { EmptyTab() }
+                entry<CalendarKey> {
+                    CalendarRoute(
+                        twoPane = twoPane,
+                        onOpen = backStack::openEntry,
+                        onWriteOn = { backStack.add(WriteKey(date = it.toString())) }
+                    )
+                }
                 entry<InsightKey> { EmptyTab() }
                 settingsEntries(push = { backStack.add(it) }, pop = pop)
                 entry<WriteKey> { key ->

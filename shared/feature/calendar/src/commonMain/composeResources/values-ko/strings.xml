@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_today">오늘</string>
+    <string name="calendar_previous_month">이전 달</string>
+    <string name="calendar_next_month">다음 달</string>
+    <string name="calendar_month_sheet_title">날짜로 가기</string>
+    <string name="calendar_empty">이날 쓴 일기가 없어요</string>
+    <string name="calendar_write_on_day">이날 일기 쓰기</string>
+    <string name="calendar_day_summary">%1$s · %2$s</string>
+    <plurals name="calendar_day_count">
+        <item quantity="other">%1$d편</item>
+    </plurals>
+</resources>

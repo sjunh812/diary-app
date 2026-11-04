@@ -21,19 +21,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -45,11 +42,9 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
-import kotlinx.datetime.onDay
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
@@ -62,6 +57,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
+import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -107,10 +103,12 @@ fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, selectedId: String?
         modifier = modifier
     )
     if (picking) {
-        MonthSheet(
+        DiaryMonthSheet(
+            title = stringResource(Res.string.home_month_sheet_title),
             initialYear = shown.year,
             shown = YearMonth(shown.year, shown.month.number),
-            months = months,
+            hasYear = { year -> months.any { it.year == year } },
+            enabled = { it in months },
             onPick = { month ->
                 picking = false
                 scope.launch { list.scrollToItem(viewModel.positionOf(month)) }
@@ -245,71 +243,5 @@ private fun Feed(
                 )
             }
         }
-    }
-}
-
-/** 연·월 고르기(Figma "S1 · 연·월 고르기"). 일기가 있는 달만 고를 수 있다(FR-017). */
-@Composable
-internal fun MonthSheet(initialYear: Int, shown: YearMonth, months: Set<YearMonth>, onPick: (YearMonth) -> Unit, onDismiss: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val dates = rememberDiaryDateFormat()
-    var year by remember { mutableIntStateOf(initialYear) }
-    val years = months.map { it.year }
-    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.home_month_sheet_title)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            YearArrow(DiaryIcons.ChevronLeft, enabled = years.any { it < year }) { year-- }
-            BasicText(
-                year.toString(),
-                modifier = Modifier.weight(1f),
-                style = DiaryTheme.typography.headline.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
-            )
-            YearArrow(DiaryIcons.ChevronRight, enabled = years.any { it > year }) { year++ }
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            for (quarter in (1..12).chunked(4)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                    for (number in quarter) {
-                        val month = YearMonth(year, number)
-                        MonthCell(dates.month(month.onDay(1)), month == shown, month in months, Modifier.weight(1f)) { onPick(month) }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun YearArrow(icon: androidx.compose.ui.graphics.vector.ImageVector, enabled: Boolean, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val interaction = remember { MutableInteractionSource() }
-    Box(
-        Modifier
-            .size(DiarySpacing.minTouchTarget)
-            .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        DiaryIcon(icon, contentDescription = null, tint = if (enabled) colors.textPrimary else colors.placeholder, size = DiaryIconSize.i20)
-    }
-}
-
-@Composable
-private fun MonthCell(label: String, selected: Boolean, enabled: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val interaction = remember { MutableInteractionSource() }
-    Box(
-        modifier
-            .height(DiarySpacing.minTouchTarget)
-            .clip(DiaryShapes.r12)
-            .background(if (selected) colors.selected else colors.sunken)
-            .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        val color =
-            when {
-                selected -> colors.accentText
-                enabled -> colors.textPrimary
-                else -> colors.placeholder
-            }
-        BasicText(label, style = DiaryTheme.typography.label.copy(color = color), maxLines = 1)
     }
 }

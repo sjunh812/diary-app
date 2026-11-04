@@ -6,6 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
@@ -44,6 +45,7 @@ import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
 
@@ -68,6 +70,7 @@ class AppScaffoldUiTest {
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository() }
                     viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts) }
+                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts) }
                 }
             )
         }
@@ -127,9 +130,11 @@ class AppScaffoldUiTest {
 
     @Test
     fun choosing_a_tab_selects_it_and_logs_only_the_screen_key() = shell(width = 400.dp) {
-        onAllNodes(isSelectable())[1].performClick()
+        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다.
+        val tabs = isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+        onAllNodes(tabs)[1].performClick()
         waitForIdle()
-        onAllNodes(isSelectable())[1].assertIsSelected()
+        onAllNodes(tabs)[1].assertIsSelected()
         assertEquals(
             listOf("HomeKey", "CalendarKey"),
             sink.events.filter { it.first == AnalyticsEvents.SCREEN_VIEW }.map { it.second.getValue("screen") }

@@ -147,10 +147,10 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 **Independent Test**: 하루 2편인 날이 있는 한 달에서 일기 있는 날·빈 날 누르기
 
-- [ ] T052 [P] [US3] 달력 질의 시험: 칸 기분 = "일기 시각이 가장 늦은 것, 같으면 만든 시각이 늦은 것", 편수, 기분 없는 날 중립, 휴지통 제외 `shared/core/data/{test}/core/data/MonthQueryTest.kt`
-- [ ] T053 [US3] `EntryRepository.month`, `day`를 `EntryRepositoryImpl.kt`에 더한다
-- [ ] T054 [US3] 달력 화면(한 장 한 달 넘기기, 7열 격자, 오늘·주말 구별, 연·월 고르기, [오늘], 그날 목록, 빈 날 "이날 쓴 일기가 없어요" [이날 일기 쓰기])을 `shared/feature/calendar/{kt}/feature/calendar/CalendarViewModel.kt`, `CalendarScreen.kt`에 만든다
-- [ ] T055 [US3] 840dp 이상에서 달력 + 그날 목록 두 칸을 `CalendarScreen.kt`에 더하고 문구를 `shared/feature/calendar/src/commonMain/composeResources/values/strings.xml`에 둔다
+- [x] T052 [P] [US3] 달력 질의 시험: 칸 기분 = "일기 시각이 가장 늦은 것, 같으면 만든 시각이 늦은 것", 편수, 기분 없는 날 중립, 휴지통 제외 `shared/core/data/{test}/core/data/MonthQueryTest.kt` 2026-11-04: `DiaryReadRepositoryTest`와 `CalendarViewModelTest`에 넣었다
+- [x] T053 [US3] `EntryRepository.month`, `day`를 `EntryRepositoryImpl.kt`에 더한다 2026-11-04: `DefaultEntryRepository`에 있다
+- [x] T054 [US3] 달력 화면(한 장 한 달 넘기기, 7열 격자, 오늘·주말 구별, 연·월 고르기, [오늘], 그날 목록, 빈 날 "이날 쓴 일기가 없어요" [이날 일기 쓰기])을 `shared/feature/calendar/{kt}/feature/calendar/CalendarViewModel.kt`, `CalendarScreen.kt`에 만든다
+- [x] T055 [US3] 840dp 이상에서 달력 + 그날 목록 두 칸을 `CalendarScreen.kt`에 더하고 문구를 `shared/feature/calendar/src/commonMain/composeResources/values/strings.xml`에 둔다
 
 ---
 

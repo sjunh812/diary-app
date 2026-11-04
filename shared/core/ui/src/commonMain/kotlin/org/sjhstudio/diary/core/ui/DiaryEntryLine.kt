@@ -20,7 +20,8 @@ fun DiaryEntryLine(
     showDate: Boolean,
     dividerAbove: Boolean,
     modifier: Modifier = Modifier,
-    previewStyle: TextStyle = DiaryTheme.typography.body
+    previewStyle: TextStyle = DiaryTheme.typography.body,
+    dateColumn: Boolean = true
 ) {
     val dates = rememberDiaryDateFormat()
     val colors = DiaryTheme.colors
@@ -34,6 +35,7 @@ fun DiaryEntryLine(
         dividerAbove = dividerAbove,
         photo = if (row.photos.isEmpty()) null else ({ DiaryPhotoCell(row.photos) }),
         previewStyle = previewStyle,
+        dateColumn = dateColumn,
         meta = {
             row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }
             BasicText(dates.time(row.time), style = typography.captionStrong.copy(color = colors.textSecondary), maxLines = 1)

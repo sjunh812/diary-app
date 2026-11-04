@@ -68,3 +68,6 @@ fun diaryPreviewTextStyle(font: DiaryFont, size: BodyTextSize, installed: (Diary
         lineHeight = body.lineHeight * ratio
     )
 }
+
+/** 사용자가 고른 글꼴과 본문 크기. 목록 미리보기와 상세가 같이 쓴다. */
+data class BodyLook(val font: DiaryFont = DiaryFont.DEFAULT, val size: BodyTextSize = BodyTextSize.DEFAULT, val fontPath: String? = null)
