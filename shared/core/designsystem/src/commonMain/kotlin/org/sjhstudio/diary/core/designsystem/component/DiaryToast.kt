@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,7 +74,7 @@ class DiaryToastState {
 
 /**
  * 토스트(`docs/design.md` 토스트, TDS Toast, SEED Snackbar).
- * 폭 화면 - 40 · 높이 48 · 한 줄 full, 여러 줄 20 · bodyStrong.
+ * 폭 화면 - 40, 최대 400 · 높이 48 · 한 줄 full, 여러 줄 20 · bodyStrong.
  * 버튼이 있으면 5초, 없으면 3초 보이고(TDS Toast), 누르는 동안은 사라지지 않는다.
  * 탭과 쓰기 버튼 위에 오도록 부르는 쪽이 자리를 잡는다.
  */
@@ -99,6 +100,7 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
             modifier =
                 Modifier
                     .padding(horizontal = DiarySpacing.x5)
+                    .widthIn(max = MaxWidth)
                     .fillMaxWidth()
                     .heightIn(min = 48.dp)
                     .clip(if (multiline) DiaryShapes.r20 else DiaryShapes.full)
@@ -133,5 +135,7 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
     }
 }
 
+// 태블릿에서도 폰과 같은 크기로 보이게 막는다(M3 스낵바 344~672, 안드로이드 태블릿 스낵바 576 안쪽).
+private val MaxWidth = 400.dp
 private const val ACTION_MILLIS = 5_000L
 private const val PLAIN_MILLIS = 3_000L
