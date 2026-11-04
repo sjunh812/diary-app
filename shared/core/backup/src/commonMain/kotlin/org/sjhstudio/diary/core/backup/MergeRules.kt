@@ -32,5 +32,6 @@ object MergeRules {
             x.placeName == y.placeName && x.isFavorite == y.isFavorite && x.deletedAt == y.deletedAt && a.mediaKey() == b.mediaKey()
     }
 
-    private fun MergeEntry.mediaKey() = media.sortedBy { it.sortOrder }.map { Triple(it.sortOrder, it.sha256, it.status) }
+    /** 사진을 받는 중이어도 같은 사진이다. 그래서 상태는 견주지 않고, 해시가 없는 이전 사진 줄은 옛 경로로 견준다. */
+    private fun MergeEntry.mediaKey() = media.sortedBy { it.sortOrder }.map { it.sortOrder to (it.sha256 ?: it.legacyPath) }
 }

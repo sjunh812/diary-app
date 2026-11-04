@@ -1,0 +1,153 @@
+package org.sjhstudio.diary.core.backup
+
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.room3.Room
+import kotlin.random.Random
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
+import okio.ByteString.Companion.toByteString
+import okio.FileSystem
+import okio.Path
+import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.EntryEntity
+import org.sjhstudio.diary.core.database.MediaEntity
+import org.sjhstudio.diary.core.database.configured
+import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.FreeSpace
+import org.sjhstudio.diary.core.testing.FakeDrive
+import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
+import org.sjhstudio.diary.core.testing.FakeNetworkState
+import org.sjhstudio.diary.core.testing.InMemoryDataStore
+
+/** 한 기기에서 백업하고 빈 기기에서 되살린다. 드라이브 대역을 두 기기가 같이 쓴다. */
+class RestoreRoundTripTest {
+    private val fs = FileSystem.SYSTEM
+    private lateinit var dir: Path
+    private lateinit var phoneA: DiaryDatabase
+    private lateinit var phoneB: DiaryDatabase
+    private lateinit var drive: FakeDrive
+
+    private fun open(name: String): DiaryDatabase {
+        fs.createDirectories(dir / name / "media")
+        return Room.databaseBuilder<DiaryDatabase>((dir / name / "diary.db").toString()).configured().build()
+    }
+
+    @BeforeTest
+    fun setUp() {
+        dir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "restore-${Random.nextLong()}"
+        phoneA = open("a")
+        phoneB = open("b")
+        drive = FakeDrive(fs)
+    }
+
+    @AfterTest
+    fun tearDown() {
+        phoneA.close()
+        phoneB.close()
+        fs.deleteRecursively(dir)
+    }
+
+    private fun entry(id: String) = EntryEntity(
+        id, "2026-10-31", "21:40", "<p>$id</p>", id, "good", null, "망원동", true, 1, 7, null, id.first().code, null, null
+    )
+
+    private suspend fun backUp(): String {
+        val bytes = "사진 내용".encodeToByteArray()
+        val hash = bytes.toByteString().sha256().hex()
+        fs.write(dir / "a" / "media" / "$hash.jpg") { write(bytes) }
+        phoneA.entryDao().insertAll(listOf(entry("one"), entry("two")))
+        phoneA.mediaDao().insertAll(listOf(MediaEntity("m", "one", 0, "normal", "$hash.jpg", hash, 1, 1, bytes.size.toLong(), null, 1)))
+        val runner =
+            BackupRunner(
+                phoneA, drive, FakeDriveAuthorizer(), BackupStore(InMemoryDataStore(emptyPreferences())), FakeNetworkState(),
+                DeviceName {
+                    "A"
+                },
+                fs,
+                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+            )
+        assertIs<BackupOutcome.Done>(runner.run())
+        return hash
+    }
+
+    private fun planner() = RestorePlanner(
+        drive,
+        MergeApplier(phoneB, {
+            fs.exists(dir / "b" / "media" / it)
+        }),
+        FreeSpace { 1_000_000 },
+        fs,
+        dir / "b" / "backup"
+    )
+
+    private fun catalog() = RestoreCatalog(drive, fs, dir / "b" / "backup")
+
+    @Test
+    fun backup_comes_back_on_an_empty_device() = runTest {
+        val hash = backUp()
+
+        val candidate = catalog().list().single()
+        assertEquals(BackupEntryState.Ready, candidate.entry.state)
+        val prepared = planner().prepare(candidate)
+        assertEquals(2, prepared.preview.entriesAdded)
+        assertEquals(1, prepared.preview.photosToDownload)
+
+        MergeApplier(phoneB, { false }).apply(prepared.plan, "drive")
+        assertEquals("pending", phoneB.backupDao().allMedia().single().status)
+        val (fetched, broken) = PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+
+        assertEquals(1 to 0, fetched to broken)
+        assertEquals("normal", phoneB.backupDao().allMedia().single().status)
+        assertTrue(fs.exists(dir / "b" / "media" / "$hash.jpg"))
+        val restored = phoneB.backupDao().allEntries().first { it.id == "one" }
+        assertEquals(entry("one").copy(updatedAt = restored.updatedAt), restored)
+    }
+
+    @Test
+    fun running_again_changes_nothing() = runTest {
+        backUp()
+        val applier = MergeApplier(phoneB, { false })
+        applier.apply(planner().prepare(catalog().list().single()).plan, "drive")
+
+        val second = planner().prepare(catalog().list().single())
+
+        assertEquals(0, second.preview.entriesAdded)
+        assertEquals(2, second.preview.entriesUnchanged)
+    }
+
+    @Test
+    fun missing_snapshot_is_listed_as_damaged() = runTest {
+        backUp()
+        drive.deleteByUser(drive.visible.first { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_SNAPSHOT }.id)
+
+        assertEquals(BackupEntryState.Damaged(DamageReason.SNAPSHOT_MISSING), catalog().list().single().entry.state)
+    }
+
+    @Test
+    fun newer_format_cannot_be_picked() = runTest {
+        backUp()
+        val listed = catalog().list().single()
+        val future = listed.manifest!!.copy(formatVersion = 99)
+
+        assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(future))
+    }
+
+    @Test
+    fun wrong_hash_stops_before_any_write() = runTest {
+        backUp()
+        val listed = catalog().list().single()
+        val wrong = listed.copy(manifest = listed.manifest!!.copy(snapshot = listed.manifest.snapshot.copy(sha256 = "0".repeat(64))))
+
+        assertFailsWith<RestoreMismatch> { planner().prepare(wrong) }
+        assertEquals(0, phoneB.backupDao().allEntries().size)
+    }
+}
