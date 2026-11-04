@@ -91,19 +91,19 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ### Tests for User Story 1 ⚠️
 
-- [ ] T033 [P] [US1] `shared/core/backup/{test}/core/backup/BackupRunnerTest.kt`: 처음 백업(폴더·README·`appProperties`), 두 번째 백업은 새 사진만, 같은 사진은 드라이브에 하나, 목록 파일이 마지막, 확인값이 다르면 다시 올림, 완료 뒤에만 `last_success_at`·`sync_base`
+- [x] T033 [P] [US1] `shared/core/backup/{test}/core/backup/BackupRunnerTest.kt`: 처음 백업(폴더·README·`appProperties`), 두 번째 백업은 새 사진만, 같은 사진은 드라이브에 하나, 목록 파일이 마지막, 확인값이 다르면 다시 올림, 완료 뒤에만 `last_success_at`·`sync_base`
 - [ ] T034 [P] [US1] `{test}/core/backup/BackupInterruptionTest.kt`: 사진 올리는 중 끊김·앱 종료(상태 파일에서 잇기), 세션 만료, 목록 파일 전 끊김(목록에 안 보임, 이전 백업 그대로), 이미 올린 사진 재전송 0(SC-002)
 - [ ] T035 [P] [US1] `{test}/core/backup/BackupAccountTest.kt`: 토큰 만료 → 한 번 새로 받기 → `AUTH`, 다른 계정이면 `backup_media`가 섞이지 않음, 드라이브에서 폴더를 지우면 새로 만들고 처음부터, 폴더 이름을 바꿔도 `appProperties`로 이어짐
-- [ ] T036 [P] [US1] `{test}/core/backup/RetentionPolicyTest.kt`, `MediaJanitorTest.kt`: 기기마다 최근 5개 + 달마다 1개, 다른 기기 백업 안 건드림, 목록 파일 없는 스냅샷 7일 뒤 정리, `diary.unrefSince` 30일, 다시 가리키면 지움, 모두 휴지통으로
+- [x] T036 [P] [US1] `{test}/core/backup/RetentionPolicyTest.kt`, `MediaJanitorTest.kt`: 기기마다 최근 5개 + 달마다 1개, 다른 기기 백업 안 건드림, 목록 파일 없는 스냅샷 7일 뒤 정리, `diary.unrefSince` 30일, 다시 가리키면 지움, 모두 휴지통으로
 - [ ] T037 [P] [US1] `{test}/core/backup/BackupConcurrencyTest.kt`: 백업 중 일기 쓰기·고치기·지우기 → 다음 백업에 들어가고 이번 스냅샷은 한 시점. 이전·복원 중에는 백업이 시작되지 않음
 - [ ] T038 [P] [US1] `{test}/core/backup/LargeBackupTest.kt`: 일기 1만 편·사진 1만 장(가짜 바이트, 한 장 30MB 몇 개)이 메모리 상한 안에서 끝까지, 진행 숫자가 바이트 단위로 나아감(SC-005)
 
 ### Implementation for User Story 1
 
-- [ ] T039 [US1] `shared/core/backup/{kt}/core/backup/DriveLayout.kt`: 루트·`snapshots`·`media` 폴더 찾기와 만들기(`appProperties`, 같은 종류 여럿이면 가장 먼저 만든 것), README 올리기(문자열 리소스 `backup_readme_body`), 스냅샷 이름 규칙
-- [ ] T040 [US1] `{kt}/core/backup/UploadPlanner.kt`: 드라이브 `media/` 목록으로 `backup_media` 맞추기 → 올릴 사진 정하기(공간·Wi-Fi 규칙은 US4·US5에서 채울 자리) → 목록 파일의 `media` 칸 만들기
-- [ ] T041 [US1] `{kt}/core/backup/BackupRunner.kt`: 상태 기계(data-model.md 백업), `backup/state.json` 쓰기·잇기, 사진 → 스냅샷 → 목록 파일, 파일마다 `sha256Checksum`(없으면 MD5) 확인, 동시에 2장(research O5), 다시 하기 규칙, 끝나면 `sync_base`·`BackupStore` 고치기
-- [ ] T042 [US1] `{kt}/core/backup/RetentionPolicy.kt`, `MediaJanitor.kt`: `contracts/backup-format.md` "보관과 정리"
+- [x] T039 [US1] `shared/core/backup/{kt}/core/backup/DriveLayout.kt`: 루트·`snapshots`·`media` 폴더 찾기와 만들기(`appProperties`, 같은 종류 여럿이면 가장 먼저 만든 것), README 올리기(문자열 리소스 `backup_readme_body`), 스냅샷 이름 규칙
+- [x] T040 [US1] `{kt}/core/backup/UploadPlanner.kt`: 드라이브 `media/` 목록으로 `backup_media` 맞추기 → 올릴 사진 정하기(공간·Wi-Fi 규칙은 US4·US5에서 채울 자리) → 목록 파일의 `media` 칸 만들기
+- [x] T041 [US1] `{kt}/core/backup/BackupRunner.kt`: 상태 기계(data-model.md 백업), `backup/state.json` 쓰기·잇기, 사진 → 스냅샷 → 목록 파일, 파일마다 `sha256Checksum`(없으면 MD5) 확인, 동시에 2장(research O5), 다시 하기 규칙, 끝나면 `sync_base`·`BackupStore` 고치기
+- [x] T042 [US1] `{kt}/core/backup/RetentionPolicy.kt`, `MediaJanitor.kt`: `contracts/backup-format.md` "보관과 정리"
 - [ ] T043 [US1] `shared/core/platform/{android}/core/platform/AndroidBackupScheduler.kt` 지금 백업: Android 14 이상 `BackupTransferJobService`(사용자가 시작한 데이터 전송, 진행 알림), 13 이하 급한 작업 + `setForeground`(`dataSync`), `onTimeout`·작업 멈춤에서 상태 남기기(research R14)
 - [ ] T044 [P] [US1] `shared/core/platform/{ios}/core/platform/IosBackupScheduler.kt`와 `iosApp/iosApp/Backup/ContinuedBackupTask.swift`: 앞에서는 공통 코드로, iOS 26 이상은 `BGContinuedProcessingTask`로 넘겨 진행 보고, 17~25는 `beginBackgroundTask` 안에서 조각(research R15)
 - [ ] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)

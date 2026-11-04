@@ -24,8 +24,19 @@ interface BackupDao {
     )
     fun notBackedUp(accountKey: String): Flow<Int>
 
-    @Query("SELECT DISTINCT sha256, file_name AS fileName, byte_size AS byteSize FROM media WHERE status = 'normal' AND sha256 IS NOT NULL")
+    /** 올릴 사진. 공간이 모자라면 앞에서부터 들어가는 만큼 올리도록 최근 일기의 사진이 먼저다(FR-018). */
+    @Query(
+        "SELECT m.sha256 AS sha256, MIN(m.file_name) AS fileName, MAX(m.byte_size) AS byteSize FROM media m " +
+            "JOIN entry e ON e.id = m.entry_id WHERE m.status = 'normal' AND m.sha256 IS NOT NULL " +
+            "GROUP BY m.sha256 ORDER BY MAX(e.date || e.time) DESC"
+    )
     suspend fun localPhotos(): List<LocalPhotoRow>
+
+    /** 목록 파일에 적을 사진 중 기기에 파일이 없는 것. */
+    @Query(
+        "SELECT DISTINCT sha256, file_name AS fileName, byte_size AS byteSize FROM media WHERE status = 'pending' AND sha256 IS NOT NULL"
+    )
+    suspend fun pendingPhotos(): List<LocalPhotoRow>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun setBase(rows: List<SyncBaseEntity>)
