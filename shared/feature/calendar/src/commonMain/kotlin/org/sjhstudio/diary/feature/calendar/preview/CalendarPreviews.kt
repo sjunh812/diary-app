@@ -23,7 +23,8 @@ private val Days =
     mapOf(
         LocalDate(2026, 10, 1) to DayMood(LocalDate(2026, 10, 1), Mood.COOL, 1),
         LocalDate(2026, 10, 12) to DayMood(LocalDate(2026, 10, 12), null, 1),
-        Today to DayMood(Today, Mood.GOOD, 2)
+        LocalDate(2026, 10, 13) to DayMood(LocalDate(2026, 10, 13), null, 2),
+        Today to DayMood(Today, Mood.GOOD, 2, Mood.COOL)
     )
 
 @Composable

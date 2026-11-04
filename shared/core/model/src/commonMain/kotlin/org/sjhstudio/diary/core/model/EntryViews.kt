@@ -31,8 +31,11 @@ data class EntryDetail(val entry: Entry, val photos: List<EntryPhoto>) {
     override fun toString(): String = "EntryDetail"
 }
 
-/** 달력 칸과 기분 흐름. [mood]는 그날 마지막 일기의 기분이고 [count]는 편수다. */
-data class DayMood(val date: LocalDate, val mood: Mood?, val count: Int)
+/**
+ * 달력 칸과 기분 흐름. [mood]는 그날 마지막 일기의 기분이고 [count]는 편수다.
+ * [previousMood]는 바로 앞 일기의 기분이고 달력에서 뒤에 겹쳐 그린다.
+ */
+data class DayMood(val date: LocalDate, val mood: Mood?, val count: Int, val previousMood: Mood? = null)
 
 /** 휴지통 한 줄. [daysLeft]는 영구 삭제까지 남은 날이다. */
 data class TrashedEntry(val row: EntryRow, val deletedAt: Instant, val daysLeft: Int) {

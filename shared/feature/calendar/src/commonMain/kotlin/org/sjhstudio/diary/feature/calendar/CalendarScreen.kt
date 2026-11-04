@@ -15,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -39,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -49,7 +50,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -79,7 +80,9 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.MoodFace
+import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -367,36 +370,34 @@ private fun DayCell(
             )
         }
         if (day != null) {
-            Box {
-                val mood = day.mood
-                if (mood != null) {
-                    MoodFace(mood, faceSize)
-                } else {
-                    // 기분을 고르지 않은 날은 얼굴 없이 중립 원만 둔다.
-                    Box(Modifier.size(faceSize).clip(DiaryShapes.full).background(colors.sunken))
-                }
-                if (day.count > 1) DayCount(day.count, Modifier.align(Alignment.BottomEnd))
-            }
+            DayFace(
+                day,
+                faceSize,
+                if (wide) DiaryCalendarSize.stackOffsetWide else DiaryCalendarSize.stackOffset,
+                if (selected) colors.selected else colors.canvas
+            )
         }
     }
 }
 
-/**
- * 하루 여러 편은 얼굴 오른쪽 아래 옆에 숫자만 조용히 둔다(2026-11-05 사용자 결정).
- * 폭을 차지하지 않게 재서 얼굴이 칸 가운데에서 밀리지 않는다.
- */
+/** 그날 마지막 일기의 얼굴. 여러 편이면 앞 일기의 기분 색을 뒤에 겹친다(2026-11-05 사용자 결정). 편수는 고른 날 목록에 있다. */
 @Composable
-private fun DayCount(count: Int, modifier: Modifier) {
-    BasicText(
-        count.toString(),
-        modifier =
-            modifier.layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity))
-                layout(0, placeable.height) { placeable.place(DiaryCalendarSize.countGap.roundToPx(), 0) }
-            },
-        style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.textSecondary),
-        maxLines = 1
-    )
+private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) {
+    Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+        if (day.count > 1) {
+            val colors = DiaryTheme.colors
+            val previous = day.previousMood?.let { moodColor(it) } ?: colors.sunken
+            Box(Modifier.offset(x = stackOffset).size(size).clip(DiaryShapes.full).background(previous))
+            Box(
+                Modifier
+                    .requiredSize(size + DiaryCalendarSize.stackRing * 2)
+                    .clip(DiaryShapes.full)
+                    .background(background)
+            )
+        }
+        val mood = day.mood
+        if (mood != null) MoodFace(mood, size) else NoMoodFace(size)
+    }
 }
 
 /** 고른 날의 일기. 없으면 그날 쓰기를 권한다. */

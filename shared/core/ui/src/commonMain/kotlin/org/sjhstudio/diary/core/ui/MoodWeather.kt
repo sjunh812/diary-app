@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
@@ -58,6 +61,40 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
         )
     }
 }
+
+/** 기분 없이 글만 쓴 일기. 회색 원 안 글줄 둘이고, 칸 안의 위치는 얼굴과 같은 비율이다. */
+@Composable
+fun NoMoodFace(size: Dp, modifier: Modifier = Modifier) {
+    val colors = DiaryTheme.colors
+    val line = colors.textSecondary
+    Canvas(modifier.size(size).clip(DiaryShapes.full).background(colors.sunken)) {
+        val unit = this.size.width / NO_MOOD_GRID
+        val stroke = NO_MOOD_STROKE * unit
+        drawLine(
+            line,
+            Offset(NO_MOOD_LEFT * unit, NO_MOOD_FIRST_Y * unit),
+            Offset(NO_MOOD_FIRST_END * unit, NO_MOOD_FIRST_Y * unit),
+            stroke,
+            StrokeCap.Round
+        )
+        drawLine(
+            line,
+            Offset(NO_MOOD_LEFT * unit, NO_MOOD_SECOND_Y * unit),
+            Offset(NO_MOOD_SECOND_END * unit, NO_MOOD_SECOND_Y * unit),
+            stroke,
+            StrokeCap.Round
+        )
+    }
+}
+
+// 칸 28 기준의 글줄 자리.
+private const val NO_MOOD_GRID = 28f
+private const val NO_MOOD_STROKE = 1.75f
+private const val NO_MOOD_LEFT = 8f
+private const val NO_MOOD_FIRST_END = 20f
+private const val NO_MOOD_SECOND_END = 16f
+private const val NO_MOOD_FIRST_Y = 12f
+private const val NO_MOOD_SECOND_Y = 16f
 
 /** 날씨 아이콘. */
 @Composable

@@ -95,8 +95,10 @@ object DiaryCalendarSize {
     val todayWidth: Dp = 24.dp
     val todayHeight: Dp = 20.dp
 
-    /** 얼굴과 하루 여러 편 숫자 사이. */
-    val countGap: Dp = 2.dp
+    /** 하루 여러 편일 때 뒤 얼굴이 옆으로 나오는 만큼과 앞 얼굴 둘레. */
+    val stackOffset: Dp = 5.dp
+    val stackOffsetWide: Dp = 6.dp
+    val stackRing: Dp = 2.dp
 
     /** 넓은 화면의 달력 칸 폭. */
     val pane: Dp = 560.dp

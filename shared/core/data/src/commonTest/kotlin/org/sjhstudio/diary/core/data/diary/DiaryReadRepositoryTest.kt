@@ -117,7 +117,9 @@ class DiaryReadRepositoryTest {
 
         assertEquals(Mood.GOOD, month[LocalDate(2026, 10, 31)]?.mood)
         assertEquals(2, month[LocalDate(2026, 10, 31)]?.count)
+        assertEquals(Mood.SAD, month[LocalDate(2026, 10, 31)]?.previousMood)
         assertNull(month[LocalDate(2026, 10, 29)]?.mood)
+        assertNull(month[LocalDate(2026, 10, 29)]?.previousMood)
     }
 
     @Test

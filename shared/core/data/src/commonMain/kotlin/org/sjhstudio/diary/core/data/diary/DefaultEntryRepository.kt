@@ -96,5 +96,6 @@ internal fun escapeLike(text: String): String = buildString(text.length) {
 /** 시간순 줄을 날짜로 묶는다. 뒤에 있는 줄이 그날 마지막 일기다. */
 internal fun toDayMoods(rows: List<DayMoodRow>): Map<LocalDate, DayMood> = rows.groupBy { it.date }.entries.associate { (date, day) ->
     val parsed = LocalDate.parse(date)
-    parsed to DayMood(parsed, Mood.fromId(day.last().mood), day.size)
+    val previous = day.getOrNull(day.lastIndex - 1)
+    parsed to DayMood(parsed, Mood.fromId(day.last().mood), day.size, previous?.mood?.let(Mood::fromId))
 }
