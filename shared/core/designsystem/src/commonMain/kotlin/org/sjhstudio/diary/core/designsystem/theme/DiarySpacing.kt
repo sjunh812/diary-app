@@ -113,9 +113,6 @@ object DiaryWriteSize {
     val moodCellHeight: Dp = 84.dp
     val moodFace: Dp = 44.dp
 
-    /** 날씨 칸. */
-    val weatherCellHeight: Dp = 60.dp
-
     /** 서식 도구 줄. */
     val toolbar: Dp = 52.dp
 

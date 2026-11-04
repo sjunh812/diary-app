@@ -6,10 +6,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -27,8 +26,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
-import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -44,12 +43,12 @@ import org.sjhstudio.diary.core.model.Weather
 @Composable
 fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.offset(x = -DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        for (row in Mood.entries.chunked(MOOD_COLUMNS)) {
+        for (row in Mood.entries.chunked(GRID_COLUMNS)) {
             Row(Modifier.fillMaxWidth()) {
                 for (mood in row) {
                     Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
                 }
-                repeat(MOOD_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
+                repeat(GRID_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -88,45 +87,21 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
     }
 }
 
-/** 날씨 고르기 칸 7개. 기분처럼 두 줄이 같은 칸을 쓰고 아이콘과 이름은 칸 왼쪽에 맞춘다. */
+/**
+ * 날씨 고르기. 기분이 주인공이라 날씨는 칩으로 가볍게 두고, 고른 칩만 색이 든다.
+ * 칩은 폭만큼 줄을 바꿔서 긴 영어 이름이나 큰 글씨에서도 잘리지 않는다.
+ */
 @Composable
 fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier.offset(x = -DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-        for (row in Weather.entries.chunked(WEATHER_COLUMNS)) {
-            // 이름이 두 줄인 칸이 있어도 한 줄의 칸은 높이가 같다.
-            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-                for (weather in row) WeatherCell(weather, isSelected(weather), Modifier.weight(1f).fillMaxHeight()) { onToggle(weather) }
-                repeat(WEATHER_COLUMNS - row.size) { Spacer(Modifier.weight(1f)) }
-            }
+    FlowRow(
+        modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+    ) {
+        for (weather in Weather.entries) {
+            DiaryChip(weatherName(weather), isSelected(weather), { onToggle(weather) }, leadingIcon = weather.icon())
         }
     }
 }
 
-@Composable
-private fun WeatherCell(weather: Weather, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val interaction = remember { MutableInteractionSource() }
-    Column(
-        modifier =
-            modifier
-                .heightIn(min = DiaryWriteSize.weatherCellHeight)
-                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-                .clip(DiaryShapes.r12)
-                .background(if (selected) colors.selected else colors.surface)
-                .semantics { this.selected = selected }
-                .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
-                .padding(horizontal = DiarySpacing.x2, vertical = DiarySpacing.x2),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
-    ) {
-        WeatherIcon(weather, DiaryIconSize.i24, if (selected) colors.accentText else colors.textSecondary)
-        BasicText(
-            weatherName(weather),
-            style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
-            maxLines = 2
-        )
-    }
-}
-
-private const val MOOD_COLUMNS = 5
-private const val WEATHER_COLUMNS = 4
+private const val GRID_COLUMNS = 5
