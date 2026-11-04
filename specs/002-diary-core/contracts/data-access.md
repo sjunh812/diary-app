@@ -17,10 +17,11 @@ interface EntryRepository {
 
 interface DraftRepository {
     fun draft(key: DraftKey): Flow<Draft?>
+    suspend fun openEdit(entryId: String): Draft?  // 임시 저장본이 없으면 일기에서 만든다
     suspend fun save(draft: Draft)                 // 디바운스는 ViewModel이 한다
     suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult // 한도, 공간 부족
-    suspend fun removePhoto(key: DraftKey, sha256: String)
-    suspend fun reorderPhotos(key: DraftKey, order: List<String>)
+    suspend fun removePhoto(key: DraftKey, index: Int)     // 옮겨 온 일기는 같은 사진이 두 줄일 수 있어 위치로 고른다
+    suspend fun reorderPhotos(key: DraftKey, order: List<Int>)
     suspend fun commit(key: DraftKey): String      // 한 트랜잭션: Entry·Media 쓰고 Draft 지움. 일기 ID를 돌려준다
     suspend fun discard(key: DraftKey)
 }
@@ -49,4 +50,5 @@ interface MediaRepository {
 - `EntryRow`, `EntryDetail`에는 화면에 필요한 것만 담는다. 로그·분석 이벤트로 넘기지 않는다(헌법 II).
 - `search`는 사용자 입력의 `%`, `_`, `\`를 이스케이프한다.
 - `commit`이 실패하면 `Draft`는 그대로 남는다.
+- 고칠 때 찾을 수 없는 사진 줄은 임시 저장본에 싣지 않고 저장 때 그대로 뒤에 남긴다(헌법 I).
 - 한도는 `AddPhotosResult.LimitReached(limit, canUpgrade)`로 알려 주고 저장은 막지 않는다.

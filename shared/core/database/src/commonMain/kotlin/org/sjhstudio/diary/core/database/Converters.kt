@@ -4,6 +4,9 @@ import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format.char
+import org.sjhstudio.diary.core.model.Draft
+import org.sjhstudio.diary.core.model.DraftKey
+import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
@@ -55,6 +58,33 @@ fun Entry.asEntity(): EntryEntity = EntryEntity(
     legacyId = legacyId,
     legacyCreateDate = legacyCreateDate,
     legacyLocation = legacyLocation
+)
+
+fun DraftEntity.asModel(media: List<DraftMediaEntity>): Draft = Draft(
+    key = if (key == DraftKey.New.value) DraftKey.New else DraftKey.Edit(key),
+    date = LocalDate.parse(date),
+    time = LocalTime.parse(time, TIME_FORMAT),
+    bodyHtml = bodyHtml,
+    mood = Mood.fromId(mood),
+    weather = Weather.fromId(weather),
+    placeName = placeName,
+    isFavorite = isFavorite,
+    weatherAutoFilled = weatherAutoFilled,
+    updatedAt = Instant.fromEpochMilliseconds(updatedAt),
+    photos = media.map { DraftPhoto(it.fileName, it.sha256, it.width, it.height, it.byteSize) }
+)
+
+fun Draft.asEntity(): DraftEntity = DraftEntity(
+    key = key.value,
+    date = date.toString(),
+    time = TIME_FORMAT.format(time),
+    bodyHtml = bodyHtml,
+    mood = mood?.id,
+    weather = weather?.id,
+    placeName = placeName?.takeIf { it.isNotEmpty() },
+    isFavorite = isFavorite,
+    weatherAutoFilled = weatherAutoFilled,
+    updatedAt = updatedAt.toEpochMilliseconds()
 )
 
 fun MediaEntity.asModel(): Media = Media(

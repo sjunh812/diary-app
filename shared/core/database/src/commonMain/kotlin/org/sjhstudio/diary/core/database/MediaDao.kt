@@ -17,6 +17,13 @@ interface MediaDao {
     @Insert
     suspend fun insertAll(media: List<MediaEntity>)
 
+    @Query("DELETE FROM media WHERE entry_id = :entryId")
+    suspend fun deleteForEntry(entryId: String)
+
+    /** 사진 정리가 남길 파일 이름(휴지통 일기 포함). */
+    @Query("SELECT DISTINCT file_name FROM media WHERE file_name IS NOT NULL")
+    suspend fun fileNames(): List<String>
+
     @Query("SELECT COUNT(*) FROM media")
     suspend fun count(): Int
 

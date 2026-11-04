@@ -2,6 +2,8 @@ package org.sjhstudio.diary.core.platform
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Matrix
 import android.media.ExifInterface
 import java.io.File
@@ -20,12 +22,30 @@ actual object ImageDecoder {
         val scale = minOf(1f, maxSide.toFloat() / max(decoded.width, decoded.height))
         val matrix = orientation(source).apply { postScale(scale, scale) }
         val result = Bitmap.createBitmap(decoded, 0, 0, decoded.width, decoded.height, matrix, true)
+        // JPEG에는 투명이 없어 그대로 쓰면 투명한 곳이 검게 나온다. 흰 바탕에 올린다.
+        val opaque = if (result.hasAlpha()) onWhite(result) else result
         return try {
-            File(target).outputStream().use { result.compress(Bitmap.CompressFormat.JPEG, quality, it) }
+            File(target).outputStream().use { opaque.compress(Bitmap.CompressFormat.JPEG, quality, it) }
         } finally {
+            if (opaque !== result) opaque.recycle()
             if (result !== decoded) result.recycle()
             decoded.recycle()
         }
+    }
+
+    private fun onWhite(image: Bitmap): Bitmap {
+        val flat = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888)
+        Canvas(flat).apply {
+            drawColor(Color.WHITE)
+            drawBitmap(image, 0f, 0f, null)
+        }
+        return flat
+    }
+
+    actual fun size(path: String): ImageSize? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        return if (bounds.outWidth > 0 && bounds.outHeight > 0) ImageSize(bounds.outWidth, bounds.outHeight) else null
     }
 
     /** EXIF 방향을 행렬로 바꾼다. EXIF가 없는 그림(PNG 등)은 그대로다. */

@@ -13,7 +13,7 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
  * 스펙 002(임시 저장본)와 003(백업 표)은 출시 전에 같은 버전 1에 표를 더하고 스키마 JSON만 다시 만든다.
  */
 @Database(
-    entities = [EntryEntity::class, MediaEntity::class],
+    entities = [EntryEntity::class, MediaEntity::class, DraftEntity::class, DraftMediaEntity::class],
     version = 1,
     exportSchema = true
 )
@@ -23,6 +23,8 @@ abstract class DiaryDatabase : RoomDatabase() {
     abstract fun entryDao(): EntryDao
 
     abstract fun mediaDao(): MediaDao
+
+    abstract fun draftDao(): DraftDao
 }
 
 // Room 컴파일러가 플랫폼마다 actual을 만든다.

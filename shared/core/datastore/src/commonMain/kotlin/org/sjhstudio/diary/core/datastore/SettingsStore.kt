@@ -16,6 +16,8 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LegacyBackupLink
+import org.sjhstudio.diary.core.model.ListPreferences
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -45,12 +47,15 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
                 this[Keys.REMINDER_MINUTE_OF_DAY]?.takeIf { it in MINUTES_OF_DAY }
                     ?: AppSettings.DEFAULT_REMINDER_MINUTE_OF_DAY,
             fontReplacedFrom = this[Keys.FONT_REPLACED_FROM],
-            legacyBackup = account?.let { LegacyBackupLink(account = it, fileId = this[Keys.LEGACY_BACKUP_FILE_ID]) }
+            legacyBackup = account?.let { LegacyBackupLink(account = it, fileId = this[Keys.LEGACY_BACKUP_FILE_ID]) },
+            list = ListPreferences(ListStyle.fromId(this[Keys.LIST_STYLE]), this[Keys.FAVORITES_ONLY] ?: false)
         )
     }
 
     private fun MutablePreferences.write(settings: AppSettings) {
         this[Keys.FONT] = settings.font.id
+        this[Keys.LIST_STYLE] = settings.list.listStyle.id
+        this[Keys.FAVORITES_ONLY] = settings.list.favoritesOnly
         this[Keys.BODY_TEXT_SIZE] = settings.bodyTextSize.id
         this[Keys.THEME_MODE] = settings.themeMode.id
         this[Keys.ASK_LOCATION_AGAIN] = settings.askLocationAgain
@@ -63,6 +68,8 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
 
     private object Keys {
         val FONT = stringPreferencesKey("font")
+        val LIST_STYLE = stringPreferencesKey("list_style")
+        val FAVORITES_ONLY = booleanPreferencesKey("favorites_only")
         val BODY_TEXT_SIZE = stringPreferencesKey("body_text_size")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val ASK_LOCATION_AGAIN = booleanPreferencesKey("ask_location_again")

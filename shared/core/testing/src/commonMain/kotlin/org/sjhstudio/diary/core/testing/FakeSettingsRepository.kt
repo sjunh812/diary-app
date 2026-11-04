@@ -7,6 +7,7 @@ import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /** 화면 모델 시험용 설정 저장소. 처음 값을 정하고 바뀐 값을 바로 읽는다. */
@@ -25,6 +26,11 @@ class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRep
 
     override suspend fun setReminder(enabled: Boolean, minuteOfDay: Int) =
         state.update { it.copy(reminderEnabled = enabled, reminderMinuteOfDay = minuteOfDay) }
+
+    override suspend fun setListStyle(style: ListStyle) = state.update { it.copy(list = it.list.copy(listStyle = style)) }
+
+    override suspend fun setFavoritesOnly(favoritesOnly: Boolean) =
+        state.update { it.copy(list = it.list.copy(favoritesOnly = favoritesOnly)) }
 
     override suspend fun clearFontReplacedNotice() = state.update { it.copy(fontReplacedFrom = null) }
 }

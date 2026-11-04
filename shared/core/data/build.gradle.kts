@@ -23,6 +23,7 @@ kotlin {
         // main에 걸면 서로를 물고 돈다.
         commonTest.dependencies {
             implementation(projects.shared.core.testing)
+            implementation(libs.okio.fakefilesystem)
         }
     }
 }

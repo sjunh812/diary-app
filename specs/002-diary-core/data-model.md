@@ -62,7 +62,7 @@ DB 열 이름과 타입은 스펙 001 `data-model.md`(확정 2026-11-01)가 원�
 
 ## DraftMedia (002)
 
-`Draft.key`, `fileName`, `sha256`, `width`, `height`, `sortOrder`. 저장하면 `Media`로 옮기고 지운다.
+`Draft.key`, `fileName`, `sha256`, `width`, `height`, `byteSize`, `sortOrder`. 키는 (`Draft.key`, `sortOrder`)다. 저장하면 `Media`로 옮기고 지운다.
 
 ## 사진 파일 정리 (002)
 

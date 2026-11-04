@@ -10,4 +10,9 @@ expect object ImageDecoder {
      * 원본이 더 작으면 키우지 않는다. 읽을 수 없는 그림이면 false다.
      */
     fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean
+
+    /** 그림 파일의 픽셀 크기. 읽을 수 없으면 null이다. 방금 쓴 JPEG에 쓴다. */
+    fun size(path: String): ImageSize?
 }
+
+data class ImageSize(val width: Int, val height: Int)

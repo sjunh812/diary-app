@@ -5,12 +5,18 @@ import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 
 class DefaultSettingsRepository(private val store: SettingsStore) : SettingsRepository {
     override val settings: Flow<AppSettings> = store.settings
 
     override suspend fun setFont(font: DiaryFont) = store.update { it.copy(font = font) }
+
+    override suspend fun setListStyle(style: ListStyle) = store.update { it.copy(list = it.list.copy(listStyle = style)) }
+
+    override suspend fun setFavoritesOnly(favoritesOnly: Boolean) =
+        store.update { it.copy(list = it.list.copy(favoritesOnly = favoritesOnly)) }
 
     override suspend fun setBodyTextSize(size: BodyTextSize) = store.update { it.copy(bodyTextSize = size) }
 

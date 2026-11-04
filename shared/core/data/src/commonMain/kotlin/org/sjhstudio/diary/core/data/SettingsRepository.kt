@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -23,6 +24,10 @@ interface SettingsRepository {
 
     /** [minuteOfDay]는 0시부터 센 분(0~1439). */
     suspend fun setReminder(enabled: Boolean, minuteOfDay: Int)
+
+    suspend fun setListStyle(style: ListStyle)
+
+    suspend fun setFavoritesOnly(favoritesOnly: Boolean)
 
     /** "글꼴이 바뀌었어요"를 한 번 알린 뒤 지운다. */
     suspend fun clearFontReplacedNotice()

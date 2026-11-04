@@ -6,6 +6,7 @@ import kotlinx.cinterop.IntVar
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
+import kotlinx.cinterop.useContents
 import kotlinx.cinterop.value
 import platform.CoreFoundation.CFDictionaryAddValue
 import platform.CoreFoundation.CFDictionaryCreateMutable
@@ -33,6 +34,7 @@ import platform.ImageIO.kCGImageDestinationLossyCompressionQuality
 import platform.ImageIO.kCGImageSourceCreateThumbnailFromImageAlways
 import platform.ImageIO.kCGImageSourceCreateThumbnailWithTransform
 import platform.ImageIO.kCGImageSourceThumbnailMaxPixelSize
+import platform.UIKit.UIImage
 
 // CGImageSource 썸네일은 원본을 다 풀지 않고 줄인 크기로 읽어 큰 사진에서도 메모리를 적게 쓴다.
 // 방향(EXIF)은 WithTransform으로 반영한다.
@@ -70,6 +72,11 @@ actual object ImageDecoder {
         } finally {
             created.filterNotNull().forEach(::CFRelease)
         }
+    }
+
+    actual fun size(path: String): ImageSize? {
+        val image = UIImage.imageWithContentsOfFile(path) ?: return null
+        return image.size.useContents { ImageSize(width.toInt(), height.toInt()) }.takeIf { it.width > 0 && it.height > 0 }
     }
 
     private fun cfString(value: String): CFStringRef? = CFStringCreateWithCString(null, value, kCFStringEncodingUTF8)

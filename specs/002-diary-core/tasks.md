@@ -54,8 +54,8 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ### 모듈 (스펙 001 뒤)
 
-- [ ] T015 `settings.gradle.kts`에 `:shared:feature:home`, `:write`, `:calendar`, `:search`, `:insight`, `:trash`와 `:shared:core:platform`을 더하고 각 `build.gradle.kts`에 001의 convention plugin을 적용한다
-- [ ] T016 [P] `gradle/libs.versions.toml`에 compose-rich-editor, FileKit(`filekit-dialogs`), material3-adaptive를 더하고 라이선스(Apache-2.0, MIT)를 주석으로 적는다
+- [x] T015 `settings.gradle.kts`에 `:shared:feature:home`, `:write`, `:calendar`, `:search`, `:insight`, `:trash`와 `:shared:core:platform`을 더하고 각 `build.gradle.kts`에 001의 convention plugin을 적용한다 2026-11-04: 기능 모듈 여섯을 더했다. `:shared:core:platform`은 스펙 001에서 이미 있다
+- [x] T016 [P] `gradle/libs.versions.toml`에 compose-rich-editor, FileKit(`filekit-dialogs`), material3-adaptive를 더하고 라이선스(Apache-2.0, MIT)를 주석으로 적는다 2026-11-04: compose-rich-editor 1.2.1을 더했다. FileKit과 material3-adaptive는 스펙 001에서 이미 있다
 
 ---
 
@@ -65,18 +65,18 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ### 시험 먼저
 
-- [ ] T017 [P] 서식 정리 시험: 허용 목록 밖 태그는 태그만, `script`·`style`·`iframe`은 안의 글까지 버리고, 팔레트 밖 색 `span`은 글만 남기는지 `shared/core/model/{test}/core/model/RichTextSanitizerTest.kt`
-- [ ] T018 [P] 평문 시험: "`p` 사이는 빈 줄 하나, `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `"와 `toPlainText(fromLegacy(원문)) == 원문`(이모지, 따옴표, `<`, `&`, 빈 줄 여러 개, 10만 자) `shared/core/model/{test}/core/model/PlainTextTest.kt`
+- [x] T017 [P] 서식 정리 시험: 허용 목록 밖 태그는 태그만, `script`·`style`·`iframe`은 안의 글까지 버리고, 팔레트 밖 색 `span`은 글만 남기는지 `shared/core/model/{test}/core/model/RichTextSanitizerTest.kt` 2026-11-04: `shared/core/data/.../richtext/RichTextSanitizerTest.kt`. 서식 없는 글 코드가 core/data에 있어 같은 곳에 뒀다
+- [x] T018 [P] 평문 시험: "`p` 사이는 빈 줄 하나, `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `"와 `toPlainText(fromLegacy(원문)) == 원문`(이모지, 따옴표, `<`, `&`, 빈 줄 여러 개, 10만 자) `shared/core/model/{test}/core/model/PlainTextTest.kt` 2026-11-04: 스펙 001의 `PlainTextTest.kt`가 이미 다룬다
 - [ ] T019 [P] 내용 비공개 시험: `AnalyticsEvents`의 모든 이벤트 인자가 고정 표의 키·구간 값만 갖는지, 로그 래퍼가 `EntryRow`·`Draft`를 받지 않는지 `shared/core/data/{test}/core/data/PrivacyGuardTest.kt`
 
 ### 모델과 저장
 
-- [ ] T020 [P] `Mood`(소문자 ID `angry` … `tired`, 레거시 0~8), `Weather`(소문자 ID `sunny` … `snow`, 레거시 0~6), `MoodColor` 토큰 키를 `shared/core/model/{kt}/core/model/Mood.kt`, `Weather.kt`에 만든다
-- [ ] T021 [P] `SearchFilter`, `StatsPeriod`(이전·다음, "오늘이 든 기간 뒤로는 가지 않는다"), `ListPreferences`(`listStyle` 기본 `FEED`, `favoritesOnly`)를 `shared/core/model/{kt}/core/model/`에 만든다
-- [ ] T022 `contracts/rich-text-html.md`대로 `RichTextSanitizer`, `toPlainText`, `fromLegacy`를 `shared/core/model/{kt}/core/model/RichText.kt`에 만들어 T017·T018을 통과시킨다
-- [ ] T023 001 DB에 `Draft`(키 `"new"` 또는 `Entry.id`, `weatherAutoFilled`), `DraftMedia`, `Entry.deletedAt`과 색인 `(deletedAt, date DESC, time DESC)`, `(deletedAt, isFavorite)`를 001 첫 DB 버전 안에 더한다 `shared/core/database/{kt}/core/database/`
-- [ ] T024 [P] `ImageProcessor` expect와 Android actual(다운샘플링, EXIF 방향, "긴 변 2,560px을 넘을 때만" 축소, JPEG 85, SHA-256)을 `shared/core/platform/{kt}/core/platform/ImageProcessor.kt`, `shared/core/platform/{android}/core/platform/ImageProcessor.android.kt`에 만든다
-- [ ] T025 [P] `ImageProcessor` iOS actual(`UIGraphicsImageRenderer`)을 `shared/core/platform/{ios}/core/platform/ImageProcessor.ios.kt`에 만든다
+- [x] T020 [P] `Mood`(소문자 ID `angry` … `tired`, 레거시 0~8), `Weather`(소문자 ID `sunny` … `snow`, 레거시 0~6), `MoodColor` 토큰 키를 `shared/core/model/{kt}/core/model/Mood.kt`, `Weather.kt`에 만든다 2026-11-04: 스펙 001에서 이미 있다
+- [x] T021 [P] `SearchFilter`, `StatsPeriod`(이전·다음, "오늘이 든 기간 뒤로는 가지 않는다"), `ListPreferences`(`listStyle` 기본 `FEED`, `favoritesOnly`)를 `shared/core/model/{kt}/core/model/`에 만든다 2026-11-04: `SearchFilter.kt`, `StatsPeriod.kt`, `ListPreferences.kt`와 시험. 주는 월요일에 시작한다
+- [x] T022 `contracts/rich-text-html.md`대로 `RichTextSanitizer`, `toPlainText`, `fromLegacy`를 `shared/core/model/{kt}/core/model/RichText.kt`에 만들어 T017·T018을 통과시킨다 2026-11-04: `shared/core/data/.../richtext/RichTextSanitizer.kt`. `toPlainText`와 레거시 변환은 스펙 001 코드를 쓴다
+- [x] T023 001 DB에 `Draft`(키 `"new"` 또는 `Entry.id`, `weatherAutoFilled`), `DraftMedia`, `Entry.deletedAt`과 색인 `(deletedAt, date DESC, time DESC)`, `(deletedAt, isFavorite)`를 001 첫 DB 버전 안에 더한다 `shared/core/database/{kt}/core/database/` 2026-11-04: `DraftEntity.kt`, `DraftDao.kt`. 표 `draft`, `draft_media`를 버전 1에 더했고 스키마 JSON을 다시 만들었다. 색인은 스펙 001에서 이미 있다
+- [x] T024 [P] `ImageProcessor` expect와 Android actual(다운샘플링, EXIF 방향, "긴 변 2,560px을 넘을 때만" 축소, JPEG 85, SHA-256)을 `shared/core/platform/{kt}/core/platform/ImageProcessor.kt`, `shared/core/platform/{android}/core/platform/ImageProcessor.android.kt`에 만든다 2026-11-04: 새 expect를 두지 않고 스펙 001 `ImageDecoder.writeThumbnail`(줄이기, EXIF, JPEG)을 쓰는 `PhotoStore.kt`로 만들었다. 크기 읽기 `ImageDecoder.size`를 더했고, 투명 그림은 흰 바탕에 올린다
+- [x] T025 [P] `ImageProcessor` iOS actual(`UIGraphicsImageRenderer`)을 `shared/core/platform/{ios}/core/platform/ImageProcessor.ios.kt`에 만든다 2026-11-04: T024와 같다. iOS는 `ImageDecoder.size`만 더했다
 - [ ] T026 [P] 시스템 공유 창, 햅틱, 고정 가능한 시계를 `shared/core/platform/{kt}/core/platform/ShareSheet.kt`, `Haptics.kt`, `Clock.kt`(+ android/ios actual)에 만든다
 - [ ] T027 [P] 대역 `FakeEntryRepository`, `FakeDraftRepository`, `FakeImageProcessor`, `FixedClock`을 `shared/core/testing/{kt}/core/testing/`에 만든다
 

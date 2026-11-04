@@ -45,6 +45,8 @@ class SettingsStoreTest {
             assertEquals(
                 setOf(
                     "font",
+                    "list_style",
+                    "favorites_only",
                     "body_text_size",
                     "theme_mode",
                     "ask_location_again",

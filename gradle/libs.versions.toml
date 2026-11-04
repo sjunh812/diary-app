@@ -43,6 +43,8 @@ androidxUiautomator = "2.4.0"
 coil = "3.6.3"
 compottie = "2.3.3"
 filekit = "0.17.0"
+# 서식 편집기. Apache-2.0, 무료.
+richEditor = "1.2.1"
 jbAdaptive = "1.3.0"
 jbLifecycle = "2.11.0"
 jbNavigation3 = "1.2.0"
@@ -114,10 +116,12 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 # 스펙 002·006이 쓴다. 버전은 R2 표에 함께 고정해 둔다.
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+rich-editor = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richEditor" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 
 # :benchmarks 모듈만 쓴다. 앱에 들어가지 않는다.
 androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidxBenchmark" }
