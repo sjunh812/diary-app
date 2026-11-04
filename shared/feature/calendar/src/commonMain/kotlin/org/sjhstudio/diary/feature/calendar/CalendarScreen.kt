@@ -1,7 +1,6 @@
 package org.sjhstudio.diary.feature.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -41,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -50,6 +49,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -375,28 +375,28 @@ private fun DayCell(
                     // 기분을 고르지 않은 날은 얼굴 없이 중립 원만 둔다.
                     Box(Modifier.size(faceSize).clip(DiaryShapes.full).background(colors.sunken))
                 }
-                if (day.count > 1) Badge(day.count, selected, Modifier.align(Alignment.TopEnd))
+                if (day.count > 1) DayCount(day.count, Modifier.align(Alignment.BottomEnd))
             }
         }
     }
 }
 
+/**
+ * 하루 여러 편은 얼굴 오른쪽 아래 옆에 숫자만 조용히 둔다(2026-11-05 사용자 결정).
+ * 폭을 차지하지 않게 재서 얼굴이 칸 가운데에서 밀리지 않는다.
+ */
 @Composable
-private fun Badge(count: Int, selected: Boolean, modifier: Modifier) {
-    val colors = DiaryTheme.colors
-    val shift = DiaryCalendarSize.badge / 2 - DiaryCalendarSize.badgeBorder
-    Box(
-        modifier
-            .offset(x = shift, y = -shift)
-            .defaultMinSize(DiaryCalendarSize.badge, DiaryCalendarSize.badge)
-            .border(DiaryCalendarSize.badgeBorder, if (selected) colors.selected else colors.canvas, DiaryShapes.full)
-            .padding(DiaryCalendarSize.badgeBorder)
-            .clip(DiaryShapes.full)
-            .background(colors.textPrimary),
-        contentAlignment = Alignment.Center
-    ) {
-        BasicText(count.toString(), style = DiaryTheme.typography.micro.copy(color = colors.canvas), maxLines = 1)
-    }
+private fun DayCount(count: Int, modifier: Modifier) {
+    BasicText(
+        count.toString(),
+        modifier =
+            modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity))
+                layout(0, placeable.height) { placeable.place(DiaryCalendarSize.countGap.roundToPx(), 0) }
+            },
+        style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.textSecondary),
+        maxLines = 1
+    )
 }
 
 /** 고른 날의 일기. 없으면 그날 쓰기를 권한다. */

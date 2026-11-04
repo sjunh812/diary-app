@@ -95,9 +95,8 @@ object DiaryCalendarSize {
     val todayWidth: Dp = 24.dp
     val todayHeight: Dp = 20.dp
 
-    /** 하루 여러 편 뱃지. */
-    val badge: Dp = 18.dp
-    val badgeBorder: Dp = 2.dp
+    /** 얼굴과 하루 여러 편 숫자 사이. */
+    val countGap: Dp = 2.dp
 
     /** 넓은 화면의 달력 칸 폭. */
     val pane: Dp = 560.dp
