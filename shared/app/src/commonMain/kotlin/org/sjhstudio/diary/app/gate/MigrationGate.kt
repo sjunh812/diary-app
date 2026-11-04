@@ -37,7 +37,8 @@ import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 
 /**
  * 기록 이전 관문(contracts/migration-flow.md "화면 상태"). 이전이 없거나 끝났으면 [content]로 간다.
- * 실패한 동안에는 앱 틀로 가지 않는다. 새 일기를 쓰면 다시 시도가 그 일기를 덮을 수 있어서다.
+ * 실패 화면에서는 다시 시도하거나, 공간 부족이 아니면 새 일기부터 쓰기로 앱 틀로 갈 수 있다.
+ * 그때는 임시 DB로 바꾸지 않고 예전 일기를 지금 DB에 더해 새로 쓴 일기를 지킨다.
  * 실패 화면에서는 예전 일기 보기(읽기 전용), 원본 내보내기, 문의하기를 할 수 있다(FR-009).
  * 잠금이 켜져 있으면 이 관문은 잠금 관문 안쪽에 놓인다(FR-015, 스펙 001 US2).
  */
@@ -71,6 +72,7 @@ fun MigrationGate(content: @Composable () -> Unit) {
                 state = state,
                 onStart = viewModel::acknowledgeResult,
                 onRetry = viewModel::retry,
+                onSkip = viewModel::skip,
                 onViewLegacy = { reading = true },
                 onExportOriginal = actions?.exportOriginal,
                 // 일부만 옮겨진 기기는 고쳐 받기 시트를 먼저 띄운다(FR-010a). 실패한 기기는 바로 메일을 쓴다.

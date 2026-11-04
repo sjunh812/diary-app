@@ -110,7 +110,8 @@ private fun MigrationReportPage(onBack: () -> Unit) {
             state = reportState,
             onBack = onBack,
             onExportOriginal = actions?.exportOriginal,
-            onContact = actions?.let { { asking = true } }
+            onContact = actions?.let { { asking = true } },
+            onRetry = report::retry
         )
         if (asking && actions != null) {
             SupportAttachSheet(

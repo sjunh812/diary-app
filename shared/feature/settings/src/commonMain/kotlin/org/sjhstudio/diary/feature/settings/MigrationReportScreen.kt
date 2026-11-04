@@ -15,6 +15,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
+import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -23,6 +24,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.migration_deferred_body
+import org.sjhstudio.diary.feature.settings.resources.migration_deferred_failed
+import org.sjhstudio.diary.feature.settings.resources.migration_deferred_retry
+import org.sjhstudio.diary.feature.settings.resources.migration_deferred_running
+import org.sjhstudio.diary.feature.settings.resources.migration_deferred_title
 import org.sjhstudio.diary.feature.settings.resources.migration_report_contact
 import org.sjhstudio.diary.feature.settings.resources.migration_report_date_fixed
 import org.sjhstudio.diary.feature.settings.resources.migration_report_entries
@@ -46,12 +52,46 @@ fun MigrationReportScreen(
     onBack: () -> Unit,
     onExportOriginal: (() -> Unit)?,
     onContact: (() -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRetry: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding()) {
         DiaryTopBar(title = stringResource(Res.string.migration_report_title), onBack = onBack)
+        if (state.deferred) {
+            DiaryStatusBox(
+                icon = DiaryIcons.Info,
+                title = stringResource(Res.string.migration_deferred_title),
+                body =
+                    stringResource(
+                        if (state.retry ==
+                            MigrationRetry.Failed
+                        ) {
+                            Res.string.migration_deferred_failed
+                        } else {
+                            Res.string.migration_deferred_body
+                        }
+                    ),
+                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                actionLabel =
+                    stringResource(
+                        if (state.retry ==
+                            MigrationRetry.Running
+                        ) {
+                            Res.string.migration_deferred_running
+                        } else {
+                            Res.string.migration_deferred_retry
+                        }
+                    ),
+                onAction = onRetry.takeIf { state.retry != MigrationRetry.Running }
+            )
+            onExportOriginal?.let {
+                DiarySettingsRow(stringResource(Res.string.migration_report_export), it, leadingIcon = DiaryIcons.Download)
+            }
+            onContact?.let { DiarySettingsRow(stringResource(Res.string.migration_report_contact), it, leadingIcon = DiaryIcons.Mail) }
+            return@Column
+        }
         val report = state.report ?: return@Column
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
             state.migratedOn?.let { day ->

@@ -35,7 +35,7 @@ sealed interface MigrationUiState {
     /** 끝난 직후 한 번(M2, M2-b). */
     data class Result(val report: MigrationReport) : MigrationUiState
 
-    /** 실패(M3). 앱 틀로 가지 않는다. */
+    /** 실패(M3). 공간 부족 말고는 새 일기부터 쓰기로 앱 틀로 갈 수 있다. */
     data class Failed(val kind: MigrationFailureKind, val shortfallBytes: Long?) : MigrationUiState
 
     /** 옮길 것이 없거나 끝났다. 앱 틀로 간다. */
@@ -72,6 +72,14 @@ class MigrationViewModel(
 
     /** 실패 화면의 다시 시도·다시 확인. */
     fun retry() = start()
+
+    /** 실패 화면의 새 일기부터 쓰기. 예전 일기는 설정에서 다시 옮기고, 앱이 업데이트되면 저절로 다시 해 본다. */
+    fun skip() {
+        viewModelScope.launch {
+            withContext(background) { migration.defer() }
+            pass()
+        }
+    }
 
     /** 결과 화면의 시작하기. 결과는 한 번만 보인다. */
     fun acknowledgeResult() = pass()

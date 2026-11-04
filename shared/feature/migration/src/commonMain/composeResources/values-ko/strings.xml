@@ -41,6 +41,7 @@
     <string name="migration_contact">문의하기</string>
 
     <!-- 실패(M3) -->
+    <string name="migration_skip">새 일기부터 쓰기</string>
     <string name="migration_failed_title">기록을 옮기지 못했어요</string>
     <string name="migration_failed_body_mismatch">옮긴 일기를 확인하다가 문제가 생겼어요. 원래 기록은 그대로 있어요.</string>
     <string name="migration_failed_body_snapshot">원래 기록을 복사하지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>

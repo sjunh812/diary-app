@@ -33,7 +33,10 @@ enum class MigrationStep(val id: String) {
     COMMITTING("Committing"),
     DONE("Done"),
     PARTIAL("Partial"),
-    FAILED("Failed")
+    FAILED("Failed"),
+
+    /** 실패했지만 사용자가 새 일기부터 쓰기로 했다. 앱은 쓸 수 있고 예전 일기는 나중에 다시 옮긴다. */
+    DEFERRED("Deferred")
     ;
 
     companion object {

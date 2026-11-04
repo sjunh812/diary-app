@@ -47,6 +47,7 @@
     <string name="migration_contact">Contact us</string>
 
     <!-- 실패(M3) -->
+    <string name="migration_skip">Start with a new entry</string>
     <string name="migration_failed_title">Couldn’t move your diary</string>
     <string name="migration_failed_body_mismatch">Something went wrong while checking the moved entries. Your original diary stays as it was.</string>
     <string name="migration_failed_body_snapshot">Moving stopped because your original diary couldn’t be copied. It stays as it is.</string>

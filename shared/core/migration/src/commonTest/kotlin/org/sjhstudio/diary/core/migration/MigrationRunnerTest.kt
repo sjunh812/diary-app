@@ -98,6 +98,17 @@ class MigrationRunnerTest {
     private val jpeg = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 1, 2, 3)
     private val png = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 9, 9)
 
+    /** 이전 뒤 사용자가 새로 쓴 일기. */
+    private fun Env.written() = Entry(
+        "mine",
+        LocalDate(
+            2026,
+            11,
+            2
+        ),
+        LocalTime(9, 0), "<p>새 일기</p>", "새 일기", null, null, null, false, clock.now(), clock.now()
+    )
+
     private fun Env.writePrefs() {
         dir.write(
             "shared_prefs/pref.xml",
@@ -285,16 +296,7 @@ class MigrationRunnerTest {
             val db = env.open(env.paths.databasePath.toString())
             try {
                 // 이전 뒤 사용자가 새로 쓴 일기
-                val written =
-                    Entry(
-                        "mine",
-                        LocalDate(
-                            2026,
-                            11,
-                            2
-                        ),
-                        LocalTime(9, 0), "<p>새 일기</p>", "새 일기", null, null, null, false, env.clock.now(), env.clock.now()
-                    )
+                val written = env.written()
                 db.entryDao().insertAll(listOf(written.asEntity()))
 
                 // 같은 버전에서는 같은 파일을 같은 방법으로 읽어 결과가 같으므로 다시 읽지 않는다.
@@ -366,6 +368,67 @@ class MigrationRunnerTest {
 
             assertEquals(MigrationFailureKind.MISMATCH, failed.kind)
             assertTrue(dir.fs.exists(env.paths.snapshotDir / "note.db"))
+        }
+    }
+
+    /** 새 일기부터 쓰기: 앱을 쓰다가 다시 시도하면 그 사이 쓴 일기를 두고 예전 일기를 더한다. */
+    @Test
+    fun deferred_migration_adds_old_entries_and_keeps_new_ones() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", contents = "예전 일기", picture = picture.toString()))
+            ).close()
+            assertIs<MigrationResult.Failed>(env.runner(events = env.onVerifying(env::breakFingerprints)).run())
+            env.runner().defer()
+            assertEquals(false, env.runner().needsMigration())
+            assertIs<MigrationResult.AlreadyFinished>(env.runner().run())
+
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                db.entryDao().insertAll(listOf(env.written().asEntity()))
+
+                val result = assertIs<MigrationResult.Finished>(env.runner().retryDeferred(db))
+
+                assertEquals(1, result.report.entriesMigrated)
+                assertEquals(1, result.report.photosFound)
+                assertEquals(2, db.entryDao().countAll())
+                assertTrue(db.entryDao().get("mine") != null)
+            } finally {
+                db.close()
+            }
+            assertEquals(MigrationStep.DONE, env.runner().state().step)
+        }
+    }
+
+    /** 다시 시도가 실패해도 앱은 그대로 쓰고, 다음 업데이트 때 저절로 다시 해 본다. */
+    @Test
+    fun deferred_retry_failure_stays_deferred_and_tries_after_an_update() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = picture.toString()))
+            ).close()
+            assertIs<MigrationResult.Failed>(env.runner(events = env.onVerifying(env::breakFingerprints)).run())
+            env.runner().defer()
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                assertIs<MigrationResult.AlreadyFinished>(env.runner().retryDeferred(db, onlyAfterUpdate = true))
+
+                env.free = 0
+                assertIs<MigrationResult.Failed>(env.runner().retryDeferred(db))
+                assertEquals(MigrationStep.DEFERRED, env.runner().state().step)
+                assertEquals(0, db.entryDao().countAll())
+
+                env.free = Long.MAX_VALUE
+                assertIs<MigrationResult.Finished>(env.runner(versionCode = 38).retryDeferred(db, onlyAfterUpdate = true))
+            } finally {
+                db.close()
+            }
         }
     }
 

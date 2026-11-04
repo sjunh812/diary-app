@@ -41,6 +41,7 @@
     <string name="migration_contact">お問い合わせ</string>
 
     <!-- 失敗(M3) -->
+    <string name="migration_skip">新しい日記から始める</string>
     <string name="migration_failed_title">記録を移せませんでした</string>
     <string name="migration_failed_body_mismatch">移した記録の確認中に問題が起きました。元の記録はそのまま残っています。</string>
     <string name="migration_failed_body_snapshot">元の記録をコピーできなかったため、移行を止めました。元の記録はそのまま残ります。</string>

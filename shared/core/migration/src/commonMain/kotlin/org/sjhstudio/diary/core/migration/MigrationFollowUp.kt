@@ -15,6 +15,10 @@ class MigrationFollowUp(private val migration: LegacyMigration, private val data
     suspend fun run(): FollowUpResult {
         migration.cleanUpSupportFiles()
         val step = migration.state().step
+        if (step == MigrationStep.DEFERRED) {
+            val result = migration.retryDeferred(database(), onlyAfterUpdate = true)
+            return FollowUpResult(entriesRecovered = (result as? MigrationResult.Finished)?.report?.entriesMigrated ?: 0)
+        }
         if (step != MigrationStep.DONE && step != MigrationStep.PARTIAL) return FollowUpResult()
         val db = database()
         return FollowUpResult(
@@ -22,6 +26,9 @@ class MigrationFollowUp(private val migration: LegacyMigration, private val data
             photosFound = migration.recheckMissingPhotos(db) ?: 0
         )
     }
+
+    /** 설정에서 미뤄 둔 이전을 다시 시도할 때. */
+    suspend fun retryDeferredNow(): MigrationResult = migration.retryDeferred(database())
 }
 
 /** 다시 읽어 더한 일기 수와 다시 찾은 사진 수. 0이면 알리지 않는다. */

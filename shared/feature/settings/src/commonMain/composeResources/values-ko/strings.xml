@@ -90,4 +90,9 @@
     <string name="theme_light">라이트</string>
     <string name="theme_dark">다크</string>
     <string name="theme_note">시스템 설정을 따르면 휴대폰이 다크 모드일 때 앱도 함께 어두워져요.</string>
+    <string name="migration_deferred_title">예전 일기를 아직 옮기지 못했어요</string>
+    <string name="migration_deferred_body">다시 시도하면 지금 쓴 일기는 그대로 두고 예전 일기를 더해요.</string>
+    <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨 볼게요.</string>
+    <string name="migration_deferred_retry">다시 시도</string>
+    <string name="migration_deferred_running">옮기는 중이에요</string>
 </resources>

@@ -24,6 +24,15 @@ interface LegacyMigration {
     /** 일부만 옮겨진 기기에서 앱이 업데이트된 뒤 한 번 못 읽은 일기를 다시 읽는다. 더한 일기 수, 때가 아니면 null(FR-011). */
     suspend fun retryPartial(db: DiaryDatabase): Int?
 
+    /** 실패 화면의 새 일기부터 쓰기. 앱을 쓰게 하고 예전 일기는 [retryDeferred]로 나중에 옮긴다. */
+    fun defer() = Unit
+
+    /**
+     * 미뤄 둔 이전을 다시 한다. 지금 일기 DB를 버리지 않고 예전 일기를 더한다. 실패해도 앱은 그대로 쓴다.
+     * [onlyAfterUpdate]면 앱이 업데이트된 뒤 처음 한 번만 한다.
+     */
+    suspend fun retryDeferred(db: DiaryDatabase, onlyAfterUpdate: Boolean = false): MigrationResult = MigrationResult.NoLegacy
+
     /** 찾을 수 없는 사진을 하루 한 번 원래 자리에서 다시 찾는다. 찾은 장 수, 때가 아니면 null(FR-011). */
     suspend fun recheckMissingPhotos(db: DiaryDatabase): Int?
 

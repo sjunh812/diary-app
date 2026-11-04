@@ -95,4 +95,9 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_note">With System default, the app turns dark when your phone is in dark mode.</string>
+    <string name="migration_deferred_title">Your earlier diary hasn’t moved yet</string>
+    <string name="migration_deferred_body">Try again to add it. What you’ve written since stays as it is.</string>
+    <string name="migration_deferred_failed">Couldn’t move it again. We’ll try once more after the next app update.</string>
+    <string name="migration_deferred_retry">Try again</string>
+    <string name="migration_deferred_running">Moving…</string>
 </resources>

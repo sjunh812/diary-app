@@ -136,12 +136,13 @@ class MigrationRunner(
     /** 원본이 있고 아직 끝나지 않았는가(관문이 이전 화면을 띄울지 정한다). */
     override fun needsMigration(): Boolean {
         val step = store.readState().step
-        return step != MigrationStep.DONE && step != MigrationStep.PARTIAL && paths.legacy.exist(fileSystem)
+        return step != MigrationStep.DONE && step != MigrationStep.PARTIAL && step != MigrationStep.DEFERRED &&
+            paths.legacy.exist(fileSystem)
     }
 
     override suspend fun run(): MigrationResult = withContext(io) {
         val previous = store.readState()
-        if (previous.step == MigrationStep.DONE || previous.step == MigrationStep.PARTIAL) {
+        if (previous.step == MigrationStep.DONE || previous.step == MigrationStep.PARTIAL || previous.step == MigrationStep.DEFERRED) {
             return@withContext MigrationResult.AlreadyFinished(previous)
         }
         if (!paths.legacy.exist(fileSystem)) return@withContext MigrationResult.NoLegacy
@@ -474,6 +475,74 @@ class MigrationRunner(
             store.writeState(store.readState().copy(step = MigrationStep.DONE, updatedAt = clock.now()))
         }
         added
+    }
+
+    override fun defer() {
+        val state = store.readState()
+        if (state.step != MigrationStep.FAILED) return
+        store.writeState(state.copy(step = MigrationStep.DEFERRED, retriedVersionCode = versionCode, updatedAt = clock.now()))
+    }
+
+    /**
+     * 미뤄 둔 이전을 지금 일기 DB에 더한다. 그 사이 쓴 일기가 있어 임시 DB로 바꾸지 않고 없는 줄만 넣는다.
+     * 실패하면 상태를 그대로 둔다. 앱은 이미 쓰는 중이라 실패 화면으로 돌아가지 않는다.
+     */
+    override suspend fun retryDeferred(db: DiaryDatabase, onlyAfterUpdate: Boolean): MigrationResult = withContext(io) {
+        val state = store.readState()
+        if (state.step != MigrationStep.DEFERRED || (onlyAfterUpdate && versionCode <= state.retriedVersionCode)) {
+            return@withContext MigrationResult.AlreadyFinished(state)
+        }
+        store.writeState(state.copy(attempt = state.attempt + 1, retriedVersionCode = versionCode, updatedAt = clock.now()))
+        val startedAt = clock.now()
+        try {
+            if (paths.legacy.exist(fileSystem)) snapshotter.snapshot(paths.legacy, paths.snapshotDir)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            return@withContext MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.SNAPSHOT_IO)
+        }
+        val (notes, summary) =
+            readSnapshot() ?: return@withContext MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.READ_ERROR)
+        val known = db.entryDao().legacyIds().toHashSet()
+        val missing = notes.filter { it.id.toInt() !in known }
+        val fragments = missing.flatMap { PhotoPaths.fragments(it.picture) }
+        val need =
+            fragments.distinct().sumOf { f -> PhotoPaths.candidates(f).map { sizeOf(it.toPath()) }.firstOrNull { it > 0 } ?: 0 } +
+                MARGIN_BYTES
+        val free = freeBytes(paths.mediaDir.parent ?: paths.mediaDir)
+        if (free < need) return@withContext MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.NO_SPACE, need - free)
+        try {
+            val counts = Counts()
+            var leftOut = 0
+            if (missing.isNotEmpty()) {
+                copy(db, missing, fragments.size, counts)
+                leftOut = verify(db, notes.size, only = missing.map { it.id.toInt() }.toSet(), counts = counts)
+                if (leftOut ==
+                    missing.size
+                ) {
+                    return@withContext MigrationResult.Failed(MigrationStep.VERIFYING, MigrationFailureKind.MISMATCH)
+                }
+            }
+            val report = counts.toReport(missing.size - leftOut, summary.unreadable + leftOut)
+            store.writeReport(report)
+            writeFinal(
+                if (report.outcome ==
+                    MigrationOutcome.PARTIAL
+                ) {
+                    MigrationStep.PARTIAL
+                } else {
+                    MigrationStep.DONE
+                },
+                state.attempt + 1,
+                startedAt
+            )
+            events.finished(report, (clock.now() - startedAt).inWholeMilliseconds)
+            MigrationResult.Finished(report, showResult = false)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
+        }
     }
 
     /**

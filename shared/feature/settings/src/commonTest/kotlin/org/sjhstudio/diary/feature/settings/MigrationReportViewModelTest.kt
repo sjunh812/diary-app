@@ -18,7 +18,9 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import org.sjhstudio.diary.core.migration.LegacyMigration
+import org.sjhstudio.diary.core.migration.MigrationResult
 import org.sjhstudio.diary.core.migration.NoLegacyMigration
+import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationState
@@ -64,10 +66,38 @@ class MigrationReportViewModelTest {
         assertNull(vm.state.value.report)
     }
 
-    /** 설정 줄은 일부만 옮겨진 기기에서만 둔다. */
+    /** 미룬 기기는 다시 시도를 보이고, 실패하면 알린다. 앱은 그대로 쓴다. */
     @Test
-    fun settings_row_only_for_partial() {
+    fun deferred_retry_shows_failure_then_result() = runTest(dispatcher) {
+        var step = MigrationStep.DEFERRED
+        var result: MigrationResult = MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun state(): MigrationState = MigrationState(step = step)
+
+                override fun report(): MigrationReport? = report.takeIf { step != MigrationStep.DEFERRED }
+            }
+        val vm = MigrationReportViewModel(migration, TimeZone.UTC, dispatcher) { result }
+        advanceUntilIdle()
+        assertTrue(vm.state.value.deferred)
+
+        vm.retry()
+        advanceUntilIdle()
+        assertEquals(MigrationRetry.Failed, vm.state.value.retry)
+
+        result = MigrationResult.Finished(report, showResult = false)
+        step = MigrationStep.PARTIAL
+        vm.retry()
+        advanceUntilIdle()
+        assertFalse(vm.state.value.deferred)
+        assertEquals(report, vm.state.value.report)
+    }
+
+    /** 설정 줄은 일부만 옮겨졌거나 미룬 기기에서만 둔다. */
+    @Test
+    fun settings_row_only_for_partial_or_deferred() {
         assertTrue(showsMigrationReport(migration(MigrationStep.PARTIAL, report)))
+        assertTrue(showsMigrationReport(migration(MigrationStep.DEFERRED, null)))
         assertFalse(showsMigrationReport(migration(MigrationStep.DONE, report)))
         assertFalse(showsMigrationReport(NoLegacyMigration))
     }

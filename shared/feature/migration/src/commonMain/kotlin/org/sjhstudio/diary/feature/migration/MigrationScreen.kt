@@ -73,6 +73,7 @@ import org.sjhstudio.diary.feature.migration.resources.migration_progress_photos
 import org.sjhstudio.diary.feature.migration.resources.migration_progress_photos_value
 import org.sjhstudio.diary.feature.migration.resources.migration_progress_title
 import org.sjhstudio.diary.feature.migration.resources.migration_retry
+import org.sjhstudio.diary.feature.migration.resources.migration_skip
 import org.sjhstudio.diary.feature.migration.resources.migration_start
 import org.sjhstudio.diary.feature.migration.resources.migration_view_legacy
 
@@ -86,6 +87,7 @@ fun MigrationScreen(
     onStart: () -> Unit,
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
+    onSkip: () -> Unit = {},
     onViewLegacy: (() -> Unit)? = null,
     onExportOriginal: (() -> Unit)? = null,
     onContact: (() -> Unit)? = null
@@ -108,7 +110,7 @@ fun MigrationScreen(
 
             is MigrationUiState.Result -> ResultContent(state, onStart, onExportOriginal, onContact)
 
-            is MigrationUiState.Failed -> FailedContent(state, onRetry, onViewLegacy, onExportOriginal, onContact)
+            is MigrationUiState.Failed -> FailedContent(state, onRetry, onSkip, onViewLegacy, onExportOriginal, onContact)
         }
     }
 }
@@ -219,6 +221,7 @@ private fun ResultContent(state: MigrationUiState.Result, onStart: () -> Unit, o
 private fun FailedContent(
     state: MigrationUiState.Failed,
     onRetry: () -> Unit,
+    onSkip: () -> Unit,
     onViewLegacy: (() -> Unit)?,
     onExportOriginal: (() -> Unit)?,
     onContact: (() -> Unit)?
@@ -238,6 +241,8 @@ private fun FailedContent(
         tone = DiaryBadgeTone.Danger,
         title = stringResource(if (noSpace) Res.string.migration_no_space_title else Res.string.migration_failed_title),
         body = body,
+        // 공간 부족은 까닭이 분명해서 안내하고 멈춘다. 그 밖에는 이유를 알 수 없으니 먼저 앱을 쓰게 한다.
+        secondaryActions = if (noSpace) emptyList() else listOf(stringResource(Res.string.migration_skip) to onSkip),
         primary = stringResource(if (noSpace) Res.string.migration_check_again else Res.string.migration_retry) to onRetry,
         fullWidthContent = true
     ) {

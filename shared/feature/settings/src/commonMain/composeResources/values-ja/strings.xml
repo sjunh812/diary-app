@@ -90,4 +90,9 @@
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
     <string name="theme_note">システム設定にすると、スマートフォンがダークモードのときアプリも暗くなります。</string>
+    <string name="migration_deferred_title">以前の日記をまだ移せていません</string>
+    <string name="migration_deferred_body">もう一度試すと、今の日記はそのままで以前の日記を追加します。</string>
+    <string name="migration_deferred_failed">今回も移せませんでした。アプリを更新するともう一度試します。</string>
+    <string name="migration_deferred_retry">もう一度試す</string>
+    <string name="migration_deferred_running">移しています</string>
 </resources>

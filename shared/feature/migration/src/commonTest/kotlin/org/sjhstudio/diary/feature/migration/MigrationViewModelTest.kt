@@ -20,8 +20,10 @@ import org.sjhstudio.diary.core.migration.FollowUpResult
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.MigrationResult
 import org.sjhstudio.diary.core.migration.NoLegacyMigration
+import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
+import org.sjhstudio.diary.core.model.MigrationStep
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MigrationViewModelTest {
@@ -84,6 +86,32 @@ class MigrationViewModelTest {
         assertEquals(MigrationUiState.Passed, vm.state.value)
         assertEquals(1, calls)
         assertEquals(listOf<MigrationNotice>(MigrationNotice.PhotosFound(1)), notices)
+    }
+
+    /** 실패 화면의 새 일기부터 쓰기: 미뤄 두고 앱 틀로 간다. */
+    @Test
+    fun skip_defers_and_opens_the_app() = runTest(dispatcher) {
+        var deferred = 0
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun needsMigration(): Boolean = true
+
+                override suspend fun run(): MigrationResult =
+                    MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
+
+                override fun defer() {
+                    deferred++
+                }
+            }
+        val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
+        advanceUntilIdle()
+        assertIs<MigrationUiState.Failed>(vm.state.value)
+
+        vm.skip()
+        advanceUntilIdle()
+
+        assertEquals(MigrationUiState.Passed, vm.state.value)
+        assertEquals(1, deferred)
     }
 
     /** 후속 작업이 실패해도 앱 틀로 가고 아무것도 알리지 않는다. */
