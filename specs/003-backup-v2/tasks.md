@@ -54,10 +54,10 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ## Phase 3: Setup
 
-- [ ] T012 `gradle/libs.versions.toml`에 research R19 표(Ktor 3.6.1, Okio 3.18.2, `play-services-auth` 22.0.0, `work-runtime` 2.12.0)를 더한다
-- [ ] T013 [P] `shared/core/drive/build.gradle.kts`, `shared/core/backup/build.gradle.kts`(`diary.kmp.library`), `shared/feature/backup/build.gradle.kts`(`diary.kmp.feature`)와 빈 소스 폴더를 만들고 `settings.gradle.kts`에 넣는다
-- [ ] T014 [P] `iosApp`에 GoogleSignIn-iOS 10.1.0을 SPM으로 더하고 `iosApp/iosApp/Info.plist`에 `GIDClientID`(빌드 설정 값), 거꾸로 쓴 클라이언트 ID URL 스킴, `BGTaskSchedulerPermittedIdentifiers`(`org.sjhstudio.diary.backup.daily`, `org.sjhstudio.diary.backup.continued.*`), `UIBackgroundModes`의 `processing`을 둔다. `iOSApp.swift`의 `onOpenURL`에서 `GIDSignIn.sharedInstance.handle`
-- [ ] T015 [P] `composeApp/src/main/AndroidManifest.xml`에 `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `RUN_USER_INITIATED_JOBS`, 작업 관리자 `SystemForegroundService`의 `foregroundServiceType="dataSync"`, `BackupTransferJobService`(사용자가 시작한 데이터 전송 작업) 선언을 더한다(research R14)
+- [x] T012 `gradle/libs.versions.toml`에 research R19 표(Ktor 3.6.1, Okio 3.18.2, `play-services-auth` 22.0.0, `work-runtime` 2.12.0)를 더한다
+- [x] T013 [P] `shared/core/drive/build.gradle.kts`, `shared/core/backup/build.gradle.kts`(`diary.kmp.library`), `shared/feature/backup/build.gradle.kts`(`diary.kmp.feature`)와 빈 소스 폴더를 만들고 `settings.gradle.kts`에 넣는다
+- [x] T014 [P] `iosApp`에 GoogleSignIn-iOS 10.1.0을 SPM으로 더하고 `iosApp/iosApp/Info.plist`에 `GIDClientID`(빌드 설정 값), 거꾸로 쓴 클라이언트 ID URL 스킴, `BGTaskSchedulerPermittedIdentifiers`(`org.sjhstudio.diary.backup.daily`, `org.sjhstudio.diary.backup.continued.*`), `UIBackgroundModes`의 `processing`을 둔다. `iOSApp.swift`의 `onOpenURL`에서 `GIDSignIn.sharedInstance.handle`
+- [x] T015 [P] `composeApp/src/main/AndroidManifest.xml`에 `INTERNET`, `ACCESS_NETWORK_STATE`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `RUN_USER_INITIATED_JOBS`, 작업 관리자 `SystemForegroundService`의 `foregroundServiceType="dataSync"`를 더한다(research R14). `BackupTransferJobService` 선언은 그 클래스를 만드는 T043에서 한다
 
 ---
 

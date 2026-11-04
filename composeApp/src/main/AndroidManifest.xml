@@ -5,6 +5,13 @@
     <!-- 매일 알림(스펙 001 FR-022). 옛 앱도 선언했던 권한이라 업데이트 뒤에도 허락이 이어진다. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 사용자 구글 드라이브와 주고받는다(헌법 II, 사용자가 고른 저장소만). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- 지금 백업과 되살린 사진 받기를 앱을 떠나도 잇는다(스펙 003 research R14). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />
 
     <!-- 일기·사진·설정·잠금은 시스템 백업과 기기 간 이전으로 나가지 않는다(헌법 II, 스펙 001 research O5).
          Android 12부터는 allowBackup="false"여도 기기 간 이전이 돌아서 규칙 파일로도 모두 뺀다. -->
@@ -45,6 +52,11 @@
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
+        <!-- Android 13 이하의 지금 백업이 작업 관리자의 진행 알림 서비스로 돈다(research R14). -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
         <!-- 고쳐 받기 문의 묶음(files/migration/support)만 메일 앱에 읽기 권한으로 넘긴다(FR-010a). -->
         <provider
             android:name="androidx.core.content.FileProvider"

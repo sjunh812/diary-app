@@ -1,6 +1,6 @@
 # Implementation Plan: 백업 v2
 
-**Branch**: `docs/renewal-planning`(문서), 개발은 `feat/backup-v2` | **Date**: 2026-11-01 | **Spec**: [spec.md](spec.md)
+**Branch**: `docs/renewal-planning`(문서), 개발은 `feat/foundation-migration`에서 이어 간다 | **Date**: 2026-11-01 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `specs/003-backup-v2/spec.md`
 

@@ -53,10 +53,15 @@ kotlinxCoroutines = "1.11.0"
 kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.11.0"
 ktlint = "1.8.0"
+# 드라이브 REST를 공통 코드에서 부른다(스펙 003 research R3, R19).
+ktor = "3.6.1"
 # 파일 읽기·SHA-256. DataStore가 함께 가져오는 것과 같은 축이고 스펙 003 R19 표와 같은 버전이다.
 okio = "3.18.2"
+# 안드로이드 구글 권한 받기와 자동 백업(스펙 003 research R2, R14).
+playServicesAuth = "22.0.0"
 spotless = "8.10.4"
 turbine = "1.2.1"
+work = "2.12.0"
 
 [libraries]
 # CMP 1.12부터 compose.runtime 같은 줄임 접근자가 deprecated라 좌표를 직접 쓴다.
@@ -122,6 +127,12 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "work" }
 
 # :benchmarks 모듈만 쓴다. 앱에 들어가지 않는다.
 androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidxBenchmark" }

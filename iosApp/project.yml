@@ -8,12 +8,24 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.0"
+# 구글 드라이브 연결(스펙 003 research R2, R19).
+packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    exactVersion: 10.1.0
 targets:
   iosApp:
     type: application
     platform: iOS
     # CI의 xcodebuild -scheme iosApp이 찾도록 공유 스킴을 만든다.
     scheme: {}
+    # 클라이언트 ID는 저장소 밖 Local.xcconfig에서 온다(Config.xcconfig 참고).
+    configFiles:
+      Debug: iosApp/Config.xcconfig
+      Release: iosApp/Config.xcconfig
+    dependencies:
+      - package: GoogleSignIn
+        product: GoogleSignIn
     sources:
       - path: iosApp
       # 고를 때 받는 일기 글꼴(research R17). 안드로이드 글꼴 모듈과 같은 파일을 On-Demand Resources 태그(글꼴 ID)로 둔다.
@@ -51,6 +63,18 @@ targets:
         UILaunchScreen:
           UIColorName: LaunchBackground
           UIImageName: LaunchPencil
+        # 구글 로그인이 끝나면 앱으로 돌아오는 주소와 클라이언트 ID(스펙 003 research R2).
+        GIDClientID: $(GID_CLIENT_ID)
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - $(GID_REVERSED_CLIENT_ID)
+        # 자동 백업과 이어서 하는 백업(스펙 003 research R15).
+        BGTaskSchedulerPermittedIdentifiers:
+          - org.sjhstudio.diary.backup.daily
+          - org.sjhstudio.diary.backup.continued.*
+        UIBackgroundModes:
+          - processing
         # Compose가 시작할 때 이 키를 본다. 없으면 앱이 바로 꺼진다(ProMotion 120Hz 화면).
         CADisableMinimumFrameDurationOnPhone: true
         UISupportedInterfaceOrientations:

@@ -1,0 +1,6 @@
+// 구글 클라이언트 ID는 저장소에 두지 않는다.
+// Local.xcconfig.example을 Local.xcconfig로 복사해 값을 넣는다.
+// 없어도 빌드는 되고, 그때는 드라이브 연결만 실패한다.
+GID_CLIENT_ID =
+GID_REVERSED_CLIENT_ID =
+#include? "Local.xcconfig"

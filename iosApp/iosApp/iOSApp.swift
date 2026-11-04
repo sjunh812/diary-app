@@ -1,3 +1,4 @@
+import GoogleSignIn
 import Shared
 import SwiftUI
 
@@ -10,7 +11,10 @@ struct iOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView().privacyCover()
+            ContentView()
+                .privacyCover()
+                // 구글 로그인 창이 앱으로 돌려보내는 주소를 받는다.
+                .onOpenURL { GIDSignIn.sharedInstance.handle($0) }
         }
     }
 }

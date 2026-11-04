@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07116D6032514A5FC4CDB3DB /* Local.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = 38A2317CA7F32917D748F615 /* Local.xcconfig.example */; };
+		1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */; };
 		22EA1CB33A17DCC6FC82406D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F543015C899423D4B01CEB2E /* Assets.xcassets */; };
 		29DF7BAEAB8CEF5CBDD81D0F /* gowun_dodum.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */; settings = {ASSET_TAGS = (gowun_dodum, ); }; };
 		307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668CECA83ACC03A83C85A623 /* iOSApp.swift */; };
@@ -22,10 +24,13 @@
 
 /* Begin PBXFileReference section */
 		1F368840F5CE48EA3B21B976 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		343488E477CB7C977BDDC8FF /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		38A2317CA7F32917D748F615 /* Local.xcconfig.example */ = {isa = PBXFileReference; path = Local.xcconfig.example; sourceTree = "<group>"; };
 		41124284CE98EC53B9064222 /* hi_melody.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = hi_melody.ttf; sourceTree = "<group>"; };
 		424A11BA3CA8492ED2631CE4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		668CECA83ACC03A83C85A623 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_dodum.ttf; sourceTree = "<group>"; };
+		7009FFABBC02111FC2C6BBEA /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
 		86038AE1032E284E79B32AD6 /* iosApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = nanum_jeomggol.ttf; sourceTree = "<group>"; };
 		A200F24526F2E89B50E53BA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -39,6 +44,17 @@
 		F61F643C588442012994C221 /* gamja_flower.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gamja_flower.ttf; sourceTree = "<group>"; };
 		FA0F3A778E3FD20C9033683F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EF8A6E9BFD470986D9D5C9B5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0AE5B04EE7BFB5205B82B79D /* nanum_jeomggol */ = {
@@ -69,9 +85,12 @@
 			isa = PBXGroup;
 			children = (
 				F543015C899423D4B01CEB2E /* Assets.xcassets */,
+				343488E477CB7C977BDDC8FF /* Config.xcconfig */,
 				CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */,
 				C117AD187833E2513BD2F553 /* Info.plist */,
 				668CECA83ACC03A83C85A623 /* iOSApp.swift */,
+				7009FFABBC02111FC2C6BBEA /* Local.xcconfig */,
+				38A2317CA7F32917D748F615 /* Local.xcconfig.example */,
 				D6111777718F5751E749AACD /* PrivacyCover.swift */,
 				37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */,
 				A7F3482AB68B54C1CB27AB9D /* Localizable.strings */,
@@ -303,6 +322,7 @@
 				4B44A75E2FD10EFE3C97FCF5 /* Compile Kotlin Framework */,
 				297B59D9CE634556D6007C40 /* Sources */,
 				1623B02D10928C8101C1F806 /* Resources */,
+				EF8A6E9BFD470986D9D5C9B5 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -310,6 +330,7 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */,
 			);
 			productName = iosApp;
 			productReference = 86038AE1032E284E79B32AD6 /* iosApp.app */;
@@ -347,6 +368,9 @@
 			);
 			mainGroup = 38B69C3F79CD97858CF7B609;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 94C98B8B3A2BFC1966447269 /* Products */;
 			projectDirPath = "";
@@ -364,6 +388,7 @@
 			files = (
 				22EA1CB33A17DCC6FC82406D /* Assets.xcassets in Resources */,
 				6B2031D9196667F65FD358E5 /* InfoPlist.strings in Resources */,
+				07116D6032514A5FC4CDB3DB /* Local.xcconfig.example in Resources */,
 				86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */,
 				8619E6AF02B493D74581D733 /* gamja_flower.ttf in Resources */,
 				3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */,
@@ -555,6 +580,7 @@
 		};
 		9221A1FDC06803E8A2FC6E61 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 343488E477CB7C977BDDC8FF /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -580,6 +606,7 @@
 		};
 		AF835BFF1220CA5AB5B867E4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 343488E477CB7C977BDDC8FF /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -624,6 +651,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = exactVersion;
+				version = 10.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 242FB5348943441C388468CE /* Project object */;
 }

@@ -28,6 +28,8 @@ scripts/drive-probe/ios/build/
 .kotlin/
 **/build/
 iosApp/build/
+# 구글 클라이언트 ID(저장소에 올리지 않는다)
+iosApp/iosApp/Local.xcconfig
 xcuserdata/
 *.xcuserstate
 # 레거시 업그레이드 시험 산출물
