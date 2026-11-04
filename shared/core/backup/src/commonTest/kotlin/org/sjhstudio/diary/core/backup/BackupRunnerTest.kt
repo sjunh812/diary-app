@@ -114,6 +114,15 @@ class BackupRunnerTest {
     }
 
     @Test
+    fun empty_diary_uploads_nothing_so_it_cannot_hide_an_older_backup() = runTest {
+        assertIs<BackupOutcome.Empty>(runner().run())
+
+        assertTrue(drive.visible.isEmpty())
+        assertEquals(null, store.current().lastSuccessAt)
+        assertEquals(null, store.current().lastFailure)
+    }
+
+    @Test
     fun second_backup_uploads_only_new_photos() = runTest {
         seed()
         runner().run()
@@ -241,6 +250,7 @@ class BackupRunnerTest {
 
     @Test
     fun each_success_moves_the_alert_seven_days_ahead() = runTest {
+        seed()
         runner().run()
 
         assertEquals(now + 7.days, notifier.at)
@@ -249,6 +259,7 @@ class BackupRunnerTest {
 
     @Test
     fun failure_keeps_the_time_and_changes_the_reason() = runTest {
+        seed()
         runner().run()
         val first = now
         now += 2.days
@@ -263,6 +274,7 @@ class BackupRunnerTest {
 
     @Test
     fun past_alert_is_not_scheduled_again() = runTest {
+        seed()
         runner().run()
         val first = notifier.at
         now += 8.days

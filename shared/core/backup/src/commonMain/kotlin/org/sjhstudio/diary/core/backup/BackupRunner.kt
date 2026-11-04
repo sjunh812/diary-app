@@ -52,6 +52,9 @@ sealed interface BackupOutcome {
 
     /** 자동 백업인데 마지막 성공 뒤로 바뀐 것이 없다. */
     data object Unchanged : BackupOutcome
+
+    /** 휴지통까지 비어 일기가 한 편도 없다. 새 폰이나 실수로 비운 앱의 빈 백업이 앞선 백업을 가리지 않게 올리지 않는다. */
+    data object Empty : BackupOutcome
 }
 
 /** 오래 실패했을 때의 알림. [text]는 까닭에 맞는 제목과 본문을 준다. 까닭을 모르면 null이다. */
@@ -93,6 +96,7 @@ class BackupRunner(
     suspend fun run(cellularOnce: Boolean = false): BackupOutcome {
         if (!lock.tryLock()) return BackupOutcome.Busy
         try {
+            if (db.backupDao().entryRows() == 0) return BackupOutcome.Empty
             store.update { it.copy(lastAttemptAt = clock.now()) }
             return runCatchingFailure { backUp(cellularOnce) }
         } finally {

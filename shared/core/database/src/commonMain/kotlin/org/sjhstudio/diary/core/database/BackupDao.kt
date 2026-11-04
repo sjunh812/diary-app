@@ -78,6 +78,9 @@ interface BackupDao {
     @Query("SELECT COUNT(*) || ':' || COALESCE(MAX(updated_at), 0) FROM entry")
     suspend fun entriesFingerprint(): String
 
+    @Query("SELECT COUNT(*) FROM entry")
+    suspend fun entryRows(): Int
+
     @Query("SELECT COUNT(*) FROM media")
     suspend fun mediaRows(): Int
 
