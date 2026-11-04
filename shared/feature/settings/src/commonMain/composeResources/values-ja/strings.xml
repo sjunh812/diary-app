@@ -105,4 +105,5 @@
     <string name="list_style_feed">フィード</string>
     <string name="list_style_card">カード</string>
     <string name="list_style_photo">写真</string>
+    <string name="settings_whats_new">お知らせ</string>
 </resources>

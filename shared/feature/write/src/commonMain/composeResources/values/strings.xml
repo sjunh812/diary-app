@@ -44,4 +44,5 @@
     <string name="write_place_restaurant">Restaurant</string>
     <string name="write_place_park">Park</string>
     <string name="write_place_trip">Trip</string>
+    <string name="tip_write_tools">Text color and highlight are here</string>
 </resources>

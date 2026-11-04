@@ -41,6 +41,7 @@ kotlin {
             implementation(projects.shared.feature.insight)
             implementation(projects.shared.feature.trash)
             implementation(projects.shared.feature.backup)
+            implementation(projects.shared.feature.welcome)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

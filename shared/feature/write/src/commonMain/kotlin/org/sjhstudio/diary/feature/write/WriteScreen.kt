@@ -78,11 +78,13 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
 import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
+import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.icon
@@ -90,6 +92,7 @@ import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
+import org.sjhstudio.diary.feature.write.resources.tip_write_tools
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
 import org.sjhstudio.diary.feature.write.resources.write_camera
 import org.sjhstudio.diary.feature.write.resources.write_close
@@ -160,6 +163,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 Row(Modifier.weight(1f).fillMaxWidth()) {
                     Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Editor(actions.rich, bodyStyle, Modifier.weight(1f).widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth())
+                        ContextTipBar(ContextTip.WRITE_TOOLS, stringResource(Res.string.tip_write_tools))
                         tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
                     }
                     Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
@@ -172,6 +176,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                     Notices(state)
                     Editor(actions.rich, bodyStyle, Modifier.fillMaxWidth())
                 }
+                ContextTipBar(ContextTip.WRITE_TOOLS, stringResource(Res.string.tip_write_tools))
                 tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
             }
         }

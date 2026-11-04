@@ -105,4 +105,5 @@
     <string name="list_style_feed">피드</string>
     <string name="list_style_card">카드</string>
     <string name="list_style_photo">사진 격자</string>
+    <string name="settings_whats_new">새 소식</string>
 </resources>

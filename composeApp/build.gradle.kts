@@ -112,6 +112,7 @@ dependencies {
     debugImplementation(projects.shared.feature.lock)
     debugImplementation(projects.shared.feature.migration)
     debugImplementation(projects.shared.feature.settings)
+    debugImplementation(projects.shared.feature.welcome)
     debugImplementation(libs.kotlinx.datetime)
     // 목록 성능 견본(list_performance)이 견본 DB를 60편씩 읽는다.
     debugImplementation(projects.shared.core.database)

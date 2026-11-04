@@ -17,6 +17,9 @@ kotlin {
             // 일기 사진 칸. 앱 저장소 파일만 읽는다(네트워크 없음).
             implementation(libs.coil.compose)
             implementation(libs.okio)
+            // 맥락 팁 상태는 앱 틀이 Koin에 둔다. 미리보기와 시험에는 없어도 된다.
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
         }
     }
 }

@@ -30,8 +30,10 @@ import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
+import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
 import org.sjhstudio.diary.core.data.diary.DefaultEntryRepository
 import org.sjhstudio.diary.core.data.diary.DefaultStatsRepository
@@ -54,6 +56,7 @@ import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.datastore.DataStoreFactory
 import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.datastore.SettingsStore
+import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.createDriveApi
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
@@ -61,6 +64,7 @@ import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
 import org.sjhstudio.diary.core.model.BodyTextSize
+import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -83,6 +87,7 @@ import org.sjhstudio.diary.feature.migration.migrationFeatureModule
 import org.sjhstudio.diary.feature.search.searchFeatureModule
 import org.sjhstudio.diary.feature.settings.settingsFeatureModule
 import org.sjhstudio.diary.feature.trash.trashFeatureModule
+import org.sjhstudio.diary.feature.welcome.welcomeFeatureModule
 import org.sjhstudio.diary.feature.write.WriteMediaPath
 import org.sjhstudio.diary.feature.write.writeFeatureModule
 
@@ -104,6 +109,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     insightFeatureModule,
     trashFeatureModule,
     backupFeatureModule,
+    welcomeFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
@@ -156,6 +162,10 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         }
         // 백업(스펙 003). 드라이브와 일기 DB는 처음 쓸 때 연다.
         single { BackupStore(get<DataStoreFactory>().backup()) }
+        single<WelcomeRepository> {
+            DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome())) { get<LegacyMigration>().report()?.entriesMigrated }
+        }
+        single<ContextTips> { get<WelcomeRepository>() }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
         single {
             val files = get<AppFiles>()

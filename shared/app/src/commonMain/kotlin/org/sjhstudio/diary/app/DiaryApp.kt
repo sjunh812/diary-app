@@ -16,6 +16,7 @@ import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.gate.LockGate
 import org.sjhstudio.diary.app.gate.MigrationGate
+import org.sjhstudio.diary.app.gate.WelcomeGate
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.BackupRepository
@@ -74,7 +75,7 @@ fun DiaryApp() {
                 LaunchedEffect(backup) { backup.backUpIfDue() }
                 val restore = koinInject<RestoreRepository>()
                 LaunchedEffect(restore) { restore.resumePhotos() }
-                AppScaffold()
+                WelcomeGate { AppScaffold() }
             }
         }
     }

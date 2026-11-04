@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letter_title">A letter from the developer</string>
+    <string name="letter_hello">Hello! I'm the developer of 1 Day 1 Diary.</string>
+    <string name="letter_short">Every time I read a review saying a diary vanished after changing phones, my heart felt heavy. So I rebuilt the app from scratch with everything you've told me. Now even your photos are backed up.\n\nBuilding this around my day job often meant slow updates. To care for the app longer and more often, I'm adding ads and paid features starting with this version. Everything you've been using stays free, and there are no ads where you write and read.\n\nThank you so much for writing with 1 Day 1 Diary all this time. I hope you'll stay with it!</string>
+    <string name="letter_full">Hello! I'm the developer of 1 Day 1 Diary.\n\nI built this app in the summer of 2021, while first learning Android. Somehow more than 100,000 people have downloaded it since. It still makes me a little nervous that years of someone's days live inside an app I made.\n\nBut many reviews made my heart sink. Posts saying a diary disappeared after changing phones, or that all the photos were suddenly gone. Looking after the app alone alongside my day job, I left those problems unsolved for too long. I'm truly sorry to everyone who lost precious records.\n\nSo this time I rebuilt the app from scratch. What I spent the longest on was making sure records never disappear. Photos now live in a place they won't be erased from, and backups include them. This update moved your original records as they are, without touching them. It also works well on tablets, and an iPhone version is on the way.\n\nThere's one thing I want to be honest about. I was grateful for every review saying it's great because it's free with no ads, so I thought about this for a long time. Building this in my spare time often meant slow updates. To care for the app longer and more often, I decided to add ads and paid features.\n\nHere's my promise in return. Everything you've been using stays free, including backups with photos. The screens where you write and read have no ads. Your diary stays on your phone and the Drive you choose, and not a single word of it ever reaches me. If ads bother you, a one-time payment removes them.\n\nI still read every review and email. Please leave a line today too. Keeping that line safe is what I wanted most from this update.</string>
+    <string name="letter_sign">The developer of 1 Day 1 Diary</string>
+    <string name="letter_start">Start writing</string>
+    <string name="letter_read_all">Read the full letter</string>
+    <string name="onboarding_backup_title">Photos are backed up too</string>
+    <string name="onboarding_backup_body">Change phones and your diary and photos stay with you. They go only to your own Google Drive.</string>
+    <string name="onboarding_backup_action">Turn on auto backup</string>
+    <string name="onboarding_fresh_title">All new</string>
+    <string name="onboarding_fresh_body">Comfortable on big screens, and you can dress up your diary with fonts and colors.</string>
+    <string name="onboarding_write_title">One line a day is enough</string>
+    <string name="onboarding_write_body">Pick your mood and weather, then leave a few lines.</string>
+    <string name="onboarding_own_title">Your records, your Drive</string>
+    <string name="onboarding_own_body">Back up your diary and photos to your own Google Drive. No sign-up needed.</string>
+    <string name="onboarding_devices_title">On any device</string>
+    <string name="onboarding_devices_body">Comfortable on phones and tablets alike.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get started</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_later">Later</string>
+    <string name="news_title">What's new</string>
+    <string name="news_group">This version</string>
+    <string name="news_v2">2.0 All new</string>
+    <string name="news_v2_body">Photos are backed up, and the app was rebuilt from scratch.</string>
+    <string name="news_again">See the intro again</string>
+    <plurals name="letter_moved"><item quantity="one">First, your %1$s entry and its photos have moved to the new app. Your original records were left untouched.</item><item quantity="other">First, your %1$s entries and photos have moved to the new app. Your original records were left untouched.</item></plurals>
+</resources>

@@ -44,4 +44,5 @@
     <string name="write_place_restaurant">レストラン</string>
     <string name="write_place_park">公園</string>
     <string name="write_place_trip">旅行先</string>
+    <string name="tip_write_tools">文字色と蛍光ペンはここにあります</string>
 </resources>

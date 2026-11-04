@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicText
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -68,7 +70,8 @@ fun DiarySettingsRow(
     description: String? = null,
     value: String? = null,
     selected: Boolean = false,
-    leadingIcon: ImageVector? = null
+    leadingIcon: ImageVector? = null,
+    dot: Boolean = false
 ) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -87,6 +90,7 @@ fun DiarySettingsRow(
         description = description,
         leadingIcon = leadingIcon
     ) {
+        if (dot) Box(Modifier.size(DiarySpacing.x2).clip(DiaryShapes.full).background(colors.accent))
         if (value != null) {
             BasicText(text = value, style = DiaryTheme.typography.body.copy(color = colors.textSecondary), maxLines = 1)
         }

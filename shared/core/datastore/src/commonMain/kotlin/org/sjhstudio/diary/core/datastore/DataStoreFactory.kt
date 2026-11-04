@@ -22,6 +22,8 @@ class DataStoreFactory(private val directory: String, private val scope: Corouti
     // 백업 설정 파일이 깨지면 빈 값으로 시작한다. 드라이브의 백업은 그대로라 다시 연결하면 된다.
     fun backup(): DataStore<Preferences> = create(BACKUP_FILE, ReplaceFileCorruptionHandler { emptyPreferences() })
 
+    fun welcome(): DataStore<Preferences> = create(WELCOME_FILE, ReplaceFileCorruptionHandler { emptyPreferences() })
+
     private fun create(fileName: String, corruptionHandler: ReplaceFileCorruptionHandler<Preferences>): DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
             corruptionHandler = corruptionHandler,
@@ -33,5 +35,6 @@ class DataStoreFactory(private val directory: String, private val scope: Corouti
         const val SETTINGS_FILE = "settings.preferences_pb"
         const val LOCK_FILE = "lock.preferences_pb"
         const val BACKUP_FILE = "backup.preferences_pb"
+        const val WELCOME_FILE = "welcome.preferences_pb"
     }
 }

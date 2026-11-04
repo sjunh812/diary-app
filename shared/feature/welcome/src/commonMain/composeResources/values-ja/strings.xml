@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letter_title">開発者からの手紙</string>
+    <string name="letter_hello">こんにちは！1日1日記を作った開発者です。</string>
+    <string name="letter_short">スマホを替えたら日記が消えたというレビューを読むたびに、とても心が重くなりました。そこでいただいた声を込めて、アプリを最初から作り直しました。これからは写真までバックアップされます。\n\n仕事の合間に作っているため、アップデートが遅れることも多くありました。このアプリをもっと長く、もっとまめに見ていきたくて、今回から広告と有料機能を入れることにしました。使っていた機能はこれからも無料で、日記を書く画面と読む画面に広告はありません。\n\n長いあいだ1日1日記を使ってくださり、本当にありがとうございます。これからもよろしくお願いします！</string>
+    <string name="letter_full">こんにちは！1日1日記を作った開発者です。\n\n2021年の夏、Android を学び始めたころにこのアプリを作りました。それがいつの間にか10万人を超える方に使っていただけるようになりました。誰かの何年分もの毎日が自分の作ったアプリの中にあると思うと、今でも少し緊張します。\n\nけれど、レビューを読んで胸が痛む日もたくさんありました。スマホを替えたら日記が消えた、ある日写真が全部なくなった、という声です。仕事をしながら一人でアプリを見ていたため、その問題を長いあいだ解決できませんでした。大切な記録を失った皆さまに、心からお詫びします。\n\nそこで今回、アプリを最初から作り直しました。いちばん時間をかけたのは、記録が消えないようにすることです。写真は消えない場所に保管し、バックアップにも写真を含めます。今回のアップデートでも、元の記録には手を加えずそのまま移しました。タブレットでも広く使え、iPhone 版も準備しています。\n\nもう一つ、正直にお伝えしたいことがあります。「広告がなくて無料だからいい」というレビューを誰よりもありがたく読んでいたので、長いあいだ悩みました。仕事の合間に作っているため、アップデートが遅れることも多くありました。このアプリをもっと長く、もっとまめに見ていきたくて、広告と有料機能を入れることにしました。\n\nその代わりお約束します。これまで使っていた機能はこれからも無料です。写真を含むバックアップもです。日記を書く画面と読む画面に広告はありません。日記はスマホとご自身で選んだドライブにだけあり、内容が私のもとに届くことは一文字もありません。広告が気になる場合は、一度のお支払いで消せます。\n\nいただいたレビューとメールは、今もすべて読んでいます。今日も一行残してください。その一行を失わないように守ることが、今回のアップデートでいちばんやりたかったことです。</string>
+    <string name="letter_sign">1日1日記 開発者より</string>
+    <string name="letter_start">日記を書く</string>
+    <string name="letter_read_all">手紙の全文を読む</string>
+    <string name="onboarding_backup_title">写真までバックアップ</string>
+    <string name="onboarding_backup_body">スマホを替えても日記と写真はそのままです。自分の Google ドライブにだけ保存します。</string>
+    <string name="onboarding_backup_action">自動バックアップをオンにする</string>
+    <string name="onboarding_fresh_title">新しくなりました</string>
+    <string name="onboarding_fresh_body">大きな画面でも使いやすく、フォントや文字色で日記を飾れます。</string>
+    <string name="onboarding_write_title">一日一行で十分です</string>
+    <string name="onboarding_write_body">気分と天気を選んで、数行残すだけです。</string>
+    <string name="onboarding_own_title">記録は自分のドライブに</string>
+    <string name="onboarding_own_body">日記と写真を自分の Google ドライブにバックアップします。会員登録はありません。</string>
+    <string name="onboarding_devices_title">どの端末でも</string>
+    <string name="onboarding_devices_body">スマホでもタブレットでも快適に使えます。</string>
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_start">はじめる</string>
+    <string name="onboarding_skip">スキップ</string>
+    <string name="onboarding_later">あとで</string>
+    <string name="news_title">お知らせ</string>
+    <string name="news_group">今回のバージョン</string>
+    <string name="news_v2">2.0 新しくなりました</string>
+    <string name="news_v2_body">写真までバックアップでき、アプリを最初から作り直しました。</string>
+    <string name="news_again">最初の紹介をもう一度見る</string>
+    <plurals name="letter_moved"><item quantity="other">まず、書いた日記%1$s件と写真は新しいアプリにすべて移しました。元の記録は消さずにそのまま残しています。</item></plurals>
+</resources>

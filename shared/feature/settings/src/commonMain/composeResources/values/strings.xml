@@ -111,4 +111,5 @@
     <string name="list_style_feed">Feed</string>
     <string name="list_style_card">Cards</string>
     <string name="list_style_photo">Photos</string>
+    <string name="settings_whats_new">What’s new</string>
 </resources>

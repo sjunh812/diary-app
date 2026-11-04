@@ -17,4 +17,5 @@
     <string name="weather_sleet">Sleet</string>
     <string name="weather_snow">Snow</string>
     <string name="entry_kept_both">Two versions</string>
+    <string name="tip_close">Close</string>
 </resources>

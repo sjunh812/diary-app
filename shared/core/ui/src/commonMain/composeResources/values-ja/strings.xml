@@ -17,4 +17,5 @@
     <string name="weather_sleet">みぞれ</string>
     <string name="weather_snow">雪</string>
     <string name="entry_kept_both">2つあり</string>
+    <string name="tip_close">閉じる</string>
 </resources>

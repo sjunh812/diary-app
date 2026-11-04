@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.emptyPreferences
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -32,8 +33,11 @@ import org.koin.dsl.module
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
+import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
+import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.platform.FontInstallState
@@ -44,6 +48,7 @@ import org.sjhstudio.diary.core.testing.FakeBackupRepository
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.HomeViewModel
@@ -68,6 +73,7 @@ class AdaptiveLayoutUiTest {
                 module {
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
+                    single<WelcomeRepository> { DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences()))) { null } }
                     single { Telemetry(NoTelemetrySink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(mapOf(day to DayMood(day, null, 1))) }

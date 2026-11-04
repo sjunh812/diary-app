@@ -49,6 +49,8 @@ import org.sjhstudio.diary.feature.lock.LockUiState
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportUiState
+import org.sjhstudio.diary.feature.welcome.FullLetterScreen
+import org.sjhstudio.diary.feature.welcome.LetterScreen
 
 /**
  * 개발 빌드에만 있는 화면 모음. 앱 틀에서 아직 들어갈 길이 없는 화면을 견본 상태로 띄워 Figma와 견준다.
@@ -120,6 +122,10 @@ class ScreenCatalogActivity : ComponentActivity() {
                             onBack = ::finish
                         )
 
+                    LETTER -> LetterScreen(1_204, onStart = ::finish, onReadAll = {})
+
+                    FULL_LETTER -> FullLetterScreen(onBack = ::finish)
+
                     RESTORE_LEGACY ->
                         RestorePreviewScreen(
                             RestorePreparation.Ready(
@@ -159,6 +165,8 @@ class ScreenCatalogActivity : ComponentActivity() {
         const val RESTORE_LIST = "restore_list"
         const val RESTORE_CHECK = "restore_check"
         const val RESTORE_NO_SPACE = "restore_no_space"
+        const val LETTER = "letter"
+        const val FULL_LETTER = "full_letter"
         const val RESTORE_LEGACY = "restore_legacy"
         const val RESTORE_LEGACY_RESULT = "restore_legacy_result"
         const val RESTORE_RUNNING = "restore_running"

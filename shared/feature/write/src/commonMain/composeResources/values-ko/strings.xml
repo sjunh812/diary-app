@@ -44,4 +44,5 @@
     <string name="write_place_restaurant">식당</string>
     <string name="write_place_park">공원</string>
     <string name="write_place_trip">여행지</string>
+    <string name="tip_write_tools">글자색과 형광펜은 여기 있어요</string>
 </resources>

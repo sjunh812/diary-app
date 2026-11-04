@@ -29,6 +29,8 @@ import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
+import org.sjhstudio.diary.app.navigation.IntroKey
+import org.sjhstudio.diary.app.navigation.LetterKey
 import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
 import org.sjhstudio.diary.app.navigation.LicensesKey
 import org.sjhstudio.diary.app.navigation.ListStyleSettingsKey
@@ -43,6 +45,8 @@ import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
+import org.sjhstudio.diary.app.navigation.WhatsNewKey
+import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
@@ -71,6 +75,9 @@ import org.sjhstudio.diary.feature.settings.SettingsViewModel
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 import org.sjhstudio.diary.feature.trash.TrashRoute
+import org.sjhstudio.diary.feature.welcome.FullLetterScreen
+import org.sjhstudio.diary.feature.welcome.OnboardingScreen
+import org.sjhstudio.diary.feature.welcome.WhatsNewRoute
 
 /**
  * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스).
@@ -82,6 +89,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val state by viewModel.state.collectAsStateWithLifecycle()
         val trash = koinInject<TrashRepository>()
         val trashCount by remember(trash) { trash.items().map { it.size } }.collectAsState(0)
+        val whatsNewDot by koinInject<WelcomeRepository>().whatsNewUnread.collectAsState(false)
         SettingsScreen(
             state,
             onFont = { push(FontSettingsKey) },
@@ -94,7 +102,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onListStyle = { push(ListStyleSettingsKey) },
             onTrash = { push(TrashKey) },
             trashCount = trashCount,
-            onBackup = { push(BackupSettingsKey) }
+            onBackup = { push(BackupSettingsKey) },
+            onWhatsNew = { push(WhatsNewKey) },
+            whatsNewDot = whatsNewDot
         )
     }
     entry<BackupSettingsKey> {
@@ -117,6 +127,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     }
     entry<RestoreProgressKey> { RestoreProgressRoute(onHome = home, onLock = { push(LockSettingsKey) }, onPickOther = pop) }
     entry<TrashKey> { TrashRoute(onBack = pop) }
+    entry<WhatsNewKey> { WhatsNewRoute(onBack = pop, onLetter = { push(LetterKey) }, onIntro = { push(IntroKey) }) }
+    entry<LetterKey> { FullLetterScreen(onBack = pop) }
+    entry<IntroKey> { OnboardingScreen(updated = false, connected = true, connecting = false, onConnect = {}, onFinish = pop) }
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()

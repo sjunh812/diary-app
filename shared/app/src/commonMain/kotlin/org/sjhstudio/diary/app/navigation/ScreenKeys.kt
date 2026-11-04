@@ -108,3 +108,12 @@ data object RestoreProgressKey : Screen
 
 @Serializable
 data object FileBackupKey : Screen
+
+@Serializable
+data object WhatsNewKey : Screen
+
+@Serializable
+data object LetterKey : Screen
+
+@Serializable
+data object IntroKey : Screen
