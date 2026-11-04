@@ -49,6 +49,9 @@ sealed interface BackupOutcome {
 
     /** 다른 백업이 도는 중이다. */
     data object Busy : BackupOutcome
+
+    /** 자동 백업인데 마지막 성공 뒤로 바뀐 것이 없다. */
+    data object Unchanged : BackupOutcome
 }
 
 /** 오래 실패했을 때의 알림. [text]는 까닭에 맞는 제목과 본문을 준다. 까닭을 모르면 null이다. */
@@ -99,6 +102,18 @@ class BackupRunner(
         }
     }
 
+    /** 자동 백업. 일기, 사진, 설정이 마지막 성공 뒤로 그대로면 올리지 않는다(contracts/backup-flow.md). */
+    suspend fun runIfChanged(): BackupOutcome {
+        val prefs = store.current()
+        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint()) return BackupOutcome.Unchanged
+        return run()
+    }
+
+    private suspend fun fingerprint(): String {
+        val dao = db.backupDao()
+        return "${dao.entriesFingerprint()}|${dao.mediaRows()}|${settings()}"
+    }
+
     private suspend fun runCatchingFailure(block: suspend () -> BackupOutcome.Done): BackupOutcome = try {
         block()
     } catch (error: CancellationException) {
@@ -124,6 +139,7 @@ class BackupRunner(
     }
 
     private suspend fun backUp(cellularOnce: Boolean): BackupOutcome.Done {
+        val fingerprint = fingerprint()
         step(BackupStep.Preparing)
         val account =
             when (val token = authorizer.accessToken()) {
@@ -157,7 +173,10 @@ class BackupRunner(
         val allowed = cellularOnce || network.isUnmetered || store.current().photosOnCellular
         val quotaLimit = drive.about().free
         val reserve = snapshot.hashes.byteSize + MANIFEST_RESERVE
-        if (quotaLimit != null && quotaLimit < reserve) throw DriveException(BackupFailure.NO_SPACE)
+        if (quotaLimit != null && quotaLimit < reserve) {
+            store.update { it.copy(bytesShort = reserve - quotaLimit) }
+            throw DriveException(BackupFailure.NO_SPACE)
+        }
         val planned = if (allowed) fitting(missing, quotaLimit?.minus(reserve)) else emptyList()
         val uploaded = uploadPhotos(planned, folders, account.key)
 
@@ -190,12 +209,16 @@ class BackupRunner(
         check(snapshotFile.id.isNotEmpty())
         dao.setBase(syncBases(snapshot.path))
         val left = local2.count { it.sha256 !in inBackup }
+        // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
+        val short = if (allowed) missing.filter { it.sha256 !in uploaded }.sumOf { it.byteSize ?: 0 } else 0
         store.update {
             it.copy(
                 lastSuccessAt = now,
                 lastSuccessSnapshot = base,
+                lastSuccessFingerprint = fingerprint,
+                bytesShort = short,
                 failingSince = null,
-                lastFailure = null,
+                lastFailure = BackupFailure.NO_SPACE.takeIf { short > 0 },
                 failureNotifiedAt = null,
                 photosNotBackedUp = left
             )

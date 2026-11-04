@@ -37,6 +37,9 @@ interface BackupScheduler {
 
     /** 사용자가 누른 지금 백업. */
     fun startNow()
+
+    /** 모바일 데이터라 못 올린 사진을 요금 없는 연결이 되면 잇는다. */
+    fun scheduleWifiPhotos()
 }
 
 /** 시스템 예약이 없는 플랫폼. iOS는 앱을 열 때 밀린 백업을 돌린다(T044에서 BGTask를 더한다). */
@@ -46,4 +49,6 @@ object NoBackupScheduler : BackupScheduler {
     override fun cancelDaily() = Unit
 
     override fun startNow() = Unit
+
+    override fun scheduleWifiPhotos() = Unit
 }

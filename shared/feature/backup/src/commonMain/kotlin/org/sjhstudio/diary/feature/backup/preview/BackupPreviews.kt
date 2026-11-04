@@ -5,6 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlin.time.Instant
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupConnection
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.feature.backup.BackupNudgeContent
@@ -50,3 +51,13 @@ private fun NudgeLight() = DiaryTheme(darkTheme = false) { BackupNudgeContent(Ba
 @Preview(locale = "ko")
 @Composable
 private fun NudgeDark() = DiaryTheme(darkTheme = true) { BackupNudgeContent(BackupNudge(3, 0), {}, {}) }
+
+@Preview(locale = "ko")
+@Composable
+private fun NoSpaceLight() =
+    Screen(Connected.copy(lastFailure = BackupFailure.NO_SPACE, photosNotBackedUp = 420, bytesShort = 2_300_000_000), dark = false)
+
+@Preview(locale = "ko")
+@Composable
+private fun NoSpaceDark() =
+    Screen(Connected.copy(lastFailure = BackupFailure.NO_SPACE, photosNotBackedUp = 420, bytesShort = 2_300_000_000), dark = true)

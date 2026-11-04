@@ -269,4 +269,50 @@ class BackupRunnerTest {
         assertEquals(first, notifier.at)
         assertEquals("까닭 없음", notifier.body)
     }
+
+    @Test
+    fun nothing_changed_means_no_upload() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        runner().run()
+        val files = drive.visible.size
+
+        assertEquals(BackupOutcome.Unchanged, runner().runIfChanged())
+        assertEquals(files, drive.visible.size)
+    }
+
+    @Test
+    fun a_new_entry_runs_again() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        runner().run()
+        db.entryDao().insertAll(listOf(entry("b", "2026-10-30")))
+
+        assertIs<BackupOutcome.Done>(runner().runIfChanged())
+    }
+
+    @Test
+    fun photos_left_on_cellular_keep_the_next_run_going() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        photo("a", 0, "내용")
+        network.isUnmetered = false
+        val first = assertIs<BackupOutcome.Done>(runner().run())
+        assertEquals(1, first.photosLeft)
+        assertEquals(0, store.current().bytesShort)
+
+        network.isUnmetered = true
+
+        assertEquals(0, assertIs<BackupOutcome.Done>(runner().runIfChanged()).photosLeft)
+    }
+
+    @Test
+    fun running_out_of_drive_space_saves_the_text_and_says_how_much() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        photo("a", 0, "내용".repeat(2_000_000))
+        drive.limit = 8_000_000
+
+        val outcome = assertIs<BackupOutcome.Done>(runner().run())
+
+        assertEquals(1, outcome.photosLeft)
+        assertEquals(BackupFailure.NO_SPACE, store.current().lastFailure)
+        assertTrue(store.current().bytesShort > 0)
+    }
 }

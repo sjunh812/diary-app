@@ -34,7 +34,11 @@ data class BackupPrefs(
     val nudgeDismissCount: Int = 0,
     val nudgeHiddenUntil: Instant? = null,
     val userDisconnected: Boolean = false,
-    val rollbackUntil: Instant? = null
+    val rollbackUntil: Instant? = null,
+    /** 마지막 성공 때의 일기·사진·설정 지문. 같으면 자동 백업을 건너뛴다. */
+    val lastSuccessFingerprint: String? = null,
+    /** 사진을 마저 올리려면 드라이브에 더 필요한 양. */
+    val bytesShort: Long = 0
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
@@ -73,6 +77,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         nudgeDismissCount = this[Keys.NUDGE_DISMISS_COUNT] ?: 0,
         nudgeHiddenUntil = instant(Keys.NUDGE_HIDDEN_UNTIL),
         userDisconnected = this[Keys.USER_DISCONNECTED] ?: false,
+        lastSuccessFingerprint = this[Keys.LAST_SUCCESS_FINGERPRINT],
+        bytesShort = this[Keys.BYTES_SHORT] ?: 0,
         rollbackUntil = instant(Keys.ROLLBACK_UNTIL)
     )
 
@@ -95,6 +101,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.NUDGE_HIDDEN_UNTIL, prefs.nudgeHiddenUntil?.toEpochMilliseconds())
         this[Keys.USER_DISCONNECTED] = prefs.userDisconnected
         setOrRemove(Keys.ROLLBACK_UNTIL, prefs.rollbackUntil?.toEpochMilliseconds())
+        setOrRemove(Keys.LAST_SUCCESS_FINGERPRINT, prefs.lastSuccessFingerprint)
+        this[Keys.BYTES_SHORT] = prefs.bytesShort
     }
 
     private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
@@ -110,6 +118,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val PHOTOS_ON_CELLULAR = booleanPreferencesKey("photos_on_cellular")
         val LAST_SUCCESS_AT = longPreferencesKey("last_success_at")
         val LAST_SUCCESS_SNAPSHOT = stringPreferencesKey("last_success_snapshot")
+        val LAST_SUCCESS_FINGERPRINT = stringPreferencesKey("last_success_fingerprint")
+        val BYTES_SHORT = longPreferencesKey("bytes_short")
         val LAST_ATTEMPT_AT = longPreferencesKey("last_attempt_at")
         val FAILING_SINCE = longPreferencesKey("failing_since")
         val LAST_FAILURE = stringPreferencesKey("last_failure")

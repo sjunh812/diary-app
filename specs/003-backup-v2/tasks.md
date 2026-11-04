@@ -176,13 +176,13 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T070 [P] [US4] `shared/core/backup/{test}/core/backup/AutoBackupPolicyTest.kt`: 바뀐 것이 없으면 안 함, 모바일 데이터면 사진 없이 스냅샷과 목록 파일(`inBackup=false`), Wi-Fi 일회성 작업 넘김, 앱을 열 때 24시간 넘었으면 시작, 이전·복원 중이면 안 함
+- [x] T070 [P] [US4] `shared/core/backup/{test}/core/backup/AutoBackupPolicyTest.kt`: 바뀐 것이 없으면 안 함, 모바일 데이터면 사진 없이 스냅샷과 목록 파일(`inBackup=false`), Wi-Fi 일회성 작업 넘김, 앱을 열 때 24시간 넘었으면 시작, 이전·복원 중이면 안 함
 - [x] T071 [P] [US4] `{test}/core/backup/FailureNotificationTest.kt`: 성공마다 "+7일" 다시 예약, 실패 기록마다 본문 바꿈, 실패 기록이 없을 때 문구, 다시 성공할 때까지 한 번만, 알림 허용이 없으면 빨간 점 상태
 - [x] T072 [P] [US4] `shared/core/data/{test}/core/data/BackupNudgeRepositoryTest.kt`: `contracts/backup-flow.md` 권하기 조건 전부(이전한 사용자, 3편, 사진 일기, 14일 숨김, 세 번, 스스로 끊음, 홈에서만)
 
 ### Implementation for User Story 4
 
-- [ ] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(네트워크 연결됨 + 배터리 부족 아님), `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각, 앱이 뒤로 간 뒤 앱 안 코루틴으로 잇지 않기(research R14, 2026-11-01 확인)
+- [x] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(네트워크 연결됨 + 배터리 부족 아님), `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각, 앱이 뒤로 간 뒤 앱 안 코루틴으로 잇지 않기(research R14, 2026-11-01 확인)
 - [x] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
 - [x] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
 - [ ] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
@@ -201,12 +201,12 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T079 [P] [US5] `shared/core/backup/{test}/core/backup/LowSpaceTest.kt`: 스냅샷 자리 먼저, 최근 일기 순으로 사진 고르기, `inBackup=false` 수, 스냅샷도 안 들어가면 시작 안 함, 올리는 중 `storageQuotaExceeded` 처리, 한도 없는 계정은 확인 건너뜀, 공간을 비운 뒤 남은 사진만
+- [x] T079 [P] [US5] `shared/core/backup/{test}/core/backup/LowSpaceTest.kt`: 스냅샷 자리 먼저, 최근 일기 순으로 사진 고르기, `inBackup=false` 수, 스냅샷도 안 들어가면 시작 안 함, 올리는 중 `storageQuotaExceeded` 처리, 한도 없는 계정은 확인 건너뜀, 공간을 비운 뒤 남은 사진만
 
 ### Implementation for User Story 5
 
-- [ ] T080 [US5] `UploadPlanner`에 공간 계획(`about.storageQuota`)과 `BackupRunner`에 중간 공간 부족 처리를 더한다(`contracts/backup-format.md` "공간이 모자랄 때")
-- [ ] T081 [US5] 공간 부족 안내 화면: 모자란 양, 사진 정리 방법, 드라이브 휴지통 비우기, 구글 계정 저장 공간 화면 열기, 파일로 백업하기. 우리가 공간을 팔지 않는다(FR-019). Figma 드라이브 공간이 모자라요 (B10)
+- [x] T080 [US5] `UploadPlanner`에 공간 계획(`about.storageQuota`)과 `BackupRunner`에 중간 공간 부족 처리를 더한다(`contracts/backup-format.md` "공간이 모자랄 때")
+- [x] T081 [US5] 공간 부족 안내 화면: 모자란 양, 사진 정리 방법, 드라이브 휴지통 비우기, 구글 계정 저장 공간 화면 열기, 파일로 백업하기. 우리가 공간을 팔지 않는다(FR-019). Figma 드라이브 공간이 모자라요 (B10)
 
 ---
 

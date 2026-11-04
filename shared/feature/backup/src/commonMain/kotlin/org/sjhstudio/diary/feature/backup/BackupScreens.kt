@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.time.Clock
@@ -32,11 +33,13 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
+import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
@@ -77,7 +80,6 @@ import org.sjhstudio.diary.feature.backup.resources.backup_intro_body
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_note
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_title
 import org.sjhstudio.diary.feature.backup.resources.backup_last
-import org.sjhstudio.diary.feature.backup.resources.backup_no_space_body
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
 import org.sjhstudio.diary.feature.backup.resources.backup_now
 import org.sjhstudio.diary.feature.backup.resources.backup_options
@@ -88,6 +90,12 @@ import org.sjhstudio.diary.feature.backup.resources.backup_reconnect_title
 import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
+import org.sjhstudio.diary.feature.backup.resources.backup_space_manage
+import org.sjhstudio.diary.feature.backup.resources.backup_space_note
+import org.sjhstudio.diary.feature.backup.resources.backup_space_photos
+import org.sjhstudio.diary.feature.backup.resources.backup_space_retry
+import org.sjhstudio.diary.feature.backup.resources.backup_space_text
+import org.sjhstudio.diary.feature.backup.resources.backup_space_trash
 import org.sjhstudio.diary.feature.backup.resources.backup_title
 import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only
@@ -191,7 +199,9 @@ internal fun BackupSettingsScreen(
                     Rollback(it, onRollBack)
                 }
             }
-            if (status.connection == BackupConnection.NotConnected) {
+            if (status.lastFailure == BackupFailure.NO_SPACE && status.running == null) {
+                NoSpace(status, onBackUp, onFile)
+            } else if (status.connection == BackupConnection.NotConnected) {
                 NotConnected(connecting, onConnect)
                 DiarySettingsRow(
                     stringResource(Res.string.file_top),
@@ -233,6 +243,47 @@ internal fun BackupSettingsScreen(
         }
     }
 }
+
+/** Figma "드라이브 공간이 모자라요 (B10)". 우리가 공간을 팔지 않고 정리할 곳만 알려 준다(FR-019). */
+@Composable
+private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Unit) {
+    val colors = DiaryTheme.colors
+    val links = LocalUriHandler.current
+    val size = sizeText(status.bytesShort)
+    Column(
+        Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+    ) {
+        DiaryHeroBadge(DiaryIcons.CircleAlert, tone = DiaryBadgeTone.Danger)
+        Spacer(Modifier.height(DiarySpacing.x1))
+        BasicText(
+            stringResource(Res.string.backup_no_space_title),
+            style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+        )
+        BasicText(
+            if (status.failingSince != null) {
+                stringResource(Res.string.backup_space_text, size)
+            } else {
+                pluralStringResource(Res.plurals.backup_space_photos, status.photosNotBackedUp, status.photosNotBackedUp.grouped(), size)
+            },
+            style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+        )
+    }
+    DiarySettingsRow(stringResource(Res.string.backup_space_manage), onClick = { links.openUri(STORAGE_URL) })
+    DiarySettingsRow(stringResource(Res.string.backup_space_trash), onClick = { links.openUri(TRASH_URL) })
+    DiarySettingsRow(stringResource(Res.string.file_top), onClick = onFile)
+    Column(
+        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+    ) {
+        DiaryNotice(stringResource(Res.string.backup_space_note))
+        DiaryButton(stringResource(Res.string.backup_space_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+    }
+}
+
+private const val STORAGE_URL = "https://drive.google.com/settings/storage"
+private const val TRASH_URL = "https://drive.google.com/drive/trash"
 
 /** Figma "B9 백업 · 되돌릴 수 있어요". */
 @Composable
@@ -331,13 +382,6 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                 DiaryIcons.ShieldCheck,
                 stringResource(Res.string.backup_reconnect_title),
                 stringResource(Res.string.backup_reconnect_body)
-            )
-
-        status.lastFailure == BackupFailure.NO_SPACE ->
-            DiaryStatusBox(
-                DiaryIcons.ShieldCheck,
-                stringResource(Res.string.backup_no_space_title),
-                stringResource(Res.string.backup_no_space_body)
             )
 
         status.photosNotBackedUp > 0 && last != null ->

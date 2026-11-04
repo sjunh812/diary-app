@@ -16,7 +16,6 @@
     <string name="backup_reconnect_title">Google account disconnected</string>
     <string name="backup_reconnect_body">Reconnect to continue. Your backups on Drive are safe.</string>
     <string name="backup_no_space_title">Not enough Drive storage</string>
-    <string name="backup_no_space_body">Your text is backed up. Photos continue when there is room.</string>
     <string name="backup_upload_cellular">Upload on mobile data</string>
     <string name="backup_all_done">Everything is backed up, photos included.</string>
     <string name="backup_first_title">Ready for your first backup</string>
@@ -178,4 +177,10 @@
     <string name="restore_group_other">Elsewhere</string>
     <string name="restore_replaced_title">Replaced with this backup</string>
     <string name="restore_replaced_body">You can go back for 7 days.</string>
+    <string name="backup_space_text">You need %1$s more on Drive to back up your entries.</string>
+    <string name="backup_space_manage">Manage Google storage</string>
+    <string name="backup_space_trash">Empty Drive trash</string>
+    <string name="backup_space_note">Photos that weren’t backed up are still on this phone.</string>
+    <string name="backup_space_retry">Back up again</string>
+    <plurals name="backup_space_photos"><item quantity="one">Your entries are backed up. You need %2$s more on Drive for the remaining photo.</item><item quantity="other">Your entries are backed up. You need %2$s more on Drive for the remaining %1$s photos.</item></plurals>
 </resources>

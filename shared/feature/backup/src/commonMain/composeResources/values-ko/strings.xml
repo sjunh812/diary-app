@@ -16,7 +16,6 @@
     <string name="backup_reconnect_title">구글 계정 연결이 끊겼어요</string>
     <string name="backup_reconnect_body">다시 연결하면 백업을 이어서 해요. 드라이브에 있는 백업은 그대로예요.</string>
     <string name="backup_no_space_title">드라이브 공간이 모자라요</string>
-    <string name="backup_no_space_body">글은 올렸어요. 사진은 공간이 생기면 이어서 올려요.</string>
     <string name="backup_upload_cellular">모바일 데이터로 올리기</string>
     <string name="backup_all_done">사진까지 모두 백업했어요.</string>
     <string name="backup_first_title">첫 백업을 준비했어요</string>
@@ -178,4 +177,10 @@
     <string name="restore_group_other">다른 곳에서</string>
     <string name="restore_replaced_title">이 백업으로 바꿨어요</string>
     <string name="restore_replaced_body">바꾸기 전 기록은 7일 동안 되돌릴 수 있어요.</string>
+    <string name="backup_space_text">일기 글을 올리려면 드라이브에 %1$s가 더 필요해요.</string>
+    <string name="backup_space_manage">구글 저장 공간 관리</string>
+    <string name="backup_space_trash">드라이브 휴지통 비우기</string>
+    <string name="backup_space_note">못 올린 사진도 이 휴대폰에는 그대로 있어요.</string>
+    <string name="backup_space_retry">다시 백업</string>
+    <plurals name="backup_space_photos"><item quantity="other">일기 글은 모두 올렸어요. 사진 %1$s장을 마저 올리려면 드라이브에 %2$s가 더 필요해요.</item></plurals>
 </resources>

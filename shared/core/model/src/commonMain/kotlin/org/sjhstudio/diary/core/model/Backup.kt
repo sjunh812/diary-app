@@ -56,7 +56,9 @@ data class BackupStatus(
     val failingSince: Instant? = null,
     val lastFailure: BackupFailure? = null,
     val autoEnabled: Boolean = false,
-    val photosOnCellular: Boolean = false
+    val photosOnCellular: Boolean = false,
+    /** 공간이 모자라 못 올린 사진의 양. */
+    val bytesShort: Long = 0
 )
 
 /** 복원 목록 한 줄의 상태. */

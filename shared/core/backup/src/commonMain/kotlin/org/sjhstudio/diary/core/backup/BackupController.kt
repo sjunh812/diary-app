@@ -53,7 +53,8 @@ class BackupController(
                     failingSince = prefs.failingSince,
                     lastFailure = prefs.lastFailure,
                     autoEnabled = prefs.autoEnabled,
-                    photosOnCellular = prefs.photosOnCellular
+                    photosOnCellular = prefs.photosOnCellular,
+                    bytesShort = prefs.bytesShort
                 )
             }
         }
@@ -103,11 +104,11 @@ class BackupController(
     }
 
     override suspend fun backUpIfDue() {
-        if (isDue()) backUpNow()
+        if (isDue()) scope.launch { runner.value.runIfChanged() }
     }
 
     override suspend fun runIfDue() {
-        if (isDue()) runner.value.run()
+        if (isDue()) runner.value.runIfChanged()
     }
 
     private suspend fun isDue(): Boolean {

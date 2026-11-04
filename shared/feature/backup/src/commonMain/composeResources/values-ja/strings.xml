@@ -16,7 +16,6 @@
     <string name="backup_reconnect_title">Googleアカウントの接続が切れました</string>
     <string name="backup_reconnect_body">再接続すると続きから始めます。ドライブのバックアップはそのままです。</string>
     <string name="backup_no_space_title">ドライブの空き容量が足りません</string>
-    <string name="backup_no_space_body">文章はアップロードしました。写真は空きができたら続けます。</string>
     <string name="backup_upload_cellular">モバイルデータでアップロード</string>
     <string name="backup_all_done">写真まですべてバックアップしました。</string>
     <string name="backup_first_title">最初のバックアップの準備ができました</string>
@@ -178,4 +177,10 @@
     <string name="restore_group_other">その他</string>
     <string name="restore_replaced_title">このバックアップに置き換えました</string>
     <string name="restore_replaced_body">7日間は元に戻せます。</string>
+    <string name="backup_space_text">日記の文章を保存するには、ドライブにあと%1$s必要です。</string>
+    <string name="backup_space_manage">Google ストレージを管理</string>
+    <string name="backup_space_trash">ドライブのゴミ箱を空にする</string>
+    <string name="backup_space_note">保存できなかった写真もこのスマホにそのまま残っています。</string>
+    <string name="backup_space_retry">もう一度バックアップ</string>
+    <plurals name="backup_space_photos"><item quantity="other">日記の文章はすべて保存しました。残りの写真%1$s枚を保存するには、ドライブにあと%2$s必要です。</item></plurals>
 </resources>

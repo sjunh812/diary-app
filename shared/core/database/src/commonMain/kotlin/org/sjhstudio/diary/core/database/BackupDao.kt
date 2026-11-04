@@ -75,6 +75,12 @@ interface BackupDao {
     @Query("SELECT entry_id FROM merge_mark")
     suspend fun markedIds(): List<String>
 
+    @Query("SELECT COUNT(*) || ':' || COALESCE(MAX(updated_at), 0) FROM entry")
+    suspend fun entriesFingerprint(): String
+
+    @Query("SELECT COUNT(*) FROM media")
+    suspend fun mediaRows(): Int
+
     @Query("DELETE FROM media")
     suspend fun clearMedia()
 

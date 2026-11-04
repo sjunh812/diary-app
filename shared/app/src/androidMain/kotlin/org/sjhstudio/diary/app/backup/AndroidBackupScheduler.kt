@@ -22,18 +22,25 @@ import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.platform.BackupAlertPoster
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
+import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.feature.backup.backupChannelName
 
 /** 시스템이 때를 골라 돌리는 백업(research R14). 네트워크가 있을 때만 돌고, 잠깐 실패면 시스템이 다시 부른다. */
 class BackupWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
     KoinComponent {
-    override suspend fun doWork(): Result = when (val outcome = get<BackupRunner>().run()) {
+    override suspend fun doWork(): Result = when (val outcome = get<BackupRunner>().runIfChanged()) {
         is BackupOutcome.Failed -> if (outcome.kind == BackupFailure.OFFLINE ||
             outcome.kind == BackupFailure.DRIVE_ERROR
         ) {
             Result.retry()
         } else {
+            Result.success()
+        }
+
+        is BackupOutcome.Done -> {
+            // 글은 올렸고 사진은 요금 없는 연결에서 잇는다. 그 연결에서 남은 것은 공간 때문이라 다시 걸지 않는다.
+            if (outcome.photosLeft > 0 && !get<NetworkState>().isUnmetered) get<BackupScheduler>().scheduleWifiPhotos()
             Result.success()
         }
 
@@ -92,9 +99,19 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
         manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.KEEP, work)
     }
 
+    override fun scheduleWifiPhotos() {
+        val unmetered = Constraints.Builder().setRequiredNetworkType(NetworkType.UNMETERED).build()
+        manager.enqueueUniqueWork(
+            PHOTOS,
+            ExistingWorkPolicy.KEEP,
+            OneTimeWorkRequestBuilder<BackupWorker>().setConstraints(unmetered).build()
+        )
+    }
+
     private companion object {
         const val DAILY = "backup.daily"
         const val NOW = "backup.now"
+        const val PHOTOS = "backup.photos"
     }
 }
 
