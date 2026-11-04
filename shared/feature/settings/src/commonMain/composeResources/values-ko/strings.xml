@@ -41,8 +41,6 @@
     <string name="lock_value_cold_start">새로 열 때 잠금</string>
 
     <!-- 개발 빌드에만 있는 줄(FR-029) -->
-    <string name="settings_group_developer">개발</string>
-    <string name="settings_design_catalog">디자인 시스템 견본</string>
 
 
     <!-- 매일 알림(R1) -->

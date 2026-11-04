@@ -41,8 +41,6 @@
     <string name="lock_value_cold_start">起動時にロック</string>
 
     <!-- 開発ビルドのみ(FR-029) -->
-    <string name="settings_group_developer">開発</string>
-    <string name="settings_design_catalog">デザインシステム見本</string>
 
 
     <!-- 毎日のリマインダー(R1) -->

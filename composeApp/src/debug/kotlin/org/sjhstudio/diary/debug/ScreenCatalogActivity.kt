@@ -43,7 +43,7 @@ import org.sjhstudio.diary.feature.settings.MigrationReportUiState
  *   adb shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
  *   화면 이름: migration_report(M5), support_sheet(M5 · 고쳐 받기 문의), photo_cell(일기 줄 사진 칸, 옮긴 사진으로),
  *   lock_forgot(L3 · 비밀번호를 잊어버렸을 때), lock_settings(L4 잠금 설정), settings(앱 틀의 설정 탭: S6과 G2·G3·L4·M5),
- *   design_catalog(디자인 시스템 견본, 설정 > 개발에서도 들어간다), list_performance(목록 성능 견본, 일기 1만 편·사진 5천 장, 따로 둔 견본 DB)
+ *   design_catalog(디자인 시스템 견본), list_performance(목록 성능 견본, 일기 1만 편·사진 5천 장, 따로 둔 견본 DB)
  * lock_settings와 settings는 실제 설정을 바꾼다. 에뮬레이터에서 잠금을 켜거나 설정을 바꿔 보는 데 쓴다.
  */
 class ScreenCatalogActivity : ComponentActivity() {

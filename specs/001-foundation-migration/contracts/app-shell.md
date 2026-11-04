@@ -37,7 +37,6 @@
 | `LicensesKey` | settings | 오픈소스 라이선스. 글꼴 10종과 앱에 들어간 라이브러리 |
 | `FontLicenseKey(fontId)` | settings | 글꼴 하나의 라이선스 전문 |
 | `LibraryLicenseKey(libraryId)` | settings | 라이브러리 하나의 라이선스 전문 |
-| `DesignCatalogKey` | designsystem | 개발 빌드에서만(FR-029) |
 
 뒤로 가기는 Navigation 3 기본. 잠금·이전 화면은 화면 키가 아니라 관문이라 뒤로 가기로 벗어날 수 없다.
 

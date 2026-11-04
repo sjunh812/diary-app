@@ -40,8 +40,7 @@ object AnalyticsEvents {
             "MigrationReportKey",
             "LicensesKey",
             "FontLicenseKey",
-            "LibraryLicenseKey",
-            "DesignCatalogKey"
+            "LibraryLicenseKey"
         )
 
     val COUNT_BUCKETS = listOf("0", "1-9", "10-99", "100-999", "1000-9999", "10000+")

@@ -46,8 +46,6 @@
     <string name="lock_value_cold_start">Locks on restart</string>
 
     <!-- Developer rows. Debug builds only (FR-029). -->
-    <string name="settings_group_developer">Developer</string>
-    <string name="settings_design_catalog">Design system</string>
 
 
     <!-- Daily reminder (R1) -->

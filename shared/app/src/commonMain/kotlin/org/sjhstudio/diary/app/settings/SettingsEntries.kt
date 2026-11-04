@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.app.navigation.DesignCatalogKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
@@ -55,7 +54,7 @@ import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
  * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스).
  * 기능 모듈끼리는 서로 모르므로 어디서 어디로 가는지는 여기서 정한다.
  */
-fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit, developer: Boolean = false) {
+fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit) {
     entry<SettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
@@ -67,9 +66,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onReminder = { push(ReminderSettingsKey) },
             onLock = { push(LockSettingsKey) },
             onMigrationReport = { push(MigrationReportKey) },
-            onLicenses = { push(LicensesKey) },
-            // 개발 빌드에만 "개발" 묶음이 있다(FR-029).
-            onDesignCatalog = if (developer) ({ push(DesignCatalogKey) }) else null
+            onLicenses = { push(LicensesKey) }
         )
     }
     entry<TextSizeSettingsKey> {

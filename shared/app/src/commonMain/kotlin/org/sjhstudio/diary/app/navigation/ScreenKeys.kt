@@ -58,7 +58,3 @@ data class FontLicenseKey(val fontId: String) : Screen {
 data class LibraryLicenseKey(val libraryId: String) : Screen {
     override fun toString(): String = "LibraryLicenseKey"
 }
-
-/** 디자인 시스템 견본. 개발 빌드에만 길이 있다(FR-029, `developer/DeveloperEntries.kt`). */
-@Serializable
-data object DesignCatalogKey : Screen

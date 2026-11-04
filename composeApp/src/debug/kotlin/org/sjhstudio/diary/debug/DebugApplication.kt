@@ -5,11 +5,9 @@ import org.koin.android.ext.android.get
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
 import org.sjhstudio.diary.DiaryApplication
-import org.sjhstudio.diary.app.developer.DeveloperEntries
-import org.sjhstudio.diary.app.developer.designCatalogEntries
 import org.sjhstudio.diary.core.migration.MigrationEvents
 
-/** 개발 빌드의 앱. 기록 이전에 강제 종료 훅을 끼우고(T049) 디자인 시스템 견본 화면을 연다(FR-029). 출시 빌드에는 없다. */
+/** 개발 빌드의 앱. 기록 이전에 강제 종료 훅을 끼운다(T049). 출시 빌드에는 없다. */
 class DebugApplication : DiaryApplication() {
     override fun onCreate() {
         super.onCreate()
@@ -18,7 +16,6 @@ class DebugApplication : DiaryApplication() {
         loadKoinModules(
             module {
                 single<MigrationEvents> { KillAtHook(File(filesDir, "debug/kill_at"), released) }
-                single<DeveloperEntries> { designCatalogEntries() }
             }
         )
     }

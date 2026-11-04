@@ -42,14 +42,6 @@ private fun ListLight() = SettingsList(dark = false)
 @Composable
 private fun ListDark() = SettingsList(dark = true)
 
-/** 개발 빌드에만 있는 "개발" 묶음이 맨 아래 붙는다(FR-029). */
-@Preview(name = "S6 설정 · 개발 빌드", locale = "ko", widthDp = 390, heightDp = 844)
-@Composable
-private fun ListDeveloper() = DiaryTheme(darkTheme = false) {
-    SettingsScreen(sample, onFont = {
-    }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {}, onDesignCatalog = {})
-}
-
 @Composable
 private fun TextSize(dark: Boolean) = DiaryTheme(darkTheme = dark) {
     TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), font = DiaryFont.KKOMI, onSelect = {}, onBack = {})

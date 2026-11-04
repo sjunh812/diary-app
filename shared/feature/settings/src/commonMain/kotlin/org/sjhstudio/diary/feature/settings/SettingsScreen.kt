@@ -25,9 +25,7 @@ import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
-import org.sjhstudio.diary.feature.settings.resources.settings_design_catalog
 import org.sjhstudio.diary.feature.settings.resources.settings_font
-import org.sjhstudio.diary.feature.settings.resources.settings_group_developer
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_notification
 import org.sjhstudio.diary.feature.settings.resources.settings_group_security
@@ -105,10 +103,6 @@ fun SettingsScreen(
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
             DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
-            if (onDesignCatalog != null) {
-                DiarySettingsHeader(stringResource(Res.string.settings_group_developer), gapAbove = true)
-                DiarySettingsRow(stringResource(Res.string.settings_design_catalog), onClick = onDesignCatalog)
-            }
         }
     }
 }
