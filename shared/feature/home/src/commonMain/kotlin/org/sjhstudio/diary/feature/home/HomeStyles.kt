@@ -99,19 +99,29 @@ private fun EntryCard(
                 onLongClick = onLongClick,
                 onClick = onClick
             )
-            .padding(DiarySpacing.x4),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+            .padding(DiarySpacing.x4)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
-            BasicText(row.date.day.toString(), style = typography.numeral.copy(color = colors.textPrimary))
-            BasicText(
-                dates.weekdayShort(row.date),
-                modifier = Modifier.weight(1f),
-                style = typography.caption.copy(color = colors.textSecondary)
-            )
+        // 날짜와 요일은 글자 밑선을 맞추고, 기분 얼굴은 줄 가운데에 둔다.
+        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
+                BasicText(
+                    row.date.day.toString(),
+                    modifier = Modifier.alignByBaseline(),
+                    style = typography.numeral.copy(color = colors.textPrimary)
+                )
+                BasicText(
+                    dates.weekday(row.date),
+                    modifier = Modifier.alignByBaseline(),
+                    style = typography.caption.copy(color = colors.textSecondary)
+                )
+            }
             row.mood?.let { MoodFace(it, DiaryHomeSize.cardFace, contentDescription = moodName(it)) }
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
+        Row(
+            Modifier.padding(top = DiarySpacing.x1),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
+        ) {
             BasicText(dates.time(row.time), style = typography.captionStrong.copy(color = colors.textSecondary), maxLines = 1)
             row.weather?.let { WeatherIcon(it, DiaryHomeSize.cardIcon, colors.textSecondary, contentDescription = weatherName(it)) }
             row.placeName?.let { BasicText(it, style = typography.caption.copy(color = colors.textSecondary), maxLines = 1) }
@@ -119,13 +129,15 @@ private fun EntryCard(
         if (row.preview.isNotEmpty()) {
             BasicText(
                 row.preview,
+                modifier = Modifier.padding(top = DiarySpacing.x2),
                 style = previewStyle.copy(color = colors.textPrimary),
                 maxLines = PREVIEW_LINES,
                 overflow = TextOverflow.Ellipsis
             )
         }
         if (row.photos.isNotEmpty()) {
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
+            // 글이 없어도 사진은 시각 줄과 같은 간격으로 떨어진다.
+            Row(Modifier.padding(top = DiarySpacing.x3), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 val shown = row.photos.take(CARD_PHOTOS)
                 for (photo in shown) {
                     Box(Modifier.weight(1f).aspectRatio(1f).clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(photo)) }
