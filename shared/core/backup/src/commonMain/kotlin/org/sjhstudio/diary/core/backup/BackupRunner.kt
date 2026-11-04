@@ -32,6 +32,7 @@ import org.sjhstudio.diary.core.drive.listAll
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.model.BackupStep
+import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.NetworkState
@@ -48,6 +49,14 @@ sealed interface BackupOutcome {
 
     /** 다른 백업이 도는 중이다. */
     data object Busy : BackupOutcome
+}
+
+/** 오래 실패했을 때의 알림. [text]는 까닭에 맞는 제목과 본문을 준다. 까닭을 모르면 null이다. */
+class BackupAlerts(private val notifier: BackupNotifier, private val text: suspend (BackupFailure?) -> Pair<String, String>) {
+    suspend fun schedule(at: Instant, failure: BackupFailure?) {
+        val (title, body) = text(failure)
+        notifier.schedule(at, title, body)
+    }
 }
 
 /**
@@ -68,7 +77,8 @@ class BackupRunner(
     private val readme: suspend () -> String,
     private val settings: suspend () -> ManifestSettings,
     private val clock: Clock = Clock.System,
-    private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() }
+    private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
+    private val alerts: BackupAlerts? = null
 ) {
     private val lock = Mutex()
     private val _progress = MutableStateFlow<BackupProgress?>(null)
@@ -102,6 +112,10 @@ class BackupRunner(
     private suspend fun fail(kind: BackupFailure): BackupOutcome {
         val now = clock.now()
         store.update { it.copy(lastFailure = kind, failingSince = it.failingSince ?: now) }
+        val prefs = store.current()
+        val since = prefs.lastSuccessAt ?: prefs.failingSince ?: now
+        // 까닭이 바뀌면 문구만 바꾼다. 때가 지났으면 이미 한 번 알렸다.
+        if (since + ALERT_AFTER > now) alerts?.schedule(since + ALERT_AFTER, kind)
         return BackupOutcome.Failed(kind)
     }
 
@@ -185,6 +199,8 @@ class BackupRunner(
                 photosNotBackedUp = left
             )
         }
+
+        alerts?.schedule(now + ALERT_AFTER, null)
 
         step(BackupStep.Pruning)
         prune(folders, deviceId, now)
@@ -355,3 +371,5 @@ class BackupRunner(
         const val MANIFEST_RESERVE = 1024L * 1024
     }
 }
+
+private val ALERT_AFTER = 7.days

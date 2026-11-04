@@ -128,4 +128,10 @@
     <string name="restore_legacy_gaps_body">Old backups have no photos, so they’re marked as not found.</string>
     <plurals name="restore_legacy_same_time"><item quantity="one">%1$s entry with different text</item><item quantity="other">%1$s entries with different text</item></plurals>
     <plurals name="restore_legacy_gaps"><item quantity="one">%1$s photo spot</item><item quantity="other">%1$s photo spots</item></plurals>
+    <string name="backup_alert_title">Couldn’t back up for 7 days</string>
+    <string name="backup_alert_auth">Your Google account is disconnected. Tap to reconnect.</string>
+    <string name="backup_alert_space">Your Drive is out of space. Tap to check.</string>
+    <string name="backup_alert_offline">You’re offline. Backup continues once you’re connected.</string>
+    <string name="backup_alert_other">Open the app to check your backup.</string>
+    <string name="backup_channel">Backup</string>
 </resources>

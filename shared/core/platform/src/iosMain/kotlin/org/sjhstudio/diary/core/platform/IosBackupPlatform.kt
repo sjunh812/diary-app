@@ -1,6 +1,8 @@
 package org.sjhstudio.diary.core.platform
 
 import kotlin.coroutines.resume
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.sjhstudio.diary.core.model.BackupFailure
@@ -18,6 +20,7 @@ import platform.Network.nw_path_status_satisfied
 import platform.UIKit.UIDevice
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationRequest
+import platform.UserNotifications.UNTimeIntervalNotificationTrigger
 import platform.UserNotifications.UNUserNotificationCenter
 import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
 import platform.darwin.dispatch_get_global_queue
@@ -103,20 +106,22 @@ class IosFreeSpace : FreeSpace {
     }
 }
 
-class IosBackupNotifier : BackupNotifier {
-    override fun notifyLongFailure(title: String, body: String) {
+class IosBackupNotifier(private val clock: Clock = Clock.System) : BackupNotifier {
+    private val center get() = UNUserNotificationCenter.currentNotificationCenter()
+
+    override fun schedule(at: Instant, title: String, body: String) {
         val content = UNMutableNotificationContent().apply {
             setTitle(title)
             setBody(body)
         }
-        UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(
-            UNNotificationRequest.requestWithIdentifier(ID, content, null),
-            null
-        )
+        val seconds = (at - clock.now()).inWholeSeconds.coerceAtLeast(1).toDouble()
+        val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(seconds, repeats = false)
+        center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier(ID, content, trigger), null)
     }
 
-    override fun clear() {
-        UNUserNotificationCenter.currentNotificationCenter().removeDeliveredNotificationsWithIdentifiers(listOf(ID))
+    override fun cancel() {
+        center.removePendingNotificationRequestsWithIdentifiers(listOf(ID))
+        center.removeDeliveredNotificationsWithIdentifiers(listOf(ID))
     }
 
     private companion object {

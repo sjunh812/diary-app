@@ -11,6 +11,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
@@ -26,6 +27,7 @@ import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.TokenResult
 import org.sjhstudio.diary.core.testing.DriveFault
+import org.sjhstudio.diary.core.testing.FakeBackupNotifier
 import org.sjhstudio.diary.core.testing.FakeDrive
 import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeNetworkState
@@ -39,6 +41,7 @@ class BackupRunnerTest {
     private lateinit var store: BackupStore
     private val auth = FakeDriveAuthorizer()
     private val network = FakeNetworkState()
+    private val notifier = FakeBackupNotifier()
     private var now = Instant.parse("2026-11-05T01:00:00Z")
     private val clock = object : Clock {
         override fun now() = this@BackupRunnerTest.now
@@ -61,7 +64,8 @@ class BackupRunnerTest {
 
     private fun runner() = BackupRunner(
         db, drive, auth, store, network, DeviceName { "Galaxy S24" }, fs, dir / "media", dir / "backup",
-        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { TimeZone.UTC }
+        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { TimeZone.UTC },
+        BackupAlerts(notifier) { "제목" to (it?.name ?: "까닭 없음") }
     )
 
     private fun entry(id: String, date: String) =
@@ -228,5 +232,41 @@ class BackupRunnerTest {
         val manifests = names(DriveLayout.KIND_MANIFEST)
         assertTrue(manifests.size in 5..6, "${manifests.size}")
         assertEquals(manifests.size, names(DriveLayout.KIND_SNAPSHOT).size)
+    }
+
+    @Test
+    fun each_success_moves_the_alert_seven_days_ahead() = runTest {
+        runner().run()
+
+        assertEquals(now + 7.days, notifier.at)
+        assertEquals("까닭 없음", notifier.body)
+    }
+
+    @Test
+    fun failure_keeps_the_time_and_changes_the_reason() = runTest {
+        runner().run()
+        val first = now
+        now += 2.days
+        drive.faults += DriveFault.NO_SPACE
+        drive.faults += DriveFault.NO_SPACE
+
+        runner().run()
+
+        assertEquals(first + 7.days, notifier.at)
+        assertEquals("NO_SPACE", notifier.body)
+    }
+
+    @Test
+    fun past_alert_is_not_scheduled_again() = runTest {
+        runner().run()
+        val first = notifier.at
+        now += 8.days
+        drive.faults += DriveFault.NO_SPACE
+        drive.faults += DriveFault.NO_SPACE
+
+        runner().run()
+
+        assertEquals(first, notifier.at)
+        assertEquals("까닭 없음", notifier.body)
     }
 }

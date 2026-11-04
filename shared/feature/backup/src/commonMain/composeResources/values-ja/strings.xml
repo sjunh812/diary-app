@@ -128,4 +128,10 @@
     <string name="restore_legacy_gaps_body">以前のバックアップに写真がないため、見つからない写真として残しました。</string>
     <plurals name="restore_legacy_same_time"><item quantity="other">文章が異なる日記 %1$s件</item></plurals>
     <plurals name="restore_legacy_gaps"><item quantity="other">写真の場所 %1$s件</item></plurals>
+    <string name="backup_alert_title">7日間バックアップできていません</string>
+    <string name="backup_alert_auth">Google アカウントの接続が切れました。タップして接続し直してください。</string>
+    <string name="backup_alert_space">ドライブの空き容量が足りません。タップして確認してください。</string>
+    <string name="backup_alert_offline">インターネットに接続されていません。接続すると続きから保存します。</string>
+    <string name="backup_alert_other">アプリを開いてバックアップの状態を確認してください。</string>
+    <string name="backup_channel">バックアップ</string>
 </resources>

@@ -12,6 +12,7 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.backup.AndroidBackupNotifier
 import org.sjhstudio.diary.app.backup.AndroidBackupScheduler
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
@@ -41,6 +42,7 @@ import org.sjhstudio.diary.core.platform.AndroidNetworkState
 import org.sjhstudio.diary.core.platform.AndroidNotificationPermission
 import org.sjhstudio.diary.core.platform.AndroidReminderScheduler
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
@@ -62,6 +64,7 @@ internal actual val platformModule: Module =
         single<NetworkState> { AndroidNetworkState(androidContext()) }
         single<DeviceName> { AndroidDeviceName(androidContext()) }
         single<BackupScheduler> { AndroidBackupScheduler(androidContext()) }
+        single<BackupNotifier> { AndroidBackupNotifier(androidContext()) }
         single {
             val importer =
                 MediaImporter(FileSystem.SYSTEM, get<AppFiles>().mediaDirectory.toPath(), AndroidImageSizeReader, Clock.System) {

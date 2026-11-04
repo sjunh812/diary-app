@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.testing
 
+import kotlin.time.Instant
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.NetworkState
@@ -7,16 +8,22 @@ import org.sjhstudio.diary.core.platform.NetworkState
 class FakeNetworkState(override var isConnected: Boolean = true, override var isUnmetered: Boolean = true) : NetworkState
 
 class FakeBackupNotifier : BackupNotifier {
-    val sent = mutableListOf<Pair<String, String>>()
-    var cleared = 0
+    var at: Instant? = null
+        private set
+    var body: String? = null
+        private set
+    var cancels = 0
         private set
 
-    override fun notifyLongFailure(title: String, body: String) {
-        sent += title to body
+    override fun schedule(at: Instant, title: String, body: String) {
+        this.at = at
+        this.body = body
     }
 
-    override fun clear() {
-        cleared++
+    override fun cancel() {
+        at = null
+        body = null
+        cancels++
     }
 }
 

@@ -28,11 +28,12 @@ class AndroidFreeSpace(private val context: Context) : FreeSpace {
     override fun bytes(): Long = StatFs(context.filesDir.path).availableBytes
 }
 
-class AndroidBackupNotifier(context: Context, private val channelName: String) : BackupNotifier {
+/** 알림 하나를 띄운다. 예약은 앱 모듈의 작업 관리자가 맡는다. */
+class BackupAlertPoster(context: Context, private val channelName: String) {
     private val context = context.applicationContext
     private val manager = context.getSystemService(NotificationManager::class.java)
 
-    override fun notifyLongFailure(title: String, body: String) {
+    fun show(title: String, body: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -61,7 +62,7 @@ class AndroidBackupNotifier(context: Context, private val channelName: String) :
         )
     }
 
-    override fun clear() = manager.cancel(NOTIFICATION_ID)
+    fun clear() = manager.cancel(NOTIFICATION_ID)
 
     private companion object {
         const val CHANNEL = "backup"

@@ -14,6 +14,7 @@ import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
+import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.LegacyBackupImporter
@@ -64,6 +65,7 @@ import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
+import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.backup.backupReadme
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
@@ -175,11 +177,12 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                         askLocationAgain = settings.askLocationAgain,
                         lockEnabled = get<LockRepository>().settings.first().enabled
                     )
-                }
+                },
+                alerts = BackupAlerts(get()) { backupAlertText(it) }
             )
         }
         single<BackupRepository> {
-            BackupController(get(), lazy { get<DiaryDatabase>() }, lazy { get<BackupRunner>() }, get(), get(), get(APP_SCOPE))
+            BackupController(get(), lazy { get<DiaryDatabase>() }, lazy { get<BackupRunner>() }, get(), get(), get(), get(APP_SCOPE))
         }
         single<RestoreRepository> {
             val files = get<AppFiles>()

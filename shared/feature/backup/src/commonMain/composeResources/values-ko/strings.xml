@@ -128,4 +128,10 @@
     <string name="restore_legacy_gaps_body">예전 백업에는 사진이 없어서 찾을 수 없는 사진으로 남겼어요.</string>
     <plurals name="restore_legacy_same_time"><item quantity="other">글이 다른 일기 %1$s편</item></plurals>
     <plurals name="restore_legacy_gaps"><item quantity="other">사진 자리 %1$s곳</item></plurals>
+    <string name="backup_alert_title">7일 동안 백업하지 못했어요</string>
+    <string name="backup_alert_auth">구글 계정 연결이 끊겼어요. 눌러서 다시 연결해 주세요.</string>
+    <string name="backup_alert_space">드라이브 공간이 모자라요. 눌러서 확인해 주세요.</string>
+    <string name="backup_alert_offline">인터넷에 연결되지 않았어요. 연결되면 이어서 올려요.</string>
+    <string name="backup_alert_other">앱을 열어 백업 상태를 확인해 주세요.</string>
+    <string name="backup_channel">백업</string>
 </resources>

@@ -177,14 +177,14 @@ description: "스펙 003 백업 v2 작업 목록"
 ### Tests for User Story 4 ⚠️
 
 - [ ] T070 [P] [US4] `shared/core/backup/{test}/core/backup/AutoBackupPolicyTest.kt`: 바뀐 것이 없으면 안 함, 모바일 데이터면 사진 없이 스냅샷과 목록 파일(`inBackup=false`), Wi-Fi 일회성 작업 넘김, 앱을 열 때 24시간 넘었으면 시작, 이전·복원 중이면 안 함
-- [ ] T071 [P] [US4] `{test}/core/backup/FailureNotificationTest.kt`: 성공마다 "+7일" 다시 예약, 실패 기록마다 본문 바꿈, 실패 기록이 없을 때 문구, 다시 성공할 때까지 한 번만, 알림 허용이 없으면 빨간 점 상태
+- [x] T071 [P] [US4] `{test}/core/backup/FailureNotificationTest.kt`: 성공마다 "+7일" 다시 예약, 실패 기록마다 본문 바꿈, 실패 기록이 없을 때 문구, 다시 성공할 때까지 한 번만, 알림 허용이 없으면 빨간 점 상태
 - [ ] T072 [P] [US4] `shared/core/data/{test}/core/data/BackupNudgeRepositoryTest.kt`: `contracts/backup-flow.md` 권하기 조건 전부(이전한 사용자, 3편, 사진 일기, 14일 숨김, 세 번, 스스로 끊음, 홈에서만)
 
 ### Implementation for User Story 4
 
 - [ ] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(네트워크 연결됨 + 배터리 부족 아님), `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각, 앱이 뒤로 간 뒤 앱 안 코루틴으로 잇지 않기(research R14, 2026-11-01 확인)
 - [ ] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
-- [ ] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
+- [x] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
 - [ ] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
 - [ ] T077 [US4] `shared/core/data/{kt}/core/data/BackupNudgeRepository.kt`와 `shared/feature/backup/{kt}/feature/backup/BackupNudgeCard.kt`, 스펙 002 홈 목록 맨 위에 꽂기. [백업 켜기]는 연결 흐름(옛 백업 계정 먼저), [나중에]는 14일 숨김. Figma 홈 백업 상태와 권하기 (B11)
 - [ ] T078 [US4] 스펙 004 온보딩 "[자동 백업 켜기]"가 부를 연결 진입점(`BackupConnectEntry`)을 `feature/backup`에서 내보낸다
@@ -248,7 +248,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ## Phase 12: Polish & Cross-Cutting
 
-- [ ] T090 [P] Android 시스템 백업 규칙(research R20): `composeApp/src/main/res/xml/data_extraction_rules.xml`(클라우드 백업과 기기 간 이전 모두 모든 영역 제외), Android 11 이하 `backup_rules.xml`(모든 영역 제외), `bmgr` 백업·복원과 기기 간 이전 뒤 일기가 따라가지 않고 빈 상태로 정상 시작하는 시험
+- [x] T090 [P] Android 시스템 백업 규칙(research R20): `composeApp/src/main/res/xml/data_extraction_rules.xml`(클라우드 백업과 기기 간 이전 모두 모든 영역 제외), Android 11 이하 `backup_rules.xml`(모든 영역 제외), `bmgr` 백업·복원과 기기 간 이전 뒤 일기가 따라가지 않고 빈 상태로 정상 시작하는 시험
 - [ ] T091 [P] SC-010 점검: Firebase DebugView로 `backup_*`, `restore_run`을 한 바퀴 돌려 고정 표 안인지, 로그·오류 보고에 토큰·이메일·파일 이름·경로가 없는지 `grep`과 함께 `specs/003-backup-v2/test-report.md`에 남긴다
 - [ ] T092 [P] 실제 드라이브 밤마다 시험을 `.github/workflows/ci.yml`에 더한다(왕복·끊김·공간 부족, 시험 계정 갱신 토큰은 저장소 비밀값)
 - [ ] T093 [P] SC-004 시간 재기(1,000편·1,000장 Wi-Fi 10분, 하루치 1분)와 research O5(조각 크기, 동시 장수), O6(모바일 데이터 스냅샷 크기)을 재서 닫는다

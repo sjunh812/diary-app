@@ -14,6 +14,7 @@ import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
@@ -25,6 +26,7 @@ class BackupController(
     private val runner: Lazy<BackupRunner>,
     private val authorizer: DriveAuthorizer,
     private val scheduler: BackupScheduler,
+    private val notifier: BackupNotifier,
     private val scope: CoroutineScope,
     private val clock: Clock = Clock.System
 ) : BackupRepository {
@@ -82,7 +84,12 @@ class BackupController(
 
     override suspend fun setAuto(enabled: Boolean) {
         store.update { it.copy(autoEnabled = enabled) }
-        if (enabled) scheduler.scheduleDaily() else scheduler.cancelDaily()
+        if (enabled) {
+            scheduler.scheduleDaily()
+        } else {
+            scheduler.cancelDaily()
+            notifier.cancel()
+        }
     }
 
     override suspend fun setPhotosOnCellular(enabled: Boolean) = store.update { it.copy(photosOnCellular = enabled) }
@@ -90,6 +97,7 @@ class BackupController(
     override suspend fun disconnect() {
         authorizer.disconnect()
         scheduler.cancelDaily()
+        notifier.cancel()
         store.update {
             it.copy(
                 accountKey = null,

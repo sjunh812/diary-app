@@ -11,10 +11,12 @@ import org.sjhstudio.diary.core.migration.LegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.NoLegacyMigration
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.FontInstaller
+import org.sjhstudio.diary.core.platform.IosBackupNotifier
 import org.sjhstudio.diary.core.platform.IosDeviceName
 import org.sjhstudio.diary.core.platform.IosDriveAuthorizer
 import org.sjhstudio.diary.core.platform.IosFontInstaller
@@ -39,6 +41,7 @@ internal actual val platformModule: Module =
         single<NetworkState> { IosNetworkState() }
         single<DeviceName> { IosDeviceName() }
         single<BackupScheduler> { NoBackupScheduler }
+        single<BackupNotifier> { IosBackupNotifier() }
         // iOS에는 레거시 사진 경로가 없어 예전 백업의 사진은 찾을 수 없는 사진으로 남는다(FR-030).
         single { LegacyPhotoCopier { _, _, _ -> null } }
         single {
