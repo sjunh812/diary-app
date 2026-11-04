@@ -12,6 +12,7 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.backup.AndroidBackupScheduler
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
@@ -42,7 +43,6 @@ import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NetworkState
-import org.sjhstudio.diary.core.platform.NoBackupScheduler
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 
@@ -58,7 +58,7 @@ internal actual val platformModule: Module =
         single<DriveAuthorizer> { get<AndroidDriveAuthorizer>() }
         single<NetworkState> { AndroidNetworkState(androidContext()) }
         single<DeviceName> { AndroidDeviceName(androidContext()) }
-        single<BackupScheduler> { NoBackupScheduler }
+        single<BackupScheduler> { AndroidBackupScheduler(androidContext()) }
         single {
             val info = androidContext().packageManager.getPackageInfo(androidContext().packageName, 0)
             BackupAppInfo(info.versionName.orEmpty(), PackageInfoCompat.getLongVersionCode(info).toInt(), "android")

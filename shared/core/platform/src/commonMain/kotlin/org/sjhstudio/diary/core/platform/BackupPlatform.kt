@@ -34,7 +34,7 @@ interface BackupScheduler {
     fun startNow()
 }
 
-/** 자동 백업을 시스템에 걸기 전의 자리. 지금 백업은 앱이 켜져 있는 동안 돈다(T043, T044에서 바꾼다). */
+/** 시스템 예약이 없는 플랫폼. iOS는 앱을 열 때 밀린 백업을 돌린다(T044에서 BGTask를 더한다). */
 object NoBackupScheduler : BackupScheduler {
     override fun scheduleDaily() = Unit
 

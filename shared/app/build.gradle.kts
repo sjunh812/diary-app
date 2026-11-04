@@ -61,6 +61,8 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.navigation3.ui)
             implementation(libs.koin.android)
+            // 자동 백업(AndroidBackupScheduler)
+            implementation(libs.androidx.work.runtime)
         }
         commonTest.dependencies {
             implementation(projects.shared.core.testing)

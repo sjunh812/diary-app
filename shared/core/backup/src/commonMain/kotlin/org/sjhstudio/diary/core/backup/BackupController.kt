@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -23,7 +25,8 @@ class BackupController(
     private val runner: Lazy<BackupRunner>,
     private val authorizer: DriveAuthorizer,
     private val scheduler: BackupScheduler,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val clock: Clock = Clock.System
 ) : BackupRepository {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override val status: Flow<BackupStatus> =
@@ -68,6 +71,13 @@ class BackupController(
 
     override fun backUpNow(cellularOnce: Boolean) {
         scope.launch { runner.value.run(cellularOnce) }
+    }
+
+    override suspend fun backUpIfDue() {
+        val prefs = store.current()
+        val last = prefs.lastSuccessAt
+        if (prefs.accountKey == null || !prefs.autoEnabled || prefs.lastFailure == BackupFailure.AUTH) return
+        if (last == null || clock.now() - last >= 24.hours) backUpNow()
     }
 
     override suspend fun setAuto(enabled: Boolean) {
