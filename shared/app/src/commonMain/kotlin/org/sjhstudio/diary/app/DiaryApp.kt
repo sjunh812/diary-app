@@ -36,7 +36,8 @@ private fun chosenFontFamily(font: DiaryFont): FontFamily? {
     val finished by koinInject<ChosenFontDownload>().finished.collectAsStateWithLifecycle()
     val path = remember(font, finished) { installer.installedPath(font.id) }
     val installed = rememberFileFontFamily(path)
-    return if (font == DiaryFont.PRETENDARD) null else diaryBodyFontFamily(font) { installed }
+    val family = diaryBodyFontFamily(font) { installed }
+    return family.takeUnless { font == DiaryFont.PRETENDARD }
 }
 
 /**

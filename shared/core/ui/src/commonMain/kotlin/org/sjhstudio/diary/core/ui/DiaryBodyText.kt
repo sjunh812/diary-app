@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.sp
@@ -32,7 +33,13 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
  * 고른 글꼴 하나만 읽는다. 앱 전체 글자에 쓴다(헌법 V, 2026-11-04 사용자 결정).
  */
 @Composable
-fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = when (font) {
+fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = key(font) {
+    // iOS의 Font()는 화면 상태 자리를 쓴다. 글꼴마다 자리를 나누지 않으면 글꼴을 바꿀 때 자리가 어긋나 앱이 멈춘다.
+    fontFamilyOf(font, installed)
+}
+
+@Composable
+private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?): FontFamily = when (font) {
     DiaryFont.SYSTEM -> FontFamily.Default
     DiaryFont.PRETENDARD -> pretendardFamily()
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))

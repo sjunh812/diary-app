@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.designsystem.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.key
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -67,7 +68,8 @@ internal expect val PHRASE_LINE_BREAK: LineBreak
 internal fun diaryTypography(chosen: FontFamily? = null): DiaryTypography {
     // 기본 글꼴의 일본어 화면은 시스템 글꼴을 쓴다(열린 결정 D13 추천, docs/design.md 여러 언어).
     // Pretendard에는 가나는 있지만 한자가 없어서 섞으면 한 낱말 안에서 글꼴이 바뀐다.
-    val family = chosen ?: if (diaryLanguage() == "ja") FontFamily.Default else pretendardFamily()
+    // 고른 글꼴이 있고 없을 때 Font() 호출이 달라져서 자리를 나눈다(iOS).
+    val family = key(chosen == null) { chosen ?: if (diaryLanguage() == "ja") FontFamily.Default else pretendardFamily() }
     fun style(size: TextUnit, lineHeight: TextUnit, weight: FontWeight) = TextStyle(
         fontFamily = family,
         fontSize = size,
