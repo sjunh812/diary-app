@@ -45,6 +45,12 @@ android {
     dynamicFeatures +=
         setOf(":fonts:gowun_dodum", ":fonts:gowun_batang", ":fonts:nanum_jeomggol", ":fonts:gamja_flower", ":fonts:hi_melody")
 
+    // adb로 깐 개발 빌드는 Play에서 글꼴 모듈을 받을 수 없어서 iOS 개발 빌드처럼 앱 안에 담는다.
+    // 출시 빌드에는 들어가지 않고 Play 필요할 때 설치 모듈로 받는다.
+    sourceSets.getByName("debug").assets.directories.addAll(
+        listOf("gowun_dodum", "gowun_batang", "nanum_jeomggol", "gamja_flower", "hi_melody").map { "../fonts/$it/src/main/assets" }
+    )
+
     buildFeatures {
         compose = true
         // 개발 빌드에서 사용 통계 고정 표를 엄격하게 본다(BuildConfig.DEBUG).

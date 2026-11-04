@@ -33,7 +33,8 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
             close()
             return@callbackFlow
         }
-        if (id in manager.installedModules) {
+        // 개발 빌드는 자산을 앱 안에 담아 둔다. 출시 빌드는 받은 모듈이 있을 때만 여기로 온다.
+        if (id in manager.installedModules || hasAsset(id)) {
             send(FontInstallState.Installed(copy(id)))
             close()
             return@callbackFlow
@@ -71,6 +72,8 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
             }
         awaitClose { manager.unregisterListener(listener) }
     }.flowOn(Dispatchers.Main)
+
+    private fun hasAsset(id: String): Boolean = runCatching { context.assets.open("fonts/$id.ttf").close() }.isSuccess
 
     /** 받은 모듈의 자산을 앱 파일 자리로 복사한다. 반쯤 쓴 파일을 남기지 않게 임시 파일에 쓴 뒤 이름을 바꾼다. */
     private suspend fun copy(id: String): String = withContext(Dispatchers.IO) {
