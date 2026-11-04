@@ -65,6 +65,7 @@ import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.MoodFace
+import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -163,7 +164,7 @@ internal fun InsightScreen(
             PeriodNav(periodLabel(period, dates), period.previous() != null, period.next(today) != null, onPrevious, onNext)
             Spacer(Modifier.height(DiarySpacing.x3))
             when {
-                counts == null -> Unit
+                counts == null -> SkeletonRows(rows = 5)
                 counts.total == 0 -> Empty()
                 else -> Content(period, counts, days, pixels, today, onMood)
             }

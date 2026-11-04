@@ -63,6 +63,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
@@ -156,7 +157,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_value_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_value_updated
 import org.sjhstudio.diary.feature.backup.resources.restore_when
 
-/** 백업에서 되살리기(Figma "백업에서 되살리기 (B3)"). 기기마다 묶어 보이고, 깨진 백업은 고를 수 없다. */
+/** 백업에서 복원하기(Figma "백업에서 복원하기 (B3)"). 기기마다 묶어 보이고, 깨진 백업은 고를 수 없다. */
 @Composable
 fun RestoreListRoute(onBack: () -> Unit, onPick: (String) -> Unit, onFile: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestoreListViewModel>()
@@ -175,7 +176,7 @@ fun RestoreListScreen(
 ) {
     Page(stringResource(Res.string.restore_row), onBack, modifier) {
         when (state) {
-            RestoreListUi.Loading -> Hero(DiaryIcons.History, stringResource(Res.string.restore_loading))
+            RestoreListUi.Loading -> LoadingRows(stringResource(Res.string.restore_loading), rows = 3)
 
             RestoreListUi.Failed -> {
                 Hero(
@@ -253,7 +254,7 @@ private fun problemText(state: BackupEntryState): String? = when (state) {
     is BackupEntryState.Damaged -> stringResource(Res.string.restore_damaged)
 }
 
-/** 되살리기 전에 확인(Figma "되살리기 전에 확인 (B4)"). 합치기는 지금 일기를 지우지 않는다. */
+/** 복원하기 전에 확인(Figma "복원하기 전에 확인 (B4)"). 합치기는 지금 일기를 지우지 않는다. */
 @Composable
 fun RestorePreviewRoute(snapshotName: String, onBack: () -> Unit, onMerged: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestorePreviewViewModel>(key = snapshotName) { parametersOf(snapshotName) }
@@ -278,7 +279,7 @@ fun RestorePreviewScreen(
 ) {
     Page(stringResource(Res.string.restore_preview_top), onBack, modifier) {
         when (state) {
-            null -> Hero(DiaryIcons.Restore, stringResource(Res.string.restore_preparing))
+            null -> LoadingRows(stringResource(Res.string.restore_preparing), rows = 4)
 
             is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack)
 
@@ -414,7 +415,7 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
     }
 }
 
-/** 되살리는 중과 결과(Figma B5, B6). 뒤로 가면 멈추지 않고 홈으로 간다. */
+/** 복원하는 중과 결과(Figma B5, B6). 뒤로 가면 멈추지 않고 홈으로 간다. */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: () -> Unit, modifier: Modifier = Modifier) {
@@ -649,6 +650,18 @@ private fun Page(title: String, onBack: () -> Unit, modifier: Modifier, content:
         DiaryTopBar(title, onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().weight(1f), content = content)
     }
+}
+
+/** 드라이브를 읽는 동안. 무엇을 기다리는지 한 줄로 말하고 곧 나올 줄 자리를 보여 준다. */
+@Composable
+private fun LoadingRows(label: String, rows: Int) {
+    val colors = DiaryTheme.colors
+    BasicText(
+        label,
+        Modifier.padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x6),
+        style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+    )
+    SkeletonRows(rows = rows)
 }
 
 /** 큰 배지, 제목, 설명. [fill]이면 남은 자리 가운데에 둔다. */

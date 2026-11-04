@@ -95,6 +95,8 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     LIST_PERFORMANCE -> ListPerformanceSample()
 
+                    RESTORE_LOADING -> RestoreListScreen(RestoreListUi.Loading, {}, {}, { finish() })
+
                     RESTORE_LIST ->
                         RestoreListScreen(
                             RestoreListUi.Loaded(
@@ -163,6 +165,7 @@ class ScreenCatalogActivity : ComponentActivity() {
     private companion object {
         const val EXTRA_SCREEN = "screen"
         const val RESTORE_LIST = "restore_list"
+        const val RESTORE_LOADING = "restore_loading"
         const val RESTORE_CHECK = "restore_check"
         const val RESTORE_NO_SPACE = "restore_no_space"
         const val LETTER = "letter"

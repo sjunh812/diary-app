@@ -64,6 +64,7 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
+import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -203,6 +204,8 @@ internal fun HomeScreen(
             }
 
             rows.loadState.refresh is LoadState.NotLoading -> Empty(favoritesOnly, onWrite)
+
+            else -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
         }
     }
 }
