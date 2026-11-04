@@ -5,10 +5,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.scene.Scene
@@ -26,6 +30,17 @@ val DetailPane: Map<String, Any> = mapOf("pane" to "detail")
 
 /** 탭의 맨 위 화면 표시. 앱 틀이 탭 바 자리를 비워 준다. */
 const val TAB_ROOT = "tabRoot"
+const val FULL_SCREEN = "fullScreen"
+
+/** 위에 얹은 레일의 폭. 쓰기처럼 전체를 쓰는 화면이 아니면 이만큼 비워 둔다. */
+val LocalRailWidth = compositionLocalOf { Dp.Hairline }
+
+/** 두 칸 장면 안의 화면은 장면이 레일 자리를 비운다. */
+val LocalInListDetail = compositionLocalOf { false }
+
+/** 쓰기와 사진 크게 보기. 레일과 탭 자리를 비우지 않는다. */
+val FullScreenEntry: Map<String, Any> = mapOf(FULL_SCREEN to true)
+
 val TabRoot: Map<String, Any> = mapOf(TAB_ROOT to true)
 
 private val NavEntry<NavKey>.isList get() = metadata["pane"] == "list"
@@ -58,10 +73,22 @@ private class ListDetailScene(
     override val key: Any = list.contentKey
     override val entries: List<NavEntry<NavKey>> = listOfNotNull(list, detail)
     override val content: @Composable () -> Unit = {
-        Row(Modifier.fillMaxSize()) {
-            Box(Modifier.width(DiaryWriteSize.listPane).fillMaxHeight()) { list.Content() }
+        Row(Modifier.fillMaxSize().padding(start = LocalRailWidth.current)) {
+            CompositionLocalProvider(LocalInListDetail provides true) {
+                Box(Modifier.width(DiaryWriteSize.listPane).fillMaxHeight()) { list.Content() }
+            }
             Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(DiaryTheme.colors.line))
-            Box(Modifier.weight(1f).fillMaxHeight()) { if (detail != null) key(detail.contentKey) { detail.Content() } else placeholder() }
+            CompositionLocalProvider(LocalInListDetail provides true) {
+                Box(Modifier.weight(1f).fillMaxHeight()) {
+                    if (detail !=
+                        null
+                    ) {
+                        key(detail.contentKey) { detail.Content() }
+                    } else {
+                        placeholder()
+                    }
+                }
+            }
         }
     }
 }

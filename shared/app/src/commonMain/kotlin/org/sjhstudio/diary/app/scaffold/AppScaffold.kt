@@ -42,11 +42,15 @@ import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.DetailPane
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
+import org.sjhstudio.diary.app.navigation.FULL_SCREEN
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
+import org.sjhstudio.diary.app.navigation.FullScreenEntry
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.InsightKey
 import org.sjhstudio.diary.app.navigation.ListDetailSceneStrategy
 import org.sjhstudio.diary.app.navigation.ListPane
+import org.sjhstudio.diary.app.navigation.LocalInListDetail
+import org.sjhstudio.diary.app.navigation.LocalRailWidth
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.Screen
@@ -146,13 +150,20 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                 onSearch = { if (!fullScreen && backStack.none { it is SearchKey }) backStack.add(SearchKey()) }
             )
         if (wide) {
-            Row(Modifier.fillMaxSize().then(shortcuts)) {
-                if (!fullScreen) {
-                    DiaryNavigationRail(items, selected, onSelect, header = {
-                        DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
-                    })
+            // 레일도 화면 위에 얹는다. 쓰기로 넘어갈 때 레일이 사라져도 지난 화면이 밀리지 않는다.
+            val density = LocalDensity.current
+            var railWidth by remember { mutableStateOf(Dp.Hairline) }
+            Box(Modifier.fillMaxSize().then(shortcuts)) {
+                CompositionLocalProvider(LocalRailWidth provides railWidth) {
+                    ContentWithToast(backStack, toast, twoPane, onWrite, Modifier.fillMaxSize())
                 }
-                ContentWithToast(backStack, toast, twoPane, onWrite, Modifier.weight(1f))
+                if (!fullScreen) {
+                    Box(Modifier.onSizeChanged { railWidth = with(density) { it.width.toDp() } }) {
+                        DiaryNavigationRail(items, selected, onSelect, header = {
+                            DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
+                        })
+                    }
+                }
             }
         } else {
             // 탭 바는 화면 위에 얹는다. 화면 칸이 그대로라 쓰기로 넘어갈 때 탭 바가 사라져도 이전 화면이 밀리지 않는다.
@@ -192,14 +203,12 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
 /** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둔다. */
 private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
 
-/** 탭의 맨 위 화면만 탭 바 자리를 비운다. 쓰기처럼 전체를 쓰는 화면은 그대로 둔다. */
+/** 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비운다. 쓰기처럼 전체를 쓰는 화면은 그대로 둔다. */
 private val TabBarSpace =
     NavEntryDecorator<NavKey>(decorate = { entry ->
-        if (entry.metadata[TAB_ROOT] == true) {
-            Box(Modifier.fillMaxSize().padding(bottom = LocalTabBarHeight.current)) { entry.Content() }
-        } else {
-            entry.Content()
-        }
+        val bottom = if (entry.metadata[TAB_ROOT] == true) LocalTabBarHeight.current else Dp.Hairline
+        val start = if (entry.metadata[FULL_SCREEN] == true || LocalInListDetail.current) Dp.Hairline else LocalRailWidth.current
+        Box(Modifier.fillMaxSize().padding(start = start, bottom = bottom)) { entry.Content() }
     })
 
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
@@ -235,7 +244,14 @@ private fun ContentWithToast(
             }
         )
         val bottom = if (aboveWriteButton) DiarySpacing.x4 + DiarySpacing.x14 + DiarySpacing.x2 else DiarySpacing.x6
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = bottom + bottomInset))
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(
+                start = LocalRailWidth.current,
+                bottom =
+                    bottom + bottomInset
+            )
+        )
     }
 }
 
@@ -341,7 +357,7 @@ private fun Content(
                     )
                 }
                 settingsEntries(push = { backStack.add(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })
-                entry<WriteKey> { key ->
+                entry<WriteKey>(metadata = FullScreenEntry) { key ->
                     val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
                     WriteRoute(
                         target = target,
