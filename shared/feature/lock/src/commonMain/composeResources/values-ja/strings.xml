@@ -12,6 +12,7 @@
     <string name="lock_forgot">パスコードを忘れました</string>
     <string name="lock_biometric">生体認証で開く</string>
     <string name="lock_biometric_prompt_title">ロックを解除</string>
+    <string name="lock_biometric_prompt_subtitle">日記を開くには本人確認が必要です</string>
     <string name="lock_biometric_prompt_cancel">パスコードを入力</string>
 
     <!-- パスコードの設定(L2) -->

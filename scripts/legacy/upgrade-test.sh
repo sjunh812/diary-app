@@ -54,11 +54,13 @@ if [ -n "${KILL_AT:-}" ]; then
   adb shell rm -f /data/local/tmp/diary-kill_at
 fi
 # 잠금 화면이 뜨기를 기다려, 잠긴 동안 이전이 시작되지 않았는지 보고 비밀번호를 넣는다.
+# 시스템 생체 인증 창: Android 12는 systemui의 biometric_icon, Android 15부터는 "Fingerprint sensor"처럼 기기 언어로 된 설명이 붙는다.
+PROMPT='com.android.systemui:id/biometric_icon|com.android.systemui:id/button_negative|content-desc="(Fingerprint sensor|지문 센서)"'
 unlock() {
   i=0
   # 생체 인증을 켜 두었으면(BIOMETRIC=1) 시스템 생체 인증 창이 잠금 화면을 덮는다. 그 창(지문 센서)도 잠금 화면으로 본다.
   until adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
-    adb shell cat /data/local/tmp/diary-ui.xml | grep -qE '비밀번호를 입력해 주세요|Enter your passcode|パスコードを入力してください|content-desc="Fingerprint sensor"'; do
+    adb shell cat /data/local/tmp/diary-ui.xml | grep -qE '비밀번호를 입력해 주세요|Enter your passcode|パスコードを入力してください|'"$PROMPT"; do
     i=$((i + 1)); [ $i -gt 60 ] && { echo "잠금 화면이 뜨지 않았어요" >&2; exit 1; }
     sleep 1
   done
@@ -72,7 +74,7 @@ unlock() {
     # 창이 막 뜨는 중에 대면 인식하지 않아서, 창이 사라질 때까지 몇 번 댄다.
     n=0
     while adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
-      adb shell cat /data/local/tmp/diary-ui.xml | grep -q 'content-desc="Fingerprint sensor"'; do
+      adb shell cat /data/local/tmp/diary-ui.xml | grep -qE "$PROMPT"; do
       n=$((n + 1)); [ $n -gt 5 ] && { echo "지문으로 열리지 않았어요" >&2; exit 1; }
       sleep 2; adb emu finger touch 1 >/dev/null; sleep 1; adb emu finger remove 1 >/dev/null
     done

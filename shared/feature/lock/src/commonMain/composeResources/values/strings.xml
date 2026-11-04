@@ -14,6 +14,7 @@
     <string name="lock_forgot">I forgot my passcode</string>
     <string name="lock_biometric">Unlock with biometrics</string>
     <string name="lock_biometric_prompt_title">Unlock</string>
+    <string name="lock_biometric_prompt_subtitle">Confirm it\'s you to open your diary</string>
     <string name="lock_biometric_prompt_cancel">Use passcode</string>
 
     <!-- Set passcode (L2) -->
