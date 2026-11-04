@@ -20,7 +20,7 @@
 | 이전 상태·결과·작업 DB | `files/migration/state.json`, `report.json`, `diary-new.db` | 없음 | 안 올림 |
 | 원본 사본 | `files/legacy-snapshot/` | 없음 | 안 올림 |
 
-## DB: `diary.db` (Room 3, 버전 1)
+## DB: `diary.db` (Room 3, 버전 2)
 
 R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 표를 출시 전에 같은 버전에 더한다.
 

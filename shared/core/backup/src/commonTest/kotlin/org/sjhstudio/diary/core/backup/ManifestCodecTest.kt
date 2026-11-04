@@ -40,7 +40,7 @@ class ManifestCodecTest {
     fun newer_format_or_database_needs_newer_app() {
         assertEquals(ManifestCheck.OK, ManifestCodec.check(manifest))
         assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(manifest.copy(formatVersion = 3)))
-        assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(manifest.copy(snapshot = manifest.snapshot.copy(dbVersion = 2))))
+        assertEquals(ManifestCheck.NEEDS_NEWER_APP, ManifestCodec.check(manifest.copy(snapshot = manifest.snapshot.copy(dbVersion = 3))))
     }
 
     @Test

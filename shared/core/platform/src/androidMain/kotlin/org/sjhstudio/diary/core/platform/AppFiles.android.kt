@@ -14,6 +14,7 @@ actual class AppFiles(context: Context) {
     actual val thumbnailDirectory: String = File(noBackupDir, "thumbs").absolutePath
     actual val fontDirectory: String = File(noBackupDir, "fonts").absolutePath
     actual val dataStoreDirectory: String = File(filesDir, "datastore").absolutePath
+    actual val backupDirectory: String = File(filesDir, "backup").absolutePath
     actual val migrationDirectory: String? = File(filesDir, "migration").absolutePath
     actual val legacySnapshotDirectory: String? = File(filesDir, "legacy-snapshot").absolutePath
 
@@ -24,6 +25,7 @@ actual class AppFiles(context: Context) {
             thumbnailDirectory,
             fontDirectory,
             dataStoreDirectory,
+            backupDirectory,
             migrationDirectory,
             legacySnapshotDirectory
         ).forEach { File(it).mkdirs() }

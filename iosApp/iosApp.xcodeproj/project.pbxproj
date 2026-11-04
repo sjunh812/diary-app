@@ -20,6 +20,7 @@
 		8619E6AF02B493D74581D733 /* gamja_flower.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F61F643C588442012994C221 /* gamja_flower.ttf */; settings = {ASSET_TAGS = (gamja_flower, ); }; };
 		86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7F3482AB68B54C1CB27AB9D /* Localizable.strings */; };
 		9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6111777718F5751E749AACD /* PrivacyCover.swift */; };
+		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = nanum_jeomggol.ttf; sourceTree = "<group>"; };
 		A200F24526F2E89B50E53BA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_batang.ttf; sourceTree = "<group>"; };
+		AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveBridge.swift; sourceTree = "<group>"; };
 		C117AD187833E2513BD2F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C35CD2C849A242A9332863DC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CBFF6F7B5E6378BAD9C2AD97 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -92,10 +94,19 @@
 				7009FFABBC02111FC2C6BBEA /* Local.xcconfig */,
 				38A2317CA7F32917D748F615 /* Local.xcconfig.example */,
 				D6111777718F5751E749AACD /* PrivacyCover.swift */,
+				2987522560EBD04F5F94FA64 /* Backup */,
 				37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */,
 				A7F3482AB68B54C1CB27AB9D /* Localizable.strings */,
 			);
 			path = iosApp;
+			sourceTree = "<group>";
+		};
+		2987522560EBD04F5F94FA64 /* Backup */ = {
+			isa = PBXGroup;
+			children = (
+				AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */,
+			);
+			path = Backup;
 			sourceTree = "<group>";
 		};
 		29BEC9CD5DE8F943431C7D09 /* fonts */ = {
@@ -428,6 +439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */,
+				F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */,
 				9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */,
 				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
 			);

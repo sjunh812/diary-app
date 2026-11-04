@@ -1,0 +1,70 @@
+package org.sjhstudio.diary.core.platform
+
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import android.os.StatFs
+import android.provider.Settings
+
+class AndroidNetworkState(context: Context) : NetworkState {
+    private val manager = context.getSystemService(ConnectivityManager::class.java)
+    private val capabilities get() = manager.getNetworkCapabilities(manager.activeNetwork)
+
+    override val isConnected: Boolean get() = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    override val isUnmetered: Boolean get() = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) == true
+}
+
+class AndroidDeviceName(private val context: Context) : DeviceName {
+    override fun current(): String =
+        Settings.Global.getString(context.contentResolver, "device_name")?.takeIf { it.isNotBlank() } ?: Build.MODEL
+}
+
+class AndroidFreeSpace(private val context: Context) : FreeSpace {
+    override fun bytes(): Long = StatFs(context.filesDir.path).availableBytes
+}
+
+class AndroidBackupNotifier(context: Context, private val channelName: String) : BackupNotifier {
+    private val context = context.applicationContext
+    private val manager = context.getSystemService(NotificationManager::class.java)
+
+    override fun notifyLongFailure(title: String, body: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // 허용이 없으면 보내지 않고 홈의 빨간 점이 대신한다.
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(NotificationChannel(CHANNEL, channelName, NotificationManager.IMPORTANCE_DEFAULT))
+        }
+        val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        val open = launch?.let { android.app.PendingIntent.getActivity(context, 0, it, android.app.PendingIntent.FLAG_IMMUTABLE) }
+        val builder =
+            if (Build.VERSION.SDK_INT >=
+                Build.VERSION_CODES.O
+            ) {
+                android.app.Notification.Builder(context, CHANNEL)
+            } else {
+                @Suppress("DEPRECATION")
+                android.app.Notification.Builder(context)
+            }
+        manager.notify(
+            NOTIFICATION_ID,
+            builder.setSmallIcon(
+                context.applicationInfo.icon
+            ).setContentTitle(title).setContentText(body).setAutoCancel(true).setContentIntent(open).build()
+        )
+    }
+
+    override fun clear() = manager.cancel(NOTIFICATION_ID)
+
+    private companion object {
+        const val CHANNEL = "backup"
+        const val NOTIFICATION_ID = 2001
+    }
+}

@@ -22,6 +22,7 @@
     <string name="write_format_list">Bulleted list</string>
     <string name="write_palette_back">Back to tools</string>
     <string name="write_mood_title">How was your mood?</string>
+    <string name="write_weather_title">How was the weather?</string>
     <string name="write_none">None</string>
     <string name="write_done">Done</string>
     <string name="write_time">Time</string>
@@ -34,4 +35,13 @@
     <string name="write_discard_message">You cannot get it back.</string>
     <string name="write_discard_confirm">Discard</string>
     <string name="write_place_recent">Recent places</string>
+    <string name="write_place_body">Add where you wrote this. It makes the entry easier to find later.</string>
+    <string name="write_place_common">Common places</string>
+    <string name="write_place_home">Home</string>
+    <string name="write_place_office">Office</string>
+    <string name="write_place_school">School</string>
+    <string name="write_place_cafe">Café</string>
+    <string name="write_place_restaurant">Restaurant</string>
+    <string name="write_place_park">Park</string>
+    <string name="write_place_trip">Trip</string>
 </resources>

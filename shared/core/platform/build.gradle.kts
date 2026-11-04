@@ -14,6 +14,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.process)
             // 고를 때 받는 일기 글꼴(AndroidFontInstaller)
             implementation(libs.play.feature.delivery)
+            // 구글 드라이브 권한 받기(AndroidDriveAuthorizer)
+            implementation(libs.play.services.auth)
         }
     }
 }

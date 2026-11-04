@@ -121,7 +121,7 @@ internal class WriteActions(
     val mediaPath: (String) -> String
 )
 
-private enum class Sheet { MoodWeather, Place, DateTime }
+private enum class Sheet { Mood, Weather, Place, DateTime }
 
 /**
  * 쓰기 화면(Figma "쓰기 (S2)"). 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순서다.
@@ -166,7 +166,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 }
             } else {
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                    Chips(state, onMood = { sheet = Sheet.MoodWeather }, onPlace = { sheet = Sheet.Place })
+                    Chips(state, onMood = { sheet = Sheet.Mood }, onWeather = { sheet = Sheet.Weather }, onPlace = { sheet = Sheet.Place })
                     if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { pick.launch() })
                     Notices(state)
                     Editor(actions.rich, bodyStyle, Modifier.fillMaxWidth())
@@ -176,19 +176,27 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         }
     }
     when (sheet) {
-        Sheet.MoodWeather ->
-            MoodWeatherSheet(
+        Sheet.Mood ->
+            MoodSheet(
                 date = state.date,
                 mood = state.mood,
-                weather = state.weather,
                 onMood = vm::selectMood,
-                onWeather = vm::selectWeather,
                 onClear = {
                     state.mood?.let(vm::selectMood)
-                    state.weather?.let(vm::selectWeather)
                     sheet = null
                 },
                 onDate = { sheet = Sheet.DateTime },
+                onDismiss = { sheet = null }
+            )
+
+        Sheet.Weather ->
+            WeatherSheet(
+                weather = state.weather,
+                onWeather = vm::selectWeather,
+                onClear = {
+                    state.weather?.let(vm::selectWeather)
+                    sheet = null
+                },
                 onDismiss = { sheet = null }
             )
 
@@ -265,7 +273,7 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
 }
 
 @Composable
-private fun Chips(state: WriteUiState, onMood: () -> Unit, onPlace: () -> Unit) {
+private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit, onPlace: () -> Unit) {
     Row(
         Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
@@ -282,7 +290,7 @@ private fun Chips(state: WriteUiState, onMood: () -> Unit, onPlace: () -> Unit) 
         DiaryChip(
             text = weather?.let { weatherName(it) } ?: stringResource(Res.string.write_weather),
             selected = weather != null,
-            onClick = onMood,
+            onClick = onWeather,
             leadingIcon = weather?.icon() ?: DiaryIcons.WeatherMostlyCloudy
         )
         DiaryChip(

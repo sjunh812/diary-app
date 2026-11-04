@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.database
 
+import androidx.room3.AutoMigration
 import androidx.room3.ConstructedBy
 import androidx.room3.DaoReturnTypeConverters
 import androidx.room3.Database
@@ -9,8 +10,8 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 
 /**
  * 일기 DB `diary.db`(research R4).
- * R1 출시 때 버전 1이다.
- * 스펙 002(임시 저장본)와 003(백업 표)은 출시 전에 같은 버전 1에 표를 더하고 스키마 JSON만 다시 만든다.
+ * 버전 2에서 백업 표 셋을 더했다. 시험 기기에 깔린 DB가 일기를 잃지 않고 넘어오도록 자동 이전을 둔다.
+ * 표를 바꾸면 반드시 버전을 올린다. 올리지 않으면 앱이 켜지다 죽는다(2026-11-05).
  */
 @Database(
     entities = [
@@ -22,7 +23,8 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
         SyncBaseEntity::class,
         MergeMarkEntity::class
     ],
-    version = 1,
+    version = 2,
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
     exportSchema = true
 )
 @ConstructedBy(DiaryDatabaseConstructor::class)

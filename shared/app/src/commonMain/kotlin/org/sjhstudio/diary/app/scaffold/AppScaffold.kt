@@ -9,15 +9,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -141,22 +149,54 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                 ContentWithToast(backStack, toast, twoPane, onWrite, Modifier.weight(1f))
             }
         } else {
-            Column(Modifier.fillMaxSize().then(shortcuts)) {
-                Box(Modifier.weight(1f)) {
-                    ContentWithToast(backStack, toast, twoPane, onWrite, Modifier.fillMaxSize(), aboveWriteButton = floatingWrite)
-                    if (floatingWrite) {
-                        DiaryWriteButton(
-                            writeLabel,
-                            onWrite,
-                            Modifier.align(Alignment.BottomEnd).padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4)
-                        )
+            // 탭 바는 화면 위에 얹는다. 화면 칸이 그대로라 쓰기로 넘어갈 때 탭 바가 사라져도 이전 화면이 밀리지 않는다.
+            val density = LocalDensity.current
+            var barHeight by remember { mutableStateOf(Dp.Hairline) }
+            val tabsShown = backStack.size <= 1
+            val barInset = if (tabsShown) barHeight else Dp.Hairline
+            Box(Modifier.fillMaxSize().then(shortcuts)) {
+                CompositionLocalProvider(LocalTabBarHeight provides barHeight) {
+                    ContentWithToast(
+                        backStack,
+                        toast,
+                        twoPane,
+                        onWrite,
+                        Modifier.fillMaxSize(),
+                        aboveWriteButton = floatingWrite,
+                        bottomInset = barInset
+                    )
+                }
+                if (floatingWrite) {
+                    DiaryWriteButton(
+                        writeLabel,
+                        onWrite,
+                        Modifier.align(Alignment.BottomEnd).padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4 + barInset)
+                    )
+                }
+                if (tabsShown) {
+                    Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = with(density) { it.height.toDp() } }) {
+                        DiaryNavigationBar(items, selected, onSelect)
                     }
                 }
-                if (backStack.size <= 1) DiaryNavigationBar(items, selected, onSelect)
             }
         }
     }
 }
+
+/** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둔다. */
+private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
+
+private val TAB_CONTENT_KEYS = TABS.map { it.toString() }.toSet()
+
+/** 탭의 맨 위 화면만 탭 바 자리를 비운다. 쓰기처럼 전체를 쓰는 화면은 그대로 둔다. */
+private val TabBarSpace =
+    NavEntryDecorator<NavKey>(decorate = { entry ->
+        if (entry.contentKey.toString() in TAB_CONTENT_KEYS) {
+            Box(Modifier.fillMaxSize().padding(bottom = LocalTabBarHeight.current)) { entry.Content() }
+        } else {
+            entry.Content()
+        }
+    })
 
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
 private enum class Message { Saved, DraftKept }
@@ -169,7 +209,8 @@ private fun ContentWithToast(
     twoPane: Boolean,
     onWrite: () -> Unit,
     modifier: Modifier,
-    aboveWriteButton: Boolean = false
+    aboveWriteButton: Boolean = false,
+    bottomInset: Dp = Dp.Hairline
 ) {
     Box(modifier) {
         val saved = stringResource(Res.string.write_saved)
@@ -190,7 +231,7 @@ private fun ContentWithToast(
             }
         )
         val bottom = if (aboveWriteButton) DiarySpacing.x4 + DiarySpacing.x14 + DiarySpacing.x2 else DiarySpacing.x6
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = bottom))
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = bottom + bottomInset))
     }
 }
 
@@ -232,7 +273,7 @@ private fun Content(
         modifier = modifier,
         onBack = pop,
         sceneStrategies = listOf(listDetail),
-        entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator(), rememberViewModelStoreNavEntryDecorator()),
+        entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator(), rememberViewModelStoreNavEntryDecorator(), TabBarSpace),
         entryProvider =
             entryProvider {
                 entry<HomeKey>(metadata = ListPane) {

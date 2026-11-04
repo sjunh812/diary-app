@@ -22,6 +22,7 @@
     <string name="write_format_list">箇条書き</string>
     <string name="write_palette_back">ツールに戻る</string>
     <string name="write_mood_title">今日の気分はどうでしたか</string>
+    <string name="write_weather_title">天気はどうでしたか</string>
     <string name="write_none">選択しない</string>
     <string name="write_done">完了</string>
     <string name="write_time">時刻</string>
@@ -34,4 +35,13 @@
     <string name="write_discard_message">捨てると元に戻せません</string>
     <string name="write_discard_confirm">捨てる</string>
     <string name="write_place_recent">最近の場所</string>
+    <string name="write_place_body">書いた場所を残しておくと、あとで見つけやすくなります。</string>
+    <string name="write_place_common">よく行く場所</string>
+    <string name="write_place_home">自宅</string>
+    <string name="write_place_office">会社</string>
+    <string name="write_place_school">学校</string>
+    <string name="write_place_cafe">カフェ</string>
+    <string name="write_place_restaurant">レストラン</string>
+    <string name="write_place_park">公園</string>
+    <string name="write_place_trip">旅行先</string>
 </resources>

@@ -20,7 +20,9 @@ class ResumableUploadTest {
     private val fs = FakeFileSystem()
     private val path = "/photo.jpg".toPath()
     private val auth = FakeDriveAuthorizer()
-    private val fileJson = """{"id":"f1","name":"a.jpg","size":"10","parents":["p"],"sha256Checksum":"abc","md5Checksum":"def","createdTime":"2026-11-01T00:00:00Z"}"""
+    private val fileJson =
+        """{"id":"f1","name":"a.jpg","size":"10","parents":["p"],"sha256Checksum":"abc","md5Checksum":"def",""" +
+            """"createdTime":"2026-11-01T00:00:00Z"}"""
 
     private fun api(handler: suspend (Int) -> Pair<HttpStatusCode, Map<String, String>>): Pair<KtorDriveApi, MutableList<String>> {
         var count = 0
@@ -75,7 +77,10 @@ class ResumableUploadTest {
     fun server_errors_retry_five_times_then_fail() = runTest {
         fs.write(path) { write(ByteArray(10)) }
         var tries = 0
-        val (drive, _) = api { tries++; HttpStatusCode.ServiceUnavailable to emptyMap() }
+        val (drive, _) = api {
+            tries++
+            HttpStatusCode.ServiceUnavailable to emptyMap()
+        }
 
         val error = assertFailsWith<DriveException> { drive.uploadChunk(UploadSession("https://upload/1", 10), 0, path) }
 
@@ -97,6 +102,11 @@ class ResumableUploadTest {
         fs.write(path) { write(ByteArray(10)) }
         val (drive, _) = api { HttpStatusCode.Unauthorized to emptyMap() }
 
-        assertEquals(BackupFailure.AUTH, assertFailsWith<DriveException> { drive.uploadChunk(UploadSession("https://upload/1", 10), 0, path) }.kind)
+        assertEquals(
+            BackupFailure.AUTH,
+            assertFailsWith<DriveException> {
+                drive.uploadChunk(UploadSession("https://upload/1", 10), 0, path)
+            }.kind
+        )
     }
 }

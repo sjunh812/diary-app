@@ -25,12 +25,13 @@ actual class AppFiles {
     actual val thumbnailDirectory: String = "$root/thumbs"
     actual val fontDirectory: String = "$root/fonts"
     actual val dataStoreDirectory: String = "$root/datastore"
+    actual val backupDirectory: String = "$root/backup"
     actual val migrationDirectory: String? = null
     actual val legacySnapshotDirectory: String? = null
 
     actual fun ensureDirectories() {
         val manager = NSFileManager.defaultManager
-        listOf(root, mediaDirectory, thumbnailDirectory, fontDirectory, dataStoreDirectory).forEach { path ->
+        listOf(root, mediaDirectory, thumbnailDirectory, fontDirectory, dataStoreDirectory, backupDirectory).forEach { path ->
             manager.createDirectoryAtPath(path, withIntermediateDirectories = true, attributes = null, error = null)
         }
         // 썸네일과 받은 글꼴은 다시 만들거나 받을 수 있어 iCloud·기기 백업에서 뺀다.

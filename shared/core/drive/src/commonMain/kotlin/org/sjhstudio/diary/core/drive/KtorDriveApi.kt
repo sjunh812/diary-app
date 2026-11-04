@@ -57,12 +57,17 @@ class KtorDriveApi(
 
     override suspend fun about(): StorageQuota = call { token ->
         val quota = parse(client.get("$API/about?fields=storageQuota") { bearer(token) }).getValue("storageQuota").jsonObject
-        StorageQuota(limit = quota["limit"]?.jsonPrimitive?.contentOrNull?.toLongOrNull(), usage = quota["usage"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0)
+        StorageQuota(
+            limit = quota["limit"]?.jsonPrimitive?.contentOrNull?.toLongOrNull(),
+            usage =
+                quota["usage"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0
+        )
     }
 
     override suspend fun list(query: DriveQuery, pageToken: String?): DrivePage = call { token ->
         val page = pageToken?.let { "&pageToken=${it.encodeURLParameter()}" }.orEmpty()
-        val url = "$API/files?pageSize=1000&spaces=drive&fields=${"nextPageToken,files($FIELDS)".encodeURLParameter()}&q=${query.toQ().encodeURLParameter()}$page"
+        val fields = "nextPageToken,files($FIELDS)".encodeURLParameter()
+        val url = "$API/files?pageSize=1000&spaces=drive&fields=$fields&q=${query.toQ().encodeURLParameter()}$page"
         val body = parse(client.get(url) { bearer(token) })
         DrivePage(body["files"]?.jsonArray.orEmpty().map { it.jsonObject.asFile() }, body["nextPageToken"]?.jsonPrimitive?.contentOrNull)
     }
@@ -80,7 +85,9 @@ class KtorDriveApi(
     override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile = call { token ->
         val boundary = "diary-backup-boundary"
         val bytes = fileSystem.read(body) { readByteArray() }
-        val head = "--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta.toJson()}\r\n--$boundary\r\nContent-Type: ${meta.mimeType}\r\n\r\n"
+        val head =
+            "--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta.toJson()}\r\n" +
+                "--$boundary\r\nContent-Type: ${meta.mimeType}\r\n\r\n"
         val tail = "\r\n--$boundary--"
         parse(
             client.post("$UPLOAD/files?uploadType=multipart&fields=${FIELDS.encodeURLParameter()}") {

@@ -77,13 +77,22 @@ import org.sjhstudio.diary.feature.write.resources.write_mood_title
 import org.sjhstudio.diary.feature.write.resources.write_new_entry
 import org.sjhstudio.diary.feature.write.resources.write_none
 import org.sjhstudio.diary.feature.write.resources.write_place
+import org.sjhstudio.diary.feature.write.resources.write_place_body
+import org.sjhstudio.diary.feature.write.resources.write_place_cafe
+import org.sjhstudio.diary.feature.write.resources.write_place_common
 import org.sjhstudio.diary.feature.write.resources.write_place_hint
+import org.sjhstudio.diary.feature.write.resources.write_place_home
+import org.sjhstudio.diary.feature.write.resources.write_place_office
+import org.sjhstudio.diary.feature.write.resources.write_place_park
 import org.sjhstudio.diary.feature.write.resources.write_place_recent
+import org.sjhstudio.diary.feature.write.resources.write_place_restaurant
+import org.sjhstudio.diary.feature.write.resources.write_place_school
+import org.sjhstudio.diary.feature.write.resources.write_place_trip
 import org.sjhstudio.diary.feature.write.resources.write_resume_body
 import org.sjhstudio.diary.feature.write.resources.write_resume_continue
 import org.sjhstudio.diary.feature.write.resources.write_resume_title
 import org.sjhstudio.diary.feature.write.resources.write_time
-import org.sjhstudio.diary.feature.write.resources.write_weather
+import org.sjhstudio.diary.feature.write.resources.write_weather_title
 
 /** 같은 칸을 다시 누르면 풀린다. */
 @Composable
@@ -96,13 +105,12 @@ internal fun WeatherGrid(selected: Weather?, onSelect: (Weather) -> Unit, modifi
     DiaryWeatherGrid({ it == selected }, onSelect, modifier)
 }
 
+/** 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고른다(2026-11-05 사용자 지적). */
 @Composable
-internal fun MoodWeatherSheet(
+internal fun MoodSheet(
     date: LocalDate,
     mood: Mood?,
-    weather: Weather?,
     onMood: (Mood) -> Unit,
-    onWeather: (Weather) -> Unit,
     onClear: () -> Unit,
     onDate: () -> Unit,
     onDismiss: () -> Unit
@@ -120,13 +128,15 @@ internal fun MoodWeatherSheet(
             DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i16)
         }
         MoodGrid(mood, onMood)
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            BasicText(
-                stringResource(Res.string.write_weather),
-                style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
-            )
-            WeatherGrid(weather, onWeather)
-        }
+        SheetButtons(stringResource(Res.string.write_none), onClear, stringResource(Res.string.write_done), onDismiss)
+    }
+}
+
+/** 날씨 칩에서 여는 시트. */
+@Composable
+internal fun WeatherSheet(weather: Weather?, onWeather: (Weather) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
+    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.write_weather_title)) {
+        WeatherGrid(weather, onWeather)
         SheetButtons(stringResource(Res.string.write_none), onClear, stringResource(Res.string.write_done), onDismiss)
     }
 }
@@ -136,6 +146,7 @@ internal fun PlaceSheet(initial: String, recent: List<String>, onDone: (String) 
     var text by remember { mutableStateOf(initial) }
     val colors = DiaryTheme.colors
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.write_place)) {
+        BasicText(stringResource(Res.string.write_place_body), style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
         Row(
             Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x3),
             verticalAlignment = Alignment.CenterVertically,
@@ -160,22 +171,43 @@ internal fun PlaceSheet(initial: String, recent: List<String>, onDone: (String) 
             }
         }
         // 전에 쓴 곳은 한 번에 고른다. 적는 글자에 맞는 곳만 남긴다.
-        val shown = recent.filter { it.contains(text.trim(), ignoreCase = true) && it != text }
-        if (shown.isNotEmpty()) {
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                BasicText(
-                    stringResource(Res.string.write_place_recent),
-                    style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-                ) {
-                    for (place in shown) DiaryChip(place, selected = false, onClick = { onDone(place) }, leadingIcon = DiaryIcons.Pin)
-                }
-            }
+        val typed = text.trim()
+        PlaceChips(
+            stringResource(Res.string.write_place_recent),
+            recent.filter {
+                it.contains(typed, ignoreCase = true) && it != text
+            },
+            onDone
+        )
+        // 처음 쓰는 사람도 눌러서 바로 남기게 흔한 곳을 둔다.
+        if (typed.isEmpty()) {
+            val common =
+                listOf(
+                    Res.string.write_place_home,
+                    Res.string.write_place_office,
+                    Res.string.write_place_school,
+                    Res.string.write_place_cafe,
+                    Res.string.write_place_restaurant,
+                    Res.string.write_place_park,
+                    Res.string.write_place_trip
+                ).map { stringResource(it) }
+            PlaceChips(stringResource(Res.string.write_place_common), common - recent.toSet(), onDone)
         }
         SheetButtons(stringResource(Res.string.write_close), onDismiss, stringResource(Res.string.write_done), { onDone(text) })
+    }
+}
+
+@Composable
+private fun PlaceChips(title: String, places: List<String>, onPick: (String) -> Unit) {
+    if (places.isEmpty()) return
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+        BasicText(title, style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+        ) {
+            for (place in places) DiaryChip(place, selected = false, onClick = { onPick(place) }, leadingIcon = DiaryIcons.Pin)
+        }
     }
 }
 

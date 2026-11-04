@@ -23,7 +23,7 @@ data class Manifest(
         const val FORMAT_VERSION = 2
 
         /** 이 앱이 읽을 수 있는 스냅샷 DB 버전. */
-        const val MAX_DB_VERSION = 1
+        const val MAX_DB_VERSION = 2
     }
 }
 
@@ -76,11 +76,15 @@ object ManifestCodec {
     fun encode(manifest: Manifest): String = json.encodeToString(Manifest.serializer(), manifest)
 
     /** 깨졌으면 null이다. 모르는 키는 무시하고 없는 키는 기본값으로 본다. */
-    fun decode(text: String): Manifest? = runCatching { json.decodeFromString(Manifest.serializer(), text) }.getOrNull()?.takeIf { it.format == Manifest.FORMAT }
+    fun decode(text: String): Manifest? = runCatching { json.decodeFromString(Manifest.serializer(), text) }.getOrNull()?.takeIf {
+        it.format ==
+            Manifest.FORMAT
+    }
 
     fun check(manifest: Manifest?): ManifestCheck = when {
         manifest == null -> ManifestCheck.BROKEN
-        manifest.formatVersion > Manifest.FORMAT_VERSION || manifest.snapshot.dbVersion > Manifest.MAX_DB_VERSION -> ManifestCheck.NEEDS_NEWER_APP
+        manifest.formatVersion > Manifest.FORMAT_VERSION -> ManifestCheck.NEEDS_NEWER_APP
+        manifest.snapshot.dbVersion > Manifest.MAX_DB_VERSION -> ManifestCheck.NEEDS_NEWER_APP
         else -> ManifestCheck.OK
     }
 }

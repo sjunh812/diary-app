@@ -88,12 +88,12 @@
 
 ## 사용 통계 고정 표 더하기 (`AnalyticsEvents`, 스펙 001 `contracts/app-shell.md`)
 
-값은 열거형과 개수 구간(`0`, `1-10`, `11-100`, `101-1000`, `1001+`)뿐이다. 일기 내용, 사진, 장소, 기분, 드라이브 파일 이름·ID, 계정은 보내지 않는다(FR-032).
+값은 열거형과 개수 구간(스펙 001 `AnalyticsEvents.COUNT_BUCKETS`)뿐이다. 일기 내용, 사진, 장소, 기분, 드라이브 파일 이름·ID, 계정은 보내지 않는다(FR-032).
 
 | 이벤트 | 값 |
 | --- | --- |
 | `backup_connect` | `result`(`ok`·`cancel`·`error`), `from`(`settings`·`nudge`·`onboarding`·`legacy`) |
-| `backup_run` | `trigger`(`manual`·`auto`·`app_open`), `result`(`ok`·`partial_photos`·`failed`), `failure`(실패의 종류), `photos_uploaded`(구간), `duration`(`<1m`·`1-10m`·`10m+`) |
+| `backup_run` | `trigger`(`manual`·`auto`·`app_open`), `result`(`ok`·`partial_photos`·`failed`), `failure`(실패의 종류), `photos_uploaded`(구간), `duration_bucket`(스펙 001 시간 구간) |
 | `restore_run` | `source`(`drive`·`file`·`legacy_drive`), `mode`(`merge`·`replace`), `result`(`ok`·`cancel`·`failed`), `failure`, `entries`(구간), `kept_both`(구간), `photos_missing`(구간) |
 | `backup_rollback` | `result`(`ok`·`failed`·`expired`) |
 | `backup_nudge` | `action`(`shown`·`accept`·`dismiss`) |

@@ -21,6 +21,9 @@ expect class AppFiles {
     /** 설정과 잠금 DataStore 파일. */
     val dataStoreDirectory: String
 
+    /** 진행 상태, 올리기 전 스냅샷, 되돌리기 사본(스펙 003). 기기 것이라 올리지 않는다. */
+    val backupDirectory: String
+
     /** 이전 상태·결과·작업 DB. 옮길 레거시가 없는 iOS는 null. */
     val migrationDirectory: String?
 

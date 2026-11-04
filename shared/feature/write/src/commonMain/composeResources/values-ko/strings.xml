@@ -21,7 +21,8 @@
     <string name="write_format_mark">형광펜</string>
     <string name="write_format_list">글머리 목록</string>
     <string name="write_palette_back">도구로 돌아가기</string>
-    <string name="write_mood_title">오늘 기분은 어땠나요</string>
+    <string name="write_mood_title">기분은 어땠나요</string>
+    <string name="write_weather_title">날씨는 어땠나요</string>
     <string name="write_none">선택 안 함</string>
     <string name="write_done">완료</string>
     <string name="write_time">시각</string>
@@ -34,4 +35,13 @@
     <string name="write_discard_message">버리면 되돌릴 수 없어요</string>
     <string name="write_discard_confirm">버리기</string>
     <string name="write_place_recent">최근 장소</string>
+    <string name="write_place_body">어디서 쓴 일기인지 남겨 두면 나중에 찾기 쉬워요.</string>
+    <string name="write_place_common">자주 가는 곳</string>
+    <string name="write_place_home">집</string>
+    <string name="write_place_office">회사</string>
+    <string name="write_place_school">학교</string>
+    <string name="write_place_cafe">카페</string>
+    <string name="write_place_restaurant">식당</string>
+    <string name="write_place_park">공원</string>
+    <string name="write_place_trip">여행지</string>
 </resources>

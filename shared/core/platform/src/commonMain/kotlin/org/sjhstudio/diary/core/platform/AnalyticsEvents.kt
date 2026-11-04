@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.platform
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.MigrationFailureKind
@@ -22,6 +23,12 @@ object AnalyticsEvents {
     const val MIGRATION_STARTED = "migration_started"
     const val MIGRATION_FINISHED = "migration_finished"
     const val MIGRATION_FAILED = "migration_failed"
+    const val BACKUP_CONNECT = "backup_connect"
+    const val BACKUP_RUN = "backup_run"
+    const val RESTORE_RUN = "restore_run"
+    const val BACKUP_ROLLBACK = "backup_rollback"
+    const val BACKUP_NUDGE = "backup_nudge"
+    const val BACKUP_EXPORT = "backup_export"
 
     /** contracts/app-shell.md 화면 키 이름. */
     val SCREENS =
@@ -46,7 +53,14 @@ object AnalyticsEvents {
             "PhotoViewerKey",
             "SearchKey",
             "TrashKey",
-            "ListStyleSettingsKey"
+            "ListStyleSettingsKey",
+            "BackupSettingsKey",
+            "BackupOptionsKey",
+            "RestoreListKey",
+            "RestorePreviewKey",
+            "RestoreProgressKey",
+            "RestoreResultKey",
+            "ExportKey"
         )
 
     val COUNT_BUCKETS = listOf("0", "1-9", "10-99", "100-999", "1000-9999", "10000+")
@@ -104,7 +118,31 @@ object AnalyticsEvents {
                     "step" to MigrationStep.entries.map { it.id }.toSet(),
                     "kind" to MigrationFailureKind.entries.map { it.name }.toSet(),
                     "attempt" to ATTEMPTS
-                )
+                ),
+            BACKUP_CONNECT to
+                mapOf("result" to setOf("ok", "cancel", "error"), "from" to setOf("settings", "nudge", "onboarding", "legacy")),
+            BACKUP_RUN to
+                mapOf(
+                    "trigger" to setOf("manual", "auto", "app_open"),
+                    "result" to setOf("ok", "partial_photos", "failed"),
+                    "failure" to BackupFailure.entries.map { it.name }.toSet(),
+                    "photos_uploaded" to COUNT_BUCKETS.toSet(),
+                    "duration_bucket" to DURATION_BUCKETS.toSet()
+                ),
+            RESTORE_RUN to
+                mapOf(
+                    "source" to setOf("drive", "file", "legacy_drive"),
+                    "mode" to setOf("merge", "replace"),
+                    "result" to setOf("ok", "cancel", "failed"),
+                    "failure" to BackupFailure.entries.map { it.name }.toSet() + "MISMATCH",
+                    "entries" to COUNT_BUCKETS.toSet(),
+                    "kept_both" to COUNT_BUCKETS.toSet(),
+                    "photos_missing" to COUNT_BUCKETS.toSet()
+                ),
+            BACKUP_ROLLBACK to mapOf("result" to setOf("ok", "failed", "expired")),
+            BACKUP_NUDGE to mapOf("action" to setOf("shown", "accept", "dismiss")),
+            BACKUP_EXPORT to
+                mapOf("kind" to setOf("export", "import"), "result" to setOf("ok", "cancel", "failed"), "photos" to COUNT_BUCKETS.toSet())
         )
 
     /**
