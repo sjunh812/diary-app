@@ -104,6 +104,9 @@ dependencies {
     debugImplementation(projects.shared.feature.migration)
     debugImplementation(projects.shared.feature.settings)
     debugImplementation(libs.kotlinx.datetime)
+    // 목록 성능 견본(list_performance)이 견본 DB를 60편씩 읽는다.
+    debugImplementation(projects.shared.core.database)
+    debugImplementation(libs.androidx.paging.compose)
 
     // 1.7.4에서 올린 기기를 기기 안에서 확인하는 계측 시험(스펙 001 T050, scripts/legacy/upgrade-test.sh).
     androidTestImplementation(projects.shared.core.database)

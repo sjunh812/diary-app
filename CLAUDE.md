@@ -73,7 +73,7 @@ JDK는 Gradle이 고른다(`gradle/gradle-daemon-jvm.properties`가 JDK 17을 �
 sh scripts/test-commit-msg.sh                                     # 커밋 형식 검사 훅 시험
 ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug   # 에뮬레이터에 설치
 ./gradlew :composeApp:exportLibraryDefinitions                    # 의존성을 바꾸면 오픈소스 라이선스 목록(aboutlibraries.json)을 다시 만든다
-adb -s emulator-5554 shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report  # 길이 없는 화면 띄우기(개발 빌드, design_catalog는 디자인 시스템 견본)
+adb -s emulator-5554 shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report  # 길이 없는 화면 띄우기(개발 빌드, design_catalog는 디자인 시스템 견본, list_performance는 1만 편 목록 견본)
 ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 sh scripts/legacy/upgrade-test.sh  # 1.7.4 → 새 앱 업그레이드(COUNT=1000, KILL_AT=Copying, LOCK=0427 옵션)
 ./gradlew :composeApp:assembleNonMinifiedRelease :benchmarks:assembleNonMinifiedRelease  # Baseline Profile 생성기 APK(설치·실행은 아래 메모)
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
