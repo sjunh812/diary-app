@@ -185,7 +185,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T073 [US4] `composeApp/src/main/kotlin/org/sjhstudio/diary/backup/BackupWorker.kt`, `PhotoUploadWorker.kt`와 `AndroidBackupScheduler`의 자동 부분: 하루 주기(네트워크 연결됨 + 배터리 부족 아님), `UNMETERED` 일회성 사진 작업, 10분 안쪽 조각, 앱이 뒤로 간 뒤 앱 안 코루틴으로 잇지 않기(research R14, 2026-11-01 확인)
 - [x] T074 [P] [US4] `iosApp/iosApp/Backup/DailyBackupTask.swift`와 `IosBackupScheduler` 자동 부분: `BGProcessingTask`(`requiresNetworkConnectivity`) 등록·요청, 앱이 뒤로 갈 때 `beginBackgroundTask` 안에서, 앱을 열 때 24시간 넘었으면(research R15)
 - [x] T075 [US4] `shared/core/platform`의 `BackupNotifier` 구현: Android 채널 "백업"·지연 7일 일회성 작업, iOS 로컬 알림 시간 예약, 진행 알림(research R16)
-- [ ] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
+- [x] T076 [US4] 백업 화면의 자동 백업 켜기·끄기, 백업 설정의 사진은 Wi-Fi에서만(모바일 데이터 허용 시 안내), 연결하면 자동 백업 켜기
 - [x] T077 [US4] `shared/core/data/{kt}/core/data/BackupNudgeRepository.kt`와 `shared/feature/backup/{kt}/feature/backup/BackupNudgeCard.kt`, 스펙 002 홈 목록 맨 위에 꽂기. [백업 켜기]는 연결 흐름(옛 백업 계정 먼저), [나중에]는 14일 숨김. Figma 홈 백업 상태와 권하기 (B11)
 - [ ] T078 [US4] 스펙 004 온보딩 "[자동 백업 켜기]"가 부를 연결 진입점(`BackupConnectEntry`)을 `feature/backup`에서 내보낸다
 
@@ -252,7 +252,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [ ] T091 [P] SC-010 점검: Firebase DebugView로 `backup_*`, `restore_run`을 한 바퀴 돌려 고정 표 안인지, 로그·오류 보고에 토큰·이메일·파일 이름·경로가 없는지 `grep`과 함께 `specs/003-backup-v2/test-report.md`에 남긴다
 - [ ] T092 [P] 실제 드라이브 밤마다 시험을 `.github/workflows/ci.yml`에 더한다(왕복·끊김·공간 부족, 시험 계정 갱신 토큰은 저장소 비밀값)
 - [ ] T093 [P] SC-004 시간 재기(1,000편·1,000장 Wi-Fi 10분, 하루치 1분)와 research O5(조각 크기, 동시 장수), O6(모바일 데이터 스냅샷 크기)을 재서 닫는다
-- [ ] T094 [P] 태블릿·글자 크기 200%·다크 모드에서 백업 화면들을 보고 설정 두 칸 규칙(스펙 001 R25)대로 그린다. Compose UI 시험(설정 > 백업 상태들, 복원 미리보기의 합치기·바꾸기 구분, 권하기 카드)을 `shared/feature/backup/{test}`에 둔다
+- [x] T094 [P] 태블릿·글자 크기 200%·다크 모드에서 백업 화면들을 보고 설정 두 칸 규칙(스펙 001 R25)대로 그린다. Compose UI 시험(설정 > 백업 상태들, 복원 미리보기의 합치기·바꾸기 구분, 권하기 카드)을 `shared/feature/backup/{test}`에 둔다
 - [ ] T095 `docs/release.md`의 포그라운드 서비스 신고, 브랜드 검증, 개인정보처리방침(드라이브 범위와 쓰는 까닭)을 이 스펙 결과와 맞춘다
 - [ ] T096 문서 동기화: `docs/backup.md`, `docs/migration.md`, 스펙 001·002 data-model, 헌법, `docs/DECISIONS.md`가 같은 내용인지, Figma 진행 현황이 맞는지 본다. 백업·복원 화면과 진행 중이 광고를 띄우지 않는 화면 목록(스펙 006, FR-033)에 들어 있는지 본다
 - [ ] T097 quickstart.md 전체를 처음부터 돌려 통과를 확인하고 `checklists/data-safety.md`를 검토자에게 넘긴다
