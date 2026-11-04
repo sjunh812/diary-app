@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,9 +18,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlin.time.Clock
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
@@ -31,6 +34,8 @@ import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
+import org.sjhstudio.diary.app.navigation.TrashKey
+import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -49,6 +54,7 @@ import org.sjhstudio.diary.feature.settings.SettingsScreen
 import org.sjhstudio.diary.feature.settings.SettingsViewModel
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
+import org.sjhstudio.diary.feature.trash.TrashRoute
 
 /**
  * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스).
@@ -58,6 +64,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<SettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val trash = koinInject<TrashRepository>()
+        val trashCount by remember(trash) { trash.items().map { it.size } }.collectAsState(0)
         SettingsScreen(
             state,
             onFont = { push(FontSettingsKey) },
@@ -66,9 +74,12 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onReminder = { push(ReminderSettingsKey) },
             onLock = { push(LockSettingsKey) },
             onMigrationReport = { push(MigrationReportKey) },
-            onLicenses = { push(LicensesKey) }
+            onLicenses = { push(LicensesKey) },
+            onTrash = { push(TrashKey) },
+            trashCount = trashCount
         )
     }
+    entry<TrashKey> { TrashRoute(onBack = pop) }
     entry<TextSizeSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()

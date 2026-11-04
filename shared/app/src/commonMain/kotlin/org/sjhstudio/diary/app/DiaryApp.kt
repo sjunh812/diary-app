@@ -5,6 +5,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -15,6 +16,7 @@ import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.gate.LockGate
 import org.sjhstudio.diary.app.gate.MigrationGate
+import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
@@ -60,7 +62,12 @@ fun DiaryApp() {
     ApplyPlatformTheme(settings.themeMode)
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font)) {
         LockGate {
-            MigrationGate { AppScaffold() }
+            MigrationGate {
+                // 일기 DB는 이전 관문을 지난 뒤에만 연다. 그래서 정리도 여기서 시작한다.
+                val cleanup = koinInject<DiaryCleanup>()
+                LaunchedEffect(cleanup) { cleanup.run() }
+                AppScaffold()
+            }
         }
     }
 }

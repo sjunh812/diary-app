@@ -21,6 +21,7 @@
     <string name="insight_year_map">今年の毎日の気分</string>
     <string name="insight_flow_week">毎日の気分</string>
     <string name="insight_flow_month">週ごとに一番多い気分</string>
+    <string name="insight_flow_all">年ごとに一番多い気分</string>
     <string name="insight_flow_year">月ごとに一番多い気分</string>
     <string name="insight_week_number">第%1$d週</string>
     <plurals name="insight_entry_count">

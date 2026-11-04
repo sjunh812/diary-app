@@ -94,4 +94,9 @@
     <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨 볼게요.</string>
     <string name="migration_deferred_retry">다시 시도</string>
     <string name="migration_deferred_running">옮기는 중이에요</string>
+    <string name="settings_group_diary">일기</string>
+    <string name="settings_trash">휴지통</string>
+    <plurals name="settings_trash_count">
+        <item quantity="other">%1$d편</item>
+    </plurals>
 </resources>

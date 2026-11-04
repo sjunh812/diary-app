@@ -71,6 +71,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_all_time
 import org.sjhstudio.diary.feature.insight.resources.insight_count_percent
 import org.sjhstudio.diary.feature.insight.resources.insight_empty
 import org.sjhstudio.diary.feature.insight.resources.insight_entry_count
+import org.sjhstudio.diary.feature.insight.resources.insight_flow_all
 import org.sjhstudio.diary.feature.insight.resources.insight_flow_month
 import org.sjhstudio.diary.feature.insight.resources.insight_flow_week
 import org.sjhstudio.diary.feature.insight.resources.insight_flow_year
@@ -239,10 +240,8 @@ private fun Content(
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
     Spacer(Modifier.height(DiarySpacing.x5))
-    if (period != StatsPeriod.All) {
-        MoodFlow(period, days, rememberDiaryDateFormat())
-        Spacer(Modifier.height(DiarySpacing.x5))
-    }
+    MoodFlow(period, days, rememberDiaryDateFormat())
+    Spacer(Modifier.height(DiarySpacing.x5))
     if (period is StatsPeriod.Year) {
         YearMap(period.year, pixels, today)
         Spacer(Modifier.height(DiarySpacing.x4))
@@ -289,17 +288,20 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
             when (period) {
                 is StatsPeriod.Week -> Res.string.insight_flow_week
                 is StatsPeriod.Month -> Res.string.insight_flow_month
-                else -> Res.string.insight_flow_year
+                is StatsPeriod.Year -> Res.string.insight_flow_year
+                StatsPeriod.All -> Res.string.insight_flow_all
             }
         )
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         BasicText(title, style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary))
         val buckets = moodBuckets(period, days)
-        for (row in buckets.chunked(if (period is StatsPeriod.Year) YEAR_COLUMNS else buckets.size)) {
+        val columns = if (period is StatsPeriod.Year || period == StatsPeriod.All) WIDE_COLUMNS else buckets.size
+        for (row in buckets.chunked(columns)) {
             Row(Modifier.fillMaxWidth()) {
                 for (bucket in row) {
                     Column(
-                        Modifier.weight(1f),
+                        // 해가 적어도 칸 폭은 같게 둔다.
+                        Modifier.fillMaxWidth(1f / columns),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
                     ) {
@@ -331,6 +333,7 @@ private fun slotLabel(slot: BucketSlot, dates: DiaryDateFormat): String = when (
     is BucketSlot.Day -> dates.weekdayShort(slot.date)
     is BucketSlot.Week -> stringResource(Res.string.insight_week_number, slot.number)
     is BucketSlot.Month -> dates.monthShort(slot.date)
+    is BucketSlot.Year -> dates.year(slot.date)
 }
 
 /** 연간 지도: 달마다 한 줄, 하루 한 칸(Daylio Year in Pixels와 같은 꼴). 앞으로 올 날은 비워 둔다. */
@@ -411,6 +414,6 @@ private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Moo
 }
 
 private const val MONTHS = 12
-private const val YEAR_COLUMNS = 6
+private const val WIDE_COLUMNS = 6
 private const val DAYS_MAX = 31
 private const val PERCENT = 100

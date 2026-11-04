@@ -12,16 +12,21 @@ import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
+import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
 import org.sjhstudio.diary.core.data.diary.DefaultEntryRepository
 import org.sjhstudio.diary.core.data.diary.DefaultStatsRepository
+import org.sjhstudio.diary.core.data.diary.DefaultTrashRepository
 import org.sjhstudio.diary.core.data.diary.DraftRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
+import org.sjhstudio.diary.core.data.diary.MediaRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
+import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
+import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
@@ -47,6 +52,7 @@ import org.sjhstudio.diary.feature.lock.lockFeatureModule
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
 import org.sjhstudio.diary.feature.search.searchFeatureModule
 import org.sjhstudio.diary.feature.settings.settingsFeatureModule
+import org.sjhstudio.diary.feature.trash.trashFeatureModule
 import org.sjhstudio.diary.feature.write.WriteMediaPath
 import org.sjhstudio.diary.feature.write.writeFeatureModule
 
@@ -66,6 +72,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     calendarFeatureModule,
     searchFeatureModule,
     insightFeatureModule,
+    trashFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
@@ -118,6 +125,12 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         }
         single<DraftRepository> { DefaultDraftRepository(get(), get()) }
         single<StatsRepository> { DefaultStatsRepository(get()) }
+        single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
+        single<MediaRepository> {
+            val files = get<AppFiles>()
+            DefaultMediaRepository(get(), FileSystem.SYSTEM, files.mediaDirectory.toPath(), files.thumbnailDirectory.toPath())
+        }
+        single { DiaryCleanup(get(), get()) }
         single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
         single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
         // 이전이 끝난 기기의 후속 작업(FR-011). 일기 DB는 이전이 끝난 뒤에만 꺼낸다.

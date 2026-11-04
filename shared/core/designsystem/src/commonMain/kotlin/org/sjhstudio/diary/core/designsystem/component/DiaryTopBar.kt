@@ -30,7 +30,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /** 상단 바 오른쪽 글자 동작(저장 같은). 채운 버튼이 아니라 글자 버튼이다. */
-class DiaryTopBarAction(val label: String, val enabled: Boolean = true, val onClick: () -> Unit)
+class DiaryTopBarAction(val label: String, val enabled: Boolean = true, val danger: Boolean = false, val onClick: () -> Unit)
 
 /**
  * 상단 바(`docs/design.md` 컴포넌트 규격, SEED TopNavigation 56).
@@ -73,7 +73,7 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
             val press = remember { MutableInteractionSource() }
             BasicText(
                 text = action.label,
-                style = DiaryTheme.typography.headline.copy(color = colors.accentText),
+                style = DiaryTheme.typography.headline.copy(color = if (action.danger) colors.danger else colors.accentText),
                 modifier =
                     Modifier
                         .align(Alignment.CenterEnd)

@@ -21,6 +21,7 @@
     <string name="insight_year_map">Mood for each day of the year</string>
     <string name="insight_flow_week">Each day</string>
     <string name="insight_flow_month">Most common mood each week</string>
+    <string name="insight_flow_all">Most common mood each year</string>
     <string name="insight_flow_year">Most common mood each month</string>
     <string name="insight_week_number">Wk %1$d</string>
     <plurals name="insight_entry_count">

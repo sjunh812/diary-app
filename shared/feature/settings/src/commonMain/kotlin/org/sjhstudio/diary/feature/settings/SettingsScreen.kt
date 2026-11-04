@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import kotlinx.datetime.LocalTime
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
@@ -26,6 +27,7 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
 import org.sjhstudio.diary.feature.settings.resources.settings_font
+import org.sjhstudio.diary.feature.settings.resources.settings_group_diary
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_notification
 import org.sjhstudio.diary.feature.settings.resources.settings_group_security
@@ -36,10 +38,12 @@ import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
 import org.sjhstudio.diary.feature.settings.resources.settings_title
+import org.sjhstudio.diary.feature.settings.resources.settings_trash
+import org.sjhstudio.diary.feature.settings.resources.settings_trash_count
 
 /**
  * 설정 목록(Figma "설정 (S6)"). 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 쓴다.
- * 스펙 001이 만든 줄만 둔다. 백업(스펙 003), 휴지통·목록 모양(스펙 002)은 그 화면과 함께 더한다.
+ * 백업(스펙 003)과 목록 모양은 그 화면과 함께 더한다.
  */
 @Composable
 fun SettingsScreen(
@@ -52,6 +56,8 @@ fun SettingsScreen(
     onMigrationReport: () -> Unit,
     onLicenses: () -> Unit,
     modifier: Modifier = Modifier,
+    onTrash: () -> Unit = {},
+    trashCount: Int = 0,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
     onDesignCatalog: (() -> Unit)? = null
 ) {
@@ -71,7 +77,13 @@ fun SettingsScreen(
                         )
                         .semantics { heading() }
             )
-            DiarySettingsHeader(stringResource(Res.string.settings_group_style))
+            DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
+            DiarySettingsRow(
+                stringResource(Res.string.settings_trash),
+                onClick = onTrash,
+                value = if (trashCount > 0) pluralStringResource(Res.plurals.settings_trash_count, trashCount, trashCount) else null
+            )
+            DiarySettingsHeader(stringResource(Res.string.settings_group_style), gapAbove = true)
             DiarySettingsRow(
                 stringResource(Res.string.settings_font),
                 onClick = onFont,

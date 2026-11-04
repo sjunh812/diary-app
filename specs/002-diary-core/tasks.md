@@ -178,10 +178,10 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 **Independent Test**: 지운 직후 되돌리기, 휴지통 되살리기·완전히 지우기, 30일 지난 항목 비움
 
-- [ ] T062 [P] [US6] 휴지통 시험: 지우면 모든 질의에서 빠짐, 되돌리기, 30일 지난 것만 비움(고정 시계), 다른 일기가 쓰는 같은 해시 사진은 남김, 사진 정리는 "만든 지 하루가 지난" 미사용 파일만 `shared/core/data/{test}/core/data/TrashRepositoryTest.kt`, `MediaCleanupTest.kt`
-- [ ] T063 [US6] `EntryRepository.moveToTrash`·`restore`, `TrashRepository`, `MediaRepository.cleanUnused`를 `shared/core/data/{kt}/core/data/`에 만들고 앱 시작 때 비움 → 정리 순서로 부른다 `shared/app/{kt}/app/StartupJobs.kt`
+- [x] T062 [P] [US6] 휴지통 시험: 지우면 모든 질의에서 빠짐, 되돌리기, 30일 지난 것만 비움(고정 시계), 다른 일기가 쓰는 같은 해시 사진은 남김, 사진 정리는 "만든 지 하루가 지난" 미사용 파일만 `shared/core/data/{test}/core/data/TrashRepositoryTest.kt`, `MediaCleanupTest.kt` 2026-11-04: `DiaryReadRepositoryTest`, `DiaryCleanupTest`에 넣었다
+- [x] T063 [US6] `EntryRepository.moveToTrash`·`restore`, `TrashRepository`, `MediaRepository.cleanUnused`를 `shared/core/data/{kt}/core/data/`에 만들고 앱 시작 때 비움 → 정리 순서로 부른다 `shared/app/{kt}/app/StartupJobs.kt` 2026-11-04: 앱 시작이 아니라 이전 관문을 지난 뒤에 `DiaryCleanup`으로 부른다
 - [ ] T064 [US6] 지우기 → "휴지통으로 옮겼어요 [되돌리기]" 5초(누르고 있으면 멈춤, research O5 결과 반영)를 상세·목록 줄 메뉴·두 칸 상세에 붙인다 `shared/feature/home/{kt}/feature/home/`
-- [ ] T065 [US6] 휴지통 화면(지운 날짜순, "N일 뒤 완전히 지워져요", 되살리기, 완전히 지우기·비우기 확인에 편수)을 `shared/feature/trash/{kt}/feature/trash/TrashViewModel.kt`, `TrashScreen.kt`에 만들고 문구를 `strings.xml`에 둔다
+- [x] T065 [US6] 휴지통 화면(지운 날짜순, "N일 뒤 완전히 지워져요", 되살리기, 완전히 지우기·비우기 확인에 편수)을 `shared/feature/trash/{kt}/feature/trash/TrashViewModel.kt`, `TrashScreen.kt`에 만들고 문구를 `strings.xml`에 둔다
 
 ---
 

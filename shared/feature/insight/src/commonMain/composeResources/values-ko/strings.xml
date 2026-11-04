@@ -21,6 +21,7 @@
     <string name="insight_year_map">올해 날마다의 기분</string>
     <string name="insight_flow_week">날마다 기분</string>
     <string name="insight_flow_month">주마다 가장 많은 기분</string>
+    <string name="insight_flow_all">해마다 가장 많은 기분</string>
     <string name="insight_flow_year">달마다 가장 많은 기분</string>
     <string name="insight_week_number">%1$d주</string>
     <plurals name="insight_entry_count">

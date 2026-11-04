@@ -43,7 +43,7 @@ class InsightViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     val days: StateFlow<List<DayMood>> =
         _period
-            .flatMapLatest { if (it == StatsPeriod.All) flowOf(emptyList()) else stats.moodFlow(it) }
+            .flatMapLatest(stats::moodFlow)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -98,10 +98,12 @@ internal sealed interface BucketSlot {
     data class Week(val number: Int) : BucketSlot
 
     data class Month(val date: LocalDate) : BucketSlot
+
+    data class Year(val date: LocalDate) : BucketSlot
 }
 
 /**
- * 기간을 칸으로 나눈다. 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다다.
+ * 기간을 칸으로 나눈다. 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다다.
  * 칸의 기분은 날마다의 마지막 기분을 세어 정한다. 같으면 나중 날의 기분을 쓴다.
  */
 internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBucket> = when (period) {
@@ -126,7 +128,12 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
         (1..MONTHS).map { month -> bucket(BucketSlot.Month(LocalDate(period.year, month, 1)), byMonth[month].orEmpty()) }
     }
 
-    StatsPeriod.All -> emptyList()
+    StatsPeriod.All -> {
+        val byYear = days.groupBy { it.date.year }
+        // 일기가 없는 해도 빈 칸으로 두어 흐름이 끊긴 것이 보이게 한다.
+        val years = if (byYear.isEmpty()) IntRange.EMPTY else byYear.keys.min()..byYear.keys.max()
+        years.map { year -> bucket(BucketSlot.Year(LocalDate(year, 1, 1)), byYear[year].orEmpty()) }
+    }
 }
 
 private fun bucket(slot: BucketSlot, days: List<DayMood>): MoodBucket {

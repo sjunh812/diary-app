@@ -111,6 +111,16 @@ class InsightViewModelTest {
         assertEquals(0, moodBuckets(StatsPeriod.All, emptyList()).size)
     }
 
+    @Test
+    fun all_time_shows_each_year_and_keeps_gaps() {
+        val days = listOf(DayMood(LocalDate(2024, 3, 1), Mood.SAD, 1), DayMood(LocalDate(2026, 3, 1), Mood.GOOD, 1))
+
+        val buckets = moodBuckets(StatsPeriod.All, days)
+
+        assertEquals(listOf(Mood.SAD, null, Mood.GOOD), buckets.map { it.mood })
+        assertEquals(false, buckets[1].written)
+    }
+
     private object NoStats : StatsRepository {
         override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = flowOf(MoodCounts(emptyMap(), 0))
 
