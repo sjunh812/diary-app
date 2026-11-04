@@ -87,8 +87,8 @@ object DiaryCalendarSize {
     val cell: Dp = 60.dp
     val cellWide: Dp = 76.dp
 
-    /** 기분 얼굴. */
-    val face: Dp = 30.dp
+    /** 기분 얼굴. 칸 안 위아래 여백이 4로 같아지는 크기다. */
+    val face: Dp = 28.dp
     val faceWide: Dp = 36.dp
 
     /** 오늘 표시. */

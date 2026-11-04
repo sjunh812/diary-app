@@ -300,7 +300,7 @@ private fun MonthGrid(
     // 일요일을 0으로 센 첫날 앞의 빈칸 수.
     val blanks = first.dayOfWeek.ordinal.let { (it + 1) % DAYS_IN_WEEK }
     val cells: List<LocalDate?> = List(blanks) { null } + (1..month.numberOfDays).map { month.onDay(it) }
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
         for (week in cells.chunked(DAYS_IN_WEEK)) {
             // 기기 글자를 키워도 날짜가 잘리지 않게 칸은 내용만큼 자란다.
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
