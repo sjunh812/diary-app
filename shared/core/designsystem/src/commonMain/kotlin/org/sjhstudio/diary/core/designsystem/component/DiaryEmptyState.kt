@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.designsystem.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -48,5 +49,18 @@ fun DiaryEmptyState(
             Spacer(Modifier.height(DiarySpacing.x2))
             DiaryButton(text = actionLabel, onClick = onAction, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
         }
+    }
+}
+
+/**
+ * 빈 상태를 화면 칸에 놓는다. 눈에는 정가운데가 처져 보여서 위 2, 아래 3으로 조금 올린다(Figma "S1 · 빈 상태" 자리).
+ * 위아래 칸이 없으면 줄어들어 큰 글씨에서도 잘리지 않는다.
+ */
+@Composable
+fun DiaryEmptyArea(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Column(modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(Modifier.weight(2f))
+        content()
+        Spacer(Modifier.weight(3f))
     }
 }

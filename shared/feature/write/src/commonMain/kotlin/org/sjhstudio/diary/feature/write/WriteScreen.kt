@@ -38,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -442,26 +443,30 @@ private fun Section(title: String, content: @Composable () -> Unit) {
     }
 }
 
-/** 키보드 위 서식 도구(Figma "서식 도구 줄"). 글자색·형광펜을 누르면 줄이 팔레트로 바뀐다. */
+/** 도구 줄이 바뀌는 팔레트. 글자색과 형광펜은 쓰임이 달라 각자의 색만 보인다(2026-11-05 사용자 지적). */
+private enum class PaletteKind { Ink, Mark }
+
+/** 키보드 위 서식 도구(Figma "서식 도구 줄"). 글자색·형광펜을 누르면 줄이 그 팔레트로 바뀐다. */
 private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
     @Composable
     fun Toolbar(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?) {
-        var palette by remember { mutableStateOf(false) }
+        var palette by remember { mutableStateOf<PaletteKind?>(null) }
         val theme = DiaryTheme.colors
         Column(Modifier.fillMaxWidth().background(theme.canvas)) {
             Box(Modifier.fillMaxWidth().height(DiarySpacing.hairline).background(theme.line))
             Row(
                 Modifier.fillMaxWidth().height(DiaryWriteSize.toolbar).padding(horizontal = DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(if (palette) DiarySpacing.x2 else DiarySpacing.x0_5)
+                horizontalArrangement = Arrangement.spacedBy(if (palette != null) DiarySpacing.x2 else DiarySpacing.x0_5)
             ) {
-                if (palette) Palette { palette = false } else Tools(onPhoto, onCamera) { palette = true }
+                val open = palette
+                if (open != null) Palette(open) { palette = null } else Tools(onPhoto, onCamera) { palette = it }
             }
         }
     }
 
     @Composable
-    private fun Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, openPalette: () -> Unit) {
+    private fun Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, openPalette: (PaletteKind) -> Unit) {
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
         fun tint(active: Boolean) = if (active) theme.accentText else theme.textPrimary
@@ -475,31 +480,40 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
         ToolButton(DiaryIcons.Underline, stringResource(Res.string.write_format_underline), tint(underline)) {
             rich.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
         }
-        ToolButton(DiaryIcons.TextColor, stringResource(Res.string.write_format_color), theme.textPrimary, onClick = openPalette)
-        ToolButton(DiaryIcons.Highlight, stringResource(Res.string.write_format_mark), theme.textPrimary, onClick = openPalette)
+        ToolButton(DiaryIcons.TextColor, stringResource(Res.string.write_format_color), tint(style.color.isSpecified)) {
+            openPalette(PaletteKind.Ink)
+        }
+        ToolButton(DiaryIcons.Highlight, stringResource(Res.string.write_format_mark), tint(style.background.isSpecified)) {
+            openPalette(PaletteKind.Mark)
+        }
         ToolButton(DiaryIcons.BulletList, stringResource(Res.string.write_format_list), tint(rich.isUnorderedList)) {
             rich.toggleUnorderedList()
         }
     }
 
     @Composable
-    private fun Palette(close: () -> Unit) {
+    private fun Palette(kind: PaletteKind, close: () -> Unit) {
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
         ToolButton(DiaryIcons.ChevronLeft, stringResource(Res.string.write_palette_back), theme.textPrimary, onClick = close)
-        for (ink in InkColor.entries) {
-            val color = colors.ink.getValue(ink)
-            Swatch(color, DiaryShapes.full, selected = style.color == color) {
-                val span = SpanStyle(color = color)
-                if (style.color == color) rich.removeSpanStyle(span) else rich.addSpanStyle(span)
-            }
-        }
-        for (mark in MarkColor.entries) {
-            val color = colors.mark.getValue(mark)
-            Swatch(color, DiaryShapes.r8, selected = style.background == color) {
-                val span = SpanStyle(background = color)
-                if (style.background == color) rich.removeSpanStyle(span) else rich.addSpanStyle(span)
-            }
+        when (kind) {
+            PaletteKind.Ink ->
+                for (ink in InkColor.entries) {
+                    val color = colors.ink.getValue(ink)
+                    Swatch(color, DiaryShapes.full, selected = style.color == color) {
+                        val span = SpanStyle(color = color)
+                        if (style.color == color) rich.removeSpanStyle(span) else rich.addSpanStyle(span)
+                    }
+                }
+
+            PaletteKind.Mark ->
+                for (mark in MarkColor.entries) {
+                    val color = colors.mark.getValue(mark)
+                    Swatch(color, DiaryShapes.r8, selected = style.background == color) {
+                        val span = SpanStyle(background = color)
+                        if (style.background == color) rich.removeSpanStyle(span) else rich.addSpanStyle(span)
+                    }
+                }
         }
     }
 }

@@ -38,6 +38,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
@@ -152,7 +153,7 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
             items == null -> Unit
 
             items.isEmpty() ->
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                DiaryEmptyArea {
                     DiaryEmptyState(
                         DiaryIcons.Trash,
                         stringResource(Res.string.trash_empty_title),

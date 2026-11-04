@@ -174,7 +174,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 바텀 시트 | 떠 있는 시트 · 좌우·아래 10 띄움 · 모서리 28 · 손잡이 48×4 · 안쪽 24 · 제목 `title2` + 아래 바꿀 수 있는 날짜 · 폭 최대 480, 높이 최대 90% | TDS BottomSheet(r28, 10 띄움, 48×4), SEED 최대 폭 480, 하루콩·Daylio 날짜 링크 |
 | 토스트 | 폭 화면 - 40, 최대 400(넓은 화면은 아래 가운데, 폰 토스트와 같은 크기) · 높이 48 · 한 줄 full, 여러 줄 20 · `bodyStrong` · 탭과 쓰기 버튼 위 · 버튼이 있으면 5초, 누르는 동안 멈춤 | TDS Toast 5000ms, SEED Snackbar |
 | 대화상자 | 폭 312(최대 560) · 모서리 28 · 안쪽 24 · 왼쪽 버튼은 "닫기" | M3 Dialog, 토스 UX 가이드 |
-| 빈 상태 | 아이콘 32 하나 · 제목 `title2` · 설명 `body` · 버튼 하나 · 긍정형 해요체 | SEED Result Section, 토스 UX 가이드 |
+| 빈 상태 | 아이콘 32 하나 · 제목 `title2` · 설명 `body` · 버튼 하나 · 긍정형 해요체 · 내용 칸의 위 2, 아래 3 자리(정가운데는 처져 보인다) | SEED Result Section, 토스 UX 가이드 |
 | 결과 배지 | 원 56 · 아이콘 32 · 결과 화면 맨 위 하나 | M3 아이콘 버튼 L의 아이콘 32. TDS·SEED의 같은 자리 명세는 확인 못 함 |
 | 상자 여백 | 모서리 16인 바탕 상자는 모두 같은 셋을 쓴다: 글 묶음 안(제목과 설명) 2~4 < 항목 사이 16 < 상자 안쪽 20(네 변 같게). 묶인 것일수록 가깝고 가장자리가 가장 넓어야 상자가 답답하지 않다. 상자 밖과는 위아래 16 이상 띄운다 | 게슈탈트 근접성, internal ≤ external 휴리스틱([Cieden](https://cieden.com/book/sub-atomic/spacing/spacing-best-practices), [Uxcel](https://app.uxcel.com/courses/design-systems-intro/spacing-sizing-803/managing-internal-and-external-spacing-0940)), SEED Callout(안쪽 14 ≥ 사이 12), 2026-11-04 사용자 지적(안쪽이 내용 사이보다 좁아 가장자리에 붙어 보임) |
 | 홈 백업 줄 | 바탕 없는 글줄 · 안쪽 없음 · 왼쪽은 큰 제목과 같은 선 · 제목 아래 4 · 아이콘 16 · 사이 8 · `caption` `textSecondary` · 아래 내용과 12 | 2026-11-04 사용자 지적(상자용 안쪽이 들어가 아이콘이 들여쓰이고 아래가 붙어 있었다) |

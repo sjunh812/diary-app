@@ -48,6 +48,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
@@ -253,7 +254,7 @@ private fun Title(text: String, onClick: () -> Unit) {
 
 @Composable
 private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    DiaryEmptyArea {
         if (favoritesOnly) {
             DiaryEmptyState(DiaryIcons.StarOutline, stringResource(Res.string.home_favorites_empty))
         } else {
