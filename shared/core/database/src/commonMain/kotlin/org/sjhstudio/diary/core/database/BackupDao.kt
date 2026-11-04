@@ -4,6 +4,7 @@ import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
+import androidx.room3.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -37,6 +38,24 @@ interface BackupDao {
         "SELECT DISTINCT sha256, file_name AS fileName, byte_size AS byteSize FROM media WHERE status = 'pending' AND sha256 IS NOT NULL"
     )
     suspend fun pendingPhotos(): List<LocalPhotoRow>
+
+    @Query("SELECT * FROM entry")
+    suspend fun allEntries(): List<EntryEntity>
+
+    @Query("SELECT * FROM media")
+    suspend fun allMedia(): List<MediaEntity>
+
+    @Update
+    suspend fun updateEntry(entry: EntryEntity)
+
+    /** 받은 사진의 상태를 고친다. */
+    @Query("UPDATE media SET status = :status WHERE sha256 = :sha256 AND status = 'pending'")
+    suspend fun settlePending(sha256: String, status: String)
+
+    @Query(
+        "SELECT DISTINCT sha256, file_name AS fileName, byte_size AS byteSize FROM media WHERE status = 'pending' AND sha256 IS NOT NULL"
+    )
+    suspend fun pendingFiles(): List<LocalPhotoRow>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun setBase(rows: List<SyncBaseEntity>)

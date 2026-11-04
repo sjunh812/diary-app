@@ -13,7 +13,7 @@ object SnapshotReader {
         try {
             val media =
                 connection.prepare(
-                    "SELECT id, entry_id, sort_order, status, file_name, sha256, width, height, byte_size, legacy_path, created_at FROM media"
+                    MEDIA_COLUMNS
                 ).use { statement ->
                     buildList { while (statement.step()) add(statement.media()) }
                 }.groupBy { it.entryId }
@@ -60,6 +60,9 @@ object SnapshotReader {
         legacyCreateDate = text(13),
         legacyLocation = text(14)
     )
+
+    private const val MEDIA_COLUMNS =
+        "SELECT id, entry_id, sort_order, status, file_name, sha256, width, height, byte_size, legacy_path, created_at FROM media"
 
     // SQLITE_OPEN_READONLY
     private const val READ_ONLY = 0x00000001
