@@ -171,7 +171,7 @@
     <string name="file_read_failed">백업 파일이 아니거나 일부가 깨졌어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_read_needs_update">앱을 업데이트하면 되살릴 수 있어요.</string>
     <string name="file_saved_title">파일을 저장했어요</string>
-    <string name="file_saved_body">%1$s · %2$s쯤. 새 휴대폰으로 옮긴 뒤 \"파일에서 되살리기\"로 되살려요.</string>
+    <string name="file_saved_body">%1$s · %2$s쯤. 새 휴대폰으로 옮긴 뒤 "파일에서 되살리기"로 되살려요.</string>
     <string name="file_done">확인</string>
     <string name="file_name">1일1일기-백업-%1$s</string>
     <string name="backup_group_other">다른 방법</string>
