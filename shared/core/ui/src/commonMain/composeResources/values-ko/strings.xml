@@ -16,4 +16,5 @@
     <string name="weather_rain">비</string>
     <string name="weather_sleet">비/눈</string>
     <string name="weather_snow">눈</string>
+    <string name="entry_kept_both">두 가지</string>
 </resources>

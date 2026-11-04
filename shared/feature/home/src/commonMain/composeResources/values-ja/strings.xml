@@ -16,4 +16,9 @@
     <string name="detail_photo_page">%1$d / %2$d</string>
     <string name="detail_missing_photo">写真が見つかりません</string>
     <string name="home_search">検索</string>
+    <string name="detail_kept_both_title">2つ残しました</string>
+    <string name="detail_kept_both_body">両方で編集された日記です。好きな方だけ残せます。</string>
+    <string name="detail_kept_both_other">もう一方を見る</string>
+    <string name="detail_kept_both_close">閉じる</string>
+    <string name="detail_elsewhere_photo">元のスマホにある写真</string>
 </resources>

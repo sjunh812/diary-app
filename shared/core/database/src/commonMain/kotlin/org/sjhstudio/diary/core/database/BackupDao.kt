@@ -69,6 +69,12 @@ interface BackupDao {
     @Query("SELECT * FROM merge_mark")
     fun marks(): Flow<List<MergeMarkEntity>>
 
+    @Query("SELECT pair_entry_id FROM merge_mark WHERE entry_id = :entryId LIMIT 1")
+    fun markedPair(entryId: String): Flow<String?>
+
+    @Query("SELECT entry_id FROM merge_mark")
+    suspend fun markedIds(): List<String>
+
     @Query("DELETE FROM merge_mark WHERE entry_id = :entryId")
     suspend fun clearMark(entryId: String)
 }

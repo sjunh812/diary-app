@@ -313,6 +313,7 @@ private fun Content(
                         onBack = pop.takeUnless { twoPane },
                         onEdit = { backStack.add(WriteKey(entryId = key.entryId)) },
                         onPhoto = { backStack.add(PhotoViewerKey(key.entryId, it)) },
+                        onOtherVersion = backStack::openEntry,
                         onTrashed = {
                             backStack.remove(key)
                             onTrashed(key.entryId)

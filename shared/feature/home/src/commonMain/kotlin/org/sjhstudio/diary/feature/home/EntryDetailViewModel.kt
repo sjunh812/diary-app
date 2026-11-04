@@ -38,6 +38,10 @@ class EntryDetailViewModel(
         viewModelScope.launch { entries.setFavorite(entryId, !entry.isFavorite) }
     }
 
+    fun dismissKeptBoth() {
+        viewModelScope.launch { entries.clearKeptBoth(entryId) }
+    }
+
     fun moveToTrash() {
         viewModelScope.launch {
             entries.moveToTrash(entryId)

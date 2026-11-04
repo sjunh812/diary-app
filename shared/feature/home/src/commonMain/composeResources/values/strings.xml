@@ -16,4 +16,9 @@
     <string name="detail_photo_page">%1$d / %2$d</string>
     <string name="detail_missing_photo">Photo not found</string>
     <string name="home_search">Search</string>
+    <string name="detail_kept_both_title">Kept in two versions</string>
+    <string name="detail_kept_both_body">This was edited on both sides. You can keep just the one you like.</string>
+    <string name="detail_kept_both_other">See the other</string>
+    <string name="detail_kept_both_close">Close</string>
+    <string name="detail_elsewhere_photo">This photo is on the original phone</string>
 </resources>

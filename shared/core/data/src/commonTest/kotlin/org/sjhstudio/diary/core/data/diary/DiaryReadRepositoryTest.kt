@@ -17,6 +17,7 @@ import kotlinx.datetime.YearMonth
 import okio.fakefilesystem.FakeFileSystem
 import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.database.EntryEntity
+import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.MediaStatus
@@ -47,6 +48,38 @@ class DiaryReadRepositoryTest {
         val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
 
         assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryEntity).id })
+    }
+
+    private suspend fun keepBoth(a: String, b: String) {
+        db.seed(entry(a), entry(b))
+        db.backupDao().mark(listOf(MergeMarkEntity(a, "kept_both", b, "drive", 1), MergeMarkEntity(b, "kept_both", a, "drive", 1)))
+    }
+
+    @Test
+    fun kept_both_entry_points_at_its_pair() = runTest {
+        keepBoth("a", "b")
+
+        assertEquals("b", entries.entry("a").first()?.keptBothWith)
+        assertEquals(true, entries.day(LocalDate.parse("2026-10-31")).first().all { it.keptBoth })
+    }
+
+    @Test
+    fun closing_the_mark_clears_both_sides() = runTest {
+        keepBoth("a", "b")
+
+        entries.clearKeptBoth("a")
+
+        assertEquals(null, entries.entry("b").first()?.keptBothWith)
+        assertEquals(2, entries.day(LocalDate.parse("2026-10-31")).first().size)
+    }
+
+    @Test
+    fun trashing_one_side_clears_both_marks() = runTest {
+        keepBoth("a", "b")
+
+        entries.moveToTrash("b")
+
+        assertEquals(null, entries.entry("a").first()?.keptBothWith)
     }
 
     @Test

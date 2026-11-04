@@ -46,6 +46,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryPhoto
 import org.sjhstudio.diary.feature.home.resources.Res
+import org.sjhstudio.diary.feature.home.resources.detail_elsewhere_photo
 import org.sjhstudio.diary.feature.home.resources.detail_missing_photo
 import org.sjhstudio.diary.feature.home.resources.detail_photo_close
 import org.sjhstudio.diary.feature.home.resources.detail_photo_page
@@ -122,8 +123,11 @@ private fun ZoomablePhoto(photo: EntryPhoto) {
     ) {
         if (photo.path == null) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                DiaryIcon(DiaryIcons.ImageOff, contentDescription = null, tint = colors.onAccent)
-                BasicText(stringResource(Res.string.detail_missing_photo), style = DiaryTheme.typography.body.copy(color = colors.onAccent))
+                DiaryIcon(if (photo.pending) DiaryIcons.Image else DiaryIcons.ImageOff, contentDescription = null, tint = colors.onAccent)
+                BasicText(
+                    stringResource(if (photo.pending) Res.string.detail_elsewhere_photo else Res.string.detail_missing_photo),
+                    style = DiaryTheme.typography.body.copy(color = colors.onAccent)
+                )
             }
         } else {
             AsyncImage(

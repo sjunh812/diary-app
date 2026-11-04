@@ -9,10 +9,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.ui.resources.Res
+import org.sjhstudio.diary.core.ui.resources.entry_kept_both
 
 /**
  * 목록 한 줄(`docs/design.md` 일기 줄). 메타는 기분 얼굴, 시각, 날씨, 장소, 즐겨찾기 별 순서다.
@@ -50,6 +53,13 @@ fun DiaryEntryLine(
                 BasicText(
                     it.highlighted(highlight, colors.accentText),
                     style = typography.caption.copy(color = colors.textSecondary),
+                    maxLines = 1
+                )
+            }
+            if (row.keptBoth) {
+                BasicText(
+                    stringResource(Res.string.entry_kept_both),
+                    style = typography.caption.copy(color = colors.accentText),
                     maxLines = 1
                 )
             }

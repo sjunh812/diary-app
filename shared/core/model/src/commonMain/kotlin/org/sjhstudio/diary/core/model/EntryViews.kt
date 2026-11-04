@@ -18,16 +18,18 @@ data class EntryRow(
     val weather: Weather?,
     val placeName: String?,
     val isFavorite: Boolean,
-    val photos: List<String?>
+    val photos: List<String?>,
+    /** 합치기에서 양쪽 다 고쳐 둘 다 남긴 일기. */
+    val keptBoth: Boolean = false
 ) {
     override fun toString(): String = "EntryRow"
 }
 
 /** 상세 화면 사진 한 장. [path]가 null이면 원래 기기에 있어 찾을 수 없는 사진이다. */
-data class EntryPhoto(val id: String, val path: String?, val width: Int?, val height: Int?)
+data class EntryPhoto(val id: String, val path: String?, val width: Int?, val height: Int?, val pending: Boolean = false)
 
 /** 상세 화면. 일기 내용이 들어 있어 [toString]에 담지 않는다. */
-data class EntryDetail(val entry: Entry, val photos: List<EntryPhoto>) {
+data class EntryDetail(val entry: Entry, val photos: List<EntryPhoto>, val keptBothWith: String? = null) {
     override fun toString(): String = "EntryDetail"
 }
 

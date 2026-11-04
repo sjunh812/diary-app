@@ -41,6 +41,7 @@ import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
+import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -63,6 +64,10 @@ import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.detail_back
 import org.sjhstudio.diary.feature.home.resources.detail_edit
 import org.sjhstudio.diary.feature.home.resources.detail_favorite
+import org.sjhstudio.diary.feature.home.resources.detail_kept_both_body
+import org.sjhstudio.diary.feature.home.resources.detail_kept_both_close
+import org.sjhstudio.diary.feature.home.resources.detail_kept_both_other
+import org.sjhstudio.diary.feature.home.resources.detail_kept_both_title
 import org.sjhstudio.diary.feature.home.resources.detail_more
 import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
@@ -78,6 +83,7 @@ fun EntryDetailRoute(
     onEdit: () -> Unit,
     onPhoto: (Int) -> Unit,
     onTrashed: () -> Unit,
+    onOtherVersion: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel = koinViewModel<EntryDetailViewModel>(key = entryId) { parametersOf(entryId) }
@@ -110,7 +116,7 @@ fun EntryDetailRoute(
             }
         }
         if (current != null) {
-            Body(current, diaryBodyTextStyle(look.font, look.size) { family }, onPhoto)
+            Body(current, diaryBodyTextStyle(look.font, look.size) { family }, onPhoto, onOtherVersion, viewModel::dismissKeptBoth)
         }
     }
     if (more && current != null) {
@@ -128,7 +134,13 @@ fun EntryDetailRoute(
 }
 
 @Composable
-internal fun Body(detail: EntryDetail, bodyStyle: androidx.compose.ui.text.TextStyle, onPhoto: (Int) -> Unit) {
+internal fun Body(
+    detail: EntryDetail,
+    bodyStyle: androidx.compose.ui.text.TextStyle,
+    onPhoto: (Int) -> Unit,
+    onOtherVersion: (String) -> Unit = {},
+    onDismissKeptBoth: () -> Unit = {}
+) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     val entry = detail.entry
@@ -158,6 +170,17 @@ internal fun Body(detail: EntryDetail, bodyStyle: androidx.compose.ui.text.TextS
                 DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
                 BasicText(it, style = caption, maxLines = 1)
             }
+        }
+        detail.keptBothWith?.let { other ->
+            DiaryStatusBox(
+                DiaryIcons.Copy,
+                stringResource(Res.string.detail_kept_both_title),
+                stringResource(Res.string.detail_kept_both_body),
+                actionLabel = stringResource(Res.string.detail_kept_both_other),
+                onAction = { onOtherVersion(other) },
+                secondaryLabel = stringResource(Res.string.detail_kept_both_close),
+                onSecondary = onDismissKeptBoth
+            )
         }
         if (detail.photos.isNotEmpty()) Gallery(detail.photos, onPhoto)
         DiaryRichText(entry.bodyHtml, bodyStyle, Modifier.padding(bottom = DiarySpacing.x10))
@@ -217,7 +240,7 @@ private fun Cell(photo: EntryPhoto, modifier: Modifier, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         if (photo.path == null) {
-            DiaryIcon(DiaryIcons.ImageOff, contentDescription = null, tint = colors.textTertiary)
+            DiaryIcon(if (photo.pending) DiaryIcons.Image else DiaryIcons.ImageOff, contentDescription = null, tint = colors.textTertiary)
         } else {
             AsyncImage(model = photo.path, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
         }

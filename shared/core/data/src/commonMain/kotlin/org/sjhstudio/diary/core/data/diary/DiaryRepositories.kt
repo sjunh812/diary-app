@@ -44,6 +44,9 @@ interface EntryRepository {
 
     suspend fun moveToTrash(id: String)
 
+    /** "두 가지로 남겼어요" 표시를 닫는다. 일기는 그대로다. */
+    suspend fun clearKeptBoth(id: String)
+
     suspend fun restore(id: String)
 }
 

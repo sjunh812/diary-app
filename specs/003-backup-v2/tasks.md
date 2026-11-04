@@ -138,9 +138,9 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T058 [US2] `{kt}/core/backup/MergeApplier.kt`: 한 트랜잭션으로 `contracts/merge-rules.md` 드라이브 합치기(휴지통, 사진 줄, `merge_mark`, `sync_base`), 설정 적용
 - [x] T059 [US2] `{kt}/core/backup/PhotoFetcher.kt`: `pending` 줄의 사진을 받아 `media/`에 쓰고 확인값이 맞으면 `normal`, 다르면 `missing`. `backup/restore.json`으로 잇기. 지금 백업과 같은 스케줄러(T043, T044)로 돈다
 - [ ] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6) (합치기 길은 됐다. 바꾸기, 파일에서 되살리기, 문의하기 줄이 남았다)
-- [ ] T061 [US2] 스펙 002 사진 칸·상세에서 `PENDING` 사진을 받는 중 표시와 "원래 기기에 있는 사진"으로, `MISSING`은 "찾을 수 없는 사진"으로 그린다. 스펙 002 사진 정리가 `pending`을 지우지 않는지 시험을 더한다
-- [ ] T062 [US2] 둘 다 남긴 일기 표시: 스펙 002 목록·상세에 `merge_mark` 줄이 있으면 "두 가지로 남겼어요"와 닫기·짝 보기. 닫거나 하나를 지우면 줄을 지운다
-- [ ] T063 [US2] 앱 시작 관문(스펙 001 `shared/app`)에 남은 복원 작업 잇기: `restore.json`이 `FetchingPhotos`면 사진 받기를 다시 건다
+- [x] T061 [US2] 스펙 002 사진 칸·상세에서 `PENDING` 사진을 받는 중 표시와 "원래 기기에 있는 사진"으로, `MISSING`은 "찾을 수 없는 사진"으로 그린다. 스펙 002 사진 정리가 `pending`을 지우지 않는지 시험을 더한다
+- [x] T062 [US2] 둘 다 남긴 일기 표시: 스펙 002 목록·상세에 `merge_mark` 줄이 있으면 "두 가지로 남겼어요"와 닫기·짝 보기. 닫거나 하나를 지우면 줄을 지운다
+- [x] T063 [US2] 앱 시작 관문(스펙 001 `shared/app`)에 남은 복원 작업 잇기: `restore.json`이 `FetchingPhotos`면 사진 받기를 다시 건다
 
 **Checkpoint**: 새 폰(Android, iOS 시뮬레이터)에서 드라이브 백업을 합쳐 되살린다.
 
