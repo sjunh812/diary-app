@@ -48,7 +48,7 @@
 
     <!-- 실패(M3) -->
     <string name="migration_failed_title">Couldn’t move your diary</string>
-    <string name="migration_failed_body_mismatch">Moving stopped because the moved entries didn’t match the originals. Your original diary stays as it is.</string>
+    <string name="migration_failed_body_mismatch">Something went wrong while checking the moved entries. Your original diary stays as it was.</string>
     <string name="migration_failed_body_snapshot">Moving stopped because your original diary couldn’t be copied. It stays as it is.</string>
     <string name="migration_failed_body_read">Moving stopped because the previous version’s files couldn’t be read. Your original diary stays as it is.</string>
     <string name="migration_failed_body_write">Moving stopped because entries couldn’t be saved in the new version. Your original diary stays as it is.</string>

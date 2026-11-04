@@ -42,7 +42,7 @@
 
     <!-- 失敗(M3) -->
     <string name="migration_failed_title">記録を移せませんでした</string>
-    <string name="migration_failed_body_mismatch">移した記録が元の記録と一致しなかったため、移行を止めました。元の記録はそのまま残ります。</string>
+    <string name="migration_failed_body_mismatch">移した記録の確認中に問題が起きました。元の記録はそのまま残っています。</string>
     <string name="migration_failed_body_snapshot">元の記録をコピーできなかったため、移行を止めました。元の記録はそのまま残ります。</string>
     <string name="migration_failed_body_read">以前のアプリのファイルを読み込めなかったため、移行を止めました。元の記録はそのまま残ります。</string>
     <string name="migration_failed_body_write">新しいアプリに記録を保存できなかったため、移行を止めました。元の記録はそのまま残ります。</string>

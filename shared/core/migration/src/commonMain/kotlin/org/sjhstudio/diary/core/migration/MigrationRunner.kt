@@ -27,6 +27,7 @@ import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.MigrationFailure
@@ -92,8 +93,11 @@ interface MigrationEvents {
  * 1.7.x 기록을 새 DB로 옮긴다(contracts/migration-flow.md, research R5~R8).
  *
  * 원본은 고치거나 지우지 않는다. 사본을 만들고, 사본을 읽어 임시 DB에 쓰고, 줄마다 지문으로 검증한 뒤에야
- * 임시 DB를 `diary.db`로 이름만 바꾼다. 어느 단계에서 끊겨도 다음 시작에 처음부터 다시 하고,
- * 실패하면 임시 DB만 지운다. 사본과 옮긴 사진은 남긴다(헌법 I).
+ * 임시 DB를 `diary.db`로 이름만 바꾼다. 어느 단계에서 끊겨도 다음 시작에 처음부터 다시 한다.
+ *
+ * 일기 몇 편이 문제여도 멈추지 않는다. 그 일기만 빼고 나머지를 옮겨 앱을 쓰게 하고, 뺀 일기는 결과에 알린 뒤
+ * 앱이 업데이트되면 다시 읽는다(2026-11-04 사용자 결정). 사진 파일이 깨졌으면 일기는 두고 사진만 찾을 수 없는 사진이 된다.
+ * 한 편도 옮기지 못할 때만 실패다. 실패하면 임시 DB만 지우고 사본과 옮긴 사진은 남긴다(헌법 I).
  */
 class MigrationRunner(
     private val fileSystem: FileSystem,
@@ -193,13 +197,17 @@ class MigrationRunner(
             writeStep(step, attempt, startedAt)
             events.started(notes.size, fragments.size, attempt)
             val counts = Counts()
+            var leftOut = 0
             fileSystem.createDirectories(paths.migrationDir)
             val db = openDatabase(paths.newDatabase.toString())
             try {
                 copy(db, notes, fragments.size, counts)
+                // 한 편도 쓰지 못했으면 새 DB 자체가 문제다.
+                check(counts.written > 0) { "한 편도 쓰지 못함" }
                 step = MigrationStep.VERIFYING
                 writeStep(step, attempt, startedAt)
-                verify(db, notes.size)
+                leftOut = verify(db, notes.size, counts = counts)
+                if (leftOut == notes.size) throw MismatchException()
             } finally {
                 db.close()
             }
@@ -215,7 +223,7 @@ class MigrationRunner(
             }
             paths.databasePath.parent?.let(fileSystem::createDirectories)
             fileSystem.atomicMove(paths.newDatabase, paths.databasePath)
-            val report = counts.toReport(notes.size, summary.unreadable)
+            val report = counts.toReport(notes.size - leftOut, summary.unreadable + leftOut)
             store.writeReport(report)
             writeFinal(if (report.outcome == MigrationOutcome.PARTIAL) MigrationStep.PARTIAL else MigrationStep.DONE, attempt, startedAt)
             events.finished(report, (clock.now() - startedAt).inWholeMilliseconds)
@@ -259,31 +267,58 @@ class MigrationRunner(
         var photosDone = 0
         _progress.value = MigrationProgress(MigrationStep.COPYING, 0, notes.size, 0, photosTotal)
         for (chunk in notes.chunked(CHUNK)) {
-            val entries = ArrayList<org.sjhstudio.diary.core.database.EntryEntity>(chunk.size)
-            val media = ArrayList<MediaEntity>()
+            val rows = ArrayList<CopiedRow>(chunk.size)
             val copied = ArrayList<Path>()
             for (note in chunk) {
-                val mapped = mapper.map(note)
-                if (mapped.dateUnparsed) counts.dateUnparsed++
-                if (mapped.dateDiffers) counts.dateDiffers++
-                entries += mapped.entry.asEntity()
-                for (photo in importer.import(mapped.entry.id, PhotoPaths.fragments(note.picture))) {
-                    media += photo.media.asEntity()
+                // 바꾸지 못하는 일기 한 편은 검증에서 빠진 일기로 센다.
+                val mapped =
+                    try {
+                        mapper.map(note)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        continue
+                    }
+                val photos = importer.import(mapped.entry.id, PhotoPaths.fragments(note.picture))
+                for (photo in photos) {
                     records += photo.record
-                    if (photo.found) counts.photosFound++ else counts.photosMissing++
                     photo.media.fileName?.takeIf { photo.found }?.let { copied += paths.mediaDir / it }
                     photosDone++
                 }
+                rows += CopiedRow(mapped, photos)
             }
             counts.thumbnailsFailed += makeThumbnails(copied)
-            db.withWriteTransaction {
-                db.entryDao().insertAll(entries)
-                db.mediaDao().insertAll(media)
-            }
+            write(db, rows).forEach(counts::add)
             done += chunk.size
             _progress.value = MigrationProgress(MigrationStep.COPYING, done, notes.size, photosDone, photosTotal)
         }
         writePhotosJson(records)
+    }
+
+    /** 묶음째 쓰고, 실패하면 한 편씩 써서 문제없는 일기는 살린다. 쓴 줄을 돌려준다. */
+    private suspend fun write(db: DiaryDatabase, rows: List<CopiedRow>): List<CopiedRow> {
+        try {
+            db.withWriteTransaction { insert(db, rows) }
+            return rows
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return rows.filter { row ->
+                try {
+                    db.withWriteTransaction { insert(db, listOf(row)) }
+                    true
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    false
+                }
+            }
+        }
+    }
+
+    private suspend fun insert(db: DiaryDatabase, rows: List<CopiedRow>) {
+        db.entryDao().insertAll(rows.map { it.mapped.entry.asEntity() })
+        db.mediaDao().insertAll(rows.flatMap { row -> row.photos.map { it.media.asEntity() } })
     }
 
     /** 썸네일을 최대 3개씩 나란히 만든다(contracts/migration-flow.md `Copying`). 못 만든 수를 돌려준다. */
@@ -300,28 +335,70 @@ class MigrationRunner(
 
     /**
      * 사본을 다시 읽어 줄마다 원본 지문과 새 DB 지문을 견준다(research R6).
-     * 사진 파일은 있어야 하고 다시 잰 해시가 이름과 같아야 한다.
+     * 지문이 다른 일기는 새 DB에서 뺀다. 사본은 그대로라 앱이 업데이트되면 다시 읽는다.
+     * 사진 파일이 없거나 해시가 이름과 다르면 일기는 두고 그 사진만 찾을 수 없는 사진으로 바꾼다.
+     * 빠진 일기 수를 돌려준다. [only]가 있으면 그 레거시 번호만 본다(새로 쓴 일기가 있는 다시 읽기).
      */
-    private suspend fun verify(db: DiaryDatabase, expectedRows: Int) {
+    private suspend fun verify(db: DiaryDatabase, expectedRows: Int, only: Set<Int>? = null, counts: Counts? = null): Int {
         val photoHashes = readPhotosJson().associate { it.path to it.sha256 }
         val (notes, _) = readSnapshot() ?: throw MismatchException()
-        if (notes.size != expectedRows || db.entryDao().countAll() != expectedRows) throw MismatchException()
+        if (notes.size != expectedRows) throw MismatchException()
         val mapper = LegacyEntryMapper(clock.now().toLocalDateTime(timeZone).date, timeZone) { "" }
-        val checkedFiles = HashSet<String>()
+        val goodFiles = HashSet<String>()
+        val brokenFiles = HashSet<String>()
+        val brokenPaths = HashSet<String>()
+        var leftOut = 0
         _progress.value = _progress.value.copy(step = MigrationStep.VERIFYING)
         for (note in notes) {
-            val entry = db.entryDao().getByLegacyId(note.id.toInt())?.asModel() ?: throw MismatchException()
+            if (only != null && note.id.toInt() !in only) continue
+            val entity = db.entryDao().getByLegacyId(note.id.toInt())
+            if (entity == null) {
+                leftOut++
+                continue
+            }
+            val entry = entity.asModel()
             val media = db.mediaDao().forEntry(entry.id).map { it.asModel() }
             val photos = PhotoPaths.fragments(note.picture).map { Fingerprint.LegacyPhoto(it, photoHashes[it]) }
             // 매핑은 이전한 날 같은 대체 값을 다시 만들기 때문에 날짜·시각은 새 DB 값을 원본 규칙으로 다시 견준다.
-            val mapped = mapper.map(note).let { it.copy(entry = it.entry.copy(date = entry.date, time = entry.time)) }
-            if (Fingerprint.legacyCanonical(note, mapped, photos) != Fingerprint.restoredCanonical(entry, media)) throw MismatchException()
-            if (!sameDateRule(note, entry)) throw MismatchException()
+            val same =
+                runCatching {
+                    val mapped = mapper.map(note).let { it.copy(entry = it.entry.copy(date = entry.date, time = entry.time)) }
+                    Fingerprint.legacyCanonical(note, mapped, photos) == Fingerprint.restoredCanonical(entry, media) &&
+                        sameDateRule(note, entry)
+                }.getOrDefault(false)
+            if (!same) {
+                counts?.remove(media)
+                db.entryDao().deletePermanently(entry.id)
+                leftOut++
+                continue
+            }
             for (m in media) {
                 val name = m.fileName ?: continue
-                if (m.status == MediaStatus.NORMAL && checkedFiles.add(name) && !importer.verify(name)) throw MismatchException()
+                if (m.status != MediaStatus.NORMAL || name in goodFiles) continue
+                if (name !in brokenFiles && importer.verify(name)) {
+                    goodFiles += name
+                    continue
+                }
+                brokenFiles += name
+                m.legacyPath?.let(brokenPaths::add)
+                db.mediaDao().update(
+                    m.copy(
+                        status = MediaStatus.MISSING,
+                        fileName = null,
+                        sha256 = null,
+                        width = null,
+                        height = null,
+                        byteSize = null
+                    ).asEntity()
+                )
+                counts?.photoBroke()
             }
         }
+        // 끊겨서 다시 검증할 때 지문이 맞도록 고친 사진을 목록에도 적는다.
+        if (brokenPaths.isNotEmpty()) {
+            writePhotosJson(readPhotosJson().map { if (it.path in brokenPaths) it.copy(sha256 = null, size = null) else it })
+        }
+        return leftOut
     }
 
     /** 원본 날짜·시각을 읽을 수 있었던 줄은 새 DB 값이 그 규칙과 같아야 한다. */
@@ -338,12 +415,13 @@ class MigrationRunner(
         val db = openDatabase(paths.databasePath.toString())
         val report =
             try {
-                verify(db, notes.size)
+                val leftOut = verify(db, notes.size)
+                if (leftOut == notes.size) throw MismatchException()
                 val records = readPhotosJson()
                 Counts(
                     photosFound = records.count { it.sha256 != null },
                     photosMissing = records.count { it.sha256 == null }
-                ).toReport(notes.size, summary.unreadable)
+                ).toReport(notes.size - leftOut, summary.unreadable + leftOut)
             } finally {
                 db.close()
             }
@@ -369,26 +447,33 @@ class MigrationRunner(
         val known = db.entryDao().legacyIds().toHashSet()
         val missing = notes.filter { it.id.toInt() !in known }
         val counts = Counts()
-        if (missing.isNotEmpty()) copy(db, missing, missing.sumOf { PhotoPaths.fragments(it.picture).size }, counts)
+        var leftOut = 0
+        if (missing.isNotEmpty()) {
+            copy(db, missing, missing.sumOf { PhotoPaths.fragments(it.picture).size }, counts)
+            // 사용자가 쓰고 고친 일기는 건드리지 않게 방금 더한 줄만 본다.
+            leftOut = verify(db, notes.size, only = missing.map { it.id.toInt() }.toSet(), counts = counts)
+        }
+        val added = missing.size - leftOut
+        val unreadable = summary.unreadable + leftOut
         val old = store.readReport()
         val report =
             (old ?: emptyReport()).copy(
                 entriesTotal = notes.size + summary.unreadable,
-                entriesMigrated = (old?.entriesMigrated ?: 0) + missing.size,
-                entriesUnreadable = summary.unreadable,
+                entriesMigrated = (old?.entriesMigrated ?: 0) + added,
+                entriesUnreadable = unreadable,
                 photosFound = (old?.photosFound ?: 0) + counts.photosFound,
                 photosMissing = (old?.photosMissing ?: 0) + counts.photosMissing,
                 dateDiffers = (old?.dateDiffers ?: 0) + counts.dateDiffers,
                 dateUnparsed = (old?.dateUnparsed ?: 0) + counts.dateUnparsed,
                 thumbnailsFailed = (old?.thumbnailsFailed ?: 0) + counts.thumbnailsFailed,
                 finishedAt = clock.now(),
-                outcome = if (summary.unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
+                outcome = if (unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
             )
         store.writeReport(report)
         if (report.outcome == MigrationOutcome.DONE) {
             store.writeState(store.readState().copy(step = MigrationStep.DONE, updatedAt = clock.now()))
         }
-        missing.size
+        added
     }
 
     /**
@@ -481,8 +566,27 @@ class MigrationRunner(
         var photosMissing: Int = 0,
         var dateDiffers: Int = 0,
         var dateUnparsed: Int = 0,
-        var thumbnailsFailed: Int = 0
+        var thumbnailsFailed: Int = 0,
+        var written: Int = 0
     ) {
+        /** 새 DB에 들어간 일기만 센다. */
+        fun add(row: CopiedRow) {
+            written++
+            if (row.mapped.dateUnparsed) dateUnparsed++
+            if (row.mapped.dateDiffers) dateDiffers++
+            for (photo in row.photos) if (photo.found) photosFound++ else photosMissing++
+        }
+
+        /** 검증에서 뺀 일기의 사진을 뺀다. */
+        fun remove(media: List<Media>) {
+            for (m in media) if (m.status == MediaStatus.NORMAL) photosFound-- else photosMissing--
+        }
+
+        fun photoBroke() {
+            photosFound--
+            photosMissing++
+        }
+
         fun toReport(migrated: Int, unreadable: Int) = MigrationReport(
             entriesTotal = migrated + unreadable,
             entriesMigrated = migrated,
@@ -557,6 +661,8 @@ class MigrationRunner(
     }
 
     private class MismatchException : Exception()
+
+    private class CopiedRow(val mapped: MappedEntry, val photos: List<ImportedPhoto>)
 
     private companion object {
         /** 한 트랜잭션에 쓰는 줄 수(contracts/migration-flow.md Copying). */

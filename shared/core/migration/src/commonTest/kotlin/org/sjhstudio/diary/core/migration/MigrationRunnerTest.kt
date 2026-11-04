@@ -57,19 +57,38 @@ class MigrationRunnerTest {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
-        fun runner(versionCode: Int = 37, makeThumbnail: (suspend (Path) -> Boolean)? = null, openDb: (String) -> DiaryDatabase = ::open) =
-            MigrationRunner(
-                fileSystem = dir.fs,
-                paths = paths,
-                clock = clock,
-                timeZone = TimeZone.of("Asia/Seoul"),
-                newId = { "id-${ids++}" },
-                freeBytes = { free },
-                openDatabase = openDb,
-                imageSize = { 100 to 50 },
-                versionCode = versionCode,
-                makeThumbnail = makeThumbnail
-            )
+        fun runner(
+            versionCode: Int = 37,
+            makeThumbnail: (suspend (Path) -> Boolean)? = null,
+            openDb: (String) -> DiaryDatabase = ::open,
+            events: MigrationEvents = object : MigrationEvents {}
+        ) = MigrationRunner(
+            fileSystem = dir.fs,
+            paths = paths,
+            clock = clock,
+            timeZone = TimeZone.of("Asia/Seoul"),
+            newId = { "id-${ids++}" },
+            freeBytes = { free },
+            openDatabase = openDb,
+            imageSize = { 100 to 50 },
+            versionCode = versionCode,
+            makeThumbnail = makeThumbnail,
+            events = events
+        )
+
+        /** 검증에 들어설 때 [action]을 한다. 복사와 검증 사이에 무언가 어긋난 상황을 만든다. */
+        fun onVerifying(action: () -> Unit) = object : MigrationEvents {
+            override fun stepStarted(step: MigrationStep) {
+                if (step == MigrationStep.VERIFYING) action()
+            }
+        }
+
+        /** 사진 목록의 해시를 바꿔 그 사진이 든 일기의 지문이 어긋나게 한다. */
+        fun breakFingerprints() {
+            val list = paths.photosJson
+            val text = dir.fs.read(list) { readUtf8() }
+            dir.fs.write(list) { writeUtf8(text.replace(Regex("\"sha256\":\"[0-9a-f]{64}\""), "\"sha256\":\"${"0".repeat(64)}\"")) }
+        }
 
         fun photo(name: String, bytes: ByteArray): Path = dir.write("cache/$name", bytes)
 
@@ -294,6 +313,85 @@ class MigrationRunnerTest {
             } finally {
                 db.close()
             }
+        }
+    }
+
+    /** 몇 편이 어긋나도 나머지는 옮기고 앱을 쓰게 한다. 뺀 일기는 업데이트 뒤 다시 읽는다(2026-11-04 사용자 결정). */
+    @Test
+    fun an_entry_that_fails_checking_is_left_out_and_the_rest_moves() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(
+                    LegacyFixtures.Row("2024-01-01 10:00:00", contents = "사진 없는 일기"),
+                    LegacyFixtures.Row("2024-01-02 10:00:00", contents = "사진 있는 일기", picture = picture.toString())
+                )
+            ).close()
+
+            val result = assertIs<MigrationResult.Finished>(env.runner(events = env.onVerifying(env::breakFingerprints)).run())
+
+            assertEquals(MigrationOutcome.PARTIAL, result.report.outcome)
+            assertEquals(1, result.report.entriesMigrated)
+            assertEquals(1, result.report.entriesUnreadable)
+            assertEquals(0, result.report.photosFound)
+            assertEquals(MigrationStep.PARTIAL, env.runner().state().step)
+            assertTrue(dir.fs.exists(env.paths.databasePath))
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                assertEquals(1, db.entryDao().countAll())
+                // 다음 버전은 뺀 일기를 다시 읽어 옮긴다.
+                assertEquals(1, env.runner(versionCode = 38).retryPartial(db))
+                assertEquals(2, db.entryDao().countAll())
+            } finally {
+                db.close()
+            }
+            assertEquals(MigrationStep.DONE, env.runner().state().step)
+        }
+    }
+
+    /** 옮길 수 있는 일기가 한 편도 없으면 빈 앱으로 넘기지 않고 알린다. */
+    @Test
+    fun nothing_moved_is_a_failure() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = picture.toString()))
+            ).close()
+
+            val failed = assertIs<MigrationResult.Failed>(env.runner(events = env.onVerifying(env::breakFingerprints)).run())
+
+            assertEquals(MigrationFailureKind.MISMATCH, failed.kind)
+            assertTrue(dir.fs.exists(env.paths.snapshotDir / "note.db"))
+        }
+    }
+
+    /** 사진 파일이 깨져도 일기는 옮기고 그 사진만 찾을 수 없는 사진이 된다. 끊겨서 다시 검증해도 일기를 빼지 않는다. */
+    @Test
+    fun a_broken_photo_file_keeps_the_entry() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = picture.toString()))
+            ).close()
+            val broken = env.onVerifying {
+                dir.fs.list(env.paths.mediaDir).forEach { file -> dir.fs.write(file) { writeUtf8("깨짐") } }
+            }
+
+            val result = assertIs<MigrationResult.Finished>(env.runner(events = broken).run())
+
+            assertEquals(MigrationOutcome.DONE, result.report.outcome)
+            assertEquals(1, result.report.entriesMigrated)
+            assertEquals(0, result.report.photosFound)
+            assertEquals(1, result.report.photosMissing)
+            val store = MigrationStateStore(dir.fs, env.paths.migrationDir)
+            store.writeState(store.readState().copy(step = MigrationStep.COMMITTING))
+            assertEquals(1, assertIs<MigrationResult.Finished>(env.runner().run()).report.entriesMigrated)
         }
     }
 

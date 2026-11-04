@@ -42,7 +42,7 @@
 
     <!-- 실패(M3) -->
     <string name="migration_failed_title">기록을 옮기지 못했어요</string>
-    <string name="migration_failed_body_mismatch">옮긴 기록이 원본과 달라서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_failed_body_mismatch">옮긴 일기를 확인하다가 문제가 생겼어요. 원래 기록은 그대로 있어요.</string>
     <string name="migration_failed_body_snapshot">원래 기록을 복사하지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
     <string name="migration_failed_body_read">예전 앱 파일을 읽지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
     <string name="migration_failed_body_write">새 앱에 기록을 쓰지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>

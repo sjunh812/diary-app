@@ -22,10 +22,12 @@
 | `Snapshotting` | 남은 공간 확인(research R8 식). `note.db`, `-wal`, `-shm`을 스트림으로 `legacy-snapshot/`에 복사하며 원본 SHA-256을 잰다. `pref.xml`(비밀번호 줄 뺌), `pref2.xml` 복사. `snapshot.json` 쓰기 | `NO_SPACE`(필요한 양 함께), `SNAPSHOT_IO` |
 | (판단) | 사본을 열어 `Note` 줄 수를 센다. 0이면 `Done`(결과 화면 없음, US1-9) | `READ_ERROR` |
 | `Copying` | 사본을 `_id` 순으로 읽어 `contracts/legacy-mapping.md`대로 바꾸고 `diary-new.db`에 200줄씩 트랜잭션으로 쓴다. 사진은 `media/`로 복사하고 `photos.json`에 적는다. 썸네일은 최대 3개씩 나란히(실패는 세기만). 깨진 범위는 반씩 나눠 읽히는 줄만 건진다 | `READ_ERROR`, `WRITE_ERROR` |
-| `Verifying` | 사본을 다시 읽어 줄마다 `legacyCanonical`과 새 DB의 `restoredCanonical`을 견주고, 사진 파일 해시와 개수를 본다 | `MISMATCH` |
+| `Verifying` | 사본을 다시 읽어 줄마다 `legacyCanonical`과 새 DB의 `restoredCanonical`을 견주고, 사진 파일 해시를 본다. 지문이 다른 일기는 새 DB에서 빼고 못 읽은 일기로 센다. 사진 파일이 깨졌으면 일기는 두고 그 사진만 `missing`으로 바꾼다 | 한 편도 남지 않을 때만 `MISMATCH` |
 | `Committing` | `diary-new.db`를 닫고 `diary.db`로 이름을 바꾼 뒤 `report.json`, `Done`(못 읽은 줄이 있으면 `Partial`)을 쓴다 | 다음 시작에서 지문만 다시 보고 맞으면 `Done` |
 
-모든 실패는 `Failed`와 `failure.kind`를 쓰고 `diary-new.db`를 지운다. `legacy-snapshot/`과 `media/`는 남긴다.
+일기 한 편의 문제로는 멈추지 않는다. 바꾸기나 쓰기에 실패한 일기는 빼고 나머지를 옮겨 `Partial`로 끝낸다. 뺀 일기는 앱이 업데이트된 뒤 처음 열 때 다시 읽는다(2026-11-04 사용자 결정).
+
+실패는 공간 부족, 사본 실패, 읽기 실패, 한 편도 옮기지 못한 경우뿐이다. 모든 실패는 `Failed`와 `failure.kind`를 쓰고 `diary-new.db`를 지운다. `legacy-snapshot/`과 `media/`는 남긴다.
 
 ## 화면 상태 (`MigrationGate`)
 
