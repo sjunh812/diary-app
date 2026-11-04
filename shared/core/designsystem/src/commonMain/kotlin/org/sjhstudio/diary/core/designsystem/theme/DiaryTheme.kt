@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.text.font.FontFamily
 
 private val LocalDiaryColors = staticCompositionLocalOf { LightDiaryColors }
 private val LocalDiaryTypography = staticCompositionLocalOf<DiaryTypography> { error("DiaryTheme 안에서만 쓴다") }
@@ -18,9 +19,9 @@ private val LocalDiaryTypography = staticCompositionLocalOf<DiaryTypography> { e
  * MaterialTheme은 시트·대화상자 같은 Material 컴포넌트가 스스로 고르는 색과 글자를 우리 토큰에 맞추려고만 깐다.
  */
 @Composable
-fun DiaryTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
+fun DiaryTheme(darkTheme: Boolean, fontFamily: FontFamily? = null, content: @Composable () -> Unit) {
     val colors = if (darkTheme) DarkDiaryColors else LightDiaryColors
-    val typography = diaryTypography()
+    val typography = diaryTypography(fontFamily)
     CompositionLocalProvider(LocalDiaryColors provides colors, LocalDiaryTypography provides typography) {
         MaterialTheme(
             colorScheme = colors.toMaterialColorScheme(darkTheme),
@@ -30,6 +31,10 @@ fun DiaryTheme(darkTheme: Boolean, content: @Composable () -> Unit) {
     }
 }
 
+/**
+ * 사용자가 고른 글꼴은 [fontFamily]로 받아 앱 전체 글자에 쓴다. null이면 기본 글꼴이다.
+ * 글자 크기·굵기·줄 높이는 글꼴과 상관없이 같은 토큰이다.
+ */
 object DiaryTheme {
     val colors: DiaryColors
         @Composable @ReadOnlyComposable

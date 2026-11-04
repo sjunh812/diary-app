@@ -214,6 +214,7 @@
   근거: [Play Feature Delivery](https://developer.android.com/guide/playcore/feature-delivery), [On-Demand Resources](https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/On_Demand_Resources_Guide/Managing.html).
   Google Play 서비스의 Downloadable Fonts([문서](https://developer.android.com/guide/topics/ui/look-and-feel/downloadable-fonts))는 Google Fonts에 있는 4종에만 쓸 수 있고
   마루 부리·점꼴체에는 못 써서, 한 가지 방식으로 맞추려고 쓰지 않는다. Play Asset Delivery는 문서가 게임을 기준으로 설명해 앱에 쓰는지 확인하지 못했다.
+- 글꼴 적용 범위: 고른 글꼴은 앱 전체에 쓴다(2026-11-04 사용자 결정으로 일기 본문에서 넓혔다).
 - 글자 크기: 앱 틀(탭, 설정, 버튼)은 앱 설정 없이 기기 글자 크기를 따른다(Android sp·글꼴 배율, iOS Dynamic Type). 앱 설정 "본문 글자 크기"는
   일기 본문(쓰기·상세·목록 미리보기)에만 걸리고 기기 글자 크기 위에 곱해진다. 단계는 5개 15/24, 17/28(기본, `reading`), 19/30, 21/34, 24/38이고
   미리보기 문장을 보며 고른다. 옛 `font_size`는 같은 자리로 옮긴다: 0·1 → 15, 2 → 17, 3 → 19, 4 → 21(사용자 결정 2026-11-01, 옛 동작에 묶이지 않는다).

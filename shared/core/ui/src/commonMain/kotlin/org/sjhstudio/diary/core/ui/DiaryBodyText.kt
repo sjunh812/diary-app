@@ -20,9 +20,9 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
     setOf(DiaryFont.PRETENDARD, DiaryFont.SYSTEM, DiaryFont.KKOMI, DiaryFont.NANUM_PEN, DiaryFont.CAFE24_SURROUND, DiaryFont.MARU_BURI)
 
 /**
- * 일기 본문 글꼴. 앱에 넣은 글꼴은 리소스에서 읽고, 받는 글꼴은 [installed]가 돌려주는 받은 파일로 만든다.
+ * 사용자가 고른 글꼴. 앱에 넣은 글꼴은 리소스에서 읽고, 받는 글꼴은 [installed]가 돌려주는 받은 파일로 만든다.
  * 받기 전이거나 읽지 못하면 Pretendard로 보인다(글꼴을 받는 동안에도 일기는 읽힌다).
- * 고른 글꼴 하나만 읽는다. 본문 글꼴은 일기 본문에만 쓴다(헌법 V).
+ * 고른 글꼴 하나만 읽는다. 앱 전체 글자에 쓴다(헌법 V, 2026-11-04 사용자 결정).
  */
 @Composable
 fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = when (font) {
@@ -37,7 +37,7 @@ fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? =
 
 /**
  * 일기 본문 글자 스타일: 고른 글꼴과 본문 글자 크기 단계(research R17).
- * 크기는 sp라 기기 글자 크기 위에 곱해진다. 메뉴와 버튼은 이 스타일을 쓰지 않는다.
+ * 크기는 sp라 기기 글자 크기 위에 곱해진다. 글자 크기 단계는 일기 본문에만 걸려서 메뉴와 버튼은 이 스타일을 쓰지 않는다.
  */
 @Composable
 fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily? = { null }): TextStyle =
