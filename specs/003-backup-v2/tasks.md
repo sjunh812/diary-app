@@ -79,7 +79,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T029 [P] `shared/core/backup/{test}/core/backup/SnapshotWriterTest.kt`: 기기 표가 비었는지, 휴지통 일기·`missing`·`pending` 줄이 그대로인지, 쓰는 중에 다른 코루틴이 일기를 써도 사본이 한 시점인지
 - [x] T030 [P] `shared/core/platform/{kt}/core/platform/`에 `NetworkState`(연결 여부, 데이터 요금 없는 연결인지), `DeviceName`, `FreeSpace`, `BackupNotifier`, `BackupScheduler`의 expect/actual 뼈대와 `core/testing`의 대역
 - [x] T031 [P] 스펙 001 `contracts/app-shell.md` 사용 통계 고정 표에 `contracts/backup-flow.md`의 `backup_*`, `restore_run` 줄을 더하고 `shared/core/platform/{kt}/core/platform/AnalyticsEvents.kt`에 반영한다. `BackupError(kind, step)`로 바꾸는 함수와 시험(메시지에 경로·파일 이름이 없음)
-- [ ] T032 `shared/core/data/{kt}/core/data/BackupStatusRepository.kt`: `BackupStore`, `backup_media`, `media`, 진행 상태를 묶어 `BackupStatus` 흐름을 낸다(홈·설정이 같이 받음)
+- [x] T032 `shared/core/data/{kt}/core/data/BackupStatusRepository.kt`: `BackupStore`, `backup_media`, `media`, 진행 상태를 묶어 `BackupStatus` 흐름을 낸다(홈·설정이 같이 받음)
 
 ---
 
@@ -106,9 +106,9 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T042 [US1] `{kt}/core/backup/RetentionPolicy.kt`, `MediaJanitor.kt`: `contracts/backup-format.md` "보관과 정리"
 - [ ] T043 [US1] `shared/core/platform/{android}/core/platform/AndroidBackupScheduler.kt` 지금 백업: Android 14 이상 `BackupTransferJobService`(사용자가 시작한 데이터 전송, 진행 알림), 13 이하 급한 작업 + `setForeground`(`dataSync`), `onTimeout`·작업 멈춤에서 상태 남기기(research R14)
 - [ ] T044 [P] [US1] `shared/core/platform/{ios}/core/platform/IosBackupScheduler.kt`와 `iosApp/iosApp/Backup/ContinuedBackupTask.swift`: 앞에서는 공통 코드로, iOS 26 이상은 `BGContinuedProcessingTask`로 넘겨 진행 보고, 17~25는 `beginBackgroundTask` 안에서 조각(research R15)
-- [ ] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
+- [x] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
 - [ ] T046 [US1] 홈 머리 백업 상태 줄 컴포넌트 `shared/feature/backup/{kt}/feature/backup/BackupStatusLine.kt`를 내보내고 스펙 002 홈에 꽂는다(`contracts/backup-flow.md` 상태 표시). Figma 홈 백업 상태와 권하기 (B11)
-- [ ] T047 [P] [US1] `shared/feature/backup/{res}/values/strings.xml`: 백업 화면·상태 줄·README·진행 알림 문구(해요체, README 둘째 단락은 영어). 한국어 스킬로 다듬는다
+- [x] T047 [P] [US1] `shared/feature/backup/{res}/values/strings.xml`: 백업 화면·상태 줄·README·진행 알림 문구(해요체, README 둘째 단락은 영어). 한국어 스킬로 다듬는다
 - [ ] T048 [US1] 실제 드라이브 시험 `shared/core/backup/src/androidDeviceTest/.../RealDriveBackupTest.kt`(시험 계정, CI 비밀값이 있을 때만): 왕복 준비용 백업, 끝나면 시험 폴더 지우기
 
 **Checkpoint**: 지금 백업이 끝까지 되고 드라이브 확인값으로 완료를 말한다.

@@ -94,6 +94,8 @@
     <string name="migration_deferred_failed">今回も移せませんでした。アプリを更新するともう一度試します。</string>
     <string name="migration_deferred_retry">もう一度試す</string>
     <string name="migration_deferred_running">移しています</string>
+    <string name="settings_group_backup">バックアップ</string>
+    <string name="settings_backup">バックアップと復元</string>
     <string name="settings_group_diary">日記</string>
     <string name="settings_trash">ゴミ箱</string>
     <plurals name="settings_trash_count">

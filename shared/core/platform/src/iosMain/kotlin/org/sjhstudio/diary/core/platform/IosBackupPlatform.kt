@@ -8,10 +8,19 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSFileSystemFreeSize
 import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSNumber
+import platform.Network.nw_path_get_status
+import platform.Network.nw_path_is_expensive
+import platform.Network.nw_path_monitor_create
+import platform.Network.nw_path_monitor_set_queue
+import platform.Network.nw_path_monitor_set_update_handler
+import platform.Network.nw_path_monitor_start
+import platform.Network.nw_path_status_satisfied
 import platform.UIKit.UIDevice
 import platform.UserNotifications.UNMutableNotificationContent
 import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNUserNotificationCenter
+import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
+import platform.darwin.dispatch_get_global_queue
 
 /** Swift의 GoogleSignIn을 부르는 다리. iosApp이 앱을 켤 때 건다(research R2). 값이 없으면 빈 문자열을 넘긴다. */
 interface IosDriveBridge {
@@ -60,6 +69,25 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
     override suspend fun disconnect() {
         val bridge = bridge() ?: return
         suspendCancellableCoroutine { continuation -> bridge.disconnect { continuation.resume(Unit) } }
+    }
+}
+
+/** 경로 감시로 지금 연결을 안다. 데이터 요금이 있으면 `expensive`다. */
+class IosNetworkState : NetworkState {
+    override var isConnected: Boolean = true
+        private set
+    override var isUnmetered: Boolean = true
+        private set
+
+    private val monitor = nw_path_monitor_create()
+
+    init {
+        nw_path_monitor_set_update_handler(monitor) { path ->
+            isConnected = nw_path_get_status(path) == nw_path_status_satisfied
+            isUnmetered = !nw_path_is_expensive(path)
+        }
+        nw_path_monitor_set_queue(monitor, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u))
+        nw_path_monitor_start(monitor)
     }
 }
 

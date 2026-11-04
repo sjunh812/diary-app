@@ -27,6 +27,8 @@ kotlin {
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.datastore)
             implementation(projects.shared.core.migration)
+            implementation(projects.shared.core.backup)
+            implementation(projects.shared.core.drive)
             implementation(libs.okio)
             implementation(libs.kotlinx.datetime)
             implementation(projects.shared.feature.lock)
@@ -38,6 +40,7 @@ kotlin {
             implementation(projects.shared.feature.search)
             implementation(projects.shared.feature.insight)
             implementation(projects.shared.feature.trash)
+            implementation(projects.shared.feature.backup)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

@@ -1,3 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="backup_title">Backup</string>
+    <string name="backup_now">Back up now</string>
+    <string name="backup_auto">Automatic backup</string>
+    <string name="backup_auto_body">Once a day, only what changed.</string>
+    <string name="backup_options">Backup settings</string>
+    <string name="backup_connect">Connect Google Drive</string>
+    <string name="backup_intro_title">Back up to Google Drive</string>
+    <string name="backup_intro_body">Keep your entries and photos in your own Google Drive. Switch phones and bring everything back.</string>
+    <string name="backup_intro_note">We only use the 1일 1일기 백업 folder and never see your other files.</string>
+    <string name="backup_running">Backing up</string>
+    <string name="backup_running_body">It keeps going on other screens.</string>
+    <string name="backup_running_photos">Photos %1$d / %2$d</string>
+    <string name="backup_reconnect">Reconnect</string>
+    <string name="backup_reconnect_title">Google account disconnected</string>
+    <string name="backup_reconnect_body">Reconnect to continue. Your backups on Drive are safe.</string>
+    <string name="backup_no_space_title">Not enough Drive storage</string>
+    <string name="backup_no_space_body">Your text is backed up. Photos continue when there is room.</string>
+    <string name="backup_upload_cellular">Upload on mobile data</string>
+    <string name="backup_all_done">Everything is backed up, photos included.</string>
+    <string name="backup_first_title">Ready for your first backup</string>
+    <string name="backup_first_body">Tap Back up now to upload entries and photos.</string>
+    <string name="backup_last">Last backup %1$s %2$s</string>
+    <string name="backup_group_account">Account</string>
+    <string name="backup_account">Upload</string>
+    <string name="backup_group_upload">Google account</string>
+    <string name="backup_wifi_only">Photos on Wi-Fi only</string>
+    <string name="backup_wifi_only_body">Turn off to upload photos on mobile data too.</string>
+    <string name="backup_group_connection">Connection</string>
+    <string name="backup_disconnect">Disconnect</string>
+    <string name="backup_disconnect_body">Backups on Drive stay where they are.</string>
+    <string name="backup_disconnect_title">Disconnect?</string>
+    <string name="backup_disconnect_message">Automatic backup stops. Backups on Drive are not deleted.</string>
+    <string name="backup_readme_body">This folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.\n\n1일 1일기 앱의 백업 폴더예요. 이 폴더를 지우면 백업이 사라져요.</string>
+    <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
 </resources>

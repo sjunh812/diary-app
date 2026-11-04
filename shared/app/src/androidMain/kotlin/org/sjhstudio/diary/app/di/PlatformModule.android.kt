@@ -2,6 +2,7 @@ package org.sjhstudio.diary.app.di
 
 import android.content.Context
 import android.os.Build
+import androidx.core.content.pm.PackageInfoCompat
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -11,6 +12,7 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.migration.AndroidImageSizeReader
@@ -28,11 +30,19 @@ import org.sjhstudio.diary.core.migration.SupportBundle
 import org.sjhstudio.diary.core.migration.SupportFiles
 import org.sjhstudio.diary.core.migration.freeBytes
 import org.sjhstudio.diary.core.migration.legacyFiles
+import org.sjhstudio.diary.core.platform.AndroidDeviceName
+import org.sjhstudio.diary.core.platform.AndroidDriveAuthorizer
 import org.sjhstudio.diary.core.platform.AndroidFontInstaller
+import org.sjhstudio.diary.core.platform.AndroidNetworkState
 import org.sjhstudio.diary.core.platform.AndroidNotificationPermission
 import org.sjhstudio.diary.core.platform.AndroidReminderScheduler
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.BackupScheduler
+import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.FontInstaller
+import org.sjhstudio.diary.core.platform.NetworkState
+import org.sjhstudio.diary.core.platform.NoBackupScheduler
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 
@@ -44,6 +54,15 @@ internal actual val platformModule: Module =
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }
         single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }
         single { DatabaseFactory(androidContext(), get()) }
+        single { AndroidDriveAuthorizer(androidContext()) }
+        single<DriveAuthorizer> { get<AndroidDriveAuthorizer>() }
+        single<NetworkState> { AndroidNetworkState(androidContext()) }
+        single<DeviceName> { AndroidDeviceName(androidContext()) }
+        single<BackupScheduler> { NoBackupScheduler }
+        single {
+            val info = androidContext().packageManager.getPackageInfo(androidContext().packageName, 0)
+            BackupAppInfo(info.versionName.orEmpty(), PackageInfoCompat.getLongVersionCode(info).toInt(), "android")
+        }
         single {
             val files = get<AppFiles>()
             MigrationPaths(

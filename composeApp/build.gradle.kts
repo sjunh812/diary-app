@@ -81,6 +81,8 @@ dependencies {
     implementation(projects.shared.app)
     // 잠금이 켜졌는지 보고 최근 앱 화면을 가린다(RecentsGuard).
     implementation(projects.shared.core.data)
+    // 구글 드라이브 동의 창을 띄운다.
+    implementation(projects.shared.core.platform)
 
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)

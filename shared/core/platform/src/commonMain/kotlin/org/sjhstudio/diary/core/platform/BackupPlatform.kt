@@ -33,3 +33,12 @@ interface BackupScheduler {
     /** 사용자가 누른 지금 백업. */
     fun startNow()
 }
+
+/** 자동 백업을 시스템에 걸기 전의 자리. 지금 백업은 앱이 켜져 있는 동안 돈다(T043, T044에서 바꾼다). */
+object NoBackupScheduler : BackupScheduler {
+    override fun scheduleDaily() = Unit
+
+    override fun cancelDaily() = Unit
+
+    override fun startNow() = Unit
+}

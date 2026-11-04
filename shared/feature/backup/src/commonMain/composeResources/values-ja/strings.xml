@@ -1,3 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="backup_title">バックアップ</string>
+    <string name="backup_now">今すぐバックアップ</string>
+    <string name="backup_auto">自動バックアップ</string>
+    <string name="backup_auto_body">1日1回、変わった分だけアップロードします。</string>
+    <string name="backup_options">バックアップ設定</string>
+    <string name="backup_connect">Googleドライブに接続</string>
+    <string name="backup_intro_title">Googleドライブにバックアップ</string>
+    <string name="backup_intro_body">日記と写真を自分のGoogleドライブに保存します。機種変更しても元に戻せます。</string>
+    <string name="backup_intro_note">1일 1일기 백업フォルダだけを使い、ほかのファイルは見ません。</string>
+    <string name="backup_running">バックアップ中</string>
+    <string name="backup_running_body">ほかの画面でも続きます。</string>
+    <string name="backup_running_photos">写真 %1$d / %2$d枚</string>
+    <string name="backup_reconnect">再接続</string>
+    <string name="backup_reconnect_title">Googleアカウントの接続が切れました</string>
+    <string name="backup_reconnect_body">再接続すると続きから始めます。ドライブのバックアップはそのままです。</string>
+    <string name="backup_no_space_title">ドライブの空き容量が足りません</string>
+    <string name="backup_no_space_body">文章はアップロードしました。写真は空きができたら続けます。</string>
+    <string name="backup_upload_cellular">モバイルデータでアップロード</string>
+    <string name="backup_all_done">写真まですべてバックアップしました。</string>
+    <string name="backup_first_title">最初のバックアップの準備ができました</string>
+    <string name="backup_first_body">今すぐバックアップを押すと日記と写真をアップロードします。</string>
+    <string name="backup_last">前回のバックアップ %1$s %2$s</string>
+    <string name="backup_group_account">アカウント</string>
+    <string name="backup_account">アップロード</string>
+    <string name="backup_group_upload">Googleアカウント</string>
+    <string name="backup_wifi_only">写真はWi-Fiのみ</string>
+    <string name="backup_wifi_only_body">オフにするとモバイルデータでも写真をアップロードします。</string>
+    <string name="backup_group_connection">接続</string>
+    <string name="backup_disconnect">接続を解除</string>
+    <string name="backup_disconnect_body">解除してもドライブのバックアップは削除しません。</string>
+    <string name="backup_disconnect_title">接続を解除しますか?</string>
+    <string name="backup_disconnect_message">自動バックアップが止まります。ドライブのバックアップは削除しません。</string>
+    <string name="backup_readme_body">1日1日記アプリのバックアップフォルダです。このフォルダを削除するとバックアップが消えます。\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
+    <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
 </resources>

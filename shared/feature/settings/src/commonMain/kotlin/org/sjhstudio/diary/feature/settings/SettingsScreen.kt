@@ -26,7 +26,9 @@ import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
+import org.sjhstudio.diary.feature.settings.resources.settings_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_font
+import org.sjhstudio.diary.feature.settings.resources.settings_group_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_group_diary
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_notification
@@ -60,6 +62,8 @@ fun SettingsScreen(
     onListStyle: () -> Unit = {},
     onTrash: () -> Unit = {},
     trashCount: Int = 0,
+    onBackup: () -> Unit = {},
+    backupValue: String? = null,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
     onDesignCatalog: (() -> Unit)? = null
 ) {
@@ -79,7 +83,9 @@ fun SettingsScreen(
                         )
                         .semantics { heading() }
             )
-            DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
+            DiarySettingsHeader(stringResource(Res.string.settings_group_backup))
+            DiarySettingsRow(stringResource(Res.string.settings_backup), onClick = onBackup, value = backupValue)
+            DiarySettingsHeader(stringResource(Res.string.settings_group_diary), gapAbove = true)
             DiarySettingsRow(
                 stringResource(Res.string.settings_trash),
                 onClick = onTrash,

@@ -88,3 +88,9 @@ data class FontLicenseKey(val fontId: String) : Screen {
 data class LibraryLicenseKey(val libraryId: String) : Screen {
     override fun toString(): String = "LibraryLicenseKey"
 }
+
+@Serializable
+data object BackupSettingsKey : Screen
+
+@Serializable
+data object BackupOptionsKey : Screen

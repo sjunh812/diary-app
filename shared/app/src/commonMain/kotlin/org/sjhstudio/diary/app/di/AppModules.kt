@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.koin.core.module.Module
@@ -13,6 +14,9 @@ import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
+import org.sjhstudio.diary.core.backup.BackupController
+import org.sjhstudio.diary.core.backup.BackupRunner
+import org.sjhstudio.diary.core.backup.ManifestSettings
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
@@ -33,9 +37,12 @@ import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.datastore.DataStoreFactory
 import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.datastore.SettingsStore
+import org.sjhstudio.diary.core.drive.DriveApi
+import org.sjhstudio.diary.core.drive.createDriveApi
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
@@ -45,6 +52,8 @@ import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
+import org.sjhstudio.diary.feature.backup.backupFeatureModule
+import org.sjhstudio.diary.feature.backup.backupReadme
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
 import org.sjhstudio.diary.feature.home.homeFeatureModule
 import org.sjhstudio.diary.feature.insight.insightFeatureModule
@@ -73,6 +82,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     searchFeatureModule,
     insightFeatureModule,
     trashFeatureModule,
+    backupFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
@@ -123,6 +133,40 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             val files = get<AppFiles>()
             PhotoStore(FileSystem.SYSTEM, files.mediaDirectory.toPath(), ThumbnailEncoder(ImageDecoder::writeThumbnail), ImageDecoder::size)
         }
+        // 백업(스펙 003). 드라이브와 일기 DB는 처음 쓸 때 연다.
+        single { BackupStore(get<DataStoreFactory>().backup()) }
+        single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
+        single {
+            val files = get<AppFiles>()
+            BackupRunner(
+                db = get(),
+                drive = get(),
+                authorizer = get(),
+                store = get(),
+                network = get(),
+                deviceName = get(),
+                fileSystem = FileSystem.SYSTEM,
+                mediaDir = files.mediaDirectory.toPath(),
+                workDir = files.backupDirectory.toPath(),
+                app = get(),
+                readme = { backupReadme() },
+                settings = {
+                    val settings = get<SettingsRepository>().settings.first()
+                    ManifestSettings(
+                        font = settings.font.id,
+                        bodyTextSize = settings.bodyTextSize.id,
+                        themeMode = settings.themeMode.id,
+                        reminderEnabled = settings.reminderEnabled,
+                        reminderMinuteOfDay = settings.reminderMinuteOfDay,
+                        listStyle = settings.list.listStyle.name.lowercase(),
+                        favoritesOnly = settings.list.favoritesOnly,
+                        askLocationAgain = settings.askLocationAgain,
+                        lockEnabled = get<LockRepository>().settings.first().enabled
+                    )
+                }
+            )
+        }
+        single { BackupController(get(), lazy { get<DiaryDatabase>() }, lazy { get<BackupRunner>() }, get(), get(), get(APP_SCOPE)) }
         single<DraftRepository> { DefaultDraftRepository(get(), get()) }
         single<StatsRepository> { DefaultStatsRepository(get()) }
         single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }

@@ -4,7 +4,7 @@ import UIKit
 
 /// 공유 모듈의 드라이브 권한 다리를 GoogleSignIn으로 구현한다(스펙 003 research R2).
 /// 범위는 `drive.file`뿐이고 토큰은 GoogleSignIn이 이 기기 키체인에 둔다.
-final class GoogleDriveBridge: NSObject, IosDriveBridge {
+final class GoogleDriveBridge: NSObject, GoogleDrive {
     private let driveScope = "https://www.googleapis.com/auth/drive.file"
 
     func connect(hint: String?, done: @escaping (String?, String?, String?) -> Void) {

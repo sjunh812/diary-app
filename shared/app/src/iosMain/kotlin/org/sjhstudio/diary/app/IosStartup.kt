@@ -11,10 +11,30 @@ import org.sjhstudio.diary.core.platform.IosDriveBridge
  * Koin을 켜고 시작 단계를 돌린다.
  */
 @OptIn(ExperimentalNativeApi::class)
-fun startApp(driveBridge: IosDriveBridge) {
-    IosDrive.bridge = driveBridge
+fun startApp(driveBridge: GoogleDrive) {
+    IosDrive.bridge = driveBridge.asBridge()
     initKoin(isDebug = Platform.isDebugBinary)
     KoinPlatform.getKoin().get<Startup>().start()
+}
+
+/** Swift의 GoogleSignIn 구현이 맞추는 모양. 공유 프레임워크에 그대로 나간다(스펙 003 research R2). */
+interface GoogleDrive {
+    fun connect(hint: String?, done: (key: String?, email: String?, error: String?) -> Unit)
+
+    fun accessToken(done: (token: String?, key: String?, email: String?, error: String?) -> Unit)
+
+    fun disconnect(done: () -> Unit)
+}
+
+private fun GoogleDrive.asBridge(): IosDriveBridge {
+    val drive = this
+    return object : IosDriveBridge {
+        override fun connect(hint: String?, done: (String?, String?, String?) -> Unit) = drive.connect(hint, done)
+
+        override fun accessToken(done: (String?, String?, String?, String?) -> Unit) = drive.accessToken(done)
+
+        override fun disconnect(done: () -> Unit) = drive.disconnect(done)
+    }
 }
 
 /** Swift가 건 구글 드라이브 다리. Koin이 켜지기 전에 받아 둔다. */

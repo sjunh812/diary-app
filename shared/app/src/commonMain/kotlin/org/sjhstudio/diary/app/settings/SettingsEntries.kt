@@ -24,6 +24,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.app.navigation.BackupOptionsKey
+import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
@@ -41,6 +43,8 @@ import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
+import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
 import org.sjhstudio.diary.feature.lock.LockSettingsRoute
 import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
@@ -80,9 +84,12 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onLicenses = { push(LicensesKey) },
             onListStyle = { push(ListStyleSettingsKey) },
             onTrash = { push(TrashKey) },
-            trashCount = trashCount
+            trashCount = trashCount,
+            onBackup = { push(BackupSettingsKey) }
         )
     }
+    entry<BackupSettingsKey> { BackupSettingsRoute(onBack = pop, onOptions = { push(BackupOptionsKey) }) }
+    entry<BackupOptionsKey> { BackupOptionsRoute(onBack = pop) }
     entry<TrashKey> { TrashRoute(onBack = pop) }
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
