@@ -33,6 +33,7 @@ import org.sjhstudio.diary.app.navigation.LockSettingsKey
 import org.sjhstudio.diary.app.navigation.MigrationReportKey
 import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
+import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
@@ -63,7 +64,7 @@ import org.sjhstudio.diary.feature.trash.TrashRoute
  * 기능 모듈끼리는 서로 모르므로 어디서 어디로 가는지는 여기서 정한다.
  */
 fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit) {
-    entry<SettingsKey> {
+    entry<SettingsKey>(metadata = TabRoot) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val trash = koinInject<TrashRepository>()

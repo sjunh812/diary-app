@@ -24,6 +24,10 @@ val ListPane: Map<String, Any> = mapOf("pane" to "list")
 /** 상세 화면 표시. */
 val DetailPane: Map<String, Any> = mapOf("pane" to "detail")
 
+/** 탭의 맨 위 화면 표시. 앱 틀이 탭 바 자리를 비워 준다. */
+const val TAB_ROOT = "tabRoot"
+val TabRoot: Map<String, Any> = mapOf(TAB_ROOT to true)
+
 private val NavEntry<NavKey>.isList get() = metadata["pane"] == "list"
 private val NavEntry<NavKey>.isDetail get() = metadata["pane"] == "detail"
 

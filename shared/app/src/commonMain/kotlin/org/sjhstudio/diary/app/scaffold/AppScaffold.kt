@@ -50,6 +50,8 @@ import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
+import org.sjhstudio.diary.app.navigation.TAB_ROOT
+import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TabScreen
 import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.app.resources.Res
@@ -186,12 +188,10 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
 /** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둔다. */
 private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
 
-private val TAB_CONTENT_KEYS = TABS.map { it.toString() }.toSet()
-
 /** 탭의 맨 위 화면만 탭 바 자리를 비운다. 쓰기처럼 전체를 쓰는 화면은 그대로 둔다. */
 private val TabBarSpace =
     NavEntryDecorator<NavKey>(decorate = { entry ->
-        if (entry.contentKey.toString() in TAB_CONTENT_KEYS) {
+        if (entry.metadata[TAB_ROOT] == true) {
             Box(Modifier.fillMaxSize().padding(bottom = LocalTabBarHeight.current)) { entry.Content() }
         } else {
             entry.Content()
@@ -276,7 +276,7 @@ private fun Content(
         entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator(), rememberViewModelStoreNavEntryDecorator(), TabBarSpace),
         entryProvider =
             entryProvider {
-                entry<HomeKey>(metadata = ListPane) {
+                entry<HomeKey>(metadata = ListPane + TabRoot) {
                     HomeRoute(
                         onOpen = backStack::openEntry,
                         onWrite = onWrite,
@@ -314,14 +314,14 @@ private fun Content(
                 entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }) { key ->
                     PhotoViewerRoute(key.entryId, key.index, onClose = pop)
                 }
-                entry<CalendarKey> {
+                entry<CalendarKey>(metadata = TabRoot) {
                     CalendarRoute(
                         twoPane = twoPane,
                         onOpen = backStack::openEntry,
                         onWriteOn = { backStack.add(WriteKey(date = it.toString())) }
                     )
                 }
-                entry<InsightKey> {
+                entry<InsightKey>(metadata = TabRoot) {
                     InsightRoute(
                         onMood = { mood, range ->
                             backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
