@@ -19,10 +19,10 @@ sealed interface StatsPeriod {
     /** 오늘이 든 기간이면 null이다. */
     fun next(today: LocalDate): StatsPeriod?
 
-    /** 주는 월요일에 시작한다(달력과 같다). */
+    /** 주는 일요일에 시작한다(달력과 같다). */
     data class Week(val start: LocalDate) : StatsPeriod {
         init {
-            require(start.dayOfWeek == DayOfWeek.MONDAY) { "주는 월요일에 시작한다" }
+            require(start.dayOfWeek == DayOfWeek.SUNDAY) { "주는 일요일에 시작한다" }
         }
 
         override val range: DateRange get() = DateRange(start, start.plus(DatePeriod(days = 6)))
@@ -32,7 +32,7 @@ sealed interface StatsPeriod {
         override fun next(today: LocalDate): StatsPeriod? = if (today <= range.end) null else Week(start.plus(DatePeriod(days = 7)))
 
         companion object {
-            fun of(date: LocalDate): Week = Week(date.minus(DatePeriod(days = date.dayOfWeek.ordinal)))
+            fun of(date: LocalDate): Week = Week(date.minus(DatePeriod(days = (date.dayOfWeek.ordinal + 1) % DAYS_IN_WEEK)))
         }
     }
 
@@ -71,3 +71,5 @@ sealed interface StatsPeriod {
         override fun next(today: LocalDate): StatsPeriod? = null
     }
 }
+
+private const val DAYS_IN_WEEK = 7

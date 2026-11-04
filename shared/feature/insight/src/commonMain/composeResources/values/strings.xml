@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insight_title">Look back</string>
+    <string name="insight_tab_week">Week</string>
+    <string name="insight_tab_month">Month</string>
+    <string name="insight_tab_year">Year</string>
+    <string name="insight_tab_all">All</string>
+    <string name="insight_previous">Previous period</string>
+    <string name="insight_next">Next period</string>
+    <string name="insight_all_time">All time</string>
+    <string name="insight_week_range">%1$s – %2$s</string>
+    <string name="insight_empty">No entries in this period</string>
+    <string name="insight_no_moods">No moods picked in this period</string>
+    <string name="insight_top_week">%1$s came up most this week</string>
+    <string name="insight_top_month">%1$s came up most this month</string>
+    <string name="insight_top_year">%1$s came up most this year</string>
+    <string name="insight_top_all">%1$s has come up most so far</string>
+    <string name="insight_top_past">%1$s came up most in this period</string>
+    <string name="insight_summary_counts">%1$s · %2$s</string>
+    <string name="insight_count_percent">%1$d · %2$d%</string>
+    <string name="insight_year_map">Mood for each day of the year</string>
+    <string name="insight_flow_week">Each day</string>
+    <string name="insight_flow_month">Most common mood each week</string>
+    <string name="insight_flow_year">Most common mood each month</string>
+    <string name="insight_week_number">Wk %1$d</string>
+    <plurals name="insight_entry_count">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
+    <plurals name="insight_no_mood_count">
+        <item quantity="one">%1$d without a mood</item>
+        <item quantity="other">%1$d without a mood</item>
+    </plurals>
+</resources>

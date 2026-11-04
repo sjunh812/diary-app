@@ -11,10 +11,11 @@ class StatsPeriodTest {
     private val today = LocalDate(2026, 11, 4)
 
     @Test
-    fun week_starts_on_monday() {
-        assertEquals(LocalDate(2026, 11, 2), StatsPeriod.Week.of(today).start)
-        assertEquals(LocalDate(2026, 11, 8), StatsPeriod.Week.of(today).range.end)
-        assertFailsWith<IllegalArgumentException> { StatsPeriod.Week(today) }
+    fun week_starts_on_sunday_like_the_calendar() {
+        assertEquals(LocalDate(2026, 11, 1), StatsPeriod.Week.of(today).start)
+        assertEquals(LocalDate(2026, 11, 7), StatsPeriod.Week.of(today).range.end)
+        assertEquals(LocalDate(2026, 11, 1), StatsPeriod.Week.of(LocalDate(2026, 11, 1)).start)
+        assertFailsWith<IllegalArgumentException> { StatsPeriod.Week(LocalDate(2026, 11, 2)) }
     }
 
     @Test

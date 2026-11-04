@@ -115,6 +115,10 @@ fun Weather.icon(): ImageVector = when (this) {
     Weather.SNOW -> DiaryIcons.WeatherSnow
 }
 
+/** 기분 색. 그래프처럼 얼굴 없이 색만 쓸 때 부른다. */
+@Composable
+fun moodColor(mood: Mood): Color = DiaryTheme.colors.mood.of(mood)
+
 private fun DiaryMoodColors.of(mood: Mood): Color = when (mood) {
     Mood.ANGRY -> angry
     Mood.COOL -> cool

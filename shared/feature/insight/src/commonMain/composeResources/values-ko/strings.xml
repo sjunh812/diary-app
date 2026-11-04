@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insight_title">돌아보기</string>
+    <string name="insight_tab_week">주</string>
+    <string name="insight_tab_month">월</string>
+    <string name="insight_tab_year">년</string>
+    <string name="insight_tab_all">전체</string>
+    <string name="insight_previous">이전 기간</string>
+    <string name="insight_next">다음 기간</string>
+    <string name="insight_all_time">전체 기간</string>
+    <string name="insight_week_range">%1$s ~ %2$s</string>
+    <string name="insight_empty">이 기간에 쓴 일기가 없어요</string>
+    <string name="insight_no_moods">이 기간에 고른 기분이 없어요</string>
+    <string name="insight_top_week">이번 주엔 %1$s이 가장 많았어요</string>
+    <string name="insight_top_month">이번 달엔 %1$s이 가장 많았어요</string>
+    <string name="insight_top_year">올해는 %1$s이 가장 많았어요</string>
+    <string name="insight_top_all">지금까지 %1$s이 가장 많았어요</string>
+    <string name="insight_top_past">이 기간엔 %1$s이 가장 많았어요</string>
+    <string name="insight_summary_counts">%1$s · %2$s</string>
+    <string name="insight_count_percent">%1$d · %2$d%</string>
+    <string name="insight_year_map">올해 날마다의 기분</string>
+    <string name="insight_flow_week">날마다 기분</string>
+    <string name="insight_flow_month">주마다 가장 많은 기분</string>
+    <string name="insight_flow_year">달마다 가장 많은 기분</string>
+    <string name="insight_week_number">%1$d주</string>
+    <plurals name="insight_entry_count">
+        <item quantity="other">일기 %1$d편</item>
+    </plurals>
+    <plurals name="insight_no_mood_count">
+        <item quantity="other">기분 없는 일기 %1$d편</item>
+    </plurals>
+</resources>

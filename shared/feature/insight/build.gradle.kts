@@ -1,4 +1,4 @@
-// 돌아보기(기분 통계) 화면.
+// 돌아보기 화면.
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

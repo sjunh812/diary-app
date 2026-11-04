@@ -36,6 +36,7 @@ kotlin {
             implementation(projects.shared.feature.home)
             implementation(projects.shared.feature.calendar)
             implementation(projects.shared.feature.search)
+            implementation(projects.shared.feature.insight)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

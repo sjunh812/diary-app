@@ -1,0 +1,121 @@
+package org.sjhstudio.diary.feature.insight
+
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
+import org.sjhstudio.diary.core.data.diary.StatsRepository
+import org.sjhstudio.diary.core.model.DayMood
+import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.MoodCounts
+import org.sjhstudio.diary.core.model.StatsPeriod
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class InsightViewModelTest {
+    private val today = LocalDate(2026, 10, 31)
+
+    @BeforeTest
+    fun setUp() = Dispatchers.setMain(StandardTestDispatcher())
+
+    @AfterTest
+    fun tearDown() = Dispatchers.resetMain()
+
+    private fun viewModel() = InsightViewModel(NoStats) { today }
+
+    @Test
+    fun opens_on_this_month() {
+        assertEquals(StatsPeriod.Month(YearMonth(2026, 10)), viewModel().period.value)
+    }
+
+    @Test
+    fun tabs_pick_the_period_with_today() {
+        val model = viewModel()
+
+        model.select(InsightKind.Week)
+        assertEquals(LocalDate(2026, 10, 25), (model.period.value as StatsPeriod.Week).start)
+
+        model.select(InsightKind.Year)
+        assertEquals(StatsPeriod.Year(2026), model.period.value)
+
+        model.select(InsightKind.All)
+        assertEquals(StatsPeriod.All, model.period.value)
+    }
+
+    @Test
+    fun does_not_move_past_today() {
+        val model = viewModel()
+
+        model.next()
+        assertEquals(StatsPeriod.Month(YearMonth(2026, 10)), model.period.value)
+
+        model.previous()
+        assertEquals(StatsPeriod.Month(YearMonth(2026, 9)), model.period.value)
+
+        model.next()
+        assertEquals(StatsPeriod.Month(YearMonth(2026, 10)), model.period.value)
+    }
+
+    @Test
+    fun bars_are_sorted_by_count_and_show_all_nine() {
+        val counts = MoodCounts(Mood.entries.associateWith { 0 } + mapOf(Mood.SAD to 3, Mood.GOOD to 5), 1)
+
+        val sorted = counts.sorted()
+
+        assertEquals(Mood.entries.size, sorted.size)
+        assertEquals(listOf(Mood.GOOD to 5, Mood.SAD to 3), sorted.take(2))
+    }
+
+    @Test
+    fun month_buckets_follow_calendar_weeks() {
+        // 2026년 10월 1일은 목요일이라 첫 주는 3일까지다.
+        val period = StatsPeriod.Month(YearMonth(2026, 10))
+        val days =
+            listOf(
+                DayMood(LocalDate(2026, 10, 3), Mood.GOOD, 1),
+                DayMood(LocalDate(2026, 10, 4), Mood.SAD, 1),
+                DayMood(LocalDate(2026, 10, 5), Mood.TIRED, 1),
+                DayMood(LocalDate(2026, 10, 6), Mood.TIRED, 1),
+                DayMood(LocalDate(2026, 10, 31), null, 1)
+            )
+
+        val buckets = moodBuckets(period, days)
+
+        assertEquals(5, buckets.size)
+        assertEquals(Mood.GOOD, buckets[0].mood)
+        assertEquals(Mood.TIRED, buckets[1].mood)
+        assertEquals(false, buckets[2].written)
+        assertEquals(true, buckets[4].written)
+        assertEquals(null, buckets[4].mood)
+    }
+
+    @Test
+    fun tie_uses_the_later_day() {
+        val days = listOf(DayMood(LocalDate(2026, 10, 5), Mood.SAD, 1), DayMood(LocalDate(2026, 10, 6), Mood.GOOD, 1))
+
+        assertEquals(Mood.GOOD, moodBuckets(StatsPeriod.Month(YearMonth(2026, 10)), days)[1].mood)
+    }
+
+    @Test
+    fun week_shows_seven_days_and_year_twelve_months() {
+        assertEquals(7, moodBuckets(StatsPeriod.Week.of(today), emptyList()).size)
+        assertEquals(12, moodBuckets(StatsPeriod.Year(2026), emptyList()).size)
+        assertEquals(0, moodBuckets(StatsPeriod.All, emptyList()).size)
+    }
+
+    private object NoStats : StatsRepository {
+        override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = flowOf(MoodCounts(emptyMap(), 0))
+
+        override fun moodFlow(period: StatsPeriod): Flow<List<DayMood>> = flowOf(emptyList())
+
+        override fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>> = flowOf(emptyMap())
+    }
+}

@@ -34,6 +34,9 @@ internal class IosDateFormat(private val locale: NSLocale, override val is24Hour
     private val utc = NSTimeZone.timeZoneForSecondsFromGMT(0)
     private val gregorian = NSCalendar.calendarWithIdentifier(NSCalendarIdentifierGregorian)?.also { it.timeZone = utc }
     private val monthFormat = formatter(DateSkeleton.MONTH)
+    private val monthShortFormat = formatter(DateSkeleton.MONTH_SHORT)
+    private val yearFormat = formatter(DateSkeleton.YEAR)
+    private val monthDayFormat = formatter(DateSkeleton.MONTH_DAY)
     private val yearMonthFormat = formatter(DateSkeleton.YEAR_MONTH)
     private val fullDateFormat = formatter(DateSkeleton.FULL_DATE)
     private val dayWeekdayFormat = formatter(DateSkeleton.DAY_WITH_WEEKDAY)
@@ -43,6 +46,12 @@ internal class IosDateFormat(private val locale: NSLocale, override val is24Hour
     override fun month(date: LocalDate): String = monthFormat.stringFromDate(nsDate(date.utcMillis()))
 
     override fun yearMonth(date: LocalDate): String = yearMonthFormat.stringFromDate(nsDate(date.utcMillis()))
+
+    override fun monthShort(date: LocalDate): String = monthShortFormat.stringFromDate(nsDate(date.utcMillis()))
+
+    override fun year(date: LocalDate): String = yearFormat.stringFromDate(nsDate(date.utcMillis()))
+
+    override fun monthDay(date: LocalDate): String = monthDayFormat.stringFromDate(nsDate(date.utcMillis()))
 
     override fun fullDate(date: LocalDate): String = fullDateFormat.stringFromDate(nsDate(date.utcMillis()))
 

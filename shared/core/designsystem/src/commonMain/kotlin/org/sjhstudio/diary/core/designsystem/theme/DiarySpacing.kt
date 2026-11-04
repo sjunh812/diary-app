@@ -52,6 +52,25 @@ object DiaryIconSize {
     val i32: Dp = 32.dp
 }
 
+/** 돌아보기 크기(Figma "돌아보기 (S5)"). */
+object DiaryInsightSize {
+    /** 기분 막대 줄. */
+    val barRow: Dp = 36.dp
+    val barHeight: Dp = 10.dp
+    val barFace: Dp = 24.dp
+    val barName: Dp = 36.dp
+    val barCount: Dp = 56.dp
+
+    /** 기분 흐름 얼굴. */
+    val flowFace: Dp = 32.dp
+
+    /** 연간 지도. */
+    val mapGap: Dp = 2.dp
+    val mapRow: Dp = 11.dp
+    val mapRadius: Dp = 2.dp
+    val mapLabel: Dp = 20.dp
+}
+
 /** 달력 크기(Figma "달력 (S4)"). */
 object DiaryCalendarSize {
     /** 날짜 칸 높이. */

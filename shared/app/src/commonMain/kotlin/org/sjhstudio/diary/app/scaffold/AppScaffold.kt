@@ -79,6 +79,7 @@ import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
 import org.sjhstudio.diary.feature.home.HomeRoute
 import org.sjhstudio.diary.feature.home.PhotoViewerRoute
+import org.sjhstudio.diary.feature.insight.InsightRoute
 import org.sjhstudio.diary.feature.search.SearchRoute
 import org.sjhstudio.diary.feature.settings.FontReplacedNotice
 import org.sjhstudio.diary.feature.write.WriteRoute
@@ -238,7 +239,7 @@ private fun Content(
                         selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane }
                     )
                 }
-                entry<SearchKey>(clazzContentKey = { "search" }, metadata = ListPane) { key ->
+                entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
                     SearchRoute(
                         initial = key.toFilter(),
                         selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
@@ -269,7 +270,13 @@ private fun Content(
                         onWriteOn = { backStack.add(WriteKey(date = it.toString())) }
                     )
                 }
-                entry<InsightKey> { EmptyTab() }
+                entry<InsightKey> {
+                    InsightRoute(
+                        onMood = { mood, range ->
+                            backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                        }
+                    )
+                }
                 settingsEntries(push = { backStack.add(it) }, pop = pop)
                 entry<WriteKey> { key ->
                     val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
@@ -298,9 +305,4 @@ private fun PickHint(entries: EntryRepository) {
     Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas), contentAlignment = Alignment.Center) {
         if (months.isNotEmpty()) DiaryEmptyState(DiaryIcons.Pen, stringResource(Res.string.detail_pick_hint))
     }
-}
-
-@Composable
-private fun EmptyTab() {
-    Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
 }

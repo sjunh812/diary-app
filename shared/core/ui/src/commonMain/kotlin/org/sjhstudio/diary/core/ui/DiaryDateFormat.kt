@@ -23,6 +23,15 @@ interface DiaryDateFormat {
     /** 2026년 11월, November 2026, 2026年11月 */
     fun yearMonth(date: LocalDate): String
 
+    /** 11월, Nov, 11月 */
+    fun monthShort(date: LocalDate): String
+
+    /** 2026년, 2026, 2026年 */
+    fun year(date: LocalDate): String
+
+    /** 11월 1일, November 1, 11月1日 */
+    fun monthDay(date: LocalDate): String
+
     /** 2026년 11월 1일, November 1, 2026, 2026年11月1日 */
     fun fullDate(date: LocalDate): String
 
@@ -48,6 +57,9 @@ internal expect fun rememberPlatformDateFormat(language: String): DiaryDateForma
 /** 플랫폼 형식에 넘기는 틀(Unicode 날짜 틀 기호). 순서와 낱말은 플랫폼이 언어에 맞춰 정한다. */
 internal object DateSkeleton {
     const val MONTH = "MMMM"
+    const val MONTH_SHORT = "MMM"
+    const val YEAR = "y"
+    const val MONTH_DAY = "MMMMd"
     const val YEAR_MONTH = "yMMMM"
     const val FULL_DATE = "yMMMMd"
     const val DAY_WITH_WEEKDAY = "MMMMEEEEd"

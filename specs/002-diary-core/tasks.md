@@ -168,9 +168,9 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 **Independent Test**: 1년치로 기간 바꾸기, 개수·비율 확인, 기분 눌러 목록 확인
 
-- [ ] T059 [P] [US5] 통계 시험: 주 시작 요일, 월말, 윤년 경계, 기분 없음 개수, 동점, 미래 기간 막힘, 기분 → 검색 결과가 같은 조건 검색과 같음 `shared/core/data/{test}/core/data/StatsRepositoryTest.kt`
-- [ ] T060 [US5] `StatsRepository`(`moodCounts`, `moodFlow`, `yearPixels`)를 `shared/core/data/{kt}/core/data/StatsRepositoryImpl.kt`에 만든다
-- [ ] T061 [US5] 돌아보기 화면(주·월·년·전체, 이전·다음, 기분 막대와 비율, 가장 많은 기분, 흐름, 연간 지도, "이 기간에 쓴 일기가 없어요", 기분을 누르면 `Search(SearchFilter(moods, period))`)을 Canvas로 `shared/feature/insight/{kt}/feature/insight/InsightViewModel.kt`, `InsightScreen.kt`, `charts/`에 만든다. 차트마다 화면 읽기용 설명을 붙인다
+- [x] T059 [P] [US5] 통계 시험: 주 시작 요일, 월말, 윤년 경계, 기분 없음 개수, 동점, 미래 기간 막힘, 기분 → 검색 결과가 같은 조건 검색과 같음 `shared/core/data/{test}/core/data/StatsRepositoryTest.kt` 2026-11-04: `StatsPeriodTest`, `DiaryReadRepositoryTest`, `InsightViewModelTest`에 넣었다
+- [x] T060 [US5] `StatsRepository`(`moodCounts`, `moodFlow`, `yearPixels`)를 `shared/core/data/{kt}/core/data/StatsRepositoryImpl.kt`에 만든다 2026-11-04: `DefaultStatsRepository`에 있다
+- [x] T061 [US5] 돌아보기 화면(주·월·년·전체, 이전·다음, 기분 막대와 비율, 가장 많은 기분, 흐름, 연간 지도, "이 기간에 쓴 일기가 없어요", 기분을 누르면 `Search(SearchFilter(moods, period))`)을 Canvas로 `shared/feature/insight/{kt}/feature/insight/InsightViewModel.kt`, `InsightScreen.kt`, `charts/`에 만든다. 차트마다 화면 읽기용 설명을 붙인다 2026-11-04: 색 띠 대신 칸마다 얼굴(FR-030 고침)
 
 ---
 

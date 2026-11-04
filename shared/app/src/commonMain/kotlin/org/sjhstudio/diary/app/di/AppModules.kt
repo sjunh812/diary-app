@@ -16,8 +16,10 @@ import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
 import org.sjhstudio.diary.core.data.diary.DefaultEntryRepository
+import org.sjhstudio.diary.core.data.diary.DefaultStatsRepository
 import org.sjhstudio.diary.core.data.diary.DraftRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
+import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.photo.PhotoStore
@@ -40,6 +42,7 @@ import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
 import org.sjhstudio.diary.feature.home.homeFeatureModule
+import org.sjhstudio.diary.feature.insight.insightFeatureModule
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
 import org.sjhstudio.diary.feature.search.searchFeatureModule
@@ -62,6 +65,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     homeFeatureModule,
     calendarFeatureModule,
     searchFeatureModule,
+    insightFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
@@ -113,6 +117,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             PhotoStore(FileSystem.SYSTEM, files.mediaDirectory.toPath(), ThumbnailEncoder(ImageDecoder::writeThumbnail), ImageDecoder::size)
         }
         single<DraftRepository> { DefaultDraftRepository(get(), get()) }
+        single<StatsRepository> { DefaultStatsRepository(get()) }
         single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
         single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
         // 이전이 끝난 기기의 후속 작업(FR-011). 일기 DB는 이전이 끝난 뒤에만 꺼낸다.
