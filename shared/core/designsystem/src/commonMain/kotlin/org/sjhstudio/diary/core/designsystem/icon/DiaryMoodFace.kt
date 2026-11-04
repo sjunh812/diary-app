@@ -78,7 +78,7 @@ fun DiaryMoodFace.vector(size: Dp): ImageVector = cache.getOrPut(this to size) {
         builder.addPath(
             pathData = addPathNodes(path),
             stroke = SolidColor(Color.Black),
-            strokeLineWidth = LINE.value * VIEWPORT / size.value,
+            strokeLineWidth = DiaryMoodFaceLine.value * VIEWPORT / size.value,
             strokeLineCap = StrokeCap.Round,
             strokeLineJoin = StrokeJoin.Round
         )
@@ -87,4 +87,6 @@ fun DiaryMoodFace.vector(size: Dp): ImageVector = cache.getOrPut(this to size) {
 }
 
 private const val VIEWPORT = 44f
-private val LINE = 1.6.dp
+
+/** 얼굴 선 굵기. 얼굴 크기와 상관없이 같다. 얼굴 옆에 놓이는 표시도 이 굵기를 쓴다. */
+val DiaryMoodFaceLine: Dp = 1.6.dp
