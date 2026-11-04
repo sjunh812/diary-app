@@ -93,7 +93,8 @@ fun HomeRoute(
     onEdit: (String) -> Unit,
     onTrashed: (String) -> Unit,
     selectedId: String?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backupLine: @Composable () -> Unit = {}
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
@@ -125,7 +126,8 @@ fun HomeRoute(
         onMenu = { menuFor = it },
         onWrite = onWrite,
         onSearch = onSearch,
-        modifier = modifier
+        modifier = modifier,
+        backupLine = backupLine
     )
     menuFor?.let { id ->
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
@@ -181,11 +183,14 @@ internal fun HomeScreen(
     onMenu: (String) -> Unit,
     onWrite: () -> Unit,
     onSearch: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backupLine: @Composable () -> Unit = {}
 ) {
     Column(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
         TopActions(favoritesOnly, onToggleFavorites, onSearch)
         Title(title, onPickMonth)
+        Spacer(Modifier.height(DiarySpacing.x1))
+        backupLine()
         Spacer(Modifier.height(DiarySpacing.x3))
         when {
             rows.itemCount > 0 -> {

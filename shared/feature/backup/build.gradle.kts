@@ -7,7 +7,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.shared.core.platform)
-            implementation(projects.shared.core.backup)
             implementation(libs.kotlinx.datetime)
         }
     }

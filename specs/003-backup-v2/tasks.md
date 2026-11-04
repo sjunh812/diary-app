@@ -107,7 +107,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [ ] T043 [US1] `shared/core/platform/{android}/core/platform/AndroidBackupScheduler.kt` 지금 백업: Android 14 이상 `BackupTransferJobService`(사용자가 시작한 데이터 전송, 진행 알림), 13 이하 급한 작업 + `setForeground`(`dataSync`), `onTimeout`·작업 멈춤에서 상태 남기기(research R14)
 - [ ] T044 [P] [US1] `shared/core/platform/{ios}/core/platform/IosBackupScheduler.kt`와 `iosApp/iosApp/Backup/ContinuedBackupTask.swift`: 앞에서는 공통 코드로, iOS 26 이상은 `BGContinuedProcessingTask`로 넘겨 진행 보고, 17~25는 `beginBackgroundTask` 안에서 조각(research R15)
 - [x] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
-- [ ] T046 [US1] 홈 머리 백업 상태 줄 컴포넌트 `shared/feature/backup/{kt}/feature/backup/BackupStatusLine.kt`를 내보내고 스펙 002 홈에 꽂는다(`contracts/backup-flow.md` 상태 표시). Figma 홈 백업 상태와 권하기 (B11)
+- [x] T046 [US1] 홈 머리 백업 상태 줄 컴포넌트 `shared/feature/backup/{kt}/feature/backup/BackupStatusLine.kt`를 내보내고 스펙 002 홈에 꽂는다(`contracts/backup-flow.md` 상태 표시). Figma 홈 백업 상태와 권하기 (B11)
 - [x] T047 [P] [US1] `shared/feature/backup/{res}/values/strings.xml`: 백업 화면·상태 줄·README·진행 알림 문구(해요체, README 둘째 단락은 영어). 한국어 스킬로 다듬는다
 - [ ] T048 [US1] 실제 드라이브 시험 `shared/core/backup/src/androidDeviceTest/.../RealDriveBackupTest.kt`(시험 계정, CI 비밀값이 있을 때만): 왕복 준비용 백업, 끝나면 시험 폴더 지우기
 

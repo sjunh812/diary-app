@@ -36,6 +36,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
@@ -43,8 +44,10 @@ import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
+import org.sjhstudio.diary.core.testing.FakeBackupRepository
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
@@ -65,7 +68,9 @@ class AppScaffoldUiTest {
     fun setUp() {
         startKoin {
             modules(
+                backupFeatureModule,
                 module {
+                    single<BackupRepository> { FakeBackupRepository() }
                     single { Telemetry(sink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository() }

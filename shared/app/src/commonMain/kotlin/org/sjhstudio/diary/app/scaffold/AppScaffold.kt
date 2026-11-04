@@ -38,6 +38,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.DetailPane
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
@@ -85,6 +86,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.feature.backup.BackupStatusLine
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
 import org.sjhstudio.diary.feature.home.HomeRoute
@@ -278,6 +280,12 @@ private fun Content(
             entryProvider {
                 entry<HomeKey>(metadata = ListPane + TabRoot) {
                     HomeRoute(
+                        backupLine = {
+                            BackupStatusLine(onOpen = {
+                                backStack.selectTab(SettingsKey)
+                                backStack.add(BackupSettingsKey)
+                            })
+                        },
                         onOpen = backStack::openEntry,
                         onWrite = onWrite,
                         onSearch = { backStack.add(SearchKey()) },

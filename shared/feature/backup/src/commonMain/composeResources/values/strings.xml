@@ -33,5 +33,15 @@
     <string name="backup_disconnect_title">Disconnect?</string>
     <string name="backup_disconnect_message">Automatic backup stops. Backups on Drive are not deleted.</string>
     <string name="backup_readme_body">This folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.\n\n1일 1일기 앱의 백업 폴더예요. 이 폴더를 지우면 백업이 사라져요.</string>
+    <string name="backup_line_off">Backup off</string>
+    <string name="backup_line_on">Turn on</string>
+    <string name="backup_line_reconnect">Reconnect needed</string>
+    <string name="backup_line_running">Backing up · Photos %1$d/%2$d</string>
+    <string name="backup_line_at">Backed up %1$s · %2$s</string>
+    <string name="backup_line_all">photos included</string>
+    <string name="backup_line_waiting">%1$d photos waiting</string>
+    <string name="backup_line_days">Last backup %1$d days ago</string>
+    <string name="backup_line_today">today %1$s</string>
+    <string name="backup_line_yesterday">yesterday %1$s</string>
     <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
 </resources>

@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.sjhstudio.diary.core.backup.BackupController
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
 
-class BackupViewModel(private val controller: BackupController) : ViewModel() {
+class BackupViewModel(private val controller: BackupRepository) : ViewModel() {
     val status: StateFlow<BackupStatus> = controller.status.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(STOP_MILLIS),

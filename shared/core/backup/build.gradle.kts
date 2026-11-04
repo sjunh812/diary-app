@@ -9,6 +9,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.shared.core.model)
             api(projects.shared.core.drive)
+            api(projects.shared.core.data)
             api(projects.shared.core.datastore)
             api(projects.shared.core.database)
             implementation(projects.shared.core.platform)

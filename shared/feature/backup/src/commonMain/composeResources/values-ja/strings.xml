@@ -33,5 +33,15 @@
     <string name="backup_disconnect_title">接続を解除しますか?</string>
     <string name="backup_disconnect_message">自動バックアップが止まります。ドライブのバックアップは削除しません。</string>
     <string name="backup_readme_body">1日1日記アプリのバックアップフォルダです。このフォルダを削除するとバックアップが消えます。\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
+    <string name="backup_line_off">バックアップオフ</string>
+    <string name="backup_line_on">オンにする</string>
+    <string name="backup_line_reconnect">再接続が必要です</string>
+    <string name="backup_line_running">バックアップ中 · 写真 %1$d/%2$d</string>
+    <string name="backup_line_at">%1$sにバックアップ · %2$s</string>
+    <string name="backup_line_all">写真もすべて</string>
+    <string name="backup_line_waiting">写真%1$d枚待ち</string>
+    <string name="backup_line_days">前回のバックアップ %1$d日前</string>
+    <string name="backup_line_today">今日 %1$s</string>
+    <string name="backup_line_yesterday">昨日 %1$s</string>
     <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
 </resources>

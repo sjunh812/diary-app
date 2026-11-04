@@ -17,6 +17,7 @@ import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.ManifestSettings
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
@@ -166,7 +167,9 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 }
             )
         }
-        single { BackupController(get(), lazy { get<DiaryDatabase>() }, lazy { get<BackupRunner>() }, get(), get(), get(APP_SCOPE)) }
+        single<BackupRepository> {
+            BackupController(get(), lazy { get<DiaryDatabase>() }, lazy { get<BackupRunner>() }, get(), get(), get(APP_SCOPE))
+        }
         single<DraftRepository> { DefaultDraftRepository(get(), get()) }
         single<StatsRepository> { DefaultStatsRepository(get()) }
         single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }

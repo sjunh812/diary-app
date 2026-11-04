@@ -31,6 +31,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.detail_pick_hint
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.DayMood
@@ -38,8 +39,10 @@ import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.testing.FakeBackupRepository
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
@@ -59,7 +62,9 @@ class AdaptiveLayoutUiTest {
     fun setUp() {
         startKoin {
             modules(
+                backupFeatureModule,
                 module {
+                    single<BackupRepository> { FakeBackupRepository() }
                     single { Telemetry(NoTelemetrySink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(mapOf(day to DayMood(day, null, 1))) }

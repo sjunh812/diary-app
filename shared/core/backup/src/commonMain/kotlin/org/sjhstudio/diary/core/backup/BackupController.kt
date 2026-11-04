@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupConnection
@@ -15,7 +16,7 @@ import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 
-/** 화면이 쓰는 백업 입구. 홈과 설정이 같은 상태를 본다(contracts/backup-flow.md 상태 표시). */
+/** [BackupRepository]의 구현. 드라이브와 일기 DB는 처음 쓸 때 연다. */
 class BackupController(
     private val store: BackupStore,
     private val db: Lazy<DiaryDatabase>,
@@ -23,9 +24,9 @@ class BackupController(
     private val authorizer: DriveAuthorizer,
     private val scheduler: BackupScheduler,
     private val scope: CoroutineScope
-) {
+) : BackupRepository {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val status: Flow<BackupStatus> =
+    override val status: Flow<BackupStatus> =
         store.prefs.flatMapLatest { prefs ->
             val waiting = prefs.accountKey?.let { db.value.backupDao().notBackedUp(it) } ?: flowOf(0)
             combine(waiting, runner.value.progress) { notBackedUp, running ->
@@ -47,8 +48,7 @@ class BackupController(
             }
         }
 
-    /** 처음 연결하면 자동 백업을 켜고 바로 백업한다(FR-013). */
-    suspend fun connect(hint: String? = null): ConnectResult {
+    override suspend fun connect(hint: String?): ConnectResult {
         val result = authorizer.connect(hint)
         if (result is ConnectResult.Connected) {
             store.update {
@@ -66,19 +66,18 @@ class BackupController(
         return result
     }
 
-    fun backUpNow(cellularOnce: Boolean = false) {
+    override fun backUpNow(cellularOnce: Boolean) {
         scope.launch { runner.value.run(cellularOnce) }
     }
 
-    suspend fun setAuto(enabled: Boolean) {
+    override suspend fun setAuto(enabled: Boolean) {
         store.update { it.copy(autoEnabled = enabled) }
         if (enabled) scheduler.scheduleDaily() else scheduler.cancelDaily()
     }
 
-    suspend fun setPhotosOnCellular(enabled: Boolean) = store.update { it.copy(photosOnCellular = enabled) }
+    override suspend fun setPhotosOnCellular(enabled: Boolean) = store.update { it.copy(photosOnCellular = enabled) }
 
-    /** 연결을 끊어도 드라이브의 백업은 지우지 않는다(FR-004). */
-    suspend fun disconnect() {
+    override suspend fun disconnect() {
         authorizer.disconnect()
         scheduler.cancelDaily()
         store.update {
