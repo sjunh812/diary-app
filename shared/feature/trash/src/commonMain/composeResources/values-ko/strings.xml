@@ -2,14 +2,14 @@
 <resources>
     <string name="trash_title">휴지통</string>
     <string name="trash_empty">비우기</string>
-    <string name="trash_notice">지운 일기는 30일 뒤에 완전히 사라져요</string>
+    <string name="trash_notice">삭제한 일기는 30일 뒤에 완전히 사라져요</string>
     <string name="trash_empty_title">휴지통이 비었어요</string>
-    <string name="trash_empty_body">지운 일기는 30일 동안 여기서 되살릴 수 있어요</string>
-    <string name="trash_restore">되살리기</string>
-    <string name="trash_delete_forever">완전히 지우기</string>
-    <string name="trash_restored">되살렸어요</string>
-    <string name="trash_confirm_title">완전히 지울까요?</string>
-    <string name="trash_confirm_delete">지우기</string>
+    <string name="trash_empty_body">삭제한 일기는 30일 동안 여기서 복원할 수 있어요</string>
+    <string name="trash_restore">복원하기</string>
+    <string name="trash_delete_forever">완전히 삭제하기</string>
+    <string name="trash_restored">복원했어요</string>
+    <string name="trash_confirm_title">완전히 삭제할까요?</string>
+    <string name="trash_confirm_delete">삭제하기</string>
     <string name="trash_confirm_body_one">이 일기 1편이 사라지고 되돌릴 수 없어요.</string>
     <string name="trash_row_when">%1$s %2$s</string>
     <plurals name="trash_days_left">

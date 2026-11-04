@@ -70,7 +70,7 @@
     <string name="font_download">받기 · %1$s</string>
     <string name="font_downloading">받는 중 %1$s</string>
     <string name="font_offline">인터넷에 연결되면 받을 수 있어요</string>
-    <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 해 주세요</string>
+    <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 시도해 주세요</string>
     <string name="font_replaced_notice">쓰던 글꼴 대신 %1$s 글꼴로 보여 드려요</string>
     <string name="font_replaced_change">바꾸기</string>
 
@@ -90,7 +90,7 @@
     <string name="theme_dark">다크</string>
     <string name="theme_note">시스템 설정을 따르면 휴대폰이 다크 모드일 때 앱도 함께 어두워져요.</string>
     <string name="migration_deferred_title">예전 일기를 아직 옮기지 못했어요</string>
-    <string name="migration_deferred_body">다시 시도하면 지금 쓴 일기는 그대로 두고 예전 일기를 더해요.</string>
+    <string name="migration_deferred_body">다시 시도하면 지금 쓴 일기는 그대로 두고 예전 일기를 추가해요.</string>
     <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨 볼게요.</string>
     <string name="migration_deferred_retry">다시 시도</string>
     <string name="migration_deferred_running">옮기는 중이에요</string>

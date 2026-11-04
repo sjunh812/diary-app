@@ -78,7 +78,7 @@ import org.sjhstudio.diary.feature.trash.resources.trash_title
 /** 마지막 날이 다가오면 빨갛게 보인다. */
 private const val URGENT_DAYS = 1
 
-/** 휴지통(Figma "휴지통 (S6-7)"). 줄을 누르면 되살리기와 완전히 지우기를 고른다. */
+/** 휴지통(Figma "휴지통 (S6-7)"). 줄을 누르면 복원하기와 완전히 지우기를 고른다. */
 @Composable
 fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<TrashViewModel>()

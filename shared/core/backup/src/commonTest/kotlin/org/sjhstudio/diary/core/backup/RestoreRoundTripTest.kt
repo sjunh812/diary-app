@@ -38,7 +38,7 @@ import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-/** 한 기기에서 백업하고 빈 기기에서 되살린다. 드라이브 대역을 두 기기가 같이 쓴다. */
+/** 한 기기에서 백업하고 빈 기기에서 복원한다. 드라이브 대역을 두 기기가 같이 쓴다. */
 class RestoreRoundTripTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path

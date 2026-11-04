@@ -7,7 +7,7 @@
     <string name="backup_options">백업 설정</string>
     <string name="backup_connect">구글 드라이브 연결하기</string>
     <string name="backup_intro_title">구글 드라이브에 백업해요</string>
-    <string name="backup_intro_body">일기와 사진을 내 구글 드라이브에 올려 둬요. 휴대폰을 바꿔도 그대로 되살릴 수 있어요.</string>
+    <string name="backup_intro_body">일기와 사진을 내 구글 드라이브에 올려 둬요. 휴대폰을 바꿔도 그대로 복원할 수 있어요.</string>
     <string name="backup_intro_note">1일 1일기 백업 폴더만 쓰고, 그 밖의 파일은 보지 않아요.</string>
     <string name="backup_running">백업하고 있어요</string>
     <string name="backup_running_body">다른 화면으로 가도 계속 올려요.</string>
@@ -15,7 +15,7 @@
     <string name="backup_reconnect">다시 연결</string>
     <string name="backup_reconnect_title">구글 계정 연결이 끊겼어요</string>
     <string name="backup_reconnect_body">다시 연결하면 백업을 이어서 해요. 드라이브에 있는 백업은 그대로예요.</string>
-    <string name="backup_no_space_title">드라이브 공간이 모자라요</string>
+    <string name="backup_no_space_title">드라이브 공간이 부족해요</string>
     <string name="backup_upload_cellular">모바일 데이터로 올리기</string>
     <string name="backup_all_done">사진까지 모두 백업했어요.</string>
     <string name="backup_first_title">첫 백업을 준비했어요</string>
@@ -28,9 +28,9 @@
     <string name="backup_wifi_only_body">끄면 모바일 데이터로도 사진을 올려요.</string>
     <string name="backup_group_connection">연결</string>
     <string name="backup_disconnect">연결 끊기</string>
-    <string name="backup_disconnect_body">끊어도 드라이브에 있는 백업은 지우지 않아요.</string>
+    <string name="backup_disconnect_body">끊어도 드라이브에 있는 백업은 삭제하지 않아요.</string>
     <string name="backup_disconnect_title">연결을 끊을까요?</string>
-    <string name="backup_disconnect_message">자동 백업이 멈춰요. 드라이브에 있는 백업은 지우지 않아요.</string>
+    <string name="backup_disconnect_message">자동 백업이 멈춰요. 드라이브에 있는 백업은 삭제하지 않아요.</string>
     <string name="backup_readme_body">1일 1일기 앱의 백업 폴더예요. 이 폴더를 지우면 백업이 사라져요.\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
     <string name="backup_line_off">백업 꺼짐</string>
     <string name="backup_line_on">켜기</string>
@@ -44,37 +44,37 @@
     <string name="backup_line_yesterday">어제 %1$s</string>
     <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$d장은 Wi-Fi에 연결되면 올려요.</item></plurals>
     <!-- 되살리기(B2~B6) -->
-    <string name="restore_row">백업에서 되살리기</string>
+    <string name="restore_row">백업에서 복원하기</string>
     <string name="restore_row_body">다른 휴대폰이나 예전 앱의 백업을 합쳐요</string>
-    <string name="restore_keep_note">되살려도 지금 휴대폰의 일기는 그대로예요.</string>
+    <string name="restore_keep_note">복원해도 지금 휴대폰의 일기는 그대로예요.</string>
     <string name="restore_device_group">%1$s · %2$s</string>
     <string name="restore_device_unknown">이름 없는 기기</string>
     <string name="restore_platform_android">Android</string>
     <string name="restore_platform_ios">iOS</string>
     <string name="restore_when">%1$s %2$s</string>
     <string name="restore_join">%1$s · %2$s</string>
-    <string name="restore_damaged">백업 파일 일부가 깨져서 되살릴 수 없어요</string>
-    <string name="restore_needs_update">앱을 업데이트하면 되살릴 수 있어요</string>
+    <string name="restore_damaged">백업 파일 일부가 깨져서 복원할 수 없어요</string>
+    <string name="restore_needs_update">앱을 업데이트하면 복원할 수 있어요</string>
     <string name="restore_empty_title">드라이브에 백업이 아직 없어요</string>
     <string name="restore_empty_body">이 휴대폰에서 백업하면 여기에 보여요.</string>
     <string name="restore_loading">백업을 찾고 있어요</string>
     <string name="restore_list_failed">백업 목록을 읽지 못했어요</string>
     <string name="restore_list_failed_body">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="restore_retry">다시 시도</string>
-    <string name="restore_preview_top">되살리기</string>
+    <string name="restore_preview_top">복원하기</string>
     <string name="restore_preview_title">이 백업을 합칠게요</string>
     <string name="restore_preview_body">%1$s · %2$s 백업이에요.\n지금 휴대폰의 일기는 그대로 두고 합쳐요.</string>
-    <string name="restore_value_added">더해질 일기</string>
-    <string name="restore_value_updated">최근에 고친 쪽으로 바뀔 일기</string>
+    <string name="restore_value_added">추가할 일기</string>
+    <string name="restore_value_updated">최근에 수정한 쪽으로 바뀔 일기</string>
     <string name="restore_value_both">둘 다 남길 일기</string>
     <string name="restore_value_photos">받을 사진</string>
     <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 알림 설정도 백업 때로 바뀌어요.</string>
-    <string name="restore_no_space">사진을 받을 공간이 %1$s 모자라요. 휴대폰 공간을 비운 뒤 다시 시도해 주세요.</string>
+    <string name="restore_no_space">사진을 받을 공간이 %1$s 부족해요. 휴대폰 공간을 비운 뒤 다시 시도해 주세요.</string>
     <string name="restore_merge">합치기</string>
     <string name="restore_preparing">백업을 확인하고 있어요</string>
     <string name="restore_size_gb">%1$sGB</string>
     <string name="restore_size_mb">%1$dMB</string>
-    <string name="restore_running_title">일기를 되살리고 있어요</string>
+    <string name="restore_running_title">일기를 복원하고 있어요</string>
     <string name="restore_merging_body">일기를 합치고 있어요.</string>
     <string name="restore_fetching_body">일기는 다 합쳤어요. 사진을 받는 동안에도 일기를 볼 수 있어요.</string>
     <string name="restore_value_entries">일기</string>
@@ -85,29 +85,29 @@
     <string name="restore_see_entries">일기 먼저 보기</string>
     <string name="restore_done_nothing">백업을 합쳤어요</string>
     <string name="restore_done_body">지금 휴대폰의 일기는 그대로 있어요.</string>
-    <string name="restore_note_both_body">양쪽에서 고친 일기예요. 목록에 표시해 뒀어요.</string>
-    <string name="restore_note_original_body">백업할 때 공간이 모자랐던 사진이에요. 원래 휴대폰에서 다시 백업하면 여기서도 볼 수 있어요.</string>
+    <string name="restore_note_both_body">양쪽에서 수정한 일기예요. 목록에 표시해 뒀어요.</string>
+    <string name="restore_note_original_body">백업할 때 공간이 부족했던 사진이에요. 원래 휴대폰에서 다시 백업하면 여기서도 볼 수 있어요.</string>
     <string name="restore_note_pending_body">앱을 다시 열면 이어서 받아요.</string>
-    <string name="restore_note_missing_body">받은 파일이 달라서 찾을 수 없는 사진으로 남겼어요.</string>
+    <string name="restore_note_missing_body">백업할 때와 파일이 달라서 찾을 수 없는 사진으로 표시했어요.</string>
     <string name="restore_lock_title">잠금을 다시 정해 주세요</string>
     <string name="restore_lock_body">백업한 휴대폰에서 잠금을 쓰고 있었어요. 비밀번호는 백업하지 않아요.</string>
     <string name="restore_lock_action">정하기</string>
     <string name="restore_start">시작하기</string>
     <string name="restore_failed_mismatch_title">백업을 확인하지 못했어요</string>
     <string name="restore_failed_mismatch_body">받은 파일이 백업할 때와 달라서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
-    <string name="restore_failed_other_title">되살리지 못했어요</string>
+    <string name="restore_failed_other_title">복원하지 못했어요</string>
     <string name="restore_failed_other_body">인터넷 연결을 확인하고 다시 시도해 주세요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="restore_pick_other">다른 백업 고르기</string>
     <string name="restore_found_title">구글 드라이브에 백업이 있어요</string>
     <string name="restore_found_body">지금 휴대폰의 일기는 그대로 두고 합쳐요.</string>
     <string name="restore_found_later">나중에</string>
-    <string name="restore_found_action">되살리기</string>
+    <string name="restore_found_action">복원하기</string>
     <plurals name="restore_count_entries"><item quantity="other">일기 %1$s편</item></plurals>
     <plurals name="restore_count_photos"><item quantity="other">사진 %1$s장</item></plurals>
     <plurals name="restore_unit_entries"><item quantity="other">%1$s편</item></plurals>
     <plurals name="restore_unit_photos"><item quantity="other">%1$s장</item></plurals>
-    <plurals name="restore_done_added"><item quantity="other">일기 %1$s편을 더했어요</item></plurals>
-    <plurals name="restore_done_updated"><item quantity="other">일기 %1$s편을 새로 맞췄어요</item></plurals>
+    <plurals name="restore_done_added"><item quantity="other">일기 %1$s편을 추가했어요</item></plurals>
+    <plurals name="restore_done_updated"><item quantity="other">일기 %1$s편을 최신으로 바꿨어요</item></plurals>
     <plurals name="restore_done_photos"><item quantity="other">사진 %1$s장도 모두 받았어요.</item></plurals>
     <plurals name="restore_note_both"><item quantity="other">둘 다 남긴 일기 %1$s편</item></plurals>
     <plurals name="restore_note_original"><item quantity="other">원래 휴대폰에 있는 사진 %1$s장</item></plurals>
@@ -119,17 +119,17 @@
     <string name="restore_legacy_title">예전 앱 백업을 불러올게요</string>
     <string name="restore_legacy_body">%1$s에 예전 앱이 올린 백업이에요.</string>
     <string name="restore_legacy_no_photos">예전 백업에는 사진이 없어요</string>
-    <string name="restore_legacy_no_photos_body">글, 기분, 날씨, 장소, 즐겨찾기를 되살려요.</string>
+    <string name="restore_legacy_no_photos_body">글, 기분, 날씨, 장소, 즐겨찾기를 복원해요.</string>
     <string name="restore_legacy_recent">그 뒤에 쓴 일기는 빠져 있을 수 있어요</string>
     <string name="restore_value_existing">이미 있는 일기</string>
     <string name="restore_legacy_action">불러오기</string>
     <string name="restore_legacy_same_time_body">같은 날 같은 시각에 글이 달라요. 둘 다 남기고 표시해 뒀어요.</string>
-    <string name="restore_legacy_gaps_body">예전 백업에는 사진이 없어서 찾을 수 없는 사진으로 남겼어요.</string>
+    <string name="restore_legacy_gaps_body">예전 백업에는 사진이 없어서 찾을 수 없는 사진으로 표시했어요.</string>
     <plurals name="restore_legacy_same_time"><item quantity="other">글이 다른 일기 %1$s편</item></plurals>
-    <plurals name="restore_legacy_gaps"><item quantity="other">사진 자리 %1$s곳</item></plurals>
+    <plurals name="restore_legacy_gaps"><item quantity="other">빠진 사진 %1$s장</item></plurals>
     <string name="backup_alert_title">7일 동안 백업하지 못했어요</string>
     <string name="backup_alert_auth">구글 계정 연결이 끊겼어요. 눌러서 다시 연결해 주세요.</string>
-    <string name="backup_alert_space">드라이브 공간이 모자라요. 눌러서 확인해 주세요.</string>
+    <string name="backup_alert_space">드라이브 공간이 부족해요. 눌러서 확인해 주세요.</string>
     <string name="backup_alert_offline">인터넷에 연결되지 않았어요. 연결되면 이어서 올려요.</string>
     <string name="backup_alert_other">앱을 열어 백업 상태를 확인해 주세요.</string>
     <string name="backup_channel">백업</string>
@@ -141,36 +141,36 @@
     <string name="restore_replace_entry">대신 이 백업으로 바꾸기</string>
     <string name="restore_replace_title">이 백업으로 바꿀까요?</string>
     <string name="restore_replace_action">바꾸기</string>
-    <string name="restore_failed_space_title">휴대폰 공간이 모자라요</string>
-    <string name="restore_failed_space_body">바꾸기 전 기록을 둘 자리가 없어서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
+    <string name="restore_failed_space_title">휴대폰 공간이 부족해요</string>
+    <string name="restore_failed_space_body">지금 일기를 보관해 둘 공간이 없어서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="rollback_title">이 백업으로 바꿨어요</string>
     <string name="rollback_until">%1$s까지 바꾸기 전으로 되돌릴 수 있어요.</string>
     <string name="rollback_tomorrow">내일까지 되돌릴 수 있어요.</string>
     <string name="rollback_action">되돌리기</string>
     <string name="rollback_ask_title">바꾸기 전으로 되돌릴까요?</string>
     <string name="rollback_ask_body">바꾸기 전 일기 %1$s편이 돌아와요.</string>
-    <string name="rollback_ask_after">바꾸기 전 일기 %1$s편이 돌아와요. 바꾸기 뒤에 쓴 일기 %2$s편은 그대로 남아요.</string>
+    <string name="rollback_ask_after">바꾸기 전 일기 %1$s편이 돌아와요. 바꾼 뒤에 쓴 일기 %2$s편은 그대로 남아요.</string>
     <plurals name="restore_replace_body"><item quantity="other">지금 휴대폰의 일기 %1$s편이 이 백업으로 바뀌어요. 바꾸기 전 기록은 7일 동안 되돌릴 수 있어요.</item></plurals>
     <string name="file_top">파일로 백업하기</string>
-    <string name="file_row_body">드라이브 없이 파일 하나로 두어요</string>
+    <string name="file_row_body">드라이브 없이 파일 하나로 보관해요</string>
     <string name="file_title">일기를 파일 하나로 만들어요</string>
-    <string name="file_body">드라이브 없이도 %1$s과 %2$s을 파일로 둘 수 있어요. %3$s쯤이에요.</string>
+    <string name="file_body">드라이브 없이도 %1$s과 %2$s을 파일로 보관할 수 있어요. 크기는 %3$s쯤이에요.</string>
     <string name="file_place_title">원하는 곳에 저장해요</string>
-    <string name="file_place_body">휴대폰 저장소, SD 카드, USB, 다른 클라우드 앱 가운데 골라요.</string>
+    <string name="file_place_body">휴대폰 저장소, SD 카드, USB, 다른 클라우드 앱 중에서 골라요.</string>
     <string name="file_move_title">새 휴대폰으로 직접 옮겨요</string>
-    <string name="file_move_body">컴퓨터에 연결해 복사하거나 USB, 클라우드 앱으로 옮겨요. 크기가 커서 메신저로는 어려워요.</string>
+    <string name="file_move_body">컴퓨터에 연결해 복사하거나 USB, 클라우드 앱으로 옮겨요. 파일이 커서 메신저로는 보내기 어려워요.</string>
     <string name="file_trust_title">믿을 수 있는 곳에만 두세요</string>
     <string name="file_trust_body">파일에는 일기 글과 사진이 그대로 들어 있어요.</string>
-    <string name="file_restore">파일에서 되살리기</string>
+    <string name="file_restore">파일에서 복원하기</string>
     <string name="file_restore_body">옮겨 온 백업 파일을 골라 지금 일기와 합쳐요</string>
     <string name="file_action">파일 만들기</string>
     <string name="file_writing">파일을 만들고 있어요</string>
     <string name="file_write_failed">파일을 끝까지 쓰지 못했어요. 저장한 곳의 파일은 지우고 다시 만들어 주세요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_reading">파일을 확인하고 있어요</string>
     <string name="file_read_failed">백업 파일이 아니거나 일부가 깨졌어요. 휴대폰의 기록은 그대로 있어요.</string>
-    <string name="file_read_needs_update">앱을 업데이트하면 되살릴 수 있어요.</string>
+    <string name="file_read_needs_update">앱을 업데이트하면 복원할 수 있어요.</string>
     <string name="file_saved_title">파일을 저장했어요</string>
-    <string name="file_saved_body">%1$s · %2$s쯤. 새 휴대폰으로 옮긴 뒤 "파일에서 되살리기"로 되살려요.</string>
+    <string name="file_saved_body">%1$s · %2$s쯤. 새 휴대폰으로 옮긴 뒤 "파일에서 복원하기"로 복원해요.</string>
     <string name="file_done">확인</string>
     <string name="file_name">1일1일기-백업-%1$s</string>
     <string name="backup_group_other">다른 방법</string>

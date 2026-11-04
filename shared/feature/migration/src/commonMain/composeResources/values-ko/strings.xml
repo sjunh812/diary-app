@@ -28,13 +28,13 @@
     <plurals name="migration_date_fixed_title">
         <item quantity="other">날짜를 바로잡은 일기 %1$s편</item>
     </plurals>
-    <string name="migration_date_fixed_body">예전 앱은 이 일기를 다음 날로 잘못 보여 줬어요. 쓸 때 고른 날짜로 고쳤어요.</string>
+    <string name="migration_date_fixed_body">예전 앱은 이 일기를 다음 날로 잘못 보여 줬어요. 쓸 때 고른 날짜로 바로잡았어요.</string>
     <string name="migration_start">시작하기</string>
 
     <!-- 일부만(M2-b) -->
-    <string name="migration_partial_title">일부만 옮겨졌어요</string>
+    <string name="migration_partial_title">일부만 옮겼어요</string>
     <plurals name="migration_partial_body">
-        <item quantity="other">%1$s편을 옮겼고 %2$s편은 원본 파일이 손상돼서 읽지 못했어요. 앱을 업데이트하면 한 번 더 읽어 봐요. 원래 기록은 그대로 있어요.</item>
+        <item quantity="other">%1$s편을 옮겼고 %2$s편은 원본 파일이 깨져서 읽지 못했어요. 앱을 업데이트하면 한 번 더 읽어 봐요. 원래 기록은 그대로 있어요.</item>
     </plurals>
     <string name="migration_partial_footnote">이 결과는 설정 > 기록 이전 결과에서 다시 볼 수 있어요</string>
     <string name="migration_export_original">원본 파일 내보내기</string>
@@ -73,18 +73,18 @@
     <string name="migration_export_failed">원본을 저장하지 못했어요. 저장할 곳을 다시 골라 주세요.</string>
     <string name="migration_mail_missing">메일 앱을 찾지 못했어요. sjunh812@naver.com으로 보내 주세요.</string>
     <string name="migration_mail_subject">[1일 1일기] 기록 이전 문의</string>
-    <string name="migration_mail_body">아래 내용은 문제를 찾아 고칠 때만 써요. 일기 내용은 담지 않았어요.\n\n앱 버전: %1$s\n기기: %2$s\n멈춘 단계: %3$s\n문제 종류: %4$s\n시도 횟수: %5$s\n일기 수: %6$s\n사진 수: %7$s\n읽지 못한 일기 수: %8$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
-    <string name="migration_readme">1일 1일기 원본 파일이에요.\n\n새 앱으로 옮기기 전에 예전 앱(1.7.x)이 쓰던 기록을 그대로 담았어요.\n\n- legacy-snapshot: 일기 파일(note.db)과 설정. 비밀번호는 빼고 담았어요.\n- media: 예전 앱에서 옮겨 둔 사진\n\n기록을 되살리고 싶으면 이 파일을 지우지 말고 sjunh812@naver.com으로 문의해 주세요.\n</string>
-    <!-- 고쳐 받기 문의(M5 시트, FR-010a) -->
-    <string name="support_sheet_title">깨진 일기를 고쳐 드릴 수 있어요</string>
-    <string name="support_sheet_body">일기 파일을 메일에 첨부해 보내면 읽을 수 있게 고쳐서 돌려드려요.</string>
+    <string name="migration_mail_body">아래 내용은 문제를 해결할 때만 써요. 일기 내용은 담지 않았어요.\n\n앱 버전: %1$s\n기기: %2$s\n멈춘 단계: %3$s\n문제 종류: %4$s\n시도 횟수: %5$s\n일기 수: %6$s\n사진 수: %7$s\n읽지 못한 일기 수: %8$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
+    <string name="migration_readme">1일 1일기 원본 파일이에요.\n\n새 앱으로 옮기기 전에 예전 앱(1.7.x)이 쓰던 기록을 그대로 담았어요.\n\n- legacy-snapshot: 일기 파일(note.db)과 설정. 비밀번호는 빼고 담았어요.\n- media: 예전 앱에서 옮겨 둔 사진\n\n기록을 복원하고 싶으면 이 파일을 지우지 말고 sjunh812@naver.com으로 문의해 주세요.\n</string>
+    <!-- 복구 문의(M5 시트, FR-010a) -->
+    <string name="support_sheet_title">깨진 일기를 복구해 드릴 수 있어요</string>
+    <string name="support_sheet_body">일기 파일을 메일에 첨부해 보내 주시면 읽을 수 있게 복구해서 돌려드려요.</string>
     <string name="support_sheet_contains">일기 글이 그대로 들어 있어요. 사진과 비밀번호는 빼요.</string>
-    <string name="support_sheet_deleted">고친 파일을 돌려드린 뒤 바로 지워요.</string>
-    <string name="support_sheet_restore">받은 파일은 "파일에서 되살리기"로 합치면 돼요.</string>
+    <string name="support_sheet_deleted">복구한 파일을 돌려드린 뒤 바로 지워요.</string>
+    <string name="support_sheet_restore">받은 파일은 "파일에서 복원하기"로 합치면 돼요.</string>
     <string name="support_without">첨부 없이 문의</string>
     <string name="support_with">첨부해서 문의</string>
     <string name="support_file_name">1일1일기-문의용-%1$s.zip</string>
     <string name="support_failed">문의용 파일을 만들지 못했어요. 첨부 없이 문의해 주세요.</string>
-    <string name="support_mail_subject">[1일 1일기] 깨진 일기 고쳐 받기 문의</string>
-    <string name="support_mail_body">보내 주신 파일은 고쳐 돌려드린 뒤 바로 지워요. 일기 파일만 담았고 사진과 비밀번호는 뺐어요.\n\n앱 버전: %1$s\n기기: %2$s\n읽지 못한 일기 수: %3$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
+    <string name="support_mail_subject">[1일 1일기] 깨진 일기 복구 문의</string>
+    <string name="support_mail_body">보내 주신 파일은 복구해서 돌려드린 뒤 바로 지워요. 일기 파일만 담았고 사진과 비밀번호는 뺐어요.\n\n앱 버전: %1$s\n기기: %2$s\n읽지 못한 일기 수: %3$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
 </resources>

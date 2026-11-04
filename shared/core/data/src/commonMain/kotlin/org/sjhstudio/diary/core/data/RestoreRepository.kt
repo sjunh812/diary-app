@@ -11,7 +11,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
 
-/** 화면이 쓰는 되살리기 입구. 일기 내용은 여기를 지나지 않고 숫자만 지나간다. */
+/** 화면이 쓰는 복원하기 입구. 일기 내용은 여기를 지나지 않고 숫자만 지나간다. */
 interface RestoreRepository {
     val state: StateFlow<RestoreState>
 

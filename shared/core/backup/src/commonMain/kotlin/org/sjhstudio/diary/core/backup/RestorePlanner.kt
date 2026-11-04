@@ -25,7 +25,7 @@ data class PreparedRestore(
     val plan: MergePlan,
     val preview: RestorePreview,
     val snapshot: Path,
-    /** 파일에서 되살릴 때의 묶음 파일. 사진을 여기서 꺼낸다. */
+    /** 파일에서 복원할 때의 묶음 파일. 사진을 여기서 꺼낸다. */
     val bundle: Path? = null
 )
 

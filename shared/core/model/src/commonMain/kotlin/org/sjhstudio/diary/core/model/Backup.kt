@@ -143,7 +143,7 @@ sealed interface RestorePreparation {
     data class Failed(val reason: RestoreFailure) : RestorePreparation
 }
 
-/** 되살리기 진행. 화면을 떠나도 앱이 켜져 있으면 계속 간다. */
+/** 복원하기 진행. 화면을 떠나도 앱이 켜져 있으면 계속 간다. */
 sealed interface RestoreState {
     data object Idle : RestoreState
 
