@@ -39,9 +39,12 @@ class MergeApplier(
         val entries = db.entryDao()
         val media = db.mediaDao()
         val now = clock.now().toEpochMilliseconds()
+        // 다른 기기에서 이전한 일기면 같은 옛 번호가 다른 일기다. 번호는 표시에 쓰지 않으니 겹치면 비운다.
+        val taken = plan.local.values.mapNotNull { row -> row.entry.legacyId?.let { it to row.entry.id } }.toMap(HashMap())
         db.withWriteTransaction {
             for ((item, action) in plan.items) {
-                val incoming = item.entry.copy(deletedAt = keepInTrash(item.entry.deletedAt, now))
+                val legacyId = item.entry.legacyId?.takeIf { taken[it] == null || taken[it] == item.entry.id }
+                val incoming = item.entry.copy(deletedAt = keepInTrash(item.entry.deletedAt, now), legacyId = legacyId)
                 when (action) {
                     MergeAction.KEEP -> Unit
 
@@ -60,7 +63,7 @@ class MergeApplier(
 
                     MergeAction.KEEP_BOTH -> {
                         val id = newId()
-                        entries.insertAll(listOf(incoming.copy(id = id)))
+                        entries.insertAll(listOf(incoming.copy(id = id, legacyId = null)))
                         media.insertAll(item.media.map { it.settled().copy(id = newId(), entryId = id) })
                         dao.setBase(listOf(SyncBaseEntity(id, incoming.updatedAt)))
                         dao.mark(

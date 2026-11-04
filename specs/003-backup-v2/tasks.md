@@ -125,11 +125,11 @@ description: "스펙 003 백업 v2 작업 목록"
 
 - [x] T049 [P] [US2] `shared/core/backup/{test}/core/backup/MergeRulesTest.kt`: `contracts/merge-rules.md` 드라이브 합치기 표 경우 1~7을 하나씩, 둘 다 남길 때 새 `id`와 사진 줄 새 `id`·같은 `sha256`, `sync_base` 쓰기
 - [ ] T050 [P] [US2] `{test}/core/backup/MergeTrashAndPhotosTest.kt`: 휴지통 일기 남은 날 그대로, 하루 미만이면 7일, 영구 삭제한 일기가 다시 생김(미리보기에 셈), 사진 줄 표(있음 → `normal`, 받을 것 → `pending`, 백업에 없음 → `pending` 유지, `missing` 그대로), 바뀌지 않은 일기의 `pending` 사진 채우기
-- [ ] T051 [P] [US2] `{test}/core/backup/RestorePreviewTest.kt`: 미리보기 숫자가 실제 적용 결과와 같음, 설정 바뀜 표시, 기기 공간 부족이면 시작 안 함(FR-025)
-- [ ] T052 [P] [US2] `{test}/core/backup/RestoreInterruptionTest.kt`: 받기·확인 중 끊김(기기 그대로, 처음부터), 합치기 트랜잭션 중 실패(아무것도 안 바뀜), 사진 받는 중 끊김(`pending`만 이어 받기), 깨진 사진 하나만 `missing`, 스냅샷 확인값 불일치면 쓰지 않음(FR-021)
+- [x] T051 [P] [US2] `{test}/core/backup/RestorePreviewTest.kt`: 미리보기 숫자가 실제 적용 결과와 같음, 설정 바뀜 표시, 기기 공간 부족이면 시작 안 함(FR-025)
+- [x] T052 [P] [US2] `{test}/core/backup/RestoreInterruptionTest.kt`: 받기·확인 중 끊김(기기 그대로, 처음부터), 합치기 트랜잭션 중 실패(아무것도 안 바뀜), 사진 받는 중 끊김(`pending`만 이어 받기), 깨진 사진 하나만 `missing`, 스냅샷 확인값 불일치면 쓰지 않음(FR-021)
 - [x] T053 [P] [US2] `{test}/core/backup/RestoreListTest.kt`: 끝까지 된 백업만, 기기별 묶음, 깨진 목록 파일·스냅샷 없음·스냅샷 깨짐·새 앱 필요의 이유, 다른 계정 백업 안 보임
-- [ ] T054 [P] [US2] `{test}/core/backup/RestoreSettingsTest.kt`: 설정은 백업 값, 잠금은 꺼짐 + `lockEnabled`면 한 번 안내, 백업 설정·옛 백업 연결 값은 그대로, 알림 다시 예약
-- [ ] T055 [P] [US2] `{test}/core/backup/RoundTripTest.kt`: 스펙 001 이전 견본 자료로 이전 → 백업 → 빈 기기 복원, 일기 모든 칸·사진 확인값·순서·`missing`과 `legacy_path` 100% 같음(SC-001). 시간대 다른 기기에서 날짜 그대로. Android 호스트와 `iosSimulatorArm64Test` 양쪽에서 돈다
+- [x] T054 [P] [US2] `{test}/core/backup/RestoreSettingsTest.kt`: 설정은 백업 값, 잠금은 꺼짐 + `lockEnabled`면 한 번 안내, 백업 설정·옛 백업 연결 값은 그대로, 알림 다시 예약
+- [x] T055 [P] [US2] `{test}/core/backup/RoundTripTest.kt`: 스펙 001 이전 견본 자료로 이전 → 백업 → 빈 기기 복원, 일기 모든 칸·사진 확인값·순서·`missing`과 `legacy_path` 100% 같음(SC-001). 시간대 다른 기기에서 날짜 그대로. Android 호스트와 `iosSimulatorArm64Test` 양쪽에서 돈다
 
 ### Implementation for User Story 2
 

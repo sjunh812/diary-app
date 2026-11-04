@@ -7,6 +7,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -23,7 +24,10 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.drive.DriveApi
+import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
@@ -188,5 +192,128 @@ class RestoreRoundTripTest {
 
         assertFailsWith<RestoreMismatch> { planner().prepare(wrong) }
         assertEquals(0, phoneB.backupDao().allEntries().size)
+    }
+
+    private suspend fun prepareFromDrive() = planner().prepare(catalog().list().single())
+
+    private fun applierB() = MergeApplier(phoneB, { fs.exists(dir / "b" / "media" / it) })
+
+    @Test
+    fun every_field_and_photo_row_comes_back_the_same() = runTest {
+        val hash = "내용".encodeToByteArray().toByteString().sha256().hex()
+        fs.write(dir / "a" / "media" / "$hash.jpg") { write("내용".encodeToByteArray()) }
+        val full = EntryEntity(
+            "full", "2026-03-01", "07:05", "<p>글</p>", "글", "good", "sunny", "망원동", true, 11, 22, null, 5, "2024-03-01 07:05:00", "1|2"
+        )
+        val trashed = EntryEntity(
+            "trash", "2026-03-02", "23:59", "<p>지움</p>", "지움", null, null, null, false, 3, 4, 1_793_000_000_000, null, null, null
+        )
+        phoneA.entryDao().insertAll(listOf(full, trashed))
+        val rows =
+            listOf(
+                MediaEntity("m1", "full", 0, "missing", null, null, null, null, null, "/cache/gone.jpg", 9),
+                MediaEntity("m2", "full", 1, "normal", "$hash.jpg", hash, 10, 20, 6, "/cache/here.jpg", 9)
+            )
+        phoneA.mediaDao().insertAll(rows)
+        val runner =
+            BackupRunner(
+                phoneA, drive, FakeDriveAuthorizer(), BackupStore(InMemoryDataStore(emptyPreferences())), FakeNetworkState(),
+                DeviceName {
+                    "A"
+                },
+                fs,
+                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+            )
+        assertIs<BackupOutcome.Done>(runner.run())
+
+        val applier = applierB()
+        val prepared = prepareFromDrive()
+        applier.apply(prepared.plan, "drive")
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+
+        assertEquals(setOf(full, trashed), phoneB.backupDao().allEntries().toSet())
+        assertEquals(rows, phoneB.backupDao().allMedia().sortedBy { it.sortOrder })
+    }
+
+    @Test
+    fun preview_numbers_match_what_merge_does() = runTest {
+        backUp()
+        phoneB.entryDao().insertAll(listOf(entry("one").copy(updatedAt = 1), entry("mine").copy(legacyId = null)))
+
+        val prepared = prepareFromDrive()
+        val counts = applierB().apply(prepared.plan, "drive")
+
+        assertEquals(prepared.preview.entriesAdded, counts.added)
+        assertEquals(prepared.preview.entriesUpdated, counts.updated)
+        assertEquals(prepared.preview.entriesKeptBoth, counts.keptBoth)
+        assertEquals(3, phoneB.backupDao().allEntries().size)
+    }
+
+    @Test
+    fun same_old_number_from_another_phone_does_not_stop_the_merge() = runTest {
+        backUp()
+        phoneB.entryDao().insertAll(listOf(entry("mine").copy(legacyId = entry("one").legacyId)))
+
+        applierB().apply(prepareFromDrive().plan, "drive")
+
+        assertEquals(setOf("one", "two", "mine"), phoneB.backupDao().allEntries().map { it.id }.toSet())
+    }
+
+    @Test
+    fun cut_off_while_fetching_leaves_the_rest_waiting() = runTest {
+        backUp()
+        val applier = applierB()
+        applier.apply(prepareFromDrive().plan, "drive")
+        val broken =
+            object : DriveApi by drive {
+                override suspend fun download(fileId: String, to: Path, fromByte: Long): Long = throw DriveException(BackupFailure.OFFLINE)
+            }
+
+        assertFailsWith<DriveException> { PhotoFetcher(phoneB, broken, fs, dir / "b" / "media", dir / "b" / "backup").fetch() }
+        assertEquals("pending", phoneB.backupDao().allMedia().single().status)
+        assertEquals(2, phoneB.backupDao().allEntries().size)
+
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+
+        assertEquals("normal", phoneB.backupDao().allMedia().single().status)
+    }
+
+    @Test
+    fun failed_merge_changes_nothing() = runTest {
+        phoneB.entryDao().insertAll(listOf(entry("mine")))
+        val twin = MergeEntry(entry("same"), emptyList())
+        val plan = MergePlan(listOf(twin to MergeAction.ADD, twin to MergeAction.ADD), emptyMap())
+
+        assertFails { applierB().apply(plan, "drive") }
+
+        assertEquals(setOf("mine"), phoneB.backupDao().allEntries().map { it.id }.toSet())
+    }
+
+    @Test
+    fun picture_that_a_later_backup_has_fills_an_unchanged_entry() = runTest {
+        val hash = backUp()
+        applierB().apply(prepareFromDrive().plan, "drive")
+        assertEquals("pending", phoneB.backupDao().allMedia().single().status)
+
+        val again = prepareFromDrive()
+
+        assertEquals(0, again.preview.entriesAdded)
+        assertEquals(1, again.preview.photosToDownload)
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        assertTrue(fs.exists(dir / "b" / "media" / "$hash.jpg"))
+    }
+
+    @Test
+    fun settings_and_lock_notice_come_with_the_result() = runTest {
+        backUp()
+        val settings = mutableListOf<ManifestSettings>()
+        val controller = controller(settings, backgroundScope)
+        controller.prepare(controller.backups()!!.single().snapshotName)
+
+        controller.merge()
+        val done = withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
+
+        assertEquals(1, settings.size)
+        assertEquals(false, (done as RestoreState.Done).result.lockWasOn)
     }
 }
