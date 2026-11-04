@@ -47,6 +47,12 @@ data object MigrationReportKey : Screen
 @Serializable
 data object LicensesKey : Screen
 
+/** 쓰기. [date]는 `yyyy-MM-dd`로, 달력 빈 날에서 오면 있다. [entryId]가 있으면 고치기다. */
+@Serializable
+data class WriteKey(val date: String? = null, val entryId: String? = null) : Screen {
+    override fun toString(): String = "WriteKey"
+}
+
 /** 글꼴 하나의 라이선스 전문. [fontId]는 `DiaryFont.id`다. */
 @Serializable
 data class FontLicenseKey(val fontId: String) : Screen {

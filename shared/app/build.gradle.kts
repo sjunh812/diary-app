@@ -32,6 +32,7 @@ kotlin {
             implementation(projects.shared.feature.lock)
             implementation(projects.shared.feature.migration)
             implementation(projects.shared.feature.settings)
+            implementation(projects.shared.feature.write)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

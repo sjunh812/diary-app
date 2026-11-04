@@ -5,4 +5,7 @@
     <string name="tab_calendar">Calendar</string>
     <string name="tab_insight">Insights</string>
     <string name="tab_settings">Settings</string>
+    <string name="write_new">New entry</string>
+    <string name="write_saved">Saved</string>
+    <string name="write_draft_kept">Saved as a draft</string>
 </resources>

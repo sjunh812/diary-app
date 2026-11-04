@@ -14,8 +14,11 @@ import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
+import org.sjhstudio.diary.core.data.diary.DraftRepository
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
+import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
@@ -36,6 +39,8 @@ import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
 import org.sjhstudio.diary.feature.settings.settingsFeatureModule
+import org.sjhstudio.diary.feature.write.WriteMediaPath
+import org.sjhstudio.diary.feature.write.writeFeatureModule
 
 /** 앱 프로세스와 함께 사는 코루틴 범위. DataStore와 시작 작업이 쓴다. */
 internal val APP_SCOPE = named("appScope")
@@ -48,6 +53,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     lockFeatureModule,
     migrationFeatureModule,
     settingsFeatureModule,
+    writeFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
@@ -93,6 +99,13 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 ThumbnailEncoder(ImageDecoder::writeThumbnail)
             )
         }
+        // 일기 저장소(스펙 002). 일기 DB는 이전 관문을 지난 뒤 화면이 처음 쓸 때 열린다.
+        single {
+            val files = get<AppFiles>()
+            PhotoStore(FileSystem.SYSTEM, files.mediaDirectory.toPath(), ThumbnailEncoder(ImageDecoder::writeThumbnail), ImageDecoder::size)
+        }
+        single<DraftRepository> { DefaultDraftRepository(get(), get()) }
+        single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
         // 이전이 끝난 기기의 후속 작업(FR-011). 일기 DB는 이전이 끝난 뒤에만 꺼낸다.
         single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
     }

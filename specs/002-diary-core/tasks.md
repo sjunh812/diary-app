@@ -67,7 +67,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 - [x] T017 [P] 서식 정리 시험: 허용 목록 밖 태그는 태그만, `script`·`style`·`iframe`은 안의 글까지 버리고, 팔레트 밖 색 `span`은 글만 남기는지 `shared/core/model/{test}/core/model/RichTextSanitizerTest.kt` 2026-11-04: `shared/core/data/.../richtext/RichTextSanitizerTest.kt`. 서식 없는 글 코드가 core/data에 있어 같은 곳에 뒀다
 - [x] T018 [P] 평문 시험: "`p` 사이는 빈 줄 하나, `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `"와 `toPlainText(fromLegacy(원문)) == 원문`(이모지, 따옴표, `<`, `&`, 빈 줄 여러 개, 10만 자) `shared/core/model/{test}/core/model/PlainTextTest.kt` 2026-11-04: 스펙 001의 `PlainTextTest.kt`가 이미 다룬다
-- [ ] T019 [P] 내용 비공개 시험: `AnalyticsEvents`의 모든 이벤트 인자가 고정 표의 키·구간 값만 갖는지, 로그 래퍼가 `EntryRow`·`Draft`를 받지 않는지 `shared/core/data/{test}/core/data/PrivacyGuardTest.kt`
+- [x] T019 [P] 내용 비공개 시험: `AnalyticsEvents`의 모든 이벤트 인자가 고정 표의 키·구간 값만 갖는지, 로그 래퍼가 `EntryRow`·`Draft`를 받지 않는지 `shared/core/data/{test}/core/data/PrivacyGuardTest.kt` 2026-11-04: `PrivacyGuardTest.kt`. 내용을 담는 값의 `toString`과 화면 이름 표를 본다
 
 ### 모델과 저장
 
@@ -77,15 +77,15 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 - [x] T023 001 DB에 `Draft`(키 `"new"` 또는 `Entry.id`, `weatherAutoFilled`), `DraftMedia`, `Entry.deletedAt`과 색인 `(deletedAt, date DESC, time DESC)`, `(deletedAt, isFavorite)`를 001 첫 DB 버전 안에 더한다 `shared/core/database/{kt}/core/database/` 2026-11-04: `DraftEntity.kt`, `DraftDao.kt`. 표 `draft`, `draft_media`를 버전 1에 더했고 스키마 JSON을 다시 만들었다. 색인은 스펙 001에서 이미 있다
 - [x] T024 [P] `ImageProcessor` expect와 Android actual(다운샘플링, EXIF 방향, "긴 변 2,560px을 넘을 때만" 축소, JPEG 85, SHA-256)을 `shared/core/platform/{kt}/core/platform/ImageProcessor.kt`, `shared/core/platform/{android}/core/platform/ImageProcessor.android.kt`에 만든다 2026-11-04: 새 expect를 두지 않고 스펙 001 `ImageDecoder.writeThumbnail`(줄이기, EXIF, JPEG)을 쓰는 `PhotoStore.kt`로 만들었다. 크기 읽기 `ImageDecoder.size`를 더했고, 투명 그림은 흰 바탕에 올린다
 - [x] T025 [P] `ImageProcessor` iOS actual(`UIGraphicsImageRenderer`)을 `shared/core/platform/{ios}/core/platform/ImageProcessor.ios.kt`에 만든다 2026-11-04: T024와 같다. iOS는 `ImageDecoder.size`만 더했다
-- [ ] T026 [P] 시스템 공유 창, 햅틱, 고정 가능한 시계를 `shared/core/platform/{kt}/core/platform/ShareSheet.kt`, `Haptics.kt`, `Clock.kt`(+ android/ios actual)에 만든다
-- [ ] T027 [P] 대역 `FakeEntryRepository`, `FakeDraftRepository`, `FakeImageProcessor`, `FixedClock`을 `shared/core/testing/{kt}/core/testing/`에 만든다
+- [ ] T026 [P] 시스템 공유 창, 햅틱, 고정 가능한 시계를 `shared/core/platform/{kt}/core/platform/ShareSheet.kt`, `Haptics.kt`, `Clock.kt`(+ android/ios actual)에 만든다 2026-11-04 진행: 공유는 `rememberShareText`로 만들었다. 진동은 Compose, 시계는 `kotlin.time.Clock`을 쓴다
+- [x] T027 [P] 대역 `FakeEntryRepository`, `FakeDraftRepository`, `FakeImageProcessor`, `FixedClock`을 `shared/core/testing/{kt}/core/testing/`에 만든다 2026-11-04: `FakeDraftRepository`. 다른 대역은 그 이야기를 만들 때 더한다. 시계는 스펙 001 `TestClock`을 쓴다
 
 ### 공유 UI와 뼈대
 
 - [ ] T028 [P] 디자인 시스템 컴포넌트(버튼 셋, 시트, 스낵바(누르고 있으면 멈춤), 칩, 빈 상태, 내비게이션 바·레일)를 Figma T011과 같은 이름으로 `shared/core/designsystem/{kt}/core/designsystem/component/`에 만든다
-- [ ] T029 [P] `MoodIcon`, `WeatherIcon`(아이콘 + 이름으로 구별), `EntryRow`(글/사진 보기), `DateHeader`, `MonthHeader`, `RichTextView`(팔레트 hex → 테마 토큰, 001 설정의 본문 글꼴과 글자 크기 단계를 따름, FR-014), `PhotoGrid`를 `shared/core/ui/{kt}/core/ui/`에 만든다 2026-11-04 진행: `MoodFace`, `WeatherIcon`, 기분·날씨 이름(`core/ui/MoodWeather.kt`)과 일기 화면 아이콘을 Figma 경로에서 옮겼다. `EntryRow`, `DateHeader`, `RichTextView`는 남았다
-- [ ] T030 `contracts/navigation.md`의 화면 키, 하단 탭(600dp 미만)·레일(600dp 이상), 늘 보이는 쓰기 버튼, 두 칸 Scene 전략(840dp 이상, 직접 만든 `SceneStrategy`, 스펙 001 research R25)을 `shared/app/{kt}/app/DiaryNavigation.kt`, `DiaryScaffold.kt`, `ListDetailScene.kt`에 만든다
-- [ ] T031 하드웨어 키보드 단축키(Ctrl/⌘ + N, S, F)를 `shared/app/{kt}/app/KeyboardShortcuts.kt`에 만든다
+- [ ] T029 [P] `MoodIcon`, `WeatherIcon`(아이콘 + 이름으로 구별), `EntryRow`(글/사진 보기), `DateHeader`, `MonthHeader`, `RichTextView`(팔레트 hex → 테마 토큰, 001 설정의 본문 글꼴과 글자 크기 단계를 따름, FR-014), `PhotoGrid`를 `shared/core/ui/{kt}/core/ui/`에 만든다 2026-11-04 진행: `MoodFace`, `WeatherIcon`, 기분·날씨 이름(`core/ui/MoodWeather.kt`)과 일기 화면 아이콘을 Figma 경로에서 옮겼다. `EntryRow`, `DateHeader`, `RichTextView`는 남았다 `DiaryEntryLine`, `DiaryRichText`를 더했다. 날짜 머리는 일기 줄 안에 있다
+- [ ] T030 `contracts/navigation.md`의 화면 키, 하단 탭(600dp 미만)·레일(600dp 이상), 늘 보이는 쓰기 버튼, 두 칸 Scene 전략(840dp 이상, 직접 만든 `SceneStrategy`, 스펙 001 research R25)을 `shared/app/{kt}/app/DiaryNavigation.kt`, `DiaryScaffold.kt`, `ListDetailScene.kt`에 만든다 2026-11-04 진행: 쓰기 키, 쓰기 버튼, 쓰기 때 탭·레일 숨기기. 나머지 키와 두 칸은 홈과 함께
+- [ ] T031 하드웨어 키보드 단축키(Ctrl/⌘ + N, S, F)를 `shared/app/{kt}/app/KeyboardShortcuts.kt`에 만든다 2026-11-04 진행: 새 일기(Ctrl/⌘+N). 찾기·저장은 그 화면과 함께
 
 **Checkpoint**: 빈 화면 넷을 탭·레일로 오가고 창 폭에 따라 칸이 바뀐다
 
@@ -99,21 +99,21 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ### Tests for User Story 1
 
-- [ ] T032 [P] [US1] 임시 저장 시험: 입력 1초 뒤 `Draft` 반영, 재시작 뒤 복원, `commit` 실패 시 `Draft` 유지, `commit` 성공 시 `Entry`·`Media`가 한 트랜잭션으로 생기고 `Draft`가 사라짐 `shared/core/data/{test}/core/data/DraftRepositoryTest.kt`
-- [ ] T033 [P] [US1] 사진 시험: "무료 10, Plus 30", 이미 한도를 넘은 일기는 더하기만 막힘(`AddPhotosResult.LimitReached`), 같은 사진 두 번이면 파일 하나, 공간 부족이면 `Draft` 변화 없음 `shared/core/data/{test}/core/data/PhotoAttachTest.kt`
-- [ ] T034 [P] [US1] 쓰기 ViewModel 시험: 저장 조건("plainText가 비어 있지 않거나, 사진이 1장 이상이거나, mood가 있다"), 같은 기분 다시 누르면 해제, 날짜를 오늘이 아닌 날로 바꾸면 `weatherAutoFilled`인 날씨만 지움 `shared/feature/write/{test}/feature/write/WriteViewModelTest.kt`
+- [x] T032 [P] [US1] 임시 저장 시험: 입력 1초 뒤 `Draft` 반영, 재시작 뒤 복원, `commit` 실패 시 `Draft` 유지, `commit` 성공 시 `Entry`·`Media`가 한 트랜잭션으로 생기고 `Draft`가 사라짐 `shared/core/data/{test}/core/data/DraftRepositoryTest.kt` 2026-11-04: `DraftRepositoryTest.kt`, `WriteViewModelTest.kt`
+- [x] T033 [P] [US1] 사진 시험: "무료 10, Plus 30", 이미 한도를 넘은 일기는 더하기만 막힘(`AddPhotosResult.LimitReached`), 같은 사진 두 번이면 파일 하나, 공간 부족이면 `Draft` 변화 없음 `shared/core/data/{test}/core/data/PhotoAttachTest.kt` 2026-11-04: `DraftRepositoryTest.kt`
+- [x] T034 [P] [US1] 쓰기 ViewModel 시험: 저장 조건("plainText가 비어 있지 않거나, 사진이 1장 이상이거나, mood가 있다"), 같은 기분 다시 누르면 해제, 날짜를 오늘이 아닌 날로 바꾸면 `weatherAutoFilled`인 날씨만 지움 `shared/feature/write/{test}/feature/write/WriteViewModelTest.kt` 2026-11-04: `WriteViewModelTest.kt` 22개
 
 ### Implementation for User Story 1
 
-- [ ] T035 [US1] `DraftRepository`(`contracts/data-access.md`) 구현을 `shared/core/data/{kt}/core/data/DraftRepositoryImpl.kt`에 만든다
-- [ ] T036 [US1] `WriteViewModel`(1초 디바운스 저장, `ON_STOP`·이탈 즉시 저장, 새/고치기 대상, 오늘 일기만 날씨·동네 제안(D7 전까지 비워 둠))을 `shared/feature/write/{kt}/feature/write/WriteViewModel.kt`에 만든다
-- [ ] T037 [US1] 쓰기 화면(날짜·시각 줄, 본문 편집기, 첨부 칩 기분·날씨·장소(30자 안팎), 사진 격자 길게 눌러 순서 바꾸기)을 `shared/feature/write/{kt}/feature/write/WriteScreen.kt`에 만든다
-- [ ] T038 [US1] 키보드 위 서식 도구(굵게, 밑줄, 형광펜 3, 글자색 5, 글머리 목록, 사진, 기분, 날씨, 장소)를 `shared/feature/write/{kt}/feature/write/FormatToolbar.kt`에 만들고 지금 쓰는 줄이 키보드·도구에 가리지 않게 한다(FR-013)
-- [ ] T039 [US1] 기분·날씨 고르기 시트를 `shared/feature/write/{kt}/feature/write/MoodWeatherSheet.kt`에 만든다
-- [ ] T040 [US1] FileKit 여러 장 고르기(`maxItems = 남은 장수`)와 카메라를 쓰기 화면 루트에서 기억하는 런처로 `shared/feature/write/{kt}/feature/write/PhotoPicker.kt`에 붙인다(research R4)
-- [ ] T041 [US1] "쓰던 일기가 있어요" [이어 쓰기]/[새로 쓰기], 뒤로 가면 "임시 저장했어요", [버리기] 확인, 저장 뒤 "저장했어요"와 상세 이동을 `shared/feature/write/{kt}/feature/write/WriteRoute.kt`에 만든다
-- [ ] T042 [US1] 넓은 화면(840dp 이상)에서 본문 가운데(최대 약 680dp) + 옆 칸 배치를 `WriteScreen.kt`에 더한다
-- [ ] T043 [US1] 쓰기 화면 문구(해요체, 버튼·제목에 마침표 없음)를 `shared/feature/write/src/commonMain/composeResources/values/strings.xml`에 둔다
+- [x] T035 [US1] `DraftRepository`(`contracts/data-access.md`) 구현을 `shared/core/data/{kt}/core/data/DraftRepositoryImpl.kt`에 만든다 2026-11-04: `diary/DefaultDraftRepository.kt`
+- [x] T036 [US1] `WriteViewModel`(1초 디바운스 저장, `ON_STOP`·이탈 즉시 저장, 새/고치기 대상, 오늘 일기만 날씨·동네 제안(D7 전까지 비워 둠))을 `shared/feature/write/{kt}/feature/write/WriteViewModel.kt`에 만든다 2026-11-04: 날씨·동네 제안은 D7 전까지 비어 있다. 새 일기 임시 저장본은 FR-010을 지키려고 여럿일 수 있게 했다
+- [x] T037 [US1] 쓰기 화면(날짜·시각 줄, 본문 편집기, 첨부 칩 기분·날씨·장소(30자 안팎), 사진 격자 길게 눌러 순서 바꾸기)을 `shared/feature/write/{kt}/feature/write/WriteScreen.kt`에 만든다 2026-11-04: 넓은 화면(T042)과 함께 만들었다
+- [x] T038 [US1] 키보드 위 서식 도구(굵게, 밑줄, 형광펜 3, 글자색 5, 글머리 목록, 사진, 기분, 날씨, 장소)를 `shared/feature/write/{kt}/feature/write/FormatToolbar.kt`에 만들고 지금 쓰는 줄이 키보드·도구에 가리지 않게 한다(FR-013) 2026-11-04: 라이트 hex와 테마 색을 편집기 앞뒤에서 바꾸는 `EditorColors`와 왕복 시험(`EditorRoundTripUiTest`, iOS 라이트·다크)
+- [x] T039 [US1] 기분·날씨 고르기 시트를 `shared/feature/write/{kt}/feature/write/MoodWeatherSheet.kt`에 만든다 2026-11-04: 기분 5칸, 날씨 4칸으로 줄마다 같은 칸을 쓴다
+- [x] T040 [US1] FileKit 여러 장 고르기(`maxItems = 남은 장수`)와 카메라를 쓰기 화면 루트에서 기억하는 런처로 `shared/feature/write/{kt}/feature/write/PhotoPicker.kt`에 붙인다(research R4) 2026-11-04: FileKit이 시스템 포토피커를 쓴다(API 35 확인). 포토피커가 없는 기기에 내려받게 하는 설정을 매니페스트에 더했다
+- [x] T041 [US1] "쓰던 일기가 있어요" [이어 쓰기]/[새로 쓰기], 뒤로 가면 "임시 저장했어요", [버리기] 확인, 저장 뒤 "저장했어요"와 상세 이동을 `shared/feature/write/{kt}/feature/write/WriteRoute.kt`에 만든다 2026-11-04: [버리기]는 Figma에 없어 "쓰던 일기" 시트에 글자 버튼으로 뒀다. 상세로 가는 것은 T048 뒤에 잇는다
+- [x] T042 [US1] 넓은 화면(840dp 이상)에서 본문 가운데(최대 약 680dp) + 옆 칸 배치를 `WriteScreen.kt`에 더한다 2026-11-04: 태블릿 에뮬레이터 확인
+- [x] T043 [US1] 쓰기 화면 문구(해요체, 버튼·제목에 마침표 없음)를 `shared/feature/write/src/commonMain/composeResources/values/strings.xml`에 둔다 2026-11-04: 세 언어를 함께 채웠다
 
 **Checkpoint**: US1만으로 쓰기·저장·임시 저장이 된다
 

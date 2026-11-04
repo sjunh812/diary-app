@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -21,6 +22,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.stringResource
@@ -32,11 +35,15 @@ import org.sjhstudio.diary.app.navigation.InsightKey
 import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.TabScreen
+import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.tab_calendar
 import org.sjhstudio.diary.app.resources.tab_home
 import org.sjhstudio.diary.app.resources.tab_insight
 import org.sjhstudio.diary.app.resources.tab_settings
+import org.sjhstudio.diary.app.resources.write_draft_kept
+import org.sjhstudio.diary.app.resources.write_new
+import org.sjhstudio.diary.app.resources.write_saved
 import org.sjhstudio.diary.app.settings.settingsEntries
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavItem
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavigationBar
@@ -44,12 +51,15 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNavigationRail
 import org.sjhstudio.diary.core.designsystem.component.DiaryRailMinWidth
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
+import org.sjhstudio.diary.core.designsystem.component.DiaryWriteButton
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.feature.settings.FontReplacedNotice
+import org.sjhstudio.diary.feature.write.WriteRoute
+import org.sjhstudio.diary.feature.write.WriteTarget
 
 private val TABS: List<TabScreen> = listOf(HomeKey, CalendarKey, InsightKey, SettingsKey)
 
@@ -61,7 +71,7 @@ private val BackStackConfiguration =
 /**
  * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면). 폭 600dp 미만은 하단 탭, 이상은 레일이다.
  * 탭은 홈·달력·돌아보기·설정이고, 하단 탭은 탭의 맨 위 화면에서만 보인다(Figma S6·G2).
- * 홈·달력·돌아보기는 스펙 002가 채운다. 그때까지 빈 바탕이다.
+ * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있다. 쓰기 화면은 탭과 레일 없이 전체 화면이다.
  * 잠금·이전 관문은 이 바깥에 있어 뒤로 가기로 벗어날 수 없다.
  */
 @Composable
@@ -76,34 +86,68 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         )
     val selected = TABS.indexOf(backStack.firstOrNull()).coerceAtLeast(0)
     val onSelect = { index: Int -> backStack.selectTab(TABS[index]) }
+    val onWrite: () -> Unit = { backStack.add(WriteKey()) }
+    val writeLabel = stringResource(Res.string.write_new)
     // 앱 틀 전체에 하나 두는 토스트. 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
     val toast = remember { DiaryToastState() }
     FontReplacedNotice(toast) {
         backStack.selectTab(SettingsKey)
         backStack.add(FontSettingsKey)
     }
+    // 쓰기는 전체 화면이다. 탭과 레일을 그리지 않는다.
+    val writing = backStack.lastOrNull() is WriteKey
+    val floatingWrite = backStack.size == 1 && backStack.lastOrNull() != SettingsKey
 
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
-        if (maxWidth >= DiaryRailMinWidth) {
-            Row(Modifier.fillMaxSize()) {
-                DiaryNavigationRail(items, selected, onSelect)
+        val wide = maxWidth >= DiaryRailMinWidth
+        val shortcuts = Modifier.diaryShortcuts(onNewEntry = { if (!writing) onWrite() })
+        if (wide) {
+            Row(Modifier.fillMaxSize().then(shortcuts)) {
+                if (!writing) {
+                    DiaryNavigationRail(items, selected, onSelect, header = {
+                        DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
+                    })
+                }
                 ContentWithToast(backStack, toast, Modifier.weight(1f))
             }
         } else {
-            Column(Modifier.fillMaxSize()) {
-                ContentWithToast(backStack, toast, Modifier.weight(1f))
+            Column(Modifier.fillMaxSize().then(shortcuts)) {
+                Box(Modifier.weight(1f)) {
+                    ContentWithToast(backStack, toast, Modifier.fillMaxSize(), aboveWriteButton = floatingWrite)
+                    if (floatingWrite) {
+                        DiaryWriteButton(
+                            writeLabel,
+                            onWrite,
+                            Modifier.align(Alignment.BottomEnd).padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4)
+                        )
+                    }
+                }
                 if (backStack.size <= 1) DiaryNavigationBar(items, selected, onSelect)
             }
         }
     }
 }
 
+/** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
+private enum class Message { Saved, DraftKept }
+
 /** 토스트는 탭과 레일 위, 화면 아래쪽에 뜬다(`docs/design.md` 토스트). */
 @Composable
-private fun ContentWithToast(backStack: NavBackStack<NavKey>, toast: DiaryToastState, modifier: Modifier) {
+private fun ContentWithToast(
+    backStack: NavBackStack<NavKey>,
+    toast: DiaryToastState,
+    modifier: Modifier,
+    aboveWriteButton: Boolean = false
+) {
     Box(modifier) {
-        Content(backStack, Modifier.fillMaxSize())
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x6))
+        val saved = stringResource(Res.string.write_saved)
+        val draftKept = stringResource(Res.string.write_draft_kept)
+        val scope = rememberCoroutineScope()
+        Content(backStack, Modifier.fillMaxSize()) { message ->
+            scope.launch { toast.show(if (message == Message.Saved) saved else draftKept) }
+        }
+        val bottom = if (aboveWriteButton) DiarySpacing.x4 + DiarySpacing.x14 + DiarySpacing.x2 else DiarySpacing.x6
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = bottom))
     }
 }
 
@@ -114,7 +158,7 @@ private fun NavBackStack<NavKey>.selectTab(tab: TabScreen) {
 }
 
 @Composable
-private fun Content(backStack: NavBackStack<NavKey>, modifier: Modifier) {
+private fun Content(backStack: NavBackStack<NavKey>, modifier: Modifier, notify: (Message) -> Unit) {
     val pop: () -> Unit = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) }
     // 보는 화면이 바뀔 때마다 화면 키 이름만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
     val telemetry = koinInject<Telemetry>()
@@ -131,6 +175,20 @@ private fun Content(backStack: NavBackStack<NavKey>, modifier: Modifier) {
                 entry<CalendarKey> { EmptyTab() }
                 entry<InsightKey> { EmptyTab() }
                 settingsEntries(push = { backStack.add(it) }, pop = pop)
+                entry<WriteKey> { key ->
+                    val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
+                    WriteRoute(
+                        target = target,
+                        onSaved = {
+                            pop()
+                            notify(Message.Saved)
+                        },
+                        onClosed = { kept ->
+                            pop()
+                            if (kept) notify(Message.DraftKept)
+                        }
+                    )
+                }
             }
     )
 }

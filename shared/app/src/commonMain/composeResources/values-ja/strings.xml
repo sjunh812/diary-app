@@ -5,4 +5,7 @@
     <string name="tab_calendar">カレンダー</string>
     <string name="tab_insight">ふりかえり</string>
     <string name="tab_settings">設定</string>
+    <string name="write_new">日記を書く</string>
+    <string name="write_saved">保存しました</string>
+    <string name="write_draft_kept">下書きを保存しました</string>
 </resources>

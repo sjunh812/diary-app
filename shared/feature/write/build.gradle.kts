@@ -7,6 +7,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
+            // 사용 통계와 시계
+            implementation(projects.shared.core.platform)
+            // 서식 편집기와 사진 고르기
+            implementation(libs.rich.editor)
+            implementation(libs.filekit.dialogs.compose)
+            implementation(libs.compose.ui.backhandler)
         }
     }
 }

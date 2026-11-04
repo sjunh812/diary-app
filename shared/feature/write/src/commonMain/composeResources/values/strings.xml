@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="write_close">Close</string>
+    <string name="write_save">Save</string>
+    <string name="write_mood">Mood</string>
+    <string name="write_weather">Weather</string>
+    <string name="write_place">Place</string>
+    <string name="write_place_hint">Where were you?</string>
+    <string name="write_hint">How was your day?</string>
+    <string name="write_add_photo">Photos</string>
+    <string name="write_camera">Camera</string>
+    <string name="write_photo_count">%1$d/%2$d</string>
+    <string name="write_photo_remove">Remove photo</string>
+    <string name="write_photo_limit">You can attach up to %1$d new photos to an entry.</string>
+    <string name="write_photo_no_space">Your phone is out of storage, so some photos were not added.</string>
+    <string name="write_photo_unreadable">Some photos could not be read.</string>
+    <string name="write_save_failed">Could not save. What you wrote is kept, so try again.</string>
+    <string name="write_format_bold">Bold</string>
+    <string name="write_format_underline">Underline</string>
+    <string name="write_format_color">Text color</string>
+    <string name="write_format_mark">Highlight</string>
+    <string name="write_format_list">Bulleted list</string>
+    <string name="write_palette_back">Back to tools</string>
+    <string name="write_mood_title">How was your mood?</string>
+    <string name="write_none">None</string>
+    <string name="write_done">Done</string>
+    <string name="write_time">Time</string>
+    <string name="write_new_entry">New entry</string>
+    <string name="write_resume_title">You have an unfinished entry</string>
+    <string name="write_resume_body">Written on %1$s at %2$s</string>
+    <string name="write_resume_continue">Keep writing</string>
+    <string name="write_discard">Discard this entry</string>
+    <string name="write_discard_title">Discard this entry?</string>
+    <string name="write_discard_message">You cannot get it back.</string>
+    <string name="write_discard_confirm">Discard</string>
+</resources>

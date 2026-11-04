@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="write_close">닫기</string>
+    <string name="write_save">저장</string>
+    <string name="write_mood">기분</string>
+    <string name="write_weather">날씨</string>
+    <string name="write_place">장소</string>
+    <string name="write_place_hint">어디에 있었나요?</string>
+    <string name="write_hint">오늘 하루는 어땠나요?</string>
+    <string name="write_add_photo">사진</string>
+    <string name="write_camera">카메라</string>
+    <string name="write_photo_count">%1$d/%2$d</string>
+    <string name="write_photo_remove">사진 빼기</string>
+    <string name="write_photo_limit">사진은 한 편에 %1$d장까지 붙일 수 있어요</string>
+    <string name="write_photo_no_space">휴대폰 공간이 모자라 일부 사진을 넣지 못했어요</string>
+    <string name="write_photo_unreadable">읽지 못한 사진이 있어요</string>
+    <string name="write_save_failed">저장하지 못했어요. 쓴 글은 그대로 있으니 다시 눌러 주세요</string>
+    <string name="write_format_bold">굵게</string>
+    <string name="write_format_underline">밑줄</string>
+    <string name="write_format_color">글자색</string>
+    <string name="write_format_mark">형광펜</string>
+    <string name="write_format_list">글머리 목록</string>
+    <string name="write_palette_back">도구로 돌아가기</string>
+    <string name="write_mood_title">오늘 기분은 어땠나요</string>
+    <string name="write_none">선택 안 함</string>
+    <string name="write_done">완료</string>
+    <string name="write_time">시각</string>
+    <string name="write_new_entry">새로 쓰기</string>
+    <string name="write_resume_title">쓰던 일기가 있어요</string>
+    <string name="write_resume_body">%1$s %2$s에 쓰던 글이에요</string>
+    <string name="write_resume_continue">이어 쓰기</string>
+    <string name="write_discard">이 글 버리기</string>
+    <string name="write_discard_title">쓰던 글을 버릴까요?</string>
+    <string name="write_discard_message">버리면 되돌릴 수 없어요</string>
+    <string name="write_discard_confirm">버리기</string>
+</resources>
