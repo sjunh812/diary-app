@@ -302,8 +302,7 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
             Row(Modifier.fillMaxWidth()) {
                 for (bucket in row) {
                     Column(
-                        // 해가 적어도 칸 폭은 같게 둔다.
-                        Modifier.fillMaxWidth(1f / columns),
+                        Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
                     ) {
@@ -325,6 +324,8 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
                         )
                     }
                 }
+                // 해가 적어도 칸 폭은 같게 둔다.
+                repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -409,9 +410,19 @@ private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Moo
             }
         }
         BasicText(
-            stringResource(Res.string.insight_count_percent, count, percent),
+            // 없는 기분은 숫자만 흐리게 두어 있는 기분이 먼저 보이게 한다.
+            if (count > 0) stringResource(Res.string.insight_count_percent, count, percent) else count.toString(),
             modifier = Modifier.width(DiaryInsightSize.barCount * fontScale),
-            style = DiaryTheme.typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End),
+            style = DiaryTheme.typography.captionStrong.copy(
+                color = if (count >
+                    0
+                ) {
+                    colors.textPrimary
+                } else {
+                    colors.textTertiary
+                },
+                textAlign = TextAlign.End
+            ),
             maxLines = 1
         )
     }
