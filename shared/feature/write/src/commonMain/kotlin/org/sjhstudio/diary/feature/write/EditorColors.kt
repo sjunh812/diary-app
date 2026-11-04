@@ -2,6 +2,8 @@ package org.sjhstudio.diary.feature.write
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import org.sjhstudio.diary.core.data.richtext.bodyToEditor
+import org.sjhstudio.diary.core.data.richtext.editorToBody
 import org.sjhstudio.diary.core.designsystem.theme.DiaryColors
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
@@ -29,14 +31,15 @@ internal class EditorColors(colors: DiaryColors) {
     private val pairs: List<Pair<String, String>> =
         ink.map { (key, color) -> key.hex to color.toHex() } + mark.map { (key, color) -> key.hex to color.toHex() }
 
-    /** 저장된 라이트 hex를 지금 테마 색으로. */
-    fun toEditor(html: String): String = pairs.fold(html) { text, (stored, shown) -> text.replace(stored, shown, ignoreCase = true) }
+    /** 저장된 라이트 hex를 지금 테마 색으로, 문단 안 줄바꿈을 에디터의 줄로. */
+    fun toEditor(html: String): String =
+        pairs.fold(bodyToEditor(html)) { text, (stored, shown) -> text.replace(stored, shown, ignoreCase = true) }
 
     /** 편집기가 낸 `rgba()`나 hex를 저장 값으로. 정리기가 팔레트 밖 색을 버리므로 여기서 꼭 돌려놓는다. */
     fun fromEditor(html: String): String {
         val back = pairs.associate { (stored, shown) -> shown to stored }
         val normalized = RGB.replace(html) { match -> rgbToHex(match) ?: match.value }
-        return HEX.replace(normalized) { match -> back[match.value.lowercase()] ?: match.value }
+        return editorToBody(HEX.replace(normalized) { match -> back[match.value.lowercase()] ?: match.value })
     }
 
     private fun rgbToHex(match: MatchResult): String? {

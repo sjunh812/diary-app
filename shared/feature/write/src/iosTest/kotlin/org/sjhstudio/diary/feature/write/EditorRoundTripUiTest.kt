@@ -35,6 +35,20 @@ class EditorRoundTripUiTest {
         assertEquals(expected.spans.map { it.style }.toSet(), actual.spans.map { it.style }.toSet(), saved)
     }
 
+    /** 줄바꿈 한 번은 한 줄로, 빈 줄은 문단 나눔으로 남는다. */
+    @Test
+    fun lines_and_paragraphs_survive() = runComposeUiTest {
+        lateinit var colors: DiaryColors
+        setContent { Capture(false) { colors = it } }
+        waitForIdle()
+        val editor = EditorColors(colors)
+        for (saved in listOf("<p>첫 줄<br>둘째 줄</p>", "<p>문단</p><p>다음 문단</p>")) {
+            val state = RichTextState()
+            state.setHtml(editor.toEditor(saved))
+            assertEquals(saved, RichTextSanitizer.sanitize(editor.fromEditor(state.toHtml())))
+        }
+    }
+
     @Test
     fun formats_survive_in_light_theme() = roundTrip(dark = false)
 

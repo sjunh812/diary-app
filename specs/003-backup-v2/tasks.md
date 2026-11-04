@@ -63,22 +63,22 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ## Phase 4: Foundational (모든 이야기가 기대는 것)
 
-- [ ] T016 [P] `shared/core/model/{kt}/core/model/`에 `BackupStatus`, `BackupProgress`, `BackupEntry`, `LegacyBackupEntry`, `RestorePreview`, `RestoreResult`, `BackupNudge`, `BackupFailure`(`AUTH`·`NO_SPACE`·`OFFLINE`·`DRIVE_ERROR`·`LOCAL_IO`·`UNKNOWN`)를 만들고 `MediaStatus`에 `PENDING`을 더한다(data-model.md 모델 표)
-- [ ] T017 `shared/core/database/{kt}/core/database/`에 `BackupMediaEntity`(기본 키 `(account_key, sha256)`), `SyncBaseEntity`(`entry_id` 외래 키, 영구 삭제 때 함께 지움), `MergeMarkEntity`(`kind`: `kept_both`·`legacy_same_time`, `source`: `drive`·`file`·`legacy_drive`)와 DAO를 만들고 `MediaEntity.status`에 `pending`을 받게 한다. 버전 1 스키마 JSON(`shared/core/database/schemas`)을 다시 만든다
-- [ ] T018 [P] `shared/core/datastore/{kt}/core/datastore/BackupStore.kt`: `backup.preferences_pb`의 키를 data-model.md 표 그대로(`device_id`는 처음 읽을 때 UUID로 만든다)
-- [ ] T019 [P] `shared/core/backup/{kt}/core/backup/Hashing.kt`: Okio `HashingSink.sha256`·`md5`로 파일을 흘려 가며 재는 함수. 스펙 002 사진 저장이 같은 함수를 쓰도록 `core/data`에서 연결한다(research R4)
-- [ ] T020 [P] `shared/core/drive/{kt}/core/drive/`: `DriveApi` 인터페이스와 모델(`DriveFile`, `DriveQuery`, `DrivePage`, `UploadSession`, `ChunkResult`, `StorageQuota`), 오류 나누기 `DriveErrorMapper`(`contracts/drive-gateway.md` 표)
-- [ ] T021 [P] `shared/core/testing/{kt}/core/testing/FakeDrive.kt`: 메모리 파일, SHA-256·MD5 계산, `appProperties` 질의, 쪽 넘김, 공간 한도, 끊김·세션 만료·내용 깨기·401·속도 제한·5xx·폴더 지우기·계정 바꾸기·다른 클라이언트 파일 숨기기 주입(`contracts/drive-gateway.md` FakeDrive)
-- [ ] T022 [P] `shared/core/drive/{test}/core/drive/DriveErrorMapperTest.kt`, `ResumableUploadTest.kt`(Ktor `MockEngine`: 8MiB 조각, 308 `Range`, 404 → `Expired`, 다섯 번 다시 하기)
-- [ ] T023 `shared/core/drive/{kt}/core/drive/KtorDriveApi.kt`: Ktor 3.6.1로 REST v3를 부른다. multipart 작은 파일, 이어 올리기, `ChannelWriterContent` + Okio 소스로 흘려 보내기, 받을 때 흘려 쓰기, 응답 `fields` 고정. 엔진은 `{android}` OkHttp, `{ios}` Darwin
-- [ ] T024 [P] `shared/core/platform/{kt}/core/platform/DriveAuthorizer.kt`(인터페이스, `contracts/drive-gateway.md`), `shared/core/testing/{kt}/core/testing/FakeDriveAuthorizer.kt`
-- [ ] T025 `shared/core/platform/{android}/core/platform/AndroidDriveAuthorizer.kt`: `AuthorizationClient`(`drive.file`, `openid`, `email`), userinfo로 `sub`·이메일, `setAccount` 힌트, PendingIntent는 `connect`에서만 띄우고 `accessToken`에서는 `NeedsUser`, `revokeAccess`·`clearToken`
-- [ ] T026 [P] `iosApp/iosApp/Backup/GoogleDriveAuthorizer.swift`: GoogleSignIn-iOS로 `DriveAuthorizer`를 구현해 `MainViewController`에 넘긴다(`restorePreviousSignIn`, `addScopes`, `refreshTokensIfNeeded`, `disconnect`)
-- [ ] T027 [P] `shared/core/backup/{kt}/core/backup/ManifestCodec.kt`와 `{test}/ManifestCodecTest.kt`: `contracts/backup-format.md` 목록 파일 JSON(kotlinx-serialization, 모르는 키 무시, 없는 키 기본값), `formatVersion`·`dbVersion` 범위 판단
-- [ ] T028 `shared/core/backup/{kt}/core/backup/SnapshotWriter.kt`: `VACUUM INTO 'backup/outgoing/<이름>.db'` → 사본에서 기기 표(`backup_media`, `sync_base`, `merge_mark`, `draft`, `draft_media`) 비우기 → `VACUUM` → 일기·사진 줄 수, SHA-256, MD5. `SnapshotReader.kt`: 받은 스냅샷을 읽기 전용으로 열고 버전별로 일기·사진 줄을 읽는다(FR-035)
-- [ ] T029 [P] `shared/core/backup/{test}/core/backup/SnapshotWriterTest.kt`: 기기 표가 비었는지, 휴지통 일기·`missing`·`pending` 줄이 그대로인지, 쓰는 중에 다른 코루틴이 일기를 써도 사본이 한 시점인지
-- [ ] T030 [P] `shared/core/platform/{kt}/core/platform/`에 `NetworkState`(연결 여부, 데이터 요금 없는 연결인지), `DeviceName`, `FreeSpace`, `BackupNotifier`, `BackupScheduler`의 expect/actual 뼈대와 `core/testing`의 대역
-- [ ] T031 [P] 스펙 001 `contracts/app-shell.md` 사용 통계 고정 표에 `contracts/backup-flow.md`의 `backup_*`, `restore_run` 줄을 더하고 `shared/core/platform/{kt}/core/platform/AnalyticsEvents.kt`에 반영한다. `BackupError(kind, step)`로 바꾸는 함수와 시험(메시지에 경로·파일 이름이 없음)
+- [x] T016 [P] `shared/core/model/{kt}/core/model/`에 `BackupStatus`, `BackupProgress`, `BackupEntry`, `LegacyBackupEntry`, `RestorePreview`, `RestoreResult`, `BackupNudge`, `BackupFailure`(`AUTH`·`NO_SPACE`·`OFFLINE`·`DRIVE_ERROR`·`LOCAL_IO`·`UNKNOWN`)를 만들고 `MediaStatus`에 `PENDING`을 더한다(data-model.md 모델 표)
+- [x] T017 `shared/core/database/{kt}/core/database/`에 `BackupMediaEntity`(기본 키 `(account_key, sha256)`), `SyncBaseEntity`(`entry_id` 외래 키, 영구 삭제 때 함께 지움), `MergeMarkEntity`(`kind`: `kept_both`·`legacy_same_time`, `source`: `drive`·`file`·`legacy_drive`)와 DAO를 만들고 `MediaEntity.status`에 `pending`을 받게 한다. 버전 1 스키마 JSON(`shared/core/database/schemas`)을 다시 만든다
+- [x] T018 [P] `shared/core/datastore/{kt}/core/datastore/BackupStore.kt`: `backup.preferences_pb`의 키를 data-model.md 표 그대로(`device_id`는 처음 읽을 때 UUID로 만든다)
+- [x] T019 [P] `shared/core/backup/{kt}/core/backup/Hashing.kt`: Okio `HashingSink.sha256`·`md5`로 파일을 흘려 가며 재는 함수. 스펙 002 사진 저장이 같은 함수를 쓰도록 `core/data`에서 연결한다(research R4)
+- [x] T020 [P] `shared/core/drive/{kt}/core/drive/`: `DriveApi` 인터페이스와 모델(`DriveFile`, `DriveQuery`, `DrivePage`, `UploadSession`, `ChunkResult`, `StorageQuota`), 오류 나누기 `DriveErrorMapper`(`contracts/drive-gateway.md` 표)
+- [x] T021 [P] `shared/core/testing/{kt}/core/testing/FakeDrive.kt`: 메모리 파일, SHA-256·MD5 계산, `appProperties` 질의, 쪽 넘김, 공간 한도, 끊김·세션 만료·내용 깨기·401·속도 제한·5xx·폴더 지우기·계정 바꾸기·다른 클라이언트 파일 숨기기 주입(`contracts/drive-gateway.md` FakeDrive)
+- [x] T022 [P] `shared/core/drive/{test}/core/drive/DriveErrorMapperTest.kt`, `ResumableUploadTest.kt`(Ktor `MockEngine`: 8MiB 조각, 308 `Range`, 404 → `Expired`, 다섯 번 다시 하기)
+- [x] T023 `shared/core/drive/{kt}/core/drive/KtorDriveApi.kt`: Ktor 3.6.1로 REST v3를 부른다. multipart 작은 파일, 이어 올리기, `ChannelWriterContent` + Okio 소스로 흘려 보내기, 받을 때 흘려 쓰기, 응답 `fields` 고정. 엔진은 `{android}` OkHttp, `{ios}` Darwin
+- [x] T024 [P] `shared/core/platform/{kt}/core/platform/DriveAuthorizer.kt`(인터페이스, `contracts/drive-gateway.md`), `shared/core/testing/{kt}/core/testing/FakeDriveAuthorizer.kt`
+- [x] T025 `shared/core/platform/{android}/core/platform/AndroidDriveAuthorizer.kt`: `AuthorizationClient`(`drive.file`, `openid`, `email`), userinfo로 `sub`·이메일, `setAccount` 힌트, PendingIntent는 `connect`에서만 띄우고 `accessToken`에서는 `NeedsUser`, `revokeAccess`·`clearToken`
+- [x] T026 [P] `iosApp/iosApp/Backup/GoogleDriveAuthorizer.swift`: GoogleSignIn-iOS로 `DriveAuthorizer`를 구현해 `MainViewController`에 넘긴다(`restorePreviousSignIn`, `addScopes`, `refreshTokensIfNeeded`, `disconnect`)
+- [x] T027 [P] `shared/core/backup/{kt}/core/backup/ManifestCodec.kt`와 `{test}/ManifestCodecTest.kt`: `contracts/backup-format.md` 목록 파일 JSON(kotlinx-serialization, 모르는 키 무시, 없는 키 기본값), `formatVersion`·`dbVersion` 범위 판단
+- [x] T028 `shared/core/backup/{kt}/core/backup/SnapshotWriter.kt`: `VACUUM INTO 'backup/outgoing/<이름>.db'` → 사본에서 기기 표(`backup_media`, `sync_base`, `merge_mark`, `draft`, `draft_media`) 비우기 → `VACUUM` → 일기·사진 줄 수, SHA-256, MD5. `SnapshotReader.kt`: 받은 스냅샷을 읽기 전용으로 열고 버전별로 일기·사진 줄을 읽는다(FR-035)
+- [x] T029 [P] `shared/core/backup/{test}/core/backup/SnapshotWriterTest.kt`: 기기 표가 비었는지, 휴지통 일기·`missing`·`pending` 줄이 그대로인지, 쓰는 중에 다른 코루틴이 일기를 써도 사본이 한 시점인지
+- [x] T030 [P] `shared/core/platform/{kt}/core/platform/`에 `NetworkState`(연결 여부, 데이터 요금 없는 연결인지), `DeviceName`, `FreeSpace`, `BackupNotifier`, `BackupScheduler`의 expect/actual 뼈대와 `core/testing`의 대역
+- [x] T031 [P] 스펙 001 `contracts/app-shell.md` 사용 통계 고정 표에 `contracts/backup-flow.md`의 `backup_*`, `restore_run` 줄을 더하고 `shared/core/platform/{kt}/core/platform/AnalyticsEvents.kt`에 반영한다. `BackupError(kind, step)`로 바꾸는 함수와 시험(메시지에 경로·파일 이름이 없음)
 - [ ] T032 `shared/core/data/{kt}/core/data/BackupStatusRepository.kt`: `BackupStore`, `backup_media`, `media`, 진행 상태를 묶어 `BackupStatus` 흐름을 낸다(홈·설정이 같이 받음)
 
 ---
