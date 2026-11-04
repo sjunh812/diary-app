@@ -139,4 +139,17 @@
     <string name="backup_nudge_body">Back up to Google Drive and they’ll stay with you when you change phones.</string>
     <string name="backup_nudge_action">Turn on backup</string>
     <string name="backup_nudge_later">Later</string>
+    <string name="restore_replace_entry">Replace with this backup instead</string>
+    <string name="restore_replace_title">Replace with this backup?</string>
+    <string name="restore_replace_action">Replace</string>
+    <string name="restore_failed_space_title">Not enough space on this phone</string>
+    <string name="restore_failed_space_body">There’s no room to keep your current records, so we stopped. Nothing on this phone changed.</string>
+    <string name="rollback_title">Replaced with this backup</string>
+    <string name="rollback_until">You can go back until %1$s.</string>
+    <string name="rollback_tomorrow">You can go back until tomorrow.</string>
+    <string name="rollback_action">Go back</string>
+    <string name="rollback_ask_title">Go back to before the replacement?</string>
+    <string name="rollback_ask_body">%1$s entries from before will return.</string>
+    <string name="rollback_ask_after">%1$s entries from before will return. %2$s entries you wrote afterward stay.</string>
+    <plurals name="restore_replace_body"><item quantity="one">%1$s entry on this phone will be replaced by this backup. You can go back for 7 days.</item><item quantity="other">%1$s entries on this phone will be replaced by this backup. You can go back for 7 days.</item></plurals>
 </resources>

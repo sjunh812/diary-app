@@ -134,10 +134,13 @@ class RestoreRoundTripTest {
         val media = dir / "b" / "media"
         val work = dir / "b" / "backup"
         val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
+        val store = BackupStore(InMemoryDataStore(emptyPreferences()))
         return RestoreController(
             lazy { catalog() }, lazy { planner() }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
-            lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) }, lazy { phoneB },
-            BackupStore(InMemoryDataStore(emptyPreferences())), FakeNetworkState(), fs, { settings += it }, scope
+            lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) },
+            lazy { RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {}) },
+            lazy { phoneB },
+            store, FakeNetworkState(), fs, { settings += it }, scope
         )
     }
 

@@ -21,9 +21,11 @@ class DefaultMediaRepository(
     private val fileSystem: FileSystem,
     private val mediaDir: Path,
     private val thumbnailDir: Path,
-    private val io: CoroutineDispatcher = Dispatchers.IO
+    private val io: CoroutineDispatcher = Dispatchers.IO,
+    private val keepEverything: suspend () -> Boolean = { false }
 ) : MediaRepository {
     override suspend fun cleanUnused(now: Instant) {
+        if (keepEverything()) return
         val used = (db.mediaDao().fileNames() + db.draftDao().fileNames()).toHashSet()
         val before = (now - 1.days).toEpochMilliseconds()
         withContext(io) {

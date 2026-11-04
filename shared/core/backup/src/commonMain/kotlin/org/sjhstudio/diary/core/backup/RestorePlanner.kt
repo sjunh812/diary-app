@@ -52,7 +52,8 @@ class RestorePlanner(
                 bytesToDownload = needed.sumOf { it.byteSize },
                 photosNotInBackup = manifest.media.count { !it.inBackup },
                 settingsChange = true,
-                deviceBytesFree = freeSpace.bytes()
+                deviceBytesFree = freeSpace.bytes(),
+                entriesHere = plan.local.values.count { it.entry.deletedAt == null }
             )
         return PreparedRestore(manifest, plan, preview, path)
     }

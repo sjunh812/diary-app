@@ -38,6 +38,7 @@ import org.sjhstudio.diary.core.migration.legacyFiles
 import org.sjhstudio.diary.core.platform.AndroidDeviceName
 import org.sjhstudio.diary.core.platform.AndroidDriveAuthorizer
 import org.sjhstudio.diary.core.platform.AndroidFontInstaller
+import org.sjhstudio.diary.core.platform.AndroidFreeSpace
 import org.sjhstudio.diary.core.platform.AndroidNetworkState
 import org.sjhstudio.diary.core.platform.AndroidNotificationPermission
 import org.sjhstudio.diary.core.platform.AndroidReminderScheduler
@@ -47,6 +48,7 @@ import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.FontInstaller
+import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.ReminderScheduler
@@ -65,6 +67,7 @@ internal actual val platformModule: Module =
         single<DeviceName> { AndroidDeviceName(androidContext()) }
         single<BackupScheduler> { AndroidBackupScheduler(androidContext()) }
         single<BackupNotifier> { AndroidBackupNotifier(androidContext()) }
+        single<FreeSpace> { AndroidFreeSpace(androidContext()) }
         single {
             val importer =
                 MediaImporter(FileSystem.SYSTEM, get<AppFiles>().mediaDirectory.toPath(), AndroidImageSizeReader, Clock.System) {

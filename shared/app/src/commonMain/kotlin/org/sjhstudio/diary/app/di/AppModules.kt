@@ -18,12 +18,14 @@ import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.LegacyBackupImporter
+import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.backup.ManifestSettings
 import org.sjhstudio.diary.core.backup.MergeApplier
 import org.sjhstudio.diary.core.backup.PhotoFetcher
 import org.sjhstudio.diary.core.backup.RestoreCatalog
 import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
+import org.sjhstudio.diary.core.backup.RollbackManager
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -61,6 +63,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AppFiles
+import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
@@ -165,20 +168,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 workDir = files.backupDirectory.toPath(),
                 app = get(),
                 readme = { backupReadme() },
-                settings = {
-                    val settings = get<SettingsRepository>().settings.first()
-                    ManifestSettings(
-                        font = settings.font.id,
-                        bodyTextSize = settings.bodyTextSize.id,
-                        themeMode = settings.themeMode.id,
-                        reminderEnabled = settings.reminderEnabled,
-                        reminderMinuteOfDay = settings.reminderMinuteOfDay,
-                        listStyle = settings.list.listStyle.id,
-                        favoritesOnly = settings.list.favoritesOnly,
-                        askLocationAgain = settings.askLocationAgain,
-                        lockEnabled = get<LockRepository>().settings.first().enabled
-                    )
-                },
+                settings = { currentBackupSettings(get(), get()) },
                 alerts = BackupAlerts(get()) { backupAlertText(it) }
             )
         }
@@ -200,8 +190,17 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             val work = files.backupDirectory.toPath()
             val media = files.mediaDirectory.toPath()
             val system = FileSystem.SYSTEM
-            val applier = lazy { MergeApplier(get(), { system.exists(media / it) }) }
-            val legacy = lazy { LegacyBackupImporter(get(), get(), get(), system, work) }
+            // DB만 늦게 연다. 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 한다.
+            val drive = get<DriveApi>()
+            val copier = get<LegacyPhotoCopier>()
+            val freeSpace = get<FreeSpace>()
+            val settings = get<SettingsRepository>()
+            val lock = get<LockRepository>()
+            val store = get<BackupStore>()
+            val database = lazy { get<DiaryDatabase>() }
+            val applier = lazy { MergeApplier(database.value, { system.exists(media / it) }) }
+            val legacy = lazy { LegacyBackupImporter(database.value, drive, copier, system, work) }
+            val applyBackup: suspend (ManifestSettings) -> Unit = { applyBackupSettings(settings, it) }
             RestoreController(
                 catalog =
                     lazy {
@@ -209,15 +208,28 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                             legacy.value.find(get<SettingsRepository>().settings.first().legacyBackup?.fileId)
                         }
                     },
-                planner = lazy { RestorePlanner(get(), applier.value, get(), system, work) },
+                planner = lazy { RestorePlanner(drive, applier.value, freeSpace, system, work) },
                 applier = applier,
-                fetcher = lazy { PhotoFetcher(get(), get(), system, media, work) },
+                fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work) },
                 legacy = legacy,
-                db = lazy { get<DiaryDatabase>() },
-                store = get(),
+                rollbackManager =
+                    lazy {
+                        RollbackManager(
+                            db = database.value,
+                            applier = applier.value,
+                            store = store,
+                            freeSpace = freeSpace,
+                            fileSystem = system,
+                            rootDir = work,
+                            currentSettings = { currentBackupSettings(settings, lock) },
+                            applySettings = applyBackup
+                        )
+                    },
+                db = database,
+                store = store,
                 network = get(),
                 fileSystem = system,
-                applySettings = { applyBackupSettings(get(), it) },
+                applySettings = applyBackup,
                 scope = get(APP_SCOPE)
             )
         }
@@ -226,7 +238,14 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
         single<MediaRepository> {
             val files = get<AppFiles>()
-            DefaultMediaRepository(get(), FileSystem.SYSTEM, files.mediaDirectory.toPath(), files.thumbnailDirectory.toPath())
+            DefaultMediaRepository(
+                get(),
+                FileSystem.SYSTEM,
+                files.mediaDirectory.toPath(),
+                files.thumbnailDirectory.toPath(),
+                // 되돌릴 수 있는 동안에는 바꾸기 전 일기가 가리키던 사진을 지우지 않는다.
+                keepEverything = { get<BackupStore>().current().rollbackUntil != null }
+            )
         }
         single { DiaryCleanup(get(), get()) }
         single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
@@ -235,6 +254,21 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
     }
 )
+
+private suspend fun currentBackupSettings(repository: SettingsRepository, lock: LockRepository): ManifestSettings {
+    val settings = repository.settings.first()
+    return ManifestSettings(
+        font = settings.font.id,
+        bodyTextSize = settings.bodyTextSize.id,
+        themeMode = settings.themeMode.id,
+        reminderEnabled = settings.reminderEnabled,
+        reminderMinuteOfDay = settings.reminderMinuteOfDay,
+        listStyle = settings.list.listStyle.id,
+        favoritesOnly = settings.list.favoritesOnly,
+        askLocationAgain = settings.askLocationAgain,
+        lockEnabled = lock.settings.first().enabled
+    )
+}
 
 /** 잠금과 백업 설정은 바꾸지 않는다(contracts/merge-rules.md "설정"). 알림은 값이 바뀌면 다시 예약된다. */
 private suspend fun applyBackupSettings(repository: SettingsRepository, backup: ManifestSettings) {

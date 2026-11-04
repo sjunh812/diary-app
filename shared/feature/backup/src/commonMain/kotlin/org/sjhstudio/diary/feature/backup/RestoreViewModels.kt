@@ -48,6 +48,8 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
     }
 
     fun merge() = restore.merge()
+
+    fun replace() = restore.replace()
 }
 
 class RestoreProgressViewModel(private val restore: RestoreRepository) : ViewModel() {

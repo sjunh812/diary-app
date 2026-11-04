@@ -14,6 +14,7 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.platform.ConnectResult
 
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
@@ -27,6 +28,13 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
 
     private val _connecting = MutableStateFlow(false)
     val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
+
+    /** 바꾸기 뒤 되돌릴 수 있는 동안만 값이 있다. */
+    val rollback: StateFlow<RollbackInfo?> = restore.rollback.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+
+    fun rollBack() {
+        viewModelScope.launch { restore.rollBack() }
+    }
 
     private val _found = MutableStateFlow<BackupEntry?>(null)
 

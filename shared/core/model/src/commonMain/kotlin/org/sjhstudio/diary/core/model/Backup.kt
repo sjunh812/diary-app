@@ -100,7 +100,9 @@ data class RestorePreview(
     val bytesToDownload: Long,
     val photosNotInBackup: Int,
     val settingsChange: Boolean,
-    val deviceBytesFree: Long
+    val deviceBytesFree: Long,
+    /** 지금 이 기기에 보이는 일기 수. 바꾸기 확인에 쓴다. */
+    val entriesHere: Int = 0
 )
 
 data class RestoreResult(
@@ -119,7 +121,10 @@ data class RestoreResult(
     val fromLegacy: Boolean = false
 )
 
-enum class RestoreFailure { MISMATCH, OTHER }
+enum class RestoreFailure { MISMATCH, NO_SPACE, OTHER }
+
+/** 바꾸기를 되돌릴 수 있는 동안의 정보. 일기 수만 담는다. */
+data class RollbackInfo(val until: Instant, val entriesBefore: Int, val entriesAfter: Int)
 
 /** 스냅샷을 받아 확인한 결과. */
 sealed interface RestorePreparation {

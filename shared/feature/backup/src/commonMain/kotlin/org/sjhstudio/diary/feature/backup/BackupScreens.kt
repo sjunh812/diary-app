@@ -23,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -51,6 +53,8 @@ import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_account
@@ -93,6 +97,13 @@ import org.sjhstudio.diary.feature.backup.resources.restore_found_later
 import org.sjhstudio.diary.feature.backup.resources.restore_found_title
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row_body
+import org.sjhstudio.diary.feature.backup.resources.rollback_action
+import org.sjhstudio.diary.feature.backup.resources.rollback_ask_after
+import org.sjhstudio.diary.feature.backup.resources.rollback_ask_body
+import org.sjhstudio.diary.feature.backup.resources.rollback_ask_title
+import org.sjhstudio.diary.feature.backup.resources.rollback_title
+import org.sjhstudio.diary.feature.backup.resources.rollback_tomorrow
+import org.sjhstudio.diary.feature.backup.resources.rollback_until
 
 /** 설정 > 백업(Figma "백업 (B1)"). */
 @Composable
@@ -107,9 +118,12 @@ fun BackupSettingsRoute(
     val status by viewModel.status.collectAsStateWithLifecycle()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
+    val rollback by viewModel.rollback.collectAsStateWithLifecycle()
     BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
         viewModel.backUpNow()
-    }, { viewModel.backUpNow(cellularOnce = true) }, viewModel::setAuto, onOptions, onRestore, onBack, modifier)
+    }, {
+        viewModel.backUpNow(cellularOnce = true)
+    }, viewModel::setAuto, onOptions, onRestore, onBack, modifier, rollback, viewModel::rollBack)
     found?.let { entry ->
         BackupFoundSheet(entry, viewModel::foundShown) {
             viewModel.foundShown()
@@ -157,7 +171,9 @@ internal fun BackupSettingsScreen(
     onOptions: () -> Unit,
     onRestore: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    rollback: RollbackInfo? = null,
+    onRollBack: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -170,6 +186,7 @@ internal fun BackupSettingsScreen(
                     Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
                     verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
                 ) {
+                    rollback?.let { Rollback(it, onRollBack) }
                     Status(status, onCellular, onConnect)
                     if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
                         DiaryButton(stringResource(Res.string.backup_now), onBackUp, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
@@ -198,6 +215,46 @@ internal fun BackupSettingsScreen(
             }
             Spacer(Modifier.height(DiarySpacing.x8))
         }
+    }
+}
+
+/** Figma "B9 백업 · 되돌릴 수 있어요". */
+@Composable
+private fun Rollback(info: RollbackInfo, onRollBack: () -> Unit) {
+    var asking by remember { mutableStateOf(false) }
+    val dates = rememberDiaryDateFormat()
+    val zone = TimeZone.currentSystemDefault()
+    val until = info.until.toLocalDateTime(zone).date
+    val tomorrow = (Clock.System.now() + 1.days).toLocalDateTime(zone).date
+    DiaryStatusBox(
+        DiaryIcons.Restore,
+        stringResource(Res.string.rollback_title),
+        if (until <=
+            tomorrow
+        ) {
+            stringResource(Res.string.rollback_tomorrow)
+        } else {
+            stringResource(Res.string.rollback_until, dates.monthDay(until))
+        },
+        actionLabel = stringResource(Res.string.rollback_action),
+        onAction = { asking = true }
+    )
+    if (asking) {
+        DiaryDialog(
+            title = stringResource(Res.string.rollback_ask_title),
+            confirmLabel = stringResource(Res.string.rollback_action),
+            onConfirm = {
+                asking = false
+                onRollBack()
+            },
+            onDismiss = { asking = false },
+            message =
+                if (info.entriesAfter > 0) {
+                    stringResource(Res.string.rollback_ask_after, info.entriesBefore.grouped(), info.entriesAfter.grouped())
+                } else {
+                    stringResource(Res.string.rollback_ask_body, info.entriesBefore.grouped())
+                }
+        )
     }
 }
 

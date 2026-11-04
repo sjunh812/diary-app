@@ -19,6 +19,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -36,6 +39,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryNote
 import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
@@ -77,6 +81,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_failed_mismatch_body
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_mismatch_title
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_other_body
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_other_title
+import org.sjhstudio.diary.feature.backup.resources.restore_failed_space_body
+import org.sjhstudio.diary.feature.backup.resources.restore_failed_space_title
 import org.sjhstudio.diary.feature.backup.resources.restore_fetching_body
 import org.sjhstudio.diary.feature.backup.resources.restore_group_legacy
 import org.sjhstudio.diary.feature.backup.resources.restore_join
@@ -119,6 +125,10 @@ import org.sjhstudio.diary.feature.backup.resources.restore_preparing
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_body
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_title
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_top
+import org.sjhstudio.diary.feature.backup.resources.restore_replace_action
+import org.sjhstudio.diary.feature.backup.resources.restore_replace_body
+import org.sjhstudio.diary.feature.backup.resources.restore_replace_entry
+import org.sjhstudio.diary.feature.backup.resources.restore_replace_title
 import org.sjhstudio.diary.feature.backup.resources.restore_retry
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_running_note
@@ -240,7 +250,10 @@ fun RestorePreviewRoute(snapshotName: String, onBack: () -> Unit, onMerged: () -
     RestorePreviewScreen(state, {
         viewModel.merge()
         onMerged()
-    }, viewModel::load, onBack, modifier)
+    }, viewModel::load, onBack, modifier, onReplace = {
+        viewModel.replace()
+        onMerged()
+    })
 }
 
 @Composable
@@ -249,7 +262,8 @@ fun RestorePreviewScreen(
     onMerge: () -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onReplace: () -> Unit = {}
 ) {
     Page(stringResource(Res.string.restore_preview_top), onBack, modifier) {
         when (state) {
@@ -261,15 +275,16 @@ fun RestorePreviewScreen(
                 if (state.entry.platform == PLATFORM_LEGACY) {
                     LegacyPreview(state.entry, state.preview, onMerge)
                 } else {
-                    Preview(state.entry, state.preview, onMerge)
+                    Preview(state.entry, state.preview, onMerge, onReplace)
                 }
         }
     }
 }
 
 @Composable
-private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onMerge: () -> Unit) {
+private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onMerge: () -> Unit, onReplace: () -> Unit) {
     val lacking = preview.bytesToDownload - preview.deviceBytesFree
+    var asking by remember { mutableStateOf(false) }
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Hero(
             DiaryIcons.Restore,
@@ -311,12 +326,34 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
         }
     }
     Bottom {
+        if (preview.entriesHere > 0) {
+            DiaryButton(
+                stringResource(Res.string.restore_replace_entry),
+                { asking = true },
+                Modifier.fillMaxWidth(),
+                kind = DiaryButtonKind.Text,
+                enabled = lacking <= 0
+            )
+        }
         DiaryButton(
             stringResource(Res.string.restore_merge),
             onMerge,
             Modifier.fillMaxWidth(),
             size = DiaryButtonSize.XLarge,
             enabled = lacking <= 0
+        )
+    }
+    if (asking) {
+        DiaryDialog(
+            title = stringResource(Res.string.restore_replace_title),
+            confirmLabel = stringResource(Res.string.restore_replace_action),
+            onConfirm = {
+                asking = false
+                onReplace()
+            },
+            onDismiss = { asking = false },
+            message = pluralStringResource(Res.plurals.restore_replace_body, preview.entriesHere, preview.entriesHere.grouped()),
+            destructive = true
         )
     }
 }
@@ -565,13 +602,18 @@ private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
 /** Figma "B6 · 백업을 확인하지 못했어요". 어떤 실패든 기기의 기록은 그대로다. */
 @Composable
 private fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onPickOther: () -> Unit) {
-    val mismatch = reason == RestoreFailure.MISMATCH
+    val (title, body) =
+        when (reason) {
+            RestoreFailure.MISMATCH -> Res.string.restore_failed_mismatch_title to Res.string.restore_failed_mismatch_body
+            RestoreFailure.NO_SPACE -> Res.string.restore_failed_space_title to Res.string.restore_failed_space_body
+            RestoreFailure.OTHER -> Res.string.restore_failed_other_title to Res.string.restore_failed_other_body
+        }
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Hero(
             DiaryIcons.CircleAlert,
-            stringResource(if (mismatch) Res.string.restore_failed_mismatch_title else Res.string.restore_failed_other_title),
-            stringResource(if (mismatch) Res.string.restore_failed_mismatch_body else Res.string.restore_failed_other_body),
+            stringResource(title),
+            stringResource(body),
             tone = DiaryBadgeTone.Danger,
             fill = false
         )

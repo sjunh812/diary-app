@@ -139,4 +139,17 @@
     <string name="backup_nudge_body">Google ドライブにバックアップすれば、スマホを替えてもそのまま残ります。</string>
     <string name="backup_nudge_action">バックアップをオンにする</string>
     <string name="backup_nudge_later">あとで</string>
+    <string name="restore_replace_entry">代わりにこのバックアップに置き換える</string>
+    <string name="restore_replace_title">このバックアップに置き換えますか？</string>
+    <string name="restore_replace_action">置き換える</string>
+    <string name="restore_failed_space_title">スマホの空き容量が足りません</string>
+    <string name="restore_failed_space_body">今の記録を保管する場所がないため中止しました。このスマホの記録はそのままです。</string>
+    <string name="rollback_title">このバックアップに置き換えました</string>
+    <string name="rollback_until">%1$sまで元に戻せます。</string>
+    <string name="rollback_tomorrow">明日まで元に戻せます。</string>
+    <string name="rollback_action">元に戻す</string>
+    <string name="rollback_ask_title">置き換える前に戻しますか？</string>
+    <string name="rollback_ask_body">置き換える前の日記%1$s件が戻ります。</string>
+    <string name="rollback_ask_after">置き換える前の日記%1$s件が戻ります。置き換えた後に書いた日記%2$s件はそのまま残ります。</string>
+    <plurals name="restore_replace_body"><item quantity="other">このスマホの日記%1$s件がこのバックアップに置き換わります。7日間は元に戻せます。</item></plurals>
 </resources>

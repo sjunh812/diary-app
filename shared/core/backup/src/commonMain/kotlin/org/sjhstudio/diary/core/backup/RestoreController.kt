@@ -2,9 +2,12 @@ package org.sjhstudio.diary.core.backup
 
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import okio.FileSystem
@@ -16,6 +19,7 @@ import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.platform.NetworkState
 
 /** [RestoreRepository]의 구현. 글을 먼저 합치고 사진은 그 뒤에 받아서 받는 동안에도 일기를 볼 수 있다. */
@@ -25,6 +29,7 @@ class RestoreController(
     private val applier: Lazy<MergeApplier>,
     private val fetcher: Lazy<PhotoFetcher>,
     private val legacy: Lazy<LegacyBackupImporter>,
+    private val rollbackManager: Lazy<RollbackManager>,
     private val db: Lazy<DiaryDatabase>,
     private val store: BackupStore,
     private val network: NetworkState,
@@ -39,6 +44,17 @@ class RestoreController(
     private var candidates = emptyList<RestoreCandidate>()
     private var prepared: PreparedRestore? = null
     private var preparedLegacy: LegacyPlan? = null
+
+    override val rollback: Flow<RollbackInfo?> = flow { emitAll(rollbackManager.value.info) }
+
+    override suspend fun rollBack(): Boolean {
+        if (!busy.tryLock()) return false
+        return try {
+            guarded { rollbackManager.value.rollBack() } ?: false
+        } finally {
+            busy.unlock()
+        }
+    }
 
     override suspend fun backups(): List<BackupEntry>? = guarded {
         candidates = catalog.value.list()
@@ -72,17 +88,24 @@ class RestoreController(
         }
     }
 
-    override fun merge() {
+    override fun merge() = run { ready ->
+        if (ready != null) mergeBackup(ready) else importLegacy(requireNotNull(preparedLegacy))
+    }
+
+    override fun replace() = run { ready -> replaceWith(requireNotNull(ready)) }
+
+    private fun run(work: suspend (PreparedRestore?) -> RestoreResult) {
         val ready = prepared
-        val old = preparedLegacy
-        if (ready == null && old == null) return
+        if (ready == null && preparedLegacy == null) return
         if (!busy.tryLock()) return
         scope.launch {
             try {
                 _state.value = RestoreState.Merging
-                _state.value = RestoreState.Done(if (ready != null) mergeBackup(ready) else importLegacy(requireNotNull(old)))
+                _state.value = RestoreState.Done(work(ready))
             } catch (error: CancellationException) {
                 throw error
+            } catch (_: NoRoomForRollback) {
+                _state.value = RestoreState.Failed(RestoreFailure.NO_SPACE)
             } catch (_: Exception) {
                 _state.value = RestoreState.Failed(RestoreFailure.OTHER)
             } finally {
@@ -97,10 +120,19 @@ class RestoreController(
         return result
     }
 
+    private suspend fun replaceWith(ready: PreparedRestore): RestoreResult {
+        val backup = ready.plan.items.map { it.first }
+        rollbackManager.value.replace(backup, SOURCE_DRIVE)
+        return settle(MergeCounts(backup.size, 0, 0), ready)
+    }
+
     private suspend fun mergeBackup(ready: PreparedRestore): RestoreResult {
         // 미리보기 뒤에 일기를 고쳤을 수 있어 합치기 직전의 기기 상태로 다시 가른다.
         val plan = applier.value.plan(ready.plan.items.map { it.first })
-        val counts = applier.value.apply(plan, SOURCE_DRIVE)
+        return settle(applier.value.apply(plan, SOURCE_DRIVE), ready)
+    }
+
+    private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
         applySettings(ready.manifest.settings)
         fileSystem.delete(ready.snapshot, mustExist = false)
         prepared = null
@@ -142,6 +174,7 @@ class RestoreController(
     }
 
     override suspend fun resumePhotos() {
+        guarded { rollbackManager.value.expire() }
         val prefs = store.current()
         if (prefs.accountKey == null || !network.isConnected) return
         if (!network.isUnmetered && !prefs.photosOnCellular) return

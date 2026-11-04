@@ -139,4 +139,17 @@
     <string name="backup_nudge_body">구글 드라이브에 백업해 두면 휴대폰을 바꿔도 그대로예요.</string>
     <string name="backup_nudge_action">백업 켜기</string>
     <string name="backup_nudge_later">나중에</string>
+    <string name="restore_replace_entry">대신 이 백업으로 바꾸기</string>
+    <string name="restore_replace_title">이 백업으로 바꿀까요?</string>
+    <string name="restore_replace_action">바꾸기</string>
+    <string name="restore_failed_space_title">휴대폰 공간이 모자라요</string>
+    <string name="restore_failed_space_body">바꾸기 전 기록을 둘 자리가 없어서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
+    <string name="rollback_title">이 백업으로 바꿨어요</string>
+    <string name="rollback_until">%1$s까지 바꾸기 전으로 되돌릴 수 있어요.</string>
+    <string name="rollback_tomorrow">내일까지 되돌릴 수 있어요.</string>
+    <string name="rollback_action">되돌리기</string>
+    <string name="rollback_ask_title">바꾸기 전으로 되돌릴까요?</string>
+    <string name="rollback_ask_body">바꾸기 전 일기 %1$s편이 돌아와요.</string>
+    <string name="rollback_ask_after">바꾸기 전 일기 %1$s편이 돌아와요. 바꾸기 뒤에 쓴 일기 %2$s편은 그대로 남아요.</string>
+    <plurals name="restore_replace_body"><item quantity="other">지금 휴대폰의 일기 %1$s편이 이 백업으로 바뀌어요. 바꾸기 전 기록은 7일 동안 되돌릴 수 있어요.</item></plurals>
 </resources>
