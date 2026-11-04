@@ -29,12 +29,12 @@ import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
-import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
+import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -43,9 +43,6 @@ import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_action
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_title
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_devices_body
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_devices_title
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_fresh_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_fresh_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_later
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_next
@@ -53,25 +50,24 @@ import org.sjhstudio.diary.feature.welcome.resources.onboarding_own_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_own_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_skip
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_start
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_style_body
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_style_title
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_trash_body
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_trash_title
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_wide_body
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_wide_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_write_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_write_title
 
-private class Page(val icon: ImageVector, val title: StringResource, val body: StringResource, val backup: Boolean = false)
+private enum class Page { WRITE, OWN, BACKUP, FRESH }
 
-private val UpdatedPages =
-    listOf(
-        Page(DiaryIcons.ShieldCheck, Res.string.onboarding_backup_title, Res.string.onboarding_backup_body, backup = true),
-        Page(DiaryIcons.Pen, Res.string.onboarding_fresh_title, Res.string.onboarding_fresh_body)
-    )
+/** 업데이트 사용자는 편지를 읽고 왔으니 할 일과 달라진 점만 본다. */
+private val UpdatedPages = listOf(Page.BACKUP, Page.FRESH)
 
-private val NewPages =
-    listOf(
-        Page(DiaryIcons.Pen, Res.string.onboarding_write_title, Res.string.onboarding_write_body),
-        Page(DiaryIcons.ShieldCheck, Res.string.onboarding_own_title, Res.string.onboarding_own_body),
-        Page(DiaryIcons.BookOpen, Res.string.onboarding_devices_title, Res.string.onboarding_devices_body)
-    )
+/** 새 사용자에게는 왜 쓰는지와 기록이 어디에 있는지만 말한다. 나머지는 쓰면서 맥락 팁으로 알려 준다. */
+private val NewPages = listOf(Page.WRITE, Page.OWN)
 
-/** 온보딩(Figma W2, W3). 많아야 세 장이고 언제든 건너뛴다. 권한은 묻지 않는다(FR-007, FR-012). */
+/** 온보딩(Figma W2, W3). 두 장이고 언제든 건너뛴다. 권한은 묻지 않는다(FR-007, FR-012). */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OnboardingScreen(
@@ -85,7 +81,6 @@ fun OnboardingScreen(
     val pages = if (updated) UpdatedPages else NewPages
     val pager = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
-    val page = pages[pager.currentPage]
     val last = pager.currentPage == pages.lastIndex
     val next: () -> Unit = {
         if (last) onFinish() else scope.launch { pager.animateScrollToPage(pager.currentPage + 1) }
@@ -93,7 +88,7 @@ fun OnboardingScreen(
     BackHandler(enabled = pager.currentPage > 0) { scope.launch { pager.animateScrollToPage(pager.currentPage - 1) } }
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        val asking = page.backup && !connected
+        val asking = pages[pager.currentPage] == Page.BACKUP && !connected
         Box(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x2), contentAlignment = Alignment.CenterEnd) {
             DiaryButton(
                 stringResource(if (asking) Res.string.onboarding_later else Res.string.onboarding_skip),
@@ -101,7 +96,7 @@ fun OnboardingScreen(
                 kind = DiaryButtonKind.Text
             )
         }
-        HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth()) { index -> PageBody(pages[index]) }
+        HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth()) { index -> PageBody(pages[index], active = index == pager.currentPage) }
         Dots(pages.size, pager.currentPage)
         Spacer(Modifier.height(DiarySpacing.x6))
         val label =
@@ -125,24 +120,75 @@ fun OnboardingScreen(
 }
 
 @Composable
-private fun PageBody(page: Page) {
+private fun PageBody(page: Page, active: Boolean) {
+    when (page) {
+        Page.WRITE -> ArtPage(Res.string.onboarding_write_title, Res.string.onboarding_write_body) { WriteArt(active) }
+        Page.OWN -> ArtPage(Res.string.onboarding_own_title, Res.string.onboarding_own_body) { BackupArt(active) }
+        Page.BACKUP -> ArtPage(Res.string.onboarding_backup_title, Res.string.onboarding_backup_body) { BackupArt(active) }
+        Page.FRESH -> FreshPage()
+    }
+}
+
+/** 그림 하나, 제목 한 줄, 설명. 그림 칸 높이가 같아서 장을 넘겨도 제목이 움직이지 않는다. */
+@Composable
+private fun ArtPage(title: StringResource, body: StringResource, art: @Composable () -> Unit) {
     val colors = DiaryTheme.colors
     Column(
         Modifier.fillMaxSize().padding(horizontal = DiarySpacing.x6),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.Center
     ) {
-        DiaryHeroBadge(page.icon, tone = DiaryBadgeTone.Accent)
-        Spacer(Modifier.height(DiarySpacing.x1))
+        Box(Modifier.height(DiaryArtSize.height), contentAlignment = Alignment.Center) { art() }
+        Spacer(Modifier.height(DiarySpacing.x10))
         BasicText(
-            stringResource(page.title),
-            style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+            stringResource(title),
+            style = DiaryTheme.typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
         )
+        Spacer(Modifier.height(DiarySpacing.x2))
         BasicText(
-            stringResource(page.body),
+            stringResource(body),
             style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
             modifier = Modifier.widthIn(max = DiaryWriteSize.bodyMax)
         )
+    }
+}
+
+/** 달라진 점은 한 장에 모아 훑어보게 한다. 넘기는 장을 늘리지 않는다. */
+@Composable
+private fun FreshPage() {
+    val colors = DiaryTheme.colors
+    Column(
+        Modifier.fillMaxSize().padding(horizontal = DiarySpacing.x6),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        BasicText(
+            stringResource(Res.string.onboarding_fresh_title),
+            style = DiaryTheme.typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+        )
+        Spacer(Modifier.height(DiarySpacing.x8))
+        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
+            FreshRow(DiaryIcons.TextColor, Res.string.onboarding_style_title, Res.string.onboarding_style_body)
+            FreshRow(DiaryIcons.Trash, Res.string.onboarding_trash_title, Res.string.onboarding_trash_body)
+            FreshRow(DiaryIcons.Tablet, Res.string.onboarding_wide_title, Res.string.onboarding_wide_body)
+        }
+    }
+}
+
+@Composable
+private fun FreshRow(icon: ImageVector, title: StringResource, body: StringResource) {
+    val colors = DiaryTheme.colors
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            Modifier.size(DiaryArtSize.rowBadge).clip(DiaryShapes.full).background(colors.selected),
+            contentAlignment = Alignment.Center
+        ) {
+            DiaryIcon(icon, contentDescription = null, tint = colors.accent)
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
+            BasicText(stringResource(title), style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
+            BasicText(stringResource(body), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+        }
     }
 }
 

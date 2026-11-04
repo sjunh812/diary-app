@@ -23,7 +23,6 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_title
 import org.sjhstudio.diary.feature.welcome.resources.news_again
 import org.sjhstudio.diary.feature.welcome.resources.news_group
 import org.sjhstudio.diary.feature.welcome.resources.news_title
-import org.sjhstudio.diary.feature.welcome.resources.news_v2
 import org.sjhstudio.diary.feature.welcome.resources.news_v2_body
 
 /** 설정 > 새 소식(Figma W4). 내용은 앱에 넣고 버전으로 고른다(FR-009). */
@@ -42,8 +41,11 @@ internal fun WhatsNewScreen(onBack: () -> Unit, onLetter: () -> Unit, onIntro: (
         DiaryTopBar(stringResource(Res.string.news_title), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsHeader(stringResource(Res.string.news_group))
-            DiarySettingsRow(stringResource(Res.string.news_v2), onClick = onLetter, description = stringResource(Res.string.news_v2_body))
-            DiarySettingsRow(stringResource(Res.string.letter_title), onClick = onLetter)
+            DiarySettingsRow(
+                stringResource(Res.string.letter_title),
+                onClick = onLetter,
+                description = stringResource(Res.string.news_v2_body)
+            )
             DiarySettingsRow(stringResource(Res.string.news_again), onClick = onIntro)
         }
     }
