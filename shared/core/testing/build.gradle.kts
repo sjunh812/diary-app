@@ -9,6 +9,8 @@ kotlin {
             api(projects.shared.core.data)
             // 잠금 시험이 기기 키 대역을 쓴다.
             api(projects.shared.core.platform)
+            // 백업 시험이 드라이브 대역을 쓴다.
+            api(projects.shared.core.drive)
             api(libs.kotlinx.coroutines.test)
             // 저장소 시험이 실제 SettingsStore·LockStore를 메모리 DataStore로 감싼다.
             api(projects.shared.core.datastore)

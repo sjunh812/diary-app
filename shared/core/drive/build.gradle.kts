@@ -21,6 +21,7 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
+            implementation(projects.shared.core.testing)
             implementation(libs.ktor.client.mock)
             implementation(libs.okio.fakefilesystem)
         }
