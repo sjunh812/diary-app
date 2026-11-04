@@ -9,6 +9,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,13 +41,19 @@ fun WriteRoute(
     val theme = DiaryTheme.colors
     val colors = remember(theme) { EditorColors(theme) }
     val saved by rememberUpdatedState(onSaved)
+    val haptic = LocalHapticFeedback.current
     val closed by rememberUpdatedState(onClosed)
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
-                is WriteEvent.Saved -> saved(event.entryId)
+                is WriteEvent.Saved -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    saved(event.entryId)
+                }
+
                 is WriteEvent.Closed -> closed(event.keptDraft)
+
                 WriteEvent.Discarded -> closed(false)
             }
         }

@@ -238,7 +238,7 @@ private fun ActionButton(icon: ImageVector, description: String, tint: Color, on
 }
 
 @Composable
-private fun SheetAction(icon: ImageVector, label: String, tint: Color, onClick: () -> Unit) {
+internal fun SheetAction(icon: ImageVector, label: String, tint: Color, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     Row(
         Modifier

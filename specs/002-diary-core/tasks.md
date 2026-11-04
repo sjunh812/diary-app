@@ -77,7 +77,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 - [x] T023 001 DB에 `Draft`(키 `"new"` 또는 `Entry.id`, `weatherAutoFilled`), `DraftMedia`, `Entry.deletedAt`과 색인 `(deletedAt, date DESC, time DESC)`, `(deletedAt, isFavorite)`를 001 첫 DB 버전 안에 더한다 `shared/core/database/{kt}/core/database/` 2026-11-04: `DraftEntity.kt`, `DraftDao.kt`. 표 `draft`, `draft_media`를 버전 1에 더했고 스키마 JSON을 다시 만들었다. 색인은 스펙 001에서 이미 있다
 - [x] T024 [P] `ImageProcessor` expect와 Android actual(다운샘플링, EXIF 방향, "긴 변 2,560px을 넘을 때만" 축소, JPEG 85, SHA-256)을 `shared/core/platform/{kt}/core/platform/ImageProcessor.kt`, `shared/core/platform/{android}/core/platform/ImageProcessor.android.kt`에 만든다 2026-11-04: 새 expect를 두지 않고 스펙 001 `ImageDecoder.writeThumbnail`(줄이기, EXIF, JPEG)을 쓰는 `PhotoStore.kt`로 만들었다. 크기 읽기 `ImageDecoder.size`를 더했고, 투명 그림은 흰 바탕에 올린다
 - [x] T025 [P] `ImageProcessor` iOS actual(`UIGraphicsImageRenderer`)을 `shared/core/platform/{ios}/core/platform/ImageProcessor.ios.kt`에 만든다 2026-11-04: T024와 같다. iOS는 `ImageDecoder.size`만 더했다
-- [ ] T026 [P] 시스템 공유 창, 햅틱, 고정 가능한 시계를 `shared/core/platform/{kt}/core/platform/ShareSheet.kt`, `Haptics.kt`, `Clock.kt`(+ android/ios actual)에 만든다 2026-11-04 진행: 공유는 `rememberShareText`로 만들었다. 진동은 Compose, 시계는 `kotlin.time.Clock`을 쓴다
+- [x] T026 [P] 시스템 공유 창, 햅틱, 고정 가능한 시계를 `shared/core/platform/{kt}/core/platform/ShareSheet.kt`, `Haptics.kt`, `Clock.kt`(+ android/ios actual)에 만든다 2026-11-04 진행: 공유는 `rememberShareText`로 만들었다. 진동은 Compose, 시계는 `kotlin.time.Clock`을 쓴다 2026-11-04: 햅틱은 Compose `LocalHapticFeedback`으로 기분 고르기와 저장에 붙였다
 - [x] T027 [P] 대역 `FakeEntryRepository`, `FakeDraftRepository`, `FakeImageProcessor`, `FixedClock`을 `shared/core/testing/{kt}/core/testing/`에 만든다 2026-11-04: `FakeDraftRepository`. 다른 대역은 그 이야기를 만들 때 더한다. 시계는 스펙 001 `TestClock`을 쓴다
 
 ### 공유 UI와 뼈대
@@ -180,7 +180,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 - [x] T062 [P] [US6] 휴지통 시험: 지우면 모든 질의에서 빠짐, 되돌리기, 30일 지난 것만 비움(고정 시계), 다른 일기가 쓰는 같은 해시 사진은 남김, 사진 정리는 "만든 지 하루가 지난" 미사용 파일만 `shared/core/data/{test}/core/data/TrashRepositoryTest.kt`, `MediaCleanupTest.kt` 2026-11-04: `DiaryReadRepositoryTest`, `DiaryCleanupTest`에 넣었다
 - [x] T063 [US6] `EntryRepository.moveToTrash`·`restore`, `TrashRepository`, `MediaRepository.cleanUnused`를 `shared/core/data/{kt}/core/data/`에 만들고 앱 시작 때 비움 → 정리 순서로 부른다 `shared/app/{kt}/app/StartupJobs.kt` 2026-11-04: 앱 시작이 아니라 이전 관문을 지난 뒤에 `DiaryCleanup`으로 부른다
-- [ ] T064 [US6] 지우기 → "휴지통으로 옮겼어요 [되돌리기]" 5초(누르고 있으면 멈춤, research O5 결과 반영)를 상세·목록 줄 메뉴·두 칸 상세에 붙인다 `shared/feature/home/{kt}/feature/home/`
+- [x] T064 [US6] 지우기 → "휴지통으로 옮겼어요 [되돌리기]" 5초(누르고 있으면 멈춤, research O5 결과 반영)를 상세·목록 줄 메뉴·두 칸 상세에 붙인다 `shared/feature/home/{kt}/feature/home/` 2026-11-04: 목록 줄은 길게 눌러 메뉴를 연다
 - [x] T065 [US6] 휴지통 화면(지운 날짜순, "N일 뒤 완전히 지워져요", 되살리기, 완전히 지우기·비우기 확인에 편수)을 `shared/feature/trash/{kt}/feature/trash/TrashViewModel.kt`, `TrashScreen.kt`에 만들고 문구를 `strings.xml`에 둔다
 
 ---
@@ -189,7 +189,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 **Independent Test**: 1280dp 태블릿과 폴더블에서 홈·달력·쓰기, 창 크기 바꾸기, 단축키
 
-- [ ] T066 [P] [US7] 창 폭 360/600/840/1280dp와 폭 변경 중 상태 유지(쓰던 내용, 고른 일기, 스크롤)를 Compose UI 시험으로 `shared/app/src/commonTest/kotlin/org/sjhstudio/diary/app/AdaptiveLayoutTest.kt`
+- [x] T066 [P] [US7] 창 폭 360/600/840/1280dp와 폭 변경 중 상태 유지(쓰던 내용, 고른 일기, 스크롤)를 Compose UI 시험으로 `shared/app/src/commonTest/kotlin/org/sjhstudio/diary/app/AdaptiveLayoutTest.kt` 2026-11-04: Compose UI 시험이 iOS 시뮬레이터에서만 돌아 `src/iosTest/.../AdaptiveLayoutUiTest.kt`에 뒀다
 - [ ] T067 [US7] 폴더블 접힘선 피하기와 iPad Split View·Stage Manager 크기 변경을 에뮬레이터·시뮬레이터에서 확인하고 어긋난 곳을 `shared/app/{kt}/app/`에서 고친다
 - [ ] T068 [US7] 단축키(T031)가 홈·쓰기·검색에서 동작하는지 하드웨어 키보드로 확인하고 결과를 `specs/002-diary-core/quickstart.md` 손으로 확인 표에 적는다
 

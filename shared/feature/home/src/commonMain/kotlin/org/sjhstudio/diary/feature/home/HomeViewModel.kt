@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -49,6 +50,16 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     fun toggleFavoritesOnly() {
         viewModelScope.launch { settings.setFavoritesOnly(!favoritesOnly.value) }
     }
+
+    fun moveToTrash(id: String, onDone: () -> Unit) {
+        viewModelScope.launch {
+            entries.moveToTrash(id)
+            onDone()
+        }
+    }
+
+    /** 공유할 서식 없는 글. */
+    suspend fun plainText(id: String): String? = entries.entry(id).first()?.entry?.plainText
 
     /** 그 달 첫 일기의 목록 위치. */
     suspend fun positionOf(month: YearMonth): Int = entries.positionOf(month, favoritesOnly.value)

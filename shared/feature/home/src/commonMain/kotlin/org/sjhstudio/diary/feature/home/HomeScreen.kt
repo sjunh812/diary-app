@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +47,7 @@ import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
@@ -62,7 +65,10 @@ import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.feature.home.resources.Res
+import org.sjhstudio.diary.feature.home.resources.detail_share
+import org.sjhstudio.diary.feature.home.resources.detail_trash
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_body
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
@@ -76,7 +82,14 @@ import org.sjhstudio.diary.feature.home.resources.home_search
  * 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
  */
 @Composable
-fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, onSearch: () -> Unit, selectedId: String?, modifier: Modifier = Modifier) {
+fun HomeRoute(
+    onOpen: (String) -> Unit,
+    onWrite: () -> Unit,
+    onSearch: () -> Unit,
+    onTrashed: (String) -> Unit,
+    selectedId: String?,
+    modifier: Modifier = Modifier
+) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
     val favoritesOnly by viewModel.favoritesOnly.collectAsStateWithLifecycle()
@@ -89,6 +102,7 @@ fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, onSearch: () -> Uni
     val dates = rememberDiaryDateFormat()
     val today = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
     var picking by remember { mutableStateOf(false) }
+    var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
     // 목록이 비어 있으면 오늘이 든 달을 보인다.
     val shown = rows.itemCount.takeIf { it > 0 }?.let { rows.peek(list.firstVisibleItemIndex.coerceAtMost(it - 1))?.date } ?: today
     HomeScreen(
@@ -103,10 +117,25 @@ fun HomeRoute(onOpen: (String) -> Unit, onWrite: () -> Unit, onSearch: () -> Uni
         onToggleFavorites = viewModel::toggleFavoritesOnly,
         onPickMonth = { picking = true },
         onOpen = onOpen,
+        onMenu = { menuFor = it },
         onWrite = onWrite,
         onSearch = onSearch,
         modifier = modifier
     )
+    menuFor?.let { id ->
+        // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
+        val share = rememberShareText()
+        DiaryBottomSheet(onDismiss = { menuFor = null }) {
+            SheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), DiaryTheme.colors.textPrimary) {
+                menuFor = null
+                scope.launch { viewModel.plainText(id)?.let(share) }
+            }
+            SheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), DiaryTheme.colors.danger) {
+                menuFor = null
+                viewModel.moveToTrash(id) { onTrashed(id) }
+            }
+        }
+    }
     if (picking) {
         DiaryMonthSheet(
             title = stringResource(Res.string.home_month_sheet_title),
@@ -136,6 +165,7 @@ internal fun HomeScreen(
     onToggleFavorites: () -> Unit,
     onPickMonth: () -> Unit,
     onOpen: (String) -> Unit,
+    onMenu: (String) -> Unit,
     onWrite: () -> Unit,
     onSearch: () -> Unit,
     modifier: Modifier = Modifier
@@ -148,9 +178,9 @@ internal fun HomeScreen(
             rows.itemCount > 0 -> {
                 val dates = rememberDiaryDateFormat()
                 when (style) {
-                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen)
-                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen)
-                    ListStyle.PHOTO_GRID -> PhotoGrid(rows, selectedId, dates, onOpen)
+                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu)
+                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu)
+                    ListStyle.PHOTO_GRID -> PhotoGrid(rows, selectedId, dates, onOpen, onMenu)
                 }
             }
 
@@ -236,7 +266,8 @@ private fun Feed(
     today: LocalDate,
     previewStyle: TextStyle,
     dates: DiaryDateFormat,
-    onOpen: (String) -> Unit
+    onOpen: (String) -> Unit,
+    onMenu: (String) -> Unit
 ) {
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
@@ -264,7 +295,13 @@ private fun Feed(
                         Modifier
                             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
                             .background(if (row.id == selectedId) colors.selected else colors.canvas)
-                            .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onOpen(row.id) }
+                            .combinedClickable(
+                                interactionSource = interaction,
+                                indication = null,
+                                role = Role.Button,
+                                onLongClick = { onMenu(row.id) },
+                                onClick = { onOpen(row.id) }
+                            )
                 )
             }
         }

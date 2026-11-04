@@ -240,6 +240,11 @@ private fun Content(
                         onOpen = backStack::openEntry,
                         onWrite = onWrite,
                         onSearch = { backStack.add(SearchKey()) },
+                        onTrashed = { id ->
+                            // 두 칸에서 그 일기가 열려 있으면 닫는다.
+                            backStack.removeAll { it is EntryDetailKey && it.entryId == id }
+                            onTrashed(id)
+                        },
                         selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane }
                     )
                 }

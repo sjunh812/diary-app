@@ -22,6 +22,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -57,6 +59,7 @@ fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modif
 private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
+    val haptic = LocalHapticFeedback.current
     Column(
         modifier =
             Modifier
@@ -66,7 +69,10 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
                 .clip(DiaryShapes.r12)
                 .background(if (selected) colors.selected else colors.surface)
                 .semantics { this.selected = selected }
-                .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+                .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
+                    haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                    onClick()
+                }
                 .padding(top = DiarySpacing.x2),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)

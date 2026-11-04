@@ -1,7 +1,7 @@
 package org.sjhstudio.diary.feature.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,7 +48,8 @@ internal fun CardList(
     selectedId: String?,
     previewStyle: TextStyle,
     dates: DiaryDateFormat,
-    onOpen: (String) -> Unit
+    onOpen: (String) -> Unit,
+    onMenu: (String) -> Unit
 ) {
     LazyColumn(
         Modifier.fillMaxSize().background(DiaryTheme.colors.canvasGrouped),
@@ -67,14 +68,21 @@ internal fun CardList(
             if (row == null) {
                 Box(Modifier.fillMaxWidth().aspectRatio(CARD_PLACEHOLDER_RATIO))
             } else {
-                EntryCard(row, row.id == selectedId, previewStyle, dates) { onOpen(row.id) }
+                EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
             }
         }
     }
 }
 
 @Composable
-private fun EntryCard(row: EntryRow, selected: Boolean, previewStyle: TextStyle, dates: DiaryDateFormat, onClick: () -> Unit) {
+private fun EntryCard(
+    row: EntryRow,
+    selected: Boolean,
+    previewStyle: TextStyle,
+    dates: DiaryDateFormat,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     val interaction = remember { MutableInteractionSource() }
@@ -84,7 +92,13 @@ private fun EntryCard(row: EntryRow, selected: Boolean, previewStyle: TextStyle,
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
             .clip(DiaryShapes.r16)
             .background(if (selected) colors.selected else colors.surface)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            .combinedClickable(
+                interactionSource = interaction,
+                indication = null,
+                role = Role.Button,
+                onLongClick = onLongClick,
+                onClick = onClick
+            )
             .padding(DiarySpacing.x4),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
@@ -124,7 +138,13 @@ private fun EntryCard(row: EntryRow, selected: Boolean, previewStyle: TextStyle,
 
 /** 사진 격자(FR-018). 사진이 없는 일기는 첫 글을 대신 보여서 일기가 빠지지 않게 한다. */
 @Composable
-internal fun PhotoGrid(rows: LazyPagingItems<EntryRow>, selectedId: String?, dates: DiaryDateFormat, onOpen: (String) -> Unit) {
+internal fun PhotoGrid(
+    rows: LazyPagingItems<EntryRow>,
+    selectedId: String?,
+    dates: DiaryDateFormat,
+    onOpen: (String) -> Unit,
+    onMenu: (String) -> Unit
+) {
     val colors = DiaryTheme.colors
     LazyVerticalGrid(
         columns = GridCells.Adaptive(DiaryHomeSize.gridCell),
@@ -140,7 +160,13 @@ internal fun PhotoGrid(rows: LazyPagingItems<EntryRow>, selectedId: String?, dat
                 Modifier
                     .aspectRatio(1f)
                     .background(if (row?.id == selectedId) colors.selected else colors.sunken)
-                    .clickable(interactionSource = interaction, indication = null, role = Role.Button) { row?.let { onOpen(it.id) } }
+                    .combinedClickable(
+                        interactionSource = interaction,
+                        indication = null,
+                        role = Role.Button,
+                        onLongClick = { row?.let { onMenu(it.id) } },
+                        onClick = { row?.let { onOpen(it.id) } }
+                    )
             ) {
                 when {
                     row == null -> Unit
