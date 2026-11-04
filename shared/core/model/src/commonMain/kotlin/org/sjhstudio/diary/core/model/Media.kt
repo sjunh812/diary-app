@@ -29,7 +29,10 @@ enum class MediaStatus(val id: String) {
     NORMAL("normal"),
 
     /** 이전 때 원본을 찾지 못한 사진. 줄은 남겨 "원래 기기에 있는 사진"으로 보인다. */
-    MISSING("missing")
+    MISSING("missing"),
+
+    /** 내용과 이름은 알고 파일은 아직 기기에 없다. 복원 중이거나 백업에 못 올라간 사진이다(스펙 003). */
+    PENDING("pending")
     ;
 
     companion object {
