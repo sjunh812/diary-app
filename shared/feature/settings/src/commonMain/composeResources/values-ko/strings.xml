@@ -43,9 +43,9 @@
     <!-- 개발 빌드에만 있는 줄(FR-029) -->
 
 
-    <!-- 매일 알림(R1) -->
+    <!-- 쓰기 알림(R1) -->
     <string name="settings_group_notification">알림</string>
-    <string name="settings_reminder">매일 알림</string>
+    <string name="settings_reminder">쓰기 알림</string>
     <string name="reminder_value_off">꺼짐</string>
     <string name="reminder_time">알림 시각</string>
     <string name="reminder_save">저장</string>
