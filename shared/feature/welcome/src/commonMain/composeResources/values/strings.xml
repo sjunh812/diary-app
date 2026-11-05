@@ -34,5 +34,5 @@
     <string name="onboarding_wide_title">Easier on big screens</string>
     <string name="onboarding_wide_body">On tablets, see your list and diary side by side.</string>
     <string name="onboarding_plus_title">More room with Plus</string>
-    <string name="onboarding_plus_body">No ads, and up to 30 photos per entry.</string>
+    <string name="onboarding_plus_body">No ads, 30 photos per entry, and deeper stats.</string>
 </resources>
