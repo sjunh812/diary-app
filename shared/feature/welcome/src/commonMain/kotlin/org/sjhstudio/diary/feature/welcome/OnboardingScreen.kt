@@ -48,6 +48,8 @@ import org.sjhstudio.diary.feature.welcome.resources.onboarding_later
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_next
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_own_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_own_title
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_plus_body
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_plus_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_skip
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_start
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_style_body
@@ -123,15 +125,19 @@ fun OnboardingScreen(
 private fun PageBody(page: Page, active: Boolean) {
     when (page) {
         Page.WRITE -> ArtPage(Res.string.onboarding_write_title, Res.string.onboarding_write_body) { WriteArt(active) }
-        Page.OWN -> ArtPage(Res.string.onboarding_own_title, Res.string.onboarding_own_body) { BackupArt(active) }
+
+        Page.OWN ->
+            ArtPage(Res.string.onboarding_own_title, Res.string.onboarding_own_body, footer = { PlusRow() }) { BackupArt(active) }
+
         Page.BACKUP -> ArtPage(Res.string.onboarding_backup_title, Res.string.onboarding_backup_body) { BackupArt(active) }
+
         Page.FRESH -> FreshPage()
     }
 }
 
 /** 그림 하나, 제목 한 줄, 설명. 그림 칸 높이가 같아서 장을 넘겨도 제목이 움직이지 않는다. */
 @Composable
-private fun ArtPage(title: StringResource, body: StringResource, art: @Composable () -> Unit) {
+private fun ArtPage(title: StringResource, body: StringResource, footer: @Composable () -> Unit = {}, art: @Composable () -> Unit) {
     val colors = DiaryTheme.colors
     Column(
         Modifier.fillMaxSize().padding(horizontal = DiarySpacing.x6),
@@ -150,7 +156,15 @@ private fun ArtPage(title: StringResource, body: StringResource, art: @Composabl
             style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
             modifier = Modifier.widthIn(max = DiaryWriteSize.bodyMax)
         )
+        footer()
     }
+}
+
+/** Plus는 지금 있는 혜택만 한 줄로 알린다. 가격과 결제 버튼은 두지 않는다(FR-005). */
+@Composable
+private fun PlusRow() {
+    Spacer(Modifier.height(DiarySpacing.x8))
+    FreshRow(DiaryIcons.Sparkles, Res.string.onboarding_plus_title, Res.string.onboarding_plus_body)
 }
 
 /** 달라진 점은 한 장에 모아 훑어보게 한다. 넘기는 장을 늘리지 않는다. */
@@ -171,6 +185,7 @@ private fun FreshPage() {
             FreshRow(DiaryIcons.TextColor, Res.string.onboarding_style_title, Res.string.onboarding_style_body)
             FreshRow(DiaryIcons.Trash, Res.string.onboarding_trash_title, Res.string.onboarding_trash_body)
             FreshRow(DiaryIcons.Tablet, Res.string.onboarding_wide_title, Res.string.onboarding_wide_body)
+            FreshRow(DiaryIcons.Sparkles, Res.string.onboarding_plus_title, Res.string.onboarding_plus_body)
         }
     }
 }

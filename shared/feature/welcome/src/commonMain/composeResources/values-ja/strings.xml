@@ -35,4 +35,6 @@
     <string name="onboarding_wide_body">タブレットでは一覧と日記を並べて見られます。</string>
     <string name="onboarding_art_text">今日は風が気持ちよくて、川辺まで歩いた。</string>
     <string name="onboarding_art_saved">保存しました</string>
+    <string name="onboarding_plus_title">Plusでもっとゆったり</string>
+    <string name="onboarding_plus_body">広告なしで、写真は1件に30枚まで入れられます。</string>
 </resources>

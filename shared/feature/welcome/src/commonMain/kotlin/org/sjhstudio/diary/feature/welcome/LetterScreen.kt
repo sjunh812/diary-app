@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,8 +35,6 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
-import org.sjhstudio.diary.core.model.Mood
-import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.letter_close
@@ -111,10 +108,7 @@ private fun LetterBody(modifier: Modifier, content: @Composable ColumnScope.() -
         Spacer(Modifier.height(DiarySpacing.x1))
         content()
         Spacer(Modifier.height(DiarySpacing.x1))
-        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
-            MoodFace(Mood.GOOD, DiarySpacing.x6)
-            BasicText(stringResource(Res.string.letter_sign), style = typography.label.copy(color = colors.textSecondary))
-        }
+        BasicText(stringResource(Res.string.letter_sign), style = typography.label.copy(color = colors.textSecondary))
     }
 }
 

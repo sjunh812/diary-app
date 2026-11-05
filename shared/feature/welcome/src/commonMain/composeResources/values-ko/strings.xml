@@ -35,4 +35,6 @@
     <string name="onboarding_wide_body">태블릿에서는 목록과 일기를 나란히 봐요.</string>
     <string name="onboarding_art_text">오늘은 바람이 선선해서 한강까지 걸었다.</string>
     <string name="onboarding_art_saved">저장했어요</string>
+    <string name="onboarding_plus_title">Plus로 더 넉넉하게</string>
+    <string name="onboarding_plus_body">광고 없이, 사진은 한 편에 30장까지 넣어요.</string>
 </resources>
