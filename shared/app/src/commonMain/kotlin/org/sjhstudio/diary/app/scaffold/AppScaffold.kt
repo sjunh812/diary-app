@@ -20,6 +20,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -149,56 +152,56 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth
         val twoPane = maxWidth >= DiaryWriteSize.twoPaneMin
+        // 키 입력은 포커스가 있는 곳으로만 간다. 앱을 막 열면 포커스가 없어서 틀이 받아 둔다.
+        val keyTarget = remember { FocusRequester() }
+        val top = backStack.lastOrNull()
+        LaunchedEffect(top) {
+            if (!writing && top !is SearchKey) keyTarget.requestFocus()
+        }
         val shortcuts =
             Modifier.diaryShortcuts(
                 onNewEntry = { if (!writing) onWrite() },
                 onSearch = { if (!fullScreen && backStack.none { it is SearchKey }) backStack.add(SearchKey()) }
-            )
-        if (wide) {
-            // 레일도 화면 위에 얹는다. 쓰기로 넘어갈 때 레일이 사라져도 지난 화면이 밀리지 않는다.
-            val density = LocalDensity.current
-            var railWidth by remember { mutableStateOf(Dp.Hairline) }
-            Box(Modifier.fillMaxSize().then(shortcuts)) {
-                CompositionLocalProvider(LocalRailWidth provides railWidth) {
-                    ContentWithToast(backStack, toast, twoPane, onWrite, Modifier.fillMaxSize())
-                }
-                if (!fullScreen) {
-                    Box(Modifier.onSizeChanged { railWidth = with(density) { it.width.toDp() } }) {
-                        DiaryNavigationRail(items, selected, onSelect, header = {
-                            DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
-                        })
-                    }
+            ).focusRequester(keyTarget).focusTarget()
+        // 화면 칸은 폭이 바뀌어도 같은 자리에 둔다. 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어진다.
+        // 레일과 탭 바는 위에 얹는다. 쓰기로 넘어갈 때 사라져도 지난 화면이 밀리지 않는다.
+        val density = LocalDensity.current
+        var railWidth by remember { mutableStateOf(Dp.Hairline) }
+        var barHeight by remember { mutableStateOf(Dp.Hairline) }
+        val tabsShown = !wide && backStack.size <= 1
+        val barInset = if (tabsShown) barHeight else Dp.Hairline
+        Box(Modifier.fillMaxSize().then(shortcuts)) {
+            CompositionLocalProvider(
+                LocalRailWidth provides if (wide) railWidth else Dp.Hairline,
+                LocalTabBarHeight provides if (wide) Dp.Hairline else barHeight
+            ) {
+                ContentWithToast(
+                    backStack,
+                    toast,
+                    twoPane,
+                    onWrite,
+                    Modifier.fillMaxSize(),
+                    aboveWriteButton = !wide && floatingWrite,
+                    bottomInset = barInset
+                )
+            }
+            if (wide && !fullScreen) {
+                Box(Modifier.onSizeChanged { railWidth = with(density) { it.width.toDp() } }) {
+                    DiaryNavigationRail(items, selected, onSelect, header = {
+                        DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
+                    })
                 }
             }
-        } else {
-            // 탭 바는 화면 위에 얹는다. 화면 칸이 그대로라 쓰기로 넘어갈 때 탭 바가 사라져도 이전 화면이 밀리지 않는다.
-            val density = LocalDensity.current
-            var barHeight by remember { mutableStateOf(Dp.Hairline) }
-            val tabsShown = backStack.size <= 1
-            val barInset = if (tabsShown) barHeight else Dp.Hairline
-            Box(Modifier.fillMaxSize().then(shortcuts)) {
-                CompositionLocalProvider(LocalTabBarHeight provides barHeight) {
-                    ContentWithToast(
-                        backStack,
-                        toast,
-                        twoPane,
-                        onWrite,
-                        Modifier.fillMaxSize(),
-                        aboveWriteButton = floatingWrite,
-                        bottomInset = barInset
-                    )
-                }
-                if (floatingWrite) {
-                    DiaryWriteButton(
-                        writeLabel,
-                        onWrite,
-                        Modifier.align(Alignment.BottomEnd).padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4 + barInset)
-                    )
-                }
-                if (tabsShown) {
-                    Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = with(density) { it.height.toDp() } }) {
-                        DiaryNavigationBar(items, selected, onSelect)
-                    }
+            if (!wide && floatingWrite) {
+                DiaryWriteButton(
+                    writeLabel,
+                    onWrite,
+                    Modifier.align(Alignment.BottomEnd).padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4 + barInset)
+                )
+            }
+            if (tabsShown) {
+                Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = with(density) { it.height.toDp() } }) {
+                    DiaryNavigationBar(items, selected, onSelect)
                 }
             }
         }
