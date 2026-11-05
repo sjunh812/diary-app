@@ -177,7 +177,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 편지지 | 바탕 `selected` 40%, 카드 `surface` · 모서리 20 · 선 1 · 안쪽 24 · 문단 사이 16. To는 `label` `accentText`, From은 `label` 오른쪽 정렬. 열릴 때 24 올라오며 0.45초, 동작 줄이기면 없음 | 편지 꼴(받는 사람, 인사, 본문, 보내는 사람) |
 | 결제 화면 | 스크롤 없는 한 화면, 위에서부터 채운다. 그림은 폭을 채우는 칸(350:220, 최대 높이 280, `selected` 40%, 모서리 20)에 일기 한 장을 크게 두고 아래를 자른다. 광고 자리가 접히고 사진과 통계가 차는 로띠 · 제목 `title1` · 혜택 세 줄(체크 24, `reading`, 설명 없음) · 그 아래 앞으로 더할 기능 한 줄(`caption`, `textSecondary`) · 결제액 `title2` · 큰 버튼 · 고지 `caption` | RevenueCat, Adapty, Apple 구독 안내, Play 구독 정책 |
 | 네이티브 광고 | `sunken` 면 · 모서리 16 · 안쪽 16 · 제목 두 줄까지, "광고" 표시, 행동 문구 · 오른쪽 위 ×(광고 없애기 시트). 얇은 줄은 글만, 카드는 왼쪽 120 그림이나 영상 | AdMob 네이티브 정책, 오발있 NativeAdRow·NativeAdCard |
-| 토스트 | 폭 화면 - 40, 최대 400(넓은 화면은 아래 가운데, 폰 토스트와 같은 크기) · 높이 48 · 한 줄 full, 여러 줄 20 · `bodyStrong` · 쓰기 버튼 위 8, 쓰기 버튼이 없으면 탭 위 24 · 버튼이 있으면 5초, 누르는 동안 멈춤 | TDS Toast 5000ms, [SEED Snackbar](https://seed-design.io/docs/components/snackbar)(FAB가 있으면 늘 FAB 위) |
+| 토스트 | 폭 화면 - 40, 최대 400(넓은 화면은 아래 가운데, 폰 토스트와 같은 크기) · 높이 48 · 한 줄 full, 여러 줄 20 · `bodyStrong` · 늘 탭 위 16에 뜨고 쓰기 버튼이 그 위 8로 올라갔다가 돌아온다(2026-11-06 사용자 지적: 버튼 위에 뜨면 글 사이에 떠 있어 어색하다) · 버튼이 있으면 5초, 누르는 동안 멈춤 | TDS Toast 5000ms, [Android FAB가 스낵바를 피해 올라가는 동작](https://material.io/components/snackbars). 지금 Material과 [SEED Snackbar](https://seed-design.io/docs/components/snackbar)는 토스트를 FAB 위에 두라고 하지만 가리지 말라는 뜻은 그대로 지킨다 |
 | 대화상자 | 폭 312(최대 560) · 모서리 28 · 안쪽 24 · 왼쪽 버튼은 "닫기" | M3 Dialog, 토스 UX 가이드 |
 | 빈 상태 | 아이콘 32 하나 · 제목 `title2` · 설명 `body` · 버튼 하나 · 긍정형 해요체 · 내용 칸의 위 2, 아래 3 자리(정가운데는 처져 보인다) | SEED Result Section, 토스 UX 가이드 |
 | 결과 배지 | 원 56 · 아이콘 32 · 결과 화면 맨 위 하나 | M3 아이콘 버튼 L의 아이콘 32. TDS·SEED의 같은 자리 명세는 확인 못 함 |

@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.app.scaffold
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -7,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -26,6 +29,7 @@ import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -90,6 +94,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryWriteButton
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
@@ -98,6 +103,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
@@ -170,6 +176,13 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         var barHeight by remember { mutableStateOf(Dp.Hairline) }
         val tabsShown = !wide && backStack.size <= 1
         val barInset = if (tabsShown) barHeight else Dp.Hairline
+        // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올린다. 토스트는 제자리에 뜨고 버튼은 가리지 않는다.
+        var toastHeight by remember { mutableStateOf(Dp.Hairline) }
+        val reduceMotion = rememberReduceMotion()
+        val writeLift by animateDpAsState(
+            if (toast.current != null) toastHeight + DiarySpacing.x2 else Dp.Hairline,
+            tween(if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS)
+        )
         Box(Modifier.fillMaxSize().then(shortcuts)) {
             CompositionLocalProvider(
                 LocalRailWidth provides if (wide) railWidth else Dp.Hairline,
@@ -181,8 +194,8 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                     twoPane,
                     onWrite,
                     Modifier.fillMaxSize(),
-                    aboveWriteButton = !wide && floatingWrite,
-                    bottomInset = barInset
+                    bottomInset = barInset,
+                    onToastHeight = { toastHeight = it }
                 )
             }
             if (wide && !fullScreen) {
@@ -196,7 +209,10 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                 DiaryWriteButton(
                     writeLabel,
                     onWrite,
-                    Modifier.align(Alignment.BottomEnd).padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4 + barInset)
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4 + barInset)
+                        .offset { IntOffset(0, -writeLift.roundToPx()) }
                 )
             }
             if (tabsShown) {
@@ -230,8 +246,8 @@ private fun ContentWithToast(
     twoPane: Boolean,
     onWrite: () -> Unit,
     modifier: Modifier,
-    aboveWriteButton: Boolean = false,
-    bottomInset: Dp = Dp.Hairline
+    bottomInset: Dp = Dp.Hairline,
+    onToastHeight: (Dp) -> Unit = {}
 ) {
     Box(modifier) {
         val saved = stringResource(Res.string.write_saved)
@@ -251,14 +267,15 @@ private fun ContentWithToast(
                 scope.launch { if (toast.show(trashed, undo) == DiaryToastResult.ActionPerformed) entries.restore(id) }
             }
         )
-        val bottom = if (aboveWriteButton) DiarySpacing.x4 + DiarySpacing.x14 + DiarySpacing.x2 else DiarySpacing.x6
+        val density = LocalDensity.current
         // 탭 바 높이에는 시스템 내비게이션 높이가 이미 들어 있다. 또 더하면 그만큼 높이 뜬다.
         DiaryToastHost(
             toast,
             Modifier
                 .align(Alignment.BottomCenter)
                 .then(if (bottomInset > Dp.Hairline) Modifier else Modifier.navigationBarsPadding())
-                .padding(start = LocalRailWidth.current, bottom = bottom + bottomInset)
+                .padding(start = LocalRailWidth.current, bottom = DiarySpacing.x4 + bottomInset)
+                .onSizeChanged { if (it.height > 0) onToastHeight(with(density) { it.height.toDp() }) }
         )
     }
 }
