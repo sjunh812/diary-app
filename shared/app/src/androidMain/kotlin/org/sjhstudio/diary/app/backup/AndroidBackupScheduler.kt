@@ -21,6 +21,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -85,7 +86,12 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
                         notifications.update(backupProgressTitle(), backupProgressText(it), it.photosDone, it.photosTotal)
                     }
                 }
-            runner.run(inputData.getBoolean(KEY_CELLULAR, false))
+            val cellular = inputData.getBoolean(KEY_CELLULAR, false)
+            // 연결 직후처럼 자동 백업이 먼저 돌면 끝날 때까지 알림으로 지키고, 남은 것이 있으면 잇는다.
+            if (runner.run(cellular) == BackupOutcome.Busy && runner.progress.value != null) {
+                runner.progress.first { it == null }
+                runner.run(cellular)
+            }
             updates.cancel()
         }
         return Result.success()
