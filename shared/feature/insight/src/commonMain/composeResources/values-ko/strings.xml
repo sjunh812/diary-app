@@ -30,4 +30,25 @@
     <plurals name="insight_no_mood_count">
         <item quantity="other">기분 없는 일기 %1$d편</item>
     </plurals>
+    <string name="insight_adv_title">고급 통계</string>
+    <string name="insight_adv_not_enough">일기가 7편 쌓이면 보여 드려요.</string>
+    <string name="insight_adv_weekdays">요일별 기분</string>
+    <string name="insight_adv_dayparts">쓴 시간대별 기분</string>
+    <string name="insight_adv_weather">날씨별 기분</string>
+    <string name="insight_adv_places">자주 쓴 장소</string>
+    <string name="insight_adv_preview_title">내 기록을 더 깊이 볼 수 있어요</string>
+    <string name="insight_adv_preview_body">요일별 기분, 시간대별 기분, 자주 쓴 장소</string>
+    <string name="insight_adv_preview_action">Plus 알아보기</string>
+    <string name="insight_adv_wd_sun">일</string>
+    <string name="insight_adv_wd_mon">월</string>
+    <string name="insight_adv_wd_tue">화</string>
+    <string name="insight_adv_wd_wed">수</string>
+    <string name="insight_adv_wd_thu">목</string>
+    <string name="insight_adv_wd_fri">금</string>
+    <string name="insight_adv_wd_sat">토</string>
+    <string name="insight_adv_day_dawn">새벽</string>
+    <string name="insight_adv_day_morning">아침</string>
+    <string name="insight_adv_day_afternoon">낮</string>
+    <string name="insight_adv_day_evening">저녁</string>
+    <plurals name="insight_adv_days"><item quantity="other">%1$d일 동안 썼어요</item></plurals>
 </resources>

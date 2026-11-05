@@ -32,4 +32,25 @@
         <item quantity="one">%1$d without a mood</item>
         <item quantity="other">%1$d without a mood</item>
     </plurals>
+    <string name="insight_adv_title">Deeper stats</string>
+    <string name="insight_adv_not_enough">Shown once you have 7 entries.</string>
+    <string name="insight_adv_weekdays">Mood by weekday</string>
+    <string name="insight_adv_dayparts">Mood by time of day</string>
+    <string name="insight_adv_weather">Mood by weather</string>
+    <string name="insight_adv_places">Favorite places</string>
+    <string name="insight_adv_preview_title">See your diary in more depth</string>
+    <string name="insight_adv_preview_body">Moods by weekday and time, and favorite places</string>
+    <string name="insight_adv_preview_action">See Plus</string>
+    <string name="insight_adv_wd_sun">S</string>
+    <string name="insight_adv_wd_mon">M</string>
+    <string name="insight_adv_wd_tue">T</string>
+    <string name="insight_adv_wd_wed">W</string>
+    <string name="insight_adv_wd_thu">T</string>
+    <string name="insight_adv_wd_fri">F</string>
+    <string name="insight_adv_wd_sat">S</string>
+    <string name="insight_adv_day_dawn">Dawn</string>
+    <string name="insight_adv_day_morning">Morning</string>
+    <string name="insight_adv_day_afternoon">Day</string>
+    <string name="insight_adv_day_evening">Evening</string>
+    <plurals name="insight_adv_days"><item quantity="one">Wrote on %1$d day</item><item quantity="other">Wrote on %1$d days</item></plurals>
 </resources>

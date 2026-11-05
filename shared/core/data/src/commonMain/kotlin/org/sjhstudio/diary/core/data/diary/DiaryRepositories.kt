@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.model.AddPhotosResult
+import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
@@ -97,6 +98,8 @@ interface StatsRepository {
     fun moodCounts(period: StatsPeriod): Flow<MoodCounts>
 
     fun moodFlow(period: StatsPeriod): Flow<List<DayMood>>
+
+    fun advanced(period: StatsPeriod): Flow<AdvancedStats>
 
     fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>>
 }

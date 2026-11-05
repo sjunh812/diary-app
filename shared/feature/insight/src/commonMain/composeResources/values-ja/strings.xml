@@ -30,4 +30,25 @@
     <plurals name="insight_no_mood_count">
         <item quantity="other">気分なしの日記%1$d件</item>
     </plurals>
+    <string name="insight_adv_title">詳しい統計</string>
+    <string name="insight_adv_not_enough">日記が7件たまると表示されます。</string>
+    <string name="insight_adv_weekdays">曜日別の気分</string>
+    <string name="insight_adv_dayparts">時間帯別の気分</string>
+    <string name="insight_adv_weather">天気別の気分</string>
+    <string name="insight_adv_places">よく書いた場所</string>
+    <string name="insight_adv_preview_title">記録をもっと深く見られます</string>
+    <string name="insight_adv_preview_body">曜日別、時間帯別の気分、よく書いた場所</string>
+    <string name="insight_adv_preview_action">Plusを見る</string>
+    <string name="insight_adv_wd_sun">日</string>
+    <string name="insight_adv_wd_mon">月</string>
+    <string name="insight_adv_wd_tue">火</string>
+    <string name="insight_adv_wd_wed">水</string>
+    <string name="insight_adv_wd_thu">木</string>
+    <string name="insight_adv_wd_fri">金</string>
+    <string name="insight_adv_wd_sat">土</string>
+    <string name="insight_adv_day_dawn">明け方</string>
+    <string name="insight_adv_day_morning">朝</string>
+    <string name="insight_adv_day_afternoon">昼</string>
+    <string name="insight_adv_day_evening">夜</string>
+    <plurals name="insight_adv_days"><item quantity="other">%1$d日間書きました</item></plurals>
 </resources>

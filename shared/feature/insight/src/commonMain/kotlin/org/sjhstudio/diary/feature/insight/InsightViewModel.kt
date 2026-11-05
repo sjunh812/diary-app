@@ -8,8 +8,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -19,10 +21,13 @@ import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearMonth
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
+import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
+import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.StatsPeriod
 
 /** 기간 탭. */
@@ -31,8 +36,15 @@ enum class InsightKind { Week, Month, Year, All }
 /** 돌아보기(FR-028~FR-031). 기간을 칸으로 나눈 기분 흐름과, 년은 하루 한 칸 지도를 함께 읽는다. */
 class InsightViewModel(
     private val stats: StatsRepository,
-    private val today: () -> LocalDate = { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
+    private val today: () -> LocalDate = { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date },
+    plans: PlanRepository? = null
 ) : ViewModel() {
+    /** 고급 통계를 볼 수 있는지. 요금제를 바꾸면 바로 따른다. */
+    val advancedOpen: StateFlow<Boolean> =
+        (plans?.plan ?: flowOf(Plan.FREE))
+            .map { it.advancedStats }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     private val _period = MutableStateFlow<StatsPeriod>(StatsPeriod.Month(today().yearMonth))
     val period: StateFlow<StatsPeriod> = _period.asStateFlow()
 
@@ -51,6 +63,13 @@ class InsightViewModel(
         _period
             .flatMapLatest { if (it is StatsPeriod.Year) stats.yearPixels(it.year) else flowOf(emptyMap()) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyMap())
+
+    /** 열린 사람만 계산한다. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val advanced: StateFlow<AdvancedStats?> =
+        combine(_period, advancedOpen) { period, open -> period.takeIf { open } }
+            .flatMapLatest { period -> period?.let(stats::advanced) ?: flowOf(null) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     fun today(): LocalDate = today.invoke()
 

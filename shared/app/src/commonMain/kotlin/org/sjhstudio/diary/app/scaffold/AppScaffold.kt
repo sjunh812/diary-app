@@ -354,7 +354,8 @@ private fun Content(
                     InsightRoute(
                         onMood = { mood, range ->
                             backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                        }
+                        },
+                        onPlus = { backStack.add(PlusKey) }
                     )
                 }
                 settingsEntries(push = { backStack.add(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })

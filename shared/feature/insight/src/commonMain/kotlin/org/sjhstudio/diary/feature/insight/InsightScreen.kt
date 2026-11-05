@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -99,12 +100,14 @@ import org.sjhstudio.diary.feature.insight.resources.insight_year_map
 
 /** 돌아보기(Figma "돌아보기 (S5)"). 숫자보다 말로 먼저 알려 주고 기분 막대를 누르면 그 일기들로 간다. */
 @Composable
-fun InsightRoute(onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier) {
+fun InsightRoute(onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier, onPlus: () -> Unit = {}) {
     val viewModel = koinViewModel<InsightViewModel>()
     val period by viewModel.period.collectAsStateWithLifecycle()
     val counts by viewModel.counts.collectAsStateWithLifecycle()
     val days by viewModel.days.collectAsStateWithLifecycle()
     val pixels by viewModel.pixels.collectAsStateWithLifecycle()
+    val advancedOpen by viewModel.advancedOpen.collectAsStateWithLifecycle()
+    val advanced by viewModel.advanced.collectAsStateWithLifecycle()
     InsightScreen(
         period = period,
         counts = counts,
@@ -115,7 +118,10 @@ fun InsightRoute(onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifi
         onPrevious = viewModel::previous,
         onNext = viewModel::next,
         onMood = { onMood(it, period.range) },
-        modifier = modifier
+        modifier = modifier,
+        advancedOpen = advancedOpen,
+        advanced = advanced,
+        onPlus = onPlus
     )
 }
 
@@ -130,7 +136,10 @@ internal fun InsightScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onMood: (Mood) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    advancedOpen: Boolean = false,
+    advanced: AdvancedStats? = null,
+    onPlus: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
@@ -167,6 +176,11 @@ internal fun InsightScreen(
                 counts == null -> SkeletonRows(rows = 5)
                 counts.total == 0 -> Empty()
                 else -> Content(period, counts, days, pixels, today, onMood)
+            }
+            if (counts != null && counts.total > 0) {
+                Spacer(Modifier.height(DiarySpacing.x8))
+                if (advancedOpen) AdvancedSection(advanced) else AdvancedPreview(onPlus)
+                Spacer(Modifier.height(DiarySpacing.x8))
             }
         }
     }

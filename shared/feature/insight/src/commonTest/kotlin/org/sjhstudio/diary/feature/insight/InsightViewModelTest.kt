@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
+import org.sjhstudio.diary.core.model.advancedStats
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class InsightViewModelTest {
@@ -29,7 +30,7 @@ class InsightViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = InsightViewModel(NoStats) { today }
+    private fun viewModel() = InsightViewModel(NoStats, { today })
 
     @Test
     fun opens_on_this_month() {
@@ -123,6 +124,8 @@ class InsightViewModelTest {
 
     private object NoStats : StatsRepository {
         override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = flowOf(MoodCounts(emptyMap(), 0))
+
+        override fun advanced(period: StatsPeriod) = flowOf(advancedStats(emptyList()))
 
         override fun moodFlow(period: StatsPeriod): Flow<List<DayMood>> = flowOf(emptyList())
 

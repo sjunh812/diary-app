@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.database
 
 import androidx.paging.PagingSource
+import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.Query
@@ -10,6 +11,15 @@ import kotlinx.coroutines.flow.Flow
 
 /** 달력과 기분 흐름이 읽는 한 줄. 시간순이라 그날 마지막 줄이 그날의 기분이다. */
 data class DayMoodRow(val date: String, val mood: String?)
+
+/** 고급 통계에 쓰는 값. 본문은 읽지 않는다. */
+data class StatsRow(
+    val date: String,
+    val time: String,
+    val mood: String?,
+    val weather: String?,
+    @ColumnInfo(name = "place_name") val placeName: String?
+)
 
 /** 기분별 개수. 기분 없는 일기는 [mood]가 null이다. */
 data class MoodCountRow(val mood: String?, val count: Int)
@@ -59,6 +69,12 @@ interface EntryDao {
             "ORDER BY date, time, created_at"
     )
     fun dayMoods(from: String, to: String): Flow<List<DayMoodRow>>
+
+    @Query(
+        "SELECT date, time, mood, weather, place_name FROM entry WHERE deleted_at IS NULL " +
+            "AND (:from IS NULL OR date >= :from) AND (:to IS NULL OR date <= :to)"
+    )
+    fun statsRows(from: String?, to: String?): Flow<List<StatsRow>>
 
     @Query(
         "SELECT mood, COUNT(*) AS count FROM entry WHERE deleted_at IS NULL " +

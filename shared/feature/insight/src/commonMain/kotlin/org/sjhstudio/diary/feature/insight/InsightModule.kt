@@ -5,5 +5,5 @@ import org.koin.dsl.module
 
 val insightFeatureModule =
     module {
-        viewModel { InsightViewModel(get()) }
+        viewModel { InsightViewModel(get(), plans = get()) }
     }
