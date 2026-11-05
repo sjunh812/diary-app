@@ -124,7 +124,7 @@ class ScreenCatalogActivity : ComponentActivity() {
                             onBack = ::finish
                         )
 
-                    LETTER -> LetterScreen(1_204, onStart = ::finish, onReadAll = {})
+                    LETTER -> LetterScreen(1_204, onStart = ::finish)
 
                     FULL_LETTER -> FullLetterScreen(onBack = ::finish)
 

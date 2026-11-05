@@ -36,7 +36,6 @@ import androidx.compose.ui.text.withStyle
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
@@ -55,7 +54,6 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_hello
 import org.sjhstudio.diary.feature.welcome.resources.letter_moved
 import org.sjhstudio.diary.feature.welcome.resources.letter_promise_ads
 import org.sjhstudio.diary.feature.welcome.resources.letter_promise_free
-import org.sjhstudio.diary.feature.welcome.resources.letter_read_all
 import org.sjhstudio.diary.feature.welcome.resources.letter_short
 import org.sjhstudio.diary.feature.welcome.resources.letter_sign
 import org.sjhstudio.diary.feature.welcome.resources.letter_start
@@ -63,13 +61,21 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_title
 import org.sjhstudio.diary.feature.welcome.resources.letter_to
 
 private const val RISE_MILLIS = 450
+private const val BACKDROP_ALPHA = 0.4f
+
+/** 편지 바탕. 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다. */
+@Composable
+private fun Modifier.letterBackdrop(): Modifier {
+    val colors = DiaryTheme.colors
+    return background(colors.canvas).background(colors.selected.copy(alpha = BACKDROP_ALPHA))
+}
 
 /** 개발자의 편지(Figma W1). 판매 장치 없이 만든 사람의 말만 둔다(FR-003, FR-005). 글을 나열하지 않고 편지지 한 장으로 묶는다. */
 @Composable
-fun LetterScreen(entries: Int?, onStart: () -> Unit, onReadAll: () -> Unit, modifier: Modifier = Modifier) {
+fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     val thanks = entries?.takeIf { it > 0 }?.let { pluralStringResource(Res.plurals.letter_moved, it, it.grouped()) }
-    Column(modifier.fillMaxSize().background(colors.selected).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         LetterSheet(Modifier.weight(1f)) {
             if (thanks != null) LetterParagraphs(thanks)
             LetterParagraphs(stringResource(Res.string.letter_short))
@@ -85,11 +91,9 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, onReadAll: () -> Unit, modi
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DiaryButton(stringResource(Res.string.letter_start), onStart, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
-            DiaryButton(stringResource(Res.string.letter_read_all), onReadAll, kind = DiaryButtonKind.Text)
         }
     }
 }
@@ -98,7 +102,7 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, onReadAll: () -> Unit, modi
 @Composable
 fun FullLetterScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
-    Column(modifier.fillMaxSize().background(colors.selected).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.letter_title), onBack = onBack)
         LetterSheet(Modifier.weight(1f).navigationBarsPadding()) { LetterParagraphs(stringResource(Res.string.letter_full)) }
     }

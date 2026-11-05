@@ -10,15 +10,15 @@ import org.sjhstudio.diary.feature.welcome.WhatsNewScreen
 
 @Preview(locale = "ko")
 @Composable
-private fun LetterLight() = DiaryTheme(darkTheme = false) { LetterScreen(1204, {}, {}) }
+private fun LetterLight() = DiaryTheme(darkTheme = false) { LetterScreen(1204, {}) }
 
 @Preview(locale = "ko")
 @Composable
-private fun LetterDark() = DiaryTheme(darkTheme = true) { LetterScreen(1204, {}, {}) }
+private fun LetterDark() = DiaryTheme(darkTheme = true) { LetterScreen(1204, {}) }
 
 @Preview(locale = "ko")
 @Composable
-private fun LetterNoEntriesLight() = DiaryTheme(darkTheme = false) { LetterScreen(0, {}, {}) }
+private fun LetterNoEntriesLight() = DiaryTheme(darkTheme = false) { LetterScreen(0, {}) }
 
 @Preview(locale = "ko")
 @Composable
