@@ -14,7 +14,6 @@
     <!-- 지금 백업과 되살린 사진 받기를 앱을 떠나도 잇는다(스펙 003 research R14). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />
 
     <!-- 일기·사진·설정·잠금은 시스템 백업과 기기 간 이전으로 나가지 않는다(헌법 II, 스펙 001 research O5).
          Android 12부터는 allowBackup="false"여도 기기 간 이전이 돌아서 규칙 파일로도 모두 뺀다. -->
@@ -68,7 +67,7 @@
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
-        <!-- Android 13 이하의 지금 백업이 작업 관리자의 진행 알림 서비스로 돈다(research R14). -->
+        <!-- 지금 백업이 작업 관리자의 진행 알림 서비스로 돈다(research R14). -->
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"

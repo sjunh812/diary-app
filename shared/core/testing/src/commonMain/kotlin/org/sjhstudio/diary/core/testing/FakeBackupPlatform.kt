@@ -48,7 +48,11 @@ class FakeBackupScheduler : BackupScheduler {
         daily = false
     }
 
-    override fun startNow() {
+    /** true면 시스템 작업이 받은 것처럼 군다. */
+    var takesNow = false
+
+    override fun startNow(cellularOnce: Boolean): Boolean {
         startedNow++
+        return takesNow
     }
 }

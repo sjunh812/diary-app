@@ -69,3 +69,37 @@ class BackupAlertPoster(context: Context, private val channelName: String) {
         const val NOTIFICATION_ID = 2001
     }
 }
+
+/** 지금 백업의 진행 알림. 소리 없이 한 줄로 머문다. */
+class BackupProgressNotifications(context: Context) {
+    private val context = context.applicationContext
+    private val manager = this.context.getSystemService(NotificationManager::class.java)
+
+    /** 채널은 처음 한 번 이름과 함께 만든다. */
+    fun createChannel(name: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.createNotificationChannel(NotificationChannel(CHANNEL, name, NotificationManager.IMPORTANCE_LOW))
+        }
+    }
+
+    fun build(title: String, body: String?, done: Int, total: Int): android.app.Notification {
+        val builder =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                android.app.Notification.Builder(context, CHANNEL)
+            } else {
+                @Suppress("DEPRECATION")
+                android.app.Notification.Builder(context)
+            }
+        return builder.setSmallIcon(context.applicationInfo.icon).setContentTitle(title).setContentText(body)
+            .setOngoing(true).setProgress(total, done, total == 0).build()
+    }
+
+    fun update(title: String, body: String?, done: Int, total: Int) {
+        manager.notify(ID, build(title, body, done, total))
+    }
+
+    companion object {
+        const val ID = 2002
+        private const val CHANNEL = "backup_progress"
+    }
+}

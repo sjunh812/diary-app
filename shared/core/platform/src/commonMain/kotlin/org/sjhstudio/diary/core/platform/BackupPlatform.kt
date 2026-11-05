@@ -35,8 +35,8 @@ interface BackupScheduler {
 
     fun cancelDaily()
 
-    /** 사용자가 누른 지금 백업. */
-    fun startNow()
+    /** 사용자가 누른 지금 백업을 시스템 작업으로 넘긴다. 넘겼으면 true이고, 아니면 앱이 직접 돌린다. */
+    fun startNow(cellularOnce: Boolean): Boolean
 
     /** 모바일 데이터라 못 올린 사진을 요금 없는 연결이 되면 잇는다. */
     fun scheduleWifiPhotos()
@@ -48,7 +48,7 @@ object NoBackupScheduler : BackupScheduler {
 
     override fun cancelDaily() = Unit
 
-    override fun startNow() = Unit
+    override fun startNow(cellularOnce: Boolean) = false
 
     override fun scheduleWifiPhotos() = Unit
 }
