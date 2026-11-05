@@ -33,8 +33,6 @@
     <string name="onboarding_trash_body">Restore from the trash for 30 days.</string>
     <string name="onboarding_wide_title">Easier on big screens</string>
     <string name="onboarding_wide_body">On tablets, see your list and diary side by side.</string>
-    <string name="onboarding_art_text">The breeze was so nice today that I walked to the river.</string>
-    <string name="onboarding_art_saved">Saved</string>
     <string name="onboarding_plus_title">More room with Plus</string>
     <string name="onboarding_plus_body">No ads, and up to 30 photos per entry.</string>
 </resources>

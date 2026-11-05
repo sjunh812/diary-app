@@ -47,7 +47,7 @@ import org.sjhstudio.diary.core.ui.resources.weather_snow
 import org.sjhstudio.diary.core.ui.resources.weather_sunny
 
 /** 얼굴 선 색. 기분 색은 두 테마에서 같은 파스텔이라 선도 어두운 색 하나다(Figma 기분 칸). */
-private val FACE_LINE = Color(0xFF1A1C20)
+val MoodFaceLine = Color(0xFF1A1C20)
 
 /** 기분 얼굴. 그림만으로 구별하지 않게 이름과 함께 쓴다. [contentDescription]이 없으면 장식이다. */
 @Composable
@@ -58,7 +58,7 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
             painter = rememberVectorPainter(remember(face, size) { face.vector(size) }),
             contentDescription = contentDescription,
             // 나쁨만 바탕이 어두워 선을 희게 둔다.
-            colorFilter = ColorFilter.tint(if (mood == Mood.BAD) Color.White else FACE_LINE)
+            colorFilter = ColorFilter.tint(if (mood == Mood.BAD) Color.White else MoodFaceLine)
         )
     }
 }

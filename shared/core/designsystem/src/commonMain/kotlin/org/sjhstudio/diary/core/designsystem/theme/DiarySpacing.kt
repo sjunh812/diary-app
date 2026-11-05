@@ -106,32 +106,12 @@ object DiaryCalendarSize {
 
 /** 온보딩 그림 크기(Figma "시작 (W1~W5)"). */
 object DiaryArtSize {
-    /** 그림 칸. 글이 길어져도 제목 위치가 흔들리지 않게 높이를 고정한다. */
-    val height: Dp = 208.dp
+    /** 그림 칸. 그림 파일과 비율이 같고, 장을 넘겨도 제목이 움직이지 않게 고정한다. */
     val width: Dp = 288.dp
-
-    /** 쓰는 그림의 기분 얼굴. */
-    val face: Dp = 36.dp
-
-    /** 백업 그림의 휴대폰과 구름. */
-    val phoneWidth: Dp = 92.dp
-    val phoneHeight: Dp = 156.dp
-    val cloud: Dp = 96.dp
-    val cloudIcon: Dp = 44.dp
-
-    /** 휴대폰에서 구름으로 날아가는 조각. */
-    val tile: Dp = 32.dp
-    val tileIcon: Dp = 16.dp
-    val arc: Dp = 28.dp
-
-    /** 구름 위 확인 표시. */
-    val check: Dp = 32.dp
+    val height: Dp = 208.dp
 
     /** "이렇게 달라졌어요" 줄의 아이콘 원. */
     val rowBadge: Dp = 44.dp
-
-    /** 휴대폰 안 글줄. */
-    val line: Dp = 6.dp
 }
 
 /** 쓰기 화면 크기(Figma "쓰기 (S2)"). */

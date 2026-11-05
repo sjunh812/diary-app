@@ -52,7 +52,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
   `shared/core/{model,database,datastore,data,migration,designsystem,ui,platform,testing}`, `shared/feature/*`, `benchmarks`
   (스펙 001 plan.md, 구조 비교는 research.md).
 - 라이브러리(2026-10-31 조사, 버전은 스펙 001 research R2 표로 고정): DB는 Room 3 + `BundledSQLiteDriver`(FTS5, `VACUUM INTO`),
-  설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 설명 그림은 Compose로 직접 그리고 그림 파일이 생기면 Compottie(Lottie),
+  설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 그림은 Compottie(Lottie),
   결제는 RevenueCat KMP, 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
   생체 인증은 expect/actual(BiometricPrompt, LAContext). 레거시 DB는 Room이 아니라 날 SQL로 읽는다(`docs/migration.md`).
 - `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 37부터(36은 만들고 내지 않은 1.7.5가 썼다), `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
@@ -93,6 +93,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - 고를 때 받는 글꼴은 개발 APK(`installDebug`)에 담겨 있어 바로 받아진다. 출시 경로(`fonts/<id>`, Play 필요할 때 설치 모듈)는 `./gradlew :composeApp:bundleDebug`로 만든 번들을 bundletool `build-apks --local-testing
   --connected-device --device-id=emulator-5554`와 `install-apks`로 깔아 시험한다. bundletool은 AGP와 같은 1.18.3을 쓴다(`--aapt2`에 SDK build-tools의 aapt2).
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
+- 온보딩 로띠는 `python3 -I scripts/lottie/make_onboarding.py`로 만든다. 색은 `@accent` 같은 자리표시로 두고 `OnboardingArt.kt`가 토큰 값으로 바꾼다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
   빌드 단계가 `:shared:app:embedAndSignAppleFrameworkForXcode`를 불러 Shared 프레임워크를 만든다.
 - 레거시 `app/`은 이 빌드에 없다. 1.7.4 APK는 `94179a4`를 따로 체크아웃해 그 시절 래퍼(Gradle 8.9)와 JBR 17로 만든다.
