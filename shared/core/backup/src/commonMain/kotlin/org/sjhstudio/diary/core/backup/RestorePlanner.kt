@@ -1,11 +1,19 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.openZip
 import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.LocalPhotoRow
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveFile
 import org.sjhstudio.diary.core.drive.DriveQuery
@@ -123,7 +131,7 @@ class PhotoFetcher(
             drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO))).associateBy {
                 it.name.substringBefore('.')
             }
-        return settle(onProgress) { sha256, _, target ->
+        return settle(onProgress, PARALLEL_DOWNLOADS) { sha256, _, target ->
             val file = onDrive[sha256] ?: return@settle false
             drive.download(file.id, target)
             true
@@ -144,31 +152,53 @@ class PhotoFetcher(
 
     private suspend fun settle(
         onProgress: (done: Int, total: Int) -> Unit,
+        parallel: Int = 1,
         copy: suspend (sha256: String, name: String, target: Path) -> Boolean
     ): Pair<Int, Int> {
         val dao = db.backupDao()
         val waiting = dao.pendingFiles()
         fileSystem.createDirectories(workDir)
         fileSystem.createDirectories(mediaDir)
-        var fetched = 0
-        var broken = 0
-        waiting.forEachIndexed { index, photo ->
-            val name = photo.fileName
-            val partial = name?.let { workDir / "$it.part" }
-            // 백업에 없는 사진은 대기로 두어 "원래 기기에 있는 사진"으로 보인다.
-            if (name != null && partial != null && copy(photo.sha256, name, partial)) {
-                if (fileSystem.hashes(partial).sha256 == photo.sha256) {
-                    fileSystem.atomicMove(partial, mediaDir / name)
-                    dao.settlePending(photo.sha256, "normal")
-                    fetched++
-                } else {
-                    fileSystem.delete(partial, mustExist = false)
-                    dao.settlePending(photo.sha256, "missing")
-                    broken++
-                }
+        val results = Channel<Settled>(Channel.UNLIMITED)
+        val gate = Semaphore(parallel)
+        return coroutineScope {
+            waiting.forEach { photo ->
+                launch(Dispatchers.IO) { gate.withPermit { results.send(settleOne(photo, copy)) } }
             }
-            onProgress(index + 1, waiting.size)
+            var fetched = 0
+            var broken = 0
+            repeat(waiting.size) { index ->
+                when (results.receive()) {
+                    Settled.FETCHED -> fetched++
+                    Settled.BROKEN -> broken++
+                    Settled.NOT_IN_BACKUP -> Unit
+                }
+                onProgress(index + 1, waiting.size)
+            }
+            fetched to broken
         }
-        return fetched to broken
+    }
+
+    private suspend fun settleOne(photo: LocalPhotoRow, copy: suspend (sha256: String, name: String, target: Path) -> Boolean): Settled {
+        val dao = db.backupDao()
+        val name = photo.fileName
+        val partial = name?.let { workDir / "$it.part" }
+        // 백업에 없는 사진은 대기로 두어 "원래 기기에 있는 사진"으로 보인다.
+        if (name == null || partial == null || !copy(photo.sha256, name, partial)) return Settled.NOT_IN_BACKUP
+        if (fileSystem.hashes(partial).sha256 != photo.sha256) {
+            fileSystem.delete(partial, mustExist = false)
+            dao.settlePending(photo.sha256, "missing")
+            return Settled.BROKEN
+        }
+        fileSystem.atomicMove(partial, mediaDir / name)
+        dao.settlePending(photo.sha256, "normal")
+        return Settled.FETCHED
+    }
+
+    private enum class Settled { FETCHED, BROKEN, NOT_IN_BACKUP }
+
+    private companion object {
+        /** 드라이브에서 동시에 받는 사진 수. 사진 한 장은 작아서 기다리는 시간이 대부분이다. */
+        const val PARALLEL_DOWNLOADS = 6
     }
 }

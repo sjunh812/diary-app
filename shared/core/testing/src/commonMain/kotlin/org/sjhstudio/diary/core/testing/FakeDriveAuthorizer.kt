@@ -13,6 +13,8 @@ class FakeDriveAuthorizer(var account: DriveAccount? = DriveAccount("sub-1", "di
         private set
     var disconnected = false
         private set
+    var invalidated = 0
+        private set
 
     override suspend fun connect(hint: String?): ConnectResult =
         connectResult ?: account?.let { ConnectResult.Connected(it) } ?: ConnectResult.Cancelled
@@ -22,6 +24,10 @@ class FakeDriveAuthorizer(var account: DriveAccount? = DriveAccount("sub-1", "di
         val current = account ?: return TokenResult.NeedsUser
         tokensIssued++
         return TokenResult.Token("token-$tokensIssued", current)
+    }
+
+    override fun invalidateToken() {
+        invalidated++
     }
 
     override suspend fun disconnect() {

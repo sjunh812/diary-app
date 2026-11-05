@@ -95,6 +95,7 @@ class ResumableUploadTest {
 
         assertIs<ChunkResult.Done>(drive.uploadChunk(UploadSession("https://upload/1", 10), 0, path))
         assertEquals(2, auth.tokensIssued)
+        assertEquals(1, auth.invalidated)
     }
 
     @Test

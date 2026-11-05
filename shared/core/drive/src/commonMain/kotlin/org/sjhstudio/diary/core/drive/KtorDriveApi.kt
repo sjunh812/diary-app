@@ -216,6 +216,7 @@ class KtorDriveApi(
             } catch (_: DriveUnauthorized) {
                 if (refreshed) throw DriveException(BackupFailure.AUTH, status = 401)
                 refreshed = true
+                authorizer.invalidateToken()
             } catch (error: DriveException) {
                 if (!error.retryable || attempt >= RETRIES) throw error
                 backoff(attempt++)

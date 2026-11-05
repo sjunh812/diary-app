@@ -4,6 +4,7 @@ import android.accounts.Account
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import androidx.core.content.edit
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.AuthorizationResult
@@ -40,9 +41,14 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private val prefs = this.context.getSharedPreferences("drive_auth", Context.MODE_PRIVATE)
     private var cached: Pair<String, DriveAccount>? = null
 
+    /** 사진마다 Play 서비스를 부르면 그것만으로 한 장에 시간이 든다. 받은 토큰을 잠깐 다시 쓴다. */
+    @Volatile
+    private var fresh: Pair<Long, TokenResult.Token>? = null
+
     var consent: DriveConsentLauncher? = null
 
     override suspend fun connect(hint: String?): ConnectResult = try {
+        fresh = null
         val first = client.authorize(request(hint)).await()
         val result =
             if (first.hasResolution()) {
@@ -65,9 +71,14 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
 
     override suspend fun accessToken(): TokenResult = try {
         val email = prefs.getString(KEY_EMAIL, null) ?: return TokenResult.NeedsUser
+        fresh?.takeIf { it.first > SystemClock.elapsedRealtime() }?.let { return it.second }
         val result = client.authorize(request(email)).await()
         val token = result.accessToken
-        if (result.hasResolution() || token == null) TokenResult.NeedsUser else TokenResult.Token(token, account(token))
+        if (result.hasResolution() || token == null) {
+            TokenResult.NeedsUser
+        } else {
+            TokenResult.Token(token, account(token)).also { fresh = SystemClock.elapsedRealtime() + TOKEN_REUSE_MILLIS to it }
+        }
     } catch (error: CancellationException) {
         throw error
     } catch (error: ApiException) {
@@ -76,8 +87,13 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         TokenResult.Failed(BackupFailure.OFFLINE)
     }
 
+    override fun invalidateToken() {
+        fresh = null
+    }
+
     override suspend fun disconnect() {
         cached = null
+        fresh = null
         prefs.edit { remove(KEY_EMAIL) }
     }
 
@@ -113,5 +129,6 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         val SCOPES = listOf(Scope("https://www.googleapis.com/auth/drive.file"), Scope("openid"), Scope("email"))
         const val USER_INFO = "https://openidconnect.googleapis.com/v1/userinfo"
         const val KEY_EMAIL = "email"
+        const val TOKEN_REUSE_MILLIS = 5 * 60 * 1_000L
     }
 }

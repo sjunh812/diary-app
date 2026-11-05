@@ -34,6 +34,9 @@ interface DriveAuthorizer {
     /** 화면 없이 토큰을 받는다. 백그라운드 작업에서도 부른다. */
     suspend fun accessToken(): TokenResult
 
+    /** 드라이브가 토큰을 거절했다. 다음 [accessToken]은 새로 받는다. */
+    fun invalidateToken() {}
+
     /** 기기의 토큰을 지우고 이 앱에 준 권한을 거둔다. 드라이브의 백업 파일은 지우지 않는다(FR-004). */
     suspend fun disconnect()
 }
