@@ -2,11 +2,13 @@ package org.sjhstudio.diary.core.model
 
 /** 글자색 팔레트(contracts/rich-text-html.md). [hex]는 저장 값이고 그릴 때는 테마 토큰을 쓴다. */
 enum class InkColor(val hex: String) {
+    GRAY("#6b7280"),
     RED("#b91c1c"),
     ORANGE("#c2410c"),
     GREEN("#15803d"),
     BLUE("#1d4ed8"),
-    GRAY("#6b7280");
+    PURPLE("#6d28d9"),
+    PINK("#be185d");
 
     companion object {
         fun fromHex(hex: String): InkColor? = entries.firstOrNull { it.hex.equals(hex, ignoreCase = true) }
@@ -17,6 +19,8 @@ enum class InkColor(val hex: String) {
 enum class MarkColor(val hex: String) {
     YELLOW("#fef08a"),
     GREEN("#bbf7d0"),
+    BLUE("#bfdbfe"),
+    PURPLE("#ddd6fe"),
     PINK("#fbcfe8");
 
     companion object {

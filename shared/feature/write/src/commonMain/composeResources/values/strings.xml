@@ -20,6 +20,16 @@
     <string name="write_format_color">Text color</string>
     <string name="write_format_mark">Highlight</string>
     <string name="write_format_list">Bulleted list</string>
+    <string name="write_ink_default">Default color</string>
+    <string name="write_mark_none">No highlight</string>
+    <string name="write_color_gray">Gray</string>
+    <string name="write_color_red">Red</string>
+    <string name="write_color_orange">Orange</string>
+    <string name="write_color_green">Green</string>
+    <string name="write_color_blue">Blue</string>
+    <string name="write_color_purple">Purple</string>
+    <string name="write_color_pink">Pink</string>
+    <string name="write_color_yellow">Yellow</string>
     <string name="write_palette_back">Back to tools</string>
     <string name="write_mood_title">How was your mood?</string>
     <string name="write_weather_title">How was the weather?</string>

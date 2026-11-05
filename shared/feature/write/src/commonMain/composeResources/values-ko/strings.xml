@@ -20,6 +20,16 @@
     <string name="write_format_color">글자색</string>
     <string name="write_format_mark">형광펜</string>
     <string name="write_format_list">목록</string>
+    <string name="write_ink_default">기본 글자색</string>
+    <string name="write_mark_none">형광펜 없음</string>
+    <string name="write_color_gray">회색</string>
+    <string name="write_color_red">빨강</string>
+    <string name="write_color_orange">주황</string>
+    <string name="write_color_green">초록</string>
+    <string name="write_color_blue">파랑</string>
+    <string name="write_color_purple">보라</string>
+    <string name="write_color_pink">분홍</string>
+    <string name="write_color_yellow">노랑</string>
     <string name="write_palette_back">도구로 돌아가기</string>
     <string name="write_mood_title">기분은 어땠나요?</string>
     <string name="write_weather_title">날씨는 어땠나요?</string>

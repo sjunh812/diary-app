@@ -144,8 +144,12 @@ internal fun CatalogColors() {
             "ink.green" to c.ink.green,
             "ink.blue" to c.ink.blue,
             "ink.gray" to c.ink.gray,
+            "ink.purple" to c.ink.purple,
+            "ink.pink" to c.ink.pink,
             "mark.yellow" to c.mark.yellow,
             "mark.green" to c.mark.green,
+            "mark.blue" to c.mark.blue,
+            "mark.purple" to c.mark.purple,
             "mark.pink" to c.mark.pink
         )
     FlowRow(

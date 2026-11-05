@@ -19,12 +19,16 @@ internal class EditorColors(colors: DiaryColors) {
             InkColor.ORANGE to colors.ink.orange,
             InkColor.GREEN to colors.ink.green,
             InkColor.BLUE to colors.ink.blue,
-            InkColor.GRAY to colors.ink.gray
+            InkColor.GRAY to colors.ink.gray,
+            InkColor.PURPLE to colors.ink.purple,
+            InkColor.PINK to colors.ink.pink
         )
     val mark: Map<MarkColor, Color> =
         mapOf(
             MarkColor.YELLOW to colors.mark.yellow,
             MarkColor.GREEN to colors.mark.green,
+            MarkColor.BLUE to colors.mark.blue,
+            MarkColor.PURPLE to colors.mark.purple,
             MarkColor.PINK to colors.mark.pink
         )
 

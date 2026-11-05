@@ -77,10 +77,18 @@ data class DiaryMoodColors(
 )
 
 @Immutable
-data class DiaryInkColors(val red: Color, val orange: Color, val green: Color, val blue: Color, val gray: Color)
+data class DiaryInkColors(
+    val red: Color,
+    val orange: Color,
+    val green: Color,
+    val blue: Color,
+    val gray: Color,
+    val purple: Color,
+    val pink: Color
+)
 
 @Immutable
-data class DiaryMarkColors(val yellow: Color, val green: Color, val pink: Color)
+data class DiaryMarkColors(val yellow: Color, val green: Color, val blue: Color, val purple: Color, val pink: Color)
 
 internal val LightDiaryColors =
     DiaryColors(
@@ -124,12 +132,16 @@ internal val LightDiaryColors =
                 orange = Color(0xFFC2410C),
                 green = Color(0xFF15803D),
                 blue = Color(0xFF1D4ED8),
-                gray = Color(0xFF6B7280)
+                gray = Color(0xFF6B7280),
+                purple = Color(0xFF6D28D9),
+                pink = Color(0xFFBE185D)
             ),
         mark =
             DiaryMarkColors(
                 yellow = Color(0xFFFEF08A),
                 green = Color(0xFFBBF7D0),
+                blue = Color(0xFFBFDBFE),
+                purple = Color(0xFFDDD6FE),
                 pink = Color(0xFFFBCFE8)
             )
     )
@@ -176,12 +188,16 @@ internal val DarkDiaryColors =
                 orange = Color(0xFFFB923C),
                 green = Color(0xFF4ADE80),
                 blue = Color(0xFF60A5FA),
-                gray = Color(0xFF9CA3AF)
+                gray = Color(0xFF9CA3AF),
+                purple = Color(0xFFA78BFA),
+                pink = Color(0xFFF472B6)
             ),
         mark =
             DiaryMarkColors(
                 yellow = Color(0xFF713F12),
                 green = Color(0xFF14532D),
+                blue = Color(0xFF1E3A8A),
+                purple = Color(0xFF4C1D95),
                 pink = Color(0xFF831843)
             )
     )

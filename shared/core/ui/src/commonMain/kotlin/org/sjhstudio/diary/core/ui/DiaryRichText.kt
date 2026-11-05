@@ -48,10 +48,14 @@ private fun InkColor.token(colors: DiaryColors): Color = when (this) {
     InkColor.GREEN -> colors.ink.green
     InkColor.BLUE -> colors.ink.blue
     InkColor.GRAY -> colors.ink.gray
+    InkColor.PURPLE -> colors.ink.purple
+    InkColor.PINK -> colors.ink.pink
 }
 
 private fun MarkColor.token(colors: DiaryColors): Color = when (this) {
     MarkColor.YELLOW -> colors.mark.yellow
     MarkColor.GREEN -> colors.mark.green
+    MarkColor.BLUE -> colors.mark.blue
+    MarkColor.PURPLE -> colors.mark.purple
     MarkColor.PINK -> colors.mark.pink
 }

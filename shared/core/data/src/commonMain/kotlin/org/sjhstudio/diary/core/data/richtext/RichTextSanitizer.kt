@@ -12,8 +12,8 @@ package org.sjhstudio.diary.core.data.richtext
  */
 object RichTextSanitizer {
     /** 라이트 hex 팔레트(소문자). 저장은 이 값만 쓴다. */
-    val INK: Set<String> = setOf("#b91c1c", "#c2410c", "#15803d", "#1d4ed8", "#6b7280")
-    val MARK: Set<String> = setOf("#fef08a", "#bbf7d0", "#fbcfe8")
+    val INK: Set<String> = setOf("#b91c1c", "#c2410c", "#15803d", "#1d4ed8", "#6b7280", "#6d28d9", "#be185d")
+    val MARK: Set<String> = setOf("#fef08a", "#bbf7d0", "#bfdbfe", "#ddd6fe", "#fbcfe8")
 
     fun sanitize(html: String): String {
         if (html.isEmpty()) return ""

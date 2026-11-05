@@ -1,8 +1,10 @@
 package org.sjhstudio.diary.feature.write
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +27,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -39,6 +43,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -49,6 +55,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +73,7 @@ import io.github.vinceglb.filekit.readBytes
 import kotlin.math.roundToInt
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
@@ -99,6 +108,14 @@ import org.sjhstudio.diary.feature.write.resources.tip_write_tools
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
 import org.sjhstudio.diary.feature.write.resources.write_camera
 import org.sjhstudio.diary.feature.write.resources.write_close
+import org.sjhstudio.diary.feature.write.resources.write_color_blue
+import org.sjhstudio.diary.feature.write.resources.write_color_gray
+import org.sjhstudio.diary.feature.write.resources.write_color_green
+import org.sjhstudio.diary.feature.write.resources.write_color_orange
+import org.sjhstudio.diary.feature.write.resources.write_color_pink
+import org.sjhstudio.diary.feature.write.resources.write_color_purple
+import org.sjhstudio.diary.feature.write.resources.write_color_red
+import org.sjhstudio.diary.feature.write.resources.write_color_yellow
 import org.sjhstudio.diary.feature.write.resources.write_discard_confirm
 import org.sjhstudio.diary.feature.write.resources.write_discard_message
 import org.sjhstudio.diary.feature.write.resources.write_discard_title
@@ -108,10 +125,12 @@ import org.sjhstudio.diary.feature.write.resources.write_format_list
 import org.sjhstudio.diary.feature.write.resources.write_format_mark
 import org.sjhstudio.diary.feature.write.resources.write_format_underline
 import org.sjhstudio.diary.feature.write.resources.write_hint
+import org.sjhstudio.diary.feature.write.resources.write_ink_default
 import org.sjhstudio.diary.feature.write.resources.write_limit_body
 import org.sjhstudio.diary.feature.write.resources.write_limit_later
 import org.sjhstudio.diary.feature.write.resources.write_limit_plus
 import org.sjhstudio.diary.feature.write.resources.write_limit_title
+import org.sjhstudio.diary.feature.write.resources.write_mark_none
 import org.sjhstudio.diary.feature.write.resources.write_mood
 import org.sjhstudio.diary.feature.write.resources.write_palette_back
 import org.sjhstudio.diary.feature.write.resources.write_photo_count
@@ -341,10 +360,7 @@ private fun Notices(state: WriteUiState) {
 private fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Unit) {
     val colors = DiaryTheme.colors
     DiaryBottomSheet(onDismiss, title = stringResource(Res.string.write_limit_title, limit)) {
-        Column(
-            Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x6, vertical = DiarySpacing.x3),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
-        ) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
             BasicText(
                 stringResource(Res.string.write_limit_body, PhotoLimit.PLUS),
                 style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
@@ -514,7 +530,7 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
             Row(
                 Modifier.fillMaxWidth().height(DiaryWriteSize.toolbar).padding(horizontal = DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(if (palette != null) DiarySpacing.x2 else DiarySpacing.x0_5)
+                horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
             ) {
                 val open = palette
                 if (open != null) Palette(open) { palette = null } else Tools(onPhoto, onCamera) { palette = it }
@@ -530,77 +546,147 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
         onPhoto?.let { ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), theme.textPrimary, onClick = it) }
         onCamera?.let { ToolButton(DiaryIcons.Camera, stringResource(Res.string.write_camera), theme.textPrimary, onClick = it) }
         val bold = style.fontWeight == FontWeight.Bold
-        ToolButton(DiaryIcons.Bold, stringResource(Res.string.write_format_bold), tint(bold)) {
+        ToolButton(DiaryIcons.Bold, stringResource(Res.string.write_format_bold), tint(bold), active = bold) {
             rich.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
         }
         val underline = style.textDecoration?.contains(TextDecoration.Underline) == true
-        ToolButton(DiaryIcons.Underline, stringResource(Res.string.write_format_underline), tint(underline)) {
+        ToolButton(DiaryIcons.Underline, stringResource(Res.string.write_format_underline), tint(underline), active = underline) {
             rich.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
         }
-        ToolButton(DiaryIcons.TextColor, stringResource(Res.string.write_format_color), tint(style.color.isSpecified)) {
+        // 글자색 도구는 지금 고른 색을 그대로 보인다.
+        ToolButton(DiaryIcons.TextColor, stringResource(Res.string.write_format_color), style.color.takeOrElse { theme.textPrimary }) {
             openPalette(PaletteKind.Ink)
         }
-        ToolButton(DiaryIcons.Highlight, stringResource(Res.string.write_format_mark), tint(style.background.isSpecified)) {
+        val marked = style.background.isSpecified
+        ToolButton(DiaryIcons.Highlight, stringResource(Res.string.write_format_mark), tint(marked), active = marked) {
             openPalette(PaletteKind.Mark)
         }
-        ToolButton(DiaryIcons.BulletList, stringResource(Res.string.write_format_list), tint(rich.isUnorderedList)) {
+        ToolButton(
+            DiaryIcons.BulletList,
+            stringResource(Res.string.write_format_list),
+            tint(rich.isUnorderedList),
+            active = rich.isUnorderedList
+        ) {
             rich.toggleUnorderedList()
         }
     }
 
     @Composable
-    private fun Palette(kind: PaletteKind, close: () -> Unit) {
+    private fun RowScope.Palette(kind: PaletteKind, close: () -> Unit) {
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
         ToolButton(DiaryIcons.ChevronLeft, stringResource(Res.string.write_palette_back), theme.textPrimary, onClick = close)
-        when (kind) {
-            PaletteKind.Ink ->
-                for (ink in InkColor.entries) {
-                    val color = colors.ink.getValue(ink)
-                    Swatch(color, DiaryShapes.full, selected = style.color == color) {
-                        val span = SpanStyle(color = color)
-                        if (style.color == color) rich.removeSpanStyle(span) else rich.addSpanStyle(span)
+        // 고른 색이 몇 개든 한 번에 풀어서, 여러 색이 섞인 글도 기본으로 돌아간다.
+        fun clearInk() = colors.ink.values.forEach { rich.removeSpanStyle(SpanStyle(color = it)) }
+        fun clearMark() = colors.mark.values.forEach { rich.removeSpanStyle(SpanStyle(background = it)) }
+        Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
+            when (kind) {
+                PaletteKind.Ink -> {
+                    Swatch(stringResource(Res.string.write_ink_default), selected = style.color.isUnspecified, onClick = ::clearInk) {
+                        ColorChip(theme.textPrimary, DiaryShapes.full)
+                    }
+                    for (ink in InkColor.entries) {
+                        val color = colors.ink.getValue(ink)
+                        Swatch(stringResource(ink.label()), selected = style.color == color, onClick = {
+                            clearInk()
+                            rich.addSpanStyle(SpanStyle(color = color))
+                        }) { ColorChip(color, DiaryShapes.full) }
                     }
                 }
 
-            PaletteKind.Mark ->
-                for (mark in MarkColor.entries) {
-                    val color = colors.mark.getValue(mark)
-                    Swatch(color, DiaryShapes.r8, selected = style.background == color) {
-                        val span = SpanStyle(background = color)
-                        if (style.background == color) rich.removeSpanStyle(span) else rich.addSpanStyle(span)
+                PaletteKind.Mark -> {
+                    Swatch(
+                        stringResource(Res.string.write_mark_none),
+                        selected = style.background.isUnspecified,
+                        ring = DiaryShapes.r12,
+                        onClick = ::clearMark
+                    ) {
+                        Box(
+                            Modifier.size(DiaryWriteSize.swatch).border(DiarySpacing.hairline, theme.lineStrong, DiaryShapes.r8),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            DiaryIcon(DiaryIcons.Close, contentDescription = null, tint = theme.textTertiary, size = DiaryIconSize.i16)
+                        }
+                    }
+                    for (mark in MarkColor.entries) {
+                        val color = colors.mark.getValue(mark)
+                        Swatch(stringResource(mark.label()), selected = style.background == color, ring = DiaryShapes.r12, onClick = {
+                            clearMark()
+                            rich.addSpanStyle(SpanStyle(background = color))
+                        }) { ColorChip(color, DiaryShapes.r8) }
                     }
                 }
+            }
         }
     }
 }
 
+private fun InkColor.label(): StringResource = when (this) {
+    InkColor.GRAY -> Res.string.write_color_gray
+    InkColor.RED -> Res.string.write_color_red
+    InkColor.ORANGE -> Res.string.write_color_orange
+    InkColor.GREEN -> Res.string.write_color_green
+    InkColor.BLUE -> Res.string.write_color_blue
+    InkColor.PURPLE -> Res.string.write_color_purple
+    InkColor.PINK -> Res.string.write_color_pink
+}
+
+private fun MarkColor.label(): StringResource = when (this) {
+    MarkColor.YELLOW -> Res.string.write_color_yellow
+    MarkColor.GREEN -> Res.string.write_color_green
+    MarkColor.BLUE -> Res.string.write_color_blue
+    MarkColor.PURPLE -> Res.string.write_color_purple
+    MarkColor.PINK -> Res.string.write_color_pink
+}
+
 @Composable
-private fun Swatch(color: Color, shape: Shape, selected: Boolean, onClick: () -> Unit) {
+private fun ColorChip(color: Color, shape: Shape) {
+    Box(Modifier.size(DiaryWriteSize.swatch).background(color, shape))
+}
+
+/** 고른 색은 액센트 고리로 보인다. 고리와 색 사이를 띄워서 보라 칸에서도 고리가 구별된다. */
+@Composable
+private fun Swatch(
+    description: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    ring: Shape = DiaryShapes.full,
+    chip: @Composable () -> Unit
+) {
     val theme = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     Box(
         Modifier
-            .size(DiaryWriteSize.swatch)
-            .clip(shape)
-            .background(color)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+            .size(width = DiaryWriteSize.swatch + DiarySpacing.x3, height = DiarySpacing.minTouchTarget)
+            .selectable(selected, interactionSource = interaction, indication = null, role = Role.RadioButton, onClick = onClick)
+            .semantics { contentDescription = description },
         contentAlignment = Alignment.Center
     ) {
-        if (selected) DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = theme.textPrimary, size = DiaryIconSize.i16)
+        if (selected) Box(Modifier.size(DiaryWriteSize.swatch + DiarySpacing.x2).border(DiarySpacing.x0_5, theme.accent, ring))
+        chip()
     }
 }
 
 @Composable
-private fun ToolButton(icon: ImageVector, description: String, tint: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun ToolButton(
+    icon: ImageVector,
+    description: String,
+    tint: Color,
+    modifier: Modifier = Modifier,
+    active: Boolean = false,
+    onClick: () -> Unit
+) {
+    val theme = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     Box(
         modifier
             .size(DiarySpacing.minTouchTarget)
-            .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.full)
+            .diaryPress(interaction, theme.textPrimary, DiaryShapes.full)
             .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
+        // 켜진 도구는 색만이 아니라 바탕으로도 알린다.
+        if (active) Box(Modifier.size(DiaryWriteSize.swatch + DiarySpacing.x2).background(theme.selected, DiaryShapes.r12))
         DiaryIcon(icon, contentDescription = description, tint = tint)
     }
 }

@@ -2,6 +2,8 @@ package org.sjhstudio.diary.core.data.richtext
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.sjhstudio.diary.core.model.InkColor
+import org.sjhstudio.diary.core.model.MarkColor
 
 // 저장 전 정리(스펙 002 T017, contracts/rich-text-html.md).
 class RichTextSanitizerTest {
@@ -10,6 +12,18 @@ class RichTextSanitizerTest {
     @Test
     fun allowed_tags_stay_and_lose_their_attributes() {
         assertEquals("<p>글<br>줄</p><ul><li>하나</li></ul>", clean("""<p class="x" onclick="a()">글<br/>줄</p><ul id="y"><li>하나</li></ul>"""))
+    }
+
+    @Test
+    fun every_palette_color_survives() {
+        InkColor.entries.forEach { ink ->
+            val html = """<p><span style="color:${ink.hex}">글</span></p>"""
+            assertEquals(html, clean(html))
+        }
+        MarkColor.entries.forEach { mark ->
+            val html = """<p><span style="background-color:${mark.hex}">글</span></p>"""
+            assertEquals(html, clean(html))
+        }
     }
 
     @Test
