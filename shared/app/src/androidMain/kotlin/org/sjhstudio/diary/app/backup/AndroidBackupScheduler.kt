@@ -3,6 +3,7 @@ package org.sjhstudio.diary.app.backup
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -80,7 +81,7 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
         } catch (_: IllegalStateException) {
             // 시스템이 앞으로 올리기를 막으면 앱이 살아 있는 동안만 돈다. 백업은 이어서 할 수 있다.
         }
-        coroutineScope {
+        return coroutineScope {
             val updates =
                 launch {
                     runner.progress.filterNotNull().distinctUntilChangedBy { it.photosDone to it.step }.collect {
@@ -88,18 +89,21 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
                     }
                 }
             val cellular = inputData.getBoolean(KEY_CELLULAR, false)
+            var outcome = runner.run(cellular)
             // 연결 직후처럼 자동 백업이 먼저 돌면 끝날 때까지 알림으로 지키고, 남은 것이 있으면 잇는다.
-            if (runner.run(cellular) == BackupOutcome.Busy) {
+            if (outcome == BackupOutcome.Busy) {
                 // 앞선 작업이 막 시작해 아직 진행이 없을 수 있다. 잠깐 기다려 보고, 복원 중이라 진행이 없으면 그냥 끝낸다.
                 val started = withTimeoutOrNull(START_WAIT_MILLIS) { runner.progress.first { it != null } }
                 if (started != null) {
                     runner.progress.first { it == null }
-                    runner.run(cellular)
+                    outcome = runner.run(cellular)
                 }
             }
             updates.cancel()
+            // 올린 사진은 남아 있으니 네트워크가 돌아오면 시스템이 이어서 돌린다.
+            val again = outcome as? BackupOutcome.Failed
+            if (again != null && again.kind in RESUMABLE && runAttemptCount < MAX_RESUMES) Result.retry() else Result.success()
         }
-        return Result.success()
     }
 
     private suspend fun foreground(progress: BackupProgress?): ForegroundInfo {
@@ -162,6 +166,7 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
         val work =
             OneTimeWorkRequestBuilder<BackupNowWorker>()
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, RETRY_MINUTES, TimeUnit.MINUTES)
                 .setInputData(workDataOf(KEY_CELLULAR to cellularOnce))
                 .build()
         manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.KEEP, work)
@@ -189,3 +194,6 @@ private const val KEY_TITLE = "title"
 private const val KEY_BODY = "body"
 private const val KEY_CELLULAR = "cellular"
 private const val START_WAIT_MILLIS = 3_000L
+private const val MAX_RESUMES = 8
+private const val RETRY_MINUTES = 1L
+private val RESUMABLE = setOf(BackupFailure.OFFLINE, BackupFailure.DRIVE_ERROR)

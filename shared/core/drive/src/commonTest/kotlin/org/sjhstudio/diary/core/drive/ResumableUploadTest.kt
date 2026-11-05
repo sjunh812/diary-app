@@ -109,4 +109,26 @@ class ResumableUploadTest {
             }.kind
         )
     }
+
+    @Test
+    fun a_dropped_connection_is_retried_instead_of_stopping_the_backup() = runTest {
+        fs.write(path) { write(ByteArray(10)) }
+        val (drive, _) =
+            api { count ->
+                if (count < 2) throw okio.IOException("끊김")
+                HttpStatusCode.OK to emptyMap()
+            }
+
+        assertIs<ChunkResult.Done>(drive.uploadChunk(UploadSession("https://upload/1", 10), 0, path))
+    }
+
+    @Test
+    fun a_connection_that_stays_down_reports_offline() = runTest {
+        fs.write(path) { write(ByteArray(10)) }
+        val (drive, _) = api { throw okio.IOException("끊김") }
+
+        val failure = assertFailsWith<DriveException> { drive.uploadChunk(UploadSession("https://upload/1", 10), 0, path) }
+
+        assertEquals(BackupFailure.OFFLINE, failure.kind)
+    }
 }

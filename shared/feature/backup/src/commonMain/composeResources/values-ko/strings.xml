@@ -184,4 +184,6 @@
     <string name="backup_space_retry">다시 백업</string>
     <plurals name="backup_space_photos"><item quantity="other">일기 글은 모두 올렸어요. 사진 %1$s장을 마저 올리려면 드라이브에 %2$s가 더 필요해요.</item></plurals>
     <string name="restore_contact">문의하기</string>
+    <string name="backup_interrupted_title">백업이 끊겼어요</string>
+    <string name="backup_interrupted_body">올린 사진은 그대로예요. 지금 백업을 누르면 이어서 올려요.</string>
 </resources>

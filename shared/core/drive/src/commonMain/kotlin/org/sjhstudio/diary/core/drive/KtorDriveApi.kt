@@ -220,9 +220,12 @@ class KtorDriveApi(
                 if (!error.retryable || attempt >= RETRIES) throw error
                 backoff(attempt++)
             } catch (_: IOException) {
-                throw DriveException(BackupFailure.OFFLINE)
+                // 사진 수천 장을 올리다 보면 연결이 잠깐 끊긴다. 한 번에 백업 전체를 멈추지 않는다.
+                if (attempt >= RETRIES) throw DriveException(BackupFailure.OFFLINE)
+                backoff(attempt++)
             } catch (_: KotlinxIOException) {
-                throw DriveException(BackupFailure.OFFLINE)
+                if (attempt >= RETRIES) throw DriveException(BackupFailure.OFFLINE)
+                backoff(attempt++)
             }
         }
     }

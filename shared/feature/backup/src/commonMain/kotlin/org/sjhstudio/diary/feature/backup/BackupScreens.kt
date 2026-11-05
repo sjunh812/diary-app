@@ -76,6 +76,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_group_account
 import org.sjhstudio.diary.feature.backup.resources.backup_group_connection
 import org.sjhstudio.diary.feature.backup.resources.backup_group_other
 import org.sjhstudio.diary.feature.backup.resources.backup_group_upload
+import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_body
+import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_title
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_body
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_note
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_title
@@ -394,6 +396,13 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             )
 
         last != null -> DiaryStatusBox(DiaryIcons.ShieldCheck, last, stringResource(Res.string.backup_all_done))
+
+        // 첫 백업이 끊겨도 말없이 처음 화면으로 돌아가지 않는다. 올린 사진은 남아 있다.
+        status.lastFailure != null -> DiaryStatusBox(
+            DiaryIcons.CircleAlert,
+            stringResource(Res.string.backup_interrupted_title),
+            stringResource(Res.string.backup_interrupted_body)
+        )
 
         else -> DiaryStatusBox(
             DiaryIcons.ShieldCheck,
