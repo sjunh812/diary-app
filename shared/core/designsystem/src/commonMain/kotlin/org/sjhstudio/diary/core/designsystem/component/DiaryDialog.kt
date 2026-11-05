@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 /**
  * 대화상자(`docs/design.md` 대화상자, M3 Dialog, 토스 UX 가이드).
  * 폭 312(최대 560) · 모서리 28 · 안쪽 24. 왼쪽 버튼은 늘 "닫기", 오른쪽이 하려는 일이다.
+ * 큰 글자나 낮은 화면에서 넘치면 스크롤해서 버튼에 닿을 수 있다.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +45,7 @@ fun DiaryDialog(
                     .widthIn(min = 312.dp, max = 560.dp)
                     .clip(DiaryShapes.r28)
                     .background(colors.surface)
+                    .verticalScroll(rememberScrollState())
                     .padding(DiarySpacing.x6),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
         ) {

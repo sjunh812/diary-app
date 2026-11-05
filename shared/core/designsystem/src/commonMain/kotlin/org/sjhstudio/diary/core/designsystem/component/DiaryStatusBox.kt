@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.designsystem.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -52,7 +53,11 @@ fun DiaryStatusBox(
             BasicText(body, style = typography.body.copy(color = colors.textSecondary))
         }
         if (actionLabel != null && onAction != null) {
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 들어가지 않으면 아래 줄로 내려간다.
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+            ) {
                 DiaryButton(actionLabel, onClick = onAction, size = DiaryButtonSize.Small, kind = DiaryButtonKind.Weak)
                 if (secondaryLabel != null && onSecondary != null) {
                     DiaryButton(secondaryLabel, onClick = onSecondary, size = DiaryButtonSize.Small, kind = secondaryKind)

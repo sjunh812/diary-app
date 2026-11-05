@@ -143,7 +143,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 
 - 간격: 4 기반 `2, 4, 6, 8, 12, 16, 20, 24, 32, 40, 56`(SEED dimension x0.5~x14). 2와 6은 아이콘과 글자 사이 같은 좁은 틈에만 쓴다.
   아래 컴포넌트 규격 표의 10·14·28 같은 값은 그 컴포넌트 안에서만 쓰고, 화면 배치에는 간격 단계만 쓴다(2026-11-01 점검).
-- 화면 좌우: 폰 20(TDS 토스트·ListRow small 20, HIG 예시 20), 600dp부터 24(M3 medium·expanded). 터치 영역 사이는 8 이상(M3).
+- 화면 좌우: 폰 20(TDS 토스트·ListRow small 20, HIG 예시 20), 600dp부터 24(M3 medium·expanded). 공통 부품은 `LocalScreenGutter`로 값을 받고, 앱 틀이 창 크기에 맞춰 준다(기본은 폰 20). 터치 영역 사이는 8 이상(M3).
 - 모서리: `8`(작은 버튼, 뱃지), `10`(중간 버튼), `12`(입력칸, 검색, 사진, 날씨 칸), `14`(보통 버튼), `16`(큰 버튼, 쓰기 버튼, 카드,
   기분 칸), `20`(여러 줄 토스트), `28`(시트, 대화상자), `full`(칩, 한 줄 토스트). SEED radius 단계와 TDS 버튼 모서리, M3 시트·대화상자
   28을 합쳤다. 이 밖의 값은 쓰지 않는다.
@@ -153,41 +153,45 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 
 | 컴포넌트 | 규격 | 근거 |
 | --- | --- | --- |
-| 큰 버튼 | 56 · 좌우 16 · 모서리 16 · `headline` | TDS xlarge. 높이·모서리는 같고, 좌우 28은 나란한 두 버튼에서 글이 잘려 16으로 줄였다(2026-11-05) |
+| 큰 버튼 | 56 · 좌우 16 · 모서리 16 · `headline`. 버튼 네 크기의 높이는 모두 최소값이라 글은 두 줄까지 늘어나고 버튼이 함께 커진다 | TDS xlarge. 높이·모서리는 같고, 좌우 28은 나란한 두 버튼에서 글이 잘려 16으로 줄였다(2026-11-05) |
 | 보통 버튼 | 48 · 좌우 16 · 모서리 14 · `headline` | TDS large |
 | 중간 버튼 | 38 · 좌우 16 · 모서리 10 · `bodyStrong` | TDS medium |
 | 작은 버튼 | 32 · 좌우 10 · 모서리 8 · `captionStrong` | TDS small |
 | 두 버튼 | 같은 폭 · 사이 8 · 주 버튼 오른쪽. 글이 반 칸에 들어가지 않으면 위아래로 쌓고 주 버튼을 위에 둔다. 1:2 폭은 쓰지 않는다 | M3 대화상자의 닫기 버튼 아래 쌓기, Apple 알림의 긴 버튼 세로 배치 |
 | 버튼 종류 | primary(accent), secondary(sunken), weak(selected + accentText), text, danger | TDS 버튼 색 종류 |
-| 칩 | 32 · 좌우 12(앞 아이콘이 있으면 왼쪽 10) · 아이콘과 글 사이 4 · full · `label`, 아이콘 16 · 터치 영역 48 | SEED Chip, M3 터치 48, M3 칩은 아이콘 쪽 여백이 좁다(8) |
-| 검색 칸 | 44 · 모서리 12 · 돋보기 20 · 지우기 16 · `body` | TDS SearchField 44/r12 |
+| 칩 | 32 · 좌우 12(앞 아이콘이 있으면 왼쪽 10) · 아이콘과 글 사이 4 · full · `label` 한 줄, 넘치면 말줄임 · 아이콘 16 · 터치 영역 48 | SEED Chip, M3 터치 48, M3 칩은 아이콘 쪽 여백이 좁다(8) |
+| 검색 칸 | 44 · 모서리 12 · 돋보기 20 · 지우기 원 16, 누르는 곳 48 · `body` | TDS SearchField 44/r12 |
 | 상단 바 | 56 · 제목 `headline` · 아이콘 칸 48 · 오른쪽 동작(저장 같은)은 채운 버튼이 아니라 글자 버튼(`headline`, `accentText`, 좌우 12), 할 수 없으면 38% | SEED TopNavigation 56, HIG·M3 상단 바 글자 동작 |
-| 하단 탭 | 64 + 안전 영역 · 아이콘 24 · 이름 `micro` 한 줄 · 고른 탭은 `textPrimary`와 굵은 선, 나머지 `textTertiary` · 이름은 기기 글자 크기를 1.3배까지만 따른다(레일도 같다) | M3 내비 바 64(권장), 토스 탭, Apple 탭 막대는 글자 크기를 따라 커지지 않는다(WWDC 2017 "Building Apps with Dynamic Type", UIKit `UILargeContentViewerInteraction`) |
-| 레일(600dp 이상) | 80 · 항목 64 · 위에 쓰기 버튼 | M3 narrow rail 80 |
+| 하단 탭 | 64 + 안전 영역 · 칸은 폭을 고르게 나눈다 · 아이콘 24 · 이름 `micro` 한 줄 · 고른 탭은 `textPrimary`와 굵은 선, 나머지 `textTertiary` · 이름은 기기 글자 크기를 1.3배까지만 따른다(레일도 같다) | M3 내비 바 64(권장), 토스 탭, Apple 탭 막대는 글자 크기를 따라 커지지 않는다(WWDC 2017 "Building Apps with Dynamic Type", UIKit `UILargeContentViewerInteraction`) |
+| 레일(600dp 이상) | 80 · 항목 64 · 위에 쓰기 버튼 · 낮은 가로 화면에서 넘치면 스크롤 | M3 narrow rail 80 |
 | 쓰기 버튼 | 56 · 모서리 16 · 화면 끝 20, 탭 위 16 | M3 FAB 56/16 |
 | 고르기 칸(기분·날씨) | 기분은 5칸 격자이고 남는 칸은 비운다. 날씨는 칩을 폭만큼 줄 바꿈해 가볍게 두고 고른 칩만 색이 든다(2026-11-04 사용자 결정) · 첫 칸 내용은 제목 왼쪽 선에 맞춘다 · 고른 칸 바탕은 그만큼 왼쪽으로 8 나간다 | 2026-11-04 사용자 지적 |
-| 일기 줄(피드) | 위아래 16 · 좌우 20 · 날짜 열 36(요일 `captionStrong` + 날짜 `numeral`) · 사이 14 · 메타 한 줄(기분 얼굴 18, 시각, 날씨, 장소, 즐겨찾기 별) · 미리보기 `body` 3줄 · 사진 칸 64 | Day One 목록, TDS ListRow 16 |
+| 일기 줄(피드) | 위아래 16 · 좌우 화면 여백 · 날짜 열 최소 36(요일 `captionStrong` + 날짜 `numeral`, 줄을 꺾지 않고 큰 글자에서는 열이 늘어난다) · 사이 14 · 메타 한 줄(기분 얼굴 18, 시각, 날씨, 장소, 즐겨찾기 별, 긴 장소는 말줄임) · 미리보기 `body` 3줄 · 사진 칸 64 | Day One 목록, TDS ListRow 16 |
 | 사진 칸 | 64 · 모서리 12 · 1장 꽉, 2장 위아래, 3장 큰 칸 + 둘, 4장 이상 2×2와 `+N` · 쓰기 화면의 지우기 표시는 원 20 안에 엑스 12(이 표시 안에서만 쓰는 크기), 누르는 곳 48 | Day One |
 | 구분선 | 1 · 날짜가 바뀌면 좌우 20부터, 같은 날 두 번째부터는 글 시작점 70부터. 달 머리 앞과 마지막 줄 아래엔 없음 | Day One, SEED Divider, TDS indented |
 | 달 머리 | 띠 없이 글자만 · 위 28, 아래 4 · `headline` · 같은 해면 연도를 뺀다 · 스크롤하면 큰 제목이 접힌 상단 바 제목으로 바뀌고 지금 보이는 달을 보여 준다 | Apple 저널(굵은 글자만), Things, iOS 큰 제목 접힘 |
 | 카드(카드형 보기) | 바탕 `canvas`, 카드 `surfaceCard` · 좌우 16 · 안쪽 16 · 모서리 16 · 카드 사이 12 · 날짜 `numeral` + 요일(글자 밑선 맞춤) · 기분 얼굴 28 · 날짜와 시각 사이 4 · 글 위 8 · 사진 위 12(글이 없어도 12) · 사진 4칸 | Apple 저널 카드, 사용자 제안 |
 | 설정 묶음 | 묶음 머리 `label` `textSecondary`(위 20 · 아래 8). 두 번째 묶음부터 머리 위 여백을 24로 넓혀 앞 묶음과 나눈다. 띠나 카드는 쓰지 않는다 | 2026-11-04 사용자 결정(여백 20은 줄 사이와 비슷해 한 덩어리로 보임). 토스는 카드형과 TDS Border height16 띠를 쓰지만, 화면을 다시 그리지 않고 여백만 넓혔다. 32는 넓어 보여 24로 했다 |
-| 설정 줄 | 최소 56 · 위아래 14 · 좌우 20 · 앞 아이콘 24 · 아이콘과 이름 사이 12 · 이름 `reading` · 값 `body` + 화살표 20. 설명이 붙은 두 줄도 위아래 14, 사이 12 | TDS ListRow, M3 1줄 56·앞 아이콘 24, SEED ListItem(사이 12) |
-| 바텀 시트 | 떠 있는 시트 · 좌우·아래 10 띄움 · 모서리 28 · 손잡이 48×4 · 안쪽 24 · 제목 `title2` + 아래 바꿀 수 있는 날짜 · 글과 버튼 사이 24, 글끼리 12(내용에 좌우 여백을 또 주지 않는다) · 폭 최대 480, 높이 최대 90% | TDS BottomSheet(r28, 10 띄움, 48×4), SEED 최대 폭 480, 하루콩·Daylio 날짜 링크 |
+| 설정 줄 | 최소 56 · 위아래 14 · 좌우 화면 여백 · 앞 아이콘 24 · 아이콘과 이름 사이 12 · 이름 `reading` 두 줄까지 · 값 `body` 한 줄 + 화살표 20. 값은 남은 폭의 반까지 쓰고 말줄임한다. 설명이 붙은 두 줄도 위아래 14, 사이 12 | TDS ListRow, M3 1줄 56·앞 아이콘 24, SEED ListItem(사이 12) |
+| 바텀 시트 | 떠 있는 시트 · 좌우·아래 10 띄움 · 모서리 28 · 손잡이 48×4 · 안쪽 24 · 제목 `title2` + 아래 바꿀 수 있는 날짜 · 글과 버튼 사이 24, 글끼리 12, 제목과 설명은 한 묶음이라 8(내용에 좌우 여백을 또 주지 않는다) · 폭 최대 480, 높이 최대 90%, 넘치면 손잡이는 두고 내용만 스크롤 | TDS BottomSheet(r28, 10 띄움, 48×4), SEED 최대 폭 480, 하루콩·Daylio 날짜 링크 |
 | 편지지 | 바탕 `selected` 40%, 카드 `surface` · 모서리 20 · 선 1 · 안쪽 24 · 문단 사이 16. To는 `label` `accentText`, From은 `label` 오른쪽 정렬. 열릴 때 24 올라오며 0.45초, 동작 줄이기면 없음 | 편지 꼴(받는 사람, 인사, 본문, 보내는 사람) |
 | 결제 화면 | 스크롤 없는 한 화면, 위에서부터 채운다. 그림은 폭을 채우는 칸(350:220, 최대 높이 280, `selected` 40%, 모서리 20)에 일기 한 장을 크게 두고 아래를 자른다. 광고 자리가 접히고 사진과 통계가 차는 로띠 · 제목 `title1` · 혜택 세 줄(체크 24, `reading`, 설명 없음) · 그 아래 앞으로 더할 기능 한 줄(`caption`, `textSecondary`) · 결제액 `title2` · 큰 버튼 · 고지 `caption` | RevenueCat, Adapty, Apple 구독 안내, Play 구독 정책 |
 | 네이티브 광고 | `sunken` 면 · 모서리 16 · 안쪽 16 · 제목 두 줄까지, "광고" 표시, 행동 문구 · 오른쪽 위 ×(광고 없애기 시트). 얇은 줄은 글만, 카드는 왼쪽 120 그림이나 영상 | AdMob 네이티브 정책, 오발있 NativeAdRow·NativeAdCard |
-| 토스트 | 폭 화면 - 40, 최대 400(넓은 화면은 아래 가운데, 폰 토스트와 같은 크기) · 높이 48 · 한 줄 full, 여러 줄 20 · `bodyStrong` · 늘 탭 위 16에 뜨고 쓰기 버튼이 그 위 8로 올라갔다가 돌아온다(2026-11-06 사용자 지적: 버튼 위에 뜨면 글 사이에 떠 있어 어색하다) · 버튼이 있으면 5초, 누르는 동안 멈춤 | TDS Toast 5000ms, [Android FAB가 스낵바를 피해 올라가는 동작](https://material.io/components/snackbars). 지금 Material과 [SEED Snackbar](https://seed-design.io/docs/components/snackbar)는 토스트를 FAB 위에 두라고 하지만 가리지 말라는 뜻은 그대로 지킨다 |
-| 대화상자 | 폭 312(최대 560) · 모서리 28 · 안쪽 24 · 왼쪽 버튼은 "닫기" | M3 Dialog, 토스 UX 가이드 |
+| 토스트 | 폭 화면 - 40, 최대 400(넓은 화면은 아래 가운데, 폰 토스트와 같은 크기) · 높이 48 · 한 줄 full, 여러 줄 20 · `bodyStrong` · 버튼은 누르는 곳 48, 누름 효과 · 늘 탭 위 16에 뜨고 쓰기 버튼이 그 위 8로 올라갔다가 돌아온다(2026-11-06 사용자 지적: 버튼 위에 뜨면 글 사이에 떠 있어 어색하다) · 버튼이 있으면 5초, 누르는 동안 멈춤 | TDS Toast 5000ms, [Android FAB가 스낵바를 피해 올라가는 동작](https://material.io/components/snackbars). 지금 Material과 [SEED Snackbar](https://seed-design.io/docs/components/snackbar)는 토스트를 FAB 위에 두라고 하지만 가리지 말라는 뜻은 그대로 지킨다 |
+| 대화상자 | 폭 312(최대 560) · 모서리 28 · 안쪽 24 · 왼쪽 버튼은 "닫기" · 넘치면 스크롤 | M3 Dialog, 토스 UX 가이드 |
 | 빈 상태 | 아이콘 32 하나 · 제목 `title2` · 설명 `body` · 버튼 하나 · 긍정형 해요체 · 내용 칸의 위 2, 아래 3 자리(정가운데는 처져 보인다) | SEED Result Section, 토스 UX 가이드 |
 | 결과 배지 | 원 56 · 아이콘 32 · 결과 화면 맨 위 하나 | M3 아이콘 버튼 L의 아이콘 32. TDS·SEED의 같은 자리 명세는 확인 못 함 |
+| 결과 머리 (`DiaryResultHeader`) | 결과 배지 · 제목 `title2` · 설명 `body` `textSecondary` · 가운데 맞춤 · 위아래 24 · 좌우 화면 여백 · 배지와 제목 사이 20 · 제목과 설명 사이 8 | 백업·복원·이전 결과 화면에 되풀이되던 머리를 묶었다. SEED Result Section |
+| 아이콘 버튼 (`DiaryIconButton`) | 원 48 · 아이콘 24 · 누름 효과, 물결 없음 · 설명 글(`contentDescription`) 필수 · 비활성은 38% | 위 상단 바 아이콘 칸 48, M3 최소 터치 영역 48 |
+| 탭 한 줄 (`DiarySegmentedTabs`) | 높이 48(누르는 곳) · 좌우 안쪽 4 · 고른 표시 40 · 칸 폭은 고르게 · 바탕 `sunken` 모서리 12 · 고른 칸 `canvas` 모서리 8, `bodyStrong` `textPrimary` · 나머지 `body` `textSecondary` · 한 줄 | 아래 터치 영역 48(M3), HIG 44 |
+| 맥락 팁 (`DiaryTip`) | 폭 최대 680 · 위아래 8 · 좌우 화면 여백 · 바탕 `toast` · 모서리 12 · `caption` `onToast` · 글 왼쪽 16, 위아래 12 · 닫기 엑스 16, 누르는 곳 48 · 닫으면 다시 뜨지 않는다 | Apple TipKit의 줄 안 팁. 토스트와 같은 색이라 강조를 늘리지 않는다 |
 | 상자 여백 | 모서리 16인 바탕 상자는 모두 같은 셋을 쓴다: 글 묶음 안(제목과 설명) 2~4 < 항목 사이 16 < 상자 안쪽 20(네 변 같게). 묶인 것일수록 가깝고 가장자리가 가장 넓어야 상자가 답답하지 않다. 상자 밖과는 위아래 16 이상 띄운다 | 게슈탈트 근접성, internal ≤ external 휴리스틱([Cieden](https://cieden.com/book/sub-atomic/spacing/spacing-best-practices), [Uxcel](https://app.uxcel.com/courses/design-systems-intro/spacing-sizing-803/managing-internal-and-external-spacing-0940)), SEED Callout(안쪽 14 ≥ 사이 12), 2026-11-04 사용자 지적(안쪽이 내용 사이보다 좁아 가장자리에 붙어 보임) |
 | 홈 백업 줄 | 바탕 없는 글줄 · 안쪽 없음 · 왼쪽은 큰 제목과 같은 선 · 제목 아래 4 · 아이콘 16 · 사이 8 · `caption` `textSecondary` · 아래 내용과 12 | 2026-11-04 사용자 지적(상자용 안쪽이 들어가 아이콘이 들여쓰이고 아래가 붙어 있었다) |
 | 안내 상자 | 바탕 `sunken` · 모서리 16 · 위 "상자 여백" · 아이콘 16(`textSecondary`) · 아이콘과 글 사이 12 · 제목 `bodyStrong` · 설명 `caption`(제목과 사이 2) | SEED Callout(사이 12, 아이콘 16) |
 | 상태 상자 | 안내 상자와 같은 바탕·모서리·안쪽 · 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong` · 아래 설명 `body`(머리와 사이 4, 한 묶음) · 버튼은 설명과 사이 16. 아이콘 + 문장 줄을 늘어놓는 목록은 아이콘 16, 사이 12, 줄 사이 16 | 안내 상자와 한 집안(2026-11-01 점검, 사용자가 사이 8이 좁다고 짚음) |
 | 한 줄 안내 | 바탕 `sunken` · 모서리 12 · 안쪽 16(글이 여러 줄이 되어도 답답하지 않게) · 아이콘 16 · 사이 8 · `caption` | SEED PageBanner(아이콘 16, 사이 6) |
-| 값 줄 | 최소 48 · 좌우 20 · 이름 `body`(`textSecondary`) 왼쪽 · 값 `bodyStrong` 오른쪽 · 누르지 않는 줄 | Figma M5 기록 이전 결과, TDS ListRow 오른쪽 값 |
-| 설정 묶음 머리 | `label` · `textSecondary` · 위 20(둘째 묶음부터 24, 위 "설정 묶음") · 아래 8 · 좌우 20 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
+| 값 줄 | 최소 48 · 좌우 화면 여백 · 이름 `body`(`textSecondary`) 왼쪽 · 값 `bodyStrong` 오른쪽 · 누르지 않는 줄 | Figma M5 기록 이전 결과, TDS ListRow 오른쪽 값 |
+| 설정 묶음 머리 | `label` · `textSecondary` · 위 20(둘째 묶음부터 24, 위 "설정 묶음") · 아래 8 · 좌우 화면 여백 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
 | 스위치 | 트랙 52×32 · full · 안쪽 3 · 손잡이 26 · 누르는 곳은 줄 전체 | SEED switchmark 32(52×32, 안쪽 3, 손잡이 26), M3 Switch 52×32 |
 | 진행 막대 | 높이 8 · full · 트랙 `sunken` · 채움 `accent` | TDS ProgressBar bold 8(모서리 4) |
 | 고르기 목록 | 설정 줄 + 오른쪽 체크 아이콘 24(`accentText`). 라디오 원은 쓰지 않는다 | TDS BottomSheet.Select·Checkbox.Line 24, HIG 체크 표시 목록 |

@@ -3,7 +3,6 @@
     <string name="ds_language">ko</string>
     <string name="ds_close">닫기</string>
     <string name="ds_back">뒤로 가기</string>
-    <string name="ds_selected">선택됨</string>
     <string name="ds_delete">지우기</string>
     <string name="ds_pin_progress">%2$d자리 중 %1$d자리 입력함</string>
     <string name="ds_catalog_title">디자인 시스템</string>

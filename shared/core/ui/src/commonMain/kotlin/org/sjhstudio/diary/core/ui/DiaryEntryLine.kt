@@ -8,6 +8,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
@@ -47,20 +48,29 @@ fun DiaryEntryLine(
         dateColumn = dateColumn,
         meta = {
             row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }
-            BasicText(dates.time(row.time), style = typography.captionStrong.copy(color = colors.textSecondary), maxLines = 1)
+            BasicText(
+                dates.time(row.time),
+                style = typography.captionStrong.copy(color = colors.textSecondary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             row.weather?.let { WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary, contentDescription = weatherName(it)) }
             row.placeName?.let {
+                // 장소가 길어도 뒤에 오는 표시와 즐겨찾기 별을 밀어내지 않는다.
                 BasicText(
                     it.highlighted(highlight, colors.accentText),
+                    modifier = Modifier.weight(1f, fill = false),
                     style = typography.caption.copy(color = colors.textSecondary),
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             if (row.keptBoth) {
                 BasicText(
                     stringResource(Res.string.entry_kept_both),
                     style = typography.caption.copy(color = colors.accentText),
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

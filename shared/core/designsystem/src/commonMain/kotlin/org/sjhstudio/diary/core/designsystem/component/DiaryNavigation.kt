@@ -14,8 +14,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,7 +39,7 @@ val DiaryRailMinWidth: Dp = 600.dp
 
 /**
  * 하단 탭(`docs/design.md` 하단 탭, M3 내비 바 64, Figma "설정 (S6)" tab-bar).
- * 64 + 안전 영역 · 칸 80×56 · 아이콘 24 · 이름 `micro` · 위 경계선 `line`.
+ * 64 + 안전 영역 · 칸은 폭을 고르게 나누고 높이 56 · 아이콘 24 · 이름 `micro` · 위 경계선 `line`.
  * 고른 탭은 보라가 아니라 `textPrimary`와 굵은 선, 나머지는 `textTertiary`다.
  */
 @Composable
@@ -49,11 +51,10 @@ fun DiaryNavigationBar(items: List<DiaryNavItem>, selected: Int, onSelect: (Int)
             Modifier.fillMaxWidth().navigationBarsPadding().height(
                 64.dp
             ).padding(start = DiarySpacing.x3, end = DiarySpacing.x3, top = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
             items.forEachIndexed { index, item ->
-                NavCell(item, index == selected, Modifier.width(80.dp).height(56.dp)) { onSelect(index) }
+                NavCell(item, index == selected, Modifier.weight(1f).height(56.dp)) { onSelect(index) }
             }
         }
     }
@@ -61,7 +62,8 @@ fun DiaryNavigationBar(items: List<DiaryNavItem>, selected: Int, onSelect: (Int)
 
 /**
  * 레일(600dp 이상, `docs/design.md` 레일, M3 narrow rail 80). 칸 80×64, 오른쪽 경계선 `line`.
- * 맨 위 쓰기 버튼 자리는 스펙 002가 [header]로 채운다.
+ * 맨 위 쓰기 버튼 자리는 스펙 002가 [header]로 채운다. 버튼 아래 여백은 부르는 쪽이 정한다.
+ * 낮은 가로 화면에서 칸이 넘치면 스크롤한다.
  */
 @Composable
 fun DiaryNavigationRail(
@@ -74,7 +76,7 @@ fun DiaryNavigationRail(
     val colors = DiaryTheme.colors
     Row(modifier.fillMaxHeight().background(colors.canvas)) {
         Column(
-            Modifier.width(80.dp).fillMaxHeight().systemBarsPadding().padding(top = DiarySpacing.x5),
+            Modifier.width(80.dp).fillMaxHeight().systemBarsPadding().verticalScroll(rememberScrollState()).padding(top = DiarySpacing.x5),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
         ) {

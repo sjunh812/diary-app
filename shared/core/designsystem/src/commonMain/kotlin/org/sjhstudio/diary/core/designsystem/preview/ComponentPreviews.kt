@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.designsystem.preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -19,8 +20,12 @@ import org.sjhstudio.diary.core.designsystem.catalog.CatalogSpacing
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogTimeWheel
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogTypography
 import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
+import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
@@ -114,6 +119,46 @@ private fun EntriesLight() = PreviewCanvas(dark = false) { CatalogEntries() }
 @Preview(name = "일기 줄과 빈 상태 · 다크", locale = "ko")
 @Composable
 private fun EntriesDark() = PreviewCanvas(dark = true) { CatalogEntries() }
+
+@Preview(name = "아이콘 버튼 · 라이트", locale = "ko")
+@Composable
+private fun IconButtonsLight() = PreviewCanvas(dark = false) { IconButtons() }
+
+@Preview(name = "아이콘 버튼 · 다크", locale = "ko")
+@Composable
+private fun IconButtonsDark() = PreviewCanvas(dark = true) { IconButtons() }
+
+/** 기본, 색을 넘긴 버튼, 누를 수 없는 버튼. */
+@Composable
+private fun IconButtons() = Row(
+    Modifier.padding(horizontal = DiarySpacing.screenCompact),
+    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+) {
+    DiaryIconButton(DiaryIcons.Search, "찾기", onClick = {})
+    DiaryIconButton(DiaryIcons.Trash, "삭제", onClick = {}, tint = DiaryTheme.colors.danger)
+    DiaryIconButton(DiaryIcons.Share, "공유", onClick = {}, enabled = false)
+}
+
+@Preview(name = "결과 머리 · 라이트", locale = "ko")
+@Composable
+private fun ResultHeadersLight() = PreviewCanvas(dark = false) { ResultHeaders() }
+
+@Preview(name = "결과 머리 · 다크", locale = "ko")
+@Composable
+private fun ResultHeadersDark() = PreviewCanvas(dark = true) { ResultHeaders() }
+
+/** 끝난 결과, 문제가 있는 결과, 설명이 없는 머리. */
+@Composable
+private fun ResultHeaders() = Column {
+    DiaryResultHeader(DiaryIcons.CircleCheck, "백업을 마쳤어요", description = "일기 1,284편과 사진 320장을 담았어요.")
+    DiaryResultHeader(
+        DiaryIcons.CircleAlert,
+        "드라이브 공간이 부족해요",
+        description = "공간을 비우고 다시 시도해 주세요.",
+        tone = DiaryBadgeTone.Danger
+    )
+    DiaryResultHeader(DiaryIcons.Lock, "비밀번호를 입력해 주세요")
+}
 
 @Preview(name = "숫자판과 점 · 라이트", locale = "ko")
 @Composable

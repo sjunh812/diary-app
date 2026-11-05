@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -59,7 +60,8 @@ fun DiaryChip(
     ) {
         leading?.invoke()
         if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = content, size = DiaryIconSize.i16)
-        BasicText(text = text, style = DiaryTheme.typography.label.copy(color = content), maxLines = 1)
+        // 칩은 LazyRow처럼 폭이 끝없는 곳에도 놓여서 weight를 쓰지 않는다. 쓰면 글자 폭이 0이 된다.
+        BasicText(text = text, style = DiaryTheme.typography.label.copy(color = content), maxLines = 1, overflow = TextOverflow.Ellipsis)
         if (trailingIcon != null) DiaryIcon(trailingIcon, contentDescription = null, tint = content, size = DiaryIconSize.i16)
     }
 }

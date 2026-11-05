@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
@@ -104,6 +105,6 @@ private fun MonthCell(label: String, selected: Boolean, enabled: Boolean, modifi
                 enabled -> colors.textPrimary
                 else -> colors.placeholder
             }
-        BasicText(label, style = DiaryTheme.typography.label.copy(color = color), maxLines = 1)
+        BasicText(label, style = DiaryTheme.typography.label.copy(color = color), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,15 +27,13 @@ import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-/** 날짜 열 폭(요일 + 날짜 숫자). */
+/** 날짜 열 최소 폭(요일 + 날짜 숫자). 큰 글자에서는 열이 늘어나 숫자가 두 줄로 꺾이지 않는다. */
 private val DATE_COLUMN = 36.dp
 
 /** 날짜 열과 글 사이. */
 private val DATE_GAP = 14.dp
-
-/** 같은 날 두 번째 줄부터 구분선이 시작하는 자리(좌우 20 + 날짜 열 36 + 사이 14). */
-private val TEXT_START = 70.dp
 
 /** 사진 칸 크기. */
 val DiaryPhotoCellSize = 64.dp
@@ -55,7 +53,7 @@ fun DiaryEntryRow(
 
 /**
  * 일기 줄(피드, `docs/design.md` 일기 줄·구분선, Day One 목록).
- * 위아래 16 · 좌우 20 · 날짜 열 36 · 사이 14 · 메타 한 줄 · 미리보기 `body` 3줄 · 사진 칸 64.
+ * 위아래 16 · 좌우 화면 여백 · 날짜 열 36 · 사이 14 · 메타 한 줄 · 미리보기 `body` 3줄 · 사진 칸 64.
  * 날짜 열은 그날 첫 줄에만 보인다. 구분선은 날짜가 바뀌면 좌우 20부터, 같은 날이면 글 시작점부터 긋는다.
  *
  * @param weekday 요일 한 글자. 같은 날 두 번째 줄부터 null.
@@ -77,19 +75,15 @@ fun DiaryEntryRow(
     meta: @Composable RowScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
+    val gutter = LocalScreenGutter.current
     Column(modifier.fillMaxWidth()) {
         if (dividerAbove) {
             Box(
                 Modifier
                     .padding(
-                        start = if (day != null ||
-                            !dateColumn
-                        ) {
-                            DiarySpacing.screenCompact
-                        } else {
-                            TEXT_START
-                        },
-                        end = DiarySpacing.screenCompact
+                        // 같은 날 두 번째 줄부터는 글 시작점에서 긋는다.
+                        start = if (day != null || !dateColumn) gutter else gutter + DATE_COLUMN + DATE_GAP,
+                        end = gutter
                     )
                     .fillMaxWidth()
                     .height(1.dp)
@@ -97,19 +91,24 @@ fun DiaryEntryRow(
             )
         }
         Row(
-            Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
+            Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = DiarySpacing.x4),
             horizontalArrangement = Arrangement.spacedBy(DATE_GAP)
         ) {
             if (dateColumn) {
-                Column(Modifier.width(DATE_COLUMN), horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(Modifier.widthIn(min = DATE_COLUMN), horizontalAlignment = Alignment.CenterHorizontally) {
                     if (weekday != null) {
                         BasicText(
                             weekday,
-                            style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+                            style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
+                            softWrap = false
                         )
                     }
                     if (day != null) {
-                        BasicText(day, style = DiaryTheme.typography.numeral.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
+                        BasicText(
+                            day,
+                            style = DiaryTheme.typography.numeral.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
+                            softWrap = false
+                        )
                     }
                 }
             }
@@ -145,7 +144,7 @@ fun DiaryEntryRow(
  */
 @Composable
 fun DiaryMonthHeader(text: String, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact)) {
+    Column(modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current)) {
         Spacer(Modifier.height(28.dp))
         BasicText(
             text,

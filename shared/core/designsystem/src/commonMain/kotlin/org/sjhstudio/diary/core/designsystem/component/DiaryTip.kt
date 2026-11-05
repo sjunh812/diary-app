@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
  * 맥락 팁 한 줄(Apple TipKit의 줄 안 팁). 화면을 막지 않고 닫으면 다시 뜨지 않는다.
@@ -36,7 +37,7 @@ fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Mo
         modifier
             .widthIn(max = DiaryWriteSize.bodyMax)
             .fillMaxWidth()
-            .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)
+            .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
             .clip(DiaryShapes.r12)
             .background(colors.toast),
         verticalAlignment = Alignment.CenterVertically,

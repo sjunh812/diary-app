@@ -6,7 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -52,6 +53,9 @@ enum class DiaryButtonKind { Primary, Secondary, Weak, Text, Danger }
 
 private class ButtonSpec(val height: Dp, val horizontal: Dp, val shape: Shape)
 
+/** 버튼 글의 줄 수 끝. */
+private const val BUTTON_MAX_LINES = 2
+
 private fun DiaryButtonSize.spec() = when (this) {
     DiaryButtonSize.XLarge -> ButtonSpec(56.dp, DiarySpacing.x4, DiaryShapes.r16)
     DiaryButtonSize.Large -> ButtonSpec(48.dp, DiarySpacing.x4, DiaryShapes.r14)
@@ -62,6 +66,7 @@ private fun DiaryButtonSize.spec() = when (this) {
 /**
  * 버튼 하나. 글은 문자열 리소스에서 받아 넘긴다.
  * 보이는 높이가 48보다 작아도 누르는 영역은 48이다.
+ * 높이는 최소 규격이라 큰 글자에서 글이 두 줄이 되면 버튼이 늘어난다. 잘리지 않게 위아래 4를 둔다.
  */
 @Composable
 fun DiaryButton(
@@ -94,7 +99,7 @@ fun DiaryButton(
         modifier =
             modifier
                 .minimumInteractiveComponentSize()
-                .height(spec.height)
+                .heightIn(min = spec.height)
                 .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
                 .diaryPress(interaction, colors.textPrimary, spec.shape)
                 .clip(spec.shape)
@@ -105,7 +110,7 @@ fun DiaryButton(
                     enabled = enabled,
                     role = Role.Button,
                     onClick = onClick
-                ).padding(horizontal = spec.horizontal),
+                ).padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -117,7 +122,12 @@ fun DiaryButton(
                 size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
             )
         }
-        BasicText(text = text, style = style.copy(color = content), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        BasicText(
+            text = text,
+            style = style.copy(color = content, textAlign = TextAlign.Center),
+            maxLines = BUTTON_MAX_LINES,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -143,7 +153,7 @@ fun DiaryButtonPair(
             DiaryButton(secondary, onSecondary, Modifier.fillMaxWidth(), size = size, kind = secondaryKind)
             DiaryButton(primary, onPrimary, Modifier.fillMaxWidth(), size = size, kind = primaryKind, enabled = primaryEnabled)
         },
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.padding(top = LocalSheetButtonGap.current).fillMaxWidth()
     ) { (second, first), constraints ->
         val gap = DiarySpacing.x2.roundToPx()
         val half = (constraints.maxWidth - gap) / 2

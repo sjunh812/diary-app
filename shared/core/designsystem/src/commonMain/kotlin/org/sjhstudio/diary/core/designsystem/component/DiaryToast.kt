@@ -9,7 +9,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -28,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -96,6 +99,7 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
         val shown = data ?: return@AnimatedVisibility
         val colors = DiaryTheme.colors
         var multiline by remember(shown) { mutableStateOf(false) }
+        val action = shown.actionLabel
         Row(
             modifier =
                 Modifier
@@ -113,7 +117,8 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
                             pressed = false
                         }
                     }.semantics { liveRegion = LiveRegionMode.Polite }
-                    .padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x3),
+                    // 버튼은 토스트 높이를 다 써서 누르는 곳이 48이 된다. 그래서 위아래 여백은 글에만 주고, 오른쪽은 버튼 안쪽 8만큼 줄인다.
+                    .padding(start = DiarySpacing.x5, end = if (action != null) DiarySpacing.x3 else DiarySpacing.x5),
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -121,15 +126,25 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
                 text = shown.message,
                 style = DiaryTheme.typography.bodyStrong.copy(color = colors.onToast),
                 onTextLayout = { multiline = it.lineCount > 1 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f).padding(vertical = DiarySpacing.x3)
             )
-            val action = shown.actionLabel
             if (action != null) {
-                BasicText(
-                    text = action,
-                    style = DiaryTheme.typography.bodyStrong.copy(color = colors.toastAction),
-                    modifier = Modifier.clickable { shown.finish(DiaryToastResult.ActionPerformed) }
-                )
+                val interaction = remember { MutableInteractionSource() }
+                Box(
+                    Modifier
+                        .heightIn(min = DiarySpacing.minTouchTarget)
+                        .widthIn(min = DiarySpacing.minTouchTarget)
+                        .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
+                            shown.finish(DiaryToastResult.ActionPerformed)
+                        }
+                        // 누름 면이 토스트 끝에 닿지 않게 위아래를 조금 안으로 넣는다.
+                        .padding(vertical = DiarySpacing.x1_5)
+                        .diaryPress(interaction, colors.onToast, DiaryShapes.r10)
+                        .padding(horizontal = DiarySpacing.x2),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BasicText(text = action, style = DiaryTheme.typography.bodyStrong.copy(color = colors.toastAction))
+                }
             }
         }
     }

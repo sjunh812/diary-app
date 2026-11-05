@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.designsystem.theme
 
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -24,18 +25,24 @@ object DiarySpacing {
     val x10: Dp = 40.dp
     val x14: Dp = 56.dp
 
-    /** 폰 화면 좌우(TDS ListRow 20, HIG 예시 20). */
+    /** 화면 좌우(TDS ListRow 20, HIG 예시 20). 넓은 화면은 본문 폭을 막아 가운데에 둔다. */
     val screenCompact: Dp = x5
-
-    /** 600dp부터 화면 좌우(M3 medium·expanded 24). */
-    val screenWide: Dp = x6
 
     /** 터치 영역 최소 크기(M3 48, HIG 44). 보이는 크기가 작으면 누르는 영역을 이만큼 넓힌다. */
     val minTouchTarget: Dp = 48.dp
 
+    /** 탭 화면 큰 제목 위 여백. 홈의 위 줄 높이와 같아서 탭을 바꿔도 제목이 뛰지 않는다. */
+    val tabTitleTop: Dp = 52.dp
+
     /** 구분선 두께. */
     val hairline: Dp = 1.dp
 }
+
+/**
+ * 공통 부품이 쓰는 화면 좌우 여백(`docs/design.md` 간격, 폰 20, 600dp부터 24).
+ * 앱 틀이 창 크기에 맞춰 값을 주고, 값을 주지 않으면 폰 여백이다.
+ */
+val LocalScreenGutter = staticCompositionLocalOf { DiarySpacing.screenCompact }
 
 /** 아이콘 크기 네 단계(`docs/design.md` 아이콘과 그림, 2026-11-01 점검). */
 object DiaryIconSize {
@@ -64,8 +71,8 @@ object DiaryHomeSize {
 
 /** 돌아보기 크기(Figma "돌아보기 (S5)"). */
 object DiaryInsightSize {
-    /** 기분 막대 줄. */
-    val barRow: Dp = 36.dp
+    /** 기분 막대 줄. 아홉 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춘다. */
+    val barRow: Dp = 48.dp
     val barHeight: Dp = 10.dp
     val barFace: Dp = 24.dp
 
@@ -145,6 +152,9 @@ object DiaryWriteSize {
 
     /** 넓은 화면 본문 폭. */
     val bodyMax: Dp = 680.dp
+
+    /** 설정 화면 폭(SEED 시트 최대 폭 480과 같다). */
+    val settingsMax: Dp = 480.dp
 
     /** 달력 고르기 칸. */
     val dayCell: Dp = 40.dp

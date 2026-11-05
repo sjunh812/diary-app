@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
  * 빈 상태(`docs/design.md` 빈 상태, SEED Result Section, 토스 UX 가이드).
@@ -32,7 +33,7 @@ fun DiaryEmptyState(
 ) {
     val colors = DiaryTheme.colors
     Column(
-        modifier = modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact),
+        modifier = modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {

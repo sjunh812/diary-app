@@ -18,12 +18,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 기간 고르기 같은 탭 한 줄. 높이 44, 바탕 `sunken`, 고른 칸은 `canvas`다. */
+/**
+ * 기간 고르기 같은 탭 한 줄(`docs/design.md` 탭 한 줄). 높이 48, 바탕 `sunken`, 고른 칸은 `canvas`다.
+ * 칸은 폭을 고르게 나누고, 위아래 4를 띄운 고른 표시가 40이어도 누르는 곳은 줄 높이 전체다.
+ */
 @Composable
 fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
@@ -31,10 +34,10 @@ fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> U
         modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .heightIn(min = TABS_HEIGHT)
+            .heightIn(min = DiarySpacing.minTouchTarget)
             .clip(DiaryShapes.r12)
             .background(colors.sunken)
-            .padding(DiarySpacing.x1)
+            .padding(horizontal = DiarySpacing.x1)
     ) {
         labels.forEachIndexed { index, label ->
             val interaction = remember { MutableInteractionSource() }
@@ -43,10 +46,10 @@ fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> U
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .heightIn(min = CELL_HEIGHT)
+                    .selectable(isSelected, interactionSource = interaction, indication = null, role = Role.Tab) { onSelect(index) }
+                    .padding(vertical = DiarySpacing.x1)
                     .clip(DiaryShapes.r8)
-                    .background(if (isSelected) colors.canvas else colors.sunken)
-                    .selectable(isSelected, interactionSource = interaction, indication = null, role = Role.Tab) { onSelect(index) },
+                    .background(if (isSelected) colors.canvas else colors.sunken),
                 contentAlignment = Alignment.Center
             ) {
                 val typography = DiaryTheme.typography
@@ -55,12 +58,10 @@ fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> U
                     style = (if (isSelected) typography.bodyStrong else typography.body).copy(
                         color = if (isSelected) colors.textPrimary else colors.textSecondary
                     ),
-                    maxLines = 1
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
     }
 }
-
-private val TABS_HEIGHT = 44.dp
-private val CELL_HEIGHT = 36.dp

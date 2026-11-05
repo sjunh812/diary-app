@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
@@ -30,7 +31,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 찾기 입력 칸(Figma "찾기 (S1-a)"). 높이 44, 모서리 12, 글이 있으면 지우기 버튼이 나온다. */
+/**
+ * 찾기 입력 칸(`docs/design.md` 검색 칸, Figma "찾기 (S1-a)"). 높이 44, 모서리 12, 글이 있으면 지우기 버튼이 나온다.
+ * 지우기는 원 16에 누르는 곳 48이다. 누르는 곳이 칸 높이 44보다 커서 칸을 `clip`하지 않고 모양은 바탕으로만 그린다.
+ */
 @Composable
 fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: String, clearLabel: String, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
@@ -39,8 +43,7 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
     Row(
         modifier
             .heightIn(min = FIELD_HEIGHT)
-            .clip(DiaryShapes.r12)
-            .background(colors.sunken)
+            .background(colors.sunken, DiaryShapes.r12)
             .padding(horizontal = DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
@@ -64,19 +67,21 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
         )
         if (value.isNotEmpty()) {
             val interaction = remember { MutableInteractionSource() }
-            Box(
-                Modifier
-                    .size(CLEAR_SIZE)
-                    .clip(DiaryShapes.full)
-                    .background(colors.textTertiary)
-                    .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onValueChange("") },
-                contentAlignment = Alignment.Center
-            ) {
-                DiaryIcon(DiaryIcons.Close, contentDescription = clearLabel, tint = colors.canvas, size = DiaryIconSize.i16)
+            // 바깥 칸은 원 크기만 차지해서 입력 칸 높이를 밀어 올리지 않고, 누르는 곳만 넘쳐 48이 된다.
+            Box(Modifier.size(DiaryIconSize.i16), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier
+                        .requiredSize(DiarySpacing.minTouchTarget)
+                        .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onValueChange("") },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(Modifier.size(DiaryIconSize.i16).clip(DiaryShapes.full).background(colors.textTertiary)) {
+                        DiaryIcon(DiaryIcons.Close, contentDescription = clearLabel, tint = colors.canvas, size = DiaryIconSize.i16)
+                    }
+                }
             }
         }
     }
 }
 
 private val FIELD_HEIGHT = 44.dp
-private val CLEAR_SIZE = 18.dp

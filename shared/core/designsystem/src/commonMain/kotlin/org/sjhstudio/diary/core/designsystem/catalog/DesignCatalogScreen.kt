@@ -64,6 +64,7 @@ import org.sjhstudio.diary.core.designsystem.resources.ds_catalog_typography
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 
 /**
  * 디자인 시스템 견본(FR-029). 토큰(색, 글자, 간격, 모서리)과 컴포넌트를 실제 코드로 한 화면에서 본다.
@@ -78,7 +79,7 @@ fun DesignCatalogScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         DiaryTopBar(title = stringResource(Res.string.ds_catalog_title), onBack = onBack)
         Column(
             Modifier
-                .widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8)
+                .widthIn(max = DiaryWriteSize.settingsMax)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = DiarySpacing.x8),

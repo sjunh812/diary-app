@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -35,9 +36,16 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 // 설정 줄(`docs/design.md` 설정 줄, TDS ListRow, M3 1줄 56).
-// 최소 56 · 위아래 14 · 좌우 20 · 이름 reading. 설명이 붙으면 이름 아래 caption 두 줄짜리다.
+// 최소 56 · 위아래 14 · 좌우 화면 여백 · 이름 reading. 설명이 붙으면 이름 아래 caption 두 줄짜리다.
+
+/** 오른쪽 값이 줄에서 차지할 수 있는 몫의 끝. 넘으면 값을 말줄임해 이름 자리를 남긴다. */
+private const val VALUE_MAX_SHARE = 0.5f
+
+/** 이름 줄 수의 끝. */
+private const val TITLE_MAX_LINES = 2
 
 /**
  * 설정 묶음 머리(SEED ListHeader 14 Medium). [gapAbove]면 위 여백을 20 대신 24로 넓혀 앞 묶음과 나눈다
@@ -52,8 +60,8 @@ fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: B
             modifier
                 .fillMaxWidth()
                 .padding(
-                    start = DiarySpacing.x5,
-                    end = DiarySpacing.x5,
+                    start = LocalScreenGutter.current,
+                    end = LocalScreenGutter.current,
                     top = if (gapAbove) DiarySpacing.x6 else DiarySpacing.x5,
                     bottom = DiarySpacing.x2
                 )
@@ -91,9 +99,7 @@ fun DiarySettingsRow(
         leadingIcon = leadingIcon
     ) {
         if (dot) Box(Modifier.size(DiarySpacing.x2).clip(DiaryShapes.full).background(colors.accent))
-        if (value != null) {
-            BasicText(text = value, style = DiaryTheme.typography.body.copy(color = colors.textSecondary), maxLines = 1)
-        }
+        if (value != null) RowValue(value)
         DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
     }
 }
@@ -102,8 +108,27 @@ fun DiarySettingsRow(
 @Composable
 fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier) {
     RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
-        BasicText(text = value, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary), maxLines = 1)
+        RowValue(value)
     }
+}
+
+/**
+ * 줄 오른쪽 값. 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고 말줄임한다.
+ * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정되어 값과 화살표가 줄 가운데에 뜬다.
+ */
+@Composable
+private fun RowValue(value: String) {
+    BasicText(
+        text = value,
+        style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier =
+            Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints.copy(maxWidth = (constraints.maxWidth * VALUE_MAX_SHARE).toInt()))
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
+    )
 }
 
 /** 오른쪽에 스위치가 있는 줄. 줄 전체가 누르는 곳이다. */
@@ -189,7 +214,7 @@ fun DiarySettingsChoiceRow(
                 .semantics(mergeDescendants = true) { contentDescription = label }
                 .fillMaxWidth()
                 .heightIn(min = 56.dp)
-                .padding(horizontal = DiarySpacing.x5, vertical = 14.dp),
+                .padding(horizontal = LocalScreenGutter.current, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -211,7 +236,7 @@ private fun RowFrame(
 ) {
     val colors = DiaryTheme.colors
     Row(
-        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = DiarySpacing.x5, vertical = 14.dp),
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = LocalScreenGutter.current, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -220,6 +245,7 @@ private fun RowFrame(
             BasicText(
                 text = title,
                 style = DiaryTheme.typography.reading.copy(color = colors.textPrimary),
+                maxLines = TITLE_MAX_LINES,
                 overflow = TextOverflow.Ellipsis
             )
             if (description != null) {
