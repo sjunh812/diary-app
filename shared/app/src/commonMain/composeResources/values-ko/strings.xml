@@ -11,4 +11,11 @@
     <string name="detail_trashed">휴지통으로 옮겼어요</string>
     <string name="detail_trashed_undo">되돌리기</string>
     <string name="detail_pick_hint">일기를 고르면 여기에 보여요</string>
+    <string name="ad_label">광고</string>
+    <string name="ad_remove">광고 없애기</string>
+    <string name="ad_rest">24시간 쉬기</string>
+    <string name="reward_title">영상을 보고 24시간 쉴까요?</string>
+    <string name="reward_body">광고 영상을 끝까지 보면 24시간 동안 광고가 보이지 않아요.</string>
+    <string name="reward_watch">영상 보기</string>
+    <string name="reward_close">닫기</string>
 </resources>

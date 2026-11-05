@@ -100,7 +100,12 @@ import org.sjhstudio.diary.feature.insight.resources.insight_year_map
 
 /** 돌아보기(Figma "돌아보기 (S5)"). 숫자보다 말로 먼저 알려 주고 기분 막대를 누르면 그 일기들로 간다. */
 @Composable
-fun InsightRoute(onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier, onPlus: () -> Unit = {}) {
+fun InsightRoute(
+    onMood: (Mood, DateRange?) -> Unit,
+    modifier: Modifier = Modifier,
+    onPlus: () -> Unit = {},
+    adSlot: @Composable () -> Unit = {}
+) {
     val viewModel = koinViewModel<InsightViewModel>()
     val period by viewModel.period.collectAsStateWithLifecycle()
     val counts by viewModel.counts.collectAsStateWithLifecycle()
@@ -121,7 +126,8 @@ fun InsightRoute(onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifi
         modifier = modifier,
         advancedOpen = advancedOpen,
         advanced = advanced,
-        onPlus = onPlus
+        onPlus = onPlus,
+        adSlot = adSlot
     )
 }
 
@@ -139,7 +145,8 @@ internal fun InsightScreen(
     modifier: Modifier = Modifier,
     advancedOpen: Boolean = false,
     advanced: AdvancedStats? = null,
-    onPlus: () -> Unit = {}
+    onPlus: () -> Unit = {},
+    adSlot: @Composable () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
@@ -180,7 +187,8 @@ internal fun InsightScreen(
             if (counts != null && counts.total > 0) {
                 Spacer(Modifier.height(DiarySpacing.x8))
                 if (advancedOpen) AdvancedSection(advanced) else AdvancedPreview(onPlus)
-                Spacer(Modifier.height(DiarySpacing.x8))
+                Spacer(Modifier.height(DiarySpacing.x4))
+                adSlot()
             }
         }
     }

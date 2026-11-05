@@ -10,8 +10,8 @@
 
 - [x] T010 [US3] `core/model` `Product`, `PurchaseResult`
 - [x] T011 [US3] `core/data` `PurchaseRepository`, 무료 구현, 개발 빌드 `FakePurchases`
-- [ ] T012 [US1] `core/platform` `AdService`, `AdSwitch`, 빈 구현
-- [ ] T013 [US1] `core/datastore` `AdStore`, 시험(하루 한 번, 날짜 바뀜, 시각 되돌림)
+- [x] T012 [US1] `core/platform` `AdService`, `AdSwitch`, 빈 구현
+- [x] T013 [US1] `core/datastore` `AdStore`, 시험(하루 한 번, 날짜 바뀜, 시각 되돌림)
 
 ## 3단계: 결제 화면 (US2, US3, US4)
 
@@ -29,11 +29,11 @@
 
 ## 5단계: 광고 (US1, US6)
 
-- [ ] T040 `androidMain` `AdMobService`, 시험 광고 ID, 매니페스트
-- [ ] T041 `NativeAdSlot`, 홈 목록과 돌아보기 자리
-- [ ] T042 저장 뒤 목록 복귀 전면, 잠금 뒤에만
-- [ ] T043 보상형과 24시간 시트
-- [ ] T044 금지 화면 시험(SC-001), 유료 첫 프레임 시험(SC-002)
+- [x] T040 `androidMain` `AdMobService`, 시험 광고 ID, 매니페스트
+- [x] T041 `NativeAdSlot`, 홈 목록과 돌아보기 자리
+- [x] T042 저장 뒤 목록 복귀 전면, 잠금 뒤에만
+- [x] T043 보상형과 24시간 시트
+- [x] T044 금지 화면 시험(SC-001), 유료 첫 프레임 시험(SC-002)
 
 ## 6단계: 실제 연결 (사용자 준비 뒤)
 

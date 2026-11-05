@@ -25,6 +25,19 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Diary">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${adAppId}" />
+        <meta-data
+            android:name="org.sjhstudio.diary.ad_native"
+            android:value="${adNative}" />
+        <meta-data
+            android:name="org.sjhstudio.diary.ad_interstitial"
+            android:value="${adInterstitial}" />
+        <meta-data
+            android:name="org.sjhstudio.diary.ad_rewarded"
+            android:value="${adRewarded}" />
+
 
         <activity
             android:name=".MainActivity"

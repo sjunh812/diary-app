@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.backup.RestoreCatalog
 import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
+import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
@@ -56,6 +57,7 @@ import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.datastore.DataStoreFactory
 import org.sjhstudio.diary.core.datastore.LockStore
@@ -271,6 +273,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         }
         single<PlanRepository> { FreePlanRepository() }
         single<PurchaseRepository> { NoPurchases() }
+        single { AdStore(get<DataStoreFactory>().ads()) }
+        single { AdRepository(get(), get(), get()) }
         // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾는다.
         single<DraftRepository> {
             val koin = getKoin()

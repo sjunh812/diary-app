@@ -24,6 +24,8 @@ class DataStoreFactory(private val directory: String, private val scope: Corouti
 
     fun welcome(): DataStore<Preferences> = create(WELCOME_FILE, ReplaceFileCorruptionHandler { emptyPreferences() })
 
+    fun ads(): DataStore<Preferences> = create(ADS_FILE, ReplaceFileCorruptionHandler { emptyPreferences() })
+
     private fun create(fileName: String, corruptionHandler: ReplaceFileCorruptionHandler<Preferences>): DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
             corruptionHandler = corruptionHandler,
@@ -36,5 +38,6 @@ class DataStoreFactory(private val directory: String, private val scope: Corouti
         const val LOCK_FILE = "lock.preferences_pb"
         const val BACKUP_FILE = "backup.preferences_pb"
         const val WELCOME_FILE = "welcome.preferences_pb"
+        const val ADS_FILE = "ads.preferences_pb"
     }
 }

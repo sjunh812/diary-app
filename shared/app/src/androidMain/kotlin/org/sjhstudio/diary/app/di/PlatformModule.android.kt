@@ -12,10 +12,13 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.ads.AdMobPlayer
+import org.sjhstudio.diary.app.ads.AdUnits
 import org.sjhstudio.diary.app.backup.AndroidBackupNotifier
 import org.sjhstudio.diary.app.backup.AndroidBackupScheduler
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
+import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.asEntity
@@ -57,6 +60,8 @@ import org.sjhstudio.diary.core.platform.ReminderScheduler
 internal actual val platformModule: Module =
     module {
         single { AppFiles(androidContext()) }
+        // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않는다. 광고 SDK는 처음 부를 때 켜진다.
+        single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }
         single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }

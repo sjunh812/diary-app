@@ -65,6 +65,8 @@ kotlin {
             implementation(libs.koin.android)
             // 자동 백업(AndroidBackupScheduler)
             implementation(libs.androidx.work.runtime)
+            // 광고(AdMobPlayer, NativeAdCard). R1은 안드로이드만 낸다.
+            implementation(libs.play.services.ads)
         }
         commonTest.dependencies {
             implementation(projects.shared.core.testing)

@@ -11,4 +11,11 @@
     <string name="detail_trashed">Moved to trash</string>
     <string name="detail_trashed_undo">Undo</string>
     <string name="detail_pick_hint">Pick an entry to read it here</string>
+    <string name="ad_label">Ad</string>
+    <string name="ad_remove">Remove ads</string>
+    <string name="ad_rest">Take 24 hours off</string>
+    <string name="reward_title">Watch a video for 24 hours off?</string>
+    <string name="reward_body">Watch the whole video and ads stay away for 24 hours.</string>
+    <string name="reward_watch">Watch video</string>
+    <string name="reward_close">Close</string>
 </resources>

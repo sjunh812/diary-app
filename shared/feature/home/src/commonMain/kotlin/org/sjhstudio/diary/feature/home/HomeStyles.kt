@@ -49,7 +49,8 @@ internal fun CardList(
     previewStyle: TextStyle,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
-    onMenu: (String) -> Unit
+    onMenu: (String) -> Unit,
+    adSlot: @Composable () -> Unit
 ) {
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -68,7 +69,10 @@ internal fun CardList(
             if (row == null) {
                 Box(Modifier.fillMaxWidth().aspectRatio(CARD_PLACEHOLDER_RATIO))
             } else {
-                EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
+                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                    EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
+                    if (isAdSlot(index)) adSlot()
+                }
             }
         }
     }

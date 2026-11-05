@@ -95,7 +95,8 @@ fun HomeRoute(
     onTrashed: (String) -> Unit,
     selectedId: String?,
     modifier: Modifier = Modifier,
-    backupLine: @Composable () -> Unit = {}
+    backupLine: @Composable () -> Unit = {},
+    adSlot: @Composable () -> Unit = {}
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
@@ -128,7 +129,8 @@ fun HomeRoute(
         onWrite = onWrite,
         onSearch = onSearch,
         modifier = modifier,
-        backupLine = backupLine
+        backupLine = backupLine,
+        adSlot = adSlot
     )
     menuFor?.let { id ->
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
@@ -185,7 +187,8 @@ internal fun HomeScreen(
     onWrite: () -> Unit,
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
-    backupLine: @Composable () -> Unit = {}
+    backupLine: @Composable () -> Unit = {},
+    adSlot: @Composable () -> Unit = {}
 ) {
     Column(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
         TopActions(favoritesOnly, onToggleFavorites, onSearch)
@@ -197,8 +200,8 @@ internal fun HomeScreen(
             rows.itemCount > 0 -> {
                 val dates = rememberDiaryDateFormat()
                 when (style) {
-                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu)
-                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu)
+                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, adSlot)
+                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, adSlot)
                     ListStyle.PHOTO_GRID -> PhotoGrid(rows, selectedId, dates, onOpen, onMenu)
                 }
             }
@@ -288,7 +291,8 @@ private fun Feed(
     previewStyle: TextStyle,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
-    onMenu: (String) -> Unit
+    onMenu: (String) -> Unit,
+    adSlot: @Composable () -> Unit
 ) {
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
@@ -324,7 +328,14 @@ private fun Feed(
                                 onClick = { onOpen(row.id) }
                             )
                 )
+                if (isAdSlot(index)) Box(Modifier.padding(horizontal = DiarySpacing.screenCompact)) { adSlot() }
             }
         }
     }
 }
+
+/** 다섯째 일기 아래 한 개, 그 뒤 20편마다 한 개(`docs/business.md` 광고 자리). */
+internal fun isAdSlot(index: Int): Boolean = index >= FIRST_AD && (index - FIRST_AD) % AD_EVERY == 0
+
+private const val FIRST_AD = 4
+private const val AD_EVERY = 20

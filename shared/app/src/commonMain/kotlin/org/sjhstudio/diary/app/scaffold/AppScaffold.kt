@@ -38,6 +38,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import org.sjhstudio.diary.app.ads.AdSlot
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.DetailPane
@@ -73,6 +74,7 @@ import org.sjhstudio.diary.app.resources.write_draft_kept
 import org.sjhstudio.diary.app.resources.write_new
 import org.sjhstudio.diary.app.resources.write_saved
 import org.sjhstudio.diary.app.settings.settingsEntries
+import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavItem
@@ -287,6 +289,17 @@ private fun Content(
     val telemetry = koinInject<Telemetry>()
     val top = backStack.lastOrNull()
     LaunchedEffect(top) { if (top != null) telemetry.log(AnalyticsEvents.SCREEN_VIEW, mapOf("screen" to top.toString())) }
+    // 저장 뒤 상세에서 목록으로 돌아올 때 하루 한 번 전면 광고를 띄운다. 저장은 이미 끝나 있다(FR-010).
+    val ads = koinInject<AdRepository>()
+    val adScope = rememberCoroutineScope()
+    var adAfterSave by remember { mutableStateOf(false) }
+    LaunchedEffect(top, adAfterSave) {
+        if (adAfterSave && backStack.size <= 1) {
+            adAfterSave = false
+            // 값이 바뀌면 이 효과가 다시 시작되니 광고는 앱 틀의 범위에서 띄운다.
+            adScope.launch { ads.backToList() }
+        }
+    }
     val entries = koinInject<EntryRepository>()
     val listDetail = remember(twoPane, entries) { ListDetailSceneStrategy(twoPane) { PickHint(entries) } }
     NavDisplay(
@@ -315,7 +328,8 @@ private fun Content(
                             backStack.removeAll { it is EntryDetailKey && it.entryId == id }
                             onTrashed(id)
                         },
-                        selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane }
+                        selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
+                        adSlot = { AdSlot() }
                     )
                 }
                 entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
@@ -355,7 +369,8 @@ private fun Content(
                         onMood = { mood, range ->
                             backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                         },
-                        onPlus = { backStack.add(PlusKey) }
+                        onPlus = { backStack.add(PlusKey) },
+                        adSlot = { AdSlot() }
                     )
                 }
                 settingsEntries(push = { backStack.add(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })
@@ -368,6 +383,8 @@ private fun Content(
                             // 고치기는 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
                             if ((backStack.lastOrNull() as? EntryDetailKey)?.entryId != id) backStack.openEntry(id)
                             notify(Message.Saved)
+                            adAfterSave = true
+                            adScope.launch { ads.afterSave() }
                         },
                         onClosed = { kept ->
                             pop()

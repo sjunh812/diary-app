@@ -94,6 +94,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
   --connected-device --device-id=emulator-5554`와 `install-apks`로 깔아 시험한다. bundletool은 AGP와 같은 1.18.3을 쓴다(`--aapt2`에 SDK build-tools의 aapt2).
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)에서 요금제를 바꿔 본다. 개발 빌드에만 "1일 1일기 개발자" 아이콘이 생기고 출시 빌드에는 없다. 화면과 기능은 `PlanRepository`만 본다. iOS에는 아직 없다.
+- 광고는 `AdRepository`가 정하고, 안드로이드만 `AdMobPlayer` 구현이 있다. 개발 빌드는 시험 광고만 받는다. 광고 ID는 `local.properties`(`docs/release.md`).
 - 온보딩 로띠는 `python3 -I scripts/lottie/make_onboarding.py`로 만든다. 색은 `@accent` 같은 자리표시로 두고 `OnboardingArt.kt`가 토큰 값으로 바꾼다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
   빌드 단계가 `:shared:app:embedAndSignAppleFrameworkForXcode`를 불러 Shared 프레임워크를 만든다.

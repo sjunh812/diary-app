@@ -5,6 +5,8 @@ import org.koin.dsl.module
 import org.sjhstudio.diary.app.IosDrive
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
+import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.NoAdPlayer
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.migration.EmptyLegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyArchive
@@ -34,6 +36,7 @@ import platform.Foundation.NSBundle
 internal actual val platformModule: Module =
     module {
         single { AppFiles() }
+        single<AdPlayer> { NoAdPlayer }
         // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15).
         single<ReminderScheduler> { IosReminderScheduler() }
         single<NotificationPermission> { IosNotificationPermission() }

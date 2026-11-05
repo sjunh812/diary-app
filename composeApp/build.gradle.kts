@@ -1,3 +1,5 @@
+import java.util.Properties
+
 // 안드로이드 앱 껍데기. 패키지·서명 키·minSdk는 1.7.4 그대로다(CLAUDE.md 아키텍처, D4).
 plugins {
     alias(libs.plugins.diary.android.application)
@@ -22,6 +24,12 @@ aboutLibraries {
     }
 }
 
+fun localProperty(key: String, fallback: String): String {
+    val file = rootProject.file("local.properties")
+    if (!file.exists()) return fallback
+    return Properties().apply { file.inputStream().use { load(it) } }.getProperty(key) ?: fallback
+}
+
 android {
     namespace = "org.sjhstudio.diary"
 
@@ -32,6 +40,15 @@ android {
         versionName = "2.0.0"
         // 업그레이드 계측 시험(UpgradeVerificationTest)을 돌린다.
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // 광고 ID는 저장소에 두지 않고 local.properties에서 읽는다. 단위가 없으면 앱이 광고를 부르지 않는다.
+        // 앱 ID는 없으면 SDK가 앱을 끄므로 Google 시험 ID를 기본으로 둔다.
+        manifestPlaceholders += mapOf(
+            "adAppId" to localProperty("admob.app.id", "ca-app-pub-3940256099942544~3347511713"),
+            "adNative" to localProperty("admob.native", ""),
+            "adInterstitial" to localProperty("admob.interstitial", ""),
+            "adRewarded" to localProperty("admob.rewarded", "")
+        )
     }
 
     androidResources {
@@ -58,6 +75,14 @@ android {
     }
 
     buildTypes {
+        // 개발 빌드는 Google 시험 광고만 받는다. 실제 광고를 누르면 무효 트래픽이 된다.
+        debug {
+            manifestPlaceholders += mapOf(
+                "adNative" to "ca-app-pub-3940256099942544/2247696110",
+                "adInterstitial" to "ca-app-pub-3940256099942544/1033173712",
+                "adRewarded" to "ca-app-pub-3940256099942544/5224354917"
+            )
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
