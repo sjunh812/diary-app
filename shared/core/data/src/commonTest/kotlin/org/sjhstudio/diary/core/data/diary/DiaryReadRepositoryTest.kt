@@ -20,6 +20,7 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.DateRange
+import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
@@ -48,6 +49,25 @@ class DiaryReadRepositoryTest {
         val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
 
         assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryEntity).id })
+    }
+
+    @Test
+    fun timeline_page_reads_photos_once_for_the_whole_page() = runTest {
+        db.seed(entry("a", date = "2026-09-01"), entry("b", date = "2026-10-02"))
+        val source = db.entryDao().visibleEntries()
+        var calls = 0
+        val rows =
+            EntryRowPagingSource(source) { page ->
+                calls++
+                page.map { it.toRow(emptyList(), MEDIA_DIR) }
+            }
+
+        val page = rows.load(PagingSource.LoadParams.Refresh(null, 10, false))
+
+        assertEquals(listOf("b", "a"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryRow).id })
+        assertEquals(1, calls)
+        source.invalidate()
+        assertTrue(rows.invalid)
     }
 
     private suspend fun keepBoth(a: String, b: String) {

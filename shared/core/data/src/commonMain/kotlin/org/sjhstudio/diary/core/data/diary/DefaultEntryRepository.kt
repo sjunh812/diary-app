@@ -18,6 +18,7 @@ import kotlinx.datetime.onDay
 import okio.Path
 import org.sjhstudio.diary.core.database.DayMoodRow
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryDetail
@@ -36,17 +37,21 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     private val marks get() = db.backupDao()
 
     // 표시는 일기 표 밖에 있어서 지울 때 목록을 직접 새로 읽힌다.
-    private val allPages = InvalidatingPagingSourceFactory { entries.visibleEntries() }
-    private val favoritePages = InvalidatingPagingSourceFactory { entries.favoriteEntries() }
+    private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries(), ::pageRows) }
+    private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries(), ::pageRows) }
 
     override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = // 자리 표시를 켜서 다른 달로 바로 건너뛸 수 있게 한다.
         Pager(
             PagingConfig(pageSize = PAGE, initialLoadSize = PAGE, prefetchDistance = PAGE / 2, enablePlaceholders = true),
             pagingSourceFactory = if (favoritesOnly) favoritePages else allPages
-        ).flow.map { page ->
-            val marked = marks.markedIds().toSet()
-            page.map { it.toRow(media.forEntry(it.id), mediaDir).copy(keptBoth = it.id in marked) }
-        }
+        ).flow
+
+    /** 쪽 하나를 한 번에 읽는다. 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어진다. */
+    private suspend fun pageRows(page: List<EntryEntity>): List<EntryRow> {
+        val marked = marks.markedIds().toSet()
+        val photos = media.forRows(page)
+        return page.map { it.toRow(photos[it.id].orEmpty(), mediaDir).copy(keptBoth = it.id in marked) }
+    }
 
     override fun entry(id: String): Flow<EntryDetail?> = combine(entries.observeVisible(id), marks.markedPair(id)) { entity, pair ->
         entity?.let {
