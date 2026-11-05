@@ -20,6 +20,7 @@
     <string name="write_format_color">글자색</string>
     <string name="write_format_mark">형광펜</string>
     <string name="write_format_list">목록</string>
+    <string name="write_format_check">체크리스트</string>
     <string name="write_ink_default">기본 글자색</string>
     <string name="write_mark_none">형광펜 없음</string>
     <string name="write_color_gray">회색</string>

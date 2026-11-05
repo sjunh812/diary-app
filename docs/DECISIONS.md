@@ -578,6 +578,13 @@ iOS 화면을 같이 만들 수 없다. 플러그인은 앱에 실제로 들어�
 Compose Material 3 대화상자는 긴 버튼을 쌓을 때 닫기를 아래에 두고([AOSP 커밋](https://dcmpx.remotevs.com/com/googlesource/android/SL/platform/frameworks/support/+/30ba03579a399ae7a79d4acf32c6f83c3b6a8f5e)), Apple 알림도 글이 길면 세로로 놓는다([Apple 개발자 포럼](https://developer.apple.com/forums/thread/771761)).
 큰 버튼의 좌우 여백은 28에서 16으로 줄였다.
 
+## 2026-11-05 체크리스트는 본문 글자로 넣는다 (사용자 결정)
+
+에디터 기능을 하나 더 고르면서 사용자가 체크리스트를 골랐다. 일기에 그날 할 일이나 장볼 것을 함께 적는 경우를 위한 무료 기능이다.
+처음에는 저장 형식을 바꿔야 한다고 봤지만, 쓰는 에디터 라이브러리는 문단 종류를 밖에서 늘릴 수 없다([compose-rich-editor 소스](https://github.com/MohamedRejeb/compose-rich-editor)의 `ParagraphType`이 내부 전용이다).
+그래서 줄 앞의 `☐ `, `☑ ` 글자로 나타낸다. 저장 형식, 백업 버전, 이전이 바뀌지 않고 내보낸 글에서도 그대로 읽힌다.
+표시를 누르면 바뀌고 줄바꿈하면 이어지는 동작은 [Apple 메모의 체크리스트](https://support.apple.com/en-asia/guide/notes/add-lists-apd93c815aa0/4.9)와 [Bear의 할 일](https://bear.app/faq/lists-and-todos-in-bear/)을 참고했다. 끝낸 항목을 아래로 옮기는 동작은 쓴 순서가 일기의 기록이라 넣지 않았다.
+
 ## 열린 결정
 
 정하는 사람은 사용자다. 조사 근거와 추천은 각 문서에 있다.

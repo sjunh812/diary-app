@@ -17,10 +17,12 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
 import okio.Path
+import org.sjhstudio.diary.core.data.richtext.toPlainText
 import org.sjhstudio.diary.core.database.DayMoodRow
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryPhoto
@@ -116,6 +118,12 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     }
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = entries.setFavorite(id, favorite, nowMillis())
+
+    override suspend fun toggleCheck(id: String, index: Int) {
+        val entry = entries.get(id) ?: return
+        val body = Checklist.toggleInHtml(entry.bodyHtml, index) ?: return
+        entries.update(entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis()))
+    }
 
     override suspend fun moveToTrash(id: String) {
         val now = nowMillis()

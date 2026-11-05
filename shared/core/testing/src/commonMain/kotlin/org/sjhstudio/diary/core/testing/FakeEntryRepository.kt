@@ -30,6 +30,8 @@ class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = Unit
 
+    override suspend fun toggleCheck(id: String, index: Int) = Unit
+
     override suspend fun clearKeptBoth(id: String) = Unit
 
     override suspend fun moveToTrash(id: String) = Unit

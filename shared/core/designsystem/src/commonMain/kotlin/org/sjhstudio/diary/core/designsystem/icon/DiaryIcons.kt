@@ -274,6 +274,10 @@ object DiaryIcons {
             "M 22 12 L 17.4 16.6 C 16.63 17.37 15.37 17.37 14.6 16.6 L 9.4 11.4 C 8.63 10.63 8.63 9.37 9.4 8.6 L 14 4"
         )
     }
+    val Checklist: ImageVector by lazy {
+        lucide("checklist", "M 3 7 L 5 9 L 9 5", "M 3 17 L 5 19 L 9 15", "M 13 6 L 21 6", "M 13 12 L 21 12", "M 13 18 L 21 18")
+    }
+
     val BulletList: ImageVector by lazy {
         lucide(
             "bullet-list",

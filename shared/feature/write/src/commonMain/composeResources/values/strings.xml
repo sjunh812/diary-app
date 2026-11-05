@@ -20,6 +20,7 @@
     <string name="write_format_color">Text color</string>
     <string name="write_format_mark">Highlight</string>
     <string name="write_format_list">Bulleted list</string>
+    <string name="write_format_check">Checklist</string>
     <string name="write_ink_default">Default color</string>
     <string name="write_mark_none">No highlight</string>
     <string name="write_color_gray">Gray</string>

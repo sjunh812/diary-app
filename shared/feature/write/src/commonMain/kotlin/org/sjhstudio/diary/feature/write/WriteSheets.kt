@@ -61,6 +61,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.platform.PlaceLookup
@@ -306,7 +307,7 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
         description = stringResource(Res.string.write_resume_body, dates.fullDate(offer.date), dates.time(offer.time))
     ) {
         BasicText(
-            offer.preview,
+            Checklist.forPreview(offer.preview),
             modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x4),
             style = DiaryTheme.typography.body.copy(color = colors.textPrimary),
             maxLines = 3,

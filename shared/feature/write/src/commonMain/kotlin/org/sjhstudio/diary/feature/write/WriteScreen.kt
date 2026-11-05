@@ -3,7 +3,10 @@ package org.sjhstudio.diary.feature.write
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +60,7 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -65,6 +69,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -100,6 +106,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.model.Checklist
+import org.sjhstudio.diary.core.model.ChecklistEdit
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
@@ -107,6 +115,8 @@ import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
+import org.sjhstudio.diary.core.ui.checkLineAt
+import org.sjhstudio.diary.core.ui.checklistMarks
 import org.sjhstudio.diary.core.ui.icon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -127,6 +137,7 @@ import org.sjhstudio.diary.feature.write.resources.write_discard_confirm
 import org.sjhstudio.diary.feature.write.resources.write_discard_message
 import org.sjhstudio.diary.feature.write.resources.write_discard_title
 import org.sjhstudio.diary.feature.write.resources.write_format_bold
+import org.sjhstudio.diary.feature.write.resources.write_format_check
 import org.sjhstudio.diary.feature.write.resources.write_format_color
 import org.sjhstudio.diary.feature.write.resources.write_format_list
 import org.sjhstudio.diary.feature.write.resources.write_format_mark
@@ -220,7 +231,13 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             if (wide) {
                 Row(Modifier.weight(1f).fillMaxWidth()) {
                     Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Editor(actions.rich, bodyStyle, Modifier.weight(1f).widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth())
+                        // 에디터가 스스로 스크롤하면 체크 칸 자리가 글과 어긋나서 바깥에서 스크롤한다.
+                        Column(
+                            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Editor(actions.rich, bodyStyle, Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth())
+                        }
                         tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
                     }
                     Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
@@ -502,13 +519,46 @@ private fun Editor(state: RichTextState, style: TextStyle, modifier: Modifier) {
         if (state.annotatedString.isEmpty()) {
             BasicText(stringResource(Res.string.write_hint), style = style.copy(color = colors.placeholder))
         }
+        var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
+        val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
+        LaunchedEffect(state) {
+            var before = state.toText()
+            snapshotFlow { state.annotatedString.let { state.toText() } }.collect { after ->
+                Checklist.afterEdit(before, after, state.selection.min)?.let(state::applyEdit)
+                before = state.toText()
+            }
+        }
         BasicRichTextEditor(
             state = state,
-            modifier = Modifier.fillMaxWidth().heightIn(min = DiaryWriteSize.editorMin),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = DiaryWriteSize.editorMin)
+                    .checklistMarks({ state.annotatedString.let { state.toText() } }, { layout })
+                    .pointerInput(state) {
+                        // 표시를 누르면 커서를 옮기지 않고 체크만 바꾼다.
+                        awaitEachGesture {
+                            val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                            val start = layout?.checkLineAt(down.position, touch, state.toText()) ?: return@awaitEachGesture
+                            down.consume()
+                            val up = waitForUpOrCancellation(PointerEventPass.Initial) ?: return@awaitEachGesture
+                            up.consume()
+                            val cursor = state.selection
+                            state.applyEdit(Checklist.toggle(state.toText(), start))
+                            state.selection = cursor
+                        }
+                    },
             textStyle = style.copy(color = colors.textPrimary),
-            cursorBrush = SolidColor(colors.accent)
+            cursorBrush = SolidColor(colors.accent),
+            onTextLayout = { layout = it }
         )
     }
+}
+
+private fun RichTextState.applyEdit(edit: ChecklistEdit) = when {
+    edit.start == edit.end -> addTextAtIndex(edit.start, edit.text)
+    edit.text.isEmpty() -> removeTextRange(TextRange(edit.start, edit.end))
+    else -> replaceTextRange(TextRange(edit.start, edit.end), edit.text)
 }
 
 /** 넓은 화면 옆 칸: 기분, 날씨, 사진, 장소(Figma "S2 · 태블릿"). */
@@ -569,18 +619,21 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
     }
 
     @Composable
-    private fun Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, openPalette: (PaletteKind) -> Unit) {
+    private fun RowScope.Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, openPalette: (PaletteKind) -> Unit) {
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
+        // 좁은 폰에서는 칸을 고르게 줄여 도구가 모두 보이게 한다.
+        val slot = Modifier.weight(1f, fill = false)
+        val checked = Checklist.isItemAt(rich.annotatedString.let { rich.toText() }, rich.selection.min)
         fun tint(active: Boolean) = if (active) theme.accentText else theme.textPrimary
-        onPhoto?.let { ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), theme.textPrimary, onClick = it) }
-        onCamera?.let { ToolButton(DiaryIcons.Camera, stringResource(Res.string.write_camera), theme.textPrimary, onClick = it) }
+        onPhoto?.let { ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), theme.textPrimary, slot, onClick = it) }
+        onCamera?.let { ToolButton(DiaryIcons.Camera, stringResource(Res.string.write_camera), theme.textPrimary, slot, onClick = it) }
         val bold = style.fontWeight == FontWeight.Bold
-        ToolButton(DiaryIcons.Bold, stringResource(Res.string.write_format_bold), tint(bold), active = bold) {
+        ToolButton(DiaryIcons.Bold, stringResource(Res.string.write_format_bold), tint(bold), slot, active = bold) {
             rich.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
         }
         val underline = style.textDecoration?.contains(TextDecoration.Underline) == true
-        ToolButton(DiaryIcons.Underline, stringResource(Res.string.write_format_underline), tint(underline), active = underline) {
+        ToolButton(DiaryIcons.Underline, stringResource(Res.string.write_format_underline), tint(underline), slot, active = underline) {
             rich.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
         }
         // 글자색 도구는 지금 고른 색을 그대로 보인다.
@@ -588,17 +641,27 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
             openPalette(PaletteKind.Ink)
         }
         val marked = style.background.isSpecified
-        ToolButton(DiaryIcons.Highlight, stringResource(Res.string.write_format_mark), tint(marked), active = marked) {
+        ToolButton(DiaryIcons.Highlight, stringResource(Res.string.write_format_mark), tint(marked), slot, active = marked) {
             openPalette(PaletteKind.Mark)
         }
         ToolButton(
             DiaryIcons.BulletList,
             stringResource(Res.string.write_format_list),
             tint(rich.isUnorderedList),
+            slot,
             active = rich.isUnorderedList
         ) {
+            if (checked) toggleChecklist()
             rich.toggleUnorderedList()
         }
+        ToolButton(DiaryIcons.Checklist, stringResource(Res.string.write_format_check), tint(checked), slot, active = checked) {
+            if (rich.isUnorderedList) rich.toggleUnorderedList()
+            toggleChecklist()
+        }
+    }
+
+    private fun toggleChecklist() {
+        Checklist.toggleLines(rich.toText(), rich.selection.min, rich.selection.max).forEach { rich.applyEdit(it) }
     }
 
     @Composable

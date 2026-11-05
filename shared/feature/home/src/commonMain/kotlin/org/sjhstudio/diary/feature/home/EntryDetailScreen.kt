@@ -117,7 +117,14 @@ fun EntryDetailRoute(
             }
         }
         if (current != null) {
-            Body(current, diaryBodyTextStyle(look.font, look.size) { family }, onPhoto, onOtherVersion, viewModel::dismissKeptBoth)
+            Body(
+                current,
+                diaryBodyTextStyle(look.font, look.size) { family },
+                onPhoto,
+                onOtherVersion,
+                viewModel::dismissKeptBoth,
+                viewModel::toggleCheck
+            )
         }
     }
     if (more && current != null) {
@@ -140,7 +147,8 @@ internal fun Body(
     bodyStyle: androidx.compose.ui.text.TextStyle,
     onPhoto: (Int) -> Unit,
     onOtherVersion: (String) -> Unit = {},
-    onDismissKeptBoth: () -> Unit = {}
+    onDismissKeptBoth: () -> Unit = {},
+    onCheck: (Int) -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
@@ -195,7 +203,7 @@ internal fun Body(
             )
         }
         if (detail.photos.isNotEmpty()) Gallery(detail.photos, onPhoto)
-        DiaryRichText(entry.bodyHtml, bodyStyle, Modifier.padding(bottom = DiarySpacing.x10))
+        DiaryRichText(entry.bodyHtml, bodyStyle, Modifier.padding(bottom = DiarySpacing.x10), onCheck)
     }
 }
 

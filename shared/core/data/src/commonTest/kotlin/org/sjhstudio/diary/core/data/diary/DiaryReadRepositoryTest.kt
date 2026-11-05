@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
@@ -55,6 +56,21 @@ class DiaryReadRepositoryTest {
         val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
 
         assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryEntity).id })
+    }
+
+    @Test
+    fun checking_an_item_updates_text_and_edit_time() = runTest {
+        db.seed(entry("a"))
+        val stored = db.entryDao().get("a")!!
+        db.entryDao().update(stored.copy(bodyHtml = "<p>${Checklist.OPEN} 우유</p>", plainText = "${Checklist.OPEN} 우유"))
+        clock.advance(1.hours)
+
+        entries.toggleCheck("a", 0)
+
+        val after = db.entryDao().get("a")!!
+        assertEquals("<p>${Checklist.DONE} 우유</p>", after.bodyHtml)
+        assertEquals("${Checklist.DONE} 우유", after.plainText)
+        assertTrue(after.updatedAt > stored.updatedAt)
     }
 
     @Test

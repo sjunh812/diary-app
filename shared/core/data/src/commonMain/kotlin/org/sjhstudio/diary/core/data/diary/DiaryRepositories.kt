@@ -43,6 +43,9 @@ interface EntryRepository {
 
     suspend fun setFavorite(id: String, favorite: Boolean)
 
+    /** 체크리스트 [index]번째 항목을 뒤집는다. 합치기 복원이 고친 쪽을 가르도록 고친 시각도 바꾼다. */
+    suspend fun toggleCheck(id: String, index: Int)
+
     suspend fun moveToTrash(id: String)
 
     /** "두 가지로 남겼어요" 표시를 닫는다. 일기는 그대로다. */

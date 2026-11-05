@@ -20,6 +20,7 @@
     <string name="write_format_color">文字色</string>
     <string name="write_format_mark">マーカー</string>
     <string name="write_format_list">箇条書き</string>
+    <string name="write_format_check">チェックリスト</string>
     <string name="write_ink_default">標準の色</string>
     <string name="write_mark_none">蛍光ペンなし</string>
     <string name="write_color_gray">グレー</string>

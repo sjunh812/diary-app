@@ -5,6 +5,7 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaDao
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
 
@@ -23,7 +24,7 @@ internal fun EntryEntity.toRow(media: List<MediaEntity>, mediaDir: Path, query: 
         id = id,
         date = model.date,
         time = model.time,
-        preview = preview(plainText, query),
+        preview = Checklist.forPreview(preview(plainText, query)),
         mood = model.mood,
         weather = model.weather,
         placeName = placeName,
