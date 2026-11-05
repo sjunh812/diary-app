@@ -358,7 +358,7 @@ private fun Content(
                         }
                     )
                 }
-                entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }) { key ->
+                entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
                     PhotoViewerRoute(key.entryId, key.index, onClose = pop)
                 }
                 entry<CalendarKey>(metadata = TabRoot) {
