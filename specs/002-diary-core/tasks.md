@@ -190,8 +190,8 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 **Independent Test**: 1280dp 태블릿과 폴더블에서 홈·달력·쓰기, 창 크기 바꾸기, 단축키
 
 - [x] T066 [P] [US7] 창 폭 360/600/840/1280dp와 폭 변경 중 상태 유지(쓰던 내용, 고른 일기, 스크롤)를 Compose UI 시험으로 `shared/app/src/commonTest/kotlin/org/sjhstudio/diary/app/AdaptiveLayoutTest.kt` 2026-11-04: Compose UI 시험이 iOS 시뮬레이터에서만 돌아 `src/iosTest/.../AdaptiveLayoutUiTest.kt`에 뒀다
-- [ ] T067 [US7] 폴더블 접힘선 피하기와 iPad Split View·Stage Manager 크기 변경을 에뮬레이터·시뮬레이터에서 확인하고 어긋난 곳을 `shared/app/{kt}/app/`에서 고친다
-- [ ] T068 [US7] 단축키(T031)가 홈·쓰기·검색에서 동작하는지 하드웨어 키보드로 확인하고 결과를 `specs/002-diary-core/quickstart.md` 손으로 확인 표에 적는다
+- [ ] T067 [US7] 폴더블 접힘선 피하기와 iPad Split View·Stage Manager 크기 변경을 에뮬레이터·시뮬레이터에서 확인하고 어긋난 곳을 `shared/app/{kt}/app/`에서 고친다 2026-11-05 진행: 태블릿 에뮬레이터에서 창 크기를 바꾸면 쓰기 화면이 새로 만들어져 "쓰던 일기가 있어요"가 뜨던 버그를 고쳤다. 접힘선과 iPad 멀티태스킹은 남았다
+- [x] T068 [US7] 단축키(T031)가 홈·쓰기·검색에서 동작하는지 하드웨어 키보드로 확인하고 결과를 `specs/002-diary-core/quickstart.md` 손으로 확인 표에 적는다 2026-11-05: API 35 태블릿 에뮬레이터에서 확인했다. 앱을 막 열면 포커스가 없어 단축키가 안 먹던 버그를 고쳤다. Ctrl+S는 입력기가 없으면 저장되고, 한국어 Gboard가 켜진 에뮬레이터의 주입 키는 입력기가 먼저 받아 글자로 들어간다. 실제 키보드 확인은 남았다
 
 ---
 

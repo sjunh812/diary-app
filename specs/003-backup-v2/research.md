@@ -141,6 +141,7 @@
     그래서 자동 백업은 포그라운드 서비스에 기대지 않고 10분 안쪽 조각으로 돈다. 다 못 하면 상태 파일에 남기고 다음 작업에 넘긴다
     ([백그라운드 시작 제한](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start),
     [dataSync 옮기기](https://developer.android.com/about/versions/15/changes/datasync-migration)).
+- 2026-11-05 바뀜: 지금 백업은 모든 버전에서 작업 관리자의 급한 작업 + `dataSync` 진행 알림으로 돈다. 사용자가 누른 순간 앱이 앞에 있어 시작 제한에 걸리지 않고, 경로를 하나로 줄인다. 아래 Android 14 경로는 만들지 않았다.
 - 지금 백업·복원 사진 받기(사용자가 누름):
   - Android 14 이상: `JobInfo.Builder.setUserInitiated(true)`(사용자가 시작한 데이터 전송). `RUN_USER_INITIATED_JOBS` 권한, 네트워크 조건, 알림이 반드시
     필요하고, 한도 없이 바로 돈다. 자동 기능에는 쓰지 말라고 적혀 있어 사용자가 누른 것에만 쓴다. 작업 관리자 지원이 없어 `JobService`를 직접 둔다
@@ -148,7 +149,7 @@
   - Android 13 이하: 앱이 앞에 있을 때 작업 관리자의 급한 작업(expedited) + `setForeground`(서비스 종류 `dataSync`). 앞에 있을 때 시작하니 백그라운드
     시작 제한에 걸리지 않는다([오래 도는 작업](https://developer.android.com/develop/background-work/background-tasks/persistent/how-to/long-running)).
   - 둘 다 같은 `BackupRunner`를 부른다. 진행 알림에는 단계와 사진 n/N만 보인다.
-- 매니페스트: `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, `RUN_USER_INITIATED_JOBS`, 작업 관리자의 `SystemForegroundService`에
+- 매니페스트: `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_DATA_SYNC`, 작업 관리자의 `SystemForegroundService`에
   `foregroundServiceType="dataSync"`를 합친다. targetSdk 35부터 `dataSync`는 하루 6시간까지이고 넘으면 `onTimeout`에서 멈춰야 한다. 멈추면 상태를 남기고
   다음에 잇는다([타임아웃](https://developer.android.com/develop/background-work/services/fgs/timeout)).
 - 알림 허용(POST_NOTIFICATIONS)이 없어도 포그라운드 서비스는 돈다. 알림이 서랍에 안 보일 뿐이다
