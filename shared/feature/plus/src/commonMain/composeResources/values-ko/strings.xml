@@ -24,4 +24,5 @@
     <string name="adfree_price">평생 %1$s</string>
     <string name="adfree_buy">광고 없애기</string>
     <string name="adfree_close">괜찮아요</string>
+    <string name="adfree_day_off">영상 보고 하루만 없애기</string>
 </resources>

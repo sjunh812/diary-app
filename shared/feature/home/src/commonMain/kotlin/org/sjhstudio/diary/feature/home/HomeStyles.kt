@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -50,7 +51,8 @@ internal fun CardList(
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
-    adSlot: @Composable () -> Unit
+    listTop: @Composable () -> Unit,
+    adSlot: @Composable (Int) -> Unit
 ) {
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -59,11 +61,11 @@ internal fun CardList(
             PaddingValues(
                 start = DiarySpacing.x4,
                 end = DiarySpacing.x4,
-                top = DiarySpacing.x3,
                 bottom = DiarySpacing.x14 + DiarySpacing.x6
             ),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
+        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop) }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "card" }) { index ->
             val row = rows[index]
             if (row == null) {
@@ -71,7 +73,7 @@ internal fun CardList(
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                     EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
-                    if (isAdSlot(index)) adSlot()
+                    if (isAdSlot(index)) adSlot(adOrder(index))
                 }
             }
         }
@@ -159,7 +161,8 @@ internal fun PhotoGrid(
     selectedId: String?,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
-    onMenu: (String) -> Unit
+    onMenu: (String) -> Unit,
+    listTop: @Composable () -> Unit
 ) {
     val colors = DiaryTheme.colors
     LazyVerticalGrid(
@@ -169,6 +172,9 @@ internal fun PhotoGrid(
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
     ) {
+        item(key = LIST_TOP_KEY, span = { GridItemSpan(maxLineSpan) }, contentType = LIST_TOP_KEY) {
+            ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact - DiarySpacing.x0_5))
+        }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "photo" }) { index ->
             val row = rows[index]
             val interaction = remember { MutableInteractionSource() }

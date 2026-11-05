@@ -96,7 +96,8 @@ fun HomeRoute(
     selectedId: String?,
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
-    adSlot: @Composable () -> Unit = {}
+    listTop: @Composable () -> Unit = {},
+    adSlot: @Composable (Int) -> Unit = {}
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
@@ -112,7 +113,9 @@ fun HomeRoute(
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
     // 목록이 비어 있으면 오늘이 든 달을 보인다.
-    val shown = rows.itemCount.takeIf { it > 0 }?.let { rows.peek(list.firstVisibleItemIndex.coerceAtMost(it - 1))?.date } ?: today
+    val shown =
+        rows.itemCount.takeIf { it > 0 }?.let { rows.peek((list.firstVisibleItemIndex - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date }
+            ?: today
     HomeScreen(
         title = dates.yearMonth(shown),
         rows = rows,
@@ -130,6 +133,7 @@ fun HomeRoute(
         onSearch = onSearch,
         modifier = modifier,
         backupLine = backupLine,
+        listTop = listTop,
         adSlot = adSlot
     )
     menuFor?.let { id ->
@@ -163,7 +167,7 @@ fun HomeRoute(
             enabled = { it in months },
             onPick = { month ->
                 picking = false
-                scope.launch { list.scrollToItem(viewModel.positionOf(month)) }
+                scope.launch { list.scrollToItem(viewModel.positionOf(month) + LIST_TOP_ITEMS) }
             },
             onDismiss = { picking = false }
         )
@@ -188,27 +192,33 @@ internal fun HomeScreen(
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
-    adSlot: @Composable () -> Unit = {}
+    listTop: @Composable () -> Unit = {},
+    adSlot: @Composable (Int) -> Unit = {}
 ) {
     Column(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
         TopActions(favoritesOnly, onToggleFavorites, onSearch)
         Title(title, onPickMonth)
         Spacer(Modifier.height(DiarySpacing.x1))
         backupLine()
-        Spacer(Modifier.height(DiarySpacing.x3))
         when {
             rows.itemCount > 0 -> {
                 val dates = rememberDiaryDateFormat()
                 when (style) {
-                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, adSlot)
-                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, adSlot)
-                    ListStyle.PHOTO_GRID -> PhotoGrid(rows, selectedId, dates, onOpen, onMenu)
+                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                    ListStyle.PHOTO_GRID -> PhotoGrid(rows, selectedId, dates, onOpen, onMenu, listTop)
                 }
             }
 
-            rows.loadState.refresh is LoadState.NotLoading -> Empty(favoritesOnly, onWrite)
+            rows.loadState.refresh is LoadState.NotLoading -> {
+                ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+                Empty(favoritesOnly, onWrite)
+            }
 
-            else -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+            else -> {
+                ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+                SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+            }
         }
     }
 }
@@ -292,11 +302,13 @@ private fun Feed(
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
-    adSlot: @Composable () -> Unit
+    listTop: @Composable () -> Unit,
+    adSlot: @Composable (Int) -> Unit
 ) {
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)) {
+        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact)) }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
             val row = rows[index]
             if (row == null) {
@@ -328,14 +340,33 @@ private fun Feed(
                                 onClick = { onOpen(row.id) }
                             )
                 )
-                if (isAdSlot(index)) Box(Modifier.padding(horizontal = DiarySpacing.screenCompact)) { adSlot() }
+                if (isAdSlot(index)) Box(Modifier.padding(horizontal = DiarySpacing.screenCompact)) { adSlot(adOrder(index)) }
             }
         }
     }
 }
 
+/**
+ * 목록과 함께 움직이는 맨 위 자리. 권하기 카드처럼 잠깐 보이는 안내가 일기 칸을 계속 차지하지 않게 한다.
+ * 아래 여백이 늘 있어서 안내가 늦게 떠도 맨 위 줄로 남고, 일기에 밀려 위로 숨지 않는다.
+ */
+@Composable
+internal fun ListTop(content: @Composable () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier.fillMaxWidth()) {
+        content()
+        Spacer(Modifier.height(DiarySpacing.x3))
+    }
+}
+
 /** 다섯째 일기 아래 한 개, 그 뒤 20편마다 한 개(`docs/business.md` 광고 자리). */
 internal fun isAdSlot(index: Int): Boolean = index >= FIRST_AD && (index - FIRST_AD) % AD_EVERY == 0
+
+/** 몇 번째 광고 자리인지. 앱이 이 번호로 얇은 줄과 카드를 번갈아 고른다. */
+internal fun adOrder(index: Int): Int = (index - FIRST_AD) / AD_EVERY
+
+/** 일기 줄 앞에 있는 항목 수. 스크롤 위치를 일기 번호로 바꿀 때 뺀다. */
+internal const val LIST_TOP_ITEMS = 1
+internal const val LIST_TOP_KEY = "list-top"
 
 private const val FIRST_AD = 4
 private const val AD_EVERY = 20

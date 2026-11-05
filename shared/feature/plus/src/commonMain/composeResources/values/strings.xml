@@ -24,4 +24,5 @@
     <string name="adfree_price">%1$s once</string>
     <string name="adfree_buy">Remove ads</string>
     <string name="adfree_close">Not now</string>
+    <string name="adfree_day_off">Watch a video for one ad-free day</string>
 </resources>

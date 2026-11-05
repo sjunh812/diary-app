@@ -12,10 +12,9 @@
     <string name="detail_trashed_undo">元に戻す</string>
     <string name="detail_pick_hint">日記を選ぶとここに表示されます</string>
     <string name="ad_label">広告</string>
-    <string name="ad_remove">広告を消す</string>
-    <string name="ad_rest">1日広告を消す</string>
     <string name="reward_title">広告なしの1日をもらう 🎁</string>
     <string name="reward_body">短い広告動画を最後まで見ると、24時間ほかの広告が表示されません。</string>
     <string name="reward_watch">動画を見てもらう</string>
     <string name="reward_close">閉じる</string>
+    <string name="ad_close">広告を閉じる</string>
 </resources>

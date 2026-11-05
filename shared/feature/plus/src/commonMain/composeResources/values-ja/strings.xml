@@ -24,4 +24,5 @@
     <string name="adfree_price">買い切り %1$s</string>
     <string name="adfree_buy">広告を消す</string>
     <string name="adfree_close">今はしない</string>
+    <string name="adfree_day_off">動画を見て1日だけ消す</string>
 </resources>

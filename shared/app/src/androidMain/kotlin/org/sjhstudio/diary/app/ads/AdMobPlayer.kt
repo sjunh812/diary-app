@@ -6,14 +6,20 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
 import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.gms.ads.VideoOptions
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import kotlin.coroutines.resume
@@ -64,6 +70,34 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     }
 
     override val available: Boolean = units.native.isNotEmpty()
+
+    /** 받아 둔 네이티브 광고. 스크롤해 다시 보여도 같은 자리는 다시 요청하지 않는다. */
+    val natives = mutableStateMapOf<String, NativeAd>()
+    private val loading = mutableSetOf<String>()
+
+    fun loadNative(key: String) {
+        if (!available || key in natives || !loading.add(key)) return
+        start()
+        val options =
+            NativeAdOptions.Builder()
+                // 영상은 소리 없이 시작한다(`docs/business.md`).
+                .setVideoOptions(VideoOptions.Builder().setStartMuted(true).build())
+                .build()
+        AdLoader.Builder(app, units.native)
+            .forNativeAd { ad ->
+                loading -= key
+                natives[key] = ad
+            }.withNativeAdOptions(options)
+            .withAdListener(
+                object : AdListener() {
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        loading -= key
+                        Log.w(TAG, "네이티브 광고를 받지 못함: ${error.code}")
+                    }
+                }
+            ).build()
+            .loadAd(AdRequest.Builder().build())
+    }
 
     /** 처음 광고를 부를 때 한 번 켠다. 유료 사용자는 켜지지 않는다. */
     fun start() {

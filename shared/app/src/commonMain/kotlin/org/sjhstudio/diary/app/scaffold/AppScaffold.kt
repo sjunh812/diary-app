@@ -38,6 +38,7 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import org.sjhstudio.diary.app.ads.AdShape
 import org.sjhstudio.diary.app.ads.AdSlot
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.CalendarKey
@@ -94,6 +95,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
@@ -317,8 +319,9 @@ private fun Content(
                                 backStack.selectTab(SettingsKey)
                                 backStack.add(BackupSettingsKey)
                             })
-                            BackupNudgeCard(onRestoreEntry = { backStack.add(RestorePreviewKey(it)) })
+                            BackupFoundPrompt(onRestoreEntry = { backStack.add(RestorePreviewKey(it)) })
                         },
+                        listTop = { BackupNudgeCard() },
                         onOpen = backStack::openEntry,
                         onWrite = onWrite,
                         onSearch = { backStack.add(SearchKey()) },
@@ -329,7 +332,8 @@ private fun Content(
                             onTrashed(id)
                         },
                         selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
-                        adSlot = { AdSlot() }
+                        // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다. 광고 수는 늘지 않는다.
+                        adSlot = { order -> AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card) }
                     )
                 }
                 entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
@@ -370,7 +374,7 @@ private fun Content(
                             backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                         },
                         onPlus = { backStack.add(PlusKey) },
-                        adSlot = { AdSlot() }
+                        adSlot = { AdSlot("insight", AdShape.Card) }
                     )
                 }
                 settingsEntries(push = { backStack.add(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })

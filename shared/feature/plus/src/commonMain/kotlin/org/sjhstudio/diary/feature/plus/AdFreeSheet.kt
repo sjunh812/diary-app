@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
@@ -23,13 +24,14 @@ import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.adfree_body
 import org.sjhstudio.diary.feature.plus.resources.adfree_buy
 import org.sjhstudio.diary.feature.plus.resources.adfree_close
+import org.sjhstudio.diary.feature.plus.resources.adfree_day_off
 import org.sjhstudio.diary.feature.plus.resources.adfree_price
 import org.sjhstudio.diary.feature.plus.resources.adfree_title
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 
-/** 광고만 없애는 시트(Figma P2). 광고 옆 "광고 없애기"가 연다. 온 화면은 그대로다. */
+/** 광고만 없애는 시트(Figma P2). 광고의 ×가 연다. 온 화면은 그대로다. [onDayOff]는 영상을 보고 하루만 없애는 길이다. */
 @Composable
-fun AdFreeSheet(onDismiss: () -> Unit) {
+fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
     val viewModel = koinViewModel<PlusViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val colors = DiaryTheme.colors
@@ -60,6 +62,14 @@ fun AdFreeSheet(onDismiss: () -> Unit) {
                     Modifier.weight(2f),
                     size = DiaryButtonSize.XLarge,
                     enabled = price != null && !state.busy
+                )
+            }
+            if (onDayOff != null) {
+                DiaryButton(
+                    stringResource(Res.string.adfree_day_off),
+                    onDayOff,
+                    Modifier.align(Alignment.CenterHorizontally),
+                    kind = DiaryButtonKind.Text
                 )
             }
         }
