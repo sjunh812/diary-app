@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -128,9 +129,23 @@ private fun EntryCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
         ) {
-            BasicText(dates.time(row.time), style = typography.captionStrong.copy(color = colors.textSecondary), maxLines = 1)
+            BasicText(
+                dates.time(row.time),
+                style = typography.captionStrong.copy(color = colors.textSecondary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             row.weather?.let { WeatherIcon(it, DiaryHomeSize.cardIcon, colors.textSecondary, contentDescription = weatherName(it)) }
-            row.placeName?.let { BasicText(it, style = typography.caption.copy(color = colors.textSecondary), maxLines = 1) }
+            row.placeName?.let {
+                // 장소가 길어도 시각과 날씨를 밀어내지 않는다.
+                BasicText(
+                    it,
+                    modifier = Modifier.weight(1f, fill = false),
+                    style = typography.caption.copy(color = colors.textSecondary),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         }
         if (row.preview.isNotEmpty()) {
             BasicText(
@@ -158,6 +173,7 @@ private fun EntryCard(
 @Composable
 internal fun PhotoGrid(
     rows: LazyPagingItems<EntryRow>,
+    grid: LazyGridState,
     selectedId: String?,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
@@ -168,6 +184,7 @@ internal fun PhotoGrid(
     LazyVerticalGrid(
         columns = GridCells.Adaptive(DiaryHomeSize.gridCell),
         modifier = Modifier.fillMaxSize(),
+        state = grid,
         contentPadding = PaddingValues(start = DiarySpacing.x0_5, end = DiarySpacing.x0_5, bottom = DiarySpacing.x14 + DiarySpacing.x6),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
@@ -181,6 +198,7 @@ internal fun PhotoGrid(
             Box(
                 Modifier
                     .aspectRatio(1f)
+                    .diaryPress(interaction, colors.textPrimary)
                     .background(if (row?.id == selectedId) colors.selected else colors.sunken)
                     .combinedClickable(
                         interactionSource = interaction,
@@ -200,7 +218,8 @@ internal fun PhotoGrid(
                             BasicText(
                                 dates.monthDay(row.date),
                                 style = DiaryTheme.typography.micro.copy(color = colors.textSecondary),
-                                maxLines = 1
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                             BasicText(
                                 row.preview,

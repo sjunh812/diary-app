@@ -43,4 +43,5 @@
     <string name="relock_cold_start">앱을 새로 열 때만</string>
     <string name="lock_settings_note">비밀번호를 잊어버리면 휴대폰 화면 잠금으로 확인하고 다시 정할 수 있어요.</string>
     <string name="lock_confirm_title">지금 비밀번호를 입력해 주세요</string>
+    <string name="lock_settings_method">잠금 방법</string>
 </resources>

@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
@@ -35,7 +38,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -50,14 +52,18 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
+import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiarySearchField
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
@@ -75,7 +81,11 @@ import org.sjhstudio.diary.feature.search.resources.search_chip_weather
 import org.sjhstudio.diary.feature.search.resources.search_clear
 import org.sjhstudio.diary.feature.search.resources.search_empty_body
 import org.sjhstudio.diary.feature.search.resources.search_empty_title
+import org.sjhstudio.diary.feature.search.resources.search_error_body
+import org.sjhstudio.diary.feature.search.resources.search_error_retry
+import org.sjhstudio.diary.feature.search.resources.search_error_title
 import org.sjhstudio.diary.feature.search.resources.search_hint
+import org.sjhstudio.diary.feature.search.resources.search_idle
 import org.sjhstudio.diary.feature.search.resources.search_result_count
 
 /** 어느 칩의 시트가 열렸는지. */
@@ -165,45 +175,48 @@ internal fun SearchScreen(
     modifier: Modifier = Modifier
 ) {
     val colors = DiaryTheme.colors
-    Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().imePadding()) {
-        Row(
-            Modifier.fillMaxWidth().padding(start = DiarySpacing.x1, end = DiarySpacing.x4, top = DiarySpacing.x1),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val interaction = remember { MutableInteractionSource() }
-            Box(
-                Modifier
-                    .size(DiarySpacing.minTouchTarget)
-                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
-                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onBack),
-                contentAlignment = Alignment.Center
+    Box(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().imePadding(), contentAlignment = Alignment.TopCenter) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
+            Row(
+                Modifier.fillMaxWidth().padding(start = DiarySpacing.x1, end = DiarySpacing.screenCompact, top = DiarySpacing.x1),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                DiaryIcon(DiaryIcons.ChevronLeft, stringResource(Res.string.search_back), colors.textPrimary)
+                DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.search_back), onBack)
+                DiarySearchField(
+                    value = filter.query,
+                    onValueChange = onQuery,
+                    hint = stringResource(Res.string.search_hint),
+                    clearLabel = stringResource(Res.string.search_clear),
+                    modifier = Modifier.weight(1f).focusRequester(focus)
+                )
             }
-            DiarySearchField(
-                value = filter.query,
-                onValueChange = onQuery,
-                hint = stringResource(Res.string.search_hint),
-                clearLabel = stringResource(Res.string.search_clear),
-                modifier = Modifier.weight(1f).focusRequester(focus)
-            )
-        }
-        FilterChips(filter, period, onSheet, onPhoto, onFavorites)
-        // 없는 글자를 이어 칠 때 뼈대가 깜빡이지 않게, 없었으면 다 읽을 때까지 없음을 둔다.
-        val refresh = results.loadState.refresh
-        var wasEmpty by remember { mutableStateOf(false) }
-        LaunchedEffect(refresh, filter.isEmpty) {
-            if (filter.isEmpty) {
-                wasEmpty = false
-            } else if (refresh is LoadState.NotLoading) {
-                wasEmpty = results.itemCount == 0
+            FilterChips(filter, period, onSheet, onPhoto, onFavorites)
+            // 없는 글자를 이어 칠 때 뼈대가 깜빡이지 않게, 없었으면 다 읽을 때까지 없음을 둔다.
+            val refresh = results.loadState.refresh
+            var wasEmpty by remember { mutableStateOf(false) }
+            LaunchedEffect(refresh, filter.isEmpty) {
+                if (filter.isEmpty) {
+                    wasEmpty = false
+                } else if (refresh is LoadState.NotLoading) {
+                    wasEmpty = results.itemCount == 0
+                }
             }
-        }
-        when {
-            filter.isEmpty -> Unit
-            results.itemCount > 0 -> Results(results, filter.query, selectedId, previewStyle, list, onOpen)
-            refresh is LoadState.NotLoading || wasEmpty -> Empty()
-            else -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+            when {
+                filter.isEmpty ->
+                    DiaryNotice(
+                        stringResource(Res.string.search_idle),
+                        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                        icon = DiaryIcons.Search
+                    )
+
+                results.itemCount > 0 -> Results(results, filter.query, selectedId, previewStyle, list, onOpen)
+
+                refresh is LoadState.Error -> LoadFailed(results::retry)
+
+                refresh is LoadState.NotLoading || wasEmpty -> Empty()
+
+                else -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+            }
         }
     }
 }
@@ -265,19 +278,25 @@ private fun FilterChips(
 
 @Composable
 private fun Empty() {
-    val colors = DiaryTheme.colors
-    Column(
-        Modifier.fillMaxSize().padding(horizontal = DiarySpacing.x6),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2, Alignment.CenterVertically)
-    ) {
-        BasicText(
+    DiaryEmptyArea {
+        DiaryEmptyState(
+            DiaryIcons.Search,
             stringResource(Res.string.search_empty_title),
-            style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+            description = stringResource(Res.string.search_empty_body)
         )
-        BasicText(
-            stringResource(Res.string.search_empty_body),
-            style = DiaryTheme.typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+    }
+}
+
+/** 결과를 읽지 못했을 때. 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다. */
+@Composable
+private fun LoadFailed(onRetry: () -> Unit) {
+    DiaryEmptyArea {
+        DiaryEmptyState(
+            DiaryIcons.CircleAlert,
+            stringResource(Res.string.search_error_title),
+            description = stringResource(Res.string.search_error_body),
+            actionLabel = stringResource(Res.string.search_error_retry),
+            onAction = onRetry
         )
     }
 }
@@ -295,7 +314,9 @@ private fun Results(
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     val today: LocalDate = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
-    LazyColumn(Modifier.fillMaxSize(), state = list) {
+    // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
+    val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
+    LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = bottom)) {
         item {
             BasicText(
                 pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount),

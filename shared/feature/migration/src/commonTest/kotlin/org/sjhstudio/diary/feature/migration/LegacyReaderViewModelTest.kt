@@ -4,7 +4,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -64,5 +66,41 @@ class LegacyReaderViewModelTest {
         assertEquals(1, calls)
         assertEquals(listOf(1L, 2L, 3L), vm.state.value.entries.map { it.id })
         assertTrue(vm.state.value.end)
+    }
+
+    /** 읽지 못한 것은 빈 목록과 다르다. 끝으로 치지 않고, 다시 시도하면 이어서 읽는다. */
+    @Test
+    fun failed_page_is_not_an_empty_list() = runTest(dispatcher) {
+        var broken = true
+        val archive =
+            object : LegacyArchive {
+                override suspend fun page(after: LegacyEntryView?, limit: Int): List<LegacyEntryView> {
+                    if (broken) error("읽기 실패")
+                    return listOf(view(1))
+                }
+            }
+        val vm = LegacyReaderViewModel(archive)
+        advanceUntilIdle()
+        assertTrue(vm.state.value.failed)
+        assertFalse(vm.state.value.end)
+        assertFalse(vm.state.value.loading)
+
+        broken = false
+        vm.loadMore()
+        advanceUntilIdle()
+        assertFalse(vm.state.value.failed)
+        assertEquals(listOf(1L), vm.state.value.entries.map { it.id })
+    }
+
+    /** 취소는 실패가 아니다. */
+    @Test
+    fun cancellation_is_not_reported_as_failure() = runTest(dispatcher) {
+        val archive =
+            object : LegacyArchive {
+                override suspend fun page(after: LegacyEntryView?, limit: Int): List<LegacyEntryView> = throw CancellationException()
+            }
+        val vm = LegacyReaderViewModel(archive)
+        advanceUntilIdle()
+        assertFalse(vm.state.value.failed)
     }
 }

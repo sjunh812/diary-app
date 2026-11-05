@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.getString
@@ -39,6 +40,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.ui.diaryBodyFontFamily
@@ -64,7 +66,7 @@ fun FontSettingsScreen(state: FontUiState, onSelect: (DiaryFont) -> Unit, onBack
     val selected = state.settings.font
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_font), onBack = onBack)
-        Column(Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).fillMaxWidth().verticalScroll(rememberScrollState())) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             Column(
                 Modifier
                     .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)
@@ -151,7 +153,7 @@ private fun FontName(font: DiaryFont, name: String, ready: Boolean, installedPat
     } else {
         val installedFamily = rememberFileFontFamily(installedPath)
         val family: FontFamily = diaryBodyFontFamily(font) { installedFamily }
-        BasicText(name, style = style.copy(color = colors.textPrimary, fontFamily = family), maxLines = 1)
+        BasicText(name, style = style.copy(color = colors.textPrimary, fontFamily = family), maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -168,6 +170,6 @@ fun FontSettingsRoute(onBack: () -> Unit) {
     }
     Box(Modifier.fillMaxSize()) {
         FontSettingsScreen(state, onSelect = viewModel::select, onBack = onBack)
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x6))
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
     }
 }

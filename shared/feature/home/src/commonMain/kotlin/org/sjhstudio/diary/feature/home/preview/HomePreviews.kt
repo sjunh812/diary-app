@@ -1,9 +1,12 @@
 package org.sjhstudio.diary.feature.home.preview
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flowOf
@@ -19,6 +22,8 @@ import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.feature.home.HomeScreen
 
 private val Today = LocalDate(2026, 10, 31)
+private val Done = LoadState.NotLoading(endOfPaginationReached = true)
+private val Failed = LoadStates(refresh = LoadState.Error(IllegalStateException()), prepend = Done, append = Done)
 
 private val Rows =
     listOf(
@@ -28,25 +33,32 @@ private val Rows =
     )
 
 @Composable
-private fun Home(dark: Boolean, rows: List<EntryRow> = Rows, favoritesOnly: Boolean = false, style: ListStyle = ListStyle.FEED) =
-    DiaryTheme(darkTheme = dark) {
-        HomeScreen(
-            title = "2026년 10월",
-            rows = flowOf(PagingData.from(rows)).collectAsLazyPagingItems(),
-            list = rememberLazyListState(),
-            style = style,
-            favoritesOnly = favoritesOnly,
-            selectedId = null,
-            today = Today,
-            previewStyle = DiaryTheme.typography.body,
-            onToggleFavorites = {},
-            onPickMonth = {},
-            onOpen = {},
-            onMenu = {},
-            onWrite = {},
-            onSearch = {}
-        )
-    }
+private fun Home(
+    dark: Boolean,
+    rows: List<EntryRow> = Rows,
+    favoritesOnly: Boolean = false,
+    style: ListStyle = ListStyle.FEED,
+    failed: Boolean = false
+) = DiaryTheme(darkTheme = dark) {
+    val data = if (failed) PagingData.empty(Failed) else PagingData.from(rows)
+    HomeScreen(
+        title = "2026년 10월",
+        rows = flowOf(data).collectAsLazyPagingItems(),
+        list = rememberLazyListState(),
+        grid = rememberLazyGridState(),
+        style = style,
+        favoritesOnly = favoritesOnly,
+        selectedId = null,
+        today = Today,
+        previewStyle = DiaryTheme.typography.body,
+        onToggleFavorites = {},
+        onPickMonth = {},
+        onOpen = {},
+        onMenu = {},
+        onWrite = {},
+        onSearch = {}
+    )
+}
 
 @Preview(name = "홈 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
@@ -71,6 +83,14 @@ private fun HomeEmpty() = Home(dark = false, rows = emptyList())
 @Preview(name = "홈 · 즐겨찾기 없음", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun HomeNoFavorites() = Home(dark = true, rows = emptyList(), favoritesOnly = true)
+
+@Preview(name = "홈 · 읽기 실패 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeFailedLight() = Home(dark = false, failed = true)
+
+@Preview(name = "홈 · 읽기 실패 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeFailedDark() = Home(dark = true, failed = true)
 
 @Preview(name = "연·월 고르기", locale = "ko", widthDp = 390, heightDp = 500)
 @Composable

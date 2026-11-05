@@ -92,3 +92,14 @@ private fun LegacyReader() = DiaryTheme(darkTheme = false) {
         onLoadMore = {}
     )
 }
+
+@Preview(name = "M4 예전 일기 · 읽기 실패", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun LegacyReaderFailed() = DiaryTheme(darkTheme = false) {
+    LegacyReaderScreen(
+        state = LegacyReaderState(loading = false, failed = true),
+        currentYear = 2024,
+        onBack = {},
+        onLoadMore = {}
+    )
+}

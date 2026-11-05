@@ -1,12 +1,8 @@
 package org.sjhstudio.diary.app.ads
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +11,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -28,10 +23,9 @@ import org.sjhstudio.diary.app.resources.reward_title
 import org.sjhstudio.diary.app.resources.reward_watch
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -60,15 +54,14 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
     NativeAdCard(key, shape) { ad ->
         Box(modifier.fillMaxWidth().padding(vertical = DiarySpacing.x2)) {
             ad()
-            Box(
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .size(DiarySpacing.minTouchTarget)
-                    .clickable(role = Role.Button) { sheet = AdSheet.Remove },
-                contentAlignment = Alignment.Center
-            ) {
-                DiaryIcon(DiaryIcons.Close, stringResource(Res.string.ad_close), colors.textTertiary, size = DiaryIconSize.i16)
-            }
+            DiaryIconButton(
+                DiaryIcons.Close,
+                stringResource(Res.string.ad_close),
+                { sheet = AdSheet.Remove },
+                Modifier.align(Alignment.TopEnd),
+                tint = colors.textTertiary,
+                iconSize = DiaryIconSize.i16
+            )
         }
     }
     when (sheet) {
@@ -88,9 +81,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
                         sheet = null
                         scope.launch { ads.watchReward() }
                     },
-                    modifier = Modifier.padding(top = DiarySpacing.x1),
-                    size = DiaryButtonSize.XLarge,
-                    secondaryKind = DiaryButtonKind.Weak
+                    size = DiaryButtonSize.XLarge
                 )
             }
 

@@ -87,4 +87,5 @@
     <string name="support_failed">お問い合わせ用のファイルを作れませんでした。添付なしでお問い合わせください。</string>
     <string name="support_mail_subject">[1日1日記] 壊れた日記の修復のお問い合わせ</string>
     <string name="support_mail_body">お送りいただいたファイルは、直してお返ししたらすぐに削除します。日記のファイルだけを入れ、写真とパスワードは除いています。\n\nアプリのバージョン: %1$s\n端末: %2$s\n読み込めなかった日記の数: %3$s\n\n気になることや起きたことを書いてください。\n</string>
+    <string name="legacy_reader_failed">以前の日記を読み込めませんでした</string>
 </resources>

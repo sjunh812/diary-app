@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.licenses_group_fonts
@@ -50,7 +51,7 @@ fun LicensesScreen(
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_licenses), onBack = onBack)
-        LazyColumn(Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).fillMaxWidth()) {
+        LazyColumn(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth()) {
             item(key = "fonts") { DiarySettingsHeader(stringResource(Res.string.licenses_group_fonts)) }
             items(FONT_NOTICES, key = { "font-${it.font.id}" }) { notice ->
                 DiarySettingsRow(
@@ -91,7 +92,7 @@ fun LicenseTextScreen(
         DiaryTopBar(title = title, onBack = onBack)
         Column(
             Modifier
-                .widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8)
+                .widthIn(max = DiaryWriteSize.settingsMax)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)

@@ -38,7 +38,7 @@ fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
     val typography = DiaryTheme.typography
     val price = state.price(ProductId.AD_FREE)
     DiaryBottomSheet(onDismiss, title = stringResource(Res.string.adfree_title), description = stringResource(Res.string.adfree_body)) {
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                 if (price != null) {
                     BasicText(stringResource(Res.string.adfree_price, price), style = typography.title2.copy(color = colors.textPrimary))
@@ -53,7 +53,6 @@ fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
                     primary = stringResource(Res.string.adfree_buy),
                     onPrimary = { viewModel.buy(ProductId.AD_FREE, onDismiss) },
                     size = DiaryButtonSize.XLarge,
-                    secondaryKind = DiaryButtonKind.Weak,
                     primaryEnabled = price != null && !state.busy
                 )
                 if (onDayOff != null) {

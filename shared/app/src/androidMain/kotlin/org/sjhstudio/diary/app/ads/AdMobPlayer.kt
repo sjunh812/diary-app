@@ -28,6 +28,9 @@ import org.sjhstudio.diary.core.data.AdPlayer
 
 private const val TAG = "DiaryAds"
 
+/** 들고 있는 네이티브 광고 수의 끝. 광고는 메모리를 많이 써서 스크롤로 자리가 늘어도 이만큼만 둔다. */
+private const val MAX_NATIVES = 5
+
 /** 매니페스트에 든 광고 단위. 개발 빌드는 시험 단위이고, 출시 빌드에 값이 없으면 광고를 부르지 않는다. */
 class AdUnits(context: Context) {
     private val meta: Bundle? =
@@ -71,9 +74,12 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
 
     override val available: Boolean = units.native.isNotEmpty()
 
-    /** 받아 둔 네이티브 광고. 스크롤해 다시 보여도 같은 자리는 다시 요청하지 않는다. */
+    /** 받아 둔 네이티브 광고. 스크롤해 다시 보여도 최근 자리는 다시 요청하지 않는다. */
     val natives = mutableStateMapOf<String, NativeAd>()
     private val loading = mutableSetOf<String>()
+
+    /** [natives]의 받은 순서. 오래된 자리부터 내보낸다. */
+    private val nativeOrder = ArrayDeque<String>()
 
     fun loadNative(key: String) {
         if (!available || key in natives || !loading.add(key)) return
@@ -86,7 +92,7 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
         AdLoader.Builder(app, units.native)
             .forNativeAd { ad ->
                 loading -= key
-                natives[key] = ad
+                keepNative(key, ad)
             }.withNativeAdOptions(options)
             .withAdListener(
                 object : AdListener() {
@@ -97,6 +103,13 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
                 }
             ).build()
             .loadAd(AdRequest.Builder().build())
+    }
+
+    /** 새 광고를 두고, 끝을 넘으면 가장 오래된 광고를 치운다. 치운 자리가 다시 보이면 새로 받는다. */
+    private fun keepNative(key: String, ad: NativeAd) {
+        natives[key] = ad
+        nativeOrder.addLast(key)
+        while (nativeOrder.size > MAX_NATIVES) natives.remove(nativeOrder.removeFirst())?.destroy()
     }
 
     /** 처음 광고를 부를 때 한 번 켠다. 유료 사용자는 켜지지 않는다. */

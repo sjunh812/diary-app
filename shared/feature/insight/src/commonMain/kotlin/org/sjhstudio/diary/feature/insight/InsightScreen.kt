@@ -31,8 +31,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -41,6 +39,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.LocalDate
@@ -52,7 +51,8 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -88,6 +88,8 @@ import org.sjhstudio.diary.feature.insight.resources.insight_next
 import org.sjhstudio.diary.feature.insight.resources.insight_no_mood_count
 import org.sjhstudio.diary.feature.insight.resources.insight_no_moods
 import org.sjhstudio.diary.feature.insight.resources.insight_previous
+import org.sjhstudio.diary.feature.insight.resources.insight_section_days
+import org.sjhstudio.diary.feature.insight.resources.insight_section_moods
 import org.sjhstudio.diary.feature.insight.resources.insight_summary_counts
 import org.sjhstudio.diary.feature.insight.resources.insight_tab_all
 import org.sjhstudio.diary.feature.insight.resources.insight_tab_month
@@ -162,7 +164,7 @@ internal fun InsightScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = DiarySpacing.screenCompact)
-                .padding(top = DiarySpacing.x6, bottom = DiarySpacing.x14 + DiarySpacing.x6)
+                .padding(top = DiarySpacing.tabTitleTop, bottom = DiarySpacing.x14 + DiarySpacing.x6)
         ) {
             BasicText(
                 stringResource(Res.string.insight_title),
@@ -222,41 +224,27 @@ private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = w
 private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onPrevious: () -> Unit, onNext: () -> Unit) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        NavArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.insight_previous), hasPrevious, onPrevious)
+        // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게 보인다.
+        DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.insight_previous), onPrevious, enabled = hasPrevious)
         BasicText(
             label,
             modifier = Modifier.weight(1f),
             style = DiaryTheme.typography.headline.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
-        NavArrow(DiaryIcons.ChevronRight, stringResource(Res.string.insight_next), hasNext, onNext)
-    }
-}
-
-@Composable
-private fun NavArrow(icon: ImageVector, description: String, enabled: Boolean, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val interaction = remember { MutableInteractionSource() }
-    Box(
-        Modifier
-            .size(DiarySpacing.minTouchTarget)
-            .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
-            .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게 보인다.
-        DiaryIcon(icon, contentDescription = description, tint = if (enabled) colors.textPrimary else colors.placeholder)
+        DiaryIconButton(DiaryIcons.ChevronRight, stringResource(Res.string.insight_next), onNext, enabled = hasNext)
     }
 }
 
 @Composable
 private fun Empty() {
-    Box(Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x14 + DiarySpacing.x14), contentAlignment = Alignment.Center) {
-        BasicText(
-            stringResource(Res.string.insight_empty),
-            style = DiaryTheme.typography.headline.copy(color = DiaryTheme.colors.textPrimary)
-        )
-    }
+    // 화면 전체가 스크롤되어 빈 상태를 칸에 놓을 수 없다. 전과 같이 위아래 여백으로 자리를 잡는다.
+    DiaryEmptyState(
+        DiaryIcons.TabInsight,
+        stringResource(Res.string.insight_empty),
+        Modifier.padding(vertical = DiarySpacing.x14 + DiarySpacing.x14)
+    )
 }
 
 @Composable
@@ -277,9 +265,13 @@ private fun Content(
     MoodFlow(period, days, rememberDiaryDateFormat())
     Spacer(Modifier.height(DiarySpacing.x5))
     if (period is StatsPeriod.Year) {
+        SectionTitle(stringResource(Res.string.insight_section_days))
+        Spacer(Modifier.height(DiarySpacing.x3))
         YearMap(period.year, pixels, today)
-        Spacer(Modifier.height(DiarySpacing.x4))
+        Spacer(Modifier.height(DiarySpacing.x5))
     }
+    SectionTitle(stringResource(Res.string.insight_section_moods))
+    Spacer(Modifier.height(DiarySpacing.x1))
     val most = counts.counts.values.maxOrNull() ?: 0
     val rows = counts.sorted()
     // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
@@ -290,6 +282,16 @@ private fun Content(
     rows.forEachIndexed { index, (mood, count) ->
         MoodBar(mood, count, most, names[index], nameWidth, amounts[index], amountWidth, onMood)
     }
+}
+
+/** 돌아보기 묶음 제목. 기분 흐름, 연간 지도, 기분 막대가 같이 쓴다. */
+@Composable
+private fun SectionTitle(text: String) {
+    BasicText(
+        text,
+        modifier = Modifier.semantics { heading() },
+        style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary)
+    )
 }
 
 /** 기분 이름은 모두 받침으로 끝나서 문구에 조사 "이"를 그대로 둔다. */
@@ -334,8 +336,8 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
             }
         )
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-        BasicText(title, style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary))
-        val buckets = moodBuckets(period, days)
+        SectionTitle(title)
+        val buckets = remember(period, days) { moodBuckets(period, days) }
         val columns = if (period is StatsPeriod.Year || period == StatsPeriod.All) WIDE_COLUMNS else buckets.size
         for (row in buckets.chunked(columns)) {
             Row(Modifier.fillMaxWidth()) {
@@ -354,7 +356,8 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
                         BasicText(
                             slotLabel(bucket.slot, dates),
                             style = DiaryTheme.typography.micro.copy(color = colors.textSecondary),
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
@@ -384,16 +387,16 @@ private fun slotLabel(slot: BucketSlot, dates: DiaryDateFormat): String = when (
 private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) {
     val colors = DiaryTheme.colors
     val description = stringResource(Res.string.insight_year_map)
-    val moodColors = remember(colors) { mutableMapOf<Mood, Color>() }
-    for (mood in Mood.entries) moodColors[mood] = moodColor(mood)
+    val moodColors = Mood.entries.associateWith { moodColor(it) }
     Column(Modifier.semantics { contentDescription = description }, verticalArrangement = Arrangement.spacedBy(DiaryInsightSize.mapGap)) {
         for (number in 1..MONTHS) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BasicText(
                     number.toString(),
                     modifier = Modifier.width(DiaryInsightSize.mapLabel * LocalDensity.current.fontScale),
-                    style = DiaryTheme.typography.micro.copy(color = colors.textTertiary),
-                    maxLines = 1
+                    style = DiaryTheme.typography.micro.copy(color = colors.textSecondary),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 val month = YearMonth(year, number)
                 Canvas(Modifier.weight(1f).height(DiaryInsightSize.mapRow)) {
@@ -476,13 +479,7 @@ private fun MoodBar(
             amount,
             modifier = Modifier.width(amountWidth),
             style = DiaryTheme.typography.captionStrong.copy(
-                color = if (count >
-                    0
-                ) {
-                    colors.textPrimary
-                } else {
-                    colors.textTertiary
-                },
+                color = if (count > 0) colors.textPrimary else colors.textSecondary,
                 textAlign = TextAlign.End
             ),
             maxLines = 1

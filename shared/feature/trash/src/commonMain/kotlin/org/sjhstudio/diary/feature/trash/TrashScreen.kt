@@ -6,10 +6,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -26,9 +30,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,7 +41,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
@@ -92,7 +93,7 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val list = items
     Box(modifier.fillMaxSize()) {
         TrashScreen(list, onBack, onEmpty = { confirmAll = true }, onPick = { pickedId = it })
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x6))
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
     }
     pickedId?.let { id ->
         DiaryBottomSheet(onDismiss = { pickedId = null }) {
@@ -162,32 +163,23 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
                     )
                 }
 
-            else ->
-                LazyColumn(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
-                    item { Notice() }
+            else -> {
+                // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
+                val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
+                LazyColumn(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth(), contentPadding = PaddingValues(bottom = bottom)) {
+                    item {
+                        DiaryNotice(
+                            stringResource(Res.string.trash_notice),
+                            Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                            icon = DiaryIcons.Trash
+                        )
+                    }
                     itemsIndexed(items, key = { _, item ->
                         item.row.id
                     }) { index, item -> TrashRow(item, dividerAbove = index > 0) { onPick(item.row.id) } }
                 }
+            }
         }
-    }
-}
-
-@Composable
-private fun Notice() {
-    val colors = DiaryTheme.colors
-    Row(
-        Modifier
-            .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)
-            .fillMaxWidth()
-            .clip(DiaryShapes.r12)
-            .background(colors.sunken)
-            .padding(DiarySpacing.x3),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-    ) {
-        DiaryIcon(DiaryIcons.Trash, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
-        BasicText(stringResource(Res.string.trash_notice), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
 }
 
@@ -223,10 +215,20 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
                     BasicText(
                         stringResource(Res.string.trash_row_when, dates.monthDay(row.date), dates.time(row.time)),
                         style = typography.captionStrong.copy(color = colors.textSecondary),
-                        maxLines = 1
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     row.weather?.let { WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary, contentDescription = weatherName(it)) }
-                    row.placeName?.let { BasicText(it, style = typography.caption.copy(color = colors.textSecondary), maxLines = 1) }
+                    row.placeName?.let {
+                        // 장소가 길어도 앞의 시각과 날씨를 밀어내지 않는다.
+                        BasicText(
+                            it,
+                            modifier = Modifier.weight(1f, fill = false),
+                            style = typography.caption.copy(color = colors.textSecondary),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
                 if (row.preview.isNotEmpty()) {
                     BasicText(
@@ -240,7 +242,8 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
             BasicText(
                 pluralStringResource(Res.plurals.trash_days_left, item.daysLeft, item.daysLeft),
                 style = typography.caption.copy(color = if (item.daysLeft <= URGENT_DAYS) colors.danger else colors.textSecondary),
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }

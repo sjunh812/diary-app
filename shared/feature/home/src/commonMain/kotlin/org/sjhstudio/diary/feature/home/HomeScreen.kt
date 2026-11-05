@@ -16,11 +16,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,8 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
@@ -51,19 +52,21 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
+import org.sjhstudio.diary.core.ui.DiaryTitleButton
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -77,6 +80,9 @@ import org.sjhstudio.diary.feature.home.resources.detail_trash
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_body
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
+import org.sjhstudio.diary.feature.home.resources.home_error_body
+import org.sjhstudio.diary.feature.home.resources.home_error_retry
+import org.sjhstudio.diary.feature.home.resources.home_error_title
 import org.sjhstudio.diary.feature.home.resources.home_favorites_empty
 import org.sjhstudio.diary.feature.home.resources.home_favorites_only
 import org.sjhstudio.diary.feature.home.resources.home_month_sheet_title
@@ -107,19 +113,24 @@ fun HomeRoute(
     val style by viewModel.style.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
+    val grid = rememberLazyGridState()
     val scope = rememberCoroutineScope()
     val dates = rememberDiaryDateFormat()
     val today = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 목록이 비어 있으면 오늘이 든 달을 보인다.
-    val shown =
-        rows.itemCount.takeIf { it > 0 }?.let { rows.peek((list.firstVisibleItemIndex - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date }
-            ?: today
+    // 목록이 비어 있으면 오늘이 든 달을 보인다. 스크롤마다 화면을 다시 그리지 않게 맨 위 일기가 바뀔 때만 값이 바뀐다.
+    val shown by remember(rows, list, grid, today) {
+        derivedStateOf {
+            val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
+            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date } ?: today
+        }
+    }
     HomeScreen(
         title = dates.yearMonth(shown),
         rows = rows,
         list = list,
+        grid = grid,
         style = style,
         favoritesOnly = favoritesOnly,
         selectedId = selectedId,
@@ -167,7 +178,10 @@ fun HomeRoute(
             enabled = { it in months },
             onPick = { month ->
                 picking = false
-                scope.launch { list.scrollToItem(viewModel.positionOf(month) + LIST_TOP_ITEMS) }
+                scope.launch {
+                    val position = viewModel.positionOf(month) + LIST_TOP_ITEMS
+                    if (style == ListStyle.PHOTO_GRID) grid.scrollToItem(position) else list.scrollToItem(position)
+                }
             },
             onDismiss = { picking = false }
         )
@@ -179,6 +193,7 @@ internal fun HomeScreen(
     title: String,
     rows: LazyPagingItems<EntryRow>,
     list: LazyListState,
+    grid: LazyGridState,
     style: ListStyle,
     favoritesOnly: Boolean,
     selectedId: String?,
@@ -195,29 +210,34 @@ internal fun HomeScreen(
     listTop: @Composable () -> Unit = {},
     adSlot: @Composable (Int) -> Unit = {}
 ) {
-    Column(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
-        TopActions(favoritesOnly, onToggleFavorites, onSearch)
-        Title(title, onPickMonth)
-        Spacer(Modifier.height(DiarySpacing.x1))
-        backupLine()
-        when {
-            rows.itemCount > 0 -> {
-                val dates = rememberDiaryDateFormat()
-                when (style) {
-                    ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                    ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                    ListStyle.PHOTO_GRID -> PhotoGrid(rows, selectedId, dates, onOpen, onMenu, listTop)
+    Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
+            TopActions(favoritesOnly, onToggleFavorites, onSearch)
+            DiaryTitleButton(title, onPickMonth, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+            Spacer(Modifier.height(DiarySpacing.x1))
+            backupLine()
+            val refresh = rows.loadState.refresh
+            when {
+                rows.itemCount > 0 -> {
+                    val dates = rememberDiaryDateFormat()
+                    when (style) {
+                        ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                        ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                        ListStyle.PHOTO_GRID -> PhotoGrid(rows, grid, selectedId, dates, onOpen, onMenu, listTop)
+                    }
                 }
-            }
 
-            rows.loadState.refresh is LoadState.NotLoading -> {
-                ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
-                Empty(favoritesOnly, onWrite)
-            }
+                refresh is LoadState.NotLoading -> {
+                    ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+                    Empty(favoritesOnly, onWrite)
+                }
 
-            else -> {
-                ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
-                SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                refresh is LoadState.Error -> LoadFailed(rows::retry)
+
+                else -> {
+                    ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+                    SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                }
             }
         }
     }
@@ -230,16 +250,8 @@ private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: (
         Modifier.fillMaxWidth().padding(end = DiarySpacing.x1, top = DiarySpacing.x1),
         horizontalArrangement = Arrangement.End
     ) {
-        val searching = remember { MutableInteractionSource() }
-        Box(
-            Modifier
-                .size(DiarySpacing.minTouchTarget)
-                .diaryPress(searching, colors.textPrimary, DiaryShapes.full)
-                .clickable(interactionSource = searching, indication = null, role = Role.Button, onClick = onSearch),
-            contentAlignment = Alignment.Center
-        ) {
-            DiaryIcon(DiaryIcons.Search, contentDescription = stringResource(Res.string.home_search), tint = colors.textPrimary)
-        }
+        DiaryIconButton(DiaryIcons.Search, stringResource(Res.string.home_search), onSearch)
+        // 켜고 끄는 단추라 화면 읽기에 스위치로 읽히게 역할을 Switch로 둔다.
         val interaction = remember { MutableInteractionSource() }
         Box(
             Modifier
@@ -258,23 +270,6 @@ private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: (
 }
 
 @Composable
-private fun Title(text: String, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val interaction = remember { MutableInteractionSource() }
-    Row(
-        Modifier
-            .padding(horizontal = DiarySpacing.screenCompact)
-            .semantics { heading() }
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
-    ) {
-        BasicText(text, style = DiaryTheme.typography.display.copy(color = colors.textPrimary), maxLines = 1)
-        DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
-    }
-}
-
-@Composable
 private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit) {
     DiaryEmptyArea {
         if (favoritesOnly) {
@@ -288,6 +283,20 @@ private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit) {
                 onAction = onWrite
             )
         }
+    }
+}
+
+/** 목록을 읽지 못했을 때. 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다. */
+@Composable
+private fun LoadFailed(onRetry: () -> Unit) {
+    DiaryEmptyArea {
+        DiaryEmptyState(
+            DiaryIcons.CircleAlert,
+            stringResource(Res.string.home_error_title),
+            description = stringResource(Res.string.home_error_body),
+            actionLabel = stringResource(Res.string.home_error_retry),
+            onAction = onRetry
+        )
     }
 }
 

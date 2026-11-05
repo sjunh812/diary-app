@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,6 +30,7 @@ import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
@@ -56,7 +59,11 @@ fun TextSizeSettingsScreen(
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_text_size), onBack = onBack)
         Column(
-            Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact),
+            Modifier
+                .widthIn(max = DiaryWriteSize.settingsMax)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = DiarySpacing.screenCompact),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
         ) {
             Column(

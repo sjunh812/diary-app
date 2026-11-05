@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -36,38 +37,31 @@ import org.sjhstudio.diary.feature.migration.resources.support_without
 @Composable
 fun SupportAttachSheet(onDismiss: () -> Unit, onContactWithout: () -> Unit, onContactWith: () -> Unit) {
     val colors = DiaryTheme.colors
-    DiaryBottomSheet(onDismiss = onDismiss) {
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                BasicText(
-                    stringResource(Res.string.support_sheet_title),
-                    style = DiaryTheme.typography.title2.copy(color = colors.textPrimary)
-                )
-                BasicText(
-                    stringResource(Res.string.support_sheet_body),
-                    style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
-                )
-            }
-            // 아이콘 줄 목록(`docs/design.md` 상태 상자): 아이콘 16, 사이 12, 줄 사이 16
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clip(DiaryShapes.r16)
-                        .background(colors.sunken)
-                        .padding(DiarySpacing.x5),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
-            ) {
-                Line(DiaryIcons.Copy, stringResource(Res.string.support_sheet_contains))
-                Line(DiaryIcons.Trash, stringResource(Res.string.support_sheet_deleted))
-                Line(DiaryIcons.History, stringResource(Res.string.support_sheet_restore))
-            }
+    DiaryBottomSheet(
+        onDismiss = onDismiss,
+        title = stringResource(Res.string.support_sheet_title),
+        description = stringResource(Res.string.support_sheet_body)
+    ) {
+        // 아이콘 줄 목록(`docs/design.md` 상태 상자): 아이콘 16, 사이 12, 줄 사이 16
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clip(DiaryShapes.r16)
+                    .background(colors.sunken)
+                    .padding(DiarySpacing.x5),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+        ) {
+            Line(DiaryIcons.Copy, stringResource(Res.string.support_sheet_contains))
+            Line(DiaryIcons.Trash, stringResource(Res.string.support_sheet_deleted))
+            Line(DiaryIcons.History, stringResource(Res.string.support_sheet_restore))
         }
         DiaryButtonPair(
             stringResource(Res.string.support_without),
             onContactWithout,
             stringResource(Res.string.support_with),
-            onContactWith
+            onContactWith,
+            size = DiaryButtonSize.XLarge
         )
     }
 }

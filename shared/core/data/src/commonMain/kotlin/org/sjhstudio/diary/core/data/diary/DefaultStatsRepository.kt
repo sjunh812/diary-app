@@ -51,7 +51,7 @@ class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
         date = LocalDate.parse(date),
         hour = time.substringBefore(':').toIntOrNull() ?: 0,
         mood = Mood.fromId(mood),
-        weather = Weather.entries.firstOrNull { it.id == weather },
+        weather = Weather.fromId(weather),
         place = placeName,
         photos = photos,
         length = length
@@ -61,13 +61,13 @@ class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
         val range = period.range
         return entries.dayMoods(range?.start?.toString() ?: FIRST_DAY, range?.end?.toString() ?: LAST_DAY).map { rows ->
             toDayMoods(rows).values.sortedBy { it.date }
-        }
+        }.flowOn(Dispatchers.Default)
     }
 
     override fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>> =
         entries.dayMoods(LocalDate(year, 1, 1).toString(), LocalDate(year, 12, 31).toString()).map { rows ->
             toDayMoods(rows).mapValues { it.value.moods.mostFrequent() }
-        }
+        }.flowOn(Dispatchers.Default)
 
     private companion object {
         const val FIRST_DAY = "0000-01-01"

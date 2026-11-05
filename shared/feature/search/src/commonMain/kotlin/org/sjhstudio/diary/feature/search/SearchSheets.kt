@@ -1,19 +1,16 @@
 package org.sjhstudio.diary.feature.search
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.layout.layout
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.yearMonth
@@ -21,12 +18,10 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
-import org.sjhstudio.diary.core.designsystem.component.diaryPress
-import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
-import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
@@ -74,43 +69,50 @@ internal fun WeatherSheet(selected: Set<Weather>, onChange: (Set<Weather>) -> Un
 
 @Composable
 private fun SheetButtons(onClear: () -> Unit, onDone: () -> Unit) {
-    DiaryButtonPair(stringResource(Res.string.search_clear_filter), onClear, stringResource(Res.string.search_done), onDone)
+    DiaryButtonPair(
+        stringResource(Res.string.search_clear_filter),
+        onClear,
+        stringResource(Res.string.search_done),
+        onDone,
+        size = DiaryButtonSize.XLarge
+    )
 }
 
 @Composable
 internal fun PeriodSheet(selected: SearchPeriod?, onPick: (SearchPeriod?) -> Unit, onCustom: () -> Unit, onDismiss: () -> Unit) {
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_chip_period)) {
-        for (period in SearchPeriod.entries) {
-            val isCustom = period == SearchPeriod.Custom
-            PeriodRow(periodLabel(period), period == selected) {
-                when {
-                    isCustom -> onCustom()
-                    period == selected -> onPick(null)
-                    else -> onPick(period)
+        // 고르기 목록의 줄끼리는 시트의 내용 간격 없이 붙인다.
+        Column {
+            for (period in SearchPeriod.entries) {
+                val isCustom = period == SearchPeriod.Custom
+                PeriodRow(periodLabel(period), period == selected) {
+                    when {
+                        isCustom -> onCustom()
+                        period == selected -> onPick(null)
+                        else -> onPick(period)
+                    }
                 }
             }
         }
     }
 }
 
+/** 고르기 목록 줄(`docs/design.md` 고르기 목록). 글은 시트 안쪽 선에 맞추고 누름 면만 글 양옆으로 12 나온다. */
 @Composable
 private fun PeriodRow(label: String, selected: Boolean, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val interaction = remember { MutableInteractionSource() }
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .heightIn(min = DiarySpacing.minTouchTarget)
-            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-            .clickable(interactionSource = interaction, indication = null, role = Role.RadioButton, onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        BasicText(
-            label,
-            modifier = Modifier.weight(1f),
-            style = DiaryTheme.typography.body.copy(color = if (selected) colors.accentText else colors.textPrimary)
+    CompositionLocalProvider(LocalScreenGutter provides DiarySpacing.x3) {
+        DiarySettingsChoiceRow(
+            title = label,
+            selected = selected,
+            onClick = onClick,
+            modifier =
+                Modifier.layout { measurable, constraints ->
+                    val outset = DiarySpacing.x3.roundToPx()
+                    val width = constraints.maxWidth + outset * 2
+                    val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+                    layout(constraints.maxWidth, placeable.height) { placeable.place(-outset, 0) }
+                }
         )
-        if (selected) DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = colors.accentText)
     }
 }
 
@@ -148,7 +150,8 @@ internal fun RangeSheet(initial: DateRange?, today: LocalDate, onDone: (DateRang
         DiaryButton(
             stringResource(Res.string.search_done),
             { if (from != null && to != null) onDone(DateRange(from, to)) },
-            Modifier.fillMaxWidth(),
+            Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
+            size = DiaryButtonSize.XLarge,
             enabled = from != null && to != null
         )
     }

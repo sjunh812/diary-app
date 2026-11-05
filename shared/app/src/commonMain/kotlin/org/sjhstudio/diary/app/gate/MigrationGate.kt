@@ -35,6 +35,10 @@ import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.message
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 
+/** 결과·실패 화면의 아래 버튼 위 16. 화면 끝 20 + 큰 버튼 56 + 사이 8 + 글자 버튼 48 위에 뜬다. */
+private val ToastAboveButtons =
+    DiarySpacing.x5 + DiarySpacing.x14 + DiarySpacing.x2 + DiarySpacing.minTouchTarget + DiarySpacing.x4
+
 /**
  * 기록 이전 관문(contracts/migration-flow.md "화면 상태"). 이전이 없거나 끝났으면 [content]로 간다.
  * 실패 화면에서는 다시 시도하거나, 공간 부족이 아니면 새 일기부터 쓰기로 앱 틀로 갈 수 있다.
@@ -92,12 +96,12 @@ fun MigrationGate(content: @Composable () -> Unit) {
                 )
             }
         }
-        DiaryToastHost(
-            toast,
-            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(
-                bottom =
-                    DiarySpacing.x14 + DiarySpacing.x10
-            )
-        )
+        val bottom =
+            when {
+                state == MigrationUiState.Passed -> toastBottomOverApp()
+                reading && state is MigrationUiState.Failed -> DiarySpacing.x4
+                else -> ToastAboveButtons
+            }
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = bottom))
     }
 }

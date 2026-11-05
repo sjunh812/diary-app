@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.migration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -90,7 +91,10 @@ class MigrationViewModel(
         followedUp = true
         viewModelScope.launch {
             // 후속 작업이 실패해도 일기를 쓰고 읽는 것은 막지 않는다. 다음에 앱을 열 때 다시 본다.
-            val result = runCatching { withContext(background) { followUp() } }.getOrNull() ?: return@launch
+            val result =
+                runCatching { withContext(background) { followUp() } }
+                    .onFailure { if (it is CancellationException) throw it }
+                    .getOrNull() ?: return@launch
             if (result.entriesRecovered > 0) _notices.send(MigrationNotice.EntriesRecovered(result.entriesRecovered))
             if (result.photosFound > 0) _notices.send(MigrationNotice.PhotosFound(result.photosFound))
         }

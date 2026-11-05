@@ -24,7 +24,6 @@ import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
-import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.platform.AppForeground
@@ -80,12 +79,7 @@ fun LockGate(authenticator: DeviceAuthenticator = rememberDeviceAuthenticator(),
                     authenticator = authenticator
                 )
         }
-        DiaryToastHost(
-            toast,
-            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(
-                bottom =
-                    DiarySpacing.x14 + DiarySpacing.x10
-            )
-        )
+        // 잠금을 끈 알림은 잠금이 풀린 뒤 앱 틀 위에 뜬다.
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = toastBottomOverApp()))
     }
 }

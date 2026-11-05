@@ -3,6 +3,7 @@ package org.sjhstudio.diary.feature.lock
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
@@ -11,6 +12,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNumberPad
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_again
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_mismatch
@@ -43,7 +45,10 @@ fun PinSetupScreen(
         middle = {
             if (!state.again) {
                 Spacer(Modifier.height(DiarySpacing.x10 + DiarySpacing.x2))
-                DiaryNotice(stringResource(Res.string.pin_setup_note), Modifier.padding(horizontal = DiarySpacing.screenCompact))
+                DiaryNotice(
+                    stringResource(Res.string.pin_setup_note),
+                    Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = DiarySpacing.screenCompact)
+                )
             }
         }
     ) {

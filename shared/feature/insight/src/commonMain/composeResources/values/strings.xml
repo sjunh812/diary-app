@@ -108,4 +108,6 @@
         <item quantity="one">%1$s photo</item>
         <item quantity="other">%1$s photos</item>
     </plurals>
+    <string name="insight_section_days">Mood each day</string>
+    <string name="insight_section_moods">Entries by mood</string>
 </resources>

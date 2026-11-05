@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
-import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
@@ -26,7 +26,7 @@ fun ListStyleSettingsScreen(selected: ListStyle, onSelect: (ListStyle) -> Unit, 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DiaryTopBar(title = stringResource(Res.string.settings_list_style), onBack = onBack)
-        Column(Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).fillMaxWidth()) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth()) {
             for (style in ListStyle.entries) {
                 DiarySettingsChoiceRow(stringResource(style.label()), selected = selected == style, onClick = { onSelect(style) })
             }

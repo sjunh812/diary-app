@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flowOf
@@ -16,6 +18,9 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.feature.search.SearchScreen
+
+private val Done = LoadState.NotLoading(endOfPaginationReached = true)
+private val Failed = LoadStates(refresh = LoadState.Error(IllegalStateException()), prepend = Done, append = Done)
 
 private val Rows =
     listOf(
@@ -40,11 +45,12 @@ private val Rows =
     )
 
 @Composable
-private fun Search(dark: Boolean, rows: List<EntryRow>?, query: String) = DiaryTheme(darkTheme = dark) {
+private fun Search(dark: Boolean, rows: List<EntryRow>?, query: String, failed: Boolean = false) = DiaryTheme(darkTheme = dark) {
+    val data = if (failed) PagingData.empty(Failed) else PagingData.from(rows.orEmpty())
     SearchScreen(
         filter = SearchFilter(query = query),
         period = null,
-        results = flowOf(PagingData.from(rows.orEmpty())).collectAsLazyPagingItems(),
+        results = flowOf(data).collectAsLazyPagingItems(),
         selectedId = null,
         previewStyle = DiaryTheme.typography.body,
         list = rememberLazyListState(),
@@ -69,3 +75,11 @@ private fun ResultsDark() = Search(dark = true, rows = Rows, query = "바다")
 @Preview(name = "찾기 · 결과 없음", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun NoResults() = Search(dark = false, rows = emptyList(), query = "바닷가")
+
+@Preview(name = "찾기 · 입력 전", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun Idle() = Search(dark = false, rows = null, query = "")
+
+@Preview(name = "찾기 · 읽기 실패", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun LoadFailed() = Search(dark = true, rows = null, query = "바다", failed = true)

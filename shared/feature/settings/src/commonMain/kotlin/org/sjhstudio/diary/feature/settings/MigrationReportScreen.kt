@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -21,6 +23,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
@@ -57,43 +60,39 @@ fun MigrationReportScreen(
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
-    Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding()) {
+    Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.migration_report_title), onBack = onBack)
-        if (state.deferred) {
-            DiaryStatusBox(
-                icon = DiaryIcons.Info,
-                title = stringResource(Res.string.migration_deferred_title),
-                body =
-                    stringResource(
-                        if (state.retry ==
-                            MigrationRetry.Failed
-                        ) {
-                            Res.string.migration_deferred_failed
-                        } else {
-                            Res.string.migration_deferred_body
-                        }
-                    ),
-                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
-                actionLabel =
-                    stringResource(
-                        if (state.retry ==
-                            MigrationRetry.Running
-                        ) {
-                            Res.string.migration_deferred_running
-                        } else {
-                            Res.string.migration_deferred_retry
-                        }
-                    ),
-                onAction = onRetry.takeIf { state.retry != MigrationRetry.Running }
-            )
-            onExportOriginal?.let {
-                DiarySettingsRow(stringResource(Res.string.migration_report_export), it, leadingIcon = DiaryIcons.Download)
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
+            if (state.deferred) {
+                DiaryStatusBox(
+                    icon = DiaryIcons.Info,
+                    title = stringResource(Res.string.migration_deferred_title),
+                    body =
+                        stringResource(
+                            if (state.retry == MigrationRetry.Failed) {
+                                Res.string.migration_deferred_failed
+                            } else {
+                                Res.string.migration_deferred_body
+                            }
+                        ),
+                    modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                    actionLabel =
+                        stringResource(
+                            if (state.retry == MigrationRetry.Running) {
+                                Res.string.migration_deferred_running
+                            } else {
+                                Res.string.migration_deferred_retry
+                            }
+                        ),
+                    onAction = onRetry.takeIf { state.retry != MigrationRetry.Running }
+                )
+                onExportOriginal?.let {
+                    DiarySettingsRow(stringResource(Res.string.migration_report_export), it, leadingIcon = DiaryIcons.Download)
+                }
+                onContact?.let { DiarySettingsRow(stringResource(Res.string.migration_report_contact), it, leadingIcon = DiaryIcons.Mail) }
+                return@Column
             }
-            onContact?.let { DiarySettingsRow(stringResource(Res.string.migration_report_contact), it, leadingIcon = DiaryIcons.Mail) }
-            return@Column
-        }
-        val report = state.report ?: return@Column
-        Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+            val report = state.report ?: return@Column
             state.migratedOn?.let { day ->
                 BasicText(
                     stringResource(Res.string.migration_report_when, dates.fullDate(day)),

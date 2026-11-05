@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -30,19 +29,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
+import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -69,6 +71,8 @@ import org.sjhstudio.diary.feature.home.resources.detail_kept_both_body
 import org.sjhstudio.diary.feature.home.resources.detail_kept_both_close
 import org.sjhstudio.diary.feature.home.resources.detail_kept_both_other
 import org.sjhstudio.diary.feature.home.resources.detail_kept_both_title
+import org.sjhstudio.diary.feature.home.resources.detail_missing_body
+import org.sjhstudio.diary.feature.home.resources.detail_missing_title
 import org.sjhstudio.diary.feature.home.resources.detail_more
 import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
@@ -88,7 +92,7 @@ fun EntryDetailRoute(
     modifier: Modifier = Modifier
 ) {
     val viewModel = koinViewModel<EntryDetailViewModel>(key = entryId) { parametersOf(entryId) }
-    val detail by viewModel.detail.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val look by viewModel.look.collectAsStateWithLifecycle()
     val trashed by rememberUpdatedState(onTrashed)
     LaunchedEffect(viewModel) { viewModel.trashed.collect { trashed() } }
@@ -96,35 +100,38 @@ fun EntryDetailRoute(
     var more by remember { mutableStateOf(false) }
     val colors = DiaryTheme.colors
     val family = rememberFileFontFamily(look.fontPath)
-    val current = detail
+    val current = (state as? EntryDetailState.Ready)?.detail
     Column(
         modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
-            onBack?.let { ActionButton(DiaryIcons.ChevronLeft, stringResource(Res.string.detail_back), colors.textPrimary, it) }
+            onBack?.let { DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.detail_back), it) }
             Box(Modifier.weight(1f))
             if (current != null) {
                 val favorite = current.entry.isFavorite
-                ActionButton(
+                DiaryIconButton(
                     if (favorite) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
                     stringResource(Res.string.detail_favorite),
-                    if (favorite) colors.accent else colors.textPrimary,
-                    viewModel::toggleFavorite
+                    viewModel::toggleFavorite,
+                    tint = if (favorite) colors.accent else colors.textPrimary
                 )
-                ActionButton(DiaryIcons.Pen, stringResource(Res.string.detail_edit), colors.textPrimary, onEdit)
-                ActionButton(DiaryIcons.More, stringResource(Res.string.detail_more), colors.textPrimary) { more = true }
+                DiaryIconButton(DiaryIcons.Pen, stringResource(Res.string.detail_edit), onEdit)
+                DiaryIconButton(DiaryIcons.More, stringResource(Res.string.detail_more), { more = true })
             }
         }
-        if (current != null) {
-            Body(
-                current,
-                diaryBodyTextStyle(look.font, look.size) { family },
-                onPhoto,
-                onOtherVersion,
-                viewModel::dismissKeptBoth,
-                viewModel::toggleCheck
-            )
+        when {
+            current != null ->
+                Body(
+                    current,
+                    diaryBodyTextStyle(look.font, look.size) { family },
+                    onPhoto,
+                    onOtherVersion,
+                    viewModel::dismissKeptBoth,
+                    viewModel::toggleCheck
+                )
+
+            state == EntryDetailState.Missing -> EntryMissing()
         }
     }
     if (more && current != null) {
@@ -138,6 +145,18 @@ fun EntryDetailRoute(
                 viewModel.moveToTrash()
             }
         }
+    }
+}
+
+/** 삭제했거나 휴지통으로 옮겨 더 없는 일기. 알림이나 위젯으로 들어오면 만날 수 있다. */
+@Composable
+internal fun EntryMissing() {
+    DiaryEmptyArea {
+        DiaryEmptyState(
+            DiaryIcons.BookOpen,
+            stringResource(Res.string.detail_missing_title),
+            description = stringResource(Res.string.detail_missing_body)
+        )
     }
 }
 
@@ -163,7 +182,7 @@ internal fun Body(
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
         BasicText(dates.dayWithWeekday(entry.date), style = DiaryTheme.typography.title1.copy(color = colors.textPrimary))
-        // 아이콘과 글자는 한 묶음으로 붙이고 묶음 사이를 띄운다. 긴 장소 이름은 다음 줄로 내려간다.
+        // 아이콘과 글자는 한 묶음으로 붙이고 묶음 사이를 띄운다. 긴 장소 이름은 다음 줄로 내려가고 두 줄에서 말줄임한다.
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
@@ -174,20 +193,26 @@ internal fun Body(
             entry.mood?.let {
                 MetaItem {
                     MoodFace(it, DiaryIconSize.i20)
-                    BasicText(moodName(it), style = strong, maxLines = 1)
+                    BasicText(moodName(it), style = strong, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
-            BasicText(dates.time(entry.time), style = strong, maxLines = 1)
+            BasicText(dates.time(entry.time), style = strong, maxLines = 1, overflow = TextOverflow.Ellipsis)
             entry.weather?.let {
                 MetaItem {
                     WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary)
-                    BasicText(weatherName(it), style = caption, maxLines = 1)
+                    BasicText(weatherName(it), style = caption, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
             entry.placeName?.let {
-                MetaItem {
-                    DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
-                    BasicText(it, style = caption, maxLines = 1)
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
+                    FirstLineIcon(DiaryIcons.Pin, caption, colors.textSecondary)
+                    BasicText(
+                        it,
+                        modifier = Modifier.weight(1f, fill = false),
+                        style = caption,
+                        maxLines = PLACE_LINES,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }
@@ -255,6 +280,7 @@ private fun Cell(photo: EntryPhoto, modifier: Modifier, onClick: () -> Unit) {
     Box(
         modifier
             .fillMaxSize()
+            .diaryPress(interaction, colors.textPrimary)
             .background(colors.sunken)
             .clickable(interactionSource = interaction, indication = null, role = Role.Image, onClick = onClick),
         contentAlignment = Alignment.Center
@@ -267,22 +293,11 @@ private fun Cell(photo: EntryPhoto, modifier: Modifier, onClick: () -> Unit) {
     }
 }
 
-@Composable
-private fun ActionButton(icon: ImageVector, description: String, tint: Color, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    Box(
-        Modifier
-            .size(DiarySpacing.minTouchTarget)
-            .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.full)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        DiaryIcon(icon, contentDescription = description, tint = tint)
-    }
-}
-
 /** 폰 350×230, 태블릿 600×396과 같은 비율. */
 private const val GALLERY_RATIO = 1.52f
+
+/** 장소 이름 줄 수의 끝. */
+private const val PLACE_LINES = 2
 
 @Composable
 private fun MetaItem(content: @Composable () -> Unit) {

@@ -27,15 +27,16 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
-import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryIndeterminateProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryNote
 import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
+import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.ui.KeepScreenOn
@@ -278,27 +279,14 @@ private fun Frame(
             modifier =
                 Modifier
                     .weight(1f)
-                    .widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8)
+                    .widthIn(max = DiaryWriteSize.settingsMax)
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x14))
-            DiaryHeroBadge(icon, tone = tone)
-            Spacer(Modifier.height(DiarySpacing.x5))
-            BasicText(
-                title,
-                style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
-                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact)
-            )
-            if (body != null) {
-                Spacer(Modifier.height(DiarySpacing.x2))
-                BasicText(
-                    body,
-                    style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
-                    modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact)
-                )
-            }
-            Spacer(Modifier.height(DiarySpacing.x8))
+            // 머리가 위아래 24를 스스로 두어서 그만큼 빼고, 배지와 내용의 자리는 전과 같게 둔다.
+            Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x14 - DiarySpacing.x6))
+            DiaryResultHeader(icon, title, description = body, tone = tone)
+            Spacer(Modifier.height(DiarySpacing.x8 - DiarySpacing.x6))
             Column(
                 Modifier.fillMaxWidth().padding(horizontal = if (fullWidthContent) DiarySpacing.x0_5 * 0 else DiarySpacing.screenCompact)
             ) {
@@ -306,7 +294,7 @@ private fun Frame(
             }
         }
         Column(
-            modifier = Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).padding(horizontal = DiarySpacing.screenCompact),
+            modifier = Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = DiarySpacing.screenCompact),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (footnote != null) {

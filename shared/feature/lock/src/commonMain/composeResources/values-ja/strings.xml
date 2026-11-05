@@ -43,4 +43,5 @@
     <string name="relock_cold_start">アプリを新しく開いたときだけ</string>
     <string name="lock_settings_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば決め直せます。</string>
     <string name="lock_confirm_title">現在のパスコードを入力してください</string>
+    <string name="lock_settings_method">ロック方法</string>
 </resources>

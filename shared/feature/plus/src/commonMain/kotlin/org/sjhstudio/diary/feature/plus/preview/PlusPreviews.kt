@@ -18,6 +18,10 @@ private fun PaywallDark() = DiaryTheme(darkTheme = true) { PaywallScreen("₩14,
 @Composable
 private fun PaywallNoStoreLight() = DiaryTheme(darkTheme = false) { PaywallScreen(null, false, false, false, {}, {}, {}, {}) }
 
+@Preview(name = "결제 화면 · 가격 읽는 중", locale = "ko")
+@Composable
+private fun PaywallLoadingLight() = DiaryTheme(darkTheme = false) { PaywallScreen(null, true, false, false, {}, {}, {}, {}) }
+
 @Preview(locale = "ko")
 @Composable
 private fun ManageLight() = DiaryTheme(darkTheme = false) { PlusManageScreen("₩14,900", {}, {}) }

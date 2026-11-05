@@ -3,15 +3,11 @@ package org.sjhstudio.diary.feature.insight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlin.time.Clock
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -28,12 +24,19 @@ class AdvancedStatsViewModel(
     private val _period = MutableStateFlow(AdvancedPeriod.ALL)
     val period: StateFlow<AdvancedPeriod> = _period.asStateFlow()
 
-    /** 기간을 바꾸면 계산이 끝날 때까지 뼈대를 보인다. */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val data: StateFlow<AdvancedStats?> =
-        _period
-            .flatMapLatest { period -> stats.advanced(period, today()).map<AdvancedStats, AdvancedStats?> { it }.onStart { emit(null) } }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+    private val _data = MutableStateFlow<AdvancedStats?>(null)
+
+    /** 기간을 바꾸면 계산이 끝날 때까지 뼈대를 보인다. 다른 화면에 다녀올 때는 그대로 둔다. */
+    val data: StateFlow<AdvancedStats?> = _data.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _period.collectLatest { period ->
+                _data.value = null
+                stats.advanced(period, today()).collect { _data.value = it }
+            }
+        }
+    }
 
     fun select(period: AdvancedPeriod) {
         _period.value = period
@@ -41,8 +44,4 @@ class AdvancedStatsViewModel(
 
     /** 기분을 눌러 그 일기들을 볼 때 쓰는 기간. */
     fun range(): DateRange? = _period.value.range(today())
-
-    private companion object {
-        const val STOP_MILLIS = 5_000L
-    }
 }

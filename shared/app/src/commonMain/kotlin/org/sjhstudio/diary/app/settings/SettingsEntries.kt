@@ -197,12 +197,6 @@ private fun MigrationReportPage(onBack: () -> Unit) {
                 }
             )
         }
-        DiaryToastHost(
-            toast,
-            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(
-                bottom =
-                    DiarySpacing.x14 + DiarySpacing.x10
-            )
-        )
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
     }
 }

@@ -45,4 +45,5 @@
     <string name="relock_cold_start">Only when the app starts fresh</string>
     <string name="lock_settings_note">If you forget your passcode, you can confirm with your phone\'s screen lock and set a new one.</string>
     <string name="lock_confirm_title">Enter your current passcode</string>
+    <string name="lock_settings_method">Lock method</string>
 </resources>

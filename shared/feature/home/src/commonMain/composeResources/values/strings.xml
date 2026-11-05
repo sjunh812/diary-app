@@ -21,4 +21,9 @@
     <string name="detail_kept_both_other">See the other</string>
     <string name="detail_kept_both_close">Close</string>
     <string name="detail_elsewhere_photo">This photo is on the original phone</string>
+    <string name="home_error_title">Couldn’t load your entries</string>
+    <string name="home_error_body">Try again in a moment</string>
+    <string name="home_error_retry">Try again</string>
+    <string name="detail_missing_title">Entry not found</string>
+    <string name="detail_missing_body">It may have been deleted or moved to trash</string>
 </resources>

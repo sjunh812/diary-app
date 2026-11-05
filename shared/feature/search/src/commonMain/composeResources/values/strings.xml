@@ -20,4 +20,8 @@
         <item quantity="one">%1$d entry</item>
         <item quantity="other">%1$d entries</item>
     </plurals>
+    <string name="search_error_title">Couldn’t load your entries</string>
+    <string name="search_error_body">Try again in a moment</string>
+    <string name="search_error_retry">Try again</string>
+    <string name="search_idle">Type a word or pick a filter to find entries</string>
 </resources>

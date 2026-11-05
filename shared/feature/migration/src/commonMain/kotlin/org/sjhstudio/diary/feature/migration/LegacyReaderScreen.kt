@@ -1,12 +1,11 @@
 package org.sjhstudio.diary.feature.migration
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -18,23 +17,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
-import org.sjhstudio.diary.core.migration.LegacyEntryView
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.migration.resources.Res
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_empty
+import org.sjhstudio.diary.feature.migration.resources.legacy_reader_failed
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_notice
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_title
+import org.sjhstudio.diary.feature.migration.resources.migration_retry
 
 /**
  * 예전 일기 보기(Figma M4). 기록 이전이 실패한 기기에서 사본을 읽기만 한다.
@@ -55,26 +58,26 @@ fun LegacyReaderScreen(
             last >= listState.layoutInfo.totalItemsCount - 10
         }
     }
-    LaunchedEffect(nearEnd, state.entries.size) { if (nearEnd && !state.end) onLoadMore() }
+    // 읽지 못했으면 스스로 다시 부르지 않고 다시 시도 버튼을 기다린다.
+    LaunchedEffect(nearEnd, state.entries.size) { if (nearEnd && !state.end && !state.failed) onLoadMore() }
     val dates = rememberDiaryDateFormat()
     val colors = DiaryTheme.colors
-    Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding()) {
+    Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.legacy_reader_title), onBack = onBack)
-        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+        LazyColumn(state = listState, modifier = Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
             item(key = "notice") {
                 DiaryNotice(
                     stringResource(Res.string.legacy_reader_notice),
                     Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)
                 )
             }
-            if (!state.loading && state.entries.isEmpty()) {
+            if (!state.loading && !state.failed && state.entries.isEmpty()) {
                 item(key = "empty") {
-                    Box(Modifier.fillMaxWidth().padding(DiarySpacing.x10), contentAlignment = Alignment.Center) {
-                        BasicText(
-                            stringResource(Res.string.legacy_reader_empty),
-                            style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
-                        )
-                    }
+                    DiaryEmptyState(
+                        DiaryIcons.BookOpen,
+                        stringResource(Res.string.legacy_reader_empty),
+                        Modifier.padding(vertical = DiarySpacing.x10)
+                    )
                 }
             }
             itemsIndexed(state.entries, key = { _, entry -> entry.id }) { index, entry ->
@@ -94,14 +97,34 @@ fun LegacyReaderScreen(
                         photo = if (entry.photos.isEmpty()) null else ({ DiaryPhotoCell(entry.photos) }),
                         meta = {
                             entry.mood?.let { MoodFace(it, DiaryEntryFaceSize) }
-                            for (item in listOfNotNull(dates.time(entry.time), entry.placeName)) {
+                            BasicText(
+                                dates.time(entry.time),
+                                style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            entry.placeName?.let {
+                                // 장소가 길어도 뒤에 오는 즐겨찾기 별을 밀어내지 않는다.
                                 BasicText(
-                                    item,
-                                    style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary),
-                                    maxLines = 1
+                                    it,
+                                    modifier = Modifier.weight(1f, fill = false),
+                                    style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
+                    )
+                }
+            }
+            if (state.failed) {
+                item(key = "failed") {
+                    DiaryEmptyState(
+                        DiaryIcons.CircleAlert,
+                        stringResource(Res.string.legacy_reader_failed),
+                        Modifier.padding(vertical = DiarySpacing.x10),
+                        actionLabel = stringResource(Res.string.migration_retry),
+                        onAction = onLoadMore
                     )
                 }
             }

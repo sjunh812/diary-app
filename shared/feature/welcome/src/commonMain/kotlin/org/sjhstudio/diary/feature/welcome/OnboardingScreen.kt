@@ -3,12 +3,15 @@ package org.sjhstudio.diary.feature.welcome
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,7 +19,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -131,15 +136,28 @@ private fun PageBody(page: Page, active: Boolean) {
     }
 }
 
+/** 장 내용을 가운데에 둔다. 낮은 화면이나 큰 글자에서 넘치면 장 안에서 스크롤한다. */
+@Composable
+private fun PageColumn(content: @Composable ColumnScope.() -> Unit) {
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = maxHeight)
+                .padding(horizontal = DiarySpacing.x6),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            content = content
+        )
+    }
+}
+
 /** 그림 하나, 제목 한 줄, 설명. 그림 칸 높이가 같아서 장을 넘겨도 제목이 움직이지 않는다. */
 @Composable
 private fun ArtPage(title: StringResource, body: StringResource, art: @Composable () -> Unit) {
     val colors = DiaryTheme.colors
-    Column(
-        Modifier.fillMaxSize().padding(horizontal = DiarySpacing.x6),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+    PageColumn {
         Box(Modifier.height(DiaryArtSize.height), contentAlignment = Alignment.Center) { art() }
         Spacer(Modifier.height(DiarySpacing.x10))
         BasicText(
@@ -159,11 +177,7 @@ private fun ArtPage(title: StringResource, body: StringResource, art: @Composabl
 @Composable
 private fun FreshPage() {
     val colors = DiaryTheme.colors
-    Column(
-        Modifier.fillMaxSize().padding(horizontal = DiarySpacing.x6),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+    PageColumn {
         BasicText(
             stringResource(Res.string.onboarding_fresh_title),
             style = DiaryTheme.typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center)

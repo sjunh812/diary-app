@@ -1,8 +1,8 @@
 package org.sjhstudio.diary.feature.insight
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -151,12 +153,14 @@ private val DayParts: List<Pair<DayPart, StringResource>> =
 internal fun AdvancedEntry(action: StringResource, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
+    val press = remember { MutableInteractionSource() }
     Column(
         Modifier
             .fillMaxWidth()
+            .diaryPress(press, colors.textPrimary, DiaryShapes.r16)
             .clip(DiaryShapes.r16)
             .background(colors.selected)
-            .clickable(role = Role.Button, onClick = onClick)
+            .clickable(interactionSource = press, indication = null, role = Role.Button, onClick = onClick)
             .padding(DiarySpacing.x5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
@@ -253,7 +257,6 @@ private fun Card(modifier: Modifier = Modifier, content: @Composable ColumnScope
             .fillMaxWidth()
             .clip(DiaryShapes.r16)
             .background(colors.surfaceCard)
-            .border(DiarySpacing.hairline, colors.line, DiaryShapes.r16)
             .padding(DiarySpacing.x5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
         content = content
@@ -345,7 +348,7 @@ private fun Value(label: String, value: String) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BasicText(label, style = typography.body.copy(color = colors.textPrimary))
+        BasicText(label, style = typography.reading.copy(color = colors.textPrimary))
         BasicText(value, style = typography.body.copy(color = colors.textSecondary))
     }
 }
@@ -409,48 +412,53 @@ private fun ShareRow(label: String, share: GoodShare) {
             count,
             Modifier.width(DiarySpacing.x14 + DiarySpacing.x4),
             style = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End),
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
 
 @Composable
 private fun Company(company: List<MoodCompany>, onMood: (Mood) -> Unit) {
+    Section(Res.string.insight_adv_company, DiarySpacing.x1) {
+        company.forEach { row -> CompanyRow(row) { onMood(row.mood) } }
+    }
+}
+
+@Composable
+private fun CompanyRow(row: MoodCompany, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Section(Res.string.insight_adv_company, DiarySpacing.x1) {
-        company.forEach { row ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(DiaryShapes.r12)
-                    .clickable(role = Role.Button) { onMood(row.mood) }
-                    .padding(vertical = DiarySpacing.x2),
-                horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                MoodFace(row.mood, DiarySpacing.x8, contentDescription = null)
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-                    BasicText(
-                        pluralStringResource(Res.plurals.insight_adv_company_title, row.entries, moodName(row.mood), row.entries.grouped()),
-                        style = typography.bodyStrong.copy(color = colors.textPrimary)
-                    )
-                    val together =
-                        listOfNotNull(
-                            row.weather?.let { weatherName(it) },
-                            row.weekday?.let { day -> stringResource(Weekdays.first { it.first == day }.second) },
-                            row.place
-                        )
-                    BasicText(
-                        together.joinToString(" · "),
-                        style = typography.caption.copy(color = colors.textSecondary),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
-            }
+    val press = remember { MutableInteractionSource() }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .diaryPress(press, colors.textPrimary, DiaryShapes.r12)
+            .clickable(interactionSource = press, indication = null, role = Role.Button, onClick = onClick)
+            .padding(vertical = DiarySpacing.x2),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        MoodFace(row.mood, DiarySpacing.x8, contentDescription = null)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
+            BasicText(
+                pluralStringResource(Res.plurals.insight_adv_company_title, row.entries, moodName(row.mood), row.entries.grouped()),
+                style = typography.bodyStrong.copy(color = colors.textPrimary)
+            )
+            val together =
+                listOfNotNull(
+                    row.weather?.let { weatherName(it) },
+                    row.weekday?.let { day -> stringResource(Weekdays.first { it.first == day }.second) },
+                    row.place
+                )
+            BasicText(
+                together.joinToString(" · "),
+                style = typography.caption.copy(color = colors.textSecondary),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
+        DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
     }
 }
 

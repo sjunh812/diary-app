@@ -1,7 +1,6 @@
 package org.sjhstudio.diary.feature.plus
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,14 +23,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -42,6 +44,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
@@ -116,6 +119,8 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
         }
     }
     val uri = LocalUriHandler.current
+    // 결제 화면의 아래 결제 칸 높이. 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄운다.
+    var buyHeight by remember { mutableIntStateOf(0) }
     Box(modifier.fillMaxSize()) {
         if (plan == Plan.PLUS) {
             PlusManageScreen(state.price(ProductId.PLUS_YEARLY), onClose, onStore = { uri.openUri(viewModel.manageUrl) })
@@ -128,10 +133,15 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 onClose = onClose,
                 onRestore = viewModel::restore,
                 onRetry = viewModel::load,
-                onBuy = { viewModel.buy(ProductId.PLUS_YEARLY) }
+                onBuy = { viewModel.buy(ProductId.PLUS_YEARLY) },
+                onBuyHeight = { buyHeight = it }
             )
         }
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x14 * 3))
+        val fixedBottom = if (plan == Plan.PLUS) Dp.Hairline else with(LocalDensity.current) { buyHeight.toDp() }
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = fixedBottom + DiarySpacing.x4)
+        )
     }
 }
 
@@ -150,19 +160,17 @@ internal fun PaywallScreen(
     onRestore: () -> Unit,
     onRetry: () -> Unit,
     onBuy: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onBuyHeight: (Int) -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     BoxWithConstraints(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().navigationBarsPadding()) {
         val wide = maxWidth >= DiaryWriteSize.twoPaneMin
+        // 넓은 화면의 결제 칸은 가운데에 있어 화면 아래에 고정된 것이 없다.
+        LaunchedEffect(wide) { if (wide) onBuyHeight(0) }
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.size(DiarySpacing.minTouchTarget).clip(DiaryShapes.full).clickable(role = Role.Button, onClick = onClose),
-                    contentAlignment = Alignment.Center
-                ) {
-                    DiaryIcon(DiaryIcons.Close, stringResource(Res.string.plus_close), colors.textPrimary)
-                }
+                DiaryIconButton(DiaryIcons.Close, stringResource(Res.string.plus_close), onClose)
                 Spacer(Modifier.weight(1f))
                 DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.Text)
             }
@@ -183,7 +191,14 @@ internal fun PaywallScreen(
                     val artHeight = minOf(DiaryArtSize.banner, maxHeight * ART_SHARE)
                     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) { PaywallBenefits(adFreeOwned, artHeight) }
                 }
-                PaywallBuy(price, loading, busy, onRetry, onBuy, column.padding(vertical = DiarySpacing.x3))
+                PaywallBuy(
+                    price,
+                    loading,
+                    busy,
+                    onRetry,
+                    onBuy,
+                    column.onSizeChanged { onBuyHeight(it.height) }.padding(vertical = DiarySpacing.x3)
+                )
             }
         }
     }
@@ -229,23 +244,29 @@ private fun PaywallBenefits(adFreeOwned: Boolean, artHeight: Dp) {
     }
 }
 
-/** 실제 결제액, 버튼, 자동 갱신 고지(FR-005). 가격을 못 받으면 지어내지 않고 다시 시도를 보인다. */
+/**
+ * 실제 결제액, 버튼, 자동 갱신 고지(FR-005). 가격을 못 받으면 지어내지 않고 다시 시도를 보인다.
+ * 읽는 동안에는 결제액 자리를 비워 두고 버튼을 비활성으로 두어 칸이 뛰지 않는다.
+ */
 @Composable
 private fun PaywallBuy(price: String?, loading: Boolean, busy: Boolean, onRetry: () -> Unit, onBuy: () -> Unit, modifier: Modifier) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Column(modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-        if (price != null) {
-            BasicText(stringResource(Res.string.plus_price, price), style = typography.title2.copy(color = colors.textPrimary))
+        if (price != null || loading) {
+            BasicText(
+                price?.let { stringResource(Res.string.plus_price, it) }.orEmpty(),
+                style = typography.title2.copy(color = colors.textPrimary)
+            )
             DiaryButton(
                 stringResource(Res.string.plus_start),
                 onBuy,
                 Modifier.fillMaxWidth(),
                 size = DiaryButtonSize.XLarge,
-                enabled = !busy
+                enabled = price != null && !busy
             )
             BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
-        } else if (!loading) {
+        } else {
             BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
             DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
         }

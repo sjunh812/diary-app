@@ -39,7 +39,7 @@ internal fun WhatsNewScreen(onBack: () -> Unit, onLetter: () -> Unit, onIntro: (
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DiaryTopBar(stringResource(Res.string.news_title), onBack = onBack)
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsHeader(stringResource(Res.string.news_group))
             DiarySettingsRow(
                 stringResource(Res.string.letter_title),

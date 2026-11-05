@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.feature.lock
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
@@ -8,8 +9,10 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
 import org.sjhstudio.diary.core.designsystem.resources.ds_close
+import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.forgot_body
 import org.sjhstudio.diary.feature.lock.resources.forgot_confirm
@@ -30,9 +33,21 @@ fun ForgotPinSheet(deviceSecure: Boolean, onDismiss: () -> Unit, onConfirm: () -
         description = stringResource(if (deviceSecure) Res.string.forgot_body else Res.string.forgot_no_device_lock_body)
     ) {
         if (deviceSecure) {
-            DiaryButtonPair(stringResource(DsRes.string.ds_close), onDismiss, stringResource(Res.string.forgot_confirm), onConfirm)
+            DiaryButtonPair(
+                stringResource(DsRes.string.ds_close),
+                onDismiss,
+                stringResource(Res.string.forgot_confirm),
+                onConfirm,
+                size = DiaryButtonSize.XLarge
+            )
         } else {
-            DiaryButton(stringResource(DsRes.string.ds_close), onDismiss, Modifier.fillMaxWidth(), kind = DiaryButtonKind.Secondary)
+            DiaryButton(
+                stringResource(DsRes.string.ds_close),
+                onDismiss,
+                Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
+                size = DiaryButtonSize.XLarge,
+                kind = DiaryButtonKind.Secondary
+            )
         }
     }
 }

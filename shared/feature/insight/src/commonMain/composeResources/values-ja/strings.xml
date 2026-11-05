@@ -100,4 +100,6 @@
     <plurals name="insight_adv_habit_photos_value">
         <item quantity="other">%1$s枚</item>
     </plurals>
+    <string name="insight_section_days">毎日の気分</string>
+    <string name="insight_section_moods">気分別の日記</string>
 </resources>

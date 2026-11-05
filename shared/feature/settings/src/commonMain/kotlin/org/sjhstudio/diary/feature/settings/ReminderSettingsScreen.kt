@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -22,6 +24,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
@@ -32,6 +35,7 @@ import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
 import org.sjhstudio.diary.core.designsystem.resources.ds_close
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.reminder_permission_allow
@@ -59,7 +63,7 @@ fun ReminderSettingsScreen(
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_reminder), onBack = onBack)
-        Column(Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).fillMaxWidth()) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsSwitchRow(stringResource(Res.string.settings_reminder), checked = state.enabled, onCheckedChange = onEnabledChange)
             if (state.enabled) DiarySettingsRow(stringResource(Res.string.reminder_time), onClick = onTime, value = timeLabel)
             if (state.showsPermissionNotice) {
@@ -82,7 +86,13 @@ fun ReminderTimeSheet(minuteOfDay: Int, is24Hour: Boolean, onDismiss: () -> Unit
     var picked by rememberSaveable { mutableIntStateOf(minuteOfDay) }
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.reminder_time)) {
         DiaryTimeWheel(minuteOfDay = minuteOfDay, onChange = { picked = it }, is24Hour = is24Hour)
-        DiaryButtonPair(stringResource(DsRes.string.ds_close), onDismiss, stringResource(Res.string.reminder_save), { onSave(picked) })
+        DiaryButtonPair(
+            stringResource(DsRes.string.ds_close),
+            onDismiss,
+            stringResource(Res.string.reminder_save),
+            { onSave(picked) },
+            size = DiaryButtonSize.XLarge
+        )
     }
 }
 

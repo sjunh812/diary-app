@@ -97,4 +97,5 @@
     <string name="support_failed">Couldn’t prepare the file. Please contact us without it.</string>
     <string name="support_mail_subject">[1 Day 1 Diary] Help with damaged entries</string>
     <string name="support_mail_body">We delete the attached file right after sending back the fixed one. It holds only your diary file, without photos or your password.\n\nApp version: %1$s\nDevice: %2$s\nUnreadable entries: %3$s\n\nTell us what happened or what you’d like to ask.\n</string>
+    <string name="legacy_reader_failed">Couldn’t read your old entries</string>
 </resources>

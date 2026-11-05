@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.feature.lock.resources.Res
@@ -30,6 +31,7 @@ import org.sjhstudio.diary.feature.lock.resources.lock_biometric
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_biometric_unavailable
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_change
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_enable
+import org.sjhstudio.diary.feature.lock.resources.lock_settings_method
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_note
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_relock
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_relock_body
@@ -59,13 +61,14 @@ fun LockSettingsScreen(
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.lock_settings_title), onBack = onBack)
         // 넓은 화면에서는 설정 목록 폭을 폰과 같게 둔다.
-        Column(Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).fillMaxWidth().verticalScroll(rememberScrollState())) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsSwitchRow(
                 stringResource(Res.string.lock_settings_enable),
                 checked = settings.enabled,
                 onCheckedChange = onEnabledChange
             )
             if (settings.enabled) {
+                DiarySettingsHeader(stringResource(Res.string.lock_settings_method), gapAbove = true)
                 DiarySettingsRow(stringResource(Res.string.lock_settings_change), onClick = onChangePin)
                 DiarySettingsSwitchRow(
                     stringResource(Res.string.lock_biometric),
@@ -74,7 +77,7 @@ fun LockSettingsScreen(
                     description = if (biometricAvailable) null else stringResource(Res.string.lock_settings_biometric_unavailable),
                     enabled = biometricAvailable || settings.biometricEnabled
                 )
-                DiarySettingsHeader(stringResource(Res.string.lock_settings_relock))
+                DiarySettingsHeader(stringResource(Res.string.lock_settings_relock), gapAbove = true)
                 BasicText(
                     stringResource(Res.string.lock_settings_relock_body),
                     style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),

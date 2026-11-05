@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -40,16 +41,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.Flow
@@ -63,17 +62,15 @@ import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryCalendarSize
-import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryRow
@@ -81,6 +78,7 @@ import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
+import org.sjhstudio.diary.core.ui.DiaryTitleButton
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
@@ -147,16 +145,35 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
     if (twoPane) {
         Row(modifier.then(canvas)) {
-            Column(Modifier.width(DiaryCalendarSize.pane).fillMaxHeight().verticalScroll(rememberScrollState())) { calendar() }
+            // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데에 둔다. 달력이 왼쪽에 붙어 치우치지 않는다.
+            Column(
+                Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) { calendar() }
+            }
             Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(DiaryTheme.colors.line))
-            Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()).padding(top = DiarySpacing.x6)) { day() }
+            Column(
+                Modifier
+                    .width(DiaryWriteSize.sidePanel)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState())
+                    .padding(top = DiarySpacing.x6)
+            ) {
+                day()
+            }
         }
     } else {
         // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
-        Column(modifier.then(canvas).verticalScroll(rememberScrollState()).padding(bottom = DiarySpacing.x14 + DiarySpacing.x6)) {
-            calendar()
-            Spacer(Modifier.height(DiarySpacing.x3))
-            day()
+        Column(
+            modifier.then(canvas).verticalScroll(rememberScrollState()).padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) {
+                calendar()
+                Spacer(Modifier.height(DiarySpacing.x3))
+                day()
+            }
         }
     }
     if (picking) {
@@ -196,12 +213,12 @@ internal fun CalendarPanel(
     Column(Modifier.padding(horizontal = DiarySpacing.screenCompact)) {
         if (twoPane) {
             Row(Modifier.fillMaxWidth().padding(top = DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.weight(1f)) { MonthTitle(dates.yearMonth(shown.onDay(1)), onPick) }
+                Box(Modifier.weight(1f)) { DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick) }
                 nav()
             }
         } else {
             Box(Modifier.fillMaxWidth().padding(top = DiarySpacing.x1), contentAlignment = Alignment.CenterEnd) { nav() }
-            MonthTitle(dates.yearMonth(shown.onDay(1)), onPick)
+            DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick)
         }
         Spacer(Modifier.height(DiarySpacing.x4))
         Weekdays(dates)
@@ -215,22 +232,6 @@ internal fun CalendarPanel(
 }
 
 @Composable
-private fun MonthTitle(text: String, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val interaction = remember { MutableInteractionSource() }
-    Row(
-        Modifier
-            .semantics { heading() }
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
-    ) {
-        BasicText(text, style = DiaryTheme.typography.display.copy(color = colors.textPrimary), maxLines = 1)
-        DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
-    }
-}
-
-@Composable
 private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, onMove: (Int) -> Unit) {
     val colors = DiaryTheme.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -239,6 +240,7 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
             Box(
                 Modifier
                     .height(DiarySpacing.minTouchTarget)
+                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
                     .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onToday)
                     .padding(horizontal = DiarySpacing.x2),
                 contentAlignment = Alignment.Center
@@ -246,27 +248,8 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
                 BasicText(stringResource(Res.string.calendar_today), style = DiaryTheme.typography.label.copy(color = colors.accentText))
             }
         }
-        NavArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.calendar_previous_month), colors.textPrimary, true) { onMove(-1) }
-        NavArrow(
-            DiaryIcons.ChevronRight,
-            stringResource(Res.string.calendar_next_month),
-            if (hasNext) colors.textPrimary else colors.placeholder,
-            hasNext
-        ) { onMove(1) }
-    }
-}
-
-@Composable
-private fun NavArrow(icon: ImageVector, description: String, tint: Color, enabled: Boolean, onClick: () -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    Box(
-        Modifier
-            .size(DiarySpacing.minTouchTarget)
-            .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.full)
-            .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        DiaryIcon(icon, contentDescription = description, tint = tint)
+        DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.calendar_previous_month), { onMove(-1) })
+        DiaryIconButton(DiaryIcons.ChevronRight, stringResource(Res.string.calendar_next_month), { onMove(1) }, enabled = hasNext)
     }
 }
 
@@ -346,6 +329,7 @@ private fun DayCell(
     Column(
         Modifier
             .fillMaxSize()
+            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .clip(DiaryShapes.r12)
             .background(if (selected) colors.selected else colors.canvas)
             .clickable(interactionSource = interaction, indication = null, onClick = onClick)
@@ -370,7 +354,8 @@ private fun DayCell(
                 style = DiaryTheme.typography.captionStrong.copy(
                     color = if (today) colors.onAccent else dayColor(date, colors.textPrimary)
                 ),
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
         if (day != null) {
@@ -433,19 +418,13 @@ internal fun DayPanel(
             )
         )
         if (rows.isEmpty()) {
-            Column(
-                Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x6),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
-            ) {
-                BasicText(stringResource(Res.string.calendar_empty), style = typography.body.copy(color = colors.textSecondary))
-                DiaryButton(
-                    stringResource(Res.string.calendar_write_on_day),
-                    onWrite,
-                    kind = DiaryButtonKind.Weak,
-                    size = DiaryButtonSize.Medium
-                )
-            }
+            DiaryEmptyState(
+                DiaryIcons.Pen,
+                stringResource(Res.string.calendar_empty),
+                Modifier.padding(vertical = DiarySpacing.x6),
+                actionLabel = stringResource(Res.string.calendar_write_on_day),
+                onAction = onWrite
+            )
         } else {
             rows.forEachIndexed { index, row ->
                 val interaction = remember(row.id) { MutableInteractionSource() }

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
@@ -75,8 +76,15 @@ fun SettingsScreen(
     onDesignCatalog: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
-    Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Column(Modifier.widthIn(max = DiarySpacing.x14 * 8 + DiarySpacing.x8).fillMaxWidth().verticalScroll(rememberScrollState())) {
+    // 탭 바가 시스템 내비게이션 높이까지 맡아서 위만 비운다. 아래까지 비우면 그만큼 두 번 뜬다.
+    Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            Modifier
+                .widthIn(max = DiaryWriteSize.settingsMax)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = DiarySpacing.x6)
+        ) {
             BasicText(
                 stringResource(Res.string.settings_title),
                 style = DiaryTheme.typography.display.copy(color = colors.textPrimary),
@@ -85,8 +93,7 @@ fun SettingsScreen(
                         .padding(
                             start = DiarySpacing.screenCompact,
                             end = DiarySpacing.screenCompact,
-                            top =
-                                DiarySpacing.x14 + DiarySpacing.x2
+                            top = DiarySpacing.tabTitleTop
                         )
                         .semantics { heading() }
             )
