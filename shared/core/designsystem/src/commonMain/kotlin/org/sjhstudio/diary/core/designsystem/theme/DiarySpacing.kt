@@ -114,7 +114,7 @@ object DiaryArtSize {
     val rowBadge: Dp = 44.dp
 
     /** 결제 화면 머리 그림 높이. */
-    val banner: Dp = 172.dp
+    val banner: Dp = 280.dp
 }
 
 /** 쓰기 화면 크기(Figma "쓰기 (S2)"). */

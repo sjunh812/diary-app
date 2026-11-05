@@ -78,10 +78,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
 
         AdSheet.Reward ->
             DiaryBottomSheet({ sheet = null }, title = stringResource(Res.string.reward_title)) {
-                Column(
-                    Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x6, vertical = DiarySpacing.x3),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
-                ) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
                     BasicText(stringResource(Res.string.reward_body), style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
                     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                         DiaryButton(

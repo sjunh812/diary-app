@@ -38,39 +38,40 @@ fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
     val typography = DiaryTheme.typography
     val price = state.price(ProductId.AD_FREE)
     DiaryBottomSheet(onDismiss, title = stringResource(Res.string.adfree_title)) {
-        Column(
-            Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x6, vertical = DiarySpacing.x3),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
-        ) {
-            BasicText(stringResource(Res.string.adfree_body), style = typography.body.copy(color = colors.textSecondary))
-            if (price != null) {
-                BasicText(stringResource(Res.string.adfree_price, price), style = typography.title2.copy(color = colors.textPrimary))
-            } else if (!state.loading) {
-                BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                BasicText(stringResource(Res.string.adfree_body), style = typography.body.copy(color = colors.textSecondary))
+                if (price != null) {
+                    BasicText(stringResource(Res.string.adfree_price, price), style = typography.title2.copy(color = colors.textPrimary))
+                } else if (!state.loading) {
+                    BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
+                }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                DiaryButton(
-                    stringResource(Res.string.adfree_close),
-                    onDismiss,
-                    Modifier.weight(1f),
-                    kind = DiaryButtonKind.Weak,
-                    size = DiaryButtonSize.XLarge
-                )
-                DiaryButton(
-                    stringResource(Res.string.adfree_buy),
-                    { viewModel.buy(ProductId.AD_FREE, onDismiss) },
-                    Modifier.weight(2f),
-                    size = DiaryButtonSize.XLarge,
-                    enabled = price != null && !state.busy
-                )
-            }
-            if (onDayOff != null) {
-                DiaryButton(
-                    stringResource(Res.string.adfree_day_off),
-                    onDayOff,
-                    Modifier.align(Alignment.CenterHorizontally),
-                    kind = DiaryButtonKind.Text
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                    DiaryButton(
+                        stringResource(Res.string.adfree_close),
+                        onDismiss,
+                        Modifier.weight(1f),
+                        kind = DiaryButtonKind.Weak,
+                        size = DiaryButtonSize.XLarge
+                    )
+                    DiaryButton(
+                        stringResource(Res.string.adfree_buy),
+                        { viewModel.buy(ProductId.AD_FREE, onDismiss) },
+                        Modifier.weight(2f),
+                        size = DiaryButtonSize.XLarge,
+                        enabled = price != null && !state.busy
+                    )
+                }
+                if (onDayOff != null) {
+                    DiaryButton(
+                        stringResource(Res.string.adfree_day_off),
+                        onDayOff,
+                        Modifier.align(Alignment.CenterHorizontally),
+                        kind = DiaryButtonKind.Text
+                    )
+                }
             }
         }
     }

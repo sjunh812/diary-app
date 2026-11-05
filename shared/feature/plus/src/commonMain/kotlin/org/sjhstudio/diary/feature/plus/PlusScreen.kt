@@ -4,13 +4,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -74,6 +77,9 @@ import org.sjhstudio.diary.feature.plus.resources.plus_stats_title
 import org.sjhstudio.diary.feature.plus.resources.plus_title
 
 private const val ART_MILLIS = 2_800
+private const val ART_RATIO = 350f / 220f
+private const val ART_TINT = 0.4f
+private const val ART_SHARE = 0.4f
 
 /** 설정 Plus 줄과 사진 한도, 고급 통계 미리보기가 여는 화면. 이미 Plus면 관리 화면이다(US3). */
 @Composable
@@ -152,25 +158,42 @@ internal fun PaywallScreen(
                 Spacer(Modifier.weight(1f))
                 DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.Text)
             }
-            Column(
-                Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = DiarySpacing.screenCompact),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6, Alignment.CenterVertically)
-            ) {
-                DiaryLottie(
-                    { Res.readBytes("files/plus_benefits.json") },
-                    ART_MILLIS,
-                    active = true,
-                    Modifier.fillMaxWidth().height(DiaryArtSize.banner)
-                )
-                BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
-                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                    Benefit(Res.string.plus_ads_title)
-                    Benefit(Res.string.plus_photos_title)
-                    Benefit(Res.string.plus_stats_title)
-                }
-                BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
-                if (adFreeOwned) {
-                    BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
+            BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+                // 작은 화면에서는 그림을 줄여 혜택이 잘리지 않게 한다.
+                val artHeight = minOf(DiaryArtSize.banner, maxHeight * ART_SHARE)
+                Column(
+                    Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = DiarySpacing.screenCompact),
+                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
+                ) {
+                    // 그림이 칸을 채우도록 폭에 맞춘 비율로 그린다. 넓은 화면에서는 높이만 막아 가운데에 둔다.
+                    Box(
+                        Modifier.fillMaxWidth().padding(
+                            top = DiarySpacing.x2
+                        ).clip(DiaryShapes.r20).background(colors.selected.copy(alpha = ART_TINT)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        DiaryLottie(
+                            { Res.readBytes("files/plus_benefits.json") },
+                            ART_MILLIS,
+                            active = true,
+                            Modifier.heightIn(max = artHeight).aspectRatio(ART_RATIO)
+                        )
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+                        BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
+                        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                            Benefit(Res.string.plus_ads_title)
+                            Benefit(Res.string.plus_photos_title)
+                            Benefit(Res.string.plus_stats_title)
+                        }
+                        BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
+                        if (adFreeOwned) {
+                            BasicText(
+                                stringResource(Res.string.plus_ad_free_owned),
+                                style = typography.caption.copy(color = colors.accentText)
+                            )
+                        }
+                    }
                 }
             }
             Column(
