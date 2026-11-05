@@ -2,9 +2,14 @@ package org.sjhstudio.diary.feature.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import kotlin.time.Clock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -35,7 +40,8 @@ enum class SearchPeriod { Week, Month, Year, Custom }
 
 /**
  * 찾기(FR-025~FR-027). 상세에 다녀와도 이 모델이 살아 있어 입력과 조건이 그대로다.
- * 글자는 칠 때마다 찾지 않고 잠깐 멈춘 뒤에 찾는다. 글자도 조건도 없으면 결과는 null이다.
+ * 글자는 칠 때마다 찾지 않고 잠깐 멈춘 뒤에 찾는다.
+ * 결과는 홈처럼 쪽으로 읽어서 1만 편이 걸려도 보는 만큼만 메모리에 둔다.
  */
 class SearchViewModel(
     private val entries: EntryRepository,
@@ -51,11 +57,11 @@ class SearchViewModel(
     val period: StateFlow<SearchPeriod?> = _period.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val results: StateFlow<List<EntryRow>?> =
+    val results: Flow<PagingData<EntryRow>> =
         _filter
             .debounce(DEBOUNCE_MILLIS)
-            .flatMapLatest { filter -> if (filter.isEmpty) flowOf(null) else entries.search(filter) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+            .flatMapLatest { filter -> if (filter.isEmpty) flowOf(PagingData.empty(WAITING)) else entries.search(filter) }
+            .cachedIn(viewModelScope)
 
     val look: StateFlow<BodyLook> =
         settings.settings
@@ -94,6 +100,13 @@ class SearchViewModel(
 
     private companion object {
         const val DEBOUNCE_MILLIS = 200L
-        const val STOP_MILLIS = 5_000L
+
+        // 아직 찾지 않았을 때. "찾지 못했어요"가 비치지 않게 읽는 중으로 둔다.
+        val WAITING =
+            LoadStates(
+                refresh = LoadState.Loading,
+                prepend = LoadState.NotLoading(endOfPaginationReached = true),
+                append = LoadState.NotLoading(endOfPaginationReached = true)
+            )
     }
 }

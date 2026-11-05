@@ -27,6 +27,12 @@ import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.testing.TestClock
 
+/** 찾은 줄을 쪽 나눔 없이 모두 읽는다. */
+internal suspend fun DefaultEntryRepository.searchAll(filter: SearchFilter): List<EntryRow> =
+    (searchPages(filter).load(PagingSource.LoadParams.Refresh(null, ALL_ROWS, false)) as PagingSource.LoadResult.Page).data
+
+private const val ALL_ROWS = 100_000
+
 // 달력, 찾기, 돌아보기, 휴지통, 사진 정리(스펙 002 T044 묶음).
 class DiaryReadRepositoryTest {
     private val db = memoryDatabase()
@@ -40,7 +46,7 @@ class DiaryReadRepositoryTest {
         db.close()
     }
 
-    private suspend fun ids(filter: SearchFilter) = entries.search(filter).first().map { it.id }
+    private suspend fun ids(filter: SearchFilter) = entries.searchAll(filter).map { it.id }
 
     @Test
     fun timeline_is_newest_first_and_skips_trash() = runTest {
@@ -243,7 +249,7 @@ class DiaryReadRepositoryTest {
         val long = "가".repeat(300) + "바다" + "나".repeat(10)
         db.seed(entry("a", text = long))
 
-        assertTrue(entries.search(SearchFilter(query = "바다")).first().single().preview.contains("바다"))
+        assertTrue(entries.searchAll(SearchFilter(query = "바다")).single().preview.contains("바다"))
     }
 
     @Test

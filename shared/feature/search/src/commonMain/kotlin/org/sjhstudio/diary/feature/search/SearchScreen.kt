@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -36,6 +37,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -56,6 +61,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
+import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -84,7 +90,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
     val viewModel = koinViewModel<SearchViewModel> { parametersOf(initial) }
     val filter by viewModel.filter.collectAsStateWithLifecycle()
     val period by viewModel.period.collectAsStateWithLifecycle()
-    val results by viewModel.results.collectAsStateWithLifecycle()
+    val results = viewModel.results.collectAsLazyPagingItems()
     val look by viewModel.look.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
@@ -145,7 +151,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
 internal fun SearchScreen(
     filter: SearchFilter,
     period: SearchPeriod?,
-    results: List<EntryRow>?,
+    results: LazyPagingItems<EntryRow>,
     selectedId: String?,
     previewStyle: TextStyle,
     list: LazyListState,
@@ -183,11 +189,21 @@ internal fun SearchScreen(
             )
         }
         FilterChips(filter, period, onSheet, onPhoto, onFavorites)
-        val rows = results
+        // 없는 글자를 이어 칠 때 뼈대가 깜빡이지 않게, 없었으면 다 읽을 때까지 없음을 둔다.
+        val refresh = results.loadState.refresh
+        var wasEmpty by remember { mutableStateOf(false) }
+        LaunchedEffect(refresh, filter.isEmpty) {
+            if (filter.isEmpty) {
+                wasEmpty = false
+            } else if (refresh is LoadState.NotLoading) {
+                wasEmpty = results.itemCount == 0
+            }
+        }
         when {
-            rows == null -> Unit
-            rows.isEmpty() -> Empty()
-            else -> Results(rows, filter.query, selectedId, previewStyle, list, onOpen)
+            filter.isEmpty -> Unit
+            results.itemCount > 0 -> Results(results, filter.query, selectedId, previewStyle, list, onOpen)
+            refresh is LoadState.NotLoading || wasEmpty -> Empty()
+            else -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
         }
     }
 }
@@ -269,7 +285,7 @@ private fun Empty() {
 /** 달이 바뀌면 달 머리를 넣는다. 결과는 최신순이다. */
 @Composable
 private fun Results(
-    rows: List<EntryRow>,
+    rows: LazyPagingItems<EntryRow>,
     query: String,
     selectedId: String?,
     previewStyle: TextStyle,
@@ -282,14 +298,21 @@ private fun Results(
     LazyColumn(Modifier.fillMaxSize(), state = list) {
         item {
             BasicText(
-                pluralStringResource(Res.plurals.search_result_count, rows.size, rows.size),
+                pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount),
                 modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x1),
                 style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
             )
         }
-        itemsIndexed(rows, key = { _, row -> row.id }) { index, row ->
-            val previous = rows.getOrNull(index - 1)
-            val newMonth = previous == null || previous.date.year != row.date.year || previous.date.month != row.date.month
+        items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
+            // 아직 읽지 않은 줄은 자리만 잡는다. 앞 줄은 읽기를 부르지 않게 엿보기만 한다.
+            val row = rows[index]
+            if (row == null) {
+                Spacer(Modifier.fillMaxWidth().height(DiarySpacing.x14 + DiarySpacing.x14))
+                return@items
+            }
+            val previous = if (index > 0) rows.peek(index - 1) else null
+            val newMonth =
+                index == 0 || (previous != null && (previous.date.year != row.date.year || previous.date.month != row.date.month))
             Column {
                 if (newMonth) DiaryMonthHeader(if (row.date.year == today.year) dates.month(row.date) else dates.yearMonth(row.date))
                 val interaction = remember { MutableInteractionSource() }

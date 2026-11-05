@@ -9,7 +9,7 @@ interface EntryRepository {
     fun entry(id: String): Flow<EntryDetail?>
     fun day(date: LocalDate): Flow<List<EntryRow>>
     fun month(yearMonth: YearMonth): Flow<Map<LocalDate, DayMood>> // 달력 칸: 마지막 일기의 기분, 편수
-    fun search(filter: SearchFilter): Flow<List<EntryRow>>
+    fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> // 홈과 같은 쪽 읽기(2026-11-05)
     suspend fun setFavorite(id: String, favorite: Boolean)
     suspend fun moveToTrash(id: String)
     suspend fun restore(id: String)

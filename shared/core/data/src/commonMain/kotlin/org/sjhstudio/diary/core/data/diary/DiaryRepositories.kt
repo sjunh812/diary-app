@@ -39,7 +39,7 @@ interface EntryRepository {
     /** 달력 칸: 마지막 일기의 기분과 편수. */
     fun month(month: YearMonth): Flow<Map<LocalDate, DayMood>>
 
-    fun search(filter: SearchFilter): Flow<List<EntryRow>>
+    fun search(filter: SearchFilter): Flow<PagingData<EntryRow>>
 
     suspend fun setFavorite(id: String, favorite: Boolean)
 

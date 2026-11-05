@@ -2,6 +2,8 @@ package org.sjhstudio.diary.core.data.diary
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.model.EntryRow
 
@@ -22,7 +24,14 @@ internal class EntryRowPagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, EntryRow> = when (val result = source.load(params)) {
         is LoadResult.Page ->
-            LoadResult.Page(toRows(result.data), result.prevKey, result.nextKey, result.itemsBefore, result.itemsAfter)
+            // 페이징은 화면 스레드에서 돌아서, 미리보기를 만드는 일은 밖으로 뺀다.
+            LoadResult.Page(
+                withContext(Dispatchers.Default) { toRows(result.data) },
+                result.prevKey,
+                result.nextKey,
+                result.itemsBefore,
+                result.itemsAfter
+            )
 
         is LoadResult.Error -> LoadResult.Error(result.throwable)
 

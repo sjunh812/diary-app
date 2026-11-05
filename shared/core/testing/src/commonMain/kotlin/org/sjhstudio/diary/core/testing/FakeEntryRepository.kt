@@ -26,7 +26,7 @@ class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(
 
     override fun month(month: YearMonth): Flow<Map<LocalDate, DayMood>> = flowOf(moods.filterKeys { it.yearMonth == month })
 
-    override fun search(filter: SearchFilter): Flow<List<EntryRow>> = flowOf(emptyList())
+    override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = flowOf(PagingData.empty())
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = Unit
 

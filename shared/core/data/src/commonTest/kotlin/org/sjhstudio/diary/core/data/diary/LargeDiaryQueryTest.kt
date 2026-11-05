@@ -69,9 +69,9 @@ class LargeDiaryQueryTest {
             val rows = (page as PagingSource.LoadResult.Page).data
             db.mediaDao().forRows(rows)
         }
-        assertFast("드문 글자 찾기") { entries.search(SearchFilter(query = "바닷가")).first() }
+        assertFast("드문 글자 찾기") { entries.searchAll(SearchFilter(query = "바닷가")) }
         // 1만 편이 모두 걸리는 가장 나쁜 경우다.
-        assertFast("흔한 글자 찾기", WORST_QUERY_BUDGET_MILLIS) { entries.search(SearchFilter(query = "한강")).first() }
+        assertFast("흔한 글자 찾기", WORST_QUERY_BUDGET_MILLIS) { entries.searchAll(SearchFilter(query = "한강")) }
         assertFast("달력 한 달") { entries.month(YearMonth(2026, 10)).first() }
     }
 

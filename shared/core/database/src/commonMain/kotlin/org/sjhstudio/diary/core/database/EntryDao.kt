@@ -106,7 +106,7 @@ interface EntryDao {
         hasPhoto: Boolean,
         from: String?,
         to: String?
-    ): Flow<List<EntryEntity>>
+    ): PagingSource<Int, EntryEntity>
 
     @Query("UPDATE entry SET is_favorite = :favorite, updated_at = :now WHERE id = :id")
     suspend fun setFavorite(id: String, favorite: Boolean, now: Long)

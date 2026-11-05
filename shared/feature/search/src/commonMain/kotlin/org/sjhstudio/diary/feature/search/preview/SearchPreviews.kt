@@ -5,6 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -41,7 +44,7 @@ private fun Search(dark: Boolean, rows: List<EntryRow>?, query: String) = DiaryT
     SearchScreen(
         filter = SearchFilter(query = query),
         period = null,
-        results = rows,
+        results = flowOf(PagingData.from(rows.orEmpty())).collectAsLazyPagingItems(),
         selectedId = null,
         previewStyle = DiaryTheme.typography.body,
         list = rememberLazyListState(),

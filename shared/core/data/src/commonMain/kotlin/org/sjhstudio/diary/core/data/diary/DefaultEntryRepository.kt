@@ -4,6 +4,7 @@ import androidx.paging.InvalidatingPagingSourceFactory
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.PagingSource
 import androidx.paging.map
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
@@ -36,21 +37,23 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     private val media get() = db.mediaDao()
     private val marks get() = db.backupDao()
 
+    private val pageConfig = PagingConfig(pageSize = PAGE, initialLoadSize = PAGE, prefetchDistance = PAGE / 2, enablePlaceholders = true)
+
     // 표시는 일기 표 밖에 있어서 지울 때 목록을 직접 새로 읽힌다.
-    private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries(), ::pageRows) }
-    private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries(), ::pageRows) }
+    private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries()) { pageRows(it) } }
+    private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries()) { pageRows(it) } }
 
     override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = // 자리 표시를 켜서 다른 달로 바로 건너뛸 수 있게 한다.
         Pager(
-            PagingConfig(pageSize = PAGE, initialLoadSize = PAGE, prefetchDistance = PAGE / 2, enablePlaceholders = true),
+            pageConfig,
             pagingSourceFactory = if (favoritesOnly) favoritePages else allPages
         ).flow
 
     /** 쪽 하나를 한 번에 읽는다. 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어진다. */
-    private suspend fun pageRows(page: List<EntryEntity>): List<EntryRow> {
+    private suspend fun pageRows(page: List<EntryEntity>, query: String = ""): List<EntryRow> {
         val marked = marks.markedIds().toSet()
         val photos = media.forRows(page)
-        return page.map { it.toRow(photos[it.id].orEmpty(), mediaDir).copy(keptBoth = it.id in marked) }
+        return page.map { it.toRow(photos[it.id].orEmpty(), mediaDir, query).copy(keptBoth = it.id in marked) }
     }
 
     override fun entry(id: String): Flow<EntryDetail?> = combine(entries.observeVisible(id), marks.markedPair(id)) { entity, pair ->
@@ -92,22 +95,24 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     override fun month(month: YearMonth): Flow<Map<LocalDate, DayMood>> =
         entries.dayMoods(month.onDay(1).toString(), month.onDay(month.numberOfDays).toString()).map(::toDayMoods)
 
-    override fun search(filter: SearchFilter): Flow<List<EntryRow>> {
+    override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = Pager(pageConfig) { searchPages(filter) }.flow
+
+    /** 찾기 결과 쪽. 찾은 글자가 미리보기에 보이게 줄마다 글자를 넘긴다. */
+    internal fun searchPages(filter: SearchFilter): PagingSource<Int, EntryRow> {
         val query = filter.query.trim()
-        return entries.search(
-            like = if (query.isEmpty()) "" else "%${escapeLike(query)}%",
-            anyMood = filter.moods.isEmpty(),
-            moods = filter.moods.map { it.id },
-            anyWeather = filter.weathers.isEmpty(),
-            weathers = filter.weathers.map { it.id },
-            favoritesOnly = filter.favoritesOnly,
-            hasPhoto = filter.hasPhoto,
-            from = filter.period?.start?.toString(),
-            to = filter.period?.end?.toString()
-        ).map { rows ->
-            val photos = media.forRows(rows)
-            rows.map { it.toRow(photos[it.id].orEmpty(), mediaDir, query) }
-        }.flowOn(Dispatchers.Default) // 1만 편이 걸려도 화면이 멈추지 않게 메인 스레드 밖에서 만든다.
+        val source =
+            entries.search(
+                like = if (query.isEmpty()) "" else "%${escapeLike(query)}%",
+                anyMood = filter.moods.isEmpty(),
+                moods = filter.moods.map { it.id },
+                anyWeather = filter.weathers.isEmpty(),
+                weathers = filter.weathers.map { it.id },
+                favoritesOnly = filter.favoritesOnly,
+                hasPhoto = filter.hasPhoto,
+                from = filter.period?.start?.toString(),
+                to = filter.period?.end?.toString()
+            )
+        return EntryRowPagingSource(source) { pageRows(it, query) }
     }
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = entries.setFavorite(id, favorite, nowMillis())
