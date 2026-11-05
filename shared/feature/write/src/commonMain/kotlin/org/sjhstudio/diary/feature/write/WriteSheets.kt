@@ -217,7 +217,7 @@ private fun PlaceField(text: String, onChange: (String) -> Unit) {
             if (text.isEmpty()) {
                 BasicText(
                     stringResource(Res.string.write_place_hint),
-                    style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+                    style = DiaryTheme.typography.body.copy(color = colors.placeholder)
                 )
             }
             BasicTextField(
@@ -281,7 +281,7 @@ private fun PlaceNote(text: String, onOpenSettings: (() -> Unit)?) {
 private fun PlaceChips(title: String, places: List<String>, onPick: (String) -> Unit) {
     if (places.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        BasicText(title, style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary))
+        BasicText(title, style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary))
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
@@ -334,7 +334,7 @@ internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate,
     DiaryBottomSheet(onDismiss = onDismiss, title = dates.dayWithWeekday(picked)) {
         DiaryMonthStepper(month, onChange = { month = it })
         DiaryMonthDays(month, isPicked = { it == picked }, onPick = { picked = it })
-        BasicText(stringResource(Res.string.write_time), style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary))
+        BasicText(stringResource(Res.string.write_time), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
         DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour)
         SheetButtons(
             stringResource(Res.string.write_close),

@@ -130,6 +130,134 @@ class WriteViewModelTest {
         assertEquals("<p>가</p>", repository.saved.single().bodyHtml)
     }
 
+    /** 글자를 치는 동안은 HTML로 바꾸지 않고, 입력이 멈춘 뒤 한 번만 바꾼다. */
+    @Test
+    fun typing_converts_once_after_the_pause() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        advanceUntilIdle()
+        val editor = FakeEditor(vm)
+
+        editor.type("<p>가</p>")
+        advanceTimeBy(500)
+        editor.type("<p>가나</p>")
+        advanceTimeBy(500)
+        editor.type("<p>가나다</p>")
+        assertEquals(0, editor.reads)
+        assertTrue(vm.state.value.canSave)
+
+        advanceUntilIdle()
+
+        assertEquals(1, editor.reads)
+        assertEquals("<p>가나다</p>", repository.saved.single().bodyHtml)
+    }
+
+    /**
+     * 앱이 꺼지기 전 마지막 기회다.
+     * 기다리지 않고 바로 꺼내 쓴다(헌법 I).
+     */
+    @Test
+    fun leaving_the_app_keeps_the_last_letter() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        advanceUntilIdle()
+        val editor = FakeEditor(vm)
+
+        editor.type("<p>마지막 글자</p>")
+        vm.onStop()
+        testScheduler.runCurrent()
+
+        assertEquals("<p>마지막 글자</p>", repository.saved.single().bodyHtml)
+    }
+
+    @Test
+    fun closing_right_after_typing_keeps_the_last_letter() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        advanceUntilIdle()
+        val editor = FakeEditor(vm)
+
+        editor.type("<p>마지막 글자</p>")
+        vm.close()
+        advanceUntilIdle()
+
+        assertEquals("<p>마지막 글자</p>", repository.saved.single().bodyHtml)
+    }
+
+    @Test
+    fun saving_right_after_typing_keeps_the_last_letter() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        val body = mutableListOf<String>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            repository.draft(DraftKey.New()).collect { draft -> draft?.let { body += it.bodyHtml } }
+        }
+        advanceUntilIdle()
+        val editor = FakeEditor(vm)
+
+        editor.type("<p>마지막 글자</p>")
+        vm.save()
+        advanceUntilIdle()
+
+        assertEquals(listOf("<p>마지막 글자</p>"), body)
+        assertEquals(1, repository.committed.size)
+    }
+
+    /**
+     * 다른 화면이 쓰기를 가리면 편집기가 사라진다.
+     * 그 전에 받아 둔 글이 저장된다.
+     */
+    @Test
+    fun an_editor_going_away_hands_over_the_last_letter() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        advanceUntilIdle()
+        val editor = FakeEditor(vm)
+
+        editor.type("<p>마지막 글자</p>")
+        vm.detachEditor()
+        editor.text = "<p>사라진 편집기</p>"
+        advanceUntilIdle()
+
+        assertEquals("<p>마지막 글자</p>", repository.saved.single().bodyHtml)
+    }
+
+    /** 글을 다 지운 뒤에는 변환 전이라도 빈 글이 저장되지 않는다. */
+    @Test
+    fun blank_editor_cannot_be_saved_before_it_is_converted() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        advanceUntilIdle()
+        val editor = FakeEditor(vm)
+        editor.type("<p>글</p>")
+        advanceUntilIdle()
+
+        editor.type("<p></p>", hasText = false)
+        assertFalse(vm.state.value.canSave)
+        vm.save()
+        advanceUntilIdle()
+
+        assertTrue(repository.committed.isEmpty())
+    }
+
+    /**
+     * 고친 글을 도로 지워 불러온 모양과 같아지면 원문 그대로 남는다.
+     * 화면을 돌린 뒤에도 옛 값으로 돌아가지 않는다.
+     */
+    @Test
+    fun loading_again_compares_with_the_body_it_put_in() = runTest(dispatcher) {
+        val key = DraftKey.Edit("e1")
+        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, body = "<p>옛 글</p>")))
+        val vm = vm(repository, WriteTarget.Edit("e1"))
+        advanceUntilIdle()
+        vm.onBodyChange("<p>새 글</p>")
+
+        vm.onBodyLoaded("<p>편집기 모양</p>")
+        vm.onBodyChange("<p>편집기 모양</p>")
+
+        assertEquals("<p>새 글</p>", vm.currentBody())
+    }
+
     @Test
     fun blank_text_makes_no_draft() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
@@ -168,6 +296,79 @@ class WriteViewModelTest {
 
         assertEquals(listOf<WriteEvent>(WriteEvent.Saved("saved-id")), events)
         assertTrue(repository.saved.isEmpty())
+    }
+
+    @Test
+    fun tapping_save_twice_commits_once() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+
+        vm.onBodyChange("<p>글</p>")
+        vm.save()
+        vm.save()
+        advanceUntilIdle()
+
+        assertEquals(1, repository.committed.size)
+        assertEquals(listOf<WriteEvent>(WriteEvent.Saved("saved-id")), events)
+    }
+
+    @Test
+    fun saving_stops_the_button_until_it_fails() = runTest(dispatcher) {
+        val repository = FakeDraftRepository().apply { failCommit = true }
+        val vm = vm(repository)
+        advanceUntilIdle()
+        vm.onBodyChange("<p>글</p>")
+
+        vm.save()
+        assertTrue(vm.state.value.saving)
+        advanceUntilIdle()
+
+        assertFalse(vm.state.value.saving)
+        assertTrue(vm.state.value.saveFailed)
+    }
+
+    /**
+     * 저장을 마친 뒤에는 버튼을 다시 켜지 않는다.
+     * 임시 저장본이 지워져 다시 저장할 것이 없다.
+     */
+    @Test
+    fun a_finished_save_stays_finished() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+        vm.onBodyChange("<p>글</p>")
+        vm.save()
+        advanceUntilIdle()
+
+        vm.onBodyChange("<p>글 더</p>")
+        advanceUntilIdle()
+        vm.save()
+        vm.close()
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.saving)
+        assertEquals(1, repository.committed.size)
+        assertTrue(repository.saved.isEmpty())
+        assertEquals(listOf(WriteEvent.Saved("saved-id"), WriteEvent.Closed(keptDraft = false)), events)
+    }
+
+    @Test
+    fun closing_while_saving_does_not_bring_the_draft_back() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+        vm.onBodyChange("<p>글</p>")
+
+        vm.save()
+        vm.close()
+        advanceUntilIdle()
+
+        assertTrue(repository.saved.isEmpty())
+        assertEquals(listOf<WriteEvent>(WriteEvent.Saved("saved-id")), events)
     }
 
     @Test
@@ -226,7 +427,7 @@ class WriteViewModelTest {
         advanceUntilIdle()
 
         assertNull(vm.state.value.resume)
-        assertEquals("<p>쓰던 글</p>", vm.state.value.initialBody)
+        assertEquals("<p>쓰던 글</p>", vm.currentBody())
         assertEquals(1, vm.state.value.bodyVersion)
     }
 
@@ -274,6 +475,24 @@ class WriteViewModelTest {
 
         assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = false)), events)
         assertTrue(repository.saved.isEmpty())
+    }
+
+    /** 전에 고치다 남겨 둔 임시 저장본을 손대지 않고 닫아도 그 내용은 남는다. */
+    @Test
+    fun closing_a_resumed_edit_keeps_what_was_left() = runTest(dispatcher) {
+        val key = DraftKey.Edit("e1")
+        val left = draft(key, body = "<p>고치던 글</p>")
+        val repository = FakeDraftRepository(listOf(left), editable = mapOf("e1" to draft(key, body = "<p>원래 글</p>")))
+        val vm = vm(repository, WriteTarget.Edit("e1"))
+        val events = events(vm)
+        advanceUntilIdle()
+
+        vm.close()
+        advanceUntilIdle()
+
+        assertTrue(repository.discarded.isEmpty())
+        assertEquals("<p>고치던 글</p>", repository.saved.single().bodyHtml)
+        assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = true)), events)
     }
 
     @Test
@@ -391,6 +610,27 @@ class WriteViewModelTest {
         viewModel.stopFindingPlace()
         advanceUntilIdle()
         assertEquals(PlaceLocating.Idle, viewModel.state.value.locating)
+    }
+
+    /**
+     * 편집기 흉내.
+     * HTML을 꺼낸 횟수를 센다.
+     */
+    private class FakeEditor(private val vm: WriteViewModel) {
+        var text = ""
+        var reads = 0
+
+        init {
+            vm.attachEditor {
+                reads++
+                text
+            }
+        }
+
+        fun type(html: String, hasText: Boolean = true) {
+            text = html
+            vm.onEditorChanged(hasText)
+        }
     }
 
     private class OnePlace(private val result: PlaceLookup, private val wait: Boolean = false) : PlaceFinder {

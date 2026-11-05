@@ -10,8 +10,12 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import okio.fakefilesystem.FakeFileSystem
@@ -33,6 +37,7 @@ internal suspend fun DefaultEntryRepository.searchAll(filter: SearchFilter): Lis
     (searchPages(filter).load(PagingSource.LoadParams.Refresh(null, ALL_ROWS, false)) as PagingSource.LoadResult.Page).data
 
 private const val ALL_ROWS = 100_000
+private const val ROUNDS = 30
 
 // 달력, 찾기, 돌아보기, 휴지통, 사진 정리(스펙 002 T044 묶음).
 class DiaryReadRepositoryTest {
@@ -71,6 +76,21 @@ class DiaryReadRepositoryTest {
         assertEquals("<p>${Checklist.DONE} 우유</p>", after.bodyHtml)
         assertEquals("${Checklist.DONE} 우유", after.plainText)
         assertTrue(after.updatedAt > stored.updatedAt)
+    }
+
+    /** 읽고 고쳐 쓰는 사이에 다른 체크가 끼어들면 앞의 체크가 사라진다. */
+    @Test
+    fun checking_two_items_at_once_keeps_both() = runTest {
+        db.seed(entry("a"))
+        val open = "<p>${Checklist.OPEN} 우유</p><p>${Checklist.OPEN} 빵</p>"
+        repeat(ROUNDS) {
+            val stored = db.entryDao().get("a")!!
+            db.entryDao().update(stored.copy(bodyHtml = open))
+
+            withContext(Dispatchers.Default) { listOf(0, 1).map { async { entries.toggleCheck("a", it) } }.awaitAll() }
+
+            assertEquals("<p>${Checklist.DONE} 우유</p><p>${Checklist.DONE} 빵</p>", db.entryDao().get("a")!!.bodyHtml)
+        }
     }
 
     @Test

@@ -44,7 +44,11 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
         merges++
     }
 
+    var dismisses = 0
+        private set
+
     override fun dismiss() {
+        dismisses++
         state.value = RestoreState.Idle
     }
 

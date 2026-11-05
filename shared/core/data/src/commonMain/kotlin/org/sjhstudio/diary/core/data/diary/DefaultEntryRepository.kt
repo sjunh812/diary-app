@@ -119,10 +119,10 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = entries.setFavorite(id, favorite, nowMillis())
 
-    override suspend fun toggleCheck(id: String, index: Int) {
-        val entry = entries.get(id) ?: return
-        val body = Checklist.toggleInHtml(entry.bodyHtml, index) ?: return
-        entries.update(entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis()))
+    override suspend fun toggleCheck(id: String, index: Int) = entries.edit(id) { entry ->
+        Checklist.toggleInHtml(entry.bodyHtml, index)?.let { body ->
+            entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis())
+        }
     }
 
     override suspend fun moveToTrash(id: String) {

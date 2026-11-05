@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.data.diary
 
+import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteException
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -11,9 +12,20 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import okio.FileSystem
+import okio.ForwardingFileSystem
+import okio.Path
+import okio.Sink
 import okio.fakefilesystem.FakeFileSystem
+import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.AddPhotosResult
@@ -22,6 +34,7 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
+import org.sjhstudio.diary.core.platform.ImageSize
 import org.sjhstudio.diary.core.testing.TestClock
 
 // 임시 저장과 사진(스펙 002 T032, T033). 일기를 잃지 않는지를 본다(헌법 I).
@@ -89,7 +102,7 @@ class DraftRepositoryTest {
             photo("p1", "e1", 0, legacyPath = "/old/p1.jpg"),
             photo("gone", "e1", 1, MediaStatus.MISSING, legacyPath = "/old/gone.jpg")
         )
-        val draft = assertNotNull(repository.openEdit("e1"))
+        val draft = assertNotNull(repository.openEdit("e1")).draft
         assertEquals(1, draft.photos.size)
 
         clock.advance(1.hours)
@@ -118,6 +131,14 @@ class DraftRepositoryTest {
         val saved = assertNotNull(db.entryDao().get("e1")).asModel()
         assertEquals(T0, saved.updatedAt)
         assertEquals("원문  두 칸", saved.plainText)
+    }
+
+    @Test
+    fun opening_an_edit_says_whether_a_draft_was_left() = runTest {
+        db.seed(entry("e1"))
+
+        assertFalse(assertNotNull(repository.openEdit("e1")).resumed)
+        assertTrue(assertNotNull(repository.openEdit("e1")).resumed)
     }
 
     @Test
@@ -220,11 +241,30 @@ class DraftRepositoryTest {
 
     @Test
     fun no_space_stops_and_keeps_what_was_added() = runTest {
-        repository.save(newDraft())
-        val full = PickedImage { throw okio.IOException("no space") }
+        var left = 2
+        val full = FullDisk(files) { left-- <= 0 }
+        val store = PhotoStore(full, MEDIA_DIR, copyEncoder(full), { ImageSize(10, 20) })
+        val small = DefaultDraftRepository(db, store, clock) { limit }
+        small.save(newDraft())
 
-        assertEquals(AddPhotosResult.NoSpace(1), repository.addPhotos(DraftKey.New(), listOf(image("a"), full, image("b"))))
-        assertEquals(1, repository.draft(DraftKey.New()).first()?.photos?.size)
+        assertEquals(AddPhotosResult.NoSpace(1), small.addPhotos(DraftKey.New(), listOf(image("a"), image("b"), image("c"))))
+        assertEquals(1, small.draft(DraftKey.New()).first()?.photos?.size)
+    }
+
+    /**
+     * 그림을 읽다 실패한 것은 공간 문제가 아니다.
+     * 멈추지 않고 나머지를 더한다.
+     */
+    @Test
+    fun an_image_that_cannot_be_read_is_counted_and_the_rest_are_added() = runTest {
+        repository.save(newDraft())
+        val io = PickedImage { throw okio.IOException("읽기 실패") }
+        val other = PickedImage { throw IllegalStateException("파일이 사라짐") }
+
+        val result = repository.addPhotos(DraftKey.New(), listOf(image("a"), io, other, image("b")))
+
+        assertEquals(AddPhotosResult.Added(2, failed = 2), result)
+        assertEquals(listOf(0, 1), db.draftDao().media(DraftKey.New().value).map { it.sortOrder })
     }
 
     @Test
@@ -237,6 +277,130 @@ class DraftRepositoryTest {
         repository.removePhoto(DraftKey.New(), 1)
 
         assertEquals(listOf(before[2], before[1]), repository.draft(DraftKey.New()).first()?.photos)
+    }
+
+    /** 앞선 더하기가 그림을 읽는 동안 다른 더하기가 끼어들어도 같은 순번을 쓰지 않는다. */
+    @Test
+    fun adding_photos_at_the_same_time_keeps_every_photo() = runTest {
+        repository.save(newDraft())
+        repository.addPhotos(DraftKey.New(), listOf(image("a")))
+        val reading = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val slow = PickedImage {
+            reading.complete(Unit)
+            release.await()
+            "slow".encodeToByteArray()
+        }
+
+        withContext(Dispatchers.Default) {
+            val first = async { repository.addPhotos(DraftKey.New(), listOf(slow)) }
+            reading.await()
+            val second = async { repository.addPhotos(DraftKey.New(), listOf(image("b"))) }
+            // 고치기 전에는 뒤의 더하기가 먼저 끝나고, 고친 뒤에는 앞의 것을 기다린다.
+            withTimeoutOrNull(WAIT_MILLIS) { second.join() }
+            release.complete(Unit)
+            awaitAll(first, second)
+        }
+
+        assertEquals(listOf(0, 1, 2), db.draftDao().media(DraftKey.New().value).map { it.sortOrder })
+    }
+
+    /**
+     * 사진을 지우는 사이에 만든 순서는 사진 수가 맞지 않는다.
+     * 앱이 죽지 않고 그대로 둔다.
+     */
+    @Test
+    fun a_stale_order_leaves_the_photos_as_they_are() = runTest {
+        repository.save(newDraft())
+        repository.addPhotos(DraftKey.New(), listOf(image("a"), image("b"), image("c")))
+        val order = listOf(2, 0, 1)
+
+        repository.removePhoto(DraftKey.New(), 0)
+        repository.reorderPhotos(DraftKey.New(), order)
+
+        assertEquals(listOf(0, 1), db.draftDao().media(DraftKey.New().value).map { it.sortOrder })
+    }
+
+    /** 임시 저장본이 지워진 뒤에 도착한 사진은 앱을 죽이지 않고 못 더한 것으로 센다. */
+    @Test
+    fun photos_for_a_discarded_draft_are_counted_as_failed() = runTest {
+        repository.save(newDraft())
+        repository.discard(DraftKey.New())
+
+        assertEquals(AddPhotosResult.Added(0, failed = 1), repository.addPhotos(DraftKey.New(), listOf(image("a"))))
+    }
+
+    @Test
+    fun two_commits_at_once_make_one_entry() = runTest {
+        repeat(ROUNDS) { round ->
+            repository.save(newDraft())
+            withContext(Dispatchers.Default) {
+                List(2) { async { runCatching { repository.commit(DraftKey.New()) } } }.awaitAll()
+            }
+            assertEquals(round + 1, db.entryDao().countAll())
+        }
+    }
+
+    /**
+     * 사진 줄이 빠진 임시 저장본이 남으면 저장할 때 사진이 사라진다.
+     * 줄을 넣다 실패하면 임시 저장본도 남기지 않는다.
+     */
+    @Test
+    fun opening_an_edit_writes_the_draft_and_its_photos_together() = runTest {
+        db.seed(entry("e1"))
+        db.seedPhotos(photo("p1", "e1", 0))
+        db.useWriterConnection { connection ->
+            connection.usePrepared(
+                "CREATE TEMP TRIGGER no_photos BEFORE INSERT ON draft_media BEGIN SELECT RAISE(ABORT, '시험'); END"
+            ) { it.step() }
+        }
+
+        assertFailsWith<SQLiteException> { repository.openEdit("e1") }
+
+        assertNull(db.draftDao().get("e1"))
+    }
+
+    @Test
+    fun removing_a_photo_raises_the_edit_time() = runTest {
+        val saved = commitAfter { repository.removePhoto(DraftKey.Edit("e1"), 0) }
+
+        assertEquals(T0 + 1.hours, saved)
+    }
+
+    @Test
+    fun adding_a_photo_raises_the_edit_time() = runTest {
+        val saved = commitAfter { repository.addPhotos(DraftKey.Edit("e1"), listOf(image("a"))) }
+
+        assertEquals(T0 + 1.hours, saved)
+    }
+
+    @Test
+    fun moving_a_photo_raises_the_edit_time() = runTest {
+        val saved = commitAfter { repository.reorderPhotos(DraftKey.Edit("e1"), listOf(1, 0)) }
+
+        assertEquals(T0 + 1.hours, saved)
+    }
+
+    /**
+     * 찾을 수 없는 사진 줄은 임시 저장본에 없다.
+     * 이 줄 때문에 고친 것으로 치지 않는다.
+     */
+    @Test
+    fun the_same_photos_keep_the_edit_time() = runTest {
+        val saved = commitAfter(missing = true) {}
+
+        assertEquals(T0, saved)
+    }
+
+    private suspend fun commitAfter(missing: Boolean = false, change: suspend () -> Unit): kotlin.time.Instant {
+        db.seed(entry("e1"))
+        db.seedPhotos(photo("p1", "e1", 0), photo("p2", "e1", 1))
+        if (missing) db.seedPhotos(photo("gone", "e1", 2, MediaStatus.MISSING, legacyPath = "/old/gone.jpg"))
+        repository.openEdit("e1")
+        clock.advance(1.hours)
+        change()
+        repository.commit(DraftKey.Edit("e1"))
+        return assertNotNull(db.entryDao().get("e1")).asModel().updatedAt
     }
 
     @Test
@@ -258,3 +422,17 @@ class DraftRepositoryTest {
         assertTrue(newDraft("", Mood.GOOD).canSave())
     }
 }
+
+/**
+ * 쓰기를 [full]이 참일 때부터 실패시킨다.
+ * 저장 공간이 다 찬 기기다.
+ */
+private class FullDisk(delegate: FileSystem, private val full: () -> Boolean) : ForwardingFileSystem(delegate) {
+    override fun sink(file: Path, mustCreate: Boolean): Sink {
+        if (full()) throw okio.IOException("no space")
+        return super.sink(file, mustCreate)
+    }
+}
+
+private const val ROUNDS = 30
+private const val WAIT_MILLIS = 300L

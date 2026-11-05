@@ -144,13 +144,13 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         )
     val selected = TABS.indexOf(backStack.firstOrNull()).coerceAtLeast(0)
     val onSelect = { index: Int -> backStack.selectTab(TABS[index]) }
-    val onWrite: () -> Unit = { backStack.add(WriteKey()) }
+    val onWrite: () -> Unit = { backStack.push(WriteKey()) }
     val writeLabel = stringResource(Res.string.write_new)
     // 앱 틀 전체에 하나 두는 토스트. 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
     val toast = remember { DiaryToastState() }
     FontReplacedNotice(toast) {
         backStack.selectTab(SettingsKey)
-        backStack.add(FontSettingsKey)
+        backStack.push(FontSettingsKey)
     }
     // 쓰기, 사진 크게 보기, 결제는 전체 화면이다. 탭과 레일을 그리지 않는다.
     val writing = backStack.lastOrNull() is WriteKey
@@ -169,7 +169,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         val shortcuts =
             Modifier.diaryShortcuts(
                 onNewEntry = { if (!writing) onWrite() },
-                onSearch = { if (!fullScreen && backStack.none { it is SearchKey }) backStack.add(SearchKey()) }
+                onSearch = { if (!fullScreen && backStack.none { it is SearchKey }) backStack.push(SearchKey()) }
             ).focusRequester(keyTarget).focusTarget()
         // 화면 칸은 폭이 바뀌어도 같은 자리에 둔다. 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어진다.
         // 레일과 탭 바는 위에 얹는다. 쓰기로 넘어갈 때 사라져도 지난 화면이 밀리지 않는다.
@@ -282,6 +282,11 @@ private fun ContentWithToast(
     }
 }
 
+/** 화면을 연다. 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둔다. */
+private fun NavBackStack<NavKey>.push(key: NavKey) {
+    if (lastOrNull() != key) add(key)
+}
+
 /** 탭을 누르면 그 탭의 맨 위 화면으로 간다. 지금 탭을 다시 누르면 맨 위로 돌아간다. */
 private fun NavBackStack<NavKey>.selectTab(tab: TabScreen) {
     clear()
@@ -339,15 +344,15 @@ private fun Content(
                         backupLine = {
                             BackupStatusLine(onOpen = {
                                 backStack.selectTab(SettingsKey)
-                                backStack.add(BackupSettingsKey)
+                                backStack.push(BackupSettingsKey)
                             })
-                            BackupFoundPrompt(onRestoreEntry = { backStack.add(RestorePreviewKey(it)) })
+                            BackupFoundPrompt(onRestoreEntry = { backStack.push(RestorePreviewKey(it)) })
                         },
                         listTop = { BackupNudgeCard() },
                         onOpen = backStack::openEntry,
                         onWrite = onWrite,
-                        onSearch = { backStack.add(SearchKey()) },
-                        onEdit = { backStack.add(WriteKey(entryId = it)) },
+                        onSearch = { backStack.push(SearchKey()) },
+                        onEdit = { backStack.push(WriteKey(entryId = it)) },
                         onTrashed = { id ->
                             // 두 칸에서 그 일기가 열려 있으면 닫는다.
                             backStack.removeAll { it is EntryDetailKey && it.entryId == id }
@@ -371,8 +376,8 @@ private fun Content(
                     EntryDetailRoute(
                         entryId = key.entryId,
                         onBack = pop.takeUnless { twoPane },
-                        onEdit = { backStack.add(WriteKey(entryId = key.entryId)) },
-                        onPhoto = { backStack.add(PhotoViewerKey(key.entryId, it)) },
+                        onEdit = { backStack.push(WriteKey(entryId = key.entryId)) },
+                        onPhoto = { backStack.push(PhotoViewerKey(key.entryId, it)) },
                         onOtherVersion = backStack::openEntry,
                         onTrashed = {
                             backStack.remove(key)
@@ -387,16 +392,16 @@ private fun Content(
                     CalendarRoute(
                         twoPane = twoPane,
                         onOpen = backStack::openEntry,
-                        onWriteOn = { backStack.add(WriteKey(date = it.toString())) }
+                        onWriteOn = { backStack.push(WriteKey(date = it.toString())) }
                     )
                 }
                 entry<InsightKey>(metadata = TabRoot) {
                     InsightRoute(
                         onMood = { mood, range ->
-                            backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                            backStack.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                         },
-                        onPlus = { backStack.add(PlusKey) },
-                        onAdvanced = { backStack.add(AdvancedStatsKey) },
+                        onPlus = { backStack.push(PlusKey) },
+                        onAdvanced = { backStack.push(AdvancedStatsKey) },
                         adSlot = { AdSlot("insight", AdShape.Card) }
                     )
                 }
@@ -404,12 +409,12 @@ private fun Content(
                     AdvancedStatsRoute(
                         onBack = pop,
                         onMood = { mood, range ->
-                            backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                            backStack.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                         }
                     )
                 }
-                settingsEntries(push = { backStack.add(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })
-                entry<WriteKey>(metadata = FullScreenEntry) { key ->
+                settingsEntries(push = { backStack.push(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })
+                entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
                     val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
                     WriteRoute(
                         target = target,
@@ -425,7 +430,7 @@ private fun Content(
                             pop()
                             if (kept) notify(Message.DraftKept)
                         },
-                        onPlus = { backStack.add(PlusKey) }
+                        onPlus = { backStack.push(PlusKey) }
                     )
                 }
             }

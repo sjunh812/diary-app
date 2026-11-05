@@ -35,13 +35,20 @@ internal class EditorColors(colors: DiaryColors) {
     private val pairs: List<Pair<String, String>> =
         ink.map { (key, color) -> key.hex to color.toHex() } + mark.map { (key, color) -> key.hex to color.toHex() }
 
+    private val back: Map<String, String> = pairs.associate { (stored, shown) -> shown to stored }
+
+    /**
+     * 테마가 바뀌었는지 가르는 값.
+     * 화면을 다시 만든 뒤에도 견줄 수 있게 글자로 둔다.
+     */
+    val signature: String = pairs.joinToString("") { (_, shown) -> shown }
+
     /** 저장된 라이트 hex를 지금 테마 색으로, 문단 안 줄바꿈을 에디터의 줄로. */
     fun toEditor(html: String): String =
         pairs.fold(bodyToEditor(html)) { text, (stored, shown) -> text.replace(stored, shown, ignoreCase = true) }
 
     /** 편집기가 낸 `rgba()`나 hex를 저장 값으로. 정리기가 팔레트 밖 색을 버리므로 여기서 꼭 돌려놓는다. */
     fun fromEditor(html: String): String {
-        val back = pairs.associate { (stored, shown) -> shown to stored }
         val normalized = RGB.replace(html) { match -> rgbToHex(match) ?: match.value }
         return editorToBody(HEX.replace(normalized) { match -> back[match.value.lowercase()] ?: match.value })
     }

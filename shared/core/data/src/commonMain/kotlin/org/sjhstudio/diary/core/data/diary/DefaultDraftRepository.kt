@@ -1,10 +1,13 @@
 package org.sjhstudio.diary.core.data.diary
 
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.data.richtext.RichTextSanitizer
 import org.sjhstudio.diary.core.data.richtext.toPlainText
@@ -15,6 +18,7 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.database.isEditable
 import org.sjhstudio.diary.core.model.AddPhotosResult
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
@@ -22,8 +26,11 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
 
-/** 저장 조건(FR-002): 글, 사진, 기분 가운데 하나는 있어야 한다. */
-fun Draft.canSave(): Boolean = toPlainText(bodyHtml).isNotBlank() || photos.isNotEmpty() || mood != null
+/**
+ * 저장 조건(FR-002): 글, 사진, 기분 가운데 하나는 있어야 한다.
+ * [hasText]는 본문을 아직 HTML로 꺼내지 않았을 때 넘긴다.
+ */
+fun Draft.canSave(hasText: Boolean = toPlainText(bodyHtml).isNotBlank()): Boolean = hasText || photos.isNotEmpty() || mood != null
 
 class DefaultDraftRepository(
     private val db: DiaryDatabase,
@@ -36,6 +43,18 @@ class DefaultDraftRepository(
     private val entries get() = db.entryDao()
     private val media get() = db.mediaDao()
 
+    /**
+     * 임시 저장본마다 사진을 바꾸는 일을 한 줄로 세운다.
+     * 그림을 읽는 동안 다른 일이 끼어들지 않게 하려고다.
+     */
+    private val locks = mutableMapOf<String, Mutex>()
+    private val locksGuard = Mutex()
+
+    private suspend fun <T> inOrder(key: DraftKey, block: suspend () -> T): T {
+        val lock = locksGuard.withLock { locks.getOrPut(key.value) { Mutex() } }
+        return lock.withLock { block() }
+    }
+
     override fun draft(key: DraftKey): Flow<Draft?> =
         combine(drafts.observe(key.value), drafts.observeMedia(key.value)) { draft, rows -> draft?.asModel(rows) }
 
@@ -43,94 +62,72 @@ class DefaultDraftRepository(
 
     override suspend fun latestNew(): Draft? = drafts.latestNew()?.let { it.asModel(drafts.media(it.key)) }
 
-    override suspend fun openEdit(entryId: String): Draft? {
-        val existing = drafts.get(entryId)
-        if (existing != null) return existing.asModel(drafts.media(entryId))
-        val entry = entries.get(entryId)?.takeIf { it.deletedAt == null } ?: return null
-        val draft =
-            DraftEntity(
-                key = entryId,
-                date = entry.date,
-                time = entry.time,
-                bodyHtml = entry.bodyHtml,
-                mood = entry.mood,
-                weather = entry.weather,
-                placeName = entry.placeName,
-                isFavorite = entry.isFavorite,
-                weatherAutoFilled = false,
-                updatedAt = clock.now().toEpochMilliseconds()
-            )
-        drafts.upsert(draft)
-        // 찾을 수 없는 사진은 고칠 수 없으니 임시 저장본에 싣지 않고 저장할 때 그대로 둔다.
-        val rows =
-            media.forEntry(entryId).filter { it.status == MediaStatus.NORMAL.id && it.fileName != null && it.sha256 != null }
-                .mapIndexed { index, row ->
-                    DraftMediaEntity(entryId, row.fileName!!, row.sha256!!, row.width, row.height, row.byteSize, index)
-                }
-        if (rows.isNotEmpty()) drafts.insertMedia(rows)
-        return draft.asModel(rows)
-    }
+    override suspend fun openEdit(entryId: String): OpenedEdit? =
+        drafts.openEdit(entryId, clock.now().toEpochMilliseconds(), entries, media)?.let { opened ->
+            OpenedEdit(opened.draft.asModel(opened.media), opened.resumed)
+        }
 
     override suspend fun save(draft: Draft) = drafts.upsert(draft.asEntity())
 
-    override suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult {
+    override suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult = inOrder(key) {
+        // 화면이 더하는 사이에 저장이나 버리기로 임시 저장본이 지워졌다면 붙일 곳이 없다.
+        if (drafts.get(key.value) == null) return@inOrder AddPhotosResult.Added(0, failed = picked.size)
         val limit = photoLimit()
         val fixed = (key as? DraftKey.Edit)?.let { edit -> media.forEntry(edit.entryId).count { it.status != MediaStatus.NORMAL.id } } ?: 0
-        val current = drafts.media(key.value)
-        val room = (limit - current.size - fixed).coerceAtLeast(0)
+        val room = (limit - drafts.media(key.value).size - fixed).coerceAtLeast(0)
         var added = 0
         var failed = 0
         for (image in picked.take(room)) {
+            // 읽지 못한 그림은 공간 문제가 아니라서 나머지를 계속 더한다.
+            val bytes =
+                try {
+                    image.read()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    failed++
+                    continue
+                }
             val stored =
                 try {
-                    photos.store(image.read())
+                    photos.store(bytes)
                 } catch (_: okio.IOException) {
-                    return AddPhotosResult.NoSpace(added)
+                    return@inOrder AddPhotosResult.NoSpace(added)
                 }
             if (stored == null) {
                 failed++
                 continue
             }
-            val order = current.size + added
-            drafts.insertMedia(
-                listOf(DraftMediaEntity(key.value, stored.fileName, stored.sha256, stored.width, stored.height, stored.byteSize, order))
-            )
+            drafts.appendMedia(DraftMediaEntity(key.value, stored.fileName, stored.sha256, stored.width, stored.height, stored.byteSize, 0))
             added++
         }
-        return if (picked.size > room) {
+        if (picked.size > room) {
             AddPhotosResult.LimitReached(limit, canUpgrade = limit < PhotoLimit.PLUS, added = added)
         } else {
             AddPhotosResult.Added(added, failed)
         }
     }
 
-    override suspend fun removePhoto(key: DraftKey, index: Int) {
-        val rows = drafts.media(key.value)
-        if (index !in rows.indices) return
-        drafts.replaceMedia(key.value, rows.filterIndexed { i, _ -> i != index }.mapIndexed { i, row -> row.copy(sortOrder = i) })
-    }
+    override suspend fun removePhoto(key: DraftKey, index: Int) = inOrder(key) { drafts.removeMediaAt(key.value, index) }
 
-    override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) {
-        val rows = drafts.media(key.value)
-        require(order.sorted() == rows.indices.toList()) { "순서는 지금 사진을 빠짐없이 나열해야 한다" }
-        drafts.replaceMedia(key.value, order.mapIndexed { i, from -> rows[from].copy(sortOrder = i) })
-    }
+    override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) = inOrder(key) { drafts.reorderMedia(key.value, order) }
 
     @OptIn(ExperimentalUuidApi::class)
-    override suspend fun commit(key: DraftKey): String {
+    override suspend fun commit(key: DraftKey): String = inOrder(key) {
         val draft = requireNotNull(drafts.get(key.value)) { "임시 저장본이 없다" }
         val rows = drafts.media(key.value)
         val now = clock.now().toEpochMilliseconds()
         val old = (key as? DraftKey.Edit)?.let { entries.get(it.entryId) }
         check(key !is DraftKey.Edit || old != null) { "고치는 일기가 없다" }
         val id = old?.id ?: Uuid.random().toString()
-        val entry = draft.toEntry(id, old, now)
         val oldMedia = old?.let { media.forEntry(it.id) }.orEmpty()
+        val photosChanged = rows.map { it.sha256 } != oldMedia.filter { it.isEditable }.map { it.sha256 }
+        val entry = draft.toEntry(id, old, now, photosChanged)
         drafts.commit(key.value, entry, mediaRows(id, rows, oldMedia, now), entries, media)
-        return id
+        id
     }
 
-    private fun DraftEntity.toEntry(id: String, old: EntryEntity?, now: Long): EntryEntity {
+    private fun DraftEntity.toEntry(id: String, old: EntryEntity?, now: Long, photosChanged: Boolean): EntryEntity {
         // 고치지 않은 본문은 그대로 둔다. 레거시 원문과 서식 없는 글이 바뀌지 않게 하려고다.
         val body = if (old != null && bodyHtml == old.bodyHtml) bodyHtml else RichTextSanitizer.sanitize(bodyHtml)
         val plain = if (old != null && bodyHtml == old.bodyHtml) old.plainText else toPlainText(body)
@@ -153,7 +150,8 @@ class DefaultDraftRepository(
                 legacyLocation = old?.legacyLocation
             )
         // 보이는 값이 바뀔 때만 고친 시각을 올린다(스펙 003 합치기가 쓴다).
-        return if (old == null || entry == old) entry else entry.copy(updatedAt = now)
+        // 사진의 더하기, 빼기, 순서도 보이는 값이다.
+        return if (old == null || (entry == old && !photosChanged)) entry else entry.copy(updatedAt = now)
     }
 
     /**
@@ -184,7 +182,7 @@ class DefaultDraftRepository(
         return kept + fixed
     }
 
-    override suspend fun discard(key: DraftKey) = drafts.delete(key.value)
+    override suspend fun discard(key: DraftKey) = inOrder(key) { drafts.delete(key.value) }
 }
 
 private const val RECENT_PLACES = 6

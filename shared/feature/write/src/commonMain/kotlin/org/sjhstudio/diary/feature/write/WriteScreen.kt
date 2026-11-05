@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -75,6 +76,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
@@ -223,7 +225,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val keyboard =
         Modifier.onPreviewKeyEvent { event ->
             val save = event.type == KeyEventType.KeyDown && (event.isCtrlPressed || event.isMetaPressed) && event.key == Key.S
-            if (save && state.canSave) vm.save()
+            if (save && state.canSave && !state.saving) vm.save()
             save
         }
     BoxWithConstraints(modifier.then(keyboard).fillMaxSize().background(colors.canvas).systemBarsPadding().imePadding()) {
@@ -344,6 +346,9 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
         Row(
             Modifier
                 .align(Alignment.Center)
+                .padding(horizontal = DiarySpacing.x14)
+                .heightIn(min = DiarySpacing.minTouchTarget)
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r8)
                 .clip(DiaryShapes.r8)
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate)
                 .padding(DiarySpacing.x1),
@@ -353,7 +358,8 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
             BasicText(
                 dates.dayWithWeekday(state.date),
                 style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
         }
@@ -362,16 +368,17 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
             onSave,
             Modifier.align(Alignment.CenterEnd),
             kind = DiaryButtonKind.Text,
-            enabled = state.canSave
+            enabled = state.canSave && !state.saving
         )
     }
 }
 
 @Composable
 private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit, onPlace: () -> Unit) {
-    Row(
+    FlowRow(
         Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         val mood = state.mood
         DiaryChip(
@@ -429,7 +436,6 @@ private fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Uni
                 onDismiss()
                 onPlus()
             },
-            modifier = Modifier.padding(top = DiarySpacing.x1),
             size = DiaryButtonSize.XLarge,
             secondaryKind = DiaryButtonKind.Weak
         )
@@ -500,7 +506,7 @@ private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp
         Box(
             Modifier
                 .align(Alignment.TopEnd)
-                .size(DiarySpacing.x8)
+                .size(DiarySpacing.minTouchTarget)
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onRemove),
             contentAlignment = Alignment.TopEnd
         ) {
@@ -526,8 +532,9 @@ private fun Editor(state: RichTextState, style: TextStyle, modifier: Modifier) {
         LaunchedEffect(state) {
             var before = state.toText()
             snapshotFlow { state.annotatedString.let { state.toText() } }.collect { after ->
-                Checklist.afterEdit(before, after, state.selection.min)?.let(state::applyEdit)
-                before = state.toText()
+                val edit = Checklist.afterEdit(before, after, state.selection.min)
+                edit?.let(state::applyEdit)
+                before = if (edit == null) after else state.toText()
             }
         }
         val actions =
@@ -612,10 +619,14 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
     fun Toolbar(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?) {
         var palette by remember { mutableStateOf<PaletteKind?>(null) }
         val theme = DiaryTheme.colors
-        Column(Modifier.fillMaxWidth().background(theme.canvas)) {
+        Column(Modifier.fillMaxWidth().background(theme.canvas), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(Modifier.fillMaxWidth().height(DiarySpacing.hairline).background(theme.line))
             Row(
-                Modifier.fillMaxWidth().height(DiaryWriteSize.toolbar).padding(horizontal = DiarySpacing.x1),
+                Modifier
+                    .widthIn(max = DiaryWriteSize.bodyMax)
+                    .fillMaxWidth()
+                    .height(DiaryWriteSize.toolbar)
+                    .padding(horizontal = DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
             ) {
@@ -644,7 +655,14 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
             rich.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
         }
         // 글자색 도구는 지금 고른 색을 그대로 보인다.
-        ToolButton(DiaryIcons.TextColor, stringResource(Res.string.write_format_color), style.color.takeOrElse { theme.textPrimary }) {
+        ToolButton(
+            DiaryIcons.TextColor,
+            stringResource(Res.string.write_format_color),
+            style.color.takeOrElse {
+                theme.textPrimary
+            },
+            slot
+        ) {
             openPalette(PaletteKind.Ink)
         }
         val marked = style.background.isSpecified

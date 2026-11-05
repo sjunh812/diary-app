@@ -74,6 +74,12 @@ data class PhotoViewerKey(val entryId: String, val index: Int) : Screen {
 /** 쓰기. [date]는 `yyyy-MM-dd`로, 달력 빈 날에서 오면 있다. [entryId]가 있으면 고치기다. */
 @Serializable
 data class WriteKey(val date: String? = null, val entryId: String? = null) : Screen {
+    /**
+     * 화면 모델과 저장 상태를 일기마다 가르는 키.
+     * 기본 키는 [toString]을 쓰므로 모든 쓰기가 같은 키가 된다.
+     */
+    val contentKey: String get() = "write:$entryId:$date"
+
     override fun toString(): String = "WriteKey"
 }
 

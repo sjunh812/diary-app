@@ -1,10 +1,14 @@
 package org.sjhstudio.diary.feature.write
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,7 +38,7 @@ fun WriteRoute(
     onClosed: (keptDraft: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onPlus: () -> Unit = {},
-    viewModel: WriteViewModel = koinViewModel { parametersOf(target) }
+    viewModel: WriteViewModel = koinViewModel(key = target.viewModelKey()) { parametersOf(target) }
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val look by viewModel.look.collectAsStateWithLifecycle()
@@ -59,15 +63,27 @@ fun WriteRoute(
             }
         }
     }
-    // 불러온 본문을 넣고, 편집기가 다시 낸 모양을 기준으로 삼는다.
-    LaunchedEffect(state.bodyVersion) {
-        if (state.bodyVersion > 0) {
-            rich.setHtml(colors.toEditor(state.initialBody))
+    DisposableEffect(rich, colors) {
+        viewModel.attachEditor { colors.fromEditor(rich.toHtml()) }
+        onDispose(viewModel::detachEditor)
+    }
+    // 편집기는 화면을 돌려도 스스로 살아남는다.
+    // 받은 본문을 다시 넣으면 그 뒤에 친 글이 사라지니, 넣은 판을 함께 기억한다.
+    // 테마가 바뀌면 편집기 안의 색을 저장 값으로 되돌릴 수 없어서 그때는 지금 본문을 다시 넣는다.
+    var applied by rememberSaveable { mutableStateOf("") }
+    val wanted = "${state.bodyVersion}/${colors.signature}"
+    LaunchedEffect(wanted) {
+        if (state.bodyVersion > 0 && applied != wanted) {
+            rich.setHtml(colors.toEditor(viewModel.currentBody()))
+            // 편집기가 다시 낸 모양을 기준으로 삼는다.
             viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
+            applied = wanted
         }
     }
+    // HTML 변환은 쓰기 직전으로 미룬다.
+    // 여기서는 바뀌었다는 표시만 한다.
     LaunchedEffect(rich) {
-        snapshotFlow { rich.annotatedString }.drop(1).collect { viewModel.onBodyChange(colors.fromEditor(rich.toHtml())) }
+        snapshotFlow { rich.annotatedString }.drop(1).collect { viewModel.onEditorChanged(it.text.isNotBlank()) }
     }
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.onStop() }
     BackHandler { viewModel.close() }
@@ -79,4 +95,13 @@ fun WriteRoute(
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier
     )
+}
+
+/**
+ * 화면 모델을 일기마다 따로 두는 키.
+ * 앱 틀이 저장소를 나눠 주지 못하는 때도 다른 일기의 화면 모델을 받지 않게 한다.
+ */
+private fun WriteTarget.viewModelKey(): String = when (this) {
+    is WriteTarget.Edit -> "write:edit:$entryId"
+    is WriteTarget.New -> "write:new:$date"
 }

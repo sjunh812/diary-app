@@ -82,8 +82,10 @@ data class WriteUiState(
     val mood: Mood? = null,
     val weather: Weather? = null,
     val placeName: String = "",
-    /** 편집기에 넣을 본문. [bodyVersion]이 바뀔 때만 다시 넣는다. */
-    val initialBody: String = "",
+    /**
+     * 저장본에서 본문을 불러올 때마다 오른다.
+     * 편집기는 이 값이 바뀌면 [WriteViewModel.currentBody]를 넣는다.
+     */
     val bodyVersion: Int = 0,
     val photos: List<DraftPhoto> = emptyList(),
     val canSave: Boolean = false,
@@ -91,7 +93,12 @@ data class WriteUiState(
     val locating: PlaceLocating = PlaceLocating.Idle,
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
-    val saveFailed: Boolean = false
+    val saveFailed: Boolean = false,
+    /**
+     * 저장을 눌렀다.
+     * 끝나고 화면이 닫힐 때까지 다시 누를 수 없다.
+     */
+    val saving: Boolean = false
 ) {
     override fun toString(): String = "WriteUiState"
 }
@@ -118,6 +125,8 @@ sealed interface WriteEvent {
 /**
  * 쓰기와 고치기(FR-002~FR-012).
  * 내용이 바뀌면 입력이 멈추고 1초 뒤 임시 저장본에 쓰고, 화면을 떠날 때는 바로 쓴다.
+ * 본문은 글자마다 HTML로 바꾸지 않는다.
+ * 바뀌었다는 표시만 해 두고, 쓰기 직전에 편집기에서 꺼낸다.
  * 빈 글은 임시 저장본을 만들지 않는다. 사진은 고른 즉시 저장소로 들어간다(research R6).
  */
 class WriteViewModel(
@@ -153,7 +162,31 @@ class WriteViewModel(
 
     private var key: DraftKey = DraftKey.New()
     private var body: String = ""
+
+    /**
+     * 편집기가 불러온 뒤 다시 내보낸 HTML과 그때의 저장 값.
+     * 태그 모양만 다른 값을 고친 것으로 치지 않는 데 쓴다.
+     */
     private var loadedBody: String? = null
+    private var loadedSource: String = ""
+
+    /**
+     * 편집기에서 지금 HTML을 꺼내는 함수.
+     * 화면이 붙어 있을 때만 있다.
+     */
+    private var editor: (() -> String)? = null
+
+    /** 편집기가 바뀌었는데 아직 [body]로 꺼내지 않았다. */
+    private var editorChanged = false
+
+    /** [editorChanged]인 동안 저장 버튼을 켤지 정하는 값. */
+    private var editorHasText = false
+
+    /**
+     * 일기로 저장을 마쳤다.
+     * 임시 저장본이 지워졌으니 다시 쓰면 안 된다.
+     */
+    private var committed = false
     private var weatherAutoFilled = false
     private var isFavorite = false
     private var pending: Job? = null
@@ -166,7 +199,11 @@ class WriteViewModel(
     /** 임시 저장본이 저장소에 있는가. */
     private var stored = false
 
-    /** 고치기로 열었을 때의 값. 같으면 닫을 때 임시 저장본을 남기지 않는다. */
+    /**
+     * 일기에서 새로 만든 고치기 임시 저장본.
+     * 같으면 닫을 때 남기지 않는다.
+     * 전에 남겨 둔 것을 이어 열었으면 null이다.
+     */
     private var opened: Draft? = null
 
     init {
@@ -194,14 +231,16 @@ class WriteViewModel(
         _state.value = blank(new.date).copy(loading = false)
     }
 
-    private suspend fun openEdit(edit: WriteTarget.Edit) {
-        val draft = drafts.openEdit(edit.entryId)
-        if (draft == null) {
+    private suspend fun openEdit(entry: WriteTarget.Edit) {
+        val edit = drafts.openEdit(entry.entryId)
+        if (edit == null) {
             _events.send(WriteEvent.Closed(keptDraft = false))
             return
         }
-        opened = draft
-        load(draft, isEdit = true)
+        // 남겨 둔 내용은 일기와 달라도 사용자가 고친 것이다.
+        // 손대지 않았다고 지우면 안 된다.
+        opened = edit.draft.takeUnless { edit.resumed }
+        load(edit.draft, isEdit = true)
     }
 
     /** [이어 쓰기]. */
@@ -222,6 +261,7 @@ class WriteViewModel(
     private fun load(draft: Draft, isEdit: Boolean) {
         key = draft.key
         body = draft.bodyHtml
+        editorChanged = false
         stored = true
         weatherAutoFilled = draft.weatherAutoFilled
         isFavorite = draft.isFavorite
@@ -234,7 +274,6 @@ class WriteViewModel(
                 mood = draft.mood,
                 weather = draft.weather,
                 placeName = draft.placeName.orEmpty(),
-                initialBody = draft.bodyHtml,
                 bodyVersion = it.bodyVersion + 1,
                 photos = draft.photos,
                 resume = null
@@ -250,18 +289,70 @@ class WriteViewModel(
     }
 
     /**
+     * 편집기에 넣을 지금 본문.
+     * 저장본의 옛 글이 아니라 마지막으로 꺼낸 글이다.
+     */
+    fun currentBody(): String = body
+
+    /**
      * 편집기에 본문을 넣은 뒤 편집기가 다시 내보낸 HTML을 알린다.
      * 태그 모양만 다른 값을 고친 것으로 치지 않아, 손대지 않은 레거시 글이 원문 그대로 남는다.
      */
     fun onBodyLoaded(editorHtml: String) {
         loadedBody = editorHtml
+        loadedSource = body
+    }
+
+    /**
+     * 화면이 편집기를 붙인다.
+     * [read]는 메인에서 부르고 지금 본문을 저장 값으로 돌려준다.
+     */
+    fun attachEditor(read: () -> String) {
+        editor = read
+    }
+
+    /**
+     * 편집기가 화면에서 사라진다.
+     * 사라지면 꺼낼 수 없으니 마지막 입력을 먼저 받아 둔다.
+     */
+    fun detachEditor() {
+        takeEditorBody()
+        editor = null
+    }
+
+    /**
+     * 글자를 칠 때마다 부른다.
+     * 변환은 글이 길수록 느려서 표시만 해 두고, 임시 저장본에 쓰기 직전에 꺼낸다.
+     * [hasText]는 변환 전에도 저장 버튼을 바로 켜고 끄려고 받는다.
+     */
+    fun onEditorChanged(hasText: Boolean) {
+        editorChanged = true
+        editorHasText = hasText
+        changed(contentChanged = false)
     }
 
     fun onBodyChange(html: String) {
-        val value = if (html == loadedBody) _state.value.initialBody else html
-        if (value == body) return
+        if (applyBody(html)) changed()
+    }
+
+    private fun applyBody(html: String): Boolean {
+        val value = if (html == loadedBody) loadedSource else html
+        if (value == body) return false
         body = value
-        changed()
+        dirty = true
+        return true
+    }
+
+    /**
+     * 쓰기 직전이나 화면을 떠날 때 부른다.
+     * 앱이 꺼져도 마지막 입력이 남도록 여기서 동기로 꺼낸다(헌법 I).
+     */
+    private fun takeEditorBody() {
+        val read = editor ?: return
+        if (!editorChanged) return
+        editorChanged = false
+        applyBody(read())
+        refreshCanSave()
     }
 
     /** 같은 기분을 다시 누르면 푼다(FR-003). */
@@ -314,7 +405,7 @@ class WriteViewModel(
     }
 
     fun addPhotos(picked: List<PickedImage>) {
-        if (picked.isEmpty()) return
+        if (picked.isEmpty() || _state.value.saving) return
         viewModelScope.launch {
             pending?.cancel()
             flush(force = true)
@@ -345,22 +436,31 @@ class WriteViewModel(
     /** 앱이 백그라운드로 갈 때 바로 쓴다(FR-009). */
     fun onStop() {
         pending?.cancel()
+        takeEditorBody()
         viewModelScope.launch { flush() }
     }
 
+    /**
+     * 연타해도 한 번만 저장한다.
+     * 화면 모델은 메인에서만 불리니 표시를 먼저 세우면 두 번째가 들어오지 못한다.
+     */
     fun save() {
+        if (_state.value.saving) return
+        takeEditorBody()
         if (!_state.value.canSave) return
+        _state.update { it.copy(saving = true) }
         viewModelScope.launch {
             pending?.cancel()
-            flush(force = true)
             try {
+                flush(force = true)
                 val id = drafts.commit(key)
+                committed = true
                 _events.send(WriteEvent.Saved(id))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 // 임시 저장본은 그대로 있다. 다시 누를 수 있게 알리기만 한다.
-                _state.update { it.copy(saveFailed = true) }
+                _state.update { it.copy(saving = false, saveFailed = true) }
             }
         }
     }
@@ -369,8 +469,16 @@ class WriteViewModel(
 
     /** 뒤로 가기. 쓴 것이 있으면 묻지 않고 임시 저장한다(FR-011). */
     fun close() {
+        // 저장이 끝났으면 쓸 것이 없다.
+        // 저장 중이면 곧 닫히니 임시 저장본을 다시 만들지 않는다.
+        if (committed) {
+            viewModelScope.launch { _events.send(WriteEvent.Closed(keptDraft = false)) }
+            return
+        }
+        if (_state.value.saving) return
+        pending?.cancel()
+        takeEditorBody()
         viewModelScope.launch {
-            pending?.cancel()
             val current = currentDraft()
             val base = opened
             when {
@@ -410,8 +518,8 @@ class WriteViewModel(
         }
     }
 
-    private fun changed() {
-        dirty = true
+    private fun changed(contentChanged: Boolean = true) {
+        if (contentChanged) dirty = true
         refreshCanSave()
         pending?.cancel()
         pending =
@@ -421,10 +529,17 @@ class WriteViewModel(
             }
     }
 
-    private fun refreshCanSave() = _state.update { it.copy(canSave = currentDraft().canSave()) }
+    private fun refreshCanSave() {
+        val draft = currentDraft()
+        val canSave = if (editorChanged) draft.canSave(hasText = editorHasText) else draft.canSave()
+        _state.update { it.copy(canSave = canSave) }
+    }
 
     private suspend fun flush(force: Boolean = false) {
-        if (!dirty && !force) return
+        takeEditorBody()
+        // 저장 중이면 곧 임시 저장본이 지워진다.
+        // 다시 만들지 않는다.
+        if (!force && (!dirty || _state.value.saving)) return
         val draft = currentDraft()
         // 빈 글은 저장본을 만들지 않는다. 다음에 "쓰던 일기가 있어요"가 뜨지 않게 하려고다.
         if (!stored && !draft.canSave() && !force) return

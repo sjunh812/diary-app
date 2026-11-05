@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import org.sjhstudio.diary.core.data.diary.DraftRepository
+import org.sjhstudio.diary.core.data.diary.OpenedEdit
 import org.sjhstudio.diary.core.model.AddPhotosResult
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
@@ -37,12 +38,12 @@ class FakeDraftRepository(
 
     override suspend fun latestNew(): Draft? = drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
 
-    override suspend fun openEdit(entryId: String): Draft? {
+    override suspend fun openEdit(entryId: String): OpenedEdit? {
         val key = DraftKey.Edit(entryId)
-        drafts.value[key]?.let { return it }
+        drafts.value[key]?.let { return OpenedEdit(it, resumed = true) }
         val draft = editable[entryId] ?: return null
         drafts.update { it + (key to draft) }
-        return draft
+        return OpenedEdit(draft, resumed = false)
     }
 
     override suspend fun save(draft: Draft) = drafts.update { all ->

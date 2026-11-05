@@ -55,6 +55,14 @@ interface EntryRepository {
     suspend fun restore(id: String)
 }
 
+/**
+ * 고치기를 열어 받은 임시 저장본.
+ * [resumed]면 전에 남겨 둔 것을 이어 연 것이고, 아니면 일기에서 새로 만든 것이다.
+ */
+data class OpenedEdit(val draft: Draft, val resumed: Boolean) {
+    override fun toString(): String = "OpenedEdit"
+}
+
 interface DraftRepository {
     fun draft(key: DraftKey): Flow<Draft?>
 
@@ -65,17 +73,23 @@ interface DraftRepository {
     suspend fun latestNew(): Draft?
 
     /** 고치기를 열 때 임시 저장본이 없으면 일기에서 만든다. 일기가 없으면 null이다. */
-    suspend fun openEdit(entryId: String): Draft?
+    suspend fun openEdit(entryId: String): OpenedEdit?
 
     /** 글과 칩을 쓴다. 사진은 아래 함수들이 맡는다. 디바운스는 화면 모델이 한다. */
     suspend fun save(draft: Draft)
 
-    /** 한도와 공간이 허락하는 만큼 더한다. 임시 저장본이 먼저 있어야 한다. */
+    /**
+     * 한도와 공간이 허락하는 만큼 더한다.
+     * 임시 저장본이 없으면 모두 못 더한 것으로 센다.
+     */
     suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult
 
     suspend fun removePhoto(key: DraftKey, index: Int)
 
-    /** [order]는 지금 사진 위치를 새 순서대로 나열한 것이다. */
+    /**
+     * [order]는 지금 사진 위치를 새 순서대로 나열한 것이다.
+     * 그 사이 사진이 바뀌어 맞지 않으면 그대로 둔다.
+     */
     suspend fun reorderPhotos(key: DraftKey, order: List<Int>)
 
     /** 한 트랜잭션: 일기와 사진을 쓰고 임시 저장본을 지운다. 일기 ID를 돌려준다. 실패하면 임시 저장본이 남는다. */
