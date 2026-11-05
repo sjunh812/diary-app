@@ -55,6 +55,7 @@ import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.plus_ad_free_owned
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_title
 import org.sjhstudio.diary.feature.plus.resources.plus_close
+import org.sjhstudio.diary.feature.plus.resources.plus_coming
 import org.sjhstudio.diary.feature.plus.resources.plus_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_note
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_store
@@ -159,7 +160,7 @@ internal fun PaywallScreen(
                     { Res.readBytes("files/plus_benefits.json") },
                     ART_MILLIS,
                     active = true,
-                    Modifier.fillMaxWidth().height(DiaryArtSize.banner).clip(DiaryShapes.r20).background(colors.selected)
+                    Modifier.fillMaxWidth().height(DiaryArtSize.banner)
                 )
                 BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
                 Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
@@ -167,6 +168,7 @@ internal fun PaywallScreen(
                     Benefit(Res.string.plus_photos_title)
                     Benefit(Res.string.plus_stats_title)
                 }
+                BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
                 if (adFreeOwned) {
                     BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
                 }

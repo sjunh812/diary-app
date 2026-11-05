@@ -218,23 +218,28 @@ def backup():
 
 
 def plus():
-    """결제 화면 머리 그림. 광고가 접혀 사라지고, 사진이 쌓이고, 통계 막대가 오른다."""
+    """결제 화면 머리 그림. 일기 한 장에서 광고 자리가 접히고, 그 자리에 사진이 차고, 통계가 붙는다."""
     c = Comp("plus_benefits", 84, "shared/feature/plus/src/commonMain/composeResources/files", 350, 172)
-    for i, (x, h, start) in enumerate([(232, 36, 44), (258, 58, 50), (284, 82, 56)]):
-        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 18, h, 6), fill("@accent")])], anchor=(0, 0), pos=static([x, 128, 0]),
-                scale=keys([(start, [100, 0, 100]), (start + 16, [100, 100, 100])]))
-    for i, (x, r, start) in enumerate([(150, -8, 22), (162, 4, 30), (174, 12, 38)]):
-        c.layer(f"사진 {i + 1}", [
-            *image_icon(0, 0, 24, "@accent"),
-            group([rect(0, 0, 58, 58, 12), stroke("@line", 1), fill("@surface")]),
-        ], pos=static([x, 86, 0]), scale=pop(start, start + 14), opacity=keys([(start, 0), (start + 4, 100)], LINEAR),
-            rotation=static(r))
-    c.layer("광고", [
-        group([path("M 42 76 L 82 76"), stroke("@line", 6)]),
-        group([path("M 42 92 L 70 92"), stroke("@line", 6)]),
-        group([rect(62, 86, 64, 56, 12), stroke("@line", 1), fill("@surface")]),
-    ], anchor=(62, 86), scale=keys([(0, [100, 100, 100]), (10, [100, 100, 100]), (24, [78, 78, 100])]),
-        opacity=keys([(0, 100), (10, 100), (24, 35)], LINEAR))
+    for i, (x, h, start) in enumerate([(262, 14, 58), (278, 24, 62), (294, 36, 66)]):
+        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 11, h, 3.5), fill("@accent")])], pos=static([x, 158, 0]),
+                scale=keys([(start, [100, 0, 100]), (start + 12, [100, 100, 100])]))
+    c.layer("통계 칸", [group([rect(278, 136, 66, 60, 14), stroke("@line", 1), fill("@surface")])], anchor=(278, 136),
+            scale=pop(50, 62))
+    for i, (x, color, start) in enumerate([(106, "@moodA", 22), (168, "@moodB", 30), (230, "@moodC", 38)]):
+        c.layer(f"사진 {i + 1}", [*image_icon(x, 104, 24, "@surface"), group([rect(x, 104, 54, 54, 10), fill(color)])],
+                anchor=(x, 104), scale=pop(start, start + 14))
+    c.layer("광고 자리", [
+        group([path("M 92 96 L 200 96"), stroke("@line", 6)]),
+        group([path("M 92 112 L 160 112"), stroke("@line", 6)]),
+        group([rect(168, 104, 186, 54, 10), fill("@sunken")]),
+    ], anchor=(168, 104), scale=keys([(0, [100, 100, 100]), (8, [100, 100, 100]), (22, [100, 0, 100])]),
+        opacity=keys([(8, 100), (22, 0)], LINEAR))
+    c.layer("일기 머리", [
+        *face(92, 44, 13),
+        group([path("M 116 38 L 230 38"), stroke("@line", 6)]),
+        group([path("M 116 54 L 190 54"), stroke("@line", 6)]),
+    ])
+    c.layer("일기 카드", [group([rect(168, 86, 210, 148, 18), stroke("@line", 1), fill("@surface")])])
     c.save()
 
 

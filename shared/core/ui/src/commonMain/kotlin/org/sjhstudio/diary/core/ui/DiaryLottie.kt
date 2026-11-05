@@ -50,6 +50,9 @@ private fun lottiePalette(): Map<String, Color> {
         "@onAccent" to colors.onAccent,
         "@textTertiary" to colors.textTertiary,
         "@face" to moodColor(Mood.GOOD),
+        "@moodA" to moodColor(Mood.COOL),
+        "@moodB" to moodColor(Mood.LAUGH),
+        "@moodC" to moodColor(Mood.TIRED),
         "@faceLine" to MoodFaceLine
     )
 }

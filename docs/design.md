@@ -173,7 +173,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 설정 줄 | 최소 56 · 위아래 14 · 좌우 20 · 앞 아이콘 24 · 아이콘과 이름 사이 12 · 이름 `reading` · 값 `body` + 화살표 20. 설명이 붙은 두 줄도 위아래 14, 사이 12 | TDS ListRow, M3 1줄 56·앞 아이콘 24, SEED ListItem(사이 12) |
 | 바텀 시트 | 떠 있는 시트 · 좌우·아래 10 띄움 · 모서리 28 · 손잡이 48×4 · 안쪽 24 · 제목 `title2` + 아래 바꿀 수 있는 날짜 · 폭 최대 480, 높이 최대 90% | TDS BottomSheet(r28, 10 띄움, 48×4), SEED 최대 폭 480, 하루콩·Daylio 날짜 링크 |
 | 편지지 | 바탕 `selected` 40%, 카드 `surface` · 모서리 20 · 선 1 · 안쪽 24 · 문단 사이 16. To는 `label` `accentText`, From은 `label` 오른쪽 정렬. 열릴 때 24 올라오며 0.45초, 동작 줄이기면 없음 | 편지 꼴(받는 사람, 인사, 본문, 보내는 사람) |
-| 결제 화면 | 스크롤 없는 한 화면. 그림 172 · 제목 `title1` · 혜택 세 줄(체크 24, `reading`, 설명 없음) · 결제액 `title2` · 큰 버튼 · 고지 `caption` | RevenueCat, Adapty, Apple 구독 안내, Play 구독 정책 |
+| 결제 화면 | 스크롤 없는 한 화면. 그림 172(바탕 칸 없이 일기 한 장, 광고 자리가 접히고 사진과 통계가 차는 로띠) · 제목 `title1` · 혜택 세 줄(체크 24, `reading`, 설명 없음) · 그 아래 앞으로 더할 기능 한 줄(`caption`, `textSecondary`) · 결제액 `title2` · 큰 버튼 · 고지 `caption` | RevenueCat, Adapty, Apple 구독 안내, Play 구독 정책 |
 | 네이티브 광고 | `sunken` 면 · 모서리 16 · 안쪽 16 · 제목 두 줄까지, "광고" 표시, 행동 문구 · 오른쪽 위 ×(광고 없애기 시트). 얇은 줄은 글만, 카드는 왼쪽 120 그림이나 영상 | AdMob 네이티브 정책, 오발있 NativeAdRow·NativeAdCard |
 | 토스트 | 폭 화면 - 40, 최대 400(넓은 화면은 아래 가운데, 폰 토스트와 같은 크기) · 높이 48 · 한 줄 full, 여러 줄 20 · `bodyStrong` · 쓰기 버튼 위 8, 쓰기 버튼이 없으면 탭 위 24 · 버튼이 있으면 5초, 누르는 동안 멈춤 | TDS Toast 5000ms, [SEED Snackbar](https://seed-design.io/docs/components/snackbar)(FAB가 있으면 늘 FAB 위) |
 | 대화상자 | 폭 312(최대 560) · 모서리 28 · 안쪽 24 · 왼쪽 버튼은 "닫기" | M3 Dialog, 토스 UX 가이드 |
