@@ -8,8 +8,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -47,7 +45,7 @@ sealed interface BackupOutcome {
 
     data class Failed(val kind: BackupFailure) : BackupOutcome
 
-    /** 다른 백업이 도는 중이다. */
+    /** 다른 백업이나 복원이 도는 중이거나 기록 이전이 끝나지 않았다. */
     data object Busy : BackupOutcome
 
     /** 자동 백업인데 마지막 성공 뒤로 바뀐 것이 없다. */
@@ -84,9 +82,10 @@ class BackupRunner(
     private val settings: suspend () -> ManifestSettings,
     private val clock: Clock = Clock.System,
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
-    private val alerts: BackupAlerts? = null
+    private val alerts: BackupAlerts? = null,
+    private val gate: BackupGate = BackupGate(),
+    private val dataReady: () -> Boolean = { true }
 ) {
-    private val lock = Mutex()
     private val _progress = MutableStateFlow<BackupProgress?>(null)
 
     /** 도는 동안의 단계와 숫자. 홈과 설정이 같이 본다. */
@@ -94,7 +93,8 @@ class BackupRunner(
 
     /** [cellularOnce]는 사용자가 이번만 모바일 데이터로 사진을 올리겠다고 고른 경우다. */
     suspend fun run(cellularOnce: Boolean = false): BackupOutcome {
-        if (!lock.tryLock()) return BackupOutcome.Busy
+        // 기록 이전이 끝나기 전의 일기는 일부뿐이다. 그 상태를 가장 새 백업으로 남기지 않는다.
+        if (!dataReady() || !gate.tryEnter()) return BackupOutcome.Busy
         try {
             if (db.backupDao().entryRows() == 0) return BackupOutcome.Empty
             store.update { it.copy(lastAttemptAt = clock.now()) }
@@ -102,7 +102,7 @@ class BackupRunner(
         } finally {
             _progress.value = null
             fileSystem.deleteRecursively(workDir / OUTGOING, mustExist = false)
-            lock.unlock()
+            gate.leave()
         }
     }
 

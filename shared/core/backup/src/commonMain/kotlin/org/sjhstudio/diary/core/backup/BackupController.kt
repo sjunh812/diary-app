@@ -100,6 +100,7 @@ class BackupController(
     }
 
     override fun backUpNow(cellularOnce: Boolean) {
+        if (scheduler.startNow(cellularOnce)) return
         scope.launch { runner.value.run(cellularOnce) }
     }
 

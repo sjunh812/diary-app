@@ -12,6 +12,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -134,7 +135,11 @@ class RestoreRoundTripTest {
         assertEquals(2, second.preview.entriesUnchanged)
     }
 
-    private fun controller(settings: MutableList<ManifestSettings>, scope: kotlinx.coroutines.CoroutineScope): RestoreController {
+    private fun controller(
+        settings: MutableList<ManifestSettings>,
+        scope: kotlinx.coroutines.CoroutineScope,
+        gate: BackupGate = BackupGate()
+    ): RestoreController {
         val media = dir / "b" / "media"
         val work = dir / "b" / "backup"
         val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
@@ -145,7 +150,7 @@ class RestoreRoundTripTest {
             lazy { RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {}) },
             lazy { error("쓰지 않는다") },
             lazy { phoneB },
-            store, FakeNetworkState(), fs, work, { settings += it }, scope
+            store, FakeNetworkState(), fs, work, { settings += it }, scope, gate
         )
     }
 
@@ -165,6 +170,23 @@ class RestoreRoundTripTest {
         assertEquals(1, result.photosRestored)
         assertEquals(0, result.photosPending)
         assertEquals(1, settings.size)
+    }
+
+    @Test
+    fun restore_waits_for_a_running_backup_instead_of_vanishing() = runTest {
+        backUp()
+        val gate = BackupGate()
+        val controller = controller(mutableListOf(), backgroundScope, gate)
+        val name = controller.backups()!!.single().snapshotName
+        assertIs<RestorePreparation.Ready>(controller.prepare(name))
+        assertTrue(gate.tryEnter())
+
+        controller.merge()
+        withContext(Dispatchers.Default) { delay(100) }
+        assertEquals(RestoreState.Merging, controller.state.value)
+
+        gate.leave()
+        withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
     }
 
     @Test

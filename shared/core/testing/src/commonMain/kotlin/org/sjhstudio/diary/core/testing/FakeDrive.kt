@@ -48,6 +48,9 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
     /** 드라이브가 `sha256Checksum`을 주지 않는 경우. */
     var omitSha256 = false
 
+    /** 파일을 받을 때마다 부른다. 백업이 도는 도중에 일어나는 일을 흉내 낸다. */
+    var onUpload: (suspend (NewFile) -> Unit)? = null
+
     var calls = 0
         private set
 
@@ -90,6 +93,7 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
 
     override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile {
         gate()
+        onUpload?.invoke(meta)
         return store(meta, fileSystem.read(body) { readByteArray() })
     }
 

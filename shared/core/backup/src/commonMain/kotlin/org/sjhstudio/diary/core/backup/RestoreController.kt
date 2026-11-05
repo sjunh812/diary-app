@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import okio.BufferedSink
 import okio.ByteString
@@ -53,12 +52,12 @@ class RestoreController(
     private val fileSystem: FileSystem,
     private val workDir: Path,
     private val applySettings: suspend (ManifestSettings) -> Unit,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val gate: BackupGate = BackupGate()
 ) : RestoreRepository {
     private val _state = MutableStateFlow<RestoreState>(RestoreState.Idle)
     override val state: StateFlow<RestoreState> = _state.asStateFlow()
 
-    private val busy = Mutex()
     private var candidates = emptyList<RestoreCandidate>()
     private var prepared: PreparedRestore? = null
     private var preparedLegacy: LegacyPlan? = null
@@ -67,11 +66,11 @@ class RestoreController(
     override val rollback: Flow<RollbackInfo?> = flow { emitAll(rollbackManager.value.info) }
 
     override suspend fun rollBack(): Boolean {
-        if (!busy.tryLock()) return false
+        if (!gate.tryEnter()) return false
         return try {
             guarded { rollbackManager.value.rollBack() } ?: false
         } finally {
-            busy.unlock()
+            gate.leave()
         }
     }
 
@@ -193,10 +192,12 @@ class RestoreController(
     private fun run(work: suspend (PreparedRestore?) -> RestoreResult) {
         val ready = prepared
         if (ready == null && preparedLegacy == null) return
-        if (!busy.tryLock()) return
+        if (_state.value == RestoreState.Merging) return
+        _state.value = RestoreState.Merging
         scope.launch {
+            // 도는 백업이 있으면 끝날 때까지 기다린다. 복원을 조용히 버리지 않는다.
+            gate.enter()
             try {
-                _state.value = RestoreState.Merging
                 _state.value = RestoreState.Done(work(ready))
             } catch (error: CancellationException) {
                 throw error
@@ -205,7 +206,7 @@ class RestoreController(
             } catch (_: Exception) {
                 _state.value = RestoreState.Failed(RestoreFailure.OTHER)
             } finally {
-                busy.unlock()
+                gate.leave()
             }
         }
     }
@@ -277,11 +278,11 @@ class RestoreController(
         val prefs = store.current()
         if (prefs.accountKey == null || !network.isConnected) return
         if (!network.isUnmetered && !prefs.photosOnCellular) return
-        if (!busy.tryLock()) return
+        if (!gate.tryEnter()) return
         try {
             if (db.value.backupDao().pendingFiles().isNotEmpty()) guarded { fetcher.value.fetch() }
         } finally {
-            busy.unlock()
+            gate.leave()
         }
     }
 

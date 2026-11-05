@@ -17,6 +17,7 @@ import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.BackupController
+import org.sjhstudio.diary.core.backup.BackupGate
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.BundleExporter
 import org.sjhstudio.diary.core.backup.LegacyBackupImporter
@@ -175,6 +176,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         }
         single<ContextTips> { get<WelcomeRepository>() }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
+        single { BackupGate() }
         single {
             val files = get<AppFiles>()
             BackupRunner(
@@ -190,7 +192,9 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 app = get(),
                 readme = { backupReadme() },
                 settings = { currentBackupSettings(get(), get()) },
-                alerts = BackupAlerts(get()) { backupAlertText(it) }
+                alerts = BackupAlerts(get()) { backupAlertText(it) },
+                gate = get(),
+                dataReady = { !get<LegacyMigration>().needsMigration() }
             )
         }
         single<BackupRepository> {
@@ -268,7 +272,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 fileSystem = system,
                 workDir = work,
                 applySettings = applyBackup,
-                scope = get(APP_SCOPE)
+                scope = get(APP_SCOPE),
+                gate = get()
             )
         }
         single<PlanRepository> { FreePlanRepository() }
