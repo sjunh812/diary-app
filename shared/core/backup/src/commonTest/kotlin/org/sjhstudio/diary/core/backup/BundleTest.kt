@@ -8,10 +8,20 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
+import okio.ForwardingFileSystem
+import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
@@ -22,9 +32,12 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.testing.FakeDrive
+import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
 class BundleTest {
@@ -165,5 +178,110 @@ class BundleTest {
         fs.sink(zip).buffer().use { BundleWriter(fs).write(it, listOf(BundleItem("manifest.json", manifest))) }
 
         assertFailsWith<RestoreNeedsUpdate> { planner().prepareBundle(zip) }
+    }
+
+    private val incoming get() = dir / "b" / "backup" / "incoming"
+
+    /** 사진 파일을 옮길 때 실패하는 기기. */
+    private val jammed =
+        object : ForwardingFileSystem(fs) {
+            override fun atomicMove(source: Path, target: Path) = throw IOException("저장 공간이 없다")
+        }
+
+    private fun controller(fetcher: PhotoFetcher, scope: CoroutineScope): RestoreController {
+        val media = dir / "b" / "media"
+        val work = dir / "b" / "backup"
+        val store = BackupStore(InMemoryDataStore(emptyPreferences()))
+        val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
+        return RestoreController(
+            lazy { RestoreCatalog(FakeDrive(fs), fs, work) }, lazy { planner() }, applier, lazy { fetcher },
+            lazy { LegacyBackupImporter(phoneB, FakeDrive(fs), { _, _, _ -> null }, fs, work) },
+            lazy { RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {}) },
+            lazy { error("쓰지 않는다") },
+            lazy { phoneB },
+            store, FakeNetworkState(), fs, work, {}, scope
+        )
+    }
+
+    private suspend fun finish(controller: RestoreController) {
+        controller.merge()
+        withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
+    }
+
+    @Test
+    fun a_failed_photo_extraction_keeps_the_file_until_it_is_dismissed() = runTest {
+        val zip = exportFromA()
+        val controller =
+            controller(PhotoFetcher(phoneB, FakeDrive(fs), jammed, dir / "b" / "media", dir / "b" / "backup"), backgroundScope)
+        assertIs<RestorePreparation.Ready>(controller.prepareFile(fs.source(zip)))
+
+        finish(controller)
+        assertTrue(fs.exists(incoming / "picked"), "아직 꺼내지 못한 사진이 있는 파일을 지웠다")
+
+        controller.dismiss()
+        withContext(Dispatchers.Default) {
+            withTimeout(5_000) {
+                while (fs.listOrNull(incoming).orEmpty().isNotEmpty()) delay(10)
+            }
+        }
+    }
+
+    @Test
+    fun a_finished_restore_removes_the_file() = runTest {
+        val zip = exportFromA()
+        val controller = controller(fetcher(), backgroundScope)
+        assertIs<RestorePreparation.Ready>(controller.prepareFile(fs.source(zip)))
+
+        finish(controller)
+
+        assertFalse(fs.exists(incoming / "picked"))
+    }
+
+    @Test
+    fun closing_the_preview_removes_the_picked_file() = runTest {
+        val zip = exportFromA()
+        val controller = controller(fetcher(), backgroundScope)
+        assertIs<RestorePreparation.Ready>(controller.prepareFile(fs.source(zip)))
+        assertTrue(fs.exists(incoming / "picked"))
+
+        controller.dismiss()
+
+        withContext(Dispatchers.Default) {
+            withTimeout(5_000) {
+                while (fs.listOrNull(incoming).orEmpty().isNotEmpty()) delay(10)
+            }
+        }
+    }
+
+    @Test
+    fun a_file_that_is_refused_leaves_no_copy_behind() = runTest {
+        val garbage = dir / "garbage"
+        fs.write(garbage) { writeUtf8("zip도 일기 DB도 아닌 파일") }
+        val controller = controller(fetcher(), backgroundScope)
+
+        assertIs<RestorePreparation.Failed>(controller.prepareFile(fs.source(garbage)))
+
+        assertTrue(fs.listOrNull(incoming).orEmpty().isEmpty())
+    }
+
+    @Test
+    fun the_estimate_counts_live_entries_and_every_body() = runTest {
+        phoneA.entryDao().insertAll(
+            listOf(
+                EntryEntity("live", "2026-10-31", "21:40", "1234", "글", null, null, null, false, 1, 7, null, null, null, null),
+                EntryEntity("thrown", "2026-10-31", "21:40", "123456", "글", null, null, null, false, 1, 7, 9, null, null, null)
+            )
+        )
+        val exporter =
+            BundleExporter(
+                phoneA, BackupStore(InMemoryDataStore(emptyPreferences())), DeviceName { "A" }, fs, dir / "a" / "media",
+                dir / "a" / "backup",
+                BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+            )
+
+        val estimate = exporter.estimate()
+
+        assertEquals(1, estimate.entries)
+        assertEquals(20, estimate.bytes)
     }
 }

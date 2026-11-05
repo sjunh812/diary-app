@@ -149,4 +149,26 @@ class ReplaceAndRollbackTest {
 
         assertNull(manager().info.first())
     }
+
+    @Test
+    fun info_counts_live_entries_only() = runTest {
+        db.entryDao().insertAll(listOf(entry("kept"), entry("thrown").copy(deletedAt = 5)))
+        manager().replace(backup("new"), "drive")
+        now += 1.days
+        db.entryDao().insertAll(listOf(entry("after", T0), entry("after-thrown", T0).copy(deletedAt = 5)))
+
+        val info = assertNotNull(manager().info.first())
+
+        assertEquals(1, info.entriesBefore)
+        assertEquals(1, info.entriesAfter)
+    }
+
+    @Test
+    fun a_damaged_copy_hides_the_rollback_instead_of_crashing() = runTest {
+        seed("here")
+        manager().replace(backup("new"), "drive")
+        fs.write(dir / "backup" / "rollback" / "diary.db") { writeUtf8("깨진 파일") }
+
+        assertNull(manager().info.first())
+    }
 }

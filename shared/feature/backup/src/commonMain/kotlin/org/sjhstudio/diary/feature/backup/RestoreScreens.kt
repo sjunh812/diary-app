@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,7 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -55,6 +57,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
@@ -234,6 +237,12 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit, onFile
     }
 }
 
+/** 값 줄 묶음. 값 줄이 스스로 화면 여백을 두므로 이미 여백 안에 있을 때는 겹치지 않게 뺀다. */
+@Composable
+private fun ValueGroup(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    CompositionLocalProvider(LocalScreenGutter provides Dp.Hairline) { Column(modifier, content = content) }
+}
+
 /** 고를 수 없는 백업. 자리는 남겨서 왜 없는지 보인다. */
 @Composable
 private fun Unavailable(title: String, reason: String) {
@@ -242,7 +251,7 @@ private fun Unavailable(title: String, reason: String) {
         Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x3),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
-        BasicText(title, style = DiaryTheme.typography.body.copy(color = colors.textTertiary))
+        BasicText(title, style = DiaryTheme.typography.reading.copy(color = colors.textSecondary))
         BasicText(reason, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
 }
@@ -305,7 +314,7 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
             fill = false
         )
         Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
-            Column(Modifier.padding(horizontal = DiarySpacing.x2)) {
+            ValueGroup {
                 val entries = Res.plurals.restore_unit_entries
                 DiaryValueRow(
                     stringResource(Res.string.restore_value_added),
@@ -383,7 +392,7 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
             fill = false
         )
         Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
-            Column(Modifier.padding(horizontal = DiarySpacing.x2)) {
+            ValueGroup {
                 val entries = Res.plurals.restore_unit_entries
                 DiaryValueRow(
                     stringResource(Res.string.restore_value_added),
@@ -467,7 +476,7 @@ private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntri
             fill = false
         )
         if (photos != null) {
-            Column(Modifier.padding(horizontal = DiarySpacing.screenCompact)) {
+            ValueGroup(Modifier.padding(horizontal = DiarySpacing.screenCompact)) {
                 DiaryProgressBar(if (photos.total > 0) photos.done.toFloat() / photos.total else 1f)
                 Spacer(Modifier.height(DiarySpacing.x3))
                 DiaryValueRow(
@@ -650,7 +659,7 @@ private fun Page(title: String, onBack: () -> Unit, modifier: Modifier, content:
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DiaryTopBar(title, onBack = onBack)
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().weight(1f), content = content)
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().weight(1f), content = content)
     }
 }
 

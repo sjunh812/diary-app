@@ -15,9 +15,11 @@ import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.LocalPhotoRow
 import org.sjhstudio.diary.core.drive.DriveApi
+import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.drive.DriveFile
 import org.sjhstudio.diary.core.drive.DriveQuery
 import org.sjhstudio.diary.core.drive.listAll
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.platform.FreeSpace
 
@@ -26,6 +28,17 @@ class RestoreMismatch : Exception("backup does not match its manifest")
 
 /** 더 새 앱이 만든 묶음 파일이다. */
 class RestoreNeedsUpdate : Exception("backup needs a newer app")
+
+/** 복원 파일에 적힌 이름은 남이 만든 값일 수 있다. 경로에 붙이기 전에 여기서 본다. */
+internal object RestoreNames {
+    private val PHOTO = Regex("[0-9a-f]{64}\\.[A-Za-z0-9]{1,16}")
+
+    /** 사진 파일 이름은 `<내용 SHA-256>.<확장자>`다. 다른 사진의 이름이면 그 사진을 덮으니 해시도 맞아야 한다. */
+    fun isPhoto(name: String, sha256: String?): Boolean = PHOTO.matches(name) && (sha256 == null || name.substringBefore('.') == sha256)
+
+    /** 스냅샷 이름에는 기기 이름이 들어가 글자를 좁힐 수 없다. 폴더를 넘나들지만 못하게 한다. */
+    fun isSingleName(name: String): Boolean = name.isNotEmpty() && name != "." && name != ".." && name.none { it in "/\\\u0000" }
+}
 
 /** 받아서 확인까지 끝난 백업. 사용자가 확인하면 이 계획대로 합친다. */
 data class PreparedRestore(
@@ -48,6 +61,7 @@ class RestorePlanner(
     suspend fun prepare(candidate: RestoreCandidate): PreparedRestore {
         val manifest = requireNotNull(candidate.manifest)
         val file = candidate.snapshot ?: throw RestoreMismatch()
+        if (!RestoreNames.isSingleName(manifest.snapshot.fileName)) throw RestoreMismatch()
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
         val path = incoming / manifest.snapshot.fileName
@@ -80,7 +94,8 @@ class RestorePlanner(
             throw RestoreMismatch()
         }
         val entries = SnapshotReader.read(path)
-        if (entries.count { it.entry.deletedAt == null } != manifest.counts.entries) {
+        val namesOk = entries.all { entry -> entry.media.all { row -> row.fileName?.let { RestoreNames.isPhoto(it, row.sha256) } ?: true } }
+        if (!namesOk || entries.count { it.entry.deletedAt == null } != manifest.counts.entries) {
             fileSystem.delete(path, mustExist = false)
             throw RestoreMismatch()
         }
@@ -106,8 +121,8 @@ class RestorePlanner(
         val local = plan.local.values.flatMap { it.media }
         val here = local.filter { it.status == "normal" }.mapNotNull { it.sha256 }.toSet()
         // 일기가 그대로여도 전에 못 받은 사진은 이번 백업에서 채운다.
-        val waiting = local.filter { it.status == "pending" }.mapNotNull { it.sha256 }
-        val incoming = plan.items.filter { it.second != MergeAction.KEEP }.flatMap { it.first.media }.mapNotNull { it.sha256 }
+        val waiting = local.filter { it.status == "pending" }.mapNotNullTo(HashSet()) { it.sha256 }
+        val incoming = plan.items.filter { it.second != MergeAction.KEEP }.flatMap { it.first.media }.mapNotNullTo(HashSet()) { it.sha256 }
         return manifest.media.filter { it.inBackup && it.sha256 !in here && (it.sha256 in incoming || it.sha256 in waiting) }
     }
 
@@ -155,8 +170,8 @@ class PhotoFetcher(
         parallel: Int = 1,
         copy: suspend (sha256: String, name: String, target: Path) -> Boolean
     ): Pair<Int, Int> {
-        val dao = db.backupDao()
-        val waiting = dao.pendingFiles()
+        // 같은 이름이 두 줄이면 같은 `.part`를 함께 쓰게 되니 시작 전에 파일 이름으로 묶는다.
+        val waiting = db.backupDao().pendingFiles().distinctBy { it.fileName ?: it.sha256 }
         fileSystem.createDirectories(workDir)
         fileSystem.createDirectories(mediaDir)
         val results = Channel<Settled>(Channel.UNLIMITED)
@@ -171,7 +186,7 @@ class PhotoFetcher(
                 when (results.receive()) {
                     Settled.FETCHED -> fetched++
                     Settled.BROKEN -> broken++
-                    Settled.NOT_IN_BACKUP -> Unit
+                    Settled.STILL_WAITING -> Unit
                 }
                 onProgress(index + 1, waiting.size)
             }
@@ -181,21 +196,37 @@ class PhotoFetcher(
 
     private suspend fun settleOne(photo: LocalPhotoRow, copy: suspend (sha256: String, name: String, target: Path) -> Boolean): Settled {
         val dao = db.backupDao()
-        val name = photo.fileName
-        val partial = name?.let { workDir / "$it.part" }
         // 백업에 없는 사진은 대기로 두어 "원래 기기에 있는 사진"으로 보인다.
-        if (name == null || partial == null || !copy(photo.sha256, name, partial)) return Settled.NOT_IN_BACKUP
-        if (fileSystem.hashes(partial).sha256 != photo.sha256) {
-            fileSystem.delete(partial, mustExist = false)
-            dao.settlePending(photo.sha256, "missing")
+        val name = photo.fileName ?: return Settled.STILL_WAITING
+        // 전에 받아 둔 줄일 수 있어 여기서도 본다. 이 이름으로는 파일을 쓰지 않는다.
+        if (!RestoreNames.isPhoto(name, photo.sha256)) {
+            dao.settlePending(photo.sha256, name, "missing")
             return Settled.BROKEN
         }
-        fileSystem.atomicMove(partial, mediaDir / name)
-        dao.settlePending(photo.sha256, "normal")
-        return Settled.FETCHED
+        val partial = workDir / "$name.part"
+        try {
+            if (!copy(photo.sha256, name, partial)) return Settled.STILL_WAITING
+            if (fileSystem.hashes(partial).sha256 != photo.sha256) {
+                dao.settlePending(photo.sha256, name, "missing")
+                return Settled.BROKEN
+            }
+            fileSystem.atomicMove(partial, mediaDir / name)
+            dao.settlePending(photo.sha256, name, "normal")
+            return Settled.FETCHED
+        } catch (error: DriveException) {
+            // 이 사진만의 일이면 대기로 두고 다음 장으로 간다. 어차피 다 실패할 일이면 여기서 멈춘다.
+            if (error.stopsAllPhotos) throw error
+            return Settled.STILL_WAITING
+        } finally {
+            fileSystem.delete(partial, mustExist = false)
+        }
     }
 
-    private enum class Settled { FETCHED, BROKEN, NOT_IN_BACKUP }
+    /** 잠깐 끊겼거나 로그인이 풀리면 다음 장도 똑같이 실패한다. */
+    private val DriveException.stopsAllPhotos: Boolean
+        get() = retryable || kind == BackupFailure.AUTH || kind == BackupFailure.OFFLINE
+
+    private enum class Settled { FETCHED, BROKEN, STILL_WAITING }
 
     private companion object {
         /** 드라이브에서 동시에 받는 사진 수. 사진 한 장은 작아서 기다리는 시간이 대부분이다. */

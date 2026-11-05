@@ -37,6 +37,6 @@ interface DriveAuthorizer {
     /** 드라이브가 토큰을 거절했다. 다음 [accessToken]은 새로 받는다. */
     fun invalidateToken() {}
 
-    /** 기기의 토큰을 지우고 이 앱에 준 권한을 거둔다. 드라이브의 백업 파일은 지우지 않는다(FR-004). */
+    /** 이 기기의 연결을 끊는다. 드라이브의 백업 파일은 지우지 않는다(FR-004). */
     suspend fun disconnect()
 }

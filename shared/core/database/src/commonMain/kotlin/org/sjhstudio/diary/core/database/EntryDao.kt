@@ -5,6 +5,7 @@ import androidx.room3.ColumnInfo
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.Query
+import androidx.room3.Transaction
 import androidx.room3.Update
 import androidx.room3.Upsert
 import kotlinx.coroutines.flow.Flow
@@ -160,6 +161,17 @@ interface EntryDao {
     /** 고친 줄 수를 돌려준다. 없는 일기면 0이다. */
     @Update
     suspend fun update(entry: EntryEntity): Int
+
+    /**
+     * 일기를 읽어 고쳐 쓴다.
+     * [change]가 null을 주면 쓰지 않는다.
+     * 한 트랜잭션이라 사이에 다른 쓰기가 끼어들어 앞의 고침을 덮지 않는다.
+     */
+    @Transaction
+    suspend fun edit(id: String, change: (EntryEntity) -> EntryEntity?) {
+        val entry = get(id) ?: return
+        change(entry)?.let { update(it) }
+    }
 
     /** 휴지통에서 영구 삭제. 사진 줄도 함께 지워진다. */
     @Query("DELETE FROM entry WHERE id = :id")

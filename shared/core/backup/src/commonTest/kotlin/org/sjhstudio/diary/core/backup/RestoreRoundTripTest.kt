@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room3.Room
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -9,11 +10,17 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
@@ -30,6 +37,7 @@ import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.platform.DeviceName
@@ -71,12 +79,14 @@ class RestoreRoundTripTest {
         id, "2026-10-31", "21:40", "<p>$id</p>", id, "good", null, "망원동", true, 1, 7, null, id.first().code, null, null
     )
 
-    private suspend fun backUp(): String {
+    private suspend fun backUp(extraRows: List<MediaEntity> = emptyList()): String {
         val bytes = "사진 내용".encodeToByteArray()
         val hash = bytes.toByteString().sha256().hex()
         fs.write(dir / "a" / "media" / "$hash.jpg") { write(bytes) }
         phoneA.entryDao().insertAll(listOf(entry("one"), entry("two")))
-        phoneA.mediaDao().insertAll(listOf(MediaEntity("m", "one", 0, "normal", "$hash.jpg", hash, 1, 1, bytes.size.toLong(), null, 1)))
+        phoneA.mediaDao().insertAll(
+            listOf(MediaEntity("m", "one", 0, "normal", "$hash.jpg", hash, 1, 1, bytes.size.toLong(), null, 1)) + extraRows
+        )
         val runner =
             BackupRunner(
                 phoneA, drive, FakeDriveAuthorizer(), BackupStore(InMemoryDataStore(emptyPreferences())), FakeNetworkState(),
@@ -90,8 +100,8 @@ class RestoreRoundTripTest {
         return hash
     }
 
-    private fun planner() = RestorePlanner(
-        drive,
+    private fun planner(api: DriveApi = drive) = RestorePlanner(
+        api,
         MergeApplier(phoneB, {
             fs.exists(dir / "b" / "media" / it)
         }),
@@ -138,16 +148,20 @@ class RestoreRoundTripTest {
     private fun controller(
         settings: MutableList<ManifestSettings>,
         scope: kotlinx.coroutines.CoroutineScope,
-        gate: BackupGate = BackupGate()
+        gate: BackupGate = BackupGate(),
+        api: DriveApi = drive,
+        rollback: RollbackManager? = null
     ): RestoreController {
         val media = dir / "b" / "media"
         val work = dir / "b" / "backup"
         val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
         val store = BackupStore(InMemoryDataStore(emptyPreferences()))
         return RestoreController(
-            lazy { catalog() }, lazy { planner() }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
+            lazy { catalog() }, lazy { planner(api) }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
             lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) },
-            lazy { RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {}) },
+            lazy {
+                rollback ?: RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {})
+            },
             lazy { error("쓰지 않는다") },
             lazy { phoneB },
             store, FakeNetworkState(), fs, work, { settings += it }, scope, gate
@@ -337,5 +351,162 @@ class RestoreRoundTripTest {
 
         assertEquals(1, settings.size)
         assertEquals(false, (done as RestoreState.Done).result.lockWasOn)
+    }
+
+    /** 내려받기가 어느 디스패처에서 도는지 적는다. */
+    private class WatchingDrive(private val real: DriveApi) : DriveApi by real {
+        var seen: ContinuationInterceptor? = null
+            private set
+
+        override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {
+            seen = currentCoroutineContext()[ContinuationInterceptor]
+            return real.download(fileId, to, fromByte)
+        }
+    }
+
+    private val incoming get() = dir / "b" / "backup" / "incoming"
+
+    private fun copiesLeft() = fs.listOrNull(incoming).orEmpty()
+
+    private suspend fun untilTrue(check: suspend () -> Boolean) = withContext(Dispatchers.Default) {
+        withTimeout(5_000) {
+            while (!check()) delay(10)
+        }
+    }
+
+    @Test
+    fun a_manifest_pointing_outside_the_app_folder_is_refused() = runTest {
+        backUp()
+        val listed = catalog().list().single()
+        val outside = listed.manifest!!.snapshot.copy(fileName = "../../evil.db")
+
+        assertFailsWith<RestoreMismatch> { planner().prepare(listed.copy(manifest = listed.manifest.copy(snapshot = outside))) }
+
+        assertFalse(fs.exists(dir / "b" / "evil.db"))
+    }
+
+    @Test
+    fun a_snapshot_row_pointing_outside_the_photo_folder_is_refused() = runTest {
+        val bytes = "다른 내용".encodeToByteArray()
+        val hash = bytes.toByteString().sha256().hex()
+        backUp(listOf(MediaEntity("evil", "two", 0, "pending", "../../evil.jpg", hash, 1, 1, null, null, 1)))
+
+        assertFailsWith<RestoreMismatch> { planner().prepare(catalog().list().single()) }
+    }
+
+    @Test
+    fun a_photo_name_that_is_not_its_own_hash_is_refused() = runTest {
+        val bytes = "다른 내용".encodeToByteArray()
+        val other = "0".repeat(64)
+        backUp(listOf(MediaEntity("wrong", "two", 0, "pending", "$other.jpg", bytes.toByteString().sha256().hex(), 1, 1, null, null, 1)))
+
+        assertFailsWith<RestoreMismatch> { planner().prepare(catalog().list().single()) }
+    }
+
+    @Test
+    fun a_refused_snapshot_leaves_no_copy_behind() = runTest {
+        backUp(listOf(MediaEntity("evil", "two", 0, "pending", "../../evil.jpg", "0".repeat(64), 1, 1, null, null, 1)))
+        val controller = controller(mutableListOf(), backgroundScope)
+
+        val failed = assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups()!!.single().snapshotName))
+
+        assertEquals(RestoreFailure.MISMATCH, failed.reason)
+        assertTrue(copiesLeft().isEmpty())
+    }
+
+    @Test
+    fun the_drive_preview_does_not_run_on_the_calling_thread() = runTest {
+        backUp()
+        val watching = WatchingDrive(drive)
+        val controller = controller(mutableListOf(), backgroundScope, api = watching)
+
+        assertIs<RestorePreparation.Ready>(controller.prepare(controller.backups()!!.single().snapshotName))
+
+        assertEquals(Dispatchers.IO, watching.seen)
+    }
+
+    @Test
+    fun leaving_the_screen_does_not_stop_a_rollback() = runTest {
+        phoneB.entryDao().insertAll(listOf(entry("here")))
+        val store = BackupStore(InMemoryDataStore(emptyPreferences()))
+        val started = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val manager =
+            RollbackManager(
+                phoneB,
+                MergeApplier(phoneB, {
+                    false
+                }),
+                store,
+                FreeSpace { 1_000_000_000 },
+                fs,
+                dir / "b" / "backup",
+                { ManifestSettings() },
+                {
+                    started.complete(Unit)
+                    release.await()
+                }
+            )
+        manager.replace(listOf(MergeEntry(entry("new"), emptyList())), "drive")
+        val controller = controller(mutableListOf(), backgroundScope, rollback = manager)
+
+        val screen = launch { controller.rollBack() }
+        withContext(Dispatchers.Default) { withTimeout(5_000) { started.await() } }
+        screen.cancelAndJoin()
+        release.complete(Unit)
+
+        untilTrue { store.current().rollbackUntil == null }
+    }
+
+    @Test
+    fun closing_the_preview_leaves_no_copy_of_the_diary() = runTest {
+        backUp()
+        val controller = controller(mutableListOf(), backgroundScope)
+        controller.prepare(controller.backups()!!.single().snapshotName)
+        assertTrue(copiesLeft().isNotEmpty())
+
+        controller.dismiss()
+
+        untilTrue { copiesLeft().isEmpty() }
+    }
+
+    @Test
+    fun the_next_preview_clears_the_last_one() = runTest {
+        backUp()
+        fs.createDirectories(incoming)
+        fs.write(incoming / "picked") { writeUtf8("지난번에 고른 파일") }
+        val controller = controller(mutableListOf(), backgroundScope)
+
+        controller.prepare(controller.backups()!!.single().snapshotName)
+
+        assertFalse(fs.exists(incoming / "picked"))
+    }
+
+    @Test
+    fun a_copy_left_by_a_killed_app_is_cleared_on_the_next_open() = runTest {
+        fs.createDirectories(incoming)
+        fs.write(incoming / "picked") { writeUtf8("앱이 꺼지며 남은 파일") }
+
+        controller(mutableListOf(), backgroundScope).resumePhotos()
+
+        assertTrue(copiesLeft().isEmpty())
+    }
+
+    @Test
+    fun dismiss_leaves_a_running_restore_alone() = runTest {
+        backUp()
+        val gate = BackupGate()
+        val controller = controller(mutableListOf(), backgroundScope, gate)
+        controller.prepare(controller.backups()!!.single().snapshotName)
+        assertTrue(gate.tryEnter())
+        controller.merge()
+
+        controller.dismiss()
+        withContext(Dispatchers.Default) { delay(100) }
+
+        assertEquals(RestoreState.Merging, controller.state.value)
+        assertTrue(copiesLeft().isNotEmpty())
+        gate.leave()
+        withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
     }
 }

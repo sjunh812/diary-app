@@ -4,7 +4,6 @@ import android.accounts.Account
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
 import androidx.core.content.edit
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
 import com.google.android.gms.auth.api.identity.AuthorizationResult
@@ -22,6 +21,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import org.json.JSONException
 import org.json.JSONObject
 import org.sjhstudio.diary.core.model.BackupFailure
 
@@ -39,16 +39,12 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private val context = context.applicationContext
     private val client = Identity.getAuthorizationClient(this.context)
     private val prefs = this.context.getSharedPreferences("drive_auth", Context.MODE_PRIVATE)
-    private var cached: Pair<String, DriveAccount>? = null
-
-    /** 사진마다 Play 서비스를 부르면 그것만으로 한 장에 시간이 든다. 받은 토큰을 잠깐 다시 쓴다. */
-    @Volatile
-    private var fresh: Pair<Long, TokenResult.Token>? = null
+    private val tokens = DriveTokenCache(fetch = ::fetchToken)
 
     var consent: DriveConsentLauncher? = null
 
     override suspend fun connect(hint: String?): ConnectResult = try {
-        fresh = null
+        tokens.clear()
         val first = client.authorize(request(hint)).await()
         val result =
             if (first.hasResolution()) {
@@ -58,8 +54,10 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
             } else {
                 first
             }
-        val account = account(requireNotNull(result.accessToken))
+        val account = account(result.accessToken ?: return ConnectResult.Failed(BackupFailure.AUTH))
         prefs.edit { putString(KEY_EMAIL, account.email) }
+        // 연결하는 사이에 옛 계정으로 받은 토큰이 남아 있을 수 있다.
+        tokens.clear()
         ConnectResult.Connected(account)
     } catch (error: CancellationException) {
         throw error
@@ -69,16 +67,13 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         ConnectResult.Failed(BackupFailure.OFFLINE)
     }
 
-    override suspend fun accessToken(): TokenResult = try {
+    override suspend fun accessToken(): TokenResult = tokens.get()
+
+    private suspend fun fetchToken(): TokenResult = try {
         val email = prefs.getString(KEY_EMAIL, null) ?: return TokenResult.NeedsUser
-        fresh?.takeIf { it.first > SystemClock.elapsedRealtime() }?.let { return it.second }
         val result = client.authorize(request(email)).await()
         val token = result.accessToken
-        if (result.hasResolution() || token == null) {
-            TokenResult.NeedsUser
-        } else {
-            TokenResult.Token(token, account(token)).also { fresh = SystemClock.elapsedRealtime() + TOKEN_REUSE_MILLIS to it }
-        }
+        if (result.hasResolution() || token == null) TokenResult.NeedsUser else TokenResult.Token(token, account(token))
     } catch (error: CancellationException) {
         throw error
     } catch (error: ApiException) {
@@ -87,34 +82,36 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         TokenResult.Failed(BackupFailure.OFFLINE)
     }
 
-    override fun invalidateToken() {
-        fresh = null
-    }
+    override fun invalidateToken() = tokens.clear()
 
     override suspend fun disconnect() {
-        cached = null
-        fresh = null
+        tokens.clear()
         prefs.edit { remove(KEY_EMAIL) }
+        // 구글 쪽 권한은 거두지 않는다.
+        // drive.file 권한을 거두면 다시 연결해도 앱이 만든 백업이 보이지 않을 수 있어(헌법 I), 확인하기 전까지 이 기기의 연결만 끊는다.
     }
 
     private fun request(email: String?): AuthorizationRequest {
         val builder = AuthorizationRequest.builder().setRequestedScopes(SCOPES)
-        email?.let { builder.setAccount(Account(it, "com.google")) }
+        email?.let { builder.setAccount(Account(it, ACCOUNT_TYPE)) }
         return builder.build()
     }
 
-    private suspend fun account(token: String): DriveAccount {
-        cached?.takeIf { it.first == token }?.let { return it.second }
-        return withContext(Dispatchers.IO) {
-            val connection = URL(USER_INFO).openConnection() as HttpURLConnection
-            try {
-                connection.setRequestProperty("Authorization", "Bearer $token")
-                if (connection.responseCode != HttpURLConnection.HTTP_OK) throw IOException("userinfo ${connection.responseCode}")
-                val body = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
-                DriveAccount(body.getString("sub"), body.getString("email")).also { cached = token to it }
-            } finally {
-                connection.disconnect()
-            }
+    private suspend fun account(token: String): DriveAccount = withContext(Dispatchers.IO) {
+        val connection = URL(USER_INFO).openConnection() as HttpURLConnection
+        try {
+            // 응답이 없어도 백업이 잠금을 쥔 채 머물지 않는다.
+            connection.connectTimeout = HTTP_TIMEOUT_MILLIS
+            connection.readTimeout = HTTP_TIMEOUT_MILLIS
+            connection.setRequestProperty("Authorization", "Bearer $token")
+            if (connection.responseCode != HttpURLConnection.HTTP_OK) throw IOException("userinfo ${connection.responseCode}")
+            val body = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+            DriveAccount(body.getString("sub"), body.getString("email"))
+        } catch (_: JSONException) {
+            // 공용 와이파이의 안내 페이지가 올 수 있다. 응답 내용은 메시지에 넣지 않는다.
+            throw IOException("userinfo body")
+        } finally {
+            connection.disconnect()
         }
     }
 
@@ -123,12 +120,15 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private suspend fun Task<AuthorizationResult>.await(): AuthorizationResult = suspendCancellableCoroutine { continuation ->
         addOnSuccessListener { continuation.resume(it) }
         addOnFailureListener { continuation.resumeWithException(it) }
+        // 코루틴 취소로 넘기면 부른 쪽은 멈춘 줄로 알고 결과를 받지 못한다. 실패로 돌려준다.
+        addOnCanceledListener { continuation.resumeWithException(IOException("authorization canceled")) }
     }
 
     private companion object {
         val SCOPES = listOf(Scope("https://www.googleapis.com/auth/drive.file"), Scope("openid"), Scope("email"))
         const val USER_INFO = "https://openidconnect.googleapis.com/v1/userinfo"
         const val KEY_EMAIL = "email"
-        const val TOKEN_REUSE_MILLIS = 5 * 60 * 1_000L
+        const val ACCOUNT_TYPE = "com.google"
+        const val HTTP_TIMEOUT_MILLIS = 15_000
     }
 }

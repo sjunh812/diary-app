@@ -42,13 +42,11 @@ object AnalyticsEvents {
             "TextSizeSettingsKey",
             "ThemeSettingsKey",
             "LockSettingsKey",
-            "PinSetupKey",
             "ReminderSettingsKey",
             "MigrationReportKey",
             "LicensesKey",
             "FontLicenseKey",
             "LibraryLicenseKey",
-            "WriteKey",
             "EntryDetailKey",
             "PhotoViewerKey",
             "SearchKey",
@@ -64,12 +62,7 @@ object AnalyticsEvents {
             "PlusKey",
             "AdvancedStatsKey",
             "LetterKey",
-            "IntroKey",
-            "RestoreListKey",
-            "RestorePreviewKey",
-            "RestoreProgressKey",
-            "RestoreResultKey",
-            "ExportKey"
+            "IntroKey"
         )
 
     val COUNT_BUCKETS = listOf("0", "1-9", "10-99", "100-999", "1000-9999", "10000+")

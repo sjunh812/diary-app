@@ -1,23 +1,27 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlin.concurrent.Volatile
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okio.BufferedSink
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
-import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.Source
@@ -58,21 +62,33 @@ class RestoreController(
     private val _state = MutableStateFlow<RestoreState>(RestoreState.Idle)
     override val state: StateFlow<RestoreState> = _state.asStateFlow()
 
+    @Volatile
     private var candidates = emptyList<RestoreCandidate>()
+
+    @Volatile
     private var prepared: PreparedRestore? = null
+
+    @Volatile
     private var preparedLegacy: LegacyPlan? = null
+
+    @Volatile
     private var preparedFile: RestorePreparation? = null
 
-    override val rollback: Flow<RollbackInfo?> = flow { emitAll(rollbackManager.value.info) }
+    /** 받아 둔 사본을 만들고 지우는 일이 겹치지 않게 한다. */
+    private val preparing = Mutex()
 
-    override suspend fun rollBack(): Boolean {
-        if (!gate.tryEnter()) return false
-        return try {
+    /** 사본을 읽고 일기 수를 세는 일이 메인 스레드에서 돌지 않게 한다. */
+    override val rollback: Flow<RollbackInfo?> = flow { emitAll(rollbackManager.value.info) }.flowOn(Dispatchers.IO)
+
+    /** 화면을 떠나도 끝까지 돈다. 중간에 멈추면 일기는 돌아왔는데 되돌리기가 남는다. */
+    override suspend fun rollBack(): Boolean = scope.async {
+        if (!gate.tryEnter()) return@async false
+        try {
             guarded { rollbackManager.value.rollBack() } ?: false
         } finally {
             gate.leave()
         }
-    }
+    }.await()
 
     override suspend fun backups(): List<BackupEntry>? = guarded {
         candidates = catalog.value.list()
@@ -84,30 +100,55 @@ class RestoreController(
     override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) =
         exporter.value.write(sink, onProgress)
 
-    override suspend fun prepareFile(source: Source): RestorePreparation {
-        prepared = null
-        preparedLegacy = null
+    override suspend fun prepareFile(source: Source): RestorePreparation = preparingCopy {
         val result =
             try {
-                withContext(Dispatchers.IO) { readFile(source) }
+                readFile(source)
             } catch (_: RestoreMismatch) {
                 RestorePreparation.Failed(RestoreFailure.MISMATCH)
             } catch (_: RestoreNeedsUpdate) {
                 RestorePreparation.Failed(RestoreFailure.NEEDS_UPDATE)
             } catch (error: CancellationException) {
                 throw error
-            } catch (_: IOException) {
+            } catch (_: Exception) {
                 RestorePreparation.Failed(RestoreFailure.MISMATCH)
             }
+        if (result is RestorePreparation.Failed) clearCopies()
         preparedFile = result
-        return result
+        result
     }
+
+    /**
+     * 준비는 한 번에 하나만, 메인 스레드 밖에서 돈다. 지난번 사본을 지우고 시작하고 멈추면 쓰던 사본을 남기지 않는다.
+     * 받는 파일은 일기 사본이라서 쓰지 않게 되면 바로 지운다.
+     */
+    private suspend fun <T> preparingCopy(block: suspend () -> T): T = preparing.withLock {
+        withContext(Dispatchers.IO) {
+            try {
+                clearCopies()
+                block()
+            } catch (error: CancellationException) {
+                clearCopies()
+                throw error
+            }
+        }
+    }
+
+    /** 합치는 중이거나 사진을 꺼내는 중이면 그 일이 쓰는 파일은 두고 잊기만 한다. */
+    private fun clearCopies() {
+        prepared = null
+        preparedLegacy = null
+        preparedFile = null
+        if (!restoring) fileSystem.deleteRecursively(workDir / INCOMING, mustExist = false)
+    }
+
+    private val restoring: Boolean
+        get() = _state.value == RestoreState.Merging || _state.value is RestoreState.FetchingPhotos
 
     private suspend fun readFile(source: Source): RestorePreparation {
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
         val path = incoming / PICKED
-        fileSystem.delete(path, mustExist = false)
         fileSystem.write(path) { writeAll(source) }
         val head = fileSystem.read(path) { if (request(HEAD)) readByteString(HEAD) else ByteString.EMPTY }
         return when {
@@ -157,13 +198,19 @@ class RestoreController(
 
     override suspend fun prepare(snapshotName: String): RestorePreparation {
         if (snapshotName == RESTORE_FROM_FILE) return preparedFile ?: RestorePreparation.Failed(RestoreFailure.OTHER)
+        return preparingCopy {
+            val result = prepareFromDrive(snapshotName)
+            if (result is RestorePreparation.Failed) clearCopies()
+            result
+        }
+    }
+
+    private suspend fun prepareFromDrive(snapshotName: String): RestorePreparation {
         // 앱이 꺼졌다 돌아오면 목록이 비어 있다.
         if (candidates.isEmpty()) backups()
         val candidate =
             candidates.firstOrNull { it.entry.snapshotName == snapshotName } ?: return RestorePreparation.Failed(RestoreFailure.OTHER)
         return try {
-            prepared = null
-            preparedLegacy = null
             val file = candidate.legacy
             if (file != null) {
                 val plan = legacy.value.prepare(file)
@@ -214,6 +261,7 @@ class RestoreController(
     private suspend fun importLegacy(plan: LegacyPlan): RestoreResult {
         val result = legacy.value.apply(plan)
         preparedLegacy = null
+        fileSystem.delete(workDir / INCOMING / PICKED, mustExist = false)
         return result
     }
 
@@ -238,7 +286,7 @@ class RestoreController(
 
     private suspend fun fetchPhotos(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
         val dao = db.value.backupDao()
-        val entries = dao.allEntries().count { it.deletedAt == null }
+        val entries = dao.visibleEntryCount()
         val total = dao.pendingFiles().size
         _state.value = RestoreState.FetchingPhotos(entries, 0, total)
         var fetched = 0
@@ -249,12 +297,13 @@ class RestoreController(
             val result = if (zip != null) fetcher.value.fetchFrom(zip, progress) else fetcher.value.fetch(progress)
             fetched = result.first
             broken = result.second
+            // 다 꺼냈을 때만 지운다. 아직 사진이 들어 있으면 결과를 닫을 때 지운다.
+            ready.bundle?.let { fileSystem.delete(it, mustExist = false) }
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
             // 글은 이미 합쳤다. 남은 사진은 다음에 앱을 열 때 이어 받는다.
         }
-        ready.bundle?.let { fileSystem.delete(it, mustExist = false) }
         val left = dao.pendingFiles().size
         val onOriginal = minOf(left, ready.manifest.media.count { !it.inBackup })
         return RestoreResult(
@@ -269,21 +318,31 @@ class RestoreController(
         )
     }
 
+    /** 미리보기를 닫거나 결과를 닫을 때 부른다. 복원이 도는 중이면 뒤로 간 것뿐이라 그대로 둔다. */
     override fun dismiss() {
+        if (restoring) return
         _state.value = RestoreState.Idle
+        scope.launch { preparing.withLock { withContext(Dispatchers.IO) { if (!restoring) clearCopies() } } }
     }
 
     override suspend fun resumePhotos() {
         guarded { rollbackManager.value.expire() }
+        guarded { clearAbandonedCopies() }
         val prefs = store.current()
         if (prefs.accountKey == null || !network.isConnected) return
         if (!network.isUnmetered && !prefs.photosOnCellular) return
         if (!gate.tryEnter()) return
         try {
-            if (db.value.backupDao().pendingFiles().isNotEmpty()) guarded { fetcher.value.fetch() }
+            guarded { if (db.value.backupDao().pendingFiles().isNotEmpty()) fetcher.value.fetch() }
         } finally {
             gate.leave()
         }
+    }
+
+    /** 앱이 꺼지면 받아 둔 사본을 지울 기회가 없었다. 쓰는 곳이 없을 때만 지운다. */
+    private suspend fun clearAbandonedCopies() = preparing.withLock {
+        val inUse = prepared != null || preparedLegacy != null || preparedFile != null || restoring
+        if (!inUse) withContext(Dispatchers.IO) { clearCopies() }
     }
 
     private inline fun <T> guarded(block: () -> T): T? = try {

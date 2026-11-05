@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.drive
 
+import okio.IOException
 import org.sjhstudio.diary.core.model.BackupFailure
 
 /**
@@ -14,6 +15,12 @@ class DriveNotFound : DriveException(BackupFailure.DRIVE_ERROR, status = 404)
 
 /** 토큰이 거절됐다. 새 토큰으로 한 번 다시 한다. */
 class DriveUnauthorized : DriveException(BackupFailure.AUTH, status = 401)
+
+/**
+ * 이 기기의 파일을 읽거나 쓰지 못했다. 네트워크 탓이 아니니 다시 해도 소용없고 오프라인이라고 말하지 않는다.
+ * 메시지에 경로를 넣지 않는다(FR-032).
+ */
+class DriveLocalFileFailure : IOException("local file failure")
 
 /** 응답 코드와 드라이브 오류 까닭을 실패 종류로 나눈다(contracts/drive-gateway.md "오류 나누기"). */
 object DriveErrorMapper {

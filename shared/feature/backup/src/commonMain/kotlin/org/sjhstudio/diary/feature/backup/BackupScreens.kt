@@ -45,6 +45,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
+import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -190,7 +191,7 @@ internal fun BackupSettingsScreen(
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.backup_title), onBack = onBack)
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             // 파일로 바꾼 사람은 연결이 없어도 되돌릴 수 있어야 한다.
             rollback?.let {
                 Box(Modifier.padding(start = DiarySpacing.screenCompact, end = DiarySpacing.screenCompact, top = DiarySpacing.x2)) {
@@ -424,12 +425,11 @@ fun BackupOptionsRoute(onBack: () -> Unit, onFile: () -> Unit, modifier: Modifie
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.backup_options), onBack = onBack)
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsHeader(stringResource(Res.string.backup_group_account))
-            DiarySettingsRow(
+            DiarySettingsValueRow(
                 stringResource(Res.string.backup_account),
-                onClick = {},
-                value = (status.connection as? BackupConnection.Connected)?.accountLabel
+                (status.connection as? BackupConnection.Connected)?.accountLabel.orEmpty()
             )
             DiarySettingsHeader(stringResource(Res.string.backup_group_upload), gapAbove = true)
             DiarySettingsSwitchRow(

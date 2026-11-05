@@ -37,9 +37,12 @@ interface IosDriveBridge {
 }
 
 class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAuthorizer {
+    private val tokens = DriveTokenCache(fetch = ::fetchToken)
+
     override suspend fun connect(hint: String?): ConnectResult {
+        tokens.clear()
         val bridge = bridge() ?: return ConnectResult.Failed(BackupFailure.UNKNOWN)
-        return suspendCancellableCoroutine { continuation ->
+        val result = suspendCancellableCoroutine { continuation ->
             bridge.connect(hint) { key, email, error ->
                 continuation.resume(
                     when {
@@ -51,9 +54,14 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
                 )
             }
         }
+        // 연결하는 사이에 옛 계정으로 받은 토큰이 남아 있을 수 있다.
+        tokens.clear()
+        return result
     }
 
-    override suspend fun accessToken(): TokenResult {
+    override suspend fun accessToken(): TokenResult = tokens.get()
+
+    private suspend fun fetchToken(): TokenResult {
         val bridge = bridge() ?: return TokenResult.NeedsUser
         return suspendCancellableCoroutine { continuation ->
             bridge.accessToken { token, key, email, error ->
@@ -69,7 +77,10 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
         }
     }
 
+    override fun invalidateToken() = tokens.clear()
+
     override suspend fun disconnect() {
+        tokens.clear()
         val bridge = bridge() ?: return
         suspendCancellableCoroutine { continuation -> bridge.disconnect { continuation.resume(Unit) } }
     }

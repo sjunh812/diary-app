@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.app.di
 
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -102,6 +104,18 @@ import org.sjhstudio.diary.feature.write.writeFeatureModule
 /** 앱 프로세스와 함께 사는 코루틴 범위. DataStore와 시작 작업이 쓴다. */
 internal val APP_SCOPE = named("appScope")
 
+/**
+ * 앱 범위의 일 하나가 실패해도 앱이 꺼지지 않는다.
+ * 예외 메시지에는 일기 내용이 섞일 수 있어 [report]에는 종류만 넘긴다.
+ */
+internal fun appCoroutineScope(
+    context: CoroutineContext = Dispatchers.IO,
+    report: (kind: String) -> Unit = { println("앱 범위 작업 실패: $it") }
+): CoroutineScope {
+    val handler = CoroutineExceptionHandler { _, error -> report(error::class.simpleName.orEmpty()) }
+    return CoroutineScope(SupervisorJob() + context + handler)
+}
+
 /** 플랫폼마다 다른 것: 파일 자리([AppFiles])와 DB 만들기([DatabaseFactory]). */
 internal expect val platformModule: Module
 
@@ -120,7 +134,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     welcomeFeatureModule,
     plusFeatureModule,
     module {
-        single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
+        single(APP_SCOPE) { appCoroutineScope() }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
         single { SettingsStore(get<DataStoreFactory>().settings()) }
         single { LockStore(get<DataStoreFactory>().lock()) }

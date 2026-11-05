@@ -30,11 +30,11 @@ class BundleExporter(
     suspend fun estimate(): BundleEstimate {
         val dao = db.backupDao()
         val photos = dao.localPhotos().filter { it.fileName != null }
-        val entries = dao.allEntries()
+        val sizes = dao.entrySizes()
         return BundleEstimate(
-            entries = entries.count { it.deletedAt == null },
+            entries = sizes.visibleEntries,
             photos = photos.size,
-            bytes = photos.sumOf { it.byteSize ?: 0 } + entries.sumOf { it.bodyHtml.length.toLong() * 2 }
+            bytes = photos.sumOf { it.byteSize ?: 0 } + sizes.bodyCharacters * 2
         )
     }
 
@@ -57,7 +57,7 @@ class BundleExporter(
                     deviceName = deviceName.current(),
                     snapshot = snapshot,
                     local = local,
-                    pending = dao.pendingPhotos(),
+                    pending = dao.pendingFiles(),
                     inBackup = inBundle,
                     settings = settings()
                 )

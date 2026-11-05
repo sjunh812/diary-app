@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.backup
 import androidx.room3.useReaderConnection
 import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
@@ -46,11 +47,18 @@ class RollbackManager(
     private suspend fun info(until: Instant): RollbackInfo? {
         if (!fileSystem.exists(copy)) return null
         val replacedAt = (until - KEEP_FOR).toEpochMilliseconds()
-        return RollbackInfo(
-            until = until,
-            entriesBefore = SnapshotReader.read(copy).count { it.entry.deletedAt == null },
-            entriesAfter = db.backupDao().allEntries().count { it.deletedAt == null && it.updatedAt > replacedAt }
-        )
+        return try {
+            RollbackInfo(
+                until = until,
+                entriesBefore = countInCopy("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL"),
+                entriesAfter = db.backupDao().visibleEntriesUpdatedAfter(replacedAt)
+            )
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            // 사본이 깨졌으면 되돌릴 수 없으니 안내를 감춘다. 화면 흐름을 죽이지 않는다.
+            null
+        }
     }
 
     /** 사본을 만들고 확인한 뒤 한 트랜잭션으로 백업 내용으로 바꾼다. */
@@ -60,8 +68,7 @@ class RollbackManager(
         fileSystem.deleteRecursively(dir)
         fileSystem.createDirectories(dir)
         SnapshotWriter(db, fileSystem).copyInto(copy)
-        val entries = db.backupDao().allEntries().size
-        check(SnapshotReader.read(copy).size == entries && integrityOk()) { "rollback copy does not match" }
+        check(countInCopy("SELECT COUNT(*) FROM entry") == db.backupDao().entryRows() && integrityOk()) { "rollback copy does not match" }
         fileSystem.write(settingsFile) { writeUtf8(json.encodeToString(ManifestSettings.serializer(), currentSettings())) }
         db.withWriteTransaction {
             clearAll()
@@ -130,6 +137,13 @@ class RollbackManager(
             statement.getLong(0)
         }
         pages * size
+    }
+
+    private fun countInCopy(sql: String): Int = connection {
+        it.prepare(sql).use { statement ->
+            statement.step()
+            statement.getInt(0)
+        }
     }
 
     private fun integrityOk(): Boolean = connection {

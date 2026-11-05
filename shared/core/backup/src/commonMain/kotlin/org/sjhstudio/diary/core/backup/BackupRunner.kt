@@ -92,25 +92,37 @@ class BackupRunner(
     val progress: StateFlow<BackupProgress?> = _progress.asStateFlow()
 
     /** [cellularOnce]는 사용자가 이번만 모바일 데이터로 사진을 올리겠다고 고른 경우다. */
-    suspend fun run(cellularOnce: Boolean = false): BackupOutcome {
+    suspend fun run(cellularOnce: Boolean = false): BackupOutcome = runCatchingFailure {
         // 기록 이전이 끝나기 전의 일기는 일부뿐이다. 그 상태를 가장 새 백업으로 남기지 않는다.
-        if (!dataReady() || !gate.tryEnter()) return BackupOutcome.Busy
+        if (!dataReady() || !gate.tryEnter()) return@runCatchingFailure BackupOutcome.Busy
         try {
-            if (db.backupDao().entryRows() == 0) return BackupOutcome.Empty
+            if (db.backupDao().entryRows() == 0) return@runCatchingFailure BackupOutcome.Empty
             store.update { it.copy(lastAttemptAt = clock.now()) }
-            return runCatchingFailure { backUp(cellularOnce) }
+            runCatchingFailure { backUp(cellularOnce) }
         } finally {
             _progress.value = null
-            fileSystem.deleteRecursively(workDir / OUTGOING, mustExist = false)
+            clearOutgoing()
             gate.leave()
         }
     }
 
     /** 자동 백업. 일기, 사진, 설정이 마지막 성공 뒤로 그대로면 올리지 않는다(contracts/backup-flow.md). */
-    suspend fun runIfChanged(): BackupOutcome {
+    suspend fun runIfChanged(): BackupOutcome = runCatchingFailure {
         val prefs = store.current()
-        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint()) return BackupOutcome.Unchanged
-        return run()
+        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint()) {
+            BackupOutcome.Unchanged
+        } else {
+            run()
+        }
+    }
+
+    /** 임시 사본을 지우지 못해도 잠금은 풀어야 한다. 남은 사본은 다음 백업이 덮어쓴다. */
+    private fun clearOutgoing() {
+        try {
+            fileSystem.deleteRecursively(workDir / OUTGOING, mustExist = false)
+        } catch (_: IOException) {
+            return
+        }
     }
 
     private suspend fun fingerprint(): String {
@@ -118,7 +130,12 @@ class BackupRunner(
         return "${dao.entriesFingerprint()}|${dao.mediaRows()}|${settings()}"
     }
 
-    private suspend fun runCatchingFailure(block: suspend () -> BackupOutcome.Done): BackupOutcome = try {
+    /**
+     * 어떤 실패도 앱을 끄지 않게 결과로 바꾼다. 멈추라는 신호만 그대로 내보낸다.
+     * 저장 공간이 차면 SQLite 예외가, 공용 와이파이의 안내 페이지를 받으면 JSON 예외가 온다.
+     * 예외 메시지에는 일기 내용이 섞일 수 있어 어디에도 적지 않고 종류만 남긴다.
+     */
+    private suspend fun runCatchingFailure(block: suspend () -> BackupOutcome): BackupOutcome = try {
         block()
     } catch (error: CancellationException) {
         throw error
@@ -126,15 +143,23 @@ class BackupRunner(
         fail(error.kind)
     } catch (_: IOException) {
         fail(BackupFailure.LOCAL_IO)
+    } catch (_: Exception) {
+        fail(BackupFailure.UNKNOWN)
     }
 
     private suspend fun fail(kind: BackupFailure): BackupOutcome {
-        val now = clock.now()
-        store.update { it.copy(lastFailure = kind, failingSince = it.failingSince ?: now) }
-        val prefs = store.current()
-        val since = prefs.lastSuccessAt ?: prefs.failingSince ?: now
-        // 까닭이 바뀌면 문구만 바꾼다. 때가 지났으면 이미 한 번 알렸다.
-        if (since + ALERT_AFTER > now) alerts?.schedule(since + ALERT_AFTER, kind)
+        try {
+            val now = clock.now()
+            store.update { it.copy(lastFailure = kind, failingSince = it.failingSince ?: now) }
+            val prefs = store.current()
+            val since = prefs.lastSuccessAt ?: prefs.failingSince ?: now
+            // 까닭이 바뀌면 문구만 바꾼다. 때가 지났으면 이미 한 번 알렸다.
+            if (since + ALERT_AFTER > now) alerts?.schedule(since + ALERT_AFTER, kind)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            // 공간이 차면 실패 기록도 못 쓸 수 있다. 그래도 실패는 실패로 돌려준다.
+        }
         return BackupOutcome.Failed(kind)
     }
 
@@ -195,7 +220,7 @@ class BackupRunner(
         step(BackupStep.UploadingManifest)
         val inBackup = driveHashes.keys + uploaded
         val manifest =
-            manifestOf(now, timeZone(), app, deviceId, deviceName.current(), snapshot, local2, dao.pendingPhotos(), inBackup, settings())
+            manifestOf(now, timeZone(), app, deviceId, deviceName.current(), snapshot, local2, dao.pendingFiles(), inBackup, settings())
         val manifestPath = workDir / OUTGOING / "$base.json"
         fileSystem.write(manifestPath) { writeUtf8(ManifestCodec.encode(manifest)) }
         upload(
@@ -228,11 +253,23 @@ class BackupRunner(
             )
         }
 
-        alerts?.schedule(now + ALERT_AFTER, null)
-
         step(BackupStep.Pruning)
-        prune(folders, deviceId, now)
+        afterSuccess {
+            alerts?.schedule(now + ALERT_AFTER, null)
+            prune(folders, deviceId, now)
+        }
         return BackupOutcome.Done(uploaded.size, left)
+    }
+
+    /** 성공은 이미 적었다. 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 한다. */
+    private suspend fun afterSuccess(block: suspend () -> Unit) {
+        try {
+            block()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            return
+        }
     }
 
     /** 공간이 모자라면 앞(최근 일기)에서부터 들어가는 만큼만 고른다. */
@@ -293,14 +330,22 @@ class BackupRunner(
         if (size <= SMALL_UPLOAD_LIMIT) return drive.uploadSmall(meta, path)
         var session = drive.startResumable(meta, size)
         var from = 0L
+        var restarts = 0
+        var stalls = 0
+        // 드라이브가 끝을 주지 않아도 백업이 잠금을 쥔 채 머물지 않게 횟수를 센다.
         while (true) {
             when (val result = drive.uploadChunk(session, from, path)) {
                 is ChunkResult.Done -> return result.file
 
-                is ChunkResult.Progress -> from = result.confirmedBytes
+                is ChunkResult.Progress -> {
+                    stalls = if (result.confirmedBytes > from) 0 else stalls + 1
+                    if (stalls > MAX_STALLS) throw DriveException(BackupFailure.DRIVE_ERROR)
+                    from = result.confirmedBytes
+                }
 
                 // 세션이 없어졌으면 처음부터 다시 올린다.
                 ChunkResult.Expired -> {
+                    if (++restarts > MAX_RESTARTS) throw DriveException(BackupFailure.DRIVE_ERROR)
                     session = drive.startResumable(meta, size)
                     from = 0
                 }
@@ -366,6 +411,12 @@ class BackupRunner(
     private companion object {
         const val OUTGOING = "outgoing"
         const val MANIFEST_RESERVE = 1024L * 1024
+
+        /** 이어 올리기 세션을 다시 여는 횟수. */
+        const val MAX_RESTARTS = 3
+
+        /** 조각을 보내도 받은 양이 늘지 않을 때 더 보내 보는 횟수. */
+        const val MAX_STALLS = 3
     }
 }
 

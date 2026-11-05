@@ -67,6 +67,18 @@ class StartupTest {
 
     /** 설정 잇기가 실패해도 잠금을 건드리지 않고 기본 설정으로 연다. */
     @Test
+    fun a_failed_storage_step_still_opens_the_app() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({ error("폴더를 만들지 못함") }, settings, lock, this)
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(startup.ready)
+    }
+
+    @Test
     fun failed_settings_bootstrap_keeps_lock_off() = runTest {
         val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
         val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))

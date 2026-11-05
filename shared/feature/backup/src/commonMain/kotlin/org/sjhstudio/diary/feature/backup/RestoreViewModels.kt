@@ -47,9 +47,22 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
         viewModelScope.launch { _state.value = restore.prepare(snapshotName) }
     }
 
-    fun merge() = restore.merge()
+    private var restoring = false
 
-    fun replace() = restore.replace()
+    fun merge() {
+        restoring = true
+        restore.merge()
+    }
+
+    fun replace() {
+        restoring = true
+        restore.replace()
+    }
+
+    /** 복원하지 않고 나가면 받아 둔 일기 사본을 지운다. */
+    override fun onCleared() {
+        if (!restoring) restore.dismiss()
+    }
 }
 
 class RestoreProgressViewModel(private val restore: RestoreRepository) : ViewModel() {

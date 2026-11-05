@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.drive
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.toByteArray
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
@@ -11,6 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
+import okio.IOException
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
 import org.sjhstudio.diary.core.model.BackupFailure
@@ -24,6 +26,8 @@ class ResumableUploadTest {
         """{"id":"f1","name":"a.jpg","size":"10","parents":["p"],"sha256Checksum":"abc","md5Checksum":"def",""" +
             """"createdTime":"2026-11-01T00:00:00Z"}"""
 
+    private var backoffs = 0
+
     private fun api(handler: suspend (Int) -> Pair<HttpStatusCode, Map<String, String>>): Pair<KtorDriveApi, MutableList<String>> {
         var count = 0
         val ranges = mutableListOf<String>()
@@ -34,13 +38,15 @@ class ResumableUploadTest {
                 engine {
                     addHandler { request ->
                         request.headers[HttpHeaders.ContentRange]?.let(ranges::add)
+                        // 실제 엔진처럼 본문을 끝까지 읽는다. 파일을 읽지 못하면 여기서 터진다.
+                        request.body.toByteArray()
                         val (status, headers) = handler(count++)
                         val body = if (status.value in 200..299) fileJson else """{"error":{"errors":[{"reason":"backendError"}]}}"""
                         respond(body, status, headersOf(*headers.map { it.key to listOf(it.value) }.toTypedArray()))
                     }
                 }
             }
-        return KtorDriveApi(client, auth, fs, backoff = {}) to ranges
+        return KtorDriveApi(client, auth, fs, backoff = { backoffs++ }) to ranges
     }
 
     @Test
@@ -131,5 +137,32 @@ class ResumableUploadTest {
         val failure = assertFailsWith<DriveException> { drive.uploadChunk(UploadSession("https://upload/1", 10), 0, path) }
 
         assertEquals(BackupFailure.OFFLINE, failure.kind)
+    }
+
+    @Test
+    fun a_file_that_cannot_be_read_is_not_called_offline_or_retried() = runTest {
+        val (drive, _) = api { HttpStatusCode.OK to emptyMap() }
+
+        assertFailsWith<IOException> { drive.uploadSmall(NewFile("a.jpg", null, "image/jpeg"), "/none.jpg".toPath()) }
+
+        assertEquals(0, backoffs)
+    }
+
+    @Test
+    fun a_chunk_that_cannot_be_read_is_not_called_offline_or_retried() = runTest {
+        val (drive, _) = api { HttpStatusCode.OK to emptyMap() }
+
+        assertFailsWith<IOException> { drive.uploadChunk(UploadSession("https://upload/1", 10), 0, "/none.jpg".toPath()) }
+
+        assertEquals(0, backoffs)
+    }
+
+    @Test
+    fun a_download_that_cannot_be_written_is_not_called_offline_or_retried() = runTest {
+        val (drive, _) = api { HttpStatusCode.OK to emptyMap() }
+
+        assertFailsWith<IOException> { drive.download("f1", "/no/such/folder/a.jpg".toPath()) }
+
+        assertEquals(0, backoffs)
     }
 }

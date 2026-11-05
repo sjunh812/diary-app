@@ -1,11 +1,13 @@
 package org.sjhstudio.diary.core.backup
 
 import androidx.room3.Room
+import androidx.sqlite.SQLiteException
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -13,6 +15,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import okio.ByteString.Companion.toByteString
@@ -23,10 +26,13 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.drive.ChunkResult
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.drive.DriveFile
 import org.sjhstudio.diary.core.drive.NewFile
+import org.sjhstudio.diary.core.drive.SMALL_UPLOAD_LIMIT
+import org.sjhstudio.diary.core.drive.UploadSession
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAccount
@@ -67,9 +73,13 @@ class BackupRunnerTest {
         fs.deleteRecursively(dir)
     }
 
-    private fun runner(api: DriveApi = drive, authorizer: FakeDriveAuthorizer = auth) = BackupRunner(
+    private fun runner(
+        api: DriveApi = drive,
+        authorizer: FakeDriveAuthorizer = auth,
+        settings: suspend () -> ManifestSettings = { ManifestSettings(font = "pretendard") }
+    ) = BackupRunner(
         db, api, authorizer, store, network, DeviceName { "Galaxy S24" }, fs, dir / "media", dir / "backup",
-        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { TimeZone.UTC },
+        BackupAppInfo("2.0.0", 37, "android"), { "README" }, settings, clock, { TimeZone.UTC },
         BackupAlerts(notifier) { "제목" to (it?.name ?: "까닭 없음") }
     )
 
@@ -397,5 +407,119 @@ class BackupRunnerTest {
         assertIs<BackupOutcome.Done>(runner(otherDrive, other).run())
 
         assertEquals(1, otherDrive.visible.count { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO })
+    }
+
+    /** 저장 공간 확인에서 뜻밖의 예외를 던지는 드라이브. */
+    private class ThrowingDrive(private val real: DriveApi, private val error: Exception) : DriveApi by real {
+        override suspend fun about() = throw error
+    }
+
+    /** 이어 올리기 세션이 끝나지 않는 드라이브. 고치기 전에는 끝없이 돌아서 시험을 끊으려고 상한을 둔다. */
+    private class EndlessUpload(private val real: DriveApi, private val answer: ChunkResult) : DriveApi by real {
+        var starts = 0
+            private set
+        private var chunks = 0
+
+        override suspend fun startResumable(meta: NewFile, size: Long): UploadSession {
+            starts++
+            return real.startResumable(meta, size)
+        }
+
+        override suspend fun uploadChunk(session: UploadSession, from: Long, body: Path): ChunkResult {
+            if (++chunks > TOO_MANY_CHUNKS) throw AssertionError("이어 올리기가 끝나지 않는다")
+            return answer
+        }
+    }
+
+    private suspend fun largePhoto() {
+        db.entryDao().insertAll(listOf(entry("big", "2026-11-01")))
+        val bytes = ByteArray(SMALL_UPLOAD_LIMIT.toInt() + 1)
+        val hash = bytes.toByteString().sha256().hex()
+        fs.write(dir / "media" / "$hash.jpg") { write(bytes) }
+        db.mediaDao().insertAll(listOf(MediaEntity("big-0", "big", 0, "normal", "$hash.jpg", hash, 1, 1, bytes.size.toLong(), null, 1)))
+    }
+
+    @Test
+    fun a_full_disk_is_a_failed_backup_and_not_a_crash() = runTest {
+        seed()
+
+        val failed = runner(ThrowingDrive(drive, SQLiteException("database or disk is full"))).run()
+
+        assertEquals(BackupOutcome.Failed(BackupFailure.UNKNOWN), failed)
+        assertEquals(BackupFailure.UNKNOWN, store.current().lastFailure)
+    }
+
+    @Test
+    fun a_web_page_instead_of_json_is_a_failed_backup_and_not_a_crash() = runTest {
+        seed()
+
+        val failed = runner(ThrowingDrive(drive, IllegalArgumentException("<html>"))).run()
+
+        assertEquals(BackupOutcome.Failed(BackupFailure.UNKNOWN), failed)
+    }
+
+    @Test
+    fun the_next_backup_runs_after_an_unexpected_failure() = runTest {
+        seed()
+        val gate = BackupGate()
+        val failing = BackupRunner(
+            db, ThrowingDrive(drive, IllegalStateException()), auth, store, network, DeviceName { "A" }, fs, dir / "media", dir / "backup",
+            BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }, clock, { TimeZone.UTC }, gate = gate
+        )
+
+        failing.run()
+
+        assertTrue(gate.tryEnter())
+    }
+
+    @Test
+    fun an_automatic_backup_that_cannot_even_look_is_a_failed_backup() = runTest {
+        seed()
+
+        val failed = runner(settings = { error("일기 내용") }).runIfChanged()
+
+        assertEquals(BackupOutcome.Failed(BackupFailure.UNKNOWN), failed)
+    }
+
+    @Test
+    fun stopping_a_backup_is_not_recorded_as_a_failure() = runTest {
+        seed()
+
+        assertFailsWith<CancellationException> { runner(ThrowingDrive(drive, CancellationException("멈춤"))).run() }
+
+        assertNull(store.current().lastFailure)
+    }
+
+    @Test
+    fun an_upload_session_that_keeps_expiring_gives_up() = runTest {
+        largePhoto()
+        val endless = EndlessUpload(drive, ChunkResult.Expired)
+
+        assertIs<BackupOutcome.Failed>(runner(endless).run())
+
+        assertTrue(endless.starts in 2..MOST_STARTS, "세션을 ${endless.starts}번 열었다")
+    }
+
+    @Test
+    fun an_upload_that_stops_moving_gives_up() = runTest {
+        largePhoto()
+
+        assertIs<BackupOutcome.Failed>(runner(EndlessUpload(drive, ChunkResult.Progress(0))).run())
+    }
+
+    @Test
+    fun a_failed_cleanup_leaves_the_backup_done() = runTest {
+        seed()
+        drive.onUpload = { meta -> if (meta.mimeType == "application/json") drive.faults.addLast(DriveFault.OFFLINE) }
+
+        assertIs<BackupOutcome.Done>(runner().run())
+
+        assertEquals(now, store.current().lastSuccessAt)
+        assertNull(store.current().lastFailure)
+    }
+
+    private companion object {
+        const val TOO_MANY_CHUNKS = 200
+        const val MOST_STARTS = 5
     }
 }

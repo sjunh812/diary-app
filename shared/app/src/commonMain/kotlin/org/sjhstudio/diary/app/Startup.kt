@@ -41,33 +41,29 @@ class Startup(
     fun start() {
         if (_state.value != StartupState.Loading) return
         scope.launch {
-            prepareStorage()
-            val bootstrapped =
-                try {
-                    bootstrapLegacyLock()
-                    true
-                } catch (e: Exception) {
-                    if (e is CancellationException) throw e
-                    false
-                }
-            try {
-                bootstrapLegacySettings()
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-            }
-            val lock = lockStore.lock.first()
-            // 잇기에 실패하면 옛 잠금이 있었는지 모른다. 풀어 두는 대신 잠근 채 새 비밀번호를 정하게 한다(헌법 II).
+            attempt { prepareStorage() }
+            val bootstrapped = attempt { bootstrapLegacyLock() } != null
+            attempt { bootstrapLegacySettings() }
+            val lock = attempt { lockStore.lock.first() }
+            val settings = attempt { settingsStore.settings.first() } ?: AppSettings()
+            // 잇기나 읽기에 실패하면 잠금이 있었는지 모른다. 풀어 두는 대신 잠근 채 새 비밀번호를 정하게 한다(헌법 II).
             _state.value =
                 StartupState.Ready(
-                    settings = settingsStore.settings.first(),
-                    lock = if (bootstrapped || lock.enabled) lock else lock.copy(enabled = true, pinMac = null, pinSalt = null)
+                    settings = settings,
+                    lock =
+                        lock?.takeIf { bootstrapped || it.enabled }
+                            ?: (lock ?: LockSettings()).copy(enabled = true, pinMac = null, pinSalt = null)
                 )
-            try {
-                afterReady()
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-            }
+            attempt { afterReady() }
         }
+    }
+
+    /** 시작을 멈추지 않는다. 멈추면 스플래시가 사라지지 않아 앱을 쓸 수 없다. */
+    private suspend fun <T> attempt(step: suspend () -> T): T? = try {
+        step()
+    } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        null
     }
 }
 

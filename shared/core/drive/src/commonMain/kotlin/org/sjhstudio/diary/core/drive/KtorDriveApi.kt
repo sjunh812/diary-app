@@ -82,20 +82,23 @@ class KtorDriveApi(
         ).asFile()
     }
 
-    override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile = call { token ->
+    override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile {
         val boundary = "diary-backup-boundary"
-        val bytes = fileSystem.read(body) { readByteArray() }
+        // 파일은 다시 해 볼 일이 아니라서 재시도 밖에서 읽는다.
+        val bytes = onDevice { fileSystem.read(body) { readByteArray() } }
         val head =
             "--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta.toJson()}\r\n" +
                 "--$boundary\r\nContent-Type: ${meta.mimeType}\r\n\r\n"
         val tail = "\r\n--$boundary--"
-        parse(
-            client.post("$UPLOAD/files?uploadType=multipart&fields=${FIELDS.encodeURLParameter()}") {
-                bearer(token)
-                header(HttpHeaders.ContentType, "multipart/related; boundary=$boundary")
-                setBody(head.encodeToByteArray() + bytes + tail.encodeToByteArray())
-            }
-        ).asFile()
+        return call { token ->
+            parse(
+                client.post("$UPLOAD/files?uploadType=multipart&fields=${FIELDS.encodeURLParameter()}") {
+                    bearer(token)
+                    header(HttpHeaders.ContentType, "multipart/related; boundary=$boundary")
+                    setBody(head.encodeToByteArray() + bytes + tail.encodeToByteArray())
+                }
+            ).asFile()
+        }
     }
 
     override suspend fun startResumable(meta: NewFile, size: Long): UploadSession = call { token ->
@@ -113,33 +116,44 @@ class KtorDriveApi(
     override suspend fun uploadChunk(session: UploadSession, from: Long, body: Path): ChunkResult = call { token ->
         val end = minOf(from + UPLOAD_CHUNK, session.size)
         val length = end - from
-        chunkResult(
-            client.put(session.uri) {
-                bearer(token)
-                header(HttpHeaders.ContentRange, "bytes $from-${end - 1}/${session.size}")
-                setBody(
-                    ChannelWriterContent(
-                        body = {
-                            fileSystem.source(body).use { raw ->
-                                raw.buffer().use { source ->
-                                    source.skip(from)
-                                    val buffer = ByteArray(BUFFER)
-                                    var left = length
-                                    while (left > 0) {
-                                        val read = source.read(buffer, 0, minOf(left, BUFFER.toLong()).toInt())
-                                        if (read < 0) break
-                                        writeFully(buffer, 0, read)
-                                        left -= read
+        // 본문을 쓰는 쪽에서 던지면 엔진마다 끝나는 모양이 달라서, 적어 두고 본문을 짧게 끝낸다.
+        var unreadable: DriveLocalFileFailure? = null
+        val response =
+            try {
+                client.put(session.uri) {
+                    bearer(token)
+                    header(HttpHeaders.ContentRange, "bytes $from-${end - 1}/${session.size}")
+                    setBody(
+                        ChannelWriterContent(
+                            body = {
+                                try {
+                                    onDevice { fileSystem.source(body) }.use { raw ->
+                                        raw.buffer().use { source ->
+                                            onDevice { source.skip(from) }
+                                            val buffer = ByteArray(BUFFER)
+                                            var left = length
+                                            while (left > 0) {
+                                                val read = onDevice { source.read(buffer, 0, minOf(left, BUFFER.toLong()).toInt()) }
+                                                if (read < 0) break
+                                                writeFully(buffer, 0, read)
+                                                left -= read
+                                            }
+                                        }
                                     }
+                                } catch (error: DriveLocalFileFailure) {
+                                    unreadable = error
                                 }
-                            }
-                        },
-                        contentType = ContentType.Application.OctetStream,
-                        contentLength = length
+                            },
+                            contentType = ContentType.Application.OctetStream,
+                            contentLength = length
+                        )
                     )
-                )
+                }
+            } catch (error: Exception) {
+                throw unreadable ?: error
             }
-        )
+        unreadable?.let { throw it }
+        chunkResult(response)
     }
 
     override suspend fun queryResumable(session: UploadSession): ChunkResult = call { token ->
@@ -164,15 +178,16 @@ class KtorDriveApi(
         }.execute { response ->
             if (response.status.value !in 200..299) throw failure(response)
             val channel = response.bodyAsChannel()
-            val sink = if (fromByte > 0) fileSystem.appendingSink(to) else fileSystem.sink(to)
+            val sink = onDevice { if (fromByte > 0) fileSystem.appendingSink(to) else fileSystem.sink(to) }
             sink.buffer().use { out ->
                 val buffer = ByteArray(BUFFER)
                 while (true) {
                     val read = channel.readAvailable(buffer)
                     if (read < 0) break
-                    out.write(buffer, 0, read)
+                    onDevice { out.write(buffer, 0, read) }
                     total += read
                 }
+                onDevice { out.flush() }
             }
         }
         total
@@ -213,6 +228,8 @@ class KtorDriveApi(
                 return block(token())
             } catch (error: CancellationException) {
                 throw error
+            } catch (error: DriveLocalFileFailure) {
+                throw error
             } catch (_: DriveUnauthorized) {
                 if (refreshed) throw DriveException(BackupFailure.AUTH, status = 401)
                 refreshed = true
@@ -229,6 +246,13 @@ class KtorDriveApi(
                 backoff(attempt++)
             }
         }
+    }
+
+    /** 기기 파일을 만지는 일. 드라이브 호출과 달리 실패해도 다시 하지 않는다. */
+    private inline fun <T> onDevice(block: () -> T): T = try {
+        block()
+    } catch (_: IOException) {
+        throw DriveLocalFileFailure()
     }
 
     private suspend fun token(): String = when (val result = authorizer.accessToken()) {

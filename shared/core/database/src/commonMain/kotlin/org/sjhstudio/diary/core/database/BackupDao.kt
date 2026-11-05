@@ -33,12 +33,6 @@ interface BackupDao {
     )
     suspend fun localPhotos(): List<LocalPhotoRow>
 
-    /** 목록 파일에 적을 사진 중 기기에 파일이 없는 것. */
-    @Query(
-        "SELECT DISTINCT sha256, file_name AS fileName, byte_size AS byteSize FROM media WHERE status = 'pending' AND sha256 IS NOT NULL"
-    )
-    suspend fun pendingPhotos(): List<LocalPhotoRow>
-
     @Query("SELECT * FROM entry")
     suspend fun allEntries(): List<EntryEntity>
 
@@ -48,12 +42,14 @@ interface BackupDao {
     @Update
     suspend fun updateEntry(entry: EntryEntity)
 
-    /** 받은 사진의 상태를 고친다. */
-    @Query("UPDATE media SET status = :status WHERE sha256 = :sha256 AND status = 'pending'")
-    suspend fun settlePending(sha256: String, status: String)
+    /** 받은 사진의 상태를 고친다. 같은 내용이어도 이름이 다르면 다른 파일이다. */
+    @Query("UPDATE media SET status = :status WHERE sha256 = :sha256 AND file_name = :fileName AND status = 'pending'")
+    suspend fun settlePending(sha256: String, fileName: String, status: String)
 
+    /** 기기에 아직 없는 사진 파일. 여러 일기가 같이 써도 파일마다 한 줄이다. 목록 파일에도 이 값을 적는다. */
     @Query(
-        "SELECT DISTINCT sha256, file_name AS fileName, byte_size AS byteSize FROM media WHERE status = 'pending' AND sha256 IS NOT NULL"
+        "SELECT sha256, file_name AS fileName, MAX(byte_size) AS byteSize FROM media " +
+            "WHERE status = 'pending' AND sha256 IS NOT NULL GROUP BY sha256, file_name"
     )
     suspend fun pendingFiles(): List<LocalPhotoRow>
 
@@ -99,6 +95,20 @@ interface BackupDao {
     @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL")
     fun visibleEntries(): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL")
+    suspend fun visibleEntryCount(): Int
+
+    /** 바꾸기 뒤에 쓰거나 고친 일기 수. 되돌리기 안내에 쓴다. */
+    @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL AND updated_at > :after")
+    suspend fun visibleEntriesUpdatedAfter(after: Long): Int
+
+    /** 본문을 읽지 않고 일기 수와 본문 글자 수를 잰다. 묶음 파일 크기를 어림할 때 쓴다. */
+    @Query(
+        "SELECT COUNT(CASE WHEN deleted_at IS NULL THEN 1 END) AS visibleEntries, " +
+            "COALESCE(SUM(LENGTH(body_html)), 0) AS bodyCharacters FROM entry"
+    )
+    suspend fun entrySizes(): EntrySizes
+
     @Query("SELECT COUNT(*) FROM media WHERE entry_id IN (SELECT id FROM entry WHERE deleted_at IS NULL) AND status = 'normal'")
     fun visiblePhotos(): Flow<Int>
 
@@ -108,3 +118,6 @@ interface BackupDao {
 
 /** 기기에 파일이 있는 사진. 같은 해시는 한 번만 올린다. */
 data class LocalPhotoRow(val sha256: String, val fileName: String?, val byteSize: Long?)
+
+/** 일기 표의 크기. [bodyCharacters]는 휴지통의 일기까지 더한다. */
+data class EntrySizes(val visibleEntries: Int, val bodyCharacters: Long)
