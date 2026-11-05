@@ -13,9 +13,9 @@
     <string name="detail_pick_hint">일기를 고르면 여기에 보여요</string>
     <string name="ad_label">광고</string>
     <string name="ad_remove">광고 없애기</string>
-    <string name="ad_rest">24시간 쉬기</string>
-    <string name="reward_title">영상을 보고 24시간 쉴까요?</string>
-    <string name="reward_body">광고 영상을 끝까지 보면 24시간 동안 광고가 보이지 않아요.</string>
-    <string name="reward_watch">영상 보기</string>
+    <string name="ad_rest">하루 광고 없애기</string>
+    <string name="reward_title">광고 없는 하루 받기 🎁</string>
+    <string name="reward_body">짧은 광고 영상을 끝까지 보면 24시간 동안 다른 광고가 보이지 않아요.</string>
+    <string name="reward_watch">영상 보고 받기</string>
     <string name="reward_close">닫기</string>
 </resources>

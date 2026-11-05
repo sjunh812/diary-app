@@ -27,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,7 +53,6 @@ import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.ui.DiaryLottie
 import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.plus_ad_free_owned
-import org.sjhstudio.diary.feature.plus.resources.plus_ads_body
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_title
 import org.sjhstudio.diary.feature.plus.resources.plus_close
 import org.sjhstudio.diary.feature.plus.resources.plus_failed
@@ -64,8 +62,6 @@ import org.sjhstudio.diary.feature.plus.resources.plus_manage_title
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_top
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_notice
-import org.sjhstudio.diary.feature.plus.resources.plus_other_store
-import org.sjhstudio.diary.feature.plus.resources.plus_photos_body
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
 import org.sjhstudio.diary.feature.plus.resources.plus_price
 import org.sjhstudio.diary.feature.plus.resources.plus_restore
@@ -73,9 +69,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
 import org.sjhstudio.diary.feature.plus.resources.plus_restored
 import org.sjhstudio.diary.feature.plus.resources.plus_retry
 import org.sjhstudio.diary.feature.plus.resources.plus_start
-import org.sjhstudio.diary.feature.plus.resources.plus_stats_body
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_title
-import org.sjhstudio.diary.feature.plus.resources.plus_subtitle
 import org.sjhstudio.diary.feature.plus.resources.plus_title
 
 private const val ART_MILLIS = 2_800
@@ -124,7 +118,10 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-/** 결제 화면(Figma P1). 닫기는 처음부터 보이고 실제 결제액이 가장 크다(FR-005). 내용은 스크롤하고 버튼 묶음은 아래에 둔다. */
+/**
+ * 결제 화면(Figma P1). 한 화면에서 스크롤 없이 끝나게 그림, 제목, 혜택 세 줄, 결제액, 버튼만 둔다.
+ * 닫기는 처음부터 보이고 실제 결제액이 가장 크다(FR-005). 작은 화면이나 큰 글자에서만 위쪽이 스크롤된다.
+ */
 @Composable
 internal fun PaywallScreen(
     price: String?,
@@ -156,7 +153,7 @@ internal fun PaywallScreen(
             }
             Column(
                 Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = DiarySpacing.screenCompact),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
+                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6, Alignment.CenterVertically)
             ) {
                 DiaryLottie(
                     { Res.readBytes("files/plus_benefits.json") },
@@ -164,14 +161,11 @@ internal fun PaywallScreen(
                     active = true,
                     Modifier.fillMaxWidth().height(DiaryArtSize.banner).clip(DiaryShapes.r20).background(colors.selected)
                 )
-                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-                    BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
-                    BasicText(stringResource(Res.string.plus_subtitle), style = typography.body.copy(color = colors.textSecondary))
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
-                    Benefit(DiaryIcons.Sparkles, Res.string.plus_ads_title, Res.string.plus_ads_body)
-                    Benefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
-                    Benefit(DiaryIcons.TabInsight, Res.string.plus_stats_title, Res.string.plus_stats_body)
+                BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
+                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                    Benefit(Res.string.plus_ads_title)
+                    Benefit(Res.string.plus_photos_title)
+                    Benefit(Res.string.plus_stats_title)
                 }
                 if (adFreeOwned) {
                     BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
@@ -179,19 +173,18 @@ internal fun PaywallScreen(
             }
             Column(
                 Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
             ) {
                 if (price != null) {
                     BasicText(stringResource(Res.string.plus_price, price), style = typography.title2.copy(color = colors.textPrimary))
                     DiaryButton(
-                        stringResource(Res.string.plus_start, price),
+                        stringResource(Res.string.plus_start),
                         onBuy,
                         Modifier.fillMaxWidth(),
                         size = DiaryButtonSize.XLarge,
                         enabled = !busy
                     )
                     BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
-                    BasicText(stringResource(Res.string.plus_other_store), style = typography.caption.copy(color = colors.textSecondary))
                 } else if (!loading) {
                     BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
                     DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
@@ -202,16 +195,11 @@ internal fun PaywallScreen(
 }
 
 @Composable
-private fun Benefit(icon: ImageVector, title: StringResource, body: StringResource) {
+private fun Benefit(title: StringResource) {
     val colors = DiaryTheme.colors
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(DiaryArtSize.rowBadge).clip(DiaryShapes.full).background(colors.selected), contentAlignment = Alignment.Center) {
-            DiaryIcon(icon, contentDescription = null, tint = colors.accent)
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            BasicText(stringResource(title), style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
-            BasicText(stringResource(body), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
-        }
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
+        DiaryIcon(DiaryIcons.CircleCheck, contentDescription = null, tint = colors.accent)
+        BasicText(stringResource(title), style = DiaryTheme.typography.reading.copy(color = colors.textPrimary))
     }
 }
 
