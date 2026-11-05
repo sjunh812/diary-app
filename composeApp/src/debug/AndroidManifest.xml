@@ -14,7 +14,7 @@
         <activity
             android:name=".debug.DevModeActivity"
             android:exported="true"
-            android:label="개발자 모드">
+            android:label="1일 1일기 개발">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
