@@ -31,24 +31,73 @@
         <item quantity="other">기분 없는 일기 %1$d편</item>
     </plurals>
     <string name="insight_adv_title">고급 통계</string>
-    <string name="insight_adv_not_enough">일기가 7편 쌓이면 보여 드려요.</string>
-    <string name="insight_adv_weekdays">요일별 기분</string>
-    <string name="insight_adv_dayparts">쓴 시간대별 기분</string>
-    <string name="insight_adv_weather">날씨별 기분</string>
-    <string name="insight_adv_places">자주 쓴 장소</string>
-    <string name="insight_adv_preview_title">내 기록을 더 깊이 볼 수 있어요</string>
-    <string name="insight_adv_preview_body">요일별 기분, 시간대별 기분, 자주 쓴 장소</string>
-    <string name="insight_adv_preview_action">Plus 알아보기</string>
-    <string name="insight_adv_wd_sun">일</string>
-    <string name="insight_adv_wd_mon">월</string>
-    <string name="insight_adv_wd_tue">화</string>
-    <string name="insight_adv_wd_wed">수</string>
-    <string name="insight_adv_wd_thu">목</string>
-    <string name="insight_adv_wd_fri">금</string>
-    <string name="insight_adv_wd_sat">토</string>
+    <string name="insight_adv_wd_sun">일요일</string>
+    <string name="insight_adv_wd_mon">월요일</string>
+    <string name="insight_adv_wd_tue">화요일</string>
+    <string name="insight_adv_wd_wed">수요일</string>
+    <string name="insight_adv_wd_thu">목요일</string>
+    <string name="insight_adv_wd_fri">금요일</string>
+    <string name="insight_adv_wd_sat">토요일</string>
     <string name="insight_adv_day_dawn">새벽</string>
     <string name="insight_adv_day_morning">아침</string>
     <string name="insight_adv_day_afternoon">낮</string>
     <string name="insight_adv_day_evening">저녁</string>
-    <plurals name="insight_adv_days"><item quantity="other">%1$d일 동안 썼어요</item></plurals>
+    <string name="insight_adv_entry_body">내 기분이 언제 달라지는지 볼 수 있어요.</string>
+    <string name="insight_adv_entry_plus">Plus 알아보기</string>
+    <string name="insight_adv_entry_open">보러 가기</string>
+    <string name="insight_adv_range_recent">최근 30일</string>
+    <string name="insight_adv_range_year">올해</string>
+    <string name="insight_adv_range_all">전체</string>
+    <string name="insight_adv_not_enough">일기가 7편 쌓이면 보여 드려요.</string>
+    <string name="insight_adv_not_enough_body">기분을 고른 일기가 많을수록 또렷하게 보여요.</string>
+    <string name="insight_adv_gaps">눈에 띄는 차이</string>
+    <string name="insight_adv_gap_more">좋은 기분이 많았어요</string>
+    <string name="insight_adv_gap_less">좋은 기분이 적었어요</string>
+    <string name="insight_adv_gap_numbers">%1$d번 중 %2$d번</string>
+    <string name="insight_adv_gap_rate">%1$d%</string>
+    <string name="insight_adv_gap_others">다른 때 %1$d%</string>
+    <string name="insight_adv_gap_note">함께 나타난 것일 뿐, 원인은 아닐 수 있어요.</string>
+    <string name="insight_adv_gap_none">아직 뚜렷한 차이는 없어요</string>
+    <string name="insight_adv_gap_none_body">우연일 수 있는 차이는 보여 드리지 않아요. 일기가 쌓이면 다시 찾아볼게요.</string>
+    <string name="insight_adv_factor_photos">사진이 있는 일기</string>
+    <string name="insight_adv_factor_long">긴 일기</string>
+    <string name="insight_adv_change_recent">이전 30일과 비교</string>
+    <string name="insight_adv_change_year">작년 이맘때와 비교</string>
+    <string name="insight_adv_change_good">좋은 기분</string>
+    <string name="insight_adv_change_good_value">%1$d% → %2$d%</string>
+    <string name="insight_adv_change_days">쓴 날</string>
+    <string name="insight_adv_when">좋은 기분이 많았던 때</string>
+    <string name="insight_adv_tab_weekday">요일</string>
+    <string name="insight_adv_tab_part">시간대</string>
+    <string name="insight_adv_tab_weather">날씨</string>
+    <string name="insight_adv_tab_place">장소</string>
+    <string name="insight_adv_share">%1$d/%2$d번</string>
+    <string name="insight_adv_tone_note">좋음과 웃음을 좋은 기분으로 셌어요.</string>
+    <string name="insight_adv_when_empty">아직 일기가 적어요.</string>
+    <string name="insight_adv_company">기분별로 자주 함께한 것</string>
+    <string name="insight_adv_habit">기록 습관</string>
+    <string name="insight_adv_habit_entries">일기</string>
+    <string name="insight_adv_habit_days">쓴 날</string>
+    <string name="insight_adv_habit_run">가장 오래 이어 쓴 날</string>
+    <string name="insight_adv_habit_characters">쓴 글자</string>
+    <string name="insight_adv_habit_photos">사진</string>
+    <string name="insight_adv_habit_part">많이 쓴 시간대</string>
+    <plurals name="insight_adv_change_days_value">
+        <item quantity="other">%1$d일 → %2$d일</item>
+    </plurals>
+    <plurals name="insight_adv_company_title">
+        <item quantity="other">%1$s · %2$s편</item>
+    </plurals>
+    <plurals name="insight_adv_habit_entries_value">
+        <item quantity="other">%1$s편</item>
+    </plurals>
+    <plurals name="insight_adv_habit_days_value">
+        <item quantity="other">%1$s일</item>
+    </plurals>
+    <plurals name="insight_adv_habit_characters_value">
+        <item quantity="other">%1$s자</item>
+    </plurals>
+    <plurals name="insight_adv_habit_photos_value">
+        <item quantity="other">%1$s장</item>
+    </plurals>
 </resources>

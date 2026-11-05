@@ -18,7 +18,10 @@ data class StatsRow(
     val time: String,
     val mood: String?,
     val weather: String?,
-    @ColumnInfo(name = "place_name") val placeName: String?
+    @ColumnInfo(name = "place_name") val placeName: String?,
+    /** 글자 수만 센다. */
+    val length: Int,
+    val photos: Int
 )
 
 /** 기분별 개수. 기분 없는 일기는 [mood]가 null이다. */
@@ -71,7 +74,8 @@ interface EntryDao {
     fun dayMoods(from: String, to: String): Flow<List<DayMoodRow>>
 
     @Query(
-        "SELECT date, time, mood, weather, place_name FROM entry WHERE deleted_at IS NULL " +
+        "SELECT date, time, mood, weather, place_name, LENGTH(plain_text) AS length, " +
+            "(SELECT COUNT(*) FROM media WHERE media.entry_id = entry.id) AS photos FROM entry WHERE deleted_at IS NULL " +
             "AND (:from IS NULL OR date >= :from) AND (:to IS NULL OR date <= :to)"
     )
     fun statsRows(from: String?, to: String?): Flow<List<StatsRow>>

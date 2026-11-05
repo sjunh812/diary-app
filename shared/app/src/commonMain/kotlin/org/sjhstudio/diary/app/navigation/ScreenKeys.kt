@@ -116,6 +116,9 @@ data object WhatsNewKey : Screen
 data object PlusKey : Screen
 
 @Serializable
+data object AdvancedStatsKey : Screen
+
+@Serializable
 data object LetterKey : Screen
 
 @Serializable

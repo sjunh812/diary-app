@@ -98,7 +98,7 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     }
 }
 
-/** 편지 전체. 온보딩 앞에서도, 새 소식에서도 같은 글이다. */
+/** 새 소식에서 읽는 긴 편지. 이전 직후에 보는 짧은 편지와 편지지는 같고 글이 더 길다(스펙 004 FR-003). */
 @Composable
 fun FullLetterScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors

@@ -47,6 +47,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.ads.AdShape
 import org.sjhstudio.diary.app.ads.AdSlot
+import org.sjhstudio.diary.app.navigation.AdvancedStatsKey
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.DetailPane
@@ -111,6 +112,7 @@ import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
 import org.sjhstudio.diary.feature.home.HomeRoute
 import org.sjhstudio.diary.feature.home.PhotoViewerRoute
+import org.sjhstudio.diary.feature.insight.AdvancedStatsRoute
 import org.sjhstudio.diary.feature.insight.InsightRoute
 import org.sjhstudio.diary.feature.search.SearchRoute
 import org.sjhstudio.diary.feature.settings.FontReplacedNotice
@@ -394,7 +396,16 @@ private fun Content(
                             backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                         },
                         onPlus = { backStack.add(PlusKey) },
+                        onAdvanced = { backStack.add(AdvancedStatsKey) },
                         adSlot = { AdSlot("insight", AdShape.Card) }
+                    )
+                }
+                entry<AdvancedStatsKey> {
+                    AdvancedStatsRoute(
+                        onBack = pop,
+                        onMood = { mood, range ->
+                            backStack.add(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                        }
                     )
                 }
                 settingsEntries(push = { backStack.add(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })

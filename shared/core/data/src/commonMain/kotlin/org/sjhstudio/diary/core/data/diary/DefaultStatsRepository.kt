@@ -1,9 +1,13 @@
 package org.sjhstudio.diary.core.data.diary
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.StatsRow
+import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -30,22 +34,28 @@ class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
         }
     }
 
-    override fun advanced(period: StatsPeriod): Flow<AdvancedStats> {
-        val range = period.range
-        return entries.statsRows(range?.start?.toString(), range?.end?.toString()).map { rows ->
-            advancedStats(
-                rows.map { row ->
-                    StatsEntry(
-                        date = LocalDate.parse(row.date),
-                        hour = row.time.substringBefore(':').toIntOrNull() ?: 0,
-                        mood = Mood.fromId(row.mood),
-                        weather = Weather.entries.firstOrNull { it.id == row.weather },
-                        place = row.placeName
-                    )
-                }
-            )
-        }
+    override fun advanced(period: AdvancedPeriod, today: LocalDate): Flow<AdvancedStats> {
+        val range = period.range(today)
+        val before = period.compare(today)
+        return entries.statsRows((before?.start ?: range?.start)?.toString(), range?.end?.toString()).map { rows ->
+            val all = rows.map { it.toEntry() }
+            if (before == null) {
+                advancedStats(all)
+            } else {
+                advancedStats(all.filter { it.date >= range!!.start }, all.filter { it.date <= before.end })
+            }
+        }.flowOn(Dispatchers.Default)
     }
+
+    private fun StatsRow.toEntry() = StatsEntry(
+        date = LocalDate.parse(date),
+        hour = time.substringBefore(':').toIntOrNull() ?: 0,
+        mood = Mood.fromId(mood),
+        weather = Weather.entries.firstOrNull { it.id == weather },
+        place = placeName,
+        photos = photos,
+        length = length
+    )
 
     override fun moodFlow(period: StatsPeriod): Flow<List<DayMood>> {
         val range = period.range

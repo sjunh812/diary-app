@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.data.diary.StatsRepository
+import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
@@ -141,7 +142,7 @@ class InsightViewModelTest {
     private object NoStats : StatsRepository {
         override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = flowOf(MoodCounts(emptyMap(), 0))
 
-        override fun advanced(period: StatsPeriod) = flowOf(advancedStats(emptyList()))
+        override fun advanced(period: AdvancedPeriod, today: LocalDate) = flowOf(advancedStats(emptyList()))
 
         override fun moodFlow(period: StatsPeriod): Flow<List<DayMood>> = flowOf(emptyList())
 

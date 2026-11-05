@@ -61,7 +61,6 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
-import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -75,6 +74,8 @@ import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.insight.resources.Res
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_open
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_plus
 import org.sjhstudio.diary.feature.insight.resources.insight_all_time
 import org.sjhstudio.diary.feature.insight.resources.insight_count_percent
 import org.sjhstudio.diary.feature.insight.resources.insight_empty
@@ -108,6 +109,7 @@ fun InsightRoute(
     onMood: (Mood, DateRange?) -> Unit,
     modifier: Modifier = Modifier,
     onPlus: () -> Unit = {},
+    onAdvanced: () -> Unit = {},
     adSlot: @Composable () -> Unit = {}
 ) {
     val viewModel = koinViewModel<InsightViewModel>()
@@ -116,7 +118,6 @@ fun InsightRoute(
     val days by viewModel.days.collectAsStateWithLifecycle()
     val pixels by viewModel.pixels.collectAsStateWithLifecycle()
     val advancedOpen by viewModel.advancedOpen.collectAsStateWithLifecycle()
-    val advanced by viewModel.advanced.collectAsStateWithLifecycle()
     InsightScreen(
         period = period,
         counts = counts,
@@ -129,8 +130,8 @@ fun InsightRoute(
         onMood = { onMood(it, period.range) },
         modifier = modifier,
         advancedOpen = advancedOpen,
-        advanced = advanced,
         onPlus = onPlus,
+        onAdvanced = onAdvanced,
         adSlot = adSlot
     )
 }
@@ -148,8 +149,8 @@ internal fun InsightScreen(
     onMood: (Mood) -> Unit,
     modifier: Modifier = Modifier,
     advancedOpen: Boolean = false,
-    advanced: AdvancedStats? = null,
     onPlus: () -> Unit = {},
+    onAdvanced: () -> Unit = {},
     adSlot: @Composable () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
@@ -190,7 +191,11 @@ internal fun InsightScreen(
             }
             if (counts != null && counts.total > 0) {
                 Spacer(Modifier.height(DiarySpacing.x8))
-                if (advancedOpen) AdvancedSection(advanced) else AdvancedPreview(onPlus)
+                if (advancedOpen) {
+                    AdvancedEntry(Res.string.insight_adv_entry_open, onAdvanced)
+                } else {
+                    AdvancedEntry(Res.string.insight_adv_entry_plus, onPlus)
+                }
                 Spacer(Modifier.height(DiarySpacing.x4))
                 adSlot()
             }

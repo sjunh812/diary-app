@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -23,7 +22,6 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
-import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
@@ -64,13 +62,6 @@ class InsightViewModel(
         _period
             .flatMapLatest { if (it is StatsPeriod.Year) stats.yearPixels(it.year) else flowOf(emptyMap()) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyMap())
-
-    /** 열린 사람만 계산한다. */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val advanced: StateFlow<AdvancedStats?> =
-        combine(_period, advancedOpen) { period, open -> period.takeIf { open } }
-            .flatMapLatest { period -> period?.let(stats::advanced) ?: flowOf(null) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     fun today(): LocalDate = today.invoke()
 

@@ -37,11 +37,19 @@
 
 ## 6단계: 실제 연결 (사용자 준비 뒤)
 
-- [ ] T050 `androidMain` `RevenueCatPurchases`, 키 없으면 무료 구현
-- [ ] T051 Play 상품과 시험 계정으로 구매, 복원, 해지
+- [ ] T050 `androidMain` `RevenueCatPurchases`, 키 없으면 무료 구현. 앱을 열 때 `syncPurchases`로 재설치 구매를 찾는다(FR-017)
+- [ ] T051 Play 상품과 시험 계정으로 구매, 재설치 자동 복원, 다른 계정의 구매 복원, 해지
 - [ ] T052 AdMob 실제 ID, Firebase Remote Config 스위치(스펙 005)
 - [ ] T053 결제 화면에 이용약관·개인정보처리방침 링크(스펙 005 주소가 나오면). 출시 필수다
 - [x] T054 다크, 태블릿 Figma 프레임과 결제 화면 넓은 화면 두 칸 2026-11-05: T021에서 체크했지만 코드는 한 칸이어서 두 칸으로 만들었다. 태블릿에서 레일이 결제 화면의 닫기 버튼을 가리던 버그도 고쳤다
+
+## 고급 통계 다시 만들기 (2026-11-06)
+
+- [x] T055 조사와 모의 시험(`research-advanced-stats.md`)
+- [x] T056 Figma P1·P4 다듬기, P6 입구, P8과 상태
+- [x] T057 `AdvancedStats` 계산과 시험, `statsRows`에 글자 수와 사진 수
+- [x] T058 `AdvancedStatsScreen`, 돌아보기 입구, 경로, 세 언어 문구, 프리뷰
+- [ ] T059 일기 1년치 Plus로 폰·태블릿·다크 화면 확인
 
 ## 마무리
 

@@ -33,24 +33,79 @@
         <item quantity="other">%1$d without a mood</item>
     </plurals>
     <string name="insight_adv_title">Deeper stats</string>
-    <string name="insight_adv_not_enough">Shown once you have 7 entries.</string>
-    <string name="insight_adv_weekdays">Mood by weekday</string>
-    <string name="insight_adv_dayparts">Mood by time of day</string>
-    <string name="insight_adv_weather">Mood by weather</string>
-    <string name="insight_adv_places">Favorite places</string>
-    <string name="insight_adv_preview_title">See your diary in more depth</string>
-    <string name="insight_adv_preview_body">Moods by weekday and time, and favorite places</string>
-    <string name="insight_adv_preview_action">See Plus</string>
-    <string name="insight_adv_wd_sun">S</string>
-    <string name="insight_adv_wd_mon">M</string>
-    <string name="insight_adv_wd_tue">T</string>
-    <string name="insight_adv_wd_wed">W</string>
-    <string name="insight_adv_wd_thu">T</string>
-    <string name="insight_adv_wd_fri">F</string>
-    <string name="insight_adv_wd_sat">S</string>
+    <string name="insight_adv_wd_sun">Sunday</string>
+    <string name="insight_adv_wd_mon">Monday</string>
+    <string name="insight_adv_wd_tue">Tuesday</string>
+    <string name="insight_adv_wd_wed">Wednesday</string>
+    <string name="insight_adv_wd_thu">Thursday</string>
+    <string name="insight_adv_wd_fri">Friday</string>
+    <string name="insight_adv_wd_sat">Saturday</string>
     <string name="insight_adv_day_dawn">Dawn</string>
     <string name="insight_adv_day_morning">Morning</string>
     <string name="insight_adv_day_afternoon">Day</string>
     <string name="insight_adv_day_evening">Evening</string>
-    <plurals name="insight_adv_days"><item quantity="one">Wrote on %1$d day</item><item quantity="other">Wrote on %1$d days</item></plurals>
+    <string name="insight_adv_entry_body">See when your mood changes.</string>
+    <string name="insight_adv_entry_plus">Learn about Plus</string>
+    <string name="insight_adv_entry_open">Open</string>
+    <string name="insight_adv_range_recent">Last 30 days</string>
+    <string name="insight_adv_range_year">This year</string>
+    <string name="insight_adv_range_all">All</string>
+    <string name="insight_adv_not_enough">We need 7 entries to show this.</string>
+    <string name="insight_adv_not_enough_body">The more entries with a mood, the clearer it gets.</string>
+    <string name="insight_adv_gaps">Standout differences</string>
+    <string name="insight_adv_gap_more">More good moods</string>
+    <string name="insight_adv_gap_less">Fewer good moods</string>
+    <string name="insight_adv_gap_numbers">%2$d of %1$d</string>
+    <string name="insight_adv_gap_rate">%1$d%</string>
+    <string name="insight_adv_gap_others">%1$d% otherwise</string>
+    <string name="insight_adv_gap_note">These happened together. One may not cause the other.</string>
+    <string name="insight_adv_gap_none">No clear differences yet</string>
+    <string name="insight_adv_gap_none_body">We don\'t show differences that could be chance. We\'ll look again as you write.</string>
+    <string name="insight_adv_factor_photos">Entries with photos</string>
+    <string name="insight_adv_factor_long">Long entries</string>
+    <string name="insight_adv_change_recent">Compared with the previous 30 days</string>
+    <string name="insight_adv_change_year">Compared with this time last year</string>
+    <string name="insight_adv_change_good">Good moods</string>
+    <string name="insight_adv_change_good_value">%1$d% → %2$d%</string>
+    <string name="insight_adv_change_days">Days written</string>
+    <string name="insight_adv_when">When good moods were common</string>
+    <string name="insight_adv_tab_weekday">Day</string>
+    <string name="insight_adv_tab_part">Time</string>
+    <string name="insight_adv_tab_weather">Weather</string>
+    <string name="insight_adv_tab_place">Place</string>
+    <string name="insight_adv_share">%1$d of %2$d</string>
+    <string name="insight_adv_tone_note">Good moods are Good and Laughing.</string>
+    <string name="insight_adv_when_empty">Not enough entries yet.</string>
+    <string name="insight_adv_company">What often came with each mood</string>
+    <string name="insight_adv_habit">Writing habits</string>
+    <string name="insight_adv_habit_entries">Entries</string>
+    <string name="insight_adv_habit_days">Days written</string>
+    <string name="insight_adv_habit_run">Longest streak</string>
+    <string name="insight_adv_habit_characters">Characters</string>
+    <string name="insight_adv_habit_photos">Photos</string>
+    <string name="insight_adv_habit_part">Favorite time</string>
+    <plurals name="insight_adv_change_days_value">
+        <item quantity="one">%1$d → %2$d day</item>
+        <item quantity="other">%1$d → %2$d days</item>
+    </plurals>
+    <plurals name="insight_adv_company_title">
+        <item quantity="one">%1$s · %2$s entry</item>
+        <item quantity="other">%1$s · %2$s entries</item>
+    </plurals>
+    <plurals name="insight_adv_habit_entries_value">
+        <item quantity="one">%1$s entry</item>
+        <item quantity="other">%1$s entries</item>
+    </plurals>
+    <plurals name="insight_adv_habit_days_value">
+        <item quantity="one">%1$s day</item>
+        <item quantity="other">%1$s days</item>
+    </plurals>
+    <plurals name="insight_adv_habit_characters_value">
+        <item quantity="one">%1$s character</item>
+        <item quantity="other">%1$s characters</item>
+    </plurals>
+    <plurals name="insight_adv_habit_photos_value">
+        <item quantity="one">%1$s photo</item>
+        <item quantity="other">%1$s photos</item>
+    </plurals>
 </resources>
