@@ -70,8 +70,8 @@ class LargeDiaryQueryTest {
             db.mediaDao().forRows(rows)
         }
         assertFast("드문 글자 찾기") { entries.search(SearchFilter(query = "바닷가")).first() }
-        // 1만 편이 모두 걸리는 가장 나쁜 경우다. iOS 시험은 최적화하지 않은 빌드라 넉넉히 둔다.
-        assertFast("흔한 글자 찾기", WORST_MILLIS) { entries.search(SearchFilter(query = "한강")).first() }
+        // 1만 편이 모두 걸리는 가장 나쁜 경우다.
+        assertFast("흔한 글자 찾기", WORST_QUERY_BUDGET_MILLIS) { entries.search(SearchFilter(query = "한강")).first() }
         assertFast("달력 한 달") { entries.month(YearMonth(2026, 10)).first() }
     }
 
@@ -83,6 +83,5 @@ class LargeDiaryQueryTest {
         const val CHUNK = 500
         const val PAGE = 60
         const val LIMIT_MILLIS = 1_000L
-        const val WORST_MILLIS = 5_000L
     }
 }
