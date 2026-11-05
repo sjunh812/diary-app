@@ -18,4 +18,6 @@
     <string name="weather_snow">눈</string>
     <string name="entry_kept_both">두 가지</string>
     <string name="tip_close">닫기</string>
+    <string name="checklist_check">%1$s 체크하기</string>
+    <string name="checklist_uncheck">%1$s 체크 풀기</string>
 </resources>

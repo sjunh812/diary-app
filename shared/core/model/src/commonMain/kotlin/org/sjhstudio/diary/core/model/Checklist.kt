@@ -5,6 +5,11 @@ data class ChecklistEdit(val start: Int, val end: Int, val text: String) {
     override fun toString(): String = "ChecklistEdit"
 }
 
+/** 체크리스트 항목 하나. [start]는 줄의 시작이고 [label]은 표시를 뺀 글이다. */
+data class ChecklistItem(val start: Int, val done: Boolean, val label: String) {
+    override fun toString(): String = "ChecklistItem"
+}
+
 /**
  * 체크리스트(contracts/rich-text-html.md "체크리스트").
  * 줄 맨 앞의 표시 글자로 나타낸다. 본문 글자라서 HTML 허용 목록, 백업 형식, 이전이 그대로다.
@@ -32,6 +37,17 @@ object Checklist {
     private fun lineStart(text: String, index: Int): Int = text.lastIndexOf('\n', index - 1) + 1
 
     private fun lineEnd(text: String, index: Int): Int = text.indexOf('\n', index).let { if (it < 0) text.length else it }
+
+    /** 글에 있는 항목들. 순서가 [toggleInHtml]의 번호다. */
+    fun items(text: String): List<ChecklistItem> {
+        val items = ArrayList<ChecklistItem>()
+        var start = 0
+        for (line in text.split('\n')) {
+            if (isItem(line)) items += ChecklistItem(start, line[0] == DONE, line.drop(PREFIX_LENGTH))
+            start += line.length + 1
+        }
+        return items
+    }
 
     /** 커서가 있는 줄이 항목인가. */
     fun isItemAt(text: String, cursor: Int): Boolean = isItem(text.substring(lineStart(text, cursor), lineEnd(text, cursor)))

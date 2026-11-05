@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -38,18 +40,21 @@ fun DiaryRichText(html: String, style: TextStyle, modifier: Modifier = Modifier,
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
     val check by rememberUpdatedState(onCheck)
+    val actions = if (onCheck == null) emptyList() else checklistActions(text.text) { _, index -> check?.invoke(index) }
     // 누를 수 없는 본문은 손길을 가로채지 않는다.
     val tappable =
-        if (onCheck == null) {
+        if (actions.isEmpty()) {
             modifier
         } else {
-            modifier.pointerInput(text) {
-                detectTapGestures { position ->
-                    val start = layout?.checkLineAt(position, touch) ?: return@detectTapGestures
-                    val index = Checklist.indexOfItem(text.text, start) ?: return@detectTapGestures
-                    check?.invoke(index)
+            modifier
+                .semantics { customActions = actions }
+                .pointerInput(text) {
+                    detectTapGestures { position ->
+                        val start = layout?.checkLineAt(position, touch) ?: return@detectTapGestures
+                        val index = Checklist.indexOfItem(text.text, start) ?: return@detectTapGestures
+                        check?.invoke(index)
+                    }
                 }
-            }
         }
     BasicText(
         text,

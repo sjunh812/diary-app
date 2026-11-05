@@ -67,6 +67,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -116,6 +117,7 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.checkLineAt
+import org.sjhstudio.diary.core.ui.checklistActions
 import org.sjhstudio.diary.core.ui.checklistMarks
 import org.sjhstudio.diary.core.ui.icon
 import org.sjhstudio.diary.core.ui.moodName
@@ -528,12 +530,17 @@ private fun Editor(state: RichTextState, style: TextStyle, modifier: Modifier) {
                 before = state.toText()
             }
         }
+        val actions =
+            checklistActions(state.annotatedString.let { state.toText() }) { item, _ ->
+                state.applyEdit(Checklist.toggle(state.toText(), item.start))
+            }
         BasicRichTextEditor(
             state = state,
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .heightIn(min = DiaryWriteSize.editorMin)
+                    .semantics { customActions = actions }
                     .checklistMarks({ state.annotatedString.let { state.toText() } }, { layout })
                     .pointerInput(state) {
                         // 표시를 누르면 커서를 옮기지 않고 체크만 바꾼다.

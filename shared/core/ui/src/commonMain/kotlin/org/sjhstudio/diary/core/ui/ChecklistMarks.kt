@@ -12,10 +12,16 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Checklist
+import org.sjhstudio.diary.core.model.ChecklistItem
+import org.sjhstudio.diary.core.ui.resources.Res
+import org.sjhstudio.diary.core.ui.resources.checklist_check
+import org.sjhstudio.diary.core.ui.resources.checklist_uncheck
 
 private const val CORNER = 0.25f
 private val GAP = 6.dp
@@ -45,7 +51,8 @@ fun Modifier.checklistMarks(text: () -> String, layout: () -> TextLayoutResult?,
                 // 글꼴마다 표시와 칸의 폭이 달라서, 글과 닿지 않는 크기로 맞춘다.
                 val advance = result.getBoundingBox(start + 1).right - glyph.left
                 val room = advance - GAP.toPx()
-                val side = minOf(result.layoutInput.style.fontSize.toPx(), room)
+                val fontSize = result.layoutInput.style.fontSize
+                val side = minOf(if (fontSize.isSp) fontSize.toPx() else glyph.height, room)
                 val topLeft = Offset(glyph.left, glyph.center.y - side / 2)
                 // 표시 글자는 뒤의 칸까지 덮어야 넓은 그림 문자가 비치지 않는다.
                 drawRect(background, glyph.topLeft, Size(advance, glyph.height))
@@ -77,6 +84,20 @@ private fun DrawScope.drawCheck(topLeft: Offset, side: Float, color: Color) {
         }
     drawPath(path, color, style = Stroke(1.75.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
 }
+
+/**
+ * 화면 낭독기로 체크를 바꾸는 동작들. 칸은 글자 위에 그린 그림이라 낭독기가 누를 수 없다.
+ * [onToggle]은 항목 번호를 받는다.
+ */
+@Composable
+fun checklistActions(text: String, onToggle: (ChecklistItem, Int) -> Unit): List<CustomAccessibilityAction> =
+    Checklist.items(text).mapIndexed { index, item ->
+        val label = stringResource(if (item.done) Res.string.checklist_uncheck else Res.string.checklist_check, item.label)
+        CustomAccessibilityAction(label) {
+            onToggle(item, index)
+            true
+        }
+    }
 
 /**
  * [position]이 체크리스트 표시 위면 그 줄의 시작 자리를 돌려준다.

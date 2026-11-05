@@ -43,6 +43,13 @@ class ChecklistTest {
     }
 
     @Test
+    fun items_list_marks_and_labels_in_order() {
+        val items = Checklist.items("장보기\n$open 우유\n$done 달걀")
+
+        assertEquals(listOf(ChecklistItem(4, false, "우유"), ChecklistItem(9, true, "달걀")), items)
+    }
+
+    @Test
     fun index_counts_only_items_before_the_line() {
         val text = "장보기\n$open 우유\n메모\n$done 달걀"
 
