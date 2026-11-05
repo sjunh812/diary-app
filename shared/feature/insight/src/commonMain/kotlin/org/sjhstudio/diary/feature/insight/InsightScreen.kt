@@ -432,7 +432,7 @@ private fun moodAmount(count: Int, percent: Int): String =
 
 /** 글을 잘리지 않게 담을 폭. 글자 크기와 고른 글꼴을 그대로 따른다. */
 @Composable
-private fun widestText(texts: List<String>, style: TextStyle): Dp {
+internal fun widestText(texts: List<String>, style: TextStyle): Dp {
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     return remember(texts, style, density, measurer) {

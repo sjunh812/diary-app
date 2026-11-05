@@ -382,7 +382,10 @@ private fun GoodTimes(stats: AdvancedStats) {
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
             )
         }
-        rows.forEach { (label, share) -> ShareRow(label, share) }
+        val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, share.good, share.total) }
+        val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.body).coerceAtMost(DiarySpacing.x14 * 2)
+        val countWidth = widestText(counts, DiaryTheme.typography.caption)
+        rows.forEachIndexed { index, (label, share) -> ShareRow(label, counts[index], share, labelWidth, countWidth) }
         BasicText(
             stringResource(Res.string.insight_adv_tone_note),
             style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
@@ -391,10 +394,9 @@ private fun GoodTimes(stats: AdvancedStats) {
 }
 
 @Composable
-private fun ShareRow(label: String, share: GoodShare) {
+private fun ShareRow(label: String, count: String, share: GoodShare, labelWidth: Dp, countWidth: Dp) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    val count = stringResource(Res.string.insight_adv_share, share.good, share.total)
     Row(
         Modifier.fillMaxWidth().clearAndSetSemantics { contentDescription = "$label $count" },
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
@@ -402,7 +404,7 @@ private fun ShareRow(label: String, share: GoodShare) {
     ) {
         BasicText(
             label,
-            Modifier.width(DiarySpacing.x14 + DiarySpacing.x4),
+            Modifier.width(labelWidth),
             style = typography.body.copy(color = colors.textPrimary),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -410,10 +412,9 @@ private fun ShareRow(label: String, share: GoodShare) {
         DiaryProgressBar(share.rate.toFloat(), Modifier.weight(1f))
         BasicText(
             count,
-            Modifier.width(DiarySpacing.x14 + DiarySpacing.x4),
+            Modifier.width(countWidth),
             style = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            maxLines = 1
         )
     }
 }
