@@ -25,7 +25,7 @@ import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.welcome.resources.Res
 
 private const val WRITE_FILE = "files/onboarding_write.json"
-private const val WRITE_MILLIS = 4_400
+private const val WRITE_MILLIS = 4_900
 private const val BACKUP_FILE = "files/onboarding_backup.json"
 private const val BACKUP_MILLIS = 3_200
 

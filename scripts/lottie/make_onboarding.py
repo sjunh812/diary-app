@@ -146,18 +146,23 @@ def image_icon(cx, cy, size, color):
 
 
 def write():
-    """낱말을 하나씩 쓰고, 낱말 사이에서 펜을 잠깐 든다. 빠르게 긋지 않는다(사람이 쓰는 속도)."""
-    c = Comp("onboarding_write", 132)
-    speed = 130 / FPS  # 프레임마다 나아가는 거리
+    """실제 문장의 글자 수로 낱말 길이를 잡고, 낱말을 하나씩 쓴다. 낱말 사이에서 펜을 잠깐 든다."""
+    # "오늘은 바람이 선선해서 한강까지 / 천천히 걸었다."의 글자 수다.
+    sentence = [(104, [3, 3, 4, 4]), (128, [3, 3])]
+    syllable, space, left = 13, 6, 36  # 본문 글자 한 칸과 띄어쓰기의 폭
+    speed = 100 / FPS  # 프레임마다 나아가는 거리. 사람이 쓰는 속도다.
     words, frame, pen = [], 18, []
-    for y, spans in [(104, [(36, 82), (92, 148), (160, 252)]), (128, [(36, 96), (106, 150)])]:
-        for x1, x2 in spans:
-            end = frame + (x2 - x1) / speed
-            words.append((x1, x2, y, frame, end))
-            pen += [(frame, [x1, y, 0]), (end, [x2, y, 0])]
-            frame = end + 5
+    for y, counts in sentence:
+        x = left
+        for count in counts:
+            x2 = x + syllable * count
+            end = frame + (x2 - x) / speed
+            words.append((x, x2, y, frame, end))
+            pen += [(frame, [x, y, 0]), (end, [x2, y, 0])]
+            x, frame = x2 + space, end + 5
         frame += 5
     finish = frame - 10
+    c = Comp("onboarding_write", round(finish + 20))
     check(240, 158, 14, c, finish + 4, finish + 18)
     # 펜 끝(왼쪽 아래)이 글자 끝에 닿게 둔다.
     c.layer("펜", [group([path(PEN, 0.9, -4.5, -17.1), fill("@accent")])],
