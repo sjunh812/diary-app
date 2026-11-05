@@ -38,7 +38,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -273,7 +276,14 @@ private fun Content(
     }
     val most = counts.counts.values.maxOrNull() ?: 0
     val rows = counts.sorted()
-    for ((mood, count) in rows) MoodBar(mood, count, most, counts.total, onMood)
+    // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
+    val names = rows.map { (mood, _) -> moodName(mood) }
+    val amounts = rows.map { (_, count) -> moodAmount(count, percentOf(count, counts.total)) }
+    val nameWidth = widestText(names, DiaryTheme.typography.caption)
+    val amountWidth = widestText(amounts, DiaryTheme.typography.captionStrong)
+    rows.forEachIndexed { index, (mood, count) ->
+        MoodBar(mood, count, most, names[index], nameWidth, amounts[index], amountWidth, onMood)
+    }
 }
 
 /** 기분 이름은 모두 받침으로 끝나서 문구에 조사 "이"를 그대로 둔다. */
@@ -403,13 +413,36 @@ private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) 
     }
 }
 
+private fun percentOf(count: Int, total: Int): Int = if (total == 0) 0 else count * PERCENT / total
+
+/** 없는 기분은 숫자만 둔다. */
 @Composable
-private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Mood) -> Unit) {
+private fun moodAmount(count: Int, percent: Int): String =
+    if (count > 0) stringResource(Res.string.insight_count_percent, count, percent) else count.toString()
+
+/** 글을 잘리지 않게 담을 폭. 글자 크기와 고른 글꼴을 그대로 따른다. */
+@Composable
+private fun widestText(texts: List<String>, style: TextStyle): Dp {
+    val measurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    return remember(texts, style, density, measurer) {
+        with(density) { (texts.maxOfOrNull { measurer.measure(it, style, maxLines = 1).size.width } ?: 0).toDp() }
+    }
+}
+
+@Composable
+private fun MoodBar(
+    mood: Mood,
+    count: Int,
+    most: Int,
+    name: String,
+    nameWidth: Dp,
+    amount: String,
+    amountWidth: Dp,
+    onClick: (Mood) -> Unit
+) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
-    val percent = if (total == 0) 0 else count * PERCENT / total
-    // 이름과 숫자 칸은 기기 글자 크기만큼 넓어져야 잘리지 않는다.
-    val fontScale = LocalDensity.current.fontScale
     Row(
         Modifier
             .fillMaxWidth()
@@ -421,8 +454,8 @@ private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Moo
     ) {
         MoodFace(mood, DiaryInsightSize.barFace)
         BasicText(
-            moodName(mood),
-            modifier = Modifier.width(DiaryInsightSize.barName * fontScale),
+            name,
+            modifier = Modifier.width(nameWidth),
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
             maxLines = 1
         )
@@ -433,9 +466,8 @@ private fun MoodBar(mood: Mood, count: Int, most: Int, total: Int, onClick: (Moo
             }
         }
         BasicText(
-            // 없는 기분은 숫자만 흐리게 두어 있는 기분이 먼저 보이게 한다.
-            if (count > 0) stringResource(Res.string.insight_count_percent, count, percent) else count.toString(),
-            modifier = Modifier.width(DiaryInsightSize.barCount * fontScale),
+            amount,
+            modifier = Modifier.width(amountWidth),
             style = DiaryTheme.typography.captionStrong.copy(
                 color = if (count >
                     0

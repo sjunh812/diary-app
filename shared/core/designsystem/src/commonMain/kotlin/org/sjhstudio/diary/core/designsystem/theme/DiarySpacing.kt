@@ -68,8 +68,6 @@ object DiaryInsightSize {
     val barRow: Dp = 36.dp
     val barHeight: Dp = 10.dp
     val barFace: Dp = 24.dp
-    val barName: Dp = 36.dp
-    val barCount: Dp = 56.dp
 
     /** 기분 흐름 얼굴. */
     val flowFace: Dp = 32.dp

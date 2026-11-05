@@ -3,8 +3,6 @@ package org.sjhstudio.diary.core.designsystem.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
@@ -49,23 +47,14 @@ fun DiaryDialog(
         ) {
             BasicText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
             if (message != null) BasicText(text = message, style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = DiarySpacing.x4),
-                horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-            ) {
-                DiaryButton(
-                    text = stringResource(Res.string.ds_close),
-                    onClick = onDismiss,
-                    kind = DiaryButtonKind.Secondary,
-                    modifier = Modifier.weight(1f)
-                )
-                DiaryButton(
-                    text = confirmLabel,
-                    onClick = onConfirm,
-                    kind = if (destructive) DiaryButtonKind.Danger else DiaryButtonKind.Primary,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+            DiaryButtonPair(
+                secondary = stringResource(Res.string.ds_close),
+                onSecondary = onDismiss,
+                primary = confirmLabel,
+                onPrimary = onConfirm,
+                modifier = Modifier.padding(top = DiarySpacing.x4),
+                primaryKind = if (destructive) DiaryButtonKind.Danger else DiaryButtonKind.Primary
+            )
         }
     }
 }

@@ -14,9 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
-import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -65,21 +63,12 @@ fun SupportAttachSheet(onDismiss: () -> Unit, onContactWithout: () -> Unit, onCo
                 Line(DiaryIcons.History, stringResource(Res.string.support_sheet_restore))
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            DiaryButton(
-                text = stringResource(Res.string.support_without),
-                onClick = onContactWithout,
-                size = DiaryButtonSize.Large,
-                kind = DiaryButtonKind.Secondary,
-                modifier = Modifier.weight(1f)
-            )
-            DiaryButton(
-                text = stringResource(Res.string.support_with),
-                onClick = onContactWith,
-                size = DiaryButtonSize.Large,
-                modifier = Modifier.weight(1f)
-            )
-        }
+        DiaryButtonPair(
+            stringResource(Res.string.support_without),
+            onContactWithout,
+            stringResource(Res.string.support_with),
+            onContactWith
+        )
     }
 }
 

@@ -1,7 +1,5 @@
 package org.sjhstudio.diary.feature.lock
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,10 +7,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
 import org.sjhstudio.diary.core.designsystem.resources.ds_close
-import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.forgot_body
 import org.sjhstudio.diary.feature.lock.resources.forgot_confirm
@@ -32,22 +29,10 @@ fun ForgotPinSheet(deviceSecure: Boolean, onDismiss: () -> Unit, onConfirm: () -
         title = stringResource(if (deviceSecure) Res.string.forgot_title else Res.string.forgot_no_device_lock_title),
         description = stringResource(if (deviceSecure) Res.string.forgot_body else Res.string.forgot_no_device_lock_body)
     ) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            DiaryButton(
-                stringResource(DsRes.string.ds_close),
-                onClick = onDismiss,
-                kind = DiaryButtonKind.Secondary,
-                size = DiaryButtonSize.Large,
-                modifier = Modifier.weight(1f)
-            )
-            if (deviceSecure) {
-                DiaryButton(
-                    stringResource(Res.string.forgot_confirm),
-                    onClick = onConfirm,
-                    size = DiaryButtonSize.Large,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+        if (deviceSecure) {
+            DiaryButtonPair(stringResource(DsRes.string.ds_close), onDismiss, stringResource(Res.string.forgot_confirm), onConfirm)
+        } else {
+            DiaryButton(stringResource(DsRes.string.ds_close), onDismiss, Modifier.fillMaxWidth(), kind = DiaryButtonKind.Secondary)
         }
     }
 }

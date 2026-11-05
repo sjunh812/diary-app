@@ -50,6 +50,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryTimeWheel
@@ -291,10 +292,7 @@ private fun PlaceChips(title: String, places: List<String>, onPick: (String) -> 
 
 @Composable
 private fun SheetButtons(secondary: String, onSecondary: () -> Unit, primary: String, onPrimary: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        DiaryButton(secondary, onSecondary, Modifier.weight(1f), kind = DiaryButtonKind.Secondary)
-        DiaryButton(primary, onPrimary, Modifier.weight(1f))
-    }
+    DiaryButtonPair(secondary, onSecondary, primary, onPrimary)
 }
 
 /** "쓰던 일기가 있어요"(Figma "S2 · 쓰던 일기"). 버리기는 한 번 더 묻는다(FR-011). */

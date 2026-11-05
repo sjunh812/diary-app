@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
@@ -18,9 +19,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -50,7 +53,7 @@ enum class DiaryButtonKind { Primary, Secondary, Weak, Text, Danger }
 private class ButtonSpec(val height: Dp, val horizontal: Dp, val shape: Shape)
 
 private fun DiaryButtonSize.spec() = when (this) {
-    DiaryButtonSize.XLarge -> ButtonSpec(56.dp, 28.dp, DiaryShapes.r16)
+    DiaryButtonSize.XLarge -> ButtonSpec(56.dp, DiarySpacing.x4, DiaryShapes.r16)
     DiaryButtonSize.Large -> ButtonSpec(48.dp, DiarySpacing.x4, DiaryShapes.r14)
     DiaryButtonSize.Medium -> ButtonSpec(38.dp, DiarySpacing.x4, DiaryShapes.r10)
     DiaryButtonSize.Small -> ButtonSpec(32.dp, 10.dp, DiaryShapes.r8)
@@ -115,5 +118,50 @@ fun DiaryButton(
             )
         }
         BasicText(text = text, style = style.copy(color = content), maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/**
+ * 나란한 두 버튼. 폭은 늘 같고 주 버튼이 오른쪽이다.
+ * 어느 한쪽 글이 반 칸에 들어가지 않으면 잘리는 대신 위아래로 쌓고 주 버튼을 위에 둔다.
+ * 언어와 글자 크기에 따라 글 길이가 달라져서 넓이를 재고 정한다(M3 대화상자의 쌓인 버튼과 같다).
+ */
+@Composable
+fun DiaryButtonPair(
+    secondary: String,
+    onSecondary: () -> Unit,
+    primary: String,
+    onPrimary: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: DiaryButtonSize = DiaryButtonSize.Large,
+    secondaryKind: DiaryButtonKind = DiaryButtonKind.Secondary,
+    primaryKind: DiaryButtonKind = DiaryButtonKind.Primary,
+    primaryEnabled: Boolean = true
+) {
+    Layout(
+        content = {
+            DiaryButton(secondary, onSecondary, Modifier.fillMaxWidth(), size = size, kind = secondaryKind)
+            DiaryButton(primary, onPrimary, Modifier.fillMaxWidth(), size = size, kind = primaryKind, enabled = primaryEnabled)
+        },
+        modifier = modifier.fillMaxWidth()
+    ) { (second, first), constraints ->
+        val gap = DiarySpacing.x2.roundToPx()
+        val half = (constraints.maxWidth - gap) / 2
+        val sideBySide = maxOf(second.maxIntrinsicWidth(Constraints.Infinity), first.maxIntrinsicWidth(Constraints.Infinity)) <= half
+        val width = if (sideBySide) half else constraints.maxWidth
+        val fixed = Constraints.fixedWidth(width)
+        val left = second.measure(fixed)
+        val right = first.measure(fixed)
+        if (sideBySide) {
+            layout(constraints.maxWidth, maxOf(left.height, right.height)) {
+                left.placeRelative(0, 0)
+                right.placeRelative(constraints.maxWidth - width, 0)
+            }
+        } else {
+            layout(constraints.maxWidth, right.height + gap + left.height) {
+                right.placeRelative(0, 0)
+                left.placeRelative(0, right.height + gap)
+            }
+        }
     }
 }

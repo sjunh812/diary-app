@@ -57,7 +57,7 @@ class BackupAlertPoster(context: Context, private val channelName: String) {
         manager.notify(
             NOTIFICATION_ID,
             builder.setSmallIcon(
-                context.applicationInfo.icon
+                R.drawable.ic_notification
             ).setContentTitle(title).setContentText(body).setAutoCancel(true).setContentIntent(open).build()
         )
     }
@@ -90,7 +90,7 @@ class BackupProgressNotifications(context: Context) {
                 @Suppress("DEPRECATION")
                 android.app.Notification.Builder(context)
             }
-        return builder.setSmallIcon(context.applicationInfo.icon).setContentTitle(title).setContentText(body)
+        return builder.setSmallIcon(R.drawable.ic_notification).setContentTitle(title).setContentText(body)
             .setOngoing(true).setProgress(total, done, total == 0).build()
     }
 

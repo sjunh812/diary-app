@@ -1,9 +1,7 @@
 package org.sjhstudio.diary.feature.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,9 +21,7 @@ import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
-import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
@@ -86,18 +82,7 @@ fun ReminderTimeSheet(minuteOfDay: Int, is24Hour: Boolean, onDismiss: () -> Unit
     var picked by rememberSaveable { mutableIntStateOf(minuteOfDay) }
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.reminder_time)) {
         DiaryTimeWheel(minuteOfDay = minuteOfDay, onChange = { picked = it }, is24Hour = is24Hour)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            DiaryButton(
-                stringResource(DsRes.string.ds_close),
-                onClick = onDismiss,
-                kind = DiaryButtonKind.Secondary,
-                size = DiaryButtonSize.Large,
-                modifier = Modifier.weight(1f)
-            )
-            DiaryButton(stringResource(Res.string.reminder_save), onClick = {
-                onSave(picked)
-            }, size = DiaryButtonSize.Large, modifier = Modifier.weight(1f))
-        }
+        DiaryButtonPair(stringResource(DsRes.string.ds_close), onDismiss, stringResource(Res.string.reminder_save), { onSave(picked) })
     }
 }
 

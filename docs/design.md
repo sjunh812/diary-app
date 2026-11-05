@@ -152,10 +152,11 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 
 | 컴포넌트 | 규격 | 근거 |
 | --- | --- | --- |
-| 큰 버튼 | 56 · 좌우 28 · 모서리 16 · `headline` | TDS xlarge(값 같음) |
+| 큰 버튼 | 56 · 좌우 16 · 모서리 16 · `headline` | TDS xlarge. 높이·모서리는 같고, 좌우 28은 나란한 두 버튼에서 글이 잘려 16으로 줄였다(2026-11-05) |
 | 보통 버튼 | 48 · 좌우 16 · 모서리 14 · `headline` | TDS large |
 | 중간 버튼 | 38 · 좌우 16 · 모서리 10 · `bodyStrong` | TDS medium |
 | 작은 버튼 | 32 · 좌우 10 · 모서리 8 · `captionStrong` | TDS small |
+| 두 버튼 | 같은 폭 · 사이 8 · 주 버튼 오른쪽. 글이 반 칸에 들어가지 않으면 위아래로 쌓고 주 버튼을 위에 둔다. 1:2 폭은 쓰지 않는다 | M3 대화상자의 닫기 버튼 아래 쌓기, Apple 알림의 긴 버튼 세로 배치 |
 | 버튼 종류 | primary(accent), secondary(sunken), weak(selected + accentText), text, danger | TDS 버튼 색 종류 |
 | 칩 | 32 · 좌우 12(앞 아이콘이 있으면 왼쪽 10) · 아이콘과 글 사이 4 · full · `label`, 아이콘 16 · 터치 영역 48 | SEED Chip, M3 터치 48, M3 칩은 아이콘 쪽 여백이 좁다(8) |
 | 검색 칸 | 44 · 모서리 12 · 돋보기 20 · 지우기 16 · `body` | TDS SearchField 44/r12 |

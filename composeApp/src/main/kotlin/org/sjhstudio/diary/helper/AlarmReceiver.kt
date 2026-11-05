@@ -22,6 +22,7 @@ import org.sjhstudio.diary.R
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.StartupState
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
+import org.sjhstudio.diary.core.platform.R as PlatformR
 
 /**
  * 매일 알림 수신기(스펙 001 FR-022, research R15).
@@ -66,7 +67,7 @@ class AlarmReceiver :
         val open = context.packageManager.getLaunchIntentForPackage(context.packageName)?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val notification =
             NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(PlatformR.drawable.ic_notification)
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(context.getString(R.string.reminder_body))
                 .setAutoCancel(true)

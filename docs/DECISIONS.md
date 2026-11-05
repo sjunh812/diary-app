@@ -571,6 +571,13 @@ iOS 화면을 같이 만들 수 없다. 플러그인은 앱에 실제로 들어�
 - 구독이 끝나도 이미 넣은 이모티콘은 계속 보인다(헌법 I).
 - 원하는 자리에 붙이는 스티커는 지금처럼 R3다.
 
+## 2026-11-05 두 버튼은 같은 폭으로, 넘치면 쌓는다
+
+버튼 줄이 1:2 폭이면 왼쪽 버튼이 좁아서 "괜찮아요"가 잘렸다(사용자 지적). 언어와 글자 크기마다 글 길이가 달라 폭을 비율로 정하면 또 잘린다.
+그래서 두 버튼을 `DiaryButtonPair` 하나로 모아 같은 폭으로 두고, 글이 반 칸에 들어가지 않으면 주 버튼을 위로 쌓는다.
+Compose Material 3 대화상자는 긴 버튼을 쌓을 때 닫기를 아래에 두고([AOSP 커밋](https://dcmpx.remotevs.com/com/googlesource/android/SL/platform/frameworks/support/+/30ba03579a399ae7a79d4acf32c6f83c3b6a8f5e)), Apple 알림도 글이 길면 세로로 놓는다([Apple 개발자 포럼](https://developer.apple.com/forums/thread/771761)).
+큰 버튼의 좌우 여백은 28에서 16으로 줄였다.
+
 ## 열린 결정
 
 정하는 사람은 사용자다. 조사 근거와 추천은 각 문서에 있다.

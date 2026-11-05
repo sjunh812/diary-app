@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +35,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
@@ -161,16 +160,13 @@ fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> U
                 stringResource(Res.string.restore_found_body),
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                DiaryButton(
-                    stringResource(Res.string.restore_found_later),
-                    onLater,
-                    Modifier.weight(1f),
-                    size = DiaryButtonSize.XLarge,
-                    kind = DiaryButtonKind.Secondary
-                )
-                DiaryButton(stringResource(Res.string.restore_found_action), onRestore, Modifier.weight(1f), size = DiaryButtonSize.XLarge)
-            }
+            DiaryButtonPair(
+                stringResource(Res.string.restore_found_later),
+                onLater,
+                stringResource(Res.string.restore_found_action),
+                onRestore,
+                size = DiaryButtonSize.XLarge
+            )
         }
     }
 }

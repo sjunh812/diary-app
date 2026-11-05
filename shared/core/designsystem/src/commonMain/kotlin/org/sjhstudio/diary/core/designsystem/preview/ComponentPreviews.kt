@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.preview
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -18,6 +19,9 @@ import org.sjhstudio.diary.core.designsystem.catalog.CatalogSpacing
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogTimeWheel
 import org.sjhstudio.diary.core.designsystem.catalog.CatalogTypography
 import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 // 디자인 시스템 토큰과 컴포넌트 프리뷰. 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같다.
@@ -63,6 +67,21 @@ private fun ButtonsLight() = PreviewCanvas(dark = false) { CatalogButtons() }
 @Preview(name = "버튼과 칩 · 다크", locale = "ko")
 @Composable
 private fun ButtonsDark() = PreviewCanvas(dark = true) { CatalogButtons() }
+
+@Preview(name = "두 버튼 · 라이트", locale = "ko", widthDp = 360)
+@Composable
+private fun ButtonPairLight() = PreviewCanvas(dark = false) { ButtonPairs() }
+
+@Preview(name = "두 버튼 · 다크", locale = "ko", widthDp = 360)
+@Composable
+private fun ButtonPairDark() = PreviewCanvas(dark = true) { ButtonPairs() }
+
+/** 글이 반 칸에 들어가면 나란히, 넘치면 위아래로 쌓인다. */
+@Composable
+private fun ButtonPairs() = Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
+    DiaryButtonPair("괜찮아요", {}, "광고 없애기", {}, size = DiaryButtonSize.XLarge)
+    DiaryButtonPair("괜찮아요", {}, "한 번에 다 담기지 않는 아주 긴 버튼 글이에요", {}, size = DiaryButtonSize.XLarge)
+}
 
 @Preview(name = "설정 줄 · 라이트", locale = "ko")
 @Composable

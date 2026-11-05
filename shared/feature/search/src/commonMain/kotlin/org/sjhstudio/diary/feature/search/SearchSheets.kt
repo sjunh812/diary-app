@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.search
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -21,7 +20,7 @@ import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -75,10 +74,7 @@ internal fun WeatherSheet(selected: Set<Weather>, onChange: (Set<Weather>) -> Un
 
 @Composable
 private fun SheetButtons(onClear: () -> Unit, onDone: () -> Unit) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        DiaryButton(stringResource(Res.string.search_clear_filter), onClear, Modifier.weight(1f), kind = DiaryButtonKind.Secondary)
-        DiaryButton(stringResource(Res.string.search_done), onDone, Modifier.weight(2f))
-    }
+    DiaryButtonPair(stringResource(Res.string.search_clear_filter), onClear, stringResource(Res.string.search_done), onDone)
 }
 
 @Composable

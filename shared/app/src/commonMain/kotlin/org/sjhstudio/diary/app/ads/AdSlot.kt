@@ -1,9 +1,7 @@
 package org.sjhstudio.diary.app.ads
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,8 +28,8 @@ import org.sjhstudio.diary.app.resources.reward_title
 import org.sjhstudio.diary.app.resources.reward_watch
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
-import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -82,29 +80,18 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
                 title = stringResource(Res.string.reward_title),
                 description = stringResource(Res.string.reward_body)
             ) {
-                Column(
-                    Modifier.fillMaxWidth().padding(top = DiarySpacing.x1),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
-                ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                        DiaryButton(
-                            stringResource(Res.string.reward_close),
-                            { sheet = null },
-                            Modifier.weight(1f),
-                            kind = DiaryButtonKind.Weak,
-                            size = DiaryButtonSize.XLarge
-                        )
-                        DiaryButton(
-                            stringResource(Res.string.reward_watch),
-                            {
-                                sheet = null
-                                scope.launch { ads.watchReward() }
-                            },
-                            Modifier.weight(2f),
-                            size = DiaryButtonSize.XLarge
-                        )
-                    }
-                }
+                DiaryButtonPair(
+                    secondary = stringResource(Res.string.reward_close),
+                    onSecondary = { sheet = null },
+                    primary = stringResource(Res.string.reward_watch),
+                    onPrimary = {
+                        sheet = null
+                        scope.launch { ads.watchReward() }
+                    },
+                    modifier = Modifier.padding(top = DiarySpacing.x1),
+                    size = DiaryButtonSize.XLarge,
+                    secondaryKind = DiaryButtonKind.Weak
+                )
             }
 
         null -> Unit

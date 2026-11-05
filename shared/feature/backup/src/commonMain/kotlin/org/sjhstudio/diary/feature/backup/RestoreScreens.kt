@@ -328,13 +328,15 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
                     )
                 )
             }
-            DiaryNotice(stringResource(Res.string.restore_settings_note))
+            // 지금 막는 것부터 보이고, 뜻이 다르면 아이콘도 다르게 둔다.
+            if (lacking > 0) DiaryNotice(stringResource(Res.string.restore_no_space, sizeText(lacking)), icon = DiaryIcons.CircleAlert)
             if (preview.photosNotInBackup > 0) {
                 DiaryNotice(
-                    pluralStringResource(Res.plurals.restore_not_in_backup, preview.photosNotInBackup, preview.photosNotInBackup.grouped())
+                    pluralStringResource(Res.plurals.restore_not_in_backup, preview.photosNotInBackup, preview.photosNotInBackup.grouped()),
+                    icon = DiaryIcons.ImageOff
                 )
             }
-            if (lacking > 0) DiaryNotice(stringResource(Res.string.restore_no_space, sizeText(lacking)))
+            DiaryNotice(stringResource(Res.string.restore_settings_note))
         }
     }
     Bottom {

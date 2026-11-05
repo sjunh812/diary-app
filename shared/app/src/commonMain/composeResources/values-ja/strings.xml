@@ -14,7 +14,7 @@
     <string name="ad_label">広告</string>
     <string name="reward_title">広告なしの1日をもらう 🎁</string>
     <string name="reward_body">短い広告動画を最後まで見ると、24時間ほかの広告が表示されません。</string>
-    <string name="reward_watch">動画を見てもらう</string>
+    <string name="reward_watch">動画を見る</string>
     <string name="reward_close">閉じる</string>
     <string name="ad_close">広告を閉じる</string>
 </resources>

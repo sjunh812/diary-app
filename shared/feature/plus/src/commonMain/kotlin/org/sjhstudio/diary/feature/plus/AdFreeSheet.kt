@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.plus
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
@@ -16,6 +15,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -47,22 +47,15 @@ fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                    DiaryButton(
-                        stringResource(Res.string.adfree_close),
-                        onDismiss,
-                        Modifier.weight(1f),
-                        kind = DiaryButtonKind.Weak,
-                        size = DiaryButtonSize.XLarge
-                    )
-                    DiaryButton(
-                        stringResource(Res.string.adfree_buy),
-                        { viewModel.buy(ProductId.AD_FREE, onDismiss) },
-                        Modifier.weight(2f),
-                        size = DiaryButtonSize.XLarge,
-                        enabled = price != null && !state.busy
-                    )
-                }
+                DiaryButtonPair(
+                    secondary = stringResource(Res.string.adfree_close),
+                    onSecondary = onDismiss,
+                    primary = stringResource(Res.string.adfree_buy),
+                    onPrimary = { viewModel.buy(ProductId.AD_FREE, onDismiss) },
+                    size = DiaryButtonSize.XLarge,
+                    secondaryKind = DiaryButtonKind.Weak,
+                    primaryEnabled = price != null && !state.busy
+                )
                 if (onDayOff != null) {
                     DiaryButton(
                         stringResource(Res.string.adfree_day_off),

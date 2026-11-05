@@ -87,6 +87,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
@@ -401,26 +402,18 @@ private fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Uni
         title = stringResource(Res.string.write_limit_title, limit),
         description = stringResource(Res.string.write_limit_body, PhotoLimit.PLUS)
     ) {
-        Column(Modifier.fillMaxWidth().padding(top = DiarySpacing.x1), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                DiaryButton(
-                    stringResource(Res.string.write_limit_later),
-                    onDismiss,
-                    Modifier.weight(1f),
-                    kind = DiaryButtonKind.Weak,
-                    size = DiaryButtonSize.XLarge
-                )
-                DiaryButton(
-                    stringResource(Res.string.write_limit_plus),
-                    {
-                        onDismiss()
-                        onPlus()
-                    },
-                    Modifier.weight(2f),
-                    size = DiaryButtonSize.XLarge
-                )
-            }
-        }
+        DiaryButtonPair(
+            secondary = stringResource(Res.string.write_limit_later),
+            onSecondary = onDismiss,
+            primary = stringResource(Res.string.write_limit_plus),
+            onPrimary = {
+                onDismiss()
+                onPlus()
+            },
+            modifier = Modifier.padding(top = DiarySpacing.x1),
+            size = DiaryButtonSize.XLarge,
+            secondaryKind = DiaryButtonKind.Weak
+        )
     }
 }
 
