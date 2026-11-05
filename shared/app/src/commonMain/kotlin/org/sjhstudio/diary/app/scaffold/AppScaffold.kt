@@ -244,13 +244,13 @@ private fun ContentWithToast(
             }
         )
         val bottom = if (aboveWriteButton) DiarySpacing.x4 + DiarySpacing.x14 + DiarySpacing.x2 else DiarySpacing.x6
+        // 탭 바 높이에는 시스템 내비게이션 높이가 이미 들어 있다. 또 더하면 그만큼 높이 뜬다.
         DiaryToastHost(
             toast,
-            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(
-                start = LocalRailWidth.current,
-                bottom =
-                    bottom + bottomInset
-            )
+            Modifier
+                .align(Alignment.BottomCenter)
+                .then(if (bottomInset > Dp.Hairline) Modifier else Modifier.navigationBarsPadding())
+                .padding(start = LocalRailWidth.current, bottom = bottom + bottomInset)
         )
     }
 }
