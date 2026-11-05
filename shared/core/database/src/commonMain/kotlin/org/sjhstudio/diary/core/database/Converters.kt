@@ -42,6 +42,12 @@ fun EntryEntity.asModel(): Entry = Entry(
     legacyLocation = legacyLocation
 )
 
+fun EntryEntity.asListRow(): EntryListRow = EntryListRow(id, date, time, plainText, mood, weather, placeName, isFavorite)
+
+val EntryListRow.localDate: LocalDate get() = LocalDate.parse(date)
+
+val EntryListRow.localTime: LocalTime get() = LocalTime.parse(time, TIME_FORMAT)
+
 fun Entry.asEntity(): EntryEntity = EntryEntity(
     id = id,
     date = date.toString(),

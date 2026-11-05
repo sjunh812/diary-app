@@ -4,7 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.sjhstudio.diary.core.database.EntryEntity
+import org.sjhstudio.diary.core.database.EntryListRow
 import org.sjhstudio.diary.core.model.EntryRow
 
 /**
@@ -12,8 +12,8 @@ import org.sjhstudio.diary.core.model.EntryRow
  * `PagingData.map`은 줄마다 불려 묶어 읽을 수 없어서 쪽 단위로 바꾼다.
  */
 internal class EntryRowPagingSource(
-    private val source: PagingSource<Int, EntryEntity>,
-    private val toRows: suspend (List<EntryEntity>) -> List<EntryRow>
+    private val source: PagingSource<Int, EntryListRow>,
+    private val toRows: suspend (List<EntryListRow>) -> List<EntryRow>
 ) : PagingSource<Int, EntryRow>() {
     init {
         source.registerInvalidatedCallback(::invalidate)

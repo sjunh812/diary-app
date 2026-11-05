@@ -53,6 +53,9 @@ fun List<Mood>.mostFrequent(): Mood? {
     return lastOrNull { counts[it] == most }
 }
 
+/** 휴지통에서 영구 삭제까지 두는 날(FR-035). */
+const val TRASH_KEEP_DAYS = 30
+
 /** 휴지통 한 줄. [daysLeft]는 영구 삭제까지 남은 날이다. */
 data class TrashedEntry(val row: EntryRow, val deletedAt: Instant, val daysLeft: Int) {
     override fun toString(): String = "TrashedEntry"

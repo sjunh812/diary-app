@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.sjhstudio.diary.core.datastore.AdPrefs
 import org.sjhstudio.diary.core.datastore.AdStore
+import org.sjhstudio.diary.core.model.currentDate
 
 /** 광고 SDK. 공통 코드는 이것만 본다. 안드로이드만 구현이 있고 iOS는 R2에 붙인다. */
 interface AdPlayer {
@@ -61,7 +61,7 @@ class AdRepository(
         return left.isPositive() && left <= REWARD
     }
 
-    private fun today(): String = clock.now().toLocalDateTime(timeZone()).date.toString()
+    private fun today(): String = currentDate(clock, timeZone()).toString()
 
     /** 오늘 아직 안 봤으면 미리 받는다. */
     suspend fun afterSave() {

@@ -2,25 +2,20 @@ package org.sjhstudio.diary.feature.insight
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
+import org.sjhstudio.diary.core.model.currentDate
 
 /** 고급 통계. 차이를 찾으려면 일기가 많을수록 좋아서 전체부터 보인다. */
-class AdvancedStatsViewModel(
-    private val stats: StatsRepository,
-    private val today: () -> LocalDate = { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
-) : ViewModel() {
+class AdvancedStatsViewModel(private val stats: StatsRepository, private val today: () -> LocalDate = { currentDate() }) : ViewModel() {
     private val _period = MutableStateFlow(AdvancedPeriod.ALL)
     val period: StateFlow<AdvancedPeriod> = _period.asStateFlow()
 

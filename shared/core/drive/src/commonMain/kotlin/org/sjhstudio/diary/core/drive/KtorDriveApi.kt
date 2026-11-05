@@ -27,7 +27,6 @@ import kotlinx.coroutines.delay
 import kotlinx.io.IOException as KotlinxIOException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -191,21 +190,6 @@ class KtorDriveApi(
             }
         }
         total
-    }
-
-    override suspend fun setProperties(fileId: String, props: Map<String, String?>): DriveFile = call { token ->
-        val body =
-            buildJsonObject {
-                putJsonObject("appProperties") {
-                    props.forEach { (key, value) -> if (value == null) put(key, JsonNull) else put(key, value) }
-                }
-            }.toString()
-        parse(
-            client.patch("$API/files/${fileId.encodeURLParameter()}?fields=${FIELDS.encodeURLParameter()}") {
-                bearer(token)
-                setBody(TextContent(body, ContentType.Application.Json))
-            }
-        ).asFile()
     }
 
     override suspend fun trash(fileId: String) {

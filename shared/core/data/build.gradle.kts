@@ -16,8 +16,6 @@ kotlin {
             implementation(libs.okio)
             // 매일 알림 다음 시각(ReminderRepository)
             implementation(libs.kotlinx.datetime)
-            implementation(project.dependencies.platform(libs.koin.bom))
-            implementation(libs.koin.core)
         }
         // core/testing이 이 모듈의 인터페이스를 구현하니 시험에서만 건다.
         // main에 걸면 서로를 물고 돈다.

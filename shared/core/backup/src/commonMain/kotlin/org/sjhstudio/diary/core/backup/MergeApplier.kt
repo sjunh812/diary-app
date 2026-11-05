@@ -9,6 +9,8 @@ import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.SyncBaseEntity
+import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.TRASH_KEEP_DAYS
 
 /** 합치기 계획. 미리보기 숫자는 이 값이고, 확인하면 같은 값대로 쓴다. */
 data class MergePlan(val items: List<Pair<MergeEntry, MergeAction>>, val local: Map<String, MergeEntry>) {
@@ -81,19 +83,18 @@ class MergeApplier(
 
     /** 사진 파일이 이 기기에 있으면 바로 쓰고, 없으면 받을 때까지 대기다. 찾을 수 없던 줄은 그대로 둔다. */
     private fun MediaEntity.settled(): MediaEntity {
-        if (status == "missing") return this
-        return copy(status = if (fileName?.let(fileExists) == true) "normal" else "pending")
+        if (status == MediaStatus.MISSING.id) return this
+        return copy(status = (if (fileName?.let(fileExists) == true) MediaStatus.NORMAL else MediaStatus.PENDING).id)
     }
 
     /** 복원 직후 자동 비움으로 다시 잃지 않게 휴지통 남은 날이 하루보다 적으면 7일을 준다. */
     private fun keepInTrash(deletedAt: Long?, now: Long): Long? {
         if (deletedAt == null) return null
-        val left = deletedAt + TRASH_DAYS.days.inWholeMilliseconds - now
-        return if (left < 1.days.inWholeMilliseconds) now - (TRASH_DAYS - GRACE_DAYS).days.inWholeMilliseconds else deletedAt
+        val left = deletedAt + TRASH_KEEP_DAYS.days.inWholeMilliseconds - now
+        return if (left < 1.days.inWholeMilliseconds) now - (TRASH_KEEP_DAYS - GRACE_DAYS).days.inWholeMilliseconds else deletedAt
     }
 
     private companion object {
-        const val TRASH_DAYS = 30
         const val GRACE_DAYS = 7
     }
 }

@@ -69,6 +69,7 @@ private object NoAdaptiveFonts : FontInstaller {
 @OptIn(ExperimentalTestApi::class)
 class AdaptiveLayoutUiTest {
     private val day = LocalDate(2026, 10, 31)
+    private var moods = mapOf(day to DayMood(day, null, 1))
 
     @BeforeTest
     fun setUp() {
@@ -83,7 +84,7 @@ class AdaptiveLayoutUiTest {
                     single<WelcomeRepository> { DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences()))) { null } }
                     single { Telemetry(NoTelemetrySink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
-                    single<EntryRepository> { FakeEntryRepository(mapOf(day to DayMood(day, null, 1))) }
+                    single<EntryRepository> { FakeEntryRepository(moods) }
                     viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
                     viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
                 }
@@ -106,6 +107,16 @@ class AdaptiveLayoutUiTest {
         assertEquals(0, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
 
         width = 840.dp
+        waitForIdle()
+
+        assertEquals(1, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
+    }
+
+    /** 일기가 아직 없어도 오른쪽 칸이 통째로 비지 않는다. */
+    @Test
+    fun hint_stays_when_there_are_no_entries() = runComposeUiTest {
+        moods = emptyMap()
+        setContent { DiaryTheme(darkTheme = false) { Box(Modifier.size(840.dp, 700.dp)) { AppScaffold() } } }
         waitForIdle()
 
         assertEquals(1, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)

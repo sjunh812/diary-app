@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
@@ -76,13 +77,15 @@ fun SettingsScreen(
     onDesignCatalog: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
-    // 탭 바가 시스템 내비게이션 높이까지 맡아서 위만 비운다. 아래까지 비우면 그만큼 두 번 뜬다.
+    // 폰은 탭 바가 시스템 내비게이션 높이까지 맡고, 앱 틀이 그만큼 다 썼다고 알려서 아래가 두 번 뜨지 않는다.
+    // 탭 바가 없는 넓은 화면에서만 마지막 줄 아래를 시스템 내비게이션 높이만큼 비운다.
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         Column(
             Modifier
                 .widthIn(max = DiaryWriteSize.settingsMax)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
                 .padding(bottom = DiarySpacing.x6)
         ) {
             BasicText(

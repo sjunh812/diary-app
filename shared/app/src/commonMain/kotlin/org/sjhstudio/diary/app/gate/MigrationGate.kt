@@ -17,14 +17,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlin.time.Clock
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.feature.migration.LegacyReaderScreen
 import org.sjhstudio.diary.feature.migration.LegacyReaderViewModel
 import org.sjhstudio.diary.feature.migration.MigrationMessage
@@ -65,7 +63,7 @@ fun MigrationGate(content: @Composable () -> Unit) {
             val readerState by reader.state.collectAsStateWithLifecycle()
             LegacyReaderScreen(
                 state = readerState,
-                currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year,
+                currentYear = currentDate().year,
                 onBack = { reading = false },
                 onLoadMore = reader::loadMore
             )

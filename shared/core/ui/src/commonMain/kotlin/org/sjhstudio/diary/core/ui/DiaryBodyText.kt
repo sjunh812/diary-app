@@ -13,6 +13,7 @@ import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_pen_regular
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.pretendardFamily
+import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 
@@ -76,5 +77,8 @@ fun diaryPreviewTextStyle(font: DiaryFont, size: BodyTextSize, installed: (Diary
     )
 }
 
-/** 사용자가 고른 글꼴과 본문 크기. 목록 미리보기와 상세가 같이 쓴다. */
+/** 사용자가 고른 글꼴과 본문 크기. 목록 미리보기, 상세, 쓰기가 같이 쓴다. */
 data class BodyLook(val font: DiaryFont = DiaryFont.DEFAULT, val size: BodyTextSize = BodyTextSize.DEFAULT, val fontPath: String? = null)
+
+/** 설정에서 본문 모양을 꺼낸다. [fontPath]는 글꼴 ID로 받아 둔 파일을 찾는다. */
+fun AppSettings.bodyLook(fontPath: (String) -> String?): BodyLook = BodyLook(font, bodyTextSize, fontPath(font.id))

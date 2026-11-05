@@ -69,8 +69,6 @@ interface DriveApi {
     /** [fromByte]부터 받아 [to]에 이어 쓰고 파일 크기를 돌려준다. */
     suspend fun download(fileId: String, to: Path, fromByte: Long = 0): Long
 
-    suspend fun setProperties(fileId: String, props: Map<String, String?>): DriveFile
-
     suspend fun trash(fileId: String)
 }
 

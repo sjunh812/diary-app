@@ -8,12 +8,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.builtins.ListSerializer
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.model.currentDate
 
 /** 예전 일기 보기의 한 줄. 사진은 앱 저장소 파일 경로이고 찾을 수 없는 사진은 null이다. */
 data class LegacyEntryView(
@@ -62,7 +62,7 @@ class SnapshotLegacyArchive(
         val notes = LegacyDbReader.open(snapshot.toString()).use { it.readNewestFirst(after?.source, limit) }
         val hashes = photoHashes()
         val files = mediaFiles()
-        val mapper = LegacyEntryMapper(clock.now().toLocalDateTime(timeZone).date, timeZone) { "" }
+        val mapper = LegacyEntryMapper(currentDate(clock, timeZone), timeZone) { "" }
         notes.map { note ->
             val entry = mapper.map(note).entry
             LegacyEntryView(

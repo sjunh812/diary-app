@@ -13,6 +13,23 @@ import kotlinx.coroutines.flow.Flow
 /** 달력과 기분 흐름이 읽는 한 줄. 시간순이라 그날 마지막 줄이 그날의 기분이다. */
 data class DayMoodRow(val date: String, val mood: String?)
 
+/**
+ * 목록 한 줄에 쓰는 값.
+ * 쪽마다 긴 본문을 메모리에 올리지 않게 `body_html`은 읽지 않는다.
+ * [plainText]는 미리보기 재료다.
+ * 찾기가 아니면 앞 [EntryDao.LIST_TEXT_CHARS]자까지만 들어 있다.
+ */
+data class EntryListRow(
+    val id: String,
+    val date: String,
+    val time: String,
+    @ColumnInfo(name = "plain_text") val plainText: String,
+    val mood: String?,
+    val weather: String?,
+    @ColumnInfo(name = "place_name") val placeName: String?,
+    @ColumnInfo(name = "is_favorite") val isFavorite: Boolean
+)
+
 /** 고급 통계에 쓰는 값. 본문은 읽지 않는다. */
 data class StatsRow(
     val date: String,
@@ -32,11 +49,11 @@ data class MoodCountRow(val mood: String?, val count: Int)
 interface EntryDao {
     /** 목록: 휴지통이 아닌 일기를 최근 날짜부터. `index_entry_list`를 탄다. */
     @Query(VISIBLE_ENTRIES)
-    fun visibleEntries(): PagingSource<Int, EntryEntity>
+    fun visibleEntries(): PagingSource<Int, EntryListRow>
 
     /** 즐겨찾기만 보기. */
     @Query(FAVORITE_ENTRIES)
-    fun favoriteEntries(): PagingSource<Int, EntryEntity>
+    fun favoriteEntries(): PagingSource<Int, EntryListRow>
 
     /** 최근에 쓴 장소. 같은 이름은 한 번만, 나중에 쓴 곳부터. */
     @Query(
@@ -90,9 +107,10 @@ interface EntryDao {
     /**
      * 찾기(FR-025, FR-026). [like]는 이스케이프한 `%글자%`이고 빈 글자면 조건에서 빠진다.
      * 목록 조건은 빈 목록이 `IN ()`이 되지 않게 [anyMood], [anyWeather]로 끈다.
+     * 찾은 글자가 뒤에 있어도 미리보기에 보여야 해서 `plain_text`는 다 읽는다.
      */
     @Query(
-        "SELECT * FROM entry WHERE deleted_at IS NULL " +
+        "SELECT id, date, time, plain_text, mood, weather, place_name, is_favorite FROM entry WHERE deleted_at IS NULL " +
             "AND (:like = '' OR plain_text LIKE :like ESCAPE '\\' OR place_name LIKE :like ESCAPE '\\') " +
             "AND (:anyMood OR mood IN (:moods)) " +
             "AND (:anyWeather OR weather IN (:weathers)) " +
@@ -111,7 +129,7 @@ interface EntryDao {
         hasPhoto: Boolean,
         from: String?,
         to: String?
-    ): PagingSource<Int, EntryEntity>
+    ): PagingSource<Int, EntryListRow>
 
     @Query("UPDATE entry SET is_favorite = :favorite, updated_at = :now WHERE id = :id")
     suspend fun setFavorite(id: String, favorite: Boolean, now: Long)
@@ -123,9 +141,6 @@ interface EntryDao {
     /** 휴지통: 지운 날짜순. */
     @Query("SELECT * FROM entry WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
     fun trashed(): Flow<List<EntryEntity>>
-
-    @Query("SELECT id FROM entry WHERE deleted_at IS NOT NULL")
-    suspend fun trashedIds(): List<String>
 
     @Query("DELETE FROM entry WHERE deleted_at IS NOT NULL AND id IN (:ids)")
     suspend fun deleteTrashed(ids: List<String>)
@@ -144,10 +159,7 @@ interface EntryDao {
     @Query("SELECT legacy_id FROM entry WHERE legacy_id IS NOT NULL")
     suspend fun legacyIds(): List<Int>
 
-    @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL")
-    suspend fun countVisible(): Int
-
-    /** 휴지통까지 센다. 이전 검증(`entry` 수 + 못 읽은 줄 = 레거시 줄 수)에 쓴다. */
+    /** 휴지통까지 센다. 개발 빌드의 목록 견본과 업그레이드 시험이 쓴다. */
     @Query("SELECT COUNT(*) FROM entry")
     suspend fun countAll(): Int
 
@@ -178,9 +190,19 @@ interface EntryDao {
     suspend fun deletePermanently(id: String)
 
     companion object {
+        /**
+         * 목록 미리보기가 다듬기 전에 쓰는 앞부분.
+         * 미리보기 240자를 채우고 남는 양이다.
+         */
+        const val LIST_TEXT_CHARS = 520
+
+        private const val LIST_COLUMNS =
+            "id, date, time, substr(plain_text, 1, $LIST_TEXT_CHARS) AS plain_text, mood, weather, place_name, is_favorite"
+
         const val VISIBLE_ENTRIES =
-            "SELECT * FROM entry WHERE deleted_at IS NULL ORDER BY date DESC, time DESC, created_at DESC"
+            "SELECT $LIST_COLUMNS FROM entry WHERE deleted_at IS NULL ORDER BY date DESC, time DESC, created_at DESC"
         const val FAVORITE_ENTRIES =
-            "SELECT * FROM entry WHERE deleted_at IS NULL AND is_favorite = 1 ORDER BY date DESC, time DESC, created_at DESC"
+            "SELECT $LIST_COLUMNS FROM entry WHERE deleted_at IS NULL AND is_favorite = 1 " +
+                "ORDER BY date DESC, time DESC, created_at DESC"
     }
 }

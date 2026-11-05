@@ -35,6 +35,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_first_title
@@ -121,7 +122,7 @@ private fun whenText(at: Instant): String {
     val dates = rememberDiaryDateFormat()
     val zone = TimeZone.currentSystemDefault()
     val local = at.toLocalDateTime(zone)
-    val today = Clock.System.now().toLocalDateTime(zone).date
+    val today = currentDate(zone = zone)
     val time = dates.time(local.time)
     return when (local.date) {
         today -> stringResource(Res.string.backup_line_today, time)

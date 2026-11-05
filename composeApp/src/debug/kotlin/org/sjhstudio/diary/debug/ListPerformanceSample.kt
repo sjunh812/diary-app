@@ -45,6 +45,7 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 
@@ -167,7 +168,7 @@ private suspend fun openSample(context: Context, progress: (Int) -> Unit): Sampl
                 id = "m-$n",
                 entryId = entry.id,
                 sortOrder = 0,
-                status = "normal",
+                status = MediaStatus.NORMAL.id,
                 fileName = name,
                 sha256 = null,
                 width = 480,

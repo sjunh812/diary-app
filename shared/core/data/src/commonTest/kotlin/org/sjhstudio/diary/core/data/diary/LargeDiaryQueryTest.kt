@@ -67,7 +67,7 @@ class LargeDiaryQueryTest {
         assertFast("첫 화면") {
             val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, PAGE, false))
             val rows = (page as PagingSource.LoadResult.Page).data
-            db.mediaDao().forRows(rows)
+            db.mediaDao().forRows(rows.map { it.id })
         }
         assertFast("드문 글자 찾기") { entries.searchAll(SearchFilter(query = "바닷가")) }
         // 1만 편이 모두 걸리는 가장 나쁜 경우다.

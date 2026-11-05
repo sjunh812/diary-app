@@ -149,15 +149,6 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
         return file.bytes.size.toLong()
     }
 
-    override suspend fun setProperties(fileId: String, props: Map<String, String?>): DriveFile {
-        gate()
-        val file = files[fileId] ?: throw DriveNotFound()
-        val merged = file.meta.props.toMutableMap()
-        props.forEach { (key, value) -> if (value == null) merged.remove(key) else merged[key] = value }
-        file.meta = file.meta.copy(props = merged)
-        return file.meta
-    }
-
     override suspend fun trash(fileId: String) {
         gate()
         (files[fileId] ?: throw DriveNotFound()).trashed = true

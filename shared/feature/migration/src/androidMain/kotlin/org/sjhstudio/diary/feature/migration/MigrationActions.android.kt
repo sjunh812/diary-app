@@ -12,18 +12,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
-import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.getString
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.OriginalExporter
 import org.sjhstudio.diary.core.migration.SupportBundle
 import org.sjhstudio.diary.core.migration.exportDateStamp
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.feature.migration.resources.Res
 import org.sjhstudio.diary.feature.migration.resources.migration_export_done
 import org.sjhstudio.diary.feature.migration.resources.migration_export_failed
@@ -66,7 +64,7 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
         MigrationActions(
             exportOriginal = {
                 scope.launch {
-                    val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                    val today = currentDate()
                     saver.launch(getString(Res.string.migration_export_file_name, exportDateStamp(today)))
                 }
             },
@@ -103,7 +101,7 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
             },
             contactWithAttachment = {
                 scope.launch {
-                    val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                    val today = currentDate()
                     val fileName = getString(Res.string.support_file_name, exportDateStamp(today))
                     // 사용자가 "첨부해서 문의"를 고를 때만 만든다. 하루가 지나면 이전 후속 작업이 지운다(FR-010a).
                     val file = withContext(Dispatchers.IO) { runCatching { bundle.create(fileName) }.getOrNull() }

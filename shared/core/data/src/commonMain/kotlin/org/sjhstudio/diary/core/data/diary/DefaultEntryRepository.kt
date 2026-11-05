@@ -5,14 +5,16 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
-import androidx.paging.map
 import kotlin.time.Clock
-import kotlinx.coroutines.Dispatchers
+import kotlin.time.Duration
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
@@ -20,7 +22,7 @@ import okio.Path
 import org.sjhstudio.diary.core.data.richtext.toPlainText
 import org.sjhstudio.diary.core.database.DayMoodRow
 import org.sjhstudio.diary.core.database.DiaryDatabase
-import org.sjhstudio.diary.core.database.EntryEntity
+import org.sjhstudio.diary.core.database.EntryListRow
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.DayMood
@@ -33,8 +35,12 @@ import org.sjhstudio.diary.core.model.SearchFilter
 
 private const val PAGE = 60
 
-class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir: Path, private val clock: Clock = Clock.System) :
-    EntryRepository {
+class DefaultEntryRepository(
+    private val db: DiaryDatabase,
+    private val mediaDir: Path,
+    private val clock: Clock = Clock.System,
+    private val photoRefreshEvery: Duration = PHOTO_REFRESH_EVERY
+) : EntryRepository {
     private val entries get() = db.entryDao()
     private val media get() = db.mediaDao()
     private val marks get() = db.backupDao()
@@ -45,25 +51,35 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries()) { pageRows(it) } }
     private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries()) { pageRows(it) } }
 
-    override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = // 자리 표시를 켜서 다른 달로 바로 건너뛸 수 있게 한다.
-        Pager(
-            pageConfig,
-            pagingSourceFactory = if (favoritesOnly) favoritePages else allPages
-        ).flow
+    override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = pages(if (favoritesOnly) favoritePages else allPages)
+
+    /**
+     * 자리 표시를 켜서 다른 달로 바로 건너뛸 수 있게 한다.
+     * 일기 표만 살피는 쪽은 받은 사진을 모르니, 사진 상태가 바뀌면 보던 쪽을 다시 읽는다.
+     */
+    private fun pages(factory: InvalidatingPagingSourceFactory<Int, EntryRow>): Flow<PagingData<EntryRow>> = channelFlow {
+        launch { media.photoStatusChanges(photoRefreshEvery).collect { factory.invalidate() } }
+        Pager(pageConfig, pagingSourceFactory = factory).flow.collect { send(it) }
+    }
 
     /** 쪽 하나를 한 번에 읽는다. 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어진다. */
-    private suspend fun pageRows(page: List<EntryEntity>, query: String = ""): List<EntryRow> {
+    private suspend fun pageRows(page: List<EntryListRow>, query: String = ""): List<EntryRow> {
         val marked = marks.markedIds().toSet()
-        val photos = media.forRows(page)
+        val photos = media.forRows(page.map { it.id })
         return page.map { it.toRow(photos[it.id].orEmpty(), mediaDir, query).copy(keptBoth = it.id in marked) }
     }
 
-    override fun entry(id: String): Flow<EntryDetail?> = combine(entries.observeVisible(id), marks.markedPair(id)) { entity, pair ->
+    override fun entry(id: String): Flow<EntryDetail?> = combine(
+        entries.observeVisible(id),
+        // 다른 일기의 사진을 받을 때마다 사진 줄을 다시 읽으니 같은 값은 흘려보내지 않는다.
+        media.observeForEntry(id).distinctUntilChanged(),
+        marks.markedPair(id)
+    ) { entity, rows, pair ->
         entity?.let {
             EntryDetail(
                 entry = it.asModel(),
                 photos =
-                    media.forEntry(id).map { row ->
+                    rows.map { row ->
                         EntryPhoto(row.id, row.pathIn(mediaDir), row.width, row.height, pending = row.status == MediaStatus.PENDING.id)
                     },
                 keptBothWith = pair
@@ -88,8 +104,12 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     override suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int =
         entries.countAfter(month.onDay(month.numberOfDays).toString(), favoritesOnly)
 
-    override fun day(date: LocalDate): Flow<List<EntryRow>> = combine(entries.onDay(date.toString()), marks.marks()) { rows, marked ->
-        val photos = media.forRows(rows)
+    override fun day(date: LocalDate): Flow<List<EntryRow>> = combine(
+        entries.onDay(date.toString()),
+        marks.marks(),
+        media.photoStatusChanges(photoRefreshEvery).onStart { emit(Unit) }
+    ) { rows, marked, _ ->
+        val photos = media.forRows(rows.map { it.id })
         val ids = marked.mapTo(HashSet()) { it.entryId }
         rows.map { it.toRow(photos[it.id].orEmpty(), mediaDir).copy(keptBoth = it.id in ids) }
     }
@@ -97,7 +117,7 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
     override fun month(month: YearMonth): Flow<Map<LocalDate, DayMood>> =
         entries.dayMoods(month.onDay(1).toString(), month.onDay(month.numberOfDays).toString()).map(::toDayMoods)
 
-    override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = Pager(pageConfig) { searchPages(filter) }.flow
+    override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = pages(InvalidatingPagingSourceFactory { searchPages(filter) })
 
     /** 찾기 결과 쪽. 찾은 글자가 미리보기에 보이게 줄마다 글자를 넘긴다. */
     internal fun searchPages(filter: SearchFilter): PagingSource<Int, EntryRow> {

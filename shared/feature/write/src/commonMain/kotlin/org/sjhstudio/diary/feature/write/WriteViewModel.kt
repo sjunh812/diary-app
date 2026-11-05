@@ -32,8 +32,6 @@ import org.sjhstudio.diary.core.data.diary.canSave
 import org.sjhstudio.diary.core.data.richtext.toPlainText
 import org.sjhstudio.diary.core.model.AddPhotosResult
 import org.sjhstudio.diary.core.model.AppSettings
-import org.sjhstudio.diary.core.model.BodyTextSize
-import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.DraftPhoto
@@ -41,10 +39,13 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoPlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceLookup
+import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.bodyLook
 
 /** 쓰기를 어디로 여는가. */
 sealed interface WriteTarget {
@@ -53,9 +54,6 @@ sealed interface WriteTarget {
 
     data class Edit(val entryId: String) : WriteTarget
 }
-
-/** 본문 글꼴과 크기. */
-data class BodyLook(val font: DiaryFont = DiaryFont.DEFAULT, val size: BodyTextSize = BodyTextSize.DEFAULT, val fontPath: String? = null)
 
 /** "쓰던 일기가 있어요" 시트에 보일 것. */
 data class ResumeOffer(val date: LocalDate, val time: LocalTime, val preview: String) {
@@ -149,7 +147,7 @@ class WriteViewModel(
     /** 본문은 고른 글꼴과 글자 크기로 보인다(FR-014). */
     val look: StateFlow<BodyLook> =
         (settings?.settings ?: flowOf(AppSettings()))
-            .map { BodyLook(it.font, it.bodyTextSize, fonts?.installedPath(it.font.id)) }
+            .map { settings -> settings.bodyLook { fonts?.installedPath(it) } }
             .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     fun mediaPath(fileName: String): String = mediaPath.invoke(fileName)
@@ -392,7 +390,7 @@ class WriteViewModel(
 
     /** 오늘이 아닌 날로 바꾸면 자동으로 채운 날씨만 지운다(FR-005). */
     fun setDate(date: LocalDate) {
-        val today = clock.now().toLocalDateTime(timeZone).date
+        val today = currentDate(clock, timeZone)
         val clearWeather = weatherAutoFilled && date != today
         if (clearWeather) weatherAutoFilled = false
         _state.update { it.copy(date = date, weather = if (clearWeather) null else it.weather) }

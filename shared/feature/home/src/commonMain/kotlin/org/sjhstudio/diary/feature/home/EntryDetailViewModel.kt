@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.bodyLook
 
 /** 상세 화면이 보는 일기. 읽는 중과 없는 일기를 구별한다. */
 sealed interface EntryDetailState {
@@ -48,7 +49,7 @@ class EntryDetailViewModel(
 
     val look: StateFlow<BodyLook> =
         settings.settings
-            .map { BodyLook(it.font, it.bodyTextSize, fonts.installedPath(it.font.id)) }
+            .map { it.bodyLook(fonts::installedPath) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     private val _trashed = Channel<Unit>(Channel.BUFFERED)

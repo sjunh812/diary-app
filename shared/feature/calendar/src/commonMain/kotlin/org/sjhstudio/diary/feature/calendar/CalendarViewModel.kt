@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlin.time.Clock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,17 +15,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.bodyLook
 
 /**
  * 달력(FR-022~FR-024). 달을 넘기면 그 달에서 마지막으로 일기를 쓴 날을 고른다.
@@ -36,7 +35,7 @@ class CalendarViewModel(
     private val entries: EntryRepository,
     settings: SettingsRepository,
     fonts: FontInstaller,
-    private val today: () -> LocalDate = { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
+    private val today: () -> LocalDate = { currentDate() }
 ) : ViewModel() {
     private val _selected = MutableStateFlow<LocalDate?>(today())
     val selected: StateFlow<LocalDate?> = _selected.asStateFlow()
@@ -55,7 +54,7 @@ class CalendarViewModel(
 
     val look: StateFlow<BodyLook> =
         settings.settings
-            .map { BodyLook(it.font, it.bodyTextSize, fonts.installedPath(it.font.id)) }
+            .map { it.bodyLook(fonts::installedPath) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     fun today(): LocalDate = today.invoke()

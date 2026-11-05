@@ -20,6 +20,7 @@ import org.sjhstudio.diary.core.drive.DriveFile
 import org.sjhstudio.diary.core.drive.DriveQuery
 import org.sjhstudio.diary.core.drive.listAll
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.platform.FreeSpace
 
@@ -119,9 +120,9 @@ class RestorePlanner(
 
     private fun neededPhotos(plan: MergePlan, manifest: Manifest): List<ManifestMedia> {
         val local = plan.local.values.flatMap { it.media }
-        val here = local.filter { it.status == "normal" }.mapNotNull { it.sha256 }.toSet()
+        val here = local.filter { it.status == MediaStatus.NORMAL.id }.mapNotNull { it.sha256 }.toSet()
         // 일기가 그대로여도 전에 못 받은 사진은 이번 백업에서 채운다.
-        val waiting = local.filter { it.status == "pending" }.mapNotNullTo(HashSet()) { it.sha256 }
+        val waiting = local.filter { it.status == MediaStatus.PENDING.id }.mapNotNullTo(HashSet()) { it.sha256 }
         val incoming = plan.items.filter { it.second != MergeAction.KEEP }.flatMap { it.first.media }.mapNotNullTo(HashSet()) { it.sha256 }
         return manifest.media.filter { it.inBackup && it.sha256 !in here && (it.sha256 in incoming || it.sha256 in waiting) }
     }
@@ -200,18 +201,18 @@ class PhotoFetcher(
         val name = photo.fileName ?: return Settled.STILL_WAITING
         // 전에 받아 둔 줄일 수 있어 여기서도 본다. 이 이름으로는 파일을 쓰지 않는다.
         if (!RestoreNames.isPhoto(name, photo.sha256)) {
-            dao.settlePending(photo.sha256, name, "missing")
+            dao.settlePending(photo.sha256, name, MediaStatus.MISSING.id)
             return Settled.BROKEN
         }
         val partial = workDir / "$name.part"
         try {
             if (!copy(photo.sha256, name, partial)) return Settled.STILL_WAITING
             if (fileSystem.hashes(partial).sha256 != photo.sha256) {
-                dao.settlePending(photo.sha256, name, "missing")
+                dao.settlePending(photo.sha256, name, MediaStatus.MISSING.id)
                 return Settled.BROKEN
             }
             fileSystem.atomicMove(partial, mediaDir / name)
-            dao.settlePending(photo.sha256, name, "normal")
+            dao.settlePending(photo.sha256, name, MediaStatus.NORMAL.id)
             return Settled.FETCHED
         } catch (error: DriveException) {
             // 이 사진만의 일이면 대기로 두고 다음 장으로 간다. 어차피 다 실패할 일이면 여기서 멈춘다.

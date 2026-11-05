@@ -29,10 +29,7 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.sink
 import io.github.vinceglb.filekit.source
-import kotlin.time.Clock
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import okio.buffer
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
@@ -54,6 +51,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.RestoreFailure
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.file_action
@@ -100,7 +98,7 @@ fun FileBackupRoute(onBack: () -> Unit, onPreview: () -> Unit, modifier: Modifie
         state,
         onMake = {
             scope.launch {
-                val today = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val today = currentDate()
                 saver.launch(suggestedName = getString(Res.string.file_name, today.toString()), defaultExtension = "zip")
             }
         },

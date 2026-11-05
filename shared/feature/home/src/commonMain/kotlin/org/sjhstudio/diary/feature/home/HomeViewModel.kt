@@ -21,6 +21,7 @@ import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.bodyLook
 
 /** 홈 목록(FR-015~FR-018, FR-021). 줄은 60편씩 읽어서 1만 편이어도 첫 화면이 빠르다. */
 class HomeViewModel(private val entries: EntryRepository, private val settings: SettingsRepository, fonts: FontInstaller) : ViewModel() {
@@ -41,7 +42,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
 
     val look: StateFlow<BodyLook> =
         settings.settings
-            .map { BodyLook(it.font, it.bodyTextSize, fonts.installedPath(it.font.id)) }
+            .map { it.bodyLook(fonts::installedPath) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     /** 일기가 있는 달. 연·월 고르기 시트가 이 달만 고르게 한다. */

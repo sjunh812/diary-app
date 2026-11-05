@@ -6,7 +6,6 @@ import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -25,8 +24,10 @@ import org.sjhstudio.diary.core.migration.LegacyDbReader
 import org.sjhstudio.diary.core.migration.LegacyEntryMapper
 import org.sjhstudio.diary.core.migration.LegacyNote
 import org.sjhstudio.diary.core.migration.PhotoPaths
+import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
+import org.sjhstudio.diary.core.model.currentDate
 
 /** 레거시 경로의 사진을 `media/`로 옮긴다. 찾지 못하면 null이다. iOS에서는 늘 null이다. */
 fun interface LegacyPhotoCopier {
@@ -132,7 +133,7 @@ class LegacyBackupImporter(
     private suspend fun plan(notes: List<LegacyNote>): LegacyPlan {
         val local = db.backupDao().allEntries()
         val zone = timeZone()
-        val mapper = LegacyEntryMapper(clock.now().toLocalDateTime(zone).date, zone, newId)
+        val mapper = LegacyEntryMapper(currentDate(clock, zone), zone, newId)
         val sameTime = local.groupBy { it.date to it.time }
         val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
         val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }
@@ -178,7 +179,7 @@ class LegacyBackupImporter(
             db.mediaDao().insertAll(rows)
             db.backupDao().mark(marks)
         }
-        val copied = rows.count { it.status == NORMAL }
+        val copied = rows.count { it.status == MediaStatus.NORMAL.id }
         return RestoreResult(
             entriesAdded = plan.items.size,
             entriesUpdated = 0,
@@ -191,7 +192,7 @@ class LegacyBackupImporter(
     }
 
     private fun missing(item: LegacyItem, order: Int, fragment: String, now: Long) =
-        MediaEntity(newId(), item.entry.id, order, MISSING, null, null, null, null, null, fragment, now)
+        MediaEntity(newId(), item.entry.id, order, MediaStatus.MISSING.id, null, null, null, null, null, fragment, now)
 
     private companion object {
         const val FILE_NAME = "note.db"
@@ -199,7 +200,5 @@ class LegacyBackupImporter(
         const val LOCAL_NAME = "legacy-note.db"
         const val KIND = "legacy_same_time"
         const val SOURCE = "legacy_drive"
-        const val NORMAL = "normal"
-        const val MISSING = "missing"
     }
 }

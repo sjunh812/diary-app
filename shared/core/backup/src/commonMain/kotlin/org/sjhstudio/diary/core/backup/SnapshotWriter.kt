@@ -6,6 +6,7 @@ import androidx.sqlite.execSQL
 import okio.FileSystem
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.model.MediaStatus
 
 /** 뜬 스냅샷. 숫자와 확인값은 목록 파일에 들어간다. */
 data class Snapshot(
@@ -52,8 +53,8 @@ class SnapshotWriter(private val db: DiaryDatabase, private val fileSystem: File
                 entries = count("SELECT COUNT(*) FROM entry WHERE deleted_at IS NULL"),
                 entriesInTrash = count("SELECT COUNT(*) FROM entry WHERE deleted_at IS NOT NULL"),
                 mediaRows = count("SELECT COUNT(*) FROM media"),
-                mediaMissing = count("SELECT COUNT(*) FROM media WHERE status = 'missing'"),
-                mediaPending = count("SELECT COUNT(*) FROM media WHERE status = 'pending'")
+                mediaMissing = count("SELECT COUNT(*) FROM media WHERE status = '${MediaStatus.MISSING.id}'"),
+                mediaPending = count("SELECT COUNT(*) FROM media WHERE status = '${MediaStatus.PENDING.id}'")
             )
         } finally {
             connection.close()

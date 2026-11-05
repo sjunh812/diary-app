@@ -2,23 +2,32 @@ package org.sjhstudio.diary.core.data.diary
 
 import kotlin.math.ceil
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.model.TRASH_KEEP_DAYS
 import org.sjhstudio.diary.core.model.TrashedEntry
 
-/** 휴지통에서 영구 삭제까지 두는 날(FR-035). */
-private val KEEP = 30.days
+private val KEEP = TRASH_KEEP_DAYS.days
 
-class DefaultTrashRepository(private val db: DiaryDatabase, private val mediaDir: Path, private val clock: Clock = Clock.System) :
-    TrashRepository {
+class DefaultTrashRepository(
+    private val db: DiaryDatabase,
+    private val mediaDir: Path,
+    private val clock: Clock = Clock.System,
+    private val photoRefreshEvery: Duration = PHOTO_REFRESH_EVERY
+) : TrashRepository {
     private val entries get() = db.entryDao()
 
-    override fun items(): Flow<List<TrashedEntry>> = entries.trashed().map { rows ->
-        val photos = db.mediaDao().forRows(rows)
+    override fun items(): Flow<List<TrashedEntry>> = combine(
+        entries.trashed(),
+        db.mediaDao().photoStatusChanges(photoRefreshEvery).onStart { emit(Unit) }
+    ) { rows, _ ->
+        val photos = db.mediaDao().forRows(rows.map { it.id })
         val now = clock.now()
         rows.map { row ->
             val deletedAt = Instant.fromEpochMilliseconds(requireNotNull(row.deletedAt))

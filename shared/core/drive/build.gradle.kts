@@ -1,7 +1,6 @@
 // 구글 드라이브 REST 호출. 공통 코드에서 Ktor로 직접 부른다(스펙 003 research R3).
 plugins {
     alias(libs.plugins.diary.kmp.library)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {

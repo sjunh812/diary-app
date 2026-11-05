@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +86,7 @@ import org.sjhstudio.diary.app.resources.write_saved
 import org.sjhstudio.diary.app.settings.settingsEntries
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavItem
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavigationBar
@@ -229,12 +231,18 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
 /** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둔다. */
 private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
 
-/** 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비운다. 쓰기처럼 전체를 쓰는 화면은 그대로 둔다. */
+/**
+ * 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비운다. 쓰기처럼 전체를 쓰는 화면은 그대로 둔다.
+ * 탭 바가 시스템 내비게이션 높이까지 맡으니 그만큼 다 쓴 것으로 알린다.
+ * 안쪽 화면은 탭 바가 없는 넓은 화면에서만 시스템 내비게이션 높이를 비우게 된다.
+ */
 private val TabBarSpace =
     NavEntryDecorator<NavKey>(decorate = { entry ->
         val bottom = if (entry.metadata[TAB_ROOT] == true) LocalTabBarHeight.current else Dp.Hairline
         val start = if (entry.metadata[FULL_SCREEN] == true || LocalInListDetail.current) Dp.Hairline else LocalRailWidth.current
-        Box(Modifier.fillMaxSize().padding(start = start, bottom = bottom)) { entry.Content() }
+        Box(Modifier.fillMaxSize().padding(start = start, bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
+            entry.Content()
+        }
     })
 
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
@@ -329,8 +337,7 @@ private fun Content(
             adScope.launch { ads.backToList() }
         }
     }
-    val entries = koinInject<EntryRepository>()
-    val listDetail = remember(twoPane, entries) { ListDetailSceneStrategy(twoPane) { PickHint(entries) } }
+    val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { PickHint() } }
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
@@ -437,11 +444,10 @@ private fun Content(
     )
 }
 
-/** 두 칸에서 고른 일기가 없을 때의 오른쪽. 일기가 없으면 왼쪽 빈 상태만 남긴다. */
+/** 두 칸에서 고른 일기가 없을 때의 오른쪽. 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보인다. */
 @Composable
-private fun PickHint(entries: EntryRepository) {
-    val months by remember(entries) { entries.months() }.collectAsState(emptySet())
-    Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas), contentAlignment = Alignment.Center) {
-        if (months.isNotEmpty()) DiaryEmptyState(DiaryIcons.Pen, stringResource(Res.string.detail_pick_hint))
+private fun PickHint() {
+    DiaryEmptyArea(Modifier.background(DiaryTheme.colors.canvas)) {
+        DiaryEmptyState(DiaryIcons.Pen, stringResource(Res.string.detail_pick_hint))
     }
 }

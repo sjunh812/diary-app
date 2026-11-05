@@ -18,7 +18,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.builtins.ListSerializer
 import okio.FileSystem
 import okio.Path
@@ -36,6 +35,7 @@ import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationState
 import org.sjhstudio.diary.core.model.MigrationStep
+import org.sjhstudio.diary.core.model.currentDate
 
 /** 이전이 읽고 쓰는 자리. Android가 `AppFiles`와 `Context`로 채운다. */
 data class MigrationPaths(
@@ -262,7 +262,7 @@ class MigrationRunner(
     }
 
     private suspend fun copy(db: DiaryDatabase, notes: List<LegacyNote>, photosTotal: Int, counts: Counts) {
-        val mapper = LegacyEntryMapper(clock.now().toLocalDateTime(timeZone).date, timeZone, newId)
+        val mapper = LegacyEntryMapper(currentDate(clock, timeZone), timeZone, newId)
         val records = mutableListOf<PhotoRecord>()
         var done = 0
         var photosDone = 0
@@ -344,7 +344,7 @@ class MigrationRunner(
         val photoHashes = readPhotosJson().associate { it.path to it.sha256 }
         val (notes, _) = readSnapshot() ?: throw MismatchException()
         if (notes.size != expectedRows) throw MismatchException()
-        val mapper = LegacyEntryMapper(clock.now().toLocalDateTime(timeZone).date, timeZone) { "" }
+        val mapper = LegacyEntryMapper(currentDate(clock, timeZone), timeZone) { "" }
         val goodFiles = HashSet<String>()
         val brokenFiles = HashSet<String>()
         val brokenPaths = HashSet<String>()

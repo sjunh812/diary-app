@@ -20,7 +20,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import okio.fakefilesystem.FakeFileSystem
 import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
-import org.sjhstudio.diary.core.database.EntryEntity
+import org.sjhstudio.diary.core.database.EntryListRow
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.Checklist
@@ -60,7 +60,7 @@ class DiaryReadRepositoryTest {
 
         val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
 
-        assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryEntity).id })
+        assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryListRow).id })
     }
 
     @Test
@@ -150,7 +150,7 @@ class DiaryReadRepositoryTest {
 
         val page = db.entryDao().favoriteEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
 
-        assertEquals(listOf("a"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryEntity).id })
+        assertEquals(listOf("a"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryListRow).id })
     }
 
     @Test
@@ -286,6 +286,20 @@ class DiaryReadRepositoryTest {
         db.seed(entry("a", text = long))
 
         assertTrue(entries.searchAll(SearchFilter(query = "바다")).single().preview.contains("바다"))
+    }
+
+    @Test
+    fun list_preview_matches_the_whole_text() = runTest {
+        // 잘라 읽어도 미리보기는 같아야 한다. 이모지가 끊기는 자리도 본다.
+        val long = "🌊".repeat(100) + "오늘은\n\n바다에 갔다 ".repeat(200)
+        db.seed(entry("a", text = long))
+
+        val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+        val row = assertIs<PagingSource.LoadResult.Page<Int, EntryListRow>>(page).data.single()
+
+        assertTrue(row.plainText.length < long.length)
+        assertEquals(preview(long, ""), preview(row.plainText, ""))
+        assertEquals(db.entryDao().get("a")!!.toRow(emptyList(), MEDIA_DIR), row.toRow(emptyList(), MEDIA_DIR))
     }
 
     @Test

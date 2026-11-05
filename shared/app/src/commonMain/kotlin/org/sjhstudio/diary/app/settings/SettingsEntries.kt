@@ -17,11 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import kotlin.time.Clock
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.navigation.BackupOptionsKey
@@ -54,6 +51,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
 import org.sjhstudio.diary.feature.backup.FileBackupRoute
@@ -145,7 +143,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val state by viewModel.state.collectAsStateWithLifecycle()
         TextSizeSettingsScreen(
             selected = state.settings.bodyTextSize,
-            sampleDate = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date },
+            sampleDate = remember { currentDate() },
             font = state.settings.font,
             onSelect = viewModel::setBodyTextSize,
             onBack = pop

@@ -6,7 +6,6 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import kotlin.time.Clock
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -21,8 +20,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
@@ -32,8 +29,10 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.bodyLook
 
 /** 기간 칩의 고르는 값. [Custom]은 직접 고른 범위이고 돌아보기에서 넘어온 기간도 여기다. */
 enum class SearchPeriod { Week, Month, Year, Custom }
@@ -48,7 +47,7 @@ class SearchViewModel(
     initial: SearchFilter,
     settings: SettingsRepository,
     fonts: FontInstaller,
-    private val today: () -> LocalDate = { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date }
+    private val today: () -> LocalDate = { currentDate() }
 ) : ViewModel() {
     private val _filter = MutableStateFlow(initial)
     val filter: StateFlow<SearchFilter> = _filter.asStateFlow()
@@ -65,7 +64,7 @@ class SearchViewModel(
 
     val look: StateFlow<BodyLook> =
         settings.settings
-            .map { BodyLook(it.font, it.bodyTextSize, fonts.installedPath(it.font.id)) }
+            .map { it.bodyLook(fonts::installedPath) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     fun setQuery(query: String) = _filter.update { it.copy(query = query) }

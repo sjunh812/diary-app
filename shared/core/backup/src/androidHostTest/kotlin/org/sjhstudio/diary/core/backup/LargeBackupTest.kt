@@ -192,8 +192,6 @@ class LargeBackupTest {
 
         override suspend fun download(fileId: String, to: Path, fromByte: Long) = 0L
 
-        override suspend fun setProperties(fileId: String, props: Map<String, String?>) = files.getValue(fileId)
-
         override suspend fun trash(fileId: String) {
             files.remove(fileId)
         }
