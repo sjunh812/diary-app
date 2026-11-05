@@ -113,6 +113,12 @@ object DiaryArtSize {
 
     /** 결제 화면 머리 그림 높이. */
     val banner: Dp = 280.dp
+
+    /** 구독 중 화면 머리 그림 높이. 혜택과 요금이 한 화면에 들어오게 낮다. */
+    val card: Dp = 160.dp
+
+    /** 넓은 화면 결제 칸 폭. 글이 길게 늘어나지 않게 폰보다 조금만 넓다. */
+    val paywallMax: Dp = 600.dp
 }
 
 /** 쓰기 화면 크기(Figma "쓰기 (S2)"). */

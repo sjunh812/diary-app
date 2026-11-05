@@ -5,7 +5,7 @@
     <string name="plus_restore">Restore</string>
     <string name="plus_ads_title">Write without ads</string>
     <string name="plus_photos_title">30 photos per entry</string>
-    <string name="plus_stats_title">Deeper mood stats</string>
+    <string name="plus_stats_title">Advanced stats</string>
     <string name="plus_coming">New moods are planned.</string>
     <string name="plus_price">%1$s a year</string>
     <string name="plus_start">Start Plus</string>
@@ -26,4 +26,11 @@
     <string name="adfree_buy">Remove ads</string>
     <string name="adfree_close">Not now</string>
     <string name="adfree_day_off">Watch a video for one ad-free day</string>
+    <string name="plus_ads_body">No ads on any screen.</string>
+    <string name="plus_photos_body">20 more photos than the free plan.</string>
+    <string name="plus_stats_body">See when your mood changes.</string>
+    <string name="plus_manage_thanks">Thanks for subscribing.</string>
+    <string name="plus_manage_benefits">Your benefits</string>
+    <string name="plus_manage_price">Price</string>
+    <string name="plus_manage_store_body">Check your next payment or cancel.</string>
 </resources>

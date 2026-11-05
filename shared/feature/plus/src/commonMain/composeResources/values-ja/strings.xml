@@ -5,7 +5,7 @@
     <string name="plus_restore">購入を復元</string>
     <string name="plus_ads_title">広告なしで書く</string>
     <string name="plus_photos_title">1件に写真30枚</string>
-    <string name="plus_stats_title">気分の統計をもっと深く</string>
+    <string name="plus_stats_title">詳しい統計</string>
     <string name="plus_coming">今後、新しい気分も追加する予定です。</string>
     <string name="plus_price">1年 %1$s</string>
     <string name="plus_start">Plusを始める</string>
@@ -26,4 +26,11 @@
     <string name="adfree_buy">広告を消す</string>
     <string name="adfree_close">今はしない</string>
     <string name="adfree_day_off">動画を見て1日だけ消す</string>
+    <string name="plus_ads_body">どの画面にも広告は表示されません。</string>
+    <string name="plus_photos_body">無料版より20枚多く追加できます。</string>
+    <string name="plus_stats_body">気分が変わるタイミングを確認できます。</string>
+    <string name="plus_manage_thanks">ご登録ありがとうございます。</string>
+    <string name="plus_manage_benefits">ご利用中の特典</string>
+    <string name="plus_manage_price">料金</string>
+    <string name="plus_manage_store_body">次回の支払い日の確認や解約ができます。</string>
 </resources>
