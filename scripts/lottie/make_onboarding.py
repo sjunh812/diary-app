@@ -97,12 +97,12 @@ class Comp:
     def __init__(self, name, frames):
         self.name, self.frames, self.layers = name, frames, []
 
-    def layer(self, name, shapes, anchor=(0, 0), pos=None, scale=None, opacity=None):
+    def layer(self, name, shapes, anchor=(0, 0), pos=None, scale=None, opacity=None, rotation=None):
         """나중에 더한 층이 아래로 간다."""
         self.layers.append({
             "ddd": 0, "ind": len(self.layers) + 1, "ty": 4, "nm": name, "sr": 1, "ao": 0, "bm": 0,
             "ip": 0, "op": self.frames, "st": 0,
-            "ks": {"o": opacity or static(100), "r": static(0), "p": pos or static([anchor[0], anchor[1], 0]),
+            "ks": {"o": opacity or static(100), "r": rotation or static(0), "p": pos or static([anchor[0], anchor[1], 0]),
                    "a": static([anchor[0], anchor[1], 0]), "s": scale or static([100, 100, 100])},
             "shapes": shapes,
         })
@@ -145,31 +145,36 @@ def image_icon(cx, cy, size, color):
     ]
 
 
-def pen_layer(c, points, start, finish, k=1.5):
-    """펜 끝(왼쪽 아래)이 글 끝에 닿게 둔다. 레퍼런스처럼 펜을 큼직하게 그린다."""
+def pen_layer(c, points, tilt, start, finish, k=1.5):
+    """펜 끝(왼쪽 아래)이 글 끝에 닿게 둔다. 레퍼런스처럼 큼직하게 그리고, 쓰는 동안 손목처럼 기울인다."""
     c.layer("펜", [group([path(PEN, k, -5 * k, -19 * k), fill("@accent")])],
-            pos=keys(points, LINEAR), opacity=keys([(start - 4, 0), (start, 100), (finish, 100), (finish + 4, 0)]))
+            pos=keys(points, LINEAR), rotation=keys(tilt, LINEAR),
+            opacity=keys([(start - 4, 0), (start, 100), (finish, 100), (finish + 4, 0)]))
 
 
 def card(c):
-    c.layer("얼굴", [*face(54, 56, 18)], anchor=(54, 56), scale=pop(0, 14))
+    c.layer("얼굴", [*face(54, 50, 18)], anchor=(54, 50), scale=pop(0, 14))
     c.layer("카드", [group([rect(144, 104, 270, 176, 16), stroke("@line", 1), fill("@surface")])])
 
 
 def write_lines():
-    """공책 줄처럼 긴 줄 둘을 넓게 둔다. 낱말로 쪼개지 않는다."""
-    speed = 200 / FPS  # 1초에 200. 330은 급하고 110은 늘어졌다.
-    lines = [(36, 252, 106), (36, 164, 136)]
-    frame, pen, spans = 18.0, [], []
+    """공책 줄처럼 곧은 줄 셋을 넓게 둔다. 줄 끝은 길이를 달리해 글처럼 보이게 한다."""
+    speed = 240 / FPS  # 1초에 240. 110은 늘어졌다.
+    lift = 8  # 다음 줄로 펜을 옮기는 프레임
+    lines = [(36, 252, 92), (36, 216, 116), (36, 156, 140)]
+    frame, pen, tilt, spans = 18.0, [], [], []
     for x1, x2, y in lines:
         end = frame + (x2 - x1) / speed
         spans.append((x1, x2, y, frame, end))
         pen += [(frame, [x1, y, 0]), (end, [x2, y, 0])]
-        frame = end + 8
-    finish = frame - 8
+        for i in range(13):
+            u = i / 12
+            tilt.append((frame + (end - frame) * u, -4 + 6 * math.sin(4 * math.pi * u)))
+        frame = end + lift
+    finish = frame - lift
     c = Comp("onboarding_write", round(finish + 22))
     check(240, 156, 14, c, finish + 6, finish + 20)
-    pen_layer(c, pen, 18, finish)
+    pen_layer(c, pen, tilt, 18, finish)
     for n, (x1, x2, y, a, b) in enumerate(spans):
         c.layer(f"줄 {n + 1}", [group([
             path(f"M {x1} {y} L {x2} {y}"),
