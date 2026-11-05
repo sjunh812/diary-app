@@ -142,12 +142,14 @@ internal fun PaywallScreen(
     modifier: Modifier = Modifier
 ) {
     val colors = DiaryTheme.colors
-    val typography = DiaryTheme.typography
-    Column(
-        modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().navigationBarsPadding(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxHeight()) {
+    BoxWithConstraints(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().navigationBarsPadding()) {
+        // 넓은 화면은 왼쪽에 그림과 혜택, 오른쪽에 결제액과 버튼을 둔다(docs/business.md).
+        val wide = maxWidth >= DiaryWriteSize.twoPaneMin
+        Column(
+            Modifier.align(
+                Alignment.TopCenter
+            ).widthIn(max = if (wide) DiaryWriteSize.bodyMax * 2 else DiaryWriteSize.bodyMax).fillMaxHeight()
+        ) {
             Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     Modifier.size(DiarySpacing.minTouchTarget).clip(DiaryShapes.full).clickable(role = Role.Button, onClick = onClose),
@@ -158,63 +160,96 @@ internal fun PaywallScreen(
                 Spacer(Modifier.weight(1f))
                 DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.Text)
             }
-            BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-                // 작은 화면에서는 그림을 줄여 혜택이 잘리지 않게 한다.
-                val artHeight = minOf(DiaryArtSize.banner, maxHeight * ART_SHARE)
-                Column(
-                    Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = DiarySpacing.screenCompact),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
+            if (wide) {
+                Row(
+                    Modifier.weight(1f).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact),
+                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x10),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 그림이 칸을 채우도록 폭에 맞춘 비율로 그린다. 넓은 화면에서는 높이만 막아 가운데에 둔다.
-                    Box(
-                        Modifier.fillMaxWidth().padding(
-                            top = DiarySpacing.x2
-                        ).clip(DiaryShapes.r20).background(colors.selected.copy(alpha = ART_TINT)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        DiaryLottie(
-                            { Res.readBytes("files/plus_benefits.json") },
-                            ART_MILLIS,
-                            active = true,
-                            Modifier.heightIn(max = artHeight).aspectRatio(ART_RATIO)
-                        )
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
-                        BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
-                        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                            Benefit(Res.string.plus_ads_title)
-                            Benefit(Res.string.plus_photos_title)
-                            Benefit(Res.string.plus_stats_title)
-                        }
-                        BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
-                        if (adFreeOwned) {
-                            BasicText(
-                                stringResource(Res.string.plus_ad_free_owned),
-                                style = typography.caption.copy(color = colors.accentText)
-                            )
-                        }
-                    }
+                    PaywallBenefits(adFreeOwned, Modifier.weight(1f).fillMaxHeight(), Arrangement.Center)
+                    PaywallBuy(price, loading, busy, onRetry, onBuy, Modifier.weight(1f))
                 }
+            } else {
+                PaywallBenefits(
+                    adFreeOwned,
+                    Modifier.weight(1f).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact),
+                    Arrangement.Top
+                )
+                PaywallBuy(
+                    price,
+                    loading,
+                    busy,
+                    onRetry,
+                    onBuy,
+                    Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3)
+                )
             }
-            Column(
-                Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+        }
+    }
+}
+
+/** 그림, 제목, 혜택. 작은 화면이나 큰 글자에서는 이 칸만 스크롤된다. */
+@Composable
+private fun PaywallBenefits(adFreeOwned: Boolean, modifier: Modifier, arrangement: Arrangement.Vertical) {
+    val colors = DiaryTheme.colors
+    val typography = DiaryTheme.typography
+    BoxWithConstraints(modifier) {
+        // 작은 화면에서는 그림을 줄여 혜택이 잘리지 않게 한다.
+        val artHeight = minOf(DiaryArtSize.banner, maxHeight * ART_SHARE)
+        Column(
+            Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).heightIn(min = maxHeight),
+            verticalArrangement = arrangement
+        ) {
+            // 그림이 칸을 채우도록 폭에 맞춘 비율로 그린다. 넓은 화면에서는 높이만 막아 가운데에 둔다.
+            Box(
+                Modifier.fillMaxWidth().padding(
+                    top = DiarySpacing.x2
+                ).clip(DiaryShapes.r20).background(colors.selected.copy(alpha = ART_TINT)),
+                contentAlignment = Alignment.Center
             ) {
-                if (price != null) {
-                    BasicText(stringResource(Res.string.plus_price, price), style = typography.title2.copy(color = colors.textPrimary))
-                    DiaryButton(
-                        stringResource(Res.string.plus_start),
-                        onBuy,
-                        Modifier.fillMaxWidth(),
-                        size = DiaryButtonSize.XLarge,
-                        enabled = !busy
-                    )
-                    BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
-                } else if (!loading) {
-                    BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
-                    DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+                DiaryLottie(
+                    { Res.readBytes("files/plus_benefits.json") },
+                    ART_MILLIS,
+                    active = true,
+                    Modifier.heightIn(max = artHeight).aspectRatio(ART_RATIO)
+                )
+            }
+            Spacer(Modifier.height(DiarySpacing.x6))
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+                BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
+                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                    Benefit(Res.string.plus_ads_title)
+                    Benefit(Res.string.plus_photos_title)
+                    Benefit(Res.string.plus_stats_title)
+                }
+                BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
+                if (adFreeOwned) {
+                    BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
                 }
             }
+        }
+    }
+}
+
+/** 실제 결제액, 버튼, 자동 갱신 고지(FR-005). 가격을 못 받으면 지어내지 않고 다시 시도를 보인다. */
+@Composable
+private fun PaywallBuy(price: String?, loading: Boolean, busy: Boolean, onRetry: () -> Unit, onBuy: () -> Unit, modifier: Modifier) {
+    val colors = DiaryTheme.colors
+    val typography = DiaryTheme.typography
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        if (price != null) {
+            BasicText(stringResource(Res.string.plus_price, price), style = typography.title2.copy(color = colors.textPrimary))
+            DiaryButton(
+                stringResource(Res.string.plus_start),
+                onBuy,
+                Modifier.fillMaxWidth(),
+                size = DiaryButtonSize.XLarge,
+                enabled = !busy
+            )
+            BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
+        } else if (!loading) {
+            BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
+            DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
         }
     }
 }

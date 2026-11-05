@@ -25,3 +25,7 @@ private fun ManageLight() = DiaryTheme(darkTheme = false) { PlusManageScreen({},
 @Preview(locale = "ko")
 @Composable
 private fun ManageDark() = DiaryTheme(darkTheme = true) { PlusManageScreen({}, {}, {}) }
+
+@Preview(name = "결제 화면 · 넓은 화면", locale = "ko", widthDp = 1194, heightDp = 834)
+@Composable
+private fun PaywallWide() = DiaryTheme(darkTheme = false) { PaywallScreen("₩14,900", false, false, false, {}, {}, {}, {}) }

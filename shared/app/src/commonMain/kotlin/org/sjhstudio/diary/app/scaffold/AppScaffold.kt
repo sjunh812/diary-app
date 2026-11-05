@@ -141,9 +141,9 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         backStack.selectTab(SettingsKey)
         backStack.add(FontSettingsKey)
     }
-    // 쓰기와 사진 크게 보기는 전체 화면이다. 탭과 레일을 그리지 않는다.
+    // 쓰기, 사진 크게 보기, 결제는 전체 화면이다. 탭과 레일을 그리지 않는다.
     val writing = backStack.lastOrNull() is WriteKey
-    val fullScreen = writing || backStack.lastOrNull() is PhotoViewerKey
+    val fullScreen = writing || backStack.lastOrNull() is PhotoViewerKey || backStack.lastOrNull() is PlusKey
     val floatingWrite = backStack.size == 1 && backStack.lastOrNull() != SettingsKey
 
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
