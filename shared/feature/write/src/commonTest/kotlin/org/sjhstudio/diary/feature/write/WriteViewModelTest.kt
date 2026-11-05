@@ -14,6 +14,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
@@ -37,6 +38,8 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.platform.PlaceFinder
+import org.sjhstudio.diary.core.platform.PlaceLookup
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
@@ -349,5 +352,54 @@ class WriteViewModelTest {
 
         val stored = assertNotNull(repository.draft(repository.saved.single().key).first())
         assertEquals(1, stored.photos.size)
+    }
+
+    @Test
+    fun found_place_waits_for_done_and_is_not_saved_by_itself() = runTest(dispatcher) {
+        val finder = OnePlace(PlaceLookup.Found("마포구 망원동"))
+        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        advanceUntilIdle()
+
+        viewModel.findPlace()
+        advanceUntilIdle()
+
+        assertEquals(PlaceLocating.Done(PlaceLookup.Found("마포구 망원동")), viewModel.state.value.locating)
+        assertEquals("", viewModel.state.value.placeName)
+    }
+
+    @Test
+    fun place_is_read_only_when_asked() = runTest(dispatcher) {
+        val finder = OnePlace(PlaceLookup.NotFound)
+        WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        advanceUntilIdle()
+
+        assertEquals(0, finder.calls)
+    }
+
+    @Test
+    fun closing_the_sheet_stops_finding_and_clears_the_note() = runTest(dispatcher) {
+        val finder = OnePlace(PlaceLookup.Denied, wait = true)
+        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        advanceUntilIdle()
+
+        viewModel.findPlace()
+        viewModel.findPlace()
+        advanceUntilIdle()
+        assertEquals(PlaceLocating.Finding, viewModel.state.value.locating)
+        assertEquals(1, finder.calls)
+
+        viewModel.stopFindingPlace()
+        advanceUntilIdle()
+        assertEquals(PlaceLocating.Idle, viewModel.state.value.locating)
+    }
+
+    private class OnePlace(private val result: PlaceLookup, private val wait: Boolean = false) : PlaceFinder {
+        var calls = 0
+
+        override suspend fun find(): PlaceLookup {
+            calls++
+            if (wait) awaitCancellation()
+            return result
+        }
     }
 }

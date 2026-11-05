@@ -42,6 +42,9 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.platform.FontInstaller
+import org.sjhstudio.diary.core.platform.NoPlaceFinder
+import org.sjhstudio.diary.core.platform.PlaceFinder
+import org.sjhstudio.diary.core.platform.PlaceLookup
 
 /** 쓰기를 어디로 여는가. */
 sealed interface WriteTarget {
@@ -68,6 +71,9 @@ sealed interface PhotoNotice {
     data object Unreadable : PhotoNotice
 }
 
+/** 장소 이름 길이(FR-002). */
+internal const val MAX_PLACE = 30
+
 data class WriteUiState(
     val loading: Boolean = true,
     val isEdit: Boolean = false,
@@ -82,11 +88,21 @@ data class WriteUiState(
     val photos: List<DraftPhoto> = emptyList(),
     val canSave: Boolean = false,
     val recentPlaces: List<String> = emptyList(),
+    val locating: PlaceLocating = PlaceLocating.Idle,
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
     val saveFailed: Boolean = false
 ) {
     override fun toString(): String = "WriteUiState"
+}
+
+/** 장소 시트의 현재 위치 가져오기 상태. */
+sealed interface PlaceLocating {
+    data object Idle : PlaceLocating
+
+    data object Finding : PlaceLocating
+
+    data class Done(val result: PlaceLookup) : PlaceLocating
 }
 
 /** 화면을 닫을 때 한 번. */
@@ -112,7 +128,8 @@ class WriteViewModel(
     private val mediaPath: (String) -> String = { it },
     settings: SettingsRepository? = null,
     private val fonts: FontInstaller? = null,
-    plans: PlanRepository? = null
+    plans: PlanRepository? = null,
+    private val places: PlaceFinder = NoPlaceFinder
 ) : ViewModel() {
     /** 한 편에 넣을 수 있는 사진 수. 요금제를 바꾸면 바로 따른다. */
     val photoLimit: StateFlow<Int> =
@@ -141,6 +158,7 @@ class WriteViewModel(
     private var isFavorite = false
     private var pending: Job? = null
     private var photosJob: Job? = null
+    private var locatingJob: Job? = null
 
     /** 저장본에 쓴 뒤로 바뀐 것이 있는가. */
     private var dirty = false
@@ -261,6 +279,24 @@ class WriteViewModel(
     fun setPlace(name: String) {
         _state.update { it.copy(placeName = name.take(MAX_PLACE)) }
         changed()
+    }
+
+    /** 찾은 이름은 시트 입력 칸에 넣는다. 사용자가 완료를 눌러야 일기에 들어간다(FR-005). */
+    fun findPlace() {
+        if (_state.value.locating == PlaceLocating.Finding) return
+        _state.update { it.copy(locating = PlaceLocating.Finding) }
+        locatingJob =
+            viewModelScope.launch {
+                val result = places.find()
+                _state.update { it.copy(locating = PlaceLocating.Done(result)) }
+            }
+    }
+
+    /** 시트를 닫으면 찾던 일을 멈추고 안내도 지운다. */
+    fun stopFindingPlace() {
+        locatingJob?.cancel()
+        locatingJob = null
+        _state.update { it.copy(locating = PlaceLocating.Idle) }
     }
 
     /** 오늘이 아닌 날로 바꾸면 자동으로 채운 날씨만 지운다(FR-005). */
@@ -433,6 +469,5 @@ class WriteViewModel(
 
     private companion object {
         const val SAVE_DELAY_MILLIS = 1_000L
-        const val MAX_PLACE = 30
     }
 }

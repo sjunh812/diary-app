@@ -59,4 +59,10 @@
     <string name="write_limit_body">Plus면 %1$d장까지 넣을 수 있어요. 고른 사진과 쓰던 글은 그대로예요.</string>
     <string name="write_limit_plus">Plus 알아보기</string>
     <string name="write_limit_later">괜찮아요</string>
+    <string name="write_place_current">현재 위치 가져오기</string>
+    <string name="write_place_finding">위치 찾는 중</string>
+    <string name="write_place_denied">위치 권한을 허용하면 가져올 수 있어요.</string>
+    <string name="write_place_off">기기의 위치가 꺼져 있어요.</string>
+    <string name="write_place_not_found">위치를 찾지 못했어요. 직접 적어 주세요.</string>
+    <string name="write_place_settings">설정 열기</string>
 </resources>

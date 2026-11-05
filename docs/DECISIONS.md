@@ -116,7 +116,7 @@ commit-msg 훅 검사까지 `CLAUDE.md` "커밋 규칙"에 있다.
 - **D2 백업 저장소**: Android·iOS 모두 사용자 구글 드라이브의 보이는 폴더(`drive.file`). 기존 백업과 이어지고 기기를 바꿔도(안드로이드↔아이폰)
   복원된다. iCloud는 R3 선택지로 남긴다.
 - **D4 minSdk**: 24(Android 7.0) 그대로. 올리면 7.x 사용자가 1.7.4에 남아 새 이전·백업 수정을 못 받는다(헌법 I). 의존성 최소(Glance 1.2는 23)보다 높다.
-- **D7 날씨·주소**: 주소는 기기 지오코더(Android Geocoder, iOS CLGeocoder)로 바꿔 네이버 지도 키를 없앤다(네이버 지도 API는 유료로 바뀌어
+- **D7 날씨·주소**(2026-11-05 바뀜, 아래 "현재 위치는 누를 때만"): 주소는 기기 지오코더(Android Geocoder, iOS CLGeocoder)로 바꿔 네이버 지도 키를 없앤다(네이버 지도 API는 유료로 바뀌어
   어차피 쓸 수 없다, 사용자 확인). 날씨는 공공데이터포털 기상청
   단기예보(무료, 서비스 키 필요). 서버가 없어 키가 앱에 들어가므로 하루 호출 한도와 키 노출 대응(운영 계정, 키 교체 절차)을 스펙 002 개발 때 확인한다.
 - **D3 가격**: `docs/business.md` 추천안 그대로. 광고 제거 평생 ₩4,400, Plus 월 ₩1,900·연 ₩14,900(7일 체험)·평생 ₩29,000(광고 제거 포함),
@@ -534,6 +534,17 @@ iOS 화면을 같이 만들 수 없다. 플러그인은 앱에 실제로 들어�
 - 기본 글자색과 형광펜 없음을 맨 앞에 뒀다. 이전에는 같은 색을 다시 눌러야 풀려서 되돌리는 길이 보이지 않았다
 - 고른 색은 액센트 고리로 보인다. 고리와 색 사이를 띄워 보라 칸에서도 구별되고, 색만으로 상태를 알리지 않는다
 - 저장 값은 더하기만 했다. 아직 출시 전이라 백업 형식 버전은 올리지 않는다
+
+## 2026-11-05 현재 위치는 누를 때만 가져온다 (사용자 결정)
+
+- 자동 추적 대신 장소 시트에 [현재 위치 가져오기]를 둔다. 일기를 열 때 위치를 읽지 않는다. Day One도 자동 위치는 켜야 작동하는 설정이다([안내](https://dayoneapp.com/guides/settings/automatically-add-your-location-to-new-entries/)).
+- 동네 이름은 키가 필요 없는 기기 지오코더로 찾는다. iOS의 CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API(MKReverseGeocodingRequest)가 iOS 26부터라 지금 최소 버전 17에서는 CLGeocoder를 쓴다([Apple](https://developer.apple.com/documentation/mapkit/mkreversegeocoder.md)).
+- 권한은 정확한 위치와 대략 위치를 함께 묻는다. 안드로이드의 대략 위치는 약 3제곱킬로미터 단위라([Android](https://developer.android.com/develop/sensors-and-location/location/permissions)) 동네 이름이 옆 동으로 틀어질 수 있어서다. 사용자가 시스템 창에서 대략을 골라도 그대로 쓴다. 1.7.4도 두 권한을 썼다.
+- 안드로이드는 Google이 권하는 Fused Location Provider로 누를 때 한 번만 읽는다. 전력 균형 설정은 에뮬레이터에서 위치를 받지 못해 정확도 우선으로 두고 8초로 끊는다([문서](https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient)). play-services-location은 무료다.
+- 글자는 1.7.4처럼 "마포구 망원동"으로 만든다. 좌표는 저장하지 않으니 저장 형식과 백업 형식은 그대로다.
+- 헌법 II에 예외를 하나 더했다. 좌표가 운영체제의 주소 변환으로 나가기 때문이다.
+- 자동 날씨는 위치를 읽어야 하므로 이번 출시에서 뺐다. 아직 만든 적이 없는 기능이고, 날씨는 지금처럼 고른다.
+- 위치기반서비스 신고 여부는 출시 전에 위치정보지원센터에 묻는다(`docs/release.md` 위치정보법).
 
 ## 열린 결정
 

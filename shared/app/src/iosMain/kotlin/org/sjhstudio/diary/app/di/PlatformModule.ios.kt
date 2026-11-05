@@ -26,10 +26,12 @@ import org.sjhstudio.diary.core.platform.IosFontInstaller
 import org.sjhstudio.diary.core.platform.IosFreeSpace
 import org.sjhstudio.diary.core.platform.IosNetworkState
 import org.sjhstudio.diary.core.platform.IosNotificationPermission
+import org.sjhstudio.diary.core.platform.IosPlaceFinder
 import org.sjhstudio.diary.core.platform.IosReminderScheduler
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NoBackupScheduler
 import org.sjhstudio.diary.core.platform.NotificationPermission
+import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 import platform.Foundation.NSBundle
 
@@ -40,6 +42,7 @@ internal actual val platformModule: Module =
         // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15).
         single<ReminderScheduler> { IosReminderScheduler() }
         single<NotificationPermission> { IosNotificationPermission() }
+        single<PlaceFinder> { IosPlaceFinder() }
         single<FontInstaller> { IosFontInstaller(get()) }
         single { DatabaseFactory(get()) }
         single<DriveAuthorizer> { IosDriveAuthorizer { IosDrive.bridge } }

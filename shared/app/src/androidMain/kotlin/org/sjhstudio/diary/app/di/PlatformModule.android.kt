@@ -44,6 +44,7 @@ import org.sjhstudio.diary.core.platform.AndroidFontInstaller
 import org.sjhstudio.diary.core.platform.AndroidFreeSpace
 import org.sjhstudio.diary.core.platform.AndroidNetworkState
 import org.sjhstudio.diary.core.platform.AndroidNotificationPermission
+import org.sjhstudio.diary.core.platform.AndroidPlaceFinder
 import org.sjhstudio.diary.core.platform.AndroidReminderScheduler
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.BackupNotifier
@@ -54,6 +55,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NotificationPermission
+import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 
 @OptIn(ExperimentalUuidApi::class)
@@ -64,6 +66,7 @@ internal actual val platformModule: Module =
         single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }
+        single<PlaceFinder> { AndroidPlaceFinder(androidContext()) }
         single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }
         single { DatabaseFactory(androidContext(), get()) }
         single { AndroidDriveAuthorizer(androidContext()) }

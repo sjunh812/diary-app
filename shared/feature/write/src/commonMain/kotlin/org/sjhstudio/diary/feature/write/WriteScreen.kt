@@ -164,6 +164,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val vm = actions.viewModel
     val colors = DiaryTheme.colors
     var sheet by remember { mutableStateOf<Sheet?>(null) }
+    val locationAccess = rememberLocationAccess()
     var askDiscard by remember { mutableStateOf(false) }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
     (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
@@ -238,10 +239,22 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             )
 
         Sheet.Place ->
-            PlaceSheet(state.placeName, state.recentPlaces, onDone = {
-                vm.setPlace(it)
-                sheet = null
-            }, onDismiss = { sheet = null })
+            PlaceSheet(
+                initial = state.placeName,
+                recent = state.recentPlaces,
+                locating = state.locating,
+                onLocate = { locationAccess.request(vm::findPlace) },
+                onOpenSettings = locationAccess::openSettings,
+                onDone = {
+                    vm.setPlace(it)
+                    vm.stopFindingPlace()
+                    sheet = null
+                },
+                onDismiss = {
+                    vm.stopFindingPlace()
+                    sheet = null
+                }
+            )
 
         Sheet.DateTime ->
             DateTimeSheet(state.date, state.time, onDone = { date: LocalDate, time: LocalTime ->

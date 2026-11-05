@@ -16,6 +16,9 @@ kotlin {
             implementation(libs.play.feature.delivery)
             // 구글 드라이브 권한 받기(AndroidDriveAuthorizer)
             implementation(libs.play.services.auth)
+            // 현재 위치 가져오기(AndroidPlaceFinder)
+            implementation(libs.play.services.location)
+            implementation(libs.androidx.core.ktx)
         }
     }
 }

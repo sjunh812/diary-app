@@ -65,7 +65,7 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 | Crashlytics | 진단(크래시 로그, 기기 정보, 설치 ID) | 크래시 데이터 | [Firebase Android](https://firebase.google.com/docs/android/play-data-disclosure), [iOS](https://firebase.google.com/docs/ios/app-store-data-collection) |
 | Analytics | 앱 활동, 기기 ID | 사용 데이터 | 제출 전 Google Analytics 공개 문서로 확인 |
 | AdMob(광고를 넣을 때만) | 대략 위치(IP), 상호작용, 진단, 광고 ID | 기기 ID, 광고 데이터 등 + ATT, `SKAdNetworkItems` | [AdMob Android](https://developers.google.com/admob/android/privacy/play-data-disclosure), [iOS](https://developers.google.com/admob/ios/privacy/data-disclosure) |
-| 날씨·주소 API | 좌표를 보내는 방식이면 위치 항목 검토 | 같음 | 아래 위치정보법 |
+| 현재 위치 | 수집 아님으로 본다. 앱은 좌표를 저장하거나 밖으로 보내지 않고 운영체제의 주소 변환만 부른다. 제출 전에 다시 확인한다 | 같음 | 아래 위치정보법 |
 
 - iOS `PrivacyInfo.xcprivacy`에 추적 여부, 수집 데이터, Required Reason API(UserDefaults, 파일 시각 등)를 적는다. Firebase Core·Crashlytics·GoogleSignIn은 서명된 매니페스트가 필요한 SDK 목록에 있다([Apple](https://developer.apple.com/support/third-party-SDK-requirements/)).
 - Sign in with Apple(4.8): 구글 로그인으로 사용자 계정을 만들지 않고 드라이브 권한만 받으면 문언상 해당하지 않는다(해석). 심사 메모에 "계정 없음, 백업 권한용"이라고 적는다.
@@ -75,7 +75,7 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 ### 위치정보법
 
 기기 안에서만 위치를 쓰고 사업자의 위치정보시스템으로 보내지 않으면 위치기반서비스 신고 대상에서 빠진다([위치정보지원센터](https://www.lbsc.kr/front/content/contentViewer.do?contentId=CONTENT_0000081)).
-좌표를 제3자 역지오코딩·날씨 API로 보내는 것이 여기에 해당하는지는 확인하지 못했다. 출시 전에 위치정보지원센터(02-588-0185)에 묻고 답을 `docs/DECISIONS.md`에 남긴다.
+이 앱은 사용자가 [현재 위치 가져오기]를 누른 때만 좌표를 운영체제의 주소 변환(Android Geocoder, iOS CLGeocoder)에 넘긴다. 운영체제가 Google·Apple 서버를 쓰는 경우가 여기에 해당하는지는 확인하지 못했다. 출시 전에 위치정보지원센터(02-588-0185)에 묻고 답을 `docs/DECISIONS.md`에 남긴다. 개인정보처리방침에는 누를 때만 위치를 쓰고 좌표는 남기지 않으며 주소 변환에 운영체제 기능을 쓴다고 적는다.
 1인 창조기업은 신고 없이 시작하고 1개월 안에 신고할 수 있다(제9조의2).
 
 ## 광고와 결제 키

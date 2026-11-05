@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +62,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.platform.PlaceLookup
 import org.sjhstudio.diary.core.ui.DiaryMonthDays
 import org.sjhstudio.diary.core.ui.DiaryMonthStepper
 import org.sjhstudio.diary.core.ui.DiaryMoodGrid
@@ -80,13 +82,19 @@ import org.sjhstudio.diary.feature.write.resources.write_place
 import org.sjhstudio.diary.feature.write.resources.write_place_body
 import org.sjhstudio.diary.feature.write.resources.write_place_cafe
 import org.sjhstudio.diary.feature.write.resources.write_place_common
+import org.sjhstudio.diary.feature.write.resources.write_place_current
+import org.sjhstudio.diary.feature.write.resources.write_place_denied
+import org.sjhstudio.diary.feature.write.resources.write_place_finding
 import org.sjhstudio.diary.feature.write.resources.write_place_hint
 import org.sjhstudio.diary.feature.write.resources.write_place_home
+import org.sjhstudio.diary.feature.write.resources.write_place_not_found
+import org.sjhstudio.diary.feature.write.resources.write_place_off
 import org.sjhstudio.diary.feature.write.resources.write_place_office
 import org.sjhstudio.diary.feature.write.resources.write_place_park
 import org.sjhstudio.diary.feature.write.resources.write_place_recent
 import org.sjhstudio.diary.feature.write.resources.write_place_restaurant
 import org.sjhstudio.diary.feature.write.resources.write_place_school
+import org.sjhstudio.diary.feature.write.resources.write_place_settings
 import org.sjhstudio.diary.feature.write.resources.write_place_trip
 import org.sjhstudio.diary.feature.write.resources.write_resume_body
 import org.sjhstudio.diary.feature.write.resources.write_resume_continue
@@ -142,33 +150,27 @@ internal fun WeatherSheet(weather: Weather?, onWeather: (Weather) -> Unit, onCle
 }
 
 @Composable
-internal fun PlaceSheet(initial: String, recent: List<String>, onDone: (String) -> Unit, onDismiss: () -> Unit) {
+internal fun PlaceSheet(
+    initial: String,
+    recent: List<String>,
+    locating: PlaceLocating,
+    onLocate: () -> Unit,
+    onOpenSettings: (locationOff: Boolean) -> Unit,
+    onDone: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
     var text by remember { mutableStateOf(initial) }
     val colors = DiaryTheme.colors
+    // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둔다. 완료를 눌러야 일기에 들어간다.
+    val found = ((locating as? PlaceLocating.Done)?.result as? PlaceLookup.Found)?.name
+    LaunchedEffect(found) {
+        if (found != null) text = found.take(MAX_PLACE)
+    }
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.write_place)) {
         BasicText(stringResource(Res.string.write_place_body), style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
-        Row(
-            Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x3),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-        ) {
-            DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
-            Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                if (text.isEmpty()) {
-                    BasicText(
-                        stringResource(Res.string.write_place_hint),
-                        style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
-                    )
-                }
-                BasicTextField(
-                    value = text,
-                    onValueChange = { text = it.take(30) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    textStyle = DiaryTheme.typography.body.copy(color = colors.textPrimary),
-                    cursorBrush = SolidColor(colors.accent)
-                )
-            }
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+            PlaceField(text, onChange = { text = it.take(MAX_PLACE) })
+            CurrentPlace(locating, onLocate, onOpenSettings)
         }
         // 전에 쓴 곳은 한 번에 고른다. 적는 글자에 맞는 곳만 남긴다.
         val typed = text.trim()
@@ -193,7 +195,80 @@ internal fun PlaceSheet(initial: String, recent: List<String>, onDone: (String) 
                 ).map { stringResource(it) }
             PlaceChips(stringResource(Res.string.write_place_common), common - recent.toSet(), onDone)
         }
-        SheetButtons(stringResource(Res.string.write_close), onDismiss, stringResource(Res.string.write_done), { onDone(text) })
+        SheetButtons(stringResource(Res.string.write_none), { onDone("") }, stringResource(Res.string.write_done), { onDone(text) })
+    }
+}
+
+@Composable
+private fun PlaceField(text: String, onChange: (String) -> Unit) {
+    val colors = DiaryTheme.colors
+    Row(
+        Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x3),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+    ) {
+        DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
+        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+            if (text.isEmpty()) {
+                BasicText(
+                    stringResource(Res.string.write_place_hint),
+                    style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+                )
+            }
+            BasicTextField(
+                value = text,
+                onValueChange = onChange,
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                textStyle = DiaryTheme.typography.body.copy(color = colors.textPrimary),
+                cursorBrush = SolidColor(colors.accent)
+            )
+        }
+    }
+}
+
+/** 누를 때만 위치를 읽는다. 찾지 못해도 쓰기는 그대로고 한 줄로 알린다. */
+@Composable
+private fun CurrentPlace(locating: PlaceLocating, onLocate: () -> Unit, onOpenSettings: (locationOff: Boolean) -> Unit) {
+    val finding = locating == PlaceLocating.Finding
+    val result = (locating as? PlaceLocating.Done)?.result
+    Column {
+        DiaryChip(
+            stringResource(if (finding) Res.string.write_place_finding else Res.string.write_place_current),
+            selected = false,
+            onClick = onLocate,
+            leadingIcon = DiaryIcons.Locate
+        )
+        when (result) {
+            PlaceLookup.Denied -> PlaceNote(stringResource(Res.string.write_place_denied)) { onOpenSettings(false) }
+            PlaceLookup.LocationOff -> PlaceNote(stringResource(Res.string.write_place_off)) { onOpenSettings(true) }
+            PlaceLookup.NotFound -> PlaceNote(stringResource(Res.string.write_place_not_found), onOpenSettings = null)
+            is PlaceLookup.Found, null -> Unit
+        }
+    }
+}
+
+@Composable
+private fun PlaceNote(text: String, onOpenSettings: (() -> Unit)?) {
+    val colors = DiaryTheme.colors
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = DiarySpacing.minTouchTarget),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+    ) {
+        BasicText(text, Modifier.weight(1f), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+        if (onOpenSettings != null) {
+            // 글자 끝을 입력 칸 끝에 맞추고 누르는 영역만 줄 높이로 넓힌다.
+            Box(
+                Modifier.height(DiarySpacing.minTouchTarget).clickable(role = Role.Button, onClick = onOpenSettings),
+                contentAlignment = Alignment.Center
+            ) {
+                BasicText(
+                    stringResource(Res.string.write_place_settings),
+                    style = DiaryTheme.typography.captionStrong.copy(color = colors.accentText)
+                )
+            }
+        }
     }
 }
 

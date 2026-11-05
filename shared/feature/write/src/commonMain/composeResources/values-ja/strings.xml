@@ -59,4 +59,10 @@
     <string name="write_limit_body">Plusなら%1$d枚まで入れられます。選んだ写真と書いた文はそのままです。</string>
     <string name="write_limit_plus">Plusを見る</string>
     <string name="write_limit_later">今はしない</string>
+    <string name="write_place_current">現在地を使う</string>
+    <string name="write_place_finding">現在地を取得中</string>
+    <string name="write_place_denied">位置情報を許可すると使えます。</string>
+    <string name="write_place_off">端末の位置情報がオフになっています。</string>
+    <string name="write_place_not_found">現在地を取得できませんでした。直接入力してください。</string>
+    <string name="write_place_settings">設定を開く</string>
 </resources>
