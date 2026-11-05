@@ -6,3 +6,11 @@ enum class Plan(val showsAds: Boolean, val photoLimit: Int, val advancedStats: B
     AD_FREE(showsAds = false, photoLimit = PhotoLimit.FREE, advancedStats = false),
     PLUS(showsAds = false, photoLimit = PhotoLimit.PLUS, advancedStats = true)
 }
+
+/** 파는 상품. 첫 출시는 둘이다(D9). */
+enum class ProductId { AD_FREE, PLUS_YEARLY }
+
+/** 스토어에서 받은 상품. 가격은 스토어가 준 글자 그대로 보인다(FR-004). */
+data class StoreProduct(val id: ProductId, val price: String)
+
+enum class PurchaseResult { DONE, CANCELLED, FAILED }

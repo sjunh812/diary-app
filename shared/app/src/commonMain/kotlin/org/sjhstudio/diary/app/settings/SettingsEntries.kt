@@ -29,6 +29,7 @@ import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
+import org.sjhstudio.diary.app.navigation.FullScreenEntry
 import org.sjhstudio.diary.app.navigation.IntroKey
 import org.sjhstudio.diary.app.navigation.LetterKey
 import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
@@ -36,6 +37,7 @@ import org.sjhstudio.diary.app.navigation.LicensesKey
 import org.sjhstudio.diary.app.navigation.ListStyleSettingsKey
 import org.sjhstudio.diary.app.navigation.LockSettingsKey
 import org.sjhstudio.diary.app.navigation.MigrationReportKey
+import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
 import org.sjhstudio.diary.app.navigation.RestoreListKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
@@ -62,6 +64,7 @@ import org.sjhstudio.diary.feature.lock.LockSettingsRoute
 import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
+import org.sjhstudio.diary.feature.plus.PlusRoute
 import org.sjhstudio.diary.feature.settings.FontLicenseRoute
 import org.sjhstudio.diary.feature.settings.FontSettingsRoute
 import org.sjhstudio.diary.feature.settings.LibraryLicenseRoute
@@ -104,6 +107,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             trashCount = trashCount,
             onBackup = { push(BackupSettingsKey) },
             onWhatsNew = { push(WhatsNewKey) },
+            onPlus = { push(PlusKey) },
             whatsNewDot = whatsNewDot
         )
     }
@@ -127,6 +131,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     }
     entry<RestoreProgressKey> { RestoreProgressRoute(onHome = home, onLock = { push(LockSettingsKey) }, onPickOther = pop) }
     entry<TrashKey> { TrashRoute(onBack = pop) }
+    entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
     entry<WhatsNewKey> { WhatsNewRoute(onBack = pop, onLetter = { push(LetterKey) }, onIntro = { push(IntroKey) }) }
     entry<LetterKey> { FullLetterScreen(onBack = pop) }
     entry<IntroKey> { OnboardingScreen(updated = false, connected = true, connecting = false, onConnect = {}, onFinish = pop) }

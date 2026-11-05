@@ -45,4 +45,8 @@
     <string name="write_place_park">공원</string>
     <string name="write_place_trip">여행지</string>
     <string name="tip_write_tools">글자색과 형광펜은 여기 있어요</string>
+    <string name="write_limit_title">한 편에 사진은 %1$d장까지예요</string>
+    <string name="write_limit_body">Plus면 %1$d장까지 넣을 수 있어요. 고른 사진과 쓰던 글은 그대로예요.</string>
+    <string name="write_limit_plus">Plus 알아보기</string>
+    <string name="write_limit_later">괜찮아요</string>
 </resources>

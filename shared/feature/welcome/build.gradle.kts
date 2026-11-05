@@ -8,7 +8,6 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.shared.core.platform)
             implementation(libs.compose.ui.backhandler)
-            implementation(libs.compottie)
         }
     }
 }

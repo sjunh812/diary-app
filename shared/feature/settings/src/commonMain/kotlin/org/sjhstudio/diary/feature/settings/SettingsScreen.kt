@@ -20,6 +20,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -37,6 +38,8 @@ import org.sjhstudio.diary.feature.settings.resources.settings_group_style
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
+import org.sjhstudio.diary.feature.settings.resources.settings_plus
+import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
@@ -66,6 +69,7 @@ fun SettingsScreen(
     onBackup: () -> Unit = {},
     onWhatsNew: () -> Unit = {},
     whatsNewDot: Boolean = false,
+    onPlus: () -> Unit = {},
     backupValue: String? = null,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
     onDesignCatalog: (() -> Unit)? = null
@@ -85,6 +89,12 @@ fun SettingsScreen(
                                 DiarySpacing.x14 + DiarySpacing.x2
                         )
                         .semantics { heading() }
+            )
+            DiarySettingsRow(
+                stringResource(Res.string.settings_plus),
+                onClick = onPlus,
+                description = stringResource(Res.string.settings_plus_body),
+                leadingIcon = DiaryIcons.Sparkles
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_backup))
             DiarySettingsRow(stringResource(Res.string.settings_backup), onClick = onBackup, value = backupValue)

@@ -66,8 +66,10 @@ import kotlin.math.roundToInt
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
@@ -83,6 +85,7 @@ import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
+import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
@@ -105,6 +108,10 @@ import org.sjhstudio.diary.feature.write.resources.write_format_list
 import org.sjhstudio.diary.feature.write.resources.write_format_mark
 import org.sjhstudio.diary.feature.write.resources.write_format_underline
 import org.sjhstudio.diary.feature.write.resources.write_hint
+import org.sjhstudio.diary.feature.write.resources.write_limit_body
+import org.sjhstudio.diary.feature.write.resources.write_limit_later
+import org.sjhstudio.diary.feature.write.resources.write_limit_plus
+import org.sjhstudio.diary.feature.write.resources.write_limit_title
 import org.sjhstudio.diary.feature.write.resources.write_mood
 import org.sjhstudio.diary.feature.write.resources.write_palette_back
 import org.sjhstudio.diary.feature.write.resources.write_photo_count
@@ -122,7 +129,8 @@ internal class WriteActions(
     val viewModel: WriteViewModel,
     val rich: RichTextState,
     val colors: EditorColors,
-    val mediaPath: (String) -> String
+    val mediaPath: (String) -> String,
+    val onPlus: () -> Unit = {}
 )
 
 private enum class Sheet { Mood, Weather, Place, DateTime }
@@ -139,6 +147,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     var sheet by remember { mutableStateOf<Sheet?>(null) }
     var askDiscard by remember { mutableStateOf(false) }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
+    (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
+        PhotoLimitSheet(notice.limit, actions.onPlus, vm::photoNoticeShown)
+    }
     val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
     val pick =
         rememberFilePickerLauncher(type = FileKitType.Image, mode = FileKitMode.Multiple(maxItems = remaining)) { files ->
@@ -313,12 +324,51 @@ private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit
 private fun Notices(state: WriteUiState) {
     val text =
         when (val notice = state.photoNotice) {
-            is PhotoNotice.Limit -> stringResource(Res.string.write_photo_limit, notice.limit)
+            // 더 넣을 수 있는 길이 있으면 시트로 알린다(Figma P3).
+            is PhotoNotice.Limit -> if (notice.canUpgrade) null else stringResource(Res.string.write_photo_limit, notice.limit)
+
             PhotoNotice.NoSpace -> stringResource(Res.string.write_photo_no_space)
+
             PhotoNotice.Unreadable -> stringResource(Res.string.write_photo_unreadable)
+
             null -> if (state.saveFailed) stringResource(Res.string.write_save_failed) else null
         } ?: return
     DiaryNotice(text, Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2), icon = DiaryIcons.Info)
+}
+
+/** 사진 한도 시트(Figma P3). 고른 사진과 글은 그대로라고 먼저 말하고, 쓰는 일을 막지 않는다. */
+@Composable
+private fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Unit) {
+    val colors = DiaryTheme.colors
+    DiaryBottomSheet(onDismiss, title = stringResource(Res.string.write_limit_title, limit)) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x6, vertical = DiarySpacing.x3),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+        ) {
+            BasicText(
+                stringResource(Res.string.write_limit_body, PhotoLimit.PLUS),
+                style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                DiaryButton(
+                    stringResource(Res.string.write_limit_later),
+                    onDismiss,
+                    Modifier.weight(1f),
+                    kind = DiaryButtonKind.Weak,
+                    size = DiaryButtonSize.XLarge
+                )
+                DiaryButton(
+                    stringResource(Res.string.write_limit_plus),
+                    {
+                        onDismiss()
+                        onPlus()
+                    },
+                    Modifier.weight(2f),
+                    size = DiaryButtonSize.XLarge
+                )
+            }
+        }
+    }
 }
 
 /** 길게 눌러 옆으로 끌면 순서가 바뀐다(FR-007). */

@@ -112,4 +112,6 @@
     <string name="list_style_card">Cards</string>
     <string name="list_style_photo">Photos</string>
     <string name="settings_whats_new">What’s new</string>
+    <string name="settings_plus">Plus</string>
+    <string name="settings_plus_body">No ads, 30 photos, deeper stats</string>
 </resources>

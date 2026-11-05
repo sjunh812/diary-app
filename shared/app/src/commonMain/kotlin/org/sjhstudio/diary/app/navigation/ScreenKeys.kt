@@ -113,6 +113,9 @@ data object FileBackupKey : Screen
 data object WhatsNewKey : Screen
 
 @Serializable
+data object PlusKey : Screen
+
+@Serializable
 data object LetterKey : Screen
 
 @Serializable

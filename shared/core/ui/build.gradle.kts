@@ -8,6 +8,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.compottie)
             api(projects.shared.core.designsystem)
             // 일기 본문 글꼴과 글자 크기(DiaryBodyText)가 설정의 글꼴 ID와 크기 단계를 읽는다.
             api(projects.shared.core.model)

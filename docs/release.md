@@ -78,6 +78,49 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 좌표를 제3자 역지오코딩·날씨 API로 보내는 것이 여기에 해당하는지는 확인하지 못했다. 출시 전에 위치정보지원센터(02-588-0185)에 묻고 답을 `docs/DECISIONS.md`에 남긴다.
 1인 창조기업은 신고 없이 시작하고 1개월 안에 신고할 수 있다(제9조의2).
 
+## 사업자 준비
+
+처음 판매하는 개인 개발자 기준 순서다(2026-11-05 공식 자료 확인). `[세무]`는 세무사에게 확인할 것이다. 번호가 나오기 전까지 개발은 시험 환경으로 한다.
+
+**0. 시작 전**
+
+- [ ] 회사 취업규칙과 근로계약의 겸업 조항을 본다. 근로기준법에는 규정이 없고 회사 규칙에 달렸다([고용부](https://www.moel.go.kr/minwon/fastcounsel/fastcounselView.do?inetDcssMngId=202403041548097201000)).
+
+**1. 사업자등록**
+
+- [ ] 홈택스 > 신청/제출 > 사업자등록신청/정정. 시작 전이나 시작 뒤 20일 안에 한다([국세청](https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?mi=2444&cntntsId=7777)). 수수료 없음, 보통 2일, 최대 5일([정부24](https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=12100000072)).
+- [ ] 사업장이 따로 없으면 집 주소로 한다([부가세법 6조](https://www.law.go.kr/LSW/lsLawLinkInfo.do?lsJoLnkSeq=900314560&chrClsCd=010202)). 임차했다면 계약서 사본이 필요하다.
+- [ ] 업종 후보는 722000(응용 소프트웨어 개발 및 공급업)이다. 스토어 직접 판매 성격이면 525101도 후보다. 공식 코드표 원문은 확인하지 못했다 `[세무]`.
+- [ ] 과세 유형을 정한다. 간이과세는 연 매출 1억 400만 원 미만이고, 4,800만 원 미만이면 납부 면제이며, 환급은 없다([국세청](https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7806)) `[세무]`.
+
+**2. 통신판매업 신고**
+
+- [ ] 정부24나 구청에서 한다. 3일, 수수료 없음, 등록면허세 매년 40,500원(광진구 기준, [안내](https://www.gwangjin.go.kr/portal/main/contents.do?menuNo=200744)).
+- [ ] 서류는 사업자등록증, 신분증, 구매안전 확인증이다. 앱은 망으로 전송되는 재화라 비적용 확인서 대상으로 보이니 구청에 묻는다([제24조](https://www.law.go.kr/LSW//lsLawLinkInfo.do?lsJoLnkSeq=1000527507&lsId=009318&chrClsCd=010202&print=print)).
+- [ ] 직전 연도 거래 50회 미만이나 간이과세자는 신고 면제 고시가 있다. 다만 Play가 번호를 요구하므로 면제자가 번호 없이 통과하는지 구청과 Play 화면에서 확인한다. 앱 개발자가 대상인지 공정위 해석은 찾지 못했다.
+
+**3. Play Console**
+
+- [ ] 개발자 계정 > 내 정보에 사업자등록번호, 전자상거래 라이선스 번호, 발급 기관을 넣는다. 한국 사용자에게 보인다([요구사항](https://support.google.com/googleplay/android-developer/answer/6223646?hl=ko)).
+- [ ] 판매 계정은 결제 프로필 주소가 공개된다. 집 주소면 공개되어도 되는지 먼저 정한다.
+- [ ] 결제 프로필 > 대한민국 세금 정보에 사업자등록번호를 넣는다. 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)).
+- [ ] 수수료 프로그램에 등록한다. 첫 100만 달러 15%, 초과분 30%, 구독 갱신 15%다([수수료](https://support.google.com/googleplay/android-developer/answer/112622?hl=ko), [등록](https://support.google.com/googleplay/android-developer/answer/10632485?hl=ko)).
+- [ ] 정산 계좌를 시험 입금으로 인증한다([인증](https://support.google.com/googleplay/android-developer/answer/7161378?hl=ko)). 지급은 다음 달 15일쯤이다.
+
+**4. App Store (R2)**
+
+- [ ] 개인도 사업자등록번호가 필요하다. Business > Agreements > Compliance > Korean Law([Apple](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-korea-compliance-information)).
+
+**5. 직장인이 알아 둘 것**
+
+- [ ] 근로소득과 사업소득을 합쳐 5월에 종합소득세를 신고한다.
+- [ ] 보수 외 소득이 연 2,000만 원을 넘으면 초과분에 건강보험료가 붙는다([공단](https://www.nhis.or.kr/nhis/policy/wbhada01900m01.do)).
+
+**6. 해마다**
+
+- [ ] 부가세 신고: 일반과세자 1월·7월 25일, 간이과세자 1월 25일([기한](https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?mi=2273&cntntsId=7694)).
+- [ ] 한국 고객 부가세, 해외 매출 영세율, AdMob 수익 처리, 현금영수증 의무는 공식 답을 다 찾지 못했다 `[세무]`. AdMob 계정 유형은 바꿀 수 없으니 사업자로 만든다([AdMob](https://support.google.com/admob/answer/12835021?hl=ko)).
+
 ## 출시 국가
 
 열린 결정 D11이다. 정하는 것은 사용자이고, 아래는 2026-11-01 공식 문서로 확인한 사실과 추천이다.

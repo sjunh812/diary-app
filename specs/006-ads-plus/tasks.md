@@ -2,25 +2,25 @@
 
 ## 1단계: 프로토타입과 디자인
 
-- [ ] T001 `specs/006-ads-plus/prototype.md` 화면 흐름(결제 화면, 광고 제거, 사진 한도, 구독 관리, 광고 자리, 고급 통계, 보상형)
-- [ ] T002 Figma "화면" 섹션 "Plus와 광고 (P1~P7)" 라이트 폰
-- [ ] T003 `specs/006-ads-plus/design-review.md` TDS, SEED, HIG, M3와 결제 화면 레퍼런스에 대어 보기
+- [x] T001 `specs/006-ads-plus/prototype.md` 화면 흐름(결제 화면, 광고 제거, 사진 한도, 구독 관리, 광고 자리, 고급 통계, 보상형)
+- [x] T002 Figma "화면" 섹션 "Plus와 광고 (P1~P7)" 라이트 폰
+- [x] T003 `specs/006-ads-plus/design-review.md` TDS, SEED, HIG, M3와 결제 화면 레퍼런스에 대어 보기
 
 ## 2단계: 바탕
 
-- [ ] T010 [US3] `core/model` `Product`, `PurchaseResult`
-- [ ] T011 [US3] `core/data` `PurchaseRepository`, 무료 구현, 개발 빌드 `FakePurchases`
+- [x] T010 [US3] `core/model` `Product`, `PurchaseResult`
+- [x] T011 [US3] `core/data` `PurchaseRepository`, 무료 구현, 개발 빌드 `FakePurchases`
 - [ ] T012 [US1] `core/platform` `AdService`, `AdSwitch`, 빈 구현
 - [ ] T013 [US1] `core/datastore` `AdStore`, 시험(하루 한 번, 날짜 바뀜, 시각 되돌림)
 
 ## 3단계: 결제 화면 (US2, US3, US4)
 
-- [ ] T020 `shared/feature/plus` 모듈, 문자열 세 언어, 프리뷰
-- [ ] T021 `PaywallScreen`, 혜택 로띠, 넓은 화면 두 칸
-- [ ] T022 `AdFreeSheet`, `PlusManageScreen`
-- [ ] T023 사진 11장째 `PhotoLimitSheet`을 쓰기 화면에 잇기
-- [ ] T024 설정 맨 위 Plus 줄, 앱 틀 경로, 화면 키
-- [ ] T025 구독 끝난 뒤 한도 시험(이전된 사진, 30장 넣은 일기)
+- [x] T020 `shared/feature/plus` 모듈, 문자열 세 언어, 프리뷰
+- [x] T021 `PaywallScreen`, 혜택 로띠, 넓은 화면 두 칸
+- [x] T022 `AdFreeSheet`, `PlusManageScreen`
+- [x] T023 사진 11장째 `PhotoLimitSheet`을 쓰기 화면에 잇기
+- [x] T024 설정 맨 위 Plus 줄, 앱 틀 경로, 화면 키
+- [x] T025 구독 끝난 뒤 한도 시험(이전된 사진, 30장 넣은 일기)
 
 ## 4단계: 고급 통계 (US5)
 

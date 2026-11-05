@@ -33,6 +33,7 @@ fun WriteRoute(
     onSaved: (String) -> Unit,
     onClosed: (keptDraft: Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    onPlus: () -> Unit = {},
     viewModel: WriteViewModel = koinViewModel { parametersOf(target) }
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -74,7 +75,7 @@ fun WriteRoute(
     val family = rememberFileFontFamily(look.fontPath)
     WriteScreen(
         state = state,
-        actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath) },
+        actions = remember(viewModel, rich, colors) { WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus) },
         bodyStyle = diaryBodyTextStyle(look.font, look.size) { family },
         modifier = modifier
     )

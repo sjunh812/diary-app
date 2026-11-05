@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plus_title">Plusでもっとゆったり</string>
+    <string name="plus_subtitle">今お使いの機能はこれからも無料です。</string>
+    <string name="plus_close">閉じる</string>
+    <string name="plus_restore">購入を復元</string>
+    <string name="plus_ads_title">広告なし</string>
+    <string name="plus_ads_body">ホーム、振り返り、保存後の広告がなくなります</string>
+    <string name="plus_photos_title">1件に写真30枚</string>
+    <string name="plus_photos_body">無料は10枚まで入れられます</string>
+    <string name="plus_stats_title">詳しい統計</string>
+    <string name="plus_stats_body">曜日別の気分、月ごとの流れ、年間まとめを見られます</string>
+    <string name="plus_price">1年 %1$s</string>
+    <string name="plus_start">1年 %1$sで始める</string>
+    <string name="plus_notice">お支払いはストアのアカウントに請求され、1年ごとに自動更新されます。更新の24時間前までストアで解約できます。</string>
+    <string name="plus_retry">再試行</string>
+    <string name="plus_no_store">価格を読み込めませんでした。接続を確認してください。</string>
+    <string name="plus_failed">決済を完了できませんでした。請求はされていません。もう一度お試しください。</string>
+    <string name="plus_restored">購入を復元しました</string>
+    <string name="plus_restore_none">復元できる購入がありません</string>
+    <string name="plus_ad_free_owned">広告削除はすでにご利用中です。</string>
+    <string name="plus_other_store">AndroidとiPhoneの購入は引き継がれません。</string>
+    <string name="plus_manage_top">Plus</string>
+    <string name="plus_manage_title">Plusをご利用中です</string>
+    <string name="plus_manage_store">サブスクリプションの管理</string>
+    <string name="plus_manage_note">解約しても書いた日記と写真はそのまま残ります。</string>
+    <string name="adfree_title">広告を消しますか？</string>
+    <string name="adfree_body">一度のお支払いでずっと広告なしで使えます。</string>
+    <string name="adfree_price">買い切り %1$s</string>
+    <string name="adfree_buy">購入する</string>
+    <string name="adfree_close">閉じる</string>
+</resources>

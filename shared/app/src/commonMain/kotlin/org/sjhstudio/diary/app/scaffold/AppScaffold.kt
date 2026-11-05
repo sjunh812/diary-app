@@ -52,6 +52,7 @@ import org.sjhstudio.diary.app.navigation.ListPane
 import org.sjhstudio.diary.app.navigation.LocalInListDetail
 import org.sjhstudio.diary.app.navigation.LocalRailWidth
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
+import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SearchKey
@@ -370,7 +371,8 @@ private fun Content(
                         onClosed = { kept ->
                             pop()
                             if (kept) notify(Message.DraftKept)
-                        }
+                        },
+                        onPlus = { backStack.add(PlusKey) }
                     )
                 }
             }

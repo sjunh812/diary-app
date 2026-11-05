@@ -61,6 +61,7 @@ object AnalyticsEvents {
             "RestoreProgressKey",
             "FileBackupKey",
             "WhatsNewKey",
+            "PlusKey",
             "LetterKey",
             "IntroKey",
             "RestoreListKey",

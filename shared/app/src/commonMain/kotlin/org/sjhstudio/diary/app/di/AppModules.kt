@@ -32,7 +32,9 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.FreePlanRepository
+import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
@@ -86,6 +88,7 @@ import org.sjhstudio.diary.feature.home.homeFeatureModule
 import org.sjhstudio.diary.feature.insight.insightFeatureModule
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
 import org.sjhstudio.diary.feature.migration.migrationFeatureModule
+import org.sjhstudio.diary.feature.plus.plusFeatureModule
 import org.sjhstudio.diary.feature.search.searchFeatureModule
 import org.sjhstudio.diary.feature.settings.settingsFeatureModule
 import org.sjhstudio.diary.feature.trash.trashFeatureModule
@@ -112,6 +115,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     trashFeatureModule,
     backupFeatureModule,
     welcomeFeatureModule,
+    plusFeatureModule,
     module {
         single(APP_SCOPE) { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
@@ -266,6 +270,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             )
         }
         single<PlanRepository> { FreePlanRepository() }
+        single<PurchaseRepository> { NoPurchases() }
         // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾는다.
         single<DraftRepository> {
             val koin = getKoin()

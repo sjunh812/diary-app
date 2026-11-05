@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plus_title">More room with Plus</string>
+    <string name="plus_subtitle">Everything you use today stays free.</string>
+    <string name="plus_close">Close</string>
+    <string name="plus_restore">Restore</string>
+    <string name="plus_ads_title">No ads</string>
+    <string name="plus_ads_body">Ads disappear from home, your review, and after saving</string>
+    <string name="plus_photos_title">30 photos per entry</string>
+    <string name="plus_photos_body">Free entries can hold up to 10</string>
+    <string name="plus_stats_title">Deeper stats</string>
+    <string name="plus_stats_body">Moods by weekday, monthly flow, and a year in review</string>
+    <string name="plus_price">%1$s a year</string>
+    <string name="plus_start">Start for %1$s a year</string>
+    <string name="plus_notice">Payment is charged to your store account and renews every year automatically. You can cancel in the store up to 24 hours before renewal.</string>
+    <string name="plus_retry">Try again</string>
+    <string name="plus_no_store">Couldn't load the price. Please check your connection.</string>
+    <string name="plus_failed">Payment wasn't completed and you weren't charged. Please try again.</string>
+    <string name="plus_restored">Purchase restored</string>
+    <string name="plus_restore_none">No purchases to restore</string>
+    <string name="plus_ad_free_owned">You already have ad removal.</string>
+    <string name="plus_other_store">Purchases don't carry over between Android and iPhone.</string>
+    <string name="plus_manage_top">Plus</string>
+    <string name="plus_manage_title">You're on Plus</string>
+    <string name="plus_manage_store">Manage subscription</string>
+    <string name="plus_manage_note">If you cancel, your entries and photos stay right where they are.</string>
+    <string name="adfree_title">Remove ads?</string>
+    <string name="adfree_body">Pay once and stay ad-free.</string>
+    <string name="adfree_price">%1$s once</string>
+    <string name="adfree_buy">Buy</string>
+    <string name="adfree_close">Close</string>
+</resources>

@@ -94,8 +94,8 @@ def group(items):
 
 
 class Comp:
-    def __init__(self, name, frames):
-        self.name, self.frames, self.layers = name, frames, []
+    def __init__(self, name, frames, out=OUT, w=W, h=H):
+        self.name, self.frames, self.layers, self.out, self.w, self.h = name, frames, [], out, w, h
 
     def layer(self, name, shapes, anchor=(0, 0), pos=None, scale=None, opacity=None, rotation=None):
         """나중에 더한 층이 아래로 간다."""
@@ -108,9 +108,9 @@ class Comp:
         })
 
     def save(self):
-        data = {"v": "5.7.4", "fr": FPS, "ip": 0, "op": self.frames, "w": W, "h": H, "nm": self.name, "ddd": 0, "assets": [],
+        data = {"v": "5.7.4", "fr": FPS, "ip": 0, "op": self.frames, "w": self.w, "h": self.h, "nm": self.name, "ddd": 0, "assets": [],
                 "layers": self.layers}
-        with open(os.path.join(OUT, f"{self.name}.json"), "w") as f:
+        with open(os.path.join(self.out, f"{self.name}.json"), "w") as f:
             json.dump(data, f, separators=(",", ":"))
 
 
@@ -217,6 +217,28 @@ def backup():
     c.save()
 
 
+def plus():
+    """결제 화면 머리 그림. 광고가 접혀 사라지고, 사진이 쌓이고, 통계 막대가 오른다."""
+    c = Comp("plus_benefits", 84, "shared/feature/plus/src/commonMain/composeResources/files", 350, 172)
+    for i, (x, h, start) in enumerate([(232, 36, 44), (258, 58, 50), (284, 82, 56)]):
+        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 18, h, 6), fill("@accent")])], anchor=(0, 0), pos=static([x, 128, 0]),
+                scale=keys([(start, [100, 0, 100]), (start + 16, [100, 100, 100])]))
+    for i, (x, r, start) in enumerate([(150, -8, 22), (162, 4, 30), (174, 12, 38)]):
+        c.layer(f"사진 {i + 1}", [
+            *image_icon(0, 0, 24, "@accent"),
+            group([rect(0, 0, 58, 58, 12), stroke("@line", 1), fill("@surface")]),
+        ], pos=static([x, 86, 0]), scale=pop(start, start + 14), opacity=keys([(start, 0), (start + 4, 100)], LINEAR),
+            rotation=static(r))
+    c.layer("광고", [
+        group([path("M 42 76 L 82 76"), stroke("@line", 6)]),
+        group([path("M 42 92 L 70 92"), stroke("@line", 6)]),
+        group([rect(62, 86, 64, 56, 12), stroke("@line", 1), fill("@surface")]),
+    ], anchor=(62, 86), scale=keys([(0, [100, 100, 100]), (10, [100, 100, 100]), (24, [78, 78, 100])]),
+        opacity=keys([(0, 100), (10, 100), (24, 35)], LINEAR))
+    c.save()
+
+
 if __name__ == "__main__":
     write_lines()
     backup()
+    plus()
