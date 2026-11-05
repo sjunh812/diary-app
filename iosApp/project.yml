@@ -52,8 +52,8 @@ targets:
         CFBundleDevelopmentRegion: en
         # Face ID로 잠금을 열 때 처음 한 번 묻는 글. 언어별 InfoPlist.strings가 바꾼다.
         NSFaceIDUsageDescription: Use Face ID to unlock your diary.
-        # 장소 시트의 현재 위치 가져오기를 누를 때만 묻는다.
-        NSLocationWhenInUseUsageDescription: Reads your location only when you tap Use current location, to find your neighborhood name.
+        # 장소 시트의 내 위치 가져오기를 누를 때만 묻는다.
+        NSLocationWhenInUseUsageDescription: Reads your location only when you tap Use my location, to find your neighborhood name.
         # 설정 앱의 앱별 언어에 세 언어를 올린다(docs/design.md 여러 언어).
         CFBundleLocalizations:
           - en

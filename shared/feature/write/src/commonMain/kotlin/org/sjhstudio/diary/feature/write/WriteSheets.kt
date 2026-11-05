@@ -166,8 +166,11 @@ internal fun PlaceSheet(
     LaunchedEffect(found) {
         if (found != null) text = found.take(MAX_PLACE)
     }
-    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.write_place)) {
-        BasicText(stringResource(Res.string.write_place_body), style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
+    DiaryBottomSheet(
+        onDismiss = onDismiss,
+        title = stringResource(Res.string.write_place),
+        description = stringResource(Res.string.write_place_body)
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
             PlaceField(text, onChange = { text = it.take(MAX_PLACE) })
             CurrentPlace(locating, onLocate, onOpenSettings)
@@ -281,7 +284,7 @@ private fun PlaceChips(title: String, places: List<String>, onPick: (String) -> 
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
         ) {
-            for (place in places) DiaryChip(place, selected = false, onClick = { onPick(place) }, leadingIcon = DiaryIcons.Pin)
+            for (place in places) DiaryChip(place, selected = false, onClick = { onPick(place) })
         }
     }
 }
@@ -299,11 +302,11 @@ private fun SheetButtons(secondary: String, onSecondary: () -> Unit, primary: St
 internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: () -> Unit, onDiscard: () -> Unit) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
-    DiaryBottomSheet(onDismiss = onContinue, title = stringResource(Res.string.write_resume_title)) {
-        BasicText(
-            stringResource(Res.string.write_resume_body, dates.fullDate(offer.date), dates.time(offer.time)),
-            style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
-        )
+    DiaryBottomSheet(
+        onDismiss = onContinue,
+        title = stringResource(Res.string.write_resume_title),
+        description = stringResource(Res.string.write_resume_body, dates.fullDate(offer.date), dates.time(offer.time))
+    ) {
         BasicText(
             offer.preview,
             modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x4),

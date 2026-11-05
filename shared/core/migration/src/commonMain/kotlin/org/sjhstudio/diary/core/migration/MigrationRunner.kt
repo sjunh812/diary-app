@@ -188,7 +188,7 @@ class MigrationRunner(
                 PhotoPaths.candidates(f).map { sizeOf(it.toPath()) }.firstOrNull { it > 0 }
                     ?: 0
             }
-            val copyNeed = legacyBytes + photoBytes + fragments.size * THUMBNAIL_BYTES + MARGIN_BYTES
+            val copyNeed = legacyBytes + photoBytes + fragments.size * THUMBNAIL_BYTES + MARGIN_BYTES + cacheGuard(photoBytes)
             val freeForCopy = freeBytes(paths.mediaDir.parent ?: paths.mediaDir)
             if (freeForCopy < copyNeed) {
                 return fail(step, MigrationFailureKind.NO_SPACE, attempt, copyNeed - freeForCopy)
@@ -507,8 +507,9 @@ class MigrationRunner(
         val missing = notes.filter { it.id.toInt() !in known }
         val fragments = missing.flatMap { PhotoPaths.fragments(it.picture) }
         val need =
-            fragments.distinct().sumOf { f -> PhotoPaths.candidates(f).map { sizeOf(it.toPath()) }.firstOrNull { it > 0 } ?: 0 } +
-                MARGIN_BYTES
+            fragments.distinct().sumOf { f -> PhotoPaths.candidates(f).map { sizeOf(it.toPath()) }.firstOrNull { it > 0 } ?: 0 }.let {
+                it + MARGIN_BYTES + cacheGuard(it)
+            }
         val free = freeBytes(paths.mediaDir.parent ?: paths.mediaDir)
         if (free < need) return@withContext MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.NO_SPACE, need - free)
         try {
@@ -733,7 +734,15 @@ class MigrationRunner(
 
     private class CopiedRow(val mapped: MappedEntry, val photos: List<ImportedPhoto>)
 
+    /**
+     * 옛 사진은 캐시에 있다. 공간이 빠듯해지면 OS가 복사하는 도중에도 캐시를 지운다(2026-11-05 1만 2천 편 시험에서 55장 유실).
+     * 복사한 뒤에도 그 선 위에 남을 때만 시작하고, 아니면 사용자가 공간을 비우고 다시 하게 멈춘다.
+     */
+    private fun cacheGuard(photoBytes: Long): Long = if (photoBytes > 0) CACHE_GUARD_BYTES else 0
+
     private companion object {
+        const val CACHE_GUARD_BYTES = 1024L * 1024 * 1024
+
         /** 한 트랜잭션에 쓰는 줄 수(contracts/migration-flow.md Copying). */
         const val CHUNK = 200
 

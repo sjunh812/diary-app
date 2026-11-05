@@ -271,23 +271,29 @@ internal fun PlusManageScreen(onBack: () -> Unit, onStore: () -> Unit, onRestore
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.plus_manage_top), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
+            // 결제 화면과 같은 간격이다. 제목 16, 혜택 사이 12, 안내 16이고 아래 줄과는 24를 둔다.
             Column(
-                Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+                Modifier.padding(
+                    start = DiarySpacing.screenCompact,
+                    end = DiarySpacing.screenCompact,
+                    top = DiarySpacing.x2,
+                    bottom = DiarySpacing.x6
+                ),
+                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
             ) {
                 BasicText(stringResource(Res.string.plus_manage_title), style = typography.title1.copy(color = colors.textPrimary))
-                listOf(Res.string.plus_ads_title, Res.string.plus_photos_title, Res.string.plus_stats_title).forEach { item ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
-                        DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = colors.accent)
-                        BasicText(stringResource(item), style = typography.reading.copy(color = colors.textPrimary))
-                    }
+                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                    Benefit(Res.string.plus_ads_title)
+                    Benefit(Res.string.plus_photos_title)
+                    Benefit(Res.string.plus_stats_title)
                 }
+                BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
             }
             DiarySettingsRow(stringResource(Res.string.plus_manage_store), onClick = onStore)
             DiarySettingsRow(stringResource(Res.string.plus_restore), onClick = onRestore)
             BasicText(
                 stringResource(Res.string.plus_manage_note),
-                Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
+                Modifier.padding(start = DiarySpacing.screenCompact, end = DiarySpacing.screenCompact, top = DiarySpacing.x2),
                 style = typography.caption.copy(color = colors.textSecondary)
             )
         }

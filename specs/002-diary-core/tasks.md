@@ -207,9 +207,9 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ---
 
-## Phase 11: 현재 위치 가져오기 (2026-11-05 사용자 결정)
+## Phase 11: 내 위치 가져오기 (2026-11-05 사용자 결정)
 
-- [x] T077 Figma "쓰기 상태"의 "S2 · 장소"에 [현재 위치 가져오기] 칩과 찾는 중, 권한 없음, 찾지 못함 상태를 그린다
+- [x] T077 Figma "쓰기 상태"의 "S2 · 장소"에 [내 위치 가져오기] 칩과 찾는 중, 권한 없음, 찾지 못함 상태를 그린다
 - [x] T078 [P] 위치 찾기 결과와 글자 만들기 시험 `shared/core/platform/src/commonTest/`, `shared/feature/write/src/commonTest/`
 - [x] T079 위치를 읽어 동네 이름으로 바꾸는 `PlaceFinder`(Android Fused + Geocoder, iOS CoreLocation + CLGeocoder) `shared/core/platform/`
 - [x] T080 장소 시트 칩과 권한 요청 `shared/feature/write/`, 권한 선언 `composeApp/src/main/AndroidManifest.xml`, `iosApp/project.yml`

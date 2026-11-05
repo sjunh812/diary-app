@@ -97,7 +97,7 @@ import org.sjhstudio.diary.feature.calendar.resources.calendar_next_month
 import org.sjhstudio.diary.feature.calendar.resources.calendar_previous_month
 import org.sjhstudio.diary.feature.calendar.resources.calendar_today
 import org.sjhstudio.diary.feature.calendar.resources.calendar_write_on_day
-import org.sjhstudio.diary.feature.calendar.resources.tip_calendar_face
+import org.sjhstudio.diary.feature.calendar.resources.tip_calendar_date
 
 private const val DAYS_IN_WEEK = 7
 
@@ -192,7 +192,7 @@ internal fun CalendarPanel(
     onMove: (Int) -> Unit
 ) {
     val nav: @Composable () -> Unit = { MonthNav(shown < lastMonth, showToday, onToday, onMove) }
-    ContextTipBar(ContextTip.CALENDAR_FACE, stringResource(Res.string.tip_calendar_face))
+    ContextTipBar(ContextTip.CALENDAR_FACE, stringResource(Res.string.tip_calendar_date))
     Column(Modifier.padding(horizontal = DiarySpacing.screenCompact)) {
         if (twoPane) {
             Row(Modifier.fillMaxWidth().padding(top = DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {

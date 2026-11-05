@@ -5,7 +5,6 @@ enum class WelcomeStep { LETTER, ONBOARDING_UPDATED, ONBOARDING_NEW, DONE }
 
 /** 처음 만날 때 한 번 보이는 팁. [id]가 저장 값이다. */
 enum class ContextTip(val id: String) {
-    WRITE_TOOLS("write_tools"),
     CALENDAR_FACE("calendar_face")
 }
 

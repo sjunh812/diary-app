@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,11 +33,13 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +58,9 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -71,6 +78,8 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberCameraPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.readBytes
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.StringResource
@@ -90,13 +99,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
-import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
 import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
-import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.icon
@@ -104,7 +111,6 @@ import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
-import org.sjhstudio.diary.feature.write.resources.tip_write_tools
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
 import org.sjhstudio.diary.feature.write.resources.write_camera
 import org.sjhstudio.diary.feature.write.resources.write_close
@@ -154,6 +160,8 @@ internal class WriteActions(
 
 private enum class Sheet { Mood, Weather, Place, DateTime }
 
+private const val KEYBOARD_HIDE_MILLIS = 400L
+
 /**
  * 쓰기 화면(Figma "쓰기 (S2)"). 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순서다.
  * 폭 840부터는 본문을 가운데 두고 기분·날씨·사진·장소를 옆 칸으로 옮긴다.
@@ -165,6 +173,23 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val colors = DiaryTheme.colors
     var sheet by remember { mutableStateOf<Sheet?>(null) }
     val locationAccess = rememberLocationAccess()
+    // 키보드가 내려가는 동안 시트가 뜨면 키보드 높이에 맞춰 떴다가 출렁인다. 키보드를 먼저 내리고 띄운다.
+    val focus = LocalFocusManager.current
+    val softKeyboard = LocalSoftwareKeyboardController.current
+    val density = LocalDensity.current
+    val imeInsets = WindowInsets.ime
+    var nextSheet by remember { mutableStateOf<Sheet?>(null) }
+    val openSheet = { target: Sheet ->
+        focus.clearFocus()
+        softKeyboard?.hide()
+        nextSheet = target
+    }
+    LaunchedEffect(nextSheet) {
+        val target = nextSheet ?: return@LaunchedEffect
+        withTimeoutOrNull(KEYBOARD_HIDE_MILLIS) { snapshotFlow { imeInsets.getBottom(density) }.first { it == 0 } }
+        sheet = target
+        nextSheet = null
+    }
     var askDiscard by remember { mutableStateOf(false) }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
     (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
@@ -190,25 +215,25 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     BoxWithConstraints(modifier.then(keyboard).fillMaxSize().background(colors.canvas).systemBarsPadding().imePadding()) {
         val wide = maxWidth >= DiaryWriteSize.twoPaneMin
         Column(Modifier.fillMaxSize()) {
-            TopRow(state, onClose = vm::close, onDate = { sheet = Sheet.DateTime }, onSave = vm::save)
+            TopRow(state, onClose = vm::close, onDate = { openSheet(Sheet.DateTime) }, onSave = vm::save)
             if (wide) {
                 Row(Modifier.weight(1f).fillMaxWidth()) {
                     Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Editor(actions.rich, bodyStyle, Modifier.weight(1f).widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth())
-                        ContextTipBar(ContextTip.WRITE_TOOLS, stringResource(Res.string.tip_write_tools))
                         tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
                     }
                     Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
-                    SidePanel(state, actions, onPick = { pick.launch() }, onPlace = { sheet = Sheet.Place })
+                    SidePanel(state, actions, onPick = { pick.launch() }, onPlace = { openSheet(Sheet.Place) })
                 }
             } else {
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                    Chips(state, onMood = { sheet = Sheet.Mood }, onWeather = { sheet = Sheet.Weather }, onPlace = { sheet = Sheet.Place })
+                    Chips(state, onMood = {
+                        openSheet(Sheet.Mood)
+                    }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
                     if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { pick.launch() })
                     Notices(state)
                     Editor(actions.rich, bodyStyle, Modifier.fillMaxWidth())
                 }
-                ContextTipBar(ContextTip.WRITE_TOOLS, stringResource(Res.string.tip_write_tools))
                 tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
             }
         }
@@ -371,13 +396,12 @@ private fun Notices(state: WriteUiState) {
 /** 사진 한도 시트(Figma P3). 고른 사진과 글은 그대로라고 먼저 말하고, 쓰는 일을 막지 않는다. */
 @Composable
 private fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Unit) {
-    val colors = DiaryTheme.colors
-    DiaryBottomSheet(onDismiss, title = stringResource(Res.string.write_limit_title, limit)) {
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-            BasicText(
-                stringResource(Res.string.write_limit_body, PhotoLimit.PLUS),
-                style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
-            )
+    DiaryBottomSheet(
+        onDismiss,
+        title = stringResource(Res.string.write_limit_title, limit),
+        description = stringResource(Res.string.write_limit_body, PhotoLimit.PLUS)
+    ) {
+        Column(Modifier.fillMaxWidth().padding(top = DiarySpacing.x1), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
             Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                 DiaryButton(
                     stringResource(Res.string.write_limit_later),

@@ -221,7 +221,7 @@ object DiaryIcons {
         )
     }
     val Locate: ImageVector by lazy {
-        lucide("locate", "M2 12L5 12", "M19 12L22 12", "M12 2L12 5", "M12 19L12 22", "M5 12a7 7 0 1 0 14 0a7 7 0 1 0 -14 0")
+        lucide("navigation", "M3 11L22 2L13 21L11 13Z")
     }
     val More: ImageVector by lazy {
         lucide(

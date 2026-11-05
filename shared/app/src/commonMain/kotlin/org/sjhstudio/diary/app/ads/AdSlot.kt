@@ -77,9 +77,15 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
         AdSheet.Remove -> AdFreeSheet(onDismiss = { sheet = null }, onDayOff = { sheet = AdSheet.Reward })
 
         AdSheet.Reward ->
-            DiaryBottomSheet({ sheet = null }, title = stringResource(Res.string.reward_title)) {
-                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-                    BasicText(stringResource(Res.string.reward_body), style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
+            DiaryBottomSheet(
+                { sheet = null },
+                title = stringResource(Res.string.reward_title),
+                description = stringResource(Res.string.reward_body)
+            ) {
+                Column(
+                    Modifier.fillMaxWidth().padding(top = DiarySpacing.x1),
+                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
+                ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                         DiaryButton(
                             stringResource(Res.string.reward_close),

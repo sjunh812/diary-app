@@ -43,6 +43,7 @@ fun DiaryBottomSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     title: String? = null,
+    description: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
@@ -75,7 +76,15 @@ fun DiaryBottomSheet(
                         .clip(DiaryShapes.full)
                         .background(colors.lineStrong)
                 )
-                if (title != null) BasicText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
+                // 제목과 설명은 한 묶음이라 다른 내용보다 가깝게 둔다.
+                if (title != null) {
+                    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                        BasicText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
+                        if (description != null) {
+                            BasicText(text = description, style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
+                        }
+                    }
+                }
                 content()
             }
         }

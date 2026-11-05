@@ -537,7 +537,7 @@ iOS 화면을 같이 만들 수 없다. 플러그인은 앱에 실제로 들어�
 
 ## 2026-11-05 현재 위치는 누를 때만 가져온다 (사용자 결정)
 
-- 자동 추적 대신 장소 시트에 [현재 위치 가져오기]를 둔다. 일기를 열 때 위치를 읽지 않는다. Day One도 자동 위치는 켜야 작동하는 설정이다([안내](https://dayoneapp.com/guides/settings/automatically-add-your-location-to-new-entries/)).
+- 자동 추적 대신 장소 시트에 [내 위치 가져오기]를 둔다. 일기를 열 때 위치를 읽지 않는다. Day One도 자동 위치는 켜야 작동하는 설정이다([안내](https://dayoneapp.com/guides/settings/automatically-add-your-location-to-new-entries/)).
 - 동네 이름은 키가 필요 없는 기기 지오코더로 찾는다. iOS의 CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API(MKReverseGeocodingRequest)가 iOS 26부터라 지금 최소 버전 17에서는 CLGeocoder를 쓴다([Apple](https://developer.apple.com/documentation/mapkit/mkreversegeocoder.md)).
 - 권한은 정확한 위치와 대략 위치를 함께 묻는다. 안드로이드의 대략 위치는 약 3제곱킬로미터 단위라([Android](https://developer.android.com/develop/sensors-and-location/location/permissions)) 동네 이름이 옆 동으로 틀어질 수 있어서다. 사용자가 시스템 창에서 대략을 골라도 그대로 쓴다. 1.7.4도 두 권한을 썼다.
 - 안드로이드는 Google이 권하는 Fused Location Provider로 누를 때 한 번만 읽는다. 전력 균형 설정은 에뮬레이터에서 위치를 받지 못해 정확도 우선으로 두고 8초로 끊는다([문서](https://developers.google.com/android/reference/com/google/android/gms/location/FusedLocationProviderClient)). play-services-location은 무료다.

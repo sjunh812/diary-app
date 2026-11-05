@@ -3,7 +3,6 @@ package org.sjhstudio.diary.feature.lock
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
@@ -14,7 +13,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
 import org.sjhstudio.diary.core.designsystem.resources.ds_close
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
-import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.forgot_body
 import org.sjhstudio.diary.feature.lock.resources.forgot_confirm
@@ -29,15 +27,11 @@ import org.sjhstudio.diary.feature.lock.resources.forgot_title
  */
 @Composable
 fun ForgotPinSheet(deviceSecure: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
-    val colors = DiaryTheme.colors
     DiaryBottomSheet(
         onDismiss = onDismiss,
-        title = stringResource(if (deviceSecure) Res.string.forgot_title else Res.string.forgot_no_device_lock_title)
+        title = stringResource(if (deviceSecure) Res.string.forgot_title else Res.string.forgot_no_device_lock_title),
+        description = stringResource(if (deviceSecure) Res.string.forgot_body else Res.string.forgot_no_device_lock_body)
     ) {
-        BasicText(
-            stringResource(if (deviceSecure) Res.string.forgot_body else Res.string.forgot_no_device_lock_body),
-            style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
-        )
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             DiaryButton(
                 stringResource(DsRes.string.ds_close),

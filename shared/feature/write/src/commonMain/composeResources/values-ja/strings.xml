@@ -54,7 +54,6 @@
     <string name="write_place_restaurant">レストラン</string>
     <string name="write_place_park">公園</string>
     <string name="write_place_trip">旅行先</string>
-    <string name="tip_write_tools">文字色と蛍光ペンはここにあります</string>
     <string name="write_limit_title">写真は1件に%1$d枚までです</string>
     <string name="write_limit_body">Plusなら%1$d枚まで入れられます。選んだ写真と書いた文はそのままです。</string>
     <string name="write_limit_plus">Plusを見る</string>

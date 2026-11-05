@@ -6,7 +6,7 @@
 # 순서: 지우기 → 1.7.4 깔고 한 번 열기 → seed.sh → 원본 해시 → 새 APK 덮어 설치 → 열기 → 이전 끝 기다리기 → 확인.
 # 확인: 원본 다섯 파일의 SHA-256이 전후로 같은지, 새 DB의 일기·사진 수, 남은 파일.
 # 새 앱은 한국어로 연다. APP_LOCALE=ja-JP처럼 주면 그 언어로 연다(Android 13 이상, 그 아래는 기기 언어, docs/design.md 여러 언어).
-# COUNT=1000: 사진이 한 장씩 든 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본).
+# COUNT=1000: 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본). PHOTO_EVERY=3이면 세 편마다 사진 한 장이다. WAIT=1800으로 이전을 기다리는 초를 늘린다.
 # KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3). Snapshotting, Verifying, Committing도 된다.
 # INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050). 먼저 :composeApp:assembleDebugAndroidTest.
 # LOCK=0427: 1.7.4에 그 비밀번호로 잠금을 켜 두고(seed.sh), 새 앱이 잠금 화면부터 띄우는지와 잠긴 동안 이전이 시작되지 않는지 본 뒤
@@ -37,7 +37,7 @@ hash_originals() {
 
 adb uninstall $PKG >/dev/null 2>&1 || true
 adb install "$LEGACY_APK" >/dev/null
-adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
 sleep 6
 sh "$ROOT/scripts/legacy/seed.sh"
 hash_originals > "$WORK/before"
@@ -85,7 +85,7 @@ unlock() {
   fi
 }
 START=$(date +%s)
-adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
 if [ -n "${LOCK:-}" ]; then unlock; fi
 if [ -n "${KILL_AT:-}" ]; then
   # 훅이 그 단계에 들어서며 프로세스를 끝낸다. 끊긴 것을 본 뒤 다시 연다.
@@ -95,13 +95,13 @@ if [ -n "${KILL_AT:-}" ]; then
     sleep 1
   done
   echo "끊김: $(adb shell run-as $PKG cat files/migration/state.json)"
-  adb shell monkey -p $PKG -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
+  adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
   # 프로세스가 새로 시작했으니 다시 잠겨 있다.
   if [ -n "${LOCK:-}" ]; then unlock; fi
 fi
 i=0
 until adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -qE '"step":"(Done|Partial|Failed)"'; do
-  i=$((i + 1)); [ $i -gt 600 ] && { echo "이전이 10분 안에 끝나지 않았어요" >&2; exit 1; }
+  i=$((i + 1)); [ $i -gt "${WAIT:-600}" ] && { echo "이전이 ${WAIT:-600}초 안에 끝나지 않았어요" >&2; exit 1; }
   sleep 1
 done
 echo "이전 끝: $(( $(date +%s) - START ))초, $(adb shell run-as $PKG cat files/migration/state.json)"

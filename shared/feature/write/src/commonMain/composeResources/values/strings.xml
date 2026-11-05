@@ -54,12 +54,11 @@
     <string name="write_place_restaurant">Restaurant</string>
     <string name="write_place_park">Park</string>
     <string name="write_place_trip">Trip</string>
-    <string name="tip_write_tools">Text color and highlight are here</string>
     <string name="write_limit_title">Up to %1$d photos per entry</string>
     <string name="write_limit_body">Plus lets you add up to %1$d. Your photos and writing stay as they are.</string>
     <string name="write_limit_plus">See Plus</string>
     <string name="write_limit_later">Not now</string>
-    <string name="write_place_current">Use current location</string>
+    <string name="write_place_current">Use my location</string>
     <string name="write_place_finding">Finding location</string>
     <string name="write_place_denied">Allow location access to use this.</string>
     <string name="write_place_off">Location is turned off on this device.</string>

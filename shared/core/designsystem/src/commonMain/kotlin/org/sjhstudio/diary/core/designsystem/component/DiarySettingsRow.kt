@@ -98,6 +98,14 @@ fun DiarySettingsRow(
     }
 }
 
+/** 값만 보여 주는 줄. 누를 수 없어서 화살표를 그리지 않는다. */
+@Composable
+fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier) {
+    RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
+        BasicText(text = value, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary), maxLines = 1)
+    }
+}
+
 /** 오른쪽에 스위치가 있는 줄. 줄 전체가 누르는 곳이다. */
 @Composable
 fun DiarySettingsSwitchRow(

@@ -96,7 +96,7 @@ data class WriteUiState(
     override fun toString(): String = "WriteUiState"
 }
 
-/** 장소 시트의 현재 위치 가져오기 상태. */
+/** 장소 시트의 내 위치 가져오기 상태. */
 sealed interface PlaceLocating {
     data object Idle : PlaceLocating
 

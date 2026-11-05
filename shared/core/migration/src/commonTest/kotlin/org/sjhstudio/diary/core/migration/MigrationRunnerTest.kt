@@ -262,6 +262,22 @@ class MigrationRunnerTest {
     }
 
     @Test
+    fun photos_wait_when_copying_would_leave_the_cache_at_risk() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val photo = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$photo,"))).close()
+            // 복사할 자리는 충분하지만 OS가 캐시를 지우기 시작하는 선에 가깝다.
+            env.free = 500L * 1024 * 1024
+
+            val failed = assertIs<MigrationResult.Failed>(env.runner().run())
+
+            assertEquals(MigrationFailureKind.NO_SPACE, failed.kind)
+            assertTrue(dir.fs.exists(photo))
+        }
+    }
+
+    @Test
     fun failure_keeps_photo_copies_and_snapshot() = runTest {
         TempDir().use { dir ->
             val env = Env(dir)
