@@ -25,11 +25,11 @@ import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.welcome.resources.Res
 
 private const val WRITE_FILE = "files/onboarding_write.json"
-private const val WRITE_MILLIS = 4_900
+private const val WRITE_MILLIS = 3_300
 private const val BACKUP_FILE = "files/onboarding_backup.json"
 private const val BACKUP_MILLIS = 3_200
 
-/** 쓰는 그림. 기분을 고르고, 낱말을 하나씩 쓰고, 저장한다. 글자가 없어 언어를 타지 않는다. */
+/** 쓰는 그림. 기분을 고르고, 글을 쓰고, 저장한다. 글자가 없어 언어를 타지 않는다. */
 @Composable
 internal fun WriteArt(active: Boolean, modifier: Modifier = Modifier) = LottieArt(WRITE_FILE, WRITE_MILLIS, active, modifier)
 

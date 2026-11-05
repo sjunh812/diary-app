@@ -145,36 +145,38 @@ def image_icon(cx, cy, size, color):
     ]
 
 
-def write():
-    """실제 문장의 글자 수로 낱말 길이를 잡고, 낱말을 하나씩 쓴다. 낱말 사이에서 펜을 잠깐 든다."""
-    # "오늘은 바람이 선선해서 한강까지 / 천천히 걸었다."의 글자 수다.
-    sentence = [(104, [3, 3, 4, 4]), (128, [3, 3])]
-    syllable, space, left = 13, 6, 36  # 본문 글자 한 칸과 띄어쓰기의 폭
-    speed = 100 / FPS  # 프레임마다 나아가는 거리. 사람이 쓰는 속도다.
-    words, frame, pen = [], 18, []
-    for y, counts in sentence:
-        x = left
-        for count in counts:
-            x2 = x + syllable * count
-            end = frame + (x2 - x) / speed
-            words.append((x, x2, y, frame, end))
-            pen += [(frame, [x, y, 0]), (end, [x2, y, 0])]
-            x, frame = x2 + space, end + 5
-        frame += 5
-    finish = frame - 10
-    c = Comp("onboarding_write", round(finish + 20))
-    check(240, 158, 14, c, finish + 4, finish + 18)
-    # 펜 끝(왼쪽 아래)이 글자 끝에 닿게 둔다.
-    c.layer("펜", [group([path(PEN, 0.9, -4.5, -17.1), fill("@accent")])],
-            pos=keys(pen, LINEAR), opacity=keys([(14, 0), (18, 100), (finish, 100), (finish + 4, 0)]))
-    for n, (x1, x2, y, a, b) in enumerate(words):
-        c.layer(f"낱말 {n + 1}", [group([
+def pen_layer(c, points, start, finish, k=1.5):
+    """펜 끝(왼쪽 아래)이 글 끝에 닿게 둔다. 레퍼런스처럼 펜을 큼직하게 그린다."""
+    c.layer("펜", [group([path(PEN, k, -5 * k, -19 * k), fill("@accent")])],
+            pos=keys(points, LINEAR), opacity=keys([(start - 4, 0), (start, 100), (finish, 100), (finish + 4, 0)]))
+
+
+def card(c):
+    c.layer("얼굴", [*face(54, 56, 18)], anchor=(54, 56), scale=pop(0, 14))
+    c.layer("카드", [group([rect(144, 104, 270, 176, 16), stroke("@line", 1), fill("@surface")])])
+
+
+def write_lines():
+    """공책 줄처럼 긴 줄 둘을 넓게 둔다. 낱말로 쪼개지 않는다."""
+    speed = 200 / FPS  # 1초에 200. 330은 급하고 110은 늘어졌다.
+    lines = [(36, 252, 106), (36, 164, 136)]
+    frame, pen, spans = 18.0, [], []
+    for x1, x2, y in lines:
+        end = frame + (x2 - x1) / speed
+        spans.append((x1, x2, y, frame, end))
+        pen += [(frame, [x1, y, 0]), (end, [x2, y, 0])]
+        frame = end + 8
+    finish = frame - 8
+    c = Comp("onboarding_write", round(finish + 22))
+    check(240, 156, 14, c, finish + 6, finish + 20)
+    pen_layer(c, pen, 18, finish)
+    for n, (x1, x2, y, a, b) in enumerate(spans):
+        c.layer(f"줄 {n + 1}", [group([
             path(f"M {x1} {y} L {x2} {y}"),
             {"ty": "tm", "s": static(0), "e": keys([(a, 0), (b, 100)], LINEAR), "o": static(0), "m": 1},
-            stroke("@textTertiary", 6, 45),
+            stroke("@textTertiary", 5, 50),
         ])])
-    c.layer("얼굴", [*face(54, 60, 18)], anchor=(54, 60), scale=pop(0, 14))
-    c.layer("카드", [group([rect(144, 104, 270, 176, 16), stroke("@line", 1), fill("@surface")])])
+    card(c)
     c.save()
 
 
@@ -211,5 +213,5 @@ def backup():
 
 
 if __name__ == "__main__":
-    write()
+    write_lines()
     backup()
