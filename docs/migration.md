@@ -32,6 +32,7 @@
 
 - 사진은 앱 저장소가 아니라 **캐시 폴더**에 있다. 자르기 라이브러리(CanHub 4.2.1)의 `getUriFilePath(context, true)`가 `context.cacheDir/temp_file_yyyyMMdd_HHmmss.<확장자>`로 복사한 경로를 DB에 그대로 넣는다(`MainActivity.cropImageActivityResult`, 라이브러리 `GetFilePathFromUri.kt`). 1.5.6(2022-04)부터 이렇다.
 - 캐시는 저장 공간이 모자라면 OS가 지우고, 사용자가 "캐시 삭제"를 누르면 다 지워진다. 이미 사라진 사진이 있을 수 있다.
+- 2026-11-05 시험: 여유가 약 600MB인 기기에서 이전 복사 도중 OS가 캐시를 비워 사진 55장을 잃었다. 그래서 사진이 있으면 복사 뒤 1GB가 남을 때만 시작한다(1GB는 시험에서 정한 값이고 OS 공식 기준이 아니다).
 - 파일 이름이 초 단위라 같은 초에 두 장을 넣으면 뒤 사진이 앞 사진을 덮는다.
 - 백업은 사진을 올리지 않고 복원은 기기의 사진을 지운다고 안내한다(`BackupActivity.startRestoreDialog`). 다른 기기에서 복원한 일기의 `picture`는 그 기기에 없는 경로를 가리킨다.
 
