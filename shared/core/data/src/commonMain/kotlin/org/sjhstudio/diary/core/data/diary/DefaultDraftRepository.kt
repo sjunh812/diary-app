@@ -29,7 +29,7 @@ class DefaultDraftRepository(
     private val db: DiaryDatabase,
     private val photos: PhotoStore,
     private val clock: Clock = Clock.System,
-    /** 한 편에 새로 붙일 수 있는 사진 수. Plus가 생기면 결제 상태로 바꾼다. */
+    /** 한 편에 새로 붙일 수 있는 사진 수. 지금 요금제를 따른다. */
     private val photoLimit: () -> Int = { PhotoLimit.FREE }
 ) : DraftRepository {
     private val drafts get() = db.draftDao()

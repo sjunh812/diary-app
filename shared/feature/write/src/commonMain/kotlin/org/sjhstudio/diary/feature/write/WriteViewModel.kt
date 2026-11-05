@@ -25,6 +25,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.DraftRepository
 import org.sjhstudio.diary.core.data.diary.canSave
@@ -38,6 +39,7 @@ import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.PickedImage
+import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.platform.FontInstaller
 
@@ -109,8 +111,15 @@ class WriteViewModel(
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
     private val mediaPath: (String) -> String = { it },
     settings: SettingsRepository? = null,
-    private val fonts: FontInstaller? = null
+    private val fonts: FontInstaller? = null,
+    plans: PlanRepository? = null
 ) : ViewModel() {
+    /** 한 편에 넣을 수 있는 사진 수. 요금제를 바꾸면 바로 따른다. */
+    val photoLimit: StateFlow<Int> =
+        (plans?.plan ?: flowOf(Plan.FREE))
+            .map { it.photoLimit }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, Plan.FREE.photoLimit)
+
     /** 본문은 고른 글꼴과 글자 크기로 보인다(FR-014). */
     val look: StateFlow<BodyLook> =
         (settings?.settings ?: flowOf(AppSettings()))

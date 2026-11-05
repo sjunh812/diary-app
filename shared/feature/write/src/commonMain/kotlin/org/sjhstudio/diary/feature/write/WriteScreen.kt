@@ -54,6 +54,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -82,7 +83,6 @@ import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
-import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
@@ -138,7 +138,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val colors = DiaryTheme.colors
     var sheet by remember { mutableStateOf<Sheet?>(null) }
     var askDiscard by remember { mutableStateOf(false) }
-    val remaining = (PhotoLimit.FREE - state.photos.size).coerceAtLeast(1)
+    val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
+    val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
     val pick =
         rememberFilePickerLauncher(type = FileKitType.Image, mode = FileKitMode.Multiple(maxItems = remaining)) { files ->
             if (files != null) vm.addPhotos(files.map { file -> PickedImage { file.readBytes() } })
@@ -341,6 +342,7 @@ private fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> U
         }
         item {
             val interaction = remember { MutableInteractionSource() }
+            val photoLimit by actions.viewModel.photoLimit.collectAsStateWithLifecycle()
             Column(
                 Modifier
                     .size(DiaryWriteSize.photo)
@@ -353,7 +355,7 @@ private fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> U
             ) {
                 DiaryIcon(DiaryIcons.Image, stringResource(Res.string.write_add_photo), colors.textSecondary, size = DiaryIconSize.i20)
                 BasicText(
-                    stringResource(Res.string.write_photo_count, state.photos.size, PhotoLimit.FREE),
+                    stringResource(Res.string.write_photo_count, state.photos.size, photoLimit),
                     style = DiaryTheme.typography.caption.copy(color = colors.textSecondary)
                 )
             }

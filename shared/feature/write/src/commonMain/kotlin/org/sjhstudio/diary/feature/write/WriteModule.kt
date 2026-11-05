@@ -6,7 +6,7 @@ import org.koin.dsl.module
 val writeFeatureModule =
     module {
         viewModel { (target: WriteTarget) ->
-            WriteViewModel(target, get(), mediaPath = get<WriteMediaPath>()::resolve, settings = get(), fonts = get())
+            WriteViewModel(target, get(), mediaPath = get<WriteMediaPath>()::resolve, settings = get(), fonts = get(), plans = get())
         }
     }
 

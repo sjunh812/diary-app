@@ -31,6 +31,8 @@ import org.sjhstudio.diary.core.backup.RollbackManager
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
+import org.sjhstudio.diary.core.data.FreePlanRepository
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
@@ -263,7 +265,12 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 scope = get(APP_SCOPE)
             )
         }
-        single<DraftRepository> { DefaultDraftRepository(get(), get()) }
+        single<PlanRepository> { FreePlanRepository() }
+        // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾는다.
+        single<DraftRepository> {
+            val koin = getKoin()
+            DefaultDraftRepository(get(), get(), photoLimit = { koin.get<PlanRepository>().plan.value.photoLimit })
+        }
         single<StatsRepository> { DefaultStatsRepository(get()) }
         single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
         single<MediaRepository> {

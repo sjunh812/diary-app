@@ -14,6 +14,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -28,11 +29,13 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.model.AddPhotosResult
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.PickedImage
+import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
@@ -61,6 +64,20 @@ class WriteViewModelTest {
         val out = mutableListOf<WriteEvent>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(out) }
         return out
+    }
+
+    @Test
+    fun photo_limit_follows_the_plan() = runTest(dispatcher) {
+        val plans = object : PlanRepository {
+            override val plan = MutableStateFlow(Plan.FREE)
+        }
+        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
+        assertEquals(10, viewModel.photoLimit.value)
+
+        plans.plan.value = Plan.PLUS
+        advanceUntilIdle()
+
+        assertEquals(30, viewModel.photoLimit.value)
     }
 
     @Test
