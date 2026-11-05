@@ -12,6 +12,7 @@ import org.sjhstudio.diary.core.model.StatsEntry
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.advancedStats
+import org.sjhstudio.diary.core.model.mostFrequent
 
 class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
     private val entries get() = db.entryDao()
@@ -55,7 +56,7 @@ class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
 
     override fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>> =
         entries.dayMoods(LocalDate(year, 1, 1).toString(), LocalDate(year, 12, 31).toString()).map { rows ->
-            toDayMoods(rows).mapValues { it.value.mood }
+            toDayMoods(rows).mapValues { it.value.moods.mostFrequent() }
         }
 
     private companion object {

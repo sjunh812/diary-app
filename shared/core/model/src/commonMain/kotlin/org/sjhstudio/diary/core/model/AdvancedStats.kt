@@ -31,10 +31,7 @@ data class AdvancedStats(
 data class StatsEntry(val date: LocalDate, val hour: Int, val mood: Mood?, val weather: Weather?, val place: String?)
 
 fun advancedStats(rows: List<StatsEntry>): AdvancedStats {
-    fun top(group: List<StatsEntry>): TopMood {
-        val mood = group.mapNotNull { it.mood }.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key
-        return TopMood(mood, group.size)
-    }
+    fun top(group: List<StatsEntry>) = TopMood(group.mapNotNull { it.mood }.mostFrequent(), group.size)
     return AdvancedStats(
         entries = rows.size,
         daysWritten = rows.map { it.date }.distinct().size,

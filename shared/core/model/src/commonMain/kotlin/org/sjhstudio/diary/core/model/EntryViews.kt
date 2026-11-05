@@ -36,8 +36,22 @@ data class EntryDetail(val entry: Entry, val photos: List<EntryPhoto>, val keptB
 /**
  * 달력 칸과 기분 흐름. [mood]는 그날 마지막 일기의 기분이고 [count]는 편수다.
  * [previousMood]는 바로 앞 일기의 기분이고 달력에서 뒤에 겹쳐 그린다.
+ * [moods]는 그날 일기의 기분을 시간순으로 모은 것이고 통계가 센다.
  */
-data class DayMood(val date: LocalDate, val mood: Mood?, val count: Int, val previousMood: Mood? = null)
+data class DayMood(
+    val date: LocalDate,
+    val mood: Mood?,
+    val count: Int,
+    val previousMood: Mood? = null,
+    val moods: List<Mood> = listOfNotNull(mood)
+)
+
+/** 가장 많은 기분. 같은 수면 뒤에 있는 기분을 고르고, 기분이 없으면 null이다. */
+fun List<Mood>.mostFrequent(): Mood? {
+    val counts = groupingBy { it }.eachCount()
+    val most = counts.values.maxOrNull()
+    return lastOrNull { counts[it] == most }
+}
 
 /** 휴지통 한 줄. [daysLeft]는 영구 삭제까지 남은 날이다. */
 data class TrashedEntry(val row: EntryRow, val deletedAt: Instant, val daysLeft: Int) {

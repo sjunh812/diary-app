@@ -106,6 +106,22 @@ class InsightViewModelTest {
     }
 
     @Test
+    fun last_entry_without_mood_does_not_empty_the_cell() {
+        // 마지막 일기에 기분이 없어도 앞 일기의 기분으로 칸을 채운다.
+        val day = DayMood(LocalDate(2026, 11, 5), null, 7, moods = listOf(Mood.SICK, Mood.MEH))
+
+        assertEquals(Mood.MEH, moodBuckets(StatsPeriod.All, listOf(day)).single().mood)
+        assertEquals(Mood.MEH, moodBuckets(StatsPeriod.Week.of(day.date), listOf(day)).first { it.written }.mood)
+    }
+
+    @Test
+    fun counts_every_entry_of_the_cell() {
+        val day = DayMood(LocalDate(2026, 11, 5), Mood.MEH, 3, moods = listOf(Mood.SICK, Mood.SICK, Mood.MEH))
+
+        assertEquals(Mood.SICK, moodBuckets(StatsPeriod.All, listOf(day)).single().mood)
+    }
+
+    @Test
     fun week_shows_seven_days_and_year_twelve_months() {
         assertEquals(7, moodBuckets(StatsPeriod.Week.of(today), emptyList()).size)
         assertEquals(12, moodBuckets(StatsPeriod.Year(2026), emptyList()).size)

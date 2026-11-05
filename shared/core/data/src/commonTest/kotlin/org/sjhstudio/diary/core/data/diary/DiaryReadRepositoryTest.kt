@@ -295,6 +295,18 @@ class DiaryReadRepositoryTest {
     }
 
     @Test
+    fun mood_flow_keeps_every_mood_of_the_day() = runTest {
+        // 마지막 일기에 기분이 없어도 그날의 다른 기분은 통계가 세어야 한다.
+        db.seed(entry("a", time = "09:00", mood = Mood.SICK), entry("b", time = "10:00", mood = Mood.MEH), entry("c", time = "11:00"))
+
+        val day = stats.moodFlow(StatsPeriod.Month(YearMonth(2026, 10))).first().single()
+
+        assertEquals(null, day.mood)
+        assertEquals(listOf(Mood.SICK, Mood.MEH), day.moods)
+        assertEquals(mapOf(LocalDate(2026, 10, 31) to Mood.MEH), stats.yearPixels(2026).first())
+    }
+
+    @Test
     fun year_pixels_map_each_day() = runTest {
         db.seed(entry("a", mood = Mood.GOOD), entry("b", date = "2025-01-01", mood = Mood.SAD))
 

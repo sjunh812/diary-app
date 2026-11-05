@@ -69,6 +69,7 @@ import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.MoodFace
+import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
@@ -340,15 +341,10 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
                     ) {
                         val mood = bucket.mood
-                        if (mood != null) {
-                            MoodFace(mood, DiaryInsightSize.flowFace, contentDescription = moodName(mood))
-                        } else {
-                            Box(
-                                Modifier
-                                    .size(DiaryInsightSize.flowFace)
-                                    .clip(DiaryShapes.full)
-                                    .background(if (bucket.written) colors.lineStrong else colors.sunken)
-                            )
+                        when {
+                            mood != null -> MoodFace(mood, DiaryInsightSize.flowFace, contentDescription = moodName(mood))
+                            bucket.written -> NoMoodFace(DiaryInsightSize.flowFace)
+                            else -> EmptyMoodSlot(DiaryInsightSize.flowFace)
                         }
                         BasicText(
                             slotLabel(bucket.slot, dates),
@@ -362,6 +358,12 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
             }
         }
     }
+}
+
+/** 일기를 쓰지 않은 칸. 쓰고 기분만 고르지 않은 칸은 [NoMoodFace]로 구별한다. */
+@Composable
+internal fun EmptyMoodSlot(size: Dp) {
+    Box(Modifier.size(size).clip(DiaryShapes.full).background(DiaryTheme.colors.sunken))
 }
 
 @Composable

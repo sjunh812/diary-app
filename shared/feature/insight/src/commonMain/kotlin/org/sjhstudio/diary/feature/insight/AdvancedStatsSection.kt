@@ -161,7 +161,11 @@ private fun MoodCell(label: StringResource, top: TopMood?) {
     val colors = DiaryTheme.colors
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
         val mood = top?.mood
-        if (mood != null) MoodFace(mood, DiarySpacing.x8, contentDescription = moodName(mood)) else NoMoodFace(DiarySpacing.x8)
+        when {
+            mood != null -> MoodFace(mood, DiarySpacing.x8, contentDescription = moodName(mood))
+            top != null -> NoMoodFace(DiarySpacing.x8)
+            else -> EmptyMoodSlot(DiarySpacing.x8)
+        }
         BasicText(
             stringResource(label),
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.Center)

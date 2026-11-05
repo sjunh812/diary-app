@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.StatsPeriod
+import org.sjhstudio.diary.core.model.mostFrequent
 
 /** 기간 탭. */
 enum class InsightKind { Week, Month, Year, All }
@@ -123,15 +124,14 @@ internal sealed interface BucketSlot {
 
 /**
  * 기간을 칸으로 나눈다. 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다다.
- * 칸의 기분은 날마다의 마지막 기분을 세어 정한다. 같으면 나중 날의 기분을 쓴다.
+ * 칸의 기분은 그 칸 일기의 기분을 모두 세어 정한다. 같으면 나중 기분을 쓴다.
  */
 internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBucket> = when (period) {
     is StatsPeriod.Week -> {
         val start = period.start
         List(DAYS_IN_WEEK) { offset ->
             val date = start.plus(DatePeriod(days = offset))
-            val day = days.firstOrNull { it.date == date }
-            MoodBucket(BucketSlot.Day(date), day?.mood, day != null)
+            bucket(BucketSlot.Day(date), days.filter { it.date == date })
         }
     }
 
@@ -155,12 +155,8 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
     }
 }
 
-private fun bucket(slot: BucketSlot, days: List<DayMood>): MoodBucket {
-    val counts = days.mapNotNull { it.mood }.groupingBy { it }.eachCount()
-    val most = counts.values.maxOrNull()
-    val mood = days.sortedBy { it.date }.lastOrNull { it.mood != null && counts[it.mood] == most }?.mood
-    return MoodBucket(slot, mood, days.isNotEmpty())
-}
+private fun bucket(slot: BucketSlot, days: List<DayMood>): MoodBucket =
+    MoodBucket(slot, days.sortedBy { it.date }.flatMap { it.moods }.mostFrequent(), days.isNotEmpty())
 
 private const val DAYS_IN_WEEK = 7
 private const val MONTHS = 12

@@ -148,5 +148,12 @@ internal fun escapeLike(text: String): String = buildString(text.length) {
 internal fun toDayMoods(rows: List<DayMoodRow>): Map<LocalDate, DayMood> = rows.groupBy { it.date }.entries.associate { (date, day) ->
     val parsed = LocalDate.parse(date)
     val previous = day.getOrNull(day.lastIndex - 1)
-    parsed to DayMood(parsed, Mood.fromId(day.last().mood), day.size, previous?.mood?.let(Mood::fromId))
+    parsed to
+        DayMood(
+            date = parsed,
+            mood = Mood.fromId(day.last().mood),
+            count = day.size,
+            previousMood = previous?.mood?.let(Mood::fromId),
+            moods = day.mapNotNull { Mood.fromId(it.mood) }
+        )
 }
