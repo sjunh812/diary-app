@@ -6,9 +6,11 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import kotlin.time.Clock
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -100,7 +102,7 @@ class DefaultEntryRepository(private val db: DiaryDatabase, private val mediaDir
         ).map { rows ->
             val photos = media.forRows(rows)
             rows.map { it.toRow(photos[it.id].orEmpty(), mediaDir, query) }
-        }
+        }.flowOn(Dispatchers.Default) // 1만 편이 걸려도 화면이 멈추지 않게 메인 스레드 밖에서 만든다.
     }
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = entries.setFavorite(id, favorite, nowMillis())

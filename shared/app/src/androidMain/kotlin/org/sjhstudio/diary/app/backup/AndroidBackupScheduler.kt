@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.sjhstudio.diary.core.backup.BackupOutcome
@@ -88,9 +89,13 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
                 }
             val cellular = inputData.getBoolean(KEY_CELLULAR, false)
             // 연결 직후처럼 자동 백업이 먼저 돌면 끝날 때까지 알림으로 지키고, 남은 것이 있으면 잇는다.
-            if (runner.run(cellular) == BackupOutcome.Busy && runner.progress.value != null) {
-                runner.progress.first { it == null }
-                runner.run(cellular)
+            if (runner.run(cellular) == BackupOutcome.Busy) {
+                // 앞선 작업이 막 시작해 아직 진행이 없을 수 있다. 잠깐 기다려 보고, 복원 중이라 진행이 없으면 그냥 끝낸다.
+                val started = withTimeoutOrNull(START_WAIT_MILLIS) { runner.progress.first { it != null } }
+                if (started != null) {
+                    runner.progress.first { it == null }
+                    runner.run(cellular)
+                }
             }
             updates.cancel()
         }
@@ -183,3 +188,4 @@ private const val ALERT = "backup.alert"
 private const val KEY_TITLE = "title"
 private const val KEY_BODY = "body"
 private const val KEY_CELLULAR = "cellular"
+private const val START_WAIT_MILLIS = 3_000L

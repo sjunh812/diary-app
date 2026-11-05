@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -154,21 +155,32 @@ internal fun Body(
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
         BasicText(dates.dayWithWeekday(entry.date), style = DiaryTheme.typography.title1.copy(color = colors.textPrimary))
-        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
+        // 아이콘과 글자는 한 묶음으로 붙이고 묶음 사이를 띄운다. 긴 장소 이름은 다음 줄로 내려간다.
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
+            itemVerticalAlignment = Alignment.CenterVertically
+        ) {
             val caption = DiaryTheme.typography.caption.copy(color = colors.textSecondary)
             val strong = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
             entry.mood?.let {
-                MoodFace(it, DiaryIconSize.i20)
-                BasicText(moodName(it), style = strong, maxLines = 1)
+                MetaItem {
+                    MoodFace(it, DiaryIconSize.i20)
+                    BasicText(moodName(it), style = strong, maxLines = 1)
+                }
             }
             BasicText(dates.time(entry.time), style = strong, maxLines = 1)
             entry.weather?.let {
-                WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary)
-                BasicText(weatherName(it), style = caption, maxLines = 1)
+                MetaItem {
+                    WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary)
+                    BasicText(weatherName(it), style = caption, maxLines = 1)
+                }
             }
             entry.placeName?.let {
-                DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
-                BasicText(it, style = caption, maxLines = 1)
+                MetaItem {
+                    DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
+                    BasicText(it, style = caption, maxLines = 1)
+                }
             }
         }
         detail.keptBothWith?.let { other ->
@@ -263,3 +275,8 @@ private fun ActionButton(icon: ImageVector, description: String, tint: Color, on
 
 /** 폰 350×230, 태블릿 600×396과 같은 비율. */
 private const val GALLERY_RATIO = 1.52f
+
+@Composable
+private fun MetaItem(content: @Composable () -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) { content() }
+}
