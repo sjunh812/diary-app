@@ -1,0 +1,10 @@
+# 기본 규칙에 저장소 예외만 더한다. CI "저장소 위생"이 쓴다.
+title = "1일 1일기"
+
+[extend]
+useDefault = true
+
+# 레거시 네이버 지도 키. 2022년부터 기록에 남아 있지만 콘솔에서 해제했고 401로 거절되는 것을 확인했다(CLAUDE.md, 2026-11-01).
+[[allowlists]]
+description = "해제된 레거시 네이버 지도 키"
+paths = ['''^app/src/main/java/org/sjhstudio/diary/utils/ApiKey\.kt$''']

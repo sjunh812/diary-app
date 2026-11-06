@@ -43,6 +43,9 @@ fun localProperty(key: String, fallback: String): String {
     return Properties().apply { file.inputStream().use { load(it) } }.getProperty(key) ?: fallback
 }
 
+// 서명 정보는 저장소에 두지 않는다. CI는 환경 변수로 받고(.github/workflows/release.yml), 값이 없으면 서명하지 않은 빌드가 나온다.
+val releaseKeystorePath = providers.environmentVariable("DIARY_KEYSTORE_PATH").orNull
+
 android {
     namespace = "org.sjhstudio.diary"
 
@@ -93,6 +96,17 @@ android {
         buildConfig = true
     }
 
+    signingConfigs {
+        if (releaseKeystorePath != null) {
+            create("release") {
+                storeFile = file(releaseKeystorePath)
+                storePassword = providers.environmentVariable("DIARY_KEYSTORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("DIARY_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("DIARY_KEY_PASSWORD").get()
+            }
+        }
+    }
+
     buildTypes {
         // 개발 빌드는 Google 시험 광고만 받는다.
         // 실제 광고를 누르면 무효 트래픽이 된다.
@@ -107,6 +121,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

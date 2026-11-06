@@ -19,7 +19,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 
 /**
- * 일기 1만 편, 사진 5천 장에서 첫 화면과 찾기가 1초 안에 끝나는지 본다(SC-003).
+ * 일기 1만 편, 사진 5천 장에서 첫 화면과 찾기가 Android 시험에서 1초 안에 끝나는지 본다(SC-003).
  * 메모리 DB라 실제 기기보다 빠르므로, 넘치면 기기에서는 더 느리다고 읽는다.
  */
 class LargeDiaryQueryTest {
@@ -52,7 +52,7 @@ class LargeDiaryQueryTest {
         media.chunked(CHUNK).forEach { db.mediaDao().insertAll(it.map { row -> row.asEntity() }) }
     }
 
-    private suspend fun assertFast(name: String, limitMillis: Long = LIMIT_MILLIS, block: suspend () -> Unit) {
+    private suspend fun assertFast(name: String, limitMillis: Long = QUERY_BUDGET_MILLIS, block: suspend () -> Unit) {
         val mark = TimeSource.Monotonic.markNow()
         block()
         val elapsed = mark.elapsedNow()
@@ -82,6 +82,5 @@ class LargeDiaryQueryTest {
         const val RARE = 500
         const val CHUNK = 500
         const val PAGE = 60
-        const val LIMIT_MILLIS = 1_000L
     }
 }

@@ -10,6 +10,31 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 - Play 결제 라이브러리 8 이상.
 - 단계적 출시와 이전 실패 시 멈춤은 `docs/migration.md` 출시 순서를 따른다.
 
+## CD 비밀값
+
+`v*` 태그를 올리면 `.github/workflows/release.yml`이 돈다. 태그와 앱 버전이 다르면 멈춘다(`scripts/release/check-version.sh`). 변경 기록은 `feat`·`fix` 커밋 제목에서 뽑아 GitHub Release 초안으로 남긴다(`scripts/release/changelog.sh`).
+비밀값이 없으면 그 단계만 건너뛰고 경고를 남긴다. 값은 Settings > Environments > `release`의 Environment secrets에 넣는다. 여기에 사용자 본인을 Required reviewers로 걸면 태그마다 승인 뒤에 돈다.
+
+| 비밀값 | 무엇 | 없으면 |
+| --- | --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | 업로드 키 파일을 `base64 -i upload.jks`로 바꾼 값 | AAB를 건너뛴다 |
+| `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | 키 파일 비밀번호, 별칭, 키 비밀번호 | AAB를 건너뛴다 |
+| `PLAY_SERVICE_ACCOUNT_JSON` | Play Console에서 권한을 준 서비스 계정 키(JSON 원문) | 내부 트랙 업로드를 건너뛴다 |
+| `GOOGLE_SERVICES_JSON_BASE64` | `composeApp/google-services.json`의 base64 | 사용 통계·비정상 종료 보고가 꺼진 빌드 |
+| `ADMOB_APP_ID`, `ADMOB_NATIVE`, `ADMOB_INTERSTITIAL`, `ADMOB_REWARDED` | 위 "광고와 결제 키"의 값 | 광고가 나오지 않는 빌드 |
+| `IOS_CERTIFICATE_P12_BASE64`, `IOS_CERTIFICATE_PASSWORD` | Apple Distribution 인증서(.p12)의 base64와 비밀번호 | 아카이브를 건너뛴다 |
+| `IOS_PROVISIONING_PROFILE_BASE64` | App Store 배포 프로필의 base64 | 아카이브를 건너뛴다 |
+| `IOS_TEAM_ID` | Apple 개발자 팀 ID | 아카이브를 건너뛴다 |
+| `GOOGLE_SERVICE_INFO_PLIST_BASE64` | `iosApp/iosApp/GoogleService-Info.plist`의 base64 | 사용 통계·비정상 종료 보고가 꺼진 빌드 |
+| `IOS_LOCAL_XCCONFIG_BASE64` | `iosApp/iosApp/Local.xcconfig`의 base64 | 구글 드라이브 연결이 안 되는 빌드 |
+
+- Play 업로드는 내부 트랙만 간다. 워크플로에 프로덕션으로 가는 길이 없고 승격은 Play Console에서 사람이 한다.
+- Play 앱 서명을 쓰므로 CI에는 업로드 키만 둔다. 앱 서명 키는 CI에 넣지 않는다.
+- 서비스 계정은 이 앱 하나에 "내부 테스트 트랙에 출시" 권한만 준다.
+- iOS는 IPA까지 만들어 산출물로 남기고 App Store Connect에 올리지 않는다.
+- 공개 저장소의 Actions 산출물은 로그인한 누구나 받을 수 있다. AAB와 IPA는 사흘만 두고, 난독화 매핑은 산출물에 담지 않는다.
+- 첫 태그 전에는 iOS 서명 경로를 시험하지 못했다. 처음 돌릴 때 `release` 작업 로그를 끝까지 본다.
+
 ## 스크린샷과 그래픽
 
 | 스토어 | 무엇을 | 규격 | 출처 |

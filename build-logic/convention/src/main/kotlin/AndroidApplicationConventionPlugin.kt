@@ -29,6 +29,16 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 // 켜지 않으면 Android 7 기기에서 앱이 켜자마자 꺼진다(2026-11-02 API 24 업그레이드 시험에서 찾음).
                 isCoreLibraryDesugaringEnabled = true
             }
+
+            // 기존 지적은 composeApp/lint-baseline.xml에 묶고 새 코드만 막는다.
+            // `./gradlew :composeApp:updateLintBaseline`으로 다시 만든다.
+            lint {
+                baseline = file("lint-baseline.xml")
+                checkDependencies = true
+                warningsAsErrors = true
+                // 새 버전 알림은 Dependabot이 맡는다. 시간이 지나면 이유 없이 CI가 깨지는 것도 막는다.
+                disable += setOf("GradleDependency", "NewerVersionAvailable", "AndroidGradlePluginVersion")
+            }
         }
 
         dependencies.add("coreLibraryDesugaring", libs.findLibrary("android-desugar-jdk-libs").get())

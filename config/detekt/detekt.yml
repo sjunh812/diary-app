@@ -1,0 +1,102 @@
+# detekt 기본 규칙 위에 얹는 설정이다(buildUponDefaultConfig).
+# 포맷은 spotless(ktlint)가 맡으니 겹치는 규칙을 끈다.
+# 기존 코드의 지적은 baseline.xml에 묶여 있고, 새 코드만 막는다.
+
+complexity:
+  # 화면 함수는 길이와 분기로 나누면 오히려 읽기 어려워진다. 화면 나누기는 리뷰에서 본다.
+  CyclomaticComplexMethod:
+    ignoreAnnotated: ['Composable']
+  LongMethod:
+    ignoreAnnotated: ['Composable']
+  # 작은 비공개 Composable을 한 파일에 두는 것이 이 저장소의 관례다.
+  TooManyFunctions:
+    ignoreAnnotatedFunctions: ['Composable', 'Preview']
+
+naming:
+  # Composable은 대문자로 시작한다(.editorconfig의 ktlint 설정과 같다).
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+
+style:
+  # 화면 코드의 숫자는 designTokenCheck가 막는다.
+  MagicNumber:
+    ignoreAnnotated: ['Composable']
+    excludes: ['**/src/*Test/**', '**/src/debug/**', '**/preview/**', '**/*Preview*.kt']
+  MaxLineLength:
+    active: false
+  NewLineAtEndOfFile:
+    active: false
+  NoTabs:
+    active: false
+  ModifierOrder:
+    active: false
+  SpacingAfterPackageAndImports:
+    active: false
+  TrailingWhitespace:
+    active: false
+  UnusedImport:
+    active: false
+  WildcardImport:
+    active: false
+
+Compose:
+  ComposableAnnotationNaming:
+    active: true
+  ComposableNaming:
+    active: true
+  ComposableParamOrder:
+    active: true
+  # 새 CompositionLocal은 여기에 더하기 전에 매개변수로 넘길 수 없는지 본다.
+  CompositionLocalAllowlist:
+    active: true
+    allowedCompositionLocals: LocalDiaryColors,LocalDiaryTypography,LocalInListDetail,LocalRailWidth,LocalScreenGutter,LocalSheetButtonGap,LocalTabBarHeight
+  CompositionLocalNaming:
+    active: true
+  ContentEmitterReturningValues:
+    active: true
+  ContentTrailingLambda:
+    active: true
+  ContentSlotReused:
+    active: true
+  DefaultsVisibility:
+    active: true
+  LambdaParameterEventTrailing:
+    active: true
+  LambdaParameterInRestartableEffect:
+    active: true
+  ModifierClickableOrder:
+    active: true
+  ModifierComposed:
+    active: true
+  ModifierMissing:
+    active: true
+  ModifierNaming:
+    active: true
+  ModifierNotUsedAtRoot:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierWithoutDefault:
+    active: true
+  MultipleEmitters:
+    active: true
+  MutableParams:
+    active: true
+  MutableStateAutoboxing:
+    active: true
+  MutableStateParam:
+    active: true
+  ParameterNaming:
+    active: true
+  PreviewAnnotationNaming:
+    active: true
+  PreviewPublic:
+    active: true
+  RememberMissing:
+    active: true
+  RememberContentMissing:
+    active: true
+  ViewModelForwarding:
+    active: true
+  ViewModelInjection:
+    active: true

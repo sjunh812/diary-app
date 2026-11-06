@@ -1,54 +1,195 @@
-# 푸시마다 검사·시험·빌드를 돌린다(research R20).
+# 푸시와 PR마다 검사·시험·빌드를 돌린다(research R20).
 # 공개 저장소라 GitHub 표준 러너는 무료다.
+# 액션은 태그가 옮겨 가도 그대로이게 커밋 SHA로 고정한다. 판 올리기는 Dependabot이 맡는다.
 name: CI
 
 on:
   push:
+    branches: [master, feat/foundation-migration]
+    # 문서만 바꾼 푸시는 빌드하지 않는다.
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "specs/**"
+      - ".claude/**"
+      - ".specify/**"
+      - "scripts/figma/**"
+      - "scripts/lottie/**"
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  # PR은 새 커밋이 오면 앞선 실행을 끊는다.
+  # 긴 브랜치까지 끊으면 커밋이 잦은 날 끝나는 실행이 없어서(2026-11-06 서른 번 중 스물일곱 번 취소) 앞선 실행을 끝까지 돌린다.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # 캐시는 master와 지금 긴 브랜치에서만 쓴다. PR은 읽기만 한다.
+  # 기본값대로 두면 master에서만 쓰여서 긴 브랜치 빌드가 늘 빈 캐시로 시작한다.
+  GRADLE_CACHE_READ_ONLY: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/feat/foundation-migration' }}
 
 jobs:
+  changes:
+    name: 바뀐 곳 보기
+    # PR만 경로로 나눈다. 푸시는 앞선 실행이 대기 중에 밀려날 수 있어 늘 전부 돌린다.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      android: ${{ steps.filter.outputs.android }}
+      ios: ${{ steps.filter.outputs.ios }}
+    steps:
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          filters: |
+            common: &common
+              - "shared/**"
+              - "fonts/**"
+              - "build-logic/**"
+              - "gradle/**"
+              - "gradlew"
+              - "*.gradle.kts"
+              - "gradle.properties"
+              - "compose_compiler_config.conf"
+              - ".github/workflows/ci.yml"
+            android:
+              - *common
+              - "composeApp/**"
+              - "benchmarks/**"
+              - "config/**"
+              - ".editorconfig"
+              - ".githooks/**"
+              - "scripts/test-commit-msg.sh"
+            ios:
+              - *common
+              - "iosApp/**"
+
   android:
     name: Android 검사·시험·빌드
+    needs: changes
+    # changes는 PR에서만 돈다. 푸시에서는 건너뛰어도 이 작업을 돌린다.
+    if: ${{ !cancelled() && (needs.changes.result == 'skipped' || needs.changes.outputs.android == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-read-only: ${{ env.GRADLE_CACHE_READ_ONLY }}
       - name: 커밋 형식 검사 시험
         run: sh scripts/test-commit-msg.sh
-      - name: 검사·시험·빌드
-        run: ./gradlew spotlessCheck designTokenCheck stringResourceCheck allTests assembleDebug
       - name: 빌드 규칙 시험(디자인 토큰 검사)
         run: ./gradlew -p build-logic :convention:test
+      # --continue: 앞 검사가 실패해도 뒤 검사 결과까지 한 번에 본다.
+      - name: 검사·린트·시험·빌드
+        run: ./gradlew spotlessCheck designTokenCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug --continue
+      - name: 시험 결과와 린트 보고서 보관
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-reports
+          path: |
+            **/build/reports/tests/**
+            **/build/test-results/**
+            composeApp/build/reports/lint-results-*.html
+            build/reports/detekt/**
+            build/reports/designTokenCheck.txt
+            build/reports/stringResourceCheck.txt
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: 개발 APK 보관
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: composeApp-debug-apk
+          path: composeApp/build/outputs/apk/debug/composeApp-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+          # APK는 이미 압축되어 있다.
+          compression-level: 0
 
   ios:
     name: iOS 시험과 Xcode 빌드
-    runs-on: macos-latest
+    needs: changes
+    if: ${{ !cancelled() && (needs.changes.result == 'skipped' || needs.changes.outputs.ios == 'true') }}
+    # macos-latest는 어느 날 이미지와 Xcode가 바뀐다. 올릴 때는 여기 두 줄을 같이 고친다.
+    runs-on: macos-26
     timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-read-only: ${{ env.GRADLE_CACHE_READ_ONLY }}
+      # 러너 메모리가 7GB다. 저장소 설정보다 이 파일이 앞선다.
+      - name: Gradle 힙을 러너에 맞추기
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" >> ~/.gradle/gradle.properties
+      # Kotlin/Native 컴파일러와 플랫폼 라이브러리. setup-gradle이 맡지 않고 받는 데 분 단위로 걸린다.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: konan-${{ runner.os }}-
+      # Firebase·구글 로그인 Swift 패키지.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: iosApp/build/SourcePackages
+          key: spm-${{ runner.os }}-${{ hashFiles('iosApp/iosApp.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
       - name: 공유 모듈 시험(iOS 시뮬레이터)
-        run: ./gradlew iosSimulatorArm64Test
+        run: ./gradlew iosSimulatorArm64Test --continue
+      - name: 시험 결과 보관
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ios-test-reports
+          path: |
+            **/build/reports/tests/**
+            **/build/test-results/**
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Xcode 빌드
         run: >
           xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator
-          -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+          -destination 'generic/platform=iOS Simulator' -derivedDataPath iosApp/build
+          CODE_SIGNING_ALLOWED=NO build
+
+  # 브랜치 보호에는 이 작업 하나만 걸면 된다. 경로에 따라 앞 작업이 건너뛰어도 늘 결과를 남긴다.
+  ci-passed:
+    name: CI 통과
+    if: ${{ !cancelled() }}
+    needs: [changes, android, ios]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: 앞 작업 결과 보기
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "결과: $RESULTS"
+          case " $RESULTS " in
+            *" failure "*|*" cancelled "*) exit 1 ;;
+          esac
 
   # 1.7.4에서 올리는 업그레이드 계측 시험. 오래 걸려서 손으로만 돌린다(Actions 탭의 Run workflow).
+  # 견본(seed.sh)이 없는 기기에서는 UpgradeVerificationTest가 건너뛰므로, 실제 이전 확인은 scripts/legacy/upgrade-test.sh로 한다.
   upgrade:
     name: 업그레이드 시험(API ${{ matrix.api }})
     if: github.event_name == 'workflow_dispatch'
@@ -59,20 +200,30 @@ jobs:
       matrix:
         api: [24, 29, 35, 36]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-read-only: true
       - name: 에뮬레이터 가속(KVM) 켜기
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - uses: reactivecircus/android-emulator-runner@v2
+      - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
         with:
           api-level: ${{ matrix.api }}
           arch: x86_64
           target: google_apis
           script: ./gradlew :composeApp:connectedDebugAndroidTest
+      - name: 시험 결과 보관
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: upgrade-reports-api-${{ matrix.api }}
+          path: composeApp/build/reports/androidTests/**
+          if-no-files-found: ignore
+          retention-days: 7

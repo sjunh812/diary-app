@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# 공개 저장소 무료 리뷰 설정. 비교와 설치는 docs/DECISIONS.md 2026-11-07, 쓰는 법은 /pr-review 스킬에 있다.
+# 별이 10개 안 되는 공개 저장소는 자동 리뷰가 돌지 않아 PR에 "@coderabbitai review"를 단다.
+language: ko-KR
+tone_instructions: "해요체로 짧게 말하고, 지적마다 근거 규칙(헌법 원칙 번호나 CLAUDE.md 절)을 함께 적어요."
+early_access: false
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  in_progress_fortune: false
+  sequence_diagrams: false
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+    # 리뉴얼이 master에 합쳐지기 전까지 기능 PR의 기준은 feat/foundation-migration이다.
+    base_branches:
+      - master
+      - feat/foundation-migration
+  path_filters:
+    # 레거시 앱은 참고용이고 고치지 않는다.
+    - "!app/**"
+    - "!**/build/**"
+    - "!**/generated/**"
+    - "!fonts/**"
+    - "!.specify/**"
+    - "!.claude/skills/speckit-*/**"
+    - "!config/detekt/baseline.xml"
+    - "!composeApp/lint-baseline.xml"
+    - "!iosApp/iosApp.xcodeproj/**"
+    - "!**/aboutlibraries.json"
+  path_instructions:
+    - path: "shared/core/{migration,database}/**"
+      instructions: |
+        기록은 잃지 않는다(헌법 I). 이전은 원본을 고치거나 지우지 않고 복사하고 검증한 뒤에 바꾸는지 본다.
+        저장 형식이 바뀌면 이전 시험, 백업 복원 호환, 커밋의 BREAKING CHANGE가 같이 있는지 본다. 사진과 DB가 캐시 경로로 가면 지적한다.
+    - path: "shared/core/{backup,drive}/**"
+      instructions: |
+        복원은 합치기가 기본이고 덮어쓰기는 사용자가 고른 때만이다(헌법 I). 백업에 사진이 들어가고,
+        끝났다고 말하기 전에 올린 파일을 다시 읽어 개수와 해시를 확인하는지 본다. 끊겼다가 이어도 다시 올리지 않는지 본다.
+    - path: "shared/feature/**/*.kt"
+      instructions: |
+        화면 코드는 디자인 시스템 토큰만 쓰고 원시 색과 숫자 크기를 쓰지 않는다. 문구는 문자열 리소스에 둔다(헌법 V, CLAUDE.md 관례).
+        폰과 넓은 화면을 둘 다 다루는지, 빈 상태·실패·기다림이 있는지, 프리뷰가 같은 모듈 preview/에 있는지 본다(헌법 VI).
+        쓰고 읽는 화면, 잠금, 백업·복원, 이전, 편지·온보딩, 설정에 광고가 들어가면 지적한다(헌법 III).
+    - path: "**/composeResources/values*/strings.xml"
+      instructions: |
+        values(영어), values-ko, values-ja가 같은 커밋에 채워졌는지 본다. 한국어는 해요체이고 법적 고지와 개발자의 편지만 합니다체다.
+        영어 낱말을 옮긴 번역투와 앱에서 잘 안 쓰는 말을 지적한다.
+    - path: "**/*{Analytics,Crash,Report,Log,Ad}*.kt"
+      instructions: |
+        일기 내용, 사진, 주소, 기분은 사용 통계, 비정상 종료 보고, 광고, 로그에 넣지 않는다(헌법 II).
+        값이 어디서 왔는지 따라가 본다.
+    - path: "shared/core/designsystem/**"
+      instructions: |
+        디자인 시스템은 하나다. 값을 바꾸면 docs/design.md와 Figma를 먼저 고쳤는지 PR 설명에서 본다(헌법 V).
+    - path: "iosApp/**"
+      instructions: |
+        Xcode 프로젝트의 원본은 iosApp/project.yml이다. 안드로이드와 기능이 같은지 본다(헌법 VI).
+    - path: ".github/workflows/**"
+      instructions: |
+        권한은 최소로, 액션은 커밋 SHA로 고정한다. 비밀값이 로그에 찍히거나 fork PR에서 쓰이면 지적한다.
+        Play 업로드는 내부 트랙만 간다.
+    - path: "{docs,specs}/**"
+      instructions: |
+        규칙이 바뀌면 그 규칙이 있는 문서, 헌법, 관련 스펙을 같은 커밋에서 고치고 docs/DECISIONS.md에 날짜와 까닭을 남겼는지 본다.
+        공식 문서에서 확인한 사실에 출처가 있는지 본다.
+  tools:
+    # CI가 이미 돌린다.
+    detekt:
+      enabled: false
+    gitleaks:
+      enabled: false
+    # 줄 길이와 영어 맞춤법 기준이 한국어 문서에 맞지 않는다.
+    markdownlint:
+      enabled: false
+    languagetool:
+      enabled: false
+
+chat:
+  art: false
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "CLAUDE.md"
+      - ".specify/memory/constitution.md"
+      - "docs/design.md"
