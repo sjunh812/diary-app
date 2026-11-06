@@ -376,9 +376,8 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
 @Composable
 private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit, onPlace: () -> Unit) {
     FlowRow(
-        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+        Modifier.padding(horizontal = DiarySpacing.screenCompact),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         val mood = state.mood
         DiaryChip(

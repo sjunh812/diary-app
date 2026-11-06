@@ -208,11 +208,16 @@ internal fun PlaceSheet(
 private fun PlaceField(text: String, onChange: (String) -> Unit) {
     val colors = DiaryTheme.colors
     Row(
-        Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x3),
+        // 아래 칩과 아이콘·글자 시작이 같은 세로줄에 오게 칩의 왼쪽 여백(10)과 틈(4)을 쓴다.
+        Modifier
+            .fillMaxWidth()
+            .clip(DiaryShapes.r12)
+            .background(colors.sunken)
+            .padding(start = DiarySpacing.x2 + DiarySpacing.x0_5, end = DiarySpacing.x3, top = DiarySpacing.x3, bottom = DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
-        DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
+        DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textPrimary, size = DiaryIconSize.i16)
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
             if (text.isEmpty()) {
                 BasicText(
@@ -282,10 +287,8 @@ private fun PlaceChips(title: String, places: List<String>, onPick: (String) -> 
     if (places.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         BasicText(title, style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary))
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-        ) {
+        // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다. 보이는 틈은 16이다.
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             for (place in places) DiaryChip(place, selected = false, onClick = { onPick(place) })
         }
     }
