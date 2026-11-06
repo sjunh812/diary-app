@@ -405,7 +405,12 @@ private fun Content(
                         selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
                         // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
                         // 광고 수는 늘지 않는다.
-                        adSlot = { order -> AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card) }
+                        // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않는다.
+                        adSlot = { order ->
+                            if (backStack.none { it is EntryDetailKey }) {
+                                AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card)
+                            }
+                        }
                     )
                 }
                 entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
