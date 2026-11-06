@@ -95,7 +95,7 @@ data class DiaryMarkColors(val yellow: Color, val green: Color, val blue: Color,
 internal val LightDiaryColors =
     DiaryColors(
         canvas = Color(0xFFFFFFFF),
-        surfaceCard = Color(0xFFF7F8F9),
+        surfaceCard = Color(0xFFF8F8FF),
         surface = Color(0xFFFFFFFF),
         paper = Color(0xFFFFFFFF),
         sunken = Color(0xFFF3F4F5),
