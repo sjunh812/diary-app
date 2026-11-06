@@ -13,8 +13,11 @@ import kotlin.time.Duration.Companion.days
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupConnection
+import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
 import org.sjhstudio.diary.feature.backup.resources.backup_auto
@@ -26,6 +29,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_line_failed
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
 import org.sjhstudio.diary.feature.backup.resources.backup_options
 import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 
 /** 화면이 사실을 말하는지 본다. 실패했는데 다 됐다고 하면 안 된다. */
@@ -152,5 +156,24 @@ class BackupStatusUiTest {
         }
 
         onNodeWithText(offline).assertExists()
+    }
+
+    /** 예전 앱 백업은 편수를 모른다. 0편으로 보이면 빈 백업인 줄 안다. */
+    @Test
+    fun an_old_backup_shows_no_counts() = runComposeUiTest {
+        val old =
+            BackupEntry(
+                "legacy:1", PLATFORM_LEGACY, "", PLATFORM_LEGACY, Clock.System.now() - 100.days, 0, 0, 0, "", BackupEntryState.Ready
+            )
+        var row = ""
+        var counts = ""
+        setContent {
+            row = stringResource(Res.string.restore_legacy_row)
+            counts = countsText(old)
+            DiaryTheme(darkTheme = false) { BackupFoundSheet(old, {}, {}) }
+        }
+
+        onNodeWithText(row).assertExists()
+        onAllNodesWithText(counts).assertCountEquals(0)
     }
 }

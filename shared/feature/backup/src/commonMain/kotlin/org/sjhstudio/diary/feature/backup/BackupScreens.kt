@@ -62,6 +62,7 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -129,6 +130,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_found_action
 import org.sjhstudio.diary.feature.backup.resources.restore_found_body
 import org.sjhstudio.diary.feature.backup.resources.restore_found_later
 import org.sjhstudio.diary.feature.backup.resources.restore_found_title
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_action
@@ -214,16 +216,25 @@ fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modi
 /**
  * Figma "B2 · 드라이브에 백업이 있어요".
  * 연결한 뒤 드라이브에서 찾은 백업을 권한다.
+ * 예전 앱이 올린 백업은 기기와 편수를 몰라서 날짜와 사진이 없다는 것만 말한다.
  */
 @Composable
 fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> Unit) {
     DiaryBottomSheet(onDismiss = onLater, title = stringResource(Res.string.restore_found_title)) {
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-            DiaryStatusBox(
-                DiaryIcons.ShieldCheck,
-                stringResource(Res.string.restore_device_group, deviceName(entry), whenText(entry)),
-                countsText(entry)
-            )
+            if (entry.platform == PLATFORM_LEGACY) {
+                DiaryStatusBox(
+                    DiaryIcons.ShieldCheck,
+                    rememberDiaryDateFormat().fullDate(entry.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).date),
+                    stringResource(Res.string.restore_legacy_row)
+                )
+            } else {
+                DiaryStatusBox(
+                    DiaryIcons.ShieldCheck,
+                    stringResource(Res.string.restore_device_group, deviceName(entry), whenText(entry)),
+                    countsText(entry)
+                )
+            }
             BasicText(
                 stringResource(Res.string.restore_found_body),
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)

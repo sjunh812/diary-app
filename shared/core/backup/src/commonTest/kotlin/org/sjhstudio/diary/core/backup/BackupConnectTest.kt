@@ -19,6 +19,8 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupSkip
+import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAccount
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
@@ -216,6 +218,34 @@ class BackupConnectTest {
         controller.nowFinished(BackupOutcome.Failed(BackupFailure.OFFLINE))
 
         assertEquals(listOf(BackupSkip.NO_ENTRIES, BackupSkip.BUSY), told)
+    }
+
+    private val legacy = entry.copy(snapshotName = "legacy:1", platform = PLATFORM_LEGACY, entryCount = 0, photoCount = 0)
+
+    /** 옛 note.db는 편수를 몰라 0편이다. 그래도 새 폰 사용자에게는 있다고 알려야 한다. */
+    @Test
+    fun an_old_backup_is_offered_to_a_new_phone() {
+        assertEquals(legacy, backupToOffer(listOf(legacy), migrated = false))
+    }
+
+    /** 이 폰에서 이미 옮겨 온 일기와 같은 백업이라 다시 권하지 않는다. */
+    @Test
+    fun an_old_backup_is_not_offered_after_migrating_here() {
+        assertNull(backupToOffer(listOf(legacy), migrated = true))
+    }
+
+    @Test
+    fun a_new_backup_comes_before_an_old_one() {
+        assertEquals(entry, backupToOffer(listOf(legacy, entry), migrated = false))
+    }
+
+    @Test
+    fun empty_or_damaged_backups_are_not_offered() {
+        val empty = entry.copy(entryCount = 0)
+        val damaged = entry.copy(state = BackupEntryState.Damaged(DamageReason.MANIFEST))
+
+        assertNull(backupToOffer(listOf(empty, damaged), migrated = false))
+        assertNull(backupToOffer(null, migrated = false))
     }
 
     /** 실패는 종류와 함께 화면까지 간다. */

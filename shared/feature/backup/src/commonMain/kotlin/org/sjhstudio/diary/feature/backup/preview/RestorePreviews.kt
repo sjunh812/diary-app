@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
@@ -100,6 +101,12 @@ private fun ResultDark() = Progress(true, RestoreState.Done(Result))
 @Preview(locale = "ko")
 @Composable
 private fun FoundLight() = DiaryTheme(darkTheme = false) { BackupFoundSheet(Sample, {}, {}) }
+
+@Preview(name = "찾은 백업 · 예전 앱", locale = "ko")
+@Composable
+private fun FoundLegacyLight() = DiaryTheme(darkTheme = false) {
+    BackupFoundSheet(Sample.copy(platform = PLATFORM_LEGACY, entryCount = 0, photoCount = 0), {}, {})
+}
 
 @Preview(name = "연결 실패 · 인터넷 없음", locale = "ko")
 @Composable

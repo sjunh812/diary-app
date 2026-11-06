@@ -32,6 +32,7 @@ import org.sjhstudio.diary.core.backup.RestoreCatalog
 import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
+import org.sjhstudio.diary.core.backup.backupToOffer
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
@@ -73,7 +74,6 @@ import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
-import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
@@ -235,9 +235,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 scope = get(APP_SCOPE),
                 migrated = { get<LegacyMigration>().report() != null },
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
-                findBackup = {
-                    get<RestoreRepository>().backups()?.firstOrNull { it.state == BackupEntryState.Ready && it.entryCount > 0 }
-                },
+                findBackup = { backupToOffer(get<RestoreRepository>().backups(), get<LegacyMigration>().report() != null) },
                 alerts = get()
             )
         }

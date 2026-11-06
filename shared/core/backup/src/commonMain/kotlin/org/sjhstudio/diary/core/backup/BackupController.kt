@@ -23,14 +23,27 @@ import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
+
+/**
+ * 연결한 드라이브에서 권할 백업.
+ * 새 백업을 먼저 고르고, 없으면 예전 앱이 올린 백업을 고른다.
+ * 예전 백업은 편수를 몰라 0편으로 온다.
+ * [migrated]면 이 폰에서 이미 옮겨 온 일기와 같은 백업이라 권하지 않는다.
+ */
+fun backupToOffer(backups: List<BackupEntry>?, migrated: Boolean): BackupEntry? {
+    val ready = backups.orEmpty().filter { it.state == BackupEntryState.Ready }
+    return ready.firstOrNull { it.entryCount > 0 } ?: ready.firstOrNull { it.platform == PLATFORM_LEGACY && !migrated }
+}
 
 /**
  * [BackupRepository]의 구현.
