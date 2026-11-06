@@ -9,7 +9,7 @@ import org.sjhstudio.diary.core.model.MigrationStep
 interface TelemetrySink {
     fun log(event: String, params: Map<String, String>)
 
-    /** Crashlytics 사용자 정의 키. `migration_step` 하나만 쓴다. */
+    /** Crashlytics 사용자 정의 키. `migration_step`, `screen`, `recent_screens`만 쓴다. 값은 표에 있는 이름뿐이다. */
     fun setCustomKey(key: String, value: String)
 }
 
@@ -25,6 +25,8 @@ object NoTelemetrySink : TelemetrySink {
  * 표에 없으면 개발 빌드([strict])에서는 예외를 던져 바로 알아채게 하고, 출시 빌드에서는 조용히 버린다.
  */
 class Telemetry(private val sink: TelemetrySink, private val strict: Boolean) {
+    private val recentScreens = ArrayDeque<String>()
+
     fun log(event: String, params: Map<String, String> = emptyMap()) {
         val violation = AnalyticsEvents.violation(event, params)
         if (violation != null) {
@@ -36,7 +38,24 @@ class Telemetry(private val sink: TelemetrySink, private val strict: Boolean) {
 
     fun setMigrationStep(step: MigrationStep) = sink.setCustomKey(MIGRATION_STEP_KEY, step.id)
 
+    /**
+     * 보는 화면을 알린다. 비정상 종료 보고에서 어디서 어떻게 왔는지 보이도록 지금 화면과 지나온 화면을 키로 남긴다.
+     * 화면 키 이름만 쓰고 일기 번호 같은 인자는 넣지 않는다.
+     */
+    fun screen(name: String) {
+        val params = mapOf("screen" to name)
+        log(AnalyticsEvents.SCREEN_VIEW, params)
+        if (AnalyticsEvents.violation(AnalyticsEvents.SCREEN_VIEW, params) != null) return
+        recentScreens.addLast(name)
+        if (recentScreens.size > RECENT_SCREENS) recentScreens.removeFirst()
+        sink.setCustomKey(SCREEN_KEY, name)
+        sink.setCustomKey(RECENT_SCREENS_KEY, recentScreens.joinToString(" > "))
+    }
+
     private companion object {
         const val MIGRATION_STEP_KEY = "migration_step"
+        const val SCREEN_KEY = "screen"
+        const val RECENT_SCREENS_KEY = "recent_screens"
+        const val RECENT_SCREENS = 8
     }
 }

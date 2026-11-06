@@ -67,6 +67,10 @@ kotlin {
             implementation(libs.androidx.work.runtime)
             // 광고(AdMobPlayer, NativeAdCard). R1은 안드로이드만 낸다.
             implementation(libs.play.services.ads)
+            // 사용 통계와 비정상 종료 보고(FirebaseTelemetrySink, research R21)
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.firebase.analytics)
+            implementation(libs.firebase.crashlytics)
         }
         commonTest.dependencies {
             implementation(projects.shared.core.testing)

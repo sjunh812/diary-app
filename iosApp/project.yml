@@ -13,6 +13,10 @@ packages:
   GoogleSignIn:
     url: https://github.com/google/GoogleSignIn-iOS
     exactVersion: 10.1.0
+  # 사용 통계와 비정상 종료 보고(스펙 001 research R21). 설정 파일이 없으면 켜지지 않는다.
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 13.1.1
 targets:
   iosApp:
     type: application
@@ -26,8 +30,14 @@ targets:
     dependencies:
       - package: GoogleSignIn
         product: GoogleSignIn
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseCrashlytics
     sources:
       - path: iosApp
+        excludes:
+          - GoogleService-Info.plist
       # 고를 때 받는 일기 글꼴(research R17). 안드로이드 글꼴 모듈과 같은 파일을 On-Demand Resources 태그(글꼴 ID)로 둔다.
       - path: ../fonts/gowun_dodum/src/main/assets/fonts/gowun_dodum.ttf
         buildPhase: resources
@@ -65,6 +75,8 @@ targets:
         UILaunchScreen:
           UIColorName: LaunchBackground
           UIImageName: LaunchPencil
+        # 사용 통계에 맞춤 광고 신호를 쓰지 않는다(헌법 II).
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: false
         # 구글 로그인이 끝나면 앱으로 돌아오는 주소와 클라이언트 ID(스펙 003 research R2).
         GIDClientID: $(GID_CLIENT_ID)
         CFBundleURLTypes:
@@ -118,3 +130,25 @@ targets:
           fi
           cd "$SRCROOT/.."
           ./gradlew :shared:app:embedAndSignAppleFrameworkForXcode
+    postCompileScripts:
+      # Firebase 설정 파일은 저장소에 없다. 있으면 앱에 담고, 없으면 Firebase가 꺼진 채 빌드된다.
+      - name: Copy Firebase Config
+        basedOnDependencyAnalysis: false
+        script: |
+          config="$SRCROOT/iosApp/GoogleService-Info.plist"
+          if [ -f "$config" ]; then
+            cp "$config" "$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/"
+          fi
+    postBuildScripts:
+      - name: Upload Crashlytics Symbols
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist
+          - $(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)
+        script: |
+          # 출시 빌드만 올린다. 설정 파일이 없는 빌드는 건너뛴다.
+          if [ "$CONFIGURATION" != "Release" ] || [ ! -f "$SRCROOT/iosApp/GoogleService-Info.plist" ]; then
+            exit 0
+          fi
+          "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"

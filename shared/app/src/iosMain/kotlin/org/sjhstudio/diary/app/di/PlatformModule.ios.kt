@@ -3,6 +3,7 @@ package org.sjhstudio.diary.app.di
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.IosDrive
+import org.sjhstudio.diary.app.IosTelemetry
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
@@ -33,6 +34,7 @@ import org.sjhstudio.diary.core.platform.NoBackupScheduler
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
+import org.sjhstudio.diary.core.platform.TelemetrySink
 import platform.Foundation.NSBundle
 
 internal actual val platformModule: Module =
@@ -40,6 +42,7 @@ internal actual val platformModule: Module =
         single { AppFiles() }
         single<AdPlayer> { NoAdPlayer }
         // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15).
+        single<TelemetrySink> { IosTelemetry.sink }
         single<ReminderScheduler> { IosReminderScheduler() }
         single<NotificationPermission> { IosNotificationPermission() }
         single<PlaceFinder> { IosPlaceFinder() }

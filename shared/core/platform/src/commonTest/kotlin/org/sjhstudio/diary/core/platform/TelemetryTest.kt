@@ -23,6 +23,37 @@ class TelemetryTest {
     }
 
     @Test
+    fun a_crash_report_shows_the_screen_and_the_path_to_it() {
+        val sink = RecordingSink()
+        val telemetry = Telemetry(sink, strict = true)
+
+        listOf("HomeKey", "EntryDetailKey", "WriteKey").forEach(telemetry::screen)
+
+        assertEquals("WriteKey", sink.keys["screen"])
+        assertEquals("HomeKey > EntryDetailKey > WriteKey", sink.keys["recent_screens"])
+    }
+
+    @Test
+    fun the_path_keeps_only_the_latest_screens() {
+        val sink = RecordingSink()
+        val telemetry = Telemetry(sink, strict = true)
+
+        repeat(10) { telemetry.screen(if (it % 2 == 0) "HomeKey" else "SearchKey") }
+
+        assertEquals(8, sink.keys.getValue("recent_screens").split(" > ").size)
+    }
+
+    @Test
+    fun a_screen_outside_the_table_never_reaches_the_keys() {
+        val sink = RecordingSink()
+
+        Telemetry(sink, strict = false).screen("EntryDetailKey(entryId=abc)")
+
+        assertTrue(sink.keys.isEmpty())
+        assertTrue(sink.events.isEmpty())
+    }
+
+    @Test
     fun events_in_the_table_are_sent() {
         val sink = RecordingSink()
         val telemetry = Telemetry(sink, strict = true)

@@ -10,16 +10,39 @@ import org.sjhstudio.diary.app.di.initKoin
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.platform.IosDriveBridge
+import org.sjhstudio.diary.core.platform.NoTelemetrySink
+import org.sjhstudio.diary.core.platform.TelemetrySink
 
 /**
  * iosApp의 `iOSApp.init`이 부른다(contracts/app-shell.md 시작 순서 1).
  * Koin을 켜고 시작 단계를 돌린다.
  */
 @OptIn(ExperimentalNativeApi::class)
-fun startApp(driveBridge: GoogleDrive) {
+fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?) {
     IosDrive.bridge = driveBridge.asBridge()
+    IosTelemetry.sink = firebase?.asSink() ?: NoTelemetrySink
     initKoin(isDebug = Platform.isDebugBinary)
     KoinPlatform.getKoin().get<Startup>().start()
+}
+
+/** Swift의 Firebase 구현이 맞추는 모양. 설정 파일이 없는 빌드는 null을 넘긴다. */
+interface FirebaseReporting {
+    fun log(event: String, params: Map<String, String>)
+
+    fun setCustomKey(key: String, value: String)
+}
+
+internal object IosTelemetry {
+    var sink: TelemetrySink = NoTelemetrySink
+}
+
+private fun FirebaseReporting.asSink(): TelemetrySink {
+    val firebase = this
+    return object : TelemetrySink {
+        override fun log(event: String, params: Map<String, String>) = firebase.log(event, params)
+
+        override fun setCustomKey(key: String, value: String) = firebase.setCustomKey(key, value)
+    }
 }
 
 /** Swift의 GoogleSignIn 구현이 맞추는 모양. 공유 프레임워크에 그대로 나간다(스펙 003 research R2). */

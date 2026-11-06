@@ -192,3 +192,14 @@ admob.rewarded=ca-app-pub-.../...
 - [ ] Play Console 판매자(trader) 상태 선언: 모든 계정이 2027-02-01까지 한다(위 "출시 국가")
 - [ ] 출시 국가(D11) 정하기. 일본에 유료 기능을 팔면 특정상거래법 표시와 결제 프로필 동의를 마친다
 - [ ] 이전 업그레이드 계측 테스트 통과(`docs/migration.md` 시험)
+
+## Firebase
+
+Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
+
+- Android: `composeApp/google-services.json`
+- iOS: `iosApp/iosApp/GoogleService-Info.plist`
+
+파일이 있으면 빌드가 켜고, 없으면 아무것도 보내지 않는다. 개발 빌드는 보내지 않는다. 확인할 때는 `local.properties`에 `firebase.debug=true`를 넣고 `adb shell setprop debug.firebase.analytics.app org.sjhstudio.diary`로 DebugView를 켠다.
+출시 빌드는 Android 난독화 매핑과 iOS dSYM을 자동으로 올린다.
+

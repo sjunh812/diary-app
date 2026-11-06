@@ -331,7 +331,7 @@ private fun Content(
     // 보는 화면이 바뀔 때마다 화면 키 이름만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
     val telemetry = koinInject<Telemetry>()
     val top = backStack.lastOrNull()
-    LaunchedEffect(top) { if (top != null) telemetry.log(AnalyticsEvents.SCREEN_VIEW, mapOf("screen" to top.toString())) }
+    LaunchedEffect(top) { if (top != null) telemetry.screen(top.toString()) }
     // 저장 뒤 상세에서 목록으로 돌아올 때 하루 한 번 전면 광고를 띄운다. 저장은 이미 끝나 있다(FR-010).
     val ads = koinInject<AdRepository>()
     val adScope = rememberCoroutineScope()

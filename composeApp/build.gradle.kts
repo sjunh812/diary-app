@@ -9,6 +9,15 @@ plugins {
     alias(libs.plugins.baselineprofile)
     // 오픈소스 고지 목록을 만든다. 앱에 실제로 들어가는 의존성을 다 아는 곳이 여기라 여기에 단다.
     alias(libs.plugins.aboutlibraries)
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.firebase.crashlytics) apply false
+}
+
+// Firebase 설정 파일은 저장소에 두지 않는다. 파일이 있는 빌드만 사용 통계와 비정상 종료 보고를 켠다.
+val firebaseConfigured = file("google-services.json").exists()
+if (firebaseConfigured) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 // `./gradlew :composeApp:exportLibraryDefinitions`로 다시 만든다. 의존성을 바꾸면 같은 커밋에서 다시 만든다.
@@ -47,7 +56,9 @@ android {
             "adAppId" to localProperty("admob.app.id", "ca-app-pub-3940256099942544~3347511713"),
             "adNative" to localProperty("admob.native", ""),
             "adInterstitial" to localProperty("admob.interstitial", ""),
-            "adRewarded" to localProperty("admob.rewarded", "")
+            "adRewarded" to localProperty("admob.rewarded", ""),
+            // 개발 빌드는 보내지 않는다. 확인할 때만 local.properties의 firebase.debug=true로 켠다.
+            "firebaseCollection" to "true"
         )
     }
 
@@ -80,7 +91,8 @@ android {
             manifestPlaceholders += mapOf(
                 "adNative" to "ca-app-pub-3940256099942544/2247696110",
                 "adInterstitial" to "ca-app-pub-3940256099942544/1033173712",
-                "adRewarded" to "ca-app-pub-3940256099942544/5224354917"
+                "adRewarded" to "ca-app-pub-3940256099942544/5224354917",
+                "firebaseCollection" to localProperty("firebase.debug", "false")
             )
         }
         release {

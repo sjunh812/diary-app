@@ -254,7 +254,9 @@
 
 - Decision: `core/platform`의 `Telemetry` 인터페이스. Android는 Firebase Analytics·Crashlytics, iOS는 Swift 쪽이 Firebase iOS SDK(SPM)로 구현해
   `MainViewController`에 넘긴다. 보낼 수 있는 이벤트와 값은 `contracts/app-shell.md`의 고정 표뿐이고 값은 열거형과 개수 구간이다. 이전 오류는
-  `MigrationError(kind)`로 바꾼 뒤 보내 예외 메시지(경로, SQL)가 나가지 않게 한다. Crashlytics에 사용자 정의 로그를 남기지 않는다.
+  `MigrationError(kind)`로 바꾼 뒤 보내 예외 메시지(경로, SQL)가 나가지 않게 한다. Crashlytics에 사용자 정의 로그를 남기지 않고, 사용자 정의 키는
+  `migration_step`, `screen`(지금 화면), `recent_screens`(지나온 화면 8개)뿐이다. 값은 고정 표의 화면 키 이름이고 일기 번호 같은 인자는 넣지 않는다(2026-11-07).
+  광고 ID, SSAID, 맞춤 광고 신호는 끄고 개발 빌드는 보내지 않는다. 설정 파일은 저장소에 두지 않고, 없으면 켜지지 않는다.
 - Rationale: 헌법 II, FR-013, SC-009. 예외 메시지에 사진 경로나 값이 섞일 수 있다(판단).
 
 ### R22. iOS 앱 틀

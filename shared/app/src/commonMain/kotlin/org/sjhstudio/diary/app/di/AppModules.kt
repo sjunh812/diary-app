@@ -82,9 +82,7 @@ import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.ImageDecoder
-import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
-import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
@@ -147,7 +145,6 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single { ReminderRepository(get(), get()) }
         single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
         // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
-        single<TelemetrySink> { NoTelemetrySink }
         single { Telemetry(get(), strict = isDebug) }
         single {
             // 옛 앱이 없는 iOS에는 잠금·설정 잇기가 없다.

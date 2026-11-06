@@ -34,3 +34,6 @@ xcuserdata/
 *.xcuserstate
 # 레거시 업그레이드 시험 산출물
 scripts/legacy/out/
+# Firebase 설정 파일. 비밀은 아니지만 프로젝트 정보라 저장소에 두지 않는다.
+composeApp/google-services.json
+iosApp/iosApp/GoogleService-Info.plist
