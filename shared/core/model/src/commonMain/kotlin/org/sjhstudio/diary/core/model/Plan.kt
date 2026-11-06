@@ -13,4 +13,5 @@ enum class ProductId { AD_FREE, PLUS_YEARLY }
 /** 스토어에서 받은 상품. 가격은 스토어가 준 글자 그대로 보인다(FR-004). */
 data class StoreProduct(val id: ProductId, val price: String)
 
-enum class PurchaseResult { DONE, CANCELLED, FAILED }
+/** [NOTHING]은 복원할 구매가 없다는 뜻이다. 스토어에 닿지 못한 [FAILED]와 다르다. */
+enum class PurchaseResult { DONE, CANCELLED, NOTHING, FAILED }

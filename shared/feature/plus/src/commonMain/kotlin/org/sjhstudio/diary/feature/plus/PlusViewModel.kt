@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.plus
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ data class PlusUiState(val products: List<StoreProduct> = emptyList(), val loadi
     fun price(id: ProductId): String? = products.firstOrNull { it.id == id }?.price
 }
 
-enum class PlusMessage { Failed, Restored, RestoreNone }
+enum class PlusMessage { Failed, Restored, RestoreNone, RestoreFailed }
 
 /** 결제 화면과 시트의 상태. 취소는 아무 말 없이 그대로 돌아온다. */
 class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseRepository) : ViewModel() {
@@ -43,32 +44,64 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
     fun load() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true) }
-            val products = purchases.products()
+            // 스토어가 예외를 던져도 불러오는 중에 멈추지 않고 다시 시도할 수 있게 둔다.
+            val products =
+                try {
+                    purchases.products()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    emptyList()
+                }
             _state.update { it.copy(products = products, loading = false) }
         }
     }
 
     fun buy(id: ProductId, onDone: () -> Unit = {}) {
         if (_state.value.busy) return
+        // 이미 가진 혜택을 두 번 결제하지 않게 스토어로 보내지 않는다.
+        if (owns(id)) {
+            onDone()
+            return
+        }
         viewModelScope.launch {
-            _state.update { it.copy(busy = true) }
-            val result = purchases.buy(id)
-            _state.update { it.copy(busy = false) }
-            when (result) {
+            when (attempt { purchases.buy(id) }) {
                 PurchaseResult.DONE -> onDone()
                 PurchaseResult.FAILED -> _messages.send(PlusMessage.Failed)
-                PurchaseResult.CANCELLED -> Unit
+                PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> Unit
             }
+        }
+    }
+
+    private fun owns(id: ProductId): Boolean = when (id) {
+        ProductId.AD_FREE -> plan.value != Plan.FREE
+        ProductId.PLUS_YEARLY -> plan.value == Plan.PLUS
+    }
+
+    /** 스토어가 예외를 던져도 실패로 돌려 버튼이 눌린 채로 멈추지 않게 한다. */
+    private suspend fun attempt(call: suspend () -> PurchaseResult): PurchaseResult {
+        _state.update { it.copy(busy = true) }
+        return try {
+            call()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            PurchaseResult.FAILED
+        } finally {
+            _state.update { it.copy(busy = false) }
         }
     }
 
     fun restore() {
         if (_state.value.busy) return
         viewModelScope.launch {
-            _state.update { it.copy(busy = true) }
-            val result = purchases.restore()
-            _state.update { it.copy(busy = false) }
-            _messages.send(if (result == PurchaseResult.DONE) PlusMessage.Restored else PlusMessage.RestoreNone)
+            val message =
+                when (attempt { purchases.restore() }) {
+                    PurchaseResult.DONE -> PlusMessage.Restored
+                    PurchaseResult.FAILED -> PlusMessage.RestoreFailed
+                    PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> PlusMessage.RestoreNone
+                }
+            _messages.send(message)
         }
     }
 }

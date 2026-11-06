@@ -29,4 +29,25 @@ class PlanTest {
         assertTrue(Plan.PLUS.advancedStats)
         assertTrue(Plan.PLUS.checklist)
     }
+
+    @Test
+    fun ad_free_buys_only_the_ads() {
+        assertFalse(Plan.AD_FREE.showsAds)
+        assertEquals(Plan.FREE.photoLimit, Plan.AD_FREE.photoLimit)
+        assertEquals(Plan.FREE.checklist, Plan.AD_FREE.checklist)
+        assertEquals(Plan.FREE.advancedStats, Plan.AD_FREE.advancedStats)
+    }
+
+    @Test
+    fun plus_holds_everything_paid() {
+        assertFalse(Plan.PLUS.showsAds)
+        assertEquals(PhotoLimit.PLUS, Plan.PLUS.photoLimit)
+        assertTrue(Plan.PLUS.checklist && Plan.PLUS.advancedStats)
+    }
+
+    @Test
+    fun free_keeps_ten_photos() {
+        assertEquals(10, Plan.FREE.photoLimit)
+        assertEquals(30, Plan.PLUS.photoLimit)
+    }
 }

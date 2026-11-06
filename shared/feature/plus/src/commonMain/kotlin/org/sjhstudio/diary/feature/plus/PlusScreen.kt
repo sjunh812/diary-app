@@ -86,6 +86,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_photos_body
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
 import org.sjhstudio.diary.feature.plus.resources.plus_price
 import org.sjhstudio.diary.feature.plus.resources.plus_restore
+import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
 import org.sjhstudio.diary.feature.plus.resources.plus_restored
 import org.sjhstudio.diary.feature.plus.resources.plus_retry
@@ -110,6 +111,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val failed = stringResource(Res.string.plus_failed)
     val restored = stringResource(Res.string.plus_restored)
     val none = stringResource(Res.string.plus_restore_none)
+    val restoreFailed = stringResource(Res.string.plus_restore_failed)
     LaunchedEffect(viewModel) {
         viewModel.messages.collect { message ->
             scope.launch {
@@ -118,6 +120,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
                         PlusMessage.Failed -> failed
                         PlusMessage.Restored -> restored
                         PlusMessage.RestoreNone -> none
+                        PlusMessage.RestoreFailed -> restoreFailed
                     }
                 )
             }

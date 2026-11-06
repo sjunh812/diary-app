@@ -12,7 +12,8 @@
     <string name="plus_notice">Renews automatically every year. You can cancel in the store up to 24 hours before renewal.</string>
     <string name="plus_retry">Try again</string>
     <string name="plus_no_store">Couldn't load the price. Please check your connection.</string>
-    <string name="plus_failed">Payment wasn't completed and you weren't charged. Please try again.</string>
+    <string name="plus_failed">Couldn't finish the payment. If you were charged, tap Restore purchases.</string>
+    <string name="plus_restore_failed">Couldn't check your purchases. Check your connection and try again.</string>
     <string name="plus_restored">Purchase restored</string>
     <string name="plus_restore_none">No purchases to restore</string>
     <string name="plus_ad_free_owned">You already have ad removal.</string>

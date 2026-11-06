@@ -86,6 +86,7 @@ import org.sjhstudio.diary.app.resources.write_new
 import org.sjhstudio.diary.app.resources.write_saved
 import org.sjhstudio.diary.app.settings.settingsEntries
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
@@ -418,6 +419,9 @@ private fun Content(
                     )
                 }
                 entry<AdvancedStatsKey> {
+                    // 구독이 끝난 채 앱이 이 화면을 되살려도 머물지 않고 돌아보기로 돌아간다.
+                    val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
+                    LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
                     AdvancedStatsRoute(
                         onBack = pop,
                         onMood = { mood, range ->

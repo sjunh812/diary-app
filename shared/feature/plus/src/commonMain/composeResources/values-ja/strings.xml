@@ -12,7 +12,8 @@
     <string name="plus_notice">1年ごとに自動更新されます。更新の24時間前までストアで解約できます。</string>
     <string name="plus_retry">再試行</string>
     <string name="plus_no_store">価格を読み込めませんでした。接続を確認してください。</string>
-    <string name="plus_failed">決済を完了できませんでした。請求はされていません。もう一度お試しください。</string>
+    <string name="plus_failed">決済を完了できませんでした。支払い済みの場合は購入を復元してください。</string>
+    <string name="plus_restore_failed">購入履歴を確認できませんでした。インターネット接続を確認して、もう一度お試しください。</string>
     <string name="plus_restored">購入を復元しました</string>
     <string name="plus_restore_none">復元できる購入がありません</string>
     <string name="plus_ad_free_owned">広告削除はすでにご利用中です。</string>

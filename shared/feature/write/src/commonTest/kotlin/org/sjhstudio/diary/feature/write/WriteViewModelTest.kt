@@ -70,6 +70,27 @@ class WriteViewModelTest {
     }
 
     @Test
+    fun checklist_tool_follows_the_plan_and_closes_when_it_ends() = runTest(dispatcher) {
+        val plans = object : PlanRepository {
+            override val plan = MutableStateFlow(Plan.FREE)
+        }
+        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
+        assertEquals(false, viewModel.checklistOpen.value)
+
+        plans.plan.value = Plan.AD_FREE
+        advanceUntilIdle()
+        assertEquals(false, viewModel.checklistOpen.value)
+
+        plans.plan.value = Plan.PLUS
+        advanceUntilIdle()
+        assertEquals(true, viewModel.checklistOpen.value)
+
+        plans.plan.value = Plan.FREE
+        advanceUntilIdle()
+        assertEquals(false, viewModel.checklistOpen.value)
+    }
+
+    @Test
     fun photo_limit_follows_the_plan() = runTest(dispatcher) {
         val plans = object : PlanRepository {
             override val plan = MutableStateFlow(Plan.FREE)

@@ -30,11 +30,13 @@ class AdRepositoryTest {
     private inner class Player : AdPlayer {
         var shown = 0
         var reward = true
+        var ready = true
         override val available = true
 
         override fun prepareInterstitial() = Unit
 
         override suspend fun showInterstitial(): Boolean {
+            if (!ready) return false
             shown++
             return true
         }
@@ -110,5 +112,59 @@ class AdRepositoryTest {
 
         assertFalse(repo.watchReward())
         assertTrue(repo.showAds.first())
+    }
+
+    @Test
+    fun declined_interstitial_stays_due_for_the_next_return() = runTest {
+        val repository = repo()
+        player.ready = false
+        repository.backToList()
+        assertEquals(0, player.shown)
+
+        player.ready = true
+        repository.backToList()
+        assertEquals(1, player.shown)
+    }
+
+    @Test
+    fun a_new_day_shows_one_again_even_across_a_year() = runTest {
+        now = Instant.parse("2026-12-31T12:00:00Z")
+        val repository = repo()
+        repository.backToList()
+        now = Instant.parse("2027-01-01T01:00:00Z")
+        repository.backToList()
+        repository.backToList()
+        assertEquals(2, player.shown)
+    }
+
+    @Test
+    fun reward_ends_after_a_day() = runTest {
+        val repository = repo()
+        player.reward = true
+        assertTrue(repository.watchReward())
+        assertFalse(repository.showAds.first())
+
+        now += 25.hours
+        assertTrue(repository.showAds.first())
+    }
+
+    @Test
+    fun clock_moved_forward_before_a_reward_does_not_last_longer() = runTest {
+        val repository = repo()
+        now += 1000.hours
+        player.reward = true
+        assertTrue(repository.watchReward())
+        now -= 1000.hours
+        assertTrue(repository.showAds.first())
+    }
+
+    @Test
+    fun buying_while_a_reward_runs_keeps_ads_off_after_it_ends() = runTest {
+        val repository = repo()
+        player.reward = true
+        repository.watchReward()
+        plans.plan.value = Plan.AD_FREE
+        now += 25.hours
+        assertFalse(repository.showAds.first())
     }
 }
