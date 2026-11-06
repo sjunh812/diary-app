@@ -146,7 +146,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
     val busy = state is FileBackupUi.Writing || state == FileBackupUi.Reading
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Heading(DiaryIcons.Download, stringResource(Res.string.file_title), estimate?.let { bodyOf(it) }.orEmpty())
-        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             DiaryNoteBox(
                 listOf(
                     DiaryNote(DiaryIcons.Download, stringResource(Res.string.file_place_title), stringResource(Res.string.file_place_body)),

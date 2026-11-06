@@ -72,7 +72,7 @@ fun FontSettingsScreen(state: FontUiState, onSelect: (DiaryFont) -> Unit, onBack
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             Column(
                 Modifier
-                    .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
+                    .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4)
                     .fillMaxWidth()
                     .clip(DiaryShapes.r16)
                     .background(colors.sunken)

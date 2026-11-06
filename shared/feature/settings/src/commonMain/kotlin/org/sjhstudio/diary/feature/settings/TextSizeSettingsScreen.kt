@@ -70,7 +70,7 @@ fun TextSizeSettingsScreen(
         ) {
             Column(
                 Modifier.padding(
-                    top = DiarySpacing.x2
+                    top = DiarySpacing.x4
                 ).fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x5),
                 verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
             ) {

@@ -209,7 +209,7 @@ internal fun BackupSettingsScreen(
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             // 파일로 바꾼 사람은 연결이 없어도 되돌릴 수 있어야 한다.
             rollback?.let {
-                Box(Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x2)) {
+                Box(Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x4)) {
                     Rollback(it, onRollBack)
                 }
             }
@@ -224,8 +224,8 @@ internal fun BackupSettingsScreen(
                 )
             } else {
                 Column(
-                    Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+                    Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
+                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
                 ) {
                     Status(status, onCellular, onConnect)
                     if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {

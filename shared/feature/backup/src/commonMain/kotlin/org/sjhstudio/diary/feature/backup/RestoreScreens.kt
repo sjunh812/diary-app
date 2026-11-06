@@ -551,7 +551,7 @@ private fun ColumnScope.Result(result: RestoreResult, onLock: () -> Unit, onStar
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Hero(DiaryIcons.CircleCheck, resultTitle(result), resultBody(result), fill = false)
-        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             DiaryNoteBox(resultNotes(result))
             if (result.lockWasOn) {
                 DiaryStatusBox(

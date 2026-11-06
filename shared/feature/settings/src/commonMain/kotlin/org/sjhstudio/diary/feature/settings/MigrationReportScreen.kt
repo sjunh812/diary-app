@@ -78,7 +78,7 @@ fun MigrationReportScreen(
                                 Res.string.migration_deferred_body
                             }
                         ),
-                    modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
+                    modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
                     actionLabel =
                         stringResource(
                             if (state.retry == MigrationRetry.Running) {
