@@ -21,7 +21,7 @@
     <string name="onboarding_later">나중에</string>
     <plurals name="letter_moved"><item quantity="other">그동안 일기 **%1$s편**을 남겨 주셨습니다.</item></plurals>
     <string name="letter_promise_free">쓰시던 기능은 계속 무료입니다</string>
-    <string name="letter_promise_ads">일기를 쓰고 읽는 화면에는 광고가 없습니다</string>
+    <string name="letter_promise_ads">쓰기와 상세 화면에는 광고가 없습니다</string>
     <string name="letter_close">항상 사용해 주셔서 감사합니다 🙇‍♂️\n앞으로도 잘 부탁드립니다.</string>
     <string name="onboarding_style_title">글자를 꾸밀 수 있어요</string>
     <string name="onboarding_style_body">굵게, 글자색, 형광펜, 목록을 써 보세요.</string>
