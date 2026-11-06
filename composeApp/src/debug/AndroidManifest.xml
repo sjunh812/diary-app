@@ -10,15 +10,10 @@
         <activity
             android:name=".debug.ScreenCatalogActivity"
             android:exported="true" />
-        <!-- 개발자 모드. 개발 빌드에만 아이콘이 하나 더 생긴다. 출시 빌드에는 없다. -->
+        <!-- 개발자 모드. 설정 맨 아래 줄로 들어간다. adb로 시험 값을 넘길 수 있게 내보낸다. -->
         <activity
             android:name=".debug.DevModeActivity"
             android:exported="true"
-            android:label="1일 1일기 개발">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="개발자 모드" />
     </application>
 </manifest>

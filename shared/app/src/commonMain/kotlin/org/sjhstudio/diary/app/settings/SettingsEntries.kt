@@ -19,6 +19,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.navigation.BackupOptionsKey
@@ -51,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
 import org.sjhstudio.diary.feature.backup.FileBackupRoute
@@ -93,6 +95,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         SettingsScreen(
             state,
             plusActive = plan == Plan.PLUS,
+            adsRemoved = plan == Plan.AD_FREE,
+            onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
             onFont = { push(FontSettingsKey) },
             onTextSize = { push(TextSizeSettingsKey) },
             onTheme = { push(ThemeSettingsKey) },

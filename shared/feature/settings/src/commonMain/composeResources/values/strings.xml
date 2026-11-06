@@ -113,6 +113,8 @@
     <string name="settings_letter">A letter from the developer</string>
     <string name="settings_plus">Plus</string>
     <string name="settings_plus_title">Keep more, without ads</string>
+    <string name="settings_plus_title_ad_free">Keep more in every entry</string>
+    <string name="settings_dev_mode">Developer mode</string>
     <string name="settings_plus_body">Up to 30 photos per entry, checklists, and advanced stats.</string>
     <string name="settings_plus_action">Explore Plus</string>
     <string name="settings_plus_active">Active</string>

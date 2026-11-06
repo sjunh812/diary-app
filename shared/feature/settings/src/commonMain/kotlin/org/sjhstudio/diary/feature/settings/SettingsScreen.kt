@@ -32,6 +32,7 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
 import org.sjhstudio.diary.feature.settings.resources.settings_backup
+import org.sjhstudio.diary.feature.settings.resources.settings_dev_mode
 import org.sjhstudio.diary.feature.settings.resources.settings_font
 import org.sjhstudio.diary.feature.settings.resources.settings_group_diary
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
@@ -46,6 +47,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_active
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_title
+import org.sjhstudio.diary.feature.settings.resources.settings_plus_title_ad_free
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
@@ -75,6 +77,8 @@ fun SettingsScreen(
     onLetter: () -> Unit = {},
     onPlus: () -> Unit = {},
     plusActive: Boolean = false,
+    adsRemoved: Boolean = false,
+    onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
     onDesignCatalog: (() -> Unit)? = null
@@ -113,7 +117,7 @@ fun SettingsScreen(
             } else {
                 // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드로 둔다.
                 DiaryInviteCard(
-                    stringResource(Res.string.settings_plus_title),
+                    stringResource(if (adsRemoved) Res.string.settings_plus_title_ad_free else Res.string.settings_plus_title),
                     stringResource(Res.string.settings_plus_body),
                     stringResource(Res.string.settings_plus_action),
                     onPlus,
@@ -164,6 +168,7 @@ fun SettingsScreen(
             }
             DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
             DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
+            onDevMode?.let { DiarySettingsRow(stringResource(Res.string.settings_dev_mode), onClick = it) }
         }
     }
 }

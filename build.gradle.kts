@@ -23,12 +23,12 @@ spotless {
     val ktlintVersion = libs.versions.ktlint.get()
     kotlin {
         target("**/*.kt")
-        targetExclude("**/build/**", "app/**", "scripts/**")
+        targetExclude("**/build/**", "app/**", "scripts/**", ".claude/**")
         ktlint(ktlintVersion)
     }
     kotlinGradle {
         target("**/*.gradle.kts")
-        targetExclude("**/build/**", "app/**", "scripts/**")
+        targetExclude("**/build/**", "app/**", "scripts/**", ".claude/**")
         ktlint(ktlintVersion)
     }
 }

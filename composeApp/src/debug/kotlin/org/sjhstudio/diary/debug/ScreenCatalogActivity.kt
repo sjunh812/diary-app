@@ -162,7 +162,7 @@ class ScreenCatalogActivity : ComponentActivity() {
     private fun Progress(state: RestoreState) =
         RestoreProgressScreen(state, onSeeEntries = {}, onStart = {}, onLock = {}, onRetry = {}, onPickOther = {})
 
-    private companion object {
+    companion object {
         const val EXTRA_SCREEN = "screen"
         const val RESTORE_LIST = "restore_list"
         const val RESTORE_LOADING = "restore_loading"

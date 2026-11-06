@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.debug
 
+import android.content.Intent
 import java.io.File
 import org.koin.android.ext.android.get
 import org.koin.core.context.loadKoinModules
@@ -8,6 +9,7 @@ import org.sjhstudio.diary.DiaryApplication
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.migration.MigrationEvents
+import org.sjhstudio.diary.core.platform.DevMenu
 
 /** 개발 빌드의 앱. 기록 이전에 강제 종료 훅을 끼우고 요금제를 바꿀 수 있게 한다(T049). 출시 빌드에는 없다. */
 class DebugApplication : DiaryApplication() {
@@ -22,6 +24,11 @@ class DebugApplication : DiaryApplication() {
                 single { DevPlanRepository(this@DebugApplication) }
                 single<PlanRepository> { get<DevPlanRepository>() }
                 single<PurchaseRepository> { FakePurchases(get()) }
+                single<DevMenu> {
+                    DevMenu {
+                        startActivity(Intent(this@DebugApplication, DevModeActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    }
+                }
             }
         )
     }

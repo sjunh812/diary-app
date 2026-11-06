@@ -8,64 +8,104 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import kotlin.time.Clock
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
-import org.sjhstudio.diary.MainActivity
 import org.sjhstudio.diary.core.data.PlanRepository
-import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
+import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
-import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
- * 개발자 모드. 요금제마다 앱이 어떻게 달라지는지 결제 없이 본다.
- * 다음 단계가 있는 화면이 아니다. 고르면 바로 적용되고 [앱 열기]로 넘어가 확인한다.
- * `src/debug`에만 있어 출시 빌드에는 코드도 화면도 들어가지 않는다. 사용자에게 보이지 않으므로 문구를 리소스에 두지 않는다.
+ * 개발자 모드. 설정 맨 아래 줄로 들어오고 출시 빌드에는 없다.
+ * 앱과 같은 화면 모드를 따라서 기기 설정과 달라도 앱과 같게 보인다.
  */
 class DevModeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험한다. 개발 빌드에만 있다.
-        if (intent.getBooleanExtra("crash", false)) {
-            window.decorView.post { error("Crashlytics 시험") }
-        }
+        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험한다.
+        if (intent.getBooleanExtra(EXTRA_CRASH, false)) crash()
         val plans = get<PlanRepository>() as DevPlanRepository
+        val ads = get<AdStore>()
+        val settings = get<SettingsRepository>()
         setContent {
-            DiaryTheme(darkTheme = isSystemInDarkTheme()) {
+            val mode by settings.settings.map { it.themeMode }.collectAsStateWithLifecycle(ThemeMode.SYSTEM)
+            val dark =
+                when (mode) {
+                    ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                    ThemeMode.LIGHT -> false
+                    ThemeMode.DARK -> true
+                }
+            DiaryTheme(darkTheme = dark) {
                 val plan by plans.plan.collectAsStateWithLifecycle()
-                Column(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
+                Column(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).systemBarsPadding()) {
                     DiaryTopBar("개발자 모드", onBack = ::finish)
-                    DiarySettingsHeader("요금제")
-                    Plan.entries.forEach { each ->
-                        DiarySettingsChoiceRow(each.label, each == plan, { plans.choose(each) }, description = each.summary)
+                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                        DiarySettingsHeader("요금제")
+                        Plan.entries.forEach { each ->
+                            DiarySettingsChoiceRow(each.label, each == plan, { plans.choose(each) }, description = each.summary)
+                        }
+                        DiarySettingsHeader("지금 켜진 것", gapAbove = true)
+                        DiarySettingsValueRow("광고", if (plan.showsAds) "보임" else "안 보임")
+                        DiarySettingsValueRow("한 편 사진", "${plan.photoLimit}장")
+                        DiarySettingsValueRow("체크리스트", if (plan.checklist) "켜짐" else "꺼짐")
+                        DiarySettingsValueRow("고급 통계", if (plan.advancedStats) "켜짐" else "꺼짐")
+                        DiarySettingsHeader("광고", gapAbove = true)
+                        DiarySettingsRow("오늘 전면 광고 다시 받기", onClick = { reset { ads.interstitialShown("") } })
+                        DiarySettingsRow("보상 광고 혜택 지우기", onClick = { reset { ads.rewardUntil(Clock.System.now()) } })
+                        DiarySettingsHeader("화면 견본", gapAbove = true)
+                        SCREENS.forEach { (name, screen) -> DiarySettingsRow(name, onClick = { open(screen) }) }
+                        DiarySettingsHeader("시험", gapAbove = true)
+                        DiarySettingsRow(
+                            "비정상 종료 보내기",
+                            onClick = ::crash,
+                            description = "앱을 끝내고, 다시 열면 Crashlytics로 보고가 가요."
+                        )
                     }
-                    DiarySettingsHeader("지금 켜진 것")
-                    DiarySettingsValueRow("광고", if (plan.showsAds) "보임" else "안 보임")
-                    DiarySettingsValueRow("한 편 사진", "${plan.photoLimit}장")
-                    DiarySettingsValueRow("고급 통계", if (plan.advancedStats) "켜짐" else "꺼짐")
-                    Spacer(Modifier.weight(1f))
-                    // 요금제는 고르는 즉시 앱에 적용된다. 이 화면에서 바로 앱으로 넘어간다.
-                    DiaryButton(
-                        "앱 열기",
-                        { startActivity(Intent(this@DevModeActivity, MainActivity::class.java)) },
-                        Modifier.fillMaxWidth().navigationBarsPadding().padding(DiarySpacing.x5)
-                    )
                 }
             }
         }
+    }
+
+    private fun reset(work: suspend () -> Unit) {
+        lifecycleScope.launch { work() }
+    }
+
+    private fun open(screen: String) {
+        startActivity(Intent(this, ScreenCatalogActivity::class.java).putExtra(ScreenCatalogActivity.EXTRA_SCREEN, screen))
+    }
+
+    private fun crash() {
+        window.decorView.post { error("Crashlytics 시험") }
+    }
+
+    private companion object {
+        const val EXTRA_CRASH = "crash"
+        val SCREENS =
+            listOf(
+                "개발자의 편지(봉투)" to "letter",
+                "편지 다시 읽기" to "full_letter",
+                "디자인 시스템 견본" to "design_catalog",
+                "기록 이전 결과" to "migration_report",
+                "1만 편 목록" to "list_performance"
+            )
     }
 }
 
