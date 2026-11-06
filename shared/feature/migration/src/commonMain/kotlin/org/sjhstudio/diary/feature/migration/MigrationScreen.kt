@@ -249,7 +249,10 @@ private fun FailedContent(
         primary = stringResource(if (noSpace) Res.string.migration_check_again else Res.string.migration_retry) to onRetry,
         fullWidthContent = true
     ) {
-        onViewLegacy?.let { DiarySettingsRow(stringResource(Res.string.migration_view_legacy), it, leadingIcon = DiaryIcons.BookOpen) }
+        // 사본이 없으면 볼 것이 없어 빈 화면만 나온다.
+        if (state.hasCopy) {
+            onViewLegacy?.let { DiarySettingsRow(stringResource(Res.string.migration_view_legacy), it, leadingIcon = DiaryIcons.BookOpen) }
+        }
         if (!noSpace) {
             onExportOriginal?.let {
                 DiarySettingsRow(stringResource(Res.string.migration_export_original), it, leadingIcon = DiaryIcons.Download)

@@ -51,7 +51,11 @@ private fun Partial() = Screen(MigrationUiState.Result(report(MigrationOutcome.P
 
 @Preview(name = "M3 옮기지 못했어요", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
-private fun Failed() = Screen(MigrationUiState.Failed(MigrationFailureKind.READ_ERROR, shortfallBytes = null))
+private fun Failed() = Screen(MigrationUiState.Failed(MigrationFailureKind.READ_ERROR, shortfallBytes = null, hasCopy = true))
+
+@Preview(name = "실패 · 사본 없음", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun FailedNoCopy() = Screen(MigrationUiState.Failed(MigrationFailureKind.SNAPSHOT_IO, shortfallBytes = null))
 
 @Preview(name = "M3 저장 공간 부족", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

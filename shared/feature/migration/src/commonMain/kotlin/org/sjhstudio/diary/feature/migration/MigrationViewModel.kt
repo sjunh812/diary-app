@@ -48,8 +48,9 @@ sealed interface MigrationUiState {
     /**
      * 실패(M3).
      * 공간 부족 말고는 새 일기부터 쓰기로 앱 틀로 갈 수 있다.
+     * [hasCopy]는 예전 일기 보기가 읽을 사본이 있는지다.
      */
-    data class Failed(val kind: MigrationFailureKind, val shortfallBytes: Long?) : MigrationUiState
+    data class Failed(val kind: MigrationFailureKind, val shortfallBytes: Long?, val hasCopy: Boolean = false) : MigrationUiState
 
     /**
      * 옮길 것이 없거나 끝났다.
@@ -171,11 +172,20 @@ class MigrationViewModel(
             val next =
                 when (result) {
                     is MigrationResult.Finished -> if (result.showResult) MigrationUiState.Result(result.report) else null
-                    is MigrationResult.Failed -> MigrationUiState.Failed(result.kind, result.neededBytes)
+                    is MigrationResult.Failed -> MigrationUiState.Failed(result.kind, result.neededBytes, hasCopy())
                     is MigrationResult.AlreadyFinished, MigrationResult.NoLegacy -> null
                 }
             if (next == null) pass() else _state.value = next
         }
+    }
+
+    /** 사본을 볼 수 없으면 없는 것처럼 줄을 숨긴다. */
+    private suspend fun hasCopy(): Boolean = try {
+        withContext(background) { migration.hasLegacyCopy }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        false
     }
 
     private companion object {

@@ -151,6 +151,8 @@ class MigrationRunner(
 
     override fun report(): MigrationReport? = store.readReport()
 
+    override val hasLegacyCopy: Boolean get() = fileSystem.exists(paths.snapshotDir / paths.legacy.noteDb.name)
+
     /** 원본이 있고 아직 끝나지 않았는가(관문이 이전 화면을 띄울지 정한다). */
     override fun needsMigration(): Boolean {
         val step = store.readState().step

@@ -4,6 +4,7 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -129,6 +130,34 @@ class MigrationNoSpaceTest {
             env.free = Long.MAX_VALUE
 
             assertIs<MigrationResult.Finished>(env.runner().run())
+        }
+    }
+
+    /** 공간이 없어 사본을 만들기 전에 멈췄으면 예전 일기 보기에 볼 것이 없다. */
+    @Test
+    fun stopping_before_the_copy_leaves_nothing_to_read() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            env.oneEntry()
+            env.free = 0
+            val runner = env.runner()
+
+            runner.run()
+
+            assertFalse(runner.hasLegacyCopy)
+        }
+    }
+
+    @Test
+    fun a_finished_copy_can_be_read() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            env.oneEntry()
+            val runner = env.runner()
+
+            runner.run()
+
+            assertTrue(runner.hasLegacyCopy)
         }
     }
 }

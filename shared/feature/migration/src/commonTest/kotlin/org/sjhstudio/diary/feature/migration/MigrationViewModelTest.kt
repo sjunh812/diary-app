@@ -88,6 +88,30 @@ class MigrationViewModelTest {
         assertEquals(listOf<MigrationNotice>(MigrationNotice.PhotosFound(1)), notices)
     }
 
+    /** 사본이 없으면 예전 일기 보기가 빈 화면이라 실패 화면이 그 줄을 숨긴다. */
+    @Test
+    fun the_failure_screen_knows_whether_a_copy_exists() = runTest(dispatcher) {
+        var copy = false
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun needsMigration(): Boolean = true
+
+                override val hasLegacyCopy: Boolean get() = copy
+
+                override suspend fun run(): MigrationResult =
+                    MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.SNAPSHOT_IO)
+            }
+        val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
+        advanceUntilIdle()
+        assertEquals(false, assertIs<MigrationUiState.Failed>(vm.state.value).hasCopy)
+
+        copy = true
+        vm.retry()
+        advanceUntilIdle()
+
+        assertEquals(true, assertIs<MigrationUiState.Failed>(vm.state.value).hasCopy)
+    }
+
     /** 이전이 예외를 던져도 앱을 끄지 않고 실패 화면을 보인다. */
     @Test
     fun a_crash_in_the_migration_lands_on_the_failure_screen() = runTest(dispatcher) {
