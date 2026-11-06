@@ -68,14 +68,13 @@ internal fun PinEntryLayout(
             DiaryPinDots(filled = entered, wrongCount = wrongCount)
             // 틀림·기다림 문구는 점 아래에 둔다. 점 아래는 숫자판까지 빈 자리라 문구가 생겨도 점과 숫자판이 움직이지 않는다
             // (제목과 점 사이를 벌리지 않는다, 2026-11-03 사용자 지적).
-            if (line != null) {
-                Spacer(Modifier.height(DiarySpacing.x4))
-                BasicText(
-                    line.text,
-                    style = DiaryTheme.typography.body.copy(color = line.color, textAlign = TextAlign.Center),
-                    modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact).semantics { liveRegion = LiveRegionMode.Polite }
-                )
-            }
+            // 문구가 없어도 한 줄을 비워 두어 아래 안내 상자가 들썩이지 않는다.
+            Spacer(Modifier.height(DiarySpacing.x4))
+            BasicText(
+                line?.text.orEmpty(),
+                style = DiaryTheme.typography.body.copy(color = line?.color ?: colors.textPrimary, textAlign = TextAlign.Center),
+                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact).semantics { liveRegion = LiveRegionMode.Polite }
+            )
             middle()
             Spacer(Modifier.weight(1f))
             Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), horizontalAlignment = Alignment.CenterHorizontally) {

@@ -45,7 +45,7 @@
     <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
     <!-- 되살리기(B2~B6) -->
     <string name="restore_row">Restore from backup</string>
-    <string name="restore_row_body">Merge a backup from another phone or the old app</string>
+    <string name="restore_row_body">Merge a backup from another phone or the old app.</string>
     <string name="restore_keep_note">Your diary on this phone stays as it is.</string>
     <string name="restore_device_group">%1$s · %2$s</string>
     <string name="restore_device_unknown">Unnamed device</string>
@@ -120,7 +120,7 @@
     <string name="restore_legacy_body">Uploaded by the old app on %1$s.</string>
     <string name="restore_legacy_no_photos">Old backups don’t include photos</string>
     <string name="restore_legacy_no_photos_body">Text, mood, weather, place and favorites come back.</string>
-    <string name="restore_legacy_recent">Entries written after that may be missing</string>
+    <string name="restore_legacy_recent">Entries written after that may be missing.</string>
     <string name="restore_value_existing">Entries already here</string>
     <string name="restore_legacy_action">Bring in</string>
     <string name="restore_legacy_same_time_body">Same date and time with different text. Both are kept and marked.</string>
@@ -152,7 +152,7 @@
     <string name="rollback_ask_after">%1$s entries from before will return. %2$s entries you wrote afterward stay.</string>
     <plurals name="restore_replace_body"><item quantity="one">%1$s entry on this phone will be replaced by this backup. You can go back for 7 days.</item><item quantity="other">%1$s entries on this phone will be replaced by this backup. You can go back for 7 days.</item></plurals>
     <string name="file_top">Back up to a file</string>
-    <string name="file_row_body">Keep everything in one file without Drive</string>
+    <string name="file_row_body">Keep everything in one file without Drive.</string>
     <string name="file_title">Put your diary in one file</string>
     <string name="file_body">Keep %1$s and %2$s in a file without Drive. About %3$s.</string>
     <string name="file_place_title">Save it wherever you like</string>
@@ -162,7 +162,7 @@
     <string name="file_trust_title">Keep it somewhere you trust</string>
     <string name="file_trust_body">The file holds your entries and photos as they are.</string>
     <string name="file_restore">Restore from a file</string>
-    <string name="file_restore_body">Pick a backup file and merge it with your diary</string>
+    <string name="file_restore_body">Pick a backup file and merge it with your diary.</string>
     <string name="file_action">Make file</string>
     <string name="file_writing">Making the file</string>
     <string name="file_write_failed">Couldn’t finish the file. Delete it and make a new one. Nothing on this phone changed.</string>

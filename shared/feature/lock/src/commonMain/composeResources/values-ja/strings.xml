@@ -18,7 +18,7 @@
     <!-- パスコードの設定(L2) -->
     <string name="pin_setup_title">新しい4桁のパスコードを決めてください</string>
     <string name="pin_setup_again">もう一度入力してください</string>
-    <string name="pin_setup_mismatch">パスコードが一致しません。最初から入力し直してください</string>
+    <string name="pin_setup_mismatch">パスコードが一致しません。最初から入力し直してください。</string>
     <string name="pin_setup_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば新しく決め直せます。スマートフォンの画面ロックを知っている人も、この方法で日記を開けます。</string>
 
     <!-- パスコードを忘れたとき(L3) -->
@@ -28,13 +28,13 @@
     <string name="forgot_prompt_title">新しいパスコードを決める</string>
     <string name="forgot_no_device_lock_title">スマートフォンに画面ロックがありません</string>
     <string name="forgot_no_device_lock_body">画面ロックがないとパスコードを決め直せません。バックアップがあれば、アプリを入れ直してバックアップから日記を復元できます。</string>
-    <string name="lock_turned_off">スマートフォンに画面ロックがないため、日記のロックをオフにしました。設定で新しいパスコードを決めてください</string>
+    <string name="lock_turned_off">スマートフォンに画面ロックがないため、日記のロックをオフにしました。設定で新しいパスコードを決めてください。</string>
 
     <!-- ロック設定(L4) -->
     <string name="lock_settings_title">ロック</string>
     <string name="lock_settings_enable">ロックを使う</string>
     <string name="lock_settings_change">パスコードを変更</string>
-    <string name="lock_settings_biometric_unavailable">この端末では今は生体認証を使えません</string>
+    <string name="lock_settings_biometric_unavailable">この端末では今は生体認証を使えません。</string>
     <string name="lock_settings_relock">再ロック</string>
     <string name="lock_settings_relock_body">他のアプリから戻ったとき、選んだ時間が過ぎていれば再びロックします。</string>
     <string name="relock_immediately">すぐに</string>

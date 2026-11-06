@@ -3,10 +3,10 @@
     <string name="home_favorites_only">즐겨찾기만 보기</string>
     <string name="home_favorites_empty">즐겨찾기한 일기가 없어요</string>
     <string name="home_empty_title">아직 쓴 일기가 없어요</string>
-    <string name="home_empty_body">오늘 있었던 일 한 줄이면 충분해요</string>
+    <string name="home_empty_body">오늘 있었던 일 한 줄이면 충분해요.</string>
     <string name="home_empty_action">오늘 일기 쓰기</string>
     <string name="home_month_sheet_title">날짜로 가기</string>
-    <string name="detail_back">뒤로</string>
+    <string name="detail_back">뒤로 가기</string>
     <string name="detail_favorite">즐겨찾기</string>
     <string name="detail_edit">수정하기</string>
     <string name="detail_more">더보기</string>
@@ -22,8 +22,8 @@
     <string name="detail_kept_both_close">닫기</string>
     <string name="detail_elsewhere_photo">원래 휴대폰에 있는 사진</string>
     <string name="home_error_title">일기를 불러오지 못했어요</string>
-    <string name="home_error_body">잠시 뒤에 다시 시도해 주세요</string>
+    <string name="home_error_body">잠시 뒤에 다시 시도해 주세요.</string>
     <string name="home_error_retry">다시 시도</string>
     <string name="detail_missing_title">일기를 찾을 수 없어요</string>
-    <string name="detail_missing_body">삭제했거나 휴지통으로 옮긴 일기일 수 있어요</string>
+    <string name="detail_missing_body">삭제했거나 휴지통으로 옮긴 일기일 수 있어요.</string>
 </resources>

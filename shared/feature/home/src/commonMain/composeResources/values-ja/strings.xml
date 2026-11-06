@@ -3,7 +3,7 @@
     <string name="home_favorites_only">お気に入りのみ</string>
     <string name="home_favorites_empty">お気に入りの日記はありません</string>
     <string name="home_empty_title">まだ日記がありません</string>
-    <string name="home_empty_body">今日のことを一行だけでも大丈夫です</string>
+    <string name="home_empty_body">今日のことを一行だけでも大丈夫です。</string>
     <string name="home_empty_action">今日の日記を書く</string>
     <string name="home_month_sheet_title">日付へ移動</string>
     <string name="detail_back">戻る</string>
@@ -22,8 +22,8 @@
     <string name="detail_kept_both_close">閉じる</string>
     <string name="detail_elsewhere_photo">元のスマホにある写真</string>
     <string name="home_error_title">日記を読み込めませんでした</string>
-    <string name="home_error_body">少し時間をおいて、もう一度お試しください</string>
+    <string name="home_error_body">少し時間をおいて、もう一度お試しください。</string>
     <string name="home_error_retry">もう一度試す</string>
     <string name="detail_missing_title">日記が見つかりません</string>
-    <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります</string>
+    <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
 </resources>

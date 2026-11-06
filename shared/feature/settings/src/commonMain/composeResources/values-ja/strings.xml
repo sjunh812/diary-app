@@ -23,7 +23,6 @@
     <!-- 設定(S6) -->
     <string name="settings_title">設定</string>
     <string name="settings_group_style">カスタマイズ</string>
-    <string name="settings_group_security">セキュリティ</string>
     <string name="settings_group_info">情報</string>
     <string name="settings_licenses">オープンソースライセンス</string>
     <string name="licenses_group_fonts">フォント</string>
@@ -43,7 +42,7 @@
 
 
     <!-- 毎日のリマインダー(R1) -->
-    <string name="settings_group_notification">通知</string>
+    <string name="settings_group_notification_security">通知とセキュリティ</string>
     <string name="settings_reminder">毎日のリマインダー</string>
     <string name="reminder_value_off">オフ</string>
     <string name="reminder_time">通知の時刻</string>
@@ -70,7 +69,7 @@
     <string name="font_download">入手 · %1$s</string>
     <string name="font_downloading">入手中 %1$s</string>
     <string name="font_offline">インターネットに接続すると入手できます</string>
-    <string name="font_failed">フォントを入手できませんでした。しばらくしてからもう一度お試しください</string>
+    <string name="font_failed">フォントを入手できませんでした。しばらくしてからもう一度お試しください。</string>
     <string name="font_replaced_notice">以前のフォントの代わりに%1$sで表示しています</string>
     <string name="font_replaced_change">変更</string>
 
@@ -94,7 +93,6 @@
     <string name="migration_deferred_failed">今回も移せませんでした。アプリを更新するともう一度試します。</string>
     <string name="migration_deferred_retry">もう一度試す</string>
     <string name="migration_deferred_running">移しています</string>
-    <string name="settings_group_backup">バックアップ</string>
     <string name="settings_backup">バックアップと復元</string>
     <string name="settings_group_diary">日記</string>
     <string name="settings_trash">ゴミ箱</string>

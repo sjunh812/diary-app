@@ -181,7 +181,7 @@ internal fun PaywallScreen(
             Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
                 DiaryIconButton(DiaryIcons.Close, stringResource(Res.string.plus_close), onClose)
                 Spacer(Modifier.weight(1f))
-                DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.Text)
+                DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.QuietText)
             }
             val column = Modifier.widthIn(max = DiaryArtSize.paywallMax).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact)
             if (wide) {

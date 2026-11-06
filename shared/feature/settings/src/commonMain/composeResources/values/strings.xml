@@ -28,7 +28,6 @@
     <!-- Settings (S6) -->
     <string name="settings_title">Settings</string>
     <string name="settings_group_style">Style</string>
-    <string name="settings_group_security">Security</string>
     <string name="settings_group_info">About</string>
     <string name="settings_licenses">Open source licenses</string>
     <string name="licenses_group_fonts">Fonts</string>
@@ -48,7 +47,7 @@
 
 
     <!-- Daily reminder (R1) -->
-    <string name="settings_group_notification">Notifications</string>
+    <string name="settings_group_notification_security">Notifications and security</string>
     <string name="settings_reminder">Daily reminder</string>
     <string name="reminder_value_off">Off</string>
     <string name="reminder_time">Reminder time</string>
@@ -99,7 +98,6 @@
     <string name="migration_deferred_failed">Couldn’t move it again. We’ll try once more after the next app update.</string>
     <string name="migration_deferred_retry">Try again</string>
     <string name="migration_deferred_running">Moving…</string>
-    <string name="settings_group_backup">Backup</string>
     <string name="settings_backup">Backup and restore</string>
     <string name="settings_group_diary">Diary</string>
     <string name="settings_trash">Trash</string>

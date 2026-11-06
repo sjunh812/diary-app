@@ -36,7 +36,7 @@
     <plurals name="migration_partial_body">
         <item quantity="other">%1$s件を移しましたが、%2$s件は元のファイルが壊れていて読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の記録はそのまま残ります。</item>
     </plurals>
-    <string name="migration_partial_footnote">この結果は［設定］>［移行結果］でもう一度確認できます</string>
+    <string name="migration_partial_footnote">この結果は［設定］>［移行結果］でもう一度確認できます。</string>
     <string name="migration_export_original">元のファイルを書き出す</string>
     <string name="migration_contact">お問い合わせ</string>
 

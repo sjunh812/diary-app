@@ -2,9 +2,9 @@
 <resources>
     <string name="trash_title">ゴミ箱</string>
     <string name="trash_empty">空にする</string>
-    <string name="trash_notice">削除した日記は30日後に完全に消えます</string>
+    <string name="trash_notice">削除した日記は30日後に完全に消えます。</string>
     <string name="trash_empty_title">ゴミ箱は空です</string>
-    <string name="trash_empty_body">削除した日記は30日間ここから戻せます</string>
+    <string name="trash_empty_body">削除した日記は30日間ここから戻せます。</string>
     <string name="trash_restore">元に戻す</string>
     <string name="trash_delete_forever">完全に削除</string>
     <string name="trash_restored">元に戻しました</string>

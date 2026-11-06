@@ -51,6 +51,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryTimeWheel
@@ -179,7 +180,8 @@ internal fun PlaceSheet(
             },
             onDone
         )
-        SheetButtons(stringResource(Res.string.write_none), { onDone("") }, stringResource(Res.string.write_done), { onDone(text) })
+        DiaryButton(stringResource(Res.string.write_done), { onDone(text) }, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+        if (initial.isNotEmpty()) ClearButton { onDone("") }
     }
 }
 
@@ -288,13 +290,16 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
         title = stringResource(Res.string.write_resume_title),
         description = stringResource(Res.string.write_resume_body, dates.fullDate(offer.date), dates.time(offer.time))
     ) {
-        BasicText(
-            Checklist.forPreview(offer.preview),
-            modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x4),
-            style = DiaryTheme.typography.body.copy(color = colors.textPrimary),
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis
-        )
+        // 기분이나 사진만 남긴 글은 미리 보여 줄 글자가 없다.
+        if (offer.preview.isNotBlank()) {
+            BasicText(
+                Checklist.forPreview(offer.preview),
+                modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x4),
+                style = DiaryTheme.typography.body.copy(color = colors.textPrimary),
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
         SheetButtons(stringResource(Res.string.write_new_entry), onFresh, stringResource(Res.string.write_resume_continue), onContinue)
         DiaryButton(
             stringResource(Res.string.write_discard),

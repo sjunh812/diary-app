@@ -31,11 +31,9 @@ import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
 import org.sjhstudio.diary.feature.settings.resources.settings_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_font
-import org.sjhstudio.diary.feature.settings.resources.settings_group_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_group_diary
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
-import org.sjhstudio.diary.feature.settings.resources.settings_group_notification
-import org.sjhstudio.diary.feature.settings.resources.settings_group_security
+import org.sjhstudio.diary.feature.settings.resources.settings_group_notification_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
@@ -106,9 +104,8 @@ fun SettingsScreen(
                 description = stringResource(Res.string.settings_plus_body),
                 leadingIcon = DiaryIcons.Sparkles
             )
-            DiarySettingsHeader(stringResource(Res.string.settings_group_backup))
+            DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
             DiarySettingsRow(stringResource(Res.string.settings_backup), onClick = onBackup, value = backupValue)
-            DiarySettingsHeader(stringResource(Res.string.settings_group_diary), gapAbove = true)
             DiarySettingsRow(
                 stringResource(Res.string.settings_trash),
                 onClick = onTrash,
@@ -135,7 +132,7 @@ fun SettingsScreen(
                 onClick = onListStyle,
                 value = stringResource(state.settings.list.listStyle.label())
             )
-            DiarySettingsHeader(stringResource(Res.string.settings_group_notification), gapAbove = true)
+            DiarySettingsHeader(stringResource(Res.string.settings_group_notification_security), gapAbove = true)
             val reminderValue =
                 if (state.settings.reminderEnabled) {
                     val minute = state.settings.reminderMinuteOfDay
@@ -144,7 +141,6 @@ fun SettingsScreen(
                     stringResource(Res.string.reminder_value_off)
                 }
             DiarySettingsRow(stringResource(Res.string.settings_reminder), onClick = onReminder, value = reminderValue)
-            DiarySettingsHeader(stringResource(Res.string.settings_group_security), gapAbove = true)
             DiarySettingsRow(stringResource(Res.string.settings_lock), onClick = onLock, value = stringResource(state.lock.label()))
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
             if (state.showsMigrationReport) {

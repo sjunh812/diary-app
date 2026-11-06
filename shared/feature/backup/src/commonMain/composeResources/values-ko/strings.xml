@@ -45,7 +45,7 @@
     <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$d장은 Wi-Fi에 연결되면 올려요.</item></plurals>
     <!-- 되살리기(B2~B6) -->
     <string name="restore_row">백업에서 복원하기</string>
-    <string name="restore_row_body">다른 휴대폰이나 예전 앱의 백업을 합쳐요</string>
+    <string name="restore_row_body">다른 휴대폰이나 예전 앱의 백업을 합쳐요.</string>
     <string name="restore_keep_note">복원해도 지금 휴대폰의 일기는 그대로예요.</string>
     <string name="restore_device_group">%1$s · %2$s</string>
     <string name="restore_device_unknown">이름 없는 기기</string>
@@ -120,7 +120,7 @@
     <string name="restore_legacy_body">%1$s에 예전 앱이 올린 백업이에요.</string>
     <string name="restore_legacy_no_photos">예전 백업에는 사진이 없어요</string>
     <string name="restore_legacy_no_photos_body">글, 기분, 날씨, 장소, 즐겨찾기를 복원해요.</string>
-    <string name="restore_legacy_recent">그 뒤에 쓴 일기는 빠져 있을 수 있어요</string>
+    <string name="restore_legacy_recent">그 뒤에 쓴 일기는 빠져 있을 수 있어요.</string>
     <string name="restore_value_existing">이미 있는 일기</string>
     <string name="restore_legacy_action">불러오기</string>
     <string name="restore_legacy_same_time_body">같은 날 같은 시각에 글이 달라요. 둘 다 남기고 표시해 뒀어요.</string>
@@ -152,7 +152,7 @@
     <string name="rollback_ask_after">바꾸기 전 일기 %1$s편이 돌아와요. 바꾼 뒤에 쓴 일기 %2$s편은 그대로 남아요.</string>
     <plurals name="restore_replace_body"><item quantity="other">지금 휴대폰의 일기 %1$s편이 이 백업으로 바뀌어요. 바꾸기 전 기록은 7일 동안 되돌릴 수 있어요.</item></plurals>
     <string name="file_top">파일로 백업하기</string>
-    <string name="file_row_body">드라이브 없이 파일 하나로 보관해요</string>
+    <string name="file_row_body">드라이브 없이 파일 하나로 보관해요.</string>
     <string name="file_title">일기를 파일 하나로 만들어요</string>
     <string name="file_body">드라이브 없이도 %1$s과 %2$s을 파일로 보관할 수 있어요. 크기는 %3$s쯤이에요.</string>
     <string name="file_place_title">원하는 곳에 저장해요</string>
@@ -162,7 +162,7 @@
     <string name="file_trust_title">믿을 수 있는 곳에만 두세요</string>
     <string name="file_trust_body">파일에는 일기 글과 사진이 그대로 들어 있어요.</string>
     <string name="file_restore">파일에서 복원하기</string>
-    <string name="file_restore_body">옮겨 온 백업 파일을 골라 지금 일기와 합쳐요</string>
+    <string name="file_restore_body">옮겨 온 백업 파일을 골라 지금 일기와 합쳐요.</string>
     <string name="file_action">파일 만들기</string>
     <string name="file_writing">파일을 만들고 있어요</string>
     <string name="file_write_failed">파일을 끝까지 쓰지 못했어요. 저장한 곳의 파일은 지우고 다시 만들어 주세요. 휴대폰의 기록은 그대로 있어요.</string>

@@ -20,7 +20,7 @@
     <!-- Set passcode (L2) -->
     <string name="pin_setup_title">Choose a new 4-digit passcode</string>
     <string name="pin_setup_again">Enter it once more</string>
-    <string name="pin_setup_mismatch">The passcodes didn\'t match. Please start again</string>
+    <string name="pin_setup_mismatch">The passcodes didn\'t match. Please start again.</string>
     <string name="pin_setup_note">If you forget your passcode, you can confirm with your phone\'s screen lock and set a new one. Anyone who knows your phone\'s screen lock can also open your diary this way.</string>
 
     <!-- Forgot passcode (L3) -->
@@ -30,13 +30,13 @@
     <string name="forgot_prompt_title">Set a new passcode</string>
     <string name="forgot_no_device_lock_title">Your phone has no screen lock</string>
     <string name="forgot_no_device_lock_body">Without a screen lock, you can\'t set a new passcode. If you have a backup, reinstall the app and restore your diary from it.</string>
-    <string name="lock_turned_off">Your phone has no screen lock, so the diary lock is now off. Set a new passcode in Settings</string>
+    <string name="lock_turned_off">Your phone has no screen lock, so the diary lock is now off. Set a new passcode in Settings.</string>
 
     <!-- Lock settings (L4) -->
     <string name="lock_settings_title">Lock</string>
     <string name="lock_settings_enable">Use lock</string>
     <string name="lock_settings_change">Change passcode</string>
-    <string name="lock_settings_biometric_unavailable">Biometrics aren\'t available on this device right now</string>
+    <string name="lock_settings_biometric_unavailable">Biometrics aren\'t available on this device right now.</string>
     <string name="lock_settings_relock">Lock again</string>
     <string name="lock_settings_relock_body">When you come back from another app after the time you chose, the diary locks again.</string>
     <string name="relock_immediately">Immediately</string>

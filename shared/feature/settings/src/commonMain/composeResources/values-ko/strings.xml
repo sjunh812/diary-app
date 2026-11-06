@@ -23,7 +23,6 @@
     <!-- 설정 목록(S6) -->
     <string name="settings_title">설정</string>
     <string name="settings_group_style">꾸미기</string>
-    <string name="settings_group_security">보안</string>
     <string name="settings_group_info">정보</string>
     <string name="settings_licenses">오픈소스 라이선스</string>
     <string name="licenses_group_fonts">글꼴</string>
@@ -43,7 +42,7 @@
 
 
     <!-- 쓰기 알림(R1) -->
-    <string name="settings_group_notification">알림</string>
+    <string name="settings_group_notification_security">알림과 보안</string>
     <string name="settings_reminder">쓰기 알림</string>
     <string name="reminder_value_off">꺼짐</string>
     <string name="reminder_time">알림 시각</string>
@@ -70,7 +69,7 @@
     <string name="font_download">받기 · %1$s</string>
     <string name="font_downloading">받는 중 %1$s</string>
     <string name="font_offline">인터넷에 연결되면 받을 수 있어요</string>
-    <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 시도해 주세요</string>
+    <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
     <string name="font_replaced_notice">쓰던 글꼴 대신 %1$s 글꼴로 보여 드려요</string>
     <string name="font_replaced_change">바꾸기</string>
 
@@ -94,7 +93,6 @@
     <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨 볼게요.</string>
     <string name="migration_deferred_retry">다시 시도</string>
     <string name="migration_deferred_running">옮기는 중이에요</string>
-    <string name="settings_group_backup">백업</string>
     <string name="settings_backup">백업과 복원</string>
     <string name="settings_group_diary">일기</string>
     <string name="settings_trash">휴지통</string>

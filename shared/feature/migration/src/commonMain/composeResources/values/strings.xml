@@ -42,7 +42,7 @@
         <item quantity="one">%1$s entry was moved, but %2$s couldn’t be read because the original file is damaged. The app tries again after its next update. Your original diary stays as it is.</item>
         <item quantity="other">%1$s entries were moved, but %2$s couldn’t be read because the original file is damaged. The app tries again after its next update. Your original diary stays as it is.</item>
     </plurals>
-    <string name="migration_partial_footnote">You can see this again in Settings > Transfer results</string>
+    <string name="migration_partial_footnote">You can see this again in Settings > Transfer results.</string>
     <string name="migration_export_original">Export original files</string>
     <string name="migration_contact">Contact us</string>
 

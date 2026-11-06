@@ -44,7 +44,7 @@ fun PinSetupScreen(
         },
         middle = {
             if (!state.again) {
-                Spacer(Modifier.height(DiarySpacing.x10 + DiarySpacing.x2))
+                Spacer(Modifier.height(DiarySpacing.x2))
                 DiaryNotice(
                     stringResource(Res.string.pin_setup_note),
                     Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = DiarySpacing.screenCompact)

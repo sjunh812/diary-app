@@ -14,7 +14,7 @@
     <string name="write_photo_limit">사진은 한 편에 %1$d장까지 넣을 수 있어요</string>
     <string name="write_photo_no_space">휴대폰 공간이 부족해 일부 사진을 넣지 못했어요</string>
     <string name="write_photo_unreadable">읽지 못한 사진이 있어요</string>
-    <string name="write_save_failed">저장하지 못했어요. 쓴 글은 그대로 있으니 다시 눌러 주세요</string>
+    <string name="write_save_failed">저장하지 못했어요. 쓴 글은 그대로 있으니 다시 눌러 주세요.</string>
     <string name="write_format_bold">굵게</string>
     <string name="write_format_underline">밑줄</string>
     <string name="write_format_color">글자색</string>
@@ -39,11 +39,11 @@
     <string name="write_time">시각</string>
     <string name="write_new_entry">새로 쓰기</string>
     <string name="write_resume_title">쓰던 일기가 있어요</string>
-    <string name="write_resume_body">%1$s %2$s에 쓰던 글이에요</string>
+    <string name="write_resume_body">%1$s %2$s에 쓰던 글이에요.</string>
     <string name="write_resume_continue">이어 쓰기</string>
     <string name="write_discard">이 글 버리기</string>
     <string name="write_discard_title">쓰던 글을 버릴까요?</string>
-    <string name="write_discard_message">버리면 되돌릴 수 없어요</string>
+    <string name="write_discard_message">버리면 되돌릴 수 없어요.</string>
     <string name="write_discard_confirm">버리기</string>
     <string name="write_place_recent">최근 장소</string>
     <string name="write_place_body">어디서 쓴 일기인지 남겨 두면 나중에 찾기 쉬워요.</string>

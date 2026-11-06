@@ -15,13 +15,13 @@
     <string name="search_clear_filter">Clear</string>
     <string name="search_done">Done</string>
     <string name="search_empty_title">No matching entries</string>
-    <string name="search_empty_body">Try other words or fewer filters</string>
+    <string name="search_empty_body">Try other words or fewer filters.</string>
     <plurals name="search_result_count">
         <item quantity="one">%1$d entry</item>
         <item quantity="other">%1$d entries</item>
     </plurals>
     <string name="search_error_title">Couldn’t load your entries</string>
-    <string name="search_error_body">Try again in a moment</string>
+    <string name="search_error_body">Try again in a moment.</string>
     <string name="search_error_retry">Try again</string>
-    <string name="search_idle">Type a word or pick a filter to find entries</string>
+    <string name="search_idle">Type a word or pick a filter to find entries.</string>
 </resources>

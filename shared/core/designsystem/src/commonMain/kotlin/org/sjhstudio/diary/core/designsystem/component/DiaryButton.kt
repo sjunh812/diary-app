@@ -49,7 +49,7 @@ enum class DiaryButtonSize {
 }
 
 /** 버튼 종류(TDS 버튼 색 종류). 한 화면에 [Primary]는 하나만 둔다. */
-enum class DiaryButtonKind { Primary, Secondary, Weak, Text, Danger }
+enum class DiaryButtonKind { Primary, Secondary, Weak, Text, QuietText, Danger }
 
 private class ButtonSpec(val height: Dp, val horizontal: Dp, val shape: Shape)
 
@@ -85,6 +85,7 @@ fun DiaryButton(
             DiaryButtonKind.Secondary -> colors.sunken to colors.textPrimary
             DiaryButtonKind.Weak -> colors.selected to colors.accentText
             DiaryButtonKind.Text -> Color.Transparent to colors.accentText
+            DiaryButtonKind.QuietText -> Color.Transparent to colors.textSecondary
             DiaryButtonKind.Danger -> colors.danger to colors.onDanger
         }
     val style: TextStyle =

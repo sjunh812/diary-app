@@ -2,9 +2,9 @@
 <resources>
     <string name="trash_title">Trash</string>
     <string name="trash_empty">Empty</string>
-    <string name="trash_notice">Entries are deleted for good after 30 days</string>
+    <string name="trash_notice">Entries are deleted for good after 30 days.</string>
     <string name="trash_empty_title">Trash is empty</string>
-    <string name="trash_empty_body">Deleted entries stay here for 30 days</string>
+    <string name="trash_empty_body">Deleted entries stay here for 30 days.</string>
     <string name="trash_restore">Restore</string>
     <string name="trash_delete_forever">Delete forever</string>
     <string name="trash_restored">Restored</string>

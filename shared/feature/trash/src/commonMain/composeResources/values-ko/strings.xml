@@ -2,9 +2,9 @@
 <resources>
     <string name="trash_title">휴지통</string>
     <string name="trash_empty">비우기</string>
-    <string name="trash_notice">삭제한 일기는 30일 뒤에 완전히 사라져요</string>
+    <string name="trash_notice">삭제한 일기는 30일 뒤에 완전히 사라져요.</string>
     <string name="trash_empty_title">휴지통이 비었어요</string>
-    <string name="trash_empty_body">삭제한 일기는 30일 동안 여기서 복원할 수 있어요</string>
+    <string name="trash_empty_body">삭제한 일기는 30일 동안 여기서 복원할 수 있어요.</string>
     <string name="trash_restore">복원하기</string>
     <string name="trash_delete_forever">완전히 삭제하기</string>
     <string name="trash_restored">복원했어요</string>

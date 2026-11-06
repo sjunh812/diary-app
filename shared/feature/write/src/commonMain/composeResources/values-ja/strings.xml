@@ -14,7 +14,7 @@
     <string name="write_photo_limit">写真は1件につき%1$d枚まで付けられます</string>
     <string name="write_photo_no_space">空き容量が足りず、一部の写真を追加できませんでした</string>
     <string name="write_photo_unreadable">読み込めない写真がありました</string>
-    <string name="write_save_failed">保存できませんでした。書いた内容は残っているので、もう一度押してください</string>
+    <string name="write_save_failed">保存できませんでした。書いた内容は残っているので、もう一度押してください。</string>
     <string name="write_format_bold">太字</string>
     <string name="write_format_underline">下線</string>
     <string name="write_format_color">文字色</string>
@@ -39,11 +39,11 @@
     <string name="write_time">時刻</string>
     <string name="write_new_entry">新しく書く</string>
     <string name="write_resume_title">書きかけの日記があります</string>
-    <string name="write_resume_body">%1$s %2$sに書いていた日記です</string>
+    <string name="write_resume_body">%1$s %2$sに書いていた日記です。</string>
     <string name="write_resume_continue">続きを書く</string>
     <string name="write_discard">この日記を捨てる</string>
     <string name="write_discard_title">書きかけの日記を捨てますか</string>
-    <string name="write_discard_message">捨てると元に戻せません</string>
+    <string name="write_discard_message">捨てると元に戻せません。</string>
     <string name="write_discard_confirm">捨てる</string>
     <string name="write_place_recent">最近の場所</string>
     <string name="write_place_body">書いた場所を残しておくと、あとで見つけやすくなります。</string>

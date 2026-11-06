@@ -3,7 +3,7 @@
     <string name="home_favorites_only">Favorites only</string>
     <string name="home_favorites_empty">No favorite entries</string>
     <string name="home_empty_title">No entries yet</string>
-    <string name="home_empty_body">One line about today is enough</string>
+    <string name="home_empty_body">One line about today is enough.</string>
     <string name="home_empty_action">Write today</string>
     <string name="home_month_sheet_title">Go to month</string>
     <string name="detail_back">Back</string>
@@ -22,8 +22,8 @@
     <string name="detail_kept_both_close">Close</string>
     <string name="detail_elsewhere_photo">This photo is on the original phone</string>
     <string name="home_error_title">Couldn’t load your entries</string>
-    <string name="home_error_body">Try again in a moment</string>
+    <string name="home_error_body">Try again in a moment.</string>
     <string name="home_error_retry">Try again</string>
     <string name="detail_missing_title">Entry not found</string>
-    <string name="detail_missing_body">It may have been deleted or moved to trash</string>
+    <string name="detail_missing_body">It may have been deleted or moved to trash.</string>
 </resources>

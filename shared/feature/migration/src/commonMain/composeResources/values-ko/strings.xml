@@ -36,7 +36,7 @@
     <plurals name="migration_partial_body">
         <item quantity="other">%1$s편을 옮겼고 %2$s편은 원본 파일이 깨져서 읽지 못했어요. 앱을 업데이트하면 한 번 더 읽어 봐요. 원래 기록은 그대로 있어요.</item>
     </plurals>
-    <string name="migration_partial_footnote">이 결과는 설정 > 기록 이전 결과에서 다시 볼 수 있어요</string>
+    <string name="migration_partial_footnote">이 결과는 설정 > 기록 이전 결과에서 다시 볼 수 있어요.</string>
     <string name="migration_export_original">원본 파일 내보내기</string>
     <string name="migration_contact">문의하기</string>
 

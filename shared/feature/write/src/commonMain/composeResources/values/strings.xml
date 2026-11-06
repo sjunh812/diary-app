@@ -39,7 +39,7 @@
     <string name="write_time">Time</string>
     <string name="write_new_entry">New entry</string>
     <string name="write_resume_title">You have an unfinished entry</string>
-    <string name="write_resume_body">Written on %1$s at %2$s</string>
+    <string name="write_resume_body">Written on %1$s at %2$s.</string>
     <string name="write_resume_continue">Keep writing</string>
     <string name="write_discard">Discard this entry</string>
     <string name="write_discard_title">Discard this entry?</string>

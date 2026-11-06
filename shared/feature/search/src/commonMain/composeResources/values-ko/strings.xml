@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="search_back">뒤로</string>
+    <string name="search_back">뒤로 가기</string>
     <string name="search_hint">일기 찾기</string>
     <string name="search_clear">지우기</string>
     <string name="search_chip_mood">기분</string>
@@ -15,12 +15,12 @@
     <string name="search_clear_filter">지우기</string>
     <string name="search_done">완료</string>
     <string name="search_empty_title">찾는 일기가 없어요</string>
-    <string name="search_empty_body">다른 글자로 찾거나 조건을 줄여 보세요</string>
+    <string name="search_empty_body">다른 글자로 찾거나 조건을 줄여 보세요.</string>
     <plurals name="search_result_count">
         <item quantity="other">%1$d편</item>
     </plurals>
     <string name="search_error_title">일기를 불러오지 못했어요</string>
-    <string name="search_error_body">잠시 뒤에 다시 시도해 주세요</string>
+    <string name="search_error_body">잠시 뒤에 다시 시도해 주세요.</string>
     <string name="search_error_retry">다시 시도</string>
-    <string name="search_idle">글자를 입력하거나 조건을 고르면 일기를 찾을 수 있어요</string>
+    <string name="search_idle">글자를 입력하거나 조건을 고르면 일기를 찾을 수 있어요.</string>
 </resources>
