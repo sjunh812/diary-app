@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.lock
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -28,13 +29,23 @@ class LockSettingsViewModel(
     )
 
     fun setBiometric(enabled: Boolean) {
-        viewModelScope.launch { repository.setBiometric(enabled) }
+        save { repository.setBiometric(enabled) }
         changed("biometric", enabled.toString())
     }
 
     fun setRelockAfter(value: RelockAfter) {
-        viewModelScope.launch { repository.setRelockAfter(value) }
+        save { repository.setRelockAfter(value) }
         changed("relock_after", value.id)
+    }
+
+    /**
+     * 공간이 꽉 차 저장하지 못해도 꺼지지 않는다.
+     * 화면은 저장된 값을 따라가므로 스위치가 그대로 남는다.
+     */
+    private fun save(block: suspend () -> Unit) {
+        viewModelScope.launch {
+            runCatching { block() }.onFailure { if (it is CancellationException) throw it }
+        }
     }
 
     /**

@@ -22,6 +22,7 @@ interface LockRepository {
     /**
      * 새 salt로 확인값을 만들어 두고 잠금을 켠다.
      * 틀린 횟수도 지운다.
+     * 기기 키를 만들지 못하거나 파일에 적지 못하면 예외가 난다.
      */
     suspend fun setPin(pin: Pin)
 
@@ -32,7 +33,8 @@ interface LockRepository {
 
     /**
      * 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없어 새 비밀번호를 정할 수 없을 때 잠금을 끈다.
-     * [needsNewPin]이 참일 때만 끄고, 끄면 true다.
+     * 키가 정말 없어졌을 때만 끄고, 끄면 true다.
+     * 키가 있는데 잠깐 못 쓰는 것이면 끄지 않는다.
      */
     suspend fun turnOffWithoutPin(): Boolean
 
@@ -53,4 +55,10 @@ sealed interface VerifyResult {
      * 폰 화면 잠금 흐름으로 보낸다.
      */
     data object KeyMissing : VerifyResult
+
+    /**
+     * 맞았지만 잠금을 끈 것을 파일에 적지 못했다.
+     * 잠금은 그대로 켜져 있다.
+     */
+    data object NotSaved : VerifyResult
 }

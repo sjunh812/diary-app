@@ -44,4 +44,7 @@
     <string name="lock_settings_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば決め直せます。</string>
     <string name="lock_confirm_title">現在のパスコードを入力してください</string>
     <string name="lock_settings_method">ロック方法</string>
+    <string name="pin_setup_save_failed">パスワードを保存できませんでした。ストレージを確認して、もう一度入力してください。</string>
+    <string name="lock_key_unavailable">今はパスワードを確認できません。しばらくしてからもう一度お試しください。</string>
+    <string name="lock_off_failed">ロックをオフにできませんでした。ストレージを確認して、もう一度お試しください。</string>
 </resources>

@@ -94,3 +94,19 @@ private fun SettingsNoBiometric() = Settings(lockOn, biometricAvailable = false)
 @Preview(name = "L4 잠금 꺼짐", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun SettingsOff() = Settings(LockSettings())
+
+@Preview(name = "새 비밀번호 · 저장 실패", locale = "ko")
+@Composable
+private fun SetupSaveFailed() = DiaryTheme(darkTheme = false) { PinSetupScreen(PinSetupUiState(saveFailed = true), {}, {}, {}) }
+
+@Preview(name = "잠금 · 확인할 수 없음", locale = "ko")
+@Composable
+private fun KeyUnavailable() = DiaryTheme(darkTheme = false) {
+    LockScreen(LockUiState(message = LockMessage.KeyUnavailable), showBiometric = false, {}, {}, {}, onForgot = {})
+}
+
+@Preview(name = "잠금 끄기 · 저장 실패", locale = "ko")
+@Composable
+private fun TurnOffFailed() = DiaryTheme(darkTheme = true) {
+    LockScreen(LockUiState(message = LockMessage.NotSaved), showBiometric = false, {}, {}, {}, onForgot = null)
+}

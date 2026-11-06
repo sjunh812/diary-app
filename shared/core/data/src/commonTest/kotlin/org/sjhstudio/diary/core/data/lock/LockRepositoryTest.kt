@@ -132,4 +132,95 @@ class LockRepositoryTest {
         repository.setPin(digits)
         assertContentEquals(ByteArray(4), digits.asciiBytes())
     }
+
+    /** 공간이 꽉 찬 기기: 틀린 횟수를 파일에 못 적어도 꺼지지 않고, 횟수 제한도 풀리지 않는다. */
+    @Test
+    fun wrong_pins_still_count_when_the_file_cannot_be_written() = runTest {
+        repository.setPin(pin("2580"))
+        dataStore.failWrites = true
+
+        assertEquals(VerifyResult.Wrong(4), repository.verify(pin("1111"), now))
+        assertEquals(VerifyResult.Wrong(3), repository.verify(pin("1111"), now))
+        assertEquals(VerifyResult.Wrong(2), repository.verify(pin("1111"), now))
+        assertEquals(VerifyResult.Wrong(1), repository.verify(pin("1111"), now))
+        assertEquals(VerifyResult.Waiting(now + DefaultLockRepository.WAIT), repository.verify(pin("1111"), now))
+        assertEquals(VerifyResult.Waiting(now + DefaultLockRepository.WAIT), repository.verify(pin("2580"), now + 1.seconds))
+    }
+
+    @Test
+    fun the_right_pin_opens_even_when_the_file_cannot_be_written() = runTest {
+        repository.setPin(pin("2580"))
+        repository.verify(pin("1111"), now)
+        dataStore.failWrites = true
+
+        assertEquals(VerifyResult.Ok, repository.verify(pin("2580"), now))
+    }
+
+    /** 쓰기가 돌아오면 메모리에 들고 있던 횟수가 파일로 간다. */
+    @Test
+    fun unsaved_attempts_reach_the_file_when_writing_works_again() = runTest {
+        repository.setPin(pin("2580"))
+        dataStore.failWrites = true
+        repository.verify(pin("1111"), now)
+        dataStore.failWrites = false
+
+        assertEquals(VerifyResult.Wrong(3), repository.verify(pin("1111"), now))
+        assertEquals(2, repository.settings.first().failedAttempts)
+    }
+
+    /** 끄기는 저장해야 끝난다. 못 적었으면 맞았어도 끈 것이 아니다. */
+    @Test
+    fun disable_that_cannot_be_written_says_so_and_stays_on() = runTest {
+        repository.setPin(pin("2580"))
+        dataStore.failWrites = true
+
+        assertEquals(VerifyResult.NotSaved, repository.disable(pin("2580"), now))
+        assertTrue(repository.settings.first().enabled)
+    }
+
+    @Test
+    fun a_keystore_crash_while_checking_goes_to_the_recovery_path() = runTest {
+        repository.setPin(pin("2580"))
+        keys.failMac = true
+
+        assertEquals(VerifyResult.KeyMissing, repository.verify(pin("2580"), now))
+        assertEquals(VerifyResult.KeyMissing, repository.disable(pin("2580"), now))
+        assertTrue(repository.settings.first().enabled)
+    }
+
+    /** 잠금을 끄는 것은 키가 정말 없어졌을 때뿐이다. 잠깐 못 쓰는 것으로 잠금이 풀리면 안 된다. */
+    @Test
+    fun a_key_that_is_only_unusable_never_turns_the_lock_off() = runTest {
+        repository.setPin(pin("2580"))
+
+        keys.failMac = true
+        assertFalse(repository.turnOffWithoutPin())
+        keys.failMac = false
+
+        keys.failLookup = true
+        assertFalse(repository.turnOffWithoutPin())
+        assertTrue(repository.needsNewPin())
+        keys.failLookup = false
+
+        assertTrue(repository.settings.first().enabled)
+    }
+
+    @Test
+    fun a_lost_key_still_turns_the_lock_off() = runTest {
+        repository.setPin(pin("2580"))
+        keys.lose(LockSettings.DEFAULT_KEY_ALIAS)
+
+        assertTrue(repository.turnOffWithoutPin())
+        assertFalse(repository.settings.first().enabled)
+    }
+
+    @Test
+    fun a_key_that_cannot_be_made_fails_the_save_and_clears_the_pin() = runTest {
+        keys.failMaking = true
+        val typed = pin("2580")
+
+        assertTrue(runCatching { repository.setPin(typed) }.isFailure)
+
+        assertFalse(repository.settings.first().enabled)
+    }
 }

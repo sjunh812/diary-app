@@ -26,6 +26,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric
 import org.sjhstudio.diary.feature.lock.resources.lock_forgot
+import org.sjhstudio.diary.feature.lock.resources.lock_key_unavailable
+import org.sjhstudio.diary.feature.lock.resources.lock_off_failed
 import org.sjhstudio.diary.feature.lock.resources.lock_title
 import org.sjhstudio.diary.feature.lock.resources.lock_wait_body
 import org.sjhstudio.diary.feature.lock.resources.lock_wait_title
@@ -65,6 +67,10 @@ fun LockScreen(
                 pluralStringResource(Res.plurals.lock_wait_body, message.seconds, message.seconds),
                 colors.textSecondary
             )
+
+            LockMessage.KeyUnavailable -> PinLine(stringResource(Res.string.lock_key_unavailable), colors.danger)
+
+            LockMessage.NotSaved -> PinLine(stringResource(Res.string.lock_off_failed), colors.danger)
         }
     PinEntryLayout(
         title = if (waiting) stringResource(Res.string.lock_wait_title) else title ?: stringResource(Res.string.lock_title),

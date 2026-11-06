@@ -2,8 +2,10 @@ package org.sjhstudio.diary.core.platform
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import java.io.IOException
 import java.security.GeneralSecurityException
 import java.security.KeyStore
+import java.security.ProviderException
 import javax.crypto.KeyGenerator
 import javax.crypto.Mac
 import javax.crypto.SecretKey
@@ -28,16 +30,17 @@ private object AndroidPinKeyStore : PinKeyStore {
         }
     }
 
-    override fun hasKey(alias: String): Boolean = try {
-        keyStore().containsAlias(alias)
-    } catch (_: GeneralSecurityException) {
-        false
-    }
+    override fun hasKey(alias: String): Boolean = keyStore().containsAlias(alias)
 
     override fun mac(alias: String, data: ByteArray): ByteArray? = try {
         val key = keyStore().getKey(alias, null) as? SecretKey
         key?.let { Mac.getInstance("HmacSHA256").apply { init(it) }.doFinal(data) }
     } catch (_: GeneralSecurityException) {
+        null
+    } catch (_: IOException) {
+        null
+    } catch (_: ProviderException) {
+        // 공간이 꽉 찬 기기의 Keystore는 이 예외를 던진다.
         null
     }
 }

@@ -46,4 +46,7 @@
     <string name="lock_settings_note">If you forget your passcode, you can confirm with your phone's screen lock and set a new one.</string>
     <string name="lock_confirm_title">Enter your current passcode</string>
     <string name="lock_settings_method">Lock method</string>
+    <string name="pin_setup_save_failed">Couldn't save the password. Check your storage and enter it again.</string>
+    <string name="lock_key_unavailable">Can't check your password right now. Try again in a moment.</string>
+    <string name="lock_off_failed">Couldn't turn off the lock. Check your storage and try again.</string>
 </resources>

@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.lock
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +23,9 @@ data class PinSetupUiState(
     val again: Boolean = false,
     val mismatch: Boolean = false,
     val saving: Boolean = false,
-    val wrongCount: Int = 0
+    val wrongCount: Int = 0,
+    /** 기기 키를 만들지 못했거나 저장하지 못했다. 처음부터 다시 받는다. */
+    val saveFailed: Boolean = false
 )
 
 /**
@@ -46,7 +49,7 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
         val current = _state.value
         if (current.saving || count >= Pin.LENGTH) return
         (if (current.again) second else first)[count++] = digit
-        _state.value = current.copy(entered = count, mismatch = false)
+        _state.value = current.copy(entered = count, mismatch = false, saveFailed = false)
         if (count < Pin.LENGTH) return
         count = 0
         when {
@@ -90,7 +93,16 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
         if (pin == null) return
         _state.value = PinSetupUiState(entered = Pin.LENGTH, again = true, saving = true)
         viewModelScope.launch {
-            repository.setPin(pin)
+            // 저장하지 못했으면 정해진 것이 없다.
+            // 앱을 열지 않고 다시 받는다.
+            try {
+                repository.setPin(pin)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _state.value = PinSetupUiState(saveFailed = true)
+                return@launch
+            }
             _done.send(Unit)
         }
     }
