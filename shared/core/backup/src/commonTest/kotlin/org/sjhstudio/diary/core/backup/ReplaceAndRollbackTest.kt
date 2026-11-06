@@ -167,7 +167,7 @@ class ReplaceAndRollbackTest {
     fun a_damaged_copy_hides_the_rollback_instead_of_crashing() = runTest {
         seed("here")
         manager().replace(backup("new"), "drive")
-        fs.write(dir / "backup" / "rollback" / "diary.db") { writeUtf8("깨진 파일") }
+        fs.write(fs.list(dir / "backup" / "rollback").single() / "diary.db") { writeUtf8("깨진 파일") }
 
         assertNull(manager().info.first())
     }
