@@ -115,7 +115,7 @@ admob.rewarded=ca-app-pub-.../...
 **3. Play Console**
 
 - [ ] 개발자 계정 > 내 정보에 사업자등록번호, 전자상거래 라이선스 번호, 발급 기관을 넣는다. 한국 사용자에게 보인다([요구사항](https://support.google.com/googleplay/android-developer/answer/6223646?hl=ko)).
-- [ ] 판매 계정은 결제 프로필 주소가 공개된다. 집 주소면 공개되어도 되는지 먼저 정한다.
+- [x] 판매 계정은 결제 프로필 주소가 공개된다. 집 주소가 공개되어도 그대로 간다(2026-11-06 사용자 결정).
 - [ ] 결제 프로필 > 대한민국 세금 정보에 사업자등록번호를 넣는다. 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)).
 - [ ] 수수료 프로그램에 등록한다. 첫 100만 달러 15%, 초과분 30%, 구독 갱신 15%다([수수료](https://support.google.com/googleplay/android-developer/answer/112622?hl=ko), [등록](https://support.google.com/googleplay/android-developer/answer/10632485?hl=ko)).
 - [ ] 정산 계좌를 시험 입금으로 인증한다([인증](https://support.google.com/googleplay/android-developer/answer/7161378?hl=ko)). 지급은 다음 달 15일쯤이다.
