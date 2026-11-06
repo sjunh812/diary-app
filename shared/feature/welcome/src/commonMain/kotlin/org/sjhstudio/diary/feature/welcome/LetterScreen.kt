@@ -67,7 +67,7 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_title
 import org.sjhstudio.diary.feature.welcome.resources.letter_to
 
 private const val RISE_MILLIS = 450
-private const val OPEN_MILLIS = 900
+private const val OPEN_MILLIS = 1_800
 private const val BACKDROP_ALPHA = 0.4f
 
 /** 편지 바탕. 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다. */
@@ -100,9 +100,12 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     }
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         if (opened) {
-            LetterSheet(Modifier.weight(1f)) { LetterBody(entries) }
+            // 봉투에서 펼쳐진 편지지를 그대로 잇는다. 여기서 다시 올라오면 깜빡인다.
+            LetterSheet(Modifier.weight(1f), rises = false) { LetterBody(entries) }
         } else {
-            LetterEnvelope({ opening.value }, open, Modifier.weight(1f))
+            LetterStage({ opening.value }, open, Modifier.weight(1f)) { card ->
+                LetterSheet(Modifier.fillMaxSize(), card, rises = false) { LetterBody(entries) }
+            }
         }
         Column(
             Modifier
@@ -146,13 +149,18 @@ private fun LetterBody(entries: Int?) {
 /**
  * 편지지 한 장. 받는 사람, 인사, 본문, 보내는 사람 순서로 편지 꼴을 갖춘다.
  * 문단 사이는 빈 줄이 아니라 간격 16이다(줄 높이 28의 1.5배 이상이 되는 값, WCAG 1.4.8).
- * 열릴 때 한 번 살짝 올라오고, 동작 줄이기면 그대로 있다.
+ * 설정에서 열 때는 한 번 살짝 올라오고, 봉투에서 나올 때와 동작 줄이기면 그대로 있다.
  */
 @Composable
-private fun LetterSheet(modifier: Modifier, content: @Composable ColumnScope.() -> Unit) {
+private fun LetterSheet(
+    modifier: Modifier,
+    cardModifier: Modifier = Modifier,
+    rises: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit
+) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    val still = rememberReduceMotion() || LocalInspectionMode.current
+    val still = !rises || rememberReduceMotion() || LocalInspectionMode.current
     val rise = remember { Animatable(if (still) 1f else 0f) }
     LaunchedEffect(still) { if (!still) rise.animateTo(1f, tween(RISE_MILLIS)) }
     Column(
@@ -165,6 +173,7 @@ private fun LetterSheet(modifier: Modifier, content: @Composable ColumnScope.() 
         Column(
             Modifier
                 .fillMaxWidth()
+                .then(cardModifier)
                 .graphicsLayer {
                     alpha = rise.value
                     translationY = (1f - rise.value) * DiarySpacing.x6.toPx()
