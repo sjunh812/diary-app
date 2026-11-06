@@ -102,8 +102,10 @@ class BackupController(
         if (result is ConnectResult.Connected) {
             // 자동 백업은 처음 연결할 때만 켠다.
             // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킨다.
+            // 다른 계정을 고르면 앞 계정의 백업 기록은 이 계정의 것이 아니다.
             store.update {
-                it.copy(
+                val kept = if (it.accountKey == null || it.accountKey == result.account.key) it else it.withoutBackupRecord()
+                kept.copy(
                     accountKey = result.account.key,
                     accountLabel = result.account.email,
                     autoEnabled = it.accountKey == null || it.autoEnabled,
@@ -165,18 +167,24 @@ class BackupController(
         authorizer.disconnect()
         scheduler.cancelDaily()
         notifier.cancel()
-        store.update {
-            it.copy(
-                accountKey = null,
-                accountLabel = null,
-                rootFolderId = null,
-                autoEnabled = false,
-                userDisconnected = true,
-                lastFailure = null,
-                failingSince = null
-            )
-        }
+        // 마지막 백업 기록은 끊은 계정의 것이다.
+        // 남겨 두면 다른 계정을 연결했을 때 그 계정의 백업처럼 보인다.
+        store.update { it.withoutBackupRecord().copy(accountKey = null, accountLabel = null, autoEnabled = false, userDisconnected = true) }
     }
+
+    private fun BackupPrefs.withoutBackupRecord() = copy(
+        rootFolderId = null,
+        lastSuccessAt = null,
+        lastSuccessSnapshot = null,
+        lastSuccessFingerprint = null,
+        lastAttemptAt = null,
+        failingSince = null,
+        lastFailure = null,
+        failureNotifiedAt = null,
+        photosNotBackedUp = 0,
+        bytesShort = 0,
+        restoredBackupAt = null
+    )
 }
 
 private const val NUDGE_ENTRIES = 3
