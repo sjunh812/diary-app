@@ -62,7 +62,9 @@ import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -418,13 +420,20 @@ internal fun DayPanel(
             )
         )
         if (rows.isEmpty()) {
-            DiaryEmptyState(
-                DiaryIcons.Pen,
-                stringResource(Res.string.calendar_empty),
-                Modifier.padding(vertical = DiarySpacing.x6),
-                actionLabel = stringResource(Res.string.calendar_write_on_day),
-                onAction = onWrite
-            )
+            // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다. 고른 날에 쓴 글이 없다는 것만 조용히 말한다.
+            Column(
+                Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x6),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+            ) {
+                BasicText(stringResource(Res.string.calendar_empty), style = typography.body.copy(color = colors.textSecondary))
+                DiaryButton(
+                    stringResource(Res.string.calendar_write_on_day),
+                    onWrite,
+                    kind = DiaryButtonKind.Weak,
+                    size = DiaryButtonSize.Medium
+                )
+            }
         } else {
             rows.forEachIndexed { index, row ->
                 val interaction = remember(row.id) { MutableInteractionSource() }
