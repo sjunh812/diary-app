@@ -90,8 +90,11 @@ class RollbackManager(
         val dao = db.backupDao()
         val media = dao.allMedia().groupBy { it.entryId }
         val used = before.mapNotNullTo(HashSet()) { it.entry.legacyId }
+        // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같다.
+        // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 본다.
+        val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
         val newer =
-            dao.allEntries().filter { it.updatedAt > replacedAt }.map { entry ->
+            dao.allEntries().filter { it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
                 val legacyId = entry.legacyId?.takeUnless { it in used }
                 MergeEntry(entry.copy(legacyId = legacyId), media[entry.id].orEmpty())
             }
