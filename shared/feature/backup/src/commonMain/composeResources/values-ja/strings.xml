@@ -10,7 +10,7 @@
     <string name="backup_intro_body">日記と写真を自分のGoogleドライブに保存します。機種変更しても元に戻せます。</string>
     <string name="backup_intro_note">1일 1일기 백업フォルダだけを使い、ほかのファイルは見ません。</string>
     <string name="backup_running">バックアップ中</string>
-    <string name="backup_running_body">ほかの画面でも続きます。</string>
+    <string name="backup_running_body">アプリを閉じても続きます。終わったら通知でお知らせします。</string>
     <string name="backup_running_photos">写真 %1$d / %2$d枚</string>
     <string name="backup_reconnect">再接続</string>
     <string name="backup_reconnect_title">Googleアカウントの接続が切れました</string>
@@ -81,7 +81,7 @@
     <string name="restore_value_merged">%1$s · 統合済み</string>
     <string name="restore_value_photo">写真</string>
     <string name="restore_photo_progress">%1$s / %2$s</string>
-    <string name="restore_running_note">途中でアプリが終了しても、残りの写真だけ続きから受け取ります。元の記録はそのままです。</string>
+    <string name="restore_running_note">アプリを閉じても続き、終わったら通知でお知らせします。アプリが終了しても残りの写真だけ続きから受け取ります。</string>
     <string name="restore_see_entries">先に日記を見る</string>
     <string name="restore_done_nothing">バックアップを統合しました</string>
     <string name="restore_done_body">このスマホの日記はそのまま残っています。</string>
@@ -188,4 +188,11 @@
     <string name="backup_interrupted_body">アップロード済みの写真はそのままです。「今すぐバックアップ」で続きから再開します。</string>
     <string name="backup_restored_title">%1$sのバックアップから復元しました</string>
     <string name="backup_restored_body">今すぐバックアップすると、このスマホの日記もドライブに保存します。</string>
+    <string name="backup_done_title">バックアップが終わりました</string>
+    <string name="backup_done_body">日記と写真をすべてドライブに保存しました。</string>
+    <string name="backup_done_left">写真%1$s枚はWi-Fi接続時に保存します。</string>
+    <string name="backup_stopped_title">バックアップを完了できませんでした</string>
+    <string name="restore_notice_title">復元が終わりました</string>
+    <string name="restore_notice_body">日記と写真をすべて復元しました。</string>
+    <string name="restore_notice_left">残りの写真はアプリを開くと続きから受け取ります。</string>
 </resources>

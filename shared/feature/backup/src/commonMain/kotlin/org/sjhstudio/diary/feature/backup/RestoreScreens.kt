@@ -69,6 +69,7 @@ import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberNotificationAccess
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.file_restore
 import org.sjhstudio.diary.feature.backup.resources.restore_contact
@@ -436,6 +437,9 @@ fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: ()
         viewModel.dismiss()
         onHome()
     }
+    val access = rememberNotificationAccess()
+    // 사진을 받는 동안 앱을 나가도 끝나면 알릴 수 있게 시작할 때 한 번 묻는다. 거절해도 복원은 그대로 돈다.
+    LaunchedEffect(access) { access.request {} }
     LaunchedEffect(state) { if (state == RestoreState.Idle) onHome() }
     BackHandler(onBack = if (state is RestoreState.Done) finish else onHome)
     RestoreProgressScreen(state, onHome, finish, onLock, viewModel::retry, onPickOther, modifier)

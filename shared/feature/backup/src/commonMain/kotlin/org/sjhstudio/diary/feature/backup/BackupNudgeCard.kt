@@ -36,8 +36,8 @@ fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {
     val viewModel = koinViewModel<BackupViewModel>()
     val found by viewModel.found.collectAsStateWithLifecycle()
     found?.let { entry ->
-        BackupFoundSheet(entry, viewModel::foundShown) {
-            viewModel.foundShown()
+        BackupFoundSheet(entry, viewModel::skipFound) {
+            viewModel.takeFound()
             onRestoreEntry(entry.snapshotName)
         }
     }

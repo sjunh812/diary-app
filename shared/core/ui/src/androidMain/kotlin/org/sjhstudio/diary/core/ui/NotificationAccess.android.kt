@@ -1,4 +1,4 @@
-package org.sjhstudio.diary.feature.settings
+package org.sjhstudio.diary.core.ui
 
 import android.Manifest
 import android.app.NotificationManager
@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-internal actual fun rememberNotificationAccess(): NotificationAccess {
+actual fun rememberNotificationAccess(): NotificationAccess {
     val context = LocalContext.current
     var pending by remember { mutableStateOf<((Boolean) -> Unit)?>(null) }
     val launcher =

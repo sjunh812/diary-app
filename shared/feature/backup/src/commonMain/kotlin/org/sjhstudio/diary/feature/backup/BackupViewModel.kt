@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
-import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
@@ -36,10 +35,8 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
         viewModelScope.launch { restore.rollBack() }
     }
 
-    private val _found = MutableStateFlow<BackupEntry?>(null)
-
     /** 연결한 계정의 드라이브에 있던 가장 최근 백업. */
-    val found: StateFlow<BackupEntry?> = _found.asStateFlow()
+    val found: StateFlow<BackupEntry?> = controller.foundBackup
 
     private val _connectFailed = MutableStateFlow(false)
     val connectFailed: StateFlow<Boolean> = _connectFailed.asStateFlow()
@@ -55,16 +52,13 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
             val result = controller.connect(hint)
             _connectFailed.value = result is ConnectResult.Failed
             _connecting.value = false
-            // 새 휴대폰이면 드라이브에 있는 백업을 바로 권한다(B2).
-            if (result is ConnectResult.Connected) {
-                _found.value = restore.backups()?.firstOrNull { it.state == BackupEntryState.Ready && it.entryCount > 0 }
-            }
         }
     }
 
-    fun foundShown() {
-        _found.value = null
-    }
+    /** [나중에]. 이때 이 기기의 첫 백업을 한다. */
+    fun skipFound() = controller.skipFoundBackup()
+
+    fun takeFound() = controller.takeFoundBackup()
 
     fun connectFailureShown() {
         _connectFailed.value = false

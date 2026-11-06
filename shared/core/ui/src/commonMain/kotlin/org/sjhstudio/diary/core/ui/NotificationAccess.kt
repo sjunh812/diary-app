@@ -1,4 +1,4 @@
-package org.sjhstudio.diary.feature.settings
+package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -14,4 +14,4 @@ interface NotificationAccess {
 }
 
 @Composable
-internal expect fun rememberNotificationAccess(): NotificationAccess
+expect fun rememberNotificationAccess(): NotificationAccess

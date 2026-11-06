@@ -1,6 +1,8 @@
 package org.sjhstudio.diary.core.data
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
@@ -15,8 +17,20 @@ interface BackupRepository {
     /** [나중에]. 14일 숨기고 세 번 넘기면 다시 띄우지 않는다. */
     suspend fun dismissNudge()
 
-    /** 처음 연결하면 자동 백업을 켜고 바로 백업한다(FR-013). */
+    /**
+     * 처음 연결하면 자동 백업을 켠다(FR-013).
+     * 드라이브에 백업이 없으면 바로 백업하고, 있으면 [foundBackup]으로 알리고 사용자가 고를 때까지 올리지 않는다.
+     */
     suspend fun connect(hint: String? = null): ConnectResult
+
+    /** 연결했더니 드라이브에서 찾은 백업. 사용자가 고르면 null이 된다. */
+    val foundBackup: StateFlow<BackupEntry?>
+
+    /** 찾은 백업을 [나중에]로 넘겼다. 이제 이 기기의 첫 백업을 한다. */
+    fun skipFoundBackup()
+
+    /** 찾은 백업을 되살리기로 했다. 복원이 끝날 때까지 백업하지 않는다. */
+    fun takeFoundBackup()
 
     /** [cellularOnce]는 이번만 모바일 데이터로 사진을 올린다. */
     fun backUpNow(cellularOnce: Boolean = false)

@@ -10,6 +10,8 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.StatFs
 import android.provider.Settings
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 
 class AndroidNetworkState(context: Context) : NetworkState {
     private val manager = context.getSystemService(ConnectivityManager::class.java)
@@ -70,6 +72,9 @@ class BackupAlertPoster(context: Context, private val channelName: String) {
     }
 }
 
+/** 앱이 화면에 있는지. 있으면 끝났다는 알림을 보내지 않는다. 화면이 이미 말해 준다. */
+fun appIsVisible(): Boolean = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
 /** 지금 백업의 진행 알림. 소리 없이 한 줄로 머문다. */
 class BackupProgressNotifications(context: Context) {
     private val context = context.applicationContext
@@ -90,7 +95,10 @@ class BackupProgressNotifications(context: Context) {
                 @Suppress("DEPRECATION")
                 android.app.Notification.Builder(context)
             }
-        return builder.setSmallIcon(R.drawable.ic_notification).setContentTitle(title).setContentText(body)
+        // 알림을 누르면 앱으로 돌아와 진행을 본다.
+        val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        val open = launch?.let { android.app.PendingIntent.getActivity(context, 0, it, android.app.PendingIntent.FLAG_IMMUTABLE) }
+        return builder.setSmallIcon(R.drawable.ic_notification).setContentTitle(title).setContentText(body).setContentIntent(open)
             .setOngoing(true).setProgress(total, done, total == 0).build()
     }
 

@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +61,7 @@ import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberNotificationAccess
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_account
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
@@ -136,14 +138,18 @@ fun BackupSettingsRoute(
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
+    val access = rememberNotificationAccess()
+    val running = status.running != null
+    // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 묻는다. 거절해도 백업은 그대로 돈다.
+    LaunchedEffect(running) { if (running) access.request {} }
     BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
         viewModel.backUpNow()
     }, {
         viewModel.backUpNow(cellularOnce = true)
     }, viewModel::setAuto, onOptions, onRestore, onBack, modifier, rollback, viewModel::rollBack, onFile)
     found?.let { entry ->
-        BackupFoundSheet(entry, viewModel::foundShown) {
-            viewModel.foundShown()
+        BackupFoundSheet(entry, viewModel::skipFound) {
+            viewModel.takeFound()
             onRestoreEntry(entry.snapshotName)
         }
     }
@@ -373,8 +379,8 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                         stringResource(Res.string.backup_running_body)
                     }
                 )
-                val fraction = if (running.bytesTotal > 0) running.bytesDone.toFloat() / running.bytesTotal else 0f
-                DiaryProgressBar(fraction)
+                // 올릴 양을 세기 전에는 막대를 그리지 않는다. 빈 막대는 멈춘 것처럼 보인다.
+                if (running.bytesTotal > 0) DiaryProgressBar(running.bytesDone.toFloat() / running.bytesTotal)
             }
         }
 

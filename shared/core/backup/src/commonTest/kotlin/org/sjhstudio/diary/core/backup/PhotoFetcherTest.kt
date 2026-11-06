@@ -137,13 +137,14 @@ class PhotoFetcherTest {
 
     @Test
     fun an_expired_login_stops_the_rest() = runTest {
-        val photos = waiting(COUNT)
+        // 동시에 받는 몇 장은 멈추기 전에 더 나갈 수 있어서 충분히 많이 둔다.
+        val photos = waiting(COUNT * 10)
         // 받는 순서는 정해져 있지 않다. 어느 장이 먼저여도 같도록 모든 장이 거절당하게 둔다.
         val drive = SlowDrive(photos, photos.keys.associateWith { DriveException(BackupFailure.AUTH) })
 
         assertFailsWith<DriveException> { fetcher(drive).fetch() }
 
-        assertTrue(drive.asked.size < COUNT, "${drive.asked.size}장을 받으러 갔다")
+        assertTrue(drive.asked.size < COUNT * 10, "${drive.asked.size}장을 받으러 갔다")
     }
 
     @Test

@@ -72,6 +72,7 @@ import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
+import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
@@ -221,7 +222,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 notifier = get(),
                 scope = get(APP_SCOPE),
                 migrated = { get<LegacyMigration>().report() != null },
-                legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account }
+                legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
+                findBackup = { get<RestoreRepository>().backups()?.firstOrNull { it.state == BackupEntryState.Ready && it.entryCount > 0 } }
             )
         }
         single<RestoreRepository> {

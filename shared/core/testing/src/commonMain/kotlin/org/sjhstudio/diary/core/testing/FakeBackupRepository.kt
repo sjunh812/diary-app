@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.testing
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
@@ -9,6 +10,7 @@ import org.sjhstudio.diary.core.platform.ConnectResult
 class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepository {
     override val status = MutableStateFlow(initial)
     override val nudge = MutableStateFlow<BackupNudge?>(null)
+    override val foundBackup = MutableStateFlow<BackupEntry?>(null)
     var backups = 0
         private set
 
@@ -17,6 +19,15 @@ class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepos
     }
 
     override suspend fun connect(hint: String?): ConnectResult = ConnectResult.Cancelled
+
+    override fun skipFoundBackup() {
+        foundBackup.value = null
+        backups++
+    }
+
+    override fun takeFoundBackup() {
+        foundBackup.value = null
+    }
 
     override fun backUpNow(cellularOnce: Boolean) {
         backups++

@@ -5,6 +5,9 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -14,6 +17,7 @@ import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupConnection
+import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
@@ -33,8 +37,13 @@ class BackupController(
     private val scope: CoroutineScope,
     private val clock: Clock = Clock.System,
     private val migrated: () -> Boolean = { false },
-    private val legacyAccount: suspend () -> String? = { null }
+    private val legacyAccount: suspend () -> String? = { null },
+    /** 드라이브에 있는 가장 최근 백업. 못 읽으면 null이다. */
+    private val findBackup: suspend () -> BackupEntry? = { null }
 ) : BackupRepository {
+    private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
+    override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
+
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override val status: Flow<BackupStatus> =
         store.prefs.flatMapLatest { prefs ->
@@ -95,9 +104,21 @@ class BackupController(
                 )
             }
             scheduler.scheduleDaily()
-            backUpNow()
+            // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않는다(US2 시나리오 7).
+            val found = findBackup()
+            if (found != null) _foundBackup.value = found else backUpNow()
         }
         return result
+    }
+
+    override fun skipFoundBackup() {
+        if (_foundBackup.value == null) return
+        _foundBackup.value = null
+        backUpNow()
+    }
+
+    override fun takeFoundBackup() {
+        _foundBackup.value = null
     }
 
     override fun backUpNow(cellularOnce: Boolean) {

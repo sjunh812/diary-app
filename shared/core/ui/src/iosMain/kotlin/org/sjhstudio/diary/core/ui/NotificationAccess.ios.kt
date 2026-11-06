@@ -1,4 +1,4 @@
-package org.sjhstudio.diary.feature.settings
+package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -12,7 +12,7 @@ import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
 @Composable
-internal actual fun rememberNotificationAccess(): NotificationAccess = remember {
+actual fun rememberNotificationAccess(): NotificationAccess = remember {
     object : NotificationAccess {
         override fun request(onResult: (Boolean) -> Unit) {
             UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(

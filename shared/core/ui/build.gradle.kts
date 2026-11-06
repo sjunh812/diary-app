@@ -21,6 +21,10 @@ kotlin {
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
         }
+        androidMain.dependencies {
+            // 알림 허용을 묻는 시스템 창(NotificationAccess).
+            implementation(libs.androidx.activity.compose)
+        }
     }
 }
 

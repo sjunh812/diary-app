@@ -10,7 +10,7 @@
     <string name="backup_intro_body">Keep your entries and photos in your own Google Drive. Switch phones and bring everything back.</string>
     <string name="backup_intro_note">We only use the 1일 1일기 백업 folder and never see your other files.</string>
     <string name="backup_running">Backing up</string>
-    <string name="backup_running_body">It keeps going on other screens.</string>
+    <string name="backup_running_body">It keeps going if you leave the app. We\'ll notify you when it\'s done.</string>
     <string name="backup_running_photos">Photos %1$d / %2$d</string>
     <string name="backup_reconnect">Reconnect</string>
     <string name="backup_reconnect_title">Google account disconnected</string>
@@ -81,7 +81,7 @@
     <string name="restore_value_merged">%1$s · merged</string>
     <string name="restore_value_photo">Photos</string>
     <string name="restore_photo_progress">%1$s / %2$s</string>
-    <string name="restore_running_note">If the app closes, only the remaining photos download next time. Your original records stay as they are.</string>
+    <string name="restore_running_note">It keeps going if you leave the app, and we\'ll notify you when it\'s done. If the app closes, only the remaining photos download.</string>
     <string name="restore_see_entries">See entries first</string>
     <string name="restore_done_nothing">Backup merged</string>
     <string name="restore_done_body">Your diary on this phone stays as it is.</string>
@@ -188,4 +188,11 @@
     <string name="backup_interrupted_body">Uploaded photos are safe. Tap Back up now to continue.</string>
     <string name="backup_restored_title">Restored from your %1$s backup</string>
     <string name="backup_restored_body">Back up now to save this phone’s entries too.</string>
+    <string name="backup_done_title">Backup finished</string>
+    <string name="backup_done_body">Your entries and photos are all on Drive.</string>
+    <string name="backup_done_left">%1$s photos will upload on Wi-Fi.</string>
+    <string name="backup_stopped_title">Backup didn\'t finish</string>
+    <string name="restore_notice_title">Restore finished</string>
+    <string name="restore_notice_body">All your entries and photos are back.</string>
+    <string name="restore_notice_left">Open the app to get the remaining photos.</string>
 </resources>

@@ -32,14 +32,19 @@ import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupProgress
+import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.platform.BackupAlertPoster
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupProgressNotifications
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.NetworkState
+import org.sjhstudio.diary.core.platform.appIsVisible
 import org.sjhstudio.diary.feature.backup.backupChannelName
+import org.sjhstudio.diary.feature.backup.backupDoneText
 import org.sjhstudio.diary.feature.backup.backupProgressText
 import org.sjhstudio.diary.feature.backup.backupProgressTitle
+import org.sjhstudio.diary.feature.backup.backupStoppedText
+import org.sjhstudio.diary.feature.backup.restoreDoneText
 import org.sjhstudio.diary.feature.backup.restoreProgressText
 import org.sjhstudio.diary.feature.backup.restoreProgressTitle
 
@@ -105,8 +110,25 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
             updates.cancel()
             // 올린 사진은 남아 있으니 네트워크가 돌아오면 시스템이 이어서 돌린다.
             val again = outcome as? BackupOutcome.Failed
-            if (again != null && again.kind in RESUMABLE && runAttemptCount < MAX_RESUMES) Result.retry() else Result.success()
+            if (again != null && again.kind in RESUMABLE && runAttemptCount < MAX_RESUMES) {
+                Result.retry()
+            } else {
+                tellIfAway(outcome)
+                Result.success()
+            }
         }
+    }
+
+    /** 앱을 나가 있으면 끝났다고 알린다. 화면을 보고 있으면 화면이 말해 준다. */
+    private suspend fun tellIfAway(outcome: BackupOutcome) {
+        if (appIsVisible()) return
+        val text =
+            when (outcome) {
+                is BackupOutcome.Done -> backupDoneText(outcome.photosLeft)
+                is BackupOutcome.Failed -> backupStoppedText(outcome.kind)
+                else -> return
+            }
+        BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)
     }
 
     private suspend fun foreground(progress: BackupProgress?): ForegroundInfo {
@@ -145,9 +167,18 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
                         notifications.update(restoreProgressTitle(), restoreProgressText(it.done, it.total), it.done, it.total)
                     }
                 }
+            // 받기가 끝나면 진행이 null이 되므로 마지막 값을 들고 있는다.
+            var last: PhotoProgress? = null
+            val watching = launch { restore.photoProgress.filterNotNull().collect { last = it } }
             restore.resumePhotos()
             restore.photoProgress.first { it == null }
             updates.cancel()
+            watching.cancel()
+            val finished = last
+            if (finished != null && !appIsVisible()) {
+                val text = restoreDoneText(finished.done >= finished.total)
+                BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)
+            }
             Result.success()
         }
     }
@@ -199,7 +230,11 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
     private val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true).build()
 
     override fun scheduleDaily() {
-        val work = PeriodicWorkRequestBuilder<BackupWorker>(1, TimeUnit.DAYS).setConstraints(constraints).build()
+        // 주기 작업은 맡기자마자 한 번 돈다. 첫 백업은 연결하는 쪽이 정하므로 하루 뒤부터 돌린다.
+        val work = PeriodicWorkRequestBuilder<BackupWorker>(
+            1,
+            TimeUnit.DAYS
+        ).setConstraints(constraints).setInitialDelay(1, TimeUnit.DAYS).build()
         manager.enqueueUniquePeriodicWork(DAILY, ExistingPeriodicWorkPolicy.KEEP, work)
     }
 
