@@ -126,7 +126,7 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     LETTER -> LetterScreen(1_204, onStart = ::finish)
 
-                    FULL_LETTER -> FullLetterScreen(onBack = ::finish)
+                    FULL_LETTER -> FullLetterScreen(1204, onBack = ::finish)
 
                     RESTORE_LEGACY ->
                         RestorePreviewScreen(

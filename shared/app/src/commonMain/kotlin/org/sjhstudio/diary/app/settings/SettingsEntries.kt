@@ -79,6 +79,7 @@ import org.sjhstudio.diary.feature.trash.TrashRoute
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
 import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 import org.sjhstudio.diary.feature.welcome.WhatsNewRoute
+import org.sjhstudio.diary.feature.welcome.WhatsNewViewModel
 
 /**
  * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스).
@@ -131,7 +132,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<TrashKey> { TrashRoute(onBack = pop) }
     entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
     entry<WhatsNewKey> { WhatsNewRoute(onBack = pop, onLetter = { push(LetterKey) }, onIntro = { push(IntroKey) }) }
-    entry<LetterKey> { FullLetterScreen(onBack = pop) }
+    entry<LetterKey> { FullLetterScreen(entries = koinViewModel<WhatsNewViewModel>().entries, onBack = pop) }
     entry<IntroKey> { OnboardingScreen(updated = false, connected = true, connecting = false, onConnect = {}, onFinish = pop) }
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()

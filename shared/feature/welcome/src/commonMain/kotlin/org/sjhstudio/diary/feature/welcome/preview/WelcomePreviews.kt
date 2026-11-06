@@ -22,7 +22,7 @@ private fun LetterNoEntriesLight() = DiaryTheme(darkTheme = false) { LetterScree
 
 @Preview(locale = "ko")
 @Composable
-private fun FullLetterLight() = DiaryTheme(darkTheme = false) { FullLetterScreen({}) }
+private fun FullLetterLight() = DiaryTheme(darkTheme = false) { FullLetterScreen(1204, {}) }
 
 @Preview(locale = "ko")
 @Composable

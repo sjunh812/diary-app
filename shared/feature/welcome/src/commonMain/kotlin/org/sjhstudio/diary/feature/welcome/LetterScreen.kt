@@ -49,7 +49,6 @@ import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.letter_close
-import org.sjhstudio.diary.feature.welcome.resources.letter_full
 import org.sjhstudio.diary.feature.welcome.resources.letter_hello
 import org.sjhstudio.diary.feature.welcome.resources.letter_moved
 import org.sjhstudio.diary.feature.welcome.resources.letter_promise_ads
@@ -74,17 +73,8 @@ private fun Modifier.letterBackdrop(): Modifier {
 @Composable
 fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
-    val thanks = entries?.takeIf { it > 0 }?.let { pluralStringResource(Res.plurals.letter_moved, it, it.grouped()) }
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        LetterSheet(Modifier.weight(1f)) {
-            if (thanks != null) LetterParagraphs(thanks)
-            LetterParagraphs(stringResource(Res.string.letter_short))
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                Promise(stringResource(Res.string.letter_promise_free))
-                Promise(stringResource(Res.string.letter_promise_ads))
-            }
-            LetterParagraphs(stringResource(Res.string.letter_close))
-        }
+        LetterSheet(Modifier.weight(1f)) { LetterBody(entries) }
         Column(
             Modifier
                 .widthIn(max = DiaryWriteSize.bodyMax)
@@ -98,14 +88,26 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     }
 }
 
-/** 새 소식에서 읽는 긴 편지. 이전 직후에 보는 짧은 편지와 편지지는 같고 글이 더 길다(스펙 004 FR-003). */
+/** 새 소식에서 다시 읽는 편지. 처음 본 편지와 같은 글이고 계속하기 대신 뒤로 가기가 있다. */
 @Composable
-fun FullLetterScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.letter_title), onBack = onBack)
-        LetterSheet(Modifier.weight(1f).navigationBarsPadding()) { LetterParagraphs(stringResource(Res.string.letter_full)) }
+        LetterSheet(Modifier.weight(1f).navigationBarsPadding()) { LetterBody(entries) }
     }
+}
+
+/** 처음 본 편지와 새 소식의 편지가 함께 쓰는 본문. 옮긴 일기가 없으면 고맙다는 문단은 없다. */
+@Composable
+private fun LetterBody(entries: Int?) {
+    entries?.takeIf { it > 0 }?.let { LetterParagraphs(pluralStringResource(Res.plurals.letter_moved, it, it.grouped())) }
+    LetterParagraphs(stringResource(Res.string.letter_short))
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+        Promise(stringResource(Res.string.letter_promise_free))
+        Promise(stringResource(Res.string.letter_promise_ads))
+    }
+    LetterParagraphs(stringResource(Res.string.letter_close))
 }
 
 /**
