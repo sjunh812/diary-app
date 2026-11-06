@@ -66,6 +66,7 @@ import org.sjhstudio.diary.core.model.MoodGap
 import org.sjhstudio.diary.core.model.RecordHabit
 import org.sjhstudio.diary.core.model.StatsChange
 import org.sjhstudio.diary.core.model.StatsFactor
+import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.grouped
@@ -85,16 +86,12 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_dawn
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_evening
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_morning
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_body
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_factor_long
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_factor_photos
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_less
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_more
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_none
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_none_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_note
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_numbers
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_others
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_rate
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_gaps
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_characters
@@ -115,6 +112,21 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_all
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_recent
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_year
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_share
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_afternoon
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_cloudy
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_dawn
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_day
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_evening
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_long
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_morning
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_mostly_cloudy
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_partly_cloudy
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_photos
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_place
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_rain
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_sleet
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_snow
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_sunny
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_part
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_place
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_weather
@@ -295,29 +307,22 @@ private fun Gaps(gaps: List<MoodGap>) {
         } else {
             gaps.forEach { gap ->
                 Card(Modifier.semantics(mergeDescendants = true) {}) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-                            BasicText(factorName(gap.factor), style = typography.captionStrong.copy(color = colors.accentText))
-                            BasicText(
-                                stringResource(if (gap.more) Res.string.insight_adv_gap_more else Res.string.insight_adv_gap_less),
-                                style = typography.bodyStrong.copy(color = colors.textPrimary)
-                            )
-                            BasicText(
-                                stringResource(Res.string.insight_adv_gap_numbers, gap.here.total, gap.here.good),
-                                style = typography.caption.copy(color = colors.textSecondary)
-                            )
-                        }
-                        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-                            BasicText(
-                                stringResource(Res.string.insight_adv_gap_rate, gap.here.percent),
-                                style = typography.title2.copy(color = colors.textPrimary)
-                            )
-                            BasicText(
-                                stringResource(Res.string.insight_adv_gap_others, gap.others.percent),
-                                style = typography.caption.copy(color = colors.textSecondary)
-                            )
-                        }
-                    }
+                    BasicText(
+                        stringResource(
+                            if (gap.more) Res.string.insight_adv_gap_more else Res.string.insight_adv_gap_less,
+                            factorSubject(gap.factor)
+                        ),
+                        style = typography.bodyStrong.copy(color = colors.textPrimary)
+                    )
+                    BasicText(
+                        stringResource(
+                            Res.string.insight_adv_gap_numbers,
+                            gap.here.total.grouped(),
+                            gap.here.good.grouped(),
+                            gap.others.percent
+                        ),
+                        style = typography.caption.copy(color = colors.textSecondary)
+                    )
                 }
             }
             BasicText(stringResource(Res.string.insight_adv_gap_note), style = typography.caption.copy(color = colors.textSecondary))
@@ -325,14 +330,44 @@ private fun Gaps(gaps: List<MoodGap>) {
     }
 }
 
+/** 말하듯 이어지는 앞부분. "비 오는 날엔"처럼 조사까지 언어마다 문자열에 둔다. */
 @Composable
-private fun factorName(factor: StatsFactor): String = when (factor) {
-    is StatsFactor.Sky -> weatherName(factor.weather)
-    is StatsFactor.Weekday -> stringResource(Weekdays.first { it.first == factor.day }.second)
-    is StatsFactor.Part -> stringResource(DayParts.first { it.first == factor.part }.second)
-    is StatsFactor.Place -> factor.name
-    StatsFactor.WithPhotos -> stringResource(Res.string.insight_adv_factor_photos)
-    StatsFactor.LongEntries -> stringResource(Res.string.insight_adv_factor_long)
+private fun factorSubject(factor: StatsFactor): String = when (factor) {
+    is StatsFactor.Sky -> stringResource(skySubject(factor.weather))
+
+    is StatsFactor.Weekday -> stringResource(
+        Res.string.insight_adv_subject_day,
+        stringResource(
+            Weekdays.first {
+                it.first == factor.day
+            }.second
+        )
+    )
+
+    is StatsFactor.Part -> stringResource(
+        when (factor.part) {
+            DayPart.DAWN -> Res.string.insight_adv_subject_dawn
+            DayPart.MORNING -> Res.string.insight_adv_subject_morning
+            DayPart.AFTERNOON -> Res.string.insight_adv_subject_afternoon
+            DayPart.EVENING -> Res.string.insight_adv_subject_evening
+        }
+    )
+
+    is StatsFactor.Place -> stringResource(Res.string.insight_adv_subject_place, factor.name)
+
+    StatsFactor.WithPhotos -> stringResource(Res.string.insight_adv_subject_photos)
+
+    StatsFactor.LongEntries -> stringResource(Res.string.insight_adv_subject_long)
+}
+
+private fun skySubject(weather: Weather): StringResource = when (weather) {
+    Weather.SUNNY -> Res.string.insight_adv_subject_sunny
+    Weather.PARTLY_CLOUDY -> Res.string.insight_adv_subject_partly_cloudy
+    Weather.MOSTLY_CLOUDY -> Res.string.insight_adv_subject_mostly_cloudy
+    Weather.CLOUDY -> Res.string.insight_adv_subject_cloudy
+    Weather.RAIN -> Res.string.insight_adv_subject_rain
+    Weather.SLEET -> Res.string.insight_adv_subject_sleet
+    Weather.SNOW -> Res.string.insight_adv_subject_snow
 }
 
 @Composable
@@ -397,7 +432,7 @@ private fun GoodTimes(stats: AdvancedStats) {
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
             )
         }
-        val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, share.good, share.total) }
+        val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, share.percent) }
         val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.body).coerceAtMost(DiarySpacing.x14 * 2)
         val countWidth = widestText(counts, DiaryTheme.typography.caption)
         rows.forEachIndexed { index, (label, share) -> ShareRow(label, counts[index], share, labelWidth, countWidth) }
