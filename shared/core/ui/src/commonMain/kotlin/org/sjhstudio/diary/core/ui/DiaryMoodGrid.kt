@@ -106,11 +106,9 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
  */
 @Composable
 fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Unit, modifier: Modifier = Modifier) {
-    FlowRow(
-        modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-    ) {
+    // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다.
+    // 보이는 틈은 16이다.
+    FlowRow(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         for (weather in Weather.entries) {
             DiaryChip(weatherName(weather), isSelected(weather), { onToggle(weather) }, leadingIcon = weather.icon())
         }

@@ -189,7 +189,12 @@ internal fun PlaceSheet(
             },
             onDone
         )
-        DiaryButton(stringResource(Res.string.write_done), { onDone(text) }, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+        DiaryButton(
+            stringResource(Res.string.write_done),
+            { onDone(text) },
+            Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
+            size = DiaryButtonSize.XLarge
+        )
         if (initial.isNotEmpty()) ClearButton { onDone("") }
     }
 }
