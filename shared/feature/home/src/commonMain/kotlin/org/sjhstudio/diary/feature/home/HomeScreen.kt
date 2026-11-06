@@ -214,6 +214,7 @@ internal fun HomeScreen(
             DiaryTitleButton(title, onPickMonth, Modifier.padding(horizontal = DiarySpacing.screenCompact))
             Spacer(Modifier.height(DiarySpacing.x1))
             backupLine()
+            ScrollEdge(if (style == ListStyle.PHOTO_GRID) grid.canScrollBackward else list.canScrollBackward)
             val refresh = rows.loadState.refresh
             when {
                 rows.itemCount > 0 -> {
@@ -239,6 +240,14 @@ internal fun HomeScreen(
             }
         }
     }
+}
+
+/** 목록이 머리 밑으로 들어갔을 때만 보이는 선. 잘린 글이 머리와 붙어 보이지 않게 한다. 칸은 늘 있어서 목록이 움직이지 않는다. */
+@Composable
+private fun ScrollEdge(scrolled: Boolean) {
+    Box(
+        Modifier.fillMaxWidth().height(DiarySpacing.hairline).background(if (scrolled) DiaryTheme.colors.line else DiaryTheme.colors.canvas)
+    )
 }
 
 @Composable

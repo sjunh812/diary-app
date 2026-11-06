@@ -95,7 +95,13 @@ private fun MonthCell(label: String, selected: Boolean, enabled: Boolean, modifi
         modifier
             .height(DiarySpacing.minTouchTarget)
             .clip(DiaryShapes.r12)
-            .background(if (selected) colors.selected else colors.sunken)
+            .background(
+                when {
+                    selected -> colors.selected
+                    enabled -> colors.sunken
+                    else -> colors.canvas
+                }
+            )
             .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
