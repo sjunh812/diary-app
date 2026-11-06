@@ -9,12 +9,16 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.platform.DriveAccount
 import org.sjhstudio.diary.core.testing.FakeBackupNotifier
 import org.sjhstudio.diary.core.testing.FakeBackupScheduler
@@ -194,5 +198,20 @@ class BackupConnectTest {
         controller.backUpNow()
 
         assertEquals(0, scheduler.startedNow)
+    }
+
+    /** 일기가 없거나 복원 중이면 올리지 않고 끝난다. 눌렀는데 반응이 없으면 안 된다. */
+    @Test
+    fun a_press_that_uploads_nothing_is_told_once() = runTest {
+        val controller = controller()
+        val told = mutableListOf<BackupSkip>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { controller.skipped.toList(told) }
+
+        controller.nowFinished(BackupOutcome.Empty)
+        controller.nowFinished(BackupOutcome.Busy)
+        controller.nowFinished(BackupOutcome.Done(0, 0))
+        controller.nowFinished(BackupOutcome.Failed(BackupFailure.OFFLINE))
+
+        assertEquals(listOf(BackupSkip.NO_ENTRIES, BackupSkip.BUSY), told)
     }
 }

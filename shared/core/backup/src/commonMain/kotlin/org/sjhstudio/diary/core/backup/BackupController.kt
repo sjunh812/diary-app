@@ -5,9 +5,13 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -21,6 +25,7 @@ import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
@@ -54,6 +59,9 @@ class BackupController(
 ) : BackupRepository {
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
     override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
+
+    private val _skipped = MutableSharedFlow<BackupSkip>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val skipped: SharedFlow<BackupSkip> = _skipped.asSharedFlow()
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     override val status: Flow<BackupStatus> =
@@ -141,7 +149,20 @@ class BackupController(
         // 도는 동안은 화면에 버튼도 없다.
         if (running()) return
         if (scheduler.startNow(cellularOnce)) return
-        scope.launch { runner.value.run(cellularOnce) }
+        scope.launch { nowFinished(runner.value.run(cellularOnce)) }
+    }
+
+    /**
+     * 지금 백업이 끝났다.
+     * 올리지 않고 끝난 일은 상태에 남지 않아 따로 알린다.
+     * 실패는 상태가 말한다.
+     */
+    fun nowFinished(outcome: BackupOutcome) {
+        when (outcome) {
+            BackupOutcome.Empty -> _skipped.tryEmit(BackupSkip.NO_ENTRIES)
+            BackupOutcome.Busy -> _skipped.tryEmit(BackupSkip.BUSY)
+            else -> Unit
+        }
     }
 
     override suspend fun backUpIfDue() {

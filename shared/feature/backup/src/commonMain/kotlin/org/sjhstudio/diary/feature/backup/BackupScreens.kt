@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
@@ -48,6 +49,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -57,6 +60,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.grouped
@@ -73,6 +77,9 @@ import org.sjhstudio.diary.feature.backup.resources.backup_disconnect
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_body
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_message
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_title
+import org.sjhstudio.diary.feature.backup.resources.backup_failed_drive
+import org.sjhstudio.diary.feature.backup.resources.backup_failed_local
+import org.sjhstudio.diary.feature.backup.resources.backup_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_first_body
 import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_group_account
@@ -80,7 +87,6 @@ import org.sjhstudio.diary.feature.backup.resources.backup_group_connection
 import org.sjhstudio.diary.feature.backup.resources.backup_group_other
 import org.sjhstudio.diary.feature.backup.resources.backup_group_upload
 import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_body
-import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_title
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_body
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_note
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_title
@@ -98,12 +104,15 @@ import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body_open
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_busy
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_empty
 import org.sjhstudio.diary.feature.backup.resources.backup_space_manage
 import org.sjhstudio.diary.feature.backup.resources.backup_space_note
 import org.sjhstudio.diary.feature.backup.resources.backup_space_photos
 import org.sjhstudio.diary.feature.backup.resources.backup_space_retry
 import org.sjhstudio.diary.feature.backup.resources.backup_space_text
 import org.sjhstudio.diary.feature.backup.resources.backup_space_trash
+import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.backup_title
 import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only
@@ -142,14 +151,23 @@ fun BackupSettingsRoute(
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
     val access = rememberNotificationAccess()
     val running = status.running != null
+    val toast = remember { DiaryToastState() }
+    val nothingYet = stringResource(Res.string.backup_skip_empty)
+    val busy = stringResource(Res.string.backup_skip_busy)
+    LaunchedEffect(viewModel) {
+        viewModel.skipped.collect { skip -> toast.show(if (skip == BackupSkip.NO_ENTRIES) nothingYet else busy) }
+    }
     // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 묻는다.
     // 거절해도 백업은 그대로 돈다.
     LaunchedEffect(running) { if (running) access.request {} }
-    BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
-        viewModel.backUpNow()
-    }, {
-        viewModel.backUpNow(cellularOnce = true)
-    }, viewModel::setAuto, onOptions, onRestore, onBack, modifier, rollback, viewModel::rollBack, onFile)
+    Box(modifier.fillMaxSize()) {
+        BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
+            viewModel.backUpNow()
+        }, {
+            viewModel.backUpNow(cellularOnce = true)
+        }, viewModel::setAuto, onOptions, onRestore, onBack, Modifier, rollback, viewModel::rollBack, onFile)
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
+    }
     found?.let { entry ->
         BackupFoundSheet(entry, viewModel::skipFound) {
             viewModel.takeFound()
@@ -403,6 +421,11 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                 stringResource(Res.string.backup_reconnect_body)
             )
 
+        // 마지막 시도가 실패했으면 앞선 성공보다 그 까닭과 할 일을 먼저 말한다.
+        // 첫 백업이 끊긴 때도 같다.
+        // 올린 사진은 남아 있다.
+        status.lastFailure != null -> FailedStatus(status.lastFailure, last)
+
         status.photosNotBackedUp > 0 && last != null ->
             DiaryStatusBox(
                 DiaryIcons.ShieldCheck,
@@ -413,14 +436,6 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             )
 
         last != null -> DiaryStatusBox(DiaryIcons.ShieldCheck, last, stringResource(Res.string.backup_all_done))
-
-        // 첫 백업이 끊겨도 말없이 처음 화면으로 돌아가지 않는다.
-        // 올린 사진은 남아 있다.
-        status.lastFailure != null -> DiaryStatusBox(
-            DiaryIcons.CircleAlert,
-            stringResource(Res.string.backup_interrupted_title),
-            stringResource(Res.string.backup_interrupted_body)
-        )
 
         // 이 기기에서 백업한 적은 없어도 복원한 백업이 드라이브에 있다.
         // 첫 백업이라고 말하면 틀린 말이 된다.
@@ -433,6 +448,26 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             )
         }
     }
+}
+
+/**
+ * 마지막 시도가 실패했다.
+ * 까닭과 할 일을 말하고, 앞선 성공이 있으면 언제까지 백업됐는지 함께 보인다.
+ */
+@Composable
+private fun FailedStatus(failure: BackupFailure?, last: String?) {
+    val reason =
+        when (failure) {
+            BackupFailure.OFFLINE -> Res.string.backup_failed_offline
+            BackupFailure.DRIVE_ERROR -> Res.string.backup_failed_drive
+            BackupFailure.LOCAL_IO -> Res.string.backup_failed_local
+            else -> Res.string.backup_interrupted_body
+        }
+    DiaryStatusBox(
+        DiaryIcons.CircleAlert,
+        stringResource(Res.string.backup_stopped_title),
+        listOfNotNull(stringResource(reason), last).joinToString(separator = "\n")
+    )
 }
 
 /**

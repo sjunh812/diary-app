@@ -190,7 +190,6 @@
     <string name="backup_space_retry">Back up again</string>
     <plurals name="backup_space_photos"><item quantity="one">Your entries are backed up. You need %2$s more on Drive for the remaining photo.</item><item quantity="other">Your entries are backed up. You need %2$s more on Drive for the remaining %1$s photos.</item></plurals>
     <string name="restore_contact">Contact us</string>
-    <string name="backup_interrupted_title">Backup was interrupted</string>
     <string name="backup_interrupted_body">Uploaded photos are safe. Tap Back up now to continue.</string>
     <string name="backup_restored_title">Restored from your %1$s backup</string>
     <string name="backup_restored_body">Back up now to save this phone's entries too.</string>
@@ -201,4 +200,10 @@
     <string name="restore_notice_title">Restore finished</string>
     <string name="restore_notice_body">All your entries and photos are back.</string>
     <string name="restore_notice_left">Open the app to get the remaining photos.</string>
+    <string name="backup_failed_offline">You're not connected to the internet. Connect, then tap Back up now.</string>
+    <string name="backup_failed_drive">Google Drive isn't responding. Wait a moment, then tap Back up now.</string>
+    <string name="backup_failed_local">Couldn't read or write files on this phone. Check your storage, then tap Back up now.</string>
+    <string name="backup_line_failed">Backup didn't finish</string>
+    <string name="backup_skip_empty">No diary entries to back up yet</string>
+    <string name="backup_skip_busy">Another task is running. Try again when it's done.</string>
 </resources>

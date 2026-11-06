@@ -121,6 +121,7 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
             if (again != null && again.kind in RESUMABLE && runAttemptCount < MAX_RESUMES) {
                 Result.retry()
             } else {
+                get<BackupController>().nowFinished(outcome)
                 tellIfAway(outcome)
                 Result.success()
             }

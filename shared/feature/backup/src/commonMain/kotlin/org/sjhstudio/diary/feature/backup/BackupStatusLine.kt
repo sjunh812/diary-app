@@ -43,6 +43,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_line_all
 import org.sjhstudio.diary.feature.backup.resources.backup_line_at
 import org.sjhstudio.diary.feature.backup.resources.backup_line_days
+import org.sjhstudio.diary.feature.backup.resources.backup_line_failed
 import org.sjhstudio.diary.feature.backup.resources.backup_line_off
 import org.sjhstudio.diary.feature.backup.resources.backup_line_on
 import org.sjhstudio.diary.feature.backup.resources.backup_line_reconnect
@@ -92,6 +93,7 @@ private class Line(val icon: ImageVector, val text: String, val action: String? 
 private fun lineFor(status: BackupStatus): Line {
     val running = status.running
     val last = status.lastSuccessAt
+    val now = Clock.System.now()
     return when {
         status.connection == BackupConnection.NotConnected ->
             Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_off), action = stringResource(Res.string.backup_line_on))
@@ -110,25 +112,27 @@ private fun lineFor(status: BackupStatus): Line {
             }
         )
 
+        // 실패가 7일을 넘으면 마지막 성공이 얼마나 지났는지가 더 중요하다.
+        last != null && now - (status.failingSince ?: now) >= LONG_FAILURE ->
+            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_days, (now - last).inWholeDays.toInt()), alert = true)
+
+        // 글을 올린 뒤 공간 때문에 사진만 남은 것은 실패가 아니라서 아래 줄이 말한다.
+        status.lastFailure != null && status.failingSince != null ->
+            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_failed))
+
         last == null -> Line(
             DiaryIcons.ShieldCheck,
             status.restoredBackupAt?.let { restoredBackupText(it) } ?: stringResource(Res.string.backup_first_title)
         )
 
         else -> {
-            val now = Clock.System.now()
-            val failing = status.failingSince?.let { now - it >= LONG_FAILURE } == true
             val detail =
                 if (status.photosNotBackedUp > 0) {
                     stringResource(Res.string.backup_line_waiting, status.photosNotBackedUp)
                 } else {
                     stringResource(Res.string.backup_line_all)
                 }
-            if (failing) {
-                Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_days, (now - last).inWholeDays.toInt()), alert = true)
-            } else {
-                Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_at, whenText(last), detail))
-            }
+            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_at, whenText(last), detail))
         }
     }
 }

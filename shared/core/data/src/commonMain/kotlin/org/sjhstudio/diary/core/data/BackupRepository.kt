@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
 
@@ -53,6 +54,12 @@ interface BackupRepository {
 
     /** [cellularOnce]는 이번만 모바일 데이터로 사진을 올린다. */
     fun backUpNow(cellularOnce: Boolean = false)
+
+    /**
+     * 지금 백업이 올리지 않고 끝났다.
+     * 상태에 남지 않는 일이라 화면이 한 번 알린다.
+     */
+    val skipped: Flow<BackupSkip>
 
     /**
      * 앱을 열 때 부른다.

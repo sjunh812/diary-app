@@ -20,6 +20,15 @@ enum class BackupFailure {
     }
 }
 
+/** 지금 백업을 눌렀는데 올리지 않고 끝난 까닭. */
+enum class BackupSkip {
+    /** 백업할 일기가 없다. */
+    NO_ENTRIES,
+
+    /** 복원이나 기록 이전이 도는 중이다. */
+    BUSY
+}
+
 /** 드라이브 연결 상태. */
 sealed interface BackupConnection {
     data object NotConnected : BackupConnection

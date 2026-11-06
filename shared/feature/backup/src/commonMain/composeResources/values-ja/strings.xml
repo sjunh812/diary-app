@@ -190,7 +190,6 @@
     <string name="backup_space_retry">もう一度バックアップ</string>
     <plurals name="backup_space_photos"><item quantity="other">日記の文章はすべてアップロードしました。残りの写真%1$s枚をアップロードするには、ドライブにあと%2$s必要です。</item></plurals>
     <string name="restore_contact">お問い合わせ</string>
-    <string name="backup_interrupted_title">バックアップが中断されました</string>
     <string name="backup_interrupted_body">アップロード済みの写真はそのままです。［今すぐバックアップ］で続きから再開します。</string>
     <string name="backup_restored_title">%1$sのバックアップから復元しました</string>
     <string name="backup_restored_body">今すぐバックアップすると、このスマートフォンの日記もドライブにアップロードします。</string>
@@ -201,4 +200,10 @@
     <string name="restore_notice_title">復元が終わりました</string>
     <string name="restore_notice_body">日記と写真をすべて復元しました。</string>
     <string name="restore_notice_left">残りの写真はアプリを開くと続きからダウンロードします。</string>
+    <string name="backup_failed_offline">インターネットに接続されていません。接続してから［今すぐバックアップ］をタップしてください。</string>
+    <string name="backup_failed_drive">Googleドライブが応答していません。しばらくしてから［今すぐバックアップ］をタップしてください。</string>
+    <string name="backup_failed_local">このスマートフォンのファイルを読み書きできませんでした。ストレージを確認してから［今すぐバックアップ］をタップしてください。</string>
+    <string name="backup_line_failed">バックアップを完了できませんでした</string>
+    <string name="backup_skip_empty">バックアップする日記がまだありません</string>
+    <string name="backup_skip_busy">別の処理が終わってからもう一度タップしてください</string>
 </resources>
