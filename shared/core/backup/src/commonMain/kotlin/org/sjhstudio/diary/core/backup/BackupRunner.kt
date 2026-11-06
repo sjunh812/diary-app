@@ -18,6 +18,7 @@ import okio.Path
 import org.sjhstudio.diary.core.database.BackupMediaEntity
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.LocalPhotoRow
+import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.drive.ChunkResult
 import org.sjhstudio.diary.core.drive.DriveApi
@@ -44,7 +45,8 @@ data class BackupAppInfo(val versionName: String, val versionCode: Int, val plat
 
 /** 한 번 돈 결과. */
 sealed interface BackupOutcome {
-    data class Done(val photosUploaded: Int, val photosLeft: Int) : BackupOutcome
+    /** [photosUnusable]은 기기에서 깨지거나 없어져 올릴 수 없는 사진이다. [photosLeft]에 들지 않는다. */
+    data class Done(val photosUploaded: Int, val photosLeft: Int, val photosUnusable: Int = 0) : BackupOutcome
 
     data class Failed(val kind: BackupFailure) : BackupOutcome
 
@@ -106,14 +108,16 @@ class BackupRunner(
     val progress: StateFlow<BackupProgress?> = _progress.asStateFlow()
 
     /** [cellularOnce]는 사용자가 이번만 모바일 데이터로 사진을 올리겠다고 고른 경우다. */
-    suspend fun run(cellularOnce: Boolean = false): BackupOutcome = runCatchingFailure {
+    suspend fun run(cellularOnce: Boolean = false): BackupOutcome = running(cellularOnce, automatic = false)
+
+    private suspend fun running(cellularOnce: Boolean, automatic: Boolean): BackupOutcome = runCatchingFailure {
         // 기록 이전이 끝나기 전의 일기는 일부뿐이다.
         // 그 상태를 가장 새 백업으로 남기지 않는다.
         if (!dataReady() || !gate.tryEnter()) return@runCatchingFailure BackupOutcome.Busy
         try {
             if (db.backupDao().entryRows() == 0) return@runCatchingFailure BackupOutcome.Empty
             store.update { it.copy(lastAttemptAt = clock.now()) }
-            runCatchingFailure { backUp(cellularOnce) }
+            runCatchingFailure { backUp(cellularOnce, automatic) }
         } finally {
             _progress.value = null
             clearOutgoing()
@@ -124,15 +128,33 @@ class BackupRunner(
     /**
      * 자동 백업.
      * 일기, 사진, 설정이 마지막 성공 뒤로 그대로이고 그 백업이 드라이브에 있으면 올리지 않는다(contracts/backup-flow.md).
+     * 올리지 못한 사진이 남아 있어도 이번에 더 올릴 수 없으면 같다.
+     * 같은 내용 백업이 쌓이면 최근 5개 시점이 밀려난다.
      */
     suspend fun runIfChanged(): BackupOutcome = runCatchingFailure {
         val prefs = store.current()
-        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint() && stillOnDrive(prefs.lastSuccessSnapshot)) {
+        val nothingToUpload = prefs.photosNotBackedUp == 0 || !mayUploadPhotos(prefs.photosOnCellular)
+        if (nothingToUpload && !repaired(prefs.unusablePhotos) && sameAsLastBackup(prefs, fingerprint())) {
             BackupOutcome.Unchanged
         } else {
-            run()
+            running(cellularOnce = false, automatic = true)
         }
     }
+
+    private fun mayUploadPhotos(onCellular: Boolean) = network.isUnmetered || onCellular
+
+    private suspend fun sameAsLastBackup(prefs: BackupPrefs, fingerprint: String): Boolean =
+        prefs.lastSuccessFingerprint == fingerprint && stillOnDrive(prefs.lastSuccessSnapshot)
+
+    /** 깨졌던 사진 파일이 돌아왔으면 올릴 수 있다. */
+    private suspend fun repaired(unusable: Set<String>): Boolean {
+        if (unusable.isEmpty()) return false
+        return db.backupDao().localPhotos().any { row ->
+            row.sha256 in unusable && row.fileName?.let { intact(mediaDir / it, row.sha256) } == true
+        }
+    }
+
+    private fun intact(path: Path, sha256: String) = fileSystem.exists(path) && fileSystem.hashes(path).sha256 == sha256
 
     /**
      * 사용자가 드라이브에서 지웠으면 일기가 그대로여도 백업이 없는 것이다.
@@ -208,7 +230,7 @@ class BackupRunner(
         _progress.value = BackupProgress(step, done, total, bytesDone, bytesTotal)
     }
 
-    private suspend fun backUp(cellularOnce: Boolean): BackupOutcome.Done {
+    private suspend fun backUp(cellularOnce: Boolean, automatic: Boolean): BackupOutcome {
         val fingerprint = fingerprint()
         step(BackupStep.Preparing)
         val account =
@@ -241,7 +263,7 @@ class BackupRunner(
 
         val local2 = dao.localPhotos()
         val missing = local2.filter { it.sha256 !in driveHashes && it.fileName != null }
-        val allowed = cellularOnce || network.isUnmetered || store.current().photosOnCellular
+        val allowed = cellularOnce || mayUploadPhotos(store.current().photosOnCellular)
         val quotaLimit = drive.about().free
         val reserve = snapshot.hashes.byteSize + MANIFEST_RESERVE
         if (quotaLimit != null && quotaLimit < reserve) {
@@ -251,6 +273,25 @@ class BackupRunner(
         val planned = if (allowed) fitting(missing, quotaLimit?.minus(reserve)) else emptyList()
         val unusable = HashSet<String>()
         val uploaded = uploadPhotos(planned, folders, account.key, unusable)
+        // 이번에 살펴보지 않은 사진은 지난번 판단을 이어 간다.
+        val tried = planned.mapTo(HashSet()) { it.sha256 }
+        val hashes = local2.mapTo(HashSet()) { it.sha256 }
+        val unusableNow = unusable + store.current().unusablePhotos.filter { it !in tried && it in hashes }
+        val inBackupSoFar = driveHashes.keys + uploaded
+        val left = local2.count { it.sha256 !in inBackupSoFar && it.sha256 !in unusableNow }
+        // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
+        val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusableNow }.sumOf { it.byteSize ?: 0 } else 0
+        if (automatic && uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
+            store.update {
+                it.copy(
+                    bytesShort = short,
+                    lastFailure = BackupFailure.NO_SPACE.takeIf { short > 0 } ?: it.lastFailure,
+                    photosNotBackedUp = left,
+                    unusablePhotos = unusableNow
+                )
+            }
+            return BackupOutcome.Unchanged
+        }
 
         step(BackupStep.UploadingSnapshot)
         val snapshotFile =
@@ -261,9 +302,10 @@ class BackupRunner(
             )
 
         step(BackupStep.UploadingManifest)
-        val inBackup = driveHashes.keys + uploaded
         val manifest =
-            manifestOf(now, timeZone(), app, deviceId, deviceName.current(), snapshot, local2, dao.pendingFiles(), inBackup, settings())
+            manifestOf(
+                now, timeZone(), app, deviceId, deviceName.current(), snapshot, local2, dao.pendingFiles(), inBackupSoFar, settings()
+            )
         val manifestPath = workDir / OUTGOING / "$base.json"
         fileSystem.write(manifestPath) { writeUtf8(ManifestCodec.encode(manifest)) }
         upload(
@@ -280,9 +322,6 @@ class BackupRunner(
         step(BackupStep.Verifying)
         check(snapshotFile.id.isNotEmpty())
         db.rememberBases(snapshot.path)
-        val left = local2.count { it.sha256 !in inBackup }
-        // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
-        val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusable }.sumOf { it.byteSize ?: 0 } else 0
         store.update {
             it.copy(
                 lastSuccessAt = now,
@@ -292,7 +331,8 @@ class BackupRunner(
                 failingSince = null,
                 lastFailure = BackupFailure.NO_SPACE.takeIf { short > 0 },
                 failureNotifiedAt = null,
-                photosNotBackedUp = left
+                photosNotBackedUp = left,
+                unusablePhotos = unusableNow
             )
         }
 
@@ -301,7 +341,7 @@ class BackupRunner(
             alerts?.schedule(now + ALERT_AFTER, null)
             prune(folders, deviceId, now)
         }
-        return BackupOutcome.Done(uploaded.size, left)
+        return BackupOutcome.Done(uploaded.size, left, unusableNow.size)
     }
 
     /**

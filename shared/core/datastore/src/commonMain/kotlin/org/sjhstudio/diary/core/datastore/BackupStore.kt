@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -61,7 +62,12 @@ data class BackupPrefs(
      */
     val photosUnreachable: Int = 0,
     /** 묶음 파일을 만드는 중이다. 앱이 꺼진 뒤에도 남아 있으면 끝나지 못한 것이다. */
-    val bundleWriting: Boolean = false
+    val bundleWriting: Boolean = false,
+    /**
+     * 기기에서 파일이 깨지거나 없어져 올릴 수 없는 사진의 내용 확인값.
+     * 기다려도 올라가지 않으니 남은 사진으로 세지 않는다.
+     */
+    val unusablePhotos: Set<String> = emptySet()
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
@@ -111,7 +117,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         unpackUntil = instant(Keys.UNPACK_UNTIL),
         photoStop = PhotoStop.fromName(this[Keys.PHOTO_STOP]),
         photosUnreachable = this[Keys.PHOTOS_UNREACHABLE] ?: 0,
-        bundleWriting = this[Keys.BUNDLE_WRITING] ?: false
+        bundleWriting = this[Keys.BUNDLE_WRITING] ?: false,
+        unusablePhotos = this[Keys.UNUSABLE_PHOTOS].orEmpty()
     )
 
     private fun Preferences.instant(key: Preferences.Key<Long>): Instant? = this[key]?.let(Instant::fromEpochMilliseconds)
@@ -140,6 +147,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.PHOTO_STOP, prefs.photoStop?.name)
         this[Keys.PHOTOS_UNREACHABLE] = prefs.photosUnreachable
         this[Keys.BUNDLE_WRITING] = prefs.bundleWriting
+        this[Keys.UNUSABLE_PHOTOS] = prefs.unusablePhotos
     }
 
     private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
@@ -171,5 +179,6 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val PHOTO_STOP = stringPreferencesKey("photo_stop")
         val PHOTOS_UNREACHABLE = intPreferencesKey("photos_unreachable")
         val BUNDLE_WRITING = booleanPreferencesKey("bundle_writing")
+        val UNUSABLE_PHOTOS = stringSetPreferencesKey("unusable_photos")
     }
 }
