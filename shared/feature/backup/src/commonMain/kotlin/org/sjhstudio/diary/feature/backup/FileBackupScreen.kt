@@ -78,6 +78,7 @@ import org.sjhstudio.diary.feature.backup.resources.file_write_failed
 import org.sjhstudio.diary.feature.backup.resources.file_writing
 import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
+import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_body
 
 /**
  * 파일로 백업하기(Figma "파일로 백업하기 (B8)").
@@ -160,18 +161,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
             when (state) {
                 FileBackupUi.WriteFailed -> DiaryNotice(stringResource(Res.string.file_write_failed))
 
-                is FileBackupUi.ReadFailed ->
-                    DiaryNotice(
-                        stringResource(
-                            if (state.reason ==
-                                RestoreFailure.NEEDS_UPDATE
-                            ) {
-                                Res.string.file_read_needs_update
-                            } else {
-                                Res.string.file_read_failed
-                            }
-                        )
-                    )
+                is FileBackupUi.ReadFailed -> DiaryNotice(readFailedText(state))
 
                 FileBackupUi.Reading -> DiaryNotice(stringResource(Res.string.file_reading))
 
@@ -225,6 +215,13 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBack
     Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3)) {
         DiaryButton(stringResource(Res.string.file_done), onDone, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
     }
+}
+
+@Composable
+private fun readFailedText(failed: FileBackupUi.ReadFailed): String = when (failed.reason) {
+    RestoreFailure.NEEDS_UPDATE -> stringResource(Res.string.file_read_needs_update)
+    RestoreFailure.BUSY -> stringResource(Res.string.restore_failed_busy_body)
+    else -> stringResource(Res.string.file_read_failed)
 }
 
 @Composable

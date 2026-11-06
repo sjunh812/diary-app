@@ -159,7 +159,15 @@ data class RestoreResult(
     val fromFile: Boolean = false
 )
 
-enum class RestoreFailure { MISMATCH, NO_SPACE, NEEDS_UPDATE, OTHER }
+enum class RestoreFailure {
+    MISMATCH,
+    NO_SPACE,
+    NEEDS_UPDATE,
+
+    /** 복원이 도는 중이라 다른 백업을 받지 않았다. */
+    BUSY,
+    OTHER
+}
 
 /**
  * 파일로 만들 묶음의 크기.

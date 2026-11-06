@@ -98,6 +98,8 @@
     <string name="restore_lock_body">The lock was on when this was backed up. Passcodes aren't backed up.</string>
     <string name="restore_lock_action">Set up</string>
     <string name="restore_start">Get started</string>
+    <string name="restore_failed_busy_title">Try again after the restore finishes</string>
+    <string name="restore_failed_busy_body">A restore is running. You can pick another backup when it's done.</string>
     <string name="restore_failed_mismatch_title">Couldn't verify the backup</string>
     <string name="restore_failed_mismatch_body">The downloaded file differs from the backup, so we stopped. Nothing on this phone changed.</string>
     <string name="restore_failed_other_title">Couldn't restore</string>

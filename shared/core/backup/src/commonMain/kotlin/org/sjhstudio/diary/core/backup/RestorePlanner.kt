@@ -15,6 +15,7 @@ import okio.openZip
 import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.LocalPhotoRow
+import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.drive.DriveFile
@@ -151,10 +152,14 @@ class RestorePlanner(
         val local = plan.local.values.flatMap { it.media }
         val here = local.filter { it.status == MediaStatus.NORMAL.id }.mapNotNull { it.sha256 }.toSet()
         // 일기가 그대로여도 전에 못 받은 사진은 이번 백업에서 채운다.
-        val waiting = local.filter { it.status == MediaStatus.PENDING.id }.mapNotNullTo(HashSet()) { it.sha256 }
+        // 찾을 수 없는 사진도 확인값이 있으면 다시 받는다.
+        val waiting = local.filter(::canArrive).mapNotNullTo(HashSet()) { it.sha256 }
         val incoming = plan.items.filter { it.second != MergeAction.KEEP }.flatMap { it.first.media }.mapNotNullTo(HashSet()) { it.sha256 }
         return manifest.media.filter { it.inBackup && it.sha256 !in here && (it.sha256 in incoming || it.sha256 in waiting) }
     }
+
+    private fun canArrive(row: MediaEntity) =
+        row.status == MediaStatus.PENDING.id || (row.status == MediaStatus.MISSING.id && row.fileName != null)
 
     private companion object {
         const val INCOMING = "incoming"

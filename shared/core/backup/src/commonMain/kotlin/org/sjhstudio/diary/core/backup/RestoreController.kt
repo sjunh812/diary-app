@@ -116,7 +116,15 @@ class RestoreController(
     override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) =
         exporter.value.write(sink, onProgress)
 
-    override suspend fun prepareFile(source: Source): RestorePreparation = preparingCopy {
+    override suspend fun prepareFile(source: Source): RestorePreparation = if (restoring) busy() else readingFile(source)
+
+    /**
+     * 복원은 고른 파일과 받은 사본을 끝까지 쓴다.
+     * 그 사이에 다른 백업을 받으면 같은 자리를 덮어써 남은 사진이 모두 깨진 사진이 된다.
+     */
+    private fun busy() = RestorePreparation.Failed(RestoreFailure.BUSY)
+
+    private suspend fun readingFile(source: Source): RestorePreparation = preparingCopy {
         val result =
             try {
                 readFile(source)
@@ -215,6 +223,7 @@ class RestoreController(
 
     override suspend fun prepare(snapshotName: String): RestorePreparation {
         if (snapshotName == RESTORE_FROM_FILE) return preparedFile ?: RestorePreparation.Failed(RestoreFailure.OTHER)
+        if (restoring) return busy()
         return preparingCopy {
             val result = prepareFromDrive(snapshotName)
             if (result is RestorePreparation.Failed) clearCopies()
@@ -313,6 +322,7 @@ class RestoreController(
     }
 
     private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
+        guarded { applier.value.revive(ready.manifest.media.filter { it.inBackup }.mapTo(HashSet()) { it.sha256 }) }
         // 일기는 이미 합쳤다.
         // 설정을 쓰지 못해도 복원이 실패했다고 하지 않고 사진을 마저 받는다.
         guarded { applySettings(ready.manifest.settings) }

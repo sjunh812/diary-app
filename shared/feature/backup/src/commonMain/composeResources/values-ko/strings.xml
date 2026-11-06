@@ -98,6 +98,8 @@
     <string name="restore_lock_body">백업한 휴대폰에서 잠금을 쓰고 있었어요. 비밀번호는 백업하지 않아요.</string>
     <string name="restore_lock_action">정하기</string>
     <string name="restore_start">시작하기</string>
+    <string name="restore_failed_busy_title">복원이 끝난 뒤에 해 주세요</string>
+    <string name="restore_failed_busy_body">지금 복원하고 있어요. 끝나면 다른 백업을 고를 수 있어요.</string>
     <string name="restore_failed_mismatch_title">백업을 확인하지 못했어요</string>
     <string name="restore_failed_mismatch_body">받은 파일이 백업할 때와 달라서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="restore_failed_other_title">복원하지 못했어요</string>
