@@ -68,7 +68,6 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_to
 
 private const val RISE_MILLIS = 450
 private const val OPEN_MILLIS = 3_200
-private const val PROMISE_TINT = 0.1f
 private const val BACKDROP_ALPHA = 0.4f
 
 /** 편지 바탕. 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다. */
@@ -144,7 +143,7 @@ private fun LetterBody(entries: Int?) {
         Modifier
             .fillMaxWidth()
             .clip(DiaryShapes.r16)
-            .background(DiaryTheme.colors.accent.copy(alpha = PROMISE_TINT))
+            .letterBackdrop()
             .padding(DiarySpacing.x4),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
