@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -26,7 +25,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.LockSettings
-import org.sjhstudio.diary.core.platform.AppForeground
 import org.sjhstudio.diary.core.platform.DeviceAuthenticator
 import org.sjhstudio.diary.feature.lock.LockFlow
 import org.sjhstudio.diary.feature.lock.rememberDeviceAuthenticator
@@ -54,10 +52,7 @@ fun LockGate(authenticator: DeviceAuthenticator = rememberDeviceAuthenticator(),
     val holder = rememberSaveableStateHolder()
 
     LaunchedEffect(startupState) { (startupState as? StartupState.Ready)?.let { controller.onColdStart(it.lock) } }
-    DisposableEffect(controller) {
-        val stop = AppForeground.observe(onBackground = controller::onBackground, onForeground = controller::onForeground)
-        onDispose { stop() }
-    }
+    LaunchedEffect(controller) { controller.watchForeground() }
 
     Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         when (state) {

@@ -20,7 +20,13 @@ import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
 
-data class PlusUiState(val products: List<StoreProduct> = emptyList(), val loading: Boolean = true, val busy: Boolean = false) {
+data class PlusUiState(
+    val products: List<StoreProduct> = emptyList(),
+    val loading: Boolean = true,
+    val busy: Boolean = false,
+    /** 방금 결제가 실패했다. 광고 제거 시트는 토스트가 없는 화면에서도 열려서 시트가 직접 보인다. */
+    val buyFailed: Boolean = false
+) {
     fun price(id: ProductId): String? = products.firstOrNull { it.id == id }?.price
 }
 
@@ -68,13 +74,17 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
             return
         }
         viewModelScope.launch {
-            when (attempt { purchases.buy(id) }) {
+            val result = attempt { purchases.buy(id) }
+            _state.update { it.copy(buyFailed = result == PurchaseResult.FAILED) }
+            when (result) {
                 PurchaseResult.DONE -> onDone()
                 PurchaseResult.FAILED -> _messages.send(PlusMessage.Failed)
                 PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> Unit
             }
         }
     }
+
+    fun failureShown() = _state.update { it.copy(buyFailed = false) }
 
     private fun owns(id: ProductId): Boolean = when (id) {
         ProductId.AD_FREE -> plan.value != Plan.FREE

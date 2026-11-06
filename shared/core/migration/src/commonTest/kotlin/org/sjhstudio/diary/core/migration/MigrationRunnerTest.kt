@@ -93,6 +93,17 @@ class MigrationRunnerTest {
             dir.fs.write(list) { writeUtf8(text.replace(Regex("\"sha256\":\"[0-9a-f]{64}\""), "\"sha256\":\"${"0".repeat(64)}\"")) }
         }
 
+        /** [photo]의 해시만 목록에서 바꿔 그 사진이 든 일기 하나의 지문을 어긋나게 한다. */
+        fun breakFingerprintOf(photo: Path) {
+            val text = dir.fs.read(paths.photosJson) { readUtf8() }
+            dir.fs.write(paths.photosJson) { writeUtf8(text.replace(sha(photo), "0".repeat(64))) }
+        }
+
+        fun restoreFingerprintOf(photo: Path) {
+            val text = dir.fs.read(paths.photosJson) { readUtf8() }
+            dir.fs.write(paths.photosJson) { writeUtf8(text.replace("0".repeat(64), sha(photo))) }
+        }
+
         fun photo(name: String, bytes: ByteArray): Path = dir.write("cache/$name", bytes)
 
         fun sha(path: Path) = LegacySnapshotter(dir.fs, clock).sha256(path)
@@ -613,6 +624,177 @@ class MigrationRunnerTest {
             } finally {
                 db.close()
             }
+        }
+    }
+
+    /** 검증 단계에서 끊긴 이전. 사진 사본과 목록은 남고 일기는 아직 옮겨지지 않았다. */
+    private fun Env.failAtVerifying() = object : MigrationEvents {
+        override fun stepStarted(step: MigrationStep) {
+            check(step != MigrationStep.VERIFYING) { "끊김" }
+        }
+    }
+
+    /** 캐시 원본은 OS가 언제든 지운다. 앞선 시도가 옮겨 둔 사본이 있으면 다시 시도가 그것을 쓴다(헌법 I). */
+    @Test
+    fun a_retry_uses_the_copy_when_the_cached_original_is_gone() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            val sha = env.sha(picture)
+            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$picture,"))).close()
+            assertIs<MigrationResult.Failed>(env.runner(events = env.failAtVerifying()).run())
+
+            dir.fs.delete(picture)
+            val result = assertIs<MigrationResult.Finished>(env.runner().run())
+
+            assertEquals(1, result.report.photosFound)
+            assertEquals(0, result.report.photosMissing)
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                val entry = checkNotNull(db.entryDao().getByLegacyId(1))
+                val media = db.mediaDao().forEntry(entry.id).single()
+                assertEquals(MediaStatus.NORMAL.id, media.status)
+                assertEquals("$sha.jpg", media.fileName)
+                assertEquals(picture.toString(), media.legacyPath)
+            } finally {
+                db.close()
+            }
+        }
+    }
+
+    /** 경로에 확장자가 없는 사진도 사본을 찾는다. */
+    @Test
+    fun a_retry_finds_a_copy_named_from_the_file_head() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("noext", png)
+            val sha = env.sha(picture)
+            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$picture,"))).close()
+            assertIs<MigrationResult.Failed>(env.runner(events = env.failAtVerifying()).run())
+            assertTrue(dir.fs.exists(env.paths.mediaDir / "$sha.png"))
+
+            dir.fs.delete(picture)
+            val result = assertIs<MigrationResult.Finished>(env.runner().run())
+
+            assertEquals(1, result.report.photosFound)
+        }
+    }
+
+    /** 사본이 깨졌으면 쓰지 않는다. 깨진 그림을 정상 사진으로 남기지 않는다. */
+    @Test
+    fun a_retry_does_not_trust_a_damaged_copy() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            val sha = env.sha(picture)
+            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$picture,"))).close()
+            assertIs<MigrationResult.Failed>(env.runner(events = env.failAtVerifying()).run())
+
+            dir.fs.delete(picture)
+            dir.fs.write(env.paths.mediaDir / "$sha.jpg") { writeUtf8("깨진 파일") }
+            val result = assertIs<MigrationResult.Finished>(env.runner().run())
+
+            assertEquals(0, result.report.photosFound)
+            assertEquals(1, result.report.photosMissing)
+        }
+    }
+
+    /** 복사 중에 앱이 죽어도 어느 사진을 옮겼는지 알아야 사본을 다시 쓴다. 묶음마다 목록을 적는다. */
+    @Test
+    fun the_photo_list_is_written_while_copying() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            val rows = LegacyFixtures.manyRows(201).map { it.copy(picture = picture.toString()) }
+            LegacyFixtures.create(env.legacy.noteDb, rows).close()
+            var listed = 0
+            var calls = 0
+            val runner =
+                env.runner(
+                    makeThumbnail = {
+                        calls++
+                        if (calls == 2) listed = dir.fs.read(env.paths.photosJson) { readUtf8() }.split("\"path\"").size - 1
+                        true
+                    }
+                )
+
+            assertIs<MigrationResult.Finished>(runner.run())
+
+            assertEquals(1, listed, "첫 묶음의 사진이 둘째 묶음 전에 목록에 있어야 한다")
+        }
+    }
+
+    /** 원본 내보내기가 이 목록으로 사진을 담는다. 다시 읽기가 앞선 사진을 지우면 안 된다. */
+    @Test
+    fun reading_again_keeps_the_photos_already_listed() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val first = env.photo("a.jpg", jpeg)
+            val second = env.photo("b.png", png)
+            val rows =
+                listOf(
+                    LegacyFixtures.Row("2024-01-01 10:00:00", contents = "첫째", picture = first.toString()),
+                    LegacyFixtures.Row("2024-01-02 10:00:00", contents = "둘째", picture = second.toString())
+                )
+            LegacyFixtures.create(env.legacy.noteDb, rows).close()
+            val runner = env.runner(events = env.onVerifying { env.breakFingerprintOf(second) })
+            assertEquals(MigrationOutcome.PARTIAL, assertIs<MigrationResult.Finished>(runner.run()).report.outcome)
+            env.restoreFingerprintOf(second)
+
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                assertEquals(1, env.runner(versionCode = 38).retryPartial(db))
+            } finally {
+                db.close()
+            }
+
+            val listed = dir.fs.read(env.paths.photosJson) { readUtf8() }
+            assertTrue(first.toString() in listed)
+            assertTrue(second.toString() in listed)
+        }
+    }
+
+    @Test
+    fun photo_copies_are_kept_until_every_old_entry_moved() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = picture.toString()))
+            ).close()
+            assertFalse(env.runner().keepsPhotoCopies())
+
+            assertIs<MigrationResult.Failed>(env.runner(events = env.failAtVerifying()).run())
+            env.runner().defer()
+            assertTrue(env.runner().keepsPhotoCopies(), "미뤄 둔 이전은 사본을 다시 쓴다")
+
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                assertIs<MigrationResult.Finished>(env.runner().retryDeferred(db))
+            } finally {
+                db.close()
+            }
+            assertFalse(env.runner().keepsPhotoCopies())
+        }
+    }
+
+    @Test
+    fun a_partial_migration_keeps_photo_copies() = runTest {
+        TempDir().use { dir ->
+            val env = Env(dir)
+            val first = env.photo("a.jpg", jpeg)
+            val second = env.photo("b.png", png)
+            val rows =
+                listOf(
+                    LegacyFixtures.Row("2024-01-01 10:00:00", picture = first.toString()),
+                    LegacyFixtures.Row("2024-01-02 10:00:00", picture = second.toString())
+                )
+            LegacyFixtures.create(env.legacy.noteDb, rows).close()
+            assertIs<MigrationResult.Finished>(env.runner(events = env.onVerifying { env.breakFingerprintOf(second) }).run())
+
+            assertEquals(MigrationStep.PARTIAL, env.runner().state().step)
+            assertTrue(env.runner().keepsPhotoCopies())
         }
     }
 }

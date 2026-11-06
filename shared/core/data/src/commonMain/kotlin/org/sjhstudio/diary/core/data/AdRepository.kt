@@ -1,13 +1,18 @@
 package org.sjhstudio.diary.core.data
 
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
+import okio.IOException
 import org.sjhstudio.diary.core.datastore.AdPrefs
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.currentDate
@@ -62,8 +67,14 @@ class AdRepository(
     private val clock: Clock = Clock.System,
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() }
 ) {
+    /** 저장 공간이 차서 파일에 적지 못해도 이 프로세스 안에서는 하루 한 번을 지킨다. */
+    private var shownDay: String? = null
+
     val showAds: Flow<Boolean> =
-        combine(plans.plan, store.prefs) { plan, prefs -> plan.showsAds && adsAllowed(prefs) }.distinctUntilChanged()
+        combine(plans.plan, store.prefs) { plan, prefs -> plan.showsAds && adsAllowed(prefs) }
+            // 기록을 읽지 못하면 덜 보이는 쪽으로 본다.
+            .catch { if (it is IOException) emit(false) else throw it }
+            .distinctUntilChanged()
 
     private fun adsAllowed(prefs: AdPrefs) = switch.enabled() && player.available && !rewarded(prefs.rewardUntil)
 
@@ -77,7 +88,7 @@ class AdRepository(
 
     /** 오늘 아직 안 봤으면 미리 받는다. */
     suspend fun afterSave() {
-        if (interstitialDue()) player.prepareInterstitial()
+        quietly(Unit) { if (interstitialDue()) player.prepareInterstitial() }
     }
 
     /**
@@ -86,19 +97,41 @@ class AdRepository(
      * 시각이 뒤로 가면 덜 보이는 쪽으로 본다.
      */
     suspend fun backToList() {
-        if (interstitialDue() && player.showInterstitial()) store.interstitialShown(today())
+        onceStarted(Unit) {
+            if (interstitialDue() && player.showInterstitial()) {
+                val day = today()
+                shownDay = day
+                store.interstitialShown(day)
+            }
+        }
     }
 
     private suspend fun interstitialDue(): Boolean {
         val prefs = store.current()
-        val shown = prefs.lastInterstitialDay
+        val shown = listOfNotNull(prefs.lastInterstitialDay, shownDay).maxOrNull()
         return plans.plan.value.showsAds && adsAllowed(prefs) && (shown == null || shown < today())
     }
 
-    suspend fun watchReward(): Boolean {
-        if (!showAds.first() || !player.showRewarded()) return false
+    suspend fun watchReward(): Boolean = onceStarted(false) {
+        if (!showAds.first() || !player.showRewarded()) return@onceStarted false
         store.rewardUntil(clock.now() + REWARD)
-        return true
+        true
+    }
+
+    /**
+     * 광고가 뜨면 끝까지 기다린다.
+     * 영상을 가로로 보고 돌아오면 화면이 다시 만들어져 부른 쪽이 먼저 끝난다.
+     * 그때 멈추면 본 광고가 기록되지 않아 같은 날 또 뜨고, 끝까지 본 보상을 잃는다.
+     */
+    private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T = quietly(failed) { withContext(NonCancellable) { block() } }
+
+    /** 광고는 곁일이다. 광고 쪽 실패로 앱이 꺼지면 안 된다. 다음 기회에 다시 해 본다. */
+    private suspend fun <T> quietly(failed: T, block: suspend () -> T): T = try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        failed
     }
 
     private companion object {

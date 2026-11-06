@@ -322,7 +322,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 keepEverything = { get<BackupStore>().current().rollbackUntil != null }
             )
         }
-        single { DiaryCleanup(get(), get()) }
+        single { DiaryCleanup(get(), get(), keepPhotos = { get<LegacyMigration>().keepsPhotoCopies() }) }
         single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
         single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
         // 이전이 끝난 기기의 후속 작업(FR-011).

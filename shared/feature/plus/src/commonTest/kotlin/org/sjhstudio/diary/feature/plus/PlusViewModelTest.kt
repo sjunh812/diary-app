@@ -226,4 +226,126 @@ class PlusViewModelTest {
         assertEquals(1, store.buys)
         assertEquals(ProductId.PLUS_YEARLY, store.bought)
     }
+
+    /** 광고 제거 시트는 토스트가 없는 화면(홈, 돌아보기)에서도 열린다. 실패를 상태로 들고 있어야 시트가 보인다. */
+    @Test
+    fun a_failed_purchase_stays_visible_until_the_next_try() = runTest(dispatcher) {
+        val store = Store(PurchaseResult.FAILED)
+        val viewModel = PlusViewModel(plans, store)
+        advanceUntilIdle()
+
+        viewModel.buy(ProductId.AD_FREE)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.value.buyFailed)
+
+        store.result = PurchaseResult.CANCELLED
+        viewModel.buy(ProductId.AD_FREE)
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.value.buyFailed, "취소는 실패가 아니다")
+    }
+
+    @Test
+    fun a_store_crash_counts_as_a_failed_purchase() = runTest(dispatcher) {
+        val viewModel = PlusViewModel(plans, Store(crash = true))
+        advanceUntilIdle()
+
+        viewModel.buy(ProductId.AD_FREE)
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.value.buyFailed)
+    }
+
+    @Test
+    fun closing_the_sheet_forgets_the_failure() = runTest(dispatcher) {
+        val viewModel = PlusViewModel(plans, Store(PurchaseResult.FAILED))
+        advanceUntilIdle()
+        viewModel.buy(ProductId.AD_FREE)
+        advanceUntilIdle()
+
+        viewModel.failureShown()
+
+        assertEquals(false, viewModel.state.value.buyFailed)
+    }
+
+    /** 스토어가 구매나 복원을 알리면 화면은 요금제만 보고 바뀐다(FR-001). */
+    @Test
+    fun a_purchase_reaches_the_screen_through_the_plan() = runTest(dispatcher) {
+        val viewModel = PlusViewModel(plans, FlippingStore(plans))
+        advanceUntilIdle()
+
+        var done = false
+        viewModel.buy(ProductId.PLUS_YEARLY) { done = true }
+        advanceUntilIdle()
+
+        assertEquals(true, done)
+        assertEquals(Plan.PLUS, viewModel.plan.value)
+    }
+
+    @Test
+    fun a_restored_purchase_reaches_the_screen_through_the_plan() = runTest(dispatcher) {
+        val viewModel = PlusViewModel(plans, FlippingStore(plans, restored = Plan.AD_FREE))
+        advanceUntilIdle()
+
+        viewModel.restore()
+        advanceUntilIdle()
+
+        assertEquals(PlusMessage.Restored, viewModel.messages.first())
+        assertEquals(Plan.AD_FREE, viewModel.plan.value)
+    }
+
+    /** 구독이 끝나면 다시 살 수 있다. 앞서 샀다고 스토어에 보내지 않으면 안 된다. */
+    @Test
+    fun plus_can_be_bought_again_after_it_ends() = runTest(dispatcher) {
+        val store = Store()
+        val viewModel = PlusViewModel(plans, store)
+        plans.plan.value = Plan.PLUS
+        advanceUntilIdle()
+
+        plans.plan.value = Plan.FREE
+        advanceUntilIdle()
+        viewModel.buy(ProductId.PLUS_YEARLY)
+        advanceUntilIdle()
+
+        assertEquals(1, store.buys)
+    }
+
+    /** 표: 요금제마다 스토어로 가는 구매. */
+    @Test
+    fun what_each_plan_can_still_buy() = runTest(dispatcher) {
+        val table =
+            mapOf(
+                Plan.FREE to setOf(ProductId.AD_FREE, ProductId.PLUS_YEARLY),
+                Plan.AD_FREE to setOf(ProductId.PLUS_YEARLY),
+                Plan.PLUS to emptySet()
+            )
+        for ((plan, buyable) in table) {
+            for (product in ProductId.entries) {
+                val store = Store()
+                plans.plan.value = plan
+                val viewModel = PlusViewModel(plans, store)
+                advanceUntilIdle()
+
+                viewModel.buy(product)
+                advanceUntilIdle()
+
+                assertEquals(if (product in buyable) 1 else 0, store.buys, "$plan $product")
+            }
+        }
+    }
+
+    private class FlippingStore(private val plans: PlanRepository, private val restored: Plan = Plan.PLUS) : PurchaseRepository {
+        override val manageUrl = ""
+
+        override suspend fun products(): List<StoreProduct> = emptyList()
+
+        override suspend fun buy(id: ProductId): PurchaseResult {
+            (plans.plan as MutableStateFlow<Plan>).value = if (id == ProductId.PLUS_YEARLY) Plan.PLUS else Plan.AD_FREE
+            return PurchaseResult.DONE
+        }
+
+        override suspend fun restore(): PurchaseResult {
+            (plans.plan as MutableStateFlow<Plan>).value = restored
+            return PurchaseResult.DONE
+        }
+    }
 }

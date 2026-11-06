@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -59,7 +60,13 @@ class LockGateUiTest {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val lockStore = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
     private val repository = DefaultLockRepository(lockStore, FakePinKeyStore())
-    private val controller = LockController(repository, scope)
+    private var appLeft: () -> Unit = {}
+    private var appCameBack: () -> Unit = {}
+    private val controller =
+        LockController(repository, scope) { onBackground, onForeground ->
+            appLeft = onBackground
+            appCameBack = onForeground
+        }
 
     private fun start(biometric: Boolean = false) {
         runBlocking {
@@ -117,6 +124,33 @@ class LockGateUiTest {
         enterPin()
         waitUntilExactlyOneExists(hasTestTag(COUNTER), TIMEOUT)
         onNodeWithTag(COUNTER).assertTextEquals("3")
+    }
+
+    /**
+     * 화면이 먼저 사라지고 앱이 뒤로 갔다는 알림이 나중에 와도 다시 잠근다.
+     * Android 11까지는 맨 앞 화면에서 뒤로 가면 이렇게 끝나고, 프로세스는 살아 있다.
+     */
+    @Test
+    fun leaving_after_the_screen_is_gone_still_locks() = runComposeUiTest {
+        start()
+        var shown by mutableStateOf(true)
+        setContent {
+            DiaryTheme(darkTheme = false) {
+                if (shown) LockGate(authenticator = FakeAuthenticator(BiometricStatus.Unavailable)) { Counter() }
+            }
+        }
+        waitUntilKeypad()
+        enterPin()
+        waitUntilExactlyOneExists(hasTestTag(COUNTER), TIMEOUT)
+
+        shown = false
+        waitForIdle()
+        appLeft()
+        appCameBack()
+        shown = true
+
+        waitUntilKeypad()
+        onNodeWithTag(COUNTER).assertDoesNotExist()
     }
 
     @Test

@@ -45,18 +45,19 @@ class MediaImporter(
     private val clock: Clock,
     private val newId: () -> String
 ) {
-    fun import(entryId: String, fragments: List<String>): List<ImportedPhoto> =
-        fragments.mapIndexed { order, fragment -> importOne(entryId, order, fragment) }
+    /** [known]은 앞선 시도가 적어 둔 목록이다. 원본이 사라졌으면 여기 적힌 사본을 쓴다. */
+    fun import(entryId: String, fragments: List<String>, known: Map<String, PhotoRecord> = emptyMap()): List<ImportedPhoto> =
+        fragments.mapIndexed { order, fragment -> importOne(entryId, order, fragment, known[fragment]?.sha256) }
 
     /**
      * 조각 하나.
      * 찾지 못하거나 읽다 실패하면 `missing` 줄이다.
      */
-    fun importOne(entryId: String, sortOrder: Int, fragment: String): ImportedPhoto {
+    fun importOne(entryId: String, sortOrder: Int, fragment: String, knownSha256: String? = null): ImportedPhoto {
         val now = clock.now()
-        val copied = PhotoPaths.candidates(fragment).firstNotNullOfOrNull { candidate ->
-            runCatching { copy(candidate.toPath()) }.getOrNull()
-        }
+        val copied =
+            PhotoPaths.candidates(fragment).firstNotNullOfOrNull { candidate -> runCatching { copy(candidate.toPath()) }.getOrNull() }
+                ?: knownSha256?.let { sha256 -> runCatching { earlierCopy(sha256, fragment) }.getOrNull() }
         val media =
             Media(
                 id = newId(),
@@ -81,6 +82,16 @@ class MediaImporter(
     }
 
     private class Copied(val fileName: String, val sha256: String, val bytes: Long, val size: Pair<Int, Int>?)
+
+    /**
+     * 앞선 시도가 옮겨 둔 사본. 캐시의 원본은 그사이 OS가 지울 수 있다(헌법 I).
+     * 이름에 든 해시와 내용이 맞을 때만 쓴다.
+     */
+    private fun earlierCopy(sha256: String, fragment: String): Copied? {
+        val name = PhotoPaths.extensions(fragment).map { PhotoPaths.fileName(sha256, it) }.firstOrNull(::verify) ?: return null
+        val target = mediaDir / name
+        return Copied(name, sha256, fileSystem.metadata(target).size ?: 0, imageSize.read(target.toString()))
+    }
 
     private fun copy(source: Path): Copied? {
         val meta = fileSystem.metadataOrNull(source) ?: return null

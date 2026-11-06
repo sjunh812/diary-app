@@ -158,6 +158,11 @@ class MigrationRunner(
             paths.legacy.exist(fileSystem)
     }
 
+    override suspend fun keepsPhotoCopies(): Boolean = withContext(io) {
+        val step = store.readState().step
+        step == MigrationStep.DEFERRED || step == MigrationStep.PARTIAL
+    }
+
     override suspend fun run(): MigrationResult = withContext(io) {
         val previous = store.readState()
         if (previous.step == MigrationStep.DONE || previous.step == MigrationStep.PARTIAL || previous.step == MigrationStep.DEFERRED) {
@@ -286,7 +291,8 @@ class MigrationRunner(
 
     private suspend fun copy(db: DiaryDatabase, notes: List<LegacyNote>, photosTotal: Int, counts: Counts) {
         val mapper = LegacyEntryMapper(currentDate(clock, timeZone), timeZone, newId)
-        val records = mutableListOf<PhotoRecord>()
+        // 앞선 시도의 목록을 잇는다. 원본이 사라진 사진은 이 목록으로 사본을 찾고, 다시 읽기가 앞선 사진을 지우지 않는다.
+        val records = runCatching { readPhotosJson() }.getOrDefault(emptyList()).associateByTo(LinkedHashMap()) { it.path }
         var done = 0
         var photosDone = 0
         _progress.value = MigrationProgress(MigrationStep.COPYING, 0, notes.size, 0, photosTotal)
@@ -303,9 +309,9 @@ class MigrationRunner(
                     } catch (e: Exception) {
                         continue
                     }
-                val photos = importer.import(mapped.entry.id, PhotoPaths.fragments(note.picture))
+                val photos = importer.import(mapped.entry.id, PhotoPaths.fragments(note.picture), records)
                 for (photo in photos) {
-                    records += photo.record
+                    records[photo.record.path] = photo.record
                     photo.media.fileName?.takeIf { photo.found }?.let { copied += paths.mediaDir / it }
                     photosDone++
                 }
@@ -313,10 +319,11 @@ class MigrationRunner(
             }
             counts.thumbnailsFailed += makeThumbnails(copied)
             write(db, rows).forEach(counts::add)
+            // 묶음마다 적는다. 복사 중에 앱이 죽어도 어느 사진을 옮겼는지 남는다.
+            writePhotosJson(records.values.toList())
             done += chunk.size
             _progress.value = MigrationProgress(MigrationStep.COPYING, done, notes.size, photosDone, photosTotal)
         }
-        writePhotosJson(records)
     }
 
     /**
