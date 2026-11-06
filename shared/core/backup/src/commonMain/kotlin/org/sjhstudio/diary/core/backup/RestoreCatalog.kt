@@ -5,6 +5,7 @@ import okio.FileSystem
 import okio.Path
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveFile
+import org.sjhstudio.diary.core.drive.DriveNotFound
 import org.sjhstudio.diary.core.drive.DriveQuery
 import org.sjhstudio.diary.core.drive.listAll
 import org.sjhstudio.diary.core.model.BackupEntry
@@ -28,13 +29,21 @@ class RestoreCatalog(
         fileSystem.createDirectories(workDir)
         val backups =
             manifests.map { file ->
-                val path = workDir / "manifest.tmp"
-                drive.download(file.id, path)
-                val manifest = ManifestCodec.decode(fileSystem.read(path) { readUtf8() })
-                fileSystem.delete(path, mustExist = false)
+                val manifest = read(file)
                 candidate(file, manifest, manifest?.let { snapshots[it.snapshot.fileName] })
             }.sortedByDescending { it.entry.createdAt }
         return backups + legacy().map(::legacyCandidate)
+    }
+
+    /** 목록을 읽는 사이에 없어진 파일 하나가 다른 백업까지 가리지 않게 깨진 파일로 본다. */
+    private suspend fun read(file: DriveFile): Manifest? {
+        val path = workDir / "manifest.tmp"
+        try {
+            drive.download(file.id, path)
+        } catch (_: DriveNotFound) {
+            return null
+        }
+        return ManifestCodec.decode(fileSystem.read(path) { readUtf8() }).also { fileSystem.delete(path, mustExist = false) }
     }
 
     private fun legacyCandidate(file: DriveFile) = RestoreCandidate(
