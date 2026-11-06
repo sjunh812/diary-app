@@ -92,7 +92,7 @@ object DiaryInsightSize {
      * 아홉 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춘다.
      */
     val barRow: Dp = 48.dp
-    val barHeight: Dp = 10.dp
+    val barHeight: Dp = 8.dp
     val barFace: Dp = 24.dp
 
     /** 기분 흐름 얼굴. */

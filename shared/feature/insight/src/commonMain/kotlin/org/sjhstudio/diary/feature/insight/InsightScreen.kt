@@ -494,7 +494,9 @@ private fun MoodBar(
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
             maxLines = 1
         )
-        Box(Modifier.weight(1f).height(DiaryInsightSize.barHeight).clip(DiaryShapes.full).background(colors.sunken)) {
+        // 트랙을 두지 않는다.
+        // 웃음과 슬픔 파스텔은 sunken과 밝기가 거의 같아서 끝이 보이지 않았고, 막대는 가장 많은 기분을 끝으로 재서 트랙이 뜻하는 값도 없다.
+        Box(Modifier.weight(1f).height(DiaryInsightSize.barHeight)) {
             if (count > 0) {
                 val filled = count.toFloat() / most
                 Box(Modifier.fillMaxWidth(filled).fillMaxHeight().clip(DiaryShapes.full).background(moodColor(mood)))

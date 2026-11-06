@@ -454,8 +454,8 @@ private fun MoodTimes(stats: AdvancedStats) {
             )
         }
         val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, if (hard) share.hardPercent else share.percent) }
-        val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.body).coerceAtMost(DiarySpacing.x14 * 2)
-        val countWidth = widestText(counts, DiaryTheme.typography.caption)
+        val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.caption).coerceAtMost(DiarySpacing.x14 * 2)
+        val countWidth = widestText(counts, DiaryTheme.typography.captionStrong)
         rows.forEachIndexed { index, (label, share) ->
             ShareRow(label, counts[index], if (hard) share.hardRate else share.rate, labelWidth, countWidth)
         }
@@ -478,7 +478,7 @@ private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp,
         BasicText(
             label,
             Modifier.width(labelWidth),
-            style = typography.body.copy(color = colors.textPrimary),
+            style = typography.caption.copy(color = colors.textSecondary),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -486,7 +486,7 @@ private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp,
         BasicText(
             count,
             Modifier.width(countWidth),
-            style = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End),
+            style = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End),
             maxLines = 1
         )
     }
