@@ -399,7 +399,9 @@ private fun Content(
                     entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
                         EntryDetailRoute(
                             entryId = key.entryId,
-                            onBack = pop.takeUnless { splitWindow },
+                            // 창이 넓어도 달력에서 연 상세는 한 칸이다.
+                            // 목록이 옆에 그려질 때만 뒤로 버튼을 뺀다.
+                            onBack = pop.takeUnless { LocalInListDetail.current },
                             onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
                             onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
                             onOtherVersion = nav::openEntry,

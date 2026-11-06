@@ -51,6 +51,7 @@ import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
@@ -148,6 +149,43 @@ class AdaptiveLayoutUiTest {
         }
     }
 
+    /** 달력에서 연 상세는 넓은 화면에서도 한 칸이라 돌아갈 길이 있어야 한다. */
+    @Test
+    fun a_detail_opened_from_the_calendar_has_a_back_button() = runComposeUiTest {
+        rows = listOf(fakeEntryRow("a", currentDate()))
+        setContent { TwoPanes() }
+        waitForIdle()
+        onAllNodes(tabs)[1].performClick()
+        waitForIdle()
+
+        onNode(hasText("글 a", substring = true)).performClick()
+        waitForIdle()
+
+        assertEquals(1, onAllNodes(backButton).fetchSemanticsNodes().size)
+        onNode(backButton).performClick()
+        waitForIdle()
+        assertEquals(1, onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size)
+    }
+
+    /** 두 칸에서는 왼쪽 목록이 그대로 보여 뒤로 버튼이 필요 없다. */
+    @Test
+    fun a_detail_beside_the_list_has_no_back_button() = runComposeUiTest {
+        rows = listOf(fakeEntryRow("a", day))
+        setContent { TwoPanes() }
+        waitForIdle()
+
+        onNode(hasText("글 a", substring = true)).performClick()
+        waitForIdle()
+
+        assertEquals(0, onAllNodes(backButton).fetchSemanticsNodes().size)
+    }
+
+    private val backButton =
+        SemanticsMatcher("뒤로 가기 단추") { node ->
+            val key = SemanticsProperties.ContentDescription
+            key in node.config && node.config[key].any { it in BACK_LABELS }
+        }
+
     /** 상세의 공유가 화면 컨트롤러를 찾는다. */
     @Composable
     private fun TwoPanes() {
@@ -203,3 +241,5 @@ class AdaptiveLayoutUiTest {
         assertEquals(1, onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size)
     }
 }
+
+private val BACK_LABELS = setOf("뒤로 가기", "Back", "戻る")
