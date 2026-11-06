@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
@@ -106,13 +107,30 @@ class BackupRunner(
         }
     }
 
-    /** 자동 백업. 일기, 사진, 설정이 마지막 성공 뒤로 그대로면 올리지 않는다(contracts/backup-flow.md). */
+    /** 자동 백업. 일기, 사진, 설정이 마지막 성공 뒤로 그대로이고 그 백업이 드라이브에 있으면 올리지 않는다(contracts/backup-flow.md). */
     suspend fun runIfChanged(): BackupOutcome = runCatchingFailure {
         val prefs = store.current()
-        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint()) {
+        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint() && stillOnDrive(prefs.lastSuccessSnapshot)) {
             BackupOutcome.Unchanged
         } else {
             run()
+        }
+    }
+
+    /**
+     * 사용자가 드라이브에서 지웠으면 일기가 그대로여도 백업이 없는 것이다.
+     * 드라이브를 볼 수 없으면 있다고 보고 다음 기회를 기다린다.
+     */
+    private suspend fun stillOnDrive(snapshot: String?): Boolean {
+        if (snapshot == null) return false
+        return try {
+            drive.list(
+                DriveQuery(name = "$snapshot.json", props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_MANIFEST))
+            ).files.isNotEmpty()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            true
         }
     }
 
@@ -207,7 +225,8 @@ class BackupRunner(
             throw DriveException(BackupFailure.NO_SPACE)
         }
         val planned = if (allowed) fitting(missing, quotaLimit?.minus(reserve)) else emptyList()
-        val uploaded = uploadPhotos(planned, folders, account.key)
+        val unusable = HashSet<String>()
+        val uploaded = uploadPhotos(planned, folders, account.key, unusable)
 
         step(BackupStep.UploadingSnapshot)
         val snapshotFile =
@@ -236,10 +255,10 @@ class BackupRunner(
 
         step(BackupStep.Verifying)
         check(snapshotFile.id.isNotEmpty())
-        dao.setBase(syncBases(snapshot.path))
+        rememberBases(syncBases(snapshot.path))
         val left = local2.count { it.sha256 !in inBackup }
         // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
-        val short = if (allowed) missing.filter { it.sha256 !in uploaded }.sumOf { it.byteSize ?: 0 } else 0
+        val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusable }.sumOf { it.byteSize ?: 0 } else 0
         store.update {
             it.copy(
                 lastSuccessAt = now,
@@ -282,15 +301,28 @@ class BackupRunner(
         }
     }
 
-    private suspend fun uploadPhotos(photos: List<LocalPhotoRow>, folders: DriveFolders, accountKey: String): Set<String> {
+    /**
+     * 올린 사진의 확인값을 돌려준다.
+     * 파일이 없거나 내용이 이름과 다르면 [unusable]에 적고 건너뛴다.
+     * 깨진 내용을 이 이름으로 올리면 되살릴 수 없는 사진을 백업됐다고 말하게 되고, 드라이브에 이미 있다고 보여 좋은 사본도 못 올라간다.
+     */
+    private suspend fun uploadPhotos(
+        photos: List<LocalPhotoRow>,
+        folders: DriveFolders,
+        accountKey: String,
+        unusable: MutableSet<String>
+    ): Set<String> {
         val done = LinkedHashSet<String>()
         val bytesTotal = photos.sumOf { it.byteSize ?: 0L }
         var bytesDone = 0L
         step(BackupStep.UploadingPhotos, 0, photos.size, 0, bytesTotal)
         for (photo in photos) {
             val path = mediaDir / requireNotNull(photo.fileName)
-            if (!fileSystem.exists(path)) continue
-            val hashes = fileSystem.hashes(path)
+            val hashes = if (fileSystem.exists(path)) fileSystem.hashes(path) else null
+            if (hashes == null || hashes.sha256 != photo.sha256) {
+                unusable += photo.sha256
+                continue
+            }
             try {
                 val file =
                     upload(
@@ -354,6 +386,13 @@ class BackupRunner(
     }
 
     private fun deviceProps(kind: String, deviceId: String) = mapOf(DriveLayout.KEY_KIND to kind, DriveLayout.KEY_DEVICE to deviceId)
+
+    /** 스냅샷을 뜬 뒤에 영구 삭제한 일기는 기준값을 쓸 곳이 없다. 그 일기 때문에 끝난 백업을 실패로 돌리지 않는다. */
+    private suspend fun rememberBases(bases: List<SyncBaseEntity>) = db.withWriteTransaction {
+        val dao = db.backupDao()
+        val here = dao.entryIds().toHashSet()
+        dao.setBase(bases.filter { it.entryId in here })
+    }
 
     private fun syncBases(snapshot: Path): List<SyncBaseEntity> {
         val connection = BundledSQLiteDriver().open(snapshot.toString())

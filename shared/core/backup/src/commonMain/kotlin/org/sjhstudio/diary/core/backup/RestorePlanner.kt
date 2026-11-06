@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import okio.FileSystem
+import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.openZip
@@ -60,12 +61,13 @@ class RestorePlanner(
     private val workDir: Path
 ) {
     suspend fun prepare(candidate: RestoreCandidate): PreparedRestore {
-        val manifest = requireNotNull(candidate.manifest)
+        val manifest = readable(candidate.manifest)
         val file = candidate.snapshot ?: throw RestoreMismatch()
         if (!RestoreNames.isSingleName(manifest.snapshot.fileName)) throw RestoreMismatch()
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
-        val path = incoming / manifest.snapshot.fileName
+        // 다른 기기가 지은 이름에는 SQLite가 열지 못하는 글자가 들어 있을 수 있어 받을 때는 이름을 정해 둔다.
+        val path = incoming / BundleExporter.SNAPSHOT
         drive.download(file.id, path)
         return checked(manifest, path)
     }
@@ -75,18 +77,20 @@ class RestorePlanner(
         val archive = fileSystem.openZip(zip)
         val root = "/".toPath()
         val text = archive.read(root / BundleExporter.MANIFEST) { readUtf8() }
-        val manifest = ManifestCodec.decode(text)
-        when (ManifestCodec.check(manifest)) {
-            ManifestCheck.OK -> Unit
-            ManifestCheck.NEEDS_NEWER_APP -> throw RestoreNeedsUpdate()
-            ManifestCheck.BROKEN -> throw RestoreMismatch()
-        }
+        val manifest = readable(ManifestCodec.decode(text))
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
         val path = incoming / BundleExporter.SNAPSHOT
         fileSystem.delete(path, mustExist = false)
         archive.source(root / BundleExporter.SNAPSHOT).use { source -> fileSystem.write(path) { writeAll(source) } }
-        return checked(requireNotNull(manifest), path).copy(bundle = zip)
+        return checked(manifest, path).copy(bundle = zip)
+    }
+
+    /** 목록 화면이 막아도 이름으로 바로 들어올 수 있어 여기서도 본다. 더 새 앱이 만든 스냅샷은 열지 않는다. */
+    private fun readable(manifest: Manifest?): Manifest = when (ManifestCodec.check(manifest)) {
+        ManifestCheck.OK -> requireNotNull(manifest)
+        ManifestCheck.NEEDS_NEWER_APP -> throw RestoreNeedsUpdate()
+        ManifestCheck.BROKEN -> throw RestoreMismatch()
     }
 
     private suspend fun checked(manifest: Manifest, path: Path): PreparedRestore {
@@ -160,8 +164,15 @@ class PhotoFetcher(
         val media = "/".toPath() / BundleExporter.MEDIA
         return settle(onProgress) { _, name, target ->
             val entry = media / name
-            if (!archive.exists(entry)) return@settle false
-            archive.source(entry).use { source -> fileSystem.write(target) { writeAll(source) } }
+            val photo =
+                try {
+                    if (!archive.exists(entry)) return@settle false
+                    archive.source(entry)
+                } catch (_: IOException) {
+                    // 이 항목의 머리가 깨졌다. 다른 사진까지 멈추지 않는다.
+                    throw BrokenPhoto()
+                }
+            photo.use { source -> fileSystem.write(target) { writeAll(source) } }
             true
         }
     }
@@ -214,6 +225,9 @@ class PhotoFetcher(
             fileSystem.atomicMove(partial, mediaDir / name)
             dao.settlePending(photo.sha256, name, MediaStatus.NORMAL.id)
             return Settled.FETCHED
+        } catch (_: BrokenPhoto) {
+            dao.settlePending(photo.sha256, name, MediaStatus.MISSING.id)
+            return Settled.BROKEN
         } catch (error: DriveException) {
             // 이 사진만의 일이면 대기로 두고 다음 장으로 간다. 어차피 다 실패할 일이면 여기서 멈춘다.
             if (error.stopsAllPhotos) throw error
@@ -228,6 +242,8 @@ class PhotoFetcher(
         get() = retryable || kind == BackupFailure.AUTH || kind == BackupFailure.OFFLINE
 
     private enum class Settled { FETCHED, BROKEN, STILL_WAITING }
+
+    private class BrokenPhoto : Exception("photo entry is damaged")
 
     private companion object {
         /** 드라이브에서 동시에 받는 사진 수. 사진 한 장은 작아서 기다리는 시간이 대부분이다. */

@@ -139,6 +139,68 @@ class ResumableUploadTest {
         assertEquals(BackupFailure.OFFLINE, failure.kind)
     }
 
+    private var calls = 0
+
+    /** 드라이브가 [reason]으로 거절하는 클라이언트. */
+    private fun refusing(status: HttpStatusCode, reason: String): KtorDriveApi {
+        val client =
+            HttpClient(MockEngine) {
+                expectSuccess = false
+                engine {
+                    addHandler {
+                        calls++
+                        respond("""{"error":{"errors":[{"reason":"$reason"}]}}""", status)
+                    }
+                }
+            }
+        return KtorDriveApi(client, auth, fs, backoff = { backoffs++ })
+    }
+
+    @Test
+    fun a_full_drive_stops_at_once_during_a_chunk() = runTest {
+        fs.write(path) { write(ByteArray(10)) }
+
+        val error =
+            assertFailsWith<DriveException> {
+                refusing(HttpStatusCode.Forbidden, "storageQuotaExceeded").uploadChunk(UploadSession("https://upload/1", 10), 0, path)
+            }
+
+        assertEquals(BackupFailure.NO_SPACE, error.kind)
+        assertEquals(0, backoffs)
+    }
+
+    @Test
+    fun taken_back_permission_stops_at_once() = runTest {
+        val error = assertFailsWith<DriveException> { refusing(HttpStatusCode.Forbidden, "insufficientPermissions").about() }
+
+        assertEquals(BackupFailure.AUTH, error.kind)
+        assertEquals(1, calls)
+    }
+
+    @Test
+    fun a_lost_file_is_not_retried() = runTest {
+        assertFailsWith<DriveNotFound> { refusing(HttpStatusCode.NotFound, "notFound").download("f1", path) }
+
+        assertEquals(0, backoffs)
+    }
+
+    @Test
+    fun a_failed_download_leaves_no_partial_file_to_mistake_for_a_photo() = runTest {
+        assertFailsWith<DriveException> { refusing(HttpStatusCode.InternalServerError, "backendError").download("f1", path) }
+
+        assertEquals(false, fs.exists(path))
+    }
+
+    @Test
+    fun no_token_needs_the_user_without_calling_drive() = runTest {
+        auth.account = null
+
+        val error = assertFailsWith<DriveException> { refusing(HttpStatusCode.OK, "").about() }
+
+        assertEquals(BackupFailure.AUTH, error.kind)
+        assertEquals(0, calls)
+    }
+
     @Test
     fun a_file_that_cannot_be_read_is_not_called_offline_or_retried() = runTest {
         val (drive, _) = api { HttpStatusCode.OK to emptyMap() }

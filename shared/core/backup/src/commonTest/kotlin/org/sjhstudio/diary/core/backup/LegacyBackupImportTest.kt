@@ -10,6 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.TimeZone
 import okio.FileSystem
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
@@ -132,6 +133,126 @@ class LegacyBackupImportTest {
 
         assertFailsWith<RestoreMismatch> { importer().prepare(file) }
         assertEquals(0, db.backupDao().allEntries().size)
+    }
+
+    private suspend fun uploadBytes(bytes: ByteArray): org.sjhstudio.diary.core.drive.DriveFile {
+        val path = dir / "note-${Random.nextLong()}.db"
+        fs.write(path) { write(bytes) }
+        return drive.uploadSmall(NewFile("note.db", null, "application/x-sqlite3"), path)
+    }
+
+    @Test
+    fun an_empty_file_is_refused_and_leaves_no_copy() = runTest {
+        db.entryDao().insertAll(listOf(local("here", "기기 글")))
+
+        assertFailsWith<RestoreMismatch> { importer().prepare(uploadBytes(ByteArray(0))) }
+
+        assertEquals(1, db.backupDao().allEntries().size)
+        assertEquals(emptyList(), fs.listOrNull(dir / "work" / "incoming").orEmpty())
+    }
+
+    @Test
+    fun a_database_without_the_note_table_is_refused() = runTest {
+        val path = dir / "other.db"
+        val connection = BundledSQLiteDriver().open(path.toString())
+        connection.execSQL("CREATE TABLE memo (_id INTEGER PRIMARY KEY)")
+        connection.close()
+
+        assertFailsWith<RestoreMismatch> { importer().prepare(drive.uploadSmall(NewFile("note.db", null, "application/x-sqlite3"), path)) }
+    }
+
+    @Test
+    fun an_old_backup_with_no_entries_adds_nothing() = runTest {
+        db.entryDao().insertAll(listOf(local("here", "기기 글")))
+
+        val plan = importer().prepare(upload())
+
+        assertEquals(0, plan.preview.entriesAdded)
+        assertEquals(0, plan.preview.entriesUnchanged)
+        importer().apply(plan)
+        assertEquals(1, db.backupDao().allEntries().size)
+    }
+
+    @Test
+    fun a_file_cut_in_half_never_changes_the_device_before_it_is_confirmed() = runTest {
+        db.entryDao().insertAll(listOf(local("here", "기기 글")))
+        val rows = (1L..2000L).map { Triple(it, "2026-10-01 08:00:00", "글 $it") }.toTypedArray()
+        val whole = drive.bytes(upload(*rows).id)
+
+        runCatching { importer().prepare(uploadBytes(whole.copyOf(whole.size / 2))) }
+
+        assertEquals(setOf("here"), db.backupDao().allEntries().map { it.id }.toSet())
+    }
+
+    @Test
+    fun two_old_rows_at_the_time_of_one_local_entry_are_both_kept() = runTest {
+        db.entryDao().insertAll(listOf(local("here", "기기 글")))
+        val file = upload(Triple(1, "2026-10-31 21:40:00", "옛 글 하나"), Triple(2, "2026-10-31 21:40:00", "옛 글 둘"))
+
+        val plan = importer().prepare(file)
+        importer().apply(plan)
+
+        assertEquals(2, plan.preview.entriesKeptBoth)
+        assertEquals(setOf("기기 글", "옛 글 하나", "옛 글 둘"), db.backupDao().allEntries().map { it.plainText }.toSet())
+    }
+
+    @Test
+    fun the_same_row_twice_in_one_file_comes_once() = runTest {
+        val file = upload(Triple(1, "2026-10-01 08:00:00", "같은 글"), Triple(2, "2026-10-01 08:00:00", "같은 글"))
+
+        val plan = importer().prepare(file)
+
+        assertEquals(1, plan.preview.entriesAdded)
+        assertEquals(1, plan.preview.entriesUnchanged)
+    }
+
+    @Test
+    fun an_entry_in_the_trash_counts_as_already_here() = runTest {
+        db.entryDao().insertAll(listOf(local("here", "같은 글").copy(deletedAt = 5)))
+
+        val plan = importer().prepare(upload(Triple(1, "2026-10-31 21:40:00", "같은 글")))
+
+        assertEquals(0, plan.preview.entriesAdded)
+    }
+
+    @Test
+    fun text_with_quotes_and_marks_comes_through() = runTest {
+        val path = dir / "quote.db"
+        val connection = BundledSQLiteDriver().open(path.toString())
+        connection.execSQL(CREATE)
+        connection.execSQL(
+            "INSERT INTO Note(_id, contents, create_date, modify_date) VALUES(1, '그''s & 😀', '2026-10-01 08:00:00', '2026-10-01 08:00:00')"
+        )
+        connection.close()
+        val file = drive.uploadSmall(NewFile("note.db", null, "application/x-sqlite3"), path)
+
+        importer().apply(importer().prepare(file))
+
+        assertEquals("그's & 😀", db.backupDao().allEntries().single().plainText)
+    }
+
+    @Test
+    fun a_time_zone_does_not_move_an_old_entry_to_another_day() = runTest {
+        val file = upload(Triple(1, "2026-10-31 23:50:00", "밤에 쓴 글"))
+
+        for (zone in listOf("Asia/Seoul", "America/Los_Angeles", "UTC")) {
+            val other =
+                LegacyBackupImporter(db, drive, { _, _, _ ->
+                    null
+                }, fs, dir / "work", timeZone = { TimeZone.of(zone) }, newId = { "n${Random.nextLong()}" })
+            val entry = other.prepare(file).items.single().entry
+
+            assertEquals("2026-10-31" to "23:50", entry.date to entry.time, zone)
+        }
+    }
+
+    @Test
+    fun a_refused_file_can_be_followed_by_a_good_one() = runTest {
+        assertFailsWith<RestoreMismatch> { importer().prepare(uploadBytes("DB가 아니다".encodeToByteArray())) }
+
+        val plan = importer().prepare(upload(Triple(1, "2026-10-01 08:00:00", "글")))
+
+        assertEquals(1, plan.preview.entriesAdded)
     }
 
     private companion object {

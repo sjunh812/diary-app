@@ -20,16 +20,26 @@ object MergeRules {
         if (base == null) return if (b > l) MergeAction.REPLACE else MergeAction.KEEP
         return when {
             b <= base -> MergeAction.KEEP
-            l > base -> MergeAction.KEEP_BOTH
-            else -> MergeAction.REPLACE
+
+            // 시계가 뒤로 간 뒤에 고치면 L이 S보다 작다. S와 다르면 이 기기에서 고친 것이다.
+            l == base -> MergeAction.REPLACE
+
+            sameContent(backup, local) -> MergeAction.KEEP
+
+            else -> MergeAction.KEEP_BOTH
         }
     }
 
-    private fun sameContent(a: MergeEntry, b: MergeEntry): Boolean {
+    /**
+     * 둘 다 휴지통이면 날짜는 견주지 않는다.
+     * 복원이 휴지통 날짜를 늦추기도 해서, 날짜까지 견주면 같은 백업을 다시 합칠 때 일기가 하나 더 생긴다.
+     */
+    fun sameContent(a: MergeEntry, b: MergeEntry): Boolean {
         val x = a.entry
         val y = b.entry
         return x.date == y.date && x.time == y.time && x.bodyHtml == y.bodyHtml && x.mood == y.mood && x.weather == y.weather &&
-            x.placeName == y.placeName && x.isFavorite == y.isFavorite && x.deletedAt == y.deletedAt && a.mediaKey() == b.mediaKey()
+            x.placeName == y.placeName && x.isFavorite == y.isFavorite && (x.deletedAt == null) == (y.deletedAt == null) &&
+            a.mediaKey() == b.mediaKey()
     }
 
     /** 사진을 받는 중이어도 같은 사진이다. 그래서 상태는 견주지 않고, 해시가 없는 이전 사진 줄은 옛 경로로 견준다. */

@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import androidx.room3.withWriteTransaction
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Instant
@@ -230,6 +231,8 @@ class RestoreController(
             }
         } catch (_: RestoreMismatch) {
             RestorePreparation.Failed(RestoreFailure.MISMATCH)
+        } catch (_: RestoreNeedsUpdate) {
+            RestorePreparation.Failed(RestoreFailure.NEEDS_UPDATE)
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
@@ -280,16 +283,21 @@ class RestoreController(
 
     private suspend fun mergeBackup(ready: PreparedRestore): RestoreResult {
         // 미리보기 뒤에 일기를 고쳤을 수 있어 합치기 직전의 기기 상태로 다시 가른다.
-        val plan = applier.value.plan(ready.plan.items.map { it.first })
-        return settle(applier.value.apply(plan, SOURCE_DRIVE), ready)
+        // 가른 뒤 쓰기 전에 저장한 일기를 덮어쓰지 않게 가르기부터 한 트랜잭션에 넣는다.
+        val counts =
+            db.value.withWriteTransaction {
+                applier.value.apply(applier.value.plan(ready.plan.items.map { it.first }), SOURCE_DRIVE)
+            }
+        return settle(counts, ready)
     }
 
     private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
-        applySettings(ready.manifest.settings)
+        // 일기는 이미 합쳤다. 설정을 쓰지 못해도 복원이 실패했다고 하지 않고 사진을 마저 받는다.
+        guarded { applySettings(ready.manifest.settings) }
         // 파일에서 되살린 것은 드라이브 백업이 있다는 뜻이 아니다.
         if (ready.bundle == null) {
             val at = Instant.fromEpochMilliseconds(ready.manifest.createdAt)
-            store.update { it.copy(restoredBackupAt = at) }
+            guarded { store.update { it.copy(restoredBackupAt = at) } }
         }
         fileSystem.delete(ready.snapshot, mustExist = false)
         prepared = null
