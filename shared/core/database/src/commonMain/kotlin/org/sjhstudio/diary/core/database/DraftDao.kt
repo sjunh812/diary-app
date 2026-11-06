@@ -50,11 +50,22 @@ interface DraftDao {
     @Update
     suspend fun update(draft: DraftEntity)
 
-    /** 덮어쓰기(REPLACE)는 줄을 지워 사진 줄까지 함께 지워지므로 넣어 보고 있으면 고친다. */
+    /**
+     * 덮어쓰기(REPLACE)는 줄을 지워 사진 줄까지 함께 지워지므로 넣어 보고 있으면 고친다.
+     * 복원이 남긴 표시는 화면이 모르는 값이라 자동 저장이 지우지 않게 잇는다.
+     */
     @Transaction
     suspend fun upsert(draft: DraftEntity) {
-        if (insertIfAbsent(draft) == -1L) update(draft)
+        if (insertIfAbsent(draft) == -1L) update(draft.copy(entryChanged = get(draft.key)?.entryChanged ?: draft.entryChanged))
     }
+
+    /** 복원이 이 일기를 바꿨다고 적는다. */
+    @Query("UPDATE draft SET entry_changed = 1 WHERE `key` = :entryId")
+    suspend fun markEntryChanged(entryId: String)
+
+    /** 복원이 일기를 통째로 바꾸면 고치던 저장본은 모두 옛 일기를 보고 있다. */
+    @Query("UPDATE draft SET entry_changed = 1 WHERE `key` NOT LIKE 'new%'")
+    suspend fun markAllEntriesChanged()
 
     /**
      * 수정 화면을 연다.

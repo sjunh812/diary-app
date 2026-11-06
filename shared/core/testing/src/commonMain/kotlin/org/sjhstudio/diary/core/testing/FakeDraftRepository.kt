@@ -43,13 +43,16 @@ class FakeDraftRepository(
 
     var places: List<String> = emptyList()
 
+    /** 복원이 바꾼 일기 ID. */
+    val changedByRestore = mutableSetOf<String>()
+
     override suspend fun recentPlaces(): List<String> = places
 
     override suspend fun latestNew(): Draft? = drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
 
     override suspend fun openEdit(entryId: String): OpenedEdit? {
         val key = DraftKey.Edit(entryId)
-        drafts.value[key]?.let { return OpenedEdit(it, resumed = true) }
+        drafts.value[key]?.let { return OpenedEdit(it, resumed = true, entryChanged = entryId in changedByRestore) }
         val draft = editable[entryId] ?: return null
         drafts.update { it + (key to draft) }
         return OpenedEdit(draft, resumed = false)

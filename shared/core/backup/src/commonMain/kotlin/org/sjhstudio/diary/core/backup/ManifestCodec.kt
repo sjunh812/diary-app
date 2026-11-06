@@ -29,6 +29,8 @@ data class Manifest(
         const val FORMAT_VERSION = 2
 
         /** 이 앱이 읽을 수 있는 스냅샷 DB 버전. */
+        // 스냅샷에 든 표의 판이다.
+        // 임시 저장본은 스냅샷에 싣지 않아서 그 표만 바뀐 DB 버전 3은 이 값을 올리지 않는다.
         const val MAX_DB_VERSION = 2
     }
 }

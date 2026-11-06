@@ -79,6 +79,8 @@ class MergeApplier(
                         media.deleteForEntry(incoming.id)
                         media.insertAll(item.media.map { it.settled() })
                         dao.setBase(listOf(SyncBaseEntity(incoming.id, incoming.updatedAt)))
+                        // 고치다 남겨 둔 글이 합쳐 온 일기를 덮어쓰지 않게 한다.
+                        db.draftDao().markEntryChanged(incoming.id)
                     }
 
                     MergeAction.KEEP_BOTH -> {

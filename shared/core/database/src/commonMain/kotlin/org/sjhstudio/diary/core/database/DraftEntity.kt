@@ -22,7 +22,12 @@ data class DraftEntity(
     @ColumnInfo(name = "place_name") val placeName: String?,
     @ColumnInfo(name = "is_favorite") val isFavorite: Boolean,
     @ColumnInfo(name = "weather_auto_filled") val weatherAutoFilled: Boolean,
-    @ColumnInfo(name = "updated_at") val updatedAt: Long
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    /**
+     * 이 저장본을 남겨 둔 뒤에 복원이 일기를 바꿨다.
+     * 저장할 때 덮어쓰지 않고 둘 다 남긴다(헌법 I).
+     */
+    @ColumnInfo(name = "entry_changed", defaultValue = "0") val entryChanged: Boolean = false
 )
 
 /**

@@ -99,6 +99,7 @@ class RollbackManager(
             db.withWriteTransaction {
                 clearAll()
                 applier.apply(applier.plan(backup), source)
+                db.draftDao().markAllEntriesChanged()
                 store.update { it.copy(rollbackUntil = until) }
             }
             replaced = true
@@ -152,6 +153,7 @@ class RollbackManager(
             dao.setBase(bases)
             dao.mark(marks)
             applier.apply(applier.plan(newer), SOURCE_ROLLBACK)
+            db.draftDao().markAllEntriesChanged()
         }
         applySettings(json.decodeFromString(ManifestSettings.serializer(), saved))
         finish()

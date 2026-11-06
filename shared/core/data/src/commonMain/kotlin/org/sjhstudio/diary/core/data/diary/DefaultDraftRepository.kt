@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.data.diary
 
+import androidx.room3.withWriteTransaction
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
@@ -16,6 +17,7 @@ import org.sjhstudio.diary.core.database.DraftEntity
 import org.sjhstudio.diary.core.database.DraftMediaEntity
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
+import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.database.isEditable
@@ -67,7 +69,7 @@ class DefaultDraftRepository(
 
     override suspend fun openEdit(entryId: String): OpenedEdit? =
         drafts.openEdit(entryId, clock.now().toEpochMilliseconds(), entries, media)?.let { opened ->
-            OpenedEdit(opened.draft.asModel(opened.media), opened.resumed)
+            OpenedEdit(opened.draft.asModel(opened.media), opened.resumed, opened.draft.entryChanged)
         }
 
     override suspend fun save(draft: Draft) = drafts.upsert(draft.asEntity())
@@ -120,14 +122,35 @@ class DefaultDraftRepository(
         val draft = requireNotNull(drafts.get(key.value)) { "임시 저장본이 없다" }
         val rows = drafts.media(key.value)
         val now = clock.now().toEpochMilliseconds()
+        // 복원으로 일기가 사라졌어도 쓴 글은 새 일기로 남긴다.
         val old = (key as? DraftKey.Edit)?.let { entries.get(it.entryId) }
-        check(key !is DraftKey.Edit || old != null) { "고치는 일기가 없다" }
-        val id = old?.id ?: Uuid.random().toString()
         val oldMedia = old?.let { media.forEntry(it.id) }.orEmpty()
         val photosChanged = rows.map { it.sha256 } != oldMedia.filter { it.isEditable }.map { it.sha256 }
+        val id = old?.id ?: Uuid.random().toString()
         val entry = draft.toEntry(id, old, now, photosChanged)
+        if (old != null && draft.entryChanged && (entry != old || photosChanged)) return@inOrder keepBoth(key, draft, rows, old, now)
         drafts.commit(key.value, entry, mediaRows(id, rows, oldMedia, now), entries, media)
         id
+    }
+
+    /**
+     * 복원이 바꾼 일기를 남겨 둔 글로 덮어쓰지 않는다.
+     * 합치기의 둘 다 남기기와 같이 표시해 사용자가 상세에서 고르게 한다.
+     */
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun keepBoth(key: DraftKey, draft: DraftEntity, rows: List<DraftMediaEntity>, old: EntryEntity, now: Long): String {
+        val id = Uuid.random().toString()
+        val copy = draft.toEntry(id, null, now, photosChanged = true)
+        db.withWriteTransaction {
+            drafts.commit(key.value, copy, mediaRows(id, rows, emptyList(), now), entries, media)
+            db.backupDao().mark(
+                listOf(
+                    MergeMarkEntity(old.id, KEPT_BOTH, id, SOURCE_DRAFT, now),
+                    MergeMarkEntity(id, KEPT_BOTH, old.id, SOURCE_DRAFT, now)
+                )
+            )
+        }
+        return id
     }
 
     private fun DraftEntity.toEntry(id: String, old: EntryEntity?, now: Long, photosChanged: Boolean): EntryEntity {
@@ -145,7 +168,9 @@ class DefaultDraftRepository(
                 mood = mood,
                 weather = weather,
                 placeName = placeName?.trim()?.takeIf { it.isNotEmpty() },
-                isFavorite = isFavorite,
+                // 즐겨찾기는 수정 화면에서 바꾸지 않는다.
+                // 남겨 둔 글을 저장해도 그사이 누른 별이 되돌아가지 않게 한다.
+                isFavorite = old?.isFavorite ?: isFavorite,
                 createdAt = old?.createdAt ?: now,
                 updatedAt = old?.updatedAt ?: now,
                 deletedAt = old?.deletedAt,
@@ -190,3 +215,5 @@ class DefaultDraftRepository(
 }
 
 private const val RECENT_PLACES = 6
+private const val KEPT_BOTH = "kept_both"
+private const val SOURCE_DRAFT = "draft"

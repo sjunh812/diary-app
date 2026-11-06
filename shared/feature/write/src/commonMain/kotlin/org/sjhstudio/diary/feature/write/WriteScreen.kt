@@ -142,6 +142,7 @@ import org.sjhstudio.diary.feature.write.resources.write_color_yellow
 import org.sjhstudio.diary.feature.write.resources.write_discard_confirm
 import org.sjhstudio.diary.feature.write.resources.write_discard_message
 import org.sjhstudio.diary.feature.write.resources.write_discard_title
+import org.sjhstudio.diary.feature.write.resources.write_entry_changed
 import org.sjhstudio.diary.feature.write.resources.write_format_bold
 import org.sjhstudio.diary.feature.write.resources.write_format_check
 import org.sjhstudio.diary.feature.write.resources.write_format_color
@@ -427,7 +428,12 @@ private fun Notices(state: WriteUiState) {
 
             PhotoNotice.Unreadable -> stringResource(Res.string.write_photo_unreadable)
 
-            null -> if (state.saveFailed) stringResource(Res.string.write_save_failed) else null
+            null ->
+                when {
+                    state.saveFailed -> stringResource(Res.string.write_save_failed)
+                    state.entryChanged -> stringResource(Res.string.write_entry_changed)
+                    else -> null
+                }
         } ?: return
     DiaryNotice(text, Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2), icon = DiaryIcons.Info)
 }

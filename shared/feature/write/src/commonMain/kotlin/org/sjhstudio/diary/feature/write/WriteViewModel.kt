@@ -95,6 +95,8 @@ data class WriteUiState(
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
     val saveFailed: Boolean = false,
+    /** 남겨 둔 뒤에 복원이 일기를 바꿨다. 저장하면 두 가지로 남는다고 미리 알린다. */
+    val entryChanged: Boolean = false,
     /**
      * 저장을 눌렀다.
      * 끝나고 화면이 닫힐 때까지 다시 누를 수 없다.
@@ -255,6 +257,7 @@ class WriteViewModel(
         // 손대지 않았다고 지우면 안 된다.
         opened = edit.draft.takeUnless { edit.resumed }
         load(edit.draft, isEdit = true)
+        _state.update { it.copy(entryChanged = edit.entryChanged) }
     }
 
     /** [이어 쓰기]. */

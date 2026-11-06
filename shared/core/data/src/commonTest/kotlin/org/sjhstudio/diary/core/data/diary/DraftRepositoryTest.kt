@@ -120,6 +120,78 @@ class DraftRepositoryTest {
         assertEquals(MediaStatus.MISSING.id, rows[1].status)
     }
 
+    /** 고치던 글을 남겨 둔 사이에 복원이 일기를 바꾼 상황을 만든다. */
+    private suspend fun leftDraftThenRestore(id: String, merged: String = "합쳐 온 글"): org.sjhstudio.diary.core.model.Draft {
+        val draft = assertNotNull(repository.openEdit(id)).draft
+        db.entryDao().update(entry(id, text = merged).asEntity())
+        db.draftDao().markEntryChanged(id)
+        return draft
+    }
+
+    @Test
+    fun saving_a_left_draft_after_restore_keeps_both_versions() = runTest {
+        db.seed(entry("e1"))
+        db.seedPhotos(photo("p1", "e1", 0))
+        val draft = leftDraftThenRestore("e1")
+        repository.save(draft.copy(bodyHtml = "<p>남겨 둔 글</p>"))
+
+        clock.advance(1.hours)
+        val saved = repository.commit(DraftKey.Edit("e1"))
+
+        assertTrue(saved != "e1")
+        assertEquals("합쳐 온 글", assertNotNull(db.entryDao().get("e1")).plainText)
+        assertEquals("남겨 둔 글", assertNotNull(db.entryDao().get(saved)).plainText)
+        assertEquals(listOf("p1"), db.mediaDao().forEntry("e1").map { it.id })
+        assertEquals(1, db.mediaDao().forEntry(saved).size)
+        assertEquals(setOf("e1", saved), db.backupDao().marks().first().map { it.entryId }.toSet())
+        assertNull(db.draftDao().get("e1"))
+    }
+
+    @Test
+    fun a_left_draft_that_matches_the_restored_entry_adds_no_copy() = runTest {
+        db.seed(entry("e1"))
+        val draft = leftDraftThenRestore("e1")
+        repository.save(draft.copy(bodyHtml = "<p>합쳐 온 글</p>"))
+
+        assertEquals("e1", repository.commit(DraftKey.Edit("e1")))
+
+        assertEquals(1, db.entryDao().countAll())
+    }
+
+    @Test
+    fun autosave_does_not_forget_the_restore_mark() = runTest {
+        db.seed(entry("e1"))
+        val draft = leftDraftThenRestore("e1")
+
+        repository.save(draft.copy(bodyHtml = "<p>이어 쓴 글</p>"))
+
+        assertTrue(assertNotNull(repository.openEdit("e1")).entryChanged)
+    }
+
+    @Test
+    fun a_draft_whose_entry_is_gone_is_saved_as_a_new_entry() = runTest {
+        db.seed(entry("e1"))
+        val draft = assertNotNull(repository.openEdit("e1")).draft
+        repository.save(draft.copy(bodyHtml = "<p>남겨 둔 글</p>"))
+        db.backupDao().clearEntries()
+
+        val saved = repository.commit(DraftKey.Edit("e1"))
+
+        assertEquals("남겨 둔 글", assertNotNull(db.entryDao().get(saved)).plainText)
+    }
+
+    @Test
+    fun a_star_given_while_a_draft_waits_stays_after_saving() = runTest {
+        db.seed(entry("e1"))
+        val draft = assertNotNull(repository.openEdit("e1")).draft
+        repository.save(draft.copy(bodyHtml = "<p>남겨 둔 글</p>"))
+        db.entryDao().setFavorite("e1", true, T0.toEpochMilliseconds())
+
+        repository.commit(DraftKey.Edit("e1"))
+
+        assertTrue(assertNotNull(db.entryDao().get("e1")).isFavorite)
+    }
+
     @Test
     fun saving_without_changes_keeps_updated_time_and_legacy_text() = runTest {
         // 레거시 본문처럼 태그와 글이 어긋나도 고치지 않으면 그대로 둔다.
