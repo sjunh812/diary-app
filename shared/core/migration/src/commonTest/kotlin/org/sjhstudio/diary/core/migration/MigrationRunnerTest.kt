@@ -743,7 +743,10 @@ class MigrationRunnerTest {
         TempDir().use { dir ->
             val env = Env(dir)
             val picture = env.photo("a.jpg", jpeg)
-            LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = picture.toString()))).close()
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = picture.toString()))
+            ).close()
             assertFalse(env.runner().keepsPhotoCopies())
 
             assertIs<MigrationResult.Failed>(env.runner(events = env.failAtVerifying()).run())
