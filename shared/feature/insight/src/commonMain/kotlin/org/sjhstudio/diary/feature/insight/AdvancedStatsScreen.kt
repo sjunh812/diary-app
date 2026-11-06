@@ -567,6 +567,6 @@ private fun Tile(label: String, value: String, modifier: Modifier) {
     val typography = DiaryTheme.typography
     Card(modifier.semantics(mergeDescendants = true) {}) {
         BasicText(label, style = typography.caption.copy(color = colors.textSecondary))
-        BasicText(value, style = typography.title2.copy(color = colors.textPrimary))
+        BasicText(value, style = typography.numeral.copy(color = colors.textPrimary))
     }
 }

@@ -301,7 +301,7 @@ private fun SectionTitle(text: String) {
     BasicText(
         text,
         modifier = Modifier.semantics { heading() },
-        style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary)
+        style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary)
     )
 }
 

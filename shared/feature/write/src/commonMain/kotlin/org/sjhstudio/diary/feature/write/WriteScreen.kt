@@ -677,7 +677,7 @@ private fun SidePanel(state: WriteUiState, actions: WriteActions, onPick: () -> 
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        BasicText(title, style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary))
+        BasicText(title, style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary))
         content()
     }
 }

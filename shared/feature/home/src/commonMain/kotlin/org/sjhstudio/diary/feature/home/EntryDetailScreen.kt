@@ -251,7 +251,7 @@ internal fun Body(
 /** 사진 격자: 1장 꽉, 2장 나란히, 3장 큰 칸 + 둘, 4장 이상 셋째 칸에 +N. 칸 사이 2. */
 @Composable
 private fun Gallery(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit) {
-    BoxWithConstraints(Modifier.fillMaxWidth().aspectRatio(GALLERY_RATIO).clip(DiaryShapes.r16)) {
+    BoxWithConstraints(Modifier.fillMaxWidth().aspectRatio(GALLERY_RATIO).clip(DiaryShapes.r12)) {
         val gap = DiarySpacing.x0_5
         when (photos.size) {
             1 -> Cell(photos[0], Modifier.fillMaxSize()) { onPhoto(0) }
@@ -272,14 +272,14 @@ private fun Gallery(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit) {
                             if (photos.size > 3) {
                                 BasicText(
                                     "+${photos.size - 3}",
-                                    style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.onAccent),
+                                    style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.onAccent),
                                     modifier =
                                         Modifier
                                             .align(Alignment.BottomEnd)
                                             .padding(DiarySpacing.x1)
                                             .clip(DiaryShapes.r8)
                                             .background(DiaryTheme.colors.overlay)
-                                            .padding(horizontal = DiarySpacing.x1_5, vertical = DiarySpacing.x0_5)
+                                            .padding(horizontal = DiarySpacing.x1, vertical = DiarySpacing.x0_5)
                                 )
                             }
                         }

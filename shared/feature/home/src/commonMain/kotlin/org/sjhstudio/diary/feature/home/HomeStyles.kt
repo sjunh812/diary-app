@@ -126,7 +126,7 @@ private fun EntryCard(
                     BasicText(
                         dates.weekday(row.date),
                         modifier = Modifier.alignByBaseline(),
-                        style = typography.caption.copy(color = colors.textSecondary)
+                        style = typography.captionStrong.copy(color = colors.textSecondary)
                     )
                 }
                 Row(
