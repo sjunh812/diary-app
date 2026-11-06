@@ -80,12 +80,7 @@ fun SettingsScreen(
     plusActive: Boolean = false,
     adsRemoved: Boolean = false,
     onDevMode: (() -> Unit)? = null,
-    backupValue: String? = null,
-    /**
-     * 개발 빌드에만 있는 디자인 시스템 견본(FR-029).
-     * 출시 빌드는 null이라 줄이 없다.
-     */
-    onDesignCatalog: (() -> Unit)? = null
+    backupValue: String? = null
 ) {
     val colors = DiaryTheme.colors
     // 폰은 탭 바가 시스템 내비게이션 높이까지 맡고, 앱 틀이 그만큼 다 썼다고 알려서 아래가 두 번 뜨지 않는다.

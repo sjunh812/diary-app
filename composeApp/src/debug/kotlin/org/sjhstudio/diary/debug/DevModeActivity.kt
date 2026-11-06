@@ -45,9 +45,9 @@ class DevModeActivity : ComponentActivity() {
         if (intent.getBooleanExtra(EXTRA_CRASH, false)) crash()
         val plans = get<PlanRepository>() as DevPlanRepository
         val ads = get<AdStore>()
-        val settings = get<SettingsRepository>()
+        val themeMode = get<SettingsRepository>().settings.map { it.themeMode }
         setContent {
-            val mode by settings.settings.map { it.themeMode }.collectAsStateWithLifecycle(ThemeMode.SYSTEM)
+            val mode by themeMode.collectAsStateWithLifecycle(ThemeMode.SYSTEM)
             val dark =
                 when (mode) {
                     ThemeMode.SYSTEM -> isSystemInDarkTheme()
