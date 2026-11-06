@@ -38,6 +38,10 @@ class DevModeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험한다. 개발 빌드에만 있다.
+        if (intent.getBooleanExtra("crash", false)) {
+            window.decorView.post { error("Crashlytics 시험") }
+        }
         val plans = get<PlanRepository>() as DevPlanRepository
         setContent {
             DiaryTheme(darkTheme = isSystemInDarkTheme()) {

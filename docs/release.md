@@ -196,6 +196,8 @@ admob.rewarded=ca-app-pub-.../...
 ## Firebase
 
 Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
+프로젝트는 드라이브 OAuth와 같은 `diary-app`(`stone-rhythm-310608`)이다. Firebase 프로젝트를 지우면 Cloud 프로젝트도 지워져 드라이브 백업 연결이 끊긴다. 지우지 않는다.
+비정상 종료 시험: `adb shell am start -n org.sjhstudio.diary/.debug.DevModeActivity --ez crash true` 뒤 앱을 다시 연다.
 
 - Android: `composeApp/google-services.json`
 - iOS: `iosApp/iosApp/GoogleService-Info.plist`
