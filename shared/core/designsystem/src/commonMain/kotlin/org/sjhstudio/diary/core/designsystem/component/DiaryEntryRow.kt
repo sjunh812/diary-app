@@ -33,10 +33,10 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
  * 날짜 열 최소 폭(요일 + 날짜 숫자).
  * 큰 글자에서는 열이 늘어나 숫자가 두 줄로 꺾이지 않는다.
  */
-private val DATE_COLUMN = 36.dp
+val DiaryEntryDateColumn = 36.dp
 
 /** 날짜 열과 글 사이. */
-private val DATE_GAP = 14.dp
+val DiaryEntryDateGap = 14.dp
 
 /** 사진 칸 크기. */
 val DiaryPhotoCellSize = 64.dp
@@ -90,7 +90,7 @@ fun DiaryEntryRow(
                 Modifier
                     .padding(
                         // 같은 날 두 번째 줄부터는 글 시작점에서 긋는다.
-                        start = if (day != null || !dateColumn) gutter else gutter + DATE_COLUMN + DATE_GAP,
+                        start = if (day != null || !dateColumn) gutter else gutter + DiaryEntryDateColumn + DiaryEntryDateGap,
                         end = gutter
                     )
                     .fillMaxWidth()
@@ -100,10 +100,10 @@ fun DiaryEntryRow(
         }
         Row(
             Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = DiarySpacing.x4),
-            horizontalArrangement = Arrangement.spacedBy(DATE_GAP)
+            horizontalArrangement = Arrangement.spacedBy(DiaryEntryDateGap)
         ) {
             if (dateColumn) {
-                Column(Modifier.widthIn(min = DATE_COLUMN), horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(Modifier.widthIn(min = DiaryEntryDateColumn), horizontalAlignment = Alignment.CenterHorizontally) {
                     if (weekday != null) {
                         BasicText(
                             weekday,

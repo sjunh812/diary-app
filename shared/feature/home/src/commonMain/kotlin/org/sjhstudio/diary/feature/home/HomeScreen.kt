@@ -67,7 +67,9 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
+import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -245,7 +247,12 @@ internal fun HomeScreen(
 
                 else -> {
                     ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                    SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                    // 곧 나올 목록과 같은 꼴을 그린다.
+                    when (style) {
+                        ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                        ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
+                        ListStyle.PHOTO_GRID -> SkeletonPhotoGrid()
+                    }
                 }
             }
         }

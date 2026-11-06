@@ -190,7 +190,7 @@ internal fun InsightScreen(
             PeriodNav(periodLabel(period, dates), period.previous() != null, period.next(today) != null, onPrevious, onNext)
             Spacer(Modifier.height(DiarySpacing.x3))
             when {
-                counts == null -> SkeletonRows(rows = 5)
+                counts == null -> SkeletonRows(rows = 5, gutter = Dp.Hairline)
                 counts.total == 0 -> Empty()
                 else -> Content(period, counts, days, pixels, today, onMood)
             }

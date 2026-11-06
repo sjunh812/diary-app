@@ -217,7 +217,7 @@ internal fun AdvancedStatsScreen(
                 onSelect = { onPeriod(AdvancedPeriod.entries[it]) }
             )
             when {
-                stats == null -> SkeletonRows(rows = 5)
+                stats == null -> SkeletonRows(rows = 5, gutter = Dp.Hairline)
 
                 !stats.enough ->
                     DiaryEmptyState(
