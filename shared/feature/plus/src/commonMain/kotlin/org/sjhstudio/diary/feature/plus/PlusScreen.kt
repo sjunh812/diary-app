@@ -144,7 +144,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 busy = state.busy,
                 adFreeOwned = plan == Plan.AD_FREE,
                 onClose = onClose,
-                onRestore = viewModel::restore,
+                onRestore = { viewModel.restore() },
                 onRetry = viewModel::load,
                 onBuy = { viewModel.buy(ProductId.PLUS_YEARLY) },
                 onBuyHeight = { buyHeight = it },

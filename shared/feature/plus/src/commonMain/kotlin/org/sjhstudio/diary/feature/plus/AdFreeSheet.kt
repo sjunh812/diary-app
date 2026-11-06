@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,41 +31,77 @@ import org.sjhstudio.diary.feature.plus.resources.adfree_price
 import org.sjhstudio.diary.feature.plus.resources.adfree_title
 import org.sjhstudio.diary.feature.plus.resources.plus_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
+import org.sjhstudio.diary.feature.plus.resources.plus_restore
+import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
+import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
+import org.sjhstudio.diary.feature.plus.resources.plus_retry
 
 /**
  * 광고만 없애는 시트(Figma P2).
  * 광고의 ×가 연다.
  * 온 화면은 그대로다.
  * [onDayOff]는 영상을 보고 하루만 없애는 길이다.
+ * 뷰모델이 오래 살아서 처음 오프라인이었어도 열 때마다 가격을 다시 받는다.
  */
 @Composable
 fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
     val viewModel = koinViewModel<PlusViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(viewModel) { viewModel.load() }
+    DisposableEffect(viewModel) { onDispose(viewModel::failureShown) }
+    AdFreeSheetContent(
+        state = state,
+        onDismiss = onDismiss,
+        onBuy = { viewModel.buy(ProductId.AD_FREE, onDismiss) },
+        onRetry = viewModel::load,
+        onRestore = { viewModel.restore(onDismiss) },
+        onDayOff = onDayOff
+    )
+}
+
+@Composable
+internal fun AdFreeSheetContent(
+    state: PlusUiState,
+    onDismiss: () -> Unit,
+    onBuy: () -> Unit,
+    onRetry: () -> Unit,
+    onRestore: () -> Unit,
+    onDayOff: (() -> Unit)? = null
+) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     val price = state.price(ProductId.AD_FREE)
-    DisposableEffect(viewModel) { onDispose(viewModel::failureShown) }
+    // 가격을 못 받으면 결제 버튼 자리가 곧 다시 시도다.
+    val noPrice = price == null && !state.loading
     DiaryBottomSheet(onDismiss, title = stringResource(Res.string.adfree_title), description = stringResource(Res.string.adfree_body)) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                 if (price != null) {
                     BasicText(stringResource(Res.string.adfree_price, price), style = typography.title2.copy(color = colors.textPrimary))
-                } else if (!state.loading) {
+                } else if (noPrice) {
                     BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
                 }
                 if (state.buyFailed) {
                     BasicText(stringResource(Res.string.plus_failed), style = typography.body.copy(color = colors.danger))
+                }
+                when (state.restoreNotice) {
+                    PlusMessage.RestoreNone ->
+                        BasicText(stringResource(Res.string.plus_restore_none), style = typography.body.copy(color = colors.textSecondary))
+
+                    PlusMessage.RestoreFailed ->
+                        BasicText(stringResource(Res.string.plus_restore_failed), style = typography.body.copy(color = colors.danger))
+
+                    else -> Unit
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                 DiaryButtonPair(
                     secondary = stringResource(Res.string.adfree_close),
                     onSecondary = onDismiss,
-                    primary = stringResource(Res.string.adfree_buy),
-                    onPrimary = { viewModel.buy(ProductId.AD_FREE, onDismiss) },
+                    primary = stringResource(if (noPrice) Res.string.plus_retry else Res.string.adfree_buy),
+                    onPrimary = if (noPrice) onRetry else onBuy,
                     size = DiaryButtonSize.XLarge,
-                    primaryEnabled = price != null && !state.busy
+                    primaryEnabled = (noPrice || price != null) && !state.busy
                 )
                 if (onDayOff != null) {
                     DiaryButton(
@@ -74,6 +111,13 @@ fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
                         kind = DiaryButtonKind.Text
                     )
                 }
+                DiaryButton(
+                    stringResource(Res.string.plus_restore),
+                    onRestore,
+                    Modifier.align(Alignment.CenterHorizontally),
+                    kind = DiaryButtonKind.QuietText,
+                    enabled = !state.busy
+                )
             }
         }
     }
