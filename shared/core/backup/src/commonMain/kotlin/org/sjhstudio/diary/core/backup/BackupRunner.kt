@@ -208,7 +208,8 @@ class BackupRunner(
             throw DriveException(BackupFailure.NO_SPACE)
         }
         val planned = if (allowed) fitting(missing, quotaLimit?.minus(reserve)) else emptyList()
-        val uploaded = uploadPhotos(planned, folders, account.key)
+        val unusable = HashSet<String>()
+        val uploaded = uploadPhotos(planned, folders, account.key, unusable)
 
         step(BackupStep.UploadingSnapshot)
         val snapshotFile =
@@ -240,7 +241,7 @@ class BackupRunner(
         rememberBases(syncBases(snapshot.path))
         val left = local2.count { it.sha256 !in inBackup }
         // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
-        val short = if (allowed) missing.filter { it.sha256 !in uploaded }.sumOf { it.byteSize ?: 0 } else 0
+        val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusable }.sumOf { it.byteSize ?: 0 } else 0
         store.update {
             it.copy(
                 lastSuccessAt = now,
@@ -283,15 +284,28 @@ class BackupRunner(
         }
     }
 
-    private suspend fun uploadPhotos(photos: List<LocalPhotoRow>, folders: DriveFolders, accountKey: String): Set<String> {
+    /**
+     * 올린 사진의 확인값을 돌려준다.
+     * 파일이 없거나 내용이 이름과 다르면 [unusable]에 적고 건너뛴다.
+     * 깨진 내용을 이 이름으로 올리면 되살릴 수 없는 사진을 백업됐다고 말하게 되고, 드라이브에 이미 있다고 보여 좋은 사본도 못 올라간다.
+     */
+    private suspend fun uploadPhotos(
+        photos: List<LocalPhotoRow>,
+        folders: DriveFolders,
+        accountKey: String,
+        unusable: MutableSet<String>
+    ): Set<String> {
         val done = LinkedHashSet<String>()
         val bytesTotal = photos.sumOf { it.byteSize ?: 0L }
         var bytesDone = 0L
         step(BackupStep.UploadingPhotos, 0, photos.size, 0, bytesTotal)
         for (photo in photos) {
             val path = mediaDir / requireNotNull(photo.fileName)
-            if (!fileSystem.exists(path)) continue
-            val hashes = fileSystem.hashes(path)
+            val hashes = if (fileSystem.exists(path)) fileSystem.hashes(path) else null
+            if (hashes == null || hashes.sha256 != photo.sha256) {
+                unusable += photo.sha256
+                continue
+            }
             try {
                 val file =
                     upload(
