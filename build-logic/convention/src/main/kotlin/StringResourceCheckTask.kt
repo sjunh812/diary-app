@@ -73,12 +73,11 @@ abstract class StringResourceCheckTask : DefaultTask() {
         entries.filter { it.value.kind == "plurals" && quantity !in it.value.quantities }
             .map { "$where: ${it.key} 에 quantity=\"$quantity\"가 없다" }
 
-    private fun Strings.escapes(where: String): List<String> =
-        if ("composeResources" !in where) {
-            emptyList()
-        } else {
-            entries.filter { it.value.escaped }.map { "$where: ${it.key} 에 역슬래시 따옴표가 있다. 그냥 따옴표로 쓴다" }
-        }
+    private fun Strings.escapes(where: String): List<String> = if ("composeResources" !in where) {
+        emptyList()
+    } else {
+        entries.filter { it.value.escaped }.map { "$where: ${it.key} 에 역슬래시 따옴표가 있다. 그냥 따옴표로 쓴다" }
+    }
 
     private fun parse(file: File): Strings {
         val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
@@ -92,7 +91,14 @@ abstract class StringResourceCheckTask : DefaultTask() {
             val texts = if (items.length == 0) listOf(element.textContent) else (0 until items.length).map { items.item(it).textContent }
             val quantities = (0 until items.length).map { (items.item(it) as Element).getAttribute("quantity") }.toSet()
             entries[name] =
-                Entry(element.tagName, texts.flatMap { PLACEHOLDER.findAll(it).map { m -> m.value }.toList() }.toSet(), quantities, texts.any(ESCAPED::containsMatchIn))
+                Entry(
+                    element.tagName,
+                    texts.flatMap {
+                        PLACEHOLDER.findAll(it).map { m -> m.value }.toList()
+                    }.toSet(),
+                    quantities,
+                    texts.any(ESCAPED::containsMatchIn)
+                )
         }
         return Strings(entries)
     }
