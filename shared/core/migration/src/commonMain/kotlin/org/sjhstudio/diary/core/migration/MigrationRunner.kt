@@ -485,11 +485,12 @@ class MigrationRunner(
         if (state.step != MigrationStep.PARTIAL || versionCode <= state.retriedVersionCode) return@withContext null
         store.writeState(state.copy(retriedVersionCode = versionCode, updatedAt = clock.now()))
         val (notes, summary) = readSnapshot() ?: return@withContext 0
-        val known = db.entryDao().legacyIds().toHashSet()
-        val missing = notes.filter { it.id.toInt() !in known }
+        // 이미 옮긴 일기는 사용자가 고쳤을 수 있어 글은 견주지 않는다.
+        val missing = notYetMoved(db, notes, editsAreOurs = true)
         val counts = Counts()
         var leftOut = 0
         if (missing.isNotEmpty()) {
+            releaseNumbers(db, missing)
             copy(db, missing, missing.sumOf { PhotoPaths.fragments(it.picture).size }, counts)
             // 사용자가 쓰고 고친 일기는 건드리지 않게 방금 더한 줄만 본다.
             leftOut = verify(db, notes.size, only = missing.map { it.id.toInt() }.toSet(), counts = counts)
@@ -515,6 +516,33 @@ class MigrationRunner(
             store.writeState(store.readState().copy(step = MigrationStep.DONE, updatedAt = clock.now()))
         }
         added
+    }
+
+    /**
+     * 아직 옮기지 않은 옛 일기를 고른다.
+     * 옛 번호는 기기 안에서만 유일해서 다른 기기에서 합쳐 온 일기와 겹친다.
+     * 번호만 보면 그 일기를 옮긴 것으로 치고 건너뛰어 이 기기의 옛 일기가 영영 안 옮겨진다.
+     * 옛 작성 시각은 초 단위까지 기기 안에서 유일하니 이 값과 글로 같은 일기를 찾는다.
+     * [editsAreOurs]가 참이면 번호와 작성 시각이 같은 일기는 글이 달라도 이미 옮겨 고친 일기로 본다.
+     */
+    private suspend fun notYetMoved(db: DiaryDatabase, notes: List<LegacyNote>, editsAreOurs: Boolean): List<LegacyNote> {
+        val rows = db.entryDao().legacyRows()
+        val byNumber = rows.filter { it.legacyId != null }.associateBy { it.legacyId }
+        val written = rows.filter { it.legacyCreateDate != null }.mapTo(HashSet()) { it.legacyCreateDate to it.plainText }
+        return notes.filterNot { note ->
+            val text = note.contents.orEmpty()
+            val row = byNumber[note.id.toInt()]?.takeIf { it.legacyCreateDate == note.createDate }
+            (note.createDate to text) in written || (row != null && (editsAreOurs || row.plainText == text))
+        }
+    }
+
+    /**
+     * 옮길 일기의 번호를 쥔 일기가 있으면 번호만 비운다(`docs/migration.md` "미룬 이전과 합친 일기").
+     * 번호는 겹칠 수 없고 검증은 번호로 일기를 찾는다.
+     * 비우지 않으면 넣지 못하고, 검증이 다른 기기 일기를 틀린 일기로 보아 지운다.
+     */
+    private suspend fun releaseNumbers(db: DiaryDatabase, notes: List<LegacyNote>) {
+        notes.map { it.id.toInt() }.chunked(SQL_ARGS).forEach { db.entryDao().clearLegacyIds(it) }
     }
 
     override fun defer() {
@@ -545,8 +573,9 @@ class MigrationRunner(
         }
         val (notes, summary) =
             readSnapshot() ?: return@withContext MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.READ_ERROR)
-        val known = db.entryDao().legacyIds().toHashSet()
-        val missing = notes.filter { it.id.toInt() !in known }
+        // 미룬 이전은 아직 한 편도 옮기지 않아서 같은 시각의 일기는 다른 곳에서 온 것이다.
+        // 글까지 같아야 같은 일기다.
+        val missing = notYetMoved(db, notes, editsAreOurs = false)
         val fragments = missing.flatMap { PhotoPaths.fragments(it.picture) }
         val need =
             fragments.distinct().sumOf { f -> PhotoPaths.candidates(f).map { sizeOf(it.toPath()) }.firstOrNull { it > 0 } ?: 0 }.let {
@@ -558,6 +587,7 @@ class MigrationRunner(
             val counts = Counts()
             var leftOut = 0
             if (missing.isNotEmpty()) {
+                releaseNumbers(db, missing)
                 copy(db, missing, fragments.size, counts)
                 leftOut = verify(db, notes.size, only = missing.map { it.id.toInt() }.toSet(), counts = counts)
                 if (leftOut ==
@@ -793,6 +823,9 @@ class MigrationRunner(
 
         /** 한 트랜잭션에 쓰는 줄 수(contracts/migration-flow.md Copying). */
         const val CHUNK = 200
+
+        /** SQLite에 한 번에 넘기는 값 수. */
+        const val SQL_ARGS = 500
 
         /**
          * 썸네일을 나란히 만드는 수.
