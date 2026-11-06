@@ -269,10 +269,12 @@ private fun Content(
         YearMap(period.year, pixels, today)
         Spacer(Modifier.height(DiarySpacing.x5))
     }
+    // 쓴 적 없는 기분은 줄을 차지하지 않는다. 주 보기에서는 0인 줄이 대부분이었다.
+    val rows = counts.sorted().filter { (_, count) -> count > 0 }
+    if (rows.isEmpty()) return
     SectionTitle(stringResource(Res.string.insight_section_moods))
     Spacer(Modifier.height(DiarySpacing.x1))
     val most = counts.counts.values.maxOrNull() ?: 0
-    val rows = counts.sorted()
     // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
     val names = rows.map { (mood, _) -> moodName(mood) }
     val amounts = rows.map { (_, count) -> moodAmount(count, percentOf(count, counts.total)) }
