@@ -53,6 +53,21 @@ class AdRepositoryTest {
     private fun repo() = AdRepository(plans, store, player, { enabled }, clock, { TimeZone.UTC })
 
     @Test
+    fun no_interstitial_on_the_day_the_letter_was_read_and_back_the_next_day() = runTest {
+        val repo = repo()
+
+        repo.skipInterstitialToday()
+        repo.afterSave()
+        repo.backToList()
+        assertEquals(0, player.shown)
+        assertEquals(0, player.prepared)
+
+        now += 1.days
+        repo.backToList()
+        assertEquals(1, player.shown)
+    }
+
+    @Test
     fun interstitial_shows_once_a_day() = runTest {
         val repo = repo()
 

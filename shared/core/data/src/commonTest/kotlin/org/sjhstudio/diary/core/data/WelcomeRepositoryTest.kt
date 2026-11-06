@@ -45,6 +45,16 @@ class WelcomeRepositoryTest {
     }
 
     @Test
+    fun reading_the_letter_tells_the_ad_side_once() = runTest {
+        var told = 0
+        val repository = DefaultWelcomeRepository(store, onLetterRead = { told++ }) { 3 }
+
+        repository.letterRead()
+
+        assertEquals(1, told)
+    }
+
+    @Test
     fun one_tip_per_session_and_never_again_once_closed() = runTest {
         val session = repository()
 

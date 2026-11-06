@@ -19,10 +19,13 @@ import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.ad_close
 import org.sjhstudio.diary.app.resources.reward_body
 import org.sjhstudio.diary.app.resources.reward_close
+import org.sjhstudio.diary.app.resources.reward_failed_body
+import org.sjhstudio.diary.app.resources.reward_failed_title
 import org.sjhstudio.diary.app.resources.reward_title
 import org.sjhstudio.diary.app.resources.reward_watch
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
@@ -87,8 +90,23 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
                     primary = stringResource(Res.string.reward_watch),
                     onPrimary = {
                         sheet = null
-                        scope.launch { ads.watchReward() }
+                        scope.launch { if (!ads.watchReward()) sheet = AdSheet.RewardFailed }
                     },
+                    size = DiaryButtonSize.XLarge
+                )
+            }
+
+        // 광고를 받지 못했거나 끝까지 보지 않은 때다. 아무 말 없이 넘어가면 받은 줄 안다.
+        AdSheet.RewardFailed ->
+            DiaryBottomSheet(
+                { sheet = null },
+                title = stringResource(Res.string.reward_failed_title),
+                description = stringResource(Res.string.reward_failed_body)
+            ) {
+                DiaryButton(
+                    stringResource(Res.string.reward_close),
+                    onClick = { sheet = null },
+                    modifier = Modifier.fillMaxWidth(),
                     size = DiaryButtonSize.XLarge
                 )
             }
@@ -97,4 +115,4 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
     }
 }
 
-private enum class AdSheet { Remove, Reward }
+private enum class AdSheet { Remove, Reward, RewardFailed }

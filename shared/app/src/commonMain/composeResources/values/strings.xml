@@ -16,5 +16,7 @@
     <string name="reward_body">Watch one short ad to the end and no other ads appear for 24 hours.</string>
     <string name="reward_watch">Watch video</string>
     <string name="reward_close">Close</string>
+    <string name="reward_failed_title">Couldn't get your ad-free day</string>
+    <string name="reward_failed_body">The video didn't load or wasn't watched to the end. Please try again in a little while.</string>
     <string name="ad_close">Close ad</string>
 </resources>

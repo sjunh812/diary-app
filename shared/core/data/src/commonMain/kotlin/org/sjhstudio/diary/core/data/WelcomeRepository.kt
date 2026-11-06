@@ -23,7 +23,11 @@ interface WelcomeRepository : ContextTips {
     suspend fun onboardingFinished()
 }
 
-class DefaultWelcomeRepository(private val store: WelcomeStore, private val migrated: () -> Int?) : WelcomeRepository {
+class DefaultWelcomeRepository(
+    private val store: WelcomeStore,
+    private val onLetterRead: suspend () -> Unit = {},
+    private val migrated: () -> Int?
+) : WelcomeRepository {
     private var tipShown = false
 
     override suspend fun step(): WelcomeStep {
@@ -39,7 +43,10 @@ class DefaultWelcomeRepository(private val store: WelcomeStore, private val migr
 
     override fun migratedEntries(): Int? = migrated()
 
-    override suspend fun letterRead() = store.letterSeen().let { }
+    override suspend fun letterRead() {
+        store.letterSeen()
+        onLetterRead()
+    }
 
     override suspend fun onboardingFinished() = store.onboardingDone().let { }
 

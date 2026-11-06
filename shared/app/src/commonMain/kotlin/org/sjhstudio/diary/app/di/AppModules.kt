@@ -193,7 +193,10 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         // 드라이브와 일기 DB는 처음 쓸 때 연다.
         single { BackupStore(get<DataStoreFactory>().backup()) }
         single<WelcomeRepository> {
-            DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome())) { get<LegacyMigration>().report()?.entriesMigrated }
+            DefaultWelcomeRepository(
+                WelcomeStore(get<DataStoreFactory>().welcome()),
+                onLetterRead = { get<AdRepository>().skipInterstitialToday() }
+            ) { get<LegacyMigration>().report()?.entriesMigrated }
         }
         single<ContextTips> { get<WelcomeRepository>() }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
