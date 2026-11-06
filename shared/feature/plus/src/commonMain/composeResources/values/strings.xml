@@ -23,6 +23,7 @@
     <string name="adfree_title">Just you and your diary ✨</string>
     <string name="adfree_body">It's not a subscription. Pay once and stay ad-free from now on.</string>
     <string name="adfree_price">%1$s once</string>
+    <string name="plus_ads_only">Remove ads only</string>
     <string name="adfree_buy">Remove ads</string>
     <string name="adfree_close">Not now</string>
     <string name="adfree_day_off">Watch a video for one ad-free day</string>

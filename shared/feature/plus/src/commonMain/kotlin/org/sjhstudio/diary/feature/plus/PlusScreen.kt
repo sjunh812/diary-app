@@ -24,8 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,6 +65,7 @@ import org.sjhstudio.diary.core.ui.DiaryLottie
 import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.plus_ad_free_owned
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_body
+import org.sjhstudio.diary.feature.plus.resources.plus_ads_only
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_title
 import org.sjhstudio.diary.feature.plus.resources.plus_checklist_body
 import org.sjhstudio.diary.feature.plus.resources.plus_checklist_title
@@ -123,6 +126,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val uri = LocalUriHandler.current
     // 결제 화면의 아래 결제 칸 높이. 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄운다.
     var buyHeight by remember { mutableIntStateOf(0) }
+    var adFreeSheet by rememberSaveable { mutableStateOf(false) }
     Box(modifier.fillMaxSize()) {
         if (plan == Plan.PLUS) {
             PlusManageScreen(state.price(ProductId.PLUS_YEARLY), onClose, onStore = { uri.openUri(viewModel.manageUrl) })
@@ -136,7 +140,8 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 onRestore = viewModel::restore,
                 onRetry = viewModel::load,
                 onBuy = { viewModel.buy(ProductId.PLUS_YEARLY) },
-                onBuyHeight = { buyHeight = it }
+                onBuyHeight = { buyHeight = it },
+                onAdFree = { adFreeSheet = true }
             )
         }
         val fixedBottom = if (plan == Plan.PLUS) Dp.Hairline else with(LocalDensity.current) { buyHeight.toDp() }
@@ -145,6 +150,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
             Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = fixedBottom + DiarySpacing.x4)
         )
     }
+    if (adFreeSheet) AdFreeSheet(onDismiss = { adFreeSheet = false })
 }
 
 /**
@@ -163,7 +169,8 @@ internal fun PaywallScreen(
     onRetry: () -> Unit,
     onBuy: () -> Unit,
     modifier: Modifier = Modifier,
-    onBuyHeight: (Int) -> Unit = {}
+    onBuyHeight: (Int) -> Unit = {},
+    onAdFree: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     BoxWithConstraints(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().navigationBarsPadding()) {
@@ -184,7 +191,7 @@ internal fun PaywallScreen(
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8, Alignment.CenterVertically)
                     ) {
                         PaywallBenefits(adFreeOwned, DiaryArtSize.banner)
-                        PaywallBuy(price, loading, busy, onRetry, onBuy, Modifier.fillMaxWidth())
+                        PaywallBuy(price, loading, busy, onRetry, onBuy, adFreeOwned, onAdFree, Modifier.fillMaxWidth())
                     }
                 }
             } else {
@@ -199,6 +206,8 @@ internal fun PaywallScreen(
                     busy,
                     onRetry,
                     onBuy,
+                    adFreeOwned,
+                    onAdFree,
                     column.onSizeChanged { onBuyHeight(it.height) }.padding(vertical = DiarySpacing.x3)
                 )
             }
@@ -252,7 +261,16 @@ private fun PaywallBenefits(adFreeOwned: Boolean, artHeight: Dp) {
  * 읽는 동안에는 결제액 자리를 비워 두고 버튼을 비활성으로 두어 칸이 뛰지 않는다.
  */
 @Composable
-private fun PaywallBuy(price: String?, loading: Boolean, busy: Boolean, onRetry: () -> Unit, onBuy: () -> Unit, modifier: Modifier) {
+private fun PaywallBuy(
+    price: String?,
+    loading: Boolean,
+    busy: Boolean,
+    onRetry: () -> Unit,
+    onBuy: () -> Unit,
+    adFreeOwned: Boolean,
+    onAdFree: () -> Unit,
+    modifier: Modifier
+) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Column(modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
@@ -269,6 +287,16 @@ private fun PaywallBuy(price: String?, loading: Boolean, busy: Boolean, onRetry:
                 enabled = price != null && !busy
             )
             BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
+            // 광고의 ×를 찾지 않아도 살 수 있게 둔다. 이미 산 사람에게는 보이지 않는다.
+            if (!adFreeOwned) {
+                DiaryButton(
+                    stringResource(Res.string.plus_ads_only),
+                    onAdFree,
+                    Modifier.align(Alignment.CenterHorizontally),
+                    size = DiaryButtonSize.Medium,
+                    kind = DiaryButtonKind.Text
+                )
+            }
         } else {
             BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
             DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)

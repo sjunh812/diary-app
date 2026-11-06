@@ -23,6 +23,7 @@
     <string name="adfree_title">広告なしで日記だけに ✨</string>
     <string name="adfree_body">サブスクではありません。一度のお支払いでずっと広告なしで使えます。</string>
     <string name="adfree_price">買い切り %1$s</string>
+    <string name="plus_ads_only">広告だけ消す</string>
     <string name="adfree_buy">広告を消す</string>
     <string name="adfree_close">今はしない</string>
     <string name="adfree_day_off">動画を見て1日だけ消す</string>
