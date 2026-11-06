@@ -4,21 +4,29 @@ package org.sjhstudio.diary.core.data.richtext
  * 본문 HTML을 허용 목록만 남기고 정리한다(스펙 002 contracts/rich-text-html.md).
  *
  * - `p`, `br`, `b`(`strong`도 `b`로), `u`, `ul`, `li`만 남기고 속성은 모두 버린다.
- * - `span`은 팔레트 안의 `color`, `background-color`만 남긴다. 남길 것이 없으면 태그를 버리고 글은 남긴다.
- * - 그 밖의 태그는 태그만 버린다. `script`, `style`, `iframe`은 안의 글까지 버린다.
- * - 목록은 한 단계만 둔다. 안쪽 `ul`은 태그만 버린다.
+ * - `span`은 팔레트 안의 `color`, `background-color`만 남긴다.
+ * 남길 것이 없으면 태그를 버리고 글은 남긴다.
+ * - 그 밖의 태그는 태그만 버린다.
+ * `script`, `style`, `iframe`은 안의 글까지 버린다.
+ * - 목록은 한 단계만 둔다.
+ * 안쪽 `ul`은 태그만 버린다.
  * - 짝이 맞지 않는 닫는 태그는 버리고, 닫히지 않은 태그는 끝에서 닫는다.
- * - 태그가 아닌 꺾쇠는 `&lt;`로 바꾼다. 글자와 공백은 그대로 둔다.
+ * - 태그가 아닌 꺾쇠는 `&lt;`로 바꾼다.
+ * 글자와 공백은 그대로 둔다.
  */
 object RichTextSanitizer {
-    /** 라이트 hex 팔레트(소문자). 저장은 이 값만 쓴다. */
+    /**
+     * 라이트 hex 팔레트(소문자).
+     * 저장은 이 값만 쓴다.
+     */
     val INK: Set<String> = setOf("#b91c1c", "#c2410c", "#15803d", "#1d4ed8", "#6b7280", "#6d28d9", "#be185d")
     val MARK: Set<String> = setOf("#fef08a", "#bbf7d0", "#bfdbfe", "#ddd6fe", "#fbcfe8")
 
     fun sanitize(html: String): String {
         if (html.isEmpty()) return ""
         val out = StringBuilder(html.length)
-        // 열린 태그. 버린 태그는 null로 넣어 닫는 태그와 짝을 맞춘다.
+        // 열린 태그.
+        // 버린 태그는 null로 넣어 닫는 태그와 짝을 맞춘다.
         val open = ArrayList<OpenTag>()
         var i = 0
         while (i < html.length) {
@@ -61,7 +69,10 @@ object RichTextSanitizer {
         return out.toString()
     }
 
-    /** `span` 스타일에서 팔레트 값만 뽑는다. 편집기가 쓰는 `rgb()`와 `background`도 받는다. */
+    /**
+     * `span` 스타일에서 팔레트 값만 뽑는다.
+     * 편집기가 쓰는 `rgb()`와 `background`도 받는다.
+     */
     internal fun spanStyle(attributes: String): String? {
         val style = styleAttribute(attributes) ?: return null
         var color: String? = null

@@ -9,11 +9,18 @@ import org.sjhstudio.diary.core.model.MigrationStep
 interface TelemetrySink {
     fun log(event: String, params: Map<String, String>)
 
-    /** Crashlytics 사용자 정의 키. `migration_step`, `screen`, `recent_screens`만 쓴다. 값은 표에 있는 이름뿐이다. */
+    /**
+     * Crashlytics 사용자 정의 키.
+     * `migration_step`, `screen`, `recent_screens`만 쓴다.
+     * 값은 표에 있는 이름뿐이다.
+     */
     fun setCustomKey(key: String, value: String)
 }
 
-/** Firebase 설정 파일이 없는 빌드와 시험에서 쓴다. 아무것도 보내지 않는다. */
+/**
+ * Firebase 설정 파일이 없는 빌드와 시험에서 쓴다.
+ * 아무것도 보내지 않는다.
+ */
 object NoTelemetrySink : TelemetrySink {
     override fun log(event: String, params: Map<String, String>) = Unit
 
@@ -39,7 +46,8 @@ class Telemetry(private val sink: TelemetrySink, private val strict: Boolean) {
     fun setMigrationStep(step: MigrationStep) = sink.setCustomKey(MIGRATION_STEP_KEY, step.id)
 
     /**
-     * 보는 화면을 알린다. 비정상 종료 보고에서 어디서 어떻게 왔는지 보이도록 지금 화면과 지나온 화면을 키로 남긴다.
+     * 보는 화면을 알린다.
+     * 비정상 종료 보고에서 어디서 어떻게 왔는지 보이도록 지금 화면과 지나온 화면을 키로 남긴다.
      * 화면 키 이름만 쓰고 일기 번호 같은 인자는 넣지 않는다.
      */
     fun screen(name: String) {

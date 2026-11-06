@@ -32,7 +32,10 @@ import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 import org.sjhstudio.diary.core.ui.diaryBodyFontFamily
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 
-/** 고른 글꼴은 앱 전체에 쓴다(헌법 V). 기본 글꼴이면 null이라 테마가 언어에 맞는 글꼴을 고른다. */
+/**
+ * 고른 글꼴은 앱 전체에 쓴다(헌법 V).
+ * 기본 글꼴이면 null이라 테마가 언어에 맞는 글꼴을 고른다.
+ */
 @Composable
 private fun chosenFontFamily(font: DiaryFont): FontFamily? {
     val installer = koinInject<FontInstaller>()
@@ -67,10 +70,12 @@ fun DiaryApp() {
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font)) {
         LockGate {
             MigrationGate {
-                // 일기 DB는 이전 관문을 지난 뒤에만 연다. 그래서 정리도 여기서 시작한다.
+                // 일기 DB는 이전 관문을 지난 뒤에만 연다.
+                // 그래서 정리도 여기서 시작한다.
                 val cleanup = koinInject<DiaryCleanup>()
                 LaunchedEffect(cleanup) { cleanup.run() }
-                // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 본다(FR-015). iOS에서는 이게 주된 길이다.
+                // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 본다(FR-015).
+                // iOS에서는 이게 주된 길이다.
                 val backup = koinInject<BackupRepository>()
                 LaunchedEffect(backup) { backup.backUpIfDue() }
                 val restore = koinInject<RestoreRepository>()

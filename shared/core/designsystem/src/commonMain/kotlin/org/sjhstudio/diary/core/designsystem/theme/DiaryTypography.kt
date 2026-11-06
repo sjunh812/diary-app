@@ -61,7 +61,11 @@ fun pretendardFamily(): FontFamily = FontFamily(
     Font(Res.font.pretendard_bold, FontWeight.Bold)
 )
 
-/** 한국어·일본어 줄바꿈. Android 13 이상은 구절 단위, 그 밖은 플랫폼 기본값이다. 영어에는 영향이 없다. */
+/**
+ * 한국어·일본어 줄바꿈.
+ * Android 13 이상은 구절 단위, 그 밖은 플랫폼 기본값이다.
+ * 영어에는 영향이 없다.
+ */
 internal expect val PHRASE_LINE_BREAK: LineBreak
 
 @Composable

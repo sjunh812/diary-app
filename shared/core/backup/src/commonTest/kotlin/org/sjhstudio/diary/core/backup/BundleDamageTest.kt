@@ -448,7 +448,8 @@ class BundleDamageTest {
 
         val result = controller.pick(fileOf(note.copyOf(note.size / 2)))
 
-        // 읽히는 만큼 살리거나 거절한다. 어느 쪽이든 기기 일기는 그대로다.
+        // 읽히는 만큼 살리거나 거절한다.
+        // 어느 쪽이든 기기 일기는 그대로다.
         if (result is RestorePreparation.Ready) {
             controller.merge()
             assertIs<RestoreState.Done>(controller.finished())

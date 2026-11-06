@@ -1,4 +1,5 @@
-// docs/design.md의 토큰과 컴포넌트. 화면 코드는 이 모듈의 DiaryTheme만 쓴다(헌법 V).
+// docs/design.md의 토큰과 컴포넌트.
+// 화면 코드는 이 모듈의 DiaryTheme만 쓴다(헌법 V).
 plugins {
     alias(libs.plugins.diary.kmp.library)
     alias(libs.plugins.compose.multiplatform)

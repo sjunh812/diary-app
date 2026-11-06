@@ -60,7 +60,10 @@ class LockRepositoryTest {
         assertEquals(0, repository.settings.first().failedAttempts)
     }
 
-    /** 5번째에 30초 기다림. 저장해 두어서 앱을 다시 켜도(저장소를 새로 만들어도) 이어진다. */
+    /**
+     * 5번째에 30초 기다림.
+     * 저장해 두어서 앱을 다시 켜도(저장소를 새로 만들어도) 이어진다.
+     */
     @Test
     fun fifth_wrong_waits_thirty_seconds_and_survives_restart() = runTest {
         repository.setPin(pin("2580"))
@@ -84,7 +87,10 @@ class LockRepositoryTest {
         assertEquals(VerifyResult.Waiting(earlier + 30.seconds), repository.verify(pin("2580"), earlier))
     }
 
-    /** 다른 기기로 옮겨 키가 없으면 대어 볼 수 없다. 폰 화면 잠금 흐름으로 간다. */
+    /**
+     * 다른 기기로 옮겨 키가 없으면 대어 볼 수 없다.
+     * 폰 화면 잠금 흐름으로 간다.
+     */
     @Test
     fun missing_key_or_mac_is_key_missing() = runTest {
         repository.setPin(pin("2580"))

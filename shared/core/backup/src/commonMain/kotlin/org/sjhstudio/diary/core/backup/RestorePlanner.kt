@@ -25,30 +25,48 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.platform.FreeSpace
 
-/** 받은 스냅샷이 목록 파일과 맞지 않는다. 기기의 기록은 그대로다(FR-021). */
+/**
+ * 받은 스냅샷이 목록 파일과 맞지 않는다.
+ * 기기의 기록은 그대로다(FR-021).
+ */
 class RestoreMismatch : Exception("backup does not match its manifest")
 
 /** 더 새 앱이 만든 묶음 파일이다. */
 class RestoreNeedsUpdate : Exception("backup needs a newer app")
 
-/** 복원 파일에 적힌 이름은 남이 만든 값일 수 있다. 경로에 붙이기 전에 여기서 본다. */
+/**
+ * 복원 파일에 적힌 이름은 남이 만든 값일 수 있다.
+ * 경로에 붙이기 전에 여기서 본다.
+ */
 internal object RestoreNames {
     private val PHOTO = Regex("[0-9a-f]{64}\\.[A-Za-z0-9]{1,16}")
 
-    /** 사진 파일 이름은 `<내용 SHA-256>.<확장자>`다. 다른 사진의 이름이면 그 사진을 덮으니 해시도 맞아야 한다. */
+    /**
+     * 사진 파일 이름은 `<내용 SHA-256>.<확장자>`다.
+     * 다른 사진의 이름이면 그 사진을 덮으니 해시도 맞아야 한다.
+     */
     fun isPhoto(name: String, sha256: String?): Boolean = PHOTO.matches(name) && (sha256 == null || name.substringBefore('.') == sha256)
 
-    /** 스냅샷 이름에는 기기 이름이 들어가 글자를 좁힐 수 없다. 폴더를 넘나들지만 못하게 한다. */
+    /**
+     * 스냅샷 이름에는 기기 이름이 들어가 글자를 좁힐 수 없다.
+     * 폴더를 넘나들지만 못하게 한다.
+     */
     fun isSingleName(name: String): Boolean = name.isNotEmpty() && name != "." && name != ".." && name.none { it in "/\\\u0000" }
 }
 
-/** 받아서 확인까지 끝난 백업. 사용자가 확인하면 이 계획대로 합친다. */
+/**
+ * 받아서 확인까지 끝난 백업.
+ * 사용자가 확인하면 이 계획대로 합친다.
+ */
 data class PreparedRestore(
     val manifest: Manifest,
     val plan: MergePlan,
     val preview: RestorePreview,
     val snapshot: Path,
-    /** 파일에서 복원할 때의 묶음 파일. 사진을 여기서 꺼낸다. */
+    /**
+     * 파일에서 복원할 때의 묶음 파일.
+     * 사진을 여기서 꺼낸다.
+     */
     val bundle: Path? = null,
     /** 다른 기기가 만든 백업이면 기준값 없는 일기를 둘 다 남긴다(contracts/merge-rules.md 경우 6). */
     val fromOtherDevice: Boolean = false
@@ -89,7 +107,10 @@ class RestorePlanner(
         return checked(manifest, path).copy(bundle = zip)
     }
 
-    /** 목록 화면이 막아도 이름으로 바로 들어올 수 있어 여기서도 본다. 더 새 앱이 만든 스냅샷은 열지 않는다. */
+    /**
+     * 목록 화면이 막아도 이름으로 바로 들어올 수 있어 여기서도 본다.
+     * 더 새 앱이 만든 스냅샷은 열지 않는다.
+     */
     private fun readable(manifest: Manifest?): Manifest = when (ManifestCodec.check(manifest)) {
         ManifestCheck.OK -> requireNotNull(manifest)
         ManifestCheck.NEEDS_NEWER_APP -> throw RestoreNeedsUpdate()
@@ -140,7 +161,10 @@ class RestorePlanner(
     }
 }
 
-/** 합친 뒤 대기 중인 사진을 받는다. 끊겨도 다음에 대기 줄만 다시 받는다(FR-024). */
+/**
+ * 합친 뒤 대기 중인 사진을 받는다.
+ * 끊겨도 다음에 대기 줄만 다시 받는다(FR-024).
+ */
 class PhotoFetcher(
     private val db: DiaryDatabase,
     private val drive: DriveApi,
@@ -162,7 +186,10 @@ class PhotoFetcher(
         }
     }
 
-    /** 묶음 파일에서 꺼낸다. 맞지 않는 사진만 찾을 수 없는 사진이 되고 나머지는 합친다. */
+    /**
+     * 묶음 파일에서 꺼낸다.
+     * 맞지 않는 사진만 찾을 수 없는 사진이 되고 나머지는 합친다.
+     */
     suspend fun fetchFrom(zip: Path, onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): Pair<Int, Int> {
         val archive = fileSystem.openZip(zip)
         val media = "/".toPath() / BundleExporter.MEDIA
@@ -173,7 +200,8 @@ class PhotoFetcher(
                     if (!archive.exists(entry)) return@settle false
                     archive.source(entry)
                 } catch (_: IOException) {
-                    // 이 항목의 머리가 깨졌다. 다른 사진까지 멈추지 않는다.
+                    // 이 항목의 머리가 깨졌다.
+                    // 다른 사진까지 멈추지 않는다.
                     throw BrokenPhoto()
                 }
             photo.use { source -> fileSystem.write(target) { writeAll(source) } }
@@ -214,7 +242,8 @@ class PhotoFetcher(
         val dao = db.backupDao()
         // 백업에 없는 사진은 대기로 두어 "원래 기기에 있는 사진"으로 보인다.
         val name = photo.fileName ?: return Settled.STILL_WAITING
-        // 전에 받아 둔 줄일 수 있어 여기서도 본다. 이 이름으로는 파일을 쓰지 않는다.
+        // 전에 받아 둔 줄일 수 있어 여기서도 본다.
+        // 이 이름으로는 파일을 쓰지 않는다.
         if (!RestoreNames.isPhoto(name, photo.sha256)) {
             dao.settlePending(photo.sha256, name, MediaStatus.MISSING.id)
             return Settled.BROKEN
@@ -233,7 +262,8 @@ class PhotoFetcher(
             dao.settlePending(photo.sha256, name, MediaStatus.MISSING.id)
             return Settled.BROKEN
         } catch (error: DriveException) {
-            // 이 사진만의 일이면 대기로 두고 다음 장으로 간다. 어차피 다 실패할 일이면 여기서 멈춘다.
+            // 이 사진만의 일이면 대기로 두고 다음 장으로 간다.
+            // 어차피 다 실패할 일이면 여기서 멈춘다.
             if (error.stopsAllPhotos) throw error
             return Settled.STILL_WAITING
         } finally {
@@ -250,7 +280,10 @@ class PhotoFetcher(
     private class BrokenPhoto : Exception("photo entry is damaged")
 
     private companion object {
-        /** 드라이브에서 동시에 받는 사진 수. 사진 한 장은 작아서 기다리는 시간이 대부분이다. */
+        /**
+         * 드라이브에서 동시에 받는 사진 수.
+         * 사진 한 장은 작아서 기다리는 시간이 대부분이다.
+         */
         const val PARALLEL_DOWNLOADS = 6
     }
 }

@@ -414,7 +414,10 @@ class BackupRunnerTest {
         override suspend fun about() = throw error
     }
 
-    /** 이어 올리기 세션이 끝나지 않는 드라이브. 고치기 전에는 끝없이 돌아서 시험을 끊으려고 상한을 둔다. */
+    /**
+     * 이어 올리기 세션이 끝나지 않는 드라이브.
+     * 고치기 전에는 끝없이 돌아서 시험을 끊으려고 상한을 둔다.
+     */
     private class EndlessUpload(private val real: DriveApi, private val answer: ChunkResult) : DriveApi by real {
         var starts = 0
             private set

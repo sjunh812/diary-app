@@ -67,7 +67,10 @@ class LockStore(private val dataStore: DataStore<Preferences>) {
     }
 
     companion object {
-        /** 잠금만 켜고 확인값이 없는 상태. 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다. */
+        /**
+         * 잠금만 켜고 확인값이 없는 상태.
+         * 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다.
+         */
         internal fun lockedWithoutKey(): Preferences = preferencesOf(Keys.ENABLED to true)
     }
 }

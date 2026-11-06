@@ -24,7 +24,10 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
-/** 목록 미리보기에 넣는 최대 글자. 3줄을 넘지 않고, 긴 일기를 메모리에 다 올리지 않는다. */
+/**
+ * 목록 미리보기에 넣는 최대 글자.
+ * 3줄을 넘지 않고, 긴 일기를 메모리에 다 올리지 않는다.
+ */
 private const val PREVIEW_CHARS = 240
 
 /** 찾은 글자가 뒤에 있을 때 앞에 남기는 글자. */
@@ -57,7 +60,8 @@ private const val SLICE_MARGIN = 40
 /** 찾은 글자가 잘리지 않게 그 앞에서부터 보여 준다(FR-025). */
 internal fun preview(source: String, query: String): String {
     val found = if (query.isEmpty()) -1 else source.indexOf(query, ignoreCase = true)
-    // 긴 일기 전체를 다듬지 않게 보일 곳 근처만 잘라 낸다. 1만 편 찾기에서 이 비용이 가장 컸다.
+    // 긴 일기 전체를 다듬지 않게 보일 곳 근처만 잘라 낸다.
+    // 1만 편 찾기에서 이 비용이 가장 컸다.
     val from = (found - PREVIEW_LEAD - SLICE_MARGIN).coerceAtLeast(0)
     val slice = source.substring(from, (from + EntryDao.LIST_TEXT_CHARS).coerceAtMost(source.length))
     // 빈 줄이 미리보기 세 줄을 차지하지 않게 줄바꿈을 한 칸으로 줄인다.

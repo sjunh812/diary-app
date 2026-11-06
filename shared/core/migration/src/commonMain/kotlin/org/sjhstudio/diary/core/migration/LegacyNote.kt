@@ -2,7 +2,8 @@ package org.sjhstudio.diary.core.migration
 
 /**
  * 레거시 `note.db`의 `Note` 표 한 줄을 읽은 그대로 담는다.
- * 값을 고치지 않는다. 고치는 일은 [LegacyEntryMapper]가 한다.
+ * 값을 고치지 않는다.
+ * 고치는 일은 [LegacyEntryMapper]가 한다.
  * `star`는 버전 1에서 2로 올린 DB의 옛 줄에서 null이다.
  */
 data class LegacyNote(

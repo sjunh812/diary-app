@@ -40,9 +40,11 @@ private const val PULSE_MILLIS = 900
 private const val PULSE_LOW = 0.6f
 
 /**
- * 스켈레톤(`docs/design.md` 스켈레톤). 자리 모양을 아는 목록이 네트워크나 많은 기록 때문에 늦을 때만 쓴다.
+ * 스켈레톤(`docs/design.md` 스켈레톤).
+ * 자리 모양을 아는 목록이 네트워크나 많은 기록 때문에 늦을 때만 쓴다.
  * 짧은 로딩에서 깜빡이지 않게 0.3초 뒤에 나타나고, 끝없는 움직임을 줄이려 빛이 지나가는 대신 천천히 숨 쉰다.
- * 동작 줄이기를 켜면 멈춘 칸으로 보인다. 그림일 뿐이라 화면 읽기에는 읽히지 않는다.
+ * 동작 줄이기를 켜면 멈춘 칸으로 보인다.
+ * 그림일 뿐이라 화면 읽기에는 읽히지 않는다.
  */
 @Composable
 fun DiarySkeleton(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
@@ -69,7 +71,10 @@ fun SkeletonBlock(modifier: Modifier = Modifier, shape: Shape = DiaryShapes.r8) 
     Box(modifier.clip(shape).background(DiaryTheme.colors.sunken))
 }
 
-/** 글줄 하나. 높이는 글자 높이쯤이다. */
+/**
+ * 글줄 하나.
+ * 높이는 글자 높이쯤이다.
+ */
 @Composable
 fun SkeletonLine(modifier: Modifier = Modifier, height: Dp = DiarySpacing.x3) {
     SkeletonBlock(modifier.height(height), DiaryShapes.full)
@@ -103,7 +108,10 @@ fun SkeletonEntryRows(modifier: Modifier = Modifier, count: Int = 6) {
     }
 }
 
-/** 설정·복원 목록의 줄 자리. [rows]만큼 왼쪽 글줄과 오른쪽 짧은 값을 그린다. */
+/**
+ * 설정·복원 목록의 줄 자리.
+ * [rows]만큼 왼쪽 글줄과 오른쪽 짧은 값을 그린다.
+ */
 @Composable
 fun SkeletonRows(modifier: Modifier = Modifier, rows: Int = 3) {
     DiarySkeleton(modifier) {

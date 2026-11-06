@@ -9,10 +9,12 @@ import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 
 /**
- * 앱 틀 아이콘. 경로는 Lucide(`lucide-static` 1.66.0, ISC 라이선스)의 SVG를 그대로 옮겼다.
+ * 앱 틀 아이콘.
+ * 경로는 Lucide(`lucide-static` 1.66.0, ISC 라이선스)의 SVG를 그대로 옮겼다.
  * 일기 화면 아이콘(찾기부터 날씨까지)은 Figma "화면" 페이지의 아이콘 경로를 그대로 옮겼다.
  * `circle`, `line`, `rect`는 같은 모양의 경로로 바꿨다.
- * 선 굵기는 1.75다(`docs/design.md` 아이콘과 그림). 아이콘 세트를 확정하면 이 파일을 바꾼다.
+ * 선 굵기는 1.75다(`docs/design.md` 아이콘과 그림).
+ * 아이콘 세트를 확정하면 이 파일을 바꾼다.
  */
 object DiaryIcons {
     private const val STAR = "M 12 4 L 14.4 9 L 19.8 9.6 L 15.8 13.3 L 16.9 18.6 L 12 16 L 7.1 18.6 L 8.2 13.3 L 4.2 9.6 L 9.6 9 L 12 4 Z"
@@ -131,7 +133,8 @@ object DiaryIcons {
         )
     }
 
-    // 하단 탭·레일 아이콘(Figma "설정 (S6)"의 tab-bar 경로 그대로). 고른 탭은 선이 굵다(docs/design.md 하단 탭).
+    // 하단 탭·레일 아이콘(Figma "설정 (S6)"의 tab-bar 경로 그대로).
+    // 고른 탭은 선이 굵다(docs/design.md 하단 탭).
     val TabHome: ImageVector by lazy {
         tab(
             "tab-home",
@@ -214,7 +217,8 @@ object DiaryIcons {
         )
     }
 
-    // 그림이 틀을 채우는 다른 아이콘과 크기가 맞게 폭을 넓혔다. 좁으면 옆 글자와의 틈이 혼자 넓어 보인다.
+    // 그림이 틀을 채우는 다른 아이콘과 크기가 맞게 폭을 넓혔다.
+    // 좁으면 옆 글자와의 틈이 혼자 넓어 보인다.
     val Pin: ImageVector by lazy {
         lucide(
             "pin",

@@ -2,7 +2,8 @@ import Shared
 import SwiftUI
 
 // 잠금이 켜져 있으면 앱이 비활성일 때(앱 전환기, 알림 센터, Face ID 창) 화면을 덮어 일기가 비치지 않게 한다
-// (스펙 001 FR-018, research R13). 잠금이 꺼져 있으면 덮지 않는다.
+// (스펙 001 FR-018, research R13).
+// 잠금이 꺼져 있으면 덮지 않는다.
 struct PrivacyCover: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
     @State private var covered = false

@@ -7,7 +7,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.sjhstudio.diary.core.database.LocalPhotoRow
 
-/** 목록 파일(contracts/backup-format.md). 일기 내용, 장소, 기분, 사진 경로, 잠금 확인값은 담지 않는다. */
+/**
+ * 목록 파일(contracts/backup-format.md).
+ * 일기 내용, 장소, 기분, 사진 경로, 잠금 확인값은 담지 않는다.
+ */
 @Serializable
 data class Manifest(
     val format: String = FORMAT,
@@ -64,7 +67,10 @@ data class ManifestSettings(
     @SerialName("lockEnabled") val lockEnabled: Boolean = false
 )
 
-/** 읽을 수 있는지. 복원 목록의 이유로 쓴다. */
+/**
+ * 읽을 수 있는지.
+ * 복원 목록의 이유로 쓴다.
+ */
 enum class ManifestCheck { OK, BROKEN, NEEDS_NEWER_APP }
 
 object ManifestCodec {
@@ -78,7 +84,10 @@ object ManifestCodec {
 
     fun encode(manifest: Manifest): String = json.encodeToString(Manifest.serializer(), manifest)
 
-    /** 깨졌으면 null이다. 모르는 키는 무시하고 없는 키는 기본값으로 본다. */
+    /**
+     * 깨졌으면 null이다.
+     * 모르는 키는 무시하고 없는 키는 기본값으로 본다.
+     */
     fun decode(text: String): Manifest? = runCatching { json.decodeFromString(Manifest.serializer(), text) }.getOrNull()?.takeIf {
         it.format ==
             Manifest.FORMAT

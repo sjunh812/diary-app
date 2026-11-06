@@ -36,8 +36,8 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T002 [P] "표지 · 흐름"에 섹션 "프로토타입 · 백업"을 만들고 설정 > 백업(B1: 연결 안 함·연결됨·백업 중·사진 대기·실패), 백업 설정(B13: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기), 드라이브 연결(B2: 계정 고르기, 옛 백업 계정 먼저, 취소), 지금 백업 진행과 완료, 공간 부족 안내(B10) 프레임을 만들고 잇는다
 - [x] T003 [P] 같은 섹션에 복원 목록(B3: 기기별, 깨진 백업, 새 앱 필요, 이전 버전 백업 칸, 묶음 파일 불러오기), 미리보기(B4: 합치기 기본, 바꾸기 다른 선택지, 설정 바뀜 줄), 복원 중(B5), 결과(B6: 찾을 수 없는 사진, 원래 기기에 있는 사진, 잠금 다시 정하기), 이전 버전 백업 불러오기(B7) 프레임을 만들고 잇는다
 - [x] T004 [P] 같은 섹션에 바꾸기 확인과 되돌리기(B9: "내일까지 되돌릴 수 있어요" 포함), 묶음 파일 내보내기·불러오기(B8), 홈 머리 상태 줄 상태들과 권하기 카드(B11), 7일 실패 알림과 진행 알림 모양 프레임을 만든다
-- [x] T005 흐름 시작점("백업 · 처음 연결", "· 새 폰에서 되살리기", "· 이전 버전 백업", "· 공간 부족", "· 바꾸기와 되돌리기")을 두고 캡처를 보내 사용자 확정을 받는다. 확정하면 `prototype.md`에 날짜와 바뀐 점을 쓰고 스펙에 되먹인다(지금 앱 백업 화면과 크게 달라지는 곳은 먼저 묻는다)
-- [x] T006 "화면" 페이지에 12줄을 라이트 폰(왼쪽 여백 번호)·설명 패널·다크 폰·태블릿과 상태 섹션으로 그렸다(2026-11-01, y 17460부터): 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2), 백업에서 되살리기 (B3), 되살리기 전에 확인 (B4), 되살리는 중 (B5), 되살린 결과 (B6), 예전 앱 백업 (B7), 파일로 백업하기 (B8), 되돌리기 (B9), 드라이브 공간이 모자라요 (B10), 홈 백업 상태와 권하기 (B11, 7일 실패 알림 B12는 상태에). 홈 태블릿은 스펙 002 홈 디자인 때 같이 그린다. 문구는 토스 UX 라이팅 기준으로 다듬었고 맞춤법 검사기는 개발 때 문자열 리소스로 옮기며 돌린다
+- [x] T005 흐름 시작점("백업 · 처음 연결", "· 새 폰에서 복원하기", "· 이전 버전 백업", "· 공간 부족", "· 바꾸기와 되돌리기")을 두고 캡처를 보내 사용자 확정을 받는다. 확정하면 `prototype.md`에 날짜와 바뀐 점을 쓰고 스펙에 되먹인다(지금 앱 백업 화면과 크게 달라지는 곳은 먼저 묻는다)
+- [x] T006 "화면" 페이지에 12줄을 라이트 폰(왼쪽 여백 번호)·설명 패널·다크 폰·태블릿과 상태 섹션으로 그렸다(2026-11-01, y 17460부터): 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2), 백업에서 복원하기 (B3), 복원하기 전에 확인 (B4), 복원 중 (B5), 복원한 결과 (B6), 예전 앱 백업 (B7), 파일로 백업하기 (B8), 되돌리기 (B9), 드라이브 공간이 부족해요 (B10), 홈 백업 상태와 권하기 (B11, 7일 실패 알림 B12는 상태에). 홈 태블릿은 스펙 002 홈 디자인 때 같이 그린다. 문구는 토스 UX 라이팅 기준으로 다듬었고 맞춤법 검사기는 개발 때 문자열 리소스로 옮기며 돌린다
 - [x] T007 "표지 · 흐름" 페이지의 진행 현황 표에 003 화면을 더했다(프로토타입 "확정 2026-11-01(27장)", 디자인 "12줄", 2026-11-01)
 - [x] T098 개발 전 디자인 점검: "화면" 페이지 003 12줄과 상태 섹션을 토스 TDS·당근 SEED·Apple HIG·Material 3와 유명 앱에 대어 보고(흐름과 UX 패턴, 여백·간격, 글자 크기·굵기·줄 높이, 모서리, 터치 영역, 색 대비, 폰·태블릿·다크가 같은 규칙인지, 문구) `specs/003-backup-v2/design-review.md`에 남긴다. 고칠 것은 `docs/design.md` → Figma 변수·컴포넌트 → 화면 순서로 고친 뒤 백업 화면 작업에 들어간다(2026-11-01 사용자 요청, 헌법 V) 2026-11-01 전체 점검(아이콘 크기·선 굵기, 상자와 설정 줄 여백)은 `specs/001-foundation-migration/design-review.md` "전체 점검"에서 프로토타입까지 마쳤다. 나머지 항목(흐름, 글자, 색 대비)과 태블릿 틀은 2026-11-05에 마쳤다
 
@@ -95,7 +95,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T034 [P] [US1] `{test}/core/backup/BackupInterruptionTest.kt`: 사진 올리는 중 끊김·앱 종료(상태 파일에서 잇기), 세션 만료, 목록 파일 전 끊김(목록에 안 보임, 이전 백업 그대로), 이미 올린 사진 재전송 0(SC-002)
 - [x] T035 [P] [US1] `{test}/core/backup/BackupAccountTest.kt`: 토큰 만료 → 한 번 새로 받기 → `AUTH`, 다른 계정이면 `backup_media`가 섞이지 않음, 드라이브에서 폴더를 지우면 새로 만들고 처음부터, 폴더 이름을 바꿔도 `appProperties`로 이어짐
 - [x] T036 [P] [US1] `{test}/core/backup/RetentionPolicyTest.kt`, `MediaJanitorTest.kt`: 기기마다 최근 5개 + 달마다 1개, 다른 기기 백업 안 건드림, 목록 파일 없는 스냅샷 7일 뒤 정리, `diary.unrefSince` 30일, 다시 가리키면 지움, 모두 휴지통으로
-- [x] T037 [P] [US1] `{test}/core/backup/BackupConcurrencyTest.kt`: 백업 중 일기 쓰기·고치기·지우기 → 다음 백업에 들어가고 이번 스냅샷은 한 시점. 이전·복원 중에는 백업이 시작되지 않음 2026-11-05: 시험 5건. 백업과 복원이 잠금 하나(`BackupGate`)를 나누게 했고, 기록 이전이 끝나기 전에는 백업이 돌지 않는다. 복원은 도는 백업을 기다린다
+- [x] T037 [P] [US1] `{test}/core/backup/BackupConcurrencyTest.kt`: 백업 중 일기 쓰기·수정·삭제 → 다음 백업에 들어가고 이번 스냅샷은 한 시점. 이전·복원 중에는 백업이 시작되지 않음 2026-11-05: 시험 5건. 백업과 복원이 잠금 하나(`BackupGate`)를 나누게 했고, 기록 이전이 끝나기 전에는 백업이 돌지 않는다. 복원은 도는 백업을 기다린다
 - [x] T038 [P] [US1] `{test}/core/backup/LargeBackupTest.kt`: 일기 1만 편·사진 1만 장(가짜 바이트, 한 장 30MB 몇 개)이 메모리 상한 안에서 끝까지, 진행 숫자가 바이트 단위로 나아감(SC-005) 2026-11-05: `androidHostTest`에 뒀다. 내용을 쌓지 않는 대역 드라이브로 돌았고 힙 증가 64MB 상한 안에서 끝난다
 
 ### Implementation for User Story 1
@@ -106,7 +106,7 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T042 [US1] `{kt}/core/backup/RetentionPolicy.kt`, `MediaJanitor.kt`: `contracts/backup-format.md` "보관과 정리"
 - [x] T043 [US1] `shared/core/platform/{android}/core/platform/AndroidBackupScheduler.kt` 지금 백업: Android 14 이상 `BackupTransferJobService`(사용자가 시작한 데이터 전송, 진행 알림), 13 이하 급한 작업 + `setForeground`(`dataSync`), `onTimeout`·작업 멈춤에서 상태 남기기(research R14) 2026-11-05: 작업 관리자 하나로 모든 버전을 처리했다(`BackupNowWorker`, 급한 작업 + `dataSync` 진행 알림). research R14의 Android 14 전용 경로는 만들지 않아 `RUN_USER_INITIATED_JOBS`를 뺐다. 실제 드라이브로 느린 네트워크에서 지금 백업을 누르고 앱을 나가도 포그라운드 서비스로 끝까지 도는 것을 API 36 에뮬레이터에서 봤다. 연결 직후 자동 백업이 먼저 돌면 그 작업이 끝날 때까지 지키도록 고쳤다. 사진이 많은 큰 백업과 복원은 일기 12,004편·사진 1,948장으로 에뮬레이터에서 왕복해 일치를 확인했다(2026-11-05). 실기기는 남았다
 - [ ] T044 [P] [US1] `shared/core/platform/{ios}/core/platform/IosBackupScheduler.kt`와 `iosApp/iosApp/Backup/ContinuedBackupTask.swift`: 앞에서는 공통 코드로, iOS 26 이상은 `BGContinuedProcessingTask`로 넘겨 진행 보고, 17~25는 `beginBackgroundTask` 안에서 조각(research R15)
-- [x] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 되살리기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
+- [x] T045 [US1] `shared/feature/backup/{kt}/feature/backup/BackupSettingsScreen.kt`·`BackupSettingsViewModel.kt`: 연결, 상태(마지막 성공, 사진 n/N), 지금 백업과 진행, 자동 백업, "백업에서 복원하기"와 "백업 설정" 두 줄(복원은 지금 백업 버튼과 떨어뜨림, FR-027). `BackupOptionsScreen.kt`: 계정, 사진은 Wi-Fi에서만, 파일로 백업하기, 연결 끊기(드라이브 백업은 지우지 않음 안내). Figma "화면" 백업 (B1), 백업 설정 (B13), 드라이브 연결 (B2)
 - [x] T046 [US1] 홈 머리 백업 상태 줄 컴포넌트 `shared/feature/backup/{kt}/feature/backup/BackupStatusLine.kt`를 내보내고 스펙 002 홈에 꽂는다(`contracts/backup-flow.md` 상태 표시). Figma 홈 백업 상태와 권하기 (B11)
 - [x] T047 [P] [US1] `shared/feature/backup/{res}/values/strings.xml`: 백업 화면·상태 줄·README·진행 알림 문구(해요체, README 둘째 단락은 영어). 한국어 스킬로 다듬는다
 - [ ] T048 [US1] 실제 드라이브 시험 `shared/core/backup/src/androidDeviceTest/.../RealDriveBackupTest.kt`(시험 계정, CI 비밀값이 있을 때만): 왕복 준비용 백업, 끝나면 시험 폴더 지우기
@@ -115,7 +115,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ---
 
-## Phase 6: User Story 2 - 새 폰이나 다시 설치한 앱에서 합쳐서 되살린다 (Priority: P1)
+## Phase 6: User Story 2 - 새 폰이나 다시 설치한 앱에서 합쳐서 복원한다 (Priority: P1)
 
 **Goal**: 복원 목록에서 고르면 숫자로 미리 보여 주고, 지금 기록을 지우지 않고 한 번에 합친 뒤 사진을 이어 받는다.
 
@@ -137,12 +137,12 @@ description: "스펙 003 백업 v2 작업 목록"
 - [x] T057 [US2] `{kt}/core/backup/RestorePlanner.kt`: 스냅샷 받기(`backup/incoming/`, 이어 받기) → SHA-256·일기 수 확인 → 쓰기 없이 합치기 규칙 돌려 `RestorePreview`
 - [x] T058 [US2] `{kt}/core/backup/MergeApplier.kt`: 한 트랜잭션으로 `contracts/merge-rules.md` 드라이브 합치기(휴지통, 사진 줄, `merge_mark`, `sync_base`), 설정 적용
 - [x] T059 [US2] `{kt}/core/backup/PhotoFetcher.kt`: `pending` 줄의 사진을 받아 `media/`에 쓰고 확인값이 맞으면 `normal`, 다르면 `missing`. `backup/restore.json`으로 잇기. 지금 백업과 같은 스케줄러(T043, T044)로 돈다
-- [x] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원 결과 (B6)
+- [x] T060 [US2] `shared/feature/backup/{kt}/feature/backup/restore/`: `RestoreListScreen`, `RestorePreviewScreen`(합치기 기본, 바꾸기는 다른 선택지·다른 색), `RestoreProgressScreen`, `RestoreResultScreen`과 ViewModel. Figma 복원할 백업 고르기 (B3), 복원 미리보기 (B4), 복원 중 (B5), 복원한 결과 (B6)
 - [x] T061 [US2] 스펙 002 사진 칸·상세에서 `PENDING` 사진을 받는 중 표시와 "원래 기기에 있는 사진"으로, `MISSING`은 "찾을 수 없는 사진"으로 그린다. 스펙 002 사진 정리가 `pending`을 지우지 않는지 시험을 더한다
 - [x] T062 [US2] 둘 다 남긴 일기 표시: 스펙 002 목록·상세에 `merge_mark` 줄이 있으면 "두 가지로 남겼어요"와 닫기·짝 보기. 닫거나 하나를 지우면 줄을 지운다
 - [x] T063 [US2] 앱 시작 관문(스펙 001 `shared/app`)에 남은 복원 작업 잇기: `restore.json`이 `FetchingPhotos`면 사진 받기를 다시 건다
 
-**Checkpoint**: 새 폰(Android, iOS 시뮬레이터)에서 드라이브 백업을 합쳐 되살린다.
+**Checkpoint**: 새 폰(Android, iOS 시뮬레이터)에서 드라이브 백업을 합쳐 복원한다.
 
 ---
 
@@ -193,9 +193,9 @@ description: "스펙 003 백업 v2 작업 목록"
 
 ---
 
-## Phase 9: User Story 5 - 드라이브 공간이 모자라도 글은 지킨다 (Priority: P2)
+## Phase 9: User Story 5 - 드라이브 공간이 부족해도 글은 지킨다 (Priority: P2)
 
-**Goal**: 시작 전에 모자란 양을 숫자로 알리고, 글을 먼저 올리고 최근 일기의 사진부터 들어가는 만큼 올린다.
+**Goal**: 시작 전에 부족한 양을 숫자로 알리고, 글을 먼저 올리고 최근 일기의 사진부터 들어가는 만큼 올린다.
 
 **Independent Test**: `FakeDrive` 공간 한도와 공간을 거의 채운 시험 계정으로 백업해 글이 올라가고 못 올린 장수가 맞는지 본다.
 
@@ -206,13 +206,13 @@ description: "스펙 003 백업 v2 작업 목록"
 ### Implementation for User Story 5
 
 - [x] T080 [US5] `UploadPlanner`에 공간 계획(`about.storageQuota`)과 `BackupRunner`에 중간 공간 부족 처리를 더한다(`contracts/backup-format.md` "공간이 모자랄 때")
-- [x] T081 [US5] 공간 부족 안내 화면: 모자란 양, 사진 정리 방법, 드라이브 휴지통 비우기, 구글 계정 저장 공간 화면 열기, 파일로 백업하기. 우리가 공간을 팔지 않는다(FR-019). Figma 드라이브 공간이 모자라요 (B10)
+- [x] T081 [US5] 공간 부족 안내 화면: 부족한 양, 사진 정리 방법, 드라이브 휴지통 비우기, 구글 계정 저장 공간 화면 열기, 파일로 백업하기. 우리가 공간을 팔지 않는다(FR-019). Figma 드라이브 공간이 부족해요 (B10)
 
 ---
 
 ## Phase 10: User Story 6 - 드라이브 없이 파일로 내보내고 불러온다 (Priority: P3)
 
-**Goal**: 일기·사진·목록 파일을 zip 하나로 내보내고, 그 파일로 합쳐서 되살린다.
+**Goal**: 일기·사진·목록 파일을 zip 하나로 내보내고, 그 파일로 합쳐서 복원한다.
 
 **Independent Test**: 묶음 파일로 내보낸 뒤 다른 기기에서 불러와 일기와 사진이 모두 같은지 본다.
 
@@ -225,7 +225,7 @@ description: "스펙 003 백업 v2 작업 목록"
 
 - [x] T084 [US6] Okio `openZip`이 Android·iOS 공통 코드에서 보이는지 확인하고(research R18), `{kt}/core/backup/BundleWriter.kt`(STORE + ZIP64), `BundleReader.kt`를 만든다. 안 보이면 Android `ZipInputStream`, iOS ZIPFoundation으로 읽기를 플랫폼에 둔다
 - [x] T085 [US6] 저장 위치에 바로 흘려 쓰기(research O3): FileKit 0.17.0으로 되는지 보고, 안 되면 Android SAF 출력 스트림·iOS 앱 폴더 + 공유 시트. 결과를 research O3에 적는다
-- [x] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/FileBackupScreen.kt`: 파일 기능의 입구 하나. [파일 만들기](크기 미리 보이기, 진행), "파일에서 되살리기"(파일 고르기 → 드라이브 복원과 같은 미리보기·합치기), 새 휴대폰으로 옮기는 방법 안내. 연결 전 화면·백업 설정·공간 부족 화면의 "파일로 백업하기" 줄이 모두 여기로 온다. Figma 묶음 파일 (B8) 고쳐 받기 문의로 돌려받은 zip(`legacy-snapshot/note.db`만 든 예전 형식)도 받아 이전 버전 백업과 같은 규칙으로 합친다(스펙 001 FR-010a, `scripts/recover/README.md`)
+- [x] T086 [US6] `shared/feature/backup/{kt}/feature/backup/export/FileBackupScreen.kt`: 파일 기능의 입구 하나. [파일 만들기](크기 미리 보이기, 진행), "파일에서 복원하기"(파일 고르기 → 드라이브 복원과 같은 미리보기·합치기), 새 휴대폰으로 옮기는 방법 안내. 연결 전 화면·백업 설정·공간 부족 화면의 "파일로 백업하기" 줄이 모두 여기로 온다. Figma 묶음 파일 (B8) 복구 문의로 돌려받은 zip(`legacy-snapshot/note.db`만 든 예전 형식)도 받아 이전 버전 백업과 같은 규칙으로 합친다(스펙 001 FR-010a, `scripts/recover/README.md`)
 
 ---
 
@@ -282,6 +282,6 @@ T060 복원 화면들, T061 사진 상태 그리기, T062 둘 다 남김 표시 
 
 1. **먼저**: Phase 2 첫 확인. 결과에 따라 iOS 길을 사용자와 정한다.
 2. **MVP**: Phase 3·4 + US1. 실제 드라이브에 사진까지 올라가고 확인값으로 완료를 말한다.
-3. **R1에 꼭 필요**: US2·US3(P1), US7(R1 포함 결정). 합쳐서 되살리기와 예전 백업 불러오기가 없으면 기록 유실을 끝낼 수 없다.
+3. **R1에 꼭 필요**: US2·US3(P1), US7(R1 포함 결정). 합쳐서 복원하기와 예전 백업 불러오기가 없으면 기록 유실을 끝낼 수 없다.
 4. **그다음**: US4(자동 백업·권하기), US5(공간 부족), US6(묶음 파일).
 5. 각 단계 끝에 `./gradlew spotlessCheck designTokenCheck allTests`가 통과하고, 커밋은 `CLAUDE.md` 커밋 규칙대로 작업 브랜치에 바로 푸시한다.

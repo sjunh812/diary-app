@@ -11,12 +11,18 @@ import okio.use
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
 
-/** EXIF 방향을 반영한 사진 가로세로. 읽지 못하면 null(Android `BitmapFactory` + `ExifInterface`). */
+/**
+ * EXIF 방향을 반영한 사진 가로세로.
+ * 읽지 못하면 null(Android `BitmapFactory` + `ExifInterface`).
+ */
 fun interface ImageSizeReader {
     fun read(path: String): Pair<Int, Int>?
 }
 
-/** `photos.json` 한 줄: 레거시 경로 → 해시(research R8). 사진 자체는 `media/`에 있다. */
+/**
+ * `photos.json` 한 줄: 레거시 경로 → 해시(research R8).
+ * 사진 자체는 `media/`에 있다.
+ */
 @Serializable
 data class PhotoRecord(val path: String, val sha256: String?, val size: Long?)
 
@@ -27,7 +33,8 @@ data class ImportedPhoto(val media: Media, val record: PhotoRecord) {
 
 /**
  * 옛 앱 사진을 `media/<sha256>.<ext>`로 한 번만 복사한다(contracts/legacy-mapping.md "사진", research R8).
- * 원본(캐시 사진)은 읽기만 한다. 임시 이름으로 쓰고 해시를 다시 잰 뒤 이름을 바꾼다.
+ * 원본(캐시 사진)은 읽기만 한다.
+ * 임시 이름으로 쓰고 해시를 다시 잰 뒤 이름을 바꾼다.
  * 같은 해시가 이미 있으면 복사하지 않는다(같은 파일 두 번, 다시 시도).
  * 이전이 실패해도 `media/`의 사본은 지우지 않는다.
  */
@@ -41,7 +48,10 @@ class MediaImporter(
     fun import(entryId: String, fragments: List<String>): List<ImportedPhoto> =
         fragments.mapIndexed { order, fragment -> importOne(entryId, order, fragment) }
 
-    /** 조각 하나. 찾지 못하거나 읽다 실패하면 `missing` 줄이다. */
+    /**
+     * 조각 하나.
+     * 찾지 못하거나 읽다 실패하면 `missing` 줄이다.
+     */
     fun importOne(entryId: String, sortOrder: Int, fragment: String): ImportedPhoto {
         val now = clock.now()
         val copied = PhotoPaths.candidates(fragment).firstNotNullOfOrNull { candidate ->

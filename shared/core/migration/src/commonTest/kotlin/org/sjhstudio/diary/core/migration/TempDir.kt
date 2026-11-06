@@ -4,7 +4,10 @@ import kotlin.random.Random
 import okio.FileSystem
 import okio.Path
 
-/** 시험마다 새 임시 폴더. 끝나면 지운다. */
+/**
+ * 시험마다 새 임시 폴더.
+ * 끝나면 지운다.
+ */
 class TempDir : AutoCloseable {
     val fs: FileSystem = FileSystem.SYSTEM
     val root: Path = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "diary-migration-${Random.nextLong().toULong()}"

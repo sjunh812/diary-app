@@ -20,7 +20,9 @@ private enum class SettingsStep { Main, ConfirmToDisable, ConfirmToChange, NewPi
 
 /**
  * 잠금 설정과 그 안의 비밀번호 화면(contracts/lock.md).
- * 켜기: 새 비밀번호 두 번. 끄기: 지금 비밀번호. 바꾸기: 지금 비밀번호 → 새 비밀번호 두 번.
+ * 켜기: 새 비밀번호 두 번.
+ * 끄기: 지금 비밀번호.
+ * 바꾸기: 지금 비밀번호 → 새 비밀번호 두 번.
  * 지금 비밀번호를 잊어버렸으면 앱 잠금 화면의 "비밀번호를 잊어버렸어요"로 다시 정한다.
  */
 @OptIn(ExperimentalComposeUiApi::class)

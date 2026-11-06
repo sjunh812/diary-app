@@ -29,7 +29,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 상단 바 오른쪽 글자 동작(저장 같은). 채운 버튼이 아니라 글자 버튼이다. */
+/**
+ * 상단 바 오른쪽 글자 동작(저장 같은).
+ * 채운 버튼이 아니라 글자 버튼이다.
+ */
 class DiaryTopBarAction(val label: String, val enabled: Boolean = true, val danger: Boolean = false, val onClick: () -> Unit)
 
 /**

@@ -12,7 +12,10 @@ import org.sjhstudio.diary.core.database.SyncBaseEntity
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.TRASH_KEEP_DAYS
 
-/** 합치기 계획. 미리보기 숫자는 이 값이고, 확인하면 같은 값대로 쓴다. */
+/**
+ * 합치기 계획.
+ * 미리보기 숫자는 이 값이고, 확인하면 같은 값대로 쓴다.
+ */
 data class MergePlan(val items: List<Pair<MergeEntry, MergeAction>>, val local: Map<String, MergeEntry>) {
     fun count(action: MergeAction): Int = items.count { it.second == action }
 }
@@ -20,7 +23,10 @@ data class MergePlan(val items: List<Pair<MergeEntry, MergeAction>>, val local: 
 /** 합친 결과 숫자. */
 data class MergeCounts(val added: Int, val updated: Int, val keptBoth: Int)
 
-/** 합치기를 계획하고 한 트랜잭션으로 쓴다. 중간에 실패하면 아무것도 바뀌지 않는다(contracts/merge-rules.md). */
+/**
+ * 합치기를 계획하고 한 트랜잭션으로 쓴다.
+ * 중간에 실패하면 아무것도 바뀌지 않는다(contracts/merge-rules.md).
+ */
 @OptIn(ExperimentalUuidApi::class)
 class MergeApplier(
     private val db: DiaryDatabase,
@@ -52,7 +58,8 @@ class MergeApplier(
         val entries = db.entryDao()
         val media = db.mediaDao()
         val now = clock.now().toEpochMilliseconds()
-        // 다른 기기에서 이전한 일기면 같은 옛 번호가 다른 일기다. 번호는 표시에 쓰지 않으니 겹치면 비운다.
+        // 다른 기기에서 이전한 일기면 같은 옛 번호가 다른 일기다.
+        // 번호는 표시에 쓰지 않으니 겹치면 비운다.
         val taken = plan.local.values.mapNotNull { row -> row.entry.legacyId?.let { it to row.entry.id } }.toMap(HashMap())
         db.withWriteTransaction {
             for ((item, action) in plan.items) {
@@ -92,7 +99,10 @@ class MergeApplier(
         return MergeCounts(plan.count(MergeAction.ADD), plan.count(MergeAction.REPLACE), plan.count(MergeAction.KEEP_BOTH))
     }
 
-    /** 사진 파일이 이 기기에 있으면 바로 쓰고, 없으면 받을 때까지 대기다. 찾을 수 없던 줄은 그대로 둔다. */
+    /**
+     * 사진 파일이 이 기기에 있으면 바로 쓰고, 없으면 받을 때까지 대기다.
+     * 찾을 수 없던 줄은 그대로 둔다.
+     */
     private fun MediaEntity.settled(): MediaEntity {
         if (status == MediaStatus.MISSING.id) return this
         return copy(status = (if (fileName?.let(fileExists) == true) MediaStatus.NORMAL else MediaStatus.PENDING).id)

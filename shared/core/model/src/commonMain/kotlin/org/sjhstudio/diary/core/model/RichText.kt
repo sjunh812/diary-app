@@ -1,6 +1,9 @@
 package org.sjhstudio.diary.core.model
 
-/** 글자색 팔레트(contracts/rich-text-html.md). [hex]는 저장 값이고 그릴 때는 테마 토큰을 쓴다. */
+/**
+ * 글자색 팔레트(contracts/rich-text-html.md).
+ * [hex]는 저장 값이고 그릴 때는 테마 토큰을 쓴다.
+ */
 enum class InkColor(val hex: String) {
     GRAY("#6b7280"),
     RED("#b91c1c"),
@@ -41,14 +44,20 @@ sealed interface RichStyle {
 /** [start]부터 [end] 앞까지의 서식. */
 data class RichSpan(val start: Int, val end: Int, val style: RichStyle)
 
-/** 본문을 그리려고 푼 값. [text]는 서식 없는 글과 같다. 일기 내용이라 [toString]에 담지 않는다. */
+/**
+ * 본문을 그리려고 푼 값.
+ * [text]는 서식 없는 글과 같다.
+ * 일기 내용이라 [toString]에 담지 않는다.
+ */
 data class RichText(val text: String, val spans: List<RichSpan>) {
     override fun toString(): String = "RichText"
 }
 
 /**
- * 정리된 본문 HTML을 글과 서식으로 푼다. 줄바꿈 규칙은 서식 없는 글(contracts/rich-text-html.md)과 같다.
- * 모르는 태그는 글만 남긴다. 그리는 쪽은 이 값만 쓰고 HTML을 직접 다루지 않는다.
+ * 정리된 본문 HTML을 글과 서식으로 푼다.
+ * 줄바꿈 규칙은 서식 없는 글(contracts/rich-text-html.md)과 같다.
+ * 모르는 태그는 글만 남긴다.
+ * 그리는 쪽은 이 값만 쓰고 HTML을 직접 다루지 않는다.
  */
 fun parseRichText(html: String): RichText {
     val out = StringBuilder(html.length)
@@ -135,7 +144,10 @@ private fun spanStyles(tag: String): List<RichStyle> {
     return styles
 }
 
-/** `&...;`를 풀어 (글자, 다음 위치)를 돌려준다. 모르는 엔티티면 null이다. */
+/**
+ * `&...;`를 풀어 (글자, 다음 위치)를 돌려준다.
+ * 모르는 엔티티면 null이다.
+ */
 fun decodeHtmlEntity(html: String, start: Int): Pair<String, Int>? {
     val semi = html.indexOf(';', start)
     if (semi < 0 || semi - start > 12) return null

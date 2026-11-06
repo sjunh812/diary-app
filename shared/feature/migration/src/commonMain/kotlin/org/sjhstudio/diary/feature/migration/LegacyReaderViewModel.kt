@@ -12,7 +12,10 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.migration.LegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyEntryView
 
-/** [failed]면 쪽을 읽지 못한 것이다. 읽을 일기가 없는 빈 목록과 구별해 다시 시도를 보인다. */
+/**
+ * [failed]면 쪽을 읽지 못한 것이다.
+ * 읽을 일기가 없는 빈 목록과 구별해 다시 시도를 보인다.
+ */
 data class LegacyReaderState(
     val entries: List<LegacyEntryView> = emptyList(),
     val loading: Boolean = true,
@@ -20,12 +23,19 @@ data class LegacyReaderState(
     val failed: Boolean = false
 )
 
-/** 예전 일기 보기(M4). 사본을 일기 날짜 최근 순으로 60편씩 더 읽는다. 고치기·지우기는 없다. */
+/**
+ * 예전 일기 보기(M4).
+ * 사본을 일기 날짜 최근 순으로 60편씩 더 읽는다.
+ * 수정·삭제는 없다.
+ */
 class LegacyReaderViewModel(private val archive: LegacyArchive) : ViewModel() {
     private val _state = MutableStateFlow(LegacyReaderState())
     val state: StateFlow<LegacyReaderState> = _state.asStateFlow()
 
-    /** 읽는 중인 쪽. 끝나기 전에는 다음 쪽을 부르지 않는다(같은 쪽이 두 번 붙지 않게). */
+    /**
+     * 읽는 중인 쪽.
+     * 끝나기 전에는 다음 쪽을 부르지 않는다(같은 쪽이 두 번 붙지 않게).
+     */
     private var loading: Job? = null
 
     init {

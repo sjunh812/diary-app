@@ -103,7 +103,8 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
                 scope.launch {
                     val today = currentDate()
                     val fileName = getString(Res.string.support_file_name, exportDateStamp(today))
-                    // 사용자가 "첨부해서 문의"를 고를 때만 만든다. 하루가 지나면 이전 후속 작업이 지운다(FR-010a).
+                    // 사용자가 "첨부해서 문의"를 고를 때만 만든다.
+                    // 하루가 지나면 이전 후속 작업이 지운다(FR-010a).
                     val file = withContext(Dispatchers.IO) { runCatching { bundle.create(fileName) }.getOrNull() }
                     if (file == null) {
                         onMessage.show(getString(Res.string.support_failed))

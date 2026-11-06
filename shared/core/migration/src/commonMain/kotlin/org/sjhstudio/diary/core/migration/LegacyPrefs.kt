@@ -28,7 +28,10 @@ object LegacyPrefs {
         return out
     }
 
-    /** 사본에 쓸 글. `password` 줄만 빼고 나머지는 한 글자도 바꾸지 않는다. */
+    /**
+     * 사본에 쓸 글.
+     * `password` 줄만 빼고 나머지는 한 글자도 바꾸지 않는다.
+     */
     fun withoutPassword(xml: String): String = PASSWORD_LINE.replace(xml, "")
 
     private fun unescape(text: String): String = ENTITY.replace(text) { m ->
@@ -59,7 +62,10 @@ object LegacyPrefs {
     private val SET_ITEM = Regex("""<string>(.*?)</string>""", RegexOption.DOT_MATCHES_ALL)
     private val ENTITY = Regex("""&(#x[0-9a-fA-F]+|#[0-9]+|amp|lt|gt|quot|apos);""")
 
-    /** 비밀번호 줄. 앞의 들여쓰기와 뒤의 줄바꿈까지 함께 뺀다. */
+    /**
+     * 비밀번호 줄.
+     * 앞의 들여쓰기와 뒤의 줄바꿈까지 함께 뺀다.
+     */
     private val PASSWORD_LINE =
         Regex("""[ \t]*<string\s+name="password"\s*(?:/>|>.*?</string>)[ \t]*\r?\n?""", RegexOption.DOT_MATCHES_ALL)
 }

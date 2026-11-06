@@ -12,7 +12,10 @@ import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
 
-/** 개발자 모드에서 고른 요금제. 개발 빌드에만 있고, 앱을 다시 켜도 남는다. */
+/**
+ * 개발자 모드에서 고른 요금제.
+ * 개발 빌드에만 있고, 앱을 다시 켜도 남는다.
+ */
 class DevPlanRepository(context: Context) : PlanRepository {
     private val prefs = context.getSharedPreferences("dev_mode", Context.MODE_PRIVATE)
     private val chosen = MutableStateFlow(prefs.getString(KEY, null)?.let(Plan::valueOf) ?: Plan.FREE)
@@ -29,7 +32,10 @@ class DevPlanRepository(context: Context) : PlanRepository {
     }
 }
 
-/** 개발자 모드의 가짜 결제. 스토어 없이 구매 흐름을 끝까지 돌아 본다. */
+/**
+ * 개발자 모드의 가짜 결제.
+ * 스토어 없이 구매 흐름을 끝까지 돌아 본다.
+ */
 class FakePurchases(private val plans: DevPlanRepository) : PurchaseRepository {
     override val manageUrl: String = "https://play.google.com/store/account/subscriptions"
 

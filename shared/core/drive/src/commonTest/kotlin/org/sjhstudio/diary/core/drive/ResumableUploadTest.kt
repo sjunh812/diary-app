@@ -38,7 +38,8 @@ class ResumableUploadTest {
                 engine {
                     addHandler { request ->
                         request.headers[HttpHeaders.ContentRange]?.let(ranges::add)
-                        // 실제 엔진처럼 본문을 끝까지 읽는다. 파일을 읽지 못하면 여기서 터진다.
+                        // 실제 엔진처럼 본문을 끝까지 읽는다.
+                        // 파일을 읽지 못하면 여기서 터진다.
                         request.body.toByteArray()
                         val (status, headers) = handler(count++)
                         val body = if (status.value in 200..299) fileJson else """{"error":{"errors":[{"reason":"backendError"}]}}"""

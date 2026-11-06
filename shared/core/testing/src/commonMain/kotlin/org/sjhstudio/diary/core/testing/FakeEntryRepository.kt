@@ -12,7 +12,11 @@ import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.SearchFilter
 
-/** 화면 시험용. [moods]에 넣은 날에 일기가 있는 것으로 보인다. 기본은 일기가 하나도 없다. */
+/**
+ * 화면 시험용.
+ * [moods]에 넣은 날에 일기가 있는 것으로 보인다.
+ * 기본은 일기가 하나도 없다.
+ */
 class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap()) : EntryRepository {
     override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = flowOf(PagingData.empty())
 

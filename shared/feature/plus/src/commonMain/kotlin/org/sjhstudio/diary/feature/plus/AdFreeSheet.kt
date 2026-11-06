@@ -29,7 +29,12 @@ import org.sjhstudio.diary.feature.plus.resources.adfree_price
 import org.sjhstudio.diary.feature.plus.resources.adfree_title
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 
-/** 광고만 없애는 시트(Figma P2). 광고의 ×가 연다. 온 화면은 그대로다. [onDayOff]는 영상을 보고 하루만 없애는 길이다. */
+/**
+ * 광고만 없애는 시트(Figma P2).
+ * 광고의 ×가 연다.
+ * 온 화면은 그대로다.
+ * [onDayOff]는 영상을 보고 하루만 없애는 길이다.
+ */
 @Composable
 fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
     val viewModel = koinViewModel<PlusViewModel>()

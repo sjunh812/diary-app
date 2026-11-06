@@ -41,7 +41,10 @@ class ThumbnailRepositoryTest {
     @AfterTest
     fun cleanUp() = fs.deleteRecursively(root)
 
-    /** 처음에만 만들고 다음부터는 있는 것을 쓴다. 이름은 원본 해시다. */
+    /**
+     * 처음에만 만들고 다음부터는 있는 것을 쓴다.
+     * 이름은 원본 해시다.
+     */
     @Test
     fun made_once_then_reused() = runTest(dispatcher) {
         val repo = repository()

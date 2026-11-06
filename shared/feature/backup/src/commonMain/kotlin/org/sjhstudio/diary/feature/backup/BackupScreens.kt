@@ -142,7 +142,8 @@ fun BackupSettingsRoute(
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
     val access = rememberNotificationAccess()
     val running = status.running != null
-    // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 묻는다. 거절해도 백업은 그대로 돈다.
+    // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 묻는다.
+    // 거절해도 백업은 그대로 돈다.
     LaunchedEffect(running) { if (running) access.request {} }
     BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
         viewModel.backUpNow()
@@ -157,7 +158,10 @@ fun BackupSettingsRoute(
     }
 }
 
-/** Figma "B2 · 드라이브에 백업이 있어요". 연결한 뒤 드라이브에서 찾은 백업을 권한다. */
+/**
+ * Figma "B2 · 드라이브에 백업이 있어요".
+ * 연결한 뒤 드라이브에서 찾은 백업을 권한다.
+ */
 @Composable
 fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> Unit) {
     DiaryBottomSheet(onDismiss = onLater, title = stringResource(Res.string.restore_found_title)) {
@@ -253,7 +257,10 @@ internal fun BackupSettingsScreen(
     }
 }
 
-/** Figma "드라이브 공간이 모자라요 (B10)". 우리가 공간을 팔지 않고 정리할 곳만 알려 준다(FR-019). */
+/**
+ * Figma "드라이브 공간이 부족해요 (B10)".
+ * 우리가 공간을 팔지 않고 정리할 곳만 알려 준다(FR-019).
+ */
 @Composable
 private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Unit) {
     val colors = DiaryTheme.colors
@@ -383,7 +390,8 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                         )
                     }
                 )
-                // 올릴 양을 세기 전에는 막대를 그리지 않는다. 빈 막대는 멈춘 것처럼 보인다.
+                // 올릴 양을 세기 전에는 막대를 그리지 않는다.
+                // 빈 막대는 멈춘 것처럼 보인다.
                 if (running.bytesTotal > 0) DiaryProgressBar(running.bytesDone.toFloat() / running.bytesTotal, onSunken = true)
             }
         }
@@ -406,14 +414,16 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
 
         last != null -> DiaryStatusBox(DiaryIcons.ShieldCheck, last, stringResource(Res.string.backup_all_done))
 
-        // 첫 백업이 끊겨도 말없이 처음 화면으로 돌아가지 않는다. 올린 사진은 남아 있다.
+        // 첫 백업이 끊겨도 말없이 처음 화면으로 돌아가지 않는다.
+        // 올린 사진은 남아 있다.
         status.lastFailure != null -> DiaryStatusBox(
             DiaryIcons.CircleAlert,
             stringResource(Res.string.backup_interrupted_title),
             stringResource(Res.string.backup_interrupted_body)
         )
 
-        // 이 기기에서 백업한 적은 없어도 되살린 백업이 드라이브에 있다. 첫 백업이라고 말하면 틀린 말이 된다.
+        // 이 기기에서 백업한 적은 없어도 복원한 백업이 드라이브에 있다.
+        // 첫 백업이라고 말하면 틀린 말이 된다.
         else -> {
             val restored = status.restoredBackupAt
             DiaryStatusBox(
@@ -425,7 +435,10 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
     }
 }
 
-/** 되살린 백업을 말한다. 홈 상태 줄과 백업 화면이 같이 쓴다. */
+/**
+ * 복원한 백업을 말한다.
+ * 홈 상태 줄과 백업 화면이 같이 쓴다.
+ */
 @Composable
 internal fun restoredBackupText(at: Instant): String {
     val dates = rememberDiaryDateFormat()

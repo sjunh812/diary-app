@@ -7,7 +7,10 @@ package org.sjhstudio.diary.core.model
 enum class BodyTextSize(val id: String, val fontSizeSp: Int, val lineHeightSp: Int) {
     SMALL("small", 15, 24),
 
-    /** 기본값. 디자인 시스템의 `reading`과 같다. */
+    /**
+     * 기본값.
+     * 디자인 시스템의 `reading`과 같다.
+     */
     MEDIUM("medium", 17, 28),
     LARGE("large", 19, 30),
     XLARGE("xlarge", 21, 34),

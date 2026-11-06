@@ -13,7 +13,8 @@ import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.Pin
 
 /**
- * 비밀번호 정하기(L2) 상태. [again]이면 두 번째 입력이다.
+ * 비밀번호 정하기(L2) 상태.
+ * [again]이면 두 번째 입력이다.
  * [wrongCount]는 두 번 입력이 다를 때마다 는다(점이 흔들리는 신호).
  */
 data class PinSetupUiState(
@@ -72,7 +73,10 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
         _state.value = PinSetupUiState()
     }
 
-    /** 두 번째 입력에서 뒤로 가면 첫 입력부터 다시 한다. 첫 입력이었으면 false다. */
+    /**
+     * 두 번째 입력에서 뒤로 가면 첫 입력부터 다시 한다.
+     * 첫 입력이었으면 false다.
+     */
     fun back(): Boolean {
         if (!_state.value.again) return false
         clear()

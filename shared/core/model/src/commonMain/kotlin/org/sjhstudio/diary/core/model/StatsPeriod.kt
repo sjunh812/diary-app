@@ -9,7 +9,10 @@ import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
 
-/** 돌아보기 기간(FR-028). 이전·다음은 같은 종류로 한 칸씩이고 오늘이 든 기간 뒤로는 가지 않는다. */
+/**
+ * 돌아보기 기간(FR-028).
+ * 이전·다음은 같은 종류로 한 칸씩이고 오늘이 든 기간 뒤로는 가지 않는다.
+ */
 sealed interface StatsPeriod {
     /** 전체면 null이다. */
     val range: DateRange?

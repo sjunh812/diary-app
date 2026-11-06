@@ -1,6 +1,7 @@
 #!/bin/sh
 # 쓰는 도중 앱을 강제 종료해도 5초 전까지 쓴 글이 남는지 COUNT번 본다(스펙 002 SC-002).
-# 에뮬레이터에서만 돈다. 잠금이 없고 앱을 한 번 연 기기에 쓴다.
+# 에뮬레이터에서만 돈다.
+# 잠금이 없고 앱을 한 번 연 기기에 쓴다.
 #
 # ANDROID_SERIAL=emulator-5558 COUNT=100 WRITE_X=80 WRITE_Y=168 BODY_X=900 BODY_Y=400 \
 #   CONTINUE_TEXT="Keep writing" sh scripts/qa/kill-while-writing.sh
@@ -25,7 +26,8 @@ trap 'rm -rf "$WORK"' EXIT
 
 pause() { perl -e "select(undef,undef,undef,$1)"; }
 
-# 화면에서 글자를 찾아 가운데를 누른다. 없으면 실패를 돌려준다.
+# 화면에서 글자를 찾아 가운데를 누른다.
+# 없으면 실패를 돌려준다.
 tap_text() {
   adb shell uiautomator dump /sdcard/qa.xml >/dev/null 2>&1 || return 1
   adb shell cat /sdcard/qa.xml > "$WORK/ui.xml"
@@ -44,7 +46,8 @@ PY
   adb shell input tap $point
 }
 
-# 임시 저장본에 표시 글자가 있는지 DB 파일을 받아 본다. 일기 내용을 출력하지 않는다.
+# 임시 저장본에 표시 글자가 있는지 DB 파일을 받아 본다.
+# 일기 내용을 출력하지 않는다.
 has_mark() {
   rm -f "$WORK"/diary.db*
   adb exec-out run-as "$PACKAGE" cat databases/diary.db > "$WORK/diary.db"

@@ -8,7 +8,10 @@ import okio.Sink
 import okio.Source
 import okio.Timeout
 
-/** FileKit은 kotlinx-io, 백업 코드는 Okio를 쓴다. 파일을 통째로 메모리에 올리지 않고 흘려 보낸다. */
+/**
+ * FileKit은 kotlinx-io, 백업 코드는 Okio를 쓴다.
+ * 파일을 통째로 메모리에 올리지 않고 스트리밍으로 보낸다.
+ */
 internal class OkioSink(private val raw: RawSink) : Sink {
     override fun write(source: Buffer, byteCount: Long) {
         val chunk = kotlinx.io.Buffer()

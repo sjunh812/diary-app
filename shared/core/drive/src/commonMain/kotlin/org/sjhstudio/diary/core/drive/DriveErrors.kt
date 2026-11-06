@@ -4,7 +4,8 @@ import okio.IOException
 import org.sjhstudio.diary.core.model.BackupFailure
 
 /**
- * 드라이브 호출 실패. 메시지에 드라이브 응답 본문, 파일 이름, 경로를 넣지 않는다(FR-032).
+ * 드라이브 호출 실패.
+ * 메시지에 드라이브 응답 본문, 파일 이름, 경로를 넣지 않는다(FR-032).
  * [retryable]이면 잠시 뒤 다시 해 볼 만하다.
  */
 open class DriveException(val kind: BackupFailure, val retryable: Boolean = false, val status: Int = 0) :
@@ -13,11 +14,15 @@ open class DriveException(val kind: BackupFailure, val retryable: Boolean = fals
 /** 파일이나 폴더가 없어졌다. */
 class DriveNotFound : DriveException(BackupFailure.DRIVE_ERROR, status = 404)
 
-/** 토큰이 거절됐다. 새 토큰으로 한 번 다시 한다. */
+/**
+ * 토큰이 거절됐다.
+ * 새 토큰으로 한 번 다시 한다.
+ */
 class DriveUnauthorized : DriveException(BackupFailure.AUTH, status = 401)
 
 /**
- * 이 기기의 파일을 읽거나 쓰지 못했다. 네트워크 탓이 아니니 다시 해도 소용없고 오프라인이라고 말하지 않는다.
+ * 이 기기의 파일을 읽거나 쓰지 못했다.
+ * 네트워크 탓이 아니니 다시 해도 소용없고 오프라인이라고 말하지 않는다.
  * 메시지에 경로를 넣지 않는다(FR-032).
  */
 class DriveLocalFileFailure : IOException("local file failure")

@@ -18,7 +18,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * Plus로 가는 입구(`docs/design.md` 초대 카드). 카드 전체를 누른다.
+ * Plus로 가는 입구(`docs/design.md` 초대 카드).
+ * 카드 전체를 누른다.
  * 바탕 selected 40%(글이 묻히지 않게 편지 바탕과 같은 농도로 둔다) · 모서리 16 · 안쪽 20 · 제목 bodyStrong · 설명 caption · 동작 captionStrong accentText.
  */
 @Composable

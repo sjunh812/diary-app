@@ -79,8 +79,10 @@ import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
 
 /**
- * 일기 상세(Figma "일기 상세 (S3)"). 날짜, 기분·시각·날씨·장소 한 줄, 사진, 본문 순서다.
- * 공유는 서식 없는 글이다(FR-019). 넓은 화면의 오른쪽 칸에서는 [onBack]이 null이다.
+ * 일기 상세(Figma "일기 상세 (S3)").
+ * 날짜, 기분·시각·날씨·장소 한 줄, 사진, 본문 순서다.
+ * 공유는 서식 없는 글이다(FR-019).
+ * 넓은 화면의 오른쪽 칸에서는 [onBack]이 null이다.
  */
 @Composable
 fun EntryDetailRoute(
@@ -150,7 +152,10 @@ fun EntryDetailRoute(
     }
 }
 
-/** 삭제했거나 휴지통으로 옮겨 더 없는 일기. 알림이나 위젯으로 들어오면 만날 수 있다. */
+/**
+ * 삭제했거나 휴지통으로 옮겨 더 없는 일기.
+ * 알림이나 위젯으로 들어오면 만날 수 있다.
+ */
 @Composable
 internal fun EntryMissing() {
     DiaryEmptyArea {
@@ -185,7 +190,8 @@ internal fun Body(
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
         BasicText(dates.dayWithWeekday(entry.date), style = DiaryTheme.typography.title1.copy(color = colors.textPrimary))
-        // 아이콘과 글자는 한 묶음으로 붙이고 묶음 사이를 띄운다. 긴 장소 이름은 다음 줄로 내려가고 두 줄에서 말줄임한다.
+        // 아이콘과 글자는 한 묶음으로 붙이고 묶음 사이를 띄운다.
+        // 긴 장소 이름은 다음 줄로 내려가고 두 줄에서 말줄임한다.
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1),

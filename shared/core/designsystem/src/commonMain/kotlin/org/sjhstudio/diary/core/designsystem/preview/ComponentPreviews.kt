@@ -31,11 +31,16 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-// 디자인 시스템 토큰과 컴포넌트 프리뷰. 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같다.
+// 디자인 시스템 토큰과 컴포넌트 프리뷰.
+// 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같다.
 // 견본 글은 Figma 화면과 같은 지어낸 글이고 화면 문구가 아니다(문구는 각 기능의 문자열 리소스).
 // 한국어를 먼저 보고, 라이트와 다크를 나란히 둔다.
 
-/** 프리뷰 바탕. 폰 폭 390에 화면 바탕색을 깐다. 다른 모듈의 프리뷰도 쓴다. */
+/**
+ * 프리뷰 바탕.
+ * 폰 폭 390에 화면 바탕색을 깐다.
+ * 다른 모듈의 프리뷰도 쓴다.
+ */
 @Composable
 fun PreviewCanvas(dark: Boolean, content: @Composable () -> Unit) {
     DiaryTheme(darkTheme = dark) {

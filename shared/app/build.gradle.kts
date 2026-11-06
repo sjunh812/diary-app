@@ -65,7 +65,8 @@ kotlin {
             implementation(libs.koin.android)
             // 자동 백업(AndroidBackupScheduler)
             implementation(libs.androidx.work.runtime)
-            // 광고(AdMobPlayer, NativeAdCard). R1은 안드로이드만 낸다.
+            // 광고(AdMobPlayer, NativeAdCard).
+            // R1은 안드로이드만 낸다.
             implementation(libs.play.services.ads)
             // 사용 통계와 비정상 종료 보고(FirebaseTelemetrySink, research R21)
             implementation(project.dependencies.platform(libs.firebase.bom))

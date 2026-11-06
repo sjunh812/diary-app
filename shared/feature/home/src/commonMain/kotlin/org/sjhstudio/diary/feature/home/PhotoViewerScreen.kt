@@ -54,7 +54,11 @@ import org.sjhstudio.diary.feature.home.resources.detail_photo_page
 
 private const val MAX_ZOOM = 4f
 
-/** 사진 크게 보기(Figma "S3-a · 사진 크게"). 바탕은 사진을 위해 테마와 상관없이 검다. 좌우로 넘기고 두 손가락으로 키운다(FR-020). */
+/**
+ * 사진 크게 보기(Figma "S3-a · 사진 크게").
+ * 바탕은 사진을 위해 테마와 상관없이 검다.
+ * 좌우로 넘기고 두 손가락으로 키운다(FR-020).
+ */
 @Composable
 fun PhotoViewerRoute(entryId: String, index: Int, onClose: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<EntryDetailViewModel>(key = entryId) { parametersOf(entryId) }
@@ -62,7 +66,8 @@ fun PhotoViewerRoute(entryId: String, index: Int, onClose: () -> Unit, modifier:
     val photos = (state as? EntryDetailState.Ready)?.detail?.photos.orEmpty()
     val colors = DiaryTheme.colors
     Box(modifier.fillMaxSize().background(colors.photoBackdrop)) {
-        // 사진이 없어도 닫을 수 있어야 한다. 일기를 읽는 동안에는 닫기만 둔다.
+        // 사진이 없어도 닫을 수 있어야 한다.
+        // 일기를 읽는 동안에는 닫기만 둔다.
         if (photos.isEmpty()) {
             ViewerTop(onClose)
             if (state != EntryDetailState.Loading) PhotoNotice(pending = false, Modifier.align(Alignment.Center))
@@ -87,7 +92,11 @@ fun PhotoViewerRoute(entryId: String, index: Int, onClose: () -> Unit, modifier:
     }
 }
 
-/** 위 줄: 닫기와 몇 번째 사진인지. 바탕이 늘 검어서 누름 면은 흰색이다. `DiaryIconButton`의 글자색 면은 라이트 테마에서 보이지 않는다. */
+/**
+ * 위 줄: 닫기와 몇 번째 사진인지.
+ * 바탕이 늘 검어서 누름 면은 흰색이다.
+ * `DiaryIconButton`의 글자색 면은 라이트 테마에서 보이지 않는다.
+ */
 @Composable
 private fun ViewerTop(onClose: () -> Unit, page: String? = null) {
     val colors = DiaryTheme.colors
@@ -108,7 +117,10 @@ private fun ViewerTop(onClose: () -> Unit, page: String? = null) {
     }
 }
 
-/** 보여 줄 사진이 없을 때의 한마디. [pending]이면 다른 기기에 있는 사진이다. */
+/**
+ * 보여 줄 사진이 없을 때의 한마디.
+ * [pending]이면 다른 기기에 있는 사진이다.
+ */
 @Composable
 private fun PhotoNotice(pending: Boolean, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
@@ -121,7 +133,10 @@ private fun PhotoNotice(pending: Boolean, modifier: Modifier = Modifier) {
     }
 }
 
-/** 키우지 않았을 때는 손가락 하나를 넘기기에 넘긴다. 두 손가락이거나 이미 키웠을 때만 여기서 받는다. */
+/**
+ * 키우지 않았을 때는 손가락 하나를 넘기기에 넘긴다.
+ * 두 손가락이거나 이미 키웠을 때만 여기서 받는다.
+ */
 @Composable
 private fun ZoomablePhoto(photo: EntryPhoto) {
     var scale by remember { mutableFloatStateOf(1f) }

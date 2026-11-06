@@ -25,7 +25,10 @@ fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?) {
     KoinPlatform.getKoin().get<Startup>().start()
 }
 
-/** Swift의 Firebase 구현이 맞추는 모양. 설정 파일이 없는 빌드는 null을 넘긴다. */
+/**
+ * Swift의 Firebase 구현이 맞추는 모양.
+ * 설정 파일이 없는 빌드는 null을 넘긴다.
+ */
 interface FirebaseReporting {
     fun log(event: String, params: Map<String, String>)
 
@@ -45,7 +48,10 @@ private fun FirebaseReporting.asSink(): TelemetrySink {
     }
 }
 
-/** Swift의 GoogleSignIn 구현이 맞추는 모양. 공유 프레임워크에 그대로 나간다(스펙 003 research R2). */
+/**
+ * Swift의 GoogleSignIn 구현이 맞추는 모양.
+ * 공유 프레임워크에 그대로 나간다(스펙 003 research R2).
+ */
 interface GoogleDrive {
     fun connect(hint: String?, done: (key: String?, email: String?, error: String?) -> Unit)
 
@@ -65,12 +71,18 @@ private fun GoogleDrive.asBridge(): IosDriveBridge {
     }
 }
 
-/** Swift가 건 구글 드라이브 다리. Koin이 켜지기 전에 받아 둔다. */
+/**
+ * Swift가 건 구글 드라이브 다리.
+ * Koin이 켜지기 전에 받아 둔다.
+ */
 internal object IosDrive {
     var bridge: IosDriveBridge? = null
 }
 
-/** 앱이 비활성일 때 화면을 덮을지(iosApp `PrivacyCover`, FR-018). 잠금이 켜져 있을 때만 덮는다. */
+/**
+ * 앱이 비활성일 때 화면을 덮을지(iosApp `PrivacyCover`, FR-018).
+ * 잠금이 켜져 있을 때만 덮는다.
+ */
 fun isPrivacyCoverNeeded(): Boolean = KoinPlatform.getKoin().get<LockController>().lockEnabled
 
 /** Swift가 시스템의 남은 시간이 끝날 때 멈출 수 있게 돌려준다. */
@@ -78,7 +90,10 @@ class BackupTaskHandle internal constructor(private val job: Job) {
     fun cancel() = job.cancel()
 }
 
-/** 백그라운드 작업에서 부른다. 때가 됐으면 백업하고, 끝나거나 멈추면 [done]을 부른다(research R15). */
+/**
+ * 백그라운드 작업에서 부른다.
+ * 때가 됐으면 백업하고, 끝나거나 멈추면 [done]을 부른다(research R15).
+ */
 fun runDailyBackup(done: () -> Unit): BackupTaskHandle {
     val koin = KoinPlatform.getKoin()
     val job = koin.get<CoroutineScope>(APP_SCOPE).launch { koin.get<BackupRepository>().runIfDue() }

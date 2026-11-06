@@ -9,7 +9,7 @@
 | `Home` | 홈 목록 (S1) | 없음 |
 | `EntryDetail(entryId)` | 상세 (S3) | 일기 ID |
 | `PhotoViewer(entryId, index)` | 사진 크게 (S3-a) | |
-| `Write(target)` | 쓰기·고치기 (S2) | `New(date?)` 또는 `Edit(entryId)` |
+| `Write(target)` | 쓰기·수정 (S2) | `New(date?)` 또는 `Edit(entryId)` |
 | `Calendar(yearMonth?)` | 달력 (S4) | |
 | `Search(filter?)` | 검색 (S1-a) | 통계에서 오면 조건이 채워져 있다 |
 | `Insight` | 기분 통계 (S5) | |

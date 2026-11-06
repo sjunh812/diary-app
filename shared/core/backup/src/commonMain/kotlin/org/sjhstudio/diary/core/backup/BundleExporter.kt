@@ -47,7 +47,10 @@ class BundleExporter(
         (pragma("page_count") - pragma("freelist_count")) * pragma("page_size")
     }
 
-    /** 글을 먼저 담고 사진을 잇는다. 쓰다 멈추면 저장한 곳의 파일은 쓸 수 없고 기기의 기록은 그대로다. */
+    /**
+     * 글을 먼저 담고 사진을 잇는다.
+     * 쓰다 멈추면 저장한 곳의 파일은 쓸 수 없고 기기의 기록은 그대로다.
+     */
     suspend fun write(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }) = withContext(Dispatchers.IO) {
         val dir = workDir / OUTGOING
         fileSystem.deleteRecursively(dir)

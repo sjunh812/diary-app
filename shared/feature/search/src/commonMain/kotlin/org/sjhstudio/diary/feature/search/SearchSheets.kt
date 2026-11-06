@@ -50,7 +50,10 @@ internal fun periodLabel(period: SearchPeriod): String = stringResource(
     }
 )
 
-/** 여러 개를 고를 수 있다. 고를 때마다 결과가 바로 바뀐다. */
+/**
+ * 여러 개를 고를 수 있다.
+ * 고를 때마다 결과가 바로 바뀐다.
+ */
 @Composable
 internal fun MoodSheet(selected: Set<Mood>, onChange: (Set<Mood>) -> Unit, onDismiss: () -> Unit) {
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_chip_mood)) {
@@ -97,7 +100,10 @@ internal fun PeriodSheet(selected: SearchPeriod?, onPick: (SearchPeriod?) -> Uni
     }
 }
 
-/** 고르기 목록 줄(`docs/design.md` 고르기 목록). 글은 시트 안쪽 선에 맞추고 누름 면만 글 양옆으로 12 나온다. */
+/**
+ * 고르기 목록 줄(`docs/design.md` 고르기 목록).
+ * 글은 시트 안쪽 선에 맞추고 누름 면만 글 양옆으로 12 나온다.
+ */
 @Composable
 private fun PeriodRow(label: String, selected: Boolean, onClick: () -> Unit) {
     CompositionLocalProvider(LocalScreenGutter provides DiarySpacing.x3) {
@@ -116,7 +122,10 @@ private fun PeriodRow(label: String, selected: Boolean, onClick: () -> Unit) {
     }
 }
 
-/** 시작 날과 끝 날을 차례로 누른다. 끝을 시작보다 앞에 누르면 둘을 바꾼다. */
+/**
+ * 시작 날과 끝 날을 차례로 누른다.
+ * 끝을 시작보다 앞에 누르면 둘을 바꾼다.
+ */
 @Composable
 internal fun RangeSheet(initial: DateRange?, today: LocalDate, onDone: (DateRange) -> Unit, onDismiss: () -> Unit) {
     var month by remember { mutableStateOf<YearMonth>((initial?.end ?: today).yearMonth) }

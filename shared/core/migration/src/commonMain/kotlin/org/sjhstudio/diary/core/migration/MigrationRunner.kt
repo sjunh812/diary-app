@@ -37,7 +37,10 @@ import org.sjhstudio.diary.core.model.MigrationState
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.currentDate
 
-/** 이전이 읽고 쓰는 자리. Android가 `AppFiles`와 `Context`로 채운다. */
+/**
+ * 이전이 읽고 쓰는 자리.
+ * Android가 `AppFiles`와 `Context`로 채운다.
+ */
 data class MigrationPaths(
     val legacy: LegacyFiles,
     val snapshotDir: Path,
@@ -50,7 +53,10 @@ data class MigrationPaths(
     val photosJson: Path get() = snapshotDir / "photos.json"
 }
 
-/** 진행 화면이 0.25초마다 읽는 값. 일기 내용과 사진은 없다. */
+/**
+ * 진행 화면이 0.25초마다 읽는 값.
+ * 일기 내용과 사진은 없다.
+ */
 data class MigrationProgress(
     val step: MigrationStep,
     val entriesDone: Int = 0,
@@ -60,7 +66,10 @@ data class MigrationProgress(
 )
 
 sealed interface MigrationResult {
-    /** 원본이 없다(새로 설치). 상태 파일을 쓰지 않는다. */
+    /**
+     * 원본이 없다(새로 설치).
+     * 상태 파일을 쓰지 않는다.
+     */
     data object NoLegacy : MigrationResult
 
     /** 이미 `Done`·`Partial`이다. */
@@ -72,12 +81,15 @@ sealed interface MigrationResult {
     data class Failed(
         val step: MigrationStep,
         val kind: MigrationFailureKind,
-        /** 공간이 모자랄 때 더 있어야 하는 바이트(필요한 양 - 남은 양). */
+        /** 공간이 부족할 때 더 있어야 하는 바이트(필요한 양 - 남은 양). */
         val neededBytes: Long? = null
     ) : MigrationResult
 }
 
-/** 사용 통계로 보낼 이전 사건(contracts/migration-flow.md "보내도 되는 값"). 내용은 구간과 열거형뿐이다. */
+/**
+ * 사용 통계로 보낼 이전 사건(contracts/migration-flow.md "보내도 되는 값").
+ * 내용은 구간과 열거형뿐이다.
+ */
 interface MigrationEvents {
     fun started(entries: Int, photos: Int, attempt: Int) = Unit
 
@@ -92,12 +104,17 @@ interface MigrationEvents {
 /**
  * 1.7.x 기록을 새 DB로 옮긴다(contracts/migration-flow.md, research R5~R8).
  *
- * 원본은 고치거나 지우지 않는다. 사본을 만들고, 사본을 읽어 임시 DB에 쓰고, 줄마다 지문으로 검증한 뒤에야
- * 임시 DB를 `diary.db`로 이름만 바꾼다. 어느 단계에서 끊겨도 다음 시작에 처음부터 다시 한다.
+ * 원본은 고치거나 지우지 않는다.
+ * 사본을 만들고, 사본을 읽어 임시 DB에 쓰고, 줄마다 지문으로 검증한 뒤에야
+ * 임시 DB를 `diary.db`로 이름만 바꾼다.
+ * 어느 단계에서 끊겨도 다음 시작에 처음부터 다시 한다.
  *
- * 일기 몇 편이 문제여도 멈추지 않는다. 그 일기만 빼고 나머지를 옮겨 앱을 쓰게 하고, 뺀 일기는 결과에 알린 뒤
- * 앱이 업데이트되면 다시 읽는다(2026-11-04 사용자 결정). 사진 파일이 깨졌으면 일기는 두고 사진만 찾을 수 없는 사진이 된다.
- * 한 편도 옮기지 못할 때만 실패다. 실패하면 임시 DB만 지우고 사본과 옮긴 사진은 남긴다(헌법 I).
+ * 일기 몇 편이 문제여도 멈추지 않는다.
+ * 그 일기만 빼고 나머지를 옮겨 앱을 쓰게 하고, 뺀 일기는 결과에 알린 뒤
+ * 앱이 업데이트되면 다시 읽는다(2026-11-04 사용자 결정).
+ * 사진 파일이 깨졌으면 일기는 두고 사진만 찾을 수 없는 사진이 된다.
+ * 한 편도 옮기지 못할 때만 실패다.
+ * 실패하면 임시 DB만 지우고 사본과 옮긴 사진은 남긴다(헌법 I).
  */
 class MigrationRunner(
     private val fileSystem: FileSystem,
@@ -117,7 +134,8 @@ class MigrationRunner(
      */
     private val versionCode: Int = 0,
     /**
-     * 옮긴 사진의 썸네일을 만든다(research R9, FR-037). 실패해도 이전은 계속하고 수만 센다.
+     * 옮긴 사진의 썸네일을 만든다(research R9, FR-037).
+     * 실패해도 이전은 계속하고 수만 센다.
      * 앱은 `ThumbnailRepository.ensure`를 넘긴다.
      */
     private val makeThumbnail: (suspend (Path) -> Boolean)? = null,
@@ -147,7 +165,8 @@ class MigrationRunner(
         }
         if (!paths.legacy.exist(fileSystem)) return@withContext MigrationResult.NoLegacy
         if (previous.step == MigrationStep.COMMITTING && fileSystem.exists(paths.databasePath)) {
-            // 이름을 바꾼 뒤 끊겼다. 지문만 다시 보고 맞으면 끝낸다.
+            // 이름을 바꾼 뒤 끊겼다.
+            // 지문만 다시 보고 맞으면 끝낸다.
             val resumed = runCatching { finishAlreadyCommitted(previous) }.getOrNull()
             if (resumed != null) return@withContext resumed
             deleteDatabase(paths.databasePath)
@@ -215,7 +234,8 @@ class MigrationRunner(
 
             step = MigrationStep.COMMITTING
             writeStep(step, attempt, startedAt)
-            // 닫은 뒤 남는 빈 저널·잠금 파일을 치운다. 옮기는 것은 DB 파일 하나다.
+            // 닫은 뒤 남는 빈 저널·잠금 파일을 치운다.
+            // 옮기는 것은 DB 파일 하나다.
             for (leftover in listOf(
                 "diary-new.db-journal",
                 "diary-new.db.lck"
@@ -248,7 +268,10 @@ class MigrationRunner(
         }
     }
 
-    /** 사본을 `_id` 순으로 모두 읽는다. 열지 못하면 null. */
+    /**
+     * 사본을 `_id` 순으로 모두 읽는다.
+     * 열지 못하면 null.
+     */
     private fun readSnapshot(): Pair<List<LegacyNote>, LegacyReadSummary>? {
         val path = paths.snapshotDir / paths.legacy.noteDb.name
         if (!fileSystem.exists(path)) return emptyList<LegacyNote>() to LegacyReadSummary(0, 0)
@@ -296,7 +319,10 @@ class MigrationRunner(
         writePhotosJson(records)
     }
 
-    /** 묶음째 쓰고, 실패하면 한 편씩 써서 문제없는 일기는 살린다. 쓴 줄을 돌려준다. */
+    /**
+     * 묶음째 쓰고, 실패하면 한 편씩 써서 문제없는 일기는 살린다.
+     * 쓴 줄을 돌려준다.
+     */
     private suspend fun write(db: DiaryDatabase, rows: List<CopiedRow>): List<CopiedRow> {
         try {
             db.withWriteTransaction { insert(db, rows) }
@@ -322,7 +348,10 @@ class MigrationRunner(
         db.mediaDao().insertAll(rows.flatMap { row -> row.photos.map { it.media.asEntity() } })
     }
 
-    /** 썸네일을 최대 3개씩 나란히 만든다(contracts/migration-flow.md `Copying`). 못 만든 수를 돌려준다. */
+    /**
+     * 썸네일을 최대 3개씩 나란히 만든다(contracts/migration-flow.md `Copying`).
+     * 못 만든 수를 돌려준다.
+     */
     private suspend fun makeThumbnails(files: List<Path>): Int {
         val make = makeThumbnail ?: return 0
         val permits = Semaphore(THUMBNAIL_PARALLEL)
@@ -336,9 +365,11 @@ class MigrationRunner(
 
     /**
      * 사본을 다시 읽어 줄마다 원본 지문과 새 DB 지문을 견준다(research R6).
-     * 지문이 다른 일기는 새 DB에서 뺀다. 사본은 그대로라 앱이 업데이트되면 다시 읽는다.
+     * 지문이 다른 일기는 새 DB에서 뺀다.
+     * 사본은 그대로라 앱이 업데이트되면 다시 읽는다.
      * 사진 파일이 없거나 해시가 이름과 다르면 일기는 두고 그 사진만 찾을 수 없는 사진으로 바꾼다.
-     * 빠진 일기 수를 돌려준다. [only]가 있으면 그 레거시 번호만 본다(새로 쓴 일기가 있는 다시 읽기).
+     * 빠진 일기 수를 돌려준다.
+     * [only]가 있으면 그 레거시 번호만 본다(새로 쓴 일기가 있는 다시 읽기).
      */
     private suspend fun verify(db: DiaryDatabase, expectedRows: Int, only: Set<Int>? = null, counts: Counts? = null): Int {
         val photoHashes = readPhotosJson().associate { it.path to it.sha256 }
@@ -437,8 +468,10 @@ class MigrationRunner(
 
     /**
      * `Partial`인 기기에서 앱이 업데이트된 뒤 처음 한 번만 못 읽은 일기를 다시 읽는다(FR-011).
-     * 새 DB를 버리지 않고, 아직 `entry`에 없는 레거시 줄만 더한다. 그 사이 쓴 일기는 그대로다.
-     * 더한 줄 수를 돌려준다. 다시 읽을 때가 아니면 null.
+     * 새 DB를 버리지 않고, 아직 `entry`에 없는 레거시 줄만 더한다.
+     * 그 사이 쓴 일기는 그대로다.
+     * 더한 줄 수를 돌려준다.
+     * 다시 읽을 때가 아니면 null.
      */
     override suspend fun retryPartial(db: DiaryDatabase): Int? = withContext(io) {
         val state = store.readState()
@@ -484,8 +517,10 @@ class MigrationRunner(
     }
 
     /**
-     * 미뤄 둔 이전을 지금 일기 DB에 더한다. 그 사이 쓴 일기가 있어 임시 DB로 바꾸지 않고 없는 줄만 넣는다.
-     * 실패하면 상태를 그대로 둔다. 앱은 이미 쓰는 중이라 실패 화면으로 돌아가지 않는다.
+     * 미뤄 둔 이전을 지금 일기 DB에 더한다.
+     * 그 사이 쓴 일기가 있어 임시 DB로 바꾸지 않고 없는 줄만 넣는다.
+     * 실패하면 상태를 그대로 둔다.
+     * 앱은 이미 쓰는 중이라 실패 화면으로 돌아가지 않는다.
      */
     override suspend fun retryDeferred(db: DiaryDatabase, onlyAfterUpdate: Boolean): MigrationResult = withContext(io) {
         val state = store.readState()
@@ -548,7 +583,9 @@ class MigrationRunner(
 
     /**
      * 찾을 수 없는 사진 가운데 원래 경로를 아는 것을 하루 한 번 다시 찾는다(FR-011).
-     * 있으면 이전과 같은 방법으로 옮기고 `normal`로 바꾼다. 찾은 장 수를 돌려준다. 하루가 안 지났으면 null.
+     * 있으면 이전과 같은 방법으로 옮기고 `normal`로 바꾼다.
+     * 찾은 장 수를 돌려준다.
+     * 하루가 안 지났으면 null.
      */
     override suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = withContext(io) {
         val state = store.readState()
@@ -607,7 +644,8 @@ class MigrationRunner(
 
     /**
      * 사본에 있는 옛 설정 파일(비밀번호를 뺀 것)에서 옮긴 설정을 센다.
-     * 읽지 못하면 비워 둔다. 이 목록은 결과에 남길 뿐이라 이전을 막지 않는다.
+     * 읽지 못하면 비워 둔다.
+     * 이 목록은 결과에 남길 뿐이라 이전을 막지 않는다.
      */
     private fun migratedSettings(): List<MigratedSetting> = runCatching {
         fun read(name: String): Map<String, Any> {
@@ -675,7 +713,8 @@ class MigrationRunner(
     private fun writeStep(step: MigrationStep, attempt: Int, startedAt: Instant) {
         store.writeState(MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now()))
         _progress.value = _progress.value.copy(step = step)
-        // 상태를 적은 뒤에 알린다. 개발 빌드의 강제 종료 훅은 여기서 끊어 다시 시작을 시험한다(quickstart §3).
+        // 상태를 적은 뒤에 알린다.
+        // 개발 빌드의 강제 종료 훅은 여기서 끊어 다시 시작을 시험한다(quickstart §3).
         events.stepStarted(step)
     }
 
@@ -688,7 +727,8 @@ class MigrationRunner(
     }
 
     private fun fail(step: MigrationStep, kind: MigrationFailureKind, attempt: Int, neededBytes: Long? = null): MigrationResult.Failed {
-        // 임시 DB만 지운다. 사본(legacy-snapshot)과 옮긴 사진(media)은 남긴다.
+        // 임시 DB만 지운다.
+        // 사본(legacy-snapshot)과 옮긴 사진(media)은 남긴다.
         runCatching { deleteDatabase(paths.newDatabase) }
         store.writeState(
             MigrationState(step = MigrationStep.FAILED, attempt = attempt, updatedAt = clock.now(), failure = MigrationFailure(step, kind))
@@ -735,7 +775,8 @@ class MigrationRunner(
     private class CopiedRow(val mapped: MappedEntry, val photos: List<ImportedPhoto>)
 
     /**
-     * 옛 사진은 캐시에 있다. 공간이 빠듯해지면 OS가 복사하는 도중에도 캐시를 지운다(2026-11-05 1만 2천 편 시험에서 55장 유실).
+     * 옛 사진은 캐시에 있다.
+     * 공간이 빠듯해지면 OS가 복사하는 도중에도 캐시를 지운다(2026-11-05 1만 2천 편 시험에서 55장 유실).
      * 복사한 뒤에도 그 선 위에 남을 때만 시작하고, 아니면 사용자가 공간을 비우고 다시 하게 멈춘다.
      */
     private fun cacheGuard(photoBytes: Long): Long = if (photoBytes > 0) CACHE_GUARD_BYTES else 0
@@ -746,7 +787,10 @@ class MigrationRunner(
         /** 한 트랜잭션에 쓰는 줄 수(contracts/migration-flow.md Copying). */
         const val CHUNK = 200
 
-        /** 썸네일을 나란히 만드는 수. 큰 사진을 한꺼번에 풀어 메모리가 모자라지 않게 3으로 둔다(R9). */
+        /**
+         * 썸네일을 나란히 만드는 수.
+         * 큰 사진을 한꺼번에 풀어 메모리가 부족하지 않게 3으로 둔다(R9).
+         */
         const val THUMBNAIL_PARALLEL = 3
 
         /** 사진 한 장의 썸네일 자리(research R8). */

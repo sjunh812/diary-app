@@ -39,7 +39,10 @@ import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.TestClock
 
-/** 시험용 기기 하나. DB, 사진 폴더, 설정, 시계를 따로 갖고 드라이브만 다른 기기와 같이 쓴다. */
+/**
+ * 시험용 기기 하나.
+ * DB, 사진 폴더, 설정, 시계를 따로 갖고 드라이브만 다른 기기와 같이 쓴다.
+ */
 internal class TestPhone(
     val root: Path,
     val drive: FakeDrive,
@@ -57,7 +60,7 @@ internal class TestPhone(
     var zone: TimeZone = TimeZone.UTC
     var freeBytes = 1_000_000_000L
 
-    /** 복원이 되살린 설정. */
+    /** 복원이 복원한 설정. */
     val appliedSettings = mutableListOf<ManifestSettings>()
 
     /** 설정을 쓰다 실패하게 할 때 값을 넣는다. */
@@ -120,7 +123,10 @@ internal class TestPhone(
         )
     }
 
-    /** 일기 하나를 넣는다. 시각은 시계가 아니라 [updated]다. */
+    /**
+     * 일기 하나를 넣는다.
+     * 시각은 시계가 아니라 [updated]다.
+     */
     suspend fun write(
         id: String,
         updated: Long = 10,
@@ -149,7 +155,10 @@ internal class TestPhone(
     /** 받는 중 쓰던 임시 파일이 남았는지 본다. */
     fun partsLeft() = fs.listOrNull(work).orEmpty().filter { it.name.endsWith(".part") }
 
-    /** 드라이브에 파일 하나를 지어 올린다. 깨지거나 남이 만든 백업을 흉내 낸다. */
+    /**
+     * 드라이브에 파일 하나를 만들어 올린다.
+     * 깨지거나 남이 만든 백업을 흉내 낸다.
+     */
     suspend fun plant(name: String, bytes: ByteArray, props: Map<String, String>, parent: String? = null): DriveFile {
         fs.createDirectories(work)
         val path = work / "planted.tmp"
@@ -193,7 +202,10 @@ internal suspend fun until(check: suspend () -> Boolean) = withContext(Dispatche
     }
 }
 
-/** 사진을 [after]장 받은 뒤로는 네트워크가 끊긴 드라이브. 사진은 동시에 받으니 잠그고 센다. */
+/**
+ * 사진을 [after]장 받은 뒤로는 네트워크가 끊긴 드라이브.
+ * 사진은 동시에 받으니 잠그고 센다.
+ */
 internal class CutDrive(private val real: DriveApi, private val after: Int) : DriveApi by real {
     private val lock = Mutex()
     private var served = 0
@@ -205,7 +217,10 @@ internal class CutDrive(private val real: DriveApi, private val after: Int) : Dr
     }
 }
 
-/** 파일을 쓸 때 실패하는 기기. [jam]이 참인 경로에서 저장 공간이 없는 것처럼 군다. */
+/**
+ * 파일을 쓸 때 실패하는 기기.
+ * [jam]이 참인 경로에서 저장 공간이 없는 것처럼 군다.
+ */
 internal class JammedFiles(base: FileSystem, var jam: (Path) -> Boolean = { false }) : ForwardingFileSystem(base) {
     override fun sink(file: Path, mustCreate: Boolean): Sink {
         if (jam(file)) throw IOException("저장 공간이 없다")

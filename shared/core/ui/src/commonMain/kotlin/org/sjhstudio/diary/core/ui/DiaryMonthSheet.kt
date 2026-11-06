@@ -34,7 +34,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 연·월 고르기(Figma "S1 · 연·월 고르기"). 홈은 일기가 있는 달만, 달력은 넘길 수 있는 달만 [enabled]로 연다(FR-017).
+ * 연·월 고르기(Figma "S1 · 연·월 고르기").
+ * 홈은 일기가 있는 달만, 달력은 넘길 수 있는 달만 [enabled]로 연다(FR-017).
  * [hasYear]가 false인 해로는 넘어가지 않는다.
  */
 @Composable

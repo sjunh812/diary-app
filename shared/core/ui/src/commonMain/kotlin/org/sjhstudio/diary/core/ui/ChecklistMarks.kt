@@ -26,7 +26,8 @@ import org.sjhstudio.diary.core.ui.resources.checklist_uncheck
 private const val CORNER = 0.25f
 private val GAP = 4.dp
 
-// 둥근 칸은 글줄보다 안쪽으로 보여서 조금 내어 그린다. 그만큼 칸이 커지고 왼쪽 선은 그대로 맞아 보인다.
+// 둥근 칸은 글줄보다 안쪽으로 보여서 조금 내어 그린다.
+// 그만큼 칸이 커지고 왼쪽 선은 그대로 맞아 보인다.
 private val OUTDENT = 1.dp
 private const val CHECK_START_X = 0.26f
 private const val CHECK_START_Y = 0.52f
@@ -90,7 +91,8 @@ private fun DrawScope.drawCheck(topLeft: Offset, side: Float, color: Color) {
 }
 
 /**
- * 화면 낭독기로 체크를 바꾸는 동작들. 칸은 글자 위에 그린 그림이라 낭독기가 누를 수 없다.
+ * 화면 낭독기로 체크를 바꾸는 동작들.
+ * 칸은 글자 위에 그린 그림이라 낭독기가 누를 수 없다.
  * [onToggle]은 항목 번호를 받는다.
  */
 @Composable
@@ -104,10 +106,12 @@ fun checklistActions(text: String, onToggle: (ChecklistItem, Int) -> Unit): List
     }
 
 /**
- * [position]이 체크리스트 표시 위면 그 줄의 시작 자리를 돌려준다. 줄이 접힌 둘째 줄은 항목이 아니다.
+ * [position]이 체크리스트 표시 위면 그 줄의 시작 자리를 돌려준다.
+ * 줄이 접힌 둘째 줄은 항목이 아니다.
  * 읽기 화면은 글을 고칠 일이 없어 표시가 작아도 누르기 쉽게 [touch] 폭까지 받는다.
  * 쓰기 화면([editing])은 글자를 누르면 커서가 가야 하므로 글이 시작하는 자리까지만 받는다(Apple 메모, Notion과 같다).
- * [text]는 줄바꿈이 살아 있는 글이다. 에디터는 문단 사이를 칸으로 이어 그려서 따로 넘긴다.
+ * [text]는 줄바꿈이 살아 있는 글이다.
+ * 에디터는 문단 사이를 칸으로 이어 그려서 따로 넘긴다.
  */
 fun TextLayoutResult.checkLineAt(position: Offset, touch: Float, text: String = layoutInput.text.text, editing: Boolean = false): Int? {
     if (position.y < 0 || position.y > size.height) return null

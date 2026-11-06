@@ -26,10 +26,16 @@ import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_pen
 import org.sjhstudio.diary.feature.settings.resources.font_name_pretendard
 import org.sjhstudio.diary.feature.settings.resources.font_name_system
 
-/** 글꼴 목록 순서(Figma "글꼴 (G1)"). 시스템 글꼴이 맨 위다. */
+/**
+ * 글꼴 목록 순서(Figma "글꼴 (G1)").
+ * 시스템 글꼴이 맨 위다.
+ */
 internal val FONT_ORDER: List<DiaryFont> = listOf(DiaryFont.SYSTEM) + DiaryFont.entries.filter { it != DiaryFont.SYSTEM }
 
-/** 받는 글꼴의 크기(공식 배포 파일, `docs/design.md` 일기 본문 글꼴 10종). 받기 버튼에 보인다. */
+/**
+ * 받는 글꼴의 크기(공식 배포 파일, `docs/design.md` 일기 본문 글꼴 10종).
+ * 받기 버튼에 보인다.
+ */
 internal val FONT_DOWNLOAD_MB: Map<DiaryFont, Double> =
     mapOf(
         DiaryFont.GOWUN_DODUM to 7.2,
@@ -54,7 +60,8 @@ internal fun DiaryFont.label(): StringResource = when (this) {
 }
 
 /**
- * 받기 전 글꼴의 이름 그림(그 글꼴로 그린 이름, 투명 바탕). 한국어 화면은 한국어 이름, 그 밖은 로마자 이름이다.
+ * 받기 전 글꼴의 이름 그림(그 글꼴로 그린 이름, 투명 바탕).
+ * 한국어 화면은 한국어 이름, 그 밖은 로마자 이름이다.
  * 이 글꼴들에는 가나가 없어 일본어 화면도 로마자 이름을 쓴다.
  */
 internal fun DiaryFont.namePreview(korean: Boolean): DrawableResource? = when (this) {

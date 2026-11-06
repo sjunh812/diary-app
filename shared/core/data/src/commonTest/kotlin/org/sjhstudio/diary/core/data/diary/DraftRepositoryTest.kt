@@ -37,7 +37,8 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.platform.ImageSize
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 임시 저장과 사진(스펙 002 T032, T033). 일기를 잃지 않는지를 본다(헌법 I).
+// 임시 저장과 사진(스펙 002 T032, T033).
+// 일기를 잃지 않는지를 본다(헌법 I).
 class DraftRepositoryTest {
     private val db = memoryDatabase()
     private val files = FakeFileSystem()

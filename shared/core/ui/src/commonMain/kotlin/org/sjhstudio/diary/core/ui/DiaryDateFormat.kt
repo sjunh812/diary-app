@@ -47,7 +47,10 @@ interface DiaryDateFormat {
     /** 오후 3:05, 3:05 PM, 午後3:05. 기기가 24시간 표기면 15:05. */
     fun time(time: LocalTime): String
 
-    /** 기기가 24시간 표기를 쓰는지. 시각 휠이 오전·오후 열을 뺄지 정한다. */
+    /**
+     * 기기가 24시간 표기를 쓰는지.
+     * 시각 휠이 오전·오후 열을 뺄지 정한다.
+     */
     val is24Hour: Boolean
 }
 
@@ -57,7 +60,10 @@ fun rememberDiaryDateFormat(): DiaryDateFormat = rememberPlatformDateFormat(diar
 @Composable
 internal expect fun rememberPlatformDateFormat(language: String): DiaryDateFormat
 
-/** 플랫폼 형식에 넘기는 틀(Unicode 날짜 틀 기호). 순서와 낱말은 플랫폼이 언어에 맞춰 정한다. */
+/**
+ * 플랫폼 형식에 넘기는 틀(Unicode 날짜 틀 기호).
+ * 순서와 낱말은 플랫폼이 언어에 맞춰 정한다.
+ */
 internal object DateSkeleton {
     const val MONTH = "MMMM"
     const val MONTH_SHORT = "MMM"
@@ -85,7 +91,10 @@ internal fun formatLocaleTag(language: String, deviceTag: String): String {
 /** iOS 로캘 이름(ja_JP@calendar=japanese)을 언어 태그(ja-JP)로 바꾼다. */
 internal fun languageTag(localeName: String): String = localeName.substringBefore('@').replace('_', '-')
 
-/** 그날 0시(UTC)의 밀리초. 형식도 UTC로 읽어서 기기 시간대가 날짜를 바꾸지 않는다. */
+/**
+ * 그날 0시(UTC)의 밀리초.
+ * 형식도 UTC로 읽어서 기기 시간대가 날짜를 바꾸지 않는다.
+ */
 internal fun LocalDate.utcMillis(): Long = atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
 
 internal fun LocalTime.utcMillis(): Long = LocalDate(1970, 1, 1).atTime(this).toInstant(TimeZone.UTC).toEpochMilliseconds()

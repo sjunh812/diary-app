@@ -48,8 +48,10 @@ import org.sjhstudio.diary.feature.settings.resources.reminder_time
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 
 /**
- * 매일 알림(Figma "매일 알림 (R1)", "매일 알림 상태"). 설정 > 매일 알림.
- * 켜면 알림 시각 줄이 생기고, 그 줄을 누르면 바텀 시트의 휠로 고른다. 알림을 끄면 시각 줄을 숨긴다.
+ * 매일 알림(Figma "매일 알림 (R1)", "매일 알림 상태").
+ * 설정 > 매일 알림.
+ * 켜면 알림 시각 줄이 생기고, 그 줄을 누르면 바텀 시트의 휠로 고른다.
+ * 알림을 끄면 시각 줄을 숨긴다.
  * 켜 두었는데 휴대폰에서 알림이 허용되지 않았으면 허용 안내를 보인다.
  */
 @Composable
@@ -87,7 +89,10 @@ fun ReminderSettingsScreen(
     }
 }
 
-/** 알림 시각 시트. 휠을 돌려도 "저장"을 눌러야 바뀌고, "닫기"는 그대로 둔다. */
+/**
+ * 알림 시각 시트.
+ * 휠을 돌려도 "저장"을 눌러야 바뀌고, "닫기"는 그대로 둔다.
+ */
 @Composable
 fun ReminderTimeSheet(minuteOfDay: Int, is24Hour: Boolean, onDismiss: () -> Unit, onSave: (Int) -> Unit) {
     var picked by rememberSaveable { mutableIntStateOf(minuteOfDay) }
@@ -103,7 +108,10 @@ fun ReminderTimeSheet(minuteOfDay: Int, is24Hour: Boolean, onDismiss: () -> Unit
     }
 }
 
-/** 매일 알림 화면과 시트, 알림 허용 묻기를 잇는다. 앱 틀은 이것만 부른다. */
+/**
+ * 매일 알림 화면과 시트, 알림 허용 묻기를 잇는다.
+ * 앱 틀은 이것만 부른다.
+ */
 @Composable
 fun ReminderSettingsRoute(onBack: () -> Unit) {
     val viewModel = koinViewModel<ReminderSettingsViewModel>()
@@ -121,7 +129,8 @@ fun ReminderSettingsRoute(onBack: () -> Unit) {
         timeLabel = format.time(LocalTime(state.minuteOfDay / 60, state.minuteOfDay % 60)),
         onEnabledChange = { enabled ->
             viewModel.setEnabled(enabled)
-            // 켤 때 아직 허용되지 않았으면 시스템 창으로 묻는다. 거절해도 켜 둔 채 안내를 보인다.
+            // 켤 때 아직 허용되지 않았으면 시스템 창으로 묻는다.
+            // 거절해도 켜 둔 채 안내를 보인다.
             if (enabled && state.notificationsAllowed != true) access.request { viewModel.refreshPermission() }
         },
         onTime = { picking = true },

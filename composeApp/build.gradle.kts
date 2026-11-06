@@ -1,26 +1,30 @@
 import java.util.Properties
 
-// 안드로이드 앱 껍데기. 패키지·서명 키·minSdk는 1.7.4 그대로다(CLAUDE.md 아키텍처, D4).
+// 안드로이드 앱 껍데기.
+// 패키지·서명 키·minSdk는 1.7.4 그대로다(CLAUDE.md 아키텍처, D4).
 plugins {
     alias(libs.plugins.diary.android.application)
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     // 릴리스를 본떠 nonMinifiedRelease(프로필을 만들 때)와 benchmarkRelease(잴 때) 빌드 타입을 만든다.
     alias(libs.plugins.baselineprofile)
-    // 오픈소스 고지 목록을 만든다. 앱에 실제로 들어가는 의존성을 다 아는 곳이 여기라 여기에 단다.
+    // 오픈소스 고지 목록을 만든다.
+    // 앱에 실제로 들어가는 의존성을 다 아는 곳이 여기라 여기에 단다.
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
 }
 
-// Firebase 설정 파일은 저장소에 두지 않는다. 파일이 있는 빌드만 사용 통계와 비정상 종료 보고를 켠다.
+// Firebase 설정 파일은 저장소에 두지 않는다.
+// 파일이 있는 빌드만 사용 통계와 비정상 종료 보고를 켠다.
 val firebaseConfigured = file("google-services.json").exists()
 if (firebaseConfigured) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
 }
 
-// `./gradlew :composeApp:exportLibraryDefinitions`로 다시 만든다. 의존성을 바꾸면 같은 커밋에서 다시 만든다.
+// `./gradlew :composeApp:exportLibraryDefinitions`로 다시 만든다.
+// 의존성을 바꾸면 같은 커밋에서 다시 만든다.
 aboutLibraries {
     // 같은 라이브러리의 플랫폼별 묶음(compose-ui와 compose-ui-android 같은)은 하나로 합친다(KotlinConf 앱과 같다).
     library {
@@ -44,20 +48,23 @@ android {
 
     defaultConfig {
         applicationId = "org.sjhstudio.diary"
-        // 36은 만들고 내지 않은 1.7.5가 썼다. 2.0.0은 37부터다.
+        // 36은 만들고 내지 않은 1.7.5가 썼다.
+        // 2.0.0은 37부터다.
         versionCode = 37
         versionName = "2.0.0"
         // 업그레이드 계측 시험(UpgradeVerificationTest)을 돌린다.
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // 광고 ID는 저장소에 두지 않고 local.properties에서 읽는다. 단위가 없으면 앱이 광고를 부르지 않는다.
+        // 광고 ID는 저장소에 두지 않고 local.properties에서 읽는다.
+        // 단위가 없으면 앱이 광고를 부르지 않는다.
         // 앱 ID는 없으면 SDK가 앱을 끄므로 Google 시험 ID를 기본으로 둔다.
         manifestPlaceholders += mapOf(
             "adAppId" to localProperty("admob.app.id", "ca-app-pub-3940256099942544~3347511713"),
             "adNative" to localProperty("admob.native", ""),
             "adInterstitial" to localProperty("admob.interstitial", ""),
             "adRewarded" to localProperty("admob.rewarded", ""),
-            // 개발 빌드는 보내지 않는다. 확인할 때만 local.properties의 firebase.debug=true로 켠다.
+            // 개발 빌드는 보내지 않는다.
+            // 확인할 때만 local.properties의 firebase.debug=true로 켠다.
             "firebaseCollection" to "true"
         )
     }
@@ -69,7 +76,8 @@ android {
         localeFilters += listOf("en", "ko", "ja")
     }
 
-    // 고를 때 받는 일기 글꼴 다섯 종(research R17). 받은 뒤 SplitCompat으로 자산을 읽는다.
+    // 고를 때 받는 일기 글꼴 다섯 종(research R17).
+    // 받은 뒤 SplitCompat으로 자산을 읽는다.
     dynamicFeatures +=
         setOf(":fonts:gowun_dodum", ":fonts:gowun_batang", ":fonts:nanum_jeomggol", ":fonts:gamja_flower", ":fonts:hi_melody")
 
@@ -86,7 +94,8 @@ android {
     }
 
     buildTypes {
-        // 개발 빌드는 Google 시험 광고만 받는다. 실제 광고를 누르면 무효 트래픽이 된다.
+        // 개발 빌드는 Google 시험 광고만 받는다.
+        // 실제 광고를 누르면 무효 트래픽이 된다.
         debug {
             manifestPlaceholders += mapOf(
                 "adNative" to "ca-app-pub-3940256099942544/2247696110",

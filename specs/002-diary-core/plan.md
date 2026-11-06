@@ -90,7 +90,7 @@ shared/
 │   └── testing/                     002: FakeEntryRepository, FakeDraftRepository, FakeImageProcessor, 고정 시계
 └── feature/
     ├── home/                        목록 + 상세 + 사진 보기
-    ├── write/                       쓰기·고치기, 서식 도구, 임시 저장
+    ├── write/                       쓰기·수정, 서식 도구, 임시 저장
     ├── calendar/                    달력
     ├── search/                      검색
     ├── insight/                     기분 통계

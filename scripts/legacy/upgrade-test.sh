@@ -1,16 +1,23 @@
 #!/bin/sh
-# 1.7.4 → 새 앱 업그레이드를 에뮬레이터에서 돌려 본다(스펙 001 T050, quickstart §2). 실기기에는 쓰지 않는다.
+# 1.7.4 → 새 앱 업그레이드를 에뮬레이터에서 돌려 본다(스펙 001 T050, quickstart §2).
+# 실기기에는 쓰지 않는다.
 #
 #   ANDROID_SERIAL=emulator-5554 sh scripts/legacy/upgrade-test.sh
 #
 # 순서: 지우기 → 1.7.4 깔고 한 번 열기 → seed.sh → 원본 해시 → 새 APK 덮어 설치 → 열기 → 이전 끝 기다리기 → 확인.
 # 확인: 원본 다섯 파일의 SHA-256이 전후로 같은지, 새 DB의 일기·사진 수, 남은 파일.
-# 새 앱은 한국어로 연다. APP_LOCALE=ja-JP처럼 주면 그 언어로 연다(Android 13 이상, 그 아래는 기기 언어, docs/design.md 여러 언어).
-# COUNT=1000: 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본). PHOTO_EVERY=3이면 세 편마다 사진 한 장이다. WAIT=1800으로 이전을 기다리는 초를 늘린다.
-# KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3). Snapshotting, Verifying, Committing도 된다.
-# INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050). 먼저 :composeApp:assembleDebugAndroidTest.
+# 새 앱은 한국어로 연다.
+# APP_LOCALE=ja-JP처럼 주면 그 언어로 연다(Android 13 이상, 그 아래는 기기 언어, docs/design.md 여러 언어).
+# COUNT=1000: 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본).
+# PHOTO_EVERY=3이면 세 편마다 사진 한 장이다.
+# WAIT=1800으로 이전을 기다리는 초를 늘린다.
+# KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3).
+# Snapshotting, Verifying, Committing도 된다.
+# INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050).
+# 먼저 :composeApp:assembleDebugAndroidTest.
 # LOCK=0427: 1.7.4에 그 비밀번호로 잠금을 켜 두고(seed.sh), 새 앱이 잠금 화면부터 띄우는지와 잠긴 동안 이전이 시작되지 않는지 본 뒤
-# 하드웨어 키로 비밀번호를 넣는다(스펙 001 US2, quickstart §4). BIOMETRIC=1이면 지문 설정도 켜고, 비밀번호 대신 에뮬레이터 지문(손가락 1, 미리 등록)으로 연다.
+# 하드웨어 키로 비밀번호를 넣는다(스펙 001 US2, quickstart §4).
+# BIOMETRIC=1이면 지문 설정도 켜고, 비밀번호 대신 에뮬레이터 지문(손가락 1, 미리 등록)으로 연다.
 set -eu
 : "${ANDROID_SERIAL:?ANDROID_SERIAL을 에뮬레이터로 정해 주세요(예: emulator-5554)}"
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
@@ -43,7 +50,8 @@ sh "$ROOT/scripts/legacy/seed.sh"
 hash_originals > "$WORK/before"
 
 adb install -r "$NEW_APK" >/dev/null
-# 앱 언어는 한국어가 기본이다. 앱별 언어는 Android 13(API 33)부터 있어 그 아래는 기기 언어를 따른다.
+# 앱 언어는 한국어가 기본이다.
+# 앱별 언어는 Android 13(API 33)부터 있어 그 아래는 기기 언어를 따른다.
 if [ "$(adb shell getprop ro.build.version.sdk | tr -d '\r')" -ge 33 ]; then
   adb shell cmd locale set-app-locales $PKG --locales "${APP_LOCALE:-ko-KR}"
 fi
@@ -58,7 +66,8 @@ fi
 PROMPT='com.android.systemui:id/biometric_icon|com.android.systemui:id/button_negative|content-desc="(Fingerprint sensor|지문 센서)"'
 unlock() {
   i=0
-  # 생체 인증을 켜 두었으면(BIOMETRIC=1) 시스템 생체 인증 창이 잠금 화면을 덮는다. 그 창(지문 센서)도 잠금 화면으로 본다.
+  # 생체 인증을 켜 두었으면(BIOMETRIC=1) 시스템 생체 인증 창이 잠금 화면을 덮는다.
+  # 그 창(지문 센서)도 잠금 화면으로 본다.
   until adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
     adb shell cat /data/local/tmp/diary-ui.xml | grep -qE '비밀번호를 입력해 주세요|Enter your passcode|パスコードを入力してください|'"$PROMPT"; do
     i=$((i + 1)); [ $i -gt 60 ] && { echo "잠금 화면이 뜨지 않았어요" >&2; exit 1; }
@@ -70,7 +79,8 @@ unlock() {
   fi
   echo "잠금 화면: 잠긴 동안 이전 시작 안 함"
   if [ "${BIOMETRIC:-0}" = 1 ]; then
-    # 에뮬레이터에 등록한 지문(손가락 1)을 댄다. 에뮬레이터에서 지문을 먼저 등록해 둬야 한다.
+    # 에뮬레이터에 등록한 지문(손가락 1)을 댄다.
+    # 에뮬레이터에서 지문을 먼저 등록해 둬야 한다.
     # 창이 막 뜨는 중에 대면 인식하지 않아서, 창이 사라질 때까지 몇 번 댄다.
     n=0
     while adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
@@ -88,7 +98,8 @@ START=$(date +%s)
 adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
 if [ -n "${LOCK:-}" ]; then unlock; fi
 if [ -n "${KILL_AT:-}" ]; then
-  # 훅이 그 단계에 들어서며 프로세스를 끝낸다. 끊긴 것을 본 뒤 다시 연다.
+  # 훅이 그 단계에 들어서며 프로세스를 끝낸다.
+  # 끊긴 것을 본 뒤 다시 연다.
   i=0
   until ! adb shell pidof $PKG >/dev/null 2>&1 && adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -q "\"step\":\"$KILL_AT\""; do
     i=$((i + 1)); [ $i -gt 300 ] && { echo "$KILL_AT 단계에서 끊기지 않았어요" >&2; exit 1; }

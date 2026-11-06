@@ -79,7 +79,10 @@ import org.sjhstudio.diary.feature.backup.resources.file_writing
 import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 
-/** 파일로 백업하기(Figma "파일로 백업하기 (B8)"). 저장 위치는 사용자가 시스템 창에서 고른다(FR-031). */
+/**
+ * 파일로 백업하기(Figma "파일로 백업하기 (B8)").
+ * 저장 위치는 사용자가 시스템 창에서 고른다(FR-031).
+ */
 @Composable
 fun FileBackupRoute(onBack: () -> Unit, onPreview: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<FileBackupViewModel>()
@@ -212,7 +215,8 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBack
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Heading(DiaryIcons.CircleCheck, stringResource(Res.string.file_saved_title), stringResource(Res.string.file_saved_body))
-        // 파일 이름은 설명 글과 섞이지 않게 따로 둔다. 파일 앱에서 찾을 때 이 줄을 본다.
+        // 파일 이름은 설명 글과 섞이지 않게 따로 둔다.
+        // 파일 앱에서 찾을 때 이 줄을 본다.
         DiaryNoteBox(
             listOf(DiaryNote(DiaryIcons.Download, saved.name, sizeText(saved.bytes))),
             Modifier.padding(horizontal = DiarySpacing.screenCompact)

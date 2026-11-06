@@ -7,12 +7,17 @@ import okio.Path
 import okio.buffer
 import okio.use
 
-/** 묶음 파일의 한 항목. [name]은 zip 안의 이름이다. */
+/**
+ * 묶음 파일의 한 항목.
+ * [name]은 zip 안의 이름이다.
+ */
 class BundleItem(val name: String, val path: Path)
 
 /**
- * 압축 없는(STORE) zip을 흘려 쓴다(research R18). 사진은 이미 줄어 있어 압축 이득이 작다.
- * 저장 위치가 흐름뿐이어도 되도록 뒤로 돌아가 쓰지 않는다. 크기와 CRC를 머리에 쓰려고 파일을 먼저 한 번 읽는다.
+ * 압축 없는(STORE) zip을 스트리밍으로 쓴다(research R18).
+ * 사진은 이미 줄어 있어 압축 이득이 작다.
+ * 저장 위치가 흐름뿐이어도 되도록 뒤로 돌아가 쓰지 않는다.
+ * 크기와 CRC를 머리에 쓰려고 파일을 먼저 한 번 읽는다.
  * [zip64From]은 시험에서 큰 파일 없이 ZIP64를 보려고 낮춘다.
  */
 class BundleWriter(private val fileSystem: FileSystem, private val zip64From: Long = UINT_MAX, private val zip64Count: Int = USHORT_MAX) {
@@ -168,7 +173,8 @@ class BundleWriter(private val fileSystem: FileSystem, private val zip64From: Lo
         const val UTF8_FLAG = 0x0800
         const val STORED = 0
 
-        // zip은 1980-01-01보다 앞을 쓰지 못한다. 시각은 쓰지 않는다.
+        // zip은 1980-01-01보다 앞을 쓰지 못한다.
+        // 시각은 쓰지 않는다.
         const val DOS_DATE = 0x21
 
         val CRC_TABLE = IntArray(256) { index ->

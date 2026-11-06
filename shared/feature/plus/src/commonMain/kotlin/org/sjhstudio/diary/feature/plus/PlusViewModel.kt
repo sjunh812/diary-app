@@ -26,7 +26,10 @@ data class PlusUiState(val products: List<StoreProduct> = emptyList(), val loadi
 
 enum class PlusMessage { Failed, Restored, RestoreNone, RestoreFailed }
 
-/** 결제 화면과 시트의 상태. 취소는 아무 말 없이 그대로 돌아온다. */
+/**
+ * 결제 화면과 시트의 상태.
+ * 취소는 아무 말 없이 그대로 돌아온다.
+ */
 class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseRepository) : ViewModel() {
     val plan: StateFlow<Plan> = plans.plan.stateIn(viewModelScope, SharingStarted.Eagerly, plans.plan.value)
     val manageUrl: String = purchases.manageUrl

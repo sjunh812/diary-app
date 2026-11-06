@@ -50,7 +50,10 @@ class StartupTest {
         assertTrue((startup.state.value as StartupState.Ready).lock.hasPin)
     }
 
-    /** 잇기가 실패하면 잠근 채 새 비밀번호를 정하게 한다. 앱이 열린 채로 시작하지 않는다. */
+    /**
+     * 잇기가 실패하면 잠근 채 새 비밀번호를 정하게 한다.
+     * 앱이 열린 채로 시작하지 않는다.
+     */
     @Test
     fun failed_bootstrap_starts_locked_without_pin() = runTest {
         val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))

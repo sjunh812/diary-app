@@ -10,7 +10,8 @@ import org.sjhstudio.diary.core.model.Pin
 
 /**
  * 옛 앱(1.7.x)의 잠금을 새 잠금으로 잇는다(contracts/legacy-mapping.md "설정", research R16).
- * 스플래시 동안 기록 이전보다 먼저 돈다. 잠금 화면을 먼저 띄우려면 확인값이 먼저 있어야 해서다.
+ * 스플래시 동안 기록 이전보다 먼저 돈다.
+ * 잠금 화면을 먼저 띄우려면 확인값이 먼저 있어야 해서다.
  * 옛 `pref.xml`은 읽기만 한다.
  *
  * 이전을 시작하기 전(`NotStarted`)에만 한다.
@@ -26,7 +27,8 @@ class LegacyLockBootstrap(
     /** 잠금을 켰으면 true다. */
     suspend fun run(): Boolean {
         if (migrationStep() != MigrationStep.NOT_STARTED || !fileSystem.exists(files.prefXml)) return false
-        // 읽지 못하면 잠금이 있었는지 알 수 없다. 풀어 두는 대신 잠근 채 새 비밀번호를 정하게 한다(헌법 II).
+        // 읽지 못하면 잠금이 있었는지 알 수 없다.
+        // 풀어 두는 대신 잠근 채 새 비밀번호를 정하게 한다(헌법 II).
         val prefs = readPrefs() ?: return lockWithoutPin(biometric = false)
         if (prefs[USE_PW] != true) return false
         val biometric = prefs[FINGER_PRINT] == true
@@ -35,7 +37,8 @@ class LegacyLockBootstrap(
             lock.setPin(pin)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            // 기기 키를 만들지 못했다. 잠근 채 새 비밀번호를 정하게 한다.
+            // 기기 키를 만들지 못했다.
+            // 잠근 채 새 비밀번호를 정하게 한다.
             return lockWithoutPin(biometric)
         }
         lock.setBiometric(biometric)
@@ -48,7 +51,10 @@ class LegacyLockBootstrap(
         null
     }
 
-    /** 잠금은 켜고 확인값은 비운다. 잠금 관문이 폰 화면 잠금 확인 뒤 새 비밀번호를 정하게 한다. */
+    /**
+     * 잠금은 켜고 확인값은 비운다.
+     * 잠금 관문이 폰 화면 잠금 확인 뒤 새 비밀번호를 정하게 한다.
+     */
     private suspend fun lockWithoutPin(biometric: Boolean): Boolean {
         lockStore.update { it.copy(enabled = true, pinMac = null, pinSalt = null, biometricEnabled = biometric) }
         return true

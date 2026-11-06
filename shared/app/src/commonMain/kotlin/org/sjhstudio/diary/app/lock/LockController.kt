@@ -13,7 +13,8 @@ import org.sjhstudio.diary.core.model.LockSettings
 /**
  * 앱이 잠겼는지 정한다(contracts/lock.md, research R13).
  * 프로세스와 함께 사는 하나뿐인 객체라, 프로세스가 새로 시작하면 늘 잠긴 채로 시작한다.
- * 다시 잠그기는 단조 시계로 잰다. 기기 시각을 바꿔도 피할 수 없다.
+ * 다시 잠그기는 단조 시계로 잰다.
+ * 기기 시각을 바꿔도 피할 수 없다.
  */
 class LockController(
     private val repository: LockRepository,
@@ -27,16 +28,23 @@ class LockController(
     private var leftAt: ComparableTimeMark? = null
     private var holds = 0
 
-    /** 잠금이 켜져 있는가. 최근 앱 가림이 본다. */
+    /**
+     * 잠금이 켜져 있는가.
+     * 최근 앱 가림이 본다.
+     */
     val lockEnabled: Boolean
         get() = lock.enabled
 
     init {
-        // 다시 잠그기 시간과 켜짐만 따라간다. 잠금을 여는 일은 [onUnlocked]로만 한다.
+        // 다시 잠그기 시간과 켜짐만 따라간다.
+        // 잠금을 여는 일은 [onUnlocked]로만 한다.
         scope.launch { repository.settings.collect { lock = it } }
     }
 
-    /** 시작 단계가 읽은 잠금으로 첫 상태를 정한다. 한 번만 쓴다. */
+    /**
+     * 시작 단계가 읽은 잠금으로 첫 상태를 정한다.
+     * 한 번만 쓴다.
+     */
     fun onColdStart(initial: LockSettings) {
         if (_state.value != LockState.Starting) return
         lock = initial
@@ -63,14 +71,17 @@ class LockController(
         _state.value = LockState.Unlocked
     }
 
-    /** 비밀번호를 대어 볼 수 없다(키 없음). 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다. */
+    /**
+     * 비밀번호를 대어 볼 수 없다(키 없음).
+     * 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다.
+     */
     fun onKeyMissing() {
         if (_state.value != LockState.Unlocked) _state.value = LockState.NeedsNewPin
     }
 
     /**
      * 폰 화면 잠금 확인처럼 앱이 잠시 뒤로 가는 동안 다시 잠그지 않는다.
-     * Android의 폰 잠금 확인은 다른 앱 화면이라 앱이 뒤로 간 것으로 잡힌다.
+     * Android의 폰 잠금 확인은 다른 앱 화면이라 앱이 백그라운드로 간 것으로 잡힌다.
      */
     suspend fun <T> withoutRelock(block: suspend () -> T): T {
         holds++
@@ -84,13 +95,19 @@ class LockController(
 }
 
 sealed interface LockState {
-    /** 시작 단계가 아직 잠금을 읽지 않았다. 아무것도 그리지 않는다. */
+    /**
+     * 시작 단계가 아직 잠금을 읽지 않았다.
+     * 아무것도 그리지 않는다.
+     */
     data object Starting : LockState
 
     data object Unlocked : LockState
 
     data object Locked : LockState
 
-    /** 비밀번호를 대어 볼 수 없다. 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다. */
+    /**
+     * 비밀번호를 대어 볼 수 없다.
+     * 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다.
+     */
     data object NeedsNewPin : LockState
 }

@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-/** `welcome.preferences_pb`. 기기 것이라 백업에 넣지 않는다(FR-015). */
+/**
+ * `welcome.preferences_pb`.
+ * 기기 것이라 백업에 넣지 않는다(FR-015).
+ */
 data class WelcomePrefs(val letterSeen: Boolean = false, val onboardingDone: Boolean = false, val tipsSeen: Set<String> = emptySet())
 
 class WelcomeStore(private val dataStore: DataStore<Preferences>) {

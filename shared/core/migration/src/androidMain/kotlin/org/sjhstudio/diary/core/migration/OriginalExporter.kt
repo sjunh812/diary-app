@@ -11,8 +11,10 @@ import okio.use
 
 /**
  * 원본 파일 내보내기(FR-009, contracts/migration-flow.md "원본 내보내기").
- * 사용자가 저장 창에서 고른 곳에 zip을 쓴다. 담는 것: `legacy-snapshot/`의 파일 전부(설정은 비밀번호 줄을 뺀 사본),
- * `media/`의 이전 사진, `README.txt`. 원본에는 손대지 않는다.
+ * 사용자가 저장 창에서 고른 곳에 zip을 쓴다.
+ * 담는 것: `legacy-snapshot/`의 파일 전부(설정은 비밀번호 줄을 뺀 사본),
+ * `media/`의 이전 사진, `README.txt`.
+ * 원본에는 손대지 않는다.
  */
 class OriginalExporter(private val fileSystem: FileSystem, private val paths: MigrationPaths) {
     fun write(out: OutputStream, readme: String) {
@@ -32,7 +34,10 @@ class OriginalExporter(private val fileSystem: FileSystem, private val paths: Mi
         }
     }
 
-    /** `photos.json`에 적힌 이전 사진만 담는다. 새로 붙인 사진은 이전과 상관없다. */
+    /**
+     * `photos.json`에 적힌 이전 사진만 담는다.
+     * 새로 붙인 사진은 이전과 상관없다.
+     */
     private fun legacyPhotoFiles(): List<String> {
         if (!fileSystem.exists(paths.photosJson) || !fileSystem.exists(paths.mediaDir)) return emptyList()
         val hashes =

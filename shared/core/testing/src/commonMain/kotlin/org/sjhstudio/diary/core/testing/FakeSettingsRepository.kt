@@ -10,7 +10,10 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 
-/** 화면 모델 시험용 설정 저장소. 처음 값을 정하고 바뀐 값을 바로 읽는다. */
+/**
+ * 화면 모델 시험용 설정 저장소.
+ * 처음 값을 정하고 바뀐 값을 바로 읽는다.
+ */
 class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRepository {
     private val state = MutableStateFlow(initial)
 

@@ -26,7 +26,8 @@ internal actual fun rememberLocationAccess(): LocationAccess {
         object : LocationAccess {
             override fun request(onDone: () -> Unit) {
                 pending = onDone
-                // 정확한 위치만 물으면 안드로이드 12 일부 버전이 무시한다. 둘을 함께 묻는다.
+                // 정확한 위치만 물으면 안드로이드 12 일부 버전이 무시한다.
+                // 둘을 함께 묻는다.
                 launcher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
             }
 

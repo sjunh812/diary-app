@@ -12,10 +12,13 @@ import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.PickedImage
 
-/** 쓰기 화면 시험용 임시 저장소. 메모리에만 둔다. */
+/**
+ * 쓰기 화면 시험용 임시 저장소.
+ * 메모리에만 둔다.
+ */
 class FakeDraftRepository(
     initial: List<Draft> = emptyList(),
-    /** 고치기로 열면 돌려줄 임시 저장본. */
+    /** 수정 화면으로 열면 돌려줄 임시 저장본. */
     private val editable: Map<String, Draft> = emptyMap()
 ) : DraftRepository {
     private val drafts = MutableStateFlow(initial.associateBy { it.key })
@@ -23,7 +26,10 @@ class FakeDraftRepository(
     /** [commit]이 실패하는 상황을 만든다. */
     var failCommit = false
 
-    /** 다음 [addPhotos]가 돌려줄 값. 없으면 받은 수만큼 더한다. */
+    /**
+     * 다음 [addPhotos]가 돌려줄 값.
+     * 없으면 받은 수만큼 더한다.
+     */
     var nextAddResult: AddPhotosResult? = null
 
     val saved: List<Draft> get() = drafts.value.values.toList()

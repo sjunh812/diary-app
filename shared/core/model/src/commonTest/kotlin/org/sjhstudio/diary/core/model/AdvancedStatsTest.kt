@@ -165,7 +165,10 @@ class AdvancedStatsTest {
         assertEquals(30, habit.entries)
     }
 
-    /** 일기 앞뒤로 기분이 이어지는 경향까지 넣은 가짜 기록. 조건과 기분 사이에 관계를 일부러 넣을 수 있다. */
+    /**
+     * 일기 앞뒤로 기분이 이어지는 경향까지 넣은 가짜 기록.
+     * 조건과 기분 사이에 관계를 일부러 넣을 수 있다.
+     */
 
     private val weatherPool =
         List(9) { Weather.SUNNY } + List(5) { Weather.PARTLY_CLOUDY } + List(3) { Weather.RAIN } + Weather.SNOW + List(2) { Weather.CLOUDY }

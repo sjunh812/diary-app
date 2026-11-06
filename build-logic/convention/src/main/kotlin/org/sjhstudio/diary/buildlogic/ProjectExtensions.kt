@@ -18,7 +18,10 @@ internal fun VersionCatalog.library(alias: String): Provider<MinimalExternalModu
 
 private fun VersionCatalog.string(alias: String): String = findVersion(alias).get().requiredVersion
 
-/** 코틀린과 자바가 카탈로그의 `jvmTarget` 하나를 본다. 둘이 갈리면 어디서 어긋났는지 찾기 어렵다. */
+/**
+ * 코틀린과 자바가 카탈로그의 `jvmTarget` 하나를 본다.
+ * 둘이 갈리면 어디서 어긋났는지 찾기 어렵다.
+ */
 internal val VersionCatalog.jvmTarget: JvmTarget
     get() = JvmTarget.fromTarget(string("jvmTarget"))
 

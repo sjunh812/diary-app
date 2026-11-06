@@ -19,8 +19,10 @@ import org.sjhstudio.diary.core.ui.resources.Res
 import org.sjhstudio.diary.core.ui.resources.entry_kept_both
 
 /**
- * 목록 한 줄(`docs/design.md` 일기 줄). 메타는 기분 얼굴, 시각, 날씨, 장소, 즐겨찾기 별 순서다.
- * [showDate]는 그날 첫 줄에서만 true다. [previewStyle]은 사용자가 고른 본문 글꼴과 크기다.
+ * 목록 한 줄(`docs/design.md` 일기 줄).
+ * 메타는 기분 얼굴, 시각, 날씨, 장소, 즐겨찾기 별 순서다.
+ * [showDate]는 그날 첫 줄에서만 true다.
+ * [previewStyle]은 사용자가 고른 본문 글꼴과 크기다.
  * [highlight]는 찾기에서 찾은 글자로, 미리보기와 장소에서 강조한다.
  */
 @Composable

@@ -26,7 +26,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
- * 맥락 팁 한 줄(Apple TipKit의 줄 안 팁). 화면을 막지 않고 닫으면 다시 뜨지 않는다.
+ * 맥락 팁 한 줄(Apple TipKit의 줄 안 팁).
+ * 화면을 막지 않고 닫으면 다시 뜨지 않는다.
  * 토스트와 같은 색이라 강조를 늘리지 않는다.
  */
 @Composable

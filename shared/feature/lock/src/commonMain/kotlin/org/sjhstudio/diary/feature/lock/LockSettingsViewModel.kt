@@ -13,7 +13,10 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 
-/** 잠금 설정(L4). 켜기·끄기·바꾸기는 비밀번호 화면을 거쳐 [LockRepository]가 한다. */
+/**
+ * 잠금 설정(L4).
+ * 켜기·끄기·바꾸기는 비밀번호 화면을 거쳐 [LockRepository]가 한다.
+ */
 class LockSettingsViewModel(
     private val repository: LockRepository,
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
@@ -34,7 +37,10 @@ class LockSettingsViewModel(
         changed("relock_after", value.id)
     }
 
-    /** 잠금을 켜거나 끈 뒤 부른다. 켜고 끄기는 비밀번호 화면을 거쳐 [LockRepository]가 한다. */
+    /**
+     * 잠금을 켜거나 끈 뒤 부른다.
+     * 켜고 끄기는 비밀번호 화면을 거쳐 [LockRepository]가 한다.
+     */
     fun onLockChanged(enabled: Boolean) = changed("lock", enabled.toString())
 
     private fun changed(name: String, value: String) = telemetry.log(

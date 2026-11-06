@@ -43,7 +43,8 @@ class IosDeviceAuthenticator : DeviceAuthenticator {
     private suspend fun evaluate(biometricOnly: Boolean, prompt: AuthPrompt): AuthResult = suspendCancellableCoroutine { continuation ->
         val context = LAContext()
         context.localizedCancelTitle = prompt.cancel
-        // 생체 인증만 받을 때는 "암호 입력" 버튼을 숨긴다. 숫자판이 그 일을 한다.
+        // 생체 인증만 받을 때는 "암호 입력" 버튼을 숨긴다.
+        // 숫자판이 그 일을 한다.
         if (biometricOnly) context.localizedFallbackTitle = ""
         val policy = if (biometricOnly) LAPolicyDeviceOwnerAuthenticationWithBiometrics else LAPolicyDeviceOwnerAuthentication
         context.evaluatePolicy(policy, localizedReason = prompt.reason ?: prompt.title) { success, error ->

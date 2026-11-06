@@ -35,7 +35,8 @@ import org.sjhstudio.diary.feature.lock.rememberDeviceAuthenticator
 private const val APP_CONTENT = "app"
 
 /**
- * 잠금 관문(contracts/app-shell.md 시작 순서, research R13). 기록 이전 관문보다 바깥에 있다.
+ * 잠금 관문(contracts/app-shell.md 시작 순서, research R13).
+ * 기록 이전 관문보다 바깥에 있다.
  * 잠긴 동안 안쪽 화면은 그리지 않고 저장 상태만 들고 있다가, 열면 보던 화면으로 돌아간다.
  * 기록 이전도 잠금을 연 뒤에 시작한다(FR-015).
  * [authenticator]는 시험이 시스템 인증 창 대신 대역을 넣는 자리다.

@@ -10,8 +10,10 @@ import androidx.room3.paging.PagingSourceDaoReturnTypeConverter
 
 /**
  * 일기 DB `diary.db`(research R4).
- * 버전 2에서 백업 표 셋을 더했다. 시험 기기에 깔린 DB가 일기를 잃지 않고 넘어오도록 자동 이전을 둔다.
- * 표를 바꾸면 반드시 버전을 올린다. 올리지 않으면 앱이 켜지다 죽는다(2026-11-05).
+ * 버전 2에서 백업 표 셋을 더했다.
+ * 시험 기기에 깔린 DB가 일기를 잃지 않고 넘어오도록 자동 이전을 둔다.
+ * 표를 바꾸면 반드시 버전을 올린다.
+ * 올리지 않으면 앱이 켜지다 죽는다(2026-11-05).
  */
 @Database(
     entities = [

@@ -50,7 +50,10 @@ class DefaultTrashRepository(
     }
 }
 
-/** 남은 날을 올림해서 센다. 오늘 지웠으면 30일, 마지막 날은 1일이다. */
+/**
+ * 남은 날을 올림해서 센다.
+ * 오늘 지웠으면 30일, 마지막 날은 1일이다.
+ */
 internal fun daysLeft(deletedAt: Instant, now: Instant): Int {
     val left = (deletedAt + KEEP - now) / 1.days
     return ceil(left).toInt().coerceIn(1, KEEP.inWholeDays.toInt())

@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-/** `ads.preferences_pb`. 기기 것이라 백업에 넣지 않는다. */
+/**
+ * `ads.preferences_pb`.
+ * 기기 것이라 백업에 넣지 않는다.
+ */
 data class AdPrefs(val lastInterstitialDay: String? = null, val rewardUntil: Instant? = null)
 
 class AdStore(private val dataStore: DataStore<Preferences>) {

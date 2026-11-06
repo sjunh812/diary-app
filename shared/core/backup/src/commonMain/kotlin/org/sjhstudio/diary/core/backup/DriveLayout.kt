@@ -11,7 +11,10 @@ import org.sjhstudio.diary.core.drive.listAll
 /** 드라이브의 백업 폴더 셋. */
 data class DriveFolders(val root: String, val snapshots: String, val media: String)
 
-/** 폴더를 이름이 아니라 `appProperties`로 찾는다(contracts/backup-format.md). 사용자가 이름을 바꿔도 이어진다. */
+/**
+ * 폴더를 이름이 아니라 `appProperties`로 찾는다(contracts/backup-format.md).
+ * 사용자가 이름을 바꿔도 이어진다.
+ */
 class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSystem) {
     suspend fun ensure(workDir: Path, readme: String): DriveFolders {
         val root =
@@ -50,7 +53,8 @@ class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSyste
 }
 
 /**
- * `<기기 현지 시각>_<기기 이름, 공백은 ->_<기기 ID 앞 4자>`. 드라이브에서 사람이 보고 고를 수 있게 한다.
+ * `<기기 현지 시각>_<기기 이름, 공백은 ->_<기기 ID 앞 4자>`.
+ * 드라이브에서 사람이 보고 고를 수 있게 한다.
  * 이 이름이 파일 이름도 되니 기기 이름이 백업을 막지 못하게 줄인다.
  * 이모지처럼 두 글자로 쓰는 문자는 SQLite 드라이버가 경로로 넘기면서 바이트가 달라져 파일을 열지 못한다.
  * 긴 이름은 파일 시스템의 이름 한도에 걸린다.

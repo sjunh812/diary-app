@@ -141,7 +141,8 @@ class AppScaffoldUiTest {
                     labels.forEach { label ->
                         assertTrue(tabs.any { it.contains(label) }, "$width dark=$dark label=$label tabs=$tabs")
                     }
-                    // 칸에 맞춰 잘린 글자도 없다. 잘리면 칸 안에 있어도 글자가 다 보이지 않는다.
+                    // 칸에 맞춰 잘린 글자도 없다.
+                    // 잘리면 칸 안에 있어도 글자가 다 보이지 않는다.
                     val clipped = labelLayouts().filter { it.isClipped() }.map { it.layoutInput.text.text }
                     assertEquals(emptyList(), clipped, "$width dark=$dark")
                 }
@@ -191,7 +192,8 @@ class AppScaffoldUiTest {
             results.single()
         }
 
-    // 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 `hasVisualOverflow`가 늘 참이다. 높이와 글자 제 폭으로 본다.
+    // 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 `hasVisualOverflow`가 늘 참이다.
+    // 높이와 글자 제 폭으로 본다.
     private fun TextLayoutResult.isClipped() = didOverflowHeight || multiParagraph.maxIntrinsicWidth > size.width + 0.5f
 
     private fun DpRect.overlaps(other: DpRect) = left < other.right && other.left < right && top < other.bottom && other.top < bottom

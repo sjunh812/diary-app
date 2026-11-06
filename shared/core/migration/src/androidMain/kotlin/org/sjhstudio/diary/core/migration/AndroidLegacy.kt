@@ -8,7 +8,10 @@ import java.io.File
 import okio.Path
 import okio.Path.Companion.toOkioPath
 
-/** 옛 앱(1.7.x)이 같은 패키지에 남긴 원본 자리. 읽기만 한다. */
+/**
+ * 옛 앱(1.7.x)이 같은 패키지에 남긴 원본 자리.
+ * 읽기만 한다.
+ */
 fun legacyFiles(context: Context): LegacyFiles {
     val prefs = File(context.applicationInfo.dataDir, "shared_prefs")
     return LegacyFiles(
@@ -26,7 +29,8 @@ fun freeBytes(path: Path): Long {
 }
 
 /**
- * 사진 가로세로를 머리만 읽어 잰다. EXIF가 90°·270° 돌림이면 가로세로를 바꾼다(research R8).
+ * 사진 가로세로를 머리만 읽어 잰다.
+ * EXIF가 90°·270° 돌림이면 가로세로를 바꾼다(research R8).
  * 사진 전체를 디코딩하지 않는다.
  */
 object AndroidImageSizeReader : ImageSizeReader {

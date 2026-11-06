@@ -37,7 +37,10 @@ private const val SMALL_SP = 13f
 
 private class AdColors(val title: Int, val body: Int)
 
-/** 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둔다(AdMob 네이티브 정책). 받기 전이나 못 받으면 그리지 않는다. */
+/**
+ * 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둔다(AdMob 네이티브 정책).
+ * 받기 전이나 못 받으면 그리지 않는다.
+ */
 @Composable
 internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit) {
     val player = koinInject<AdPlayer>() as? AdMobPlayer ?: return

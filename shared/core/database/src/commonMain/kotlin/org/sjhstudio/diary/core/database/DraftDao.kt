@@ -16,7 +16,7 @@ import org.sjhstudio.diary.core.model.MediaStatus
 val MediaEntity.isEditable: Boolean get() = status == MediaStatus.NORMAL.id && fileName != null && sha256 != null
 
 /**
- * 고치기를 열어 읽은 줄.
+ * 수정 화면을 열어 읽은 줄.
  * [resumed]면 전에 남겨 둔 임시 저장본을 이어 연 것이다.
  */
 data class EditDraftRows(val draft: DraftEntity, val media: List<DraftMediaEntity>, val resumed: Boolean) {
@@ -37,7 +37,10 @@ interface DraftDao {
     @Query("SELECT * FROM draft_media WHERE draft_key = :key ORDER BY sort_order")
     suspend fun media(key: String): List<DraftMediaEntity>
 
-    /** 가장 최근의 새 일기 임시 저장본. 일기 ID는 UUID라 `new`로 시작하지 않는다. */
+    /**
+     * 가장 최근의 새 일기 임시 저장본.
+     * 일기 ID는 UUID라 `new`로 시작하지 않는다.
+     */
     @Query("SELECT * FROM draft WHERE `key` LIKE 'new%' ORDER BY updated_at DESC LIMIT 1")
     suspend fun latestNew(): DraftEntity?
 
@@ -54,7 +57,7 @@ interface DraftDao {
     }
 
     /**
-     * 고치기를 연다.
+     * 수정 화면을 연다.
      * 임시 저장본이 있으면 그대로 돌려주고, 없으면 일기에서 만든다.
      * 일기가 없으면 null이다.
      * 한 트랜잭션이라 사진 줄이 빠진 임시 저장본이 남지 않는다.
@@ -111,7 +114,10 @@ interface DraftDao {
     @Query("SELECT DISTINCT file_name FROM draft_media")
     suspend fun fileNames(): List<String>
 
-    /** 사진을 빼거나 순서를 바꾼다. 순서 번호를 다시 매기므로 통째로 바꾼다. */
+    /**
+     * 사진을 빼거나 순서를 바꾼다.
+     * 순서 번호를 다시 매기므로 통째로 바꾼다.
+     */
     @Transaction
     suspend fun replaceMedia(key: String, media: List<DraftMediaEntity>) {
         clearMedia(key)

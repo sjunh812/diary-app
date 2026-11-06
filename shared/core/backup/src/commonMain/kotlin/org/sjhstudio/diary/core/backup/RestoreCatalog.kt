@@ -16,7 +16,10 @@ import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 /** 복원 목록의 한 줄과 받을 때 쓸 정보. */
 data class RestoreCandidate(val entry: BackupEntry, val manifest: Manifest?, val snapshot: DriveFile?, val legacy: DriveFile? = null)
 
-/** 목록 파일을 모아 읽고 끝까지 된 백업인지 본다(contracts/backup-format.md). 목록 파일이 없는 스냅샷은 목록에 없다. */
+/**
+ * 목록 파일을 모아 읽고 끝까지 된 백업인지 본다(contracts/backup-format.md).
+ * 목록 파일이 없는 스냅샷은 목록에 없다.
+ */
 class RestoreCatalog(
     private val drive: DriveApi,
     private val fileSystem: FileSystem,

@@ -47,7 +47,10 @@ import org.sjhstudio.diary.feature.backup.restoreDoneText
 import org.sjhstudio.diary.feature.backup.restoreProgressText
 import org.sjhstudio.diary.feature.backup.restoreProgressTitle
 
-/** 시스템이 때를 골라 돌리는 백업(research R14). 네트워크가 있을 때만 돌고, 잠깐 실패면 시스템이 다시 부른다. */
+/**
+ * 시스템이 때를 골라 돌리는 백업(research R14).
+ * 네트워크가 있을 때만 돌고, 잠깐 실패면 시스템이 다시 부른다.
+ */
 class BackupWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
     KoinComponent {
@@ -61,7 +64,8 @@ class BackupWorker(context: Context, params: WorkerParameters) :
         }
 
         is BackupOutcome.Done -> {
-            // 글은 올렸고 사진은 요금 없는 연결에서 잇는다. 그 연결에서 남은 것은 공간 때문이라 다시 걸지 않는다.
+            // 글은 올렸고 사진은 요금 없는 연결에서 잇는다.
+            // 그 연결에서 남은 것은 공간 때문이라 다시 걸지 않는다.
             if (outcome.photosLeft > 0 && !get<NetworkState>().isUnmetered) get<BackupScheduler>().scheduleWifiPhotos()
             Result.success()
         }
@@ -71,7 +75,8 @@ class BackupWorker(context: Context, params: WorkerParameters) :
 }
 
 /**
- * 사용자가 누른 지금 백업(스펙 003 T043). 앱을 나가도 끊기지 않게 진행 알림과 함께 돈다.
+ * 사용자가 누른 지금 백업(스펙 003 T043).
+ * 앱을 나가도 끊기지 않게 진행 알림과 함께 돈다.
  * 알림 권한이 없어도 백업은 돌고, 진행은 앱 안에서 본다.
  */
 class BackupNowWorker(context: Context, params: WorkerParameters) :
@@ -86,7 +91,8 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
         try {
             setForeground(foreground(null))
         } catch (_: IllegalStateException) {
-            // 시스템이 앞으로 올리기를 막으면 앱이 살아 있는 동안만 돈다. 백업은 이어서 할 수 있다.
+            // 시스템이 포그라운드 전환을 막으면 앱이 살아 있는 동안만 돈다.
+            // 백업은 이어서 할 수 있다.
         }
         return coroutineScope {
             val updates =
@@ -99,7 +105,8 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
             var outcome = runner.run(cellular)
             // 연결 직후처럼 자동 백업이 먼저 돌면 끝날 때까지 알림으로 지키고, 남은 것이 있으면 잇는다.
             if (outcome == BackupOutcome.Busy) {
-                // 앞선 작업이 막 시작해 아직 진행이 없을 수 있다. 잠깐 기다려 보고, 복원 중이라 진행이 없으면 그냥 끝낸다.
+                // 앞선 작업이 막 시작해 아직 진행이 없을 수 있다.
+                // 잠깐 기다려 보고, 복원 중이라 진행이 없으면 그냥 끝낸다.
                 val started = withTimeoutOrNull(START_WAIT_MILLIS) { runner.progress.first { it != null } }
                 if (started != null) {
                     runner.progress.first { it == null }
@@ -119,7 +126,10 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
         }
     }
 
-    /** 앱을 나가 있으면 끝났다고 알린다. 화면을 보고 있으면 화면이 말해 준다. */
+    /**
+     * 앱을 나가 있으면 끝났다고 알린다.
+     * 화면을 보고 있으면 화면이 말해 준다.
+     */
     private suspend fun tellIfAway(outcome: BackupOutcome) {
         if (appIsVisible()) return
         val text =
@@ -143,7 +153,8 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
 }
 
 /**
- * 복원 사진을 받는 동안 앱을 지킨다. 받기 자체는 앱 범위에서 돌고, 이 작업은 앱을 나가도 시스템이 멈추지 않게 알림과 함께 떠 있는다.
+ * 복원 사진을 받는 동안 앱을 지킨다.
+ * 받기 자체는 앱 범위에서 돌고, 이 작업은 앱을 나가도 시스템이 멈추지 않게 알림과 함께 떠 있는다.
  * 앱이 끝까지 죽었으면 시스템이 이 작업을 다시 부르고, 그때는 남은 사진을 여기서 이어 받는다.
  */
 class RestorePhotosWorker(context: Context, params: WorkerParameters) :
@@ -158,7 +169,8 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
         try {
             setForeground(foreground())
         } catch (_: IllegalStateException) {
-            // 시스템이 앞으로 올리기를 막으면 앱이 살아 있는 동안만 받는다. 남은 사진은 다음에 앱을 열 때 잇는다.
+            // 시스템이 포그라운드 전환을 막으면 앱이 살아 있는 동안만 받는다.
+            // 남은 사진은 다음에 앱을 열 때 잇는다.
         }
         return coroutineScope {
             val updates =
@@ -191,7 +203,11 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
     }
 }
 
-/** 7일 실패 알림을 띄운다. 예약한 때까지 백업이 없었다는 뜻이다. 내용은 예약할 때 받은 그대로다. */
+/**
+ * 7일 실패 알림을 띄운다.
+ * 예약한 때까지 백업이 없었다는 뜻이다.
+ * 내용은 예약할 때 받은 그대로다.
+ */
 class BackupAlertWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val title = inputData.getString(KEY_TITLE) ?: return Result.success()
@@ -221,13 +237,17 @@ class AndroidBackupNotifier(private val context: Context, private val clock: Clo
     }
 }
 
-/** 작업 관리자의 하루 주기 작업 하나. 조건은 네트워크 연결됨과 배터리 부족 아님이다. */
+/**
+ * 작업 관리자의 하루 주기 작업 하나.
+ * 조건은 네트워크 연결됨과 배터리 부족 아님이다.
+ */
 class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
     private val manager get() = WorkManager.getInstance(context)
     private val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).setRequiresBatteryNotLow(true).build()
 
     override fun scheduleDaily() {
-        // 주기 작업은 맡기자마자 한 번 돈다. 첫 백업은 연결하는 쪽이 정하므로 하루 뒤부터 돌린다.
+        // 주기 작업은 맡기자마자 한 번 돈다.
+        // 첫 백업은 연결하는 쪽이 정하므로 하루 뒤부터 돌린다.
         val work = PeriodicWorkRequestBuilder<BackupWorker>(
             1,
             TimeUnit.DAYS
@@ -239,7 +259,8 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
         manager.cancelUniqueWork(DAILY)
     }
 
-    // 조건을 걸지 않는다. 인터넷이 없으면 조용히 기다리지 않고 바로 실패를 보여 준다.
+    // 조건을 걸지 않는다.
+    // 인터넷이 없으면 조용히 기다리지 않고 바로 실패를 보여 준다.
     override fun startNow(cellularOnce: Boolean): Boolean {
         val work =
             OneTimeWorkRequestBuilder<BackupNowWorker>()

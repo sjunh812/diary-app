@@ -9,27 +9,45 @@ expect class AppFiles {
     /** 일기 DB 파일. */
     val databasePath: String
 
-    /** 사진 원본 `<sha256>.<ext>`. 백업에 올린다. */
+    /**
+     * 사진 원본 `<sha256>.<ext>`.
+     * 백업에 올린다.
+     */
     val mediaDirectory: String
 
-    /** 썸네일. 다시 만들 수 있어 백업에서 뺀다. */
+    /**
+     * 썸네일.
+     * 다시 만들 수 있어 백업에서 뺀다.
+     */
     val thumbnailDirectory: String
 
-    /** 고를 때 받은 일기 글꼴 `<id>.ttf`. 다시 받을 수 있어 백업에서 뺀다. */
+    /**
+     * 고를 때 받은 일기 글꼴 `<id>.ttf`.
+     * 다시 받을 수 있어 백업에서 뺀다.
+     */
     val fontDirectory: String
 
     /** 설정과 잠금 DataStore 파일. */
     val dataStoreDirectory: String
 
-    /** 진행 상태, 올리기 전 스냅샷, 되돌리기 사본(스펙 003). 기기 것이라 올리지 않는다. */
+    /**
+     * 진행 상태, 올리기 전 스냅샷, 되돌리기 사본(스펙 003).
+     * 기기 것이라 올리지 않는다.
+     */
     val backupDirectory: String
 
     /** 이전 상태·결과·작업 DB. 옮길 레거시가 없는 iOS는 null. */
     val migrationDirectory: String?
 
-    /** 레거시 원본 사본. iOS는 null. */
+    /**
+     * 레거시 원본 사본.
+     * iOS는 null.
+     */
     val legacySnapshotDirectory: String?
 
-    /** 폴더가 없으면 만든다. 앱 시작 때 한 번 부른다. */
+    /**
+     * 폴더가 없으면 만든다.
+     * 앱 시작 때 한 번 부른다.
+     */
     fun ensureDirectories()
 }

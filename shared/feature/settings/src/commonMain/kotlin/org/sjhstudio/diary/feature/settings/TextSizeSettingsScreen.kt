@@ -43,7 +43,8 @@ import org.sjhstudio.diary.feature.settings.resources.text_size_sample_glyph
 
 /**
  * 본문 글자 크기(Figma "본문 글자 크기 (G2)", research R17).
- * 위 견본 글이 고른 크기로 바로 바뀌고 고른 본문 글꼴로 그린다. 일기 본문에만 걸리고 앱 틀 글자는 기기 글자 크기를 따른다.
+ * 위 견본 글이 고른 크기로 바로 바뀌고 고른 본문 글꼴로 그린다.
+ * 일기 본문에만 걸리고 앱 틀 글자는 기기 글자 크기를 따른다.
  */
 @Composable
 fun TextSizeSettingsScreen(
@@ -90,7 +91,8 @@ fun TextSizeSettingsScreen(
 }
 
 /**
- * 단계 하나: 원 56 안의 견본 글자와 아래 이름. 고른 단계는 `selected` 바탕에 `accentText`.
+ * 단계 하나: 원 56 안의 견본 글자와 아래 이름.
+ * 고른 단계는 `selected` 바탕에 `accentText`.
  * 칸은 다섯이 폭을 똑같이 나누고, 누름 면이 원과 이름에 붙지 않게 위아래 8을 둔다.
  * 폰 폭에서 칸은 70이라 원 둘레 좌우는 7이다(`docs/design.md` 누름).
  */

@@ -61,7 +61,7 @@ object DriveRest {
         return (0 until files.length()).map { files.getJSONObject(it) }
     }
 
-    // 지우지 않고 드라이브 휴지통으로 옮긴다(30일 안에 되살릴 수 있음).
+    // 지우지 않고 드라이브 휴지통으로 옮긴다(30일 안에 복원할 수 있음).
     fun trash(token: String, fileId: String) {
         request(
             "PATCH",

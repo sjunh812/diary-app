@@ -45,7 +45,7 @@
     <string name="backup_line_today">今日 %1$s</string>
     <string name="backup_line_yesterday">昨日 %1$s</string>
     <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
-    <!-- 되살리기(B2~B6) -->
+    <!-- 복원(B2~B6) -->
     <string name="restore_row">バックアップから復元</string>
     <string name="restore_row_body">別のスマホや以前のアプリのバックアップを統合します。</string>
     <string name="restore_keep_note">復元しても、このスマホの日記はそのまま残ります。</string>

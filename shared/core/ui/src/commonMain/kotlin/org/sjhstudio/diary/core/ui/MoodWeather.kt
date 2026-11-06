@@ -46,10 +46,17 @@ import org.sjhstudio.diary.core.ui.resources.weather_sleet
 import org.sjhstudio.diary.core.ui.resources.weather_snow
 import org.sjhstudio.diary.core.ui.resources.weather_sunny
 
-/** 얼굴 선 색. 기분 색은 두 테마에서 같은 파스텔이라 선도 어두운 색 하나다(Figma 기분 칸). */
+/**
+ * 얼굴 선 색.
+ * 기분 색은 두 테마에서 같은 파스텔이라 선도 어두운 색 하나다(Figma 기분 칸).
+ */
 val MoodFaceLine = Color(0xFF1A1C20)
 
-/** 기분 얼굴. 그림만으로 구별하지 않게 이름과 함께 쓴다. [contentDescription]이 없으면 장식이다. */
+/**
+ * 기분 얼굴.
+ * 그림만으로 구별하지 않게 이름과 함께 쓴다.
+ * [contentDescription]이 없으면 장식이다.
+ */
 @Composable
 fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescription: String? = null) {
     val face = remember(mood) { mood.face() }
@@ -63,7 +70,10 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
     }
 }
 
-/** 기분 없이 글만 쓴 일기. 회색 원 안 글줄 둘이고, 굵기는 기분 얼굴의 선과 같다. */
+/**
+ * 기분 없이 글만 쓴 일기.
+ * 회색 원 안 글줄 둘이고, 굵기는 기분 얼굴의 선과 같다.
+ */
 @Composable
 fun NoMoodFace(size: Dp, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
@@ -154,7 +164,10 @@ fun Weather.icon(): ImageVector = when (this) {
     Weather.SNOW -> DiaryIcons.WeatherSnow
 }
 
-/** 기분 색. 그래프처럼 얼굴 없이 색만 쓸 때 부른다. */
+/**
+ * 기분 색.
+ * 그래프처럼 얼굴 없이 색만 쓸 때 부른다.
+ */
 @Composable
 fun moodColor(mood: Mood): Color = DiaryTheme.colors.mood.of(mood)
 

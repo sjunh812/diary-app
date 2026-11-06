@@ -8,7 +8,8 @@ import org.sjhstudio.diary.core.model.decodeHtmlEntity
  * - 문단(`p`)과 목록(`ul`) 같은 덩어리 사이는 빈 줄 하나(`"\n\n"`)다.
  * - `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `를 붙인다.
  * - 엔티티는 글자로 풀고, 공백·탭·`\r`은 줄이거나 바꾸지 않는다.
- * - 허용 목록 밖의 태그는 태그만 버리고 안의 글은 남긴다. `script`, `style`, `iframe`은 안의 글까지 버린다.
+ * - 허용 목록 밖의 태그는 태그만 버리고 안의 글은 남긴다.
+ * `script`, `style`, `iframe`은 안의 글까지 버린다.
  *
  * 레거시 글은 `toPlainText(legacyToHtml(c)) == c`여야 한다(스펙 001 contracts/legacy-mapping.md).
  */

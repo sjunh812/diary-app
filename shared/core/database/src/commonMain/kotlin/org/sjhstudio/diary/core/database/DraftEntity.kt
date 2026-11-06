@@ -7,7 +7,8 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 /**
- * 임시 저장본(스펙 002 data-model.md Draft). 새 일기는 키 `new`, 고치는 일기는 일기 ID를 키로 하나씩 둔다.
+ * 임시 저장본(스펙 002 data-model.md Draft).
+ * 새 일기는 키 `new`, 고치는 일기는 일기 ID를 키로 하나씩 둔다.
  * 백업에 싣지 않는다(`docs/backup.md`).
  */
 @Entity(tableName = "draft")
@@ -24,7 +25,11 @@ data class DraftEntity(
     @ColumnInfo(name = "updated_at") val updatedAt: Long
 )
 
-/** 임시 저장본의 사진. 저장하면 `media`로 옮기고 지운다. 옮겨 온 일기처럼 같은 사진이 두 줄일 수 있어 순서를 키로 쓴다. */
+/**
+ * 임시 저장본의 사진.
+ * 저장하면 `media`로 옮기고 지운다.
+ * 옮겨 온 일기처럼 같은 사진이 두 줄일 수 있어 순서를 키로 쓴다.
+ */
 @Entity(
     tableName = "draft_media",
     primaryKeys = ["draft_key", "sort_order"],

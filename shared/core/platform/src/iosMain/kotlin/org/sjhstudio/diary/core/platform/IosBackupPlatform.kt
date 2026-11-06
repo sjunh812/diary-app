@@ -25,12 +25,22 @@ import platform.UserNotifications.UNUserNotificationCenter
 import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
 import platform.darwin.dispatch_get_global_queue
 
-/** Swift의 GoogleSignIn을 부르는 다리. iosApp이 앱을 켤 때 건다(research R2). 값이 없으면 빈 문자열을 넘긴다. */
+/**
+ * Swift의 GoogleSignIn을 부르는 다리.
+ * iosApp이 앱을 켤 때 건다(research R2).
+ * 값이 없으면 빈 문자열을 넘긴다.
+ */
 interface IosDriveBridge {
-    /** 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘긴다. 실패는 "cancelled", "offline", "failed"다. */
+    /**
+     * 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘긴다.
+     * 실패는 "cancelled", "offline", "failed"다.
+     */
     fun connect(hint: String?, done: (key: String?, email: String?, error: String?) -> Unit)
 
-    /** 끝나면 (토큰, 계정 고유 ID, 이메일, 실패)를 넘긴다. 실패는 "needsUser", "offline", "failed"다. */
+    /**
+     * 끝나면 (토큰, 계정 고유 ID, 이메일, 실패)를 넘긴다.
+     * 실패는 "needsUser", "offline", "failed"다.
+     */
     fun accessToken(done: (token: String?, key: String?, email: String?, error: String?) -> Unit)
 
     fun disconnect(done: () -> Unit)
@@ -86,7 +96,10 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
     }
 }
 
-/** 경로 감시로 지금 연결을 안다. 데이터 요금이 있으면 `expensive`다. */
+/**
+ * 경로 감시로 지금 연결을 안다.
+ * 데이터 요금이 있으면 `expensive`다.
+ */
 class IosNetworkState : NetworkState {
     override var isConnected: Boolean = true
         private set

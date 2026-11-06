@@ -173,7 +173,10 @@ import org.sjhstudio.diary.feature.backup.resources.restore_value_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_value_updated
 import org.sjhstudio.diary.feature.backup.resources.restore_when
 
-/** 백업에서 복원하기(Figma "백업에서 복원하기 (B3)"). 기기마다 묶어 보이고, 깨진 백업은 고를 수 없다. */
+/**
+ * 백업에서 복원하기(Figma "백업에서 복원하기 (B3)").
+ * 기기마다 묶어 보이고, 깨진 백업은 고를 수 없다.
+ */
 @Composable
 fun RestoreListRoute(onBack: () -> Unit, onPick: (String) -> Unit, onFile: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestoreListViewModel>()
@@ -250,13 +253,19 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit, onFile
     }
 }
 
-/** 값 줄 묶음. 값 줄이 스스로 화면 여백을 두므로 이미 여백 안에 있을 때는 겹치지 않게 뺀다. */
+/**
+ * 값 줄 묶음.
+ * 값 줄이 스스로 화면 여백을 두므로 이미 여백 안에 있을 때는 겹치지 않게 뺀다.
+ */
 @Composable
 private fun ValueGroup(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     CompositionLocalProvider(LocalScreenGutter provides Dp.Hairline) { Column(modifier, content = content) }
 }
 
-/** 고를 수 없는 백업. 자리는 남겨서 왜 없는지 보인다. */
+/**
+ * 고를 수 없는 백업.
+ * 자리는 남겨서 왜 없는지 보인다.
+ */
 @Composable
 private fun Unavailable(title: String, reason: String) {
     val colors = DiaryTheme.colors
@@ -276,7 +285,10 @@ private fun problemText(state: BackupEntryState): String? = when (state) {
     is BackupEntryState.Damaged -> stringResource(Res.string.restore_damaged)
 }
 
-/** 복원하기 전에 확인(Figma "복원하기 전에 확인 (B4)"). 합치기는 지금 일기를 지우지 않는다. */
+/**
+ * 복원하기 전에 확인(Figma "복원하기 전에 확인 (B4)").
+ * 합치기는 지금 일기를 지우지 않는다.
+ */
 @Composable
 fun RestorePreviewRoute(snapshotName: String, onBack: () -> Unit, onMerged: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestorePreviewViewModel>(key = snapshotName) { parametersOf(snapshotName) }
@@ -390,7 +402,10 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
     }
 }
 
-/** 예전 앱 백업(Figma B7). 합치기로만 불러온다. */
+/**
+ * 예전 앱 백업(Figma B7).
+ * 합치기로만 불러온다.
+ */
 @Composable
 private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePreview, onImport: () -> Unit) {
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
@@ -435,7 +450,10 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
     }
 }
 
-/** 복원하는 중과 결과(Figma B5, B6). 뒤로 가면 멈추지 않고 홈으로 간다. */
+/**
+ * 복원하는 중과 결과(Figma B5, B6).
+ * 뒤로 가면 멈추지 않고 홈으로 간다.
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: () -> Unit, modifier: Modifier = Modifier) {
@@ -446,7 +464,8 @@ fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: ()
         onHome()
     }
     val access = rememberNotificationAccess()
-    // 사진을 받는 동안 앱을 나가도 끝나면 알릴 수 있게 시작할 때 한 번 묻는다. 거절해도 복원은 그대로 돈다.
+    // 사진을 받는 동안 앱을 나가도 끝나면 알릴 수 있게 시작할 때 한 번 묻는다.
+    // 거절해도 복원은 그대로 돈다.
     LaunchedEffect(access) { access.request {} }
     LaunchedEffect(state) { if (state == RestoreState.Idle) onHome() }
     BackHandler(onBack = if (state is RestoreState.Done) finish else onHome)
@@ -636,7 +655,10 @@ private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
     }
 }
 
-/** Figma "B6 · 백업을 확인하지 못했어요". 어떤 실패든 기기의 기록은 그대로다. */
+/**
+ * Figma "B6 · 백업을 확인하지 못했어요".
+ * 어떤 실패든 기기의 기록은 그대로다.
+ */
 @Composable
 private fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onPickOther: () -> Unit) {
     val (title, body) =
@@ -675,7 +697,10 @@ private fun Page(title: String, onBack: () -> Unit, modifier: Modifier, content:
     }
 }
 
-/** 백업 목록을 읽는 동안. 나올 목록처럼 기기 머리 아래에 두 줄짜리 백업 줄을 둔다. */
+/**
+ * 백업 목록을 읽는 동안.
+ * 나올 목록처럼 기기 머리 아래에 두 줄짜리 백업 줄을 둔다.
+ */
 @Composable
 private fun LoadingList(label: String) {
     BasicText(
@@ -708,7 +733,10 @@ private fun LoadingList(label: String) {
     }
 }
 
-/** 고른 백업을 받아 보는 동안. 나올 확인 화면처럼 배지, 제목, 값 줄 넷, 안내 상자, 버튼 자리를 둔다. */
+/**
+ * 고른 백업을 받아 보는 동안.
+ * 나올 확인 화면처럼 배지, 제목, 값 줄 넷, 안내 상자, 버튼 자리를 둔다.
+ */
 @Composable
 private fun ColumnScope.LoadingPreview(label: String) {
     val colors = DiaryTheme.colors
@@ -738,7 +766,10 @@ private fun ColumnScope.LoadingPreview(label: String) {
     Bottom { DiarySkeleton { SkeletonBlock(Modifier.fillMaxWidth().height(DiarySpacing.x14), DiaryShapes.r16) } }
 }
 
-/** 큰 배지, 제목, 설명. [fill]이면 남은 자리 가운데에 둔다. */
+/**
+ * 큰 배지, 제목, 설명.
+ * [fill]이면 남은 자리 가운데에 둔다.
+ */
 @Composable
 private fun ColumnScope.Hero(
     icon: ImageVector,

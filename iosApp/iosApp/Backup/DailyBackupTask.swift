@@ -2,7 +2,8 @@ import BackgroundTasks
 import Shared
 import UIKit
 
-/// 하루 한 번 자동 백업(research R15). 실행이 보장되지 않아서 앱이 뒤로 갈 때와 열릴 때도 본다.
+/// 하루 한 번 자동 백업(research R15).
+/// 실행이 보장되지 않아서 앱이 뒤로 갈 때와 열릴 때도 본다.
 /// 언제 도는지는 시스템이 정하고, 돌 때가 됐는지는 공통 코드가 정한다.
 enum DailyBackupTask {
     private static let identifier = "org.sjhstudio.diary.backup.daily"

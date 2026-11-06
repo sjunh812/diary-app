@@ -2,7 +2,10 @@ package org.sjhstudio.diary.core.drive
 
 import okio.Path
 
-/** 드라이브 저장 공간. [limit]이 null이면 한도가 없는 계정이다. */
+/**
+ * 드라이브 저장 공간.
+ * [limit]이 null이면 한도가 없는 계정이다.
+ */
 data class StorageQuota(val limit: Long?, val usage: Long) {
     val free: Long? get() = limit?.let { (it - usage).coerceAtLeast(0) }
 }
@@ -18,7 +21,10 @@ data class DriveFile(
     val createdAt: Long
 )
 
-/** 파일 찾기 조건. 휴지통의 파일은 늘 뺀다. */
+/**
+ * 파일 찾기 조건.
+ * 휴지통의 파일은 늘 뺀다.
+ */
 data class DriveQuery(val name: String? = null, val parentId: String? = null, val props: Map<String, String> = emptyMap()) {
     fun toQ(): String = buildList {
         add("trashed = false")
@@ -34,7 +40,10 @@ data class DrivePage(val files: List<DriveFile>, val nextPageToken: String?)
 
 data class NewFile(val name: String, val parentId: String?, val mimeType: String, val props: Map<String, String> = emptyMap())
 
-/** 이어 올리기 세션. [uri]는 드라이브가 정한 일회용 주소로 일주일 동안 유효하다. */
+/**
+ * 이어 올리기 세션.
+ * [uri]는 드라이브가 정한 일회용 주소로 일주일 동안 유효하다.
+ */
 data class UploadSession(val uri: String, val size: Long)
 
 sealed interface ChunkResult {
@@ -42,11 +51,17 @@ sealed interface ChunkResult {
 
     data class Done(val file: DriveFile) : ChunkResult
 
-    /** 세션이 없어졌다. 처음부터 다시 올린다. */
+    /**
+     * 세션이 없어졌다.
+     * 처음부터 다시 올린다.
+     */
     data object Expired : ChunkResult
 }
 
-/** 드라이브 호출 경계(contracts/drive-gateway.md). 파일은 경로로 받아 흘려 보낸다. */
+/**
+ * 드라이브 호출 경계(contracts/drive-gateway.md).
+ * 파일은 경로로 받아 스트리밍으로 보낸다.
+ */
 interface DriveApi {
     suspend fun about(): StorageQuota
 
@@ -87,5 +102,8 @@ suspend fun DriveApi.listAll(query: DriveQuery): List<DriveFile> {
 /** 5MB 이하는 한 번에, 그보다 크면 이어 올리기로 올린다. */
 const val SMALL_UPLOAD_LIMIT: Long = 5L * 1024 * 1024
 
-/** 이어 올리기 조각. 256KiB의 배수여야 한다. */
+/**
+ * 이어 올리기 조각.
+ * 256KiB의 배수여야 한다.
+ */
 const val UPLOAD_CHUNK: Long = 8L * 1024 * 1024

@@ -20,12 +20,17 @@ import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.platform.FreeSpace
 
-/** 되돌릴 사본을 둘 자리가 없다. 바꾸기를 시작하지 않아서 기기의 기록은 그대로다. */
+/**
+ * 되돌릴 사본을 둘 자리가 없다.
+ * 바꾸기를 시작하지 않아서 기기의 기록은 그대로다.
+ */
 class NoRoomForRollback : Exception("no room for the rollback copy")
 
 /**
- * 바꾸기와 7일 되돌리기(contracts/merge-rules.md). 바꾸기는 기기 일기를 비우는 유일한 길이라서
- * 사본을 뜨고 열어서 확인한 뒤에만 비운다. 7일이 지나기 전에는 사진 정리도 멈춘다.
+ * 바꾸기와 7일 되돌리기(contracts/merge-rules.md).
+ * 바꾸기는 기기 일기를 비우는 유일한 길이라서
+ * 사본을 뜨고 열어서 확인한 뒤에만 비운다.
+ * 7일이 지나기 전에는 사진 정리도 멈춘다.
  */
 class RollbackManager(
     private val db: DiaryDatabase,
@@ -41,7 +46,10 @@ class RollbackManager(
     private val dir = rootDir / "rollback"
     private val json = Json { ignoreUnknownKeys = true }
 
-    /** 사본은 `rollback/<되돌릴 수 있는 마지막 시각>/`에 둔다. 저장해 둔 그 시각이 지금 쓸 사본을 가리킨다. */
+    /**
+     * 사본은 `rollback/<되돌릴 수 있는 마지막 시각>/`에 둔다.
+     * 저장해 둔 그 시각이 지금 쓸 사본을 가리킨다.
+     */
     private fun slot(until: Instant) = dir / until.toEpochMilliseconds().toString()
 
     private fun copyIn(slot: Path) = slot / "diary.db"
@@ -63,14 +71,16 @@ class RollbackManager(
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            // 사본이 깨졌으면 되돌릴 수 없으니 안내를 감춘다. 화면 흐름을 죽이지 않는다.
+            // 사본이 깨졌으면 되돌릴 수 없으니 안내를 감춘다.
+            // 화면 흐름을 죽이지 않는다.
             null
         }
     }
 
     /**
      * 사본을 새 자리에 만들고 확인한 뒤 한 트랜잭션으로 백업 내용으로 바꾼다.
-     * 끝나기 전에는 앞선 사본을 지우지 않는다. 실패해도 앞선 바꾸기는 되돌릴 수 있고, 일기 사본도 남기지 않는다.
+     * 끝나기 전에는 앞선 사본을 지우지 않는다.
+     * 실패해도 앞선 바꾸기는 되돌릴 수 있고, 일기 사본도 남기지 않는다.
      */
     suspend fun replace(backup: List<MergeEntry>, source: String) {
         val needed = databaseBytes() * 2
@@ -98,7 +108,10 @@ class RollbackManager(
         clearOlderCopies(slot)
     }
 
-    /** 바꾸기는 이미 끝났다. 지우지 못한 사본은 7일 뒤에 함께 지워진다. */
+    /**
+     * 바꾸기는 이미 끝났다.
+     * 지우지 못한 사본은 7일 뒤에 함께 지워진다.
+     */
     private fun clearOlderCopies(keep: Path) {
         try {
             fileSystem.list(dir).filter { it != keep }.forEach { fileSystem.deleteRecursively(it) }
@@ -107,7 +120,10 @@ class RollbackManager(
         }
     }
 
-    /** 바꾸기 전으로 돌아간다. 바꾼 뒤에 쓰거나 고친 일기는 합치기 규칙으로 함께 남긴다. */
+    /**
+     * 바꾸기 전으로 돌아간다.
+     * 바꾼 뒤에 쓰거나 고친 일기는 합치기 규칙으로 함께 남긴다.
+     */
     suspend fun rollBack(): Boolean {
         val until = store.current().rollbackUntil ?: return false
         val copy = copyIn(slot(until))
@@ -142,7 +158,10 @@ class RollbackManager(
         return true
     }
 
-    /** 앱을 열 때 부른다. 7일이 지났으면 사본을 지운다. */
+    /**
+     * 앱을 열 때 부른다.
+     * 7일이 지났으면 사본을 지운다.
+     */
     suspend fun expire() {
         val until = store.current().rollbackUntil ?: return
         if (clock.now() >= until) finish()

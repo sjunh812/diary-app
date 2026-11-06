@@ -56,7 +56,8 @@ import org.sjhstudio.diary.feature.settings.resources.settings_trash
 import org.sjhstudio.diary.feature.settings.resources.settings_trash_count
 
 /**
- * 설정 목록(Figma "설정 (S6)"). 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 쓴다.
+ * 설정 목록(Figma "설정 (S6)").
+ * 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 쓴다.
  * 백업(스펙 003)과 목록 모양은 그 화면과 함께 더한다.
  */
 @Composable
@@ -80,7 +81,10 @@ fun SettingsScreen(
     adsRemoved: Boolean = false,
     onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
-    /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
+    /**
+     * 개발 빌드에만 있는 디자인 시스템 견본(FR-029).
+     * 출시 빌드는 null이라 줄이 없다.
+     */
     onDesignCatalog: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors

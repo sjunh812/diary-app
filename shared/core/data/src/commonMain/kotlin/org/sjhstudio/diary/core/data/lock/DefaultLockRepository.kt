@@ -72,7 +72,10 @@ class DefaultLockRepository(
 
     override suspend fun setRelockAfter(value: RelockAfter) = store.update { it.copy(relockAfter = value) }
 
-    /** 판정과 횟수 쓰기를 한 번의 파일 고침 안에서 한다. 맞으면 [onOk]로 바꾼 값을 쓴다. */
+    /**
+     * 판정과 횟수 쓰기를 한 번의 파일 고침 안에서 한다.
+     * 맞으면 [onOk]로 바꾼 값을 쓴다.
+     */
     private suspend fun judgeAndWrite(pin: Pin, now: Instant, onOk: (LockSettings) -> LockSettings): VerifyResult {
         var result: VerifyResult = VerifyResult.KeyMissing
         try {
@@ -136,6 +139,9 @@ class DefaultLockRepository(
     }
 }
 
-/** 16바이트 임의값. `Uuid.random()`은 암호용 난수로 만든다. */
+/**
+ * 16바이트 임의값.
+ * `Uuid.random()`은 암호용 난수로 만든다.
+ */
 @OptIn(ExperimentalUuidApi::class)
 private fun randomSalt(): ByteArray = Uuid.random().toByteArray()

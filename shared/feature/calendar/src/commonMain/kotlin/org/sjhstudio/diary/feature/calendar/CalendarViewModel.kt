@@ -28,8 +28,10 @@ import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
 
 /**
- * 달력(FR-022~FR-024). 달을 넘기면 그 달에서 마지막으로 일기를 쓴 날을 고른다.
- * 이번 달로 오면 오늘을 고른다. 일기가 없는 달은 아무 날도 고르지 않는다.
+ * 달력(FR-022~FR-024).
+ * 달을 넘기면 그 달에서 마지막으로 일기를 쓴 날을 고른다.
+ * 이번 달로 오면 오늘을 고른다.
+ * 일기가 없는 달은 아무 날도 고르지 않는다.
  */
 class CalendarViewModel(
     private val entries: EntryRepository,
@@ -46,7 +48,10 @@ class CalendarViewModel(
             .flatMapLatest { date -> date?.let(entries::day) ?: flowOf(emptyList()) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyList())
 
-    /** 넘길 수 있는 마지막 달. 이번 달과 일기가 있는 마지막 달 가운데 늦은 쪽이다(옛 앱은 미래 날짜도 허용했다). */
+    /**
+     * 넘길 수 있는 마지막 달.
+     * 이번 달과 일기가 있는 마지막 달 가운데 늦은 쪽이다(옛 앱은 미래 날짜도 허용했다).
+     */
     val lastMonth: StateFlow<YearMonth> =
         entries.months()
             .map { months -> maxOf(months.maxOrNull() ?: thisMonth(), thisMonth()) }
@@ -67,7 +72,10 @@ class CalendarViewModel(
         _selected.value = date
     }
 
-    /** 달을 넘겼을 때. 이미 그 달의 날을 고른 상태면 그대로 둔다. */
+    /**
+     * 달을 넘겼을 때.
+     * 이미 그 달의 날을 고른 상태면 그대로 둔다.
+     */
     fun showMonth(month: YearMonth) {
         if (_selected.value?.yearMonth == month) return
         if (month == thisMonth()) {
@@ -82,7 +90,10 @@ class CalendarViewModel(
     }
 }
 
-/** 달력 넘기기의 쪽 번호. 1970년 1월이 0쪽이다. */
+/**
+ * 달력 넘기기의 쪽 번호.
+ * 1970년 1월이 0쪽이다.
+ */
 internal fun YearMonth.pageIndex(): Int = (year - FIRST_YEAR) * MONTHS + (month.number - 1)
 
 internal fun monthOfPage(page: Int): YearMonth = YearMonth(FIRST_YEAR + page / MONTHS, page % MONTHS + 1)

@@ -4,13 +4,17 @@ import kotlin.time.Instant
 
 /**
  * 기록 이전 결과(`migration/report.json`).
- * 개수만 담는다. 일기 내용과 경로는 담지 않는다.
+ * 개수만 담는다.
+ * 일기 내용과 경로는 담지 않는다.
  */
 data class MigrationReport(
     /** 레거시 줄 수(읽은 것 + 못 읽은 것 추정). */
     val entriesTotal: Int,
     val entriesMigrated: Int,
-    /** 깨져서 못 읽은 줄 수. 1 이상이면 [MigrationOutcome.PARTIAL]. */
+    /**
+     * 깨져서 못 읽은 줄 수.
+     * 1 이상이면 [MigrationOutcome.PARTIAL].
+     */
     val entriesUnreadable: Int,
     val photosFound: Int,
     val photosMissing: Int,
@@ -18,7 +22,10 @@ data class MigrationReport(
     val dateDiffers: Int,
     /** 날짜를 읽지 못해 대체 규칙을 쓴 일기 수. */
     val dateUnparsed: Int,
-    /** 썸네일을 못 만든 수. 이전 실패가 아니다. */
+    /**
+     * 썸네일을 못 만든 수.
+     * 이전 실패가 아니다.
+     */
     val thumbnailsFailed: Int,
     val settingsMigrated: List<MigratedSetting>,
     val finishedAt: Instant,

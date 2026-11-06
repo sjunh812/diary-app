@@ -104,7 +104,10 @@ import org.sjhstudio.diary.feature.insight.resources.insight_week_number
 import org.sjhstudio.diary.feature.insight.resources.insight_week_range
 import org.sjhstudio.diary.feature.insight.resources.insight_year_map
 
-/** 돌아보기(Figma "돌아보기 (S5)"). 숫자보다 말로 먼저 알려 주고 기분 막대를 누르면 그 일기들로 간다. */
+/**
+ * 돌아보기(Figma "돌아보기 (S5)").
+ * 숫자보다 말로 먼저 알려 주고 기분 막대를 누르면 그 일기들로 간다.
+ */
 @Composable
 fun InsightRoute(
     onMood: (Mood, DateRange?) -> Unit,
@@ -236,7 +239,10 @@ private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onP
     }
 }
 
-/** 기간 탭은 그대로 있고 아래 칸만 빈 때다. 달력의 빈 날처럼 큰 제목 없이 한 줄로 조용히 둔다(`docs/design.md` 빈 상태). */
+/**
+ * 기간 탭은 그대로 있고 아래 칸만 빈 때다.
+ * 달력의 빈 날처럼 큰 제목 없이 한 줄로 조용히 둔다(`docs/design.md` 빈 상태).
+ */
 @Composable
 private fun Empty() {
     BasicText(
@@ -269,7 +275,8 @@ private fun Content(
         YearMap(period.year, pixels, today)
         Spacer(Modifier.height(DiarySpacing.x5))
     }
-    // 쓴 적 없는 기분은 줄을 차지하지 않는다. 주 보기에서는 0인 줄이 대부분이었다.
+    // 쓴 적 없는 기분은 줄을 차지하지 않는다.
+    // 주 보기에서는 0인 줄이 대부분이었다.
     val rows = counts.sorted().filter { (_, count) -> count > 0 }
     if (rows.isEmpty()) return
     SectionTitle(stringResource(Res.string.insight_section_moods))
@@ -285,7 +292,10 @@ private fun Content(
     }
 }
 
-/** 돌아보기 묶음 제목. 기분 흐름, 연간 지도, 기분 막대가 같이 쓴다. */
+/**
+ * 돌아보기 묶음 제목.
+ * 기분 흐름, 연간 지도, 기분 막대가 같이 쓴다.
+ */
 @Composable
 private fun SectionTitle(text: String) {
     BasicText(
@@ -323,7 +333,11 @@ private fun countLine(counts: MoodCounts): String {
     )
 }
 
-/** 기분 흐름. 칸마다 가장 많은 기분의 얼굴을 보인다. 색만 있는 띠는 기분이 여러 가지라 읽히지 않았다. */
+/**
+ * 기분 흐름.
+ * 칸마다 가장 많은 기분의 얼굴을 보인다.
+ * 색만 있는 띠는 기분이 여러 가지라 읽히지 않았다.
+ */
 @Composable
 private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateFormat) {
     val colors = DiaryTheme.colors
@@ -370,7 +384,8 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
 }
 
 /**
- * 고른 기분이 없는 칸. 여기는 기분을 보는 줄이라 일기를 썼는지는 가르지 않는다.
+ * 고른 기분이 없는 칸.
+ * 여기는 기분을 보는 줄이라 일기를 썼는지는 가르지 않는다.
  * 쓴 날은 달력이 보이고, 기분 없는 일기의 수는 위 요약 줄에 있다.
  */
 @Composable
@@ -386,7 +401,10 @@ private fun slotLabel(slot: BucketSlot, dates: DiaryDateFormat): String = when (
     is BucketSlot.Year -> dates.year(slot.date)
 }
 
-/** 연간 지도: 달마다 한 줄, 하루 한 칸(Daylio Year in Pixels와 같은 꼴). 앞으로 올 날은 비워 둔다. */
+/**
+ * 연간 지도: 달마다 한 줄, 하루 한 칸(Daylio Year in Pixels와 같은 꼴).
+ * 앞으로 올 날은 비워 둔다.
+ */
 @Composable
 private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) {
     val colors = DiaryTheme.colors
@@ -433,7 +451,10 @@ private fun percentOf(count: Int, total: Int): Int = if (total == 0) 0 else coun
 private fun moodAmount(count: Int, percent: Int): String =
     if (count > 0) stringResource(Res.string.insight_count_percent, count, percent) else count.toString()
 
-/** 글을 잘리지 않게 담을 폭. 글자 크기와 고른 글꼴을 그대로 따른다. */
+/**
+ * 글을 잘리지 않게 담을 폭.
+ * 글자 크기와 고른 글꼴을 그대로 따른다.
+ */
 @Composable
 internal fun widestText(texts: List<String>, style: TextStyle): Dp {
     val measurer = rememberTextMeasurer()

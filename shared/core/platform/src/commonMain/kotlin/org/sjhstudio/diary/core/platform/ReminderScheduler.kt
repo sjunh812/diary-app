@@ -12,7 +12,10 @@ interface ReminderScheduler {
     fun cancel()
 }
 
-/** 예약할 곳이 아직 없는 플랫폼. iOS 알림 예약은 알림 설정 화면과 함께 붙인다. */
+/**
+ * 예약할 곳이 아직 없는 플랫폼.
+ * iOS 알림 예약은 알림 설정 화면과 함께 붙인다.
+ */
 object NoReminderScheduler : ReminderScheduler {
     override fun schedule(at: Instant) = Unit
 

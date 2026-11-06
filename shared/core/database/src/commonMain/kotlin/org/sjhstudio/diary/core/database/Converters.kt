@@ -16,7 +16,10 @@ import org.sjhstudio.diary.core.model.Weather
 // 표의 글자·숫자 값과 모델 사이를 오간다.
 // 저장 형식(data-model.md)을 여기 한곳에서만 다룬다.
 
-/** `HH:mm`. 초는 쓰지 않는다. */
+/**
+ * `HH:mm`.
+ * 초는 쓰지 않는다.
+ */
 private val TIME_FORMAT =
     LocalTime.Format {
         hour()
@@ -97,7 +100,8 @@ fun MediaEntity.asModel(): Media = Media(
     id = id,
     entryId = entryId,
     sortOrder = sortOrder,
-    // 모르는 상태는 화면에서 "원래 기기에 있는 사진"으로 보이게 한다. 줄은 그대로 둔다.
+    // 모르는 상태는 화면에서 "원래 기기에 있는 사진"으로 보이게 한다.
+    // 줄은 그대로 둔다.
     status = MediaStatus.fromId(status) ?: MediaStatus.MISSING,
     fileName = fileName,
     sha256 = sha256,

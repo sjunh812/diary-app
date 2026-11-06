@@ -47,7 +47,10 @@ internal class EditorColors(colors: DiaryColors) {
     fun toEditor(html: String): String =
         pairs.fold(bodyToEditor(html)) { text, (stored, shown) -> text.replace(stored, shown, ignoreCase = true) }
 
-    /** 편집기가 낸 `rgba()`나 hex를 저장 값으로. 정리기가 팔레트 밖 색을 버리므로 여기서 꼭 돌려놓는다. */
+    /**
+     * 편집기가 낸 `rgba()`나 hex를 저장 값으로.
+     * 정리기가 팔레트 밖 색을 버리므로 여기서 꼭 돌려놓는다.
+     */
     fun fromEditor(html: String): String {
         val normalized = RGB.replace(html) { match -> rgbToHex(match) ?: match.value }
         return editorToBody(HEX.replace(normalized) { match -> back[match.value.lowercase()] ?: match.value })

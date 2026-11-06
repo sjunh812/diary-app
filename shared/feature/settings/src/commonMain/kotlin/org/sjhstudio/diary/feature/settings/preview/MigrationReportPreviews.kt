@@ -10,7 +10,8 @@ import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportUiState
 
-// 설정 > 기록 이전 결과(M5) 프리뷰. 숫자는 Figma M5 · 일부만과 같다.
+// 설정 > 기록 이전 결과(M5) 프리뷰.
+// 숫자는 Figma M5 · 일부만과 같다.
 
 private val sample =
     MigrationReportUiState(

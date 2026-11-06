@@ -6,7 +6,8 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 /**
- * `entry` 표. 열 이름, 타입, 널은 data-model.md `entry` 표 그대로다.
+ * `entry` 표.
+ * 열 이름, 타입, 널은 data-model.md `entry` 표 그대로다.
  * 날짜와 시각은 글자(`yyyy-MM-dd`, `HH:mm`), 시각은 epoch 밀리초로 둔다.
  * 모델과의 변환은 Converters.kt에 있다.
  */
@@ -20,7 +21,8 @@ import androidx.room3.PrimaryKey
             name = "index_entry_list"
         ),
         Index(value = ["deleted_at", "is_favorite"], name = "index_entry_favorite"),
-        // 레거시 `_id`는 한 번만 옮긴다. 새로 쓴 일기는 null이라 여럿이어도 된다.
+        // 레거시 `_id`는 한 번만 옮긴다.
+        // 새로 쓴 일기는 null이라 여럿이어도 된다.
         Index(value = ["legacy_id"], unique = true, name = "index_entry_legacy_id")
     ]
 )
