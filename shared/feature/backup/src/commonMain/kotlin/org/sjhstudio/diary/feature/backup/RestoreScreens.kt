@@ -459,6 +459,7 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
 /**
  * 복원하는 중과 결과(Figma B5, B6).
  * 뒤로 가면 멈추지 않고 홈으로 간다.
+ * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 연다([RestoreResultNotice]).
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

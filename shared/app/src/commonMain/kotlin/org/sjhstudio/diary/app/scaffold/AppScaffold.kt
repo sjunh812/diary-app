@@ -66,6 +66,7 @@ import org.sjhstudio.diary.app.navigation.LocalRailWidth
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
+import org.sjhstudio.diary.app.navigation.RestoreProgressKey
 import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
@@ -112,6 +113,7 @@ import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
+import org.sjhstudio.diary.feature.backup.RestoreResultNotice
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
 import org.sjhstudio.diary.feature.home.HomeRoute
@@ -164,6 +166,10 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     // 탭과 레일을 그리지 않는다.
     val writing = backStack.lastOrNull() is WriteKey
     val fullScreen = writing || backStack.lastOrNull() is PhotoViewerKey || backStack.lastOrNull() is PlusKey
+    // 복원 중에 화면을 떠나도 결과를 다시 열 수 있게 한다.
+    RestoreResultNotice(toast, onResultScreen = backStack.lastOrNull() is RestoreProgressKey, quiet = fullScreen) {
+        backStack.push(RestoreProgressKey)
+    }
     // 달을 읽기 전에는 일기가 있다고 보고 버튼을 둔다.
     // 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
     val entries = koinInject<EntryRepository>()

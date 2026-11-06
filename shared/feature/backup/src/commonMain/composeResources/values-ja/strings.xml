@@ -217,6 +217,8 @@
     <string name="backup_done_body">日記と写真をすべてドライブにアップロードしました。</string>
     <string name="backup_done_left">写真%1$s枚はWi-Fi接続時にアップロードします。</string>
     <string name="backup_stopped_title">バックアップを完了できませんでした</string>
+    <string name="restore_stopped_title">復元を完了できませんでした</string>
+    <string name="restore_see_result">見る</string>
     <string name="restore_notice_title">復元が終わりました</string>
     <string name="restore_notice_body">日記と写真をすべて復元しました。</string>
     <string name="restore_notice_stopped_title">まだダウンロードしていない写真があります</string>

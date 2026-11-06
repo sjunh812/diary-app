@@ -8,20 +8,30 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.PhotoStop
+import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.ui.grouped
@@ -30,7 +40,10 @@ import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_space_body
+import org.sjhstudio.diary.feature.backup.resources.restore_notice_title
 import org.sjhstudio.diary.feature.backup.resources.restore_retry
+import org.sjhstudio.diary.feature.backup.resources.restore_see_result
+import org.sjhstudio.diary.feature.backup.resources.restore_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_account
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_file
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_network
@@ -44,6 +57,43 @@ import org.sjhstudio.diary.feature.backup.resources.rollback_running_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_running_title
 import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_title
+
+/**
+ * 복원 화면을 떠난 뒤에 나온 결과를 알릴지 정한다.
+ * 결과는 닫을 때까지 남아 있어서 같은 결과를 두 번 알리지 않게 기억한다.
+ */
+internal class RestoreResultWatch {
+    private var told: RestoreState? = null
+
+    fun shouldTell(state: RestoreState, onResultScreen: Boolean, quiet: Boolean): Boolean {
+        if (state !is RestoreState.Done && state !is RestoreState.Failed) return false
+        if (state === told) return false
+        if (onResultScreen) told = state
+        if (onResultScreen || quiet) return false
+        told = state
+        return true
+    }
+}
+
+/**
+ * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알린다.
+ * 토스트의 보기를 누르면 결과 화면이 열린다.
+ * 일기를 쓰는 동안은 기다린다([quiet]).
+ */
+@Composable
+fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: Boolean, onOpen: () -> Unit) {
+    val restore = koinInject<RestoreRepository>()
+    val state by restore.state.collectAsStateWithLifecycle()
+    val watch = remember { RestoreResultWatch() }
+    // 화면을 옮겨도 떠 있는 토스트가 사라지지 않게 효과 밖에서 띄운다.
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(state, onResultScreen, quiet) {
+        if (!watch.shouldTell(state, onResultScreen, quiet)) return@LaunchedEffect
+        val message = getString(if (state is RestoreState.Done) Res.string.restore_notice_title else Res.string.restore_stopped_title)
+        val action = getString(Res.string.restore_see_result)
+        scope.launch { if (toast.show(message, action) == DiaryToastResult.ActionPerformed) onOpen() }
+    }
+}
 
 /**
  * 백업 화면 아래에 두는 복원 소식.

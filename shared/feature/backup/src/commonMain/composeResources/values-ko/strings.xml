@@ -217,6 +217,8 @@
     <string name="backup_done_body">일기와 사진을 드라이브에 모두 올렸어요.</string>
     <string name="backup_done_left">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</string>
     <string name="backup_stopped_title">백업을 끝내지 못했어요</string>
+    <string name="restore_stopped_title">복원을 마치지 못했어요</string>
+    <string name="restore_see_result">보기</string>
     <string name="restore_notice_title">복원을 마쳤어요</string>
     <string name="restore_notice_body">일기와 사진을 모두 복원했어요.</string>
     <string name="restore_notice_stopped_title">사진을 다 받지 못했어요</string>

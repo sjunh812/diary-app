@@ -217,6 +217,8 @@
     <string name="backup_done_body">Your entries and photos are all on Drive.</string>
     <string name="backup_done_left">Remaining photos will upload on Wi-Fi (%1$s).</string>
     <string name="backup_stopped_title">Backup didn't finish</string>
+    <string name="restore_stopped_title">Couldn't finish the restore</string>
+    <string name="restore_see_result">View</string>
     <string name="restore_notice_title">Restore finished</string>
     <string name="restore_notice_body">All your entries and photos are back.</string>
     <string name="restore_notice_stopped_title">Some photos are still downloading</string>
