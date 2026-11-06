@@ -227,7 +227,7 @@ private fun FreshRow(icon: ImageVector, title: StringResource, body: StringResou
             Modifier.size(DiaryArtSize.rowBadge).clip(DiaryShapes.full).background(colors.selected),
             contentAlignment = Alignment.Center
         ) {
-            DiaryIcon(icon, contentDescription = null, tint = colors.accent)
+            DiaryIcon(icon, contentDescription = null, tint = colors.accentText)
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
             BasicText(stringResource(title), style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
@@ -245,7 +245,7 @@ private fun Dots(count: Int, current: Int) {
                 Modifier
                     .size(DiarySpacing.x2)
                     .clip(DiaryShapes.full)
-                    .background(if (index == current) colors.accent else colors.line)
+                    .background(if (index == current) colors.accent else colors.lineStrong)
             )
         }
     }

@@ -75,7 +75,8 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
                 .heightIn(min = DiaryWriteSize.moodCellHeight)
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
                 .clip(DiaryShapes.r16)
-                .background(if (selected) colors.selected else colors.surface)
+                // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠한다.
+                .then(if (selected) Modifier.background(colors.selected) else Modifier)
                 .semantics { this.selected = selected }
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
                     haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)

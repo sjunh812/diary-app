@@ -358,8 +358,14 @@ private fun DayCell(
         ) {
             BasicText(
                 date.day.toString(),
+                // 고른 칸은 selected 바탕이라 일요일 색의 대비가 모자란다(4.2:1).
                 style = DiaryTheme.typography.captionStrong.copy(
-                    color = if (today) colors.onAccent else dayColor(date, colors.textPrimary)
+                    color =
+                        when {
+                            today -> colors.onAccent
+                            selected -> colors.textPrimary
+                            else -> dayColor(date, colors.textPrimary)
+                        }
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
