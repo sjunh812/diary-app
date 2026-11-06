@@ -5,8 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -90,7 +91,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val trash = koinInject<TrashRepository>()
-        val trashCount by remember(trash) { trash.items().map { it.size } }.collectAsState(0)
+        // 탭을 옮겼다 와도 개수가 0으로 비쳤다 돌아오지 않게 값을 저장해 둔다.
+        var trashCount by rememberSaveable { mutableIntStateOf(0) }
+        LaunchedEffect(trash) { trash.items().map { it.size }.collect { trashCount = it } }
         val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
         SettingsScreen(
             state,

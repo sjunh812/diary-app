@@ -3,10 +3,12 @@ package org.sjhstudio.diary.feature.insight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -30,6 +32,18 @@ import org.sjhstudio.diary.core.model.mostFrequent
 /** 기간 탭. */
 enum class InsightKind { Week, Month, Year, All }
 
+/** 한 기간을 읽은 값. */
+data class InsightData(val counts: MoodCounts, val days: List<DayMood>, val pixels: Map<LocalDate, Mood?>)
+
+/**
+ * 기간과 그 기간의 숫자.
+ * [data]가 null이면 아직 읽는 중이다.
+ * 기분 기록이 들어 있어 [toString]에 담지 않는다(헌법 II).
+ */
+data class InsightState(val period: StatsPeriod, val data: InsightData?) {
+    override fun toString(): String = "InsightState"
+}
+
 /**
  * 돌아보기(FR-028~FR-031).
  * 기간을 칸으로 나눈 기분 흐름과, 년은 하루 한 칸 지도를 함께 읽는다.
@@ -52,20 +66,22 @@ class InsightViewModel(
     val period: StateFlow<StatsPeriod> = _period.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val counts: StateFlow<MoodCounts?> =
-        _period.flatMapLatest(stats::moodCounts).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+    private val readPeriod: Flow<InsightState> =
+        _period.flatMapLatest { period ->
+            val pixels = if (period is StatsPeriod.Year) stats.yearPixels(period.year) else flowOf(emptyMap())
+            combine(stats.moodCounts(period), stats.moodFlow(period), pixels) { counts, days, map ->
+                InsightState(period, InsightData(counts, days, map))
+            }
+        }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val days: StateFlow<List<DayMood>> =
-        _period
-            .flatMapLatest(stats::moodFlow)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyList())
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val pixels: StateFlow<Map<LocalDate, Mood?>> =
-        _period
-            .flatMapLatest { if (it is StatsPeriod.Year) stats.yearPixels(it.year) else flowOf(emptyMap()) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyMap())
+    /**
+     * 기간과 그 기간의 숫자를 한 값으로 묶는다.
+     * 기간을 바꾸면 새 숫자가 올 때까지 읽는 중이고, 앞 기간 숫자는 내놓지 않는다.
+     * 다른 탭에 다녀와 다시 읽을 때는 같은 기간이라 보던 숫자를 그대로 둔다.
+     */
+    val state: StateFlow<InsightState> =
+        combine(_period, readPeriod) { period, read -> read.takeIf { it.period == period } ?: InsightState(period, null) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), InsightState(_period.value, null))
 
     fun today(): LocalDate = today.invoke()
 

@@ -25,9 +25,9 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
     private val _data = MutableStateFlow<AdvancedStats?>(null)
 
     /**
-     * 처음 읽을 때만 null이다.
-     * 기간을 바꾸면 새 값이 나올 때까지 앞 값을 둔다.
-     * 잠깐 뼈대를 끼우면 탭을 누를 때마다 깜빡인다.
+     * 읽는 동안 null이다.
+     * 기간을 바꾸면 앞 기간 숫자가 새 기간 이름 아래 남지 않게 비운다.
+     * 뼈대는 0.3초 뒤에 나타나 짧은 읽기에서는 그대로 비어 있다.
      */
     val data: StateFlow<AdvancedStats?> = _data.asStateFlow()
 
@@ -38,6 +38,8 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
     }
 
     fun select(period: AdvancedPeriod) {
+        if (period == _period.value) return
+        _data.value = null
         _period.value = period
     }
 

@@ -30,7 +30,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,7 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -109,8 +108,8 @@ private const val DAYS_IN_WEEK = 7
 @Composable
 fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalDate) -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<CalendarViewModel>()
-    val selected by viewModel.selected.collectAsStateWithLifecycle()
-    val rows by viewModel.rows.collectAsStateWithLifecycle()
+    val day by viewModel.day.collectAsStateWithLifecycle()
+    val selected = day.date
     val last by viewModel.lastMonth.collectAsStateWithLifecycle()
     val look by viewModel.look.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
@@ -143,9 +142,9 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
             onMove = { step -> scope.launch { pager.animateScrollToPage(pager.currentPage + step) } }
         )
     }
-    val day: @Composable () -> Unit = {
+    val dayPanel: @Composable () -> Unit = {
         selected?.let { date ->
-            DayPanel(date, rows, dates, diaryPreviewTextStyle(look.font, look.size) { family }, twoPane, onOpen) { onWriteOn(date) }
+            DayPanel(date, day.rows, dates, diaryPreviewTextStyle(look.font, look.size) { family }, twoPane, onOpen) { onWriteOn(date) }
         }
     }
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
@@ -167,7 +166,7 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
                     .verticalScroll(rememberScrollState())
                     .padding(top = DiarySpacing.x6)
             ) {
-                day()
+                dayPanel()
             }
         }
     } else {
@@ -179,7 +178,7 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
             Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) {
                 calendar()
                 Spacer(Modifier.height(DiarySpacing.x3))
-                day()
+                dayPanel()
             }
         }
     }
@@ -209,7 +208,7 @@ internal fun CalendarPanel(
     lastMonth: YearMonth,
     showToday: Boolean,
     dates: DiaryDateFormat,
-    moods: (YearMonth) -> Flow<Map<LocalDate, DayMood>>,
+    moods: (YearMonth) -> StateFlow<Map<LocalDate, DayMood>>,
     onSelect: (LocalDate) -> Unit,
     onToday: () -> Unit,
     onPick: () -> Unit,
@@ -232,7 +231,7 @@ internal fun CalendarPanel(
         Spacer(Modifier.height(DiarySpacing.x1_5))
         HorizontalPager(pager, Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) { page ->
             val month = monthOfPage(page)
-            val days by remember(month) { moods(month) }.collectAsState(emptyMap())
+            val days by remember(month) { moods(month) }.collectAsStateWithLifecycle()
             MonthGrid(month, days, today, selected, twoPane, dates, onSelect)
         }
     }
@@ -404,11 +403,13 @@ private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) 
 /**
  * 고른 날의 일기.
  * 없으면 그날 쓰기를 권한다.
+ * [rows]가 null이면 읽는 중이라 날짜만 두고 아래는 비운다.
+ * 곧 끝나는 일이라 뼈대를 새로 끼우지 않는다.
  */
 @Composable
 internal fun DayPanel(
     date: LocalDate,
-    rows: List<EntryRow>,
+    rows: List<EntryRow>?,
     dates: DiaryDateFormat,
     previewStyle: TextStyle,
     twoPane: Boolean,
@@ -419,7 +420,7 @@ internal fun DayPanel(
     val typography = DiaryTheme.typography
     val day = dates.dayWithWeekday(date)
     val title =
-        if (rows.isEmpty()) {
+        if (rows.isNullOrEmpty()) {
             day
         } else {
             stringResource(Res.string.calendar_day_summary, day, pluralStringResource(Res.plurals.calendar_day_count, rows.size, rows.size))
@@ -432,6 +433,7 @@ internal fun DayPanel(
                 color = if (twoPane) colors.textPrimary else colors.textSecondary
             )
         )
+        if (rows == null) return@Column
         if (rows.isEmpty()) {
             // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다.
             // 고른 날에 쓴 글이 없다는 것만 조용히 말한다.

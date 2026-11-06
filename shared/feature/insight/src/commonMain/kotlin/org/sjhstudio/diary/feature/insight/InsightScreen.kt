@@ -23,16 +23,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -118,16 +123,12 @@ fun InsightRoute(
     adSlot: @Composable () -> Unit = {}
 ) {
     val viewModel = koinViewModel<InsightViewModel>()
-    val period by viewModel.period.collectAsStateWithLifecycle()
-    val counts by viewModel.counts.collectAsStateWithLifecycle()
-    val days by viewModel.days.collectAsStateWithLifecycle()
-    val pixels by viewModel.pixels.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val period = state.period
     val advancedOpen by viewModel.advancedOpen.collectAsStateWithLifecycle()
     InsightScreen(
         period = period,
-        counts = counts,
-        days = days,
-        pixels = pixels,
+        data = state.data,
         today = viewModel.today(),
         onKind = viewModel::select,
         onPrevious = viewModel::previous,
@@ -144,9 +145,7 @@ fun InsightRoute(
 @Composable
 internal fun InsightScreen(
     period: StatsPeriod,
-    counts: MoodCounts?,
-    days: List<DayMood>,
-    pixels: Map<LocalDate, Mood?>,
+    data: InsightData?,
     today: LocalDate,
     onKind: (InsightKind) -> Unit,
     onPrevious: () -> Unit,
@@ -189,12 +188,18 @@ internal fun InsightScreen(
             Spacer(Modifier.height(DiarySpacing.x2))
             PeriodNav(periodLabel(period, dates), period.previous() != null, period.next(today) != null, onPrevious, onNext)
             Spacer(Modifier.height(DiarySpacing.x3))
+            // 새 기간을 읽는 동안 앞 기간 숫자는 보이지 않게 두고 자리만 지킨다.
+            // 빼 버리면 아래 광고가 올라왔다 내려가고 새로 불려 온다.
+            var read by remember { mutableStateOf(data) }
+            SideEffect { if (data != null) read = data }
+            val shown = data ?: read
+            val hidden = if (data == null) Modifier.fillMaxWidth().alpha(0f).clearAndSetSemantics {} else Modifier.fillMaxWidth()
             when {
-                counts == null -> SkeletonRows(rows = 5)
-                counts.total == 0 -> Empty()
-                else -> Content(period, counts, days, pixels, today, onMood)
+                shown == null -> SkeletonRows(rows = 5)
+                shown.counts.total == 0 -> Column(hidden) { Empty() }
+                else -> Column(hidden) { Content(period, shown.counts, shown.days, shown.pixels, today, onMood) }
             }
-            if (counts != null && counts.total > 0) {
+            if (shown != null && shown.counts.total > 0) {
                 Spacer(Modifier.height(DiarySpacing.x8))
                 if (advancedOpen) {
                     AdvancedEntry(Res.string.insight_adv_entry_open, onAdvanced)

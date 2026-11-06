@@ -7,10 +7,17 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
@@ -30,6 +37,9 @@ class InsightViewModelTest {
     private val today = LocalDate(2026, 10, 31)
 
     private val dispatcher = StandardTestDispatcher()
+
+    private val october = StatsPeriod.Month(YearMonth(2026, 10))
+    private val september = StatsPeriod.Month(YearMonth(2026, 9))
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)
@@ -97,6 +107,44 @@ class InsightViewModelTest {
 
         model.next()
         assertEquals(StatsPeriod.Month(YearMonth(2026, 10)), model.period.value)
+    }
+
+    /** 새 기간 이름 아래에 앞 기간 숫자가 보이지 않는다. */
+    @Test
+    fun a_new_period_hides_the_numbers_of_the_last_one() = runTest(dispatcher) {
+        val counts = MutableStateFlow<Map<StatsPeriod, MoodCounts>>(mapOf(october to MoodCounts(mapOf(Mood.GOOD to 3), 0)))
+        val model = InsightViewModel(SlowStats(counts), { today })
+        backgroundScope.launch { model.state.collect() }
+        advanceUntilIdle()
+        assertEquals(3, model.state.value.data?.counts?.total)
+
+        model.previous()
+        advanceUntilIdle()
+
+        assertEquals(InsightState(september, null), model.state.value)
+
+        counts.value += september to MoodCounts(mapOf(Mood.SAD to 1), 0)
+        advanceUntilIdle()
+
+        assertEquals(september, model.state.value.period)
+        assertEquals(1, model.state.value.data?.counts?.total)
+    }
+
+    /** 다른 탭에 다녀와 다시 읽어도 보던 숫자가 비워지지 않는다. */
+    @Test
+    fun coming_back_keeps_the_numbers_while_reading_again() = runTest(dispatcher) {
+        val model = InsightViewModel(NoStats, { today })
+        val watching = backgroundScope.launch { model.state.collect() }
+        advanceUntilIdle()
+        val read = model.state.value.data
+        assertEquals(0, read?.counts?.total)
+
+        watching.cancel()
+        advanceTimeBy(STOP_WATCHING_MILLIS)
+        backgroundScope.launch { model.state.collect() }
+        runCurrent()
+
+        assertEquals(read, model.state.value.data)
     }
 
     @Test
@@ -170,6 +218,11 @@ class InsightViewModelTest {
         assertEquals(listOf(Mood.SAD, null, Mood.GOOD), buckets.map { it.mood })
     }
 
+    /** 넣어 준 기간만 숫자를 내놓는다. */
+    private class SlowStats(private val counts: StateFlow<Map<StatsPeriod, MoodCounts>>) : StatsRepository by NoStats {
+        override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = counts.mapNotNull { it[period] }
+    }
+
     private object NoStats : StatsRepository {
         override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = flowOf(MoodCounts(emptyMap(), 0))
 
@@ -180,3 +233,5 @@ class InsightViewModelTest {
         override fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>> = flowOf(emptyMap())
     }
 }
+
+private const val STOP_WATCHING_MILLIS = 6_000L
