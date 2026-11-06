@@ -46,6 +46,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_line_off
 import org.sjhstudio.diary.feature.backup.resources.backup_line_on
 import org.sjhstudio.diary.feature.backup.resources.backup_line_reconnect
 import org.sjhstudio.diary.feature.backup.resources.backup_line_running
+import org.sjhstudio.diary.feature.backup.resources.backup_line_running_plain
 import org.sjhstudio.diary.feature.backup.resources.backup_line_today
 import org.sjhstudio.diary.feature.backup.resources.backup_line_waiting
 import org.sjhstudio.diary.feature.backup.resources.backup_line_yesterday
@@ -94,7 +95,12 @@ private fun lineFor(status: BackupStatus): Line {
 
         running != null -> Line(
             DiaryIcons.ShieldCheck,
-            stringResource(Res.string.backup_line_running, running.photosDone, running.photosTotal)
+            // 글을 먼저 올리는 동안은 사진 수를 모른다. 0/0을 보이지 않는다.
+            if (running.photosTotal > 0) {
+                stringResource(Res.string.backup_line_running, running.photosDone, running.photosTotal)
+            } else {
+                stringResource(Res.string.backup_line_running_plain)
+            }
         )
 
         last == null -> Line(

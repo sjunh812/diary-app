@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -184,3 +185,15 @@ private fun LoadingDotsLight() = PreviewCanvas(dark = false) { DiaryLoadingDots(
 @Preview(name = "기다림 점 · 다크", locale = "ko")
 @Composable
 private fun LoadingDotsDark() = PreviewCanvas(dark = true) { DiaryLoadingDots(DiaryTheme.colors.textSecondary, animated = false) }
+
+@Preview(name = "초대 카드 · 라이트", locale = "ko")
+@Composable
+private fun InviteCardLight() = PreviewCanvas(dark = false) {
+    DiaryInviteCard("광고 없이, 더 많이 남겨요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
+}
+
+@Preview(name = "초대 카드 · 다크", locale = "ko")
+@Composable
+private fun InviteCardDark() = PreviewCanvas(dark = true) {
+    DiaryInviteCard("광고 없이, 더 많이 남겨요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
+}

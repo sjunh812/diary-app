@@ -19,12 +19,14 @@ import androidx.compose.ui.semantics.semantics
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
@@ -35,13 +37,15 @@ import org.sjhstudio.diary.feature.settings.resources.settings_group_diary
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_notification_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
-import org.sjhstudio.diary.feature.settings.resources.settings_intro
 import org.sjhstudio.diary.feature.settings.resources.settings_letter
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
 import org.sjhstudio.diary.feature.settings.resources.settings_plus
+import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
+import org.sjhstudio.diary.feature.settings.resources.settings_plus_active
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
+import org.sjhstudio.diary.feature.settings.resources.settings_plus_title
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
@@ -69,8 +73,8 @@ fun SettingsScreen(
     trashCount: Int = 0,
     onBackup: () -> Unit = {},
     onLetter: () -> Unit = {},
-    onIntro: () -> Unit = {},
     onPlus: () -> Unit = {},
+    plusActive: Boolean = false,
     backupValue: String? = null,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
     onDesignCatalog: (() -> Unit)? = null
@@ -99,12 +103,23 @@ fun SettingsScreen(
                         )
                         .semantics { heading() }
             )
-            DiarySettingsRow(
-                stringResource(Res.string.settings_plus),
-                onClick = onPlus,
-                description = stringResource(Res.string.settings_plus_body),
-                leadingIcon = DiaryIcons.Sparkles
-            )
+            if (plusActive) {
+                DiarySettingsRow(
+                    stringResource(Res.string.settings_plus),
+                    onClick = onPlus,
+                    value = stringResource(Res.string.settings_plus_active),
+                    leadingIcon = DiaryIcons.Sparkles
+                )
+            } else {
+                // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드로 둔다.
+                DiaryInviteCard(
+                    stringResource(Res.string.settings_plus_title),
+                    stringResource(Res.string.settings_plus_body),
+                    stringResource(Res.string.settings_plus_action),
+                    onPlus,
+                    Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x4)
+                )
+            }
             DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
             DiarySettingsRow(stringResource(Res.string.settings_backup), onClick = onBackup, value = backupValue)
             DiarySettingsRow(
@@ -148,7 +163,6 @@ fun SettingsScreen(
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
             DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
-            DiarySettingsRow(stringResource(Res.string.settings_intro), onClick = onIntro)
             DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
         }
     }

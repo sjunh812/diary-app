@@ -123,6 +123,3 @@ data object AdvancedStatsKey : Screen
 
 @Serializable
 data object LetterKey : Screen
-
-@Serializable
-data object IntroKey : Screen

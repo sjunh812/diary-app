@@ -136,7 +136,7 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
 fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.letter_title), onBack = onBack)
-        LetterSheet(Modifier.weight(1f).navigationBarsPadding()) { LetterBody(entries) }
+        LetterSheet(Modifier.weight(1f).navigationBarsPadding(), centered = false) { LetterBody(entries) }
     }
 }
 
@@ -169,12 +169,14 @@ private fun LetterSheet(
     modifier: Modifier,
     cardModifier: Modifier = Modifier,
     rises: Boolean = true,
+    centered: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val still = !rises || rememberReduceMotion() || LocalInspectionMode.current
     val rise = remember { Animatable(if (still) 1f else 0f) }
     LaunchedEffect(still) { if (!still) rise.animateTo(1f, tween(RISE_MILLIS)) }
-    // 짧은 편지가 위로 쏠려 뜨지 않게 남는 자리의 가운데에 둔다. 길면 스크롤한다.
+    // 처음 보는 편지는 아래 버튼이 있어 남는 자리의 가운데에 둔다.
+    // 다시 읽는 편지는 위에 바만 있어 가운데에 두면 처져 보이므로 바 바로 아래부터 놓는다. 길면 스크롤한다.
     BoxWithConstraints(modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
         Column(
             Modifier
@@ -182,7 +184,7 @@ private fun LetterSheet(
                 .verticalScroll(rememberScrollState())
                 .heightIn(min = maxHeight)
                 .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = if (centered) Arrangement.Center else Arrangement.Top
         ) {
             LetterCard(cardModifier, {
                 alpha = rise.value

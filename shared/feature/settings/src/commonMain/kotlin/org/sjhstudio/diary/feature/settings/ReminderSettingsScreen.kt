@@ -39,6 +39,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.reminder_body
 import org.sjhstudio.diary.feature.settings.resources.reminder_permission_allow
 import org.sjhstudio.diary.feature.settings.resources.reminder_permission_body
 import org.sjhstudio.diary.feature.settings.resources.reminder_permission_title
@@ -65,7 +66,12 @@ fun ReminderSettingsScreen(
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_reminder), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
-            DiarySettingsSwitchRow(stringResource(Res.string.settings_reminder), checked = state.enabled, onCheckedChange = onEnabledChange)
+            DiarySettingsSwitchRow(
+                stringResource(Res.string.settings_reminder),
+                checked = state.enabled,
+                onCheckedChange = onEnabledChange,
+                description = stringResource(Res.string.reminder_body)
+            )
             if (state.enabled) DiarySettingsRow(stringResource(Res.string.reminder_time), onClick = onTime, value = timeLabel)
             if (state.showsPermissionNotice) {
                 DiaryStatusBox(

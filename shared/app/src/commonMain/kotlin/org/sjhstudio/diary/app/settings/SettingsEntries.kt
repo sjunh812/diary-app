@@ -27,7 +27,6 @@ import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontLicenseKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.FullScreenEntry
-import org.sjhstudio.diary.app.navigation.IntroKey
 import org.sjhstudio.diary.app.navigation.LetterKey
 import org.sjhstudio.diary.app.navigation.LibraryLicenseKey
 import org.sjhstudio.diary.app.navigation.LicensesKey
@@ -44,10 +43,12 @@ import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
@@ -88,8 +89,10 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val state by viewModel.state.collectAsStateWithLifecycle()
         val trash = koinInject<TrashRepository>()
         val trashCount by remember(trash) { trash.items().map { it.size } }.collectAsState(0)
+        val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
         SettingsScreen(
             state,
+            plusActive = plan == Plan.PLUS,
             onFont = { push(FontSettingsKey) },
             onTextSize = { push(TextSizeSettingsKey) },
             onTheme = { push(ThemeSettingsKey) },
@@ -102,7 +105,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             trashCount = trashCount,
             onBackup = { push(BackupSettingsKey) },
             onLetter = { push(LetterKey) },
-            onIntro = { push(IntroKey) },
             onPlus = { push(PlusKey) }
         )
     }
@@ -128,7 +130,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<TrashKey> { TrashRoute(onBack = pop) }
     entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
     entry<LetterKey> { FullLetterScreen(entries = koinViewModel<LetterViewModel>().entries, onBack = pop) }
-    entry<IntroKey> { OnboardingScreen(updated = false, connected = true, connecting = false, onConnect = {}, onFinish = pop) }
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()

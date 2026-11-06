@@ -47,6 +47,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
@@ -159,27 +160,12 @@ private val DayParts: List<Pair<DayPart, StringResource>> =
 /** 돌아보기 맨 아래 입구(Figma P6). 무료는 눌러서 Plus 안내로, Plus는 고급 통계로 간다(FR-006). */
 @Composable
 internal fun AdvancedEntry(action: StringResource, onClick: () -> Unit) {
-    val colors = DiaryTheme.colors
-    val typography = DiaryTheme.typography
-    val press = remember { MutableInteractionSource() }
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .diaryPress(press, colors.textPrimary, DiaryShapes.r16)
-            .clip(DiaryShapes.r16)
-            .background(colors.selected)
-            .clickable(interactionSource = press, indication = null, role = Role.Button, onClick = onClick)
-            .padding(DiarySpacing.x5),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
-    ) {
-        BasicText(stringResource(Res.string.insight_adv_title), style = typography.bodyStrong.copy(color = colors.textPrimary))
-        BasicText(stringResource(Res.string.insight_adv_entry_body), style = typography.caption.copy(color = colors.textSecondary))
-        BasicText(
-            stringResource(action),
-            Modifier.padding(top = DiarySpacing.x2),
-            style = typography.captionStrong.copy(color = colors.accentText)
-        )
-    }
+    DiaryInviteCard(
+        stringResource(Res.string.insight_adv_title),
+        stringResource(Res.string.insight_adv_entry_body),
+        stringResource(action),
+        onClick
+    )
 }
 
 /** 고급 통계(Figma P8). 기분을 누르면 그 일기들로 간다. */

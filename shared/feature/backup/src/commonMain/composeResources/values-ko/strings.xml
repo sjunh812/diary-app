@@ -37,6 +37,7 @@
     <string name="backup_line_on">켜기</string>
     <string name="backup_line_reconnect">다시 연결이 필요해요</string>
     <string name="backup_line_running">백업 중 · 사진 %1$d/%2$d</string>
+    <string name="backup_line_running_plain">백업 중</string>
     <string name="backup_line_at">%1$s 백업 · %2$s</string>
     <string name="backup_line_all">사진까지 모두</string>
     <string name="backup_line_waiting">사진 %1$d장 대기</string>

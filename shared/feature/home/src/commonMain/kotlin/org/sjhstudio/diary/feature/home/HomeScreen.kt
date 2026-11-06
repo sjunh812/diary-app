@@ -217,6 +217,8 @@ internal fun HomeScreen(
             DiaryTitleButton(title, onPickMonth.takeUnless { noMonths }, Modifier.padding(horizontal = DiarySpacing.screenCompact))
             Spacer(Modifier.height(DiarySpacing.x1))
             backupLine()
+            // 스크롤하면 나타나는 선이 백업 문구에 붙지 않게 띄운다. 그만큼 목록 위를 줄여 쉴 때의 자리는 그대로다.
+            Spacer(Modifier.height(DiarySpacing.x2))
             ScrollEdge(if (style == ListStyle.PHOTO_GRID) grid.canScrollBackward else list.canScrollBackward)
             val refresh = rows.loadState.refresh
             when {
@@ -375,7 +377,7 @@ private fun Feed(
 internal fun ListTop(content: @Composable () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth()) {
         content()
-        Spacer(Modifier.height(DiarySpacing.x3))
+        Spacer(Modifier.height(DiarySpacing.x1))
     }
 }
 

@@ -50,6 +50,7 @@
     <string name="settings_group_notification_security">Notifications and security</string>
     <string name="settings_reminder">Daily reminder</string>
     <string name="reminder_value_off">Off</string>
+    <string name="reminder_body">We\'ll remind you to write at the same time every day.</string>
     <string name="reminder_time">Reminder time</string>
     <string name="reminder_save">Save</string>
     <string name="reminder_permission_title">Notifications are off</string>
@@ -110,7 +111,9 @@
     <string name="list_style_card">Cards</string>
     <string name="list_style_photo">Photos</string>
     <string name="settings_letter">A letter from the developer</string>
-    <string name="settings_intro">See the intro again</string>
     <string name="settings_plus">Plus</string>
-    <string name="settings_plus_body">No ads, 30 photos, checklists, advanced stats</string>
+    <string name="settings_plus_title">Keep more, without ads</string>
+    <string name="settings_plus_body">Up to 30 photos per entry, checklists, and advanced stats.</string>
+    <string name="settings_plus_action">Explore Plus</string>
+    <string name="settings_plus_active">Active</string>
 </resources>

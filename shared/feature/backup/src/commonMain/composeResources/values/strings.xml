@@ -37,6 +37,7 @@
     <string name="backup_line_on">Turn on</string>
     <string name="backup_line_reconnect">Reconnect needed</string>
     <string name="backup_line_running">Backing up · Photos %1$d/%2$d</string>
+    <string name="backup_line_running_plain">Backing up</string>
     <string name="backup_line_at">Backed up %1$s · %2$s</string>
     <string name="backup_line_all">photos included</string>
     <string name="backup_line_waiting">%1$d photos waiting</string>

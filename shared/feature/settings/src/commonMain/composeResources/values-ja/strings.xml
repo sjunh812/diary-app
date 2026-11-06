@@ -45,6 +45,7 @@
     <string name="settings_group_notification_security">通知とセキュリティ</string>
     <string name="settings_reminder">毎日のリマインダー</string>
     <string name="reminder_value_off">オフ</string>
+    <string name="reminder_body">毎日決まった時間に、日記を書く時間をお知らせします。</string>
     <string name="reminder_time">通知の時刻</string>
     <string name="reminder_save">保存</string>
     <string name="reminder_permission_title">通知がオフになっています</string>
@@ -104,7 +105,9 @@
     <string name="list_style_card">カード</string>
     <string name="list_style_photo">写真</string>
     <string name="settings_letter">開発者からの手紙</string>
-    <string name="settings_intro">最初の紹介をもう一度見る</string>
     <string name="settings_plus">Plus</string>
-    <string name="settings_plus_body">広告なし、写真30枚、チェックリスト、詳しい統計</string>
+    <string name="settings_plus_title">広告なしで、もっと残せます</string>
+    <string name="settings_plus_body">日記ごとに写真30枚、チェックリスト、詳しい統計が使えます。</string>
+    <string name="settings_plus_action">Plusを見る</string>
+    <string name="settings_plus_active">利用中</string>
 </resources>
