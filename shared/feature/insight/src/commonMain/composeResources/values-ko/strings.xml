@@ -54,7 +54,7 @@
     <string name="insight_adv_gap_more">%1$s 좋은 기분이 많았어요</string>
     <string name="insight_adv_gap_less">%1$s 좋은 기분이 적었어요</string>
     <string name="insight_adv_gap_numbers">%1$s편 중 %2$s편이 좋은 기분이었고, 다른 때는 %3$d%였어요.</string>
-    <string name="insight_adv_gap_note">일기를 모아 보니 그랬어요. 꼭 그 때문은 아닐 수 있어요.</string>
+    <string name="insight_adv_gap_note">일기를 모아 본 거라 꼭 그 때문은 아닐 수 있어요.</string>
     <string name="insight_adv_gap_none">아직 눈에 띄게 달랐던 때는 없어요</string>
     <string name="insight_adv_gap_none_body">일기가 더 쌓이면 다시 살펴볼게요.</string>
     <string name="insight_adv_change_recent">이전 30일과 비교</string>

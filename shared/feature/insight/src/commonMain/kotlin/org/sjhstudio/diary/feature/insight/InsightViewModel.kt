@@ -98,8 +98,8 @@ internal val StatsPeriod.kind: InsightKind
 /** 많은 기분부터. 같은 수면 기분 순서를 따른다. */
 internal fun MoodCounts.sorted(): List<Pair<Mood, Int>> = Mood.entries.map { it to (counts[it] ?: 0) }.sortedByDescending { it.second }
 
-/** 기분 흐름 한 칸. [mood]는 그 칸의 날들에서 가장 많은 기분이고, 일기는 있는데 기분이 없으면 null이다. */
-internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?, val written: Boolean)
+/** 기분 흐름 한 칸. [mood]는 그 칸의 날들에서 가장 많은 기분이고, 고른 기분이 없으면 null이다. */
+internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?)
 
 internal sealed interface BucketSlot {
     data class Day(val date: LocalDate) : BucketSlot
@@ -145,7 +145,7 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
 }
 
 private fun bucket(slot: BucketSlot, days: List<DayMood>): MoodBucket =
-    MoodBucket(slot, days.sortedBy { it.date }.flatMap { it.moods }.mostFrequent(), days.isNotEmpty())
+    MoodBucket(slot, days.sortedBy { it.date }.flatMap { it.moods }.mostFrequent())
 
 private const val DAYS_IN_WEEK = 7
 private const val MONTHS = 12

@@ -68,7 +68,6 @@ import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.MoodFace
-import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
@@ -348,10 +347,10 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
                     ) {
                         val mood = bucket.mood
-                        when {
-                            mood != null -> MoodFace(mood, DiaryInsightSize.flowFace, contentDescription = moodName(mood))
-                            bucket.written -> NoMoodFace(DiaryInsightSize.flowFace)
-                            else -> EmptyMoodSlot(DiaryInsightSize.flowFace)
+                        if (mood != null) {
+                            MoodFace(mood, DiaryInsightSize.flowFace, contentDescription = moodName(mood))
+                        } else {
+                            EmptyMoodSlot(DiaryInsightSize.flowFace)
                         }
                         BasicText(
                             slotLabel(bucket.slot, dates),
@@ -368,9 +367,12 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
     }
 }
 
-/** 일기를 쓰지 않은 칸. 쓰고 기분만 고르지 않은 칸은 [NoMoodFace]로 구별한다. */
+/**
+ * 고른 기분이 없는 칸. 여기는 기분을 보는 줄이라 일기를 썼는지는 가르지 않는다.
+ * 쓴 날은 달력이 보이고, 기분 없는 일기의 수는 위 요약 줄에 있다.
+ */
 @Composable
-internal fun EmptyMoodSlot(size: Dp) {
+private fun EmptyMoodSlot(size: Dp) {
     Box(Modifier.size(size).clip(DiaryShapes.full).background(DiaryTheme.colors.sunken))
 }
 
@@ -409,7 +411,6 @@ private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) 
                         val color =
                             when {
                                 mood != null -> moodColors.getValue(mood)
-                                date in pixels -> colors.lineStrong
                                 date > today -> null
                                 else -> colors.sunken
                             }

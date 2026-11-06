@@ -94,8 +94,7 @@ class InsightViewModelTest {
         assertEquals(5, buckets.size)
         assertEquals(Mood.GOOD, buckets[0].mood)
         assertEquals(Mood.TIRED, buckets[1].mood)
-        assertEquals(false, buckets[2].written)
-        assertEquals(true, buckets[4].written)
+        assertEquals(null, buckets[2].mood)
         assertEquals(null, buckets[4].mood)
     }
 
@@ -112,7 +111,7 @@ class InsightViewModelTest {
         val day = DayMood(LocalDate(2026, 11, 5), null, 7, moods = listOf(Mood.SICK, Mood.MEH))
 
         assertEquals(Mood.MEH, moodBuckets(StatsPeriod.All, listOf(day)).single().mood)
-        assertEquals(Mood.MEH, moodBuckets(StatsPeriod.Week.of(day.date), listOf(day)).first { it.written }.mood)
+        assertEquals(Mood.MEH, moodBuckets(StatsPeriod.Week.of(day.date), listOf(day)).firstNotNullOf { it.mood })
     }
 
     @Test
@@ -136,7 +135,6 @@ class InsightViewModelTest {
         val buckets = moodBuckets(StatsPeriod.All, days)
 
         assertEquals(listOf(Mood.SAD, null, Mood.GOOD), buckets.map { it.mood })
-        assertEquals(false, buckets[1].written)
     }
 
     private object NoStats : StatsRepository {
