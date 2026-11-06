@@ -1,3 +1,3 @@
 "CFBundleDisplayName" = "1日1日記";
 "NSFaceIDUsageDescription" = "Face IDで日記のロックを解除します。";
-"NSLocationWhenInUseUsageDescription" = "「現在地を使う」を押したときだけ位置情報を読み取り、地域名を調べます。";
+"NSLocationWhenInUseUsageDescription" = "［現在地を使う］をタップしたときだけ位置情報を読み取り、地域名を調べます。";

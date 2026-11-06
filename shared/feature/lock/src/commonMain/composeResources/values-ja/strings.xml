@@ -3,13 +3,13 @@
     <!-- ロック画面(L1) -->
     <string name="lock_title">パスコードを入力してください</string>
     <plurals name="lock_wrong">
-        <item quantity="other">パスコードが違います · 残り%1$d回</item>
+        <item quantity="other">パスコードが違います・残り%1$d回</item>
     </plurals>
     <string name="lock_wait_title">少しお待ちください</string>
     <plurals name="lock_wait_body">
         <item quantity="other">%1$d秒後にもう一度入力できます</item>
     </plurals>
-    <string name="lock_forgot">パスコードを忘れました</string>
+    <string name="lock_forgot">パスコードを忘れた場合</string>
     <string name="lock_biometric">生体認証で開く</string>
     <string name="lock_biometric_prompt_title">生体認証で確認してください</string>
     <string name="lock_biometric_prompt_reason">日記を開くには本人確認が必要です</string>
@@ -22,7 +22,7 @@
     <string name="pin_setup_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば新しく決め直せます。スマートフォンの画面ロックを知っている人も、この方法で日記を開けます。</string>
 
     <!-- パスコードを忘れたとき(L3) -->
-    <string name="forgot_title">スマートフォンのロックで確認します</string>
+    <string name="forgot_title">スマートフォンの画面ロックで確認します</string>
     <string name="forgot_body">スマートフォンの画面ロックで本人確認をすると、新しいパスコードを決められます。日記はそのまま残ります。</string>
     <string name="forgot_confirm">確認する</string>
     <string name="forgot_prompt_title">新しいパスコードを決める</string>
@@ -32,15 +32,15 @@
 
     <!-- ロック設定(L4) -->
     <string name="lock_settings_title">ロック</string>
-    <string name="lock_settings_enable">ロックを使う</string>
+    <string name="lock_settings_enable">日記をロック</string>
     <string name="lock_settings_change">パスコードを変更</string>
-    <string name="lock_settings_biometric_unavailable">この端末では今は生体認証を使えません。</string>
-    <string name="lock_settings_relock">再ロック</string>
+    <string name="lock_settings_biometric_unavailable">現在このデバイスでは生体認証を使えません。</string>
+    <string name="lock_settings_relock">自動ロック</string>
     <string name="lock_settings_relock_body">他のアプリから戻ったとき、選んだ時間が過ぎていれば再びロックします。</string>
     <string name="relock_immediately">すぐに</string>
     <string name="relock_one_minute">1分後</string>
     <string name="relock_five_minutes">5分後</string>
-    <string name="relock_cold_start">アプリを新しく開いたときだけ</string>
+    <string name="relock_cold_start">アプリの起動時のみ</string>
     <string name="lock_settings_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば決め直せます。</string>
     <string name="lock_confirm_title">現在のパスコードを入力してください</string>
     <string name="lock_settings_method">ロック方法</string>
