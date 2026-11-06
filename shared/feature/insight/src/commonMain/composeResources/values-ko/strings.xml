@@ -50,19 +50,11 @@
     <string name="insight_adv_range_all">전체</string>
     <string name="insight_adv_not_enough">일기가 7편 쌓이면 보여 드려요.</string>
     <string name="insight_adv_not_enough_body">기분을 고른 일기가 많을수록 또렷하게 보여요.</string>
-    <string name="insight_adv_gaps">기분이 달랐던 때</string>
-    <string name="insight_adv_gap_more">%1$s 좋은 기분이 많았어요</string>
-    <string name="insight_adv_gap_less">%1$s 좋은 기분이 적었어요</string>
-    <string name="insight_adv_gap_numbers">%1$s편 중 %2$s편이 좋은 기분이었고, 다른 때는 %3$d%였어요.</string>
-    <string name="insight_adv_gap_note">일기를 모아 본 거라 꼭 그 때문은 아닐 수 있어요.</string>
-    <string name="insight_adv_gap_none">아직 눈에 띄게 달랐던 때는 없어요</string>
     <string name="insight_adv_gap_none_body">일기가 더 쌓이면 다시 살펴볼게요.</string>
     <string name="insight_adv_change_recent">이전 30일과 비교</string>
     <string name="insight_adv_change_year">작년 이맘때와 비교</string>
     <string name="insight_adv_change_good">좋은 기분</string>
-    <string name="insight_adv_change_good_value">%1$d% → %2$d%</string>
-    <string name="insight_adv_change_days">쓴 날</string>
-    <string name="insight_adv_when">좋은 기분이 많았던 때</string>
+    <string name="insight_adv_when">기분이 많았던 때</string>
     <string name="insight_adv_tab_weekday">요일</string>
     <string name="insight_adv_tab_part">시간대</string>
     <string name="insight_adv_tab_weather">날씨</string>
@@ -78,9 +70,6 @@
     <string name="insight_adv_habit_characters">글자 수</string>
     <string name="insight_adv_habit_photos">사진</string>
     <string name="insight_adv_habit_part">많이 쓴 시간대</string>
-    <plurals name="insight_adv_change_days_value">
-        <item quantity="other">%1$d일 → %2$d일</item>
-    </plurals>
     <plurals name="insight_adv_company_title">
         <item quantity="other">%1$s · %2$s편</item>
     </plurals>
@@ -100,19 +89,20 @@
     <string name="insight_section_moods">기분별 일기</string>
     <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
     <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 찾아 드려요.</string>
-    <string name="insight_adv_subject_sunny">맑은 날엔</string>
-    <string name="insight_adv_subject_partly_cloudy">구름 조금 낀 날엔</string>
-    <string name="insight_adv_subject_mostly_cloudy">구름 많은 날엔</string>
-    <string name="insight_adv_subject_cloudy">흐린 날엔</string>
-    <string name="insight_adv_subject_rain">비 오는 날엔</string>
-    <string name="insight_adv_subject_sleet">진눈깨비 오는 날엔</string>
-    <string name="insight_adv_subject_snow">눈 오는 날엔</string>
-    <string name="insight_adv_subject_day">%1$s엔</string>
-    <string name="insight_adv_subject_dawn">새벽에 쓴 일기엔</string>
-    <string name="insight_adv_subject_morning">아침에 쓴 일기엔</string>
-    <string name="insight_adv_subject_afternoon">낮에 쓴 일기엔</string>
-    <string name="insight_adv_subject_evening">저녁에 쓴 일기엔</string>
-    <string name="insight_adv_subject_place">%1$s에서 쓴 일기엔</string>
-    <string name="insight_adv_subject_photos">사진을 넣은 일기엔</string>
-    <string name="insight_adv_subject_long">길게 쓴 일기엔</string>
+    <string name="insight_adv_recent_better">요즘 기분이 좋아지고 있어요</string>
+    <string name="insight_adv_recent_harder">요즘 마음이 조금 무거웠나 봐요</string>
+    <string name="insight_adv_recent_steady">요즘 기분은 잔잔해요</string>
+    <string name="insight_adv_recent_steady_body">최근 30일은 그 전 30일과 비슷했어요.</string>
+    <string name="insight_adv_recent_good_up">최근 30일 좋은 기분이 %1$d%에서 %2$d%로 늘었어요.</string>
+    <string name="insight_adv_recent_good_down">최근 30일 좋은 기분이 %1$d%에서 %2$d%로 줄었어요.</string>
+    <string name="insight_adv_recent_hard_up">최근 30일 힘든 기분이 %1$d%에서 %2$d%로 늘었어요.</string>
+    <string name="insight_adv_recent_hard_down">최근 30일 힘든 기분이 %1$d%에서 %2$d%로 줄었어요.</string>
+    <string name="insight_adv_change_hard">힘든 기분</string>
+    <string name="insight_adv_change_top">많이 고른 기분</string>
+    <string name="insight_adv_change_before">%1$s →</string>
+    <string name="insight_adv_tone_note_hard">화남, 슬픔, 나쁨, 아픔, 피곤을 고른 일기의 비율이에요.</string>
+    <string name="insight_adv_unit_small">10000</string>
+    <string name="insight_adv_unit_big">100000000</string>
+    <string name="insight_adv_characters_small">%1$s만 자</string>
+    <string name="insight_adv_characters_big">%1$s억 자</string>
 </resources>

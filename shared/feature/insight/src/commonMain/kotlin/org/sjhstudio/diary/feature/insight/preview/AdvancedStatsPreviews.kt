@@ -7,38 +7,39 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DayPart
-import org.sjhstudio.diary.core.model.GoodShare
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCompany
-import org.sjhstudio.diary.core.model.MoodGap
+import org.sjhstudio.diary.core.model.MoodTrend
+import org.sjhstudio.diary.core.model.RecentMood
 import org.sjhstudio.diary.core.model.RecordHabit
 import org.sjhstudio.diary.core.model.StatsChange
-import org.sjhstudio.diary.core.model.StatsFactor
+import org.sjhstudio.diary.core.model.StatsSnapshot
+import org.sjhstudio.diary.core.model.ToneShare
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.feature.insight.AdvancedStatsScreen
 
 private val Sample =
     AdvancedStats(
         moodEntries = 186,
-        gaps =
-            listOf(
-                MoodGap(StatsFactor.Sky(Weather.RAIN), GoodShare(9, 40), GoodShare(78, 150)),
-                MoodGap(StatsFactor.LongEntries, GoodShare(38, 52), GoodShare(57, 138))
+        change =
+            StatsChange(
+                StatsSnapshot(ToneShare(70, 160, 41), Mood.MEH, 118, 160, 38_400, 180),
+                StatsSnapshot(ToneShare(99, 190, 33), Mood.GOOD, 143, 186, 148_210, 212)
             ),
-        change = StatsChange(GoodShare(70, 160), GoodShare(99, 190), 118, 143),
+        recent = RecentMood(MoodTrend.BETTER, ToneShare(12, 27, 8), ToneShare(18, 29, 5)),
         weekdays =
             mapOf(
-                DayOfWeek.SUNDAY to GoodShare(18, 25),
-                DayOfWeek.MONDAY to GoodShare(9, 24),
-                DayOfWeek.TUESDAY to GoodShare(11, 23),
-                DayOfWeek.WEDNESDAY to GoodShare(12, 26),
-                DayOfWeek.THURSDAY to GoodShare(10, 22),
-                DayOfWeek.FRIDAY to GoodShare(14, 24),
-                DayOfWeek.SATURDAY to GoodShare(17, 23)
+                DayOfWeek.SUNDAY to ToneShare(18, 25),
+                DayOfWeek.MONDAY to ToneShare(9, 24),
+                DayOfWeek.TUESDAY to ToneShare(11, 23),
+                DayOfWeek.WEDNESDAY to ToneShare(12, 26),
+                DayOfWeek.THURSDAY to ToneShare(10, 22),
+                DayOfWeek.FRIDAY to ToneShare(14, 24),
+                DayOfWeek.SATURDAY to ToneShare(17, 23)
             ),
-        dayParts = mapOf(DayPart.EVENING to GoodShare(60, 110), DayPart.MORNING to GoodShare(20, 40)),
-        weather = mapOf(Weather.SUNNY to GoodShare(50, 80), Weather.RAIN to GoodShare(9, 40)),
-        places = listOf("집" to GoodShare(40, 70), "회사" to GoodShare(15, 40)),
+        dayParts = mapOf(DayPart.EVENING to ToneShare(60, 110), DayPart.MORNING to ToneShare(20, 40)),
+        weather = mapOf(Weather.SUNNY to ToneShare(50, 80), Weather.RAIN to ToneShare(9, 40)),
+        places = listOf("집" to ToneShare(40, 70), "회사" to ToneShare(15, 40)),
         company =
             listOf(
                 MoodCompany(Mood.GOOD, 62, Weather.SUNNY, DayOfWeek.SUNDAY, "집"),
@@ -61,9 +62,13 @@ private fun AdvancedLight() = Stats(false, Sample)
 @Composable
 private fun AdvancedDark() = Stats(true, Sample)
 
-@Preview(name = "고급 통계 · 뚜렷한 차이 없음", locale = "ko", widthDp = 390, heightDp = 1500)
+@Preview(name = "고급 통계 · 요즘 기분이 무거움", locale = "ko", widthDp = 390, heightDp = 1500)
 @Composable
-private fun AdvancedNoGap() = Stats(false, Sample.copy(gaps = emptyList()))
+private fun AdvancedHarder() = Stats(false, Sample.copy(recent = RecentMood(MoodTrend.HARDER, ToneShare(18, 29, 5), ToneShare(10, 27, 13))))
+
+@Preview(name = "고급 통계 · 요즘 기분이 비슷함", locale = "ko", widthDp = 390, heightDp = 1500)
+@Composable
+private fun AdvancedSteady() = Stats(false, Sample.copy(recent = RecentMood(MoodTrend.STEADY, ToneShare(12, 27, 8), ToneShare(13, 28, 8))))
 
 @Preview(name = "고급 통계 · 일기가 적음", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
@@ -71,7 +76,7 @@ private fun AdvancedFew() = Stats(false, Sample.copy(habit = RecordHabit(3, 3, 2
 
 @Preview(name = "고급 통계 · 기분을 안 고름", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
-private fun AdvancedNoMoods() = Stats(false, Sample.copy(moodEntries = 2, gaps = emptyList(), company = emptyList()))
+private fun AdvancedNoMoods() = Stats(false, Sample.copy(moodEntries = 2, recent = null, company = emptyList()))
 
 @Preview(name = "고급 통계 · 불러오는 중", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

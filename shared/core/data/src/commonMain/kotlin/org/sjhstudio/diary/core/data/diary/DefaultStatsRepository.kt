@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.advancedStats
 import org.sjhstudio.diary.core.model.mostFrequent
+import org.sjhstudio.diary.core.model.recentMood
 
 class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
     private val entries get() = db.entryDao()
@@ -37,13 +38,15 @@ class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
     override fun advanced(period: AdvancedPeriod, today: LocalDate): Flow<AdvancedStats> {
         val range = period.range(today)
         val before = period.compare(today)
-        return entries.statsRows((before?.start ?: range?.start)?.toString(), range?.end?.toString()).map { rows ->
+        // 요즘 기분은 어느 기간을 고르든 같은 60일을 본다.
+        val recent = AdvancedPeriod.RECENT.compare(today)
+        val from = listOfNotNull(before?.start, recent?.start).minOrNull()
+        val start = if (range == null) null else from
+        return entries.statsRows(start?.toString(), today.toString()).map { rows ->
             val all = rows.map { it.toEntry() }
-            if (before == null) {
-                advancedStats(all)
-            } else {
-                advancedStats(all.filter { it.date >= range!!.start }, all.filter { it.date <= before.end })
-            }
+            val chosen = if (range == null) all else all.filter { it.date in range.start..range.end }
+            val earlier = before?.let { window -> all.filter { it.date in window.start..window.end } }
+            advancedStats(chosen, earlier).copy(recent = recentMood(all, today))
         }.flowOn(Dispatchers.Default)
     }
 

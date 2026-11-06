@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -43,6 +44,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
@@ -59,26 +61,29 @@ import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayPart
-import org.sjhstudio.diary.core.model.GoodShare
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCompany
-import org.sjhstudio.diary.core.model.MoodGap
+import org.sjhstudio.diary.core.model.MoodTrend
+import org.sjhstudio.diary.core.model.RecentMood
 import org.sjhstudio.diary.core.model.RecordHabit
 import org.sjhstudio.diary.core.model.StatsChange
-import org.sjhstudio.diary.core.model.StatsFactor
+import org.sjhstudio.diary.core.model.ToneShare
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.model.compactCount
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.insight.resources.Res
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_days
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_days_value
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_before
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_good
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_good_value
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_hard
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_recent
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_top
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_year
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_characters_big
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_characters_small
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_company
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_company_title
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_afternoon
@@ -86,13 +91,6 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_dawn
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_evening
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_morning
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_body
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_less
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_more
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_none
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_none_body
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_note
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gap_numbers
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_gaps
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_characters
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_characters_value
@@ -111,28 +109,24 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_not_enough_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_all
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_recent
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_year
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_better
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_good_down
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_good_up
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_hard_down
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_hard_up
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_harder
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_steady
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_recent_steady_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_share
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_afternoon
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_cloudy
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_dawn
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_day
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_evening
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_long
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_morning
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_mostly_cloudy
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_partly_cloudy
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_photos
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_place
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_rain
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_sleet
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_snow
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_subject_sunny
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_part
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_place
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_weather
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_weekday
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_title
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_note
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_note_hard
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_unit_big
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_unit_small
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_fri
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_mon
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_sat
@@ -240,9 +234,10 @@ internal fun AdvancedStatsScreen(
                     )
 
                 else -> {
-                    if (stats.moodReady) Gaps(stats.gaps) else NoMoods()
+                    stats.recent?.let { Recent(it) }
+                    if (!stats.moodReady) NoMoods()
                     stats.change?.let { Change(period, it) }
-                    if (stats.moodReady) GoodTimes(stats)
+                    if (stats.moodReady) MoodTimes(stats)
                     if (stats.company.isNotEmpty()) Company(stats.company, onMood)
                     Habit(stats.habit)
                 }
@@ -282,132 +277,150 @@ private fun Card(modifier: Modifier = Modifier, content: @Composable ColumnScope
 private fun NoMoods() {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Section(Res.string.insight_adv_gaps) {
-        Card {
-            BasicText(stringResource(Res.string.insight_adv_no_moods), style = typography.bodyStrong.copy(color = colors.textPrimary))
-            BasicText(stringResource(Res.string.insight_adv_no_moods_body), style = typography.caption.copy(color = colors.textSecondary))
-        }
+    Card {
+        BasicText(stringResource(Res.string.insight_adv_no_moods), style = typography.bodyStrong.copy(color = colors.textPrimary))
+        BasicText(stringResource(Res.string.insight_adv_no_moods_body), style = typography.caption.copy(color = colors.textSecondary))
     }
 }
 
-/** 우연으로 보기 어려운 차이만 보인다. 없으면 없다고 말한다. */
+/** 요즘 기분 한 줄. 까닭이나 조언 없이 일어난 변화만 말한다. */
 @Composable
-private fun Gaps(gaps: List<MoodGap>) {
+private fun Recent(recent: RecentMood) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Section(Res.string.insight_adv_gaps) {
-        if (gaps.isEmpty()) {
-            Card {
-                BasicText(stringResource(Res.string.insight_adv_gap_none), style = typography.bodyStrong.copy(color = colors.textPrimary))
-                BasicText(
-                    stringResource(Res.string.insight_adv_gap_none_body),
-                    style = typography.caption.copy(color = colors.textSecondary)
-                )
-            }
-        } else {
-            gaps.forEach { gap ->
-                Card(Modifier.semantics(mergeDescendants = true) {}) {
-                    BasicText(
-                        stringResource(
-                            if (gap.more) Res.string.insight_adv_gap_more else Res.string.insight_adv_gap_less,
-                            factorSubject(gap.factor)
-                        ),
-                        style = typography.bodyStrong.copy(color = colors.textPrimary)
-                    )
-                    BasicText(
-                        stringResource(
-                            Res.string.insight_adv_gap_numbers,
-                            gap.here.total.grouped(),
-                            gap.here.good.grouped(),
-                            gap.others.percent
-                        ),
-                        style = typography.caption.copy(color = colors.textSecondary)
-                    )
-                }
-            }
-            BasicText(stringResource(Res.string.insight_adv_gap_note), style = typography.caption.copy(color = colors.textSecondary))
+    val title =
+        when (recent.trend) {
+            MoodTrend.BETTER -> Res.string.insight_adv_recent_better
+            MoodTrend.HARDER -> Res.string.insight_adv_recent_harder
+            MoodTrend.STEADY -> Res.string.insight_adv_recent_steady
         }
+    val body =
+        when {
+            recent.trend == MoodTrend.STEADY -> stringResource(Res.string.insight_adv_recent_steady_body)
+
+            recent.hardMoved ->
+                stringResource(
+                    if (recent.trend ==
+                        MoodTrend.BETTER
+                    ) {
+                        Res.string.insight_adv_recent_hard_down
+                    } else {
+                        Res.string.insight_adv_recent_hard_up
+                    },
+                    recent.before.hardPercent,
+                    recent.now.hardPercent
+                )
+
+            else ->
+                stringResource(
+                    if (recent.trend ==
+                        MoodTrend.BETTER
+                    ) {
+                        Res.string.insight_adv_recent_good_up
+                    } else {
+                        Res.string.insight_adv_recent_good_down
+                    },
+                    recent.before.percent,
+                    recent.now.percent
+                )
+        }
+    Card(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
+        BasicText(stringResource(title), style = typography.headline.copy(color = colors.textPrimary))
+        BasicText(body, style = typography.body.copy(color = colors.textSecondary))
     }
 }
 
-/** 말하듯 이어지는 앞부분. "비 오는 날엔"처럼 조사까지 언어마다 문자열에 둔다. */
-@Composable
-private fun factorSubject(factor: StatsFactor): String = when (factor) {
-    is StatsFactor.Sky -> stringResource(skySubject(factor.weather))
-
-    is StatsFactor.Weekday -> stringResource(
-        Res.string.insight_adv_subject_day,
-        stringResource(
-            Weekdays.first {
-                it.first == factor.day
-            }.second
-        )
-    )
-
-    is StatsFactor.Part -> stringResource(
-        when (factor.part) {
-            DayPart.DAWN -> Res.string.insight_adv_subject_dawn
-            DayPart.MORNING -> Res.string.insight_adv_subject_morning
-            DayPart.AFTERNOON -> Res.string.insight_adv_subject_afternoon
-            DayPart.EVENING -> Res.string.insight_adv_subject_evening
-        }
-    )
-
-    is StatsFactor.Place -> stringResource(Res.string.insight_adv_subject_place, factor.name)
-
-    StatsFactor.WithPhotos -> stringResource(Res.string.insight_adv_subject_photos)
-
-    StatsFactor.LongEntries -> stringResource(Res.string.insight_adv_subject_long)
-}
-
-private fun skySubject(weather: Weather): StringResource = when (weather) {
-    Weather.SUNNY -> Res.string.insight_adv_subject_sunny
-    Weather.PARTLY_CLOUDY -> Res.string.insight_adv_subject_partly_cloudy
-    Weather.MOSTLY_CLOUDY -> Res.string.insight_adv_subject_mostly_cloudy
-    Weather.CLOUDY -> Res.string.insight_adv_subject_cloudy
-    Weather.RAIN -> Res.string.insight_adv_subject_rain
-    Weather.SLEET -> Res.string.insight_adv_subject_sleet
-    Weather.SNOW -> Res.string.insight_adv_subject_snow
-}
-
+/** 값이 있는 줄만 보인다. 앞 기간은 흐리게, 지금은 또렷하게 둔다. */
 @Composable
 private fun Change(period: AdvancedPeriod, change: StatsChange) {
-    val before = change.goodBefore
-    val now = change.goodNow
+    val before = change.before
+    val now = change.now
     val title = if (period == AdvancedPeriod.THIS_YEAR) Res.string.insight_adv_change_year else Res.string.insight_adv_change_recent
-    Section(title, DiarySpacing.x2) {
-        if (before != null && now != null) {
+    Section(title, DiarySpacing.x3) {
+        val moodsBefore = before.moods
+        val moodsNow = now.moods
+        if (moodsBefore != null && moodsNow != null) {
+            val percent = Res.string.insight_adv_share
             Value(
                 stringResource(Res.string.insight_adv_change_good),
-                stringResource(Res.string.insight_adv_change_good_value, before.percent, now.percent)
+                stringResource(percent, moodsBefore.percent),
+                stringResource(percent, moodsNow.percent)
+            )
+            Value(
+                stringResource(Res.string.insight_adv_change_hard),
+                stringResource(percent, moodsBefore.hardPercent),
+                stringResource(percent, moodsNow.hardPercent)
             )
         }
+        val topBefore = before.topMood
+        val topNow = now.topMood
+        if (topBefore != null && topNow != null) {
+            Value(stringResource(Res.string.insight_adv_change_top), moodName(topBefore), moodName(topNow))
+        }
         Value(
-            stringResource(Res.string.insight_adv_change_days),
-            pluralStringResource(Res.plurals.insight_adv_change_days_value, change.daysNow, change.daysBefore, change.daysNow)
+            stringResource(Res.string.insight_adv_habit_days),
+            pluralStringResource(Res.plurals.insight_adv_habit_days_value, before.days, before.days.grouped()),
+            pluralStringResource(Res.plurals.insight_adv_habit_days_value, now.days, now.days.grouped())
+        )
+        Value(
+            stringResource(Res.string.insight_adv_habit_entries),
+            pluralStringResource(Res.plurals.insight_adv_habit_entries_value, before.entries, before.entries.grouped()),
+            pluralStringResource(Res.plurals.insight_adv_habit_entries_value, now.entries, now.entries.grouped())
+        )
+        Value(stringResource(Res.string.insight_adv_habit_characters), characters(before.characters), characters(now.characters))
+        Value(
+            stringResource(Res.string.insight_adv_habit_photos),
+            pluralStringResource(Res.plurals.insight_adv_habit_photos_value, before.photos, before.photos.grouped()),
+            pluralStringResource(Res.plurals.insight_adv_habit_photos_value, now.photos, now.photos.grouped())
         )
     }
 }
 
 @Composable
-private fun Value(label: String, value: String) {
+private fun Value(label: String, before: String, now: String) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Row(
         Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BasicText(label, style = typography.reading.copy(color = colors.textPrimary))
-        BasicText(value, style = typography.body.copy(color = colors.textSecondary))
+        BasicText(label, Modifier.weight(1f), style = typography.body.copy(color = colors.textSecondary))
+        BasicText(stringResource(Res.string.insight_adv_change_before, before), style = typography.body.copy(color = colors.textTertiary))
+        BasicText(now, style = typography.bodyStrong.copy(color = colors.textPrimary))
+    }
+}
+
+/** 글자 수. 십만부터는 묶음 단위로 줄인다. 단위는 언어마다 달라서 문자열에 둔다. */
+@Composable
+private fun characters(value: Long): String {
+    val small = stringResource(Res.string.insight_adv_unit_small).toLong()
+    val big = stringResource(Res.string.insight_adv_unit_big).toLong()
+    val compact = compactCount(value, small, big)
+    return when {
+        compact == null ->
+            pluralStringResource(
+                Res.plurals.insight_adv_habit_characters_value,
+                value.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
+                value.grouped()
+            )
+
+        compact.big -> stringResource(Res.string.insight_adv_characters_big, compact.digits)
+
+        else -> stringResource(Res.string.insight_adv_characters_small, compact.digits)
     }
 }
 
 /** 일기 수를 함께 적어 적은 일기로 낸 비율을 크게 믿지 않게 한다. */
 @Composable
-private fun GoodTimes(stats: AdvancedStats) {
+private fun MoodTimes(stats: AdvancedStats) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
+    var hard by rememberSaveable { mutableStateOf(false) }
     Section(Res.string.insight_adv_when) {
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            DiaryChip(stringResource(Res.string.insight_adv_change_good), selected = !hard, onClick = { hard = false })
+            DiaryChip(stringResource(Res.string.insight_adv_change_hard), selected = hard, onClick = { hard = true })
+        }
         DiarySegmentedTabs(
             labels =
                 listOf(
@@ -419,7 +432,7 @@ private fun GoodTimes(stats: AdvancedStats) {
             selected = tab,
             onSelect = { tab = it }
         )
-        val rows: List<Pair<String, GoodShare>> =
+        val rows: List<Pair<String, ToneShare>> =
             when (tab) {
                 0 -> Weekdays.mapNotNull { (day, label) -> stats.weekdays[day]?.let { stringResource(label) to it } }
                 1 -> DayParts.mapNotNull { (part, label) -> stats.dayParts[part]?.let { stringResource(label) to it } }
@@ -432,19 +445,21 @@ private fun GoodTimes(stats: AdvancedStats) {
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
             )
         }
-        val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, share.percent) }
+        val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, if (hard) share.hardPercent else share.percent) }
         val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.body).coerceAtMost(DiarySpacing.x14 * 2)
         val countWidth = widestText(counts, DiaryTheme.typography.caption)
-        rows.forEachIndexed { index, (label, share) -> ShareRow(label, counts[index], share, labelWidth, countWidth) }
+        rows.forEachIndexed { index, (label, share) ->
+            ShareRow(label, counts[index], if (hard) share.hardRate else share.rate, labelWidth, countWidth)
+        }
         BasicText(
-            stringResource(Res.string.insight_adv_tone_note),
+            stringResource(if (hard) Res.string.insight_adv_tone_note_hard else Res.string.insight_adv_tone_note),
             style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
         )
     }
 }
 
 @Composable
-private fun ShareRow(label: String, count: String, share: GoodShare, labelWidth: Dp, countWidth: Dp) {
+private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp, countWidth: Dp) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Row(
@@ -459,7 +474,7 @@ private fun ShareRow(label: String, count: String, share: GoodShare, labelWidth:
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        DiaryProgressBar(share.rate.toFloat(), Modifier.weight(1f))
+        DiaryProgressBar(rate.toFloat(), Modifier.weight(1f))
         BasicText(
             count,
             Modifier.width(countWidth),
@@ -524,12 +539,7 @@ private fun Habit(habit: RecordHabit) {
                 pluralStringResource(Res.plurals.insight_adv_habit_days_value, habit.daysWritten, habit.daysWritten.grouped()),
             stringResource(Res.string.insight_adv_habit_run) to
                 pluralStringResource(Res.plurals.insight_adv_habit_days_value, habit.longestRun, habit.longestRun.grouped()),
-            stringResource(Res.string.insight_adv_habit_characters) to
-                pluralStringResource(
-                    Res.plurals.insight_adv_habit_characters_value,
-                    habit.characters.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
-                    habit.characters.grouped()
-                ),
+            stringResource(Res.string.insight_adv_habit_characters) to characters(habit.characters),
             stringResource(Res.string.insight_adv_habit_photos) to
                 pluralStringResource(Res.plurals.insight_adv_habit_photos_value, habit.photos, habit.photos.grouped()),
             stringResource(Res.string.insight_adv_habit_part) to part

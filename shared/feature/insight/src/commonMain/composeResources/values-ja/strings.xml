@@ -50,19 +50,11 @@
     <string name="insight_adv_range_all">すべて</string>
     <string name="insight_adv_not_enough">日記が7件たまると表示します。</string>
     <string name="insight_adv_not_enough_body">気分を選んだ日記が多いほど、はっきり見えます。</string>
-    <string name="insight_adv_gaps">気分が違ったとき</string>
-    <string name="insight_adv_gap_more">%1$s良い気分が多めでした</string>
-    <string name="insight_adv_gap_less">%1$s良い気分が少なめでした</string>
-    <string name="insight_adv_gap_numbers">%1$s件中%2$s件が良い気分で、それ以外は%3$d%でした。</string>
-    <string name="insight_adv_gap_note">日記から見えた傾向で、それが原因とは限りません。</string>
-    <string name="insight_adv_gap_none">まだ目立つ傾向はありません</string>
     <string name="insight_adv_gap_none_body">日記が増えたらまた調べます。</string>
     <string name="insight_adv_change_recent">前の30日と比較</string>
     <string name="insight_adv_change_year">去年の同じ時期と比較</string>
     <string name="insight_adv_change_good">良い気分</string>
-    <string name="insight_adv_change_good_value">%1$d% → %2$d%</string>
-    <string name="insight_adv_change_days">書いた日</string>
-    <string name="insight_adv_when">良い気分が多かったとき</string>
+    <string name="insight_adv_when">気分が多かったとき</string>
     <string name="insight_adv_tab_weekday">曜日</string>
     <string name="insight_adv_tab_part">時間帯</string>
     <string name="insight_adv_tab_weather">天気</string>
@@ -78,9 +70,6 @@
     <string name="insight_adv_habit_characters">文字数</string>
     <string name="insight_adv_habit_photos">写真</string>
     <string name="insight_adv_habit_part">よく書く時間帯</string>
-    <plurals name="insight_adv_change_days_value">
-        <item quantity="other">%1$d日 → %2$d日</item>
-    </plurals>
     <plurals name="insight_adv_company_title">
         <item quantity="other">%1$s・%2$s件</item>
     </plurals>
@@ -100,19 +89,20 @@
     <string name="insight_section_moods">気分別の日記</string>
     <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
     <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>
-    <string name="insight_adv_subject_sunny">晴れの日は</string>
-    <string name="insight_adv_subject_partly_cloudy">少し曇りの日は</string>
-    <string name="insight_adv_subject_mostly_cloudy">曇りがちの日は</string>
-    <string name="insight_adv_subject_cloudy">くもりの日は</string>
-    <string name="insight_adv_subject_rain">雨の日は</string>
-    <string name="insight_adv_subject_sleet">みぞれの日は</string>
-    <string name="insight_adv_subject_snow">雪の日は</string>
-    <string name="insight_adv_subject_day">%1$sは</string>
-    <string name="insight_adv_subject_dawn">早朝に書いた日記は</string>
-    <string name="insight_adv_subject_morning">朝に書いた日記は</string>
-    <string name="insight_adv_subject_afternoon">昼に書いた日記は</string>
-    <string name="insight_adv_subject_evening">夜に書いた日記は</string>
-    <string name="insight_adv_subject_place">%1$sで書いた日記は</string>
-    <string name="insight_adv_subject_photos">写真のある日記は</string>
-    <string name="insight_adv_subject_long">長い日記は</string>
+    <string name="insight_adv_recent_better">最近、気分が上向いています</string>
+    <string name="insight_adv_recent_harder">最近、少し気持ちが重かったようです</string>
+    <string name="insight_adv_recent_steady">最近の気分は穏やかです</string>
+    <string name="insight_adv_recent_steady_body">直近30日は、その前の30日と同じくらいでした。</string>
+    <string name="insight_adv_recent_good_up">直近30日の良い気分が%1$d%から%2$d%に増えました。</string>
+    <string name="insight_adv_recent_good_down">直近30日の良い気分が%1$d%から%2$d%に減りました。</string>
+    <string name="insight_adv_recent_hard_up">直近30日のつらい気分が%1$d%から%2$d%に増えました。</string>
+    <string name="insight_adv_recent_hard_down">直近30日のつらい気分が%1$d%から%2$d%に減りました。</string>
+    <string name="insight_adv_change_hard">つらい気分</string>
+    <string name="insight_adv_change_top">よく選んだ気分</string>
+    <string name="insight_adv_change_before">%1$s →</string>
+    <string name="insight_adv_tone_note_hard">怒り、悲しい、悪い、具合が悪い、疲れたを選んだ日記の割合です。</string>
+    <string name="insight_adv_unit_small">10000</string>
+    <string name="insight_adv_unit_big">100000000</string>
+    <string name="insight_adv_characters_small">%1$s万字</string>
+    <string name="insight_adv_characters_big">%1$s億字</string>
 </resources>

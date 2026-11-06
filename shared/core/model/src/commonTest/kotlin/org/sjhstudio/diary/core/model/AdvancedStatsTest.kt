@@ -1,7 +1,5 @@
 package org.sjhstudio.diary.core.model
 
-import kotlin.math.abs
-import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -11,6 +9,7 @@ import kotlin.test.assertTrue
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 
 class AdvancedStatsTest {
@@ -36,8 +35,8 @@ class AdvancedStatsTest {
 
     @Test
     fun share_rounds_to_nearest_percent() {
-        assertEquals(67, GoodShare(2, 3).percent)
-        assertEquals(0, GoodShare(0, 0).percent)
+        assertEquals(67, ToneShare(2, 3).percent)
+        assertEquals(0, ToneShare(0, 0).percent)
     }
 
     @Test
@@ -51,7 +50,7 @@ class AdvancedStatsTest {
     fun entries_without_mood_do_not_count_as_bad_mood() {
         val stats = advancedStats(List(5) { row(it * 7, mood = Mood.GOOD) } + List(5) { row(it * 7, mood = null) })
 
-        assertEquals(GoodShare(5, 5), stats.weekdays[start.dayOfWeek])
+        assertEquals(ToneShare(5, 5), stats.weekdays[start.dayOfWeek])
         assertEquals(10, stats.habit.entries)
     }
 
@@ -119,10 +118,10 @@ class AdvancedStatsTest {
         val stats = advancedStats(now, listOf(row(40, mood = Mood.SAD)))
 
         val change = assertNotNull(stats.change)
-        assertNull(change.goodBefore)
-        assertEquals(GoodShare(6, 6), change.goodNow)
-        assertEquals(1, change.daysBefore)
-        assertEquals(6, change.daysNow)
+        assertNull(change.before.moods)
+        assertEquals(ToneShare(6, 6), change.now.moods)
+        assertEquals(1, change.before.days)
+        assertEquals(6, change.now.days)
         assertNull(advancedStats(now).change)
     }
 
@@ -143,65 +142,13 @@ class AdvancedStatsTest {
     }
 
     @Test
-    fun clear_gap_is_found_with_its_numbers() {
-        val rainy = List(30) { row(it, weather = Weather.RAIN, mood = if (it < 6) Mood.GOOD else Mood.SAD) }
-        val others = List(30) { row(it, weather = Weather.SUNNY, mood = if (it < 22) Mood.GOOD else Mood.SAD) }
-
-        val gaps = advancedStats(rainy + others).gaps
-
-        val gap = gaps.first { it.factor == StatsFactor.Sky(Weather.RAIN) }
-        assertFalse(gap.more)
-        assertEquals(GoodShare(6, 30), gap.here)
-        assertEquals(GoodShare(22, 30), gap.others)
-    }
-
-    @Test
-    fun a_bad_weather_does_not_make_the_other_weather_look_good() {
-        val rainy = List(120) { row(it, weather = Weather.RAIN, mood = if (it < 18) Mood.GOOD else Mood.SAD) }
-        val sunny = List(120) { row(it, weather = Weather.SUNNY, mood = if (it < 66) Mood.GOOD else Mood.SAD) }
-        val cloudy = List(120) { row(it, weather = Weather.CLOUDY, mood = if (it < 66) Mood.GOOD else Mood.SAD) }
-
-        val gaps = advancedStats(rainy + sunny + cloudy).gaps.filter { it.factor is StatsFactor.Sky }
-
-        assertEquals(listOf<StatsFactor>(StatsFactor.Sky(Weather.RAIN)), gaps.map { it.factor })
-    }
-
-    @Test
-    fun two_good_days_are_both_found() {
-        val rows =
-            List(420) { index ->
-                val date = row(index).date
-                val weekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
-                val good = if (weekend) index % 10 < 8 else index % 10 < 3
-                row(index, mood = if (good) Mood.GOOD else Mood.SAD)
-            }
-
-        val days = advancedStats(rows).gaps.map { it.factor }
-
-        assertTrue(StatsFactor.Weekday(DayOfWeek.SATURDAY) in days)
-        assertTrue(StatsFactor.Weekday(DayOfWeek.SUNDAY) in days)
-    }
-
-    @Test
     fun no_moods_means_no_mood_talk() {
         val stats = advancedStats(List(50) { row(it, mood = null) })
 
         assertTrue(stats.enough)
         assertFalse(stats.moodReady)
-        assertTrue(stats.gaps.isEmpty() && stats.weekdays.isEmpty() && stats.company.isEmpty())
+        assertTrue(stats.weekdays.isEmpty() && stats.company.isEmpty())
         assertEquals(50, stats.habit.daysWritten)
-    }
-
-    @Test
-    fun everyone_in_one_mood_shows_no_gap() {
-        assertTrue(advancedStats(List(100) { row(it, mood = Mood.GOOD) }).gaps.isEmpty())
-        assertTrue(advancedStats(List(100) { row(it, mood = Mood.SAD) }).gaps.isEmpty())
-    }
-
-    @Test
-    fun equal_lengths_or_empty_text_make_no_long_entries() {
-        assertTrue(advancedStats(List(100) { row(it, length = 100) }).gaps.none { it.factor == StatsFactor.LongEntries })
-        assertTrue(advancedStats(List(100) { row(it, length = 0) }).gaps.none { it.factor == StatsFactor.LongEntries })
     }
 
     @Test
@@ -218,79 +165,12 @@ class AdvancedStatsTest {
         assertEquals(30, habit.entries)
     }
 
-    @Test
-    fun small_groups_never_make_a_gap() {
-        val rows = List(7) { row(it, weather = Weather.RAIN, mood = Mood.SAD) } + List(40) { row(it, weather = Weather.SUNNY) }
-
-        assertTrue(advancedStats(rows).gaps.none { it.factor == StatsFactor.Sky(Weather.RAIN) })
-    }
-
-    @Test
-    fun at_most_three_gaps_biggest_first() {
-        val rows = weatherRows()
-
-        val gaps = advancedStats(rows).gaps
-
-        assertTrue(gaps.size <= AdvancedStats.MAX_GAPS)
-        assertEquals(gaps.sortedByDescending { abs(it.here.rate - it.others.rate) }, gaps)
-    }
-
-    private fun weatherRows() = Weather.entries.flatMapIndexed { index, weather ->
-        List(40) { row(it, weather = weather, mood = if (it < index * 6) Mood.GOOD else Mood.SAD) }
-    }
-
-    @Test
-    fun quantile_matches_known_values() {
-        assertTrue(abs(normalQuantile(0.025) - 1.96) < 0.01)
-        assertTrue(abs(normalQuantile(0.00125) - 3.02) < 0.01)
-    }
-
     /** 일기 앞뒤로 기분이 이어지는 경향까지 넣은 가짜 기록. 조건과 기분 사이에 관계를 일부러 넣을 수 있다. */
-    private fun fake(random: Random, size: Int, rainEffect: Double): List<StatsEntry> {
-        val base = listOf(0.3, 0.45, 0.6).random(random)
-        var previous = random.nextDouble() < base
-        return List(size) { day ->
-            val weather = weatherPool.random(random)
-            val place = placePool.random(random)
-            val chance = if (weather == Weather.RAIN) base + rainEffect else base
-            val good = if (random.nextDouble() < 0.3) previous else random.nextDouble() < chance
-            previous = good
-            StatsEntry(
-                start.plus(DatePeriod(days = day)),
-                hourPool.random(random),
-                if (good) Mood.GOOD else Mood.SAD,
-                weather,
-                place,
-                if (random.nextDouble() < 0.3) 1 else 0,
-                random.nextInt(20, 400)
-            )
-        }
-    }
 
     private val weatherPool =
         List(9) { Weather.SUNNY } + List(5) { Weather.PARTLY_CLOUDY } + List(3) { Weather.RAIN } + Weather.SNOW + List(2) { Weather.CLOUDY }
     private val placePool = listOf("집", "집", "집", "회사", "회사", "카페", "공원", null, null, null)
     private val hourPool = listOf(3, 9, 9, 14, 14, 20, 20, 20, 21, 22)
-
-    @Test
-    fun unrelated_diaries_almost_never_show_a_gap() {
-        for (size in listOf(30, 90, 365, 1000)) {
-            val wrong = (0 until TRIALS).count { seed -> advancedStats(fake(Random(seed * 31 + size), size, 0.0)).gaps.isNotEmpty() }
-
-            assertTrue(wrong <= TRIALS * 7 / 100, "일기 ${size}편에서 $TRIALS 번 중 $wrong 번 잘못 말함")
-        }
-    }
-
-    @Test
-    fun strong_relation_shows_in_a_long_diary() {
-        val rain = StatsFactor.Sky(Weather.RAIN)
-        val found =
-            (0 until TRIALS).count { seed ->
-                advancedStats(fake(Random(seed), 1000, -0.3)).gaps.any { it.factor == rain && !it.more }
-            }
-
-        assertTrue(found >= TRIALS * 7 / 10, "$TRIALS 번 중 $found 번 찾음")
-    }
 
     @Test
     fun weekday_table_uses_real_weekdays() {
@@ -301,5 +181,84 @@ class AdvancedStatsTest {
 
     private companion object {
         const val TRIALS = 300
+    }
+
+    private val today = LocalDate(2026, 11, 6)
+
+    private fun dated(daysAgo: Int, mood: Mood) = StatsEntry(today.minus(DatePeriod(days = daysAgo)), 21, mood, null, null)
+
+    private fun window(from: Int, good: Int, hard: Int) =
+        List(good) { dated(from + it, Mood.GOOD) } + List(hard) { dated(from + good + it, Mood.SAD) }
+
+    @Test
+    fun recent_mood_needs_enough_entries_on_both_sides() {
+        assertNull(recentMood(window(0, 5, 2) + window(30, 5, 5), today))
+        assertNull(recentMood(window(0, 5, 5) + window(30, 5, 2), today))
+    }
+
+    @Test
+    fun more_good_moods_read_as_better() {
+        val recent = assertNotNull(recentMood(window(0, 8, 2) + window(30, 4, 6), today))
+        assertEquals(MoodTrend.BETTER, recent.trend)
+        assertEquals(40, recent.before.percent)
+        assertEquals(80, recent.now.percent)
+    }
+
+    @Test
+    fun more_hard_moods_read_as_harder() {
+        assertEquals(MoodTrend.HARDER, recentMood(window(0, 3, 7) + window(30, 7, 3), today)?.trend)
+    }
+
+    @Test
+    fun small_shift_stays_steady() {
+        assertEquals(MoodTrend.STEADY, recentMood(window(0, 5, 5) + window(30, 5, 5), today)?.trend)
+    }
+
+    @Test
+    fun hard_moods_going_down_are_named_when_they_moved_most() {
+        val meh = List(5) { dated(5 + it, Mood.MEH) }
+        val recent = assertNotNull(recentMood(window(0, 4, 1) + meh + window(30, 4, 6), today))
+        assertEquals(MoodTrend.BETTER, recent.trend)
+        assertTrue(recent.hardMoved)
+    }
+
+    @Test
+    fun hard_share_counts_only_hard_moods() {
+        val rows = listOf(Mood.GOOD, Mood.SAD, Mood.TIRED, Mood.MEH).mapIndexed { i, mood -> dated(i, mood) }
+        val share = assertNotNull(advancedStats(rows + rows, rows + rows).change?.now?.moods)
+        assertEquals(25, share.percent)
+        assertEquals(50, share.hardPercent)
+    }
+
+    @Test
+    fun change_carries_everything_it_compares() {
+        val before = listOf(row(0, length = 10, photos = 1), row(0, length = 20), row(1, length = 5))
+        val now = List(6) { row(it, mood = Mood.SAD, length = 100, photos = 2) }
+        val change = assertNotNull(advancedStats(now, before).change)
+        assertEquals(StatsSnapshot(null, null, 2, 3, 35, 1), change.before)
+        assertEquals(6, change.now.days)
+        assertEquals(600, change.now.characters)
+        assertEquals(12, change.now.photos)
+        assertEquals(Mood.SAD, change.now.topMood)
+    }
+
+    @Test
+    fun counts_below_a_hundred_thousand_stay_full() {
+        assertNull(compactCount(99_999, 10_000, 100_000_000))
+    }
+
+    @Test
+    fun korean_units_are_man_and_eok() {
+        assertEquals(CompactCount("10", false), compactCount(100_000, 10_000, 100_000_000))
+        assertEquals(CompactCount("123", false), compactCount(1_239_999, 10_000, 100_000_000))
+        assertEquals(CompactCount("9999", false), compactCount(99_999_999, 10_000, 100_000_000))
+        assertEquals(CompactCount("1", true), compactCount(100_000_000, 10_000, 100_000_000))
+        assertEquals(CompactCount("1.2", true), compactCount(123_000_000, 10_000, 100_000_000))
+    }
+
+    @Test
+    fun english_units_are_thousands_and_millions() {
+        assertEquals(CompactCount("100", false), compactCount(100_000, 1_000, 1_000_000))
+        assertEquals(CompactCount("2.5", true), compactCount(2_500_000, 1_000, 1_000_000))
     }
 }

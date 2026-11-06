@@ -1,8 +1,6 @@
 package org.sjhstudio.diary.core.model
 
 import kotlin.math.abs
-import kotlin.math.ln
-import kotlin.math.sqrt
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -52,40 +50,40 @@ enum class AdvancedPeriod {
     }
 }
 
-/** 기분을 고른 일기 [total]편 중 좋은 기분이 [good]편이다. */
-data class GoodShare(val good: Int, val total: Int) {
-    val rate: Double get() = if (total == 0) 0.0 else good.toDouble() / total
+/** 기분을 고른 일기 [total]편 중 좋은 기분이 [good]편, 힘든 기분이 [hard]편이다. */
+data class ToneShare(val good: Int, val total: Int, val hard: Int = 0) {
+    val rate: Double get() = rateOf(good)
+    val hardRate: Double get() = rateOf(hard)
 
     /** 화면에 쓰는 백분율. */
-    val percent: Int get() = if (total == 0) 0 else (good * PERCENT + total / 2) / total
+    val percent: Int get() = percentOf(good)
+    val hardPercent: Int get() = percentOf(hard)
+
+    private fun rateOf(count: Int) = if (total == 0) 0.0 else count.toDouble() / total
+
+    private fun percentOf(count: Int) = if (total == 0) 0 else (count * PERCENT + total / 2) / total
 
     private companion object {
         const val PERCENT = 100
     }
 }
 
-/** 기분을 견주어 볼 조건. */
-sealed interface StatsFactor {
-    data class Sky(val weather: Weather) : StatsFactor
+/** 한 기간의 값. 기분을 고른 일기가 모자라면 [moods]와 [topMood]는 null이다. */
+data class StatsSnapshot(val moods: ToneShare?, val topMood: Mood?, val days: Int, val entries: Int, val characters: Long, val photos: Int)
 
-    data class Weekday(val day: DayOfWeek) : StatsFactor
+/** 지난 기간과 견준 값. */
+data class StatsChange(val before: StatsSnapshot, val now: StatsSnapshot)
 
-    data class Part(val part: DayPart) : StatsFactor
+/** 요즘 기분의 흐름. */
+enum class MoodTrend { BETTER, HARDER, STEADY }
 
-    data class Place(val name: String) : StatsFactor
-
-    data object WithPhotos : StatsFactor
-
-    data object LongEntries : StatsFactor
+/**
+ * 최근 30일과 그 전 30일의 기분. 까닭을 말하지 않고 일어난 변화만 한 줄로 말한다.
+ * 좋은 기분이 늘거나 힘든 기분이 줄면 나아진 것으로 보고, 더 많이 움직인 쪽을 [hardMoved]로 알린다.
+ */
+data class RecentMood(val trend: MoodTrend, val before: ToneShare, val now: ToneShare) {
+    val hardMoved: Boolean get() = abs(now.hardRate - before.hardRate) > abs(now.rate - before.rate)
 }
-
-/** 조건이 맞을 때와 아닐 때 좋은 기분이 뚜렷하게 다른 곳. 까닭이라고 말할 수는 없는 함께 나타난 차이다. */
-data class MoodGap(val factor: StatsFactor, val here: GoodShare, val others: GoodShare) {
-    val more: Boolean get() = here.rate > others.rate
-}
-
-/** 지난 기간과 견준 값. 일기가 모자란 쪽은 null이다. */
-data class StatsChange(val goodBefore: GoodShare?, val goodNow: GoodShare?, val daysBefore: Int, val daysNow: Int)
 
 /** 한 기분과 가장 자주 함께한 것. */
 data class MoodCompany(val mood: Mood, val entries: Int, val weather: Weather?, val weekday: DayOfWeek?, val place: String?)
@@ -103,14 +101,14 @@ data class RecordHabit(
 /** 고급 통계(스펙 006 US5). 기존 통계와 겹치지 않는 분석만 담는다. */
 data class AdvancedStats(
     val moodEntries: Int,
-    val gaps: List<MoodGap>,
     val change: StatsChange?,
-    val weekdays: Map<DayOfWeek, GoodShare>,
-    val dayParts: Map<DayPart, GoodShare>,
-    val weather: Map<Weather, GoodShare>,
-    val places: List<Pair<String, GoodShare>>,
+    val weekdays: Map<DayOfWeek, ToneShare>,
+    val dayParts: Map<DayPart, ToneShare>,
+    val weather: Map<Weather, ToneShare>,
+    val places: List<Pair<String, ToneShare>>,
     val company: List<MoodCompany>,
-    val habit: RecordHabit
+    val habit: RecordHabit,
+    val recent: RecentMood? = null
 ) {
     /** 뜻이 있을 만큼 쌓였는지 본다. */
     val enough: Boolean get() = habit.entries >= MIN_ENTRIES
@@ -125,16 +123,12 @@ data class AdvancedStats(
         const val MIN_SHARE = 5
         const val MIN_COMPANY = 3
         const val TOP_PLACES = 5
-        const val MAX_GAPS = 3
 
-        /** 차이를 말하려면 양쪽 모두 이만큼은 있어야 한다. */
-        const val MIN_GROUP = 8
+        /** 요즘 기분을 말하려면 두 기간 모두 이만큼은 있어야 한다. */
+        const val MIN_TREND = 8
 
-        /** 이보다 작은 차이는 맞아도 쓸모가 없다. */
-        const val MIN_GAP = 0.15
-
-        /** 아무 관계가 없는 기록에서 하나라도 잘못 말할 확률의 상한. 모의 시험 근거는 스펙 006 research. */
-        const val FALSE_ALARM = 0.05
+        /** 이보다 작은 변화는 일기 몇 편으로도 뒤집혀서 비슷하다고 말한다. */
+        const val MIN_SHIFT = 0.15
     }
 }
 
@@ -154,7 +148,6 @@ fun advancedStats(rows: List<StatsEntry>, before: List<StatsEntry>? = null): Adv
     val moods = rows.filter { it.mood != null }
     return AdvancedStats(
         moodEntries = moods.size,
-        gaps = moodGaps(moods),
         change = before?.takeIf { it.isNotEmpty() }?.let { change(rows, it) },
         weekdays = moods.groupBy { it.date.dayOfWeek }.shares(),
         dayParts = moods.groupBy { dayPart(it.hour) }.shares(),
@@ -165,7 +158,7 @@ fun advancedStats(rows: List<StatsEntry>, before: List<StatsEntry>? = null): Adv
                 .groupBy { it.placeName()!! }
                 .shares()
                 .entries
-                .sortedWith(compareByDescending<Map.Entry<String, GoodShare>> { it.value.total }.thenBy { it.key })
+                .sortedWith(compareByDescending<Map.Entry<String, ToneShare>> { it.value.total }.thenBy { it.key })
                 .take(AdvancedStats.TOP_PLACES)
                 .map { it.key to it.value },
         company = company(moods),
@@ -175,14 +168,58 @@ fun advancedStats(rows: List<StatsEntry>, before: List<StatsEntry>? = null): Adv
 
 private fun StatsEntry.placeName(): String? = place?.trim()?.takeIf { it.isNotEmpty() }
 
-private fun List<StatsEntry>.share() = GoodShare(count { it.mood?.tone == MoodTone.GOOD }, size)
+private fun List<StatsEntry>.share() = ToneShare(count { it.mood?.tone == MoodTone.GOOD }, size, count { it.mood?.tone == MoodTone.HARD })
 
-private fun <K> Map<K, List<StatsEntry>>.shares(): Map<K, GoodShare> =
+private fun <K> Map<K, List<StatsEntry>>.shares(): Map<K, ToneShare> =
     mapValues { it.value.share() }.filterValues { it.total >= AdvancedStats.MIN_SHARE }
 
-private fun change(rows: List<StatsEntry>, before: List<StatsEntry>): StatsChange {
-    fun List<StatsEntry>.good() = filter { it.mood != null }.share().takeIf { it.total >= AdvancedStats.MIN_SHARE }
-    return StatsChange(before.good(), rows.good(), before.map { it.date }.distinct().size, rows.map { it.date }.distinct().size)
+private fun change(rows: List<StatsEntry>, before: List<StatsEntry>) = StatsChange(before.snapshot(), rows.snapshot())
+
+private fun List<StatsEntry>.snapshot(): StatsSnapshot {
+    val moods = filter { it.mood != null }
+    val enough = moods.size >= AdvancedStats.MIN_SHARE
+    return StatsSnapshot(
+        moods = moods.share().takeIf { enough },
+        topMood = if (enough) moods.mapNotNull { it.mood }.mostCommon() else null,
+        days = map { it.date }.distinct().size,
+        entries = size,
+        characters = sumOf { it.length.toLong() },
+        photos = sumOf { it.photos }
+    )
+}
+
+/** [rows]에서 최근 30일과 그 전 30일을 꺼내 견준다. 어느 쪽이든 일기가 모자라면 말하지 않는다. */
+fun recentMood(rows: List<StatsEntry>, today: LocalDate): RecentMood? {
+    val now = AdvancedPeriod.RECENT.range(today) ?: return null
+    val before = AdvancedPeriod.RECENT.compare(today) ?: return null
+    val moods = rows.filter { it.mood != null }
+    val nowShare = moods.filter { it.date in now.start..now.end }.share()
+    val beforeShare = moods.filter { it.date in before.start..before.end }.share()
+    if (nowShare.total < AdvancedStats.MIN_TREND || beforeShare.total < AdvancedStats.MIN_TREND) return null
+    val shift = (nowShare.rate - nowShare.hardRate) - (beforeShare.rate - beforeShare.hardRate)
+    val trend = when {
+        shift >= AdvancedStats.MIN_SHIFT -> MoodTrend.BETTER
+        shift <= -AdvancedStats.MIN_SHIFT -> MoodTrend.HARDER
+        else -> MoodTrend.STEADY
+    }
+    return RecentMood(trend, beforeShare, nowShare)
+}
+
+/** 큰 수를 짧게 쓸 때의 값. [small]과 [big]은 언어마다 다른 묶음 단위다(한국어·일본어는 만·억, 영어는 천·백만). */
+data class CompactCount(val digits: String, val big: Boolean)
+
+/** [FULL_LIMIT]보다 작으면 null이고, 그대로 다 적는다. 그 위는 작은 단위는 정수로, 큰 단위는 소수 한 자리까지 쓴다. */
+fun compactCount(value: Long, small: Long, big: Long): CompactCount? = when {
+    value < FULL_LIMIT -> null
+
+    value < big -> CompactCount((value / small).toString(), big = false)
+
+    else -> {
+        val tenths = value / (big / TENTHS)
+        val whole = tenths / TENTHS
+        val rest = tenths % TENTHS
+        CompactCount(if (rest == 0L || whole >= TENTHS) whole.toString() else "$whole.$rest", big = true)
+    }
 }
 
 private fun company(moods: List<StatsEntry>): List<MoodCompany> = moods
@@ -223,76 +260,6 @@ private fun longestRun(days: List<LocalDate>): Int {
     return longest
 }
 
-/**
- * 조건별로 좋은 기분의 비율을 나머지 일기와 견준다(두 비율 차이 검정).
- * 조건을 여럿 보면 우연히 다른 곳이 나오기 쉬워서 본 조건 수만큼 기준을 높인다(본페로니 보정).
- * 그래서 관계가 없는 기록이면 스무 번에 한 번도 말하지 않지만, 일기가 적으면 있는 차이도 잘 찾지 못한다.
- *
- * 같은 묶음(날씨, 요일처럼 한 일기에 하나만 있는 것) 안에서는 찾은 조건을 빼고 다시 견준다.
- * 비 오는 날이 나쁘면 나머지 날씨는 그것만으로 좋아 보이기 때문이다.
- */
-internal fun moodGaps(moods: List<StatsEntry>): List<MoodGap> {
-    val longFrom = moods.map { it.length }.sorted().let { if (it.isEmpty()) 0 else it[it.size * LONG_QUARTILE / QUARTERS] }
-    val groups = HashMap<StatsFactor, MutableList<StatsEntry>>()
-    for (row in moods) {
-        for (factor in factors(row, longFrom)) groups.getOrPut(factor) { ArrayList() }.add(row)
-    }
-    val tested = groups.count { (_, group) -> group.size >= AdvancedStats.MIN_GROUP && moods.size - group.size >= AdvancedStats.MIN_GROUP }
-    val limit = normalQuantile(AdvancedStats.FALSE_ALARM / tested.coerceAtLeast(1) / 2)
-    return groups.entries
-        .groupBy { (factor, _) -> factor::class }
-        .values
-        .flatMap { family -> gapsInFamily(moods, family.associate { it.key to it.value }, limit) }
-        .sortedByDescending { abs(it.here.rate - it.others.rate) }
-        .take(AdvancedStats.MAX_GAPS)
-}
-
-/** 묶음 안에서 가장 큰 차이부터 하나씩 빼며 찾는다. */
-private fun gapsInFamily(moods: List<StatsEntry>, family: Map<StatsFactor, List<StatsEntry>>, limit: Double): List<MoodGap> {
-    val found = ArrayList<MoodGap>()
-    val left = family.toMutableMap()
-    var pool = moods.size to moods.count { it.mood?.tone == MoodTone.GOOD }
-    while (true) {
-        val best =
-            left
-                .mapNotNull { (factor, group) ->
-                    val here = group.share()
-                    MoodGap(factor, here, GoodShare(pool.second - here.good, pool.first - here.total))
-                }.filter { it.isClear(limit) }
-                // 둘뿐이면 같은 차이가 두 번 나온다. 그때는 좋은 기분이 적은 쪽으로 말한다.
-                .maxWithOrNull(compareBy<MoodGap> { abs(it.here.rate - it.others.rate) }.thenBy { -it.here.rate }) ?: return found
-        found += best
-        left.remove(best.factor)
-        pool = pool.first - best.here.total to pool.second - best.here.good
-    }
-}
-
-private fun MoodGap.isClear(limit: Double): Boolean = here.total >= AdvancedStats.MIN_GROUP &&
-    others.total >= AdvancedStats.MIN_GROUP &&
-    abs(here.rate - others.rate) >= AdvancedStats.MIN_GAP &&
-    abs(zScore(this)) >= limit
-
-private fun factors(row: StatsEntry, longFrom: Int): List<StatsFactor> = buildList {
-    add(StatsFactor.Weekday(row.date.dayOfWeek))
-    add(StatsFactor.Part(dayPart(row.hour)))
-    row.weather?.let { add(StatsFactor.Sky(it)) }
-    row.placeName()?.let { add(StatsFactor.Place(it)) }
-    if (row.photos > 0) add(StatsFactor.WithPhotos)
-    if (row.length > 0 && row.length >= longFrom) add(StatsFactor.LongEntries)
-}
-
-private fun zScore(gap: MoodGap): Double {
-    val pooled = (gap.here.good + gap.others.good).toDouble() / (gap.here.total + gap.others.total)
-    val error = sqrt(pooled * (1 - pooled) * (1.0 / gap.here.total + 1.0 / gap.others.total))
-    return if (error == 0.0) 0.0 else (gap.here.rate - gap.others.rate) / error
-}
-
-/** 표준정규분포에서 오른쪽 넓이가 [tail]인 지점(Abramowitz·Stegun 26.2.23). 0.5보다 작은 [tail]만 쓴다. */
-internal fun normalQuantile(tail: Double): Double {
-    val t = sqrt(-2 * ln(tail))
-    return t - (C0 + C1 * t + C2 * t * t) / (1 + D1 * t + D2 * t * t + D3 * t * t * t)
-}
-
 private fun dayPart(hour: Int): DayPart = when (hour) {
     in 0..5 -> DayPart.DAWN
     in 6..11 -> DayPart.MORNING
@@ -300,11 +267,5 @@ private fun dayPart(hour: Int): DayPart = when (hour) {
     else -> DayPart.EVENING
 }
 
-private const val QUARTERS = 4
-private const val LONG_QUARTILE = 3
-private const val C0 = 2.515517
-private const val C1 = 0.802853
-private const val C2 = 0.010328
-private const val D1 = 1.432788
-private const val D2 = 0.189269
-private const val D3 = 0.001308
+private const val FULL_LIMIT = 100_000L
+private const val TENTHS = 10L
