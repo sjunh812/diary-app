@@ -28,6 +28,7 @@ interface BackupRepository {
 
     /**
      * 처음 연결하면 자동 백업을 켠다(FR-013).
+     * 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킨다.
      * 드라이브에 백업이 없으면 바로 백업하고, 있으면 [foundBackup]으로 알리고 사용자가 고를 때까지 올리지 않는다.
      */
     suspend fun connect(hint: String? = null): ConnectResult

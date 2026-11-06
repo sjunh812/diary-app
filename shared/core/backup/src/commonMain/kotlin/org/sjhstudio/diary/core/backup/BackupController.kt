@@ -100,16 +100,18 @@ class BackupController(
     override suspend fun connect(hint: String?): ConnectResult {
         val result = authorizer.connect(hint)
         if (result is ConnectResult.Connected) {
+            // 자동 백업은 처음 연결할 때만 켠다.
+            // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킨다.
             store.update {
                 it.copy(
                     accountKey = result.account.key,
                     accountLabel = result.account.email,
-                    autoEnabled = true,
+                    autoEnabled = it.accountKey == null || it.autoEnabled,
                     userDisconnected = false,
                     lastFailure = null
                 )
             }
-            scheduler.scheduleDaily()
+            if (store.current().autoEnabled) scheduler.scheduleDaily()
             // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않는다(US2 시나리오 7).
             val found = findBackup()
             if (found != null) _foundBackup.value = found else backUpNow()
