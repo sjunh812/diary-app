@@ -17,6 +17,7 @@ import org.w3c.dom.Element
 // 화면 문구가 세 언어에 다 있는지 본다(docs/design.md 여러 언어, research R18).
 // values(영어)를 기준으로 values-ko, values-ja가 같은 이름과 꼴, 같은 %1$s 자리를 갖는지 견준다.
 // 영어 개수 문구는 one·other, 한국어·일본어는 other가 있어야 한다.
+// Compose 리소스는 \' 와 \" 를 풀지 않아 역슬래시가 화면에 그대로 보이므로 막는다.
 @CacheableTask
 abstract class StringResourceCheckTask : DefaultTask() {
     @get:InputFiles
@@ -37,7 +38,7 @@ abstract class StringResourceCheckTask : DefaultTask() {
             defaults.flatMap { english ->
                 val reference = parse(english)
                 val where = english.relativeTo(base).invariantSeparatorsPath
-                val ownProblems = reference.plurals("one", where) + reference.plurals("other", where)
+                val ownProblems = reference.plurals("one", where) + reference.plurals("other", where) + reference.escapes(where)
                 ownProblems +
                     LOCALES.flatMap { locale ->
                         val file = File(english.parentFile.parentFile, "values-$locale/${english.name}")
@@ -65,11 +66,19 @@ abstract class StringResourceCheckTask : DefaultTask() {
             }
         }
         addAll(translated.plurals("other", where))
+        addAll(translated.escapes(where))
     }
 
     private fun Strings.plurals(quantity: String, where: String): List<String> =
         entries.filter { it.value.kind == "plurals" && quantity !in it.value.quantities }
             .map { "$where: ${it.key} 에 quantity=\"$quantity\"가 없다" }
+
+    private fun Strings.escapes(where: String): List<String> =
+        if ("composeResources" !in where) {
+            emptyList()
+        } else {
+            entries.filter { it.value.escaped }.map { "$where: ${it.key} 에 역슬래시 따옴표가 있다. 그냥 따옴표로 쓴다" }
+        }
 
     private fun parse(file: File): Strings {
         val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
@@ -83,17 +92,18 @@ abstract class StringResourceCheckTask : DefaultTask() {
             val texts = if (items.length == 0) listOf(element.textContent) else (0 until items.length).map { items.item(it).textContent }
             val quantities = (0 until items.length).map { (items.item(it) as Element).getAttribute("quantity") }.toSet()
             entries[name] =
-                Entry(element.tagName, texts.flatMap { PLACEHOLDER.findAll(it).map { m -> m.value }.toList() }.toSet(), quantities)
+                Entry(element.tagName, texts.flatMap { PLACEHOLDER.findAll(it).map { m -> m.value }.toList() }.toSet(), quantities, texts.any(ESCAPED::containsMatchIn))
         }
         return Strings(entries)
     }
 
     private class Strings(val entries: Map<String, Entry>)
 
-    private class Entry(val kind: String, val placeholders: Set<String>, val quantities: Set<String>)
+    private class Entry(val kind: String, val placeholders: Set<String>, val quantities: Set<String>, val escaped: Boolean)
 
     private companion object {
         val LOCALES = listOf("ko", "ja")
         val PLACEHOLDER = Regex("""%\d+\$[sd]""")
+        val ESCAPED = Regex("""\\['"]""")
     }
 }
