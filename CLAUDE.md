@@ -33,11 +33,22 @@ Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store�
 
 ## 만드는 순서
 
-기능은 `/diary-flow`(기획 → Figma 프로토타입 → Figma 디자인 → 디자인 점검 → 개발 → 마무리)로 만든다. Spec Kit 스킬(`/speckit-*`)은 이 흐름 안에서 부른다.
+기능은 `/diary-flow`(기획 → Figma 프로토타입 → Figma 디자인 → 디자인 점검 → 개발 → 마무리)로 만든다. 마무리는 PR까지다. Spec Kit 스킬(`/speckit-*`)은 이 흐름 안에서 부른다.
 
 디자인 점검은 화면을 개발로 넘기기 전에 Figma 디자인을 토스 TDS, 당근 SEED, Apple HIG, Material 3와 유명 앱에 대어 보는 단계다(UI/UX, 여백,
 글자 크기·굵기 같은 것). 고칠 것이 나오면 `docs/design.md`와 Figma를 먼저 고치고 개발한다. 결과는 `specs/<번호>/design-review.md`에 남긴다
 (사용자 요청 2026-11-01, `docs/design.md` "개발 전 디자인 점검").
+
+## 프로젝트 스킬
+
+| 스킬 | 쓰는 때 |
+| --- | --- |
+| `/diary-flow` | 기능 하나를 기획부터 PR까지 |
+| `/emulator-check` | 에뮬레이터에 깔고 화면과 동작 확인, 업그레이드 시험 |
+| `/figma-audit` | Figma를 고친 뒤 규격을 재고 메인 컴포넌트부터 고치기 |
+| `/backup-roundtrip` | 백업·복원·드라이브·저장 형식을 건드린 뒤 왕복 확인 |
+| `/pr-review` | PR 올리기, CI, 리뷰봇 지적 처리, 머지 묻기 |
+| `/release-prep` | 버전 올리기, Baseline Profile, 글꼴 모듈 시험, 태그 |
 
 ## 레퍼런스
 
@@ -67,33 +78,27 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 JDK는 Gradle이 고른다(`gradle/gradle-daemon-jvm.properties`가 JDK 17을 받아 쓴다). 설치는 에뮬레이터에만 한다(`ANDROID_SERIAL` 지정).
 
 ```bash
-./gradlew spotlessCheck designTokenCheck stringResourceCheck allTests assembleDebug   # CI와 같은 검사·시험·빌드(iOS 시뮬레이터 시험 포함)
+./gradlew spotlessCheck designTokenCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug   # CI와 같은 검사·린트·시험·빌드(iOS 시뮬레이터 시험 포함)
 ./gradlew spotlessApply                                           # 코드 형식 맞추기(ktlint)
+./gradlew detekt                                                  # 코드 냄새와 Compose 규칙(설정은 config/detekt)
+./gradlew :composeApp:lint                                        # Android Lint. 공유 모듈까지 본다
 ./gradlew -p build-logic :convention:test                         # 빌드 규칙 시험(디자인 토큰 검사가 막을 것을 막는지)
 sh scripts/test-commit-msg.sh                                     # 커밋 형식 검사 훅 시험
 ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug   # 에뮬레이터에 설치
 ./gradlew :composeApp:exportLibraryDefinitions                    # 의존성을 바꾸면 오픈소스 라이선스 목록(aboutlibraries.json)을 다시 만든다
-adb -s emulator-5554 shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report  # 길이 없는 화면 띄우기(개발 빌드, design_catalog는 디자인 시스템 견본, list_performance는 1만 편 목록 견본)
-ANDROID_SERIAL=emulator-5554 ALARM=0 INSTRUMENT=1 sh scripts/legacy/upgrade-test.sh  # 1.7.4 → 새 앱 업그레이드(COUNT=1000, KILL_AT=Copying, LOCK=0427 옵션)
-./gradlew :composeApp:assembleNonMinifiedRelease :benchmarks:assembleNonMinifiedRelease  # Baseline Profile 생성기 APK(설치·실행은 아래 메모)
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath iosApp/build build
 ```
 
 - 첫 안드로이드 빌드가 `installGitHooks`로 `.githooks`를 켠다. 그 뒤로는 제목이 커밋 규칙에 맞지 않으면 커밋이 막힌다.
+- `detekt`와 `:composeApp:lint`는 기존 지적을 baseline(`config/detekt/baseline.xml`, `composeApp/lint-baseline.xml`)에 묶고 새 코드만 막는다. 새 지적은 고친다. baseline을 다시 만들어 넘기지 않는다.
 - `designTokenCheck`는 `shared/feature`와 `shared/app`의 Kotlin에서 원시 색, 숫자 `.dp`·`.sp`, 숫자 모서리, `MaterialTheme` 색·글자,
   `Text("`를 찾으면 실패한다. 디자인 시스템 모듈, 미리보기 파일, 시험(`src/*Test`)은 뺀다.
 - Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
-- Baseline Profile은 `adb -s emulator-5554`로 두 APK를 깔고 `am instrument -w -e class org.sjhstudio.diary.benchmarks.BaselineProfileGenerator
-  -e androidx.benchmark.enabledRules BaselineProfile org.sjhstudio.diary.benchmarks/androidx.test.runner.AndroidJUnitRunner`로 만든다. 결과
-  (`/sdcard/Android/media/org.sjhstudio.diary.benchmarks/*-prof.txt`)를 `composeApp/src/main/generated/baselineProfiles/`에 넣는다.
-  `generateBaselineProfile` 작업은 붙은 기기를 모두 쓰므로 실기기가 연결되어 있을 때는 쓰지 않는다. 시작 시간은 같은 방법으로 `StartupBenchmark`를
-  `benchmarkRelease` APK로 돌린다(에뮬레이터는 `-e androidx.benchmark.suppressErrors EMULATOR`).
-- 고를 때 받는 글꼴은 개발 APK(`installDebug`)에 담겨 있어 바로 받아진다. 출시 경로(`fonts/<id>`, Play 필요할 때 설치 모듈)는 `./gradlew :composeApp:bundleDebug`로 만든 번들을 bundletool `build-apks --local-testing
-  --connected-device --device-id=emulator-5554`와 `install-apks`로 깔아 시험한다. bundletool은 AGP와 같은 1.18.3을 쓴다(`--aapt2`에 SDK build-tools의 aapt2).
+- 길이 없는 화면 띄우기와 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
-- 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)에서 요금제를 바꿔 본다. 개발 빌드에만 "1일 1일기 개발" 아이콘이 생기고 출시 빌드에는 없다. 화면과 기능은 `PlanRepository`만 본다. iOS에는 아직 없다.
+- 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드에만 있고 iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.
 - 광고는 `AdRepository`가 정하고, 안드로이드만 `AdMobPlayer` 구현이 있다. 개발 빌드는 시험 광고만 받는다. 광고 ID는 `local.properties`(`docs/release.md`).
 - 온보딩 로띠는 `python3 -I scripts/lottie/make_onboarding.py`로 만든다. 색은 `@accent` 같은 자리표시로 두고 `OnboardingArt.kt`가 토큰 값으로 바꾼다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
@@ -132,9 +137,9 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - **꼬리말**: 저장 형식(DB 스키마, 백업 형식)이나 이미 있는 동작을 바꾸면 type 뒤에 `!`를 붙이고 `BREAKING CHANGE: <무엇이 바뀌고 어떻게 옮기는지>`를
   쓴다. 근거는 `Refs: specs/002-diary-core FR-006`이나 `Refs: #12`. `Co-Authored-By` 같은 공동 작성자 줄은 넣지 않는다(사용자 요청 2026-11-01).
 - 커밋 하나에 논리적 변경 하나, 빌드와 시험이 통과하는 상태로 남긴다. 포맷 정리와 기능 변경을 섞지 않는다.
-- 브랜치는 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`). 혼자 개발하는 동안은 PR 없이 작업 브랜치에 커밋하고 바로 푸시한다
-  (사용자 결정 2026-11-01). 기본 브랜치에 합칠 때는 사용자에게 묻는다.
-- 릴리스는 `chore(release): 2.0.0 (37)` 커밋과 `v2.0.0` 태그. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다.
+- 브랜치는 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`). 기능마다 PR을 올리고, 머지는 사용자에게 묻는다(사용자 결정 2026-11-07, 순서는 `/pr-review`).
+  리뉴얼이 master에 합쳐지기 전까지 PR의 기준 브랜치는 `feat/foundation-migration`이다.
+- 릴리스는 `chore(release): 2.0.0 (37)` 커밋과 `v2.0.0` 태그. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
 - 스펙 001에서 commit-msg 훅(저장소의 `.githooks/`, `git config core.hooksPath .githooks`)으로 형식을 검사한다.
 
 ```text

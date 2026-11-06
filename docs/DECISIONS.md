@@ -749,3 +749,63 @@ Figma "S4 · 빈 날"은 처음부터 이 꼴이었고, 전 화면 정리 때 �
 
 정식 출시에서 비정상 종료를 어느 화면에서, 어떻게 와서 겪었는지 봐야 한다. 무료 Spark 요금제다. 공식 문서가 권하는 사용자 정의 키로 지금 화면(`screen`)과 지나온 화면 8개(`recent_screens`)를 남기고, Now in Android처럼 화면 전환 한곳(앱 틀)에서 `screen_view`를 보낸다. 값은 고정 표의 화면 키 이름뿐이라 헌법 II를 지킨다. 설정 파일이 없는 빌드는 아무것도 보내지 않는다.
 
+## 2026-11-07 기능마다 PR을 올린다 (사용자 결정)
+
+혼자 개발하는 동안 PR 없이 바로 푸시하던 2026-11-01 결정을 바꾼다. 기능마다 PR을 올리고 CI와 리뷰 지적을 처리한 뒤 머지는 사용자에게 묻는다.
+리뉴얼이 master에 합쳐지기 전까지 기준 브랜치는 `feat/foundation-migration`이다. `CLAUDE.md` "커밋 규칙", 헌법 VII, `/diary-flow` 6단계를 같이 고쳤다.
+
+제안: 머지는 머지 커밋으로 한다. 뭉치면 `feat`·`fix` 커밋이 사라져 변경 기록을 뽑을 수 없다. 다르게 하고 싶으면 사용자가 정한다.
+
+## 2026-11-07 CI·CD와 린트 구성 (사용자 요청)
+
+CI에서 고친 것과 까닭:
+
+- 캐시가 한 번도 쓰이지 않았다(캐시 0개, 로그 `cache-read-only: true`). `setup-gradle`은 기본 브랜치에서만 쓰는데 작업이 긴 브랜치에서만 돌았다. master와 긴 브랜치에서 쓰게 했다([setup-gradle](https://github.com/gradle/actions/blob/main/docs/setup-gradle.md)).
+- 2026-11-06 실행 서른 번 중 스물일곱 번이 다음 푸시에 끊겼다. 긴 브랜치에서는 끊지 않고 PR에서만 끊는다.
+- 실패의 대부분은 iOS CI 러너에서 도는 `LargeDiaryQueryTest`의 1초 기준이었다. 살펴본 실패 네 번 중 세 번이 이 시험이다(나머지 한 번은 로그가 남지 않았다). 1초 기준은 Android 시험에 두고 iOS는 끝나는지만 본다.
+- `macos-latest` 대신 `macos-26`과 Xcode 26.6으로 고정했다. 이 컴퓨터는 Xcode 27.2라 판이 다르다.
+- PR은 경로로 나눈다. 푸시는 대기 중이던 실행이 밀려나면 코드 변경을 놓칠 수 있어 문서만 바꾼 경우 말고는 전부 돈다. 브랜치 보호에는 "CI 통과" 작업 하나만 건다.
+- 액션은 커밋 SHA로 고정했다. Dependabot이 주석의 판을 보고 올린다.
+
+CD: `v*` 태그에서 서명된 AAB, Play 내부 트랙 업로드, iOS IPA를 만든다. 비밀값이 없으면 그 단계만 건너뛴다. 프로덕션 승격은 Play Console에서 사람이 한다. `docs/release.md` "CD 비밀값".
+
+린트:
+
+- detekt는 2.0.0-alpha.6이다. 빌드에만 쓰고 앱에 들어가지 않아 "알파·베타를 쓰지 않는다"(R2)의 예외로 둔다. 안정판 1.23.8은 2025-02에 나온 Kotlin 2.0 기준이고, Kotlin 2.4에 맞는 compose-rules 0.6.8이 이 판을 가리킨다([compose-rules](https://mrmans0n.github.io/compose-rules/detekt/)).
+- 모듈마다 두지 않고 루트에서 한 번에 돌려 baseline을 하나만 둔다. Composable 이름, 길이, 복잡도처럼 화면 코드에 맞지 않는 규칙은 baseline에 묻지 않고 설정에서 뺐다. 기존 지적 318건을 baseline에 묶었다.
+- Android Lint는 `checkDependencies`만으로는 KMP 모듈을 보지 않는다. 시험 위반을 넣어 확인했다. `com.android.lint`를 공유 모듈에 더해 함께 본다. 기존 지적 18건을 baseline에 묶었다.
+- baseline에 묶인 것 중 살펴볼 것: `SpecifyForegroundServiceType` 2건, `InlinedApi` 2건, `ExifInterface` 4건.
+
+## 2026-11-07 PR·이슈 템플릿의 근거 (사용자 요청)
+
+실제 파일을 열어 보고 가져온 것:
+
+- [토스 es-toolkit](https://github.com/toss/es-toolkit/blob/main/.github/PULL_REQUEST_TEMPLATE.md): CI가 돌리는 시험 결과는 적지 말라는 안내, 변경 종류별로 필요한 것만 묻는 방식. 이슈는 폼과 `blank_issues_enabled: false`.
+- [토스 frontend-fundamentals](https://github.com/toss/frontend-fundamentals/blob/main/.github/PULL_REQUEST_TEMPLATE.md): 화면을 표로 나란히 놓는 절.
+- [토스 suspensive](https://github.com/toss/suspensive/blob/main/.github/PULL_REQUEST_TEMPLATE.md), [slash](https://github.com/toss/slash/blob/main/.github/PULL_REQUEST_TEMPLATE.md): 짧은 개요 하나. 체크박스는 줄인다.
+- [당근 KarrotCodableKit](https://github.com/daangn/KarrotCodableKit/blob/main/.github/pull_request_template.md): 배경을 맨 앞에 두는 순서. `daangn/seed-design`에는 PR 템플릿이 없다.
+- [네이버 fixture-monkey](https://github.com/naver/fixture-monkey/blob/main/.github/PULL_REQUEST_TEMPLATE.md): "어떻게 시험했나요" 절. [billboard.js](https://github.com/naver/billboard.js/blob/master/.github/PULL_REQUEST_TEMPLATE.md)는 이슈 번호와 내용 두 칸뿐이다.
+- [Now in Android](https://github.com/android/nowinandroid/blob/main/.github/pull_request_template.md): "무엇을 왜 했는지". [버그 폼](https://github.com/android/nowinandroid/blob/main/.github/ISSUE_TEMPLATE/bug_report.yml).
+- [JetBrains compose-multiplatform](https://github.com/JetBrains/compose-multiplatform/blob/master/.github/PULL_REQUEST_TEMPLATE.md): 시험 절은 어떻게 시험했는지를 적는다.
+- [Firebase Android SDK](https://github.com/firebase/firebase-android-sdk/tree/main/.github/ISSUE_TEMPLATE): 버그와 기능 제안 두 갈래. PR 템플릿은 없다.
+
+앱에 맞춘 것: 체크박스 없이 다섯 절(왜, 화면, 시험, 저장 형식·백업, 헌법)만 둔다. 공개 저장소라 일기 내용과 사진을 올리지 말라고 적는다. 버그 폼에 일기나 사진이 사라졌는지 묻는 칸을 둔다.
+
+## 2026-11-07 리뷰봇은 CodeRabbit (사용자 요청)
+
+2026-11-07 공식 문서 기준 비교다.
+
+| 봇 | 비용 조건 | 이 저장소 |
+| --- | --- | --- |
+| CodeRabbit | 공개 저장소 무료, 카드 없음, Team 기능. 리뷰 한도는 별 수에 따라 시간당 1~10회 | 고른다. 별 10개 미만(지금 5개)이라 자동으로 돌지 않아 `@coderabbitai review`로 부른다 |
+| Gemini Code Assist | 앱 소개에 "Google Cloud 고객만"이라고 적혀 있고 설치에 결제 계정이 연결된 Google Cloud 프로젝트가 필요하다. 하루 100건 이상 | 고르지 않는다. 비용이 나지 않아도 카드 없는 무료 플랜이 아니다(헌법 IV) |
+| Codex GitHub 연동 | 요금 표에서 Plus에 자동 코드 리뷰가 있고 Free에는 없다. API 키는 제외 | 고르지 않는다. 유료 구독이 필요하다 |
+| Claude Code Action | Actions 분은 공개 저장소에서 무료지만 API 토큰이나 Claude 구독을 쓴다. 무료 구간 없음 | 고르지 않는다. 구독이 있으면 `@claude`로 따로 붙일 수 있다 |
+
+출처: [CodeRabbit 요금과 한도](https://docs.coderabbit.ai/management/plans), [Gemini 설치](https://docs.cloud.google.com/gemini/docs/code-review/set-up-code-assist-github), [Gemini 한도](https://docs.cloud.google.com/gemini/docs/quotas), [Gemini 앱](https://github.com/apps/gemini-code-assist), [Codex 요금](https://learn.chatgpt.com/docs/pricing), [Claude Code Action](https://code.claude.com/docs/en/github-actions).
+
+CodeRabbit이 코드를 읽는 범위는 이 공개 저장소뿐이다. 설정은 PR 브랜치의 `.coderabbit.yaml`을 읽는다([설정](https://docs.coderabbit.ai/getting-started/yaml-configuration)). 헌법과 `CLAUDE.md`를 경로별 지침과 코드 가이드라인으로 넣었다.
+
+## 2026-11-07 되풀이되는 일을 프로젝트 스킬로 옮긴다 (사용자 요청)
+
+`/emulator-check`, `/figma-audit`, `/backup-roundtrip`, `/pr-review`, `/release-prep`를 더했다. `CLAUDE.md`의 긴 절차(화면 띄우기, 업그레이드 시험, Baseline Profile, 글꼴 모듈 시험)를 옮겼고 규칙과 숫자는 바꾸지 않았다.
