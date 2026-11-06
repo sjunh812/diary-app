@@ -48,7 +48,9 @@ class BackupController(
      */
     private val findBackup: suspend () -> BackupEntry? = { null },
     /** 7일 실패 알림을 다시 걸 때 쓴다. */
-    private val alerts: BackupAlerts? = null
+    private val alerts: BackupAlerts? = null,
+    /** 지금 백업이나 자동 백업이 올리고 있는가. */
+    private val running: () -> Boolean = { runner.value.progress.value != null }
 ) : BackupRepository {
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
     override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
@@ -135,6 +137,9 @@ class BackupController(
     }
 
     override fun backUpNow(cellularOnce: Boolean) {
+        // 시스템 작업은 새 요청이 앞선 작업을 대신하므로, 올리는 중이면 끊지 않게 넘기지 않는다.
+        // 도는 동안은 화면에 버튼도 없다.
+        if (running()) return
         if (scheduler.startNow(cellularOnce)) return
         scope.launch { runner.value.run(cellularOnce) }
     }

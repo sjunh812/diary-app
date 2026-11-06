@@ -262,6 +262,9 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
 
     // 조건을 걸지 않는다.
     // 인터넷이 없으면 조용히 기다리지 않고 바로 실패를 보여 준다.
+    // 실패 뒤 재시도를 기다리는 작업이 있어도 사용자가 누른 요청이 대신한다.
+    // 대기가 끝날 때까지 기다리지 않고, "이번만 모바일 데이터" 선택도 버리지 않는다.
+    // 올리는 중인 백업은 BackupController가 여기까지 넘기지 않는다.
     override fun startNow(cellularOnce: Boolean): Boolean {
         val work =
             OneTimeWorkRequestBuilder<BackupNowWorker>()
@@ -269,7 +272,7 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, RETRY_MINUTES, TimeUnit.MINUTES)
                 .setInputData(workDataOf(KEY_CELLULAR to cellularOnce))
                 .build()
-        manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.KEEP, work)
+        manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.REPLACE, work)
         return true
     }
 

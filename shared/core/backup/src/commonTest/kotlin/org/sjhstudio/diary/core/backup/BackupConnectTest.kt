@@ -28,6 +28,8 @@ class BackupConnectTest {
     private val store = BackupStore(InMemoryDataStore(emptyPreferences()))
     private val authorizer = FakeDriveAuthorizer()
 
+    private var running = false
+
     private fun controller(found: BackupEntry? = null) = BackupController(
         store,
         lazy { error("쓰지 않는다") },
@@ -36,7 +38,8 @@ class BackupConnectTest {
         scheduler,
         FakeBackupNotifier(),
         CoroutineScope(Dispatchers.Unconfined),
-        findBackup = { found }
+        findBackup = { found },
+        running = { running }
     )
 
     @Test
@@ -168,5 +171,28 @@ class BackupConnectTest {
 
         assertEquals(entry.createdAt, store.current().lastSuccessAt)
         assertEquals("folder", store.current().rootFolderId)
+    }
+
+    /** 재시도를 기다리는 동안 다시 눌러도 그 요청과 "이번만 모바일 데이터"가 시스템까지 간다. */
+    @Test
+    fun every_press_reaches_the_system_with_its_own_choice() {
+        val controller = controller()
+
+        controller.backUpNow()
+        controller.backUpNow(cellularOnce = true)
+
+        assertEquals(2, scheduler.startedNow)
+        assertTrue(scheduler.lastCellular)
+    }
+
+    /** 시스템 작업은 새 요청이 앞선 작업을 대신한다. 도는 백업을 끊지 않게 넘기지 않는다. */
+    @Test
+    fun a_running_backup_is_not_interrupted() {
+        val controller = controller()
+        running = true
+
+        controller.backUpNow()
+
+        assertEquals(0, scheduler.startedNow)
     }
 }
