@@ -3,8 +3,8 @@
     <string name="home_favorites_only">즐겨찾기만 보기</string>
     <string name="home_favorites_empty">즐겨찾기한 일기가 없어요</string>
     <string name="home_empty_title">아직 쓴 일기가 없어요</string>
-    <string name="home_empty_body">오늘 있었던 일 한 줄이면 충분해요.</string>
-    <string name="home_empty_action">오늘 일기 쓰기</string>
+    <string name="home_empty_body">첫 일기는 한 줄이면 충분해요.</string>
+    <string name="home_empty_action">일기 쓰기</string>
     <string name="home_month_sheet_title">날짜로 가기</string>
     <string name="detail_back">뒤로 가기</string>
     <string name="detail_favorite">즐겨찾기</string>

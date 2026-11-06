@@ -72,9 +72,17 @@ private const val ENVELOPE_RATIO = 1.42f
 private const val FLAP_DEPTH = 0.58f
 private const val POCKET_DEPTH = 0.5f
 
-/** 열리는 진행 값에서 덮개가 다 넘어간 때와 편지지가 다 올라온 때. 그 뒤로는 편지지가 펼쳐진다. */
+/**
+ * 열리는 진행 값의 구간. 덮개가 넘어가고 잠깐 뒤에 편지지가 천천히 올라온다.
+ * 편지지는 다 올라오기 전부터 펼쳐져서 멈춘 데 없이 이어진다.
+ */
 private const val FLAP_END = 0.28f
-private const val RISE_END = 0.55f
+private const val RISE_START = 0.34f
+private const val RISE_END = 0.74f
+private const val UNFOLD_START = 0.62f
+
+/** 편지지가 반쯤 나오면 글자가 드러난다. */
+private const val BLANK_END = 0.56f
 
 /** 편지지가 봉투 높이의 얼마만큼 올라오는가. */
 private const val RISE_SHARE = 0.55f
@@ -83,7 +91,7 @@ private const val RISE_SHARE = 0.55f
 private const val HEAD_FADE_END = 0.2f
 
 /** 봉투는 내려가면서 끝 무렵에 사라진다. */
-private const val FADE_START = 0.8f
+private const val FADE_START = 0.85f
 
 private val Float.halfTurn get() = this * PI.toFloat()
 
@@ -135,9 +143,9 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
                     .onPlaced { placed -> stage?.let { card = it.localBoundingBoxOf(placed) } }
                     .graphicsLayer {
                         val open = progress()
-                        val grow = open.between(RISE_END, 1f)
+                        val grow = open.between(UNFOLD_START, 1f)
                         val fitted = if (card.width > 0) (envelope.width - DiarySpacing.x4.toPx() * 2) / card.width else 1f
-                        val top = envelope.top + DiarySpacing.x3.toPx() - open.between(FLAP_END, RISE_END) * envelope.height * RISE_SHARE
+                        val top = envelope.top + DiarySpacing.x3.toPx() - open.between(RISE_START, RISE_END) * envelope.height * RISE_SHARE
                         alpha = if (open > 0f) 1f else 0f
                         transformOrigin = TransformOrigin(0.5f, 0f)
                         scaleX = lerp(fitted, 1f, grow)
@@ -145,6 +153,14 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
                         translationY = (top - card.top) * (1f - grow)
                     }
             )
+        }
+        // 덮개 틈으로 글자 조각이 비치지 않게 편지지가 나올 때까지 빈 종이로 덮어 둔다.
+        Canvas(fade) {
+            val open = progress()
+            val blank = 1f - open.between(RISE_START, BLANK_END)
+            translate(envelope.left, envelope.top - open.between(RISE_START, RISE_END) * envelope.height * RISE_SHARE) {
+                drawBlankPaper(envelope.size, blank, colors)
+            }
         }
         Canvas(fade) {
             translate(envelope.left, envelope.top + drop(progress(), envelope)) { drawFront(envelope.size, progress(), colors, pen) }
@@ -184,7 +200,7 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
 }
 
 /** 편지지가 펼쳐지는 동안 봉투가 내려가는 거리. 화면 아래로 빠질 만큼이다. */
-private fun DrawScope.drop(progress: Float, envelope: Rect): Float = progress.between(RISE_END, 1f) * (size.height - envelope.top)
+private fun DrawScope.drop(progress: Float, envelope: Rect): Float = progress.between(UNFOLD_START, 1f) * (size.height - envelope.top)
 
 private fun DrawScope.flapTip(height: Float, progress: Float): Float = FLAP_DEPTH * height * cos(progress.between(0f, FLAP_END).halfTurn)
 
@@ -210,6 +226,18 @@ private fun DrawScope.drawBack(area: Size, progress: Float, colors: DiaryColors)
     }
 }
 
+/** 글자를 가리는 빈 종이. 편지지가 봉투 안에 있을 때의 자리와 같다. */
+private fun DrawScope.drawBlankPaper(area: Size, alpha: Float, colors: DiaryColors) {
+    val inset = DiarySpacing.x4.toPx()
+    drawRoundRect(
+        colors.paper,
+        Offset(inset, DiarySpacing.x3.toPx()),
+        Size(area.width - inset * 2, area.height),
+        CornerRadius(DiarySpacing.x4.toPx()),
+        alpha = alpha
+    )
+}
+
 /** 봉투 앞면과 닫힌 덮개, 봉인. 편지지보다 앞에 있다. */
 private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors, pen: VectorPainter) {
     val width = area.width
@@ -225,7 +253,7 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
             lineTo(0f, height)
             close()
         }
-        drawPath(pocket, colors.surface)
+        drawPath(pocket, colors.paper)
         val folds = Path().apply {
             moveTo(0f, 0f)
             lineTo(width / 2, middle)

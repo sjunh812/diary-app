@@ -27,6 +27,7 @@ class ColorContrastTest {
             for ((bgName, bg) in listOf(
                 "canvas" to c.canvas,
                 "surface" to c.surface,
+                "paper" to c.paper,
                 "sunken" to c.sunken,
                 "selected" to c.selected,
                 "surfaceCard" to c.surfaceCard

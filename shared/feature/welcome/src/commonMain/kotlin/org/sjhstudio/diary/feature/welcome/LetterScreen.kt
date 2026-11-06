@@ -3,15 +3,14 @@ package org.sjhstudio.diary.feature.welcome
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -30,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.AnnotatedString
@@ -67,7 +67,8 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_title
 import org.sjhstudio.diary.feature.welcome.resources.letter_to
 
 private const val RISE_MILLIS = 450
-private const val OPEN_MILLIS = 1_800
+private const val OPEN_MILLIS = 3_200
+private const val PROMISE_TINT = 0.1f
 private const val BACKDROP_ALPHA = 0.4f
 
 /** 편지 바탕. 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다. */
@@ -139,7 +140,14 @@ fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Mod
 private fun LetterBody(entries: Int?) {
     entries?.takeIf { it > 0 }?.let { LetterParagraphs(pluralStringResource(Res.plurals.letter_moved, it, it.grouped())) }
     LetterParagraphs(stringResource(Res.string.letter_short))
-    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(DiaryShapes.r16)
+            .background(DiaryTheme.colors.accent.copy(alpha = PROMISE_TINT))
+            .padding(DiarySpacing.x4),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+    ) {
         Promise(stringResource(Res.string.letter_promise_free))
         Promise(stringResource(Res.string.letter_promise_ads))
     }
@@ -158,41 +166,49 @@ private fun LetterSheet(
     rises: Boolean = true,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val colors = DiaryTheme.colors
-    val typography = DiaryTheme.typography
     val still = !rises || rememberReduceMotion() || LocalInspectionMode.current
     val rise = remember { Animatable(if (still) 1f else 0f) }
     LaunchedEffect(still) { if (!still) rise.animateTo(1f, tween(RISE_MILLIS)) }
-    Column(
-        modifier
-            .widthIn(max = DiaryWriteSize.bodyMax)
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4)
-    ) {
+    // 짧은 편지가 위로 쏠려 뜨지 않게 남는 자리의 가운데에 둔다. 길면 스크롤한다.
+    BoxWithConstraints(modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .then(cardModifier)
-                .graphicsLayer {
-                    alpha = rise.value
-                    translationY = (1f - rise.value) * DiarySpacing.x6.toPx()
-                }.clip(DiaryShapes.r20)
-                .background(colors.surface)
-                .border(DiarySpacing.hairline, colors.line, DiaryShapes.r20)
-                .padding(horizontal = DiarySpacing.x6, vertical = DiarySpacing.x6),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = maxHeight)
+                .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
+            verticalArrangement = Arrangement.Center
         ) {
-            BasicText(stringResource(Res.string.letter_to), style = typography.label.copy(color = colors.accentText))
-            BasicText(stringResource(Res.string.letter_hello), style = typography.title1.copy(color = colors.textPrimary))
-            content()
-            Spacer(Modifier.height(DiarySpacing.x1))
-            BasicText(
-                stringResource(Res.string.letter_sign),
-                Modifier.fillMaxWidth(),
-                style = typography.label.copy(color = colors.textSecondary, textAlign = TextAlign.End)
-            )
+            LetterCard(cardModifier, {
+                alpha = rise.value
+                translationY = (1f - rise.value) * DiarySpacing.x6.toPx()
+            }, content)
         }
+    }
+}
+
+/** 편지지 카드. 편지 꼴을 갖춘 면이고 테두리 없이 부드러운 모서리로 둔다. */
+@Composable
+private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    val colors = DiaryTheme.colors
+    val typography = DiaryTheme.typography
+    Column(
+        modifier
+            .fillMaxWidth()
+            .graphicsLayer(layer)
+            .clip(DiaryShapes.r28)
+            .background(colors.paper)
+            .padding(DiarySpacing.x6),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+    ) {
+        BasicText(stringResource(Res.string.letter_to), style = typography.label.copy(color = colors.accentText))
+        BasicText(stringResource(Res.string.letter_hello), style = typography.title2.copy(color = colors.textPrimary))
+        content()
+        BasicText(
+            stringResource(Res.string.letter_sign),
+            Modifier.fillMaxWidth(),
+            style = typography.label.copy(color = colors.textSecondary, textAlign = TextAlign.End)
+        )
     }
 }
 
@@ -201,8 +217,8 @@ private fun LetterSheet(
 private fun Promise(text: String) {
     val colors = DiaryTheme.colors
     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
-        DiaryIcon(DiaryIcons.CircleCheck, contentDescription = null, tint = colors.accent, size = DiaryIconSize.i20)
-        BasicText(text, style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
+        DiaryIcon(DiaryIcons.CircleCheck, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
+        BasicText(text, Modifier.weight(1f), style = DiaryTheme.typography.body.copy(color = colors.textPrimary))
     }
 }
 

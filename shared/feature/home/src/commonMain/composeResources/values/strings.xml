@@ -3,8 +3,8 @@
     <string name="home_favorites_only">Favorites only</string>
     <string name="home_favorites_empty">No favorite entries</string>
     <string name="home_empty_title">No entries yet</string>
-    <string name="home_empty_body">One line about today is enough.</string>
-    <string name="home_empty_action">Write today</string>
+    <string name="home_empty_body">Your first entry can be just one line.</string>
+    <string name="home_empty_action">Write an entry</string>
     <string name="home_month_sheet_title">Go to month</string>
     <string name="detail_back">Back</string>
     <string name="detail_favorite">Favorite</string>

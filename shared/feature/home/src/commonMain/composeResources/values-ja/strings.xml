@@ -3,8 +3,8 @@
     <string name="home_favorites_only">お気に入りのみ</string>
     <string name="home_favorites_empty">お気に入りの日記はありません</string>
     <string name="home_empty_title">まだ日記がありません</string>
-    <string name="home_empty_body">今日のことを一行だけでも大丈夫です。</string>
-    <string name="home_empty_action">今日の日記を書く</string>
+    <string name="home_empty_body">最初の日記は一行だけでも大丈夫です。</string>
+    <string name="home_empty_action">日記を書く</string>
     <string name="home_month_sheet_title">日付へ移動</string>
     <string name="detail_back">戻る</string>
     <string name="detail_favorite">お気に入り</string>

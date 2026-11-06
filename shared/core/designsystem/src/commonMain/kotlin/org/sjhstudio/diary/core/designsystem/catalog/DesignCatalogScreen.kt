@@ -112,6 +112,7 @@ internal fun CatalogColors() {
             "canvas" to c.canvas,
             "surfaceCard" to c.surfaceCard,
             "surface" to c.surface,
+            "paper" to c.paper,
             "sunken" to c.sunken,
             "selected" to c.selected,
             "line" to c.line,
