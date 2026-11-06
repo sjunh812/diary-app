@@ -91,14 +91,14 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 ```
 
 - 첫 안드로이드 빌드가 `installGitHooks`로 `.githooks`를 켠다. 그 뒤로는 제목이 커밋 규칙에 맞지 않으면 커밋이 막힌다.
-- `detekt`와 `:composeApp:lint`는 기존 지적을 baseline(`config/detekt/baseline.xml`, `composeApp/lint-baseline.xml`)에 묶고 새 코드만 막는다. 새 지적은 고친다. baseline을 다시 만들어 넘기지 않는다.
+- `detekt`와 `:composeApp:lint`는 기존 지적을 baseline(`config/detekt/baseline.xml`, `composeApp/lint-baseline.xml`)에 묶고 새 코드만 막는다. 새 지적은 고친다. baseline을 다시 만들어 넘기지 않는다(detekt baseline은 주석 변경에도 흔들려서, 코드가 그대로일 때만 `./gradlew detektBaseline`).
 - `designTokenCheck`는 `shared/feature`와 `shared/app`의 Kotlin에서 원시 색, 숫자 `.dp`·`.sp`, 숫자 모서리, `MaterialTheme` 색·글자,
   `Text("`를 찾으면 실패한다. 디자인 시스템 모듈, 미리보기 파일, 시험(`src/*Test`)은 뺀다.
 - Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
 - 길이 없는 화면 띄우기와 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
-- 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드에만 있고 iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.
+- 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드의 설정 맨 아래 줄로 들어가고 출시 빌드에는 없다. iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.
 - 광고는 `AdRepository`가 정하고, 안드로이드만 `AdMobPlayer` 구현이 있다. 개발 빌드는 시험 광고만 받는다. 광고 ID는 `local.properties`(`docs/release.md`).
 - 온보딩 로띠는 `python3 -I scripts/lottie/make_onboarding.py`로 만든다. 색은 `@accent` 같은 자리표시로 두고 `OnboardingArt.kt`가 토큰 값으로 바꾼다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.

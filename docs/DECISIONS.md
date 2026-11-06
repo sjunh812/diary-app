@@ -774,8 +774,10 @@ CD: `v*` 태그에서 서명된 AAB, Play 내부 트랙 업로드, iOS IPA를 �
 린트:
 
 - detekt는 2.0.0-alpha.6이다. 빌드에만 쓰고 앱에 들어가지 않아 "알파·베타를 쓰지 않는다"(R2)의 예외로 둔다. 안정판 1.23.8은 2025-02에 나온 Kotlin 2.0 기준이고, Kotlin 2.4에 맞는 compose-rules 0.6.8이 이 판을 가리킨다([compose-rules](https://mrmans0n.github.io/compose-rules/detekt/)).
-- 모듈마다 두지 않고 루트에서 한 번에 돌려 baseline을 하나만 둔다. Composable 이름, 길이, 복잡도처럼 화면 코드에 맞지 않는 규칙은 baseline에 묻지 않고 설정에서 뺐다. 기존 지적 318건을 baseline에 묶었다.
+- 모듈마다 두지 않고 루트에서 한 번에 돌려 baseline을 하나만 둔다. Composable 이름, 길이, 복잡도처럼 화면 코드에 맞지 않는 규칙은 baseline에 묻지 않고 설정에서 뺐다. 기존 지적 약 310건을 baseline에 묶었다.
 - Android Lint는 `checkDependencies`만으로는 KMP 모듈을 보지 않는다. 시험 위반을 넣어 확인했다. `com.android.lint`를 공유 모듈에 더해 함께 본다. 기존 지적 18건을 baseline에 묶었다.
+- detekt baseline의 ID에는 KDoc까지 들어간다. 주석만 고쳐도 지적이 새로 뜰 수 있어 CompositionLocal은 허용 목록으로 옮겼다. 다른 규칙에서 그렇게 뜨면 코드가 그대로인지 보고 baseline을 다시 만든다.
+- 린트가 Kotlin/Native 링크와 한 데몬에서 함께 돌면 힙 4g로 모자라 6g로 올렸다. 메모리 7GB인 macOS 러너는 워크플로에서 4g로 둔다([NIA도 CI 전용 Gradle 설정을 따로 둔다](https://github.com/android/nowinandroid/blob/main/.github/ci-gradle.properties)).
 - baseline에 묶인 것 중 살펴볼 것: `SpecifyForegroundServiceType` 2건, `InlinedApi` 2건, `ExifInterface` 4건.
 
 ## 2026-11-07 PR·이슈 템플릿의 근거 (사용자 요청)

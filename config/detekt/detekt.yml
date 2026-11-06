@@ -46,8 +46,10 @@ Compose:
     active: true
   ComposableParamOrder:
     active: true
+  # 새 CompositionLocal은 여기에 더하기 전에 매개변수로 넘길 수 없는지 본다.
   CompositionLocalAllowlist:
     active: true
+    allowedCompositionLocals: LocalDiaryColors,LocalDiaryTypography,LocalInListDetail,LocalRailWidth,LocalScreenGutter,LocalSheetButtonGap,LocalTabBarHeight
   CompositionLocalNaming:
     active: true
   ContentEmitterReturningValues:

@@ -3,13 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ComplexCondition:LegacySettingsMapper.kt:LegacySettingsMapper$hour != null &amp;&amp; minute != null &amp;&amp; hour in 0..23 &amp;&amp; minute in 0..59</ID>
-    <ID>CompositionLocalAllowlist:AppScaffold.kt:/** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둔다. */ private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }</ID>
-    <ID>CompositionLocalAllowlist:DiaryBottomSheet.kt:/** * 시트 안에서 두 버튼이 스스로 더 띄우는 위 여백. * 시트의 기본 간격 12에 이 값을 더해 글과 버튼 사이가 24가 된다. * 시트마다 버튼을 슬롯으로 넘기지 않아도 되게 버튼 쪽이 안다. */ internal val LocalSheetButtonGap = staticCompositionLocalOf { 0.dp }</ID>
-    <ID>CompositionLocalAllowlist:DiarySpacing.kt:/** * 공통 부품이 쓰는 화면 좌우 여백(`docs/design.md` 간격, 폰 20, 600dp부터 24). * 앱 틀이 창 크기에 맞춰 값을 주고, 값을 주지 않으면 폰 여백이다. */ val LocalScreenGutter = staticCompositionLocalOf { DiarySpacing.screenCompact }</ID>
-    <ID>CompositionLocalAllowlist:DiaryTheme.kt:private val LocalDiaryColors = staticCompositionLocalOf { LightDiaryColors }</ID>
-    <ID>CompositionLocalAllowlist:DiaryTheme.kt:private val LocalDiaryTypography = staticCompositionLocalOf&lt;DiaryTypography&gt; { error("DiaryTheme 안에서만 쓴다") }</ID>
-    <ID>CompositionLocalAllowlist:ListDetailScene.kt:/** 두 칸 장면 안의 화면은 장면이 레일 자리를 비운다. */ val LocalInListDetail = compositionLocalOf { false }</ID>
-    <ID>CompositionLocalAllowlist:ListDetailScene.kt:/** 위에 얹은 레일의 폭. 쓰기처럼 전체를 쓰는 화면이 아니면 이만큼 비워 둔다. */ val LocalRailWidth = compositionLocalOf { Dp.Hairline }</ID>
     <ID>ContentTrailingLambda:HomeScreen.kt:content: @Composable () -&gt; Unit</ID>
     <ID>CyclomaticComplexMethod:MigrationRunner.kt:MigrationRunner$override suspend fun retryDeferred: MigrationResult</ID>
     <ID>CyclomaticComplexMethod:MigrationRunner.kt:MigrationRunner$private suspend fun migrate: MigrationResult</ID>
@@ -317,7 +310,6 @@
     <ID>TooManyFunctions:RollbackManager.kt:RollbackManager</ID>
     <ID>TooManyFunctions:WriteViewModel.kt:WriteViewModel : ViewModel</ID>
     <ID>UnusedParameter:BackupScreens.kt:onReconnect: () -&gt; Unit</ID>
-    <ID>UnusedParameter:SettingsScreen.kt:/** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */ onDesignCatalog: (() -&gt; Unit)? = null</ID>
     <ID>VariableNaming:ReplaceAndRollbackTest.kt:ReplaceAndRollbackTest$private val T0 get() = now.toEpochMilliseconds()</ID>
     <ID>ViewModelForwarding:WriteRoute.kt:WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus)</ID>
   </CurrentIssues>

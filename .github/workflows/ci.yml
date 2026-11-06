@@ -137,6 +137,11 @@ jobs:
       - uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
         with:
           cache-read-only: ${{ env.GRADLE_CACHE_READ_ONLY }}
+      # 러너 메모리가 7GB다. 저장소 설정보다 이 파일이 앞선다.
+      - name: Gradle 힙을 러너에 맞추기
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" >> ~/.gradle/gradle.properties
       # Kotlin/Native 컴파일러와 플랫폼 라이브러리. setup-gradle이 맡지 않고 받는 데 분 단위로 걸린다.
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
