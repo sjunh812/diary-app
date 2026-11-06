@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -103,42 +104,48 @@ fun DiaryButton(
     val spec = size.spec()
     val interaction = remember { MutableInteractionSource() }
     val touch = ((DiarySpacing.minTouchTarget - spec.height) / 2).coerceAtLeast(Dp.Hairline)
-    Row(
-        modifier =
-            modifier
-                .widthIn(min = DiarySpacing.minTouchTarget)
-                .diaryTouchOutset(vertical = touch)
-                .clickable(
-                    interactionSource = interaction,
-                    indication = null,
-                    enabled = enabled,
-                    role = Role.Button,
-                    onClick = onClick
-                )
-                .padding(vertical = touch)
-                .heightIn(min = spec.height)
-                .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
-                .diaryPress(interaction, colors.textPrimary, spec.shape)
-                .clip(spec.shape)
-                .background(container)
-                .padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
+    // 바깥 칸이 48로 누르기를 받고 안쪽 칸이 보이는 버튼을 그린다.
+    Box(
+        modifier
+            .widthIn(min = DiarySpacing.minTouchTarget)
+            .diaryTouchOutset(vertical = touch)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                enabled = enabled,
+                role = Role.Button,
+                onClick = onClick
+            )
+            .padding(vertical = touch),
+        propagateMinConstraints = true
     ) {
-        if (leadingIcon != null) {
-            DiaryIcon(
-                leadingIcon,
-                contentDescription = null,
-                tint = content,
-                size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
+        Row(
+            modifier =
+                Modifier
+                    .heightIn(min = spec.height)
+                    .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+                    .diaryPress(interaction, colors.textPrimary, spec.shape)
+                    .clip(spec.shape)
+                    .background(container)
+                    .padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (leadingIcon != null) {
+                DiaryIcon(
+                    leadingIcon,
+                    contentDescription = null,
+                    tint = content,
+                    size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
+                )
+            }
+            BasicText(
+                text = text,
+                style = style.copy(color = content, textAlign = TextAlign.Center),
+                maxLines = BUTTON_MAX_LINES,
+                overflow = TextOverflow.Ellipsis
             )
         }
-        BasicText(
-            text = text,
-            style = style.copy(color = content, textAlign = TextAlign.Center),
-            maxLines = BUTTON_MAX_LINES,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 
