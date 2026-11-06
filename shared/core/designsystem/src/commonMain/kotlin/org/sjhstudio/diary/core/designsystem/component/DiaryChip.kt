@@ -33,7 +33,8 @@ fun DiaryChip(
     modifier: Modifier = Modifier,
     leadingIcon: ImageVector? = null,
     leading: (@Composable () -> Unit)? = null,
-    trailingIcon: ImageVector? = null
+    trailingIcon: ImageVector? = null,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
     val content = if (selected) colors.accentText else colors.textPrimary
@@ -67,6 +68,7 @@ fun DiaryChip(
                 overflow = TextOverflow.Ellipsis
             )
             if (trailingIcon != null) DiaryIcon(trailingIcon, contentDescription = null, tint = content, size = DiaryIconSize.i16)
+            trailing?.invoke()
         }
     }
 }

@@ -54,6 +54,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryTimeWheel
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -73,6 +74,7 @@ import org.sjhstudio.diary.core.ui.DiaryWeatherGrid
 import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_close
@@ -228,7 +230,12 @@ private fun CurrentPlace(locating: PlaceLocating, onLocate: () -> Unit, onOpenSe
             stringResource(if (finding) Res.string.write_place_finding else Res.string.write_place_current),
             selected = false,
             onClick = onLocate,
-            leadingIcon = DiaryIcons.Locate
+            leadingIcon = DiaryIcons.Locate,
+            trailing = if (finding) {
+                { DiaryLoadingDots(DiaryTheme.colors.textSecondary, animated = !rememberReduceMotion()) }
+            } else {
+                null
+            }
         )
         when (result) {
             PlaceLookup.Denied -> PlaceNote(stringResource(Res.string.write_place_denied)) { onOpenSettings(false) }

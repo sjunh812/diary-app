@@ -232,7 +232,8 @@ private fun DrawScope.drawBlankPaper(area: Size, alpha: Float, colors: DiaryColo
     drawRoundRect(
         colors.paper,
         Offset(inset, DiarySpacing.x3.toPx()),
-        Size(area.width - inset * 2, area.height),
+        // 편지지보다 짧게 그려 봉투 아래로 나오지 않는다.
+        Size(area.width - inset * 2, area.height - DiarySpacing.x3.toPx() - DiarySpacing.x1.toPx()),
         CornerRadius(DiarySpacing.x4.toPx()),
         alpha = alpha
     )

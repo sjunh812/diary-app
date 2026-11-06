@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -175,3 +176,11 @@ private fun CatalogScreenLight() = DiaryTheme(darkTheme = false) { DesignCatalog
 @Preview(name = "디자인 견본 화면 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun CatalogScreenDark() = DiaryTheme(darkTheme = true) { DesignCatalogScreen(onBack = {}) }
+
+@Preview(name = "기다림 점 · 라이트", locale = "ko")
+@Composable
+private fun LoadingDotsLight() = PreviewCanvas(dark = false) { DiaryLoadingDots(DiaryTheme.colors.textSecondary, animated = false) }
+
+@Preview(name = "기다림 점 · 다크", locale = "ko")
+@Composable
+private fun LoadingDotsDark() = PreviewCanvas(dark = true) { DiaryLoadingDots(DiaryTheme.colors.textSecondary, animated = false) }
