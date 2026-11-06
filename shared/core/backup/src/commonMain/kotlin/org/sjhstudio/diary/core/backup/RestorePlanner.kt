@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import okio.FileSystem
+import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.openZip
@@ -163,8 +164,15 @@ class PhotoFetcher(
         val media = "/".toPath() / BundleExporter.MEDIA
         return settle(onProgress) { _, name, target ->
             val entry = media / name
-            if (!archive.exists(entry)) return@settle false
-            archive.source(entry).use { source -> fileSystem.write(target) { writeAll(source) } }
+            val photo =
+                try {
+                    if (!archive.exists(entry)) return@settle false
+                    archive.source(entry)
+                } catch (_: IOException) {
+                    // 이 항목의 머리가 깨졌다. 다른 사진까지 멈추지 않는다.
+                    throw BrokenPhoto()
+                }
+            photo.use { source -> fileSystem.write(target) { writeAll(source) } }
             true
         }
     }
@@ -217,6 +225,9 @@ class PhotoFetcher(
             fileSystem.atomicMove(partial, mediaDir / name)
             dao.settlePending(photo.sha256, name, MediaStatus.NORMAL.id)
             return Settled.FETCHED
+        } catch (_: BrokenPhoto) {
+            dao.settlePending(photo.sha256, name, MediaStatus.MISSING.id)
+            return Settled.BROKEN
         } catch (error: DriveException) {
             // 이 사진만의 일이면 대기로 두고 다음 장으로 간다. 어차피 다 실패할 일이면 여기서 멈춘다.
             if (error.stopsAllPhotos) throw error
@@ -231,6 +242,8 @@ class PhotoFetcher(
         get() = retryable || kind == BackupFailure.AUTH || kind == BackupFailure.OFFLINE
 
     private enum class Settled { FETCHED, BROKEN, STILL_WAITING }
+
+    private class BrokenPhoto : Exception("photo entry is damaged")
 
     private companion object {
         /** 드라이브에서 동시에 받는 사진 수. 사진 한 장은 작아서 기다리는 시간이 대부분이다. */
