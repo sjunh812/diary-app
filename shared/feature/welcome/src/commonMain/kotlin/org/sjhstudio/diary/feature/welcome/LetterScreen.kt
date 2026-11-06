@@ -38,6 +38,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -68,6 +69,7 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_to
 
 private const val RISE_MILLIS = 450
 private const val OPEN_MILLIS = 3_200
+private const val OPEN_DELAY_MILLIS = 180L
 private const val BACKDROP_ALPHA = 0.4f
 
 /** 편지 바탕. 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다. */
@@ -87,12 +89,16 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     var opened by rememberSaveable { mutableStateOf(false) }
     val still = rememberReduceMotion()
     val opening = remember { Animatable(0f) }
+    var waiting by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val open: () -> Unit = {
         when {
             still -> opened = true
 
-            !opening.isRunning -> scope.launch {
+            !opening.isRunning && !waiting -> scope.launch {
+                // 누른 표시가 끝난 뒤에 움직인다. 탭 직후의 바쁜 프레임에 시작하면 덮개와 글자가 끊겨 보인다.
+                waiting = true
+                delay(OPEN_DELAY_MILLIS)
                 opening.animateTo(1f, tween(OPEN_MILLIS))
                 opened = true
             }

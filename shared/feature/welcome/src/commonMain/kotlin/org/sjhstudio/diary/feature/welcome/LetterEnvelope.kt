@@ -146,7 +146,8 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
                         val grow = open.between(UNFOLD_START, 1f)
                         val fitted = if (card.width > 0) (envelope.width - DiarySpacing.x4.toPx() * 2) / card.width else 1f
                         val top = envelope.top + DiarySpacing.x3.toPx() - open.between(RISE_START, RISE_END) * envelope.height * RISE_SHARE
-                        alpha = if (open > 0f) 1f else 0f
+                        // 봉투 뒤에서 미리 그려 둔다. 여는 첫 프레임에 글자를 처음 그리면 탭 직후 끊긴다.
+                        alpha = if (envelope.height > 0f) 1f else 0f
                         transformOrigin = TransformOrigin(0.5f, 0f)
                         scaleX = lerp(fitted, 1f, grow)
                         scaleY = scaleX
