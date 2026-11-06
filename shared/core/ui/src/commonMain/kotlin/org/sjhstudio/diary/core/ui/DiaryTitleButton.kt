@@ -28,10 +28,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 /**
  * 누르면 달을 고르는 큰 제목(홈, 달력). `display` 제목 + 펼침 화살표 20, 사이 4. 긴 제목은 말줄임하고 화살표는 남긴다.
  * 차지하는 자리는 글 높이 그대로다. 그래야 다른 탭 제목과 높이가 같고 제목 아래 간격도 그대로다.
+ * [onClick]이 없으면 고를 달이 없다는 뜻이라 화살표 없는 글자만 둔다.
  * 누르는 곳만 위아래로 48까지, 옆으로 8 넓혀서 누름 면이 글자에 붙지 않는다(`docs/design.md` 터치 영역, 누름).
  */
 @Composable
-fun DiaryTitleButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun DiaryTitleButton(text: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     Row(
@@ -45,8 +46,15 @@ fun DiaryTitleButton(text: String, onClick: () -> Unit, modifier: Modifier = Mod
                 val placeable = measurable.measure(wider.copy(minHeight = touch, maxHeight = touch))
                 layout(placeable.width - side * 2, content) { placeable.placeRelative(-side, (content - touch) / 2) }
             }
-            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            .then(
+                if (onClick == null) {
+                    Modifier
+                } else {
+                    Modifier
+                        .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                        .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+                }
+            )
             .padding(horizontal = DiarySpacing.x2),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
@@ -58,6 +66,8 @@ fun DiaryTitleButton(text: String, onClick: () -> Unit, modifier: Modifier = Mod
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
+        if (onClick != null) {
+            DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
+        }
     }
 }

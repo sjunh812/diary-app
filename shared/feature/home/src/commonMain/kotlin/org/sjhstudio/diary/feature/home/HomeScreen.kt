@@ -211,7 +211,9 @@ internal fun HomeScreen(
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
             TopActions(favoritesOnly, onToggleFavorites, onSearch)
-            DiaryTitleButton(title, onPickMonth, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+            // 일기가 없으면 고를 달도 없다. 불러오는 동안에는 화살표가 깜빡이지 않게 그대로 둔다.
+            val noMonths = rows.itemCount == 0 && rows.loadState.refresh is LoadState.NotLoading
+            DiaryTitleButton(title, onPickMonth.takeUnless { noMonths }, Modifier.padding(horizontal = DiarySpacing.screenCompact))
             Spacer(Modifier.height(DiarySpacing.x1))
             backupLine()
             ScrollEdge(if (style == ListStyle.PHOTO_GRID) grid.canScrollBackward else list.canScrollBackward)
