@@ -67,7 +67,7 @@ fun DiaryMonthSheet(
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                     for (number in quarter) {
                         val month = YearMonth(year, number)
-                        MonthCell(dates.month(month.onDay(1)), month == shown, enabled(month), Modifier.weight(1f)) { onPick(month) }
+                        MonthCell(dates.monthShort(month.onDay(1)), month == shown, enabled(month), Modifier.weight(1f)) { onPick(month) }
                     }
                 }
             }

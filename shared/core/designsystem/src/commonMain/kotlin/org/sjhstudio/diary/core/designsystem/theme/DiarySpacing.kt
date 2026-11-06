@@ -177,8 +177,7 @@ object DiaryWriteSize {
     /** 위 줄 사진 칸과 더하기 칸. */
     val photo: Dp = 72.dp
 
-    /** 기분 칸(얼굴 44 + 이름). */
-    val moodCellWidth: Dp = 60.dp
+    /** 기분 칸(얼굴 44 + 이름). 폭은 다섯 칸으로 고르게 나눈다. */
     val moodCellHeight: Dp = 84.dp
     val moodFace: Dp = 44.dp
 
