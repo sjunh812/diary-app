@@ -36,6 +36,10 @@ interface BackupDao {
     @Query("SELECT * FROM entry")
     suspend fun allEntries(): List<EntryEntity>
 
+    /** 본문을 읽지 않고 일기 ID만 읽는다. */
+    @Query("SELECT id FROM entry")
+    suspend fun entryIds(): List<String>
+
     @Query("SELECT * FROM media")
     suspend fun allMedia(): List<MediaEntity>
 

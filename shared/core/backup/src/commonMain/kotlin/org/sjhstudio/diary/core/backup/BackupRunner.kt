@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
@@ -236,7 +237,7 @@ class BackupRunner(
 
         step(BackupStep.Verifying)
         check(snapshotFile.id.isNotEmpty())
-        dao.setBase(syncBases(snapshot.path))
+        rememberBases(syncBases(snapshot.path))
         val left = local2.count { it.sha256 !in inBackup }
         // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
         val short = if (allowed) missing.filter { it.sha256 !in uploaded }.sumOf { it.byteSize ?: 0 } else 0
@@ -354,6 +355,13 @@ class BackupRunner(
     }
 
     private fun deviceProps(kind: String, deviceId: String) = mapOf(DriveLayout.KEY_KIND to kind, DriveLayout.KEY_DEVICE to deviceId)
+
+    /** 스냅샷을 뜬 뒤에 영구 삭제한 일기는 기준값을 쓸 곳이 없다. 그 일기 때문에 끝난 백업을 실패로 돌리지 않는다. */
+    private suspend fun rememberBases(bases: List<SyncBaseEntity>) = db.withWriteTransaction {
+        val dao = db.backupDao()
+        val here = dao.entryIds().toHashSet()
+        dao.setBase(bases.filter { it.entryId in here })
+    }
 
     private fun syncBases(snapshot: Path): List<SyncBaseEntity> {
         val connection = BundledSQLiteDriver().open(snapshot.toString())
