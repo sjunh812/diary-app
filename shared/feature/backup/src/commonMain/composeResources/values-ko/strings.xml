@@ -199,6 +199,6 @@
     <string name="backup_done_left">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</string>
     <string name="backup_stopped_title">백업을 끝내지 못했어요</string>
     <string name="restore_notice_title">복원을 마쳤어요</string>
-    <string name="restore_notice_body">일기와 사진을 모두 되살렸어요.</string>
+    <string name="restore_notice_body">일기와 사진을 모두 복원했어요.</string>
     <string name="restore_notice_left">남은 사진은 앱을 열면 이어서 받아요.</string>
 </resources>
