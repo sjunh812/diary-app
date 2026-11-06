@@ -5,7 +5,8 @@ name: CI
 
 on:
   push:
-    branches: [master, feat/foundation-migration]
+    # 열린 PR의 브랜치는 pull_request가 돈다. 여기에도 넣으면 같은 커밋을 두 번 돌린다.
+    branches: [master]
     # 문서만 바꾼 푸시는 빌드하지 않는다.
     paths-ignore:
       - "**.md"
@@ -125,7 +126,8 @@ jobs:
     if: ${{ !cancelled() && (needs.changes.result == 'skipped' || needs.changes.outputs.ios == 'true') }}
     # macos-latest는 어느 날 이미지와 Xcode가 바뀐다. 올릴 때는 여기 두 줄을 같이 고친다.
     runs-on: macos-26
-    timeout-minutes: 60
+    # 캐시가 없으면 시험과 빌드에 약 1시간이 걸린다. 캐시를 저장하는 시간까지 넉넉히 둔다.
+    timeout-minutes: 80
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
