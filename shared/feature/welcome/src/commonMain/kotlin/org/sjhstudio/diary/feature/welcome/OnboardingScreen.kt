@@ -96,12 +96,18 @@ fun OnboardingScreen(
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         val asking = pages[pager.currentPage] == Page.BACKUP && !connected
-        Box(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x2), contentAlignment = Alignment.CenterEnd) {
-            DiaryButton(
-                stringResource(if (asking) Res.string.onboarding_later else Res.string.onboarding_skip),
-                if (asking) next else onFinish,
-                kind = DiaryButtonKind.Text
-            )
+        // 마지막 장은 아래 버튼이 곧 끝이라 건너뛸 것이 없다. 칸은 남겨 그림이 움직이지 않게 한다.
+        Box(
+            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.minTouchTarget).padding(horizontal = DiarySpacing.x2),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            if (asking || !last) {
+                DiaryButton(
+                    stringResource(if (asking) Res.string.onboarding_later else Res.string.onboarding_skip),
+                    if (asking) next else onFinish,
+                    kind = DiaryButtonKind.Text
+                )
+            }
         }
         HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth()) { index -> PageBody(pages[index], active = index == pager.currentPage) }
         Dots(pages.size, pager.currentPage)
@@ -168,7 +174,8 @@ private fun ArtPage(title: StringResource, body: StringResource, art: @Composabl
         BasicText(
             stringResource(body),
             style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
-            modifier = Modifier.widthIn(max = DiaryWriteSize.bodyMax)
+            modifier = Modifier.widthIn(max = DiaryWriteSize.bodyMax),
+            minLines = 2
         )
     }
 }
