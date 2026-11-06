@@ -102,6 +102,7 @@ data class RecordHabit(
 
 /** 고급 통계(스펙 006 US5). 기존 통계와 겹치지 않는 분석만 담는다. */
 data class AdvancedStats(
+    val moodEntries: Int,
     val gaps: List<MoodGap>,
     val change: StatsChange?,
     val weekdays: Map<DayOfWeek, GoodShare>,
@@ -113,6 +114,9 @@ data class AdvancedStats(
 ) {
     /** 뜻이 있을 만큼 쌓였는지 본다. */
     val enough: Boolean get() = habit.entries >= MIN_ENTRIES
+
+    /** 기분을 고른 일기가 견줄 만큼 있는지 본다. 없으면 기분 칸은 말하지 않고 기록 습관만 보인다. */
+    val moodReady: Boolean get() = moodEntries >= MIN_ENTRIES
 
     companion object {
         const val MIN_ENTRIES = 7
@@ -149,8 +153,9 @@ data class StatsEntry(
 fun advancedStats(rows: List<StatsEntry>, before: List<StatsEntry>? = null): AdvancedStats {
     val moods = rows.filter { it.mood != null }
     return AdvancedStats(
+        moodEntries = moods.size,
         gaps = moodGaps(moods),
-        change = before?.let { change(rows, it) },
+        change = before?.takeIf { it.isNotEmpty() }?.let { change(rows, it) },
         weekdays = moods.groupBy { it.date.dayOfWeek }.shares(),
         dayParts = moods.groupBy { dayPart(it.hour) }.shares(),
         weather = moods.filter { it.weather != null }.groupBy { it.weather!! }.shares(),
@@ -222,26 +227,50 @@ private fun longestRun(days: List<LocalDate>): Int {
  * 조건별로 좋은 기분의 비율을 나머지 일기와 견준다(두 비율 차이 검정).
  * 조건을 여럿 보면 우연히 다른 곳이 나오기 쉬워서 본 조건 수만큼 기준을 높인다(본페로니 보정).
  * 그래서 관계가 없는 기록이면 스무 번에 한 번도 말하지 않지만, 일기가 적으면 있는 차이도 잘 찾지 못한다.
+ *
+ * 같은 묶음(날씨, 요일처럼 한 일기에 하나만 있는 것) 안에서는 찾은 조건을 빼고 다시 견준다.
+ * 비 오는 날이 나쁘면 나머지 날씨는 그것만으로 좋아 보이기 때문이다.
  */
 internal fun moodGaps(moods: List<StatsEntry>): List<MoodGap> {
-    val totalGood = moods.count { it.mood?.tone == MoodTone.GOOD }
     val longFrom = moods.map { it.length }.sorted().let { if (it.isEmpty()) 0 else it[it.size * LONG_QUARTILE / QUARTERS] }
     val groups = HashMap<StatsFactor, MutableList<StatsEntry>>()
     for (row in moods) {
         for (factor in factors(row, longFrom)) groups.getOrPut(factor) { ArrayList() }.add(row)
     }
-    val candidates =
-        groups.mapNotNull { (factor, group) ->
-            val here = group.share()
-            val others = GoodShare(totalGood - here.good, moods.size - here.total)
-            MoodGap(factor, here, others).takeIf { here.total >= AdvancedStats.MIN_GROUP && others.total >= AdvancedStats.MIN_GROUP }
-        }
-    val limit = normalQuantile(AdvancedStats.FALSE_ALARM / candidates.size.coerceAtLeast(1) / 2)
-    return candidates
-        .filter { abs(it.here.rate - it.others.rate) >= AdvancedStats.MIN_GAP && abs(zScore(it)) >= limit }
+    val tested = groups.count { (_, group) -> group.size >= AdvancedStats.MIN_GROUP && moods.size - group.size >= AdvancedStats.MIN_GROUP }
+    val limit = normalQuantile(AdvancedStats.FALSE_ALARM / tested.coerceAtLeast(1) / 2)
+    return groups.entries
+        .groupBy { (factor, _) -> factor::class }
+        .values
+        .flatMap { family -> gapsInFamily(moods, family.associate { it.key to it.value }, limit) }
         .sortedByDescending { abs(it.here.rate - it.others.rate) }
         .take(AdvancedStats.MAX_GAPS)
 }
+
+/** 묶음 안에서 가장 큰 차이부터 하나씩 빼며 찾는다. */
+private fun gapsInFamily(moods: List<StatsEntry>, family: Map<StatsFactor, List<StatsEntry>>, limit: Double): List<MoodGap> {
+    val found = ArrayList<MoodGap>()
+    val left = family.toMutableMap()
+    var pool = moods.size to moods.count { it.mood?.tone == MoodTone.GOOD }
+    while (true) {
+        val best =
+            left
+                .mapNotNull { (factor, group) ->
+                    val here = group.share()
+                    MoodGap(factor, here, GoodShare(pool.second - here.good, pool.first - here.total))
+                }.filter { it.isClear(limit) }
+                // 둘뿐이면 같은 차이가 두 번 나온다. 그때는 좋은 기분이 적은 쪽으로 말한다.
+                .maxWithOrNull(compareBy<MoodGap> { abs(it.here.rate - it.others.rate) }.thenBy { -it.here.rate }) ?: return found
+        found += best
+        left.remove(best.factor)
+        pool = pool.first - best.here.total to pool.second - best.here.good
+    }
+}
+
+private fun MoodGap.isClear(limit: Double): Boolean = here.total >= AdvancedStats.MIN_GROUP &&
+    others.total >= AdvancedStats.MIN_GROUP &&
+    abs(here.rate - others.rate) >= AdvancedStats.MIN_GAP &&
+    abs(zScore(this)) >= limit
 
 private fun factors(row: StatsEntry, longFrom: Int): List<StatsFactor> = buildList {
     add(StatsFactor.Weekday(row.date.dayOfWeek))

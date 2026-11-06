@@ -102,4 +102,6 @@
     </plurals>
     <string name="insight_section_days">하루하루의 기분</string>
     <string name="insight_section_moods">기분별 일기</string>
+    <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
+    <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 찾아 드려요.</string>
 </resources>

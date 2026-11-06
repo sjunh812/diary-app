@@ -19,6 +19,7 @@ import org.sjhstudio.diary.feature.insight.AdvancedStatsScreen
 
 private val Sample =
     AdvancedStats(
+        moodEntries = 186,
         gaps =
             listOf(
                 MoodGap(StatsFactor.Sky(Weather.RAIN), GoodShare(9, 40), GoodShare(78, 150)),
@@ -67,6 +68,10 @@ private fun AdvancedNoGap() = Stats(false, Sample.copy(gaps = emptyList()))
 @Preview(name = "고급 통계 · 일기가 적음", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun AdvancedFew() = Stats(false, Sample.copy(habit = RecordHabit(3, 3, 2, 120, 0, DayPart.EVENING)))
+
+@Preview(name = "고급 통계 · 기분을 안 고름", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun AdvancedNoMoods() = Stats(false, Sample.copy(moodEntries = 2, gaps = emptyList(), company = emptyList()))
 
 @Preview(name = "고급 통계 · 불러오는 중", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

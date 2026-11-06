@@ -102,4 +102,6 @@
     </plurals>
     <string name="insight_section_days">毎日の気分</string>
     <string name="insight_section_moods">気分別の日記</string>
+    <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
+    <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>
 </resources>

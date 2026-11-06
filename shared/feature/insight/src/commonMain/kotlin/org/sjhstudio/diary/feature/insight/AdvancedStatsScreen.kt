@@ -107,6 +107,8 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_part
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_photos
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_photos_value
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_run
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_no_moods
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_no_moods_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_not_enough
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_not_enough_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_all
@@ -226,9 +228,9 @@ internal fun AdvancedStatsScreen(
                     )
 
                 else -> {
-                    Gaps(stats.gaps)
+                    if (stats.moodReady) Gaps(stats.gaps) else NoMoods()
                     stats.change?.let { Change(period, it) }
-                    GoodTimes(stats)
+                    if (stats.moodReady) GoodTimes(stats)
                     if (stats.company.isNotEmpty()) Company(stats.company, onMood)
                     Habit(stats.habit)
                 }
@@ -261,6 +263,19 @@ private fun Card(modifier: Modifier = Modifier, content: @Composable ColumnScope
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
         content = content
     )
+}
+
+/** 일기는 많은데 기분을 고른 일기가 적을 때. 일기가 적다고 말하면 틀린 말이 된다. */
+@Composable
+private fun NoMoods() {
+    val colors = DiaryTheme.colors
+    val typography = DiaryTheme.typography
+    Section(Res.string.insight_adv_gaps) {
+        Card {
+            BasicText(stringResource(Res.string.insight_adv_no_moods), style = typography.bodyStrong.copy(color = colors.textPrimary))
+            BasicText(stringResource(Res.string.insight_adv_no_moods_body), style = typography.caption.copy(color = colors.textSecondary))
+        }
+    }
 }
 
 /** 우연으로 보기 어려운 차이만 보인다. 없으면 없다고 말한다. */

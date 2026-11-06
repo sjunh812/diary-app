@@ -156,6 +156,69 @@ class AdvancedStatsTest {
     }
 
     @Test
+    fun a_bad_weather_does_not_make_the_other_weather_look_good() {
+        val rainy = List(120) { row(it, weather = Weather.RAIN, mood = if (it < 18) Mood.GOOD else Mood.SAD) }
+        val sunny = List(120) { row(it, weather = Weather.SUNNY, mood = if (it < 66) Mood.GOOD else Mood.SAD) }
+        val cloudy = List(120) { row(it, weather = Weather.CLOUDY, mood = if (it < 66) Mood.GOOD else Mood.SAD) }
+
+        val gaps = advancedStats(rainy + sunny + cloudy).gaps.filter { it.factor is StatsFactor.Sky }
+
+        assertEquals(listOf<StatsFactor>(StatsFactor.Sky(Weather.RAIN)), gaps.map { it.factor })
+    }
+
+    @Test
+    fun two_good_days_are_both_found() {
+        val rows =
+            List(420) { index ->
+                val date = row(index).date
+                val weekend = date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY
+                val good = if (weekend) index % 10 < 8 else index % 10 < 3
+                row(index, mood = if (good) Mood.GOOD else Mood.SAD)
+            }
+
+        val days = advancedStats(rows).gaps.map { it.factor }
+
+        assertTrue(StatsFactor.Weekday(DayOfWeek.SATURDAY) in days)
+        assertTrue(StatsFactor.Weekday(DayOfWeek.SUNDAY) in days)
+    }
+
+    @Test
+    fun no_moods_means_no_mood_talk() {
+        val stats = advancedStats(List(50) { row(it, mood = null) })
+
+        assertTrue(stats.enough)
+        assertFalse(stats.moodReady)
+        assertTrue(stats.gaps.isEmpty() && stats.weekdays.isEmpty() && stats.company.isEmpty())
+        assertEquals(50, stats.habit.daysWritten)
+    }
+
+    @Test
+    fun everyone_in_one_mood_shows_no_gap() {
+        assertTrue(advancedStats(List(100) { row(it, mood = Mood.GOOD) }).gaps.isEmpty())
+        assertTrue(advancedStats(List(100) { row(it, mood = Mood.SAD) }).gaps.isEmpty())
+    }
+
+    @Test
+    fun equal_lengths_or_empty_text_make_no_long_entries() {
+        assertTrue(advancedStats(List(100) { row(it, length = 100) }).gaps.none { it.factor == StatsFactor.LongEntries })
+        assertTrue(advancedStats(List(100) { row(it, length = 0) }).gaps.none { it.factor == StatsFactor.LongEntries })
+    }
+
+    @Test
+    fun nothing_before_means_nothing_to_compare() {
+        assertNull(advancedStats(List(10) { row(it) }, emptyList()).change)
+    }
+
+    @Test
+    fun many_entries_on_one_day_count_as_one_day() {
+        val habit = advancedStats(List(30) { row(0) }).habit
+
+        assertEquals(1, habit.daysWritten)
+        assertEquals(1, habit.longestRun)
+        assertEquals(30, habit.entries)
+    }
+
+    @Test
     fun small_groups_never_make_a_gap() {
         val rows = List(7) { row(it, weather = Weather.RAIN, mood = Mood.SAD) } + List(40) { row(it, weather = Weather.SUNNY) }
 
