@@ -91,7 +91,7 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
         try {
             setForeground(foreground(null))
         } catch (_: IllegalStateException) {
-            // 시스템이 앞으로 올리기를 막으면 앱이 살아 있는 동안만 돈다.
+            // 시스템이 포그라운드 전환을 막으면 앱이 살아 있는 동안만 돈다.
             // 백업은 이어서 할 수 있다.
         }
         return coroutineScope {
@@ -169,7 +169,7 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
         try {
             setForeground(foreground())
         } catch (_: IllegalStateException) {
-            // 시스템이 앞으로 올리기를 막으면 앱이 살아 있는 동안만 받는다.
+            // 시스템이 포그라운드 전환을 막으면 앱이 살아 있는 동안만 받는다.
             // 남은 사진은 다음에 앱을 열 때 잇는다.
         }
         return coroutineScope {

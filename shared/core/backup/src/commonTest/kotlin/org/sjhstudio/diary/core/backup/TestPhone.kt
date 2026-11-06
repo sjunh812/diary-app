@@ -60,7 +60,7 @@ internal class TestPhone(
     var zone: TimeZone = TimeZone.UTC
     var freeBytes = 1_000_000_000L
 
-    /** 복원이 되살린 설정. */
+    /** 복원이 복원한 설정. */
     val appliedSettings = mutableListOf<ManifestSettings>()
 
     /** 설정을 쓰다 실패하게 할 때 값을 넣는다. */
@@ -156,7 +156,7 @@ internal class TestPhone(
     fun partsLeft() = fs.listOrNull(work).orEmpty().filter { it.name.endsWith(".part") }
 
     /**
-     * 드라이브에 파일 하나를 지어 올린다.
+     * 드라이브에 파일 하나를 만들어 올린다.
      * 깨지거나 남이 만든 백업을 흉내 낸다.
      */
     suspend fun plant(name: String, bytes: ByteArray, props: Map<String, String>, parent: String? = null): DriveFile {

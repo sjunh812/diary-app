@@ -106,7 +106,7 @@ internal actual val platformModule: Module =
         }
         single<LegacyArchive> { SnapshotLegacyArchive(FileSystem.SYSTEM, get(), Clock.System, TimeZone.currentSystemDefault()) }
         single { OriginalExporter(FileSystem.SYSTEM, get()) }
-        // 고쳐 받기 문의 묶음(FR-010a).
+        // 복구 문의 묶음(FR-010a).
         // 지우는 때는 SupportFiles가 정한다.
         single {
             SupportBundle(FileSystem.SYSTEM, get(), SupportFiles(FileSystem.SYSTEM, get<MigrationPaths>().migrationDir, Clock.System))

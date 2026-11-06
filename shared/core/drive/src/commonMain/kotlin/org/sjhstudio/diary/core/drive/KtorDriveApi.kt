@@ -47,7 +47,7 @@ import org.sjhstudio.diary.core.platform.TokenResult
 
 /**
  * 드라이브 REST v3를 공통 코드에서 직접 부른다(research R3).
- * 본문은 파일에서 흘려 보내고 흘려 받는다.
+ * 본문은 파일에서 스트리밍으로 보내고 받는다.
  */
 class KtorDriveApi(
     private val client: HttpClient,

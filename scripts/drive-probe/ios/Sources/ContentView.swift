@@ -53,7 +53,7 @@ struct ContentView: View {
         for f in legacy { write("  · \(f["name"] ?? "") \(f["size"] ?? "")바이트, \(f["createdTime"] ?? "")") }
     }
 
-    // 스펙 003 research O4(iOS): 앱이 뒤로 간 뒤 키체인에서 로그인을 되살리고 토큰을 받을 수 있는지 본다.
+    // 스펙 003 research O4(iOS): 앱이 백그라운드로 간 뒤 키체인에서 로그인을 복원하고 토큰을 받을 수 있는지 본다.
     private func backgroundTokenCheck() {
         var task: UIBackgroundTaskIdentifier = .invalid
         task = UIApplication.shared.beginBackgroundTask { UIApplication.shared.endBackgroundTask(task) }

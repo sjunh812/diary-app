@@ -45,7 +45,7 @@
     <string name="backup_line_today">오늘 %1$s</string>
     <string name="backup_line_yesterday">어제 %1$s</string>
     <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$d장은 Wi-Fi에 연결되면 올려요.</item></plurals>
-    <!-- 되살리기(B2~B6) -->
+    <!-- 복원(B2~B6) -->
     <string name="restore_row">백업에서 복원하기</string>
     <string name="restore_row_body">다른 휴대폰이나 예전 앱의 백업을 합쳐요.</string>
     <string name="restore_keep_note">복원해도 지금 휴대폰의 일기는 그대로예요.</string>

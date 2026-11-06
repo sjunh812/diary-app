@@ -96,8 +96,8 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     override suspend fun disconnect() {
         tokens.clear()
         prefs.edit { remove(KEY_EMAIL) }
-        // 구글 쪽 권한은 거두지 않는다.
-        // drive.file 권한을 거두면 다시 연결해도 앱이 만든 백업이 보이지 않을 수 있어(헌법 I), 확인하기 전까지 이 기기의 연결만 끊는다.
+        // 구글 쪽 권한은 취소하지 않는다.
+        // drive.file 권한을 취소하면 다시 연결해도 앱이 만든 백업이 보이지 않을 수 있어(헌법 I), 확인하기 전까지 이 기기의 연결만 끊는다.
     }
 
     private fun request(email: String?): AuthorizationRequest {

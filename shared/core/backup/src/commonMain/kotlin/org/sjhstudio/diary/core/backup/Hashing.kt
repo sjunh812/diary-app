@@ -16,7 +16,7 @@ import okio.use
 data class FileHashes(val sha256: String, val md5: String, val byteSize: Long)
 
 /**
- * 파일을 흘려 가며 잰다.
+ * 파일을 스트리밍으로 읽으며 잰다.
  * 사진 하나를 통째로 메모리에 올리지 않는다(SC-005).
  */
 fun FileSystem.hashes(path: Path): FileHashes {

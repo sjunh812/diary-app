@@ -16,7 +16,7 @@ import org.sjhstudio.diary.core.model.MediaStatus
 val MediaEntity.isEditable: Boolean get() = status == MediaStatus.NORMAL.id && fileName != null && sha256 != null
 
 /**
- * 고치기를 열어 읽은 줄.
+ * 수정 화면을 열어 읽은 줄.
  * [resumed]면 전에 남겨 둔 임시 저장본을 이어 연 것이다.
  */
 data class EditDraftRows(val draft: DraftEntity, val media: List<DraftMediaEntity>, val resumed: Boolean) {
@@ -57,7 +57,7 @@ interface DraftDao {
     }
 
     /**
-     * 고치기를 연다.
+     * 수정 화면을 연다.
      * 임시 저장본이 있으면 그대로 돌려주고, 없으면 일기에서 만든다.
      * 일기가 없으면 null이다.
      * 한 트랜잭션이라 사진 줄이 빠진 임시 저장본이 남지 않는다.

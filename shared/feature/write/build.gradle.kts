@@ -1,4 +1,4 @@
-// 쓰기와 고치기 화면.
+// 쓰기와 수정 화면.
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

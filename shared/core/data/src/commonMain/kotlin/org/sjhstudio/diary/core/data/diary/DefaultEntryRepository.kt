@@ -74,7 +74,7 @@ class DefaultEntryRepository(
 
     override fun entry(id: String): Flow<EntryDetail?> = combine(
         entries.observeVisible(id),
-        // 다른 일기의 사진을 받을 때마다 사진 줄을 다시 읽으니 같은 값은 흘려보내지 않는다.
+        // 다른 일기의 사진을 받을 때마다 사진 줄을 다시 읽으니 같은 값은 내보내지 않는다.
         media.observeForEntry(id).distinctUntilChanged(),
         marks.markedPair(id)
     ) { entity, rows, pair ->

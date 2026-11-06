@@ -66,9 +66,9 @@ data class BackupStatus(
     val lastFailure: BackupFailure? = null,
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
-    /** 공간이 모자라 못 올린 사진의 양. */
+    /** 공간이 부족해 못 올린 사진의 양. */
     val bytesShort: Long = 0,
-    /** 드라이브 백업을 되살렸으면 그 백업을 만든 시각. */
+    /** 드라이브 백업을 복원했으면 그 백업을 만든 시각. */
     val restoredBackupAt: Instant? = null
 )
 
@@ -133,7 +133,7 @@ data class RestoreResult(
     val photosPending: Int,
     val rollbackUntil: Instant? = null,
     /**
-     * 공간이 모자라 백업에 없던 사진.
+     * 공간이 부족해 백업에 없던 사진.
      * 원래 기기에 있다.
      */
     val photosOnOriginal: Int = 0,

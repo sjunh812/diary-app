@@ -60,7 +60,7 @@ sealed interface ChunkResult {
 
 /**
  * 드라이브 호출 경계(contracts/drive-gateway.md).
- * 파일은 경로로 받아 흘려 보낸다.
+ * 파일은 경로로 받아 스트리밍으로 보낸다.
  */
 interface DriveApi {
     suspend fun about(): StorageQuota

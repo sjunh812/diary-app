@@ -258,7 +258,7 @@ internal fun BackupSettingsScreen(
 }
 
 /**
- * Figma "드라이브 공간이 모자라요 (B10)".
+ * Figma "드라이브 공간이 부족해요 (B10)".
  * 우리가 공간을 팔지 않고 정리할 곳만 알려 준다(FR-019).
  */
 @Composable
@@ -422,7 +422,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             stringResource(Res.string.backup_interrupted_body)
         )
 
-        // 이 기기에서 백업한 적은 없어도 되살린 백업이 드라이브에 있다.
+        // 이 기기에서 백업한 적은 없어도 복원한 백업이 드라이브에 있다.
         // 첫 백업이라고 말하면 틀린 말이 된다.
         else -> {
             val restored = status.restoredBackupAt
@@ -436,7 +436,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
 }
 
 /**
- * 되살린 백업을 말한다.
+ * 복원한 백업을 말한다.
  * 홈 상태 줄과 백업 화면이 같이 쓴다.
  */
 @Composable

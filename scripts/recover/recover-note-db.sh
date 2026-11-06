@@ -1,5 +1,5 @@
 #!/bin/sh
-# 고쳐 받기 문의로 받은 예전 일기 파일을 고친다(스펙 001 FR-010a, contracts/migration-flow.md "고치는 쪽").
+# 복구 문의로 받은 예전 일기 파일을 복구한다(스펙 001 FR-010a, contracts/migration-flow.md "고치는 쪽").
 #
 #   sh scripts/recover/recover-note-db.sh 받은파일.zip [만든 파일을 둘 폴더]
 #

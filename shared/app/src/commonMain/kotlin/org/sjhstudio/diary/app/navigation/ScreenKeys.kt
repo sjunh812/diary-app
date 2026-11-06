@@ -79,7 +79,7 @@ data class PhotoViewerKey(val entryId: String, val index: Int) : Screen {
 /**
  * 쓰기.
  * [date]는 `yyyy-MM-dd`로, 달력 빈 날에서 오면 있다.
- * [entryId]가 있으면 고치기다.
+ * [entryId]가 있으면 수정이다.
  */
 @Serializable
 data class WriteKey(val date: String? = null, val entryId: String? = null) : Screen {

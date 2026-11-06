@@ -78,7 +78,7 @@ fun MigrationGate(content: @Composable () -> Unit) {
                 onSkip = viewModel::skip,
                 onViewLegacy = { reading = true },
                 onExportOriginal = actions?.exportOriginal,
-                // 일부만 옮겨진 기기는 고쳐 받기 시트를 먼저 띄운다(FR-010a).
+                // 일부만 옮겨진 기기는 복구 문의 시트를 먼저 띄운다(FR-010a).
                 // 실패한 기기는 바로 메일을 쓴다.
                 onContact = actions?.let { a -> if (state is MigrationUiState.Result) ({ asking = true }) else a.contact }
             )

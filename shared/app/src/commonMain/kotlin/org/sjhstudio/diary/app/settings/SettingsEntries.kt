@@ -164,7 +164,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
 
 /**
  * 설정 > 기록 이전 결과.
- * 문의하기는 고쳐 받기 시트를 먼저 띄운다(FR-010a).
+ * 문의하기는 복구 문의 시트를 먼저 띄운다(FR-010a).
  */
 @Composable
 private fun MigrationReportPage(onBack: () -> Unit) {

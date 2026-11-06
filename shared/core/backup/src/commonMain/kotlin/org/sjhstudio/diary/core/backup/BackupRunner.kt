@@ -318,7 +318,7 @@ class BackupRunner(
         }
     }
 
-    /** 공간이 모자라면 앞(최근 일기)에서부터 들어가는 만큼만 고른다. */
+    /** 공간이 부족하면 앞(최근 일기)에서부터 들어가는 만큼만 고른다. */
     private fun fitting(photos: List<LocalPhotoRow>, free: Long?): List<LocalPhotoRow> {
         if (free == null) return photos
         var left: Long = free
@@ -331,7 +331,7 @@ class BackupRunner(
     /**
      * 올린 사진의 확인값을 돌려준다.
      * 파일이 없거나 내용이 이름과 다르면 [unusable]에 적고 건너뛴다.
-     * 깨진 내용을 이 이름으로 올리면 되살릴 수 없는 사진을 백업됐다고 말하게 되고, 드라이브에 이미 있다고 보여 좋은 사본도 못 올라간다.
+     * 깨진 내용을 이 이름으로 올리면 복원할 수 없는 사진을 백업됐다고 말하게 되고, 드라이브에 이미 있다고 보여 좋은 사본도 못 올라간다.
      */
     private suspend fun uploadPhotos(
         photos: List<LocalPhotoRow>,

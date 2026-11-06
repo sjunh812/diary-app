@@ -62,7 +62,7 @@ interface EntryRepository {
 }
 
 /**
- * 고치기를 열어 받은 임시 저장본.
+ * 수정 화면을 열어 받은 임시 저장본.
  * [resumed]면 전에 남겨 둔 것을 이어 연 것이고, 아니면 일기에서 새로 만든 것이다.
  */
 data class OpenedEdit(val draft: Draft, val resumed: Boolean) {
@@ -82,7 +82,7 @@ interface DraftRepository {
     suspend fun latestNew(): Draft?
 
     /**
-     * 고치기를 열 때 임시 저장본이 없으면 일기에서 만든다.
+     * 수정 화면을 열 때 임시 저장본이 없으면 일기에서 만든다.
      * 일기가 없으면 null이다.
      */
     suspend fun openEdit(entryId: String): OpenedEdit?

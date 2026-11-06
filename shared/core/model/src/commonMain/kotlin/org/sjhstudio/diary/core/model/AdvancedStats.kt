@@ -80,7 +80,7 @@ data class ToneShare(val good: Int, val total: Int, val hard: Int = 0) {
 
 /**
  * 한 기간의 값.
- * 기분을 고른 일기가 모자라면 [moods]와 [topMood]는 null이다.
+ * 기분을 고른 일기가 부족하면 [moods]와 [topMood]는 null이다.
  */
 data class StatsSnapshot(val moods: ToneShare?, val topMood: Mood?, val days: Int, val entries: Int, val characters: Long, val photos: Int)
 
@@ -222,7 +222,7 @@ private fun List<StatsEntry>.snapshot(): StatsSnapshot {
 
 /**
  * [rows]에서 최근 30일과 그 전 30일을 꺼내 견준다.
- * 어느 쪽이든 일기가 모자라면 말하지 않는다.
+ * 어느 쪽이든 일기가 부족하면 말하지 않는다.
  */
 fun recentMood(rows: List<StatsEntry>, today: LocalDate): RecentMood? {
     val now = AdvancedPeriod.RECENT.range(today) ?: return null

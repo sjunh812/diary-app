@@ -45,7 +45,7 @@ class Startup(
     private val _state = MutableStateFlow<StartupState>(StartupState.Loading)
     val state: StateFlow<StartupState> = _state.asStateFlow()
 
-    /** 스플래시를 거둘 때를 정한다(Android `setKeepOnScreenCondition`). */
+    /** 스플래시를 닫을 때를 정한다(Android `setKeepOnScreenCondition`). */
     val ready: Boolean
         get() = _state.value is StartupState.Ready
 

@@ -45,7 +45,7 @@
     <string name="backup_line_today">today %1$s</string>
     <string name="backup_line_yesterday">yesterday %1$s</string>
     <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
-    <!-- 되살리기(B2~B6) -->
+    <!-- 복원(B2~B6) -->
     <string name="restore_row">Restore from backup</string>
     <string name="restore_row_body">Merge a backup from another phone or the old app.</string>
     <string name="restore_keep_note">Your diary on this phone stays as it is.</string>

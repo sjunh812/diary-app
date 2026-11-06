@@ -29,7 +29,7 @@ private const val ONE_DECIMAL_BELOW = 10.0
 /**
  * 사람이 읽는 크기.
  * Android·iOS 파일 앱과 같게 1,000 단위로 재서 파일 앱에 보이는 숫자와 맞춘다.
- * 공간이 모자란다고 알릴 때 적게 말하지 않도록 마지막 자리를 올린다.
+ * 공간이 부족하다고 알릴 때 적게 말하지 않도록 마지막 자리를 올린다.
  * 637KB, 1.2MB, 850MB, 1.2GB처럼 쓴다.
  */
 fun byteSize(bytes: Long): ByteSize {

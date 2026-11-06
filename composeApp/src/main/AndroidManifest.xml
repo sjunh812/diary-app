@@ -11,7 +11,7 @@
     <!-- 장소 시트의 현재 위치 가져오기를 누를 때만 쓴다. 정확한 위치를 물어도 사용자가 대략 위치를 고를 수 있다. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- 지금 백업과 되살린 사진 받기를 앱을 떠나도 잇는다(스펙 003 research R14). -->
+    <!-- 지금 백업과 복원한 사진 받기를 앱을 떠나도 잇는다(스펙 003 research R14). -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
@@ -88,7 +88,7 @@
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="dataSync"
             tools:node="merge" />
-        <!-- 고쳐 받기 문의 묶음(files/migration/support)만 메일 앱에 읽기 권한으로 넘긴다(FR-010a). -->
+        <!-- 복구 문의 묶음(files/migration/support)만 메일 앱에 읽기 권한으로 넘긴다(FR-010a). -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.support"

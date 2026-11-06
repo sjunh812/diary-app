@@ -46,7 +46,7 @@ data class BackupPrefs(
     /** 사진을 마저 올리려면 드라이브에 더 필요한 양. */
     val bytesShort: Long = 0,
     /**
-     * 이 기기로 드라이브 백업을 되살렸을 때 그 백업을 만든 시각.
+     * 이 기기로 드라이브 백업을 복원했을 때 그 백업을 만든 시각.
      * 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻이다.
      */
     val restoredBackupAt: Instant? = null

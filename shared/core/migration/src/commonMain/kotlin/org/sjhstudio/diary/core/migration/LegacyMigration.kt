@@ -52,7 +52,7 @@ interface LegacyMigration {
     suspend fun supportSummary(): SupportSummary
 
     /**
-     * 하루가 지난 고쳐 받기 문의 묶음을 지운다(FR-010a).
+     * 하루가 지난 복구 문의 묶음을 지운다(FR-010a).
      * 지웠으면 true.
      */
     suspend fun cleanUpSupportFiles(): Boolean = false

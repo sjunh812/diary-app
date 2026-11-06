@@ -11,7 +11,10 @@ interface PinKeyStore {
 
     fun hasKey(alias: String): Boolean
 
-    /** `HMAC-SHA256(key, data)`. 키가 없거나 쓸 수 없으면 null이다. */
+    /**
+     * `HMAC-SHA256(key, data)`.
+     * 키가 없거나 쓸 수 없으면 null이다.
+     */
     fun mac(alias: String, data: ByteArray): ByteArray?
 }
 

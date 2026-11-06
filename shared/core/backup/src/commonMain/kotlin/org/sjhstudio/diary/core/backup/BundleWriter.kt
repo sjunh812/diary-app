@@ -14,7 +14,7 @@ import okio.use
 class BundleItem(val name: String, val path: Path)
 
 /**
- * 압축 없는(STORE) zip을 흘려 쓴다(research R18).
+ * 압축 없는(STORE) zip을 스트리밍으로 쓴다(research R18).
  * 사진은 이미 줄어 있어 압축 이득이 작다.
  * 저장 위치가 흐름뿐이어도 되도록 뒤로 돌아가 쓰지 않는다.
  * 크기와 CRC를 머리에 쓰려고 파일을 먼저 한 번 읽는다.

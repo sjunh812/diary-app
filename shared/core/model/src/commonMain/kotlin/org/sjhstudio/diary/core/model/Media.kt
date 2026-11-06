@@ -16,7 +16,8 @@ data class Media(
     val sortOrder: Int,
     val status: MediaStatus,
     /**
-     * `<sha256>.<ext>`. 절대경로를 담지 않는다.
+     * `<sha256>.<ext>`.
+     * 절대경로를 담지 않는다.
      * [MediaStatus.MISSING]이면 null.
      */
     val fileName: String?,

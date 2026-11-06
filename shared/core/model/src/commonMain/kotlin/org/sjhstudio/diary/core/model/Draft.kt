@@ -77,7 +77,7 @@ sealed interface AddPhotosResult {
     /** 한도에 닿아 [added]장만 더했다. */
     data class LimitReached(val limit: Int, val canUpgrade: Boolean, val added: Int) : AddPhotosResult
 
-    /** 기기 공간이 모자라 [added]장만 더했다. */
+    /** 기기 공간이 부족해 [added]장만 더했다. */
     data class NoSpace(val added: Int) : AddPhotosResult
 }
 

@@ -45,7 +45,7 @@ interface BackupRepository {
     fun skipFoundBackup()
 
     /**
-     * 찾은 백업을 되살리기로 했다.
+     * 찾은 백업을 복원하기로 했다.
      * 복원이 끝날 때까지 백업하지 않는다.
      */
     fun takeFoundBackup()

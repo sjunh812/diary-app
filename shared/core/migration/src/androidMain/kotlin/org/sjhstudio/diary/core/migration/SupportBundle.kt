@@ -9,7 +9,7 @@ import okio.sink
 import okio.use
 
 /**
- * 고쳐 받기 문의에 붙이는 zip(FR-010a, contracts/migration-flow.md "고쳐 받기 문의").
+ * 복구 문의에 붙이는 zip(FR-010a, contracts/migration-flow.md "복구 문의").
  * 예전 앱 일기 파일 사본(`note.db`, `-wal`, `-shm`)만 담는다.
  * 사진과 설정 파일은 담지 않는다.
  * 설정(`pref.xml`)에는 옛 백업 계정 이메일과 드라이브 파일 ID가 있을 수 있어서다(헌법 II, 2026-11-04 사용자 결정).

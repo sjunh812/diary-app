@@ -26,7 +26,7 @@ data class LegacyReaderState(
 /**
  * 예전 일기 보기(M4).
  * 사본을 일기 날짜 최근 순으로 60편씩 더 읽는다.
- * 고치기·지우기는 없다.
+ * 수정·삭제는 없다.
  */
 class LegacyReaderViewModel(private val archive: LegacyArchive) : ViewModel() {
     private val _state = MutableStateFlow(LegacyReaderState())

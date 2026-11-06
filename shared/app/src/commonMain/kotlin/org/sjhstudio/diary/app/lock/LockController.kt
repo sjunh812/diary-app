@@ -81,7 +81,7 @@ class LockController(
 
     /**
      * 폰 화면 잠금 확인처럼 앱이 잠시 뒤로 가는 동안 다시 잠그지 않는다.
-     * Android의 폰 잠금 확인은 다른 앱 화면이라 앱이 뒤로 간 것으로 잡힌다.
+     * Android의 폰 잠금 확인은 다른 앱 화면이라 앱이 백그라운드로 간 것으로 잡힌다.
      */
     suspend fun <T> withoutRelock(block: suspend () -> T): T {
         holds++

@@ -18,7 +18,7 @@ import org.sjhstudio.diary.core.model.PickedImage
  */
 class FakeDraftRepository(
     initial: List<Draft> = emptyList(),
-    /** 고치기로 열면 돌려줄 임시 저장본. */
+    /** 수정 화면으로 열면 돌려줄 임시 저장본. */
     private val editable: Map<String, Draft> = emptyMap()
 ) : DraftRepository {
     private val drafts = MutableStateFlow(initial.associateBy { it.key })

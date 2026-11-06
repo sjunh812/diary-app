@@ -55,7 +55,7 @@ interface RestoreRepository {
     /** 파일로 만들면 담길 수와 어림 크기. */
     suspend fun bundleEstimate(): BundleEstimate
 
-    /** 일기와 사진을 zip 하나로 [sink]에 흘려 쓴다(FR-031). */
+    /** 일기와 사진을 zip 하나로 [sink]에 스트리밍으로 쓴다(FR-031). */
     suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
 
     /**

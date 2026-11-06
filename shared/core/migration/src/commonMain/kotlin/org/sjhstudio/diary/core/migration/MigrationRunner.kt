@@ -81,7 +81,7 @@ sealed interface MigrationResult {
     data class Failed(
         val step: MigrationStep,
         val kind: MigrationFailureKind,
-        /** 공간이 모자랄 때 더 있어야 하는 바이트(필요한 양 - 남은 양). */
+        /** 공간이 부족할 때 더 있어야 하는 바이트(필요한 양 - 남은 양). */
         val neededBytes: Long? = null
     ) : MigrationResult
 }
@@ -789,7 +789,7 @@ class MigrationRunner(
 
         /**
          * 썸네일을 나란히 만드는 수.
-         * 큰 사진을 한꺼번에 풀어 메모리가 모자라지 않게 3으로 둔다(R9).
+         * 큰 사진을 한꺼번에 풀어 메모리가 부족하지 않게 3으로 둔다(R9).
          */
         const val THUMBNAIL_PARALLEL = 3
 

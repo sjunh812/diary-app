@@ -24,7 +24,7 @@ data class StoredPhoto(val fileName: String, val sha256: String, val width: Int?
  * 긴 변 2,560px이 넘을 때만 줄이고 방향을 바로잡아 JPEG 85로 쓴 뒤 내용 해시 이름으로 둔다.
  * 쓰는 동안의 파일도 사진 폴더에 둔다.
  * 캐시 폴더는 시스템이 지울 수 있다(헌법 I).
- * 공간이 모자라면 okio.IOException이 그대로 나간다.
+ * 공간이 부족하면 okio.IOException이 그대로 나간다.
  */
 class PhotoStore(
     private val fileSystem: FileSystem,

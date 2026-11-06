@@ -445,7 +445,7 @@ private fun Content(
                     )
                 }
                 entry<AdvancedStatsKey> {
-                    // 구독이 끝난 채 앱이 이 화면을 되살려도 머물지 않고 돌아보기로 돌아간다.
+                    // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아간다.
                     val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
                     LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
                     AdvancedStatsRoute(
@@ -462,7 +462,7 @@ private fun Content(
                         target = target,
                         onSaved = { id ->
                             pop()
-                            // 고치기는 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
+                            // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
                             if ((backStack.lastOrNull() as? EntryDetailKey)?.entryId != id) backStack.openEntry(id)
                             notify(Message.Saved)
                             adAfterSave = true
