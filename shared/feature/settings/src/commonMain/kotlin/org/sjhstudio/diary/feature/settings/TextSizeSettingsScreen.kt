@@ -31,6 +31,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
@@ -64,12 +65,12 @@ fun TextSizeSettingsScreen(
                 .widthIn(max = DiaryWriteSize.settingsMax)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = DiarySpacing.screenCompact),
+                .padding(horizontal = LocalScreenGutter.current),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
         ) {
             Column(
                 Modifier.padding(
-                    top = DiarySpacing.x2
+                    top = DiarySpacing.x4
                 ).fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x5),
                 verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
             ) {

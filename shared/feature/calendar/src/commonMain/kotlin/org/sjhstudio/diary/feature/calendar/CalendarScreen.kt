@@ -62,9 +62,7 @@ import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -73,6 +71,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryRow
@@ -217,7 +216,7 @@ internal fun CalendarPanel(
 ) {
     val nav: @Composable () -> Unit = { MonthNav(shown < lastMonth, showToday, onToday, onMove) }
     ContextTipBar(ContextTip.CALENDAR_FACE, stringResource(Res.string.tip_calendar_date))
-    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact)) {
+    Column(Modifier.padding(horizontal = LocalScreenGutter.current)) {
         if (twoPane) {
             Row(Modifier.fillMaxWidth().padding(top = DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) { DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick) }
@@ -359,8 +358,14 @@ private fun DayCell(
         ) {
             BasicText(
                 date.day.toString(),
+                // 고른 칸은 selected 바탕이라 일요일 색의 대비가 모자란다(4.2:1).
                 style = DiaryTheme.typography.captionStrong.copy(
-                    color = if (today) colors.onAccent else dayColor(date, colors.textPrimary)
+                    color =
+                        when {
+                            today -> colors.onAccent
+                            selected -> colors.textPrimary
+                            else -> dayColor(date, colors.textPrimary)
+                        }
                 ),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -427,7 +432,7 @@ internal fun DayPanel(
     Column {
         BasicText(
             title,
-            modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+            modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
             style = (if (twoPane) typography.headline else typography.captionStrong).copy(
                 color = if (twoPane) colors.textPrimary else colors.textSecondary
             )
@@ -435,19 +440,12 @@ internal fun DayPanel(
         if (rows.isEmpty()) {
             // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다.
             // 고른 날에 쓴 글이 없다는 것만 조용히 말한다.
-            Column(
-                Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x6),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
-            ) {
-                BasicText(stringResource(Res.string.calendar_empty), style = typography.body.copy(color = colors.textSecondary))
-                DiaryButton(
-                    stringResource(Res.string.calendar_write_on_day),
-                    onWrite,
-                    kind = DiaryButtonKind.Weak,
-                    size = DiaryButtonSize.Medium
-                )
-            }
+            DiaryEmptyLine(
+                stringResource(Res.string.calendar_empty),
+                stringResource(Res.string.calendar_write_on_day),
+                onWrite,
+                Modifier.padding(horizontal = LocalScreenGutter.current)
+            )
         } else {
             rows.forEachIndexed { index, row ->
                 val interaction = remember(row.id) { MutableInteractionSource() }

@@ -67,6 +67,8 @@ data class DiaryColors(
     val scrim: Color,
     /** 사진 위 +N 뱃지 */
     val overlay: Color,
+    /** 쓰기 버튼 그림자 */
+    val shadow: Color,
     /**
      * 사진 크게 보기 바탕.
      * 두 테마 모두 검다
@@ -135,6 +137,7 @@ internal val LightDiaryColors =
         toastAction = Color(0xFFCAA6FE),
         scrim = Color(0x66000000),
         overlay = Color(0x80000000),
+        shadow = Color(0x29000000),
         mood =
             DiaryMoodColors(
                 angry = Color(0xFFFFAFB0),
@@ -192,6 +195,7 @@ internal val DarkDiaryColors =
         toastAction = Color(0xFFBAA7FF),
         scrim = Color(0x99000000),
         overlay = Color(0x80000000),
+        shadow = Color(0x66000000),
         mood =
             DiaryMoodColors(
                 angry = Color(0xFFFFAFB0),

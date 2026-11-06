@@ -52,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -59,6 +60,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.ui.DiaryLottie
@@ -188,12 +190,15 @@ internal fun PaywallScreen(
         // 넓은 화면의 결제 칸은 가운데에 있어 화면 아래에 고정된 것이 없다.
         LaunchedEffect(wide) { if (wide) onBuyHeight(0) }
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(horizontal = DiarySpacing.x1),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 DiaryIconButton(DiaryIcons.Close, stringResource(Res.string.plus_close), onClose)
                 Spacer(Modifier.weight(1f))
                 DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.QuietText)
             }
-            val column = Modifier.widthIn(max = DiaryArtSize.paywallMax).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact)
+            val column = Modifier.widthIn(max = DiaryArtSize.paywallMax).fillMaxWidth().padding(horizontal = LocalScreenGutter.current)
             if (wide) {
                 BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                     Column(
@@ -323,9 +328,10 @@ private fun PaywallBuy(
 @Composable
 private fun Benefit(title: StringResource) {
     val colors = DiaryTheme.colors
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
-        DiaryIcon(DiaryIcons.CircleCheck, contentDescription = null, tint = colors.accent)
-        BasicText(stringResource(title), style = DiaryTheme.typography.reading.copy(color = colors.textPrimary))
+    val reading = DiaryTheme.typography.reading
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        FirstLineIcon(DiaryIcons.CircleCheck, reading, colors.accent, DiaryIconSize.i24)
+        BasicText(stringResource(title), style = reading.copy(color = colors.textPrimary))
     }
 }
 
@@ -349,7 +355,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 .navigationBarsPadding()
                 .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6)
         ) {
-            val gutter = Modifier.padding(horizontal = DiarySpacing.screenCompact)
+            val gutter = Modifier.padding(horizontal = LocalScreenGutter.current)
             Column(gutter) {
                 PlusArt(DiaryArtSize.card)
                 Spacer(Modifier.height(DiarySpacing.x4))

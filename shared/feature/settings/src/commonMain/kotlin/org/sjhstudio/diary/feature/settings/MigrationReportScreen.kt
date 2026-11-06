@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
@@ -77,7 +78,7 @@ fun MigrationReportScreen(
                                 Res.string.migration_deferred_body
                             }
                         ),
-                    modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                    modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
                     actionLabel =
                         stringResource(
                             if (state.retry == MigrationRetry.Running) {
@@ -101,8 +102,8 @@ fun MigrationReportScreen(
                     style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
                     modifier =
                         Modifier.padding(
-                            start = DiarySpacing.screenCompact,
-                            end = DiarySpacing.screenCompact,
+                            start = LocalScreenGutter.current,
+                            end = LocalScreenGutter.current,
                             top = DiarySpacing.x1,
                             bottom = DiarySpacing.x2
                         )
@@ -116,7 +117,7 @@ fun MigrationReportScreen(
             if (report.entriesUnreadable > 0) {
                 DiaryNotice(
                     pluralStringResource(Res.plurals.migration_report_notice, report.entriesUnreadable, report.entriesUnreadable.grouped()),
-                    Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
+                    Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
                     icon = DiaryIcons.ShieldCheck
                 )
             }

@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.feature.lock.resources.Res
@@ -83,8 +84,8 @@ fun LockSettingsScreen(
                     stringResource(Res.string.lock_settings_relock_body),
                     style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
                     modifier = Modifier.padding(
-                        start = DiarySpacing.screenCompact,
-                        end = DiarySpacing.screenCompact,
+                        start = LocalScreenGutter.current,
+                        end = LocalScreenGutter.current,
                         bottom = DiarySpacing.x2
                     )
                 )
@@ -96,7 +97,7 @@ fun LockSettingsScreen(
             }
             DiaryNotice(
                 stringResource(Res.string.lock_settings_note),
-                Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6)
+                Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6)
             )
         }
     }

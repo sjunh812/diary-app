@@ -52,6 +52,7 @@ fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Mo
         Box(
             Modifier
                 .size(DiarySpacing.minTouchTarget)
+                .diaryPress(interaction, colors.onToast, DiaryShapes.full)
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClose),
             contentAlignment = Alignment.Center
         ) {

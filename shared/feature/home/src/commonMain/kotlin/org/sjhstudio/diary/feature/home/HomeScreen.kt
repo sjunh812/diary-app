@@ -59,6 +59,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.currentDate
@@ -66,7 +67,9 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
+import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -217,7 +220,7 @@ internal fun HomeScreen(
             // 일기가 없으면 고를 달도 없다.
             // 불러오는 동안에는 화살표가 깜빡이지 않게 그대로 둔다.
             val noMonths = rows.itemCount == 0 && rows.loadState.refresh is LoadState.NotLoading
-            DiaryTitleButton(title, onPickMonth.takeUnless { noMonths }, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+            DiaryTitleButton(title, onPickMonth.takeUnless { noMonths }, Modifier.padding(horizontal = LocalScreenGutter.current))
             Spacer(Modifier.height(DiarySpacing.x1))
             backupLine()
             // 스크롤하면 나타나는 선이 백업 문구에 붙지 않게 띄운다.
@@ -236,15 +239,20 @@ internal fun HomeScreen(
                 }
 
                 refresh is LoadState.NotLoading -> {
-                    ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+                    ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
                     Empty(favoritesOnly, onWrite)
                 }
 
                 refresh is LoadState.Error -> LoadFailed(rows::retry)
 
                 else -> {
-                    ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
-                    SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                    ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                    // 곧 나올 목록과 같은 꼴을 그린다.
+                    when (style) {
+                        ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                        ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
+                        ListStyle.PHOTO_GRID -> SkeletonPhotoGrid()
+                    }
                 }
             }
         }
@@ -345,7 +353,7 @@ private fun Feed(
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)) {
-        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact)) }
+        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current)) }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
             val row = rows[index]
             if (row == null) {
@@ -377,7 +385,7 @@ private fun Feed(
                                 onClick = { onOpen(row.id) }
                             )
                 )
-                if (isAdSlot(index)) Box(Modifier.padding(horizontal = DiarySpacing.screenCompact)) { adSlot(adOrder(index)) }
+                if (isAdSlot(index)) Box(Modifier.padding(horizontal = LocalScreenGutter.current)) { adSlot(adOrder(index)) }
             }
         }
     }

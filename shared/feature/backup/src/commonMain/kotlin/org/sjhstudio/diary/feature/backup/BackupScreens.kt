@@ -54,6 +54,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
@@ -208,7 +209,7 @@ internal fun BackupSettingsScreen(
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             // 파일로 바꾼 사람은 연결이 없어도 되돌릴 수 있어야 한다.
             rollback?.let {
-                Box(Modifier.padding(start = DiarySpacing.screenCompact, end = DiarySpacing.screenCompact, top = DiarySpacing.x2)) {
+                Box(Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x4)) {
                     Rollback(it, onRollBack)
                 }
             }
@@ -223,8 +224,8 @@ internal fun BackupSettingsScreen(
                 )
             } else {
                 Column(
-                    Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+                    Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
+                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
                 ) {
                     Status(status, onCellular, onConnect)
                     if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
@@ -267,7 +268,7 @@ private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Uni
     val links = LocalUriHandler.current
     val size = sizeText(status.bytesShort)
     Column(
-        Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6),
+        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
@@ -290,7 +291,7 @@ private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Uni
     DiarySettingsRow(stringResource(Res.string.backup_space_trash), onClick = { links.openUri(TRASH_URL) })
     DiarySettingsRow(stringResource(Res.string.file_top), onClick = onFile)
     Column(
-        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
+        Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
         DiaryNotice(stringResource(Res.string.backup_space_note))
@@ -345,7 +346,7 @@ private fun Rollback(info: RollbackInfo, onRollBack: () -> Unit) {
 private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
     val colors = DiaryTheme.colors
     Column(
-        Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6),
+        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {

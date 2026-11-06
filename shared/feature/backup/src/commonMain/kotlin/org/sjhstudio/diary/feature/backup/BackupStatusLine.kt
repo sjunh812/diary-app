@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
@@ -29,11 +31,14 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.diaryTouchOutset
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.currentDate
@@ -72,16 +77,32 @@ internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     val line = lineFor(status)
+    val caption = DiaryTheme.typography.caption
+    // 글줄 모양은 그대로 두고 누르는 곳만 48로 넓힌다.
+    // 누름 면은 글자에서 위아래 6, 옆 8까지만 나와서 위 큰 제목에 닿지 않는다.
+    val lineHeight = with(LocalDensity.current) { caption.lineHeight.toDp() }
+    val touch = ((DiarySpacing.minTouchTarget - lineHeight) / 2).coerceAtLeast(DiarySpacing.x1_5)
     Row(
         modifier
-            .padding(horizontal = DiarySpacing.screenCompact)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onOpen),
+            .padding(horizontal = LocalScreenGutter.current)
+            .diaryTouchOutset(horizontal = DiarySpacing.x2, vertical = touch)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onOpen)
+            .padding(vertical = touch - DiarySpacing.x1_5)
+            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+            .padding(horizontal = DiarySpacing.x2, vertical = DiarySpacing.x1_5),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
         verticalAlignment = Alignment.CenterVertically
     ) {
         DiaryIcon(line.icon, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
-        BasicText(line.text, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary), maxLines = 1)
-        line.action?.let { BasicText(it, style = DiaryTheme.typography.caption.copy(color = colors.accentText), maxLines = 1) }
+        // 글이 길면 글만 말줄임해서 뒤 동작과 빨간 점이 밀려나지 않는다.
+        BasicText(
+            line.text,
+            modifier = Modifier.weight(1f, fill = false),
+            style = caption.copy(color = colors.textSecondary),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        line.action?.let { BasicText(it, style = caption.copy(color = colors.accentText), maxLines = 1) }
         if (line.alert) Box(Modifier.size(DiarySpacing.x1_5).clip(DiaryShapes.full).background(colors.danger))
     }
 }

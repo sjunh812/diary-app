@@ -106,7 +106,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
                 DiaryButton(
                     stringResource(Res.string.reward_close),
                     onClick = { sheet = null },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
                     size = DiaryButtonSize.XLarge
                 )
             }

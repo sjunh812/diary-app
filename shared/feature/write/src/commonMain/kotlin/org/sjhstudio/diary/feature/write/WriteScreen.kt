@@ -71,6 +71,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -119,6 +120,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.ChecklistEdit
 import org.sjhstudio.diary.core.model.DraftPhoto
@@ -307,7 +309,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                         openSheet(Sheet.Mood)
                     }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
                     if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { pick.launch() })
-                    Notices(state)
+                    Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                     Editor(actions.rich, bodyStyle, editorFocus, Modifier.fillMaxWidth())
                 }
                 SaveFailedNotice(state)
@@ -418,51 +420,69 @@ private fun DiscardButton(isEdit: Boolean, modifier: Modifier = Modifier, onClic
 private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
-    Box(Modifier.fillMaxWidth().height(DiarySpacing.x14)) {
-        ToolButton(
-            DiaryIcons.Close,
-            stringResource(Res.string.write_close),
-            colors.textPrimary,
-            Modifier.align(Alignment.CenterStart).padding(start = DiarySpacing.x1),
-            onClick = onClose
-        )
-        val interaction = remember { MutableInteractionSource() }
-        Row(
-            Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = DiarySpacing.x14)
-                // 고치는 일기는 날짜를 읽기 전에 오늘이 비치지 않게 한다.
-                .alpha(if (state.loading && state.isEdit) 0f else 1f)
-                .heightIn(min = DiarySpacing.minTouchTarget)
-                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r8)
-                .clip(DiaryShapes.r8)
-                .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate)
-                .padding(DiarySpacing.x1),
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicText(
-                dates.dayWithWeekday(state.date),
-                style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+    val interaction = remember { MutableInteractionSource() }
+    Layout(
+        content = {
+            ToolButton(
+                DiaryIcons.Close,
+                stringResource(Res.string.write_close),
+                colors.textPrimary,
+                Modifier.padding(start = DiarySpacing.x1),
+                onClick = onClose
             )
-            DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
+            Row(
+                Modifier
+                    // 고치는 일기는 날짜를 읽기 전에 오늘이 비치지 않게 한다.
+                    .alpha(if (state.loading && state.isEdit) 0f else 1f)
+                    .heightIn(min = DiarySpacing.minTouchTarget)
+                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                    .clip(DiaryShapes.r12)
+                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate)
+                    .padding(horizontal = DiarySpacing.x2),
+                horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicText(
+                    dates.dayWithWeekday(state.date),
+                    modifier = Modifier.weight(1f, fill = false),
+                    style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
+            }
+            // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
+            // 글자 버튼 안쪽이 16이다.
+            DiaryButton(
+                stringResource(Res.string.write_save),
+                onSave,
+                Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x4),
+                kind = DiaryButtonKind.Text,
+                enabled = state.canSave && !state.saving
+            )
+        },
+        modifier = Modifier.fillMaxWidth().height(DiarySpacing.x14)
+    ) { (close, title, save), constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val start = close.measure(loose)
+        val end = save.measure(loose)
+        // 날짜는 늘 화면 가운데다.
+        // 양옆 가운데 넓은 쪽만큼 비워서 긴 언어나 큰 글자에서도 저장 글자와 겹치지 않고 날짜 글자가 말줄임된다.
+        val side = maxOf(start.width, end.width)
+        val middle = title.measure(loose.copy(maxWidth = (constraints.maxWidth - side * 2).coerceAtLeast(0)))
+        val height = constraints.maxHeight
+        layout(constraints.maxWidth, height) {
+            start.placeRelative(0, (height - start.height) / 2)
+            middle.placeRelative((constraints.maxWidth - middle.width) / 2, (height - middle.height) / 2)
+            end.placeRelative(constraints.maxWidth - end.width, (height - end.height) / 2)
         }
-        DiaryButton(
-            stringResource(Res.string.write_save),
-            onSave,
-            Modifier.align(Alignment.CenterEnd),
-            kind = DiaryButtonKind.Text,
-            enabled = state.canSave && !state.saving
-        )
     }
 }
 
 @Composable
 private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit, onPlace: () -> Unit) {
     FlowRow(
-        Modifier.padding(horizontal = DiarySpacing.screenCompact),
+        Modifier.padding(horizontal = LocalScreenGutter.current),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         val mood = state.mood
@@ -478,7 +498,7 @@ private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit
             text = weather?.let { weatherName(it) } ?: stringResource(Res.string.write_weather),
             selected = weather != null,
             onClick = onWeather,
-            leadingIcon = weather?.icon() ?: DiaryIcons.WeatherMostlyCloudy
+            leadingIcon = weather?.icon() ?: DiaryIcons.WeatherSunny
         )
         DiaryChip(
             text = state.placeName.ifEmpty { stringResource(Res.string.write_place) },
@@ -490,7 +510,7 @@ private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit
 }
 
 @Composable
-private fun Notices(state: WriteUiState) {
+private fun Notices(state: WriteUiState, modifier: Modifier = Modifier) {
     val text =
         when (val notice = state.photoNotice) {
             // 더 넣을 수 있는 길이 있으면 시트로 알린다(Figma P3).
@@ -507,7 +527,7 @@ private fun Notices(state: WriteUiState) {
                     else -> null
                 }
         } ?: return
-    DiaryNotice(text, Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2), icon = DiaryIcons.Info)
+    DiaryNotice(text, modifier, icon = DiaryIcons.Info)
 }
 
 /**
@@ -519,7 +539,7 @@ private fun SaveFailedNotice(state: WriteUiState) {
     if (!state.saveFailed) return
     DiaryNotice(
         stringResource(Res.string.write_save_failed),
-        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+        Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         icon = DiaryIcons.Info
     )
 }
@@ -576,7 +596,7 @@ private fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Uni
 
 /** 길게 눌러 옆으로 끌면 순서가 바뀐다(FR-007). */
 @Composable
-private fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> Unit, inset: Dp? = DiarySpacing.screenCompact) {
+private fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> Unit, inset: Dp? = LocalScreenGutter.current) {
     val colors = DiaryTheme.colors
     val vm = actions.viewModel
     val step = DiaryWriteSize.photo + DiarySpacing.x2
@@ -665,7 +685,12 @@ private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp
             contentAlignment = Alignment.TopEnd
         ) {
             Box(
-                Modifier.padding(DiarySpacing.x1).size(DiaryWriteSize.removeBadge).clip(DiaryShapes.full).background(colors.overlay),
+                Modifier
+                    .padding(DiarySpacing.x1)
+                    .size(DiaryWriteSize.removeBadge)
+                    .diaryPress(interaction, colors.onAccent, DiaryShapes.full)
+                    .clip(DiaryShapes.full)
+                    .background(colors.overlay),
                 contentAlignment = Alignment.Center
             ) {
                 DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onAccent, size = DiaryIconSize.i12)
@@ -677,7 +702,7 @@ private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp
 @Composable
 private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester, modifier: Modifier) {
     val colors = DiaryTheme.colors
-    Box(modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3)) {
+    Box(modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3)) {
         if (state.annotatedString.isEmpty()) {
             BasicText(stringResource(Res.string.write_hint), style = style.copy(color = colors.placeholder))
         }
@@ -761,7 +786,7 @@ private fun SidePanel(state: WriteUiState, actions: WriteActions, onPick: () -> 
 @Composable
 private fun Section(title: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        BasicText(title, style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary))
+        BasicText(title, style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary))
         content()
     }
 }
@@ -956,8 +981,13 @@ private fun Swatch(
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center
     ) {
-        if (selected) Box(Modifier.size(DiaryWriteSize.swatch + DiarySpacing.x2).border(DiarySpacing.x0_5, theme.accent, ring))
-        chip()
+        Box(
+            Modifier
+                .size(DiaryWriteSize.swatch + DiarySpacing.x2)
+                .diaryPress(interaction, theme.textPrimary, ring)
+                .then(if (selected) Modifier.border(DiarySpacing.x0_5, theme.accent, ring) else Modifier),
+            contentAlignment = Alignment.Center
+        ) { chip() }
     }
 }
 

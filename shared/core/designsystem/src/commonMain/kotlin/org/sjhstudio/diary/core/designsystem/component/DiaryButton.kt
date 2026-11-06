@@ -4,12 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,6 +71,7 @@ private fun DiaryButtonSize.spec() = when (this) {
  * 버튼 하나.
  * 글은 문자열 리소스에서 받아 넘긴다.
  * 보이는 높이가 48보다 작아도 누르는 영역은 48이다.
+ * 자리는 보이는 크기만큼만 차지해서 옆 내용과의 간격은 규격 그대로다.
  * 높이는 최소 규격이라 큰 글자에서 글이 두 줄이 되면 버튼이 늘어난다.
  * 잘리지 않게 위아래 4를 둔다.
  */
@@ -101,39 +103,49 @@ fun DiaryButton(
         }
     val spec = size.spec()
     val interaction = remember { MutableInteractionSource() }
-    Row(
-        modifier =
-            modifier
-                .minimumInteractiveComponentSize()
-                .heightIn(min = spec.height)
-                .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
-                .diaryPress(interaction, colors.textPrimary, spec.shape)
-                .clip(spec.shape)
-                .background(container)
-                .clickable(
-                    interactionSource = interaction,
-                    indication = null,
-                    enabled = enabled,
-                    role = Role.Button,
-                    onClick = onClick
-                ).padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
+    val touch = ((DiarySpacing.minTouchTarget - spec.height) / 2).coerceAtLeast(Dp.Hairline)
+    // 바깥 칸이 48로 누르기를 받고 안쪽 칸이 보이는 버튼을 그린다.
+    Box(
+        modifier
+            .widthIn(min = DiarySpacing.minTouchTarget)
+            .diaryTouchOutset(vertical = touch)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                enabled = enabled,
+                role = Role.Button,
+                onClick = onClick
+            )
+            .padding(vertical = touch),
+        propagateMinConstraints = true
     ) {
-        if (leadingIcon != null) {
-            DiaryIcon(
-                leadingIcon,
-                contentDescription = null,
-                tint = content,
-                size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
+        Row(
+            modifier =
+                Modifier
+                    .heightIn(min = spec.height)
+                    .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+                    .diaryPress(interaction, colors.textPrimary, spec.shape)
+                    .clip(spec.shape)
+                    .background(container)
+                    .padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (leadingIcon != null) {
+                DiaryIcon(
+                    leadingIcon,
+                    contentDescription = null,
+                    tint = content,
+                    size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
+                )
+            }
+            BasicText(
+                text = text,
+                style = style.copy(color = content, textAlign = TextAlign.Center),
+                maxLines = BUTTON_MAX_LINES,
+                overflow = TextOverflow.Ellipsis
             )
         }
-        BasicText(
-            text = text,
-            style = style.copy(color = content, textAlign = TextAlign.Center),
-            maxLines = BUTTON_MAX_LINES,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 

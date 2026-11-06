@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryPinDots
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /** 제목 아래 한 줄(틀림, 기다림, 서로 다름). */
 internal class PinLine(val text: String, val color: Color)
@@ -66,7 +67,7 @@ internal fun PinEntryLayout(
             BasicText(
                 title,
                 style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
-                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact).semantics { heading() }
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { heading() }
             )
             Spacer(Modifier.height(DiarySpacing.x10))
             DiaryPinDots(filled = entered, wrongCount = wrongCount)
@@ -78,11 +79,11 @@ internal fun PinEntryLayout(
             BasicText(
                 line?.text.orEmpty(),
                 style = DiaryTheme.typography.body.copy(color = line?.color ?: colors.textPrimary, textAlign = TextAlign.Center),
-                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact).semantics { liveRegion = LiveRegionMode.Polite }
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { liveRegion = LiveRegionMode.Polite }
             )
             middle()
             Spacer(Modifier.weight(1f))
-            Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(Modifier.padding(horizontal = LocalScreenGutter.current), horizontalAlignment = Alignment.CenterHorizontally) {
                 bottom()
             }
         }

@@ -35,6 +35,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryHomeSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
@@ -125,7 +126,7 @@ private fun EntryCard(
                     BasicText(
                         dates.weekday(row.date),
                         modifier = Modifier.alignByBaseline(),
-                        style = typography.caption.copy(color = colors.textSecondary)
+                        style = typography.captionStrong.copy(color = colors.textSecondary)
                     )
                 }
                 Row(
@@ -200,7 +201,7 @@ internal fun PhotoGrid(
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
     ) {
         item(key = LIST_TOP_KEY, span = { GridItemSpan(maxLineSpan) }, contentType = LIST_TOP_KEY) {
-            ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact - DiarySpacing.x0_5))
+            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current - DiarySpacing.x0_5))
         }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "photo" }) { index ->
             val row = rows[index]

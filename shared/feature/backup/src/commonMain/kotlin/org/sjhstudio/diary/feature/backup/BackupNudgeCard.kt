@@ -66,7 +66,7 @@ internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLat
             pluralStringResource(Res.plurals.backup_nudge_entries, nudge.entryCount, nudge.entryCount.grouped())
         },
         stringResource(Res.string.backup_nudge_body),
-        modifier.padding(top = DiarySpacing.x3),
+        modifier.padding(top = DiarySpacing.x4),
         actionLabel = stringResource(Res.string.backup_nudge_action),
         onAction = onConnect,
         secondaryLabel = stringResource(Res.string.backup_nudge_later),

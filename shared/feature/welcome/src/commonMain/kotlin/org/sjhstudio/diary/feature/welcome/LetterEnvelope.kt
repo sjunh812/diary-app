@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryColors
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.letter_arrived
@@ -178,7 +179,7 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
             translate(envelope.left, envelope.top + drop(progress(), envelope)) { drawFront(envelope.size, progress(), colors, pen) }
         }
         Column(
-            Modifier.fillMaxSize().padding(horizontal = DiarySpacing.screenCompact),
+            Modifier.fillMaxSize().padding(horizontal = LocalScreenGutter.current),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

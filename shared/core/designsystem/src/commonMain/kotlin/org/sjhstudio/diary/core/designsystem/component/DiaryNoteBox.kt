@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -56,13 +57,13 @@ fun DiaryNoteBox(notes: List<DiaryNote>, modifier: Modifier = Modifier) {
 }
 
 /**
- * 옆 글의 첫 줄 높이 칸 가운데에 놓는 16 아이콘(`docs/design.md` 아이콘과 그림).
+ * 옆 글의 첫 줄 높이 칸 가운데에 놓는 아이콘(`docs/design.md` 아이콘과 그림).
  * 줄 높이가 sp라서 기기 글자 크기가 커져도 첫 줄 가운데에 맞는다.
  */
 @Composable
-fun FirstLineIcon(icon: ImageVector, line: TextStyle, tint: Color) {
+fun FirstLineIcon(icon: ImageVector, line: TextStyle, tint: Color, size: Dp = DiaryIconSize.i16) {
     val height = with(LocalDensity.current) { line.lineHeight.toDp() }
     Box(Modifier.height(height), contentAlignment = Alignment.Center) {
-        DiaryIcon(icon, contentDescription = null, tint = tint, size = DiaryIconSize.i16)
+        DiaryIcon(icon, contentDescription = null, tint = tint, size = size)
     }
 }

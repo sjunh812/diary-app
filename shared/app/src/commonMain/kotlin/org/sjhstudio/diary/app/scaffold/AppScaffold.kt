@@ -103,6 +103,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
@@ -231,7 +232,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                     onWrite,
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = DiarySpacing.screenCompact, bottom = DiarySpacing.x4 + barInset)
+                        .padding(end = LocalScreenGutter.current, bottom = DiarySpacing.x4 + barInset)
                         .offset { IntOffset(0, -writeLift.roundToPx()) }
                 )
             }
@@ -452,6 +453,7 @@ private fun Content(
                         },
                         onPlus = { backStack.push(PlusKey) },
                         onAdvanced = { backStack.push(AdvancedStatsKey) },
+                        onWrite = onWrite,
                         adSlot = { AdSlot("insight", AdShape.Card) }
                     )
                 }
@@ -463,7 +465,8 @@ private fun Content(
                         onBack = pop,
                         onMood = { mood, range ->
                             backStack.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                        }
+                        },
+                        onWrite = onWrite
                     )
                 }
                 settingsEntries(push = { backStack.push(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })

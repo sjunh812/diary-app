@@ -77,8 +77,14 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
                         .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onValueChange("") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(Modifier.size(DiaryIconSize.i16).clip(DiaryShapes.full).background(colors.textTertiary)) {
-                        DiaryIcon(DiaryIcons.Close, contentDescription = clearLabel, tint = colors.canvas, size = DiaryIconSize.i16)
+                    // 누름 면은 입력 칸 안에 들어가게 원 둘레 8까지만 그린다.
+                    Box(
+                        Modifier.size(DiaryIconSize.i16 + DiarySpacing.x4).diaryPress(interaction, colors.textPrimary, DiaryShapes.full),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(Modifier.size(DiaryIconSize.i16).clip(DiaryShapes.full).background(colors.textTertiary)) {
+                            DiaryIcon(DiaryIcons.Close, contentDescription = clearLabel, tint = colors.canvas, size = DiaryIconSize.i16)
+                        }
                     }
                 }
             }

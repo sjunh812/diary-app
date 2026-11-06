@@ -44,6 +44,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_action
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_body
@@ -105,8 +106,10 @@ fun OnboardingScreen(
         val asking = pages[pager.currentPage] == Page.BACKUP && !connected
         // 마지막 장은 아래 버튼이 곧 끝이라 건너뛸 것이 없다.
         // 칸은 남겨 그림이 움직이지 않게 한다.
+        // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
+        // 글자 버튼 안쪽이 16이다.
         Box(
-            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.minTouchTarget).padding(horizontal = DiarySpacing.x2),
+            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(end = LocalScreenGutter.current - DiarySpacing.x4),
             contentAlignment = Alignment.CenterEnd
         ) {
             if (asking || !last) {
@@ -133,7 +136,7 @@ fun OnboardingScreen(
                 .widthIn(max = DiaryWriteSize.bodyMax)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
+                .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
             size = DiaryButtonSize.XLarge,
             enabled = !connecting
         )
@@ -224,7 +227,7 @@ private fun FreshRow(icon: ImageVector, title: StringResource, body: StringResou
             Modifier.size(DiaryArtSize.rowBadge).clip(DiaryShapes.full).background(colors.selected),
             contentAlignment = Alignment.Center
         ) {
-            DiaryIcon(icon, contentDescription = null, tint = colors.accent)
+            DiaryIcon(icon, contentDescription = null, tint = colors.accentText)
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
             BasicText(stringResource(title), style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
@@ -242,7 +245,7 @@ private fun Dots(count: Int, current: Int) {
                 Modifier
                     .size(DiarySpacing.x2)
                     .clip(DiaryShapes.full)
-                    .background(if (index == current) colors.accent else colors.line)
+                    .background(if (index == current) colors.accent else colors.lineStrong)
             )
         }
     }

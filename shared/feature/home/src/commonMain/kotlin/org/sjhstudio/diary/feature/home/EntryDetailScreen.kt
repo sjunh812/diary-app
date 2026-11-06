@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -52,6 +53,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryPhoto
 import org.sjhstudio.diary.core.ui.DiaryRichText
@@ -108,7 +110,10 @@ fun EntryDetailRoute(
         modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(horizontal = DiarySpacing.x1),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             onBack?.let { DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.detail_back), it) }
             Box(Modifier.weight(1f))
             if (current != null) {
@@ -186,7 +191,7 @@ internal fun Body(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
-            .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+            .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
         BasicText(dates.dayWithWeekday(entry.date), style = DiaryTheme.typography.title1.copy(color = colors.textPrimary))
@@ -246,7 +251,7 @@ internal fun Body(
 /** 사진 격자: 1장 꽉, 2장 나란히, 3장 큰 칸 + 둘, 4장 이상 셋째 칸에 +N. 칸 사이 2. */
 @Composable
 private fun Gallery(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit) {
-    BoxWithConstraints(Modifier.fillMaxWidth().aspectRatio(GALLERY_RATIO).clip(DiaryShapes.r16)) {
+    BoxWithConstraints(Modifier.fillMaxWidth().aspectRatio(GALLERY_RATIO).clip(DiaryShapes.r12)) {
         val gap = DiarySpacing.x0_5
         when (photos.size) {
             1 -> Cell(photos[0], Modifier.fillMaxSize()) { onPhoto(0) }
@@ -267,14 +272,14 @@ private fun Gallery(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit) {
                             if (photos.size > 3) {
                                 BasicText(
                                     "+${photos.size - 3}",
-                                    style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.onAccent),
+                                    style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.onAccent),
                                     modifier =
                                         Modifier
                                             .align(Alignment.BottomEnd)
                                             .padding(DiarySpacing.x1)
                                             .clip(DiaryShapes.r8)
                                             .background(DiaryTheme.colors.overlay)
-                                            .padding(horizontal = DiarySpacing.x1_5, vertical = DiarySpacing.x0_5)
+                                            .padding(horizontal = DiarySpacing.x1, vertical = DiarySpacing.x0_5)
                                 )
                             }
                         }

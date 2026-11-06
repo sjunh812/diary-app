@@ -54,7 +54,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.TrashedEntry
+import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.moodName
@@ -173,7 +175,7 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
                     item {
                         DiaryNotice(
                             stringResource(Res.string.trash_notice),
-                            Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                            Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
                             icon = DiaryIcons.Trash
                         )
                     }
@@ -202,19 +204,19 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
         if (dividerAbove) {
             Box(
                 Modifier
-                    .padding(horizontal = DiarySpacing.screenCompact)
+                    .padding(horizontal = LocalScreenGutter.current)
                     .fillMaxWidth()
                     .height(DiarySpacing.hairline)
                     .background(colors.line)
             )
         }
         Row(
-            Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
+            Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
-                    row.mood?.let { MoodFace(it, DiaryIconSize.i16, contentDescription = moodName(it)) }
+                    row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }
                     BasicText(
                         stringResource(Res.string.trash_row_when, dates.monthDay(row.date), dates.time(row.time)),
                         style = typography.captionStrong.copy(color = colors.textSecondary),

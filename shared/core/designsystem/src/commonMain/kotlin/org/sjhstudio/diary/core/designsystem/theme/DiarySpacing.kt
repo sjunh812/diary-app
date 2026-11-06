@@ -26,10 +26,13 @@ object DiarySpacing {
     val x14: Dp = 56.dp
 
     /**
-     * 화면 좌우(TDS ListRow 20, HIG 예시 20).
-     * 넓은 화면은 본문 폭을 막아 가운데에 둔다.
+     * 폰의 화면 좌우(TDS ListRow 20, HIG 예시 20).
+     * 화면 코드는 이 값 대신 [LocalScreenGutter]를 쓴다.
      */
     val screenCompact: Dp = x5
+
+    /** 600dp부터의 화면 좌우(M3 medium·expanded 24). */
+    val screenWide: Dp = x6
 
     /**
      * 터치 영역 최소 크기(M3 48, HIG 44).
@@ -53,13 +56,25 @@ object DiarySpacing {
  */
 val LocalScreenGutter = staticCompositionLocalOf { DiarySpacing.screenCompact }
 
+/**
+ * 그림자(`docs/design.md` 간격, 모서리).
+ * 앱에서 쓰기 버튼에만 쓴다.
+ * 색은 `DiaryColors.shadow`다.
+ */
+object DiaryShadow {
+    val y: Dp = 4.dp
+    val blur: Dp = 12.dp
+}
+
 /** 아이콘 크기 네 단계(`docs/design.md` 아이콘과 그림, 2026-11-01 점검). */
 object DiaryIconSize {
-    /** 칩, 메타 덧붙임, 안내 상자, 상태 상자 머리, 한 줄 안내, 검색 지우기. */
+    /** 사진 지우기 표시 안에서만 쓴다. */
     val i12: Dp = 12.dp
+
+    /** 칩, 메타 덧붙임, 안내 상자, 상태 상자 머리, 한 줄 안내, 검색 지우기, 작은 버튼. */
     val i16: Dp = 16.dp
 
-    /** 줄 끝 화살표, 돋보기, 작은 버튼, 큰 제목 옆 펼침. */
+    /** 줄 끝 화살표, 돋보기, 큰 제목 옆 펼침, 중간 이상 버튼. */
     val i20: Dp = 20.dp
 
     /** 상단 바, 탭, 줄 앞, 체크, 숫자판 지우기, 날씨 칸. */
@@ -89,7 +104,7 @@ object DiaryInsightSize {
      * 아홉 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춘다.
      */
     val barRow: Dp = 48.dp
-    val barHeight: Dp = 10.dp
+    val barHeight: Dp = 8.dp
     val barFace: Dp = 24.dp
 
     /** 기분 흐름 얼굴. */
@@ -164,8 +179,7 @@ object DiaryWriteSize {
     /** 위 줄 사진 칸과 더하기 칸. */
     val photo: Dp = 72.dp
 
-    /** 기분 칸(얼굴 44 + 이름). */
-    val moodCellWidth: Dp = 60.dp
+    /** 기분 칸(얼굴 44 + 이름). 폭은 다섯 칸으로 고르게 나눈다. */
     val moodCellHeight: Dp = 84.dp
     val moodFace: Dp = 44.dp
 

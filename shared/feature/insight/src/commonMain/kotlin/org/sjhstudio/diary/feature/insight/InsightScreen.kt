@@ -51,6 +51,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -103,6 +104,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_top_week
 import org.sjhstudio.diary.feature.insight.resources.insight_top_year
 import org.sjhstudio.diary.feature.insight.resources.insight_week_number
 import org.sjhstudio.diary.feature.insight.resources.insight_week_range
+import org.sjhstudio.diary.feature.insight.resources.insight_write
 import org.sjhstudio.diary.feature.insight.resources.insight_year_map
 
 /**
@@ -115,6 +117,7 @@ fun InsightRoute(
     modifier: Modifier = Modifier,
     onPlus: () -> Unit = {},
     onAdvanced: () -> Unit = {},
+    onWrite: () -> Unit = {},
     adSlot: @Composable () -> Unit = {}
 ) {
     val viewModel = koinViewModel<InsightViewModel>()
@@ -137,6 +140,7 @@ fun InsightRoute(
         advancedOpen = advancedOpen,
         onPlus = onPlus,
         onAdvanced = onAdvanced,
+        onWrite = onWrite,
         adSlot = adSlot
     )
 }
@@ -156,6 +160,7 @@ internal fun InsightScreen(
     advancedOpen: Boolean = false,
     onPlus: () -> Unit = {},
     onAdvanced: () -> Unit = {},
+    onWrite: () -> Unit = {},
     adSlot: @Composable () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
@@ -166,7 +171,7 @@ internal fun InsightScreen(
                 .widthIn(max = DiaryWriteSize.bodyMax)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = DiarySpacing.screenCompact)
+                .padding(horizontal = LocalScreenGutter.current)
                 .padding(top = DiarySpacing.tabTitleTop, bottom = DiarySpacing.x14 + DiarySpacing.x6)
         ) {
             BasicText(
@@ -188,10 +193,17 @@ internal fun InsightScreen(
             )
             Spacer(Modifier.height(DiarySpacing.x2))
             PeriodNav(periodLabel(period, dates), period.previous() != null, period.next(today) != null, onPrevious, onNext)
-            Spacer(Modifier.height(DiarySpacing.x3))
+            // 빈 한 줄은 위 24를 스스로 둔다.
+            if (counts?.total != 0) Spacer(Modifier.height(DiarySpacing.x3))
             when {
-                counts == null -> SkeletonRows(rows = 5)
-                counts.total == 0 -> Empty()
+                counts == null -> SkeletonRows(rows = 5, gutter = Dp.Hairline)
+
+                counts.total == 0 -> DiaryEmptyLine(
+                    stringResource(Res.string.insight_empty),
+                    stringResource(Res.string.insight_write),
+                    onWrite
+                )
+
                 else -> Content(period, counts, days, pixels, today, onMood)
             }
             if (counts != null && counts.total > 0) {
@@ -238,19 +250,6 @@ private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onP
         )
         DiaryIconButton(DiaryIcons.ChevronRight, stringResource(Res.string.insight_next), onNext, enabled = hasNext)
     }
-}
-
-/**
- * 기간 탭은 그대로 있고 아래 칸만 빈 때다.
- * 달력의 빈 날처럼 큰 제목 없이 한 줄로 조용히 둔다(`docs/design.md` 빈 상태).
- */
-@Composable
-private fun Empty() {
-    BasicText(
-        stringResource(Res.string.insight_empty),
-        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x14 + DiarySpacing.x14),
-        style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary, textAlign = TextAlign.Center)
-    )
 }
 
 @Composable
@@ -302,7 +301,7 @@ private fun SectionTitle(text: String) {
     BasicText(
         text,
         modifier = Modifier.semantics { heading() },
-        style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.textSecondary)
+        style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary)
     )
 }
 
@@ -495,7 +494,9 @@ private fun MoodBar(
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
             maxLines = 1
         )
-        Box(Modifier.weight(1f).height(DiaryInsightSize.barHeight).clip(DiaryShapes.full).background(colors.sunken)) {
+        // 트랙을 두지 않는다.
+        // 웃음과 슬픔 파스텔은 sunken과 밝기가 거의 같아서 끝이 보이지 않았고, 막대는 가장 많은 기분을 끝으로 재서 트랙이 뜻하는 값도 없다.
+        Box(Modifier.weight(1f).height(DiaryInsightSize.barHeight)) {
             if (count > 0) {
                 val filled = count.toFloat() / most
                 Box(Modifier.fillMaxWidth(filled).fillMaxHeight().clip(DiaryShapes.full).background(moodColor(mood)))

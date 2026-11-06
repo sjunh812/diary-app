@@ -27,6 +27,7 @@ import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -66,7 +67,7 @@ fun DiaryMonthSheet(
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                     for (number in quarter) {
                         val month = YearMonth(year, number)
-                        MonthCell(dates.month(month.onDay(1)), month == shown, enabled(month), Modifier.weight(1f)) { onPick(month) }
+                        MonthCell(dates.monthShort(month.onDay(1)), month == shown, enabled(month), Modifier.weight(1f)) { onPick(month) }
                     }
                 }
             }
@@ -81,6 +82,7 @@ private fun YearArrow(icon: ImageVector, enabled: Boolean, onClick: () -> Unit) 
     Box(
         Modifier
             .size(DiarySpacing.minTouchTarget)
+            .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
             .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -95,12 +97,15 @@ private fun MonthCell(label: String, selected: Boolean, enabled: Boolean, modifi
     Box(
         modifier
             .height(DiarySpacing.minTouchTarget)
+            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .clip(DiaryShapes.r12)
-            .background(
+            // 못 고르는 달은 칠하지 않는다.
+            // canvas로 칠하면 다크 시트 위에서 구멍처럼 보인다.
+            .then(
                 when {
-                    selected -> colors.selected
-                    enabled -> colors.sunken
-                    else -> colors.canvas
+                    selected -> Modifier.background(colors.selected)
+                    enabled -> Modifier.background(colors.sunken)
+                    else -> Modifier
                 }
             )
             .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
