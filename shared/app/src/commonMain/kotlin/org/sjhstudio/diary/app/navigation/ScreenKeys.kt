@@ -116,9 +116,6 @@ data object RestoreProgressKey : Screen
 data object FileBackupKey : Screen
 
 @Serializable
-data object WhatsNewKey : Screen
-
-@Serializable
 data object PlusKey : Screen
 
 @Serializable

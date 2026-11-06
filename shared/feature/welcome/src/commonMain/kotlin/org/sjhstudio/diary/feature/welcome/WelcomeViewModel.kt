@@ -73,10 +73,7 @@ class WelcomeViewModel(
     }
 }
 
-class WhatsNewViewModel(private val welcome: WelcomeRepository) : ViewModel() {
+/** 설정에서 다시 읽는 편지. */
+class LetterViewModel(welcome: WelcomeRepository) : ViewModel() {
     val entries: Int? = welcome.migratedEntries()
-
-    init {
-        viewModelScope.launch { welcome.whatsNewRead() }
-    }
 }

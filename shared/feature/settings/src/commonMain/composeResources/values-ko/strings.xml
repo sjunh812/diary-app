@@ -103,7 +103,8 @@
     <string name="list_style_feed">피드</string>
     <string name="list_style_card">카드</string>
     <string name="list_style_photo">사진 격자</string>
-    <string name="settings_whats_new">새 소식</string>
+    <string name="settings_letter">개발자의 편지</string>
+    <string name="settings_intro">처음 소개 다시 보기</string>
     <string name="settings_plus">Plus</string>
     <string name="settings_plus_body">광고 없이, 사진 30장, 체크리스트, 고급 통계</string>
 </resources>

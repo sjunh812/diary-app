@@ -1,10 +1,10 @@
-# 작업 목록: 시작과 새 소식
+# 작업 목록: 시작
 
 선행: 스펙 001 이전 관문, 스펙 003 연결 진입점. 시험을 먼저 쓴다.
 
 ## 공통
 
-- [x] T001 `shared/core/model/Welcome.kt`: `WelcomeStep`, `ContextTip`, `WhatsNewItem`
+- [x] T001 `shared/core/model/Welcome.kt`: `WelcomeStep`, `ContextTip`
 - [x] T002 `shared/core/datastore/WelcomeStore.kt`, `DataStoreFactory.welcome()`
 - [x] T003 `shared/core/data/WelcomeRepository.kt`와 시험 `WelcomeRepositoryTest`: 단계 계산(이전함/새 설치/끝남), 세션당 팁 하나
 - [x] T004 `shared/feature/welcome` 모듈과 문자열(ko, en, ja)
@@ -18,7 +18,7 @@
 
 ## US3
 
-- [x] T009 `WhatsNewScreen`, 설정의 "새 소식" 줄과 점, `WhatsNewKey`
+- [x] T009 설정 > 정보의 "개발자의 편지", "처음 소개 다시 보기" 줄(새 소식 화면은 2026-11-06에 뺐다)
 
 ## US4
 

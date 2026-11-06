@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="letter_arrived">You have a letter</string>
+    <string name="letter_open">Open the letter</string>
     <string name="letter_title">A letter from the developer</string>
     <string name="letter_hello">Hello,\nI'm the developer of 1 Day 1 Diary 👋</string>
-    <string name="letter_short">Every review about a diary lost after changing phones weighed on me. So I rebuilt the app **from scratch**. Now **even your photos are backed up**.\n\nTo keep caring for this app, I've decided to add ads and paid features. In return, I promise two things.</string>
+    <string name="letter_short">I imagine many of you ran into frustrations while using the app. So I rebuilt it **from scratch**. Now **your photos are backed up too**, and there are other useful features.\n\nTo keep updating it, I've added ads and paid features. In return, I make you these two promises.</string>
     <string name="letter_sign">From the developer of 1 Day 1 Diary</string>
     <string name="letter_start">Continue</string>
     <string name="onboarding_backup_title">Your photos are backed up too</string>
@@ -17,14 +19,10 @@
     <string name="onboarding_start">Get started</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_later">Later</string>
-    <string name="news_title">What's new</string>
-    <string name="news_group">Version 2.0</string>
-    <string name="news_v2_body">Why I rebuilt the app.</string>
-    <string name="news_again">See the intro again</string>
-    <plurals name="letter_moved"><item quantity="one">Thank you for leaving **%1$s entry** so far.</item><item quantity="other">Thank you for leaving **%1$s entries** so far.</item></plurals>
+    <plurals name="letter_moved"><item quantity="one">You've left **%1$s entry** so far.</item><item quantity="other">You've left **%1$s entries** so far.</item></plurals>
     <string name="letter_promise_free">Features you've been using stay free</string>
     <string name="letter_promise_ads">No ads while you write or read your diary</string>
-    <string name="letter_close">Leave a line today, too 🙂\nThank you for staying with me!</string>
+    <string name="letter_close">Thank you for always using 1 Day 1 Diary 🙇‍♂️\nI hope you'll stay with me.</string>
     <string name="onboarding_style_title">Style your words</string>
     <string name="onboarding_style_body">Try bold, text color, highlight, and lists.</string>
     <string name="onboarding_trash_title">Deleted by mistake? It's okay</string>

@@ -6,7 +6,6 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
 import org.sjhstudio.diary.feature.welcome.LetterScreen
 import org.sjhstudio.diary.feature.welcome.OnboardingScreen
-import org.sjhstudio.diary.feature.welcome.WhatsNewScreen
 
 @Preview(locale = "ko")
 @Composable
@@ -18,11 +17,15 @@ private fun LetterDark() = DiaryTheme(darkTheme = true) { LetterScreen(1204, {})
 
 @Preview(locale = "ko")
 @Composable
-private fun LetterNoEntriesLight() = DiaryTheme(darkTheme = false) { LetterScreen(0, {}) }
+private fun LetterNoEntriesLight() = DiaryTheme(darkTheme = false) { FullLetterScreen(0, {}) }
 
 @Preview(locale = "ko")
 @Composable
 private fun FullLetterLight() = DiaryTheme(darkTheme = false) { FullLetterScreen(1204, {}) }
+
+@Preview(locale = "ko")
+@Composable
+private fun FullLetterDark() = DiaryTheme(darkTheme = true) { FullLetterScreen(1204, {}) }
 
 @Preview(locale = "ko")
 @Composable
@@ -31,7 +34,3 @@ private fun UpdatedLight() = DiaryTheme(darkTheme = false) { OnboardingScreen(tr
 @Preview(locale = "ko")
 @Composable
 private fun NewDark() = DiaryTheme(darkTheme = true) { OnboardingScreen(false, false, false, {}, {}) }
-
-@Preview(locale = "ko")
-@Composable
-private fun NewsLight() = DiaryTheme(darkTheme = false) { WhatsNewScreen({}, {}, {}) }

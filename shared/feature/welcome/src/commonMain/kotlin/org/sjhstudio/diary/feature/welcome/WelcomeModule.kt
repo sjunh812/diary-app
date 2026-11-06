@@ -6,5 +6,5 @@ import org.koin.dsl.module
 val welcomeFeatureModule =
     module {
         viewModel { WelcomeViewModel(get(), get(), get()) }
-        viewModel { WhatsNewViewModel(get()) }
+        viewModel { LetterViewModel(get()) }
     }

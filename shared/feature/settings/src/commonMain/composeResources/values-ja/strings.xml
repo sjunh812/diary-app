@@ -103,7 +103,8 @@
     <string name="list_style_feed">フィード</string>
     <string name="list_style_card">カード</string>
     <string name="list_style_photo">写真</string>
-    <string name="settings_whats_new">お知らせ</string>
+    <string name="settings_letter">開発者からの手紙</string>
+    <string name="settings_intro">最初の紹介をもう一度見る</string>
     <string name="settings_plus">Plus</string>
     <string name="settings_plus_body">広告なし、写真30枚、チェックリスト、詳しい統計</string>
 </resources>

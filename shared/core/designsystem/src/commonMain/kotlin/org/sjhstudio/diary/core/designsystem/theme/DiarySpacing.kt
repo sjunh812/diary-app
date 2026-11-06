@@ -118,6 +118,9 @@ object DiaryArtSize {
     /** "이렇게 달라졌어요" 줄의 아이콘 원. */
     val rowBadge: Dp = 44.dp
 
+    /** 편지 봉투의 가장 큰 폭. */
+    val envelope: Dp = 320.dp
+
     /** 결제 화면 머리 그림 높이. */
     val banner: Dp = 280.dp
 

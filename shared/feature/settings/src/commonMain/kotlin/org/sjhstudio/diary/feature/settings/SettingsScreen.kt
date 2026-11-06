@@ -35,6 +35,8 @@ import org.sjhstudio.diary.feature.settings.resources.settings_group_diary
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_notification_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
+import org.sjhstudio.diary.feature.settings.resources.settings_intro
+import org.sjhstudio.diary.feature.settings.resources.settings_letter
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
@@ -46,7 +48,6 @@ import org.sjhstudio.diary.feature.settings.resources.settings_theme
 import org.sjhstudio.diary.feature.settings.resources.settings_title
 import org.sjhstudio.diary.feature.settings.resources.settings_trash
 import org.sjhstudio.diary.feature.settings.resources.settings_trash_count
-import org.sjhstudio.diary.feature.settings.resources.settings_whats_new
 
 /**
  * 설정 목록(Figma "설정 (S6)"). 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 쓴다.
@@ -67,8 +68,8 @@ fun SettingsScreen(
     onTrash: () -> Unit = {},
     trashCount: Int = 0,
     onBackup: () -> Unit = {},
-    onWhatsNew: () -> Unit = {},
-    whatsNewDot: Boolean = false,
+    onLetter: () -> Unit = {},
+    onIntro: () -> Unit = {},
     onPlus: () -> Unit = {},
     backupValue: String? = null,
     /** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */
@@ -146,7 +147,8 @@ fun SettingsScreen(
             if (state.showsMigrationReport) {
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
-            DiarySettingsRow(stringResource(Res.string.settings_whats_new), onClick = onWhatsNew, dot = whatsNewDot)
+            DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
+            DiarySettingsRow(stringResource(Res.string.settings_intro), onClick = onIntro)
             DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
         }
     }

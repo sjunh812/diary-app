@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="letter_arrived">手紙が届きました</string>
+    <string name="letter_open">手紙を開く</string>
     <string name="letter_title">開発者からの手紙</string>
     <string name="letter_hello">こんにちは。\n1日1日記の開発者です 👋</string>
-    <string name="letter_short">スマホを替えたら日記が消えたというレビューを読むたびに、心が重くなりました。そこでアプリを**最初から作り直しました**。これからは**写真までバックアップ**できます。\n\nアプリを長く育てていくために、広告と有料機能を入れることにしました。その代わり、ふたつお約束します。</string>
+    <string name="letter_short">アプリをお使いの中で、ご不便を感じた方も多かったと思います。そこでアプリを**最初から新しく**作り直しました。**写真まで一緒にバックアップ**できるようになり、便利な機能も加えました。\n\nこれからも更新を続けるため、広告と有料機能を追加しました。その代わり、次の二つをお約束します。</string>
     <string name="letter_sign">1日1日記 開発者より</string>
     <string name="letter_start">続ける</string>
     <string name="onboarding_backup_title">写真までバックアップ</string>
@@ -17,14 +19,10 @@
     <string name="onboarding_start">はじめる</string>
     <string name="onboarding_skip">スキップ</string>
     <string name="onboarding_later">あとで</string>
-    <string name="news_title">お知らせ</string>
-    <string name="news_group">バージョン2.0</string>
-    <string name="news_v2_body">アプリを作り直した理由を書きました。</string>
-    <string name="news_again">最初の紹介をもう一度見る</string>
-    <plurals name="letter_moved"><item quantity="other">これまで日記を**%1$s件**残してくださり、ありがとうございます。</item></plurals>
+    <plurals name="letter_moved"><item quantity="other">これまで日記を**%1$s件**残してくださいました。</item></plurals>
     <string name="letter_promise_free">お使いの機能はこれからも無料です</string>
     <string name="letter_promise_ads">日記を書く画面と読む画面に広告はありません</string>
-    <string name="letter_close">今日も一行残してみてください 🙂\nこれからもよろしくお願いします！</string>
+    <string name="letter_close">いつも1日1日記をご利用いただき、ありがとうございます 🙇‍♂️\nこれからもよろしくお願いします。</string>
     <string name="onboarding_style_title">文字を飾れます</string>
     <string name="onboarding_style_body">太字、文字色、マーカー、リストを使ってみましょう。</string>
     <string name="onboarding_trash_title">うっかり削除しても大丈夫</string>

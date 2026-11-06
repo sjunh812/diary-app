@@ -78,8 +78,7 @@ fun DiarySettingsRow(
     description: String? = null,
     value: String? = null,
     selected: Boolean = false,
-    leadingIcon: ImageVector? = null,
-    dot: Boolean = false
+    leadingIcon: ImageVector? = null
 ) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -98,7 +97,6 @@ fun DiarySettingsRow(
         description = description,
         leadingIcon = leadingIcon
     ) {
-        if (dot) Box(Modifier.size(DiarySpacing.x2).clip(DiaryShapes.full).background(colors.accent))
         if (value != null) RowValue(value)
         DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
     }

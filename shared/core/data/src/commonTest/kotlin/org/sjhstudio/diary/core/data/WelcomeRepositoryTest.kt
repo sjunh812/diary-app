@@ -57,14 +57,4 @@ class WelcomeRepositoryTest {
 
         assertFalse(repository().claim(ContextTip.CALENDAR_FACE))
     }
-
-    @Test
-    fun finishing_the_onboarding_clears_the_news_dot() = runTest {
-        val repository = repository()
-        assertFalse(repository.whatsNewUnread.first())
-
-        repository.onboardingFinished()
-
-        assertFalse(repository.whatsNewUnread.first())
-    }
 }

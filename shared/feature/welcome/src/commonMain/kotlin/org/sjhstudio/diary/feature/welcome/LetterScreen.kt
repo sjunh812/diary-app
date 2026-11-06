@@ -21,7 +21,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +38,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
@@ -51,6 +57,7 @@ import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.letter_close
 import org.sjhstudio.diary.feature.welcome.resources.letter_hello
 import org.sjhstudio.diary.feature.welcome.resources.letter_moved
+import org.sjhstudio.diary.feature.welcome.resources.letter_open
 import org.sjhstudio.diary.feature.welcome.resources.letter_promise_ads
 import org.sjhstudio.diary.feature.welcome.resources.letter_promise_free
 import org.sjhstudio.diary.feature.welcome.resources.letter_short
@@ -60,6 +67,7 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_title
 import org.sjhstudio.diary.feature.welcome.resources.letter_to
 
 private const val RISE_MILLIS = 450
+private const val OPEN_MILLIS = 900
 private const val BACKDROP_ALPHA = 0.4f
 
 /** 편지 바탕. 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다. */
@@ -69,12 +77,33 @@ private fun Modifier.letterBackdrop(): Modifier {
     return background(colors.canvas).background(colors.selected.copy(alpha = BACKDROP_ALPHA))
 }
 
-/** 개발자의 편지(Figma W1). 판매 장치 없이 만든 사람의 말만 둔다(FR-003, FR-005). 글을 나열하지 않고 편지지 한 장으로 묶는다. */
+/**
+ * 개발자의 편지(Figma W0, W1). 판매 장치 없이 만든 사람의 말만 둔다(FR-003, FR-005).
+ * 봉투를 열면 편지지가 나온다. 버튼 자리를 그대로 두어 열고 나서 같은 곳을 누르면 넘어간다.
+ * 동작 줄이기에서는 바로 편지지를 보인다.
+ */
 @Composable
 fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = DiaryTheme.colors
+    var opened by rememberSaveable { mutableStateOf(false) }
+    val still = rememberReduceMotion()
+    val opening = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    val open: () -> Unit = {
+        when {
+            still -> opened = true
+
+            !opening.isRunning -> scope.launch {
+                opening.animateTo(1f, tween(OPEN_MILLIS))
+                opened = true
+            }
+        }
+    }
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        LetterSheet(Modifier.weight(1f)) { LetterBody(entries) }
+        if (opened) {
+            LetterSheet(Modifier.weight(1f)) { LetterBody(entries) }
+        } else {
+            LetterEnvelope({ opening.value }, open, Modifier.weight(1f))
+        }
         Column(
             Modifier
                 .widthIn(max = DiaryWriteSize.bodyMax)
@@ -83,22 +112,26 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
                 .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DiaryButton(stringResource(Res.string.letter_start), onStart, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+            DiaryButton(
+                stringResource(if (opened) Res.string.letter_start else Res.string.letter_open),
+                if (opened) onStart else open,
+                Modifier.fillMaxWidth(),
+                size = DiaryButtonSize.XLarge
+            )
         }
     }
 }
 
-/** 새 소식에서 다시 읽는 편지. 처음 본 편지와 같은 글이고 계속하기 대신 뒤로 가기가 있다. */
+/** 설정에서 다시 읽는 편지. 봉투 없이 바로 편지지이고 계속하기 대신 뒤로 가기가 있다. */
 @Composable
 fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Modifier) {
-    val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.letter_title), onBack = onBack)
         LetterSheet(Modifier.weight(1f).navigationBarsPadding()) { LetterBody(entries) }
     }
 }
 
-/** 처음 본 편지와 새 소식의 편지가 함께 쓰는 본문. 옮긴 일기가 없으면 고맙다는 문단은 없다. */
+/** 처음 본 편지와 다시 읽는 편지가 함께 쓰는 본문. 옮긴 일기가 없으면 고맙다는 문단은 없다. */
 @Composable
 private fun LetterBody(entries: Int?) {
     entries?.takeIf { it > 0 }?.let { LetterParagraphs(pluralStringResource(Res.plurals.letter_moved, it, it.grouped())) }
