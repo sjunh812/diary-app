@@ -4,12 +4,12 @@
     <!-- 기록 이전 결과(M5). 일부만 옮겨진 기기의 설정에만 보인다. -->
     <string name="migration_report_title">Transfer results</string>
     <!-- %1$s는 옮긴 날(2026년 11월 1일처럼 화면 언어 형식). -->
-    <string name="migration_report_when">Moved from the previous version on %1$s.</string>
-    <string name="migration_report_entries">Entries moved</string>
-    <string name="migration_report_photos">Photos moved</string>
+    <string name="migration_report_when">Transferred from the previous version on %1$s.</string>
+    <string name="migration_report_entries">Entries transferred</string>
+    <string name="migration_report_photos">Photos transferred</string>
     <string name="migration_report_missing_photos">Photos not found</string>
-    <string name="migration_report_date_fixed">Entries with a fixed date</string>
-    <string name="migration_report_unreadable">Entries that couldn’t be read</string>
+    <string name="migration_report_date_fixed">Entries with corrected dates</string>
+    <string name="migration_report_unreadable">Entries that couldn't be read</string>
     <plurals name="migration_report_entry_count">
         <item quantity="one">%1$s entry</item>
         <item quantity="other">%1$s entries</item>
@@ -19,8 +19,8 @@
         <item quantity="other">%1$s photos</item>
     </plurals>
     <plurals name="migration_report_notice">
-        <item quantity="one">Part of the previous version’s file is damaged, so %1$s entry couldn’t be read. The app tries again after its next update. Your original diary stays on your phone.</item>
-        <item quantity="other">Part of the previous version’s file is damaged, so %1$s entries couldn’t be read. The app tries again after its next update. Your original diary stays on your phone.</item>
+        <item quantity="one">Part of the previous version's file is damaged, so %1$s entry couldn't be read. The app will try again after its next update. Your original diary is untouched.</item>
+        <item quantity="other">Part of the previous version's file is damaged, so %1$s entries couldn't be read. The app will try again after its next update. Your original diary is untouched.</item>
     </plurals>
     <string name="migration_report_export">Export original files</string>
     <string name="migration_report_contact">Contact us</string>
@@ -38,10 +38,10 @@
     <string name="settings_theme">Appearance</string>
     <string name="settings_lock">Lock</string>
     <string name="lock_value_off">Off</string>
-    <string name="lock_value_immediately">Locks immediately</string>
-    <string name="lock_value_one_minute">Locks after 1 min</string>
-    <string name="lock_value_five_minutes">Locks after 5 min</string>
-    <string name="lock_value_cold_start">Locks on restart</string>
+    <string name="lock_value_immediately">Immediately</string>
+    <string name="lock_value_one_minute">After 1 min</string>
+    <string name="lock_value_five_minutes">After 5 min</string>
+    <string name="lock_value_cold_start">On restart</string>
 
     <!-- Developer rows. Debug builds only (FR-029). -->
 
@@ -50,7 +50,7 @@
     <string name="settings_group_notification_security">Notifications and security</string>
     <string name="settings_reminder">Daily reminder</string>
     <string name="reminder_value_off">Off</string>
-    <string name="reminder_body">We\'ll remind you to write at the same time every day.</string>
+    <string name="reminder_body">We'll remind you to write at the same time every day.</string>
     <string name="reminder_time">Reminder time</string>
     <string name="reminder_save">Save</string>
     <string name="reminder_permission_title">Notifications are off</string>
@@ -73,10 +73,10 @@
     <string name="font_preview_label">Preview</string>
     <string name="font_preview_sample">The breeze was cool today, so I walked all the way to the river.</string>
     <string name="font_download">Get · %1$s</string>
-    <string name="font_downloading">Getting %1$s</string>
-    <string name="font_offline">You can get it when you're online.</string>
-    <string name="font_failed">Couldn't get the font. Please try again later.</string>
-    <string name="font_replaced_notice">Your old font isn\'t here, so we\'re showing %1$s</string>
+    <string name="font_downloading">Downloading %1$s</string>
+    <string name="font_offline">You can get it when you're online</string>
+    <string name="font_failed">Couldn't get the font. Try again in a moment.</string>
+    <string name="font_replaced_notice">Your old font isn't available, so we're using %1$s</string>
     <string name="font_replaced_change">Change</string>
 
     <!-- Diary text size (G2) -->
@@ -87,18 +87,18 @@
     <string name="text_size_xxlarge">Largest</string>
     <string name="text_size_sample_glyph">Aa</string>
     <string name="text_size_sample_body">I walked to the river on my way home. The wind had turned cold, and I liked it even more.</string>
-    <string name="text_size_note">This applies only to your diary text. Menus and buttons follow your phone\'s text size.</string>
+    <string name="text_size_note">This applies only to your diary text. Menus and buttons follow your phone's text size.</string>
 
     <!-- Appearance (G3) -->
     <string name="theme_system">System default</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_note">With System default, the app turns dark when your phone is in dark mode.</string>
-    <string name="migration_deferred_title">Your earlier diary hasn’t moved yet</string>
-    <string name="migration_deferred_body">Try again to add it. What you’ve written since stays as it is.</string>
-    <string name="migration_deferred_failed">Couldn’t move it again. We’ll try once more after the next app update.</string>
+    <string name="migration_deferred_title">Your earlier entries haven't been transferred yet</string>
+    <string name="migration_deferred_body">Try again to add them. Entries you've written since are kept.</string>
+    <string name="migration_deferred_failed">Couldn't transfer them this time either. We'll try again after the next app update.</string>
     <string name="migration_deferred_retry">Try again</string>
-    <string name="migration_deferred_running">Moving…</string>
+    <string name="migration_deferred_running">Transferring</string>
     <string name="settings_backup">Backup and restore</string>
     <string name="settings_group_diary">Diary</string>
     <string name="settings_trash">Trash</string>
@@ -109,13 +109,13 @@
     <string name="settings_list_style">List style</string>
     <string name="list_style_feed">Feed</string>
     <string name="list_style_card">Cards</string>
-    <string name="list_style_photo">Photos</string>
+    <string name="list_style_photo">Photo grid</string>
     <string name="settings_letter">A letter from the developer</string>
     <string name="settings_plus">Plus</string>
     <string name="settings_plus_title">Keep more, without ads</string>
     <string name="settings_plus_title_ad_free">Keep more in every entry</string>
     <string name="settings_dev_mode">Developer mode</string>
     <string name="settings_plus_body">Up to 30 photos per entry, checklists, and advanced stats.</string>
-    <string name="settings_plus_action">Explore Plus</string>
+    <string name="settings_plus_action">See Plus</string>
     <string name="settings_plus_active">Active</string>
 </resources>

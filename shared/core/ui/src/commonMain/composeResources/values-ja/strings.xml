@@ -16,7 +16,7 @@
     <string name="weather_rain">雨</string>
     <string name="weather_sleet">みぞれ</string>
     <string name="weather_snow">雪</string>
-    <string name="entry_kept_both">2つあり</string>
+    <string name="entry_kept_both">2バージョン</string>
     <string name="tip_close">閉じる</string>
     <string name="checklist_check">%1$sにチェックする</string>
     <string name="checklist_uncheck">%1$sのチェックを外す</string>

@@ -4,12 +4,12 @@
     <string name="letter_open">Open the letter</string>
     <string name="letter_title">A letter from the developer</string>
     <string name="letter_hello">Hello,\nI'm the developer of 1 Day 1 Diary 👋</string>
-    <string name="letter_short">I imagine many of you ran into frustrations while using the app. So I rebuilt it **from scratch**. Now **your photos are backed up too**, and there are other useful features.\n\nTo keep updating it, I've added ads and paid features. In return, I make you these two promises.</string>
+    <string name="letter_short">I know the app has caused you some frustration, so I rebuilt it **from scratch**. **Your photos are now backed up too**, and there are new features you'll find useful.\n\nTo keep the updates coming, I've added ads and paid features. In return, I'm making you two promises.</string>
     <string name="letter_sign">From SeoJuNyang</string>
     <string name="letter_start">Continue</string>
     <string name="onboarding_backup_title">Your photos are backed up too</string>
-    <string name="onboarding_backup_body">Change phones and your diary and photos stay.\nThey go only to your own Google Drive.</string>
-    <string name="onboarding_backup_action">Turn on auto backup</string>
+    <string name="onboarding_backup_body">Your diary and photos stay with you when you change phones.\nThey're saved only to your own Google Drive.</string>
+    <string name="onboarding_backup_action">Turn on automatic backup</string>
     <string name="onboarding_fresh_title">What's changed</string>
     <string name="onboarding_write_title">One line a day is enough</string>
     <string name="onboarding_write_body">Pick a mood and jot down a few lines.</string>
@@ -19,16 +19,16 @@
     <string name="onboarding_start">Get started</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_later">Later</string>
-    <plurals name="letter_moved"><item quantity="one">You\'ve left **%1$s entry** so far.\nThank you from the bottom of my heart for sticking with this humble app.</item><item quantity="other">You\'ve left **%1$s entries** so far.\nThank you from the bottom of my heart for sticking with this humble app.</item></plurals>
+    <plurals name="letter_moved"><item quantity="one">You've written **%1$s entry** so far.\nThank you so much for sticking with an app that's far from perfect.</item><item quantity="other">You've written **%1$s entries** so far.\nThank you so much for sticking with an app that's far from perfect.</item></plurals>
     <string name="letter_promise_free">Features you've been using stay free</string>
-    <string name="letter_promise_ads">No ads on the write and detail screens</string>
-    <string name="letter_close">I hope you\'ll stay with me 🙇‍♂️</string>
+    <string name="letter_promise_ads">No ads while you write or read an entry</string>
+    <string name="letter_close">I hope you'll stay with me 🙇‍♂️</string>
     <string name="onboarding_style_title">Style your words</string>
     <string name="onboarding_style_body">Try bold, text color, highlight, and lists.</string>
-    <string name="onboarding_trash_title">Deleted by mistake? It's okay</string>
-    <string name="onboarding_trash_body">Restore from the trash for 30 days.</string>
+    <string name="onboarding_trash_title">Deleted by mistake? No problem</string>
+    <string name="onboarding_trash_body">You can restore entries from Trash for 30 days.</string>
     <string name="onboarding_wide_title">Easier on big screens</string>
-    <string name="onboarding_wide_body">On tablets, see your list and diary side by side.</string>
+    <string name="onboarding_wide_body">On tablets, see your list and an entry side by side.</string>
     <string name="onboarding_plus_title">More room with Plus</string>
     <string name="onboarding_plus_body">No ads, 30 photos per entry, checklists, and advanced stats.</string>
     <string name="letter_to">To everyone who uses 1 Day 1 Diary</string>

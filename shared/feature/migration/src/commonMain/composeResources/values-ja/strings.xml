@@ -1,62 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 移行の準備(M0) -->
-    <string name="migration_preparing_title">記録を移す準備をしています</string>
-    <string name="migration_preparing_body">新しいアプリに日記を移します。元の記録はそのまま残ります。</string>
+    <string name="migration_preparing_title">日記の移行を準備しています</string>
+    <string name="migration_preparing_body">新しいアプリに日記を移行します。元の日記はそのまま残ります。</string>
 
     <!-- 移行中(M1) -->
-    <string name="migration_progress_title">日記を移しています</string>
-    <string name="migration_progress_body">移し終わるまで画面をつけたままにします。</string>
+    <string name="migration_progress_title">日記を移行しています</string>
+    <string name="migration_progress_body">移行が終わるまで画面をオンのままにします。</string>
     <string name="migration_progress_entries">日記</string>
     <string name="migration_progress_entries_value">%1$s / %2$s件</string>
     <string name="migration_progress_photos">写真</string>
     <string name="migration_progress_photos_value">%1$s / %2$s枚</string>
-    <string name="migration_progress_note">途中でアプリが閉じても、最初から移し直します。元の記録はそのまま残ります。</string>
+    <string name="migration_progress_note">途中でアプリが閉じても、最初から移行し直します。元の日記はそのまま残っています。</string>
 
     <!-- 結果(M2) -->
     <plurals name="migration_done_title">
-        <item quantity="other">%1$s件をすべて移しました</item>
+        <item quantity="other">%1$s件をすべて移行しました</item>
     </plurals>
     <plurals name="migration_done_photos">
-        <item quantity="other">写真%1$s枚も一緒に移しました。</item>
+        <item quantity="other">写真%1$s枚も一緒に移行しました。</item>
     </plurals>
     <plurals name="migration_missing_photos_title">
-        <item quantity="other">見つからなかった写真%1$s枚</item>
+        <item quantity="other">見つからない写真%1$s枚</item>
     </plurals>
-    <string name="migration_missing_photos_body">以前のアプリが一時的な場所に置いていて、削除された写真です。日記の中に写真の場所を残しています。</string>
+    <string name="migration_missing_photos_body">以前のアプリが一時的な場所に保存していて、削除された写真です。日記の中に写真の場所を残しています。</string>
     <string name="migration_missing_photos_body_short">日記の中に写真の場所を残しています。</string>
     <plurals name="migration_date_fixed_title">
-        <item quantity="other">日付を直した日記%1$s件</item>
+        <item quantity="other">日付を修正した日記%1$s件</item>
     </plurals>
-    <string name="migration_date_fixed_body">以前のアプリでは、この日記が誤って次の日に表示されていました。書いたときに選んだ日付に直しました。</string>
+    <string name="migration_date_fixed_body">以前のアプリでは、この日記が誤って次の日に表示されていました。書いたときに選んだ日付に修正しました。</string>
     <string name="migration_start">はじめる</string>
 
     <!-- 一部だけ(M2-b) -->
-    <string name="migration_partial_title">一部だけ移しました</string>
+    <string name="migration_partial_title">一部だけ移行しました</string>
     <plurals name="migration_partial_body">
-        <item quantity="other">%1$s件を移しましたが、%2$s件は元のファイルが壊れていて読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の記録はそのまま残ります。</item>
+        <item quantity="other">%1$s件を移行しましたが、%2$s件は元のファイルが壊れていて読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の日記はそのまま残っています。</item>
     </plurals>
-    <string name="migration_partial_footnote">この結果は［設定］>［移行結果］でもう一度確認できます。</string>
+    <string name="migration_partial_footnote">この結果は設定 > 移行結果でもう一度確認できます。</string>
     <string name="migration_export_original">元のファイルを書き出す</string>
     <string name="migration_contact">お問い合わせ</string>
 
     <!-- 失敗(M3) -->
     <string name="migration_skip">新しい日記から始める</string>
-    <string name="migration_failed_title">記録を移せませんでした</string>
-    <string name="migration_failed_body_mismatch">移した記録の確認中に問題が起きました。元の記録はそのまま残っています。</string>
-    <string name="migration_failed_body_snapshot">元の記録をコピーできなかったため、移行を止めました。元の記録はそのまま残ります。</string>
-    <string name="migration_failed_body_read">以前のアプリのファイルを読み込めなかったため、移行を止めました。元の記録はそのまま残ります。</string>
-    <string name="migration_failed_body_write">新しいアプリに記録を保存できなかったため、移行を止めました。元の記録はそのまま残ります。</string>
-    <string name="migration_failed_body_unknown">移している途中で問題が起きたため、移行を止めました。元の記録はそのまま残ります。</string>
+    <string name="migration_failed_title">日記を移行できませんでした</string>
+    <string name="migration_failed_body_mismatch">移行した日記の確認中に問題が起きました。元の日記はそのまま残っています。</string>
+    <string name="migration_failed_body_snapshot">元の日記をコピーできなかったため、移行を中止しました。元の日記はそのまま残っています。</string>
+    <string name="migration_failed_body_read">以前のアプリのファイルを読み込めなかったため、移行を中止しました。元の日記はそのまま残っています。</string>
+    <string name="migration_failed_body_write">新しいアプリに日記を保存できなかったため、移行を中止しました。元の日記はそのまま残っています。</string>
+    <string name="migration_failed_body_unknown">移行の途中で問題が起きたため、中止しました。元の日記はそのまま残っています。</string>
     <string name="migration_view_legacy">以前の日記を見る</string>
     <string name="migration_retry">もう一度試す</string>
     <string name="migration_no_space_title">ストレージの空き容量が足りません</string>
-    <string name="migration_no_space_body">記録を移すには、スマートフォンにあと%1$sの空き容量が必要です。使っていない写真やアプリを整理してから、もう一度確認してください。元の記録はそのまま残ります。</string>
+    <string name="migration_no_space_body">移行するには、スマートフォンにあと%1$sの空き容量が必要です。使っていない写真やアプリを整理してから、もう一度確認してください。元の日記はそのまま残っています。</string>
     <string name="migration_check_again">もう一度確認</string>
 
     <!-- ゲートを通ったあと一度だけ知らせる(FR-011) -->
     <plurals name="migration_entries_recovered">
-        <item quantity="other">読み込めなかった日記%1$s件を移しました</item>
+        <item quantity="other">読み込めなかった日記%1$s件を移行しました</item>
     </plurals>
     <plurals name="migration_photos_found">
         <item quantity="other">見つからなかった写真%1$s枚が見つかりました</item>
@@ -64,7 +64,7 @@
 
     <!-- 以前の日記(M4) -->
     <string name="legacy_reader_title">以前の日記</string>
-    <string name="legacy_reader_notice">読むことだけできます。もう一度試すと、新しいアプリに移します。</string>
+    <string name="legacy_reader_notice">読むことだけできます。もう一度試すと、新しいアプリに移行します。</string>
     <string name="legacy_reader_empty">読める以前の日記がありません</string>
 
     <!-- 元のファイルの書き出し、お問い合わせ -->
@@ -72,20 +72,20 @@
     <string name="migration_export_done">元のファイルを保存しました</string>
     <string name="migration_export_failed">元のファイルを保存できませんでした。保存先をもう一度選んでください。</string>
     <string name="migration_mail_missing">メールアプリが見つかりませんでした。sjunh812@naver.comまでお送りください。</string>
-    <string name="migration_mail_subject">[1日1日記] 記録の移行についてのお問い合わせ</string>
-    <string name="migration_mail_body">以下の内容は、問題を見つけて直すためだけに使います。日記の内容は含まれていません。\n\nアプリのバージョン: %1$s\n端末: %2$s\n止まった段階: %3$s\n問題の種類: %4$s\n試した回数: %5$s\n日記の数: %6$s\n写真の数: %7$s\n読み込めなかった日記の数: %8$s\n\n気になることや起きたことを書いてください。\n</string>
-    <string name="migration_readme">1日1日記の元のファイルです。\n\n新しいアプリに移す前に、以前のアプリ（1.7.x）が使っていた記録をそのまま入れています。\n\n- legacy-snapshot: 日記のファイル（note.db）と設定。パスワードは入れていません。\n- media: 以前のアプリから移した写真\n\n記録を戻したいときは、このファイルを削除せずにsjunh812@naver.comまでお問い合わせください。\n</string>
+    <string name="migration_mail_subject">[1日1日記] 日記の移行についてのお問い合わせ</string>
+    <string name="migration_mail_body">以下の内容は、問題を見つけて直すためだけに使います。日記の内容は含まれていません。\n\nアプリのバージョン：%1$s\nデバイス：%2$s\n止まった段階：%3$s\n問題の種類：%4$s\n試した回数：%5$s\n日記の数：%6$s\n写真の数：%7$s\n読み込めなかった日記の数：%8$s\n\n気になることや起きたことを書いてください。\n</string>
+    <string name="migration_readme">1日1日記の元のファイルです。\n\n新しいアプリに移行する前に、以前のアプリ（1.7.x）が使っていた日記をそのまま入れています。\n\n- legacy-snapshot：日記のファイル（note.db）と設定。パスコードは入れていません。\n- media：以前のアプリから移行した写真\n\n日記を復元したいときは、このファイルを削除せずにsjunh812@naver.comまでお問い合わせください。\n</string>
     <!-- 壊れた日記の修復のお問い合わせ(M5シート, FR-010a) -->
-    <string name="support_sheet_title">壊れた日記を直せます</string>
-    <string name="support_sheet_body">日記のファイルをメールに添付して送ると、読めるように直してお返しします。</string>
-    <string name="support_sheet_contains">日記の文章がそのまま入っています。写真とパスワードは除きます。</string>
-    <string name="support_sheet_deleted">直したファイルをお返ししたら、すぐに削除します。</string>
-    <string name="support_sheet_restore">受け取ったファイルは「ファイルから復元」で統合できます。</string>
+    <string name="support_sheet_title">壊れた日記を修復できます</string>
+    <string name="support_sheet_body">日記のファイルをメールに添付して送ると、読めるように修復してお返しします。</string>
+    <string name="support_sheet_contains">日記の文章がそのまま入っています。写真とパスコードは除きます。</string>
+    <string name="support_sheet_deleted">修復したファイルをお返ししたら、すぐに削除します。</string>
+    <string name="support_sheet_restore">受け取ったファイルは［ファイルから復元］で統合できます。</string>
     <string name="support_without">添付なしで送る</string>
     <string name="support_with">添付して送る</string>
     <string name="support_file_name">1日1日記-お問い合わせ用-%1$s.zip</string>
     <string name="support_failed">お問い合わせ用のファイルを作れませんでした。添付なしでお問い合わせください。</string>
     <string name="support_mail_subject">[1日1日記] 壊れた日記の修復のお問い合わせ</string>
-    <string name="support_mail_body">お送りいただいたファイルは、直してお返ししたらすぐに削除します。日記のファイルだけを入れ、写真とパスワードは除いています。\n\nアプリのバージョン: %1$s\n端末: %2$s\n読み込めなかった日記の数: %3$s\n\n気になることや起きたことを書いてください。\n</string>
+    <string name="support_mail_body">お送りいただいたファイルは、修復してお返ししたらすぐに削除します。日記のファイルだけを入れ、写真とパスコードは除いています。\n\nアプリのバージョン：%1$s\nデバイス：%2$s\n読み込めなかった日記の数：%3$s\n\n気になることや起きたことを書いてください。\n</string>
     <string name="legacy_reader_failed">以前の日記を読み込めませんでした</string>
 </resources>

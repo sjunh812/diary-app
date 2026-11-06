@@ -11,39 +11,39 @@
         <item quantity="one">You can try again in %1$d second</item>
         <item quantity="other">You can try again in %1$d seconds</item>
     </plurals>
-    <string name="lock_forgot">I forgot my passcode</string>
+    <string name="lock_forgot">Forgot passcode?</string>
     <string name="lock_biometric">Unlock with biometrics</string>
     <string name="lock_biometric_prompt_title">Verify with biometrics</string>
-    <string name="lock_biometric_prompt_reason">Confirm it\'s you to open your diary</string>
+    <string name="lock_biometric_prompt_reason">Confirm it's you to open your diary</string>
     <string name="lock_biometric_prompt_cancel">Use passcode</string>
 
     <!-- Set passcode (L2) -->
     <string name="pin_setup_title">Choose a new 4-digit passcode</string>
-    <string name="pin_setup_again">Enter it once more</string>
-    <string name="pin_setup_mismatch">The passcodes didn\'t match. Please start again.</string>
-    <string name="pin_setup_note">If you forget your passcode, you can confirm with your phone\'s screen lock and set a new one. Anyone who knows your phone\'s screen lock can also open your diary this way.</string>
+    <string name="pin_setup_again">Enter it again</string>
+    <string name="pin_setup_mismatch">Passcodes didn't match. Start again.</string>
+    <string name="pin_setup_note">If you forget your passcode, you can confirm with your phone's screen lock and set a new one. Anyone who knows your phone's screen lock can also open your diary this way.</string>
 
     <!-- Forgot passcode (L3) -->
-    <string name="forgot_title">Confirm with your phone\'s screen lock</string>
-    <string name="forgot_body">After you confirm it\'s you with your phone\'s screen lock, you can set a new passcode. Your diary stays as it is.</string>
+    <string name="forgot_title">Confirm with your phone's screen lock</string>
+    <string name="forgot_body">After you confirm it's you with your phone's screen lock, you can set a new passcode. Your diary isn't affected.</string>
     <string name="forgot_confirm">Confirm</string>
     <string name="forgot_prompt_title">Set a new passcode</string>
     <string name="forgot_no_device_lock_title">Your phone has no screen lock</string>
-    <string name="forgot_no_device_lock_body">Without a screen lock, you can\'t set a new passcode. If you have a backup, reinstall the app and restore your diary from it.</string>
+    <string name="forgot_no_device_lock_body">Without a screen lock, you can't set a new passcode. If you have a backup, reinstall the app and restore your diary from it.</string>
     <string name="lock_turned_off">Your phone has no screen lock, so the diary lock is now off. Set a new passcode in Settings.</string>
 
     <!-- Lock settings (L4) -->
     <string name="lock_settings_title">Lock</string>
-    <string name="lock_settings_enable">Use lock</string>
+    <string name="lock_settings_enable">Lock diary</string>
     <string name="lock_settings_change">Change passcode</string>
-    <string name="lock_settings_biometric_unavailable">Biometrics aren\'t available on this device right now.</string>
-    <string name="lock_settings_relock">Lock again</string>
-    <string name="lock_settings_relock_body">When you come back from another app after the time you chose, the diary locks again.</string>
+    <string name="lock_settings_biometric_unavailable">Biometrics aren't available on this device right now.</string>
+    <string name="lock_settings_relock">Auto-lock</string>
+    <string name="lock_settings_relock_body">Your diary locks again when you return from another app after the time you choose.</string>
     <string name="relock_immediately">Immediately</string>
     <string name="relock_one_minute">After 1 minute</string>
     <string name="relock_five_minutes">After 5 minutes</string>
-    <string name="relock_cold_start">Only when the app starts fresh</string>
-    <string name="lock_settings_note">If you forget your passcode, you can confirm with your phone\'s screen lock and set a new one.</string>
+    <string name="relock_cold_start">Only when the app restarts</string>
+    <string name="lock_settings_note">If you forget your passcode, you can confirm with your phone's screen lock and set a new one.</string>
     <string name="lock_confirm_title">Enter your current passcode</string>
     <string name="lock_settings_method">Lock method</string>
 </resources>

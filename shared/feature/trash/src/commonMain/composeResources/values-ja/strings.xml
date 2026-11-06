@@ -4,18 +4,18 @@
     <string name="trash_empty">空にする</string>
     <string name="trash_notice">削除した日記は30日後に完全に消えます。</string>
     <string name="trash_empty_title">ゴミ箱は空です</string>
-    <string name="trash_empty_body">削除した日記は30日間ここから戻せます。</string>
-    <string name="trash_restore">元に戻す</string>
+    <string name="trash_empty_body">削除した日記は30日間ここから復元できます。</string>
+    <string name="trash_restore">復元する</string>
     <string name="trash_delete_forever">完全に削除</string>
-    <string name="trash_restored">元に戻しました</string>
-    <string name="trash_confirm_title">完全に削除しますか?</string>
+    <string name="trash_restored">復元しました</string>
+    <string name="trash_confirm_title">完全に削除しますか？</string>
     <string name="trash_confirm_delete">削除</string>
-    <string name="trash_confirm_body_one">この日記は消え、元に戻せません。</string>
+    <string name="trash_confirm_body_one">この日記は完全に削除され、元に戻せません。</string>
     <string name="trash_row_when">%1$s %2$s</string>
     <plurals name="trash_days_left">
         <item quantity="other">残り%1$d日</item>
     </plurals>
     <plurals name="trash_confirm_body_all">
-        <item quantity="other">ゴミ箱の日記%1$d件が消え、元に戻せません。</item>
+        <item quantity="other">ゴミ箱の日記%1$d件が完全に削除され、元に戻せません。</item>
     </plurals>
 </resources>

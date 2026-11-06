@@ -2,11 +2,11 @@
 <resources>
     <!-- 移行結果(M5) -->
     <string name="migration_report_title">移行結果</string>
-    <string name="migration_report_when">%1$sに以前のアプリから移しました。</string>
-    <string name="migration_report_entries">移した日記</string>
-    <string name="migration_report_photos">移した写真</string>
+    <string name="migration_report_when">%1$sに以前のアプリから移行しました。</string>
+    <string name="migration_report_entries">移行した日記</string>
+    <string name="migration_report_photos">移行した写真</string>
     <string name="migration_report_missing_photos">見つからない写真</string>
-    <string name="migration_report_date_fixed">日付を直した日記</string>
+    <string name="migration_report_date_fixed">日付を修正した日記</string>
     <string name="migration_report_unreadable">読み込めなかった日記</string>
     <plurals name="migration_report_entry_count">
         <item quantity="other">%1$s件</item>
@@ -15,7 +15,7 @@
         <item quantity="other">%1$s枚</item>
     </plurals>
     <plurals name="migration_report_notice">
-        <item quantity="other">以前のアプリのファイルの一部が壊れていて、日記%1$s件を読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の記録はスマートフォンにそのまま残っています。</item>
+        <item quantity="other">以前のアプリのファイルの一部が壊れていて、日記%1$s件を読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の日記はスマートフォンにそのまま残っています。</item>
     </plurals>
     <string name="migration_report_export">元のファイルを書き出す</string>
     <string name="migration_report_contact">お問い合わせ</string>
@@ -33,10 +33,10 @@
     <string name="settings_theme">表示モード</string>
     <string name="settings_lock">ロック</string>
     <string name="lock_value_off">オフ</string>
-    <string name="lock_value_immediately">すぐにロック</string>
-    <string name="lock_value_one_minute">1分後にロック</string>
-    <string name="lock_value_five_minutes">5分後にロック</string>
-    <string name="lock_value_cold_start">起動時にロック</string>
+    <string name="lock_value_immediately">すぐに</string>
+    <string name="lock_value_one_minute">1分後</string>
+    <string name="lock_value_five_minutes">5分後</string>
+    <string name="lock_value_cold_start">起動時</string>
 
     <!-- 開発ビルドのみ(FR-029) -->
 
@@ -45,8 +45,8 @@
     <string name="settings_group_notification_security">通知とセキュリティ</string>
     <string name="settings_reminder">毎日のリマインダー</string>
     <string name="reminder_value_off">オフ</string>
-    <string name="reminder_body">毎日決まった時間に、日記を書く時間をお知らせします。</string>
-    <string name="reminder_time">通知の時刻</string>
+    <string name="reminder_body">毎日決まった時刻に、日記を書くタイミングをお知らせします。</string>
+    <string name="reminder_time">リマインダーの時刻</string>
     <string name="reminder_save">保存</string>
     <string name="reminder_permission_title">通知がオフになっています</string>
     <string name="reminder_permission_body">スマートフォンの設定で1日1日記の通知を許可すると、毎日リマインダーが届きます。</string>
@@ -67,10 +67,10 @@
     <string name="font_name_hi_melody">Hi Melody</string>
     <string name="font_preview_label">プレビュー</string>
     <string name="font_preview_sample">今日は風が涼しくて、川沿いまで歩いた。</string>
-    <string name="font_download">入手 · %1$s</string>
-    <string name="font_downloading">入手中 %1$s</string>
+    <string name="font_download">入手・%1$s</string>
+    <string name="font_downloading">ダウンロード中 %1$s</string>
     <string name="font_offline">インターネットに接続すると入手できます</string>
-    <string name="font_failed">フォントを入手できませんでした。しばらくしてからもう一度お試しください。</string>
+    <string name="font_failed">フォントを入手できませんでした。少し時間をおいて、もう一度お試しください。</string>
     <string name="font_replaced_notice">以前のフォントの代わりに%1$sで表示しています</string>
     <string name="font_replaced_change">変更</string>
 
@@ -89,11 +89,11 @@
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
     <string name="theme_note">システム設定にすると、スマートフォンがダークモードのときアプリも暗くなります。</string>
-    <string name="migration_deferred_title">以前の日記をまだ移せていません</string>
+    <string name="migration_deferred_title">以前の日記をまだ移行できていません</string>
     <string name="migration_deferred_body">もう一度試すと、今の日記はそのままで以前の日記を追加します。</string>
-    <string name="migration_deferred_failed">今回も移せませんでした。アプリを更新するともう一度試します。</string>
+    <string name="migration_deferred_failed">今回も移行できませんでした。アプリをアップデートすると、もう一度試します。</string>
     <string name="migration_deferred_retry">もう一度試す</string>
-    <string name="migration_deferred_running">移しています</string>
+    <string name="migration_deferred_running">移行しています</string>
     <string name="settings_backup">バックアップと復元</string>
     <string name="settings_group_diary">日記</string>
     <string name="settings_trash">ゴミ箱</string>
@@ -103,7 +103,7 @@
     <string name="settings_list_style">一覧の表示</string>
     <string name="list_style_feed">フィード</string>
     <string name="list_style_card">カード</string>
-    <string name="list_style_photo">写真</string>
+    <string name="list_style_photo">写真グリッド</string>
     <string name="settings_letter">開発者からの手紙</string>
     <string name="settings_plus">Plus</string>
     <string name="settings_plus_title">広告なしで、もっと残せます</string>

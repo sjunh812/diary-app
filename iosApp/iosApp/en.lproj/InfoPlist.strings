@@ -1,3 +1,3 @@
 "CFBundleDisplayName" = "1 Day 1 Diary";
 "NSFaceIDUsageDescription" = "Use Face ID to unlock your diary.";
-"NSLocationWhenInUseUsageDescription" = "Reads your location only when you tap Use my location, to find your neighborhood name.";
+"NSLocationWhenInUseUsageDescription" = "Your location is used only when you tap Use my location, to find your neighborhood name.";

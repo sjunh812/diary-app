@@ -4,9 +4,9 @@
     <string name="calendar_previous_month">前の月</string>
     <string name="calendar_next_month">次の月</string>
     <string name="calendar_month_sheet_title">日付へ移動</string>
-    <string name="calendar_empty">日記はありません</string>
+    <string name="calendar_empty">この日の日記はありません</string>
     <string name="calendar_write_on_day">この日の日記を書く</string>
-    <string name="calendar_day_summary">%1$s · %2$s</string>
+    <string name="calendar_day_summary">%1$s・%2$s</string>
     <plurals name="calendar_day_count">
         <item quantity="other">%1$d件</item>
     </plurals>

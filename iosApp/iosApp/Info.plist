@@ -51,7 +51,7 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to unlock your diary.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Reads your location only when you tap Use my location, to find your neighborhood name.</string>
+	<string>Your location is used only when you tap Use my location, to find your neighborhood name.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>processing</string>
