@@ -39,7 +39,8 @@ class MergeApplier(
                 val action = MergeRules.decide(item, local[item.entry.id], bases[item.entry.id])
                 // 둘 다 남긴 일기는 기준값을 그대로 두므로 같은 백업을 또 합치면 또 둘 다로 나온다.
                 // 백업과 같은 사본이 이미 있으면 그 일이 끝난 것이다.
-                val copied = action == MergeAction.KEEP_BOTH && sameTime[item.entry.updatedAt].orEmpty().any { MergeRules.sameContent(item, it) }
+                val copied =
+                    action == MergeAction.KEEP_BOTH && sameTime[item.entry.updatedAt].orEmpty().any { MergeRules.sameContent(item, it) }
                 item to if (copied) MergeAction.KEEP else action
             },
             local

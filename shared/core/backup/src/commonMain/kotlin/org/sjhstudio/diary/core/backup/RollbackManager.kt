@@ -82,7 +82,9 @@ class RollbackManager(
         try {
             fileSystem.createDirectories(slot)
             SnapshotWriter(db, fileSystem).copyInto(copy)
-            check(countIn(copy, "SELECT COUNT(*) FROM entry") == db.backupDao().entryRows() && integrityOk(copy)) { "rollback copy does not match" }
+            check(countIn(copy, "SELECT COUNT(*) FROM entry") == db.backupDao().entryRows() && integrityOk(copy)) {
+                "rollback copy does not match"
+            }
             fileSystem.write(settingsIn(slot)) { writeUtf8(json.encodeToString(ManifestSettings.serializer(), currentSettings())) }
             db.withWriteTransaction {
                 clearAll()

@@ -20,9 +20,12 @@ object MergeRules {
         if (base == null) return if (b > l) MergeAction.REPLACE else MergeAction.KEEP
         return when {
             b <= base -> MergeAction.KEEP
+
             // 시계가 뒤로 간 뒤에 고치면 L이 S보다 작다. S와 다르면 이 기기에서 고친 것이다.
             l == base -> MergeAction.REPLACE
+
             sameContent(backup, local) -> MergeAction.KEEP
+
             else -> MergeAction.KEEP_BOTH
         }
     }

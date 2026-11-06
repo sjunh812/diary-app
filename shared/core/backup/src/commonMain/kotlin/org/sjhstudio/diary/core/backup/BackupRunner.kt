@@ -124,7 +124,9 @@ class BackupRunner(
     private suspend fun stillOnDrive(snapshot: String?): Boolean {
         if (snapshot == null) return false
         return try {
-            drive.list(DriveQuery(name = "$snapshot.json", props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_MANIFEST))).files.isNotEmpty()
+            drive.list(
+                DriveQuery(name = "$snapshot.json", props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_MANIFEST))
+            ).files.isNotEmpty()
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
