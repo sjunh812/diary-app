@@ -13,6 +13,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -270,11 +272,14 @@ class RestoreRoundTripTest {
     fun every_field_and_photo_row_comes_back_the_same() = runTest {
         val hash = "내용".encodeToByteArray().toByteString().sha256().hex()
         fs.write(dir / "a" / "media" / "$hash.jpg") { write("내용".encodeToByteArray()) }
+        // 합치기는 진짜 시계를 쓰니 휴지통 날짜도 오늘에 맞춘다.
+        // 고정 날짜면 30일이 지난 뒤부터 이 시험이 깨진다.
+        val trashedRecently = (Clock.System.now() - 3.days).toEpochMilliseconds()
         val full = EntryEntity(
             "full", "2026-03-01", "07:05", "<p>글</p>", "글", "good", "sunny", "망원동", true, 11, 22, null, 5, "2024-03-01 07:05:00", "1|2"
         )
         val trashed = EntryEntity(
-            "trash", "2026-03-02", "23:59", "<p>지움</p>", "지움", null, null, null, false, 3, 4, 1_793_000_000_000, null, null, null
+            "trash", "2026-03-02", "23:59", "<p>지움</p>", "지움", null, null, null, false, 3, 4, trashedRecently, null, null, null
         )
         phoneA.entryDao().insertAll(listOf(full, trashed))
         val rows =
