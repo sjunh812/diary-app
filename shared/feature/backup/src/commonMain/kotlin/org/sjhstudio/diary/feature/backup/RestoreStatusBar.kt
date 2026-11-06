@@ -37,6 +37,7 @@ import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
+import org.sjhstudio.diary.feature.backup.resources.file_stopped_notice
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_space_body
@@ -92,6 +93,20 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
         val message = getString(if (state is RestoreState.Done) Res.string.restore_notice_title else Res.string.restore_stopped_title)
         val action = getString(Res.string.restore_see_result)
         scope.launch { if (toast.show(message, action) == DiaryToastResult.ActionPerformed) onOpen() }
+    }
+}
+
+/**
+ * 파일을 만들다 앱이 꺼졌으면 다음에 앱을 열 때 한 번 알린다.
+ * 보기를 누르면 파일로 백업하기로 간다.
+ */
+@Composable
+fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
+    val restore = koinInject<RestoreRepository>()
+    LaunchedEffect(restore) {
+        if (!restore.takeStoppedBundle()) return@LaunchedEffect
+        val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
+        if (shown == DiaryToastResult.ActionPerformed) onOpen()
     }
 }
 

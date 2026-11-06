@@ -66,6 +66,15 @@ interface RestoreRepository {
     suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
 
     /**
+     * 만들던 묶음 파일이 앱이 꺼져서 끝나지 못했으면 한 번 true다.
+     * 지금 만드는 중이면 false다.
+     */
+    suspend fun takeStoppedBundle(): Boolean
+
+    /** 사용자가 파일 만들기를 멈췄다. 다음에 알릴 일이 아니다. */
+    fun forgetStoppedBundle()
+
+    /**
      * 사용자가 고른 파일을 앱 안으로 옮겨 확인한다.
      * 미리보기는 [RESTORE_FROM_FILE]로 다시 읽는다.
      * [byteSize]를 알면 옮기기 전에 공간이 되는지 먼저 본다.

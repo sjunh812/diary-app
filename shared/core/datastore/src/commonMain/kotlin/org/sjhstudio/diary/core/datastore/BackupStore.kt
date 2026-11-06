@@ -59,7 +59,9 @@ data class BackupPrefs(
      * 대기 중인 사진 가운데 백업에 없어 받을 수 없는 장수.
      * 남은 장수와 이어 받기에서 뺀다.
      */
-    val photosUnreachable: Int = 0
+    val photosUnreachable: Int = 0,
+    /** 묶음 파일을 만드는 중이다. 앱이 꺼진 뒤에도 남아 있으면 끝나지 못한 것이다. */
+    val bundleWriting: Boolean = false
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
@@ -108,7 +110,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         rollbackUntil = instant(Keys.ROLLBACK_UNTIL),
         unpackUntil = instant(Keys.UNPACK_UNTIL),
         photoStop = PhotoStop.fromName(this[Keys.PHOTO_STOP]),
-        photosUnreachable = this[Keys.PHOTOS_UNREACHABLE] ?: 0
+        photosUnreachable = this[Keys.PHOTOS_UNREACHABLE] ?: 0,
+        bundleWriting = this[Keys.BUNDLE_WRITING] ?: false
     )
 
     private fun Preferences.instant(key: Preferences.Key<Long>): Instant? = this[key]?.let(Instant::fromEpochMilliseconds)
@@ -136,6 +139,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.UNPACK_UNTIL, prefs.unpackUntil?.toEpochMilliseconds())
         setOrRemove(Keys.PHOTO_STOP, prefs.photoStop?.name)
         this[Keys.PHOTOS_UNREACHABLE] = prefs.photosUnreachable
+        this[Keys.BUNDLE_WRITING] = prefs.bundleWriting
     }
 
     private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
@@ -166,5 +170,6 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val UNPACK_UNTIL = longPreferencesKey("unpack_until")
         val PHOTO_STOP = stringPreferencesKey("photo_stop")
         val PHOTOS_UNREACHABLE = intPreferencesKey("photos_unreachable")
+        val BUNDLE_WRITING = booleanPreferencesKey("bundle_writing")
     }
 }

@@ -5,6 +5,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -14,12 +15,18 @@ import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import okio.Buffer
 import okio.FileSystem
+import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.Sink
+import okio.Timeout
+import okio.blackholeSink
 import okio.buffer
 import okio.openZip
 import okio.use
@@ -547,6 +554,75 @@ class RestorePhotosTest {
         assertEquals(RestoreState.Idle, controller.state.value)
     }
 
+    // 파일로 백업하기
+
+    private fun nowhere() = blackholeSink().buffer()
+
+    @Test
+    fun a_finished_file_leaves_no_mark() = runTest {
+        a.write("one")
+        val controller = a.controller(backgroundScope)
+
+        controller.writeBundle(nowhere()) { _, _ -> }
+
+        assertFalse(controller.takeStoppedBundle())
+    }
+
+    @Test
+    fun a_file_cut_by_the_app_closing_is_told_once_next_time() = runTest {
+        a.write("one")
+        a.store.update { it.copy(bundleWriting = true) }
+        val next = a.controller(backgroundScope)
+
+        assertTrue(next.takeStoppedBundle())
+        assertFalse(next.takeStoppedBundle())
+    }
+
+    @Test
+    fun a_file_being_written_right_now_is_not_called_stopped() = runTest {
+        a.write("one")
+        a.photo("one", 0, "첫째 사진")
+        val controller = a.controller(backgroundScope)
+        var told = false
+
+        controller.writeBundle(nowhere()) { _, _ -> told = controller.bundleBeingWritten }
+
+        assertTrue(told)
+        assertFalse(controller.takeStoppedBundle())
+    }
+
+    @Test
+    fun a_file_that_fails_while_writing_leaves_no_mark_because_the_screen_says_it() = runTest {
+        a.write("one")
+        val controller = a.controller(backgroundScope)
+        val failing = FailingSink().buffer()
+
+        assertFailsWith<IOException> { controller.writeBundle(failing) { _, _ -> } }
+
+        assertFalse(controller.takeStoppedBundle())
+    }
+
+    @Test
+    fun stopping_a_file_stops_at_the_next_item_and_keeps_the_mark() = runTest {
+        a.write("one")
+        repeat(3) { a.photo("one", it, "사진 $it") }
+        val controller = a.controller(backgroundScope)
+        var items = 0
+
+        val job =
+            launch(Dispatchers.Default) {
+                controller.writeBundle(nowhere()) { _, _ ->
+                    items++
+                    if (items == 1) this.cancel()
+                }
+            }
+        job.join()
+
+        assertTrue(items < 6, "멈추라는데 끝까지 썼다")
+        assertTrue(a.store.current().bundleWriting)
+        assertEquals(emptyList(), fs.listOrNull(a.work / "bundle").orEmpty())
+    }
+
     // 찾을 수 없는 사진 다시 받기
 
     @Test
@@ -631,4 +707,15 @@ private class CountingDownloads(private val real: DriveApi) : DriveApi by real {
 /** 로그인이 풀린 드라이브. */
 private class DeniedDrive(private val real: DriveApi) : DriveApi by real {
     override suspend fun download(fileId: String, to: Path, fromByte: Long): Long = throw DriveUnauthorized()
+}
+
+/** 첫 글자부터 쓰지 못하는 저장 위치. */
+private class FailingSink : Sink {
+    override fun write(source: Buffer, byteCount: Long) = throw IOException("저장 공간이 없다")
+
+    override fun flush() = Unit
+
+    override fun timeout() = Timeout.NONE
+
+    override fun close() = Unit
 }

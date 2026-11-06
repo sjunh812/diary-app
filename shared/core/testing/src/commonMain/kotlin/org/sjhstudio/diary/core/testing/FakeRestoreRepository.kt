@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.testing
 
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import okio.BufferedSink
@@ -46,7 +47,32 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
 
     override suspend fun bundleEstimate() = BundleEstimate(0, 0, 0)
 
-    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) = Unit
+    /** 값을 넣으면 파일을 쓰다 실패한다. */
+    var writeFailure: Exception? = null
+
+    /** 참이면 멈추라고 할 때까지 파일을 쓰는 중에 머문다. */
+    var holdWrite = false
+    var writing = false
+        private set
+
+    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) {
+        writeFailure?.let { throw it }
+        if (holdWrite) {
+            writing = true
+            awaitCancellation()
+        }
+    }
+
+    var stoppedBundle = false
+
+    override suspend fun takeStoppedBundle(): Boolean = stoppedBundle.also { stoppedBundle = false }
+
+    var bundleForgets = 0
+        private set
+
+    override fun forgetStoppedBundle() {
+        bundleForgets++
+    }
 
     var preparedFileSize: Long? = null
         private set

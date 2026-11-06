@@ -55,6 +55,7 @@ import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.DetailPane
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.FULL_SCREEN
+import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.FullScreenEntry
 import org.sjhstudio.diary.app.navigation.HomeKey
@@ -113,6 +114,7 @@ import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
+import org.sjhstudio.diary.feature.backup.BundleStoppedNotice
 import org.sjhstudio.diary.feature.backup.RestoreResultNotice
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
@@ -166,6 +168,10 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     // 탭과 레일을 그리지 않는다.
     val writing = backStack.lastOrNull() is WriteKey
     val fullScreen = writing || backStack.lastOrNull() is PhotoViewerKey || backStack.lastOrNull() is PlusKey
+    BundleStoppedNotice(toast) {
+        backStack.selectTab(SettingsKey)
+        backStack.push(FileBackupKey)
+    }
     // 복원 중에 화면을 떠나도 결과를 다시 열 수 있게 한다.
     RestoreResultNotice(toast, onResultScreen = backStack.lastOrNull() is RestoreProgressKey, quiet = fullScreen) {
         backStack.push(RestoreProgressKey)

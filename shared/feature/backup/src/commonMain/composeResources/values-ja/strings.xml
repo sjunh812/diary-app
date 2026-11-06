@@ -190,6 +190,11 @@
     <string name="file_writing">ファイルを作っています</string>
     <string name="file_write_failed">ファイルを最後まで書けませんでした。保存先のファイルを削除して作り直してください。このスマートフォンの日記はそのままです。</string>
     <string name="file_reading">ファイルを確認しています</string>
+    <string name="file_write_failed_removed">ファイルを最後まで書けなかったため削除しました。このスマートフォンの日記はそのままです。</string>
+    <string name="file_stop_title">ファイルの作成を中止しますか？</string>
+    <string name="file_stop_body">今戻ると作成中のファイルは削除します。このスマートフォンの日記はそのままです。</string>
+    <string name="file_stop_action">中止</string>
+    <string name="file_stopped_notice">ファイルを最後まで作成できませんでした。作成中のファイルは使えません。</string>
     <string name="file_read_failed">バックアップファイルではないか、一部が壊れています。このスマートフォンの日記はそのままです。</string>
     <string name="file_read_no_space">ファイルを読み込む空き容量が%1$s足りません。空き容量を増やしてからもう一度お試しください。</string>
     <string name="file_read_no_space_plain">ファイルを読み込む空き容量が足りません。空き容量を増やしてからもう一度お試しください。</string>

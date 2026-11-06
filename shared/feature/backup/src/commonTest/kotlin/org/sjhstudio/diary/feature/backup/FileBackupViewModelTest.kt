@@ -8,6 +8,8 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -18,6 +20,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okio.Buffer
+import okio.IOException
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
@@ -46,6 +49,72 @@ class FileBackupViewModelTest {
         withTimeout(5_000) {
             while (!check()) delay(5)
         }
+    }
+
+    private fun written() = Buffer()
+
+    @Test
+    fun a_finished_file_is_kept() = runTest {
+        val viewModel = viewModel()
+        var discarded = false
+
+        viewModel.write("a.zip", { written() }, { discarded = true })
+        waitUntil { viewModel.state.value is FileBackupUi.Saved }
+
+        assertFalse(discarded)
+    }
+
+    @Test
+    fun a_failed_file_is_removed_from_where_it_was_saved() = runTest {
+        restore.writeFailure = IOException("공간이 없다")
+        val viewModel = viewModel()
+        var discarded = false
+
+        viewModel.write("a.zip", { written() }, { discarded = true })
+        waitUntil { viewModel.state.value is FileBackupUi.WriteFailed }
+
+        assertTrue(discarded)
+        assertEquals(FileBackupUi.WriteFailed(left = false), viewModel.state.value)
+    }
+
+    @Test
+    fun a_failed_file_that_cannot_be_removed_asks_the_user_to_delete_it() = runTest {
+        restore.writeFailure = IOException("공간이 없다")
+        val viewModel = viewModel()
+
+        viewModel.write("a.zip", { written() }, { throw IOException("지울 수 없다") })
+        waitUntil { viewModel.state.value is FileBackupUi.WriteFailed }
+
+        assertEquals(FileBackupUi.WriteFailed(left = true), viewModel.state.value)
+    }
+
+    @Test
+    fun stopping_removes_the_file_and_forgets_it() = runTest {
+        restore.holdWrite = true
+        val viewModel = viewModel()
+        var discarded = false
+        viewModel.write("a.zip", { written() }, { discarded = true })
+        waitUntil { restore.writing }
+
+        viewModel.stop()
+
+        waitUntil { discarded }
+        assertEquals(FileBackupUi.Idle, viewModel.state.value)
+        assertEquals(1, restore.bundleForgets)
+    }
+
+    @Test
+    fun leaving_by_another_way_removes_the_file_too() = runTest {
+        restore.holdWrite = true
+        val viewModel = viewModel()
+        var discarded = false
+        viewModel.write("a.zip", { written() }, { discarded = true })
+        waitUntil { restore.writing }
+
+        store.clear()
+
+        waitUntil { discarded }
+        assertEquals(0, restore.bundleForgets)
     }
 
     @Test

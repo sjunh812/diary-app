@@ -145,8 +145,41 @@ class RestoreController(
 
     override suspend fun bundleEstimate(): BundleEstimate = exporter.value.estimate()
 
-    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) =
-        exporter.value.write(sink, onProgress)
+    @Volatile
+    internal var bundleBeingWritten = false
+        private set
+
+    /**
+     * 쓰기 전에 표시를 남겨 둔다.
+     * 앱이 꺼지면 지울 기회가 없어 다음에 멈췄음을 알 수 있다.
+     * 쓰다 실패하면 화면이 말하니 표시를 지운다.
+     * 멈추라고 해서 끝났으면 사용자가 멈춘 것인지 화면이 정한다.
+     */
+    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) {
+        store.update { it.copy(bundleWriting = true) }
+        bundleBeingWritten = true
+        try {
+            exporter.value.write(sink, onProgress)
+            store.update { it.copy(bundleWriting = false) }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            store.update { it.copy(bundleWriting = false) }
+            throw error
+        } finally {
+            bundleBeingWritten = false
+        }
+    }
+
+    override suspend fun takeStoppedBundle(): Boolean {
+        if (bundleBeingWritten || !store.current().bundleWriting) return false
+        store.update { it.copy(bundleWriting = false) }
+        return true
+    }
+
+    override fun forgetStoppedBundle() {
+        scope.launch { store.update { it.copy(bundleWriting = false) } }
+    }
 
     override suspend fun prepareFile(source: Source, byteSize: Long?): RestorePreparation = when {
         restoring -> busy()

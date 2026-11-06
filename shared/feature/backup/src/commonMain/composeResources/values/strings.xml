@@ -190,6 +190,11 @@
     <string name="file_writing">Creating the file</string>
     <string name="file_write_failed">Couldn't finish the file. Delete it from where you saved it and create a new one. Nothing on this phone changed.</string>
     <string name="file_reading">Checking the file</string>
+    <string name="file_write_failed_removed">Couldn't finish the file, so we removed it. Nothing on this phone changed.</string>
+    <string name="file_stop_title">Stop creating the file?</string>
+    <string name="file_stop_body">If you leave now, the unfinished file will be deleted. Nothing on this phone changes.</string>
+    <string name="file_stop_action">Stop</string>
+    <string name="file_stopped_notice">The backup file wasn't finished, so it can't be used.</string>
     <string name="file_read_failed">This isn't a backup file, or part of it is damaged. Nothing on this phone changed.</string>
     <string name="file_read_no_space">Not enough space to open this file. Free up %1$s and try again.</string>
     <string name="file_read_no_space_plain">Not enough space to open this file. Free up some space and try again.</string>
