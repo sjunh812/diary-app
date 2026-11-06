@@ -46,6 +46,7 @@ import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
@@ -289,7 +290,9 @@ private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit) {
                 stringResource(Res.string.home_empty_title),
                 description = stringResource(Res.string.home_empty_body),
                 actionLabel = stringResource(Res.string.home_empty_action),
-                onAction = onWrite
+                onAction = onWrite,
+                // 이 화면의 하나뿐인 쓰기 길이라 다른 빈 화면보다 강하게 둔다.
+                actionKind = DiaryButtonKind.Primary
             )
         }
     }

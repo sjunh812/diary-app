@@ -29,7 +29,8 @@ fun DiaryEmptyState(
     modifier: Modifier = Modifier,
     description: String? = null,
     actionLabel: String? = null,
-    onAction: (() -> Unit)? = null
+    onAction: (() -> Unit)? = null,
+    actionKind: DiaryButtonKind = DiaryButtonKind.Weak
 ) {
     val colors = DiaryTheme.colors
     Column(
@@ -48,7 +49,7 @@ fun DiaryEmptyState(
         }
         if (actionLabel != null && onAction != null) {
             Spacer(Modifier.height(DiarySpacing.x2))
-            DiaryButton(text = actionLabel, onClick = onAction, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
+            DiaryButton(text = actionLabel, onClick = onAction, size = DiaryButtonSize.Medium, kind = actionKind)
         }
     }
 }
