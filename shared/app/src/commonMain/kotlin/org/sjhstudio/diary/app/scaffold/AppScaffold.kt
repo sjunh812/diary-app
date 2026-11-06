@@ -251,6 +251,12 @@ private val TabBarSpace =
         }
     })
 
+/**
+ * 저장 뒤 전면 광고를 띄워도 되는 자리. 탭의 맨 위 목록으로 돌아왔을 때만이다.
+ * 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있는데 설정에는 광고가 없다(헌법 III). 다음에 목록으로 갈 때까지 미룬다.
+ */
+internal fun interstitialMayShow(backStack: List<NavKey>): Boolean = backStack.size == 1 && backStack.last() != SettingsKey
+
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
 private enum class Message { Saved, DraftKept }
 
@@ -337,7 +343,7 @@ private fun Content(
     val adScope = rememberCoroutineScope()
     var adAfterSave by remember { mutableStateOf(false) }
     LaunchedEffect(top, adAfterSave) {
-        if (adAfterSave && backStack.size <= 1) {
+        if (adAfterSave && interstitialMayShow(backStack)) {
             adAfterSave = false
             // 값이 바뀌면 이 효과가 다시 시작되니 광고는 앱 틀의 범위에서 띄운다.
             adScope.launch { ads.backToList() }
