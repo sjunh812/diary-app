@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -65,6 +66,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
@@ -138,6 +140,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_note_original_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_file_body
+import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_space_body
 import org.sjhstudio.diary.feature.backup.resources.restore_photo_progress
 import org.sjhstudio.diary.feature.backup.resources.restore_pick_other
 import org.sjhstudio.diary.feature.backup.resources.restore_platform_android
@@ -642,7 +645,7 @@ private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
             DiaryNote(
                 DiaryIcons.Download,
                 pluralStringResource(Res.plurals.restore_note_pending, result.photosPending, result.photosPending.grouped()),
-                stringResource(if (result.fromFile) Res.string.restore_note_pending_file_body else Res.string.restore_note_pending_body)
+                stringResource(pendingBody(result))
             )
         )
     }
@@ -655,6 +658,13 @@ private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
             )
         )
     }
+}
+
+/** 남은 사진마다 까닭과 할 일이 달라서 나눠 말한다. */
+private fun pendingBody(result: RestoreResult): StringResource = when {
+    result.photosStop == PhotoStop.NO_SPACE -> Res.string.restore_note_pending_space_body
+    result.fromFile && result.photosStop == null -> Res.string.restore_note_pending_file_body
+    else -> Res.string.restore_note_pending_body
 }
 
 /**

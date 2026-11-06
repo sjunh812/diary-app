@@ -263,7 +263,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                     },
                 planner = lazy { RestorePlanner(drive, applier.value, freeSpace, system, work, store::deviceId) },
                 applier = applier,
-                fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work) },
+                fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work, freeSpace) },
                 legacy = legacy,
                 exporter =
                     lazy {

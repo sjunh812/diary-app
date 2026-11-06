@@ -166,6 +166,15 @@ class RestorePlanner(
     }
 }
 
+/** 휴대폰에 사진을 쓸 공간이 없다. 끊겨도 받은 사진은 그대로다. */
+class NoRoomForPhotos : Exception("no room for photos")
+
+/**
+ * 사진 받기 한 번의 숫자.
+ * 중간에 멈춰도 그때까지의 값이 남는다.
+ */
+data class PhotoTally(var fetched: Int = 0, var broken: Int = 0)
+
 /**
  * 합친 뒤 대기 중인 사진을 받는다.
  * 끊겨도 다음에 대기 줄만 다시 받는다(FR-024).
@@ -175,16 +184,17 @@ class PhotoFetcher(
     private val drive: DriveApi,
     private val fileSystem: FileSystem,
     private val mediaDir: Path,
-    private val workDir: Path
+    private val workDir: Path,
+    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE }
 ) {
-    /** 받은 수와 깨져서 쓸 수 없던 수. */
-    suspend fun fetch(onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): Pair<Int, Int> {
-        if (db.backupDao().pendingFiles().isEmpty()) return 0 to 0
+    /** 받은 수와 깨져서 쓸 수 없던 수를 [tally]에 적는다. */
+    suspend fun fetch(tally: PhotoTally = PhotoTally(), onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): PhotoTally {
+        if (db.backupDao().pendingFiles().isEmpty()) return tally
         val onDrive: Map<String, DriveFile> =
             drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO))).associateBy {
                 it.name.substringBefore('.')
             }
-        return settle(onProgress, PARALLEL_DOWNLOADS) { sha256, _, target ->
+        return settle(tally, onProgress, PARALLEL_DOWNLOADS) { sha256, _, target ->
             val file = onDrive[sha256] ?: return@settle false
             drive.download(file.id, target)
             true
@@ -195,10 +205,14 @@ class PhotoFetcher(
      * 묶음 파일에서 꺼낸다.
      * 맞지 않는 사진만 찾을 수 없는 사진이 되고 나머지는 합친다.
      */
-    suspend fun fetchFrom(zip: Path, onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): Pair<Int, Int> {
+    suspend fun fetchFrom(
+        zip: Path,
+        tally: PhotoTally = PhotoTally(),
+        onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }
+    ): PhotoTally {
         val archive = fileSystem.openZip(zip)
         val media = "/".toPath() / BundleExporter.MEDIA
-        return settle(onProgress) { _, name, target ->
+        return settle(tally, onProgress) { _, name, target ->
             val entry = media / name
             val photo =
                 try {
@@ -215,10 +229,11 @@ class PhotoFetcher(
     }
 
     private suspend fun settle(
+        tally: PhotoTally,
         onProgress: (done: Int, total: Int) -> Unit,
         parallel: Int = 1,
         copy: suspend (sha256: String, name: String, target: Path) -> Boolean
-    ): Pair<Int, Int> {
+    ): PhotoTally {
         // 같은 이름이 두 줄이면 같은 `.part`를 함께 쓰게 되니 시작 전에 파일 이름으로 묶는다.
         val waiting = db.backupDao().pendingFiles().distinctBy { it.fileName ?: it.sha256 }
         fileSystem.createDirectories(workDir)
@@ -229,17 +244,15 @@ class PhotoFetcher(
             waiting.forEach { photo ->
                 launch(Dispatchers.IO) { gate.withPermit { results.send(settleOne(photo, copy)) } }
             }
-            var fetched = 0
-            var broken = 0
             repeat(waiting.size) { index ->
                 when (results.receive()) {
-                    Settled.FETCHED -> fetched++
-                    Settled.BROKEN -> broken++
+                    Settled.FETCHED -> tally.fetched++
+                    Settled.BROKEN -> tally.broken++
                     Settled.STILL_WAITING -> Unit
                 }
                 onProgress(index + 1, waiting.size)
             }
-            fetched to broken
+            tally
         }
     }
 
@@ -254,6 +267,8 @@ class PhotoFetcher(
             return Settled.BROKEN
         }
         val partial = workDir / "$name.part"
+        val needed = (photo.byteSize ?: 0) + ROOM_MARGIN
+        if (freeSpace.bytes() < needed) throw NoRoomForPhotos()
         try {
             if (!copy(photo.sha256, name, partial)) return Settled.STILL_WAITING
             if (fileSystem.hashes(partial).sha256 != photo.sha256) {
@@ -271,6 +286,11 @@ class PhotoFetcher(
             // 어차피 다 실패할 일이면 여기서 멈춘다.
             if (error.stopsAllPhotos) throw error
             return Settled.STILL_WAITING
+        } catch (error: IOException) {
+            // 쓰다가 공간이 찼다.
+            // 파일이 깨졌다고 말하지 않게 까닭을 바꿔 알린다.
+            if (freeSpace.bytes() < needed) throw NoRoomForPhotos()
+            throw error
         } finally {
             fileSystem.delete(partial, mustExist = false)
         }
@@ -290,5 +310,8 @@ class PhotoFetcher(
          * 사진 한 장은 작아서 기다리는 시간이 대부분이다.
          */
         const val PARALLEL_DOWNLOADS = 6
+
+        /** 사진을 쓰고 남겨 둘 공간. */
+        const val ROOM_MARGIN = 1024L * 1024
     }
 }

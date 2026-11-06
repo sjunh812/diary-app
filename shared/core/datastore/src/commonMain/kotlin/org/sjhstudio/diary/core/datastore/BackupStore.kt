@@ -49,7 +49,9 @@ data class BackupPrefs(
      * 이 기기로 드라이브 백업을 복원했을 때 그 백업을 만든 시각.
      * 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻이다.
      */
-    val restoredBackupAt: Instant? = null
+    val restoredBackupAt: Instant? = null,
+    /** 사진을 다 꺼내지 못한 복원 파일을 이때까지 둔다. */
+    val unpackUntil: Instant? = null
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
@@ -95,7 +97,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         lastSuccessFingerprint = this[Keys.LAST_SUCCESS_FINGERPRINT],
         bytesShort = this[Keys.BYTES_SHORT] ?: 0,
         restoredBackupAt = this[Keys.RESTORED_BACKUP_AT]?.let(Instant::fromEpochMilliseconds),
-        rollbackUntil = instant(Keys.ROLLBACK_UNTIL)
+        rollbackUntil = instant(Keys.ROLLBACK_UNTIL),
+        unpackUntil = instant(Keys.UNPACK_UNTIL)
     )
 
     private fun Preferences.instant(key: Preferences.Key<Long>): Instant? = this[key]?.let(Instant::fromEpochMilliseconds)
@@ -120,6 +123,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.LAST_SUCCESS_FINGERPRINT, prefs.lastSuccessFingerprint)
         this[Keys.BYTES_SHORT] = prefs.bytesShort
         prefs.restoredBackupAt?.let { this[Keys.RESTORED_BACKUP_AT] = it.toEpochMilliseconds() } ?: remove(Keys.RESTORED_BACKUP_AT)
+        setOrRemove(Keys.UNPACK_UNTIL, prefs.unpackUntil?.toEpochMilliseconds())
     }
 
     private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
@@ -147,5 +151,6 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val NUDGE_HIDDEN_UNTIL = longPreferencesKey("nudge_hidden_until")
         val USER_DISCONNECTED = booleanPreferencesKey("user_disconnected")
         val ROLLBACK_UNTIL = longPreferencesKey("rollback_until")
+        val UNPACK_UNTIL = longPreferencesKey("unpack_until")
     }
 }

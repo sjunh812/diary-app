@@ -163,11 +163,8 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
             )
             when (state) {
                 FileBackupUi.WriteFailed -> DiaryNotice(stringResource(Res.string.file_write_failed))
-
                 is FileBackupUi.ReadFailed -> DiaryNotice(readFailedText(state))
-
                 FileBackupUi.Reading -> DiaryNotice(stringResource(Res.string.file_reading))
-
                 else -> Unit
             }
         }
@@ -223,13 +220,16 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBack
 @Composable
 private fun readFailedText(failed: FileBackupUi.ReadFailed): String = when (failed.reason) {
     RestoreFailure.NEEDS_UPDATE -> stringResource(Res.string.file_read_needs_update)
+
     RestoreFailure.BUSY -> stringResource(Res.string.restore_failed_busy_body)
+
     RestoreFailure.NO_SPACE ->
         if (failed.bytesShort > 0) {
             stringResource(Res.string.file_read_no_space, sizeText(failed.bytesShort))
         } else {
             stringResource(Res.string.file_read_no_space_plain)
         }
+
     else -> stringResource(Res.string.file_read_failed)
 }
 

@@ -3,6 +3,8 @@ package org.sjhstudio.diary.core.backup
 import androidx.room3.withWriteTransaction
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +37,7 @@ import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.PhotoProgress
+import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
@@ -67,7 +70,8 @@ class RestoreController(
     private val scope: CoroutineScope,
     private val gate: BackupGate = BackupGate(),
     private val scheduler: BackupScheduler = NoBackupScheduler,
-    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE }
+    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE },
+    private val clock: Clock = Clock.System
 ) : RestoreRepository {
     private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
     override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
@@ -360,42 +364,88 @@ class RestoreController(
         val entries = dao.visibleEntryCount()
         val total = dao.pendingFiles().size
         _state.value = RestoreState.FetchingPhotos(entries, 0, total)
-        var fetched = 0
-        var broken = 0
-        try {
-            val zip = ready.bundle
-            val result =
+        val tally = PhotoTally()
+        // 글은 이미 합쳤다.
+        // 남은 사진은 다음에 앱을 열 때 이어 받는다.
+        val stop =
+            receiving {
+                val zip = ready.bundle?.let { holdBundle(it) }
                 watchingPhotos(total) { watch ->
                     val progress = { done: Int, all: Int ->
                         watch(done, all)
                         _state.value = RestoreState.FetchingPhotos(entries, done, all)
                     }
-                    if (zip != null) fetcher.value.fetchFrom(zip, progress) else fetcher.value.fetch(progress)
+                    if (zip != null) fetcher.value.fetchFrom(zip, tally, progress) else fetcher.value.fetch(tally, progress)
                 }
-            fetched = result.first
-            broken = result.second
-            // 다 꺼냈을 때만 지운다.
-            // 아직 사진이 들어 있으면 결과를 닫을 때 지운다.
-            ready.bundle?.let { fileSystem.delete(it, mustExist = false) }
-        } catch (error: CancellationException) {
-            throw error
-        } catch (_: Exception) {
-            // 글은 이미 합쳤다.
-            // 남은 사진은 다음에 앱을 열 때 이어 받는다.
-        }
+                // 다 꺼냈을 때만 지운다.
+                // 멈췄으면 파일을 두어 앱을 다시 열 때 잇는다.
+                if (zip != null) dropBundle()
+            }
         val left = dao.pendingFiles().size
         val onOriginal = minOf(left, ready.manifest.media.count { !it.inBackup })
         return RestoreResult(
             entriesAdded = counts.added,
             entriesUpdated = counts.updated,
             entriesKeptBoth = counts.keptBoth,
-            photosRestored = fetched,
-            photosMissing = broken,
+            photosRestored = tally.fetched,
+            photosMissing = tally.broken,
             photosPending = left - onOriginal,
             fromFile = ready.bundle != null,
             photosOnOriginal = onOriginal,
-            lockWasOn = ready.manifest.settings.lockEnabled
+            lockWasOn = ready.manifest.settings.lockEnabled,
+            photosStop = stop
         )
+    }
+
+    /**
+     * 사진을 받고 멈춘 까닭을 돌려준다.
+     * 끝까지 돌았으면 null이다.
+     */
+    private suspend fun receiving(work: suspend () -> Unit): PhotoStop? = try {
+        work()
+        null
+    } catch (error: CancellationException) {
+        throw error
+    } catch (_: NoRoomForPhotos) {
+        PhotoStop.NO_SPACE
+    } catch (_: Exception) {
+        PhotoStop.INTERRUPTED
+    }
+
+    /**
+     * 고른 파일을 사진을 다 꺼낼 때까지 둘 자리로 옮긴다.
+     * 새로 고른 파일과 자리를 나누고, 앱이 꺼져도 남은 사진을 이어서 꺼낼 수 있게 한다.
+     */
+    private suspend fun holdBundle(zip: Path): Path {
+        val held = heldBundle
+        held.parent?.let(fileSystem::createDirectories)
+        fileSystem.atomicMove(zip, held)
+        store.update { it.copy(unpackUntil = clock.now() + KEEP_BUNDLE) }
+        return held
+    }
+
+    private suspend fun dropBundle() {
+        fileSystem.delete(heldBundle, mustExist = false)
+        store.update { it.copy(unpackUntil = null) }
+    }
+
+    /**
+     * 앱이 꺼지거나 공간이 차서 다 꺼내지 못한 파일에서 잇는다.
+     * 일기 사본이라 오래 두지 않는다.
+     * 지난 뒤에는 그 파일을 다시 고르면 남은 사진이 돌아온다.
+     */
+    private suspend fun unpackLeftovers() {
+        if (!fileSystem.exists(heldBundle)) return
+        val until = store.current().unpackUntil
+        val total = db.value.backupDao().pendingFiles().size
+        if (total == 0 || until == null || clock.now() >= until) {
+            dropBundle()
+            return
+        }
+        receiving {
+            watchingPhotos(total) { watch -> fetcher.value.fetchFrom(heldBundle, onProgress = watch) }
+            dropBundle()
+        }
     }
 
     /** 앱을 나가도 사진을 계속 받게 시스템에 알리고 진행을 내보낸다. */
@@ -427,14 +477,15 @@ class RestoreController(
     override suspend fun resumePhotos() {
         guarded { rollbackManager.value.expire() }
         guarded { clearAbandonedCopies() }
-        val prefs = store.current()
-        if (prefs.accountKey == null || !network.isConnected) return
-        if (!network.isUnmetered && !prefs.photosOnCellular) return
         if (!gate.tryEnter()) return
         try {
+            guarded { unpackLeftovers() }
+            val prefs = store.current()
+            if (prefs.accountKey == null || !network.isConnected) return
+            if (!network.isUnmetered && !prefs.photosOnCellular) return
             guarded {
                 val total = db.value.backupDao().pendingFiles().size
-                if (total > 0) watchingPhotos(total) { watch -> fetcher.value.fetch(watch) }
+                if (total > 0) watchingPhotos(total) { watch -> fetcher.value.fetch(onProgress = watch) }
             }
         } finally {
             gate.leave()
@@ -458,10 +509,16 @@ class RestoreController(
         null
     }
 
+    private val heldBundle: Path
+        get() = workDir / UNPACKING / BUNDLE
+
     private companion object {
         const val SOURCE_DRIVE = "drive"
         const val INCOMING = "incoming"
         const val PICKED = "picked"
+        const val UNPACKING = "unpacking"
+        const val BUNDLE = "bundle.zip"
+        val KEEP_BUNDLE = 7.days
         const val HEAD = 4L
 
         /** 파일을 옮기고 일기 사본을 꺼낼 때 남겨 둘 여유. */

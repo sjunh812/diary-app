@@ -156,8 +156,22 @@ data class RestoreResult(
      * 파일에서 복원했다.
      * 파일에 없는 사진은 앱을 다시 열어도 저절로 오지 않는다.
      */
-    val fromFile: Boolean = false
+    val fromFile: Boolean = false,
+    /**
+     * 사진을 다 받기 전에 멈춘 까닭.
+     * 끝까지 돌았으면 null이다.
+     */
+    val photosStop: PhotoStop? = null
 )
+
+/** 사진을 더 받지 못하고 멈춘 까닭. 까닭마다 사용자가 할 일이 다르다. */
+enum class PhotoStop {
+    /** 휴대폰 공간이 부족하다. */
+    NO_SPACE,
+
+    /** 잠깐 끊겼다. 앱을 다시 열면 잇는다. */
+    INTERRUPTED
+}
 
 enum class RestoreFailure {
     MISMATCH,

@@ -93,6 +93,7 @@
     <string name="restore_note_original_body">There wasn't enough space when backing up. Back up again on the original phone to see them here.</string>
     <string name="restore_note_pending_body">They'll finish downloading next time you open the app.</string>
     <string name="restore_note_pending_file_body">These photos aren't in the file. If they're backed up to Drive, they'll download once you connect.</string>
+    <string name="restore_note_pending_space_body">Your phone ran out of space. Free up space and open the app again to finish.</string>
     <string name="restore_note_missing_body">The downloaded files didn't match, so they're marked as not found.</string>
     <string name="restore_lock_title">Set your lock again</string>
     <string name="restore_lock_body">The lock was on when this was backed up. Passcodes aren't backed up.</string>

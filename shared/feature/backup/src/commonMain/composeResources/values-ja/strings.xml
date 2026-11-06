@@ -93,6 +93,7 @@
     <string name="restore_note_original_body">バックアップ時に容量が足りなかった写真です。元のスマートフォンでもう一度バックアップするとここでも見られます。</string>
     <string name="restore_note_pending_body">次にアプリを開くと続きからダウンロードします。</string>
     <string name="restore_note_pending_file_body">このファイルには含まれていない写真です。ドライブにバックアップがあれば、接続したときにダウンロードします。</string>
+    <string name="restore_note_pending_space_body">空き容量が足りず止まりました。空き容量を増やしてアプリを開き直すと続きからダウンロードします。</string>
     <string name="restore_note_missing_body">ダウンロードしたファイルが異なるため、見つからない写真として残しました。</string>
     <string name="restore_lock_title">ロックを設定し直してください</string>
     <string name="restore_lock_body">バックアップしたスマートフォンでロックを使っていました。パスコードはバックアップされません。</string>
