@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,21 +40,28 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -65,6 +73,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -78,6 +87,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
@@ -127,6 +137,7 @@ import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
+import org.sjhstudio.diary.feature.write.resources.write_adding_photos
 import org.sjhstudio.diary.feature.write.resources.write_camera
 import org.sjhstudio.diary.feature.write.resources.write_checklist_plus_body
 import org.sjhstudio.diary.feature.write.resources.write_checklist_plus_title
@@ -139,7 +150,10 @@ import org.sjhstudio.diary.feature.write.resources.write_color_pink
 import org.sjhstudio.diary.feature.write.resources.write_color_purple
 import org.sjhstudio.diary.feature.write.resources.write_color_red
 import org.sjhstudio.diary.feature.write.resources.write_color_yellow
+import org.sjhstudio.diary.feature.write.resources.write_discard
 import org.sjhstudio.diary.feature.write.resources.write_discard_confirm
+import org.sjhstudio.diary.feature.write.resources.write_discard_edit
+import org.sjhstudio.diary.feature.write.resources.write_discard_edit_title
 import org.sjhstudio.diary.feature.write.resources.write_discard_message
 import org.sjhstudio.diary.feature.write.resources.write_discard_title
 import org.sjhstudio.diary.feature.write.resources.write_entry_changed
@@ -182,6 +196,9 @@ internal class WriteActions(
 
 private enum class Sheet { Mood, Weather, Place, DateTime }
 
+/** 끌고 있는 사진을 살짝 키워 집어 든 것처럼 보이게 한다. */
+private const val DRAG_SCALE = 1.06f
+
 private const val KEYBOARD_HIDE_MILLIS = 400L
 
 /**
@@ -194,7 +211,8 @@ private const val KEYBOARD_HIDE_MILLIS = 400L
 internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: TextStyle, modifier: Modifier = Modifier) {
     val vm = actions.viewModel
     val colors = DiaryTheme.colors
-    var sheet by remember { mutableStateOf<Sheet?>(null) }
+    // 화면을 돌리거나 폴더블을 펴도 고르던 시트가 닫히지 않는다.
+    var sheet by rememberSaveable { mutableStateOf<Sheet?>(null) }
     val locationAccess = rememberLocationAccess()
     // 키보드가 내려가는 동안 시트가 뜨면 키보드 높이에 맞춰 떴다가 출렁인다.
     // 키보드를 먼저 내리고 띄운다.
@@ -215,6 +233,30 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         nextSheet = null
     }
     var askDiscard by remember { mutableStateOf(false) }
+    var askDiscardHere by rememberSaveable { mutableStateOf(false) }
+    val editorFocus = remember { FocusRequester() }
+    // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 준다.
+    // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않는다.
+    var autoFocused by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(state.loading, state.resume, state.isEdit) {
+        if (!autoFocused && !state.loading && state.resume == null && !state.isEdit) {
+            autoFocused = true
+            editorFocus.requestFocus()
+        }
+    }
+    // 글 아래 빈 곳을 눌러도 쓰기로 이어진다.
+    val tapToWrite =
+        Modifier.pointerInput(actions.rich) {
+            detectTapGestures {
+                actions.rich.selection = TextRange(actions.rich.annotatedString.length)
+                editorFocus.requestFocus()
+                softKeyboard?.show()
+            }
+        }
+    // 쓰는 동안에는 자리를 차지하지 않게 키보드가 내려갔을 때만 보인다.
+    val discardRow: @Composable () -> Unit = {
+        if (state.canDiscard && imeInsets.getBottom(density) == 0) DiscardButton(state.isEdit) { askDiscardHere = true }
+    }
     var checklistLocked by remember { mutableStateOf(false) }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
     (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
@@ -247,25 +289,29 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                     Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
                         // 에디터가 스스로 스크롤하면 체크 칸 자리가 글과 어긋나서 바깥에서 스크롤한다.
                         Column(
-                            Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
+                            Modifier.weight(1f).fillMaxWidth().then(tapToWrite).verticalScroll(rememberScrollState()),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Editor(actions.rich, bodyStyle, Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth())
+                            Editor(actions.rich, bodyStyle, editorFocus, Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth())
                         }
+                        SaveFailedNotice(state)
+                        discardRow()
                         tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
                     }
                     Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
                     SidePanel(state, actions, onPick = { pick.launch() }, onPlace = { openSheet(Sheet.Place) })
                 }
             } else {
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Column(Modifier.weight(1f).then(tapToWrite).verticalScroll(rememberScrollState())) {
                     Chips(state, onMood = {
                         openSheet(Sheet.Mood)
                     }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
                     if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { pick.launch() })
                     Notices(state)
-                    Editor(actions.rich, bodyStyle, Modifier.fillMaxWidth())
+                    Editor(actions.rich, bodyStyle, editorFocus, Modifier.fillMaxWidth())
                 }
+                SaveFailedNotice(state)
+                discardRow()
                 tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
             }
         }
@@ -329,6 +375,19 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     state.resume?.let { offer ->
         ResumeSheet(offer, vm::continueDraft, vm::startFresh, onDiscard = { askDiscard = true }, onDismiss = vm::leaveOffer)
     }
+    if (askDiscardHere) {
+        DiaryDialog(
+            title = stringResource(if (state.isEdit) Res.string.write_discard_edit_title else Res.string.write_discard_title),
+            message = stringResource(Res.string.write_discard_message),
+            confirmLabel = stringResource(Res.string.write_discard_confirm),
+            destructive = true,
+            onConfirm = {
+                askDiscardHere = false
+                vm.discard()
+            },
+            onDismiss = { askDiscardHere = false }
+        )
+    }
     if (askDiscard) {
         DiaryDialog(
             title = stringResource(Res.string.write_discard_title),
@@ -340,6 +399,17 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 vm.discardOffered()
             },
             onDismiss = { askDiscard = false }
+        )
+    }
+}
+
+@Composable
+private fun DiscardButton(isEdit: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        DiaryButton(
+            stringResource(if (isEdit) Res.string.write_discard_edit else Res.string.write_discard),
+            onClick,
+            kind = DiaryButtonKind.QuietText
         )
     }
 }
@@ -361,6 +431,8 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
             Modifier
                 .align(Alignment.Center)
                 .padding(horizontal = DiarySpacing.x14)
+                // 고치는 일기는 날짜를 읽기 전에 오늘이 비치지 않게 한다.
+                .alpha(if (state.loading && state.isEdit) 0f else 1f)
                 .heightIn(min = DiarySpacing.minTouchTarget)
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r8)
                 .clip(DiaryShapes.r8)
@@ -430,12 +502,26 @@ private fun Notices(state: WriteUiState) {
 
             null ->
                 when {
-                    state.saveFailed -> stringResource(Res.string.write_save_failed)
+                    state.addingPhotos -> stringResource(Res.string.write_adding_photos)
                     state.entryChanged -> stringResource(Res.string.write_entry_changed)
                     else -> null
                 }
         } ?: return
     DiaryNotice(text, Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2), icon = DiaryIcons.Info)
+}
+
+/**
+ * 저장 실패는 글이 길어도 보이게 스크롤 밖에 둔다.
+ * 안내가 맨 위에 있으면 닫기를 눌러도 아무 일이 없는 것처럼 보인다.
+ */
+@Composable
+private fun SaveFailedNotice(state: WriteUiState) {
+    if (!state.saveFailed) return
+    DiaryNotice(
+        stringResource(Res.string.write_save_failed),
+        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+        icon = DiaryIcons.Info
+    )
 }
 
 /**
@@ -533,14 +619,36 @@ private fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> U
 @Composable
 private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp, onRemove: () -> Unit, onMoved: (Int) -> Unit) {
     val colors = DiaryTheme.colors
+    val haptic = LocalHapticFeedback.current
+    var shift by remember { mutableFloatStateOf(0f) }
+    var dragging by remember { mutableStateOf(false) }
     Box(
         Modifier
+            .zIndex(if (dragging) 1f else 0f)
+            .graphicsLayer {
+                // 끄는 동안 손을 따라오게 그린다.
+                translationX = shift
+                scaleX = if (dragging) DRAG_SCALE else 1f
+                scaleY = if (dragging) DRAG_SCALE else 1f
+            }
             .size(DiaryWriteSize.photo)
             .pointerInput(photo.sha256) {
-                var shift = 0f
                 detectDragGesturesAfterLongPress(
-                    onDragStart = { shift = 0f },
-                    onDragEnd = { onMoved((shift / step.toPx()).roundToInt()) }
+                    onDragStart = {
+                        shift = 0f
+                        dragging = true
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    },
+                    onDragEnd = {
+                        val by = (shift / step.toPx()).roundToInt()
+                        shift = 0f
+                        dragging = false
+                        onMoved(by)
+                    },
+                    onDragCancel = {
+                        shift = 0f
+                        dragging = false
+                    }
                 ) { change, amount ->
                     change.consume()
                     shift += amount.x
@@ -567,7 +675,7 @@ private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp
 }
 
 @Composable
-private fun Editor(state: RichTextState, style: TextStyle, modifier: Modifier) {
+private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester, modifier: Modifier) {
     val colors = DiaryTheme.colors
     Box(modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3)) {
         if (state.annotatedString.isEmpty()) {
@@ -593,6 +701,7 @@ private fun Editor(state: RichTextState, style: TextStyle, modifier: Modifier) {
                 Modifier
                     .fillMaxWidth()
                     .heightIn(min = DiaryWriteSize.editorMin)
+                    .focusRequester(focus)
                     .semantics { customActions = actions }
                     .checklistMarks({ state.annotatedString.let { state.toText() } }, { layout })
                     .pointerInput(state) {

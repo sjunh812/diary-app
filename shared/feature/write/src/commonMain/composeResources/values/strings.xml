@@ -12,7 +12,10 @@
     <string name="write_photo_count">%1$d/%2$d</string>
     <string name="write_photo_remove">Remove photo</string>
     <string name="write_photo_limit">You can add up to %1$d new photos per entry</string>
-    <string name="write_entry_changed">Restoring changed this entry. Saving keeps both versions.</string>
+    <string name="write_entry_changed">This entry changed in the meantime. Saving keeps both versions.</string>
+    <string name="write_adding_photos">Adding photos…</string>
+    <string name="write_discard_edit">Discard changes</string>
+    <string name="write_discard_edit_title">Discard your changes?</string>
     <string name="write_photo_no_space">Your phone is out of storage, so some photos weren't added</string>
     <string name="write_photo_unreadable">Some photos couldn't be read</string>
     <string name="write_save_failed">Couldn't save. Your writing is still here, so tap Save again.</string>
