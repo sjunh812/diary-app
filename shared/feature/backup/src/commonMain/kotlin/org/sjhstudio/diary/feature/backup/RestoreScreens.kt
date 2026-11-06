@@ -126,6 +126,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_note_original
 import org.sjhstudio.diary.feature.backup.resources.restore_note_original_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
+import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_file_body
 import org.sjhstudio.diary.feature.backup.resources.restore_photo_progress
 import org.sjhstudio.diary.feature.backup.resources.restore_pick_other
 import org.sjhstudio.diary.feature.backup.resources.restore_platform_android
@@ -613,7 +614,7 @@ private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
             DiaryNote(
                 DiaryIcons.Download,
                 pluralStringResource(Res.plurals.restore_note_pending, result.photosPending, result.photosPending.grouped()),
-                stringResource(Res.string.restore_note_pending_body)
+                stringResource(if (result.fromFile) Res.string.restore_note_pending_file_body else Res.string.restore_note_pending_body)
             )
         )
     }

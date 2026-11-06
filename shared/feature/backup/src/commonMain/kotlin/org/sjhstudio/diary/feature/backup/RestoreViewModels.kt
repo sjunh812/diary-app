@@ -68,7 +68,7 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
 class RestoreProgressViewModel(private val restore: RestoreRepository) : ViewModel() {
     val state = restore.state
 
-    fun retry() = restore.merge()
+    fun retry() = restore.retry()
 
     fun dismiss() = restore.dismiss()
 }

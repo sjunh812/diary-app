@@ -57,4 +57,13 @@ class RestorePreviewViewModelTest {
 
         assertEquals(0, restore.dismisses)
     }
+
+    @Test
+    fun retry_repeats_what_was_chosen_instead_of_merging() {
+        val repository = FakeRestoreRepository()
+        RestoreProgressViewModel(repository).retry()
+
+        assertEquals(1, repository.retries)
+        assertEquals(0, repository.merges)
+    }
 }

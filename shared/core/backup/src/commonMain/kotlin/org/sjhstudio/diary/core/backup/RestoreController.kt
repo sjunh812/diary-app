@@ -240,13 +240,21 @@ class RestoreController(
         }
     }
 
+    private var lastWork: (suspend (PreparedRestore?) -> RestoreResult)? = null
+
     override fun merge() = run { ready ->
         if (ready != null) mergeBackup(ready) else importLegacy(requireNotNull(preparedLegacy))
     }
 
     override fun replace() = run { ready -> replaceWith(requireNotNull(ready)) }
 
+    /** 실패한 복원을 사용자가 고른 그대로 다시 한다. 바꾸기가 실패했는데 합치기로 넘어가지 않는다. */
+    override fun retry() {
+        lastWork?.let { run(it) }
+    }
+
     private fun run(work: suspend (PreparedRestore?) -> RestoreResult) {
+        lastWork = work
         val ready = prepared
         if (ready == null && preparedLegacy == null) return
         if (_state.value == RestoreState.Merging) return
@@ -339,6 +347,7 @@ class RestoreController(
             photosRestored = fetched,
             photosMissing = broken,
             photosPending = left - onOriginal,
+            fromFile = ready.bundle != null,
             photosOnOriginal = onOriginal,
             lockWasOn = ready.manifest.settings.lockEnabled
         )

@@ -88,6 +88,7 @@
     <string name="restore_note_both_body">両方で編集された日記です。一覧に印を付けました。</string>
     <string name="restore_note_original_body">バックアップ時に容量が足りなかった写真です。元のスマホでもう一度バックアップするとここでも見られます。</string>
     <string name="restore_note_pending_body">次にアプリを開くと続きから受け取ります。</string>
+    <string name="restore_note_pending_file_body">このファイルには含まれていない写真です。ドライブにバックアップがあれば、連携したときに受け取ります。</string>
     <string name="restore_note_missing_body">受け取ったファイルが異なるため、見つからない写真として残しました。</string>
     <string name="restore_lock_title">ロックを設定し直してください</string>
     <string name="restore_lock_body">バックアップしたスマホでロックを使っていました。パスコードはバックアップされません。</string>

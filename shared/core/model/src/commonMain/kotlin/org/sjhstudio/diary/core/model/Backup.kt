@@ -124,7 +124,9 @@ data class RestoreResult(
     /** 1.7.x가 올린 `note.db`를 불러왔다. 사진 자리는 찾을 수 없는 사진으로 남는다. */
     val fromLegacy: Boolean = false,
     /** 합치지 않고 이 백업으로 바꿨다. 지금 일기가 그대로라고 말하면 안 된다. */
-    val replaced: Boolean = false
+    val replaced: Boolean = false,
+    /** 파일에서 복원했다. 파일에 없는 사진은 앱을 다시 열어도 저절로 오지 않는다. */
+    val fromFile: Boolean = false
 )
 
 enum class RestoreFailure { MISMATCH, NO_SPACE, NEEDS_UPDATE, OTHER }

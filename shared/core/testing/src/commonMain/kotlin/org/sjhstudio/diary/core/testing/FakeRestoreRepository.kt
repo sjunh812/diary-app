@@ -27,6 +27,13 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
         replaces++
     }
 
+    var retries = 0
+        private set
+
+    override fun retry() {
+        retries++
+    }
+
     override suspend fun rollBack(): Boolean {
         rollback.value = null
         return true

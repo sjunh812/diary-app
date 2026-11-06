@@ -88,6 +88,7 @@
     <string name="restore_note_both_body">These were edited on both sides. They’re marked in your list.</string>
     <string name="restore_note_original_body">There wasn’t enough space when backing up. Back up again on the original phone to see them here.</string>
     <string name="restore_note_pending_body">They’ll continue next time you open the app.</string>
+    <string name="restore_note_pending_file_body">These photos aren't in the file. If they're backed up to Drive, they'll arrive once you connect.</string>
     <string name="restore_note_missing_body">The downloaded files didn’t match, so they’re marked as not found.</string>
     <string name="restore_lock_title">Set your lock again</string>
     <string name="restore_lock_body">The lock was on when this was backed up. Passcodes aren’t backed up.</string>

@@ -28,6 +28,9 @@ interface RestoreRepository {
     /** 지금 일기를 이 백업으로 바꾼다. 사본을 만들어 7일 동안 되돌릴 수 있다(FR-027). */
     fun replace()
 
+    /** 실패한 복원을 같은 방식으로 다시 한다. */
+    fun retry()
+
     /** 되돌릴 수 있는 동안만 값이 있다. */
     val rollback: Flow<RollbackInfo?>
 

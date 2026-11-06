@@ -266,6 +266,7 @@ class BundleDamageTest {
 
         assertEquals(1, result.photosRestored)
         assertEquals(1, result.photosPending)
+        assertTrue(result.fromFile, "파일에 없는 사진은 앱을 다시 열어도 오지 않는다고 알린다")
         assertEquals(mapOf("one-0" to "pending", "two-0" to "normal"), b.photoStates())
         assertEquals(second, fs.hashes(b.media / "$second.jpg").sha256)
     }
