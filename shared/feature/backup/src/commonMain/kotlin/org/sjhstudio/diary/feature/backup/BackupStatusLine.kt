@@ -97,7 +97,10 @@ private fun lineFor(status: BackupStatus): Line {
             stringResource(Res.string.backup_line_running, running.photosDone, running.photosTotal)
         )
 
-        last == null -> Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_first_title))
+        last == null -> Line(
+            DiaryIcons.ShieldCheck,
+            status.restoredBackupAt?.let { restoredBackupText(it) } ?: stringResource(Res.string.backup_first_title)
+        )
 
         else -> {
             val now = Clock.System.now()

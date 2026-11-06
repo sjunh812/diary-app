@@ -152,12 +152,12 @@ class RestoreRoundTripTest {
         gate: BackupGate = BackupGate(),
         api: DriveApi = drive,
         rollback: RollbackManager? = null,
-        scheduler: FakeBackupScheduler = FakeBackupScheduler()
+        scheduler: FakeBackupScheduler = FakeBackupScheduler(),
+        store: BackupStore = BackupStore(InMemoryDataStore(emptyPreferences()))
     ): RestoreController {
         val media = dir / "b" / "media"
         val work = dir / "b" / "backup"
         val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
-        val store = BackupStore(InMemoryDataStore(emptyPreferences()))
         return RestoreController(
             lazy { catalog() }, lazy { planner(api) }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
             lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) },
@@ -186,6 +186,21 @@ class RestoreRoundTripTest {
         assertEquals(1, result.photosRestored)
         assertEquals(0, result.photosPending)
         assertEquals(1, settings.size)
+    }
+
+    @Test
+    fun a_restored_backup_is_remembered_so_it_is_not_called_the_first_backup() = runTest {
+        backUp()
+        val store = BackupStore(InMemoryDataStore(emptyPreferences()))
+        val controller = controller(mutableListOf(), backgroundScope, store = store)
+        val entry = controller.backups()!!.single()
+        assertIs<RestorePreparation.Ready>(controller.prepare(entry.snapshotName))
+
+        controller.merge()
+        withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
+
+        assertEquals(entry.createdAt, store.current().restoredBackupAt)
+        assertEquals(null, store.current().lastSuccessAt)
     }
 
     @Test

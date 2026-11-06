@@ -38,7 +38,9 @@ data class BackupPrefs(
     /** 마지막 성공 때의 일기·사진·설정 지문. 같으면 자동 백업을 건너뛴다. */
     val lastSuccessFingerprint: String? = null,
     /** 사진을 마저 올리려면 드라이브에 더 필요한 양. */
-    val bytesShort: Long = 0
+    val bytesShort: Long = 0,
+    /** 이 기기로 드라이브 백업을 되살렸을 때 그 백업을 만든 시각. 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻이다. */
+    val restoredBackupAt: Instant? = null
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
@@ -79,6 +81,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         userDisconnected = this[Keys.USER_DISCONNECTED] ?: false,
         lastSuccessFingerprint = this[Keys.LAST_SUCCESS_FINGERPRINT],
         bytesShort = this[Keys.BYTES_SHORT] ?: 0,
+        restoredBackupAt = this[Keys.RESTORED_BACKUP_AT]?.let(Instant::fromEpochMilliseconds),
         rollbackUntil = instant(Keys.ROLLBACK_UNTIL)
     )
 
@@ -103,6 +106,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.ROLLBACK_UNTIL, prefs.rollbackUntil?.toEpochMilliseconds())
         setOrRemove(Keys.LAST_SUCCESS_FINGERPRINT, prefs.lastSuccessFingerprint)
         this[Keys.BYTES_SHORT] = prefs.bytesShort
+        prefs.restoredBackupAt?.let { this[Keys.RESTORED_BACKUP_AT] = it.toEpochMilliseconds() } ?: remove(Keys.RESTORED_BACKUP_AT)
     }
 
     private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
@@ -120,6 +124,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val LAST_SUCCESS_SNAPSHOT = stringPreferencesKey("last_success_snapshot")
         val LAST_SUCCESS_FINGERPRINT = stringPreferencesKey("last_success_fingerprint")
         val BYTES_SHORT = longPreferencesKey("bytes_short")
+        val RESTORED_BACKUP_AT = longPreferencesKey("restored_backup_at")
         val LAST_ATTEMPT_AT = longPreferencesKey("last_attempt_at")
         val FAILING_SINCE = longPreferencesKey("failing_since")
         val LAST_FAILURE = stringPreferencesKey("last_failure")

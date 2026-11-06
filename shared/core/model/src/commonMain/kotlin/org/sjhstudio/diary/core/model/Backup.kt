@@ -58,7 +58,9 @@ data class BackupStatus(
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
     /** 공간이 모자라 못 올린 사진의 양. */
-    val bytesShort: Long = 0
+    val bytesShort: Long = 0,
+    /** 드라이브 백업을 되살렸으면 그 백업을 만든 시각. */
+    val restoredBackupAt: Instant? = null
 )
 
 /** 복원 목록 한 줄의 상태. */

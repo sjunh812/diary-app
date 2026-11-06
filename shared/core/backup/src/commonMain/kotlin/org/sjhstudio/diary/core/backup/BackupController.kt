@@ -54,7 +54,8 @@ class BackupController(
                     lastFailure = prefs.lastFailure,
                     autoEnabled = prefs.autoEnabled,
                     photosOnCellular = prefs.photosOnCellular,
-                    bytesShort = prefs.bytesShort
+                    bytesShort = prefs.bytesShort,
+                    restoredBackupAt = prefs.restoredBackupAt
                 )
             }
         }

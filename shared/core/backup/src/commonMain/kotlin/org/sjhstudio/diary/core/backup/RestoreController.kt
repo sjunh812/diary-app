@@ -286,6 +286,11 @@ class RestoreController(
 
     private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
         applySettings(ready.manifest.settings)
+        // 파일에서 되살린 것은 드라이브 백업이 있다는 뜻이 아니다.
+        if (ready.bundle == null) {
+            val at = Instant.fromEpochMilliseconds(ready.manifest.createdAt)
+            store.update { it.copy(restoredBackupAt = at) }
+        }
         fileSystem.delete(ready.snapshot, mustExist = false)
         prepared = null
         return fetchPhotos(counts, ready)

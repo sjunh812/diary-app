@@ -186,4 +186,6 @@
     <string name="restore_contact">Contact us</string>
     <string name="backup_interrupted_title">Backup was interrupted</string>
     <string name="backup_interrupted_body">Uploaded photos are safe. Tap Back up now to continue.</string>
+    <string name="backup_restored_title">Restored from your %1$s backup</string>
+    <string name="backup_restored_body">Back up now to save this phone’s entries too.</string>
 </resources>

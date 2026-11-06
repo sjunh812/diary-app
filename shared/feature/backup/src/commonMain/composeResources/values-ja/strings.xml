@@ -186,4 +186,6 @@
     <string name="restore_contact">お問い合わせ</string>
     <string name="backup_interrupted_title">バックアップが中断されました</string>
     <string name="backup_interrupted_body">アップロード済みの写真はそのままです。「今すぐバックアップ」で続きから再開します。</string>
+    <string name="backup_restored_title">%1$sのバックアップから復元しました</string>
+    <string name="backup_restored_body">今すぐバックアップすると、このスマホの日記もドライブに保存します。</string>
 </resources>

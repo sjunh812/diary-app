@@ -89,6 +89,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_photos_waiting
 import org.sjhstudio.diary.feature.backup.resources.backup_reconnect
 import org.sjhstudio.diary.feature.backup.resources.backup_reconnect_body
 import org.sjhstudio.diary.feature.backup.resources.backup_reconnect_title
+import org.sjhstudio.diary.feature.backup.resources.backup_restored_body
+import org.sjhstudio.diary.feature.backup.resources.backup_restored_title
 import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
@@ -401,12 +403,23 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             stringResource(Res.string.backup_interrupted_body)
         )
 
-        else -> DiaryStatusBox(
-            DiaryIcons.ShieldCheck,
-            stringResource(Res.string.backup_first_title),
-            stringResource(Res.string.backup_first_body)
-        )
+        // 이 기기에서 백업한 적은 없어도 되살린 백업이 드라이브에 있다. 첫 백업이라고 말하면 틀린 말이 된다.
+        else -> {
+            val restored = status.restoredBackupAt
+            DiaryStatusBox(
+                DiaryIcons.ShieldCheck,
+                if (restored != null) restoredBackupText(restored) else stringResource(Res.string.backup_first_title),
+                stringResource(if (restored != null) Res.string.backup_restored_body else Res.string.backup_first_body)
+            )
+        }
     }
+}
+
+/** 되살린 백업을 말한다. 홈 상태 줄과 백업 화면이 같이 쓴다. */
+@Composable
+internal fun restoredBackupText(at: Instant): String {
+    val dates = rememberDiaryDateFormat()
+    return stringResource(Res.string.backup_restored_title, dates.monthDay(at.toLocalDateTime(TimeZone.currentSystemDefault()).date))
 }
 
 @Composable

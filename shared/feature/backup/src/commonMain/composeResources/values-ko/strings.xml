@@ -186,4 +186,6 @@
     <string name="restore_contact">문의하기</string>
     <string name="backup_interrupted_title">백업이 끊겼어요</string>
     <string name="backup_interrupted_body">올린 사진은 그대로예요. 지금 백업을 누르면 이어서 올려요.</string>
+    <string name="backup_restored_title">%1$s 백업으로 복원했어요</string>
+    <string name="backup_restored_body">지금 백업하면 이 휴대폰의 일기까지 드라이브에 올려요.</string>
 </resources>
