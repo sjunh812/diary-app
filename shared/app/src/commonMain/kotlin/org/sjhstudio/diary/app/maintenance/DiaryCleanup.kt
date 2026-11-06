@@ -10,12 +10,18 @@ import org.sjhstudio.diary.core.data.diary.TrashRepository
  * 30일 지난 휴지통을 먼저 비워야 그 일기에만 쓰인 사진 파일까지 함께 지워진다.
  * 실패해도 앱은 쓸 수 있고 다음에 열 때 다시 한다.
  */
-class DiaryCleanup(private val trash: TrashRepository, private val media: MediaRepository, private val clock: Clock = Clock.System) {
+class DiaryCleanup(
+    private val trash: TrashRepository,
+    private val media: MediaRepository,
+    private val clock: Clock = Clock.System,
+    /** 옮겨 둔 사진 사본을 아직 쓸 수 있으면 사진 파일을 지우지 않는다. 사본은 일기 줄이 없어 쓰지 않는 파일처럼 보인다. */
+    private val keepPhotos: suspend () -> Boolean = { false }
+) {
     suspend fun run() {
         val now = clock.now()
         try {
             trash.purgeExpired(now)
-            media.cleanUnused(now)
+            if (!keepPhotos()) media.cleanUnused(now)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
         }

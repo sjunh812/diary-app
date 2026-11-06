@@ -41,6 +41,12 @@ interface LegacyMigration {
 
     /** 하루가 지난 고쳐 받기 문의 묶음을 지운다(FR-010a). 지웠으면 true. */
     suspend fun cleanUpSupportFiles(): Boolean = false
+
+    /**
+     * 아직 옮기지 못한 일기가 있어 옮겨 둔 사진 사본을 다시 쓸 수 있는가.
+     * 사본은 일기 줄이 없어 쓰지 않는 사진처럼 보이고, 캐시의 원본은 그사이 OS가 지울 수 있다(헌법 I).
+     */
+    suspend fun keepsPhotoCopies(): Boolean = false
 }
 
 /** 옛 앱이 없는 플랫폼(iOS)과 새 설치. */

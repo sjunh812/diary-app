@@ -27,8 +27,11 @@ object PhotoPaths {
             val ext = name.substring(dot + 1).lowercase()
             if (ext in KNOWN) return ext
         }
-        return sniff(head) ?: "bin"
+        return sniff(head) ?: UNKNOWN
     }
+
+    /** 원본 없이 사본을 찾을 때 볼 확장자 차례. 머리 바이트를 볼 수 없어 경로의 확장자를 먼저 본다. */
+    fun extensions(path: String): List<String> = (listOf(extension(path, ByteArray(0))) + KNOWN + UNKNOWN).distinct()
 
     internal fun sniff(head: ByteArray): String? {
         fun at(offset: Int, vararg bytes: Int) =
@@ -44,5 +47,6 @@ object PhotoPaths {
         }
     }
 
+    private const val UNKNOWN = "bin"
     private val KNOWN = setOf("jpg", "jpeg", "png", "webp", "heic", "heif", "gif", "bmp")
 }
