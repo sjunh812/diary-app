@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import androidx.room3.withWriteTransaction
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Instant
@@ -282,8 +283,12 @@ class RestoreController(
 
     private suspend fun mergeBackup(ready: PreparedRestore): RestoreResult {
         // 미리보기 뒤에 일기를 고쳤을 수 있어 합치기 직전의 기기 상태로 다시 가른다.
-        val plan = applier.value.plan(ready.plan.items.map { it.first })
-        return settle(applier.value.apply(plan, SOURCE_DRIVE), ready)
+        // 가른 뒤 쓰기 전에 저장한 일기를 덮어쓰지 않게 가르기부터 한 트랜잭션에 넣는다.
+        val counts =
+            db.value.withWriteTransaction {
+                applier.value.apply(applier.value.plan(ready.plan.items.map { it.first }), SOURCE_DRIVE)
+            }
+        return settle(counts, ready)
     }
 
     private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
