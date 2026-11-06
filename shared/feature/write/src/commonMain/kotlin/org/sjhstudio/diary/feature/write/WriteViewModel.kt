@@ -262,6 +262,12 @@ class WriteViewModel(
         _state.update { it.copy(loading = false, resume = null) }
     }
 
+    /** 시트에서 아무것도 고르지 않고 뒤로 가면 들어온 화면으로 돌아간다. 쓰던 글은 불러오지도, 건드리지도 않는다. */
+    fun leaveOffer() {
+        _state.update { it.copy(resume = null) }
+        viewModelScope.launch { _events.send(WriteEvent.Closed(keptDraft = false)) }
+    }
+
     private fun load(draft: Draft, isEdit: Boolean) {
         key = draft.key
         body = draft.bodyHtml

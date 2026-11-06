@@ -271,11 +271,11 @@ private fun SheetButtons(secondary: String, onSecondary: () -> Unit, primary: St
 
 /** "쓰던 일기가 있어요"(Figma "S2 · 쓰던 일기"). 버리기는 한 번 더 묻는다(FR-011). */
 @Composable
-internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: () -> Unit, onDiscard: () -> Unit) {
+internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: () -> Unit, onDiscard: () -> Unit, onDismiss: () -> Unit) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     DiaryBottomSheet(
-        onDismiss = onContinue,
+        onDismiss = onDismiss,
         title = stringResource(Res.string.write_resume_title),
         description = stringResource(Res.string.write_resume_body, dates.fullDate(offer.date), dates.time(offer.time))
     ) {

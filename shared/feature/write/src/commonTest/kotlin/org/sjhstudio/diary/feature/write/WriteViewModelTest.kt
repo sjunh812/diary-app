@@ -431,6 +431,23 @@ class WriteViewModelTest {
         assertEquals(1, vm.state.value.bodyVersion)
     }
 
+    /** 고르지 않고 뒤로 가면 쓰던 글을 불러오지 않고 나간다. 글은 다음에 다시 물을 수 있게 그대로 남는다. */
+    @Test
+    fun leaving_the_offer_closes_without_loading_the_draft() = runTest(dispatcher) {
+        val repository = FakeDraftRepository(listOf(draft()))
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+
+        vm.leaveOffer()
+        advanceUntilIdle()
+
+        assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = false)), events)
+        assertEquals("", vm.currentBody())
+        assertEquals(0, vm.state.value.bodyVersion)
+        assertEquals("<p>쓰던 글</p>", repository.latestNew()?.bodyHtml)
+    }
+
     /** [새로 쓰기]를 골라도 쓰던 글은 버리기 전까지 남는다(FR-010). */
     @Test
     fun starting_fresh_keeps_the_old_draft() = runTest(dispatcher) {

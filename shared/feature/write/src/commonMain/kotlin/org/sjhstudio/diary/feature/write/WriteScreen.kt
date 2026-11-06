@@ -315,7 +315,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         null -> Unit
     }
     state.resume?.let { offer ->
-        ResumeSheet(offer, onContinue = vm::continueDraft, onFresh = vm::startFresh, onDiscard = { askDiscard = true })
+        ResumeSheet(offer, vm::continueDraft, vm::startFresh, onDiscard = { askDiscard = true }, onDismiss = vm::leaveOffer)
     }
     if (askDiscard) {
         DiaryDialog(
