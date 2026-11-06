@@ -8,6 +8,7 @@
     <string name="home_month_sheet_title">날짜로 가기</string>
     <string name="detail_back">뒤로 가기</string>
     <string name="detail_favorite">즐겨찾기</string>
+    <string name="detail_unfavorite">즐겨찾기 해제</string>
     <string name="detail_edit">수정하기</string>
     <string name="detail_more">더보기</string>
     <string name="detail_share">공유하기</string>

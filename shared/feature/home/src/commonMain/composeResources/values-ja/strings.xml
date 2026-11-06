@@ -8,6 +8,7 @@
     <string name="home_month_sheet_title">日付へ移動</string>
     <string name="detail_back">戻る</string>
     <string name="detail_favorite">お気に入り</string>
+    <string name="detail_unfavorite">お気に入りを解除</string>
     <string name="detail_edit">編集</string>
     <string name="detail_more">その他</string>
     <string name="detail_share">共有</string>

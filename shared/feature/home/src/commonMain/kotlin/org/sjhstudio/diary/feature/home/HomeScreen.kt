@@ -77,6 +77,7 @@ import org.sjhstudio.diary.feature.home.resources.detail_edit
 import org.sjhstudio.diary.feature.home.resources.detail_favorite
 import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
+import org.sjhstudio.diary.feature.home.resources.detail_unfavorite
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_body
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
@@ -154,24 +155,26 @@ fun HomeRoute(
     menuFor?.let { id ->
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
         val share = rememberShareText()
-        DiaryBottomSheet(onDismiss = { menuFor = null }) {
-            DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), DiaryTheme.colors.textPrimary) {
+        EntryMenu(
+            favorite = rows.itemSnapshotList.items.firstOrNull { it.id == id }?.isFavorite == true,
+            onDismiss = { menuFor = null },
+            onEdit = {
                 menuFor = null
                 onEdit(id)
-            }
-            DiarySheetAction(DiaryIcons.StarOutline, stringResource(Res.string.detail_favorite), DiaryTheme.colors.textPrimary) {
+            },
+            onFavorite = {
                 menuFor = null
                 viewModel.toggleFavorite(id)
-            }
-            DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), DiaryTheme.colors.textPrimary) {
+            },
+            onShare = {
                 menuFor = null
                 scope.launch { viewModel.plainText(id)?.let(share) }
-            }
-            DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), DiaryTheme.colors.danger) {
+            },
+            onTrash = {
                 menuFor = null
                 viewModel.moveToTrash(id) { onTrashed(id) }
             }
-        }
+        )
     }
     if (picking) {
         DiaryMonthSheet(
@@ -189,6 +192,33 @@ fun HomeRoute(
             },
             onDismiss = { picking = false }
         )
+    }
+}
+
+/**
+ * 일기 줄을 길게 눌렀을 때의 메뉴.
+ * 즐겨찾기는 그 일기의 상태에 따라 넣기와 해제로 바뀐다.
+ */
+@Composable
+internal fun EntryMenu(
+    favorite: Boolean,
+    onDismiss: () -> Unit,
+    onEdit: () -> Unit,
+    onFavorite: () -> Unit,
+    onShare: () -> Unit,
+    onTrash: () -> Unit
+) {
+    val colors = DiaryTheme.colors
+    DiaryBottomSheet(onDismiss = onDismiss) {
+        DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), colors.textPrimary, onClick = onEdit)
+        DiarySheetAction(
+            if (favorite) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
+            stringResource(if (favorite) Res.string.detail_unfavorite else Res.string.detail_favorite),
+            colors.textPrimary,
+            onClick = onFavorite
+        )
+        DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), colors.textPrimary, onClick = onShare)
+        DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), colors.danger, onClick = onTrash)
     }
 }
 

@@ -77,6 +77,7 @@ import org.sjhstudio.diary.feature.home.resources.detail_missing_title
 import org.sjhstudio.diary.feature.home.resources.detail_more
 import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
+import org.sjhstudio.diary.feature.home.resources.detail_unfavorite
 
 /**
  * 일기 상세(Figma "일기 상세 (S3)").
@@ -115,7 +116,7 @@ fun EntryDetailRoute(
                 val favorite = current.entry.isFavorite
                 DiaryIconButton(
                     if (favorite) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
-                    stringResource(Res.string.detail_favorite),
+                    stringResource(if (favorite) Res.string.detail_unfavorite else Res.string.detail_favorite),
                     viewModel::toggleFavorite,
                     tint = if (favorite) colors.accent else colors.textPrimary
                 )
