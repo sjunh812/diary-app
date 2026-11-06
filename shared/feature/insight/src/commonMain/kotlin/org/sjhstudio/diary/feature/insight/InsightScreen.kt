@@ -83,6 +83,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_flow_all
 import org.sjhstudio.diary.feature.insight.resources.insight_flow_month
 import org.sjhstudio.diary.feature.insight.resources.insight_flow_week
 import org.sjhstudio.diary.feature.insight.resources.insight_flow_year
+import org.sjhstudio.diary.feature.insight.resources.insight_mood_join
 import org.sjhstudio.diary.feature.insight.resources.insight_next
 import org.sjhstudio.diary.feature.insight.resources.insight_no_mood_count
 import org.sjhstudio.diary.feature.insight.resources.insight_no_moods
@@ -310,7 +311,8 @@ private fun SectionTitle(text: String) {
 private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): String {
     val top = counts.top
     if (top.isEmpty()) return stringResource(Res.string.insight_no_moods)
-    val names = top.map { moodName(it) }.joinToString(", ")
+    var names = moodName(top.first())
+    top.drop(1).forEach { names = stringResource(Res.string.insight_mood_join, names, moodName(it)) }
     return stringResource(summaryResource(period, today), names)
 }
 

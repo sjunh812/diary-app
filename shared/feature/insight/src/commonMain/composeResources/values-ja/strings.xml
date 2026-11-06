@@ -16,6 +16,7 @@
     <string name="insight_top_year">今年は「%1$s」が一番多かったです</string>
     <string name="insight_top_all">これまで「%1$s」が一番多いです</string>
     <string name="insight_top_past">この期間は「%1$s」が一番多かったです</string>
+    <string name="insight_mood_join">%1$s、%2$s</string>
     <string name="insight_summary_counts">%1$s・%2$s</string>
     <string name="insight_count_percent">%1$d・%2$d%</string>
     <string name="insight_year_map">今年の毎日の気分</string>

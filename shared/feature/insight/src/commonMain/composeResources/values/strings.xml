@@ -16,6 +16,7 @@
     <string name="insight_top_year">Top mood this year: %1$s</string>
     <string name="insight_top_all">Top mood so far: %1$s</string>
     <string name="insight_top_past">Top mood in this period: %1$s</string>
+    <string name="insight_mood_join">%1$s, %2$s</string>
     <string name="insight_summary_counts">%1$s · %2$s</string>
     <string name="insight_count_percent">%1$d · %2$d%</string>
     <string name="insight_year_map">Each day's mood this year</string>

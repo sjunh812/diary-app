@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
@@ -19,6 +20,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_nudge_body
 import org.sjhstudio.diary.feature.backup.resources.backup_nudge_entries
 import org.sjhstudio.diary.feature.backup.resources.backup_nudge_entries_photos
 import org.sjhstudio.diary.feature.backup.resources.backup_nudge_later
+import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
+import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 
 /**
  * 홈 목록 맨 위의 권하기 카드(Figma B11, FR-036).
@@ -54,9 +57,13 @@ internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLat
     DiaryStatusBox(
         DiaryIcons.ShieldCheck,
         if (nudge.photoCount > 0) {
-            stringResource(Res.string.backup_nudge_entries_photos, nudge.entryCount.grouped(), nudge.photoCount.grouped())
+            stringResource(
+                Res.string.backup_nudge_entries_photos,
+                pluralStringResource(Res.plurals.restore_count_entries, nudge.entryCount, nudge.entryCount.grouped()),
+                pluralStringResource(Res.plurals.restore_count_photos, nudge.photoCount, nudge.photoCount.grouped())
+            )
         } else {
-            stringResource(Res.string.backup_nudge_entries, nudge.entryCount.grouped())
+            pluralStringResource(Res.plurals.backup_nudge_entries, nudge.entryCount, nudge.entryCount.grouped())
         },
         stringResource(Res.string.backup_nudge_body),
         modifier.padding(top = DiarySpacing.x3),
