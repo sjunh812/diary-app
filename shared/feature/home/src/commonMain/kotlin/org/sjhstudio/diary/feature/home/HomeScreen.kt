@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -119,14 +120,16 @@ fun HomeRoute(
     val today = remember { currentDate() }
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 목록이 비어 있으면 오늘이 든 달을 보인다.
     // 스크롤마다 화면을 다시 그리지 않게 맨 위 일기가 바뀔 때만 값이 바뀐다.
-    val shown by remember(rows, list, grid, today) {
+    val visible by remember(rows, list, grid) {
         derivedStateOf {
             val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
-            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date } ?: today
+            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date }
         }
     }
+    var held by remember { mutableStateOf<LocalDate?>(null) }
+    SideEffect { visible?.let { held = it } }
+    val shown = shownDate(visible, held, rows.itemCount > 0, today)
     HomeScreen(
         title = dates.yearMonth(shown),
         rows = rows,
@@ -188,6 +191,15 @@ fun HomeRoute(
         )
     }
 }
+
+/**
+ * 제목에 보일 날짜.
+ * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜를 둔다.
+ * 오늘로 튀었다 돌아오면 제목이 반짝인다.
+ * 목록이 비어 있으면 오늘이 든 달을 보인다.
+ */
+internal fun shownDate(visible: LocalDate?, held: LocalDate?, hasRows: Boolean, today: LocalDate): LocalDate =
+    visible ?: held?.takeIf { hasRows } ?: today
 
 @Composable
 internal fun HomeScreen(
