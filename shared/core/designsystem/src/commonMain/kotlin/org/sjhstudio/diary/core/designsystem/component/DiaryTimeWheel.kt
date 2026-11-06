@@ -52,6 +52,8 @@ import org.sjhstudio.diary.core.designsystem.resources.ds_previous
 import org.sjhstudio.diary.core.designsystem.resources.ds_wheel_ampm
 import org.sjhstudio.diary.core.designsystem.resources.ds_wheel_hour
 import org.sjhstudio.diary.core.designsystem.resources.ds_wheel_minute
+import org.sjhstudio.diary.core.designsystem.resources.ds_wheel_month
+import org.sjhstudio.diary.core.designsystem.resources.ds_wheel_year
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -62,6 +64,10 @@ import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
 private val WheelRow: Dp = 40.dp
 private const val VISIBLE_ROWS = 5
 private val WheelColumnWidth: Dp = 72.dp
+
+/** 달 이름이 긴 언어(September)도 줄지 않는 폭. */
+private val MonthWheelColumnWidth: Dp = 128.dp
+private const val MONTHS = 12
 
 /** 시·분은 끝에서 처음으로 이어 돈다. 이만큼 되풀이해 두고 가운데에서 시작한다. */
 private const val LOOP_REPEAT = 400
@@ -122,6 +128,63 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
     }
 }
 
+/**
+ * 연·월 고르기 휠. 달력의 연월 제목을 누르면 날짜 칸 자리에 나온다(HIG 피커의 휠, `docs/design.md` 시각 고르기와 같은 규격).
+ * 한국어·일본어는 연이 앞, 영어는 달이 앞이다. 달은 끝에서 처음으로 이어 돌고 연은 [years] 끝에서 멈춘다.
+ */
+@Composable
+fun DiaryMonthWheel(
+    year: Int,
+    month: Int,
+    years: IntRange,
+    yearLabel: (Int) -> String,
+    monthLabel: (Int) -> String,
+    onChange: (year: Int, month: Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var shownYear by remember { mutableIntStateOf(year) }
+    var shownMonth by remember { mutableIntStateOf(month) }
+    val change by rememberUpdatedState(onChange)
+    val yearColumn =
+        @Composable {
+            WheelColumn(
+                labels = years.map(yearLabel),
+                selected = year - years.first,
+                loop = false,
+                description = stringResource(Res.string.ds_wheel_year),
+                width = MonthWheelColumnWidth
+            ) { index ->
+                shownYear = years.first + index
+                change(shownYear, shownMonth)
+            }
+        }
+    val monthColumn =
+        @Composable {
+            WheelColumn(
+                labels = (1..MONTHS).map(monthLabel),
+                selected = month - 1,
+                loop = true,
+                description = stringResource(Res.string.ds_wheel_month),
+                width = MonthWheelColumnWidth
+            ) { index ->
+                shownMonth = index + 1
+                change(shownYear, shownMonth)
+            }
+        }
+    Box(modifier.fillMaxWidth().height(WheelRow * VISIBLE_ROWS), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxWidth().height(WheelRow).clip(DiaryShapes.r12).background(DiaryTheme.colors.sunken))
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            if (diaryLanguage() == "en") {
+                monthColumn()
+                yearColumn()
+            } else {
+                yearColumn()
+                monthColumn()
+            }
+        }
+    }
+}
+
 /** 휠 안에서 남은 끌기와 튕김을 다 써 버려서, 휠 끝에 닿아도 바텀 시트가 끌려 내려가지 않게 한다. */
 private val ConsumeRemaining =
     object : NestedScrollConnection {
@@ -131,7 +194,14 @@ private val ConsumeRemaining =
     }
 
 @Composable
-private fun WheelColumn(labels: List<String>, selected: Int, loop: Boolean, description: String, onSelect: (Int) -> Unit) {
+private fun WheelColumn(
+    labels: List<String>,
+    selected: Int,
+    loop: Boolean,
+    description: String,
+    width: Dp = WheelColumnWidth,
+    onSelect: (Int) -> Unit
+) {
     val size = labels.size
     val count = if (loop) size * LOOP_REPEAT else size
     val state = rememberLazyListState(initialFirstVisibleItemIndex = if (loop) size * (LOOP_REPEAT / 2) + selected else selected)
@@ -166,7 +236,7 @@ private fun WheelColumn(labels: List<String>, selected: Int, loop: Boolean, desc
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
             Modifier
-                .width(WheelColumnWidth)
+                .width(width)
                 .height(WheelRow * VISIBLE_ROWS)
                 .nestedScroll(ConsumeRemaining)
                 // 화면 읽기 프로그램은 열 하나를 "시, 10"처럼 읽고, 이전·다음 동작으로 한 칸씩 옮긴다.
@@ -182,7 +252,7 @@ private fun WheelColumn(labels: List<String>, selected: Int, loop: Boolean, desc
     ) {
         items(count) { index ->
             val distance = abs(index - center)
-            Box(Modifier.width(WheelColumnWidth).height(WheelRow), contentAlignment = Alignment.Center) {
+            Box(Modifier.width(width).height(WheelRow), contentAlignment = Alignment.Center) {
                 BasicText(
                     labels[index % size],
                     style = wheelStyle(distance, typography.numeral, typography.reading, typography.body),

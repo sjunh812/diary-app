@@ -26,7 +26,7 @@ import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.DiaryMonthDays
-import org.sjhstudio.diary.core.ui.DiaryMonthStepper
+import org.sjhstudio.diary.core.ui.DiaryMonthPicker
 import org.sjhstudio.diary.core.ui.DiaryMoodGrid
 import org.sjhstudio.diary.core.ui.DiaryWeatherGrid
 import org.sjhstudio.diary.feature.search.resources.Res
@@ -123,28 +123,29 @@ internal fun RangeSheet(initial: DateRange?, today: LocalDate, onDone: (DateRang
     var start by remember { mutableStateOf(initial?.start) }
     var end by remember { mutableStateOf(initial?.end) }
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_period_custom)) {
-        DiaryMonthStepper(month, onChange = { month = it })
-        DiaryMonthDays(
-            month = month,
-            isPicked = { it == start || it == end },
-            inRange = { day -> start?.let { from -> end?.let { to -> day in from..to } } ?: false },
-            onPick = { day ->
-                val first = start
-                when {
-                    first == null || end != null -> {
-                        start = day
-                        end = null
-                    }
+        DiaryMonthPicker(month, onChange = { month = it }) {
+            DiaryMonthDays(
+                month = month,
+                isPicked = { it == start || it == end },
+                inRange = { day -> start?.let { from -> end?.let { to -> day in from..to } } ?: false },
+                onPick = { day ->
+                    val first = start
+                    when {
+                        first == null || end != null -> {
+                            start = day
+                            end = null
+                        }
 
-                    day < first -> {
-                        start = day
-                        end = first
-                    }
+                        day < first -> {
+                            start = day
+                            end = first
+                        }
 
-                    else -> end = day
+                        else -> end = day
+                    }
                 }
-            }
-        )
+            )
+        }
         val from = start
         val to = end
         DiaryButton(

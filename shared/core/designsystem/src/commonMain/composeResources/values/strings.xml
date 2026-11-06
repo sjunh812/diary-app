@@ -21,6 +21,8 @@
     <string name="ds_wheel_ampm">AM or PM</string>
     <string name="ds_wheel_hour">Hour</string>
     <string name="ds_wheel_minute">Minute</string>
+    <string name="ds_wheel_month">Month</string>
+    <string name="ds_wheel_year">Year</string>
     <string name="ds_previous">Previous</string>
     <string name="ds_next">Next</string>
 </resources>

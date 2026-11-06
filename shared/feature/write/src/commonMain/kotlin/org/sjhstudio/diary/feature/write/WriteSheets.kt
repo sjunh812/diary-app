@@ -68,7 +68,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.platform.PlaceLookup
 import org.sjhstudio.diary.core.ui.DiaryMonthDays
-import org.sjhstudio.diary.core.ui.DiaryMonthStepper
+import org.sjhstudio.diary.core.ui.DiaryMonthPicker
 import org.sjhstudio.diary.core.ui.DiaryMoodGrid
 import org.sjhstudio.diary.core.ui.DiaryWeatherGrid
 import org.sjhstudio.diary.core.ui.WeatherIcon
@@ -326,8 +326,9 @@ internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate,
     var month by remember { mutableStateOf(YearMonth(date.year, date.month.number)) }
     var minute by remember { mutableIntStateOf(time.hour * 60 + time.minute) }
     DiaryBottomSheet(onDismiss = onDismiss, title = dates.dayWithWeekday(picked)) {
-        DiaryMonthStepper(month, onChange = { month = it })
-        DiaryMonthDays(month, isPicked = { it == picked }, onPick = { picked = it })
+        DiaryMonthPicker(month, onChange = { month = it }) {
+            DiaryMonthDays(month, isPicked = { it == picked }, onPick = { picked = it })
+        }
         BasicText(stringResource(Res.string.write_time), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
         DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour)
         SheetButtons(

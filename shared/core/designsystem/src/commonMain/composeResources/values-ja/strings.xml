@@ -16,6 +16,8 @@
     <string name="ds_wheel_ampm">午前・午後</string>
     <string name="ds_wheel_hour">時</string>
     <string name="ds_wheel_minute">分</string>
+    <string name="ds_wheel_month">月</string>
+    <string name="ds_wheel_year">年</string>
     <string name="ds_previous">前へ</string>
     <string name="ds_next">次へ</string>
 </resources>
