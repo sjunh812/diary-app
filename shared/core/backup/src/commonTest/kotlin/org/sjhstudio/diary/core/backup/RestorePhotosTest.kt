@@ -6,6 +6,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
@@ -81,6 +82,31 @@ class RestorePhotosTest {
         assertEquals(2, result.photosRestored)
         assertEquals(0, result.photosMissing)
         assertEquals(setOf(MediaStatus.NORMAL.id), b.photoStates().values.toSet())
+    }
+
+    // 파일을 불러올 공간
+
+    @Test
+    fun a_file_too_big_for_the_phone_is_refused_before_copying_with_the_number() = runTest {
+        val zip = export()
+        val size = fs.metadata(zip).size!!
+        b.freeBytes = size
+        val controller = b.controller(backgroundScope)
+
+        val failed = assertIs<RestorePreparation.Failed>(controller.prepareFile(fs.source(zip), size))
+
+        assertEquals(RestoreFailure.NO_SPACE, failed.reason)
+        assertEquals(10L * 1024 * 1024, failed.bytesShort)
+        assertTrue(fs.listOrNull(b.work / "incoming").orEmpty().isEmpty())
+    }
+
+    @Test
+    fun a_file_that_fits_is_read_as_usual() = runTest {
+        val zip = export()
+        val size = fs.metadata(zip).size!!
+        b.freeBytes = size + 11L * 1024 * 1024
+
+        assertIs<RestorePreparation.Ready>(b.controller(backgroundScope).prepareFile(fs.source(zip), size))
     }
 
     // 찾을 수 없는 사진 다시 받기

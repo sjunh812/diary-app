@@ -28,6 +28,7 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFileSaverLauncher
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.sink
+import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.launch
 import okio.buffer
@@ -65,6 +66,8 @@ import org.sjhstudio.diary.feature.backup.resources.file_place_body
 import org.sjhstudio.diary.feature.backup.resources.file_place_title
 import org.sjhstudio.diary.feature.backup.resources.file_read_failed
 import org.sjhstudio.diary.feature.backup.resources.file_read_needs_update
+import org.sjhstudio.diary.feature.backup.resources.file_read_no_space
+import org.sjhstudio.diary.feature.backup.resources.file_read_no_space_plain
 import org.sjhstudio.diary.feature.backup.resources.file_reading
 import org.sjhstudio.diary.feature.backup.resources.file_restore
 import org.sjhstudio.diary.feature.backup.resources.file_restore_body
@@ -96,7 +99,7 @@ fun FileBackupRoute(onBack: () -> Unit, onPreview: () -> Unit, modifier: Modifie
         }
     val picker =
         rememberFilePickerLauncher(type = FileKitType.File()) { file: PlatformFile? ->
-            file?.let { picked -> viewModel.read({ OkioSource(picked.source()) }, onPreview) }
+            file?.let { picked -> viewModel.read({ OkioSource(picked.source()) }, { picked.sizeOrNull() }, onPreview) }
         }
     FileBackupScreen(
         estimate,
@@ -221,7 +224,20 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBack
 private fun readFailedText(failed: FileBackupUi.ReadFailed): String = when (failed.reason) {
     RestoreFailure.NEEDS_UPDATE -> stringResource(Res.string.file_read_needs_update)
     RestoreFailure.BUSY -> stringResource(Res.string.restore_failed_busy_body)
+    RestoreFailure.NO_SPACE ->
+        if (failed.bytesShort > 0) {
+            stringResource(Res.string.file_read_no_space, sizeText(failed.bytesShort))
+        } else {
+            stringResource(Res.string.file_read_no_space_plain)
+        }
     else -> stringResource(Res.string.file_read_failed)
+}
+
+/** 크기를 알려 주지 않는 저장소도 있다. */
+private fun PlatformFile.sizeOrNull(): Long? = try {
+    size().takeIf { it > 0 }
+} catch (_: Exception) {
+    null
 }
 
 @Composable

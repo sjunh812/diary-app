@@ -42,6 +42,7 @@ import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.platform.BackupScheduler
+import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NoBackupScheduler
 
@@ -65,7 +66,8 @@ class RestoreController(
     private val applySettings: suspend (ManifestSettings) -> Unit,
     private val scope: CoroutineScope,
     private val gate: BackupGate = BackupGate(),
-    private val scheduler: BackupScheduler = NoBackupScheduler
+    private val scheduler: BackupScheduler = NoBackupScheduler,
+    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE }
 ) : RestoreRepository {
     private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
     override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
@@ -116,7 +118,24 @@ class RestoreController(
     override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) =
         exporter.value.write(sink, onProgress)
 
-    override suspend fun prepareFile(source: Source): RestorePreparation = if (restoring) busy() else readingFile(source)
+    override suspend fun prepareFile(source: Source, byteSize: Long?): RestorePreparation = when {
+        restoring -> busy()
+        else -> lacking(byteSize) ?: readingFile(source)
+    }
+
+    /** 옮기기 전에 공간을 본다. */
+    private fun lacking(byteSize: Long?): RestorePreparation.Failed? {
+        val needed = (byteSize ?: return null) + ROOM_MARGIN
+        val free = freeSpace.bytes()
+        return if (free < needed) RestorePreparation.Failed(RestoreFailure.NO_SPACE, needed - free) else null
+    }
+
+    /**
+     * 옮기다 실패했을 때 공간이 없어서인지 본다.
+     * 공간이 찬 것을 파일이 깨졌다고 말하지 않는다.
+     */
+    private fun outOfRoom(): RestorePreparation.Failed? =
+        if (freeSpace.bytes() < ROOM_MARGIN) RestorePreparation.Failed(RestoreFailure.NO_SPACE) else null
 
     /**
      * 복원은 고른 파일과 받은 사본을 끝까지 쓴다.
@@ -135,7 +154,7 @@ class RestoreController(
             } catch (error: CancellationException) {
                 throw error
             } catch (_: Exception) {
-                RestorePreparation.Failed(RestoreFailure.MISMATCH)
+                outOfRoom() ?: RestorePreparation.Failed(RestoreFailure.MISMATCH)
             }
         if (result is RestorePreparation.Failed) clearCopies()
         preparedFile = result
@@ -254,7 +273,7 @@ class RestoreController(
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            RestorePreparation.Failed(RestoreFailure.OTHER)
+            outOfRoom() ?: RestorePreparation.Failed(RestoreFailure.OTHER)
         }
     }
 
@@ -444,6 +463,9 @@ class RestoreController(
         const val INCOMING = "incoming"
         const val PICKED = "picked"
         const val HEAD = 4L
+
+        /** 파일을 옮기고 일기 사본을 꺼낼 때 남겨 둘 여유. */
+        const val ROOM_MARGIN = 10L * 1024 * 1024
         val ZIP_HEAD = "504b0304".decodeHex()
         val SQLITE_HEAD = "53514c69".decodeHex()
     }

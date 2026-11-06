@@ -119,7 +119,7 @@ internal class TestPhone(
                 settingsFailure?.let { throw it }
                 appliedSettings += settings
             },
-            scope, gate, FakeBackupScheduler()
+            scope, gate, FakeBackupScheduler(), FreeSpace { freeBytes }
         )
     }
 

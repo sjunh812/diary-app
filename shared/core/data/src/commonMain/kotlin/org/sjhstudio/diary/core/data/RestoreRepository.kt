@@ -61,8 +61,9 @@ interface RestoreRepository {
     /**
      * 사용자가 고른 파일을 앱 안으로 옮겨 확인한다.
      * 미리보기는 [RESTORE_FROM_FILE]로 다시 읽는다.
+     * [byteSize]를 알면 옮기기 전에 공간이 되는지 먼저 본다.
      */
-    suspend fun prepareFile(source: Source): RestorePreparation
+    suspend fun prepareFile(source: Source, byteSize: Long? = null): RestorePreparation
 
     /** 결과 화면을 닫을 때 부른다. */
     fun dismiss()

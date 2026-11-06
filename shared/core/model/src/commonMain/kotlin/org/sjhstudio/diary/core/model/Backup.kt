@@ -188,7 +188,8 @@ data class RollbackInfo(val until: Instant, val entriesBefore: Int, val entriesA
 sealed interface RestorePreparation {
     data class Ready(val entry: BackupEntry, val preview: RestorePreview) : RestorePreparation
 
-    data class Failed(val reason: RestoreFailure) : RestorePreparation
+    /** [bytesShort]는 공간이 얼마나 더 있어야 하는지다. 모르면 0이다. */
+    data class Failed(val reason: RestoreFailure, val bytesShort: Long = 0) : RestorePreparation
 }
 
 /**

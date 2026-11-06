@@ -293,6 +293,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                         )
                     },
                 scheduler = get(),
+                freeSpace = freeSpace,
                 db = database,
                 store = store,
                 network = get(),

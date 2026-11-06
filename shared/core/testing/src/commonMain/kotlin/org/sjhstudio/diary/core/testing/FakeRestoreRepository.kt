@@ -43,7 +43,13 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
 
     override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) = Unit
 
-    override suspend fun prepareFile(source: Source): RestorePreparation = preparation
+    var preparedFileSize: Long? = null
+        private set
+
+    override suspend fun prepareFile(source: Source, byteSize: Long?): RestorePreparation {
+        preparedFileSize = byteSize
+        return preparation
+    }
 
     override suspend fun backups(): List<BackupEntry>? = entries
 

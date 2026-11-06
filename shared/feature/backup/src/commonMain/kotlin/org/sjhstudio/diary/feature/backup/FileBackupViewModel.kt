@@ -3,10 +3,13 @@ package org.sjhstudio.diary.feature.backup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Buffer
 import okio.BufferedSink
 import okio.Sink
@@ -29,7 +32,8 @@ sealed interface FileBackupUi {
 
     data object Reading : FileBackupUi
 
-    data class ReadFailed(val reason: RestoreFailure) : FileBackupUi
+    /** [bytesShort]는 공간이 얼마나 더 있어야 하는지다. 모르면 0이다. */
+    data class ReadFailed(val reason: RestoreFailure, val bytesShort: Long = 0) : FileBackupUi
 }
 
 class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() {
@@ -71,13 +75,15 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     /**
      * 고른 파일을 앱 안으로 옮겨 확인한다.
      * 끝나면 [onReady]로 미리보기에 간다.
+     * [size]는 고른 파일의 크기다.
+     * 몰라도 옮기다 공간이 차면 그렇게 알린다.
      */
-    fun read(open: () -> Source, onReady: () -> Unit) {
+    fun read(open: () -> Source, size: () -> Long? = { null }, onReady: () -> Unit) {
         _state.value = FileBackupUi.Reading
         viewModelScope.launch {
             val result =
                 try {
-                    open().use { source -> restore.prepareFile(source) }
+                    open().use { source -> restore.prepareFile(source, withContext(Dispatchers.IO) { size() }) }
                 } catch (error: CancellationException) {
                     throw error
                 } catch (_: Exception) {
@@ -89,7 +95,7 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
                     onReady()
                 }
 
-                is RestorePreparation.Failed -> _state.value = FileBackupUi.ReadFailed(result.reason)
+                is RestorePreparation.Failed -> _state.value = FileBackupUi.ReadFailed(result.reason, result.bytesShort)
             }
         }
     }
