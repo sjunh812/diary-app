@@ -75,7 +75,11 @@ interface BackupDao {
     @Query("SELECT entry_id FROM merge_mark")
     suspend fun markedIds(): List<String>
 
-    @Query("SELECT COUNT(*) || ':' || COALESCE(MAX(updated_at), 0) FROM entry")
+    /**
+     * 일기가 바뀌었는지 보는 값.
+     * 가장 늦은 시각만 보면 시계가 앞선 기기의 일기가 하나 섞인 뒤로는 어떤 일기를 고쳐도 값이 그대로라 합계까지 본다.
+     */
+    @Query("SELECT COUNT(*) || ':' || COALESCE(MAX(updated_at), 0) || ':' || COALESCE(SUM(updated_at), 0) FROM entry")
     suspend fun entriesFingerprint(): String
 
     @Query("SELECT COUNT(*) FROM entry")
