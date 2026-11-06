@@ -52,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -327,9 +328,10 @@ private fun PaywallBuy(
 @Composable
 private fun Benefit(title: StringResource) {
     val colors = DiaryTheme.colors
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
-        DiaryIcon(DiaryIcons.CircleCheck, contentDescription = null, tint = colors.accent)
-        BasicText(stringResource(title), style = DiaryTheme.typography.reading.copy(color = colors.textPrimary))
+    val reading = DiaryTheme.typography.reading
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        FirstLineIcon(DiaryIcons.CircleCheck, reading, colors.accent, DiaryIconSize.i24)
+        BasicText(stringResource(title), style = reading.copy(color = colors.textPrimary))
     }
 }
 

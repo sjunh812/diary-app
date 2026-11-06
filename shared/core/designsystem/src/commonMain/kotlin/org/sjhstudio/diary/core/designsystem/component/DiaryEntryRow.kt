@@ -125,7 +125,7 @@ fun DiaryEntryRow(
                     meta()
                     if (favorite) {
                         DiaryIcon(
-                            org.sjhstudio.diary.core.designsystem.icon.DiaryIcons.Star,
+                            org.sjhstudio.diary.core.designsystem.icon.DiaryIcons.StarFilled,
                             contentDescription = null,
                             tint = colors.accent,
                             size = org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize.i16

@@ -298,7 +298,7 @@ internal fun CatalogButtons() {
             DiaryButton("지우기", {}, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Danger)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            DiaryChip("좋음", selected = true, onClick = {}, leadingIcon = DiaryIcons.Star)
+            DiaryChip("좋음", selected = true, onClick = {}, leadingIcon = DiaryIcons.StarFilled)
             DiaryChip("기분", selected = false, onClick = {})
         }
     }

@@ -185,7 +185,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
                 stringResource(Res.string.file_restore),
                 onClick = onRestore,
                 description = stringResource(Res.string.file_restore_body),
-                leadingIcon = DiaryIcons.Download
+                leadingIcon = DiaryIcons.Restore
             )
         }
     }

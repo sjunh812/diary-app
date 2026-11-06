@@ -426,7 +426,7 @@ private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit
             text = weather?.let { weatherName(it) } ?: stringResource(Res.string.write_weather),
             selected = weather != null,
             onClick = onWeather,
-            leadingIcon = weather?.icon() ?: DiaryIcons.WeatherMostlyCloudy
+            leadingIcon = weather?.icon() ?: DiaryIcons.WeatherSunny
         )
         DiaryChip(
             text = state.placeName.ifEmpty { stringResource(Res.string.write_place) },

@@ -56,6 +56,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.TrashedEntry
+import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.moodName
@@ -215,7 +216,7 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
-                    row.mood?.let { MoodFace(it, DiaryIconSize.i16, contentDescription = moodName(it)) }
+                    row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }
                     BasicText(
                         stringResource(Res.string.trash_row_when, dates.monthDay(row.date), dates.time(row.time)),
                         style = typography.captionStrong.copy(color = colors.textSecondary),

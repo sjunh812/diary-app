@@ -46,6 +46,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -245,9 +246,10 @@ private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit,
 @Composable
 private fun Promise(text: String) {
     val colors = DiaryTheme.colors
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
-        DiaryIcon(DiaryIcons.CircleCheck, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
-        BasicText(text, Modifier.weight(1f), style = DiaryTheme.typography.body.copy(color = colors.textPrimary))
+    val body = DiaryTheme.typography.body
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+        FirstLineIcon(DiaryIcons.CircleCheck, body, colors.accentText)
+        BasicText(text, Modifier.weight(1f), style = body.copy(color = colors.textPrimary))
     }
 }
 
