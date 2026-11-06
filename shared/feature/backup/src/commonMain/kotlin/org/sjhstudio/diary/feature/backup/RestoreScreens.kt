@@ -5,13 +5,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
@@ -54,6 +57,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
@@ -67,7 +71,9 @@ import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.ui.ByteUnit
-import org.sjhstudio.diary.core.ui.SkeletonRows
+import org.sjhstudio.diary.core.ui.DiarySkeleton
+import org.sjhstudio.diary.core.ui.SkeletonBlock
+import org.sjhstudio.diary.core.ui.SkeletonLine
 import org.sjhstudio.diary.core.ui.byteSize
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -186,7 +192,7 @@ fun RestoreListScreen(
 ) {
     Page(stringResource(Res.string.restore_row), onBack, modifier) {
         when (state) {
-            RestoreListUi.Loading -> LoadingRows(stringResource(Res.string.restore_loading), rows = 3)
+            RestoreListUi.Loading -> LoadingList(stringResource(Res.string.restore_loading))
 
             RestoreListUi.Failed -> {
                 Hero(
@@ -295,7 +301,7 @@ fun RestorePreviewScreen(
 ) {
     Page(stringResource(Res.string.restore_preview_top), onBack, modifier) {
         when (state) {
-            null -> LoadingRows(stringResource(Res.string.restore_preparing), rows = 4)
+            null -> LoadingPreview(stringResource(Res.string.restore_preparing))
 
             is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack)
 
@@ -669,16 +675,67 @@ private fun Page(title: String, onBack: () -> Unit, modifier: Modifier, content:
     }
 }
 
-/** 드라이브를 읽는 동안. 무엇을 기다리는지 한 줄로 말하고 곧 나올 줄 자리를 보여 준다. */
+/** 백업 목록을 읽는 동안. 나올 목록처럼 기기 머리 아래에 두 줄짜리 백업 줄을 둔다. */
 @Composable
-private fun LoadingRows(label: String, rows: Int) {
-    val colors = DiaryTheme.colors
+private fun LoadingList(label: String) {
     BasicText(
         label,
-        Modifier.padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x6),
-        style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+        Modifier.padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x2),
+        style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
     )
-    SkeletonRows(rows = rows)
+    DiarySkeleton {
+        Column(Modifier.fillMaxWidth()) {
+            repeat(LOADING_DEVICES) { device ->
+                SkeletonLine(
+                    Modifier
+                        .padding(
+                            start = DiarySpacing.x5,
+                            top = if (device == 0) DiarySpacing.x5 else DiarySpacing.x6,
+                            bottom = DiarySpacing.x2
+                        ).width(DiarySpacing.x14 + DiarySpacing.x10)
+                )
+                repeat(LOADING_DEVICES - device) {
+                    Column(
+                        Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x3 + DiarySpacing.x0_5),
+                        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+                    ) {
+                        SkeletonLine(Modifier.fillMaxWidth(LOADING_TITLE_WIDTH), DiarySpacing.x4)
+                        SkeletonLine(Modifier.fillMaxWidth(LOADING_BODY_WIDTH))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** 고른 백업을 받아 보는 동안. 나올 확인 화면처럼 배지, 제목, 값 줄 넷, 안내 상자, 버튼 자리를 둔다. */
+@Composable
+private fun ColumnScope.LoadingPreview(label: String) {
+    val colors = DiaryTheme.colors
+    Column(
+        Modifier.weight(1f).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+    ) {
+        DiarySkeleton { SkeletonBlock(Modifier.size(DiarySpacing.x14), DiaryShapes.full) }
+        Spacer(Modifier.height(DiarySpacing.x1))
+        DiarySkeleton { SkeletonLine(Modifier.fillMaxWidth(LOADING_HERO_WIDTH), DiarySpacing.x5) }
+        BasicText(label, style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center))
+        Spacer(Modifier.height(DiarySpacing.x6))
+        DiarySkeleton {
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+                repeat(LOADING_VALUES) {
+                    Row(Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
+                        SkeletonLine(Modifier.fillMaxWidth(LOADING_TITLE_WIDTH))
+                        Spacer(Modifier.weight(1f))
+                        SkeletonLine(Modifier.width(DiarySpacing.x10))
+                    }
+                }
+                SkeletonBlock(Modifier.fillMaxWidth().height(DiarySpacing.x14 + DiarySpacing.x6), DiaryShapes.r16)
+            }
+        }
+    }
+    Bottom { DiarySkeleton { SkeletonBlock(Modifier.fillMaxWidth().height(DiarySpacing.x14), DiaryShapes.r16) } }
 }
 
 /** 큰 배지, 제목, 설명. [fill]이면 남은 자리 가운데에 둔다. */
@@ -764,4 +821,9 @@ internal fun sizeText(bytes: Long): String {
     }
 }
 
+private const val LOADING_DEVICES = 2
+private const val LOADING_VALUES = 4
+private const val LOADING_TITLE_WIDTH = 0.42f
+private const val LOADING_BODY_WIDTH = 0.3f
+private const val LOADING_HERO_WIDTH = 0.5f
 private const val SUPPORT_MAIL = "mailto:sjunh812@naver.com"
