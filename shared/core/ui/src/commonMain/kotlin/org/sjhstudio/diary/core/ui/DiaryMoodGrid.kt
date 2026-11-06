@@ -44,7 +44,7 @@ import org.sjhstudio.diary.core.model.Weather
 @Composable
 fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.offset(x = -DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        for (row in Mood.entries.chunked(GRID_COLUMNS)) {
+        for (row in Mood.ordered.chunked(GRID_COLUMNS)) {
             Row(Modifier.fillMaxWidth()) {
                 for (mood in row) {
                     Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }

@@ -109,7 +109,16 @@ internal fun WeatherGrid(selected: Weather?, onSelect: (Weather) -> Unit, modifi
     DiaryWeatherGrid({ it == selected }, onSelect, modifier)
 }
 
-/** 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고른다(2026-11-05 사용자 지적). */
+/** 이미 고른 값을 지우는 버튼. 고르기 전에는 할 일이 없어서 두지 않는다. */
+@Composable
+private fun ClearButton(onClick: () -> Unit) {
+    DiaryButton(stringResource(Res.string.write_none), onClick, Modifier.fillMaxWidth(), kind = DiaryButtonKind.Text)
+}
+
+/**
+ * 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고른다(2026-11-05 사용자 지적).
+ * 하나만 고르는 시트라 누르면 바로 들어가고 닫힌다. 완료를 한 번 더 누르게 하지 않는다.
+ */
 @Composable
 internal fun MoodSheet(mood: Mood?, onMood: (Mood) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
     DiaryBottomSheet(
@@ -118,7 +127,7 @@ internal fun MoodSheet(mood: Mood?, onMood: (Mood) -> Unit, onClear: () -> Unit,
         description = stringResource(Res.string.write_mood_body)
     ) {
         MoodGrid(mood, onMood)
-        SheetButtons(stringResource(Res.string.write_none), onClear, stringResource(Res.string.write_done), onDismiss)
+        if (mood != null) ClearButton(onClear)
     }
 }
 
@@ -131,7 +140,7 @@ internal fun WeatherSheet(weather: Weather?, onWeather: (Weather) -> Unit, onCle
         description = stringResource(Res.string.write_weather_body)
     ) {
         WeatherGrid(weather, onWeather)
-        SheetButtons(stringResource(Res.string.write_none), onClear, stringResource(Res.string.write_done), onDismiss)
+        if (weather != null) ClearButton(onClear)
     }
 }
 

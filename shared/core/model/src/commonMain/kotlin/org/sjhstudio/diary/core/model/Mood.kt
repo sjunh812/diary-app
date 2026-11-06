@@ -22,6 +22,12 @@ enum class Mood(
     ;
 
     companion object {
+        /**
+         * 화면에 늘어놓는 순서. 좋은 기분부터 힘든 기분까지 이어져 찾기 쉽다.
+         * [entries]는 옛 앱 번호 순서라 화면에 쓰지 않는다.
+         */
+        val ordered: List<Mood> = listOf(GOOD, LAUGH, COOL, MEH, TIRED, SAD, SICK, ANGRY, BAD)
+
         fun fromId(id: String?): Mood? = entries.firstOrNull { it.id == id }
 
         fun fromLegacyCode(code: Int): Mood? = entries.firstOrNull { it.legacyCode == code }

@@ -96,7 +96,7 @@ internal val StatsPeriod.kind: InsightKind
     }
 
 /** 많은 기분부터. 같은 수면 기분 순서를 따른다. */
-internal fun MoodCounts.sorted(): List<Pair<Mood, Int>> = Mood.entries.map { it to (counts[it] ?: 0) }.sortedByDescending { it.second }
+internal fun MoodCounts.sorted(): List<Pair<Mood, Int>> = Mood.ordered.map { it to (counts[it] ?: 0) }.sortedByDescending { it.second }
 
 /** 기분 흐름 한 칸. [mood]는 그 칸의 날들에서 가장 많은 기분이고, 고른 기분이 없으면 null이다. */
 internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?)

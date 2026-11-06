@@ -268,7 +268,10 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         Sheet.Mood ->
             MoodSheet(
                 mood = state.mood,
-                onMood = vm::selectMood,
+                onMood = {
+                    vm.selectMood(it)
+                    sheet = null
+                },
                 onClear = {
                     state.mood?.let(vm::selectMood)
                     sheet = null
@@ -279,7 +282,10 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         Sheet.Weather ->
             WeatherSheet(
                 weather = state.weather,
-                onWeather = vm::selectWeather,
+                onWeather = {
+                    vm.selectWeather(it)
+                    sheet = null
+                },
                 onClear = {
                     state.weather?.let(vm::selectWeather)
                     sheet = null
