@@ -15,7 +15,7 @@ class FakeBackupNotifier : BackupNotifier {
     var cancels = 0
         private set
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         this.at = at
         this.body = body
     }

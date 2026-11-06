@@ -75,9 +75,9 @@ internal class TestPhone(
 
     fun close() = db.close()
 
-    fun runner(api: DriveApi = drive, deviceName: String = name) = BackupRunner(
+    fun runner(api: DriveApi = drive, deviceName: String = name, alerts: BackupAlerts? = null) = BackupRunner(
         db, api, auth, store, network, DeviceName { deviceName }, fs, media, work,
-        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, gate = gate
+        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate
     )
 
     fun applier() = MergeApplier(db, { fs.exists(media / it) }, clock)

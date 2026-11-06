@@ -133,7 +133,7 @@ class IosFreeSpace : FreeSpace {
 class IosBackupNotifier(private val clock: Clock = Clock.System) : BackupNotifier {
     private val center get() = UNUserNotificationCenter.currentNotificationCenter()
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         val content = UNMutableNotificationContent().apply {
             setTitle(title)
             setBody(body)

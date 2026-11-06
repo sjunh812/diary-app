@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.backup
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,7 +46,9 @@ class BackupController(
      * 드라이브에 있는 가장 최근 백업.
      * 못 읽으면 null이다.
      */
-    private val findBackup: suspend () -> BackupEntry? = { null }
+    private val findBackup: suspend () -> BackupEntry? = { null },
+    /** 7일 실패 알림을 다시 걸 때 쓴다. */
+    private val alerts: BackupAlerts? = null
 ) : BackupRepository {
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
     override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
@@ -137,11 +140,43 @@ class BackupController(
     }
 
     override suspend fun backUpIfDue() {
-        if (isDue()) scope.launch { runner.value.runIfChanged() }
+        if (isDue()) scope.launch { runAutomatic() }
     }
 
     override suspend fun runIfDue() {
-        if (isDue()) runner.value.runIfChanged()
+        if (isDue()) runAutomatic()
+    }
+
+    /**
+     * 자동 백업 한 번.
+     * 바뀐 것이 없어 올리지 않은 날도 백업은 잘 되는 중이라 7일 알림을 뒤로 민다.
+     */
+    suspend fun runAutomatic(): BackupOutcome {
+        val outcome = runner.value.runIfChanged()
+        if (outcome == BackupOutcome.Unchanged) stillBackedUp()
+        return outcome
+    }
+
+    /**
+     * 일기가 마지막 백업 그대로라 지난 실패는 더 이을 것이 없다.
+     * 연결이 끊긴 것만은 사용자가 풀어야 해서 남긴다.
+     * 공간이 차서 적지 못해도 다음 자동 백업이 다시 한다.
+     */
+    private suspend fun stillBackedUp() {
+        try {
+            store.update { prefs ->
+                if (prefs.lastFailure == BackupFailure.AUTH) {
+                    prefs
+                } else {
+                    prefs.copy(lastFailure = null, failingSince = null, failureNotifiedAt = null, bytesShort = 0)
+                }
+            }
+            alerts?.schedule(clock.now() + ALERT_AFTER, null)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            return
+        }
     }
 
     private suspend fun isDue(): Boolean {
@@ -155,6 +190,9 @@ class BackupController(
         store.update { it.copy(autoEnabled = enabled) }
         if (enabled) {
             scheduler.scheduleDaily()
+            // 끌 때 지운 알림을 되살린다.
+            // 없으면 자동 백업이 멈춰도 아무도 모른다.
+            alerts?.schedule(clock.now() + ALERT_AFTER, null)
         } else {
             scheduler.cancelDaily()
             notifier.cancel()
@@ -166,10 +204,10 @@ class BackupController(
     override suspend fun disconnect() {
         authorizer.disconnect()
         scheduler.cancelDaily()
-        notifier.cancel()
         // 마지막 백업 기록은 끊은 계정의 것이다.
         // 남겨 두면 다른 계정을 연결했을 때 그 계정의 백업처럼 보인다.
         store.update { it.withoutBackupRecord().copy(accountKey = null, accountLabel = null, autoEnabled = false, userDisconnected = true) }
+        notifier.cancel()
     }
 
     private fun BackupPrefs.withoutBackupRecord() = copy(
@@ -186,6 +224,9 @@ class BackupController(
         restoredBackupAt = null
     )
 }
+
+/** 실패 알림까지의 시간(FR-016). 백업이 성공할 때 거는 값과 같다. */
+private val ALERT_AFTER = 7.days
 
 private const val NUDGE_ENTRIES = 3
 private const val NUDGE_LIMIT = 3

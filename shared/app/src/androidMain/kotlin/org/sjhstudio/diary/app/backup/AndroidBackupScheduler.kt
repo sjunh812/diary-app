@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupOutcome
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -54,7 +55,7 @@ import org.sjhstudio.diary.feature.backup.restoreProgressTitle
 class BackupWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
     KoinComponent {
-    override suspend fun doWork(): Result = when (val outcome = get<BackupRunner>().runIfChanged()) {
+    override suspend fun doWork(): Result = when (val outcome = get<BackupController>().runAutomatic()) {
         is BackupOutcome.Failed -> if (outcome.kind == BackupFailure.OFFLINE ||
             outcome.kind == BackupFailure.DRIVE_ERROR
         ) {
@@ -221,7 +222,7 @@ class BackupAlertWorker(context: Context, params: WorkerParameters) : CoroutineW
 class AndroidBackupNotifier(private val context: Context, private val clock: Clock = Clock.System) : BackupNotifier {
     private val manager get() = WorkManager.getInstance(context)
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         val delay = (at - clock.now()).inWholeMilliseconds.coerceAtLeast(0)
         val work =
             OneTimeWorkRequestBuilder<BackupAlertWorker>()

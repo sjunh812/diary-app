@@ -35,7 +35,7 @@ interface BackupNotifier {
      * 다시 부르면 앞의 예약을 바꾼다.
      * 일기 내용과 개수는 넣지 않는다.
      */
-    fun schedule(at: Instant, title: String, body: String)
+    suspend fun schedule(at: Instant, title: String, body: String)
 
     fun cancel()
 }
