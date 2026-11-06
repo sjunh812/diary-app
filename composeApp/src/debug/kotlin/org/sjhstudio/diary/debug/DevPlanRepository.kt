@@ -34,7 +34,7 @@ class FakePurchases(private val plans: DevPlanRepository) : PurchaseRepository {
     override val manageUrl: String = "https://play.google.com/store/account/subscriptions"
 
     override suspend fun products(): List<StoreProduct> =
-        listOf(StoreProduct(ProductId.AD_FREE, "₩4,400"), StoreProduct(ProductId.PLUS_YEARLY, "₩14,900"))
+        listOf(StoreProduct(ProductId.AD_FREE, "₩9,900"), StoreProduct(ProductId.PLUS_YEARLY, "₩14,900"))
 
     override suspend fun buy(id: ProductId): PurchaseResult {
         plans.choose(if (id == ProductId.PLUS_YEARLY) Plan.PLUS else Plan.AD_FREE)
