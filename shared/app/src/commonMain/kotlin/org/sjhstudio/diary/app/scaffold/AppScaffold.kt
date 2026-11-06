@@ -453,6 +453,7 @@ private fun Content(
                         },
                         onPlus = { backStack.push(PlusKey) },
                         onAdvanced = { backStack.push(AdvancedStatsKey) },
+                        onWrite = onWrite,
                         adSlot = { AdSlot("insight", AdShape.Card) }
                     )
                 }
@@ -464,7 +465,8 @@ private fun Content(
                         onBack = pop,
                         onMood = { mood, range ->
                             backStack.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                        }
+                        },
+                        onWrite = onWrite
                     )
                 }
                 settingsEntries(push = { backStack.push(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })

@@ -45,7 +45,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
-import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
@@ -107,7 +107,6 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_run
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_no_moods
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_no_moods_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_not_enough
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_not_enough_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_all
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_recent
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_year
@@ -138,6 +137,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_tue
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_wed
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_when
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_empty
+import org.sjhstudio.diary.feature.insight.resources.insight_write
 
 private val Weekdays: List<Pair<DayOfWeek, StringResource>> =
     listOf(
@@ -177,11 +177,11 @@ internal fun AdvancedEntry(action: StringResource, onClick: () -> Unit) {
  * 기분을 누르면 그 일기들로 간다.
  */
 @Composable
-fun AdvancedStatsRoute(onBack: () -> Unit, onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier) {
+fun AdvancedStatsRoute(onBack: () -> Unit, onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier, onWrite: () -> Unit = {}) {
     val viewModel = koinViewModel<AdvancedStatsViewModel>()
     val period by viewModel.period.collectAsStateWithLifecycle()
     val data by viewModel.data.collectAsStateWithLifecycle()
-    AdvancedStatsScreen(period, data, viewModel::select, onBack, { onMood(it, viewModel.range()) }, modifier)
+    AdvancedStatsScreen(period, data, viewModel::select, onBack, { onMood(it, viewModel.range()) }, modifier, onWrite)
 }
 
 @Composable
@@ -191,7 +191,8 @@ internal fun AdvancedStatsScreen(
     onPeriod: (AdvancedPeriod) -> Unit,
     onBack: () -> Unit,
     onMood: (Mood) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onWrite: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -206,25 +207,26 @@ internal fun AdvancedStatsScreen(
                 .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)
         ) {
-            DiarySegmentedTabs(
-                labels =
-                    listOf(
-                        stringResource(Res.string.insight_adv_range_recent),
-                        stringResource(Res.string.insight_adv_range_year),
-                        stringResource(Res.string.insight_adv_range_all)
-                    ),
-                selected = period.ordinal,
-                onSelect = { onPeriod(AdvancedPeriod.entries[it]) }
-            )
+            // 빈 한 줄은 탭 아래 칸이라 다른 묶음 사이보다 가깝게 둔다.
+            Column {
+                DiarySegmentedTabs(
+                    labels =
+                        listOf(
+                            stringResource(Res.string.insight_adv_range_recent),
+                            stringResource(Res.string.insight_adv_range_year),
+                            stringResource(Res.string.insight_adv_range_all)
+                        ),
+                    selected = period.ordinal,
+                    onSelect = { onPeriod(AdvancedPeriod.entries[it]) }
+                )
+                if (stats?.enough == false) {
+                    DiaryEmptyLine(stringResource(Res.string.insight_adv_not_enough), stringResource(Res.string.insight_write), onWrite)
+                }
+            }
             when {
                 stats == null -> SkeletonRows(rows = 5, gutter = Dp.Hairline)
 
-                !stats.enough ->
-                    DiaryEmptyState(
-                        DiaryIcons.TabInsight,
-                        stringResource(Res.string.insight_adv_not_enough),
-                        description = stringResource(Res.string.insight_adv_not_enough_body)
-                    )
+                !stats.enough -> Unit
 
                 else -> {
                     stats.recent?.let { Recent(it) }

@@ -10,6 +10,7 @@
     <string name="insight_all_time">전체 기간</string>
     <string name="insight_week_range">%1$s ~ %2$s</string>
     <string name="insight_empty">이 기간에 쓴 일기가 없어요</string>
+    <string name="insight_write">일기 쓰기</string>
     <string name="insight_no_moods">이 기간에 고른 기분이 없어요</string>
     <string name="insight_top_week">이번 주엔 %1$s이 가장 많았어요</string>
     <string name="insight_top_month">이번 달엔 %1$s이 가장 많았어요</string>
@@ -50,7 +51,6 @@
     <string name="insight_adv_range_year">올해</string>
     <string name="insight_adv_range_all">전체</string>
     <string name="insight_adv_not_enough">일기가 7편 쌓이면 보여 드려요.</string>
-    <string name="insight_adv_not_enough_body">기분을 고른 일기가 많을수록 또렷하게 보여요.</string>
     <string name="insight_adv_gap_none_body">일기가 더 쌓이면 다시 살펴볼게요.</string>
     <string name="insight_adv_change_recent">이전 30일과 비교</string>
     <string name="insight_adv_change_year">작년 이맘때와 비교</string>

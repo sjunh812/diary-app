@@ -10,6 +10,7 @@
     <string name="insight_all_time">All time</string>
     <string name="insight_week_range">%1$s – %2$s</string>
     <string name="insight_empty">No entries in this period</string>
+    <string name="insight_write">New entry</string>
     <string name="insight_no_moods">No moods in this period</string>
     <string name="insight_top_week">Top mood this week: %1$s</string>
     <string name="insight_top_month">Top mood this month: %1$s</string>
@@ -52,7 +53,6 @@
     <string name="insight_adv_range_year">This year</string>
     <string name="insight_adv_range_all">All</string>
     <string name="insight_adv_not_enough">This appears once you've written 7 entries.</string>
-    <string name="insight_adv_not_enough_body">The more entries with a mood, the clearer it gets.</string>
     <string name="insight_adv_gap_none_body">We'll look again as you write more.</string>
     <string name="insight_adv_change_recent">Compared with the previous 30 days</string>
     <string name="insight_adv_change_year">Compared with this time last year</string>
