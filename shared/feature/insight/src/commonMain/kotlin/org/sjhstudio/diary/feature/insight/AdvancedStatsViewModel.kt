@@ -21,15 +21,12 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
 
     private val _data = MutableStateFlow<AdvancedStats?>(null)
 
-    /** 기간을 바꾸면 계산이 끝날 때까지 뼈대를 보인다. 다른 화면에 다녀올 때는 그대로 둔다. */
+    /** 처음 읽을 때만 null이다. 기간을 바꾸면 새 값이 나올 때까지 앞 값을 둔다. 잠깐 뼈대를 끼우면 탭을 누를 때마다 깜빡인다. */
     val data: StateFlow<AdvancedStats?> = _data.asStateFlow()
 
     init {
         viewModelScope.launch {
-            _period.collectLatest { period ->
-                _data.value = null
-                stats.advanced(period, today()).collect { _data.value = it }
-            }
+            _period.collectLatest { period -> stats.advanced(period, today()).collect { _data.value = it } }
         }
     }
 

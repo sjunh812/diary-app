@@ -4,10 +4,13 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -61,6 +64,24 @@ class AdvancedStatsViewModelTest {
 
         assertEquals(listOf(AdvancedPeriod.ALL), stats.asked)
         assertNull(viewModel.range())
+    }
+
+    @Test
+    fun switching_keeps_the_last_numbers_until_the_new_ones_arrive() = runTest {
+        val slow = MutableSharedFlow<AdvancedStats>()
+        val stats =
+            object : StatsRepository by Stats() {
+                override fun advanced(period: AdvancedPeriod, today: LocalDate): Flow<AdvancedStats> =
+                    if (period == AdvancedPeriod.ALL) flowOf(advancedStats(emptyList())) else slow
+            }
+        val viewModel = AdvancedStatsViewModel(stats) { today }
+        testScheduler.advanceUntilIdle()
+        val first = assertNotNull(viewModel.data.value)
+
+        viewModel.select(AdvancedPeriod.THIS_YEAR)
+        testScheduler.advanceUntilIdle()
+
+        assertSame(first, viewModel.data.value)
     }
 
     @Test
