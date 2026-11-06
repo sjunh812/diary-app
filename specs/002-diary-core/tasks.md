@@ -106,7 +106,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 ### Implementation for User Story 1
 
 - [x] T035 [US1] `DraftRepository`(`contracts/data-access.md`) 구현을 `shared/core/data/{kt}/core/data/DraftRepositoryImpl.kt`에 만든다 2026-11-04: `diary/DefaultDraftRepository.kt`
-- [x] T036 [US1] `WriteViewModel`(1초 디바운스 저장, `ON_STOP`·이탈 즉시 저장, 새/고치기 대상, 오늘 일기만 날씨·동네 제안(D7 전까지 비워 둠))을 `shared/feature/write/{kt}/feature/write/WriteViewModel.kt`에 만든다 2026-11-04: 날씨·동네 제안은 D7 전까지 비어 있다. 새 일기 임시 저장본은 FR-010을 지키려고 여럿일 수 있게 했다
+- [x] T036 [US1] `WriteViewModel`(1초 디바운스 저장, `ON_STOP`·이탈 즉시 저장, 새 일기/수정 대상, 오늘 일기만 날씨·동네 제안(D7 전까지 비워 둠))을 `shared/feature/write/{kt}/feature/write/WriteViewModel.kt`에 만든다 2026-11-04: 날씨·동네 제안은 D7 전까지 비어 있다. 새 일기 임시 저장본은 FR-010을 지키려고 여럿일 수 있게 했다
 - [x] T037 [US1] 쓰기 화면(날짜·시각 줄, 본문 편집기, 첨부 칩 기분·날씨·장소(30자 안팎), 사진 격자 길게 눌러 순서 바꾸기)을 `shared/feature/write/{kt}/feature/write/WriteScreen.kt`에 만든다 2026-11-04: 넓은 화면(T042)과 함께 만들었다
 - [x] T038 [US1] 키보드 위 서식 도구(굵게, 밑줄, 형광펜 3, 글자색 5, 글머리 목록, 사진, 기분, 날씨, 장소)를 `shared/feature/write/{kt}/feature/write/FormatToolbar.kt`에 만들고 지금 쓰는 줄이 키보드·도구에 가리지 않게 한다(FR-013) 2026-11-04: 라이트 hex와 테마 색을 편집기 앞뒤에서 바꾸는 `EditorColors`와 왕복 시험(`EditorRoundTripUiTest`, iOS 라이트·다크)
 - [x] T039 [US1] 기분·날씨 고르기 시트를 `shared/feature/write/{kt}/feature/write/MoodWeatherSheet.kt`에 만든다 2026-11-04: 기분 5칸, 날씨 4칸으로 줄마다 같은 칸을 쓴다
@@ -123,7 +123,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 **Goal**: 날짜별로 훑고, 읽고, 고치고, 즐겨찾기, 공유
 
-**Independent Test**: 일기 30편에서 훑기, 즐겨찾기만, 다른 달, 한 편 열어 고치기
+**Independent Test**: 일기 30편에서 훑기, 즐겨찾기만, 다른 달, 한 편 열어 수정하기
 
 ### Tests for User Story 2
 
@@ -134,7 +134,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 - [x] T045 [US2] `EntryRepository`의 `timeline`, `entry`, `setFavorite`를 `shared/core/data/{kt}/core/data/EntryRepositoryImpl.kt`에 만든다(Paging 3, 스펙 001 research R4. 썸네일은 001 `ThumbnailRepository`) 2026-11-04: `DefaultEntryRepository`에 있다
 - [x] T046 [P] [US2] `ListPreferencesRepository`(레거시 `skip_note`를 001이 이은 값)를 `shared/core/data/{kt}/core/data/ListPreferencesRepository.kt`에 만든다 2026-11-04: 따로 저장소를 만들지 않고 `SettingsRepository`의 목록 설정으로 뒀다
 - [x] T047 [US2] 홈 ViewModel과 화면(달 머리, 날짜 머리, 3줄 미리보기, 즐겨찾기만, 목록 모양, 연·월 고르기 시트, 빈 상태 "아직 쓴 일기가 없어요" [오늘 일기 쓰기]와 "즐겨찾기한 일기가 없어요")을 `shared/feature/home/{kt}/feature/home/HomeViewModel.kt`, `HomeScreen.kt`에 만든다 2026-11-04: 피드·카드·사진 격자를 설정 > 목록 모양에서 고른다. 백업 줄은 스펙 003에서 붙인다
-- [x] T048 [US2] 상세 화면(서식 본문, 사진, 고치기, 지우기, 즐겨찾기, 공유 = 서식 없는 글)을 `shared/feature/home/{kt}/feature/home/EntryDetailScreen.kt`에 만든다
+- [x] T048 [US2] 상세 화면(서식 본문, 사진, 수정하기, 지우기, 즐겨찾기, 공유 = 서식 없는 글)을 `shared/feature/home/{kt}/feature/home/EntryDetailScreen.kt`에 만든다
 - [x] T049 [P] [US2] 사진 크게 보기(넘기기, 확대, MISSING은 "찾을 수 없는 사진")를 `shared/feature/home/{kt}/feature/home/PhotoViewerScreen.kt`에 만든다
 - [x] T050 [US2] 두 칸(840dp 이상)에서 고른 줄 강조, 고른 게 없을 때 안내, 폭이 줄면 상세가 한 칸으로 쌓이는 동작을 `shared/app/{kt}/app/ListDetailScene.kt`와 홈에 잇는다
 - [x] T051 [P] [US2] 홈·상세 문구를 `shared/feature/home/src/commonMain/composeResources/values/strings.xml`에 둔다
@@ -176,12 +176,12 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 ## Phase 8: User Story 6 - 지우기, 되돌리기, 휴지통 (Priority: P2)
 
-**Independent Test**: 지운 직후 되돌리기, 휴지통 되살리기·완전히 지우기, 30일 지난 항목 비움
+**Independent Test**: 지운 직후 되돌리기, 휴지통 복원하기·완전히 삭제하기, 30일 지난 항목 비움
 
 - [x] T062 [P] [US6] 휴지통 시험: 지우면 모든 질의에서 빠짐, 되돌리기, 30일 지난 것만 비움(고정 시계), 다른 일기가 쓰는 같은 해시 사진은 남김, 사진 정리는 "만든 지 하루가 지난" 미사용 파일만 `shared/core/data/{test}/core/data/TrashRepositoryTest.kt`, `MediaCleanupTest.kt` 2026-11-04: `DiaryReadRepositoryTest`, `DiaryCleanupTest`에 넣었다
 - [x] T063 [US6] `EntryRepository.moveToTrash`·`restore`, `TrashRepository`, `MediaRepository.cleanUnused`를 `shared/core/data/{kt}/core/data/`에 만들고 앱 시작 때 비움 → 정리 순서로 부른다 `shared/app/{kt}/app/StartupJobs.kt` 2026-11-04: 앱 시작이 아니라 이전 관문을 지난 뒤에 `DiaryCleanup`으로 부른다
 - [x] T064 [US6] 지우기 → "휴지통으로 옮겼어요 [되돌리기]" 5초(누르고 있으면 멈춤, research O5 결과 반영)를 상세·목록 줄 메뉴·두 칸 상세에 붙인다 `shared/feature/home/{kt}/feature/home/` 2026-11-04: 목록 줄은 길게 눌러 메뉴를 연다
-- [x] T065 [US6] 휴지통 화면(지운 날짜순, "N일 뒤 완전히 지워져요", 되살리기, 완전히 지우기·비우기 확인에 편수)을 `shared/feature/trash/{kt}/feature/trash/TrashViewModel.kt`, `TrashScreen.kt`에 만들고 문구를 `strings.xml`에 둔다
+- [x] T065 [US6] 휴지통 화면(지운 날짜순, "N일 뒤 완전히 지워져요", 복원하기, 완전히 삭제하기·비우기 확인에 편수)을 `shared/feature/trash/{kt}/feature/trash/TrashViewModel.kt`, `TrashScreen.kt`에 만들고 문구를 `strings.xml`에 둔다
 
 ---
 
@@ -218,7 +218,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 - Phase 1 Figma 프로토타입(T001~T007) → 디자인(T008~T014): 001과 상관없이 지금 시작
 - 스펙 001 완료 → T015~T016 → Phase 2(T017~T031) → 이야기들
-- US1(쓰기)과 US2(목록·상세)는 Phase 2 뒤 나란히 가능. US2의 상세 → 고치기는 US1의 `Write(Edit)`에 기댄다
+- US1(쓰기)과 US2(목록·상세)는 Phase 2 뒤 나란히 가능. US2의 상세 → 수정는 US1의 `Write(Edit)`에 기댄다
 - US3, US4, US5는 Phase 2와 `EntryRepositoryImpl`(T045) 뒤 서로 나란히 가능. US5의 기분 → 일기는 US4 검색 화면에 기댄다
 - US6은 US2(상세·목록 줄)에 기댄다
 - US7은 각 화면이 만들어진 뒤 확인·보정

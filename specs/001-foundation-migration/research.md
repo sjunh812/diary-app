@@ -117,7 +117,7 @@
   "경로 → 해시" 목록(`legacy-snapshot/photos.json`)을 둔다.
 - Rationale: 캐시의 사진은 OS가 언제든 지울 수 있다(`docs/migration.md`). 이전 첫 단계에서 지워지지 않는 곳으로 옮기면 실패해도 사진은 지켜진다(헌법 I).
   사진을 두 번 복사하면 사진 5천 장 기기에서 공간이 두 배로 든다(판단). 원래 경로는 이전 검증(R6)과 옛 드라이브 백업 합치기(스펙 003)에 쓴다.
-- 공간 확인: 시작 전에 `(note.db + wal + shm) × 2 + 아직 없는 사진 크기 합 + 사진 수 × 40KB + 50MB`를 남은 공간과 견주고, 모자라면 시작하지 않고 필요한 양을 알린다.
+- 공간 확인: 시작 전에 `(note.db + wal + shm) × 2 + 아직 없는 사진 크기 합 + 사진 수 × 40KB + 50MB`를 남은 공간과 견주고, 부족하면 시작하지 않고 필요한 양을 알린다.
 - 하드 링크는 쓸 수 없다: 복사 대신 캐시 사진에 하드 링크를 걸면 공간이 들지 않아 검토했지만, Android 16 에뮬레이터에서 `ln cache/x files/y`가
   SELinux에 막혔다(`avc: denied { link } … tcontext=app_data_file`, 2026-11-01 `run-as`로 시험). 앱 자신의 도메인도 같은 제한일 가능성이 커서(판단)
   복사를 그대로 둔다. 원본을 옮기는(rename) 방법은 공간은 안 들지만 원본을 건드려 헌법 I에 어긋난다.
@@ -155,7 +155,7 @@
 ### R12. 생체 인증과 폰 화면 잠금
 
 - Decision: Android는 `androidx.biometric` 1.1.0. 열기는 `BIOMETRIC_WEAK`(취소·실패·잠김이면 비밀번호 칸으로), 비밀번호를 잊었을 때는
-  `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`로 폰 잠금을 확인하고, `KeyguardManager.isDeviceSecure()`가 거짓이면 백업에서 되살리는 길을 안내한다.
+  `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`로 폰 잠금을 확인하고, `KeyguardManager.isDeviceSecure()`가 거짓이면 백업에서 복원하는 길을 안내한다.
   iOS는 `LAContext`로 열기는 `.deviceOwnerAuthenticationWithBiometrics`, 분실은 `.deviceOwnerAuthentication`(생체 또는 기기 암호).
   `NSFaceIDUsageDescription`을 넣는다. 연속 5번 틀리면 30초 기다림이고 횟수와 기다림 끝 시각은 저장해 앱을 다시 켜도 이어진다(FR-020).
 - Rationale: `DEVICE_CREDENTIAL` 단독은 API 30 미만에서 안 되고 `BIOMETRIC_STRONG or DEVICE_CREDENTIAL`은 API 28~29에서 안 된다
