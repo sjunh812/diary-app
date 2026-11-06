@@ -285,11 +285,12 @@ class RestoreController(
     }
 
     private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
-        applySettings(ready.manifest.settings)
+        // 일기는 이미 합쳤다. 설정을 쓰지 못해도 복원이 실패했다고 하지 않고 사진을 마저 받는다.
+        guarded { applySettings(ready.manifest.settings) }
         // 파일에서 되살린 것은 드라이브 백업이 있다는 뜻이 아니다.
         if (ready.bundle == null) {
             val at = Instant.fromEpochMilliseconds(ready.manifest.createdAt)
-            store.update { it.copy(restoredBackupAt = at) }
+            guarded { store.update { it.copy(restoredBackupAt = at) } }
         }
         fileSystem.delete(ready.snapshot, mustExist = false)
         prepared = null
