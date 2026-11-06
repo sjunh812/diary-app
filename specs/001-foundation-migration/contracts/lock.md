@@ -39,6 +39,7 @@ interface DeviceAuthenticator {
 class LockController(/* LockRepository, 앱 범위, 단조 시계 */) {
     val state: StateFlow<LockState>                    // Starting, Unlocked, Locked, NeedsNewPin
     fun onColdStart(initial: LockSettings)
+    fun watchForeground()                              // 프로세스가 끝날 때까지 듣는다. 화면이 사라져도 그만 듣지 않는다
     fun onBackground()
     fun onForeground()
     fun onUnlocked()
@@ -57,6 +58,7 @@ class LockController(/* LockRepository, 앱 범위, 단조 시계 */) {
 - 생체 인증을 켰는데 지금 쓸 수 없으면(`NoneEnrolled`, `Unavailable`) 생체 설정을 끄지 않고 잠금 설정에 "지금 기기에서 생체 인증을 쓸 수 없어요"를 보인다.
 - 다시 잠그기는 앱 전체가 뒤로 갈 때만 잰다(Android `ProcessLifecycleOwner`, iOS 백그라운드 알림). 화면 돌리기로 화면이 다시 만들어지거나
   생체 인증 창이 뜰 때는 재지 않는다. 폰 잠금 확인처럼 다른 화면을 다녀오는 동안은 `withoutRelock`으로 재지 않는다(2026-11-02).
+- 앱이 뒤로 가는 알림은 프로세스와 함께 듣는다. Android 11까지는 맨 앞 화면에서 뒤로 가면 화면이 먼저 사라지고 프로세스는 남아서, 화면이 살아 있는 동안만 들으면 다시 잠기지 않는다(2026-11-07).
 - 다시 잠그기: `onBackground`에서 단조 시각을 적고 `onForeground`에서 `relock_after`(`immediately` 0, `one_minute` 60초, `five_minutes` 300초)가 지났으면 잠근다.
   `cold_start`는 `onColdStart`에서만 잠근다. 모든 값에서 프로세스 새로 시작은 잠근다.
 - 비밀번호를 잊어버렸어요: `isDeviceSecure()`가 참이면 `authenticateDeviceOwner()` 성공 뒤 새 비밀번호 두 번 입력 → `setPin`. 거짓이면

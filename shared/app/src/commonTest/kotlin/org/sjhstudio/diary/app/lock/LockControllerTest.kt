@@ -122,6 +122,41 @@ class LockControllerTest {
         assertEquals(LockState.NeedsNewPin, keyLost.state.value)
     }
 
+    /** 화면을 다시 그릴 때마다 불려도 듣는 곳은 하나다. 두 곳에서 들으면 돌아온 시각을 두 번 잰다. */
+    @Test
+    fun watching_starts_once_however_often_the_gate_appears() = runTest {
+        var watchers = 0
+        val controller = LockController(repository, backgroundScope, clock) { _, _ -> watchers++ }
+
+        repeat(3) { controller.watchForeground() }
+
+        assertEquals(1, watchers)
+    }
+
+    /** Android 11까지는 맨 앞 화면에서 뒤로 가면 화면이 사라지고 나서 앱이 뒤로 갔다고 알린다. 그래도 다시 잠겨야 한다. */
+    @Test
+    fun leaving_is_heard_through_what_was_watched() = runTest {
+        var away: () -> Unit = {}
+        var back: () -> Unit = {}
+        repository.setPin(checkNotNull(Pin.of("2580")))
+        repository.setRelockAfter(RelockAfter.ONE_MINUTE)
+        val controller =
+            LockController(repository, backgroundScope, clock) { onBackground, onForeground ->
+                away = onBackground
+                back = onForeground
+            }
+        controller.onColdStart(repository.settings.first())
+        testScheduler.runCurrent()
+        controller.onUnlocked()
+        controller.watchForeground()
+
+        away()
+        clock.advance(1.minutes)
+        back()
+
+        assertEquals(LockState.Locked, controller.state.value)
+    }
+
     @Test
     fun relock_waits_for_the_chosen_time_even_after_ten_minutes_of_use() = runTest {
         val controller = started(RelockAfter.ONE_MINUTE)
