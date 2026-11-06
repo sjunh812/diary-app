@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.AddPhotosResult
+import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
@@ -190,6 +191,30 @@ class DraftRepositoryTest {
         repository.commit(DraftKey.Edit("e1"))
 
         assertTrue(assertNotNull(db.entryDao().get("e1")).isFavorite)
+    }
+
+    @Test
+    fun a_check_ticked_while_a_draft_waits_is_not_lost() = runTest {
+        db.seed(entry("e1").copy(bodyHtml = "<p>${Checklist.OPEN} 우유</p>"))
+        val entries = DefaultEntryRepository(db, MEDIA_DIR, clock)
+        val draft = assertNotNull(repository.openEdit("e1")).draft
+        repository.save(draft.copy(bodyHtml = "<p>${Checklist.OPEN} 우유 사기</p>"))
+
+        entries.toggleCheck("e1", 0)
+
+        assertTrue(assertNotNull(repository.openEdit("e1")).entryChanged)
+        assertTrue(repository.commit(DraftKey.Edit("e1")) != "e1")
+    }
+
+    @Test
+    fun a_draft_only_matches_an_unchanged_entry() = runTest {
+        db.seed(entry("e1"))
+        val draft = assertNotNull(repository.openEdit("e1")).draft
+        assertTrue(repository.matchesEntry(DraftKey.Edit("e1")))
+
+        repository.save(draft.copy(bodyHtml = "<p>고침</p>"))
+
+        assertFalse(repository.matchesEntry(DraftKey.Edit("e1")))
     }
 
     @Test

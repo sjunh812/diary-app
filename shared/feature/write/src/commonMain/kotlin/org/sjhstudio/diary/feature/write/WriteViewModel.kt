@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -15,11 +18,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -95,8 +100,17 @@ data class WriteUiState(
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
     val saveFailed: Boolean = false,
-    /** 남겨 둔 뒤에 복원이 일기를 바꿨다. 저장하면 두 가지로 남는다고 미리 알린다. */
+    /** 남겨 둔 뒤에 일기가 바뀌었다. 저장하면 두 가지로 남는다고 미리 알린다. */
     val entryChanged: Boolean = false,
+    /** 고른 사진을 넣고 있다. */
+    val addingPhotos: Boolean = false,
+    /** 버릴 내용이 있다. */
+    val canDiscard: Boolean = false,
+    /**
+     * 쓰고 있는 새 일기 임시 저장본의 키.
+     * 화면이 저장해 두었다가 화면 모델이 다시 만들어져도 같은 글을 잇는다.
+     */
+    val draftKey: String? = null,
     /**
      * 저장을 눌렀다.
      * 끝나고 화면이 닫힐 때까지 다시 누를 수 없다.
@@ -142,7 +156,9 @@ class WriteViewModel(
     settings: SettingsRepository? = null,
     private val fonts: FontInstaller? = null,
     plans: PlanRepository? = null,
-    private val places: PlaceFinder = NoPlaceFinder
+    private val places: PlaceFinder = NoPlaceFinder,
+    /** 앱이 종료되거나 잠겼다 돌아와 이어 쓰는 새 일기의 키. */
+    private val restoredKey: String? = null
 ) : ViewModel() {
     /**
      * 한 편에 넣을 수 있는 사진 수.
@@ -170,7 +186,7 @@ class WriteViewModel(
 
     fun mediaPath(fileName: String): String = mediaPath.invoke(fileName)
 
-    private val _state = MutableStateFlow(WriteUiState())
+    private val _state = MutableStateFlow(blank((target as? WriteTarget.New)?.date).copy(isEdit = target is WriteTarget.Edit))
     val state: StateFlow<WriteUiState> = _state.asStateFlow()
 
     private val _events = Channel<WriteEvent>(Channel.BUFFERED)
@@ -209,18 +225,28 @@ class WriteViewModel(
     private var photosJob: Job? = null
     private var locatingJob: Job? = null
 
+    /**
+     * 어떤 글을 쓸지 정해졌다.
+     * 그 전에 임시 저장본을 쓰면 빈 글로 남겨 둔 글을 덮는다.
+     * 카메라에서 돌아온 결과는 화면 모델이 글을 읽기 전에 들어오기도 한다.
+     */
+    private val ready = CompletableDeferred<Unit>()
+
+    /** 넣는 중인 사진. 닫기와 저장은 이 일이 끝나길 기다린다. */
+    private val photoWork = mutableListOf<Job>()
+
+    /** 화면을 떠나는 중이다. 닫기를 연타해도 한 번만 닫는다. */
+    private var leaving = false
+    private var lastRemoved: Instant? = null
+
+    /** 전에 남겨 둔 수정 내용을 이어 열었다. */
+    private var resumed = false
+
     /** 저장본에 쓴 뒤로 바뀐 것이 있는가. */
     private var dirty = false
 
     /** 임시 저장본이 저장소에 있는가. */
     private var stored = false
-
-    /**
-     * 일기에서 새로 만든 수정용 임시 저장본.
-     * 같으면 닫을 때 남기지 않는다.
-     * 전에 남겨 둔 것을 이어 열었으면 null이다.
-     */
-    private var opened: Draft? = null
 
     init {
         viewModelScope.launch {
@@ -236,6 +262,12 @@ class WriteViewModel(
     }
 
     private suspend fun openNew(new: WriteTarget.New) {
+        restoredKey?.let { value ->
+            val restored = DraftKey.New(value)
+            val draft = drafts.draft(restored).first()
+            if (draft != null) load(draft, isEdit = false) else startBlank(new.date, restored)
+            return
+        }
         val existing = drafts.latestNew()
         if (existing != null && existing.canSave()) {
             _state.update {
@@ -243,8 +275,19 @@ class WriteViewModel(
             }
             return
         }
-        existing?.let { key = it.key }
-        _state.value = blank(new.date).copy(loading = false)
+        startBlank(new.date, existing?.key ?: key)
+    }
+
+    /** 빈 글로 시작한다. 편집기에 남은 글도 함께 비운다. */
+    private fun startBlank(date: LocalDate?, draftKey: DraftKey) {
+        key = draftKey
+        body = ""
+        loadedBody = null
+        editorChanged = false
+        stored = false
+        dirty = false
+        _state.update { blank(date).copy(loading = false, draftKey = draftKey.value, bodyVersion = it.bodyVersion + 1) }
+        ready.complete(Unit)
     }
 
     private suspend fun openEdit(entry: WriteTarget.Edit) {
@@ -253,9 +296,7 @@ class WriteViewModel(
             _events.send(WriteEvent.Closed(keptDraft = false))
             return
         }
-        // 남겨 둔 내용은 일기와 달라도 사용자가 고친 것이다.
-        // 손대지 않았다고 지우면 안 된다.
-        opened = edit.draft.takeUnless { edit.resumed }
+        resumed = edit.resumed
         load(edit.draft, isEdit = true)
         _state.update { it.copy(entryChanged = edit.entryChanged) }
     }
@@ -272,11 +313,10 @@ class WriteViewModel(
      * [새로 쓰기].
      * 쓰던 글은 버리기 전까지 그대로 두고 다른 칸에 쓴다(FR-010).
      */
+    fun startFresh() = startBlank((target as? WriteTarget.New)?.date, freshKey())
+
     @OptIn(ExperimentalUuidApi::class)
-    fun startFresh() {
-        key = DraftKey.New("${DraftKey.New.PREFIX}-${Uuid.random()}")
-        _state.update { it.copy(loading = false, resume = null) }
-    }
+    private fun freshKey() = DraftKey.New("${DraftKey.New.PREFIX}-${Uuid.random()}")
 
     /**
      * 시트에서 아무것도 고르지 않고 뒤로 가면 들어온 화면으로 돌아간다.
@@ -305,11 +345,13 @@ class WriteViewModel(
                 placeName = draft.placeName.orEmpty(),
                 bodyVersion = it.bodyVersion + 1,
                 photos = draft.photos,
-                resume = null
+                resume = null,
+                draftKey = draft.key.value.takeUnless { isEdit }
             )
         }
         refreshCanSave()
         watchPhotos()
+        ready.complete(Unit)
     }
 
     private fun blank(date: LocalDate?): WriteUiState {
@@ -438,7 +480,9 @@ class WriteViewModel(
 
     fun addPhotos(picked: List<PickedImage>) {
         if (picked.isEmpty() || _state.value.saving) return
-        viewModelScope.launch {
+        _state.update { it.copy(addingPhotos = true) }
+        val work = viewModelScope.launch {
+            ready.await()
             pending?.cancel()
             val notice =
                 try {
@@ -457,9 +501,21 @@ class WriteViewModel(
                 }
             _state.update { it.copy(photoNotice = notice) }
         }
+        photoWork += work
+        work.invokeOnCompletion {
+            photoWork -= work
+            if (photoWork.isEmpty()) _state.update { it.copy(addingPhotos = false) }
+        }
     }
 
+    /**
+     * 빼면 뒤 사진이 그 자리로 당겨진다.
+     * 연타한 두 번째가 다음 사진까지 빼지 않게 잠깐 받지 않는다.
+     */
     fun removePhoto(index: Int) {
+        val now = clock.now()
+        if (lastRemoved?.let { now - it < REMOVE_GAP } == true) return
+        lastRemoved = now
         write { drafts.removePhoto(key, index) }
     }
 
@@ -491,9 +547,11 @@ class WriteViewModel(
         viewModelScope.launch {
             pending?.cancel()
             try {
+                photoWork.toList().joinAll()
                 flush(force = true)
                 val id = drafts.commit(key)
                 committed = true
+                leaving = true
                 _events.send(WriteEvent.Saved(id))
             } catch (e: CancellationException) {
                 throw e
@@ -510,33 +568,37 @@ class WriteViewModel(
      * 쓴 것이 있으면 묻지 않고 임시 저장한다(FR-011).
      */
     fun close() {
-        // 저장이 끝났으면 쓸 것이 없다.
+        // 저장이 끝났으면 화면이 이미 닫히는 중이다.
         // 저장 중이면 곧 닫히니 임시 저장본을 다시 만들지 않는다.
-        if (committed) {
+        if (leaving || _state.value.saving) return
+        leaving = true
+        // 쓸 글을 고르기 전이면 남겨 둔 글을 건드리지 않는다.
+        if (!ready.isCompleted) {
             viewModelScope.launch { _events.send(WriteEvent.Closed(keptDraft = false)) }
             return
         }
-        if (_state.value.saving) return
         pending?.cancel()
         takeEditorBody()
         // 임시 저장본을 쓰지 못하면 닫지 않는다. 닫으면 쓴 글이 어디에도 남지 않는다(헌법 I).
-        write {
-            val current = currentDraft()
-            val base = opened
+        write(onFailure = { leaving = false }) {
+            photoWork.toList().joinAll()
+            val edit = key as? DraftKey.Edit
             when {
-                base != null && unchanged(base, current) -> {
-                    drafts.discard(key)
+                !currentDraft().canSave() -> {
+                    if (stored) drafts.discard(key)
                     _events.send(WriteEvent.Closed(keptDraft = false))
                 }
 
-                current.canSave() -> {
+                edit != null -> {
                     flush(force = true)
-                    _events.send(WriteEvent.Closed(keptDraft = true))
+                    val same = drafts.matchesEntry(edit)
+                    if (same) drafts.discard(key)
+                    _events.send(WriteEvent.Closed(keptDraft = !same))
                 }
 
                 else -> {
-                    if (stored) drafts.discard(key)
-                    _events.send(WriteEvent.Closed(keptDraft = false))
+                    flush(force = true)
+                    _events.send(WriteEvent.Closed(keptDraft = true))
                 }
             }
         }
@@ -548,8 +610,11 @@ class WriteViewModel(
      * 고치던 일기는 그대로 남고 고친 내용만 버린다.
      */
     fun discard() {
-        write {
+        if (leaving) return
+        leaving = true
+        write(onFailure = { leaving = false }) {
             pending?.cancel()
+            photoWork.toList().joinAll()
             drafts.discard(key)
             _events.send(WriteEvent.Discarded)
         }
@@ -559,8 +624,8 @@ class WriteViewModel(
     fun discardOffered() {
         write {
             drafts.latestNew()?.let { drafts.discard(it.key) }
-            key = DraftKey.New()
-            _state.update { it.copy(loading = false, resume = null) }
+            // 남아 있는 다른 임시 저장본을 덮지 않게 새 키로 시작한다.
+            startBlank((target as? WriteTarget.New)?.date, freshKey())
         }
     }
 
@@ -581,12 +646,13 @@ class WriteViewModel(
      * 앱이 꺼지면 아직 쓰지 못한 글을 잃는다.
      * 글은 화면에 남아 있으니 알리고, 다음에 쓸 때 다시 해 본다.
      */
-    private fun write(block: suspend () -> Unit): Job = viewModelScope.launch {
+    private fun write(onFailure: () -> Unit = {}, block: suspend () -> Unit): Job = viewModelScope.launch {
         try {
             block()
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
+            onFailure()
             _state.update { it.copy(saveFailed = true) }
         }
     }
@@ -594,10 +660,13 @@ class WriteViewModel(
     private fun refreshCanSave() {
         val draft = currentDraft()
         val canSave = if (editorChanged) draft.canSave(hasText = editorHasText) else draft.canSave()
-        _state.update { it.copy(canSave = canSave) }
+        // 수정은 고친 것이 있을 때만, 새 글은 쓴 것이 있을 때만 버릴 수 있다.
+        val canDiscard = if (key is DraftKey.Edit) resumed || dirty || editorChanged else canSave
+        _state.update { it.copy(canSave = canSave, canDiscard = canDiscard) }
     }
 
     private suspend fun flush(force: Boolean = false) {
+        if (!ready.isCompleted) return
         takeEditorBody()
         // 저장 중이면 곧 임시 저장본이 지워진다.
         // 다시 만들지 않는다.
@@ -643,10 +712,8 @@ class WriteViewModel(
             }
     }
 
-    private fun unchanged(a: Draft, b: Draft): Boolean =
-        a.copy(updatedAt = b.updatedAt, placeName = a.placeName?.trim()?.ifEmpty { null }) == b
-
     private companion object {
         const val SAVE_DELAY_MILLIS = 1_000L
+        val REMOVE_GAP = 400.milliseconds
     }
 }

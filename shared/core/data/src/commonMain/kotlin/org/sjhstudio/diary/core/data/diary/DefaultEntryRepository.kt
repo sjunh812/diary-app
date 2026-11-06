@@ -145,10 +145,14 @@ class DefaultEntryRepository(
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = entries.setFavorite(id, favorite, nowMillis())
 
-    override suspend fun toggleCheck(id: String, index: Int) = entries.edit(id) { entry ->
-        Checklist.toggleInHtml(entry.bodyHtml, index)?.let { body ->
-            entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis())
+    override suspend fun toggleCheck(id: String, index: Int) {
+        entries.edit(id) { entry ->
+            Checklist.toggleInHtml(entry.bodyHtml, index)?.let { body ->
+                entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis())
+            }
         }
+        // 고치다 남겨 둔 글을 저장해도 지금 누른 체크가 사라지지 않게 한다.
+        db.draftDao().markEntryChanged(id)
     }
 
     override suspend fun moveToTrash(id: String) {

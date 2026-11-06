@@ -93,6 +93,12 @@ interface DraftRepository {
     suspend fun openEdit(entryId: String): OpenedEdit?
 
     /**
+     * 수정용 임시 저장본이 일기와 같은지.
+     * 앱이 다시 떠도 알 수 있어야 손대지 않은 글이 저장본으로 남지 않는다.
+     */
+    suspend fun matchesEntry(key: DraftKey.Edit): Boolean
+
+    /**
      * 글과 칩을 쓴다.
      * 사진은 아래 함수들이 맡는다.
      * 디바운스는 화면 모델이 한다.

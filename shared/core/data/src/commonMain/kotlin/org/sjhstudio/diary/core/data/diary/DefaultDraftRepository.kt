@@ -72,6 +72,16 @@ class DefaultDraftRepository(
             OpenedEdit(opened.draft.asModel(opened.media), opened.resumed, opened.draft.entryChanged)
         }
 
+    override suspend fun matchesEntry(key: DraftKey.Edit): Boolean = inOrder(key) {
+        val draft = drafts.get(key.value) ?: return@inOrder true
+        val old = entries.get(key.entryId) ?: return@inOrder false
+        val photosChanged = photosChanged(key, media.forEntry(old.id))
+        !photosChanged && draft.toEntry(old.id, old, clock.now().toEpochMilliseconds(), photosChanged = false) == old
+    }
+
+    private suspend fun photosChanged(key: DraftKey, oldMedia: List<MediaEntity>): Boolean =
+        drafts.media(key.value).map { it.sha256 } != oldMedia.filter { it.isEditable }.map { it.sha256 }
+
     override suspend fun save(draft: Draft) = drafts.upsert(draft.asEntity())
 
     override suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult = inOrder(key) {
@@ -125,7 +135,7 @@ class DefaultDraftRepository(
         // 복원으로 일기가 사라졌어도 쓴 글은 새 일기로 남긴다.
         val old = (key as? DraftKey.Edit)?.let { entries.get(it.entryId) }
         val oldMedia = old?.let { media.forEntry(it.id) }.orEmpty()
-        val photosChanged = rows.map { it.sha256 } != oldMedia.filter { it.isEditable }.map { it.sha256 }
+        val photosChanged = photosChanged(key, oldMedia)
         val id = old?.id ?: Uuid.random().toString()
         val entry = draft.toEntry(id, old, now, photosChanged)
         if (old != null && draft.entryChanged && (entry != old || photosChanged)) return@inOrder keepBoth(key, draft, rows, old, now)

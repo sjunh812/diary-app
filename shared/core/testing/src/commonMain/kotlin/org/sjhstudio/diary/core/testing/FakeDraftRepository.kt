@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.testing
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -35,6 +36,9 @@ class FakeDraftRepository(
      */
     var nextAddResult: AddPhotosResult? = null
 
+    /** 있으면 사진을 더하기 전에 기다린다. 사진을 넣는 중인 상황을 만든다. */
+    var addGate: CompletableDeferred<Unit>? = null
+
     val saved: List<Draft> get() = drafts.value.values.toList()
     val committed = mutableListOf<DraftKey>()
     val discarded = mutableListOf<DraftKey>()
@@ -58,12 +62,19 @@ class FakeDraftRepository(
         return OpenedEdit(draft, resumed = false)
     }
 
+    override suspend fun matchesEntry(key: DraftKey.Edit): Boolean {
+        val draft = drafts.value[key] ?: return true
+        val entry = editable[key.entryId] ?: return false
+        return draft.copy(updatedAt = entry.updatedAt, placeName = draft.placeName?.trim()?.ifEmpty { null }) == entry
+    }
+
     override suspend fun save(draft: Draft) {
         check(!failWrites) { "쓰기 실패" }
         drafts.update { all -> all + (draft.key to draft.copy(photos = all[draft.key]?.photos ?: draft.photos)) }
     }
 
     override suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult {
+        addGate?.await()
         check(!failWrites) { "쓰기 실패" }
         nextAddResult?.let { return it }
         drafts.update { all ->
