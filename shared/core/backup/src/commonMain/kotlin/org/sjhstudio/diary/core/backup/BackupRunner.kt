@@ -107,13 +107,28 @@ class BackupRunner(
         }
     }
 
-    /** 자동 백업. 일기, 사진, 설정이 마지막 성공 뒤로 그대로면 올리지 않는다(contracts/backup-flow.md). */
+    /** 자동 백업. 일기, 사진, 설정이 마지막 성공 뒤로 그대로이고 그 백업이 드라이브에 있으면 올리지 않는다(contracts/backup-flow.md). */
     suspend fun runIfChanged(): BackupOutcome = runCatchingFailure {
         val prefs = store.current()
-        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint()) {
+        if (prefs.photosNotBackedUp == 0 && prefs.lastSuccessFingerprint == fingerprint() && stillOnDrive(prefs.lastSuccessSnapshot)) {
             BackupOutcome.Unchanged
         } else {
             run()
+        }
+    }
+
+    /**
+     * 사용자가 드라이브에서 지웠으면 일기가 그대로여도 백업이 없는 것이다.
+     * 드라이브를 볼 수 없으면 있다고 보고 다음 기회를 기다린다.
+     */
+    private suspend fun stillOnDrive(snapshot: String?): Boolean {
+        if (snapshot == null) return false
+        return try {
+            drive.list(DriveQuery(name = "$snapshot.json", props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_MANIFEST))).files.isNotEmpty()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            true
         }
     }
 
