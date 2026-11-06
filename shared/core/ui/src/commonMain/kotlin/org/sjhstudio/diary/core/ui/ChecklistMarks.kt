@@ -24,7 +24,10 @@ import org.sjhstudio.diary.core.ui.resources.checklist_check
 import org.sjhstudio.diary.core.ui.resources.checklist_uncheck
 
 private const val CORNER = 0.25f
-private val GAP = 6.dp
+private val GAP = 4.dp
+
+// 둥근 칸은 글줄보다 안쪽으로 보여서 조금 내어 그린다. 그만큼 칸이 커지고 왼쪽 선은 그대로 맞아 보인다.
+private val OUTDENT = 1.dp
 private const val CHECK_START_X = 0.26f
 private const val CHECK_START_Y = 0.52f
 private const val CHECK_MIDDLE_X = 0.43f
@@ -50,10 +53,11 @@ fun Modifier.checklistMarks(text: () -> String, layout: () -> TextLayoutResult?,
                 val glyph = result.getBoundingBox(start)
                 // 글꼴마다 표시와 칸의 폭이 달라서, 글과 닿지 않는 크기로 맞춘다.
                 val advance = result.getBoundingBox(start + 1).right - glyph.left
-                val room = advance - GAP.toPx()
+                val outdent = OUTDENT.toPx()
+                val room = advance - GAP.toPx() + outdent
                 val fontSize = result.layoutInput.style.fontSize
                 val side = minOf(if (fontSize.isSp) fontSize.toPx() else glyph.height, room)
-                val topLeft = Offset(glyph.left, glyph.center.y - side / 2)
+                val topLeft = Offset(glyph.left - outdent, glyph.center.y - side / 2)
                 // 표시 글자는 뒤의 칸까지 덮어야 넓은 그림 문자가 비치지 않는다.
                 drawRect(background, glyph.topLeft, Size(advance, glyph.height))
                 if (line[0] == Checklist.DONE) {
