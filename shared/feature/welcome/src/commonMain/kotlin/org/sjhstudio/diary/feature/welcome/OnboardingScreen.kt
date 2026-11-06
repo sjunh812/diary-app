@@ -106,8 +106,10 @@ fun OnboardingScreen(
         val asking = pages[pager.currentPage] == Page.BACKUP && !connected
         // 마지막 장은 아래 버튼이 곧 끝이라 건너뛸 것이 없다.
         // 칸은 남겨 그림이 움직이지 않게 한다.
+        // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
+        // 글자 버튼 안쪽이 16이다.
         Box(
-            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.minTouchTarget).padding(horizontal = DiarySpacing.x2),
+            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(end = LocalScreenGutter.current - DiarySpacing.x4),
             contentAlignment = Alignment.CenterEnd
         ) {
             if (asking || !last) {

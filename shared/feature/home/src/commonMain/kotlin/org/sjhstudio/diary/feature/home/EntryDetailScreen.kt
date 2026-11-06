@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -109,7 +110,10 @@ fun EntryDetailRoute(
         modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(horizontal = DiarySpacing.x1),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             onBack?.let { DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.detail_back), it) }
             Box(Modifier.weight(1f))
             if (current != null) {

@@ -63,6 +63,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -349,42 +350,60 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
 private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
-    Box(Modifier.fillMaxWidth().height(DiarySpacing.x14)) {
-        ToolButton(
-            DiaryIcons.Close,
-            stringResource(Res.string.write_close),
-            colors.textPrimary,
-            Modifier.align(Alignment.CenterStart).padding(start = DiarySpacing.x1),
-            onClick = onClose
-        )
-        val interaction = remember { MutableInteractionSource() }
-        Row(
-            Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = DiarySpacing.x14)
-                .heightIn(min = DiarySpacing.minTouchTarget)
-                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r8)
-                .clip(DiaryShapes.r8)
-                .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate)
-                .padding(DiarySpacing.x1),
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicText(
-                dates.dayWithWeekday(state.date),
-                style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+    val interaction = remember { MutableInteractionSource() }
+    Layout(
+        content = {
+            ToolButton(
+                DiaryIcons.Close,
+                stringResource(Res.string.write_close),
+                colors.textPrimary,
+                Modifier.padding(start = DiarySpacing.x1),
+                onClick = onClose
             )
-            DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i20)
+            Row(
+                Modifier
+                    .heightIn(min = DiarySpacing.minTouchTarget)
+                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                    .clip(DiaryShapes.r12)
+                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate)
+                    .padding(horizontal = DiarySpacing.x2),
+                horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BasicText(
+                    dates.dayWithWeekday(state.date),
+                    modifier = Modifier.weight(1f, fill = false),
+                    style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
+            }
+            // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
+            // 글자 버튼 안쪽이 16이다.
+            DiaryButton(
+                stringResource(Res.string.write_save),
+                onSave,
+                Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x4),
+                kind = DiaryButtonKind.Text,
+                enabled = state.canSave && !state.saving
+            )
+        },
+        modifier = Modifier.fillMaxWidth().height(DiarySpacing.x14)
+    ) { (close, title, save), constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val start = close.measure(loose)
+        val end = save.measure(loose)
+        // 날짜는 늘 화면 가운데다.
+        // 양옆 가운데 넓은 쪽만큼 비워서 긴 언어나 큰 글자에서도 저장 글자와 겹치지 않고 날짜 글자가 말줄임된다.
+        val side = maxOf(start.width, end.width)
+        val middle = title.measure(loose.copy(maxWidth = (constraints.maxWidth - side * 2).coerceAtLeast(0)))
+        val height = constraints.maxHeight
+        layout(constraints.maxWidth, height) {
+            start.placeRelative(0, (height - start.height) / 2)
+            middle.placeRelative((constraints.maxWidth - middle.width) / 2, (height - middle.height) / 2)
+            end.placeRelative(constraints.maxWidth - end.width, (height - end.height) / 2)
         }
-        DiaryButton(
-            stringResource(Res.string.write_save),
-            onSave,
-            Modifier.align(Alignment.CenterEnd),
-            kind = DiaryButtonKind.Text,
-            enabled = state.canSave && !state.saving
-        )
     }
 }
 

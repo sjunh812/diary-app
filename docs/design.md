@@ -163,7 +163,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 버튼 종류 | primary(accent), secondary(sunken), weak(selected + accentText), text, danger | TDS 버튼 색 종류 |
 | 칩 | 위치처럼 몇 초 기다리는 칩은 글 뒤에 점 세 개(지름 4, 사이 2, `textSecondary`, 차례로 밝아짐, 동작 줄이기면 멈춤)를 둔다(2026-11-06) · 32 · 좌우 12(앞 아이콘이 있으면 왼쪽 10) · 아이콘과 글 사이 4 · full · `label` 한 줄, 넘치면 말줄임 · 아이콘 16 · 터치 높이 48(폭은 칩 그대로, 넓히면 짧은 칩이 줄 왼쪽에서 밀린다) | SEED Chip, M3 터치 48, M3 칩은 아이콘 쪽 여백이 좁다(8) |
 | 검색 칸 | 44 · 모서리 12 · 돋보기 20 · 지우기 원 16, 누르는 곳 48 · `body` | TDS SearchField 44/r12 |
-| 상단 바 | 56 · 제목 `headline` · 아이콘 칸 48 · 오른쪽 동작(저장 같은)은 채운 버튼이 아니라 글자 버튼(`headline`, `accentText`, 좌우 12), 할 수 없으면 38% | SEED TopNavigation 56, HIG·M3 상단 바 글자 동작 |
+| 상단 바 | 56 · 제목 `headline` · 아이콘 칸 48 · 오른쪽 동작(저장, 건너뛰기 같은)은 채운 버튼이 아니라 글자 버튼(`headline`, `accentText`, 좌우 12), 할 수 없으면 38% · 글자 끝은 화면 여백에 맞춘다 · 가운데 제목을 누를 수 있으면(쓰기 날짜) 큰 제목 버튼과 같은 누름 면(모서리 12, 옆 8)에 화살표 16이고, 긴 글은 저장과 겹치지 않게 제목 글자만 말줄임한다 | SEED TopNavigation 56, HIG·M3 상단 바 글자 동작 |
 | 하단 탭 | 64 + 안전 영역 · 칸은 폭을 고르게 나눈다 · 아이콘 24 · 이름 `micro` 한 줄 · 고른 탭은 `textPrimary`와 굵은 선, 나머지 `textTertiary` · 이름은 기기 글자 크기를 1.3배까지만 따른다(레일도 같다) | M3 내비 바 64(권장), 토스 탭, Apple 탭 막대는 글자 크기를 따라 커지지 않는다(WWDC 2017 "Building Apps with Dynamic Type", UIKit `UILargeContentViewerInteraction`) |
 | 레일(600dp 이상) | 80 · 항목 64 · 위에 쓰기 버튼 · 낮은 가로 화면에서 넘치면 스크롤 | M3 narrow rail 80 |
 | 쓰기 버튼 | 56 · 모서리 16 · 화면 끝 20, 탭 위 16 · 일기가 하나도 없는 홈에서는 숨기고 빈 상태의 버튼 하나만 둔다(2026-11-06 사용자 결정) | M3 FAB 56/16 |

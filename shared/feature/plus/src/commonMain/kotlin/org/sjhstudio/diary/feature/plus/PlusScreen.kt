@@ -189,7 +189,10 @@ internal fun PaywallScreen(
         // 넓은 화면의 결제 칸은 가운데에 있어 화면 아래에 고정된 것이 없다.
         LaunchedEffect(wide) { if (wide) onBuyHeight(0) }
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(horizontal = DiarySpacing.x1),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 DiaryIconButton(DiaryIcons.Close, stringResource(Res.string.plus_close), onClose)
                 Spacer(Modifier.weight(1f))
                 DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.QuietText)
