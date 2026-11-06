@@ -63,6 +63,7 @@ import org.sjhstudio.diary.app.navigation.ListDetailSceneStrategy
 import org.sjhstudio.diary.app.navigation.ListPane
 import org.sjhstudio.diary.app.navigation.LocalInListDetail
 import org.sjhstudio.diary.app.navigation.LocalRailWidth
+import org.sjhstudio.diary.app.navigation.OpenRequestedScreens
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
@@ -139,6 +140,7 @@ import org.sjhstudio.diary.feature.write.WriteTarget
 @Composable
 fun AppScaffold(startTab: TabScreen = HomeKey) {
     val nav = rememberTabNavigation(startTab)
+    OpenRequestedScreens(koinInject(), nav)
     val items =
         listOf(
             DiaryNavItem(stringResource(Res.string.tab_home), DiaryIcons.TabHome, DiaryIcons.TabHomeSelected),

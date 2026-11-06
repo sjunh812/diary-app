@@ -42,6 +42,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
@@ -91,6 +92,7 @@ class AppScaffoldUiTest {
             modules(
                 backupFeatureModule,
                 module {
+                    single { AppLaunch() }
                     single<PlanRepository> { FreePlanRepository() }
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
                     single<BackupRepository> { FakeBackupRepository() }
