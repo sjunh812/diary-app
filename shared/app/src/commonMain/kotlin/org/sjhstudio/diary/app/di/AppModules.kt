@@ -251,7 +251,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                             legacy.value.find(get<SettingsRepository>().settings.first().legacyBackup?.fileId)
                         }
                     },
-                planner = lazy { RestorePlanner(drive, applier.value, freeSpace, system, work) },
+                planner = lazy { RestorePlanner(drive, applier.value, freeSpace, system, work, store::deviceId) },
                 applier = applier,
                 fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work) },
                 legacy = legacy,

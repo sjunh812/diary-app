@@ -11,13 +11,23 @@ enum class MergeAction { ADD, KEEP, REPLACE, KEEP_BOTH }
 
 /** 드라이브·묶음 파일 합치기 규칙. 쓰기 없이 돌려 미리보기 숫자도 여기서 낸다. 지금 기기의 일기는 지우지 않는다(FR-022). */
 object MergeRules {
-    /** [base]는 이 일기의 `sync_base` 값이다. */
-    fun decide(backup: MergeEntry, local: MergeEntry?, base: Long?): MergeAction {
+    /**
+     * [base]는 이 일기의 `sync_base` 값이다.
+     * 기준값이 없으면 어느 쪽이 먼저인지 알 수 없다. 이 기기가 만든 백업이면 한 줄기 기록이라 늦은 쪽이 맞고,
+     * 다른 기기 백업([fromOtherDevice])이면 한쪽 수정을 잃지 않게 둘 다 남긴다(헌법 I, 2026-11-06 사용자 결정).
+     */
+    fun decide(backup: MergeEntry, local: MergeEntry?, base: Long?, fromOtherDevice: Boolean = false): MergeAction {
         if (local == null) return MergeAction.ADD
         val b = backup.entry.updatedAt
         val l = local.entry.updatedAt
         if (l == b) return if (sameContent(backup, local)) MergeAction.KEEP else MergeAction.KEEP_BOTH
-        if (base == null) return if (b > l) MergeAction.REPLACE else MergeAction.KEEP
+        if (base == null) {
+            return when {
+                !fromOtherDevice -> if (b > l) MergeAction.REPLACE else MergeAction.KEEP
+                sameContent(backup, local) -> MergeAction.KEEP
+                else -> MergeAction.KEEP_BOTH
+            }
+        }
         return when {
             b <= base -> MergeAction.KEEP
 

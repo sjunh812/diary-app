@@ -294,7 +294,7 @@ class RestoreController(
         // 가른 뒤 쓰기 전에 저장한 일기를 덮어쓰지 않게 가르기부터 한 트랜잭션에 넣는다.
         val counts =
             db.value.withWriteTransaction {
-                applier.value.apply(applier.value.plan(ready.plan.items.map { it.first }), SOURCE_DRIVE)
+                applier.value.apply(applier.value.plan(ready.plan.items.map { it.first }, ready.fromOtherDevice), SOURCE_DRIVE)
             }
         return settle(counts, ready)
     }

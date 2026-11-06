@@ -1,11 +1,13 @@
 package org.sjhstudio.diary.core.backup
 
 import androidx.room3.useWriterConnection
+import androidx.room3.withWriteTransaction
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 import okio.FileSystem
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.SyncBaseEntity
 import org.sjhstudio.diary.core.model.MediaStatus
 
 /** 뜬 스냅샷. 숫자와 확인값은 목록 파일에 들어간다. */
@@ -64,5 +66,29 @@ class SnapshotWriter(private val db: DiaryDatabase, private val fileSystem: File
 
     companion object {
         val DEVICE_TABLES = listOf("backup_media", "sync_base", "merge_mark", "draft", "draft_media")
+    }
+}
+
+/**
+ * [snapshot]에 담은 일기마다 "이 값까지 밖에 내보냈다"고 적는다.
+ * 다음 합치기가 양쪽에서 고쳤는지, 한쪽만 고쳤는지를 이 값으로 가른다.
+ * 스냅샷을 뜬 뒤에 영구 삭제한 일기는 적을 곳이 없어 뺀다.
+ */
+internal suspend fun DiaryDatabase.rememberBases(snapshot: Path) {
+    val connection = BundledSQLiteDriver().open(snapshot.toString())
+    val bases =
+        try {
+            connection.prepare("SELECT id, updated_at FROM entry").use { statement ->
+                buildList {
+                    while (statement.step()) add(SyncBaseEntity(statement.getText(0), statement.getLong(1)))
+                }
+            }
+        } finally {
+            connection.close()
+        }
+    withWriteTransaction {
+        val dao = backupDao()
+        val here = dao.entryIds().toHashSet()
+        dao.setBase(bases.filter { it.entryId in here })
     }
 }

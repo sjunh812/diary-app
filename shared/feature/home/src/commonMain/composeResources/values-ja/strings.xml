@@ -17,9 +17,10 @@
     <string name="detail_missing_photo">写真が見つかりません</string>
     <string name="home_search">検索</string>
     <string name="detail_kept_both_title">2つ残しました</string>
-    <string name="detail_kept_both_body">両方で編集された日記です。好きな方だけ残せます。</string>
+    <string name="detail_kept_both_body">両方で編集された日記です。こちらだけ残すと、もう一方はゴミ箱に移します。</string>
     <string name="detail_kept_both_other">もう一方を見る</string>
-    <string name="detail_kept_both_close">閉じる</string>
+    <string name="detail_kept_both_keep">こちらだけ残す</string>
+    <string name="detail_kept_both_close">両方残す</string>
     <string name="detail_elsewhere_photo">元のスマホにある写真</string>
     <string name="home_error_title">日記を読み込めませんでした</string>
     <string name="home_error_body">少し時間をおいて、もう一度お試しください。</string>

@@ -68,6 +68,12 @@ class EntryDetailViewModel(
         viewModelScope.launch { entries.clearKeptBoth(entryId) }
     }
 
+    /** 이쪽만 남긴다. 다른 쪽은 지우지 않고 휴지통으로 옮겨서 되살릴 수 있다. 두 표시는 함께 사라진다. */
+    fun keepThisVersion() {
+        val other = (state.value as? EntryDetailState.Ready)?.detail?.keptBothWith ?: return
+        viewModelScope.launch { entries.moveToTrash(other) }
+    }
+
     fun moveToTrash() {
         leaving.value = true
         viewModelScope.launch {

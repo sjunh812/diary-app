@@ -98,6 +98,7 @@ class BundleTest {
 
     private val photo = "사진 내용".encodeToByteArray()
     private val hash = photo.toByteString().sha256().hex()
+    private var estimated = 0L
 
     private suspend fun exportFromA(): Path {
         fs.write(dir / "a" / "media" / "$hash.jpg") { write(photo) }
@@ -113,6 +114,7 @@ class BundleTest {
                 dir / "a" / "backup",
                 BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
             )
+        estimated = exporter.estimate().bytes
         val zip = dir / "exported.zip"
         fs.sink(zip).buffer().use { exporter.write(it) }
         return zip
@@ -127,6 +129,22 @@ class BundleTest {
     )
 
     private fun fetcher() = PhotoFetcher(phoneB, FakeDrive(fs), fs, dir / "b" / "media", dir / "b" / "backup")
+
+    @Test
+    fun saving_a_file_remembers_what_left_this_phone() = runTest {
+        exportFromA()
+
+        assertEquals(mapOf("one" to 7L, "two" to 7L), phoneA.backupDao().bases().associate { it.entryId to it.baseUpdatedAt })
+    }
+
+    @Test
+    fun estimate_is_close_to_the_saved_file() = runTest {
+        val zip = exportFromA()
+        val saved = fs.metadata(zip).size!!
+
+        // 사진과 DB가 파일 대부분이고 남는 것은 안내 글, 목록 파일, zip 머리뿐이다.
+        assertTrue(estimated in (saved - saved / 5)..saved, "예상 $estimated, 실제 $saved")
+    }
 
     @Test
     fun bundle_comes_back_on_an_empty_device() = runTest {
@@ -265,7 +283,7 @@ class BundleTest {
     }
 
     @Test
-    fun the_estimate_counts_live_entries_and_every_body() = runTest {
+    fun the_estimate_counts_only_live_entries() = runTest {
         phoneA.entryDao().insertAll(
             listOf(
                 EntryEntity("live", "2026-10-31", "21:40", "1234", "글", null, null, null, false, 1, 7, null, null, null, null),
@@ -282,6 +300,5 @@ class BundleTest {
         val estimate = exporter.estimate()
 
         assertEquals(1, estimate.entries)
-        assertEquals(20, estimate.bytes)
     }
 }

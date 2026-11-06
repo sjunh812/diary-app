@@ -69,6 +69,7 @@ import org.sjhstudio.diary.feature.home.resources.detail_edit
 import org.sjhstudio.diary.feature.home.resources.detail_favorite
 import org.sjhstudio.diary.feature.home.resources.detail_kept_both_body
 import org.sjhstudio.diary.feature.home.resources.detail_kept_both_close
+import org.sjhstudio.diary.feature.home.resources.detail_kept_both_keep
 import org.sjhstudio.diary.feature.home.resources.detail_kept_both_other
 import org.sjhstudio.diary.feature.home.resources.detail_kept_both_title
 import org.sjhstudio.diary.feature.home.resources.detail_missing_body
@@ -127,6 +128,7 @@ fun EntryDetailRoute(
                     diaryBodyTextStyle(look.font, look.size) { family },
                     onPhoto,
                     onOtherVersion,
+                    viewModel::keepThisVersion,
                     viewModel::dismissKeptBoth,
                     viewModel::toggleCheck
                 )
@@ -166,6 +168,7 @@ internal fun Body(
     bodyStyle: androidx.compose.ui.text.TextStyle,
     onPhoto: (Int) -> Unit,
     onOtherVersion: (String) -> Unit = {},
+    onKeepThis: () -> Unit = {},
     onDismissKeptBoth: () -> Unit = {},
     onCheck: (Int) -> Unit = {}
 ) {
@@ -223,8 +226,10 @@ internal fun Body(
                 stringResource(Res.string.detail_kept_both_body),
                 actionLabel = stringResource(Res.string.detail_kept_both_other),
                 onAction = { onOtherVersion(other) },
-                secondaryLabel = stringResource(Res.string.detail_kept_both_close),
-                onSecondary = onDismissKeptBoth
+                secondaryLabel = stringResource(Res.string.detail_kept_both_keep),
+                onSecondary = onKeepThis,
+                quietLabel = stringResource(Res.string.detail_kept_both_close),
+                onQuiet = onDismissKeptBoth
             )
         }
         if (detail.photos.isNotEmpty()) Gallery(detail.photos, onPhoto)

@@ -28,7 +28,7 @@ class MergeApplier(
     private val clock: Clock = Clock.System,
     private val newId: () -> String = { Uuid.random().toString() }
 ) {
-    suspend fun plan(backup: List<MergeEntry>): MergePlan {
+    suspend fun plan(backup: List<MergeEntry>, fromOtherDevice: Boolean = false): MergePlan {
         val dao = db.backupDao()
         val media = dao.allMedia().groupBy { it.entryId }
         val local = dao.allEntries().associate { it.id to MergeEntry(it, media[it.id].orEmpty()) }
@@ -36,7 +36,7 @@ class MergeApplier(
         val sameTime = local.values.groupBy { it.entry.updatedAt }
         return MergePlan(
             backup.map { item ->
-                val action = MergeRules.decide(item, local[item.entry.id], bases[item.entry.id])
+                val action = MergeRules.decide(item, local[item.entry.id], bases[item.entry.id], fromOtherDevice)
                 // 둘 다 남긴 일기는 기준값을 그대로 두므로 같은 백업을 또 합치면 또 둘 다로 나온다.
                 // 백업과 같은 사본이 이미 있으면 그 일이 끝난 것이다.
                 val copied =

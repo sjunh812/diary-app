@@ -30,6 +30,13 @@ class MergeRulesTest {
     fun case5_both_changed_keeps_both() = assertEquals(MergeAction.KEEP_BOTH, MergeRules.decide(entry(9, "백업"), entry(8, "기기"), 5))
 
     @Test
+    fun case6_no_base_from_other_device_keeps_both() {
+        assertEquals(MergeAction.KEEP_BOTH, MergeRules.decide(entry(9, "백업"), entry(5, "기기"), null, fromOtherDevice = true))
+        assertEquals(MergeAction.KEEP_BOTH, MergeRules.decide(entry(5, "백업"), entry(9, "기기"), null, fromOtherDevice = true))
+        assertEquals(MergeAction.KEEP, MergeRules.decide(entry(9), entry(5), null, fromOtherDevice = true))
+    }
+
+    @Test
     fun case6_no_base_later_one_wins() {
         assertEquals(MergeAction.REPLACE, MergeRules.decide(entry(9), entry(5), null))
         assertEquals(MergeAction.KEEP, MergeRules.decide(entry(5), entry(9), null))

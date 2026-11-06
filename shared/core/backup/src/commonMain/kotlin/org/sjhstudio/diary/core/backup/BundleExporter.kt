@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import androidx.room3.useReaderConnection
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -30,12 +31,20 @@ class BundleExporter(
     suspend fun estimate(): BundleEstimate {
         val dao = db.backupDao()
         val photos = dao.localPhotos().filter { it.fileName != null }
-        val sizes = dao.entrySizes()
         return BundleEstimate(
-            entries = sizes.visibleEntries,
+            entries = dao.entrySizes().visibleEntries,
             photos = photos.size,
-            bytes = photos.sumOf { it.byteSize ?: 0 } + sizes.bodyCharacters * 2
+            bytes = photos.sumOf { it.byteSize ?: 0 } + databaseBytes()
         )
+    }
+
+    /** 스냅샷은 빈 쪽 없이 만들어지므로 빈 쪽을 뺀 크기가 파일 안의 DB 크기와 가깝다. */
+    private suspend fun databaseBytes(): Long = db.useReaderConnection { connection ->
+        suspend fun pragma(name: String): Long = connection.usePrepared("PRAGMA $name") { statement ->
+            statement.step()
+            statement.getLong(0)
+        }
+        (pragma("page_count") - pragma("freelist_count")) * pragma("page_size")
     }
 
     /** 글을 먼저 담고 사진을 잇는다. 쓰다 멈추면 저장한 곳의 파일은 쓸 수 없고 기기의 기록은 그대로다. */
@@ -67,6 +76,8 @@ class BundleExporter(
                 listOf(BundleItem(README, dir / README), BundleItem(MANIFEST, dir / MANIFEST), BundleItem(SNAPSHOT, snapshot.path)) +
                     local.map { row -> row.fileName!!.let { BundleItem("$MEDIA/$it", mediaDir / it) } }
             BundleWriter(fileSystem).write(sink, items) { done -> onProgress(done, items.size) }
+            // 파일로만 주고받아도 다음 합치기가 한쪽만 고쳤는지 알아볼 수 있게 드라이브 백업처럼 적어 둔다.
+            db.rememberBases(snapshot.path)
         } finally {
             fileSystem.deleteRecursively(dir)
         }

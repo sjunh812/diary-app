@@ -32,7 +32,9 @@ fun DiaryStatusBox(
     onAction: (() -> Unit)? = null,
     secondaryLabel: String? = null,
     onSecondary: (() -> Unit)? = null,
-    secondaryKind: DiaryButtonKind = DiaryButtonKind.Weak
+    secondaryKind: DiaryButtonKind = DiaryButtonKind.Weak,
+    quietLabel: String? = null,
+    onQuiet: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
@@ -61,6 +63,9 @@ fun DiaryStatusBox(
                 DiaryButton(actionLabel, onClick = onAction, size = DiaryButtonSize.Small, kind = DiaryButtonKind.Weak)
                 if (secondaryLabel != null && onSecondary != null) {
                     DiaryButton(secondaryLabel, onClick = onSecondary, size = DiaryButtonSize.Small, kind = secondaryKind)
+                }
+                if (quietLabel != null && onQuiet != null) {
+                    DiaryButton(quietLabel, onClick = onQuiet, size = DiaryButtonSize.Small, kind = DiaryButtonKind.QuietText)
                 }
             }
         }

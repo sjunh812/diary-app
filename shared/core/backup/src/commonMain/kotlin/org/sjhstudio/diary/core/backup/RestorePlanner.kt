@@ -49,7 +49,9 @@ data class PreparedRestore(
     val preview: RestorePreview,
     val snapshot: Path,
     /** 파일에서 복원할 때의 묶음 파일. 사진을 여기서 꺼낸다. */
-    val bundle: Path? = null
+    val bundle: Path? = null,
+    /** 다른 기기가 만든 백업이면 기준값 없는 일기를 둘 다 남긴다(contracts/merge-rules.md 경우 6). */
+    val fromOtherDevice: Boolean = false
 )
 
 /** 스냅샷 받기 → 확인값·일기 수 확인 → 쓰기 없이 합치기를 돌려 숫자를 낸다(contracts/merge-rules.md). */
@@ -58,7 +60,8 @@ class RestorePlanner(
     private val applier: MergeApplier,
     private val freeSpace: FreeSpace,
     private val fileSystem: FileSystem,
-    private val workDir: Path
+    private val workDir: Path,
+    private val thisDevice: (suspend () -> String)? = null
 ) {
     suspend fun prepare(candidate: RestoreCandidate): PreparedRestore {
         val manifest = readable(candidate.manifest)
@@ -104,7 +107,8 @@ class RestorePlanner(
             fileSystem.delete(path, mustExist = false)
             throw RestoreMismatch()
         }
-        val plan = applier.plan(entries)
+        val fromOtherDevice = thisDevice?.let { manifest.device.id != it() } ?: false
+        val plan = applier.plan(entries, fromOtherDevice)
         val needed = neededPhotos(plan, manifest)
         val preview =
             RestorePreview(
@@ -119,7 +123,7 @@ class RestorePlanner(
                 deviceBytesFree = freeSpace.bytes(),
                 entriesHere = plan.local.values.count { it.entry.deletedAt == null }
             )
-        return PreparedRestore(manifest, plan, preview, path)
+        return PreparedRestore(manifest, plan, preview, path, fromOtherDevice = fromOtherDevice)
     }
 
     private fun neededPhotos(plan: MergePlan, manifest: Manifest): List<ManifestMedia> {
