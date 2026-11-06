@@ -49,6 +49,7 @@ fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> U
                     .fillMaxHeight()
                     .selectable(isSelected, interactionSource = interaction, indication = null, role = Role.Tab) { onSelect(index) }
                     .padding(vertical = DiarySpacing.x1)
+                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r8)
                     .clip(DiaryShapes.r8)
                     .background(if (isSelected) colors.canvas else colors.sunken),
                 contentAlignment = Alignment.Center

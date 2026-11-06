@@ -27,6 +27,7 @@ import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -81,6 +82,7 @@ private fun YearArrow(icon: ImageVector, enabled: Boolean, onClick: () -> Unit) 
     Box(
         Modifier
             .size(DiarySpacing.minTouchTarget)
+            .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
             .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -95,6 +97,7 @@ private fun MonthCell(label: String, selected: Boolean, enabled: Boolean, modifi
     Box(
         modifier
             .height(DiarySpacing.minTouchTarget)
+            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .clip(DiaryShapes.r12)
             .background(
                 when {

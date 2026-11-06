@@ -558,7 +558,12 @@ private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp
             contentAlignment = Alignment.TopEnd
         ) {
             Box(
-                Modifier.padding(DiarySpacing.x1).size(DiaryWriteSize.removeBadge).clip(DiaryShapes.full).background(colors.overlay),
+                Modifier
+                    .padding(DiarySpacing.x1)
+                    .size(DiaryWriteSize.removeBadge)
+                    .diaryPress(interaction, colors.onAccent, DiaryShapes.full)
+                    .clip(DiaryShapes.full)
+                    .background(colors.overlay),
                 contentAlignment = Alignment.Center
             ) {
                 DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onAccent, size = DiaryIconSize.i12)
@@ -848,8 +853,13 @@ private fun Swatch(
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center
     ) {
-        if (selected) Box(Modifier.size(DiaryWriteSize.swatch + DiarySpacing.x2).border(DiarySpacing.x0_5, theme.accent, ring))
-        chip()
+        Box(
+            Modifier
+                .size(DiaryWriteSize.swatch + DiarySpacing.x2)
+                .diaryPress(interaction, theme.textPrimary, ring)
+                .then(if (selected) Modifier.border(DiarySpacing.x0_5, theme.accent, ring) else Modifier),
+            contentAlignment = Alignment.Center
+        ) { chip() }
     }
 }
 
