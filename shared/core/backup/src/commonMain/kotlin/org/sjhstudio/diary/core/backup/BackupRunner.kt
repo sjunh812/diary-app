@@ -68,10 +68,20 @@ sealed interface BackupOutcome {
  * [text]는 까닭에 맞는 제목과 본문을 준다.
  * 까닭을 모르면 null이다.
  */
-class BackupAlerts(private val notifier: BackupNotifier, private val text: suspend (BackupFailure?) -> Pair<String, String>) {
+class BackupAlerts(
+    private val notifier: BackupNotifier,
+    private val folderText: suspend () -> Pair<String, String>,
+    private val text: suspend (BackupFailure?) -> Pair<String, String>
+) {
     suspend fun schedule(at: Instant, failure: BackupFailure?) {
         val (title, body) = text(failure)
         notifier.schedule(at, title, body)
+    }
+
+    /** 사용자가 지운 백업 폴더를 새로 만들었다고 한 번 알린다(`docs/backup.md` "지운 폴더"). */
+    suspend fun folderRecreated() {
+        val (title, body) = folderText()
+        notifier.show(title, body)
     }
 }
 
@@ -240,8 +250,14 @@ class BackupRunner(
                 is TokenResult.Failed -> throw DriveException(token.kind)
             }
         val deviceId = store.deviceId()
+        val before = store.current()
         val folders = DriveLayout(drive, fileSystem).ensure(workDir / OUTGOING, readme())
-        store.update { it.copy(rootFolderId = folders.root) }
+        // 처음 백업이나 다른 계정이면 지운 폴더가 아니라 원래 없던 폴더다.
+        val recreated = folders.created && before.rootFolderId != null && before.rootFolderAccount == account.key
+        store.update {
+            it.copy(rootFolderId = folders.root, rootFolderAccount = account.key, folderRecreated = it.folderRecreated || recreated)
+        }
+        if (recreated) quietly { alerts?.folderRecreated() }
 
         step(BackupStep.Snapshotting)
         val now = clock.now()
@@ -337,18 +353,17 @@ class BackupRunner(
         }
 
         step(BackupStep.Pruning)
-        afterSuccess {
+        // 성공은 이미 적었다.
+        // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 한다.
+        quietly {
             alerts?.schedule(now + ALERT_AFTER, null)
             prune(folders, deviceId, now)
         }
         return BackupOutcome.Done(uploaded.size, left, unusableNow.size)
     }
 
-    /**
-     * 성공은 이미 적었다.
-     * 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 한다.
-     */
-    private suspend fun afterSuccess(block: suspend () -> Unit) {
+    /** 알림과 뒷정리가 실패해도 백업을 멈추거나 실패로 만들지 않는다. */
+    private suspend fun quietly(block: suspend () -> Unit) {
         try {
             block()
         } catch (error: CancellationException) {

@@ -78,6 +78,11 @@ class RestoreStatusViewModel(private val restore: RestoreRepository) : ViewModel
 
     val rollback: StateFlow<RollbackRun> = restore.rollbackRun
 
+    val folderRecreated: StateFlow<Boolean> =
+        restore.folderRecreated.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
+
+    fun dismissFolderRecreated() = restore.dismissFolderRecreated()
+
     fun fetchNow() = restore.fetchPhotosNow()
 
     fun rollBack() {

@@ -50,6 +50,19 @@ private fun Progress(dark: Boolean, state: RestoreState) = DiaryTheme(darkTheme 
 private fun Waiting(dark: Boolean, waiting: WaitingPhotos?, rollback: RollbackRun = RollbackRun.IDLE) =
     DiaryTheme(darkTheme = dark) { RestoreStatusBar(waiting, rollback, {}, {}, {}) }
 
+@Composable
+private fun FolderNotice(dark: Boolean) = DiaryTheme(darkTheme = dark) {
+    RestoreStatusBar(null, RollbackRun.IDLE, {}, {}, {}, folderRecreated = true)
+}
+
+@Preview(locale = "ko")
+@Composable
+private fun FolderNoticeLight() = FolderNotice(false)
+
+@Preview(locale = "ko")
+@Composable
+private fun FolderNoticeDark() = FolderNotice(true)
+
 @Preview(locale = "ko")
 @Composable
 private fun RollbackWaitingLight() = Waiting(false, null, RollbackRun.WAITING)

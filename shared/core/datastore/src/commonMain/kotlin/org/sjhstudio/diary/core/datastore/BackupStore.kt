@@ -26,6 +26,13 @@ data class BackupPrefs(
     val accountKey: String? = null,
     val accountLabel: String? = null,
     val rootFolderId: String? = null,
+    /** [rootFolderId]가 어느 계정의 폴더인지. */
+    val rootFolderAccount: String? = null,
+    /**
+     * 드라이브에서 지워진 백업 폴더를 새로 만들었다.
+     * 사용자가 확인하면 내린다.
+     */
+    val folderRecreated: Boolean = false,
     val deviceId: String? = null,
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
@@ -97,6 +104,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         accountKey = this[Keys.ACCOUNT_KEY],
         accountLabel = this[Keys.ACCOUNT_LABEL],
         rootFolderId = this[Keys.ROOT_FOLDER_ID],
+        rootFolderAccount = this[Keys.ROOT_FOLDER_ACCOUNT],
+        folderRecreated = this[Keys.FOLDER_RECREATED] ?: false,
         deviceId = this[Keys.DEVICE_ID],
         autoEnabled = this[Keys.AUTO_ENABLED] ?: false,
         photosOnCellular = this[Keys.PHOTOS_ON_CELLULAR] ?: false,
@@ -127,6 +136,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.ACCOUNT_KEY, prefs.accountKey)
         setOrRemove(Keys.ACCOUNT_LABEL, prefs.accountLabel)
         setOrRemove(Keys.ROOT_FOLDER_ID, prefs.rootFolderId)
+        setOrRemove(Keys.ROOT_FOLDER_ACCOUNT, prefs.rootFolderAccount)
+        this[Keys.FOLDER_RECREATED] = prefs.folderRecreated
         this[Keys.AUTO_ENABLED] = prefs.autoEnabled
         this[Keys.PHOTOS_ON_CELLULAR] = prefs.photosOnCellular
         setOrRemove(Keys.LAST_SUCCESS_AT, prefs.lastSuccessAt?.toEpochMilliseconds())
@@ -158,6 +169,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val ACCOUNT_KEY = stringPreferencesKey("account_key")
         val ACCOUNT_LABEL = stringPreferencesKey("account_label")
         val ROOT_FOLDER_ID = stringPreferencesKey("root_folder_id")
+        val ROOT_FOLDER_ACCOUNT = stringPreferencesKey("root_folder_account")
+        val FOLDER_RECREATED = booleanPreferencesKey("folder_recreated")
         val DEVICE_ID = stringPreferencesKey("device_id")
         val AUTO_ENABLED = booleanPreferencesKey("auto_enabled")
         val PHOTOS_ON_CELLULAR = booleanPreferencesKey("photos_on_cellular")

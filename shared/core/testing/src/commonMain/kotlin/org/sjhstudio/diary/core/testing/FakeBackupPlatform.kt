@@ -8,6 +8,17 @@ import org.sjhstudio.diary.core.platform.NetworkState
 class FakeNetworkState(override var isConnected: Boolean = true, override var isUnmetered: Boolean = true) : NetworkState
 
 class FakeBackupNotifier : BackupNotifier {
+    /** 바로 띄운 알림의 본문. */
+    val shown = mutableListOf<String>()
+
+    /** 값을 넣으면 알림을 띄우다 실패한다. */
+    var showFailure: Exception? = null
+
+    override fun show(title: String, body: String) {
+        showFailure?.let { throw it }
+        shown += body
+    }
+
     var at: Instant? = null
         private set
     var body: String? = null

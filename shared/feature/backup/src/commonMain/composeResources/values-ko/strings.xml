@@ -159,6 +159,9 @@
     <string name="restore_replace_action">바꾸기</string>
     <string name="restore_failed_space_title">휴대폰 공간이 부족해요</string>
     <string name="restore_failed_space_body">지금 일기를 보관해 둘 공간이 없어서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
+    <string name="backup_folder_title">백업 폴더를 새로 만들었어요</string>
+    <string name="backup_folder_body">지운 폴더는 드라이브 휴지통에서 30일 동안 복원할 수 있어요.</string>
+    <string name="backup_folder_ok">확인</string>
     <string name="rollback_title">이 백업으로 바꿨어요</string>
     <string name="rollback_until">%1$s까지 바꾸기 전으로 되돌릴 수 있어요.</string>
     <string name="rollback_tomorrow">내일까지 되돌릴 수 있어요.</string>

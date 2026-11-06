@@ -159,6 +159,9 @@
     <string name="restore_replace_action">Replace</string>
     <string name="restore_failed_space_title">Not enough space on this phone</string>
     <string name="restore_failed_space_body">There's no room to keep a copy of your current entries, so we stopped. Nothing on this phone changed.</string>
+    <string name="backup_folder_title">We made a new backup folder</string>
+    <string name="backup_folder_body">You can restore the deleted folder from the Drive trash for 30 days.</string>
+    <string name="backup_folder_ok">OK</string>
     <string name="rollback_title">Replaced with this backup</string>
     <string name="rollback_until">You can undo this until %1$s.</string>
     <string name="rollback_tomorrow">You can undo this until tomorrow.</string>

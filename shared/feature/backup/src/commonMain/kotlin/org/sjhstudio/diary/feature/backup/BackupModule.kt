@@ -18,6 +18,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_channel
 import org.sjhstudio.diary.feature.backup.resources.backup_done_body
 import org.sjhstudio.diary.feature.backup.resources.backup_done_left
 import org.sjhstudio.diary.feature.backup.resources.backup_done_title
+import org.sjhstudio.diary.feature.backup.resources.backup_folder_body
+import org.sjhstudio.diary.feature.backup.resources.backup_folder_title
 import org.sjhstudio.diary.feature.backup.resources.backup_readme_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
@@ -57,6 +59,9 @@ suspend fun backupAlertText(failure: BackupFailure?): Pair<String, String> {
         }
     return getString(Res.string.backup_alert_title) to getString(body)
 }
+
+/** 드라이브에서 지운 백업 폴더를 새로 만들었을 때의 알림. */
+suspend fun backupFolderText(): Pair<String, String> = getString(Res.string.backup_folder_title) to getString(Res.string.backup_folder_body)
 
 /**
  * 앱을 나가 있는 동안 지금 백업이 끝났을 때의 알림.

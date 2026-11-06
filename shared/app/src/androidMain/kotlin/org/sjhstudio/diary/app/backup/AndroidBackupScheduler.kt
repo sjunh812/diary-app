@@ -239,6 +239,13 @@ class AndroidBackupNotifier(private val context: Context, private val clock: Clo
         manager.enqueueUniqueWork(ALERT, ExistingWorkPolicy.REPLACE, work)
     }
 
+    // 7일 알림과 자리를 나눈다.
+    // 같은 작업 이름을 쓰면 예약해 둔 알림이 사라진다.
+    override fun show(title: String, body: String) {
+        val work = OneTimeWorkRequestBuilder<BackupAlertWorker>().setInputData(workDataOf(KEY_TITLE to title, KEY_BODY to body)).build()
+        manager.enqueueUniqueWork(NOTICE, ExistingWorkPolicy.REPLACE, work)
+    }
+
     override fun cancel() {
         manager.cancelUniqueWork(ALERT)
         BackupAlertPoster(context, "").clear()
@@ -316,6 +323,7 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
 }
 
 private const val ALERT = "backup.alert"
+private const val NOTICE = "backup.notice"
 private const val KEY_TITLE = "title"
 private const val KEY_BODY = "body"
 private const val KEY_CELLULAR = "cellular"

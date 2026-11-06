@@ -62,6 +62,14 @@ interface RestoreRepository {
     /** 파일로 만들면 담길 수와 어림 크기. */
     suspend fun bundleEstimate(): BundleEstimate
 
+    /**
+     * 드라이브에서 지워진 백업 폴더를 새로 만들었다.
+     * 알림을 끈 사람도 볼 수 있게 화면에서도 알린다.
+     */
+    val folderRecreated: Flow<Boolean>
+
+    fun dismissFolderRecreated()
+
     /** 일기와 사진을 zip 하나로 [sink]에 스트리밍으로 쓴다(FR-031). */
     suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
 

@@ -37,6 +37,12 @@ interface BackupNotifier {
      */
     fun schedule(at: Instant, title: String, body: String)
 
+    /**
+     * 지금 한 번 알린다.
+     * 예약해 둔 알림은 그대로 둔다.
+     */
+    fun show(title: String, body: String)
+
     fun cancel()
 }
 

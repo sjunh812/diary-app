@@ -159,6 +159,9 @@
     <string name="restore_replace_action">置き換える</string>
     <string name="restore_failed_space_title">スマートフォンの空き容量が足りません</string>
     <string name="restore_failed_space_body">今の日記を保管する場所がないため中止しました。このスマートフォンの日記はそのままです。</string>
+    <string name="backup_folder_title">バックアップフォルダを新しく作成しました</string>
+    <string name="backup_folder_body">削除したフォルダはドライブのゴミ箱から30日間復元できます。</string>
+    <string name="backup_folder_ok">OK</string>
     <string name="rollback_title">このバックアップに置き換えました</string>
     <string name="rollback_until">%1$sまで元に戻せます。</string>
     <string name="rollback_tomorrow">明日まで元に戻せます。</string>

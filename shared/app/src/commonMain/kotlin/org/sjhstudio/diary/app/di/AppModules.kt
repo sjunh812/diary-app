@@ -86,6 +86,7 @@ import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
+import org.sjhstudio.diary.feature.backup.backupFolderText
 import org.sjhstudio.diary.feature.backup.backupReadme
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
 import org.sjhstudio.diary.feature.home.homeFeatureModule
@@ -216,7 +217,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 app = get(),
                 readme = { backupReadme() },
                 settings = { currentBackupSettings(get(), get()) },
-                alerts = BackupAlerts(get()) { backupAlertText(it) },
+                alerts = BackupAlerts(get(), { backupFolderText() }) { backupAlertText(it) },
                 gate = get(),
                 dataReady = { !get<LegacyMigration>().needsMigration() }
             )

@@ -47,6 +47,12 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
 
     override suspend fun bundleEstimate() = BundleEstimate(0, 0, 0)
 
+    override val folderRecreated = MutableStateFlow(false)
+
+    override fun dismissFolderRecreated() {
+        folderRecreated.value = false
+    }
+
     /** 값을 넣으면 파일을 쓰다 실패한다. */
     var writeFailure: Exception? = null
 

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -144,6 +145,12 @@ class RestoreController(
     }
 
     override suspend fun bundleEstimate(): BundleEstimate = exporter.value.estimate()
+
+    override val folderRecreated: Flow<Boolean> = store.prefs.map { it.folderRecreated }
+
+    override fun dismissFolderRecreated() {
+        scope.launch { store.update { it.copy(folderRecreated = false) } }
+    }
 
     @Volatile
     internal var bundleBeingWritten = false
@@ -619,7 +626,7 @@ class RestoreController(
         }.flowOn(Dispatchers.IO)
 
     private fun waitingOf(pending: Int, prefs: BackupPrefs, running: PhotoProgress?): WaitingPhotos? {
-        if (running != null) return WaitingPhotos(running.total - running.done, null)
+        if (running != null) return WaitingPhotos(running.total - running.done, null).takeIf { it.count > 0 }
         val left = pending - prefs.photosUnreachable
         if (left <= 0) return null
         // 드라이브를 쓰지 않으면 남은 사진은 파일에서만 온다.

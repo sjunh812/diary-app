@@ -37,6 +37,9 @@ import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
+import org.sjhstudio.diary.feature.backup.resources.backup_folder_body
+import org.sjhstudio.diary.feature.backup.resources.backup_folder_ok
+import org.sjhstudio.diary.feature.backup.resources.backup_folder_title
 import org.sjhstudio.diary.feature.backup.resources.file_stopped_notice
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
@@ -120,7 +123,17 @@ fun RestoreStatusBar(onPickFile: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestoreStatusViewModel>()
     val waiting by viewModel.waiting.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
-    RestoreStatusBar(waiting, rollback, viewModel::fetchNow, onPickFile, viewModel::rollBack, modifier)
+    val folderRecreated by viewModel.folderRecreated.collectAsStateWithLifecycle()
+    RestoreStatusBar(
+        waiting,
+        rollback,
+        viewModel::fetchNow,
+        onPickFile,
+        viewModel::rollBack,
+        modifier,
+        folderRecreated,
+        viewModel::dismissFolderRecreated
+    )
 }
 
 @Composable
@@ -130,9 +143,11 @@ internal fun RestoreStatusBar(
     onFetch: () -> Unit,
     onPickFile: () -> Unit,
     onRollBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    folderRecreated: Boolean = false,
+    onFolderSeen: () -> Unit = {}
 ) {
-    if (waiting == null && rollback == RollbackRun.IDLE) return
+    if (waiting == null && rollback == RollbackRun.IDLE && !folderRecreated) return
     val width = Modifier.widthIn(max = DiaryWriteSize.settingsMax)
     Column(
         modifier
@@ -143,6 +158,16 @@ internal fun RestoreStatusBar(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
+        if (folderRecreated) {
+            DiaryStatusBox(
+                DiaryIcons.Info,
+                stringResource(Res.string.backup_folder_title),
+                stringResource(Res.string.backup_folder_body),
+                width,
+                actionLabel = stringResource(Res.string.backup_folder_ok),
+                onAction = onFolderSeen
+            )
+        }
         if (rollback != RollbackRun.IDLE) Rollback(rollback, onRollBack, width)
         if (waiting != null) Waiting(waiting, onFetch, onPickFile, width)
     }

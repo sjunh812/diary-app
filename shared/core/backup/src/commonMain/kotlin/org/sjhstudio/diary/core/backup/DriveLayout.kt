@@ -8,8 +8,11 @@ import org.sjhstudio.diary.core.drive.DriveQuery
 import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.drive.listAll
 
-/** 드라이브의 백업 폴더 셋. */
-data class DriveFolders(val root: String, val snapshots: String, val media: String)
+/**
+ * 드라이브의 백업 폴더 셋.
+ * [created]면 이번에 없던 폴더를 새로 만들었다.
+ */
+data class DriveFolders(val root: String, val snapshots: String, val media: String, val created: Boolean = false)
 
 /**
  * 폴더를 이름이 아니라 `appProperties`로 찾는다(contracts/backup-format.md).
@@ -17,12 +20,18 @@ data class DriveFolders(val root: String, val snapshots: String, val media: Stri
  */
 class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSystem) {
     suspend fun ensure(workDir: Path, readme: String): DriveFolders {
+        var created = false
         val root =
             find(KIND_ROOT, null)
-                ?: drive.createFolder(ROOT_NAME, null, mapOf(KEY_KIND to KIND_ROOT)).also { uploadReadme(it.id, workDir, readme) }
-        val snapshots = find(KIND_SNAPSHOTS, root.id) ?: drive.createFolder("snapshots", root.id, mapOf(KEY_KIND to KIND_SNAPSHOTS))
-        val media = find(KIND_MEDIA, root.id) ?: drive.createFolder("media", root.id, mapOf(KEY_KIND to KIND_MEDIA))
-        return DriveFolders(root.id, snapshots.id, media.id)
+                ?: drive.createFolder(ROOT_NAME, null, mapOf(KEY_KIND to KIND_ROOT)).also {
+                    created = true
+                    uploadReadme(it.id, workDir, readme)
+                }
+        suspend fun inside(kind: String, name: String) =
+            find(kind, root.id) ?: drive.createFolder(name, root.id, mapOf(KEY_KIND to kind)).also { created = true }
+        val snapshots = inside(KIND_SNAPSHOTS, "snapshots")
+        val media = inside(KIND_MEDIA, "media")
+        return DriveFolders(root.id, snapshots.id, media.id, created)
     }
 
     /** 같은 종류가 여럿이면 가장 먼저 만든 것을 쓴다. */
