@@ -418,27 +418,34 @@ class WriteViewModel(
         if (picked.isEmpty() || _state.value.saving) return
         viewModelScope.launch {
             pending?.cancel()
-            flush(force = true)
-            watchPhotos()
             val notice =
-                when (val result = drafts.addPhotos(key, picked)) {
-                    is AddPhotosResult.Added -> if (result.failed > 0) PhotoNotice.Unreadable else null
-                    is AddPhotosResult.LimitReached -> PhotoNotice.Limit(result.limit, result.canUpgrade)
-                    is AddPhotosResult.NoSpace -> PhotoNotice.NoSpace
+                try {
+                    flush(force = true)
+                    watchPhotos()
+                    when (val result = drafts.addPhotos(key, picked)) {
+                        is AddPhotosResult.Added -> if (result.failed > 0) PhotoNotice.Unreadable else null
+                        is AddPhotosResult.LimitReached -> PhotoNotice.Limit(result.limit, result.canUpgrade)
+                        is AddPhotosResult.NoSpace -> PhotoNotice.NoSpace
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    // 사진 파일은 썼는데 DB에 적지 못한 때다. 공간이 찼을 때 일어난다.
+                    PhotoNotice.NoSpace
                 }
             _state.update { it.copy(photoNotice = notice) }
         }
     }
 
     fun removePhoto(index: Int) {
-        viewModelScope.launch { drafts.removePhoto(key, index) }
+        write { drafts.removePhoto(key, index) }
     }
 
     fun movePhoto(from: Int, to: Int) {
         val size = _state.value.photos.size
         if (from !in 0 until size || to !in 0 until size || from == to) return
         val order = (0 until size).toMutableList().apply { add(to, removeAt(from)) }
-        viewModelScope.launch { drafts.reorderPhotos(key, order) }
+        write { drafts.reorderPhotos(key, order) }
     }
 
     fun photoNoticeShown() = _state.update { it.copy(photoNotice = null) }
@@ -447,7 +454,7 @@ class WriteViewModel(
     fun onStop() {
         pending?.cancel()
         takeEditorBody()
-        viewModelScope.launch { flush() }
+        write { flush() }
     }
 
     /**
@@ -488,7 +495,8 @@ class WriteViewModel(
         if (_state.value.saving) return
         pending?.cancel()
         takeEditorBody()
-        viewModelScope.launch {
+        // 임시 저장본을 쓰지 못하면 닫지 않는다. 닫으면 쓴 글이 어디에도 남지 않는다(헌법 I).
+        write {
             val current = currentDraft()
             val base = opened
             when {
@@ -512,7 +520,7 @@ class WriteViewModel(
 
     /** [버리기]. 화면이 한 번 물은 뒤에 부른다. 고치던 일기는 그대로 남고 고친 내용만 버린다. */
     fun discard() {
-        viewModelScope.launch {
+        write {
             pending?.cancel()
             drafts.discard(key)
             _events.send(WriteEvent.Discarded)
@@ -521,7 +529,7 @@ class WriteViewModel(
 
     /** 시트의 [버리기]: 쓰던 글을 지우고 빈 화면으로 시작한다. */
     fun discardOffered() {
-        viewModelScope.launch {
+        write {
             drafts.latestNew()?.let { drafts.discard(it.key) }
             key = DraftKey.New()
             _state.update { it.copy(loading = false, resume = null) }
@@ -533,10 +541,26 @@ class WriteViewModel(
         refreshCanSave()
         pending?.cancel()
         pending =
-            viewModelScope.launch {
+            write {
                 delay(SAVE_DELAY_MILLIS)
                 flush()
             }
+    }
+
+    /**
+     * 임시 저장본을 고치는 일.
+     * 저장 공간이 차서 실패해도 앱을 끄지 않는다.
+     * 앱이 꺼지면 아직 쓰지 못한 글을 잃는다.
+     * 글은 화면에 남아 있으니 알리고, 다음에 쓸 때 다시 해 본다.
+     */
+    private fun write(block: suspend () -> Unit): Job = viewModelScope.launch {
+        try {
+            block()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            _state.update { it.copy(saveFailed = true) }
+        }
     }
 
     private fun refreshCanSave() {
@@ -556,6 +580,7 @@ class WriteViewModel(
         drafts.save(draft)
         stored = true
         dirty = false
+        _state.update { it.copy(saveFailed = false) }
         watchPhotos()
     }
 

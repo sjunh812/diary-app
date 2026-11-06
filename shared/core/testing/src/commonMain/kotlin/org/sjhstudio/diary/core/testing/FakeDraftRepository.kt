@@ -23,6 +23,9 @@ class FakeDraftRepository(
     /** [commit]이 실패하는 상황을 만든다. */
     var failCommit = false
 
+    /** 임시 저장본 쓰기가 실패하는 상황을 만든다(저장 공간이 찼을 때처럼). */
+    var failWrites = false
+
     /** 다음 [addPhotos]가 돌려줄 값. 없으면 받은 수만큼 더한다. */
     var nextAddResult: AddPhotosResult? = null
 
@@ -46,11 +49,13 @@ class FakeDraftRepository(
         return OpenedEdit(draft, resumed = false)
     }
 
-    override suspend fun save(draft: Draft) = drafts.update { all ->
-        all + (draft.key to draft.copy(photos = all[draft.key]?.photos ?: draft.photos))
+    override suspend fun save(draft: Draft) {
+        check(!failWrites) { "쓰기 실패" }
+        drafts.update { all -> all + (draft.key to draft.copy(photos = all[draft.key]?.photos ?: draft.photos)) }
     }
 
     override suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult {
+        check(!failWrites) { "쓰기 실패" }
         nextAddResult?.let { return it }
         drafts.update { all ->
             val draft = all[key] ?: return@update all
@@ -60,14 +65,20 @@ class FakeDraftRepository(
         return AddPhotosResult.Added(picked.size)
     }
 
-    override suspend fun removePhoto(key: DraftKey, index: Int) = drafts.update { all ->
-        val draft = all[key] ?: return@update all
-        all + (key to draft.copy(photos = draft.photos.filterIndexed { i, _ -> i != index }))
+    override suspend fun removePhoto(key: DraftKey, index: Int) {
+        check(!failWrites) { "쓰기 실패" }
+        drafts.update { all ->
+            val draft = all[key] ?: return@update all
+            all + (key to draft.copy(photos = draft.photos.filterIndexed { i, _ -> i != index }))
+        }
     }
 
-    override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) = drafts.update { all ->
-        val draft = all[key] ?: return@update all
-        all + (key to draft.copy(photos = order.map { draft.photos[it] }))
+    override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) {
+        check(!failWrites) { "쓰기 실패" }
+        drafts.update { all ->
+            val draft = all[key] ?: return@update all
+            all + (key to draft.copy(photos = order.map { draft.photos[it] }))
+        }
     }
 
     override suspend fun commit(key: DraftKey): String {
@@ -78,6 +89,7 @@ class FakeDraftRepository(
     }
 
     override suspend fun discard(key: DraftKey) {
+        check(!failWrites) { "쓰기 실패" }
         drafts.update { it - key }
         discarded += key
     }
