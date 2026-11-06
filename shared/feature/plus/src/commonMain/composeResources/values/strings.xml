@@ -21,7 +21,7 @@
     <string name="plus_manage_title">You're on Plus</string>
     <string name="plus_manage_store">Manage subscription</string>
     <string name="plus_manage_note">If you cancel, your entries and photos stay right where they are.</string>
-    <string name="adfree_title">Just you and your diary ✨</string>
+    <string name="adfree_title">Just you and your diary</string>
     <string name="adfree_body">It's not a subscription. Pay once and stay ad-free from now on.</string>
     <string name="adfree_price">%1$s once</string>
     <string name="plus_ads_only">Remove ads only</string>

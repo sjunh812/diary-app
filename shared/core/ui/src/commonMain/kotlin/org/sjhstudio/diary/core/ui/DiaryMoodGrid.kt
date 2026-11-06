@@ -65,8 +65,8 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
             Modifier
                 .width(DiaryWriteSize.moodCellWidth)
                 .heightIn(min = DiaryWriteSize.moodCellHeight)
-                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-                .clip(DiaryShapes.r12)
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
+                .clip(DiaryShapes.r16)
                 .background(if (selected) colors.selected else colors.surface)
                 .semantics { this.selected = selected }
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button) {

@@ -21,7 +21,7 @@
     <string name="plus_manage_title">Plusをご利用中です</string>
     <string name="plus_manage_store">サブスクリプションの管理</string>
     <string name="plus_manage_note">解約しても書いた日記と写真はそのまま残ります。</string>
-    <string name="adfree_title">広告なしで日記だけに ✨</string>
+    <string name="adfree_title">広告なしで日記だけに</string>
     <string name="adfree_body">サブスクではありません。一度のお支払いでずっと広告なしで使えます。</string>
     <string name="adfree_price">買い切り %1$s</string>
     <string name="plus_ads_only">広告だけ消す</string>

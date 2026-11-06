@@ -47,6 +47,7 @@ val LocalScreenGutter = staticCompositionLocalOf { DiarySpacing.screenCompact }
 /** 아이콘 크기 네 단계(`docs/design.md` 아이콘과 그림, 2026-11-01 점검). */
 object DiaryIconSize {
     /** 칩, 메타 덧붙임, 안내 상자, 상태 상자 머리, 한 줄 안내, 검색 지우기. */
+    val i12: Dp = 12.dp
     val i16: Dp = 16.dp
 
     /** 줄 끝 화살표, 돋보기, 작은 버튼, 큰 제목 옆 펼침. */

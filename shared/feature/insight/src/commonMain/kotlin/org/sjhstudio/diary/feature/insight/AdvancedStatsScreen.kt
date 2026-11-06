@@ -386,7 +386,7 @@ private fun Value(label: String, before: String, now: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         BasicText(label, Modifier.weight(1f), style = typography.body.copy(color = colors.textSecondary))
-        BasicText(stringResource(Res.string.insight_adv_change_before, before), style = typography.body.copy(color = colors.textTertiary))
+        BasicText(stringResource(Res.string.insight_adv_change_before, before), style = typography.body.copy(color = colors.textSecondary))
         BasicText(now, style = typography.bodyStrong.copy(color = colors.textPrimary))
     }
 }

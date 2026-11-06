@@ -12,7 +12,7 @@
     <string name="detail_trashed_undo">Undo</string>
     <string name="detail_pick_hint">Pick an entry to read it here</string>
     <string name="ad_label">Ad</string>
-    <string name="reward_title">Get an ad-free day 🎁</string>
+    <string name="reward_title">Get an ad-free day</string>
     <string name="reward_body">Watch one short ad to the end and no other ads appear for 24 hours.</string>
     <string name="reward_watch">Watch video</string>
     <string name="reward_close">Close</string>

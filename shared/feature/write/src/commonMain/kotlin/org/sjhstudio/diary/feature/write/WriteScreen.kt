@@ -543,7 +543,7 @@ private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp
                 Modifier.padding(DiarySpacing.x1).size(DiaryWriteSize.removeBadge).clip(DiaryShapes.full).background(colors.overlay),
                 contentAlignment = Alignment.Center
             ) {
-                DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onAccent, size = DiaryIconSize.i16)
+                DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onAccent, size = DiaryIconSize.i12)
             }
         }
     }

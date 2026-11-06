@@ -380,7 +380,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                     }
                 )
                 // 올릴 양을 세기 전에는 막대를 그리지 않는다. 빈 막대는 멈춘 것처럼 보인다.
-                if (running.bytesTotal > 0) DiaryProgressBar(running.bytesDone.toFloat() / running.bytesTotal)
+                if (running.bytesTotal > 0) DiaryProgressBar(running.bytesDone.toFloat() / running.bytesTotal, onSunken = true)
             }
         }
 

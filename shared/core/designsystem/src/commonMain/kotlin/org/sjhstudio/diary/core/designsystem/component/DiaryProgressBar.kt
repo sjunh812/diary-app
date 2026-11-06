@@ -24,9 +24,12 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 진행 막대(`docs/design.md` 진행 막대, TDS ProgressBar bold 8). [progress]는 0~1. */
+/**
+ * 진행 막대(`docs/design.md` 진행 막대, TDS ProgressBar bold 8). [progress]는 0~1.
+ * `sunken` 상자 안에서는 트랙이 바탕에 묻혀 보이지 않아 [onSunken]으로 한 단계 진하게 둔다.
+ */
 @Composable
-fun DiaryProgressBar(progress: Float, modifier: Modifier = Modifier) {
+fun DiaryProgressBar(progress: Float, modifier: Modifier = Modifier, onSunken: Boolean = false) {
     val value = progress.coerceIn(0f, 1f)
     Box(
         modifier =
@@ -34,7 +37,7 @@ fun DiaryProgressBar(progress: Float, modifier: Modifier = Modifier) {
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(DiaryShapes.full)
-                .background(DiaryTheme.colors.sunken)
+                .background(if (onSunken) DiaryTheme.colors.lineStrong else DiaryTheme.colors.sunken)
                 .semantics { progressBarRangeInfo = ProgressBarRangeInfo(value, 0f..1f) }
     ) {
         Box(Modifier.fillMaxWidth(value).fillMaxHeight().clip(DiaryShapes.full).background(DiaryTheme.colors.accent))

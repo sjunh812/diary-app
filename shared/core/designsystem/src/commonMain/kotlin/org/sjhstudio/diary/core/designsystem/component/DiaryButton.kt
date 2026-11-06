@@ -35,7 +35,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /** 버튼 크기 넷(`docs/design.md` 컴포넌트 규격, TDS 버튼 xlarge·large·medium·small). */
 enum class DiaryButtonSize {
-    /** 56 · 좌우 28 · 모서리 16 · headline */
+    /** 56 · 좌우 16 · 모서리 16 · headline */
     XLarge,
 
     /** 48 · 좌우 16 · 모서리 14 · headline */
