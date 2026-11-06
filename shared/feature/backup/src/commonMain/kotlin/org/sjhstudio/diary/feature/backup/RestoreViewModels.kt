@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 
 sealed interface RestoreListUi {
@@ -75,7 +76,13 @@ class RestoreStatusViewModel(private val restore: RestoreRepository) : ViewModel
         null
     )
 
+    val rollback: StateFlow<RollbackRun> = restore.rollbackRun
+
     fun fetchNow() = restore.fetchPhotosNow()
+
+    fun rollBack() {
+        viewModelScope.launch { restore.rollBack() }
+    }
 
     private companion object {
         const val STOP_MILLIS = 5_000L

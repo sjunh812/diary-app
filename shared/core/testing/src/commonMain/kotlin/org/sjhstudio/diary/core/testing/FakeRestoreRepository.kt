@@ -13,6 +13,7 @@ import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 
 class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : RestoreRepository {
@@ -40,6 +41,8 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
         rollback.value = null
         return true
     }
+
+    override val rollbackRun = MutableStateFlow(RollbackRun.IDLE)
 
     override suspend fun bundleEstimate() = BundleEstimate(0, 0, 0)
 

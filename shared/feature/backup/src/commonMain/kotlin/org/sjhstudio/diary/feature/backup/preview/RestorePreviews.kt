@@ -13,6 +13,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.feature.backup.BackupFoundSheet
 import org.sjhstudio.diary.feature.backup.RestoreListScreen
@@ -46,7 +47,28 @@ private fun Check(dark: Boolean, state: RestorePreparation?) = DiaryTheme(darkTh
 private fun Progress(dark: Boolean, state: RestoreState) = DiaryTheme(darkTheme = dark) { RestoreProgressScreen(state, {}, {}, {}, {}, {}) }
 
 @Composable
-private fun Waiting(dark: Boolean, waiting: WaitingPhotos) = DiaryTheme(darkTheme = dark) { RestoreStatusBar(waiting, {}, {}) }
+private fun Waiting(dark: Boolean, waiting: WaitingPhotos?, rollback: RollbackRun = RollbackRun.IDLE) =
+    DiaryTheme(darkTheme = dark) { RestoreStatusBar(waiting, rollback, {}, {}, {}) }
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackWaitingLight() = Waiting(false, null, RollbackRun.WAITING)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackWaitingDark() = Waiting(true, null, RollbackRun.WAITING)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackRunningLight() = Waiting(false, null, RollbackRun.RUNNING)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackFailedLight() = Waiting(false, null, RollbackRun.FAILED)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackFailedDark() = Waiting(true, null, RollbackRun.FAILED)
 
 @Preview(locale = "ko")
 @Composable

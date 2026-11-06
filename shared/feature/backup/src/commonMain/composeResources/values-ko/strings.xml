@@ -163,6 +163,12 @@
     <string name="rollback_until">%1$s까지 바꾸기 전으로 되돌릴 수 있어요.</string>
     <string name="rollback_tomorrow">내일까지 되돌릴 수 있어요.</string>
     <string name="rollback_action">되돌리기</string>
+    <string name="rollback_waiting_title">되돌리기를 기다리고 있어요</string>
+    <string name="rollback_waiting_body">복원이 끝나면 바꾸기 전으로 되돌려요.</string>
+    <string name="rollback_running_title">바꾸기 전으로 되돌리고 있어요</string>
+    <string name="rollback_running_body">잠시만 기다려 주세요.</string>
+    <string name="rollback_failed_title">되돌리지 못했어요</string>
+    <string name="rollback_failed_body">휴대폰의 기록은 그대로 있어요. 다시 시도해 주세요.</string>
     <string name="rollback_ask_title">바꾸기 전으로 되돌릴까요?</string>
     <string name="rollback_ask_body">바꾸기 전 일기 %1$s편이 돌아와요.</string>
     <string name="rollback_ask_after">바꾸기 전 일기 %1$s편이 돌아와요. 바꾼 뒤에 쓴 일기 %2$s편은 그대로 남아요.</string>

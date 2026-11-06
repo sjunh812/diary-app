@@ -22,6 +22,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.PhotoStop
+import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
@@ -29,6 +30,7 @@ import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_space_body
+import org.sjhstudio.diary.feature.backup.resources.restore_retry
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_account
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_file
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_network
@@ -36,6 +38,12 @@ import org.sjhstudio.diary.feature.backup.resources.restore_wait_now
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_pick
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_running
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_wifi
+import org.sjhstudio.diary.feature.backup.resources.rollback_failed_body
+import org.sjhstudio.diary.feature.backup.resources.rollback_failed_title
+import org.sjhstudio.diary.feature.backup.resources.rollback_running_body
+import org.sjhstudio.diary.feature.backup.resources.rollback_running_title
+import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_body
+import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_title
 
 /**
  * 백업 화면 아래에 두는 복원 소식.
@@ -46,12 +54,21 @@ import org.sjhstudio.diary.feature.backup.resources.restore_wait_wifi
 fun RestoreStatusBar(onPickFile: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestoreStatusViewModel>()
     val waiting by viewModel.waiting.collectAsStateWithLifecycle()
-    RestoreStatusBar(waiting, viewModel::fetchNow, onPickFile, modifier)
+    val rollback by viewModel.rollback.collectAsStateWithLifecycle()
+    RestoreStatusBar(waiting, rollback, viewModel::fetchNow, onPickFile, viewModel::rollBack, modifier)
 }
 
 @Composable
-internal fun RestoreStatusBar(waiting: WaitingPhotos?, onFetch: () -> Unit, onPickFile: () -> Unit, modifier: Modifier = Modifier) {
-    if (waiting == null) return
+internal fun RestoreStatusBar(
+    waiting: WaitingPhotos?,
+    rollback: RollbackRun,
+    onFetch: () -> Unit,
+    onPickFile: () -> Unit,
+    onRollBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (waiting == null && rollback == RollbackRun.IDLE) return
+    val width = Modifier.widthIn(max = DiaryWriteSize.settingsMax)
     Column(
         modifier
             .fillMaxWidth()
@@ -61,8 +78,28 @@ internal fun RestoreStatusBar(waiting: WaitingPhotos?, onFetch: () -> Unit, onPi
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
-        Waiting(waiting, onFetch, onPickFile, Modifier.widthIn(max = DiaryWriteSize.settingsMax))
+        if (rollback != RollbackRun.IDLE) Rollback(rollback, onRollBack, width)
+        if (waiting != null) Waiting(waiting, onFetch, onPickFile, width)
     }
+}
+
+@Composable
+private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifier) {
+    val failed = run == RollbackRun.FAILED
+    val (title, body) =
+        when (run) {
+            RollbackRun.WAITING -> Res.string.rollback_waiting_title to Res.string.rollback_waiting_body
+            RollbackRun.FAILED -> Res.string.rollback_failed_title to Res.string.rollback_failed_body
+            else -> Res.string.rollback_running_title to Res.string.rollback_running_body
+        }
+    DiaryStatusBox(
+        if (failed) DiaryIcons.CircleAlert else DiaryIcons.Restore,
+        stringResource(title),
+        stringResource(body),
+        modifier,
+        actionLabel = if (failed) stringResource(Res.string.restore_retry) else null,
+        onAction = onRollBack.takeIf { failed }
+    )
 }
 
 @Composable

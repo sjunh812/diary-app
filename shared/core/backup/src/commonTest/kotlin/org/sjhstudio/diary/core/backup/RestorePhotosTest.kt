@@ -13,6 +13,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -31,6 +32,7 @@ import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.testing.FakeDrive
 
@@ -476,6 +478,73 @@ class RestorePhotosTest {
         controller.finished()
 
         assertFalse(RestoreState.WaitingForBackup in seen)
+    }
+
+    // 되돌리기
+
+    /** 바꾸기를 마쳐 되돌릴 수 있는 기기. */
+    private suspend fun replaced(scope: CoroutineScope): RestoreController {
+        val zip = export()
+        b.write("mine")
+        val controller = b.controller(scope)
+        assertIs<RestorePreparation.Ready>(controller.pick(zip))
+        controller.replace()
+        assertIs<RestoreState.Done>(controller.finished())
+        gateFree()
+        return controller
+    }
+
+    @Test
+    fun a_rollback_during_a_restore_waits_and_then_runs() = runTest {
+        val controller = replaced(backgroundScope)
+        b.gate.enter()
+
+        val rolling = backgroundScope.async { controller.rollBack() }
+        until { controller.rollbackRun.value == RollbackRun.WAITING }
+        assertEquals(setOf("one", "two"), b.ids())
+
+        b.gate.leave()
+
+        assertTrue(rolling.await())
+        assertEquals(RollbackRun.IDLE, controller.rollbackRun.value)
+        assertEquals(setOf("mine"), b.ids())
+    }
+
+    @Test
+    fun a_rollback_that_fails_says_so_and_can_be_tried_again() = runTest {
+        val controller = replaced(backgroundScope)
+        val copy = fs.list(b.work / "rollback").single() / "diary.db"
+        val moved = dir / "moved.db"
+        fs.atomicMove(copy, moved)
+
+        assertFalse(controller.rollBack())
+        assertEquals(RollbackRun.FAILED, controller.rollbackRun.value)
+
+        fs.atomicMove(moved, copy)
+        assertTrue(controller.rollBack())
+        assertEquals(RollbackRun.IDLE, controller.rollbackRun.value)
+    }
+
+    @Test
+    fun pressing_rollback_twice_runs_it_once() = runTest {
+        val controller = replaced(backgroundScope)
+        b.gate.enter()
+        val first = backgroundScope.async { controller.rollBack() }
+        until { controller.rollbackRun.value == RollbackRun.WAITING }
+
+        assertFalse(controller.rollBack())
+
+        b.gate.leave()
+        assertTrue(first.await())
+    }
+
+    @Test
+    fun a_finished_rollback_closes_the_result_of_the_replace() = runTest {
+        val controller = replaced(backgroundScope)
+
+        assertTrue(controller.rollBack())
+
+        assertEquals(RestoreState.Idle, controller.state.value)
     }
 
     // 찾을 수 없는 사진 다시 받기

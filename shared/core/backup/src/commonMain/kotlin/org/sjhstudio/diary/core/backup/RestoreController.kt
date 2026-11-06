@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -50,6 +51,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.FreeSpace
@@ -106,18 +108,35 @@ class RestoreController(
     /** 사본을 읽고 일기 수를 세는 일이 메인 스레드에서 돌지 않게 한다. */
     override val rollback: Flow<RollbackInfo?> = flow { emitAll(rollbackManager.value.info) }.flowOn(Dispatchers.IO)
 
+    private val _rollbackRun = MutableStateFlow(RollbackRun.IDLE)
+    override val rollbackRun: StateFlow<RollbackRun> = _rollbackRun.asStateFlow()
+
     /**
      * 화면을 떠나도 끝까지 돈다.
      * 중간에 멈추면 일기는 돌아왔는데 되돌리기가 남는다.
+     * 사진을 받는 중에 누르면 조용히 버리지 않고 끝난 뒤에 이어서 돌린다.
      */
     override suspend fun rollBack(): Boolean = scope.async {
-        if (!gate.tryEnter()) return@async false
+        val before = _rollbackRun.getAndUpdate { if (it.isGoing) it else RollbackRun.RUNNING }
+        if (before.isGoing) return@async false
+        if (!gate.tryEnter()) {
+            _rollbackRun.value = RollbackRun.WAITING
+            gate.enter()
+            _rollbackRun.value = RollbackRun.RUNNING
+        }
         try {
-            guarded { rollbackManager.value.rollBack() } ?: false
+            val done = guarded { rollbackManager.value.rollBack() } ?: false
+            _rollbackRun.value = if (done) RollbackRun.IDLE else RollbackRun.FAILED
+            // 바꾸기 결과는 이제 사실이 아니다.
+            if (done && _state.value is RestoreState.Done) _state.value = RestoreState.Idle
+            done
         } finally {
             gate.leave()
         }
     }.await()
+
+    private val RollbackRun.isGoing: Boolean
+        get() = this == RollbackRun.WAITING || this == RollbackRun.RUNNING
 
     override suspend fun backups(): List<BackupEntry>? = guarded {
         candidates = catalog.value.list()

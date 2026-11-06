@@ -220,6 +220,18 @@ const val RESTORE_FROM_FILE = "file"
  */
 data class RollbackInfo(val until: Instant, val entriesBefore: Int, val entriesAfter: Int)
 
+/** 되돌리기가 어디까지 왔는지. */
+enum class RollbackRun {
+    IDLE,
+
+    /** 복원이나 백업이 끝나기를 기다린다. */
+    WAITING,
+    RUNNING,
+
+    /** 되돌리지 못했다. 기기의 일기는 그대로다. */
+    FAILED
+}
+
 /** 스냅샷을 받아 확인한 결과. */
 sealed interface RestorePreparation {
     data class Ready(val entry: BackupEntry, val preview: RestorePreview) : RestorePreparation

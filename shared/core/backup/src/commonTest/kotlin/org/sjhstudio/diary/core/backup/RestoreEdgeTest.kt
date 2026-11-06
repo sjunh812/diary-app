@@ -538,22 +538,6 @@ class RestoreEdgeTest {
     }
 
     @Test
-    fun undo_waits_while_a_restore_is_running() = runTest {
-        a.write("diary")
-        a.backUp()
-        b.write("before")
-        b.manager().replace(listOf(MergeEntry(TestPhone.entry("new"), emptyList())), "drive")
-        val controller = b.controller(backgroundScope)
-        assertTrue(b.gate.tryEnter())
-
-        assertFalse(controller.rollBack())
-
-        assertEquals(setOf("new"), b.ids())
-        b.gate.leave()
-        assertTrue(controller.rollBack())
-    }
-
-    @Test
     fun photos_do_not_resume_on_mobile_data_or_without_an_account() = runTest {
         threeWithPhotos()
         a.backUp()

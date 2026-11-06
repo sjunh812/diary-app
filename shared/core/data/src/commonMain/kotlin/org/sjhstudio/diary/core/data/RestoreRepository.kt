@@ -12,6 +12,7 @@ import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 
 /**
@@ -50,9 +51,13 @@ interface RestoreRepository {
 
     /**
      * 바꾸기 전으로 돌아간다.
+     * 복원이나 백업이 돌고 있으면 끝날 때까지 기다린다.
      * 되돌리지 못하면 false다.
      */
     suspend fun rollBack(): Boolean
+
+    /** 되돌리기 진행. 화면을 떠났다 돌아와도 결과가 보인다. */
+    val rollbackRun: StateFlow<RollbackRun>
 
     /** 파일로 만들면 담길 수와 어림 크기. */
     suspend fun bundleEstimate(): BundleEstimate
