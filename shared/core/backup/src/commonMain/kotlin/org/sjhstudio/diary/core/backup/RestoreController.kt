@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -32,9 +33,12 @@ import okio.Source
 import okio.openZip
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.PhotoProgress
@@ -46,6 +50,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.NetworkState
@@ -370,7 +375,7 @@ class RestoreController(
         // 글은 이미 합쳤다.
         // 남은 사진은 다음에 앱을 열 때 이어 받는다.
         val stop =
-            receiving {
+            receiving(if (ready.bundle == null) PhotoStop.NETWORK else PhotoStop.INTERRUPTED) {
                 val zip = ready.bundle?.let { holdBundle(it) }
                 watchingPhotos(total, tally) { watch ->
                     val progress = { done: Int, all: Int ->
@@ -383,6 +388,7 @@ class RestoreController(
                 // 멈췄으면 파일을 두어 앱을 다시 열 때 잇는다.
                 if (zip != null) dropBundle()
             }
+        guarded { rememberStop(stop, tally.notThere) }
         val left = dao.pendingFiles().size
         // 드라이브에 없는 사진은 앱을 다시 열어도 오지 않아서 남은 사진으로 세지 않는다.
         val notInBackup = if (ready.bundle == null) tally.notThere else ready.manifest.media.count { !it.inBackup }
@@ -403,17 +409,25 @@ class RestoreController(
 
     /**
      * 사진을 받고 멈춘 까닭을 돌려준다.
-     * 끝까지 돌았으면 null이다.
+     * 끝까지 돌았으면 null이고, 달리 까닭을 모르면 [cut]이다.
      */
-    private suspend fun receiving(work: suspend () -> Unit): PhotoStop? = try {
+    private suspend fun receiving(cut: PhotoStop, work: suspend () -> Unit): PhotoStop? = try {
         work()
         null
     } catch (error: CancellationException) {
         throw error
     } catch (_: NoRoomForPhotos) {
         PhotoStop.NO_SPACE
+    } catch (error: DriveException) {
+        if (error.kind == BackupFailure.AUTH) PhotoStop.ACCOUNT else cut
     } catch (_: Exception) {
-        PhotoStop.INTERRUPTED
+        cut
+    }
+
+    /** 멈춘 까닭을 남겨 앱을 다시 열어도 화면이 사실을 말하게 한다. */
+    private suspend fun rememberStop(stop: PhotoStop?, notThere: Int) {
+        store.update { it.copy(photoStop = stop, photosUnreachable = notThere) }
+        if (stop == PhotoStop.NETWORK) scheduler.waitForPhotoNetwork(wifiOnly = !store.current().photosOnCellular)
     }
 
     /**
@@ -444,13 +458,53 @@ class RestoreController(
         val total = db.value.backupDao().pendingFiles().size
         if (total == 0 || until == null || clock.now() >= until) {
             dropBundle()
+            store.update { it.copy(photoStop = null) }
             return
         }
         val tally = PhotoTally()
-        receiving {
-            watchingPhotos(total, tally) { watch -> fetcher.value.fetchFrom(heldBundle, tally, watch) }
-            dropBundle()
+        val stop =
+            receiving(PhotoStop.INTERRUPTED) {
+                watchingPhotos(total, tally) { watch -> fetcher.value.fetchFrom(heldBundle, tally, watch) }
+                dropBundle()
+            }
+        rememberStop(stop, tally.notThere)
+    }
+
+    /**
+     * 드라이브에서 남은 사진을 받는다.
+     * 네트워크를 기다려야 하면 true다.
+     */
+    private suspend fun fromDrive(cellularOnce: Boolean): Boolean {
+        val prefs = store.current()
+        if (db.value.backupDao().pendingFiles().isEmpty()) {
+            if (prefs.photoStop != null || prefs.photosUnreachable != 0) rememberStop(null, 0)
+            return false
         }
+        if (prefs.accountKey == null) return false
+        val wifiOnly = !cellularOnce && !prefs.photosOnCellular
+        val blocked =
+            when {
+                !network.isConnected -> PhotoStop.NETWORK
+                wifiOnly && !network.isUnmetered -> PhotoStop.WIFI
+                else -> null
+            }
+        if (blocked != null) {
+            store.update { it.copy(photoStop = blocked) }
+            scheduler.waitForPhotoNetwork(wifiOnly)
+            return true
+        }
+        val tally = PhotoTally()
+        val stop =
+            receiving(PhotoStop.NETWORK) {
+                val found = fetcher.value.look()
+                if (found.reachable > 0) {
+                    watchingPhotos(found.reachable, tally) { watch -> fetcher.value.fetch(found, tally, watch) }
+                } else {
+                    tally.notThere = found.notThere
+                }
+            }
+        rememberStop(stop, tally.notThere)
+        return stop == PhotoStop.NETWORK
     }
 
     /** 앱을 나가도 사진을 계속 받게 시스템에 알리고 진행을 내보낸다. */
@@ -483,23 +537,37 @@ class RestoreController(
         scope.launch { preparing.withLock { withContext(Dispatchers.IO) { if (!restoring) clearCopies() } } }
     }
 
-    override suspend fun resumePhotos() {
+    override suspend fun resumePhotos(): Boolean = resuming(cellularOnce = false)
+
+    override fun fetchPhotosNow() {
+        scope.launch { resuming(cellularOnce = true) }
+    }
+
+    /** 백업이나 복원이 돌고 있으면 그 일이 끝난 뒤에 다시 불러야 한다. */
+    private suspend fun resuming(cellularOnce: Boolean): Boolean {
         guarded { rollbackManager.value.expire() }
         guarded { clearAbandonedCopies() }
-        if (!gate.tryEnter()) return
-        try {
+        if (!gate.tryEnter()) return true
+        return try {
             guarded { unpackLeftovers() }
-            val prefs = store.current()
-            if (prefs.accountKey == null || !network.isConnected) return
-            if (!network.isUnmetered && !prefs.photosOnCellular) return
-            guarded {
-                val total = db.value.backupDao().pendingFiles().size
-                val tally = PhotoTally()
-                if (total > 0) watchingPhotos(total, tally) { watch -> fetcher.value.fetch(tally, watch) }
-            }
+            guarded { fromDrive(cellularOnce) } ?: false
         } finally {
             gate.leave()
         }
+    }
+
+    override val waitingPhotos: Flow<WaitingPhotos?> =
+        flow {
+            val pending = db.value.backupDao().pendingFileCount()
+            emitAll(combine(pending, store.prefs, _photoProgress, ::waitingOf))
+        }.flowOn(Dispatchers.IO)
+
+    private fun waitingOf(pending: Int, prefs: BackupPrefs, running: PhotoProgress?): WaitingPhotos? {
+        if (running != null) return WaitingPhotos(running.total - running.done, null)
+        val left = pending - prefs.photosUnreachable
+        if (left <= 0) return null
+        // 드라이브를 쓰지 않으면 남은 사진은 파일에서만 온다.
+        return WaitingPhotos(left, prefs.photoStop ?: if (prefs.accountKey == null) PhotoStop.FILE else PhotoStop.INTERRUPTED)
     }
 
     /**

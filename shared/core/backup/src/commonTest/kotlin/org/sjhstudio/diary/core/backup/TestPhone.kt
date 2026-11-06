@@ -57,6 +57,7 @@ internal class TestPhone(
     val auth = FakeDriveAuthorizer()
     val network = FakeNetworkState()
     val gate = BackupGate()
+    val scheduler = FakeBackupScheduler()
     var zone: TimeZone = TimeZone.UTC
     var freeBytes = 1_000_000_000L
 
@@ -119,7 +120,7 @@ internal class TestPhone(
                 settingsFailure?.let { throw it }
                 appliedSettings += settings
             },
-            scope, gate, FakeBackupScheduler(), FreeSpace { freeBytes }, clock
+            scope, gate, scheduler, FreeSpace { freeBytes }, clock
         )
     }
 

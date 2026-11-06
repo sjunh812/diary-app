@@ -12,6 +12,7 @@ import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.WaitingPhotos
 
 /**
  * 화면이 쓰는 복원하기 입구.
@@ -70,10 +71,21 @@ interface RestoreRepository {
     fun dismiss()
 
     /**
-     * 앱을 열 때 부른다.
+     * 앱을 열 때와 네트워크가 돌아올 때 부른다.
      * 전에 다 못 받은 사진을 이어 받는다(FR-024).
+     * 지금은 받을 수 없어 나중에 다시 불러야 하면 true다.
      */
-    suspend fun resumePhotos()
+    suspend fun resumePhotos(): Boolean
+
+    /** 사용자가 누른 지금 받기. 모바일 데이터여도 이번만 받는다. */
+    fun fetchPhotosNow()
+
+    /**
+     * 받다가 멈췄거나 받는 중인 사진.
+     * 받을 수 있는 사진이 없으면 null이다.
+     * 백업에 없어 받을 수 없는 사진은 세지 않는다.
+     */
+    val waitingPhotos: Flow<WaitingPhotos?>
 
     /**
      * 사진을 받는 동안의 진행.

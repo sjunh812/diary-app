@@ -36,6 +36,7 @@ val backupFeatureModule =
         viewModel { RestoreListViewModel(get()) }
         viewModel { parameters -> RestorePreviewViewModel(parameters.get(), get()) }
         viewModel { RestoreProgressViewModel(get()) }
+        viewModel { RestoreStatusViewModel(get()) }
         viewModel { FileBackupViewModel(get()) }
     }
 

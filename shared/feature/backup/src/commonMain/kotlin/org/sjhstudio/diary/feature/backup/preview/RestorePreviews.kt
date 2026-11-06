@@ -7,16 +7,19 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.feature.backup.BackupFoundSheet
 import org.sjhstudio.diary.feature.backup.RestoreListScreen
 import org.sjhstudio.diary.feature.backup.RestoreListUi
 import org.sjhstudio.diary.feature.backup.RestorePreviewScreen
 import org.sjhstudio.diary.feature.backup.RestoreProgressScreen
+import org.sjhstudio.diary.feature.backup.RestoreStatusBar
 
 private val Sample = BackupEntry(
     "a.snapshot",
@@ -41,6 +44,37 @@ private fun Check(dark: Boolean, state: RestorePreparation?) = DiaryTheme(darkTh
 
 @Composable
 private fun Progress(dark: Boolean, state: RestoreState) = DiaryTheme(darkTheme = dark) { RestoreProgressScreen(state, {}, {}, {}, {}, {}) }
+
+@Composable
+private fun Waiting(dark: Boolean, waiting: WaitingPhotos) = DiaryTheme(darkTheme = dark) { RestoreStatusBar(waiting, {}, {}) }
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingWifiLight() = Waiting(false, WaitingPhotos(12, PhotoStop.WIFI))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingWifiDark() = Waiting(true, WaitingPhotos(12, PhotoStop.WIFI))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingSpaceLight() = Waiting(false, WaitingPhotos(12, PhotoStop.NO_SPACE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingSpaceDark() = Waiting(true, WaitingPhotos(12, PhotoStop.NO_SPACE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingFileLight() = Waiting(false, WaitingPhotos(12, PhotoStop.FILE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingFileDark() = Waiting(true, WaitingPhotos(12, PhotoStop.FILE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingRunningLight() = Waiting(false, WaitingPhotos(12, null))
 
 private val Listed =
     RestoreListUi.Loaded(listOf(Sample, Sample.copy(snapshotName = "b", state = BackupEntryState.Damaged(DamageReason.SNAPSHOT_MISSING))))

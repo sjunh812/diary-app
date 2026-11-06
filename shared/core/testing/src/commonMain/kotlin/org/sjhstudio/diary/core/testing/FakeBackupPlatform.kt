@@ -35,6 +35,13 @@ class FakeBackupScheduler : BackupScheduler {
         restoreKept++
     }
 
+    /** 복원 사진을 기다리는 작업을 맡긴 기록. 값은 Wi-Fi에서만 받는지다. */
+    val photoWaits = mutableListOf<Boolean>()
+
+    override fun waitForPhotoNetwork(wifiOnly: Boolean) {
+        photoWaits += wifiOnly
+    }
+
     var wifiPhotos = 0
         private set
 

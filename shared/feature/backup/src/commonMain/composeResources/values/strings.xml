@@ -94,6 +94,13 @@
     <string name="restore_note_pending_body">They'll finish downloading next time you open the app.</string>
     <string name="restore_note_pending_file_body">These photos aren't in the file. If they're backed up to Drive, they'll download once you connect.</string>
     <string name="restore_note_pending_space_body">Your phone ran out of space. Free up space and open the app again to finish.</string>
+    <string name="restore_wait_running">Downloading your photos.</string>
+    <string name="restore_wait_network">They'll finish downloading when you're back online.</string>
+    <string name="restore_wait_wifi">They'll finish downloading on Wi-Fi. To use mobile data, tap Download now.</string>
+    <string name="restore_wait_account">Google Drive was disconnected. Reconnect to finish downloading.</string>
+    <string name="restore_wait_file">Pick the file you restored from again to get the remaining photos.</string>
+    <string name="restore_wait_now">Download now</string>
+    <string name="restore_wait_pick">Pick file</string>
     <string name="restore_note_missing_body">The downloaded files didn't match, so they're marked as not found.</string>
     <string name="restore_lock_title">Set your lock again</string>
     <string name="restore_lock_body">The lock was on when this was backed up. Passcodes aren't backed up.</string>

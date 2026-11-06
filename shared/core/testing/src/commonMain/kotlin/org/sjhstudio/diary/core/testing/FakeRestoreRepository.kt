@@ -13,6 +13,7 @@ import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.WaitingPhotos
 
 class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : RestoreRepository {
     override val state = MutableStateFlow<RestoreState>(RestoreState.Idle)
@@ -68,7 +69,16 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
         state.value = RestoreState.Idle
     }
 
-    override suspend fun resumePhotos() = Unit
+    override suspend fun resumePhotos() = false
+
+    var fetchesNow = 0
+        private set
+
+    override fun fetchPhotosNow() {
+        fetchesNow++
+    }
+
+    override val waitingPhotos = MutableStateFlow<WaitingPhotos?>(null)
 
     override val photoProgress: StateFlow<PhotoProgress?> = MutableStateFlow(null)
     override val lastPhotoRun: PhotoRun? = null

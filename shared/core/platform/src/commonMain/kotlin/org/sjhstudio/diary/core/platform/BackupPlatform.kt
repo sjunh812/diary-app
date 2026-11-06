@@ -63,6 +63,12 @@ interface BackupScheduler {
      * 시스템이 끝까지 지켜 주지 않는 플랫폼은 하지 않는다.
      */
     fun keepRestoreRunning() = Unit
+
+    /**
+     * 복원 사진을 받을 네트워크가 돌아오면 앱을 깨워 잇게 한다.
+     * 시스템이 해 주지 않는 플랫폼은 앱을 다시 열 때 잇는다.
+     */
+    fun waitForPhotoNetwork(wifiOnly: Boolean) = Unit
 }
 
 /**

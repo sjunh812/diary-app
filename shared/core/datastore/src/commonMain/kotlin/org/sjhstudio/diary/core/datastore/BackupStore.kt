@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.PhotoStop
 
 /**
  * `backup.preferences_pb`의 값(data-model.md 표).
@@ -51,7 +52,14 @@ data class BackupPrefs(
      */
     val restoredBackupAt: Instant? = null,
     /** 사진을 다 꺼내지 못한 복원 파일을 이때까지 둔다. */
-    val unpackUntil: Instant? = null
+    val unpackUntil: Instant? = null,
+    /** 복원 사진을 받다 멈춘 까닭. */
+    val photoStop: PhotoStop? = null,
+    /**
+     * 대기 중인 사진 가운데 백업에 없어 받을 수 없는 장수.
+     * 남은 장수와 이어 받기에서 뺀다.
+     */
+    val photosUnreachable: Int = 0
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
@@ -98,7 +106,9 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         bytesShort = this[Keys.BYTES_SHORT] ?: 0,
         restoredBackupAt = this[Keys.RESTORED_BACKUP_AT]?.let(Instant::fromEpochMilliseconds),
         rollbackUntil = instant(Keys.ROLLBACK_UNTIL),
-        unpackUntil = instant(Keys.UNPACK_UNTIL)
+        unpackUntil = instant(Keys.UNPACK_UNTIL),
+        photoStop = PhotoStop.fromName(this[Keys.PHOTO_STOP]),
+        photosUnreachable = this[Keys.PHOTOS_UNREACHABLE] ?: 0
     )
 
     private fun Preferences.instant(key: Preferences.Key<Long>): Instant? = this[key]?.let(Instant::fromEpochMilliseconds)
@@ -124,6 +134,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         this[Keys.BYTES_SHORT] = prefs.bytesShort
         prefs.restoredBackupAt?.let { this[Keys.RESTORED_BACKUP_AT] = it.toEpochMilliseconds() } ?: remove(Keys.RESTORED_BACKUP_AT)
         setOrRemove(Keys.UNPACK_UNTIL, prefs.unpackUntil?.toEpochMilliseconds())
+        setOrRemove(Keys.PHOTO_STOP, prefs.photoStop?.name)
+        this[Keys.PHOTOS_UNREACHABLE] = prefs.photosUnreachable
     }
 
     private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
@@ -152,5 +164,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val USER_DISCONNECTED = booleanPreferencesKey("user_disconnected")
         val ROLLBACK_UNTIL = longPreferencesKey("rollback_until")
         val UNPACK_UNTIL = longPreferencesKey("unpack_until")
+        val PHOTO_STOP = stringPreferencesKey("photo_stop")
+        val PHOTOS_UNREACHABLE = intPreferencesKey("photos_unreachable")
     }
 }

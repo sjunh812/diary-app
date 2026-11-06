@@ -177,6 +177,12 @@ class NoRoomForPhotos : Exception("no room for photos")
 data class PhotoTally(var fetched: Int = 0, var broken: Int = 0, var notThere: Int = 0)
 
 /**
+ * 드라이브에서 찾아본 대기 사진.
+ * 드라이브에 없는 사진은 받을 길이 없어 [notThere]로 따로 센다.
+ */
+class DrivePhotos(val files: Map<String, DriveFile>, val reachable: Int, val notThere: Int)
+
+/**
  * 합친 뒤 대기 중인 사진을 받는다.
  * 끊겨도 다음에 대기 줄만 다시 받는다(FR-024).
  */
@@ -188,19 +194,28 @@ class PhotoFetcher(
     private val workDir: Path,
     private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE }
 ) {
-    /** 받은 수와 깨져서 쓸 수 없던 수를 [tally]에 적는다. */
-    suspend fun fetch(tally: PhotoTally = PhotoTally(), onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): PhotoTally {
+    /** 대기 사진이 드라이브에 있는지 찾아본다. */
+    suspend fun look(): DrivePhotos {
         val pending = db.backupDao().pendingFiles()
-        if (pending.isEmpty()) return tally
+        if (pending.isEmpty()) return DrivePhotos(emptyMap(), 0, 0)
         val onDrive: Map<String, DriveFile> =
             drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO))).associateBy {
                 it.name.substringBefore('.')
             }
-        // 드라이브에 없는 사진은 받을 길이 없다.
-        // 진행과 이어 받기의 숫자에 넣지 않는다.
-        tally.notThere += pending.count { it.sha256 !in onDrive }
-        return settle(tally, onProgress, PARALLEL_DOWNLOADS, { it.sha256 in onDrive }) { sha256, _, target ->
-            drive.download(requireNotNull(onDrive[sha256]).id, target)
+        val reachable = pending.count { it.sha256 in onDrive }
+        return DrivePhotos(onDrive, reachable, pending.size - reachable)
+    }
+
+    /** 받은 수와 깨져서 쓸 수 없던 수를 [tally]에 적는다. */
+    suspend fun fetch(tally: PhotoTally = PhotoTally(), onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): PhotoTally =
+        fetch(look(), tally, onProgress)
+
+    suspend fun fetch(found: DrivePhotos, tally: PhotoTally, onProgress: (done: Int, total: Int) -> Unit): PhotoTally {
+        // 드라이브에 없는 사진은 진행과 이어 받기의 숫자에 넣지 않는다.
+        tally.notThere += found.notThere
+        if (found.reachable == 0) return tally
+        return settle(tally, onProgress, PARALLEL_DOWNLOADS, { it.sha256 in found.files }) { sha256, _, target ->
+            drive.download(requireNotNull(found.files[sha256]).id, target)
             true
         }
     }

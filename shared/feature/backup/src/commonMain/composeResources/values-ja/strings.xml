@@ -94,6 +94,13 @@
     <string name="restore_note_pending_body">次にアプリを開くと続きからダウンロードします。</string>
     <string name="restore_note_pending_file_body">このファイルには含まれていない写真です。ドライブにバックアップがあれば、接続したときにダウンロードします。</string>
     <string name="restore_note_pending_space_body">空き容量が足りず止まりました。空き容量を増やしてアプリを開き直すと続きからダウンロードします。</string>
+    <string name="restore_wait_running">写真をダウンロードしています。</string>
+    <string name="restore_wait_network">インターネットに接続すると続きからダウンロードします。</string>
+    <string name="restore_wait_wifi">Wi-Fiに接続すると続きからダウンロードします。モバイルデータを使うには「今すぐダウンロード」を押してください。</string>
+    <string name="restore_wait_account">ドライブの接続が切れたため止まりました。接続し直すと続きからダウンロードします。</string>
+    <string name="restore_wait_file">復元したファイルをもう一度選ぶと残りの写真をダウンロードします。</string>
+    <string name="restore_wait_now">今すぐダウンロード</string>
+    <string name="restore_wait_pick">ファイルを選ぶ</string>
     <string name="restore_note_missing_body">ダウンロードしたファイルが異なるため、見つからない写真として残しました。</string>
     <string name="restore_lock_title">ロックを設定し直してください</string>
     <string name="restore_lock_body">バックアップしたスマートフォンでロックを使っていました。パスコードはバックアップされません。</string>

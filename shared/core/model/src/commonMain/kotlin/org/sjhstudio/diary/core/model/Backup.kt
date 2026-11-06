@@ -170,8 +170,30 @@ enum class PhotoStop {
     NO_SPACE,
 
     /** 잠깐 끊겼다. 앱을 다시 열면 잇는다. */
-    INTERRUPTED
+    INTERRUPTED,
+
+    /** 인터넷이 끊겼다. 연결되면 잇는다. */
+    NETWORK,
+
+    /** 모바일 데이터라 Wi-Fi를 기다린다. */
+    WIFI,
+
+    /** 드라이브 연결이 풀렸다. */
+    ACCOUNT,
+
+    /** 남은 사진이 든 파일을 다시 골라야 한다. */
+    FILE;
+
+    companion object {
+        fun fromName(name: String?): PhotoStop? = entries.firstOrNull { it.name == name }
+    }
 }
+
+/**
+ * 아직 받지 못한 복원 사진.
+ * [stop]이 null이면 지금 받고 있다.
+ */
+data class WaitingPhotos(val count: Int, val stop: PhotoStop?)
 
 enum class RestoreFailure {
     MISMATCH,

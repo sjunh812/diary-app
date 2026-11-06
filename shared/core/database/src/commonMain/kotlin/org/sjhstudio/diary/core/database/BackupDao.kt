@@ -70,6 +70,12 @@ interface BackupDao {
     )
     suspend fun pendingFiles(): List<LocalPhotoRow>
 
+    /** [pendingFiles]의 수. */
+    @Query(
+        "SELECT COUNT(*) FROM (SELECT 1 FROM media WHERE status = 'pending' AND sha256 IS NOT NULL GROUP BY sha256, file_name)"
+    )
+    fun pendingFileCount(): Flow<Int>
+
     /** 내용 확인값이 남아 있어 다시 받을 수 있는 찾을 수 없는 사진. */
     @Query(
         "SELECT sha256, file_name AS fileName, MAX(byte_size) AS byteSize FROM media " +

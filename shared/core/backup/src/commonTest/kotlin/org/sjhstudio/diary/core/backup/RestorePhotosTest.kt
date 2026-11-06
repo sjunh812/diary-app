@@ -12,6 +12,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
@@ -19,6 +20,8 @@ import okio.Path.Companion.toPath
 import okio.buffer
 import okio.openZip
 import okio.use
+import org.sjhstudio.diary.core.drive.DriveApi
+import org.sjhstudio.diary.core.drive.DriveUnauthorized
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.PhotoStop
@@ -26,6 +29,7 @@ import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.testing.FakeDrive
 
 /**
@@ -272,6 +276,147 @@ class RestorePhotosTest {
         assertTrue(run.left > 0)
     }
 
+    // 드라이브 사진 이어 받기
+
+    /** 사진 둘을 받다 끊긴 기기. */
+    private suspend fun cutDriveRestore(scope: CoroutineScope): RestoreResult {
+        backedUp()
+        b.store.update { it.copy(accountKey = "sub-1") }
+        val cut = b.controller(scope, photos = CutDrive(drive, after = 0))
+        val result = cut.restoreLatest()
+        cut.dismiss()
+        gateFree()
+        return result
+    }
+
+    private suspend fun RestoreController.waiting() = waitingPhotos.first()
+
+    @Test
+    fun a_cut_download_waits_for_the_network_by_itself() = runTest {
+        val result = cutDriveRestore(backgroundScope)
+
+        assertEquals(PhotoStop.NETWORK, result.photosStop)
+        assertEquals(listOf(true), b.scheduler.photoWaits)
+        assertEquals(WaitingPhotos(2, PhotoStop.NETWORK), b.controller(backgroundScope).waiting())
+    }
+
+    @Test
+    fun opening_the_app_on_mobile_data_says_it_waits_for_wifi_and_asks_the_system_to_wake_it() = runTest {
+        cutDriveRestore(backgroundScope)
+        b.network.isUnmetered = false
+        val counting = CountingDownloads(drive)
+        val controller = b.controller(backgroundScope, photos = counting)
+
+        assertTrue(controller.resumePhotos(), "기다리는 작업이 다시 불려야 한다")
+
+        assertEquals(0, counting.downloads)
+        assertEquals(WaitingPhotos(2, PhotoStop.WIFI), controller.waiting())
+        assertEquals(listOf(true, true), b.scheduler.photoWaits)
+    }
+
+    @Test
+    fun opening_the_app_offline_says_it_waits_for_the_network() = runTest {
+        cutDriveRestore(backgroundScope)
+        b.network.isConnected = false
+        val controller = b.controller(backgroundScope)
+
+        assertTrue(controller.resumePhotos())
+
+        assertEquals(WaitingPhotos(2, PhotoStop.NETWORK), controller.waiting())
+    }
+
+    @Test
+    fun someone_who_allows_mobile_data_keeps_receiving_and_waits_for_any_network() = runTest {
+        cutDriveRestore(backgroundScope)
+        b.store.update { it.copy(photosOnCellular = true) }
+        b.network.isConnected = false
+        b.controller(backgroundScope).resumePhotos()
+
+        assertEquals(false, b.scheduler.photoWaits.last())
+
+        b.network.isConnected = true
+        b.network.isUnmetered = false
+        assertFalse(b.controller(backgroundScope).resumePhotos())
+        assertEquals(setOf(MediaStatus.NORMAL.id), b.photoStates().values.toSet())
+    }
+
+    @Test
+    fun fetch_now_receives_on_mobile_data_once() = runTest {
+        cutDriveRestore(backgroundScope)
+        b.network.isUnmetered = false
+        val controller = b.controller(backgroundScope)
+
+        controller.fetchPhotosNow()
+
+        until { b.photoStates().values.toSet() == setOf(MediaStatus.NORMAL.id) }
+        until { controller.waiting() == null }
+    }
+
+    @Test
+    fun running_out_of_space_is_shown_as_such_and_does_not_wait_for_the_network() = runTest {
+        cutDriveRestore(backgroundScope)
+        b.freeBytes = 0
+        val waits = b.scheduler.photoWaits.size
+        val controller = b.controller(backgroundScope)
+
+        assertFalse(controller.resumePhotos())
+
+        assertEquals(WaitingPhotos(2, PhotoStop.NO_SPACE), controller.waiting())
+        assertEquals(waits, b.scheduler.photoWaits.size)
+    }
+
+    @Test
+    fun a_photo_only_the_original_phone_has_is_not_counted_or_retried() = runTest {
+        backedUp()
+        drive.trash(a.driveFiles(DriveLayout.KIND_PHOTO).first().id)
+        b.store.update { it.copy(accountKey = "sub-1") }
+        val controller = b.controller(backgroundScope)
+        controller.restoreLatest()
+        controller.dismiss()
+        gateFree()
+        val kept = b.scheduler.restoreKept
+        val again = b.controller(backgroundScope)
+
+        assertFalse(again.resumePhotos())
+
+        assertNull(again.waiting())
+        assertEquals(kept, b.scheduler.restoreKept, "받을 사진이 없는데 진행 알림을 띄웠다")
+        assertTrue(b.scheduler.photoWaits.isEmpty())
+    }
+
+    @Test
+    fun a_lost_account_is_shown_as_such() = runTest {
+        cutDriveRestore(backgroundScope)
+        val controller = b.controller(backgroundScope, photos = DeniedDrive(drive))
+
+        assertFalse(controller.resumePhotos())
+
+        assertEquals(WaitingPhotos(2, PhotoStop.ACCOUNT), controller.waiting())
+    }
+
+    @Test
+    fun someone_without_a_drive_is_asked_to_pick_the_file_again() = runTest {
+        val zip = export()
+        cutFileRestore(zip, backgroundScope)
+        b.clock.advance(8.days)
+        val controller = b.controller(backgroundScope)
+
+        controller.resumePhotos()
+
+        assertEquals(WaitingPhotos(2, PhotoStop.FILE), controller.waiting())
+    }
+
+    @Test
+    fun nothing_waits_once_every_photo_arrived() = runTest {
+        cutDriveRestore(backgroundScope)
+        val controller = b.controller(backgroundScope)
+
+        assertFalse(controller.resumePhotos())
+
+        assertNull(controller.waiting())
+        assertNull(b.store.current().photoStop)
+    }
+
     // 파일을 불러올 공간
 
     @Test
@@ -365,4 +510,20 @@ class RestorePhotosTest {
 
         assertEquals(MediaStatus.MISSING.id, b.photoStates()["mine-0"])
     }
+}
+
+/** 받은 사진 수를 센다. */
+private class CountingDownloads(private val real: DriveApi) : DriveApi by real {
+    var downloads = 0
+        private set
+
+    override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {
+        downloads++
+        return real.download(fileId, to, fromByte)
+    }
+}
+
+/** 로그인이 풀린 드라이브. */
+private class DeniedDrive(private val real: DriveApi) : DriveApi by real {
+    override suspend fun download(fileId: String, to: Path, fromByte: Long): Long = throw DriveUnauthorized()
 }
