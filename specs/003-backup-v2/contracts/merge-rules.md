@@ -21,11 +21,13 @@
 | 2 | `L.updated_at == B.updated_at`, 내용이 같음 | 그대로 | 같은 일기 |
 | 3 | S 있음, `B.updated_at <= S` | L을 둔다(백업이 이미 맞춰 본 것이거나 더 옛것) | 같은 일기 |
 | 4 | S 있음, `L.updated_at == S`, `B.updated_at > S` | L을 B로 바꾼다(이 기기는 그 뒤로 안 고침) | 바뀔 일기 |
-| 5 | S 있음, `L.updated_at > S`, `B.updated_at > S` | 둘 다 남긴다. L은 그대로, B는 새 `id`로 더하고 둘 다 `merge_mark(kept_both)` | 둘 다 남길 일기 |
+| 5 | S 있음, `L.updated_at > S`, `B.updated_at > S` | 둘 다 남긴다. L은 그대로, B는 새 `id`로 더하고 둘 다 `merge_mark(kept_both)`. 내용이 같으면 경우 2처럼 그대로 | 둘 다 남길 일기 |
 | 6 | S 없음, `L.updated_at != B.updated_at` | 더 늦게 고친 쪽을 남긴다. 늦은 쪽이 B면 바꾼다 | 바뀔 일기 또는 같은 일기 |
 | 7 | `updated_at`이 같은데 내용이 다름(시계가 틀린 기기) | 경우 5처럼 둘 다 남긴다 | 둘 다 남길 일기 |
 
-- "내용"은 `date`, `time`, `body_html`, `mood`, `weather`, `place_name`, `is_favorite`, `deleted_at`, 사진 줄(순서, `sha256`, `status`)이다.
+- "내용"은 `date`, `time`, `body_html`, `mood`, `weather`, `place_name`, `is_favorite`, 휴지통에 있는지, 사진 줄(순서, `sha256`, 해시가 없으면 `legacy_path`)이다.
+  복원이 휴지통 날짜를 늦추기도 해서 둘 다 휴지통이면 `deleted_at`은 견주지 않는다. 받는 중인 사진도 같은 사진이라 `status`는 견주지 않는다.
+- 경우 5·7이 되어도 `updated_at`과 내용이 B와 같은 일기가 기기에 이미 있으면 전에 남긴 사본이다. 더하지 않고 경우 2처럼 센다. 같은 백업을 몇 번 합쳐도 일기가 늘지 않는다.
 - L을 B로 바꿀 때는 L의 사진 줄을 B의 사진 줄로 바꾼다. 기기의 사진 파일은 지우지 않는다(정리는 스펙 002 규칙이 나중에 한다).
 - 경우 5·7에서 새로 더하는 B의 사진 줄도 새 `id`를 받고 같은 `sha256`을 가리킨다. 파일은 하나다.
 - 끝나면 더하거나 바꾼 일기의 `sync_base`를 B의 `updated_at`으로 쓴다. 경우 5의 L은 `sync_base`를 그대로 둔다.
