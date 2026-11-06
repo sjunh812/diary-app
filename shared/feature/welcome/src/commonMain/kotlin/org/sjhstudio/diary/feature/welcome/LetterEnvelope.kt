@@ -244,16 +244,16 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
     val width = area.width
     val height = area.height
     val body = bodyPath(area)
+    val middle = POCKET_DEPTH * height
+    val pocket = Path().apply {
+        moveTo(0f, 0f)
+        lineTo(width / 2, middle)
+        lineTo(width, 0f)
+        lineTo(width, height)
+        lineTo(0f, height)
+        close()
+    }
     clipPath(body) {
-        val middle = POCKET_DEPTH * height
-        val pocket = Path().apply {
-            moveTo(0f, 0f)
-            lineTo(width / 2, middle)
-            lineTo(width, 0f)
-            lineTo(width, height)
-            lineTo(0f, height)
-            close()
-        }
         drawPath(pocket, colors.paper)
         val folds = Path().apply {
             moveTo(0f, 0f)
@@ -265,8 +265,10 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
         }
         drawPath(folds, colors.lineStrong, style = outline())
     }
-    drawPath(body, colors.lineStrong, style = outline())
     val tip = flapTip(height, progress)
+    // 열린 봉투의 위쪽은 비어 있다. 윗선을 그으면 나오는 편지지 위로 지나간다.
+    if (tip >= 0) drawPath(body, colors.lineStrong, style = outline())
+    if (tip < 0) clipPath(pocket) { drawPath(body, colors.lineStrong, style = outline()) }
     if (tip >= 0) {
         val flap = flapPath(width, tip)
         clipPath(body) { drawPath(flap, colors.selected) }
