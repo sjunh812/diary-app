@@ -73,7 +73,8 @@
     <string name="restore_merge">Merge</string>
     <string name="restore_preparing">Checking the backup</string>
     <string name="restore_size_gb">%1$s GB</string>
-    <string name="restore_size_mb">%1$d MB</string>
+    <string name="restore_size_mb">%1$s MB</string>
+    <string name="restore_size_kb">%1$s KB</string>
     <string name="restore_running_title">Restoring your diary</string>
     <string name="restore_merging_body">Merging your entries.</string>
     <string name="restore_fetching_body">Your entries are merged. You can read them while photos download.</string>
@@ -155,7 +156,8 @@
     <string name="file_top">Back up to a file</string>
     <string name="file_row_body">Keep everything in one file without Drive.</string>
     <string name="file_title">Put your diary in one file</string>
-    <string name="file_body">Keep %1$s and %2$s in a file without Drive. About %3$s.</string>
+    <string name="file_body">Keep %1$s and %2$s in a file without Drive. Estimated size: %3$s.</string>
+    <string name="file_body_empty">You have no diary entries to save yet. You can restore a backup file below.</string>
     <string name="file_place_title">Save it wherever you like</string>
     <string name="file_place_body">Phone storage, SD card, USB or another cloud app.</string>
     <string name="file_move_title">Move it to your new phone yourself</string>
@@ -171,7 +173,7 @@
     <string name="file_read_failed">This isn’t a backup file, or part of it is damaged. Nothing on this phone changed.</string>
     <string name="file_read_needs_update">Update the app to restore this backup.</string>
     <string name="file_saved_title">File saved</string>
-    <string name="file_saved_body">%1$s · about %2$s. Move it to your new phone and use Restore from a file.</string>
+    <string name="file_saved_body">%1$s (%2$s)\nMove it to your new phone, then tap Restore from a file.</string>
     <string name="file_done">OK</string>
     <string name="file_name">1Day1Diary-backup-%1$s</string>
     <string name="backup_group_other">Other ways</string>

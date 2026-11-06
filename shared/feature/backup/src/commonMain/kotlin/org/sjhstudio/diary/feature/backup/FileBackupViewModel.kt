@@ -7,8 +7,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okio.Buffer
 import okio.BufferedSink
+import okio.Sink
 import okio.Source
+import okio.buffer
 import okio.use
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BundleEstimate
@@ -20,7 +23,7 @@ sealed interface FileBackupUi {
 
     data class Writing(val done: Int, val total: Int) : FileBackupUi
 
-    data class Saved(val name: String) : FileBackupUi
+    data class Saved(val name: String, val bytes: Long) : FileBackupUi
 
     data object WriteFailed : FileBackupUi
 
@@ -46,8 +49,14 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
         viewModelScope.launch {
             _state.value =
                 try {
-                    open().use { sink -> restore.writeBundle(sink) { done, total -> _state.value = FileBackupUi.Writing(done, total) } }
-                    FileBackupUi.Saved(name)
+                    val counted = CountingSink(open())
+                    counted.buffer().use { sink ->
+                        restore.writeBundle(sink) { done, total ->
+                            _state.value =
+                                FileBackupUi.Writing(done, total)
+                        }
+                    }
+                    FileBackupUi.Saved(name, counted.written)
                 } catch (error: CancellationException) {
                     throw error
                 } catch (_: Exception) {
@@ -81,5 +90,16 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
 
     fun clear() {
         _state.value = FileBackupUi.Idle
+    }
+}
+
+/** 실제로 쓴 크기를 센다. 끝난 화면에 어림값이 아니라 파일 크기를 보이려고 쓴다. */
+private class CountingSink(private val delegate: Sink) : Sink by delegate {
+    var written = 0L
+        private set
+
+    override fun write(source: Buffer, byteCount: Long) {
+        delegate.write(source, byteCount)
+        written += byteCount
     }
 }

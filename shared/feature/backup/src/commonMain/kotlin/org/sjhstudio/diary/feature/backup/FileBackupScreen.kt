@@ -56,6 +56,7 @@ import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.file_action
 import org.sjhstudio.diary.feature.backup.resources.file_body
+import org.sjhstudio.diary.feature.backup.resources.file_body_empty
 import org.sjhstudio.diary.feature.backup.resources.file_done
 import org.sjhstudio.diary.feature.backup.resources.file_move_body
 import org.sjhstudio.diary.feature.backup.resources.file_move_title
@@ -124,7 +125,7 @@ fun FileBackupScreen(
         DiaryTopBar(stringResource(Res.string.file_top), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().weight(1f)) {
             when (state) {
-                is FileBackupUi.Saved -> Saved(state.name, estimate, onDone)
+                is FileBackupUi.Saved -> Saved(state, onDone)
                 else -> Start(estimate, state, onMake, onRestore)
             }
         }
@@ -200,20 +201,20 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
                 onMake,
                 Modifier.fillMaxWidth(),
                 size = DiaryButtonSize.XLarge,
-                enabled = !busy
+                enabled = !busy && estimate?.entries != 0
             )
         }
     }
 }
 
 @Composable
-private fun androidx.compose.foundation.layout.ColumnScope.Saved(name: String, estimate: BundleEstimate?, onDone: () -> Unit) {
+private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBackupUi.Saved, onDone: () -> Unit) {
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Heading(
             DiaryIcons.CircleCheck,
             stringResource(Res.string.file_saved_title),
-            stringResource(Res.string.file_saved_body, name, estimate?.let { sizeText(it.bytes) }.orEmpty())
+            stringResource(Res.string.file_saved_body, saved.name, sizeText(saved.bytes))
         )
     }
     Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3)) {
@@ -222,12 +223,16 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(name: String, e
 }
 
 @Composable
-private fun bodyOf(estimate: BundleEstimate): String = stringResource(
-    Res.string.file_body,
-    pluralStringResource(Res.plurals.restore_count_entries, estimate.entries, estimate.entries.grouped()),
-    pluralStringResource(Res.plurals.restore_count_photos, estimate.photos, estimate.photos.grouped()),
-    sizeText(estimate.bytes)
-)
+private fun bodyOf(estimate: BundleEstimate): String = if (estimate.entries == 0) {
+    stringResource(Res.string.file_body_empty)
+} else {
+    stringResource(
+        Res.string.file_body,
+        pluralStringResource(Res.plurals.restore_count_entries, estimate.entries, estimate.entries.grouped()),
+        pluralStringResource(Res.plurals.restore_count_photos, estimate.photos, estimate.photos.grouped()),
+        sizeText(estimate.bytes)
+    )
+}
 
 @Composable
 private fun Heading(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, body: String) {

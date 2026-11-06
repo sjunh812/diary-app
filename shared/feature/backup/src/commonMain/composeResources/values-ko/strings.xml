@@ -73,7 +73,8 @@
     <string name="restore_merge">합치기</string>
     <string name="restore_preparing">백업을 확인하고 있어요</string>
     <string name="restore_size_gb">%1$sGB</string>
-    <string name="restore_size_mb">%1$dMB</string>
+    <string name="restore_size_mb">%1$sMB</string>
+    <string name="restore_size_kb">%1$sKB</string>
     <string name="restore_running_title">일기를 복원하고 있어요</string>
     <string name="restore_merging_body">일기를 합치고 있어요.</string>
     <string name="restore_fetching_body">일기는 다 합쳤어요. 사진을 받는 동안에도 일기를 볼 수 있어요.</string>
@@ -155,7 +156,8 @@
     <string name="file_top">파일로 백업하기</string>
     <string name="file_row_body">드라이브 없이 파일 하나로 보관해요.</string>
     <string name="file_title">일기를 파일 하나로 만들어요</string>
-    <string name="file_body">드라이브 없이도 %1$s과 %2$s을 파일로 보관할 수 있어요. 크기는 %3$s쯤이에요.</string>
+    <string name="file_body">드라이브 없이도 %1$s과 %2$s을 파일로 보관할 수 있어요. 예상 크기는 %3$s예요.</string>
+    <string name="file_body_empty">아직 파일로 만들 일기가 없어요. 받은 백업 파일은 아래에서 복원할 수 있어요.</string>
     <string name="file_place_title">원하는 곳에 저장해요</string>
     <string name="file_place_body">휴대폰 저장소, SD 카드, USB, 다른 클라우드 앱 중에서 골라요.</string>
     <string name="file_move_title">새 휴대폰으로 직접 옮겨요</string>
@@ -171,7 +173,7 @@
     <string name="file_read_failed">백업 파일이 아니거나 일부가 깨졌어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_read_needs_update">앱을 업데이트하면 복원할 수 있어요.</string>
     <string name="file_saved_title">파일을 저장했어요</string>
-    <string name="file_saved_body">%1$s · %2$s쯤. 새 휴대폰으로 옮긴 뒤 "파일에서 복원하기"로 복원해요.</string>
+    <string name="file_saved_body">%1$s (%2$s)\n새 휴대폰으로 옮긴 뒤 "파일에서 복원하기"를 누르면 돼요.</string>
     <string name="file_done">확인</string>
     <string name="file_name">1일1일기-백업-%1$s</string>
     <string name="backup_group_other">다른 방법</string>

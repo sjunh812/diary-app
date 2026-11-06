@@ -73,7 +73,8 @@
     <string name="restore_merge">統合する</string>
     <string name="restore_preparing">バックアップを確認しています</string>
     <string name="restore_size_gb">%1$sGB</string>
-    <string name="restore_size_mb">%1$dMB</string>
+    <string name="restore_size_mb">%1$sMB</string>
+    <string name="restore_size_kb">%1$sKB</string>
     <string name="restore_running_title">日記を復元しています</string>
     <string name="restore_merging_body">日記を統合しています。</string>
     <string name="restore_fetching_body">日記は統合しました。写真を受け取る間も日記を読めます。</string>
@@ -155,7 +156,8 @@
     <string name="file_top">ファイルにバックアップ</string>
     <string name="file_row_body">ドライブなしでファイル1つに保存します。</string>
     <string name="file_title">日記を1つのファイルにします</string>
-    <string name="file_body">ドライブがなくても%1$sと%2$sをファイルで保管できます。約%3$sです。</string>
+    <string name="file_body">ドライブがなくても%1$sと%2$sをファイルで保管できます。予想サイズは%3$sです。</string>
+    <string name="file_body_empty">ファイルにする日記はまだありません。バックアップファイルは下から復元できます。</string>
     <string name="file_place_title">好きな場所に保存できます</string>
     <string name="file_place_body">スマホのストレージ、SDカード、USB、他のクラウドアプリから選べます。</string>
     <string name="file_move_title">新しいスマホへ自分で移します</string>
@@ -171,7 +173,7 @@
     <string name="file_read_failed">バックアップファイルではないか、一部が壊れています。このスマホの記録はそのままです。</string>
     <string name="file_read_needs_update">アプリを更新すると復元できます。</string>
     <string name="file_saved_title">ファイルを保存しました</string>
-    <string name="file_saved_body">%1$s · 約%2$s。新しいスマホに移してから「ファイルから復元」で復元します。</string>
+    <string name="file_saved_body">%1$s (%2$s)\n新しいスマホに移してから「ファイルから復元」を押してください。</string>
     <string name="file_done">OK</string>
     <string name="file_name">1日1日記-バックアップ-%1$s</string>
     <string name="backup_group_other">別の方法</string>

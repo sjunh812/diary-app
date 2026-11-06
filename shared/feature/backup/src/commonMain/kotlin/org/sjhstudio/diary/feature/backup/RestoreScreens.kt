@@ -66,7 +66,9 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.ui.ByteUnit
 import org.sjhstudio.diary.core.ui.SkeletonRows
+import org.sjhstudio.diary.core.ui.byteSize
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
@@ -148,6 +150,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_running_title
 import org.sjhstudio.diary.feature.backup.resources.restore_see_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_settings_note
 import org.sjhstudio.diary.feature.backup.resources.restore_size_gb
+import org.sjhstudio.diary.feature.backup.resources.restore_size_kb
 import org.sjhstudio.diary.feature.backup.resources.restore_size_mb
 import org.sjhstudio.diary.feature.backup.resources.restore_start
 import org.sjhstudio.diary.feature.backup.resources.restore_unit_entries
@@ -332,11 +335,7 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
                 )
                 DiaryValueRow(
                     stringResource(Res.string.restore_value_photos),
-                    stringResource(
-                        Res.string.restore_join,
-                        pluralStringResource(Res.plurals.restore_unit_photos, preview.photosToDownload, preview.photosToDownload.grouped()),
-                        sizeText(preview.bytesToDownload)
-                    )
+                    photosToReceive(preview.photosToDownload, preview.bytesToDownload)
                 )
             }
             // 지금 막는 것부터 보이고, 뜻이 다르면 아이콘도 다르게 둔다.
@@ -746,17 +745,21 @@ internal fun countsText(entry: BackupEntry): String = stringResource(
     pluralStringResource(Res.plurals.restore_count_photos, entry.photoCount, entry.photoCount.grouped())
 )
 
+/** 받을 사진이 없으면 크기는 뜻이 없어 장수만 보인다. */
+@Composable
+private fun photosToReceive(photos: Int, bytes: Long): String {
+    val count = pluralStringResource(Res.plurals.restore_unit_photos, photos, photos.grouped())
+    return if (photos == 0) count else stringResource(Res.string.restore_join, count, sizeText(bytes))
+}
+
 @Composable
 internal fun sizeText(bytes: Long): String {
-    if (bytes <
-        GIGABYTE
-    ) {
-        return stringResource(Res.string.restore_size_mb, (bytes / MEGABYTE).coerceAtLeast(if (bytes > 0) 1 else 0).toInt())
+    val size = byteSize(bytes)
+    return when (size.unit) {
+        ByteUnit.KB -> stringResource(Res.string.restore_size_kb, size.value)
+        ByteUnit.MB -> stringResource(Res.string.restore_size_mb, size.value)
+        ByteUnit.GB -> stringResource(Res.string.restore_size_gb, size.value)
     }
-    val tenths = bytes * 10 / GIGABYTE
-    return stringResource(Res.string.restore_size_gb, "${tenths / 10}.${tenths % 10}")
 }
 
 private const val SUPPORT_MAIL = "mailto:sjunh812@naver.com"
-private const val MEGABYTE = 1_000_000L
-private const val GIGABYTE = 1_000_000_000L
