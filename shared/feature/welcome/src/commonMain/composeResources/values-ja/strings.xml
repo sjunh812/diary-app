@@ -19,10 +19,10 @@
     <string name="onboarding_start">はじめる</string>
     <string name="onboarding_skip">スキップ</string>
     <string name="onboarding_later">あとで</string>
-    <plurals name="letter_moved"><item quantity="other">これまで日記を**%1$s件**残してくださいました。</item></plurals>
+    <plurals name="letter_moved"><item quantity="other">これまで日記を**%1$s件**残してくださいました。\nまだ至らないアプリを使い続けてくださり、心より感謝いたします。</item></plurals>
     <string name="letter_promise_free">お使いの機能はこれからも無料です</string>
     <string name="letter_promise_ads">書く画面と詳細画面に広告はありません</string>
-    <string name="letter_close">いつも1日1日記をご利用いただき、ありがとうございます 🙇‍♂️\nこれからもよろしくお願いします。</string>
+    <string name="letter_close">これからもよろしくお願いします 🙇‍♂️</string>
     <string name="onboarding_style_title">文字を飾れます</string>
     <string name="onboarding_style_body">太字、文字色、マーカー、リストを使ってみましょう。</string>
     <string name="onboarding_trash_title">うっかり削除しても大丈夫</string>

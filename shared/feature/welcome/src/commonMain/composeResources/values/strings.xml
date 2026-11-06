@@ -19,10 +19,10 @@
     <string name="onboarding_start">Get started</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_later">Later</string>
-    <plurals name="letter_moved"><item quantity="one">You've left **%1$s entry** so far.</item><item quantity="other">You've left **%1$s entries** so far.</item></plurals>
+    <plurals name="letter_moved"><item quantity="one">You\'ve left **%1$s entry** so far.\nThank you from the bottom of my heart for sticking with this humble app.</item><item quantity="other">You\'ve left **%1$s entries** so far.\nThank you from the bottom of my heart for sticking with this humble app.</item></plurals>
     <string name="letter_promise_free">Features you've been using stay free</string>
     <string name="letter_promise_ads">No ads on the write and detail screens</string>
-    <string name="letter_close">Thank you for always using 1 Day 1 Diary 🙇‍♂️\nI hope you'll stay with me.</string>
+    <string name="letter_close">I hope you\'ll stay with me 🙇‍♂️</string>
     <string name="onboarding_style_title">Style your words</string>
     <string name="onboarding_style_body">Try bold, text color, highlight, and lists.</string>
     <string name="onboarding_trash_title">Deleted by mistake? It's okay</string>
