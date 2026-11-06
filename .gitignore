@@ -39,3 +39,9 @@ composeApp/google-services.json
 iosApp/iosApp/GoogleService-Info.plist
 # 에이전트 작업 폴더
 .claude/worktrees/
+# 서명 키와 스토어 계정 파일. 올라가면 되돌릴 수 없다.
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+*service-account*.json
