@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.BackupRepository
@@ -22,6 +23,14 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
         SharingStarted.WhileSubscribed(STOP_MILLIS),
         BackupStatus()
     )
+
+    /**
+     * 저장해 둔 상태를 읽기 전에는 null이다.
+     * 앱이 뜨는 순간 켜 둔 백업이 꺼짐으로 보이지 않게 홈 줄은 이 값을 본다.
+     */
+    val loadedStatus: StateFlow<BackupStatus?> = controller.status
+        .map<BackupStatus, BackupStatus?> { it }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     val nudge: StateFlow<BackupNudge?> = controller.nudge.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 

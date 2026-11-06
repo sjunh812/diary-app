@@ -3,7 +3,7 @@
     <string name="letter_arrived">You have a letter</string>
     <string name="letter_open">Open the letter</string>
     <string name="letter_title">A letter from the developer</string>
-    <string name="letter_hello">Hello,\nI'm the developer of 1 Day 1 Diary 👋</string>
+    <string name="letter_hello">Hi, I'm the developer\nof 1 Day 1 Diary 👋</string>
     <string name="letter_short">I know the app has caused you some frustration, so I rebuilt it **from scratch**. **Your photos are now backed up too**, and there are new features you'll find useful.\n\nTo keep the updates coming, I've added ads and paid features. In return, I'm making you two promises.</string>
     <string name="letter_sign">From SeoJuNyang</string>
     <string name="letter_start">Continue</string>

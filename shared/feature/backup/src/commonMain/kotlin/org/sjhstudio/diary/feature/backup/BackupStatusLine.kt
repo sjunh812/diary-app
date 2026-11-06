@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
@@ -60,8 +61,10 @@ private val LONG_FAILURE = 7.days
 @Composable
 fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
-    val status by viewModel.status.collectAsStateWithLifecycle()
-    BackupStatusLine(status, onOpen, modifier)
+    val status by viewModel.loadedStatus.collectAsStateWithLifecycle()
+    // 읽기 전에는 틀린 말을 하지 않고 자리만 잡아 둔다.
+    status?.let { BackupStatusLine(it, onOpen, modifier) }
+        ?: BackupStatusLine(BackupStatus(), onOpen = {}, modifier.alpha(0f))
 }
 
 @Composable
