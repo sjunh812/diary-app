@@ -482,8 +482,6 @@ class WriteViewModel(
         }
     }
 
-    fun saveFailureShown() = _state.update { it.copy(saveFailed = false) }
-
     /** 뒤로 가기. 쓴 것이 있으면 묻지 않고 임시 저장한다(FR-011). */
     fun close() {
         // 저장이 끝났으면 쓸 것이 없다.
