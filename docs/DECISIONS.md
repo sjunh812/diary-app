@@ -766,6 +766,8 @@ CI에서 고친 것과 까닭:
 - `macos-latest` 대신 `macos-26`과 Xcode 26.6으로 고정했다. 이 컴퓨터는 Xcode 27.2라 판이 다르다.
 - PR은 경로로 나눈다. 푸시는 대기 중이던 실행이 밀려나면 코드 변경을 놓칠 수 있어 문서만 바꾼 경우 말고는 전부 돈다. 브랜치 보호에는 "CI 통과" 작업 하나만 건다.
 - 액션은 커밋 SHA로 고정했다. Dependabot이 주석의 판을 보고 올린다.
+- `xcodegen` 산출물 비교는 CI에 넣지 않는다. 다시 만들면 파일 ID와 글꼴 그룹 순서가 달라져 내용이 같아도 차이가 난다(2.46.0으로 확인).
+- 손으로 돌리는 "업그레이드 시험" 작업은 한 번도 돌린 적이 없고, 견본이 없는 기기에서는 `UpgradeVerificationTest`가 건너뛴다. 실제 확인은 `scripts/legacy/upgrade-test.sh`다.
 
 CD: `v*` 태그에서 서명된 AAB, Play 내부 트랙 업로드, iOS IPA를 만든다. 비밀값이 없으면 그 단계만 건너뛴다. 프로덕션 승격은 Play Console에서 사람이 한다. `docs/release.md` "CD 비밀값".
 
@@ -798,13 +800,13 @@ CD: `v*` 태그에서 서명된 AAB, Play 내부 트랙 업로드, iOS IPA를 �
 | 봇 | 비용 조건 | 이 저장소 |
 | --- | --- | --- |
 | CodeRabbit | 공개 저장소 무료, 카드 없음, Team 기능. 리뷰 한도는 별 수에 따라 시간당 1~10회 | 고른다. 별 10개 미만(지금 5개)이라 자동으로 돌지 않아 `@coderabbitai review`로 부른다 |
-| Gemini Code Assist | 앱 소개에 "Google Cloud 고객만"이라고 적혀 있고 설치에 결제 계정이 연결된 Google Cloud 프로젝트가 필요하다. 하루 100건 이상 | 고르지 않는다. 비용이 나지 않아도 카드 없는 무료 플랜이 아니다(헌법 IV) |
+| Gemini Code Assist | 앱 소개에 "Google Cloud 고객만"이라고 적혀 있고 설치에 결제 계정이 연결된 Google Cloud 프로젝트가 필요하다. 하루 100건 이상 | 고르지 않는다. 결제 계정을 잇지 않고는 설치할 수 없어 무료 봇으로 보지 않는다 |
 | Codex GitHub 연동 | 요금 표에서 Plus에 자동 코드 리뷰가 있고 Free에는 없다. API 키는 제외 | 고르지 않는다. 유료 구독이 필요하다 |
 | Claude Code Action | Actions 분은 공개 저장소에서 무료지만 API 토큰이나 Claude 구독을 쓴다. 무료 구간 없음 | 고르지 않는다. 구독이 있으면 `@claude`로 따로 붙일 수 있다 |
 
 출처: [CodeRabbit 요금과 한도](https://docs.coderabbit.ai/management/plans), [Gemini 설치](https://docs.cloud.google.com/gemini/docs/code-review/set-up-code-assist-github), [Gemini 한도](https://docs.cloud.google.com/gemini/docs/quotas), [Gemini 앱](https://github.com/apps/gemini-code-assist), [Codex 요금](https://learn.chatgpt.com/docs/pricing), [Claude Code Action](https://code.claude.com/docs/en/github-actions).
 
-CodeRabbit이 코드를 읽는 범위는 이 공개 저장소뿐이다. 설정은 PR 브랜치의 `.coderabbit.yaml`을 읽는다([설정](https://docs.coderabbit.ai/getting-started/yaml-configuration)). 헌법과 `CLAUDE.md`를 경로별 지침과 코드 가이드라인으로 넣었다.
+앱을 설치할 때 이 저장소만 고른다. 설정은 PR 브랜치의 `.coderabbit.yaml`을 읽는다([설정](https://docs.coderabbit.ai/getting-started/yaml-configuration)). 헌법과 `CLAUDE.md`를 경로별 지침과 코드 가이드라인으로 넣었다.
 
 ## 2026-11-07 되풀이되는 일을 프로젝트 스킬로 옮긴다 (사용자 요청)
 
