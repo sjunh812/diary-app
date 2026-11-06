@@ -56,9 +56,9 @@
 | 그 밖 androidx | activity-compose 1.13.0, core-ktx 1.19.0, profileinstaller 1.4.1, benchmark·baselineprofile 1.5.0 | 오발있과 같다 |
 | Play Feature Delivery | `com.google.android.play:feature-delivery` 2.1.0(2026-11-03 더함) | 고를 때 받는 일기 글꼴 다섯 종(R17). Google Maven 최신 안정판 |
 | AboutLibraries | `com.mikepenz.aboutlibraries.plugin`, `aboutlibraries-core` 15.3.0(2026-11-04 더함, Apache 2.0, 무료) | 오픈소스 라이선스 화면의 라이브러리 목록. KotlinConf 앱과 같은 방식(플러그인이 빌드 때 JSON을 만들고 화면은 직접 그림). Maven Central 최신(2026-10-13) |
-| 정적 분석 | Spotless 8.10.4 + ktlint 1.8.0(`android_studio` 형식, 한 줄 140자) | R20 |
+| 정적 분석 | Spotless 8.10.4 + ktlint 1.8.0(`android_studio` 형식, 한 줄 140자), detekt 2.0.0-alpha.6 + compose-rules 0.6.8(앱에 들어가지 않는다, 2026-11-07) | R20 |
 
-- Decision: 위 표를 `gradle/libs.versions.toml`에 고정한다. 알파·베타는 쓰지 않는다. JDK 17 툴체인으로 빌드한다(이 기기 기본 JDK 25에서는
+- Decision: 위 표를 `gradle/libs.versions.toml`에 고정한다. 앱에 들어가는 것은 알파·베타를 쓰지 않는다. JDK 17 툴체인으로 빌드한다(이 기기 기본 JDK 25에서는
   레거시 Gradle 8.9가 돌지 않아 레거시 빌드에는 JBR 17을 쓴다).
 
 ### R3. convention plugin
@@ -246,7 +246,7 @@
 
 - Decision: Spotless + ktlint(NIA 방식). GitHub Actions `ci.yml`: Ubuntu에서 `spotlessCheck designTokenCheck allTests assembleDebug`, macOS에서
   `iosSimulatorArm64Test`와 `xcodebuild -scheme iosApp -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build`. 업그레이드 계측 시험(API 24·29·35·36)은
-  수동 실행 작업(`workflow_dispatch`)으로 둔다.
+  수동 실행 작업(`workflow_dispatch`)으로 둔다. 2026-11-07에 detekt와 Android Lint를 더했다(`docs/DECISIONS.md`).
 - Rationale: 공개 저장소의 GitHub Actions 표준 러너는 무료다([Actions 요금](https://docs.github.com/en/billing/managing-billing-for-your-products/managing-billing-for-github-actions/about-billing-for-github-actions)).
   에뮬레이터 넷을 매 푸시마다 돌리면 오래 걸린다(판단).
 

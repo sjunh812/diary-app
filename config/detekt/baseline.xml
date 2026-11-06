@@ -1,0 +1,324 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:LegacySettingsMapper.kt:LegacySettingsMapper$hour != null &amp;&amp; minute != null &amp;&amp; hour in 0..23 &amp;&amp; minute in 0..59</ID>
+    <ID>CompositionLocalAllowlist:AppScaffold.kt:/** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둔다. */ private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }</ID>
+    <ID>CompositionLocalAllowlist:DiaryBottomSheet.kt:/** * 시트 안에서 두 버튼이 스스로 더 띄우는 위 여백. * 시트의 기본 간격 12에 이 값을 더해 글과 버튼 사이가 24가 된다. * 시트마다 버튼을 슬롯으로 넘기지 않아도 되게 버튼 쪽이 안다. */ internal val LocalSheetButtonGap = staticCompositionLocalOf { 0.dp }</ID>
+    <ID>CompositionLocalAllowlist:DiarySpacing.kt:/** * 공통 부품이 쓰는 화면 좌우 여백(`docs/design.md` 간격, 폰 20, 600dp부터 24). * 앱 틀이 창 크기에 맞춰 값을 주고, 값을 주지 않으면 폰 여백이다. */ val LocalScreenGutter = staticCompositionLocalOf { DiarySpacing.screenCompact }</ID>
+    <ID>CompositionLocalAllowlist:DiaryTheme.kt:private val LocalDiaryColors = staticCompositionLocalOf { LightDiaryColors }</ID>
+    <ID>CompositionLocalAllowlist:DiaryTheme.kt:private val LocalDiaryTypography = staticCompositionLocalOf&lt;DiaryTypography&gt; { error("DiaryTheme 안에서만 쓴다") }</ID>
+    <ID>CompositionLocalAllowlist:ListDetailScene.kt:/** 두 칸 장면 안의 화면은 장면이 레일 자리를 비운다. */ val LocalInListDetail = compositionLocalOf { false }</ID>
+    <ID>CompositionLocalAllowlist:ListDetailScene.kt:/** 위에 얹은 레일의 폭. 쓰기처럼 전체를 쓰는 화면이 아니면 이만큼 비워 둔다. */ val LocalRailWidth = compositionLocalOf { Dp.Hairline }</ID>
+    <ID>ContentTrailingLambda:HomeScreen.kt:content: @Composable () -&gt; Unit</ID>
+    <ID>CyclomaticComplexMethod:MigrationRunner.kt:MigrationRunner$override suspend fun retryDeferred: MigrationResult</ID>
+    <ID>CyclomaticComplexMethod:MigrationRunner.kt:MigrationRunner$private suspend fun migrate: MigrationResult</ID>
+    <ID>CyclomaticComplexMethod:MigrationRunner.kt:MigrationRunner$private suspend fun verify: Int</ID>
+    <ID>CyclomaticComplexMethod:PlainText.kt:fun toPlainText: String</ID>
+    <ID>CyclomaticComplexMethod:RichText.kt:fun decodeHtmlEntity: Pair&lt;String, Int&gt;?</ID>
+    <ID>CyclomaticComplexMethod:RichText.kt:fun parseRichText: RichText</ID>
+    <ID>CyclomaticComplexMethod:RichTextSanitizer.kt:RichTextSanitizer$fun sanitize: String</ID>
+    <ID>CyclomaticComplexMethod:RichTextSanitizer.kt:RichTextSanitizer$internal fun spanStyle: String?</ID>
+    <ID>CyclomaticComplexMethod:ScreenCatalogActivity.kt:ScreenCatalogActivity$override fun onCreate</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$val (y, mo, d, h, mi, s) = m.destructured</ID>
+    <ID>ExplicitGarbageCollectionCall:LargeBackupTest.kt:LargeBackupTest$gc()</ID>
+    <ID>ForEachOnRange:LargeBackupTest.kt:LargeBackupTest$(0 until ENTRIES).chunked(1000)</ID>
+    <ID>FunctionNaming:LargeBackupTest.kt:LargeBackupTest$@Test fun ten_thousand_entries_and_photos_finish_within_the_memory_limit</ID>
+    <ID>FunctionNaming:MainViewController.kt:@Suppress("ktlint:standard:function-naming") fun MainViewController: UIViewController</ID>
+    <ID>FunctionNaming:SupportBundleTest.kt:SupportBundleTest$@Test fun bundle_holds_only_the_diary_file</ID>
+    <ID>FunctionNaming:SupportBundleTest.kt:SupportBundleTest$@Test fun no_snapshot_no_bundle</ID>
+    <ID>LambdaParameterEventTrailing:AppScaffold.kt:onTrashed: (String) -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:DiaryBottomSheet.kt:onClick: () -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:DiaryDatePicker.kt:onClick: () -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:DiaryMonthSheet.kt:onClick: () -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:DiaryNavigation.kt:onClick: () -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:EntryDetailScreen.kt:onClick: () -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:TextSizeSettingsScreen.kt:onClick: () -&gt; Unit</ID>
+    <ID>LambdaParameterEventTrailing:WriteScreen.kt:onClick: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:DiaryLottie.kt:read: suspend () -&gt; ByteArray</ID>
+    <ID>LambdaParameterInRestartableEffect:FontReplacedNotice.kt:onChange: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:LegacyReaderScreen.kt:onLoadMore: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:LicensesScreen.kt:onBack: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:LockFlow.kt:onKeyMissing: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:LockFlow.kt:onLockTurnedOff: (message: String) -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:LockFlow.kt:onUnlocked: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:PlusScreen.kt:onBuyHeight: (Int) -&gt; Unit = {}</ID>
+    <ID>LambdaParameterInRestartableEffect:RestoreScreens.kt:onHome: () -&gt; Unit</ID>
+    <ID>LargeClass:RestoreEdgeTest.kt:RestoreEdgeTest</ID>
+    <ID>LongMethod:AppModules.kt:internal fun appModules: List&lt;Module&gt;</ID>
+    <ID>LongMethod:BackupRunner.kt:BackupRunner$private suspend fun backUp: BackupOutcome.Done</ID>
+    <ID>LongMethod:MigrationRunner.kt:MigrationRunner$private suspend fun migrate: MigrationResult</ID>
+    <ID>LongMethod:RichText.kt:fun parseRichText: RichText</ID>
+    <ID>LongMethod:ScreenCatalogActivity.kt:ScreenCatalogActivity$override fun onCreate</ID>
+    <ID>LongMethod:SettingsEntries.kt:fun EntryProviderScope&lt;NavKey&gt;.settingsEntries</ID>
+    <ID>LoopWithTooManyJumpStatements:DefaultDraftRepository.kt:DefaultDraftRepository$for</ID>
+    <ID>LoopWithTooManyJumpStatements:DefaultMediaRepository.kt:DefaultMediaRepository$for</ID>
+    <ID>LoopWithTooManyJumpStatements:LegacyDbReader.kt:LegacyDbReader$while</ID>
+    <ID>LoopWithTooManyJumpStatements:MigrationRunner.kt:MigrationRunner$for</ID>
+    <ID>LoopWithTooManyJumpStatements:RichTextSanitizer.kt:RichTextSanitizer$for</ID>
+    <ID>LoopWithTooManyJumpStatements:RichTextSanitizer.kt:RichTextSanitizer$while</ID>
+    <ID>MagicNumber:AdvancedStats.kt:11</ID>
+    <ID>MagicNumber:AdvancedStats.kt:12</ID>
+    <ID>MagicNumber:AdvancedStats.kt:17</ID>
+    <ID>MagicNumber:AdvancedStats.kt:5</ID>
+    <ID>MagicNumber:AdvancedStats.kt:6</ID>
+    <ID>MagicNumber:AnalyticsEvents.kt:AnalyticsEvents$10</ID>
+    <ID>MagicNumber:AnalyticsEvents.kt:AnalyticsEvents$100</ID>
+    <ID>MagicNumber:AnalyticsEvents.kt:AnalyticsEvents$10_000</ID>
+    <ID>MagicNumber:AnalyticsEvents.kt:AnalyticsEvents$1_000</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.LARGE$19</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.LARGE$30</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.MEDIUM$17</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.MEDIUM$28</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.SMALL$15</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.SMALL$24</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.XLARGE$21</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.XLARGE$34</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.XXLARGE$24</ID>
+    <ID>MagicNumber:BodyTextSize.kt:BodyTextSize.XXLARGE$38</ID>
+    <ID>MagicNumber:BundleWriter.kt:BundleWriter$0xFF</ID>
+    <ID>MagicNumber:BundleWriter.kt:BundleWriter$8</ID>
+    <ID>MagicNumber:DefaultSettingsRepository.kt:DefaultSettingsRepository$24</ID>
+    <ID>MagicNumber:DefaultSettingsRepository.kt:DefaultSettingsRepository$60</ID>
+    <ID>MagicNumber:DefaultStatsRepository.kt:DefaultStatsRepository$12</ID>
+    <ID>MagicNumber:DefaultStatsRepository.kt:DefaultStatsRepository$31</ID>
+    <ID>MagicNumber:DesignCatalogScreen.kt:16</ID>
+    <ID>MagicNumber:DesignCatalogScreen.kt:8</ID>
+    <ID>MagicNumber:DiaryColors.kt:DiaryColors$0xFF000000</ID>
+    <ID>MagicNumber:DiaryDateFormat.ios.kt:IosDateFormat$1000.0</ID>
+    <ID>MagicNumber:DiaryDateFormat.kt:1970</ID>
+    <ID>MagicNumber:DriveErrors.kt:DriveErrorMapper$401</ID>
+    <ID>MagicNumber:DriveErrors.kt:DriveErrorMapper$403</ID>
+    <ID>MagicNumber:DriveErrors.kt:DriveErrorMapper$404</ID>
+    <ID>MagicNumber:DriveErrors.kt:DriveErrorMapper$429</ID>
+    <ID>MagicNumber:DriveErrors.kt:DriveErrorMapper$500</ID>
+    <ID>MagicNumber:DriveLayout.kt:4</ID>
+    <ID>MagicNumber:EditorColors.kt:16</ID>
+    <ID>MagicNumber:EditorColors.kt:6</ID>
+    <ID>MagicNumber:EditorColors.kt:EditorColors$16</ID>
+    <ID>MagicNumber:EditorColors.kt:EditorColors$255</ID>
+    <ID>MagicNumber:EditorColors.kt:EditorColors$3</ID>
+    <ID>MagicNumber:EntryRows.kt:60</ID>
+    <ID>MagicNumber:FakeDrive.kt:FakeDrive$403</ID>
+    <ID>MagicNumber:FakeDrive.kt:FakeDrive$503</ID>
+    <ID>MagicNumber:FakePinKeyStore.kt:FakePinKeyStore$31</ID>
+    <ID>MagicNumber:FakePinKeyStore.kt:FakePinKeyStore$32</ID>
+    <ID>MagicNumber:FakePinKeyStore.kt:FakePinKeyStore$7</ID>
+    <ID>MagicNumber:Formats.kt:10</ID>
+    <ID>MagicNumber:Formats.kt:3</ID>
+    <ID>MagicNumber:ImageDecoder.android.kt:ImageDecoder$180f</ID>
+    <ID>MagicNumber:ImageDecoder.android.kt:ImageDecoder$90f</ID>
+    <ID>MagicNumber:KtorDriveApi.kt:KtorDriveApi$1_000</ID>
+    <ID>MagicNumber:KtorDriveApi.kt:KtorDriveApi$200</ID>
+    <ID>MagicNumber:KtorDriveApi.kt:KtorDriveApi$201</ID>
+    <ID>MagicNumber:KtorDriveApi.kt:KtorDriveApi$299</ID>
+    <ID>MagicNumber:KtorDriveApi.kt:KtorDriveApi$308</ID>
+    <ID>MagicNumber:KtorDriveApi.kt:KtorDriveApi$404</ID>
+    <ID>MagicNumber:KtorDriveApi.kt:KtorDriveApi$410</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$10</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$3</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$4</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$5</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$6</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$7</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$8</ID>
+    <ID>MagicNumber:LegacyDbReader.kt:LegacyDbReader$9</ID>
+    <ID>MagicNumber:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$10</ID>
+    <ID>MagicNumber:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$16</ID>
+    <ID>MagicNumber:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$23</ID>
+    <ID>MagicNumber:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$59</ID>
+    <ID>MagicNumber:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$6L</ID>
+    <ID>MagicNumber:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$8L</ID>
+    <ID>MagicNumber:LegacyPrefs.kt:LegacyPrefs$0x10000</ID>
+    <ID>MagicNumber:LegacyPrefs.kt:LegacyPrefs$16</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$10</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$100</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$11</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$12</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$13</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$3</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$4</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$5</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$6</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$7</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$8</ID>
+    <ID>MagicNumber:LegacySettingsMapper.kt:LegacySettingsMapper$9</ID>
+    <ID>MagicNumber:LockViewModel.kt:LockViewModel$1000</ID>
+    <ID>MagicNumber:MigrationTelemetry.kt:MigrationTelemetry$99</ID>
+    <ID>MagicNumber:Mood.kt:Mood.BAD$6</ID>
+    <ID>MagicNumber:Mood.kt:Mood.GOOD$7</ID>
+    <ID>MagicNumber:Mood.kt:Mood.LAUGH$4</ID>
+    <ID>MagicNumber:Mood.kt:Mood.MEH$5</ID>
+    <ID>MagicNumber:Mood.kt:Mood.SICK$3</ID>
+    <ID>MagicNumber:Mood.kt:Mood.TIRED$8</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$0x47</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$0x4E</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$0x50</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$0x89</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$0xD8</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$0xFF</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$4</ID>
+    <ID>MagicNumber:PhotoPaths.kt:PhotoPaths$8</ID>
+    <ID>MagicNumber:RichText.kt:0x10000</ID>
+    <ID>MagicNumber:RichText.kt:0x10FFFF</ID>
+    <ID>MagicNumber:RichText.kt:0x3FF</ID>
+    <ID>MagicNumber:RichText.kt:0xD800</ID>
+    <ID>MagicNumber:RichText.kt:0xDC00</ID>
+    <ID>MagicNumber:RichText.kt:0xDFFF</ID>
+    <ID>MagicNumber:RichText.kt:10</ID>
+    <ID>MagicNumber:RichText.kt:12</ID>
+    <ID>MagicNumber:RichTextSanitizer.kt:RichTextSanitizer$16</ID>
+    <ID>MagicNumber:RichTextSanitizer.kt:RichTextSanitizer$255</ID>
+    <ID>MagicNumber:RichTextSanitizer.kt:RichTextSanitizer$3</ID>
+    <ID>MagicNumber:RichTextSanitizer.kt:RichTextSanitizer$4</ID>
+    <ID>MagicNumber:RichTextSanitizer.kt:RichTextSanitizer$7</ID>
+    <ID>MagicNumber:RollbackManager.kt:RollbackManager$3</ID>
+    <ID>MagicNumber:RollbackManager.kt:RollbackManager$4</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$10</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$11</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$12</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$13</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$14</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$3</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$4</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$5</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$6</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$7</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$8</ID>
+    <ID>MagicNumber:SnapshotReader.kt:SnapshotReader$9</ID>
+    <ID>MagicNumber:StatsPeriod.kt:StatsPeriod.Month$12</ID>
+    <ID>MagicNumber:Weather.kt:Weather.CLOUDY$3</ID>
+    <ID>MagicNumber:Weather.kt:Weather.RAIN$4</ID>
+    <ID>MagicNumber:Weather.kt:Weather.SLEET$5</ID>
+    <ID>MagicNumber:Weather.kt:Weather.SNOW$6</ID>
+    <ID>MagicNumber:WriteViewModel.kt:WriteUiState$1970</ID>
+    <ID>MatchingDeclarationName:AdSlot.kt:AdShape</ID>
+    <ID>MatchingDeclarationName:DiaryHeroBadge.kt:DiaryBadgeTone</ID>
+    <ID>MatchingDeclarationName:DiaryNavigation.kt:DiaryNavItem</ID>
+    <ID>MatchingDeclarationName:DiaryNoteBox.kt:DiaryNote</ID>
+    <ID>MatchingDeclarationName:DiaryNumberPad.kt:DiaryPadKey</ID>
+    <ID>MatchingDeclarationName:DiaryTopBar.kt:DiaryTopBarAction</ID>
+    <ID>MatchingDeclarationName:FontReplacedNotice.kt:FontReplacedNoticeViewModel : ViewModel</ID>
+    <ID>MatchingDeclarationName:Hashing.kt:FileHashes</ID>
+    <ID>MatchingDeclarationName:PinEntryLayout.kt:PinLine</ID>
+    <ID>MatchingDeclarationName:WriteScreen.kt:WriteActions</ID>
+    <ID>ModifierClickableOrder:DiarySegmentedTabs.kt:selectable(isSelected, interactionSource = interaction, indication = null, role = Role.Tab) { onSelect(index) }</ID>
+    <ID>ModifierMissing:AdFreeSheet.kt:@Composable fun AdFreeSheet</ID>
+    <ID>ModifierMissing:AppScaffold.kt:@Composable fun AppScaffold</ID>
+    <ID>ModifierMissing:BackupScreens.kt:@Composable fun BackupFoundSheet</ID>
+    <ID>ModifierMissing:ComponentPreviews.kt:@Composable fun PreviewCanvas</ID>
+    <ID>ModifierMissing:DiaryDatePicker.kt:@Composable fun DiaryMonthDays</ID>
+    <ID>ModifierMissing:DiaryMonthSheet.kt:@Composable fun DiaryMonthSheet</ID>
+    <ID>ModifierMissing:DiaryNoteBox.kt:@Composable fun FirstLineIcon</ID>
+    <ID>ModifierMissing:FontSettingsScreen.kt:@Composable fun FontSettingsRoute</ID>
+    <ID>ModifierMissing:ForgotPinSheet.kt:@Composable fun ForgotPinSheet</ID>
+    <ID>ModifierMissing:LockGate.kt:@Composable fun LockGate</ID>
+    <ID>ModifierMissing:MigrationGate.kt:@OptIn(ExperimentalComposeUiApi::class) @Composable fun MigrationGate</ID>
+    <ID>ModifierMissing:SupportAttachSheet.kt:@Composable fun SupportAttachSheet</ID>
+    <ID>ModifierMissing:WelcomeGate.kt:@Composable fun WelcomeGate</ID>
+    <ID>ModifierMissing:WriteScreen.kt:WriteTools$@Composable fun Toolbar</ID>
+    <ID>ModifierWithoutDefault:AdvancedStatsScreen.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:AppScaffold.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:DiaryDatePicker.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:DiaryMonthSheet.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:DiaryNavigation.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:DiaryPhotoCell.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:DiarySettingsRow.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:EntryDetailScreen.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:LetterScreen.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:PlusScreen.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:RestoreScreens.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:TextSizeSettingsScreen.kt:modifier: Modifier</ID>
+    <ID>ModifierWithoutDefault:WriteScreen.kt:modifier: Modifier</ID>
+    <ID>MultipleEmitters:BackupScreens.kt:@Composable private fun NoSpace</ID>
+    <ID>MultipleEmitters:InsightScreen.kt:@Composable private fun Content</ID>
+    <ID>NestedBlockDepth:RichText.kt:fun parseRichText: RichText</ID>
+    <ID>ParameterNaming:AppScaffold.kt:onTrashed: (String) -&gt; Unit</ID>
+    <ID>ParameterNaming:EntryDetailScreen.kt:onTrashed: () -&gt; Unit</ID>
+    <ID>ParameterNaming:HomeScreen.kt:onTrashed: (String) -&gt; Unit</ID>
+    <ID>ParameterNaming:InsightScreen.kt:onAdvanced: () -&gt; Unit = {}</ID>
+    <ID>ParameterNaming:LockFlow.kt:onUnlocked: () -&gt; Unit</ID>
+    <ID>ParameterNaming:LockScreen.kt:onForgot: (() -&gt; Unit)?</ID>
+    <ID>ParameterNaming:RestoreScreens.kt:onMerged: () -&gt; Unit</ID>
+    <ID>ParameterNaming:WriteRoute.kt:onClosed: (keptDraft: Boolean) -&gt; Unit</ID>
+    <ID>ParameterNaming:WriteRoute.kt:onSaved: (String) -&gt; Unit</ID>
+    <ID>ParameterNaming:WriteScreen.kt:onMoved: (Int) -&gt; Unit</ID>
+    <ID>ReturnCount:AdMobPlayer.kt:AdMobPlayer$override suspend fun showInterstitial: Boolean</ID>
+    <ID>ReturnCount:AdMobPlayer.kt:AdMobPlayer$override suspend fun showRewarded: Boolean</ID>
+    <ID>ReturnCount:AdvancedStats.kt:fun recentMood: RecentMood?</ID>
+    <ID>ReturnCount:AnalyticsEvents.kt:AnalyticsEvents$fun violation: String?</ID>
+    <ID>ReturnCount:AndroidBackupScheduler.kt:BackupAlertWorker$override suspend fun doWork: Result</ID>
+    <ID>ReturnCount:AndroidPlaceFinder.kt:AndroidPlaceFinder$override suspend fun find: PlaceLookup</ID>
+    <ID>ReturnCount:ChecklistMarks.kt:fun TextLayoutResult.checkLineAt: Int?</ID>
+    <ID>ReturnCount:DefaultLockRepository.kt:DefaultLockRepository$private fun judge: Pair&lt;LockSettings, VerifyResult&gt;</ID>
+    <ID>ReturnCount:DraftDao.kt:DraftDao$@Transaction suspend fun openEdit: EditDraftRows?</ID>
+    <ID>ReturnCount:EditorColors.kt:EditorColors$private fun rgbToHex: String?</ID>
+    <ID>ReturnCount:FakeDraftRepository.kt:FakeDraftRepository$override suspend fun openEdit: OpenedEdit?</ID>
+    <ID>ReturnCount:FakeDrive.kt:FakeDrive$override suspend fun uploadChunk: ChunkResult</ID>
+    <ID>ReturnCount:FakeDriveAuthorizer.kt:FakeDriveAuthorizer$override suspend fun accessToken: TokenResult</ID>
+    <ID>ReturnCount:Formats.kt:fun byteSize: ByteSize</ID>
+    <ID>ReturnCount:ImageDecoder.android.kt:ImageDecoder$actual fun writeThumbnail: Boolean</ID>
+    <ID>ReturnCount:LegacyDbReader.kt:LegacyDbReader$private fun salvage: LegacyReadSummary</ID>
+    <ID>ReturnCount:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$internal fun parseDate: LocalDate?</ID>
+    <ID>ReturnCount:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$internal fun parseDateTime: LocalDateTime?</ID>
+    <ID>ReturnCount:LegacyEntryMapper.kt:LegacyEntryMapper.Companion$internal fun parseTime: LocalTime?</ID>
+    <ID>ReturnCount:LegacyLockBootstrap.kt:LegacyLockBootstrap$suspend fun run: Boolean</ID>
+    <ID>ReturnCount:MediaImporter.kt:MediaImporter$private fun copy: Copied?</ID>
+    <ID>ReturnCount:MergeRules.kt:MergeRules$fun decide: MergeAction</ID>
+    <ID>ReturnCount:MigrationFollowUp.kt:MigrationFollowUp$suspend fun run: FollowUpResult</ID>
+    <ID>ReturnCount:MigrationRunner.kt:MigrationRunner$private suspend fun migrate: MigrationResult</ID>
+    <ID>ReturnCount:PinKeyStore.ios.kt:IosPinKeyStore$override fun mac: ByteArray?</ID>
+    <ID>ReturnCount:RestoreController.kt:RestoreController$override suspend fun resumePhotos</ID>
+    <ID>ReturnCount:RestorePlanner.kt:PhotoFetcher$private suspend fun settleOne: Settled</ID>
+    <ID>ReturnCount:RestoreScreens.kt:@Composable private fun deviceLabel: String</ID>
+    <ID>ReturnCount:RichText.kt:fun decodeHtmlEntity: Pair&lt;String, Int&gt;?</ID>
+    <ID>ReturnCount:RichTextSanitizer.kt:RichTextSanitizer$private fun hexOf: String?</ID>
+    <ID>ReturnCount:RichTextSanitizer.kt:RichTextSanitizer$private fun tagEnd: Int</ID>
+    <ID>ReturnCount:RollbackManager.kt:RollbackManager$suspend fun rollBack: Boolean</ID>
+    <ID>ReturnCount:SupportFiles.kt:SupportFiles$fun deleteExpired: Boolean</ID>
+    <ID>ReturnCount:ThumbnailRepository.kt:ThumbnailRepository$private fun create: Boolean</ID>
+    <ID>SwallowedException:MigrationActions.android.kt:e: ActivityNotFoundException</ID>
+    <ID>SwallowedException:MigrationRunner.kt:MigrationRunner$e: Exception</ID>
+    <ID>SwallowedException:MigrationRunner.kt:MigrationRunner$e: MismatchException</ID>
+    <ID>SwallowedException:MigrationRunner.kt:MigrationRunner$e: Throwable</ID>
+    <ID>SwallowedException:WriteViewModel.kt:WriteViewModel$e: Exception</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:HomePreviews.kt:IllegalStateException()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:SearchPreviews.kt:IllegalStateException()</ID>
+    <ID>ThrowsCount:BackupRunner.kt:BackupRunner$private suspend fun backUp: BackupOutcome.Done</ID>
+    <ID>ThrowsCount:FakeDrive.kt:FakeDrive$private fun gate</ID>
+    <ID>ThrowsCount:KtorDriveApi.kt:KtorDriveApi$private suspend fun &lt;T&gt; call: T</ID>
+    <ID>ThrowsCount:MigrationRunner.kt:MigrationRunner$private suspend fun migrate: MigrationResult</ID>
+    <ID>TooGenericExceptionCaught:DiaryCleanup.kt:DiaryCleanup$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:KtorDriveApi.kt:KtorDriveApi$error: Exception</ID>
+    <ID>TooGenericExceptionCaught:LegacyLockBootstrap.kt:LegacyLockBootstrap$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MigrationRunner.kt:MigrationRunner$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MigrationRunner.kt:MigrationRunner$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:Startup.kt:Startup$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WriteViewModel.kt:WriteViewModel$e: Exception</ID>
+    <ID>TooManyFunctions:AdvancedStats.kt:org.sjhstudio.diary.core.model.AdvancedStats.kt</ID>
+    <ID>TooManyFunctions:BackupController.kt:BackupController : BackupRepository</ID>
+    <ID>TooManyFunctions:BackupDao.kt:BackupDao</ID>
+    <ID>TooManyFunctions:BackupRunner.kt:BackupRunner</ID>
+    <ID>TooManyFunctions:Checklist.kt:Checklist</ID>
+    <ID>TooManyFunctions:DefaultDraftRepository.kt:DefaultDraftRepository : DraftRepository</ID>
+    <ID>TooManyFunctions:DefaultEntryRepository.kt:DefaultEntryRepository : EntryRepository</ID>
+    <ID>TooManyFunctions:DefaultLockRepository.kt:DefaultLockRepository : LockRepository</ID>
+    <ID>TooManyFunctions:DiaryDateFormat.ios.kt:IosDateFormat : DiaryDateFormat</ID>
+    <ID>TooManyFunctions:DiaryRepositories.kt:EntryRepository</ID>
+    <ID>TooManyFunctions:DraftDao.kt:DraftDao</ID>
+    <ID>TooManyFunctions:EntryDao.kt:EntryDao</ID>
+    <ID>TooManyFunctions:FakeDrive.kt:FakeDrive : DriveApi</ID>
+    <ID>TooManyFunctions:FakeEntryRepository.kt:FakeEntryRepository : EntryRepository</ID>
+    <ID>TooManyFunctions:KtorDriveApi.kt:KtorDriveApi : DriveApi</ID>
+    <ID>TooManyFunctions:LargeBackupTest.kt:LargeBackupTest$StreamingDrive : DriveApi</ID>
+    <ID>TooManyFunctions:LegacyDbReader.kt:LegacyDbReader : AutoCloseable</ID>
+    <ID>TooManyFunctions:MigrationRunner.kt:MigrationRunner : LegacyMigration</ID>
+    <ID>TooManyFunctions:RestoreController.kt:RestoreController : RestoreRepository</ID>
+    <ID>TooManyFunctions:RollbackManager.kt:RollbackManager</ID>
+    <ID>TooManyFunctions:WriteViewModel.kt:WriteViewModel : ViewModel</ID>
+    <ID>UnusedParameter:BackupScreens.kt:onReconnect: () -&gt; Unit</ID>
+    <ID>UnusedParameter:SettingsScreen.kt:/** 개발 빌드에만 있는 디자인 시스템 견본(FR-029). 출시 빌드는 null이라 줄이 없다. */ onDesignCatalog: (() -&gt; Unit)? = null</ID>
+    <ID>VariableNaming:ReplaceAndRollbackTest.kt:ReplaceAndRollbackTest$private val T0 get() = now.toEpochMilliseconds()</ID>
+    <ID>ViewModelForwarding:WriteRoute.kt:WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus)</ID>
+  </CurrentIssues>
+</SmellBaseline>

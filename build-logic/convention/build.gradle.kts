@@ -23,6 +23,7 @@ dependencies {
     compileOnly(libs.agp.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
+    compileOnly(libs.detekt.gradlePlugin)
     compileOnly(libs.composeCompiler.gradlePlugin)
     compileOnly(libs.ksp.gradlePlugin)
     compileOnly(libs.room3.gradlePlugin)
@@ -40,6 +41,10 @@ gradlePlugin {
         register("androidTest") {
             id = "diary.android.test"
             implementationClass = "AndroidTestConventionPlugin"
+        }
+        register("detekt") {
+            id = "diary.detekt"
+            implementationClass = "DetektConventionPlugin"
         }
         register("kmpLibrary") {
             id = "diary.kmp.library"

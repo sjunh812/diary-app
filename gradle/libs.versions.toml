@@ -1,5 +1,5 @@
 [versions]
-# 버전은 specs/001-foundation-migration/research.md R2 표 그대로다. 알파·베타는 쓰지 않는다.
+# 버전은 specs/001-foundation-migration/research.md R2 표 그대로다. 앱에 들어가는 것은 알파·베타를 쓰지 않는다.
 agp = "9.3.3"
 firebaseBom = "35.1.0"
 firebaseCrashlyticsPlugin = "3.0.8"
@@ -56,6 +56,10 @@ kotlinxCoroutines = "1.11.0"
 kotlinxDatetime = "0.8.0"
 kotlinxSerialization = "1.11.0"
 ktlint = "1.8.0"
+# 빌드 때만 쓰는 정적 분석이고 앱에 들어가지 않는다.
+# 안정판 1.23.8은 Kotlin 2.0 기준이고, compose-rules 0.6.8이 2.0.0-alpha.6에 맞춰져 있다(DECISIONS 2026-11-07).
+detekt = "2.0.0-alpha.6"
+composeRules = "0.6.8"
 # 드라이브 REST를 공통 코드에서 부른다(스펙 003 research R3, R19).
 ktor = "3.6.1"
 # 파일 읽기·SHA-256. DataStore가 함께 가져오는 것과 같은 축이고 스펙 003 R19 표와 같은 버전이다.
@@ -151,8 +155,12 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 android-desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidxUiautomator" }
 
+# detekt가 읽는 Compose 규칙. 앱에 들어가지 않는다.
+compose-rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "composeRules" }
+
 # convention plugin이 다른 플러그인의 설정 타입을 쓰려면 클래스패스에 올려야 한다.
 agp-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+detekt-gradlePlugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 compose-gradlePlugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
 composeCompiler-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -170,6 +178,7 @@ android-dynamic-feature = { id = "com.android.dynamic-feature", version.ref = "a
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "androidxBenchmark" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -179,6 +188,7 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 # build-logic이 등록하는 플러그인. id는 build-logic/convention/build.gradle.kts에 있다.
 diary-android-application = { id = "diary.android.application" }
 diary-android-test = { id = "diary.android.test" }
+diary-detekt = { id = "diary.detekt" }
 diary-kmp-library = { id = "diary.kmp.library" }
 diary-kmp-feature = { id = "diary.kmp.feature" }
 diary-room = { id = "diary.room" }

@@ -19,6 +19,7 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("org.jetbrains.kotlin.multiplatform")
         pluginManager.apply("com.android.kotlin.multiplatform.library")
+        pluginManager.apply("com.android.lint")
 
         val moduleNamespace = diaryNamespace
         val compileSdkVersion = libs.int("androidCompileSdk")
