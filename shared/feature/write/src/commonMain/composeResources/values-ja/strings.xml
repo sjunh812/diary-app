@@ -47,14 +47,6 @@
     <string name="write_discard_confirm">捨てる</string>
     <string name="write_place_recent">最近の場所</string>
     <string name="write_place_body">書いた場所を残しておくと、あとで見つけやすくなります。</string>
-    <string name="write_place_common">よく行く場所</string>
-    <string name="write_place_home">自宅</string>
-    <string name="write_place_office">会社</string>
-    <string name="write_place_school">学校</string>
-    <string name="write_place_cafe">カフェ</string>
-    <string name="write_place_restaurant">レストラン</string>
-    <string name="write_place_park">公園</string>
-    <string name="write_place_trip">旅行先</string>
     <string name="write_limit_title">写真は1件に%1$d枚までです</string>
     <string name="write_limit_body">Plusなら%1$d枚まで入れられます。選んだ写真と書いた文はそのままです。</string>
     <string name="write_limit_plus">Plusを見る</string>
@@ -65,4 +57,8 @@
     <string name="write_place_off">端末の位置情報がオフになっています。</string>
     <string name="write_place_not_found">現在地を取得できませんでした。直接入力してください。</string>
     <string name="write_place_settings">設定を開く</string>
+    <string name="write_mood_body">気分を残すと、振り返りで流れを確認できます。</string>
+    <string name="write_weather_body">その日の天気を残すと、読み返すときに思い出しやすくなります。</string>
+    <string name="write_checklist_plus_title">チェックリストはPlusで使えます</string>
+    <string name="write_checklist_plus_body">書いた内容はそのままです。作成済みのチェックリストも引き続き使えます。</string>
 </resources>

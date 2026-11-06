@@ -76,5 +76,5 @@ private val Plan.summary: String
     get() = when (this) {
         Plan.FREE -> "광고가 보이고 사진은 한 편에 10장"
         Plan.AD_FREE -> "광고만 없어짐"
-        Plan.PLUS -> "광고 없음, 사진 30장, 고급 통계"
+        Plan.PLUS -> "광고 없음, 사진 30장, 체크리스트, 고급 통계"
     }

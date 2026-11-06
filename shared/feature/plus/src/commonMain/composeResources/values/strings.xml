@@ -33,4 +33,6 @@
     <string name="plus_manage_benefits">Your benefits</string>
     <string name="plus_manage_price">Price</string>
     <string name="plus_manage_store_body">Check your next payment or cancel.</string>
+    <string name="plus_checklist_title">Checklists</string>
+    <string name="plus_checklist_body">Add to-dos to your entries and check them off.</string>
 </resources>

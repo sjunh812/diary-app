@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -108,44 +109,46 @@ private fun EntryCard(
             )
             .padding(DiarySpacing.x4)
     ) {
-        // 날짜와 요일은 글자 밑선을 맞추고, 기분 얼굴은 줄 가운데에 둔다.
+        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데에 둔다(2026-11-06 사용자 지적). 날짜 줄에만 맞추면 위로 떠 보인다.
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
-                BasicText(
-                    row.date.day.toString(),
-                    modifier = Modifier.alignByBaseline(),
-                    style = typography.numeral.copy(color = colors.textPrimary)
-                )
-                BasicText(
-                    dates.weekday(row.date),
-                    modifier = Modifier.alignByBaseline(),
-                    style = typography.caption.copy(color = colors.textSecondary)
-                )
+            Column(Modifier.fillMaxWidth().padding(end = if (row.mood != null) DiaryHomeSize.cardFace + DiarySpacing.x2 else Dp.Hairline)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
+                    BasicText(
+                        row.date.day.toString(),
+                        modifier = Modifier.alignByBaseline(),
+                        style = typography.numeral.copy(color = colors.textPrimary)
+                    )
+                    BasicText(
+                        dates.weekday(row.date),
+                        modifier = Modifier.alignByBaseline(),
+                        style = typography.caption.copy(color = colors.textSecondary)
+                    )
+                }
+                Row(
+                    Modifier.padding(top = DiarySpacing.x1),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
+                ) {
+                    BasicText(
+                        dates.time(row.time),
+                        style = typography.captionStrong.copy(color = colors.textSecondary),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    row.weather?.let { WeatherIcon(it, DiaryHomeSize.cardIcon, colors.textSecondary, contentDescription = weatherName(it)) }
+                    row.placeName?.let {
+                        // 장소가 길어도 시각과 날씨를 밀어내지 않는다.
+                        BasicText(
+                            it,
+                            modifier = Modifier.weight(1f, fill = false),
+                            style = typography.caption.copy(color = colors.textSecondary),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
             row.mood?.let { MoodFace(it, DiaryHomeSize.cardFace, contentDescription = moodName(it)) }
-        }
-        Row(
-            Modifier.padding(top = DiarySpacing.x1),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
-        ) {
-            BasicText(
-                dates.time(row.time),
-                style = typography.captionStrong.copy(color = colors.textSecondary),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            row.weather?.let { WeatherIcon(it, DiaryHomeSize.cardIcon, colors.textSecondary, contentDescription = weatherName(it)) }
-            row.placeName?.let {
-                // 장소가 길어도 시각과 날씨를 밀어내지 않는다.
-                BasicText(
-                    it,
-                    modifier = Modifier.weight(1f, fill = false),
-                    style = typography.caption.copy(color = colors.textSecondary),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
         }
         if (row.preview.isNotEmpty()) {
             BasicText(

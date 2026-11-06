@@ -11,6 +11,7 @@ class PlanTest {
         assertTrue(Plan.FREE.showsAds)
         assertEquals(10, Plan.FREE.photoLimit)
         assertFalse(Plan.FREE.advancedStats)
+        assertFalse(Plan.FREE.checklist)
     }
 
     @Test
@@ -18,6 +19,7 @@ class PlanTest {
         assertFalse(Plan.AD_FREE.showsAds)
         assertEquals(Plan.FREE.photoLimit, Plan.AD_FREE.photoLimit)
         assertFalse(Plan.AD_FREE.advancedStats)
+        assertFalse(Plan.AD_FREE.checklist)
     }
 
     @Test
@@ -25,5 +27,6 @@ class PlanTest {
         assertFalse(Plan.PLUS.showsAds)
         assertEquals(30, Plan.PLUS.photoLimit)
         assertTrue(Plan.PLUS.advancedStats)
+        assertTrue(Plan.PLUS.checklist)
     }
 }

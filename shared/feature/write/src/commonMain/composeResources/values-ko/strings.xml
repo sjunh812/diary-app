@@ -47,14 +47,6 @@
     <string name="write_discard_confirm">버리기</string>
     <string name="write_place_recent">최근 장소</string>
     <string name="write_place_body">어디서 쓴 일기인지 남겨 두면 나중에 찾기 쉬워요.</string>
-    <string name="write_place_common">자주 가는 곳</string>
-    <string name="write_place_home">집</string>
-    <string name="write_place_office">회사</string>
-    <string name="write_place_school">학교</string>
-    <string name="write_place_cafe">카페</string>
-    <string name="write_place_restaurant">식당</string>
-    <string name="write_place_park">공원</string>
-    <string name="write_place_trip">여행지</string>
     <string name="write_limit_title">한 편에 사진은 %1$d장까지예요</string>
     <string name="write_limit_body">Plus면 %1$d장까지 넣을 수 있어요. 고른 사진과 쓰던 글은 그대로예요.</string>
     <string name="write_limit_plus">Plus 알아보기</string>
@@ -65,4 +57,8 @@
     <string name="write_place_off">기기의 위치가 꺼져 있어요.</string>
     <string name="write_place_not_found">위치를 찾지 못했어요. 직접 적어 주세요.</string>
     <string name="write_place_settings">설정 열기</string>
+    <string name="write_mood_body">기분을 남겨 두면 돌아보기에서 내 흐름을 볼 수 있어요.</string>
+    <string name="write_weather_body">그날 날씨를 남겨 두면 나중에 다시 읽을 때 더 생생해요.</string>
+    <string name="write_checklist_plus_title">체크리스트는 Plus에서 쓸 수 있어요</string>
+    <string name="write_checklist_plus_body">쓰던 글은 그대로예요. 이미 쓴 체크리스트도 그대로 쓸 수 있어요.</string>
 </resources>

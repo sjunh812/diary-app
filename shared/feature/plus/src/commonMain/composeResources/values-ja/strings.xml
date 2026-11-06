@@ -33,4 +33,6 @@
     <string name="plus_manage_benefits">ご利用中の特典</string>
     <string name="plus_manage_price">料金</string>
     <string name="plus_manage_store_body">次回の支払い日の確認や解約ができます。</string>
+    <string name="plus_checklist_title">チェックリスト</string>
+    <string name="plus_checklist_body">日記にやることを書いてチェックできます。</string>
 </resources>

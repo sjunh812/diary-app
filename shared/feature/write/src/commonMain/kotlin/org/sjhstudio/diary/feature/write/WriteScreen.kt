@@ -128,6 +128,8 @@ import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
 import org.sjhstudio.diary.feature.write.resources.write_camera
+import org.sjhstudio.diary.feature.write.resources.write_checklist_plus_body
+import org.sjhstudio.diary.feature.write.resources.write_checklist_plus_title
 import org.sjhstudio.diary.feature.write.resources.write_close
 import org.sjhstudio.diary.feature.write.resources.write_color_blue
 import org.sjhstudio.diary.feature.write.resources.write_color_gray
@@ -207,10 +209,12 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         nextSheet = null
     }
     var askDiscard by remember { mutableStateOf(false) }
+    var checklistLocked by remember { mutableStateOf(false) }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
     (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
         PhotoLimitSheet(notice.limit, actions.onPlus, vm::photoNoticeShown)
     }
+    if (checklistLocked) ChecklistPlusSheet(actions.onPlus) { checklistLocked = false }
     val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
     val pick =
         rememberFilePickerLauncher(type = FileKitType.Image, mode = FileKitMode.Multiple(maxItems = remaining)) { files ->
@@ -220,7 +224,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         rememberCameraPickerLauncher { file ->
             if (file != null) vm.addPhotos(listOf(PickedImage { file.readBytes() }))
         }
-    val tools = remember(actions) { WriteTools(actions.rich, actions.colors) }
+    val tools = remember(actions) { WriteTools(actions.rich, actions.colors, { vm.checklistOpen.value }, { checklistLocked = true }) }
     // 하드웨어 키보드의 Ctrl/⌘+S로 저장한다(FR-039).
     val keyboard =
         Modifier.onPreviewKeyEvent { event ->
@@ -263,14 +267,12 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     when (sheet) {
         Sheet.Mood ->
             MoodSheet(
-                date = state.date,
                 mood = state.mood,
                 onMood = vm::selectMood,
                 onClear = {
                     state.mood?.let(vm::selectMood)
                     sheet = null
                 },
-                onDate = { sheet = Sheet.DateTime },
                 onDismiss = { sheet = null }
             )
 
@@ -417,6 +419,28 @@ private fun Notices(state: WriteUiState) {
             null -> if (state.saveFailed) stringResource(Res.string.write_save_failed) else null
         } ?: return
     DiaryNotice(text, Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2), icon = DiaryIcons.Info)
+}
+
+/** 체크리스트는 Plus 기능이다(Figma P9). 쓰던 글은 그대로라고 말하고 막지 않는다. */
+@Composable
+private fun ChecklistPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
+    DiaryBottomSheet(
+        onDismiss,
+        title = stringResource(Res.string.write_checklist_plus_title),
+        description = stringResource(Res.string.write_checklist_plus_body)
+    ) {
+        DiaryButtonPair(
+            secondary = stringResource(Res.string.write_limit_later),
+            onSecondary = onDismiss,
+            primary = stringResource(Res.string.write_limit_plus),
+            onPrimary = {
+                onDismiss()
+                onPlus()
+            },
+            size = DiaryButtonSize.XLarge,
+            secondaryKind = DiaryButtonKind.Weak
+        )
+    }
 }
 
 /** 사진 한도 시트(Figma P3). 고른 사진과 글은 그대로라고 먼저 말하고, 쓰는 일을 막지 않는다. */
@@ -613,7 +637,12 @@ private fun Section(title: String, content: @Composable () -> Unit) {
 private enum class PaletteKind { Ink, Mark }
 
 /** 키보드 위 서식 도구(Figma "서식 도구 줄"). 글자색·형광펜을 누르면 줄이 그 팔레트로 바뀐다. */
-private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
+private class WriteTools(
+    val rich: RichTextState,
+    val colors: EditorColors,
+    val checklistOpen: () -> Boolean,
+    val onChecklistLocked: () -> Unit
+) {
     @Composable
     fun Toolbar(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?) {
         var palette by remember { mutableStateOf<PaletteKind?>(null) }
@@ -679,6 +708,11 @@ private class WriteTools(val rich: RichTextState, val colors: EditorColors) {
             rich.toggleUnorderedList()
         }
         ToolButton(DiaryIcons.Checklist, stringResource(Res.string.write_format_check), tint(checked), slot, active = checked) {
+            // 이미 있는 항목을 푸는 것은 언제나 된다. 새로 만드는 것만 Plus다.
+            if (!checked && !checklistOpen()) {
+                onChecklistLocked()
+                return@ToolButton
+            }
             if (rich.isUnorderedList) rich.toggleUnorderedList()
             toggleChecklist()
         }

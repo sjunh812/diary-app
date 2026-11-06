@@ -47,14 +47,6 @@
     <string name="write_discard_confirm">Discard</string>
     <string name="write_place_recent">Recent places</string>
     <string name="write_place_body">Add where you wrote this. It makes the entry easier to find later.</string>
-    <string name="write_place_common">Common places</string>
-    <string name="write_place_home">Home</string>
-    <string name="write_place_office">Office</string>
-    <string name="write_place_school">School</string>
-    <string name="write_place_cafe">Café</string>
-    <string name="write_place_restaurant">Restaurant</string>
-    <string name="write_place_park">Park</string>
-    <string name="write_place_trip">Trip</string>
     <string name="write_limit_title">Up to %1$d photos per entry</string>
     <string name="write_limit_body">Plus lets you add up to %1$d. Your photos and writing stay as they are.</string>
     <string name="write_limit_plus">See Plus</string>
@@ -65,4 +57,8 @@
     <string name="write_place_off">Location is turned off on this device.</string>
     <string name="write_place_not_found">Couldn\'t find your location. Please type it in.</string>
     <string name="write_place_settings">Open Settings</string>
+    <string name="write_mood_body">Save your mood to see how it changes in Insights.</string>
+    <string name="write_weather_body">Save the weather to remember the day better later.</string>
+    <string name="write_checklist_plus_title">Checklists are part of Plus</string>
+    <string name="write_checklist_plus_body">What you wrote stays as it is, and checklists you already have keep working.</string>
 </resources>

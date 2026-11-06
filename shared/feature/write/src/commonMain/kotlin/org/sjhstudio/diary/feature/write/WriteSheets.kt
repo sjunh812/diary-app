@@ -77,31 +77,25 @@ import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_close
 import org.sjhstudio.diary.feature.write.resources.write_discard
 import org.sjhstudio.diary.feature.write.resources.write_done
+import org.sjhstudio.diary.feature.write.resources.write_mood_body
 import org.sjhstudio.diary.feature.write.resources.write_mood_title
 import org.sjhstudio.diary.feature.write.resources.write_new_entry
 import org.sjhstudio.diary.feature.write.resources.write_none
 import org.sjhstudio.diary.feature.write.resources.write_place
 import org.sjhstudio.diary.feature.write.resources.write_place_body
-import org.sjhstudio.diary.feature.write.resources.write_place_cafe
-import org.sjhstudio.diary.feature.write.resources.write_place_common
 import org.sjhstudio.diary.feature.write.resources.write_place_current
 import org.sjhstudio.diary.feature.write.resources.write_place_denied
 import org.sjhstudio.diary.feature.write.resources.write_place_finding
 import org.sjhstudio.diary.feature.write.resources.write_place_hint
-import org.sjhstudio.diary.feature.write.resources.write_place_home
 import org.sjhstudio.diary.feature.write.resources.write_place_not_found
 import org.sjhstudio.diary.feature.write.resources.write_place_off
-import org.sjhstudio.diary.feature.write.resources.write_place_office
-import org.sjhstudio.diary.feature.write.resources.write_place_park
 import org.sjhstudio.diary.feature.write.resources.write_place_recent
-import org.sjhstudio.diary.feature.write.resources.write_place_restaurant
-import org.sjhstudio.diary.feature.write.resources.write_place_school
 import org.sjhstudio.diary.feature.write.resources.write_place_settings
-import org.sjhstudio.diary.feature.write.resources.write_place_trip
 import org.sjhstudio.diary.feature.write.resources.write_resume_body
 import org.sjhstudio.diary.feature.write.resources.write_resume_continue
 import org.sjhstudio.diary.feature.write.resources.write_resume_title
 import org.sjhstudio.diary.feature.write.resources.write_time
+import org.sjhstudio.diary.feature.write.resources.write_weather_body
 import org.sjhstudio.diary.feature.write.resources.write_weather_title
 
 /** 같은 칸을 다시 누르면 풀린다. */
@@ -117,26 +111,12 @@ internal fun WeatherGrid(selected: Weather?, onSelect: (Weather) -> Unit, modifi
 
 /** 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고른다(2026-11-05 사용자 지적). */
 @Composable
-internal fun MoodSheet(
-    date: LocalDate,
-    mood: Mood?,
-    onMood: (Mood) -> Unit,
-    onClear: () -> Unit,
-    onDate: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    val dates = rememberDiaryDateFormat()
-    val colors = DiaryTheme.colors
-    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.write_mood_title)) {
-        val interaction = remember { MutableInteractionSource() }
-        Row(
-            modifier = Modifier.clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onDate),
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicText(dates.dayWithWeekday(date), style = DiaryTheme.typography.label.copy(color = colors.accentText))
-            DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i16)
-        }
+internal fun MoodSheet(mood: Mood?, onMood: (Mood) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
+    DiaryBottomSheet(
+        onDismiss = onDismiss,
+        title = stringResource(Res.string.write_mood_title),
+        description = stringResource(Res.string.write_mood_body)
+    ) {
         MoodGrid(mood, onMood)
         SheetButtons(stringResource(Res.string.write_none), onClear, stringResource(Res.string.write_done), onDismiss)
     }
@@ -145,7 +125,11 @@ internal fun MoodSheet(
 /** 날씨 칩에서 여는 시트. */
 @Composable
 internal fun WeatherSheet(weather: Weather?, onWeather: (Weather) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
-    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.write_weather_title)) {
+    DiaryBottomSheet(
+        onDismiss = onDismiss,
+        title = stringResource(Res.string.write_weather_title),
+        description = stringResource(Res.string.write_weather_body)
+    ) {
         WeatherGrid(weather, onWeather)
         SheetButtons(stringResource(Res.string.write_none), onClear, stringResource(Res.string.write_done), onDismiss)
     }
@@ -186,20 +170,6 @@ internal fun PlaceSheet(
             },
             onDone
         )
-        // 처음 쓰는 사람도 눌러서 바로 남기게 흔한 곳을 둔다.
-        if (typed.isEmpty()) {
-            val common =
-                listOf(
-                    Res.string.write_place_home,
-                    Res.string.write_place_office,
-                    Res.string.write_place_school,
-                    Res.string.write_place_cafe,
-                    Res.string.write_place_restaurant,
-                    Res.string.write_place_park,
-                    Res.string.write_place_trip
-                ).map { stringResource(it) }
-            PlaceChips(stringResource(Res.string.write_place_common), common - recent.toSet(), onDone)
-        }
         SheetButtons(stringResource(Res.string.write_none), { onDone("") }, stringResource(Res.string.write_done), { onDone(text) })
     }
 }

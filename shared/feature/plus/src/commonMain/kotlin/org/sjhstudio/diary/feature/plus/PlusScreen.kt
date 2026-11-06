@@ -64,6 +64,8 @@ import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.plus_ad_free_owned
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_body
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_title
+import org.sjhstudio.diary.feature.plus.resources.plus_checklist_body
+import org.sjhstudio.diary.feature.plus.resources.plus_checklist_title
 import org.sjhstudio.diary.feature.plus.resources.plus_close
 import org.sjhstudio.diary.feature.plus.resources.plus_coming
 import org.sjhstudio.diary.feature.plus.resources.plus_failed
@@ -234,6 +236,7 @@ private fun PaywallBenefits(adFreeOwned: Boolean, artHeight: Dp) {
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                 Benefit(Res.string.plus_ads_title)
                 Benefit(Res.string.plus_photos_title)
+                Benefit(Res.string.plus_checklist_title)
                 Benefit(Res.string.plus_stats_title)
             }
             BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
@@ -313,6 +316,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
                     OwnedBenefit(DiaryIcons.ShieldCheck, Res.string.plus_ads_title, Res.string.plus_ads_body)
                     OwnedBenefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
+                    OwnedBenefit(DiaryIcons.Checklist, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
                     OwnedBenefit(DiaryIcons.TabInsight, Res.string.plus_stats_title, Res.string.plus_stats_body)
                 }
                 Spacer(Modifier.height(DiarySpacing.x4))

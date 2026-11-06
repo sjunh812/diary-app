@@ -144,6 +144,12 @@ class WriteViewModel(
             .map { it.photoLimit }
             .stateIn(viewModelScope, SharingStarted.Eagerly, Plan.FREE.photoLimit)
 
+    /** 새 체크리스트를 만들 수 있는지. 구독이 끝나도 이미 쓴 체크리스트는 고치고 체크할 수 있다. */
+    val checklistOpen: StateFlow<Boolean> =
+        (plans?.plan ?: flowOf(Plan.FREE))
+            .map { it.checklist }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, Plan.FREE.checklist)
+
     /** 본문은 고른 글꼴과 글자 크기로 보인다(FR-014). */
     val look: StateFlow<BodyLook> =
         (settings?.settings ?: flowOf(AppSettings()))

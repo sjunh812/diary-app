@@ -32,6 +32,6 @@
     <string name="onboarding_wide_title">Easier on big screens</string>
     <string name="onboarding_wide_body">On tablets, see your list and diary side by side.</string>
     <string name="onboarding_plus_title">More room with Plus</string>
-    <string name="onboarding_plus_body">No ads, 30 photos per entry, and advanced stats.</string>
+    <string name="onboarding_plus_body">No ads, 30 photos per entry, checklists, and advanced stats.</string>
     <string name="letter_to">To everyone who uses 1 Day 1 Diary</string>
 </resources>
