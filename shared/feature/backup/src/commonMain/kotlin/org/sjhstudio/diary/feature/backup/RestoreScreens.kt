@@ -176,6 +176,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_value_merged
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photo
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_value_updated
+import org.sjhstudio.diary.feature.backup.resources.restore_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.restore_when
 
 /**
@@ -491,8 +492,9 @@ fun RestoreProgressScreen(
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
             when (state) {
                 RestoreState.Idle -> Unit
-                RestoreState.Merging -> Running(null, onSeeEntries)
-                is RestoreState.FetchingPhotos -> Running(state, onSeeEntries)
+                RestoreState.WaitingForBackup -> Running(null, onSeeEntries, Res.string.restore_waiting_body)
+                RestoreState.Merging -> Running(null, onSeeEntries, Res.string.restore_merging_body)
+                is RestoreState.FetchingPhotos -> Running(state, onSeeEntries, Res.string.restore_fetching_body)
                 is RestoreState.Done -> Result(state.result, onLock, onStart)
                 is RestoreState.Failed -> Failure(state.reason, onRetry, onPickOther)
             }
@@ -501,14 +503,14 @@ fun RestoreProgressScreen(
 }
 
 @Composable
-private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntries: () -> Unit) {
+private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntries: () -> Unit, body: StringResource) {
     val colors = DiaryTheme.colors
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Hero(
             DiaryIcons.Restore,
             stringResource(Res.string.restore_running_title),
-            stringResource(if (photos == null) Res.string.restore_merging_body else Res.string.restore_fetching_body),
+            stringResource(body),
             fill = false
         )
         if (photos != null) {

@@ -12,7 +12,9 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
@@ -440,6 +442,40 @@ class RestorePhotosTest {
         b.freeBytes = size + 11L * 1024 * 1024
 
         assertIs<RestorePreparation.Ready>(b.controller(backgroundScope).prepareFile(fs.source(zip), size))
+    }
+
+    // 백업이 끝나기를 기다리는 복원
+
+    @Test
+    fun a_restore_says_it_waits_for_the_backup_and_starts_when_the_backup_ends() = runTest {
+        val zip = export()
+        val controller = b.controller(backgroundScope)
+        assertIs<RestorePreparation.Ready>(controller.pick(zip))
+        b.gate.enter()
+
+        controller.merge()
+        until { controller.state.value == RestoreState.WaitingForBackup }
+        // 기다리는 동안 복원을 두 번 시작하거나 닫아도 사라지지 않는다.
+        controller.merge()
+        controller.dismiss()
+        assertEquals(RestoreState.WaitingForBackup, controller.state.value)
+
+        b.gate.leave()
+        assertEquals(2, assertIs<RestoreState.Done>(controller.finished()).result.entriesAdded)
+    }
+
+    @Test
+    fun a_restore_with_nothing_running_does_not_pass_through_waiting() = runTest {
+        val zip = export()
+        val seen = mutableListOf<RestoreState>()
+        val controller = b.controller(backgroundScope)
+        assertIs<RestorePreparation.Ready>(controller.pick(zip))
+        backgroundScope.launch(Dispatchers.Unconfined) { controller.state.collect { seen += it } }
+
+        controller.merge()
+        controller.finished()
+
+        assertFalse(RestoreState.WaitingForBackup in seen)
     }
 
     // 찾을 수 없는 사진 다시 받기

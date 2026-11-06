@@ -117,6 +117,14 @@ private fun RunningLight() = Progress(false, RestoreState.FetchingPhotos(1324, 1
 
 @Preview(locale = "ko")
 @Composable
+private fun WaitingForBackupLight() = Progress(false, RestoreState.WaitingForBackup)
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingForBackupDark() = Progress(true, RestoreState.WaitingForBackup)
+
+@Preview(locale = "ko")
+@Composable
 private fun RunningDark() = Progress(true, RestoreState.FetchingPhotos(1324, 120, 340))
 
 private val Result = RestoreResult(120, 8, 2, 328, 0, 0, photosOnOriginal = 12, lockWasOn = true)

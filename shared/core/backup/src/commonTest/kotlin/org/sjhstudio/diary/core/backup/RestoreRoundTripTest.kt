@@ -234,7 +234,7 @@ class RestoreRoundTripTest {
 
         controller.merge()
         withContext(Dispatchers.Default) { delay(100) }
-        assertEquals(RestoreState.Merging, controller.state.value)
+        assertEquals(RestoreState.WaitingForBackup, controller.state.value)
 
         gate.leave()
         withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
@@ -544,7 +544,7 @@ class RestoreRoundTripTest {
         controller.dismiss()
         withContext(Dispatchers.Default) { delay(100) }
 
-        assertEquals(RestoreState.Merging, controller.state.value)
+        assertEquals(RestoreState.WaitingForBackup, controller.state.value)
         assertTrue(copiesLeft().isNotEmpty())
         gate.leave()
         withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }

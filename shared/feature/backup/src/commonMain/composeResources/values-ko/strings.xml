@@ -78,6 +78,7 @@
     <string name="restore_size_mb">%1$sMB</string>
     <string name="restore_size_kb">%1$sKB</string>
     <string name="restore_running_title">일기를 복원하고 있어요</string>
+    <string name="restore_waiting_body">백업이 끝나면 시작해요.</string>
     <string name="restore_merging_body">일기를 합치고 있어요.</string>
     <string name="restore_fetching_body">일기는 다 합쳤어요. 사진을 받는 동안에도 일기를 볼 수 있어요.</string>
     <string name="restore_value_entries">일기</string>

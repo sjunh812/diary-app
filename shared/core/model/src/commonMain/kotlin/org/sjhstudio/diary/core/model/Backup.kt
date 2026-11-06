@@ -235,6 +235,9 @@ sealed interface RestorePreparation {
 sealed interface RestoreState {
     data object Idle : RestoreState
 
+    /** 도는 백업이 끝나야 일기를 합칠 수 있어 기다린다. */
+    data object WaitingForBackup : RestoreState
+
     data object Merging : RestoreState
 
     data class FetchingPhotos(val entries: Int, val done: Int, val total: Int) : RestoreState

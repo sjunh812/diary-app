@@ -78,6 +78,7 @@
     <string name="restore_size_mb">%1$sMB</string>
     <string name="restore_size_kb">%1$sKB</string>
     <string name="restore_running_title">日記を復元しています</string>
+    <string name="restore_waiting_body">バックアップが終わると始まります。</string>
     <string name="restore_merging_body">日記を統合しています。</string>
     <string name="restore_fetching_body">日記は統合しました。写真をダウンロードする間も日記を読めます。</string>
     <string name="restore_value_entries">日記</string>

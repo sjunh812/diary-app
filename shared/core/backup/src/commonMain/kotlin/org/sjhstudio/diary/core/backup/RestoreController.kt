@@ -198,7 +198,7 @@ class RestoreController(
     }
 
     private val restoring: Boolean
-        get() = _state.value == RestoreState.Merging || _state.value is RestoreState.FetchingPhotos
+        get() = _state.value.let { it == RestoreState.WaitingForBackup || it == RestoreState.Merging || it is RestoreState.FetchingPhotos }
 
     private suspend fun readFile(source: Source): RestorePreparation {
         val incoming = workDir / INCOMING
@@ -308,12 +308,16 @@ class RestoreController(
         lastWork = work
         val ready = prepared
         if (ready == null && preparedLegacy == null) return
-        if (_state.value == RestoreState.Merging) return
+        if (restoring) return
         _state.value = RestoreState.Merging
         scope.launch {
             // 도는 백업이 있으면 끝날 때까지 기다린다.
-            // 복원을 조용히 버리지 않는다.
-            gate.enter()
+            // 복원을 조용히 버리지 않고, 멈춘 것처럼 보이지 않게 기다린다고 말한다.
+            if (!gate.tryEnter()) {
+                _state.value = RestoreState.WaitingForBackup
+                gate.enter()
+                _state.value = RestoreState.Merging
+            }
             try {
                 _state.value = RestoreState.Done(work(ready))
             } catch (error: CancellationException) {
