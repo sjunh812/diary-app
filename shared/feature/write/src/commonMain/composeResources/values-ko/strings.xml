@@ -57,7 +57,7 @@
     <string name="write_place_off">기기의 위치가 꺼져 있어요.</string>
     <string name="write_place_not_found">위치를 찾지 못했어요. 직접 적어 주세요.</string>
     <string name="write_place_settings">설정 열기</string>
-    <string name="write_mood_body">기분을 남겨 두면 돌아보기에서 내 흐름을 볼 수 있어요.</string>
+    <string name="write_mood_body">기분을 남겨 두면 돌아보기에서 흐름을 볼 수 있어요.</string>
     <string name="write_weather_body">그날 날씨를 남겨 두면 나중에 다시 읽을 때 더 생생해요.</string>
     <string name="write_checklist_plus_title">체크리스트는 Plus에서 쓸 수 있어요</string>
     <string name="write_checklist_plus_body">쓰던 글은 그대로예요. 이미 쓴 체크리스트도 그대로 쓸 수 있어요.</string>

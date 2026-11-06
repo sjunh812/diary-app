@@ -6,7 +6,7 @@
     <string name="plus_ads_title">광고 없이 쓰기</string>
     <string name="plus_photos_title">한 편에 사진 30장</string>
     <string name="plus_stats_title">고급 통계</string>
-    <string name="plus_coming">앞으로 더 다양하게 업데이트할 예정이에요.</string>
+    <string name="plus_coming">앞으로도 계속 업데이트할 예정이에요.</string>
     <string name="plus_price">연 %1$s</string>
     <string name="plus_start">Plus 시작하기</string>
     <string name="plus_notice">1년마다 자동으로 갱신됩니다. 갱신 24시간 전까지 스토어에서 해지할 수 있습니다.</string>
@@ -20,7 +20,7 @@
     <string name="plus_manage_top">Plus</string>
     <string name="plus_manage_title">Plus를 쓰고 있어요</string>
     <string name="plus_manage_store">구독 관리</string>
-    <string name="plus_manage_note">구독을 끊어도 쓴 일기와 사진은 그대로 남아요.</string>
+    <string name="plus_manage_note">구독을 해지해도 쓴 일기와 사진은 그대로 남아요.</string>
     <string name="adfree_title">광고 없이 일기만 남겨요</string>
     <string name="adfree_body">구독이 아니에요. 한 번만 결제하면 앞으로 계속 광고 없이 쓸 수 있어요.</string>
     <string name="adfree_price">평생 %1$s</string>
