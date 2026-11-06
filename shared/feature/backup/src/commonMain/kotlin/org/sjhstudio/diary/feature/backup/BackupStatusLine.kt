@@ -34,6 +34,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.currentDate
@@ -74,7 +75,7 @@ internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier
     val line = lineFor(status)
     Row(
         modifier
-            .padding(horizontal = DiarySpacing.screenCompact)
+            .padding(horizontal = LocalScreenGutter.current)
             .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onOpen),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
         verticalAlignment = Alignment.CenterVertically

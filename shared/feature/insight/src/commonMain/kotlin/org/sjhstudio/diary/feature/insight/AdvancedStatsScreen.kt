@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
@@ -201,7 +202,7 @@ internal fun AdvancedStatsScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
-                .padding(horizontal = DiarySpacing.screenCompact)
+                .padding(horizontal = LocalScreenGutter.current)
                 .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)
         ) {

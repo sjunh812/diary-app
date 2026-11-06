@@ -73,6 +73,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryRow
@@ -217,7 +218,7 @@ internal fun CalendarPanel(
 ) {
     val nav: @Composable () -> Unit = { MonthNav(shown < lastMonth, showToday, onToday, onMove) }
     ContextTipBar(ContextTip.CALENDAR_FACE, stringResource(Res.string.tip_calendar_date))
-    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact)) {
+    Column(Modifier.padding(horizontal = LocalScreenGutter.current)) {
         if (twoPane) {
             Row(Modifier.fillMaxWidth().padding(top = DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f)) { DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick) }
@@ -427,7 +428,7 @@ internal fun DayPanel(
     Column {
         BasicText(
             title,
-            modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+            modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
             style = (if (twoPane) typography.headline else typography.captionStrong).copy(
                 color = if (twoPane) colors.textPrimary else colors.textSecondary
             )

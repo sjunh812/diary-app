@@ -52,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryPhoto
 import org.sjhstudio.diary.core.ui.DiaryRichText
@@ -186,7 +187,7 @@ internal fun Body(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
-            .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+            .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
         BasicText(dates.dayWithWeekday(entry.date), style = DiaryTheme.typography.title1.copy(color = colors.textPrimary))

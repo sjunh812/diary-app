@@ -166,7 +166,7 @@ internal fun InsightScreen(
                 .widthIn(max = DiaryWriteSize.bodyMax)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = DiarySpacing.screenCompact)
+                .padding(horizontal = LocalScreenGutter.current)
                 .padding(top = DiarySpacing.tabTitleTop, bottom = DiarySpacing.x14 + DiarySpacing.x6)
         ) {
             BasicText(

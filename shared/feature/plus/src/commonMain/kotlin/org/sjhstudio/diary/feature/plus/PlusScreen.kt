@@ -59,6 +59,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.ui.DiaryLottie
@@ -193,7 +194,7 @@ internal fun PaywallScreen(
                 Spacer(Modifier.weight(1f))
                 DiaryButton(stringResource(Res.string.plus_restore), onRestore, kind = DiaryButtonKind.QuietText)
             }
-            val column = Modifier.widthIn(max = DiaryArtSize.paywallMax).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact)
+            val column = Modifier.widthIn(max = DiaryArtSize.paywallMax).fillMaxWidth().padding(horizontal = LocalScreenGutter.current)
             if (wide) {
                 BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                     Column(
@@ -349,7 +350,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 .navigationBarsPadding()
                 .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6)
         ) {
-            val gutter = Modifier.padding(horizontal = DiarySpacing.screenCompact)
+            val gutter = Modifier.padding(horizontal = LocalScreenGutter.current)
             Column(gutter) {
                 PlusArt(DiaryArtSize.card)
                 Spacer(Modifier.height(DiarySpacing.x4))

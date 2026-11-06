@@ -49,6 +49,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.currentDate
@@ -126,7 +127,7 @@ fun FileBackupScreen(
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.file_top), onBack = onBack)
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().weight(1f)) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().weight(1f)) {
             when (state) {
                 is FileBackupUi.Saved -> Saved(state, onDone)
                 else -> Start(estimate, state, onMake, onRestore)
@@ -145,7 +146,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
     val busy = state is FileBackupUi.Writing || state == FileBackupUi.Reading
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Heading(DiaryIcons.Download, stringResource(Res.string.file_title), estimate?.let { bodyOf(it) }.orEmpty())
-        Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
             DiaryNoteBox(
                 listOf(
                     DiaryNote(DiaryIcons.Download, stringResource(Res.string.file_place_title), stringResource(Res.string.file_place_body)),
@@ -189,7 +190,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
         }
     }
     Column(
-        Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
+        Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
         if (state is FileBackupUi.Writing) {
@@ -219,10 +220,10 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBack
         // 파일 앱에서 찾을 때 이 줄을 본다.
         DiaryNoteBox(
             listOf(DiaryNote(DiaryIcons.Download, saved.name, sizeText(saved.bytes))),
-            Modifier.padding(horizontal = DiarySpacing.screenCompact)
+            Modifier.padding(horizontal = LocalScreenGutter.current)
         )
     }
-    Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3)) {
+    Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3)) {
         DiaryButton(stringResource(Res.string.file_done), onDone, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
     }
 }
@@ -243,7 +244,7 @@ private fun bodyOf(estimate: BundleEstimate): String = if (estimate.entries == 0
 private fun Heading(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, body: String) {
     val colors = DiaryTheme.colors
     Column(
-        Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6),
+        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {

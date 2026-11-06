@@ -227,7 +227,7 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit, onFile
         BasicText(
             stringResource(Res.string.restore_keep_note),
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
-            modifier = Modifier.padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x2)
+            modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
         )
         val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
         ordered.groupBy { it.deviceId to it.deviceName }.values.forEachIndexed { index, group ->
@@ -270,7 +270,7 @@ private fun ValueGroup(modifier: Modifier = Modifier, content: @Composable Colum
 private fun Unavailable(title: String, reason: String) {
     val colors = DiaryTheme.colors
     Column(
-        Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x3),
+        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
         BasicText(title, style = DiaryTheme.typography.reading.copy(color = colors.textSecondary))
@@ -338,7 +338,7 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
             stringResource(Res.string.restore_preview_body, deviceName(entry), whenText(entry)),
             fill = false
         )
-        Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             ValueGroup {
                 val entries = Res.plurals.restore_unit_entries
                 DiaryValueRow(
@@ -415,7 +415,7 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
             stringResource(Res.string.restore_legacy_body, legacyDate(entry)),
             fill = false
         )
-        Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             ValueGroup {
                 val entries = Res.plurals.restore_unit_entries
                 DiaryValueRow(
@@ -483,7 +483,7 @@ fun RestoreProgressScreen(
     modifier: Modifier = Modifier
 ) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxSize()) {
             when (state) {
                 RestoreState.Idle -> Unit
                 RestoreState.Merging -> Running(null, onSeeEntries)
@@ -507,7 +507,7 @@ private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntri
             fill = false
         )
         if (photos != null) {
-            ValueGroup(Modifier.padding(horizontal = DiarySpacing.screenCompact)) {
+            ValueGroup(Modifier.padding(horizontal = LocalScreenGutter.current)) {
                 DiaryProgressBar(if (photos.total > 0) photos.done.toFloat() / photos.total else 1f)
                 Spacer(Modifier.height(DiarySpacing.x3))
                 DiaryValueRow(
@@ -551,7 +551,7 @@ private fun ColumnScope.Result(result: RestoreResult, onLock: () -> Unit, onStar
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Hero(DiaryIcons.CircleCheck, resultTitle(result), resultBody(result), fill = false)
-        Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
             DiaryNoteBox(resultNotes(result))
             if (result.lockWasOn) {
                 DiaryStatusBox(
@@ -705,7 +705,7 @@ private fun Page(title: String, onBack: () -> Unit, modifier: Modifier, content:
 private fun LoadingList(label: String) {
     BasicText(
         label,
-        Modifier.padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x2),
+        Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
     )
     DiarySkeleton {
@@ -714,14 +714,18 @@ private fun LoadingList(label: String) {
                 SkeletonLine(
                     Modifier
                         .padding(
-                            start = DiarySpacing.x5,
+                            start = LocalScreenGutter.current,
                             top = if (device == 0) DiarySpacing.x5 else DiarySpacing.x6,
                             bottom = DiarySpacing.x2
                         ).width(DiarySpacing.x14 + DiarySpacing.x10)
                 )
                 repeat(LOADING_DEVICES - device) {
                     Column(
-                        Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x5, vertical = DiarySpacing.x3 + DiarySpacing.x0_5),
+                        Modifier.fillMaxWidth().padding(
+                            horizontal = LocalScreenGutter.current,
+                            vertical =
+                                DiarySpacing.x3 + DiarySpacing.x0_5
+                        ),
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
                     ) {
                         SkeletonLine(Modifier.fillMaxWidth(LOADING_TITLE_WIDTH), DiarySpacing.x4)
@@ -741,7 +745,7 @@ private fun LoadingList(label: String) {
 private fun ColumnScope.LoadingPreview(label: String) {
     val colors = DiaryTheme.colors
     Column(
-        Modifier.weight(1f).fillMaxWidth().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6),
+        Modifier.weight(1f).fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
@@ -782,7 +786,7 @@ private fun ColumnScope.Hero(
     Column(
         (if (fill) Modifier.weight(1f) else Modifier)
             .fillMaxWidth()
-            .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x6),
+            .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2, Alignment.CenterVertically)
     ) {
@@ -796,7 +800,7 @@ private fun ColumnScope.Hero(
 @Composable
 private fun Bottom(content: @Composable ColumnScope.() -> Unit) {
     Column(
-        Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
+        Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         content = content
     )

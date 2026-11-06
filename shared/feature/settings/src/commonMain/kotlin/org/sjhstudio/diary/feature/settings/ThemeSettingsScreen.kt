@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
@@ -40,7 +41,7 @@ fun ThemeSettingsScreen(selected: ThemeMode, onSelect: (ThemeMode) -> Unit, onBa
             BasicText(
                 stringResource(Res.string.theme_note),
                 style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
-                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
             )
         }
     }

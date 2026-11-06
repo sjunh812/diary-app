@@ -19,16 +19,20 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
 
 /**
@@ -39,6 +43,18 @@ class DiaryNavItem(val label: String, val icon: ImageVector, val selectedIcon: I
 
 /** 이 폭부터 하단 탭 대신 레일을 쓴다(`docs/design.md` 넓은 화면, M3 medium 600dp). */
 val DiaryRailMinWidth: Dp = 600.dp
+
+/**
+ * 창 폭에 맞는 화면 좌우 여백을 안쪽 화면에 준다(`docs/design.md` 간격).
+ * 레일이 나오는 폭부터 24다.
+ * 잠금, 기록 이전, 시작 화면은 앱 틀 바깥이라 앱 뿌리에서 감싼다.
+ */
+@Composable
+fun ProvideScreenGutter(content: @Composable () -> Unit) {
+    val width = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val gutter = if (width >= DiaryRailMinWidth) DiarySpacing.screenWide else DiarySpacing.screenCompact
+    CompositionLocalProvider(LocalScreenGutter provides gutter, content = content)
+}
 
 /**
  * 하단 탭(`docs/design.md` 하단 탭, M3 내비 바 64, Figma "설정 (S6)" tab-bar).

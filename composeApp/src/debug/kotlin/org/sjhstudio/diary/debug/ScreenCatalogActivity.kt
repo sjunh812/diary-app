@@ -23,6 +23,7 @@ import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
+import org.sjhstudio.diary.core.designsystem.component.ProvideScreenGutter
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
@@ -91,7 +92,7 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     LOCK_SETTINGS -> LockSettingsRoute(onBack = ::finish)
 
-                    SETTINGS -> AppScaffold(startTab = SettingsKey)
+                    SETTINGS -> ProvideScreenGutter { AppScaffold(startTab = SettingsKey) }
 
                     DESIGN_CATALOG -> DesignCatalogScreen(onBack = ::finish)
 

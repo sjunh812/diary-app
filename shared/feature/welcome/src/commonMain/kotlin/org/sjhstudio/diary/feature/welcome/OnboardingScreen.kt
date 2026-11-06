@@ -44,6 +44,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_action
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_body
@@ -133,7 +134,7 @@ fun OnboardingScreen(
                 .widthIn(max = DiaryWriteSize.bodyMax)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
+                .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
             size = DiaryButtonSize.XLarge,
             enabled = !connecting
         )

@@ -61,6 +61,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.currentDate
@@ -177,7 +178,7 @@ internal fun SearchScreen(
     Box(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().imePadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
             Row(
-                Modifier.fillMaxWidth().padding(start = DiarySpacing.x1, end = DiarySpacing.screenCompact, top = DiarySpacing.x1),
+                Modifier.fillMaxWidth().padding(start = DiarySpacing.x1, end = LocalScreenGutter.current, top = DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.search_back), onBack)
@@ -204,7 +205,7 @@ internal fun SearchScreen(
                 filter.isEmpty ->
                     DiaryNotice(
                         stringResource(Res.string.search_idle),
-                        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                        Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
                         icon = DiaryIcons.Search
                     )
 
@@ -233,7 +234,7 @@ private fun FilterChips(
 ) {
     LazyRow(
         Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+        contentPadding = PaddingValues(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         item {
@@ -325,7 +326,7 @@ private fun Results(
         item {
             BasicText(
                 pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount),
-                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x1),
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x1),
                 style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
             )
         }

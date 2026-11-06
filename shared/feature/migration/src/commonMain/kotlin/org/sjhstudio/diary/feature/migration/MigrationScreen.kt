@@ -37,6 +37,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.ui.KeepScreenOn
@@ -293,13 +294,13 @@ private fun Frame(
             DiaryResultHeader(icon, title, description = body, tone = tone)
             Spacer(Modifier.height(DiarySpacing.x8 - DiarySpacing.x6))
             Column(
-                Modifier.fillMaxWidth().padding(horizontal = if (fullWidthContent) DiarySpacing.x0_5 * 0 else DiarySpacing.screenCompact)
+                Modifier.fillMaxWidth().padding(horizontal = if (fullWidthContent) DiarySpacing.x0_5 * 0 else LocalScreenGutter.current)
             ) {
                 content()
             }
         }
         Column(
-            modifier = Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = DiarySpacing.screenCompact),
+            modifier = Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = LocalScreenGutter.current),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (footnote != null) {

@@ -1,8 +1,8 @@
 package org.sjhstudio.diary.app.navigation
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,7 +19,6 @@ import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
-import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 
 /** 목록 화면 표시. */
@@ -86,7 +85,7 @@ private class ListDetailScene(
             CompositionLocalProvider(LocalInListDetail provides true) {
                 Box(Modifier.width(DiaryWriteSize.listPane).fillMaxHeight()) { list.Content() }
             }
-            Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(DiaryTheme.colors.line))
+            Spacer(Modifier.width(DiarySpacing.x6))
             CompositionLocalProvider(LocalInListDetail provides true) {
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     if (detail !=

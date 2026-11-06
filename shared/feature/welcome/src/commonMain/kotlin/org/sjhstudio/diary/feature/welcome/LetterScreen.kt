@@ -52,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.welcome.resources.Res
@@ -125,7 +126,7 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
                 .widthIn(max = DiaryWriteSize.bodyMax)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3),
+                .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DiaryButton(
@@ -198,7 +199,7 @@ private fun LetterSheet(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .heightIn(min = maxHeight)
-                .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
+                .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
             verticalArrangement = if (centered) Arrangement.Center else Arrangement.Top
         ) {
             LetterCard(cardModifier, {

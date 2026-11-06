@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
+import org.sjhstudio.diary.core.designsystem.component.ProvideScreenGutter
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.DiaryFont
@@ -68,19 +69,21 @@ fun DiaryApp() {
         }
     ApplyPlatformTheme(settings.themeMode)
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font)) {
-        LockGate {
-            MigrationGate {
-                // 일기 DB는 이전 관문을 지난 뒤에만 연다.
-                // 그래서 정리도 여기서 시작한다.
-                val cleanup = koinInject<DiaryCleanup>()
-                LaunchedEffect(cleanup) { cleanup.run() }
-                // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 본다(FR-015).
-                // iOS에서는 이게 주된 길이다.
-                val backup = koinInject<BackupRepository>()
-                LaunchedEffect(backup) { backup.backUpIfDue() }
-                val restore = koinInject<RestoreRepository>()
-                LaunchedEffect(restore) { restore.resumePhotos() }
-                WelcomeGate { AppScaffold() }
+        ProvideScreenGutter {
+            LockGate {
+                MigrationGate {
+                    // 일기 DB는 이전 관문을 지난 뒤에만 연다.
+                    // 그래서 정리도 여기서 시작한다.
+                    val cleanup = koinInject<DiaryCleanup>()
+                    LaunchedEffect(cleanup) { cleanup.run() }
+                    // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 본다(FR-015).
+                    // iOS에서는 이게 주된 길이다.
+                    val backup = koinInject<BackupRepository>()
+                    LaunchedEffect(backup) { backup.backUpIfDue() }
+                    val restore = koinInject<RestoreRepository>()
+                    LaunchedEffect(restore) { restore.resumePhotos() }
+                    WelcomeGate { AppScaffold() }
+                }
             }
         }
     }

@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.licenses_group_fonts
@@ -99,7 +100,7 @@ fun LicenseTextScreen(
                 .widthIn(max = DiaryWriteSize.settingsMax)
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)
+                .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
                 .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
         ) {

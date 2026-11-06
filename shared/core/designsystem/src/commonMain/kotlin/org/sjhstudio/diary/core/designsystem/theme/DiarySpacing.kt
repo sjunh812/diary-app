@@ -26,10 +26,13 @@ object DiarySpacing {
     val x14: Dp = 56.dp
 
     /**
-     * 화면 좌우(TDS ListRow 20, HIG 예시 20).
-     * 넓은 화면은 본문 폭을 막아 가운데에 둔다.
+     * 폰의 화면 좌우(TDS ListRow 20, HIG 예시 20).
+     * 화면 코드는 이 값 대신 [LocalScreenGutter]를 쓴다.
      */
     val screenCompact: Dp = x5
+
+    /** 600dp부터의 화면 좌우(M3 medium·expanded 24). */
+    val screenWide: Dp = x6
 
     /**
      * 터치 영역 최소 크기(M3 48, HIG 44).

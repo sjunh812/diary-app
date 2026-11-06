@@ -100,8 +100,8 @@ fun SettingsScreen(
                 modifier =
                     Modifier
                         .padding(
-                            start = DiarySpacing.screenCompact,
-                            end = DiarySpacing.screenCompact,
+                            start = LocalScreenGutter.current,
+                            end = LocalScreenGutter.current,
                             top = DiarySpacing.tabTitleTop
                         )
                         .semantics { heading() }

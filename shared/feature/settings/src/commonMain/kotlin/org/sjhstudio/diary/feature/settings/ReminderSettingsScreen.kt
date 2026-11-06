@@ -36,6 +36,7 @@ import org.sjhstudio.diary.core.designsystem.resources.ds_close
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
 import org.sjhstudio.diary.feature.settings.resources.Res
@@ -80,7 +81,7 @@ fun ReminderSettingsScreen(
                     DiaryIcons.Bell,
                     stringResource(Res.string.reminder_permission_title),
                     stringResource(Res.string.reminder_permission_body),
-                    modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x4),
+                    modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
                     actionLabel = stringResource(Res.string.reminder_permission_allow),
                     onAction = onAllow
                 )

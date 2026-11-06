@@ -65,6 +65,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
  * 디자인 시스템 견본(FR-029).
@@ -160,7 +161,7 @@ internal fun CatalogColors() {
             "mark.pink" to c.mark.pink
         )
     FlowRow(
-        Modifier.padding(horizontal = DiarySpacing.screenCompact),
+        Modifier.padding(horizontal = LocalScreenGutter.current),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
@@ -208,7 +209,7 @@ internal fun CatalogTypography() {
             "micro" to t.micro
         )
     val sample = stringResource(Res.string.ds_catalog_type_sample)
-    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+    Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         styles.forEach { (name, style) -> TypeSample(name, style, sample) }
     }
 }
@@ -254,7 +255,7 @@ internal fun CatalogSpacing() {
             "r28" to DiaryShapes.r28,
             "full" to DiaryShapes.full
         )
-    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+    Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.Bottom) {
             spacing.forEach { (name, value) ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -284,7 +285,7 @@ private fun RadiusSample(name: String, shape: Shape) {
 
 @Composable
 internal fun CatalogButtons() {
-    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+    Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         DiaryButton("시작하기", {}, size = DiaryButtonSize.XLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             DiaryButton("첨부 없이 문의", {}, Modifier.weight(1f), kind = DiaryButtonKind.Secondary)
@@ -319,7 +320,7 @@ internal fun CatalogSettingsRows() {
 
 @Composable
 internal fun CatalogBoxes() {
-    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+    Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
         DiaryHeroBadge(DiaryIcons.CircleCheck)
         DiaryNoteBox(
             listOf(
@@ -335,7 +336,7 @@ internal fun CatalogBoxes() {
 /** 상태 상자와 시각 고르기 휠(오후 10:00). */
 @Composable
 internal fun CatalogTimeWheel() {
-    Column(Modifier.padding(horizontal = DiarySpacing.screenCompact), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+    Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
         DiaryStatusBox(
             DiaryIcons.Bell,
             "알림이 꺼져 있어요",
@@ -375,7 +376,7 @@ private fun CatalogMeta(text: String) {
 @Composable
 internal fun CatalogKeypad() {
     Column(
-        Modifier.padding(horizontal = DiarySpacing.screenCompact).fillMaxWidth(),
+        Modifier.padding(horizontal = LocalScreenGutter.current).fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
     ) {
