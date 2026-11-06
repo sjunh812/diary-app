@@ -51,7 +51,6 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -61,6 +60,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -236,13 +236,13 @@ private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onP
     }
 }
 
+/** 기간 탭은 그대로 있고 아래 칸만 빈 때다. 달력의 빈 날처럼 큰 제목 없이 한 줄로 조용히 둔다(`docs/design.md` 빈 상태). */
 @Composable
 private fun Empty() {
-    // 화면 전체가 스크롤되어 빈 상태를 칸에 놓을 수 없다. 전과 같이 위아래 여백으로 자리를 잡는다.
-    DiaryEmptyState(
-        DiaryIcons.TabInsight,
+    BasicText(
         stringResource(Res.string.insight_empty),
-        Modifier.padding(vertical = DiarySpacing.x14 + DiarySpacing.x14)
+        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x14 + DiarySpacing.x14),
+        style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary, textAlign = TextAlign.Center)
     )
 }
 

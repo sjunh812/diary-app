@@ -11,6 +11,7 @@
     <string name="backup_intro_note">1일 1일기 백업フォルダだけを使い、ほかのファイルは見ません。</string>
     <string name="backup_running">バックアップ中</string>
     <string name="backup_running_body">アプリを閉じても続きます。終わったら通知でお知らせします。</string>
+    <string name="backup_running_body_open">アプリを開いている間アップロードします。アプリを閉じると止まり、また開くと続きから再開します。</string>
     <string name="backup_running_photos">写真 %1$d / %2$d枚</string>
     <string name="backup_reconnect">再接続</string>
     <string name="backup_reconnect_title">Googleアカウントの接続が切れました</string>
@@ -83,6 +84,7 @@
     <string name="restore_value_photo">写真</string>
     <string name="restore_photo_progress">%1$s / %2$s</string>
     <string name="restore_running_note">アプリを閉じても続き、終わったら通知でお知らせします。アプリが終了しても残りの写真だけ続きから受け取ります。</string>
+    <string name="restore_running_note_open">アプリを開いている間受け取ります。アプリを閉じると止まり、また開くと残りの写真だけ受け取ります。</string>
     <string name="restore_see_entries">先に日記を見る</string>
     <string name="restore_done_nothing">バックアップを統合しました</string>
     <string name="restore_done_body">このスマホの日記はそのまま残っています。</string>
@@ -173,7 +175,7 @@
     <string name="file_read_failed">バックアップファイルではないか、一部が壊れています。このスマホの記録はそのままです。</string>
     <string name="file_read_needs_update">アプリを更新すると復元できます。</string>
     <string name="file_saved_title">ファイルを保存しました</string>
-    <string name="file_saved_body">%1$s (%2$s)\n新しいスマホに移してから「ファイルから復元」を押してください。</string>
+    <string name="file_saved_body">新しいスマホに移してから「ファイルから復元」を押してください。</string>
     <string name="file_done">OK</string>
     <string name="file_name">1日1日記-バックアップ-%1$s</string>
     <string name="backup_group_other">別の方法</string>

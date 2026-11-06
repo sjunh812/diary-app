@@ -62,6 +62,7 @@ import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
+import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_account
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
@@ -95,6 +96,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_restored_body
 import org.sjhstudio.diary.feature.backup.resources.backup_restored_title
 import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body
+import org.sjhstudio.diary.feature.backup.resources.backup_running_body_open
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
 import org.sjhstudio.diary.feature.backup.resources.backup_space_manage
 import org.sjhstudio.diary.feature.backup.resources.backup_space_note
@@ -376,7 +378,9 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                     if (running.photosTotal > 0) {
                         stringResource(Res.string.backup_running_photos, running.photosDone, running.photosTotal)
                     } else {
-                        stringResource(Res.string.backup_running_body)
+                        stringResource(
+                            if (workContinuesInBackground) Res.string.backup_running_body else Res.string.backup_running_body_open
+                        )
                     }
                 )
                 // 올릴 양을 세기 전에는 막대를 그리지 않는다. 빈 막대는 멈춘 것처럼 보인다.

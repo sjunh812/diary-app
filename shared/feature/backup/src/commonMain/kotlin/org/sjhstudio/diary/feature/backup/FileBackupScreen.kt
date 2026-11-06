@@ -211,10 +211,11 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
 private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBackupUi.Saved, onDone: () -> Unit) {
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
-        Heading(
-            DiaryIcons.CircleCheck,
-            stringResource(Res.string.file_saved_title),
-            stringResource(Res.string.file_saved_body, saved.name, sizeText(saved.bytes))
+        Heading(DiaryIcons.CircleCheck, stringResource(Res.string.file_saved_title), stringResource(Res.string.file_saved_body))
+        // 파일 이름은 설명 글과 섞이지 않게 따로 둔다. 파일 앱에서 찾을 때 이 줄을 본다.
+        DiaryNoteBox(
+            listOf(DiaryNote(DiaryIcons.Download, saved.name, sizeText(saved.bytes))),
+            Modifier.padding(horizontal = DiarySpacing.screenCompact)
         )
     }
     Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x3)) {

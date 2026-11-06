@@ -66,6 +66,8 @@ class RestoreController(
 ) : RestoreRepository {
     private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
     override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
+    override var lastPhotoRun: PhotoProgress? = null
+        private set
 
     private val _state = MutableStateFlow<RestoreState>(RestoreState.Idle)
     override val state: StateFlow<RestoreState> = _state.asStateFlow()
@@ -355,10 +357,15 @@ class RestoreController(
 
     /** 앱을 나가도 사진을 계속 받게 시스템에 알리고 진행을 내보낸다. */
     private suspend fun <T> watchingPhotos(total: Int, work: suspend (watch: (done: Int, all: Int) -> Unit) -> T): T {
+        lastPhotoRun = null
         _photoProgress.value = PhotoProgress(0, total)
         scheduler.keepRestoreRunning()
         return try {
-            work { done, all -> _photoProgress.value = PhotoProgress(done, all) }
+            work { done, all ->
+                val progress = PhotoProgress(done, all)
+                lastPhotoRun = progress
+                _photoProgress.value = progress
+            }
         } finally {
             _photoProgress.value = null
         }

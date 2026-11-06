@@ -64,4 +64,5 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
     override suspend fun resumePhotos() = Unit
 
     override val photoProgress: StateFlow<PhotoProgress?> = MutableStateFlow(null)
+    override val lastPhotoRun: PhotoProgress? = null
 }

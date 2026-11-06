@@ -54,4 +54,7 @@ interface RestoreRepository {
 
     /** 사진을 받는 동안의 진행. 받고 있지 않으면 null이다. */
     val photoProgress: StateFlow<PhotoProgress?>
+
+    /** 마지막으로 끝난 사진 받기의 결과. 흐름은 빠른 값을 건너뛰므로 끝 값은 여기서 읽는다. */
+    val lastPhotoRun: PhotoProgress?
 }

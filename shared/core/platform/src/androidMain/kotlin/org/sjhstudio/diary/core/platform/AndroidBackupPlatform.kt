@@ -106,6 +106,9 @@ class BackupProgressNotifications(context: Context) {
         manager.notify(ID, build(title, body, done, total))
     }
 
+    /** 작업이 끝난 뒤 늦게 올라온 진행 알림이 남지 않게 지운다. */
+    fun clear() = manager.cancel(ID)
+
     companion object {
         const val ID = 2002
         private const val CHANNEL = "backup_progress"

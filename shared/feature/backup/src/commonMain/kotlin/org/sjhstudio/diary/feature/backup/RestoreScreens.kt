@@ -72,6 +72,7 @@ import org.sjhstudio.diary.core.ui.byteSize
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
+import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.file_restore
 import org.sjhstudio.diary.feature.backup.resources.restore_contact
@@ -146,6 +147,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_replaced_title
 import org.sjhstudio.diary.feature.backup.resources.restore_retry
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_running_note
+import org.sjhstudio.diary.feature.backup.resources.restore_running_note_open
 import org.sjhstudio.diary.feature.backup.resources.restore_running_title
 import org.sjhstudio.diary.feature.backup.resources.restore_see_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_settings_note
@@ -503,7 +505,7 @@ private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntri
     }
     Bottom {
         BasicText(
-            stringResource(Res.string.restore_running_note),
+            stringResource(if (workContinuesInBackground) Res.string.restore_running_note else Res.string.restore_running_note_open),
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
             modifier = Modifier.fillMaxWidth()
         )
