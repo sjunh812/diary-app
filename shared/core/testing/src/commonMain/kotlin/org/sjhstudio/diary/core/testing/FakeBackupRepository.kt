@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
@@ -21,7 +22,22 @@ class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepos
         nudge.value = null
     }
 
-    override suspend fun connect(hint: String?): ConnectResult = ConnectResult.Cancelled
+    /** 다음 [connect]의 결과. */
+    var connectResult: ConnectResult = ConnectResult.Cancelled
+
+    /** true면 [connect]가 예외를 던진다. */
+    var connectCrash = false
+    override val connectFailure = MutableStateFlow<BackupFailure?>(null)
+
+    override suspend fun connect(hint: String?): ConnectResult {
+        check(!connectCrash) { "연결할 수 없다" }
+        connectFailure.value = (connectResult as? ConnectResult.Failed)?.kind
+        return connectResult
+    }
+
+    override fun connectFailureShown() {
+        connectFailure.value = null
+    }
 
     override fun skipFoundBackup() {
         foundBackup.value = null

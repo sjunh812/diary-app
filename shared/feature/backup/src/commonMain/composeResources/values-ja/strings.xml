@@ -206,4 +206,9 @@
     <string name="backup_line_failed">バックアップを完了できませんでした</string>
     <string name="backup_skip_empty">バックアップする日記がまだありません</string>
     <string name="backup_skip_busy">別の処理が終わってからもう一度タップしてください</string>
+    <string name="backup_connect_failed_title">Googleドライブに接続できませんでした</string>
+    <string name="backup_connect_failed_offline">インターネット接続を確認して、もう一度お試しください。</string>
+    <string name="backup_connect_failed_auth">Googleアカウントを確認できませんでした。しばらくしてからもう一度お試しください。</string>
+    <string name="backup_connect_failed_other">しばらくしてからもう一度お試しください。</string>
+    <string name="backup_connect_failed_close">OK</string>
 </resources>

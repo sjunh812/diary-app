@@ -73,6 +73,11 @@ import org.sjhstudio.diary.feature.backup.resources.backup_all_done
 import org.sjhstudio.diary.feature.backup.resources.backup_auto
 import org.sjhstudio.diary.feature.backup.resources.backup_auto_body
 import org.sjhstudio.diary.feature.backup.resources.backup_connect
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_auth
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_close
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_offline
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_other
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_title
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_body
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_message
@@ -149,6 +154,7 @@ fun BackupSettingsRoute(
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
+    val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
     val access = rememberNotificationAccess()
     val running = status.running != null
     val toast = remember { DiaryToastState() }
@@ -173,6 +179,35 @@ fun BackupSettingsRoute(
             viewModel.takeFound()
             onRestoreEntry(entry.snapshotName)
         }
+    }
+    connectFailure?.let { BackupConnectFailedSheet(it, viewModel::connectFailureShown) }
+}
+
+/**
+ * 구글 드라이브 연결 실패 안내.
+ * 까닭에 맞는 할 일을 말한다.
+ * 사용자가 취소한 때는 띄우지 않는다.
+ */
+@Composable
+fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    val body =
+        when (failure) {
+            BackupFailure.OFFLINE -> Res.string.backup_connect_failed_offline
+            BackupFailure.AUTH -> Res.string.backup_connect_failed_auth
+            else -> Res.string.backup_connect_failed_other
+        }
+    DiaryBottomSheet(
+        onDismiss,
+        modifier,
+        title = stringResource(Res.string.backup_connect_failed_title),
+        description = stringResource(body)
+    ) {
+        DiaryButton(
+            stringResource(Res.string.backup_connect_failed_close),
+            onDismiss,
+            Modifier.fillMaxWidth(),
+            size = DiaryButtonSize.XLarge
+        )
     }
 }
 

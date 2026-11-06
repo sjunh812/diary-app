@@ -206,4 +206,9 @@
     <string name="backup_line_failed">Backup didn't finish</string>
     <string name="backup_skip_empty">No diary entries to back up yet</string>
     <string name="backup_skip_busy">Another task is running. Try again when it's done.</string>
+    <string name="backup_connect_failed_title">Couldn't connect to Google Drive</string>
+    <string name="backup_connect_failed_offline">Check your internet connection and try again.</string>
+    <string name="backup_connect_failed_auth">Couldn't verify your Google account. Try again in a moment.</string>
+    <string name="backup_connect_failed_other">Try again in a moment.</string>
+    <string name="backup_connect_failed_close">OK</string>
 </resources>

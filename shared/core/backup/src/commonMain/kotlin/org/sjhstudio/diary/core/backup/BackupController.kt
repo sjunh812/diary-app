@@ -60,6 +60,9 @@ class BackupController(
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
     override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
 
+    private val _connectFailure = MutableStateFlow<BackupFailure?>(null)
+    override val connectFailure: StateFlow<BackupFailure?> = _connectFailure.asStateFlow()
+
     private val _skipped = MutableSharedFlow<BackupSkip>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val skipped: SharedFlow<BackupSkip> = _skipped.asSharedFlow()
 
@@ -111,27 +114,52 @@ class BackupController(
     }
 
     override suspend fun connect(hint: String?): ConnectResult {
-        val result = authorizer.connect(hint)
-        if (result is ConnectResult.Connected) {
-            // 자동 백업은 처음 연결할 때만 켠다.
-            // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킨다.
-            // 다른 계정을 고르면 앞 계정의 백업 기록은 이 계정의 것이 아니다.
-            store.update {
-                val kept = if (it.accountKey == null || it.accountKey == result.account.key) it else it.withoutBackupRecord()
-                kept.copy(
-                    accountKey = result.account.key,
-                    accountLabel = result.account.email,
-                    autoEnabled = it.accountKey == null || it.autoEnabled,
-                    userDisconnected = false,
-                    lastFailure = null
-                )
+        val result =
+            try {
+                authorizer.connect(hint)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                ConnectResult.Failed(BackupFailure.UNKNOWN)
             }
-            if (store.current().autoEnabled) scheduler.scheduleDaily()
-            // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않는다(US2 시나리오 7).
-            val found = findBackup()
-            if (found != null) _foundBackup.value = found else backUpNow()
+        // 취소는 사용자가 고른 일이라 말없이 넘어간다.
+        _connectFailure.value = (result as? ConnectResult.Failed)?.kind
+        if (result !is ConnectResult.Connected) return result
+        return try {
+            start(result)
+            result
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            // 공간이 차서 연결을 적지 못했다.
+            // 연결되지 않은 것이라 실패로 알린다.
+            _connectFailure.value = BackupFailure.UNKNOWN
+            ConnectResult.Failed(BackupFailure.UNKNOWN)
         }
-        return result
+    }
+
+    private suspend fun start(result: ConnectResult.Connected) {
+        // 자동 백업은 처음 연결할 때만 켠다.
+        // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킨다.
+        // 다른 계정을 고르면 앞 계정의 백업 기록은 이 계정의 것이 아니다.
+        store.update {
+            val kept = if (it.accountKey == null || it.accountKey == result.account.key) it else it.withoutBackupRecord()
+            kept.copy(
+                accountKey = result.account.key,
+                accountLabel = result.account.email,
+                autoEnabled = it.accountKey == null || it.autoEnabled,
+                userDisconnected = false,
+                lastFailure = null
+            )
+        }
+        if (store.current().autoEnabled) scheduler.scheduleDaily()
+        // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않는다(US2 시나리오 7).
+        val found = findBackup()
+        if (found != null) _foundBackup.value = found else backUpNow()
+    }
+
+    override fun connectFailureShown() {
+        _connectFailure.value = null
     }
 
     override fun skipFoundBackup() {

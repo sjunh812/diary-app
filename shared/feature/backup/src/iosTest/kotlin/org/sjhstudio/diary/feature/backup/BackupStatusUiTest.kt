@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
 import org.sjhstudio.diary.feature.backup.resources.backup_auto
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_line_all
 import org.sjhstudio.diary.feature.backup.resources.backup_line_days
@@ -140,5 +141,16 @@ class BackupStatusUiTest {
         onNodeWithText(restore).assertExists()
         onNodeWithText(auto).assertExists()
         onNodeWithText(options).assertExists()
+    }
+
+    @Test
+    fun a_failed_connection_says_what_to_do() = runComposeUiTest {
+        var offline = ""
+        setContent {
+            offline = stringResource(Res.string.backup_connect_failed_offline)
+            DiaryTheme(darkTheme = false) { BackupConnectFailedSheet(BackupFailure.OFFLINE, {}) }
+        }
+
+        onNodeWithText(offline).assertExists()
     }
 }

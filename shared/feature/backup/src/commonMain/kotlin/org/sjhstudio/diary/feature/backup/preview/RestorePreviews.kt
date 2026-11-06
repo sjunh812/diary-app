@@ -6,12 +6,14 @@ import kotlin.time.Instant
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.feature.backup.BackupConnectFailedSheet
 import org.sjhstudio.diary.feature.backup.BackupFoundSheet
 import org.sjhstudio.diary.feature.backup.RestoreListScreen
 import org.sjhstudio.diary.feature.backup.RestoreListUi
@@ -98,3 +100,11 @@ private fun ResultDark() = Progress(true, RestoreState.Done(Result))
 @Preview(locale = "ko")
 @Composable
 private fun FoundLight() = DiaryTheme(darkTheme = false) { BackupFoundSheet(Sample, {}, {}) }
+
+@Preview(name = "연결 실패 · 인터넷 없음", locale = "ko")
+@Composable
+private fun ConnectFailedLight() = DiaryTheme(darkTheme = false) { BackupConnectFailedSheet(BackupFailure.OFFLINE, {}) }
+
+@Preview(name = "연결 실패 · 계정 · 다크", locale = "ko")
+@Composable
+private fun ConnectFailedDark() = DiaryTheme(darkTheme = true) { BackupConnectFailedSheet(BackupFailure.AUTH, {}) }

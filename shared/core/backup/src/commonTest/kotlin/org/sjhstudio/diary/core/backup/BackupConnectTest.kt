@@ -19,7 +19,9 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupSkip
+import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAccount
+import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeBackupNotifier
 import org.sjhstudio.diary.core.testing.FakeBackupScheduler
 import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
@@ -29,7 +31,8 @@ class BackupConnectTest {
     private val entry =
         BackupEntry("s", "d", "Pixel", "android", Instant.parse("2026-11-05T09:25:00Z"), 12, 3, 0, "2.0.0", BackupEntryState.Ready)
     private val scheduler = FakeBackupScheduler().apply { takesNow = true }
-    private val store = BackupStore(InMemoryDataStore(emptyPreferences()))
+    private val dataStore = InMemoryDataStore(emptyPreferences())
+    private val store = BackupStore(dataStore)
     private val authorizer = FakeDriveAuthorizer()
 
     private var running = false
@@ -213,5 +216,82 @@ class BackupConnectTest {
         controller.nowFinished(BackupOutcome.Failed(BackupFailure.OFFLINE))
 
         assertEquals(listOf(BackupSkip.NO_ENTRIES, BackupSkip.BUSY), told)
+    }
+
+    /** 실패는 종류와 함께 화면까지 간다. */
+    @Test
+    fun a_failed_connection_is_kept_for_the_screen() = runTest {
+        authorizer.connectResult = ConnectResult.Failed(BackupFailure.OFFLINE)
+        val controller = controller()
+
+        controller.connect()
+
+        assertEquals(BackupFailure.OFFLINE, controller.connectFailure.value)
+        assertNull(store.current().accountKey)
+    }
+
+    /** 사용자가 물러난 것은 실패가 아니다. */
+    @Test
+    fun cancelling_says_nothing() = runTest {
+        authorizer.connectResult = ConnectResult.Cancelled
+        val controller = controller()
+
+        controller.connect()
+
+        assertNull(controller.connectFailure.value)
+    }
+
+    @Test
+    fun a_crash_while_connecting_counts_as_a_failure() = runTest {
+        val controller = BackupController(
+            store,
+            lazy { error("쓰지 않는다") },
+            lazy { error("쓰지 않는다") },
+            object : DriveAuthorizer by authorizer {
+                override suspend fun connect(hint: String?): ConnectResult = error("연결할 수 없다")
+            },
+            scheduler,
+            FakeBackupNotifier(),
+            CoroutineScope(Dispatchers.Unconfined),
+            running = { false }
+        )
+
+        assertEquals(ConnectResult.Failed(BackupFailure.UNKNOWN), controller.connect())
+        assertEquals(BackupFailure.UNKNOWN, controller.connectFailure.value)
+    }
+
+    /** 공간이 꽉 차 연결을 적지 못하면 연결된 것이 아니다. 꺼지지 않고 실패로 알린다. */
+    @Test
+    fun a_connection_that_cannot_be_saved_is_a_failure() = runTest {
+        dataStore.failWrites = true
+        val controller = controller()
+
+        assertEquals(ConnectResult.Failed(BackupFailure.UNKNOWN), controller.connect())
+
+        assertEquals(BackupFailure.UNKNOWN, controller.connectFailure.value)
+        assertEquals(0, scheduler.startedNow)
+    }
+
+    @Test
+    fun trying_again_clears_the_old_failure() = runTest {
+        authorizer.connectResult = ConnectResult.Failed(BackupFailure.AUTH)
+        val controller = controller()
+        controller.connect()
+
+        authorizer.connectResult = null
+        controller.connect()
+
+        assertNull(controller.connectFailure.value)
+    }
+
+    @Test
+    fun closing_the_notice_clears_the_failure() = runTest {
+        authorizer.connectResult = ConnectResult.Failed(BackupFailure.AUTH)
+        val controller = controller()
+        controller.connect()
+
+        controller.connectFailureShown()
+
+        assertNull(controller.connectFailure.value)
     }
 }
