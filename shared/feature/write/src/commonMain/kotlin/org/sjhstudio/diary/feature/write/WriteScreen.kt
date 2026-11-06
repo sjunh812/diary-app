@@ -240,8 +240,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 준다.
     // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않는다.
     var autoFocused by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(state.loading, state.resume, state.isEdit) {
-        if (!autoFocused && !state.loading && state.resume == null && !state.isEdit) {
+    val readyToWrite = !state.loading && state.resume == null && !state.isEdit
+    LaunchedEffect(readyToWrite) {
+        if (readyToWrite && !autoFocused) {
             autoFocused = true
             editorFocus.requestFocus()
         }

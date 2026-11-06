@@ -63,9 +63,10 @@ class FakeDraftRepository(
     }
 
     override suspend fun matchesEntry(key: DraftKey.Edit): Boolean {
-        val draft = drafts.value[key] ?: return true
-        val entry = editable[key.entryId] ?: return false
-        return draft.copy(updatedAt = entry.updatedAt, placeName = draft.placeName?.trim()?.ifEmpty { null }) == entry
+        val draft = drafts.value[key]
+        val entry = editable[key.entryId]
+        return draft == null ||
+            draft.copy(updatedAt = entry?.updatedAt ?: draft.updatedAt, placeName = draft.placeName?.trim()?.ifEmpty { null }) == entry
     }
 
     override suspend fun save(draft: Draft) {

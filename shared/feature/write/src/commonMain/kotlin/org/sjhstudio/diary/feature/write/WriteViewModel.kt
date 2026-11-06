@@ -670,7 +670,10 @@ class WriteViewModel(
         takeEditorBody()
         // 저장 중이면 곧 임시 저장본이 지워진다.
         // 다시 만들지 않는다.
-        if (!force && (!dirty || _state.value.saving)) return
+        if (force || (dirty && !_state.value.saving)) writeDraft(force)
+    }
+
+    private suspend fun writeDraft(force: Boolean) {
         val draft = currentDraft()
         // 빈 글은 저장본을 만들지 않는다.
         // 다음에 "쓰던 일기가 있어요"가 뜨지 않게 하려고다.
