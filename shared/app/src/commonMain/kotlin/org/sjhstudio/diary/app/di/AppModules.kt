@@ -280,6 +280,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                             applySettings = applyBackup
                         )
                     },
+                scheduler = get(),
                 db = database,
                 store = store,
                 network = get(),

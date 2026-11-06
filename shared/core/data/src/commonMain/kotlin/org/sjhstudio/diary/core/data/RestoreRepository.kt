@@ -6,6 +6,7 @@ import okio.BufferedSink
 import okio.Source
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BundleEstimate
+import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
@@ -47,4 +48,7 @@ interface RestoreRepository {
 
     /** 앱을 열 때 부른다. 전에 다 못 받은 사진을 이어 받는다(FR-024). */
     suspend fun resumePhotos()
+
+    /** 사진을 받는 동안의 진행. 받고 있지 않으면 null이다. */
+    val photoProgress: StateFlow<PhotoProgress?>
 }

@@ -1,11 +1,13 @@
 package org.sjhstudio.diary.core.testing
 
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import okio.BufferedSink
 import okio.Source
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BundleEstimate
+import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
@@ -53,4 +55,6 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
     }
 
     override suspend fun resumePhotos() = Unit
+
+    override val photoProgress: StateFlow<PhotoProgress?> = MutableStateFlow(null)
 }

@@ -29,6 +29,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.sjhstudio.diary.core.backup.BackupOutcome
 import org.sjhstudio.diary.core.backup.BackupRunner
+import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.platform.BackupAlertPoster
@@ -39,6 +40,8 @@ import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.feature.backup.backupChannelName
 import org.sjhstudio.diary.feature.backup.backupProgressText
 import org.sjhstudio.diary.feature.backup.backupProgressTitle
+import org.sjhstudio.diary.feature.backup.restoreProgressText
+import org.sjhstudio.diary.feature.backup.restoreProgressTitle
 
 /** 시스템이 때를 골라 돌리는 백업(research R14). 네트워크가 있을 때만 돌고, 잠깐 실패면 시스템이 다시 부른다. */
 class BackupWorker(context: Context, params: WorkerParameters) :
@@ -117,6 +120,49 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
     }
 }
 
+/**
+ * 복원 사진을 받는 동안 앱을 지킨다. 받기 자체는 앱 범위에서 돌고, 이 작업은 앱을 나가도 시스템이 멈추지 않게 알림과 함께 떠 있는다.
+ * 앱이 끝까지 죽었으면 시스템이 이 작업을 다시 부르고, 그때는 남은 사진을 여기서 이어 받는다.
+ */
+class RestorePhotosWorker(context: Context, params: WorkerParameters) :
+    CoroutineWorker(context, params),
+    KoinComponent {
+    private val notifications = BackupProgressNotifications(context)
+
+    override suspend fun getForegroundInfo(): ForegroundInfo = foreground()
+
+    override suspend fun doWork(): Result {
+        val restore = get<RestoreRepository>()
+        try {
+            setForeground(foreground())
+        } catch (_: IllegalStateException) {
+            // 시스템이 앞으로 올리기를 막으면 앱이 살아 있는 동안만 받는다. 남은 사진은 다음에 앱을 열 때 잇는다.
+        }
+        return coroutineScope {
+            val updates =
+                launch {
+                    restore.photoProgress.filterNotNull().collect {
+                        notifications.update(restoreProgressTitle(), restoreProgressText(it.done, it.total), it.done, it.total)
+                    }
+                }
+            restore.resumePhotos()
+            restore.photoProgress.first { it == null }
+            updates.cancel()
+            Result.success()
+        }
+    }
+
+    private suspend fun foreground(): ForegroundInfo {
+        notifications.createChannel(backupChannelName())
+        val notification = notifications.build(restoreProgressTitle(), null, 0, 0)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(BackupProgressNotifications.ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            ForegroundInfo(BackupProgressNotifications.ID, notification)
+        }
+    }
+}
+
 /** 7일 실패 알림을 띄운다. 예약한 때까지 백업이 없었다는 뜻이다. 내용은 예약할 때 받은 그대로다. */
 class BackupAlertWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
@@ -182,7 +228,13 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
         )
     }
 
+    override fun keepRestoreRunning() {
+        val work = OneTimeWorkRequestBuilder<RestorePhotosWorker>().setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).build()
+        manager.enqueueUniqueWork(RESTORE, ExistingWorkPolicy.KEEP, work)
+    }
+
     private companion object {
+        const val RESTORE = "backup.restore"
         const val DAILY = "backup.daily"
         const val NOW = "backup.now"
         const val PHOTOS = "backup.photos"

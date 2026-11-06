@@ -40,6 +40,9 @@ interface BackupScheduler {
 
     /** 모바일 데이터라 못 올린 사진을 요금 없는 연결이 되면 잇는다. */
     fun scheduleWifiPhotos()
+
+    /** 복원 사진을 받는 동안 앱을 나가도 멈추지 않게 시스템에 알린다. 시스템이 끝까지 지켜 주지 않는 플랫폼은 하지 않는다. */
+    fun keepRestoreRunning() = Unit
 }
 
 /** 시스템 예약이 없는 플랫폼. iOS는 앱을 열 때 밀린 백업을 돌린다(T044에서 BGTask를 더한다). */

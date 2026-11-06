@@ -158,3 +158,6 @@ sealed interface RestoreState {
 
 /** 권하기 카드(FR-036). */
 data class BackupNudge(val entryCount: Int, val photoCount: Int, val suggestedAccount: String? = null)
+
+/** 사진 받기 진행. 복원 화면이 닫혀 있어도 알림으로 보인다. */
+data class PhotoProgress(val done: Int, val total: Int)

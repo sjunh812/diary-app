@@ -42,6 +42,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.FreeSpace
+import org.sjhstudio.diary.core.testing.FakeBackupScheduler
 import org.sjhstudio.diary.core.testing.FakeDrive
 import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeNetworkState
@@ -150,7 +151,8 @@ class RestoreRoundTripTest {
         scope: kotlinx.coroutines.CoroutineScope,
         gate: BackupGate = BackupGate(),
         api: DriveApi = drive,
-        rollback: RollbackManager? = null
+        rollback: RollbackManager? = null,
+        scheduler: FakeBackupScheduler = FakeBackupScheduler()
     ): RestoreController {
         val media = dir / "b" / "media"
         val work = dir / "b" / "backup"
@@ -164,7 +166,7 @@ class RestoreRoundTripTest {
             },
             lazy { error("쓰지 않는다") },
             lazy { phoneB },
-            store, FakeNetworkState(), fs, work, { settings += it }, scope, gate
+            store, FakeNetworkState(), fs, work, { settings += it }, scope, gate, scheduler
         )
     }
 
@@ -184,6 +186,21 @@ class RestoreRoundTripTest {
         assertEquals(1, result.photosRestored)
         assertEquals(0, result.photosPending)
         assertEquals(1, settings.size)
+    }
+
+    @Test
+    fun photos_are_protected_while_they_come_and_the_progress_ends() = runTest {
+        backUp()
+        val scheduler = FakeBackupScheduler()
+        val controller = controller(mutableListOf(), backgroundScope, scheduler = scheduler)
+        val name = controller.backups()!!.single().snapshotName
+        assertIs<RestorePreparation.Ready>(controller.prepare(name))
+
+        controller.merge()
+        withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
+
+        assertEquals(1, scheduler.restoreKept)
+        assertEquals(null, controller.photoProgress.value)
     }
 
     @Test

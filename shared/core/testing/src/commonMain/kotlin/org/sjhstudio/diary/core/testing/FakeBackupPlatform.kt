@@ -28,6 +28,13 @@ class FakeBackupNotifier : BackupNotifier {
 }
 
 class FakeBackupScheduler : BackupScheduler {
+    var restoreKept = 0
+        private set
+
+    override fun keepRestoreRunning() {
+        restoreKept++
+    }
+
     var wifiPhotos = 0
         private set
 

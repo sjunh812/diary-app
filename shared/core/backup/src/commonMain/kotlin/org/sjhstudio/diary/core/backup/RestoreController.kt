@@ -33,13 +33,16 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.NetworkState
+import org.sjhstudio.diary.core.platform.NoBackupScheduler
 
 /** [RestoreRepository]의 구현. 글을 먼저 합치고 사진은 그 뒤에 받아서 받는 동안에도 일기를 볼 수 있다. */
 class RestoreController(
@@ -57,8 +60,12 @@ class RestoreController(
     private val workDir: Path,
     private val applySettings: suspend (ManifestSettings) -> Unit,
     private val scope: CoroutineScope,
-    private val gate: BackupGate = BackupGate()
+    private val gate: BackupGate = BackupGate(),
+    private val scheduler: BackupScheduler = NoBackupScheduler
 ) : RestoreRepository {
+    private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
+    override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
+
     private val _state = MutableStateFlow<RestoreState>(RestoreState.Idle)
     override val state: StateFlow<RestoreState> = _state.asStateFlow()
 
@@ -292,9 +299,15 @@ class RestoreController(
         var fetched = 0
         var broken = 0
         try {
-            val progress = { done: Int, all: Int -> _state.value = RestoreState.FetchingPhotos(entries, done, all) }
             val zip = ready.bundle
-            val result = if (zip != null) fetcher.value.fetchFrom(zip, progress) else fetcher.value.fetch(progress)
+            val result =
+                watchingPhotos(total) { watch ->
+                    val progress = { done: Int, all: Int ->
+                        watch(done, all)
+                        _state.value = RestoreState.FetchingPhotos(entries, done, all)
+                    }
+                    if (zip != null) fetcher.value.fetchFrom(zip, progress) else fetcher.value.fetch(progress)
+                }
             fetched = result.first
             broken = result.second
             // 다 꺼냈을 때만 지운다. 아직 사진이 들어 있으면 결과를 닫을 때 지운다.
@@ -318,6 +331,17 @@ class RestoreController(
         )
     }
 
+    /** 앱을 나가도 사진을 계속 받게 시스템에 알리고 진행을 내보낸다. */
+    private suspend fun <T> watchingPhotos(total: Int, work: suspend (watch: (done: Int, all: Int) -> Unit) -> T): T {
+        _photoProgress.value = PhotoProgress(0, total)
+        scheduler.keepRestoreRunning()
+        return try {
+            work { done, all -> _photoProgress.value = PhotoProgress(done, all) }
+        } finally {
+            _photoProgress.value = null
+        }
+    }
+
     /** 미리보기를 닫거나 결과를 닫을 때 부른다. 복원이 도는 중이면 뒤로 간 것뿐이라 그대로 둔다. */
     override fun dismiss() {
         if (restoring) return
@@ -333,7 +357,10 @@ class RestoreController(
         if (!network.isUnmetered && !prefs.photosOnCellular) return
         if (!gate.tryEnter()) return
         try {
-            guarded { if (db.value.backupDao().pendingFiles().isNotEmpty()) fetcher.value.fetch() }
+            guarded {
+                val total = db.value.backupDao().pendingFiles().size
+                if (total > 0) watchingPhotos(total) { watch -> fetcher.value.fetch(watch) }
+            }
         } finally {
             gate.leave()
         }
