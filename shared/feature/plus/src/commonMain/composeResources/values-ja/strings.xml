@@ -7,7 +7,7 @@
     <string name="plus_photos_title">1件に写真30枚</string>
     <string name="plus_stats_title">詳しい統計</string>
     <string name="plus_coming">今後もさまざまなアップデートを予定しています。</string>
-    <string name="plus_price">1年 %1$s</string>
+    <string name="plus_price">年額 %1$s</string>
     <string name="plus_start">Plusを始める</string>
     <string name="plus_notice">1年ごとに自動更新されます。更新の24時間前までストアで解約できます。</string>
     <string name="plus_retry">再試行</string>

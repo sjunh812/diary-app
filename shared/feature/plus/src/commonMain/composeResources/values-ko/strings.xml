@@ -7,7 +7,7 @@
     <string name="plus_photos_title">한 편에 사진 30장</string>
     <string name="plus_stats_title">고급 통계</string>
     <string name="plus_coming">앞으로 더 다양하게 업데이트할 예정이에요.</string>
-    <string name="plus_price">1년 %1$s</string>
+    <string name="plus_price">연 %1$s</string>
     <string name="plus_start">Plus 시작하기</string>
     <string name="plus_notice">1년마다 자동으로 갱신됩니다. 갱신 24시간 전까지 스토어에서 해지할 수 있습니다.</string>
     <string name="plus_retry">다시 시도</string>
