@@ -7,6 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
@@ -19,6 +20,7 @@ import okio.buffer
 import okio.openZip
 import okio.use
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
@@ -211,6 +213,63 @@ class RestorePhotosTest {
 
         assertEquals(1, result.photosPending)
         assertEquals(PhotoStop.NO_SPACE, result.photosStop)
+    }
+
+    // 받은 수로 말하기
+
+    /** 일기 둘, 사진 둘을 드라이브에 올린다. */
+    private suspend fun backedUp() {
+        a.write("one")
+        a.write("two")
+        a.photo("one", 0, "첫째 사진")
+        a.photo("two", 0, "둘째 사진")
+        a.clock.advance(1.days)
+        assertIs<BackupOutcome.Done>(a.runner().run())
+    }
+
+    private suspend fun RestoreController.restoreLatest(): RestoreResult {
+        prepare(backups()!!.first().snapshotName)
+        merge()
+        return assertIs<RestoreState.Done>(finished()).result
+    }
+
+    @Test
+    fun every_photo_received_counts_as_finished() = runTest {
+        backedUp()
+        val controller = b.controller(backgroundScope)
+
+        controller.restoreLatest()
+
+        assertEquals(PhotoRun(fetched = 2, left = 0, unavailable = 0), controller.lastPhotoRun)
+        assertTrue(controller.lastPhotoRun!!.complete)
+    }
+
+    @Test
+    fun a_photo_gone_from_the_drive_is_not_called_finished_and_is_not_waited_for() = runTest {
+        backedUp()
+        drive.trash(a.driveFiles(DriveLayout.KIND_PHOTO).first().id)
+        val controller = b.controller(backgroundScope)
+
+        val result = controller.restoreLatest()
+
+        assertEquals(PhotoRun(fetched = 1, left = 0, unavailable = 1), controller.lastPhotoRun)
+        assertFalse(controller.lastPhotoRun!!.complete)
+        assertEquals(0, result.photosPending)
+        assertEquals(1, result.photosOnOriginal)
+    }
+
+    @Test
+    fun a_cut_download_reports_what_really_arrived() = runTest {
+        backedUp()
+        val controller = b.controller(backgroundScope, photos = CutDrive(drive, after = 1))
+
+        val result = controller.restoreLatest()
+
+        val run = assertNotNull(controller.lastPhotoRun)
+        assertFalse(run.complete)
+        assertEquals(result.photosRestored, run.fetched)
+        assertEquals(result.photosPending, run.left)
+        assertTrue(run.left > 0)
     }
 
     // 파일을 불러올 공간

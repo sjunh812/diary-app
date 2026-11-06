@@ -205,5 +205,7 @@
     <string name="backup_stopped_title">バックアップを完了できませんでした</string>
     <string name="restore_notice_title">復元が終わりました</string>
     <string name="restore_notice_body">日記と写真をすべて復元しました。</string>
+    <string name="restore_notice_stopped_title">まだダウンロードしていない写真があります</string>
+    <string name="restore_notice_some">復元できなかった写真があります。アプリで確認してください。</string>
     <string name="restore_notice_left">残りの写真はアプリを開くと続きからダウンロードします。</string>
 </resources>

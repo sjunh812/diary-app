@@ -9,6 +9,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,7 @@ import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.PhotoProgress
+import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestoreFailure
@@ -75,7 +77,7 @@ class RestoreController(
 ) : RestoreRepository {
     private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
     override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
-    override var lastPhotoRun: PhotoProgress? = null
+    override var lastPhotoRun: PhotoRun? = null
         private set
 
     private val _state = MutableStateFlow<RestoreState>(RestoreState.Idle)
@@ -370,7 +372,7 @@ class RestoreController(
         val stop =
             receiving {
                 val zip = ready.bundle?.let { holdBundle(it) }
-                watchingPhotos(total) { watch ->
+                watchingPhotos(total, tally) { watch ->
                     val progress = { done: Int, all: Int ->
                         watch(done, all)
                         _state.value = RestoreState.FetchingPhotos(entries, done, all)
@@ -382,7 +384,9 @@ class RestoreController(
                 if (zip != null) dropBundle()
             }
         val left = dao.pendingFiles().size
-        val onOriginal = minOf(left, ready.manifest.media.count { !it.inBackup })
+        // 드라이브에 없는 사진은 앱을 다시 열어도 오지 않아서 남은 사진으로 세지 않는다.
+        val notInBackup = if (ready.bundle == null) tally.notThere else ready.manifest.media.count { !it.inBackup }
+        val onOriginal = minOf(left, notInBackup)
         return RestoreResult(
             entriesAdded = counts.added,
             entriesUpdated = counts.updated,
@@ -442,26 +446,31 @@ class RestoreController(
             dropBundle()
             return
         }
+        val tally = PhotoTally()
         receiving {
-            watchingPhotos(total) { watch -> fetcher.value.fetchFrom(heldBundle, onProgress = watch) }
+            watchingPhotos(total, tally) { watch -> fetcher.value.fetchFrom(heldBundle, tally, watch) }
             dropBundle()
         }
     }
 
     /** 앱을 나가도 사진을 계속 받게 시스템에 알리고 진행을 내보낸다. */
-    private suspend fun <T> watchingPhotos(total: Int, work: suspend (watch: (done: Int, all: Int) -> Unit) -> T): T {
+    private suspend fun <T> watchingPhotos(total: Int, tally: PhotoTally, work: suspend (watch: (done: Int, all: Int) -> Unit) -> T): T {
         lastPhotoRun = null
         _photoProgress.value = PhotoProgress(0, total)
         scheduler.keepRestoreRunning()
         return try {
-            work { done, all ->
-                val progress = PhotoProgress(done, all)
-                lastPhotoRun = progress
-                _photoProgress.value = progress
-            }
+            work { done, all -> _photoProgress.value = PhotoProgress(done, all) }
         } finally {
+            // 진행 값이 사라지는 것을 보고 끝을 읽으니 결과를 먼저 적는다.
+            lastPhotoRun = withContext(NonCancellable) { runOf(tally) }
             _photoProgress.value = null
         }
+    }
+
+    /** 진행 숫자에는 받지 못한 장도 들어 있어 실제로 받은 수와 남은 수로 적는다. */
+    private suspend fun runOf(tally: PhotoTally): PhotoRun {
+        val left = guarded { db.value.backupDao().pendingFiles().size } ?: 0
+        return PhotoRun(tally.fetched, (left - tally.notThere).coerceAtLeast(0), tally.broken + tally.notThere)
     }
 
     /**
@@ -485,7 +494,8 @@ class RestoreController(
             if (!network.isUnmetered && !prefs.photosOnCellular) return
             guarded {
                 val total = db.value.backupDao().pendingFiles().size
-                if (total > 0) watchingPhotos(total) { watch -> fetcher.value.fetch(onProgress = watch) }
+                val tally = PhotoTally()
+                if (total > 0) watchingPhotos(total, tally) { watch -> fetcher.value.fetch(tally, watch) }
             }
         } finally {
             gate.leave()

@@ -222,6 +222,17 @@ sealed interface RestoreState {
     data class Failed(val reason: RestoreFailure) : RestoreState
 }
 
+/**
+ * 끝난 사진 받기의 결과.
+ * [fetched]는 실제로 받은 장수, [left]는 다시 시도하면 받을 수 있는 장수,
+ * [unavailable]은 깨졌거나 드라이브에 없어 받을 수 없는 장수다.
+ */
+data class PhotoRun(val fetched: Int, val left: Int, val unavailable: Int) {
+    /** 받을 사진을 하나도 빠짐없이 받았다. */
+    val complete: Boolean
+        get() = left == 0 && unavailable == 0
+}
+
 /** 권하기 카드(FR-036). */
 data class BackupNudge(val entryCount: Int, val photoCount: Int, val suggestedAccount: String? = null)
 

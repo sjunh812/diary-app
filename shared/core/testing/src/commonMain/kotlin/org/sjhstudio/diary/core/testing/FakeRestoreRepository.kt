@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PhotoProgress
+import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
@@ -70,5 +71,5 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList()) : Res
     override suspend fun resumePhotos() = Unit
 
     override val photoProgress: StateFlow<PhotoProgress?> = MutableStateFlow(null)
-    override val lastPhotoRun: PhotoProgress? = null
+    override val lastPhotoRun: PhotoRun? = null
 }

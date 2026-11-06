@@ -185,7 +185,7 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
             notifications.clear()
             val finished = restore.lastPhotoRun
             if (finished != null && !appIsVisible()) {
-                val text = restoreDoneText(finished.done >= finished.total)
+                val text = restoreDoneText(finished)
                 BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)
             }
             Result.success()

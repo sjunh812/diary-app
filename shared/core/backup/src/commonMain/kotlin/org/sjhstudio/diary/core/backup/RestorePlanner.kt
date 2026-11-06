@@ -172,8 +172,9 @@ class NoRoomForPhotos : Exception("no room for photos")
 /**
  * 사진 받기 한 번의 숫자.
  * 중간에 멈춰도 그때까지의 값이 남는다.
+ * [notThere]는 백업에 없어 다시 시도해도 받을 수 없는 장수다.
  */
-data class PhotoTally(var fetched: Int = 0, var broken: Int = 0)
+data class PhotoTally(var fetched: Int = 0, var broken: Int = 0, var notThere: Int = 0)
 
 /**
  * 합친 뒤 대기 중인 사진을 받는다.
@@ -189,14 +190,17 @@ class PhotoFetcher(
 ) {
     /** 받은 수와 깨져서 쓸 수 없던 수를 [tally]에 적는다. */
     suspend fun fetch(tally: PhotoTally = PhotoTally(), onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): PhotoTally {
-        if (db.backupDao().pendingFiles().isEmpty()) return tally
+        val pending = db.backupDao().pendingFiles()
+        if (pending.isEmpty()) return tally
         val onDrive: Map<String, DriveFile> =
             drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO))).associateBy {
                 it.name.substringBefore('.')
             }
-        return settle(tally, onProgress, PARALLEL_DOWNLOADS) { sha256, _, target ->
-            val file = onDrive[sha256] ?: return@settle false
-            drive.download(file.id, target)
+        // 드라이브에 없는 사진은 받을 길이 없다.
+        // 진행과 이어 받기의 숫자에 넣지 않는다.
+        tally.notThere += pending.count { it.sha256 !in onDrive }
+        return settle(tally, onProgress, PARALLEL_DOWNLOADS, { it.sha256 in onDrive }) { sha256, _, target ->
+            drive.download(requireNotNull(onDrive[sha256]).id, target)
             true
         }
     }
@@ -232,10 +236,11 @@ class PhotoFetcher(
         tally: PhotoTally,
         onProgress: (done: Int, total: Int) -> Unit,
         parallel: Int = 1,
+        wanted: (LocalPhotoRow) -> Boolean = { true },
         copy: suspend (sha256: String, name: String, target: Path) -> Boolean
     ): PhotoTally {
         // 같은 이름이 두 줄이면 같은 `.part`를 함께 쓰게 되니 시작 전에 파일 이름으로 묶는다.
-        val waiting = db.backupDao().pendingFiles().distinctBy { it.fileName ?: it.sha256 }
+        val waiting = db.backupDao().pendingFiles().filter(wanted).distinctBy { it.fileName ?: it.sha256 }
         fileSystem.createDirectories(workDir)
         fileSystem.createDirectories(mediaDir)
         val results = Channel<Settled>(Channel.UNLIMITED)
@@ -248,7 +253,7 @@ class PhotoFetcher(
                 when (results.receive()) {
                     Settled.FETCHED -> tally.fetched++
                     Settled.BROKEN -> tally.broken++
-                    Settled.STILL_WAITING -> Unit
+                    Settled.STILL_WAITING -> tally.notThere++
                 }
                 onProgress(index + 1, waiting.size)
             }

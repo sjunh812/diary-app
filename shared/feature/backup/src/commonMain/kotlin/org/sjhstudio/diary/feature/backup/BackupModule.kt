@@ -6,6 +6,7 @@ import org.koin.dsl.module
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.model.BackupStep
+import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_alert_auth
@@ -23,6 +24,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
 import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.restore_notice_body
 import org.sjhstudio.diary.feature.backup.resources.restore_notice_left
+import org.sjhstudio.diary.feature.backup.resources.restore_notice_some
+import org.sjhstudio.diary.feature.backup.resources.restore_notice_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.restore_notice_title
 import org.sjhstudio.diary.feature.backup.resources.restore_photo_progress
 import org.sjhstudio.diary.feature.backup.resources.restore_running_title
@@ -67,9 +70,15 @@ suspend fun backupDoneText(photosLeft: Int): Pair<String, String> {
 suspend fun backupStoppedText(failure: BackupFailure?): Pair<String, String> =
     getString(Res.string.backup_stopped_title) to backupAlertText(failure).second
 
-/** 앱을 나가 있는 동안 복원이 끝났을 때의 알림. */
-suspend fun restoreDoneText(allPhotos: Boolean): Pair<String, String> = getString(Res.string.restore_notice_title) to
-    getString(if (allPhotos) Res.string.restore_notice_body else Res.string.restore_notice_left)
+/**
+ * 앱을 나가 있는 동안 복원이 끝났을 때의 알림.
+ * 실제로 받은 수와 남은 수로 말한다.
+ */
+suspend fun restoreDoneText(run: PhotoRun): Pair<String, String> = when {
+    run.left > 0 -> getString(Res.string.restore_notice_stopped_title) to getString(Res.string.restore_notice_left)
+    run.complete -> getString(Res.string.restore_notice_title) to getString(Res.string.restore_notice_body)
+    else -> getString(Res.string.restore_notice_title) to getString(Res.string.restore_notice_some)
+}
 
 /** 지금 백업 진행 알림의 제목. */
 suspend fun backupProgressTitle(): String = getString(Res.string.backup_running)

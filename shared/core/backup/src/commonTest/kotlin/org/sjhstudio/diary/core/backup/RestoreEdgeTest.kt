@@ -413,7 +413,8 @@ class RestoreEdgeTest {
         assertEquals(4, b.ids().size)
         assertEquals(1, result.photosRestored)
         assertEquals(2, result.photosMissing)
-        assertEquals(1, result.photosPending)
+        assertEquals(0, result.photosPending, "드라이브에 없는 사진은 기다려도 오지 않는다")
+        assertEquals(1, result.photosOnOriginal)
         assertEquals(
             mapOf("wrong-0" to "missing", "empty-0" to "missing", "lost-0" to "pending", "good-0" to "normal"),
             b.photoStates()

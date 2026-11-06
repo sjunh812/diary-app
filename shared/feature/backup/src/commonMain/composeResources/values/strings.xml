@@ -205,5 +205,7 @@
     <string name="backup_stopped_title">Backup didn't finish</string>
     <string name="restore_notice_title">Restore finished</string>
     <string name="restore_notice_body">All your entries and photos are back.</string>
+    <string name="restore_notice_stopped_title">Some photos are still downloading</string>
+    <string name="restore_notice_some">Some photos couldn't be restored. Open the app to check.</string>
     <string name="restore_notice_left">Open the app to get the remaining photos.</string>
 </resources>

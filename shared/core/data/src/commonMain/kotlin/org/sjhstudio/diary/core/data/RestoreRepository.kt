@@ -7,6 +7,7 @@ import okio.Source
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PhotoProgress
+import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
@@ -84,5 +85,5 @@ interface RestoreRepository {
      * 마지막으로 끝난 사진 받기의 결과.
      * 흐름은 빠른 값을 건너뛰므로 끝 값은 여기서 읽는다.
      */
-    val lastPhotoRun: PhotoProgress?
+    val lastPhotoRun: PhotoRun?
 }
