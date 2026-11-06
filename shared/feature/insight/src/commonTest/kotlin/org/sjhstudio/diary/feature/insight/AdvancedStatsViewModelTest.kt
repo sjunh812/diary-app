@@ -97,6 +97,28 @@ class AdvancedStatsViewModelTest {
         assertSame(first, viewModel.data.value)
     }
 
+    /** 켜 둔 채 날이 바뀌면 최근 기간을 새 오늘로 다시 잰다. */
+    @Test
+    fun a_new_day_measures_the_period_again() = runTest {
+        var date = today
+        val days = ArrayList<LocalDate>()
+        val stats =
+            object : StatsRepository by Stats() {
+                override fun advanced(period: AdvancedPeriod, today: LocalDate): Flow<AdvancedStats> {
+                    days += today
+                    return flowOf(advancedStats(emptyList()))
+                }
+            }
+        val viewModel = AdvancedStatsViewModel(stats) { date }
+        testScheduler.advanceUntilIdle()
+
+        date = LocalDate(2026, 11, 7)
+        viewModel.refreshToday()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(listOf(today, date), days)
+    }
+
     @Test
     fun picking_a_period_recalculates_and_narrows_the_mood_list() = runTest {
         val stats = Stats()

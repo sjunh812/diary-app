@@ -49,8 +49,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -119,7 +121,17 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
     var picking by remember { mutableStateOf(false) }
     LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
     val shown = monthOfPage(pager.currentPage)
-    val today = viewModel.today()
+    val today by viewModel.todayState.collectAsStateWithLifecycle()
+    LifecycleResumeEffect(viewModel) {
+        if (viewModel.refreshToday()) {
+            scope.launch {
+                val page = viewModel.thisMonth().pageIndex()
+                snapshotFlow { pager.pageCount }.first { it > page }
+                pager.scrollToPage(page)
+            }
+        }
+        onPauseOrDispose {}
+    }
     val onToday = {
         viewModel.select(today)
         scope.launch { pager.animateScrollToPage(today.yearMonth.pageIndex()) }

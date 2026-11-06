@@ -63,12 +63,12 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.SearchFilter
-import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.search.resources.Res
 import org.sjhstudio.diary.feature.search.resources.search_back
 import org.sjhstudio.diary.feature.search.resources.search_chip_favorite
@@ -126,7 +126,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
         onFavorites = viewModel::toggleFavorites,
         modifier = modifier
     )
-    val today = remember { currentDate() }
+    val today = rememberToday()
     when (sheet) {
         Sheet.Mood.name -> MoodSheet(filter.moods, viewModel::setMoods) { sheet = null }
 
@@ -318,7 +318,7 @@ private fun Results(
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
-    val today: LocalDate = remember { currentDate() }
+    val today = rememberToday()
     // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = bottom)) {

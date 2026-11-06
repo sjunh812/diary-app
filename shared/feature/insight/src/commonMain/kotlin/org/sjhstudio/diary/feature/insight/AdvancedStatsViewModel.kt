@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.data.diary.StatsRepository
@@ -31,10 +32,17 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
      */
     val data: StateFlow<AdvancedStats?> = _data.asStateFlow()
 
+    private val day = MutableStateFlow(today())
+
     init {
         viewModelScope.launch {
-            _period.collectLatest { period -> stats.advanced(period, today()).collect { _data.value = it } }
+            combine(_period, day, ::Pair).collectLatest { (period, date) -> stats.advanced(period, date).collect { _data.value = it } }
         }
+    }
+
+    /** 앱이 돌아올 때 부른다. 날이 바뀌었으면 기간을 새 오늘로 다시 잰다. */
+    fun refreshToday() {
+        day.value = today()
     }
 
     fun select(period: AdvancedPeriod) {

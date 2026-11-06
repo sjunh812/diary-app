@@ -29,7 +29,7 @@ import org.sjhstudio.diary.core.testing.fakeEntryRow
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CalendarViewModelTest {
-    private val today = LocalDate(2026, 10, 31)
+    private var today = LocalDate(2026, 10, 31)
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -137,6 +137,53 @@ class CalendarViewModelTest {
         first.cancel()
 
         assertEquals(setOf(day), model.moods(month).value.keys)
+    }
+
+    /** 켜 둔 채 자정을 넘기면 오늘을 보던 사람은 새 오늘을 본다. */
+    @Test
+    fun a_new_day_moves_today_and_the_selection_that_followed_it() {
+        today = LocalDate(2026, 10, 30)
+        val model = viewModel()
+
+        today = LocalDate(2026, 10, 31)
+
+        assertEquals(false, model.refreshToday())
+        assertEquals(today, model.todayState.value)
+        assertEquals(today, model.selected.value)
+    }
+
+    @Test
+    fun a_new_day_leaves_a_day_the_user_picked() {
+        today = LocalDate(2026, 10, 30)
+        val model = viewModel()
+        model.select(LocalDate(2026, 10, 5))
+
+        today = LocalDate(2026, 10, 31)
+        model.refreshToday()
+
+        assertEquals(LocalDate(2026, 10, 5), model.selected.value)
+        assertEquals(today, model.todayState.value)
+    }
+
+    @Test
+    fun a_new_month_asks_the_calendar_to_turn_and_opens_the_next_page() {
+        val model = viewModel()
+
+        today = LocalDate(2026, 11, 1)
+
+        assertEquals(true, model.refreshToday())
+        assertEquals(YearMonth(2026, 11), model.lastMonth.value)
+        model.showMonth(YearMonth(2026, 11))
+        assertEquals(today, model.selected.value)
+    }
+
+    @Test
+    fun the_same_day_changes_nothing() {
+        val model = viewModel()
+        model.select(LocalDate(2026, 10, 5))
+
+        assertEquals(false, model.refreshToday())
+        assertEquals(LocalDate(2026, 10, 5), model.selected.value)
     }
 
     @Test

@@ -52,8 +52,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
-import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.DevMenu
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
 import org.sjhstudio.diary.feature.backup.FileBackupRoute
@@ -147,7 +147,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val state by viewModel.state.collectAsStateWithLifecycle()
         TextSizeSettingsScreen(
             selected = state.settings.bodyTextSize,
-            sampleDate = remember { currentDate() },
+            sampleDate = rememberToday(),
             font = state.settings.font,
             onSelect = viewModel::setBodyTextSize,
             onBack = pop

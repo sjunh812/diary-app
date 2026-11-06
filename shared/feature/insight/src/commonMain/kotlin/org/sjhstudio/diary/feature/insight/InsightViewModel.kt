@@ -65,6 +65,11 @@ class InsightViewModel(
     private val _period = MutableStateFlow<StatsPeriod>(StatsPeriod.Month(today().yearMonth))
     val period: StateFlow<StatsPeriod> = _period.asStateFlow()
 
+    private val _todayState = MutableStateFlow(today())
+
+    /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꾼다. */
+    val todayState: StateFlow<LocalDate> = _todayState.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val readPeriod: Flow<InsightState> =
         _period.flatMapLatest { period ->
@@ -86,14 +91,20 @@ class InsightViewModel(
     fun today(): LocalDate = today.invoke()
 
     fun select(kind: InsightKind) {
-        val date = today()
-        _period.value =
-            when (kind) {
-                InsightKind.Week -> StatsPeriod.Week.of(date)
-                InsightKind.Month -> StatsPeriod.Month(date.yearMonth)
-                InsightKind.Year -> StatsPeriod.Year(date.year)
-                InsightKind.All -> StatsPeriod.All
-            }
+        _period.value = kind.periodOf(today())
+    }
+
+    /**
+     * 앱이 돌아올 때 오늘을 다시 읽는다.
+     * 이번 주나 이번 달을 보고 있었으면 새 기간으로 옮기고, 지난 기간을 보던 사람은 그대로 둔다.
+     */
+    fun refreshToday() {
+        val before = _todayState.value
+        val now = today()
+        if (now == before) return
+        _todayState.value = now
+        val kind = _period.value.kind
+        if (_period.value == kind.periodOf(before)) _period.value = kind.periodOf(now)
     }
 
     fun previous() {
@@ -107,6 +118,13 @@ class InsightViewModel(
     private companion object {
         const val STOP_MILLIS = 5_000L
     }
+}
+
+private fun InsightKind.periodOf(date: LocalDate): StatsPeriod = when (this) {
+    InsightKind.Week -> StatsPeriod.Week.of(date)
+    InsightKind.Month -> StatsPeriod.Month(date.yearMonth)
+    InsightKind.Year -> StatsPeriod.Year(date.year)
+    InsightKind.All -> StatsPeriod.All
 }
 
 internal val StatsPeriod.kind: InsightKind

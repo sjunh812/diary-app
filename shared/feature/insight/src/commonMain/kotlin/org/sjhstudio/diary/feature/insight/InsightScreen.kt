@@ -46,6 +46,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -126,10 +127,15 @@ fun InsightRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val period = state.period
     val advancedOpen by viewModel.advancedOpen.collectAsStateWithLifecycle()
+    val today by viewModel.todayState.collectAsStateWithLifecycle()
+    LifecycleResumeEffect(viewModel) {
+        viewModel.refreshToday()
+        onPauseOrDispose {}
+    }
     InsightScreen(
         period = period,
         data = state.data,
-        today = viewModel.today(),
+        today = today,
         onKind = viewModel::select,
         onPrevious = viewModel::previous,
         onNext = viewModel::next,

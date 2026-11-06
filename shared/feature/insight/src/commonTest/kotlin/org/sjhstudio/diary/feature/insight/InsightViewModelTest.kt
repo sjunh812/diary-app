@@ -34,7 +34,7 @@ import org.sjhstudio.diary.core.testing.FakePlanRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class InsightViewModelTest {
-    private val today = LocalDate(2026, 10, 31)
+    private var today = LocalDate(2026, 10, 31)
 
     private val dispatcher = StandardTestDispatcher()
 
@@ -107,6 +107,30 @@ class InsightViewModelTest {
 
         model.next()
         assertEquals(StatsPeriod.Month(YearMonth(2026, 10)), model.period.value)
+    }
+
+    /** 켜 둔 채 달이 바뀌면 이번 달을 보던 사람은 새 달을 본다. */
+    @Test
+    fun a_new_month_moves_the_current_period_along() {
+        val model = viewModel()
+
+        today = LocalDate(2026, 11, 1)
+        model.refreshToday()
+
+        assertEquals(today, model.todayState.value)
+        assertEquals(StatsPeriod.Month(YearMonth(2026, 11)), model.period.value)
+    }
+
+    @Test
+    fun a_new_day_leaves_a_past_period_alone() {
+        val model = viewModel()
+        model.previous()
+
+        today = LocalDate(2026, 11, 1)
+        model.refreshToday()
+
+        assertEquals(today, model.todayState.value)
+        assertEquals(september, model.period.value)
     }
 
     /** 새 기간 이름 아래에 앞 기간 숫자가 보이지 않는다. */

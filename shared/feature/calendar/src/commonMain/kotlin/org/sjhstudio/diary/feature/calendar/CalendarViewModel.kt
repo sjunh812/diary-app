@@ -52,6 +52,11 @@ class CalendarViewModel(
     private val _selected = MutableStateFlow<LocalDate?>(today())
     val selected: StateFlow<LocalDate?> = _selected.asStateFlow()
 
+    private val _todayState = MutableStateFlow(today())
+
+    /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꾼다. */
+    val todayState: StateFlow<LocalDate> = _todayState.asStateFlow()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val readDay: Flow<CalendarDay> =
         _selected.flatMapLatest { date ->
@@ -74,8 +79,7 @@ class CalendarViewModel(
      * 이번 달과 일기가 있는 마지막 달 가운데 늦은 쪽이다(옛 앱은 미래 날짜도 허용했다).
      */
     val lastMonth: StateFlow<YearMonth> =
-        entries.months()
-            .map { months -> maxOf(months.maxOrNull() ?: thisMonth(), thisMonth()) }
+        combine(entries.months(), _todayState) { months, date -> maxOf(months.maxOrNull() ?: date.yearMonth, date.yearMonth) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, thisMonth())
 
     val look: StateFlow<BodyLook> =
@@ -97,6 +101,22 @@ class CalendarViewModel(
 
     fun select(date: LocalDate) {
         _selected.value = date
+    }
+
+    /**
+     * 앱이 돌아올 때 오늘을 다시 읽는다.
+     * 어제의 오늘을 보고 있었으면 새 오늘로 옮기고, 사용자가 고른 다른 날은 그대로 둔다.
+     * 달까지 바뀌어 달력을 넘겨야 하면 true를 돌려준다.
+     * 달을 넘기면 [showMonth]가 오늘을 고른다.
+     */
+    fun refreshToday(): Boolean {
+        val before = _todayState.value
+        val now = today()
+        _todayState.value = now
+        val followed = now != before && _selected.value == before
+        val newMonth = now.yearMonth != before.yearMonth
+        if (followed && !newMonth) _selected.value = now
+        return followed && newMonth
     }
 
     /**
