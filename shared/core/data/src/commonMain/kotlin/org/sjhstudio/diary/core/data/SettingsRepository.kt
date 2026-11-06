@@ -27,8 +27,6 @@ interface SettingsRepository {
 
     suspend fun setListStyle(style: ListStyle)
 
-    suspend fun setFavoritesOnly(favoritesOnly: Boolean)
-
     /** "글꼴이 바뀌었어요"를 한 번 알린 뒤 지운다. */
     suspend fun clearFontReplacedNotice()
 }

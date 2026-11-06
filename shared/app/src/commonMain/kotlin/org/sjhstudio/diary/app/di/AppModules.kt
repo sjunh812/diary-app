@@ -344,7 +344,6 @@ private suspend fun applyBackupSettings(repository: SettingsRepository, backup: 
     BodyTextSize.fromId(backup.bodyTextSize)?.let { repository.setBodyTextSize(it) }
     ThemeMode.fromId(backup.themeMode)?.let { repository.setThemeMode(it) }
     backup.listStyle?.let { repository.setListStyle(ListStyle.fromId(it)) }
-    backup.favoritesOnly?.let { repository.setFavoritesOnly(it) }
     backup.askLocationAgain?.let { repository.setAskLocationAgain(it) }
     val minute = backup.reminderMinuteOfDay
     val enabled = backup.reminderEnabled

@@ -6,13 +6,16 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
@@ -31,11 +34,9 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
             .distinctUntilChanged()
             .stateIn(viewModelScope, SharingStarted.Eagerly, ListStyle.FEED)
 
-    val favoritesOnly: StateFlow<Boolean> =
-        settings.settings
-            .map { it.list.favoritesOnly }
-            .distinctUntilChanged()
-            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    // 앱을 다시 열면 풀린다. 켠 채로 남으면 쓴 일기가 사라진 것처럼 보인다.
+    private val favorites = MutableStateFlow(false)
+    val favoritesOnly: StateFlow<Boolean> = favorites.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val rows: Flow<PagingData<EntryRow>> = favoritesOnly.flatMapLatest { entries.timeline(it) }.cachedIn(viewModelScope)
@@ -49,7 +50,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     val months: StateFlow<Set<YearMonth>> = entries.months().stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     fun toggleFavoritesOnly() {
-        viewModelScope.launch { settings.setFavoritesOnly(!favoritesOnly.value) }
+        favorites.update { !it }
     }
 
     fun moveToTrash(id: String, onDone: () -> Unit) {

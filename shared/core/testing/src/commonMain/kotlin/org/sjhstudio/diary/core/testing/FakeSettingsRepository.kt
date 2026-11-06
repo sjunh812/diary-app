@@ -29,8 +29,5 @@ class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRep
 
     override suspend fun setListStyle(style: ListStyle) = state.update { it.copy(list = it.list.copy(listStyle = style)) }
 
-    override suspend fun setFavoritesOnly(favoritesOnly: Boolean) =
-        state.update { it.copy(list = it.list.copy(favoritesOnly = favoritesOnly)) }
-
     override suspend fun clearFontReplacedNotice() = state.update { it.copy(fontReplacedFrom = null) }
 }
