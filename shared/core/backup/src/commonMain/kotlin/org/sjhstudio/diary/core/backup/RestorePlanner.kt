@@ -60,7 +60,7 @@ class RestorePlanner(
     private val workDir: Path
 ) {
     suspend fun prepare(candidate: RestoreCandidate): PreparedRestore {
-        val manifest = requireNotNull(candidate.manifest)
+        val manifest = readable(candidate.manifest)
         val file = candidate.snapshot ?: throw RestoreMismatch()
         if (!RestoreNames.isSingleName(manifest.snapshot.fileName)) throw RestoreMismatch()
         val incoming = workDir / INCOMING
@@ -76,18 +76,20 @@ class RestorePlanner(
         val archive = fileSystem.openZip(zip)
         val root = "/".toPath()
         val text = archive.read(root / BundleExporter.MANIFEST) { readUtf8() }
-        val manifest = ManifestCodec.decode(text)
-        when (ManifestCodec.check(manifest)) {
-            ManifestCheck.OK -> Unit
-            ManifestCheck.NEEDS_NEWER_APP -> throw RestoreNeedsUpdate()
-            ManifestCheck.BROKEN -> throw RestoreMismatch()
-        }
+        val manifest = readable(ManifestCodec.decode(text))
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
         val path = incoming / BundleExporter.SNAPSHOT
         fileSystem.delete(path, mustExist = false)
         archive.source(root / BundleExporter.SNAPSHOT).use { source -> fileSystem.write(path) { writeAll(source) } }
-        return checked(requireNotNull(manifest), path).copy(bundle = zip)
+        return checked(manifest, path).copy(bundle = zip)
+    }
+
+    /** 목록 화면이 막아도 이름으로 바로 들어올 수 있어 여기서도 본다. 더 새 앱이 만든 스냅샷은 열지 않는다. */
+    private fun readable(manifest: Manifest?): Manifest = when (ManifestCodec.check(manifest)) {
+        ManifestCheck.OK -> requireNotNull(manifest)
+        ManifestCheck.NEEDS_NEWER_APP -> throw RestoreNeedsUpdate()
+        ManifestCheck.BROKEN -> throw RestoreMismatch()
     }
 
     private suspend fun checked(manifest: Manifest, path: Path): PreparedRestore {

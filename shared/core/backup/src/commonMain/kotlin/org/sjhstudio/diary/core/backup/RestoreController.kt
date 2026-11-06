@@ -230,6 +230,8 @@ class RestoreController(
             }
         } catch (_: RestoreMismatch) {
             RestorePreparation.Failed(RestoreFailure.MISMATCH)
+        } catch (_: RestoreNeedsUpdate) {
+            RestorePreparation.Failed(RestoreFailure.NEEDS_UPDATE)
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
