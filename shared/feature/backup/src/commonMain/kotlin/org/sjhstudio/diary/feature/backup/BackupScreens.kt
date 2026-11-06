@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
@@ -48,6 +49,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -58,7 +61,9 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -70,10 +75,18 @@ import org.sjhstudio.diary.feature.backup.resources.backup_all_done
 import org.sjhstudio.diary.feature.backup.resources.backup_auto
 import org.sjhstudio.diary.feature.backup.resources.backup_auto_body
 import org.sjhstudio.diary.feature.backup.resources.backup_connect
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_auth
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_close
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_offline
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_other
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_title
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_body
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_message
 import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_title
+import org.sjhstudio.diary.feature.backup.resources.backup_failed_drive
+import org.sjhstudio.diary.feature.backup.resources.backup_failed_local
+import org.sjhstudio.diary.feature.backup.resources.backup_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_first_body
 import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_group_account
@@ -81,7 +94,6 @@ import org.sjhstudio.diary.feature.backup.resources.backup_group_connection
 import org.sjhstudio.diary.feature.backup.resources.backup_group_other
 import org.sjhstudio.diary.feature.backup.resources.backup_group_upload
 import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_body
-import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_title
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_body
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_note
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_title
@@ -99,12 +111,15 @@ import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body_open
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_busy
+import org.sjhstudio.diary.feature.backup.resources.backup_skip_empty
 import org.sjhstudio.diary.feature.backup.resources.backup_space_manage
 import org.sjhstudio.diary.feature.backup.resources.backup_space_note
 import org.sjhstudio.diary.feature.backup.resources.backup_space_photos
 import org.sjhstudio.diary.feature.backup.resources.backup_space_retry
 import org.sjhstudio.diary.feature.backup.resources.backup_space_text
 import org.sjhstudio.diary.feature.backup.resources.backup_space_trash
+import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.backup_title
 import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only
@@ -116,6 +131,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_found_action
 import org.sjhstudio.diary.feature.backup.resources.restore_found_body
 import org.sjhstudio.diary.feature.backup.resources.restore_found_later
 import org.sjhstudio.diary.feature.backup.resources.restore_found_title
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_action
@@ -141,37 +157,85 @@ fun BackupSettingsRoute(
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
+    val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
     val access = rememberNotificationAccess()
     val running = status.running != null
+    val toast = remember { DiaryToastState() }
+    val nothingYet = stringResource(Res.string.backup_skip_empty)
+    val busy = stringResource(Res.string.backup_skip_busy)
+    LaunchedEffect(viewModel) {
+        viewModel.skipped.collect { skip -> toast.show(if (skip == BackupSkip.NO_ENTRIES) nothingYet else busy) }
+    }
     // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 묻는다.
     // 거절해도 백업은 그대로 돈다.
     LaunchedEffect(running) { if (running) access.request {} }
-    BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
-        viewModel.backUpNow()
-    }, {
-        viewModel.backUpNow(cellularOnce = true)
-    }, viewModel::setAuto, onOptions, onRestore, onBack, modifier, rollback, viewModel::rollBack, onFile)
+    Box(modifier.fillMaxSize()) {
+        BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
+            viewModel.backUpNow()
+        }, {
+            viewModel.backUpNow(cellularOnce = true)
+        }, viewModel::setAuto, onOptions, onRestore, onBack, Modifier, rollback, viewModel::rollBack, onFile)
+        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
+    }
     found?.let { entry ->
         BackupFoundSheet(entry, viewModel::skipFound) {
             viewModel.takeFound()
             onRestoreEntry(entry.snapshotName)
         }
     }
+    connectFailure?.let { BackupConnectFailedSheet(it, viewModel::connectFailureShown) }
+}
+
+/**
+ * 구글 드라이브 연결 실패 안내.
+ * 까닭에 맞는 할 일을 말한다.
+ * 사용자가 취소한 때는 띄우지 않는다.
+ */
+@Composable
+fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+    val body =
+        when (failure) {
+            BackupFailure.OFFLINE -> Res.string.backup_connect_failed_offline
+            BackupFailure.AUTH -> Res.string.backup_connect_failed_auth
+            else -> Res.string.backup_connect_failed_other
+        }
+    DiaryBottomSheet(
+        onDismiss,
+        modifier,
+        title = stringResource(Res.string.backup_connect_failed_title),
+        description = stringResource(body)
+    ) {
+        DiaryButton(
+            stringResource(Res.string.backup_connect_failed_close),
+            onDismiss,
+            Modifier.fillMaxWidth(),
+            size = DiaryButtonSize.XLarge
+        )
+    }
 }
 
 /**
  * Figma "B2 · 드라이브에 백업이 있어요".
  * 연결한 뒤 드라이브에서 찾은 백업을 권한다.
+ * 예전 앱이 올린 백업은 기기와 편수를 몰라서 날짜와 사진이 없다는 것만 말한다.
  */
 @Composable
 fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> Unit) {
     DiaryBottomSheet(onDismiss = onLater, title = stringResource(Res.string.restore_found_title)) {
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-            DiaryStatusBox(
-                DiaryIcons.ShieldCheck,
-                stringResource(Res.string.restore_device_group, deviceName(entry), whenText(entry)),
-                countsText(entry)
-            )
+            if (entry.platform == PLATFORM_LEGACY) {
+                DiaryStatusBox(
+                    DiaryIcons.ShieldCheck,
+                    rememberDiaryDateFormat().fullDate(entry.createdAt.toLocalDateTime(TimeZone.currentSystemDefault()).date),
+                    stringResource(Res.string.restore_legacy_row)
+                )
+            } else {
+                DiaryStatusBox(
+                    DiaryIcons.ShieldCheck,
+                    stringResource(Res.string.restore_device_group, deviceName(entry), whenText(entry)),
+                    countsText(entry)
+                )
+            }
             BasicText(
                 stringResource(Res.string.restore_found_body),
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
@@ -213,9 +277,7 @@ internal fun BackupSettingsScreen(
                     Rollback(it, onRollBack)
                 }
             }
-            if (status.lastFailure == BackupFailure.NO_SPACE && status.running == null) {
-                NoSpace(status, onBackUp, onFile)
-            } else if (status.connection == BackupConnection.NotConnected) {
+            if (status.connection == BackupConnection.NotConnected) {
                 NotConnected(connecting, onConnect)
                 DiarySettingsRow(
                     stringResource(Res.string.file_top),
@@ -223,21 +285,32 @@ internal fun BackupSettingsScreen(
                     description = stringResource(Res.string.file_row_body)
                 )
             } else {
-                Column(
-                    Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
-                ) {
-                    Status(status, onCellular, onConnect)
-                    if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
-                        DiaryButton(stringResource(Res.string.backup_now), onBackUp, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
-                    }
-                    if (status.connection == BackupConnection.NeedsReconnect) {
-                        DiaryButton(
-                            stringResource(Res.string.backup_reconnect),
-                            onConnect,
-                            Modifier.fillMaxWidth(),
-                            size = DiaryButtonSize.XLarge
-                        )
+                // 공간 안내는 상태 자리만 대신한다.
+                // 공간이 없어도 복원, 자동 백업, 백업 설정 길은 그대로 있어야 한다.
+                if (status.lastFailure == BackupFailure.NO_SPACE && status.running == null) {
+                    NoSpace(status, onBackUp, onFile)
+                } else {
+                    Column(
+                        Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
+                        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+                    ) {
+                        Status(status, onCellular, onConnect)
+                        if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
+                            DiaryButton(
+                                stringResource(Res.string.backup_now),
+                                onBackUp,
+                                Modifier.fillMaxWidth(),
+                                size = DiaryButtonSize.XLarge
+                            )
+                        }
+                        if (status.connection == BackupConnection.NeedsReconnect) {
+                            DiaryButton(
+                                stringResource(Res.string.backup_reconnect),
+                                onConnect,
+                                Modifier.fillMaxWidth(),
+                                size = DiaryButtonSize.XLarge
+                            )
+                        }
                     }
                 }
                 DiarySettingsSwitchRow(
@@ -404,6 +477,11 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                 stringResource(Res.string.backup_reconnect_body)
             )
 
+        // 마지막 시도가 실패했으면 앞선 성공보다 그 까닭과 할 일을 먼저 말한다.
+        // 첫 백업이 끊긴 때도 같다.
+        // 올린 사진은 남아 있다.
+        status.lastFailure != null -> FailedStatus(status.lastFailure, last)
+
         status.photosNotBackedUp > 0 && last != null ->
             DiaryStatusBox(
                 DiaryIcons.ShieldCheck,
@@ -414,14 +492,6 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             )
 
         last != null -> DiaryStatusBox(DiaryIcons.ShieldCheck, last, stringResource(Res.string.backup_all_done))
-
-        // 첫 백업이 끊겨도 말없이 처음 화면으로 돌아가지 않는다.
-        // 올린 사진은 남아 있다.
-        status.lastFailure != null -> DiaryStatusBox(
-            DiaryIcons.CircleAlert,
-            stringResource(Res.string.backup_interrupted_title),
-            stringResource(Res.string.backup_interrupted_body)
-        )
 
         // 이 기기에서 백업한 적은 없어도 복원한 백업이 드라이브에 있다.
         // 첫 백업이라고 말하면 틀린 말이 된다.
@@ -434,6 +504,26 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             )
         }
     }
+}
+
+/**
+ * 마지막 시도가 실패했다.
+ * 까닭과 할 일을 말하고, 앞선 성공이 있으면 언제까지 백업됐는지 함께 보인다.
+ */
+@Composable
+private fun FailedStatus(failure: BackupFailure?, last: String?) {
+    val reason =
+        when (failure) {
+            BackupFailure.OFFLINE -> Res.string.backup_failed_offline
+            BackupFailure.DRIVE_ERROR -> Res.string.backup_failed_drive
+            BackupFailure.LOCAL_IO -> Res.string.backup_failed_local
+            else -> Res.string.backup_interrupted_body
+        }
+    DiaryStatusBox(
+        DiaryIcons.CircleAlert,
+        stringResource(Res.string.backup_stopped_title),
+        listOfNotNull(stringResource(reason), last).joinToString(separator = "\n")
+    )
 }
 
 /**

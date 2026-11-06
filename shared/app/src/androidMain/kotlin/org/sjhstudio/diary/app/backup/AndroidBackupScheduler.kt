@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupOutcome
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -54,7 +55,7 @@ import org.sjhstudio.diary.feature.backup.restoreProgressTitle
 class BackupWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
     KoinComponent {
-    override suspend fun doWork(): Result = when (val outcome = get<BackupRunner>().runIfChanged()) {
+    override suspend fun doWork(): Result = when (val outcome = get<BackupController>().runAutomatic()) {
         is BackupOutcome.Failed -> if (outcome.kind == BackupFailure.OFFLINE ||
             outcome.kind == BackupFailure.DRIVE_ERROR
         ) {
@@ -120,6 +121,7 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
             if (again != null && again.kind in RESUMABLE && runAttemptCount < MAX_RESUMES) {
                 Result.retry()
             } else {
+                get<BackupController>().nowFinished(outcome)
                 tellIfAway(outcome)
                 Result.success()
             }
@@ -221,7 +223,7 @@ class BackupAlertWorker(context: Context, params: WorkerParameters) : CoroutineW
 class AndroidBackupNotifier(private val context: Context, private val clock: Clock = Clock.System) : BackupNotifier {
     private val manager get() = WorkManager.getInstance(context)
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         val delay = (at - clock.now()).inWholeMilliseconds.coerceAtLeast(0)
         val work =
             OneTimeWorkRequestBuilder<BackupAlertWorker>()
@@ -261,6 +263,9 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
 
     // 조건을 걸지 않는다.
     // 인터넷이 없으면 조용히 기다리지 않고 바로 실패를 보여 준다.
+    // 실패 뒤 재시도를 기다리는 작업이 있어도 사용자가 누른 요청이 대신한다.
+    // 대기가 끝날 때까지 기다리지 않고, "이번만 모바일 데이터" 선택도 버리지 않는다.
+    // 올리는 중인 백업은 BackupController가 여기까지 넘기지 않는다.
     override fun startNow(cellularOnce: Boolean): Boolean {
         val work =
             OneTimeWorkRequestBuilder<BackupNowWorker>()
@@ -268,7 +273,7 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, RETRY_MINUTES, TimeUnit.MINUTES)
                 .setInputData(workDataOf(KEY_CELLULAR to cellularOnce))
                 .build()
-        manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.KEEP, work)
+        manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.REPLACE, work)
         return true
     }
 

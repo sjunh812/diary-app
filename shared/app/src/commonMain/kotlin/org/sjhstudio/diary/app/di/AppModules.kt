@@ -16,6 +16,7 @@ import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
+import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.BackupController
@@ -31,6 +32,7 @@ import org.sjhstudio.diary.core.backup.RestoreCatalog
 import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
+import org.sjhstudio.diary.core.backup.backupToOffer
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
@@ -72,7 +74,6 @@ import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
-import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
@@ -216,12 +217,14 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 app = get(),
                 readme = { backupReadme() },
                 settings = { currentBackupSettings(get(), get()) },
-                alerts = BackupAlerts(get()) { backupAlertText(it) },
+                alerts = get(),
                 gate = get(),
                 dataReady = { !get<LegacyMigration>().needsMigration() }
             )
         }
-        single<BackupRepository> {
+        single { BackupAlerts(AutoBackupNotifier(get(), get())) { backupAlertText(it) } }
+        single<BackupRepository> { get<BackupController>() }
+        single {
             BackupController(
                 store = get(),
                 db = lazy { get<DiaryDatabase>() },
@@ -232,7 +235,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 scope = get(APP_SCOPE),
                 migrated = { get<LegacyMigration>().report() != null },
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
-                findBackup = { get<RestoreRepository>().backups()?.firstOrNull { it.state == BackupEntryState.Ready && it.entryCount > 0 } }
+                findBackup = { backupToOffer(get<RestoreRepository>().backups(), get<LegacyMigration>().report() != null) },
+                alerts = get()
             )
         }
         single<RestoreRepository> {

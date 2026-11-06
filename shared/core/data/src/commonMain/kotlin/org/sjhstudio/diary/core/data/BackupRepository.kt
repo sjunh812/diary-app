@@ -3,7 +3,9 @@ package org.sjhstudio.diary.core.data
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
 
@@ -28,9 +30,20 @@ interface BackupRepository {
 
     /**
      * 처음 연결하면 자동 백업을 켠다(FR-013).
+     * 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킨다.
      * 드라이브에 백업이 없으면 바로 백업하고, 있으면 [foundBackup]으로 알리고 사용자가 고를 때까지 올리지 않는다.
      */
     suspend fun connect(hint: String? = null): ConnectResult
+
+    /**
+     * 방금 연결에 실패한 까닭.
+     * 사용자가 취소했으면 null이다.
+     * 홈의 카드, 설정, 온보딩 어디서 연결했든 보고 있는 화면이 알린다.
+     */
+    val connectFailure: StateFlow<BackupFailure?>
+
+    /** 연결 실패 안내를 닫았다. */
+    fun connectFailureShown()
 
     /**
      * 연결했더니 드라이브에서 찾은 백업.
@@ -52,6 +65,12 @@ interface BackupRepository {
 
     /** [cellularOnce]는 이번만 모바일 데이터로 사진을 올린다. */
     fun backUpNow(cellularOnce: Boolean = false)
+
+    /**
+     * 지금 백업이 올리지 않고 끝났다.
+     * 상태에 남지 않는 일이라 화면이 한 번 알린다.
+     */
+    val skipped: Flow<BackupSkip>
 
     /**
      * 앱을 열 때 부른다.

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -42,6 +43,12 @@ sealed interface LockMessage {
     data class Wrong(val remaining: Int) : LockMessage
 
     data class Waiting(val seconds: Int) : LockMessage
+
+    /** 기기 키를 쓸 수 없어 비밀번호를 대어 보지 못했다. */
+    data object KeyUnavailable : LockMessage
+
+    /** 비밀번호는 맞았지만 잠금을 끈 것을 저장하지 못했다. */
+    data object NotSaved : LockMessage
 }
 
 /**
@@ -115,8 +122,22 @@ class LockViewModel(
         if (_state.value.message !is LockMessage.Waiting) _state.value = LockUiState()
     }
 
-    /** 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없을 때 잠금을 끈다. */
-    suspend fun turnOffWithoutPin(): Boolean = repository.turnOffWithoutPin()
+    /**
+     * 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없을 때 잠금을 끈다.
+     * 끄지 못했으면 false이고, 그때는 앱을 열면 안 된다.
+     */
+    suspend fun turnOffWithoutPin(): Boolean {
+        val off =
+            try {
+                repository.turnOffWithoutPin()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                false
+            }
+        if (!off) _state.update { it.copy(message = LockMessage.KeyUnavailable, checking = false) }
+        return off
+    }
 
     private fun check() {
         val pin = Pin.of(digits)
@@ -124,7 +145,15 @@ class LockViewModel(
         if (pin == null) return
         _state.update { it.copy(checking = true) }
         viewModelScope.launch {
-            val result = if (check == PinCheck.Disable) repository.disable(pin, clock.now()) else repository.verify(pin, clock.now())
+            // 확인하다 실패하면 열지 않고 키를 쓸 수 없을 때의 길로 보낸다.
+            val result =
+                try {
+                    if (check == PinCheck.Disable) repository.disable(pin, clock.now()) else repository.verify(pin, clock.now())
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    VerifyResult.KeyMissing
+                }
             lockResult(result)?.let { telemetry.log(AnalyticsEvents.LOCK_RESULT, mapOf("result" to it)) }
             when (result) {
                 VerifyResult.Ok -> {
@@ -142,9 +171,11 @@ class LockViewModel(
                 is VerifyResult.Waiting -> waitUntil(result.until)
 
                 VerifyResult.KeyMissing -> {
-                    _state.value = LockUiState()
+                    _state.value = LockUiState(message = LockMessage.KeyUnavailable)
                     _events.send(LockEvent.KeyMissing)
                 }
+
+                VerifyResult.NotSaved -> _state.value = LockUiState(message = LockMessage.NotSaved)
             }
         }
     }
@@ -153,7 +184,7 @@ class LockViewModel(
         VerifyResult.Ok -> "ok"
         is VerifyResult.Wrong -> "wrong"
         is VerifyResult.Waiting -> "waiting"
-        VerifyResult.KeyMissing -> null
+        VerifyResult.KeyMissing, VerifyResult.NotSaved -> null
     }
 
     /**

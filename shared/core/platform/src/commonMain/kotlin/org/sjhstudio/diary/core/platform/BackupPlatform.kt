@@ -35,7 +35,7 @@ interface BackupNotifier {
      * 다시 부르면 앞의 예약을 바꾼다.
      * 일기 내용과 개수는 넣지 않는다.
      */
-    fun schedule(at: Instant, title: String, body: String)
+    suspend fun schedule(at: Instant, title: String, body: String)
 
     fun cancel()
 }
@@ -52,6 +52,7 @@ interface BackupScheduler {
     /**
      * 사용자가 누른 지금 백업을 시스템 작업으로 넘긴다.
      * 넘겼으면 true이고, 아니면 앱이 직접 돌린다.
+     * 앞선 요청이 재시도를 기다리고 있으면 이 요청이 대신한다.
      */
     fun startNow(cellularOnce: Boolean): Boolean
 

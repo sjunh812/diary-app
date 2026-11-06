@@ -11,9 +11,15 @@ class InMemoryDataStore<T>(initial: T) : DataStore<T> {
     private val state = MutableStateFlow(initial)
     private val mutex = Mutex()
 
+    /** true면 저장 공간이 꽉 찬 기기처럼 읽기는 되고 쓰기가 실패한다. */
+    var failWrites = false
+
     override val data: Flow<T> = state
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T = mutex.withLock {
-        transform(state.value).also { state.value = it }
+        val next = transform(state.value)
+        check(!failWrites) { "저장 공간이 없다" }
+        state.value = next
+        next
     }
 }

@@ -28,6 +28,7 @@ import platform.Foundation.dataWithBytes
 import platform.Security.SecItemAdd
 import platform.Security.SecItemCopyMatching
 import platform.Security.SecRandomCopyBytes
+import platform.Security.errSecItemNotFound
 import platform.Security.errSecSuccess
 import platform.Security.kSecAttrAccessible
 import platform.Security.kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
@@ -84,8 +85,10 @@ private object IosPinKeyStore : PinKeyStore {
         }
     }
 
-    override fun hasKey(alias: String): Boolean = withQuery(alias, kSecMatchLimit to kSecMatchLimitOne) {
-        SecItemCopyMatching(it, null) == errSecSuccess
+    override fun hasKey(alias: String): Boolean {
+        val status = withQuery(alias, kSecMatchLimit to kSecMatchLimitOne) { SecItemCopyMatching(it, null) }
+        check(status == errSecSuccess || status == errSecItemNotFound) { "키체인을 읽지 못했다" }
+        return status == errSecSuccess
     }
 
     override fun mac(alias: String, data: ByteArray): ByteArray? {

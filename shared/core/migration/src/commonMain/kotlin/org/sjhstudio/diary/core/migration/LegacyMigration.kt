@@ -20,6 +20,12 @@ interface LegacyMigration {
 
     fun report(): MigrationReport?
 
+    /**
+     * 예전 일기 보기가 읽을 사본이 있는가.
+     * 사본을 만들기 전에 실패했으면 없다.
+     */
+    val hasLegacyCopy: Boolean get() = false
+
     suspend fun run(): MigrationResult
 
     /**

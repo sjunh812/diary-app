@@ -3,8 +3,13 @@ package org.sjhstudio.diary.feature.plus.preview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.ProductId
+import org.sjhstudio.diary.core.model.StoreProduct
+import org.sjhstudio.diary.feature.plus.AdFreeSheetContent
 import org.sjhstudio.diary.feature.plus.PaywallScreen
 import org.sjhstudio.diary.feature.plus.PlusManageScreen
+import org.sjhstudio.diary.feature.plus.PlusMessage
+import org.sjhstudio.diary.feature.plus.PlusUiState
 
 @Preview(locale = "ko")
 @Composable
@@ -37,3 +42,27 @@ private fun PaywallWide() = DiaryTheme(darkTheme = false) { PaywallScreen("₩14
 @Preview(name = "구독 중 · 넓은 화면", locale = "ko", widthDp = 1194, heightDp = 834)
 @Composable
 private fun ManageWide() = DiaryTheme(darkTheme = false) { PlusManageScreen("₩14,900", {}, {}) }
+
+private val AdFreePriced = PlusUiState(products = listOf(StoreProduct(ProductId.AD_FREE, "₩9,900")), loading = false)
+
+@Preview(name = "광고 제거 시트", locale = "ko")
+@Composable
+private fun AdFreeLight() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(AdFreePriced, {}, {}, {}, {}, {}) }
+
+@Preview(name = "광고 제거 시트 · 다크", locale = "ko")
+@Composable
+private fun AdFreeDark() = DiaryTheme(darkTheme = true) { AdFreeSheetContent(AdFreePriced, {}, {}, {}, {}, {}) }
+
+@Preview(name = "광고 제거 시트 · 가격 없음", locale = "ko")
+@Composable
+private fun AdFreeNoPrice() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(PlusUiState(loading = false), {}, {}, {}, {}, {}) }
+
+@Preview(name = "광고 제거 시트 · 결제 실패", locale = "ko")
+@Composable
+private fun AdFreeFailed() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(AdFreePriced.copy(buyFailed = true), {}, {}, {}, {}) }
+
+@Preview(name = "광고 제거 시트 · 복원할 구매 없음", locale = "ko")
+@Composable
+private fun AdFreeRestoreNone() = DiaryTheme(darkTheme = false) {
+    AdFreeSheetContent(AdFreePriced.copy(restoreNotice = PlusMessage.RestoreNone), {}, {}, {}, {})
+}

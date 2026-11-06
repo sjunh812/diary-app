@@ -15,7 +15,7 @@ class FakeBackupNotifier : BackupNotifier {
     var cancels = 0
         private set
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         this.at = at
         this.body = body
     }
@@ -47,6 +47,10 @@ class FakeBackupScheduler : BackupScheduler {
     var startedNow = 0
         private set
 
+    /** 마지막 지금 백업이 이번만 모바일 데이터를 골랐는가. */
+    var lastCellular = false
+        private set
+
     override fun scheduleDaily() {
         daily = true
     }
@@ -60,6 +64,7 @@ class FakeBackupScheduler : BackupScheduler {
 
     override fun startNow(cellularOnce: Boolean): Boolean {
         startedNow++
+        lastCellular = cellularOnce
         return takesNow
     }
 }

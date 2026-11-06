@@ -31,6 +31,9 @@ private const val GAP_DP = 12
 
 // 영상 광고는 그림 자리가 가로세로 120dp 이상이어야 들어온다(AdMob 네이티브 정책).
 private const val MEDIA_DP = 120
+
+// 오른쪽 칸은 비워 둔다.
+// 위에는 앱의 ×가, 아래에는 AdChoices가 온다.
 private const val CLOSE_ROOM_DP = 28
 private const val TITLE_SP = 15f
 private const val SMALL_SP = 13f

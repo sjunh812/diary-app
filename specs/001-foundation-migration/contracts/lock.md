@@ -11,7 +11,7 @@ interface LockRepository {
     suspend fun setPin(pin: Pin)                       // 새 salt, 확인값 저장, enabled = true, 틀린 횟수 0
     suspend fun verify(pin: Pin, now: Instant): VerifyResult
     suspend fun disable(current: Pin, now: Instant): VerifyResult   // 맞을 때만 끔
-    suspend fun turnOffWithoutPin(): Boolean           // needsNewPin일 때만 끔(폰에 화면 잠금이 없을 때)
+    suspend fun turnOffWithoutPin(): Boolean           // 키가 정말 없어졌을 때만 끔(폰에 화면 잠금이 없을 때)
     suspend fun setBiometric(enabled: Boolean)
     suspend fun setRelockAfter(value: RelockAfter)
 }
@@ -20,13 +20,14 @@ sealed interface VerifyResult {
     data object Ok : VerifyResult
     data class Wrong(val remainingBeforeWait: Int) : VerifyResult
     data class Waiting(val until: Instant) : VerifyResult
-    data object KeyMissing : VerifyResult              // 키가 없어 확인할 수 없음 → 폰 화면 잠금 흐름
+    data object KeyMissing : VerifyResult              // 키가 없거나 쓸 수 없어 확인할 수 없음 → 폰 화면 잠금 흐름
+    data object NotSaved : VerifyResult                // 맞았지만 잠금을 끈 것을 적지 못함. 잠금은 켜져 있다
 }
 
 interface PinKeyStore {                                // Android Keystore HMAC, iOS 키체인
     fun ensureKey(alias: String)
-    fun hasKey(alias: String): Boolean
-    fun mac(alias: String, data: ByteArray): ByteArray?   // 키가 없으면 null
+    fun hasKey(alias: String): Boolean                 // 키 저장소를 읽지 못하면 예외. 없다는 말과 구별한다
+    fun mac(alias: String, data: ByteArray): ByteArray?   // 키가 없거나 쓸 수 없으면 null
 }
 
 interface DeviceAuthenticator {
@@ -44,6 +45,7 @@ class LockController(/* LockRepository, 앱 범위, 단조 시계 */) {
     fun onForeground()
     fun onUnlocked()
     fun onKeyMissing()
+    fun onKeepLocked()                                 // 잠금을 끄지 못했다. 열지 않고 잠금 화면으로 돌아간다
     suspend fun <T> withoutRelock(block: suspend () -> T): T   // 폰 잠금 확인으로 앱이 잠시 뒤로 가는 동안
 }
 ```
@@ -64,6 +66,9 @@ class LockController(/* LockRepository, 앱 범위, 단조 시계 */) {
 - 비밀번호를 잊어버렸어요: `isDeviceSecure()`가 참이면 `authenticateDeviceOwner()` 성공 뒤 새 비밀번호 두 번 입력 → `setPin`. 거짓이면
   "휴대폰에 화면 잠금이 없어요. 화면 잠금이 없으면 비밀번호를 다시 정할 수 없어요"와 백업 안내(스펙 003)를 보인다.
 - 키 없음(`KeyMissing`, 레거시 비밀번호가 잘못된 모양): 잠금 화면 대신 바로 폰 화면 잠금 확인 → 새 비밀번호. 폰에 화면 잠금이 없으면 잠금을 끄고 알린다.
+  잠금을 끄는 것은 키가 정말 없어졌을 때뿐이다. 키가 있는데 잠깐 못 쓰거나 끈 것을 적지 못하면 앱을 열지 않고 잠금 화면에 남아 안내한다(2026-11-07).
+- 새 비밀번호를 저장하지 못하면(기기 키를 못 만듦, 공간 없음) 앱을 열지 않고 안내한 뒤 처음부터 다시 받는다(2026-11-07).
+- 공간이 꽉 차 틀린 횟수를 파일에 못 적으면 메모리에 들고 있다가 다음에 함께 적는다. 앱이 떠 있는 동안 횟수 제한은 그대로이고, 맞는 비밀번호로는 앱을 열 수 있다. 공간을 비우려면 앱을 열어야 해서다(2026-11-07).
 - 잠금 파일(`lock.preferences_pb`)이 깨졌거나 읽히지 않으면 잠금을 끄지 않고 "키 없음"으로 읽어 위 흐름으로 보낸다. 깨진 파일 때문에 잠금이
   풀리는 일이 없게 한다(헌법 II, 2026-11-01 `LockStore`).
 - 비밀번호 정하기 화면은 "휴대폰 잠금을 아는 사람도 이 방법으로 일기를 열 수 있어요"를 보인다(FR-019).

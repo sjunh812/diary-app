@@ -67,6 +67,7 @@ fun LockGate(authenticator: DeviceAuthenticator = rememberDeviceAuthenticator(),
                     biometricEnabled = lock.biometricEnabled,
                     onUnlocked = controller::onUnlocked,
                     onKeyMissing = controller::onKeyMissing,
+                    onKeepLock = controller::onKeepLocked,
                     onLockTurnedOff = { message ->
                         controller.onUnlocked()
                         scope.launch { toast.show(message) }

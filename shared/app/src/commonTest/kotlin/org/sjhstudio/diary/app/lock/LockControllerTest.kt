@@ -164,4 +164,19 @@ class LockControllerTest {
         controller.awayFor(30)
         assertEquals(LockState.Unlocked, controller.state.value)
     }
+
+    /** 복구 길이 막혀도 앱을 열지 않고 잠금 화면으로 돌아간다. */
+    @Test
+    fun keeping_locked_never_unlocks() = runTest {
+        repository.setPin(checkNotNull(Pin.of("2580")))
+        val controller = LockController(repository, backgroundScope, clock)
+        controller.onColdStart(repository.settings.first())
+        testScheduler.runCurrent()
+        controller.onKeyMissing()
+        assertEquals(LockState.NeedsNewPin, controller.state.value)
+
+        controller.onKeepLocked()
+
+        assertEquals(LockState.Locked, controller.state.value)
+    }
 }
