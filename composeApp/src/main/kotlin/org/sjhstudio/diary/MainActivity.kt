@@ -1,6 +1,5 @@
 package org.sjhstudio.diary
 
-import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
@@ -14,7 +13,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -30,12 +28,12 @@ import org.sjhstudio.diary.core.platform.DriveConsentLauncher
 // 잠금 화면의 생체 인증 창(BiometricPrompt)이 FragmentActivity를 요구한다.
 class MainActivity : FragmentActivity() {
     private val recents = RecentsGuard(this)
-    private var consentResult: CompletableDeferred<Intent?>? = null
 
     // 구글 드라이브 동의 창. 돌아온 결과를 기다리는 쪽에 넘긴다.
+    // 창을 보는 동안 화면을 돌리면 결과는 새 화면으로 오니 기다림은 앱과 함께 사는 곳에 둔다.
     private val consent =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-            consentResult?.complete(result.data.takeIf { result.resultCode == RESULT_OK })
+            get<AndroidDriveAuthorizer>().consentResult.finish(result.data.takeIf { result.resultCode == RESULT_OK })
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,12 +71,10 @@ class MainActivity : FragmentActivity() {
                 get<LockRepository>().settings.map { it.enabled }.distinctUntilChanged().collect(recents::setEnabled)
             }
         }
-        get<AndroidDriveAuthorizer>().consent =
+        val authorizer = get<AndroidDriveAuthorizer>()
+        authorizer.consent =
             DriveConsentLauncher { intent ->
-                val waiting = CompletableDeferred<Intent?>()
-                consentResult = waiting
-                consent.launch(IntentSenderRequest.Builder(intent).build())
-                waiting.await()
+                authorizer.consentResult.await { consent.launch(IntentSenderRequest.Builder(intent).build()) }
             }
         setContent { DiaryApp() }
     }

@@ -43,6 +43,9 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
 
     var consent: DriveConsentLauncher? = null
 
+    /** 동의 창의 결과. 화면이 다시 만들어져도 기다리는 쪽을 찾게 여기 둔다. */
+    val consentResult = AwaitedResult<Intent>()
+
     override suspend fun connect(hint: String?): ConnectResult = try {
         tokens.clear()
         val first = client.authorize(request(hint)).await()
