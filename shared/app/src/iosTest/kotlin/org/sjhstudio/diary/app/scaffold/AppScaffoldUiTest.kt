@@ -13,13 +13,17 @@ import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasScrollToIndexAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
@@ -33,6 +37,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.viewModel
@@ -49,6 +54,7 @@ import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
@@ -59,6 +65,7 @@ import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
+import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.HomeViewModel
@@ -75,6 +82,8 @@ private object NoFonts : FontInstaller {
 @OptIn(ExperimentalTestApi::class)
 class AppScaffoldUiTest {
     private val sink = RecordingSink()
+    private var rows: List<EntryRow> = emptyList()
+    private val homeModels = mutableListOf<HomeViewModel>()
 
     @BeforeTest
     fun setUp() {
@@ -89,8 +98,8 @@ class AppScaffoldUiTest {
                     single<WelcomeRepository> { DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences()))) { null } }
                     single { Telemetry(sink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
-                    single<EntryRepository> { FakeEntryRepository() }
-                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts) }
+                    single<EntryRepository> { FakeEntryRepository(rows = rows) }
+                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts).also { homeModels += it } }
                     viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts) }
                 }
             )
@@ -137,7 +146,7 @@ class AppScaffoldUiTest {
                     val tabs = tabBounds()
                     assertTrue(tabs.zipWithNext().all { (a, b) -> !a.overlaps(b) }, "$width dark=$dark $tabs")
                     // 이름 글자가 제 칸 밖으로 나가지 않는다.
-                    val labels = onAllNodes(hasAnyAncestor(isSelectable()) and hasText(), useUnmergedTree = true).bounds()
+                    val labels = onAllNodes(hasAnyAncestor(isSelectable()) and hasAnyText(), useUnmergedTree = true).bounds()
                     labels.forEach { label ->
                         assertTrue(tabs.any { it.contains(label) }, "$width dark=$dark label=$label tabs=$tabs")
                     }
@@ -163,6 +172,71 @@ class AppScaffoldUiTest {
         )
     }
 
+    /** 탭을 옮겼다 와도 화면 모델이 살아 있어 필터가 그대로다. */
+    @Test
+    fun a_tab_keeps_its_screen_model_while_you_are_away() = shell(width = 400.dp) {
+        onNode(favoritesSwitch).performClick()
+        waitForIdle()
+        assertTrue(homeModels.single().favoritesOnly.value)
+
+        tab(1)
+        waitForIdle()
+        tab(0)
+        waitForIdle()
+
+        assertEquals(1, homeModels.size)
+        assertTrue(homeModels.single().favoritesOnly.value)
+    }
+
+    /** 탭을 옮길 때 두 화면이 겹쳐 보이지 않는다. */
+    @Test
+    fun changing_tabs_swaps_screens_at_once() = shell(width = 400.dp) {
+        onAllNodes(favoritesSwitch).assertCountEquals(1)
+
+        mainClock.autoAdvance = false
+        tab(1)
+        var frames = 0
+        while (onAllNodes(favoritesSwitch).fetchSemanticsNodes().isNotEmpty() && frames < CROSS_FADE_FRAMES) {
+            mainClock.advanceTimeByFrame()
+            frames++
+        }
+        mainClock.autoAdvance = true
+
+        assertTrue(frames <= FRAMES_TO_SETTLE, "탭을 바꾸는 데 $frames 프레임")
+    }
+
+    /** 홈을 내렸다가 달력에 다녀와도 보던 자리고, 뼈대를 거치지 않는다. */
+    @Test
+    fun home_comes_back_where_you_left_it() {
+        rows = (0 until ROW_COUNT).map { row(it) }
+        shell(width = 400.dp) {
+            onNode(hasScrollToIndexAction()).performScrollToIndex(ROW_COUNT - 1)
+            waitForIdle()
+            onNode(hasText(preview(ROW_COUNT - 1), substring = true)).assertExists()
+
+            tab(1)
+            waitForIdle()
+            mainClock.autoAdvance = false
+            tab(0)
+            repeat(FRAMES_TO_SETTLE) { mainClock.advanceTimeByFrame() }
+
+            onNode(hasText(preview(ROW_COUNT - 1), substring = true)).assertExists()
+            onAllNodes(hasText(preview(0), substring = true)).assertCountEquals(0)
+            mainClock.autoAdvance = true
+        }
+    }
+
+    private fun row(index: Int) = fakeEntryRow("e$index", LocalDate(2026, 10, 1), preview(index))
+
+    private fun preview(index: Int) = "줄-$index-끝"
+
+    private val favoritesSwitch = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch)
+
+    private fun ComposeUiTest.tab(index: Int) {
+        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다.
+        onAllNodes(isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))[index].performClick()
+    }
+
     private fun shell(width: Dp, fontScale: Float = 1f, dark: Boolean = false, block: ComposeUiTest.() -> Unit) = runComposeUiTest {
         setContent {
             val density = LocalDensity.current
@@ -183,10 +257,10 @@ class AppScaffoldUiTest {
     private fun SemanticsNodeInteractionCollection.bounds(): List<DpRect> =
         List(fetchSemanticsNodes().size) { index -> get(index).getUnclippedBoundsInRoot() }
 
-    private fun hasText() = SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)
+    private fun hasAnyText() = SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)
 
     private fun ComposeUiTest.labelLayouts(): List<TextLayoutResult> =
-        onAllNodes(hasAnyAncestor(isSelectable()) and hasText(), useUnmergedTree = true).fetchSemanticsNodes().map { node ->
+        onAllNodes(hasAnyAncestor(isSelectable()) and hasAnyText(), useUnmergedTree = true).fetchSemanticsNodes().map { node ->
             val results = mutableListOf<TextLayoutResult>()
             node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(results)
             results.single()
@@ -212,6 +286,11 @@ class AppScaffoldUiTest {
 
     private companion object {
         const val FRAME = "frame"
+        const val FRAMES_TO_SETTLE = 4
+
+        // 기본 전환인 0.7초 겹침.
+        const val CROSS_FADE_FRAMES = 42
+        const val ROW_COUNT = 40
         val HEIGHT = 800.dp
     }
 }

@@ -1,7 +1,11 @@
 package org.sjhstudio.diary.app.scaffold
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -21,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,19 +37,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import androidx.savedstate.serialization.SavedStateConfiguration
+import androidx.navigation3.ui.defaultPopTransitionSpec
+import androidx.navigation3.ui.defaultTransitionSpec
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.ads.AdShape
@@ -66,13 +66,16 @@ import org.sjhstudio.diary.app.navigation.LocalRailWidth
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
-import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
+import org.sjhstudio.diary.app.navigation.TABS
 import org.sjhstudio.diary.app.navigation.TAB_ROOT
+import org.sjhstudio.diary.app.navigation.TabNavigation
 import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TabScreen
 import org.sjhstudio.diary.app.navigation.WriteKey
+import org.sjhstudio.diary.app.navigation.decoratedEntries
+import org.sjhstudio.diary.app.navigation.rememberTabNavigation
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.app.resources.detail_trashed
@@ -123,17 +126,11 @@ import org.sjhstudio.diary.feature.settings.FontReplacedNotice
 import org.sjhstudio.diary.feature.write.WriteRoute
 import org.sjhstudio.diary.feature.write.WriteTarget
 
-private val TABS: List<TabScreen> = listOf(HomeKey, CalendarKey, InsightKey, SettingsKey)
-
-private val BackStackConfiguration =
-    SavedStateConfiguration {
-        serializersModule = SerializersModule { polymorphic(NavKey::class) { subclassesOfSealed<Screen>() } }
-    }
-
 /**
  * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면).
  * 폭 600dp 미만은 하단 탭, 이상은 레일이다.
  * 탭은 홈·달력·돌아보기·설정이고, 하단 탭은 탭의 맨 위 화면에서만 보인다(Figma S6·G2).
+ * 탭마다 화면을 따로 쌓아 옮겼다 와도 보던 자리 그대로다.
  * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있다.
  * 일기가 없는 홈은 빈 상태의 버튼 하나만 둔다.
  * 쓰기 화면은 탭과 레일 없이 전체 화면이다.
@@ -141,7 +138,7 @@ private val BackStackConfiguration =
  */
 @Composable
 fun AppScaffold(startTab: TabScreen = HomeKey) {
-    val backStack = rememberNavBackStack(BackStackConfiguration, startTab)
+    val nav = rememberTabNavigation(startTab)
     val items =
         listOf(
             DiaryNavItem(stringResource(Res.string.tab_home), DiaryIcons.TabHome, DiaryIcons.TabHomeSelected),
@@ -149,27 +146,27 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
             DiaryNavItem(stringResource(Res.string.tab_insight), DiaryIcons.TabInsight, DiaryIcons.TabInsightSelected),
             DiaryNavItem(stringResource(Res.string.tab_settings), DiaryIcons.TabSettings, DiaryIcons.TabSettingsSelected)
         )
-    val selected = TABS.indexOf(backStack.firstOrNull()).coerceAtLeast(0)
-    val onSelect = { index: Int -> backStack.selectTab(TABS[index]) }
-    val onWrite: () -> Unit = { backStack.push(WriteKey()) }
+    val selected = TABS.indexOf(nav.tab)
+    val onSelect = { index: Int -> nav.selectTab(TABS[index]) }
+    val onWrite: () -> Unit = { nav.push(WriteKey()) }
     val writeLabel = stringResource(Res.string.write_new)
     // 앱 틀 전체에 하나 두는 토스트.
     // 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
     val toast = remember { DiaryToastState() }
     FontReplacedNotice(toast) {
-        backStack.selectTab(SettingsKey)
-        backStack.push(FontSettingsKey)
+        nav.openTab(SettingsKey)
+        nav.push(FontSettingsKey)
     }
     // 쓰기, 사진 크게 보기, 결제는 전체 화면이다.
     // 탭과 레일을 그리지 않는다.
-    val writing = backStack.lastOrNull() is WriteKey
-    val fullScreen = writing || backStack.lastOrNull() is PhotoViewerKey || backStack.lastOrNull() is PlusKey
+    val writing = nav.top is WriteKey
+    val fullScreen = writing || nav.top is PhotoViewerKey || nav.top is PlusKey
     // 달을 읽기 전에는 일기가 있다고 보고 버튼을 둔다.
     // 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
     val entries = koinInject<EntryRepository>()
     val months by remember(entries) { entries.months() }.collectAsStateWithLifecycle(null)
-    val emptyHome = backStack.lastOrNull() == HomeKey && months?.isEmpty() == true
-    val floatingWrite = backStack.size == 1 && backStack.lastOrNull() != SettingsKey && !emptyHome
+    val emptyHome = nav.top == HomeKey && months?.isEmpty() == true
+    val floatingWrite = nav.current.size == 1 && nav.top != SettingsKey && !emptyHome
 
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth
@@ -177,14 +174,14 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         // 키 입력은 포커스가 있는 곳으로만 간다.
         // 앱을 막 열면 포커스가 없어서 틀이 받아 둔다.
         val keyTarget = remember { FocusRequester() }
-        val top = backStack.lastOrNull()
+        val top = nav.top
         LaunchedEffect(top) {
             if (!writing && top !is SearchKey) keyTarget.requestFocus()
         }
         val shortcuts =
             Modifier.diaryShortcuts(
                 onNewEntry = { if (!writing) onWrite() },
-                onSearch = { if (!fullScreen && backStack.none { it is SearchKey }) backStack.push(SearchKey()) }
+                onSearch = { if (!fullScreen && nav.current.none { it is SearchKey }) nav.push(SearchKey()) }
             ).focusRequester(keyTarget).focusTarget()
         // 화면 칸은 폭이 바뀌어도 같은 자리에 둔다.
         // 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어진다.
@@ -193,7 +190,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         val density = LocalDensity.current
         var railWidth by remember { mutableStateOf(Dp.Hairline) }
         var barHeight by remember { mutableStateOf(Dp.Hairline) }
-        val tabsShown = !wide && backStack.size <= 1
+        val tabsShown = !wide && nav.current.size <= 1
         val barInset = if (tabsShown) barHeight else Dp.Hairline
         // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올린다.
         // 토스트는 제자리에 뜨고 버튼은 가리지 않는다.
@@ -209,7 +206,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                 LocalTabBarHeight provides if (wide) Dp.Hairline else barHeight
             ) {
                 ContentWithToast(
-                    backStack,
+                    nav,
                     toast,
                     twoPane,
                     onWrite,
@@ -277,7 +274,7 @@ private enum class Message { Saved, DraftKept }
 /** 토스트는 탭과 레일 위, 화면 아래쪽에 뜬다(`docs/design.md` 토스트). */
 @Composable
 private fun ContentWithToast(
-    backStack: NavBackStack<NavKey>,
+    nav: TabNavigation,
     toast: DiaryToastState,
     twoPane: Boolean,
     onWrite: () -> Unit,
@@ -293,7 +290,7 @@ private fun ContentWithToast(
         val entries = koinInject<EntryRepository>()
         val scope = rememberCoroutineScope()
         Content(
-            backStack,
+            nav,
             twoPane,
             onWrite,
             Modifier.fillMaxSize(),
@@ -317,50 +314,27 @@ private fun ContentWithToast(
     }
 }
 
-/**
- * 화면을 연다.
- * 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둔다.
- */
-private fun NavBackStack<NavKey>.push(key: NavKey) {
-    if (lastOrNull() != key) add(key)
-}
-
-/**
- * 탭을 누르면 그 탭의 맨 위 화면으로 간다.
- * 지금 탭을 다시 누르면 맨 위로 돌아간다.
- */
-private fun NavBackStack<NavKey>.selectTab(tab: TabScreen) {
-    clear()
-    add(tab)
-}
-
 private fun SearchKey.toFilter() = SearchFilter(
     moods = moods.mapNotNullTo(HashSet()) { Mood.fromId(it) },
     period = if (from != null && to != null) DateRange(LocalDate.parse(from), LocalDate.parse(to)) else null
 )
 
-/**
- * 상세를 연다.
- * 넓은 화면에서 다른 줄을 고르면 상세가 쌓이지 않고 바뀐다.
- */
-private fun NavBackStack<NavKey>.openEntry(entryId: String) {
-    if (lastOrNull() is EntryDetailKey) removeAt(lastIndex)
-    add(EntryDetailKey(entryId))
-}
-
 @Composable
 private fun Content(
-    backStack: NavBackStack<NavKey>,
+    nav: TabNavigation,
     twoPane: Boolean,
     onWrite: () -> Unit,
     modifier: Modifier,
     notify: (Message) -> Unit,
     onTrashed: (String) -> Unit
 ) {
-    val pop: () -> Unit = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) }
+    val pop: () -> Unit = nav::back
+    // 화면 목록은 쌓임이 바뀔 때만 다시 만들어진다.
+    // 창 폭은 그 사이에도 바뀌니 값을 잡아 두지 않고 읽는다.
+    val splitWindow by rememberUpdatedState(twoPane)
     // 보는 화면이 바뀔 때마다 화면 키 이름만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
     val telemetry = koinInject<Telemetry>()
-    val top = backStack.lastOrNull()
+    val top = nav.top
     LaunchedEffect(top) { if (top != null) telemetry.screen(top.toString()) }
     // 저장 뒤 상세에서 목록으로 돌아올 때 하루 한 번 전면 광고를 띄운다.
     // 저장은 이미 끝나 있다(FR-010).
@@ -368,127 +342,136 @@ private fun Content(
     val adScope = rememberCoroutineScope()
     var adAfterSave by remember { mutableStateOf(false) }
     LaunchedEffect(top, adAfterSave) {
-        if (adAfterSave && interstitialMayShow(backStack)) {
+        if (adAfterSave && interstitialMayShow(nav.current)) {
             adAfterSave = false
             // 값이 바뀌면 이 효과가 다시 시작되니 광고는 앱 틀의 범위에서 띄운다.
             adScope.launch { ads.backToList() }
         }
     }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { PickHint() } }
+    val homeStack = nav.stacks.getValue(HomeKey)
+    val pushMotion = defaultTransitionSpec<NavKey>()
+    val popMotion = defaultPopTransitionSpec<NavKey>()
     NavDisplay(
-        backStack = backStack,
-        modifier = modifier,
-        onBack = pop,
-        sceneStrategies = listOf(listDetail),
-        entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator(), rememberViewModelStoreNavEntryDecorator(), TabBarSpace),
-        entryProvider =
-            entryProvider {
-                entry<HomeKey>(metadata = ListPane + TabRoot) {
-                    HomeRoute(
-                        backupLine = {
-                            BackupStatusLine(onOpen = {
-                                backStack.selectTab(SettingsKey)
-                                backStack.push(BackupSettingsKey)
-                            })
-                            BackupFoundPrompt(onRestoreEntry = { backStack.push(RestorePreviewKey(it)) })
-                        },
-                        listTop = { BackupNudgeCard() },
-                        onOpen = backStack::openEntry,
-                        onWrite = onWrite,
-                        onSearch = { backStack.push(SearchKey()) },
-                        onEdit = { backStack.push(WriteKey(entryId = it)) },
-                        onTrashed = { id ->
-                            // 두 칸에서 그 일기가 열려 있으면 닫는다.
-                            backStack.removeAll { it is EntryDetailKey && it.entryId == id }
-                            onTrashed(id)
-                        },
-                        selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
-                        // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
-                        // 광고 수는 늘지 않는다.
-                        // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않는다.
-                        adSlot = { order ->
-                            if (backStack.none { it is EntryDetailKey }) {
-                                AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card)
+        entries =
+            nav.decoratedEntries(
+                TabBarSpace,
+                entryProvider {
+                    entry<HomeKey>(metadata = ListPane + TabRoot) {
+                        HomeRoute(
+                            backupLine = {
+                                BackupStatusLine(onOpen = {
+                                    nav.openTab(SettingsKey)
+                                    nav.push(BackupSettingsKey)
+                                })
+                                BackupFoundPrompt(onRestoreEntry = { nav.push(RestorePreviewKey(it)) })
+                            },
+                            listTop = { BackupNudgeCard() },
+                            onOpen = nav::openEntry,
+                            onWrite = onWrite,
+                            onSearch = { nav.push(SearchKey()) },
+                            onEdit = { nav.push(WriteKey(entryId = it)) },
+                            onTrashed = { id ->
+                                // 두 칸에서 그 일기가 열려 있으면 닫는다.
+                                nav.closeEntry(id)
+                                onTrashed(id)
+                            },
+                            selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
+                            // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
+                            // 광고 수는 늘지 않는다.
+                            // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않는다.
+                            adSlot = { order ->
+                                if (homeStack.none { it is EntryDetailKey }) {
+                                    AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card)
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
+                    entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
+                        SearchRoute(
+                            initial = key.toFilter(),
+                            selectedId = nav.current.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
+                            onBack = pop,
+                            onOpen = nav::openEntry
+                        )
+                    }
+                    // 화면 키의 문자열에는 일기 ID를 담지 않으니, 저장 자리 구분은 ID로 따로 준다.
+                    entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
+                        EntryDetailRoute(
+                            entryId = key.entryId,
+                            onBack = pop.takeUnless { splitWindow },
+                            onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
+                            onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
+                            onOtherVersion = nav::openEntry,
+                            onTrashed = {
+                                nav.closeEntry(key.entryId)
+                                onTrashed(key.entryId)
+                            }
+                        )
+                    }
+                    entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
+                        PhotoViewerRoute(key.entryId, key.index, onClose = pop)
+                    }
+                    entry<CalendarKey>(metadata = TabRoot) {
+                        CalendarRoute(
+                            twoPane = splitWindow,
+                            onOpen = nav::openEntry,
+                            onWriteOn = { nav.push(WriteKey(date = it.toString())) }
+                        )
+                    }
+                    entry<InsightKey>(metadata = TabRoot) {
+                        InsightRoute(
+                            onMood = { mood, range ->
+                                nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                            },
+                            onPlus = { nav.push(PlusKey) },
+                            onAdvanced = { nav.push(AdvancedStatsKey) },
+                            adSlot = { AdSlot("insight", AdShape.Card) }
+                        )
+                    }
+                    entry<AdvancedStatsKey> {
+                        // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아간다.
+                        val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
+                        LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
+                        AdvancedStatsRoute(
+                            onBack = pop,
+                            onMood = { mood, range ->
+                                nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                            }
+                        )
+                    }
+                    settingsEntries(push = nav::push, pop = pop, home = { nav.startOver(HomeKey) })
+                    entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
+                        val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
+                        WriteRoute(
+                            target = target,
+                            onSaved = { id ->
+                                pop()
+                                // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
+                                if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
+                                notify(Message.Saved)
+                                adAfterSave = true
+                                adScope.launch { ads.afterSave() }
+                            },
+                            onClosed = { kept ->
+                                pop()
+                                if (kept) notify(Message.DraftKept)
+                            },
+                            onPlus = { nav.push(PlusKey) }
+                        )
+                    }
                 }
-                entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
-                    SearchRoute(
-                        initial = key.toFilter(),
-                        selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
-                        onBack = pop,
-                        onOpen = backStack::openEntry
-                    )
-                }
-                // 화면 키의 문자열에는 일기 ID를 담지 않으니, 저장 자리 구분은 ID로 따로 준다.
-                entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
-                    EntryDetailRoute(
-                        entryId = key.entryId,
-                        onBack = pop.takeUnless { twoPane },
-                        onEdit = { backStack.push(WriteKey(entryId = key.entryId)) },
-                        onPhoto = { backStack.push(PhotoViewerKey(key.entryId, it)) },
-                        onOtherVersion = backStack::openEntry,
-                        onTrashed = {
-                            backStack.remove(key)
-                            onTrashed(key.entryId)
-                        }
-                    )
-                }
-                entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
-                    PhotoViewerRoute(key.entryId, key.index, onClose = pop)
-                }
-                entry<CalendarKey>(metadata = TabRoot) {
-                    CalendarRoute(
-                        twoPane = twoPane,
-                        onOpen = backStack::openEntry,
-                        onWriteOn = { backStack.push(WriteKey(date = it.toString())) }
-                    )
-                }
-                entry<InsightKey>(metadata = TabRoot) {
-                    InsightRoute(
-                        onMood = { mood, range ->
-                            backStack.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                        },
-                        onPlus = { backStack.push(PlusKey) },
-                        onAdvanced = { backStack.push(AdvancedStatsKey) },
-                        adSlot = { AdSlot("insight", AdShape.Card) }
-                    )
-                }
-                entry<AdvancedStatsKey> {
-                    // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아간다.
-                    val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
-                    LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
-                    AdvancedStatsRoute(
-                        onBack = pop,
-                        onMood = { mood, range ->
-                            backStack.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                        }
-                    )
-                }
-                settingsEntries(push = { backStack.push(it) }, pop = pop, home = { backStack.selectTab(HomeKey) })
-                entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
-                    val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
-                    WriteRoute(
-                        target = target,
-                        onSaved = { id ->
-                            pop()
-                            // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
-                            if ((backStack.lastOrNull() as? EntryDetailKey)?.entryId != id) backStack.openEntry(id)
-                            notify(Message.Saved)
-                            adAfterSave = true
-                            adScope.launch { ads.afterSave() }
-                        },
-                        onClosed = { kept ->
-                            pop()
-                            if (kept) notify(Message.DraftKept)
-                        },
-                        onPlus = { backStack.push(PlusKey) }
-                    )
-                }
-            }
+            ),
+        modifier = modifier,
+        sceneStrategies = listOf(listDetail),
+        transitionSpec = { if (nav.movedBetweenTabs) TabSwap else pushMotion() },
+        popTransitionSpec = { if (nav.movedBetweenTabs) TabSwap else popMotion() },
+        onBack = pop
     )
 }
+
+/** 탭을 옮길 때는 겹치지 않고 바로 바꾼다. 두 화면이 포개지면 반짝여 보인다. */
+private val TabSwap: ContentTransform get() = EnterTransition.None togetherWith ExitTransition.None
 
 /**
  * 두 칸에서 고른 일기가 없을 때의 오른쪽.
