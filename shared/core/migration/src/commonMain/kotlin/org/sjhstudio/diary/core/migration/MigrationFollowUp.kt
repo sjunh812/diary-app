@@ -31,5 +31,8 @@ class MigrationFollowUp(private val migration: LegacyMigration, private val data
     suspend fun retryDeferredNow(): MigrationResult = migration.retryDeferred(database())
 }
 
-/** 다시 읽어 더한 일기 수와 다시 찾은 사진 수. 0이면 알리지 않는다. */
+/**
+ * 다시 읽어 더한 일기 수와 다시 찾은 사진 수.
+ * 0이면 알리지 않는다.
+ */
 data class FollowUpResult(val entriesRecovered: Int = 0, val photosFound: Int = 0)

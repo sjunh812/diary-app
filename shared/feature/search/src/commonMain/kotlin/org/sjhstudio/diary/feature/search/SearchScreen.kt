@@ -90,7 +90,8 @@ import org.sjhstudio.diary.feature.search.resources.search_result_count
 private enum class Sheet { Mood, Weather, Period, Range }
 
 /**
- * 찾기(Figma "찾기 (S1-a)"). 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
+ * 찾기(Figma "찾기 (S1-a)").
+ * 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
  * 조건 없이 들어오면 입력 칸에 바로 포커스를 둔다.
  */
 @Composable
@@ -285,7 +286,10 @@ private fun Empty() {
     }
 }
 
-/** 결과를 읽지 못했을 때. 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다. */
+/**
+ * 결과를 읽지 못했을 때.
+ * 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다.
+ */
 @Composable
 private fun LoadFailed(onRetry: () -> Unit) {
     DiaryEmptyArea {
@@ -299,7 +303,10 @@ private fun LoadFailed(onRetry: () -> Unit) {
     }
 }
 
-/** 달이 바뀌면 달 머리를 넣는다. 결과는 최신순이다. */
+/**
+ * 달이 바뀌면 달 머리를 넣는다.
+ * 결과는 최신순이다.
+ */
 @Composable
 private fun Results(
     rows: LazyPagingItems<EntryRow>,
@@ -323,7 +330,8 @@ private fun Results(
             )
         }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
-            // 아직 읽지 않은 줄은 자리만 잡는다. 앞 줄은 읽기를 부르지 않게 엿보기만 한다.
+            // 아직 읽지 않은 줄은 자리만 잡는다.
+            // 앞 줄은 읽기를 부르지 않게 엿보기만 한다.
             val row = rows[index]
             if (row == null) {
                 Spacer(Modifier.fillMaxWidth().height(DiarySpacing.x14 + DiarySpacing.x14))

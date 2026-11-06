@@ -14,14 +14,21 @@ import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.currentDate
 
-/** 고급 통계. 차이를 찾으려면 일기가 많을수록 좋아서 전체부터 보인다. */
+/**
+ * 고급 통계.
+ * 차이를 찾으려면 일기가 많을수록 좋아서 전체부터 보인다.
+ */
 class AdvancedStatsViewModel(private val stats: StatsRepository, private val today: () -> LocalDate = { currentDate() }) : ViewModel() {
     private val _period = MutableStateFlow(AdvancedPeriod.ALL)
     val period: StateFlow<AdvancedPeriod> = _period.asStateFlow()
 
     private val _data = MutableStateFlow<AdvancedStats?>(null)
 
-    /** 처음 읽을 때만 null이다. 기간을 바꾸면 새 값이 나올 때까지 앞 값을 둔다. 잠깐 뼈대를 끼우면 탭을 누를 때마다 깜빡인다. */
+    /**
+     * 처음 읽을 때만 null이다.
+     * 기간을 바꾸면 새 값이 나올 때까지 앞 값을 둔다.
+     * 잠깐 뼈대를 끼우면 탭을 누를 때마다 깜빡인다.
+     */
     val data: StateFlow<AdvancedStats?> = _data.asStateFlow()
 
     init {

@@ -93,7 +93,8 @@ class AndroidPlaceFinder(private val context: Context) : PlaceFinder {
         const val LOCATE_MILLIS = 8_000L
         const val RECENT_MILLIS = 60_000L
 
-        // 누를 때 한 번만 읽고 끝나니 정확도를 앞세운다. 1분 안에 읽은 값이 있으면 그대로 쓴다.
+        // 누를 때 한 번만 읽고 끝나니 정확도를 앞세운다.
+        // 1분 안에 읽은 값이 있으면 그대로 쓴다.
         val REQUEST: CurrentLocationRequest =
             CurrentLocationRequest.Builder()
                 .setPriority(Priority.PRIORITY_HIGH_ACCURACY)

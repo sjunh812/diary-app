@@ -10,7 +10,11 @@ import org.sjhstudio.diary.feature.welcome.resources.Res
 private const val WRITE_MILLIS = 4_000
 private const val BACKUP_MILLIS = 3_200
 
-/** 쓰는 그림. 기분을 고르고, 글을 쓰고, 저장한다. 글자가 없어 언어를 타지 않는다. */
+/**
+ * 쓰는 그림.
+ * 기분을 고르고, 글을 쓰고, 저장한다.
+ * 글자가 없어 언어를 타지 않는다.
+ */
 @Composable
 internal fun WriteArt(active: Boolean, modifier: Modifier = Modifier) = DiaryLottie(
     { Res.readBytes("files/onboarding_write.json") },
@@ -19,7 +23,11 @@ internal fun WriteArt(active: Boolean, modifier: Modifier = Modifier) = DiaryLot
     modifier.size(DiaryArtSize.width, DiaryArtSize.height)
 )
 
-/** 백업 그림. 휴대폰의 글과 사진이 내 드라이브로 올라간다. 휴대폰 쪽 기록은 그대로 남는다. */
+/**
+ * 백업 그림.
+ * 휴대폰의 글과 사진이 내 드라이브로 올라간다.
+ * 휴대폰 쪽 기록은 그대로 남는다.
+ */
 @Composable
 internal fun BackupArt(active: Boolean, modifier: Modifier = Modifier) = DiaryLottie(
     { Res.readBytes("files/onboarding_backup.json") },

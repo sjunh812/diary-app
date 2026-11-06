@@ -14,14 +14,20 @@ interface MediaDao {
     @Query("SELECT * FROM media WHERE entry_id = :entryId ORDER BY sort_order")
     suspend fun forEntry(entryId: String): List<MediaEntity>
 
-    /** 상세가 본다. 복원이 사진을 받으면 일기 표는 그대로라 사진 줄을 따로 살핀다. */
+    /**
+     * 상세가 본다.
+     * 복원이 사진을 받으면 일기 표는 그대로라 사진 줄을 따로 살핀다.
+     */
     @Query("SELECT * FROM media WHERE entry_id = :entryId ORDER BY sort_order")
     fun observeForEntry(entryId: String): Flow<List<MediaEntity>>
 
     @Query("SELECT * FROM media WHERE entry_id IN (:entryIds) ORDER BY entry_id, sort_order")
     suspend fun forEntries(entryIds: List<String>): List<MediaEntity>
 
-    /** 한 번에 넣는다. 한 일기 안에서 같은 순서가 있으면 실패한다. */
+    /**
+     * 한 번에 넣는다.
+     * 한 일기 안에서 같은 순서가 있으면 실패한다.
+     */
     @Insert
     suspend fun insertAll(media: List<MediaEntity>)
 

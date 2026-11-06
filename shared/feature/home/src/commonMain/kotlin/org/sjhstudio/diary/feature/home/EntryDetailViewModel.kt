@@ -19,7 +19,10 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
 
-/** 상세 화면이 보는 일기. 읽는 중과 없는 일기를 구별한다. */
+/**
+ * 상세 화면이 보는 일기.
+ * 읽는 중과 없는 일기를 구별한다.
+ */
 sealed interface EntryDetailState {
     data object Loading : EntryDetailState
 
@@ -28,14 +31,20 @@ sealed interface EntryDetailState {
     data class Ready(val detail: EntryDetail) : EntryDetailState
 }
 
-/** 일기 상세. 휴지통으로 옮기면 [trashed]로 알리고 앱 틀이 되돌리기를 띄운다(FR-032). */
+/**
+ * 일기 상세.
+ * 휴지통으로 옮기면 [trashed]로 알리고 앱 틀이 되돌리기를 띄운다(FR-032).
+ */
 class EntryDetailViewModel(
     private val entryId: String,
     private val entries: EntryRepository,
     settings: SettingsRepository,
     fonts: FontInstaller
 ) : ViewModel() {
-    /** 휴지통으로 옮기는 중. 화면이 닫히는 동안 일기가 사라져도 "찾을 수 없어요"가 비치지 않게 한다. */
+    /**
+     * 휴지통으로 옮기는 중.
+     * 화면이 닫히는 동안 일기가 사라져도 "찾을 수 없어요"가 비치지 않게 한다.
+     */
     private val leaving = MutableStateFlow(false)
 
     val state: StateFlow<EntryDetailState> =
@@ -68,7 +77,11 @@ class EntryDetailViewModel(
         viewModelScope.launch { entries.clearKeptBoth(entryId) }
     }
 
-    /** 이쪽만 남긴다. 다른 쪽은 지우지 않고 휴지통으로 옮겨서 되살릴 수 있다. 두 표시는 함께 사라진다. */
+    /**
+     * 이쪽만 남긴다.
+     * 다른 쪽은 지우지 않고 휴지통으로 옮겨서 되살릴 수 있다.
+     * 두 표시는 함께 사라진다.
+     */
     fun keepThisVersion() {
         val other = (state.value as? EntryDetailState.Ready)?.detail?.keptBothWith ?: return
         viewModelScope.launch { entries.moveToTrash(other) }

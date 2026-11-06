@@ -157,7 +157,10 @@ private val DayParts: List<Pair<DayPart, StringResource>> =
         DayPart.EVENING to Res.string.insight_adv_day_evening
     )
 
-/** 돌아보기 맨 아래 입구(Figma P6). 무료는 눌러서 Plus 안내로, Plus는 고급 통계로 간다(FR-006). */
+/**
+ * 돌아보기 맨 아래 입구(Figma P6).
+ * 무료는 눌러서 Plus 안내로, Plus는 고급 통계로 간다(FR-006).
+ */
 @Composable
 internal fun AdvancedEntry(action: StringResource, onClick: () -> Unit) {
     DiaryInviteCard(
@@ -168,7 +171,10 @@ internal fun AdvancedEntry(action: StringResource, onClick: () -> Unit) {
     )
 }
 
-/** 고급 통계(Figma P8). 기분을 누르면 그 일기들로 간다. */
+/**
+ * 고급 통계(Figma P8).
+ * 기분을 누르면 그 일기들로 간다.
+ */
 @Composable
 fun AdvancedStatsRoute(onBack: () -> Unit, onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<AdvancedStatsViewModel>()
@@ -258,7 +264,10 @@ private fun Card(modifier: Modifier = Modifier, content: @Composable ColumnScope
     )
 }
 
-/** 일기는 많은데 기분을 고른 일기가 적을 때. 일기가 적다고 말하면 틀린 말이 된다. */
+/**
+ * 일기는 많은데 기분을 고른 일기가 적을 때.
+ * 일기가 적다고 말하면 틀린 말이 된다.
+ */
 @Composable
 private fun NoMoods() {
     val colors = DiaryTheme.colors
@@ -269,7 +278,10 @@ private fun NoMoods() {
     }
 }
 
-/** 요즘 기분 한 줄. 까닭이나 조언 없이 일어난 변화만 말한다. */
+/**
+ * 요즘 기분 한 줄.
+ * 까닭이나 조언 없이 일어난 변화만 말한다.
+ */
 @Composable
 private fun Recent(recent: RecentMood) {
     val colors = DiaryTheme.colors
@@ -316,7 +328,10 @@ private fun Recent(recent: RecentMood) {
     }
 }
 
-/** 값이 있는 줄만 보인다. 앞 기간은 흐리게, 지금은 또렷하게 둔다. */
+/**
+ * 값이 있는 줄만 보인다.
+ * 앞 기간은 흐리게, 지금은 또렷하게 둔다.
+ */
 @Composable
 private fun Change(period: AdvancedPeriod, change: StatsChange) {
     val before = change.before
@@ -377,7 +392,11 @@ private fun Value(label: String, before: String, now: String) {
     }
 }
 
-/** 글자 수. 십만부터는 묶음 단위로 줄인다. 단위는 언어마다 달라서 문자열에 둔다. */
+/**
+ * 글자 수.
+ * 십만부터는 묶음 단위로 줄인다.
+ * 단위는 언어마다 달라서 문자열에 둔다.
+ */
 @Composable
 private fun characters(value: Long): String {
     val small = stringResource(Res.string.insight_adv_unit_small).toLong()

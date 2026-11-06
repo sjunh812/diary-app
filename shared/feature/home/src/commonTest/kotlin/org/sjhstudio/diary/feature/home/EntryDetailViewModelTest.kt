@@ -71,7 +71,10 @@ class EntryDetailViewModelTest {
         assertEquals(EntryDetailState.Missing, vm.state.value)
     }
 
-    /** 휴지통으로 옮기면 화면이 닫히는 중이다. 닫히는 동안 "찾을 수 없어요"가 비치면 안 된다. */
+    /**
+     * 휴지통으로 옮기면 화면이 닫히는 중이다.
+     * 닫히는 동안 "찾을 수 없어요"가 비치면 안 된다.
+     */
     @Test
     fun moving_to_trash_never_shows_missing() = runTest(UnconfinedTestDispatcher()) {
         val vm = viewModel(Entries(MutableStateFlow(detail)))

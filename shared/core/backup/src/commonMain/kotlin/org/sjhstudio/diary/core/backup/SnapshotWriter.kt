@@ -10,7 +10,10 @@ import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.SyncBaseEntity
 import org.sjhstudio.diary.core.model.MediaStatus
 
-/** 뜬 스냅샷. 숫자와 확인값은 목록 파일에 들어간다. */
+/**
+ * 뜬 스냅샷.
+ * 숫자와 확인값은 목록 파일에 들어간다.
+ */
 data class Snapshot(
     val path: Path,
     val hashes: FileHashes,
@@ -26,7 +29,10 @@ data class Snapshot(
  * 쓰는 중이어도 `VACUUM INTO`는 한 시점만 담고, 다음 백업이 그 뒤의 일기를 담는다(FR-012).
  */
 class SnapshotWriter(private val db: DiaryDatabase, private val fileSystem: FileSystem) {
-    /** 기기 것인 표까지 그대로 둔 사본. 되돌리기가 쓴다. */
+    /**
+     * 기기 것인 표까지 그대로 둔 사본.
+     * 되돌리기가 쓴다.
+     */
     suspend fun copyInto(target: Path) {
         target.parent?.let(fileSystem::createDirectories)
         fileSystem.delete(target, mustExist = false)
@@ -42,7 +48,8 @@ class SnapshotWriter(private val db: DiaryDatabase, private val fileSystem: File
         copyInto(target)
         val connection = BundledSQLiteDriver().open(target.toString())
         val counted = try {
-            // 기기 것인 표는 비운다. 기준값과 임시 저장본은 다른 기기로 가면 안 된다.
+            // 기기 것인 표는 비운다.
+            // 기준값과 임시 저장본은 다른 기기로 가면 안 된다.
             DEVICE_TABLES.forEach { connection.execSQL("DELETE FROM $it") }
             connection.execSQL("VACUUM")
             fun count(sql: String): Int = connection.prepare(sql).use { statement ->

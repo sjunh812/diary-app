@@ -13,16 +13,23 @@ import coil3.request.Options
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-/** 사진 칸이 Coil에 넘기는 모델. 원본 경로를 주면 썸네일을 읽는다(스펙 001 FR-036). */
+/**
+ * 사진 칸이 Coil에 넘기는 모델.
+ * 원본 경로를 주면 썸네일을 읽는다(스펙 001 FR-036).
+ */
 data class Thumbnail(val mediaPath: String)
 
-/** 썸네일 경로를 찾고, 없으면 만들어 돌려준다. 맡지 않는 사진이거나 만들지 못하면 null(`ThumbnailRepository`). */
+/**
+ * 썸네일 경로를 찾고, 없으면 만들어 돌려준다.
+ * 맡지 않는 사진이거나 만들지 못하면 null(`ThumbnailRepository`).
+ */
 fun interface ThumbnailSource {
     suspend fun thumbnailPath(mediaPath: String): String?
 }
 
 /**
- * 썸네일을 읽는 Coil Fetcher(research R9). 읽고 줄이는 일은 Coil이 화면 밖 스레드에서 한다.
+ * 썸네일을 읽는 Coil Fetcher(research R9).
+ * 읽고 줄이는 일은 Coil이 화면 밖 스레드에서 한다.
  * 썸네일이 없는 사진(예전 일기 보기의 옛 경로)은 원본을 Coil이 칸 크기로 줄여 읽는다.
  */
 internal class ThumbnailFetcher(private val data: Thumbnail, private val source: ThumbnailSource) : Fetcher {
@@ -40,12 +47,18 @@ internal class ThumbnailFetcher(private val data: Thumbnail, private val source:
     }
 }
 
-/** 메모리 캐시 키. 같은 사진이면 같은 키다. */
+/**
+ * 메모리 캐시 키.
+ * 같은 사진이면 같은 키다.
+ */
 internal object ThumbnailKeyer : Keyer<Thumbnail> {
     override fun key(data: Thumbnail, options: Options): String = "thumbnail:${data.mediaPath}"
 }
 
-/** 앱 뿌리에서 한 번 부른다. 사진 칸이 썸네일을 읽도록 Coil 기본 이미지 로더를 정한다. */
+/**
+ * 앱 뿌리에서 한 번 부른다.
+ * 사진 칸이 썸네일을 읽도록 Coil 기본 이미지 로더를 정한다.
+ */
 @Composable
 fun ProvideDiaryImageLoader(source: ThumbnailSource) {
     setSingletonImageLoaderFactory { context ->

@@ -18,7 +18,8 @@ actual fun rememberNotificationAccess(): NotificationAccess = remember {
             UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(
                 UNAuthorizationOptionAlert or UNAuthorizationOptionSound
             ) { granted, _ ->
-                // 결과는 다른 스레드로 온다. 화면 상태는 메인 스레드에서 바꾼다.
+                // 결과는 다른 스레드로 온다.
+                // 화면 상태는 메인 스레드에서 바꾼다.
                 dispatch_async(dispatch_get_main_queue()) { onResult(granted) }
             }
         }

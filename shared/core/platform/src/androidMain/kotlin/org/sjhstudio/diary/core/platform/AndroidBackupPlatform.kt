@@ -30,7 +30,10 @@ class AndroidFreeSpace(private val context: Context) : FreeSpace {
     override fun bytes(): Long = StatFs(context.filesDir.path).availableBytes
 }
 
-/** 알림 하나를 띄운다. 예약은 앱 모듈의 작업 관리자가 맡는다. */
+/**
+ * 알림 하나를 띄운다.
+ * 예약은 앱 모듈의 작업 관리자가 맡는다.
+ */
 class BackupAlertPoster(context: Context, private val channelName: String) {
     private val context = context.applicationContext
     private val manager = context.getSystemService(NotificationManager::class.java)
@@ -72,10 +75,17 @@ class BackupAlertPoster(context: Context, private val channelName: String) {
     }
 }
 
-/** 앱이 화면에 있는지. 있으면 끝났다는 알림을 보내지 않는다. 화면이 이미 말해 준다. */
+/**
+ * 앱이 화면에 있는지.
+ * 있으면 끝났다는 알림을 보내지 않는다.
+ * 화면이 이미 말해 준다.
+ */
 fun appIsVisible(): Boolean = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
-/** 지금 백업의 진행 알림. 소리 없이 한 줄로 머문다. */
+/**
+ * 지금 백업의 진행 알림.
+ * 소리 없이 한 줄로 머문다.
+ */
 class BackupProgressNotifications(context: Context) {
     private val context = context.applicationContext
     private val manager = this.context.getSystemService(NotificationManager::class.java)

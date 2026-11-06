@@ -53,7 +53,10 @@ import org.sjhstudio.diary.feature.backup.resources.backup_line_yesterday
 
 private val LONG_FAILURE = 7.days
 
-/** 홈 머리의 백업 상태 줄(Figma B11, `docs/design.md` 홈 백업 줄). 누르면 설정의 백업으로 간다. */
+/**
+ * 홈 머리의 백업 상태 줄(Figma B11, `docs/design.md` 홈 백업 줄).
+ * 누르면 설정의 백업으로 간다.
+ */
 @Composable
 fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
@@ -95,7 +98,8 @@ private fun lineFor(status: BackupStatus): Line {
 
         running != null -> Line(
             DiaryIcons.ShieldCheck,
-            // 글을 먼저 올리는 동안은 사진 수를 모른다. 0/0을 보이지 않는다.
+            // 글을 먼저 올리는 동안은 사진 수를 모른다.
+            // 0/0을 보이지 않는다.
             if (running.photosTotal > 0) {
                 stringResource(Res.string.backup_line_running, running.photosDone, running.photosTotal)
             } else {

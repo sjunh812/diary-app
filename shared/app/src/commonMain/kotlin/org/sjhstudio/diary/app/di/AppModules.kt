@@ -100,7 +100,10 @@ import org.sjhstudio.diary.feature.welcome.welcomeFeatureModule
 import org.sjhstudio.diary.feature.write.WriteMediaPath
 import org.sjhstudio.diary.feature.write.writeFeatureModule
 
-/** 앱 프로세스와 함께 사는 코루틴 범위. DataStore와 시작 작업이 쓴다. */
+/**
+ * 앱 프로세스와 함께 사는 코루틴 범위.
+ * DataStore와 시작 작업이 쓴다.
+ */
 internal val APP_SCOPE = named("appScope")
 
 /**
@@ -141,7 +144,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         // 잠금 확인값은 기기 키로 만든다(research R11).
         single<LockRepository> { DefaultLockRepository(get(), devicePinKeyStore()) }
         single { LockController(get(), get(APP_SCOPE)) }
-        // 매일 알림(FR-022). 앱을 열 때와 알림 수신기가 다시 예약한다.
+        // 매일 알림(FR-022).
+        // 앱을 열 때와 알림 수신기가 다시 예약한다.
         single { ReminderRepository(get(), get()) }
         single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
         // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
@@ -159,14 +163,17 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 bootstrapLegacySettings = { legacySettings?.run() },
                 afterReady = {
                     get<ReminderRepository>().reschedule()
-                    // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작한다(이전 직후 포함). 따로 돌아 다른 일을 막지 않는다.
+                    // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작한다(이전 직후 포함).
+                    // 따로 돌아 다른 일을 막지 않는다.
                     get<ChosenFontDownload>().start()
                 }
             )
         }
-        // 처음 쓸 때 연다. 시작 단계에서는 열지 않는다.
+        // 처음 쓸 때 연다.
+        // 시작 단계에서는 열지 않는다.
         single { get<DatabaseFactory>().create() }
-        // 썸네일(research R9). 사진 칸과 기록 이전이 같이 쓴다.
+        // 썸네일(research R9).
+        // 사진 칸과 기록 이전이 같이 쓴다.
         single {
             val files = get<AppFiles>()
             ThumbnailRepository(
@@ -176,12 +183,14 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 ThumbnailEncoder(ImageDecoder::writeThumbnail)
             )
         }
-        // 일기 저장소(스펙 002). 일기 DB는 이전 관문을 지난 뒤 화면이 처음 쓸 때 열린다.
+        // 일기 저장소(스펙 002).
+        // 일기 DB는 이전 관문을 지난 뒤 화면이 처음 쓸 때 열린다.
         single {
             val files = get<AppFiles>()
             PhotoStore(FileSystem.SYSTEM, files.mediaDirectory.toPath(), ThumbnailEncoder(ImageDecoder::writeThumbnail), ImageDecoder::size)
         }
-        // 백업(스펙 003). 드라이브와 일기 DB는 처음 쓸 때 연다.
+        // 백업(스펙 003).
+        // 드라이브와 일기 DB는 처음 쓸 때 연다.
         single { BackupStore(get<DataStoreFactory>().backup()) }
         single<WelcomeRepository> {
             DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome())) { get<LegacyMigration>().report()?.entriesMigrated }
@@ -228,7 +237,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             val work = files.backupDirectory.toPath()
             val media = files.mediaDirectory.toPath()
             val system = FileSystem.SYSTEM
-            // DB만 늦게 연다. 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 한다.
+            // DB만 늦게 연다.
+            // 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 한다.
             val drive = get<DriveApi>()
             val copier = get<LegacyPhotoCopier>()
             val freeSpace = get<FreeSpace>()
@@ -315,7 +325,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         single { DiaryCleanup(get(), get()) }
         single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
         single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
-        // 이전이 끝난 기기의 후속 작업(FR-011). 일기 DB는 이전이 끝난 뒤에만 꺼낸다.
+        // 이전이 끝난 기기의 후속 작업(FR-011).
+        // 일기 DB는 이전이 끝난 뒤에만 꺼낸다.
         single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
     }
 )
@@ -335,7 +346,10 @@ private suspend fun currentBackupSettings(repository: SettingsRepository, lock: 
     )
 }
 
-/** 잠금과 백업 설정은 바꾸지 않는다(contracts/merge-rules.md "설정"). 알림은 값이 바뀌면 다시 예약된다. */
+/**
+ * 잠금과 백업 설정은 바꾸지 않는다(contracts/merge-rules.md "설정").
+ * 알림은 값이 바뀌면 다시 예약된다.
+ */
 private suspend fun applyBackupSettings(repository: SettingsRepository, backup: ManifestSettings) {
     DiaryFont.fromId(backup.font)?.let { repository.setFont(it) }
     BodyTextSize.fromId(backup.bodyTextSize)?.let { repository.setBodyTextSize(it) }

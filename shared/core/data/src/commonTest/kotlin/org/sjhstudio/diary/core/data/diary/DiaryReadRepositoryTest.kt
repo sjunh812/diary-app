@@ -290,7 +290,8 @@ class DiaryReadRepositoryTest {
 
     @Test
     fun list_preview_matches_the_whole_text() = runTest {
-        // 잘라 읽어도 미리보기는 같아야 한다. 이모지가 끊기는 자리도 본다.
+        // 잘라 읽어도 미리보기는 같아야 한다.
+        // 이모지가 끊기는 자리도 본다.
         val long = "🌊".repeat(100) + "오늘은\n\n바다에 갔다 ".repeat(200)
         db.seed(entry("a", text = long))
 

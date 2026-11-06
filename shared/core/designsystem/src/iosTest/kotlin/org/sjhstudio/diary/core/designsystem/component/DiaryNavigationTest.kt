@@ -76,7 +76,8 @@ class DiaryNavigationTest {
             results.single()
         }
 
-    // `hasVisualOverflow`는 쓰지 않는다. 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 넘치지 않아도 폭이 넘친다고 나온다.
+    // `hasVisualOverflow`는 쓰지 않는다.
+    // 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 넘치지 않아도 폭이 넘친다고 나온다.
     // 그래서 글자 높이가 칸보다 큰지, 글자가 제 폭보다 좁게 보이는지로 잘림을 본다.
     private fun TextLayoutResult.isClipped() = didOverflowHeight || multiParagraph.maxIntrinsicWidth > size.width + 0.5f
 }

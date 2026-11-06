@@ -34,11 +34,15 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
 
-/** 기간 칩의 고르는 값. [Custom]은 직접 고른 범위이고 돌아보기에서 넘어온 기간도 여기다. */
+/**
+ * 기간 칩의 고르는 값.
+ * [Custom]은 직접 고른 범위이고 돌아보기에서 넘어온 기간도 여기다.
+ */
 enum class SearchPeriod { Week, Month, Year, Custom }
 
 /**
- * 찾기(FR-025~FR-027). 상세에 다녀와도 이 모델이 살아 있어 입력과 조건이 그대로다.
+ * 찾기(FR-025~FR-027).
+ * 상세에 다녀와도 이 모델이 살아 있어 입력과 조건이 그대로다.
  * 글자는 칠 때마다 찾지 않고 잠깐 멈춘 뒤에 찾는다.
  * 결과는 홈처럼 쪽으로 읽어서 1만 편이 걸려도 보는 만큼만 메모리에 둔다.
  */
@@ -77,7 +81,10 @@ class SearchViewModel(
 
     fun toggleFavorites() = _filter.update { it.copy(favoritesOnly = !it.favoritesOnly) }
 
-    /** 이번 주·이번 달·올해. 범위는 고른 날의 오늘을 기준으로 정한다. */
+    /**
+     * 이번 주·이번 달·올해.
+     * 범위는 고른 날의 오늘을 기준으로 정한다.
+     */
     fun setPeriod(period: SearchPeriod?) {
         val date = today()
         val range =
@@ -100,7 +107,8 @@ class SearchViewModel(
     private companion object {
         const val DEBOUNCE_MILLIS = 200L
 
-        // 아직 찾지 않았을 때. "찾지 못했어요"가 비치지 않게 읽는 중으로 둔다.
+        // 아직 찾지 않았을 때.
+        // "찾지 못했어요"가 비치지 않게 읽는 중으로 둔다.
         val WAITING =
             LoadStates(
                 refresh = LoadState.Loading,

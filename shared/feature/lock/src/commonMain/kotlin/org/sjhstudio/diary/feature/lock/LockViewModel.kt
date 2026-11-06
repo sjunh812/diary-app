@@ -24,8 +24,10 @@ import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 
 /**
- * 잠금 화면(L1) 상태. 입력한 숫자는 담지 않고 몇 칸 찼는지만 둔다.
- * [wrongCount]는 틀릴 때마다 는다. 점이 흔들리는 신호라 같은 수로 두 번 틀려도 다시 흔들린다.
+ * 잠금 화면(L1) 상태.
+ * 입력한 숫자는 담지 않고 몇 칸 찼는지만 둔다.
+ * [wrongCount]는 틀릴 때마다 는다.
+ * 점이 흔들리는 신호라 같은 수로 두 번 틀려도 다시 흔들린다.
  */
 data class LockUiState(
     val entered: Int = 0,
@@ -42,14 +44,20 @@ sealed interface LockMessage {
     data class Waiting(val seconds: Int) : LockMessage
 }
 
-/** 넣은 비밀번호로 무엇을 하는가. 잠금 화면은 [Verify], 잠금 설정의 "잠금 사용" 끄기는 [Disable]이다. */
+/**
+ * 넣은 비밀번호로 무엇을 하는가.
+ * 잠금 화면은 [Verify], 잠금 설정의 "잠금 사용" 끄기는 [Disable]이다.
+ */
 enum class PinCheck { Verify, Disable }
 
 sealed interface LockEvent {
     /** 비밀번호가 맞았다([PinCheck.Disable]이면 잠금도 껐다). */
     data object Unlocked : LockEvent
 
-    /** 비밀번호를 대어 볼 수 없다. 폰 화면 잠금 확인으로 간다. */
+    /**
+     * 비밀번호를 대어 볼 수 없다.
+     * 폰 화면 잠금 확인으로 간다.
+     */
     data object KeyMissing : LockEvent
 }
 
@@ -60,7 +68,10 @@ sealed interface LockEvent {
 class LockViewModel(
     private val repository: LockRepository,
     private val clock: Clock = Clock.System,
-    /** 결과(`ok`·`wrong`·`waiting`)만 보낸다. 비밀번호와 횟수는 보내지 않는다(contracts/lock.md). */
+    /**
+     * 결과(`ok`·`wrong`·`waiting`)만 보낸다.
+     * 비밀번호와 횟수는 보내지 않는다(contracts/lock.md).
+     */
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
     private val digits = CharArray(Pin.LENGTH)
@@ -121,7 +132,8 @@ class LockViewModel(
                     _events.send(LockEvent.Unlocked)
                 }
 
-                // 점은 흔들린 뒤 바로 비어 다시 누르면 된다. 남은 횟수 안내는 다음 숫자를 누를 때까지 남는다.
+                // 점은 흔들린 뒤 바로 비어 다시 누르면 된다.
+                // 남은 횟수 안내는 다음 숫자를 누를 때까지 남는다.
                 is VerifyResult.Wrong ->
                     _state.update {
                         LockUiState(message = LockMessage.Wrong(result.remainingBeforeWait), wrongCount = it.wrongCount + 1)
@@ -144,7 +156,10 @@ class LockViewModel(
         VerifyResult.KeyMissing -> null
     }
 
-    /** 생체 인증 결과. 열렸으면 `biometric_ok`, 사용자가 닫았으면 `biometric_cancel`. */
+    /**
+     * 생체 인증 결과.
+     * 열렸으면 `biometric_ok`, 사용자가 닫았으면 `biometric_cancel`.
+     */
     fun logBiometric(opened: Boolean) =
         telemetry.log(AnalyticsEvents.LOCK_RESULT, mapOf("result" to if (opened) "biometric_ok" else "biometric_cancel"))
 

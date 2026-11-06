@@ -14,7 +14,8 @@ import platform.Foundation.NSURLErrorDomain
 
 /**
  * 글꼴마다 하나인 On-Demand Resources 태그(글꼴 ID)를 받아 `<id>.ttf`를 앱 파일 자리로 복사한다.
- * 태그는 `iosApp/project.yml`이 정한다. 개발 빌드는 시험할 수 있게 자료를 앱 안에 담는다(EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE).
+ * 태그는 `iosApp/project.yml`이 정한다.
+ * 개발 빌드는 시험할 수 있게 자료를 앱 안에 담는다(EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE).
  */
 @OptIn(ExperimentalForeignApi::class)
 class IosFontInstaller(private val files: AppFiles) : FontInstaller {

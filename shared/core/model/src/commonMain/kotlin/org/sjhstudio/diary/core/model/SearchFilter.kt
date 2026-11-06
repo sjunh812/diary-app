@@ -5,7 +5,10 @@ import kotlinx.datetime.LocalDate
 /** 양 끝을 포함하는 날짜 범위. */
 data class DateRange(val start: LocalDate, val end: LocalDate)
 
-/** 찾기 조건(FR-025, FR-026). 통계에서 넘어오면 기분과 기간이 채워져 있다(FR-031). */
+/**
+ * 찾기 조건(FR-025, FR-026).
+ * 통계에서 넘어오면 기분과 기간이 채워져 있다(FR-031).
+ */
 data class SearchFilter(
     val query: String = "",
     val moods: Set<Mood> = emptySet(),

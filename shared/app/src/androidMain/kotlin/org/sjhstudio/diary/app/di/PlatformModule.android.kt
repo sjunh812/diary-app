@@ -64,7 +64,8 @@ import org.sjhstudio.diary.core.platform.TelemetrySink
 internal actual val platformModule: Module =
     module {
         single { AppFiles(androidContext()) }
-        // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않는다. 광고 SDK는 처음 부를 때 켜진다.
+        // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않는다.
+        // 광고 SDK는 처음 부를 때 켜진다.
         single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
         single<TelemetrySink> { telemetrySink(androidContext()) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
@@ -105,13 +106,16 @@ internal actual val platformModule: Module =
         }
         single<LegacyArchive> { SnapshotLegacyArchive(FileSystem.SYSTEM, get(), Clock.System, TimeZone.currentSystemDefault()) }
         single { OriginalExporter(FileSystem.SYSTEM, get()) }
-        // 고쳐 받기 문의 묶음(FR-010a). 지우는 때는 SupportFiles가 정한다.
+        // 고쳐 받기 문의 묶음(FR-010a).
+        // 지우는 때는 SupportFiles가 정한다.
         single {
             SupportBundle(FileSystem.SYSTEM, get(), SupportFiles(FileSystem.SYSTEM, get<MigrationPaths>().migrationDir, Clock.System))
         }
-        // 이전 단계 알림. 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어쓴다(quickstart §3).
+        // 이전 단계 알림.
+        // 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어쓴다(quickstart §3).
         single<MigrationEvents> { MigrationTelemetry(get()) }
-        // 1.7.x 잠금과 설정을 이전보다 먼저 잇는다(research R16). 이전을 시작한 뒤에는 하지 않는다.
+        // 1.7.x 잠금과 설정을 이전보다 먼저 잇는다(research R16).
+        // 이전을 시작한 뒤에는 하지 않는다.
         single {
             LegacyLockBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get(), get())
         }

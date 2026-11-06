@@ -12,7 +12,8 @@ import androidx.compose.ui.unit.dp
 private const val DOT_EYES = "M 17.97 18.7 L 17.97 19.8 M 26.04 18.7 L 26.04 19.8"
 
 /**
- * 기분 얼굴(Figma "기분 칸", 44 칸 기준 경로). 바탕 원은 부르는 쪽이 기분 색으로 칠한다.
+ * 기분 얼굴(Figma "기분 칸", 44 칸 기준 경로).
+ * 바탕 원은 부르는 쪽이 기분 색으로 칠한다.
  * 이름을 읽지 않아도 알 수 있게 입 모양 말고도 기분마다 눈에 띄는 표시를 하나씩 둔다.
  * 화남은 찌푸린 눈썹, 쿨은 선글라스, 슬픔은 눈물, 아픔은 질끈 감은 눈과 일그러진 입, 피곤은 감은 눈과 하품, z다.
  * [lines]는 선으로, [solids]는 면으로 그린다.
@@ -61,7 +62,10 @@ enum class DiaryMoodFace(internal val lines: List<String>, internal val solids: 
     )
 }
 
-/** 얼굴 선은 칸 크기와 상관없이 1.6이다. 그래서 크기마다 따로 만들어 둔다. */
+/**
+ * 얼굴 선은 칸 크기와 상관없이 1.6이다.
+ * 그래서 크기마다 따로 만들어 둔다.
+ */
 private val cache = HashMap<Pair<DiaryMoodFace, Dp>, ImageVector>()
 
 fun DiaryMoodFace.vector(size: Dp): ImageVector = cache.getOrPut(this to size) {
@@ -88,5 +92,9 @@ fun DiaryMoodFace.vector(size: Dp): ImageVector = cache.getOrPut(this to size) {
 
 private const val VIEWPORT = 44f
 
-/** 얼굴 선 굵기. 얼굴 크기와 상관없이 같다. 얼굴 옆에 놓이는 표시도 이 굵기를 쓴다. */
+/**
+ * 얼굴 선 굵기.
+ * 얼굴 크기와 상관없이 같다.
+ * 얼굴 옆에 놓이는 표시도 이 굵기를 쓴다.
+ */
 val DiaryMoodFaceLine: Dp = 1.6.dp

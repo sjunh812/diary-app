@@ -32,20 +32,23 @@ class MainActivity : FragmentActivity() {
     private val recents = RecentsGuard(this)
     private var consentResult: CompletableDeferred<Intent?>? = null
 
-    // 구글 드라이브 동의 창. 돌아온 결과를 기다리는 쪽에 넘긴다.
+    // 구글 드라이브 동의 창.
+    // 돌아온 결과를 기다리는 쪽에 넘긴다.
     private val consent =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             consentResult?.complete(result.data.takeIf { result.resultCode == RESULT_OK })
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 설정과 잠금을 읽을 때까지만 시작 화면을 붙잡는다(contracts/app-shell.md 시작 순서 2). 일부러 기다리지 않는다.
+        // 설정과 잠금을 읽을 때까지만 시작 화면을 붙잡는다(contracts/app-shell.md 시작 순서 2).
+        // 일부러 기다리지 않는다.
         val startup = get<Startup>()
         installSplashScreen().setKeepOnScreenCondition { !startup.ready }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         lifecycleScope.launch {
-            // 앱 화면 모드(시스템·라이트·다크)에 맞춰 상태·내비게이션 막대 아이콘 색을 바꾼다. 앱만 다크일 때 시각이 안 보이지 않게.
+            // 앱 화면 모드(시스템·라이트·다크)에 맞춰 상태·내비게이션 막대 아이콘 색을 바꾼다.
+            // 앱만 다크일 때 시각이 안 보이지 않게.
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 get<SettingsRepository>().settings.map { it.themeMode }.distinctUntilChanged().collect { mode ->
                     val dark =

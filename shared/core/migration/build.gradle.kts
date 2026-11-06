@@ -1,4 +1,5 @@
-// 레거시(1.7.x) 기록 이전(docs/migration.md). 레거시 형식을 다 다룬 뒤 통째로 지울 수 있게 한 모듈에 모은다.
+// 레거시(1.7.x) 기록 이전(docs/migration.md).
+// 레거시 형식을 다 다룬 뒤 통째로 지울 수 있게 한 모듈에 모은다.
 plugins {
     alias(libs.plugins.diary.kmp.library)
     alias(libs.plugins.kotlin.serialization)

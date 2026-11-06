@@ -32,7 +32,8 @@ fun DiaryTheme(darkTheme: Boolean, fontFamily: FontFamily? = null, content: @Com
 }
 
 /**
- * 사용자가 고른 글꼴은 [fontFamily]로 받아 앱 전체 글자에 쓴다. null이면 기본 글꼴이다.
+ * 사용자가 고른 글꼴은 [fontFamily]로 받아 앱 전체 글자에 쓴다.
+ * null이면 기본 글꼴이다.
  * 글자 크기·굵기·줄 높이는 글꼴과 상관없이 같은 토큰이다.
  */
 object DiaryTheme {

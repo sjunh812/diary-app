@@ -143,7 +143,10 @@ class LargeBackupTest {
         return runtime.totalMemory() - runtime.freeMemory()
     }
 
-    /** 내용은 흘려 보내며 확인값만 남긴다. 조각도 실제 드라이브처럼 나눠 받는다. */
+    /**
+     * 내용은 흘려 보내며 확인값만 남긴다.
+     * 조각도 실제 드라이브처럼 나눠 받는다.
+     */
     private class StreamingDrive(private val fileSystem: FileSystem, var onFile: suspend (Int) -> Unit) : DriveApi {
         private val files = LinkedHashMap<String, DriveFile>()
         private val pending = HashMap<String, NewFile>()

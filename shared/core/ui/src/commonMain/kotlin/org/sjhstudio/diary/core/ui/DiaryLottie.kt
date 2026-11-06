@@ -19,7 +19,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Mood
 
 /**
- * 로띠 파일을 앱 색으로 바꿔 그린다. 파일은 `scripts/lottie/make_onboarding.py`가 만든다.
+ * 로띠 파일을 앱 색으로 바꿔 그린다.
+ * 파일은 `scripts/lottie/make_onboarding.py`가 만든다.
  * 보일 때 한 번 재생하고 끝 모습에서 멈추며, 되돌아와도 다시 틀지 않는다.
  * 동작 줄이기와 미리보기에서는 처음부터 끝 모습이다.
  */
@@ -57,7 +58,10 @@ private fun lottiePalette(): Map<String, Color> {
     )
 }
 
-/** 파일의 색 자리표시를 토큰 값으로 바꾼다. 그래서 다크 모드 파일을 따로 두지 않는다. */
+/**
+ * 파일의 색 자리표시를 토큰 값으로 바꾼다.
+ * 그래서 다크 모드 파일을 따로 두지 않는다.
+ */
 private fun painted(template: String, palette: Map<String, Color>): String = palette.entries.fold(template) { json, (name, color) ->
     json.replace("\"$name\"", "[${color.red},${color.green},${color.blue},1]")
 }

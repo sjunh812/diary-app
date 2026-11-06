@@ -34,7 +34,10 @@ class ReminderRepository(
     }
 
     companion object {
-        /** 오늘 그 시각이 아직 안 지났으면 오늘, 지났으면 내일. 그 시각이 없는 날(일광 절약 시간)은 그 뒤 첫 시각이다. */
+        /**
+         * 오늘 그 시각이 아직 안 지났으면 오늘, 지났으면 내일.
+         * 그 시각이 없는 날(일광 절약 시간)은 그 뒤 첫 시각이다.
+         */
         fun nextReminder(now: Instant, zone: TimeZone, minuteOfDay: Int): Instant {
             val time = LocalTime(minuteOfDay / 60, minuteOfDay % 60)
             val today = now.toLocalDateTime(zone).date

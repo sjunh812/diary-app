@@ -62,7 +62,10 @@ class DefaultEntryRepository(
         Pager(pageConfig, pagingSourceFactory = factory).flow.collect { send(it) }
     }
 
-    /** 쪽 하나를 한 번에 읽는다. 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어진다. */
+    /**
+     * 쪽 하나를 한 번에 읽는다.
+     * 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어진다.
+     */
     private suspend fun pageRows(page: List<EntryListRow>, query: String = ""): List<EntryRow> {
         val marked = marks.markedIds().toSet()
         val photos = media.forRows(page.map { it.id })
@@ -119,7 +122,10 @@ class DefaultEntryRepository(
 
     override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = pages(InvalidatingPagingSourceFactory { searchPages(filter) })
 
-    /** 찾기 결과 쪽. 찾은 글자가 미리보기에 보이게 줄마다 글자를 넘긴다. */
+    /**
+     * 찾기 결과 쪽.
+     * 찾은 글자가 미리보기에 보이게 줄마다 글자를 넘긴다.
+     */
     internal fun searchPages(filter: SearchFilter): PagingSource<Int, EntryRow> {
         val query = filter.query.trim()
         val source =
@@ -164,7 +170,10 @@ internal fun escapeLike(text: String): String = buildString(text.length) {
     }
 }
 
-/** 시간순 줄을 날짜로 묶는다. 뒤에 있는 줄이 그날 마지막 일기다. */
+/**
+ * 시간순 줄을 날짜로 묶는다.
+ * 뒤에 있는 줄이 그날 마지막 일기다.
+ */
 internal fun toDayMoods(rows: List<DayMoodRow>): Map<LocalDate, DayMood> = rows.groupBy { it.date }.entries.associate { (date, day) ->
     val parsed = LocalDate.parse(date)
     val previous = day.getOrNull(day.lastIndex - 1)

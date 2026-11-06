@@ -11,7 +11,10 @@ class FakePinKeyStore : PinKeyStore {
     private val keys = mutableMapOf<String, Int>()
     private var made = 0
 
-    /** 마지막으로 [mac]에 들어온 입력. 확인값 형식 시험에서 본다. */
+    /**
+     * 마지막으로 [mac]에 들어온 입력.
+     * 확인값 형식 시험에서 본다.
+     */
     var lastInput: ByteArray? = null
         private set
 

@@ -33,12 +33,15 @@ private const val RELEASE_MILLIS = 180
 private const val MAX_SHRINK_RATIO = 0.06f
 private val MaxShrink = 12.dp
 
-// 뗄 때 크기는 살짝 튕기며 돌아온다(토스 키패드의 bounce). 면은 튕기지 않고 그냥 옅어진다.
+// 뗄 때 크기는 살짝 튕기며 돌아온다(토스 키패드의 bounce).
+// 면은 튕기지 않고 그냥 옅어진다.
 private val ReleaseBounce = spring<Float>(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium)
 
 /**
- * 누름 효과(`docs/design.md` 상태). 누르는 즉시 [shape] 모양으로 옅은 면(`color` 10%, 가리키면 8%)을 깔고
- * 살짝 줄였다가 손을 떼면 살짝 튕기며 되돌린다. 토스·당근처럼 누른 것이 바로 반응해 보이게 하려고 물결은 쓰지 않는다
+ * 누름 효과(`docs/design.md` 상태).
+ * 누르는 즉시 [shape] 모양으로 옅은 면(`color` 10%, 가리키면 8%)을 깔고
+ * 살짝 줄였다가 손을 떼면 살짝 튕기며 되돌린다.
+ * 토스·당근처럼 누른 것이 바로 반응해 보이게 하려고 물결은 쓰지 않는다
  * (물결은 누른 뒤 천천히 퍼져 늦게 반응하는 것처럼 보인다, 2026-11-02 사용자 결정).
  *
  * 칠한 면까지 같이 줄도록 `clip`·`background`보다 앞에 달고, 누르기는 같은 [interactionSource]의
@@ -80,7 +83,8 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
 
     override fun onAttach() = collect()
 
-    // 목록에서 줄이 화면 밖으로 나가면 애니메이션이 도중에 끊긴다. 다시 쓰일 때 줄어든 채로 나오지 않게 되돌린다.
+    // 목록에서 줄이 화면 밖으로 나가면 애니메이션이 도중에 끊긴다.
+    // 다시 쓰일 때 줄어든 채로 나오지 않게 되돌린다.
     override fun onDetach() {
         pressed = Animatable(0f)
         shrink = Animatable(0f)
@@ -120,7 +124,8 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
         val pressedJob = pressing
         releasing =
             coroutineScope.launch {
-                // 톡 치고 바로 떼면 누른 모습이 한 번도 안 보인다. 다 눌린 뒤에 돌아오게 한다.
+                // 톡 치고 바로 떼면 누른 모습이 한 번도 안 보인다.
+                // 다 눌린 뒤에 돌아오게 한다.
                 pressedJob?.join()
                 launch { shrink.animateTo(0f, ReleaseBounce) { invalidateDraw() } }
                 pressed.animateTo(0f, tween(RELEASE_MILLIS)) { invalidateDraw() }

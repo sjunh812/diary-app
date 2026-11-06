@@ -16,7 +16,10 @@ import org.sjhstudio.diary.feature.settings.resources.font_replaced_notice
 
 /** 옛 글꼴이 새 앱에 없어 다른 글꼴로 옮겼으면 그 글꼴을 한 번만 내준다. */
 class FontReplacedNoticeViewModel(private val settings: SettingsRepository) : ViewModel() {
-    /** 알릴 것이 있으면 지금 글꼴을 내주고 표시를 지운다. 다시 부르면 null이다. */
+    /**
+     * 알릴 것이 있으면 지금 글꼴을 내주고 표시를 지운다.
+     * 다시 부르면 null이다.
+     */
     suspend fun take(): DiaryFont? {
         val current = settings.settings.first()
         if (current.fontReplacedFrom == null) return null

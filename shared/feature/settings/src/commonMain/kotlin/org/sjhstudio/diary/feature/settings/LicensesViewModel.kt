@@ -13,10 +13,16 @@ import kotlinx.coroutines.flow.stateIn
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
 import org.sjhstudio.diary.feature.settings.resources.Res
 
-/** 라이브러리 줄 하나. [author]는 만든 곳(조직이나 첫 개발자)이고 없으면 비어 있다. */
+/**
+ * 라이브러리 줄 하나.
+ * [author]는 만든 곳(조직이나 첫 개발자)이고 없으면 비어 있다.
+ */
 data class LibraryNotice(val id: String, val name: String, val author: String, val licenseName: String)
 
-/** 라이브러리 전문. [details]는 묶음 이름·버전, 만든 곳, 누리집이고 [text]는 라이선스 전문(여럿이면 차례로)이다. */
+/**
+ * 라이브러리 전문.
+ * [details]는 묶음 이름·버전, 만든 곳, 누리집이고 [text]는 라이선스 전문(여럿이면 차례로)이다.
+ */
 data class LibraryText(val name: String, val licenseName: String, val details: String, val text: String)
 
 /**

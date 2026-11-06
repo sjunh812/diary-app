@@ -45,7 +45,10 @@ import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NoBackupScheduler
 
-/** [RestoreRepository]의 구현. 글을 먼저 합치고 사진은 그 뒤에 받아서 받는 동안에도 일기를 볼 수 있다. */
+/**
+ * [RestoreRepository]의 구현.
+ * 글을 먼저 합치고 사진은 그 뒤에 받아서 받는 동안에도 일기를 볼 수 있다.
+ */
 class RestoreController(
     private val catalog: Lazy<RestoreCatalog>,
     private val planner: Lazy<RestorePlanner>,
@@ -90,7 +93,10 @@ class RestoreController(
     /** 사본을 읽고 일기 수를 세는 일이 메인 스레드에서 돌지 않게 한다. */
     override val rollback: Flow<RollbackInfo?> = flow { emitAll(rollbackManager.value.info) }.flowOn(Dispatchers.IO)
 
-    /** 화면을 떠나도 끝까지 돈다. 중간에 멈추면 일기는 돌아왔는데 되돌리기가 남는다. */
+    /**
+     * 화면을 떠나도 끝까지 돈다.
+     * 중간에 멈추면 일기는 돌아왔는데 되돌리기가 남는다.
+     */
     override suspend fun rollBack(): Boolean = scope.async {
         if (!gate.tryEnter()) return@async false
         try {
@@ -129,7 +135,8 @@ class RestoreController(
     }
 
     /**
-     * 준비는 한 번에 하나만, 메인 스레드 밖에서 돈다. 지난번 사본을 지우고 시작하고 멈추면 쓰던 사본을 남기지 않는다.
+     * 준비는 한 번에 하나만, 메인 스레드 밖에서 돈다.
+     * 지난번 사본을 지우고 시작하고 멈추면 쓰던 사본을 남기지 않는다.
      * 받는 파일은 일기 사본이라서 쓰지 않게 되면 바로 지운다.
      */
     private suspend fun <T> preparingCopy(block: suspend () -> T): T = preparing.withLock {
@@ -250,7 +257,10 @@ class RestoreController(
 
     override fun replace() = run { ready -> replaceWith(requireNotNull(ready)) }
 
-    /** 실패한 복원을 사용자가 고른 그대로 다시 한다. 바꾸기가 실패했는데 합치기로 넘어가지 않는다. */
+    /**
+     * 실패한 복원을 사용자가 고른 그대로 다시 한다.
+     * 바꾸기가 실패했는데 합치기로 넘어가지 않는다.
+     */
     override fun retry() {
         lastWork?.let { run(it) }
     }
@@ -262,7 +272,8 @@ class RestoreController(
         if (_state.value == RestoreState.Merging) return
         _state.value = RestoreState.Merging
         scope.launch {
-            // 도는 백업이 있으면 끝날 때까지 기다린다. 복원을 조용히 버리지 않는다.
+            // 도는 백업이 있으면 끝날 때까지 기다린다.
+            // 복원을 조용히 버리지 않는다.
             gate.enter()
             try {
                 _state.value = RestoreState.Done(work(ready))
@@ -302,7 +313,8 @@ class RestoreController(
     }
 
     private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
-        // 일기는 이미 합쳤다. 설정을 쓰지 못해도 복원이 실패했다고 하지 않고 사진을 마저 받는다.
+        // 일기는 이미 합쳤다.
+        // 설정을 쓰지 못해도 복원이 실패했다고 하지 않고 사진을 마저 받는다.
         guarded { applySettings(ready.manifest.settings) }
         // 파일에서 되살린 것은 드라이브 백업이 있다는 뜻이 아니다.
         if (ready.bundle == null) {
@@ -333,12 +345,14 @@ class RestoreController(
                 }
             fetched = result.first
             broken = result.second
-            // 다 꺼냈을 때만 지운다. 아직 사진이 들어 있으면 결과를 닫을 때 지운다.
+            // 다 꺼냈을 때만 지운다.
+            // 아직 사진이 들어 있으면 결과를 닫을 때 지운다.
             ready.bundle?.let { fileSystem.delete(it, mustExist = false) }
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            // 글은 이미 합쳤다. 남은 사진은 다음에 앱을 열 때 이어 받는다.
+            // 글은 이미 합쳤다.
+            // 남은 사진은 다음에 앱을 열 때 이어 받는다.
         }
         val left = dao.pendingFiles().size
         val onOriginal = minOf(left, ready.manifest.media.count { !it.inBackup })
@@ -371,7 +385,10 @@ class RestoreController(
         }
     }
 
-    /** 미리보기를 닫거나 결과를 닫을 때 부른다. 복원이 도는 중이면 뒤로 간 것뿐이라 그대로 둔다. */
+    /**
+     * 미리보기를 닫거나 결과를 닫을 때 부른다.
+     * 복원이 도는 중이면 뒤로 간 것뿐이라 그대로 둔다.
+     */
     override fun dismiss() {
         if (restoring) return
         _state.value = RestoreState.Idle
@@ -395,7 +412,10 @@ class RestoreController(
         }
     }
 
-    /** 앱이 꺼지면 받아 둔 사본을 지울 기회가 없었다. 쓰는 곳이 없을 때만 지운다. */
+    /**
+     * 앱이 꺼지면 받아 둔 사본을 지울 기회가 없었다.
+     * 쓰는 곳이 없을 때만 지운다.
+     */
     private suspend fun clearAbandonedCopies() = preparing.withLock {
         val inUse = prepared != null || preparedLegacy != null || preparedFile != null || restoring
         if (!inUse) withContext(Dispatchers.IO) { clearCopies() }

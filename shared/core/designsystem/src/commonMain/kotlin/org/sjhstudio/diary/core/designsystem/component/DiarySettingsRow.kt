@@ -41,15 +41,20 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 // 설정 줄(`docs/design.md` 설정 줄, TDS ListRow, M3 1줄 56).
 // 최소 56 · 위아래 14 · 좌우 화면 여백 · 이름 reading. 설명이 붙으면 이름 아래 caption 두 줄짜리다.
 
-/** 오른쪽 값이 줄에서 차지할 수 있는 몫의 끝. 넘으면 값을 말줄임해 이름 자리를 남긴다. */
+/**
+ * 오른쪽 값이 줄에서 차지할 수 있는 몫의 끝.
+ * 넘으면 값을 말줄임해 이름 자리를 남긴다.
+ */
 private const val VALUE_MAX_SHARE = 0.5f
 
 /** 이름 줄 수의 끝. */
 private const val TITLE_MAX_LINES = 2
 
 /**
- * 설정 묶음 머리(SEED ListHeader 14 Medium). [gapAbove]면 위 여백을 20 대신 24로 넓혀 앞 묶음과 나눈다
- * (2026-11-04 사용자 결정, 여백 20은 줄 사이와 비슷해 묶음이 한 덩어리로 보였다). 화면의 첫 묶음은 20이다.
+ * 설정 묶음 머리(SEED ListHeader 14 Medium).
+ * [gapAbove]면 위 여백을 20 대신 24로 넓혀 앞 묶음과 나눈다
+ * (2026-11-04 사용자 결정, 여백 20은 줄 사이와 비슷해 묶음이 한 덩어리로 보였다).
+ * 화면의 첫 묶음은 20이다.
  */
 @Composable
 fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: Boolean = false) {
@@ -69,7 +74,10 @@ fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: B
     )
 }
 
-/** 누르면 다음 화면으로 가는 줄. 오른쪽에 지금 값과 화살표. */
+/**
+ * 누르면 다음 화면으로 가는 줄.
+ * 오른쪽에 지금 값과 화살표.
+ */
 @Composable
 fun DiarySettingsRow(
     title: String,
@@ -102,7 +110,10 @@ fun DiarySettingsRow(
     }
 }
 
-/** 값만 보여 주는 줄. 누를 수 없어서 화살표를 그리지 않는다. */
+/**
+ * 값만 보여 주는 줄.
+ * 누를 수 없어서 화살표를 그리지 않는다.
+ */
 @Composable
 fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier) {
     RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
@@ -111,7 +122,8 @@ fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Mod
 }
 
 /**
- * 줄 오른쪽 값. 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고 말줄임한다.
+ * 줄 오른쪽 값.
+ * 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고 말줄임한다.
  * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정되어 값과 화살표가 줄 가운데에 뜬다.
  */
 @Composable
@@ -129,7 +141,10 @@ private fun RowValue(value: String) {
     )
 }
 
-/** 오른쪽에 스위치가 있는 줄. 줄 전체가 누르는 곳이다. */
+/**
+ * 오른쪽에 스위치가 있는 줄.
+ * 줄 전체가 누르는 곳이다.
+ */
 @Composable
 fun DiarySettingsSwitchRow(
     title: String,
@@ -157,7 +172,10 @@ fun DiarySettingsSwitchRow(
     }
 }
 
-/** 하나만 고르는 목록의 줄(`docs/design.md` 고르기 목록). 고른 줄 오른쪽에 체크 24. */
+/**
+ * 하나만 고르는 목록의 줄(`docs/design.md` 고르기 목록).
+ * 고른 줄 오른쪽에 체크 24.
+ */
 @Composable
 fun DiarySettingsChoiceRow(
     title: String,
@@ -185,7 +203,8 @@ fun DiarySettingsChoiceRow(
 
 /**
  * 제목 자리를 직접 그리는 고르기 줄(글꼴 목록처럼 이름을 그 글꼴이나 그림으로 그릴 때).
- * [label]은 화면 읽기 프로그램이 읽는 이름이다. 오른쪽은 [trailing]이 정하고, 없으면 고른 줄에 체크를 둔다.
+ * [label]은 화면 읽기 프로그램이 읽는 이름이다.
+ * 오른쪽은 [trailing]이 정하고, 없으면 고른 줄에 체크를 둔다.
  */
 @Composable
 fun DiarySettingsChoiceRow(

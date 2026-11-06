@@ -36,7 +36,10 @@ class DefaultDraftRepository(
     private val db: DiaryDatabase,
     private val photos: PhotoStore,
     private val clock: Clock = Clock.System,
-    /** 한 편에 새로 붙일 수 있는 사진 수. 지금 요금제를 따른다. */
+    /**
+     * 한 편에 새로 붙일 수 있는 사진 수.
+     * 지금 요금제를 따른다.
+     */
     private val photoLimit: () -> Int = { PhotoLimit.FREE }
 ) : DraftRepository {
     private val drafts get() = db.draftDao()
@@ -128,7 +131,8 @@ class DefaultDraftRepository(
     }
 
     private fun DraftEntity.toEntry(id: String, old: EntryEntity?, now: Long, photosChanged: Boolean): EntryEntity {
-        // 고치지 않은 본문은 그대로 둔다. 레거시 원문과 서식 없는 글이 바뀌지 않게 하려고다.
+        // 고치지 않은 본문은 그대로 둔다.
+        // 레거시 원문과 서식 없는 글이 바뀌지 않게 하려고다.
         val body = if (old != null && bodyHtml == old.bodyHtml) bodyHtml else RichTextSanitizer.sanitize(bodyHtml)
         val plain = if (old != null && bodyHtml == old.bodyHtml) old.plainText else toPlainText(body)
         val entry =

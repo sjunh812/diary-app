@@ -79,7 +79,8 @@ import org.sjhstudio.diary.feature.migration.resources.migration_start
 import org.sjhstudio.diary.feature.migration.resources.migration_view_legacy
 
 /**
- * 기록 이전 화면들(Figma "화면" M0·M1·M2·M2-b·M3). 상태만 받아 그리는 함수다.
+ * 기록 이전 화면들(Figma "화면" M0·M1·M2·M2-b·M3).
+ * 상태만 받아 그리는 함수다.
  * 아직 만들지 않은 동작(예전 일기 보기, 원본 내보내기, 문의하기)은 null이면 그 줄을 숨긴다.
  */
 @Composable
@@ -242,7 +243,8 @@ private fun FailedContent(
         tone = DiaryBadgeTone.Danger,
         title = stringResource(if (noSpace) Res.string.migration_no_space_title else Res.string.migration_failed_title),
         body = body,
-        // 공간 부족은 까닭이 분명해서 안내하고 멈춘다. 그 밖에는 이유를 알 수 없으니 먼저 앱을 쓰게 한다.
+        // 공간 부족은 까닭이 분명해서 안내하고 멈춘다.
+        // 그 밖에는 이유를 알 수 없으니 먼저 앱을 쓰게 한다.
         secondaryActions = if (noSpace) emptyList() else listOf(stringResource(Res.string.migration_skip) to onSkip),
         primary = stringResource(if (noSpace) Res.string.migration_check_again else Res.string.migration_retry) to onRetry,
         fullWidthContent = true
@@ -257,7 +259,10 @@ private fun FailedContent(
     }
 }
 
-/** 배지 · 제목 · 설명 · 내용 · (안내 글) · (글자 버튼) · 큰 버튼. 넓은 화면에서는 가운데 폭 480. */
+/**
+ * 배지 · 제목 · 설명 · 내용 · (안내 글) · (글자 버튼) · 큰 버튼.
+ * 넓은 화면에서는 가운데 폭 480.
+ */
 @Composable
 private fun Frame(
     icon: ImageVector,

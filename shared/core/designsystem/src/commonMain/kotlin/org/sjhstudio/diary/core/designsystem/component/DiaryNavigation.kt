@@ -31,7 +31,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
 
-/** 하단 탭·레일 한 칸. 고른 칸은 [selectedIcon](굵은 선)을 쓴다. */
+/**
+ * 하단 탭·레일 한 칸.
+ * 고른 칸은 [selectedIcon](굵은 선)을 쓴다.
+ */
 class DiaryNavItem(val label: String, val icon: ImageVector, val selectedIcon: ImageVector)
 
 /** 이 폭부터 하단 탭 대신 레일을 쓴다(`docs/design.md` 넓은 화면, M3 medium 600dp). */
@@ -61,8 +64,10 @@ fun DiaryNavigationBar(items: List<DiaryNavItem>, selected: Int, onSelect: (Int)
 }
 
 /**
- * 레일(600dp 이상, `docs/design.md` 레일, M3 narrow rail 80). 칸 80×64, 오른쪽 경계선 `line`.
- * 맨 위 쓰기 버튼 자리는 스펙 002가 [header]로 채운다. 버튼 아래 여백은 부르는 쪽이 정한다.
+ * 레일(600dp 이상, `docs/design.md` 레일, M3 narrow rail 80).
+ * 칸 80×64, 오른쪽 경계선 `line`.
+ * 맨 위 쓰기 버튼 자리는 스펙 002가 [header]로 채운다.
+ * 버튼 아래 여백은 부르는 쪽이 정한다.
  * 낮은 가로 화면에서 칸이 넘치면 스크롤한다.
  */
 @Composable
@@ -104,7 +109,8 @@ private fun NavCell(item: DiaryNavItem, selected: Boolean, modifier: Modifier, o
     ) {
         DiaryIcon(if (selected) item.selectedIcon else item.icon, contentDescription = null, tint = tint)
         Spacer(Modifier.height(DiarySpacing.x1))
-        // 이름은 기기 글자 크기를 1.3배까지만 따른다. 더 키우면 칸 80 안에서 잘린다(DECISIONS 2026-11-03).
+        // 이름은 기기 글자 크기를 1.3배까지만 따른다.
+        // 더 키우면 칸 80 안에서 잘린다(DECISIONS 2026-11-03).
         BasicText(item.label, style = DiaryTheme.typography.micro.limitFontScale().copy(color = tint), maxLines = 1)
     }
 }

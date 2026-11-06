@@ -24,7 +24,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 칩(`docs/design.md` 칩, SEED Chip). 32 · 좌우 12(아이콘이 있으면 왼쪽 10) · full · label · 아이콘 16 · 터치 영역 48. */
+/**
+ * 칩(`docs/design.md` 칩, SEED Chip).
+ * 32 · 좌우 12(아이콘이 있으면 왼쪽 10) · full · label · 아이콘 16 · 터치 영역 48.
+ */
 @Composable
 fun DiaryChip(
     text: String,
@@ -39,7 +42,8 @@ fun DiaryChip(
     val colors = DiaryTheme.colors
     val content = if (selected) colors.accentText else colors.textPrimary
     val interaction = remember { MutableInteractionSource() }
-    // 누르는 곳은 높이 48이고 보이는 칩은 32다. 폭은 칩 그대로 둔다.
+    // 누르는 곳은 높이 48이고 보이는 칩은 32다.
+    // 폭은 칩 그대로 둔다.
     // 최소 터치 폭까지 넓히면 글자가 짧은 칩이 칸 가운데로 밀려 줄 왼쪽이 어긋난다.
     Box(
         modifier
@@ -60,7 +64,8 @@ fun DiaryChip(
         ) {
             leading?.invoke()
             if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = content, size = DiaryIconSize.i16)
-            // 칩은 LazyRow처럼 폭이 끝없는 곳에도 놓여서 weight를 쓰지 않는다. 쓰면 글자 폭이 0이 된다.
+            // 칩은 LazyRow처럼 폭이 끝없는 곳에도 놓여서 weight를 쓰지 않는다.
+            // 쓰면 글자 폭이 0이 된다.
             BasicText(
                 text = text,
                 style = DiaryTheme.typography.label.copy(color = content),

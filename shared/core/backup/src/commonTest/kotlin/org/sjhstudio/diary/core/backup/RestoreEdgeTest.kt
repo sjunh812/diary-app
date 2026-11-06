@@ -32,7 +32,10 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.testing.FakeDrive
 
-/** 끊김, 깨짐, 두 번 복원처럼 일이 꼬였을 때 기기 기록이 그대로인지 본다. 기기 둘이 드라이브 대역을 같이 쓴다. */
+/**
+ * 끊김, 깨짐, 두 번 복원처럼 일이 꼬였을 때 기기 기록이 그대로인지 본다.
+ * 기기 둘이 드라이브 대역을 같이 쓴다.
+ */
 class RestoreEdgeTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path
@@ -60,7 +63,10 @@ class RestoreEdgeTest {
         assertIs<BackupOutcome.Done>(runner().run())
     }
 
-    /** 일기 셋에 사진 한 장씩. 확인값을 돌려준다. */
+    /**
+     * 일기 셋에 사진 한 장씩.
+     * 확인값을 돌려준다.
+     */
     private suspend fun threeWithPhotos(): List<String> {
         listOf("one", "two", "three").forEach { a.write(it) }
         return listOf(a.photo("one", 0, "첫째 사진"), a.photo("two", 0, "둘째 사진"), a.photo("three", 0, "셋째 사진"))

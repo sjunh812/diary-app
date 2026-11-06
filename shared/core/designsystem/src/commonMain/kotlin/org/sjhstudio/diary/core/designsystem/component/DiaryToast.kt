@@ -47,7 +47,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 enum class DiaryToastResult { Dismissed, ActionPerformed }
 
-/** 토스트 하나. 앞의 것이 사라져야 다음 것이 뜬다. */
+/**
+ * 토스트 하나.
+ * 앞의 것이 사라져야 다음 것이 뜬다.
+ */
 class DiaryToastData internal constructor(
     val message: String,
     val actionLabel: String?,
@@ -117,7 +120,8 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
                             pressed = false
                         }
                     }.semantics { liveRegion = LiveRegionMode.Polite }
-                    // 버튼은 토스트 높이를 다 써서 누르는 곳이 48이 된다. 그래서 위아래 여백은 글에만 주고, 오른쪽은 버튼 안쪽 8만큼 줄인다.
+                    // 버튼은 토스트 높이를 다 써서 누르는 곳이 48이 된다.
+                    // 그래서 위아래 여백은 글에만 주고, 오른쪽은 버튼 안쪽 8만큼 줄인다.
                     .padding(start = DiarySpacing.x5, end = if (action != null) DiarySpacing.x3 else DiarySpacing.x5),
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
             verticalAlignment = Alignment.CenterVertically

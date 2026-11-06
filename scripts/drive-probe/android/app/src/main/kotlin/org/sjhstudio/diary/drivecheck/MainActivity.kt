@@ -98,7 +98,8 @@ class MainActivity : ComponentActivity() {
         legacy.forEach { f -> write("  · ${f.getString("name")} ${f.optString("size")}바이트, ${f.optString("createdTime")}") }
     }
 
-    // 확인용으로 만든 폴더와 파일만 휴지통으로 옮긴다. 예전 앱 note.db는 건드리지 않는다.
+    // 확인용으로 만든 폴더와 파일만 휴지통으로 옮긴다.
+    // 예전 앱 note.db는 건드리지 않는다.
     private fun cleanup(token: String) {
         val targets = DriveRest.list(token, DriveAuth.PROBE_FILES) + DriveRest.list(token, DriveAuth.PROBE_ROOTS)
         targets.forEach { DriveRest.trash(token, it.getString("id")) }

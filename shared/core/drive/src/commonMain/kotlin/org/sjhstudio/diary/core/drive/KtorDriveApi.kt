@@ -45,7 +45,10 @@ import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.TokenResult
 
-/** 드라이브 REST v3를 공통 코드에서 직접 부른다(research R3). 본문은 파일에서 흘려 보내고 흘려 받는다. */
+/**
+ * 드라이브 REST v3를 공통 코드에서 직접 부른다(research R3).
+ * 본문은 파일에서 흘려 보내고 흘려 받는다.
+ */
 class KtorDriveApi(
     private val client: HttpClient,
     private val authorizer: DriveAuthorizer,
@@ -203,7 +206,10 @@ class KtorDriveApi(
         }
     }
 
-    /** 토큰을 받아 부른다. 401은 한 번 새로 받아 다시 하고, 잠깐 거절은 1·2·4·8·16초쯤 쉬며 다섯 번까지 다시 한다. */
+    /**
+     * 토큰을 받아 부른다.
+     * 401은 한 번 새로 받아 다시 하고, 잠깐 거절은 1·2·4·8·16초쯤 쉬며 다섯 번까지 다시 한다.
+     */
     private suspend fun <T> call(block: suspend (token: String) -> T): T {
         var attempt = 0
         var refreshed = false
@@ -222,7 +228,8 @@ class KtorDriveApi(
                 if (!error.retryable || attempt >= RETRIES) throw error
                 backoff(attempt++)
             } catch (_: IOException) {
-                // 사진 수천 장을 올리다 보면 연결이 잠깐 끊긴다. 한 번에 백업 전체를 멈추지 않는다.
+                // 사진 수천 장을 올리다 보면 연결이 잠깐 끊긴다.
+                // 한 번에 백업 전체를 멈추지 않는다.
                 if (attempt >= RETRIES) throw DriveException(BackupFailure.OFFLINE)
                 backoff(attempt++)
             } catch (_: KotlinxIOException) {
@@ -232,7 +239,10 @@ class KtorDriveApi(
         }
     }
 
-    /** 기기 파일을 만지는 일. 드라이브 호출과 달리 실패해도 다시 하지 않는다. */
+    /**
+     * 기기 파일을 만지는 일.
+     * 드라이브 호출과 달리 실패해도 다시 하지 않는다.
+     */
     private inline fun <T> onDevice(block: () -> T): T = try {
         block()
     } catch (_: IOException) {

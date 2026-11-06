@@ -28,17 +28,26 @@ val ListPane: Map<String, Any> = mapOf("pane" to "list")
 /** 상세 화면 표시. */
 val DetailPane: Map<String, Any> = mapOf("pane" to "detail")
 
-/** 탭의 맨 위 화면 표시. 앱 틀이 탭 바 자리를 비워 준다. */
+/**
+ * 탭의 맨 위 화면 표시.
+ * 앱 틀이 탭 바 자리를 비워 준다.
+ */
 const val TAB_ROOT = "tabRoot"
 const val FULL_SCREEN = "fullScreen"
 
-/** 위에 얹은 레일의 폭. 쓰기처럼 전체를 쓰는 화면이 아니면 이만큼 비워 둔다. */
+/**
+ * 위에 얹은 레일의 폭.
+ * 쓰기처럼 전체를 쓰는 화면이 아니면 이만큼 비워 둔다.
+ */
 val LocalRailWidth = compositionLocalOf { Dp.Hairline }
 
 /** 두 칸 장면 안의 화면은 장면이 레일 자리를 비운다. */
 val LocalInListDetail = compositionLocalOf { false }
 
-/** 쓰기와 사진 크게 보기. 레일과 탭 자리를 비우지 않는다. */
+/**
+ * 쓰기와 사진 크게 보기.
+ * 레일과 탭 자리를 비우지 않는다.
+ */
 val FullScreenEntry: Map<String, Any> = mapOf(FULL_SCREEN to true)
 
 val TabRoot: Map<String, Any> = mapOf(TAB_ROOT to true)

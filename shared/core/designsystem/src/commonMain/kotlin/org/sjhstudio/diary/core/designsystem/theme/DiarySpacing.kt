@@ -25,13 +25,22 @@ object DiarySpacing {
     val x10: Dp = 40.dp
     val x14: Dp = 56.dp
 
-    /** 화면 좌우(TDS ListRow 20, HIG 예시 20). 넓은 화면은 본문 폭을 막아 가운데에 둔다. */
+    /**
+     * 화면 좌우(TDS ListRow 20, HIG 예시 20).
+     * 넓은 화면은 본문 폭을 막아 가운데에 둔다.
+     */
     val screenCompact: Dp = x5
 
-    /** 터치 영역 최소 크기(M3 48, HIG 44). 보이는 크기가 작으면 누르는 영역을 이만큼 넓힌다. */
+    /**
+     * 터치 영역 최소 크기(M3 48, HIG 44).
+     * 보이는 크기가 작으면 누르는 영역을 이만큼 넓힌다.
+     */
     val minTouchTarget: Dp = 48.dp
 
-    /** 탭 화면 큰 제목 위 여백. 홈의 위 줄 높이와 같아서 탭을 바꿔도 제목이 뛰지 않는다. */
+    /**
+     * 탭 화면 큰 제목 위 여백.
+     * 홈의 위 줄 높이와 같아서 탭을 바꿔도 제목이 뛰지 않는다.
+     */
     val tabTitleTop: Dp = 52.dp
 
     /** 구분선 두께. */
@@ -66,13 +75,19 @@ object DiaryHomeSize {
     val cardFace: Dp = 28.dp
     val cardIcon: Dp = 16.dp
 
-    /** 사진 격자 칸의 최소 폭. 폰에서 세 칸이 된다. */
+    /**
+     * 사진 격자 칸의 최소 폭.
+     * 폰에서 세 칸이 된다.
+     */
     val gridCell: Dp = 112.dp
 }
 
 /** 돌아보기 크기(Figma "돌아보기 (S5)"). */
 object DiaryInsightSize {
-    /** 기분 막대 줄. 아홉 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춘다. */
+    /**
+     * 기분 막대 줄.
+     * 아홉 줄이 이어져 화면이 길어지지 않게 HIG 최소 터치 높이 44에 맞춘다.
+     */
     val barRow: Dp = 48.dp
     val barHeight: Dp = 10.dp
     val barFace: Dp = 24.dp
@@ -93,7 +108,10 @@ object DiaryCalendarSize {
     val cell: Dp = 60.dp
     val cellWide: Dp = 76.dp
 
-    /** 기분 얼굴. 칸 안 위아래 여백이 4로 같아지는 크기다. */
+    /**
+     * 기분 얼굴.
+     * 칸 안 위아래 여백이 4로 같아지는 크기다.
+     */
     val face: Dp = 28.dp
     val faceWide: Dp = 36.dp
 
@@ -112,7 +130,10 @@ object DiaryCalendarSize {
 
 /** 온보딩 그림 크기(Figma "시작 (W1~W5)"). */
 object DiaryArtSize {
-    /** 그림 칸. 그림 파일과 비율이 같고, 장을 넘겨도 제목이 움직이지 않게 고정한다. */
+    /**
+     * 그림 칸.
+     * 그림 파일과 비율이 같고, 장을 넘겨도 제목이 움직이지 않게 고정한다.
+     */
     val width: Dp = 288.dp
     val height: Dp = 208.dp
 
@@ -125,10 +146,16 @@ object DiaryArtSize {
     /** 결제 화면 머리 그림 높이. */
     val banner: Dp = 280.dp
 
-    /** 구독 중 화면 머리 그림 높이. 혜택과 요금이 한 화면에 들어오게 낮다. */
+    /**
+     * 구독 중 화면 머리 그림 높이.
+     * 혜택과 요금이 한 화면에 들어오게 낮다.
+     */
     val card: Dp = 160.dp
 
-    /** 넓은 화면 결제 칸 폭. 글이 길게 늘어나지 않게 폰보다 조금만 넓다. */
+    /**
+     * 넓은 화면 결제 칸 폭.
+     * 글이 길게 늘어나지 않게 폰보다 조금만 넓다.
+     */
     val paywallMax: Dp = 600.dp
 }
 

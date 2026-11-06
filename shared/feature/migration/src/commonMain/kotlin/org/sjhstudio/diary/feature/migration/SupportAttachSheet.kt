@@ -31,8 +31,10 @@ import org.sjhstudio.diary.feature.migration.resources.support_with
 import org.sjhstudio.diary.feature.migration.resources.support_without
 
 /**
- * 고쳐 받기 문의 시트(Figma "M5 · 고쳐 받기 문의", FR-010a). 일부만 옮겨진 기기의 문의하기에서 먼저 뜬다.
- * 첨부하기 전에 무엇이 들어 있는지와 지우는 때를 보인다. 첨부는 사용자가 고를 때만 한다(헌법 II 예외).
+ * 고쳐 받기 문의 시트(Figma "M5 · 고쳐 받기 문의", FR-010a).
+ * 일부만 옮겨진 기기의 문의하기에서 먼저 뜬다.
+ * 첨부하기 전에 무엇이 들어 있는지와 지우는 때를 보인다.
+ * 첨부는 사용자가 고를 때만 한다(헌법 II 예외).
  */
 @Composable
 fun SupportAttachSheet(onDismiss: () -> Unit, onContactWithout: () -> Unit, onContactWith: () -> Unit) {

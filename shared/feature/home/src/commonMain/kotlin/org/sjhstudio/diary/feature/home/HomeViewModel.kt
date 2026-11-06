@@ -26,7 +26,10 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
 
-/** 홈 목록(FR-015~FR-018, FR-021). 줄은 60편씩 읽어서 1만 편이어도 첫 화면이 빠르다. */
+/**
+ * 홈 목록(FR-015~FR-018, FR-021).
+ * 줄은 60편씩 읽어서 1만 편이어도 첫 화면이 빠르다.
+ */
 class HomeViewModel(private val entries: EntryRepository, private val settings: SettingsRepository, fonts: FontInstaller) : ViewModel() {
     val style: StateFlow<ListStyle> =
         settings.settings
@@ -34,7 +37,8 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
             .distinctUntilChanged()
             .stateIn(viewModelScope, SharingStarted.Eagerly, ListStyle.FEED)
 
-    // 앱을 다시 열면 풀린다. 켠 채로 남으면 쓴 일기가 사라진 것처럼 보인다.
+    // 앱을 다시 열면 풀린다.
+    // 켠 채로 남으면 쓴 일기가 사라진 것처럼 보인다.
     private val favorites = MutableStateFlow(false)
     val favoritesOnly: StateFlow<Boolean> = favorites.asStateFlow()
 
@@ -46,7 +50,10 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
             .map { it.bodyLook(fonts::installedPath) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
-    /** 일기가 있는 달. 연·월 고르기 시트가 이 달만 고르게 한다. */
+    /**
+     * 일기가 있는 달.
+     * 연·월 고르기 시트가 이 달만 고르게 한다.
+     */
     val months: StateFlow<Set<YearMonth>> = entries.months().stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     fun toggleFavoritesOnly() {

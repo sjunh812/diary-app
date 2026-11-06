@@ -17,8 +17,10 @@ import org.sjhstudio.diary.feature.migration.LegacyReaderState
 import org.sjhstudio.diary.feature.migration.MigrationScreen
 import org.sjhstudio.diary.feature.migration.MigrationUiState
 
-// 기록 이전 화면(M1~M4) 프리뷰. 숫자와 글은 Figma 화면과 같은 견본이다.
-// 고쳐 받기 문의 시트는 바텀 시트라 프리뷰 창에 그려지지 않는다. 개발 빌드 화면 모음(support_sheet)으로 본다.
+// 기록 이전 화면(M1~M4) 프리뷰.
+// 숫자와 글은 Figma 화면과 같은 견본이다.
+// 고쳐 받기 문의 시트는 바텀 시트라 프리뷰 창에 그려지지 않는다.
+// 개발 빌드 화면 모음(support_sheet)으로 본다.
 
 private fun report(outcome: MigrationOutcome) = MigrationReport(
     entriesTotal = 1_296, entriesMigrated = 1_284, entriesUnreadable = if (outcome == MigrationOutcome.PARTIAL) 12 else 0,

@@ -11,7 +11,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryColors
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.parseRichText
 
-// 편집기를 지나도 서식이 그대로 남는지 본다(FR-008). 편집기는 라이브러리라 내보내는 모양이 저장 규칙을 지나는지가 위험하다.
+// 편집기를 지나도 서식이 그대로 남는지 본다(FR-008).
+// 편집기는 라이브러리라 내보내는 모양이 저장 규칙을 지나는지가 위험하다.
 @OptIn(ExperimentalTestApi::class)
 class EditorRoundTripUiTest {
     private val body =

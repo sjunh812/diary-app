@@ -7,7 +7,8 @@ import org.sjhstudio.diary.feature.settings.LibraryNotice
 import org.sjhstudio.diary.feature.settings.LicenseTextScreen
 import org.sjhstudio.diary.feature.settings.LicensesScreen
 
-// 오픈소스 라이선스(I1)와 전문(I2) 프리뷰. 값은 Figma 화면과 같다.
+// 오픈소스 라이선스(I1)와 전문(I2) 프리뷰.
+// 값은 Figma 화면과 같다.
 
 private val sampleLibraries =
     listOf(

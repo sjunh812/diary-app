@@ -1,12 +1,18 @@
 #!/bin/sh
-# 에뮬레이터의 1.7.4에 시험용 일기·사진·설정을 넣는다(스펙 001 T050). 실기기에는 쓰지 않는다.
+# 에뮬레이터의 1.7.4에 시험용 일기·사진·설정을 넣는다(스펙 001 T050).
+# 실기기에는 쓰지 않는다.
 #
 #   ANDROID_SERIAL=emulator-5554 sh scripts/legacy/seed.sh
 #
-# 1.7.4를 한 번 연 뒤(DB와 설정 파일이 생긴 뒤) 돌린다. ALARM=0을 주면 매일 알림을 끈 설정을 넣는다.
-# COUNT=1000을 주면 일기를 그만큼 더 넣는다(T051 큰 견본). PHOTO_EVERY=3이면 세 편마다 사진 한 장이고 기본은 한 편마다다. 넣은 수는 files/debug/seed.json에 적어 계측 시험이 읽는다.
-# 1.7.4는 알림이 켜져 있으면 Android 14 이상에서 정확한 알람 권한이 없어 꺼진다(2026-11-01 Android 16 에뮬레이터에서 확인). 옛 앱과 같은 SQL로 만든 note.db, 캐시 사진,
-# pref.xml·pref2.xml을 run-as로 앱 자리에 넣는다. 디버그 빌드라 run-as가 된다.
+# 1.7.4를 한 번 연 뒤(DB와 설정 파일이 생긴 뒤) 돌린다.
+# ALARM=0을 주면 매일 알림을 끈 설정을 넣는다.
+# COUNT=1000을 주면 일기를 그만큼 더 넣는다(T051 큰 견본).
+# PHOTO_EVERY=3이면 세 편마다 사진 한 장이고 기본은 한 편마다다.
+# 넣은 수는 files/debug/seed.json에 적어 계측 시험이 읽는다.
+# 1.7.4는 알림이 켜져 있으면 Android 14 이상에서 정확한 알람 권한이 없어 꺼진다(2026-11-01 Android 16 에뮬레이터에서 확인).
+# 옛 앱과 같은 SQL로 만든 note.db, 캐시 사진,
+# pref.xml·pref2.xml을 run-as로 앱 자리에 넣는다.
+# 디버그 빌드라 run-as가 된다.
 set -eu
 : "${ANDROID_SERIAL:?ANDROID_SERIAL을 에뮬레이터로 정해 주세요(예: emulator-5554)}"
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
@@ -37,7 +43,8 @@ SQL
 COUNT=${COUNT:-0}
 PHOTO_EVERY=${PHOTO_EVERY:-1}
 if [ "$COUNT" -gt 0 ]; then
-  # 오래 쓴 사용자처럼 날짜를 12시간 간격으로 펴고, 글 길이도 다르게 한다. 사진은 PHOTO_EVERY편마다 한 장이다.
+  # 오래 쓴 사용자처럼 날짜를 12시간 간격으로 펴고, 글 길이도 다르게 한다.
+  # 사진은 PHOTO_EVERY편마다 한 장이다.
   sqlite3 "$WORK/note.db" <<SQL
 WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c WHERE x < $COUNT)
 INSERT INTO Note(weather, address, contents, mood, picture, create_date, modify_date, year, month, star)
@@ -49,7 +56,8 @@ SELECT x % 7, CASE WHEN x % 5 = 0 THEN '서울 마포구' ELSE '' END,
        CAST(strftime('%m', datetime('2009-01-01 07:00:00', printf('+%d minutes', x * 720))) AS INTEGER), CASE WHEN x % 50 = 0 THEN 1 ELSE 0 END
 FROM c;
 SQL
-  # 사진마다 해시가 다르게 JPEG 끝(EOI) 뒤에 번호를 붙인다. 그림은 그대로 읽힌다.
+  # 사진마다 해시가 다르게 JPEG 끝(EOI) 뒤에 번호를 붙인다.
+  # 그림은 그대로 읽힌다.
   mkdir -p "$WORK/big"
   i=$PHOTO_EVERY
   while [ $i -le "$COUNT" ]; do
@@ -60,7 +68,9 @@ SQL
 fi
 printf '{"extra":%s}' "$COUNT" > "$WORK/seed.json"
 
-# 사진 두 장. 썸네일과 크기 읽기를 보려고 진짜 그림을 쓴다(fixtures/README.md). gone.jpg는 일부러 넣지 않는다(캐시에서 지워진 사진).
+# 사진 두 장.
+# 썸네일과 크기 읽기를 보려고 진짜 그림을 쓴다(fixtures/README.md).
+# gone.jpg는 일부러 넣지 않는다(캐시에서 지워진 사진).
 cp "$ROOT/scripts/legacy/fixtures/photo-landscape-exif6.jpg" "$WORK/1699000000001.jpg"
 cp "$ROOT/scripts/legacy/fixtures/photo-portrait.png" "$WORK/1699000000002.png"
 

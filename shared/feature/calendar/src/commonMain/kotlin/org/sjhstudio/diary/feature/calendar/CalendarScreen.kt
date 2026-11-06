@@ -101,7 +101,11 @@ import org.sjhstudio.diary.feature.calendar.resources.tip_calendar_date
 
 private const val DAYS_IN_WEEK = 7
 
-/** 달력(Figma "달력 (S4)"). 폰은 달력 아래, 넓은 화면은 옆에 그날 일기가 나온다. 주는 일요일에 시작한다. */
+/**
+ * 달력(Figma "달력 (S4)").
+ * 폰은 달력 아래, 넓은 화면은 옆에 그날 일기가 나온다.
+ * 주는 일요일에 시작한다.
+ */
 @Composable
 fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalDate) -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<CalendarViewModel>()
@@ -147,7 +151,8 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
     if (twoPane) {
         Row(modifier.then(canvas)) {
-            // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데에 둔다. 달력이 왼쪽에 붙어 치우치지 않는다.
+            // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데에 둔다.
+            // 달력이 왼쪽에 붙어 치우치지 않는다.
             Column(
                 Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -259,7 +264,8 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
 private fun Weekdays(dates: DiaryDateFormat) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth()) {
-        // 2026년 11월 1일이 일요일이다. 요일 이름만 언어에 맞게 빌려 온다.
+        // 2026년 11월 1일이 일요일이다.
+        // 요일 이름만 언어에 맞게 빌려 온다.
         for (offset in 0 until DAYS_IN_WEEK) {
             val date = LocalDate(WEEK_YEAR, WEEK_MONTH, 1 + offset)
             BasicText(
@@ -371,7 +377,11 @@ private fun DayCell(
     }
 }
 
-/** 그날 마지막 일기의 얼굴. 여러 편이면 앞 일기의 기분 색을 뒤에 겹친다(2026-11-05 사용자 결정). 편수는 고른 날 목록에 있다. */
+/**
+ * 그날 마지막 일기의 얼굴.
+ * 여러 편이면 앞 일기의 기분 색을 뒤에 겹친다(2026-11-05 사용자 결정).
+ * 편수는 고른 날 목록에 있다.
+ */
 @Composable
 private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) {
     Box(Modifier.size(size), contentAlignment = Alignment.Center) {
@@ -391,7 +401,10 @@ private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) 
     }
 }
 
-/** 고른 날의 일기. 없으면 그날 쓰기를 권한다. */
+/**
+ * 고른 날의 일기.
+ * 없으면 그날 쓰기를 권한다.
+ */
 @Composable
 internal fun DayPanel(
     date: LocalDate,
@@ -420,7 +433,8 @@ internal fun DayPanel(
             )
         )
         if (rows.isEmpty()) {
-            // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다. 고른 날에 쓴 글이 없다는 것만 조용히 말한다.
+            // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다.
+            // 고른 날에 쓴 글이 없다는 것만 조용히 말한다.
             Column(
                 Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x6),
                 horizontalAlignment = Alignment.CenterHorizontally,

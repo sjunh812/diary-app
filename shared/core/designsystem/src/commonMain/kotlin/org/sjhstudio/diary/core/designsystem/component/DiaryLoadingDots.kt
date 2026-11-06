@@ -25,7 +25,8 @@ private const val FADE_MILLIS = 450
 private const val STEP_MILLIS = 150
 
 /**
- * 짧은 기다림을 알리는 점 세 개(`docs/design.md` 칩). 글로 이미 말했으니 화면 읽기에는 읽히지 않는다.
+ * 짧은 기다림을 알리는 점 세 개(`docs/design.md` 칩).
+ * 글로 이미 말했으니 화면 읽기에는 읽히지 않는다.
  * 동작 줄이기에서는 [animated]를 끄면 점이 그대로 있다.
  */
 @Composable

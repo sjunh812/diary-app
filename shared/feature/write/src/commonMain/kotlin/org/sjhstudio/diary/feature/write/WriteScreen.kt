@@ -167,7 +167,10 @@ import org.sjhstudio.diary.feature.write.resources.write_save
 import org.sjhstudio.diary.feature.write.resources.write_save_failed
 import org.sjhstudio.diary.feature.write.resources.write_weather
 
-/** 화면 동작 묶음. 화면은 상태만 받아 그린다. */
+/**
+ * 화면 동작 묶음.
+ * 화면은 상태만 받아 그린다.
+ */
 internal class WriteActions(
     val viewModel: WriteViewModel,
     val rich: RichTextState,
@@ -181,7 +184,8 @@ private enum class Sheet { Mood, Weather, Place, DateTime }
 private const val KEYBOARD_HIDE_MILLIS = 400L
 
 /**
- * 쓰기 화면(Figma "쓰기 (S2)"). 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순서다.
+ * 쓰기 화면(Figma "쓰기 (S2)").
+ * 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순서다.
  * 폭 840부터는 본문을 가운데 두고 기분·날씨·사진·장소를 옆 칸으로 옮긴다.
  * 사진 고르기는 iOS 때문에 시트가 아닌 이 화면에서 기억한다(research R4).
  */
@@ -191,7 +195,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val colors = DiaryTheme.colors
     var sheet by remember { mutableStateOf<Sheet?>(null) }
     val locationAccess = rememberLocationAccess()
-    // 키보드가 내려가는 동안 시트가 뜨면 키보드 높이에 맞춰 떴다가 출렁인다. 키보드를 먼저 내리고 띄운다.
+    // 키보드가 내려가는 동안 시트가 뜨면 키보드 높이에 맞춰 떴다가 출렁인다.
+    // 키보드를 먼저 내리고 띄운다.
     val focus = LocalFocusManager.current
     val softKeyboard = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
@@ -427,7 +432,10 @@ private fun Notices(state: WriteUiState) {
     DiaryNotice(text, Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2), icon = DiaryIcons.Info)
 }
 
-/** 체크리스트는 Plus 기능이다(Figma P9). 쓰던 글은 그대로라고 말하고 막지 않는다. */
+/**
+ * 체크리스트는 Plus 기능이다(Figma P9).
+ * 쓰던 글은 그대로라고 말하고 막지 않는다.
+ */
 @Composable
 private fun ChecklistPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
     DiaryBottomSheet(
@@ -449,7 +457,10 @@ private fun ChecklistPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
     }
 }
 
-/** 사진 한도 시트(Figma P3). 고른 사진과 글은 그대로라고 먼저 말하고, 쓰는 일을 막지 않는다. */
+/**
+ * 사진 한도 시트(Figma P3).
+ * 고른 사진과 글은 그대로라고 먼저 말하고, 쓰는 일을 막지 않는다.
+ */
 @Composable
 private fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Unit) {
     DiaryBottomSheet(
@@ -579,7 +590,8 @@ private fun Editor(state: RichTextState, style: TextStyle, modifier: Modifier) {
                     .semantics { customActions = actions }
                     .checklistMarks({ state.annotatedString.let { state.toText() } }, { layout })
                     .pointerInput(state) {
-                        // 표시를 누르면 커서를 옮기지 않고 체크만 바꾼다. 글자를 누르면 평소처럼 커서가 간다.
+                        // 표시를 누르면 커서를 옮기지 않고 체크만 바꾼다.
+                        // 글자를 누르면 평소처럼 커서가 간다.
                         awaitEachGesture {
                             val down = awaitFirstDown(pass = PointerEventPass.Initial)
                             val start = layout?.checkLineAt(down.position, touch, state.toText(), editing = true) ?: return@awaitEachGesture
@@ -639,10 +651,16 @@ private fun Section(title: String, content: @Composable () -> Unit) {
     }
 }
 
-/** 도구 줄이 바뀌는 팔레트. 글자색과 형광펜은 쓰임이 달라 각자의 색만 보인다(2026-11-05 사용자 지적). */
+/**
+ * 도구 줄이 바뀌는 팔레트.
+ * 글자색과 형광펜은 쓰임이 달라 각자의 색만 보인다(2026-11-05 사용자 지적).
+ */
 private enum class PaletteKind { Ink, Mark }
 
-/** 키보드 위 서식 도구(Figma "서식 도구 줄"). 글자색·형광펜을 누르면 줄이 그 팔레트로 바뀐다. */
+/**
+ * 키보드 위 서식 도구(Figma "서식 도구 줄").
+ * 글자색·형광펜을 누르면 줄이 그 팔레트로 바뀐다.
+ */
 private class WriteTools(
     val rich: RichTextState,
     val colors: EditorColors,
@@ -714,7 +732,8 @@ private class WriteTools(
             rich.toggleUnorderedList()
         }
         ToolButton(DiaryIcons.Checklist, stringResource(Res.string.write_format_check), tint(checked), slot, active = checked) {
-            // 이미 있는 항목을 푸는 것은 언제나 된다. 새로 만드는 것만 Plus다.
+            // 이미 있는 항목을 푸는 것은 언제나 된다.
+            // 새로 만드는 것만 Plus다.
             if (!checked && !checklistOpen()) {
                 onChecklistLocked()
                 return@ToolButton
@@ -801,7 +820,10 @@ private fun ColorChip(color: Color, shape: Shape) {
     Box(Modifier.size(DiaryWriteSize.swatch).background(color, shape))
 }
 
-/** 고른 색은 액센트 고리로 보인다. 고리와 색 사이를 띄워서 보라 칸에서도 고리가 구별된다. */
+/**
+ * 고른 색은 액센트 고리로 보인다.
+ * 고리와 색 사이를 띄워서 보라 칸에서도 고리가 구별된다.
+ */
 @Composable
 private fun Swatch(
     description: String,

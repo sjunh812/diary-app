@@ -23,7 +23,8 @@ import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 
-// 글꼴(G1): 앱에 있는 글꼴은 바로, 받는 글꼴은 받은 뒤에 바뀐다. 받지 못하면 쓰던 글꼴 그대로(docs/design.md 일기 본문 글꼴 10종).
+// 글꼴(G1): 앱에 있는 글꼴은 바로, 받는 글꼴은 받은 뒤에 바뀐다.
+// 받지 못하면 쓰던 글꼴 그대로(docs/design.md 일기 본문 글꼴 10종).
 @OptIn(ExperimentalCoroutinesApi::class)
 class FontSettingsViewModelTest {
     private val dispatcher = StandardTestDispatcher()

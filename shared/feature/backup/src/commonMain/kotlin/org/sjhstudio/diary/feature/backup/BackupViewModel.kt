@@ -45,7 +45,10 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
         viewModelScope.launch { controller.dismissNudge() }
     }
 
-    /** [hint]는 예전 앱이 쓰던 구글 계정이다. Android에서 먼저 보인다. */
+    /**
+     * [hint]는 예전 앱이 쓰던 구글 계정이다.
+     * Android에서 먼저 보인다.
+     */
     fun connect(hint: String? = null) {
         viewModelScope.launch {
             _connecting.value = true
@@ -55,7 +58,10 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
         }
     }
 
-    /** [나중에]. 이때 이 기기의 첫 백업을 한다. */
+    /**
+     * [나중에].
+     * 이때 이 기기의 첫 백업을 한다.
+     */
     fun skipFound() = controller.skipFoundBackup()
 
     fun takeFound() = controller.takeFoundBackup()

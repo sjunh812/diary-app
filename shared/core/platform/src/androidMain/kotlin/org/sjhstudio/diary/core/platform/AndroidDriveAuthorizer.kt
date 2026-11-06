@@ -25,15 +25,24 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.sjhstudio.diary.core.model.BackupFailure
 
-/** 동의 창을 띄우는 쪽. 화면이 있는 `MainActivity`가 건다. 백그라운드에서는 비어 있다. */
+/**
+ * 동의 창을 띄우는 쪽.
+ * 화면이 있는 `MainActivity`가 건다.
+ * 백그라운드에서는 비어 있다.
+ */
 fun interface DriveConsentLauncher {
-    /** 동의 창을 띄우고 돌아온 결과를 준다. 취소하면 null이다. */
+    /**
+     * 동의 창을 띄우고 돌아온 결과를 준다.
+     * 취소하면 null이다.
+     */
     suspend fun launch(intent: PendingIntent): Intent?
 }
 
 /**
- * `AuthorizationClient`로 `drive.file`만 받는다(research R2). 토큰은 기기에 두지 않고 1시간짜리를 그때그때 받는다.
- * 응답에 계정이 없어 받은 토큰으로 userinfo를 불러 안다. 계정 이메일은 로그에 남기지 않는다.
+ * `AuthorizationClient`로 `drive.file`만 받는다(research R2).
+ * 토큰은 기기에 두지 않고 1시간짜리를 그때그때 받는다.
+ * 응답에 계정이 없어 받은 토큰으로 userinfo를 불러 안다.
+ * 계정 이메일은 로그에 남기지 않는다.
  */
 class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private val context = context.applicationContext
@@ -108,7 +117,8 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
             val body = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
             DriveAccount(body.getString("sub"), body.getString("email"))
         } catch (_: JSONException) {
-            // 공용 와이파이의 안내 페이지가 올 수 있다. 응답 내용은 메시지에 넣지 않는다.
+            // 공용 와이파이의 안내 페이지가 올 수 있다.
+            // 응답 내용은 메시지에 넣지 않는다.
             throw IOException("userinfo body")
         } finally {
             connection.disconnect()
@@ -120,7 +130,8 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private suspend fun Task<AuthorizationResult>.await(): AuthorizationResult = suspendCancellableCoroutine { continuation ->
         addOnSuccessListener { continuation.resume(it) }
         addOnFailureListener { continuation.resumeWithException(it) }
-        // 코루틴 취소로 넘기면 부른 쪽은 멈춘 줄로 알고 결과를 받지 못한다. 실패로 돌려준다.
+        // 코루틴 취소로 넘기면 부른 쪽은 멈춘 줄로 알고 결과를 받지 못한다.
+        // 실패로 돌려준다.
         addOnCanceledListener { continuation.resumeWithException(IOException("authorization canceled")) }
     }
 

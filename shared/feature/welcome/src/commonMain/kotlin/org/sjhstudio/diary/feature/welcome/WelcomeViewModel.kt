@@ -58,7 +58,10 @@ class WelcomeViewModel(
         }
     }
 
-    /** 예전 앱이 쓰던 계정을 먼저 보인다. 연결을 마치거나 물러나면 [next]로 넘어간다. */
+    /**
+     * 예전 앱이 쓰던 계정을 먼저 보인다.
+     * 연결을 마치거나 물러나면 [next]로 넘어간다.
+     */
     fun connect(next: () -> Unit) {
         viewModelScope.launch {
             _connecting.value = true

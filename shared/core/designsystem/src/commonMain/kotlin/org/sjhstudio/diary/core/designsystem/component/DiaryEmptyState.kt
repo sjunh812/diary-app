@@ -20,7 +20,8 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
  * 빈 상태(`docs/design.md` 빈 상태, SEED Result Section, 토스 UX 가이드).
- * 아이콘 하나 · 제목 title2 · 설명 body · 버튼 하나. 문구는 긍정형 해요체로 쓴다.
+ * 아이콘 하나 · 제목 title2 · 설명 body · 버튼 하나.
+ * 문구는 긍정형 해요체로 쓴다.
  */
 @Composable
 fun DiaryEmptyState(
@@ -55,7 +56,8 @@ fun DiaryEmptyState(
 }
 
 /**
- * 빈 상태를 화면 칸에 놓는다. 눈에는 정가운데가 처져 보여서 위 2, 아래 3으로 조금 올린다(Figma "S1 · 빈 상태" 자리).
+ * 빈 상태를 화면 칸에 놓는다.
+ * 눈에는 정가운데가 처져 보여서 위 2, 아래 3으로 조금 올린다(Figma "S1 · 빈 상태" 자리).
  * 위아래 칸이 없으면 줄어들어 큰 글씨에서도 잘리지 않는다.
  */
 @Composable

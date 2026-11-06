@@ -21,7 +21,8 @@ import org.sjhstudio.diary.feature.lock.resources.pin_setup_title
 
 /**
  * 비밀번호 정하기(Figma "비밀번호 정하기 (L2)", FR-019).
- * 두 번 넣어 같으면 정한다. 휴대폰 잠금을 아는 사람도 일기를 열 수 있다는 점을 미리 알린다.
+ * 두 번 넣어 같으면 정한다.
+ * 휴대폰 잠금을 아는 사람도 일기를 열 수 있다는 점을 미리 알린다.
  */
 @Composable
 fun PinSetupScreen(

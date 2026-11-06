@@ -30,7 +30,10 @@ class TestClock(start: Instant = Instant.parse("2026-11-01T00:00:00Z")) :
         monotonic += duration
     }
 
-    /** 사용자가 기기 시각을 바꾼 것처럼 벽시계만 옮긴다. 단조 시계는 그대로다. */
+    /**
+     * 사용자가 기기 시각을 바꾼 것처럼 벽시계만 옮긴다.
+     * 단조 시계는 그대로다.
+     */
     fun setWallClock(instant: Instant) {
         wall = instant
     }

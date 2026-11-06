@@ -13,7 +13,10 @@ import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
-/** 레거시 줄 하나를 옮긴 결과. 사진 줄은 [PhotoPaths]와 사진 옮기기가 따로 만든다. */
+/**
+ * 레거시 줄 하나를 옮긴 결과.
+ * 사진 줄은 [PhotoPaths]와 사진 옮기기가 따로 만든다.
+ */
 data class MappedEntry(
     val entry: Entry,
     /** 날짜나 시각을 읽지 못해 대체 규칙을 썼다(`MigrationReport.dateUnparsed`). */
@@ -23,11 +26,15 @@ data class MappedEntry(
 )
 
 /**
- * 레거시 `Note` 줄을 새 [Entry]로 옮긴다. 규칙은 contracts/legacy-mapping.md "일기 줄" 표 그대로다.
+ * 레거시 `Note` 줄을 새 [Entry]로 옮긴다.
+ * 규칙은 contracts/legacy-mapping.md "일기 줄" 표 그대로다.
  *
- * @param migratedOn 이전한 날(기기 시간대). 날짜를 전혀 읽지 못한 줄에 쓴다.
- * @param timeZone 이전하는 기기의 시간대. `created_at`·`updated_at`을 만든다.
- * @param newId 새 일기 ID(UUID). 시험에서 고정한다.
+ * @param migratedOn 이전한 날(기기 시간대).
+ * 날짜를 전혀 읽지 못한 줄에 쓴다.
+ * @param timeZone 이전하는 기기의 시간대.
+ * `created_at`·`updated_at`을 만든다.
+ * @param newId 새 일기 ID(UUID).
+ * 시험에서 고정한다.
  */
 class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone: TimeZone, private val newId: () -> String) {
     fun map(note: LegacyNote): MappedEntry {
@@ -83,7 +90,10 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
             return runCatching { LocalDate.parse(head) }.getOrNull()
         }
 
-        /** 12~16번째 글자가 `HH:mm`(00~23, 00~59)이면 그 시각. 초 자리는 버린다. */
+        /**
+         * 12~16번째 글자가 `HH:mm`(00~23, 00~59)이면 그 시각.
+         * 초 자리는 버린다.
+         */
         internal fun parseTime(text: String): LocalTime? {
             if (text.length < 16) return null
             val head = text.substring(11, 16)
@@ -103,7 +113,8 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
 
         /**
          * 옛 앱이 `SimpleDateFormat("yyyy-MM-dd HH:mm:ss")`(느슨한 해석)으로 읽은 날짜.
-         * 넘치는 값은 다음 단위로 넘긴다. 예 `2024-03-01 23:59:457` → 3월 2일 00:07:37.
+         * 넘치는 값은 다음 단위로 넘긴다.
+         * 예 `2024-03-01 23:59:457` → 3월 2일 00:07:37.
          * 형식이 아예 다르면 null.
          */
         internal fun looseLegacyDate(text: String): LocalDate? {

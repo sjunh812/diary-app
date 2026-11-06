@@ -39,7 +39,10 @@ val backupFeatureModule =
 /** 드라이브 폴더에 함께 올리는 안내 글. */
 suspend fun backupReadme(): String = getString(Res.string.backup_readme_body)
 
-/** 7일 실패 알림의 제목과 본문. 일기 내용과 개수는 넣지 않는다(FR-016). */
+/**
+ * 7일 실패 알림의 제목과 본문.
+ * 일기 내용과 개수는 넣지 않는다(FR-016).
+ */
 suspend fun backupAlertText(failure: BackupFailure?): Pair<String, String> {
     val body =
         when (failure) {
@@ -51,7 +54,10 @@ suspend fun backupAlertText(failure: BackupFailure?): Pair<String, String> {
     return getString(Res.string.backup_alert_title) to getString(body)
 }
 
-/** 앱을 나가 있는 동안 지금 백업이 끝났을 때의 알림. 일기 내용은 넣지 않는다(헌법 II). */
+/**
+ * 앱을 나가 있는 동안 지금 백업이 끝났을 때의 알림.
+ * 일기 내용은 넣지 않는다(헌법 II).
+ */
 suspend fun backupDoneText(photosLeft: Int): Pair<String, String> {
     val body = if (photosLeft > 0) getString(Res.string.backup_done_left, photosLeft.grouped()) else getString(Res.string.backup_done_body)
     return getString(Res.string.backup_done_title) to body
@@ -68,7 +74,11 @@ suspend fun restoreDoneText(allPhotos: Boolean): Pair<String, String> = getStrin
 /** 지금 백업 진행 알림의 제목. */
 suspend fun backupProgressTitle(): String = getString(Res.string.backup_running)
 
-/** 진행 알림의 본문. 사진을 올리는 동안만 숫자를 보인다. 일기 내용은 넣지 않는다(헌법 II). */
+/**
+ * 진행 알림의 본문.
+ * 사진을 올리는 동안만 숫자를 보인다.
+ * 일기 내용은 넣지 않는다(헌법 II).
+ */
 suspend fun backupProgressText(progress: BackupProgress): String? = if (progress.step == BackupStep.UploadingPhotos) {
     getString(Res.string.backup_running_photos, progress.photosDone, progress.photosTotal)
 } else {
@@ -78,7 +88,10 @@ suspend fun backupProgressText(progress: BackupProgress): String? = if (progress
 /** 복원 사진을 받는 동안의 알림 제목. */
 suspend fun restoreProgressTitle(): String = getString(Res.string.restore_running_title)
 
-/** 복원 사진을 받는 동안의 알림 본문. 장수만 넣는다(헌법 II). */
+/**
+ * 복원 사진을 받는 동안의 알림 본문.
+ * 장수만 넣는다(헌법 II).
+ */
 suspend fun restoreProgressText(done: Int, total: Int): String =
     getString(Res.string.restore_photo_progress, done.grouped(), total.grouped())
 

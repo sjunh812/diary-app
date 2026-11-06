@@ -68,7 +68,10 @@ class LegacyReaderViewModelTest {
         assertTrue(vm.state.value.end)
     }
 
-    /** 읽지 못한 것은 빈 목록과 다르다. 끝으로 치지 않고, 다시 시도하면 이어서 읽는다. */
+    /**
+     * 읽지 못한 것은 빈 목록과 다르다.
+     * 끝으로 치지 않고, 다시 시도하면 이어서 읽는다.
+     */
     @Test
     fun failed_page_is_not_an_empty_list() = runTest(dispatcher) {
         var broken = true

@@ -44,12 +44,18 @@ interface EntryRepository {
 
     suspend fun setFavorite(id: String, favorite: Boolean)
 
-    /** 체크리스트 [index]번째 항목을 뒤집는다. 합치기 복원이 고친 쪽을 가르도록 고친 시각도 바꾼다. */
+    /**
+     * 체크리스트 [index]번째 항목을 뒤집는다.
+     * 합치기 복원이 고친 쪽을 가르도록 고친 시각도 바꾼다.
+     */
     suspend fun toggleCheck(id: String, index: Int)
 
     suspend fun moveToTrash(id: String)
 
-    /** "두 가지로 남겼어요" 표시를 닫는다. 일기는 그대로다. */
+    /**
+     * "두 가지로 남겼어요" 표시를 닫는다.
+     * 일기는 그대로다.
+     */
     suspend fun clearKeptBoth(id: String)
 
     suspend fun restore(id: String)
@@ -69,13 +75,23 @@ interface DraftRepository {
     /** 장소를 고를 때 보일 최근 장소. */
     suspend fun recentPlaces(): List<String>
 
-    /** 새 일기 임시 저장본 가운데 가장 최근 것. 없으면 null이다. */
+    /**
+     * 새 일기 임시 저장본 가운데 가장 최근 것.
+     * 없으면 null이다.
+     */
     suspend fun latestNew(): Draft?
 
-    /** 고치기를 열 때 임시 저장본이 없으면 일기에서 만든다. 일기가 없으면 null이다. */
+    /**
+     * 고치기를 열 때 임시 저장본이 없으면 일기에서 만든다.
+     * 일기가 없으면 null이다.
+     */
     suspend fun openEdit(entryId: String): OpenedEdit?
 
-    /** 글과 칩을 쓴다. 사진은 아래 함수들이 맡는다. 디바운스는 화면 모델이 한다. */
+    /**
+     * 글과 칩을 쓴다.
+     * 사진은 아래 함수들이 맡는다.
+     * 디바운스는 화면 모델이 한다.
+     */
     suspend fun save(draft: Draft)
 
     /**
@@ -92,7 +108,11 @@ interface DraftRepository {
      */
     suspend fun reorderPhotos(key: DraftKey, order: List<Int>)
 
-    /** 한 트랜잭션: 일기와 사진을 쓰고 임시 저장본을 지운다. 일기 ID를 돌려준다. 실패하면 임시 저장본이 남는다. */
+    /**
+     * 한 트랜잭션: 일기와 사진을 쓰고 임시 저장본을 지운다.
+     * 일기 ID를 돌려준다.
+     * 실패하면 임시 저장본이 남는다.
+     */
     suspend fun commit(key: DraftKey): String
 
     suspend fun discard(key: DraftKey)
@@ -108,7 +128,10 @@ interface TrashRepository {
 
     suspend fun empty()
 
-    /** 30일 지난 것을 지운다. 앱 시작 때 부른다. */
+    /**
+     * 30일 지난 것을 지운다.
+     * 앱 시작 때 부른다.
+     */
     suspend fun purgeExpired(now: Instant)
 }
 

@@ -15,7 +15,8 @@ import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 import org.sjhstudio.diary.feature.welcome.WelcomeViewModel
 
 /**
- * 이전 관문을 지난 뒤의 편지와 온보딩(스펙 004 FR-001, FR-002). 끝나면 [content]로 간다.
+ * 이전 관문을 지난 뒤의 편지와 온보딩(스펙 004 FR-001, FR-002).
+ * 끝나면 [content]로 간다.
  * 광고, 가격, 권한 요청이 없는 구간이다(FR-005).
  */
 @Composable

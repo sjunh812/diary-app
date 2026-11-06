@@ -29,12 +29,19 @@ import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.currentDate
 
-/** 레거시 경로의 사진을 `media/`로 옮긴다. 찾지 못하면 null이다. iOS에서는 늘 null이다. */
+/**
+ * 레거시 경로의 사진을 `media/`로 옮긴다.
+ * 찾지 못하면 null이다.
+ * iOS에서는 늘 null이다.
+ */
 fun interface LegacyPhotoCopier {
     fun copy(entryId: String, sortOrder: Int, fragment: String): MediaEntity?
 }
 
-/** 더할 일기 하나. [sameTimeAs]는 같은 날 같은 시각에 글이 다른 기기 일기다. */
+/**
+ * 더할 일기 하나.
+ * [sameTimeAs]는 같은 날 같은 시각에 글이 다른 기기 일기다.
+ */
 data class LegacyItem(val entry: EntryEntity, val photos: List<String>, val sameTimeAs: String?)
 
 data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int) {
@@ -118,7 +125,8 @@ class LegacyBackupImporter(
 
     private fun read(path: Path): List<LegacyNote> = try {
         LegacyDbReader.open(path.toString()).use { reader ->
-            // 일부가 깨져도 읽히는 만큼 살린다. 일기 표가 없으면 다른 파일이다.
+            // 일부가 깨져도 읽히는 만큼 살린다.
+            // 일기 표가 없으면 다른 파일이다.
             if (!reader.hasNoteTable) throw RestoreMismatch()
             buildList { reader.readAll { add(it) } }
         }

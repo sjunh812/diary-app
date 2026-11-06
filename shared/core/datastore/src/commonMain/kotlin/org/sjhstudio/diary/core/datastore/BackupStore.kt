@@ -16,7 +16,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.sjhstudio.diary.core.model.BackupFailure
 
-/** `backup.preferences_pb`의 값(data-model.md 표). 기기 것이라 스냅샷에도 기기 간 이전에도 넣지 않는다. */
+/**
+ * `backup.preferences_pb`의 값(data-model.md 표).
+ * 기기 것이라 스냅샷에도 기기 간 이전에도 넣지 않는다.
+ */
 data class BackupPrefs(
     val accountKey: String? = null,
     val accountLabel: String? = null,
@@ -35,11 +38,17 @@ data class BackupPrefs(
     val nudgeHiddenUntil: Instant? = null,
     val userDisconnected: Boolean = false,
     val rollbackUntil: Instant? = null,
-    /** 마지막 성공 때의 일기·사진·설정 지문. 같으면 자동 백업을 건너뛴다. */
+    /**
+     * 마지막 성공 때의 일기·사진·설정 지문.
+     * 같으면 자동 백업을 건너뛴다.
+     */
     val lastSuccessFingerprint: String? = null,
     /** 사진을 마저 올리려면 드라이브에 더 필요한 양. */
     val bytesShort: Long = 0,
-    /** 이 기기로 드라이브 백업을 되살렸을 때 그 백업을 만든 시각. 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻이다. */
+    /**
+     * 이 기기로 드라이브 백업을 되살렸을 때 그 백업을 만든 시각.
+     * 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻이다.
+     */
     val restoredBackupAt: Instant? = null
 )
 
@@ -52,7 +61,11 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { preferences -> preferences.write(transform(preferences.toPrefs())) }
     }
 
-    /** 기기 구분값. 처음 읽을 때 만든다. 앱을 지웠다 깔면 새로 만든다. */
+    /**
+     * 기기 구분값.
+     * 처음 읽을 때 만든다.
+     * 앱을 지웠다 깔면 새로 만든다.
+     */
     @OptIn(ExperimentalUuidApi::class)
     suspend fun deviceId(): String {
         var id = ""

@@ -43,7 +43,10 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
         viewModelScope.launch { _estimate.value = restore.bundleEstimate() }
     }
 
-    /** 저장 위치가 정해지면 부른다. [open]은 그곳에 쓰는 흐름을 연다. */
+    /**
+     * 저장 위치가 정해지면 부른다.
+     * [open]은 그곳에 쓰는 흐름을 연다.
+     */
     fun write(name: String, open: () -> BufferedSink) {
         _state.value = FileBackupUi.Writing(0, 1)
         viewModelScope.launch {
@@ -65,7 +68,10 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
         }
     }
 
-    /** 고른 파일을 앱 안으로 옮겨 확인한다. 끝나면 [onReady]로 미리보기에 간다. */
+    /**
+     * 고른 파일을 앱 안으로 옮겨 확인한다.
+     * 끝나면 [onReady]로 미리보기에 간다.
+     */
     fun read(open: () -> Source, onReady: () -> Unit) {
         _state.value = FileBackupUi.Reading
         viewModelScope.launch {
@@ -93,7 +99,10 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     }
 }
 
-/** 실제로 쓴 크기를 센다. 끝난 화면에 어림값이 아니라 파일 크기를 보이려고 쓴다. */
+/**
+ * 실제로 쓴 크기를 센다.
+ * 끝난 화면에 어림값이 아니라 파일 크기를 보이려고 쓴다.
+ */
 private class CountingSink(private val delegate: Sink) : Sink by delegate {
     var written = 0L
         private set

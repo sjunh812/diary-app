@@ -23,7 +23,8 @@ import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.BUNDLED_DIARY_FONTS
 
 /**
- * 글꼴(G1) 상태. [installedPaths]는 받아 둔 글꼴 파일, [downloading]은 받는 중인 글꼴과 진행(0~1, 모르면 null)이다.
+ * 글꼴(G1) 상태.
+ * [installedPaths]는 받아 둔 글꼴 파일, [downloading]은 받는 중인 글꼴과 진행(0~1, 모르면 null)이다.
  * 앱에 넣은 글꼴은 늘 쓸 수 있다.
  */
 data class FontUiState(
@@ -38,8 +39,10 @@ data class FontUiState(
 enum class FontNotice { Offline, Failed }
 
 /**
- * 글꼴 고르기. 앱에 있거나 받아 둔 글꼴은 바로 바꾸고, 아니면 받은 뒤 바꾼다(`docs/design.md` 일기 본문 글꼴 10종).
- * 받지 못하면 쓰던 글꼴을 그대로 둔다. 받는 동안 다른 글꼴은 그대로 고를 수 있다.
+ * 글꼴 고르기.
+ * 앱에 있거나 받아 둔 글꼴은 바로 바꾸고, 아니면 받은 뒤 바꾼다(`docs/design.md` 일기 본문 글꼴 10종).
+ * 받지 못하면 쓰던 글꼴을 그대로 둔다.
+ * 받는 동안 다른 글꼴은 그대로 고를 수 있다.
  */
 class FontSettingsViewModel(
     private val settings: SettingsRepository,

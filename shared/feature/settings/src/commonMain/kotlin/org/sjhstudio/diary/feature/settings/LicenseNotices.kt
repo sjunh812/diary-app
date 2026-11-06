@@ -6,7 +6,10 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.license_naver
 import org.sjhstudio.diary.feature.settings.resources.license_ofl
 
-/** 글꼴 라이선스 갈래. 줄 아래에 이름을 보인다. */
+/**
+ * 글꼴 라이선스 갈래.
+ * 줄 아래에 이름을 보인다.
+ */
 internal enum class FontLicense(val label: StringResource) {
     OFL(Res.string.license_ofl),
     NAVER(Res.string.license_naver)
@@ -18,7 +21,10 @@ internal enum class FontLicense(val label: StringResource) {
  */
 internal data class FontLicenseNotice(val font: DiaryFont, val license: FontLicense, val file: String)
 
-/** 고지 화면의 글꼴 순서(`docs/design.md` 일기 본문 글꼴 표). 시스템 글꼴은 앱에 넣지 않아 없다. */
+/**
+ * 고지 화면의 글꼴 순서(`docs/design.md` 일기 본문 글꼴 표).
+ * 시스템 글꼴은 앱에 넣지 않아 없다.
+ */
 internal val FONT_NOTICES: List<FontLicenseNotice> =
     listOf(
         FontLicenseNotice(DiaryFont.PRETENDARD, FontLicense.OFL, "pretendard.txt"),

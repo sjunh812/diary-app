@@ -1,4 +1,5 @@
-// 백업과 복원 규칙. 드라이브를 몰라도 대역으로 시험할 수 있게 드라이브 호출과 나눈다(스펙 003 plan.md).
+// 백업과 복원 규칙.
+// 드라이브를 몰라도 대역으로 시험할 수 있게 드라이브 호출과 나눈다(스펙 003 plan.md).
 plugins {
     alias(libs.plugins.diary.kmp.library)
     alias(libs.plugins.kotlin.serialization)

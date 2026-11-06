@@ -30,7 +30,8 @@ import org.sjhstudio.diary.core.model.RichStyle
 import org.sjhstudio.diary.core.model.parseRichText
 
 /**
- * 일기 본문을 서식과 함께 그린다. [style]은 고른 글꼴과 글자 크기(`diaryBodyTextStyle`)다.
+ * 일기 본문을 서식과 함께 그린다.
+ * [style]은 고른 글꼴과 글자 크기(`diaryBodyTextStyle`)다.
  * 글자색과 형광펜은 저장된 라이트 값 대신 지금 테마의 같은 토큰으로 그린다(contracts/rich-text-html.md).
  */
 @Composable

@@ -37,7 +37,10 @@ interface DraftDao {
     @Query("SELECT * FROM draft_media WHERE draft_key = :key ORDER BY sort_order")
     suspend fun media(key: String): List<DraftMediaEntity>
 
-    /** 가장 최근의 새 일기 임시 저장본. 일기 ID는 UUID라 `new`로 시작하지 않는다. */
+    /**
+     * 가장 최근의 새 일기 임시 저장본.
+     * 일기 ID는 UUID라 `new`로 시작하지 않는다.
+     */
     @Query("SELECT * FROM draft WHERE `key` LIKE 'new%' ORDER BY updated_at DESC LIMIT 1")
     suspend fun latestNew(): DraftEntity?
 
@@ -111,7 +114,10 @@ interface DraftDao {
     @Query("SELECT DISTINCT file_name FROM draft_media")
     suspend fun fileNames(): List<String>
 
-    /** 사진을 빼거나 순서를 바꾼다. 순서 번호를 다시 매기므로 통째로 바꾼다. */
+    /**
+     * 사진을 빼거나 순서를 바꾼다.
+     * 순서 번호를 다시 매기므로 통째로 바꾼다.
+     */
     @Transaction
     suspend fun replaceMedia(key: String, media: List<DraftMediaEntity>) {
         clearMedia(key)

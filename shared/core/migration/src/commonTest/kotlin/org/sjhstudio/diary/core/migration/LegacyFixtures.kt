@@ -97,7 +97,10 @@ object LegacyFixtures {
         else -> s.bindText(index, value.toString())
     }
 
-    /** `count`줄. 날짜는 하루씩, 글 길이는 [contentLength]. */
+    /**
+     * `count`줄.
+     * 날짜는 하루씩, 글 길이는 [contentLength].
+     */
     fun manyRows(count: Int, contentLength: Int = 20): List<Row> = (0 until count).map { i ->
         val day = i % 28 + 1
         val month = i / 28 % 12 + 1
@@ -109,7 +112,10 @@ object LegacyFixtures {
         Row(createDate = date, contents = "일기 $i " + "가".repeat(contentLength), mood = i % 9, weather = i % 7)
     }
 
-    /** 가운데 페이지 몇 장을 망가뜨린다. 첫 페이지(머리)는 그대로 둔다. */
+    /**
+     * 가운데 페이지 몇 장을 망가뜨린다.
+     * 첫 페이지(머리)는 그대로 둔다.
+     */
     fun corruptMiddlePages(path: Path, pages: Int = 3) {
         val fs = FileSystem.SYSTEM
         val bytes = fs.read(path) { readByteArray() }

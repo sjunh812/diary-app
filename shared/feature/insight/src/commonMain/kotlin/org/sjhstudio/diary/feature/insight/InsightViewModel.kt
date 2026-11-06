@@ -30,13 +30,19 @@ import org.sjhstudio.diary.core.model.mostFrequent
 /** 기간 탭. */
 enum class InsightKind { Week, Month, Year, All }
 
-/** 돌아보기(FR-028~FR-031). 기간을 칸으로 나눈 기분 흐름과, 년은 하루 한 칸 지도를 함께 읽는다. */
+/**
+ * 돌아보기(FR-028~FR-031).
+ * 기간을 칸으로 나눈 기분 흐름과, 년은 하루 한 칸 지도를 함께 읽는다.
+ */
 class InsightViewModel(
     private val stats: StatsRepository,
     private val today: () -> LocalDate = { currentDate() },
     plans: PlanRepository? = null
 ) : ViewModel() {
-    /** 고급 통계를 볼 수 있는지. 요금제를 바꾸면 바로 따른다. */
+    /**
+     * 고급 통계를 볼 수 있는지.
+     * 요금제를 바꾸면 바로 따른다.
+     */
     val advancedOpen: StateFlow<Boolean> =
         (plans?.plan ?: flowOf(Plan.FREE))
             .map { it.advancedStats }
@@ -95,10 +101,16 @@ internal val StatsPeriod.kind: InsightKind
         StatsPeriod.All -> InsightKind.All
     }
 
-/** 많은 기분부터. 같은 수면 기분 순서를 따른다. */
+/**
+ * 많은 기분부터.
+ * 같은 수면 기분 순서를 따른다.
+ */
 internal fun MoodCounts.sorted(): List<Pair<Mood, Int>> = Mood.ordered.map { it to (counts[it] ?: 0) }.sortedByDescending { it.second }
 
-/** 기분 흐름 한 칸. [mood]는 그 칸의 날들에서 가장 많은 기분이고, 고른 기분이 없으면 null이다. */
+/**
+ * 기분 흐름 한 칸.
+ * [mood]는 그 칸의 날들에서 가장 많은 기분이고, 고른 기분이 없으면 null이다.
+ */
 internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?)
 
 internal sealed interface BucketSlot {
@@ -112,8 +124,10 @@ internal sealed interface BucketSlot {
 }
 
 /**
- * 기간을 칸으로 나눈다. 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다다.
- * 칸의 기분은 그 칸 일기의 기분을 모두 세어 정한다. 같으면 나중 기분을 쓴다.
+ * 기간을 칸으로 나눈다.
+ * 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다다.
+ * 칸의 기분은 그 칸 일기의 기분을 모두 세어 정한다.
+ * 같으면 나중 기분을 쓴다.
  */
 internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBucket> = when (period) {
     is StatsPeriod.Week -> {

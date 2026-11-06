@@ -20,7 +20,10 @@ class DriveTokenCache(private val timeSource: TimeSource = TimeSource.Monotonic,
 
     private val lock = Mutex()
 
-    /** [clear]할 때마다 바뀐다. 이 값이 다른 토큰은 지난 연결에서 받은 것이다. */
+    /**
+     * [clear]할 때마다 바뀐다.
+     * 이 값이 다른 토큰은 지난 연결에서 받은 것이다.
+     */
     @Volatile
     private var connection = Any()
 
@@ -42,7 +45,8 @@ class DriveTokenCache(private val timeSource: TimeSource = TimeSource.Monotonic,
             val asked = connection
             // 응답이 오지 않아도 뒤에서 기다리는 호출과 백업이 함께 멈추지 않는다.
             val result = withTimeoutOrNull(FETCH_TIMEOUT) { fetch() } ?: TokenResult.Failed(BackupFailure.OFFLINE)
-            // 받는 사이에 연결이 바뀌었으면 옛 계정의 결과다. 넘기지도 남기지도 않고 다시 받는다.
+            // 받는 사이에 연결이 바뀌었으면 옛 계정의 결과다.
+            // 넘기지도 남기지도 않고 다시 받는다.
             if (asked !== connection) continue
             if (result is TokenResult.Token) kept = Kept(result, timeSource.markNow() + REUSE_FOR, asked)
             return result

@@ -66,7 +66,10 @@ class MigrationReportViewModelTest {
         assertNull(vm.state.value.report)
     }
 
-    /** 미룬 기기는 다시 시도를 보이고, 실패하면 알린다. 앱은 그대로 쓴다. */
+    /**
+     * 미룬 기기는 다시 시도를 보이고, 실패하면 알린다.
+     * 앱은 그대로 쓴다.
+     */
     @Test
     fun deferred_retry_shows_failure_then_result() = runTest(dispatcher) {
         var step = MigrationStep.DEFERRED

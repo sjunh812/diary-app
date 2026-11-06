@@ -19,7 +19,8 @@ import org.sjhstudio.diary.feature.settings.SettingsUiState
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
-// 설정 목록(S6), 글꼴(G1), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰. 값은 Figma 화면과 같다.
+// 설정 목록(S6), 글꼴(G1), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰.
+// 값은 Figma 화면과 같다.
 
 private val sample =
     SettingsUiState(

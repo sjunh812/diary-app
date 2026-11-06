@@ -21,7 +21,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
  * 아이콘만 있는 버튼(`docs/design.md` 아이콘 버튼, 상단 바 아이콘 칸 48, M3 터치 48).
- * 원 48 · 아이콘 24 · 누름 효과(물결 없음). 글이 없어서 [contentDescription]을 꼭 받는다.
+ * 원 48 · 아이콘 24 · 누름 효과(물결 없음).
+ * 글이 없어서 [contentDescription]을 꼭 받는다.
  */
 @Composable
 fun DiaryIconButton(

@@ -131,9 +131,12 @@ private val BackStackConfiguration =
     }
 
 /**
- * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면). 폭 600dp 미만은 하단 탭, 이상은 레일이다.
+ * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면).
+ * 폭 600dp 미만은 하단 탭, 이상은 레일이다.
  * 탭은 홈·달력·돌아보기·설정이고, 하단 탭은 탭의 맨 위 화면에서만 보인다(Figma S6·G2).
- * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있다. 일기가 없는 홈은 빈 상태의 버튼 하나만 둔다. 쓰기 화면은 탭과 레일 없이 전체 화면이다.
+ * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있다.
+ * 일기가 없는 홈은 빈 상태의 버튼 하나만 둔다.
+ * 쓰기 화면은 탭과 레일 없이 전체 화면이다.
  * 잠금·이전 관문은 이 바깥에 있어 뒤로 가기로 벗어날 수 없다.
  */
 @Composable
@@ -150,16 +153,19 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     val onSelect = { index: Int -> backStack.selectTab(TABS[index]) }
     val onWrite: () -> Unit = { backStack.push(WriteKey()) }
     val writeLabel = stringResource(Res.string.write_new)
-    // 앱 틀 전체에 하나 두는 토스트. 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
+    // 앱 틀 전체에 하나 두는 토스트.
+    // 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
     val toast = remember { DiaryToastState() }
     FontReplacedNotice(toast) {
         backStack.selectTab(SettingsKey)
         backStack.push(FontSettingsKey)
     }
-    // 쓰기, 사진 크게 보기, 결제는 전체 화면이다. 탭과 레일을 그리지 않는다.
+    // 쓰기, 사진 크게 보기, 결제는 전체 화면이다.
+    // 탭과 레일을 그리지 않는다.
     val writing = backStack.lastOrNull() is WriteKey
     val fullScreen = writing || backStack.lastOrNull() is PhotoViewerKey || backStack.lastOrNull() is PlusKey
-    // 달을 읽기 전에는 일기가 있다고 보고 버튼을 둔다. 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
+    // 달을 읽기 전에는 일기가 있다고 보고 버튼을 둔다.
+    // 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
     val entries = koinInject<EntryRepository>()
     val months by remember(entries) { entries.months() }.collectAsStateWithLifecycle(null)
     val emptyHome = backStack.lastOrNull() == HomeKey && months?.isEmpty() == true
@@ -168,7 +174,8 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth
         val twoPane = maxWidth >= DiaryWriteSize.twoPaneMin
-        // 키 입력은 포커스가 있는 곳으로만 간다. 앱을 막 열면 포커스가 없어서 틀이 받아 둔다.
+        // 키 입력은 포커스가 있는 곳으로만 간다.
+        // 앱을 막 열면 포커스가 없어서 틀이 받아 둔다.
         val keyTarget = remember { FocusRequester() }
         val top = backStack.lastOrNull()
         LaunchedEffect(top) {
@@ -179,14 +186,17 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                 onNewEntry = { if (!writing) onWrite() },
                 onSearch = { if (!fullScreen && backStack.none { it is SearchKey }) backStack.push(SearchKey()) }
             ).focusRequester(keyTarget).focusTarget()
-        // 화면 칸은 폭이 바뀌어도 같은 자리에 둔다. 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어진다.
-        // 레일과 탭 바는 위에 얹는다. 쓰기로 넘어갈 때 사라져도 지난 화면이 밀리지 않는다.
+        // 화면 칸은 폭이 바뀌어도 같은 자리에 둔다.
+        // 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어진다.
+        // 레일과 탭 바는 위에 얹는다.
+        // 쓰기로 넘어갈 때 사라져도 지난 화면이 밀리지 않는다.
         val density = LocalDensity.current
         var railWidth by remember { mutableStateOf(Dp.Hairline) }
         var barHeight by remember { mutableStateOf(Dp.Hairline) }
         val tabsShown = !wide && backStack.size <= 1
         val barInset = if (tabsShown) barHeight else Dp.Hairline
-        // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올린다. 토스트는 제자리에 뜨고 버튼은 가리지 않는다.
+        // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올린다.
+        // 토스트는 제자리에 뜨고 버튼은 가리지 않는다.
         var toastHeight by remember { mutableStateOf(Dp.Hairline) }
         val reduceMotion = rememberReduceMotion()
         val writeLift by animateDpAsState(
@@ -234,11 +244,15 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     }
 }
 
-/** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둔다. */
+/**
+ * 위에 얹은 탭 바의 높이.
+ * 탭 화면은 전환 중에도 이 높이만큼 비워 둔다.
+ */
 private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
 
 /**
- * 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비운다. 쓰기처럼 전체를 쓰는 화면은 그대로 둔다.
+ * 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비운다.
+ * 쓰기처럼 전체를 쓰는 화면은 그대로 둔다.
  * 탭 바가 시스템 내비게이션 높이까지 맡으니 그만큼 다 쓴 것으로 알린다.
  * 안쪽 화면은 탭 바가 없는 넓은 화면에서만 시스템 내비게이션 높이를 비우게 된다.
  */
@@ -284,7 +298,8 @@ private fun ContentWithToast(
             }
         )
         val density = LocalDensity.current
-        // 탭 바 높이에는 시스템 내비게이션 높이가 이미 들어 있다. 또 더하면 그만큼 높이 뜬다.
+        // 탭 바 높이에는 시스템 내비게이션 높이가 이미 들어 있다.
+        // 또 더하면 그만큼 높이 뜬다.
         DiaryToastHost(
             toast,
             Modifier
@@ -296,12 +311,18 @@ private fun ContentWithToast(
     }
 }
 
-/** 화면을 연다. 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둔다. */
+/**
+ * 화면을 연다.
+ * 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둔다.
+ */
 private fun NavBackStack<NavKey>.push(key: NavKey) {
     if (lastOrNull() != key) add(key)
 }
 
-/** 탭을 누르면 그 탭의 맨 위 화면으로 간다. 지금 탭을 다시 누르면 맨 위로 돌아간다. */
+/**
+ * 탭을 누르면 그 탭의 맨 위 화면으로 간다.
+ * 지금 탭을 다시 누르면 맨 위로 돌아간다.
+ */
 private fun NavBackStack<NavKey>.selectTab(tab: TabScreen) {
     clear()
     add(tab)
@@ -312,7 +333,10 @@ private fun SearchKey.toFilter() = SearchFilter(
     period = if (from != null && to != null) DateRange(LocalDate.parse(from), LocalDate.parse(to)) else null
 )
 
-/** 상세를 연다. 넓은 화면에서 다른 줄을 고르면 상세가 쌓이지 않고 바뀐다. */
+/**
+ * 상세를 연다.
+ * 넓은 화면에서 다른 줄을 고르면 상세가 쌓이지 않고 바뀐다.
+ */
 private fun NavBackStack<NavKey>.openEntry(entryId: String) {
     if (lastOrNull() is EntryDetailKey) removeAt(lastIndex)
     add(EntryDetailKey(entryId))
@@ -332,7 +356,8 @@ private fun Content(
     val telemetry = koinInject<Telemetry>()
     val top = backStack.lastOrNull()
     LaunchedEffect(top) { if (top != null) telemetry.screen(top.toString()) }
-    // 저장 뒤 상세에서 목록으로 돌아올 때 하루 한 번 전면 광고를 띄운다. 저장은 이미 끝나 있다(FR-010).
+    // 저장 뒤 상세에서 목록으로 돌아올 때 하루 한 번 전면 광고를 띄운다.
+    // 저장은 이미 끝나 있다(FR-010).
     val ads = koinInject<AdRepository>()
     val adScope = rememberCoroutineScope()
     var adAfterSave by remember { mutableStateOf(false) }
@@ -372,7 +397,8 @@ private fun Content(
                             onTrashed(id)
                         },
                         selectedId = backStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { twoPane },
-                        // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다. 광고 수는 늘지 않는다.
+                        // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
+                        // 광고 수는 늘지 않는다.
                         adSlot = { order -> AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card) }
                     )
                 }
@@ -453,7 +479,10 @@ private fun Content(
     )
 }
 
-/** 두 칸에서 고른 일기가 없을 때의 오른쪽. 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보인다. */
+/**
+ * 두 칸에서 고른 일기가 없을 때의 오른쪽.
+ * 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보인다.
+ */
 @Composable
 private fun PickHint() {
     DiaryEmptyArea(Modifier.background(DiaryTheme.colors.canvas)) {

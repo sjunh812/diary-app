@@ -99,7 +99,10 @@ object LegacySettingsMapper {
     /** 새 앱에도 같은 글꼴이 있어 바뀌었다고 알리지 않는 키(프리텐다드, 시스템, 점꼴체). */
     private val SAME_FONT_KEYS = setOf(-1, 0, 3, 100)
 
-    /** 1.7.4 글꼴 고르기 화면의 이름(`activity_font.xml`). 바뀐 글꼴을 처음 열 때 한 번 알리는 데 쓴다. */
+    /**
+     * 1.7.4 글꼴 고르기 화면의 이름(`activity_font.xml`).
+     * 바뀐 글꼴을 처음 열 때 한 번 알리는 데 쓴다.
+     */
     private val LEGACY_FONT_NAMES =
         mapOf(
             1 to "국립공원 꼬미체",

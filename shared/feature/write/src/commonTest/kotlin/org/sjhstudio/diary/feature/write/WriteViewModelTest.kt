@@ -43,7 +43,8 @@ import org.sjhstudio.diary.core.platform.PlaceLookup
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 쓰기 화면 모델(스펙 002 T034, T032 일부). 쓴 글을 잃지 않는지를 먼저 본다.
+// 쓰기 화면 모델(스펙 002 T034, T032 일부).
+// 쓴 글을 잃지 않는지를 먼저 본다.
 @OptIn(ExperimentalCoroutinesApi::class)
 class WriteViewModelTest {
     private val dispatcher = StandardTestDispatcher()
@@ -452,7 +453,10 @@ class WriteViewModelTest {
         assertEquals(1, vm.state.value.bodyVersion)
     }
 
-    /** 고르지 않고 뒤로 가면 쓰던 글을 불러오지 않고 나간다. 글은 다음에 다시 물을 수 있게 그대로 남는다. */
+    /**
+     * 고르지 않고 뒤로 가면 쓰던 글을 불러오지 않고 나간다.
+     * 글은 다음에 다시 물을 수 있게 그대로 남는다.
+     */
     @Test
     fun leaving_the_offer_closes_without_loading_the_draft() = runTest(dispatcher) {
         val repository = FakeDraftRepository(listOf(draft()))

@@ -26,7 +26,10 @@ import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 
-/** [BackupRepository]의 구현. 드라이브와 일기 DB는 처음 쓸 때 연다. */
+/**
+ * [BackupRepository]의 구현.
+ * 드라이브와 일기 DB는 처음 쓸 때 연다.
+ */
 class BackupController(
     private val store: BackupStore,
     private val db: Lazy<DiaryDatabase>,
@@ -38,7 +41,10 @@ class BackupController(
     private val clock: Clock = Clock.System,
     private val migrated: () -> Boolean = { false },
     private val legacyAccount: suspend () -> String? = { null },
-    /** 드라이브에 있는 가장 최근 백업. 못 읽으면 null이다. */
+    /**
+     * 드라이브에 있는 가장 최근 백업.
+     * 못 읽으면 null이다.
+     */
     private val findBackup: suspend () -> BackupEntry? = { null }
 ) : BackupRepository {
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)

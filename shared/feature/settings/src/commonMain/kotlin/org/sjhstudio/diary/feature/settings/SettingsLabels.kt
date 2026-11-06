@@ -44,7 +44,10 @@ internal fun ThemeMode.label(): StringResource = when (this) {
     ThemeMode.DARK -> Res.string.theme_dark
 }
 
-/** 설정 목록의 잠금 줄 값. 꺼져 있으면 "꺼짐", 켜져 있으면 다시 잠그는 때. */
+/**
+ * 설정 목록의 잠금 줄 값.
+ * 꺼져 있으면 "꺼짐", 켜져 있으면 다시 잠그는 때.
+ */
 internal fun LockSettings.label(): StringResource = if (!enabled) {
     Res.string.lock_value_off
 } else {

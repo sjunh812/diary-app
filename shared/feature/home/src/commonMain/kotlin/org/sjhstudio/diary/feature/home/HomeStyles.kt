@@ -43,7 +43,10 @@ import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
 
-/** 카드 목록(Figma "홈 · 카드"). 일기마다 카드 하나, 사진은 네 칸까지다. */
+/**
+ * 카드 목록(Figma "홈 · 카드").
+ * 일기마다 카드 하나, 사진은 네 칸까지다.
+ */
 @Composable
 internal fun CardList(
     rows: LazyPagingItems<EntryRow>,
@@ -109,7 +112,8 @@ private fun EntryCard(
             )
             .padding(DiarySpacing.x4)
     ) {
-        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데에 둔다(2026-11-06 사용자 지적). 날짜 줄에만 맞추면 위로 떠 보인다.
+        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데에 둔다(2026-11-06 사용자 지적).
+        // 날짜 줄에만 맞추면 위로 떠 보인다.
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             Column(Modifier.fillMaxWidth().padding(end = if (row.mood != null) DiaryHomeSize.cardFace + DiarySpacing.x2 else Dp.Hairline)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
@@ -172,7 +176,10 @@ private fun EntryCard(
     }
 }
 
-/** 사진 격자(FR-018). 사진이 없는 일기는 첫 글을 대신 보여서 일기가 빠지지 않게 한다. */
+/**
+ * 사진 격자(FR-018).
+ * 사진이 없는 일기는 첫 글을 대신 보여서 일기가 빠지지 않게 한다.
+ */
 @Composable
 internal fun PhotoGrid(
     rows: LazyPagingItems<EntryRow>,

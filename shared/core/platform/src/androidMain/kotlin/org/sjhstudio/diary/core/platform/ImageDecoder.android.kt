@@ -22,7 +22,8 @@ actual object ImageDecoder {
         val scale = minOf(1f, maxSide.toFloat() / max(decoded.width, decoded.height))
         val matrix = orientation(source).apply { postScale(scale, scale) }
         val result = Bitmap.createBitmap(decoded, 0, 0, decoded.width, decoded.height, matrix, true)
-        // JPEG에는 투명이 없어 그대로 쓰면 투명한 곳이 검게 나온다. 흰 바탕에 올린다.
+        // JPEG에는 투명이 없어 그대로 쓰면 투명한 곳이 검게 나온다.
+        // 흰 바탕에 올린다.
         val opaque = if (result.hasAlpha()) onWhite(result) else result
         return try {
             File(target).outputStream().use { opaque.compress(Bitmap.CompressFormat.JPEG, quality, it) }
@@ -48,7 +49,10 @@ actual object ImageDecoder {
         return if (bounds.outWidth > 0 && bounds.outHeight > 0) ImageSize(bounds.outWidth, bounds.outHeight) else null
     }
 
-    /** EXIF 방향을 행렬로 바꾼다. EXIF가 없는 그림(PNG 등)은 그대로다. */
+    /**
+     * EXIF 방향을 행렬로 바꾼다.
+     * EXIF가 없는 그림(PNG 등)은 그대로다.
+     */
     private fun orientation(source: String): Matrix {
         val matrix = Matrix()
         val value =

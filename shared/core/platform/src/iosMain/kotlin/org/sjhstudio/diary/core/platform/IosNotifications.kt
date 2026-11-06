@@ -33,8 +33,10 @@ class IosNotificationPermission : NotificationPermission {
 }
 
 /**
- * 매일 알림(스펙 001 FR-022, research R15). 그 시각에 날마다 되풀이하는 달력 알림 하나를 건다.
- * 같은 이름으로 다시 걸면 앞의 것을 바꾼다. 알림 글은 iosApp의 `Localizable.strings`에 있다.
+ * 매일 알림(스펙 001 FR-022, research R15).
+ * 그 시각에 날마다 되풀이하는 달력 알림 하나를 건다.
+ * 같은 이름으로 다시 걸면 앞의 것을 바꾼다.
+ * 알림 글은 iosApp의 `Localizable.strings`에 있다.
  * 알림에는 일기 내용을 넣지 않는다(헌법 II).
  */
 class IosReminderScheduler : ReminderScheduler {

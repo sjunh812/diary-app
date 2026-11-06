@@ -13,7 +13,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-// 두 버튼 글이 잘리지 않는다. 짧으면 나란히, 길면 주 버튼을 위로 쌓는다.
+// 두 버튼 글이 잘리지 않는다.
+// 짧으면 나란히, 길면 주 버튼을 위로 쌓는다.
 @OptIn(ExperimentalTestApi::class)
 class DiaryButtonPairTest {
     @Test

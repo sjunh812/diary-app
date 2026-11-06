@@ -46,8 +46,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.currentDate
 
 /**
- * 시트 안의 달력. 화살표로 한 달씩 넘기고, 연월 제목을 누르면 날짜 칸 자리에 연·월 휠이 나와 먼 달로 바로 간다.
- * 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아온다. [days]는 날짜 칸이다.
+ * 시트 안의 달력.
+ * 화살표로 한 달씩 넘기고, 연월 제목을 누르면 날짜 칸 자리에 연·월 휠이 나와 먼 달로 바로 간다.
+ * 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아온다.
+ * [days]는 날짜 칸이다.
  */
 @Composable
 fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: Modifier = Modifier, days: @Composable () -> Unit) {
@@ -55,7 +57,8 @@ fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: 
     var wheel by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            // 휠을 여는 동안 화살표는 쓸 일이 없다. 자리는 그대로 둬서 제목이 움직이지 않게 한다.
+            // 휠을 여는 동안 화살표는 쓸 일이 없다.
+            // 자리는 그대로 둬서 제목이 움직이지 않게 한다.
             if (wheel) {
                 Spacer(Modifier.size(DiarySpacing.minTouchTarget))
             } else {
@@ -133,7 +136,11 @@ private fun MonthArrow(icon: ImageVector, onClick: () -> Unit) {
     }
 }
 
-/** 날짜 고르기 칸. 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보인다. [inRange]는 기간을 고를 때 사이의 날이다. */
+/**
+ * 날짜 고르기 칸.
+ * 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보인다.
+ * [inRange]는 기간을 고를 때 사이의 날이다.
+ */
 @Composable
 fun DiaryMonthDays(
     month: YearMonth,
@@ -194,5 +201,8 @@ private const val DAYS_IN_WEEK = 7
 private const val MONTHS = 12
 private const val HALF_TURN = 180f
 
-/** 연 휠의 첫해. 이보다 옛 일기가 있으면 그 해부터 보인다. */
+/**
+ * 연 휠의 첫해.
+ * 이보다 옛 일기가 있으면 그 해부터 보인다.
+ */
 private const val FIRST_YEAR = 2010

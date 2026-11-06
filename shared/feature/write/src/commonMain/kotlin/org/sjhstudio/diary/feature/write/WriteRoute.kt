@@ -27,7 +27,8 @@ import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 
 /**
- * 쓰기 진입점. 어디로 갈지는 앱 틀이 정한다.
+ * 쓰기 진입점.
+ * 어디로 갈지는 앱 틀이 정한다.
  * [onSaved]는 일기 ID를, [onClosed]는 임시 저장을 남겼는지를 받는다.
  */
 @OptIn(ExperimentalComposeUiApi::class)

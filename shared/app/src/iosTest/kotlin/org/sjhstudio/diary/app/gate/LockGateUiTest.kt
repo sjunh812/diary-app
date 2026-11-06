@@ -52,7 +52,8 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
 
 // 잠금 관문(스펙 001 T055, contracts/lock.md, research R13).
-// 잠긴 동안 안쪽 화면은 그리지 않고, 열면 보던 상태 그대로 돌아온다. 생체 인증을 취소하면 숫자판이 남는다.
+// 잠긴 동안 안쪽 화면은 그리지 않고, 열면 보던 상태 그대로 돌아온다.
+// 생체 인증을 취소하면 숫자판이 남는다.
 @OptIn(ExperimentalTestApi::class)
 class LockGateUiTest {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -103,7 +104,8 @@ class LockGateUiTest {
         repeat(3) { onNodeWithTag(COUNTER).performClick() }
         onNodeWithTag(COUNTER).assertTextEquals("3")
 
-        // 뒤로 갔다 오면 바로 잠긴다(바로 잠금). 잠긴 동안 안쪽 화면은 그리지 않는다.
+        // 뒤로 갔다 오면 바로 잠긴다(바로 잠금).
+        // 잠긴 동안 안쪽 화면은 그리지 않는다.
         runOnIdle {
             controller.onBackground()
             controller.onForeground()
@@ -172,7 +174,10 @@ class LockGateUiTest {
     }
 }
 
-/** 보던 화면의 상태 대신 쓰는 숫자. 저장 상태로 두어 잠금을 지나도 남는지 본다. */
+/**
+ * 보던 화면의 상태 대신 쓰는 숫자.
+ * 저장 상태로 두어 잠금을 지나도 남는지 본다.
+ */
 @Composable
 private fun Counter() {
     var count by rememberSaveable { mutableIntStateOf(0) }

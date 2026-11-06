@@ -15,7 +15,8 @@ import org.sjhstudio.diary.core.model.MigrationStep
 
 /**
  * `migration/state.json`, `report.json`을 임시 파일 + 이름 바꾸기로 쓴다(research R7).
- * Room 밖 작은 파일이라 DB가 없을 때도 읽힌다. 일기 내용, 경로, 예외 메시지는 담지 않는다.
+ * Room 밖 작은 파일이라 DB가 없을 때도 읽힌다.
+ * 일기 내용, 경로, 예외 메시지는 담지 않는다.
  */
 class MigrationStateStore(private val fileSystem: FileSystem, private val dir: Path) {
     private val statePath get() = dir / "state.json"

@@ -72,7 +72,10 @@ private const val OPEN_MILLIS = 3_200
 private const val OPEN_DELAY_MILLIS = 180L
 private const val BACKDROP_ALPHA = 0.4f
 
-/** 편지 바탕. 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다. */
+/**
+ * 편지 바탕.
+ * 편지지가 도드라질 만큼만 아주 옅은 라벤더를 깐다.
+ */
 @Composable
 private fun Modifier.letterBackdrop(): Modifier {
     val colors = DiaryTheme.colors
@@ -80,8 +83,10 @@ private fun Modifier.letterBackdrop(): Modifier {
 }
 
 /**
- * 개발자의 편지(Figma W0, W1). 판매 장치 없이 만든 사람의 말만 둔다(FR-003, FR-005).
- * 봉투를 열면 편지지가 나온다. 버튼 자리를 그대로 두어 열고 나서 같은 곳을 누르면 넘어간다.
+ * 개발자의 편지(Figma W0, W1).
+ * 판매 장치 없이 만든 사람의 말만 둔다(FR-003, FR-005).
+ * 봉투를 열면 편지지가 나온다.
+ * 버튼 자리를 그대로 두어 열고 나서 같은 곳을 누르면 넘어간다.
  * 동작 줄이기에서는 바로 편지지를 보인다.
  */
 @Composable
@@ -96,7 +101,8 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
             still -> opened = true
 
             !opening.isRunning && !waiting -> scope.launch {
-                // 누른 표시가 끝난 뒤에 움직인다. 탭 직후의 바쁜 프레임에 시작하면 덮개와 글자가 끊겨 보인다.
+                // 누른 표시가 끝난 뒤에 움직인다.
+                // 탭 직후의 바쁜 프레임에 시작하면 덮개와 글자가 끊겨 보인다.
                 waiting = true
                 delay(OPEN_DELAY_MILLIS)
                 opening.animateTo(1f, tween(OPEN_MILLIS))
@@ -106,7 +112,8 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     }
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         if (opened) {
-            // 봉투에서 펼쳐진 편지지를 그대로 잇는다. 여기서 다시 올라오면 깜빡인다.
+            // 봉투에서 펼쳐진 편지지를 그대로 잇는다.
+            // 여기서 다시 올라오면 깜빡인다.
             LetterSheet(Modifier.weight(1f), rises = false) { LetterBody(entries) }
         } else {
             LetterStage({ opening.value }, open, Modifier.weight(1f)) { card ->
@@ -131,7 +138,10 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     }
 }
 
-/** 설정에서 다시 읽는 편지. 봉투 없이 바로 편지지이고 계속하기 대신 뒤로 가기가 있다. */
+/**
+ * 설정에서 다시 읽는 편지.
+ * 봉투 없이 바로 편지지이고 계속하기 대신 뒤로 가기가 있다.
+ */
 @Composable
 fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -140,7 +150,10 @@ fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Mod
     }
 }
 
-/** 처음 본 편지와 다시 읽는 편지가 함께 쓰는 본문. 옮긴 일기가 없으면 고맙다는 문단은 없다. */
+/**
+ * 처음 본 편지와 다시 읽는 편지가 함께 쓰는 본문.
+ * 옮긴 일기가 없으면 고맙다는 문단은 없다.
+ */
 @Composable
 private fun LetterBody(entries: Int?) {
     entries?.takeIf { it > 0 }?.let { LetterParagraphs(pluralStringResource(Res.plurals.letter_moved, it, it.grouped())) }
@@ -160,7 +173,8 @@ private fun LetterBody(entries: Int?) {
 }
 
 /**
- * 편지지 한 장. 받는 사람, 인사, 본문, 보내는 사람 순서로 편지 꼴을 갖춘다.
+ * 편지지 한 장.
+ * 받는 사람, 인사, 본문, 보내는 사람 순서로 편지 꼴을 갖춘다.
  * 문단 사이는 빈 줄이 아니라 간격 16이다(줄 높이 28의 1.5배 이상이 되는 값, WCAG 1.4.8).
  * 설정에서 열 때는 한 번 살짝 올라오고, 봉투에서 나올 때와 동작 줄이기면 그대로 있다.
  */
@@ -176,7 +190,8 @@ private fun LetterSheet(
     val rise = remember { Animatable(if (still) 1f else 0f) }
     LaunchedEffect(still) { if (!still) rise.animateTo(1f, tween(RISE_MILLIS)) }
     // 처음 보는 편지는 아래 버튼이 있어 남는 자리의 가운데에 둔다.
-    // 다시 읽는 편지는 위에 바만 있어 가운데에 두면 처져 보이므로 바 바로 아래부터 놓는다. 길면 스크롤한다.
+    // 다시 읽는 편지는 위에 바만 있어 가운데에 두면 처져 보이므로 바 바로 아래부터 놓는다.
+    // 길면 스크롤한다.
     BoxWithConstraints(modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
         Column(
             Modifier
@@ -194,7 +209,10 @@ private fun LetterSheet(
     }
 }
 
-/** 편지지 카드. 편지 꼴을 갖춘 면이고 테두리 없이 부드러운 모서리로 둔다. */
+/**
+ * 편지지 카드.
+ * 편지 꼴을 갖춘 면이고 테두리 없이 부드러운 모서리로 둔다.
+ */
 @Composable
 private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit, content: @Composable ColumnScope.() -> Unit) {
     val colors = DiaryTheme.colors
@@ -219,7 +237,10 @@ private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit,
     }
 }
 
-/** 약속 한 줄. 글에 묻히지 않게 표시를 앞에 둔다. */
+/**
+ * 약속 한 줄.
+ * 글에 묻히지 않게 표시를 앞에 둔다.
+ */
 @Composable
 private fun Promise(text: String) {
     val colors = DiaryTheme.colors
@@ -229,7 +250,10 @@ private fun Promise(text: String) {
     }
 }
 
-/** 문자열의 빈 줄을 문단으로 나눠 그린다. 간격은 부모의 16을 따른다. */
+/**
+ * 문자열의 빈 줄을 문단으로 나눠 그린다.
+ * 간격은 부모의 16을 따른다.
+ */
 @Composable
 private fun LetterParagraphs(text: String) {
     val colors = DiaryTheme.colors
@@ -238,7 +262,10 @@ private fun LetterParagraphs(text: String) {
     text.split("\n\n").forEach { BasicText(emphasized(it, weight), style = style) }
 }
 
-/** `**`로 감싼 곳만 굵게 한다. 번역할 때 강조 자리를 문장에 맞게 옮길 수 있도록 문자열에 둔다. */
+/**
+ * `**`로 감싼 곳만 굵게 한다.
+ * 번역할 때 강조 자리를 문장에 맞게 옮길 수 있도록 문자열에 둔다.
+ */
 private fun emphasized(text: String, weight: FontWeight): AnnotatedString = buildAnnotatedString {
     text.split("**").forEachIndexed { index, part ->
         if (index % 2 == 1) withStyle(SpanStyle(fontWeight = weight)) { append(part) } else append(part)

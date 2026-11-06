@@ -16,9 +16,15 @@ data class LockSettings(
     val keyAlias: String = DEFAULT_KEY_ALIAS,
     val biometricEnabled: Boolean = false,
     val relockAfter: RelockAfter = RelockAfter.DEFAULT,
-    /** 연속으로 틀린 횟수. 맞으면 0. */
+    /**
+     * 연속으로 틀린 횟수.
+     * 맞으면 0.
+     */
     val failedAttempts: Int = 0,
-    /** 다시 입력할 수 있는 시각. null이면 기다리지 않는다. */
+    /**
+     * 다시 입력할 수 있는 시각.
+     * null이면 기다리지 않는다.
+     */
     val retryAfter: Instant? = null
 ) {
     /** 잠금은 켜졌는데 확인값이 없으면 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다. */

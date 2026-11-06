@@ -60,7 +60,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
 
-/** 휠 한 칸 높이. 다섯 칸이 보이고 가운데가 고른 값이다(`docs/design.md` 시각 고르기). */
+/**
+ * 휠 한 칸 높이.
+ * 다섯 칸이 보이고 가운데가 고른 값이다(`docs/design.md` 시각 고르기).
+ */
 private val WheelRow: Dp = 40.dp
 private const val VISIBLE_ROWS = 5
 private val WheelColumnWidth: Dp = 72.dp
@@ -69,11 +72,15 @@ private val WheelColumnWidth: Dp = 72.dp
 private val MonthWheelColumnWidth: Dp = 128.dp
 private const val MONTHS = 12
 
-/** 시·분은 끝에서 처음으로 이어 돈다. 이만큼 되풀이해 두고 가운데에서 시작한다. */
+/**
+ * 시·분은 끝에서 처음으로 이어 돈다.
+ * 이만큼 되풀이해 두고 가운데에서 시작한다.
+ */
 private const val LOOP_REPEAT = 400
 
 /**
- * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠). 바텀 시트 안에 둔다.
+ * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠).
+ * 바텀 시트 안에 둔다.
  * 오전·오후 / 시 / 분(1분 단위) 세 열이고, [is24Hour]면 오전·오후 열 없이 0~23시다.
  * 한국어·일본어는 오전·오후가 앞, 영어는 뒤에 온다(플랫폼 시각 형식과 같은 순서).
  * 돌리다 멈출 때마다 [onChange]로 하루 중 몇 분째인지(0~1439)를 알린다.
@@ -129,8 +136,10 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
 }
 
 /**
- * 연·월 고르기 휠. 달력의 연월 제목을 누르면 날짜 칸 자리에 나온다(HIG 피커의 휠, `docs/design.md` 시각 고르기와 같은 규격).
- * 한국어·일본어는 연이 앞, 영어는 달이 앞이다. 달은 끝에서 처음으로 이어 돌고 연은 [years] 끝에서 멈춘다.
+ * 연·월 고르기 휠.
+ * 달력의 연월 제목을 누르면 날짜 칸 자리에 나온다(HIG 피커의 휠, `docs/design.md` 시각 고르기와 같은 규격).
+ * 한국어·일본어는 연이 앞, 영어는 달이 앞이다.
+ * 달은 끝에서 처음으로 이어 돌고 연은 [years] 끝에서 멈춘다.
  */
 @Composable
 fun DiaryMonthWheel(

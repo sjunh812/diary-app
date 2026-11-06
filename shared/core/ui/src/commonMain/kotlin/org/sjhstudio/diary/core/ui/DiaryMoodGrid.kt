@@ -37,7 +37,8 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
 /**
- * 기분 고르기 칸 9개. 쓰기는 하나, 찾기는 여러 개를 고른다.
+ * 기분 고르기 칸 9개.
+ * 쓰기는 하나, 찾기는 여러 개를 고른다.
  * 두 줄이 같은 다섯 칸을 쓰고 아랫줄은 왼쪽부터 채운다.
  * 고른 칸 바탕이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춘다.
  */
@@ -90,7 +91,8 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
 }
 
 /**
- * 날씨 고르기. 기분이 주인공이라 날씨는 칩으로 가볍게 두고, 고른 칩만 색이 든다.
+ * 날씨 고르기.
+ * 기분이 주인공이라 날씨는 칩으로 가볍게 두고, 고른 칩만 색이 든다.
  * 칩은 폭만큼 줄을 바꿔서 긴 영어 이름이나 큰 글씨에서도 잘리지 않는다.
  */
 @Composable

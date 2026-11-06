@@ -6,6 +6,10 @@ package org.sjhstudio.diary.core.platform
  * Android는 `ProcessLifecycleOwner`, iOS는 앱 상태 알림을 쓴다.
  */
 expect object AppForeground {
-    /** 지금부터 바뀔 때마다 알린다. 돌려준 함수를 부르면 그만 듣는다. 메인 스레드에서 부른다. */
+    /**
+     * 지금부터 바뀔 때마다 알린다.
+     * 돌려준 함수를 부르면 그만 듣는다.
+     * 메인 스레드에서 부른다.
+     */
     fun observe(onBackground: () -> Unit, onForeground: () -> Unit): () -> Unit
 }

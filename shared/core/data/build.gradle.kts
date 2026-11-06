@@ -1,4 +1,5 @@
-// 화면이 쓰는 저장소(Repository). DB, DataStore, 플랫폼 기능을 묶는다.
+// 화면이 쓰는 저장소(Repository).
+// DB, DataStore, 플랫폼 기능을 묶는다.
 plugins {
     alias(libs.plugins.diary.kmp.library)
 }

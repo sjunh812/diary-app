@@ -26,7 +26,8 @@ class DesignTokenCheckTaskTest {
         val project = ProjectBuilder.builder().withProjectDir(root).build()
         project.pluginManager.apply(RootConventionPlugin::class.java)
         val task = project.tasks.getByName("designTokenCheck") as DesignTokenCheckTask
-        // Gradle이 작업을 돌릴 때는 출력 폴더를 먼저 만든다. 작업을 바로 부르는 시험이라 직접 만든다.
+        // Gradle이 작업을 돌릴 때는 출력 폴더를 먼저 만든다.
+        // 작업을 바로 부르는 시험이라 직접 만든다.
         task.report.get().asFile.parentFile.mkdirs()
         val result = runCatching { task.check() }
         return result to task.report.get().asFile.readText()

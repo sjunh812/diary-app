@@ -47,7 +47,8 @@ class AndroidDeviceAuthenticator(private val activity: FragmentActivity) : Devic
                     if (continuation.isActive) continuation.resume(AuthResult.Success)
                 }
 
-                // 한 번 틀리면 창은 그대로 남는다. 창이 닫힐 때만 끝낸다.
+                // 한 번 틀리면 창은 그대로 남는다.
+                // 창이 닫힐 때만 끝낸다.
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     if (!continuation.isActive) return
                     val canceled =

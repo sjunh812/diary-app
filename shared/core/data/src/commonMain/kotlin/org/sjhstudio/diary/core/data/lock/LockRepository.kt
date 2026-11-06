@@ -13,10 +13,16 @@ import org.sjhstudio.diary.core.model.RelockAfter
 interface LockRepository {
     val settings: Flow<LockSettings>
 
-    /** 잠금은 켜졌는데 확인값이나 기기 키가 없어 비밀번호를 대어 볼 수 없는가. 그러면 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다. */
+    /**
+     * 잠금은 켜졌는데 확인값이나 기기 키가 없어 비밀번호를 대어 볼 수 없는가.
+     * 그러면 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다.
+     */
     suspend fun needsNewPin(): Boolean
 
-    /** 새 salt로 확인값을 만들어 두고 잠금을 켠다. 틀린 횟수도 지운다. */
+    /**
+     * 새 salt로 확인값을 만들어 두고 잠금을 켠다.
+     * 틀린 횟수도 지운다.
+     */
     suspend fun setPin(pin: Pin)
 
     suspend fun verify(pin: Pin, now: Instant): VerifyResult
@@ -42,6 +48,9 @@ sealed interface VerifyResult {
 
     data class Waiting(val until: Instant) : VerifyResult
 
-    /** 키가 없어 확인할 수 없다. 폰 화면 잠금 흐름으로 보낸다. */
+    /**
+     * 키가 없어 확인할 수 없다.
+     * 폰 화면 잠금 흐름으로 보낸다.
+     */
     data object KeyMissing : VerifyResult
 }

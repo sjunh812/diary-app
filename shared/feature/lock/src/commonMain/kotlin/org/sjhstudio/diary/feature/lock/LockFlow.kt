@@ -75,7 +75,8 @@ fun LockFlow(
         }
     }
     LaunchedEffect(setup) { setup.done.collect { onUnlocked() } }
-    // 열자마자 생체 인증을 띄운다. 취소하거나 실패하면 숫자판이 그대로 남는다.
+    // 열자마자 생체 인증을 띄운다.
+    // 취소하거나 실패하면 숫자판이 그대로 남는다.
     LaunchedEffect(showBiometric) {
         if (!showBiometric) return@LaunchedEffect
         val result = authenticator.authenticateBiometric(biometricPrompt)

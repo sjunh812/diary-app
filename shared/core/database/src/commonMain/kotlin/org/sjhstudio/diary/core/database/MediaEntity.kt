@@ -7,8 +7,10 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 /**
- * `media` 표. 열 이름, 타입, 널은 data-model.md `media` 표 그대로다.
- * 일기를 영구 삭제하면 사진 줄도 함께 지운다. 파일은 사진 정리(스펙 002)가 따로 지운다.
+ * `media` 표.
+ * 열 이름, 타입, 널은 data-model.md `media` 표 그대로다.
+ * 일기를 영구 삭제하면 사진 줄도 함께 지운다.
+ * 파일은 사진 정리(스펙 002)가 따로 지운다.
  */
 @Entity(
     tableName = "media",

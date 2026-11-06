@@ -112,15 +112,20 @@ internal fun WeatherGrid(selected: Weather?, onSelect: (Weather) -> Unit, modifi
     DiaryWeatherGrid({ it == selected }, onSelect, modifier)
 }
 
-/** 이미 고른 값을 지우는 버튼. 고르기 전에는 할 일이 없어서 두지 않는다. */
+/**
+ * 이미 고른 값을 지우는 버튼.
+ * 고르기 전에는 할 일이 없어서 두지 않는다.
+ */
 @Composable
 private fun ClearButton(onClick: () -> Unit) {
     DiaryButton(stringResource(Res.string.write_none), onClick, Modifier.fillMaxWidth(), kind = DiaryButtonKind.Text)
 }
 
 /**
- * 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고른다(2026-11-05 사용자 지적).
- * 하나만 고르는 시트라 누르면 바로 들어가고 닫힌다. 완료를 한 번 더 누르게 하지 않는다.
+ * 기분 칩에서 여는 시트.
+ * 날씨는 날씨 칩에서 따로 고른다(2026-11-05 사용자 지적).
+ * 하나만 고르는 시트라 누르면 바로 들어가고 닫힌다.
+ * 완료를 한 번 더 누르게 하지 않는다.
  */
 @Composable
 internal fun MoodSheet(mood: Mood?, onMood: (Mood) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
@@ -159,7 +164,8 @@ internal fun PlaceSheet(
 ) {
     var text by remember { mutableStateOf(initial) }
     val colors = DiaryTheme.colors
-    // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둔다. 완료를 눌러야 일기에 들어간다.
+    // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둔다.
+    // 완료를 눌러야 일기에 들어간다.
     val found = ((locating as? PlaceLocating.Done)?.result as? PlaceLookup.Found)?.name
     LaunchedEffect(found) {
         if (found != null) text = found.take(MAX_PLACE)
@@ -173,7 +179,8 @@ internal fun PlaceSheet(
             PlaceField(text, onChange = { text = it.take(MAX_PLACE) })
             CurrentPlace(locating, onLocate, onOpenSettings)
         }
-        // 전에 쓴 곳은 한 번에 고른다. 적는 글자에 맞는 곳만 남긴다.
+        // 전에 쓴 곳은 한 번에 고른다.
+        // 적는 글자에 맞는 곳만 남긴다.
         val typed = text.trim()
         PlaceChips(
             stringResource(Res.string.write_place_recent),
@@ -220,7 +227,10 @@ private fun PlaceField(text: String, onChange: (String) -> Unit) {
     }
 }
 
-/** 누를 때만 위치를 읽는다. 찾지 못해도 쓰기는 그대로고 한 줄로 알린다. */
+/**
+ * 누를 때만 위치를 읽는다.
+ * 찾지 못해도 쓰기는 그대로고 한 줄로 알린다.
+ */
 @Composable
 private fun CurrentPlace(locating: PlaceLocating, onLocate: () -> Unit, onOpenSettings: (locationOff: Boolean) -> Unit) {
     val finding = locating == PlaceLocating.Finding
@@ -275,7 +285,8 @@ private fun PlaceChips(title: String, places: List<String>, onPick: (String) -> 
     if (places.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         BasicText(title, style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary))
-        // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다. 보이는 틈은 16이다.
+        // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다.
+        // 보이는 틈은 16이다.
         FlowRow(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             for (place in places) DiaryChip(place, selected = false, onClick = { onPick(place) })
         }
@@ -287,7 +298,10 @@ private fun SheetButtons(secondary: String, onSecondary: () -> Unit, primary: St
     DiaryButtonPair(secondary, onSecondary, primary, onPrimary, size = DiaryButtonSize.XLarge)
 }
 
-/** "쓰던 일기가 있어요"(Figma "S2 · 쓰던 일기"). 버리기는 한 번 더 묻는다(FR-011). */
+/**
+ * "쓰던 일기가 있어요"(Figma "S2 · 쓰던 일기").
+ * 버리기는 한 번 더 묻는다(FR-011).
+ */
 @Composable
 internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: () -> Unit, onDiscard: () -> Unit, onDismiss: () -> Unit) {
     val colors = DiaryTheme.colors
@@ -317,7 +331,10 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
     }
 }
 
-/** 날짜와 시각 고르기. 과거·미래 어느 날이든 고를 수 있다(FR-004). */
+/**
+ * 날짜와 시각 고르기.
+ * 과거·미래 어느 날이든 고를 수 있다(FR-004).
+ */
 @Composable
 internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate, LocalTime) -> Unit, onDismiss: () -> Unit) {
     val dates = rememberDiaryDateFormat()

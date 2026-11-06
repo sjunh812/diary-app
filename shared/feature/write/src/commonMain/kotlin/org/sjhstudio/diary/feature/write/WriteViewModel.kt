@@ -49,7 +49,10 @@ import org.sjhstudio.diary.core.ui.bodyLook
 
 /** 쓰기를 어디로 여는가. */
 sealed interface WriteTarget {
-    /** [date]가 없으면 오늘이다. 달력 빈 날에서 오면 그 날이다. */
+    /**
+     * [date]가 없으면 오늘이다.
+     * 달력 빈 날에서 오면 그 날이다.
+     */
     data class New(val date: LocalDate? = null) : WriteTarget
 
     data class Edit(val entryId: String) : WriteTarget
@@ -125,7 +128,8 @@ sealed interface WriteEvent {
  * 내용이 바뀌면 입력이 멈추고 1초 뒤 임시 저장본에 쓰고, 화면을 떠날 때는 바로 쓴다.
  * 본문은 글자마다 HTML로 바꾸지 않는다.
  * 바뀌었다는 표시만 해 두고, 쓰기 직전에 편집기에서 꺼낸다.
- * 빈 글은 임시 저장본을 만들지 않는다. 사진은 고른 즉시 저장소로 들어간다(research R6).
+ * 빈 글은 임시 저장본을 만들지 않는다.
+ * 사진은 고른 즉시 저장소로 들어간다(research R6).
  */
 class WriteViewModel(
     private val target: WriteTarget,
@@ -138,13 +142,19 @@ class WriteViewModel(
     plans: PlanRepository? = null,
     private val places: PlaceFinder = NoPlaceFinder
 ) : ViewModel() {
-    /** 한 편에 넣을 수 있는 사진 수. 요금제를 바꾸면 바로 따른다. */
+    /**
+     * 한 편에 넣을 수 있는 사진 수.
+     * 요금제를 바꾸면 바로 따른다.
+     */
     val photoLimit: StateFlow<Int> =
         (plans?.plan ?: flowOf(Plan.FREE))
             .map { it.photoLimit }
             .stateIn(viewModelScope, SharingStarted.Eagerly, Plan.FREE.photoLimit)
 
-    /** 새 체크리스트를 만들 수 있는지. 구독이 끝나도 이미 쓴 체크리스트는 고치고 체크할 수 있다. */
+    /**
+     * 새 체크리스트를 만들 수 있는지.
+     * 구독이 끝나도 이미 쓴 체크리스트는 고치고 체크할 수 있다.
+     */
     val checklistOpen: StateFlow<Boolean> =
         (plans?.plan ?: flowOf(Plan.FREE))
             .map { it.checklist }
@@ -255,14 +265,20 @@ class WriteViewModel(
         }
     }
 
-    /** [새로 쓰기]. 쓰던 글은 버리기 전까지 그대로 두고 다른 칸에 쓴다(FR-010). */
+    /**
+     * [새로 쓰기].
+     * 쓰던 글은 버리기 전까지 그대로 두고 다른 칸에 쓴다(FR-010).
+     */
     @OptIn(ExperimentalUuidApi::class)
     fun startFresh() {
         key = DraftKey.New("${DraftKey.New.PREFIX}-${Uuid.random()}")
         _state.update { it.copy(loading = false, resume = null) }
     }
 
-    /** 시트에서 아무것도 고르지 않고 뒤로 가면 들어온 화면으로 돌아간다. 쓰던 글은 불러오지도, 건드리지도 않는다. */
+    /**
+     * 시트에서 아무것도 고르지 않고 뒤로 가면 들어온 화면으로 돌아간다.
+     * 쓰던 글은 불러오지도, 건드리지도 않는다.
+     */
     fun leaveOffer() {
         _state.update { it.copy(resume = null) }
         viewModelScope.launch { _events.send(WriteEvent.Closed(keptDraft = false)) }
@@ -382,7 +398,10 @@ class WriteViewModel(
         changed()
     }
 
-    /** 찾은 이름은 시트 입력 칸에 넣는다. 사용자가 완료를 눌러야 일기에 들어간다(FR-005). */
+    /**
+     * 찾은 이름은 시트 입력 칸에 넣는다.
+     * 사용자가 완료를 눌러야 일기에 들어간다(FR-005).
+     */
     fun findPlace() {
         if (_state.value.locating == PlaceLocating.Finding) return
         _state.update { it.copy(locating = PlaceLocating.Finding) }
@@ -469,7 +488,8 @@ class WriteViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                // 임시 저장본은 그대로 있다. 다시 누를 수 있게 알리기만 한다.
+                // 임시 저장본은 그대로 있다.
+                // 다시 누를 수 있게 알리기만 한다.
                 _state.update { it.copy(saving = false, saveFailed = true) }
             }
         }
@@ -477,7 +497,10 @@ class WriteViewModel(
 
     fun saveFailureShown() = _state.update { it.copy(saveFailed = false) }
 
-    /** 뒤로 가기. 쓴 것이 있으면 묻지 않고 임시 저장한다(FR-011). */
+    /**
+     * 뒤로 가기.
+     * 쓴 것이 있으면 묻지 않고 임시 저장한다(FR-011).
+     */
     fun close() {
         // 저장이 끝났으면 쓸 것이 없다.
         // 저장 중이면 곧 닫히니 임시 저장본을 다시 만들지 않는다.
@@ -510,7 +533,11 @@ class WriteViewModel(
         }
     }
 
-    /** [버리기]. 화면이 한 번 물은 뒤에 부른다. 고치던 일기는 그대로 남고 고친 내용만 버린다. */
+    /**
+     * [버리기].
+     * 화면이 한 번 물은 뒤에 부른다.
+     * 고치던 일기는 그대로 남고 고친 내용만 버린다.
+     */
     fun discard() {
         viewModelScope.launch {
             pending?.cancel()
@@ -551,7 +578,8 @@ class WriteViewModel(
         // 다시 만들지 않는다.
         if (!force && (!dirty || _state.value.saving)) return
         val draft = currentDraft()
-        // 빈 글은 저장본을 만들지 않는다. 다음에 "쓰던 일기가 있어요"가 뜨지 않게 하려고다.
+        // 빈 글은 저장본을 만들지 않는다.
+        // 다음에 "쓰던 일기가 있어요"가 뜨지 않게 하려고다.
         if (!stored && !draft.canSave() && !force) return
         drafts.save(draft)
         stored = true

@@ -100,7 +100,10 @@ private const val ART_RATIO = 350f / 220f
 private const val ART_TINT = 0.4f
 private const val ART_SHARE = 0.4f
 
-/** 설정 Plus 줄과 사진 한도, 고급 통계 미리보기가 여는 화면. 이미 Plus면 관리 화면이다(US3). */
+/**
+ * 설정 Plus 줄과 사진 한도, 고급 통계 미리보기가 여는 화면.
+ * 이미 Plus면 관리 화면이다(US3).
+ */
 @Composable
 fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<PlusViewModel>()
@@ -127,7 +130,8 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
         }
     }
     val uri = LocalUriHandler.current
-    // 결제 화면의 아래 결제 칸 높이. 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄운다.
+    // 결제 화면의 아래 결제 칸 높이.
+    // 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄운다.
     var buyHeight by remember { mutableIntStateOf(0) }
     var adFreeSheet by rememberSaveable { mutableStateOf(false) }
     Box(modifier.fillMaxSize()) {
@@ -157,9 +161,12 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 /**
- * 결제 화면(Figma P1). 한 화면에서 스크롤 없이 끝나게 그림, 제목, 혜택 세 줄, 결제액, 버튼만 둔다.
- * 닫기는 처음부터 보이고 실제 결제액이 가장 크다(FR-005). 작은 화면이나 큰 글자에서만 위쪽이 스크롤된다.
- * 넓은 화면도 폰과 같은 한 칸이다. 혜택과 가격이 한눈에 이어지도록 가운데에 모은다.
+ * 결제 화면(Figma P1).
+ * 한 화면에서 스크롤 없이 끝나게 그림, 제목, 혜택 세 줄, 결제액, 버튼만 둔다.
+ * 닫기는 처음부터 보이고 실제 결제액이 가장 크다(FR-005).
+ * 작은 화면이나 큰 글자에서만 위쪽이 스크롤된다.
+ * 넓은 화면도 폰과 같은 한 칸이다.
+ * 혜택과 가격이 한눈에 이어지도록 가운데에 모은다.
  */
 @Composable
 internal fun PaywallScreen(
@@ -218,7 +225,11 @@ internal fun PaywallScreen(
     }
 }
 
-/** 그림 칸. 폭을 채우고 그림은 가운데에 둔다. 결제 화면과 구독 중 화면이 같이 쓴다. */
+/**
+ * 그림 칸.
+ * 폭을 채우고 그림은 가운데에 둔다.
+ * 결제 화면과 구독 중 화면이 같이 쓴다.
+ */
 @Composable
 private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
@@ -260,7 +271,8 @@ private fun PaywallBenefits(adFreeOwned: Boolean, artHeight: Dp) {
 }
 
 /**
- * 실제 결제액, 버튼, 자동 갱신 고지(FR-005). 가격을 못 받으면 지어내지 않고 다시 시도를 보인다.
+ * 실제 결제액, 버튼, 자동 갱신 고지(FR-005).
+ * 가격을 못 받으면 지어내지 않고 다시 시도를 보인다.
  * 읽는 동안에는 결제액 자리를 비워 두고 버튼을 비활성으로 두어 칸이 뛰지 않는다.
  */
 @Composable
@@ -290,7 +302,8 @@ private fun PaywallBuy(
                 enabled = price != null && !busy
             )
             BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
-            // 광고의 ×를 찾지 않아도 살 수 있게 둔다. 이미 산 사람에게는 보이지 않는다.
+            // 광고의 ×를 찾지 않아도 살 수 있게 둔다.
+            // 이미 산 사람에게는 보이지 않는다.
             if (!adFreeOwned) {
                 DiaryButton(
                     stringResource(Res.string.plus_ads_only),
@@ -317,8 +330,10 @@ private fun Benefit(title: StringResource) {
 }
 
 /**
- * 이미 Plus인 사람의 화면(Figma P4). 권유하지 않고, 구독해 준 사람에게 지금 받는 것과 요금, 관리할 곳을 한곳에 보인다.
- * 요금은 스토어에서 받은 값만 쓰고 받지 못하면 줄을 뺀다. 다음 결제일과 해지는 스토어가 맡는다(HIG 인앱 구매).
+ * 이미 Plus인 사람의 화면(Figma P4).
+ * 권유하지 않고, 구독해 준 사람에게 지금 받는 것과 요금, 관리할 곳을 한곳에 보인다.
+ * 요금은 스토어에서 받은 값만 쓰고 받지 못하면 줄을 뺀다.
+ * 다음 결제일과 해지는 스토어가 맡는다(HIG 인앱 구매).
  */
 @Composable
 internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () -> Unit, modifier: Modifier = Modifier) {
@@ -371,7 +386,10 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
     }
 }
 
-/** 지금 받고 있는 혜택 한 줄. 무엇을 받는지 한 문장으로 덧붙인다. */
+/**
+ * 지금 받고 있는 혜택 한 줄.
+ * 무엇을 받는지 한 문장으로 덧붙인다.
+ */
 @Composable
 private fun OwnedBenefit(icon: ImageVector, title: StringResource, body: StringResource) {
     val colors = DiaryTheme.colors

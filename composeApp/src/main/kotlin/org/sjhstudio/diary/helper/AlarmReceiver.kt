@@ -26,7 +26,8 @@ import org.sjhstudio.diary.core.platform.R as PlatformR
 
 /**
  * 매일 알림 수신기(스펙 001 FR-022, research R15).
- * 옛 앱(1.7.x)이 예약에 쓴 이름 그대로다. 이름을 바꾸면 업데이트 직후 옛 예약이 갈 곳을 잃는다.
+ * 옛 앱(1.7.x)이 예약에 쓴 이름 그대로다.
+ * 이름을 바꾸면 업데이트 직후 옛 예약이 갈 곳을 잃는다.
  * 부팅, 앱 업데이트, 시각·시간대 바뀜에는 다시 예약만 하고, 예약한 시각에는 알림을 띄운 뒤 다음 날을 예약한다.
  * 알림에는 일기 내용을 넣지 않는다(헌법 II).
  */
@@ -41,7 +42,8 @@ class AlarmReceiver :
                 val startup = get<Startup>()
                 startup.start()
                 startup.state.first { it is StartupState.Ready }
-                // 옛 앱과 새 앱이 건 예약은 동작 없이 온다. 시스템 알림(부팅 같은)에는 동작이 있다.
+                // 옛 앱과 새 앱이 건 예약은 동작 없이 온다.
+                // 시스템 알림(부팅 같은)에는 동작이 있다.
                 if (intent.action == null) showReminder(context)
                 get<ReminderRepository>().reschedule()
             } finally {

@@ -30,15 +30,19 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Plan
 
 /**
- * 개발자 모드. 요금제마다 앱이 어떻게 달라지는지 결제 없이 본다.
- * 다음 단계가 있는 화면이 아니다. 고르면 바로 적용되고 [앱 열기]로 넘어가 확인한다.
- * `src/debug`에만 있어 출시 빌드에는 코드도 화면도 들어가지 않는다. 사용자에게 보이지 않으므로 문구를 리소스에 두지 않는다.
+ * 개발자 모드.
+ * 요금제마다 앱이 어떻게 달라지는지 결제 없이 본다.
+ * 다음 단계가 있는 화면이 아니다.
+ * 고르면 바로 적용되고 [앱 열기]로 넘어가 확인한다.
+ * `src/debug`에만 있어 출시 빌드에는 코드도 화면도 들어가지 않는다.
+ * 사용자에게 보이지 않으므로 문구를 리소스에 두지 않는다.
  */
 class DevModeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험한다. 개발 빌드에만 있다.
+        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험한다.
+        // 개발 빌드에만 있다.
         if (intent.getBooleanExtra("crash", false)) {
             window.decorView.post { error("Crashlytics 시험") }
         }
@@ -57,7 +61,8 @@ class DevModeActivity : ComponentActivity() {
                     DiarySettingsValueRow("한 편 사진", "${plan.photoLimit}장")
                     DiarySettingsValueRow("고급 통계", if (plan.advancedStats) "켜짐" else "꺼짐")
                     Spacer(Modifier.weight(1f))
-                    // 요금제는 고르는 즉시 앱에 적용된다. 이 화면에서 바로 앱으로 넘어간다.
+                    // 요금제는 고르는 즉시 앱에 적용된다.
+                    // 이 화면에서 바로 앱으로 넘어간다.
                     DiaryButton(
                         "앱 열기",
                         { startActivity(Intent(this@DevModeActivity, MainActivity::class.java)) },

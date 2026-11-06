@@ -5,7 +5,10 @@ import org.sjhstudio.diary.core.platform.DriveAccount
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.TokenResult
 
-/** 드라이브 권한 대역. 계정을 바꾸거나 권한을 거둔 상태를 시험에서 만든다. */
+/**
+ * 드라이브 권한 대역.
+ * 계정을 바꾸거나 권한을 거둔 상태를 시험에서 만든다.
+ */
 class FakeDriveAuthorizer(var account: DriveAccount? = DriveAccount("sub-1", "diary@gmail.com")) : DriveAuthorizer {
     var connectResult: ConnectResult? = null
     var tokenResult: TokenResult? = null

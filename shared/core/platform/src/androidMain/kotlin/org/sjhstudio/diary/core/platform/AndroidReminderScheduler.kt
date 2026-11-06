@@ -8,7 +8,8 @@ import kotlin.time.Instant
 
 /**
  * `AlarmManager.setWindow`로 정해진 시각부터 10분 안에 알린다(research R15).
- * 정확한 알람 권한(`SCHEDULE_EXACT_ALARM`) 없이 된다. 일기 알림은 몇 분 늦어도 된다.
+ * 정확한 알람 권한(`SCHEDULE_EXACT_ALARM`) 없이 된다.
+ * 일기 알림은 몇 분 늦어도 된다.
  *
  * 옛 앱과 같은 수신기 이름(`helper.AlarmReceiver`)과 요청 번호 0을 써서, 업데이트 전에 걸어 둔 옛 예약을 그대로 덮어쓴다.
  */
@@ -30,7 +31,10 @@ class AndroidReminderScheduler(private val context: Context) : ReminderScheduler
     )
 
     companion object {
-        /** 옛 앱이 예약에 쓴 수신기. 이름을 바꾸면 업데이트 직후 옛 예약이 갈 곳을 잃는다. */
+        /**
+         * 옛 앱이 예약에 쓴 수신기.
+         * 이름을 바꾸면 업데이트 직후 옛 예약이 갈 곳을 잃는다.
+         */
         const val RECEIVER = "org.sjhstudio.diary.helper.AlarmReceiver"
         private const val WINDOW_MILLIS = 10 * 60 * 1000L
     }

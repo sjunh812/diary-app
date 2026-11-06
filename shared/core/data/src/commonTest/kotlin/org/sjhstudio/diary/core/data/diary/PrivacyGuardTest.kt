@@ -38,7 +38,8 @@ class PrivacyGuardTest {
 
     @Test
     fun screen_names_carry_no_content() {
-        // 화면 이름은 고정 표에 있는 값만 보낸다. 표에 공백이나 한글이 있으면 자유 글이 섞인 것이다.
+        // 화면 이름은 고정 표에 있는 값만 보낸다.
+        // 표에 공백이나 한글이 있으면 자유 글이 섞인 것이다.
         for (name in AnalyticsEvents.SCREENS) {
             assertFalse(name.any { it == ' ' || it in '가'..'힣' }, name)
         }

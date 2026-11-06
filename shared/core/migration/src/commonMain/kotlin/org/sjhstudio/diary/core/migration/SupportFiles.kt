@@ -22,7 +22,10 @@ class SupportFiles(private val fileSystem: FileSystem, migrationDir: Path, priva
         return directory
     }
 
-    /** 만든 지 하루가 지났거나 만든 시각을 모르면 지운다. 지웠으면 true. */
+    /**
+     * 만든 지 하루가 지났거나 만든 시각을 모르면 지운다.
+     * 지웠으면 true.
+     */
     fun deleteExpired(): Boolean {
         if (!fileSystem.exists(directory)) return false
         val created = runCatching { fileSystem.read(stamp) { readUtf8().trim().toLong() } }.getOrNull()

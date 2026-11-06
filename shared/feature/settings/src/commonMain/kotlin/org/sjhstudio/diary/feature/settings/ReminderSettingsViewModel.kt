@@ -17,7 +17,8 @@ import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.Telemetry
 
 /**
- * 매일 알림(R1) 상태. [notificationsAllowed]는 아직 모르면 null이다.
+ * 매일 알림(R1) 상태.
+ * [notificationsAllowed]는 아직 모르면 null이다.
  * 알림을 꺼 두면 허용 안내를 보이지 않는다.
  */
 data class ReminderUiState(
@@ -29,7 +30,10 @@ data class ReminderUiState(
         get() = enabled && notificationsAllowed == false
 }
 
-/** 매일 알림 켜기·끄기와 시각. 바꿀 때마다 다시 예약한다(스펙 001 FR-022). */
+/**
+ * 매일 알림 켜기·끄기와 시각.
+ * 바꿀 때마다 다시 예약한다(스펙 001 FR-022).
+ */
 class ReminderSettingsViewModel(
     private val settings: SettingsRepository,
     private val reminder: ReminderRepository,
@@ -52,7 +56,8 @@ class ReminderSettingsViewModel(
             settings.setReminder(enabled, state.value.minuteOfDay)
             reminder.reschedule()
         }
-        // 켜고 끈 것만 보낸다. 시각은 보내지 않는다(contracts/app-shell.md 사용 통계 고정 표).
+        // 켜고 끈 것만 보낸다.
+        // 시각은 보내지 않는다(contracts/app-shell.md 사용 통계 고정 표).
         telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "reminder", "value" to enabled.toString()))
     }
 

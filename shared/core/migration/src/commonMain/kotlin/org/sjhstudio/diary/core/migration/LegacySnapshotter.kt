@@ -10,7 +10,10 @@ import okio.blackholeSink
 import okio.buffer
 import okio.use
 
-/** 원본 파일 하나의 크기와 SHA-256(`snapshot.json`). 이전 전후로 원본이 같은지 시험이 견준다. */
+/**
+ * 원본 파일 하나의 크기와 SHA-256(`snapshot.json`).
+ * 이전 전후로 원본이 같은지 시험이 견준다.
+ */
 @Serializable
 data class SnapshotFile(val name: String, val size: Long, val sha256: String)
 
@@ -19,7 +22,8 @@ data class SnapshotManifest(val createdAtMillis: Long, val files: List<SnapshotF
 
 /**
  * 원본을 `legacy-snapshot/`에 바이트 그대로 복사한다(contracts/migration-flow.md `Snapshotting`, research R5).
- * 원본에는 SQLite 연결을 열지 않는다. 연결을 열었다 닫으면 WAL이 본 파일에 합쳐져 원본이 바뀌기 때문이다.
+ * 원본에는 SQLite 연결을 열지 않는다.
+ * 연결을 열었다 닫으면 WAL이 본 파일에 합쳐져 원본이 바뀌기 때문이다.
  * 설정 사본에서는 비밀번호 줄을 뺀다.
  */
 class LegacySnapshotter(private val fileSystem: FileSystem, private val clock: Clock) {

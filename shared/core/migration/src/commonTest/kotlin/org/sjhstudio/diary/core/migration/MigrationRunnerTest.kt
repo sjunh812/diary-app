@@ -76,7 +76,10 @@ class MigrationRunnerTest {
             events = events
         )
 
-        /** 검증에 들어설 때 [action]을 한다. 복사와 검증 사이에 무언가 어긋난 상황을 만든다. */
+        /**
+         * 검증에 들어설 때 [action]을 한다.
+         * 복사와 검증 사이에 무언가 어긋난 상황을 만든다.
+         */
         fun onVerifying(action: () -> Unit) = object : MigrationEvents {
             override fun stepStarted(step: MigrationStep) {
                 if (step == MigrationStep.VERIFYING) action()
@@ -334,7 +337,10 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 몇 편이 어긋나도 나머지는 옮기고 앱을 쓰게 한다. 뺀 일기는 업데이트 뒤 다시 읽는다(2026-11-04 사용자 결정). */
+    /**
+     * 몇 편이 어긋나도 나머지는 옮기고 앱을 쓰게 한다.
+     * 뺀 일기는 업데이트 뒤 다시 읽는다(2026-11-04 사용자 결정).
+     */
     @Test
     fun an_entry_that_fails_checking_is_left_out_and_the_rest_moves() = runTest {
         TempDir().use { dir ->
@@ -448,7 +454,10 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 사진 파일이 깨져도 일기는 옮기고 그 사진만 찾을 수 없는 사진이 된다. 끊겨서 다시 검증해도 일기를 빼지 않는다. */
+    /**
+     * 사진 파일이 깨져도 일기는 옮기고 그 사진만 찾을 수 없는 사진이 된다.
+     * 끊겨서 다시 검증해도 일기를 빼지 않는다.
+     */
     @Test
     fun a_broken_photo_file_keeps_the_entry() = runTest {
         TempDir().use { dir ->
@@ -474,7 +483,10 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 단계마다 상태를 적은 뒤 알린다. 개발 빌드의 강제 종료 훅이 이 알림에서 끊는다(T049). */
+    /**
+     * 단계마다 상태를 적은 뒤 알린다.
+     * 개발 빌드의 강제 종료 훅이 이 알림에서 끊는다(T049).
+     */
     @Test
     fun steps_are_announced_in_order() = runTest {
         TempDir().use { dir ->
@@ -504,7 +516,10 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 썸네일을 못 만들어도 이전은 끝나고 수만 센다. 한 번에 3개를 넘게 만들지 않는다(FR-037, R9). */
+    /**
+     * 썸네일을 못 만들어도 이전은 끝나고 수만 센다.
+     * 한 번에 3개를 넘게 만들지 않는다(FR-037, R9).
+     */
     @Test
     fun thumbnail_failures_are_counted_not_fatal() = runTest {
         TempDir().use { dir ->
@@ -520,7 +535,8 @@ class MigrationRunnerTest {
                 )
             }
             LegacyFixtures.create(env.legacy.noteDb, rows).close()
-            // 이전은 IO 스레드에서 돌아 썸네일 만들기가 정말로 나란히 불린다. 세는 값은 잠금 안에서만 바꾼다.
+            // 이전은 IO 스레드에서 돌아 썸네일 만들기가 정말로 나란히 불린다.
+            // 세는 값은 잠금 안에서만 바꾼다.
             val lock = Mutex()
             var running = 0
             var most = 0
