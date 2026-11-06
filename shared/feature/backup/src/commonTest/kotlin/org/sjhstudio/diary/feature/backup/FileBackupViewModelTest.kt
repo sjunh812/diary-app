@@ -66,7 +66,7 @@ class FileBackupViewModelTest {
 
     @Test
     fun a_failed_file_is_removed_from_where_it_was_saved() = runTest {
-        restore.writeFailure = IOException("공간이 없다")
+        restore.bundle.writeFailure = IOException("공간이 없다")
         val viewModel = viewModel()
         var discarded = false
 
@@ -79,7 +79,7 @@ class FileBackupViewModelTest {
 
     @Test
     fun a_failed_file_that_cannot_be_removed_asks_the_user_to_delete_it() = runTest {
-        restore.writeFailure = IOException("공간이 없다")
+        restore.bundle.writeFailure = IOException("공간이 없다")
         val viewModel = viewModel()
 
         viewModel.write("a.zip", { written() }, { throw IOException("지울 수 없다") })
@@ -90,31 +90,31 @@ class FileBackupViewModelTest {
 
     @Test
     fun stopping_removes_the_file_and_forgets_it() = runTest {
-        restore.holdWrite = true
+        restore.bundle.holdWrite = true
         val viewModel = viewModel()
         var discarded = false
         viewModel.write("a.zip", { written() }, { discarded = true })
-        waitUntil { restore.writing }
+        waitUntil { restore.bundle.writing }
 
         viewModel.stop()
 
         waitUntil { discarded }
         assertEquals(FileBackupUi.Idle, viewModel.state.value)
-        assertEquals(1, restore.bundleForgets)
+        assertEquals(1, restore.bundle.bundleForgets)
     }
 
     @Test
     fun leaving_by_another_way_removes_the_file_too() = runTest {
-        restore.holdWrite = true
+        restore.bundle.holdWrite = true
         val viewModel = viewModel()
         var discarded = false
         viewModel.write("a.zip", { written() }, { discarded = true })
-        waitUntil { restore.writing }
+        waitUntil { restore.bundle.writing }
 
         store.clear()
 
         waitUntil { discarded }
-        assertEquals(0, restore.bundleForgets)
+        assertEquals(0, restore.bundle.bundleForgets)
     }
 
     @Test

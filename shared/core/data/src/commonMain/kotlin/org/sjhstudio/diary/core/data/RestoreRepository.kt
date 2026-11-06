@@ -15,11 +15,29 @@ import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 
+/** 묶음 파일 만들기. */
+interface BundleFiles {
+    /** 파일로 만들면 담길 수와 어림 크기. */
+    suspend fun bundleEstimate(): BundleEstimate
+
+    /** 일기와 사진을 zip 하나로 [sink]에 스트리밍으로 쓴다(FR-031). */
+    suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
+
+    /**
+     * 만들던 묶음 파일이 앱이 꺼져서 끝나지 못했으면 한 번 true다.
+     * 지금 만드는 중이면 false다.
+     */
+    suspend fun takeStoppedBundle(): Boolean
+
+    /** 사용자가 파일 만들기를 멈췄다. 다음에 알릴 일이 아니다. */
+    fun forgetStoppedBundle()
+}
+
 /**
  * 화면이 쓰는 복원하기 입구.
  * 일기 내용은 여기를 지나지 않고 숫자만 지나간다.
  */
-interface RestoreRepository {
+interface RestoreRepository : BundleFiles {
     val state: StateFlow<RestoreState>
 
     /**
@@ -59,9 +77,6 @@ interface RestoreRepository {
     /** 되돌리기 진행. 화면을 떠났다 돌아와도 결과가 보인다. */
     val rollbackRun: StateFlow<RollbackRun>
 
-    /** 파일로 만들면 담길 수와 어림 크기. */
-    suspend fun bundleEstimate(): BundleEstimate
-
     /**
      * 드라이브에서 지워진 백업 폴더를 새로 만들었다.
      * 알림을 끈 사람도 볼 수 있게 화면에서도 알린다.
@@ -69,18 +84,6 @@ interface RestoreRepository {
     val folderRecreated: Flow<Boolean>
 
     fun dismissFolderRecreated()
-
-    /** 일기와 사진을 zip 하나로 [sink]에 스트리밍으로 쓴다(FR-031). */
-    suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
-
-    /**
-     * 만들던 묶음 파일이 앱이 꺼져서 끝나지 못했으면 한 번 true다.
-     * 지금 만드는 중이면 false다.
-     */
-    suspend fun takeStoppedBundle(): Boolean
-
-    /** 사용자가 파일 만들기를 멈췄다. 다음에 알릴 일이 아니다. */
-    fun forgetStoppedBundle()
 
     /**
      * 사용자가 고른 파일을 앱 안으로 옮겨 확인한다.

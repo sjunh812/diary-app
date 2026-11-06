@@ -33,6 +33,7 @@ import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.model.BackupStep
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.DriveAccount
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.TokenResult
@@ -243,13 +244,67 @@ class BackupRunner(
     private suspend fun backUp(cellularOnce: Boolean, automatic: Boolean): BackupOutcome {
         val fingerprint = fingerprint()
         step(BackupStep.Preparing)
-        val account =
-            when (val token = authorizer.accessToken()) {
-                is TokenResult.Token -> token.account
-                TokenResult.NeedsUser -> throw DriveException(BackupFailure.AUTH)
-                is TokenResult.Failed -> throw DriveException(token.kind)
-            }
+        val account = signedIn()
         val deviceId = store.deviceId()
+        val folders = openFolders(account)
+
+        step(BackupStep.Snapshotting)
+        val now = clock.now()
+        val local = now.toLocalDateTime(timeZone())
+        val base = snapshotBaseName(stamp(local), deviceName.current(), deviceId)
+        val snapshot = SnapshotWriter(db, fileSystem).write(workDir / OUTGOING / "$base.db")
+
+        val photos = sendPhotos(snapshot, folders, account, now, cellularOnce)
+        // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업이다.
+        if (automatic && photos.uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
+            store.update {
+                it.copy(
+                    bytesShort = photos.bytesShort,
+                    lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 } ?: it.lastFailure,
+                    photosNotBackedUp = photos.left,
+                    unusablePhotos = photos.unusable
+                )
+            }
+            return BackupOutcome.Unchanged
+        }
+
+        val snapshotFile = sendSnapshot(snapshot, folders, deviceId)
+        sendManifest(base, snapshot, photos, folders, deviceId, now)
+
+        step(BackupStep.Verifying)
+        check(snapshotFile.id.isNotEmpty())
+        db.rememberBases(snapshot.path)
+        store.update {
+            it.copy(
+                lastSuccessAt = now,
+                lastSuccessSnapshot = base,
+                lastSuccessFingerprint = fingerprint,
+                bytesShort = photos.bytesShort,
+                failingSince = null,
+                lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 },
+                failureNotifiedAt = null,
+                photosNotBackedUp = photos.left,
+                unusablePhotos = photos.unusable
+            )
+        }
+
+        step(BackupStep.Pruning)
+        // 성공은 이미 적었다.
+        // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 한다.
+        quietly {
+            alerts?.schedule(now + ALERT_AFTER, null)
+            prune(folders, deviceId, now)
+        }
+        return BackupOutcome.Done(photos.uploaded.size, photos.left, photos.unusable.size)
+    }
+
+    private suspend fun signedIn(): DriveAccount = when (val token = authorizer.accessToken()) {
+        is TokenResult.Token -> token.account
+        TokenResult.NeedsUser -> throw DriveException(BackupFailure.AUTH)
+        is TokenResult.Failed -> throw DriveException(token.kind)
+    }
+
+    private suspend fun openFolders(account: DriveAccount): DriveFolders {
         val before = store.current()
         val folders = DriveLayout(drive, fileSystem).ensure(workDir / OUTGOING, readme())
         // 처음 백업이나 다른 계정이면 지운 폴더가 아니라 원래 없던 폴더다.
@@ -258,13 +313,26 @@ class BackupRunner(
             it.copy(rootFolderId = folders.root, rootFolderAccount = account.key, folderRecreated = it.folderRecreated || recreated)
         }
         if (recreated) quietly { alerts?.folderRecreated() }
+        return folders
+    }
 
-        step(BackupStep.Snapshotting)
-        val now = clock.now()
-        val local = now.toLocalDateTime(timeZone())
-        val base = snapshotBaseName(stamp(local), deviceName.current(), deviceId)
-        val snapshot = SnapshotWriter(db, fileSystem).write(workDir / OUTGOING / "$base.db")
+    /** 사진을 올린 결과. */
+    private class PhotoRound(
+        val local: List<LocalPhotoRow>,
+        val inBackup: Set<String>,
+        val uploaded: Set<String>,
+        val unusable: Set<String>,
+        val left: Int,
+        val bytesShort: Long
+    )
 
+    private suspend fun sendPhotos(
+        snapshot: Snapshot,
+        folders: DriveFolders,
+        account: DriveAccount,
+        now: Instant,
+        cellularOnce: Boolean
+    ): PhotoRound {
         val onDrive = drive.listAll(DriveQuery(parentId = folders.media, props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
         val driveHashes = onDrive.associateBy { it.name.substringBefore('.') }
         val dao = db.backupDao()
@@ -277,8 +345,8 @@ class BackupRunner(
             }
         )
 
-        val local2 = dao.localPhotos()
-        val missing = local2.filter { it.sha256 !in driveHashes && it.fileName != null }
+        val local = dao.localPhotos()
+        val missing = local.filter { it.sha256 !in driveHashes && it.fileName != null }
         val allowed = cellularOnce || mayUploadPhotos(store.current().photosOnCellular)
         val quotaLimit = drive.about().free
         val reserve = snapshot.hashes.byteSize + MANIFEST_RESERVE
@@ -291,37 +359,35 @@ class BackupRunner(
         val uploaded = uploadPhotos(planned, folders, account.key, unusable)
         // 이번에 살펴보지 않은 사진은 지난번 판단을 이어 간다.
         val tried = planned.mapTo(HashSet()) { it.sha256 }
-        val hashes = local2.mapTo(HashSet()) { it.sha256 }
-        val unusableNow = unusable + store.current().unusablePhotos.filter { it !in tried && it in hashes }
-        val inBackupSoFar = driveHashes.keys + uploaded
-        val left = local2.count { it.sha256 !in inBackupSoFar && it.sha256 !in unusableNow }
+        val hashes = local.mapTo(HashSet()) { it.sha256 }
+        unusable += store.current().unusablePhotos.filter { it !in tried && it in hashes }
+        val inBackup = driveHashes.keys + uploaded
         // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
-        val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusableNow }.sumOf { it.byteSize ?: 0 } else 0
-        if (automatic && uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
-            store.update {
-                it.copy(
-                    bytesShort = short,
-                    lastFailure = BackupFailure.NO_SPACE.takeIf { short > 0 } ?: it.lastFailure,
-                    photosNotBackedUp = left,
-                    unusablePhotos = unusableNow
-                )
-            }
-            return BackupOutcome.Unchanged
-        }
+        val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusable }.sumOf { it.byteSize ?: 0 } else 0
+        return PhotoRound(local, inBackup, uploaded, unusable, local.count { it.sha256 !in inBackup && it.sha256 !in unusable }, short)
+    }
 
+    private suspend fun sendSnapshot(snapshot: Snapshot, folders: DriveFolders, deviceId: String): DriveFile {
         step(BackupStep.UploadingSnapshot)
-        val snapshotFile =
-            upload(
-                snapshot.path,
-                NewFile(snapshot.path.name, folders.snapshots, "application/x-sqlite3", deviceProps(DriveLayout.KIND_SNAPSHOT, deviceId)),
-                snapshot.hashes
-            )
+        return upload(
+            snapshot.path,
+            NewFile(snapshot.path.name, folders.snapshots, "application/x-sqlite3", deviceProps(DriveLayout.KIND_SNAPSHOT, deviceId)),
+            snapshot.hashes
+        )
+    }
 
+    private suspend fun sendManifest(
+        base: String,
+        snapshot: Snapshot,
+        photos: PhotoRound,
+        folders: DriveFolders,
+        deviceId: String,
+        now: Instant
+    ) {
         step(BackupStep.UploadingManifest)
+        val pending = db.backupDao().pendingFiles()
         val manifest =
-            manifestOf(
-                now, timeZone(), app, deviceId, deviceName.current(), snapshot, local2, dao.pendingFiles(), inBackupSoFar, settings()
-            )
+            manifestOf(now, timeZone(), app, deviceId, deviceName.current(), snapshot, photos.local, pending, photos.inBackup, settings())
         val manifestPath = workDir / OUTGOING / "$base.json"
         fileSystem.write(manifestPath) { writeUtf8(ManifestCodec.encode(manifest)) }
         upload(
@@ -334,32 +400,6 @@ class BackupRunner(
             ),
             fileSystem.hashes(manifestPath)
         )
-
-        step(BackupStep.Verifying)
-        check(snapshotFile.id.isNotEmpty())
-        db.rememberBases(snapshot.path)
-        store.update {
-            it.copy(
-                lastSuccessAt = now,
-                lastSuccessSnapshot = base,
-                lastSuccessFingerprint = fingerprint,
-                bytesShort = short,
-                failingSince = null,
-                lastFailure = BackupFailure.NO_SPACE.takeIf { short > 0 },
-                failureNotifiedAt = null,
-                photosNotBackedUp = left,
-                unusablePhotos = unusableNow
-            )
-        }
-
-        step(BackupStep.Pruning)
-        // 성공은 이미 적었다.
-        // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 한다.
-        quietly {
-            alerts?.schedule(now + ALERT_AFTER, null)
-            prune(folders, deviceId, now)
-        }
-        return BackupOutcome.Done(uploaded.size, left, unusableNow.size)
     }
 
     /** 알림과 뒷정리가 실패해도 백업을 멈추거나 실패로 만들지 않는다. */

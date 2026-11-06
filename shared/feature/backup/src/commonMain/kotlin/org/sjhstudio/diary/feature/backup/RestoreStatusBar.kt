@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,23 +64,6 @@ import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_title
 
 /**
- * 복원 화면을 떠난 뒤에 나온 결과를 알릴지 정한다.
- * 결과는 닫을 때까지 남아 있어서 같은 결과를 두 번 알리지 않게 기억한다.
- */
-internal class RestoreResultWatch {
-    private var told: RestoreState? = null
-
-    fun shouldTell(state: RestoreState, onResultScreen: Boolean, quiet: Boolean): Boolean {
-        if (state !is RestoreState.Done && state !is RestoreState.Failed) return false
-        if (state === told) return false
-        if (onResultScreen) told = state
-        if (onResultScreen || quiet) return false
-        told = state
-        return true
-    }
-}
-
-/**
  * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알린다.
  * 토스트의 보기를 누르면 결과 화면이 열린다.
  * 일기를 쓰는 동안은 기다린다([quiet]).
@@ -89,13 +73,14 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
     val restore = koinInject<RestoreRepository>()
     val state by restore.state.collectAsStateWithLifecycle()
     val watch = remember { RestoreResultWatch() }
+    val open by rememberUpdatedState(onOpen)
     // 화면을 옮겨도 떠 있는 토스트가 사라지지 않게 효과 밖에서 띄운다.
     val scope = rememberCoroutineScope()
     LaunchedEffect(state, onResultScreen, quiet) {
         if (!watch.shouldTell(state, onResultScreen, quiet)) return@LaunchedEffect
         val message = getString(if (state is RestoreState.Done) Res.string.restore_notice_title else Res.string.restore_stopped_title)
         val action = getString(Res.string.restore_see_result)
-        scope.launch { if (toast.show(message, action) == DiaryToastResult.ActionPerformed) onOpen() }
+        scope.launch { if (toast.show(message, action) == DiaryToastResult.ActionPerformed) open() }
     }
 }
 
@@ -106,10 +91,11 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
 @Composable
 fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
     val restore = koinInject<RestoreRepository>()
+    val open by rememberUpdatedState(onOpen)
     LaunchedEffect(restore) {
         if (!restore.takeStoppedBundle()) return@LaunchedEffect
         val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
-        if (shown == DiaryToastResult.ActionPerformed) onOpen()
+        if (shown == DiaryToastResult.ActionPerformed) open()
     }
 }
 
@@ -145,7 +131,7 @@ internal fun RestoreStatusBar(
     onRollBack: () -> Unit,
     modifier: Modifier = Modifier,
     folderRecreated: Boolean = false,
-    onFolderSeen: () -> Unit = {}
+    onFolderConfirm: () -> Unit = {}
 ) {
     if (waiting == null && rollback == RollbackRun.IDLE && !folderRecreated) return
     val width = Modifier.widthIn(max = DiaryWriteSize.settingsMax)
@@ -165,7 +151,7 @@ internal fun RestoreStatusBar(
                 stringResource(Res.string.backup_folder_body),
                 width,
                 actionLabel = stringResource(Res.string.backup_folder_ok),
-                onAction = onFolderSeen
+                onAction = onFolderConfirm
             )
         }
         if (rollback != RollbackRun.IDLE) Rollback(rollback, onRollBack, width)
@@ -174,7 +160,7 @@ internal fun RestoreStatusBar(
 }
 
 @Composable
-private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifier) {
+private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifier = Modifier) {
     val failed = run == RollbackRun.FAILED
     val (title, body) =
         when (run) {
@@ -193,7 +179,7 @@ private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifie
 }
 
 @Composable
-private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () -> Unit, modifier: Modifier) {
+private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () -> Unit, modifier: Modifier = Modifier) {
     val (label, action) =
         when (waiting.stop) {
             // 받는 중이거나 연결이 풀렸으면 눌러도 나아지지 않는다.

@@ -165,16 +165,15 @@ class RestoreController(
     override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) {
         store.update { it.copy(bundleWriting = true) }
         bundleBeingWritten = true
+        var stopped = false
         try {
             exporter.value.write(sink, onProgress)
-            store.update { it.copy(bundleWriting = false) }
         } catch (error: CancellationException) {
-            throw error
-        } catch (error: Exception) {
-            store.update { it.copy(bundleWriting = false) }
+            stopped = true
             throw error
         } finally {
             bundleBeingWritten = false
+            if (!stopped) withContext(NonCancellable) { store.update { it.copy(bundleWriting = false) } }
         }
     }
 
@@ -310,10 +309,12 @@ class RestoreController(
         )
     }
 
-    override suspend fun prepare(snapshotName: String): RestorePreparation {
-        if (snapshotName == RESTORE_FROM_FILE) return preparedFile ?: RestorePreparation.Failed(RestoreFailure.OTHER)
-        if (restoring) return busy()
-        return preparingCopy {
+    override suspend fun prepare(snapshotName: String): RestorePreparation = when {
+        snapshotName == RESTORE_FROM_FILE -> preparedFile ?: RestorePreparation.Failed(RestoreFailure.OTHER)
+
+        restoring -> busy()
+
+        else -> preparingCopy {
             val result = prepareFromDrive(snapshotName)
             if (result is RestorePreparation.Failed) clearCopies()
             result
@@ -539,23 +540,31 @@ class RestoreController(
      */
     private suspend fun fromDrive(cellularOnce: Boolean): Boolean {
         val prefs = store.current()
-        if (db.value.backupDao().pendingFiles().isEmpty()) {
-            if (prefs.photoStop != null || prefs.photosUnreachable != 0) rememberStop(null, 0)
-            return false
-        }
-        if (prefs.accountKey == null) return false
         val wifiOnly = !cellularOnce && !prefs.photosOnCellular
-        val blocked =
-            when {
-                !network.isConnected -> PhotoStop.NETWORK
-                wifiOnly && !network.isUnmetered -> PhotoStop.WIFI
-                else -> null
+        val nothingLeft = db.value.backupDao().pendingFiles().isEmpty()
+        return when {
+            nothingLeft -> {
+                if (prefs.photoStop != null || prefs.photosUnreachable != 0) rememberStop(null, 0)
+                false
             }
-        if (blocked != null) {
-            store.update { it.copy(photoStop = blocked) }
-            scheduler.waitForPhotoNetwork(wifiOnly)
-            return true
+
+            prefs.accountKey == null -> false
+
+            !network.isConnected -> waitFor(PhotoStop.NETWORK, wifiOnly)
+
+            wifiOnly && !network.isUnmetered -> waitFor(PhotoStop.WIFI, wifiOnly)
+
+            else -> receiveFromDrive()
         }
+    }
+
+    private suspend fun waitFor(stop: PhotoStop, wifiOnly: Boolean): Boolean {
+        store.update { it.copy(photoStop = stop) }
+        scheduler.waitForPhotoNetwork(wifiOnly)
+        return true
+    }
+
+    private suspend fun receiveFromDrive(): Boolean {
         val tally = PhotoTally()
         val stop =
             receiving(PhotoStop.NETWORK) {
@@ -626,11 +635,10 @@ class RestoreController(
         }.flowOn(Dispatchers.IO)
 
     private fun waitingOf(pending: Int, prefs: BackupPrefs, running: PhotoProgress?): WaitingPhotos? {
-        if (running != null) return WaitingPhotos(running.total - running.done, null).takeIf { it.count > 0 }
-        val left = pending - prefs.photosUnreachable
-        if (left <= 0) return null
+        val left = if (running != null) running.total - running.done else pending - prefs.photosUnreachable
         // 드라이브를 쓰지 않으면 남은 사진은 파일에서만 온다.
-        return WaitingPhotos(left, prefs.photoStop ?: if (prefs.accountKey == null) PhotoStop.FILE else PhotoStop.INTERRUPTED)
+        val stopped = prefs.photoStop ?: if (prefs.accountKey == null) PhotoStop.FILE else PhotoStop.INTERRUPTED
+        return WaitingPhotos(left, stopped.takeIf { running == null }).takeIf { left > 0 }
     }
 
     /**

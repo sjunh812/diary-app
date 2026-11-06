@@ -288,7 +288,7 @@ class PhotoFetcher(
         }
         val partial = workDir / "$name.part"
         val needed = (photo.byteSize ?: 0) + ROOM_MARGIN
-        if (freeSpace.bytes() < needed) throw NoRoomForPhotos()
+        checkRoom(needed)
         try {
             if (!copy(photo.sha256, name, partial)) return Settled.STILL_WAITING
             if (fileSystem.hashes(partial).sha256 != photo.sha256) {
@@ -309,11 +309,15 @@ class PhotoFetcher(
         } catch (error: IOException) {
             // 쓰다가 공간이 찼다.
             // 파일이 깨졌다고 말하지 않게 까닭을 바꿔 알린다.
-            if (freeSpace.bytes() < needed) throw NoRoomForPhotos()
+            checkRoom(needed)
             throw error
         } finally {
             fileSystem.delete(partial, mustExist = false)
         }
+    }
+
+    private fun checkRoom(needed: Long) {
+        if (freeSpace.bytes() < needed) throw NoRoomForPhotos()
     }
 
     /** 잠깐 끊겼거나 로그인이 풀리면 다음 장도 똑같이 실패한다. */

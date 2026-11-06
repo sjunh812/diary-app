@@ -107,9 +107,8 @@ class MergeApplier(
      */
     suspend fun revive(inBackup: Set<String>) {
         val dao = db.backupDao()
-        for (photo in dao.missingFiles()) {
+        for (photo in dao.missingFiles().filter { it.sha256 in inBackup }) {
             val name = photo.fileName ?: continue
-            if (photo.sha256 !in inBackup) continue
             dao.reviveMissing(photo.sha256, name, (if (fileExists(name)) MediaStatus.NORMAL else MediaStatus.PENDING).id)
         }
     }
