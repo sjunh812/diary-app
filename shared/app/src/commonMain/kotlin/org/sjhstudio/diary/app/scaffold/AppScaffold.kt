@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -131,7 +132,7 @@ private val BackStackConfiguration =
 /**
  * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면). 폭 600dp 미만은 하단 탭, 이상은 레일이다.
  * 탭은 홈·달력·돌아보기·설정이고, 하단 탭은 탭의 맨 위 화면에서만 보인다(Figma S6·G2).
- * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있다. 쓰기 화면은 탭과 레일 없이 전체 화면이다.
+ * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있다. 일기가 없는 홈은 빈 상태의 버튼 하나만 둔다. 쓰기 화면은 탭과 레일 없이 전체 화면이다.
  * 잠금·이전 관문은 이 바깥에 있어 뒤로 가기로 벗어날 수 없다.
  */
 @Composable
@@ -157,7 +158,11 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     // 쓰기, 사진 크게 보기, 결제는 전체 화면이다. 탭과 레일을 그리지 않는다.
     val writing = backStack.lastOrNull() is WriteKey
     val fullScreen = writing || backStack.lastOrNull() is PhotoViewerKey || backStack.lastOrNull() is PlusKey
-    val floatingWrite = backStack.size == 1 && backStack.lastOrNull() != SettingsKey
+    // 달을 읽기 전에는 일기가 있다고 보고 버튼을 둔다. 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
+    val entries = koinInject<EntryRepository>()
+    val months by remember(entries) { entries.months() }.collectAsStateWithLifecycle(null)
+    val emptyHome = backStack.lastOrNull() == HomeKey && months?.isEmpty() == true
+    val floatingWrite = backStack.size == 1 && backStack.lastOrNull() != SettingsKey && !emptyHome
 
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth

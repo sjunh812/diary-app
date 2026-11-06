@@ -15,12 +15,12 @@
     <string name="search_clear_filter">クリア</string>
     <string name="search_done">完了</string>
     <string name="search_empty_title">該当する日記はありません</string>
-    <string name="search_empty_body">別の言葉で探すか、条件を減らしてください。</string>
+    <string name="search_empty_body">別のキーワードで探すか、条件を変えてみてください。</string>
     <plurals name="search_result_count">
         <item quantity="other">%1$d件</item>
     </plurals>
     <string name="search_error_title">日記を読み込めませんでした</string>
     <string name="search_error_body">少し時間をおいて、もう一度お試しください。</string>
     <string name="search_error_retry">もう一度試す</string>
-    <string name="search_idle">言葉を入力するか条件を選ぶと、日記を探せます。</string>
+    <string name="search_idle">キーワードを入力するか条件を選ぶと、日記を探せます。</string>
 </resources>
