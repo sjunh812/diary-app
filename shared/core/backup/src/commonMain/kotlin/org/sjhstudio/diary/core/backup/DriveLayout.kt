@@ -49,8 +49,19 @@ class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSyste
     }
 }
 
-/** `<기기 현지 시각>_<기기 이름, 공백은 ->_<기기 ID 앞 4자>`. 드라이브에서 사람이 보고 고를 수 있게 한다. */
+/**
+ * `<기기 현지 시각>_<기기 이름, 공백은 ->_<기기 ID 앞 4자>`. 드라이브에서 사람이 보고 고를 수 있게 한다.
+ * 이 이름이 파일 이름도 되니 기기 이름이 백업을 막지 못하게 줄인다.
+ * 이모지처럼 두 글자로 쓰는 문자는 SQLite 드라이버가 경로로 넘기면서 바이트가 달라져 파일을 열지 못한다.
+ * 긴 이름은 파일 시스템의 이름 한도에 걸린다.
+ * 기기 이름 원문은 목록 파일에 그대로 적는다.
+ */
 fun snapshotBaseName(localTime: String, deviceName: String, deviceId: String): String {
-    val device = deviceName.trim().replace(Regex("""[\s/\\:]+"""), "-").ifEmpty { "device" }
+    val device =
+        deviceName.filterNot { it.isSurrogate() || it.isISOControl() }.trim().replace(Regex("""[\s/\\:]+"""), "-")
+            .take(MAX_DEVICE_CHARS).ifEmpty { "device" }
     return "${localTime}_${device}_${deviceId.take(4)}"
 }
+
+/** 한글 한 글자가 3바이트라 시각과 확장자를 더해도 255바이트 안에 든다. */
+private const val MAX_DEVICE_CHARS = 40

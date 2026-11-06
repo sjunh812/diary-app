@@ -65,7 +65,8 @@ class RestorePlanner(
         if (!RestoreNames.isSingleName(manifest.snapshot.fileName)) throw RestoreMismatch()
         val incoming = workDir / INCOMING
         fileSystem.createDirectories(incoming)
-        val path = incoming / manifest.snapshot.fileName
+        // 다른 기기가 지은 이름에는 SQLite가 열지 못하는 글자가 들어 있을 수 있어 받을 때는 이름을 정해 둔다.
+        val path = incoming / BundleExporter.SNAPSHOT
         drive.download(file.id, path)
         return checked(manifest, path)
     }
