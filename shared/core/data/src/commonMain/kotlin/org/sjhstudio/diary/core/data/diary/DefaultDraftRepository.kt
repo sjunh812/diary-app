@@ -128,7 +128,8 @@ class DefaultDraftRepository(
         val photosChanged = rows.map { it.sha256 } != oldMedia.filter { it.isEditable }.map { it.sha256 }
         val id = old?.id ?: Uuid.random().toString()
         val entry = draft.toEntry(id, old, now, photosChanged)
-        if (old != null && draft.entryChanged && (entry != old || photosChanged)) return@inOrder keepBoth(key, draft, rows, old, now)
+        val edited = entry != old || photosChanged
+        if (old != null && draft.entryChanged && edited) return@inOrder keepBoth(key, draft, rows, old, now)
         drafts.commit(key.value, entry, mediaRows(id, rows, oldMedia, now), entries, media)
         id
     }
