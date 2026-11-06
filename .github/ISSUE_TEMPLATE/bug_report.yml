@@ -1,0 +1,46 @@
+name: 버그 신고
+description: 앱이 기대와 다르게 움직일 때
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        이 저장소는 공개되어 있어요. 일기 내용, 실제 사진, 주소, 계정 정보는 올리지 마세요.
+  - type: input
+    id: version
+    attributes:
+      label: 앱 버전
+      description: 설정 > 정보에 있어요.
+      placeholder: 2.0.0 (37)
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: 기기와 운영체제
+      placeholder: Galaxy S24, Android 15 / iPad Air, iPadOS 18
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 어떤 일이 있었나요
+      description: 무엇을 눌렀고, 무엇을 기대했고, 실제로 어땠는지 순서대로 적어 주세요.
+    validations:
+      required: true
+  - type: dropdown
+    id: data-loss
+    attributes:
+      label: 일기나 사진이 사라졌나요
+      options:
+        - 아니요
+        - 예
+        - 잘 모르겠어요
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 로그나 화면 캡처
+      description: 있으면 붙여 주세요. 일기 내용이 보이면 가려 주세요.
+      render: shell

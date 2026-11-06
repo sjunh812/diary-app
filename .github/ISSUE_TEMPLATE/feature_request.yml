@@ -1,0 +1,22 @@
+name: 기능 제안
+description: 있으면 좋겠는 기능이나 바꾸고 싶은 점
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 어떤 때 불편했나요
+      description: 기능 이름보다 겪은 상황을 먼저 적어 주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: 어떻게 되면 좋겠나요
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: 참고할 앱이나 화면
+      description: 같은 일을 잘하는 앱이 있으면 알려 주세요.
