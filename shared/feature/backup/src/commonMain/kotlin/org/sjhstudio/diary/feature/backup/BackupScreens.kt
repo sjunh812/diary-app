@@ -230,9 +230,7 @@ internal fun BackupSettingsScreen(
                     Rollback(it, onRollBack)
                 }
             }
-            if (status.lastFailure == BackupFailure.NO_SPACE && status.running == null) {
-                NoSpace(status, onBackUp, onFile)
-            } else if (status.connection == BackupConnection.NotConnected) {
+            if (status.connection == BackupConnection.NotConnected) {
                 NotConnected(connecting, onConnect)
                 DiarySettingsRow(
                     stringResource(Res.string.file_top),
@@ -240,21 +238,32 @@ internal fun BackupSettingsScreen(
                     description = stringResource(Res.string.file_row_body)
                 )
             } else {
-                Column(
-                    Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
-                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
-                ) {
-                    Status(status, onCellular, onConnect)
-                    if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
-                        DiaryButton(stringResource(Res.string.backup_now), onBackUp, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
-                    }
-                    if (status.connection == BackupConnection.NeedsReconnect) {
-                        DiaryButton(
-                            stringResource(Res.string.backup_reconnect),
-                            onConnect,
-                            Modifier.fillMaxWidth(),
-                            size = DiaryButtonSize.XLarge
-                        )
+                // 공간 안내는 상태 자리만 대신한다.
+                // 공간이 없어도 복원, 자동 백업, 백업 설정 길은 그대로 있어야 한다.
+                if (status.lastFailure == BackupFailure.NO_SPACE && status.running == null) {
+                    NoSpace(status, onBackUp, onFile)
+                } else {
+                    Column(
+                        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+                    ) {
+                        Status(status, onCellular, onConnect)
+                        if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
+                            DiaryButton(
+                                stringResource(Res.string.backup_now),
+                                onBackUp,
+                                Modifier.fillMaxWidth(),
+                                size = DiaryButtonSize.XLarge
+                            )
+                        }
+                        if (status.connection == BackupConnection.NeedsReconnect) {
+                            DiaryButton(
+                                stringResource(Res.string.backup_reconnect),
+                                onConnect,
+                                Modifier.fillMaxWidth(),
+                                size = DiaryButtonSize.XLarge
+                            )
+                        }
                     }
                 }
                 DiarySettingsSwitchRow(

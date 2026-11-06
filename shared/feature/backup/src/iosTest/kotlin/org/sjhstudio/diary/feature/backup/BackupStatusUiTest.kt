@@ -17,11 +17,15 @@ import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
+import org.sjhstudio.diary.feature.backup.resources.backup_auto
 import org.sjhstudio.diary.feature.backup.resources.backup_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_line_all
 import org.sjhstudio.diary.feature.backup.resources.backup_line_days
 import org.sjhstudio.diary.feature.backup.resources.backup_line_failed
+import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
+import org.sjhstudio.diary.feature.backup.resources.backup_options
 import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
+import org.sjhstudio.diary.feature.backup.resources.restore_row
 
 /** 화면이 사실을 말하는지 본다. 실패했는데 다 됐다고 하면 안 된다. */
 @OptIn(ExperimentalTestApi::class)
@@ -115,5 +119,26 @@ class BackupStatusUiTest {
         }
 
         onNodeWithText(days).assertExists()
+    }
+
+    /** 드라이브 공간이 부족해도 복원, 자동 백업, 백업 설정 길이 사라지면 안 된다. */
+    @Test
+    fun running_out_of_drive_space_keeps_every_other_path() = runComposeUiTest {
+        var title = ""
+        var restore = ""
+        var auto = ""
+        var options = ""
+        setContent {
+            title = stringResource(Res.string.backup_no_space_title)
+            restore = stringResource(Res.string.restore_row)
+            auto = stringResource(Res.string.backup_auto)
+            options = stringResource(Res.string.backup_options)
+            Screen(connected.copy(lastFailure = BackupFailure.NO_SPACE, bytesShort = 2_300_000_000, photosNotBackedUp = 420))
+        }
+
+        onNodeWithText(title).assertExists()
+        onNodeWithText(restore).assertExists()
+        onNodeWithText(auto).assertExists()
+        onNodeWithText(options).assertExists()
     }
 }
