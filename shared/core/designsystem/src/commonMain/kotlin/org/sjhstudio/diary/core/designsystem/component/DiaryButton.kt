@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,6 +70,7 @@ private fun DiaryButtonSize.spec() = when (this) {
  * 버튼 하나.
  * 글은 문자열 리소스에서 받아 넘긴다.
  * 보이는 높이가 48보다 작아도 누르는 영역은 48이다.
+ * 자리는 보이는 크기만큼만 차지해서 옆 내용과의 간격은 규격 그대로다.
  * 높이는 최소 규격이라 큰 글자에서 글이 두 줄이 되면 버튼이 늘어난다.
  * 잘리지 않게 위아래 4를 둔다.
  */
@@ -101,22 +102,26 @@ fun DiaryButton(
         }
     val spec = size.spec()
     val interaction = remember { MutableInteractionSource() }
+    val touch = ((DiarySpacing.minTouchTarget - spec.height) / 2).coerceAtLeast(Dp.Hairline)
     Row(
         modifier =
             modifier
-                .minimumInteractiveComponentSize()
-                .heightIn(min = spec.height)
-                .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
-                .diaryPress(interaction, colors.textPrimary, spec.shape)
-                .clip(spec.shape)
-                .background(container)
+                .widthIn(min = DiarySpacing.minTouchTarget)
+                .diaryTouchOutset(vertical = touch)
                 .clickable(
                     interactionSource = interaction,
                     indication = null,
                     enabled = enabled,
                     role = Role.Button,
                     onClick = onClick
-                ).padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
+                )
+                .padding(vertical = touch)
+                .heightIn(min = spec.height)
+                .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+                .diaryPress(interaction, colors.textPrimary, spec.shape)
+                .clip(spec.shape)
+                .background(container)
+                .padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically
     ) {

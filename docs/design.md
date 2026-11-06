@@ -205,7 +205,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 달력 시트 (`DiaryMonthPicker`) | 달 넘기는 줄 48 · 날짜 줄 48(누르는 곳), 고른 원 40 · 일요일 `danger`, 토요일 `ink/blue`, 앞뒤 달은 `placeholder`, 고른 날은 어느 달이든 `onAccent` · 연월 제목 `headline`과 화살표 16을 누르면 날짜 칸 자리에 연·월 휠이 나온다(휠 규격은 시각 고르기, 열 폭 128, 한국어·일본어는 연이 앞). 휠을 여는 동안 좌우 화살표는 숨기고 제목 자리는 그대로다. 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아온다(2026-11-07 사용자 제안) | Material 달력의 연월 제목 누르기(Compose 연 고르기, [SAP Fiori](https://experience.sap.com/fiori-design-android/pickers), [Flutter 시험](https://flutter.googlesource.com/mirrors/flutter.git/+/HEAD/packages/flutter/test/material/calendar_date_picker_test.dart)), iOS 휠 피커의 연·월 모드([UIDatePickerStyle](https://developer.apple.com/documentation/uikit/uidatepickerstyle.md)) |
 | 숫자판 | 3열 · 키 높이 64 · 표 폭 최대 350 · 숫자 `keypad` · 지우기 아이콘 24 · 생체 인증 아이콘 32 · 누르면 모서리 20 면과 살짝 축소(누름 효과) | TDS NumberKeypad(키 64, 표 340, 숫자 30 Regular, 누르면 모서리 20) |
 | 비밀번호 점 | 지름 14 · 사이 20 · 빈 칸 `lineStrong` 선 1.5, 찬 칸 `textPrimary` · 틀리면 넷 다 `danger`로 채워 좌우로 0.4초 흔들고 진동한 뒤 바로 빈다 · 제목과 점 사이 40 · 틀림·기다림 문구는 점 아래 16에 보인다. 점 아래는 숫자판까지 빈 자리라 문구가 생겨도 점과 숫자판이 움직이지 않는다(제목과 점 사이를 벌리지 않는다) · 문구가 없어도 한 줄을 비워 두어 아래 안내 상자가 움직이지 않는다(2026-11-06) | AOSP 잠금 화면(안내 줄 하나의 글을 바꾸고 입력을 지움, 줄이 늘지 않음), iPhone 잠금 화면(제목 아래 바로 점, 틀리면 흔들기), GNOME 잠금 화면(흔든 뒤 비움), 화면 읽기 프로그램은 문구를 읽는다(2026-11-03 사용자 지적 두 번) |
-| 터치 영역 | 48dp 이상(iOS 44pt도 충족) · 사이 8 이상 · 보이는 크기가 48보다 작은 버튼·스위치는 누르는 영역을 48로 넓힌다 | M3 최소 터치 영역 48, HIG 44 |
+| 터치 영역 | 48dp 이상(iOS 44pt도 충족) · 사이 8 이상 · 보이는 크기가 48보다 작은 버튼·스위치는 누르는 영역을 48로 넓힌다. 버튼은 보이는 크기만큼만 자리를 차지해 옆 내용과의 간격이 규격 그대로다(칩은 줄 높이 자체가 48이다) | M3 최소 터치 영역 48, HIG 44 |
 
 ## 상태, 움직임
 

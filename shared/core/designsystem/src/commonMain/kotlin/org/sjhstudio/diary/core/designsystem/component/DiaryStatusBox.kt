@@ -57,9 +57,10 @@ fun DiaryStatusBox(
         }
         if (actionLabel != null && onAction != null) {
             // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 들어가지 않으면 아래 줄로 내려간다.
+            // 줄 사이 16은 누르는 곳 48끼리 겹치지 않는 값이다.
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
             ) {
                 DiaryButton(actionLabel, onClick = onAction, size = DiaryButtonSize.Small, kind = DiaryButtonKind.Weak)
                 if (secondaryLabel != null && onSecondary != null) {
