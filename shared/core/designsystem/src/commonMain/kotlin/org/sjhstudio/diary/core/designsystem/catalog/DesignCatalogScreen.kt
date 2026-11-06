@@ -138,6 +138,7 @@ internal fun CatalogColors() {
             "toastAction" to c.toastAction,
             "scrim" to c.scrim,
             "overlay" to c.overlay,
+            "shadow" to c.shadow,
             "mood.angry" to c.mood.angry,
             "mood.cool" to c.mood.cool,
             "mood.sad" to c.mood.sad,

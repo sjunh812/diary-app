@@ -56,6 +56,16 @@ object DiarySpacing {
  */
 val LocalScreenGutter = staticCompositionLocalOf { DiarySpacing.screenCompact }
 
+/**
+ * 그림자(`docs/design.md` 간격, 모서리).
+ * 앱에서 쓰기 버튼에만 쓴다.
+ * 색은 `DiaryColors.shadow`다.
+ */
+object DiaryShadow {
+    val y: Dp = 4.dp
+    val blur: Dp = 12.dp
+}
+
 /** 아이콘 크기 네 단계(`docs/design.md` 아이콘과 그림, 2026-11-01 점검). */
 object DiaryIconSize {
     /** 칩, 메타 덧붙임, 안내 상자, 상태 상자 머리, 한 줄 안내, 검색 지우기. */
