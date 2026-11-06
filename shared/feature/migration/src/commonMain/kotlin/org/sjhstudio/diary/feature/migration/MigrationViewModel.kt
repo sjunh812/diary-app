@@ -90,7 +90,16 @@ class MigrationViewModel(
 
     init {
         viewModelScope.launch {
-            val needed = withContext(background) { migration.needsMigration() }
+            // 있는지 알 수 없으면 있다고 보고 이전에 맡긴다.
+            // 그쪽 실패는 실패 화면으로 간다.
+            val needed =
+                try {
+                    withContext(background) { migration.needsMigration() }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    true
+                }
             if (needed) start() else pass()
         }
     }
@@ -104,7 +113,10 @@ class MigrationViewModel(
      */
     fun skip() {
         viewModelScope.launch {
-            withContext(background) { migration.defer() }
+            // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 연다.
+            // 다음에 앱을 열면 이전부터 다시 본다.
+            runCatching { withContext(background) { migration.defer() } }
+                .onFailure { if (it is CancellationException) throw it }
             pass()
         }
     }
@@ -145,7 +157,15 @@ class MigrationViewModel(
                         delay(PROGRESS_MILLIS)
                     }
                 }
-            val result = migration.run()
+            // 어떤 실패든 앱을 끄지 않고 실패 화면으로 보낸다.
+            val result =
+                try {
+                    migration.run()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.UNKNOWN)
+                }
             ticker.cancel()
             // 결과를 보여 줄 것이 없으면 바로 앱 틀로 간다.
             val next =

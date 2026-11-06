@@ -163,40 +163,62 @@ class MigrationRunner(
         step == MigrationStep.DEFERRED || step == MigrationStep.PARTIAL
     }
 
+    /**
+     * 어떤 실패도 앱을 끄지 않게 결과로 바꾼다.
+     * 공간이 꽉 찬 기기는 상태 파일 쓰기부터 실패한다.
+     * 꺼지면 다시 켜도 같은 자리에서 또 꺼진다.
+     */
     override suspend fun run(): MigrationResult = withContext(io) {
         val previous = store.readState()
-        if (previous.step == MigrationStep.DONE || previous.step == MigrationStep.PARTIAL || previous.step == MigrationStep.DEFERRED) {
-            return@withContext MigrationResult.AlreadyFinished(previous)
+        try {
+            resume(previous)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Throwable) {
+            failOrNoSpace(MigrationStep.SNAPSHOTTING, MigrationFailureKind.UNKNOWN, previous.attempt + 1)
         }
-        if (!paths.legacy.exist(fileSystem)) return@withContext MigrationResult.NoLegacy
-        if (previous.step == MigrationStep.COMMITTING && fileSystem.exists(paths.databasePath)) {
-            // 이름을 바꾼 뒤 끊겼다.
-            // 지문만 다시 보고 맞으면 끝낸다.
-            val resumed = runCatching { finishAlreadyCommitted(previous) }.getOrNull()
-            if (resumed != null) return@withContext resumed
-            deleteDatabase(paths.databasePath)
-        }
-        migrate(attempt = previous.attempt + 1)
+    }
+
+    private suspend fun resume(previous: MigrationState): MigrationResult = when {
+        previous.step == MigrationStep.DONE || previous.step == MigrationStep.PARTIAL || previous.step == MigrationStep.DEFERRED ->
+            MigrationResult.AlreadyFinished(previous)
+
+        !paths.legacy.exist(fileSystem) -> MigrationResult.NoLegacy
+
+        else -> afterCommit(previous) ?: migrate(attempt = previous.attempt + 1)
+    }
+
+    /**
+     * 이름을 바꾼 뒤 끊겼으면 지문만 다시 보고 맞으면 끝낸다.
+     * 맞지 않으면 처음부터 다시 옮기려고 지운다.
+     */
+    private suspend fun afterCommit(previous: MigrationState): MigrationResult? {
+        if (previous.step != MigrationStep.COMMITTING || !fileSystem.exists(paths.databasePath)) return null
+        val resumed = runCatching { finishAlreadyCommitted(previous) }.getOrNull()
+        if (resumed == null) deleteDatabase(paths.databasePath)
+        return resumed
     }
 
     private suspend fun migrate(attempt: Int): MigrationResult {
-        deleteDatabase(paths.newDatabase)
         val startedAt = clock.now()
         var step = MigrationStep.SNAPSHOTTING
         try {
-            writeStep(step, attempt, startedAt)
+            deleteDatabase(paths.newDatabase)
+            // 무엇을 쓰기 전에 공간부터 본다.
+            // 상태 파일조차 못 쓰는 기기에서도 얼마나 더 필요한지 알린다.
             val legacyBytes = listOf(paths.legacy.noteDb, paths.legacy.noteDbWal, paths.legacy.noteDbShm).sumOf(::sizeOf)
             val snapshotNeed = legacyBytes + sizeOf(paths.legacy.prefXml) + sizeOf(paths.legacy.pref2Xml) + MARGIN_BYTES
             val freeForSnapshot = freeBytes(paths.migrationDir.parent ?: paths.migrationDir)
             if (freeForSnapshot < snapshotNeed) {
                 return fail(step, MigrationFailureKind.NO_SPACE, attempt, snapshotNeed - freeForSnapshot)
             }
+            writeStep(step, attempt, startedAt)
             try {
                 snapshotter.snapshot(paths.legacy, paths.snapshotDir)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
-                return fail(step, MigrationFailureKind.SNAPSHOT_IO, attempt)
+                return failOrNoSpace(step, MigrationFailureKind.SNAPSHOT_IO, attempt)
             }
 
             val (notes, summary) = readSnapshot() ?: return fail(step, MigrationFailureKind.READ_ERROR, attempt)
@@ -259,7 +281,7 @@ class MigrationRunner(
         } catch (e: MismatchException) {
             return fail(step, MigrationFailureKind.MISMATCH, attempt)
         } catch (e: Throwable) {
-            return fail(
+            return failOrNoSpace(
                 step,
                 if (step ==
                     MigrationStep.COPYING
@@ -737,12 +759,36 @@ class MigrationRunner(
         // 임시 DB만 지운다.
         // 사본(legacy-snapshot)과 옮긴 사진(media)은 남긴다.
         runCatching { deleteDatabase(paths.newDatabase) }
-        store.writeState(
-            MigrationState(step = MigrationStep.FAILED, attempt = attempt, updatedAt = clock.now(), failure = MigrationFailure(step, kind))
-        )
+        // 공간이 꽉 차면 실패 기록도 못 쓴다.
+        // 기록이 없어도 실패는 화면까지 간다.
+        runCatching {
+            store.writeState(
+                MigrationState(
+                    step = MigrationStep.FAILED,
+                    attempt = attempt,
+                    updatedAt = clock.now(),
+                    failure = MigrationFailure(step, kind)
+                )
+            )
+        }
         _progress.value = MigrationProgress(MigrationStep.FAILED)
         events.failed(step, kind, attempt)
         return MigrationResult.Failed(step, kind, neededBytes)
+    }
+
+    /**
+     * 쓰다가 실패했는데 여유가 바닥났으면 [kind]보다 공간 부족이 까닭이다.
+     * 그래야 사용자가 무엇을 하면 되는지 안다.
+     */
+    private fun failOrNoSpace(step: MigrationStep, kind: MigrationFailureKind, attempt: Int): MigrationResult.Failed {
+        val free = runCatching { freeBytes(paths.migrationDir.parent ?: paths.migrationDir) }.getOrDefault(Long.MAX_VALUE)
+        return if (free <
+            MARGIN_BYTES
+        ) {
+            fail(step, MigrationFailureKind.NO_SPACE, attempt, MARGIN_BYTES - free)
+        } else {
+            fail(step, kind, attempt)
+        }
     }
 
     private fun deleteDatabase(path: Path) {
