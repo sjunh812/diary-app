@@ -37,3 +37,5 @@ scripts/legacy/out/
 # Firebase 설정 파일. 비밀은 아니지만 프로젝트 정보라 저장소에 두지 않는다.
 composeApp/google-services.json
 iosApp/iosApp/GoogleService-Info.plist
+# 에이전트 작업 폴더
+.claude/worktrees/
