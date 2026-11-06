@@ -579,10 +579,10 @@ private fun Editor(state: RichTextState, style: TextStyle, modifier: Modifier) {
                     .semantics { customActions = actions }
                     .checklistMarks({ state.annotatedString.let { state.toText() } }, { layout })
                     .pointerInput(state) {
-                        // 표시를 누르면 커서를 옮기지 않고 체크만 바꾼다.
+                        // 표시를 누르면 커서를 옮기지 않고 체크만 바꾼다. 글자를 누르면 평소처럼 커서가 간다.
                         awaitEachGesture {
                             val down = awaitFirstDown(pass = PointerEventPass.Initial)
-                            val start = layout?.checkLineAt(down.position, touch, state.toText()) ?: return@awaitEachGesture
+                            val start = layout?.checkLineAt(down.position, touch, state.toText(), editing = true) ?: return@awaitEachGesture
                             down.consume()
                             val up = waitForUpOrCancellation(PointerEventPass.Initial) ?: return@awaitEachGesture
                             up.consume()

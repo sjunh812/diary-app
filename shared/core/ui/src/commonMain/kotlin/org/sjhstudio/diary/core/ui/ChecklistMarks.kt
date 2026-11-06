@@ -104,16 +104,18 @@ fun checklistActions(text: String, onToggle: (ChecklistItem, Int) -> Unit): List
     }
 
 /**
- * [position]이 체크리스트 표시 위면 그 줄의 시작 자리를 돌려준다.
- * 표시는 작아서 [touch] 폭까지 누른 것으로 친다. 줄이 접힌 둘째 줄은 항목이 아니다.
+ * [position]이 체크리스트 표시 위면 그 줄의 시작 자리를 돌려준다. 줄이 접힌 둘째 줄은 항목이 아니다.
+ * 읽기 화면은 글을 고칠 일이 없어 표시가 작아도 누르기 쉽게 [touch] 폭까지 받는다.
+ * 쓰기 화면([editing])은 글자를 누르면 커서가 가야 하므로 글이 시작하는 자리까지만 받는다(Apple 메모, Notion과 같다).
  * [text]는 줄바꿈이 살아 있는 글이다. 에디터는 문단 사이를 칸으로 이어 그려서 따로 넘긴다.
  */
-fun TextLayoutResult.checkLineAt(position: Offset, touch: Float, text: String = layoutInput.text.text): Int? {
+fun TextLayoutResult.checkLineAt(position: Offset, touch: Float, text: String = layoutInput.text.text, editing: Boolean = false): Int? {
     if (position.y < 0 || position.y > size.height) return null
     val line = getLineForVerticalPosition(position.y)
     val start = getLineStart(line)
     val end = text.indexOf('\n', start).let { if (it < 0) text.length else it }
     if (start > 0 && text[start - 1] != '\n') return null
     if (!Checklist.isItem(text.substring(start, end))) return null
-    return start.takeIf { position.x - getLineLeft(line) <= touch }
+    val reach = if (editing) getBoundingBox(start + 1).right else getLineLeft(line) + touch
+    return start.takeIf { position.x <= reach }
 }
