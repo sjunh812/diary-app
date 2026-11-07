@@ -33,7 +33,7 @@ data class PlusUiState(
     fun price(id: ProductId): String? = products.firstOrNull { it.id == id }?.price
 }
 
-enum class PlusMessage { Failed, Restored, RestoreNone, RestoreFailed }
+enum class PlusMessage { Failed, Pending, Restored, RestoreNone, RestoreFailed }
 
 /**
  * 결제 화면과 시트의 상태.
@@ -91,6 +91,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
             when (result) {
                 PurchaseResult.DONE -> onDone()
                 PurchaseResult.FAILED -> _messages.send(PlusMessage.Failed)
+                PurchaseResult.PENDING -> _messages.send(PlusMessage.Pending)
                 PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> Unit
             }
         }
@@ -125,7 +126,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
                 when (attempt { purchases.restore() }) {
                     PurchaseResult.DONE -> PlusMessage.Restored
                     PurchaseResult.FAILED -> PlusMessage.RestoreFailed
-                    PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> PlusMessage.RestoreNone
+                    PurchaseResult.CANCELLED, PurchaseResult.NOTHING, PurchaseResult.PENDING -> PlusMessage.RestoreNone
                 }
             _state.update { it.copy(buyFailed = false, restoreNotice = message.takeUnless { message == PlusMessage.Restored }) }
             _messages.send(message)

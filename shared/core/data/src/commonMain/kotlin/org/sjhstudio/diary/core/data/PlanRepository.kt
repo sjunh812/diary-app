@@ -26,6 +26,44 @@ interface PlanRepository {
 
 private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow()
 
+/**
+ * 스토어 답을 요금제로 옮기는 규칙.
+ * 재설치 직후 스토어의 첫 답은 구매를 가져오기 전이라 비어 있다.
+ * 이 답을 믿으면 산 사람에게 광고가 나가고, 무료가 저장되어 다시 가져오지도 않는다.
+ * 그래서 남긴 값이 없으면 구매를 가져온 답만 믿고, 가져오지 못하면 저장하지 않아 다음 실행에 다시 한다.
+ */
+class StorePlanState(private val saved: Plan?, private val remember: (Plan) -> Unit) {
+    private val _plan = MutableStateFlow(saved ?: Plan.FREE)
+    private val _known = MutableStateFlow(saved != null)
+    private var synced = false
+
+    val plan: StateFlow<Plan> = _plan.asStateFlow()
+    val known: StateFlow<Boolean> = _known.asStateFlow()
+
+    /** 스토어 답을 듣는다. 참이면 구매를 가져와 [onSynced]로 알려 줘야 한다. */
+    fun onAnswer(plan: Plan): Boolean {
+        if (saved == null && !synced && plan == Plan.FREE) return true
+        confirm(plan)
+        return false
+    }
+
+    fun onSynced(plan: Plan) {
+        synced = true
+        confirm(plan)
+    }
+
+    /** 스토어에 닿지 못했다. 남긴 값이 있으면 그대로 쓴다. */
+    fun onUnreachable() {
+        _known.value = true
+    }
+
+    private fun confirm(plan: Plan) {
+        _plan.value = plan
+        _known.value = true
+        remember(plan)
+    }
+}
+
 /** 스토어의 상품 ID와 권한 이름. 스토어와 RevenueCat에 같은 값을 넣는다(`docs/release.md`). */
 object StoreIds {
     const val AD_FREE_PRODUCT = "ad_free"

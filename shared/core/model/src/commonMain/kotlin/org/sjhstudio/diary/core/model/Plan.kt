@@ -25,5 +25,6 @@ data class StoreProduct(val id: ProductId, val price: String)
 /**
  * [NOTHING]은 복원할 구매가 없다는 뜻이다.
  * 스토어에 닿지 못한 [FAILED]와 다르다.
+ * [PENDING]은 결제 승인을 기다리는 중이라는 뜻이고, 승인되면 혜택이 저절로 켜진다.
  */
-enum class PurchaseResult { DONE, CANCELLED, NOTHING, FAILED }
+enum class PurchaseResult { DONE, CANCELLED, NOTHING, FAILED, PENDING }

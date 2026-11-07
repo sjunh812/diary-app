@@ -14,6 +14,7 @@
     <string name="plus_retry">Try again</string>
     <string name="plus_no_store">Couldn't load the price. Check your connection.</string>
     <string name="plus_failed">Couldn't complete the payment. If you were charged, tap Restore purchases.</string>
+    <string name="plus_pending">Waiting for payment approval. It turns on automatically once approved.</string>
     <string name="plus_restore_failed">Couldn't check your purchases. Check your connection and try again.</string>
     <string name="plus_restored">Purchase restored</string>
     <string name="plus_restore_none">No purchases to restore</string>

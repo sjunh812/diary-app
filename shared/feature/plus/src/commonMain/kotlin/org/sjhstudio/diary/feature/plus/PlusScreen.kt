@@ -91,6 +91,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
 import org.sjhstudio.diary.feature.plus.resources.plus_price
 import org.sjhstudio.diary.feature.plus.resources.plus_privacy
 import org.sjhstudio.diary.feature.plus.resources.plus_restore
+import org.sjhstudio.diary.feature.plus.resources.plus_pending
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
 import org.sjhstudio.diary.feature.plus.resources.plus_restored
@@ -118,6 +119,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val toast = remember { DiaryToastState() }
     val scope = rememberCoroutineScope()
     val failed = stringResource(Res.string.plus_failed)
+    val pending = stringResource(Res.string.plus_pending)
     val restored = stringResource(Res.string.plus_restored)
     val none = stringResource(Res.string.plus_restore_none)
     val restoreFailed = stringResource(Res.string.plus_restore_failed)
@@ -127,6 +129,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 toast.show(
                     when (message) {
                         PlusMessage.Failed -> failed
+                        PlusMessage.Pending -> pending
                         PlusMessage.Restored -> restored
                         PlusMessage.RestoreNone -> none
                         PlusMessage.RestoreFailed -> restoreFailed

@@ -11,6 +11,7 @@ import com.revenuecat.purchases.PurchaseParams
 import com.revenuecat.purchases.Purchases
 import com.revenuecat.purchases.PurchasesConfiguration
 import com.revenuecat.purchases.PurchasesError
+import com.revenuecat.purchases.PurchasesErrorCode
 import com.revenuecat.purchases.PurchasesException
 import com.revenuecat.purchases.PurchasesTransactionException
 import com.revenuecat.purchases.awaitCustomerInfo
@@ -21,13 +22,12 @@ import com.revenuecat.purchases.interfaces.SyncPurchasesCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.StorePlanState
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.StoreIds
 import org.sjhstudio.diary.core.model.Plan
@@ -66,13 +66,12 @@ fun billing(context: Context): Billing {
 private class RevenueCatBilling(private val app: Application, key: String) : Billing {
     private val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     private val saved = prefs.getString(PLAN_KEY, null)?.let { name -> Plan.entries.firstOrNull { it.name == name } }
-    private val _plan = MutableStateFlow(saved ?: Plan.FREE)
-    private val _known = MutableStateFlow(saved != null)
+    private val state = StorePlanState(saved) { plan -> prefs.edit { putString(PLAN_KEY, plan.name) } }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var activity: Activity? = null
 
-    override val plan: StateFlow<Plan> = _plan.asStateFlow()
-    override val known: StateFlow<Boolean> = _known.asStateFlow()
+    override val plan: StateFlow<Plan> = state.plan
+    override val known: StateFlow<Boolean> = state.known
     override val manageUrl: String = MANAGE_URL
 
     init {
@@ -89,28 +88,24 @@ private class RevenueCatBilling(private val app: Application, key: String) : Bil
             apply(Purchases.sharedInstance.awaitCustomerInfo())
         } catch (_: PurchasesException) {
             // 오프라인이면 남긴 값을 쓴다.
-            _known.value = true
+            state.onUnreachable()
         }
-        if (saved == null) sync()
     }
 
     private fun sync() {
         Purchases.sharedInstance.syncPurchases(
             object : SyncPurchasesCallback {
-                override fun onSuccess(customerInfo: CustomerInfo) = apply(customerInfo)
+                override fun onSuccess(customerInfo: CustomerInfo) = state.onSynced(planOf(customerInfo))
 
-                override fun onError(error: PurchasesError) {
-                    _known.value = true
-                }
+                override fun onError(error: PurchasesError) = state.onUnreachable()
             }
         )
     }
 
+    private fun planOf(info: CustomerInfo) = StoreIds.planOf(info.entitlements.active.keys)
+
     private fun apply(info: CustomerInfo) {
-        val next = StoreIds.planOf(info.entitlements.active.keys)
-        _plan.value = next
-        _known.value = true
-        prefs.edit { putString(PLAN_KEY, next.name) }
+        if (state.onAnswer(planOf(info))) sync()
     }
 
     override suspend fun products(): List<StoreProduct> = try {
@@ -128,7 +123,13 @@ private class RevenueCatBilling(private val app: Application, key: String) : Bil
         apply(Purchases.sharedInstance.awaitPurchase(PurchaseParams.Builder(screen, product).build()).customerInfo)
         PurchaseResult.DONE
     } catch (e: PurchasesTransactionException) {
-        if (e.userCancelled) PurchaseResult.CANCELLED else PurchaseResult.FAILED
+        when {
+            e.userCancelled -> PurchaseResult.CANCELLED
+            e.code == PurchasesErrorCode.PaymentPendingError -> PurchaseResult.PENDING
+            // 재설치 뒤 구매를 아직 못 가져온 사람이 다시 샀다. 돈을 또 받지 않고 구매를 가져온다.
+            e.code == PurchasesErrorCode.ProductAlreadyPurchasedError -> restore().takeIf { it == PurchaseResult.DONE } ?: PurchaseResult.FAILED
+            else -> PurchaseResult.FAILED
+        }
     } catch (_: PurchasesException) {
         PurchaseResult.FAILED
     } catch (_: IllegalStateException) {
@@ -139,7 +140,7 @@ private class RevenueCatBilling(private val app: Application, key: String) : Bil
 
     override suspend fun restore(): PurchaseResult = try {
         val info = Purchases.sharedInstance.awaitRestore()
-        apply(info)
+        state.onSynced(planOf(info))
         if (info.entitlements.active.isEmpty()) PurchaseResult.NOTHING else PurchaseResult.DONE
     } catch (_: PurchasesException) {
         PurchaseResult.FAILED

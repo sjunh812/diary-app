@@ -14,6 +14,7 @@
     <string name="plus_retry">もう一度試す</string>
     <string name="plus_no_store">価格を読み込めませんでした。インターネット接続を確認してください。</string>
     <string name="plus_failed">決済を完了できませんでした。支払い済みの場合は［購入を復元］をタップしてください。</string>
+    <string name="plus_pending">支払いの承認を待っています。承認されると自動で有効になります。</string>
     <string name="plus_restore_failed">購入履歴を確認できませんでした。インターネット接続を確認して、もう一度お試しください。</string>
     <string name="plus_restored">購入を復元しました</string>
     <string name="plus_restore_none">復元できる購入がありません</string>
