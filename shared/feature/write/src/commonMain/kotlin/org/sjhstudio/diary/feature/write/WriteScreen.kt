@@ -88,10 +88,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
-import com.mohamedrejeb.richeditor.ui.BasicRichTextEditor
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberCameraPickerLauncher
@@ -721,7 +721,7 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
             checklistActions(state.annotatedString.let { state.toText() }) { item, _ ->
                 state.applyEdit(Checklist.toggle(state.toText(), item.start))
             }
-        BasicRichTextEditor(
+        DiaryRichEditor(
             state = state,
             modifier =
                 Modifier
