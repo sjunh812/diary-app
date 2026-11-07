@@ -32,7 +32,7 @@
     <string name="settings_version">App version</string>
     <string name="settings_plus_badge">Plus active</string>
     <string name="settings_feedback_subject">1 Day 1 Diary feedback</string>
-    <string name="settings_feedback_body">App version: %1$s (%2$s)\n\nWrite your feedback here.\n</string>
+    <string name="settings_feedback_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\nTell us what you think 😊\n</string>
     <string name="settings_feedback_no_mail">No mail app found. Please write to %1$s.</string>
     <string name="settings_title">Settings</string>
     <string name="settings_group_style">Style</string>

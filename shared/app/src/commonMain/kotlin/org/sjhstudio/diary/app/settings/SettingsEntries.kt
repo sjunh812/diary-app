@@ -57,6 +57,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
+import org.sjhstudio.diary.core.platform.deviceInfo
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
@@ -106,7 +107,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val links = LocalUriHandler.current
         val toast = remember { DiaryToastState() }
         val scope = rememberCoroutineScope()
-        val feedback = rememberFeedbackLink(app.versionName, app.platform)
+        val device = remember { deviceInfo() }
+        val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
         Box(Modifier.fillMaxSize()) {
             SettingsScreen(
                 state,

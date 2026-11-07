@@ -23,12 +23,13 @@ fun storeReviewUrl(platform: String): String? = PLAY_LISTING.takeIf { platform =
 
 /**
  * 의견 메일.
- * 앱 버전과 기기 종류만 넣고 일기 내용은 넣지 않는다(헌법 II).
+ * 앱 버전, 운영체제, 기종만 넣고 일기 내용은 넣지 않는다(헌법 II).
+ * 사용자가 보내기 전에 메일에서 보고 지울 수 있다.
  */
 @Composable
-fun rememberFeedbackLink(version: String, platform: String): FeedbackLink {
+fun rememberFeedbackLink(version: String, os: String, model: String): FeedbackLink {
     val subject = stringResource(Res.string.settings_feedback_subject)
-    val body = stringResource(Res.string.settings_feedback_body, version, platform)
+    val body = stringResource(Res.string.settings_feedback_body, version, os, model)
     return FeedbackLink(
         "mailto:$SUPPORT_EMAIL?subject=${subject.percentEncoded()}&body=${body.percentEncoded()}",
         stringResource(Res.string.settings_feedback_no_mail, SUPPORT_EMAIL)

@@ -26,8 +26,8 @@
     <string name="settings_rate">アプリを評価する</string>
     <string name="settings_version">アプリのバージョン</string>
     <string name="settings_plus_badge">Plus 利用中</string>
-    <string name="settings_feedback_subject">1日1日記へのご意見</string>
-    <string name="settings_feedback_body">アプリのバージョン: %1$s (%2$s)\n\nご意見をご記入ください。\n</string>
+    <string name="settings_feedback_subject">1日1日記へのフィードバック</string>
+    <string name="settings_feedback_body">アプリのバージョン: %1$s\nOS: %2$s\n機種: %3$s\n\nご意見をお聞かせください 😊\n</string>
     <string name="settings_feedback_no_mail">メールアプリが見つかりません。%1$s までお送りください。</string>
     <string name="settings_title">設定</string>
     <string name="settings_group_style">カスタマイズ</string>
