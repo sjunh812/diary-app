@@ -8,7 +8,7 @@ disable-model-invocation: false
 
 # PR 올리기와 리뷰 지적 처리
 
-출시 이후 기능부터 쓴다. 출시 전에는 PR 없이 `feat/foundation-migration`에 바로 커밋하고 푸시한다. 머지는 사용자에게 묻는다(`docs/DECISIONS.md` 2026-11-07).
+출시 이후 기능부터 쓴다. 출시 전에는 PR 없이 기능 브랜치를 `develop`에 머지하고 푸시한다. 머지는 사용자에게 묻는다(`docs/DECISIONS.md` 2026-11-07).
 푸시, PR 만들기, 머지는 저마다 사용자가 요청하거나 승인한 때만 한다.
 
 ## 1. 올리기 전
@@ -25,10 +25,10 @@ disable-model-invocation: false
 
 ## 2. PR 만들기
 
-리뉴얼이 master에 합쳐지기 전까지 기준 브랜치는 `feat/foundation-migration`이다.
+기준 브랜치는 `develop`이다.
 
 ```bash
-gh pr create --base feat/foundation-migration --title "<커밋 규칙 형식의 제목>" --body-file <채운 템플릿>
+gh pr create --base develop --title "<커밋 규칙 형식의 제목>" --body-file <채운 템플릿>
 ```
 
 - 본문은 `.github/pull_request_template.md`의 다섯 절을 채운다. 해당 없는 절은 지우지 않고 "없음"이라고 쓴다.

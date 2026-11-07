@@ -67,11 +67,13 @@ Play "새로운 기능" 문구는 한국어, 영어, 일본어로 쓰고 `korean
 ## 7. 커밋과 태그
 
 ```bash
+git checkout main
+git merge --no-ff develop
 git commit -m "chore(release): 2.0.0 (37)"
 git tag v2.0.0
 ```
 
-태그를 푸시하면 `.github/workflows/release.yml`이 돈다. 비밀값은 `docs/release.md` "CD 비밀값"에 있다.
+릴리스 커밋은 `main`에 만들고, 끝나면 `develop`에도 머지한다. 태그를 푸시하면 `.github/workflows/release.yml`이 돈다. 비밀값은 `docs/release.md` "CD 비밀값"에 있다.
 
 - 변경 기록은 `sh scripts/release/changelog.sh v2.0.0`으로 미리 볼 수 있다. 사람이 읽을 문구는 초안에서 다듬는다.
 - Play 업로드는 내부 트랙으로만 간다. 단계적 출시와 이전 실패 시 멈춤은 `docs/migration.md` 출시 순서를 따른다.

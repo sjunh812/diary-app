@@ -72,7 +72,7 @@ $ARGUMENTS
 
 1. 스펙을 쓰기 전에 같은 기능을 레퍼런스 앱이 어떻게 하는지 찾아 정리한다. 무엇을 보여 주고 무엇을 빼는지, 빈 상태와 실패, 무료/유료
    경계를 어떻게 두는지. 이 정리를 스펙의 근거로 적는다.
-2. 새 기능이면 작업 브랜치를 먼저 만든다. 이름은 `<type>/<영문-슬러그>`이고, 리뉴얼이 master에 합쳐지기 전까지는 `feat/foundation-migration`에서 갈라진다.
+2. 새 기능이면 작업 브랜치를 먼저 만든다. 이름은 `<type>/<영문-슬러그>`이고, `develop`에서 갈라진다.
    `/speckit-specify`는 브랜치를 만들지 않는다.
 3. `/speckit-specify`에 기능 설명을 넘긴다. 스펙 번호는 `specs/`의 가장 큰 번호 다음이다(005는 비어 있고 다시 쓰지 않는다). 스펙 폴더가 생기면 `.specify/feature.json`도 그 폴더를 가리킨다.
 4. `/speckit-clarify`로 애매한 곳을 묻는다. 답은 스펙의 Clarifications에 남기고 규칙이 바뀌는 답이면 규칙 문서와 DECISIONS도 고친다.
@@ -169,5 +169,5 @@ $ARGUMENTS
 1. 문서 동기화를 본다. 바뀐 규칙이 규칙 문서, 헌법, 스펙, DECISIONS에 같은 내용으로 있는지, `tasks.md`, 프로토타입, Figma 진행 칸이 맞는지.
 2. 이번에 쓴 한국어 문구와 문서를 `korean-humanizer`와 `korean-spell-check`로 마지막으로 본다. Figma를 고쳤으면 `scripts/figma/audit.js`를 한 번 더 돌린다.
 3. 사용자가 커밋을 원하면 `CLAUDE.md` "커밋 규칙"(Conventional Commits, `<type>(<scope>): <한글 제목>`)대로 한다. 다른 세션의 변경이 섞였으면 무엇이 누구 것인지 말하고 담을지 묻는다.
-4. 출시 전에는 `feat/foundation-migration`에 커밋하고 푸시한다. 출시 이후 기능만 PR로 올린다(순서는 `/pr-review`, 머지는 묻고 한다).
+4. 출시 전에는 기능 브랜치를 `develop`에 머지하고 푸시한다. 출시 이후 기능만 PR로 올린다(순서는 `/pr-review`, 머지는 묻고 한다).
 5. 보고: 단계마다 한 것, CI 결과, 남은 작업 번호, 열린 결정과 물어볼 것.

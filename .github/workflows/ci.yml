@@ -6,7 +6,7 @@ name: CI
 on:
   push:
     # 열린 PR의 브랜치는 pull_request가 돈다. 여기에도 넣으면 같은 커밋을 두 번 돌린다.
-    branches: [master]
+    branches: [main, develop]
     # 문서만 바꾼 푸시는 빌드하지 않는다.
     paths-ignore:
       - "**.md"
@@ -29,9 +29,9 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
-  # 캐시는 master와 지금 긴 브랜치에서만 쓴다. PR은 읽기만 한다.
-  # 기본값대로 두면 master에서만 쓰여서 긴 브랜치 빌드가 늘 빈 캐시로 시작한다.
-  GRADLE_CACHE_READ_ONLY: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/feat/foundation-migration' }}
+  # 캐시는 main과 develop에서만 쓴다. PR은 읽기만 한다.
+  # 기본값대로 두면 기본 브랜치에서만 쓰여서 두 브랜치 빌드가 늘 빈 캐시로 시작한다.
+  GRADLE_CACHE_READ_ONLY: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop' }}
 
 jobs:
   changes:

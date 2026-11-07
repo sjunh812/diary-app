@@ -137,9 +137,10 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - **꼬리말**: 저장 형식(DB 스키마, 백업 형식)이나 이미 있는 동작을 바꾸면 type 뒤에 `!`를 붙이고 `BREAKING CHANGE: <무엇이 바뀌고 어떻게 옮기는지>`를
   쓴다. 근거는 `Refs: specs/002-diary-core FR-006`이나 `Refs: #12`. `Co-Authored-By` 같은 공동 작성자 줄은 넣지 않는다(사용자 요청 2026-11-01).
 - 커밋 하나에 논리적 변경 하나, 빌드와 시험이 통과하는 상태로 남긴다. 포맷 정리와 기능 변경을 섞지 않는다.
-- 출시 전에는 PR 없이 `feat/foundation-migration`에 바로 커밋하고 푸시한다(사용자 결정 2026-11-07). 그 브랜치에서 master로 가는 PR은 머지하지 않는다.
-- 출시 이후 기능은 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`) 브랜치로 PR을 올리고, 머지는 사용자에게 묻는다(순서는 `/pr-review`).
-- 릴리스는 `chore(release): 2.0.0 (37)` 커밋과 `v2.0.0` 태그. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
+- 브랜치(사용자 결정 2026-11-07): `main`은 배포·운영, `develop`은 개발이다. `master`는 옛 소스 보관용이라 건드리지 않고, PR #2도 머지하지 않는다.
+- 기능은 개발할 때만 `develop`에서 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`) 브랜치를 만들고, 끝나면 `develop`에 머지한다.
+- 출시 전에는 PR 없이 머지하고 푸시한다. 출시 이후 기능은 PR을 올리고, 머지는 사용자에게 묻는다(순서는 `/pr-review`).
+- 릴리스는 `develop`을 `main`에 머지한 뒤 `main`에서 `chore(release): 2.0.0 (37)` 커밋과 `v2.0.0` 태그를 만든다. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
 - 스펙 001에서 commit-msg 훅(저장소의 `.githooks/`, `git config core.hooksPath .githooks`)으로 형식을 검사한다.
 
 ```text

@@ -3,7 +3,7 @@ name: 저장소 위생
 
 on:
   push:
-    branches: [master, feat/foundation-migration]
+    branches: [main, develop]
   pull_request:
 
 permissions:
