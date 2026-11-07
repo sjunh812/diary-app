@@ -3,6 +3,8 @@ package org.sjhstudio.diary.feature.backup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -18,15 +20,19 @@ import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
 import org.sjhstudio.diary.feature.backup.resources.backup_auto
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_failed_offline
+import org.sjhstudio.diary.feature.backup.resources.backup_finding_title
 import org.sjhstudio.diary.feature.backup.resources.backup_line_all
 import org.sjhstudio.diary.feature.backup.resources.backup_line_days
 import org.sjhstudio.diary.feature.backup.resources.backup_line_failed
+import org.sjhstudio.diary.feature.backup.resources.backup_line_receiving
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
+import org.sjhstudio.diary.feature.backup.resources.backup_now
 import org.sjhstudio.diary.feature.backup.resources.backup_options
 import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
@@ -63,6 +69,37 @@ class BackupStatusUiTest {
         onNodeWithText(title).assertExists()
         onNode(hasText(reason, substring = true)).assertExists()
         onAllNodesWithText(allDone).assertCountEquals(0)
+    }
+
+    /** 연결한 뒤 드라이브를 찾는 동안에는 찾는다고 말하고 백업을 막는다. */
+    @Test
+    fun finding_backups_is_shown_and_backup_waits() = runComposeUiTest {
+        var title = ""
+        var now = ""
+        setContent {
+            title = stringResource(Res.string.backup_finding_title)
+            now = stringResource(Res.string.backup_now)
+            Screen(connected.copy(lastSuccessAt = null, findingBackup = true))
+        }
+
+        onNodeWithText(title).assertExists()
+        onNodeWithText(now, useUnmergedTree = true).assertExists()
+        onNode(hasText(now) and hasClickAction()).assertIsNotEnabled()
+    }
+
+    /** 사진을 받는 동안 홈이 사진까지 모두 백업했다고 말하면 안 된다. */
+    @Test
+    fun the_home_line_shows_photos_arriving() = runComposeUiTest {
+        var receiving = ""
+        var all = ""
+        setContent {
+            receiving = stringResource(Res.string.backup_line_receiving, 3, 10)
+            all = stringResource(Res.string.backup_line_all)
+            DiaryTheme(darkTheme = false) { BackupStatusLine(connected, {}, photos = PhotoProgress(3, 10)) }
+        }
+
+        onNodeWithText(receiving).assertExists()
+        onAllNodesWithText(all, substring = true).assertCountEquals(0)
     }
 
     @Test

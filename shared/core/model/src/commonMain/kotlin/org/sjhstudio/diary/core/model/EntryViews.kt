@@ -23,6 +23,11 @@ data class EntryRow(
     val keptBoth: Boolean = false
 ) {
     override fun toString(): String = "EntryRow"
+
+    companion object {
+        /** [photos]에서 복원으로 아직 받는 중인 사진. null은 찾을 수 없는 사진이다. */
+        const val PHOTO_PENDING = ""
+    }
 }
 
 /**

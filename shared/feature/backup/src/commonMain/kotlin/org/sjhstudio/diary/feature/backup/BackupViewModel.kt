@@ -49,6 +49,9 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
         viewModelScope.launch { restore.rollBack() }
     }
 
+    /** 복원한 사진을 받는 동안만 값이 있다. */
+    val photoProgress = restore.photoProgress
+
     /** 연결한 계정의 드라이브에 있던 가장 최근 백업. */
     val found: StateFlow<BackupEntry?> = controller.foundBackup
 

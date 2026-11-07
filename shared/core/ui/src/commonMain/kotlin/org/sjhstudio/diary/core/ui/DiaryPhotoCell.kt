@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.EntryRow
 
 /**
  * 일기 줄의 사진 칸(`docs/design.md` 사진 칸, Day One): 1장 꽉, 2장 위아래, 3장 큰 칸 + 둘, 4장 이상 2×2와 `+N`.
@@ -66,7 +67,10 @@ fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier) {
 @Composable
 private fun Photo(path: String?, modifier: Modifier) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.sunken), contentAlignment = Alignment.Center) {
-        if (path == null) {
+        if (path == EntryRow.PHOTO_PENDING) {
+            // 받는 중인 사진은 잃어버린 사진처럼 보이지 않게 한다.
+            DiaryIcon(DiaryIcons.Image, contentDescription = null, tint = DiaryTheme.colors.textTertiary, size = DiaryIconSize.i20)
+        } else if (path == null) {
             DiaryIcon(DiaryIcons.ImageOff, contentDescription = null, tint = DiaryTheme.colors.textTertiary, size = DiaryIconSize.i16)
         } else {
             // 목록 칸은 원본이 아니라 썸네일을 읽는다(FR-036, ThumbnailFetcher).

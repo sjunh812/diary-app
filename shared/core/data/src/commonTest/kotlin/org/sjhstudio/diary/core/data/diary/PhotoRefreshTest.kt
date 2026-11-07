@@ -112,11 +112,11 @@ class PhotoRefreshTest {
         withContext(Dispatchers.Default) {
             val (shown, job) = watch(entries.timeline(favoritesOnly = false))
             waitUntil { shown.rows.size == 1 }
-            assertEquals(listOf<String?>(null), shown.rows.single().photos)
+            assertEquals(listOf<String?>(EntryRow.PHOTO_PENDING), shown.rows.single().photos)
 
             received("p")
 
-            waitUntil { shown.rows.single().photos.single() != null }
+            waitUntil { shown.rows.single().photos.single() != EntryRow.PHOTO_PENDING }
             job.cancel()
         }
     }
@@ -133,7 +133,10 @@ class PhotoRefreshTest {
 
             received("p")
 
-            waitUntil { favorites.rows.single().photos.single() != null && found.rows.single().photos.single() != null }
+            waitUntil {
+                favorites.rows.single().photos.single() != EntryRow.PHOTO_PENDING &&
+                    found.rows.single().photos.single() != EntryRow.PHOTO_PENDING
+            }
             first.cancel()
             second.cancel()
         }
@@ -146,10 +149,10 @@ class PhotoRefreshTest {
 
         withContext(Dispatchers.Default) {
             val day = launch {
-                withTimeout(WAIT) { entries.day(LocalDate(2026, 10, 31)).first { it.single().photos.single() != null } }
+                withTimeout(WAIT) { entries.day(LocalDate(2026, 10, 31)).first { it.single().photos.single() != EntryRow.PHOTO_PENDING } }
             }
-            val trashed = launch { withTimeout(WAIT) { trash.items().first { it.single().row.photos.single() != null } } }
-            assertEquals(listOf<String?>(null), entries.day(LocalDate(2026, 10, 31)).first().single().photos)
+            val trashed = launch { withTimeout(WAIT) { trash.items().first { it.single().row.photos.single() != EntryRow.PHOTO_PENDING } } }
+            assertEquals(listOf<String?>(EntryRow.PHOTO_PENDING), entries.day(LocalDate(2026, 10, 31)).first().single().photos)
             received("p")
             received("q")
             day.join()

@@ -73,6 +73,9 @@ class BackupController(
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
     override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
 
+    /** 연결한 뒤 드라이브를 찾는 동안 켜진다. 몇 초 걸려서 화면이 알린다. */
+    private val finding = MutableStateFlow(false)
+
     private val _connectFailure = MutableStateFlow<BackupFailure?>(null)
     override val connectFailure: StateFlow<BackupFailure?> = _connectFailure.asStateFlow()
 
@@ -83,7 +86,7 @@ class BackupController(
     override val status: Flow<BackupStatus> =
         store.prefs.flatMapLatest { prefs ->
             val waiting = prefs.accountKey?.let { db.value.backupDao().notBackedUp(it) } ?: flowOf(0)
-            combine(waiting, runner.value.progress) { notBackedUp, running ->
+            combine(waiting, runner.value.progress, finding) { notBackedUp, running, findingBackup ->
                 BackupStatus(
                     connection =
                         when {
@@ -100,7 +103,8 @@ class BackupController(
                     autoEnabled = prefs.autoEnabled,
                     photosOnCellular = prefs.photosOnCellular,
                     bytesShort = prefs.bytesShort,
-                    restoredBackupAt = prefs.restoredBackupAt
+                    restoredBackupAt = prefs.restoredBackupAt,
+                    findingBackup = findingBackup
                 )
             }
         }
@@ -168,7 +172,13 @@ class BackupController(
         }
         if (store.current().autoEnabled) scheduler.scheduleDaily()
         // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않는다(US2 시나리오 7).
-        val found = findBackup()
+        finding.value = true
+        val found =
+            try {
+                findBackup()
+            } finally {
+                finding.value = false
+            }
         if (found != null) _foundBackup.value = found else backUpNow()
     }
 

@@ -80,7 +80,9 @@ data class BackupStatus(
     /** 공간이 부족해 못 올린 사진의 양. */
     val bytesShort: Long = 0,
     /** 드라이브 백업을 복원했으면 그 백업을 만든 시각. */
-    val restoredBackupAt: Instant? = null
+    val restoredBackupAt: Instant? = null,
+    /** 연결한 뒤 드라이브의 백업을 찾는 중이다. */
+    val findingBackup: Boolean = false
 )
 
 /** 복원 목록 한 줄의 상태. */

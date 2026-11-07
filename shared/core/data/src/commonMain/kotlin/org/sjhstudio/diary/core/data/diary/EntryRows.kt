@@ -51,7 +51,7 @@ internal fun EntryListRow.toRow(media: List<MediaEntity>, mediaDir: Path, query:
     weather = Weather.fromId(weather),
     placeName = placeName,
     isFavorite = isFavorite,
-    photos = media.map { it.pathIn(mediaDir) }
+    photos = media.map { if (it.status == MediaStatus.PENDING.id) EntryRow.PHOTO_PENDING else it.pathIn(mediaDir) }
 )
 
 private val WHITESPACE = Regex("\\s+")

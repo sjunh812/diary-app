@@ -19,6 +19,8 @@
     <string name="backup_no_space_title">드라이브 공간이 부족해요</string>
     <string name="backup_upload_cellular">모바일 데이터로 올리기</string>
     <string name="backup_all_done">사진까지 모두 백업했어요.</string>
+    <string name="backup_finding_title">백업을 찾고 있어요</string>
+    <string name="backup_finding_body">구글 드라이브에 있는 백업을 확인하는 중이에요.</string>
     <string name="backup_first_title">첫 백업을 준비했어요</string>
     <string name="backup_first_body">지금 백업을 누르면 일기와 사진을 올려요.</string>
     <string name="backup_last">마지막 백업 %1$s %2$s</string>
@@ -36,6 +38,7 @@
     <string name="backup_line_off">백업 꺼짐</string>
     <string name="backup_line_on">켜기</string>
     <string name="backup_line_reconnect">다시 연결이 필요해요</string>
+    <string name="backup_line_receiving">사진 받는 중 · %1$d/%2$d장</string>
     <string name="backup_line_running">백업 중 · 사진 %1$d/%2$d</string>
     <string name="backup_line_running_plain">백업 중</string>
     <string name="backup_line_at">%1$s 백업 · %2$s</string>

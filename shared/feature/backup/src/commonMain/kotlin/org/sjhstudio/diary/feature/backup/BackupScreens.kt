@@ -91,6 +91,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_disconnect_title
 import org.sjhstudio.diary.feature.backup.resources.backup_failed_drive
 import org.sjhstudio.diary.feature.backup.resources.backup_failed_local
 import org.sjhstudio.diary.feature.backup.resources.backup_failed_offline
+import org.sjhstudio.diary.feature.backup.resources.backup_finding_body
+import org.sjhstudio.diary.feature.backup.resources.backup_finding_title
 import org.sjhstudio.diary.feature.backup.resources.backup_first_body
 import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_group_account
@@ -332,11 +334,13 @@ internal fun BackupSettingsScreen(
                     ) {
                         Status(status, onCellular, onConnect)
                         if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
+                            // 다른 기기의 백업을 고르기 전에 이 기기 것을 올리지 않게 찾는 동안 막는다.
                             DiaryButton(
                                 stringResource(Res.string.backup_now),
                                 onBackUp,
                                 Modifier.fillMaxWidth(),
-                                size = DiaryButtonSize.XLarge
+                                size = DiaryButtonSize.XLarge,
+                                enabled = !status.findingBackup
                             )
                         }
                         if (status.connection == BackupConnection.NeedsReconnect) {
@@ -514,6 +518,13 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
     val running = status.running
     val last = status.lastSuccessAt?.let { lastBackupText(it) }
     when {
+        status.findingBackup ->
+            DiaryStatusBox(
+                DiaryIcons.ShieldCheck,
+                stringResource(Res.string.backup_finding_title),
+                stringResource(Res.string.backup_finding_body)
+            )
+
         running != null -> {
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                 DiaryStatusBox(

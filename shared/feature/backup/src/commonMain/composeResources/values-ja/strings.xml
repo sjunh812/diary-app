@@ -19,6 +19,8 @@
     <string name="backup_no_space_title">ドライブの空き容量が足りません</string>
     <string name="backup_upload_cellular">モバイルデータでアップロード</string>
     <string name="backup_all_done">写真まですべてバックアップしました。</string>
+    <string name="backup_finding_title">バックアップを探しています</string>
+    <string name="backup_finding_body">Google ドライブのバックアップを確認しています。</string>
     <string name="backup_first_title">最初のバックアップの準備ができました</string>
     <string name="backup_first_body">［今すぐバックアップ］をタップすると日記と写真をアップロードします。</string>
     <string name="backup_last">前回のバックアップ %1$s %2$s</string>
@@ -36,6 +38,7 @@
     <string name="backup_line_off">バックアップオフ</string>
     <string name="backup_line_on">オンにする</string>
     <string name="backup_line_reconnect">再接続が必要です</string>
+    <string name="backup_line_receiving">写真を受信中 · %1$d/%2$d枚</string>
     <string name="backup_line_running">バックアップ中・写真 %1$d/%2$d</string>
     <string name="backup_line_running_plain">バックアップ中</string>
     <string name="backup_line_at">%1$sにバックアップ・%2$s</string>

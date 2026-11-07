@@ -41,9 +41,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
+import org.sjhstudio.diary.feature.backup.resources.backup_finding_title
 import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_line_all
 import org.sjhstudio.diary.feature.backup.resources.backup_line_at
@@ -51,6 +53,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_line_days
 import org.sjhstudio.diary.feature.backup.resources.backup_line_failed
 import org.sjhstudio.diary.feature.backup.resources.backup_line_off
 import org.sjhstudio.diary.feature.backup.resources.backup_line_on
+import org.sjhstudio.diary.feature.backup.resources.backup_line_receiving
 import org.sjhstudio.diary.feature.backup.resources.backup_line_reconnect
 import org.sjhstudio.diary.feature.backup.resources.backup_line_running
 import org.sjhstudio.diary.feature.backup.resources.backup_line_running_plain
@@ -68,16 +71,17 @@ private val LONG_FAILURE = 7.days
 fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.loadedStatus.collectAsStateWithLifecycle()
+    val photos by viewModel.photoProgress.collectAsStateWithLifecycle()
     // 읽기 전에는 틀린 말을 하지 않고 자리만 잡아 둔다.
-    status?.let { BackupStatusLine(it, onOpen, modifier) }
+    status?.let { BackupStatusLine(it, onOpen, modifier, photos) }
         ?: BackupStatusLine(BackupStatus(), onOpen = {}, modifier.alpha(0f))
 }
 
 @Composable
-internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier: Modifier = Modifier) {
+internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier: Modifier = Modifier, photos: PhotoProgress? = null) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
-    val line = lineFor(status)
+    val line = lineFor(status, photos)
     val caption = DiaryTheme.typography.caption
     // 글줄 모양은 그대로 두고 누르는 곳만 48로 넓힌다.
     // 누름 면은 글자에서 위아래 6, 옆 8까지만 나와서 위 큰 제목에 닿지 않는다.
@@ -111,11 +115,14 @@ internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier
 private class Line(val icon: ImageVector, val text: String, val action: String? = null, val alert: Boolean = false)
 
 @Composable
-private fun lineFor(status: BackupStatus): Line {
+private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
     val running = status.running
     val last = status.lastSuccessAt
     val now = Clock.System.now()
     return when {
+        // 사진을 받는 동안 "사진까지 모두"라고 말하면 틀린 말이 된다.
+        photos != null -> Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_receiving, photos.done, photos.total))
+
         status.connection == BackupConnection.NotConnected ->
             Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_off), action = stringResource(Res.string.backup_line_on))
 
@@ -132,6 +139,8 @@ private fun lineFor(status: BackupStatus): Line {
                 stringResource(Res.string.backup_line_running_plain)
             }
         )
+
+        status.findingBackup -> Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_finding_title))
 
         // 실패가 7일을 넘으면 마지막 성공이 얼마나 지났는지가 더 중요하다.
         last != null && now - (status.failingSince ?: now) >= LONG_FAILURE ->
