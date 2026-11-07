@@ -65,7 +65,7 @@ class LargeDiaryQueryTest {
         seedTenThousand()
 
         assertFast("첫 화면") {
-            val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, PAGE, false))
+            val page = db.entryDao().visibleEntries().loadOnce(PAGE)
             val rows = (page as PagingSource.LoadResult.Page).data
             db.mediaDao().forRows(rows.map { it.id })
         }

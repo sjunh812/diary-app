@@ -35,7 +35,18 @@ import org.sjhstudio.diary.core.testing.TestClock
 
 /** 찾은 줄을 쪽 나눔 없이 모두 읽는다. */
 internal suspend fun DefaultEntryRepository.searchAll(filter: SearchFilter): List<EntryRow> =
-    (searchPages(filter).load(PagingSource.LoadParams.Refresh(null, ALL_ROWS, false)) as PagingSource.LoadResult.Page).data
+    (searchPages(filter).loadOnce(ALL_ROWS) as PagingSource.LoadResult.Page).data
+
+/**
+ * 한 번 읽고 원본을 닫는다.
+ * Room의 쪽 원본은 뒤에서 변경 감시를 시작하는데, 닫힌 DB를 만나면 프로세스째 죽는다.
+ * 앱은 DB를 닫지 않아 시험에서만 생기는 일이다.
+ */
+internal suspend fun <V : Any> PagingSource<Int, V>.loadOnce(size: Int): PagingSource.LoadResult<Int, V> = try {
+    load(PagingSource.LoadParams.Refresh(null, size, false))
+} finally {
+    invalidate()
+}
 
 private const val ALL_ROWS = 100_000
 private const val ROUNDS = 30
@@ -59,7 +70,7 @@ class DiaryReadRepositoryTest {
     fun timeline_is_newest_first_and_skips_trash() = runTest {
         db.seed(entry("old", date = "2026-09-01"), entry("new", date = "2026-10-02"), entry("gone", date = "2026-10-03", deletedAt = T0))
 
-        val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+        val page = db.entryDao().visibleEntries().loadOnce(10)
 
         assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryListRow).id })
     }
@@ -149,7 +160,7 @@ class DiaryReadRepositoryTest {
     fun favorites_only_keeps_starred_entries() = runTest {
         db.seed(entry("a", favorite = true), entry("b"))
 
-        val page = db.entryDao().favoriteEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+        val page = db.entryDao().favoriteEntries().loadOnce(10)
 
         assertEquals(listOf("a"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryListRow).id })
     }
@@ -296,7 +307,7 @@ class DiaryReadRepositoryTest {
         val long = "🌊".repeat(100) + "오늘은\n\n바다에 갔다 ".repeat(200)
         db.seed(entry("a", text = long))
 
-        val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+        val page = db.entryDao().visibleEntries().loadOnce(10)
         val row = assertIs<PagingSource.LoadResult.Page<Int, EntryListRow>>(page).data.single()
 
         assertTrue(row.plainText.length < long.length)
