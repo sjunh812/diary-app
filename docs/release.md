@@ -54,14 +54,16 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 1. 오늘을 한 장에(쓰기 화면)
 2. 사진까지 안전하게 백업(백업 상태)
 3. 기분 달력과 통계
-4. 내 취향대로 꾸미기(종이, 글꼴, 스티커)
-5. 태블릿에서 넓게(목록·상세 두 칸)
-6. 위젯
-7. 잠금으로 나만 보는 일기
+4. 잠금으로 나만 보는 일기
+5. 글꼴 고르기
+6. 지난 일기를 사진과 함께
+7. 태블릿에서 넓게(목록·상세 두 칸, 아직 찍지 않음)
+
+폰 6장과 피처 그래픽은 `docs/store/screens/`에 있고 문구는 `docs/store/listing.md`에 있다(2026-11-07).
 
 ## 소개 문구
 
-- 짧은 설명(Play 80자, App Store 부제 30자)과 긴 설명을 새로 쓴다. 광고 없이 무료로 쓰던 이미지를 살리고, 사진 포함 백업과 태블릿·iPad를 앞에 둔다.
+- 짧은 설명(Play 80자, App Store 부제 30자)과 긴 설명은 `docs/store/listing.md`에 있다. 사진 포함 백업과 회원가입 없음을 앞에 둔다.
 - 긴 설명 구성: 한 줄 소개 → 이런 분께 → 주요 기능(무료) → Plus → 백업과 개인정보 → 문의.
 - 문구는 `korean-humanizer`로 번역투를 걷어 내고 `korean-spell-check`로 맞춤법을 본다.
 - 영어와 일본어 설명은 한국어를 옮기지 않고 그 언어로 새로 쓴 뒤 원어민 검수를 받는다. 앱 이름은 언어마다 따로 쓸 수 있다(열린 결정 D12).
@@ -207,7 +209,8 @@ admob.rewarded=ca-app-pub-.../...
 - [x] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(2026-11-01 해제, 시험 호출이 401 "Authentication Failed"). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
 - [ ] 위치정보지원센터 문의
 - [ ] 개인정보처리방침에 "복구 문의"를 적는다: 사용자가 스스로 첨부한 예전 일기 파일만 받고, 복구에만 쓰며, 복구한 파일을 돌려준 뒤 바로 지운다(헌법 II 예외, 스펙 001 FR-010a). 받는 곳(메일 계정)과 지우는 방법도 적는다
-- [ ] 처리방침 URL을 Play Console, App Store Connect, 앱 설정에 걸기
+- [x] 처리방침과 약관을 공개하고 앱에 걸기(`LegalLinks`, 원문은 `docs/legal/`, 2026-11-07)
+- [ ] 처리방침 URL을 Play Console, App Store Connect에 넣기
 - [ ] Play 데이터 보안, App Store 개인정보 라벨, Privacy Manifest 작성(광고를 넣으므로 AdMob 항목 포함)
 - [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 `SKAdNetworkItems`, UMP 동의
 - [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기
@@ -230,3 +233,10 @@ Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
 파일이 있으면 빌드가 켜고, 없으면 아무것도 보내지 않는다. 개발 빌드는 보내지 않는다. 확인할 때는 `local.properties`에 `firebase.debug=true`를 넣고 `adb shell setprop debug.firebase.analytics.app org.sjhstudio.diary`로 DebugView를 켠다.
 출시 빌드는 Android 난독화 매핑과 iOS dSYM을 자동으로 올린다.
 
+## 결제 콘솔 설정
+
+앱은 아래 이름을 쓴다(`StoreIds`).
+
+- Play 상품: 인앱 `ad_free`(광고 제거), 구독 `plus_yearly`(기본 요금제 연간).
+- RevenueCat 권한: `ad_free`는 `ad_free` 상품, `plus`는 `plus_yearly` 상품에 잇는다.
+- RevenueCat Google 공개 키를 `local.properties`의 `revenuecat.android`와 CD 비밀값 `REVENUECAT_ANDROID`에 넣는다. 이 값이나 광고 ID가 없으면 CD가 멈춘다.
