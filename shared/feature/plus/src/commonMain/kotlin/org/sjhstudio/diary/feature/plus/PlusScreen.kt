@@ -87,7 +87,6 @@ import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_notice
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_body
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
-import org.sjhstudio.diary.feature.plus.resources.plus_plan_yearly
 import org.sjhstudio.diary.feature.plus.resources.plus_price
 import org.sjhstudio.diary.feature.plus.resources.plus_restore
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
@@ -95,6 +94,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
 import org.sjhstudio.diary.feature.plus.resources.plus_restored
 import org.sjhstudio.diary.feature.plus.resources.plus_retry
 import org.sjhstudio.diary.feature.plus.resources.plus_start
+import org.sjhstudio.diary.feature.plus.resources.plus_start_price
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_body
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_title
 import org.sjhstudio.diary.feature.plus.resources.plus_title
@@ -165,8 +165,8 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
 
 /**
  * 결제 화면(Figma P1).
- * 제목, 혜택 네 줄(무엇을 얻는지 한 문장씩), 요금제 칸, 버튼을 둔다.
- * 그림은 남는 자리에만 그리고, 요금제와 버튼은 아래에 고정된다.
+ * 제목, 혜택 네 줄(무엇을 얻는지 한 문장씩), 결제액을 적은 버튼을 둔다.
+ * 그림은 남는 자리에만 그리고, 버튼은 아래에 고정된다.
  * 닫기는 처음부터 보이고 실제 결제액이 가장 크다(FR-005).
  * 작은 화면이나 큰 글자에서만 위쪽이 스크롤된다.
  * 넓은 화면도 폰과 같은 한 칸이다.
@@ -302,32 +302,6 @@ private fun PaywallBenefits(adFreeOwned: Boolean) {
 }
 
 /**
- * 요금제 한 줄.
- * 이름과 실제 결제액을 한 칸에 묶어 무엇을 얼마에 사는지 바로 읽히게 한다.
- * 결제액이 화면에서 가장 크다(FR-005).
- */
-@Composable
-private fun PlanRow(price: String?) {
-    val colors = DiaryTheme.colors
-    val typography = DiaryTheme.typography
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(DiaryShapes.r16)
-            .background(colors.selected.copy(alpha = ART_TINT))
-            .padding(horizontal = DiarySpacing.x4, vertical = DiarySpacing.x3),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        BasicText(
-            stringResource(Res.string.plus_plan_yearly),
-            Modifier.weight(1f),
-            style = typography.bodyStrong.copy(color = colors.textPrimary)
-        )
-        BasicText(price.orEmpty(), style = typography.title2.copy(color = colors.textPrimary))
-    }
-}
-
-/**
  * 실제 결제액, 버튼, 자동 갱신 고지(FR-005).
  * 가격을 못 받으면 지어내지 않고 다시 시도를 보인다.
  * 읽는 동안에는 결제액 자리를 비워 두고 버튼을 비활성으로 두어 칸이 뛰지 않는다.
@@ -347,9 +321,9 @@ private fun PaywallBuy(
     val typography = DiaryTheme.typography
     Column(modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         if (price != null || loading) {
-            PlanRow(price)
             DiaryButton(
-                stringResource(Res.string.plus_start),
+                // 요금은 하나뿐이라 고르는 칸을 두지 않고 버튼에 바로 적는다.
+                price?.let { stringResource(Res.string.plus_start_price, it) } ?: stringResource(Res.string.plus_start),
                 onBuy,
                 Modifier.fillMaxWidth(),
                 size = DiaryButtonSize.XLarge,
@@ -378,10 +352,10 @@ private fun PaywallBuy(
 @Composable
 private fun PlusBenefits() {
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
-        OwnedBenefit(DiaryIcons.ShieldCheckSolid, Res.string.plus_ads_title, Res.string.plus_ads_body)
-        OwnedBenefit(DiaryIcons.ImageSolid, Res.string.plus_photos_title, Res.string.plus_photos_body)
-        OwnedBenefit(DiaryIcons.ChecklistSolid, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
-        OwnedBenefit(DiaryIcons.ChartSolid, Res.string.plus_stats_title, Res.string.plus_stats_body)
+        OwnedBenefit(DiaryIcons.ShieldCheck, Res.string.plus_ads_title, Res.string.plus_ads_body)
+        OwnedBenefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
+        OwnedBenefit(DiaryIcons.Checklist, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
+        OwnedBenefit(DiaryIcons.TabInsight, Res.string.plus_stats_title, Res.string.plus_stats_body)
     }
 }
 
