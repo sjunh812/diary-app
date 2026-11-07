@@ -8,7 +8,7 @@ disable-model-invocation: false
 
 # PR 올리기와 리뷰 지적 처리
 
-기능마다 PR을 올리고 머지는 사용자에게 묻는다(`docs/DECISIONS.md` 2026-11-07).
+출시 이후 기능부터 쓴다. 출시 전에는 PR 없이 `feat/foundation-migration`에 바로 커밋하고 푸시한다. 머지는 사용자에게 묻는다(`docs/DECISIONS.md` 2026-11-07).
 푸시, PR 만들기, 머지는 저마다 사용자가 요청하거나 승인한 때만 한다.
 
 ## 1. 올리기 전

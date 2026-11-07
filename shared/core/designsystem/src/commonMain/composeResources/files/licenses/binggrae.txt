@@ -1,4 +1,4 @@
-COPYRIGHT BINGGRAE, All rights reserved
+Copyright (C) BINGGRAE . and YoonDesign Inc. All rights reserved.
 
 빙그레 서체 라이선스
 
@@ -9,4 +9,4 @@ COPYRIGHT BINGGRAE, All rights reserved
 빙그레 서체를 사용한 인쇄물, 광고물(온라인 포함)의 이미지는 빙그레 프로모션을 위해 활용될 수 있습니다. 이를 원치 않는 사용자는 언제든지 당사에 요청하실 수 있습니다.
 문의(www.bing.co.kr)
 
-http://www.bingfont.co.kr/license.html
+https://www.bing.co.kr/news/media_font
