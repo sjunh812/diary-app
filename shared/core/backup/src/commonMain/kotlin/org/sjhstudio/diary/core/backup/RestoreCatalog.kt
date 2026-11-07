@@ -107,6 +107,13 @@ class RestoreCatalog(
         }
     }
 
+    /** 기기에 둔 목록 파일만으로 만든 목록. 드라이브에 묻지 않아 바로 나온다. */
+    fun saved(): List<BackupEntry> = fileSystem.listOrNull(keptDir).orEmpty()
+        .mapNotNull { fromDisk(it) }
+        .filter { ManifestCodec.check(it) != ManifestCheck.BROKEN && ManifestCodec.check(it) != ManifestCheck.NEEDS_NEWER_APP }
+        .map { entryOf(it, it.snapshot.fileName, it.createdAt, BackupEntryState.Ready) }
+        .sortedByDescending { it.createdAt }
+
     private fun legacyCandidate(file: DriveFile) = RestoreCandidate(
         BackupEntry(
             snapshotName = LEGACY_PREFIX + file.id,
@@ -140,22 +147,26 @@ class RestoreCatalog(
 
                 else -> BackupEntryState.Ready
             }
-        val media = manifest?.media.orEmpty()
         return RestoreCandidate(
-            BackupEntry(
-                snapshotName = manifest?.snapshot?.fileName ?: file.name,
-                deviceId = manifest?.device?.id.orEmpty(),
-                deviceName = manifest?.device?.name.orEmpty(),
-                platform = manifest?.app?.platform.orEmpty(),
-                createdAt = Instant.fromEpochMilliseconds(manifest?.createdAt?.takeIf { it > 0 } ?: file.createdAt),
-                entryCount = manifest?.counts?.entries ?: 0,
-                photoCount = media.count { it.inBackup },
-                photosNotInBackup = media.count { !it.inBackup },
-                appVersion = manifest?.app?.versionName.orEmpty(),
-                state = state
-            ),
+            entryOf(manifest, manifest?.snapshot?.fileName ?: file.name, manifest?.createdAt?.takeIf { it > 0 } ?: file.createdAt, state),
             manifest,
             snapshot
+        )
+    }
+
+    private fun entryOf(manifest: Manifest?, name: String, createdAt: Long, state: BackupEntryState): BackupEntry {
+        val media = manifest?.media.orEmpty()
+        return BackupEntry(
+            snapshotName = name,
+            deviceId = manifest?.device?.id.orEmpty(),
+            deviceName = manifest?.device?.name.orEmpty(),
+            platform = manifest?.app?.platform.orEmpty(),
+            createdAt = Instant.fromEpochMilliseconds(createdAt),
+            entryCount = manifest?.counts?.entries ?: 0,
+            photoCount = media.count { it.inBackup },
+            photosNotInBackup = media.count { !it.inBackup },
+            appVersion = manifest?.app?.versionName.orEmpty(),
+            state = state
         )
     }
 }

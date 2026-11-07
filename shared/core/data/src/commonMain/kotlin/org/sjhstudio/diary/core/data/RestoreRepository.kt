@@ -46,6 +46,13 @@ interface RestoreRepository : BundleFiles {
      */
     suspend fun backups(): List<BackupEntry>?
 
+    /**
+     * 지난번에 읽어 둔 백업 목록.
+     * 드라이브에 묻기 전에 먼저 보여 준다.
+     * 없거나 다른 계정의 것이면 빈 목록이다.
+     */
+    suspend fun savedBackups(): List<BackupEntry> = emptyList()
+
     /** 스냅샷을 받아 확인하고 쓰기 없이 결과 숫자를 낸다(FR-021, FR-023). */
     suspend fun prepare(snapshotName: String): RestorePreparation
 

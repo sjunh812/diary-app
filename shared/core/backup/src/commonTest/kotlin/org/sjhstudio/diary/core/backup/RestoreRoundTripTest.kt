@@ -164,6 +164,22 @@ class RestoreRoundTripTest {
         assertEquals(first.map { it.entry }, second.map { it.entry })
     }
 
+    /** 드라이브에 묻지 않고 지난번 목록을 낸다. 끊긴 상태에서도 나온다. */
+    @Test
+    fun the_saved_list_needs_no_drive() = runTest {
+        backUp()
+        val counting = CountingDrive()
+        val work = dir / "b" / "backup"
+        val first = RestoreCatalog(counting, fs, work).list()
+        val downloads = counting.downloads
+
+        val saved = RestoreCatalog(counting, fs, work).saved()
+
+        assertEquals(first.map { it.entry.snapshotName }, saved.map { it.snapshotName })
+        assertEquals(first.map { it.entry.entryCount }, saved.map { it.entryCount })
+        assertEquals(downloads, counting.downloads)
+    }
+
     @Test
     fun a_damaged_saved_list_is_downloaded_again() = runTest {
         backUp()

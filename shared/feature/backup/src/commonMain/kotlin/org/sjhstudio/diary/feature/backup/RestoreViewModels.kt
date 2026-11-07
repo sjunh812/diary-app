@@ -32,7 +32,11 @@ class RestoreListViewModel(private val restore: RestoreRepository) : ViewModel()
 
     fun load() {
         _state.value = RestoreListUi.Loading
-        viewModelScope.launch { _state.value = restore.backups()?.let { RestoreListUi.Loaded(it) } ?: RestoreListUi.Failed }
+        viewModelScope.launch {
+            // 드라이브에 묻는 데 몇 초가 걸리니 지난번 목록을 먼저 보여 준다.
+            restore.savedBackups().takeIf { it.isNotEmpty() }?.let { _state.value = RestoreListUi.Loaded(it) }
+            _state.value = restore.backups()?.let { RestoreListUi.Loaded(it) } ?: RestoreListUi.Failed
+        }
     }
 }
 

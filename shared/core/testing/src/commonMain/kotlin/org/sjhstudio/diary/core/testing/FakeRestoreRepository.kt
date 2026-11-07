@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.testing
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -93,7 +94,18 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val b
         return preparation
     }
 
-    override suspend fun backups(): List<BackupEntry>? = entries
+    /** 지난번에 읽어 둔 목록. */
+    var saved: List<BackupEntry> = emptyList()
+
+    /** 있으면 드라이브 목록 답을 이것이 끝날 때까지 미룬다. */
+    var backupsGate: CompletableDeferred<Unit>? = null
+
+    override suspend fun savedBackups(): List<BackupEntry> = saved
+
+    override suspend fun backups(): List<BackupEntry>? {
+        backupsGate?.await()
+        return entries
+    }
 
     override suspend fun prepare(snapshotName: String): RestorePreparation = preparation
 

@@ -54,6 +54,7 @@ import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.NetworkState
@@ -141,7 +142,14 @@ class RestoreController(
 
     override suspend fun backups(): List<BackupEntry>? = guarded {
         candidates = catalog.value.list()
+        // 어느 계정의 목록인지 적어 다른 계정을 연결했을 때 먼저 보이지 않게 한다.
+        store.update { it.copy(listedAccount = it.accountKey) }
         candidates.map { it.entry }
+    }
+
+    override suspend fun savedBackups(): List<BackupEntry> = orElseOnFailure(emptyList()) {
+        val prefs = store.current()
+        if (prefs.accountKey == null || prefs.accountKey != prefs.listedAccount) emptyList() else catalog.value.saved()
     }
 
     override suspend fun bundleEstimate(): BundleEstimate = exporter.value.estimate()
