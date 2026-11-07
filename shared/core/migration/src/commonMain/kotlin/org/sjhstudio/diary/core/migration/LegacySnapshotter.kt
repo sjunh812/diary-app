@@ -9,6 +9,7 @@ import okio.Path
 import okio.blackholeSink
 import okio.buffer
 import okio.use
+import org.sjhstudio.diary.core.platform.sha256Hex
 
 /**
  * 원본 파일 하나의 크기와 SHA-256(`snapshot.json`).
@@ -64,10 +65,7 @@ class LegacySnapshotter(private val fileSystem: FileSystem, private val clock: C
     }
 
     /** 원본 파일의 SHA-256. 원본은 읽기만 한다. */
-    fun sha256(path: Path): String = HashingSink.sha256(blackholeSink()).use { hashing ->
-        fileSystem.source(path).use { source -> hashing.buffer().use { it.writeAll(source) } }
-        hashing.hash.hex()
-    }
+    fun sha256(path: Path): String = fileSystem.sha256Hex(path)
 
     private fun sameAsOriginals(manifest: SnapshotManifest, originals: List<Path>): Boolean {
         if (manifest.files.map { it.name }.toSet() != originals.map { it.name }.toSet()) return false

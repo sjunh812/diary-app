@@ -67,6 +67,7 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.ExpectedLeave
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.KeepScreenOn
@@ -170,9 +171,17 @@ fun BackupSettingsRoute(
     val files = koinViewModel<FileBackupViewModel>()
     val fileState by files.state.collectAsStateWithLifecycle()
     val picker =
-        rememberFilePickerLauncher(type = FileKitType.File(), onError = { files.pickFailed() }) { file: PlatformFile? ->
+        rememberFilePickerLauncher(type = FileKitType.File(), onError = {
+            ExpectedLeave.clear()
+            files.pickFailed()
+        }) { file: PlatformFile? ->
+            ExpectedLeave.clear()
             file?.let { picked -> files.read({ OkioSource(picked.source()) }, { picked.sizeOrNull() }, onFilePreview) }
         }
+    val openPicker = {
+        ExpectedLeave.mark()
+        picker.launch()
+    }
     val status by viewModel.status.collectAsStateWithLifecycle()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
@@ -205,10 +214,10 @@ fun BackupSettingsRoute(
                 rollback,
                 viewModel::rollBack,
                 onFileBackup,
-                onFileRestore = { picker.launch() },
+                onFileRestore = openPicker,
                 fileState = fileState
             )
-            statusBar { picker.launch() }
+            statusBar(openPicker)
         }
         DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
     }

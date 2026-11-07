@@ -16,6 +16,7 @@ import okio.IOException
 import org.sjhstudio.diary.core.datastore.AdPrefs
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /**
  * 광고 SDK. 공통 코드는 이것만 본다.
@@ -141,13 +142,7 @@ class AdRepository(
     private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T = quietly(failed) { withContext(NonCancellable) { block() } }
 
     /** 광고는 곁일이다. 광고 쪽 실패로 앱이 꺼지면 안 된다. 다음 기회에 다시 해 본다. */
-    private suspend fun <T> quietly(failed: T, block: suspend () -> T): T = try {
-        block()
-    } catch (e: CancellationException) {
-        throw e
-    } catch (_: Exception) {
-        failed
-    }
+    private suspend fun <T> quietly(failed: T, block: suspend () -> T): T = orElseOnFailure(failed) { block() }
 
     private companion object {
         val REWARD = 24.hours

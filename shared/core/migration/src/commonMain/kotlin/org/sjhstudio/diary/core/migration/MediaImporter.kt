@@ -10,6 +10,7 @@ import okio.buffer
 import okio.use
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.platform.sha256Hex
 
 /**
  * EXIF 방향을 반영한 사진 가로세로.
@@ -117,10 +118,7 @@ class MediaImporter(
         }
     }
 
-    private fun sha256(path: Path): String = HashingSink.sha256(okio.blackholeSink()).use { hashing ->
-        fileSystem.source(path).use { source -> hashing.buffer().use { it.writeAll(source) } }
-        hashing.hash.hex()
-    }
+    private fun sha256(path: Path): String = fileSystem.sha256Hex(path)
 
     private companion object {
         const val HEAD_BYTES = 16L

@@ -8,6 +8,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.shared.core.model)
             api(libs.kotlinx.coroutines.core)
+            implementation(libs.okio)
         }
         androidMain.dependencies {
             implementation(libs.androidx.biometric)

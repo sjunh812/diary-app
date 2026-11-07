@@ -144,12 +144,16 @@ class LegacyBackupImporter(
         val mapper = LegacyEntryMapper(currentDate(clock, zone), zone, newId)
         val sameTime = local.groupBy { it.date to it.time }
         val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
+        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 가른다.
+        // 분까지만 보면 글이 같고 사진이 다른 일기가 빠진다.
+        val inFile = HashSet<Triple<Triple<String, String, String>, String?, String?>>()
         val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }
         val items = ArrayList<LegacyItem>()
         var unchanged = 0
         for (note in notes) {
             val mapped = mapper.map(note).entry.asEntity()
-            if (!seen.add(Triple(mapped.date, mapped.time, mapped.plainText))) {
+            val same = Triple(mapped.date, mapped.time, mapped.plainText)
+            if (same in seen || !inFile.add(Triple(same, note.createDate, note.picture))) {
                 unchanged++
                 continue
             }

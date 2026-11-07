@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.app.lock
 
 import kotlin.time.ComparableTimeMark
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.lock.LockRepository
+import org.sjhstudio.diary.core.model.ExpectedLeave
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.platform.AppForeground
 
@@ -81,7 +83,10 @@ class LockController(
         val left = leftAt ?: return
         leftAt = null
         val after = lock.relockAfter.duration ?: return
-        if (lock.enabled && _state.value == LockState.Unlocked && left.elapsedNow() >= after) _state.value = LockState.Locked
+        // 사진을 고르고 돌아온 길이면 결과를 받을 시간을 준다.
+        val waited = if (ExpectedLeave.marked) maxOf(after, PICKER_GRACE) else after
+        ExpectedLeave.clear()
+        if (lock.enabled && _state.value == LockState.Unlocked && left.elapsedNow() >= waited) _state.value = LockState.Locked
     }
 
     fun onUnlocked() {
@@ -119,6 +124,9 @@ class LockController(
         }
     }
 }
+
+/** 사진 고르기에 머물 수 있는 시간. 이보다 오래 비우면 평소대로 잠근다. */
+private val PICKER_GRACE = 5.minutes
 
 sealed interface LockState {
     /**

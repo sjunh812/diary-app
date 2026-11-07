@@ -59,6 +59,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BundleEstimate
+import org.sjhstudio.diary.core.model.ExpectedLeave
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.KeepScreenOn
@@ -105,7 +106,11 @@ fun FileBackupRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val saver =
-        rememberFileSaverLauncher(FileKitDialogSettings.createDefault(), onError = { viewModel.saveFailed() }) { file: PlatformFile? ->
+        rememberFileSaverLauncher(FileKitDialogSettings.createDefault(), onError = {
+            ExpectedLeave.clear()
+            viewModel.saveFailed()
+        }) { file: PlatformFile? ->
+            ExpectedLeave.clear()
             file?.let { target ->
                 viewModel.write(target.name, { OkioSink(target.sink()).buffer() }, { target.delete(mustExist = false) })
             }
@@ -135,6 +140,7 @@ fun FileBackupRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
         onMake = {
             scope.launch {
                 val today = currentDate()
+                ExpectedLeave.mark()
                 saver.launch(suggestedName = getString(Res.string.file_name, today.toString()), defaultExtension = "zip")
             }
         },

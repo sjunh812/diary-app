@@ -12,6 +12,7 @@ import okio.blackholeSink
 import okio.buffer
 import okio.use
 import org.sjhstudio.diary.core.platform.ImageSize
+import org.sjhstudio.diary.core.platform.sha256Hex
 
 /**
  * 저장한 사진.
@@ -44,7 +45,7 @@ class PhotoStore(
             if (!encoder.encode(incoming.toString(), outgoing.toString(), MAX_SIDE, QUALITY) || !fileSystem.exists(outgoing)) {
                 return@withContext null
             }
-            val sha256 = sha256Of(outgoing)
+            val sha256 = fileSystem.sha256Hex(outgoing)
             val target = mediaDir / "$sha256.jpg"
             // 같은 사진이면 파일은 하나다.
             if (fileSystem.exists(target)) fileSystem.delete(outgoing) else fileSystem.atomicMove(outgoing, target)
@@ -54,12 +55,6 @@ class PhotoStore(
             fileSystem.delete(incoming, mustExist = false)
             fileSystem.delete(outgoing, mustExist = false)
         }
-    }
-
-    private fun sha256Of(file: Path): String {
-        val sink = HashingSink.sha256(blackholeSink())
-        sink.buffer().use { out -> fileSystem.source(file).use { out.writeAll(it) } }
-        return sink.hash.hex()
     }
 
     private companion object {

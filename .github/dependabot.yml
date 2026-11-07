@@ -1,5 +1,5 @@
 # 판 올리기 PR을 묶어서 한 달에 한 번 받는다.
-# 설정은 기본 브랜치(master)에 있어야 켜진다.
+# 설정은 기본 브랜치(develop)에 있어야 켜진다.
 # 앱에 쓰는 버전은 알파·베타로 올리지 않는다(specs/001-foundation-migration research R2). 그런 PR은 닫는다.
 version: 2
 updates:

@@ -124,6 +124,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.ChecklistEdit
 import org.sjhstudio.diary.core.model.DraftPhoto
+import org.sjhstudio.diary.core.model.ExpectedLeave
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
 import org.sjhstudio.diary.core.model.PhotoLimit
@@ -271,14 +272,30 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         rememberFilePickerLauncher(
             type = FileKitType.Image,
             mode = FileKitMode.Multiple(maxItems = remaining),
-            onError = { vm.photoPickFailed() }
+            onError = {
+                ExpectedLeave.clear()
+                vm.photoPickFailed()
+            }
         ) { files ->
+            ExpectedLeave.clear()
             if (files != null) vm.addPhotos(files.map { file -> PickedImage { file.readBytes() } })
         }
     val camera =
-        rememberCameraPickerLauncher(onError = { vm.photoPickFailed() }) { file ->
+        rememberCameraPickerLauncher(onError = {
+            ExpectedLeave.clear()
+            vm.photoPickFailed()
+        }) { file ->
+            ExpectedLeave.clear()
             if (file != null) vm.addPhotos(listOf(PickedImage { file.readBytes() }))
         }
+    val openPicker = {
+        ExpectedLeave.mark()
+        pick.launch()
+    }
+    val openCamera = {
+        ExpectedLeave.mark()
+        camera.launch()
+    }
     val tools = remember(actions) { WriteTools(actions.rich, actions.colors, { vm.checklistOpen.value }, { checklistLocked = true }) }
     // 하드웨어 키보드의 Ctrl/⌘+S로 저장한다(FR-039).
     val keyboard =
@@ -303,10 +320,10 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                         }
                         SaveFailedNotice(state)
                         discardRow()
-                        tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
+                        tools.Toolbar(onPhoto = { openPicker() }, onCamera = { openCamera() })
                     }
                     Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
-                    SidePanel(state, actions, onPick = { pick.launch() }, onPlace = { openSheet(Sheet.Place) })
+                    SidePanel(state, actions, onPick = { openPicker() }, onPlace = { openSheet(Sheet.Place) })
                 }
             } else {
                 Column(
@@ -318,14 +335,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                         Chips(state, onMood = {
                             openSheet(Sheet.Mood)
                         }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
-                        if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { pick.launch() })
+                        if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { openPicker() })
                         Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                         Editor(actions.rich, bodyStyle, editorFocus, Modifier.fillMaxWidth())
                     }
                 }
                 SaveFailedNotice(state)
                 discardRow()
-                tools.Toolbar(onPhoto = { pick.launch() }, onCamera = { camera.launch() })
+                tools.Toolbar(onPhoto = { openPicker() }, onCamera = { openCamera() })
             }
         }
     }

@@ -35,6 +35,7 @@ import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationState
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /**
  * 이전이 읽고 쓰는 자리.
@@ -220,8 +221,8 @@ class MigrationRunner(
      */
     private suspend fun afterCommit(previous: MigrationState): MigrationResult? {
         if (previous.step != MigrationStep.COMMITTING || !fileSystem.exists(paths.databasePath)) return null
-        val resumed = orNull { finishAlreadyCommitted(previous) }
-        if (resumed == null && orNull { hasWrittenEntries() } != true) deleteDatabase(paths.databasePath)
+        val resumed = orElseOnFailure(null) { finishAlreadyCommitted(previous) }
+        if (resumed == null && !orElseOnFailure(false) { hasWrittenEntries() }) deleteDatabase(paths.databasePath)
         return resumed
     }
 
@@ -858,15 +859,6 @@ class MigrationRunner(
 
         val RECHECK_INTERVAL = 24.hours
     }
-}
-
-/** 실패는 null로 돌려주고 취소는 그대로 던진다. */
-private inline fun <T> orNull(block: () -> T): T? = try {
-    block()
-} catch (e: CancellationException) {
-    throw e
-} catch (_: Exception) {
-    null
 }
 
 private fun emptyReport(finishedAt: Instant) = MigrationReport(

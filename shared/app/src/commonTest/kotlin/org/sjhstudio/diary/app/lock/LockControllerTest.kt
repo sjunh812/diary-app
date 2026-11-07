@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -12,6 +13,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.datastore.LockStore
+import org.sjhstudio.diary.core.model.ExpectedLeave
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.model.RelockAfter
@@ -97,6 +99,36 @@ class LockControllerTest {
         val controller = started(RelockAfter.IMMEDIATELY)
         controller.withoutRelock { controller.awayFor(10) }
         assertEquals(LockState.Unlocked, controller.state.value)
+    }
+
+    /** 바로 잠금을 켠 사람도 사진을 고르고 돌아오면 쓰던 화면이 그대로다. 잠기면 고른 사진을 받을 곳이 없어진다. */
+    @Test
+    fun coming_back_from_the_photo_picker_keeps_the_screen() = runTest {
+        val controller = started(RelockAfter.IMMEDIATELY)
+        ExpectedLeave.mark()
+        controller.awayFor(30)
+        assertEquals(LockState.Unlocked, controller.state.value)
+        assertFalse(ExpectedLeave.marked)
+    }
+
+    /** 사진 고르기를 띄운 채 자리를 오래 비우면 평소대로 잠근다. */
+    @Test
+    fun a_long_stay_in_the_picker_still_locks() = runTest {
+        val controller = started(RelockAfter.IMMEDIATELY)
+        ExpectedLeave.mark()
+        controller.awayFor(600)
+        assertEquals(LockState.Locked, controller.state.value)
+        assertFalse(ExpectedLeave.marked)
+    }
+
+    /** 표시는 한 번만 쓴다. 다음 나들이는 평소대로 잠근다. */
+    @Test
+    fun the_picker_mark_is_used_once() = runTest {
+        val controller = started(RelockAfter.IMMEDIATELY)
+        ExpectedLeave.mark()
+        controller.awayFor(10)
+        controller.awayFor(10)
+        assertEquals(LockState.Locked, controller.state.value)
     }
 
     @Test
