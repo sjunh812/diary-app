@@ -36,7 +36,7 @@
     <string name="licenses_group_fonts">フォント</string>
     <string name="licenses_group_libraries">ライブラリ</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
-    <string name="license_binggrae">Binggrae フォントライセンス</string>
+    <string name="license_hyemin">IM Hyemin ライセンス</string>
     <string name="license_naver">NAVERフォントライセンス</string>
     <string name="settings_text_size">本文の文字サイズ</string>
     <string name="settings_theme">表示モード</string>
@@ -66,7 +66,7 @@
     <string name="font_name_system">システムフォント</string>
     <string name="font_name_pretendard">Pretendard</string>
     <string name="font_name_gowun_dodum">Gowun Dodum</string>
-    <string name="font_name_binggrae">Binggrae</string>
+    <string name="font_name_hyemin">IM Hyemin</string>
     <string name="font_name_maru_buri">Maru Buri</string>
     <string name="font_name_gowun_batang">Gowun Batang</string>
     <string name="font_name_nanum_pen">Nanum Pen</string>

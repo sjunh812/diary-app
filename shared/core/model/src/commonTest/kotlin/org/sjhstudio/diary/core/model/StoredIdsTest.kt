@@ -34,9 +34,10 @@ class StoredIdsTest {
     }
 
     @Test
-    fun a_font_chosen_before_the_rename_moves_to_binggrae() {
-        assertEquals(DiaryFont.BINGGRAE, DiaryFont.fromId("cafe24_surround"))
-        assertEquals(DiaryFont.BINGGRAE, DiaryFont.fromId("line_seed"))
+    fun a_font_chosen_before_the_rename_moves_to_hyemin() {
+        assertEquals(DiaryFont.HYEMIN, DiaryFont.fromId("cafe24_surround"))
+        assertEquals(DiaryFont.HYEMIN, DiaryFont.fromId("line_seed"))
+        assertEquals(DiaryFont.HYEMIN, DiaryFont.fromId("binggrae"))
     }
 
     @Test
@@ -46,7 +47,7 @@ class StoredIdsTest {
                 "pretendard",
                 "system",
                 "gowun_dodum",
-                "binggrae",
+                "hyemin",
                 "maru_buri",
                 "gowun_batang",
                 "nanum_pen",

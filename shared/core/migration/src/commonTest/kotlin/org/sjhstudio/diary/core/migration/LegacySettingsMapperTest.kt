@@ -25,7 +25,7 @@ class LegacySettingsMapperTest {
                 4 to DiaryFont.GAMJA_FLOWER, 10 to DiaryFont.GAMJA_FLOWER,
                 6 to DiaryFont.HI_MELODY, 13 to DiaryFont.HI_MELODY,
                 8 to DiaryFont.GOWUN_BATANG,
-                9 to DiaryFont.BINGGRAE, 12 to DiaryFont.BINGGRAE,
+                9 to DiaryFont.HYEMIN, 12 to DiaryFont.HYEMIN,
                 99 to DiaryFont.PRETENDARD
             )
         for ((key, font) in expected) assertEquals(font, map(mapOf("font_key" to key)).font, "font_key $key")

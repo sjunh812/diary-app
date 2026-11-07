@@ -41,7 +41,7 @@
     <string name="licenses_group_fonts">Fonts</string>
     <string name="licenses_group_libraries">Libraries</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
-    <string name="license_binggrae">Binggrae Font License</string>
+    <string name="license_hyemin">IM Hyemin License</string>
     <string name="license_naver">NAVER font license</string>
     <string name="settings_text_size">Diary text size</string>
     <string name="settings_theme">Appearance</string>
@@ -71,7 +71,7 @@
     <string name="font_name_system">System font</string>
     <string name="font_name_pretendard">Pretendard</string>
     <string name="font_name_gowun_dodum">Gowun Dodum</string>
-    <string name="font_name_binggrae">Binggrae</string>
+    <string name="font_name_hyemin">IM Hyemin</string>
     <string name="font_name_maru_buri">Maru Buri</string>
     <string name="font_name_gowun_batang">Gowun Batang</string>
     <string name="font_name_nanum_pen">Nanum Pen</string>
