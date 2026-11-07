@@ -640,12 +640,13 @@ class RestorePhotosTest {
             b.db.mediaDao().update(row.copy(status = MediaStatus.MISSING.id))
         }
 
-        val again = b.controller(backgroundScope)
-        val ready = assertIs<RestorePreparation.Ready>(again.pick(zip))
+        // 앱의 복원기는 하나다.
+        // 둘을 만들면 앞 복원기가 뒤늦게 지우는 사본이 뒤 복원기의 파일과 부딪힌다.
+        val ready = assertIs<RestorePreparation.Ready>(first.pick(zip))
         assertEquals(2, ready.preview.photosToDownload)
-        again.merge()
+        first.merge()
 
-        val result = assertIs<RestoreState.Done>(again.finished()).result
+        val result = assertIs<RestoreState.Done>(first.finished()).result
         assertEquals(2, result.photosRestored)
         assertEquals(0, result.photosMissing)
         assertEquals(setOf(MediaStatus.NORMAL.id), b.photoStates().values.toSet())
