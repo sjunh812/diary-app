@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.welcome
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
@@ -27,6 +28,20 @@ internal fun softPoint(width: Float, baseY: Float, tipY: Float) = Path().apply {
     lineTo(leftX, shoulderY)
     quadraticTo(width / 2, tipY, width - leftX, shoulderY)
     lineTo(width, baseY)
+}
+
+/**
+ * 곡선까지 지난 덮개 끝의 실제 높이.
+ * 봉인은 이 자리에 앉는다.
+ */
+internal fun softTip(tip: Float) = tip * (1f + TIP_ROUND_FROM) / 2
+
+/** 봉인이 덮개에 드리우는 옅은 그림자. */
+internal fun DrawScope.softSealShadow(center: Offset, radius: Float, colors: DiaryColors, alpha: Float) {
+    repeat(SHADOW_STEPS) { step ->
+        val reach = DiarySpacing.x1.toPx() * (step + 1) / SHADOW_STEPS
+        drawCircle(colors.overlay, radius, center.copy(y = center.y + reach), alpha * SHADOW_ALPHA)
+    }
 }
 
 /**

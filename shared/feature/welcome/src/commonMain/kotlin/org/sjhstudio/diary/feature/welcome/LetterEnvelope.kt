@@ -30,6 +30,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TransformOrigin
@@ -39,6 +40,8 @@ import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -50,6 +53,7 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.PI
 import kotlin.math.cos
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryColors
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -124,6 +128,7 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
     val still = rememberReduceMotion() || LocalInspectionMode.current
     val arrive = remember { Animatable(if (still) 1f else 0f) }
     LaunchedEffect(still) { if (!still) arrive.animateTo(1f, tween(ARRIVE_MILLIS)) }
+    val pen = rememberVectorPainter(DiaryIcons.Pen)
     var stage by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var envelope by remember { mutableStateOf(Rect.Zero) }
     var card by remember { mutableStateOf(Rect.Zero) }
@@ -177,7 +182,7 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
             }
         }
         Canvas(fade) {
-            translate(envelope.left, envelope.top + drop(progress(), envelope)) { drawFront(envelope.size, progress(), colors) }
+            translate(envelope.left, envelope.top + drop(progress(), envelope)) { drawFront(envelope.size, progress(), colors, pen) }
         }
         Column(
             Modifier.fillMaxSize().padding(horizontal = LocalScreenGutter.current),
@@ -259,10 +264,10 @@ private fun DrawScope.drawBlankPaper(area: Size, alpha: Float, colors: DiaryColo
 }
 
 /**
- * 봉투 앞면과 닫힌 덮개.
+ * 봉투 앞면과 닫힌 덮개, 봉인.
  * 편지지보다 앞에 있다.
  */
-private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors) {
+private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors, pen: VectorPainter) {
     val width = area.width
     val height = area.height
     val body = bodyPath(area)
@@ -291,7 +296,23 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
             softShadow(flap, colors, direction = 1f)
             drawPath(flap, colors.selected)
         }
+        drawSeal(Offset(width / 2, softTip(tip)), tip / (FLAP_DEPTH * height), colors, pen)
     } else {
         clipPath(pocket) { drawPath(body, colors.line, style = outline()) }
+    }
+}
+
+/**
+ * 봉인.
+ * 덮개 끝을 따라 움직이고 덮개가 넘어갈수록 옅어진다.
+ * 종이처럼 옅은 그림자를 둬서 봉투 위에 붙어 있게 보인다.
+ */
+private fun DrawScope.drawSeal(center: Offset, alpha: Float, colors: DiaryColors, pen: VectorPainter) {
+    val radius = DiarySpacing.x5.toPx()
+    val icon = DiarySpacing.x5.toPx()
+    softSealShadow(center, radius, colors, alpha)
+    drawCircle(colors.accent, radius, center, alpha)
+    translate(center.x - icon / 2, center.y - icon / 2) {
+        with(pen) { draw(Size(icon, icon), alpha, ColorFilter.tint(colors.onAccent)) }
     }
 }
