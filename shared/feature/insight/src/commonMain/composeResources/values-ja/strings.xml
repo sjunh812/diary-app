@@ -64,7 +64,7 @@
     <string name="insight_adv_tone_note">「良い」か「笑顔」を選んだ日記の割合です。</string>
     <string name="insight_adv_when_empty">まだ日記が少なめです。</string>
     <string name="insight_adv_company">気分ごとに多い天気・曜日・場所</string>
-    <string name="insight_adv_habit">書く習慣</string>
+    <string name="insight_adv_habit">わたしの記録</string>
     <string name="insight_adv_habit_entries">日記</string>
     <string name="insight_adv_habit_days">書いた日</string>
     <string name="insight_adv_habit_run">最長連続日数</string>
