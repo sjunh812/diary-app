@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		07116D6032514A5FC4CDB3DB /* Local.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = 38A2317CA7F32917D748F615 /* Local.xcconfig.example */; };
 		08511472D23A90B696221D80 /* FirebaseReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7497B00B5F8A0AE75FFEA1E1 /* FirebaseReporter.swift */; };
+		09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */; };
 		1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */; };
 		22EA1CB33A17DCC6FC82406D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F543015C899423D4B01CEB2E /* Assets.xcassets */; };
 		23CEA18C5D402BAD832FD636 /* DailyBackupTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61482D56A37EB21A053921AF /* DailyBackupTask.swift */; };
@@ -45,6 +46,7 @@
 		AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveBridge.swift; sourceTree = "<group>"; };
 		C117AD187833E2513BD2F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C35CD2C849A242A9332863DC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		CBFF6F7B5E6378BAD9C2AD97 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D6111777718F5751E749AACD /* PrivacyCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyCover.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				7009FFABBC02111FC2C6BBEA /* Local.xcconfig */,
 				38A2317CA7F32917D748F615 /* Local.xcconfig.example */,
 				D6111777718F5751E749AACD /* PrivacyCover.swift */,
+				C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */,
 				2987522560EBD04F5F94FA64 /* Backup */,
 				37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */,
 				A7F3482AB68B54C1CB27AB9D /* Localizable.strings */,
@@ -416,6 +419,7 @@
 				6B2031D9196667F65FD358E5 /* InfoPlist.strings in Resources */,
 				07116D6032514A5FC4CDB3DB /* Local.xcconfig.example in Resources */,
 				86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */,
+				09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */,
 				8619E6AF02B493D74581D733 /* gamja_flower.ttf in Resources */,
 				3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */,
 				29DF7BAEAB8CEF5CBDD81D0F /* gowun_dodum.ttf in Resources */,

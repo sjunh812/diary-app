@@ -181,9 +181,9 @@
     <string name="file_body">ドライブがなくても%1$sと%2$sをファイルで保管できます。予想サイズは%3$sです。</string>
     <string name="file_body_empty">ファイルにする日記はまだありません。バックアップファイルは下から復元できます。</string>
     <string name="file_place_title">好きな場所に保存できます</string>
-    <string name="file_place_body">スマートフォンのストレージ、SDカード、USB、他のクラウドアプリから選べます。</string>
+    <string name="file_place_body">スマートフォンの保存先やほかのクラウドアプリから選べます。</string>
     <string name="file_move_title">新しいスマートフォンへ自分で移します</string>
-    <string name="file_move_body">パソコン経由でコピーするか、USBやクラウドアプリで移します。サイズが大きいので、メッセージアプリでは送りにくいです。</string>
+    <string name="file_move_body">パソコン経由でコピーするか、クラウドアプリで移します。サイズが大きいので、メッセージアプリでは送りにくいです。</string>
     <string name="file_trust_title">信頼できる場所にだけ置いてください</string>
     <string name="file_trust_body">ファイルには日記の文章と写真がそのまま入っています。</string>
     <string name="file_restore">ファイルから復元</string>

@@ -184,9 +184,9 @@
     <string name="file_body">Keep %1$s and %2$s in a file without Drive. Estimated size: %3$s.</string>
     <string name="file_body_empty">You have no diary entries to save yet. You can restore a backup file below.</string>
     <string name="file_place_title">Save it wherever you like</string>
-    <string name="file_place_body">Choose phone storage, an SD card, USB, or another cloud app.</string>
+    <string name="file_place_body">Choose phone storage or another cloud app.</string>
     <string name="file_move_title">Move it to your new phone yourself</string>
-    <string name="file_move_body">Copy it through a computer, USB, or a cloud app. It's too large to send through messaging apps.</string>
+    <string name="file_move_body">Copy it through a computer or a cloud app. It's too large to send through messaging apps.</string>
     <string name="file_trust_title">Keep it somewhere you trust</string>
     <string name="file_trust_body">The file holds your entries and photos as they are.</string>
     <string name="file_restore">Restore from a file</string>

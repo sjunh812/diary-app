@@ -7,9 +7,14 @@ import UIKit
 final class GoogleDriveBridge: NSObject, GoogleDrive {
     private let driveScope = "https://www.googleapis.com/auth/drive.file"
 
+    private static var hasClientID: Bool {
+        (Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String)?.isEmpty == false
+    }
+
     func connect(hint: String?, done: @escaping (String?, String?, String?) -> Void) {
         DispatchQueue.main.async {
-            guard let root = UIApplication.shared.connectedScenes
+            // 클라이언트 ID 없이 부르면 GoogleSignIn이 앱을 끝낸다.
+            guard Self.hasClientID, let root = UIApplication.shared.connectedScenes
                 .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController }).first
             else {
                 done(nil, nil, "failed")

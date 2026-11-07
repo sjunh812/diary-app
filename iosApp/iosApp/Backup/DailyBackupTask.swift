@@ -34,12 +34,17 @@ enum DailyBackupTask {
         handle = IosStartupKt.runDailyBackup { DispatchQueue.main.async(execute: finish) }
     }
 
+    /// 이미 맡긴 작업이 있으면 그대로 둔다.
+    /// 뒤로 갈 때마다 새로 맡기면 시작 시각이 계속 하루씩 밀린다.
     private static func schedule() {
-        let request = BGProcessingTaskRequest(identifier: identifier)
-        request.requiresNetworkConnectivity = true
-        request.earliestBeginDate = Date(timeIntervalSinceNow: day)
-        // 시뮬레이터는 지원하지 않아 실패하지만 앱을 열 때 다시 본다.
-        try? BGTaskScheduler.shared.submit(request)
+        BGTaskScheduler.shared.getPendingTaskRequests { pending in
+            guard !pending.contains(where: { $0.identifier == identifier }) else { return }
+            let request = BGProcessingTaskRequest(identifier: identifier)
+            request.requiresNetworkConnectivity = true
+            request.earliestBeginDate = Date(timeIntervalSinceNow: day)
+            // 시뮬레이터는 지원하지 않아 실패하지만 앱을 열 때 다시 본다.
+            try? BGTaskScheduler.shared.submit(request)
+        }
     }
 
     private static func run(_ task: BGProcessingTask) {

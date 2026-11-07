@@ -10,6 +10,8 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSFileSystemFreeSize
 import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSNumber
+import platform.Foundation.NSURL
+import platform.Foundation.NSURLVolumeAvailableCapacityForImportantUsageKey
 import platform.Network.nw_path_get_status
 import platform.Network.nw_path_is_expensive
 import platform.Network.nw_path_monitor_create
@@ -124,9 +126,13 @@ class IosDeviceName : DeviceName {
 
 @OptIn(ExperimentalForeignApi::class)
 class IosFreeSpace : FreeSpace {
+    /** 시스템이 비워 줄 수 있는 공간까지 센다. 설정 앱의 남은 공간과 같은 값이다. */
     override fun bytes(): Long {
+        val home = NSURL.fileURLWithPath(NSHomeDirectory())
+        val important = home.resourceValuesForKeys(listOf(NSURLVolumeAvailableCapacityForImportantUsageKey), null)
+        val capacity = important?.get(NSURLVolumeAvailableCapacityForImportantUsageKey) as? NSNumber
         val attributes = NSFileManager.defaultManager.attributesOfFileSystemForPath(NSHomeDirectory(), error = null)
-        return (attributes?.get(NSFileSystemFreeSize) as? NSNumber)?.longLongValue ?: 0
+        return capacity?.longLongValue?.takeIf { it > 0 } ?: (attributes?.get(NSFileSystemFreeSize) as? NSNumber)?.longLongValue ?: 0
     }
 }
 

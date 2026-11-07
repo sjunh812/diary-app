@@ -24,6 +24,7 @@ fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?) {
     IosDrive.bridge = driveBridge.asBridge()
     IosTelemetry.sink = firebase?.asSink() ?: NoTelemetrySink
     initKoin(isDebug = Platform.isDebugBinary)
+    if (Platform.isDebugBinary) applyDebugPlan()
     KoinPlatform.getKoin().get<Startup>().start()
 }
 
