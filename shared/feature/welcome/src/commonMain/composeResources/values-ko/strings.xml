@@ -29,7 +29,7 @@
     <string name="onboarding_trash_body">휴지통에서 30일 동안 복원할 수 있어요.</string>
     <string name="onboarding_wide_title">넓은 화면에서 더 쉽게</string>
     <string name="onboarding_wide_body">태블릿에서는 목록과 일기를 나란히 봐요.</string>
-    <string name="onboarding_plus_title">Plus로 더 넉넉하게</string>
+    <string name="onboarding_plus_title">Plus로 더 편하게</string>
     <string name="onboarding_plus_body">광고 없이, 사진 30장, 체크리스트, 고급 통계까지 써요.</string>
     <string name="letter_to">To. 1일 1일기 사용자분들께</string>
 </resources>

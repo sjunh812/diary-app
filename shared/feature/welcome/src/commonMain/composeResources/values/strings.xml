@@ -29,7 +29,7 @@
     <string name="onboarding_trash_body">You can restore entries from Trash for 30 days.</string>
     <string name="onboarding_wide_title">Easier on big screens</string>
     <string name="onboarding_wide_body">On tablets, see your list and an entry side by side.</string>
-    <string name="onboarding_plus_title">More room with Plus</string>
+    <string name="onboarding_plus_title">Easier with Plus</string>
     <string name="onboarding_plus_body">No ads, 30 photos per entry, checklists, and advanced stats.</string>
     <string name="letter_to">To everyone who uses 1 Day 1 Diary</string>
 </resources>

@@ -203,11 +203,11 @@ private fun LoadingDotsDark() = PreviewCanvas(dark = true) { DiaryLoadingDots(Di
 @Preview(name = "초대 카드 · 라이트", locale = "ko")
 @Composable
 private fun InviteCardLight() = PreviewCanvas(dark = false) {
-    DiaryInviteCard("광고 없이, 더 넉넉하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
+    DiaryInviteCard("광고 없이, 더 편하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
 }
 
 @Preview(name = "초대 카드 · 다크", locale = "ko")
 @Composable
 private fun InviteCardDark() = PreviewCanvas(dark = true) {
-    DiaryInviteCard("광고 없이, 더 넉넉하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
+    DiaryInviteCard("광고 없이, 더 편하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
 }
