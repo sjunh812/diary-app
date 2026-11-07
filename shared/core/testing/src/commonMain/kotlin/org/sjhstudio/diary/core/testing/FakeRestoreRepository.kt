@@ -50,6 +50,7 @@ class FakeBundleFiles : BundleFiles {
     }
 }
 
+@Suppress("TooManyFunctions") // 저장소 약속을 그대로 흉내 내는 시험 대역이다.
 class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val bundle: FakeBundleFiles = FakeBundleFiles()) :
     RestoreRepository,
     BundleFiles by bundle {

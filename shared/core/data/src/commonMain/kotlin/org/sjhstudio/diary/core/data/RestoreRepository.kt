@@ -37,7 +37,9 @@ interface BundleFiles {
  * 화면이 쓰는 복원하기 입구.
  * 일기 내용은 여기를 지나지 않고 숫자만 지나간다.
  */
-interface RestoreRepository : BundleFiles {
+interface RestoreRepository :
+    BundleFiles,
+    SavedBackups {
     val state: StateFlow<RestoreState>
 
     /**
@@ -45,13 +47,6 @@ interface RestoreRepository : BundleFiles {
      * 읽지 못하면 null이다.
      */
     suspend fun backups(): List<BackupEntry>?
-
-    /**
-     * 지난번에 읽어 둔 백업 목록.
-     * 드라이브에 묻기 전에 먼저 보여 준다.
-     * 없거나 다른 계정의 것이면 빈 목록이다.
-     */
-    suspend fun savedBackups(): List<BackupEntry> = emptyList()
 
     /** 스냅샷을 받아 확인하고 쓰기 없이 결과 숫자를 낸다(FR-021, FR-023). */
     suspend fun prepare(snapshotName: String): RestorePreparation
@@ -130,4 +125,10 @@ interface RestoreRepository : BundleFiles {
      * 흐름은 빠른 값을 건너뛰므로 끝 값은 여기서 읽는다.
      */
     val lastPhotoRun: PhotoRun?
+}
+
+/** 지난번에 읽어 둔 백업 목록. 드라이브에 묻기 전에 먼저 보여 준다. */
+interface SavedBackups {
+    /** 없거나 다른 계정의 것이면 빈 목록이다. */
+    suspend fun savedBackups(): List<BackupEntry> = emptyList()
 }
