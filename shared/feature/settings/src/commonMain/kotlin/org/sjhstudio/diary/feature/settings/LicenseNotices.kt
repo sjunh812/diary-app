@@ -3,6 +3,7 @@ package org.sjhstudio.diary.feature.settings
 import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.license_binggrae
 import org.sjhstudio.diary.feature.settings.resources.license_naver
 import org.sjhstudio.diary.feature.settings.resources.license_ofl
 
@@ -12,7 +13,8 @@ import org.sjhstudio.diary.feature.settings.resources.license_ofl
  */
 internal enum class FontLicense(val label: StringResource) {
     OFL(Res.string.license_ofl),
-    NAVER(Res.string.license_naver)
+    NAVER(Res.string.license_naver),
+    BINGGRAE(Res.string.license_binggrae)
 }
 
 /**
@@ -29,7 +31,7 @@ internal val FONT_NOTICES: List<FontLicenseNotice> =
     listOf(
         FontLicenseNotice(DiaryFont.PRETENDARD, FontLicense.OFL, "pretendard.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_DODUM, FontLicense.OFL, "gowun_dodum.txt"),
-        FontLicenseNotice(DiaryFont.LINE_SEED, FontLicense.OFL, "line_seed.txt"),
+        FontLicenseNotice(DiaryFont.BINGGRAE, FontLicense.BINGGRAE, "binggrae.txt"),
         FontLicenseNotice(DiaryFont.MARU_BURI, FontLicense.NAVER, "maru_buri.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_BATANG, FontLicense.OFL, "gowun_batang.txt"),
         FontLicenseNotice(DiaryFont.NANUM_PEN, FontLicense.OFL, "nanum_pen.txt"),

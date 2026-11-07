@@ -9,7 +9,7 @@ enum class DiaryFont(val id: String) {
     PRETENDARD("pretendard"),
     SYSTEM("system"),
     GOWUN_DODUM("gowun_dodum"),
-    LINE_SEED("line_seed"),
+    BINGGRAE("binggrae"),
     MARU_BURI("maru_buri"),
     GOWUN_BATANG("gowun_batang"),
     NANUM_PEN("nanum_pen"),
@@ -24,7 +24,7 @@ enum class DiaryFont(val id: String) {
 
         fun fromId(id: String?): DiaryFont? = entries.firstOrNull { it.id == (RENAMED[id] ?: id) }
 
-        /** 시험판에서 카페24 써라운드를 고른 사람은 이 글꼴로 잇는다(2026-11-07). */
-        private val RENAMED = mapOf("cafe24_surround" to "line_seed")
+        /** 시험판에서 앞서 고른 글꼴은 이 글꼴로 잇는다(2026-11-07). */
+        private val RENAMED = mapOf("cafe24_surround" to "binggrae", "line_seed" to "binggrae")
     }
 }

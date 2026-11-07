@@ -34,8 +34,9 @@ class StoredIdsTest {
     }
 
     @Test
-    fun a_font_chosen_before_the_rename_moves_to_line_seed() {
-        assertEquals(DiaryFont.LINE_SEED, DiaryFont.fromId("cafe24_surround"))
+    fun a_font_chosen_before_the_rename_moves_to_binggrae() {
+        assertEquals(DiaryFont.BINGGRAE, DiaryFont.fromId("cafe24_surround"))
+        assertEquals(DiaryFont.BINGGRAE, DiaryFont.fromId("line_seed"))
     }
 
     @Test
@@ -45,7 +46,7 @@ class StoredIdsTest {
                 "pretendard",
                 "system",
                 "gowun_dodum",
-                "line_seed",
+                "binggrae",
                 "maru_buri",
                 "gowun_batang",
                 "nanum_pen",

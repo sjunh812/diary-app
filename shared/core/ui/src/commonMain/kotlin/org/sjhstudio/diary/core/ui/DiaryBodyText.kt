@@ -8,8 +8,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
 import org.sjhstudio.diary.core.designsystem.resources.Res
-import org.sjhstudio.diary.core.designsystem.resources.line_seed_bold
-import org.sjhstudio.diary.core.designsystem.resources.line_seed_regular
+import org.sjhstudio.diary.core.designsystem.resources.binggrae_bold
+import org.sjhstudio.diary.core.designsystem.resources.binggrae_regular
 import org.sjhstudio.diary.core.designsystem.resources.maru_buri_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_pen_regular
@@ -29,7 +29,7 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
         DiaryFont.SYSTEM,
         DiaryFont.NANUM_CHEER,
         DiaryFont.NANUM_PEN,
-        DiaryFont.LINE_SEED,
+        DiaryFont.BINGGRAE,
         DiaryFont.MARU_BURI
     )
 
@@ -53,7 +53,7 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
     DiaryFont.PRETENDARD -> pretendardFamily()
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
     DiaryFont.NANUM_PEN -> FontFamily(Font(Res.font.nanum_pen_regular))
-    DiaryFont.LINE_SEED -> FontFamily(Font(Res.font.line_seed_regular), Font(Res.font.line_seed_bold, FontWeight.Bold))
+    DiaryFont.BINGGRAE -> FontFamily(Font(Res.font.binggrae_regular), Font(Res.font.binggrae_bold, FontWeight.Bold))
     DiaryFont.MARU_BURI -> FontFamily(Font(Res.font.maru_buri_regular))
     else -> installed(font) ?: pretendardFamily()
 }
