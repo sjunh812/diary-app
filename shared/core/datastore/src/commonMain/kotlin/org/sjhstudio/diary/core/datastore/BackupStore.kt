@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.PhotoStop
 
 /**
  * `backup.preferences_pb`의 값(data-model.md 표).
@@ -24,6 +26,13 @@ data class BackupPrefs(
     val accountKey: String? = null,
     val accountLabel: String? = null,
     val rootFolderId: String? = null,
+    /** [rootFolderId]가 어느 계정의 폴더인지. */
+    val rootFolderAccount: String? = null,
+    /**
+     * 드라이브에서 지워진 백업 폴더를 새로 만들었다.
+     * 사용자가 확인하면 내린다.
+     */
+    val folderRecreated: Boolean = false,
     val deviceId: String? = null,
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
@@ -49,7 +58,23 @@ data class BackupPrefs(
      * 이 기기로 드라이브 백업을 복원했을 때 그 백업을 만든 시각.
      * 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻이다.
      */
-    val restoredBackupAt: Instant? = null
+    val restoredBackupAt: Instant? = null,
+    /** 사진을 다 꺼내지 못한 복원 파일을 이때까지 둔다. */
+    val unpackUntil: Instant? = null,
+    /** 복원 사진을 받다 멈춘 까닭. */
+    val photoStop: PhotoStop? = null,
+    /**
+     * 대기 중인 사진 가운데 백업에 없어 받을 수 없는 장수.
+     * 남은 장수와 이어 받기에서 뺀다.
+     */
+    val photosUnreachable: Int = 0,
+    /** 묶음 파일을 만드는 중이다. 앱이 꺼진 뒤에도 남아 있으면 끝나지 못한 것이다. */
+    val bundleWriting: Boolean = false,
+    /**
+     * 기기에서 파일이 깨지거나 없어져 올릴 수 없는 사진의 내용 확인값.
+     * 기다려도 올라가지 않으니 남은 사진으로 세지 않는다.
+     */
+    val unusablePhotos: Set<String> = emptySet()
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
@@ -79,6 +104,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         accountKey = this[Keys.ACCOUNT_KEY],
         accountLabel = this[Keys.ACCOUNT_LABEL],
         rootFolderId = this[Keys.ROOT_FOLDER_ID],
+        rootFolderAccount = this[Keys.ROOT_FOLDER_ACCOUNT],
+        folderRecreated = this[Keys.FOLDER_RECREATED] ?: false,
         deviceId = this[Keys.DEVICE_ID],
         autoEnabled = this[Keys.AUTO_ENABLED] ?: false,
         photosOnCellular = this[Keys.PHOTOS_ON_CELLULAR] ?: false,
@@ -95,7 +122,12 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         lastSuccessFingerprint = this[Keys.LAST_SUCCESS_FINGERPRINT],
         bytesShort = this[Keys.BYTES_SHORT] ?: 0,
         restoredBackupAt = this[Keys.RESTORED_BACKUP_AT]?.let(Instant::fromEpochMilliseconds),
-        rollbackUntil = instant(Keys.ROLLBACK_UNTIL)
+        rollbackUntil = instant(Keys.ROLLBACK_UNTIL),
+        unpackUntil = instant(Keys.UNPACK_UNTIL),
+        photoStop = PhotoStop.fromName(this[Keys.PHOTO_STOP]),
+        photosUnreachable = this[Keys.PHOTOS_UNREACHABLE] ?: 0,
+        bundleWriting = this[Keys.BUNDLE_WRITING] ?: false,
+        unusablePhotos = this[Keys.UNUSABLE_PHOTOS].orEmpty()
     )
 
     private fun Preferences.instant(key: Preferences.Key<Long>): Instant? = this[key]?.let(Instant::fromEpochMilliseconds)
@@ -104,6 +136,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.ACCOUNT_KEY, prefs.accountKey)
         setOrRemove(Keys.ACCOUNT_LABEL, prefs.accountLabel)
         setOrRemove(Keys.ROOT_FOLDER_ID, prefs.rootFolderId)
+        setOrRemove(Keys.ROOT_FOLDER_ACCOUNT, prefs.rootFolderAccount)
+        this[Keys.FOLDER_RECREATED] = prefs.folderRecreated
         this[Keys.AUTO_ENABLED] = prefs.autoEnabled
         this[Keys.PHOTOS_ON_CELLULAR] = prefs.photosOnCellular
         setOrRemove(Keys.LAST_SUCCESS_AT, prefs.lastSuccessAt?.toEpochMilliseconds())
@@ -120,6 +154,11 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.LAST_SUCCESS_FINGERPRINT, prefs.lastSuccessFingerprint)
         this[Keys.BYTES_SHORT] = prefs.bytesShort
         prefs.restoredBackupAt?.let { this[Keys.RESTORED_BACKUP_AT] = it.toEpochMilliseconds() } ?: remove(Keys.RESTORED_BACKUP_AT)
+        setOrRemove(Keys.UNPACK_UNTIL, prefs.unpackUntil?.toEpochMilliseconds())
+        setOrRemove(Keys.PHOTO_STOP, prefs.photoStop?.name)
+        this[Keys.PHOTOS_UNREACHABLE] = prefs.photosUnreachable
+        this[Keys.BUNDLE_WRITING] = prefs.bundleWriting
+        this[Keys.UNUSABLE_PHOTOS] = prefs.unusablePhotos
     }
 
     private fun <T> MutablePreferences.setOrRemove(key: Preferences.Key<T>, value: T?) {
@@ -130,6 +169,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val ACCOUNT_KEY = stringPreferencesKey("account_key")
         val ACCOUNT_LABEL = stringPreferencesKey("account_label")
         val ROOT_FOLDER_ID = stringPreferencesKey("root_folder_id")
+        val ROOT_FOLDER_ACCOUNT = stringPreferencesKey("root_folder_account")
+        val FOLDER_RECREATED = booleanPreferencesKey("folder_recreated")
         val DEVICE_ID = stringPreferencesKey("device_id")
         val AUTO_ENABLED = booleanPreferencesKey("auto_enabled")
         val PHOTOS_ON_CELLULAR = booleanPreferencesKey("photos_on_cellular")
@@ -147,5 +188,10 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val NUDGE_HIDDEN_UNTIL = longPreferencesKey("nudge_hidden_until")
         val USER_DISCONNECTED = booleanPreferencesKey("user_disconnected")
         val ROLLBACK_UNTIL = longPreferencesKey("rollback_until")
+        val UNPACK_UNTIL = longPreferencesKey("unpack_until")
+        val PHOTO_STOP = stringPreferencesKey("photo_stop")
+        val PHOTOS_UNREACHABLE = intPreferencesKey("photos_unreachable")
+        val BUNDLE_WRITING = booleanPreferencesKey("bundle_writing")
+        val UNUSABLE_PHOTOS = stringSetPreferencesKey("unusable_photos")
     }
 }

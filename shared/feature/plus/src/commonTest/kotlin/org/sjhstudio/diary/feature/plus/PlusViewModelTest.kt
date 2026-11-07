@@ -41,7 +41,13 @@ class PlusViewModelTest {
         var restores = 0
         override val manageUrl = ""
 
+        var loads = 0
+        val loadGate = CompletableDeferred<Unit>()
+        var waitInLoad = false
+
         override suspend fun products(): List<StoreProduct> {
+            loads++
+            if (waitInLoad) loadGate.await()
             if (crash) error("store")
             return list
         }
@@ -307,6 +313,100 @@ class PlusViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, store.buys)
+    }
+
+    /** 시트가 열 때마다 부른다. 처음 오프라인이었어도 다시 열면 가격이 온다. */
+    @Test
+    fun opening_again_fetches_the_price_that_was_missing() = runTest(dispatcher) {
+        val store = Store(crash = true)
+        val viewModel = PlusViewModel(plans, store)
+        advanceUntilIdle()
+        assertNull(viewModel.state.value.price(ProductId.AD_FREE))
+
+        store.crash = false
+        store.list = listOf(StoreProduct(ProductId.AD_FREE, "₩9,900"))
+        viewModel.load()
+        advanceUntilIdle()
+
+        assertEquals("₩9,900", viewModel.state.value.price(ProductId.AD_FREE))
+    }
+
+    /** 받아 둔 가격이 있으면 다시 받기에 실패해도 사라지지 않는다. */
+    @Test
+    fun a_failed_refresh_keeps_the_known_price() = runTest(dispatcher) {
+        val store = Store(list = listOf(StoreProduct(ProductId.AD_FREE, "₩9,900")))
+        val viewModel = PlusViewModel(plans, store)
+        advanceUntilIdle()
+
+        store.crash = true
+        viewModel.load()
+        advanceUntilIdle()
+
+        assertEquals("₩9,900", viewModel.state.value.price(ProductId.AD_FREE))
+        assertEquals(false, viewModel.state.value.loading)
+    }
+
+    /** 뷰모델이 생기며 받는 중에 시트가 열려도 스토어를 두 번 부르지 않는다. */
+    @Test
+    fun opening_while_loading_does_not_ask_the_store_twice() = runTest(dispatcher) {
+        val store = Store().apply { waitInLoad = true }
+        val viewModel = PlusViewModel(plans, store)
+        runCurrent()
+
+        viewModel.load()
+        store.loadGate.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(1, store.loads)
+    }
+
+    /** 광고 제거 시트에는 토스트가 없어서 복원 결과를 상태로 들고 있어야 보인다. */
+    @Test
+    fun the_sheet_sees_what_the_restore_found() = runTest(dispatcher) {
+        val store = Store(PurchaseResult.NOTHING)
+        val viewModel = PlusViewModel(plans, store)
+        advanceUntilIdle()
+
+        viewModel.restore()
+        advanceUntilIdle()
+        assertEquals(PlusMessage.RestoreNone, viewModel.state.value.restoreNotice)
+
+        store.result = PurchaseResult.FAILED
+        viewModel.restore()
+        advanceUntilIdle()
+        assertEquals(PlusMessage.RestoreFailed, viewModel.state.value.restoreNotice)
+
+        viewModel.failureShown()
+        assertNull(viewModel.state.value.restoreNotice)
+    }
+
+    @Test
+    fun a_finished_restore_closes_the_sheet() = runTest(dispatcher) {
+        val viewModel = PlusViewModel(plans, FlippingStore(plans, restored = Plan.AD_FREE))
+        advanceUntilIdle()
+
+        var closed = false
+        viewModel.restore { closed = true }
+        advanceUntilIdle()
+
+        assertEquals(true, closed)
+        assertNull(viewModel.state.value.restoreNotice)
+    }
+
+    /** 결제 실패 안내를 보고 구매 복원을 누르면 지난 실패 문구는 물러난다. */
+    @Test
+    fun restoring_clears_the_payment_failure() = runTest(dispatcher) {
+        val store = Store(PurchaseResult.FAILED)
+        val viewModel = PlusViewModel(plans, store)
+        advanceUntilIdle()
+        viewModel.buy(ProductId.AD_FREE)
+        advanceUntilIdle()
+
+        store.result = PurchaseResult.NOTHING
+        viewModel.restore()
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.state.value.buyFailed)
     }
 
     /** 표: 요금제마다 스토어로 가는 구매. */

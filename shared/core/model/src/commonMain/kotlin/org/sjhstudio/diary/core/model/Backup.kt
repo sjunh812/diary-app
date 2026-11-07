@@ -20,6 +20,15 @@ enum class BackupFailure {
     }
 }
 
+/** 지금 백업을 눌렀는데 올리지 않고 끝난 까닭. */
+enum class BackupSkip {
+    /** 백업할 일기가 없다. */
+    NO_ENTRIES,
+
+    /** 복원이나 기록 이전이 도는 중이다. */
+    BUSY
+}
+
 /** 드라이브 연결 상태. */
 sealed interface BackupConnection {
     data object NotConnected : BackupConnection
@@ -61,6 +70,8 @@ data class BackupStatus(
     val connection: BackupConnection = BackupConnection.NotConnected,
     val lastSuccessAt: Instant? = null,
     val photosNotBackedUp: Int = 0,
+    /** 기기에서 깨지거나 없어져 올릴 수 없는 사진. [photosNotBackedUp]에 들지 않는다. */
+    val photosUnusable: Int = 0,
     val running: BackupProgress? = null,
     val failingSince: Instant? = null,
     val lastFailure: BackupFailure? = null,
@@ -156,10 +167,54 @@ data class RestoreResult(
      * 파일에서 복원했다.
      * 파일에 없는 사진은 앱을 다시 열어도 저절로 오지 않는다.
      */
-    val fromFile: Boolean = false
+    val fromFile: Boolean = false,
+    /**
+     * 사진을 다 받기 전에 멈춘 까닭.
+     * 끝까지 돌았으면 null이다.
+     */
+    val photosStop: PhotoStop? = null
 )
 
-enum class RestoreFailure { MISMATCH, NO_SPACE, NEEDS_UPDATE, OTHER }
+/** 사진을 더 받지 못하고 멈춘 까닭. 까닭마다 사용자가 할 일이 다르다. */
+enum class PhotoStop {
+    /** 휴대폰 공간이 부족하다. */
+    NO_SPACE,
+
+    /** 잠깐 끊겼다. 앱을 다시 열면 잇는다. */
+    INTERRUPTED,
+
+    /** 인터넷이 끊겼다. 연결되면 잇는다. */
+    NETWORK,
+
+    /** 모바일 데이터라 Wi-Fi를 기다린다. */
+    WIFI,
+
+    /** 드라이브 연결이 풀렸다. */
+    ACCOUNT,
+
+    /** 남은 사진이 든 파일을 다시 골라야 한다. */
+    FILE;
+
+    companion object {
+        fun fromName(name: String?): PhotoStop? = entries.firstOrNull { it.name == name }
+    }
+}
+
+/**
+ * 아직 받지 못한 복원 사진.
+ * [stop]이 null이면 지금 받고 있다.
+ */
+data class WaitingPhotos(val count: Int, val stop: PhotoStop?)
+
+enum class RestoreFailure {
+    MISMATCH,
+    NO_SPACE,
+    NEEDS_UPDATE,
+
+    /** 복원이 도는 중이라 다른 백업을 받지 않았다. */
+    BUSY,
+    OTHER
+}
 
 /**
  * 파일로 만들 묶음의 크기.
@@ -176,11 +231,24 @@ const val RESTORE_FROM_FILE = "file"
  */
 data class RollbackInfo(val until: Instant, val entriesBefore: Int, val entriesAfter: Int)
 
+/** 되돌리기가 어디까지 왔는지. */
+enum class RollbackRun {
+    IDLE,
+
+    /** 복원이나 백업이 끝나기를 기다린다. */
+    WAITING,
+    RUNNING,
+
+    /** 되돌리지 못했다. 기기의 일기는 그대로다. */
+    FAILED
+}
+
 /** 스냅샷을 받아 확인한 결과. */
 sealed interface RestorePreparation {
     data class Ready(val entry: BackupEntry, val preview: RestorePreview) : RestorePreparation
 
-    data class Failed(val reason: RestoreFailure) : RestorePreparation
+    /** [bytesShort]는 공간이 얼마나 더 있어야 하는지다. 모르면 0이다. */
+    data class Failed(val reason: RestoreFailure, val bytesShort: Long = 0) : RestorePreparation
 }
 
 /**
@@ -190,6 +258,9 @@ sealed interface RestorePreparation {
 sealed interface RestoreState {
     data object Idle : RestoreState
 
+    /** 도는 백업이 끝나야 일기를 합칠 수 있어 기다린다. */
+    data object WaitingForBackup : RestoreState
+
     data object Merging : RestoreState
 
     data class FetchingPhotos(val entries: Int, val done: Int, val total: Int) : RestoreState
@@ -197,6 +268,17 @@ sealed interface RestoreState {
     data class Done(val result: RestoreResult) : RestoreState
 
     data class Failed(val reason: RestoreFailure) : RestoreState
+}
+
+/**
+ * 끝난 사진 받기의 결과.
+ * [fetched]는 실제로 받은 장수, [left]는 다시 시도하면 받을 수 있는 장수,
+ * [unavailable]은 깨졌거나 드라이브에 없어 받을 수 없는 장수다.
+ */
+data class PhotoRun(val fetched: Int, val left: Int, val unavailable: Int) {
+    /** 받을 사진을 하나도 빠짐없이 받았다. */
+    val complete: Boolean
+        get() = left == 0 && unavailable == 0
 }
 
 /** 권하기 카드(FR-036). */

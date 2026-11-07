@@ -8,6 +8,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -80,7 +81,7 @@ class BackupRunnerTest {
     ) = BackupRunner(
         db, api, authorizer, store, network, DeviceName { "Galaxy S24" }, fs, dir / "media", dir / "backup",
         BackupAppInfo("2.0.0", 37, "android"), { "README" }, settings, clock, { TimeZone.UTC },
-        BackupAlerts(notifier) { "제목" to (it?.name ?: "까닭 없음") }
+        BackupAlerts(notifier, { "폴더 제목" to "폴더 안내" }) { "제목" to (it?.name ?: "까닭 없음") }
     )
 
     private fun entry(id: String, date: String) =
@@ -295,6 +296,65 @@ class BackupRunnerTest {
 
         assertEquals(first, notifier.at)
         assertEquals("까닭 없음", notifier.body)
+    }
+
+    private fun deleteFolder() = drive.visible.forEach { drive.deleteByUser(it.id) }
+
+    @Test
+    fun the_first_backup_says_nothing_about_a_new_folder() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+
+        runner().run()
+
+        assertTrue(notifier.shown.isEmpty())
+        assertFalse(store.current().folderRecreated)
+    }
+
+    @Test
+    fun a_folder_deleted_on_the_drive_is_told_once_when_it_is_made_again() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        runner().run()
+        deleteFolder()
+
+        assertIs<BackupOutcome.Done>(runner().run())
+
+        assertEquals(listOf("폴더 안내"), notifier.shown)
+        assertTrue(store.current().folderRecreated)
+        assertIs<BackupOutcome.Done>(runner().run())
+        assertEquals(1, notifier.shown.size)
+    }
+
+    @Test
+    fun an_automatic_backup_tells_the_same_way() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        runner().run()
+        deleteFolder()
+
+        assertIs<BackupOutcome.Done>(runner().runIfChanged())
+
+        assertEquals(1, notifier.shown.size)
+    }
+
+    @Test
+    fun another_account_has_no_folder_of_its_own_and_nothing_was_deleted() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        runner().run()
+        val other = FakeDrive(fs)
+        auth.account = DriveAccount("sub-2", "other@gmail.com")
+
+        assertIs<BackupOutcome.Done>(runner(other).run())
+
+        assertTrue(notifier.shown.isEmpty())
+    }
+
+    @Test
+    fun a_notice_that_cannot_be_shown_does_not_stop_the_backup() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", "2026-10-31")))
+        runner().run()
+        deleteFolder()
+        notifier.showFailure = IllegalStateException("알림을 띄우지 못함")
+
+        assertIs<BackupOutcome.Done>(runner().run())
     }
 
     @Test

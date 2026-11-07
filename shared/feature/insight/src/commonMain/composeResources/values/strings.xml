@@ -10,6 +10,7 @@
     <string name="insight_all_time">All time</string>
     <string name="insight_week_range">%1$s – %2$s</string>
     <string name="insight_empty">No entries in this period</string>
+    <string name="insight_write">New entry</string>
     <string name="insight_no_moods">No moods in this period</string>
     <string name="insight_top_week">Top mood this week: %1$s</string>
     <string name="insight_top_month">Top mood this month: %1$s</string>
@@ -52,7 +53,6 @@
     <string name="insight_adv_range_year">This year</string>
     <string name="insight_adv_range_all">All</string>
     <string name="insight_adv_not_enough">This appears once you've written 7 entries.</string>
-    <string name="insight_adv_not_enough_body">The more entries with a mood, the clearer it gets.</string>
     <string name="insight_adv_gap_none_body">We'll look again as you write more.</string>
     <string name="insight_adv_change_recent">Compared with the previous 30 days</string>
     <string name="insight_adv_change_year">Compared with this time last year</string>
@@ -66,7 +66,7 @@
     <string name="insight_adv_tone_note">Share of entries marked Good or Laughing.</string>
     <string name="insight_adv_when_empty">Not enough entries yet.</string>
     <string name="insight_adv_company">Weather, days, and places by mood</string>
-    <string name="insight_adv_habit">Writing habits</string>
+    <string name="insight_adv_habit">By the numbers</string>
     <string name="insight_adv_habit_entries">Entries</string>
     <string name="insight_adv_habit_days">Days written</string>
     <string name="insight_adv_habit_run">Longest streak</string>
@@ -94,7 +94,9 @@
         <item quantity="other">%1$s photos</item>
     </plurals>
     <string name="insight_section_days">Mood each day</string>
-    <string name="insight_section_moods">Entries by mood</string>
+    <string name="insight_map_hint">Each square is a day, colored by that day's mood.</string>
+    <string name="tip_insight_mood">Tap a mood to see all its entries.</string>
+    <string name="insight_section_moods">Top moods</string>
     <string name="insight_adv_no_moods">Not enough entries with a mood</string>
     <string name="insight_adv_no_moods_body">Pick a mood on 7 entries and we'll look for differences.</string>
     <string name="insight_adv_recent_better">You've had more good days lately</string>

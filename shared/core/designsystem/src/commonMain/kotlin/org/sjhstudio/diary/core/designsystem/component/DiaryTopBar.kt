@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.designsystem.resources.ds_back
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
  * 상단 바 오른쪽 글자 동작(저장 같은).
@@ -80,7 +81,9 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
                 modifier =
                     Modifier
                         .align(Alignment.CenterEnd)
-                        .padding(end = DiarySpacing.x2)
+                        // 글자 끝이 화면 여백에 맞는다.
+                        // 글자 버튼 안쪽이 12다.
+                        .padding(end = LocalScreenGutter.current - DiarySpacing.x3)
                         .alpha(if (action.enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
                         .diaryPress(press, colors.textPrimary, CircleShape)
                         .clip(CircleShape)

@@ -27,6 +27,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
@@ -85,12 +86,14 @@ fun SettingsScreen(
     val colors = DiaryTheme.colors
     // 폰은 탭 바가 시스템 내비게이션 높이까지 맡고, 앱 틀이 그만큼 다 썼다고 알려서 아래가 두 번 뜨지 않는다.
     // 탭 바가 없는 넓은 화면에서만 마지막 줄 아래를 시스템 내비게이션 높이만큼 비운다.
+    val scroll = rememberScrollState()
+    OnTabReselected { scroll.animateScrollTo(0) }
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         Column(
             Modifier
                 .widthIn(max = DiaryWriteSize.settingsMax)
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scroll)
                 .navigationBarsPadding()
                 .padding(bottom = DiarySpacing.x6)
         ) {
@@ -100,8 +103,8 @@ fun SettingsScreen(
                 modifier =
                     Modifier
                         .padding(
-                            start = DiarySpacing.screenCompact,
-                            end = DiarySpacing.screenCompact,
+                            start = LocalScreenGutter.current,
+                            end = LocalScreenGutter.current,
                             top = DiarySpacing.tabTitleTop
                         )
                         .semantics { heading() }

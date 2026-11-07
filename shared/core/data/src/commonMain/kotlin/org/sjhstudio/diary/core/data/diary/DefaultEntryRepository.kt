@@ -35,6 +35,13 @@ import org.sjhstudio.diary.core.model.SearchFilter
 
 private const val PAGE = 60
 
+/**
+ * 읽은 곳에서 이만큼 벗어나면 사이 쪽을 건너뛰고 그 자리부터 읽는다.
+ * Paging 문서가 권하는 쪽 크기의 몇 배로 둔다.
+ * 평소 스크롤은 이 안에 있어 쪽을 차례로 읽는다.
+ */
+private const val JUMP_ROWS = PAGE * 3
+
 class DefaultEntryRepository(
     private val db: DiaryDatabase,
     private val mediaDir: Path,
@@ -45,7 +52,14 @@ class DefaultEntryRepository(
     private val media get() = db.mediaDao()
     private val marks get() = db.backupDao()
 
-    private val pageConfig = PagingConfig(pageSize = PAGE, initialLoadSize = PAGE, prefetchDistance = PAGE / 2, enablePlaceholders = true)
+    internal val pageConfig =
+        PagingConfig(
+            pageSize = PAGE,
+            initialLoadSize = PAGE,
+            prefetchDistance = PAGE / 2,
+            enablePlaceholders = true,
+            jumpThreshold = JUMP_ROWS
+        )
 
     // 표시는 일기 표 밖에 있어서 지울 때 목록을 직접 새로 읽힌다.
     private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries()) { pageRows(it) } }
@@ -145,10 +159,14 @@ class DefaultEntryRepository(
 
     override suspend fun setFavorite(id: String, favorite: Boolean) = entries.setFavorite(id, favorite, nowMillis())
 
-    override suspend fun toggleCheck(id: String, index: Int) = entries.edit(id) { entry ->
-        Checklist.toggleInHtml(entry.bodyHtml, index)?.let { body ->
-            entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis())
+    override suspend fun toggleCheck(id: String, index: Int) {
+        entries.edit(id) { entry ->
+            Checklist.toggleInHtml(entry.bodyHtml, index)?.let { body ->
+                entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis())
+            }
         }
+        // 고치다 남겨 둔 글을 저장해도 지금 누른 체크가 사라지지 않게 한다.
+        db.draftDao().markEntryChanged(id)
     }
 
     override suspend fun moveToTrash(id: String) {

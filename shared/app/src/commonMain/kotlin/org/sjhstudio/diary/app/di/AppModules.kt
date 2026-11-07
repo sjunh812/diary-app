@@ -16,6 +16,8 @@ import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
+import org.sjhstudio.diary.app.navigation.AppLaunch
+import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.BackupController
@@ -31,6 +33,7 @@ import org.sjhstudio.diary.core.backup.RestoreCatalog
 import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
+import org.sjhstudio.diary.core.backup.backupToOffer
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
@@ -72,7 +75,6 @@ import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
-import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
@@ -86,6 +88,7 @@ import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
+import org.sjhstudio.diary.feature.backup.backupFolderText
 import org.sjhstudio.diary.feature.backup.backupReadme
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
 import org.sjhstudio.diary.feature.home.homeFeatureModule
@@ -148,6 +151,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         // 앱을 열 때와 알림 수신기가 다시 예약한다.
         single { ReminderRepository(get(), get()) }
         single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
+        single { AppLaunch() }
         // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
         single { Telemetry(get(), strict = isDebug) }
         single {
@@ -216,12 +220,14 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 app = get(),
                 readme = { backupReadme() },
                 settings = { currentBackupSettings(get(), get()) },
-                alerts = BackupAlerts(get()) { backupAlertText(it) },
+                alerts = get(),
                 gate = get(),
                 dataReady = { !get<LegacyMigration>().needsMigration() }
             )
         }
-        single<BackupRepository> {
+        single { BackupAlerts(AutoBackupNotifier(get(), get()), { backupFolderText() }) { backupAlertText(it) } }
+        single<BackupRepository> { get<BackupController>() }
+        single {
             BackupController(
                 store = get(),
                 db = lazy { get<DiaryDatabase>() },
@@ -232,7 +238,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 scope = get(APP_SCOPE),
                 migrated = { get<LegacyMigration>().report() != null },
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
-                findBackup = { get<RestoreRepository>().backups()?.firstOrNull { it.state == BackupEntryState.Ready && it.entryCount > 0 } }
+                findBackup = { backupToOffer(get<RestoreRepository>().backups(), get<LegacyMigration>().report() != null) },
+                alerts = get()
             )
         }
         single<RestoreRepository> {
@@ -263,7 +270,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                     },
                 planner = lazy { RestorePlanner(drive, applier.value, freeSpace, system, work, store::deviceId) },
                 applier = applier,
-                fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work) },
+                fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work, freeSpace) },
                 legacy = legacy,
                 exporter =
                     lazy {
@@ -293,6 +300,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                         )
                     },
                 scheduler = get(),
+                freeSpace = freeSpace,
                 db = database,
                 store = store,
                 network = get(),

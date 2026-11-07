@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
@@ -127,6 +128,14 @@ private fun EntriesLight() = PreviewCanvas(dark = false) { CatalogEntries() }
 @Composable
 private fun EntriesDark() = PreviewCanvas(dark = true) { CatalogEntries() }
 
+@Preview(name = "빈 칸 한 줄 · 라이트", locale = "ko", widthDp = 390)
+@Composable
+private fun EmptyLineLight() = PreviewCanvas(dark = false) { DiaryEmptyLine("이 기간에 쓴 일기가 없어요", "일기 쓰기", {}) }
+
+@Preview(name = "빈 칸 한 줄 · 다크", locale = "ko", widthDp = 390)
+@Composable
+private fun EmptyLineDark() = PreviewCanvas(dark = true) { DiaryEmptyLine("이 기간에 쓴 일기가 없어요", "일기 쓰기", {}) }
+
 @Preview(name = "아이콘 버튼 · 라이트", locale = "ko")
 @Composable
 private fun IconButtonsLight() = PreviewCanvas(dark = false) { IconButtons() }
@@ -194,11 +203,11 @@ private fun LoadingDotsDark() = PreviewCanvas(dark = true) { DiaryLoadingDots(Di
 @Preview(name = "초대 카드 · 라이트", locale = "ko")
 @Composable
 private fun InviteCardLight() = PreviewCanvas(dark = false) {
-    DiaryInviteCard("광고 없이, 더 많이 남겨요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
+    DiaryInviteCard("광고 없이, 더 넉넉하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
 }
 
 @Preview(name = "초대 카드 · 다크", locale = "ko")
 @Composable
 private fun InviteCardDark() = PreviewCanvas(dark = true) {
-    DiaryInviteCard("광고 없이, 더 많이 남겨요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
+    DiaryInviteCard("광고 없이, 더 넉넉하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
 }

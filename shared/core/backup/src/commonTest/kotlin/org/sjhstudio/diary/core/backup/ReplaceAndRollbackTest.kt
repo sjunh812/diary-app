@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.DraftEntity
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.MergeMarkEntity
@@ -96,6 +97,20 @@ class ReplaceAndRollbackTest {
         assertEquals(setOf("new"), ids())
         assertEquals(now + 7.days, store.current().rollbackUntil)
         assertEquals(1, manager().info.first()?.entriesBefore)
+    }
+
+    @Test
+    fun replace_marks_every_left_edit_draft_but_not_new_ones() = runTest {
+        seed("here")
+        val at = now.toEpochMilliseconds()
+        listOf("here", "new-1").forEach {
+            db.draftDao().upsert(DraftEntity(it, "2026-11-01", "21:00", "<p>글</p>", null, null, null, false, false, at))
+        }
+
+        manager().replace(backup("new"), "drive")
+
+        assertTrue(assertNotNull(db.draftDao().get("here")).entryChanged)
+        assertFalse(assertNotNull(db.draftDao().get("new-1")).entryChanged)
     }
 
     @Test

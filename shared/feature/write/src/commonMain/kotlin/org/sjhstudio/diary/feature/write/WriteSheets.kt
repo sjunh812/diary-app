@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -162,7 +163,7 @@ internal fun PlaceSheet(
     onDone: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var text by remember { mutableStateOf(initial) }
+    var text by rememberSaveable { mutableStateOf(initial) }
     val colors = DiaryTheme.colors
     // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둔다.
     // 완료를 눌러야 일기에 들어간다.
@@ -189,7 +190,12 @@ internal fun PlaceSheet(
             },
             onDone
         )
-        DiaryButton(stringResource(Res.string.write_done), { onDone(text) }, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+        DiaryButton(
+            stringResource(Res.string.write_done),
+            { onDone(text) },
+            Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
+            size = DiaryButtonSize.XLarge
+        )
         if (initial.isNotEmpty()) ClearButton { onDone("") }
     }
 }
@@ -267,8 +273,16 @@ private fun PlaceNote(text: String, onOpenSettings: (() -> Unit)?) {
         BasicText(text, Modifier.weight(1f), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         if (onOpenSettings != null) {
             // 글자 끝을 입력 칸 끝에 맞추고 누르는 영역만 줄 높이로 넓힌다.
+            // 누름 면이 글자에 붙지 않게 옆으로 8 내어 시트 안쪽 여백을 쓴다.
+            val interaction = remember { MutableInteractionSource() }
             Box(
-                Modifier.height(DiarySpacing.minTouchTarget).clickable(role = Role.Button, onClick = onOpenSettings),
+                Modifier
+                    .height(DiarySpacing.minTouchTarget)
+                    .offset(x = DiarySpacing.x2)
+                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onOpenSettings)
+                    .padding(vertical = DiarySpacing.x1_5)
+                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                    .padding(horizontal = DiarySpacing.x2),
                 contentAlignment = Alignment.Center
             ) {
                 BasicText(

@@ -44,6 +44,10 @@
     <string name="backup_line_days">Last backup %1$d days ago</string>
     <string name="backup_line_today">today at %1$s</string>
     <string name="backup_line_yesterday">yesterday at %1$s</string>
+    <plurals name="backup_photos_unusable">
+        <item quantity="one">%1$d photo couldn't be found, so it wasn't backed up.</item>
+        <item quantity="other">%1$d photos couldn't be found, so they weren't backed up.</item>
+    </plurals>
     <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Restore from backup</string>
@@ -59,7 +63,6 @@
     <string name="restore_needs_update">Update the app to restore this backup</string>
     <string name="restore_empty_title">No backups on Drive yet</string>
     <string name="restore_empty_body">Backups from this phone will show up here.</string>
-    <string name="restore_loading">Looking for backups</string>
     <string name="restore_list_failed">Couldn't read your backups</string>
     <string name="restore_list_failed_body">Check your connection and try again.</string>
     <string name="restore_retry">Try again</string>
@@ -73,11 +76,11 @@
     <string name="restore_settings_note">Your font, diary text size, appearance, and reminder settings also change to those in the backup.</string>
     <string name="restore_no_space">You need %1$s more space for the photos. Free up space on this phone and try again.</string>
     <string name="restore_merge">Merge</string>
-    <string name="restore_preparing">Checking the backup</string>
     <string name="restore_size_gb">%1$s GB</string>
     <string name="restore_size_mb">%1$s MB</string>
     <string name="restore_size_kb">%1$s KB</string>
     <string name="restore_running_title">Restoring your diary</string>
+    <string name="restore_waiting_body">We'll start when the backup finishes.</string>
     <string name="restore_merging_body">Merging your entries.</string>
     <string name="restore_fetching_body">Your entries are merged. You can read them while photos download.</string>
     <string name="restore_value_entries">Entries</string>
@@ -93,11 +96,21 @@
     <string name="restore_note_original_body">There wasn't enough space when backing up. Back up again on the original phone to see them here.</string>
     <string name="restore_note_pending_body">They'll finish downloading next time you open the app.</string>
     <string name="restore_note_pending_file_body">These photos aren't in the file. If they're backed up to Drive, they'll download once you connect.</string>
+    <string name="restore_note_pending_space_body">Your phone ran out of space. Free up space and open the app again to finish.</string>
+    <string name="restore_wait_running">Downloading your photos.</string>
+    <string name="restore_wait_network">They'll finish downloading when you're back online.</string>
+    <string name="restore_wait_wifi">They'll finish downloading on Wi-Fi. To use mobile data, tap Download now.</string>
+    <string name="restore_wait_account">Google Drive was disconnected. Reconnect to finish downloading.</string>
+    <string name="restore_wait_file">Pick the file you restored from again to get the remaining photos.</string>
+    <string name="restore_wait_now">Download now</string>
+    <string name="restore_wait_pick">Pick file</string>
     <string name="restore_note_missing_body">The downloaded files didn't match, so they're marked as not found.</string>
     <string name="restore_lock_title">Set your lock again</string>
     <string name="restore_lock_body">The lock was on when this was backed up. Passcodes aren't backed up.</string>
     <string name="restore_lock_action">Set up</string>
     <string name="restore_start">Get started</string>
+    <string name="restore_failed_busy_title">Try again after the restore finishes</string>
+    <string name="restore_failed_busy_body">A restore is running. You can pick another backup when it's done.</string>
     <string name="restore_failed_mismatch_title">Couldn't verify the backup</string>
     <string name="restore_failed_mismatch_body">The downloaded file differs from the backup, so we stopped. Nothing on this phone changed.</string>
     <string name="restore_failed_other_title">Couldn't restore</string>
@@ -148,10 +161,19 @@
     <string name="restore_replace_action">Replace</string>
     <string name="restore_failed_space_title">Not enough space on this phone</string>
     <string name="restore_failed_space_body">There's no room to keep a copy of your current entries, so we stopped. Nothing on this phone changed.</string>
+    <string name="backup_folder_title">We made a new backup folder</string>
+    <string name="backup_folder_body">You can restore the deleted folder from the Drive trash for 30 days.</string>
+    <string name="backup_folder_ok">OK</string>
     <string name="rollback_title">Replaced with this backup</string>
     <string name="rollback_until">You can undo this until %1$s.</string>
     <string name="rollback_tomorrow">You can undo this until tomorrow.</string>
     <string name="rollback_action">Undo</string>
+    <string name="rollback_waiting_title">Waiting to undo</string>
+    <string name="rollback_waiting_body">We'll undo the replace when the restore finishes.</string>
+    <string name="rollback_running_title">Undoing the replace</string>
+    <string name="rollback_running_body">This will only take a moment.</string>
+    <string name="rollback_failed_title">Couldn't undo the replace</string>
+    <string name="rollback_failed_body">Nothing on this phone changed. Please try again.</string>
     <string name="rollback_ask_title">Undo the replacement?</string>
     <string name="rollback_ask_body">Your earlier entries (%1$s) will come back.</string>
     <string name="rollback_ask_after">Your earlier entries (%1$s) will come back. Entries written since then (%2$s) will stay.</string>
@@ -173,7 +195,14 @@
     <string name="file_writing">Creating the file</string>
     <string name="file_write_failed">Couldn't finish the file. Delete it from where you saved it and create a new one. Nothing on this phone changed.</string>
     <string name="file_reading">Checking the file</string>
+    <string name="file_write_failed_removed">Couldn't finish the file, so we removed it. Nothing on this phone changed.</string>
+    <string name="file_stop_title">Stop creating the file?</string>
+    <string name="file_stop_body">If you leave now, the unfinished file will be deleted. Nothing on this phone changes.</string>
+    <string name="file_stop_action">Stop</string>
+    <string name="file_stopped_notice">The backup file wasn't finished, so it can't be used.</string>
     <string name="file_read_failed">This isn't a backup file, or part of it is damaged. Nothing on this phone changed.</string>
+    <string name="file_read_no_space">Not enough space to open this file. Free up %1$s and try again.</string>
+    <string name="file_read_no_space_plain">Not enough space to open this file. Free up some space and try again.</string>
     <string name="file_read_needs_update">Update the app to restore this backup.</string>
     <string name="file_saved_title">File saved</string>
     <string name="file_saved_body">Move it to your new phone, then tap Restore from a file.</string>
@@ -190,7 +219,6 @@
     <string name="backup_space_retry">Back up again</string>
     <plurals name="backup_space_photos"><item quantity="one">Your entries are backed up. You need %2$s more on Drive for the remaining photo.</item><item quantity="other">Your entries are backed up. You need %2$s more on Drive for the remaining %1$s photos.</item></plurals>
     <string name="restore_contact">Contact us</string>
-    <string name="backup_interrupted_title">Backup was interrupted</string>
     <string name="backup_interrupted_body">Uploaded photos are safe. Tap Back up now to continue.</string>
     <string name="backup_restored_title">Restored from your %1$s backup</string>
     <string name="backup_restored_body">Back up now to save this phone's entries too.</string>
@@ -198,7 +226,22 @@
     <string name="backup_done_body">Your entries and photos are all on Drive.</string>
     <string name="backup_done_left">Remaining photos will upload on Wi-Fi (%1$s).</string>
     <string name="backup_stopped_title">Backup didn't finish</string>
+    <string name="restore_stopped_title">Couldn't finish the restore</string>
+    <string name="restore_see_result">View</string>
     <string name="restore_notice_title">Restore finished</string>
     <string name="restore_notice_body">All your entries and photos are back.</string>
+    <string name="restore_notice_stopped_title">Some photos are still downloading</string>
+    <string name="restore_notice_some">Some photos couldn't be restored. Open the app to check.</string>
     <string name="restore_notice_left">Open the app to get the remaining photos.</string>
+    <string name="backup_failed_offline">You're not connected to the internet. Connect, then tap Back up now.</string>
+    <string name="backup_failed_drive">Google Drive isn't responding. Wait a moment, then tap Back up now.</string>
+    <string name="backup_failed_local">Couldn't read or write files on this phone. Check your storage, then tap Back up now.</string>
+    <string name="backup_line_failed">Backup didn't finish</string>
+    <string name="backup_skip_empty">No diary entries to back up yet</string>
+    <string name="backup_skip_busy">Another task is running. Try again when it's done.</string>
+    <string name="backup_connect_failed_title">Couldn't connect to Google Drive</string>
+    <string name="backup_connect_failed_offline">Check your internet connection and try again.</string>
+    <string name="backup_connect_failed_auth">Couldn't verify your Google account. Try again in a moment.</string>
+    <string name="backup_connect_failed_other">Try again in a moment.</string>
+    <string name="backup_connect_failed_close">OK</string>
 </resources>

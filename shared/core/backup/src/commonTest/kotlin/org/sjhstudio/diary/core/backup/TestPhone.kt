@@ -57,6 +57,7 @@ internal class TestPhone(
     val auth = FakeDriveAuthorizer()
     val network = FakeNetworkState()
     val gate = BackupGate()
+    val scheduler = FakeBackupScheduler()
     var zone: TimeZone = TimeZone.UTC
     var freeBytes = 1_000_000_000L
 
@@ -75,9 +76,9 @@ internal class TestPhone(
 
     fun close() = db.close()
 
-    fun runner(api: DriveApi = drive, deviceName: String = name) = BackupRunner(
+    fun runner(api: DriveApi = drive, deviceName: String = name, alerts: BackupAlerts? = null) = BackupRunner(
         db, api, auth, store, network, DeviceName { deviceName }, fs, media, work,
-        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, gate = gate
+        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate
     )
 
     fun applier() = MergeApplier(db, { fs.exists(media / it) }, clock)
@@ -86,7 +87,7 @@ internal class TestPhone(
 
     fun catalog(api: DriveApi = drive) = RestoreCatalog(api, fs, work)
 
-    fun fetcher(api: DriveApi = drive, files: FileSystem = fs) = PhotoFetcher(db, api, files, media, work)
+    fun fetcher(api: DriveApi = drive, files: FileSystem = fs) = PhotoFetcher(db, api, files, media, work, FreeSpace { freeBytes })
 
     fun manager(files: FileSystem = fs, applier: MergeApplier = applier()) = RollbackManager(
         db, applier, store, FreeSpace { freeBytes }, files, work, { ManifestSettings(font = "before") }, { appliedSettings += it }, clock
@@ -119,7 +120,7 @@ internal class TestPhone(
                 settingsFailure?.let { throw it }
                 appliedSettings += settings
             },
-            scope, gate, FakeBackupScheduler()
+            scope, gate, scheduler, FreeSpace { freeBytes }, clock
         )
     }
 

@@ -67,9 +67,10 @@ class IosReminderScheduler : ReminderScheduler {
 
     private fun localized(key: String): String = NSBundle.mainBundle.localizedStringForKey(key, value = null, table = null)
 
-    private companion object {
+    companion object {
+        /** 이 이름의 알림을 누르면 쓰기 화면이 열린다. */
         const val REQUEST_ID = "daily-reminder"
-        const val TITLE_KEY = "reminder_title"
-        const val BODY_KEY = "reminder_body"
+        private const val TITLE_KEY = "reminder_title"
+        private const val BODY_KEY = "reminder_body"
     }
 }

@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.backup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -12,10 +13,11 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
-import org.sjhstudio.diary.core.platform.ConnectResult
 
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
     val status: StateFlow<BackupStatus> = controller.status.stateIn(
@@ -32,6 +34,9 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
         .map<BackupStatus, BackupStatus?> { it }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
+    /** 지금 백업이 올리지 않고 끝났을 때 한 번 온다. */
+    val skipped: Flow<BackupSkip> = controller.skipped
+
     val nudge: StateFlow<BackupNudge?> = controller.nudge.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     private val _connecting = MutableStateFlow(false)
@@ -47,8 +52,8 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     /** 연결한 계정의 드라이브에 있던 가장 최근 백업. */
     val found: StateFlow<BackupEntry?> = controller.foundBackup
 
-    private val _connectFailed = MutableStateFlow(false)
-    val connectFailed: StateFlow<Boolean> = _connectFailed.asStateFlow()
+    /** 방금 연결에 실패한 까닭. */
+    val connectFailure: StateFlow<BackupFailure?> = controller.connectFailure
 
     fun dismissNudge() {
         viewModelScope.launch { controller.dismissNudge() }
@@ -61,9 +66,11 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     fun connect(hint: String? = null) {
         viewModelScope.launch {
             _connecting.value = true
-            val result = controller.connect(hint)
-            _connectFailed.value = result is ConnectResult.Failed
-            _connecting.value = false
+            try {
+                controller.connect(hint)
+            } finally {
+                _connecting.value = false
+            }
         }
     }
 
@@ -75,9 +82,7 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
 
     fun takeFound() = controller.takeFoundBackup()
 
-    fun connectFailureShown() {
-        _connectFailed.value = false
-    }
+    fun connectFailureShown() = controller.connectFailureShown()
 
     fun backUpNow(cellularOnce: Boolean = false) = controller.backUpNow(cellularOnce)
 

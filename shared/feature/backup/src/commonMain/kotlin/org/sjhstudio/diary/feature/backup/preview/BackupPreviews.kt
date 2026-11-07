@@ -61,3 +61,17 @@ private fun NoSpaceLight() =
 @Composable
 private fun NoSpaceDark() =
     Screen(Connected.copy(lastFailure = BackupFailure.NO_SPACE, photosNotBackedUp = 420, bytesShort = 2_300_000_000), dark = true)
+
+private val Failed = Connected.copy(lastFailure = BackupFailure.OFFLINE, failingSince = Instant.parse("2026-11-05T12:30:00Z"))
+
+@Preview(name = "마지막 시도 실패", locale = "ko")
+@Composable
+private fun FailedLight() = Screen(Failed, dark = false)
+
+@Preview(name = "마지막 시도 실패 · 다크", locale = "ko")
+@Composable
+private fun FailedDark() = Screen(Failed, dark = true)
+
+@Preview(name = "첫 백업 실패", locale = "ko")
+@Composable
+private fun FirstFailedLight() = Screen(Failed.copy(lastSuccessAt = null), dark = false)

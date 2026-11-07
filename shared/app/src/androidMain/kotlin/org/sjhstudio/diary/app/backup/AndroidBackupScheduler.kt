@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.sjhstudio.diary.core.backup.BackupController
 import org.sjhstudio.diary.core.backup.BackupOutcome
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -54,7 +55,7 @@ import org.sjhstudio.diary.feature.backup.restoreProgressTitle
 class BackupWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
     KoinComponent {
-    override suspend fun doWork(): Result = when (val outcome = get<BackupRunner>().runIfChanged()) {
+    override suspend fun doWork(): Result = when (val outcome = get<BackupController>().runAutomatic()) {
         is BackupOutcome.Failed -> if (outcome.kind == BackupFailure.OFFLINE ||
             outcome.kind == BackupFailure.DRIVE_ERROR
         ) {
@@ -120,6 +121,7 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
             if (again != null && again.kind in RESUMABLE && runAttemptCount < MAX_RESUMES) {
                 Result.retry()
             } else {
+                get<BackupController>().nowFinished(outcome)
                 tellIfAway(outcome)
                 Result.success()
             }
@@ -166,6 +168,8 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         val restore = get<RestoreRepository>()
+        val waited = inputData.getBoolean(KEY_WAITED, false)
+        val earlier = restore.lastPhotoRun
         try {
             setForeground(foreground())
         } catch (_: IllegalStateException) {
@@ -179,16 +183,22 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
                         notifications.update(restoreProgressTitle(), restoreProgressText(it.done, it.total), it.done, it.total)
                     }
                 }
-            restore.resumePhotos()
+            val again = restore.resumePhotos()
             restore.photoProgress.first { it == null }
             updates.cancel()
             notifications.clear()
-            val finished = restore.lastPhotoRun
-            if (finished != null && !appIsVisible()) {
-                val text = restoreDoneText(finished.done >= finished.total)
-                BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)
+            if (waited && again && runAttemptCount < MAX_RESUMES) {
+                // 조건을 건 작업이라 네트워크가 돌아오면 시스템이 다시 부른다.
+                Result.retry()
+            } else {
+                // 기다리다 깨어난 작업은 이번에 받은 결과만 알린다.
+                val finished = restore.lastPhotoRun?.takeUnless { waited && it === earlier }
+                if (finished != null && !appIsVisible()) {
+                    val text = restoreDoneText(finished)
+                    BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)
+                }
+                Result.success()
             }
-            Result.success()
         }
     }
 
@@ -221,7 +231,7 @@ class BackupAlertWorker(context: Context, params: WorkerParameters) : CoroutineW
 class AndroidBackupNotifier(private val context: Context, private val clock: Clock = Clock.System) : BackupNotifier {
     private val manager get() = WorkManager.getInstance(context)
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         val delay = (at - clock.now()).inWholeMilliseconds.coerceAtLeast(0)
         val work =
             OneTimeWorkRequestBuilder<BackupAlertWorker>()
@@ -229,6 +239,13 @@ class AndroidBackupNotifier(private val context: Context, private val clock: Clo
                 .setInputData(workDataOf(KEY_TITLE to title, KEY_BODY to body))
                 .build()
         manager.enqueueUniqueWork(ALERT, ExistingWorkPolicy.REPLACE, work)
+    }
+
+    // 7일 알림과 자리를 나눈다.
+    // 같은 작업 이름을 쓰면 예약해 둔 알림이 사라진다.
+    override fun show(title: String, body: String) {
+        val work = OneTimeWorkRequestBuilder<BackupAlertWorker>().setInputData(workDataOf(KEY_TITLE to title, KEY_BODY to body)).build()
+        manager.enqueueUniqueWork(NOTICE, ExistingWorkPolicy.REPLACE, work)
     }
 
     override fun cancel() {
@@ -261,6 +278,9 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
 
     // 조건을 걸지 않는다.
     // 인터넷이 없으면 조용히 기다리지 않고 바로 실패를 보여 준다.
+    // 실패 뒤 재시도를 기다리는 작업이 있어도 사용자가 누른 요청이 대신한다.
+    // 대기가 끝날 때까지 기다리지 않고, "이번만 모바일 데이터" 선택도 버리지 않는다.
+    // 올리는 중인 백업은 BackupController가 여기까지 넘기지 않는다.
     override fun startNow(cellularOnce: Boolean): Boolean {
         val work =
             OneTimeWorkRequestBuilder<BackupNowWorker>()
@@ -268,7 +288,7 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, RETRY_MINUTES, TimeUnit.MINUTES)
                 .setInputData(workDataOf(KEY_CELLULAR to cellularOnce))
                 .build()
-        manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.KEEP, work)
+        manager.enqueueUniqueWork(NOW, ExistingWorkPolicy.REPLACE, work)
         return true
     }
 
@@ -286,8 +306,21 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
         manager.enqueueUniqueWork(RESTORE, ExistingWorkPolicy.KEEP, work)
     }
 
+    // 사용자가 모바일 데이터를 허용하면 앱을 열 때 바로 받으니 기다리는 작업을 바꾸지 않는다.
+    override fun waitForPhotoNetwork(wifiOnly: Boolean) {
+        val network = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
+        val work =
+            OneTimeWorkRequestBuilder<RestorePhotosWorker>()
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(network).build())
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, RETRY_MINUTES, TimeUnit.MINUTES)
+                .setInputData(workDataOf(KEY_WAITED to true))
+                .build()
+        manager.enqueueUniqueWork(RESTORE_WAIT, ExistingWorkPolicy.KEEP, work)
+    }
+
     private companion object {
         const val RESTORE = "backup.restore"
+        const val RESTORE_WAIT = "backup.restore.wait"
         const val DAILY = "backup.daily"
         const val NOW = "backup.now"
         const val PHOTOS = "backup.photos"
@@ -295,9 +328,11 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
 }
 
 private const val ALERT = "backup.alert"
+private const val NOTICE = "backup.notice"
 private const val KEY_TITLE = "title"
 private const val KEY_BODY = "body"
 private const val KEY_CELLULAR = "cellular"
+private const val KEY_WAITED = "waited"
 private const val START_WAIT_MILLIS = 3_000L
 private const val MAX_RESUMES = 8
 private const val RETRY_MINUTES = 1L

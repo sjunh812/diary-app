@@ -97,6 +97,15 @@ class LockController(
     }
 
     /**
+     * 폰에 화면 잠금이 없는데 키도 잠깐 쓸 수 없어 잠금을 끄지 못했다.
+     * 열지 않고 잠금 화면으로 돌아간다.
+     * 다음에 비밀번호를 대어 볼 때 다시 본다.
+     */
+    fun onKeepLocked() {
+        if (_state.value == LockState.NeedsNewPin) _state.value = LockState.Locked
+    }
+
+    /**
      * 폰 화면 잠금 확인처럼 앱이 잠시 뒤로 가는 동안 다시 잠그지 않는다.
      * Android의 폰 잠금 확인은 다른 앱 화면이라 앱이 백그라운드로 간 것으로 잡힌다.
      */

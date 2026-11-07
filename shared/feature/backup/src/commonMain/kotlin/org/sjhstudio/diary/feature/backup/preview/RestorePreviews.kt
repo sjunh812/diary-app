@@ -6,17 +6,24 @@ import kotlin.time.Instant
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.DamageReason
+import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.model.RollbackRun
+import org.sjhstudio.diary.core.model.WaitingPhotos
+import org.sjhstudio.diary.feature.backup.BackupConnectFailedSheet
 import org.sjhstudio.diary.feature.backup.BackupFoundSheet
 import org.sjhstudio.diary.feature.backup.RestoreListScreen
 import org.sjhstudio.diary.feature.backup.RestoreListUi
 import org.sjhstudio.diary.feature.backup.RestorePreviewScreen
 import org.sjhstudio.diary.feature.backup.RestoreProgressScreen
+import org.sjhstudio.diary.feature.backup.RestoreStatusBar
 
 private val Sample = BackupEntry(
     "a.snapshot",
@@ -41,6 +48,71 @@ private fun Check(dark: Boolean, state: RestorePreparation?) = DiaryTheme(darkTh
 
 @Composable
 private fun Progress(dark: Boolean, state: RestoreState) = DiaryTheme(darkTheme = dark) { RestoreProgressScreen(state, {}, {}, {}, {}, {}) }
+
+@Composable
+private fun Waiting(dark: Boolean, waiting: WaitingPhotos?, rollback: RollbackRun = RollbackRun.IDLE) =
+    DiaryTheme(darkTheme = dark) { RestoreStatusBar(waiting, rollback, {}, {}, {}) }
+
+@Composable
+private fun FolderNotice(dark: Boolean) = DiaryTheme(darkTheme = dark) {
+    RestoreStatusBar(null, RollbackRun.IDLE, {}, {}, {}, folderRecreated = true)
+}
+
+@Preview(locale = "ko")
+@Composable
+private fun FolderNoticeLight() = FolderNotice(false)
+
+@Preview(locale = "ko")
+@Composable
+private fun FolderNoticeDark() = FolderNotice(true)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackWaitingLight() = Waiting(false, null, RollbackRun.WAITING)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackWaitingDark() = Waiting(true, null, RollbackRun.WAITING)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackRunningLight() = Waiting(false, null, RollbackRun.RUNNING)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackFailedLight() = Waiting(false, null, RollbackRun.FAILED)
+
+@Preview(locale = "ko")
+@Composable
+private fun RollbackFailedDark() = Waiting(true, null, RollbackRun.FAILED)
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingWifiLight() = Waiting(false, WaitingPhotos(12, PhotoStop.WIFI))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingWifiDark() = Waiting(true, WaitingPhotos(12, PhotoStop.WIFI))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingSpaceLight() = Waiting(false, WaitingPhotos(12, PhotoStop.NO_SPACE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingSpaceDark() = Waiting(true, WaitingPhotos(12, PhotoStop.NO_SPACE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingFileLight() = Waiting(false, WaitingPhotos(12, PhotoStop.FILE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingFileDark() = Waiting(true, WaitingPhotos(12, PhotoStop.FILE))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingRunningLight() = Waiting(false, WaitingPhotos(12, null))
 
 private val Listed =
     RestoreListUi.Loaded(listOf(Sample, Sample.copy(snapshotName = "b", state = BackupEntryState.Damaged(DamageReason.SNAPSHOT_MISSING))))
@@ -83,6 +155,14 @@ private fun RunningLight() = Progress(false, RestoreState.FetchingPhotos(1324, 1
 
 @Preview(locale = "ko")
 @Composable
+private fun WaitingForBackupLight() = Progress(false, RestoreState.WaitingForBackup)
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingForBackupDark() = Progress(true, RestoreState.WaitingForBackup)
+
+@Preview(locale = "ko")
+@Composable
 private fun RunningDark() = Progress(true, RestoreState.FetchingPhotos(1324, 120, 340))
 
 private val Result = RestoreResult(120, 8, 2, 328, 0, 0, photosOnOriginal = 12, lockWasOn = true)
@@ -98,3 +178,17 @@ private fun ResultDark() = Progress(true, RestoreState.Done(Result))
 @Preview(locale = "ko")
 @Composable
 private fun FoundLight() = DiaryTheme(darkTheme = false) { BackupFoundSheet(Sample, {}, {}) }
+
+@Preview(name = "찾은 백업 · 예전 앱", locale = "ko")
+@Composable
+private fun FoundLegacyLight() = DiaryTheme(darkTheme = false) {
+    BackupFoundSheet(Sample.copy(platform = PLATFORM_LEGACY, entryCount = 0, photoCount = 0), {}, {})
+}
+
+@Preview(name = "연결 실패 · 인터넷 없음", locale = "ko")
+@Composable
+private fun ConnectFailedLight() = DiaryTheme(darkTheme = false) { BackupConnectFailedSheet(BackupFailure.OFFLINE, {}) }
+
+@Preview(name = "연결 실패 · 계정 · 다크", locale = "ko")
+@Composable
+private fun ConnectFailedDark() = DiaryTheme(darkTheme = true) { BackupConnectFailedSheet(BackupFailure.AUTH, {}) }

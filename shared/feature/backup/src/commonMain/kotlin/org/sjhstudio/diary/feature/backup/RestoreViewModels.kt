@@ -3,12 +3,16 @@ package org.sjhstudio.diary.feature.backup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RollbackRun
+import org.sjhstudio.diary.core.model.WaitingPhotos
 
 sealed interface RestoreListUi {
     data object Loading : RestoreListUi
@@ -62,6 +66,31 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
     /** 복원하지 않고 나가면 받아 둔 일기 사본을 지운다. */
     override fun onCleared() {
         if (!restoring) restore.dismiss()
+    }
+}
+
+class RestoreStatusViewModel(private val restore: RestoreRepository) : ViewModel() {
+    val waiting: StateFlow<WaitingPhotos?> = restore.waitingPhotos.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(STOP_MILLIS),
+        null
+    )
+
+    val rollback: StateFlow<RollbackRun> = restore.rollbackRun
+
+    val folderRecreated: StateFlow<Boolean> =
+        restore.folderRecreated.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
+
+    fun dismissFolderRecreated() = restore.dismissFolderRecreated()
+
+    fun fetchNow() = restore.fetchPhotosNow()
+
+    fun rollBack() {
+        viewModelScope.launch { restore.rollBack() }
+    }
+
+    private companion object {
+        const val STOP_MILLIS = 5_000L
     }
 }
 

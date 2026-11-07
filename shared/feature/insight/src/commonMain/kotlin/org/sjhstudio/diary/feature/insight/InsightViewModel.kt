@@ -3,14 +3,18 @@ package org.sjhstudio.diary.feature.insight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
@@ -29,6 +33,18 @@ import org.sjhstudio.diary.core.model.mostFrequent
 
 /** 기간 탭. */
 enum class InsightKind { Week, Month, Year, All }
+
+/** 한 기간을 읽은 값. */
+data class InsightData(val counts: MoodCounts, val days: List<DayMood>, val pixels: Map<LocalDate, Mood?>)
+
+/**
+ * 기간과 그 기간의 숫자.
+ * [data]가 null이면 아직 읽는 중이다.
+ * 기분 기록이 들어 있어 [toString]에 담지 않는다(헌법 II).
+ */
+data class InsightState(val period: StatsPeriod, val data: InsightData?) {
+    override fun toString(): String = "InsightState"
+}
 
 /**
  * 돌아보기(FR-028~FR-031).
@@ -51,33 +67,66 @@ class InsightViewModel(
     private val _period = MutableStateFlow<StatsPeriod>(StatsPeriod.Month(today().yearMonth))
     val period: StateFlow<StatsPeriod> = _period.asStateFlow()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val counts: StateFlow<MoodCounts?> =
-        _period.flatMapLatest(stats::moodCounts).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+    private val _todayState = MutableStateFlow(today())
+
+    /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꾼다. */
+    val todayState: StateFlow<LocalDate> = _todayState.asStateFlow()
+
+    /**
+     * 읽어 둔 기간.
+     * 탭을 누를 때마다 비웠다 그리면 화면이 번쩍여서, 있는 값을 바로 보이고 새 값으로 바꾼다.
+     */
+    private val cache = mutableMapOf<StatsPeriod, InsightData>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val days: StateFlow<List<DayMood>> =
-        _period
-            .flatMapLatest(stats::moodFlow)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyList())
+    private val readPeriod: Flow<InsightState> =
+        _period.flatMapLatest { period ->
+            read(period).map { data ->
+                cache[period] = data
+                InsightState(period, data)
+            }
+        }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val pixels: StateFlow<Map<LocalDate, Mood?>> =
-        _period
-            .flatMapLatest { if (it is StatsPeriod.Year) stats.yearPixels(it.year) else flowOf(emptyMap()) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyMap())
+    private fun read(period: StatsPeriod): Flow<InsightData> {
+        val pixels = if (period is StatsPeriod.Year) stats.yearPixels(period.year) else flowOf(emptyMap())
+        return combine(stats.moodCounts(period), stats.moodFlow(period), pixels) { counts, days, map -> InsightData(counts, days, map) }
+    }
+
+    /**
+     * 기간과 그 기간의 숫자를 한 값으로 묶는다.
+     * 기간을 바꾸면 읽어 둔 값을 바로 내놓고, 없으면 읽는 중이다. 앞 기간 숫자는 내놓지 않는다.
+     * 다른 탭에 다녀와 다시 읽을 때는 같은 기간이라 보던 숫자를 그대로 둔다.
+     */
+    val state: StateFlow<InsightState> =
+        combine(_period, readPeriod) { period, read -> read.takeIf { it.period == period } ?: InsightState(period, cache[period]) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), InsightState(_period.value, null))
+
+    init {
+        // 다른 탭도 미리 읽어 처음 눌러도 바로 보인다.
+        viewModelScope.launch {
+            InsightKind.entries.map { it.periodOf(today()) }.filter { it != _period.value }.forEach { period ->
+                cache.getOrPut(period) { read(period).first() }
+            }
+        }
+    }
 
     fun today(): LocalDate = today.invoke()
 
     fun select(kind: InsightKind) {
-        val date = today()
-        _period.value =
-            when (kind) {
-                InsightKind.Week -> StatsPeriod.Week.of(date)
-                InsightKind.Month -> StatsPeriod.Month(date.yearMonth)
-                InsightKind.Year -> StatsPeriod.Year(date.year)
-                InsightKind.All -> StatsPeriod.All
-            }
+        _period.value = kind.periodOf(today())
+    }
+
+    /**
+     * 앱이 돌아올 때 오늘을 다시 읽는다.
+     * 이번 주나 이번 달을 보고 있었으면 새 기간으로 옮기고, 지난 기간을 보던 사람은 그대로 둔다.
+     */
+    fun refreshToday() {
+        val before = _todayState.value
+        val now = today()
+        if (now == before) return
+        _todayState.value = now
+        val kind = _period.value.kind
+        if (_period.value == kind.periodOf(before)) _period.value = kind.periodOf(now)
     }
 
     fun previous() {
@@ -91,6 +140,13 @@ class InsightViewModel(
     private companion object {
         const val STOP_MILLIS = 5_000L
     }
+}
+
+private fun InsightKind.periodOf(date: LocalDate): StatsPeriod = when (this) {
+    InsightKind.Week -> StatsPeriod.Week.of(date)
+    InsightKind.Month -> StatsPeriod.Month(date.yearMonth)
+    InsightKind.Year -> StatsPeriod.Year(date.year)
+    InsightKind.All -> StatsPeriod.All
 }
 
 internal val StatsPeriod.kind: InsightKind

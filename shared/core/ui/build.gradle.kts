@@ -22,6 +22,8 @@ kotlin {
             // 미리보기와 시험에는 없어도 된다.
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
+            // 앱이 돌아올 때 오늘을 다시 읽는다(rememberToday).
+            implementation(libs.jb.lifecycle.runtime.compose)
         }
         androidMain.dependencies {
             // 알림 허용을 묻는 시스템 창(NotificationAccess).

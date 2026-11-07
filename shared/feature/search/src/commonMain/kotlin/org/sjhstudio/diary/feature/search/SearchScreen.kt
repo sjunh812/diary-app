@@ -28,10 +28,12 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -43,6 +45,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -61,14 +64,15 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.SearchFilter
-import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.search.resources.Res
 import org.sjhstudio.diary.feature.search.resources.search_back
 import org.sjhstudio.diary.feature.search.resources.search_chip_favorite
@@ -89,6 +93,9 @@ import org.sjhstudio.diary.feature.search.resources.search_result_count
 /** 어느 칩의 시트가 열렸는지. */
 private enum class Sheet { Mood, Weather, Period, Range }
 
+/** 조건을 바꾼 뒤 결과가 자리 잡을 때까지 맨 위를 지키는 시간. 그 뒤로는 사용자의 스크롤을 따른다. */
+private const val RESULTS_SETTLE_MILLIS = 1_000L
+
 /**
  * 찾기(Figma "찾기 (S1-a)").
  * 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
@@ -104,6 +111,19 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
     val family = rememberFileFontFamily(look.fontPath)
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
     val list = rememberLazyListState()
+    // 상세에 다녀와도 이 화면은 다시 그려진다.
+    // 조건이 그대로면 보던 자리에 두려고 마지막 조건을 저장해 둔다.
+    var listedFilter by rememberSaveable { mutableIntStateOf(filter.hashCode()) }
+    LaunchedEffect(filter) {
+        if (filter.hashCode() == listedFilter) return@LaunchedEffect
+        listedFilter = filter.hashCode()
+        // 찾기는 잠깐 멈춘 뒤에 돌아서 결과가 늦게 온다.
+        // 목록은 보던 줄을 따라가려 해서, 새 결과가 와도 맨 위로 되돌린다.
+        withTimeoutOrNull(RESULTS_SETTLE_MILLIS) {
+            snapshotFlow { results.itemCount to results.itemCount.takeIf { it > 0 }?.let { results.peek(0)?.id } }
+                .collect { list.scrollToItem(0) }
+        }
+    }
     val focus = remember { FocusRequester() }
     var focused by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -126,7 +146,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
         onFavorites = viewModel::toggleFavorites,
         modifier = modifier
     )
-    val today = remember { currentDate() }
+    val today = rememberToday()
     when (sheet) {
         Sheet.Mood.name -> MoodSheet(filter.moods, viewModel::setMoods) { sheet = null }
 
@@ -177,7 +197,7 @@ internal fun SearchScreen(
     Box(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().imePadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
             Row(
-                Modifier.fillMaxWidth().padding(start = DiarySpacing.x1, end = DiarySpacing.screenCompact, top = DiarySpacing.x1),
+                Modifier.fillMaxWidth().padding(start = DiarySpacing.x1, end = LocalScreenGutter.current, top = DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.search_back), onBack)
@@ -204,7 +224,7 @@ internal fun SearchScreen(
                 filter.isEmpty ->
                     DiaryNotice(
                         stringResource(Res.string.search_idle),
-                        Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+                        Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
                         icon = DiaryIcons.Search
                     )
 
@@ -233,7 +253,7 @@ private fun FilterChips(
 ) {
     LazyRow(
         Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2),
+        contentPadding = PaddingValues(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         item {
@@ -318,14 +338,14 @@ private fun Results(
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
-    val today: LocalDate = remember { currentDate() }
+    val today = rememberToday()
     // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = bottom)) {
         item {
             BasicText(
                 pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount),
-                modifier = Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x1),
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x1),
                 style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
             )
         }

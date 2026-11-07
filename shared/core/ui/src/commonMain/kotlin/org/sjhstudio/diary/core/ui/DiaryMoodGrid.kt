@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -22,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -40,11 +40,18 @@ import org.sjhstudio.diary.core.model.Weather
  * 기분 고르기 칸 9개.
  * 쓰기는 하나, 찾기는 여러 개를 고른다.
  * 두 줄이 같은 다섯 칸을 쓰고 아랫줄은 왼쪽부터 채운다.
- * 고른 칸 바탕이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춘다.
+ * 칸이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춘다.
  */
 @Composable
 fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
-    Column(modifier.offset(x = -DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+    Column(
+        modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            val side = (placeable.width / GRID_COLUMNS - DiaryWriteSize.moodFace.roundToPx()) / 2
+            layout(placeable.width, placeable.height) { placeable.placeRelative(-side, 0) }
+        },
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+    ) {
         for (row in Mood.ordered.chunked(GRID_COLUMNS)) {
             Row(Modifier.fillMaxWidth()) {
                 for (mood in row) {
@@ -64,17 +71,18 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
     Column(
         modifier =
             Modifier
-                .width(DiaryWriteSize.moodCellWidth)
+                .fillMaxWidth()
                 .heightIn(min = DiaryWriteSize.moodCellHeight)
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
                 .clip(DiaryShapes.r16)
-                .background(if (selected) colors.selected else colors.surface)
+                // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠한다.
+                .then(if (selected) Modifier.background(colors.selected) else Modifier)
                 .semantics { this.selected = selected }
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
                     haptic.performHapticFeedback(HapticFeedbackType.SegmentTick)
                     onClick()
                 }
-                .padding(top = DiarySpacing.x2),
+                .padding(horizontal = DiarySpacing.x0_5, vertical = DiarySpacing.x2),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
     ) {
@@ -82,9 +90,11 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
         BasicText(
             moodName(mood),
             style = (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
-                color = colors.textSecondary
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center
             ),
-            maxLines = 1,
+            // 칸 폭이 고정이라 긴 이름은 두 줄까지 쓴다.
+            maxLines = NAME_LINES,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -97,11 +107,9 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
  */
 @Composable
 fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Unit, modifier: Modifier = Modifier) {
-    FlowRow(
-        modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-    ) {
+    // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다.
+    // 보이는 틈은 16이다.
+    FlowRow(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         for (weather in Weather.entries) {
             DiaryChip(weatherName(weather), isSelected(weather), { onToggle(weather) }, leadingIcon = weather.icon())
         }
@@ -109,3 +117,4 @@ fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Un
 }
 
 private const val GRID_COLUMNS = 5
+private const val NAME_LINES = 2

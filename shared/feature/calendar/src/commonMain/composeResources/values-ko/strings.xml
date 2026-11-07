@@ -10,5 +10,4 @@
     <plurals name="calendar_day_count">
         <item quantity="other">%1$d편</item>
     </plurals>
-    <string name="tip_calendar_date">날짜를 누르면 그날 일기가 보여요.</string>
 </resources>

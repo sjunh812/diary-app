@@ -14,11 +14,14 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.Job
@@ -49,6 +52,18 @@ private val ReleaseBounce = spring<Float>(dampingRatio = 0.5f, stiffness = Sprin
  */
 fun Modifier.diaryPress(interactionSource: InteractionSource, color: Color, shape: Shape = RectangleShape): Modifier =
     this then DiaryPressElement(interactionSource, color, shape)
+
+/**
+ * 보이는 크기대로 자리를 차지하고 누르는 곳만 넓힌다.
+ * 작은 부품의 터치 영역을 48로 넓혀도 옆 내용과의 간격은 규격 그대로다.
+ * 이 수식어 뒤에 `clickable`을 달고, 그 안쪽에서 같은 값만큼 패딩을 주어 보이는 면을 제자리에 둔다.
+ */
+fun Modifier.diaryTouchOutset(horizontal: Dp = Dp.Hairline, vertical: Dp = Dp.Hairline): Modifier = layout { measurable, constraints ->
+    val sides = horizontal.roundToPx()
+    val ends = vertical.roundToPx()
+    val placeable = measurable.measure(constraints.offset(sides * 2, ends * 2))
+    layout(placeable.width - sides * 2, placeable.height - ends * 2) { placeable.placeRelative(-sides, -ends) }
+}
 
 private data class DiaryPressElement(val interactionSource: InteractionSource, val color: Color, val shape: Shape) :
     ModifierNodeElement<DiaryPressNode>() {

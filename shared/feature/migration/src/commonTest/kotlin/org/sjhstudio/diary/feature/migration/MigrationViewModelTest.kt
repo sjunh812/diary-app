@@ -88,6 +88,81 @@ class MigrationViewModelTest {
         assertEquals(listOf<MigrationNotice>(MigrationNotice.PhotosFound(1)), notices)
     }
 
+    /** 사본이 없으면 예전 일기 보기가 빈 화면이라 실패 화면이 그 줄을 숨긴다. */
+    @Test
+    fun the_failure_screen_knows_whether_a_copy_exists() = runTest(dispatcher) {
+        var copy = false
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun needsMigration(): Boolean = true
+
+                override val hasLegacyCopy: Boolean get() = copy
+
+                override suspend fun run(): MigrationResult =
+                    MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.SNAPSHOT_IO)
+            }
+        val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
+        advanceUntilIdle()
+        assertEquals(false, assertIs<MigrationUiState.Failed>(vm.state.value).hasCopy)
+
+        copy = true
+        vm.retry()
+        advanceUntilIdle()
+
+        assertEquals(true, assertIs<MigrationUiState.Failed>(vm.state.value).hasCopy)
+    }
+
+    /** 이전이 예외를 던져도 앱을 끄지 않고 실패 화면을 보인다. */
+    @Test
+    fun a_crash_in_the_migration_lands_on_the_failure_screen() = runTest(dispatcher) {
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun needsMigration(): Boolean = true
+
+                override suspend fun run(): MigrationResult = error("저장 공간 없음")
+            }
+        val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
+        advanceUntilIdle()
+
+        assertEquals(MigrationUiState.Failed(MigrationFailureKind.UNKNOWN, null), vm.state.value)
+    }
+
+    /** 원본이 있는지 보다가 실패해도 첫 화면에서 꺼지지 않는다. */
+    @Test
+    fun a_crash_while_checking_lands_on_the_failure_screen() = runTest(dispatcher) {
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun needsMigration(): Boolean = error("읽을 수 없음")
+
+                override suspend fun run(): MigrationResult = error("읽을 수 없음")
+            }
+        val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
+        advanceUntilIdle()
+
+        assertIs<MigrationUiState.Failed>(vm.state.value)
+    }
+
+    /** 공간이 차 미뤄 두기를 적지 못해도 새 일기부터 쓰기는 앱을 연다. */
+    @Test
+    fun skip_opens_the_app_even_when_the_deferral_cannot_be_written() = runTest(dispatcher) {
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun needsMigration(): Boolean = true
+
+                override suspend fun run(): MigrationResult =
+                    MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
+
+                override fun defer() = error("저장 공간 없음")
+            }
+        val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
+        advanceUntilIdle()
+
+        vm.skip()
+        advanceUntilIdle()
+
+        assertEquals(MigrationUiState.Passed, vm.state.value)
+    }
+
     /** 실패 화면의 새 일기부터 쓰기: 미뤄 두고 앱 틀로 간다. */
     @Test
     fun skip_defers_and_opens_the_app() = runTest(dispatcher) {

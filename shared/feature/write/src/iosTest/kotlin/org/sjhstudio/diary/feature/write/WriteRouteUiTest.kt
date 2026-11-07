@@ -60,7 +60,7 @@ class WriteRouteUiTest {
                     val holder = rememberSaveableStateHolder()
                     if (shown()) {
                         holder.SaveableStateProvider("write") {
-                            WriteRoute(target = WriteTarget.Edit("e1"), onSaved = {}, onClosed = {}, viewModel = viewModel)
+                            WriteRoute(target = WriteTarget.Edit("e1"), onSaved = {}, onClosed = {}, injected = viewModel)
                         }
                     }
                 }

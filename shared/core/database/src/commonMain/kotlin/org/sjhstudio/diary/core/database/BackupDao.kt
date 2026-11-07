@@ -70,6 +70,23 @@ interface BackupDao {
     )
     suspend fun pendingFiles(): List<LocalPhotoRow>
 
+    /** [pendingFiles]의 수. */
+    @Query(
+        "SELECT COUNT(*) FROM (SELECT 1 FROM media WHERE status = 'pending' AND sha256 IS NOT NULL GROUP BY sha256, file_name)"
+    )
+    fun pendingFileCount(): Flow<Int>
+
+    /** 내용 확인값이 남아 있어 다시 받을 수 있는 찾을 수 없는 사진. */
+    @Query(
+        "SELECT sha256, file_name AS fileName, MAX(byte_size) AS byteSize FROM media " +
+            "WHERE status = 'missing' AND sha256 IS NOT NULL AND file_name IS NOT NULL GROUP BY sha256, file_name"
+    )
+    suspend fun missingFiles(): List<LocalPhotoRow>
+
+    /** 찾을 수 없던 사진을 다시 쓸 수 있게 되었거나 다시 받을 때 상태를 고친다. */
+    @Query("UPDATE media SET status = :status WHERE sha256 = :sha256 AND file_name = :fileName AND status = 'missing'")
+    suspend fun reviveMissing(sha256: String, fileName: String, status: String)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun setBase(rows: List<SyncBaseEntity>)
 

@@ -35,6 +35,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryHomeSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
@@ -57,7 +58,7 @@ internal fun CardList(
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
     listTop: @Composable () -> Unit,
-    adSlot: @Composable (Int) -> Unit
+    adSlot: @Composable (Int, Modifier) -> Unit
 ) {
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -78,7 +79,7 @@ internal fun CardList(
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
                     EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
-                    if (isAdSlot(index)) adSlot(adOrder(index))
+                    if (isAdSlot(index)) adSlot(adOrder(index), Modifier)
                 }
             }
         }
@@ -117,15 +118,17 @@ private fun EntryCard(
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             Column(Modifier.fillMaxWidth().padding(end = if (row.mood != null) DiaryHomeSize.cardFace + DiarySpacing.x2 else Dp.Hairline)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
+                    // 카드는 달 머리가 없어서 달까지 적는다.
+                    // 맨 위 제목만으로는 카드가 어느 달인지 헷갈린다(2026-11-07 사용자 지적).
                     BasicText(
-                        row.date.day.toString(),
+                        dates.monthDay(row.date),
                         modifier = Modifier.alignByBaseline(),
-                        style = typography.numeral.copy(color = colors.textPrimary)
+                        style = typography.headline.copy(color = colors.textPrimary)
                     )
                     BasicText(
                         dates.weekday(row.date),
                         modifier = Modifier.alignByBaseline(),
-                        style = typography.caption.copy(color = colors.textSecondary)
+                        style = typography.captionStrong.copy(color = colors.textSecondary)
                     )
                 }
                 Row(
@@ -200,7 +203,7 @@ internal fun PhotoGrid(
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
     ) {
         item(key = LIST_TOP_KEY, span = { GridItemSpan(maxLineSpan) }, contentType = LIST_TOP_KEY) {
-            ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact - DiarySpacing.x0_5))
+            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current - DiarySpacing.x0_5))
         }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "photo" }) { index ->
             val row = rows[index]

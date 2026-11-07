@@ -79,6 +79,8 @@ class MergeApplier(
                         media.deleteForEntry(incoming.id)
                         media.insertAll(item.media.map { it.settled() })
                         dao.setBase(listOf(SyncBaseEntity(incoming.id, incoming.updatedAt)))
+                        // 고치다 남겨 둔 글이 합쳐 온 일기를 덮어쓰지 않게 한다.
+                        db.draftDao().markEntryChanged(incoming.id)
                     }
 
                     MergeAction.KEEP_BOTH -> {
@@ -97,6 +99,18 @@ class MergeApplier(
             }
         }
         return MergeCounts(plan.count(MergeAction.ADD), plan.count(MergeAction.REPLACE), plan.count(MergeAction.KEEP_BOTH))
+    }
+
+    /**
+     * 이번 백업에 든 사진이면 찾을 수 없다고 적어 둔 줄도 다시 받는다.
+     * 복원이 끊기거나 깨진 파일을 읽었을 때 적힌 표시가 영영 남지 않게 한다.
+     */
+    suspend fun revive(inBackup: Set<String>) {
+        val dao = db.backupDao()
+        for (photo in dao.missingFiles().filter { it.sha256 in inBackup }) {
+            val name = photo.fileName ?: continue
+            dao.reviveMissing(photo.sha256, name, (if (fileExists(name)) MediaStatus.NORMAL else MediaStatus.PENDING).id)
+        }
     }
 
     /**

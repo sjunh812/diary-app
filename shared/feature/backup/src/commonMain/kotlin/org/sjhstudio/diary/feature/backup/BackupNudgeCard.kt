@@ -37,19 +37,21 @@ fun BackupNudgeCard(modifier: Modifier = Modifier) {
 }
 
 /**
- * 연결했더니 찾은 백업을 알리는 시트.
+ * 연결했더니 찾은 백업이나 연결 실패를 알리는 시트.
  * 카드가 스크롤로 사라져도 뜨도록 카드 밖에 둔다.
  */
 @Composable
 fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {
     val viewModel = koinViewModel<BackupViewModel>()
     val found by viewModel.found.collectAsStateWithLifecycle()
+    val failure by viewModel.connectFailure.collectAsStateWithLifecycle()
     found?.let { entry ->
         BackupFoundSheet(entry, viewModel::skipFound) {
             viewModel.takeFound()
             onRestoreEntry(entry.snapshotName)
         }
     }
+    failure?.let { BackupConnectFailedSheet(it, viewModel::connectFailureShown) }
 }
 
 @Composable
@@ -66,7 +68,7 @@ internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLat
             pluralStringResource(Res.plurals.backup_nudge_entries, nudge.entryCount, nudge.entryCount.grouped())
         },
         stringResource(Res.string.backup_nudge_body),
-        modifier.padding(top = DiarySpacing.x3),
+        modifier.padding(top = DiarySpacing.x4),
         actionLabel = stringResource(Res.string.backup_nudge_action),
         onAction = onConnect,
         secondaryLabel = stringResource(Res.string.backup_nudge_later),

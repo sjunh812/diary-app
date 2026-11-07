@@ -171,9 +171,17 @@ private fun DayCell(date: LocalDate, selected: Boolean, between: Boolean, inMont
     val colors = DiaryTheme.colors
     val color =
         when {
-            !inMonth -> colors.placeholder
             selected -> colors.onAccent
+
+            !inMonth -> colors.placeholder
+
+            // 기간 안의 날은 selected 바탕이라 주말 색의 대비가 모자란다.
+            between -> colors.textPrimary
+
             date.dayOfWeek == DayOfWeek.SUNDAY -> colors.danger
+
+            date.dayOfWeek == DayOfWeek.SATURDAY -> colors.ink.blue
+
             else -> colors.textPrimary
         }
     val background =
@@ -183,13 +191,19 @@ private fun DayCell(date: LocalDate, selected: Boolean, between: Boolean, inMont
             else -> colors.surface
         }
     val interaction = remember { MutableInteractionSource() }
-    Box(modifier.height(DiaryWriteSize.dayCell), contentAlignment = Alignment.Center) {
+    // 고른 원은 40이고 누르는 곳은 칸 전체(높이 48)다.
+    Box(
+        modifier
+            .height(DiarySpacing.minTouchTarget)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
         Box(
             Modifier
                 .size(DiaryWriteSize.dayCell)
+                .diaryPress(interaction, if (selected) colors.onAccent else colors.textPrimary, DiaryShapes.full)
                 .clip(DiaryShapes.full)
-                .background(background)
-                .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+                .background(background),
             contentAlignment = Alignment.Center
         ) {
             BasicText(date.day.toString(), style = DiaryTheme.typography.body.copy(color = color))

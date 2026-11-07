@@ -44,6 +44,7 @@
     <string name="backup_line_days">前回のバックアップ %1$d日前</string>
     <string name="backup_line_today">今日 %1$s</string>
     <string name="backup_line_yesterday">昨日 %1$s</string>
+    <plurals name="backup_photos_unusable"><item quantity="other">見つからない写真%1$d枚はバックアップできませんでした。</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">バックアップから復元</string>
@@ -59,7 +60,6 @@
     <string name="restore_needs_update">アプリをアップデートすると復元できます</string>
     <string name="restore_empty_title">ドライブにバックアップはまだありません</string>
     <string name="restore_empty_body">このスマートフォンでバックアップするとここに表示されます。</string>
-    <string name="restore_loading">バックアップを探しています</string>
     <string name="restore_list_failed">バックアップ一覧を読み込めませんでした</string>
     <string name="restore_list_failed_body">接続を確認して、もう一度お試しください。</string>
     <string name="restore_retry">もう一度試す</string>
@@ -73,11 +73,11 @@
     <string name="restore_settings_note">フォント、本文の文字サイズ、表示モード、リマインダーの設定もバックアップ時に戻ります。</string>
     <string name="restore_no_space">写真をダウンロードする空き容量があと%1$s足りません。空き容量を増やしてもう一度お試しください。</string>
     <string name="restore_merge">統合する</string>
-    <string name="restore_preparing">バックアップを確認しています</string>
     <string name="restore_size_gb">%1$sGB</string>
     <string name="restore_size_mb">%1$sMB</string>
     <string name="restore_size_kb">%1$sKB</string>
     <string name="restore_running_title">日記を復元しています</string>
+    <string name="restore_waiting_body">バックアップが終わると始まります。</string>
     <string name="restore_merging_body">日記を統合しています。</string>
     <string name="restore_fetching_body">日記は統合しました。写真をダウンロードする間も日記を読めます。</string>
     <string name="restore_value_entries">日記</string>
@@ -93,11 +93,21 @@
     <string name="restore_note_original_body">バックアップ時に容量が足りなかった写真です。元のスマートフォンでもう一度バックアップするとここでも見られます。</string>
     <string name="restore_note_pending_body">次にアプリを開くと続きからダウンロードします。</string>
     <string name="restore_note_pending_file_body">このファイルには含まれていない写真です。ドライブにバックアップがあれば、接続したときにダウンロードします。</string>
+    <string name="restore_note_pending_space_body">空き容量が足りず止まりました。空き容量を増やしてアプリを開き直すと続きからダウンロードします。</string>
+    <string name="restore_wait_running">写真をダウンロードしています。</string>
+    <string name="restore_wait_network">インターネットに接続すると続きからダウンロードします。</string>
+    <string name="restore_wait_wifi">Wi-Fiに接続すると続きからダウンロードします。モバイルデータを使うには「今すぐダウンロード」を押してください。</string>
+    <string name="restore_wait_account">ドライブの接続が切れたため止まりました。接続し直すと続きからダウンロードします。</string>
+    <string name="restore_wait_file">復元したファイルをもう一度選ぶと残りの写真をダウンロードします。</string>
+    <string name="restore_wait_now">今すぐダウンロード</string>
+    <string name="restore_wait_pick">ファイルを選ぶ</string>
     <string name="restore_note_missing_body">ダウンロードしたファイルが異なるため、見つからない写真として残しました。</string>
     <string name="restore_lock_title">ロックを設定し直してください</string>
     <string name="restore_lock_body">バックアップしたスマートフォンでロックを使っていました。パスコードはバックアップされません。</string>
     <string name="restore_lock_action">設定する</string>
     <string name="restore_start">はじめる</string>
+    <string name="restore_failed_busy_title">復元が終わってからお試しください</string>
+    <string name="restore_failed_busy_body">いま復元しています。終わると別のバックアップを選べます。</string>
     <string name="restore_failed_mismatch_title">バックアップを確認できませんでした</string>
     <string name="restore_failed_mismatch_body">ダウンロードしたファイルがバックアップ時と異なるため中止しました。このスマートフォンの日記はそのままです。</string>
     <string name="restore_failed_other_title">復元できませんでした</string>
@@ -148,10 +158,19 @@
     <string name="restore_replace_action">置き換える</string>
     <string name="restore_failed_space_title">スマートフォンの空き容量が足りません</string>
     <string name="restore_failed_space_body">今の日記を保管する場所がないため中止しました。このスマートフォンの日記はそのままです。</string>
+    <string name="backup_folder_title">バックアップフォルダを新しく作成しました</string>
+    <string name="backup_folder_body">削除したフォルダはドライブのゴミ箱から30日間復元できます。</string>
+    <string name="backup_folder_ok">OK</string>
     <string name="rollback_title">このバックアップに置き換えました</string>
     <string name="rollback_until">%1$sまで元に戻せます。</string>
     <string name="rollback_tomorrow">明日まで元に戻せます。</string>
     <string name="rollback_action">元に戻す</string>
+    <string name="rollback_waiting_title">元に戻すのを待っています</string>
+    <string name="rollback_waiting_body">復元が終わると置き換える前に戻します。</string>
+    <string name="rollback_running_title">置き換える前に戻しています</string>
+    <string name="rollback_running_body">しばらくお待ちください。</string>
+    <string name="rollback_failed_title">元に戻せませんでした</string>
+    <string name="rollback_failed_body">このスマートフォンの日記はそのままです。もう一度お試しください。</string>
     <string name="rollback_ask_title">置き換える前に戻しますか？</string>
     <string name="rollback_ask_body">置き換える前の日記%1$s件が戻ります。</string>
     <string name="rollback_ask_after">置き換える前の日記%1$s件が戻ります。置き換えた後に書いた日記%2$s件はそのまま残ります。</string>
@@ -173,7 +192,14 @@
     <string name="file_writing">ファイルを作っています</string>
     <string name="file_write_failed">ファイルを最後まで書けませんでした。保存先のファイルを削除して作り直してください。このスマートフォンの日記はそのままです。</string>
     <string name="file_reading">ファイルを確認しています</string>
+    <string name="file_write_failed_removed">ファイルを最後まで書けなかったため削除しました。このスマートフォンの日記はそのままです。</string>
+    <string name="file_stop_title">ファイルの作成を中止しますか？</string>
+    <string name="file_stop_body">今戻ると作成中のファイルは削除します。このスマートフォンの日記はそのままです。</string>
+    <string name="file_stop_action">中止</string>
+    <string name="file_stopped_notice">ファイルを最後まで作成できませんでした。作成中のファイルは使えません。</string>
     <string name="file_read_failed">バックアップファイルではないか、一部が壊れています。このスマートフォンの日記はそのままです。</string>
+    <string name="file_read_no_space">ファイルを読み込む空き容量が%1$s足りません。空き容量を増やしてからもう一度お試しください。</string>
+    <string name="file_read_no_space_plain">ファイルを読み込む空き容量が足りません。空き容量を増やしてからもう一度お試しください。</string>
     <string name="file_read_needs_update">アプリをアップデートすると復元できます。</string>
     <string name="file_saved_title">ファイルを保存しました</string>
     <string name="file_saved_body">新しいスマートフォンに移してから［ファイルから復元］をタップしてください。</string>
@@ -190,7 +216,6 @@
     <string name="backup_space_retry">もう一度バックアップ</string>
     <plurals name="backup_space_photos"><item quantity="other">日記の文章はすべてアップロードしました。残りの写真%1$s枚をアップロードするには、ドライブにあと%2$s必要です。</item></plurals>
     <string name="restore_contact">お問い合わせ</string>
-    <string name="backup_interrupted_title">バックアップが中断されました</string>
     <string name="backup_interrupted_body">アップロード済みの写真はそのままです。［今すぐバックアップ］で続きから再開します。</string>
     <string name="backup_restored_title">%1$sのバックアップから復元しました</string>
     <string name="backup_restored_body">今すぐバックアップすると、このスマートフォンの日記もドライブにアップロードします。</string>
@@ -198,7 +223,22 @@
     <string name="backup_done_body">日記と写真をすべてドライブにアップロードしました。</string>
     <string name="backup_done_left">写真%1$s枚はWi-Fi接続時にアップロードします。</string>
     <string name="backup_stopped_title">バックアップを完了できませんでした</string>
+    <string name="restore_stopped_title">復元を完了できませんでした</string>
+    <string name="restore_see_result">見る</string>
     <string name="restore_notice_title">復元が終わりました</string>
     <string name="restore_notice_body">日記と写真をすべて復元しました。</string>
+    <string name="restore_notice_stopped_title">まだダウンロードしていない写真があります</string>
+    <string name="restore_notice_some">復元できなかった写真があります。アプリで確認してください。</string>
     <string name="restore_notice_left">残りの写真はアプリを開くと続きからダウンロードします。</string>
+    <string name="backup_failed_offline">インターネットに接続されていません。接続してから［今すぐバックアップ］をタップしてください。</string>
+    <string name="backup_failed_drive">Googleドライブが応答していません。しばらくしてから［今すぐバックアップ］をタップしてください。</string>
+    <string name="backup_failed_local">このスマートフォンのファイルを読み書きできませんでした。ストレージを確認してから［今すぐバックアップ］をタップしてください。</string>
+    <string name="backup_line_failed">バックアップを完了できませんでした</string>
+    <string name="backup_skip_empty">バックアップする日記がまだありません</string>
+    <string name="backup_skip_busy">別の処理が終わってからもう一度タップしてください</string>
+    <string name="backup_connect_failed_title">Googleドライブに接続できませんでした</string>
+    <string name="backup_connect_failed_offline">インターネット接続を確認して、もう一度お試しください。</string>
+    <string name="backup_connect_failed_auth">Googleアカウントを確認できませんでした。しばらくしてからもう一度お試しください。</string>
+    <string name="backup_connect_failed_other">しばらくしてからもう一度お試しください。</string>
+    <string name="backup_connect_failed_close">OK</string>
 </resources>

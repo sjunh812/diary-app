@@ -23,7 +23,6 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
-import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
  * 맥락 팁 한 줄(Apple TipKit의 줄 안 팁).
@@ -38,7 +37,6 @@ fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Mo
         modifier
             .widthIn(max = DiaryWriteSize.bodyMax)
             .fillMaxWidth()
-            .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
             .clip(DiaryShapes.r12)
             .background(colors.toast),
         verticalAlignment = Alignment.CenterVertically,
@@ -52,6 +50,7 @@ fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Mo
         Box(
             Modifier
                 .size(DiarySpacing.minTouchTarget)
+                .diaryPress(interaction, colors.onToast, DiaryShapes.full)
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClose),
             contentAlignment = Alignment.Center
         ) {

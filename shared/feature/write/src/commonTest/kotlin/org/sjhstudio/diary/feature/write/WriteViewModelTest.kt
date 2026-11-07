@@ -281,6 +281,19 @@ class WriteViewModelTest {
     }
 
     @Test
+    fun a_draft_left_before_a_restore_says_saving_keeps_both() = runTest(dispatcher) {
+        val key = DraftKey.Edit("e1")
+        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key)))
+        repository.openEdit("e1")
+        repository.changedByRestore += "e1"
+
+        val vm = vm(repository, WriteTarget.Edit("e1"))
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.entryChanged)
+    }
+
+    @Test
     fun blank_text_makes_no_draft() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
         val vm = vm(repository)
@@ -374,7 +387,7 @@ class WriteViewModelTest {
         assertTrue(vm.state.value.saving)
         assertEquals(1, repository.committed.size)
         assertTrue(repository.saved.isEmpty())
-        assertEquals(listOf(WriteEvent.Saved("saved-id"), WriteEvent.Closed(keptDraft = false)), events)
+        assertEquals(listOf<WriteEvent>(WriteEvent.Saved("saved-id")), events)
     }
 
     @Test

@@ -204,7 +204,7 @@ class ManifestDamageTest {
         try {
             val prepared = other.planner().prepare(other.catalog().list().single())
             other.applier().apply(prepared.plan, "drive")
-            assertEquals(1 to 0, other.fetcher().fetch())
+            assertEquals(PhotoTally(fetched = 1, broken = 0), other.fetcher().fetch())
             assertEquals(hash, fs.hashes(other.media / "$hash.jpg").sha256)
         } finally {
             other.close()

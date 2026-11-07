@@ -39,9 +39,15 @@ fun WriteRoute(
     onClosed: (keptDraft: Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onPlus: () -> Unit = {},
-    viewModel: WriteViewModel = koinViewModel(key = target.viewModelKey()) { parametersOf(target) }
+    injected: WriteViewModel? = null
 ) {
+    // 잠금이나 앱 종료로 화면 모델이 사라져도 쓰던 글을 그대로 잇는다.
+    // 이게 없으면 쓰던 화면인데 "쓰던 일기가 있어요"를 다시 묻는다.
+    var draftKey by rememberSaveable { mutableStateOf<String?>(null) }
+    val viewModel =
+        injected ?: koinViewModel<WriteViewModel>(key = target.viewModelKey()) { parametersOf(target, RestoredDraftKey(draftKey)) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(state.draftKey) { state.draftKey?.let { draftKey = it } }
     val look by viewModel.look.collectAsStateWithLifecycle()
     val rich = rememberRichTextState()
     val theme = DiaryTheme.colors

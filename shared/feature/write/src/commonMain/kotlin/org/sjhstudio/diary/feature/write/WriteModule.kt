@@ -5,7 +5,7 @@ import org.koin.dsl.module
 
 val writeFeatureModule =
     module {
-        viewModel { (target: WriteTarget) ->
+        viewModel { (target: WriteTarget, restoredKey: RestoredDraftKey) ->
             WriteViewModel(
                 target,
                 get(),
@@ -13,10 +13,17 @@ val writeFeatureModule =
                 settings = get(),
                 fonts = get(),
                 plans = get(),
-                places = get()
+                places = get(),
+                restoredKey = restoredKey.value
             )
         }
     }
+
+/**
+ * 화면이 기억해 둔 임시 저장본 키.
+ * 비어 있을 수 있어서 값 클래스 대신 감싸서 넘긴다.
+ */
+class RestoredDraftKey(val value: String?)
 
 /**
  * 사진 파일 이름을 앱 저장소 경로로 바꾼다.

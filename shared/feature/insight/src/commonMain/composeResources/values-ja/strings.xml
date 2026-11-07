@@ -10,6 +10,7 @@
     <string name="insight_all_time">全期間</string>
     <string name="insight_week_range">%1$s〜%2$s</string>
     <string name="insight_empty">この期間の日記はありません</string>
+    <string name="insight_write">日記を書く</string>
     <string name="insight_no_moods">この期間に選んだ気分はありません</string>
     <string name="insight_top_week">今週は「%1$s」が一番多かったです</string>
     <string name="insight_top_month">今月は「%1$s」が一番多かったです</string>
@@ -18,12 +19,12 @@
     <string name="insight_top_past">この期間は「%1$s」が一番多かったです</string>
     <string name="insight_mood_join">%1$s、%2$s</string>
     <string name="insight_summary_counts">%1$s・%2$s</string>
-    <string name="insight_count_percent">%1$d・%2$d%</string>
+    <string name="insight_count_percent">%1$d編・%2$d%</string>
     <string name="insight_year_map">今年の毎日の気分</string>
     <string name="insight_flow_week">毎日の気分</string>
-    <string name="insight_flow_month">週ごとに一番多い気分</string>
-    <string name="insight_flow_all">年ごとに一番多い気分</string>
-    <string name="insight_flow_year">月ごとに一番多い気分</string>
+    <string name="insight_flow_month">週別の気分</string>
+    <string name="insight_flow_all">年別の気分</string>
+    <string name="insight_flow_year">月別の気分</string>
     <string name="insight_week_number">第%1$d週</string>
     <plurals name="insight_entry_count">
         <item quantity="other">日記%1$d件</item>
@@ -50,7 +51,6 @@
     <string name="insight_adv_range_year">今年</string>
     <string name="insight_adv_range_all">すべて</string>
     <string name="insight_adv_not_enough">日記が7件たまると表示します。</string>
-    <string name="insight_adv_not_enough_body">気分を選んだ日記が多いほど、はっきり見えます。</string>
     <string name="insight_adv_gap_none_body">日記が増えたらまた調べます。</string>
     <string name="insight_adv_change_recent">前の30日と比較</string>
     <string name="insight_adv_change_year">去年の同じ時期と比較</string>
@@ -64,7 +64,7 @@
     <string name="insight_adv_tone_note">「良い」か「笑顔」を選んだ日記の割合です。</string>
     <string name="insight_adv_when_empty">まだ日記が少なめです。</string>
     <string name="insight_adv_company">気分ごとに多い天気・曜日・場所</string>
-    <string name="insight_adv_habit">書く習慣</string>
+    <string name="insight_adv_habit">わたしの記録</string>
     <string name="insight_adv_habit_entries">日記</string>
     <string name="insight_adv_habit_days">書いた日</string>
     <string name="insight_adv_habit_run">最長連続日数</string>
@@ -87,7 +87,9 @@
         <item quantity="other">%1$s枚</item>
     </plurals>
     <string name="insight_section_days">毎日の気分</string>
-    <string name="insight_section_moods">気分別の日記</string>
+    <string name="insight_map_hint">1マスが1日です。色はその日の気分です。</string>
+    <string name="tip_insight_mood">気分をタップすると、その気分の日記をまとめて見られます。</string>
+    <string name="insight_section_moods">よく選んだ気分</string>
     <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
     <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>
     <string name="insight_adv_recent_better">最近、いい日が増えてきました</string>

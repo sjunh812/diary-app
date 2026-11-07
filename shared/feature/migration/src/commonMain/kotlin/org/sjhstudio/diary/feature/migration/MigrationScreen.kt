@@ -17,10 +17,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
@@ -33,10 +35,12 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
+import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.ui.KeepScreenOn
@@ -130,24 +134,19 @@ private fun CopyingContent(state: MigrationUiState.Copying) {
         val total = (state.entriesTotal + state.photosTotal).coerceAtLeast(1)
         DiaryProgressBar(done.toFloat() / total)
         Spacer(Modifier.height(DiarySpacing.x4))
-        CountRow(
-            stringResource(Res.string.migration_progress_entries),
-            stringResource(Res.string.migration_progress_entries_value, state.entriesDone.grouped(), state.entriesTotal.grouped())
-        )
-        if (state.photosTotal > 0) {
-            CountRow(
-                stringResource(Res.string.migration_progress_photos),
-                stringResource(Res.string.migration_progress_photos_value, state.photosDone.grouped(), state.photosTotal.grouped())
+        // 값 줄이 스스로 화면 여백을 두는데 이 칸은 이미 여백 안이다.
+        CompositionLocalProvider(LocalScreenGutter provides Dp.Hairline) {
+            DiaryValueRow(
+                stringResource(Res.string.migration_progress_entries),
+                stringResource(Res.string.migration_progress_entries_value, state.entriesDone.grouped(), state.entriesTotal.grouped())
             )
+            if (state.photosTotal > 0) {
+                DiaryValueRow(
+                    stringResource(Res.string.migration_progress_photos),
+                    stringResource(Res.string.migration_progress_photos_value, state.photosDone.grouped(), state.photosTotal.grouped())
+                )
+            }
         }
-    }
-}
-
-@Composable
-private fun CountRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x2), horizontalArrangement = Arrangement.SpaceBetween) {
-        BasicText(label, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary))
-        BasicText(value, style = DiaryTheme.typography.bodyStrong.copy(color = DiaryTheme.colors.textPrimary))
     }
 }
 
@@ -249,7 +248,10 @@ private fun FailedContent(
         primary = stringResource(if (noSpace) Res.string.migration_check_again else Res.string.migration_retry) to onRetry,
         fullWidthContent = true
     ) {
-        onViewLegacy?.let { DiarySettingsRow(stringResource(Res.string.migration_view_legacy), it, leadingIcon = DiaryIcons.BookOpen) }
+        // 사본이 없으면 볼 것이 없어 빈 화면만 나온다.
+        if (state.hasCopy) {
+            onViewLegacy?.let { DiarySettingsRow(stringResource(Res.string.migration_view_legacy), it, leadingIcon = DiaryIcons.BookOpen) }
+        }
         if (!noSpace) {
             onExportOriginal?.let {
                 DiarySettingsRow(stringResource(Res.string.migration_export_original), it, leadingIcon = DiaryIcons.Download)
@@ -293,13 +295,13 @@ private fun Frame(
             DiaryResultHeader(icon, title, description = body, tone = tone)
             Spacer(Modifier.height(DiarySpacing.x8 - DiarySpacing.x6))
             Column(
-                Modifier.fillMaxWidth().padding(horizontal = if (fullWidthContent) DiarySpacing.x0_5 * 0 else DiarySpacing.screenCompact)
+                Modifier.fillMaxWidth().padding(horizontal = if (fullWidthContent) DiarySpacing.x0_5 * 0 else LocalScreenGutter.current)
             ) {
                 content()
             }
         }
         Column(
-            modifier = Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = DiarySpacing.screenCompact),
+            modifier = Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = LocalScreenGutter.current),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (footnote != null) {

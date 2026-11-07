@@ -1,5 +1,6 @@
 package org.sjhstudio.diary
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.sjhstudio.diary.app.DiaryApp
 import org.sjhstudio.diary.app.Startup
+import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.ThemeMode
@@ -80,6 +82,26 @@ class MainActivity : FragmentActivity() {
                 authorizer.consentResult.await { consent.launch(IntentSenderRequest.Builder(intent).build()) }
             }
         setContent { DiaryApp() }
+        // 화면을 돌려 다시 만들어질 때는 쌓인 화면이 이미 되살아난다.
+        if (savedInstanceState == null) handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    /**
+     * 알림이 보낸 요청만 받는다.
+     * 이 화면은 밖에 열려 있지 않아서, 이름을 곧바로 가리킨 인텐트는 앱이 만든 것이다.
+     * 런처는 옛 이름(.SplashActivity)으로 들어온다.
+     * 최근 앱에서 다시 열면 시스템이 처음 인텐트를 또 주니 건너뛴다.
+     */
+    private fun handleIntent(intent: Intent) {
+        val fromRecents = intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
+        val ours = intent.component?.className == MainActivity::class.java.name
+        if (intent.action == ACTION_WRITE && ours && !fromRecents) get<AppLaunch>().requestWrite()
     }
 
     override fun onDestroy() {
@@ -95,5 +117,10 @@ class MainActivity : FragmentActivity() {
     override fun onResume() {
         super.onResume()
         recents.onResume()
+    }
+
+    companion object {
+        /** 매일 알림을 눌렀을 때. */
+        const val ACTION_WRITE = "org.sjhstudio.diary.action.WRITE"
     }
 }

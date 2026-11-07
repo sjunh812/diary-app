@@ -53,6 +53,7 @@ internal expect fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
 /**
  * 홈과 돌아보기의 광고 자리.
  * 오른쪽 위 ×를 누르면 광고를 없애는 길을 보여 준다.
+ * AdChoices는 ×에 가리지 않게 오른쪽 아래에 둔다(`nativeAdOptions`).
  */
 @Composable
 internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) {
@@ -63,7 +64,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
     val scope = rememberCoroutineScope()
     val colors = DiaryTheme.colors
     NativeAdCard(key, shape) { ad ->
-        Box(modifier.fillMaxWidth().padding(vertical = DiarySpacing.x2)) {
+        Box(modifier.fillMaxWidth()) {
             ad()
             DiaryIconButton(
                 DiaryIcons.Close,
@@ -106,7 +107,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
                 DiaryButton(
                     stringResource(Res.string.reward_close),
                     onClick = { sheet = null },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
                     size = DiaryButtonSize.XLarge
                 )
             }

@@ -227,21 +227,21 @@ class BundleTest {
     }
 
     @Test
-    fun a_failed_photo_extraction_keeps_the_file_until_it_is_dismissed() = runTest {
+    fun a_failed_photo_extraction_keeps_the_file_past_the_result_screen() = runTest {
         val zip = exportFromA()
         val controller =
             controller(PhotoFetcher(phoneB, FakeDrive(fs), jammed, dir / "b" / "media", dir / "b" / "backup"), backgroundScope)
         assertIs<RestorePreparation.Ready>(controller.prepareFile(fs.source(zip)))
 
         finish(controller)
-        assertTrue(fs.exists(incoming / "picked"), "아직 꺼내지 못한 사진이 있는 파일을 지웠다")
-
         controller.dismiss()
         withContext(Dispatchers.Default) {
             withTimeout(5_000) {
                 while (fs.listOrNull(incoming).orEmpty().isNotEmpty()) delay(10)
             }
         }
+
+        assertTrue(fs.exists(dir / "b" / "backup" / "unpacking" / "bundle.zip"), "아직 꺼내지 못한 사진이 있는 파일을 지웠다")
     }
 
     @Test

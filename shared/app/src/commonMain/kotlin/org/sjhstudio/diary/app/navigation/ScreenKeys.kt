@@ -1,6 +1,10 @@
 package org.sjhstudio.diary.app.navigation
 
 import androidx.navigation3.runtime.NavKey
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 /**
@@ -81,13 +85,27 @@ data class PhotoViewerKey(val entryId: String, val index: Int) : Screen {
  * [date]는 `yyyy-MM-dd`로, 달력 빈 날에서 오면 있다.
  * [entryId]가 있으면 수정이다.
  */
+@OptIn(ExperimentalSerializationApi::class, ExperimentalUuidApi::class)
 @Serializable
-data class WriteKey(val date: String? = null, val entryId: String? = null) : Screen {
+data class WriteKey(
+    val date: String? = null,
+    val entryId: String? = null,
     /**
-     * 화면 모델과 저장 상태를 일기마다 가르는 키.
+     * 쓰기를 열 때마다 새로 만든다.
+     * 없으면 닫히는 화면이 사라지기 전에 다시 열 때 그 화면 모델을 그대로 받아
+     * 닫는 중인 채로 시작해 뒤로 가기가 먹지 않고 키보드도 뜨지 않는다.
+     * 앱이 다시 떠도 같은 화면으로 이어지게 함께 저장한다.
+     */
+    @EncodeDefault val opened: String = Uuid.random().toString()
+) : Screen {
+    /**
+     * 화면 모델과 저장 상태를 여는 때마다 가르는 키.
      * 기본 키는 [toString]을 쓰므로 모든 쓰기가 같은 키가 된다.
      */
-    val contentKey: String get() = "write:$entryId:$date"
+    val contentKey: String get() = "write:$entryId:$date:$opened"
+
+    /** 같은 일기를 가리키는지. */
+    fun sameTarget(other: WriteKey): Boolean = date == other.date && entryId == other.entryId
 
     override fun toString(): String = "WriteKey"
 }

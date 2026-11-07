@@ -34,6 +34,15 @@ private const val TAG = "DiaryAds"
  */
 private const val MAX_NATIVES = 5
 
+/** 네이티브 광고를 받을 때의 선택. */
+internal fun nativeAdOptions(): NativeAdOptions = NativeAdOptions.Builder()
+    // 영상은 소리 없이 시작한다(`docs/business.md`).
+    .setVideoOptions(VideoOptions.Builder().setStartMuted(true).build())
+    // 기본 자리는 오른쪽 위라 앱의 ×와 겹친다.
+    // AdChoices는 가리면 안 되어서 ×가 없는 오른쪽 아래로 보낸다.
+    .setAdChoicesPlacement(NativeAdOptions.ADCHOICES_BOTTOM_RIGHT)
+    .build()
+
 /**
  * 매니페스트에 든 광고 단위.
  * 개발 빌드는 시험 단위이고, 출시 빌드에 값이 없으면 광고를 부르지 않는다.
@@ -99,16 +108,11 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     fun loadNative(key: String) {
         if (!available || key in natives || !loading.add(key)) return
         start()
-        val options =
-            NativeAdOptions.Builder()
-                // 영상은 소리 없이 시작한다(`docs/business.md`).
-                .setVideoOptions(VideoOptions.Builder().setStartMuted(true).build())
-                .build()
         AdLoader.Builder(app, units.native)
             .forNativeAd { ad ->
                 loading -= key
                 keepNative(key, ad)
-            }.withNativeAdOptions(options)
+            }.withNativeAdOptions(nativeAdOptions())
             .withAdListener(
                 object : AdListener() {
                     override fun onAdFailedToLoad(error: LoadAdError) {

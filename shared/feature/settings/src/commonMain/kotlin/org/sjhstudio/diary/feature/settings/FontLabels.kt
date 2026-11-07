@@ -4,7 +4,7 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
-import org.sjhstudio.diary.feature.settings.resources.font_name_cafe24_surround
+import org.sjhstudio.diary.feature.settings.resources.font_name_binggrae
 import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower
 import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower_latin
@@ -49,7 +49,7 @@ internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.SYSTEM -> Res.string.font_name_system
     DiaryFont.PRETENDARD -> Res.string.font_name_pretendard
     DiaryFont.GOWUN_DODUM -> Res.string.font_name_gowun_dodum
-    DiaryFont.CAFE24_SURROUND -> Res.string.font_name_cafe24_surround
+    DiaryFont.BINGGRAE -> Res.string.font_name_binggrae
     DiaryFont.MARU_BURI -> Res.string.font_name_maru_buri
     DiaryFont.GOWUN_BATANG -> Res.string.font_name_gowun_batang
     DiaryFont.NANUM_PEN -> Res.string.font_name_nanum_pen

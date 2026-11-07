@@ -35,9 +35,14 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.DayOfWeek
 import org.jetbrains.compose.resources.StringResource
@@ -45,7 +50,7 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
-import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
@@ -58,6 +63,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
@@ -72,7 +78,6 @@ import org.sjhstudio.diary.core.model.ToneShare
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.compactCount
 import org.sjhstudio.diary.core.ui.MoodFace
-import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
@@ -106,7 +111,6 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_run
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_no_moods
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_no_moods_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_not_enough
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_not_enough_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_all
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_recent
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_range_year
@@ -137,6 +141,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_tue
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_wed
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_when
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_empty
+import org.sjhstudio.diary.feature.insight.resources.insight_write
 
 private val Weekdays: List<Pair<DayOfWeek, StringResource>> =
     listOf(
@@ -176,11 +181,15 @@ internal fun AdvancedEntry(action: StringResource, onClick: () -> Unit) {
  * 기분을 누르면 그 일기들로 간다.
  */
 @Composable
-fun AdvancedStatsRoute(onBack: () -> Unit, onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier) {
+fun AdvancedStatsRoute(onBack: () -> Unit, onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier, onWrite: () -> Unit = {}) {
     val viewModel = koinViewModel<AdvancedStatsViewModel>()
     val period by viewModel.period.collectAsStateWithLifecycle()
     val data by viewModel.data.collectAsStateWithLifecycle()
-    AdvancedStatsScreen(period, data, viewModel::select, onBack, { onMood(it, viewModel.range()) }, modifier)
+    LifecycleResumeEffect(viewModel) {
+        viewModel.refreshToday()
+        onPauseOrDispose {}
+    }
+    AdvancedStatsScreen(period, data, viewModel::select, onBack, { onMood(it, viewModel.range()) }, modifier, onWrite)
 }
 
 @Composable
@@ -190,7 +199,8 @@ internal fun AdvancedStatsScreen(
     onPeriod: (AdvancedPeriod) -> Unit,
     onBack: () -> Unit,
     onMood: (Mood) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onWrite: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -201,29 +211,30 @@ internal fun AdvancedStatsScreen(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
-                .padding(horizontal = DiarySpacing.screenCompact)
+                .padding(horizontal = LocalScreenGutter.current)
                 .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)
         ) {
-            DiarySegmentedTabs(
-                labels =
-                    listOf(
-                        stringResource(Res.string.insight_adv_range_recent),
-                        stringResource(Res.string.insight_adv_range_year),
-                        stringResource(Res.string.insight_adv_range_all)
-                    ),
-                selected = period.ordinal,
-                onSelect = { onPeriod(AdvancedPeriod.entries[it]) }
-            )
+            // 빈 한 줄은 탭 아래 칸이라 다른 묶음 사이보다 가깝게 둔다.
+            Column {
+                DiarySegmentedTabs(
+                    labels =
+                        listOf(
+                            stringResource(Res.string.insight_adv_range_recent),
+                            stringResource(Res.string.insight_adv_range_year),
+                            stringResource(Res.string.insight_adv_range_all)
+                        ),
+                    selected = period.ordinal,
+                    onSelect = { onPeriod(AdvancedPeriod.entries[it]) }
+                )
+                if (stats?.enough == false) {
+                    DiaryEmptyLine(stringResource(Res.string.insight_adv_not_enough), stringResource(Res.string.insight_write), onWrite)
+                }
+            }
             when {
-                stats == null -> SkeletonRows(rows = 5)
+                stats == null -> AdvancedSkeleton()
 
-                !stats.enough ->
-                    DiaryEmptyState(
-                        DiaryIcons.TabInsight,
-                        stringResource(Res.string.insight_adv_not_enough),
-                        description = stringResource(Res.string.insight_adv_not_enough_body)
-                    )
+                !stats.enough -> Unit
 
                 else -> {
                     stats.recent?.let { Recent(it) }
@@ -451,8 +462,8 @@ private fun MoodTimes(stats: AdvancedStats) {
             )
         }
         val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, if (hard) share.hardPercent else share.percent) }
-        val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.body).coerceAtMost(DiarySpacing.x14 * 2)
-        val countWidth = widestText(counts, DiaryTheme.typography.caption)
+        val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.caption).coerceAtMost(DiarySpacing.x14 * 2)
+        val countWidth = widestText(counts, DiaryTheme.typography.captionStrong)
         rows.forEachIndexed { index, (label, share) ->
             ShareRow(label, counts[index], if (hard) share.hardRate else share.rate, labelWidth, countWidth)
         }
@@ -475,7 +486,7 @@ private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp,
         BasicText(
             label,
             Modifier.width(labelWidth),
-            style = typography.body.copy(color = colors.textPrimary),
+            style = typography.caption.copy(color = colors.textSecondary),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -483,7 +494,7 @@ private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp,
         BasicText(
             count,
             Modifier.width(countWidth),
-            style = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End),
+            style = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End),
             maxLines = 1
         )
     }
@@ -564,6 +575,35 @@ private fun Tile(label: String, value: String, modifier: Modifier) {
     val typography = DiaryTheme.typography
     Card(modifier.semantics(mergeDescendants = true) {}) {
         BasicText(label, style = typography.caption.copy(color = colors.textSecondary))
-        BasicText(value, style = typography.title2.copy(color = colors.textPrimary))
+        BasicText(tileValue(value), style = typography.numeral.copy(color = colors.textPrimary, fontWeight = FontWeight.SemiBold))
     }
 }
+
+/**
+ * 숫자를 먼저 읽히게 단위는 작은 보조색으로 둔다.
+ * 색을 더하지 않아도 숫자가 앞에 선다(`docs/design.md` 합계 칸).
+ */
+@Composable
+private fun tileValue(value: String): AnnotatedString {
+    val colors = DiaryTheme.colors
+    val unit = DiaryTheme.typography.caption
+    return remember(value, colors, unit) {
+        val style = SpanStyle(fontSize = unit.fontSize, fontWeight = FontWeight.Medium, color = colors.textSecondary)
+        buildAnnotatedString {
+            append(value)
+            val numbers = NUMBER.findAll(value).toList()
+            var from = 0
+            for (number in numbers) {
+                if (number.range.first > from) addStyle(style, from, number.range.first)
+                from = number.range.last + 1
+                // 맞춤법대로 숫자와 단위는 붙여 쓰되, 크기가 달라 붙어 보이지 않게 끝 숫자 뒤만 살짝 띄운다.
+                addStyle(SpanStyle(letterSpacing = unit.fontSize * UNIT_GAP), number.range.last, from)
+            }
+            // 숫자가 없는 값(시간대)은 그대로 둔다.
+            if (numbers.isNotEmpty() && from < value.length) addStyle(style, from, value.length)
+        }
+    }
+}
+
+private val NUMBER = Regex("[0-9][0-9,.]*")
+private const val UNIT_GAP = 0.2f

@@ -2,6 +2,7 @@ package org.sjhstudio.diary.debug
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -86,7 +87,10 @@ class DevModeActivity : ComponentActivity() {
     }
 
     private fun reset(work: suspend () -> Unit) {
-        lifecycleScope.launch { work() }
+        lifecycleScope.launch {
+            work()
+            Toast.makeText(this@DevModeActivity, "됐어요", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun open(screen: String) {

@@ -56,6 +56,23 @@ fun DiaryEmptyState(
 }
 
 /**
+ * 화면 한 칸만 비었을 때의 한 줄(`docs/design.md` 빈 상태, Figma "S4 · 빈 날").
+ * 달력의 고른 날, 돌아보기의 빈 기간처럼 위에 탭이나 달력이 그대로 있을 때 쓴다.
+ * 아이콘과 큰 제목 없이 `body` 한 줄과 약한 버튼만 둔다. 위아래 24, 사이 12.
+ */
+@Composable
+fun DiaryEmptyLine(text: String, actionLabel: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier.fillMaxWidth().padding(vertical = DiarySpacing.x6),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+    ) {
+        BasicText(text, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary, textAlign = TextAlign.Center))
+        DiaryButton(actionLabel, onAction, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
+    }
+}
+
+/**
  * 빈 상태를 화면 칸에 놓는다.
  * 눈에는 정가운데가 처져 보여서 위 2, 아래 3으로 조금 올린다(Figma "S1 · 빈 상태" 자리).
  * 위아래 칸이 없으면 줄어들어 큰 글씨에서도 잘리지 않는다.

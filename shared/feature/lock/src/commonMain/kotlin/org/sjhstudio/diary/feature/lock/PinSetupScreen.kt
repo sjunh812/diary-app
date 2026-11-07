@@ -13,10 +13,12 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_again
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_mismatch
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_note
+import org.sjhstudio.diary.feature.lock.resources.pin_setup_save_failed
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_title
 
 /**
@@ -34,7 +36,12 @@ fun PinSetupScreen(
 ) {
     PinEntryLayout(
         title = stringResource(if (state.again) Res.string.pin_setup_again else Res.string.pin_setup_title),
-        line = if (state.mismatch) PinLine(stringResource(Res.string.pin_setup_mismatch), DiaryTheme.colors.danger) else null,
+        line =
+            when {
+                state.saveFailed -> PinLine(stringResource(Res.string.pin_setup_save_failed), DiaryTheme.colors.danger)
+                state.mismatch -> PinLine(stringResource(Res.string.pin_setup_mismatch), DiaryTheme.colors.danger)
+                else -> null
+            },
         entered = state.entered,
         wrongCount = state.wrongCount,
         modifier = modifier.pinKeys(enabled = !state.saving, onDigit = onDigit, onDelete = onDelete),
@@ -48,7 +55,7 @@ fun PinSetupScreen(
                 Spacer(Modifier.height(DiarySpacing.x2))
                 DiaryNotice(
                     stringResource(Res.string.pin_setup_note),
-                    Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = DiarySpacing.screenCompact)
+                    Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = LocalScreenGutter.current)
                 )
             }
         }

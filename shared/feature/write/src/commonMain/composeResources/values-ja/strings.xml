@@ -12,6 +12,10 @@
     <string name="write_photo_count">%1$d/%2$d</string>
     <string name="write_photo_remove">写真を外す</string>
     <string name="write_photo_limit">写真は1件につき%1$d枚まで追加できます</string>
+    <string name="write_entry_changed">その間にこの日記が変わりました。保存すると両方残ります。</string>
+    <string name="write_adding_photos">写真を追加しています…</string>
+    <string name="write_discard_edit">変更を破棄</string>
+    <string name="write_discard_edit_title">変更を破棄しますか？</string>
     <string name="write_photo_no_space">空き容量が足りず、一部の写真を追加できませんでした</string>
     <string name="write_photo_unreadable">読み込めない写真がありました</string>
     <string name="write_save_failed">保存できませんでした。書いた内容は残っているので、もう一度タップしてください。</string>

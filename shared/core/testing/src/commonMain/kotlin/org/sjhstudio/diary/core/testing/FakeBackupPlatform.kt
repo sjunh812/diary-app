@@ -8,6 +8,17 @@ import org.sjhstudio.diary.core.platform.NetworkState
 class FakeNetworkState(override var isConnected: Boolean = true, override var isUnmetered: Boolean = true) : NetworkState
 
 class FakeBackupNotifier : BackupNotifier {
+    /** 바로 띄운 알림의 본문. */
+    val shown = mutableListOf<String>()
+
+    /** 값을 넣으면 알림을 띄우다 실패한다. */
+    var showFailure: Exception? = null
+
+    override fun show(title: String, body: String) {
+        showFailure?.let { throw it }
+        shown += body
+    }
+
     var at: Instant? = null
         private set
     var body: String? = null
@@ -15,7 +26,7 @@ class FakeBackupNotifier : BackupNotifier {
     var cancels = 0
         private set
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         this.at = at
         this.body = body
     }
@@ -35,6 +46,13 @@ class FakeBackupScheduler : BackupScheduler {
         restoreKept++
     }
 
+    /** 복원 사진을 기다리는 작업을 맡긴 기록. 값은 Wi-Fi에서만 받는지다. */
+    val photoWaits = mutableListOf<Boolean>()
+
+    override fun waitForPhotoNetwork(wifiOnly: Boolean) {
+        photoWaits += wifiOnly
+    }
+
     var wifiPhotos = 0
         private set
 
@@ -45,6 +63,10 @@ class FakeBackupScheduler : BackupScheduler {
     var daily = false
         private set
     var startedNow = 0
+        private set
+
+    /** 마지막 지금 백업이 이번만 모바일 데이터를 골랐는가. */
+    var lastCellular = false
         private set
 
     override fun scheduleDaily() {
@@ -60,6 +82,7 @@ class FakeBackupScheduler : BackupScheduler {
 
     override fun startNow(cellularOnce: Boolean): Boolean {
         startedNow++
+        lastCellular = cellularOnce
         return takesNow
     }
 }

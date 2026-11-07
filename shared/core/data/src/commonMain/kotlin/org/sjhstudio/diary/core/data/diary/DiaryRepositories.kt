@@ -65,7 +65,12 @@ interface EntryRepository {
  * 수정 화면을 열어 받은 임시 저장본.
  * [resumed]면 전에 남겨 둔 것을 이어 연 것이고, 아니면 일기에서 새로 만든 것이다.
  */
-data class OpenedEdit(val draft: Draft, val resumed: Boolean) {
+data class OpenedEdit(
+    val draft: Draft,
+    val resumed: Boolean,
+    /** 남겨 둔 뒤에 복원이 일기를 바꿨다. 저장하면 두 가지로 남는다. */
+    val entryChanged: Boolean = false
+) {
     override fun toString(): String = "OpenedEdit"
 }
 
@@ -86,6 +91,12 @@ interface DraftRepository {
      * 일기가 없으면 null이다.
      */
     suspend fun openEdit(entryId: String): OpenedEdit?
+
+    /**
+     * 수정용 임시 저장본이 일기와 같은지.
+     * 앱이 다시 떠도 알 수 있어야 손대지 않은 글이 저장본으로 남지 않는다.
+     */
+    suspend fun matchesEntry(key: DraftKey.Edit): Boolean
 
     /**
      * 글과 칩을 쓴다.

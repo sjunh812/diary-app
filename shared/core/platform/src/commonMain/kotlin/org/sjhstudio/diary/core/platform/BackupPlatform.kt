@@ -35,7 +35,13 @@ interface BackupNotifier {
      * 다시 부르면 앞의 예약을 바꾼다.
      * 일기 내용과 개수는 넣지 않는다.
      */
-    fun schedule(at: Instant, title: String, body: String)
+    suspend fun schedule(at: Instant, title: String, body: String)
+
+    /**
+     * 지금 한 번 알린다.
+     * 예약해 둔 알림은 그대로 둔다.
+     */
+    fun show(title: String, body: String)
 
     fun cancel()
 }
@@ -52,6 +58,7 @@ interface BackupScheduler {
     /**
      * 사용자가 누른 지금 백업을 시스템 작업으로 넘긴다.
      * 넘겼으면 true이고, 아니면 앱이 직접 돌린다.
+     * 앞선 요청이 재시도를 기다리고 있으면 이 요청이 대신한다.
      */
     fun startNow(cellularOnce: Boolean): Boolean
 
@@ -63,6 +70,12 @@ interface BackupScheduler {
      * 시스템이 끝까지 지켜 주지 않는 플랫폼은 하지 않는다.
      */
     fun keepRestoreRunning() = Unit
+
+    /**
+     * 복원 사진을 받을 네트워크가 돌아오면 앱을 깨워 잇게 한다.
+     * 시스템이 해 주지 않는 플랫폼은 앱을 다시 열 때 잇는다.
+     */
+    fun waitForPhotoNetwork(wifiOnly: Boolean) = Unit
 }
 
 /**

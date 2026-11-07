@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
@@ -70,7 +71,7 @@ fun LegacyReaderScreen(
             item(key = "notice") {
                 DiaryNotice(
                     stringResource(Res.string.legacy_reader_notice),
-                    Modifier.padding(horizontal = DiarySpacing.screenCompact, vertical = DiarySpacing.x2)
+                    Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
                 )
             }
             if (!state.loading && !state.failed && state.entries.isEmpty()) {

@@ -22,7 +22,10 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
+import org.sjhstudio.diary.core.data.lock.LockRepository
+import org.sjhstudio.diary.core.data.lock.VerifyResult
 import org.sjhstudio.diary.core.datastore.LockStore
+import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
@@ -31,7 +34,9 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 @OptIn(ExperimentalCoroutinesApi::class)
 class LockViewModelTest {
     private val dispatcher = StandardTestDispatcher()
-    private val repository = DefaultLockRepository(LockStore(InMemoryDataStore<Preferences>(emptyPreferences())), FakePinKeyStore())
+    private val dataStore = InMemoryDataStore<Preferences>(emptyPreferences())
+    private val keys = FakePinKeyStore()
+    private val repository = DefaultLockRepository(LockStore(dataStore), keys)
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)
@@ -119,5 +124,124 @@ class LockViewModelTest {
         assertEquals(true, vm.back())
         assertEquals(PinSetupUiState(), vm.state.value)
         assertEquals(false, vm.back())
+    }
+
+    /** 기기 키를 못 만들면 꺼지지 않고 안내한 뒤 처음부터 다시 받는다. 잠금은 켜지지 않는다. */
+    @Test
+    fun a_pin_that_cannot_be_saved_says_so_and_starts_over() = runTest(dispatcher) {
+        val vm = PinSetupViewModel(repository)
+        var done = 0
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.done.collect { done++ } }
+        keys.failMaking = true
+
+        "2580".forEach(vm::onDigit)
+        "2580".forEach(vm::onDigit)
+        advanceUntilIdle()
+
+        assertEquals(0, done, "저장하지 못했으면 열면 안 된다")
+        assertEquals(PinSetupUiState(saveFailed = true), vm.state.value)
+
+        vm.onDigit('1')
+        assertEquals(false, vm.state.value.saveFailed)
+    }
+
+    /** 공간이 꽉 차 비밀번호를 못 적어도 같다. */
+    @Test
+    fun a_full_disk_while_saving_the_pin_does_not_open_the_app() = runTest(dispatcher) {
+        val vm = PinSetupViewModel(repository)
+        var done = 0
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.done.collect { done++ } }
+        dataStore.failWrites = true
+
+        "2580".forEach(vm::onDigit)
+        "2580".forEach(vm::onDigit)
+        advanceUntilIdle()
+
+        assertEquals(0, done)
+        assertEquals(true, vm.state.value.saveFailed)
+    }
+
+    /** 키를 쓸 수 없으면 열지 않고 복구 길로 보낸다. */
+    @Test
+    fun a_keystore_crash_goes_to_recovery_and_never_unlocks() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        keys.failMac = true
+        val vm = LockViewModel(repository, clock())
+        val events = mutableListOf<LockEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(events) }
+
+        vm.type("0427")
+        advanceUntilIdle()
+
+        assertEquals(listOf<LockEvent>(LockEvent.KeyMissing), events)
+        assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)
+    }
+
+    /** 저장소 구현이 예외를 던져도 숫자판이 멈추거나 꺼지지 않는다. */
+    @Test
+    fun a_repository_crash_keeps_the_lock_screen_alive() = runTest(dispatcher) {
+        val broken =
+            object : LockRepository by repository {
+                override suspend fun verify(pin: Pin, now: Instant): VerifyResult = error("읽을 수 없음")
+            }
+        val vm = LockViewModel(broken, clock())
+        val events = mutableListOf<LockEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(events) }
+
+        vm.type("0427")
+        advanceUntilIdle()
+
+        assertEquals(listOf<LockEvent>(LockEvent.KeyMissing), events)
+        assertEquals(false, vm.state.value.checking)
+    }
+
+    @Test
+    fun wrong_pin_on_a_full_disk_keeps_counting() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        dataStore.failWrites = true
+        val vm = LockViewModel(repository, clock())
+
+        vm.type("1111")
+        advanceUntilIdle()
+
+        assertEquals(LockMessage.Wrong(4), vm.state.value.message)
+    }
+
+    @Test
+    fun turning_off_that_cannot_be_saved_says_so() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        dataStore.failWrites = true
+        val vm = LockViewModel(repository, clock())
+        val events = mutableListOf<LockEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.events.toList(events) }
+        vm.start(PinCheck.Disable)
+
+        vm.type("0427")
+        advanceUntilIdle()
+
+        assertEquals(emptyList<LockEvent>(), events)
+        assertEquals(LockMessage.NotSaved, vm.state.value.message)
+    }
+
+    /** 끄지 못했는데 끈 것처럼 앱을 열면 안 된다. 그대로 잠근 채 알린다. */
+    @Test
+    fun a_lock_that_cannot_be_turned_off_stays_locked_and_says_so() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        keys.failMac = true
+        val vm = LockViewModel(repository, clock())
+
+        assertEquals(false, vm.turnOffWithoutPin())
+        assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)
+    }
+
+    @Test
+    fun a_full_disk_while_turning_off_does_not_crash() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        keys.lose(LockSettings.DEFAULT_KEY_ALIAS)
+        dataStore.failWrites = true
+        val vm = LockViewModel(repository, clock())
+
+        assertEquals(false, vm.turnOffWithoutPin())
+        assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)
     }
 }

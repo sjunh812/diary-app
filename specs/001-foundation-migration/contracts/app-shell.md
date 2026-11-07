@@ -38,7 +38,7 @@
 | `FontLicenseKey(fontId)` | settings | 글꼴 하나의 라이선스 전문 |
 | `LibraryLicenseKey(libraryId)` | settings | 라이브러리 하나의 라이선스 전문 |
 
-뒤로 가기는 Navigation 3 기본. 잠금·이전 화면은 화면 키가 아니라 관문이라 뒤로 가기로 벗어날 수 없다.
+뒤로 가기는 스펙 002 `contracts/navigation.md`를 따른다. 탭마다 화면을 따로 쌓는다. 잠금·이전 화면은 화면 키가 아니라 관문이라 뒤로 가기로 벗어날 수 없다.
 
 ## 사용 통계 고정 표 (`AnalyticsEvents`)
 

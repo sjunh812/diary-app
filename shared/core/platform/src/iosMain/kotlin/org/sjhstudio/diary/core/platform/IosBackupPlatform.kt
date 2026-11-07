@@ -133,7 +133,7 @@ class IosFreeSpace : FreeSpace {
 class IosBackupNotifier(private val clock: Clock = Clock.System) : BackupNotifier {
     private val center get() = UNUserNotificationCenter.currentNotificationCenter()
 
-    override fun schedule(at: Instant, title: String, body: String) {
+    override suspend fun schedule(at: Instant, title: String, body: String) {
         val content = UNMutableNotificationContent().apply {
             setTitle(title)
             setBody(body)
@@ -143,6 +143,14 @@ class IosBackupNotifier(private val clock: Clock = Clock.System) : BackupNotifie
         center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier(ID, content, trigger), null)
     }
 
+    override fun show(title: String, body: String) {
+        val content = UNMutableNotificationContent().apply {
+            setTitle(title)
+            setBody(body)
+        }
+        center.addNotificationRequest(UNNotificationRequest.requestWithIdentifier(NOTICE_ID, content, null), null)
+    }
+
     override fun cancel() {
         center.removePendingNotificationRequestsWithIdentifiers(listOf(ID))
         center.removeDeliveredNotificationsWithIdentifiers(listOf(ID))
@@ -150,5 +158,6 @@ class IosBackupNotifier(private val clock: Clock = Clock.System) : BackupNotifie
 
     private companion object {
         const val ID = "backup.long-failure"
+        const val NOTICE_ID = "backup.notice"
     }
 }

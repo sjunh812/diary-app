@@ -7,16 +7,37 @@ import okio.Source
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PhotoProgress
+import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.RollbackRun
+import org.sjhstudio.diary.core.model.WaitingPhotos
+
+/** 묶음 파일 만들기. */
+interface BundleFiles {
+    /** 파일로 만들면 담길 수와 어림 크기. */
+    suspend fun bundleEstimate(): BundleEstimate
+
+    /** 일기와 사진을 zip 하나로 [sink]에 스트리밍으로 쓴다(FR-031). */
+    suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
+
+    /**
+     * 만들던 묶음 파일이 앱이 꺼져서 끝나지 못했으면 한 번 true다.
+     * 지금 만드는 중이면 false다.
+     */
+    suspend fun takeStoppedBundle(): Boolean
+
+    /** 사용자가 파일 만들기를 멈췄다. 다음에 알릴 일이 아니다. */
+    fun forgetStoppedBundle()
+}
 
 /**
  * 화면이 쓰는 복원하기 입구.
  * 일기 내용은 여기를 지나지 않고 숫자만 지나간다.
  */
-interface RestoreRepository {
+interface RestoreRepository : BundleFiles {
     val state: StateFlow<RestoreState>
 
     /**
@@ -48,30 +69,48 @@ interface RestoreRepository {
 
     /**
      * 바꾸기 전으로 돌아간다.
+     * 복원이나 백업이 돌고 있으면 끝날 때까지 기다린다.
      * 되돌리지 못하면 false다.
      */
     suspend fun rollBack(): Boolean
 
-    /** 파일로 만들면 담길 수와 어림 크기. */
-    suspend fun bundleEstimate(): BundleEstimate
+    /** 되돌리기 진행. 화면을 떠났다 돌아와도 결과가 보인다. */
+    val rollbackRun: StateFlow<RollbackRun>
 
-    /** 일기와 사진을 zip 하나로 [sink]에 스트리밍으로 쓴다(FR-031). */
-    suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
+    /**
+     * 드라이브에서 지워진 백업 폴더를 새로 만들었다.
+     * 알림을 끈 사람도 볼 수 있게 화면에서도 알린다.
+     */
+    val folderRecreated: Flow<Boolean>
+
+    fun dismissFolderRecreated()
 
     /**
      * 사용자가 고른 파일을 앱 안으로 옮겨 확인한다.
      * 미리보기는 [RESTORE_FROM_FILE]로 다시 읽는다.
+     * [byteSize]를 알면 옮기기 전에 공간이 되는지 먼저 본다.
      */
-    suspend fun prepareFile(source: Source): RestorePreparation
+    suspend fun prepareFile(source: Source, byteSize: Long? = null): RestorePreparation
 
     /** 결과 화면을 닫을 때 부른다. */
     fun dismiss()
 
     /**
-     * 앱을 열 때 부른다.
+     * 앱을 열 때와 네트워크가 돌아올 때 부른다.
      * 전에 다 못 받은 사진을 이어 받는다(FR-024).
+     * 지금은 받을 수 없어 나중에 다시 불러야 하면 true다.
      */
-    suspend fun resumePhotos()
+    suspend fun resumePhotos(): Boolean
+
+    /** 사용자가 누른 지금 받기. 모바일 데이터여도 이번만 받는다. */
+    fun fetchPhotosNow()
+
+    /**
+     * 받다가 멈췄거나 받는 중인 사진.
+     * 받을 수 있는 사진이 없으면 null이다.
+     * 백업에 없어 받을 수 없는 사진은 세지 않는다.
+     */
+    val waitingPhotos: Flow<WaitingPhotos?>
 
     /**
      * 사진을 받는 동안의 진행.
@@ -83,5 +122,5 @@ interface RestoreRepository {
      * 마지막으로 끝난 사진 받기의 결과.
      * 흐름은 빠른 값을 건너뛰므로 끝 값은 여기서 읽는다.
      */
-    val lastPhotoRun: PhotoProgress?
+    val lastPhotoRun: PhotoRun?
 }

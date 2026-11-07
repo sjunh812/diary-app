@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,23 +60,28 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
+import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
-import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.OnTabReselected
+import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
+import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberShareText
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.detail_edit
 import org.sjhstudio.diary.feature.home.resources.detail_favorite
 import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
+import org.sjhstudio.diary.feature.home.resources.detail_unfavorite
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_body
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
@@ -103,7 +109,7 @@ fun HomeRoute(
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
     listTop: @Composable () -> Unit = {},
-    adSlot: @Composable (Int) -> Unit = {}
+    adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> }
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
@@ -114,19 +120,24 @@ fun HomeRoute(
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
     val grid = rememberLazyGridState()
+    OnTabReselected {
+        if (style == ListStyle.PHOTO_GRID) grid.animateScrollToItem(0) else list.animateScrollToItem(0)
+    }
     val scope = rememberCoroutineScope()
     val dates = rememberDiaryDateFormat()
-    val today = remember { currentDate() }
+    val today = rememberToday()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 목록이 비어 있으면 오늘이 든 달을 보인다.
     // 스크롤마다 화면을 다시 그리지 않게 맨 위 일기가 바뀔 때만 값이 바뀐다.
-    val shown by remember(rows, list, grid, today) {
+    val visible by remember(rows, list, grid) {
         derivedStateOf {
             val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
-            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date } ?: today
+            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date }
         }
     }
+    var held by remember { mutableStateOf<LocalDate?>(null) }
+    SideEffect { visible?.let { held = it } }
+    val shown = shownDate(visible, held, rows.itemCount > 0, today)
     HomeScreen(
         title = dates.yearMonth(shown),
         rows = rows,
@@ -151,24 +162,26 @@ fun HomeRoute(
     menuFor?.let { id ->
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
         val share = rememberShareText()
-        DiaryBottomSheet(onDismiss = { menuFor = null }) {
-            DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), DiaryTheme.colors.textPrimary) {
+        EntryMenu(
+            favorite = rows.itemSnapshotList.items.firstOrNull { it.id == id }?.isFavorite == true,
+            onDismiss = { menuFor = null },
+            onEdit = {
                 menuFor = null
                 onEdit(id)
-            }
-            DiarySheetAction(DiaryIcons.StarOutline, stringResource(Res.string.detail_favorite), DiaryTheme.colors.textPrimary) {
+            },
+            onFavorite = {
                 menuFor = null
                 viewModel.toggleFavorite(id)
-            }
-            DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), DiaryTheme.colors.textPrimary) {
+            },
+            onShare = {
                 menuFor = null
                 scope.launch { viewModel.plainText(id)?.let(share) }
-            }
-            DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), DiaryTheme.colors.danger) {
+            },
+            onTrash = {
                 menuFor = null
                 viewModel.moveToTrash(id) { onTrashed(id) }
             }
-        }
+        )
     }
     if (picking) {
         DiaryMonthSheet(
@@ -188,6 +201,42 @@ fun HomeRoute(
         )
     }
 }
+
+/**
+ * 일기 줄을 길게 눌렀을 때의 메뉴.
+ * 즐겨찾기는 그 일기의 상태에 따라 넣기와 해제로 바뀐다.
+ */
+@Composable
+internal fun EntryMenu(
+    favorite: Boolean,
+    onDismiss: () -> Unit,
+    onEdit: () -> Unit,
+    onFavorite: () -> Unit,
+    onShare: () -> Unit,
+    onTrash: () -> Unit
+) {
+    val colors = DiaryTheme.colors
+    DiaryBottomSheet(onDismiss = onDismiss) {
+        DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), colors.textPrimary, onClick = onEdit)
+        DiarySheetAction(
+            if (favorite) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
+            stringResource(if (favorite) Res.string.detail_unfavorite else Res.string.detail_favorite),
+            colors.textPrimary,
+            onClick = onFavorite
+        )
+        DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), colors.textPrimary, onClick = onShare)
+        DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), colors.danger, onClick = onTrash)
+    }
+}
+
+/**
+ * 제목에 보일 날짜.
+ * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜를 둔다.
+ * 오늘로 튀었다 돌아오면 제목이 반짝인다.
+ * 목록이 비어 있으면 오늘이 든 달을 보인다.
+ */
+internal fun shownDate(visible: LocalDate?, held: LocalDate?, hasRows: Boolean, today: LocalDate): LocalDate =
+    visible ?: held?.takeIf { hasRows } ?: today
 
 @Composable
 internal fun HomeScreen(
@@ -209,7 +258,7 @@ internal fun HomeScreen(
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
     listTop: @Composable () -> Unit = {},
-    adSlot: @Composable (Int) -> Unit = {}
+    adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> }
 ) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
@@ -217,7 +266,7 @@ internal fun HomeScreen(
             // 일기가 없으면 고를 달도 없다.
             // 불러오는 동안에는 화살표가 깜빡이지 않게 그대로 둔다.
             val noMonths = rows.itemCount == 0 && rows.loadState.refresh is LoadState.NotLoading
-            DiaryTitleButton(title, onPickMonth.takeUnless { noMonths }, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+            DiaryTitleButton(title, onPickMonth.takeUnless { noMonths }, Modifier.padding(horizontal = LocalScreenGutter.current))
             Spacer(Modifier.height(DiarySpacing.x1))
             backupLine()
             // 스크롤하면 나타나는 선이 백업 문구에 붙지 않게 띄운다.
@@ -236,15 +285,20 @@ internal fun HomeScreen(
                 }
 
                 refresh is LoadState.NotLoading -> {
-                    ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
+                    ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
                     Empty(favoritesOnly, onWrite)
                 }
 
                 refresh is LoadState.Error -> LoadFailed(rows::retry)
 
                 else -> {
-                    ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact))
-                    SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                    ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                    // 곧 나올 목록과 같은 꼴을 그린다.
+                    when (style) {
+                        ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                        ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
+                        ListStyle.PHOTO_GRID -> SkeletonPhotoGrid()
+                    }
                 }
             }
         }
@@ -340,12 +394,12 @@ private fun Feed(
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
     listTop: @Composable () -> Unit,
-    adSlot: @Composable (Int) -> Unit
+    adSlot: @Composable (Int, Modifier) -> Unit
 ) {
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)) {
-        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.screenCompact)) }
+        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current)) }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
             val row = rows[index]
             if (row == null) {
@@ -377,7 +431,13 @@ private fun Feed(
                                 onClick = { onOpen(row.id) }
                             )
                 )
-                if (isAdSlot(index)) Box(Modifier.padding(horizontal = DiarySpacing.screenCompact)) { adSlot(adOrder(index)) }
+                // 광고가 없는 사람에게 빈 틈이 남지 않게 여백은 광고에만 준다.
+                if (isAdSlot(
+                        index
+                    )
+                ) {
+                    adSlot(adOrder(index), Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3))
+                }
             }
         }
     }

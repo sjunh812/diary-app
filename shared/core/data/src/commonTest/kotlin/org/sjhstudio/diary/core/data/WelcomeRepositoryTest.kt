@@ -58,13 +58,13 @@ class WelcomeRepositoryTest {
     fun one_tip_per_session_and_never_again_once_closed() = runTest {
         val session = repository()
 
-        assertTrue(session.claim(ContextTip.CALENDAR_FACE))
-        assertFalse(session.claim(ContextTip.CALENDAR_FACE))
+        assertTrue(session.claim(ContextTip.INSIGHT_MOOD))
+        assertFalse(session.claim(ContextTip.INSIGHT_MOOD))
 
         val next = repository()
-        assertTrue(next.claim(ContextTip.CALENDAR_FACE))
-        next.done(ContextTip.CALENDAR_FACE)
+        assertTrue(next.claim(ContextTip.INSIGHT_MOOD))
+        next.done(ContextTip.INSIGHT_MOOD)
 
-        assertFalse(repository().claim(ContextTip.CALENDAR_FACE))
+        assertFalse(repository().claim(ContextTip.INSIGHT_MOOD))
     }
 }

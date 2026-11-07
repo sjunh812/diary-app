@@ -153,8 +153,8 @@ Android 시스템 백업(클라우드 자동 백업, 기기 간 이전)에는 �
      어느 단계든 실패 → [Failed(kind)] → 다음 시도는 처음부터 다시 계획하되, 드라이브에 이미 있는 사진과 세션 주소가 살아 있는 파일은 이어서
 
 복원:
-[Downloading] → [Verifying] → [Previewing] --사용자 확인--> [Applying(한 트랜잭션)] → [FetchingPhotos] → [Done]
+[Downloading] → [Verifying] → [Previewing] --사용자 확인--> ([WaitingForBackup]) → [Applying(한 트랜잭션)] → [FetchingPhotos] → [Done]
    Verifying 실패 → [Failed(MISMATCH)] 기기 기록은 그대로
    Applying 전 취소 → 아무것도 바뀌지 않음
-   FetchingPhotos 중 끊김 → 다음 실행에서 pending 줄만 이어 받기
+   FetchingPhotos 중 끊김 → 다음 실행에서 pending 줄만 이어 받기(멈춘 까닭은 PhotoStop으로 남긴다)
 ```

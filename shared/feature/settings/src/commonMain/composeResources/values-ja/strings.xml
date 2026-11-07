@@ -28,6 +28,7 @@
     <string name="licenses_group_fonts">フォント</string>
     <string name="licenses_group_libraries">ライブラリ</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
+    <string name="license_binggrae">Binggrae フォントライセンス</string>
     <string name="license_naver">NAVERフォントライセンス</string>
     <string name="settings_text_size">本文の文字サイズ</string>
     <string name="settings_theme">表示モード</string>
@@ -57,7 +58,7 @@
     <string name="font_name_system">システムフォント</string>
     <string name="font_name_pretendard">Pretendard</string>
     <string name="font_name_gowun_dodum">Gowun Dodum</string>
-    <string name="font_name_cafe24_surround">Cafe24 Ssurround</string>
+    <string name="font_name_binggrae">Binggrae</string>
     <string name="font_name_maru_buri">Maru Buri</string>
     <string name="font_name_gowun_batang">Gowun Batang</string>
     <string name="font_name_nanum_pen">Nanum Pen</string>
@@ -106,8 +107,8 @@
     <string name="list_style_photo">写真グリッド</string>
     <string name="settings_letter">開発者からの手紙</string>
     <string name="settings_plus">Plus</string>
-    <string name="settings_plus_title">広告なしで、もっと残せます</string>
-    <string name="settings_plus_title_ad_free">日記ごとにもっと残せます</string>
+    <string name="settings_plus_title">広告なしで、もっとゆったり使えます</string>
+    <string name="settings_plus_title_ad_free">日記をもっとゆったり使えます</string>
     <string name="settings_dev_mode">開発者モード</string>
     <string name="settings_plus_body">日記ごとに写真30枚、チェックリスト、詳しい統計が使えます。</string>
     <string name="settings_plus_action">Plusを見る</string>

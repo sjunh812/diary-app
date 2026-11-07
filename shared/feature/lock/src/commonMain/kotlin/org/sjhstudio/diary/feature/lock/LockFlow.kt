@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -33,6 +34,7 @@ private enum class LockStep { Enter, NewPin }
  * 잠금 관문 안쪽 흐름(contracts/lock.md).
  * 잠금 화면 → "비밀번호를 잊어버렸어요" → 폰 화면 잠금 확인 → 새 비밀번호 정하기.
  * [needsNewPin]이면(키 없음) 숫자판 대신 바로 폰 화면 잠금 확인으로 가고, 폰에 화면 잠금이 없으면 잠금을 끄고 알린다.
+ * 잠금을 끄지 못하면 앱을 열지 않고 [onKeepLock]로 잠금 화면에 남는다.
  * [withoutRelock]은 폰 잠금 확인으로 앱이 잠깐 가려지는 동안 다시 잠그지 않게 감싼다.
  * [authenticator]는 시험이 시스템 인증 창 대신 대역을 넣는 자리다.
  */
@@ -43,6 +45,7 @@ fun LockFlow(
     biometricEnabled: Boolean,
     onUnlocked: () -> Unit,
     onKeyMissing: () -> Unit,
+    onKeepLock: () -> Unit,
     onLockTurnedOff: (message: String) -> Unit,
     withoutRelock: suspend (suspend () -> AuthResult) -> AuthResult,
     authenticator: DeviceAuthenticator = rememberDeviceAuthenticator()
@@ -65,6 +68,7 @@ fun LockFlow(
         )
     val ownerPrompt = AuthPrompt(stringResource(Res.string.forgot_prompt_title), stringResource(DsRes.string.ds_close))
     val turnedOff = stringResource(Res.string.lock_turned_off)
+    val keepLocked by rememberUpdatedState(onKeepLock)
 
     LaunchedEffect(lock) {
         lock.events.collect { event ->
@@ -87,9 +91,10 @@ fun LockFlow(
         if (!needsNewPin) return@LaunchedEffect
         if (authenticator.isDeviceSecure()) {
             asking = true
-        } else {
-            lock.turnOffWithoutPin()
+        } else if (lock.turnOffWithoutPin()) {
             onLockTurnedOff(turnedOff)
+        } else {
+            keepLocked()
         }
     }
 

@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.data.diary
 
+import androidx.room3.withWriteTransaction
 import kotlin.math.ceil
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -22,6 +23,7 @@ class DefaultTrashRepository(
     private val photoRefreshEvery: Duration = PHOTO_REFRESH_EVERY
 ) : TrashRepository {
     private val entries get() = db.entryDao()
+    private val drafts get() = db.draftDao()
 
     override fun items(): Flow<List<TrashedEntry>> = combine(
         entries.trashed(),
@@ -37,12 +39,26 @@ class DefaultTrashRepository(
 
     override suspend fun restore(id: String) = entries.setDeletedAt(id, null, clock.now().toEpochMilliseconds())
 
-    override suspend fun deleteForever(ids: List<String>) = ids.chunked(CHUNK).forEach { entries.deleteTrashed(it) }
+    // 완전히 지운 일기의 글과 사진이 고치던 임시 저장본에 남으면 안 된다(헌법 II).
+    // 임시 저장본이 사라지면 그 사진 파일도 다음 사진 정리에서 함께 지워진다.
+    override suspend fun deleteForever(ids: List<String>) = ids.chunked(CHUNK).forEach { chunk ->
+        db.withWriteTransaction {
+            drafts.deleteTrashed(chunk)
+            entries.deleteTrashed(chunk)
+        }
+    }
 
-    override suspend fun empty() = entries.deleteAllTrashed()
+    override suspend fun empty() = db.withWriteTransaction {
+        drafts.deleteAllTrashed()
+        entries.deleteAllTrashed()
+    }
 
     override suspend fun purgeExpired(now: Instant) {
-        entries.purgeBefore((now - KEEP).toEpochMilliseconds())
+        val before = (now - KEEP).toEpochMilliseconds()
+        db.withWriteTransaction {
+            drafts.purgeBefore(before)
+            entries.purgeBefore(before)
+        }
     }
 
     private companion object {

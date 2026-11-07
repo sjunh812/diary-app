@@ -3,10 +3,15 @@ package org.sjhstudio.diary.feature.backup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Buffer
 import okio.BufferedSink
 import okio.Sink
@@ -25,11 +30,13 @@ sealed interface FileBackupUi {
 
     data class Saved(val name: String, val bytes: Long) : FileBackupUi
 
-    data object WriteFailed : FileBackupUi
+    /** [left]면 쓰다 만 파일을 지우지 못했다. 사용자가 지워야 한다. */
+    data class WriteFailed(val left: Boolean) : FileBackupUi
 
     data object Reading : FileBackupUi
 
-    data class ReadFailed(val reason: RestoreFailure) : FileBackupUi
+    /** [bytesShort]는 공간이 얼마나 더 있어야 하는지다. 모르면 0이다. */
+    data class ReadFailed(val reason: RestoreFailure, val bytesShort: Long = 0) : FileBackupUi
 }
 
 class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() {
@@ -43,41 +50,65 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
         viewModelScope.launch { _estimate.value = restore.bundleEstimate() }
     }
 
+    private var writing: Job? = null
+
     /**
      * 저장 위치가 정해지면 부른다.
      * [open]은 그곳에 쓰는 흐름을 연다.
+     * 끝까지 쓰지 못하면 [discard]로 지운다.
+     * 쓰다 만 파일이 완성본 이름으로 남아 나중에 복원을 시도하게 두지 않는다.
      */
-    fun write(name: String, open: () -> BufferedSink) {
+    fun write(name: String, open: () -> BufferedSink, discard: suspend () -> Unit = {}) {
         _state.value = FileBackupUi.Writing(0, 1)
-        viewModelScope.launch {
-            _state.value =
-                try {
-                    val counted = CountingSink(open())
-                    counted.buffer().use { sink ->
-                        restore.writeBundle(sink) { done, total ->
-                            _state.value =
-                                FileBackupUi.Writing(done, total)
+        writing =
+            viewModelScope.launch {
+                _state.value =
+                    try {
+                        val counted = CountingSink(open())
+                        counted.buffer().use { sink ->
+                            restore.writeBundle(sink) { done, total ->
+                                _state.value =
+                                    FileBackupUi.Writing(done, total)
+                            }
                         }
+                        FileBackupUi.Saved(name, counted.written)
+                    } catch (error: CancellationException) {
+                        withContext(NonCancellable) { removed(discard) }
+                        throw error
+                    } catch (_: Exception) {
+                        FileBackupUi.WriteFailed(left = !removed(discard))
                     }
-                    FileBackupUi.Saved(name, counted.written)
-                } catch (error: CancellationException) {
-                    throw error
-                } catch (_: Exception) {
-                    FileBackupUi.WriteFailed
-                }
-        }
+            }
+    }
+
+    private suspend fun removed(discard: suspend () -> Unit): Boolean = try {
+        discard()
+        true
+    } catch (error: CancellationException) {
+        throw error
+    } catch (_: Exception) {
+        false
+    }
+
+    /** 사용자가 나가기로 해서 멈춘다. 만들던 파일은 지운다. */
+    fun stop() {
+        writing?.cancel()
+        restore.forgetStoppedBundle()
+        _state.value = FileBackupUi.Idle
     }
 
     /**
      * 고른 파일을 앱 안으로 옮겨 확인한다.
      * 끝나면 [onReady]로 미리보기에 간다.
+     * [size]는 고른 파일의 크기다.
+     * 몰라도 옮기다 공간이 차면 그렇게 알린다.
      */
-    fun read(open: () -> Source, onReady: () -> Unit) {
+    fun read(open: () -> Source, size: () -> Long? = { null }, onReady: () -> Unit) {
         _state.value = FileBackupUi.Reading
         viewModelScope.launch {
             val result =
                 try {
-                    open().use { source -> restore.prepareFile(source) }
+                    open().use { source -> restore.prepareFile(source, withContext(Dispatchers.IO) { size() }) }
                 } catch (error: CancellationException) {
                     throw error
                 } catch (_: Exception) {
@@ -89,7 +120,7 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
                     onReady()
                 }
 
-                is RestorePreparation.Failed -> _state.value = FileBackupUi.ReadFailed(result.reason)
+                is RestorePreparation.Failed -> _state.value = FileBackupUi.ReadFailed(result.reason, result.bytesShort)
             }
         }
     }

@@ -343,6 +343,30 @@ class BundleDamageTest {
         assertTrue(copiesLeft().isEmpty())
     }
 
+    /** 공간이 찬 것을 파일이 깨졌다고 말하지 않는다. */
+    @Test
+    fun a_full_disk_is_not_called_a_broken_file() = runTest {
+        scope = backgroundScope
+        val zip = export()
+        b.freeBytes = 1024
+
+        val full = JammedFiles(fs) { it.name == "picked" }
+        val failed = assertIs<RestorePreparation.Failed>(b.controller(scope, files = full).pick(zip))
+
+        assertEquals(RestoreFailure.NO_SPACE, failed.reason)
+        assertTrue(copiesLeft().isEmpty())
+    }
+
+    @Test
+    fun a_broken_file_on_a_phone_with_space_is_still_a_broken_file() = runTest {
+        scope = backgroundScope
+        val full = JammedFiles(fs) { it.name == "picked" }
+
+        val failed = assertIs<RestorePreparation.Failed>(b.controller(scope, files = full).pick(export()))
+
+        assertEquals(RestoreFailure.MISMATCH, failed.reason)
+    }
+
     @Test
     fun an_export_cut_midway_leaves_no_copy_and_the_diary_as_it_was() = runTest {
         scope = backgroundScope

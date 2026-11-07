@@ -5,12 +5,15 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.DiaryDatabaseConstructor
+import org.sjhstudio.diary.core.database.DraftEntity
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.SyncBaseEntity
@@ -104,6 +107,21 @@ class MergeApplierTest {
 
         assertEquals("새 글", assertNotNull(db.entryDao().get("a")).plainText)
         assertEquals(listOf("new"), db.backupDao().allMedia().map { it.id })
+    }
+
+    @Test
+    fun a_merge_that_changes_an_entry_marks_its_left_draft() = runTest {
+        db.entryDao().insertAll(listOf(entry("a", 5), entry("b", 5)))
+        db.backupDao().setBase(listOf(SyncBaseEntity("a", 5), SyncBaseEntity("b", 5)))
+        val at = now.toEpochMilliseconds()
+        listOf("a", "b").forEach {
+            db.draftDao().upsert(DraftEntity(it, "2026-11-01", "21:00", "<p>$it</p>", null, null, null, false, false, at))
+        }
+
+        merge(MergeEntry(entry("a", 9, "새 글"), emptyList()), MergeEntry(entry("b", 5), emptyList()))
+
+        assertTrue(assertNotNull(db.draftDao().get("a")).entryChanged)
+        assertFalse(assertNotNull(db.draftDao().get("b")).entryChanged)
     }
 
     @Test
