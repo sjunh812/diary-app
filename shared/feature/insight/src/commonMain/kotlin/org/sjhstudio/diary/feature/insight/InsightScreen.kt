@@ -201,7 +201,7 @@ internal fun InsightScreen(
                     if (advancedOpen) onAdvanced else onPlus,
                     size = DiaryButtonSize.Small,
                     kind = DiaryButtonKind.Weak,
-                    leadingIcon = DiaryIcons.SparklesSolid
+                    leadingIcon = DiaryIcons.Sparkles
                 )
             }
             BasicText(
@@ -341,7 +341,8 @@ private fun Content(
     // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
     val names = rows.map { (mood, _) -> moodName(mood) }
     val amounts = rows.map { (_, count) -> moodAmount(count, percentOf(count, counts.total)) }
-    val nameWidth = widestText(names, DiaryTheme.typography.caption)
+    // 글자가 아주 커져도 막대 자리가 남게 이름 칸 끝을 막는다.
+    val nameWidth = widestText(names, DiaryTheme.typography.caption).coerceAtMost(DiarySpacing.x14 * 2)
     val amountWidth = widestText(amounts, DiaryTheme.typography.captionStrong)
     rows.forEachIndexed { index, (mood, count) ->
         MoodBar(mood, count, most, names[index], nameWidth, amounts[index], amountWidth, onMood)

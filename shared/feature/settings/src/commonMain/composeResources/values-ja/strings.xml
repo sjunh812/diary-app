@@ -21,9 +21,9 @@
     <string name="migration_report_contact">お問い合わせ</string>
 
     <!-- 設定(S6) -->
-    <string name="settings_group_feedback">ご意見と評価</string>
+    <string name="settings_group_feedback">フィードバック</string>
     <string name="settings_feedback">ご意見を送る</string>
-    <string name="settings_rate">アプリを評価する</string>
+    <string name="settings_rate">レビューを書く</string>
     <string name="settings_version">アプリのバージョン</string>
     <string name="settings_plus_badge">Plus 利用中</string>
     <string name="settings_feedback_subject">1日1日記へのフィードバック</string>

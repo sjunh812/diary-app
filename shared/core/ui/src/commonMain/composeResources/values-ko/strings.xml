@@ -25,4 +25,8 @@
     <string name="entry_menu_unfavorite">즐겨찾기 해제</string>
     <string name="entry_menu_share">공유하기</string>
     <string name="entry_menu_trash">휴지통으로 옮기기</string>
+    <string name="ui_previous_year">이전 해</string>
+    <string name="ui_next_year">다음 해</string>
+    <string name="ui_previous_month">이전 달</string>
+    <string name="ui_next_month">다음 달</string>
 </resources>

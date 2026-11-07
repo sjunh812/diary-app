@@ -165,7 +165,7 @@ private fun PageColumn(content: @Composable ColumnScope.() -> Unit) {
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .heightIn(min = maxHeight)
-                .padding(horizontal = DiarySpacing.x6),
+                .padding(horizontal = LocalScreenGutter.current),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             content = content
@@ -245,7 +245,7 @@ private fun Dots(count: Int, current: Int) {
                 Modifier
                     .size(DiarySpacing.x2)
                     .clip(DiaryShapes.full)
-                    .background(if (index == current) colors.accent else colors.lineStrong)
+                    .background(if (index == current) colors.textPrimary else colors.textTertiary)
             )
         }
     }

@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.designsystem.component
 
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -41,7 +42,7 @@ fun DiaryProgressBar(progress: Float, modifier: Modifier = Modifier, onSunken: B
                 .background(if (onSunken) DiaryTheme.colors.lineStrong else DiaryTheme.colors.sunken)
                 .semantics { progressBarRangeInfo = ProgressBarRangeInfo(value, 0f..1f) }
     ) {
-        Box(Modifier.fillMaxWidth(value).fillMaxHeight().clip(DiaryShapes.full).background(DiaryTheme.colors.accent))
+        Box(Modifier.fillMaxWidth(value).fillMaxHeight().clip(DiaryShapes.full).background(DiaryTheme.colors.accentText))
     }
 }
 
@@ -55,7 +56,7 @@ fun DiaryIndeterminateProgressBar(modifier: Modifier = Modifier) {
     val offset by transition.animateFloat(
         initialValue = -0.3f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(durationMillis = 1_200, easing = DiaryMotion.decelerate))
+        animationSpec = infiniteRepeatable(tween(durationMillis = 1_200, easing = LinearEasing))
     )
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth().height(8.dp).clip(DiaryShapes.full).background(DiaryTheme.colors.sunken)
@@ -66,7 +67,7 @@ fun DiaryIndeterminateProgressBar(modifier: Modifier = Modifier) {
                 .fillMaxWidth(0.3f)
                 .fillMaxHeight()
                 .clip(DiaryShapes.full)
-                .background(DiaryTheme.colors.accent)
+                .background(DiaryTheme.colors.accentText)
         )
     }
 }

@@ -59,7 +59,7 @@ fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier, more: I
                         .align(Alignment.BottomEnd)
                         .padding(DiarySpacing.x1)
                         .clip(DiaryShapes.r8)
-                        .background(DiaryTheme.colors.overlay)
+                        .background(DiaryTheme.colors.onPhoto)
                         .padding(horizontal = DiarySpacing.x1, vertical = DiarySpacing.x0_5)
             )
         }

@@ -4,16 +4,21 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -35,6 +40,8 @@ private const val RELEASE_MILLIS = 180
 // 같은 비율로 줄이면 긴 줄이 눈에 띄게 오그라든다.
 private const val MAX_SHRINK_RATIO = 0.06f
 private val MaxShrink = 12.dp
+private val FocusGap = 2.dp
+private val FocusWidth = 3.dp
 
 // 뗄 때 크기는 살짝 튕기며 돌아온다(토스 키패드의 bounce).
 // 면은 튕기지 않고 그냥 옅어진다.
@@ -82,6 +89,7 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
     private var pressed = Animatable(0f)
     private var shrink = Animatable(0f)
     private var hovered = false
+    private var focused = false
     private var pressing: Job? = null
     private var releasing: Job? = null
     private var collecting: Job? = null
@@ -104,6 +112,7 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
         pressed = Animatable(0f)
         shrink = Animatable(0f)
         hovered = false
+        focused = false
     }
 
     private fun collect() {
@@ -118,6 +127,8 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
                         is PressInteraction.Cancel -> presses -= interaction.press
                         is HoverInteraction.Enter -> hovered = true
                         is HoverInteraction.Exit -> hovered = false
+                        is FocusInteraction.Focus -> focused = true
+                        is FocusInteraction.Unfocus -> focused = false
                         else -> return@collect
                     }
                     if (presses.isNotEmpty()) press() else release()
@@ -153,13 +164,22 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
         val hover = if (hovered) DiaryStateAlpha.HOVERED else 0f
         if (amount == 0f && squeeze == 0f && hover == 0f) {
             drawContent()
+            if (focused) drawFocusRing()
             return
         }
         val ratio = min(MAX_SHRINK_RATIO, MaxShrink.toPx() / max(size.width, size.height))
         // 튕길 때는 squeeze가 잠깐 0 아래로 내려가 원래보다 아주 조금 커진다.
         scale(1f - ratio * squeeze, pivot = center) {
             this@draw.drawContent()
+            if (focused) drawFocusRing()
             drawOutline(shape.createOutline(size, layoutDirection, this), color, alpha = max(hover, DiaryStateAlpha.PRESSED * amount))
         }
+    }
+
+    /** 하드웨어 키보드로 옮겨 다닐 때 지금 자리를 알린다. 터치에서는 포커스가 생기지 않아 보이지 않는다. */
+    private fun DrawScope.drawFocusRing() {
+        val gap = FocusGap.toPx()
+        val outline = shape.createOutline(Size(size.width + gap * 2, size.height + gap * 2), layoutDirection, this)
+        translate(-gap, -gap) { drawOutline(outline, color, style = Stroke(FocusWidth.toPx())) }
     }
 }

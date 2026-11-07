@@ -288,8 +288,8 @@ class BackupController(
     private suspend fun isDue(): Boolean {
         val prefs = store.current()
         val last = prefs.lastSuccessAt
-        if (prefs.foundBackupWaiting) return false
-        if (prefs.accountKey == null || !prefs.autoEnabled || prefs.lastFailure == BackupFailure.AUTH) return false
+        val paused = prefs.foundBackupWaiting || prefs.lastFailure == BackupFailure.AUTH
+        if (paused || prefs.accountKey == null || !prefs.autoEnabled) return false
         return last == null || clock.now() - last >= 24.hours
     }
 

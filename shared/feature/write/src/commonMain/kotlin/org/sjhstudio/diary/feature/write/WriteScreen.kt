@@ -309,13 +309,19 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                     SidePanel(state, actions, onPick = { pick.launch() }, onPlace = { openSheet(Sheet.Place) })
                 }
             } else {
-                Column(Modifier.weight(1f).then(tapToWrite).verticalScroll(rememberScrollState())) {
-                    Chips(state, onMood = {
-                        openSheet(Sheet.Mood)
-                    }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
-                    if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { pick.launch() })
-                    Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
-                    Editor(actions.rich, bodyStyle, editorFocus, Modifier.fillMaxWidth())
+                Column(
+                    Modifier.weight(1f).fillMaxWidth().then(tapToWrite).verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // 태블릿 세로 폭에서도 줄이 너무 길어지지 않게 막는다.
+                    Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
+                        Chips(state, onMood = {
+                            openSheet(Sheet.Mood)
+                        }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
+                        if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { pick.launch() })
+                        Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
+                        Editor(actions.rich, bodyStyle, editorFocus, Modifier.fillMaxWidth())
+                    }
                 }
                 SaveFailedNotice(state)
                 discardRow()
@@ -695,7 +701,7 @@ private fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp
                     .size(DiaryWriteSize.removeBadge)
                     .diaryPress(interaction, colors.onAccent, DiaryShapes.full)
                     .clip(DiaryShapes.full)
-                    .background(colors.overlay),
+                    .background(colors.onPhoto),
                 contentAlignment = Alignment.Center
             ) {
                 DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onAccent, size = DiaryIconSize.i12)

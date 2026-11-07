@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import kotlin.math.max
 import kotlin.math.min
@@ -38,6 +39,11 @@ class ColorContrastTest {
             }
             assertReadable(mode, "onAccent/accent", c.onAccent, c.accent)
             assertReadable(mode, "onDanger/danger", c.onDanger, c.danger)
+            // 흰 사진 위에 얹힌 반투명 바탕.
+            val onWhite = c.onPhoto.compositeOver(Color.White)
+            assertReadable(mode, "onAccent/onPhoto", c.onAccent, onWhite)
+            assertTrue(contrast(c.accentText, c.sunken) >= 3.0, "$mode 진행 막대 채움")
+            assertTrue(contrast(c.textTertiary, c.canvas) >= 3.0, "$mode 비밀번호 빈 점")
             assertReadable(mode, "onToast/toast", c.onToast, c.toast)
             assertReadable(mode, "toastAction/toast", c.toastAction, c.toast)
         }

@@ -25,4 +25,8 @@
     <string name="entry_menu_unfavorite">お気に入りを解除</string>
     <string name="entry_menu_share">共有</string>
     <string name="entry_menu_trash">ゴミ箱に移動</string>
+    <string name="ui_previous_year">前の年</string>
+    <string name="ui_next_year">次の年</string>
+    <string name="ui_previous_month">前の月</string>
+    <string name="ui_next_month">次の月</string>
 </resources>

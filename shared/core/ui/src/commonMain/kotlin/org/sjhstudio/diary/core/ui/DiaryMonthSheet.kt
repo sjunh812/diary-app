@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
+import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -33,6 +34,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.ui.resources.Res
+import org.sjhstudio.diary.core.ui.resources.ui_next_year
+import org.sjhstudio.diary.core.ui.resources.ui_previous_year
 
 /**
  * 연·월 고르기(Figma "S1 · 연·월 고르기").
@@ -54,13 +58,13 @@ fun DiaryMonthSheet(
     var year by remember { mutableIntStateOf(initialYear) }
     DiaryBottomSheet(onDismiss = onDismiss, title = title) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            YearArrow(DiaryIcons.ChevronLeft, enabled = hasYear(year - 1)) { year-- }
+            YearArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.ui_previous_year), enabled = hasYear(year - 1)) { year-- }
             BasicText(
                 year.toString(),
                 modifier = Modifier.weight(1f),
                 style = DiaryTheme.typography.headline.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
             )
-            YearArrow(DiaryIcons.ChevronRight, enabled = hasYear(year + 1)) { year++ }
+            YearArrow(DiaryIcons.ChevronRight, stringResource(Res.string.ui_next_year), enabled = hasYear(year + 1)) { year++ }
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             for (quarter in (1..12).chunked(4)) {
@@ -76,7 +80,7 @@ fun DiaryMonthSheet(
 }
 
 @Composable
-private fun YearArrow(icon: ImageVector, enabled: Boolean, onClick: () -> Unit) {
+private fun YearArrow(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     Box(
@@ -86,7 +90,12 @@ private fun YearArrow(icon: ImageVector, enabled: Boolean, onClick: () -> Unit) 
             .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        DiaryIcon(icon, contentDescription = null, tint = if (enabled) colors.textPrimary else colors.placeholder, size = DiaryIconSize.i20)
+        DiaryIcon(
+            icon,
+            contentDescription = label,
+            tint = if (enabled) colors.textPrimary else colors.placeholder,
+            size = DiaryIconSize.i20
+        )
     }
 }
 

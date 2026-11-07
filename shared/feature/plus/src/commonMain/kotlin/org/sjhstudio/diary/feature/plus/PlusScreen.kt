@@ -86,12 +86,12 @@ import org.sjhstudio.diary.feature.plus.resources.plus_manage_title
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_top
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_notice
+import org.sjhstudio.diary.feature.plus.resources.plus_pending
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_body
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
 import org.sjhstudio.diary.feature.plus.resources.plus_price
 import org.sjhstudio.diary.feature.plus.resources.plus_privacy
 import org.sjhstudio.diary.feature.plus.resources.plus_restore
-import org.sjhstudio.diary.feature.plus.resources.plus_pending
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
 import org.sjhstudio.diary.feature.plus.resources.plus_restored

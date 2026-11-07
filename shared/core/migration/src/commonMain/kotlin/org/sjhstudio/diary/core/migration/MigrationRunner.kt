@@ -220,24 +220,9 @@ class MigrationRunner(
      */
     private suspend fun afterCommit(previous: MigrationState): MigrationResult? {
         if (previous.step != MigrationStep.COMMITTING || !fileSystem.exists(paths.databasePath)) return null
-        val resumed =
-            try {
-                finishAlreadyCommitted(previous)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (_: Exception) {
-                null
-            }
-        if (resumed == null && !hasReadableEntries()) deleteDatabase(paths.databasePath)
+        val resumed = orNull { finishAlreadyCommitted(previous) }
+        if (resumed == null && orNull { hasWrittenEntries() } != true) deleteDatabase(paths.databasePath)
         return resumed
-    }
-
-    private suspend fun hasReadableEntries(): Boolean = try {
-        hasWrittenEntries()
-    } catch (e: CancellationException) {
-        throw e
-    } catch (_: Exception) {
-        false
     }
 
     private suspend fun migrate(attempt: Int): MigrationResult {
@@ -442,7 +427,13 @@ class MigrationRunner(
      * 빠진 일기 수를 돌려준다.
      * [only]가 있으면 그 레거시 번호만 본다(새로 쓴 일기가 있는 다시 읽기).
      */
-    private suspend fun verify(db: DiaryDatabase, expectedRows: Int, only: Set<Int>? = null, counts: Counts? = null, keepDifferent: Boolean = false): Int {
+    private suspend fun verify(
+        db: DiaryDatabase,
+        expectedRows: Int,
+        only: Set<Int>? = null,
+        counts: Counts? = null,
+        keep: Boolean = false
+    ): Int {
         val photoHashes = photoRecords.read().associate { it.path to it.sha256 }
         val (notes, _) = readSnapshot() ?: throw MismatchException()
         if (notes.size != expectedRows) throw MismatchException()
@@ -471,7 +462,7 @@ class MigrationRunner(
                 }.getOrDefault(false)
             if (!same) {
                 counts?.remove(media)
-                if (!keepDifferent) db.entryDao().deletePermanently(entry.id)
+                if (!keep) db.entryDao().deletePermanently(entry.id)
                 leftOut++
                 continue
             }
@@ -519,7 +510,7 @@ class MigrationRunner(
         val report =
             try {
                 // 앱이 이미 열렸던 길이라 다른 일기는 사용자가 고친 글일 수 있다.
-                val leftOut = verify(db, notes.size, keepDifferent = true)
+                val leftOut = verify(db, notes.size, keep = true)
                 if (leftOut == notes.size) throw MismatchException()
                 if (leftOut + summary.unreadable > 0) rememberMoved(db)
                 val records = photoRecords.read()
@@ -867,6 +858,15 @@ class MigrationRunner(
 
         val RECHECK_INTERVAL = 24.hours
     }
+}
+
+/** 실패는 null로 돌려주고 취소는 그대로 던진다. */
+private inline fun <T> orNull(block: () -> T): T? = try {
+    block()
+} catch (e: CancellationException) {
+    throw e
+} catch (_: Exception) {
+    null
 }
 
 private fun emptyReport(finishedAt: Instant) = MigrationReport(

@@ -25,4 +25,8 @@
     <string name="entry_menu_unfavorite">Remove from favorites</string>
     <string name="entry_menu_share">Share</string>
     <string name="entry_menu_trash">Move to Trash</string>
+    <string name="ui_previous_year">Previous year</string>
+    <string name="ui_next_year">Next year</string>
+    <string name="ui_previous_month">Previous month</string>
+    <string name="ui_next_month">Next month</string>
 </resources>

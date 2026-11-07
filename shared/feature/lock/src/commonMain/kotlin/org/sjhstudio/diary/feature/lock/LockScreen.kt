@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryNumberPad
 import org.sjhstudio.diary.core.designsystem.component.DiaryPadKey
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
@@ -102,19 +105,8 @@ fun LockScreen(
             }
         )
         if (onForgot != null) {
-            val forgot = remember { MutableInteractionSource() }
             Spacer(Modifier.height(DiarySpacing.x1_5))
-            Box(
-                modifier =
-                    Modifier
-                        .heightIn(min = DiarySpacing.minTouchTarget)
-                        .diaryPress(forgot, colors.textPrimary, DiaryShapes.r12)
-                        .clickable(forgot, indication = null, role = Role.Button, onClick = onForgot)
-                        .padding(horizontal = DiarySpacing.x3),
-                contentAlignment = Alignment.Center
-            ) {
-                BasicText(stringResource(Res.string.lock_forgot), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
-            }
+            DiaryButton(stringResource(Res.string.lock_forgot), onForgot, kind = DiaryButtonKind.QuietText, size = DiaryButtonSize.Header)
             Spacer(Modifier.height(DiarySpacing.x2 + DiarySpacing.x0_5))
         } else {
             Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x2))

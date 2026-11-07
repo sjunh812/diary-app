@@ -21,9 +21,9 @@
     <string name="migration_report_contact">문의하기</string>
 
     <!-- 설정 목록(S6) -->
-    <string name="settings_group_feedback">의견과 평가</string>
+    <string name="settings_group_feedback">피드백</string>
     <string name="settings_feedback">의견 보내기</string>
-    <string name="settings_rate">앱 평가하기</string>
+    <string name="settings_rate">리뷰 남기기</string>
     <string name="settings_version">앱 버전</string>
     <string name="settings_plus_badge">Plus 이용 중</string>
     <string name="settings_feedback_subject">1일 1일기 피드백</string>

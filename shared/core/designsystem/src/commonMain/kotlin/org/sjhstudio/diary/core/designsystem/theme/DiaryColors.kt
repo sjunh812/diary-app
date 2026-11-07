@@ -67,6 +67,9 @@ data class DiaryColors(
     val scrim: Color,
     /** 사진 위 +N 뱃지 */
     val overlay: Color,
+
+    /** 사진 위 글자와 지우기 버튼의 바탕. 흰 사진에서도 글자가 4.5:1을 넘게 [overlay]보다 진하다. */
+    val onPhoto: Color,
     /** 쓰기 버튼 그림자 */
     val shadow: Color,
     /**
@@ -137,6 +140,7 @@ internal val LightDiaryColors =
         toastAction = Color(0xFFCAA6FE),
         scrim = Color(0x66000000),
         overlay = Color(0x80000000),
+        onPhoto = Color(0x99000000),
         shadow = Color(0x29000000),
         mood =
             DiaryMoodColors(
@@ -195,6 +199,7 @@ internal val DarkDiaryColors =
         toastAction = Color(0xFFBAA7FF),
         scrim = Color(0x99000000),
         overlay = Color(0x80000000),
+        onPhoto = Color(0x99000000),
         shadow = Color(0x66000000),
         mood =
             DiaryMoodColors(

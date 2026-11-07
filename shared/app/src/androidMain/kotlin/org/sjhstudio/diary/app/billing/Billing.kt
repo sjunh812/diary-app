@@ -27,9 +27,9 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
-import org.sjhstudio.diary.core.data.StorePlanState
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.StoreIds
+import org.sjhstudio.diary.core.data.StorePlanState
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
@@ -125,9 +125,13 @@ private class RevenueCatBilling(private val app: Application, key: String) : Bil
     } catch (e: PurchasesTransactionException) {
         when {
             e.userCancelled -> PurchaseResult.CANCELLED
+
             e.code == PurchasesErrorCode.PaymentPendingError -> PurchaseResult.PENDING
+
             // 재설치 뒤 구매를 아직 못 가져온 사람이 다시 샀다. 돈을 또 받지 않고 구매를 가져온다.
-            e.code == PurchasesErrorCode.ProductAlreadyPurchasedError -> restore().takeIf { it == PurchaseResult.DONE } ?: PurchaseResult.FAILED
+            e.code == PurchasesErrorCode.ProductAlreadyPurchasedError -> restore().takeIf { it == PurchaseResult.DONE }
+                ?: PurchaseResult.FAILED
+
             else -> PurchaseResult.FAILED
         }
     } catch (_: PurchasesException) {

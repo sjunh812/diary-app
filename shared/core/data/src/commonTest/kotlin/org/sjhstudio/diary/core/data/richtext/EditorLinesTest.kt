@@ -86,11 +86,15 @@ class EditorLinesTest {
     @Test
     fun nothing_the_editor_shows_is_lost() {
         val blocks = listOf("<p>문단</p>", "<p></p>", "<ul><li>글머리</li></ul>", "<ol><li>번호</li></ol>", "<p><b>굵게</b> 😀</p>")
-        for (a in blocks) for (b in blocks) for (c in blocks) {
-            val html = a + b + c
-            val saved = toPlainText(RichTextSanitizer.sanitize(editorToBody(html)))
-            for (word in Regex("[가-힣]+|😀").findAll(html.replace(Regex("<[^>]+>"), " "))) {
-                assertTrue(word.value in saved, "$html 에서 ${word.value} 사라짐: $saved")
+        for (a in blocks) {
+            for (b in blocks) {
+                for (c in blocks) {
+                    val html = a + b + c
+                    val saved = toPlainText(RichTextSanitizer.sanitize(editorToBody(html)))
+                    for (word in Regex("[가-힣]+|😀").findAll(html.replace(Regex("<[^>]+>"), " "))) {
+                        assertTrue(word.value in saved, "$html 에서 ${word.value} 사라짐: $saved")
+                    }
+                }
             }
         }
     }

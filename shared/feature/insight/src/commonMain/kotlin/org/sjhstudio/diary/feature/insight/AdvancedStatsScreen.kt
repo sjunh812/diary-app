@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -378,14 +379,19 @@ private fun Change(period: AdvancedPeriod, change: StatsChange) {
 private fun Value(label: String, before: String, now: String) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Row(
+    // 글자가 커져 한 줄에 못 들어가면 값이 다음 줄로 내려간다.
+    FlowRow(
         Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        BasicText(label, Modifier.weight(1f), style = typography.body.copy(color = colors.textSecondary))
-        BasicText(stringResource(Res.string.insight_adv_change_before, before), style = typography.body.copy(color = colors.textSecondary))
-        BasicText(now, style = typography.bodyStrong.copy(color = colors.textPrimary))
+        BasicText(label, style = typography.body.copy(color = colors.textSecondary))
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
+            BasicText(
+                stringResource(Res.string.insight_adv_change_before, before),
+                style = typography.body.copy(color = colors.textSecondary)
+            )
+            BasicText(now, style = typography.bodyStrong.copy(color = colors.textPrimary))
+        }
     }
 }
 

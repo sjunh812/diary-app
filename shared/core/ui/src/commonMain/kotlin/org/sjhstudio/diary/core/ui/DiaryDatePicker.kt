@@ -34,6 +34,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
+import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthWheel
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -44,6 +45,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.ui.resources.Res
+import org.sjhstudio.diary.core.ui.resources.ui_next_month
+import org.sjhstudio.diary.core.ui.resources.ui_previous_month
 
 /**
  * 시트 안의 달력.
@@ -62,7 +66,7 @@ fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: 
             if (wheel) {
                 Spacer(Modifier.size(DiarySpacing.minTouchTarget))
             } else {
-                MonthArrow(DiaryIcons.ChevronLeft) {
+                MonthArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.ui_previous_month)) {
                     onChange(month.shifted(-1))
                 }
             }
@@ -70,7 +74,7 @@ fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: 
             if (wheel) {
                 Spacer(Modifier.size(DiarySpacing.minTouchTarget))
             } else {
-                MonthArrow(DiaryIcons.ChevronRight) {
+                MonthArrow(DiaryIcons.ChevronRight, stringResource(Res.string.ui_next_month)) {
                     onChange(month.shifted(1))
                 }
             }
@@ -123,7 +127,7 @@ private fun YearMonth.shifted(by: Int): YearMonth {
 }
 
 @Composable
-private fun MonthArrow(icon: ImageVector, onClick: () -> Unit) {
+private fun MonthArrow(icon: ImageVector, label: String, onClick: () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     Box(
         Modifier
@@ -132,7 +136,7 @@ private fun MonthArrow(icon: ImageVector, onClick: () -> Unit) {
             .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        DiaryIcon(icon, contentDescription = null, tint = DiaryTheme.colors.textPrimary, size = DiaryIconSize.i20)
+        DiaryIcon(icon, contentDescription = label, tint = DiaryTheme.colors.textPrimary, size = DiaryIconSize.i20)
     }
 }
 

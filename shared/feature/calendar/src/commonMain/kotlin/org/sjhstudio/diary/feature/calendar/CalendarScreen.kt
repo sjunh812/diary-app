@@ -65,6 +65,9 @@ import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -297,17 +300,7 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
     val colors = DiaryTheme.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
         if (showToday) {
-            val interaction = remember { MutableInteractionSource() }
-            Box(
-                Modifier
-                    .height(DiarySpacing.minTouchTarget)
-                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onToday)
-                    .padding(horizontal = DiarySpacing.x2),
-                contentAlignment = Alignment.Center
-            ) {
-                BasicText(stringResource(Res.string.calendar_today), style = DiaryTheme.typography.label.copy(color = colors.accentText))
-            }
+            DiaryButton(stringResource(Res.string.calendar_today), onToday, kind = DiaryButtonKind.Text, size = DiaryButtonSize.Header)
         }
         DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.calendar_previous_month), { onMove(-1) })
         DiaryIconButton(DiaryIcons.ChevronRight, stringResource(Res.string.calendar_next_month), { onMove(1) }, enabled = hasNext)

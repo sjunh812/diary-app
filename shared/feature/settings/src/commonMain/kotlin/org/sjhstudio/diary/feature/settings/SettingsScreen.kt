@@ -126,7 +126,7 @@ fun SettingsScreen(
                         onPlus,
                         size = DiaryButtonSize.Small,
                         kind = DiaryButtonKind.Weak,
-                        leadingIcon = DiaryIcons.SparklesSolid
+                        leadingIcon = DiaryIcons.Sparkles
                     )
                 }
             }

@@ -381,6 +381,8 @@ private fun Content(
     val homeStack = nav.stacks.getValue(HomeKey)
     val pushMotion = defaultTransitionSpec<NavKey>()
     val popMotion = defaultPopTransitionSpec<NavKey>()
+    // 동작 줄이기를 켠 사람에게는 밀어 들어오는 전환을 쓰지 않는다.
+    val reduceMotion = rememberReduceMotion()
     NavDisplay(
         entries =
             nav.decoratedEntries(
@@ -495,8 +497,8 @@ private fun Content(
             ),
         modifier = modifier,
         sceneStrategies = listOf(listDetail),
-        transitionSpec = { if (nav.movedBetweenTabs) TabSwap else pushMotion() },
-        popTransitionSpec = { if (nav.movedBetweenTabs) TabSwap else popMotion() },
+        transitionSpec = { if (nav.movedBetweenTabs || reduceMotion) TabSwap else pushMotion() },
+        popTransitionSpec = { if (nav.movedBetweenTabs || reduceMotion) TabSwap else popMotion() },
         onBack = pop
     )
 }
