@@ -440,7 +440,9 @@ class WriteViewModel(
     }
 
     fun setPlace(name: String) {
-        _state.update { it.copy(placeName = name.take(MAX_PLACE)) }
+        // 한도에서 자를 때 이모지가 반쪽만 남지 않게 한다.
+        val cut = name.take(MAX_PLACE)
+        _state.update { it.copy(placeName = if (cut.lastOrNull()?.isHighSurrogate() == true) cut.dropLast(1) else cut) }
         changed()
     }
 
@@ -531,6 +533,8 @@ class WriteViewModel(
 
     /** 앱이 백그라운드로 갈 때 바로 쓴다(FR-009). */
     fun onStop() {
+        // 닫히는 중이면 버린 글을 임시 저장본으로 되살리지 않는다.
+        if (leaving) return
         pending?.cancel()
         takeEditorBody()
         write { flush() }

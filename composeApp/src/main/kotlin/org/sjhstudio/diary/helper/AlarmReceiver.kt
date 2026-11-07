@@ -24,6 +24,7 @@ import org.sjhstudio.diary.MainActivity
 import org.sjhstudio.diary.R
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.StartupState
+import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.platform.R as PlatformR
 
@@ -50,8 +51,9 @@ class AlarmReceiver :
                     startup.state.first { it is StartupState.Ready }
                     // 옛 앱과 새 앱이 건 예약은 동작 없이 온다.
                     // 시스템 알림(부팅 같은)에는 동작이 있다.
-                    if (intent.action == null) showReminder(context)
+                    // 복원이나 되돌리기로 알림이 꺼졌으면 남아 있던 예약이 와도 띄우지 않는다.
                     get<ReminderRepository>().reschedule()
+                    if (intent.action == null && get<SettingsRepository>().settings.first().reminderEnabled) showReminder(context)
                 }
             } catch (e: CancellationException) {
                 throw e

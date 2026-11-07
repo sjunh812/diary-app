@@ -3,6 +3,7 @@ package org.sjhstudio.diary.feature.lock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CancellationException
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.lock.VerifyResult
 import org.sjhstudio.diary.core.model.Pin
@@ -199,7 +201,7 @@ class LockViewModel(
         ticker =
             viewModelScope.launch {
                 while (true) {
-                    val left = until - clock.now()
+                    val left = waitLeft(until, clock.now())
                     if (!left.isPositive()) break
                     _state.value =
                         LockUiState(
@@ -218,3 +220,9 @@ class LockViewModel(
 
     override fun onCleared() = clearDigits()
 }
+
+/**
+ * 남은 기다림.
+ * 기기 시계를 뒤로 돌리면 저장된 시각이 먼 미래가 되므로 한 번의 기다림보다 길어지지 않게 자른다.
+ */
+internal fun waitLeft(until: Instant, now: Instant): Duration = (until - now).coerceAtMost(DefaultLockRepository.WAIT)

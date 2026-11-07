@@ -258,7 +258,10 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             val database = lazy { get<DiaryDatabase>() }
             val applier = lazy { MergeApplier(database.value, { system.exists(media / it) }) }
             val legacy = lazy { LegacyBackupImporter(database.value, drive, copier, system, work) }
-            val applyBackup: suspend (ManifestSettings) -> Unit = { applyBackupSettings(settings, it) }
+            val applyBackup: suspend (ManifestSettings) -> Unit = {
+                applyBackupSettings(settings, it)
+                get<ReminderRepository>().reschedule()
+            }
             RestoreController(
                 catalog =
                     lazy {
@@ -355,7 +358,7 @@ private suspend fun currentBackupSettings(repository: SettingsRepository, lock: 
 
 /**
  * 잠금과 백업 설정은 바꾸지 않는다(contracts/merge-rules.md "설정").
- * 알림은 값이 바뀌면 다시 예약된다.
+ * 알림은 값을 적용한 뒤 부르는 쪽이 다시 예약한다.
  */
 private suspend fun applyBackupSettings(repository: SettingsRepository, backup: ManifestSettings) {
     DiaryFont.fromId(backup.font)?.let { repository.setFont(it) }
