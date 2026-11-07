@@ -119,15 +119,15 @@ object DiaryInsightSize {
 /** 달력 크기(Figma "달력 (S4)"). */
 object DiaryCalendarSize {
     /** 날짜 칸 높이. */
-    val cell: Dp = 60.dp
-    val cellWide: Dp = 76.dp
+    val cell: Dp = 58.dp
+    val cellWide: Dp = 74.dp
 
     /**
      * 기분 얼굴.
      * 칸 안 위아래 여백이 4로 같아지는 크기다.
      */
-    val face: Dp = 28.dp
-    val faceWide: Dp = 36.dp
+    val face: Dp = 26.dp
+    val faceWide: Dp = 34.dp
 
     /** 오늘 표시. */
     val todayWidth: Dp = 24.dp
