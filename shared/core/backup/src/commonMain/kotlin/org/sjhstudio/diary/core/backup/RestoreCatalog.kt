@@ -73,7 +73,10 @@ class RestoreCatalog(
     /** 목록을 읽는 사이에 없어진 파일 하나가 다른 백업까지 가리지 않게 깨진 파일로 본다. */
     private suspend fun read(file: DriveFile): Manifest? {
         val kept = keptDir / "${file.id}.json"
-        fromDisk(kept)?.let { return it }
+        return fromDisk(kept) ?: downloaded(file, kept)
+    }
+
+    private suspend fun downloaded(file: DriveFile, kept: Path): Manifest? {
         val temp = workDir / "manifest-${file.id}.tmp"
         try {
             drive.download(file.id, temp)
