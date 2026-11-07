@@ -79,6 +79,9 @@ private const val ENVELOPE_RATIO = 1.42f
 private const val FLAP_DEPTH = 0.58f
 private const val POCKET_DEPTH = 0.5f
 
+/** 아래 날개 끝이 앞면 가운데에서 얼마나 내려와 있는가. 덮개 끝에 묻힌다. */
+private const val LOWER_TIP_SHARE = 0.1f
+
 /**
  * 열리는 진행 값의 구간.
  * 덮개가 넘어가고 잠깐 뒤에 편지지가 천천히 올라온다.
@@ -220,11 +223,7 @@ private fun DrawScope.drop(progress: Float, envelope: Rect): Float = progress.be
 
 private fun DrawScope.flapTip(height: Float, progress: Float): Float = FLAP_DEPTH * height * cos(progress.between(0f, FLAP_END).halfTurn)
 
-private fun flapPath(width: Float, tip: Float) = Path().apply {
-    moveTo(0f, 0f)
-    lineTo(width / 2, tip)
-    lineTo(width, 0f)
-}
+private fun flapPath(width: Float, tip: Float) = softPoint(width, 0f, tip)
 
 private fun DrawScope.bodyPath(area: Size) =
     Path().apply { addRoundRect(RoundRect(0f, 0f, area.width, area.height, CornerRadius(DiarySpacing.x4.toPx()))) }
@@ -241,7 +240,7 @@ private fun DrawScope.drawBack(area: Size, progress: Float, colors: DiaryColors)
     if (tip < 0) {
         val flap = flapPath(area.width, tip)
         drawPath(flap, colors.selected)
-        drawPath(flap, colors.lineStrong, style = outline())
+        drawPath(flap, colors.line, style = outline())
     }
 }
 
@@ -270,36 +269,33 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
     val height = area.height
     val body = bodyPath(area)
     val middle = POCKET_DEPTH * height
-    val pocket = Path().apply {
-        moveTo(0f, 0f)
-        lineTo(width / 2, middle)
-        lineTo(width, 0f)
+    val opening = softPoint(width, 0f, middle)
+    val pocket = softPoint(width, 0f, middle).apply {
         lineTo(width, height)
         lineTo(0f, height)
         close()
     }
+    // 아래 날개는 위로 올라온 둥근 삼각형이다.
+    val lower = softPoint(width, height, middle + (height - middle) * LOWER_TIP_SHARE)
+    val tip = flapTip(height, progress)
     clipPath(body) {
         drawPath(pocket, colors.paper)
-        val folds = Path().apply {
-            moveTo(0f, 0f)
-            lineTo(width / 2, middle)
-            lineTo(width, 0f)
-            moveTo(0f, height)
-            lineTo(width / 2, middle)
-            lineTo(width, height)
-        }
-        drawPath(folds, colors.lineStrong, style = outline())
+        softShadow(lower, colors, direction = -1f)
+        drawPath(lower, colors.paper)
     }
-    val tip = flapTip(height, progress)
     // 열린 봉투의 위쪽은 비어 있다.
     // 윗선을 그으면 나오는 편지지 위로 지나간다.
-    if (tip >= 0) drawPath(body, colors.lineStrong, style = outline())
-    if (tip < 0) clipPath(pocket) { drawPath(body, colors.lineStrong, style = outline()) }
     if (tip >= 0) {
+        drawPath(body, colors.line, style = outline())
         val flap = flapPath(width, tip)
-        clipPath(body) { drawPath(flap, colors.selected) }
-        drawPath(flap, colors.lineStrong, style = outline())
-        drawSeal(Offset(width / 2, tip), tip / (FLAP_DEPTH * height), colors, pen)
+        clipPath(body) {
+            softShadow(flap, colors, direction = 1f)
+            drawPath(flap, colors.selected)
+        }
+        drawSeal(Offset(width / 2, softTip(tip)), tip / (FLAP_DEPTH * height), colors, pen)
+    } else {
+        clipPath(pocket) { drawPath(body, colors.line, style = outline()) }
+        clipPath(body) { drawPath(opening, colors.line, style = outline()) }
     }
 }
 

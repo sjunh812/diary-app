@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="letter_arrived">편지가 도착했어요</string>
+    <string name="letter_arrived">편지가 도착했어요 💌</string>
     <string name="letter_open">편지 열기</string>
     <string name="letter_title">개발자의 편지</string>
     <string name="letter_hello">안녕하세요,\n1일 1일기 개발자입니다 👋</string>

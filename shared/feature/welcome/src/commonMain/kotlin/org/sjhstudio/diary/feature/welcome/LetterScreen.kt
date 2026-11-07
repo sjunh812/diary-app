@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.feature.welcome
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
@@ -49,6 +51,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -98,6 +101,8 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     val opening = remember { Animatable(0f) }
     var waiting by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    // 누르면 버튼이 먼저 물러나고, 편지지가 다 펼쳐지면 [계속하기]로 돌아온다.
+    val buttonShown by animateFloatAsState(if (waiting && !opened) 0f else 1f, tween(DiaryMotion.QUICK_MILLIS))
     val open: () -> Unit = {
         when {
             still -> opened = true
@@ -133,7 +138,7 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
             DiaryButton(
                 stringResource(if (opened) Res.string.letter_start else Res.string.letter_open),
                 if (opened) onStart else open,
-                Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth().alpha(buttonShown),
                 size = DiaryButtonSize.XLarge
             )
         }

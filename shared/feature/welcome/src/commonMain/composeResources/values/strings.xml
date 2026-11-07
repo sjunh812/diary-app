@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="letter_arrived">You have a letter</string>
+    <string name="letter_arrived">You have a letter 💌</string>
     <string name="letter_open">Open the letter</string>
     <string name="letter_title">A letter from the developer</string>
     <string name="letter_hello">Hi, I'm the developer\nof 1 Day 1 Diary 👋</string>

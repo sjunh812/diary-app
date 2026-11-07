@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="letter_arrived">手紙が届きました</string>
+    <string name="letter_arrived">手紙が届きました 💌</string>
     <string name="letter_open">手紙を開く</string>
     <string name="letter_title">開発者からの手紙</string>
     <string name="letter_hello">こんにちは。\n1日1日記の開発者です 👋</string>
