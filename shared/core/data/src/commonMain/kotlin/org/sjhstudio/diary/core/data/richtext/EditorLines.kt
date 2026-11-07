@@ -14,6 +14,7 @@ private val LIST_EDGE = Regex("""<(/?)(?:ul|ol)\b[^>]*>""", RegexOption.IGNORE_C
 private val LIST_ITEM = Regex("""<li\b[^>]*>""", RegexOption.IGNORE_CASE)
 private val LIST_TAGS = Regex("""</?(?:ul|ol|li)\b[^>]*>""", RegexOption.IGNORE_CASE)
 private val ANY_TAG = Regex("""<[^>]*>""")
+private val KEPT_SPACE = Regex("""^[ \t]+|(?<=[>\s])[ \t]+| {2,}|\t+|[ \t]+$""")
 private val LIST_MARK = Regex("""^\s*(?:•|\d+\.)(?:\s|$)""")
 
 private sealed interface Block {
@@ -120,7 +121,7 @@ fun bodyToEditor(html: String): String {
     val chunks = ArrayList<String>()
     fun flush() {
         if (chunks.isEmpty()) return
-        for (line in chunks.joinToString("\n\n").split("\n")) out.append("<p>").append(line).append("</p>")
+        for (line in chunks.joinToString("\n\n").split("\n")) out.append("<p>").append(keepSpaces(line)).append("</p>")
         chunks.clear()
     }
     for (block in blocksOf(html)) {
@@ -140,6 +141,12 @@ fun bodyToEditor(html: String): String {
     flush()
     return out.toString()
 }
+
+/**
+ * 에디터는 HTML을 읽을 때 겹친 공백을 합치고 줄 앞 공백을 지운다.
+ * 옛 일기를 한 글자만 고쳐도 들여쓰기가 사라지므로 글자 참조로 지킨다.
+ */
+private fun keepSpaces(line: String): String = KEPT_SPACE.replace(line) { match -> match.value.replace(" ", "&#32;").replace("\t", "&#9;") }
 
 /**
  * 에디터 글에 실제로 쓴 글자가 있는가.

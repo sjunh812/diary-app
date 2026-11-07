@@ -162,6 +162,15 @@ class EditorRoundTripUiTest {
         assertEquals("😀 <b>가</b> & 나  다", toPlainText(savedBody(editor, state)))
     }
 
+    /** 옛 일기를 열어 저장해도 들여쓰기와 겹친 공백이 그대로다. */
+    @Test
+    fun spaces_in_an_old_entry_stay() = withEditor { editor ->
+        val saved = "<p>  첫 줄<br>\t둘째  줄 끝</p>"
+        val state = RichTextState()
+        state.setHtml(editor.toEditor(saved))
+        assertEquals(toPlainText(saved), toPlainText(savedBody(editor, state)))
+    }
+
     @Test
     fun a_very_long_entry_round_trips() = withEditor { editor ->
         val saved = "<p>" + "가나다라마바사 ".repeat(14_000) + "</p>"

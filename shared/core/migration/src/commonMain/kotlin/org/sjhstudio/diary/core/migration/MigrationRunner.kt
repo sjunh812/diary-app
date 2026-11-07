@@ -215,13 +215,29 @@ class MigrationRunner(
 
     /**
      * 이름을 바꾼 뒤 끊겼으면 지문만 다시 보고 맞으면 끝낸다.
-     * 맞지 않으면 처음부터 다시 옮기려고 지운다.
+     * 맞지 않아도 일기가 있으면 지우지 않고 미룬 이전으로 돌린다.
+     * 그 사이 사용자가 쓰거나 고쳤을 수 있다(헌법 I).
      */
     private suspend fun afterCommit(previous: MigrationState): MigrationResult? {
         if (previous.step != MigrationStep.COMMITTING || !fileSystem.exists(paths.databasePath)) return null
-        val resumed = runCatching { finishAlreadyCommitted(previous) }.getOrNull()
-        if (resumed == null) deleteDatabase(paths.databasePath)
+        val resumed =
+            try {
+                finishAlreadyCommitted(previous)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
+        if (resumed == null && !hasReadableEntries()) deleteDatabase(paths.databasePath)
         return resumed
+    }
+
+    private suspend fun hasReadableEntries(): Boolean = try {
+        hasWrittenEntries()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        false
     }
 
     private suspend fun migrate(attempt: Int): MigrationResult {
@@ -426,7 +442,7 @@ class MigrationRunner(
      * 빠진 일기 수를 돌려준다.
      * [only]가 있으면 그 레거시 번호만 본다(새로 쓴 일기가 있는 다시 읽기).
      */
-    private suspend fun verify(db: DiaryDatabase, expectedRows: Int, only: Set<Int>? = null, counts: Counts? = null): Int {
+    private suspend fun verify(db: DiaryDatabase, expectedRows: Int, only: Set<Int>? = null, counts: Counts? = null, keepDifferent: Boolean = false): Int {
         val photoHashes = photoRecords.read().associate { it.path to it.sha256 }
         val (notes, _) = readSnapshot() ?: throw MismatchException()
         if (notes.size != expectedRows) throw MismatchException()
@@ -455,7 +471,7 @@ class MigrationRunner(
                 }.getOrDefault(false)
             if (!same) {
                 counts?.remove(media)
-                db.entryDao().deletePermanently(entry.id)
+                if (!keepDifferent) db.entryDao().deletePermanently(entry.id)
                 leftOut++
                 continue
             }
@@ -502,7 +518,8 @@ class MigrationRunner(
         val db = openDatabase(paths.databasePath.toString())
         val report =
             try {
-                val leftOut = verify(db, notes.size)
+                // 앱이 이미 열렸던 길이라 다른 일기는 사용자가 고친 글일 수 있다.
+                val leftOut = verify(db, notes.size, keepDifferent = true)
                 if (leftOut == notes.size) throw MismatchException()
                 if (leftOut + summary.unreadable > 0) rememberMoved(db)
                 val records = photoRecords.read()
