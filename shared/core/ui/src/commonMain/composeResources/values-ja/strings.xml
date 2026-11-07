@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mood_angry">怒り</string>
+    <string name="mood_cool">クール</string>
+    <string name="mood_sad">悲しい</string>
+    <string name="mood_sick">具合が悪い</string>
+    <string name="mood_laugh">笑顔</string>
+    <string name="mood_meh">ふつう</string>
+    <string name="mood_bad">悪い</string>
+    <string name="mood_good">良い</string>
+    <string name="mood_tired">疲れた</string>
+    <string name="weather_sunny">晴れ</string>
+    <string name="weather_partly_cloudy">少し曇り</string>
+    <string name="weather_mostly_cloudy">曇りがち</string>
+    <string name="weather_cloudy">曇り</string>
+    <string name="weather_rain">雨</string>
+    <string name="weather_sleet">みぞれ</string>
+    <string name="weather_snow">雪</string>
+    <string name="entry_kept_both">2バージョン</string>
+    <string name="tip_close">閉じる</string>
+    <string name="checklist_check">%1$sにチェックする</string>
+    <string name="checklist_uncheck">%1$sのチェックを外す</string>
+    <string name="entry_menu_edit">編集</string>
+    <string name="entry_menu_favorite">お気に入り</string>
+    <string name="entry_menu_unfavorite">お気に入りを解除</string>
+    <string name="entry_menu_share">共有</string>
+    <string name="entry_menu_trash">ゴミ箱に移動</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_language">ko</string>
+    <string name="ds_close">닫기</string>
+    <string name="ds_back">뒤로 가기</string>
+    <string name="ds_delete">지우기</string>
+    <string name="ds_pin_progress">%2$d자리 중 %1$d자리를 입력했어요</string>
+    <string name="ds_catalog_title">디자인 시스템</string>
+    <string name="ds_catalog_colors">색</string>
+    <string name="ds_catalog_typography">글자</string>
+    <string name="ds_catalog_spacing">간격과 모서리</string>
+    <string name="ds_catalog_components">컴포넌트</string>
+    <string name="ds_catalog_type_sample">다람쥐 헌 쳇바퀴에 타고파 1234</string>
+    <string name="ds_am">오전</string>
+    <string name="ds_pm">오후</string>
+    <string name="ds_wheel_ampm">오전·오후</string>
+    <string name="ds_wheel_hour">시</string>
+    <string name="ds_wheel_minute">분</string>
+    <string name="ds_wheel_month">월</string>
+    <string name="ds_wheel_year">연</string>
+    <string name="ds_previous">이전</string>
+    <string name="ds_next">다음</string>
+</resources>

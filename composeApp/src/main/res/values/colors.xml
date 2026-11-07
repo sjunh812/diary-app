@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 디자인 시스템 canvas(라이트). Compose 밖의 창 바탕과 시작 화면만 쓴다. -->
+    <color name="canvas">#FFFFFF</color>
+</resources>

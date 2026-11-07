@@ -1,0 +1,95 @@
+package org.sjhstudio.diary.app
+
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
+import org.sjhstudio.diary.core.datastore.LockStore
+import org.sjhstudio.diary.core.datastore.SettingsStore
+import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.testing.InMemoryDataStore
+
+class StartupTest {
+    @Test
+    fun reads_settings_and_lock_then_becomes_ready() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        settings.update { it.copy(themeMode = ThemeMode.DARK) }
+        lock.update { it.copy(enabled = true) }
+        var prepared = false
+        val startup = Startup({ prepared = true }, settings, lock, this)
+
+        assertFalse(startup.ready)
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(startup.ready)
+        assertTrue(prepared)
+        val ready = startup.state.value as StartupState.Ready
+        assertEquals(ThemeMode.DARK, ready.settings.themeMode)
+        assertTrue(ready.lock.enabled)
+    }
+
+    /** 옛 잠금을 이은 뒤에 잠금을 읽어야 첫 화면이 잠금 화면이다. */
+    @Test
+    fun legacy_lock_is_bootstrapped_before_reading_lock() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup =
+            Startup({
+            }, settings, lock, this, bootstrapLegacyLock = {
+                lock.update { it.copy(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==") }
+            })
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue((startup.state.value as StartupState.Ready).lock.hasPin)
+    }
+
+    /**
+     * 잇기가 실패하면 잠근 채 새 비밀번호를 정하게 한다.
+     * 앱이 열린 채로 시작하지 않는다.
+     */
+    @Test
+    fun failed_bootstrap_starts_locked_without_pin() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({}, settings, lock, this, bootstrapLegacyLock = { error("pref.xml을 읽지 못함") })
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        val ready = startup.state.value as StartupState.Ready
+        assertTrue(ready.lock.enabled)
+        assertFalse(ready.lock.hasPin)
+    }
+
+    /** 설정 잇기가 실패해도 잠금을 건드리지 않고 기본 설정으로 연다. */
+    @Test
+    fun a_failed_storage_step_still_opens_the_app() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({ error("폴더를 만들지 못함") }, settings, lock, this)
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(startup.ready)
+    }
+
+    @Test
+    fun failed_settings_bootstrap_keeps_lock_off() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({}, settings, lock, this, bootstrapLegacySettings = { error("pref2.xml을 읽지 못함") })
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertFalse((startup.state.value as StartupState.Ready).lock.enabled)
+    }
+}

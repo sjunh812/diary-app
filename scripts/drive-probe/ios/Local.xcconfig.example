@@ -1,0 +1,3 @@
+// 이 파일을 Local.xcconfig로 복사하고 클라우드 콘솔 "1일 1일기 iOS" 클라이언트 값을 넣는다(Local.xcconfig는 저장소에 올리지 않는다).
+GID_CLIENT_ID = 000000000000-xxxxxxxx.apps.googleusercontent.com
+GID_REVERSED_CLIENT_ID = com.googleusercontent.apps.000000000000-xxxxxxxx

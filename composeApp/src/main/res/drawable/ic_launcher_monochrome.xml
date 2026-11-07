@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 13 테마 아이콘(Figma A2 "단색(테마)"). 시스템이 색을 입힌다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M50.0694 109.931L57.1957 88.5516L99.0034 46.7439H106.605L113.256 53.3951L113.256 60.9965L71.4484 102.804L50.0694 109.931Z" />
+</vector>

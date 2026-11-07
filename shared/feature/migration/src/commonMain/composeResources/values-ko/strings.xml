@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 이전 준비(M0) -->
+    <string name="migration_preparing_title">기록을 옮길 준비를 하고 있어요</string>
+    <string name="migration_preparing_body">새 앱으로 일기를 옮겨요. 원래 기록은 그대로 둬요.</string>
+
+    <!-- 이전 진행(M1) -->
+    <string name="migration_progress_title">일기를 옮기고 있어요</string>
+    <string name="migration_progress_body">옮기는 동안 화면을 켜 둘게요.</string>
+    <string name="migration_progress_entries">일기</string>
+    <string name="migration_progress_entries_value">%1$s / %2$s편</string>
+    <string name="migration_progress_photos">사진</string>
+    <string name="migration_progress_photos_value">%1$s / %2$s장</string>
+    <string name="migration_progress_note">중간에 앱이 꺼져도 처음부터 다시 옮겨요. 원래 기록은 그대로 있어요.</string>
+
+    <!-- 결과(M2) -->
+    <plurals name="migration_done_title">
+        <item quantity="other">%1$s편을 모두 옮겼어요</item>
+    </plurals>
+    <plurals name="migration_done_photos">
+        <item quantity="other">사진 %1$s장도 함께 옮겼어요.</item>
+    </plurals>
+    <plurals name="migration_missing_photos_title">
+        <item quantity="other">찾을 수 없는 사진 %1$s장</item>
+    </plurals>
+    <string name="migration_missing_photos_body">예전 앱이 임시 공간에 두었다가 지워진 사진이에요. 일기 안에 자리를 남겨 뒀어요.</string>
+    <string name="migration_missing_photos_body_short">일기 안에 자리를 남겨 뒀어요.</string>
+    <plurals name="migration_date_fixed_title">
+        <item quantity="other">날짜를 바로잡은 일기 %1$s편</item>
+    </plurals>
+    <string name="migration_date_fixed_body">예전 앱은 이 일기를 다음 날로 잘못 보여 줬어요. 쓸 때 고른 날짜로 바로잡았어요.</string>
+    <string name="migration_start">시작하기</string>
+
+    <!-- 일부만(M2-b) -->
+    <string name="migration_partial_title">일부만 옮겼어요</string>
+    <plurals name="migration_partial_body">
+        <item quantity="other">%1$s편을 옮겼고 %2$s편은 원본 파일이 깨져서 읽지 못했어요. 앱을 업데이트하면 다시 읽어 볼게요. 원래 기록은 그대로 있어요.</item>
+    </plurals>
+    <string name="migration_partial_footnote">이 결과는 설정 > 기록 이전 결과에서 다시 볼 수 있어요.</string>
+    <string name="migration_export_original">원본 파일 내보내기</string>
+    <string name="migration_contact">문의하기</string>
+
+    <!-- 실패(M3) -->
+    <string name="migration_skip">새 일기부터 쓰기</string>
+    <string name="migration_failed_title">기록을 옮기지 못했어요</string>
+    <string name="migration_failed_body_mismatch">옮긴 일기를 확인하다가 문제가 생겼어요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_failed_body_snapshot">원래 기록을 복사하지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_failed_body_read">예전 앱 파일을 읽지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_failed_body_write">새 앱에 기록을 쓰지 못해서 옮기기를 멈췄어요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_failed_body_unknown">옮기는 중에 문제가 생겨서 멈췄어요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_view_legacy">예전 일기 보기</string>
+    <string name="migration_retry">다시 시도</string>
+    <string name="migration_no_space_title">휴대폰 저장 공간이 부족해요</string>
+    <string name="migration_no_space_body">기록을 옮기려면 휴대폰에 %1$s가 더 필요해요. 사진이나 쓰지 않는 앱을 정리한 뒤 다시 확인해 주세요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_check_again">다시 확인</string>
+
+    <!-- 관문을 지난 뒤 한 번 알림(FR-011) -->
+    <plurals name="migration_entries_recovered">
+        <item quantity="other">못 읽었던 일기 %1$s편을 옮겼어요</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="other">찾을 수 없던 사진 %1$s장을 찾았어요</item>
+    </plurals>
+
+    <!-- 예전 일기 보기(M4) -->
+    <string name="legacy_reader_title">예전 일기</string>
+    <string name="legacy_reader_notice">읽기만 할 수 있어요. 다시 시도하면 새 앱으로 옮겨요.</string>
+    <string name="legacy_reader_empty">읽을 수 있는 예전 일기가 없어요</string>
+
+    <!-- 원본 내보내기, 문의하기 -->
+    <string name="migration_export_file_name">1일1일기-원본-%1$s.zip</string>
+    <string name="migration_export_done">원본을 저장했어요</string>
+    <string name="migration_export_failed">원본을 저장하지 못했어요. 저장할 곳을 다시 골라 주세요.</string>
+    <string name="migration_mail_missing">메일 앱을 찾지 못했어요. sjunh812@naver.com으로 보내 주세요.</string>
+    <string name="migration_mail_subject">[1일 1일기] 기록 이전 문의</string>
+    <string name="migration_mail_body">아래 내용은 문제를 해결할 때만 써요. 일기 내용은 담지 않았어요.\n\n앱 버전: %1$s\n기기: %2$s\n멈춘 단계: %3$s\n문제 종류: %4$s\n시도 횟수: %5$s\n일기 수: %6$s\n사진 수: %7$s\n읽지 못한 일기 수: %8$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
+    <string name="migration_readme">1일 1일기 원본 파일이에요.\n\n새 앱으로 옮기기 전에 예전 앱(1.7.x)이 쓰던 기록을 그대로 담았어요.\n\n- legacy-snapshot: 일기 파일(note.db)과 설정. 비밀번호는 빼고 담았어요.\n- media: 예전 앱에서 옮겨 둔 사진\n\n기록을 복원하고 싶으면 이 파일을 지우지 말고 sjunh812@naver.com으로 문의해 주세요.\n</string>
+    <!-- 복구 문의(M5 시트, FR-010a) -->
+    <string name="support_sheet_title">깨진 일기를 복구해 드릴 수 있어요</string>
+    <string name="support_sheet_body">일기 파일을 메일에 첨부해 보내 주시면 읽을 수 있게 복구해서 돌려드려요.</string>
+    <string name="support_sheet_contains">일기 글이 그대로 들어 있어요. 사진과 비밀번호는 빼요.</string>
+    <string name="support_sheet_deleted">복구한 파일을 돌려드린 뒤 바로 삭제해요.</string>
+    <string name="support_sheet_restore">받은 파일은 "파일에서 복원하기"로 합치면 돼요.</string>
+    <string name="support_without">첨부 없이 문의</string>
+    <string name="support_with">첨부해서 문의</string>
+    <string name="support_file_name">1일1일기-문의용-%1$s.zip</string>
+    <string name="support_failed">문의용 파일을 만들지 못했어요. 첨부 없이 문의해 주세요.</string>
+    <string name="support_mail_subject">[1일 1일기] 깨진 일기 복구 문의</string>
+    <string name="support_mail_body">보내 주신 파일은 복구해서 돌려드린 뒤 바로 지워요. 일기 파일만 담았고 사진과 비밀번호는 뺐어요.\n\n앱 버전: %1$s\n기기: %2$s\n읽지 못한 일기 수: %3$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
+    <string name="legacy_reader_failed">예전 일기를 읽지 못했어요</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution">
+
+    <!-- 사용자가 글꼴을 고를 때만 받는다. 안드로이드 4.4 이하용 하나로 합친 APK에는 넣는다. -->
+    <dist:module
+        dist:instant="false"
+        dist:title="@string/font_module_title">
+        <dist:delivery>
+            <dist:on-demand />
+        </dist:delivery>
+        <dist:fusing dist:include="true" />
+    </dist:module>
+
+    <application android:hasCode="false" />
+</manifest>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 7.x 앱 아이콘(적응형 아이콘 이전). Figma A2 "둥근 사각"과 같은 모양. 8.0부터는 mipmap-anydpi-v26을 쓴다. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+    <path android:pathData="M36,0h88a36,36 0,0 1,36 36v88a36,36 0,0 1,-36 36h-88a36,36 0,0 1,-36 -36v-88a36,36 0,0 1,36 -36z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endColor="#FFEFE9FF"
+                android:endX="160"
+                android:endY="160"
+                android:startColor="#FFFFFFFF"
+                android:startX="0"
+                android:startY="0"
+                android:type="linear" />
+        </aapt:attr>
+    </path>
+    <path
+        android:fillAlpha="0.14"
+        android:fillColor="#6E56CF"
+        android:pathData="M52.2196 113.424L59.3459 92.0452L101.154 50.2375H108.755L115.406 56.8888L115.406 64.4902L73.5985 106.298L52.2196 113.424Z" />
+    <path
+        android:fillColor="#F7D9B5"
+        android:pathData="M57.1959 88.5516L71.4485 102.804L50.0695 109.931L57.1959 88.5516Z" />
+    <path
+        android:fillColor="#4A3F7A"
+        android:pathData="M52.635 102.614L57.3859 107.365L50.0695 109.931L52.635 102.614Z" />
+    <path
+        android:fillColor="#E6D8FF"
+        android:pathData="M88.5516 57.196L57.1958 88.5518L61.9467 93.3026L93.3024 61.9469L88.5516 57.196Z" />
+    <path
+        android:fillColor="#CFB0FF"
+        android:pathData="M93.3025 61.9465L61.9468 93.3022L66.6977 98.0531L98.0534 66.6974L93.3025 61.9465Z" />
+    <path
+        android:fillColor="#B892F5"
+        android:pathData="M98.0534 66.6975L66.6976 98.0532L71.4485 102.804L102.804 71.4483L98.0534 66.6975Z" />
+    <path
+        android:fillColor="#E6D8FF"
+        android:pathData="M61.9467 93.3027C63.2587 91.9908 63.2587 89.8637 61.9467 88.5518C60.6348 87.2399 58.5078 87.2399 57.1959 88.5518C55.884 89.8637 55.884 91.9908 57.1959 93.3027C58.5078 94.6146 60.6348 94.6146 61.9467 93.3027Z" />
+    <path
+        android:fillColor="#CFB0FF"
+        android:pathData="M66.6976 98.0532C68.0095 96.7413 68.0095 94.6142 66.6976 93.3023C65.3857 91.9904 63.2586 91.9904 61.9467 93.3023C60.6348 94.6142 60.6348 96.7413 61.9467 98.0532C63.2586 99.3651 65.3857 99.3651 66.6976 98.0532Z" />
+    <path
+        android:fillColor="#B892F5"
+        android:pathData="M71.4485 102.804C72.7604 101.492 72.7604 99.3652 71.4485 98.0533C70.1365 96.7414 68.0095 96.7414 66.6976 98.0533C65.3857 99.3652 65.3857 101.492 66.6976 102.804C68.0095 104.116 70.1365 104.116 71.4485 102.804Z" />
+    <path
+        android:fillColor="#E4E5EB"
+        android:pathData="M96.153 49.5944L88.5516 57.1958L102.804 71.4484L110.406 63.847L96.153 49.5944Z" />
+    <path
+        android:fillColor="#C8CBD3"
+        android:pathData="M91.0221 54.7252L90.262 55.4854L104.515 69.738L105.275 68.9778L91.0221 54.7252Z" />
+    <path
+        android:fillColor="#C8CBD3"
+        android:pathData="M94.4428 51.3048L93.6826 52.0649L107.935 66.3176L108.695 65.5574L94.4428 51.3048Z" />
+    <path
+        android:fillColor="#FBC4E4"
+        android:pathData="M96.1531 49.5942L99.0036 46.7437C100.012 45.7357 101.379 45.1694 102.804 45.1694C104.23 45.1694 105.597 45.7357 106.605 46.7437L113.256 53.3949C114.264 54.4029 114.831 55.7701 114.831 57.1956C114.831 58.6212 114.264 59.9883 113.256 60.9963L110.406 63.8469L96.1531 49.5942Z" />
+</vector>

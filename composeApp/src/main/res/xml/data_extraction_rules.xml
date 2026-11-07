@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 일기·사진·설정·잠금은 클라우드 자동 백업과 기기 간 이전 모두에서 뺀다(스펙 001 research O5, 스펙 003 research R20).
+     백업은 사용자가 고른 구글 드라이브나 파일로만 한다(헌법 II). 잠금 키는 기기 밖으로 나가지 않아, 확인값만 옮겨 가면 잠금이 깨진다.
+     allowBackup="false"여도 Android 12부터 기기 간 이전은 이 규칙을 따른다. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+    </device-transfer>
+</data-extraction-rules>

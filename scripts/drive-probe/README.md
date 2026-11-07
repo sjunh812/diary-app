@@ -1,0 +1,50 @@
+# 드라이브 확인용 빌드
+
+스펙 003 첫 작업(tasks T009~T011, research R1·O4)을 하는 작은 빌드다. 실제 앱과 같은 패키지 `org.sjhstudio.diary`, 같은 클라우드 프로젝트
+`diary-app`(ID `stone-rhythm-310608`)로 시험한다. 확인이 끝나면 이 코드는 스펙 003의 드라이브 연결 코드로 옮기고 지운다.
+설치는 에뮬레이터·시뮬레이터에만 한다.
+
+## 콘솔 준비 (2026-11-01 마침)
+
+- 프로젝트 이름을 GoogleMapProject에서 `diary-app`으로 바꿨다(ID는 그대로).
+- 데이터 액세스에 `drive.file`을 더했다(`openid`, `userinfo.email`, `userinfo.profile`은 원래 있었음).
+- Android 클라이언트 "1일 1일기 Debug (2026)": `org.sjhstudio.diary` + 이 맥 디버그 키 SHA-1. 원래 있던 "1일 1일기"(출시)와 "1일 1일기 Debug"(예전 맥)는 그대로.
+- iOS 클라이언트 "1일 1일기 iOS": 번들 ID `org.sjhstudio.diary`. 클라이언트 ID는 `ios/Local.xcconfig`(저장소에 올리지 않음)에 둔다.
+
+## 빌드
+
+```bash
+cd scripts/drive-probe/android && JAVA_HOME=<JDK 17> sh ./gradlew :app:assembleDebug
+cd scripts/drive-probe/ios && cp Local.xcconfig.example Local.xcconfig  # 값 채우기
+xcodegen generate && xcodebuild -project DriveCheck.xcodeproj -scheme DriveCheck -sdk iphonesimulator -derivedDataPath build build
+```
+
+## 확인 순서
+
+시험용 구글 계정 하나로 한다(개인 계정 말고). 로그인은 사람이 직접 한다.
+
+1. **예전 앱 백업 만들기**: 에뮬레이터(Medium_Phone, Play 스토어 있음)에서 Play 스토어로 1일 1일기 1.7.4를 깔고, 일기 하나를 쓰고, 설정 > 백업에서
+   시험 계정으로 드라이브 백업을 한다. 그다음 1.7.4를 지운다(확인 빌드는 디버그 키라 서명이 달라 덮어 깔리지 않는다).
+2. **Android 확인 빌드**: `adb -s emulator-5554 install app/build/outputs/apk/debug/app-debug.apk` → 1 연결 → 2 만들기 → 3 찾기.
+   3에서 예전 앱 `note.db`가 보이면 "같은 프로젝트의 다른 Android 클라이언트(출시 키)가 만든 파일"이 보인다는 뜻이다.
+3. **iOS 확인 빌드**: 시뮬레이터에서 1 연결 → 3 찾기(Android가 만든 `android-made.txt`와 `note.db`가 보이는지) → 2 만들기.
+4. **다시 Android**: 3 찾기로 iOS가 만든 `ios-made.txt`가 보이는지 본다.
+5. **백그라운드 토큰**: Android 4 → 홈으로 나가 20초 → 돌아와 5. iOS는 앱을 홈으로 보낸 뒤 다시 열어 4.
+
+## 기록
+
+| 방향 | 보임 | 날짜·메모 |
+| --- | --- | --- |
+| 예전 앱(출시 키) `note.db` → Android 확인 빌드(디버그 키) | **보임** | 2026-11-01. Android 16 에뮬레이터, "1일 1일기 Debug (2026)" 클라이언트 |
+| 예전 앱 `note.db` → iOS | **보임** | 2026-11-01. 실기기 Galaxy(Play 1.7.4)가 올린 `note.db` 28,672바이트(처음 만든 때 2021-06-27)가 iOS 시뮬레이터(iOS 26.2) "1일 1일기 iOS" 클라이언트로 보임 |
+| Android → iOS | **보임**(위와 같은 결과로 갈음) | 출시 키 Android 클라이언트가 만든 파일이 iOS 클라이언트에 보이므로 같은 프로젝트 안에서는 클라이언트를 가리지 않는 것으로 본다 |
+| iOS → Android | **보임** | iOS가 만든 `ios-made.txt`가 Android 디버그 클라이언트에서 보임 |
+| 작업 관리자 안 토큰(Android) | **됨**(네트워크 조건 필요) | 작업 안에서 `authorize()`가 화면 없이 토큰을 줌. 다만 앱 프로세스가 살아 있어 작업 관리자가 앱 안에서 돌린 두 번은 드라이브 호출이 `UnknownHostException`으로 실패했다. 이때 기기 정책에 `blocked=APP_BACKGROUND`가 있었다. 앱을 내린 뒤 시스템 작업(연결됨 조건)으로 돌자 토큰 받기와 조회가 성공했다 |
+| 백그라운드 토큰(iOS) | **됨** | 앱을 홈으로 보낸 뒤 `beginBackgroundTask` 안에서 `restorePreviousSignIn` + `refreshTokensIfNeeded` → 토큰 받고 조회 성공. 만료된 토큰을 BGTask 안에서 새로 받는 경우는 1시간 뒤에 다시 본다 |
+
+결과는 `specs/003-backup-v2/research.md` R1·O4와 `docs/backup.md` 인증 절에 옮긴다.
+
+## 정리
+
+2026-11-01 확인을 마치고 확인용 폴더 "1일 1일기 백업 확인"과 `ios-made.txt`를 드라이브 휴지통으로 옮겼다(30일 뒤 드라이브가 비움).
+예전 앱 `note.db`는 읽기만 했다. 실기기의 1.7.4와 일기에는 손대지 않았다.

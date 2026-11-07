@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_favorites_only">お気に入りのみ</string>
+    <string name="home_favorites_empty">お気に入りの日記はありません</string>
+    <string name="home_empty_title">まだ日記がありません</string>
+    <string name="home_empty_body">最初の日記は一行だけでも大丈夫です。</string>
+    <string name="home_empty_action">日記を書く</string>
+    <string name="home_month_sheet_title">日付へ移動</string>
+    <string name="detail_back">戻る</string>
+    <string name="detail_favorite">お気に入り</string>
+    <string name="detail_unfavorite">お気に入りを解除</string>
+    <string name="detail_edit">編集</string>
+    <string name="detail_more">その他</string>
+    <string name="detail_share">共有</string>
+    <string name="detail_trash">ゴミ箱に移動</string>
+    <string name="detail_photo_close">閉じる</string>
+    <string name="detail_photo_page">%1$d / %2$d</string>
+    <string name="detail_missing_photo">写真が見つかりません</string>
+    <string name="home_search">検索</string>
+    <string name="detail_kept_both_title">2つのバージョンを残しました</string>
+    <string name="detail_kept_both_body">2か所で編集された日記です。こちらだけ残すと、もう一方はゴミ箱に移動します。</string>
+    <string name="detail_kept_both_other">もう一方を見る</string>
+    <string name="detail_kept_both_keep">こちらだけ残す</string>
+    <string name="detail_kept_both_close">両方残す</string>
+    <string name="detail_elsewhere_photo">元のスマートフォンにある写真</string>
+    <string name="home_error_title">日記を読み込めませんでした</string>
+    <string name="home_error_body">少し時間をおいて、もう一度お試しください。</string>
+    <string name="home_error_retry">もう一度試す</string>
+    <string name="detail_missing_title">日記が見つかりません</string>
+    <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
+</resources>

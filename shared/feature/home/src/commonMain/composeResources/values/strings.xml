@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_favorites_only">Favorites only</string>
+    <string name="home_favorites_empty">No favorite entries</string>
+    <string name="home_empty_title">No entries yet</string>
+    <string name="home_empty_body">Your first entry can be just one line.</string>
+    <string name="home_empty_action">Write an entry</string>
+    <string name="home_month_sheet_title">Go to month</string>
+    <string name="detail_back">Back</string>
+    <string name="detail_favorite">Favorite</string>
+    <string name="detail_unfavorite">Remove from favorites</string>
+    <string name="detail_edit">Edit</string>
+    <string name="detail_more">More</string>
+    <string name="detail_share">Share</string>
+    <string name="detail_trash">Move to Trash</string>
+    <string name="detail_photo_close">Close</string>
+    <string name="detail_photo_page">%1$d / %2$d</string>
+    <string name="detail_missing_photo">Photo not found</string>
+    <string name="home_search">Search</string>
+    <string name="detail_kept_both_title">Kept as two versions</string>
+    <string name="detail_kept_both_body">This entry was edited in two places. If you keep only this one, the other moves to Trash.</string>
+    <string name="detail_kept_both_other">See other version</string>
+    <string name="detail_kept_both_keep">Keep this one</string>
+    <string name="detail_kept_both_close">Keep both</string>
+    <string name="detail_elsewhere_photo">On the original phone</string>
+    <string name="home_error_title">Couldn't load your entries</string>
+    <string name="home_error_body">Try again in a moment.</string>
+    <string name="home_error_retry">Try again</string>
+    <string name="detail_missing_title">Entry not found</string>
+    <string name="detail_missing_body">It may have been deleted or moved to Trash.</string>
+</resources>

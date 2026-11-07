@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="insight_title">Insights</string>
+    <string name="insight_tab_week">Week</string>
+    <string name="insight_tab_month">Month</string>
+    <string name="insight_tab_year">Year</string>
+    <string name="insight_tab_all">All</string>
+    <string name="insight_previous">Previous period</string>
+    <string name="insight_next">Next period</string>
+    <string name="insight_all_time">All time</string>
+    <string name="insight_week_range">%1$s – %2$s</string>
+    <string name="insight_empty">No entries in this period</string>
+    <string name="insight_write">New entry</string>
+    <string name="insight_no_moods">No moods in this period</string>
+    <string name="insight_top_week">Top mood this week: %1$s</string>
+    <string name="insight_top_month">Top mood this month: %1$s</string>
+    <string name="insight_top_year">Top mood this year: %1$s</string>
+    <string name="insight_top_all">Top mood so far: %1$s</string>
+    <string name="insight_top_past">Top mood in this period: %1$s</string>
+    <string name="insight_mood_join">%1$s, %2$s</string>
+    <string name="insight_summary_counts">%1$s · %2$s</string>
+    <string name="insight_count_percent">%1$d · %2$d%</string>
+    <string name="insight_year_map">Each day's mood this year</string>
+    <string name="insight_flow_week">Mood each day</string>
+    <string name="insight_flow_month">Top mood each week</string>
+    <string name="insight_flow_all">Top mood each year</string>
+    <string name="insight_flow_year">Top mood each month</string>
+    <string name="insight_week_number">Wk %1$d</string>
+    <plurals name="insight_entry_count">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
+    <plurals name="insight_no_mood_count">
+        <item quantity="one">%1$d without a mood</item>
+        <item quantity="other">%1$d without a mood</item>
+    </plurals>
+    <string name="insight_adv_title">Advanced stats</string>
+    <string name="insight_adv_wd_sun">Sunday</string>
+    <string name="insight_adv_wd_mon">Monday</string>
+    <string name="insight_adv_wd_tue">Tuesday</string>
+    <string name="insight_adv_wd_wed">Wednesday</string>
+    <string name="insight_adv_wd_thu">Thursday</string>
+    <string name="insight_adv_wd_fri">Friday</string>
+    <string name="insight_adv_wd_sat">Saturday</string>
+    <string name="insight_adv_day_dawn">Late night</string>
+    <string name="insight_adv_day_morning">Morning</string>
+    <string name="insight_adv_day_afternoon">Afternoon</string>
+    <string name="insight_adv_day_evening">Evening</string>
+    <string name="insight_adv_range_recent">Last 30 days</string>
+    <string name="insight_adv_range_year">This year</string>
+    <string name="insight_adv_range_all">All</string>
+    <string name="insight_adv_not_enough">This appears once you've written 7 entries.</string>
+    <string name="insight_adv_change_recent">Compared with the previous 30 days</string>
+    <string name="insight_adv_change_year">Compared with this time last year</string>
+    <string name="insight_adv_change_good">Good moods</string>
+    <string name="insight_adv_when">When your moods show up</string>
+    <string name="insight_adv_tab_weekday">Day</string>
+    <string name="insight_adv_tab_part">Time</string>
+    <string name="insight_adv_tab_weather">Weather</string>
+    <string name="insight_adv_tab_place">Place</string>
+    <string name="insight_adv_share">%1$d%</string>
+    <string name="insight_adv_tone_note">Share of entries marked Good or Laughing.</string>
+    <string name="insight_adv_when_empty">Not enough entries yet.</string>
+    <string name="insight_adv_company">Weather, days, and places by mood</string>
+    <string name="insight_adv_habit">By the numbers</string>
+    <string name="insight_adv_habit_entries">Entries</string>
+    <string name="insight_adv_habit_days">Days written</string>
+    <string name="insight_adv_habit_run">Longest streak</string>
+    <string name="insight_adv_habit_characters">Characters</string>
+    <string name="insight_adv_habit_photos">Photos</string>
+    <string name="insight_adv_habit_part">Favorite time</string>
+    <plurals name="insight_adv_company_title">
+        <item quantity="one">%1$s · %2$s entry</item>
+        <item quantity="other">%1$s · %2$s entries</item>
+    </plurals>
+    <plurals name="insight_adv_habit_entries_value">
+        <item quantity="one">%1$s entry</item>
+        <item quantity="other">%1$s entries</item>
+    </plurals>
+    <plurals name="insight_adv_habit_days_value">
+        <item quantity="one">%1$s day</item>
+        <item quantity="other">%1$s days</item>
+    </plurals>
+    <plurals name="insight_adv_habit_characters_value">
+        <item quantity="one">%1$s character</item>
+        <item quantity="other">%1$s characters</item>
+    </plurals>
+    <plurals name="insight_adv_habit_photos_value">
+        <item quantity="one">%1$s photo</item>
+        <item quantity="other">%1$s photos</item>
+    </plurals>
+    <string name="insight_section_days">Mood each day</string>
+    <string name="insight_map_hint">Each square is a day, colored by that day's mood.</string>
+    <string name="tip_insight_mood">Tap a mood to see all its entries.</string>
+    <string name="insight_section_moods">Top moods</string>
+    <string name="insight_adv_no_moods">Not enough entries with a mood</string>
+    <string name="insight_adv_no_moods_body">Pick a mood on 7 entries and we'll look for differences.</string>
+    <string name="insight_adv_recent_better">You've had more good days lately</string>
+    <string name="insight_adv_recent_harder">Lately hasn't been easy</string>
+    <string name="insight_adv_recent_steady">Things have been about the same lately</string>
+    <string name="insight_adv_recent_steady_body">Not much different from the previous 30 days.</string>
+    <string name="insight_adv_recent_good_up">More good moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_good_down">Fewer good moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_up">More low moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_down">Fewer low moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_change_hard">Low moods</string>
+    <string name="insight_adv_change_top">Top mood</string>
+    <string name="insight_adv_change_before">%1$s →</string>
+    <string name="insight_adv_tone_note_hard">Share of entries marked Angry, Sad, Bad, Sick, or Tired.</string>
+    <string name="insight_adv_unit_small">1000</string>
+    <string name="insight_adv_unit_big">1000000</string>
+    <string name="insight_adv_characters_small">%1$sK characters</string>
+    <string name="insight_adv_characters_big">%1$sM characters</string>
+</resources>

@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "1일 1일기";
+"NSFaceIDUsageDescription" = "Face ID로 일기 잠금을 열어요.";
+"NSLocationWhenInUseUsageDescription" = "내 위치 가져오기를 누를 때만 위치를 읽어 동네 이름을 찾아요.";
+"NSCameraUsageDescription" = "찍은 사진을 일기에 넣을 때만 카메라를 써요.";

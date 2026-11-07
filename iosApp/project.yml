@@ -1,0 +1,156 @@
+# Xcode 프로젝트의 원본. 고친 뒤 iosApp 폴더에서 `xcodegen generate`로 iosApp.xcodeproj를 다시 만든다.
+# 만든 iosApp.xcodeproj도 저장소에 두어 Xcode로 바로 열 수 있게 한다(research R22).
+name: iosApp
+options:
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+# 구글 드라이브 연결(스펙 003 research R2, R19).
+packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    exactVersion: 10.1.0
+  # 사용 통계와 비정상 종료 보고(스펙 001 research R21). 설정 파일이 없으면 켜지지 않는다.
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 13.1.1
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    # CI의 xcodebuild -scheme iosApp이 찾도록 공유 스킴을 만든다.
+    scheme: {}
+    # 클라이언트 ID는 저장소 밖 Local.xcconfig에서 온다(Config.xcconfig 참고).
+    configFiles:
+      Debug: iosApp/Config.xcconfig
+      Release: iosApp/Config.xcconfig
+    dependencies:
+      - package: GoogleSignIn
+        product: GoogleSignIn
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseCrashlytics
+    sources:
+      - path: iosApp
+        excludes:
+          - GoogleService-Info.plist
+      # 고를 때 받는 일기 글꼴(research R17). 안드로이드 글꼴 모듈과 같은 파일을 On-Demand Resources 태그(글꼴 ID)로 둔다.
+      - path: ../fonts/gowun_dodum/src/main/assets/fonts/gowun_dodum.ttf
+        buildPhase: resources
+        resourceTags: [gowun_dodum]
+      - path: ../fonts/gowun_batang/src/main/assets/fonts/gowun_batang.ttf
+        buildPhase: resources
+        resourceTags: [gowun_batang]
+      - path: ../fonts/nanum_jeomggol/src/main/assets/fonts/nanum_jeomggol.ttf
+        buildPhase: resources
+        resourceTags: [nanum_jeomggol]
+      - path: ../fonts/gamja_flower/src/main/assets/fonts/gamja_flower.ttf
+        buildPhase: resources
+        resourceTags: [gamja_flower]
+      - path: ../fonts/hi_melody/src/main/assets/fonts/hi_melody.ttf
+        buildPhase: resources
+        resourceTags: [hi_melody]
+    info:
+      path: iosApp/Info.plist
+      properties:
+        # 앱 이름은 언어별 InfoPlist.strings가 바꾼다. 영어·일본어 이름은 임시다(열린 결정 D12).
+        CFBundleDisplayName: 1 Day 1 Diary
+        CFBundleDevelopmentRegion: en
+        # Face ID로 잠금을 열 때 처음 한 번 묻는 글. 언어별 InfoPlist.strings가 바꾼다.
+        NSFaceIDUsageDescription: Use Face ID to unlock your diary.
+        # 쓰기 화면의 카메라를 처음 누를 때 묻는다. 없으면 iOS가 앱을 바로 끝낸다.
+        NSCameraUsageDescription: The camera is used only to add a photo you take to your diary.
+        # 장소 시트의 내 위치 가져오기를 누를 때만 묻는다.
+        NSLocationWhenInUseUsageDescription: Your location is used only when you tap Use my location, to find your neighborhood name.
+        # 설정 앱의 앱별 언어에 세 언어를 올린다(docs/design.md 여러 언어).
+        CFBundleLocalizations:
+          - en
+          - ko
+          - ja
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # 시작 화면: 앱 바탕색(라이트·다크)과 가운데 연필 하나, 움직임 없음(research R14). 그림은 Android 시작 화면과 같다.
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchPencil
+        # 사용 통계에 맞춤 광고 신호를 쓰지 않는다(헌법 II).
+        GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS: false
+        # 구글 로그인이 끝나면 앱으로 돌아오는 주소와 클라이언트 ID(스펙 003 research R2).
+        GIDClientID: $(GID_CLIENT_ID)
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLSchemes:
+              - $(GID_REVERSED_CLIENT_ID)
+        # 자동 백업과 이어서 하는 백업(스펙 003 research R15).
+        BGTaskSchedulerPermittedIdentifiers:
+          - org.sjhstudio.diary.backup.daily
+          - org.sjhstudio.diary.backup.continued.*
+        UIBackgroundModes:
+          - processing
+        # Compose가 시작할 때 이 키를 본다. 없으면 앱이 바로 꺼진다(ProMotion 120Hz 화면).
+        CADisableMinimumFrameDurationOnPhone: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        PRODUCT_NAME: iosApp
+        PRODUCT_BUNDLE_IDENTIFIER: org.sjhstudio.diary
+        MARKETING_VERSION: "2.0.0"
+        CURRENT_PROJECT_VERSION: "37"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # 공유 모듈은 Apple Silicon 시뮬레이터(iosSimulatorArm64)만 만든다(스펙 001 research R3).
+        # 일반 시뮬레이터 대상으로 빌드할 때 Intel(x86_64)까지 묶지 않게 뺀다.
+        "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
+        CODE_SIGN_STYLE: Automatic
+        # Gradle이 만든 static framework Shared를 찾는 자리와 링크 옵션.
+        FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+        OTHER_LDFLAGS: -framework Shared
+        # 빌드 단계 스크립트가 저장소의 gradlew를 부르려면 샌드박스를 꺼야 한다.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+      configs:
+        # 개발 빌드는 받는 글꼴을 앱 안에 담아 Xcode 없이 깐 시뮬레이터에서도 받기를 시험한다. 출시 빌드는 App Store가 맡는다.
+        Debug:
+          EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE: YES
+    preBuildScripts:
+      - name: Compile Kotlin Framework
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "YES" = "$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED" ]; then
+            echo "OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED가 YES라 Gradle을 부르지 않는다"
+            exit 0
+          fi
+          cd "$SRCROOT/.."
+          ./gradlew :shared:app:embedAndSignAppleFrameworkForXcode
+    postCompileScripts:
+      # Firebase 설정 파일은 저장소에 없다. 있으면 앱에 담고, 없으면 Firebase가 꺼진 채 빌드된다.
+      - name: Copy Firebase Config
+        basedOnDependencyAnalysis: false
+        script: |
+          config="$SRCROOT/iosApp/GoogleService-Info.plist"
+          if [ -f "$config" ]; then
+            cp "$config" "$BUILT_PRODUCTS_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/"
+          fi
+    postBuildScripts:
+      - name: Upload Crashlytics Symbols
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist
+          - $(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)
+        script: |
+          # 출시 빌드만 올린다. 설정 파일이 없는 빌드는 건너뛴다.
+          if [ "$CONFIGURATION" != "Release" ] || [ ! -f "$SRCROOT/iosApp/GoogleService-Info.plist" ]; then
+            exit 0
+          fi
+          "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"

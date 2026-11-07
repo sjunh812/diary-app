@@ -1,0 +1,59 @@
+# 판 올리기 PR을 묶어서 한 달에 한 번 받는다.
+# 설정은 기본 브랜치(master)에 있어야 켜진다.
+# 앱에 쓰는 버전은 알파·베타로 올리지 않는다(specs/001-foundation-migration research R2). 그런 PR은 닫는다.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      # 같이 움직여야 빌드가 되는 것끼리 묶는다.
+      kotlin-compose:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "com.google.devtools.ksp*"
+          - "org.jetbrains.compose*"
+          - "org.jetbrains.androidx*"
+      android-build:
+        patterns:
+          - "com.android*"
+          - "androidx.baselineprofile*"
+          - "androidx.benchmark*"
+      androidx:
+        patterns:
+          - "androidx.*"
+      firebase-play:
+        patterns:
+          - "com.google.firebase*"
+          - "com.google.gms*"
+          - "com.google.android.gms*"
+          - "com.google.android.play*"
+      lint-tools:
+        patterns:
+          - "dev.detekt*"
+          - "io.nlopez.compose.rules*"
+          - "com.diffplug.spotless*"
+          - "com.pinterest.ktlint*"
+      others:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns:
+          - "*"

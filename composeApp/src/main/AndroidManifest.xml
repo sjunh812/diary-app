@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 매일 알림(스펙 001 FR-022). 옛 앱도 선언했던 권한이라 업데이트 뒤에도 허락이 이어진다. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- 사용자 구글 드라이브와 주고받는다(헌법 II, 사용자가 고른 저장소만). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- 장소 시트의 현재 위치 가져오기를 누를 때만 쓴다. 정확한 위치를 물어도 사용자가 대략 위치를 고를 수 있다. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- 지금 백업과 복원한 사진 받기를 앱을 떠나도 잇는다(스펙 003 research R14). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- 일기·사진·설정·잠금은 시스템 백업과 기기 간 이전으로 나가지 않는다(헌법 II, 스펙 001 research O5).
+         Android 12부터는 allowBackup="false"여도 기기 간 이전이 돌아서 규칙 파일로도 모두 뺀다. -->
+    <application
+        android:name=".DiaryApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Diary">
+        <!-- 사용 통계에 광고 ID와 기기 식별자를 넣지 않고 맞춤 광고 신호도 끈다(헌법 II). -->
+        <meta-data
+            android:name="org.sjhstudio.diary.revenuecat_key"
+            android:value="${revenueCatKey}" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="${firebaseCollection}" />
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="${firebaseCollection}" />
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_ssaid_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="google_analytics_default_allow_ad_personalization_signals"
+            android:value="false" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="${adAppId}" />
+        <meta-data
+            android:name="org.sjhstudio.diary.ad_native"
+            android:value="${adNative}" />
+        <meta-data
+            android:name="org.sjhstudio.diary.ad_interstitial"
+            android:value="${adInterstitial}" />
+        <meta-data
+            android:name="org.sjhstudio.diary.ad_rewarded"
+            android:value="${adRewarded}" />
+
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Diary.Starting"
+            android:windowSoftInputMode="adjustResize" />
+        <!-- 런처는 옛 앱(1.7.x)의 이름 .SplashActivity를 그대로 쓴다. 이름이 바뀌면 홈 화면 아이콘과 바로가기가 깨질 수 있다(research R14). -->
+        <activity-alias
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <!-- 매일 알림 수신기. 옛 앱의 이름(.helper.AlarmReceiver) 그대로라 업데이트 전에 걸어 둔 예약도 여기로 온다(research R15). -->
+        <receiver
+            android:name=".helper.AlarmReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+        </receiver>
+        <!-- 지금 백업이 작업 관리자의 진행 알림 서비스로 돈다(research R14). -->
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync"
+            tools:node="merge" />
+        <!-- 복구 문의 묶음(files/migration/support)만 메일 앱에 읽기 권한으로 넘긴다(FR-010a). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.support"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/support_paths" />
+        </provider>
+        <!-- 시스템 포토피커가 없는 기기에도 Google Play 서비스로 포토피커를 내려받게 한다(Android 공식 안내). -->
+        <service
+            android:name="com.google.android.gms.metadata.ModuleDependencies"
+            android:enabled="false"
+            android:exported="false"
+            tools:ignore="MissingClass">
+            <intent-filter>
+                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />
+            </intent-filter>
+            <meta-data android:name="photopicker_activity:0:required" android:value="" />
+        </service>
+    </application>
+</manifest>

@@ -17,3 +17,31 @@
 local.properties
 /app/src/main/java/org/sjhstudio/diary/utils/ApiKey.kt
 /app/release
+# 드라이브 확인용 빌드(scripts/drive-probe)
+scripts/drive-probe/android/.gradle/
+scripts/drive-probe/android/app/build/
+scripts/drive-probe/android/build/
+scripts/drive-probe/ios/Local.xcconfig
+scripts/drive-probe/ios/DriveCheck.xcodeproj/
+scripts/drive-probe/ios/build/
+# 새 빌드(Compose Multiplatform)
+.kotlin/
+**/build/
+iosApp/build/
+# 구글 클라이언트 ID(저장소에 올리지 않는다)
+iosApp/iosApp/Local.xcconfig
+xcuserdata/
+*.xcuserstate
+# 레거시 업그레이드 시험 산출물
+scripts/legacy/out/
+# Firebase 설정 파일. 비밀은 아니지만 프로젝트 정보라 저장소에 두지 않는다.
+composeApp/google-services.json
+iosApp/iosApp/GoogleService-Info.plist
+# 에이전트 작업 폴더
+.claude/worktrees/
+# 서명 키와 스토어 계정 파일. 올라가면 되돌릴 수 없다.
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+*service-account*.json

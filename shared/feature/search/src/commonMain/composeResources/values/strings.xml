@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_back">Back</string>
+    <string name="search_hint">Search entries</string>
+    <string name="search_clear">Clear</string>
+    <string name="search_chip_mood">Mood</string>
+    <string name="search_chip_weather">Weather</string>
+    <string name="search_chip_period">Period</string>
+    <string name="search_chip_photo">With photos</string>
+    <string name="search_chip_favorite">Favorites</string>
+    <string name="search_period_week">This week</string>
+    <string name="search_period_month">This month</string>
+    <string name="search_period_year">This year</string>
+    <string name="search_period_custom">Pick dates</string>
+    <string name="search_clear_filter">Clear</string>
+    <string name="search_done">Done</string>
+    <string name="search_empty_title">No matching entries</string>
+    <string name="search_empty_body">Try a different keyword or change your filters.</string>
+    <plurals name="search_result_count">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
+    <string name="search_error_title">Couldn't load your entries</string>
+    <string name="search_error_body">Try again in a moment.</string>
+    <string name="search_error_retry">Try again</string>
+    <string name="search_idle">Enter a keyword or pick a filter to find entries.</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_today">Today</string>
+    <string name="calendar_previous_month">Previous month</string>
+    <string name="calendar_next_month">Next month</string>
+    <string name="calendar_month_sheet_title">Go to month</string>
+    <string name="calendar_empty">No entries this day</string>
+    <string name="calendar_write_on_day">Write for this day</string>
+    <string name="calendar_day_summary">%1$s · %2$s</string>
+    <plurals name="calendar_day_count">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
+</resources>

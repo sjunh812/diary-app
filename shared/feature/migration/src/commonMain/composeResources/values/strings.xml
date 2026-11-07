@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 영어 기본 문구. 한국어는 values-ko, 일본어는 values-ja(docs/design.md 여러 언어). 영어·일본어는 원어민 검수 전 초안이다. -->
+    <!-- 이전 준비(M0) -->
+    <string name="migration_preparing_title">Getting ready to transfer your diary</string>
+    <string name="migration_preparing_body">Your entries are being transferred to the new version. Your original diary stays untouched.</string>
+
+    <!-- 이전 진행(M1) -->
+    <string name="migration_progress_title">Transferring your entries</string>
+    <string name="migration_progress_body">The screen stays on until it's done.</string>
+    <string name="migration_progress_entries">Entries</string>
+    <string name="migration_progress_entries_value">%1$s / %2$s</string>
+    <string name="migration_progress_photos">Photos</string>
+    <string name="migration_progress_photos_value">%1$s / %2$s</string>
+    <string name="migration_progress_note">If the app closes partway, the transfer starts over. Your original diary is untouched.</string>
+
+    <!-- 결과(M2) -->
+    <plurals name="migration_done_title">
+        <item quantity="one">%1$s entry transferred</item>
+        <item quantity="other">All %1$s entries transferred</item>
+    </plurals>
+    <plurals name="migration_done_photos">
+        <item quantity="one">%1$s photo transferred too.</item>
+        <item quantity="other">%1$s photos transferred too.</item>
+    </plurals>
+    <plurals name="migration_missing_photos_title">
+        <item quantity="one">%1$s photo couldn't be found</item>
+        <item quantity="other">%1$s photos couldn't be found</item>
+    </plurals>
+    <string name="migration_missing_photos_body">The previous version kept these in temporary storage, and they were deleted. Their spots are saved in your entries.</string>
+    <string name="migration_missing_photos_body_short">Their spots are saved in your entries.</string>
+    <plurals name="migration_date_fixed_title">
+        <item quantity="one">Date corrected on %1$s entry</item>
+        <item quantity="other">Dates corrected on %1$s entries</item>
+    </plurals>
+    <string name="migration_date_fixed_body">The previous version showed them a day late by mistake. They're now on the date you picked when writing.</string>
+    <string name="migration_start">Get started</string>
+
+    <!-- 일부만(M2-b). 숫자 둘 가운데 옮긴 일기 수로 꼴을 고른다. -->
+    <string name="migration_partial_title">Only some entries were transferred</string>
+    <plurals name="migration_partial_body">
+        <item quantity="one">%1$s entry was transferred, but %2$s couldn't be read because the original file is damaged. The app will try again after its next update. Your original diary is untouched.</item>
+        <item quantity="other">%1$s entries were transferred, but %2$s couldn't be read because the original file is damaged. The app will try again after its next update. Your original diary is untouched.</item>
+    </plurals>
+    <string name="migration_partial_footnote">You can see this again in Settings > Transfer results.</string>
+    <string name="migration_export_original">Export original files</string>
+    <string name="migration_contact">Contact us</string>
+
+    <!-- 실패(M3) -->
+    <string name="migration_skip">Start with a new entry</string>
+    <string name="migration_failed_title">Couldn't transfer your diary</string>
+    <string name="migration_failed_body_mismatch">Something went wrong while checking the transferred entries. Your original diary is untouched.</string>
+    <string name="migration_failed_body_snapshot">The transfer stopped because your original diary couldn't be copied. It's untouched.</string>
+    <string name="migration_failed_body_read">The transfer stopped because the previous version's files couldn't be read. Your original diary is untouched.</string>
+    <string name="migration_failed_body_write">The transfer stopped because entries couldn't be saved in the new version. Your original diary is untouched.</string>
+    <string name="migration_failed_body_unknown">The transfer stopped because something went wrong. Your original diary is untouched.</string>
+    <string name="migration_view_legacy">View old entries</string>
+    <string name="migration_retry">Try again</string>
+    <string name="migration_no_space_title">Your phone is low on storage</string>
+    <string name="migration_no_space_body">You need %1$s more space on your phone for the transfer. Delete photos or apps you don't use, then check again. Your original diary is untouched.</string>
+    <string name="migration_check_again">Check again</string>
+
+    <!-- 관문을 지난 뒤 한 번 알림(FR-011) -->
+    <plurals name="migration_entries_recovered">
+        <item quantity="one">Transferred %1$s entry that couldn't be read before</item>
+        <item quantity="other">Transferred %1$s entries that couldn't be read before</item>
+    </plurals>
+    <plurals name="migration_photos_found">
+        <item quantity="one">Found %1$s missing photo</item>
+        <item quantity="other">Found %1$s missing photos</item>
+    </plurals>
+
+    <!-- 예전 일기 보기(M4). 날짜와 시각은 DiaryDateFormat이 만든다. -->
+    <string name="legacy_reader_title">Old entries</string>
+    <string name="legacy_reader_notice">You can only read these. Try again to transfer them to the new version.</string>
+    <string name="legacy_reader_empty">No old entries to read</string>
+
+    <!-- 원본 내보내기, 문의하기 -->
+    <!-- 저장 창에 처음 보이는 파일 이름. %1$s는 yyyyMMdd. -->
+    <string name="migration_export_file_name">1Day1Diary-original-%1$s.zip</string>
+    <string name="migration_export_done">Original files saved</string>
+    <string name="migration_export_failed">Couldn't save the original files. Choose where to save them again.</string>
+    <string name="migration_mail_missing">No email app found. Please write to sjunh812@naver.com.</string>
+    <string name="migration_mail_subject">[1 Day 1 Diary] Help with transferring entries</string>
+    <string name="migration_mail_body">The details below are only used to find and fix the problem. Your entries aren't included.\n\nApp version: %1$s\nDevice: %2$s\nStopped at: %3$s\nProblem type: %4$s\nAttempts: %5$s\nEntries: %6$s\nPhotos: %7$s\nUnreadable entries: %8$s\n\nTell us what happened or what you'd like to ask.\n</string>
+    <string name="migration_readme">These are the original files of 1 Day 1 Diary.\n\nThey hold the diary the previous version (1.7.x) used, exactly as it was before the transfer to the new version.\n\n- legacy-snapshot: the diary file (note.db) and settings, without your passcode\n- media: photos transferred from the previous version\n\nIf you want your entries restored, keep this file and write to sjunh812@naver.com.\n</string>
+    <!-- 복구 문의(M5 시트, FR-010a). 일부만 옮겨진 기기에서 문의하기를 누르면 먼저 뜬다. -->
+    <string name="support_sheet_title">We can fix damaged entries</string>
+    <string name="support_sheet_body">Attach your diary file to an email, and we'll fix it so it can be read and send it back.</string>
+    <string name="support_sheet_contains">Your entries are in the file as they are. Photos and your passcode are left out.</string>
+    <string name="support_sheet_deleted">We delete it right after sending back the fixed file.</string>
+    <string name="support_sheet_restore">Use Restore from a file to merge the file you get back.</string>
+    <string name="support_without">Email without file</string>
+    <string name="support_with">Email with file</string>
+    <!-- 메일에 붙는 파일 이름. %1$s는 yyyyMMdd. -->
+    <string name="support_file_name">1Day1Diary-support-%1$s.zip</string>
+    <string name="support_failed">Couldn't prepare the file. Please contact us without it.</string>
+    <string name="support_mail_subject">[1 Day 1 Diary] Help with damaged entries</string>
+    <string name="support_mail_body">We delete the attached file right after sending back the fixed one. It holds only your diary file, without photos or your passcode.\n\nApp version: %1$s\nDevice: %2$s\nUnreadable entries: %3$s\n\nTell us what happened or what you'd like to ask.\n</string>
+    <string name="legacy_reader_failed">Couldn't read your old entries</string>
+</resources>

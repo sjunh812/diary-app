@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 기록 이전 결과(M5) -->
+    <string name="migration_report_title">기록 이전 결과</string>
+    <string name="migration_report_when">%1$s에 예전 앱에서 옮겼어요.</string>
+    <string name="migration_report_entries">옮긴 일기</string>
+    <string name="migration_report_photos">옮긴 사진</string>
+    <string name="migration_report_missing_photos">찾을 수 없는 사진</string>
+    <string name="migration_report_date_fixed">날짜를 바로잡은 일기</string>
+    <string name="migration_report_unreadable">읽지 못한 일기</string>
+    <plurals name="migration_report_entry_count">
+        <item quantity="other">%1$s편</item>
+    </plurals>
+    <plurals name="migration_report_photo_count">
+        <item quantity="other">%1$s장</item>
+    </plurals>
+    <plurals name="migration_report_notice">
+        <item quantity="other">예전 앱 파일 일부가 깨져 일기 %1$s편을 읽지 못했어요. 앱을 업데이트하면 다시 읽어 볼게요. 원래 기록은 휴대폰 안에 그대로 있어요.</item>
+    </plurals>
+    <string name="migration_report_export">원본 파일 내보내기</string>
+    <string name="migration_report_contact">문의하기</string>
+
+    <!-- 설정 목록(S6) -->
+    <string name="settings_group_feedback">의견과 평가</string>
+    <string name="settings_feedback">의견 보내기</string>
+    <string name="settings_rate">앱 평가하기</string>
+    <string name="settings_version">앱 버전</string>
+    <string name="settings_plus_badge">Plus 이용 중</string>
+    <string name="settings_feedback_subject">1일 1일기 피드백</string>
+    <string name="settings_feedback_body">사용 버전: %1$s\nOS: %2$s\n휴대폰 기종: %3$s\n\n의견을 적어 주세요 😊\n</string>
+    <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s로 보내 주세요.</string>
+    <string name="settings_title">설정</string>
+    <string name="settings_group_style">꾸미기</string>
+    <string name="settings_group_info">앱 정보</string>
+    <string name="settings_licenses">오픈소스 라이선스</string>
+    <string name="licenses_group_fonts">글꼴</string>
+    <string name="licenses_group_libraries">라이브러리</string>
+    <string name="license_ofl">SIL Open Font License 1.1</string>
+    <string name="license_changwon_round">창원단감둥근체 안내</string>
+    <string name="license_naver">네이버 글꼴 라이선스</string>
+    <string name="settings_text_size">본문 글자 크기</string>
+    <string name="settings_theme">화면 모드</string>
+    <string name="settings_lock">잠금</string>
+    <string name="lock_value_off">꺼짐</string>
+    <string name="lock_value_immediately">바로 잠금</string>
+    <string name="lock_value_one_minute">1분 뒤 잠금</string>
+    <string name="lock_value_five_minutes">5분 뒤 잠금</string>
+    <string name="lock_value_cold_start">새로 열 때 잠금</string>
+
+    <!-- 개발 빌드에만 있는 줄(FR-029) -->
+
+
+    <!-- 쓰기 알림(R1) -->
+    <string name="settings_group_notification_security">알림과 보안</string>
+    <string name="settings_reminder">쓰기 알림</string>
+    <string name="reminder_value_off">꺼짐</string>
+    <string name="reminder_body">매일 정한 시각에 일기 쓸 시간을 알려 드려요.</string>
+    <string name="reminder_time">알림 시각</string>
+    <string name="reminder_save">저장</string>
+    <string name="reminder_permission_title">알림이 꺼져 있어요</string>
+    <string name="reminder_permission_body">휴대폰 설정에서 1일 1일기 알림을 허용해야 매일 알림이 와요.</string>
+    <string name="reminder_permission_allow">허용하기</string>
+
+    <!-- 글꼴(G1) -->
+    <string name="settings_font">글꼴</string>
+    <string name="font_name_system">시스템 글꼴</string>
+    <string name="font_name_pretendard">Pretendard</string>
+    <string name="font_name_gowun_dodum">고운돋움</string>
+    <string name="font_name_changwon_round">창원단감둥근체</string>
+    <string name="font_name_maru_buri">마루 부리</string>
+    <string name="font_name_gowun_batang">고운바탕</string>
+    <string name="font_name_nanum_pen">나눔손글씨 펜</string>
+    <string name="font_name_nanum_jeomggol">나눔손글씨 점꼴체</string>
+    <string name="font_name_nanum_cheer">힘내라는 말보단</string>
+    <string name="font_name_gamja_flower">감자꽃</string>
+    <string name="font_name_hi_melody">하이멜로디</string>
+    <string name="font_preview_label">미리보기</string>
+    <string name="font_preview_sample">오늘은 바람이 선선해서 한강까지 걸었다.</string>
+    <string name="font_download">받기 · %1$s</string>
+    <string name="font_downloading">받는 중 %1$s</string>
+    <string name="font_offline">인터넷에 연결되면 받을 수 있어요</string>
+    <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
+    <string name="font_replaced_notice">쓰던 글꼴 대신 %1$s 글꼴로 보여 드려요</string>
+    <string name="font_replaced_change">바꾸기</string>
+
+    <!-- 본문 글자 크기(G2) -->
+    <string name="text_size_small">작게</string>
+    <string name="text_size_medium">보통</string>
+    <string name="text_size_large">크게</string>
+    <string name="text_size_xlarge">더 크게</string>
+    <string name="text_size_xxlarge">가장 크게</string>
+    <string name="text_size_sample_glyph">가</string>
+    <string name="text_size_sample_body">퇴근길에 한강까지 걸었다. 바람이 차가워졌는데 그래서 더 좋았다.</string>
+    <string name="text_size_note">일기 본문에만 적용돼요. 메뉴와 버튼 글자는 휴대폰 글자 크기를 따라요.</string>
+
+    <!-- 화면 모드(G3) -->
+    <string name="theme_system">시스템 설정</string>
+    <string name="theme_light">라이트</string>
+    <string name="theme_dark">다크</string>
+    <string name="theme_note">시스템 설정을 따르면 휴대폰이 다크 모드일 때 앱도 함께 어두워져요.</string>
+    <string name="migration_deferred_title">예전 일기를 아직 옮기지 못했어요</string>
+    <string name="migration_deferred_body">다시 시도하면 지금 쓴 일기는 그대로 두고 예전 일기를 추가해요.</string>
+    <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨 볼게요.</string>
+    <string name="migration_deferred_retry">다시 시도</string>
+    <string name="migration_deferred_running">옮기는 중이에요</string>
+    <string name="settings_backup">백업과 복원</string>
+    <string name="settings_group_diary">일기</string>
+    <string name="settings_trash">휴지통</string>
+    <plurals name="settings_trash_count">
+        <item quantity="other">%1$d편</item>
+    </plurals>
+    <string name="settings_list_style">목록 모양</string>
+    <string name="list_style_feed">피드</string>
+    <string name="list_style_card">카드</string>
+    <string name="list_style_photo">사진 격자</string>
+    <string name="settings_letter">개발자의 편지</string>
+    <string name="settings_plus">Plus</string>
+    <string name="settings_plus_title">광고 없이, 더 편하게 써요</string>
+    <string name="settings_plus_title_ad_free">일기를 더 넉넉하게 써요</string>
+    <string name="settings_dev_mode">개발자 모드</string>
+    <string name="settings_plus_body">일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.</string>
+    <string name="settings_plus_action">Plus 알아보기</string>
+    <string name="settings_terms">이용약관</string>
+    <string name="settings_privacy">개인정보처리방침</string>
+</resources>

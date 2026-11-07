@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 디자인 시스템 canvas(다크). -->
+    <color name="canvas">#16171B</color>
+</resources>

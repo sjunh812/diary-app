@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 영어 기본 문구. 한국어는 values-ko, 일본어는 values-ja(docs/design.md 여러 언어). 영어·일본어는 원어민 검수 전 초안이다. -->
+    <!-- 기록 이전 결과(M5). 일부만 옮겨진 기기의 설정에만 보인다. -->
+    <string name="migration_report_title">Transfer results</string>
+    <!-- %1$s는 옮긴 날(2026년 11월 1일처럼 화면 언어 형식). -->
+    <string name="migration_report_when">Transferred from the previous version on %1$s.</string>
+    <string name="migration_report_entries">Entries transferred</string>
+    <string name="migration_report_photos">Photos transferred</string>
+    <string name="migration_report_missing_photos">Photos not found</string>
+    <string name="migration_report_date_fixed">Entries with corrected dates</string>
+    <string name="migration_report_unreadable">Entries that couldn't be read</string>
+    <plurals name="migration_report_entry_count">
+        <item quantity="one">%1$s entry</item>
+        <item quantity="other">%1$s entries</item>
+    </plurals>
+    <plurals name="migration_report_photo_count">
+        <item quantity="one">%1$s photo</item>
+        <item quantity="other">%1$s photos</item>
+    </plurals>
+    <plurals name="migration_report_notice">
+        <item quantity="one">Part of the previous version's file is damaged, so %1$s entry couldn't be read. The app will try again after its next update. Your original diary is untouched.</item>
+        <item quantity="other">Part of the previous version's file is damaged, so %1$s entries couldn't be read. The app will try again after its next update. Your original diary is untouched.</item>
+    </plurals>
+    <string name="migration_report_export">Export original files</string>
+    <string name="migration_report_contact">Contact us</string>
+
+    <!-- Settings (S6) -->
+    <string name="settings_group_feedback">Feedback</string>
+    <string name="settings_feedback">Send feedback</string>
+    <string name="settings_rate">Rate the app</string>
+    <string name="settings_version">App version</string>
+    <string name="settings_plus_badge">Plus active</string>
+    <string name="settings_feedback_subject">1 Day 1 Diary feedback</string>
+    <string name="settings_feedback_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\nTell us what you think 😊\n</string>
+    <string name="settings_feedback_no_mail">No mail app found. Please write to %1$s.</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_group_style">Style</string>
+    <string name="settings_group_info">App info</string>
+    <string name="settings_licenses">Open source licenses</string>
+    <string name="licenses_group_fonts">Fonts</string>
+    <string name="licenses_group_libraries">Libraries</string>
+    <string name="license_ofl">SIL Open Font License 1.1</string>
+    <string name="license_changwon_round">Changwon Dangam Round License</string>
+    <string name="license_naver">NAVER font license</string>
+    <string name="settings_text_size">Diary text size</string>
+    <string name="settings_theme">Appearance</string>
+    <string name="settings_lock">Lock</string>
+    <string name="lock_value_off">Off</string>
+    <string name="lock_value_immediately">Immediately</string>
+    <string name="lock_value_one_minute">After 1 min</string>
+    <string name="lock_value_five_minutes">After 5 min</string>
+    <string name="lock_value_cold_start">On restart</string>
+
+    <!-- Developer rows. Debug builds only (FR-029). -->
+
+
+    <!-- Daily reminder (R1) -->
+    <string name="settings_group_notification_security">Notifications and security</string>
+    <string name="settings_reminder">Daily reminder</string>
+    <string name="reminder_value_off">Off</string>
+    <string name="reminder_body">We'll remind you to write at the same time every day.</string>
+    <string name="reminder_time">Reminder time</string>
+    <string name="reminder_save">Save</string>
+    <string name="reminder_permission_title">Notifications are off</string>
+    <string name="reminder_permission_body">Allow notifications for 1 Day 1 Diary in your phone settings to get daily reminders.</string>
+    <string name="reminder_permission_allow">Allow</string>
+
+    <!-- Font (G1). Font names are proper nouns and stay in Latin letters. %1$s in font_download is a size such as 7.2MB, in font_downloading a percent such as 42%. -->
+    <string name="settings_font">Font</string>
+    <string name="font_name_system">System font</string>
+    <string name="font_name_pretendard">Pretendard</string>
+    <string name="font_name_gowun_dodum">Gowun Dodum</string>
+    <string name="font_name_changwon_round">Changwon Dangam Round</string>
+    <string name="font_name_maru_buri">Maru Buri</string>
+    <string name="font_name_gowun_batang">Gowun Batang</string>
+    <string name="font_name_nanum_pen">Nanum Pen</string>
+    <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
+    <string name="font_name_nanum_cheer">Nanum Himnaeraneun</string>
+    <string name="font_name_gamja_flower">Gamja Flower</string>
+    <string name="font_name_hi_melody">Hi Melody</string>
+    <string name="font_preview_label">Preview</string>
+    <string name="font_preview_sample">The breeze was cool today, so I walked all the way to the river.</string>
+    <string name="font_download">Get · %1$s</string>
+    <string name="font_downloading">Downloading %1$s</string>
+    <string name="font_offline">You can get it when you're online</string>
+    <string name="font_failed">Couldn't get the font. Try again in a moment.</string>
+    <string name="font_replaced_notice">Your old font isn't available, so we're using %1$s</string>
+    <string name="font_replaced_change">Change</string>
+
+    <!-- Diary text size (G2) -->
+    <string name="text_size_small">Small</string>
+    <string name="text_size_medium">Default</string>
+    <string name="text_size_large">Large</string>
+    <string name="text_size_xlarge">Larger</string>
+    <string name="text_size_xxlarge">Largest</string>
+    <string name="text_size_sample_glyph">Aa</string>
+    <string name="text_size_sample_body">I walked to the river on my way home. The wind had turned cold, and I liked it even more.</string>
+    <string name="text_size_note">This applies only to your diary text. Menus and buttons follow your phone's text size.</string>
+
+    <!-- Appearance (G3) -->
+    <string name="theme_system">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_note">With System default, the app turns dark when your phone is in dark mode.</string>
+    <string name="migration_deferred_title">Your earlier entries haven't been transferred yet</string>
+    <string name="migration_deferred_body">Try again to add them. Entries you've written since are kept.</string>
+    <string name="migration_deferred_failed">Couldn't transfer them this time either. We'll try again after the next app update.</string>
+    <string name="migration_deferred_retry">Try again</string>
+    <string name="migration_deferred_running">Transferring</string>
+    <string name="settings_backup">Backup and restore</string>
+    <string name="settings_group_diary">Diary</string>
+    <string name="settings_trash">Trash</string>
+    <plurals name="settings_trash_count">
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
+    </plurals>
+    <string name="settings_list_style">List style</string>
+    <string name="list_style_feed">Feed</string>
+    <string name="list_style_card">Cards</string>
+    <string name="list_style_photo">Photo grid</string>
+    <string name="settings_letter">A letter from the developer</string>
+    <string name="settings_plus">Plus</string>
+    <string name="settings_plus_title">Easier, no ads</string>
+    <string name="settings_plus_title_ad_free">More room in every entry</string>
+    <string name="settings_dev_mode">Developer mode</string>
+    <string name="settings_plus_body">Up to 30 photos per entry, checklists, and advanced stats.</string>
+    <string name="settings_plus_action">See Plus</string>
+    <string name="settings_terms">Terms of Use</string>
+    <string name="settings_privacy">Privacy Policy</string>
+</resources>

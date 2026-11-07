@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trash_title">Trash</string>
+    <string name="trash_empty">Empty</string>
+    <string name="trash_notice">Entries are deleted for good after 30 days.</string>
+    <string name="trash_empty_title">Trash is empty</string>
+    <string name="trash_empty_body">You can restore deleted entries here for 30 days.</string>
+    <string name="trash_restore">Restore</string>
+    <string name="trash_delete_forever">Delete forever</string>
+    <string name="trash_restored">Restored</string>
+    <string name="trash_confirm_title">Delete forever?</string>
+    <string name="trash_confirm_delete">Delete</string>
+    <string name="trash_confirm_body_one">This entry will be gone and can't be restored.</string>
+    <string name="trash_row_when">%1$s %2$s</string>
+    <plurals name="trash_days_left">
+        <item quantity="one">%1$d day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <plurals name="trash_confirm_body_all">
+        <item quantity="one">%1$d entry in Trash will be gone and can't be restored.</item>
+        <item quantity="other">%1$d entries in Trash will be gone and can't be restored.</item>
+    </plurals>
+</resources>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 移行結果(M5) -->
+    <string name="migration_report_title">移行結果</string>
+    <string name="migration_report_when">%1$sに以前のアプリから移行しました。</string>
+    <string name="migration_report_entries">移行した日記</string>
+    <string name="migration_report_photos">移行した写真</string>
+    <string name="migration_report_missing_photos">見つからない写真</string>
+    <string name="migration_report_date_fixed">日付を修正した日記</string>
+    <string name="migration_report_unreadable">読み込めなかった日記</string>
+    <plurals name="migration_report_entry_count">
+        <item quantity="other">%1$s件</item>
+    </plurals>
+    <plurals name="migration_report_photo_count">
+        <item quantity="other">%1$s枚</item>
+    </plurals>
+    <plurals name="migration_report_notice">
+        <item quantity="other">以前のアプリのファイルの一部が壊れていて、日記%1$s件を読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の日記はスマートフォンにそのまま残っています。</item>
+    </plurals>
+    <string name="migration_report_export">元のファイルを書き出す</string>
+    <string name="migration_report_contact">お問い合わせ</string>
+
+    <!-- 設定(S6) -->
+    <string name="settings_group_feedback">ご意見と評価</string>
+    <string name="settings_feedback">ご意見を送る</string>
+    <string name="settings_rate">アプリを評価する</string>
+    <string name="settings_version">アプリのバージョン</string>
+    <string name="settings_plus_badge">Plus 利用中</string>
+    <string name="settings_feedback_subject">1日1日記へのフィードバック</string>
+    <string name="settings_feedback_body">アプリのバージョン: %1$s\nOS: %2$s\n機種: %3$s\n\nご意見をお聞かせください 😊\n</string>
+    <string name="settings_feedback_no_mail">メールアプリが見つかりません。%1$s までお送りください。</string>
+    <string name="settings_title">設定</string>
+    <string name="settings_group_style">カスタマイズ</string>
+    <string name="settings_group_info">アプリ情報</string>
+    <string name="settings_licenses">オープンソースライセンス</string>
+    <string name="licenses_group_fonts">フォント</string>
+    <string name="licenses_group_libraries">ライブラリ</string>
+    <string name="license_ofl">SIL Open Font License 1.1</string>
+    <string name="license_changwon_round">Changwon Dangam Round ライセンス</string>
+    <string name="license_naver">NAVERフォントライセンス</string>
+    <string name="settings_text_size">本文の文字サイズ</string>
+    <string name="settings_theme">表示モード</string>
+    <string name="settings_lock">ロック</string>
+    <string name="lock_value_off">オフ</string>
+    <string name="lock_value_immediately">すぐに</string>
+    <string name="lock_value_one_minute">1分後</string>
+    <string name="lock_value_five_minutes">5分後</string>
+    <string name="lock_value_cold_start">起動時</string>
+
+    <!-- 開発ビルドのみ(FR-029) -->
+
+
+    <!-- 毎日のリマインダー(R1) -->
+    <string name="settings_group_notification_security">通知とセキュリティ</string>
+    <string name="settings_reminder">毎日のリマインダー</string>
+    <string name="reminder_value_off">オフ</string>
+    <string name="reminder_body">毎日決まった時刻に、日記を書くタイミングをお知らせします。</string>
+    <string name="reminder_time">リマインダーの時刻</string>
+    <string name="reminder_save">保存</string>
+    <string name="reminder_permission_title">通知がオフになっています</string>
+    <string name="reminder_permission_body">スマートフォンの設定で1日1日記の通知を許可すると、毎日リマインダーが届きます。</string>
+    <string name="reminder_permission_allow">許可する</string>
+
+    <!-- フォント(G1)。フォント名は固有名詞なのでローマ字のまま -->
+    <string name="settings_font">フォント</string>
+    <string name="font_name_system">システムフォント</string>
+    <string name="font_name_pretendard">Pretendard</string>
+    <string name="font_name_gowun_dodum">Gowun Dodum</string>
+    <string name="font_name_changwon_round">Changwon Dangam Round</string>
+    <string name="font_name_maru_buri">Maru Buri</string>
+    <string name="font_name_gowun_batang">Gowun Batang</string>
+    <string name="font_name_nanum_pen">Nanum Pen</string>
+    <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
+    <string name="font_name_nanum_cheer">Nanum Himnaeraneun</string>
+    <string name="font_name_gamja_flower">Gamja Flower</string>
+    <string name="font_name_hi_melody">Hi Melody</string>
+    <string name="font_preview_label">プレビュー</string>
+    <string name="font_preview_sample">今日は風が涼しくて、川沿いまで歩いた。</string>
+    <string name="font_download">入手・%1$s</string>
+    <string name="font_downloading">ダウンロード中 %1$s</string>
+    <string name="font_offline">インターネットに接続すると入手できます</string>
+    <string name="font_failed">フォントを入手できませんでした。少し時間をおいて、もう一度お試しください。</string>
+    <string name="font_replaced_notice">以前のフォントの代わりに%1$sで表示しています</string>
+    <string name="font_replaced_change">変更</string>
+
+    <!-- 本文の文字サイズ(G2) -->
+    <string name="text_size_small">小</string>
+    <string name="text_size_medium">標準</string>
+    <string name="text_size_large">大</string>
+    <string name="text_size_xlarge">特大</string>
+    <string name="text_size_xxlarge">最大</string>
+    <string name="text_size_sample_glyph">あ</string>
+    <string name="text_size_sample_body">帰り道に川沿いまで歩いた。風が冷たくなっていて、それがかえって心地よかった。</string>
+    <string name="text_size_note">日記の本文にだけ適用されます。メニューやボタンの文字はスマートフォンの文字サイズに従います。</string>
+
+    <!-- 表示モード(G3) -->
+    <string name="theme_system">システム設定</string>
+    <string name="theme_light">ライト</string>
+    <string name="theme_dark">ダーク</string>
+    <string name="theme_note">システム設定にすると、スマートフォンがダークモードのときアプリも暗くなります。</string>
+    <string name="migration_deferred_title">以前の日記をまだ移行できていません</string>
+    <string name="migration_deferred_body">もう一度試すと、今の日記はそのままで以前の日記を追加します。</string>
+    <string name="migration_deferred_failed">今回も移行できませんでした。アプリをアップデートすると、もう一度試します。</string>
+    <string name="migration_deferred_retry">もう一度試す</string>
+    <string name="migration_deferred_running">移行しています</string>
+    <string name="settings_backup">バックアップと復元</string>
+    <string name="settings_group_diary">日記</string>
+    <string name="settings_trash">ゴミ箱</string>
+    <plurals name="settings_trash_count">
+        <item quantity="other">%1$d件</item>
+    </plurals>
+    <string name="settings_list_style">一覧の表示</string>
+    <string name="list_style_feed">フィード</string>
+    <string name="list_style_card">カード</string>
+    <string name="list_style_photo">写真グリッド</string>
+    <string name="settings_letter">開発者からの手紙</string>
+    <string name="settings_plus">Plus</string>
+    <string name="settings_plus_title">広告なしで、もっと快適に使えます</string>
+    <string name="settings_plus_title_ad_free">日記をもっとゆったり使えます</string>
+    <string name="settings_dev_mode">開発者モード</string>
+    <string name="settings_plus_body">日記ごとに写真30枚、チェックリスト、詳しい統計が使えます。</string>
+    <string name="settings_plus_action">Plusを見る</string>
+    <string name="settings_terms">利用規約</string>
+    <string name="settings_privacy">プライバシーポリシー</string>
+</resources>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="letter_arrived">手紙が届きました 💌</string>
+    <string name="letter_open">手紙を開く</string>
+    <string name="letter_title">開発者からの手紙</string>
+    <string name="letter_hello">こんにちは。\n1日1日記の開発者です 👋</string>
+    <string name="letter_short">アプリをご利用いただく中で、ご不便を感じた方も多かったと思います。そこでアプリを**一から**作り直しました。**写真も一緒にバックアップ**できるようになり、便利な機能も加えました。\n\nこれからも更新を続けるため、広告と有料機能を追加しました。その代わり、次の2つをお約束します。</string>
+    <string name="letter_sign">SeoJuNyangより</string>
+    <string name="letter_start">続ける</string>
+    <string name="onboarding_backup_title">写真もバックアップできます</string>
+    <string name="onboarding_backup_body">スマートフォンを替えても日記と写真はそのままです。\n自分のGoogle ドライブにだけ保存します。</string>
+    <string name="onboarding_backup_action">自動バックアップをオンにする</string>
+    <string name="onboarding_fresh_title">ここが変わりました</string>
+    <string name="onboarding_write_title">一日一行で十分です</string>
+    <string name="onboarding_write_body">気分を選んで、数行だけ残してみましょう。</string>
+    <string name="onboarding_own_title">日記は自分のドライブだけに</string>
+    <string name="onboarding_own_body">会員登録なしで、自分のGoogle ドライブに\n写真までバックアップします。</string>
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_start">はじめる</string>
+    <string name="onboarding_skip">スキップ</string>
+    <string name="onboarding_later">あとで</string>
+    <plurals name="letter_moved"><item quantity="other">これまで日記を**%1$s件**残してくださいました。\n至らない点の多いアプリを使い続けてくださり、心より感謝いたします。</item></plurals>
+    <string name="letter_promise_free">お使いの機能はこれからも無料です</string>
+    <string name="letter_promise_ads">日記を書く画面と読む画面に広告はありません</string>
+    <string name="letter_close">これからもよろしくお願いします 🙇‍♂️</string>
+    <string name="onboarding_style_title">文字を飾れます</string>
+    <string name="onboarding_style_body">太字、文字色、マーカー、箇条書きを使ってみましょう。</string>
+    <string name="onboarding_trash_title">うっかり削除しても大丈夫です</string>
+    <string name="onboarding_trash_body">ゴミ箱から30日間復元できます。</string>
+    <string name="onboarding_wide_title">大きな画面でもっと楽に</string>
+    <string name="onboarding_wide_body">タブレットでは一覧と日記を並べて見られます。</string>
+    <string name="onboarding_plus_title">Plusでもっと快適に</string>
+    <string name="onboarding_plus_body">広告なしで、写真30枚、チェックリスト、詳しい統計まで使えます。</string>
+    <string name="letter_to">1日1日記をご利用の皆さまへ</string>
+</resources>

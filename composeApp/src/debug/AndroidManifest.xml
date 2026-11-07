@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 개발 빌드는 강제 종료 훅을 끼우는 앱 클래스를 쓴다(T049). -->
+    <application
+        android:name=".debug.DebugApplication"
+        tools:replace="android:name">
+        <!-- 시험 광고를 누르면 뜨는 AdMob 점검 창을 끈다. 출시 빌드에는 뜨지 않는다. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
+            android:value="false" />
+        <!-- 개발 빌드에만 있다. 아직 들어갈 길이 없는 화면을 에뮬레이터에서 띄워 본다(ScreenCatalogActivity). -->
+        <activity
+            android:name=".debug.ScreenCatalogActivity"
+            android:exported="true" />
+        <!-- 개발자 모드. 설정 맨 아래 줄로 들어간다. adb로 시험 값을 넘길 수 있게 내보낸다. -->
+        <activity
+            android:name=".debug.DevModeActivity"
+            android:exported="true"
+            android:label="개발자 모드" />
+    </application>
+</manifest>

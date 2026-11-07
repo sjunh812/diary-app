@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plus_title">Easier with Plus</string>
+    <string name="plus_close">Close</string>
+    <string name="plus_restore">Restore purchases</string>
+    <string name="plus_ads_title">Write without ads</string>
+    <string name="plus_photos_title">30 photos per entry</string>
+    <string name="plus_stats_title">Advanced stats</string>
+    <string name="plus_coming">More updates are on the way.</string>
+    <string name="plus_price">%1$s a year</string>
+    <string name="plus_start">Start Plus</string>
+    <string name="plus_start_price">Start for %1$s/year</string>
+    <string name="plus_notice">Renews automatically every year. You can cancel in the store up to 24 hours before renewal.</string>
+    <string name="plus_retry">Try again</string>
+    <string name="plus_no_store">Couldn't load the price. Check your connection.</string>
+    <string name="plus_failed">Couldn't complete the payment. If you were charged, tap Restore purchases.</string>
+    <string name="plus_restore_failed">Couldn't check your purchases. Check your connection and try again.</string>
+    <string name="plus_restored">Purchase restored</string>
+    <string name="plus_restore_none">No purchases to restore</string>
+    <string name="plus_ad_free_owned">You've already removed ads.</string>
+    <string name="plus_manage_top">Plus</string>
+    <string name="plus_manage_title">You're on Plus</string>
+    <string name="plus_manage_store">Manage subscription</string>
+    <string name="plus_manage_note">If you cancel, your entries and photos stay right where they are.</string>
+    <string name="adfree_title">Just you and your diary</string>
+    <string name="adfree_body">It's not a subscription. Pay once and stay ad-free from now on.</string>
+    <string name="adfree_price">%1$s one-time</string>
+    <string name="plus_ads_only">Remove ads only</string>
+    <string name="adfree_buy">Remove ads</string>
+    <string name="adfree_close">Not now</string>
+    <string name="adfree_day_off">Watch a video for one ad-free day</string>
+    <string name="plus_ads_body">No ads on any screen.</string>
+    <string name="plus_photos_body">Add 20 more photos than on the free plan.</string>
+    <string name="plus_stats_body">See when your mood changes.</string>
+    <string name="plus_manage_thanks">Thanks for subscribing.</string>
+    <string name="plus_manage_benefits">Your benefits</string>
+    <string name="plus_manage_price">Price</string>
+    <string name="plus_manage_store_body">See your next billing date or cancel.</string>
+    <string name="plus_checklist_title">Checklists</string>
+    <string name="plus_checklist_body">Add to-dos to your entries and check them off.</string>
+    <string name="plus_terms">Terms of Use</string>
+    <string name="plus_privacy">Privacy Policy</string>
+</resources>

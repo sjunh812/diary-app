@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 하단 탭·레일(contracts/app-shell.md) -->
+    <string name="tab_home">ホーム</string>
+    <string name="tab_calendar">カレンダー</string>
+    <string name="tab_insight">ふりかえり</string>
+    <string name="tab_settings">設定</string>
+    <string name="write_new">日記を書く</string>
+    <string name="write_saved">保存しました</string>
+    <string name="write_draft_kept">下書きを保存しました</string>
+    <string name="detail_trashed">ゴミ箱に移動しました</string>
+    <string name="detail_trashed_undo">元に戻す</string>
+    <string name="detail_pick_hint">日記を選ぶとここに表示されます</string>
+    <string name="ad_label">広告</string>
+    <string name="reward_title">広告なしの1日をもらう</string>
+    <string name="reward_body">短い広告動画を最後まで見ると、24時間ほかの広告が表示されません。</string>
+    <string name="reward_watch">動画を見る</string>
+    <string name="reward_close">閉じる</string>
+    <string name="reward_failed_title">広告なしの1日を受け取れませんでした</string>
+    <string name="reward_failed_body">動画を読み込めなかったか、最後まで再生されませんでした。しばらくしてからもう一度お試しください。</string>
+    <string name="ad_close">広告を閉じる</string>
+    <string name="write_failed">保存できませんでした。端末の空き容量を確認してください。</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ds_language">ja</string>
+    <string name="ds_close">閉じる</string>
+    <string name="ds_back">戻る</string>
+    <string name="ds_delete">削除</string>
+    <string name="ds_pin_progress">%2$d桁中%1$d桁を入力済み</string>
+    <string name="ds_catalog_title">デザインシステム</string>
+    <string name="ds_catalog_colors">色</string>
+    <string name="ds_catalog_typography">文字</string>
+    <string name="ds_catalog_spacing">間隔と角丸</string>
+    <string name="ds_catalog_components">コンポーネント</string>
+    <string name="ds_catalog_type_sample">いろはにほへと ちりぬるを 1234</string>
+    <string name="ds_am">午前</string>
+    <string name="ds_pm">午後</string>
+    <string name="ds_wheel_ampm">午前・午後</string>
+    <string name="ds_wheel_hour">時</string>
+    <string name="ds_wheel_minute">分</string>
+    <string name="ds_wheel_month">月</string>
+    <string name="ds_wheel_year">年</string>
+    <string name="ds_previous">前へ</string>
+    <string name="ds_next">次へ</string>
+</resources>

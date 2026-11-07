@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_back">戻る</string>
+    <string name="search_hint">日記を検索</string>
+    <string name="search_clear">クリア</string>
+    <string name="search_chip_mood">気分</string>
+    <string name="search_chip_weather">天気</string>
+    <string name="search_chip_period">期間</string>
+    <string name="search_chip_photo">写真あり</string>
+    <string name="search_chip_favorite">お気に入り</string>
+    <string name="search_period_week">今週</string>
+    <string name="search_period_month">今月</string>
+    <string name="search_period_year">今年</string>
+    <string name="search_period_custom">日付を選ぶ</string>
+    <string name="search_clear_filter">クリア</string>
+    <string name="search_done">完了</string>
+    <string name="search_empty_title">該当する日記はありません</string>
+    <string name="search_empty_body">別のキーワードで探すか、条件を変えてみてください。</string>
+    <plurals name="search_result_count">
+        <item quantity="other">%1$d件</item>
+    </plurals>
+    <string name="search_error_title">日記を読み込めませんでした</string>
+    <string name="search_error_body">少し時間をおいて、もう一度お試しください。</string>
+    <string name="search_error_retry">もう一度試す</string>
+    <string name="search_idle">キーワードを入力するか条件を選ぶと、日記を探せます。</string>
+</resources>
