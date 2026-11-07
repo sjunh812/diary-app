@@ -14,5 +14,7 @@ class AutoBackupNotifier(private val store: BackupStore, private val notifier: B
         if (prefs.accountKey != null && prefs.autoEnabled) notifier.schedule(at, title, body)
     }
 
+    override fun show(title: String, body: String) = notifier.show(title, body)
+
     override fun cancel() = notifier.cancel()
 }
