@@ -60,7 +60,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 - Compose Multiplatform, Android + iOS. 오발있 저장소와 같은 축(Kotlin 2.4, CMP 1.12, AGP 9.3, Koin 4, Navigation 3,
   `build-logic` convention plugin)을 써서 두 프로젝트의 지식을 나눠 쓴다.
 - 모듈: `composeApp`(안드로이드 앱, Glance 위젯), `iosApp`(Xcode 프로젝트, WidgetKit 확장), `shared/app`(화면 전환 뼈대),
-  `shared/core/{model,database,datastore,data,migration,designsystem,ui,platform,testing}`, `shared/feature/*`, `benchmarks`
+  `shared/core/{model,database,datastore,data,backup,drive,migration,designsystem,ui,platform,testing}`, `shared/feature/*`, `benchmarks`
   (스펙 001 plan.md, 구조 비교는 research.md).
 - 라이브러리(2026-10-31 조사, 버전은 스펙 001 research R2 표로 고정): DB는 Room 3 + `BundledSQLiteDriver`(FTS5, `VACUUM INTO`),
   설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 그림은 Compottie(Lottie),

@@ -126,5 +126,4 @@
     <string name="settings_dev_mode">Developer mode</string>
     <string name="settings_plus_body">Up to 30 photos per entry, checklists, and advanced stats.</string>
     <string name="settings_plus_action">See Plus</string>
-    <string name="settings_plus_active">Active</string>
 </resources>

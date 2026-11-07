@@ -120,5 +120,4 @@
     <string name="settings_dev_mode">開発者モード</string>
     <string name="settings_plus_body">日記ごとに写真30枚、チェックリスト、詳しい統計が使えます。</string>
     <string name="settings_plus_action">Plusを見る</string>
-    <string name="settings_plus_active">利用中</string>
 </resources>

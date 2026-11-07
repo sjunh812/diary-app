@@ -41,7 +41,9 @@ for (const n of page.findAll((x) => x.visible !== false && !skip(x))) {
       const left = first && first.type === 'TEXT' ? 12 : 10;
       if (n.paddingLeft !== left || n.paddingRight !== 12 || Math.round(n.height) !== 32) report('칩 규격', n, `${n.paddingLeft}/${n.paddingRight}`);
     }
-    if (main && main.name.includes('테마=') && main.name.includes('다크') !== dark(n)) report('테마가 다른 부품', n, main.name);
+    // 뒤로·닫기·아이콘 버튼·상자는 라이트 변형뿐이고 다크 화면에서는 색 변수를 덮어써서 쓴다.
+    const oneTheme = /종류=(nav·back|icon-button|닫기|상자)/.test(main ? main.name : '');
+    if (main && !oneTheme && main.name.includes('테마=') && main.name.includes('다크') !== dark(n)) report('테마가 다른 부품', n, main.name);
   }
   if (n.type === 'FRAME' && !n.id.startsWith('I') && /^(chip|button\/|btn|toggle|toast)/i.test(n.name)) report('손으로 찍은 부품', n, n.name);
   if (n.type === 'TEXT' && n.fontName !== figma.mixed && n.fontSize !== figma.mixed) {

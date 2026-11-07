@@ -16,10 +16,10 @@
 ## 3단계: 결제 화면 (US2, US3, US4)
 
 - [x] T020 `shared/feature/plus` 모듈, 문자열 세 언어, 프리뷰
-- [x] T021 `PaywallScreen`, 혜택 로띠, 넓은 화면 두 칸
+- [x] T021 `PaywallScreen`, 혜택 로띠, 넓은 화면 한 칸
 - [x] T022 `AdFreeSheet`, `PlusManageScreen`
 - [x] T023 사진 11장째 `PhotoLimitSheet`을 쓰기 화면에 잇기
-- [x] T024 설정 맨 위 Plus 줄, 앱 틀 경로, 화면 키
+- [x] T024 설정 맨 위 초대 카드, 앱 틀 경로, 화면 키
 - [x] T025 구독 끝난 뒤 한도 시험(이전된 사진, 30장 넣은 일기)
 
 ## 4단계: 고급 통계 (US5)

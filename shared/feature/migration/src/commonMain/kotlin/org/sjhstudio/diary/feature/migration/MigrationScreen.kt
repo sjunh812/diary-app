@@ -85,7 +85,7 @@ import org.sjhstudio.diary.feature.migration.resources.migration_view_legacy
 /**
  * 기록 이전 화면들(Figma "화면" M0·M1·M2·M2-b·M3).
  * 상태만 받아 그리는 함수다.
- * 아직 만들지 않은 동작(예전 일기 보기, 원본 내보내기, 문의하기)은 null이면 그 줄을 숨긴다.
+ * 고르는 동작(예전 일기 보기, 원본 내보내기, 문의하기)은 null이면 그 줄을 숨긴다.
  */
 @Composable
 fun MigrationScreen(

@@ -48,7 +48,6 @@
     <string name="insight_adv_range_year">今年</string>
     <string name="insight_adv_range_all">すべて</string>
     <string name="insight_adv_not_enough">日記が7件たまると表示します。</string>
-    <string name="insight_adv_gap_none_body">日記が増えたらまた調べます。</string>
     <string name="insight_adv_change_recent">前の30日と比較</string>
     <string name="insight_adv_change_year">去年の同じ時期と比較</string>
     <string name="insight_adv_change_good">良い気分</string>

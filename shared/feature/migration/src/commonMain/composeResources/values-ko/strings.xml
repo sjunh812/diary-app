@@ -34,7 +34,7 @@
     <!-- 일부만(M2-b) -->
     <string name="migration_partial_title">일부만 옮겼어요</string>
     <plurals name="migration_partial_body">
-        <item quantity="other">%1$s편을 옮겼고 %2$s편은 원본 파일이 깨져서 읽지 못했어요. 앱을 업데이트하면 한 번 더 읽어 봐요. 원래 기록은 그대로 있어요.</item>
+        <item quantity="other">%1$s편을 옮겼고 %2$s편은 원본 파일이 깨져서 읽지 못했어요. 앱을 업데이트하면 다시 읽어 볼게요. 원래 기록은 그대로 있어요.</item>
     </plurals>
     <string name="migration_partial_footnote">이 결과는 설정 > 기록 이전 결과에서 다시 볼 수 있어요.</string>
     <string name="migration_export_original">원본 파일 내보내기</string>
@@ -79,7 +79,7 @@
     <string name="support_sheet_title">깨진 일기를 복구해 드릴 수 있어요</string>
     <string name="support_sheet_body">일기 파일을 메일에 첨부해 보내 주시면 읽을 수 있게 복구해서 돌려드려요.</string>
     <string name="support_sheet_contains">일기 글이 그대로 들어 있어요. 사진과 비밀번호는 빼요.</string>
-    <string name="support_sheet_deleted">복구한 파일을 돌려드린 뒤 바로 지워요.</string>
+    <string name="support_sheet_deleted">복구한 파일을 돌려드린 뒤 바로 삭제해요.</string>
     <string name="support_sheet_restore">받은 파일은 "파일에서 복원하기"로 합치면 돼요.</string>
     <string name="support_without">첨부 없이 문의</string>
     <string name="support_with">첨부해서 문의</string>

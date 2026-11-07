@@ -1,8 +1,8 @@
 package org.sjhstudio.diary.core.model
 
 /**
- * 일기 본문 글꼴 10종과 시스템 글꼴.
- * 앱의 틀은 늘 Pretendard이고, 이 글꼴은 일기 본문에만 쓴다(헌법 V).
+ * 앱 글꼴 10종과 시스템 글꼴.
+ * 고른 글꼴은 일기 본문과 앱 전체에 쓴다(헌법 V, 2026-11-04).
  * 레거시 `font_key` 대응은 contracts/legacy-mapping.md에 있다.
  */
 enum class DiaryFont(val id: String) {

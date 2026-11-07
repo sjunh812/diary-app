@@ -12,8 +12,8 @@ data class DiaryColors(
     /** 화면 바탕, 탭 바 */
     val canvas: Color,
     /**
-     * 카드형 목록의 카드.
-     * 흰 바탕 위에 면으로 깔려서 입력칸 회색보다 한 단계 연하다.
+     * 카드형 목록과 고급 통계의 카드.
+     * 흰 바탕 위에 옅은 보라 면으로 깔린다.
      */
     val surfaceCard: Color,
     /** 시트, 대화상자 */

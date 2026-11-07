@@ -25,8 +25,8 @@
     <string name="backup_first_body">［今すぐバックアップ］をタップすると日記と写真をアップロードします。</string>
     <string name="backup_last">前回のバックアップ %1$s %2$s</string>
     <string name="backup_group_account">アカウント</string>
-    <string name="backup_account">アップロード</string>
-    <string name="backup_group_upload">Google アカウント</string>
+    <string name="backup_account">Google アカウント</string>
+    <string name="backup_group_upload">アップロード</string>
     <string name="backup_wifi_only">写真はWi-Fiのみ</string>
     <string name="backup_wifi_only_body">オフにするとモバイルデータでも写真をアップロードします。</string>
     <string name="backup_group_connection">接続</string>

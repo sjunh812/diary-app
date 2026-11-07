@@ -21,7 +21,7 @@
     <string name="detail_kept_both_body">양쪽에서 수정한 일기예요. 이쪽만 남기면 다른 쪽은 휴지통으로 옮겨요.</string>
     <string name="detail_kept_both_other">다른 쪽 보기</string>
     <string name="detail_kept_both_keep">이쪽만 남기기</string>
-    <string name="detail_kept_both_close">둘 다 두기</string>
+    <string name="detail_kept_both_close">둘 다 남기기</string>
     <string name="detail_elsewhere_photo">원래 휴대폰에 있는 사진</string>
     <string name="home_error_title">일기를 불러오지 못했어요</string>
     <string name="home_error_body">잠시 뒤에 다시 시도해 주세요.</string>

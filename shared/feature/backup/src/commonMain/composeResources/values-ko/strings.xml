@@ -25,8 +25,8 @@
     <string name="backup_first_body">지금 백업을 누르면 일기와 사진을 올려요.</string>
     <string name="backup_last">마지막 백업 %1$s %2$s</string>
     <string name="backup_group_account">계정</string>
-    <string name="backup_account">올리기</string>
-    <string name="backup_group_upload">구글 계정</string>
+    <string name="backup_account">구글 계정</string>
+    <string name="backup_group_upload">올리기</string>
     <string name="backup_wifi_only">사진은 Wi-Fi에서만</string>
     <string name="backup_wifi_only_body">끄면 모바일 데이터로도 사진을 올려요.</string>
     <string name="backup_group_connection">연결</string>
@@ -74,7 +74,7 @@
     <string name="restore_value_both">둘 다 남길 일기</string>
     <string name="restore_value_photos">받을 사진</string>
     <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 알림 설정도 백업 때로 바뀌어요.</string>
-    <string name="restore_no_space">사진을 받을 공간이 %1$s 부족해요. 휴대폰 공간을 비운 뒤 다시 시도해 주세요.</string>
+    <string name="restore_no_space">사진을 받을 공간이 %1$s 부족해요. 휴대폰 저장 공간을 비운 뒤 다시 시도해 주세요.</string>
     <string name="restore_merge">합치기</string>
     <string name="restore_size_gb">%1$sGB</string>
     <string name="restore_size_mb">%1$sMB</string>
@@ -96,11 +96,11 @@
     <string name="restore_note_original_body">백업할 때 공간이 부족했던 사진이에요. 원래 휴대폰에서 다시 백업하면 여기서도 볼 수 있어요.</string>
     <string name="restore_note_pending_body">앱을 다시 열면 이어서 받아요.</string>
     <string name="restore_note_pending_file_body">이 파일에는 없는 사진이에요. 드라이브에 백업해 두었다면 연결했을 때 받아요.</string>
-    <string name="restore_note_pending_space_body">휴대폰 공간이 부족해서 멈췄어요. 공간을 비운 뒤 앱을 다시 열면 이어서 받아요.</string>
+    <string name="restore_note_pending_space_body">휴대폰 저장 공간이 부족해서 멈췄어요. 공간을 비운 뒤 앱을 다시 열면 이어서 받아요.</string>
     <string name="restore_wait_running">사진을 받고 있어요.</string>
     <string name="restore_wait_network">인터넷에 연결되면 이어서 받아요.</string>
     <string name="restore_wait_wifi">Wi-Fi에 연결되면 이어서 받아요. 모바일 데이터로 받으려면 지금 받기를 눌러 주세요.</string>
-    <string name="restore_wait_account">드라이브 연결이 풀려서 멈췄어요. 다시 연결하면 이어서 받아요.</string>
+    <string name="restore_wait_account">드라이브 연결이 끊겨서 멈췄어요. 다시 연결하면 이어서 받아요.</string>
     <string name="restore_wait_file">복원한 파일을 다시 고르면 남은 사진을 받아요.</string>
     <string name="restore_wait_now">지금 받기</string>
     <string name="restore_wait_pick">파일 고르기</string>
@@ -159,7 +159,7 @@
     <string name="restore_replace_entry">대신 이 백업으로 바꾸기</string>
     <string name="restore_replace_title">이 백업으로 바꿀까요?</string>
     <string name="restore_replace_action">바꾸기</string>
-    <string name="restore_failed_space_title">휴대폰 공간이 부족해요</string>
+    <string name="restore_failed_space_title">휴대폰 저장 공간이 부족해요</string>
     <string name="restore_failed_space_body">지금 일기를 보관해 둘 공간이 없어서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="backup_folder_title">백업 폴더를 새로 만들었어요</string>
     <string name="backup_folder_body">삭제한 폴더는 드라이브 휴지통에서 30일 동안 복원할 수 있어요.</string>
@@ -193,7 +193,7 @@
     <string name="file_restore_body">옮겨 온 백업 파일을 골라 지금 일기와 합쳐요.</string>
     <string name="file_action">파일 만들기</string>
     <string name="file_writing">파일을 만들고 있어요</string>
-    <string name="file_write_failed">파일을 끝까지 쓰지 못했어요. 저장한 곳의 파일은 지우고 다시 만들어 주세요. 휴대폰의 기록은 그대로 있어요.</string>
+    <string name="file_write_failed">파일을 끝까지 쓰지 못했어요. 저장한 곳의 파일은 삭제하고 다시 만들어 주세요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_reading">파일을 확인하고 있어요</string>
     <string name="file_write_failed_removed">파일을 끝까지 쓰지 못해서 만들던 파일을 삭제했어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_stop_title">파일 만들기를 멈출까요?</string>
@@ -201,8 +201,8 @@
     <string name="file_stop_action">멈추기</string>
     <string name="file_stopped_notice">파일을 다 만들지 못했어요. 만들던 파일은 쓸 수 없어요.</string>
     <string name="file_read_failed">백업 파일이 아니거나 일부가 깨졌어요. 휴대폰의 기록은 그대로 있어요.</string>
-    <string name="file_read_no_space">파일을 불러올 공간이 %1$s 부족해요. 휴대폰 공간을 비운 뒤 다시 시도해 주세요.</string>
-    <string name="file_read_no_space_plain">파일을 불러올 공간이 부족해요. 휴대폰 공간을 비운 뒤 다시 시도해 주세요.</string>
+    <string name="file_read_no_space">파일을 불러올 공간이 %1$s 부족해요. 휴대폰 저장 공간을 비운 뒤 다시 시도해 주세요.</string>
+    <string name="file_read_no_space_plain">파일을 불러올 공간이 부족해요. 휴대폰 저장 공간을 비운 뒤 다시 시도해 주세요.</string>
     <string name="file_read_needs_update">앱을 업데이트하면 복원할 수 있어요.</string>
     <string name="file_saved_title">파일을 저장했어요</string>
     <string name="file_saved_body">새 휴대폰으로 옮긴 뒤 [파일에서 복원하기]를 누르면 돼요.</string>

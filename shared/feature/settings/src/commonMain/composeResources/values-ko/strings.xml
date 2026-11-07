@@ -15,7 +15,7 @@
         <item quantity="other">%1$s장</item>
     </plurals>
     <plurals name="migration_report_notice">
-        <item quantity="other">예전 앱 파일 일부가 깨져 일기 %1$s편을 읽지 못했어요. 앱을 업데이트하면 한 번 더 읽어 봐요. 원래 기록은 휴대폰 안에 그대로 있어요.</item>
+        <item quantity="other">예전 앱 파일 일부가 깨져 일기 %1$s편을 읽지 못했어요. 앱을 업데이트하면 다시 읽어 볼게요. 원래 기록은 휴대폰 안에 그대로 있어요.</item>
     </plurals>
     <string name="migration_report_export">원본 파일 내보내기</string>
     <string name="migration_report_contact">문의하기</string>
@@ -120,5 +120,4 @@
     <string name="settings_dev_mode">개발자 모드</string>
     <string name="settings_plus_body">일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.</string>
     <string name="settings_plus_action">Plus 알아보기</string>
-    <string name="settings_plus_active">이용 중</string>
 </resources>

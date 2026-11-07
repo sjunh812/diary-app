@@ -1,6 +1,6 @@
 ---
 name: "diary-flow"
-description: "1일 1일기 기능 하나를 Spec Kit으로 기획(스펙) → Figma 프로토타입 → Figma 디자인과 화면 설명 → 디자인 점검 → 개발 → 마무리까지 PR까지 한 번에 이어서 진행한다. 단계마다 토스·당근·배민과 Day One·Apple·Material 같은 레퍼런스를 찾아 근거로 삼고, 기존 기록 이전과 백업 규칙을 지킨다. 사용자가 올인원으로, 처음부터 끝까지, 기획부터 개발까지 해 달라고 하거나 /diary-flow를 부를 때 쓴다."
+description: "1일 1일기 기능 하나를 Spec Kit으로 기획(스펙) → Figma 프로토타입 → Figma 디자인과 화면 설명 → 디자인 점검 → 개발 → 마무리(커밋·푸시)까지 한 번에 이어서 진행한다. 단계마다 토스·당근·배민과 Day One·Apple·Material 같은 레퍼런스를 찾아 근거로 삼고, 기존 기록 이전과 백업 규칙을 지킨다. 사용자가 올인원으로, 처음부터 끝까지, 기획부터 개발까지 해 달라고 하거나 /diary-flow를 부를 때 쓴다."
 argument-hint: "새 기능 설명, 또는 기존 스펙(예: 001)과 시작 단계·범위(예: '002 프로토타입부터', '001 개발 US2')"
 user-invocable: true
 disable-model-invocation: false
@@ -169,5 +169,5 @@ $ARGUMENTS
 1. 문서 동기화를 본다. 바뀐 규칙이 규칙 문서, 헌법, 스펙, DECISIONS에 같은 내용으로 있는지, `tasks.md`, 프로토타입, Figma 진행 칸이 맞는지.
 2. 이번에 쓴 한국어 문구와 문서를 `korean-humanizer`와 `korean-spell-check`로 마지막으로 본다. Figma를 고쳤으면 `scripts/figma/audit.js`를 한 번 더 돌린다.
 3. 사용자가 커밋을 원하면 `CLAUDE.md` "커밋 규칙"(Conventional Commits, `<type>(<scope>): <한글 제목>`)대로 한다. 다른 세션의 변경이 섞였으면 무엇이 누구 것인지 말하고 담을지 묻는다.
-4. PR로 올린다. 순서와 명령은 `/pr-review`에 있다. 작업 브랜치 → CI 통과 → PR(템플릿 채우기) → 리뷰봇 지적 처리 → 사용자 승인 뒤 머지다. 머지는 묻고 한다.
-5. 보고: 단계마다 한 것, PR 주소와 CI 결과, 남은 작업 번호, 열린 결정과 물어볼 것.
+4. 출시 전에는 `feat/foundation-migration`에 커밋하고 푸시한다. 출시 이후 기능만 PR로 올린다(순서는 `/pr-review`, 머지는 묻고 한다).
+5. 보고: 단계마다 한 것, CI 결과, 남은 작업 번호, 열린 결정과 물어볼 것.

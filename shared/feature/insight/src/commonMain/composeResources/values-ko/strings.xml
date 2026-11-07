@@ -48,7 +48,6 @@
     <string name="insight_adv_range_year">올해</string>
     <string name="insight_adv_range_all">전체</string>
     <string name="insight_adv_not_enough">일기가 7편 쌓이면 보여 드려요.</string>
-    <string name="insight_adv_gap_none_body">일기가 더 쌓이면 다시 살펴볼게요.</string>
     <string name="insight_adv_change_recent">이전 30일과 비교</string>
     <string name="insight_adv_change_year">작년 이맘때와 비교</string>
     <string name="insight_adv_change_good">좋은 기분</string>

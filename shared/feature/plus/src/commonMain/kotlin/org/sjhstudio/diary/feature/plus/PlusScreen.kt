@@ -104,7 +104,7 @@ private const val ART_RATIO = 350f / 220f
 private const val ART_TINT = 0.4f
 
 /**
- * 설정 Plus 줄과 사진 한도, 고급 통계 미리보기가 여는 화면.
+ * 설정 초대 카드와 뱃지, 사진 한도, 고급 통계 버튼이 여는 화면.
  * 이미 Plus면 관리 화면이다(US3).
  */
 @Composable
