@@ -41,11 +41,11 @@ func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ 
     style.alignment = align
     style.lineHeightMultiple = 1.16
     // 앱 화면과 같은 글꼴을 쓴다.
-    // 이 글꼴은 굵기가 하나뿐이라 윤곽선을 살짝 둘러 제목 무게를 낸다.
+    // 이 글꼴은 굵기가 하나뿐이라 윤곽선을 둘러 제목 무게를 낸다.
     let font = NSFont(name: "ChangwonDangamRound-Regular", size: size) ?? NSFont.boldSystemFont(ofSize: size)
     let label = NSMutableAttributedString(
         string: string,
-        attributes: [.font: font, .foregroundColor: tint, .strokeColor: tint, .strokeWidth: -1.6, .paragraphStyle: style]
+        attributes: [.font: font, .foregroundColor: tint, .strokeColor: tint, .strokeWidth: size < 40 ? -1.6 : -3.4, .paragraphStyle: style]
     )
     if let accented, let range = string.range(of: accented) {
         let span = NSRange(range, in: string)
