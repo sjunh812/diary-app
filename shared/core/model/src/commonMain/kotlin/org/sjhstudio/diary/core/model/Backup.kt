@@ -70,6 +70,8 @@ data class BackupStatus(
     val connection: BackupConnection = BackupConnection.NotConnected,
     val lastSuccessAt: Instant? = null,
     val photosNotBackedUp: Int = 0,
+    /** 기기에서 깨지거나 없어져 올릴 수 없는 사진. [photosNotBackedUp]에 들지 않는다. */
+    val photosUnusable: Int = 0,
     val running: BackupProgress? = null,
     val failingSince: Instant? = null,
     val lastFailure: BackupFailure? = null,

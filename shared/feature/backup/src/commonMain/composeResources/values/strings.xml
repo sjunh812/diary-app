@@ -44,6 +44,10 @@
     <string name="backup_line_days">Last backup %1$d days ago</string>
     <string name="backup_line_today">today at %1$s</string>
     <string name="backup_line_yesterday">yesterday at %1$s</string>
+    <plurals name="backup_photos_unusable">
+        <item quantity="one">%1$d photo couldn't be found, so it wasn't backed up.</item>
+        <item quantity="other">%1$d photos couldn't be found, so they weren't backed up.</item>
+    </plurals>
     <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Restore from backup</string>

@@ -101,6 +101,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_last
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
 import org.sjhstudio.diary.feature.backup.resources.backup_now
 import org.sjhstudio.diary.feature.backup.resources.backup_options
+import org.sjhstudio.diary.feature.backup.resources.backup_photos_unusable
 import org.sjhstudio.diary.feature.backup.resources.backup_photos_waiting
 import org.sjhstudio.diary.feature.backup.resources.backup_reconnect
 import org.sjhstudio.diary.feature.backup.resources.backup_reconnect_body
@@ -489,6 +490,13 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                 pluralStringResource(Res.plurals.backup_photos_waiting, status.photosNotBackedUp, status.photosNotBackedUp),
                 actionLabel = stringResource(Res.string.backup_upload_cellular),
                 onAction = onCellular
+            )
+
+        status.photosUnusable > 0 && last != null ->
+            DiaryStatusBox(
+                DiaryIcons.ShieldCheck,
+                last,
+                pluralStringResource(Res.plurals.backup_photos_unusable, status.photosUnusable, status.photosUnusable)
             )
 
         last != null -> DiaryStatusBox(DiaryIcons.ShieldCheck, last, stringResource(Res.string.backup_all_done))

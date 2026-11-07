@@ -26,7 +26,7 @@ class BackupAlertTest {
     private val phone = TestPhone(root.also(fs::createDirectories), FakeDrive(fs))
     private val notifier = FakeBackupNotifier()
     private val scheduler = FakeBackupScheduler()
-    private val alerts = BackupAlerts(AutoBackupNotifier(phone.store, notifier)) { "제목" to (it?.name ?: "까닭 없음") }
+    private val alerts = BackupAlerts(AutoBackupNotifier(phone.store, notifier), { "폴더" to "새로 만듦" }) { "제목" to (it?.name ?: "까닭 없음") }
     private val runner = phone.runner(alerts = alerts)
     private val controller =
         BackupController(

@@ -44,6 +44,7 @@
     <string name="backup_line_days">마지막 백업 %1$d일 전</string>
     <string name="backup_line_today">오늘 %1$s</string>
     <string name="backup_line_yesterday">어제 %1$s</string>
+    <plurals name="backup_photos_unusable"><item quantity="other">찾을 수 없는 사진 %1$d장은 백업하지 못했어요.</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$d장은 Wi-Fi에 연결되면 올려요.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">백업에서 복원하기</string>

@@ -44,6 +44,7 @@
     <string name="backup_line_days">前回のバックアップ %1$d日前</string>
     <string name="backup_line_today">今日 %1$s</string>
     <string name="backup_line_yesterday">昨日 %1$s</string>
+    <plurals name="backup_photos_unusable"><item quantity="other">見つからない写真%1$d枚はバックアップできませんでした。</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">バックアップから復元</string>

@@ -92,7 +92,8 @@ class BackupController(
                             else -> BackupConnection.Connected(prefs.accountLabel.orEmpty())
                         },
                     lastSuccessAt = prefs.lastSuccessAt,
-                    photosNotBackedUp = notBackedUp,
+                    photosNotBackedUp = (notBackedUp - prefs.unusablePhotos.size).coerceAtLeast(0),
+                    photosUnusable = prefs.unusablePhotos.size,
                     running = running,
                     failingSince = prefs.failingSince,
                     lastFailure = prefs.lastFailure,
