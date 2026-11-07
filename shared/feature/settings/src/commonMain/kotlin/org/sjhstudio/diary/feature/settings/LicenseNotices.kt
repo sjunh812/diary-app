@@ -29,7 +29,7 @@ internal val FONT_NOTICES: List<FontLicenseNotice> =
     listOf(
         FontLicenseNotice(DiaryFont.PRETENDARD, FontLicense.OFL, "pretendard.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_DODUM, FontLicense.OFL, "gowun_dodum.txt"),
-        FontLicenseNotice(DiaryFont.CAFE24_SURROUND, FontLicense.OFL, "cafe24_surround.txt"),
+        FontLicenseNotice(DiaryFont.LINE_SEED, FontLicense.OFL, "line_seed.txt"),
         FontLicenseNotice(DiaryFont.MARU_BURI, FontLicense.NAVER, "maru_buri.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_BATANG, FontLicense.OFL, "gowun_batang.txt"),
         FontLicenseNotice(DiaryFont.NANUM_PEN, FontLicense.OFL, "nanum_pen.txt"),

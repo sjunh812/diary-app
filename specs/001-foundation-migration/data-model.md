@@ -86,7 +86,7 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | `pretendard` | Pretendard | -1, 0, 그 밖의 값 |
 | `system` | 시스템 글꼴 | 100 |
 | `gowun_dodum` | 고운돋움 | 없음(새 글꼴) |
-| `cafe24_surround` | 카페24 써라운드 | 9, 12 |
+| `line_seed` | LINE Seed | 9, 12 |
 | `maru_buri` | 마루 부리 | 없음(새 글꼴) |
 | `gowun_batang` | 고운바탕 | 8 |
 | `nanum_pen` | 나눔손글씨 펜 | 2, 7, 11 |

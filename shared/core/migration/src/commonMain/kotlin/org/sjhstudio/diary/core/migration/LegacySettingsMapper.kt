@@ -66,7 +66,7 @@ object LegacySettingsMapper {
         4, 10 -> DiaryFont.GAMJA_FLOWER
         6, 13 -> DiaryFont.HI_MELODY
         8 -> DiaryFont.GOWUN_BATANG
-        9, 12 -> DiaryFont.CAFE24_SURROUND
+        9, 12 -> DiaryFont.LINE_SEED
         else -> DiaryFont.PRETENDARD
     }
 

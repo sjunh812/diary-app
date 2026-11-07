@@ -34,13 +34,18 @@ class StoredIdsTest {
     }
 
     @Test
+    fun a_font_chosen_before_the_rename_moves_to_line_seed() {
+        assertEquals(DiaryFont.LINE_SEED, DiaryFont.fromId("cafe24_surround"))
+    }
+
+    @Test
     fun font_ids() {
         assertEquals(
             listOf(
                 "pretendard",
                 "system",
                 "gowun_dodum",
-                "cafe24_surround",
+                "line_seed",
                 "maru_buri",
                 "gowun_batang",
                 "nanum_pen",
