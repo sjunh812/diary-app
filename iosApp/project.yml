@@ -62,6 +62,8 @@ targets:
         CFBundleDevelopmentRegion: en
         # Face ID로 잠금을 열 때 처음 한 번 묻는 글. 언어별 InfoPlist.strings가 바꾼다.
         NSFaceIDUsageDescription: Use Face ID to unlock your diary.
+        # 쓰기 화면의 카메라를 처음 누를 때 묻는다. 없으면 iOS가 앱을 바로 끝낸다.
+        NSCameraUsageDescription: The camera is used only to add a photo you take to your diary.
         # 장소 시트의 내 위치 가져오기를 누를 때만 묻는다.
         NSLocationWhenInUseUsageDescription: Your location is used only when you tap Use my location, to find your neighborhood name.
         # 설정 앱의 앱별 언어에 세 언어를 올린다(docs/design.md 여러 언어).

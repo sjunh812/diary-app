@@ -48,6 +48,8 @@
 	<string>$(GID_CLIENT_ID)</string>
 	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>The camera is used only to add a photo you take to your diary.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to unlock your diary.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
