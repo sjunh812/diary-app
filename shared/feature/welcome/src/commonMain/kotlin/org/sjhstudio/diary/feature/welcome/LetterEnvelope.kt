@@ -324,8 +324,8 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
  * 종이처럼 옅은 그림자를 둬서 봉투 위에 붙어 있게 보인다.
  */
 private fun DrawScope.drawSeal(center: Offset, alpha: Float, colors: DiaryColors, pen: VectorPainter) {
-    val radius = DiarySpacing.x5.toPx()
-    val icon = DiarySpacing.x5.toPx()
+    val radius = DiarySpacing.x6.toPx()
+    val icon = DiarySpacing.x6.toPx()
     softSealShadow(center, radius, colors, alpha)
     drawCircle(colors.accent, radius, center, alpha)
     translate(center.x - icon / 2, center.y - icon / 2) {

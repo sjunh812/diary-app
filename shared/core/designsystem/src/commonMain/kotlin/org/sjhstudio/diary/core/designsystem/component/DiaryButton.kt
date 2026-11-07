@@ -46,7 +46,10 @@ enum class DiaryButtonSize {
     Medium,
 
     /** 32 · 좌우 10 · 모서리 8 · captionStrong */
-    Small
+    Small,
+
+    /** 32 · 좌우 10 · 모서리 8 · label. 위쪽 줄에 홀로 놓이는 글자 버튼에 쓴다. */
+    Header
 }
 
 /**
@@ -64,7 +67,7 @@ private fun DiaryButtonSize.spec() = when (this) {
     DiaryButtonSize.XLarge -> ButtonSpec(56.dp, DiarySpacing.x4, DiaryShapes.r16)
     DiaryButtonSize.Large -> ButtonSpec(48.dp, DiarySpacing.x4, DiaryShapes.r14)
     DiaryButtonSize.Medium -> ButtonSpec(38.dp, DiarySpacing.x4, DiaryShapes.r10)
-    DiaryButtonSize.Small -> ButtonSpec(32.dp, 10.dp, DiaryShapes.r8)
+    DiaryButtonSize.Small, DiaryButtonSize.Header -> ButtonSpec(32.dp, 10.dp, DiaryShapes.r8)
 }
 
 /**
@@ -100,6 +103,7 @@ fun DiaryButton(
             DiaryButtonSize.XLarge, DiaryButtonSize.Large -> DiaryTheme.typography.headline
             DiaryButtonSize.Medium -> DiaryTheme.typography.bodyStrong
             DiaryButtonSize.Small -> DiaryTheme.typography.captionStrong
+            DiaryButtonSize.Header -> DiaryTheme.typography.label
         }
     val spec = size.spec()
     val interaction = remember { MutableInteractionSource() }

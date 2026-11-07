@@ -295,6 +295,7 @@ internal fun CatalogButtons() {
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             DiaryButton("오늘 일기 쓰기", {}, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
             DiaryButton("백업", {}, size = DiaryButtonSize.Small, kind = DiaryButtonKind.Weak)
+            DiaryButton("복원", {}, size = DiaryButtonSize.Header, kind = DiaryButtonKind.QuietText)
             DiaryButton("지우기", {}, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Danger)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {

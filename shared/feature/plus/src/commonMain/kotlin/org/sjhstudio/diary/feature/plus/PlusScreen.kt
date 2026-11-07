@@ -203,7 +203,7 @@ internal fun PaywallScreen(
                     onRestore,
                     Modifier.padding(end = DiarySpacing.x0_5),
                     kind = DiaryButtonKind.QuietText,
-                    size = DiaryButtonSize.Small
+                    size = DiaryButtonSize.Header
                 )
             }
             val column = Modifier.widthIn(max = DiaryArtSize.paywallMax).fillMaxWidth().padding(horizontal = LocalScreenGutter.current)
