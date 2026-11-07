@@ -164,7 +164,8 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
 
 /**
  * 결제 화면(Figma P1).
- * 한 화면에서 스크롤 없이 끝나게 그림, 제목, 혜택 세 줄, 결제액, 버튼만 둔다.
+ * 그림, 제목, 혜택 네 줄(무엇을 얻는지 한 문장씩), 결제액, 버튼을 둔다.
+ * 결제액과 버튼은 아래에 고정되고 위쪽만 스크롤된다.
  * 닫기는 처음부터 보이고 실제 결제액이 가장 크다(FR-005).
  * 작은 화면이나 큰 글자에서만 위쪽이 스크롤된다.
  * 넓은 화면도 폰과 같은 한 칸이다.
@@ -261,12 +262,7 @@ private fun PaywallBenefits(adFreeOwned: Boolean, artHeight: Dp) {
         Spacer(Modifier.height(DiarySpacing.x6))
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                Benefit(Res.string.plus_ads_title)
-                Benefit(Res.string.plus_photos_title)
-                Benefit(Res.string.plus_checklist_title)
-                Benefit(Res.string.plus_stats_title)
-            }
+            PlusBenefits()
             BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
             if (adFreeOwned) {
                 BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
@@ -325,13 +321,14 @@ private fun PaywallBuy(
     }
 }
 
+/** 혜택 네 가지. 결제 화면과 구독 중 화면이 같은 말로 보인다. */
 @Composable
-private fun Benefit(title: StringResource) {
-    val colors = DiaryTheme.colors
-    val reading = DiaryTheme.typography.reading
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-        FirstLineIcon(DiaryIcons.CircleCheck, reading, colors.accent, DiaryIconSize.i24)
-        BasicText(stringResource(title), style = reading.copy(color = colors.textPrimary))
+private fun PlusBenefits() {
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+        OwnedBenefit(DiaryIcons.ShieldCheck, Res.string.plus_ads_title, Res.string.plus_ads_body)
+        OwnedBenefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
+        OwnedBenefit(DiaryIcons.Checklist, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
+        OwnedBenefit(DiaryIcons.TabInsight, Res.string.plus_stats_title, Res.string.plus_stats_body)
     }
 }
 
@@ -365,12 +362,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 Spacer(Modifier.height(DiarySpacing.x6))
                 BasicText(stringResource(Res.string.plus_manage_benefits), style = typography.label.copy(color = colors.textSecondary))
                 Spacer(Modifier.height(DiarySpacing.x3))
-                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
-                    OwnedBenefit(DiaryIcons.ShieldCheck, Res.string.plus_ads_title, Res.string.plus_ads_body)
-                    OwnedBenefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
-                    OwnedBenefit(DiaryIcons.Checklist, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
-                    OwnedBenefit(DiaryIcons.TabInsight, Res.string.plus_stats_title, Res.string.plus_stats_body)
-                }
+                PlusBenefits()
                 Spacer(Modifier.height(DiarySpacing.x4))
                 BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
             }
@@ -393,7 +385,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
 }
 
 /**
- * 지금 받고 있는 혜택 한 줄.
+ * 혜택 한 줄.
  * 무엇을 받는지 한 문장으로 덧붙인다.
  */
 @Composable

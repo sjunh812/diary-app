@@ -39,9 +39,9 @@ internal fun softTip(tip: Float) = tip * (1f + TIP_ROUND_FROM) / 2
  * 종이 한 겹이 아래 겹에 드리우는 옅은 그림자.
  * 선 대신 그림자로 겹을 나눠야 종이처럼 보인다.
  */
-internal fun DrawScope.softShadow(path: Path, colors: DiaryColors, direction: Float) {
+internal fun DrawScope.softShadow(path: Path, colors: DiaryColors, direction: Float, strength: Float = 1f) {
     repeat(SHADOW_STEPS) { step ->
         val reach = DiarySpacing.x1_5.toPx() * (step + 1) / SHADOW_STEPS
-        translate(top = reach * direction) { drawPath(path, colors.overlay.copy(alpha = SHADOW_ALPHA)) }
+        translate(top = reach * direction) { drawPath(path, colors.overlay.copy(alpha = SHADOW_ALPHA * strength)) }
     }
 }

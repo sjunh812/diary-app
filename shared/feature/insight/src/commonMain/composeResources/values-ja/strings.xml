@@ -44,9 +44,6 @@
     <string name="insight_adv_day_morning">朝</string>
     <string name="insight_adv_day_afternoon">昼</string>
     <string name="insight_adv_day_evening">夜</string>
-    <string name="insight_adv_entry_body">気分が変わるタイミングを確認できます。</string>
-    <string name="insight_adv_entry_plus">Plusを見る</string>
-    <string name="insight_adv_entry_open">見る</string>
     <string name="insight_adv_range_recent">過去30日</string>
     <string name="insight_adv_range_year">今年</string>
     <string name="insight_adv_range_all">すべて</string>

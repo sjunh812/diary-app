@@ -62,6 +62,9 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
@@ -89,8 +92,7 @@ import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.insight.resources.Res
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_open
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_plus
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_title
 import org.sjhstudio.diary.feature.insight.resources.insight_all_time
 import org.sjhstudio.diary.feature.insight.resources.insight_count_percent
 import org.sjhstudio.diary.feature.insight.resources.insight_empty
@@ -190,8 +192,18 @@ internal fun InsightScreen(
                 .fillMaxWidth()
                 .verticalScroll(scroll)
                 .padding(horizontal = LocalScreenGutter.current)
-                .padding(top = DiarySpacing.tabTitleTop, bottom = DiarySpacing.x14 + DiarySpacing.x6)
+                .padding(bottom = DiarySpacing.x14 + DiarySpacing.x6)
         ) {
+            // 탭마다 내용이 같아서 맨 아래 대신 어느 탭에서나 보이는 위쪽에 둔다.
+            Box(Modifier.fillMaxWidth().height(DiarySpacing.tabTitleTop), contentAlignment = Alignment.CenterEnd) {
+                DiaryButton(
+                    stringResource(Res.string.insight_adv_title),
+                    if (advancedOpen) onAdvanced else onPlus,
+                    size = DiaryButtonSize.Small,
+                    kind = DiaryButtonKind.Weak,
+                    leadingIcon = DiaryIcons.Sparkles
+                )
+            }
             BasicText(
                 stringResource(Res.string.insight_title),
                 modifier = Modifier.semantics { heading() },
@@ -243,12 +255,6 @@ internal fun InsightScreen(
             if (shown != null && shown.counts.total > 0) {
                 // 기분 막대 줄은 위아래가 비어 있어서 같은 24로 보이게 줄여 둔다.
                 Spacer(Modifier.height(if (shown.counts.top.isEmpty()) DiarySpacing.x6 else DiarySpacing.x3))
-                if (advancedOpen) {
-                    AdvancedEntry(Res.string.insight_adv_entry_open, onAdvanced)
-                } else {
-                    AdvancedEntry(Res.string.insight_adv_entry_plus, onPlus)
-                }
-                Spacer(Modifier.height(DiarySpacing.x3))
                 adSlot()
             }
         }

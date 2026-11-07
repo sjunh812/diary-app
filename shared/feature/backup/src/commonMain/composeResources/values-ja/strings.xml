@@ -47,7 +47,7 @@
     <plurals name="backup_photos_unusable"><item quantity="other">見つからない写真%1$d枚はバックアップできませんでした。</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
     <!-- 복원(B2~B6) -->
-    <string name="restore_row">バックアップから復元</string>
+    <string name="restore_row">Google ドライブから復元</string>
     <string name="restore_row_body">別のスマートフォンや以前のアプリのバックアップを統合します。</string>
     <string name="restore_keep_note">復元しても、このスマートフォンの日記はそのまま残ります。</string>
     <string name="restore_device_group">%1$s・%2$s</string>
@@ -205,8 +205,9 @@
     <string name="file_saved_body">新しいスマートフォンに移してから［ファイルから復元］をタップしてください。</string>
     <string name="file_done">OK</string>
     <string name="file_name">1日1日記-バックアップ-%1$s</string>
+    <string name="backup_group_backup">バックアップ</string>
+    <string name="backup_group_restore">復元</string>
     <string name="backup_group_other">別の方法</string>
-    <string name="restore_group_other">その他</string>
     <string name="restore_replaced_title">このバックアップに置き換えました</string>
     <string name="restore_replaced_body">7日間は元に戻せます。</string>
     <string name="backup_space_text">日記の文章をアップロードするには、ドライブにあと%1$s必要です。</string>

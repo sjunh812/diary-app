@@ -1,9 +1,11 @@
 package org.sjhstudio.diary.feature.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -19,9 +21,13 @@ import androidx.compose.ui.semantics.semantics
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
+import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -34,8 +40,10 @@ import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
 import org.sjhstudio.diary.feature.settings.resources.settings_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_dev_mode
+import org.sjhstudio.diary.feature.settings.resources.settings_feedback
 import org.sjhstudio.diary.feature.settings.resources.settings_font
 import org.sjhstudio.diary.feature.settings.resources.settings_group_diary
+import org.sjhstudio.diary.feature.settings.resources.settings_group_feedback
 import org.sjhstudio.diary.feature.settings.resources.settings_group_info
 import org.sjhstudio.diary.feature.settings.resources.settings_group_notification_security
 import org.sjhstudio.diary.feature.settings.resources.settings_group_style
@@ -46,15 +54,18 @@ import org.sjhstudio.diary.feature.settings.resources.settings_lock
 import org.sjhstudio.diary.feature.settings.resources.settings_plus
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_active
+import org.sjhstudio.diary.feature.settings.resources.settings_plus_badge
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_title
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_title_ad_free
+import org.sjhstudio.diary.feature.settings.resources.settings_rate
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
 import org.sjhstudio.diary.feature.settings.resources.settings_title
 import org.sjhstudio.diary.feature.settings.resources.settings_trash
 import org.sjhstudio.diary.feature.settings.resources.settings_trash_count
+import org.sjhstudio.diary.feature.settings.resources.settings_version
 
 /**
  * 설정 목록(Figma "설정 (S6)").
@@ -81,7 +92,10 @@ fun SettingsScreen(
     plusActive: Boolean = false,
     adsRemoved: Boolean = false,
     onDevMode: (() -> Unit)? = null,
-    backupValue: String? = null
+    backupValue: String? = null,
+    appVersion: String = "",
+    onFeedback: () -> Unit = {},
+    onRate: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
     // 폰은 탭 바가 시스템 내비게이션 높이까지 맡고, 앱 틀이 그만큼 다 썼다고 알려서 아래가 두 번 뜨지 않는다.
@@ -97,26 +111,28 @@ fun SettingsScreen(
                 .navigationBarsPadding()
                 .padding(bottom = DiarySpacing.x6)
         ) {
+            // 구독 중이면 제목 위 빈 줄에 뱃지만 둔다.
+            // 다른 탭의 위쪽 줄과 같은 자리라 목록을 차지하지 않는다.
+            Box(
+                Modifier.fillMaxWidth().height(DiarySpacing.tabTitleTop).padding(horizontal = LocalScreenGutter.current),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                if (plusActive) {
+                    DiaryButton(
+                        stringResource(Res.string.settings_plus_badge),
+                        onPlus,
+                        size = DiaryButtonSize.Small,
+                        kind = DiaryButtonKind.Weak,
+                        leadingIcon = DiaryIcons.Sparkles
+                    )
+                }
+            }
             BasicText(
                 stringResource(Res.string.settings_title),
                 style = DiaryTheme.typography.display.copy(color = colors.textPrimary),
-                modifier =
-                    Modifier
-                        .padding(
-                            start = LocalScreenGutter.current,
-                            end = LocalScreenGutter.current,
-                            top = DiarySpacing.tabTitleTop
-                        )
-                        .semantics { heading() }
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { heading() }
             )
-            if (plusActive) {
-                DiarySettingsRow(
-                    stringResource(Res.string.settings_plus),
-                    onClick = onPlus,
-                    value = stringResource(Res.string.settings_plus_active),
-                    leadingIcon = DiaryIcons.Sparkles
-                )
-            } else {
+            if (!plusActive) {
                 // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드로 둔다.
                 DiaryInviteCard(
                     stringResource(if (adsRemoved) Res.string.settings_plus_title_ad_free else Res.string.settings_plus_title),
@@ -164,12 +180,16 @@ fun SettingsScreen(
                 }
             DiarySettingsRow(stringResource(Res.string.settings_reminder), onClick = onReminder, value = reminderValue)
             DiarySettingsRow(stringResource(Res.string.settings_lock), onClick = onLock, value = stringResource(state.lock.label()))
+            DiarySettingsHeader(stringResource(Res.string.settings_group_feedback), gapAbove = true)
+            DiarySettingsRow(stringResource(Res.string.settings_feedback), onClick = onFeedback)
+            onRate?.let { DiarySettingsRow(stringResource(Res.string.settings_rate), onClick = it) }
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
             if (state.showsMigrationReport) {
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
             DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
             DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
+            DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
             onDevMode?.let { DiarySettingsRow(stringResource(Res.string.settings_dev_mode), onClick = it) }
         }
     }

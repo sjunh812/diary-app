@@ -47,7 +47,7 @@
     <plurals name="backup_photos_unusable"><item quantity="other">찾을 수 없는 사진 %1$d장은 백업하지 못했어요.</item></plurals>
     <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$d장은 Wi-Fi에 연결되면 올려요.</item></plurals>
     <!-- 복원(B2~B6) -->
-    <string name="restore_row">백업에서 복원하기</string>
+    <string name="restore_row">구글 드라이브에서 복원하기</string>
     <string name="restore_row_body">다른 휴대폰이나 예전 앱의 백업을 합쳐요.</string>
     <string name="restore_keep_note">복원해도 지금 휴대폰의 일기는 그대로예요.</string>
     <string name="restore_device_group">%1$s · %2$s</string>
@@ -205,8 +205,9 @@
     <string name="file_saved_body">새 휴대폰으로 옮긴 뒤 [파일에서 복원하기]를 누르면 돼요.</string>
     <string name="file_done">확인</string>
     <string name="file_name">1일1일기-백업-%1$s</string>
+    <string name="backup_group_backup">백업</string>
+    <string name="backup_group_restore">복원</string>
     <string name="backup_group_other">다른 방법</string>
-    <string name="restore_group_other">다른 곳에서</string>
     <string name="restore_replaced_title">이 백업으로 바꿨어요</string>
     <string name="restore_replaced_body">바꾸기 전 기록은 7일 동안 되돌릴 수 있어요.</string>
     <string name="backup_space_text">일기 글을 올리려면 드라이브에 %1$s가 더 필요해요.</string>

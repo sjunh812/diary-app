@@ -76,11 +76,14 @@ private const val ENVELOPE_RATIO = 1.42f
  * 덮개가 내려오는 깊이와 앞면이 파인 깊이.
  * 봉투 높이에 대한 비율이다.
  */
-private const val FLAP_DEPTH = 0.58f
+private const val FLAP_DEPTH = 0.74f
 private const val POCKET_DEPTH = 0.5f
 
-/** 아래 날개 끝이 앞면 가운데에서 얼마나 내려와 있는가. 덮개 끝에 묻힌다. */
-private const val LOWER_TIP_SHARE = 0.1f
+/** 아래 날개 끝의 높이. 봉투 높이에 대한 비율이고 덮개 끝보다 위에 있다. */
+private const val LOWER_TIP = 0.4f
+
+/** 아래 날개는 종이가 맞닿아 있어 덮개보다 그림자가 훨씬 옅다. */
+private const val LOWER_SHADOW = 0.3f
 
 /**
  * 열리는 진행 값의 구간.
@@ -275,12 +278,13 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
         lineTo(0f, height)
         close()
     }
-    // 아래 날개는 위로 올라온 둥근 삼각형이다.
-    val lower = softPoint(width, height, middle + (height - middle) * LOWER_TIP_SHARE)
+    // 아래 날개는 가운데 위까지 올라온 둥근 삼각형이고 끝은 덮개에 덮인다.
+    val lower = softPoint(width, height, LOWER_TIP * height)
     val tip = flapTip(height, progress)
     clipPath(body) {
         drawPath(pocket, colors.paper)
-        softShadow(lower, colors, direction = -1f)
+        if (tip < 0) drawPath(opening, colors.line, style = outline())
+        softShadow(lower, colors, direction = -1f, strength = LOWER_SHADOW)
         drawPath(lower, colors.paper)
     }
     // 열린 봉투의 위쪽은 비어 있다.
@@ -295,7 +299,6 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
         drawSeal(Offset(width / 2, softTip(tip)), tip / (FLAP_DEPTH * height), colors, pen)
     } else {
         clipPath(pocket) { drawPath(body, colors.line, style = outline()) }
-        clipPath(body) { drawPath(opening, colors.line, style = outline()) }
     }
 }
 

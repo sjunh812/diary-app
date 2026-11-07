@@ -21,9 +21,17 @@
     <string name="migration_report_contact">문의하기</string>
 
     <!-- 설정 목록(S6) -->
+    <string name="settings_group_feedback">의견과 평가</string>
+    <string name="settings_feedback">의견 보내기</string>
+    <string name="settings_rate">앱 평가하기</string>
+    <string name="settings_version">앱 버전</string>
+    <string name="settings_plus_badge">Plus 이용 중</string>
+    <string name="settings_feedback_subject">1일 1일기 의견</string>
+    <string name="settings_feedback_body">앱 버전: %1$s (%2$s)\n\n의견을 적어 주세요.\n</string>
+    <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s로 보내 주세요.</string>
     <string name="settings_title">설정</string>
     <string name="settings_group_style">꾸미기</string>
-    <string name="settings_group_info">정보</string>
+    <string name="settings_group_info">앱 정보</string>
     <string name="settings_licenses">오픈소스 라이선스</string>
     <string name="licenses_group_fonts">글꼴</string>
     <string name="licenses_group_libraries">라이브러리</string>

@@ -76,9 +76,6 @@ import org.sjhstudio.diary.feature.backup.resources.file_read_failed
 import org.sjhstudio.diary.feature.backup.resources.file_read_needs_update
 import org.sjhstudio.diary.feature.backup.resources.file_read_no_space
 import org.sjhstudio.diary.feature.backup.resources.file_read_no_space_plain
-import org.sjhstudio.diary.feature.backup.resources.file_reading
-import org.sjhstudio.diary.feature.backup.resources.file_restore
-import org.sjhstudio.diary.feature.backup.resources.file_restore_body
 import org.sjhstudio.diary.feature.backup.resources.file_saved_body
 import org.sjhstudio.diary.feature.backup.resources.file_saved_title
 import org.sjhstudio.diary.feature.backup.resources.file_stop_action
@@ -101,7 +98,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_body
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun FileBackupRoute(onBack: () -> Unit, onPreview: () -> Unit, modifier: Modifier = Modifier) {
+fun FileBackupRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<FileBackupViewModel>()
     val estimate by viewModel.estimate.collectAsStateWithLifecycle()
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -111,10 +108,6 @@ fun FileBackupRoute(onBack: () -> Unit, onPreview: () -> Unit, modifier: Modifie
             file?.let { target ->
                 viewModel.write(target.name, { OkioSink(target.sink()).buffer() }, { target.delete(mustExist = false) })
             }
-        }
-    val picker =
-        rememberFilePickerLauncher(type = FileKitType.File()) { file: PlatformFile? ->
-            file?.let { picked -> viewModel.read({ OkioSource(picked.source()) }, { picked.sizeOrNull() }, onPreview) }
         }
     // 나가면 파일을 끝까지 만들지 못한다.
     // 모르고 나가지 않게 한 번 묻는다.
@@ -144,7 +137,6 @@ fun FileBackupRoute(onBack: () -> Unit, onPreview: () -> Unit, modifier: Modifie
                 saver.launch(suggestedName = getString(Res.string.file_name, today.toString()), defaultExtension = "zip")
             }
         },
-        onRestore = { picker.launch() },
         onDone = viewModel::clear,
         onBack = { if (writing) asking = true else onBack() },
         modifier = modifier
@@ -156,7 +148,6 @@ fun FileBackupScreen(
     estimate: BundleEstimate?,
     state: FileBackupUi,
     onMake: () -> Unit,
-    onRestore: () -> Unit,
     onDone: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -167,19 +158,14 @@ fun FileBackupScreen(
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().weight(1f)) {
             when (state) {
                 is FileBackupUi.Saved -> Saved(state, onDone)
-                else -> Start(estimate, state, onMake, onRestore)
+                else -> Start(estimate, state, onMake)
             }
         }
     }
 }
 
 @Composable
-private fun androidx.compose.foundation.layout.ColumnScope.Start(
-    estimate: BundleEstimate?,
-    state: FileBackupUi,
-    onMake: () -> Unit,
-    onRestore: () -> Unit
-) {
+private fun androidx.compose.foundation.layout.ColumnScope.Start(estimate: BundleEstimate?, state: FileBackupUi, onMake: () -> Unit) {
     val busy = state is FileBackupUi.Writing || state == FileBackupUi.Reading
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Heading(DiaryIcons.Download, stringResource(Res.string.file_title), estimate?.let { bodyOf(it) }.orEmpty())
@@ -199,21 +185,8 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(
                 is FileBackupUi.WriteFailed ->
                     DiaryNotice(stringResource(if (state.left) Res.string.file_write_failed else Res.string.file_write_failed_removed))
 
-                is FileBackupUi.ReadFailed -> DiaryNotice(readFailedText(state))
-
-                FileBackupUi.Reading -> DiaryNotice(stringResource(Res.string.file_reading))
-
                 else -> Unit
             }
-        }
-        Spacer(Modifier.height(DiarySpacing.x3))
-        if (!busy) {
-            DiarySettingsRow(
-                stringResource(Res.string.file_restore),
-                onClick = onRestore,
-                description = stringResource(Res.string.file_restore_body),
-                leadingIcon = DiaryIcons.Restore
-            )
         }
     }
     Column(
@@ -256,7 +229,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBack
 }
 
 @Composable
-private fun readFailedText(failed: FileBackupUi.ReadFailed): String = when (failed.reason) {
+internal fun readFailedText(failed: FileBackupUi.ReadFailed): String = when (failed.reason) {
     RestoreFailure.NEEDS_UPDATE -> stringResource(Res.string.file_read_needs_update)
 
     RestoreFailure.BUSY -> stringResource(Res.string.restore_failed_busy_body)
@@ -272,7 +245,7 @@ private fun readFailedText(failed: FileBackupUi.ReadFailed): String = when (fail
 }
 
 /** 크기를 알려 주지 않는 저장소도 있다. */
-private fun PlatformFile.sizeOrNull(): Long? = try {
+internal fun PlatformFile.sizeOrNull(): Long? = try {
     size().takeIf { it > 0 }
 } catch (_: Exception) {
     null

@@ -192,14 +192,17 @@ class WriteDraftSafetyTest {
     }
 
     @Test
-    fun an_edit_can_be_discarded_only_after_a_change() = runTest(dispatcher) {
+    fun discarding_shows_only_for_a_draft_left_before() = runTest(dispatcher) {
         val key = DraftKey.Edit("e1")
-        val vm = vm(FakeDraftRepository(editable = mapOf("e1" to draft(key))), WriteTarget.Edit("e1"))
+        val fresh = vm(FakeDraftRepository(editable = mapOf("e1" to draft(key))), WriteTarget.Edit("e1"))
         advanceUntilIdle()
-        assertFalse(vm.state.value.canDiscard)
+        fresh.selectMood(Mood.entries.first())
+        assertFalse(fresh.state.value.canDiscard)
 
-        vm.selectMood(Mood.entries.first())
-
-        assertTrue(vm.state.value.canDiscard)
+        val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key)))
+        repository.openEdit("e1")
+        val left = vm(repository, WriteTarget.Edit("e1"))
+        advanceUntilIdle()
+        assertTrue(left.state.value.canDiscard)
     }
 }

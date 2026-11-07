@@ -26,6 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.source
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
@@ -90,8 +94,10 @@ import org.sjhstudio.diary.feature.backup.resources.backup_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_first_body
 import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_group_account
+import org.sjhstudio.diary.feature.backup.resources.backup_group_backup
 import org.sjhstudio.diary.feature.backup.resources.backup_group_connection
 import org.sjhstudio.diary.feature.backup.resources.backup_group_other
+import org.sjhstudio.diary.feature.backup.resources.backup_group_restore
 import org.sjhstudio.diary.feature.backup.resources.backup_group_upload
 import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_body
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_body
@@ -125,6 +131,9 @@ import org.sjhstudio.diary.feature.backup.resources.backup_title
 import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only
 import org.sjhstudio.diary.feature.backup.resources.backup_wifi_only_body
+import org.sjhstudio.diary.feature.backup.resources.file_reading
+import org.sjhstudio.diary.feature.backup.resources.file_restore
+import org.sjhstudio.diary.feature.backup.resources.file_restore_body
 import org.sjhstudio.diary.feature.backup.resources.file_row_body
 import org.sjhstudio.diary.feature.backup.resources.file_top
 import org.sjhstudio.diary.feature.backup.resources.restore_device_group
@@ -150,10 +159,18 @@ fun BackupSettingsRoute(
     onOptions: () -> Unit,
     onRestore: () -> Unit,
     onRestoreEntry: (String) -> Unit,
-    onFile: () -> Unit,
-    modifier: Modifier = Modifier
+    onFileBackup: () -> Unit,
+    onFilePreview: () -> Unit,
+    modifier: Modifier = Modifier,
+    statusBar: @Composable (pickFile: () -> Unit) -> Unit = {}
 ) {
     val viewModel = koinViewModel<BackupViewModel>()
+    val files = koinViewModel<FileBackupViewModel>()
+    val fileState by files.state.collectAsStateWithLifecycle()
+    val picker =
+        rememberFilePickerLauncher(type = FileKitType.File()) { file: PlatformFile? ->
+            file?.let { picked -> files.read({ OkioSource(picked.source()) }, { picked.sizeOrNull() }, onFilePreview) }
+        }
     val status by viewModel.status.collectAsStateWithLifecycle()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
@@ -171,11 +188,26 @@ fun BackupSettingsRoute(
     // 거절해도 백업은 그대로 돈다.
     LaunchedEffect(running) { if (running) access.request {} }
     Box(modifier.fillMaxSize()) {
-        BackupSettingsScreen(status, connecting, { viewModel.connect() }, {
-            viewModel.backUpNow()
-        }, {
-            viewModel.backUpNow(cellularOnce = true)
-        }, viewModel::setAuto, onOptions, onRestore, onBack, Modifier, rollback, viewModel::rollBack, onFile)
+        Column(Modifier.fillMaxSize()) {
+            BackupSettingsScreen(
+                status,
+                connecting,
+                { viewModel.connect() },
+                { viewModel.backUpNow() },
+                { viewModel.backUpNow(cellularOnce = true) },
+                viewModel::setAuto,
+                onOptions,
+                onRestore,
+                onBack,
+                Modifier.weight(1f),
+                rollback,
+                viewModel::rollBack,
+                onFileBackup,
+                onFileRestore = { picker.launch() },
+                fileState = fileState
+            )
+            statusBar { picker.launch() }
+        }
         DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
     }
     found?.let { entry ->
@@ -266,7 +298,9 @@ internal fun BackupSettingsScreen(
     modifier: Modifier = Modifier,
     rollback: RollbackInfo? = null,
     onRollBack: () -> Unit = {},
-    onFile: () -> Unit = {}
+    onFile: () -> Unit = {},
+    onFileRestore: () -> Unit = {},
+    fileState: FileBackupUi = FileBackupUi.Idle
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -280,11 +314,13 @@ internal fun BackupSettingsScreen(
             }
             if (status.connection == BackupConnection.NotConnected) {
                 NotConnected(connecting, onConnect)
+                FileRestoreNotice(fileState)
                 DiarySettingsRow(
                     stringResource(Res.string.file_top),
                     onClick = onFile,
                     description = stringResource(Res.string.file_row_body)
                 )
+                FileRestoreRow(onFileRestore)
             } else {
                 // 공간 안내는 상태 자리만 대신한다.
                 // 공간이 없어도 복원, 자동 백업, 백업 설정 길은 그대로 있어야 한다.
@@ -314,6 +350,8 @@ internal fun BackupSettingsScreen(
                         }
                     }
                 }
+                // 백업과 복원을 두 묶음으로 나눠 복원을 찾으러 다른 화면을 뒤지지 않게 한다.
+                DiarySettingsHeader(stringResource(Res.string.backup_group_backup))
                 DiarySettingsSwitchRow(
                     stringResource(Res.string.backup_auto),
                     status.autoEnabled,
@@ -321,15 +359,40 @@ internal fun BackupSettingsScreen(
                     description = stringResource(Res.string.backup_auto_body)
                 )
                 DiarySettingsRow(
+                    stringResource(Res.string.file_top),
+                    onClick = onFile,
+                    description = stringResource(Res.string.file_row_body)
+                )
+                DiarySettingsRow(stringResource(Res.string.backup_options), onClick = onOptions)
+                DiarySettingsHeader(stringResource(Res.string.backup_group_restore), gapAbove = true)
+                FileRestoreNotice(fileState)
+                DiarySettingsRow(
                     stringResource(Res.string.restore_row),
                     onClick = onRestore,
                     description = stringResource(Res.string.restore_row_body)
                 )
-                DiarySettingsRow(stringResource(Res.string.backup_options), onClick = onOptions)
+                FileRestoreRow(onFileRestore)
             }
             Spacer(Modifier.height(DiarySpacing.x8))
         }
     }
+}
+
+@Composable
+private fun FileRestoreRow(onClick: () -> Unit) {
+    DiarySettingsRow(stringResource(Res.string.file_restore), onClick = onClick, description = stringResource(Res.string.file_restore_body))
+}
+
+/** 고른 파일을 앱으로 옮기는 동안의 안내와 실패 까닭. */
+@Composable
+private fun FileRestoreNotice(state: FileBackupUi) {
+    val text =
+        when (state) {
+            FileBackupUi.Reading -> stringResource(Res.string.file_reading)
+            is FileBackupUi.ReadFailed -> readFailedText(state)
+            else -> return
+        }
+    DiaryNotice(text, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
 }
 
 /**
@@ -553,7 +616,7 @@ private fun lastBackupText(at: Instant): String {
 
 /** 백업 설정(Figma "백업 설정 (B13)"). */
 @Composable
-fun BackupOptionsRoute(onBack: () -> Unit, onFile: () -> Unit, modifier: Modifier = Modifier) {
+fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.status.collectAsStateWithLifecycle()
     var asking by remember { mutableStateOf(false) }
@@ -574,7 +637,6 @@ fun BackupOptionsRoute(onBack: () -> Unit, onFile: () -> Unit, modifier: Modifie
                 description = stringResource(Res.string.backup_wifi_only_body)
             )
             DiarySettingsHeader(stringResource(Res.string.backup_group_other), gapAbove = true)
-            DiarySettingsRow(stringResource(Res.string.file_top), onClick = onFile)
             DiarySettingsHeader(stringResource(Res.string.backup_group_connection), gapAbove = true)
             DiarySettingsRow(
                 stringResource(Res.string.backup_disconnect),

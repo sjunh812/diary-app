@@ -46,9 +46,6 @@
     <string name="insight_adv_day_morning">Morning</string>
     <string name="insight_adv_day_afternoon">Afternoon</string>
     <string name="insight_adv_day_evening">Evening</string>
-    <string name="insight_adv_entry_body">See when your mood changes.</string>
-    <string name="insight_adv_entry_plus">See Plus</string>
-    <string name="insight_adv_entry_open">Open</string>
     <string name="insight_adv_range_recent">Last 30 days</string>
     <string name="insight_adv_range_year">This year</string>
     <string name="insight_adv_range_all">All</string>

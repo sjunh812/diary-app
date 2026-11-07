@@ -82,7 +82,6 @@ import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
-import org.sjhstudio.diary.feature.backup.resources.file_restore
 import org.sjhstudio.diary.feature.backup.resources.restore_contact
 import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
@@ -106,7 +105,6 @@ import org.sjhstudio.diary.feature.backup.resources.restore_failed_space_body
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_space_title
 import org.sjhstudio.diary.feature.backup.resources.restore_fetching_body
 import org.sjhstudio.diary.feature.backup.resources.restore_group_legacy
-import org.sjhstudio.diary.feature.backup.resources.restore_group_other
 import org.sjhstudio.diary.feature.backup.resources.restore_join
 import org.sjhstudio.diary.feature.backup.resources.restore_keep_note
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_action
@@ -182,10 +180,10 @@ import org.sjhstudio.diary.feature.backup.resources.restore_when
  * 기기마다 묶어 보이고, 깨진 백업은 고를 수 없다.
  */
 @Composable
-fun RestoreListRoute(onBack: () -> Unit, onPick: (String) -> Unit, onFile: () -> Unit, modifier: Modifier = Modifier) {
+fun RestoreListRoute(onBack: () -> Unit, onPick: (String) -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestoreListViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    RestoreListScreen(state, onPick, viewModel::load, onBack, modifier, onFile)
+    RestoreListScreen(state, onPick, viewModel::load, onBack, modifier)
 }
 
 @Composable
@@ -194,8 +192,7 @@ fun RestoreListScreen(
     onPick: (String) -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    onFile: () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     Page(stringResource(Res.string.restore_row), onBack, modifier) {
         when (state) {
@@ -215,17 +212,15 @@ fun RestoreListScreen(
             is RestoreListUi.Loaded ->
                 if (state.entries.isEmpty()) {
                     Hero(DiaryIcons.History, stringResource(Res.string.restore_empty_title), stringResource(Res.string.restore_empty_body))
-                    DiarySettingsRow(stringResource(Res.string.file_restore), onClick = onFile, leadingIcon = DiaryIcons.Download)
-                    Spacer(Modifier.height(DiarySpacing.x8))
                 } else {
-                    Entries(state.entries, onPick, onFile)
+                    Entries(state.entries, onPick)
                 }
         }
     }
 }
 
 @Composable
-private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit, onFile: () -> Unit) {
+private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
     val colors = DiaryTheme.colors
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         BasicText(
@@ -251,8 +246,6 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit, onFile
                 }
             }
         }
-        DiarySettingsHeader(stringResource(Res.string.restore_group_other), gapAbove = true)
-        DiarySettingsRow(stringResource(Res.string.file_restore), onClick = onFile, leadingIcon = DiaryIcons.Download)
         Spacer(Modifier.height(DiarySpacing.x8))
     }
 }

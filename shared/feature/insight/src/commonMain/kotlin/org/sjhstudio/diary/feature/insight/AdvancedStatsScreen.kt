@@ -41,6 +41,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -96,7 +97,6 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_afternoon
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_dawn
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_evening
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_morning
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_body
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_characters
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_habit_characters_value
@@ -161,20 +161,6 @@ private val DayParts: List<Pair<DayPart, StringResource>> =
         DayPart.AFTERNOON to Res.string.insight_adv_day_afternoon,
         DayPart.EVENING to Res.string.insight_adv_day_evening
     )
-
-/**
- * 돌아보기 맨 아래 입구(Figma P6).
- * 무료는 눌러서 Plus 안내로, Plus는 고급 통계로 간다(FR-006).
- */
-@Composable
-internal fun AdvancedEntry(action: StringResource, onClick: () -> Unit) {
-    DiaryInviteCard(
-        stringResource(Res.string.insight_adv_title),
-        stringResource(Res.string.insight_adv_entry_body),
-        stringResource(action),
-        onClick
-    )
-}
 
 /**
  * 고급 통계(Figma P8).
@@ -588,22 +574,21 @@ private fun tileValue(value: String): AnnotatedString {
     val colors = DiaryTheme.colors
     val unit = DiaryTheme.typography.caption
     return remember(value, colors, unit) {
-        val style = SpanStyle(fontSize = unit.fontSize, fontWeight = FontWeight.Medium, color = colors.textSecondary)
+        val small = SpanStyle(fontSize = unit.fontSize, fontWeight = FontWeight.Medium, color = colors.textSecondary)
         buildAnnotatedString {
-            append(value)
-            val numbers = NUMBER.findAll(value).toList()
-            var from = 0
-            for (number in numbers) {
-                if (number.range.first > from) addStyle(style, from, number.range.first)
-                from = number.range.last + 1
-                // 맞춤법대로 숫자와 단위는 붙여 쓰되, 크기가 달라 붙어 보이지 않게 끝 숫자 뒤만 살짝 띄운다.
-                addStyle(SpanStyle(letterSpacing = unit.fontSize * UNIT_GAP), number.range.last, from)
+            val number = NUMBER.find(value)
+            if (number == null) {
+                // 숫자가 없는 값(시간대)은 그대로 둔다.
+                append(value)
+            } else {
+                append(value.substring(0, number.range.last + 1))
+                // 크기가 달라 붙어 보이지 않게 숫자와 단위 사이에 작은 빈칸을 둔다.
+                withStyle(SpanStyle(fontSize = unit.fontSize * UNIT_GAP)) { append(' ') }
+                withStyle(small) { append(value.substring(number.range.last + 1)) }
             }
-            // 숫자가 없는 값(시간대)은 그대로 둔다.
-            if (numbers.isNotEmpty() && from < value.length) addStyle(style, from, value.length)
         }
     }
 }
 
 private val NUMBER = Regex("[0-9][0-9,.]*")
-private const val UNIT_GAP = 0.2f
+private const val UNIT_GAP = 0.5f

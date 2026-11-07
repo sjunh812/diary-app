@@ -21,9 +21,17 @@
     <string name="migration_report_contact">お問い合わせ</string>
 
     <!-- 設定(S6) -->
+    <string name="settings_group_feedback">ご意見と評価</string>
+    <string name="settings_feedback">ご意見を送る</string>
+    <string name="settings_rate">アプリを評価する</string>
+    <string name="settings_version">アプリのバージョン</string>
+    <string name="settings_plus_badge">Plus 利用中</string>
+    <string name="settings_feedback_subject">1日1日記へのご意見</string>
+    <string name="settings_feedback_body">アプリのバージョン: %1$s (%2$s)\n\nご意見をご記入ください。\n</string>
+    <string name="settings_feedback_no_mail">メールアプリが見つかりません。%1$s までお送りください。</string>
     <string name="settings_title">設定</string>
     <string name="settings_group_style">カスタマイズ</string>
-    <string name="settings_group_info">情報</string>
+    <string name="settings_group_info">アプリ情報</string>
     <string name="settings_licenses">オープンソースライセンス</string>
     <string name="licenses_group_fonts">フォント</string>
     <string name="licenses_group_libraries">ライブラリ</string>

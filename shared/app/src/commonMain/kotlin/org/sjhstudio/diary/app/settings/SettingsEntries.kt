@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -24,6 +25,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.app.gate.toastBottomOverApp
 import org.sjhstudio.diary.app.navigation.BackupOptionsKey
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.FileBackupKey
@@ -46,6 +48,7 @@ import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
+import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
@@ -79,6 +82,8 @@ import org.sjhstudio.diary.feature.settings.SettingsScreen
 import org.sjhstudio.diary.feature.settings.SettingsViewModel
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
+import org.sjhstudio.diary.feature.settings.rememberFeedbackLink
+import org.sjhstudio.diary.feature.settings.storeReviewUrl
 import org.sjhstudio.diary.feature.trash.TrashRoute
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
 import org.sjhstudio.diary.feature.welcome.LetterViewModel
@@ -97,25 +102,39 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         var trashCount by rememberSaveable { mutableIntStateOf(0) }
         LaunchedEffect(trash) { trash.items().map { it.size }.collect { trashCount = it } }
         val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
-        SettingsScreen(
-            state,
-            plusActive = plan == Plan.PLUS,
-            adsRemoved = plan == Plan.AD_FREE,
-            onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
-            onFont = { push(FontSettingsKey) },
-            onTextSize = { push(TextSizeSettingsKey) },
-            onTheme = { push(ThemeSettingsKey) },
-            onReminder = { push(ReminderSettingsKey) },
-            onLock = { push(LockSettingsKey) },
-            onMigrationReport = { push(MigrationReportKey) },
-            onLicenses = { push(LicensesKey) },
-            onListStyle = { push(ListStyleSettingsKey) },
-            onTrash = { push(TrashKey) },
-            trashCount = trashCount,
-            onBackup = { push(BackupSettingsKey) },
-            onLetter = { push(LetterKey) },
-            onPlus = { push(PlusKey) }
-        )
+        val app = koinInject<BackupAppInfo>()
+        val links = LocalUriHandler.current
+        val toast = remember { DiaryToastState() }
+        val scope = rememberCoroutineScope()
+        val feedback = rememberFeedbackLink(app.versionName, app.platform)
+        Box(Modifier.fillMaxSize()) {
+            SettingsScreen(
+                state,
+                appVersion = app.versionName,
+                onFeedback = {
+                    // 메일 앱이 없는 기기에서도 보낼 곳을 알 수 있게 한다.
+                    runCatching { links.openUri(feedback.url) }.onFailure { scope.launch { toast.show(feedback.noMail) } }
+                },
+                onRate = storeReviewUrl(app.platform)?.let { url -> { links.openUri(url) } },
+                plusActive = plan == Plan.PLUS,
+                adsRemoved = plan == Plan.AD_FREE,
+                onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
+                onFont = { push(FontSettingsKey) },
+                onTextSize = { push(TextSizeSettingsKey) },
+                onTheme = { push(ThemeSettingsKey) },
+                onReminder = { push(ReminderSettingsKey) },
+                onLock = { push(LockSettingsKey) },
+                onMigrationReport = { push(MigrationReportKey) },
+                onLicenses = { push(LicensesKey) },
+                onListStyle = { push(ListStyleSettingsKey) },
+                onTrash = { push(TrashKey) },
+                trashCount = trashCount,
+                onBackup = { push(BackupSettingsKey) },
+                onLetter = { push(LetterKey) },
+                onPlus = { push(PlusKey) }
+            )
+            DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).padding(bottom = toastBottomOverApp()))
+        }
     }
     entry<BackupSettingsKey> {
         Column(Modifier.fillMaxSize()) {
@@ -124,15 +143,15 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 onOptions = { push(BackupOptionsKey) },
                 onRestore = { push(RestoreListKey) },
                 onRestoreEntry = { push(RestorePreviewKey(it)) },
-                onFile = { push(FileBackupKey) },
-                modifier = Modifier.weight(1f)
+                onFileBackup = { push(FileBackupKey) },
+                onFilePreview = { push(RestorePreviewKey(RESTORE_FROM_FILE)) },
+                statusBar = { pickFile -> RestoreStatusBar(onPickFile = pickFile) }
             )
-            RestoreStatusBar(onPickFile = { push(FileBackupKey) })
         }
     }
-    entry<BackupOptionsKey> { BackupOptionsRoute(onBack = pop, onFile = { push(FileBackupKey) }) }
-    entry<RestoreListKey> { RestoreListRoute(onBack = pop, onPick = { push(RestorePreviewKey(it)) }, onFile = { push(FileBackupKey) }) }
-    entry<FileBackupKey> { FileBackupRoute(onBack = pop, onPreview = { push(RestorePreviewKey(RESTORE_FROM_FILE)) }) }
+    entry<BackupOptionsKey> { BackupOptionsRoute(onBack = pop) }
+    entry<RestoreListKey> { RestoreListRoute(onBack = pop, onPick = { push(RestorePreviewKey(it)) }) }
+    entry<FileBackupKey> { FileBackupRoute(onBack = pop) }
     entry<RestorePreviewKey> { key ->
         RestorePreviewRoute(key.snapshotName, onBack = pop, onMerged = {
             pop()

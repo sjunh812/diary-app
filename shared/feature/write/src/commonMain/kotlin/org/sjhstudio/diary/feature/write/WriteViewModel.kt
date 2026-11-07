@@ -104,7 +104,7 @@ data class WriteUiState(
     val entryChanged: Boolean = false,
     /** 고른 사진을 넣고 있다. */
     val addingPhotos: Boolean = false,
-    /** 버릴 내용이 있다. */
+    /** 남겨 둔 임시 저장본을 이어 열었다. 그때만 버리는 길을 보인다. */
     val canDiscard: Boolean = false,
     /**
      * 쓰고 있는 새 일기 임시 저장본의 키.
@@ -239,7 +239,7 @@ class WriteViewModel(
     private var leaving = false
     private var lastRemoved: Instant? = null
 
-    /** 전에 남겨 둔 수정 내용을 이어 열었다. */
+    /** 전에 남겨 둔 임시 저장본을 이어 열었다. */
     private var resumed = false
 
     /** 저장본에 쓴 뒤로 바뀐 것이 있는가. */
@@ -305,6 +305,7 @@ class WriteViewModel(
     fun continueDraft() {
         viewModelScope.launch {
             val draft = drafts.latestNew() ?: return@launch
+            resumed = true
             load(draft, isEdit = false)
         }
     }
@@ -660,9 +661,7 @@ class WriteViewModel(
     private fun refreshCanSave() {
         val draft = currentDraft()
         val canSave = if (editorChanged) draft.canSave(hasText = editorHasText) else draft.canSave()
-        // 수정은 고친 것이 있을 때만, 새 글은 쓴 것이 있을 때만 버릴 수 있다.
-        val canDiscard = if (key is DraftKey.Edit) resumed || dirty || editorChanged else canSave
-        _state.update { it.copy(canSave = canSave, canDiscard = canDiscard) }
+        _state.update { it.copy(canSave = canSave, canDiscard = resumed) }
     }
 
     private suspend fun flush(force: Boolean = false) {

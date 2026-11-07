@@ -44,9 +44,6 @@
     <string name="insight_adv_day_morning">아침</string>
     <string name="insight_adv_day_afternoon">낮</string>
     <string name="insight_adv_day_evening">저녁</string>
-    <string name="insight_adv_entry_body">내 기분이 언제 달라지는지 볼 수 있어요.</string>
-    <string name="insight_adv_entry_plus">Plus 알아보기</string>
-    <string name="insight_adv_entry_open">보러 가기</string>
     <string name="insight_adv_range_recent">최근 30일</string>
     <string name="insight_adv_range_year">올해</string>
     <string name="insight_adv_range_all">전체</string>
