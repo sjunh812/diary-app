@@ -8,7 +8,7 @@ enum class WelcomeStep { LETTER, ONBOARDING_UPDATED, ONBOARDING_NEW, DONE }
  * [id]가 저장 값이다.
  */
 enum class ContextTip(val id: String) {
-    CALENDAR_FACE("calendar_face")
+    INSIGHT_MOOD("insight_mood")
 }
 
 /** 세션당 하나, 팁마다 한 번(FR-011). */

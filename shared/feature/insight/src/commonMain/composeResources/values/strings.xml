@@ -94,6 +94,8 @@
         <item quantity="other">%1$s photos</item>
     </plurals>
     <string name="insight_section_days">Mood each day</string>
+    <string name="insight_map_hint">Each square is a day, colored by that day's mood.</string>
+    <string name="tip_insight_mood">Tap a mood to see all its entries.</string>
     <string name="insight_section_moods">Entries by mood</string>
     <string name="insight_adv_no_moods">Not enough entries with a mood</string>
     <string name="insight_adv_no_moods_body">Pick a mood on 7 entries and we'll look for differences.</string>

@@ -67,6 +67,7 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
@@ -108,7 +109,7 @@ fun HomeRoute(
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
     listTop: @Composable () -> Unit = {},
-    adSlot: @Composable (Int) -> Unit = {}
+    adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> }
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
@@ -119,6 +120,9 @@ fun HomeRoute(
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
     val grid = rememberLazyGridState()
+    OnTabReselected {
+        if (style == ListStyle.PHOTO_GRID) grid.animateScrollToItem(0) else list.animateScrollToItem(0)
+    }
     val scope = rememberCoroutineScope()
     val dates = rememberDiaryDateFormat()
     val today = rememberToday()
@@ -254,7 +258,7 @@ internal fun HomeScreen(
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
     listTop: @Composable () -> Unit = {},
-    adSlot: @Composable (Int) -> Unit = {}
+    adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> }
 ) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
@@ -390,7 +394,7 @@ private fun Feed(
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
     listTop: @Composable () -> Unit,
-    adSlot: @Composable (Int) -> Unit
+    adSlot: @Composable (Int, Modifier) -> Unit
 ) {
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
@@ -427,7 +431,13 @@ private fun Feed(
                                 onClick = { onOpen(row.id) }
                             )
                 )
-                if (isAdSlot(index)) Box(Modifier.padding(horizontal = LocalScreenGutter.current)) { adSlot(adOrder(index)) }
+                // 광고가 없는 사람에게 빈 틈이 남지 않게 여백은 광고에만 준다.
+                if (isAdSlot(
+                        index
+                    )
+                ) {
+                    adSlot(adOrder(index), Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3))
+                }
             }
         }
     }

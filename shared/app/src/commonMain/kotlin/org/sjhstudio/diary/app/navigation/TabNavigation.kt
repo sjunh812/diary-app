@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -57,13 +58,19 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     var movedBetweenTabs: Boolean = false
         private set
 
+    /** 첫 화면에서 지금 탭을 다시 누른 횟수. 화면이 듣고 맨 위로 간다. */
+    var reselected: Int by mutableIntStateOf(0)
+        private set
+
     /**
      * 탭을 누른다.
      * 다른 탭이면 그 탭에서 보던 화면으로, 지금 탭이면 첫 화면으로 간다.
+     * 이미 첫 화면이면 맨 위로 간다.
      */
     fun selectTab(target: TabScreen) {
         movedBetweenTabs = target != tab
         if (target == tab) {
+            if (current.size <= 1) reselected++
             current.keepFirst()
         } else {
             tab = target

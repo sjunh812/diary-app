@@ -47,8 +47,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 private const val SHOW_AFTER_MILLIS = 300L
-private const val PULSE_MILLIS = 900
-private const val PULSE_LOW = 0.6f
+private const val PULSE_MILLIS = 650
+private const val PULSE_LOW = 0.35f
 
 /**
  * 스켈레톤(`docs/design.md` 스켈레톤).

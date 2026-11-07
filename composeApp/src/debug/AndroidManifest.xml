@@ -6,6 +6,10 @@
     <application
         android:name=".debug.DebugApplication"
         tools:replace="android:name">
+        <!-- 시험 광고를 누르면 뜨는 AdMob 점검 창을 끈다. 출시 빌드에는 뜨지 않는다. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
+            android:value="false" />
         <!-- 개발 빌드에만 있다. 아직 들어갈 길이 없는 화면을 에뮬레이터에서 띄워 본다(ScreenCatalogActivity). -->
         <activity
             android:name=".debug.ScreenCatalogActivity"

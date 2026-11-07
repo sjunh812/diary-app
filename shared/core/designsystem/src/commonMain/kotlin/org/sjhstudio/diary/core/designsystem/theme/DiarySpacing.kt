@@ -112,7 +112,6 @@ object DiaryInsightSize {
 
     /** 연간 지도. */
     val mapGap: Dp = 2.dp
-    val mapRow: Dp = 11.dp
     val mapRadius: Dp = 2.dp
     val mapLabel: Dp = 20.dp
 }

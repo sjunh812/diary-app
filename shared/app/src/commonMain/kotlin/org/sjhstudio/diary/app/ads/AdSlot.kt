@@ -64,7 +64,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
     val scope = rememberCoroutineScope()
     val colors = DiaryTheme.colors
     NativeAdCard(key, shape) { ad ->
-        Box(modifier.fillMaxWidth().padding(vertical = DiarySpacing.x2)) {
+        Box(modifier.fillMaxWidth()) {
             ad()
             DiaryIconButton(
                 DiaryIcons.Close,

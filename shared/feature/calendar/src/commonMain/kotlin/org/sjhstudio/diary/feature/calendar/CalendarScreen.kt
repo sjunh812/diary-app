@@ -73,16 +73,15 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
-import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryRow
-import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.NoMoodFace
+import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
@@ -97,7 +96,6 @@ import org.sjhstudio.diary.feature.calendar.resources.calendar_next_month
 import org.sjhstudio.diary.feature.calendar.resources.calendar_previous_month
 import org.sjhstudio.diary.feature.calendar.resources.calendar_today
 import org.sjhstudio.diary.feature.calendar.resources.calendar_write_on_day
-import org.sjhstudio.diary.feature.calendar.resources.tip_calendar_date
 
 private const val DAYS_IN_WEEK = 7
 
@@ -159,12 +157,14 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
         }
     }
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
+    val scroll = rememberScrollState()
+    OnTabReselected { scroll.animateScrollTo(0) }
     if (twoPane) {
         Row(modifier.then(canvas)) {
             // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데에 둔다.
             // 달력이 왼쪽에 붙어 치우치지 않는다.
             Column(
-                Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                Modifier.weight(1f).fillMaxHeight().verticalScroll(scroll),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) { calendar() }
@@ -183,7 +183,7 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
     } else {
         // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
         Column(
-            modifier.then(canvas).verticalScroll(rememberScrollState()).padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
+            modifier.then(canvas).verticalScroll(scroll).padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) {
@@ -226,7 +226,6 @@ internal fun CalendarPanel(
     onMove: (Int) -> Unit
 ) {
     val nav: @Composable () -> Unit = { MonthNav(shown < lastMonth, showToday, onToday, onMove) }
-    ContextTipBar(ContextTip.CALENDAR_FACE, stringResource(Res.string.tip_calendar_date))
     Column(Modifier.padding(horizontal = LocalScreenGutter.current)) {
         if (twoPane) {
             Row(Modifier.fillMaxWidth().padding(top = DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {

@@ -10,5 +10,4 @@
     <plurals name="calendar_day_count">
         <item quantity="other">%1$d件</item>
     </plurals>
-    <string name="tip_calendar_date">日付をタップすると、その日の日記が見られます。</string>
 </resources>

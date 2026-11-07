@@ -11,5 +11,4 @@
         <item quantity="one">%1$d entry</item>
         <item quantity="other">%1$d entries</item>
     </plurals>
-    <string name="tip_calendar_date">Tap a date to see that day's entries.</string>
 </resources>

@@ -74,7 +74,6 @@ import org.sjhstudio.diary.core.model.ToneShare
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.compactCount
 import org.sjhstudio.diary.core.ui.MoodFace
-import org.sjhstudio.diary.core.ui.SkeletonRows
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
@@ -229,7 +228,7 @@ internal fun AdvancedStatsScreen(
                 }
             }
             when {
-                stats == null -> SkeletonRows(rows = 5, gutter = Dp.Hairline)
+                stats == null -> AdvancedSkeleton()
 
                 !stats.enough -> Unit
 

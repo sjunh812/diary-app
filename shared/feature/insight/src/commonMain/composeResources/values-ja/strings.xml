@@ -19,7 +19,7 @@
     <string name="insight_top_past">この期間は「%1$s」が一番多かったです</string>
     <string name="insight_mood_join">%1$s、%2$s</string>
     <string name="insight_summary_counts">%1$s・%2$s</string>
-    <string name="insight_count_percent">%1$d・%2$d%</string>
+    <string name="insight_count_percent">%1$d編・%2$d%</string>
     <string name="insight_year_map">今年の毎日の気分</string>
     <string name="insight_flow_week">毎日の気分</string>
     <string name="insight_flow_month">週ごとに一番多い気分</string>
@@ -87,6 +87,8 @@
         <item quantity="other">%1$s枚</item>
     </plurals>
     <string name="insight_section_days">毎日の気分</string>
+    <string name="insight_map_hint">1マスが1日です。色はその日の気分です。</string>
+    <string name="tip_insight_mood">気分をタップすると、その気分の日記をまとめて見られます。</string>
     <string name="insight_section_moods">気分別の日記</string>
     <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
     <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>

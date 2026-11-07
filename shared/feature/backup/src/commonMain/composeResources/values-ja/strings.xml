@@ -59,7 +59,6 @@
     <string name="restore_needs_update">アプリをアップデートすると復元できます</string>
     <string name="restore_empty_title">ドライブにバックアップはまだありません</string>
     <string name="restore_empty_body">このスマートフォンでバックアップするとここに表示されます。</string>
-    <string name="restore_loading">バックアップを探しています</string>
     <string name="restore_list_failed">バックアップ一覧を読み込めませんでした</string>
     <string name="restore_list_failed_body">接続を確認して、もう一度お試しください。</string>
     <string name="restore_retry">もう一度試す</string>
@@ -73,7 +72,6 @@
     <string name="restore_settings_note">フォント、本文の文字サイズ、表示モード、リマインダーの設定もバックアップ時に戻ります。</string>
     <string name="restore_no_space">写真をダウンロードする空き容量があと%1$s足りません。空き容量を増やしてもう一度お試しください。</string>
     <string name="restore_merge">統合する</string>
-    <string name="restore_preparing">バックアップを確認しています</string>
     <string name="restore_size_gb">%1$sGB</string>
     <string name="restore_size_mb">%1$sMB</string>
     <string name="restore_size_kb">%1$sKB</string>

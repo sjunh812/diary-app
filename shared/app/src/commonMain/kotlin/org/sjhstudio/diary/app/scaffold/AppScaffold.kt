@@ -116,6 +116,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.LocalTabReselect
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
@@ -219,7 +220,8 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         Box(Modifier.fillMaxSize().then(shortcuts)) {
             CompositionLocalProvider(
                 LocalRailWidth provides if (wide) railWidth else Dp.Hairline,
-                LocalTabBarHeight provides if (wide) Dp.Hairline else barHeight
+                LocalTabBarHeight provides if (wide) Dp.Hairline else barHeight,
+                LocalTabReselect provides nav.reselected
             ) {
                 ContentWithToast(
                     nav,
@@ -396,9 +398,9 @@ private fun Content(
                             // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
                             // 광고 수는 늘지 않는다.
                             // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않는다.
-                            adSlot = { order ->
+                            adSlot = { order, slot ->
                                 if (homeStack.none { it is EntryDetailKey }) {
-                                    AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card)
+                                    AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card, slot)
                                 }
                             }
                         )

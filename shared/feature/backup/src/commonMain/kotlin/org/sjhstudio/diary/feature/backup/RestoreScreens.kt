@@ -122,7 +122,6 @@ import org.sjhstudio.diary.feature.backup.resources.restore_legacy_same_time_bod
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_title
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed_body
-import org.sjhstudio.diary.feature.backup.resources.restore_loading
 import org.sjhstudio.diary.feature.backup.resources.restore_lock_action
 import org.sjhstudio.diary.feature.backup.resources.restore_lock_body
 import org.sjhstudio.diary.feature.backup.resources.restore_lock_title
@@ -145,7 +144,6 @@ import org.sjhstudio.diary.feature.backup.resources.restore_photo_progress
 import org.sjhstudio.diary.feature.backup.resources.restore_pick_other
 import org.sjhstudio.diary.feature.backup.resources.restore_platform_android
 import org.sjhstudio.diary.feature.backup.resources.restore_platform_ios
-import org.sjhstudio.diary.feature.backup.resources.restore_preparing
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_body
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_title
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_top
@@ -201,7 +199,7 @@ fun RestoreListScreen(
 ) {
     Page(stringResource(Res.string.restore_row), onBack, modifier) {
         when (state) {
-            RestoreListUi.Loading -> LoadingList(stringResource(Res.string.restore_loading))
+            RestoreListUi.Loading -> LoadingList()
 
             RestoreListUi.Failed -> {
                 Hero(
@@ -319,7 +317,7 @@ fun RestorePreviewScreen(
 ) {
     Page(stringResource(Res.string.restore_preview_top), onBack, modifier) {
         when (state) {
-            null -> LoadingPreview(stringResource(Res.string.restore_preparing))
+            null -> LoadingPreview()
 
             is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack)
 
@@ -718,12 +716,7 @@ private fun Page(title: String, onBack: () -> Unit, modifier: Modifier, content:
  * 나올 목록처럼 기기 머리 아래에 두 줄짜리 백업 줄을 둔다.
  */
 @Composable
-private fun LoadingList(label: String) {
-    BasicText(
-        label,
-        Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
-        style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
-    )
+private fun LoadingList() {
     DiarySkeleton {
         Column(Modifier.fillMaxWidth()) {
             repeat(LOADING_DEVICES) { device ->
@@ -758,8 +751,7 @@ private fun LoadingList(label: String) {
  * 나올 확인 화면처럼 배지, 제목, 값 줄 넷, 안내 상자, 버튼 자리를 둔다.
  */
 @Composable
-private fun ColumnScope.LoadingPreview(label: String) {
-    val colors = DiaryTheme.colors
+private fun ColumnScope.LoadingPreview() {
     Column(
         Modifier.weight(1f).fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -768,7 +760,7 @@ private fun ColumnScope.LoadingPreview(label: String) {
         DiarySkeleton { SkeletonBlock(Modifier.size(DiarySpacing.x14), DiaryShapes.full) }
         Spacer(Modifier.height(DiarySpacing.x1))
         DiarySkeleton { SkeletonLine(Modifier.fillMaxWidth(LOADING_HERO_WIDTH), DiarySpacing.x5) }
-        BasicText(label, style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center))
+        DiarySkeleton { SkeletonLine(Modifier.fillMaxWidth(LOADING_TITLE_WIDTH)) }
         Spacer(Modifier.height(DiarySpacing.x6))
         DiarySkeleton {
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {

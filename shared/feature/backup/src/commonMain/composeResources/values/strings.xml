@@ -59,7 +59,6 @@
     <string name="restore_needs_update">Update the app to restore this backup</string>
     <string name="restore_empty_title">No backups on Drive yet</string>
     <string name="restore_empty_body">Backups from this phone will show up here.</string>
-    <string name="restore_loading">Looking for backups</string>
     <string name="restore_list_failed">Couldn't read your backups</string>
     <string name="restore_list_failed_body">Check your connection and try again.</string>
     <string name="restore_retry">Try again</string>
@@ -73,7 +72,6 @@
     <string name="restore_settings_note">Your font, diary text size, appearance, and reminder settings also change to those in the backup.</string>
     <string name="restore_no_space">You need %1$s more space for the photos. Free up space on this phone and try again.</string>
     <string name="restore_merge">Merge</string>
-    <string name="restore_preparing">Checking the backup</string>
     <string name="restore_size_gb">%1$s GB</string>
     <string name="restore_size_mb">%1$s MB</string>
     <string name="restore_size_kb">%1$s KB</string>

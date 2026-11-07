@@ -59,7 +59,6 @@
     <string name="restore_needs_update">앱을 업데이트하면 복원할 수 있어요</string>
     <string name="restore_empty_title">드라이브에 백업이 아직 없어요</string>
     <string name="restore_empty_body">이 휴대폰에서 백업하면 여기에 보여요.</string>
-    <string name="restore_loading">백업을 찾고 있어요</string>
     <string name="restore_list_failed">백업 목록을 읽지 못했어요</string>
     <string name="restore_list_failed_body">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="restore_retry">다시 시도</string>
@@ -73,7 +72,6 @@
     <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 알림 설정도 백업 때로 바뀌어요.</string>
     <string name="restore_no_space">사진을 받을 공간이 %1$s 부족해요. 휴대폰 공간을 비운 뒤 다시 시도해 주세요.</string>
     <string name="restore_merge">합치기</string>
-    <string name="restore_preparing">백업을 확인하고 있어요</string>
     <string name="restore_size_gb">%1$sGB</string>
     <string name="restore_size_mb">%1$sMB</string>
     <string name="restore_size_kb">%1$sKB</string>
