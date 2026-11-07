@@ -171,6 +171,9 @@ object DiaryArtSize {
      * 글이 길게 늘어나지 않게 폰보다 조금만 넓다.
      */
     val paywallMax: Dp = 600.dp
+
+    /** 결제 화면 그림의 최소 높이. 이보다 자리가 적으면 그림을 뺀다. */
+    val paywallArtMin: Dp = 96.dp
 }
 
 /** 쓰기 화면 크기(Figma "쓰기 (S2)"). */

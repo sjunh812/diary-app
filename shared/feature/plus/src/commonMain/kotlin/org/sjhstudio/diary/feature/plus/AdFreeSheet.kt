@@ -31,9 +31,6 @@ import org.sjhstudio.diary.feature.plus.resources.adfree_price
 import org.sjhstudio.diary.feature.plus.resources.adfree_title
 import org.sjhstudio.diary.feature.plus.resources.plus_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
-import org.sjhstudio.diary.feature.plus.resources.plus_restore
-import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
-import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
 import org.sjhstudio.diary.feature.plus.resources.plus_retry
 
 /**
@@ -54,7 +51,6 @@ fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
         onDismiss = onDismiss,
         onBuy = { viewModel.buy(ProductId.AD_FREE, onDismiss) },
         onRetry = viewModel::load,
-        onRestore = { viewModel.restore(onDismiss) },
         onDayOff = onDayOff
     )
 }
@@ -65,7 +61,6 @@ internal fun AdFreeSheetContent(
     onDismiss: () -> Unit,
     onBuy: () -> Unit,
     onRetry: () -> Unit,
-    onRestore: () -> Unit,
     onDayOff: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
@@ -83,15 +78,6 @@ internal fun AdFreeSheetContent(
                 }
                 if (state.buyFailed) {
                     BasicText(stringResource(Res.string.plus_failed), style = typography.body.copy(color = colors.danger))
-                }
-                when (state.restoreNotice) {
-                    PlusMessage.RestoreNone ->
-                        BasicText(stringResource(Res.string.plus_restore_none), style = typography.body.copy(color = colors.textSecondary))
-
-                    PlusMessage.RestoreFailed ->
-                        BasicText(stringResource(Res.string.plus_restore_failed), style = typography.body.copy(color = colors.danger))
-
-                    else -> Unit
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
@@ -111,13 +97,6 @@ internal fun AdFreeSheetContent(
                         kind = DiaryButtonKind.Text
                     )
                 }
-                DiaryButton(
-                    stringResource(Res.string.plus_restore),
-                    onRestore,
-                    Modifier.align(Alignment.CenterHorizontally),
-                    kind = DiaryButtonKind.QuietText,
-                    enabled = !state.busy
-                )
             }
         }
     }

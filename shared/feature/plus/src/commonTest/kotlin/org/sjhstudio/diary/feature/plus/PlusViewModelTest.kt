@@ -381,15 +381,13 @@ class PlusViewModelTest {
     }
 
     @Test
-    fun a_finished_restore_closes_the_sheet() = runTest(dispatcher) {
+    fun a_finished_restore_leaves_no_notice() = runTest(dispatcher) {
         val viewModel = PlusViewModel(plans, FlippingStore(plans, restored = Plan.AD_FREE))
         advanceUntilIdle()
 
-        var closed = false
-        viewModel.restore { closed = true }
+        viewModel.restore()
         advanceUntilIdle()
 
-        assertEquals(true, closed)
         assertNull(viewModel.state.value.restoreNotice)
     }
 

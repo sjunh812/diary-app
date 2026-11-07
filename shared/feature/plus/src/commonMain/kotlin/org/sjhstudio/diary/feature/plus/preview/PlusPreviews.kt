@@ -47,22 +47,16 @@ private val AdFreePriced = PlusUiState(products = listOf(StoreProduct(ProductId.
 
 @Preview(name = "광고 제거 시트", locale = "ko")
 @Composable
-private fun AdFreeLight() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(AdFreePriced, {}, {}, {}, {}, {}) }
+private fun AdFreeLight() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(AdFreePriced, {}, {}, {}, {}) }
 
 @Preview(name = "광고 제거 시트 · 다크", locale = "ko")
 @Composable
-private fun AdFreeDark() = DiaryTheme(darkTheme = true) { AdFreeSheetContent(AdFreePriced, {}, {}, {}, {}, {}) }
+private fun AdFreeDark() = DiaryTheme(darkTheme = true) { AdFreeSheetContent(AdFreePriced, {}, {}, {}, {}) }
 
 @Preview(name = "광고 제거 시트 · 가격 없음", locale = "ko")
 @Composable
-private fun AdFreeNoPrice() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(PlusUiState(loading = false), {}, {}, {}, {}, {}) }
+private fun AdFreeNoPrice() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(PlusUiState(loading = false), {}, {}, {}, {}) }
 
 @Preview(name = "광고 제거 시트 · 결제 실패", locale = "ko")
 @Composable
-private fun AdFreeFailed() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(AdFreePriced.copy(buyFailed = true), {}, {}, {}, {}) }
-
-@Preview(name = "광고 제거 시트 · 복원할 구매 없음", locale = "ko")
-@Composable
-private fun AdFreeRestoreNone() = DiaryTheme(darkTheme = false) {
-    AdFreeSheetContent(AdFreePriced.copy(restoreNotice = PlusMessage.RestoreNone), {}, {}, {}, {})
-}
+private fun AdFreeFailed() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(AdFreePriced.copy(buyFailed = true), {}, {}, {}) }

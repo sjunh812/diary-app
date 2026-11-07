@@ -118,8 +118,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
         }
     }
 
-    /** 복원을 마치면 [onDone]을 부른다. */
-    fun restore(onDone: () -> Unit = {}) {
+    fun restore() {
         if (_state.value.busy) return
         viewModelScope.launch {
             val message =
@@ -128,9 +127,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
                     PurchaseResult.FAILED -> PlusMessage.RestoreFailed
                     PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> PlusMessage.RestoreNone
                 }
-            val restored = message == PlusMessage.Restored
-            _state.update { it.copy(buyFailed = false, restoreNotice = message.takeUnless { restored }) }
-            if (restored) onDone()
+            _state.update { it.copy(buyFailed = false, restoreNotice = message.takeUnless { message == PlusMessage.Restored }) }
             _messages.send(message)
         }
     }

@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.icon
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -363,7 +364,55 @@ object DiaryIcons {
     val StarOutline: ImageVector by lazy { lucide("star-outline", STAR) }
     val StarFilled: ImageVector by lazy { lucide("star-filled", STAR, filled = true) }
 
+    /*
+     * 구독 혜택에만 쓰는 꽉 찬 아이콘.
+     * 선 없이 면으로 그리고, 체크나 산 같은 안쪽 모양은 면을 뚫어 바탕이 보이게 한다.
+     */
+    val ShieldCheckSolid: ImageVector by lazy {
+        solid(
+            "shield-check-solid",
+            "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72" +
+                "a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z " +
+                "M8.29 12.71 L11 15.41 L15.71 10.71 L14.29 9.29 L11 12.59 L9.71 11.29 Z"
+        )
+    }
+    val ImageSolid: ImageVector by lazy {
+        solid(
+            "image-solid",
+            "M5 3 H19 A2 2 0 0 1 21 5 V19 A2 2 0 0 1 19 21 H5 A2 2 0 0 1 3 19 V5 A2 2 0 0 1 5 3 Z " +
+                "M7 9 a2 2 0 1 0 4 0 a2 2 0 1 0 -4 0 Z " +
+                "M5.5 18.5 L10 13.5 L12.5 16 L15.5 12 L18.5 18.5 Z"
+        )
+    }
+    val ChecklistSolid: ImageVector by lazy {
+        solid(
+            "checklist-solid",
+            "M9 2.5 H15 A1 1 0 0 1 16 3.5 V4 H17.5 A2.5 2.5 0 0 1 20 6.5 V19.5 A2.5 2.5 0 0 1 17.5 22 H6.5 " +
+                "A2.5 2.5 0 0 1 4 19.5 V6.5 A2.5 2.5 0 0 1 6.5 4 H8 V3.5 A1 1 0 0 1 9 2.5 Z " +
+                "M7.79 14.21 L11 17.41 L16.21 12.21 L14.79 10.79 L11 14.59 L9.21 12.79 Z"
+        )
+    }
+    val ChartSolid: ImageVector by lazy {
+        solid(
+            "chart-solid",
+            "M5.5 12 H6.5 A1.5 1.5 0 0 1 8 13.5 V19.5 A1.5 1.5 0 0 1 6.5 21 H5.5 " +
+                "A1.5 1.5 0 0 1 4 19.5 V13.5 A1.5 1.5 0 0 1 5.5 12 Z " +
+                "M11.5 3 H12.5 A1.5 1.5 0 0 1 14 4.5 V19.5 A1.5 1.5 0 0 1 12.5 21 H11.5 " +
+                "A1.5 1.5 0 0 1 10 19.5 V4.5 A1.5 1.5 0 0 1 11.5 3 Z " +
+                "M17.5 8 H18.5 A1.5 1.5 0 0 1 20 9.5 V19.5 A1.5 1.5 0 0 1 18.5 21 H17.5 " +
+                "A1.5 1.5 0 0 1 16 19.5 V9.5 A1.5 1.5 0 0 1 17.5 8 Z"
+        )
+    }
+
     private fun tab(name: String, stroke: Float, vararg paths: String): ImageVector = lucide(name, *paths, strokeWidth = stroke)
+
+    private fun solid(name: String, path: String): ImageVector = ImageVector.Builder(
+        name = name,
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 24f,
+        viewportHeight = 24f
+    ).addPath(pathData = addPathNodes(path), pathFillType = PathFillType.EvenOdd, fill = SolidColor(Color.Black)).build()
 
     private fun lucide(name: String, vararg paths: String, filled: Boolean = false, strokeWidth: Float = 1.75f): ImageVector {
         val builder = ImageVector.Builder(
