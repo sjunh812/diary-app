@@ -33,6 +33,11 @@ data class BackupPrefs(
      * 사용자가 확인하면 내린다.
      */
     val folderRecreated: Boolean = false,
+    /**
+     * 드라이브에서 찾은 백업을 사용자가 아직 고르지 않았다.
+     * 고르기 전에는 이 기기 일기를 올리지 않는다.
+     */
+    val foundBackupWaiting: Boolean = false,
     val deviceId: String? = null,
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
@@ -106,6 +111,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         rootFolderId = this[Keys.ROOT_FOLDER_ID],
         rootFolderAccount = this[Keys.ROOT_FOLDER_ACCOUNT],
         folderRecreated = this[Keys.FOLDER_RECREATED] ?: false,
+        foundBackupWaiting = this[Keys.FOUND_BACKUP_WAITING] ?: false,
         deviceId = this[Keys.DEVICE_ID],
         autoEnabled = this[Keys.AUTO_ENABLED] ?: false,
         photosOnCellular = this[Keys.PHOTOS_ON_CELLULAR] ?: false,
@@ -138,6 +144,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.ROOT_FOLDER_ID, prefs.rootFolderId)
         setOrRemove(Keys.ROOT_FOLDER_ACCOUNT, prefs.rootFolderAccount)
         this[Keys.FOLDER_RECREATED] = prefs.folderRecreated
+        this[Keys.FOUND_BACKUP_WAITING] = prefs.foundBackupWaiting
         this[Keys.AUTO_ENABLED] = prefs.autoEnabled
         this[Keys.PHOTOS_ON_CELLULAR] = prefs.photosOnCellular
         setOrRemove(Keys.LAST_SUCCESS_AT, prefs.lastSuccessAt?.toEpochMilliseconds())
@@ -171,6 +178,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val ROOT_FOLDER_ID = stringPreferencesKey("root_folder_id")
         val ROOT_FOLDER_ACCOUNT = stringPreferencesKey("root_folder_account")
         val FOLDER_RECREATED = booleanPreferencesKey("folder_recreated")
+        val FOUND_BACKUP_WAITING = booleanPreferencesKey("found_backup_waiting")
         val DEVICE_ID = stringPreferencesKey("device_id")
         val AUTO_ENABLED = booleanPreferencesKey("auto_enabled")
         val PHOTOS_ON_CELLULAR = booleanPreferencesKey("photos_on_cellular")

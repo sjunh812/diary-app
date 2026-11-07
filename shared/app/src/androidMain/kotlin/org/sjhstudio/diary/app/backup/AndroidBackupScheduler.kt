@@ -274,6 +274,8 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
 
     override fun cancelDaily() {
         manager.cancelUniqueWork(DAILY)
+        // Wi-Fi를 기다리는 사진 작업도 자동 백업의 일부다.
+        manager.cancelUniqueWork(PHOTOS)
     }
 
     // 조건을 걸지 않는다.

@@ -71,6 +71,18 @@ class BackupConnectTest {
         assertEquals(entry, controller.foundBackup.value)
     }
 
+    /** 안내를 고르지 않고 앱을 다시 열어도 이 기기 일기가 먼저 올라가지 않는다. */
+    @Test
+    fun a_found_backup_still_waits_after_reopening_the_app() = runTest {
+        controller(found = entry).connect()
+
+        val reopened = controller(found = entry)
+        reopened.backUpIfDue()
+
+        assertEquals(0, scheduler.startedNow)
+        assertEquals(entry, reopened.foundBackup.value)
+    }
+
     @Test
     fun later_starts_this_phones_first_backup() = runTest {
         val controller = controller(found = entry)

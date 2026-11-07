@@ -179,7 +179,12 @@ class BackupController(
             } finally {
                 finding.value = false
             }
-        if (found != null) _foundBackup.value = found else backUpNow()
+        if (found != null) {
+            store.update { it.copy(foundBackupWaiting = true) }
+            _foundBackup.value = found
+        } else {
+            backUpNow()
+        }
     }
 
     override fun connectFailureShown() {
@@ -189,11 +194,13 @@ class BackupController(
     override fun skipFoundBackup() {
         if (_foundBackup.value == null) return
         _foundBackup.value = null
+        scope.launch { store.update { it.copy(foundBackupWaiting = false) } }
         backUpNow()
     }
 
     override fun takeFoundBackup() {
         _foundBackup.value = null
+        scope.launch { store.update { it.copy(foundBackupWaiting = false) } }
     }
 
     override fun backUpNow(cellularOnce: Boolean) {
@@ -218,7 +225,25 @@ class BackupController(
     }
 
     override suspend fun backUpIfDue() {
+        // 찾은 백업 안내는 메모리에만 있어 앱을 다시 열면 다시 찾아 보여 준다.
+        if (store.current().foundBackupWaiting) {
+            if (_foundBackup.value == null) findBackupAgain()
+            return
+        }
         if (isDue()) scope.launch { runAutomatic() }
+    }
+
+    private suspend fun findBackupAgain() {
+        val found =
+            try {
+                findBackup()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // 오프라인이면 다음에 앱을 열 때 다시 본다.
+                return
+            }
+        if (found != null) _foundBackup.value = found else store.update { it.copy(foundBackupWaiting = false) }
     }
 
     override suspend fun runIfDue() {
@@ -230,6 +255,9 @@ class BackupController(
      * 바뀐 것이 없어 올리지 않은 날도 백업은 잘 되는 중이라 7일 알림을 뒤로 민다.
      */
     suspend fun runAutomatic(): BackupOutcome {
+        // 끄거나 끊은 뒤에 남아 있던 시스템 작업이 깨워도 올리지 않는다.
+        val prefs = store.current()
+        if (prefs.accountKey == null || !prefs.autoEnabled || prefs.foundBackupWaiting) return BackupOutcome.Unchanged
         val outcome = runner.value.runIfChanged()
         if (outcome == BackupOutcome.Unchanged) stillBackedUp()
         return outcome
@@ -260,6 +288,7 @@ class BackupController(
     private suspend fun isDue(): Boolean {
         val prefs = store.current()
         val last = prefs.lastSuccessAt
+        if (prefs.foundBackupWaiting) return false
         if (prefs.accountKey == null || !prefs.autoEnabled || prefs.lastFailure == BackupFailure.AUTH) return false
         return last == null || clock.now() - last >= 24.hours
     }
@@ -284,7 +313,16 @@ class BackupController(
         scheduler.cancelDaily()
         // 마지막 백업 기록은 끊은 계정의 것이다.
         // 남겨 두면 다른 계정을 연결했을 때 그 계정의 백업처럼 보인다.
-        store.update { it.withoutBackupRecord().copy(accountKey = null, accountLabel = null, autoEnabled = false, userDisconnected = true) }
+        store.update {
+            it.withoutBackupRecord().copy(
+                accountKey = null,
+                accountLabel = null,
+                autoEnabled = false,
+                userDisconnected = true,
+                foundBackupWaiting = false
+            )
+        }
+        _foundBackup.value = null
         notifier.cancel()
     }
 
