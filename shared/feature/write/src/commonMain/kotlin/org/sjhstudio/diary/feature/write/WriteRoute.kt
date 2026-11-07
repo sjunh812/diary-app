@@ -22,6 +22,8 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import kotlinx.coroutines.flow.drop
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import org.sjhstudio.diary.core.data.richtext.hasWords
+import org.sjhstudio.diary.core.data.richtext.keepingEditorText
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -71,7 +73,7 @@ fun WriteRoute(
         }
     }
     DisposableEffect(rich, colors) {
-        viewModel.attachEditor { colors.fromEditor(rich.toHtml()) }
+        viewModel.attachEditor { keepingEditorText(colors.fromEditor(rich.toHtml()), rich.annotatedString.text) }
         onDispose(viewModel::detachEditor)
     }
     // 편집기는 화면을 돌려도 스스로 살아남는다.
@@ -90,7 +92,7 @@ fun WriteRoute(
     // HTML 변환은 쓰기 직전으로 미룬다.
     // 여기서는 바뀌었다는 표시만 한다.
     LaunchedEffect(rich) {
-        snapshotFlow { rich.annotatedString }.drop(1).collect { viewModel.onEditorChanged(it.text.isNotBlank()) }
+        snapshotFlow { rich.annotatedString }.drop(1).collect { viewModel.onEditorChanged(hasWords(it.text)) }
     }
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.onStop() }
     BackHandler { viewModel.close() }
