@@ -202,10 +202,10 @@ object DiaryIcons {
     val SparklesSolid: ImageVector by lazy {
         lucide(
             "sparkles-solid",
-            "M10.5 4 Q12.6 10.9 19.5 13 Q12.6 15.1 10.5 22 Q8.4 15.1 1.5 13 Q8.4 10.9 10.5 4 Z",
-            "M19 1.8 Q19.7 4.3 22.2 5 Q19.7 5.7 19 8.2 Q18.3 5.7 15.8 5 Q18.3 4.3 19 1.8 Z",
+            "M10.5 4 Q11.9 11.6 19.5 13 Q11.9 14.4 10.5 22 Q9.1 14.4 1.5 13 Q9.1 11.6 10.5 4 Z",
+            "M19 1.8 Q19.5 4.5 22.2 5 Q19.5 5.5 19 8.2 Q18.5 5.5 15.8 5 Q18.5 4.5 19 1.8 Z",
             filled = true,
-            strokeWidth = 0.75f
+            strokeWidth = 0.6f
         )
     }
     val Tablet: ImageVector by lazy {
