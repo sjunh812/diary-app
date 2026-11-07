@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.feature.insight
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -66,6 +68,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryInsightSize
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -84,6 +87,7 @@ import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.insight.resources.Res
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_open
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_entry_plus
@@ -213,7 +217,15 @@ internal fun InsightScreen(
             var read by remember { mutableStateOf(data) }
             SideEffect { if (data != null) read = data }
             val shown = data ?: read
-            val hidden = if (data == null) Modifier.fillMaxWidth().alpha(0f).clearAndSetSemantics {} else Modifier.fillMaxWidth()
+            // 처음 보는 기간을 잠깐 읽는 동안 하얗게 번쩍이지 않게 천천히 옅어진다.
+            val reduceMotion = rememberReduceMotion()
+            val shade by animateFloatAsState(if (data == null) 0f else 1f, tween(if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS))
+            val hidden =
+                if (data == null) {
+                    Modifier.fillMaxWidth().alpha(shade).clearAndSetSemantics {}
+                } else {
+                    Modifier.fillMaxWidth().alpha(shade)
+                }
             if (shown?.counts?.total != 0) Spacer(Modifier.height(DiarySpacing.x3))
             // 뼈대는 0.3초 뒤에 나타나서 짧은 틈에는 보이지 않는다.
             Box {

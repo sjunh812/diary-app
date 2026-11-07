@@ -62,7 +62,7 @@ class AdvancedStatsViewModelTest {
 
         viewModel.data.filterNotNull().first()
 
-        assertEquals(listOf(AdvancedPeriod.ALL), stats.asked)
+        assertEquals(AdvancedPeriod.ALL, viewModel.period.value)
         assertNull(viewModel.range())
     }
 
@@ -116,7 +116,7 @@ class AdvancedStatsViewModelTest {
         viewModel.refreshToday()
         testScheduler.advanceUntilIdle()
 
-        assertEquals(listOf(today, date), days)
+        assertEquals(listOf(today, date), days.distinct())
     }
 
     @Test

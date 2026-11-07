@@ -596,6 +596,8 @@ private fun tileValue(value: String): AnnotatedString {
             for (number in numbers) {
                 if (number.range.first > from) addStyle(style, from, number.range.first)
                 from = number.range.last + 1
+                // 맞춤법대로 숫자와 단위는 붙여 쓰되, 크기가 달라 붙어 보이지 않게 끝 숫자 뒤만 살짝 띄운다.
+                addStyle(SpanStyle(letterSpacing = unit.fontSize * UNIT_GAP), number.range.last, from)
             }
             // 숫자가 없는 값(시간대)은 그대로 둔다.
             if (numbers.isNotEmpty() && from < value.length) addStyle(style, from, value.length)
@@ -604,3 +606,4 @@ private fun tileValue(value: String): AnnotatedString {
 }
 
 private val NUMBER = Regex("[0-9][0-9,.]*")
+private const val UNIT_GAP = 0.2f

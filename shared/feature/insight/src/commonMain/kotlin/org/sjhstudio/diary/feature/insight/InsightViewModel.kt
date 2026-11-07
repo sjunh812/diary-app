@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number
@@ -70,23 +72,43 @@ class InsightViewModel(
     /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꾼다. */
     val todayState: StateFlow<LocalDate> = _todayState.asStateFlow()
 
+    /**
+     * 읽어 둔 기간.
+     * 탭을 누를 때마다 비웠다 그리면 화면이 번쩍여서, 있는 값을 바로 보이고 새 값으로 바꾼다.
+     */
+    private val cache = mutableMapOf<StatsPeriod, InsightData>()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val readPeriod: Flow<InsightState> =
         _period.flatMapLatest { period ->
-            val pixels = if (period is StatsPeriod.Year) stats.yearPixels(period.year) else flowOf(emptyMap())
-            combine(stats.moodCounts(period), stats.moodFlow(period), pixels) { counts, days, map ->
-                InsightState(period, InsightData(counts, days, map))
+            read(period).map { data ->
+                cache[period] = data
+                InsightState(period, data)
             }
         }
 
+    private fun read(period: StatsPeriod): Flow<InsightData> {
+        val pixels = if (period is StatsPeriod.Year) stats.yearPixels(period.year) else flowOf(emptyMap())
+        return combine(stats.moodCounts(period), stats.moodFlow(period), pixels) { counts, days, map -> InsightData(counts, days, map) }
+    }
+
     /**
      * 기간과 그 기간의 숫자를 한 값으로 묶는다.
-     * 기간을 바꾸면 새 숫자가 올 때까지 읽는 중이고, 앞 기간 숫자는 내놓지 않는다.
+     * 기간을 바꾸면 읽어 둔 값을 바로 내놓고, 없으면 읽는 중이다. 앞 기간 숫자는 내놓지 않는다.
      * 다른 탭에 다녀와 다시 읽을 때는 같은 기간이라 보던 숫자를 그대로 둔다.
      */
     val state: StateFlow<InsightState> =
-        combine(_period, readPeriod) { period, read -> read.takeIf { it.period == period } ?: InsightState(period, null) }
+        combine(_period, readPeriod) { period, read -> read.takeIf { it.period == period } ?: InsightState(period, cache[period]) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), InsightState(_period.value, null))
+
+    init {
+        // 다른 탭도 미리 읽어 처음 눌러도 바로 보인다.
+        viewModelScope.launch {
+            InsightKind.entries.map { it.periodOf(today()) }.filter { it != _period.value }.forEach { period ->
+                cache.getOrPut(period) { read(period).first() }
+            }
+        }
+    }
 
     fun today(): LocalDate = today.invoke()
 
