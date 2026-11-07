@@ -35,6 +35,10 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -571,6 +575,32 @@ private fun Tile(label: String, value: String, modifier: Modifier) {
     val typography = DiaryTheme.typography
     Card(modifier.semantics(mergeDescendants = true) {}) {
         BasicText(label, style = typography.caption.copy(color = colors.textSecondary))
-        BasicText(value, style = typography.numeral.copy(color = colors.textPrimary))
+        BasicText(tileValue(value), style = typography.numeral.copy(color = colors.textPrimary, fontWeight = FontWeight.SemiBold))
     }
 }
+
+/**
+ * 숫자를 먼저 읽히게 단위는 작은 보조색으로 둔다.
+ * 색을 더하지 않아도 숫자가 앞에 선다(`docs/design.md` 합계 칸).
+ */
+@Composable
+private fun tileValue(value: String): AnnotatedString {
+    val colors = DiaryTheme.colors
+    val unit = DiaryTheme.typography.caption
+    return remember(value, colors, unit) {
+        val style = SpanStyle(fontSize = unit.fontSize, fontWeight = FontWeight.Medium, color = colors.textSecondary)
+        buildAnnotatedString {
+            append(value)
+            val numbers = NUMBER.findAll(value).toList()
+            var from = 0
+            for (number in numbers) {
+                if (number.range.first > from) addStyle(style, from, number.range.first)
+                from = number.range.last + 1
+            }
+            // 숫자가 없는 값(시간대)은 그대로 둔다.
+            if (numbers.isNotEmpty() && from < value.length) addStyle(style, from, value.length)
+        }
+    }
+}
+
+private val NUMBER = Regex("[0-9][0-9,.]*")
