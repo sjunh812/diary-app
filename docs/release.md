@@ -241,3 +241,5 @@ Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
 - Play 상품: 인앱 `ad_free`(광고 제거), 구독 `plus_yearly`(기본 요금제 연간).
 - RevenueCat 권한: `ad_free`는 `ad_free` 상품, `plus`는 `plus_yearly` 상품에 잇는다.
 - RevenueCat Google 공개 키를 `local.properties`의 `revenuecat.android`와 CD 비밀값 `REVENUECAT_ANDROID`에 넣는다. 이 값이나 광고 ID가 없으면 CD가 멈춘다.
+
+현황(2026-11-07): AdMob 앱과 광고 단위 3개(전면, 네이티브, 보상형)를 만들었고 계정은 재활성화 심사 중이다. RevenueCat 프로젝트, Play 앱, 권한 `plus`와 `ad_free`를 만들었다. 서비스 계정 JSON과 Play 상품 연결이 남았다. RevenueCat 이메일 인증도 남았다.
