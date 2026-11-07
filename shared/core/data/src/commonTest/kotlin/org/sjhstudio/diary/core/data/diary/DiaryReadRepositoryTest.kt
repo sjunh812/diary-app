@@ -9,6 +9,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -359,6 +360,17 @@ class DiaryReadRepositoryTest {
         assertNull(db.entryDao().get("old"))
         assertTrue(db.entryDao().get("new") != null)
         assertTrue(db.entryDao().get("keep") != null)
+    }
+
+    /** 약속은 30일이다. 정확히 30일째까지 남고 그 뒤에 지운다. */
+    @Test
+    fun the_thirtieth_day_is_exact() = runTest {
+        db.seed(entry("edge", deletedAt = T0 - 30.days), entry("over", deletedAt = T0 - 30.days - 1.milliseconds))
+
+        trash.purgeExpired(T0)
+
+        assertTrue(db.entryDao().get("edge") != null)
+        assertNull(db.entryDao().get("over"))
     }
 
     @Test

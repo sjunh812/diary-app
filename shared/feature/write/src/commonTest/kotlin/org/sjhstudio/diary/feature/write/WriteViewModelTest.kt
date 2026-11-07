@@ -614,6 +614,26 @@ class WriteViewModelTest {
     }
 
     @Test
+    fun a_place_cut_at_the_limit_keeps_its_emoji_whole() = runTest(dispatcher) {
+        val vm = vm(FakeDraftRepository())
+        advanceUntilIdle()
+
+        vm.setPlace("가".repeat(29) + "😀")
+
+        assertEquals("가".repeat(29), vm.state.value.placeName)
+    }
+
+    @Test
+    fun a_picker_failure_says_so() = runTest(dispatcher) {
+        val vm = vm(FakeDraftRepository())
+        advanceUntilIdle()
+
+        vm.photoPickFailed()
+
+        assertEquals(PhotoNotice.Unreadable, vm.state.value.photoNotice)
+    }
+
+    @Test
     fun photo_stays_when_text_is_stored_later() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
         val vm = vm(repository)

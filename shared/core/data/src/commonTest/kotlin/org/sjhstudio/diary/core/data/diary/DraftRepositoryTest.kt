@@ -292,6 +292,16 @@ class DraftRepositoryTest {
     }
 
     @Test
+    fun adding_exactly_up_to_the_limit_shows_no_notice() = runTest {
+        limit = 3
+        repository.addPhotos(DraftKey.New(), listOf(image("a"), image("b")))
+
+        val result = repository.addPhotos(DraftKey.New(), listOf(image("c")))
+
+        assertIs<AddPhotosResult.Added>(result)
+    }
+
+    @Test
     fun plus_limit_is_not_offered_an_upgrade() = runTest {
         limit = PhotoLimit.PLUS
         repository.save(newDraft())
