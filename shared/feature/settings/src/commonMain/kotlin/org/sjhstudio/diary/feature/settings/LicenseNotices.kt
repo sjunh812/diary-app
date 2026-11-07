@@ -3,7 +3,7 @@ package org.sjhstudio.diary.feature.settings
 import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
-import org.sjhstudio.diary.feature.settings.resources.license_hyemin
+import org.sjhstudio.diary.feature.settings.resources.license_changwon_round
 import org.sjhstudio.diary.feature.settings.resources.license_naver
 import org.sjhstudio.diary.feature.settings.resources.license_ofl
 
@@ -14,7 +14,7 @@ import org.sjhstudio.diary.feature.settings.resources.license_ofl
 internal enum class FontLicense(val label: StringResource) {
     OFL(Res.string.license_ofl),
     NAVER(Res.string.license_naver),
-    HYEMIN(Res.string.license_hyemin)
+    CHANGWON_ROUND(Res.string.license_changwon_round)
 }
 
 /**
@@ -31,7 +31,7 @@ internal val FONT_NOTICES: List<FontLicenseNotice> =
     listOf(
         FontLicenseNotice(DiaryFont.PRETENDARD, FontLicense.OFL, "pretendard.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_DODUM, FontLicense.OFL, "gowun_dodum.txt"),
-        FontLicenseNotice(DiaryFont.HYEMIN, FontLicense.HYEMIN, "hyemin.txt"),
+        FontLicenseNotice(DiaryFont.CHANGWON_ROUND, FontLicense.CHANGWON_ROUND, "changwon_round.txt"),
         FontLicenseNotice(DiaryFont.MARU_BURI, FontLicense.NAVER, "maru_buri.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_BATANG, FontLicense.OFL, "gowun_batang.txt"),
         FontLicenseNotice(DiaryFont.NANUM_PEN, FontLicense.OFL, "nanum_pen.txt"),

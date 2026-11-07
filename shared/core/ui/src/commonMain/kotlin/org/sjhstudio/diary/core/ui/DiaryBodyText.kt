@@ -8,8 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
 import org.sjhstudio.diary.core.designsystem.resources.Res
-import org.sjhstudio.diary.core.designsystem.resources.hyemin_bold
-import org.sjhstudio.diary.core.designsystem.resources.hyemin_regular
+import org.sjhstudio.diary.core.designsystem.resources.changwon_round_regular
 import org.sjhstudio.diary.core.designsystem.resources.maru_buri_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_pen_regular
@@ -29,7 +28,7 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
         DiaryFont.SYSTEM,
         DiaryFont.NANUM_CHEER,
         DiaryFont.NANUM_PEN,
-        DiaryFont.HYEMIN,
+        DiaryFont.CHANGWON_ROUND,
         DiaryFont.MARU_BURI
     )
 
@@ -53,7 +52,7 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
     DiaryFont.PRETENDARD -> pretendardFamily()
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
     DiaryFont.NANUM_PEN -> FontFamily(Font(Res.font.nanum_pen_regular))
-    DiaryFont.HYEMIN -> FontFamily(Font(Res.font.hyemin_regular), Font(Res.font.hyemin_bold, FontWeight.Bold))
+    DiaryFont.CHANGWON_ROUND -> FontFamily(Font(Res.font.changwon_round_regular))
     DiaryFont.MARU_BURI -> FontFamily(Font(Res.font.maru_buri_regular))
     else -> installed(font) ?: pretendardFamily()
 }

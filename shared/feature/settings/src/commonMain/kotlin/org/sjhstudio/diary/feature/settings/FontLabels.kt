@@ -4,6 +4,7 @@ import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.font_name_changwon_round
 import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower
 import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower_latin
@@ -16,7 +17,6 @@ import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_dodum_lati
 import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody
 import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody_latin
-import org.sjhstudio.diary.feature.settings.resources.font_name_hyemin
 import org.sjhstudio.diary.feature.settings.resources.font_name_maru_buri
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_cheer
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol
@@ -49,7 +49,7 @@ internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.SYSTEM -> Res.string.font_name_system
     DiaryFont.PRETENDARD -> Res.string.font_name_pretendard
     DiaryFont.GOWUN_DODUM -> Res.string.font_name_gowun_dodum
-    DiaryFont.HYEMIN -> Res.string.font_name_hyemin
+    DiaryFont.CHANGWON_ROUND -> Res.string.font_name_changwon_round
     DiaryFont.MARU_BURI -> Res.string.font_name_maru_buri
     DiaryFont.GOWUN_BATANG -> Res.string.font_name_gowun_batang
     DiaryFont.NANUM_PEN -> Res.string.font_name_nanum_pen
