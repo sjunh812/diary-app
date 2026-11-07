@@ -9,6 +9,7 @@ import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
+import org.sjhstudio.diary.feature.insight.InsightData
 import org.sjhstudio.diary.feature.insight.InsightScreen
 
 private val Today = LocalDate(2026, 10, 31)
@@ -16,12 +17,10 @@ private val Counts = MoodCounts(Mood.entries.associateWith { 1 } + mapOf(Mood.GO
 private val Days = listOf(DayMood(LocalDate(2026, 10, 1), Mood.COOL, 1), DayMood(Today, Mood.GOOD, 2))
 
 @Composable
-private fun Insight(dark: Boolean, period: StatsPeriod, counts: MoodCounts) = DiaryTheme(darkTheme = dark) {
+private fun Insight(dark: Boolean, period: StatsPeriod, counts: MoodCounts?) = DiaryTheme(darkTheme = dark) {
     InsightScreen(
         period = period,
-        counts = counts,
-        days = Days,
-        pixels = Days.associate { it.date to it.mood },
+        data = counts?.let { read -> InsightData(read, Days, Days.associate { it.date to it.mood }) },
         today = Today,
         onKind = {},
         onPrevious = {},
@@ -37,6 +36,10 @@ private fun MonthLight() = Insight(dark = false, StatsPeriod.Month(YearMonth(202
 @Preview(name = "돌아보기 · 월 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun MonthDark() = Insight(dark = true, StatsPeriod.Month(YearMonth(2026, 10)), Counts)
+
+@Preview(name = "돌아보기 · 읽는 중", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun LoadingLight() = Insight(dark = false, StatsPeriod.Month(YearMonth(2026, 10)), null)
 
 @Preview(name = "돌아보기 · 년", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

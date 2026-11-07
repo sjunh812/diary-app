@@ -122,6 +122,20 @@ interface DraftDao {
     @Query("DELETE FROM draft WHERE `key` = :key")
     suspend fun delete(key: String)
 
+    /**
+     * 휴지통에서 완전히 지울 일기의 임시 저장본.
+     * 사진 줄은 함께 지워지고, 파일은 사진 정리가 지운다.
+     * 복원이 일기를 없앤 저장본은 새 일기로 살릴 글이라 여기서 지우지 않는다.
+     */
+    @Query("DELETE FROM draft WHERE `key` IN (SELECT id FROM entry WHERE deleted_at IS NOT NULL AND id IN (:ids))")
+    suspend fun deleteTrashed(ids: List<String>)
+
+    @Query("DELETE FROM draft WHERE `key` IN (SELECT id FROM entry WHERE deleted_at IS NOT NULL)")
+    suspend fun deleteAllTrashed()
+
+    @Query("DELETE FROM draft WHERE `key` IN (SELECT id FROM entry WHERE deleted_at IS NOT NULL AND deleted_at < :before)")
+    suspend fun purgeBefore(before: Long)
+
     @Query("SELECT DISTINCT file_name FROM draft_media")
     suspend fun fileNames(): List<String>
 

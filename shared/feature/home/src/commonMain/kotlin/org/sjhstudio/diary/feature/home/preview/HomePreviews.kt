@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
+import org.sjhstudio.diary.feature.home.EntryMenu
 import org.sjhstudio.diary.feature.home.HomeScreen
 
 private val Today = LocalDate(2026, 10, 31)
@@ -107,3 +108,19 @@ private fun MonthPicker() = DiaryTheme(darkTheme = false) {
         )
     }
 }
+
+@Preview(name = "일기 메뉴 · 즐겨찾기 넣기 · 라이트", locale = "ko", widthDp = 390, heightDp = 420)
+@Composable
+private fun EntryMenuAddLight() = DiaryTheme(darkTheme = false) { EntryMenu(false, {}, {}, {}, {}, {}) }
+
+@Preview(name = "일기 메뉴 · 즐겨찾기 넣기 · 다크", locale = "ko", widthDp = 390, heightDp = 420)
+@Composable
+private fun EntryMenuAddDark() = DiaryTheme(darkTheme = true) { EntryMenu(false, {}, {}, {}, {}, {}) }
+
+@Preview(name = "일기 메뉴 · 즐겨찾기 해제 · 라이트", locale = "ko", widthDp = 390, heightDp = 420)
+@Composable
+private fun EntryMenuRemoveLight() = DiaryTheme(darkTheme = false) { EntryMenu(true, {}, {}, {}, {}, {}) }
+
+@Preview(name = "일기 메뉴 · 즐겨찾기 해제 · 다크", locale = "ko", widthDp = 390, heightDp = 420)
+@Composable
+private fun EntryMenuRemoveDark() = DiaryTheme(darkTheme = true) { EntryMenu(true, {}, {}, {}, {}, {}) }

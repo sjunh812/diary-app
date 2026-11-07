@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.data.diary.StatsRepository
@@ -25,19 +26,28 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
     private val _data = MutableStateFlow<AdvancedStats?>(null)
 
     /**
-     * 처음 읽을 때만 null이다.
-     * 기간을 바꾸면 새 값이 나올 때까지 앞 값을 둔다.
-     * 잠깐 뼈대를 끼우면 탭을 누를 때마다 깜빡인다.
+     * 읽는 동안 null이다.
+     * 기간을 바꾸면 앞 기간 숫자가 새 기간 이름 아래 남지 않게 비운다.
+     * 뼈대는 0.3초 뒤에 나타나 짧은 읽기에서는 그대로 비어 있다.
      */
     val data: StateFlow<AdvancedStats?> = _data.asStateFlow()
 
+    private val day = MutableStateFlow(today())
+
     init {
         viewModelScope.launch {
-            _period.collectLatest { period -> stats.advanced(period, today()).collect { _data.value = it } }
+            combine(_period, day, ::Pair).collectLatest { (period, date) -> stats.advanced(period, date).collect { _data.value = it } }
         }
     }
 
+    /** 앱이 돌아올 때 부른다. 날이 바뀌었으면 기간을 새 오늘로 다시 잰다. */
+    fun refreshToday() {
+        day.value = today()
+    }
+
     fun select(period: AdvancedPeriod) {
+        if (period == _period.value) return
+        _data.value = null
         _period.value = period
     }
 

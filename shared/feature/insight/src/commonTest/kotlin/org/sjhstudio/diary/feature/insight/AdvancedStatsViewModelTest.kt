@@ -66,8 +66,9 @@ class AdvancedStatsViewModelTest {
         assertNull(viewModel.range())
     }
 
+    /** 새 기간 이름 아래에 앞 기간 숫자가 보이지 않는다. */
     @Test
-    fun switching_keeps_the_last_numbers_until_the_new_ones_arrive() = runTest {
+    fun switching_hides_the_last_numbers_until_the_new_ones_arrive() = runTest {
         val slow = MutableSharedFlow<AdvancedStats>()
         val stats =
             object : StatsRepository by Stats() {
@@ -76,12 +77,46 @@ class AdvancedStatsViewModelTest {
             }
         val viewModel = AdvancedStatsViewModel(stats) { today }
         testScheduler.advanceUntilIdle()
-        val first = assertNotNull(viewModel.data.value)
+        assertNotNull(viewModel.data.value)
 
         viewModel.select(AdvancedPeriod.THIS_YEAR)
         testScheduler.advanceUntilIdle()
 
+        assertNull(viewModel.data.value)
+    }
+
+    @Test
+    fun tapping_the_same_period_keeps_the_numbers() = runTest {
+        val viewModel = AdvancedStatsViewModel(Stats()) { today }
+        testScheduler.advanceUntilIdle()
+        val first = assertNotNull(viewModel.data.value)
+
+        viewModel.select(AdvancedPeriod.ALL)
+        testScheduler.advanceUntilIdle()
+
         assertSame(first, viewModel.data.value)
+    }
+
+    /** 켜 둔 채 날이 바뀌면 최근 기간을 새 오늘로 다시 잰다. */
+    @Test
+    fun a_new_day_measures_the_period_again() = runTest {
+        var date = today
+        val days = ArrayList<LocalDate>()
+        val stats =
+            object : StatsRepository by Stats() {
+                override fun advanced(period: AdvancedPeriod, today: LocalDate): Flow<AdvancedStats> {
+                    days += today
+                    return flowOf(advancedStats(emptyList()))
+                }
+            }
+        val viewModel = AdvancedStatsViewModel(stats) { date }
+        testScheduler.advanceUntilIdle()
+
+        date = LocalDate(2026, 11, 7)
+        viewModel.refreshToday()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(listOf(today, date), days)
     }
 
     @Test

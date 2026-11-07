@@ -6,11 +6,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.DayMood
+import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.calendar.CalendarPanel
@@ -28,7 +29,7 @@ private val Days =
     )
 
 @Composable
-private fun Calendar(dark: Boolean) = DiaryTheme(darkTheme = dark) {
+private fun Calendar(dark: Boolean, rows: List<EntryRow>? = emptyList()) = DiaryTheme(darkTheme = dark) {
     val dates = rememberDiaryDateFormat()
     Column(Modifier.background(DiaryTheme.colors.canvas)) {
         CalendarPanel(
@@ -40,15 +41,19 @@ private fun Calendar(dark: Boolean) = DiaryTheme(darkTheme = dark) {
             lastMonth = Shown,
             showToday = true,
             dates = dates,
-            moods = { flowOf(Days) },
+            moods = { MutableStateFlow(Days) },
             onSelect = {},
             onToday = {},
             onPick = {},
             onMove = {}
         )
-        DayPanel(LocalDate(2026, 10, 26), emptyList(), dates, DiaryTheme.typography.body, false, {}, {})
+        DayPanel(LocalDate(2026, 10, 26), rows, dates, DiaryTheme.typography.body, false, {}, {})
     }
 }
+
+@Preview(name = "달력 · 읽는 중 · 라이트", locale = "ko", widthDp = 390, heightDp = 700)
+@Composable
+private fun CalendarLoading() = Calendar(dark = false, rows = null)
 
 @Preview(name = "달력 · 빈 날 · 라이트", locale = "ko", widthDp = 390, heightDp = 700)
 @Composable

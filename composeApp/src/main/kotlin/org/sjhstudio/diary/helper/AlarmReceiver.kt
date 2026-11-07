@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.sjhstudio.diary.MainActivity
 import org.sjhstudio.diary.R
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.StartupState
@@ -66,14 +67,19 @@ class AlarmReceiver :
                 NotificationChannel(CHANNEL_ID, context.getString(R.string.reminder_channel), NotificationManager.IMPORTANCE_DEFAULT)
             )
         }
-        val open = context.packageManager.getLaunchIntentForPackage(context.packageName)?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        // 쓰기 화면으로 바로 간다.
+        // 앱이 떠 있으면 새로 만들지 않고 그 화면이 받는다.
+        val open =
+            Intent(context, MainActivity::class.java)
+                .setAction(MainActivity.ACTION_WRITE)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         val notification =
             NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(PlatformR.drawable.ic_notification)
                 .setContentTitle(context.getString(R.string.app_name))
                 .setContentText(context.getString(R.string.reminder_body))
                 .setAutoCancel(true)
-                .apply { if (open != null) setContentIntent(PendingIntent.getActivity(context, 1, open, PendingIntent.FLAG_IMMUTABLE)) }
+                .setContentIntent(PendingIntent.getActivity(context, 1, open, PendingIntent.FLAG_IMMUTABLE))
                 .build()
         manager.notify(NOTIFICATION_ID, notification)
     }

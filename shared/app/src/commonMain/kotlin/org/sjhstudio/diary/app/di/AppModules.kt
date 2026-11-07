@@ -16,6 +16,7 @@ import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
+import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
@@ -149,6 +150,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         // 앱을 열 때와 알림 수신기가 다시 예약한다.
         single { ReminderRepository(get(), get()) }
         single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
+        single { AppLaunch() }
         // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
         single { Telemetry(get(), strict = isDebug) }
         single {

@@ -8,6 +8,7 @@
     <string name="home_month_sheet_title">Go to month</string>
     <string name="detail_back">Back</string>
     <string name="detail_favorite">Favorite</string>
+    <string name="detail_unfavorite">Remove from favorites</string>
     <string name="detail_edit">Edit</string>
     <string name="detail_more">More</string>
     <string name="detail_share">Share</string>

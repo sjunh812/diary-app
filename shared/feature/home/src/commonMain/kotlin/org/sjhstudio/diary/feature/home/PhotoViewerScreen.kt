@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,43 +23,45 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryPhoto
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.detail_elsewhere_photo
 import org.sjhstudio.diary.feature.home.resources.detail_missing_photo
 import org.sjhstudio.diary.feature.home.resources.detail_photo_close
 import org.sjhstudio.diary.feature.home.resources.detail_photo_page
 
-private const val MAX_ZOOM = 4f
-
 /**
  * 사진 크게 보기(Figma "S3-a · 사진 크게").
  * 바탕은 사진을 위해 테마와 상관없이 검다.
- * 좌우로 넘기고 두 손가락으로 키운다(FR-020).
+ * 좌우로 넘기고, 두 손가락이나 두 번 눌러 키운다(FR-020).
  */
 @Composable
 fun PhotoViewerRoute(entryId: String, index: Int, onClose: () -> Unit, modifier: Modifier = Modifier) {
@@ -136,26 +140,38 @@ private fun PhotoNotice(pending: Boolean, modifier: Modifier = Modifier) {
 /**
  * 키우지 않았을 때는 손가락 하나를 넘기기에 넘긴다.
  * 두 손가락이거나 이미 키웠을 때만 여기서 받는다.
+ * 키운 사진은 넘어가지 않고, 두 번 눌러 되돌리면 다시 넘길 수 있다.
  */
 @Composable
-private fun ZoomablePhoto(photo: EntryPhoto) {
-    var scale by remember { mutableFloatStateOf(1f) }
-    var offset by remember { mutableStateOf(Offset.Zero) }
+internal fun ZoomablePhoto(photo: EntryPhoto, zoom: PhotoZoom = rememberPhotoZoom(photo)) {
+    val scope = rememberCoroutineScope()
+    val reduceMotion = rememberReduceMotion()
     Box(
         Modifier
             .fillMaxSize()
+            .onSizeChanged { zoom.container = it.toSize() }
+            .pointerInput(photo.id) {
+                detectTapGestures(
+                    onDoubleTap = { tap ->
+                        val target = zoom.doubleTapTarget(tap)
+                        scope.launch { zoom.animateTo(target, if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS) }
+                    }
+                )
+            }
             .pointerInput(photo.id) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false)
                     do {
                         val event = awaitPointerEvent()
                         val fingers = event.changes.count { it.pressed }
-                        if (fingers >= 2 || scale > 1f) {
-                            scale = (scale * event.calculateZoom()).coerceIn(1f, MAX_ZOOM)
-                            offset = if (scale > 1f) offset + event.calculatePan() else Offset.Zero
+                        if (fingers >= 2 || zoom.zoomed) {
+                            // 손을 떼는 순간에는 손가락 위치가 없다.
+                            val centroid = event.calculateCentroid()
+                            if (centroid.isSpecified) zoom.transform(event.calculateZoom(), event.calculatePan(), centroid)
                             event.changes.forEach { if (it.positionChanged()) it.consume() }
                         }
                     } while (event.changes.any { it.pressed })
+                    zoom.settle()
                 }
             },
         contentAlignment = Alignment.Center
@@ -169,12 +185,19 @@ private fun ZoomablePhoto(photo: EntryPhoto) {
                 contentScale = ContentScale.Fit,
                 modifier =
                     Modifier.fillMaxSize().graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        translationX = offset.x
-                        translationY = offset.y
+                        scaleX = zoom.scale
+                        scaleY = zoom.scale
+                        translationX = zoom.offset.x
+                        translationY = zoom.offset.y
                     }
             )
         }
     }
+}
+
+@Composable
+private fun rememberPhotoZoom(photo: EntryPhoto): PhotoZoom = remember(photo.id) {
+    val width = photo.width
+    val height = photo.height
+    PhotoZoom(if (width != null && height != null) Size(width.toFloat(), height.toFloat()) else null)
 }

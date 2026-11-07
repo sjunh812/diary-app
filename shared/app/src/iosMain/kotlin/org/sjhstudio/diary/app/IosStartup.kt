@@ -8,8 +8,10 @@ import org.koin.mp.KoinPlatform
 import org.sjhstudio.diary.app.di.APP_SCOPE
 import org.sjhstudio.diary.app.di.initKoin
 import org.sjhstudio.diary.app.lock.LockController
+import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.platform.IosDriveBridge
+import org.sjhstudio.diary.core.platform.IosReminderScheduler
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.TelemetrySink
 
@@ -84,6 +86,15 @@ internal object IosDrive {
  * 잠금이 켜져 있을 때만 덮는다.
  */
 fun isPrivacyCoverNeeded(): Boolean = KoinPlatform.getKoin().get<LockController>().lockEnabled
+
+/**
+ * 사용자가 알림을 눌렀다.
+ * 매일 알림이면 쓰기 화면을 연다.
+ * 잠겨 있으면 잠금을 푼 뒤에 열린다.
+ */
+fun onNotificationTapped(identifier: String) {
+    if (identifier == IosReminderScheduler.REQUEST_ID) KoinPlatform.getKoin().get<AppLaunch>().requestWrite()
+}
 
 /** Swift가 시스템의 남은 시간이 끝날 때 멈출 수 있게 돌려준다. */
 class BackupTaskHandle internal constructor(private val job: Job) {

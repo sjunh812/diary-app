@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +63,6 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
-import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
@@ -74,11 +74,13 @@ import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberShareText
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.detail_edit
 import org.sjhstudio.diary.feature.home.resources.detail_favorite
 import org.sjhstudio.diary.feature.home.resources.detail_share
 import org.sjhstudio.diary.feature.home.resources.detail_trash
+import org.sjhstudio.diary.feature.home.resources.detail_unfavorite
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_body
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
@@ -119,17 +121,19 @@ fun HomeRoute(
     val grid = rememberLazyGridState()
     val scope = rememberCoroutineScope()
     val dates = rememberDiaryDateFormat()
-    val today = remember { currentDate() }
+    val today = rememberToday()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 목록이 비어 있으면 오늘이 든 달을 보인다.
     // 스크롤마다 화면을 다시 그리지 않게 맨 위 일기가 바뀔 때만 값이 바뀐다.
-    val shown by remember(rows, list, grid, today) {
+    val visible by remember(rows, list, grid) {
         derivedStateOf {
             val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
-            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date } ?: today
+            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date }
         }
     }
+    var held by remember { mutableStateOf<LocalDate?>(null) }
+    SideEffect { visible?.let { held = it } }
+    val shown = shownDate(visible, held, rows.itemCount > 0, today)
     HomeScreen(
         title = dates.yearMonth(shown),
         rows = rows,
@@ -154,24 +158,26 @@ fun HomeRoute(
     menuFor?.let { id ->
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
         val share = rememberShareText()
-        DiaryBottomSheet(onDismiss = { menuFor = null }) {
-            DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), DiaryTheme.colors.textPrimary) {
+        EntryMenu(
+            favorite = rows.itemSnapshotList.items.firstOrNull { it.id == id }?.isFavorite == true,
+            onDismiss = { menuFor = null },
+            onEdit = {
                 menuFor = null
                 onEdit(id)
-            }
-            DiarySheetAction(DiaryIcons.StarOutline, stringResource(Res.string.detail_favorite), DiaryTheme.colors.textPrimary) {
+            },
+            onFavorite = {
                 menuFor = null
                 viewModel.toggleFavorite(id)
-            }
-            DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), DiaryTheme.colors.textPrimary) {
+            },
+            onShare = {
                 menuFor = null
                 scope.launch { viewModel.plainText(id)?.let(share) }
-            }
-            DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), DiaryTheme.colors.danger) {
+            },
+            onTrash = {
                 menuFor = null
                 viewModel.moveToTrash(id) { onTrashed(id) }
             }
-        }
+        )
     }
     if (picking) {
         DiaryMonthSheet(
@@ -191,6 +197,42 @@ fun HomeRoute(
         )
     }
 }
+
+/**
+ * 일기 줄을 길게 눌렀을 때의 메뉴.
+ * 즐겨찾기는 그 일기의 상태에 따라 넣기와 해제로 바뀐다.
+ */
+@Composable
+internal fun EntryMenu(
+    favorite: Boolean,
+    onDismiss: () -> Unit,
+    onEdit: () -> Unit,
+    onFavorite: () -> Unit,
+    onShare: () -> Unit,
+    onTrash: () -> Unit
+) {
+    val colors = DiaryTheme.colors
+    DiaryBottomSheet(onDismiss = onDismiss) {
+        DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), colors.textPrimary, onClick = onEdit)
+        DiarySheetAction(
+            if (favorite) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
+            stringResource(if (favorite) Res.string.detail_unfavorite else Res.string.detail_favorite),
+            colors.textPrimary,
+            onClick = onFavorite
+        )
+        DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), colors.textPrimary, onClick = onShare)
+        DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), colors.danger, onClick = onTrash)
+    }
+}
+
+/**
+ * 제목에 보일 날짜.
+ * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜를 둔다.
+ * 오늘로 튀었다 돌아오면 제목이 반짝인다.
+ * 목록이 비어 있으면 오늘이 든 달을 보인다.
+ */
+internal fun shownDate(visible: LocalDate?, held: LocalDate?, hasRows: Boolean, today: LocalDate): LocalDate =
+    visible ?: held?.takeIf { hasRows } ?: today
 
 @Composable
 internal fun HomeScreen(
