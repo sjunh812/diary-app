@@ -20,4 +20,9 @@
     <string name="tip_close">닫기</string>
     <string name="checklist_check">%1$s 체크하기</string>
     <string name="checklist_uncheck">%1$s 체크 풀기</string>
+    <string name="entry_menu_edit">수정하기</string>
+    <string name="entry_menu_favorite">즐겨찾기</string>
+    <string name="entry_menu_unfavorite">즐겨찾기 해제</string>
+    <string name="entry_menu_share">공유하기</string>
+    <string name="entry_menu_trash">휴지통으로 옮기기</string>
 </resources>

@@ -132,6 +132,23 @@ class CalendarViewModel(
         viewModelScope.launch { _selected.value = entries.month(month).first().keys.maxOrNull() }
     }
 
+    fun moveToTrash(id: String, onDone: () -> Unit) {
+        viewModelScope.launch {
+            entries.moveToTrash(id)
+            onDone()
+        }
+    }
+
+    fun toggleFavorite(id: String) {
+        viewModelScope.launch {
+            val entry = entries.entry(id).first()?.entry ?: return@launch
+            entries.setFavorite(id, !entry.isFavorite)
+        }
+    }
+
+    /** 공유할 서식 없는 글. */
+    suspend fun plainText(id: String): String? = entries.entry(id).first()?.entry?.plainText
+
     private companion object {
         const val STOP_MILLIS = 5_000L
     }

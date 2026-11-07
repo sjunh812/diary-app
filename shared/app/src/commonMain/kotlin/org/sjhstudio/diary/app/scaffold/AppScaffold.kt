@@ -347,6 +347,11 @@ private fun Content(
     onTrashed: (String) -> Unit
 ) {
     val pop: () -> Unit = nav::back
+    // 두 칸에서 그 일기가 열려 있으면 닫는다.
+    val closeTrashed: (String) -> Unit = { id ->
+        nav.closeEntry(id)
+        onTrashed(id)
+    }
     // 화면 목록은 쌓임이 바뀔 때만 다시 만들어진다.
     // 창 폭은 그 사이에도 바뀌니 값을 잡아 두지 않고 읽는다.
     val splitWindow by rememberUpdatedState(twoPane)
@@ -389,11 +394,7 @@ private fun Content(
                             onWrite = onWrite,
                             onSearch = { nav.push(SearchKey()) },
                             onEdit = { nav.push(WriteKey(entryId = it)) },
-                            onTrashed = { id ->
-                                // 두 칸에서 그 일기가 열려 있으면 닫는다.
-                                nav.closeEntry(id)
-                                onTrashed(id)
-                            },
+                            onTrashed = closeTrashed,
                             selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
                             // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
                             // 광고 수는 늘지 않는다.
@@ -436,7 +437,9 @@ private fun Content(
                         CalendarRoute(
                             twoPane = splitWindow,
                             onOpen = nav::openEntry,
-                            onWriteOn = { nav.push(WriteKey(date = it.toString())) }
+                            onWriteOn = { nav.push(WriteKey(date = it.toString())) },
+                            onEdit = { nav.push(WriteKey(entryId = it)) },
+                            onTrash = closeTrashed
                         )
                     }
                     entry<InsightKey>(metadata = TabRoot) {

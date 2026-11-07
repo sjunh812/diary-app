@@ -20,4 +20,9 @@
     <string name="tip_close">閉じる</string>
     <string name="checklist_check">%1$sにチェックする</string>
     <string name="checklist_uncheck">%1$sのチェックを外す</string>
+    <string name="entry_menu_edit">編集</string>
+    <string name="entry_menu_favorite">お気に入り</string>
+    <string name="entry_menu_unfavorite">お気に入りを解除</string>
+    <string name="entry_menu_share">共有</string>
+    <string name="entry_menu_trash">ゴミ箱に移動</string>
 </resources>

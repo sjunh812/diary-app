@@ -47,7 +47,7 @@ private fun Calendar(dark: Boolean, rows: List<EntryRow>? = emptyList()) = Diary
             onPick = {},
             onMove = {}
         )
-        DayPanel(LocalDate(2026, 10, 26), rows, dates, DiaryTheme.typography.body, false, {}, {})
+        DayPanel(LocalDate(2026, 10, 26), rows, dates, DiaryTheme.typography.body, false, {}, {}, {})
     }
 }
 

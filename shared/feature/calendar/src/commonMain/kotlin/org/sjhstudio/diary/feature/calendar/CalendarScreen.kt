@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -79,6 +81,7 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.EntryMenu
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
@@ -87,6 +90,7 @@ import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.feature.calendar.resources.Res
 import org.sjhstudio.diary.feature.calendar.resources.calendar_day_count
 import org.sjhstudio.diary.feature.calendar.resources.calendar_day_summary
@@ -105,7 +109,14 @@ private const val DAYS_IN_WEEK = 7
  * 주는 일요일에 시작한다.
  */
 @Composable
-fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalDate) -> Unit, modifier: Modifier = Modifier) {
+fun CalendarRoute(
+    twoPane: Boolean,
+    onOpen: (String) -> Unit,
+    onWriteOn: (LocalDate) -> Unit,
+    onEdit: (String) -> Unit,
+    onTrash: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val viewModel = koinViewModel<CalendarViewModel>()
     val day by viewModel.day.collectAsStateWithLifecycle()
     val selected = day.date
@@ -116,6 +127,7 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
     val scope = rememberCoroutineScope()
     val dates = rememberDiaryDateFormat()
     var picking by remember { mutableStateOf(false) }
+    var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
     LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
     val shown = monthOfPage(pager.currentPage)
     val today by viewModel.todayState.collectAsStateWithLifecycle()
@@ -153,7 +165,16 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
     }
     val dayPanel: @Composable () -> Unit = {
         selected?.let { date ->
-            DayPanel(date, day.rows, dates, diaryPreviewTextStyle(look.font, look.size) { family }, twoPane, onOpen) { onWriteOn(date) }
+            DayPanel(
+                date = date,
+                rows = day.rows,
+                dates = dates,
+                previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
+                twoPane = twoPane,
+                onOpen = onOpen,
+                onMenu = { menuFor = it },
+                onWrite = { onWriteOn(date) }
+            )
         }
     }
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
@@ -192,6 +213,30 @@ fun CalendarRoute(twoPane: Boolean, onOpen: (String) -> Unit, onWriteOn: (LocalD
                 dayPanel()
             }
         }
+    }
+    menuFor?.let { id ->
+        // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
+        val share = rememberShareText()
+        EntryMenu(
+            favorite = day.rows?.firstOrNull { it.id == id }?.isFavorite == true,
+            onDismiss = { menuFor = null },
+            onEdit = {
+                menuFor = null
+                onEdit(id)
+            },
+            onFavorite = {
+                menuFor = null
+                viewModel.toggleFavorite(id)
+            },
+            onShare = {
+                menuFor = null
+                scope.launch { viewModel.plainText(id)?.let(share) }
+            },
+            onTrash = {
+                menuFor = null
+                viewModel.moveToTrash(id) { onTrash(id) }
+            }
+        )
     }
     if (picking) {
         DiaryMonthSheet(
@@ -430,6 +475,7 @@ internal fun DayPanel(
     previewStyle: TextStyle,
     twoPane: Boolean,
     onOpen: (String) -> Unit,
+    onMenu: (String) -> Unit,
     onWrite: () -> Unit
 ) {
     val colors = DiaryTheme.colors
@@ -471,7 +517,13 @@ internal fun DayPanel(
                     modifier =
                         Modifier
                             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-                            .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onOpen(row.id) }
+                            .combinedClickable(
+                                interactionSource = interaction,
+                                indication = null,
+                                role = Role.Button,
+                                onLongClick = { onMenu(row.id) },
+                                onClick = { onOpen(row.id) }
+                            )
                 )
             }
         }

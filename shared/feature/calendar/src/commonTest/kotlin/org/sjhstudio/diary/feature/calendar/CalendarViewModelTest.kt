@@ -5,6 +5,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -17,9 +18,12 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
+import org.sjhstudio.diary.core.model.Entry
+import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
@@ -191,6 +195,75 @@ class CalendarViewModelTest {
         for (month in listOf(YearMonth(1970, 1), YearMonth(1999, 12), YearMonth(2026, 10))) {
             assertEquals(month, monthOfPage(month.pageIndex()))
         }
+    }
+
+    private class Menu(val detail: EntryDetail) : EntryRepository by FakeEntryRepository() {
+        var favorite: Boolean? = null
+        var trashed: String? = null
+
+        override fun entry(id: String): Flow<EntryDetail?> = flowOf(detail.takeIf { it.entry.id == id })
+
+        override suspend fun setFavorite(id: String, favorite: Boolean) {
+            this.favorite = favorite
+        }
+
+        override suspend fun moveToTrash(id: String) {
+            trashed = id
+        }
+    }
+
+    private fun detail(favorite: Boolean) = EntryDetail(
+        Entry(
+            id = "a",
+            date = today,
+            time = LocalTime(21, 40),
+            bodyHtml = "",
+            plainText = "공유할 글",
+            mood = null,
+            weather = null,
+            placeName = null,
+            isFavorite = favorite,
+            createdAt = Instant.fromEpochMilliseconds(0),
+            updatedAt = Instant.fromEpochMilliseconds(0)
+        ),
+        emptyList()
+    )
+
+    private fun menuViewModel(entries: Menu) = CalendarViewModel(entries, FakeSettingsRepository(), NoFonts) { today }
+
+    @Test
+    fun menu_flips_favorite_from_the_stored_entry() {
+        val plain = Menu(detail(favorite = false))
+        menuViewModel(plain).toggleFavorite("a")
+        assertEquals(true, plain.favorite)
+
+        val starred = Menu(detail(favorite = true))
+        menuViewModel(starred).toggleFavorite("a")
+        assertEquals(false, starred.favorite)
+    }
+
+    @Test
+    fun menu_does_nothing_for_an_entry_that_is_gone() {
+        val entries = Menu(detail(favorite = false))
+
+        menuViewModel(entries).toggleFavorite("gone")
+
+        assertNull(entries.favorite)
+    }
+
+    @Test
+    fun menu_tells_the_screen_after_the_entry_is_in_the_trash() {
+        val entries = Menu(detail(favorite = false))
+        var done: String? = null
+
+        menuViewModel(entries).moveToTrash("a") { done = entries.trashed }
+
+        assertEquals("a", done)
+    }
+
+    @Test
+    fun menu_shares_plain_text() = runTest {
+        assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).plainText("a"))
     }
 
     private object NoFonts : FontInstaller {

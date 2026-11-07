@@ -46,14 +46,12 @@ import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
-import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -67,6 +65,7 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.EntryMenu
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
@@ -77,11 +76,6 @@ import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.home.resources.Res
-import org.sjhstudio.diary.feature.home.resources.detail_edit
-import org.sjhstudio.diary.feature.home.resources.detail_favorite
-import org.sjhstudio.diary.feature.home.resources.detail_share
-import org.sjhstudio.diary.feature.home.resources.detail_trash
-import org.sjhstudio.diary.feature.home.resources.detail_unfavorite
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_body
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
@@ -199,33 +193,6 @@ fun HomeRoute(
             },
             onDismiss = { picking = false }
         )
-    }
-}
-
-/**
- * 일기 줄을 길게 눌렀을 때의 메뉴.
- * 즐겨찾기는 그 일기의 상태에 따라 넣기와 해제로 바뀐다.
- */
-@Composable
-internal fun EntryMenu(
-    favorite: Boolean,
-    onDismiss: () -> Unit,
-    onEdit: () -> Unit,
-    onFavorite: () -> Unit,
-    onShare: () -> Unit,
-    onTrash: () -> Unit
-) {
-    val colors = DiaryTheme.colors
-    DiaryBottomSheet(onDismiss = onDismiss) {
-        DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.detail_edit), colors.textPrimary, onClick = onEdit)
-        DiarySheetAction(
-            if (favorite) DiaryIcons.StarFilled else DiaryIcons.StarOutline,
-            stringResource(if (favorite) Res.string.detail_unfavorite else Res.string.detail_favorite),
-            colors.textPrimary,
-            onClick = onFavorite
-        )
-        DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), colors.textPrimary, onClick = onShare)
-        DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), colors.danger, onClick = onTrash)
     }
 }
 
