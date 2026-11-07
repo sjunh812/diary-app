@@ -189,12 +189,12 @@ fun SettingsScreen(
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
             DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
             DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
-            DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
             DiarySettingsRow(stringResource(Res.string.settings_terms), onClick = onTerms)
             DiarySettingsRow(stringResource(Res.string.settings_privacy), onClick = onPrivacy)
             if (state.showsMigrationReport) {
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
+            DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
             onDevMode?.let { DiarySettingsRow(stringResource(Res.string.settings_dev_mode), onClick = it) }
         }
     }

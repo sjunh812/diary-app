@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /** 목록 파일을 한꺼번에 받는 수. 드라이브 요청 한도를 넘지 않게 묶는다. */
 private const val MAX_DOWNLOADS = 4
@@ -39,10 +40,11 @@ class RestoreCatalog(
     /** 받은 목록 파일. 파일 번호가 같으면 내용도 같다. */
     private val seen = mutableMapOf<String, Manifest>()
     private val seenLock = Mutex()
+    private val keptDir = workDir / "manifests"
 
     suspend fun list(): List<RestoreCandidate> {
         // 세 목록과 백업마다 받는 목록 파일을 차례로 읽으면 백업 수만큼 늦어진다.
-        // 목록 파일은 한 번 올리면 바뀌지 않으니 한 번 받은 것은 다시 받지 않는다.
+        // 목록 파일은 한 번 올리면 바뀌지 않으니 한 번 받은 것은 기기에 두고 다시 받지 않는다.
         val (manifests, snapshots, oldBackups) =
             coroutineScope {
                 val manifests = async { drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_MANIFEST))) }
@@ -50,12 +52,13 @@ class RestoreCatalog(
                 val old = async { legacy() }
                 Triple(manifests.await(), snapshots.await().associateBy { it.name }, old.await())
             }
-        fileSystem.createDirectories(workDir)
+        fileSystem.createDirectories(keptDir)
         val slots = Semaphore(MAX_DOWNLOADS)
         val read =
             coroutineScope {
                 manifests.map { file -> async { file to slots.withPermit { manifestOf(file) } } }.awaitAll()
             }
+        forgetExcept(manifests)
         val backups =
             read.map { (file, manifest) -> candidate(file, manifest, manifest?.let { snapshots[it.snapshot.fileName] }) }
                 .sortedByDescending { it.entry.createdAt }
@@ -69,13 +72,36 @@ class RestoreCatalog(
 
     /** 목록을 읽는 사이에 없어진 파일 하나가 다른 백업까지 가리지 않게 깨진 파일로 본다. */
     private suspend fun read(file: DriveFile): Manifest? {
-        val path = workDir / "manifest-${file.id}.tmp"
+        val kept = keptDir / "${file.id}.json"
+        fromDisk(kept)?.let { return it }
+        val temp = workDir / "manifest-${file.id}.tmp"
         try {
-            drive.download(file.id, path)
+            drive.download(file.id, temp)
         } catch (_: DriveNotFound) {
             return null
         }
-        return ManifestCodec.decode(fileSystem.read(path) { readUtf8() }).also { fileSystem.delete(path, mustExist = false) }
+        val manifest = ManifestCodec.decode(fileSystem.read(temp) { readUtf8() })
+        // 깨진 파일은 남기지 않는다. 다음에 다시 받아 본다.
+        if (manifest != null) orElseOnFailure(Unit) { fileSystem.atomicMove(temp, kept) }
+        fileSystem.delete(temp, mustExist = false)
+        return manifest
+    }
+
+    /** 기기에 둔 목록 파일이 깨졌으면 없는 셈 치고 다시 받는다. */
+    private fun fromDisk(path: Path): Manifest? = orElseOnFailure(null) {
+        if (!fileSystem.exists(path)) return@orElseOnFailure null
+        ManifestCodec.decode(fileSystem.read(path) { readUtf8() }) ?: run {
+            fileSystem.delete(path, mustExist = false)
+            null
+        }
+    }
+
+    /** 정리되어 드라이브에서 사라진 백업의 목록 파일은 지운다. */
+    private fun forgetExcept(manifests: List<DriveFile>) {
+        val current = manifests.mapTo(HashSet()) { "${it.id}.json" }
+        fileSystem.listOrNull(keptDir).orEmpty().filter { it.name !in current }.forEach { old ->
+            orElseOnFailure(Unit) { fileSystem.delete(old, mustExist = false) }
+        }
     }
 
     private fun legacyCandidate(file: DriveFile) = RestoreCandidate(

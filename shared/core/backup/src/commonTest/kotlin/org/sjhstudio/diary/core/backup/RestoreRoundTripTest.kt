@@ -139,6 +139,46 @@ class RestoreRoundTripTest {
         assertEquals(entry("one").copy(updatedAt = restored.updatedAt), restored)
     }
 
+    private inner class CountingDrive : DriveApi by drive {
+        var downloads = 0
+
+        override suspend fun download(fileId: String, to: okio.Path, fromByte: Long): Long {
+            downloads++
+            return drive.download(fileId, to, fromByte)
+        }
+    }
+
+    /** 앱을 다시 열어도 받아 둔 목록 파일은 다시 받지 않는다. 백업이 늘어도 목록이 느려지지 않는다. */
+    @Test
+    fun the_list_is_not_downloaded_again_after_reopening() = runTest {
+        backUp()
+        val counting = CountingDrive()
+        val work = dir / "b" / "backup"
+
+        val first = RestoreCatalog(counting, fs, work).list()
+        val afterFirst = counting.downloads
+        val second = RestoreCatalog(counting, fs, work).list()
+
+        assertEquals(1, afterFirst)
+        assertEquals(afterFirst, counting.downloads)
+        assertEquals(first.map { it.entry }, second.map { it.entry })
+    }
+
+    @Test
+    fun a_damaged_saved_list_is_downloaded_again() = runTest {
+        backUp()
+        val counting = CountingDrive()
+        val work = dir / "b" / "backup"
+        val list = RestoreCatalog(counting, fs, work).list()
+        val kept = fs.list(work / "manifests").single()
+        fs.write(kept) { writeUtf8("깨진 파일") }
+
+        val again = RestoreCatalog(counting, fs, work).list()
+
+        assertEquals(2, counting.downloads)
+        assertEquals(list.map { it.entry }, again.map { it.entry })
+    }
+
     @Test
     fun running_again_changes_nothing() = runTest {
         backUp()

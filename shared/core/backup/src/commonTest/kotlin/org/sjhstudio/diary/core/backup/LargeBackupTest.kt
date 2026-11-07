@@ -17,6 +17,7 @@ import okio.HashingSink
 import okio.Path
 import okio.blackholeSink
 import okio.buffer
+import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
@@ -135,12 +136,6 @@ class LargeBackupTest {
         assertTrue(lastBytes > 0, "진행 숫자가 나아가지 않았다")
         val grown = peak - before
         assertTrue(grown < MEMORY_LIMIT, "메모리가 ${grown / MEGABYTE}MB 늘었다")
-    }
-
-    private fun retainedBytes(): Long {
-        val runtime = Runtime.getRuntime()
-        System.gc()
-        return runtime.totalMemory() - runtime.freeMemory()
     }
 
     /**
