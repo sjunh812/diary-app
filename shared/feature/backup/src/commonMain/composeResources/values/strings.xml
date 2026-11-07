@@ -210,7 +210,6 @@
     <string name="file_name">1Day1Diary-backup-%1$s</string>
     <string name="backup_group_backup">Backup</string>
     <string name="backup_group_restore">Restore</string>
-    <string name="backup_group_other">Other ways</string>
     <string name="restore_replaced_title">Replaced with this backup</string>
     <string name="restore_replaced_body">You can undo this for 7 days.</string>
     <string name="backup_space_text">You need %1$s more on Drive to back up your entries.</string>

@@ -207,7 +207,6 @@
     <string name="file_name">1日1日記-バックアップ-%1$s</string>
     <string name="backup_group_backup">バックアップ</string>
     <string name="backup_group_restore">復元</string>
-    <string name="backup_group_other">別の方法</string>
     <string name="restore_replaced_title">このバックアップに置き換えました</string>
     <string name="restore_replaced_body">7日間は元に戻せます。</string>
     <string name="backup_space_text">日記の文章をアップロードするには、ドライブにあと%1$s必要です。</string>

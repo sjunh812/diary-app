@@ -96,7 +96,6 @@ import org.sjhstudio.diary.feature.backup.resources.backup_first_title
 import org.sjhstudio.diary.feature.backup.resources.backup_group_account
 import org.sjhstudio.diary.feature.backup.resources.backup_group_backup
 import org.sjhstudio.diary.feature.backup.resources.backup_group_connection
-import org.sjhstudio.diary.feature.backup.resources.backup_group_other
 import org.sjhstudio.diary.feature.backup.resources.backup_group_restore
 import org.sjhstudio.diary.feature.backup.resources.backup_group_upload
 import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_body
@@ -636,7 +635,6 @@ fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 { viewModel.setPhotosOnCellular(!it) },
                 description = stringResource(Res.string.backup_wifi_only_body)
             )
-            DiarySettingsHeader(stringResource(Res.string.backup_group_other), gapAbove = true)
             DiarySettingsHeader(stringResource(Res.string.backup_group_connection), gapAbove = true)
             DiarySettingsRow(
                 stringResource(Res.string.backup_disconnect),
