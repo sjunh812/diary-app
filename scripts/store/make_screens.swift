@@ -90,7 +90,7 @@ func save(_ rep: NSBitmapImageRep, _ name: String) {
 // 앱 색 바탕, 큰 제목, 곧게 놓은 실제 화면만 둔다.
 // 장식과 기울임을 넣지 않고 강조는 낱말 하나만 쓴다(2026-11-07 사용자 지적).
 let slides: [(String, String, String)] = [
-    ("write", "오늘 기분부터\n가볍게 적어 봐요", "기분"),
+    ("write", "오늘 기분부터\n가볍게 골라 봐요", "기분"),
     ("list", "지난 일기가\n한눈에 보여요", "한눈에"),
     ("calendar", "한 달 기분을\n달력으로 봐요", "달력"),
     ("insight", "내 기분 흐름을\n돌아봐요", "돌아봐요"),
@@ -99,7 +99,12 @@ let slides: [(String, String, String)] = [
 for (index, (name, words, word)) in slides.enumerated() {
     let rep = canvas(1080, 1920) {
         text(words, 88, "Bold", ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
-        phone(name, NSRect(x: 130, y: -560, width: 820, height: 1960), 64)
+        // 첫 장은 아래쪽 기분 시트까지 보이게 화면 전체를 넣는다.
+        if name == "write" {
+            phone(name, NSRect(x: 215, y: 40, width: 650, height: 1400), 56)
+        } else {
+            phone(name, NSRect(x: 130, y: -560, width: 820, height: 1960), 64)
+        }
     }
     save(rep, "phone-\(index + 1)")
 }
