@@ -170,8 +170,10 @@ private fun EntryCard(
             // 글이 없어도 사진은 시각 줄과 같은 간격으로 떨어진다.
             Row(Modifier.padding(top = DiarySpacing.x3), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 val shown = row.photos.take(CARD_PHOTOS)
-                for (photo in shown) {
-                    Box(Modifier.weight(1f).aspectRatio(1f).clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(photo)) }
+                shown.forEachIndexed { index, photo ->
+                    // 피드의 사진 칸과 같이 마지막 칸까지 더한 수를 보인다.
+                    val more = if (index == CARD_PHOTOS - 1 && row.photos.size > CARD_PHOTOS) row.photos.size - CARD_PHOTOS + 1 else 0
+                    Box(Modifier.weight(1f).aspectRatio(1f).clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(photo), more = more) }
                 }
                 repeat(CARD_PHOTOS - shown.size) { Box(Modifier.weight(1f)) }
             }

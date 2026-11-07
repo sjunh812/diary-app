@@ -25,10 +25,12 @@ import org.sjhstudio.diary.core.model.EntryRow
  * 일기 줄의 사진 칸(`docs/design.md` 사진 칸, Day One): 1장 꽉, 2장 위아래, 3장 큰 칸 + 둘, 4장 이상 2×2와 `+N`.
  * [photos]는 앱 저장소 파일의 절대경로이고, 찾을 수 없는 사진은 null이다(그 자리를 남겨 보인다).
  * 칸의 크기와 모서리는 부르는 쪽(DiaryEntryRow)이 정한다.
+ * [more]는 이 칸 뒤에 더 있는 사진 수다. 카드처럼 칸을 나눠 그리는 쪽이 마지막 칸에 넘긴다.
  */
 @Composable
-fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier) {
+fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier, more: Int = 0) {
     if (photos.isEmpty()) return
+    val extra = if (photos.size > MAX_TILES) photos.size - MAX_TILES + 1 else more
     Box(modifier.fillMaxSize()) {
         when (photos.size) {
             1 -> Photo(photos[0], Modifier.fillMaxSize())
@@ -48,9 +50,9 @@ fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier) {
                     }
                 }
         }
-        if (photos.size > 4) {
+        if (extra > 0) {
             BasicText(
-                "+${photos.size - 3}",
+                "+$extra",
                 style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.onAccent),
                 modifier =
                     Modifier
@@ -63,6 +65,9 @@ fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/** 한 칸에 그리는 사진 수. */
+private const val MAX_TILES = 4
 
 @Composable
 private fun Photo(path: String?, modifier: Modifier) {
