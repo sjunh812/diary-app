@@ -3,6 +3,7 @@ package org.sjhstudio.diary.app
 import kotlin.experimental.ExperimentalNativeApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform
 import org.sjhstudio.diary.app.di.APP_SCOPE
@@ -108,7 +109,13 @@ class BackupTaskHandle internal constructor(private val job: Job) {
  */
 fun runDailyBackup(done: () -> Unit): BackupTaskHandle {
     val koin = KoinPlatform.getKoin()
-    val job = koin.get<CoroutineScope>(APP_SCOPE).launch { koin.get<BackupRepository>().runIfDue() }
+    val job =
+        koin.get<CoroutineScope>(APP_SCOPE).launch {
+            val backup = koin.get<BackupRepository>()
+            backup.runIfDue()
+            // 사용자가 누른 백업이 도는 중이면 시스템이 준 시간을 끝까지 쓴다.
+            backup.status.first { it.running == null }
+        }
     job.invokeOnCompletion { done() }
     return BackupTaskHandle(job)
 }

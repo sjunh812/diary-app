@@ -531,6 +531,9 @@ class WriteViewModel(
 
     fun photoNoticeShown() = _state.update { it.copy(photoNotice = null) }
 
+    /** iCloud에서 받지 못했거나 카메라를 열지 못했다. 말없이 넘어가면 사용자는 왜 사진이 없는지 모른다. */
+    fun photoPickFailed() = _state.update { it.copy(photoNotice = PhotoNotice.Unreadable) }
+
     /** 앱이 백그라운드로 갈 때 바로 쓴다(FR-009). */
     fun onStop() {
         // 닫히는 중이면 버린 글을 임시 저장본으로 되살리지 않는다.

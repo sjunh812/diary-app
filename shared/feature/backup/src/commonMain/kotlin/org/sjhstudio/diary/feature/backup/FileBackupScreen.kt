@@ -61,6 +61,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.ui.KeepScreenOn
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.file_action
@@ -104,7 +105,7 @@ fun FileBackupRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val saver =
-        rememberFileSaverLauncher(FileKitDialogSettings.createDefault()) { file: PlatformFile? ->
+        rememberFileSaverLauncher(FileKitDialogSettings.createDefault(), onError = { viewModel.saveFailed() }) { file: PlatformFile? ->
             file?.let { target ->
                 viewModel.write(target.name, { OkioSink(target.sink()).buffer() }, { target.delete(mustExist = false) })
             }
@@ -194,6 +195,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(estimate: Bundl
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
         if (state is FileBackupUi.Writing) {
+            KeepScreenOn()
             BasicText(
                 stringResource(Res.string.file_writing),
                 style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)

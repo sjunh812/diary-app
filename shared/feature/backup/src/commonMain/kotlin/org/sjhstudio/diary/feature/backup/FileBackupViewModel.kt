@@ -90,6 +90,16 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
         false
     }
 
+    /** 저장 창을 열지 못했다. */
+    fun saveFailed() {
+        _state.value = FileBackupUi.WriteFailed(left = false)
+    }
+
+    /** 파일 고르기 창을 열지 못했거나 고른 파일을 받지 못했다. */
+    fun pickFailed() {
+        _state.value = FileBackupUi.ReadFailed(RestoreFailure.OTHER)
+    }
+
     /** 사용자가 나가기로 해서 멈춘다. 만들던 파일은 지운다. */
     fun stop() {
         writing?.cancel()

@@ -69,6 +69,7 @@ import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.ui.KeepScreenOn
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
@@ -169,7 +170,7 @@ fun BackupSettingsRoute(
     val files = koinViewModel<FileBackupViewModel>()
     val fileState by files.state.collectAsStateWithLifecycle()
     val picker =
-        rememberFilePickerLauncher(type = FileKitType.File()) { file: PlatformFile? ->
+        rememberFilePickerLauncher(type = FileKitType.File(), onError = { files.pickFailed() }) { file: PlatformFile? ->
             file?.let { picked -> files.read({ OkioSource(picked.source()) }, { picked.sizeOrNull() }, onFilePreview) }
         }
     val status by viewModel.status.collectAsStateWithLifecycle()
@@ -526,12 +527,15 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             )
 
         running != null -> {
+            // 화면이 꺼지면 iOS에서는 올리기가 멈춘다.
+            KeepScreenOn()
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                 DiaryStatusBox(
                     DiaryIcons.ShieldCheck,
                     stringResource(Res.string.backup_running),
                     if (running.photosTotal > 0) {
-                        stringResource(Res.string.backup_running_photos, running.photosDone, running.photosTotal)
+                        val done = stringResource(Res.string.backup_running_photos, running.photosDone, running.photosTotal)
+                        if (workContinuesInBackground) done else done + "\n" + stringResource(Res.string.backup_running_body_open)
                     } else {
                         stringResource(
                             if (workContinuesInBackground) Res.string.backup_running_body else Res.string.backup_running_body_open

@@ -14,6 +14,7 @@ import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedWhenInUse
 import platform.CoreLocation.kCLLocationAccuracyHundredMeters
 import platform.Foundation.NSError
+import platform.Foundation.timeIntervalSinceNow
 import platform.darwin.NSObject
 
 /**
@@ -29,7 +30,10 @@ class IosPlaceFinder : PlaceFinder {
             status != kCLAuthorizationStatusAuthorizedWhenInUse && status != kCLAuthorizationStatusAuthorizedAlways -> PlaceLookup.Denied
 
             else -> {
-                val mark = withTimeoutOrNull(TIMEOUT_MILLIS) { currentLocation()?.let { placemark(it) } }
+                // 실내에서는 위치를 얻는 데만 몇 초가 걸린다.
+                // 두 단계의 시간을 나눠야 주소 변환이 굶지 않는다.
+                val location = recentLocation() ?: withTimeoutOrNull(LOCATE_MILLIS) { currentLocation() }
+                val mark = location?.let { withTimeoutOrNull(ADDRESS_MILLIS) { placemark(it) } }
                 val name = mark?.parts()?.label()
                 if (name == null) PlaceLookup.NotFound else PlaceLookup.Found(name)
             }
@@ -44,6 +48,10 @@ class IosPlaceFinder : PlaceFinder {
         district = subAdministrativeArea,
         street = subLocality
     )
+
+    /** 몇 분 안에 얻은 위치가 있으면 기다리지 않고 쓴다. */
+    private fun recentLocation(): CLLocation? =
+        CLLocationManager().location?.takeIf { -it.timestamp.timeIntervalSinceNow <= RECENT_SECONDS }
 
     private suspend fun currentLocation(): CLLocation? = suspendCancellableCoroutine { continuation ->
         val manager = CLLocationManager()
@@ -71,7 +79,9 @@ class IosPlaceFinder : PlaceFinder {
     }
 
     private companion object {
-        const val TIMEOUT_MILLIS = 10_000L
+        const val LOCATE_MILLIS = 15_000L
+        const val ADDRESS_MILLIS = 8_000L
+        const val RECENT_SECONDS = 300.0
     }
 }
 

@@ -74,6 +74,7 @@ import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.ui.ByteUnit
 import org.sjhstudio.diary.core.ui.DiarySkeleton
+import org.sjhstudio.diary.core.ui.KeepScreenOn
 import org.sjhstudio.diary.core.ui.SkeletonBlock
 import org.sjhstudio.diary.core.ui.SkeletonLine
 import org.sjhstudio.diary.core.ui.byteSize
@@ -527,6 +528,8 @@ private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntri
             }
         }
     }
+    // 화면이 꺼지면 iOS에서는 받기가 멈춘다.
+    KeepScreenOn()
     Bottom {
         BasicText(
             stringResource(if (workContinuesInBackground) Res.string.restore_running_note else Res.string.restore_running_note_open),

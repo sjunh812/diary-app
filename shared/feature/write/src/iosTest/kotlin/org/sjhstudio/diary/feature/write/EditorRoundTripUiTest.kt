@@ -3,8 +3,8 @@
 package org.sjhstudio.diary.feature.write
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange

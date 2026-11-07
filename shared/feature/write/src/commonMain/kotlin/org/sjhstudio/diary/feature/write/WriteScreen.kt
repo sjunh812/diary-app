@@ -268,11 +268,15 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     if (checklistLocked) ChecklistPlusSheet(actions.onPlus) { checklistLocked = false }
     val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
     val pick =
-        rememberFilePickerLauncher(type = FileKitType.Image, mode = FileKitMode.Multiple(maxItems = remaining)) { files ->
+        rememberFilePickerLauncher(
+            type = FileKitType.Image,
+            mode = FileKitMode.Multiple(maxItems = remaining),
+            onError = { vm.photoPickFailed() }
+        ) { files ->
             if (files != null) vm.addPhotos(files.map { file -> PickedImage { file.readBytes() } })
         }
     val camera =
-        rememberCameraPickerLauncher { file ->
+        rememberCameraPickerLauncher(onError = { vm.photoPickFailed() }) { file ->
             if (file != null) vm.addPhotos(listOf(PickedImage { file.readBytes() }))
         }
     val tools = remember(actions) { WriteTools(actions.rich, actions.colors, { vm.checklistOpen.value }, { checklistLocked = true }) }

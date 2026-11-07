@@ -44,8 +44,9 @@ internal class EditorColors(colors: DiaryColors) {
     val signature: String = pairs.joinToString("") { (_, shown) -> shown }
 
     /** 저장된 라이트 hex를 지금 테마 색으로, 문단 안 줄바꿈을 에디터의 줄로. */
-    fun toEditor(html: String): String =
-        inStyles(bodyToEditor(html)) { style -> pairs.fold(style) { text, (stored, shown) -> text.replace(stored, shown, ignoreCase = true) } }
+    fun toEditor(html: String): String = inStyles(bodyToEditor(html)) { style ->
+        pairs.fold(style) { text, (stored, shown) -> text.replace(stored, shown, ignoreCase = true) }
+    }
 
     /**
      * 편집기가 낸 `rgba()`나 hex를 저장 값으로.

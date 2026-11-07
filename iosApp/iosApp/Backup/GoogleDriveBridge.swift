@@ -29,6 +29,13 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
                     done(nil, nil, "failed")
                     return
                 }
+                // 동의 화면에서 드라이브 권한을 뺐다.
+                // 연결됐다고 말하면 곧바로 다시 연결하라고 뜬다.
+                guard user.grantedScopes?.contains(self.driveScope) == true else {
+                    GIDSignIn.sharedInstance.signOut()
+                    done(nil, nil, "failed")
+                    return
+                }
                 done(key, email, nil)
             }
         }
@@ -38,7 +45,7 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
         DispatchQueue.main.async {
             GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
                 guard let user else {
-                    done(nil, nil, nil, error.map { Self.kind($0) == "offline" ? "offline" : "needsUser" } ?? "needsUser")
+                    done(nil, nil, nil, error.map { Self.isOffline($0) ? "offline" : "needsUser" } ?? "needsUser")
                     return
                 }
                 guard user.grantedScopes?.contains(self.driveScope) == true else {
@@ -47,7 +54,7 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
                 }
                 user.refreshTokensIfNeeded { refreshed, error in
                     guard let refreshed, let key = refreshed.userID, let email = refreshed.profile?.email else {
-                        done(nil, nil, nil, error.map { Self.kind($0) } ?? "failed")
+                        done(nil, nil, nil, error.map { Self.refreshKind($0) } ?? "failed")
                         return
                     }
                     done(refreshed.accessToken.tokenString, key, email, nil)
@@ -56,14 +63,34 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
         }
     }
 
+    /// 안드로이드와 같이 구글 권한은 거두지 않는다.
+    /// drive.file 권한을 거두면 다시 연결해도 앱이 만든 백업이 보이지 않을 수 있다.
     func disconnect(done: @escaping () -> Void) {
-        GIDSignIn.sharedInstance.disconnect { _ in done() }
+        GIDSignIn.sharedInstance.signOut()
+        done()
     }
 
     private static func kind(_ error: Error) -> String {
         let nsError = error as NSError
         if nsError.domain == kGIDSignInErrorDomain, nsError.code == GIDSignInError.canceled.rawValue { return "cancelled" }
-        if nsError.domain == NSURLErrorDomain { return "offline" }
-        return "failed"
+        return isOffline(error) ? "offline" : "failed"
+    }
+
+    /// 토큰을 다시 받을 때 구글이 거절하면 사용자가 다시 연결해야 한다.
+    /// 그 밖의 실패는 다음에 다시 해 볼 일이다.
+    private static func refreshKind(_ error: Error) -> String {
+        if (error as NSError).domain == "org.openid.appauth.oauth_token" { return "needsUser" }
+        return kind(error)
+    }
+
+    /// 토큰 갱신의 네트워크 실패는 AppAuth가 감싸서 온다.
+    /// 겉만 보면 연결이 끊긴 것으로 잘못 알고 자동 백업이 멈춘다.
+    private static func isOffline(_ error: Error) -> Bool {
+        var current: NSError? = error as NSError
+        while let found = current {
+            if found.domain == NSURLErrorDomain { return true }
+            current = found.userInfo[NSUnderlyingErrorKey] as? NSError
+        }
+        return false
     }
 }

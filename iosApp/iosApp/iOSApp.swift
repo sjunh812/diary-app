@@ -9,6 +9,16 @@ import UserNotifications
 final class NotificationTapDelegate: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationTapDelegate()
 
+    /// 앱을 쓰는 중에도 알림을 보여 준다.
+    /// 없으면 시스템이 조용히 버린다.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
+    }
+
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
