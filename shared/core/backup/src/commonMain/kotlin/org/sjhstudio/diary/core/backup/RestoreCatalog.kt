@@ -22,7 +22,7 @@ import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /** 목록 파일을 한꺼번에 받는 수. 드라이브 요청 한도를 넘지 않게 묶는다. */
-private const val MAX_DOWNLOADS = 4
+private const val MAX_DOWNLOADS = 8
 
 /** 복원 목록의 한 줄과 받을 때 쓸 정보. */
 data class RestoreCandidate(val entry: BackupEntry, val manifest: Manifest?, val snapshot: DriveFile?, val legacy: DriveFile? = null)

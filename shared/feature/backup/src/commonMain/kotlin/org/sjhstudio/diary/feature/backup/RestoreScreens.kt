@@ -230,7 +230,7 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
             modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
         )
         val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
-        ordered.groupBy { it.deviceId to it.deviceName }.values.forEachIndexed { index, group ->
+        ordered.groupBy { it.platform to it.deviceName }.values.forEachIndexed { index, group ->
             DiarySettingsHeader(deviceLabel(group.first()), gapAbove = index > 0)
             group.forEach { entry ->
                 val problem = problemText(entry.state)
