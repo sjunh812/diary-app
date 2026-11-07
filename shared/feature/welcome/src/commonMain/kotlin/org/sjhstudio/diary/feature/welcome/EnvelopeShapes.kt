@@ -48,9 +48,9 @@ internal fun DrawScope.softSealShadow(center: Offset, radius: Float, colors: Dia
  * 종이 한 겹이 아래 겹에 드리우는 옅은 그림자.
  * 선 대신 그림자로 겹을 나눠야 종이처럼 보인다.
  */
-internal fun DrawScope.softShadow(path: Path, colors: DiaryColors, direction: Float, strength: Float = 1f) {
+internal fun DrawScope.softShadow(path: Path, colors: DiaryColors, direction: Float, strength: Float = 1f, reach: Float = 1f) {
     repeat(SHADOW_STEPS) { step ->
-        val reach = DiarySpacing.x1_5.toPx() * (step + 1) / SHADOW_STEPS
-        translate(top = reach * direction) { drawPath(path, colors.overlay.copy(alpha = SHADOW_ALPHA * strength)) }
+        val offset = DiarySpacing.x1_5.toPx() * reach * (step + 1) / SHADOW_STEPS
+        translate(top = offset * direction) { drawPath(path, colors.overlay.copy(alpha = SHADOW_ALPHA * strength)) }
     }
 }

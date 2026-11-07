@@ -86,6 +86,14 @@ private const val LOWER_TIP = 0.4f
 private const val LOWER_SHADOW = 0.6f
 
 /**
+ * 덮개가 열린 뒤의 아래 날개 그림자.
+ * 닫혔을 때는 덮개 그림자와 어울리지만 열리면 혼자 남고 끝이 그대로 드러나서 진해 보인다.
+ * 위쪽 틈의 가는 선과 비슷한 무게로 줄인다.
+ */
+private const val LOWER_SHADOW_OPEN = 0.34f
+private const val LOWER_REACH_OPEN = 0.5f
+
+/**
  * 열리는 진행 값의 구간.
  * 덮개가 넘어가고 잠깐 뒤에 편지지가 천천히 올라온다.
  * 편지지는 다 올라오기 전부터 펼쳐져서 멈춘 데 없이 이어진다.
@@ -284,7 +292,15 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
     clipPath(body) {
         drawPath(pocket, colors.paper)
         if (tip < 0) drawPath(opening, colors.line, style = outline())
-        softShadow(lower, colors, direction = -1f, strength = LOWER_SHADOW)
+        // 덮개가 넘어가는 만큼 함께 옅어져서 어느 순간에 바뀌어 보이지 않는다.
+        val opened = 1f - (tip / (FLAP_DEPTH * height)).coerceAtLeast(0f)
+        softShadow(
+            lower,
+            colors,
+            direction = -1f,
+            strength = lerp(LOWER_SHADOW, LOWER_SHADOW_OPEN, opened),
+            reach = lerp(1f, LOWER_REACH_OPEN, opened)
+        )
         drawPath(lower, colors.paper)
     }
     // 열린 봉투의 위쪽은 비어 있다.
