@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -88,6 +89,7 @@ import org.sjhstudio.diary.feature.write.resources.write_none
 import org.sjhstudio.diary.feature.write.resources.write_place
 import org.sjhstudio.diary.feature.write.resources.write_place_body
 import org.sjhstudio.diary.feature.write.resources.write_place_current
+import org.sjhstudio.diary.feature.write.resources.write_place_current_short
 import org.sjhstudio.diary.feature.write.resources.write_place_denied
 import org.sjhstudio.diary.feature.write.resources.write_place_finding
 import org.sjhstudio.diary.feature.write.resources.write_place_hint
@@ -176,9 +178,9 @@ internal fun PlaceSheet(
         title = stringResource(Res.string.write_place),
         description = stringResource(Res.string.write_place_body)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-            PlaceField(text, onChange = { text = it.take(MAX_PLACE) })
-            CurrentPlace(locating, onLocate, onOpenSettings)
+        Column {
+            PlaceField(text, locating == PlaceLocating.Finding, onChange = { text = it.take(MAX_PLACE) }, onLocate = onLocate)
+            PlaceResult((locating as? PlaceLocating.Done)?.result, onOpenSettings)
         }
         // 전에 쓴 곳은 한 번에 고른다.
         // 적는 글자에 맞는 곳만 남긴다.
@@ -200,24 +202,28 @@ internal fun PlaceSheet(
     }
 }
 
+/**
+ * 장소를 적는 칸.
+ * 직접 적기와 내 위치 가져오기는 같은 값을 채우는 일이라 한 칸에 둔다.
+ * 위치는 누를 때만 읽는다.
+ */
 @Composable
-private fun PlaceField(text: String, onChange: (String) -> Unit) {
+private fun PlaceField(text: String, finding: Boolean, onChange: (String) -> Unit, onLocate: () -> Unit) {
     val colors = DiaryTheme.colors
     Row(
-        // 아래 칩과 아이콘·글자 시작이 같은 세로줄에 오게 칩의 왼쪽 여백(10)과 틈(4)을 쓴다.
         Modifier
             .fillMaxWidth()
+            .heightIn(min = DiarySpacing.minTouchTarget)
             .clip(DiaryShapes.r12)
             .background(colors.sunken)
-            .padding(start = DiarySpacing.x2 + DiarySpacing.x0_5, end = DiarySpacing.x3, top = DiarySpacing.x3, bottom = DiarySpacing.x3),
+            .padding(start = DiarySpacing.x4, end = DiarySpacing.x2),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        DiaryIcon(DiaryIcons.Pin, contentDescription = null, tint = colors.textPrimary, size = DiaryIconSize.i16)
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
             if (text.isEmpty()) {
                 BasicText(
-                    stringResource(Res.string.write_place_hint),
+                    stringResource(if (finding) Res.string.write_place_finding else Res.string.write_place_hint),
                     style = DiaryTheme.typography.body.copy(color = colors.placeholder)
                 )
             }
@@ -230,35 +236,36 @@ private fun PlaceField(text: String, onChange: (String) -> Unit) {
                 cursorBrush = SolidColor(colors.accent)
             )
         }
+        if (finding) {
+            val finding = stringResource(Res.string.write_place_finding)
+            Box(
+                Modifier.padding(horizontal = DiarySpacing.x3).semantics { contentDescription = finding },
+                contentAlignment = Alignment.Center
+            ) {
+                DiaryLoadingDots(colors.textSecondary, animated = !rememberReduceMotion())
+            }
+        } else {
+            val description = stringResource(Res.string.write_place_current)
+            DiaryButton(
+                stringResource(Res.string.write_place_current_short),
+                onLocate,
+                Modifier.semantics { contentDescription = description },
+                size = DiaryButtonSize.Small,
+                kind = DiaryButtonKind.Weak,
+                leadingIcon = DiaryIcons.Locate
+            )
+        }
     }
 }
 
-/**
- * 누를 때만 위치를 읽는다.
- * 찾지 못해도 쓰기는 그대로고 한 줄로 알린다.
- */
+/** 찾지 못해도 쓰기는 그대로고 칸 아래 한 줄로 알린다. */
 @Composable
-private fun CurrentPlace(locating: PlaceLocating, onLocate: () -> Unit, onOpenSettings: (locationOff: Boolean) -> Unit) {
-    val finding = locating == PlaceLocating.Finding
-    val result = (locating as? PlaceLocating.Done)?.result
-    Column {
-        DiaryChip(
-            stringResource(if (finding) Res.string.write_place_finding else Res.string.write_place_current),
-            selected = false,
-            onClick = onLocate,
-            leadingIcon = DiaryIcons.Locate,
-            trailing = if (finding) {
-                { DiaryLoadingDots(DiaryTheme.colors.textSecondary, animated = !rememberReduceMotion()) }
-            } else {
-                null
-            }
-        )
-        when (result) {
-            PlaceLookup.Denied -> PlaceNote(stringResource(Res.string.write_place_denied)) { onOpenSettings(false) }
-            PlaceLookup.LocationOff -> PlaceNote(stringResource(Res.string.write_place_off)) { onOpenSettings(true) }
-            PlaceLookup.NotFound -> PlaceNote(stringResource(Res.string.write_place_not_found), onOpenSettings = null)
-            is PlaceLookup.Found, null -> Unit
-        }
+private fun PlaceResult(result: PlaceLookup?, onOpenSettings: (locationOff: Boolean) -> Unit) {
+    when (result) {
+        PlaceLookup.Denied -> PlaceNote(stringResource(Res.string.write_place_denied)) { onOpenSettings(false) }
+        PlaceLookup.LocationOff -> PlaceNote(stringResource(Res.string.write_place_off)) { onOpenSettings(true) }
+        PlaceLookup.NotFound -> PlaceNote(stringResource(Res.string.write_place_not_found), onOpenSettings = null)
+        is PlaceLookup.Found, null -> Unit
     }
 }
 

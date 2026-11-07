@@ -201,7 +201,7 @@ internal fun InsightScreen(
                     if (advancedOpen) onAdvanced else onPlus,
                     size = DiaryButtonSize.Small,
                     kind = DiaryButtonKind.Weak,
-                    leadingIcon = DiaryIcons.Sparkles
+                    leadingIcon = DiaryIcons.SparklesSolid
                 )
             }
             BasicText(

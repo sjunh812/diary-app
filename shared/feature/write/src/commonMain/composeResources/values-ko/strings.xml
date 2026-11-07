@@ -56,6 +56,7 @@
     <string name="write_limit_plus">Plus 알아보기</string>
     <string name="write_limit_later">괜찮아요</string>
     <string name="write_place_current">내 위치 가져오기</string>
+    <string name="write_place_current_short">내 위치</string>
     <string name="write_place_finding">위치 찾는 중</string>
     <string name="write_place_denied">위치 권한을 허용하면 가져올 수 있어요.</string>
     <string name="write_place_off">기기의 위치가 꺼져 있어요.</string>

@@ -56,6 +56,7 @@
     <string name="write_limit_plus">See Plus</string>
     <string name="write_limit_later">Not now</string>
     <string name="write_place_current">Use my location</string>
+    <string name="write_place_current_short">My location</string>
     <string name="write_place_finding">Finding your location</string>
     <string name="write_place_denied">Allow location access to use this.</string>
     <string name="write_place_off">Location is turned off on this device.</string>
