@@ -10,6 +10,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.model.Entry
+import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationStep
 
 /**
@@ -49,6 +50,69 @@ class MergedEntryRetryTest {
         ).close()
         assertIs<MigrationResult.Failed>(runner(events = failAtVerifying()).run())
         runner().defer()
+    }
+
+    /** 이전 뒤 완전히 삭제한 일기는 못 옮긴 일기가 아니다. 다시 읽기가 되살리면 안 된다. */
+    @Test
+    fun partial_retry_does_not_bring_back_entries_deleted_for_good() = runTest {
+        TempDir().use { dir ->
+            val env = MigrationEnv(dir)
+            val healthy = dir.root / "healthy.db"
+            LegacyFixtures.create(healthy, LegacyFixtures.manyRows(2_000, contentLength = 300)).close()
+            dir.fs.createDirectories(env.legacy.noteDb.parent!!)
+            dir.fs.copy(healthy, env.legacy.noteDb)
+            LegacyFixtures.corruptMiddlePages(env.legacy.noteDb)
+            val first = assertIs<MigrationResult.Finished>(env.runner().run())
+            assertEquals(MigrationOutcome.PARTIAL, first.report.outcome)
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                val deleted = assertNotNull(db.entryDao().getByLegacyId(1))
+                db.entryDao().deletePermanently(deleted.id)
+                dir.fs.delete(env.paths.snapshotDir / "note.db")
+                dir.fs.copy(healthy, env.paths.snapshotDir / "note.db")
+
+                val added = env.runner(versionCode = 38).retryPartial(db)
+
+                assertEquals(first.report.entriesUnreadable, added)
+                assertNull(db.entryDao().getByLegacyId(1))
+                assertEquals(1_999, db.entryDao().countAll())
+            } finally {
+                db.close()
+            }
+        }
+    }
+
+    /** 공간이 차 미뤘다고 적지 못해도 앱은 열린다. 그사이 쓴 일기를 새 DB로 덮으면 다 잃는다. */
+    @Test
+    fun an_unwritten_deferral_does_not_replace_entries_written_since() = runTest {
+        TempDir().use { dir ->
+            val env = MigrationEnv(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", contents = "옛 일기", picture = picture.toString()))
+            ).close()
+            assertIs<MigrationResult.Failed>(env.runner(events = env.failAtVerifying()).run())
+            val mine = env.mergedFromOtherPhone(77, "2020-05-05 08:00:00", "새로 쓴 일기").copy(legacyId = null, legacyCreateDate = null)
+            val written = env.open(env.paths.databasePath.toString())
+            try {
+                written.entryDao().insertAll(listOf(mine.asEntity()))
+            } finally {
+                written.close()
+            }
+
+            env.runner().run()
+
+            assertEquals(MigrationStep.DEFERRED, env.runner().state().step)
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                assertEquals("새로 쓴 일기", db.entryDao().get(mine.id)?.plainText)
+                assertIs<MigrationResult.Finished>(env.runner().retryDeferred(db))
+                assertEquals(2, db.entryDao().countAll())
+            } finally {
+                db.close()
+            }
+        }
     }
 
     @Test

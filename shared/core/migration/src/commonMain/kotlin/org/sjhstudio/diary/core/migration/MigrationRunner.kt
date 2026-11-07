@@ -18,7 +18,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
-import kotlinx.serialization.builtins.ListSerializer
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
@@ -142,6 +141,8 @@ class MigrationRunner(
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : LegacyMigration {
     private val store = MigrationStateStore(fileSystem, paths.migrationDir)
+    private val moved = MovedNumbers(fileSystem, paths.migrationDir)
+    private val photoRecords = PhotoRecordFile(fileSystem, paths)
     private val snapshotter = LegacySnapshotter(fileSystem, clock)
     private val importer = MediaImporter(fileSystem, paths.mediaDir, imageSize, clock, newId)
     private val _progress = MutableStateFlow(MigrationProgress(MigrationStep.NOT_STARTED))
@@ -187,7 +188,29 @@ class MigrationRunner(
 
         !paths.legacy.exist(fileSystem) -> MigrationResult.NoLegacy
 
-        else -> afterCommit(previous) ?: migrate(attempt = previous.attempt + 1)
+        else -> afterCommit(previous) ?: deferIfInUse(previous) ?: migrate(attempt = previous.attempt + 1)
+    }
+
+    /**
+     * 공간이 차 미뤘다고 적지 못해도 앱은 열린다.
+     * 그사이 쓴 일기가 있으면 새 DB로 덮지 않고 미룬 이전으로 돌린다.
+     * 미룬 이전은 없는 일기만 더한다.
+     */
+    private suspend fun deferIfInUse(previous: MigrationState): MigrationResult? {
+        if (!hasWrittenEntries()) return null
+        val deferred = previous.copy(step = MigrationStep.DEFERRED, retriedVersionCode = versionCode, updatedAt = clock.now())
+        store.writeState(deferred)
+        return MigrationResult.AlreadyFinished(deferred)
+    }
+
+    private suspend fun hasWrittenEntries(): Boolean {
+        if (!fileSystem.exists(paths.databasePath)) return false
+        val db = openDatabase(paths.databasePath.toString())
+        return try {
+            db.entryDao().countAll() > 0
+        } finally {
+            db.close()
+        }
     }
 
     /**
@@ -225,7 +248,7 @@ class MigrationRunner(
 
             val (notes, summary) = readSnapshot() ?: return fail(step, MigrationFailureKind.READ_ERROR, attempt)
             if (notes.isEmpty() && summary.unreadable == 0) {
-                val report = emptyReport()
+                val report = emptyReport(clock.now())
                 store.writeReport(report)
                 writeFinal(MigrationStep.DONE, attempt, startedAt)
                 return MigrationResult.Finished(report, showResult = false)
@@ -257,6 +280,7 @@ class MigrationRunner(
                 writeStep(step, attempt, startedAt)
                 leftOut = verify(db, notes.size, counts = counts)
                 if (leftOut == notes.size) throw MismatchException()
+                if (leftOut + summary.unreadable > 0) rememberMoved(db)
             } finally {
                 db.close()
             }
@@ -273,7 +297,7 @@ class MigrationRunner(
             }
             paths.databasePath.parent?.let(fileSystem::createDirectories)
             fileSystem.atomicMove(paths.newDatabase, paths.databasePath)
-            val report = counts.toReport(notes.size - leftOut, summary.unreadable + leftOut)
+            val report = counts.report(notes.size - leftOut, summary.unreadable + leftOut)
             store.writeReport(report)
             writeFinal(if (report.outcome == MigrationOutcome.PARTIAL) MigrationStep.PARTIAL else MigrationStep.DONE, attempt, startedAt)
             events.finished(report, (clock.now() - startedAt).inWholeMilliseconds)
@@ -316,7 +340,7 @@ class MigrationRunner(
     private suspend fun copy(db: DiaryDatabase, notes: List<LegacyNote>, photosTotal: Int, counts: Counts) {
         val mapper = LegacyEntryMapper(currentDate(clock, timeZone), timeZone, newId)
         // 앞선 시도의 목록을 잇는다. 원본이 사라진 사진은 이 목록으로 사본을 찾고, 다시 읽기가 앞선 사진을 지우지 않는다.
-        val records = runCatching { readPhotosJson() }.getOrDefault(emptyList()).associateByTo(LinkedHashMap()) { it.path }
+        val records = runCatching { photoRecords.read() }.getOrDefault(emptyList()).associateByTo(LinkedHashMap()) { it.path }
         var done = 0
         var photosDone = 0
         _progress.value = MigrationProgress(MigrationStep.COPYING, 0, notes.size, 0, photosTotal)
@@ -344,7 +368,7 @@ class MigrationRunner(
             counts.thumbnailsFailed += makeThumbnails(copied)
             write(db, rows).forEach(counts::add)
             // 묶음마다 적는다. 복사 중에 앱이 죽어도 어느 사진을 옮겼는지 남는다.
-            writePhotosJson(records.values.toList())
+            photoRecords.write(records.values.toList())
             done += chunk.size
             _progress.value = MigrationProgress(MigrationStep.COPYING, done, notes.size, photosDone, photosTotal)
         }
@@ -403,7 +427,7 @@ class MigrationRunner(
      * [only]가 있으면 그 레거시 번호만 본다(새로 쓴 일기가 있는 다시 읽기).
      */
     private suspend fun verify(db: DiaryDatabase, expectedRows: Int, only: Set<Int>? = null, counts: Counts? = null): Int {
-        val photoHashes = readPhotosJson().associate { it.path to it.sha256 }
+        val photoHashes = photoRecords.read().associate { it.path to it.sha256 }
         val (notes, _) = readSnapshot() ?: throw MismatchException()
         if (notes.size != expectedRows) throw MismatchException()
         val mapper = LegacyEntryMapper(currentDate(clock, timeZone), timeZone) { "" }
@@ -459,7 +483,7 @@ class MigrationRunner(
         }
         // 끊겨서 다시 검증할 때 지문이 맞도록 고친 사진을 목록에도 적는다.
         if (brokenPaths.isNotEmpty()) {
-            writePhotosJson(readPhotosJson().map { if (it.path in brokenPaths) it.copy(sha256 = null, size = null) else it })
+            photoRecords.write(photoRecords.read().map { if (it.path in brokenPaths) it.copy(sha256 = null, size = null) else it })
         }
         return leftOut
     }
@@ -480,11 +504,12 @@ class MigrationRunner(
             try {
                 val leftOut = verify(db, notes.size)
                 if (leftOut == notes.size) throw MismatchException()
-                val records = readPhotosJson()
+                if (leftOut + summary.unreadable > 0) rememberMoved(db)
+                val records = photoRecords.read()
                 Counts(
                     photosFound = records.count { it.sha256 != null },
                     photosMissing = records.count { it.sha256 == null }
-                ).toReport(notes.size - leftOut, summary.unreadable + leftOut)
+                ).report(notes.size - leftOut, summary.unreadable + leftOut)
             } finally {
                 db.close()
             }
@@ -510,7 +535,9 @@ class MigrationRunner(
         store.writeState(state.copy(retriedVersionCode = versionCode, updatedAt = clock.now()))
         val (notes, summary) = readSnapshot() ?: return@withContext 0
         // 이미 옮긴 일기는 사용자가 고쳤을 수 있어 글은 견주지 않는다.
-        val missing = notYetMoved(db, notes, editsAreOurs = true)
+        // 옮긴 뒤 완전히 삭제한 일기는 표에 없어도 못 옮긴 일기가 아니다.
+        val known = moved.read()
+        val missing = notYetMoved(db, notes, editsAreOurs = true).filterNot { it.id.toInt() in known }
         val counts = Counts()
         var leftOut = 0
         if (missing.isNotEmpty()) {
@@ -518,12 +545,13 @@ class MigrationRunner(
             copy(db, missing, missing.sumOf { PhotoPaths.fragments(it.picture).size }, counts)
             // 사용자가 쓰고 고친 일기는 건드리지 않게 방금 더한 줄만 본다.
             leftOut = verify(db, notes.size, only = missing.map { it.id.toInt() }.toSet(), counts = counts)
+            rememberMoved(db)
         }
         val added = missing.size - leftOut
         val unreadable = summary.unreadable + leftOut
         val old = store.readReport()
         val report =
-            (old ?: emptyReport()).copy(
+            (old ?: emptyReport(clock.now())).copy(
                 entriesTotal = notes.size + summary.unreadable,
                 entriesMigrated = (old?.entriesMigrated ?: 0) + added,
                 entriesUnreadable = unreadable,
@@ -620,7 +648,8 @@ class MigrationRunner(
                     return@withContext MigrationResult.Failed(MigrationStep.VERIFYING, MigrationFailureKind.MISMATCH)
                 }
             }
-            val report = counts.toReport(missing.size - leftOut, summary.unreadable + leftOut)
+            if (leftOut + summary.unreadable > 0) rememberMoved(db)
+            val report = counts.report(missing.size - leftOut, summary.unreadable + leftOut)
             store.writeReport(report)
             writeFinal(
                 if (report.outcome ==
@@ -693,7 +722,7 @@ class MigrationRunner(
                     if (fileSystem.exists(snapshot)) LegacyDbReader.open(snapshot.toString()).use { it.count()?.toInt() } else null
                 }.getOrNull()
                 ?: 0
-        val photos = report?.let { it.photosFound + it.photosMissing } ?: runCatching { readPhotosJson().size }.getOrDefault(0)
+        val photos = report?.let { it.photosFound + it.photosMissing } ?: runCatching { photoRecords.read().size }.getOrDefault(0)
         SupportSummary(
             failure = state.failure,
             attempt = state.attempt,
@@ -716,60 +745,7 @@ class MigrationRunner(
         LegacySettingsMapper.migrated(read(paths.legacy.prefXml.name), read(paths.legacy.pref2Xml.name))
     }.getOrDefault(emptyList())
 
-    private fun emptyReport() = MigrationReport(
-        entriesTotal = 0,
-        entriesMigrated = 0,
-        entriesUnreadable = 0,
-        photosFound = 0,
-        photosMissing = 0,
-        dateDiffers = 0,
-        dateUnparsed = 0,
-        thumbnailsFailed = 0,
-        settingsMigrated = emptyList(),
-        finishedAt = clock.now(),
-        outcome = MigrationOutcome.DONE
-    )
-
-    private inner class Counts(
-        var photosFound: Int = 0,
-        var photosMissing: Int = 0,
-        var dateDiffers: Int = 0,
-        var dateUnparsed: Int = 0,
-        var thumbnailsFailed: Int = 0,
-        var written: Int = 0
-    ) {
-        /** 새 DB에 들어간 일기만 센다. */
-        fun add(row: CopiedRow) {
-            written++
-            if (row.mapped.dateUnparsed) dateUnparsed++
-            if (row.mapped.dateDiffers) dateDiffers++
-            for (photo in row.photos) if (photo.found) photosFound++ else photosMissing++
-        }
-
-        /** 검증에서 뺀 일기의 사진을 뺀다. */
-        fun remove(media: List<Media>) {
-            for (m in media) if (m.status == MediaStatus.NORMAL) photosFound-- else photosMissing--
-        }
-
-        fun photoBroke() {
-            photosFound--
-            photosMissing++
-        }
-
-        fun toReport(migrated: Int, unreadable: Int) = MigrationReport(
-            entriesTotal = migrated + unreadable,
-            entriesMigrated = migrated,
-            entriesUnreadable = unreadable,
-            photosFound = photosFound,
-            photosMissing = photosMissing,
-            dateDiffers = dateDiffers,
-            dateUnparsed = dateUnparsed,
-            thumbnailsFailed = thumbnailsFailed,
-            settingsMigrated = migratedSettings(),
-            finishedAt = clock.now(),
-            outcome = if (unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
-        )
-    }
+    private fun Counts.report(migrated: Int, unreadable: Int) = toReport(migrated, unreadable, migratedSettings(), clock.now())
 
     private fun writeStep(step: MigrationStep, attempt: Int, startedAt: Instant) {
         store.writeState(MigrationState(step = step, attempt = attempt, startedAt = startedAt, updatedAt = clock.now()))
@@ -837,27 +813,12 @@ class MigrationRunner(
 
     private fun sizeOf(path: Path): Long = fileSystem.metadataOrNull(path)?.size ?: 0
 
-    private fun writePhotosJson(records: List<PhotoRecord>) {
-        fileSystem.createDirectories(paths.snapshotDir)
-        val temp = paths.snapshotDir / "photos.json.tmp"
-        fileSystem.write(temp) { writeUtf8(LegacySnapshotter.JSON.encodeToString(ListSerializer(PhotoRecord.serializer()), records)) }
-        fileSystem.atomicMove(temp, paths.photosJson)
-    }
-
-    private fun readPhotosJson(): List<PhotoRecord> = if (!fileSystem.exists(paths.photosJson)) {
-        emptyList()
-    } else {
-        LegacySnapshotter.JSON.decodeFromString(
-            ListSerializer(PhotoRecord.serializer()),
-            fileSystem.read(paths.photosJson) {
-                readUtf8()
-            }
-        )
+    /** 옮긴 옛 번호를 남긴다. 적지 못해도 이전은 끝낼 수 있다. */
+    private suspend fun rememberMoved(db: DiaryDatabase) {
+        moved.add(db.entryDao().legacyRows().mapNotNull { it.legacyId })
     }
 
     private class MismatchException : Exception()
-
-    private class CopiedRow(val mapped: MappedEntry, val photos: List<ImportedPhoto>)
 
     /**
      * 옛 사진은 캐시에 있다.
@@ -889,4 +850,61 @@ class MigrationRunner(
 
         val RECHECK_INTERVAL = 24.hours
     }
+}
+
+private fun emptyReport(finishedAt: Instant) = MigrationReport(
+    entriesTotal = 0,
+    entriesMigrated = 0,
+    entriesUnreadable = 0,
+    photosFound = 0,
+    photosMissing = 0,
+    dateDiffers = 0,
+    dateUnparsed = 0,
+    thumbnailsFailed = 0,
+    settingsMigrated = emptyList(),
+    finishedAt = finishedAt,
+    outcome = MigrationOutcome.DONE
+)
+
+private class CopiedRow(val mapped: MappedEntry, val photos: List<ImportedPhoto>)
+
+private class Counts(
+    var photosFound: Int = 0,
+    var photosMissing: Int = 0,
+    var dateDiffers: Int = 0,
+    var dateUnparsed: Int = 0,
+    var thumbnailsFailed: Int = 0,
+    var written: Int = 0
+) {
+    /** 새 DB에 들어간 일기만 센다. */
+    fun add(row: CopiedRow) {
+        written++
+        if (row.mapped.dateUnparsed) dateUnparsed++
+        if (row.mapped.dateDiffers) dateDiffers++
+        for (photo in row.photos) if (photo.found) photosFound++ else photosMissing++
+    }
+
+    /** 검증에서 뺀 일기의 사진을 뺀다. */
+    fun remove(media: List<Media>) {
+        for (m in media) if (m.status == MediaStatus.NORMAL) photosFound-- else photosMissing--
+    }
+
+    fun photoBroke() {
+        photosFound--
+        photosMissing++
+    }
+
+    fun toReport(migrated: Int, unreadable: Int, settings: List<MigratedSetting>, finishedAt: Instant) = MigrationReport(
+        entriesTotal = migrated + unreadable,
+        entriesMigrated = migrated,
+        entriesUnreadable = unreadable,
+        photosFound = photosFound,
+        photosMissing = photosMissing,
+        dateDiffers = dateDiffers,
+        dateUnparsed = dateUnparsed,
+        thumbnailsFailed = thumbnailsFailed,
+        settingsMigrated = settings,
+        finishedAt = finishedAt,
+        outcome = if (unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
+    )
 }
