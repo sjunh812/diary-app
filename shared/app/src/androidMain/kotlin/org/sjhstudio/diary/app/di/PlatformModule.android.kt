@@ -14,12 +14,18 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.ads.AdMobPlayer
 import org.sjhstudio.diary.app.ads.AdUnits
+import org.sjhstudio.diary.app.ads.adSwitch
 import org.sjhstudio.diary.app.backup.AndroidBackupNotifier
 import org.sjhstudio.diary.app.backup.AndroidBackupScheduler
+import org.sjhstudio.diary.app.billing.Billing
+import org.sjhstudio.diary.app.billing.billing
 import org.sjhstudio.diary.app.telemetry.telemetrySink
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.AdSwitch
+import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.asEntity
@@ -67,6 +73,11 @@ internal actual val platformModule: Module =
         // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않는다.
         // 광고 SDK는 처음 부를 때 켜진다.
         single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
+        single<AdSwitch> { adSwitch(androidContext()) }
+        // 앱이 켜질 때 만들어야 재설치 뒤 구매를 바로 되찾는다.
+        single(createdAtStart = true) { billing(androidContext()) }
+        single<PlanRepository> { get<Billing>() }
+        single<PurchaseRepository> { get<Billing>() }
         single<TelemetrySink> { telemetrySink(androidContext()) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }

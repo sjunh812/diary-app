@@ -72,6 +72,11 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
+            // 전면 광고를 앱 업데이트 없이 끈다(FirebaseAdSwitch).
+            implementation(libs.firebase.config)
+            // 구매와 구독 확인(RevenueCatBilling).
+            // R1은 안드로이드만 내서 KMP 묶음 대신 안드로이드 SDK를 쓴다.
+            implementation(libs.revenuecat.purchases)
         }
         commonTest.dependencies {
             implementation(projects.shared.core.testing)

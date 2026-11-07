@@ -15,6 +15,35 @@ import org.sjhstudio.diary.core.model.StoreProduct
  */
 interface PlanRepository {
     val plan: StateFlow<Plan>
+
+    /**
+     * 요금제를 안다.
+     * 재설치 직후처럼 아직 모르면 거짓이고, 그동안은 광고를 부르지 않는다.
+     * 산 사람에게 광고가 스치면 안 된다.
+     */
+    val known: StateFlow<Boolean> get() = AlwaysKnown
+}
+
+private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow()
+
+/** 스토어의 상품 ID와 권한 이름. 스토어와 RevenueCat에 같은 값을 넣는다(`docs/release.md`). */
+object StoreIds {
+    const val AD_FREE_PRODUCT = "ad_free"
+    const val PLUS_PRODUCT = "plus_yearly"
+    const val AD_FREE_ENTITLEMENT = "ad_free"
+    const val PLUS_ENTITLEMENT = "plus"
+
+    fun productOf(id: ProductId): String = when (id) {
+        ProductId.AD_FREE -> AD_FREE_PRODUCT
+        ProductId.PLUS_YEARLY -> PLUS_PRODUCT
+    }
+
+    /** 지금 켜진 권한으로 요금제를 정한다. 둘 다 있으면 Plus다. */
+    fun planOf(active: Set<String>): Plan = when {
+        PLUS_ENTITLEMENT in active -> Plan.PLUS
+        AD_FREE_ENTITLEMENT in active -> Plan.AD_FREE
+        else -> Plan.FREE
+    }
 }
 
 /**

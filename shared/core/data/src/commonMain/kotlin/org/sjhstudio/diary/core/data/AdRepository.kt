@@ -48,8 +48,9 @@ object NoAdPlayer : AdPlayer {
 }
 
 /**
- * 원격 스위치(FR-007).
- * 지금은 늘 켜짐이고 Firebase Remote Config는 스펙 005에서 붙인다.
+ * 전면 광고의 원격 스위치(FR-007, 헌법 III).
+ * 안드로이드는 Firebase Remote Config의 `interstitial_enabled`를 따른다.
+ * 값을 받지 못하면 마지막 값을 쓰고, 처음이면 켜짐이다.
  */
 fun interface AdSwitch {
     fun enabled(): Boolean
@@ -71,12 +72,12 @@ class AdRepository(
     private var shownDay: String? = null
 
     val showAds: Flow<Boolean> =
-        combine(plans.plan, store.prefs) { plan, prefs -> plan.showsAds && adsAllowed(prefs) }
+        combine(plans.plan, plans.known, store.prefs) { plan, known, prefs -> known && plan.showsAds && adsAllowed(prefs) }
             // 기록을 읽지 못하면 덜 보이는 쪽으로 본다.
             .catch { if (it is IOException) emit(false) else throw it }
             .distinctUntilChanged()
 
-    private fun adsAllowed(prefs: AdPrefs) = switch.enabled() && player.available && !rewarded(prefs.rewardUntil)
+    private fun adsAllowed(prefs: AdPrefs) = player.available && !rewarded(prefs.rewardUntil)
 
     /** 기기 시각을 앞으로 돌려 받은 값은 믿지 않는다. */
     private fun rewarded(until: Instant?): Boolean {
@@ -122,7 +123,8 @@ class AdRepository(
     private suspend fun interstitialDue(): Boolean {
         val prefs = store.current()
         val shown = listOfNotNull(prefs.lastInterstitialDay, shownDay).maxOrNull()
-        return plans.plan.value.showsAds && adsAllowed(prefs) && (shown == null || shown < today())
+        val allowed = plans.known.value && plans.plan.value.showsAds && switch.enabled() && adsAllowed(prefs)
+        return allowed && (shown == null || shown < today())
     }
 
     suspend fun watchReward(): Boolean = onceStarted(false) {

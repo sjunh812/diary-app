@@ -120,4 +120,6 @@
     <string name="settings_dev_mode">개발자 모드</string>
     <string name="settings_plus_body">일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.</string>
     <string name="settings_plus_action">Plus 알아보기</string>
+    <string name="settings_terms">이용약관</string>
+    <string name="settings_privacy">개인정보처리방침</string>
 </resources>

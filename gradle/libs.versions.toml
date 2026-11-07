@@ -2,6 +2,7 @@
 # 버전은 specs/001-foundation-migration/research.md R2 표 그대로다. 앱에 들어가는 것은 알파·베타를 쓰지 않는다.
 agp = "9.3.3"
 firebaseBom = "35.1.0"
+revenuecat = "11.2.0"
 firebaseCrashlyticsPlugin = "3.0.8"
 googleServices = "4.5.0"
 kotlin = "2.4.21"
@@ -131,6 +132,8 @@ compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "comp
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-config = { module = "com.google.firebase:firebase-config" }
+revenuecat-purchases = { module = "com.revenuecat.purchases:purchases", version.ref = "revenuecat" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 rich-editor = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richEditor" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }

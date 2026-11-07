@@ -38,4 +38,6 @@
     <string name="plus_manage_store_body">次回の支払い日の確認や解約ができます。</string>
     <string name="plus_checklist_title">チェックリスト</string>
     <string name="plus_checklist_body">日記にやることを書いてチェックできます。</string>
+    <string name="plus_terms">利用規約</string>
+    <string name="plus_privacy">プライバシーポリシー</string>
 </resources>

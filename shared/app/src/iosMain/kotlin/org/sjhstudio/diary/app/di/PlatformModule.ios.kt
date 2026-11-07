@@ -7,7 +7,12 @@ import org.sjhstudio.diary.app.IosTelemetry
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.AdSwitch
+import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoAdPlayer
+import org.sjhstudio.diary.core.data.NoPurchases
+import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.migration.EmptyLegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyArchive
@@ -41,6 +46,10 @@ internal actual val platformModule: Module =
     module {
         single { AppFiles() }
         single<AdPlayer> { NoAdPlayer }
+        // iOS는 R2에서 구매와 광고를 붙인다.
+        single<AdSwitch> { AdSwitch { true } }
+        single<PlanRepository> { FreePlanRepository() }
+        single<PurchaseRepository> { NoPurchases() }
         // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15).
         single<TelemetrySink> { IosTelemetry.sink }
         single<ReminderScheduler> { IosReminderScheduler() }

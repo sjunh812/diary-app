@@ -102,13 +102,33 @@ class AdRepositoryTest {
     }
 
     @Test
-    fun remote_switch_stops_ads() = runTest {
+    fun remote_switch_stops_the_interstitial_only() = runTest {
         enabled = false
         val repo = repo()
 
-        assertFalse(repo.showAds.first())
+        assertTrue(repo.showAds.first())
+        repo.afterSave()
         repo.backToList()
+        assertEquals(0, player.prepared)
         assertEquals(0, player.shown)
+    }
+
+    /** 재설치 직후 산 사람에게 광고가 스치면 안 된다. */
+    @Test
+    fun an_unknown_plan_shows_no_ads() = runTest {
+        val unknown =
+            object : PlanRepository {
+                override val plan = MutableStateFlow(Plan.FREE)
+                override val known = MutableStateFlow(false)
+            }
+        val repository = AdRepository(unknown, store, player, clock = clock, timeZone = { TimeZone.UTC })
+
+        assertFalse(repository.showAds.first())
+        repository.backToList()
+        assertEquals(0, player.shown)
+
+        unknown.known.value = true
+        assertTrue(repository.showAds.first())
     }
 
     @Test
@@ -238,17 +258,6 @@ class AdRepositoryTest {
         now += 24.hours
 
         assertTrue(repository.showAds.first())
-    }
-
-    @Test
-    fun the_remote_switch_stops_rewards_and_loading_too() = runTest {
-        enabled = false
-        val repository = repo()
-
-        repository.afterSave()
-
-        assertFalse(repository.watchReward())
-        assertEquals(0, player.prepared)
     }
 
     /** iOS처럼 광고 구현이 없으면 어느 요금제든 광고가 없다. */

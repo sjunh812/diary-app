@@ -38,4 +38,6 @@
     <string name="plus_manage_store_body">다음 결제일을 보거나 해지해요.</string>
     <string name="plus_checklist_title">체크리스트</string>
     <string name="plus_checklist_body">일기에 할 일을 적고 체크할 수 있어요.</string>
+    <string name="plus_terms">이용약관</string>
+    <string name="plus_privacy">개인정보처리방침</string>
 </resources>

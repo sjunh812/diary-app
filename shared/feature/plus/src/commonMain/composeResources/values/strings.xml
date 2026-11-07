@@ -38,4 +38,6 @@
     <string name="plus_manage_store_body">See your next billing date or cancel.</string>
     <string name="plus_checklist_title">Checklists</string>
     <string name="plus_checklist_body">Add to-dos to your entries and check them off.</string>
+    <string name="plus_terms">Terms of Use</string>
+    <string name="plus_privacy">Privacy Policy</string>
 </resources>

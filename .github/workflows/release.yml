@@ -91,6 +91,7 @@ jobs:
           ADMOB_NATIVE: ${{ secrets.ADMOB_NATIVE }}
           ADMOB_INTERSTITIAL: ${{ secrets.ADMOB_INTERSTITIAL }}
           ADMOB_REWARDED: ${{ secrets.ADMOB_REWARDED }}
+          REVENUECAT_ANDROID: ${{ secrets.REVENUECAT_ANDROID }}
         run: |
           echo "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/upload.jks"
           echo "DIARY_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
@@ -99,16 +100,21 @@ jobs:
           else
             echo "::warning::google-services.json이 없어 사용 통계와 비정상 종료 보고가 꺼진 빌드입니다"
           fi
-          if [ -n "$ADMOB_APP_ID" ]; then
-            {
-              echo "admob.app.id=$ADMOB_APP_ID"
-              echo "admob.native=$ADMOB_NATIVE"
-              echo "admob.interstitial=$ADMOB_INTERSTITIAL"
-              echo "admob.rewarded=$ADMOB_REWARDED"
-            } > local.properties
-          else
-            echo "::warning::광고 ID가 없어 광고가 나오지 않는 빌드입니다"
-          fi
+          # 광고나 구매가 빠진 앱이 스토어로 나가지 않게 여기서 멈춘다.
+          for name in ADMOB_APP_ID ADMOB_NATIVE ADMOB_INTERSTITIAL ADMOB_REWARDED REVENUECAT_ANDROID; do
+            eval "value=\$$name"
+            if [ -z "$value" ]; then
+              echo "::error::$name 비밀값이 없습니다"
+              exit 1
+            fi
+          done
+          {
+            echo "admob.app.id=$ADMOB_APP_ID"
+            echo "admob.native=$ADMOB_NATIVE"
+            echo "admob.interstitial=$ADMOB_INTERSTITIAL"
+            echo "admob.rewarded=$ADMOB_REWARDED"
+            echo "revenuecat.android=$REVENUECAT_ANDROID"
+          } > local.properties
       - name: AAB 만들기
         env:
           DIARY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}

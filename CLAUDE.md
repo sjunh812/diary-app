@@ -64,7 +64,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
   (스펙 001 plan.md, 구조 비교는 research.md).
 - 라이브러리(2026-10-31 조사, 버전은 스펙 001 research R2 표로 고정): DB는 Room 3 + `BundledSQLiteDriver`(FTS5, `VACUUM INTO`),
   설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 그림은 Compottie(Lottie),
-  결제는 RevenueCat KMP, 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
+  결제는 RevenueCat(R1은 안드로이드 SDK, iOS는 R2에서 KMP), 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
   생체 인증은 expect/actual(BiometricPrompt, LAContext). 레거시 DB는 Room이 아니라 날 SQL로 읽는다(`docs/migration.md`).
 - `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 37부터(36은 만들고 내지 않은 1.7.5가 썼다), `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
   같은 Google Cloud 프로젝트를 쓴다(이전 백업이 보이려면 필요, `docs/migration.md`).

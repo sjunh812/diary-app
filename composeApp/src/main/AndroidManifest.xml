@@ -29,6 +29,9 @@
         android:theme="@style/Theme.Diary">
         <!-- 사용 통계에 광고 ID와 기기 식별자를 넣지 않고 맞춤 광고 신호도 끈다(헌법 II). -->
         <meta-data
+            android:name="org.sjhstudio.diary.revenuecat_key"
+            android:value="${revenueCatKey}" />
+        <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="${firebaseCollection}" />
         <meta-data

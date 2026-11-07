@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
+import org.sjhstudio.diary.core.ui.LegalLinks
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
@@ -133,6 +134,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 trashCount = trashCount,
                 onBackup = { push(BackupSettingsKey) },
                 onLetter = { push(LetterKey) },
+                onTerms = { links.openUri(LegalLinks.TERMS) },
+                onPrivacy = { links.openUri(LegalLinks.PRIVACY) },
                 onPlus = { push(PlusKey) }
             )
             DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).padding(bottom = toastBottomOverApp()))

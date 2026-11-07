@@ -57,8 +57,10 @@ import org.sjhstudio.diary.feature.settings.resources.settings_plus_badge
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_title
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_title_ad_free
+import org.sjhstudio.diary.feature.settings.resources.settings_privacy
 import org.sjhstudio.diary.feature.settings.resources.settings_rate
 import org.sjhstudio.diary.feature.settings.resources.settings_reminder
+import org.sjhstudio.diary.feature.settings.resources.settings_terms
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.settings_theme
 import org.sjhstudio.diary.feature.settings.resources.settings_title
@@ -87,6 +89,8 @@ fun SettingsScreen(
     trashCount: Int = 0,
     onBackup: () -> Unit = {},
     onLetter: () -> Unit = {},
+    onTerms: () -> Unit = {},
+    onPrivacy: () -> Unit = {},
     onPlus: () -> Unit = {},
     plusActive: Boolean = false,
     adsRemoved: Boolean = false,
@@ -186,6 +190,8 @@ fun SettingsScreen(
             DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
             DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
             DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
+            DiarySettingsRow(stringResource(Res.string.settings_terms), onClick = onTerms)
+            DiarySettingsRow(stringResource(Res.string.settings_privacy), onClick = onPrivacy)
             if (state.showsMigrationReport) {
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }

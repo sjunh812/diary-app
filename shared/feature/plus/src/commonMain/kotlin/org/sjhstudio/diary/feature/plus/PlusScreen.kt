@@ -65,6 +65,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.ui.DiaryLottie
+import org.sjhstudio.diary.core.ui.LegalLinks
 import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.plus_ad_free_owned
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_body
@@ -88,6 +89,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_notice
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_body
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
 import org.sjhstudio.diary.feature.plus.resources.plus_price
+import org.sjhstudio.diary.feature.plus.resources.plus_privacy
 import org.sjhstudio.diary.feature.plus.resources.plus_restore
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
@@ -97,6 +99,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_start
 import org.sjhstudio.diary.feature.plus.resources.plus_start_price
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_body
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_title
+import org.sjhstudio.diary.feature.plus.resources.plus_terms
 import org.sjhstudio.diary.feature.plus.resources.plus_title
 
 private const val ART_MILLIS = 2_800
@@ -301,6 +304,25 @@ private fun PaywallBenefits(adFreeOwned: Boolean) {
     }
 }
 
+@Composable
+private fun PaywallLegal() {
+    val links = LocalUriHandler.current
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        DiaryButton(
+            stringResource(Res.string.plus_terms),
+            { links.openUri(LegalLinks.TERMS) },
+            kind = DiaryButtonKind.QuietText,
+            size = DiaryButtonSize.Small
+        )
+        DiaryButton(
+            stringResource(Res.string.plus_privacy),
+            { links.openUri(LegalLinks.PRIVACY) },
+            kind = DiaryButtonKind.QuietText,
+            size = DiaryButtonSize.Small
+        )
+    }
+}
+
 /**
  * 실제 결제액, 버튼, 자동 갱신 고지(FR-005).
  * 가격을 못 받으면 지어내지 않고 다시 시도를 보인다.
@@ -330,6 +352,7 @@ private fun PaywallBuy(
                 enabled = price != null && !busy
             )
             BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
+            PaywallLegal()
             // 광고의 ×를 찾지 않아도 살 수 있게 둔다.
             // 이미 산 사람에게는 보이지 않는다.
             if (!adFreeOwned) {

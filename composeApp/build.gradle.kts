@@ -66,6 +66,8 @@ android {
             "adNative" to localProperty("admob.native", ""),
             "adInterstitial" to localProperty("admob.interstitial", ""),
             "adRewarded" to localProperty("admob.rewarded", ""),
+            // 값이 없으면 구매가 없는 빌드다.
+            "revenueCatKey" to localProperty("revenuecat.android", ""),
             // 개발 빌드는 보내지 않는다.
             // 확인할 때만 local.properties의 firebase.debug=true로 켠다.
             "firebaseCollection" to "true"

@@ -38,8 +38,6 @@ import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
-import org.sjhstudio.diary.core.data.FreePlanRepository
-import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -311,10 +309,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 gate = get()
             )
         }
-        single<PlanRepository> { FreePlanRepository() }
-        single<PurchaseRepository> { NoPurchases() }
         single { AdStore(get<DataStoreFactory>().ads()) }
-        single { AdRepository(get(), get(), get()) }
+        single { AdRepository(get(), get(), get(), get()) }
         // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾는다.
         single<DraftRepository> {
             val koin = getKoin()
