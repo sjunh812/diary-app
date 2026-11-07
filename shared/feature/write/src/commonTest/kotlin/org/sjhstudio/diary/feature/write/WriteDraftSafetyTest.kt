@@ -11,6 +11,8 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -24,6 +26,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import org.sjhstudio.diary.core.data.diary.DraftRepository
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.Mood
@@ -169,6 +172,29 @@ class WriteDraftSafetyTest {
         assertEquals(1, repository.saved.single().photos.size)
         assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = true)), events)
         assertFalse(vm.state.value.addingPhotos)
+    }
+
+    /** Room은 사진을 적은 뒤 조금 늦게 알린다. 화면이 아직 모른다고 빈 글로 보면 사진을 잃는다. */
+    @Test
+    fun a_photo_the_screen_has_not_seen_yet_is_kept_on_closing() = runTest(dispatcher) {
+        val gate = CompletableDeferred<Unit>()
+        val fake = FakeDraftRepository().apply { addGate = gate }
+        var reads = 0
+        val slow =
+            object : DraftRepository by fake {
+                override fun draft(key: DraftKey): Flow<Draft?> = if (reads++ == 0) emptyFlow() else fake.draft(key)
+            }
+        val vm = WriteViewModel(WriteTarget.New(), slow, clock, TimeZone.UTC)
+        val events = events(vm)
+        advanceUntilIdle()
+        vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }))
+        advanceUntilIdle()
+
+        vm.close()
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = true)), events)
     }
 
     @Test

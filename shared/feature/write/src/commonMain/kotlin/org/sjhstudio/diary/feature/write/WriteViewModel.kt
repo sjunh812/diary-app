@@ -585,7 +585,7 @@ class WriteViewModel(
             photoWork.toList().joinAll()
             val edit = key as? DraftKey.Edit
             when {
-                !currentDraft().canSave() -> {
+                !withStoredPhotos(currentDraft()).canSave() -> {
                     if (stored) drafts.discard(key)
                     _events.send(WriteEvent.Closed(keptDraft = false))
                 }
@@ -604,6 +604,14 @@ class WriteViewModel(
             }
         }
     }
+
+    /**
+     * 화면이 아직 모르는 사진까지 넣은 임시 저장본.
+     * DB는 사진을 적은 뒤 조금 늦게 알려 준다.
+     * 화면 값만 보고 빈 글로 치면 방금 넣은 사진을 버린다.
+     */
+    private suspend fun withStoredPhotos(draft: Draft): Draft =
+        if (draft.photos.isEmpty() && stored) draft.copy(photos = drafts.draft(key).first()?.photos.orEmpty()) else draft
 
     /**
      * [버리기].
