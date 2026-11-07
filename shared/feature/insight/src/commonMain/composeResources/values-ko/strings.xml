@@ -20,11 +20,11 @@
     <string name="insight_mood_join">%1$s, %2$s</string>
     <string name="insight_summary_counts">%1$s · %2$s</string>
     <string name="insight_count_percent">%1$d편 · %2$d%</string>
-    <string name="insight_year_map">올해 하루하루의 기분</string>
+    <string name="insight_year_map">올해 날짜별 기분</string>
     <string name="insight_flow_week">날짜별 기분</string>
-    <string name="insight_flow_month">주별로 가장 많은 기분</string>
-    <string name="insight_flow_all">연도별로 가장 많은 기분</string>
-    <string name="insight_flow_year">월별로 가장 많은 기분</string>
+    <string name="insight_flow_month">주별 기분</string>
+    <string name="insight_flow_all">연도별 기분</string>
+    <string name="insight_flow_year">월별 기분</string>
     <string name="insight_week_number">%1$d주</string>
     <plurals name="insight_entry_count">
         <item quantity="other">일기 %1$d편</item>
@@ -55,7 +55,7 @@
     <string name="insight_adv_change_recent">이전 30일과 비교</string>
     <string name="insight_adv_change_year">작년 이맘때와 비교</string>
     <string name="insight_adv_change_good">좋은 기분</string>
-    <string name="insight_adv_when">기분이 많았던 때</string>
+    <string name="insight_adv_when">이 기분이 많았던 때</string>
     <string name="insight_adv_tab_weekday">요일</string>
     <string name="insight_adv_tab_part">시간대</string>
     <string name="insight_adv_tab_weather">날씨</string>
@@ -89,9 +89,9 @@
     <string name="insight_section_days">날짜별 기분</string>
     <string name="insight_map_hint">한 칸이 하루예요. 색은 그날 고른 기분이에요.</string>
     <string name="tip_insight_mood">기분을 누르면 그 기분으로 쓴 일기를 모아 볼 수 있어요.</string>
-    <string name="insight_section_moods">기분별 일기</string>
+    <string name="insight_section_moods">자주 고른 기분</string>
     <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
-    <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 찾아 드려요.</string>
+    <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 보여 드려요.</string>
     <string name="insight_adv_recent_better">요즘 좋은 날이 많아졌어요</string>
     <string name="insight_adv_recent_harder">요즘 힘든 날이 많았네요</string>
     <string name="insight_adv_recent_steady">요즘은 평소와 비슷해요</string>
@@ -101,7 +101,7 @@
     <string name="insight_adv_recent_hard_up">그 전 30일보다 힘든 기분이 늘었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_recent_hard_down">그 전 30일보다 힘든 기분이 줄었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_change_hard">힘든 기분</string>
-    <string name="insight_adv_change_top">많이 고른 기분</string>
+    <string name="insight_adv_change_top">자주 고른 기분</string>
     <string name="insight_adv_change_before">%1$s →</string>
     <string name="insight_adv_tone_note_hard">화남, 슬픔, 나쁨, 아픔, 피곤을 고른 일기의 비율이에요.</string>
     <string name="insight_adv_unit_small">10000</string>
