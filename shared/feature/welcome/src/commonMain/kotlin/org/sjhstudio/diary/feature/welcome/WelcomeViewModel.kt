@@ -49,17 +49,22 @@ class WelcomeViewModel(
         viewModelScope.launch { _step.value = welcome.step() }
     }
 
-    fun letterRead() {
-        viewModelScope.launch {
-            welcome.letterRead()
-            _step.value = welcome.step()
-        }
-    }
+    fun letterRead() = pass(WelcomeStep.ONBOARDING_UPDATED) { welcome.letterRead() }
 
-    fun finish() {
+    fun finish() = pass(WelcomeStep.DONE) { welcome.onboardingFinished() }
+
+    /**
+     * 본 것을 적고 다음 화면으로 간다.
+     * 저장 공간이 차 적지 못해도 넘어간다.
+     * 다음에 앱을 열면 같은 화면을 다시 볼 뿐이고, 여기서 막히면 앱을 쓸 수 없다.
+     */
+    private fun pass(next: WelcomeStep, write: suspend () -> Unit) {
         viewModelScope.launch {
-            welcome.onboardingFinished()
-            _step.value = welcome.step()
+            _step.value =
+                runCatching {
+                    write()
+                    welcome.step()
+                }.onFailure { if (it is CancellationException) throw it }.getOrDefault(next)
         }
     }
 

@@ -19,4 +19,5 @@
     <string name="reward_failed_title">Couldn't get your ad-free day</string>
     <string name="reward_failed_body">The video didn't load or wasn't watched to the end. Please try again in a little while.</string>
     <string name="ad_close">Close ad</string>
+    <string name="write_failed">Couldn't save. Check your phone's storage.</string>
 </resources>

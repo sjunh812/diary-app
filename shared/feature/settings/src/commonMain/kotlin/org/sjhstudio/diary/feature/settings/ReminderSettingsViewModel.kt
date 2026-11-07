@@ -15,6 +15,7 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.launchWrite
 
 /**
  * 매일 알림(R1) 상태.
@@ -52,7 +53,7 @@ class ReminderSettingsViewModel(
     }
 
     fun setEnabled(enabled: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launchWrite {
             settings.setReminder(enabled, state.value.minuteOfDay)
             reminder.reschedule()
         }
@@ -62,7 +63,7 @@ class ReminderSettingsViewModel(
     }
 
     fun setTime(minuteOfDay: Int) {
-        viewModelScope.launch {
+        viewModelScope.launchWrite {
             settings.setReminder(enabled = true, minuteOfDay = minuteOfDay)
             reminder.reschedule()
         }

@@ -53,7 +53,6 @@ import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
 import org.sjhstudio.diary.feature.settings.resources.settings_plus
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
-import org.sjhstudio.diary.feature.settings.resources.settings_plus_active
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_badge
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_title

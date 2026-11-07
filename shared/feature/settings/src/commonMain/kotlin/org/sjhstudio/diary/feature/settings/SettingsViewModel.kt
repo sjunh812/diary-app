@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.launchWrite
 
 /** 설정 목록(S6)과 본문 글자 크기(G2)·화면 모드(G3)가 보는 값. */
 data class SettingsUiState(
@@ -39,16 +40,16 @@ class SettingsViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState(showsMigrationReport = migrationReport))
 
     fun setBodyTextSize(size: BodyTextSize) {
-        viewModelScope.launch { settings.setBodyTextSize(size) }
+        viewModelScope.launchWrite { settings.setBodyTextSize(size) }
         changed("text_size", size.id)
     }
 
     fun setListStyle(style: ListStyle) {
-        viewModelScope.launch { settings.setListStyle(style) }
+        viewModelScope.launchWrite { settings.setListStyle(style) }
     }
 
     fun setThemeMode(mode: ThemeMode) {
-        viewModelScope.launch { settings.setThemeMode(mode) }
+        viewModelScope.launchWrite { settings.setThemeMode(mode) }
         changed("theme", mode.id)
     }
 

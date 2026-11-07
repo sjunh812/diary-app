@@ -21,6 +21,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.BUNDLED_DIARY_FONTS
+import org.sjhstudio.diary.core.ui.launchWrite
 
 /**
  * 글꼴(G1) 상태.
@@ -91,7 +92,7 @@ class FontSettingsViewModel(
     }
 
     private fun apply(font: DiaryFont) {
-        viewModelScope.launch { settings.setFont(font) }
+        viewModelScope.launchWrite { settings.setFont(font) }
         // 글꼴 ID만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
         telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "font", "value" to font.id))
     }

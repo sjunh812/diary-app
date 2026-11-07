@@ -17,7 +17,12 @@ class InterstitialPlaceTest {
     fun it_shows_on_the_lists() {
         assertTrue(interstitialMayShow(listOf(HomeKey)))
         assertTrue(interstitialMayShow(listOf(CalendarKey)))
-        assertTrue(interstitialMayShow(listOf(InsightKey)))
+    }
+
+    /** 돌아보기는 일기 목록이 아니다. 저장 뒤 레일로 옮겨 간 태블릿에서도 뜨지 않는다. */
+    @Test
+    fun it_never_shows_on_insight() {
+        assertFalse(interstitialMayShow(listOf(InsightKey)))
     }
 
     @Test

@@ -89,6 +89,7 @@ import org.sjhstudio.diary.app.resources.tab_home
 import org.sjhstudio.diary.app.resources.tab_insight
 import org.sjhstudio.diary.app.resources.tab_settings
 import org.sjhstudio.diary.app.resources.write_draft_kept
+import org.sjhstudio.diary.app.resources.write_failed
 import org.sjhstudio.diary.app.resources.write_new
 import org.sjhstudio.diary.app.resources.write_saved
 import org.sjhstudio.diary.app.settings.settingsEntries
@@ -117,6 +118,8 @@ import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.LocalTabReselect
+import org.sjhstudio.diary.core.ui.WriteFailures
+import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
@@ -281,10 +284,11 @@ private val TabBarSpace =
     })
 
 /**
- * 저장 뒤 전면 광고를 띄워도 되는 자리. 탭의 맨 위 목록으로 돌아왔을 때만이다.
+ * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력의 목록으로 돌아왔을 때만이다.
  * 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있는데 설정에는 광고가 없다(헌법 III). 다음에 목록으로 갈 때까지 미룬다.
  */
-internal fun interstitialMayShow(backStack: List<NavKey>): Boolean = backStack.size == 1 && backStack.last() != SettingsKey
+internal fun interstitialMayShow(backStack: List<NavKey>): Boolean =
+    backStack.size == 1 && (backStack.last() == HomeKey || backStack.last() == CalendarKey)
 
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
 private enum class Message { Saved, DraftKept }
@@ -307,6 +311,8 @@ private fun ContentWithToast(
         val undo = stringResource(Res.string.detail_trashed_undo)
         val entries = koinInject<EntryRepository>()
         val scope = rememberCoroutineScope()
+        val writeFailed = stringResource(Res.string.write_failed)
+        LaunchedEffect(toast) { WriteFailures.events.collect { toast.show(writeFailed) } }
         Content(
             nav,
             twoPane,
@@ -315,7 +321,7 @@ private fun ContentWithToast(
             notify = { message -> scope.launch { toast.show(if (message == Message.Saved) saved else draftKept) } },
             onTrashed = { id ->
                 // 알림이 사라진 뒤에도 앱 틀은 그대로라 화면이 닫혀도 되돌릴 수 있다.
-                scope.launch { if (toast.show(trashed, undo) == DiaryToastResult.ActionPerformed) entries.restore(id) }
+                scope.launchWrite { if (toast.show(trashed, undo) == DiaryToastResult.ActionPerformed) entries.restore(id) }
             }
         )
         val density = LocalDensity.current

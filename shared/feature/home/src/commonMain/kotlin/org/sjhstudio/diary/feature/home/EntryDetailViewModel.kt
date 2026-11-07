@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.launchWrite
 
 /**
  * 상세 화면이 보는 일기.
@@ -66,15 +67,15 @@ class EntryDetailViewModel(
 
     fun toggleFavorite() {
         val entry = (state.value as? EntryDetailState.Ready)?.detail?.entry ?: return
-        viewModelScope.launch { entries.setFavorite(entryId, !entry.isFavorite) }
+        viewModelScope.launchWrite { entries.setFavorite(entryId, !entry.isFavorite) }
     }
 
     fun toggleCheck(index: Int) {
-        viewModelScope.launch { entries.toggleCheck(entryId, index) }
+        viewModelScope.launchWrite { entries.toggleCheck(entryId, index) }
     }
 
     fun dismissKeptBoth() {
-        viewModelScope.launch { entries.clearKeptBoth(entryId) }
+        viewModelScope.launchWrite { entries.clearKeptBoth(entryId) }
     }
 
     /**
@@ -84,12 +85,12 @@ class EntryDetailViewModel(
      */
     fun keepThisVersion() {
         val other = (state.value as? EntryDetailState.Ready)?.detail?.keptBothWith ?: return
-        viewModelScope.launch { entries.moveToTrash(other) }
+        viewModelScope.launchWrite { entries.moveToTrash(other) }
     }
 
     fun moveToTrash() {
         leaving.value = true
-        viewModelScope.launch {
+        viewModelScope.launchWrite {
             entries.moveToTrash(entryId)
             _trashed.send(Unit)
         }

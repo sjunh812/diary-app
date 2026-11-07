@@ -25,6 +25,7 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.launchWrite
 
 /**
  * 홈 목록(FR-015~FR-018, FR-021).
@@ -61,15 +62,15 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     }
 
     fun moveToTrash(id: String, onDone: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launchWrite {
             entries.moveToTrash(id)
             onDone()
         }
     }
 
     fun toggleFavorite(id: String) {
-        viewModelScope.launch {
-            val entry = entries.entry(id).first()?.entry ?: return@launch
+        viewModelScope.launchWrite {
+            val entry = entries.entry(id).first()?.entry ?: return@launchWrite
             entries.setFavorite(id, !entry.isFavorite)
         }
     }
