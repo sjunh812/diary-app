@@ -7,7 +7,7 @@ import CoreText
 let args = CommandLine.arguments
 _ = NSApplication.shared
 let source = args[1], output = args[2], fonts = args[3]
-for name in ["pretendard_bold.otf", "pretendard_medium.otf"] {
+for name in ["changwon_round_regular.otf"] {
     CTFontManagerRegisterFontsForURL(URL(fileURLWithPath: "\(fonts)/\(name)") as CFURL, .process, nil)
 }
 
@@ -36,14 +36,20 @@ func canvas(_ width: Int, _ height: Int, _ draw: () -> Void) -> NSBitmapImageRep
     return NSBitmapImageRep(cgImage: context.makeImage()!)
 }
 
-func text(_ string: String, _ size: CGFloat, _ weight: String, _ tint: NSColor, _ rect: NSRect, _ align: NSTextAlignment, accented: String? = nil) {
+func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ align: NSTextAlignment, accented: String? = nil) {
     let style = NSMutableParagraphStyle()
     style.alignment = align
     style.lineHeightMultiple = 1.16
-    let font = NSFont(name: "Pretendard-\(weight)", size: size) ?? NSFont.boldSystemFont(ofSize: size)
-    let label = NSMutableAttributedString(string: string, attributes: [.font: font, .foregroundColor: tint, .paragraphStyle: style])
+    // 앱 화면과 같은 글꼴을 쓴다.
+    // 이 글꼴은 굵기가 하나뿐이라 윤곽선을 살짝 둘러 제목 무게를 낸다.
+    let font = NSFont(name: "ChangwonDangamRound-Regular", size: size) ?? NSFont.boldSystemFont(ofSize: size)
+    let label = NSMutableAttributedString(
+        string: string,
+        attributes: [.font: font, .foregroundColor: tint, .strokeColor: tint, .strokeWidth: -1.6, .paragraphStyle: style]
+    )
     if let accented, let range = string.range(of: accented) {
-        label.addAttribute(.foregroundColor, value: accent, range: NSRange(range, in: string))
+        let span = NSRange(range, in: string)
+        label.addAttributes([.foregroundColor: accent, .strokeColor: accent], range: span)
     }
     label.draw(in: rect)
 }
@@ -98,7 +104,7 @@ let slides: [(String, String, String)] = [
 ]
 for (index, (name, words, word)) in slides.enumerated() {
     let rep = canvas(1080, 1920) {
-        text(words, 88, "Bold", ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
+        text(words, 88, ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
         // 첫 장은 아래쪽 기분 시트까지 보이게 화면 전체를 넣는다.
         if name == "write" {
             phone(name, NSRect(x: 215, y: 40, width: 650, height: 1400), 56)
@@ -110,8 +116,8 @@ for (index, (name, words, word)) in slides.enumerated() {
 }
 
 let feature = canvas(1024, 500) {
-    text("바쁜 날에도\n일기를 남겨 봐요", 60, "Bold", ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
-    text("회원가입 없이, 사진까지 내 드라이브에", 25, "Medium", weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
+    text("바쁜 날에도\n일기를 남겨 봐요", 60, ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
+    text("회원가입 없이, 사진까지 내 드라이브에", 25, weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
     // 피처 그래픽에는 기기 틀을 넣지 않는다(Play 안내).
     phone("list", NSRect(x: 640, y: -640, width: 300, height: 1040), 26, bezel: false)
 }
