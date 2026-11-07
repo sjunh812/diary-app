@@ -25,13 +25,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -81,6 +81,7 @@ import org.sjhstudio.diary.core.ui.byteSize
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
+import org.sjhstudio.diary.core.ui.rememberOpenLink
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.restore_contact
@@ -127,6 +128,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_lock_title
 import org.sjhstudio.diary.feature.backup.resources.restore_merge
 import org.sjhstudio.diary.feature.backup.resources.restore_merging_body
 import org.sjhstudio.diary.feature.backup.resources.restore_needs_update
+import org.sjhstudio.diary.feature.backup.resources.restore_no_mail
 import org.sjhstudio.diary.feature.backup.resources.restore_no_space
 import org.sjhstudio.diary.feature.backup.resources.restore_not_in_backup
 import org.sjhstudio.diary.feature.backup.resources.restore_note_both
@@ -688,10 +690,19 @@ private fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onP
             fill = false
         )
         DiarySettingsRow(stringResource(Res.string.restore_pick_other), onClick = onPickOther, leadingIcon = DiaryIcons.History)
-        val links = LocalUriHandler.current
+        val openLink = rememberOpenLink()
+        var noMail by rememberSaveable { mutableStateOf(false) }
         DiarySettingsRow(stringResource(Res.string.restore_contact), onClick = {
-            links.openUri(SUPPORT_MAIL)
+            // 메일 앱이 없으면 보낼 곳을 글로 알린다.
+            noMail = !openLink(SUPPORT_MAIL)
         }, leadingIcon = DiaryIcons.Mail)
+        if (noMail) {
+            BasicText(
+                stringResource(Res.string.restore_no_mail, SUPPORT_ADDRESS),
+                style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary),
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
+            )
+        }
     }
     Bottom { DiaryButton(stringResource(Res.string.restore_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge) }
 }
@@ -865,4 +876,5 @@ private const val LOADING_VALUES = 4
 private const val LOADING_TITLE_WIDTH = 0.42f
 private const val LOADING_BODY_WIDTH = 0.3f
 private const val LOADING_HERO_WIDTH = 0.5f
-private const val SUPPORT_MAIL = "mailto:sjunh812@naver.com"
+private const val SUPPORT_ADDRESS = "sjunh812@naver.com"
+private const val SUPPORT_MAIL = "mailto:$SUPPORT_ADDRESS"

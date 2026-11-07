@@ -66,7 +66,9 @@ class AlarmReceiver :
         }
     }
 
-    private fun showReminder(context: Context) {
+    private fun showReminder(app: Context) {
+        // 앱 언어를 따로 고른 사람에게도 그 언어로 알린다. 수신기의 기본 문맥은 시스템 언어다.
+        val context = ContextCompat.getContextForLanguage(app)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {

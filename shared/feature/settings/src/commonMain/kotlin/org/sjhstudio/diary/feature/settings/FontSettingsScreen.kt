@@ -70,25 +70,13 @@ fun FontSettingsScreen(state: FontUiState, onSelect: (DiaryFont) -> Unit, onBack
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_font), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
-            Column(
-                Modifier
-                    .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4)
-                    .fillMaxWidth()
-                    .clip(DiaryShapes.r16)
-                    .background(colors.sunken)
-                    .padding(DiarySpacing.x5),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
-            ) {
-                BasicText(
-                    stringResource(Res.string.font_preview_label),
-                    style = DiaryTheme.typography.caption.copy(color = colors.textSecondary)
-                )
-                val installedFamily = rememberFileFontFamily(state.installedPaths[selected])
-                BasicText(
-                    stringResource(Res.string.font_preview_sample),
-                    style = diaryBodyTextStyle(selected, state.settings.bodyTextSize) { installedFamily }.copy(color = colors.textPrimary)
-                )
-            }
+            val installedFamily = rememberFileFontFamily(state.installedPaths[selected])
+            PreviewBox(
+                stringResource(Res.string.font_preview_label),
+                stringResource(Res.string.font_preview_sample),
+                diaryBodyTextStyle(selected, state.settings.bodyTextSize) { installedFamily },
+                Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4)
+            )
             for (font in FONT_ORDER) FontRow(font, state, selected == font) { onSelect(font) }
         }
     }

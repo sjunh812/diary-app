@@ -49,6 +49,10 @@
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>mailto</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera is used only to add a photo you take to your diary.</string>
 	<key>NSFaceIDUsageDescription</key>

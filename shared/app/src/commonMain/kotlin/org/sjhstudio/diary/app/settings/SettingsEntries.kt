@@ -59,6 +59,7 @@ import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
 import org.sjhstudio.diary.core.ui.LegalLinks
+import org.sjhstudio.diary.core.ui.rememberOpenLink
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
@@ -110,13 +111,14 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val scope = rememberCoroutineScope()
         val device = remember { deviceInfo() }
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
+        val openLink = rememberOpenLink()
         Box(Modifier.fillMaxSize()) {
             SettingsScreen(
                 state,
                 appVersion = app.versionName,
                 onFeedback = {
                     // 메일 앱이 없는 기기에서도 보낼 곳을 알 수 있게 한다.
-                    runCatching { links.openUri(feedback.url) }.onFailure { scope.launch { toast.show(feedback.noMail) } }
+                    if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
                 onRate = storeReviewUrl(app.platform)?.let { url -> { links.openUri(url) } },
                 plusActive = plan == Plan.PLUS,

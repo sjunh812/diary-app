@@ -244,4 +244,5 @@
     <string name="backup_connect_failed_auth">Googleアカウントを確認できませんでした。しばらくしてからもう一度お試しください。</string>
     <string name="backup_connect_failed_other">しばらくしてからもう一度お試しください。</string>
     <string name="backup_connect_failed_close">OK</string>
+    <string name="restore_no_mail">メールアプリが見つかりません。%1$s までお送りください。</string>
 </resources>

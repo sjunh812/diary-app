@@ -22,7 +22,10 @@ class AdStore(private val dataStore: DataStore<Preferences>) {
 
     suspend fun current(): AdPrefs = prefs.first()
 
-    suspend fun interstitialShown(day: String) = dataStore.edit { it[LAST_INTERSTITIAL] = day }
+    /** [day]가 null이면 기록을 지운다. */
+    suspend fun interstitialShown(day: String?) = dataStore.edit { prefs ->
+        if (day == null) prefs.remove(LAST_INTERSTITIAL) else prefs[LAST_INTERSTITIAL] = day
+    }
 
     suspend fun rewardUntil(until: Instant) = dataStore.edit { it[REWARD_UNTIL] = until.toEpochMilliseconds() }
 

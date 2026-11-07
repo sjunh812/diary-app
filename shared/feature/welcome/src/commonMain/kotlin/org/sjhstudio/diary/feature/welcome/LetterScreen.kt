@@ -253,7 +253,7 @@ private fun Promise(text: String) {
     val colors = DiaryTheme.colors
     val body = DiaryTheme.typography.body
     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-        FirstLineIcon(DiaryIcons.CircleCheck, body, colors.accentText)
+        FirstLineIcon(DiaryIcons.CircleCheck, body, colors.textSecondary)
         BasicText(text, Modifier.weight(1f), style = body.copy(color = colors.textPrimary))
     }
 }

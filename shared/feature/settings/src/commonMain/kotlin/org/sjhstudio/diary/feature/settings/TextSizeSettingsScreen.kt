@@ -68,21 +68,12 @@ fun TextSizeSettingsScreen(
                 .padding(horizontal = LocalScreenGutter.current),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
         ) {
-            Column(
-                Modifier.padding(
-                    top = DiarySpacing.x4
-                ).fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x5),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
-            ) {
-                BasicText(
-                    dates.fullDate(sampleDate),
-                    style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
-                )
-                BasicText(
-                    stringResource(Res.string.text_size_sample_body),
-                    style = diaryBodyTextStyle(font, selected).copy(color = colors.textPrimary)
-                )
-            }
+            PreviewBox(
+                dates.fullDate(sampleDate),
+                stringResource(Res.string.text_size_sample_body),
+                diaryBodyTextStyle(font, selected),
+                Modifier.padding(top = DiarySpacing.x4)
+            )
             Row(Modifier.fillMaxWidth()) {
                 for (size in BodyTextSize.entries) SizeStep(size, selected == size, Modifier.weight(1f)) { onSelect(size) }
             }

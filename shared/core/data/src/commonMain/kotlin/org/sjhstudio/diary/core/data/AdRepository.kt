@@ -100,10 +100,18 @@ class AdRepository(
      */
     suspend fun backToList() {
         onceStarted(Unit) {
-            if (interstitialDue() && player.showInterstitial()) {
-                val day = today()
-                shownDay = day
-                store.interstitialShown(day)
+            if (!interstitialDue()) return@onceStarted
+            // 띄우기 전에 적는다. 광고를 보는 중에 앱이 꺼져도 같은 날 또 뜨지 않는다.
+            // 공간이 차서 적지 못해도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킨다.
+            val day = today()
+            val before = orElseOnFailure(null) { store.current().lastInterstitialDay }
+            val beforeHere = shownDay
+            shownDay = day
+            orElseOnFailure(Unit) { store.interstitialShown(day) }
+            if (!player.showInterstitial()) {
+                // 띄우지 못했으면 다음에 돌아올 때 다시 띄울 수 있게 되돌린다.
+                shownDay = beforeHere
+                orElseOnFailure(Unit) { store.interstitialShown(before) }
             }
         }
     }

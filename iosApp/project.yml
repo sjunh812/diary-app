@@ -92,6 +92,9 @@ targets:
           - processing
         # Compose가 시작할 때 이 키를 본다. 없으면 앱이 바로 꺼진다(ProMotion 120Hz 화면).
         CADisableMinimumFrameDurationOnPhone: true
+        # 의견 메일을 열 메일 앱이 있는지 묻는다.
+        LSApplicationQueriesSchemes:
+          - mailto
         # 표준 HTTPS만 쓴다. 없으면 TestFlight 빌드마다 수출 규정 질문에서 멈춘다.
         ITSAppUsesNonExemptEncryption: false
         # 아이폰은 세로로만 쓴다. 눕히면 안전 영역이 레일 폭을 다 먹어 탭을 옮길 수 없다.

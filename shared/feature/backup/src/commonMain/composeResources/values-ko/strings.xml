@@ -244,4 +244,5 @@
     <string name="backup_connect_failed_auth">구글 계정을 확인하지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
     <string name="backup_connect_failed_other">잠시 뒤 다시 시도해 주세요.</string>
     <string name="backup_connect_failed_close">확인</string>
+    <string name="restore_no_mail">메일 앱을 찾지 못했어요. %1$s로 보내 주세요.</string>
 </resources>

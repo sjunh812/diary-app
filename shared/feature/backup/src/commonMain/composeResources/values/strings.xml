@@ -247,4 +247,5 @@
     <string name="backup_connect_failed_auth">Couldn't verify your Google account. Try again in a moment.</string>
     <string name="backup_connect_failed_other">Try again in a moment.</string>
     <string name="backup_connect_failed_close">OK</string>
+    <string name="restore_no_mail">No mail app found. Please write to %1$s.</string>
 </resources>

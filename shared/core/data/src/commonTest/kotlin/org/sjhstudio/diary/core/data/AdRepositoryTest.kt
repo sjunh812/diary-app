@@ -32,6 +32,7 @@ class AdRepositoryTest {
         var prepared = 0
         var reward = true
         var ready = true
+        var dayWhileShowing: String? = null
         override val available = true
 
         override fun prepareInterstitial() {
@@ -40,6 +41,7 @@ class AdRepositoryTest {
 
         override suspend fun showInterstitial(): Boolean {
             if (!ready) return false
+            dayWhileShowing = store.current().lastInterstitialDay
             shown++
             return true
         }
@@ -162,6 +164,22 @@ class AdRepositoryTest {
         player.ready = true
         repository.backToList()
         assertEquals(1, player.shown)
+    }
+
+    /** 광고를 보는 중에 앱이 꺼져도 오늘 본 것으로 이미 적혀 있다. 다시 열었을 때 또 뜨지 않는다. */
+    @Test
+    fun the_day_is_written_before_the_ad_shows() = runTest {
+        repo().backToList()
+
+        assertEquals("2026-11-05", player.dayWhileShowing)
+    }
+
+    @Test
+    fun an_ad_that_could_not_show_leaves_no_record() = runTest {
+        player.ready = false
+        repo().backToList()
+
+        assertEquals(null, store.current().lastInterstitialDay)
     }
 
     @Test
