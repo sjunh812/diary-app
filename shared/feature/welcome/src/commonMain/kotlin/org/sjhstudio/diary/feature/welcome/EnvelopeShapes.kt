@@ -30,12 +30,6 @@ internal fun softPoint(width: Float, baseY: Float, tipY: Float) = Path().apply {
 }
 
 /**
- * 곡선까지 지난 덮개 끝의 실제 높이.
- * 봉인은 이 자리에 앉는다.
- */
-internal fun softTip(tip: Float) = tip * (1f + TIP_ROUND_FROM) / 2
-
-/**
  * 종이 한 겹이 아래 겹에 드리우는 옅은 그림자.
  * 선 대신 그림자로 겹을 나눠야 종이처럼 보인다.
  */
