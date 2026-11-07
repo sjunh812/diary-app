@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 private const val TIP_ROUND_FROM = 0.72f
 
 /** 겹 그림자 한 층의 진하기. */
-private const val SHADOW_ALPHA = 0.014f
+private const val SHADOW_ALPHA = 0.022f
 
 /** 그림자 층 수. 많이 겹쳐야 띠가 보이지 않고 번진다. */
 private const val SHADOW_STEPS = 8

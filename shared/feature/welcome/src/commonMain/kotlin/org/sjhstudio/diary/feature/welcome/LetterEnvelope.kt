@@ -79,7 +79,7 @@ private const val POCKET_DEPTH = 0.5f
 private const val LOWER_TIP = 0.4f
 
 /** 아래 날개는 종이가 맞닿아 있어 덮개보다 그림자가 훨씬 옅다. */
-private const val LOWER_SHADOW = 0.3f
+private const val LOWER_SHADOW = 0.6f
 
 /**
  * 열리는 진행 값의 구간.
