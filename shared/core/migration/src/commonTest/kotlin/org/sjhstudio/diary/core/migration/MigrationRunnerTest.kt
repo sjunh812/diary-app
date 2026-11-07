@@ -32,88 +32,11 @@ import org.sjhstudio.diary.core.testing.TestClock
 
 // docs/migration.md "시험"과 contracts/migration-flow.md 단계(스펙 001 T037).
 class MigrationRunnerTest {
-    private class Env(val dir: TempDir) {
-        val clock = TestClock()
-        var ids = 0
-        var free = Long.MAX_VALUE
-        val legacy =
-            LegacyFiles(
-                noteDb = dir.root / "databases" / "note.db",
-                prefXml = dir.root / "shared_prefs" / "pref.xml",
-                pref2Xml = dir.root / "shared_prefs" / "pref2.xml"
-            )
-        val paths =
-            MigrationPaths(
-                legacy = legacy,
-                snapshotDir = dir.root / "files" / "legacy-snapshot",
-                migrationDir = dir.root / "files" / "migration",
-                mediaDir = dir.root / "files" / "media",
-                databasePath = dir.root / "databases" / "diary.db"
-            )
-
-        fun open(path: String): DiaryDatabase = Room
-            .databaseBuilder(path, DiaryDatabaseConstructor::initialize)
-            .configured()
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .build()
-
-        fun runner(
-            versionCode: Int = 37,
-            makeThumbnail: (suspend (Path) -> Boolean)? = null,
-            openDb: (String) -> DiaryDatabase = ::open,
-            events: MigrationEvents = object : MigrationEvents {}
-        ) = MigrationRunner(
-            fileSystem = dir.fs,
-            paths = paths,
-            clock = clock,
-            timeZone = TimeZone.of("Asia/Seoul"),
-            newId = { "id-${ids++}" },
-            freeBytes = { free },
-            openDatabase = openDb,
-            imageSize = { 100 to 50 },
-            versionCode = versionCode,
-            makeThumbnail = makeThumbnail,
-            events = events
-        )
-
-        /**
-         * 검증에 들어설 때 [action]을 한다.
-         * 복사와 검증 사이에 무언가 어긋난 상황을 만든다.
-         */
-        fun onVerifying(action: () -> Unit) = object : MigrationEvents {
-            override fun stepStarted(step: MigrationStep) {
-                if (step == MigrationStep.VERIFYING) action()
-            }
-        }
-
-        /** 사진 목록의 해시를 바꿔 그 사진이 든 일기의 지문이 어긋나게 한다. */
-        fun breakFingerprints() {
-            val list = paths.photosJson
-            val text = dir.fs.read(list) { readUtf8() }
-            dir.fs.write(list) { writeUtf8(text.replace(Regex("\"sha256\":\"[0-9a-f]{64}\""), "\"sha256\":\"${"0".repeat(64)}\"")) }
-        }
-
-        /** [photo]의 해시만 목록에서 바꿔 그 사진이 든 일기 하나의 지문을 어긋나게 한다. */
-        fun breakFingerprintOf(photo: Path) {
-            val text = dir.fs.read(paths.photosJson) { readUtf8() }
-            dir.fs.write(paths.photosJson) { writeUtf8(text.replace(sha(photo), "0".repeat(64))) }
-        }
-
-        fun restoreFingerprintOf(photo: Path) {
-            val text = dir.fs.read(paths.photosJson) { readUtf8() }
-            dir.fs.write(paths.photosJson) { writeUtf8(text.replace("0".repeat(64), sha(photo))) }
-        }
-
-        fun photo(name: String, bytes: ByteArray): Path = dir.write("cache/$name", bytes)
-
-        fun sha(path: Path) = LegacySnapshotter(dir.fs, clock).sha256(path)
-    }
-
     private val jpeg = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 1, 2, 3)
     private val png = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 9, 9)
 
     /** 이전 뒤 사용자가 새로 쓴 일기. */
-    private fun Env.written() = Entry(
+    private fun MigrationEnv.written() = Entry(
         "mine",
         LocalDate(
             2026,
@@ -123,7 +46,7 @@ class MigrationRunnerTest {
         LocalTime(9, 0), "<p>새 일기</p>", "새 일기", null, null, null, false, clock.now(), clock.now()
     )
 
-    private fun Env.writePrefs() {
+    private fun MigrationEnv.writePrefs() {
         dir.write(
             "shared_prefs/pref.xml",
             "<map>\n    <string name=\"password\">1234</string>\n    <int name=\"font_key\" value=\"1\" />\n</map>\n"
@@ -133,7 +56,7 @@ class MigrationRunnerTest {
     @Test
     fun fresh_install_has_nothing_to_migrate_and_writes_no_state() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             assertIs<MigrationResult.NoLegacy>(env.runner().run())
             assertFalse(dir.fs.exists(env.paths.migrationDir / "state.json"))
             assertFalse(env.runner().needsMigration())
@@ -143,7 +66,7 @@ class MigrationRunnerTest {
     @Test
     fun migrates_entries_and_photos_and_keeps_originals_unchanged() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val a = env.photo("a.jpg", jpeg)
             val b = env.photo("b", png)
             env.writePrefs()
@@ -212,7 +135,7 @@ class MigrationRunnerTest {
     @Test
     fun zero_entries_finishes_without_a_result_screen() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             LegacyFixtures.create(env.legacy.noteDb, emptyList()).close()
             val result = assertIs<MigrationResult.Finished>(env.runner().run())
             assertFalse(result.showResult)
@@ -224,7 +147,7 @@ class MigrationRunnerTest {
     fun interrupted_steps_start_over_and_leftovers_are_removed() = runTest {
         for (step in listOf(MigrationStep.SNAPSHOTTING, MigrationStep.COPYING, MigrationStep.VERIFYING)) {
             TempDir().use { dir ->
-                val env = Env(dir)
+                val env = MigrationEnv(dir)
                 LegacyFixtures.create(env.legacy.noteDb, LegacyFixtures.manyRows(450)).close()
                 // 그 단계에서 프로세스가 죽은 상태를 만든다.
                 MigrationStateStore(dir.fs, env.paths.migrationDir).writeState(
@@ -243,7 +166,7 @@ class MigrationRunnerTest {
     @Test
     fun interrupted_after_rename_only_verifies_again() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             LegacyFixtures.create(env.legacy.noteDb, LegacyFixtures.manyRows(30)).close()
             assertIs<MigrationResult.Finished>(env.runner().run())
             val store = MigrationStateStore(dir.fs, env.paths.migrationDir)
@@ -259,7 +182,7 @@ class MigrationRunnerTest {
     @Test
     fun not_enough_space_does_not_start() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val photo = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$photo,"))).close()
             env.free = 10
@@ -278,7 +201,7 @@ class MigrationRunnerTest {
     @Test
     fun photos_wait_when_copying_would_leave_the_cache_at_risk() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val photo = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$photo,"))).close()
             // 복사할 자리는 충분하지만 OS가 캐시를 지우기 시작하는 선에 가깝다.
@@ -294,7 +217,7 @@ class MigrationRunnerTest {
     @Test
     fun failure_keeps_photo_copies_and_snapshot() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val photo = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$photo,"))).close()
             // 쓰기가 실패하는 DB: 열자마자 닫는다.
@@ -311,7 +234,7 @@ class MigrationRunnerTest {
     @Test
     fun partial_reads_again_once_after_an_update_and_keeps_new_entries() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val healthy = dir.root / "healthy.db"
             LegacyFixtures.create(healthy, LegacyFixtures.manyRows(2_000, contentLength = 300)).close()
             dir.fs.createDirectories(env.legacy.noteDb.parent!!)
@@ -355,7 +278,7 @@ class MigrationRunnerTest {
     @Test
     fun an_entry_that_fails_checking_is_left_out_and_the_rest_moves() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(
                 env.legacy.noteDb,
@@ -390,7 +313,7 @@ class MigrationRunnerTest {
     @Test
     fun nothing_moved_is_a_failure() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(
                 env.legacy.noteDb,
@@ -408,7 +331,7 @@ class MigrationRunnerTest {
     @Test
     fun deferred_migration_adds_old_entries_and_keeps_new_ones() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(
                 env.legacy.noteDb,
@@ -440,7 +363,7 @@ class MigrationRunnerTest {
     @Test
     fun deferred_retry_failure_stays_deferred_and_tries_after_an_update() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(
                 env.legacy.noteDb,
@@ -472,7 +395,7 @@ class MigrationRunnerTest {
     @Test
     fun a_broken_photo_file_keeps_the_entry() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(
                 env.legacy.noteDb,
@@ -501,7 +424,7 @@ class MigrationRunnerTest {
     @Test
     fun steps_are_announced_in_order() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00"))).close()
             val steps = mutableListOf<Pair<MigrationStep, MigrationStep>>()
             val runner =
@@ -534,7 +457,7 @@ class MigrationRunnerTest {
     @Test
     fun thumbnail_failures_are_counted_not_fatal() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val names = (1..8).map { "p$it.jpg" }
             val rows = names.mapIndexed { i, name ->
                 LegacyFixtures.Row(
@@ -577,7 +500,7 @@ class MigrationRunnerTest {
     @Test
     fun follow_up_does_not_open_the_diary_database_before_migration() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00"))).close()
             val result = MigrationFollowUp(env.runner()) { error("이전 전에는 일기 DB를 열지 않는다") }.run()
             assertEquals(FollowUpResult(), result)
@@ -588,7 +511,7 @@ class MigrationRunnerTest {
     @Test
     fun follow_up_finds_a_photo_that_came_back() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val later = dir.root / "cache" / "later.jpg"
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$later,"))).close()
             assertIs<MigrationResult.Finished>(env.runner().run())
@@ -605,7 +528,7 @@ class MigrationRunnerTest {
     @Test
     fun missing_photo_is_found_again_at_most_once_a_day() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val later = dir.root / "cache" / "later.jpg"
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$later,"))).close()
             assertEquals(1, assertIs<MigrationResult.Finished>(env.runner().run()).report.photosMissing)
@@ -627,18 +550,11 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 검증 단계에서 끊긴 이전. 사진 사본과 목록은 남고 일기는 아직 옮겨지지 않았다. */
-    private fun Env.failAtVerifying() = object : MigrationEvents {
-        override fun stepStarted(step: MigrationStep) {
-            check(step != MigrationStep.VERIFYING) { "끊김" }
-        }
-    }
-
     /** 캐시 원본은 OS가 언제든 지운다. 앞선 시도가 옮겨 둔 사본이 있으면 다시 시도가 그것을 쓴다(헌법 I). */
     @Test
     fun a_retry_uses_the_copy_when_the_cached_original_is_gone() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             val sha = env.sha(picture)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$picture,"))).close()
@@ -666,7 +582,7 @@ class MigrationRunnerTest {
     @Test
     fun a_retry_finds_a_copy_named_from_the_file_head() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("noext", png)
             val sha = env.sha(picture)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$picture,"))).close()
@@ -684,7 +600,7 @@ class MigrationRunnerTest {
     @Test
     fun a_retry_does_not_trust_a_damaged_copy() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             val sha = env.sha(picture)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$picture,"))).close()
@@ -703,7 +619,7 @@ class MigrationRunnerTest {
     @Test
     fun the_photo_list_is_written_while_copying() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             val rows = LegacyFixtures.manyRows(201).map { it.copy(picture = picture.toString()) }
             LegacyFixtures.create(env.legacy.noteDb, rows).close()
@@ -728,7 +644,7 @@ class MigrationRunnerTest {
     @Test
     fun reading_again_keeps_the_photos_already_listed() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val first = env.photo("a.jpg", jpeg)
             val second = env.photo("b.png", png)
             val rows =
@@ -757,7 +673,7 @@ class MigrationRunnerTest {
     @Test
     fun photo_copies_are_kept_until_every_old_entry_moved() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val picture = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(
                 env.legacy.noteDb,
@@ -782,7 +698,7 @@ class MigrationRunnerTest {
     @Test
     fun a_partial_migration_keeps_photo_copies() = runTest {
         TempDir().use { dir ->
-            val env = Env(dir)
+            val env = MigrationEnv(dir)
             val first = env.photo("a.jpg", jpeg)
             val second = env.photo("b.png", png)
             val rows =

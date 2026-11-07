@@ -4,6 +4,7 @@ import androidx.room3.useReaderConnection
 import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import okio.BufferedSink
@@ -78,7 +79,11 @@ class BundleExporter(
             val items =
                 listOf(BundleItem(README, dir / README), BundleItem(MANIFEST, dir / MANIFEST), BundleItem(SNAPSHOT, snapshot.path)) +
                     local.map { row -> row.fileName!!.let { BundleItem("$MEDIA/$it", mediaDir / it) } }
-            BundleWriter(fileSystem).write(sink, items) { done -> onProgress(done, items.size) }
+            BundleWriter(fileSystem).write(sink, items) { done ->
+                // 멈추라고 하면 다음 항목을 쓰지 않는다.
+                ensureActive()
+                onProgress(done, items.size)
+            }
             // 파일로만 주고받아도 다음 합치기가 한쪽만 고쳤는지 알아볼 수 있게 드라이브 백업처럼 적어 둔다.
             db.rememberBases(snapshot.path)
         } finally {

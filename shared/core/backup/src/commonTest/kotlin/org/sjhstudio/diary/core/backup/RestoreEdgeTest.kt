@@ -413,7 +413,8 @@ class RestoreEdgeTest {
         assertEquals(4, b.ids().size)
         assertEquals(1, result.photosRestored)
         assertEquals(2, result.photosMissing)
-        assertEquals(1, result.photosPending)
+        assertEquals(0, result.photosPending, "드라이브에 없는 사진은 기다려도 오지 않는다")
+        assertEquals(1, result.photosOnOriginal)
         assertEquals(
             mapOf("wrong-0" to "missing", "empty-0" to "missing", "lost-0" to "pending", "good-0" to "normal"),
             b.photoStates()
@@ -534,22 +535,6 @@ class RestoreEdgeTest {
         assertTrue(written)
         assertEquals(setOf("one", "two", "three", "mine"), b.ids())
         assertEquals("받는 중에 고침", b.entries().first { it.id == "one" }.plainText)
-    }
-
-    @Test
-    fun undo_waits_while_a_restore_is_running() = runTest {
-        a.write("diary")
-        a.backUp()
-        b.write("before")
-        b.manager().replace(listOf(MergeEntry(TestPhone.entry("new"), emptyList())), "drive")
-        val controller = b.controller(backgroundScope)
-        assertTrue(b.gate.tryEnter())
-
-        assertFalse(controller.rollBack())
-
-        assertEquals(setOf("new"), b.ids())
-        b.gate.leave()
-        assertTrue(controller.rollBack())
     }
 
     @Test

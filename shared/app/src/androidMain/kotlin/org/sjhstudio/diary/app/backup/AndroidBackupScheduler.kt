@@ -168,6 +168,8 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
 
     override suspend fun doWork(): Result {
         val restore = get<RestoreRepository>()
+        val waited = inputData.getBoolean(KEY_WAITED, false)
+        val earlier = restore.lastPhotoRun
         try {
             setForeground(foreground())
         } catch (_: IllegalStateException) {
@@ -181,16 +183,22 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
                         notifications.update(restoreProgressTitle(), restoreProgressText(it.done, it.total), it.done, it.total)
                     }
                 }
-            restore.resumePhotos()
+            val again = restore.resumePhotos()
             restore.photoProgress.first { it == null }
             updates.cancel()
             notifications.clear()
-            val finished = restore.lastPhotoRun
-            if (finished != null && !appIsVisible()) {
-                val text = restoreDoneText(finished.done >= finished.total)
-                BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)
+            if (waited && again && runAttemptCount < MAX_RESUMES) {
+                // 조건을 건 작업이라 네트워크가 돌아오면 시스템이 다시 부른다.
+                Result.retry()
+            } else {
+                // 기다리다 깨어난 작업은 이번에 받은 결과만 알린다.
+                val finished = restore.lastPhotoRun?.takeUnless { waited && it === earlier }
+                if (finished != null && !appIsVisible()) {
+                    val text = restoreDoneText(finished)
+                    BackupAlertPoster(applicationContext, backupChannelName()).show(text.first, text.second)
+                }
+                Result.success()
             }
-            Result.success()
         }
     }
 
@@ -231,6 +239,13 @@ class AndroidBackupNotifier(private val context: Context, private val clock: Clo
                 .setInputData(workDataOf(KEY_TITLE to title, KEY_BODY to body))
                 .build()
         manager.enqueueUniqueWork(ALERT, ExistingWorkPolicy.REPLACE, work)
+    }
+
+    // 7일 알림과 자리를 나눈다.
+    // 같은 작업 이름을 쓰면 예약해 둔 알림이 사라진다.
+    override fun show(title: String, body: String) {
+        val work = OneTimeWorkRequestBuilder<BackupAlertWorker>().setInputData(workDataOf(KEY_TITLE to title, KEY_BODY to body)).build()
+        manager.enqueueUniqueWork(NOTICE, ExistingWorkPolicy.REPLACE, work)
     }
 
     override fun cancel() {
@@ -291,8 +306,21 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
         manager.enqueueUniqueWork(RESTORE, ExistingWorkPolicy.KEEP, work)
     }
 
+    // 사용자가 모바일 데이터를 허용하면 앱을 열 때 바로 받으니 기다리는 작업을 바꾸지 않는다.
+    override fun waitForPhotoNetwork(wifiOnly: Boolean) {
+        val network = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
+        val work =
+            OneTimeWorkRequestBuilder<RestorePhotosWorker>()
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(network).build())
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, RETRY_MINUTES, TimeUnit.MINUTES)
+                .setInputData(workDataOf(KEY_WAITED to true))
+                .build()
+        manager.enqueueUniqueWork(RESTORE_WAIT, ExistingWorkPolicy.KEEP, work)
+    }
+
     private companion object {
         const val RESTORE = "backup.restore"
+        const val RESTORE_WAIT = "backup.restore.wait"
         const val DAILY = "backup.daily"
         const val NOW = "backup.now"
         const val PHOTOS = "backup.photos"
@@ -300,9 +328,11 @@ class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
 }
 
 private const val ALERT = "backup.alert"
+private const val NOTICE = "backup.notice"
 private const val KEY_TITLE = "title"
 private const val KEY_BODY = "body"
 private const val KEY_CELLULAR = "cellular"
+private const val KEY_WAITED = "waited"
 private const val START_WAIT_MILLIS = 3_000L
 private const val MAX_RESUMES = 8
 private const val RETRY_MINUTES = 1L

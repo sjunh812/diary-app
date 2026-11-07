@@ -66,7 +66,8 @@ class BackupFailureTest {
         val outcome = done()
 
         assertEquals(1, outcome.photosUploaded)
-        assertEquals(1, outcome.photosLeft)
+        assertEquals(0, outcome.photosLeft)
+        assertEquals(1, outcome.photosUnusable)
         assertNull(phone.store.current().lastFailure)
         assertEquals(0, phone.store.current().bytesShort)
         assertFalse(manifestAt(0).media.first { it.sha256 == gone }.inBackup)
@@ -82,7 +83,8 @@ class BackupFailureTest {
         val outcome = done()
 
         assertEquals(1, outcome.photosUploaded)
-        assertEquals(1, outcome.photosLeft)
+        assertEquals(0, outcome.photosLeft)
+        assertEquals(1, outcome.photosUnusable)
         assertEquals(setOf("$good.jpg"), photos().map { it.name }.toSet())
         assertFalse(manifestAt(0).media.first { it.sha256 == damaged }.inBackup)
         assertNull(phone.store.current().lastFailure)
@@ -97,8 +99,116 @@ class BackupFailureTest {
         val outcome = done()
 
         assertEquals(0, outcome.photosUploaded)
-        assertEquals(1, outcome.photosLeft)
+        assertEquals(0, outcome.photosLeft)
+        assertEquals(1, outcome.photosUnusable)
         assertTrue(photos().isEmpty())
+    }
+
+    // 기기에서 깨진 사진
+
+    /** 일기 하나에 사진 둘, 하나는 파일이 깨졌다. */
+    private suspend fun brokenPhoto(): String {
+        phone.write("diary")
+        phone.photo("diary", 0, "멀쩡한 사진")
+        val hash = phone.photo("diary", 1, "깨질 사진")
+        fs.write(phone.media / "$hash.jpg") { writeUtf8("다른 내용") }
+        return hash
+    }
+
+    @Test
+    fun a_broken_photo_is_counted_apart_and_is_not_waiting_for_wifi() = runTest {
+        val hash = brokenPhoto()
+
+        val outcome = assertIs<BackupOutcome.Done>(phone.runner().run())
+
+        assertEquals(0, outcome.photosLeft)
+        assertEquals(1, outcome.photosUnusable)
+        assertEquals(0, phone.store.current().photosNotBackedUp)
+        assertEquals(setOf(hash), phone.store.current().unusablePhotos)
+    }
+
+    @Test
+    fun a_photo_whose_file_is_gone_is_counted_the_same() = runTest {
+        val hash = brokenPhoto()
+        fs.delete(phone.media / "$hash.jpg")
+
+        val outcome = assertIs<BackupOutcome.Done>(phone.runner().run())
+
+        assertEquals(1, outcome.photosUnusable)
+    }
+
+    @Test
+    fun a_broken_photo_does_not_make_a_new_backup_every_day() = runTest {
+        brokenPhoto()
+        done()
+        val kept = manifests().map { it.name }
+
+        repeat(6) {
+            phone.clock.advance(1.days)
+            assertEquals(BackupOutcome.Unchanged, phone.runner().runIfChanged())
+        }
+
+        assertEquals(kept, manifests().map { it.name }, "같은 내용 백업이 지난 시점을 밀어냈다")
+    }
+
+    @Test
+    fun a_new_entry_still_backs_up_with_a_broken_photo_around() = runTest {
+        brokenPhoto()
+        done()
+        phone.clock.advance(1.days)
+        phone.write("new")
+
+        assertIs<BackupOutcome.Done>(phone.runner().runIfChanged())
+    }
+
+    @Test
+    fun backup_now_still_runs_with_a_broken_photo_around() = runTest {
+        brokenPhoto()
+        done()
+        phone.clock.advance(1.days)
+
+        assertIs<BackupOutcome.Done>(phone.runner().run())
+
+        assertEquals(2, manifests().size)
+    }
+
+    @Test
+    fun photos_waiting_for_wifi_do_not_make_a_new_backup_every_day() = runTest {
+        phone.write("diary")
+        phone.photo("diary", 0, "사진")
+        phone.network.isUnmetered = false
+        assertEquals(1, assertIs<BackupOutcome.Done>(phone.runner().run()).photosLeft)
+        val kept = manifests().map { it.name }
+
+        repeat(6) {
+            phone.clock.advance(1.days)
+            assertEquals(BackupOutcome.Unchanged, phone.runner().runIfChanged())
+        }
+
+        assertEquals(kept, manifests().map { it.name })
+        assertEquals(1, phone.store.current().photosNotBackedUp)
+    }
+
+    @Test
+    fun photos_that_do_not_fit_on_the_drive_do_not_make_a_new_backup_every_day() = runTest {
+        phone.write("diary")
+        phone.photo("diary", 0, "사진".repeat(1_000))
+        done()
+        drive.limit = drive.visible.sumOf { it.size ?: 0 } + 2 * 1024 * 1024
+        phone.photo("diary", 1, "큰 사진".repeat(1_000_000))
+        phone.db.entryDao().update(TestPhone.entry("diary", updated = 11))
+        val second = assertIs<BackupOutcome.Done>(phone.runner().runIfChanged())
+        assertEquals(1, second.photosLeft)
+        val kept = manifests().map { it.name }
+
+        repeat(3) {
+            phone.clock.advance(1.days)
+            assertEquals(BackupOutcome.Unchanged, phone.runner().runIfChanged())
+        }
+
+        assertEquals(kept, manifests().map { it.name })
+        assertEquals(BackupFailure.NO_SPACE, phone.store.current().lastFailure)
+        assertTrue(phone.store.current().bytesShort > 0)
     }
 
     @Test

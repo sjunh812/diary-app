@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.app.settings
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -60,6 +61,7 @@ import org.sjhstudio.diary.feature.backup.FileBackupRoute
 import org.sjhstudio.diary.feature.backup.RestoreListRoute
 import org.sjhstudio.diary.feature.backup.RestorePreviewRoute
 import org.sjhstudio.diary.feature.backup.RestoreProgressRoute
+import org.sjhstudio.diary.feature.backup.RestoreStatusBar
 import org.sjhstudio.diary.feature.lock.LockSettingsRoute
 import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
@@ -116,13 +118,17 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         )
     }
     entry<BackupSettingsKey> {
-        BackupSettingsRoute(
-            onBack = pop,
-            onOptions = { push(BackupOptionsKey) },
-            onRestore = { push(RestoreListKey) },
-            onRestoreEntry = { push(RestorePreviewKey(it)) },
-            onFile = { push(FileBackupKey) }
-        )
+        Column(Modifier.fillMaxSize()) {
+            BackupSettingsRoute(
+                onBack = pop,
+                onOptions = { push(BackupOptionsKey) },
+                onRestore = { push(RestoreListKey) },
+                onRestoreEntry = { push(RestorePreviewKey(it)) },
+                onFile = { push(FileBackupKey) },
+                modifier = Modifier.weight(1f)
+            )
+            RestoreStatusBar(onPickFile = { push(FileBackupKey) })
+        }
     }
     entry<BackupOptionsKey> { BackupOptionsRoute(onBack = pop, onFile = { push(FileBackupKey) }) }
     entry<RestoreListKey> { RestoreListRoute(onBack = pop, onPick = { push(RestorePreviewKey(it)) }, onFile = { push(FileBackupKey) }) }

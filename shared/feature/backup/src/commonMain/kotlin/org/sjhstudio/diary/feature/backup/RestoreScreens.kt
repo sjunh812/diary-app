@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -65,6 +66,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.PhotoStop
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
@@ -94,6 +96,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_done_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_done_updated
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_body
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_title
+import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_body
+import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_title
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_mismatch_body
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_mismatch_title
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_other_body
@@ -136,6 +140,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_note_original_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_file_body
+import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_space_body
 import org.sjhstudio.diary.feature.backup.resources.restore_photo_progress
 import org.sjhstudio.diary.feature.backup.resources.restore_pick_other
 import org.sjhstudio.diary.feature.backup.resources.restore_platform_android
@@ -171,6 +176,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_value_merged
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photo
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_value_updated
+import org.sjhstudio.diary.feature.backup.resources.restore_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.restore_when
 
 /**
@@ -453,6 +459,7 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
 /**
  * 복원하는 중과 결과(Figma B5, B6).
  * 뒤로 가면 멈추지 않고 홈으로 간다.
+ * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 연다([RestoreResultNotice]).
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -486,8 +493,9 @@ fun RestoreProgressScreen(
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxSize()) {
             when (state) {
                 RestoreState.Idle -> Unit
-                RestoreState.Merging -> Running(null, onSeeEntries)
-                is RestoreState.FetchingPhotos -> Running(state, onSeeEntries)
+                RestoreState.WaitingForBackup -> Running(null, onSeeEntries, Res.string.restore_waiting_body)
+                RestoreState.Merging -> Running(null, onSeeEntries, Res.string.restore_merging_body)
+                is RestoreState.FetchingPhotos -> Running(state, onSeeEntries, Res.string.restore_fetching_body)
                 is RestoreState.Done -> Result(state.result, onLock, onStart)
                 is RestoreState.Failed -> Failure(state.reason, onRetry, onPickOther)
             }
@@ -496,14 +504,14 @@ fun RestoreProgressScreen(
 }
 
 @Composable
-private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntries: () -> Unit) {
+private fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntries: () -> Unit, body: StringResource) {
     val colors = DiaryTheme.colors
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Hero(
             DiaryIcons.Restore,
             stringResource(Res.string.restore_running_title),
-            stringResource(if (photos == null) Res.string.restore_merging_body else Res.string.restore_fetching_body),
+            stringResource(body),
             fill = false
         )
         if (photos != null) {
@@ -640,7 +648,7 @@ private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
             DiaryNote(
                 DiaryIcons.Download,
                 pluralStringResource(Res.plurals.restore_note_pending, result.photosPending, result.photosPending.grouped()),
-                stringResource(if (result.fromFile) Res.string.restore_note_pending_file_body else Res.string.restore_note_pending_body)
+                stringResource(pendingBody(result))
             )
         )
     }
@@ -655,6 +663,13 @@ private fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
     }
 }
 
+/** 남은 사진마다 까닭과 할 일이 달라서 나눠 말한다. */
+private fun pendingBody(result: RestoreResult): StringResource = when {
+    result.photosStop == PhotoStop.NO_SPACE -> Res.string.restore_note_pending_space_body
+    result.fromFile && result.photosStop == null -> Res.string.restore_note_pending_file_body
+    else -> Res.string.restore_note_pending_body
+}
+
 /**
  * Figma "B6 · 백업을 확인하지 못했어요".
  * 어떤 실패든 기기의 기록은 그대로다.
@@ -666,6 +681,7 @@ private fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onP
             RestoreFailure.MISMATCH -> Res.string.restore_failed_mismatch_title to Res.string.restore_failed_mismatch_body
             RestoreFailure.NO_SPACE -> Res.string.restore_failed_space_title to Res.string.restore_failed_space_body
             RestoreFailure.NEEDS_UPDATE -> Res.string.restore_needs_update to Res.string.restore_failed_other_body
+            RestoreFailure.BUSY -> Res.string.restore_failed_busy_title to Res.string.restore_failed_busy_body
             RestoreFailure.OTHER -> Res.string.restore_failed_other_title to Res.string.restore_failed_other_body
         }
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {

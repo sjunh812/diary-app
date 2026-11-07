@@ -88,6 +88,7 @@ import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
+import org.sjhstudio.diary.feature.backup.backupFolderText
 import org.sjhstudio.diary.feature.backup.backupReadme
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
 import org.sjhstudio.diary.feature.home.homeFeatureModule
@@ -224,7 +225,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 dataReady = { !get<LegacyMigration>().needsMigration() }
             )
         }
-        single { BackupAlerts(AutoBackupNotifier(get(), get())) { backupAlertText(it) } }
+        single { BackupAlerts(AutoBackupNotifier(get(), get()), { backupFolderText() }) { backupAlertText(it) } }
         single<BackupRepository> { get<BackupController>() }
         single {
             BackupController(
@@ -269,7 +270,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                     },
                 planner = lazy { RestorePlanner(drive, applier.value, freeSpace, system, work, store::deviceId) },
                 applier = applier,
-                fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work) },
+                fetcher = lazy { PhotoFetcher(database.value, drive, system, media, work, freeSpace) },
                 legacy = legacy,
                 exporter =
                     lazy {
@@ -299,6 +300,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                         )
                     },
                 scheduler = get(),
+                freeSpace = freeSpace,
                 db = database,
                 store = store,
                 network = get(),

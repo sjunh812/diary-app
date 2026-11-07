@@ -8,9 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import okio.Path.Companion.toPath
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.font.ChosenFontDownload
@@ -80,8 +83,14 @@ fun DiaryApp() {
                     // iOS에서는 이게 주된 길이다.
                     val backup = koinInject<BackupRepository>()
                     LaunchedEffect(backup) { backup.backUpIfDue() }
+                    // 앱으로 돌아올 때마다 본다.
+                    // 시스템이 깨워 주지 않는 iOS에서는 이게 이어 받는 길이다.
                     val restore = koinInject<RestoreRepository>()
-                    LaunchedEffect(restore) { restore.resumePhotos() }
+                    val scope = rememberCoroutineScope()
+                    LifecycleResumeEffect(restore) {
+                        scope.launch { restore.resumePhotos() }
+                        onPauseOrDispose {}
+                    }
                     WelcomeGate { AppScaffold() }
                 }
             }

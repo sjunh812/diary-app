@@ -181,8 +181,22 @@ interface EntryDao {
     @Query("SELECT * FROM entry WHERE legacy_id = :legacyId")
     suspend fun getByLegacyId(legacyId: Int): EntryEntity?
 
-    @Query("SELECT legacy_id FROM entry WHERE legacy_id IS NOT NULL")
-    suspend fun legacyIds(): List<Int>
+    /**
+     * 옛 기록에서 온 일기를 옛 일기와 견주는 데 쓰는 값.
+     * 지운 일기까지 읽어 휴지통으로 보낸 일기가 다시 들어오지 않게 한다.
+     */
+    @Query(
+        "SELECT legacy_id AS legacyId, legacy_create_date AS legacyCreateDate, plain_text AS plainText FROM entry " +
+            "WHERE legacy_id IS NOT NULL OR legacy_create_date IS NOT NULL"
+    )
+    suspend fun legacyRows(): List<LegacyEntryRow>
+
+    /**
+     * 옛 번호만 비운다.
+     * 일기 내용과 수정 시각은 그대로다.
+     */
+    @Query("UPDATE entry SET legacy_id = NULL WHERE legacy_id IN (:legacyIds)")
+    suspend fun clearLegacyIds(legacyIds: List<Int>)
 
     /**
      * 휴지통까지 센다.
@@ -243,3 +257,6 @@ interface EntryDao {
                 "ORDER BY date DESC, time DESC, created_at DESC"
     }
 }
+
+/** 옛 일기를 옮겼는지 보는 데 쓰는 값. */
+data class LegacyEntryRow(val legacyId: Int?, val legacyCreateDate: String?, val plainText: String)

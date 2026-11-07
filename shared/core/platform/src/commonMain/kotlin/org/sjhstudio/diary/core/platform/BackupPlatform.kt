@@ -37,6 +37,12 @@ interface BackupNotifier {
      */
     suspend fun schedule(at: Instant, title: String, body: String)
 
+    /**
+     * 지금 한 번 알린다.
+     * 예약해 둔 알림은 그대로 둔다.
+     */
+    fun show(title: String, body: String)
+
     fun cancel()
 }
 
@@ -64,6 +70,12 @@ interface BackupScheduler {
      * 시스템이 끝까지 지켜 주지 않는 플랫폼은 하지 않는다.
      */
     fun keepRestoreRunning() = Unit
+
+    /**
+     * 복원 사진을 받을 네트워크가 돌아오면 앱을 깨워 잇게 한다.
+     * 시스템이 해 주지 않는 플랫폼은 앱을 다시 열 때 잇는다.
+     */
+    fun waitForPhotoNetwork(wifiOnly: Boolean) = Unit
 }
 
 /**

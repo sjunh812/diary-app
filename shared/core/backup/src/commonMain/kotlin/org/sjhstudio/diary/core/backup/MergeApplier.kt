@@ -102,6 +102,18 @@ class MergeApplier(
     }
 
     /**
+     * 이번 백업에 든 사진이면 찾을 수 없다고 적어 둔 줄도 다시 받는다.
+     * 복원이 끊기거나 깨진 파일을 읽었을 때 적힌 표시가 영영 남지 않게 한다.
+     */
+    suspend fun revive(inBackup: Set<String>) {
+        val dao = db.backupDao()
+        for (photo in dao.missingFiles().filter { it.sha256 in inBackup }) {
+            val name = photo.fileName ?: continue
+            dao.reviveMissing(photo.sha256, name, (if (fileExists(name)) MediaStatus.NORMAL else MediaStatus.PENDING).id)
+        }
+    }
+
+    /**
      * 사진 파일이 이 기기에 있으면 바로 쓰고, 없으면 받을 때까지 대기다.
      * 찾을 수 없던 줄은 그대로 둔다.
      */

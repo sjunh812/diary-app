@@ -7,6 +7,7 @@ import androidx.navigation3.runtime.NavKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 // 알림을 눌러 들어온 길(스펙 001 FR-022).
 // 앱 틀은 잠금과 이전 관문을 지난 뒤에만 그려져서, 요청은 그때까지 기다린다.
@@ -26,7 +27,7 @@ class AppLaunchUiTest {
         setContent { OpenRequestedScreens(launch, nav) }
         waitForIdle()
 
-        assertEquals(WriteKey(), nav.top)
+        assertTrue((nav.top as? WriteKey)?.sameTarget(WriteKey()) == true)
         assertFalse(launch.writeRequested.value)
     }
 
@@ -40,7 +41,7 @@ class AppLaunchUiTest {
         launch.requestWrite()
         waitForIdle()
 
-        assertEquals(WriteKey(), nav.top)
+        assertTrue((nav.top as? WriteKey)?.sameTarget(WriteKey()) == true)
     }
 
     /** 잠금을 풀고 앱 틀이 다시 그려져도 쓰기가 또 열리지 않는다. */
@@ -68,7 +69,7 @@ class AppLaunchUiTest {
         setContent { OpenRequestedScreens(launch, nav) }
         waitForIdle()
 
-        assertEquals(WriteKey(entryId = "a"), nav.top)
+        assertTrue((nav.top as? WriteKey)?.sameTarget(WriteKey(entryId = "a")) == true)
         assertFalse(launch.writeRequested.value)
     }
 }

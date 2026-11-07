@@ -55,6 +55,7 @@ import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.DetailPane
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.FULL_SCREEN
+import org.sjhstudio.diary.app.navigation.FileBackupKey
 import org.sjhstudio.diary.app.navigation.FontSettingsKey
 import org.sjhstudio.diary.app.navigation.FullScreenEntry
 import org.sjhstudio.diary.app.navigation.HomeKey
@@ -67,6 +68,8 @@ import org.sjhstudio.diary.app.navigation.OpenRequestedScreens
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
+import org.sjhstudio.diary.app.navigation.RestoreProgressKey
+import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.TABS
@@ -117,6 +120,8 @@ import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
+import org.sjhstudio.diary.feature.backup.BundleStoppedNotice
+import org.sjhstudio.diary.feature.backup.RestoreResultNotice
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
 import org.sjhstudio.diary.feature.home.EntryDetailRoute
 import org.sjhstudio.diary.feature.home.HomeRoute
@@ -164,6 +169,14 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     // 탭과 레일을 그리지 않는다.
     val writing = nav.top is WriteKey
     val fullScreen = writing || nav.top is PhotoViewerKey || nav.top is PlusKey
+    BundleStoppedNotice(toast) {
+        nav.startOver(SettingsKey)
+        nav.push(FileBackupKey)
+    }
+    // 복원 중에 화면을 떠나도 결과를 다시 열 수 있게 한다.
+    RestoreResultNotice(toast, onResultScreen = nav.top is RestoreProgressKey, quiet = fullScreen) {
+        nav.push(RestoreProgressKey)
+    }
     // 달을 읽기 전에는 일기가 있다고 보고 버튼을 둔다.
     // 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
     val entries = koinInject<EntryRepository>()
