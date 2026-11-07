@@ -63,8 +63,7 @@ enum class DiaryMoodFace(internal val lines: List<String>, internal val solids: 
 }
 
 /**
- * 얼굴 선은 칸 크기와 상관없이 1.6이다.
- * 그래서 크기마다 따로 만들어 둔다.
+ * 얼굴 선 굵기는 크기마다 따로 정해서 벡터를 크기별로 만들어 둔다.
  */
 private val cache = HashMap<Pair<DiaryMoodFace, Dp>, ImageVector>()
 
@@ -82,7 +81,7 @@ fun DiaryMoodFace.vector(size: Dp): ImageVector = cache.getOrPut(this to size) {
         builder.addPath(
             pathData = addPathNodes(path),
             stroke = SolidColor(Color.Black),
-            strokeLineWidth = DiaryMoodFaceLine.value * VIEWPORT / size.value,
+            strokeLineWidth = moodFaceLine(size).value * VIEWPORT / size.value,
             strokeLineCap = StrokeCap.Round,
             strokeLineJoin = StrokeJoin.Round
         )
@@ -92,9 +91,14 @@ fun DiaryMoodFace.vector(size: Dp): ImageVector = cache.getOrPut(this to size) {
 
 private const val VIEWPORT = 44f
 
+/** 얼굴 선 굵기를 정하는 값. 44 칸에서 1.6이다. */
+private const val LINE_BASE = 0.8f
+private const val LINE_PER_SIZE = 55f
+
 /**
  * 얼굴 선 굵기.
- * 얼굴 크기와 상관없이 같다.
+ * 작은 얼굴에서 선이 뭉치지 않게 얼굴이 작을수록 가늘다.
+ * 18 칸은 약 1.1, 44 칸은 1.6이다.
  * 얼굴 옆에 놓이는 표시도 이 굵기를 쓴다.
  */
-val DiaryMoodFaceLine: Dp = 1.6.dp
+fun moodFaceLine(size: Dp): Dp = (LINE_BASE + size.value / LINE_PER_SIZE).dp

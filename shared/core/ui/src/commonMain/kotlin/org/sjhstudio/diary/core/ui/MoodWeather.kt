@@ -21,7 +21,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.icon.DiaryMoodFace
-import org.sjhstudio.diary.core.designsystem.icon.DiaryMoodFaceLine
+import org.sjhstudio.diary.core.designsystem.icon.moodFaceLine
 import org.sjhstudio.diary.core.designsystem.icon.vector
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMoodColors
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -80,7 +80,7 @@ fun NoMoodFace(size: Dp, modifier: Modifier = Modifier) {
     val line = colors.textSecondary
     Canvas(modifier.size(size).clip(DiaryShapes.full).background(colors.sunken)) {
         val unit = this.size.width / NO_MOOD_GRID
-        val stroke = DiaryMoodFaceLine.toPx()
+        val stroke = moodFaceLine(size).toPx()
         // 둥근 끝이 선 밖으로 나오므로 그만큼 안쪽에서 끝낸다.
         val left = NO_MOOD_LEFT * unit + stroke / 2
         drawLine(
