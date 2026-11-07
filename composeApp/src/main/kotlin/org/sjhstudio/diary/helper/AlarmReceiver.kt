@@ -12,10 +12,12 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.sjhstudio.diary.MainActivity
@@ -39,14 +41,23 @@ class AlarmReceiver :
         val pending = goAsync()
         CoroutineScope(Dispatchers.Default).launch {
             try {
-                // 앱을 한 번도 열지 않았어도 옛 설정 잇기가 끝난 뒤의 설정으로 예약한다.
-                val startup = get<Startup>()
-                startup.start()
-                startup.state.first { it is StartupState.Ready }
-                // 옛 앱과 새 앱이 건 예약은 동작 없이 온다.
-                // 시스템 알림(부팅 같은)에는 동작이 있다.
-                if (intent.action == null) showReminder(context)
-                get<ReminderRepository>().reschedule()
+                // 시스템은 수신기를 오래 기다리지 않는다.
+                // 알림 하나 때문에 앱이 응답 없음으로 잡히면 안 된다.
+                withTimeoutOrNull(RECEIVER_MILLIS) {
+                    // 앱을 한 번도 열지 않았어도 옛 설정 잇기가 끝난 뒤의 설정으로 예약한다.
+                    val startup = get<Startup>()
+                    startup.start()
+                    startup.state.first { it is StartupState.Ready }
+                    // 옛 앱과 새 앱이 건 예약은 동작 없이 온다.
+                    // 시스템 알림(부팅 같은)에는 동작이 있다.
+                    if (intent.action == null) showReminder(context)
+                    get<ReminderRepository>().reschedule()
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                // 공간이 찬 기기에서 설정을 읽지 못해도 앱이 꺼지면 안 된다.
+                // 다음에 앱을 열면 다시 예약한다.
             } finally {
                 pending.finish()
             }
@@ -89,3 +100,5 @@ class AlarmReceiver :
         const val NOTIFICATION_ID = 1
     }
 }
+
+private const val RECEIVER_MILLIS = 8_000L

@@ -19,8 +19,8 @@ let ink = color(0x1B1B23)
 let weak = color(0x4A4A5C)
 let accent = color(0x6C56CE)
 
-/** 장마다 바뀌는 바탕. 앱의 기분 색에서 가져온다. */
-nonisolated(unsafe) var background = color(0xE7E0FF)
+/** 바탕은 앱 전용 색 하나다(`selected`). */
+let background = color(0xEBE4FF)
 
 func canvas(_ width: Int, _ height: Int, _ draw: () -> Void) -> NSBitmapImageRep {
     // 스토어는 알파 없는 PNG를 받는다.
@@ -48,6 +48,9 @@ func text(_ string: String, _ size: CGFloat, _ weight: String, _ tint: NSColor, 
     label.draw(in: rect)
 }
 
+/** 캡처 위쪽 상태 표시줄 높이. */
+let statusBar: CGFloat = 56
+
 func shot(_ name: String) -> NSImage { NSImage(contentsOfFile: "\(source)/\(name).png")! }
 
 func shadowed(_ alpha: CGFloat, _ blur: CGFloat, _ body: () -> Void) {
@@ -72,8 +75,10 @@ func phone(_ name: String, _ rect: NSRect, _ radius: CGFloat, bezel: Bool = true
     NSGraphicsContext.saveGraphicsState()
     NSBezierPath(roundedRect: rect, xRadius: radius, yRadius: radius).addClip()
     let image = shot(name)
-    let height = image.size.height * rect.width / image.size.width
-    image.draw(in: NSRect(x: rect.minX, y: rect.maxY - height, width: rect.width, height: height))
+    let scale = rect.width / image.size.width
+    let height = image.size.height * scale
+    // 상태 표시줄은 잘라 낸다.
+    image.draw(in: NSRect(x: rect.minX, y: rect.maxY - height + statusBar * scale, width: rect.width, height: height))
     NSGraphicsContext.restoreGraphicsState()
 }
 
@@ -82,18 +87,16 @@ func save(_ rep: NSBitmapImageRep, _ name: String) {
 }
 
 // 기준: 심플하고 미감 있고 잘 읽혀야 한다.
-// 옅은 바탕, 큰 제목, 곧게 놓은 실제 화면만 둔다.
+// 앱 색 바탕, 큰 제목, 곧게 놓은 실제 화면만 둔다.
 // 장식과 기울임을 넣지 않고 강조는 낱말 하나만 쓴다(2026-11-07 사용자 지적).
-let slides: [(UInt32, String, String, String)] = [
-    (0xF3F0FF, "w1", "바쁜 날에도\n일기를 남겨요", "일기"),
-    (0xEAF6FF, "b1", "사진까지\n내 드라이브에", "내 드라이브"),
-    (0xFFFAE5, "c1", "한 달 기분을\n달력으로", "달력"),
-    (0xFFF1F9, "l1", "내 일기는\n나만 보게", "나만"),
-    (0xEDFAF1, "f1", "글꼴 10종에서\n골라 써요", "10종"),
-    (0xFFF4E8, "h1", "지난 일기를\n사진과 함께", "사진")
+let slides: [(String, String, String)] = [
+    ("write", "오늘 기분부터\n가볍게 적어 봐요", "기분"),
+    ("list", "지난 일기가\n한눈에 보여요", "한눈에"),
+    ("calendar", "한 달 기분을\n달력으로 봐요", "달력"),
+    ("insight", "내 기분 흐름을\n돌아봐요", "돌아봐요"),
+    ("backup", "사진까지\n드라이브에 백업해요", "백업")
 ]
-for (index, (tint, name, words, word)) in slides.enumerated() {
-    background = color(tint)
+for (index, (name, words, word)) in slides.enumerated() {
     let rep = canvas(1080, 1920) {
         text(words, 88, "Bold", ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
         phone(name, NSRect(x: 130, y: -560, width: 820, height: 1960), 64)
@@ -101,11 +104,10 @@ for (index, (tint, name, words, word)) in slides.enumerated() {
     save(rep, "phone-\(index + 1)")
 }
 
-background = color(0xF3F0FF)
 let feature = canvas(1024, 500) {
-    text("바쁜 날에도\n일기를 남겨요", 60, "Bold", ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
+    text("바쁜 날에도\n일기를 남겨 봐요", 60, "Bold", ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
     text("회원가입 없이, 사진까지 내 드라이브에", 25, "Medium", weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
     // 피처 그래픽에는 기기 틀을 넣지 않는다(Play 안내).
-    phone("h1", NSRect(x: 640, y: -640, width: 300, height: 1040), 26, bezel: false)
+    phone("list", NSRect(x: 640, y: -640, width: 300, height: 1040), 26, bezel: false)
 }
 save(feature, "feature")
