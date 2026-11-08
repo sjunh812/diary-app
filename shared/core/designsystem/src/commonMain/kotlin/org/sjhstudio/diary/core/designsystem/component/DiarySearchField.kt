@@ -83,7 +83,15 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
                         contentAlignment = Alignment.Center
                     ) {
                         Box(Modifier.size(DiaryIconSize.i16).clip(DiaryShapes.full).background(colors.textTertiary)) {
-                            DiaryIcon(DiaryIcons.Close, contentDescription = clearLabel, tint = colors.canvas, size = DiaryIconSize.i16)
+                            // X는 원보다 한 단계 작게 둔다.
+                            // 원과 같은 크기면 X가 원을 꽉 채워 커 보였다(2026-11-08 사용자 지적, iOS 검색칸 지우기도 X가 원의 3분의 1 남짓이다).
+                            DiaryIcon(
+                                DiaryIcons.Close,
+                                contentDescription = clearLabel,
+                                tint = colors.canvas,
+                                modifier = Modifier.align(Alignment.Center),
+                                size = DiaryIconSize.i12
+                            )
                         }
                     }
                 }
