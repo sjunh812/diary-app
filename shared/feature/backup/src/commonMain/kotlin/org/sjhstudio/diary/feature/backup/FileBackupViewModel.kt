@@ -22,6 +22,7 @@ import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 sealed interface FileBackupUi {
     data object Idle : FileBackupUi
@@ -47,7 +48,8 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     val state: StateFlow<FileBackupUi> = _state.asStateFlow()
 
     init {
-        viewModelScope.launch { _estimate.value = restore.bundleEstimate() }
+        // 크기는 미리 알려 주는 곁일이라 읽지 못하면 비워 두고 파일 만들기는 그대로 할 수 있다.
+        viewModelScope.launch { _estimate.value = orElseOnFailure(null) { restore.bundleEstimate() } }
     }
 
     private var writing: Job? = null

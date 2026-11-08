@@ -27,6 +27,7 @@ import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
@@ -153,7 +154,7 @@ class CalendarViewModel(
             _selected.value = known
             return
         }
-        monthRead = viewModelScope.launch { _selected.value = entries.month(month).first().keys.maxOrNull() }
+        monthRead = viewModelScope.launch { _selected.value = orElseOnFailure(null) { entries.month(month).first().keys.maxOrNull() } }
     }
 
     private var monthRead: Job? = null

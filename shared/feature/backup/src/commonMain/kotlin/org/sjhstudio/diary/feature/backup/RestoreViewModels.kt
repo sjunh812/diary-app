@@ -10,9 +10,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 sealed interface RestoreListUi {
     data object Loading : RestoreListUi
@@ -52,7 +54,10 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
 
     fun load() {
         _state.value = null
-        viewModelScope.launch { _state.value = restore.prepare(snapshotName) }
+        // 앱이 꺼졌다 돌아와 목록부터 다시 받다가 끊겨도 앱을 끄지 않고 실패 화면에서 다시 시도하게 한다.
+        viewModelScope.launch {
+            _state.value = orElseOnFailure(RestorePreparation.Failed(RestoreFailure.OTHER)) { restore.prepare(snapshotName) }
+        }
     }
 
     private var restoring = false
