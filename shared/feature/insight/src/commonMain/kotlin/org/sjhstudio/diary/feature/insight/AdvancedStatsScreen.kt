@@ -80,9 +80,11 @@ import org.sjhstudio.diary.core.model.ToneShare
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.compactCount
 import org.sjhstudio.diary.core.ui.MoodFace
+import org.sjhstudio.diary.core.ui.emphasis
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
+import org.sjhstudio.diary.core.ui.withEmphasis
 import org.sjhstudio.diary.feature.insight.resources.Res
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_before
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_change_good
@@ -303,8 +305,8 @@ private fun Recent(recent: RecentMood) {
                     } else {
                         Res.string.insight_adv_recent_hard_up
                     },
-                    recent.before.hardPercent,
-                    recent.now.hardPercent
+                    emphasis(recent.before.hardPercent),
+                    emphasis(recent.now.hardPercent)
                 )
 
             else ->
@@ -316,13 +318,16 @@ private fun Recent(recent: RecentMood) {
                     } else {
                         Res.string.insight_adv_recent_good_down
                     },
-                    recent.before.percent,
-                    recent.now.percent
+                    emphasis(recent.before.percent),
+                    emphasis(recent.now.percent)
                 )
         }
     Card(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
         BasicText(stringResource(title), style = typography.headline.copy(color = colors.textPrimary))
-        BasicText(body, style = typography.body.copy(color = colors.textSecondary))
+        BasicText(
+            body.withEmphasis(SpanStyle(color = colors.textPrimary, fontWeight = typography.bodyStrong.fontWeight)),
+            style = typography.body.copy(color = colors.textSecondary)
+        )
     }
 }
 

@@ -21,6 +21,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import org.jetbrains.compose.resources.pluralStringResource
@@ -44,8 +46,10 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.ui.KeepScreenOn
+import org.sjhstudio.diary.core.ui.emphasis
 import org.sjhstudio.diary.core.ui.formatBytes
 import org.sjhstudio.diary.core.ui.grouped
+import org.sjhstudio.diary.core.ui.withEmphasis
 import org.sjhstudio.diary.feature.migration.resources.Res
 import org.sjhstudio.diary.feature.migration.resources.migration_check_again
 import org.sjhstudio.diary.feature.migration.resources.migration_contact
@@ -106,7 +110,7 @@ fun MigrationScreen(
                 Frame(
                     DiaryIcons.BookOpen,
                     stringResource(Res.string.migration_preparing_title),
-                    stringResource(Res.string.migration_preparing_body)
+                    AnnotatedString(stringResource(Res.string.migration_preparing_body))
                 ) {
                     KeepScreenOn()
                     DiaryIndeterminateProgressBar()
@@ -127,7 +131,7 @@ private fun CopyingContent(state: MigrationUiState.Copying) {
     Frame(
         icon = DiaryIcons.BookOpen,
         title = stringResource(Res.string.migration_progress_title),
-        body = stringResource(Res.string.migration_progress_body),
+        body = AnnotatedString(stringResource(Res.string.migration_progress_body)),
         footnote = stringResource(Res.string.migration_progress_note)
     ) {
         val done = state.entriesDone + state.photosDone
@@ -194,11 +198,12 @@ private fun ResultContent(state: MigrationUiState.Result, onStart: () -> Unit, o
                 pluralStringResource(
                     Res.plurals.migration_partial_body,
                     report.entriesMigrated,
-                    report.entriesMigrated.grouped(),
-                    report.entriesUnreadable.grouped()
-                )
+                    emphasis(report.entriesMigrated.grouped()),
+                    emphasis(report.entriesUnreadable.grouped())
+                ).withEmphasis(numberEmphasis())
             } else if (report.photosFound > 0) {
-                pluralStringResource(Res.plurals.migration_done_photos, report.photosFound, report.photosFound.grouped())
+                pluralStringResource(Res.plurals.migration_done_photos, report.photosFound, emphasis(report.photosFound.grouped()))
+                    .withEmphasis(numberEmphasis())
             } else {
                 null
             },
@@ -230,13 +235,22 @@ private fun FailedContent(
     val noSpace = state.kind == MigrationFailureKind.NO_SPACE
     val body =
         when (state.kind) {
-            MigrationFailureKind.NO_SPACE -> stringResource(Res.string.migration_no_space_body, formatBytes(state.shortfallBytes ?: 0))
+            // 얼마가 모자란지가 할 일이라 그 크기를 강조한다.
+            MigrationFailureKind.NO_SPACE -> stringResource(
+                Res.string.migration_no_space_body,
+                emphasis(formatBytes(state.shortfallBytes ?: 0))
+            )
+
             MigrationFailureKind.MISMATCH -> stringResource(Res.string.migration_failed_body_mismatch)
+
             MigrationFailureKind.SNAPSHOT_IO -> stringResource(Res.string.migration_failed_body_snapshot)
+
             MigrationFailureKind.READ_ERROR -> stringResource(Res.string.migration_failed_body_read)
+
             MigrationFailureKind.WRITE_ERROR -> stringResource(Res.string.migration_failed_body_write)
+
             MigrationFailureKind.UNKNOWN -> stringResource(Res.string.migration_failed_body_unknown)
-        }
+        }.withEmphasis(numberEmphasis())
     Frame(
         icon = DiaryIcons.CircleAlert,
         tone = DiaryBadgeTone.Danger,
@@ -261,6 +275,11 @@ private fun FailedContent(
     }
 }
 
+/** 설명 안 숫자 강조. 본문은 옅은 글자라 진한 글자와 한 단계 굵기로 띄운다. */
+@Composable
+private fun numberEmphasis(): SpanStyle =
+    SpanStyle(color = DiaryTheme.colors.textPrimary, fontWeight = DiaryTheme.typography.bodyStrong.fontWeight)
+
 /**
  * 배지 · 제목 · 설명 · 내용 · (안내 글) · (글자 버튼) · 큰 버튼.
  * 넓은 화면에서는 가운데 폭 480.
@@ -269,7 +288,7 @@ private fun FailedContent(
 private fun Frame(
     icon: ImageVector,
     title: String,
-    body: String?,
+    body: AnnotatedString?,
     tone: DiaryBadgeTone = DiaryBadgeTone.Accent,
     footnote: String? = null,
     secondaryActions: List<Pair<String, () -> Unit>> = emptyList(),

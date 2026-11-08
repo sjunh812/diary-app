@@ -46,6 +46,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -88,10 +89,12 @@ import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
+import org.sjhstudio.diary.core.ui.emphasis
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
+import org.sjhstudio.diary.core.ui.withEmphasis
 import org.sjhstudio.diary.feature.insight.resources.Res
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_title
 import org.sjhstudio.diary.feature.insight.resources.insight_all_time
@@ -318,7 +321,11 @@ private fun Content(
 ) {
     val colors = DiaryTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-        BasicText(summary(period, counts, today), style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
+        // 문장은 이미 굵어서, 가장 많았던 기분만 진한 글자로 두고 나머지를 한 단계 옅게 한다.
+        BasicText(
+            summary(period, counts, today).withEmphasis(SpanStyle(color = colors.textPrimary)),
+            style = DiaryTheme.typography.title2.copy(color = colors.textSecondary)
+        )
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
     Spacer(Modifier.height(DiarySpacing.x6))
@@ -370,7 +377,7 @@ private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): 
     if (top.isEmpty()) return stringResource(Res.string.insight_no_moods)
     var names = moodName(top.first())
     top.drop(1).forEach { names = stringResource(Res.string.insight_mood_join, names, moodName(it)) }
-    return stringResource(summaryResource(period, today), names)
+    return stringResource(summaryResource(period, today), emphasis(names))
 }
 
 private fun summaryResource(period: StatsPeriod, today: LocalDate): StringResource = when {

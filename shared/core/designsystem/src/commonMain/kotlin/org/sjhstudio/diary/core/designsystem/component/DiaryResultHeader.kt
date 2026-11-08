@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -29,6 +30,16 @@ fun DiaryResultHeader(
     title: String,
     modifier: Modifier = Modifier,
     description: String? = null,
+    tone: DiaryBadgeTone = DiaryBadgeTone.Accent
+) = DiaryResultHeader(icon, title, description?.let(::AnnotatedString), modifier, tone)
+
+/** 설명 안에 강조한 낱말이 있는 [DiaryResultHeader]. */
+@Composable
+fun DiaryResultHeader(
+    icon: ImageVector,
+    title: String,
+    description: AnnotatedString?,
+    modifier: Modifier = Modifier,
     tone: DiaryBadgeTone = DiaryBadgeTone.Accent
 ) {
     val colors = DiaryTheme.colors
