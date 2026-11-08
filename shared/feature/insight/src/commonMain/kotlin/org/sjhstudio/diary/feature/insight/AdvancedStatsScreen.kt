@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -201,9 +202,9 @@ internal fun AdvancedStatsScreen(
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
                 .padding(horizontal = LocalScreenGutter.current)
-                .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)
+                .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6)
         ) {
+            // 기간 탭은 화면 전체를 거르는 줄이라 내용과 24로 가깝게 두고, 묶음 사이는 32로 나눈다.
             // 빈 한 줄은 탭 아래 칸이라 다른 묶음 사이보다 가깝게 둔다.
             Column {
                 DiarySegmentedTabs(
@@ -220,33 +221,58 @@ internal fun AdvancedStatsScreen(
                     DiaryEmptyLine(stringResource(Res.string.insight_adv_not_enough), stringResource(Res.string.insight_write), onWrite)
                 }
             }
-            when {
-                stats == null -> AdvancedSkeleton()
-
-                !stats.enough -> Unit
-
-                else -> {
-                    stats.recent?.let { Recent(it) }
-                    if (!stats.moodReady) NoMoods()
-                    stats.change?.let { Change(period, it) }
-                    if (stats.moodReady) MoodTimes(stats)
-                    if (stats.company.isNotEmpty()) Company(stats.company, onMood)
-                    Habit(stats.habit)
-                }
-            }
+            Spacer(Modifier.height(DiarySpacing.x6))
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)) { Sections(stats, period, onMood) }
         }
     }
 }
 
 @Composable
-private fun Section(title: StringResource, gap: Dp = DiarySpacing.x3, content: @Composable ColumnScope.() -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(gap)) {
-        BasicText(
-            stringResource(title),
-            Modifier.semantics { heading() },
-            style = DiaryTheme.typography.headline.copy(color = DiaryTheme.colors.textPrimary)
-        )
-        content()
+private fun Sections(stats: AdvancedStats?, period: AdvancedPeriod, onMood: (Mood) -> Unit) {
+    when {
+        stats == null -> AdvancedSkeleton()
+
+        !stats.enough -> Unit
+
+        else -> {
+            stats.recent?.let { Recent(it) }
+            if (!stats.moodReady) NoMoods()
+            stats.change?.let { Change(period, it) }
+            if (stats.moodReady) MoodTimes(stats)
+            if (stats.company.isNotEmpty()) Company(stats.company, onMood)
+            Habit(stats.habit)
+        }
+    }
+}
+
+/**
+ * 고급 통계의 한 묶음(`docs/design.md` 고급 통계 간격).
+ * 제목과 내용 사이 [titleGap](기본 16), 내용끼리 [gap](기본 12).
+ * [trailing]은 제목 줄 옆에 붙는 거르개(칩)이고, 글자가 커져 자리가 모자라면 다음 줄로 내려간다.
+ */
+@Composable
+private fun Section(
+    title: StringResource,
+    gap: Dp = DiarySpacing.x3,
+    titleGap: Dp = DiarySpacing.x4,
+    trailing: (@Composable () -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column {
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+            itemVerticalAlignment = Alignment.CenterVertically
+        ) {
+            BasicText(
+                stringResource(title),
+                Modifier.semantics { heading() },
+                style = DiaryTheme.typography.headline.copy(color = DiaryTheme.colors.textPrimary)
+            )
+            trailing?.invoke()
+        }
+        Spacer(Modifier.height(titleGap))
+        Column(verticalArrangement = Arrangement.spacedBy(gap), content = content)
     }
 }
 
@@ -429,11 +455,18 @@ private fun characters(value: Long): String {
 private fun MoodTimes(stats: AdvancedStats) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var hard by rememberSaveable { mutableStateOf(false) }
-    Section(Res.string.insight_adv_when) {
-        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            DiaryChip(stringResource(Res.string.insight_adv_change_good), selected = !hard, onClick = { hard = false })
-            DiaryChip(stringResource(Res.string.insight_adv_change_hard), selected = hard, onClick = { hard = true })
+    // 칩은 "이 기분"이 가리키는 대상이라 제목 줄에 붙인다.
+    // 탭 → 막대 16, 막대끼리 8, 막대 → 설명 12로 조작과 결과를 나눈다.
+    Section(
+        Res.string.insight_adv_when,
+        gap = Dp.Hairline,
+        trailing = {
+            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                DiaryChip(stringResource(Res.string.insight_adv_change_good), selected = !hard, onClick = { hard = false })
+                DiaryChip(stringResource(Res.string.insight_adv_change_hard), selected = hard, onClick = { hard = true })
+            }
         }
+    ) {
         DiarySegmentedTabs(
             labels =
                 listOf(
@@ -452,6 +485,7 @@ private fun MoodTimes(stats: AdvancedStats) {
                 2 -> stats.weather.entries.sortedByDescending { it.value.total }.map { weatherName(it.key) to it.value }
                 else -> stats.places
             }
+        Spacer(Modifier.height(DiarySpacing.x4))
         if (rows.isEmpty()) {
             BasicText(
                 stringResource(Res.string.insight_adv_when_empty),
@@ -461,9 +495,12 @@ private fun MoodTimes(stats: AdvancedStats) {
         val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, if (hard) share.hardPercent else share.percent) }
         val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.caption).coerceAtMost(DiarySpacing.x14 * 2)
         val countWidth = widestText(counts, DiaryTheme.typography.captionStrong)
-        rows.forEachIndexed { index, (label, share) ->
-            ShareRow(label, counts[index], if (hard) share.hardRate else share.rate, labelWidth, countWidth)
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            rows.forEachIndexed { index, (label, share) ->
+                ShareRow(label, counts[index], if (hard) share.hardRate else share.rate, labelWidth, countWidth)
+            }
         }
+        Spacer(Modifier.height(DiarySpacing.x3))
         BasicText(
             stringResource(if (hard) Res.string.insight_adv_tone_note_hard else Res.string.insight_adv_tone_note),
             style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
@@ -499,7 +536,8 @@ private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp,
 
 @Composable
 private fun Company(company: List<MoodCompany>, onMood: (Mood) -> Unit) {
-    Section(Res.string.insight_adv_company, DiarySpacing.x1) {
+    // 줄마다 위아래 8을 스스로 두어서 제목과 사이는 8만 더해 보이는 간격을 16으로 맞춘다.
+    Section(Res.string.insight_adv_company, gap = Dp.Hairline, titleGap = DiarySpacing.x2) {
         company.forEach { row -> CompanyRow(row) { onMood(row.mood) } }
     }
 }
