@@ -23,17 +23,19 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
@@ -67,21 +69,33 @@ fun DiarySkeleton(modifier: Modifier = Modifier, content: @Composable () -> Unit
         visible = true
     }
     if (!visible) return
-    val alpha =
+    val pulse: () -> Float =
         if (rememberReduceMotion()) {
-            1f
+            { 1f }
         } else {
             val transition = rememberInfiniteTransition()
-            val pulse by transition.animateFloat(1f, PULSE_LOW, infiniteRepeatable(tween(PULSE_MILLIS), RepeatMode.Reverse))
-            pulse
+            val value = transition.animateFloat(1f, PULSE_LOW, infiniteRepeatable(tween(PULSE_MILLIS), RepeatMode.Reverse))
+            remember(value) { { value.value } }
         }
-    Box(modifier.alpha(alpha).clearAndSetSemantics {}) { content() }
+    // 숨 쉬는 것은 뼈대 칸뿐이다.
+    // 카드 바탕처럼 실제 화면에도 있는 면은 그대로 두어, 내용이 들어올 때 카드가 깜빡이지 않는다.
+    CompositionLocalProvider(LocalSkeletonPulse provides pulse) {
+        Box(modifier.clearAndSetSemantics {}) { content() }
+    }
 }
+
+/**
+ * 뼈대 칸의 숨 쉬는 정도.
+ * 매 프레임 값을 그리기 단계에서만 읽어서, 숨 쉬는 동안 화면을 다시 짜지 않는다.
+ */
+@Suppress("CompositionLocalAllowlist")
+private val LocalSkeletonPulse = staticCompositionLocalOf<() -> Float> { { 1f } }
 
 /** 글 한 줄이나 사진 자리 하나. */
 @Composable
 fun SkeletonBlock(modifier: Modifier = Modifier, shape: Shape = DiaryShapes.r8) {
-    Box(modifier.clip(shape).background(DiaryTheme.colors.sunken))
+    val pulse = LocalSkeletonPulse.current
+    Box(modifier.graphicsLayer { alpha = pulse() }.clip(shape).background(DiaryTheme.colors.sunken))
 }
 
 /**
