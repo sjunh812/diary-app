@@ -29,4 +29,5 @@
     <string name="ui_next_year">다음 해</string>
     <string name="ui_previous_month">이전 달</string>
     <string name="ui_next_month">다음 달</string>
+    <string name="share_when">%1$s %2$s %3$s</string>
 </resources>

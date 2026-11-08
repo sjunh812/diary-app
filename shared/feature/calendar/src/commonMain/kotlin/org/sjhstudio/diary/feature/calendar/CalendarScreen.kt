@@ -92,6 +92,7 @@ import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberEntryShareText
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.feature.calendar.resources.Res
@@ -220,6 +221,7 @@ fun CalendarRoute(
     menuFor?.let { id ->
         // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
         val share = rememberShareText()
+        val shareText = rememberEntryShareText()
         EntryMenu(
             favorite = day.rows?.firstOrNull { it.id == id }?.isFavorite == true,
             onDismiss = { menuFor = null },
@@ -233,7 +235,7 @@ fun CalendarRoute(
             },
             onShare = {
                 menuFor = null
-                scope.launch { viewModel.plainText(id)?.let(share) }
+                scope.launch { viewModel.entryToShare(id)?.let { share(shareText(it)) } }
             },
             onTrash = {
                 menuFor = null

@@ -62,6 +62,7 @@ import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberEntryShareText
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.core.ui.weatherName
@@ -103,6 +104,7 @@ fun EntryDetailRoute(
     val trashed by rememberUpdatedState(onTrashed)
     LaunchedEffect(viewModel) { viewModel.trashed.collect { trashed() } }
     val share = rememberShareText()
+    val shareText = rememberEntryShareText()
     var more by remember { mutableStateOf(false) }
     val colors = DiaryTheme.colors
     val family = rememberFileFontFamily(look.fontPath)
@@ -148,7 +150,7 @@ fun EntryDetailRoute(
         DiaryBottomSheet(onDismiss = { more = false }) {
             DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.detail_share), colors.textPrimary) {
                 more = false
-                share(current.entry.plainText)
+                share(shareText(current.entry))
             }
             DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.detail_trash), colors.danger) {
                 more = false

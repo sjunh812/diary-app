@@ -22,6 +22,7 @@ import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
+import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
@@ -148,7 +149,8 @@ class CalendarViewModel(
     }
 
     /** 공유할 서식 없는 글. */
-    suspend fun plainText(id: String): String? = entries.entry(id).first()?.entry?.plainText
+    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만든다.
+    suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
 
     private companion object {
         const val STOP_MILLIS = 5_000L

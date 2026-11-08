@@ -263,7 +263,7 @@ class CalendarViewModelTest {
 
     @Test
     fun menu_shares_plain_text() = runTest {
-        assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).plainText("a"))
+        assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).entryToShare("a")?.plainText)
     }
 
     private object NoFonts : FontInstaller {

@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
+import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.platform.FontInstaller
@@ -76,7 +77,8 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     }
 
     /** 공유할 서식 없는 글. */
-    suspend fun plainText(id: String): String? = entries.entry(id).first()?.entry?.plainText
+    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만든다.
+    suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
 
     /** 그 달 첫 일기의 목록 위치. */
     suspend fun positionOf(month: YearMonth): Int = entries.positionOf(month, favoritesOnly.value)
