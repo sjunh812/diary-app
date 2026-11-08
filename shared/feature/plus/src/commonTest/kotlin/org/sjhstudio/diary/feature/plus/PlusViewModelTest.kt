@@ -112,6 +112,23 @@ class PlusViewModelTest {
     }
 
     @Test
+    fun a_payment_waiting_for_approval_is_not_called_a_failure() = runTest(dispatcher) {
+        val store = Store(PurchaseResult.PENDING)
+        val viewModel = PlusViewModel(plans, store)
+        advanceUntilIdle()
+
+        var done = false
+        viewModel.buy(ProductId.PLUS_YEARLY) { done = true }
+        advanceUntilIdle()
+
+        assertEquals(PlusMessage.Pending, viewModel.messages.first())
+        assertEquals(false, viewModel.state.value.buyFailed)
+        assertEquals(false, viewModel.state.value.busy)
+        // 승인되기 전에는 산 것처럼 화면을 닫지 않는다.
+        assertEquals(false, done)
+    }
+
+    @Test
     fun restore_tells_when_nothing_was_found() = runTest(dispatcher) {
         val viewModel = PlusViewModel(plans, Store(PurchaseResult.NOTHING))
         advanceUntilIdle()

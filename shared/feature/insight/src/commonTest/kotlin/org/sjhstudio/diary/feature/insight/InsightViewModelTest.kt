@@ -122,6 +122,27 @@ class InsightViewModelTest {
         assertEquals(StatsPeriod.Month(YearMonth(2026, 11)), model.period.value)
     }
 
+    /** 켜 둔 채 해가 바뀌면 올해를 보던 사람은 새해를 보고, 새해 첫 주는 지난해 마지막 주와 이어진다. */
+    @Test
+    fun a_new_year_moves_this_year_and_this_week_along() {
+        today = LocalDate(2026, 12, 31)
+        val model = viewModel()
+        model.select(InsightKind.Year)
+
+        today = LocalDate(2027, 1, 1)
+        model.refreshToday()
+        assertEquals(StatsPeriod.Year(2027), model.period.value)
+
+        model.select(InsightKind.Week)
+        val week = model.period.value as StatsPeriod.Week
+        assertEquals(LocalDate(2026, 12, 27), week.start)
+        model.previous()
+        assertEquals(LocalDate(2026, 12, 20), (model.period.value as StatsPeriod.Week).start)
+        model.next()
+        model.next()
+        assertEquals(week, model.period.value)
+    }
+
     @Test
     fun a_new_day_leaves_a_past_period_alone() {
         val model = viewModel()

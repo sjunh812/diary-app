@@ -280,6 +280,25 @@ class DiaryReadRepositoryTest {
     }
 
     @Test
+    fun search_edges_blank_query_case_backslash_and_period_ends() = runTest {
+        db.seed(
+            entry("a", date = "2026-10-01", text = "Sea 바다"),
+            entry("b", date = "2026-10-31", text = "C:\\일기"),
+            entry("c", date = "2026-11-01", text = "sea"),
+            entry("d", date = "2026-09-30", text = "trashed", deletedAt = T0)
+        )
+        val october = DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31))
+
+        // 빈칸만 친 것은 아무것도 안 친 것과 같고, 휴지통 일기는 찾지 않는다.
+        assertEquals(setOf("a", "b", "c"), ids(SearchFilter(query = "   ")).toSet())
+        // 영어는 대소문자를 가리지 않는다.
+        assertEquals(setOf("a", "c"), ids(SearchFilter(query = "SEA")).toSet())
+        assertEquals(listOf("b"), ids(SearchFilter(query = "C:\\")))
+        // 기간은 첫날과 마지막 날을 모두 넣는다.
+        assertEquals(setOf("a", "b"), ids(SearchFilter(period = october)).toSet())
+    }
+
+    @Test
     fun search_combines_conditions() = runTest {
         db.seed(
             entry("a", date = "2026-10-01", mood = Mood.GOOD, favorite = true),
