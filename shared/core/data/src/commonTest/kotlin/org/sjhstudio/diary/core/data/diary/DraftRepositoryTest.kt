@@ -11,7 +11,10 @@ import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -53,6 +56,25 @@ class DraftRepositoryTest {
     }
 
     private fun image(text: String) = PickedImage { text.encodeToByteArray() }
+
+    /** 하루 지난 사진을 다시 고르면 고친 시각이 새로워져서, 쓰지 않는 사진 정리가 방금 고른 사진을 지우지 않는다. */
+    @Test
+    fun picking_an_old_photo_again_refreshes_its_time() = runTest {
+        var now = Instant.parse("2026-11-01T00:00:00Z")
+        val fs = FakeFileSystem(
+            clock = object : Clock {
+                override fun now(): Instant = now
+            }
+        )
+        val store = photoStore(fs)
+        val first = store.store(byteArrayOf(1, 2, 3))!!
+
+        now += 2.days
+        val again = store.store(byteArrayOf(1, 2, 3))!!
+
+        assertEquals(first.fileName, again.fileName)
+        assertEquals(now.toEpochMilliseconds(), fs.metadata(MEDIA_DIR / again.fileName).lastModifiedAtMillis)
+    }
 
     @Test
     fun a_saved_draft_comes_back_after_reopening() = runTest {

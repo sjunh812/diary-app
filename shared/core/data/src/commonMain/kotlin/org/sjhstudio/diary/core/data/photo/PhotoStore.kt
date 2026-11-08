@@ -48,7 +48,9 @@ class PhotoStore(
             val sha256 = fileSystem.sha256Hex(outgoing)
             val target = mediaDir / "$sha256.jpg"
             // 같은 사진이면 파일은 하나다.
-            if (fileSystem.exists(target)) fileSystem.delete(outgoing) else fileSystem.atomicMove(outgoing, target)
+            // 이미 있어도 새로 쓴 것으로 바꿔 고친 시각을 지금으로 둔다.
+            // 그대로 두면 하루 지난 쓰지 않는 사진을 지우는 정리가 방금 다시 고른 사진을 지울 수 있다.
+            fileSystem.atomicMove(outgoing, target)
             val size = measure(target.toString())
             StoredPhoto(target.name, sha256, size?.width, size?.height, fileSystem.metadata(target).size)
         } finally {
