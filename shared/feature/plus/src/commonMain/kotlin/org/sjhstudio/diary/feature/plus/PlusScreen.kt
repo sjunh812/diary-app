@@ -37,6 +37,8 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -285,9 +287,12 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
                     subcompose("art") { PlusArt(height, Modifier.padding(top = DiarySpacing.x2)) }.map { it.measure(width) }
                 }
             val artHeight = art.sumOf { it.height } + if (art.isEmpty()) 0 else gap
-            layout(constraints.maxWidth, artHeight + textHeight) {
+            // 남는 높이는 그림과 혜택 사이, 혜택과 결제 버튼 사이에 똑같이 나눈다.
+            // 한쪽에 몰리면 가운데로 뭉치거나 버튼 위가 비어 보인다.
+            val spare = (room.roundToPx() - artHeight - textHeight).coerceAtLeast(0)
+            layout(constraints.maxWidth, artHeight + textHeight + spare) {
                 art.forEach { it.placeRelative(0, 0) }
-                text.forEach { it.placeRelative(0, artHeight) }
+                text.forEach { it.placeRelative(0, artHeight + if (art.isEmpty()) 0 else spare / 2) }
             }
         }
     }
@@ -344,7 +349,8 @@ private fun PaywallBuy(
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+    // 혜택이 먼저 보이게 아래 칸은 촘촘하게 둔다. 결제 버튼, 다른 선택, 고지가 한 묶음이다.
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         if (price != null || loading) {
             DiaryButton(
                 // 요금은 하나뿐이라 고르는 칸을 두지 않고 버튼에 바로 적는다.
@@ -354,19 +360,24 @@ private fun PaywallBuy(
                 size = DiaryButtonSize.XLarge,
                 enabled = price != null && !busy
             )
-            BasicText(stringResource(Res.string.plus_notice), style = typography.caption.copy(color = colors.textSecondary))
-            PaywallLegal()
             // 광고의 ×를 찾지 않아도 살 수 있게 둔다.
-            // 이미 산 사람에게는 보이지 않는다.
+            // 결제 버튼 바로 아래에 두어 다른 선택지로 읽히게 하고, 이미 산 사람에게는 보이지 않는다.
             if (!adFreeOwned) {
                 DiaryButton(
                     stringResource(Res.string.plus_ads_only),
                     onAdFree,
                     Modifier.align(Alignment.CenterHorizontally),
-                    size = DiaryButtonSize.Medium,
+                    size = DiaryButtonSize.Header,
                     kind = DiaryButtonKind.Text
                 )
             }
+            BasicText(
+                stringResource(Res.string.plus_notice),
+                Modifier.fillMaxWidth(),
+                // 두 줄 길이를 고르게 나눠 마지막 낱말만 떨어지지 않게 한다.
+                style = typography.micro.copy(color = colors.textSecondary, textAlign = TextAlign.Center, lineBreak = LineBreak.Heading)
+            )
+            PaywallLegal()
         } else {
             BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
             DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
@@ -377,7 +388,7 @@ private fun PaywallBuy(
 /** 혜택 네 가지. 결제 화면과 구독 중 화면이 같은 말로 보인다. */
 @Composable
 private fun PlusBenefits() {
-    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         OwnedBenefit(DiaryIcons.ShieldCheck, Res.string.plus_ads_title, Res.string.plus_ads_body)
         OwnedBenefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
         OwnedBenefit(DiaryIcons.Checklist, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
