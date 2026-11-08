@@ -155,6 +155,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
         Sheet.Period.name ->
             PeriodSheet(
                 selected = period,
+                customRange = filter.period?.let { rangeLabel(it, today) },
                 onPick = {
                     viewModel.setPeriod(it)
                     sheet = null
@@ -276,7 +277,10 @@ private fun FilterChips(
         }
         item {
             DiaryChip(
-                period?.let { periodLabel(it) } ?: stringResource(Res.string.search_chip_period),
+                // 직접 선택했으면 "직접 선택" 대신 그 기간을 칩에 쓴다(돌아보기에서 넘어와도 무엇으로 걸렀는지 보인다).
+                filter.period?.takeIf { period == SearchPeriod.Custom }?.let { rangeLabel(it, rememberToday()) }
+                    ?: period?.let { periodLabel(it) }
+                    ?: stringResource(Res.string.search_chip_period),
                 period != null,
                 { onSheet(SheetRequest.Period) },
                 leadingIcon = DiaryIcons.TabCalendar,

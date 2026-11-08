@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.ui.DiaryMonthDays
 import org.sjhstudio.diary.core.ui.DiaryMonthPicker
 import org.sjhstudio.diary.core.ui.DiaryMoodGrid
 import org.sjhstudio.diary.core.ui.DiaryWeatherGrid
+import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.search.resources.Res
 import org.sjhstudio.diary.feature.search.resources.search_chip_mood
 import org.sjhstudio.diary.feature.search.resources.search_chip_period
@@ -37,6 +38,7 @@ import org.sjhstudio.diary.feature.search.resources.search_clear_filter
 import org.sjhstudio.diary.feature.search.resources.search_done
 import org.sjhstudio.diary.feature.search.resources.search_period_custom
 import org.sjhstudio.diary.feature.search.resources.search_period_month
+import org.sjhstudio.diary.feature.search.resources.search_period_range
 import org.sjhstudio.diary.feature.search.resources.search_period_week
 import org.sjhstudio.diary.feature.search.resources.search_period_year
 
@@ -81,14 +83,35 @@ private fun SheetButtons(onClear: () -> Unit, onDone: () -> Unit) {
     )
 }
 
+/**
+ * 직접 선택한 기간을 짧게 쓴다.
+ * 올해 안이면 "11월 1일 ~ 11월 7일", 다른 해가 끼면 연도까지 쓴다. 하루면 그날만 쓴다.
+ */
 @Composable
-internal fun PeriodSheet(selected: SearchPeriod?, onPick: (SearchPeriod?) -> Unit, onCustom: () -> Unit, onDismiss: () -> Unit) {
+internal fun rangeLabel(range: DateRange, today: LocalDate): String {
+    val dates = rememberDiaryDateFormat()
+    val thisYear = range.start.year == today.year && range.end.year == today.year
+    val format: (LocalDate) -> String = if (thisYear) dates::monthDay else dates::fullDate
+    if (range.start == range.end) return format(range.start)
+    return stringResource(Res.string.search_period_range, format(range.start), format(range.end))
+}
+
+@Composable
+internal fun PeriodSheet(
+    selected: SearchPeriod?,
+    customRange: String?,
+    onPick: (SearchPeriod?) -> Unit,
+    onCustom: () -> Unit,
+    onDismiss: () -> Unit
+) {
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_chip_period)) {
         // 고르기 목록의 줄끼리는 시트의 내용 간격 없이 붙인다.
         Column {
             for (period in SearchPeriod.entries) {
                 val isCustom = period == SearchPeriod.Custom
-                PeriodRow(periodLabel(period), period == selected) {
+                // 직접 선택한 기간은 줄 아래에 짧게 보여, 시트를 열었을 때 무엇을 골랐는지 바로 안다(2026-11-08 사용자 제안).
+                val description = if (isCustom && period == selected) customRange else null
+                PeriodRow(periodLabel(period), period == selected, description) {
                     when {
                         isCustom -> onCustom()
                         period == selected -> onPick(null)
@@ -105,12 +128,13 @@ internal fun PeriodSheet(selected: SearchPeriod?, onPick: (SearchPeriod?) -> Uni
  * 글은 시트 안쪽 선에 맞추고 누름 면만 글 양옆으로 12 나온다.
  */
 @Composable
-private fun PeriodRow(label: String, selected: Boolean, onClick: () -> Unit) {
+private fun PeriodRow(label: String, selected: Boolean, description: String?, onClick: () -> Unit) {
     CompositionLocalProvider(LocalScreenGutter provides DiarySpacing.x3) {
         DiarySettingsChoiceRow(
             title = label,
             selected = selected,
             onClick = onClick,
+            description = description,
             modifier =
                 Modifier.layout { measurable, constraints ->
                     val outset = DiarySpacing.x3.roundToPx()

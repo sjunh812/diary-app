@@ -11,7 +11,8 @@
     <string name="search_period_week">이번 주</string>
     <string name="search_period_month">이번 달</string>
     <string name="search_period_year">올해</string>
-    <string name="search_period_custom">직접 고르기</string>
+    <string name="search_period_custom">직접 선택</string>
+    <string name="search_period_range">%1$s ~ %2$s</string>
     <string name="search_clear_filter">지우기</string>
     <string name="search_done">완료</string>
     <string name="search_empty_title">찾는 일기가 없어요</string>

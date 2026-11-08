@@ -11,7 +11,8 @@
     <string name="search_period_week">今週</string>
     <string name="search_period_month">今月</string>
     <string name="search_period_year">今年</string>
-    <string name="search_period_custom">日付を選ぶ</string>
+    <string name="search_period_custom">期間を指定</string>
+    <string name="search_period_range">%1$s〜%2$s</string>
     <string name="search_clear_filter">クリア</string>
     <string name="search_done">完了</string>
     <string name="search_empty_title">該当する日記はありません</string>
