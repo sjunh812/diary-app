@@ -30,6 +30,9 @@ class FakeDraftRepository(
     /** 임시 저장본 쓰기가 실패하는 상황을 만든다(저장 공간이 찼을 때처럼). */
     var failWrites = false
 
+    /** 쓰기 화면을 열 때 읽기가 실패하는 상황을 만든다(DB를 읽지 못할 때처럼). */
+    var failReads = false
+
     /**
      * 다음 [addPhotos]가 돌려줄 값.
      * 없으면 받은 수만큼 더한다.
@@ -50,11 +53,18 @@ class FakeDraftRepository(
     /** 복원이 바꾼 일기 ID. */
     val changedByRestore = mutableSetOf<String>()
 
-    override suspend fun recentPlaces(): List<String> = places
+    override suspend fun recentPlaces(): List<String> {
+        check(!failReads) { "읽을 수 없음" }
+        return places
+    }
 
-    override suspend fun latestNew(): Draft? = drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
+    override suspend fun latestNew(): Draft? {
+        check(!failReads) { "읽을 수 없음" }
+        return drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
+    }
 
     override suspend fun openEdit(entryId: String): OpenedEdit? {
+        check(!failReads) { "읽을 수 없음" }
         val key = DraftKey.Edit(entryId)
         drafts.value[key]?.let { return OpenedEdit(it, resumed = true, entryChanged = entryId in changedByRestore) }
         val draft = editable[entryId] ?: return null

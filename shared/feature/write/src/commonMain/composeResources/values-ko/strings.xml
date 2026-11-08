@@ -19,6 +19,7 @@
     <string name="write_photo_no_space">휴대폰 저장 공간이 부족해 일부 사진을 넣지 못했어요</string>
     <string name="write_photo_unreadable">읽지 못한 사진이 있어요</string>
     <string name="write_save_failed">저장하지 못했어요. 쓴 글은 그대로 있으니 다시 눌러 주세요.</string>
+    <string name="write_open_failed">일기를 불러오지 못했어요. 닫고 다시 열어 주세요.</string>
     <string name="write_format_bold">굵게</string>
     <string name="write_format_underline">밑줄</string>
     <string name="write_format_color">글자색</string>

@@ -68,6 +68,37 @@ class WriteStorageFailureTest {
     )
 
     @Test
+    fun an_entry_that_cannot_be_read_is_never_overwritten() = runTest(dispatcher) {
+        val drafts = FakeDraftRepository().apply { failReads = true }
+        val vm = vm(WriteTarget.Edit("a"), drafts)
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.openFailed)
+        vm.onBodyChange("<p>빈 화면에 친 글</p>")
+        advanceUntilIdle()
+        vm.save()
+        advanceUntilIdle()
+
+        // 빈 화면에서 친 글로 원래 일기를 덮어쓰지 않는다.
+        assertEquals(false, vm.state.value.canSave)
+        assertTrue(drafts.committed.isEmpty())
+    }
+
+    @Test
+    fun a_new_entry_opens_blank_when_the_old_draft_cannot_be_read() = runTest(dispatcher) {
+        val drafts = FakeDraftRepository().apply { failReads = true }
+        val vm = vm(WriteTarget.New(), drafts)
+        advanceUntilIdle()
+
+        assertEquals(false, vm.state.value.loading)
+        assertEquals(false, vm.state.value.openFailed)
+        drafts.failReads = false
+        vm.onBodyChange("<p>바로 쓴다</p>")
+        advanceUntilIdle()
+        assertEquals(true, vm.state.value.canSave)
+    }
+
+    @Test
     fun a_failed_autosave_keeps_the_text_and_says_so() = runTest(dispatcher) {
         val vm = vm()
         advanceUntilIdle()

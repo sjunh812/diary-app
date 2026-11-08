@@ -174,6 +174,7 @@ import org.sjhstudio.diary.feature.write.resources.write_limit_plus
 import org.sjhstudio.diary.feature.write.resources.write_limit_title
 import org.sjhstudio.diary.feature.write.resources.write_mark_none
 import org.sjhstudio.diary.feature.write.resources.write_mood
+import org.sjhstudio.diary.feature.write.resources.write_open_failed
 import org.sjhstudio.diary.feature.write.resources.write_palette_back
 import org.sjhstudio.diary.feature.write.resources.write_photo_count
 import org.sjhstudio.diary.feature.write.resources.write_photo_limit
@@ -559,14 +560,19 @@ private fun Notices(state: WriteUiState, modifier: Modifier = Modifier) {
 }
 
 /**
- * 저장 실패는 글이 길어도 보이게 스크롤 밖에 둔다.
+ * 저장 실패와 불러오기 실패는 글이 길어도 보이게 스크롤 밖에 둔다.
  * 안내가 맨 위에 있으면 닫기를 눌러도 아무 일이 없는 것처럼 보인다.
  */
 @Composable
 private fun SaveFailedNotice(state: WriteUiState) {
-    if (!state.saveFailed) return
+    val message =
+        when {
+            state.openFailed -> Res.string.write_open_failed
+            state.saveFailed -> Res.string.write_save_failed
+            else -> return
+        }
     DiaryNotice(
-        stringResource(Res.string.write_save_failed),
+        stringResource(message),
         Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         icon = DiaryIcons.Info
     )

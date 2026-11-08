@@ -45,6 +45,7 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoPlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceFinder
@@ -100,6 +101,8 @@ data class WriteUiState(
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
     val saveFailed: Boolean = false,
+    /** 고칠 일기를 불러오지 못했다. 빈 글을 저장해 덮어쓰지 않게 저장도 막는다. */
+    val openFailed: Boolean = false,
     /** 남겨 둔 뒤에 일기가 바뀌었다. 저장하면 두 가지로 남는다고 미리 알린다. */
     val entryChanged: Boolean = false,
     /** 고른 사진을 넣고 있다. */
@@ -250,13 +253,18 @@ class WriteViewModel(
 
     init {
         viewModelScope.launch {
-            val places = drafts.recentPlaces()
+            // 최근 장소는 곁일이라 읽지 못하면 비워 둔다.
+            val places = orElseOnFailure(emptyList()) { drafts.recentPlaces() }
             _state.update { it.copy(recentPlaces = places) }
         }
         viewModelScope.launch {
             when (target) {
-                is WriteTarget.New -> openNew(target)
-                is WriteTarget.Edit -> openEdit(target)
+                // 쓰던 글을 읽지 못해도 저장본은 그대로 두고 빈 글로 바로 쓴다.
+                is WriteTarget.New -> orElseOnFailure(null) { openNew(target) } ?: startBlankIfNotReady(target.date)
+
+                // 고칠 일기를 읽지 못하면 빈 글로 덮어쓰지 않게 안내만 하고 저장 준비를 끝내지 않는다.
+                is WriteTarget.Edit ->
+                    orElseOnFailure(null) { openEdit(target) } ?: _state.update { it.copy(loading = false, openFailed = true) }
             }
         }
     }
@@ -290,6 +298,10 @@ class WriteViewModel(
         ready.complete(Unit)
     }
 
+    private fun startBlankIfNotReady(date: LocalDate?) {
+        if (!ready.isCompleted) startBlank(date, key)
+    }
+
     private suspend fun openEdit(entry: WriteTarget.Edit) {
         val edit = drafts.openEdit(entry.entryId)
         if (edit == null) {
@@ -304,7 +316,8 @@ class WriteViewModel(
     /** [이어 쓰기]. */
     fun continueDraft() {
         viewModelScope.launch {
-            val draft = drafts.latestNew() ?: return@launch
+            // 읽지 못하면 [이어 쓰기] 안내를 그대로 둬서 다시 누를 수 있다.
+            val draft = orElseOnFailure(null) { drafts.latestNew() } ?: return@launch
             resumed = true
             load(draft, isEdit = false)
         }
@@ -676,7 +689,7 @@ class WriteViewModel(
     private fun refreshCanSave() {
         val draft = currentDraft()
         val canSave = if (editorChanged) draft.canSave(hasText = editorHasText) else draft.canSave()
-        _state.update { it.copy(canSave = canSave, canDiscard = resumed) }
+        _state.update { it.copy(canSave = canSave && !it.openFailed, canDiscard = resumed) }
     }
 
     private suspend fun flush(force: Boolean = false) {
