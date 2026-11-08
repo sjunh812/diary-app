@@ -352,6 +352,9 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
     }
 }
 
+/** 날짜·시각 시트의 시각 바퀴 칸 수. */
+private const val SHEET_WHEEL_ROWS = 3
+
 /**
  * 날짜와 시각 고르기.
  * 과거·미래 어느 날이든 고를 수 있다(FR-004).
@@ -363,12 +366,15 @@ internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate,
     var picked by remember { mutableStateOf(date) }
     var month by remember { mutableStateOf(YearMonth(date.year, date.month.number)) }
     var minute by remember { mutableIntStateOf(time.hour * 60 + time.minute) }
-    DiaryBottomSheet(onDismiss = onDismiss, title = dates.dayWithWeekday(picked)) {
+    // 고르는 날짜는 뒤 상단 바와 달력의 동그라미가 이미 보여서 시트 제목을 따로 두지 않는다.
+    DiaryBottomSheet(onDismiss = onDismiss) {
         DiaryMonthPicker(month, onChange = { month = it }) {
             DiaryMonthDays(month, isPicked = { it == picked }, onPick = { picked = it })
         }
         BasicText(stringResource(Res.string.write_time), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
-        DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour)
+        // 6주인 달과 시각 바퀴 다섯 칸이 한 시트에 들어가지 않아 바퀴를 세 칸으로 줄인다.
+        // 스크롤이 생기면 달력과 바퀴의 끌기가 시트 스크롤과 엉킨다.
+        DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour, rows = SHEET_WHEEL_ROWS)
         SheetButtons(
             stringResource(Res.string.write_close),
             onDismiss,

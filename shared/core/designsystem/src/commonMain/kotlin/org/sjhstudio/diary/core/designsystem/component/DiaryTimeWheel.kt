@@ -85,9 +85,11 @@ private const val LOOP_REPEAT = 400
  * 한국어·일본어는 오전·오후가 앞, 영어는 뒤에 온다(플랫폼 시각 형식과 같은 순서).
  * 돌리다 멈출 때마다 [onChange]로 하루 중 몇 분째인지(0~1439)를 알린다.
  * 글자는 칸이 정해져 있어 기기 글자 크기를 1.3배까지만 따른다.
+ * [rows]는 보이는 칸 수(홀수)다.
+ * 달력과 한 시트에 놓일 때는 3으로 줄여 시트가 스크롤되지 않게 한다.
  */
 @Composable
-fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean, modifier: Modifier = Modifier) {
+fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean, modifier: Modifier = Modifier, rows: Int = VISIBLE_ROWS) {
     var hour by remember { mutableIntStateOf(minuteOfDay / 60) }
     var minute by remember { mutableIntStateOf(minuteOfDay % 60) }
     val change by rememberUpdatedState(onChange)
@@ -100,14 +102,15 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
                 labels = listOf(stringResource(Res.string.ds_am), stringResource(Res.string.ds_pm)),
                 selected = if (hour >= 12) 1 else 0,
                 loop = false,
-                description = stringResource(Res.string.ds_wheel_ampm)
+                description = stringResource(Res.string.ds_wheel_ampm),
+                rows = rows
             ) { index ->
                 hour = hour % 12 + index * 12
                 emit()
             }
         }
     val colors = DiaryTheme.colors
-    Box(modifier.fillMaxWidth().height(WheelRow * VISIBLE_ROWS), contentAlignment = Alignment.Center) {
+    Box(modifier.fillMaxWidth().height(WheelRow * rows), contentAlignment = Alignment.Center) {
         // 가운데 고른 칸 띠
         Box(Modifier.fillMaxWidth().height(WheelRow).clip(DiaryShapes.r12).background(colors.sunken))
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
@@ -116,7 +119,8 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
                 labels = if (is24Hour) (0..23).map { it.toString() } else (listOf(12) + (1..11)).map { it.toString() },
                 selected = if (is24Hour) hour else hour % 12,
                 loop = true,
-                description = stringResource(Res.string.ds_wheel_hour)
+                description = stringResource(Res.string.ds_wheel_hour),
+                rows = rows
             ) { index ->
                 hour = if (is24Hour) index else index + if (hour >= 12) 12 else 0
                 emit()
@@ -125,7 +129,8 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
                 labels = (0..59).map { it.toString().padStart(2, '0') },
                 selected = minute,
                 loop = true,
-                description = stringResource(Res.string.ds_wheel_minute)
+                description = stringResource(Res.string.ds_wheel_minute),
+                rows = rows
             ) { index ->
                 minute = index
                 emit()
@@ -209,6 +214,7 @@ private fun WheelColumn(
     loop: Boolean,
     description: String,
     width: Dp = WheelColumnWidth,
+    rows: Int = VISIBLE_ROWS,
     onSelect: (Int) -> Unit
 ) {
     val size = labels.size
@@ -234,19 +240,19 @@ private fun WheelColumn(
     fun moveBy(step: Int): Boolean {
         val target = center + step
         if (target !in 0 until count) return false
-        // 맨 위 칸 앞에 두 칸 여백이 있어서, 그 칸으로 굴리면 가운데에 온다.
+        // 맨 위 칸 앞에 반 화면만큼 여백이 있어서, 그 칸으로 굴리면 가운데에 온다.
         scope.launch { state.animateScrollToItem(target) }
         return true
     }
     LazyColumn(
         state = state,
         flingBehavior = fling,
-        contentPadding = PaddingValues(vertical = WheelRow * (VISIBLE_ROWS / 2)),
+        contentPadding = PaddingValues(vertical = WheelRow * (rows / 2)),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
             Modifier
                 .width(width)
-                .height(WheelRow * VISIBLE_ROWS)
+                .height(WheelRow * rows)
                 .nestedScroll(ConsumeRemaining)
                 // 화면 읽기 프로그램은 열 하나를 "시, 10"처럼 읽고, 이전·다음 동작으로 한 칸씩 옮긴다.
                 .clearAndSetSemantics {

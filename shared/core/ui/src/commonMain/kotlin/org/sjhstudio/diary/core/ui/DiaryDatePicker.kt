@@ -143,6 +143,7 @@ private fun MonthArrow(icon: ImageVector, label: String, onClick: () -> Unit) {
 /**
  * 날짜 고르기 칸.
  * 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보인다.
+ * 어느 달이든 6주를 그려서, 달을 넘길 때 시트 높이가 한 줄씩 늘었다 줄지 않는다(Material 3 날짜 고르기와 같다).
  * [inRange]는 기간을 고를 때 사이의 날이다.
  */
 @Composable
@@ -156,7 +157,7 @@ fun DiaryMonthDays(
     val start = first.minus(DatePeriod(days = (first.dayOfWeek.ordinal + 1) % DAYS_IN_WEEK))
     Column(Modifier.fillMaxWidth()) {
         var day = start
-        while (day <= month.onDay(month.numberOfDays)) {
+        repeat(WEEKS_SHOWN) {
             Row(Modifier.fillMaxWidth()) {
                 repeat(DAYS_IN_WEEK) {
                     val current = day
@@ -169,6 +170,9 @@ fun DiaryMonthDays(
         }
     }
 }
+
+/** 한 달이 걸칠 수 있는 가장 많은 주. */
+private const val WEEKS_SHOWN = 6
 
 @Composable
 private fun DayCell(date: LocalDate, selected: Boolean, between: Boolean, inMonth: Boolean, modifier: Modifier, onClick: () -> Unit) {
