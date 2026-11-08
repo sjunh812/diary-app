@@ -121,6 +121,7 @@ import org.sjhstudio.diary.core.ui.LocalTabReselect
 import org.sjhstudio.diary.core.ui.WriteFailures
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
+import org.sjhstudio.diary.feature.backup.BackupAlertButton
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
@@ -394,6 +395,12 @@ private fun Content(
                                     nav.push(BackupSettingsKey)
                                 })
                                 BackupFoundPrompt(onRestoreEntry = { nav.push(RestorePreviewKey(it)) })
+                            },
+                            backupAlert = {
+                                BackupAlertButton(onOpen = {
+                                    nav.openTab(SettingsKey)
+                                    nav.push(BackupSettingsKey)
+                                })
                             },
                             listTop = { BackupNudgeCard() },
                             onOpen = nav::openEntry,

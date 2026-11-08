@@ -14,8 +14,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import kotlinx.datetime.LocalTime
@@ -28,6 +33,9 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
+import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
+import org.sjhstudio.diary.core.designsystem.component.SnapTitleOnRest
+import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -105,7 +113,29 @@ fun SettingsScreen(
     // 탭 바가 없는 넓은 화면에서만 마지막 줄 아래를 시스템 내비게이션 높이만큼 비운다.
     val scroll = rememberScrollState()
     OnTabReselected { scroll.animateScrollTo(0) }
+    var titleHeight by remember { mutableIntStateOf(0) }
+    SnapTitleOnRest(scroll, titleHeight)
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+        // 큰 제목이 스크롤되어 바 밑으로 들어가는 만큼 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
+        // 구독 중이면 바 오른쪽에 뱃지를 둔다.
+        DiaryTabTopBar(
+            title = stringResource(Res.string.settings_title),
+            collapsed = { titleCollapse(scroll.value, titleHeight) },
+            contentMaxWidth = DiaryWriteSize.settingsMax,
+            actions = {
+                if (plusActive) {
+                    DiaryButton(
+                        stringResource(Res.string.settings_plus_badge),
+                        onPlus,
+                        // 바 끝은 아이콘 단추 자리로 1만 비워 두어, 글자 단추는 화면 여백에 맞춘다.
+                        modifier = Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x1),
+                        size = DiaryButtonSize.Small,
+                        kind = DiaryButtonKind.Weak,
+                        leadingIcon = DiaryIcons.SparklesSolid
+                    )
+                }
+            }
+        )
         Column(
             Modifier
                 .widthIn(max = DiaryWriteSize.settingsMax)
@@ -114,26 +144,14 @@ fun SettingsScreen(
                 .navigationBarsPadding()
                 .padding(bottom = DiarySpacing.x6)
         ) {
-            // 구독 중이면 제목 위 빈 줄에 뱃지만 둔다.
-            // 다른 탭의 위쪽 줄과 같은 자리라 목록을 차지하지 않는다.
-            Box(
-                Modifier.fillMaxWidth().height(DiarySpacing.tabTitleTop).padding(horizontal = LocalScreenGutter.current),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                if (plusActive) {
-                    DiaryButton(
-                        stringResource(Res.string.settings_plus_badge),
-                        onPlus,
-                        size = DiaryButtonSize.Small,
-                        kind = DiaryButtonKind.Weak,
-                        leadingIcon = DiaryIcons.SparklesSolid
-                    )
-                }
-            }
             BasicText(
                 stringResource(Res.string.settings_title),
                 style = DiaryTheme.typography.display.copy(color = colors.textPrimary),
-                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { heading() }
+                modifier =
+                    Modifier
+                        .padding(horizontal = LocalScreenGutter.current)
+                        .onSizeChanged { titleHeight = it.height }
+                        .semantics { heading() }
             )
             if (!plusActive) {
                 // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드로 둔다.

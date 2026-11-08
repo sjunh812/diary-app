@@ -32,6 +32,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -75,7 +77,10 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
+import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
+import org.sjhstudio.diary.core.designsystem.component.SnapTitleOnRest
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryInsightSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
@@ -196,7 +201,26 @@ internal fun InsightScreen(
     val dates = rememberDiaryDateFormat()
     val scroll = rememberScrollState()
     OnTabReselected { scroll.animateScrollTo(0) }
-    Box(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
+    var titleHeight by remember { mutableIntStateOf(0) }
+    SnapTitleOnRest(scroll, titleHeight)
+    Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+        // 큰 제목이 스크롤되어 바 밑으로 들어가는 만큼 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
+        // 고급 통계 단추는 탭마다 같아서 어느 탭에서나 보이는 바 오른쪽에 둔다.
+        DiaryTabTopBar(
+            title = stringResource(Res.string.insight_title),
+            collapsed = { titleCollapse(scroll.value, titleHeight) },
+            contentMaxWidth = DiaryWriteSize.bodyMax,
+            actions = {
+                DiaryButton(
+                    stringResource(Res.string.insight_adv_title),
+                    if (advancedOpen) onAdvanced else onPlus,
+                    modifier = Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x1),
+                    size = DiaryButtonSize.Small,
+                    kind = DiaryButtonKind.Weak,
+                    leadingIcon = DiaryIcons.SparklesSolid
+                )
+            }
+        )
         Column(
             Modifier
                 .widthIn(max = DiaryWriteSize.bodyMax)
@@ -205,19 +229,9 @@ internal fun InsightScreen(
                 .padding(horizontal = LocalScreenGutter.current)
                 .padding(bottom = DiarySpacing.x14 + DiarySpacing.x6)
         ) {
-            // 탭마다 내용이 같아서 맨 아래 대신 어느 탭에서나 보이는 위쪽에 둔다.
-            Box(Modifier.fillMaxWidth().height(DiarySpacing.tabTitleTop), contentAlignment = Alignment.CenterEnd) {
-                DiaryButton(
-                    stringResource(Res.string.insight_adv_title),
-                    if (advancedOpen) onAdvanced else onPlus,
-                    size = DiaryButtonSize.Small,
-                    kind = DiaryButtonKind.Weak,
-                    leadingIcon = DiaryIcons.SparklesSolid
-                )
-            }
             BasicText(
                 stringResource(Res.string.insight_title),
-                modifier = Modifier.semantics { heading() },
+                modifier = Modifier.onSizeChanged { titleHeight = it.height }.semantics { heading() },
                 style = DiaryTheme.typography.display.copy(color = colors.textPrimary)
             )
             Spacer(Modifier.height(DiarySpacing.x3))

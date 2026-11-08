@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,6 +34,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +43,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -47,12 +51,17 @@ import kotlinx.datetime.number
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryCollapsingHeader
+import org.sjhstudio.diary.core.designsystem.component.DiaryCollapsingHeaderState
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
+import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.rememberDiaryCollapsingHeaderState
+import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -103,6 +112,7 @@ fun HomeRoute(
     selectedId: String?,
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
+    backupAlert: @Composable () -> Unit = {},
     listTop: @Composable () -> Unit = {},
     adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> }
 ) {
@@ -115,8 +125,22 @@ fun HomeRoute(
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
     val grid = rememberLazyGridState()
+    val header = rememberDiaryCollapsingHeaderState()
     OnTabReselected {
-        if (style == ListStyle.PHOTO_GRID) grid.animateScrollToItem(0) else list.animateScrollToItem(0)
+        // 목록을 코드로 올리면 중첩 스크롤을 거치지 않아 머리가 접힌 채 남는다.
+        // 맨 위로 갈 때 머리도 함께 펼친다.
+        // 멀리 내려가 있으면 수백 줄을 하나씩 지나며 움직여 느리고 번쩍인다.
+        // 몇 줄 앞으로 바로 옮긴 뒤 짧게만 부드럽게 올린다(Google 앱들과 같은 방식).
+        coroutineScope {
+            launch { header.expand() }
+            if (style == ListStyle.PHOTO_GRID) {
+                if (grid.firstVisibleItemIndex > RESELECT_JUMP) grid.scrollToItem(RESELECT_JUMP)
+                grid.animateScrollToItem(0)
+            } else {
+                if (list.firstVisibleItemIndex > RESELECT_JUMP) list.scrollToItem(RESELECT_JUMP)
+                list.animateScrollToItem(0)
+            }
+        }
     }
     val scope = rememberCoroutineScope()
     val dates = rememberDiaryDateFormat()
@@ -151,6 +175,8 @@ fun HomeRoute(
         onSearch = onSearch,
         modifier = modifier,
         backupLine = backupLine,
+        backupAlert = backupAlert,
+        header = header,
         listTop = listTop,
         adSlot = adSlot
     )
@@ -211,47 +237,68 @@ internal fun HomeScreen(
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
+    backupAlert: @Composable () -> Unit = {},
+    header: DiaryCollapsingHeaderState = rememberDiaryCollapsingHeaderState(),
     listTop: @Composable () -> Unit = {},
     adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> }
 ) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
-            TopActions(favoritesOnly, onToggleFavorites, onSearch)
             // 일기가 없으면 고를 달도 없다.
             // 불러오는 동안에는 화살표가 깜빡이지 않게 그대로 둔다.
             val noMonths = rows.itemCount == 0 && rows.loadState.refresh is LoadState.NotLoading
-            DiaryTitleButton(title, onPickMonth.takeUnless { noMonths }, Modifier.padding(horizontal = LocalScreenGutter.current))
-            Spacer(Modifier.height(DiarySpacing.x1))
-            backupLine()
-            // 스크롤하면 나타나는 선이 백업 문구에 붙지 않게 띄운다.
-            // 그만큼 목록 위를 줄여 쉴 때의 자리는 그대로다.
-            Spacer(Modifier.height(DiarySpacing.x2))
-            ScrollEdge(if (style == ListStyle.PHOTO_GRID) grid.canScrollBackward else list.canScrollBackward)
+            val pickMonth = onPickMonth.takeUnless { noMonths }
+            // 스크롤하면 큰 제목과 백업 줄이 위로 접히고 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
+            // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추를 둔다.
+            // 바의 작은 제목은 머리 전체가 아니라 큰 제목이 가려진 만큼만 따른다.
+            // 머리 전체로 재면 큰 제목이 다 가려지기 전에 작은 제목이 진하게 떠서 둘이 겹쳐 보였다.
+            var titleHeight by remember { mutableIntStateOf(0) }
+            DiaryTabTopBar(
+                title = title,
+                collapsed = { titleCollapse((-header.offset).toInt(), titleHeight) },
+                onTitleClick = pickMonth,
+                accessory = backupAlert,
+                actions = { TopActions(favoritesOnly, onToggleFavorites, onSearch) }
+            )
+            DiaryCollapsingHeader(header) {
+                Column {
+                    DiaryTitleButton(
+                        title,
+                        pickMonth,
+                        Modifier.padding(horizontal = LocalScreenGutter.current).onSizeChanged { titleHeight = it.height }
+                    )
+                    Spacer(Modifier.height(DiarySpacing.x1))
+                    backupLine()
+                    Spacer(Modifier.height(DiarySpacing.x2))
+                }
+            }
             val refresh = rows.loadState.refresh
-            when {
-                rows.itemCount > 0 -> {
-                    val dates = rememberDiaryDateFormat()
-                    when (style) {
-                        ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                        ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                        ListStyle.PHOTO_GRID -> PhotoGrid(rows, grid, selectedId, dates, onOpen, onMenu, listTop)
+            Box(Modifier.weight(1f).nestedScroll(header.connection)) {
+                when {
+                    rows.itemCount > 0 -> {
+                        val dates = rememberDiaryDateFormat()
+                        when (style) {
+                            ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                            ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                            ListStyle.PHOTO_GRID -> PhotoGrid(rows, grid, selectedId, dates, onOpen, onMenu, listTop)
+                        }
                     }
-                }
 
-                refresh is LoadState.NotLoading -> {
-                    ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                    Empty(favoritesOnly, onWrite)
-                }
+                    refresh is LoadState.NotLoading -> {
+                        ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                        Empty(favoritesOnly, onWrite)
+                    }
 
-                refresh is LoadState.Error -> LoadFailed(rows::retry)
+                    refresh is LoadState.Error -> LoadFailed(rows::retry)
 
-                else -> {
-                    ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                    // 곧 나올 목록과 같은 꼴을 그린다.
-                    when (style) {
-                        ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
-                        ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
-                        ListStyle.PHOTO_GRID -> SkeletonPhotoGrid()
+                    else -> {
+                        ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                        // 곧 나올 목록과 같은 꼴을 그린다.
+                        when (style) {
+                            ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
+                            ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
+                            ListStyle.PHOTO_GRID -> SkeletonPhotoGrid()
+                        }
                     }
                 }
             }
@@ -259,25 +306,10 @@ internal fun HomeScreen(
     }
 }
 
-/**
- * 목록이 머리 밑으로 들어갔을 때만 보이는 선.
- * 잘린 글이 머리와 붙어 보이지 않게 한다.
- * 칸은 늘 있어서 목록이 움직이지 않는다.
- */
-@Composable
-private fun ScrollEdge(scrolled: Boolean) {
-    Box(
-        Modifier.fillMaxWidth().height(DiarySpacing.hairline).background(if (scrolled) DiaryTheme.colors.line else DiaryTheme.colors.canvas)
-    )
-}
-
 @Composable
 private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: () -> Unit) {
     val colors = DiaryTheme.colors
-    Row(
-        Modifier.fillMaxWidth().padding(end = DiarySpacing.x1, top = DiarySpacing.x1),
-        horizontalArrangement = Arrangement.End
-    ) {
+    Row {
         DiaryIconButton(DiaryIcons.Search, stringResource(Res.string.home_search), onSearch)
         // 켜고 끄는 단추라 화면 읽기에 스위치로 읽히게 역할을 Switch로 둔다.
         val interaction = remember { MutableInteractionSource() }
@@ -430,3 +462,6 @@ internal const val LIST_TOP_KEY = "list-top"
 
 private const val FIRST_AD = 4
 private const val AD_EVERY = 20
+
+/** 탭을 다시 눌렀을 때 이보다 아래면 이 줄까지 바로 옮긴 뒤 부드럽게 올린다. */
+private const val RESELECT_JUMP = 6
