@@ -1,7 +1,6 @@
 package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -69,6 +68,15 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
 
     // 공유할 일기. 화면이 날짜·기분과 함께 글로 만든다.
     suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
+
+    /**
+     * 공유할 일기를 읽어 [onReady]로 건넨다.
+     * 메뉴는 누르자마자 닫혀 화면에서 빠지므로 화면 모델의 범위에서 읽는다.
+     * 메뉴 안에서 읽으면 닫히면서 함께 취소되어 공유 창이 뜨지 않는다.
+     */
+    fun share(id: String, onReady: (Entry) -> Unit) {
+        scope.launch { entryToShare(id)?.let(onReady) }
+    }
 }
 
 /**
@@ -87,7 +95,6 @@ fun EntryMenuFor(
     // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
     val share = rememberShareText()
     val shareText = rememberEntryShareText()
-    val scope = rememberCoroutineScope()
     EntryMenu(
         favorite = favorite,
         onDismiss = onDismiss,
@@ -101,7 +108,7 @@ fun EntryMenuFor(
         },
         onShare = {
             onDismiss()
-            scope.launch { work.entryToShare(id)?.let { share(shareText(it)) } }
+            work.share(id) { entry -> share(shareText(entry)) }
         },
         onTrash = {
             onDismiss()

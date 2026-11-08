@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
@@ -264,6 +265,18 @@ class CalendarViewModelTest {
     @Test
     fun menu_shares_plain_text() = runTest {
         assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).menu.entryToShare("a")?.plainText)
+    }
+
+    /** 메뉴가 닫혀도 공유할 일기는 화면 모델의 범위에서 끝까지 읽힌다. */
+    @Test
+    fun sharing_survives_the_menu_closing() = runTest {
+        val vm = menuViewModel(Menu(detail(favorite = false)))
+        var shared: String? = null
+
+        vm.menu.share("a") { shared = it.plainText }
+        advanceUntilIdle()
+
+        assertEquals("공유할 글", shared)
     }
 
     private object NoFonts : FontInstaller {
