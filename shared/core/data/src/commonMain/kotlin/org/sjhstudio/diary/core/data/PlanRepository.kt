@@ -2,9 +2,12 @@ package org.sjhstudio.diary.core.data
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
 import org.sjhstudio.diary.core.model.Plan
@@ -26,19 +29,29 @@ interface PlanRepository {
      * 산 사람에게 광고가 스치면 안 된다.
      */
     val known: StateFlow<Boolean> get() = AlwaysKnown
+
+    /**
+     * 확정된 요금제. 재설치 직후 스토어 답이 오기 전에는 null이다.
+     * 광고, 사진 한도, 체크리스트, 고급 통계는 [plan] 대신 이것을 본다.
+     * 그래야 산 사람에게 광고나 Plus 권유가 스치지 않는다.
+     */
+    val confirmed: Flow<Plan?> get() = combine(plan, known) { plan, known -> plan.takeIf { known } }
+
+    /** 지금 확정된 요금제. 모르면 null이다. */
+    val confirmedNow: Plan? get() = plan.value.takeIf { known.value }
+
+    /**
+     * 요금제가 확정될 때까지 [wait]만큼 기다린다.
+     * 이미 쓰던 사람은 기기에 남긴 값이 있어 바로 돌아오고, 기다림은 재설치 직후에만 생긴다.
+     * 오프라인이라 끝내 모르면 지금 값을 쓴다.
+     */
+    suspend fun awaitConfirmed(wait: Duration = CONFIRM_WAIT): Plan =
+        withTimeoutOrNull(wait) { confirmed.filterNotNull().first() } ?: plan.value
 }
+
+private val CONFIRM_WAIT = 3.seconds
 
 private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow()
-
-/**
- * 한 편에 새로 붙일 수 있는 사진 수.
- * 재설치 직후 스토어 답이 오기 전에는 요금제가 무료로 보여서, 산 사람에게 10장 한도와 Plus 권유가 뜬다.
- * 그래서 요금제를 알 때까지 [wait]만큼 기다리고, 그래도 모르면 지금 값을 쓴다.
- */
-suspend fun PlanRepository.knownPhotoLimit(wait: Duration = 3.seconds): Int {
-    withTimeoutOrNull(wait) { known.first { it } }
-    return plan.value.photoLimit
-}
 
 /**
  * 스토어 답을 요금제로 옮기는 규칙.

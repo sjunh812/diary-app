@@ -52,7 +52,6 @@ import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.diary.MediaRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
-import org.sjhstudio.diary.core.data.knownPhotoLimit
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
@@ -318,7 +317,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
         // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾는다.
         single<DraftRepository> {
             val koin = getKoin()
-            DefaultDraftRepository(get(), get(), photoLimit = { koin.get<PlanRepository>().knownPhotoLimit() })
+            DefaultDraftRepository(get(), get(), photoLimit = { koin.get<PlanRepository>().awaitConfirmed().photoLimit })
         }
         single<StatsRepository> { DefaultStatsRepository(get()) }
         single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }

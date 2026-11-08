@@ -73,7 +73,7 @@ class AdRepository(
     private var shownDay: String? = null
 
     val showAds: Flow<Boolean> =
-        combine(plans.plan, plans.known, store.prefs) { plan, known, prefs -> known && plan.showsAds && adsAllowed(prefs) }
+        combine(plans.confirmed, store.prefs) { plan, prefs -> plan?.showsAds == true && adsAllowed(prefs) }
             // 기록을 읽지 못하면 덜 보이는 쪽으로 본다.
             .catch { if (it is IOException) emit(false) else throw it }
             .distinctUntilChanged()
@@ -132,7 +132,7 @@ class AdRepository(
     private suspend fun interstitialDue(): Boolean {
         val prefs = store.current()
         val shown = listOfNotNull(prefs.lastInterstitialDay, shownDay).maxOrNull()
-        val allowed = plans.known.value && plans.plan.value.showsAds && switch.enabled() && adsAllowed(prefs)
+        val allowed = plans.confirmedNow?.showsAds == true && switch.enabled() && adsAllowed(prefs)
         return allowed && (shown == null || shown < today())
     }
 
