@@ -191,6 +191,18 @@ object DiaryIcons {
         )
     }
     val Cloud: ImageVector by lazy { lucide("cloud", "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z") }
+    val CloudUpload: ImageVector by lazy {
+        lucide("cloud-upload", "M12 13v8", "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", "m8 17 4-4 4 4")
+    }
+    val CloudOff: ImageVector by lazy {
+        lucide(
+            "cloud-off",
+            "M10.94 5.274A7 7 0 0 1 15.71 10h1.79a4.5 4.5 0 0 1 4.222 6.057",
+            "M18.796 18.81A4.5 4.5 0 0 1 17.5 19H9A7 7 0 0 1 5.79 5.78",
+            "m2 2 20 20"
+        )
+    }
+    val LinkOff: ImageVector by lazy { lucide("link-2-off", "M9 17H7A5 5 0 0 1 7 7", "M15 7h2a5 5 0 0 1 4 8", "M8 12L12 12", "M2 2L22 22") }
     val Sparkles: ImageVector by lazy {
         lucide(
             "sparkles",

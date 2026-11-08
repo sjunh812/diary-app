@@ -119,18 +119,20 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
     val running = status.running
     val last = status.lastSuccessAt
     val now = Clock.System.now()
+    // 아이콘이 상태를 말한다(Figma B11 상태들과 같다).
+    // 방패는 사진까지 다 올라간 때만 쓴다.
     return when {
         // 사진을 받는 동안 "사진까지 모두"라고 말하면 틀린 말이 된다.
-        photos != null -> Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_receiving, photos.done, photos.total))
+        photos != null -> Line(DiaryIcons.Download, stringResource(Res.string.backup_line_receiving, photos.done, photos.total))
 
         status.connection == BackupConnection.NotConnected ->
-            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_off), action = stringResource(Res.string.backup_line_on))
+            Line(DiaryIcons.CloudOff, stringResource(Res.string.backup_line_off), action = stringResource(Res.string.backup_line_on))
 
         status.connection == BackupConnection.NeedsReconnect ->
-            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_reconnect), alert = true)
+            Line(DiaryIcons.LinkOff, stringResource(Res.string.backup_line_reconnect), alert = true)
 
         running != null -> Line(
-            DiaryIcons.ShieldCheck,
+            DiaryIcons.CloudUpload,
             // 글을 먼저 올리는 동안은 사진 수를 모른다.
             // 0/0을 보이지 않는다.
             if (running.photosTotal > 0) {
@@ -140,18 +142,18 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
             }
         )
 
-        status.findingBackup -> Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_finding_title))
+        status.findingBackup -> Line(DiaryIcons.Cloud, stringResource(Res.string.backup_finding_title))
 
         // 실패가 7일을 넘으면 마지막 성공이 얼마나 지났는지가 더 중요하다.
         last != null && now - (status.failingSince ?: now) >= LONG_FAILURE ->
-            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_days, (now - last).inWholeDays.toInt()), alert = true)
+            Line(DiaryIcons.CloudOff, stringResource(Res.string.backup_line_days, (now - last).inWholeDays.toInt()), alert = true)
 
         // 글을 올린 뒤 공간 때문에 사진만 남은 것은 실패가 아니라서 아래 줄이 말한다.
         status.lastFailure != null && status.failingSince != null ->
-            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_failed))
+            Line(DiaryIcons.CircleAlert, stringResource(Res.string.backup_line_failed))
 
         last == null -> Line(
-            DiaryIcons.ShieldCheck,
+            DiaryIcons.Cloud,
             status.restoredBackupAt?.let { restoredBackupText(it) } ?: stringResource(Res.string.backup_first_title)
         )
 
@@ -162,7 +164,9 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
                 } else {
                     stringResource(Res.string.backup_line_all)
                 }
-            Line(DiaryIcons.ShieldCheck, stringResource(Res.string.backup_line_at, whenText(last), detail))
+            // 방패는 사진까지 다 올라가 지킬 것이 없을 때만 쓴다.
+            val icon = if (status.photosNotBackedUp > 0) DiaryIcons.Cloud else DiaryIcons.ShieldCheck
+            Line(icon, stringResource(Res.string.backup_line_at, whenText(last), detail))
         }
     }
 }
