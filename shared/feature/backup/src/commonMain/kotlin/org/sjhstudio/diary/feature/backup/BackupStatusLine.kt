@@ -31,6 +31,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.diaryTouchOutset
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -113,6 +114,50 @@ internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier
 }
 
 private class Line(val icon: ImageVector, val text: String, val action: String? = null, val alert: Boolean = false)
+
+/** 사용자가 손봐야 하는 백업 상태. 홈 줄의 빨간 점과 접힌 바의 경고 단추가 같은 기준을 쓴다. */
+internal enum class BackupAttention { Reconnect, LongFailure }
+
+/**
+ * 손봐야 할 백업 상태를 고른다.
+ * [lineFor]와 같은 순서로 따져서, 줄이 다른 말을 하는 동안(사진 받는 중, 꺼짐, 올리는 중, 찾는 중)에는 경고하지 않는다.
+ */
+internal fun attentionOf(status: BackupStatus, receivingPhotos: Boolean, now: Instant): BackupAttention? {
+    val last = status.lastSuccessAt
+    return when {
+        receivingPhotos || status.connection == BackupConnection.NotConnected -> null
+        status.connection == BackupConnection.NeedsReconnect -> BackupAttention.Reconnect
+        status.running != null || status.findingBackup -> null
+        last != null && now - (status.failingSince ?: now) >= LONG_FAILURE -> BackupAttention.LongFailure
+        else -> null
+    }
+}
+
+/**
+ * 홈 머리가 접혔을 때 바의 작은 제목 옆에 두는 백업 경고(`docs/design.md` 탭 상단 바).
+ * 손봐야 할 때만 보이고, 누르면 홈 백업 줄처럼 설정의 백업으로 간다.
+ * 평소 상태는 맨 위로 올리면 백업 줄이 말하므로 바에 두지 않는다.
+ */
+@Composable
+fun BackupAlertButton(onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    val viewModel = koinViewModel<BackupViewModel>()
+    val status by viewModel.loadedStatus.collectAsStateWithLifecycle()
+    val photos by viewModel.photoProgress.collectAsStateWithLifecycle()
+    val attention = status?.let { attentionOf(it, photos != null, Clock.System.now()) } ?: return
+    val label =
+        when (attention) {
+            BackupAttention.Reconnect -> stringResource(Res.string.backup_line_reconnect)
+            BackupAttention.LongFailure -> stringResource(Res.string.backup_line_failed)
+        }
+    DiaryIconButton(
+        if (attention == BackupAttention.Reconnect) DiaryIcons.LinkOff else DiaryIcons.CloudOff,
+        contentDescription = label,
+        onClick = onOpen,
+        modifier = modifier.diaryTouchOutset(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x3),
+        tint = DiaryTheme.colors.danger,
+        iconSize = DiaryIconSize.i20
+    )
+}
 
 @Composable
 private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
