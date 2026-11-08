@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
@@ -161,13 +162,13 @@ class AdaptiveLayoutUiTest {
         onAllNodes(tabs)[1].performClick()
         waitForIdle()
 
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
 
         assertEquals(1, onAllNodes(backButton).fetchSemanticsNodes().size)
         onNode(backButton).performClick()
         waitForIdle()
-        assertEquals(1, onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size)
+        waitUntil(timeoutMillis = ROW_WAIT_MILLIS) { onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size == 1 }
     }
 
     /** 두 칸에서는 왼쪽 목록이 그대로 보여 뒤로 버튼이 필요 없다. */
@@ -177,7 +178,7 @@ class AdaptiveLayoutUiTest {
         setContent { TwoPanes() }
         waitForIdle()
 
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
 
         assertEquals(0, onAllNodes(backButton).fetchSemanticsNodes().size)
@@ -188,6 +189,20 @@ class AdaptiveLayoutUiTest {
             val key = SemanticsProperties.ContentDescription
             key in node.config && node.config[key].any { it in BACK_LABELS }
         }
+
+    /**
+     * 목록의 "글 a" 줄을 연다.
+     * 목록은 백그라운드에서 읽어서 waitForIdle이 끝나도 줄이 아직 없을 수 있다.
+     * 줄이 처음 나타나는 동안에는 합친 의미 트리에 글이 늦게 붙기도 해서, 느린 CI에서 가끔 찾지 못했다.
+     * 그래서 합치기 전 트리에서 글을 찾고, 보일 때까지 기다린 뒤 누른다.
+     */
+    private fun ComposeUiTest.openRowA() {
+        val row = hasText("글 a", substring = true)
+        waitUntil(timeoutMillis = ROW_WAIT_MILLIS) {
+            onAllNodes(row, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        onAllNodes(row, useUnmergedTree = true)[0].performClick()
+    }
 
     /** 상세의 공유가 화면 컨트롤러를 찾는다. */
     @Composable
@@ -207,7 +222,7 @@ class AdaptiveLayoutUiTest {
             if (running) CompositionLocalProvider(LocalSaveableStateRegistry provides registry) { TwoPanes() }
         }
         waitForIdle()
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
         assertEquals(0, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
         onAllNodes(tabs)[1].performClick()
@@ -232,7 +247,7 @@ class AdaptiveLayoutUiTest {
         rows = listOf(fakeEntryRow("a", day))
         setContent { TwoPanes() }
         waitForIdle()
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
 
         onAllNodes(tabs)[1].performClick()
@@ -241,8 +256,10 @@ class AdaptiveLayoutUiTest {
         waitForIdle()
 
         assertEquals(0, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
-        assertEquals(1, onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size)
+        waitUntil(timeoutMillis = ROW_WAIT_MILLIS) { onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size == 1 }
     }
 }
 
 private val BACK_LABELS = setOf("뒤로 가기", "Back", "戻る")
+
+private const val ROW_WAIT_MILLIS = 5_000L
