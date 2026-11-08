@@ -271,7 +271,8 @@ private fun Section(
             )
             trailing?.invoke()
         }
-        Spacer(Modifier.height(titleGap))
+        // 칩(32)이 제목 글줄보다 높아 제목 줄이 커지므로, 칩이 있으면 그만큼 덜 띄워 보이는 간격을 다른 묶음과 맞춘다.
+        Spacer(Modifier.height(if (trailing != null) titleGap - DiarySpacing.x1 else titleGap))
         Column(verticalArrangement = Arrangement.spacedBy(gap), content = content)
     }
 }
