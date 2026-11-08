@@ -87,9 +87,9 @@
     <string name="insight_section_moods">자주 고른 기분</string>
     <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
     <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 보여 드려요.</string>
-    <string name="insight_adv_recent_better">요즘 좋은 날이 많아졌어요</string>
-    <string name="insight_adv_recent_harder">요즘 힘든 날이 많았네요</string>
-    <string name="insight_adv_recent_steady">요즘은 평소와 비슷해요</string>
+    <string name="insight_adv_recent_better">요즘 좋은 날이 많아졌어요 ☀️</string>
+    <string name="insight_adv_recent_harder">요즘 힘든 날이 많았네요 ☁️</string>
+    <string name="insight_adv_recent_steady">요즘은 평소와 비슷해요 ⛅</string>
     <string name="insight_adv_recent_steady_body">그 전 30일과 크게 다르지 않아요.</string>
     <string name="insight_adv_recent_good_up">그 전 30일보다 긍정적인 기분이 늘었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_recent_good_down">그 전 30일보다 긍정적인 기분이 줄었어요. %1$d% → %2$d%</string>

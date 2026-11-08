@@ -87,9 +87,9 @@
     <string name="insight_section_moods">よく選んだ気分</string>
     <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
     <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>
-    <string name="insight_adv_recent_better">最近、いい日が増えてきました</string>
-    <string name="insight_adv_recent_harder">最近、つらい日が多かったようです</string>
-    <string name="insight_adv_recent_steady">最近はいつもどおりです</string>
+    <string name="insight_adv_recent_better">最近、いい日が増えてきました ☀️</string>
+    <string name="insight_adv_recent_harder">最近、つらい日が多かったようです ☁️</string>
+    <string name="insight_adv_recent_steady">最近はいつもどおりです ⛅</string>
     <string name="insight_adv_recent_steady_body">その前の30日と大きな違いはありません。</string>
     <string name="insight_adv_recent_good_up">その前の30日よりポジティブな気分が増えました。%1$d% → %2$d%</string>
     <string name="insight_adv_recent_good_down">その前の30日よりポジティブな気分が減りました。%1$d% → %2$d%</string>

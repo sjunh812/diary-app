@@ -15,7 +15,7 @@
 
     <!-- 결과(M2) -->
     <plurals name="migration_done_title">
-        <item quantity="other">%1$s편을 모두 옮겼어요</item>
+        <item quantity="other">%1$s편을 모두 옮겼어요 🎉</item>
     </plurals>
     <plurals name="migration_done_photos">
         <item quantity="other">사진 %1$s장도 함께 옮겼어요.</item>

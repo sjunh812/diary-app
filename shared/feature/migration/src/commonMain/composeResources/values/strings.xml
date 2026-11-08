@@ -16,8 +16,8 @@
 
     <!-- 결과(M2) -->
     <plurals name="migration_done_title">
-        <item quantity="one">%1$s entry transferred</item>
-        <item quantity="other">All %1$s entries transferred</item>
+        <item quantity="one">%1$s entry transferred 🎉</item>
+        <item quantity="other">All %1$s entries transferred 🎉</item>
     </plurals>
     <plurals name="migration_done_photos">
         <item quantity="one">%1$s photo transferred too.</item>

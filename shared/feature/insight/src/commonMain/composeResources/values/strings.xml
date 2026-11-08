@@ -94,9 +94,9 @@
     <string name="insight_section_moods">Top moods</string>
     <string name="insight_adv_no_moods">Not enough entries with a mood</string>
     <string name="insight_adv_no_moods_body">Pick a mood on 7 entries and we'll look for differences.</string>
-    <string name="insight_adv_recent_better">You've had more good days lately</string>
-    <string name="insight_adv_recent_harder">Lately hasn't been easy</string>
-    <string name="insight_adv_recent_steady">Things have been about the same lately</string>
+    <string name="insight_adv_recent_better">You've had more good days lately ☀️</string>
+    <string name="insight_adv_recent_harder">Lately hasn't been easy ☁️</string>
+    <string name="insight_adv_recent_steady">Things have been about the same lately ⛅</string>
     <string name="insight_adv_recent_steady_body">Not much different from the previous 30 days.</string>
     <string name="insight_adv_recent_good_up">More positive moods than the previous 30 days. %1$d% → %2$d%</string>
     <string name="insight_adv_recent_good_down">Fewer positive moods than the previous 30 days. %1$d% → %2$d%</string>

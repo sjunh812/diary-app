@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">1일 1일기</string>
     <string name="reminder_channel">매일 알림</string>
-    <string name="reminder_body">오늘 하루는 어땠나요? 한 줄만 남겨 보세요.</string>
+    <string name="reminder_body">오늘 하루는 어땠나요? ✍️ 한 줄만 남겨 보세요.</string>
     <!-- 고를 때 받는 글꼴 모듈 이름. Play가 받는 중에 보일 수 있다. -->
     <string name="font_module_title">일기 글꼴</string>
 </resources>

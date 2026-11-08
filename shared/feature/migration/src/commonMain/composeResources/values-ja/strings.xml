@@ -15,7 +15,7 @@
 
     <!-- 結果(M2) -->
     <plurals name="migration_done_title">
-        <item quantity="other">%1$s件をすべて移行しました</item>
+        <item quantity="other">%1$s件をすべて移行しました 🎉</item>
     </plurals>
     <plurals name="migration_done_photos">
         <item quantity="other">写真%1$s枚も一緒に移行しました。</item>

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">1日1日記</string>
     <string name="reminder_channel">毎日のリマインダー</string>
-    <string name="reminder_body">今日はどんな一日でしたか？一行だけ残してみましょう。</string>
+    <string name="reminder_body">今日はどんな一日でしたか？✍️ 一行だけ残してみましょう。</string>
     <!-- 고를 때 받는 글꼴 모듈 이름. Play가 받는 중에 보일 수 있다. -->
     <string name="font_module_title">日記のフォント</string>
 </resources>
