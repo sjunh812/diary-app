@@ -47,6 +47,12 @@ class TabNavigationTest {
         clock += 400.milliseconds
         nav.push(PhotoViewerKey("a", 0))
         assertEquals(listOf<NavKey>(HomeKey, writing, PhotoViewerKey("a", 0)), nav.current)
+
+        // 뒤로 간 바로 뒤에 다른 화면을 여는 것은 막지 않는다.
+        nav.back()
+        clock += 100.milliseconds
+        nav.push(SearchKey())
+        assertEquals(listOf<NavKey>(HomeKey, writing, SearchKey()), nav.current)
     }
 
     @Test

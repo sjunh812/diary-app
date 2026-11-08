@@ -145,6 +145,8 @@ class TabNavigation(
      * 탭 첫 화면이면 홈으로, 홈 첫 화면이면 시스템이 앱을 닫는다.
      */
     fun back() {
+        // 뒤로 간 뒤에 다른 화면을 여는 것은 연타가 아니다.
+        lastOpen = null
         movedBetweenTabs = current.size <= 1 && tab != START_TAB
         when {
             current.size > 1 -> current.removeAt(current.lastIndex)
