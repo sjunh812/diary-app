@@ -158,7 +158,7 @@ The project documents are written in Korean.
 
 ## License
 
-Copyright © 2021–2026 서주냥 (서준형). All rights reserved.
+Copyright © 2021 서주냥 (서준형). All rights reserved.
 
 This repository is public so the code can be read, but it is not open source.
 You may not copy, modify, or distribute this code, or publish an app built from it, without written permission. See [`LICENSE`](LICENSE).
