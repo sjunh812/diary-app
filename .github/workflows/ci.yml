@@ -144,17 +144,19 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      # GitHub 다운로드 서버가 잠깐 504를 내면 자바 받기가 실패해 CI 전체가 빨개졌다(2026-11-08).
-      # 실패하면 30초 쉬고 한 번 더 받는다.
-      - id: java
-        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
-        continue-on-error: true
-        with:
-          distribution: temurin
-          java-version: 17
-      - if: steps.java.outcome == 'failure'
-        run: sleep 30
-      - if: steps.java.outcome == 'failure'
+      # macOS 러너에는 JDK 17이 미리 깔려 있어 받지 않고 쓴다.
+      # 받으려 하면 다운로드 서버 504가 1분 넘게 이어져 다시 받기로도 실패했다(2026-11-08).
+      # 미리 깔린 것이 없을 때만 받는다.
+      - id: preinstalled
+        name: 미리 깔린 JDK 17 쓰기
+        run: |
+          home="${JAVA_HOME_17_arm64:-${JAVA_HOME_17_X64:-}}"
+          if [ -n "$home" ] && [ -x "$home/bin/java" ]; then
+            echo "JAVA_HOME=$home" >> "$GITHUB_ENV"
+            echo "$home/bin" >> "$GITHUB_PATH"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.preinstalled.outputs.found != 'true'
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
