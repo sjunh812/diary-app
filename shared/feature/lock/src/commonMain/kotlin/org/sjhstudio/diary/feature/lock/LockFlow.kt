@@ -85,7 +85,11 @@ fun LockFlow(
         if (!showBiometric) return@LaunchedEffect
         val result = authenticator.authenticateBiometric(biometricPrompt)
         if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
-        if (result == AuthResult.Success) onUnlocked()
+        if (result == AuthResult.Success) {
+            // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 센다.
+            lock.start(PinCheck.Verify)
+            onUnlocked()
+        }
     }
     LaunchedEffect(needsNewPin) {
         if (!needsNewPin) return@LaunchedEffect
@@ -109,7 +113,11 @@ fun LockFlow(
                     scope.launch {
                         val result = authenticator.authenticateBiometric(biometricPrompt)
                         if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
-                        if (result == AuthResult.Success) onUnlocked()
+                        if (result == AuthResult.Success) {
+                            // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 센다.
+                            lock.start(PinCheck.Verify)
+                            onUnlocked()
+                        }
                     }
                 },
                 onForgot = { asking = true }

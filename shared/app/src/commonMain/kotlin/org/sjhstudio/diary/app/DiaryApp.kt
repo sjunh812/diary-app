@@ -21,6 +21,7 @@ import org.sjhstudio.diary.app.gate.LockGate
 import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.app.gate.WelcomeGate
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
+import org.sjhstudio.diary.app.navigation.ProvideTabViewModelStores
 import org.sjhstudio.diary.app.scaffold.AppScaffold
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -73,25 +74,27 @@ fun DiaryApp() {
     ApplyPlatformTheme(settings.themeMode)
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font)) {
         ProvideScreenGutter {
-            LockGate {
-                MigrationGate {
-                    // 일기 DB는 이전 관문을 지난 뒤에만 연다.
-                    // 그래서 정리도 여기서 시작한다.
-                    val cleanup = koinInject<DiaryCleanup>()
-                    LaunchedEffect(cleanup) { cleanup.run() }
-                    // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 본다(FR-015).
-                    // iOS에서는 이게 주된 길이다.
-                    val backup = koinInject<BackupRepository>()
-                    LaunchedEffect(backup) { backup.backUpIfDue() }
-                    // 앱으로 돌아올 때마다 본다.
-                    // 시스템이 깨워 주지 않는 iOS에서는 이게 이어 받는 길이다.
-                    val restore = koinInject<RestoreRepository>()
-                    val scope = rememberCoroutineScope()
-                    LifecycleResumeEffect(restore) {
-                        scope.launch { restore.resumePhotos() }
-                        onPauseOrDispose {}
+            ProvideTabViewModelStores {
+                LockGate {
+                    MigrationGate {
+                        // 일기 DB는 이전 관문을 지난 뒤에만 연다.
+                        // 그래서 정리도 여기서 시작한다.
+                        val cleanup = koinInject<DiaryCleanup>()
+                        LaunchedEffect(cleanup) { cleanup.run() }
+                        // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 본다(FR-015).
+                        // iOS에서는 이게 주된 길이다.
+                        val backup = koinInject<BackupRepository>()
+                        LaunchedEffect(backup) { backup.backUpIfDue() }
+                        // 앱으로 돌아올 때마다 본다.
+                        // 시스템이 깨워 주지 않는 iOS에서는 이게 이어 받는 길이다.
+                        val restore = koinInject<RestoreRepository>()
+                        val scope = rememberCoroutineScope()
+                        LifecycleResumeEffect(restore) {
+                            scope.launch { restore.resumePhotos() }
+                            onPauseOrDispose {}
+                        }
+                        WelcomeGate { AppScaffold() }
                     }
-                    WelcomeGate { AppScaffold() }
                 }
             }
         }

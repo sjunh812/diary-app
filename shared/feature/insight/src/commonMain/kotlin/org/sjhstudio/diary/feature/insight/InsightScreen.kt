@@ -83,6 +83,7 @@ import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
+import org.sjhstudio.diary.core.model.percentOf
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.MoodFace
@@ -512,8 +513,6 @@ private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) 
         }
     }
 }
-
-private fun percentOf(count: Int, total: Int): Int = if (total == 0) 0 else count * PERCENT / total
 
 /** 없는 기분은 숫자만 둔다. */
 @Composable

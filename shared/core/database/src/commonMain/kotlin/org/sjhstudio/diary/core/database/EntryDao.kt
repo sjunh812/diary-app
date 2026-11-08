@@ -81,6 +81,10 @@ interface EntryDao {
     @Query("SELECT DISTINCT substr(date, 1, 7) FROM entry WHERE deleted_at IS NULL")
     fun months(): Flow<List<String>>
 
+    /** 즐겨찾기가 있는 달. 즐겨찾기만 볼 때 고를 수 있는 달이다. */
+    @Query("SELECT DISTINCT substr(date, 1, 7) FROM entry WHERE deleted_at IS NULL AND is_favorite = 1")
+    fun favoriteMonths(): Flow<List<String>>
+
     /**
      * [date]보다 나중 날짜의 일기 수.
      * 그 달 첫 줄의 목록 위치가 된다.

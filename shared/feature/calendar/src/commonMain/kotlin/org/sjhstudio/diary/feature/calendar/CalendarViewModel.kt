@@ -3,6 +3,7 @@ package org.sjhstudio.diary.feature.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -127,12 +128,16 @@ class CalendarViewModel(
      */
     fun showMonth(month: YearMonth) {
         if (_selected.value?.yearMonth == month) return
+        // 빨리 넘기면 늦게 끝난 앞 달 읽기가 고른 날을 덮는다. 앞 읽기는 버린다.
+        monthRead?.cancel()
         if (month == thisMonth()) {
             _selected.value = today()
             return
         }
-        viewModelScope.launch { _selected.value = entries.month(month).first().keys.maxOrNull() }
+        monthRead = viewModelScope.launch { _selected.value = entries.month(month).first().keys.maxOrNull() }
     }
+
+    private var monthRead: Job? = null
 
     fun moveToTrash(id: String, onDone: () -> Unit) {
         viewModelScope.launchWrite {

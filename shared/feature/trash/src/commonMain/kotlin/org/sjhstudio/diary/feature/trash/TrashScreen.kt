@@ -104,8 +104,8 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
         DiaryBottomSheet(onDismiss = { pickedId = null }) {
             DiarySheetAction(DiaryIcons.Restore, stringResource(Res.string.trash_restore), DiaryTheme.colors.textPrimary) {
                 pickedId = null
-                viewModel.restore(id)
-                scope.launch { toast.show(restored) }
+                // 공간이 차서 실패하면 앱 틀이 실패를 알린다. 그때 "복원했어요"를 함께 띄우지 않는다.
+                viewModel.restore(id) { scope.launch { toast.show(restored) } }
             }
             DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.trash_delete_forever), DiaryTheme.colors.danger) {
                 pickedId = null

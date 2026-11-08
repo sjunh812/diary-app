@@ -66,12 +66,12 @@ data class ToneShare(val good: Int, val total: Int, val hard: Int = 0) {
     val hardRate: Double get() = rateOf(hard)
 
     /** 화면에 쓰는 백분율. */
-    val percent: Int get() = percentOf(good)
-    val hardPercent: Int get() = percentOf(hard)
+    val percent: Int get() = percentOf(good, total)
+
+    // 둘을 나란히 보이니 반올림으로 합이 100을 넘지 않게 한다.
+    val hardPercent: Int get() = minOf(percentOf(hard, total), if (good + hard <= total) 100 - percent else 100)
 
     private fun rateOf(count: Int) = if (total == 0) 0.0 else count.toDouble() / total
-
-    private fun percentOf(count: Int) = if (total == 0) 0 else (count * PERCENT + total / 2) / total
 
     private companion object {
         const val PERCENT = 100

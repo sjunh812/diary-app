@@ -18,8 +18,11 @@ class TrashViewModel(private val trash: TrashRepository) : ViewModel() {
     val items: StateFlow<List<TrashedEntry>?> =
         trash.items().stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
-    fun restore(id: String) {
-        viewModelScope.launchWrite { trash.restore(id) }
+    fun restore(id: String, onDone: () -> Unit = {}) {
+        viewModelScope.launchWrite {
+            trash.restore(id)
+            onDone()
+        }
     }
 
     fun deleteForever(id: String) {

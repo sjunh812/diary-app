@@ -370,7 +370,10 @@ private fun Content(
     val ads = koinInject<AdRepository>()
     val adScope = rememberCoroutineScope()
     var adAfterSave by remember { mutableStateOf(false) }
+    var savedOnTab by remember { mutableStateOf<TabScreen?>(null) }
     LaunchedEffect(top, adAfterSave) {
+        // 다른 탭으로 가면 기회를 버린다. 몇 시간 뒤 탭을 누를 때 뜨면 "저장하고 목록으로 돌아갈 때"가 아니다.
+        if (adAfterSave && nav.tab != savedOnTab) adAfterSave = false
         if (adAfterSave && interstitialMayShow(nav.current)) {
             adAfterSave = false
             // 값이 바뀌면 이 효과가 다시 시작되니 광고는 앱 틀의 범위에서 띄운다.
@@ -484,6 +487,7 @@ private fun Content(
                                 if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
                                 notify(Message.Saved)
                                 adAfterSave = true
+                                savedOnTab = nav.tab
                                 adScope.launch { ads.afterSave() }
                             },
                             onClosed = { kept ->

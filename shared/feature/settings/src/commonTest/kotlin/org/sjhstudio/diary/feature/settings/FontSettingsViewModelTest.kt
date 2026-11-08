@@ -67,6 +67,23 @@ class FontSettingsViewModelTest {
         assertEquals(listOf("gamja_flower"), installer.requested)
     }
 
+    /** 받는 동안 다른 글꼴을 고르면, 받기가 끝나도 그 글꼴을 둔다. 사용자가 고른 것을 말없이 바꾸지 않는다. */
+    @Test
+    fun a_finished_download_does_not_replace_a_font_picked_later() = runTest(dispatcher) {
+        val vm = FontSettingsViewModel(settings, installer)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
+
+        vm.select(DiaryFont.GAMJA_FLOWER)
+        advanceUntilIdle()
+        vm.select(DiaryFont.MARU_BURI)
+        advanceUntilIdle()
+        installer.emit(FontInstallState.Installed("/fonts/gamja_flower.ttf"))
+        advanceUntilIdle()
+
+        assertEquals(DiaryFont.MARU_BURI, settings.settings.first().font)
+        assertTrue(vm.state.value.isReady(DiaryFont.GAMJA_FLOWER))
+    }
+
     @Test
     fun offline_keeps_the_current_font_and_tells_once() = runTest(dispatcher) {
         val vm = FontSettingsViewModel(settings, installer)

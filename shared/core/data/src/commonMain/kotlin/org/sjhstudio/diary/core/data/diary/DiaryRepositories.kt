@@ -32,6 +32,9 @@ interface EntryRepository {
     /** 일기가 있는 달. */
     fun months(): Flow<Set<YearMonth>>
 
+    /** 즐겨찾기가 있는 달. */
+    fun favoriteMonths(): Flow<Set<YearMonth>> = months()
+
     /** 그 달 첫 일기의 목록 위치(최신순이라 그 달의 마지막 날 쪽). */
     suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int
 

@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -10,6 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.lifecycle.viewmodel.ViewModelStoreProvider
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreProvider
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -100,7 +104,9 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
      */
     fun push(key: NavKey) {
         movedBetweenTabs = false
-        if (top != key) current.add(key)
+        // 쓰기 화면 키는 열 때마다 새 값이라 같은지로는 막히지 않는다. 화면이 바뀌는 동안 두 번 눌러도 하나만 연다.
+        if (top == key || (key is WriteKey && top is WriteKey)) return
+        current.add(key)
     }
 
     /**
@@ -164,7 +170,8 @@ fun TabNavigation.decoratedEntries(
                     entryDecorators =
                         listOf(
                             rememberSaveableStateHolderNavEntryDecorator(),
-                            rememberViewModelStoreNavEntryDecorator(),
+                            LocalTabViewModelStores.current?.get(tab)?.let { rememberViewModelStoreNavEntryDecorator(it) }
+                                ?: rememberViewModelStoreNavEntryDecorator(),
                             decorator
                         ),
                     entryProvider = entryProvider
@@ -172,6 +179,20 @@ fun TabNavigation.decoratedEntries(
             }
         }
     return visibleTabs.flatMap { entries.getValue(it) }
+}
+
+/**
+ * 탭마다 화면 모델 저장소.
+ * 잠기면 잠금 관문이 앱 화면을 치우는데, 저장소가 그 안에 있으면 만들던 백업 파일과 복원 사본까지 함께 지워진다.
+ * 그래서 잠금 관문 바깥에서 만들어 넘긴다.
+ */
+@Suppress("CompositionLocalAllowlist") // 잠금 관문 바깥의 저장소를 탭 쌓임까지 건네는 길이다.
+val LocalTabViewModelStores = staticCompositionLocalOf<Map<TabScreen, ViewModelStoreProvider>?> { null }
+
+@Composable
+fun ProvideTabViewModelStores(content: @Composable () -> Unit) {
+    val stores = TABS.associateWith { tab -> key(tab.toString()) { rememberViewModelStoreProvider() } }
+    CompositionLocalProvider(LocalTabViewModelStores provides stores, content = content)
 }
 
 private val TabSaver = Saver<TabScreen, Int>(save = { TABS.indexOf(it) }, restore = { TABS[it] })

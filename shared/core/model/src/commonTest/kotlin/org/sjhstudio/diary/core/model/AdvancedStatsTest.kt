@@ -33,6 +33,28 @@ class AdvancedStatsTest {
         assertEquals(MoodTone.NEUTRAL, Mood.MEH.tone)
     }
 
+    /** 좋은 기분과 힘든 기분을 나란히 보여도 합이 100을 넘지 않는다. */
+    @Test
+    fun good_and_hard_shares_never_pass_100() {
+        for (total in 1..40) {
+            for (good in 0..total) {
+                for (hard in 0..(total - good)) {
+                    val share = ToneShare(good, total, hard)
+                    assert(share.percent + share.hardPercent <= 100) { "$good/$hard/$total" }
+                }
+            }
+        }
+        assertEquals(13, ToneShare(1, 8, 7).percent)
+        assertEquals(87, ToneShare(1, 8, 7).hardPercent)
+    }
+
+    @Test
+    fun both_screens_round_the_same_way() {
+        assertEquals(67, percentOf(2, 3))
+        assertEquals(17, percentOf(1, 6))
+        assertEquals(0, percentOf(1, 0))
+    }
+
     @Test
     fun share_rounds_to_nearest_percent() {
         assertEquals(67, ToneShare(2, 3).percent)

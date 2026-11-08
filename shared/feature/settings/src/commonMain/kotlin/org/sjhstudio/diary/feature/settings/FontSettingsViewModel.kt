@@ -58,6 +58,9 @@ class FontSettingsViewModel(
         )
     private val downloading = MutableStateFlow<Map<DiaryFont, Float?>>(emptyMap())
     private val notices = Channel<FontNotice>(Channel.BUFFERED)
+
+    /** 마지막으로 누른 글꼴. */
+    private var picked: DiaryFont? = null
     val notice: Flow<FontNotice> = notices.receiveAsFlow()
 
     val state: StateFlow<FontUiState> =
@@ -65,6 +68,7 @@ class FontSettingsViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), FontUiState(installedPaths = installed.value))
 
     fun select(font: DiaryFont) {
+        picked = font
         if (state.value.isReady(font)) {
             apply(font)
             return
@@ -79,7 +83,8 @@ class FontSettingsViewModel(
                     is FontInstallState.Installed -> {
                         downloading.update { it - font }
                         installed.update { it + (font to result.path) }
-                        apply(font)
+                        // 받는 동안 다른 글꼴을 골랐으면 그것을 둔다.
+                        if (picked == font) apply(font)
                     }
 
                     is FontInstallState.Failed -> {

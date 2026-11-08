@@ -118,6 +118,9 @@ class DefaultEntryRepository(
 
     override fun months(): Flow<Set<YearMonth>> = entries.months().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
 
+    override fun favoriteMonths(): Flow<Set<YearMonth>> =
+        entries.favoriteMonths().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
+
     override suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int =
         entries.countAfter(month.onDay(month.numberOfDays).toString(), favoritesOnly)
 

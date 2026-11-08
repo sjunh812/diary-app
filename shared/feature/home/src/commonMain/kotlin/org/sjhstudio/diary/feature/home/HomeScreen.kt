@@ -376,8 +376,10 @@ private fun Feed(
                 return@items
             }
             val previous = if (index > 0) rows.peek(index - 1) else null
-            val newMonth = previous == null || previous.date.year != row.date.year || previous.date.month != row.date.month
-            val newDay = previous == null || previous.date != row.date
+            // 앞 줄을 아직 못 읽었으면 머리글을 그렸다 지우지 않게 기다린다(찾기 화면과 같다).
+            val unknown = index > 0 && previous == null
+            val newMonth = !unknown && (previous == null || previous.date.year != row.date.year || previous.date.month != row.date.month)
+            val newDay = !unknown && (previous == null || previous.date != row.date)
             Column {
                 if (newMonth && index > 0) {
                     DiaryMonthHeader(if (row.date.year == today.year) dates.month(row.date) else dates.yearMonth(row.date))

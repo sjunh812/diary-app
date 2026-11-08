@@ -120,6 +120,17 @@ class TabNavigationTest {
         assertEquals(2, nav.current.size)
     }
 
+    /** 쓰기 화면 키는 열 때마다 새 값이다. 두 번 눌러도 쓰기 화면은 하나다. */
+    @Test
+    fun two_writes_in_a_row_keep_one() {
+        val nav = navigation()
+
+        nav.push(WriteKey())
+        nav.push(WriteKey())
+
+        assertEquals(2, nav.current.size)
+    }
+
     @Test
     fun a_new_detail_replaces_the_one_on_top() {
         val nav = navigation()

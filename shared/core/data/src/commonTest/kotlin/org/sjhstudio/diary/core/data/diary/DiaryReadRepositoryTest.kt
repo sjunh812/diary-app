@@ -175,6 +175,8 @@ class DiaryReadRepositoryTest {
         )
 
         assertEquals(setOf(YearMonth(2026, 10), YearMonth(2026, 9)), entries.months().first())
+        // 즐겨찾기만 볼 때는 즐겨찾기가 있는 달만 고를 수 있다. 다른 달을 고르면 엉뚱한 달로 가 버린다.
+        assertEquals(setOf(YearMonth(2026, 9)), entries.favoriteMonths().first())
         assertEquals(0, entries.positionOf(YearMonth(2026, 10), favoritesOnly = false))
         assertEquals(2, entries.positionOf(YearMonth(2026, 9), favoritesOnly = false))
         assertEquals(0, entries.positionOf(YearMonth(2026, 9), favoritesOnly = true))

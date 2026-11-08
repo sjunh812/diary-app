@@ -56,7 +56,9 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
      * 일기가 있는 달.
      * 연·월 고르기 시트가 이 달만 고르게 한다.
      */
-    val months: StateFlow<Set<YearMonth>> = entries.months().stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+    val months: StateFlow<Set<YearMonth>> =
+        favoritesOnly.flatMapLatest { only -> if (only) entries.favoriteMonths() else entries.months() }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     fun toggleFavoritesOnly() {
         favorites.update { !it }

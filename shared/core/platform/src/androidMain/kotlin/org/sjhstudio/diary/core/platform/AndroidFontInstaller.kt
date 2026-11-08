@@ -1,6 +1,9 @@
 package org.sjhstudio.diary.core.platform
 
+import android.app.Activity
+import android.app.Application
 import android.content.Context
+import android.os.Bundle
 import com.google.android.play.core.splitcompat.SplitCompat
 import com.google.android.play.core.splitinstall.SplitInstallException
 import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
@@ -14,8 +17,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -28,7 +35,42 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
 
     override fun installedPath(id: String): String? = target(id).takeIf { it.isFile && it.length() > 0 }?.absolutePath
 
-    override fun install(id: String): Flow<FontInstallState> = callbackFlow {
+    /**
+     * Play는 진행 중인 받기가 있으면 새 요청을 거절한다.
+     * 글꼴 둘을 연달아 눌러도 차례로 받는다.
+     */
+    private val oneAtATime = Mutex()
+
+    /** 큰 모듈은 Play가 사용자 확인을 요구한다. 확인 창을 띄울 화면이다. */
+    private var activity: Activity? = null
+
+    init {
+        (this.context as? Application)?.registerActivityLifecycleCallbacks(
+            object : Application.ActivityLifecycleCallbacks {
+                override fun onActivityResumed(activity: Activity) {
+                    this@AndroidFontInstaller.activity = activity
+                }
+
+                override fun onActivityPaused(activity: Activity) {
+                    if (this@AndroidFontInstaller.activity === activity) this@AndroidFontInstaller.activity = null
+                }
+
+                override fun onActivityCreated(activity: Activity, state: Bundle?) = Unit
+
+                override fun onActivityStarted(activity: Activity) = Unit
+
+                override fun onActivityStopped(activity: Activity) = Unit
+
+                override fun onActivitySaveInstanceState(activity: Activity, state: Bundle) = Unit
+
+                override fun onActivityDestroyed(activity: Activity) = Unit
+            }
+        )
+    }
+
+    override fun install(id: String): Flow<FontInstallState> = flow { oneAtATime.withLock { emitAll(installNow(id)) } }
+
+    private fun installNow(id: String): Flow<FontInstallState> = callbackFlow {
         installedPath(id)?.let {
             send(FontInstallState.Installed(it))
             close()
@@ -59,6 +101,17 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
                     SplitInstallSessionStatus.FAILED, SplitInstallSessionStatus.CANCELED -> {
                         trySend(FontInstallState.Failed(offline = state.errorCode() == SplitInstallErrorCode.NETWORK_ERROR))
                         close()
+                    }
+
+                    // 큰 모듈은 받기 전에 사용자에게 묻는다. 묻지 않으면 받는 중에서 멈춘다.
+                    SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> {
+                        val screen = activity
+                        if (screen == null) {
+                            trySend(FontInstallState.Failed(offline = false))
+                            close()
+                        } else {
+                            manager.startConfirmationDialogForResult(state, screen, CONFIRM_REQUEST)
+                        }
                     }
 
                     else -> Unit
@@ -106,3 +159,5 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
 
     private fun target(id: String) = File(files.fontDirectory, "$id.ttf")
 }
+
+private const val CONFIRM_REQUEST = 4_201
