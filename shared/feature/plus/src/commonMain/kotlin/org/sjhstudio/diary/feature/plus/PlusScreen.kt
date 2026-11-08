@@ -278,7 +278,9 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
             val text = subcompose("text") { PaywallBenefits(adFreeOwned) }.map { it.measure(width) }
             val textHeight = text.sumOf { it.height }
             val gap = DiarySpacing.x6.roundToPx()
-            val left = room.roundToPx() - textHeight - gap - DiarySpacing.x2.roundToPx()
+            // 결제 버튼과 혜택 사이는 적어도 24를 둔다. 자리가 모자라면 그림이 먼저 줄고, 그래도 모자라면 스크롤된다.
+            val bottomGap = DiarySpacing.x6.roundToPx()
+            val left = room.roundToPx() - textHeight - gap - DiarySpacing.x2.roundToPx() - bottomGap
             val art =
                 if (left < DiaryArtSize.paywallArtMin.roundToPx()) {
                     emptyList()
@@ -288,7 +290,7 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
                 }
             val artHeight = art.sumOf { it.height } + if (art.isEmpty()) 0 else gap
             // 위에서부터 정한 간격으로 쌓는다. 남는 자리는 결제 버튼 위에 둔다.
-            layout(constraints.maxWidth, artHeight + textHeight) {
+            layout(constraints.maxWidth, artHeight + textHeight + bottomGap) {
                 art.forEach { it.placeRelative(0, 0) }
                 text.forEach { it.placeRelative(0, artHeight) }
             }
