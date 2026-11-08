@@ -40,7 +40,7 @@ class AdvancedStatsTest {
             for (good in 0..total) {
                 for (hard in 0..(total - good)) {
                     val share = ToneShare(good, total, hard)
-                    assert(share.percent + share.hardPercent <= 100) { "$good/$hard/$total" }
+                    assertTrue(share.percent + share.hardPercent <= 100, "$good/$hard/$total")
                 }
             }
         }

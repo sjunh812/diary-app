@@ -275,7 +275,11 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
         val room = maxHeight
         SubcomposeLayout(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) { constraints ->
             val width = constraints.copy(minHeight = 0)
-            val text = subcompose("text") { PaywallBenefits(adFreeOwned) }.map { it.measure(width) }
+            // 혜택 사이는 20에서 시작해 자리가 남으면 24까지 넓힌다. 붙어 보이지 않는 것이 먼저다.
+            val roomPx = room.roundToPx()
+            val tight = subcompose("tight") { PaywallBenefits(adFreeOwned, DiarySpacing.x5) }.sumOf { it.measure(width).height }
+            val wideGap = if (roomPx - tight > (DiarySpacing.x10 * 3).roundToPx()) DiarySpacing.x6 else DiarySpacing.x5
+            val text = subcompose("text") { PaywallBenefits(adFreeOwned, wideGap) }.map { it.measure(width) }
             val textHeight = text.sumOf { it.height }
             val gap = DiarySpacing.x4.roundToPx()
             val left = room.roundToPx() - textHeight - gap - DiarySpacing.x2.roundToPx()
@@ -300,12 +304,12 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
 
 /** 제목과 혜택. */
 @Composable
-private fun PaywallBenefits(adFreeOwned: Boolean) {
+private fun PaywallBenefits(adFreeOwned: Boolean, gap: Dp = DiarySpacing.x5) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
         BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
-        PlusBenefits()
+        PlusBenefits(gap)
         if (adFreeOwned) {
             BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
         }
@@ -387,8 +391,8 @@ private fun PaywallBuy(
 
 /** 혜택 네 가지. 결제 화면과 구독 중 화면이 같은 말로 보인다. */
 @Composable
-private fun PlusBenefits() {
-    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+private fun PlusBenefits(gap: Dp = DiarySpacing.x5) {
+    Column(verticalArrangement = Arrangement.spacedBy(gap)) {
         OwnedBenefit(DiaryIcons.ShieldCheck, Res.string.plus_ads_title, Res.string.plus_ads_body)
         OwnedBenefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
         OwnedBenefit(DiaryIcons.Checklist, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
