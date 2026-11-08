@@ -42,10 +42,19 @@ fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Mo
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
+        // 글 앞의 안내 아이콘이 실패 토스트와 생김새를 가른다(2026-11-08 사용자 제안, Apple TipKit 팁처럼).
+        // 색은 토스트 위 강조색이라 빨간 경고로 읽히지 않으면서 눈이 먼저 간다.
+        DiaryIcon(
+            DiaryIcons.Info,
+            contentDescription = null,
+            tint = colors.toastAction,
+            size = DiaryIconSize.i16,
+            modifier = Modifier.padding(start = DiarySpacing.x4)
+        )
         BasicText(
             text,
             style = DiaryTheme.typography.caption.copy(color = colors.onToast),
-            modifier = Modifier.weight(1f).padding(start = DiarySpacing.x4, top = DiarySpacing.x3, bottom = DiarySpacing.x3)
+            modifier = Modifier.weight(1f).padding(top = DiarySpacing.x3, bottom = DiarySpacing.x3)
         )
         Box(
             Modifier
