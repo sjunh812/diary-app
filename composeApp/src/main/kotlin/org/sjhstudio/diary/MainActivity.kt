@@ -9,17 +9,12 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalDensity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
@@ -52,11 +47,21 @@ class MainActivity : FragmentActivity() {
             get<AndroidDriveAuthorizer>().consentResult.finish(result.data.takeIf { result.resultCode == RESULT_OK })
         }
 
+    @Volatile private var insetsKnown = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // 설정과 잠금을 읽을 때까지만 시작 화면을 붙잡는다(contracts/app-shell.md 시작 순서 2).
         // 일부러 기다리지 않는다.
         val startup = get<Startup>()
-        installSplashScreen().setKeepOnScreenCondition { !startup.ready }
+        // 시작 화면은 설정과 잠금을 읽고, 앱 화면이 시스템 막대 높이를 받을 때까지 둔다.
+        // 막대 높이를 받기 전 첫 그림은 화면이 위로 붙어 그려졌다가 내려앉아 큰 제목이 위에서 떨어지는 것처럼 보였다(2026-11-08 사용자 지적).
+        // 그동안 앱 화면은 뒤에서 미리 구성되므로 따로 기다리는 비용이 없다.
+        installSplashScreen().setKeepOnScreenCondition { !startup.ready || !insetsKnown }
+        lifecycleScope.launch {
+            // 막대가 없는 창에서도 시작 화면에 갇히지 않게 짧게만 기다린다.
+            delay(INSETS_WAIT_MILLIS)
+            insetsKnown = true
+        }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         lifecycleScope.launch {
@@ -94,7 +99,10 @@ class MainActivity : FragmentActivity() {
             DriveConsentLauncher { intent ->
                 authorizer.consentResult.await { consent.launch(IntentSenderRequest.Builder(intent).build()) }
             }
-        setContent { AfterInsets { DiaryApp() } }
+        setContent {
+            DiaryApp()
+            InsetsProbe { insetsKnown = true }
+        }
         // 화면을 돌려 다시 만들어질 때는 쌓인 화면이 이미 되살아난다.
         if (savedInstanceState == null) handleIntent(intent)
     }
@@ -138,24 +146,14 @@ class MainActivity : FragmentActivity() {
     }
 }
 
-/**
- * 시스템 막대 높이를 받은 뒤부터 앱 화면을 그린다.
- * 시작 화면이 걷힌 첫 그림은 막대 높이가 0이라 화면이 위로 붙어 그려졌다가 다음 그림에서 내려앉아,
- * 큰 제목이 위에서 툭 떨어지는 것처럼 보였다(2026-11-08 사용자 지적).
- * 막대가 없는 창에서도 멈추지 않게 짧게만 기다린다.
- */
+/** 앱 화면이 시스템 막대 높이를 받으면 [onKnow]를 부른다. */
 @Composable
-private fun AfterInsets(content: @Composable () -> Unit) {
+private fun InsetsProbe(onKnow: () -> Unit) {
     val density = LocalDensity.current
     val bars = WindowInsets.systemBars
-    var waited by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(INSETS_WAIT_MILLIS)
-        waited = true
-    }
-    val known = waited || bars.getTop(density) > 0 || bars.getBottom(density) > 0
-    // 기다리는 동안은 창 바탕(시작 화면 뒤 테마 색)이 그대로 보인다.
-    if (known) content() else Box(Modifier.fillMaxSize())
+    val known = bars.getTop(density) > 0 || bars.getBottom(density) > 0
+    val latest by rememberUpdatedState(onKnow)
+    LaunchedEffect(known) { if (known) latest() }
 }
 
 private const val INSETS_WAIT_MILLIS = 300L
