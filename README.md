@@ -1,4 +1,4 @@
-<img src="https://user-images.githubusercontent.com/79048895/159389254-d84a5c96-8edc-4aec-bc12-53d5e0dba38b.png" width="96" alt="1일 1일기 app icon" />
+<img src="docs/store/readme-icon.png" width="96" alt="1일 1일기 app icon" />
 
 # 1일 1일기 (One Day, One Diary)
 
