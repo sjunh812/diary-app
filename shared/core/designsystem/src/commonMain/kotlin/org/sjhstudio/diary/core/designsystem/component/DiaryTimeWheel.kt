@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -286,7 +287,16 @@ private fun WheelColumn(
     ) {
         items(count) { index ->
             val distance = abs(index - center)
-            Box(Modifier.width(width).height(WheelRow), contentAlignment = Alignment.Center) {
+            // 위아래에 보이는 칸을 누르면 그 칸이 가운데로 굴러와 골라진다(iOS 피커, Android NumberPicker와 같다).
+            Box(
+                Modifier
+                    .width(width)
+                    .height(WheelRow)
+                    .clickable(interactionSource = null, indication = null, enabled = distance != 0) {
+                        scope.launch { state.animateScrollToItem(index) }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
                 BasicText(
                     labels[index % size],
                     style = wheelStyle(distance, typography.numeral, typography.reading, typography.body),
