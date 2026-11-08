@@ -89,6 +89,15 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     }
 
     /**
+     * 알림에서 [target] 탭의 [key] 화면으로 바로 간다.
+     * 다른 탭에 쌓인 화면은 그대로 두어서, 쓰던 일기도 닫히지 않는다.
+     */
+    fun openInTab(target: TabScreen, key: NavKey) {
+        openTab(target)
+        push(key)
+    }
+
+    /**
      * 모든 탭을 첫 화면으로 돌리고 [target]을 연다.
      * 복원이 일기를 바꾼 뒤에는 쌓인 상세가 없는 일기를 볼 수 있다.
      */

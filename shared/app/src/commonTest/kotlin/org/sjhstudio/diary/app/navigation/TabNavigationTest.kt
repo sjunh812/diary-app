@@ -26,6 +26,19 @@ class TabNavigationTest {
     }
 
     @Test
+    fun opening_a_screen_from_a_notice_keeps_the_entry_being_written() {
+        val nav = navigation()
+        val writing = WriteKey()
+        nav.push(writing)
+
+        nav.openInTab(SettingsKey, FileBackupKey)
+
+        assertEquals(listOf<NavKey>(SettingsKey, FileBackupKey), nav.current)
+        nav.selectTab(HomeKey)
+        assertEquals(listOf<NavKey>(HomeKey, writing), nav.current)
+    }
+
+    @Test
     fun tapping_the_tab_you_are_on_goes_back_to_its_first_screen() {
         val nav = navigation()
         nav.push(EntryDetailKey("a"))

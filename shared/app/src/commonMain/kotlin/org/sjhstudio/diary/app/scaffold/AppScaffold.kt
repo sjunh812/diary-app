@@ -165,18 +165,13 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     // 앱 틀 전체에 하나 두는 토스트.
     // 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
     val toast = remember { DiaryToastState() }
-    FontReplacedNotice(toast) {
-        nav.openTab(SettingsKey)
-        nav.push(FontSettingsKey)
-    }
+    FontReplacedNotice(toast) { nav.openInTab(SettingsKey, FontSettingsKey) }
     // 쓰기, 사진 크게 보기, 결제는 전체 화면이다.
     // 탭과 레일을 그리지 않는다.
     val writing = nav.top is WriteKey
     val fullScreen = writing || nav.top is PhotoViewerKey || nav.top is PlusKey
-    BundleStoppedNotice(toast) {
-        nav.startOver(SettingsKey)
-        nav.push(FileBackupKey)
-    }
+    // 파일 불러오기는 일기를 지우지 않으니 다른 탭에 쌓인 화면(쓰던 일기 포함)을 비울 까닭이 없다.
+    BundleStoppedNotice(toast) { nav.openInTab(SettingsKey, FileBackupKey) }
     // 복원 중에 화면을 떠나도 결과를 다시 열 수 있게 한다.
     RestoreResultNotice(toast, onResultScreen = nav.top is RestoreProgressKey, quiet = fullScreen) {
         nav.push(RestoreProgressKey)
