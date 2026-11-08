@@ -50,8 +50,11 @@ private const val VALUE_MAX_SHARE = 0.5f
 /** 오른쪽 값 줄 수의 끝. */
 private const val VALUE_MAX_LINES = 2
 
-/** 이름 줄 수의 끝. */
-private const val TITLE_MAX_LINES = 2
+/**
+ * 이름 줄 수의 끝.
+ * 영어처럼 긴 이름이 글자 200%에서 오른쪽 값과 나란히 서면 두 줄에 다 들어가지 않는다.
+ */
+private const val TITLE_MAX_LINES = 3
 
 /**
  * 설정 묶음 머리(SEED ListHeader 14 Medium).
