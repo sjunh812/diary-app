@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
+import org.sjhstudio.diary.core.designsystem.component.DiaryTextTabs
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -468,7 +469,8 @@ private fun MoodTimes(stats: AdvancedStats) {
             }
         }
     ) {
-        DiarySegmentedTabs(
+        // 화면 전체를 거르는 기간 탭(상자)과 모양을 나눠, 이 묶음 안쪽만 바꾼다는 것이 보이게 글자 탭으로 둔다.
+        DiaryTextTabs(
             labels =
                 listOf(
                     stringResource(Res.string.insight_adv_tab_weekday),

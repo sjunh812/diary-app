@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -46,12 +48,16 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.LocalDate
@@ -89,12 +95,10 @@ import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
-import org.sjhstudio.diary.core.ui.emphasis
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
-import org.sjhstudio.diary.core.ui.withEmphasis
 import org.sjhstudio.diary.feature.insight.resources.Res
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_title
 import org.sjhstudio.diary.feature.insight.resources.insight_all_time
@@ -321,10 +325,13 @@ private fun Content(
 ) {
     val colors = DiaryTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-        // 문장은 이미 굵어서, 가장 많았던 기분만 진한 글자로 두고 나머지를 한 단계 옅게 한다.
+        // 가장 많았던 기분 이름 앞에 그 기분 얼굴을 글자 크기만큼 붙여 문장 안에서 먼저 읽히게 한다.
+        // 굵기나 색으로 나누면 굵기가 하나뿐인 글꼴에서 강조가 사라지거나 문장이 흐려진다(2026-11-08 사용자 결정).
+        val title = DiaryTheme.typography.title2
         BasicText(
-            summary(period, counts, today).withEmphasis(SpanStyle(color = colors.textPrimary)),
-            style = DiaryTheme.typography.title2.copy(color = colors.textSecondary)
+            summary(period, counts, today),
+            style = title.copy(color = colors.textPrimary),
+            inlineContent = moodFaces(counts.top.toList(), title.lineHeight)
         )
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
@@ -372,13 +379,60 @@ private fun SectionTitle(text: String) {
 
 /** 기분 이름은 모두 받침으로 끝나서 문구에 조사 "이"를 그대로 둔다. */
 @Composable
-private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): String {
+private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): AnnotatedString {
     val top = counts.top
-    if (top.isEmpty()) return stringResource(Res.string.insight_no_moods)
-    var names = moodName(top.first())
-    top.drop(1).forEach { names = stringResource(Res.string.insight_mood_join, names, moodName(it)) }
-    return stringResource(summaryResource(period, today), emphasis(names))
+    if (top.isEmpty()) return AnnotatedString(stringResource(Res.string.insight_no_moods))
+    var names = withFace(0, moodName(top.first()))
+    top.drop(1).forEachIndexed { index, mood ->
+        names =
+            stringResource(Res.string.insight_mood_join, names, withFace(index + 1, moodName(mood)))
+    }
+    return stringResource(summaryResource(period, today), names).withFaces()
 }
+
+private const val FACE_START = '\uE002'
+private const val FACE_END = '\uE003'
+
+/** 리소스 자리에 넣을 기분 이름 앞에 얼굴 자리 표시를 붙인다. 어순이 달라도 얼굴이 이름에 붙는다. */
+private fun withFace(index: Int, name: String): String = "$FACE_START$index$FACE_END$name"
+
+/** 얼굴 자리 표시를 글줄 안 그림 자리로 바꾼다. */
+private fun String.withFaces(): AnnotatedString = buildAnnotatedString {
+    var rest = this@withFaces
+    while (true) {
+        val start = rest.indexOf(FACE_START)
+        val end = if (start < 0) -1 else rest.indexOf(FACE_END, start)
+        if (start < 0 || end < 0) {
+            append(rest)
+            break
+        }
+        append(rest.substring(0, start))
+        val index = rest.substring(start + 1, end)
+        // 대체 글자는 비우면 Compose가 예외를 던진다. 화면 읽기와 복사에는 빈칸 하나로 둔다.
+        appendInlineContent(faceId(index), " ")
+        rest = rest.substring(end + 1)
+    }
+}
+
+private fun faceId(index: Any) = "mood-face-$index"
+
+/** 글줄 높이만 한 기분 얼굴. 뒤 글자와 사이를 조금 띄운다. */
+@Composable
+private fun moodFaces(moods: List<Mood>, lineHeight: TextUnit): Map<String, InlineTextContent> {
+    val size = with(LocalDensity.current) { lineHeight.toDp() } * FACE_SCALE
+    return moods.mapIndexed { index, mood ->
+        faceId(index) to
+            InlineTextContent(
+                Placeholder(lineHeight * (FACE_SCALE + FACE_GAP), lineHeight * FACE_SCALE, PlaceholderVerticalAlign.TextCenter)
+            ) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) { MoodFace(mood, size, contentDescription = null) }
+            }
+    }.toMap()
+}
+
+/** 얼굴은 글줄 높이의 0.86배(20/28 글자에서 24), 뒤 글자와 사이는 그 0.14배. */
+private const val FACE_SCALE = 0.86f
+private const val FACE_GAP = 0.14f
 
 private fun summaryResource(period: StatsPeriod, today: LocalDate): StringResource = when {
     period == StatsPeriod.All -> Res.string.insight_top_all
