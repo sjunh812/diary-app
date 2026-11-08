@@ -25,6 +25,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.AdvancedPeriod
+import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
@@ -223,6 +224,36 @@ class InsightViewModelTest {
         assertEquals(Mood.TIRED, buckets[1].mood)
         assertEquals(null, buckets[2].mood)
         assertEquals(null, buckets[4].mood)
+    }
+
+    @Test
+    fun each_cell_knows_the_dates_it_covers() {
+        // 2026년 10월 1일은 목요일이라 첫 주는 1~3일, 마지막 주는 25~31일이다.
+        val october = moodBuckets(StatsPeriod.Month(YearMonth(2026, 10)), listOf(DayMood(LocalDate(2026, 10, 31), null, 1)))
+        assertEquals(DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 3)), october[0].range)
+        assertEquals(DateRange(LocalDate(2026, 10, 4), LocalDate(2026, 10, 10)), october[1].range)
+        assertEquals(DateRange(LocalDate(2026, 10, 25), LocalDate(2026, 10, 31)), october[4].range)
+
+        val year = moodBuckets(StatsPeriod.Year(2026), emptyList())
+        assertEquals(DateRange(LocalDate(2026, 2, 1), LocalDate(2026, 2, 28)), year[1].range)
+
+        val all =
+            moodBuckets(StatsPeriod.All, listOf(DayMood(LocalDate(2024, 3, 1), Mood.SAD, 1), DayMood(LocalDate(2026, 3, 1), Mood.GOOD, 1)))
+        assertEquals(DateRange(LocalDate(2025, 1, 1), LocalDate(2025, 12, 31)), all[1].range)
+
+        val day = LocalDate(2026, 11, 5)
+        assertEquals(DateRange(day, day), moodBuckets(StatsPeriod.Week.of(day), emptyList()).single { it.range.start == day }.range)
+    }
+
+    @Test
+    fun only_cells_with_entries_can_be_opened() {
+        // 기분을 고르지 않은 일기만 있는 칸도 열 수 있다.
+        val october = moodBuckets(StatsPeriod.Month(YearMonth(2026, 10)), listOf(DayMood(LocalDate(2026, 10, 31), null, 1)))
+        assertEquals(listOf(false, false, false, false, true), october.map { it.written })
+
+        val all =
+            moodBuckets(StatsPeriod.All, listOf(DayMood(LocalDate(2024, 3, 1), Mood.SAD, 1), DayMood(LocalDate(2026, 3, 1), Mood.GOOD, 1)))
+        assertEquals(listOf(true, false, true), all.map { it.written })
     }
 
     @Test

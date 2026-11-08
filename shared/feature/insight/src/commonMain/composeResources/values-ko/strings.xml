@@ -83,7 +83,7 @@
     </plurals>
     <string name="insight_section_days">날짜별 기분</string>
     <string name="insight_map_hint">한 칸이 하루예요. 색은 그날 고른 기분이에요.</string>
-    <string name="tip_insight_mood">기분을 누르면 그 기분으로 쓴 일기를 모아 볼 수 있어요.</string>
+    <string name="tip_insight_open">기분을 누르면 그때 쓴 일기를 모아 볼 수 있어요.</string>
     <string name="insight_section_moods">자주 고른 기분</string>
     <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
     <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 보여 드려요.</string>
@@ -104,7 +104,7 @@
     <string name="insight_adv_characters_big">%1$s억 자</string>
     <string name="insight_adv_tone_info">기분을 나눈 기준</string>
     <string name="insight_adv_tone_sheet_title">긍정적인 기분과 부정적인 기분</string>
-    <string name="insight_adv_tone_sheet_body">막대마다 그 상황에 쓴 일기 가운데 긍정적인 기분과 부정적인 기분을 고른 비율이에요.</string>
+    <string name="insight_adv_tone_sheet_body">기분을 고른 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여 줘요.</string>
     <string name="insight_adv_tone_neutral">세지 않는 기분</string>
     <string name="insight_adv_tone_ok">확인</string>
 </resources>

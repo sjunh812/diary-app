@@ -132,7 +132,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_week_number
 import org.sjhstudio.diary.feature.insight.resources.insight_week_range
 import org.sjhstudio.diary.feature.insight.resources.insight_write
 import org.sjhstudio.diary.feature.insight.resources.insight_year_map
-import org.sjhstudio.diary.feature.insight.resources.tip_insight_mood
+import org.sjhstudio.diary.feature.insight.resources.tip_insight_open
 
 /**
  * 돌아보기(Figma "돌아보기 (S5)").
@@ -142,6 +142,7 @@ import org.sjhstudio.diary.feature.insight.resources.tip_insight_mood
 fun InsightRoute(
     onMood: (Mood, DateRange?) -> Unit,
     modifier: Modifier = Modifier,
+    onPeriod: (DateRange) -> Unit = {},
     onPlus: () -> Unit = {},
     onAdvanced: () -> Unit = {},
     onWrite: () -> Unit = {},
@@ -165,6 +166,7 @@ fun InsightRoute(
         onNext = viewModel::next,
         onMood = { onMood(it, period.range) },
         modifier = modifier,
+        onPeriod = onPeriod,
         advancedOpen = advancedOpen,
         onPlus = onPlus,
         onAdvanced = onAdvanced,
@@ -183,6 +185,7 @@ internal fun InsightScreen(
     onNext: () -> Unit,
     onMood: (Mood) -> Unit,
     modifier: Modifier = Modifier,
+    onPeriod: (DateRange) -> Unit = {},
     advancedOpen: Boolean = false,
     onPlus: () -> Unit = {},
     onAdvanced: () -> Unit = {},
@@ -256,7 +259,7 @@ internal fun InsightScreen(
                         DiaryEmptyLine(stringResource(Res.string.insight_empty), stringResource(Res.string.insight_write), onWrite)
                     }
 
-                    else -> Column(hidden) { Content(period, shown.counts, shown.days, shown.pixels, today, onMood) }
+                    else -> Column(hidden) { Content(period, shown.counts, shown.days, shown.pixels, today, onMood, onPeriod) }
                 }
                 if (data == null) InsightSkeleton(period.kind)
             }
@@ -321,7 +324,8 @@ private fun Content(
     days: List<DayMood>,
     pixels: Map<LocalDate, Mood?>,
     today: LocalDate,
-    onMood: (Mood) -> Unit
+    onMood: (Mood) -> Unit,
+    onPeriod: (DateRange) -> Unit
 ) {
     val colors = DiaryTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
@@ -336,7 +340,7 @@ private fun Content(
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
     Spacer(Modifier.height(DiarySpacing.x6))
-    MoodFlow(period, days, rememberDiaryDateFormat())
+    MoodFlow(period, days, rememberDiaryDateFormat(), onPeriod)
     Spacer(Modifier.height(DiarySpacing.x6))
     if (period is StatsPeriod.Year) {
         SectionTitle(stringResource(Res.string.insight_section_days))
@@ -351,7 +355,6 @@ private fun Content(
     val rows = counts.sorted().filter { (_, count) -> count > 0 }
     if (rows.isEmpty()) return
     SectionTitle(stringResource(Res.string.insight_section_moods))
-    ContextTipBar(ContextTip.INSIGHT_MOOD, stringResource(Res.string.tip_insight_mood), Modifier.padding(top = DiarySpacing.x3))
     val most = counts.counts.values.maxOrNull() ?: 0
     // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
     val names = rows.map { (mood, _) -> moodName(mood) }
@@ -459,7 +462,7 @@ private fun countLine(counts: MoodCounts): String {
  * 색만 있는 띠는 기분이 여러 가지라 읽히지 않았다.
  */
 @Composable
-private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateFormat) {
+private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateFormat, onPeriod: (DateRange) -> Unit) {
     val colors = DiaryTheme.colors
     val title =
         stringResource(
@@ -472,6 +475,9 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
         )
     Column {
         SectionTitle(title)
+        // 칸과 기분 막대를 누를 수 있다는 것을 처음 한 번 알린다.
+        // 화면 맨 위 묶음이라 처음 들어온 사람이 바로 본다(2026-11-08 사용자 제안, 전에는 기분 막대 위에 있었다).
+        ContextTipBar(ContextTip.INSIGHT_OPEN, stringResource(Res.string.tip_insight_open), Modifier.padding(top = DiarySpacing.x3))
         Spacer(Modifier.height(DiarySpacing.x3))
         // 줄 사이를 얼굴과 이름 사이보다 넓혀 이름이 어느 얼굴 것인지 헷갈리지 않게 한다.
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
@@ -480,8 +486,20 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
             for (row in buckets.chunked(columns)) {
                 Row(Modifier.fillMaxWidth()) {
                     for (bucket in row) {
+                        // 일기가 있는 칸을 누르면 그 기간의 일기를 찾기로 모아 본다(2026-11-08 사용자 제안).
+                        // 기분으로 거르지 않는다. 칸의 얼굴은 그 기간을 요약한 것이라 그때 쓴 일기를 모두 보는 편이 맞다.
+                        val press = remember { MutableInteractionSource() }
                         Column(
-                            Modifier.weight(1f),
+                            Modifier
+                                .weight(1f)
+                                .diaryPress(press, colors.textPrimary, DiaryShapes.r12)
+                                .clickable(
+                                    enabled = bucket.written,
+                                    interactionSource = press,
+                                    indication = null,
+                                    role = Role.Button
+                                ) { onPeriod(bucket.range) }
+                                .padding(vertical = DiarySpacing.x1),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
                         ) {

@@ -90,7 +90,7 @@
     </plurals>
     <string name="insight_section_days">Mood each day</string>
     <string name="insight_map_hint">Each square is a day, colored by that day's mood.</string>
-    <string name="tip_insight_mood">Tap a mood to see all its entries.</string>
+    <string name="tip_insight_open">Tap a mood to see the entries you wrote then.</string>
     <string name="insight_section_moods">Top moods</string>
     <string name="insight_adv_no_moods">Not enough entries with a mood</string>
     <string name="insight_adv_no_moods_body">Pick a mood on 7 entries and we'll look for differences.</string>
@@ -111,7 +111,7 @@
     <string name="insight_adv_characters_big">%1$sM characters</string>
     <string name="insight_adv_tone_info">How moods are grouped</string>
     <string name="insight_adv_tone_sheet_title">Positive and negative moods</string>
-    <string name="insight_adv_tone_sheet_body">Each bar shows the share of entries written in that situation that picked a positive or negative mood.</string>
+    <string name="insight_adv_tone_sheet_body">Out of the entries with a mood, this shows what share picked a positive or a negative mood.</string>
     <string name="insight_adv_tone_neutral">Not counted</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

@@ -240,7 +240,7 @@ internal fun AdvancedStatsScreen(
                 }
             }
             Spacer(Modifier.height(DiarySpacing.x6))
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) { Sections(stats, period, onMood) }
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)) { Sections(stats, period, onMood) }
         }
     }
 }
@@ -266,20 +266,36 @@ private fun Sections(stats: AdvancedStats?, period: AdvancedPeriod, onMood: (Moo
 /**
  * 고급 통계의 한 묶음(`docs/design.md` 고급 통계 간격).
  * 제목과 내용 사이 [titleGap](기본 16), 내용끼리 [gap](기본 12).
+ * [onInfo]가 있으면 제목 줄 오른쪽 끝에 기준 안내 단추를 둔다.
  */
 @Composable
 private fun Section(
     title: StringResource,
     gap: Dp = DiarySpacing.x3,
     titleGap: Dp = DiarySpacing.x4,
+    onInfo: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column {
-        BasicText(
-            stringResource(title),
-            Modifier.semantics { heading() },
-            style = DiaryTheme.typography.headline.copy(color = DiaryTheme.colors.textPrimary)
-        )
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            BasicText(
+                stringResource(title),
+                Modifier.weight(1f).semantics { heading() },
+                style = DiaryTheme.typography.headline.copy(color = DiaryTheme.colors.textPrimary)
+            )
+            if (onInfo != null) {
+                Spacer(Modifier.width(DiarySpacing.x3))
+                // 누르는 곳은 48에 가깝게 두고 자리는 아이콘만큼만 차지해 제목 줄이 높아지지 않게 한다.
+                DiaryIconButton(
+                    DiaryIcons.Info,
+                    contentDescription = stringResource(Res.string.insight_adv_tone_info),
+                    onClick = onInfo,
+                    modifier = Modifier.diaryTouchOutset(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x3),
+                    tint = DiaryTheme.colors.textTertiary,
+                    iconSize = DiaryIconSize.i20
+                )
+            }
+        }
         Spacer(Modifier.height(titleGap))
         Column(verticalArrangement = Arrangement.spacedBy(gap), content = content)
     }
@@ -375,7 +391,11 @@ private fun Change(period: AdvancedPeriod, change: StatsChange) {
     val before = change.before
     val now = change.now
     val title = if (period == AdvancedPeriod.THIS_YEAR) Res.string.insight_adv_change_year else Res.string.insight_adv_change_recent
-    Section(title, DiarySpacing.x3) {
+    // 긍정적인·부정적인 기분 줄이 있을 때만 그 기준을 여는 단추를 둔다.
+    var explaining by rememberSaveable { mutableStateOf(false) }
+    val tones = before.moods != null && now.moods != null
+    if (explaining) ToneSheet(onDismiss = { explaining = false })
+    Section(title, DiarySpacing.x3, onInfo = if (tones) ({ explaining = true }) else null) {
         val moodsBefore = before.moods
         val moodsNow = now.moods
         if (moodsBefore != null && moodsNow != null) {
@@ -462,7 +482,7 @@ private fun characters(value: Long): String {
 /**
  * 상황별 기분(`docs/design.md` 상황별 기분).
  * 고르지 않고 한 줄에 긍정적인 기분(왼쪽부터)과 부정적인 기분(오른쪽부터)을 함께 그린다.
- * 무엇을 어느 쪽으로 세는지는 범례 끝 안내 단추가 시트로 보인다.
+ * 무엇을 어느 쪽으로 세는지는 제목 줄 오른쪽 끝 안내 단추가 시트로 보인다.
  */
 @Composable
 private fun MoodTimes(stats: AdvancedStats) {
@@ -473,7 +493,8 @@ private fun MoodTimes(stats: AdvancedStats) {
         gap = Dp.Hairline,
         // 글자 탭은 누르는 곳 48 안에 글자가 가운데 있어 위로 여백이 붙는다.
         // 제목과 탭을 따로 띄우면 한 묶음으로 보이지 않아 사이를 두지 않는다.
-        titleGap = Dp.Hairline
+        titleGap = Dp.Hairline,
+        onInfo = { explaining = true }
     ) {
         // 화면 전체를 거르는 기간 탭(상자)과 모양을 나눠, 이 묶음 안쪽만 바꾼다는 것이 보이게 글자 탭으로 둔다.
         DiaryTextTabs(
@@ -497,7 +518,7 @@ private fun MoodTimes(stats: AdvancedStats) {
         Spacer(Modifier.height(DiarySpacing.x4))
         // 범례는 막대 바로 위에 두어, 색을 읽을 곳과 뜻을 적은 곳이 붙어 있게 한다.
         if (rows.isNotEmpty()) {
-            ToneLegend(onInfo = { explaining = true })
+            ToneLegend()
             Spacer(Modifier.height(DiarySpacing.x3))
         }
         if (rows.isEmpty()) {
@@ -531,30 +552,16 @@ private fun MoodTimes(stats: AdvancedStats) {
 
 /** 막대 색이 무엇인지 알려 주는 한 줄. */
 @Composable
-private fun ToneLegend(onInfo: () -> Unit) {
+private fun ToneLegend() {
     val colors = DiaryTheme.colors
-    // 범례는 왼쪽, 기준 안내는 오른쪽 끝에 두어 아래 퍼센트 열의 끝선과 맞춘다(2026-11-08 사용자 제안).
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        // 글자가 커져 한 줄에 다 들어가지 않으면 범례만 다음 줄로 내린다.
-        FlowRow(
-            Modifier.weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-            itemVerticalAlignment = Alignment.CenterVertically
-        ) {
-            LegendItem(colors.toneGood, stringResource(Res.string.insight_adv_change_good))
-            LegendItem(colors.toneHard, stringResource(Res.string.insight_adv_change_hard))
-        }
-        Spacer(Modifier.width(DiarySpacing.x3))
-        // 누르는 곳은 48 그대로 두고 자리는 아이콘만큼만 차지해 범례 줄이 높아지지 않게 한다.
-        DiaryIconButton(
-            DiaryIcons.Info,
-            contentDescription = stringResource(Res.string.insight_adv_tone_info),
-            onClick = onInfo,
-            modifier = Modifier.diaryTouchOutset(horizontal = DiarySpacing.x4, vertical = DiarySpacing.x4),
-            tint = colors.textTertiary,
-            iconSize = DiaryIconSize.i16
-        )
+    // 글자가 커져 한 줄에 다 들어가지 않으면 다음 줄로 내린다.
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+        itemVerticalAlignment = Alignment.CenterVertically
+    ) {
+        LegendItem(colors.toneGood, stringResource(Res.string.insight_adv_change_good))
+        LegendItem(colors.toneHard, stringResource(Res.string.insight_adv_change_hard))
     }
 }
 

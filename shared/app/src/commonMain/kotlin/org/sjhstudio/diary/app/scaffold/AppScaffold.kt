@@ -453,6 +453,7 @@ private fun Content(
                             onMood = { mood, range ->
                                 nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                             },
+                            onPeriod = { range -> nav.push(SearchKey(from = range.start.toString(), to = range.end.toString())) },
                             onPlus = { nav.push(PlusKey) },
                             onAdvanced = { nav.push(AdvancedStatsKey) },
                             onWrite = onWrite,

@@ -8,7 +8,12 @@ enum class WelcomeStep { LETTER, ONBOARDING_UPDATED, ONBOARDING_NEW, DONE }
  * [id]가 저장 값이다.
  */
 enum class ContextTip(val id: String) {
-    INSIGHT_MOOD("insight_mood")
+    /**
+     * 돌아보기에서 칸과 기분 막대를 누르면 일기를 모아 볼 수 있다는 안내.
+     * 예전 "insight_mood"(기분 막대만 알리던 것)를 대신한다.
+     * 이름을 새로 지어 예전 안내를 닫은 사람에게도 한 번 더 보인다(2026-11-08).
+     */
+    INSIGHT_OPEN("insight_open")
 }
 
 /** 세션당 하나, 팁마다 한 번(FR-011). */

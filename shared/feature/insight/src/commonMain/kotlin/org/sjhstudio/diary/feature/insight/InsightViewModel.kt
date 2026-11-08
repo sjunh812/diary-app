@@ -27,6 +27,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
+import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
@@ -182,8 +183,10 @@ internal fun MoodCounts.sorted(): List<Pair<Mood, Int>> = Mood.ordered.map { it 
 /**
  * 기분 흐름 한 칸.
  * [mood]는 그 칸의 날들에서 가장 많은 기분이고, 고른 기분이 없으면 null이다.
+ * [range]는 칸이 덮는 날짜다. 누르면 이 기간의 일기를 찾기로 모아 본다.
+ * [written]은 그 칸에 일기가 한 편이라도 있는지다. 없으면 누를 수 없다.
  */
-internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?)
+internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?, val range: DateRange, val written: Boolean)
 
 internal sealed interface BucketSlot {
     data class Day(val date: LocalDate) : BucketSlot
@@ -206,7 +209,7 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
         val start = period.start
         List(DAYS_IN_WEEK) { offset ->
             val date = start.plus(DatePeriod(days = offset))
-            bucket(BucketSlot.Day(date), days.filter { it.date == date })
+            bucket(BucketSlot.Day(date), DateRange(date, date), days.filter { it.date == date })
         }
     }
 
@@ -214,27 +217,41 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
         val blanks = (period.month.onDay(1).dayOfWeek.ordinal + 1) % DAYS_IN_WEEK
         val weeks = (blanks + period.month.numberOfDays - 1) / DAYS_IN_WEEK + 1
         val byWeek = days.groupBy { (blanks + it.date.day - 1) / DAYS_IN_WEEK }
-        List(weeks) { week -> bucket(BucketSlot.Week(week + 1), byWeek[week].orEmpty()) }
+        List(weeks) { week ->
+            // 달의 첫 주와 마지막 주는 그 달 안의 날만 덮는다(화면이 보여 주는 것도 그 달뿐이다).
+            val first = (week * DAYS_IN_WEEK - blanks + 1).coerceAtLeast(1)
+            val last = (first + DAYS_IN_WEEK - 1 - if (week == 0) blanks else 0).coerceAtMost(period.month.numberOfDays)
+            val range = DateRange(period.month.onDay(first), period.month.onDay(last))
+            bucket(BucketSlot.Week(week + 1), range, byWeek[week].orEmpty())
+        }
     }
 
     is StatsPeriod.Year -> {
         val byMonth = days.groupBy { it.date.month.number }
-        (1..MONTHS).map { month -> bucket(BucketSlot.Month(LocalDate(period.year, month, 1)), byMonth[month].orEmpty()) }
+        (1..MONTHS).map { month ->
+            val yearMonth = YearMonth(period.year, month)
+            val range = DateRange(yearMonth.onDay(1), yearMonth.onDay(yearMonth.numberOfDays))
+            bucket(BucketSlot.Month(yearMonth.onDay(1)), range, byMonth[month].orEmpty())
+        }
     }
 
     StatsPeriod.All -> {
         val byYear = days.groupBy { it.date.year }
         // 일기가 없는 해도 빈 칸으로 두어 흐름이 끊긴 것이 보이게 한다.
         val years = if (byYear.isEmpty()) IntRange.EMPTY else byYear.keys.min()..byYear.keys.max()
-        years.map { year -> bucket(BucketSlot.Year(LocalDate(year, 1, 1)), byYear[year].orEmpty()) }
+        years.map { year ->
+            val range = DateRange(LocalDate(year, 1, 1), LocalDate(year, MONTHS, LAST_DAY_OF_DECEMBER))
+            bucket(BucketSlot.Year(LocalDate(year, 1, 1)), range, byYear[year].orEmpty())
+        }
     }
 }
 
-private fun bucket(slot: BucketSlot, days: List<DayMood>): MoodBucket =
-    MoodBucket(slot, days.sortedBy { it.date }.flatMap { it.moods }.mostFrequent())
+private fun bucket(slot: BucketSlot, range: DateRange, days: List<DayMood>): MoodBucket =
+    MoodBucket(slot, days.sortedBy { it.date }.flatMap { it.moods }.mostFrequent(), range, days.any { it.count > 0 })
 
 private const val DAYS_IN_WEEK = 7
 private const val MONTHS = 12
+private const val LAST_DAY_OF_DECEMBER = 31
 
 private const val PERIOD_KEY = "insight_period"
 

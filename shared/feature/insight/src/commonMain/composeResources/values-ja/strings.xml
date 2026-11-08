@@ -83,7 +83,7 @@
     </plurals>
     <string name="insight_section_days">毎日の気分</string>
     <string name="insight_map_hint">1マスが1日です。色はその日の気分です。</string>
-    <string name="tip_insight_mood">気分をタップすると、その気分の日記をまとめて見られます。</string>
+    <string name="tip_insight_open">気分をタップすると、そのとき書いた日記をまとめて見られます。</string>
     <string name="insight_section_moods">よく選んだ気分</string>
     <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
     <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>
@@ -104,7 +104,7 @@
     <string name="insight_adv_characters_big">%1$s億字</string>
     <string name="insight_adv_tone_info">気分の分け方</string>
     <string name="insight_adv_tone_sheet_title">ポジティブな気分とネガティブな気分</string>
-    <string name="insight_adv_tone_sheet_body">バーは、その状況で書いた日記のうちポジティブな気分とネガティブな気分を選んだ割合です。</string>
+    <string name="insight_adv_tone_sheet_body">気分を選んだ日記のうち、ポジティブな気分とネガティブな気分がそれぞれ何%かを表しています。</string>
     <string name="insight_adv_tone_neutral">数えない気分</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>
