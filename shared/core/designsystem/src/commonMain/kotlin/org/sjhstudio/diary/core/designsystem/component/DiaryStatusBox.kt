@@ -13,6 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.LineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -20,7 +24,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 /**
  * 상태 상자(`docs/design.md` 상태 상자, Figma "permission-needed").
  * 안내 상자와 한 집안이다.
- * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 4 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백).
+ * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 6 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백).
  * 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼.
  */
 @Composable
@@ -48,10 +52,18 @@ fun DiaryStatusBox(
                 .padding(DiarySpacing.x5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
+        // 머리가 두 줄이 되면 4로는 설명과 붙어 보여서 6을 둔다(2026-11-08 사용자 지적).
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
             Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.Top) {
                 FirstLineIcon(icon, typography.bodyStrong, colors.textPrimary)
-                BasicText(title, style = typography.bodyStrong.copy(color = colors.textPrimary))
+                // 한글은 글자마다 줄이 바뀌어 마지막 줄에 "요" 한 글자만 남았다(2026-11-08 사용자 지적).
+                // 낱말 안 글자 사이를 묶어 띄어쓰기에서만 줄이 바뀌게 하고, 줄은 고르게 나눈다.
+                // 붙임 글자는 그릴 때만 쓰고, 화면 읽기와 시험에는 원래 머리를 준다.
+                BasicText(
+                    keepWords(title),
+                    Modifier.clearAndSetSemantics { text = AnnotatedString(title) },
+                    style = typography.bodyStrong.copy(color = colors.textPrimary, lineBreak = LineBreak.Heading)
+                )
             }
             BasicText(body, style = typography.body.copy(color = colors.textSecondary))
         }
@@ -73,3 +85,15 @@ fun DiaryStatusBox(
         }
     }
 }
+
+/** 한글 낱말 안 글자 사이에 줄바꿈하지 않는 표시(U+2060)를 넣는다. 화면 표시용이다. */
+internal fun keepWords(text: String): String = buildString(text.length * 2) {
+    text.forEachIndexed { index, char ->
+        if (index > 0 && char.isHangul() && text[index - 1].isHangul()) append(WORD_JOINER)
+        append(char)
+    }
+}
+
+private fun Char.isHangul(): Boolean = this in '\uAC00'..'\uD7A3'
+
+private const val WORD_JOINER = '\u2060'
