@@ -22,10 +22,6 @@ import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.savedstate.serialization.SavedStateConfiguration
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.TimeMark
-import kotlin.time.TimeSource
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
@@ -46,23 +42,7 @@ private val BackStackConfiguration =
  * 그래서 탭을 옮겼다 와도 스크롤, 고른 날, 기간, 필터가 그대로다.
  * 앱은 늘 홈을 지나서 닫힌다(`contracts/navigation.md` 뒤로 가기).
  */
-class TabNavigation(
-    selected: MutableState<TabScreen>,
-    val stacks: Map<TabScreen, MutableList<NavKey>>,
-    private val openGap: Duration = Duration.ZERO,
-    private val time: TimeSource = TimeSource.Monotonic
-) {
-    /**
-     * 마지막으로 화면을 연 때.
-     * 화면이 밀려 들어오는 동안 연달아 누른 손가락이 밀려 나가는 화면의 다른 줄까지 열지 않게 [openGap] 안의 두 번째 열기는 무시한다.
-     */
-    private var lastOpen: TimeMark? = null
-
-    private fun openedJustNow(): Boolean {
-        val recent = lastOpen?.let { it.elapsedNow() < openGap } == true
-        if (!recent) lastOpen = time.markNow()
-        return recent
-    }
+class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen, MutableList<NavKey>>) {
 
     var tab: TabScreen by selected
         private set
@@ -136,7 +116,6 @@ class TabNavigation(
         movedBetweenTabs = false
         // 쓰기 화면 키는 열 때마다 새 값이라 같은지로는 막히지 않는다. 화면이 바뀌는 동안 두 번 눌러도 하나만 연다.
         if (top == key || (key is WriteKey && top is WriteKey)) return
-        if (openedJustNow()) return
         current.add(key)
     }
 
@@ -145,8 +124,6 @@ class TabNavigation(
      * 탭 첫 화면이면 홈으로, 홈 첫 화면이면 시스템이 앱을 닫는다.
      */
     fun back() {
-        // 뒤로 간 뒤에 다른 화면을 여는 것은 연타가 아니다.
-        lastOpen = null
         movedBetweenTabs = current.size <= 1 && tab != START_TAB
         when {
             current.size > 1 -> current.removeAt(current.lastIndex)
@@ -160,7 +137,6 @@ class TabNavigation(
      */
     fun openEntry(entryId: String) {
         movedBetweenTabs = false
-        if (openedJustNow()) return
         if (top is EntryDetailKey) current.removeAt(current.lastIndex)
         current.add(EntryDetailKey(entryId))
     }
@@ -187,7 +163,7 @@ class TabNavigation(
 fun rememberTabNavigation(startTab: TabScreen): TabNavigation {
     val selected = rememberSaveable(stateSaver = TabSaver) { mutableStateOf(startTab) }
     val stacks = TABS.associateWith { tab -> key(tab.toString()) { rememberNavBackStack(BackStackConfiguration, tab) } }
-    return remember { TabNavigation(selected, stacks, openGap = OPEN_GAP) }
+    return remember { TabNavigation(selected, stacks) }
 }
 
 /** 탭 쌓임마다 화면 상태를 묶는다. 저장 상태와 화면 모델은 탭마다 따로다. */
@@ -228,8 +204,5 @@ fun ProvideTabViewModelStores(content: @Composable () -> Unit) {
     val stores = TABS.associateWith { tab -> key(tab.toString()) { rememberViewModelStoreProvider() } }
     CompositionLocalProvider(LocalTabViewModelStores provides stores, content = content)
 }
-
-/** 화면이 밀려 들어오는 시간쯤. 사람이 일부러 두 화면을 이만큼 빨리 열지는 않는다. */
-private val OPEN_GAP = 500.milliseconds
 
 private val TabSaver = Saver<TabScreen, Int>(save = { TABS.indexOf(it) }, restore = { TABS[it] })

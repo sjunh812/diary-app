@@ -6,8 +6,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.TestTimeSource
 
 // 탭마다 따로 쌓는 화면(contracts/navigation.md 뒤로 가기, 공식 nav3-recipes multiplestacks).
 class TabNavigationTest {
@@ -25,34 +23,6 @@ class TabNavigationTest {
         nav.selectTab(HomeKey)
 
         assertEquals(listOf<NavKey>(HomeKey, EntryDetailKey("a")), nav.current)
-    }
-
-    /** 쓰기 버튼을 연달아 누르면 밀려 나가는 홈 목록이 나머지 누름을 받아 쓰기 위에 상세가 열렸다. */
-    @Test
-    fun a_second_open_right_after_the_first_is_ignored() {
-        val clock = TestTimeSource()
-        val nav = TabNavigation(
-            selected = mutableStateOf(HomeKey),
-            stacks = listOf(HomeKey, CalendarKey, InsightKey, SettingsKey).associateWith { mutableListOf<NavKey>(it) },
-            openGap = 500.milliseconds,
-            time = clock
-        )
-        val writing = WriteKey()
-
-        nav.push(writing)
-        clock += 200.milliseconds
-        nav.openEntry("a")
-        assertEquals(listOf<NavKey>(HomeKey, writing), nav.current)
-
-        clock += 400.milliseconds
-        nav.push(PhotoViewerKey("a", 0))
-        assertEquals(listOf<NavKey>(HomeKey, writing, PhotoViewerKey("a", 0)), nav.current)
-
-        // 뒤로 간 바로 뒤에 다른 화면을 여는 것은 막지 않는다.
-        nav.back()
-        clock += 100.milliseconds
-        nav.push(SearchKey())
-        assertEquals(listOf<NavKey>(HomeKey, writing, SearchKey()), nav.current)
     }
 
     @Test
