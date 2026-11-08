@@ -24,15 +24,22 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -72,6 +79,15 @@ fun DiaryBottomSheet(
 ) {
     val colors = DiaryTheme.colors
     val maxHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() } * MAX_HEIGHT_RATIO
+    // 시트가 뜨면 뒤 화면의 키보드를 내린다(작성, 검색 어디서 열어도 같다).
+    // 시트 안은 따로 그려지는 창이라, 뒤 화면의 초점과 키보드는 시트 밖에서 잡아 둔다.
+    val behindFocus = LocalFocusManager.current
+    val behindKeyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(Unit) {
+        behindFocus.clearFocus()
+        behindKeyboard?.hide()
+    }
+    var typingInside by remember { mutableStateOf(false) }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -81,8 +97,17 @@ fun DiaryBottomSheet(
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
         modifier = modifier
     ) {
-        // 입력칸이 있는 시트는 키보드 위로 올라온다.
-        Box(Modifier.fillMaxWidth().navigationBarsPadding().imePadding(), contentAlignment = Alignment.BottomCenter) {
+        // 시트 안 입력칸에 커서가 있을 때만 키보드 위로 올라온다.
+        // 늘 키보드를 따르면 뒤 화면 키보드가 내려가는 동안 시트가 따라 내려오며 출렁여서, 키보드가 다 내려가길 기다려야 했다.
+        // 이제 키보드 내리기와 시트 올리기가 동시에 일어난다(2026-11-08 사용자 지적: 시트가 살짝 늦게 떴다).
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .then(if (typingInside) Modifier.imePadding() else Modifier)
+                .onFocusChanged { typingInside = it.hasFocus },
+            contentAlignment = Alignment.BottomCenter
+        ) {
             Column(
                 modifier =
                     Modifier

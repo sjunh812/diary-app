@@ -73,7 +73,6 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
@@ -98,8 +97,6 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberCameraPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.readBytes
 import kotlin.math.roundToInt
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.StringResource
@@ -203,8 +200,6 @@ private enum class Sheet { Mood, Weather, Place, DateTime }
 /** 끌고 있는 사진을 살짝 키워 집어 든 것처럼 보이게 한다. */
 private const val DRAG_SCALE = 1.06f
 
-private const val KEYBOARD_HIDE_MILLIS = 400L
-
 /**
  * 쓰기 화면(Figma "쓰기 (S2)").
  * 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순서다.
@@ -218,24 +213,12 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 화면을 돌리거나 폴더블을 펴도 고르던 시트가 닫히지 않는다.
     var sheet by rememberSaveable { mutableStateOf<Sheet?>(null) }
     val locationAccess = rememberLocationAccess()
-    // 키보드가 내려가는 동안 시트가 뜨면 키보드 높이에 맞춰 떴다가 출렁인다.
-    // 키보드를 먼저 내리고 띄운다.
-    val focus = LocalFocusManager.current
+    // 시트가 뜰 때 키보드는 시트 부품이 내린다(DiaryBottomSheet).
+    // 키보드가 다 내려가길 기다리지 않고 바로 띄운다.
+    val openSheet = { target: Sheet -> sheet = target }
     val softKeyboard = LocalSoftwareKeyboardController.current
     val density = LocalDensity.current
     val imeInsets = WindowInsets.ime
-    var nextSheet by remember { mutableStateOf<Sheet?>(null) }
-    val openSheet = { target: Sheet ->
-        focus.clearFocus()
-        softKeyboard?.hide()
-        nextSheet = target
-    }
-    LaunchedEffect(nextSheet) {
-        val target = nextSheet ?: return@LaunchedEffect
-        withTimeoutOrNull(KEYBOARD_HIDE_MILLIS) { snapshotFlow { imeInsets.getBottom(density) }.first { it == 0 } }
-        sheet = target
-        nextSheet = null
-    }
     var askDiscard by remember { mutableStateOf(false) }
     var askDiscardHere by rememberSaveable { mutableStateOf(false) }
     val editorFocus = remember { FocusRequester() }
