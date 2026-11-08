@@ -309,8 +309,8 @@ class BackupController(
     override suspend fun setPhotosOnCellular(enabled: Boolean) = store.update { it.copy(photosOnCellular = enabled) }
 
     override suspend fun disconnect() {
-        authorizer.disconnect()
-        scheduler.cancelDaily()
+        // 기록을 먼저 지운다.
+        // 계정 권한부터 지우고 기록을 적지 못하면, 화면은 연결된 채로 보이는데 백업은 실패한다.
         // 마지막 백업 기록은 끊은 계정의 것이다.
         // 남겨 두면 다른 계정을 연결했을 때 그 계정의 백업처럼 보인다.
         store.update {
@@ -322,6 +322,8 @@ class BackupController(
                 foundBackupWaiting = false
             )
         }
+        authorizer.disconnect()
+        scheduler.cancelDaily()
         _foundBackup.value = null
         notifier.cancel()
     }

@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
     val status: StateFlow<BackupStatus> = controller.status.stateIn(
@@ -59,7 +60,7 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     val connectFailure: StateFlow<BackupFailure?> = controller.connectFailure
 
     fun dismissNudge() {
-        viewModelScope.launch { controller.dismissNudge() }
+        viewModelScope.launch { quietly { controller.dismissNudge() } }
     }
 
     /**
@@ -70,7 +71,8 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
         viewModelScope.launch {
             _connecting.value = true
             try {
-                controller.connect(hint)
+                // 연결 실패 까닭은 [connectFailure]가 말한다. 예상하지 못한 예외에도 앱을 끄지 않는다.
+                quietly { controller.connect(hint) }
             } finally {
                 _connecting.value = false
             }
@@ -90,16 +92,22 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     fun backUpNow(cellularOnce: Boolean = false) = controller.backUpNow(cellularOnce)
 
     fun setAuto(enabled: Boolean) {
-        viewModelScope.launch { controller.setAuto(enabled) }
+        viewModelScope.launch { quietly { controller.setAuto(enabled) } }
     }
 
     fun setPhotosOnCellular(enabled: Boolean) {
-        viewModelScope.launch { controller.setPhotosOnCellular(enabled) }
+        viewModelScope.launch { quietly { controller.setPhotosOnCellular(enabled) } }
     }
 
     fun disconnect() {
-        viewModelScope.launch { controller.disconnect() }
+        viewModelScope.launch { quietly { controller.disconnect() } }
     }
+
+    /**
+     * 저장 공간이 차서 설정을 적지 못해도 앱을 끄지 않는다.
+     * 스위치는 저장된 값을 그리므로 적지 못하면 원래 자리로 돌아가 사실과 어긋나지 않는다.
+     */
+    private suspend fun quietly(block: suspend () -> Unit) = orElseOnFailure(Unit) { block() }
 
     private companion object {
         const val STOP_MILLIS = 5_000L
