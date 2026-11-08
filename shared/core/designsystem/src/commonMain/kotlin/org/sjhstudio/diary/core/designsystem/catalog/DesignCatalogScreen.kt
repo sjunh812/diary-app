@@ -140,6 +140,8 @@ internal fun CatalogColors() {
             "overlay" to c.overlay,
             "shadow" to c.shadow,
             "mood.angry" to c.mood.angry,
+            "toneGood" to c.toneGood,
+            "toneHard" to c.toneHard,
             "mood.cool" to c.mood.cool,
             "mood.sad" to c.mood.sad,
             "mood.sick" to c.mood.sick,

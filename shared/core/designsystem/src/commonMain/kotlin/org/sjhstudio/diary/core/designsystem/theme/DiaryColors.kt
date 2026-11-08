@@ -53,6 +53,17 @@ data class DiaryColors(
      * 꼭 필요한 정보를 싣지 않는다
      */
     val placeholder: Color,
+    /**
+     * 고급 통계의 긍정적인 기분 막대와 범례 점. 브랜드 보라(`accentText`)와 같은 값이다.
+     * 기분 색이 아니라 이 앱의 강조색이라 긍정 쪽 한 곳에만 쓴다(2026-11-08 사용자 결정, 시안 D2).
+     */
+    val toneGood: Color,
+    /**
+     * 고급 통계의 부정적인 기분 막대와 범례 점. 푸른 회색.
+     * 옅은 회색은 "세지 않는 기분"(`lineStrong`)과 비슷해 부정적인 기분이 무시되는 듯 보였다.
+     * 차가운 쪽 색이 부정이라는 Apple 마음 상태의 결(2026-11-08 시뮬레이터에서 확인)과도 맞는다.
+     */
+    val toneHard: Color,
     /** 지우기, 실패 */
     val danger: Color,
     /** danger 위 글자 */
@@ -128,6 +139,8 @@ internal val LightDiaryColors =
         lilac = Color(0xFFCAA6FE),
         accent = Color(0xFF6E56CF),
         accentText = Color(0xFF6550B9),
+        toneGood = Color(0xFF6550B9),
+        toneHard = Color(0xFF8F9BB3),
         onAccent = Color(0xFFFFFFFF),
         textPrimary = Color(0xFF1A1C20),
         textSecondary = Color(0xFF555D6D),
@@ -187,6 +200,8 @@ internal val DarkDiaryColors =
         lilac = Color(0xFFCAA6FE),
         accent = Color(0xFF6E56CF),
         accentText = Color(0xFFBAA7FF),
+        toneGood = Color(0xFFBAA7FF),
+        toneHard = Color(0xFF7D879C),
         onAccent = Color(0xFFFFFFFF),
         textPrimary = Color(0xFFF3F4F5),
         textSecondary = Color(0xFFDCDEE3),
