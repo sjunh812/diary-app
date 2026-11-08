@@ -397,7 +397,16 @@ object DiaryIcons {
      * 즐겨찾기 해제. 별 위에 빗금을 그어, 누르면 즐겨찾기가 풀린다는 뜻으로 읽힌다.
      * 꽉 찬 별은 즐겨찾기가 된다는 뜻으로 읽힐 수 있었다(2026-11-08 사용자 결정, iOS의 해제 동작도 빗금 아이콘을 쓴다).
      */
-    val StarOff: ImageVector by lazy { lucide("star-off", STAR, SLASH) }
+    // 빗금이 지나는 두 곳에서 별 테두리를 끊어 선이 겹치지 않게 한다(Lucide star-off와 같은 방식, 2026-11-08 사용자 지적).
+    // 끊는 폭은 빗금에서 2 떨어진 곳까지라, 둥근 선 끝까지 빗금과 틈이 보인다.
+    val StarOff: ImageVector by lazy {
+        lucide(
+            "star-off",
+            "M 10.32 7.49 L 12 4 L 14.4 9 L 19.8 9.6 L 15.97 13.14",
+            "M 14.5 17.33 L 12 16 L 7.1 18.6 L 8.2 13.3 L 4.2 9.6 L 6.51 9.34",
+            SLASH
+        )
+    }
 
     private fun tab(name: String, stroke: Float, vararg paths: String): ImageVector = lucide(name, *paths, strokeWidth = stroke)
 
