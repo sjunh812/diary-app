@@ -52,7 +52,7 @@
     <string name="insight_adv_not_enough">This appears once you've written 7 entries.</string>
     <string name="insight_adv_change_recent">Compared with the previous 30 days</string>
     <string name="insight_adv_change_year">Compared with this time last year</string>
-    <string name="insight_adv_change_good">Good moods</string>
+    <string name="insight_adv_change_good">Positive moods</string>
     <string name="insight_adv_when">Mood by situation</string>
     <string name="insight_adv_tab_weekday">Day</string>
     <string name="insight_adv_tab_part">Time</string>
@@ -98,11 +98,11 @@
     <string name="insight_adv_recent_harder">Lately hasn't been easy</string>
     <string name="insight_adv_recent_steady">Things have been about the same lately</string>
     <string name="insight_adv_recent_steady_body">Not much different from the previous 30 days.</string>
-    <string name="insight_adv_recent_good_up">More good moods than the previous 30 days. %1$d% → %2$d%</string>
-    <string name="insight_adv_recent_good_down">Fewer good moods than the previous 30 days. %1$d% → %2$d%</string>
-    <string name="insight_adv_recent_hard_up">More low moods than the previous 30 days. %1$d% → %2$d%</string>
-    <string name="insight_adv_recent_hard_down">Fewer low moods than the previous 30 days. %1$d% → %2$d%</string>
-    <string name="insight_adv_change_hard">Low moods</string>
+    <string name="insight_adv_recent_good_up">More positive moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_good_down">Fewer positive moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_up">More negative moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_down">Fewer negative moods than the previous 30 days. %1$d% → %2$d%</string>
+    <string name="insight_adv_change_hard">Negative moods</string>
     <string name="insight_adv_change_top">Top mood</string>
     <string name="insight_adv_change_before">%1$s →</string>
     <string name="insight_adv_unit_small">1000</string>
@@ -110,8 +110,8 @@
     <string name="insight_adv_characters_small">%1$sK characters</string>
     <string name="insight_adv_characters_big">%1$sM characters</string>
     <string name="insight_adv_tone_info">How moods are grouped</string>
-    <string name="insight_adv_tone_sheet_title">Good and low moods</string>
-    <string name="insight_adv_tone_sheet_body">Each bar shows the share of entries written in that situation that picked a good or low mood.</string>
+    <string name="insight_adv_tone_sheet_title">Positive and negative moods</string>
+    <string name="insight_adv_tone_sheet_body">Each bar shows the share of entries written in that situation that picked a positive or negative mood.</string>
     <string name="insight_adv_tone_neutral">Not counted</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

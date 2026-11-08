@@ -50,7 +50,7 @@
     <string name="insight_adv_not_enough">日記が7件たまると表示します。</string>
     <string name="insight_adv_change_recent">前の30日と比較</string>
     <string name="insight_adv_change_year">去年の同じ時期と比較</string>
-    <string name="insight_adv_change_good">良い気分</string>
+    <string name="insight_adv_change_good">ポジティブな気分</string>
     <string name="insight_adv_when">状況別の気分</string>
     <string name="insight_adv_tab_weekday">曜日</string>
     <string name="insight_adv_tab_part">時間帯</string>
@@ -91,11 +91,11 @@
     <string name="insight_adv_recent_harder">最近、つらい日が多かったようです</string>
     <string name="insight_adv_recent_steady">最近はいつもどおりです</string>
     <string name="insight_adv_recent_steady_body">その前の30日と大きな違いはありません。</string>
-    <string name="insight_adv_recent_good_up">その前の30日より良い気分が増えました。%1$d% → %2$d%</string>
-    <string name="insight_adv_recent_good_down">その前の30日より良い気分が減りました。%1$d% → %2$d%</string>
-    <string name="insight_adv_recent_hard_up">その前の30日よりつらい気分が増えました。%1$d% → %2$d%</string>
-    <string name="insight_adv_recent_hard_down">その前の30日よりつらい気分が減りました。%1$d% → %2$d%</string>
-    <string name="insight_adv_change_hard">つらい気分</string>
+    <string name="insight_adv_recent_good_up">その前の30日よりポジティブな気分が増えました。%1$d% → %2$d%</string>
+    <string name="insight_adv_recent_good_down">その前の30日よりポジティブな気分が減りました。%1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_up">その前の30日よりネガティブな気分が増えました。%1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_down">その前の30日よりネガティブな気分が減りました。%1$d% → %2$d%</string>
+    <string name="insight_adv_change_hard">ネガティブな気分</string>
     <string name="insight_adv_change_top">一番多い気分</string>
     <string name="insight_adv_change_before">%1$s →</string>
     <string name="insight_adv_unit_small">10000</string>
@@ -103,8 +103,8 @@
     <string name="insight_adv_characters_small">%1$s万字</string>
     <string name="insight_adv_characters_big">%1$s億字</string>
     <string name="insight_adv_tone_info">気分の分け方</string>
-    <string name="insight_adv_tone_sheet_title">良い気分とつらい気分</string>
-    <string name="insight_adv_tone_sheet_body">バーは、その状況で書いた日記のうち良い気分とつらい気分を選んだ割合です。</string>
+    <string name="insight_adv_tone_sheet_title">ポジティブな気分とネガティブな気分</string>
+    <string name="insight_adv_tone_sheet_body">バーは、その状況で書いた日記のうちポジティブな気分とネガティブな気分を選んだ割合です。</string>
     <string name="insight_adv_tone_neutral">数えない気分</string>
     <string name="insight_adv_tone_ok">OK</string>
 </resources>

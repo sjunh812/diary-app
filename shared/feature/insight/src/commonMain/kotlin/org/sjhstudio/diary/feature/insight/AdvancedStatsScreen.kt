@@ -266,29 +266,20 @@ private fun Sections(stats: AdvancedStats?, period: AdvancedPeriod, onMood: (Moo
 /**
  * 고급 통계의 한 묶음(`docs/design.md` 고급 통계 간격).
  * 제목과 내용 사이 [titleGap](기본 16), 내용끼리 [gap](기본 12).
- * [trailing]은 제목 옆에 붙는 작은 것(안내 단추)이고, 제목 줄 높이를 늘리지 않아야 한다.
  */
 @Composable
 private fun Section(
     title: StringResource,
     gap: Dp = DiarySpacing.x3,
     titleGap: Dp = DiarySpacing.x4,
-    trailing: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-            itemVerticalAlignment = Alignment.CenterVertically
-        ) {
-            BasicText(
-                stringResource(title),
-                Modifier.semantics { heading() },
-                style = DiaryTheme.typography.headline.copy(color = DiaryTheme.colors.textPrimary)
-            )
-            trailing?.invoke()
-        }
+        BasicText(
+            stringResource(title),
+            Modifier.semantics { heading() },
+            style = DiaryTheme.typography.headline.copy(color = DiaryTheme.colors.textPrimary)
+        )
         Spacer(Modifier.height(titleGap))
         Column(verticalArrangement = Arrangement.spacedBy(gap), content = content)
     }
@@ -470,8 +461,8 @@ private fun characters(value: Long): String {
 
 /**
  * 상황별 기분(`docs/design.md` 상황별 기분).
- * 고르지 않고 한 줄에 좋은 기분(왼쪽부터)과 힘든 기분(오른쪽부터)을 함께 그린다.
- * 무엇을 좋은 기분과 힘든 기분으로 세는지는 제목 옆 안내 단추가 시트로 보인다.
+ * 고르지 않고 한 줄에 긍정적인 기분(왼쪽부터)과 부정적인 기분(오른쪽부터)을 함께 그린다.
+ * 무엇을 어느 쪽으로 세는지는 범례 끝 안내 단추가 시트로 보인다.
  */
 @Composable
 private fun MoodTimes(stats: AdvancedStats) {
@@ -480,18 +471,9 @@ private fun MoodTimes(stats: AdvancedStats) {
     Section(
         Res.string.insight_adv_when,
         gap = Dp.Hairline,
-        titleGap = DiarySpacing.x2,
-        trailing = {
-            // 누르는 곳은 48 그대로 두고 자리는 아이콘만큼만 차지해, 제목 줄이 높아지거나 아이콘이 멀어지지 않게 한다.
-            DiaryIconButton(
-                DiaryIcons.Info,
-                contentDescription = stringResource(Res.string.insight_adv_tone_info),
-                onClick = { explaining = true },
-                modifier = Modifier.diaryTouchOutset(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x3),
-                tint = DiaryTheme.colors.textTertiary,
-                iconSize = DiaryIconSize.i20
-            )
-        }
+        // 글자 탭은 누르는 곳 48 안에 글자가 가운데 있어 위로 여백이 붙는다.
+        // 제목과 탭을 따로 띄우면 한 묶음으로 보이지 않아 사이를 두지 않는다.
+        titleGap = Dp.Hairline
     ) {
         // 화면 전체를 거르는 기간 탭(상자)과 모양을 나눠, 이 묶음 안쪽만 바꾼다는 것이 보이게 글자 탭으로 둔다.
         DiaryTextTabs(
@@ -515,7 +497,7 @@ private fun MoodTimes(stats: AdvancedStats) {
         Spacer(Modifier.height(DiarySpacing.x4))
         // 범례는 막대 바로 위에 두어, 색을 읽을 곳과 뜻을 적은 곳이 붙어 있게 한다.
         if (rows.isNotEmpty()) {
-            ToneLegend()
+            ToneLegend(onInfo = { explaining = true })
             Spacer(Modifier.height(DiarySpacing.x3))
         }
         if (rows.isEmpty()) {
@@ -549,11 +531,30 @@ private fun MoodTimes(stats: AdvancedStats) {
 
 /** 막대 색이 무엇인지 알려 주는 한 줄. */
 @Composable
-private fun ToneLegend() {
+private fun ToneLegend(onInfo: () -> Unit) {
     val colors = DiaryTheme.colors
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
-        LegendItem(colors.accentText, stringResource(Res.string.insight_adv_change_good))
-        LegendItem(colors.mood.angry, stringResource(Res.string.insight_adv_change_hard))
+    // 범례는 왼쪽, 기준 안내는 오른쪽 끝에 두어 아래 퍼센트 열의 끝선과 맞춘다(2026-11-08 사용자 제안).
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        // 글자가 커져 한 줄에 다 들어가지 않으면 범례만 다음 줄로 내린다.
+        FlowRow(
+            Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+            itemVerticalAlignment = Alignment.CenterVertically
+        ) {
+            LegendItem(colors.toneGood, stringResource(Res.string.insight_adv_change_good))
+            LegendItem(colors.toneHard, stringResource(Res.string.insight_adv_change_hard))
+        }
+        Spacer(Modifier.width(DiarySpacing.x3))
+        // 누르는 곳은 48 그대로 두고 자리는 아이콘만큼만 차지해 범례 줄이 높아지지 않게 한다.
+        DiaryIconButton(
+            DiaryIcons.Info,
+            contentDescription = stringResource(Res.string.insight_adv_tone_info),
+            onClick = onInfo,
+            modifier = Modifier.diaryTouchOutset(horizontal = DiarySpacing.x4, vertical = DiarySpacing.x4),
+            tint = colors.textTertiary,
+            iconSize = DiaryIconSize.i16
+        )
     }
 }
 
@@ -587,19 +588,12 @@ private fun ToneRow(label: String, share: ToneShare, good: String, hard: String,
             overflow = TextOverflow.Ellipsis
         )
         ToneBar(share.rate.toFloat(), share.hardRate.toFloat(), Modifier.weight(1f))
+        // 둘 가운데 더 많은 쪽 값을 진하게 둔다. 같으면 둘 다 진하다.
+        val strong = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End)
+        val weak = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End)
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            BasicText(
-                good,
-                Modifier.width(valueWidth),
-                style = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End),
-                maxLines = 1
-            )
-            BasicText(
-                hard,
-                Modifier.width(valueWidth),
-                style = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End),
-                maxLines = 1
-            )
+            BasicText(good, Modifier.width(valueWidth), style = if (share.rate >= share.hardRate) strong else weak, maxLines = 1)
+            BasicText(hard, Modifier.width(valueWidth), style = if (share.hardRate >= share.rate) strong else weak, maxLines = 1)
         }
     }
 }
@@ -607,8 +601,8 @@ private fun ToneRow(label: String, share: ToneShare, good: String, hard: String,
 @Composable
 private fun ToneBar(good: Float, hard: Float, modifier: Modifier) {
     val colors = DiaryTheme.colors
-    val goodColor = colors.accentText
-    val hardColor = colors.mood.angry
+    val goodColor = colors.toneGood
+    val hardColor = colors.toneHard
     val track = colors.sunken
     Canvas(modifier.height(DiarySpacing.x2).clip(DiaryShapes.full).background(track)) {
         val gap = DiarySpacing.x0_5.toPx()
@@ -640,16 +634,20 @@ private fun ToneSheet(onDismiss: () -> Unit) {
     val typography = DiaryTheme.typography
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.insight_adv_tone_sheet_title)) {
         BasicText(stringResource(Res.string.insight_adv_tone_sheet_body), style = typography.body.copy(color = colors.textSecondary))
-        Spacer(Modifier.height(DiarySpacing.x2))
-        ToneGroup(colors.accentText, stringResource(Res.string.insight_adv_change_good), Mood.entries.filter { it.tone == MoodTone.GOOD })
-        ToneGroup(colors.mood.angry, stringResource(Res.string.insight_adv_change_hard), Mood.entries.filter { it.tone == MoodTone.HARD })
-        ToneGroup(
-            colors.lineStrong,
-            stringResource(Res.string.insight_adv_tone_neutral),
-            Mood.entries.filter {
-                it.tone == MoodTone.NEUTRAL
-            }
-        )
+        // 설명 → 첫 묶음 16, 묶음 사이 20, 마지막 묶음 → 확인 32(시트 기본 사이 12 + 8에 버튼 둘레 여백, 재서 맞춤).
+        // 시트 규칙은 글과 버튼 사이 24지만, 여기는 묶음 사이가 20이라 24면 버튼이 내용에 붙어 보였다(2026-11-08 사용자 지적).
+        Column(Modifier.padding(top = DiarySpacing.x1), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
+            ToneGroup(colors.toneGood, stringResource(Res.string.insight_adv_change_good), Mood.entries.filter { it.tone == MoodTone.GOOD })
+            ToneGroup(colors.toneHard, stringResource(Res.string.insight_adv_change_hard), Mood.entries.filter { it.tone == MoodTone.HARD })
+            ToneGroup(
+                colors.lineStrong,
+                stringResource(Res.string.insight_adv_tone_neutral),
+                Mood.entries.filter {
+                    it.tone ==
+                        MoodTone.NEUTRAL
+                }
+            )
+        }
         Spacer(Modifier.height(DiarySpacing.x2))
         DiaryButton(stringResource(Res.string.insight_adv_tone_ok), onDismiss, Modifier.fillMaxWidth(), kind = DiaryButtonKind.Secondary)
     }
@@ -660,11 +658,13 @@ private fun ToneSheet(onDismiss: () -> Unit) {
 private fun ToneGroup(color: Color, name: String, moods: List<Mood>) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Column(Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+    // 얼굴 줄이 둘로 넘어가도 줄 사이(12)가 이름과 얼굴 사이와 같아야 한 묶음으로 읽힌다.
+    // 8로 두면 얼굴 24끼리 거의 붙어 보였다(2026-11-08 사용자 지적).
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         LegendItem(color, name)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4),
-            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
         ) {
             Mood.ordered.filter { it in moods }.forEach { mood ->
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
