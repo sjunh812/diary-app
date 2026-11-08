@@ -47,6 +47,9 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
  */
 private const val VALUE_MAX_SHARE = 0.5f
 
+/** 오른쪽 값 줄 수의 끝. */
+private const val VALUE_MAX_LINES = 2
+
 /** 이름 줄 수의 끝. */
 private const val TITLE_MAX_LINES = 2
 
@@ -123,7 +126,7 @@ fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Mod
 
 /**
  * 줄 오른쪽 값.
- * 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고 말줄임한다.
+ * 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고, 두 줄을 넘으면 말줄임한다.
  * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정되어 값과 화살표가 줄 가운데에 뜬다.
  */
 @Composable
@@ -131,7 +134,9 @@ private fun RowValue(value: String) {
     BasicText(
         text = value,
         style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary),
-        maxLines = 1,
+        // 글자를 크게 키우면 "오늘 오전 12:52" 같은 값이 반 폭에 다 들어가지 않는다.
+        // 두 줄까지는 줄을 바꿔 다 보이고, 그보다 길 때만 말줄임한다.
+        maxLines = VALUE_MAX_LINES,
         overflow = TextOverflow.Ellipsis,
         modifier =
             Modifier.layout { measurable, constraints ->
