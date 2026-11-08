@@ -81,8 +81,8 @@ fun LockFlow(
     LaunchedEffect(setup) { setup.done.collect { onUnlocked() } }
     // 열자마자 생체 인증을 띄운다.
     // 취소하거나 실패하면 숫자판이 그대로 남는다.
-    LaunchedEffect(showBiometric) {
-        if (!showBiometric) return@LaunchedEffect
+    // 실패 까닭(지문 불일치, 잠시 잠김)은 시스템 창이 직접 말하고, 창이 닫히면 숫자판이 남는다.
+    val unlockWithBiometric: suspend () -> Unit = {
         val result = authenticator.authenticateBiometric(biometricPrompt)
         if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
         if (result == AuthResult.Success) {
@@ -91,6 +91,7 @@ fun LockFlow(
             onUnlocked()
         }
     }
+    LaunchedEffect(showBiometric) { if (showBiometric) unlockWithBiometric() }
     LaunchedEffect(needsNewPin) {
         if (!needsNewPin) return@LaunchedEffect
         if (authenticator.isDeviceSecure()) {
@@ -109,17 +110,7 @@ fun LockFlow(
                 showBiometric = showBiometric,
                 onDigit = lock::onDigit,
                 onDelete = lock::onDelete,
-                onBiometric = {
-                    scope.launch {
-                        val result = authenticator.authenticateBiometric(biometricPrompt)
-                        if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
-                        if (result == AuthResult.Success) {
-                            // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 센다.
-                            lock.start(PinCheck.Verify)
-                            onUnlocked()
-                        }
-                    }
-                },
+                onBiometric = { scope.launch { unlockWithBiometric() } },
                 onForgot = { asking = true }
             )
 
