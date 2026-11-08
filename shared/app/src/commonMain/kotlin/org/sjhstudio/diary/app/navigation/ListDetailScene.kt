@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.app.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 
 /** 목록 화면 표시. */
@@ -81,11 +83,17 @@ private class ListDetailScene(
     override val key: Any = list.contentKey
     override val entries: List<NavEntry<NavKey>> = listOfNotNull(list, detail)
     override val content: @Composable () -> Unit = {
-        Row(Modifier.fillMaxSize().padding(start = LocalRailWidth.current)) {
+        // 장면 전체에 바탕을 깐다.
+        // 두 칸 사이 틈(24)이 비어 있으면 밀려 들어오는 동안 뒤의 어둡게 깔린 앞 화면이 세로 띠로 비쳤다(2026-11-08 사용자 지적, iPad).
+        Row(Modifier.fillMaxSize().padding(start = LocalRailWidth.current).background(DiaryTheme.colors.canvas)) {
             CompositionLocalProvider(LocalInListDetail provides true) {
                 Box(Modifier.width(DiaryWriteSize.listPane).fillMaxHeight()) { list.Content() }
             }
-            Spacer(Modifier.width(DiarySpacing.x6))
+            // 두 칸 사이 틈 가운데에 가는 선을 둬 목록과 상세가 나뉜 것이 보이게 한다(2026-11-08 사용자 요청).
+            // 레일 옆 선, 달력 두 칸의 선과 같은 `line` 1이다.
+            Spacer(Modifier.width(DiarySpacing.x3))
+            Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(DiaryTheme.colors.line))
+            Spacer(Modifier.width(DiarySpacing.x3))
             CompositionLocalProvider(LocalInListDetail provides true) {
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     if (detail !=
