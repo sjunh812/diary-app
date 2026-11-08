@@ -9,11 +9,24 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -81,7 +94,7 @@ class MainActivity : FragmentActivity() {
             DriveConsentLauncher { intent ->
                 authorizer.consentResult.await { consent.launch(IntentSenderRequest.Builder(intent).build()) }
             }
-        setContent { DiaryApp() }
+        setContent { AfterInsets { DiaryApp() } }
         // 화면을 돌려 다시 만들어질 때는 쌓인 화면이 이미 되살아난다.
         if (savedInstanceState == null) handleIntent(intent)
     }
@@ -124,3 +137,25 @@ class MainActivity : FragmentActivity() {
         const val ACTION_WRITE = "org.sjhstudio.diary.action.WRITE"
     }
 }
+
+/**
+ * 시스템 막대 높이를 받은 뒤부터 앱 화면을 그린다.
+ * 시작 화면이 걷힌 첫 그림은 막대 높이가 0이라 화면이 위로 붙어 그려졌다가 다음 그림에서 내려앉아,
+ * 큰 제목이 위에서 툭 떨어지는 것처럼 보였다(2026-11-08 사용자 지적).
+ * 막대가 없는 창에서도 멈추지 않게 짧게만 기다린다.
+ */
+@Composable
+private fun AfterInsets(content: @Composable () -> Unit) {
+    val density = LocalDensity.current
+    val bars = WindowInsets.systemBars
+    var waited by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        delay(INSETS_WAIT_MILLIS)
+        waited = true
+    }
+    val known = waited || bars.getTop(density) > 0 || bars.getBottom(density) > 0
+    // 기다리는 동안은 창 바탕(시작 화면 뒤 테마 색)이 그대로 보인다.
+    if (known) content() else Box(Modifier.fillMaxSize())
+}
+
+private const val INSETS_WAIT_MILLIS = 300L
