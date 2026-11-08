@@ -256,6 +256,20 @@ class InsightViewModelTest {
 
         override fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>> = flowOf(emptyMap())
     }
+
+    /** 앱이 꺼졌다 돌아와도 보던 기간이 남는다. */
+    @Test
+    fun the_period_survives_the_app_being_killed() {
+        for (period in listOf(
+            StatsPeriod.Week(LocalDate(2026, 11, 1)),
+            StatsPeriod.Month(YearMonth(2026, 2)),
+            StatsPeriod.Year(2025),
+            StatsPeriod.All
+        )) {
+            assertEquals(period, decodePeriod(encodePeriod(period)))
+        }
+        assertEquals(null, decodePeriod("x:1"))
+    }
 }
 
 private const val STOP_WATCHING_MILLIS = 6_000L

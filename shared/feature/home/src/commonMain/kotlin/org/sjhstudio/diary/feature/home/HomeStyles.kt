@@ -30,7 +30,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryHomeSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -151,6 +153,15 @@ private fun EntryCard(
                             style = typography.caption.copy(color = colors.textSecondary),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    // 피드형과 같은 자리에 둔다. 모양만 다른 같은 목록이다.
+                    if (row.isFavorite) {
+                        DiaryIcon(
+                            DiaryIcons.StarFilled,
+                            contentDescription = null,
+                            tint = colors.accent,
+                            size = DiaryHomeSize.cardIcon
                         )
                     }
                 }

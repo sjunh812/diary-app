@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.insight
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
@@ -53,7 +55,8 @@ data class InsightState(val period: StatsPeriod, val data: InsightData?) {
 class InsightViewModel(
     private val stats: StatsRepository,
     private val today: () -> LocalDate = { currentDate() },
-    plans: PlanRepository? = null
+    plans: PlanRepository? = null,
+    private val saved: SavedStateHandle = SavedStateHandle()
 ) : ViewModel() {
     /**
      * 고급 통계를 볼 수 있는지.
@@ -64,8 +67,13 @@ class InsightViewModel(
             .map { it.advancedStats }
             .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    private val _period = MutableStateFlow<StatsPeriod>(StatsPeriod.Month(today().yearMonth))
+    // 시스템이 앱을 끄고 다시 띄워도 보던 기간이 남는다.
+    private val _period = MutableStateFlow(saved.get<String>(PERIOD_KEY)?.let(::decodePeriod) ?: StatsPeriod.Month(today().yearMonth))
     val period: StateFlow<StatsPeriod> = _period.asStateFlow()
+
+    init {
+        viewModelScope.launch { _period.collect { saved[PERIOD_KEY] = encodePeriod(it) } }
+    }
 
     private val _todayState = MutableStateFlow(today())
 
@@ -219,3 +227,23 @@ private fun bucket(slot: BucketSlot, days: List<DayMood>): MoodBucket =
 
 private const val DAYS_IN_WEEK = 7
 private const val MONTHS = 12
+
+private const val PERIOD_KEY = "insight_period"
+
+internal fun encodePeriod(period: StatsPeriod): String = when (period) {
+    is StatsPeriod.Week -> "w:${period.start}"
+    is StatsPeriod.Month -> "m:${period.month}"
+    is StatsPeriod.Year -> "y:${period.year}"
+    StatsPeriod.All -> "all"
+}
+
+internal fun decodePeriod(text: String): StatsPeriod? = runCatching {
+    val value = text.substringAfter(':')
+    when (text.substringBefore(':')) {
+        "w" -> StatsPeriod.Week(LocalDate.parse(value))
+        "m" -> StatsPeriod.Month(YearMonth.parse(value))
+        "y" -> StatsPeriod.Year(value.toInt())
+        "all" -> StatsPeriod.All
+        else -> null
+    }
+}.getOrNull()

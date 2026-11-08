@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.calendar
 
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -21,6 +22,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Entry
@@ -42,15 +44,23 @@ class CalendarViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel(vararg days: LocalDate) =
-        CalendarViewModel(FakeEntryRepository(days.associateWith { DayMood(it, null, 1) }), FakeSettingsRepository(), NoFonts) { today }
+    private fun viewModel(vararg days: LocalDate) = CalendarViewModel(
+        FakeEntryRepository(
+            days.associateWith {
+                DayMood(it, null, 1)
+            }
+        ),
+        FakeSettingsRepository(),
+        NoFonts,
+        today = { today }
+    )
 
     private fun viewModel(rows: List<EntryRow> = emptyList(), slowDays: Map<LocalDate, Flow<List<EntryRow>>>): CalendarViewModel {
         val entries =
             object : EntryRepository by FakeEntryRepository(rows = rows) {
                 override fun day(date: LocalDate): Flow<List<EntryRow>> = slowDays[date] ?: flowOf(rows.filter { it.date == date })
             }
-        return CalendarViewModel(entries, FakeSettingsRepository(), NoFonts) { today }
+        return CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = { today })
     }
 
     @Test
@@ -129,6 +139,30 @@ class CalendarViewModelTest {
         model.select(written)
 
         assertEquals(CalendarDay(written, null), model.day.value)
+    }
+
+    /** 다른 달에 다녀와도 그 달에서 고른 날로 돌아온다. 고른 것이 저절로 바뀌지 않는다. */
+    @Test
+    fun the_picked_day_comes_back_after_visiting_another_month() = runTest {
+        val model = viewModel(LocalDate(2026, 9, 3))
+        val picked = LocalDate(today.year, today.month, 2)
+
+        model.select(picked)
+        model.showMonth(YearMonth(2026, 9))
+        model.showMonth(today.yearMonth)
+
+        assertEquals(picked, model.selected.value)
+    }
+
+    /** 앱이 꺼졌다 돌아와도 고른 날이 남는다. */
+    @Test
+    fun the_picked_day_survives_the_app_being_killed() {
+        val saved = SavedStateHandle()
+        val first = CalendarViewModel(FakeEntryRepository(), FakeSettingsRepository(), NoFonts, today = { today }, saved = saved)
+        first.select(LocalDate(2026, 9, 3))
+        val again = CalendarViewModel(FakeEntryRepository(), FakeSettingsRepository(), NoFonts, today = { today }, saved = saved)
+
+        assertEquals(LocalDate(2026, 9, 3), again.selected.value)
     }
 
     /** 달을 넘겨 다녀와도 얼굴이 사라졌다 나타나지 않게 읽은 값을 둔다. */
@@ -230,7 +264,7 @@ class CalendarViewModelTest {
         emptyList()
     )
 
-    private fun menuViewModel(entries: Menu) = CalendarViewModel(entries, FakeSettingsRepository(), NoFonts) { today }
+    private fun menuViewModel(entries: Menu) = CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = { today })
 
     @Test
     fun menu_flips_favorite_from_the_stored_entry() {

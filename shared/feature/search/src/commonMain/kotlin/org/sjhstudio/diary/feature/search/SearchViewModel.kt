@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.search
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.LoadState
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
@@ -51,9 +53,11 @@ class SearchViewModel(
     initial: SearchFilter,
     settings: SettingsRepository,
     fonts: FontInstaller,
-    private val today: () -> LocalDate = { currentDate() }
+    private val today: () -> LocalDate = { currentDate() },
+    private val saved: SavedStateHandle = SavedStateHandle()
 ) : ViewModel() {
-    private val _filter = MutableStateFlow(initial)
+    // 시스템이 앱을 끄고 다시 띄워도 치던 글과 고른 조건이 남는다.
+    private val _filter = MutableStateFlow(saved.get<String>(FILTER_KEY)?.let(::decodeFilter) ?: initial)
     val filter: StateFlow<SearchFilter> = _filter.asStateFlow()
 
     private val _period = MutableStateFlow(if (initial.period != null) SearchPeriod.Custom else null)
@@ -70,6 +74,10 @@ class SearchViewModel(
         settings.settings
             .map { it.bodyLook(fonts::installedPath) }
             .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
+
+    init {
+        viewModelScope.launch { _filter.collect { saved[FILTER_KEY] = encodeFilter(it) } }
+    }
 
     fun setQuery(query: String) = _filter.update { it.copy(query = query) }
 
@@ -117,3 +125,32 @@ class SearchViewModel(
             )
     }
 }
+
+private const val FILTER_KEY = "search_filter"
+private const val SEP = "\u001F"
+
+/** 저장 상태에 넣을 수 있게 글자 하나로 접는다. 기분과 날씨는 이름, 기간은 날짜다. */
+internal fun encodeFilter(filter: SearchFilter): String = listOf(
+    filter.query,
+    filter.moods.joinToString(",") { it.name },
+    filter.weathers.joinToString(",") { it.name },
+    filter.hasPhoto.toString(),
+    filter.favoritesOnly.toString(),
+    filter.period?.start?.toString().orEmpty(),
+    filter.period?.end?.toString().orEmpty()
+).joinToString(SEP)
+
+/** 앱이 바뀌어 읽을 수 없는 값이면 처음 조건으로 돌아간다. */
+internal fun decodeFilter(text: String): SearchFilter? = runCatching {
+    val part = text.split(SEP)
+    fun <T : Enum<T>> names(value: String, all: Array<T>) =
+        value.split(",").filter { it.isNotEmpty() }.mapNotNullTo(HashSet()) { name -> all.firstOrNull { it.name == name } }
+    SearchFilter(
+        query = part[0],
+        moods = names(part[1], Mood.entries.toTypedArray()),
+        weathers = names(part[2], Weather.entries.toTypedArray()),
+        hasPhoto = part[3].toBoolean(),
+        favoritesOnly = part[4].toBoolean(),
+        period = if (part[5].isEmpty()) null else DateRange(LocalDate.parse(part[5]), LocalDate.parse(part[6]))
+    )
+}.getOrNull()

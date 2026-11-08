@@ -27,6 +27,8 @@ class KmpFeatureConventionPlugin : Plugin<Project> {
                 implementation(libs.library("jb-lifecycle-runtime-compose"))
                 implementation(libs.library("jb-lifecycle-viewmodel"))
                 implementation(libs.library("jb-lifecycle-viewmodel-compose"))
+                // 앱이 꺼졌다 돌아와도 보던 조건을 잇는다(SavedStateHandle).
+                implementation(libs.library("jb-lifecycle-viewmodel-savedstate"))
                 implementation(libs.library("androidx-navigation3-runtime"))
                 implementation(project.dependencies.platform(libs.library("koin-bom")))
                 implementation(libs.library("koin-compose-viewmodel"))

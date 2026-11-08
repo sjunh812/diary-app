@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.calendar
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,12 +52,22 @@ class CalendarViewModel(
     private val entries: EntryRepository,
     settings: SettingsRepository,
     fonts: FontInstaller,
-    private val today: () -> LocalDate = { currentDate() }
+    private val today: () -> LocalDate = { currentDate() },
+    private val saved: SavedStateHandle = SavedStateHandle()
 ) : ViewModel() {
-    private val _selected = MutableStateFlow<LocalDate?>(today())
+    // 시스템이 앱을 끄고 다시 띄워도 고른 날이 남는다.
+    private val _selected =
+        MutableStateFlow<LocalDate?>(saved.get<String>(SELECTED_KEY)?.let { runCatching { LocalDate.parse(it) }.getOrNull() } ?: today())
+
+    /** 달마다 사용자가 마지막으로 고른 날. 다른 달에 다녀와도 그날로 돌아온다. */
+    private val picked = HashMap<YearMonth, LocalDate>()
 
     /** 일기 줄을 길게 눌렀을 때의 메뉴(홈과 달력이 같다). */
     val menu = EntryMenuWork(viewModelScope, entries)
+
+    init {
+        viewModelScope.launch { _selected.collect { date -> date?.let { saved[SELECTED_KEY] = it.toString() } } }
+    }
 
     val selected: StateFlow<LocalDate?> = _selected.asStateFlow()
 
@@ -109,6 +120,7 @@ class CalendarViewModel(
 
     fun select(date: LocalDate) {
         _selected.value = date
+        picked[date.yearMonth] = date
     }
 
     /**
@@ -130,11 +142,16 @@ class CalendarViewModel(
     /**
      * 달을 넘겼을 때.
      * 이미 그 달의 날을 고른 상태면 그대로 둔다.
+     * 그 달에서 고른 날이 있으면 그날, 없으면 이번 달은 오늘, 지난 달은 마지막으로 쓴 날이다.
      */
     fun showMonth(month: YearMonth) {
         if (_selected.value?.yearMonth == month) return
         // 빨리 넘기면 늦게 끝난 앞 달 읽기가 고른 날을 덮는다. 앞 읽기는 버린다.
         monthRead?.cancel()
+        picked[month]?.let {
+            _selected.value = it
+            return
+        }
         if (month == thisMonth()) {
             _selected.value = today()
             return
@@ -159,3 +176,5 @@ internal fun monthOfPage(page: Int): YearMonth = YearMonth(FIRST_YEAR + page / M
 
 private const val FIRST_YEAR = 1970
 private const val MONTHS = 12
+
+private const val SELECTED_KEY = "calendar_selected"

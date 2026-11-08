@@ -15,6 +15,7 @@ import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
@@ -31,7 +32,7 @@ class SearchViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun viewModel(filter: SearchFilter = SearchFilter()) =
-        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts) { today }
+        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts, today = { today })
 
     @Test
     fun preset_periods_follow_today() {
@@ -84,5 +85,21 @@ class SearchViewModelTest {
         override fun installedPath(id: String): String? = null
 
         override fun install(id: String) = emptyFlow<FontInstallState>()
+    }
+
+    /** 앱이 꺼졌다 돌아와도 치던 글과 고른 조건이 남는다. */
+    @Test
+    fun the_filter_survives_the_app_being_killed() {
+        val filter = SearchFilter(
+            query = "바다 😀",
+            moods = setOf(Mood.entries.first()),
+            weathers = setOf(Weather.entries.last()),
+            hasPhoto = true,
+            favoritesOnly = true,
+            period = DateRange(LocalDate(2026, 1, 1), LocalDate(2026, 1, 31))
+        )
+        assertEquals(filter, decodeFilter(encodeFilter(filter)))
+        assertEquals(SearchFilter(), decodeFilter(encodeFilter(SearchFilter())))
+        assertEquals(null, decodeFilter("깨진 값"))
     }
 }
