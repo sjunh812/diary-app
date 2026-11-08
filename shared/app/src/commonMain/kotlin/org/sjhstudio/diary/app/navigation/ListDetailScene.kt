@@ -3,7 +3,6 @@ package org.sjhstudio.diary.app.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -89,11 +88,11 @@ private class ListDetailScene(
             CompositionLocalProvider(LocalInListDetail provides true) {
                 Box(Modifier.width(DiaryWriteSize.listPane).fillMaxHeight()) { list.Content() }
             }
-            // 두 칸 사이 틈 가운데에 가는 선을 둬 목록과 상세가 나뉜 것이 보이게 한다(2026-11-08 사용자 요청).
+            // 목록 칸 바로 끝에 가는 선을 둬 목록과 상세가 나뉜 것이 보이게 한다(2026-11-08 사용자 요청).
+            // 고른 줄의 바탕이 선까지 닿아야 끊겨 보이지 않는다(가운데 두었더니 틈이 남았다, 사용자 지적).
             // 레일 옆 선, 달력 두 칸의 선과 같은 `line` 1이다.
-            Spacer(Modifier.width(DiarySpacing.x3))
+            // 상세 화면이 양옆에 제 여백 24를 두므로 선 뒤에 틈을 더 넣지 않는다(넣으면 왼쪽만 48로 넓어진다, 사용자 지적).
             Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(DiaryTheme.colors.line))
-            Spacer(Modifier.width(DiarySpacing.x3))
             CompositionLocalProvider(LocalInListDetail provides true) {
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     if (detail !=

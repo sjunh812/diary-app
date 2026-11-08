@@ -68,7 +68,9 @@ internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLat
             pluralStringResource(Res.plurals.backup_nudge_entries, nudge.entryCount, nudge.entryCount.grouped())
         },
         stringResource(Res.string.backup_nudge_body),
-        modifier.padding(top = DiarySpacing.x4),
+        // 카드 위(백업 줄 → 카드)와 아래(카드 → 첫 일기 줄)가 같아 보이게 위를 12로 둔다.
+        // 16이면 위가 4쯤 넓어 카드가 아래로 쏠려 보였다(2026-11-08 사용자 지적, 화면에서 재서 맞춤).
+        modifier.padding(top = DiarySpacing.x3),
         actionLabel = stringResource(Res.string.backup_nudge_action),
         onAction = onConnect,
         secondaryLabel = stringResource(Res.string.backup_nudge_later),
