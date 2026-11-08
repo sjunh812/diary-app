@@ -29,6 +29,8 @@ import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.ConnectResult
@@ -44,6 +46,28 @@ fun backupToOffer(backups: List<BackupEntry>?, migrated: Boolean): BackupEntry? 
     val ready = backups.orEmpty().filter { it.state == BackupEntryState.Ready }
     return ready.firstOrNull { it.entryCount > 0 } ?: ready.firstOrNull { it.platform == PLATFORM_LEGACY && !migrated }
 }
+
+/**
+ * 권할 백업이 이 기기에 더할 것을 실제로 갖고 있을 때만 권한다.
+ * 같은 기기가 올린 백업처럼 더할 일기도, 받을 사진도 없으면 "백업이 있어요"를 띄우지 않는다(2026-11-08 사용자 지적).
+ * 받아 보지 못했으면(오프라인, 깨진 파일) 그대로 권해서 사용자가 복원 화면에서 까닭을 보게 한다.
+ * 받아 둔 백업은 복원 화면이 다시 받지 않고 쓴다.
+ */
+suspend fun offerIfNew(entry: BackupEntry?, prepare: suspend (String) -> RestorePreparation): BackupEntry? {
+    if (entry == null || entry.platform == PLATFORM_LEGACY) return entry
+    val ready =
+        try {
+            prepare(entry.snapshotName) as? RestorePreparation.Ready
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            null
+        }
+    return entry.takeIf { ready == null || ready.preview.bringsSomething() }
+}
+
+/** 합치면 이 기기에 무언가 더해지거나 바뀐다. */
+fun RestorePreview.bringsSomething(): Boolean = entriesAdded + entriesUpdated + entriesKeptBoth + photosToDownload > 0
 
 /**
  * [BackupRepository]의 구현.

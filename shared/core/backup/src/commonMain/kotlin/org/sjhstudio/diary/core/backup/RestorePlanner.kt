@@ -90,9 +90,13 @@ class RestorePlanner(
         fileSystem.createDirectories(incoming)
         // 다른 기기가 지은 이름에는 SQLite가 열지 못하는 글자가 들어 있을 수 있어 받을 때는 이름을 정해 둔다.
         val path = incoming / BundleExporter.SNAPSHOT
-        drive.download(file.id, path)
+        // 백업을 권할지 보려고 막 받아 둔 같은 스냅샷이면 다시 받지 않는다.
+        // 확인값이 같아야만 쓰고, 합치기 계획은 지금 기기의 일기로 새로 짠다.
+        if (!alreadyHere(path, manifest.snapshot.sha256)) drive.download(file.id, path)
         return checked(manifest, path)
     }
+
+    private fun alreadyHere(path: Path, sha256: String): Boolean = fileSystem.exists(path) && fileSystem.hashes(path).sha256 == sha256
 
     /** 묶음 파일의 `manifest.json`을 먼저 읽고 스냅샷을 꺼내 드라이브와 같은 확인을 거친다. */
     suspend fun prepareBundle(zip: Path): PreparedRestore {

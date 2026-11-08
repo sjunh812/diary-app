@@ -21,6 +21,9 @@ import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
+import org.sjhstudio.diary.core.model.RestoreFailure
+import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAccount
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
@@ -335,5 +338,45 @@ class BackupConnectTest {
         controller.connectFailureShown()
 
         assertNull(controller.connectFailure.value)
+    }
+
+    private fun preview(added: Int = 0, updated: Int = 0, keptBoth: Int = 0, photos: Int = 0) = RestorePreview(
+        entriesAdded = added,
+        entriesUpdated = updated,
+        entriesKeptBoth = keptBoth,
+        entriesUnchanged = 3,
+        photosToDownload = photos,
+        bytesToDownload = 0,
+        photosNotInBackup = 0,
+        settingsChange = true,
+        deviceBytesFree = 0
+    )
+
+    /** 이 기기가 올린 백업처럼 합쳐도 달라질 것이 없으면 "백업이 있어요"를 띄우지 않는다. */
+    @Test
+    fun a_backup_with_nothing_new_is_not_offered() = runTest {
+        assertNull(offerIfNew(entry) { RestorePreparation.Ready(entry, preview()) })
+    }
+
+    @Test
+    fun a_backup_with_new_diaries_or_photos_is_offered() = runTest {
+        assertEquals(entry, offerIfNew(entry) { RestorePreparation.Ready(entry, preview(added = 1)) })
+        assertEquals(entry, offerIfNew(entry) { RestorePreparation.Ready(entry, preview(updated = 1)) })
+        assertEquals(entry, offerIfNew(entry) { RestorePreparation.Ready(entry, preview(keptBoth = 1)) })
+        assertEquals(entry, offerIfNew(entry) { RestorePreparation.Ready(entry, preview(photos = 1)) })
+    }
+
+    /** 받아 보지 못한 백업은 숨기지 않고 권해서 복원 화면에서 까닭을 보게 한다. */
+    @Test
+    fun a_backup_that_could_not_be_checked_is_still_offered() = runTest {
+        assertEquals(entry, offerIfNew(entry) { RestorePreparation.Failed(RestoreFailure.OTHER) })
+        assertEquals(entry, offerIfNew(entry) { error("오프라인") })
+    }
+
+    /** 옛 백업은 받아 보지 않고 그대로 권한다. */
+    @Test
+    fun an_old_backup_is_offered_without_checking() = runTest {
+        assertEquals(legacy, offerIfNew(legacy) { error("받지 않는다") })
+        assertNull(offerIfNew(null) { error("받지 않는다") })
     }
 }
