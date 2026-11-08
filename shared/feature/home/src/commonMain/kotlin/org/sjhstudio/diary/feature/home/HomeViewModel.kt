@@ -25,6 +25,7 @@ import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.EntryMenuWork
 import org.sjhstudio.diary.core.ui.bodyLook
 import org.sjhstudio.diary.core.ui.launchWrite
 
@@ -33,6 +34,9 @@ import org.sjhstudio.diary.core.ui.launchWrite
  * 줄은 60편씩 읽어서 1만 편이어도 첫 화면이 빠르다.
  */
 class HomeViewModel(private val entries: EntryRepository, private val settings: SettingsRepository, fonts: FontInstaller) : ViewModel() {
+    /** 일기 줄을 길게 눌렀을 때의 메뉴(홈과 달력이 같다). */
+    val menu = EntryMenuWork(viewModelScope, entries)
+
     val style: StateFlow<ListStyle> =
         settings.settings
             .map { it.list.listStyle }
@@ -63,24 +67,6 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     fun toggleFavoritesOnly() {
         favorites.update { !it }
     }
-
-    fun moveToTrash(id: String, onDone: () -> Unit) {
-        viewModelScope.launchWrite {
-            entries.moveToTrash(id)
-            onDone()
-        }
-    }
-
-    fun toggleFavorite(id: String) {
-        viewModelScope.launchWrite {
-            val entry = entries.entry(id).first()?.entry ?: return@launchWrite
-            entries.setFavorite(id, !entry.isFavorite)
-        }
-    }
-
-    /** 공유할 서식 없는 글. */
-    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만든다.
-    suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
 
     /** 그 달 첫 일기의 목록 위치. */
     suspend fun positionOf(month: YearMonth): Int = entries.positionOf(month, favoritesOnly.value)

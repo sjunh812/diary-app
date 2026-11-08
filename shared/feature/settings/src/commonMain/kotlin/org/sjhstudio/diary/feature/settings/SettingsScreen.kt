@@ -156,22 +156,22 @@ fun SettingsScreen(
             DiarySettingsRow(
                 stringResource(Res.string.settings_font),
                 onClick = onFont,
-                value = stringResource(state.settings.font.label())
+                value = if (state.loaded) stringResource(state.settings.font.label()) else null
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_text_size),
                 onClick = onTextSize,
-                value = stringResource(state.settings.bodyTextSize.label())
+                value = if (state.loaded) stringResource(state.settings.bodyTextSize.label()) else null
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_theme),
                 onClick = onTheme,
-                value = stringResource(state.settings.themeMode.label())
+                value = if (state.loaded) stringResource(state.settings.themeMode.label()) else null
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_list_style),
                 onClick = onListStyle,
-                value = stringResource(state.settings.list.listStyle.label())
+                value = if (state.loaded) stringResource(state.settings.list.listStyle.label()) else null
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_notification_security), gapAbove = true)
             val reminderValue =
@@ -181,8 +181,18 @@ fun SettingsScreen(
                 } else {
                     stringResource(Res.string.reminder_value_off)
                 }
-            DiarySettingsRow(stringResource(Res.string.settings_reminder), onClick = onReminder, value = reminderValue)
-            DiarySettingsRow(stringResource(Res.string.settings_lock), onClick = onLock, value = stringResource(state.lock.label()))
+            DiarySettingsRow(
+                stringResource(Res.string.settings_reminder),
+                onClick = onReminder,
+                value = reminderValue.takeIf {
+                    state.loaded
+                }
+            )
+            DiarySettingsRow(
+                stringResource(Res.string.settings_lock),
+                onClick = onLock,
+                value = if (state.loaded) stringResource(state.lock.label()) else null
+            )
             DiarySettingsHeader(stringResource(Res.string.settings_group_feedback), gapAbove = true)
             DiarySettingsRow(stringResource(Res.string.settings_feedback), onClick = onFeedback)
             onRate?.let { DiarySettingsRow(stringResource(Res.string.settings_rate), onClick = it) }

@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.data.diary
 import androidx.paging.PagingData
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.model.AddPhotosResult
@@ -135,6 +136,9 @@ interface DraftRepository {
 interface TrashRepository {
     /** 지운 날짜순, 남은 날 포함. */
     fun items(): Flow<List<TrashedEntry>>
+
+    /** 휴지통에 든 일기 수. */
+    fun count(): Flow<Int> = items().map { it.size }
 
     suspend fun restore(id: String)
 

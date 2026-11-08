@@ -25,6 +25,8 @@ class DefaultTrashRepository(
     private val entries get() = db.entryDao()
     private val drafts get() = db.draftDao()
 
+    override fun count(): Flow<Int> = entries.trashedCount()
+
     override fun items(): Flow<List<TrashedEntry>> = combine(
         entries.trashed(),
         db.mediaDao().photoStatusChanges(photoRefreshEvery).onStart { emit(Unit) }

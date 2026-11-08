@@ -12,6 +12,8 @@ kotlin {
             api(projects.shared.core.designsystem)
             // 일기 본문 글꼴과 글자 크기(DiaryBodyText)가 설정의 글꼴 ID와 크기 단계를 읽는다.
             api(projects.shared.core.model)
+            // 일기 메뉴(EntryMenuWork)가 즐겨찾기·휴지통·공유를 저장소에 시킨다.
+            implementation(projects.shared.core.data)
             // 날짜 형식(DiaryDateFormat)이 공개 API에 날짜 형을 쓴다.
             api(libs.kotlinx.datetime)
             // 일기 사진 칸.

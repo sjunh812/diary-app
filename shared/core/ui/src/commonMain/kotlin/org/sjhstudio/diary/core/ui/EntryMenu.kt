@@ -1,11 +1,17 @@
 package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.ui.resources.Res
 import org.sjhstudio.diary.core.ui.resources.entry_menu_edit
 import org.sjhstudio.diary.core.ui.resources.entry_menu_favorite
@@ -39,4 +45,67 @@ fun EntryMenu(
         DiarySheetAction(DiaryIcons.Share, stringResource(Res.string.entry_menu_share), colors.textPrimary, onClick = onShare)
         DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.entry_menu_trash), colors.danger, onClick = onTrash)
     }
+}
+
+/**
+ * 일기 메뉴가 저장소에 시키는 일.
+ * 홈과 달력의 화면 모델이 하나씩 들고 같은 일을 한다.
+ */
+class EntryMenuWork(private val scope: CoroutineScope, private val entries: EntryRepository) {
+    fun toggleFavorite(id: String) {
+        scope.launchWrite {
+            val entry = entries.entry(id).first()?.entry ?: return@launchWrite
+            entries.setFavorite(id, !entry.isFavorite)
+        }
+    }
+
+    /** 휴지통에 넣은 뒤에 [onDone]을 부른다. 실패하면 부르지 않고 실패 안내만 뜬다. */
+    fun moveToTrash(id: String, onDone: () -> Unit) {
+        scope.launchWrite {
+            entries.moveToTrash(id)
+            onDone()
+        }
+    }
+
+    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만든다.
+    suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
+}
+
+/**
+ * [EntryMenu]를 띄우고 고른 일을 [work]에 넘긴다.
+ * 홈과 달력이 같은 순서로 닫고 실행해야 해서 한곳에 둔다.
+ */
+@Composable
+fun EntryMenuFor(
+    id: String,
+    favorite: Boolean,
+    work: EntryMenuWork,
+    onDismiss: () -> Unit,
+    onEdit: (String) -> Unit,
+    onTrash: (String) -> Unit
+) {
+    // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
+    val share = rememberShareText()
+    val shareText = rememberEntryShareText()
+    val scope = rememberCoroutineScope()
+    EntryMenu(
+        favorite = favorite,
+        onDismiss = onDismiss,
+        onEdit = {
+            onDismiss()
+            onEdit(id)
+        },
+        onFavorite = {
+            onDismiss()
+            work.toggleFavorite(id)
+        },
+        onShare = {
+            onDismiss()
+            scope.launch { work.entryToShare(id)?.let { share(shareText(it)) } }
+        },
+        onTrash = {
+            onDismiss()
+            work.moveToTrash(id) { onTrash(id) }
+        }
+    )
 }

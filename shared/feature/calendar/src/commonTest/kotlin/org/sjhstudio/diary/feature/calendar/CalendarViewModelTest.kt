@@ -234,11 +234,11 @@ class CalendarViewModelTest {
     @Test
     fun menu_flips_favorite_from_the_stored_entry() {
         val plain = Menu(detail(favorite = false))
-        menuViewModel(plain).toggleFavorite("a")
+        menuViewModel(plain).menu.toggleFavorite("a")
         assertEquals(true, plain.favorite)
 
         val starred = Menu(detail(favorite = true))
-        menuViewModel(starred).toggleFavorite("a")
+        menuViewModel(starred).menu.toggleFavorite("a")
         assertEquals(false, starred.favorite)
     }
 
@@ -246,7 +246,7 @@ class CalendarViewModelTest {
     fun menu_does_nothing_for_an_entry_that_is_gone() {
         val entries = Menu(detail(favorite = false))
 
-        menuViewModel(entries).toggleFavorite("gone")
+        menuViewModel(entries).menu.toggleFavorite("gone")
 
         assertNull(entries.favorite)
     }
@@ -256,14 +256,14 @@ class CalendarViewModelTest {
         val entries = Menu(detail(favorite = false))
         var done: String? = null
 
-        menuViewModel(entries).moveToTrash("a") { done = entries.trashed }
+        menuViewModel(entries).menu.moveToTrash("a") { done = entries.trashed }
 
         assertEquals("a", done)
     }
 
     @Test
     fun menu_shares_plain_text() = runTest {
-        assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).entryToShare("a")?.plainText)
+        assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).menu.entryToShare("a")?.plainText)
     }
 
     private object NoFonts : FontInstaller {

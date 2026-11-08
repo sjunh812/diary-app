@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.EntryMenuWork
 import org.sjhstudio.diary.core.ui.bodyLook
 import org.sjhstudio.diary.core.ui.launchWrite
 
@@ -53,6 +54,10 @@ class CalendarViewModel(
     private val today: () -> LocalDate = { currentDate() }
 ) : ViewModel() {
     private val _selected = MutableStateFlow<LocalDate?>(today())
+
+    /** 일기 줄을 길게 눌렀을 때의 메뉴(홈과 달력이 같다). */
+    val menu = EntryMenuWork(viewModelScope, entries)
+
     val selected: StateFlow<LocalDate?> = _selected.asStateFlow()
 
     private val _todayState = MutableStateFlow(today())
@@ -138,24 +143,6 @@ class CalendarViewModel(
     }
 
     private var monthRead: Job? = null
-
-    fun moveToTrash(id: String, onDone: () -> Unit) {
-        viewModelScope.launchWrite {
-            entries.moveToTrash(id)
-            onDone()
-        }
-    }
-
-    fun toggleFavorite(id: String) {
-        viewModelScope.launchWrite {
-            val entry = entries.entry(id).first()?.entry ?: return@launchWrite
-            entries.setFavorite(id, !entry.isFavorite)
-        }
-    }
-
-    /** 공유할 서식 없는 글. */
-    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만든다.
-    suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
 
     private companion object {
         const val STOP_MILLIS = 5_000L

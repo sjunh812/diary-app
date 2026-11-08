@@ -368,6 +368,7 @@ class DiaryReadRepositoryTest {
         db.seed(entry("keep"))
 
         assertEquals(listOf(2, 1), trash.items().first().map { it.daysLeft })
+        assertEquals(2, trash.count().first())
         trash.purgeExpired(T0)
 
         assertNull(db.entryDao().get("old"))

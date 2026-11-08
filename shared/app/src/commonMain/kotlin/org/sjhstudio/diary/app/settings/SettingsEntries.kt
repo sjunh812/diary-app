@@ -103,7 +103,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val trash = koinInject<TrashRepository>()
         // 탭을 옮겼다 와도 개수가 0으로 비쳤다 돌아오지 않게 값을 저장해 둔다.
         var trashCount by rememberSaveable { mutableIntStateOf(0) }
-        LaunchedEffect(trash) { trash.items().map { it.size }.collect { trashCount = it } }
+        LaunchedEffect(trash) { trash.count().collect { trashCount = it } }
         val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
         val app = koinInject<BackupAppInfo>()
         val links = LocalUriHandler.current
@@ -172,11 +172,15 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다린다.
+        if (!state.loaded) return@entry
         ListStyleSettingsScreen(state.settings.list.listStyle, onSelect = viewModel::setListStyle, onBack = pop)
     }
     entry<TextSizeSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다린다.
+        if (!state.loaded) return@entry
         TextSizeSettingsScreen(
             selected = state.settings.bodyTextSize,
             sampleDate = rememberToday(),
@@ -188,6 +192,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<ThemeSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다린다.
+        if (!state.loaded) return@entry
         ThemeSettingsScreen(state.settings.themeMode, onSelect = viewModel::setThemeMode, onBack = pop)
     }
     entry<FontSettingsKey> { FontSettingsRoute(onBack = pop) }

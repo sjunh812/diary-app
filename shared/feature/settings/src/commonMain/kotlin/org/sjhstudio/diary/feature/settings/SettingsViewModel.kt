@@ -24,7 +24,12 @@ data class SettingsUiState(
     val settings: AppSettings = AppSettings(),
     val lock: LockSettings = LockSettings(),
     /** 일부만 옮겨진 기기에만 "기록 이전 결과" 줄이 있다(FR-011). */
-    val showsMigrationReport: Boolean = false
+    val showsMigrationReport: Boolean = false,
+    /**
+     * 설정을 읽었다.
+     * 읽기 전의 기본값(잠금 꺼짐 같은)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보인다.
+     */
+    val loaded: Boolean = false
 )
 
 class SettingsViewModel(
@@ -36,7 +41,9 @@ class SettingsViewModel(
     private val migrationReport = showsMigrationReport()
 
     val state: StateFlow<SettingsUiState> =
-        combine(settings.settings, lock.settings) { app, lockSettings -> SettingsUiState(app, lockSettings, migrationReport) }
+        combine(settings.settings, lock.settings) { app, lockSettings ->
+            SettingsUiState(app, lockSettings, migrationReport, loaded = true)
+        }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState(showsMigrationReport = migrationReport))
 
     fun setBodyTextSize(size: BodyTextSize) {

@@ -85,6 +85,7 @@ import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
 import org.sjhstudio.diary.core.ui.EntryMenu
+import org.sjhstudio.diary.core.ui.EntryMenuFor
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
@@ -92,7 +93,6 @@ import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
-import org.sjhstudio.diary.core.ui.rememberEntryShareText
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.feature.calendar.resources.Res
@@ -219,28 +219,13 @@ fun CalendarRoute(
         }
     }
     menuFor?.let { id ->
-        // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
-        val share = rememberShareText()
-        val shareText = rememberEntryShareText()
-        EntryMenu(
+        EntryMenuFor(
+            id,
             favorite = day.rows?.firstOrNull { it.id == id }?.isFavorite == true,
+            work = viewModel.menu,
             onDismiss = { menuFor = null },
-            onEdit = {
-                menuFor = null
-                onEdit(id)
-            },
-            onFavorite = {
-                menuFor = null
-                viewModel.toggleFavorite(id)
-            },
-            onShare = {
-                menuFor = null
-                scope.launch { viewModel.entryToShare(id)?.let { share(shareText(it)) } }
-            },
-            onTrash = {
-                menuFor = null
-                viewModel.moveToTrash(id) { onTrash(id) }
-            }
+            onEdit = onEdit,
+            onTrash = onTrash
         )
     }
     if (picking) {

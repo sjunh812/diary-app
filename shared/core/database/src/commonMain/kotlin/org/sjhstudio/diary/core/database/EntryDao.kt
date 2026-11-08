@@ -168,6 +168,10 @@ interface EntryDao {
     @Query("SELECT * FROM entry WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
     fun trashed(): Flow<List<EntryEntity>>
 
+    /** 휴지통 개수. 설정 줄이 개수만 보이려고 일기를 통째로 읽지 않는다. */
+    @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NOT NULL")
+    fun trashedCount(): Flow<Int>
+
     @Query("DELETE FROM entry WHERE deleted_at IS NOT NULL AND id IN (:ids)")
     suspend fun deleteTrashed(ids: List<String>)
 
