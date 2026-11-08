@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -52,6 +53,8 @@ import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceLookup
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /** 쓰기를 어디로 여는가. */
 sealed interface WriteTarget {
@@ -168,24 +171,24 @@ class WriteViewModel(
      * 요금제를 바꾸면 바로 따른다.
      */
     val photoLimit: StateFlow<Int> =
-        (plans?.plan ?: flowOf(Plan.FREE))
+        (plans?.confirmed?.filterNotNull() ?: flowOf(Plan.FREE))
             .map { it.photoLimit }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, Plan.FREE.photoLimit)
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, Plan.FREE.photoLimit)
 
     /**
      * 새 체크리스트를 만들 수 있는지.
      * 구독이 끝나도 이미 쓴 체크리스트는 고치고 체크할 수 있다.
      */
     val checklistOpen: StateFlow<Boolean> =
-        (plans?.plan ?: flowOf(Plan.FREE))
+        (plans?.confirmed?.filterNotNull() ?: flowOf(Plan.FREE))
             .map { it.checklist }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, Plan.FREE.checklist)
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, Plan.FREE.checklist)
 
     /** 본문은 고른 글꼴과 글자 크기로 보인다(FR-014). */
     val look: StateFlow<BodyLook> =
         (settings?.settings ?: flowOf(AppSettings()))
             .map { settings -> settings.bodyLook { fonts?.installedPath(it) } }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     fun mediaPath(fileName: String): String = mediaPath.invoke(fileName)
 
@@ -252,12 +255,12 @@ class WriteViewModel(
     private var stored = false
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 최근 장소는 곁일이라 읽지 못하면 비워 둔다.
             val places = orElseOnFailure(emptyList()) { drafts.recentPlaces() }
             _state.update { it.copy(recentPlaces = places) }
         }
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             when (target) {
                 // 쓰던 글을 읽지 못해도 저장본은 그대로 두고 빈 글로 바로 쓴다.
                 is WriteTarget.New -> orElseOnFailure(null) { openNew(target) } ?: startBlankIfNotReady(target.date)
@@ -315,9 +318,9 @@ class WriteViewModel(
 
     /** [이어 쓰기]. */
     fun continueDraft() {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 읽지 못하면 [이어 쓰기] 안내를 그대로 둬서 다시 누를 수 있다.
-            val draft = orElseOnFailure(null) { drafts.latestNew() } ?: return@launch
+            val draft = orElseOnFailure(null) { drafts.latestNew() } ?: return@launchSafely
             resumed = true
             load(draft, isEdit = false)
         }
@@ -338,7 +341,7 @@ class WriteViewModel(
      */
     fun leaveOffer() {
         _state.update { it.copy(resume = null) }
-        viewModelScope.launch { _events.send(WriteEvent.Closed(keptDraft = false)) }
+        viewModelScope.launchSafely { _events.send(WriteEvent.Closed(keptDraft = false)) }
     }
 
     private fun load(draft: Draft, isEdit: Boolean) {
@@ -467,7 +470,7 @@ class WriteViewModel(
         if (_state.value.locating == PlaceLocating.Finding) return
         _state.update { it.copy(locating = PlaceLocating.Finding) }
         locatingJob =
-            viewModelScope.launch {
+            viewModelScope.launchSafely {
                 val result = places.find()
                 _state.update { it.copy(locating = PlaceLocating.Done(result)) }
             }
@@ -497,7 +500,7 @@ class WriteViewModel(
     fun addPhotos(picked: List<PickedImage>) {
         if (picked.isEmpty() || _state.value.saving) return
         _state.update { it.copy(addingPhotos = true) }
-        val work = viewModelScope.launch {
+        val work = viewModelScope.launchSafely {
             ready.await()
             pending?.cancel()
             val notice =
@@ -565,7 +568,7 @@ class WriteViewModel(
         takeEditorBody()
         if (!_state.value.canSave) return
         _state.update { it.copy(saving = true) }
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             pending?.cancel()
             try {
                 photoWork.toList().joinAll()
@@ -595,7 +598,7 @@ class WriteViewModel(
         leaving = true
         // 쓸 글을 고르기 전이면 남겨 둔 글을 건드리지 않는다.
         if (!ready.isCompleted) {
-            viewModelScope.launch { _events.send(WriteEvent.Closed(keptDraft = false)) }
+            viewModelScope.launchSafely { _events.send(WriteEvent.Closed(keptDraft = false)) }
             return
         }
         pending?.cancel()
@@ -675,7 +678,7 @@ class WriteViewModel(
      * 앱이 꺼지면 아직 쓰지 못한 글을 잃는다.
      * 글은 화면에 남아 있으니 알리고, 다음에 쓸 때 다시 해 본다.
      */
-    private fun write(onFailure: () -> Unit = {}, block: suspend () -> Unit): Job = viewModelScope.launch {
+    private fun write(onFailure: () -> Unit = {}, block: suspend () -> Unit): Job = viewModelScope.launchSafely {
         try {
             block()
         } catch (e: CancellationException) {
@@ -732,7 +735,7 @@ class WriteViewModel(
     private fun watchPhotos() {
         if (photosJob != null) return
         photosJob =
-            viewModelScope.launch {
+            viewModelScope.launchSafely {
                 drafts.draft(key).collectLatest { draft ->
                     if (draft != null) {
                         _state.update { it.copy(photos = draft.photos) }

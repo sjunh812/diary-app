@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.migration.LegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyEntryView
+import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
  * [failed]면 쪽을 읽지 못한 것이다.
@@ -46,7 +47,7 @@ class LegacyReaderViewModel(private val archive: LegacyArchive) : ViewModel() {
         if (loading?.isActive == true || _state.value.end) return
         _state.update { it.copy(loading = true, failed = false) }
         loading =
-            viewModelScope.launch {
+            viewModelScope.launchSafely {
                 val after = _state.value.entries.lastOrNull()
                 val page =
                     runCatching { archive.page(after = after) }

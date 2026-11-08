@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
+import org.sjhstudio.diary.core.ui.stateInSafely
 import org.sjhstudio.diary.feature.settings.resources.Res
 
 /**
@@ -37,7 +38,7 @@ class LicensesViewModel : ViewModel() {
     val libraries: StateFlow<List<LibraryNotice>?> =
         flow { emit(load().map { it.notice() }) }
             .flowOn(Dispatchers.Default)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     // OFL 원문은 70자마다 줄을 바꿔 두어 폰 폭에서 줄이 들쭉날쭉하다.
     // 문단 안의 줄바꿈(다음 줄이 소문자나 여는 괄호, 따옴표로 시작)만 띄어쓰기로 잇고 낱말은 그대로 둔다.

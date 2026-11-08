@@ -3,7 +3,6 @@ package org.sjhstudio.diary.core.ui
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
@@ -75,7 +74,7 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
      * 메뉴 안에서 읽으면 닫히면서 함께 취소되어 공유 창이 뜨지 않는다.
      */
     fun share(id: String, onReady: (Entry) -> Unit) {
-        scope.launch { entryToShare(id)?.let(onReady) }
+        scope.launchSafely { entryToShare(id)?.let(onReady) }
     }
 }
 

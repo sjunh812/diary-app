@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 상세 화면이 보는 일기.
@@ -55,12 +56,12 @@ class EntryDetailViewModel(
                 leaving -> EntryDetailState.Loading
                 else -> EntryDetailState.Missing
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), EntryDetailState.Loading)
+        }.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), EntryDetailState.Loading)
 
     val look: StateFlow<BodyLook> =
         settings.settings
             .map { it.bodyLook(fonts::installedPath) }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     private val _trashed = Channel<Unit>(Channel.BUFFERED)
     val trashed: Flow<Unit> = _trashed.receiveAsFlow()

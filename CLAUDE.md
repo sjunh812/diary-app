@@ -78,7 +78,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 JDK는 Gradle이 고른다(`gradle/gradle-daemon-jvm.properties`가 JDK 17을 받아 쓴다). 설치는 에뮬레이터에만 한다(`ANDROID_SERIAL` 지정).
 
 ```bash
-./gradlew spotlessCheck designTokenCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug   # CI와 같은 검사·린트·시험·빌드(iOS 시뮬레이터 시험 포함)
+./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug   # CI와 같은 검사·린트·시험·빌드(iOS 시뮬레이터 시험 포함)
 ./gradlew spotlessApply                                           # 코드 형식 맞추기(ktlint)
 ./gradlew detekt                                                  # 코드 냄새와 Compose 규칙(설정은 config/detekt)
 ./gradlew :composeApp:lint                                        # Android Lint. 공유 모듈까지 본다
@@ -94,6 +94,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - `detekt`와 `:composeApp:lint`는 기존 지적을 baseline(`config/detekt/baseline.xml`, `composeApp/lint-baseline.xml`)에 묶고 새 코드만 막는다. 새 지적은 고친다. baseline을 다시 만들어 넘기지 않는다(detekt baseline은 주석 변경에도 흔들려서, 코드가 그대로일 때만 `./gradlew detektBaseline`).
 - `designTokenCheck`는 `shared/feature`와 `shared/app`의 Kotlin에서 원시 색, 숫자 `.dp`·`.sp`, 숫자 모서리, `MaterialTheme` 색·글자,
   `Text("`를 찾으면 실패한다. 디자인 시스템 모듈, 미리보기 파일, 시험(`src/*Test`)은 뺀다.
+- `coroutineSafetyCheck`는 `shared/feature`, `shared/app`, `shared/core/ui`에서 맨 `viewModelScope.launch`와 `stateIn(viewModelScope, …)`을 찾으면 실패한다. 화면 모델은 `launchSafely`(읽기·곁일), `launchWrite`(사용자가 누른 쓰기, 실패하면 알림), `stateInSafely`만 쓴다. 예상되는 실패(저장 공간, 네트워크, DB 읽기)는 저장소가 받아 결과로 돌려주고, 이 함수들은 빠뜨린 예외에도 앱이 꺼지지 않게 하는 마지막 안전망이다(사용자 결정 2026-11-08: 앱 꺼짐은 절대 없어야 한다).
 - Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
 - 길이 없는 화면 띄우기와 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.

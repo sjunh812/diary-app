@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.MigrationResult
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationStep
+import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 미뤄 둔 이전의 다시 시도 상태. */
 enum class MigrationRetry { Idle, Running, Failed }
@@ -54,13 +55,13 @@ class MigrationReportViewModel(
     val state: StateFlow<MigrationReportUiState> = _state.asStateFlow()
 
     init {
-        viewModelScope.launch { load() }
+        viewModelScope.launchSafely { load() }
     }
 
     fun retry() {
         if (_state.value.retry == MigrationRetry.Running) return
         _state.value = _state.value.copy(retry = MigrationRetry.Running)
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 화면을 떠나 취소된 것은 실패가 아니다.
             val result =
                 runCatching { withContext(background) { retryDeferred() } }

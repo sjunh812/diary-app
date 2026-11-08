@@ -15,7 +15,9 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 매일 알림(R1) 상태.
@@ -45,11 +47,11 @@ class ReminderSettingsViewModel(
 
     val state: StateFlow<ReminderUiState> =
         combine(settings.settings, allowed) { app, granted -> ReminderUiState(app.reminderEnabled, app.reminderMinuteOfDay, granted) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReminderUiState())
+            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReminderUiState())
 
     /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽는다. */
     fun refreshPermission() {
-        viewModelScope.launch { allowed.value = permission.isGranted() }
+        viewModelScope.launchSafely { allowed.value = permission.isGranted() }
     }
 
     fun setEnabled(enabled: Boolean) {

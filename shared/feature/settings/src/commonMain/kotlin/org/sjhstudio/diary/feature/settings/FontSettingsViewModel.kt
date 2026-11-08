@@ -21,7 +21,9 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.BUNDLED_DIARY_FONTS
+import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 글꼴(G1) 상태.
@@ -65,7 +67,7 @@ class FontSettingsViewModel(
 
     val state: StateFlow<FontUiState> =
         combine(settings.settings, installed, downloading) { app, paths, progress -> FontUiState(app, paths, progress) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), FontUiState(installedPaths = installed.value))
+            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(5_000), FontUiState(installedPaths = installed.value))
 
     fun select(font: DiaryFont) {
         picked = font
@@ -75,7 +77,7 @@ class FontSettingsViewModel(
         }
         if (font in downloading.value) return
         downloading.update { it + (font to null) }
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             installer.install(font.id).collect { result ->
                 when (result) {
                     is FontInstallState.Downloading -> downloading.update { it + (font to result.fraction) }

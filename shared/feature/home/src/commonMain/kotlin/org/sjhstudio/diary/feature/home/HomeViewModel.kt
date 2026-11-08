@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
 import org.sjhstudio.diary.core.ui.bodyLook
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 홈 목록(FR-015~FR-018, FR-021).
@@ -41,7 +42,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
         settings.settings
             .map { it.list.listStyle }
             .distinctUntilChanged()
-            .stateIn(viewModelScope, SharingStarted.Eagerly, ListStyle.FEED)
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, ListStyle.FEED)
 
     // 앱을 다시 열면 풀린다.
     // 켠 채로 남으면 쓴 일기가 사라진 것처럼 보인다.
@@ -54,7 +55,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     val look: StateFlow<BodyLook> =
         settings.settings
             .map { it.bodyLook(fonts::installedPath) }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     /**
      * 일기가 있는 달.
@@ -62,7 +63,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
      */
     val months: StateFlow<Set<YearMonth>> =
         favoritesOnly.flatMapLatest { only -> if (only) entries.favoriteMonths() else entries.months() }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, emptySet())
 
     fun toggleFavoritesOnly() {
         favorites.update { !it }

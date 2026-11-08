@@ -13,6 +13,7 @@ import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
  * 잠금 설정(L4).
@@ -43,7 +44,7 @@ class LockSettingsViewModel(
      * 화면은 저장된 값을 따라가므로 스위치가 그대로 남는다.
      */
     private fun save(block: suspend () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             runCatching { block() }.onFailure { if (it is CancellationException) throw it }
         }
     }

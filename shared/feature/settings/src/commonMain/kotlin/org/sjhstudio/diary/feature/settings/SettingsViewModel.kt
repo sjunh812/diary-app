@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /** 설정 목록(S6)과 본문 글자 크기(G2)·화면 모드(G3)가 보는 값. */
 data class SettingsUiState(
@@ -44,7 +45,7 @@ class SettingsViewModel(
         combine(settings.settings, lock.settings) { app, lockSettings ->
             SettingsUiState(app, lockSettings, migrationReport, loaded = true)
         }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState(showsMigrationReport = migrationReport))
+            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState(showsMigrationReport = migrationReport))
 
     fun setBodyTextSize(size: BodyTextSize) {
         viewModelScope.launchWrite { settings.setBodyTextSize(size) }

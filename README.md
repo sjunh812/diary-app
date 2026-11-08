@@ -112,10 +112,10 @@ You need the Android SDK. Gradle downloads JDK 17 on its own.
 ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug
 ```
 
-The same checks as CI: formatting, design tokens, string resources, detekt, Android Lint, tests on both platforms, and the build.
+The same checks as CI: formatting, design tokens, coroutine safety, string resources, detekt, Android Lint, tests on both platforms, and the build.
 
 ```bash
-./gradlew spotlessCheck designTokenCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug
+./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug
 ```
 
 iOS needs Xcode and xcodegen.
@@ -132,6 +132,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - UI tests (`runComposeUiTest`) live in each module's `src/iosTest` and run on the iOS simulator.
 - ViewModel and repository tests live in `src/commonTest` and run on both platforms.
 - `designTokenCheck` fails if screen code uses raw colors, numeric `dp`/`sp`, or string literals.
+- `coroutineSafetyCheck` fails if a ViewModel uses a bare `viewModelScope.launch` or `stateIn(viewModelScope, …)`. ViewModels use `launchSafely`, `launchWrite`, and `stateInSafely` so an unexpected exception never crashes the app.
 - Ad IDs, the RevenueCat key, and Firebase config files are not in the repository. The app builds without them; ads, payments, and analytics are simply off. See [`docs/release.md`](docs/release.md) to add them.
 
 ## Documents

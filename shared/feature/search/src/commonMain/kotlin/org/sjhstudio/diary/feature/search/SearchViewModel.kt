@@ -35,6 +35,8 @@ import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 기간 칩의 고르는 값.
@@ -73,10 +75,10 @@ class SearchViewModel(
     val look: StateFlow<BodyLook> =
         settings.settings
             .map { it.bodyLook(fonts::installedPath) }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     init {
-        viewModelScope.launch { _filter.collect { saved[FILTER_KEY] = encodeFilter(it) } }
+        viewModelScope.launchSafely { _filter.collect { saved[FILTER_KEY] = encodeFilter(it) } }
     }
 
     fun setQuery(query: String) = _filter.update { it.copy(query = query) }

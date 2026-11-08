@@ -20,6 +20,8 @@ import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
+import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 data class PlusUiState(
     val products: List<StoreProduct> = emptyList(),
@@ -40,7 +42,7 @@ enum class PlusMessage { Failed, Pending, Restored, RestoreNone, RestoreFailed }
  * 취소는 아무 말 없이 그대로 돌아온다.
  */
 class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseRepository) : ViewModel() {
-    val plan: StateFlow<Plan> = plans.plan.stateIn(viewModelScope, SharingStarted.Eagerly, plans.plan.value)
+    val plan: StateFlow<Plan> = plans.plan.stateInSafely(viewModelScope, SharingStarted.Eagerly, plans.plan.value)
     val manageUrl: String = purchases.manageUrl
 
     private val _state = MutableStateFlow(PlusUiState())
@@ -63,7 +65,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
     fun load() {
         if (loading?.isActive == true) return
         loading =
-            viewModelScope.launch {
+            viewModelScope.launchSafely {
                 _state.update { it.copy(loading = true) }
                 // 스토어가 예외를 던져도 불러오는 중에 멈추지 않고 다시 시도할 수 있게 둔다.
                 val products =
@@ -85,7 +87,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
             onDone()
             return
         }
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             val result = attempt { purchases.buy(id) }
             _state.update { it.copy(buyFailed = result == PurchaseResult.FAILED, restoreNotice = null) }
             when (result) {
@@ -121,7 +123,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
 
     fun restore() {
         if (_state.value.busy) return
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             val message =
                 when (attempt { purchases.restore() }) {
                     PurchaseResult.DONE -> PlusMessage.Restored

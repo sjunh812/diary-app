@@ -22,6 +22,7 @@ import org.sjhstudio.diary.core.migration.MigrationResult
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationStep
+import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 관문이 보는 이전 화면 상태(contracts/migration-flow.md "화면 상태"). */
 sealed interface MigrationUiState {
@@ -92,7 +93,7 @@ class MigrationViewModel(
     private var running: Job? = null
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 있는지 알 수 없으면 있다고 보고 이전에 맡긴다.
             // 그쪽 실패는 실패 화면으로 간다.
             val needed =
@@ -115,7 +116,7 @@ class MigrationViewModel(
      * 예전 일기는 설정에서 다시 옮기고, 앱이 업데이트되면 저절로 다시 해 본다.
      */
     fun skip() {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 연다.
             // 다음에 앱을 열면 이전부터 다시 본다.
             runCatching { withContext(background) { migration.defer() } }
@@ -134,13 +135,13 @@ class MigrationViewModel(
         _state.value = MigrationUiState.Passed
         if (followedUp) return
         followedUp = true
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 후속 작업이 실패해도 일기를 쓰고 읽는 것은 막지 않는다.
             // 다음에 앱을 열 때 다시 본다.
             val result =
                 runCatching { withContext(background) { followUp() } }
                     .onFailure { if (it is CancellationException) throw it }
-                    .getOrNull() ?: return@launch
+                    .getOrNull() ?: return@launchSafely
             if (result.entriesRecovered > 0) _notices.send(MigrationNotice.EntriesRecovered(result.entriesRecovered))
             if (result.photosFound > 0) _notices.send(MigrationNotice.PhotosFound(result.photosFound))
         }
@@ -150,7 +151,7 @@ class MigrationViewModel(
         // 다시 시도를 연달아 눌러도 하나만 돈다.
         if (running?.isActive == true) return
         _state.value = MigrationUiState.Preparing
-        running = viewModelScope.launch {
+        running = viewModelScope.launchSafely {
             // 진행 값은 0.25초마다 옮겨 담는다(contracts/migration-flow.md).
             val ticker =
                 launch {

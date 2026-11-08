@@ -19,6 +19,8 @@ import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
     val status: StateFlow<BackupStatus> = controller.status.stateIn(
@@ -33,21 +35,25 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
      */
     val loadedStatus: StateFlow<BackupStatus?> = controller.status
         .map<BackupStatus, BackupStatus?> { it }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+        .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     /** 지금 백업이 올리지 않고 끝났을 때 한 번 온다. */
     val skipped: Flow<BackupSkip> = controller.skipped
 
-    val nudge: StateFlow<BackupNudge?> = controller.nudge.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+    val nudge: StateFlow<BackupNudge?> = controller.nudge.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     private val _connecting = MutableStateFlow(false)
     val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
 
     /** 바꾸기 뒤 되돌릴 수 있는 동안만 값이 있다. */
-    val rollback: StateFlow<RollbackInfo?> = restore.rollback.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+    val rollback: StateFlow<RollbackInfo?> = restore.rollback.stateInSafely(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(STOP_MILLIS),
+        null
+    )
 
     fun rollBack() {
-        viewModelScope.launch { restore.rollBack() }
+        viewModelScope.launchSafely { restore.rollBack() }
     }
 
     /** 복원한 사진을 받는 동안만 값이 있다. */
@@ -60,7 +66,7 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     val connectFailure: StateFlow<BackupFailure?> = controller.connectFailure
 
     fun dismissNudge() {
-        viewModelScope.launch { quietly { controller.dismissNudge() } }
+        viewModelScope.launchSafely { quietly { controller.dismissNudge() } }
     }
 
     /**
@@ -68,7 +74,7 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
      * Android에서 먼저 보인다.
      */
     fun connect(hint: String? = null) {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             _connecting.value = true
             try {
                 // 연결 실패 까닭은 [connectFailure]가 말한다. 예상하지 못한 예외에도 앱을 끄지 않는다.
@@ -92,15 +98,15 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     fun backUpNow(cellularOnce: Boolean = false) = controller.backUpNow(cellularOnce)
 
     fun setAuto(enabled: Boolean) {
-        viewModelScope.launch { quietly { controller.setAuto(enabled) } }
+        viewModelScope.launchSafely { quietly { controller.setAuto(enabled) } }
     }
 
     fun setPhotosOnCellular(enabled: Boolean) {
-        viewModelScope.launch { quietly { controller.setPhotosOnCellular(enabled) } }
+        viewModelScope.launchSafely { quietly { controller.setPhotosOnCellular(enabled) } }
     }
 
     fun disconnect() {
-        viewModelScope.launch { quietly { controller.disconnect() } }
+        viewModelScope.launchSafely { quietly { controller.disconnect() } }
     }
 
     /**

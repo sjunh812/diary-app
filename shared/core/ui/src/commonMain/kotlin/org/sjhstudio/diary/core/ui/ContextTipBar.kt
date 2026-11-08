@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.mp.KoinPlatform
 import org.sjhstudio.diary.core.designsystem.component.DiaryTip
@@ -30,7 +29,7 @@ fun ContextTipBar(tip: ContextTip, text: String, modifier: Modifier = Modifier) 
     if (showing) {
         DiaryTip(text, stringResource(Res.string.tip_close), onClose = {
             showing = false
-            scope.launch { tips.done(tip) }
+            scope.launchSafely { tips.done(tip) }
         }, modifier)
     }
 }

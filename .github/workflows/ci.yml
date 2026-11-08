@@ -95,7 +95,7 @@ jobs:
         run: ./gradlew -p build-logic :convention:test
       # --continue: 앞 검사가 실패해도 뒤 검사 결과까지 한 번에 본다.
       - name: 검사·린트·시험·빌드
-        run: ./gradlew spotlessCheck designTokenCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug --continue
+        run: ./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug --continue
       - name: 시험 결과와 린트 보고서 보관
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -107,6 +107,7 @@ jobs:
             composeApp/build/reports/lint-results-*.html
             build/reports/detekt/**
             build/reports/designTokenCheck.txt
+            build/reports/coroutineSafetyCheck.txt
             build/reports/stringResourceCheck.txt
           if-no-files-found: ignore
           retention-days: 7

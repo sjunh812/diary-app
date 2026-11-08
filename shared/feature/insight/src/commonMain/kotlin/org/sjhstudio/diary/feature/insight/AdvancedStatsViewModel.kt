@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
  * 고급 통계.
@@ -41,7 +42,7 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
     private val cache = mutableMapOf<AdvancedPeriod, AdvancedStats>()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             combine(_period, day, ::Pair).collectLatest { (period, date) ->
                 // 읽기에 실패하면 앱을 끄지 않고 보던 숫자를 그대로 둔다.
                 stats.advanced(period, date).catch {}.collect {
@@ -51,7 +52,7 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
             }
         }
         // 다른 기간도 미리 읽어 탭을 눌러도 바로 보인다.
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             AdvancedPeriod.entries.filter { it != _period.value }.forEach { period ->
                 orElseOnFailure(Unit) { cache.getOrPut(period) { stats.advanced(period, day.value).first() } }
             }

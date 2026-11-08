@@ -25,6 +25,7 @@ import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
  * 잠금 화면(L1) 상태.
@@ -96,7 +97,7 @@ class LockViewModel(
 
     init {
         // 앱을 껐다 켜도 기다림이 이어진다(FR-020).
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             val until = repository.settings.first().retryAfter
             if (until != null && clock.now() < until) waitUntil(until)
         }
@@ -146,7 +147,7 @@ class LockViewModel(
         clearDigits()
         if (pin == null) return
         _state.update { it.copy(checking = true) }
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 확인하다 실패하면 열지 않고 키를 쓸 수 없을 때의 길로 보낸다.
             val result =
                 try {
@@ -199,7 +200,7 @@ class LockViewModel(
     private fun waitUntil(until: Instant) {
         ticker?.cancel()
         ticker =
-            viewModelScope.launch {
+            viewModelScope.launchSafely {
                 while (true) {
                     val left = waitLeft(until, clock.now())
                     if (!left.isPositive()) break

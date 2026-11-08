@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.Pin
+import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
  * 비밀번호 정하기(L2) 상태.
@@ -92,7 +93,7 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
         clear()
         if (pin == null) return
         _state.value = PinSetupUiState(entered = Pin.LENGTH, again = true, saving = true)
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 저장하지 못했으면 정해진 것이 없다.
             // 앱을 열지 않고 다시 받는다.
             try {
@@ -101,7 +102,7 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
                 throw e
             } catch (_: Exception) {
                 _state.value = PinSetupUiState(saveFailed = true)
-                return@launch
+                return@launchSafely
             }
             _done.send(Unit)
         }

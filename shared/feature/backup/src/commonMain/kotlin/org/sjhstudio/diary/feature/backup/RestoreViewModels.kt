@@ -15,6 +15,8 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 sealed interface RestoreListUi {
     data object Loading : RestoreListUi
@@ -34,7 +36,7 @@ class RestoreListViewModel(private val restore: RestoreRepository) : ViewModel()
 
     fun load() {
         _state.value = RestoreListUi.Loading
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             // 드라이브에 묻는 데 몇 초가 걸리니 지난번 목록을 먼저 보여 준다.
             restore.savedBackups().takeIf { it.isNotEmpty() }?.let { _state.value = RestoreListUi.Loaded(it) }
             _state.value = restore.backups()?.let { RestoreListUi.Loaded(it) } ?: RestoreListUi.Failed
@@ -55,7 +57,7 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
     fun load() {
         _state.value = null
         // 앱이 꺼졌다 돌아와 목록부터 다시 받다가 끊겨도 앱을 끄지 않고 실패 화면에서 다시 시도하게 한다.
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             _state.value = orElseOnFailure(RestorePreparation.Failed(RestoreFailure.OTHER)) { restore.prepare(snapshotName) }
         }
     }
@@ -88,14 +90,14 @@ class RestoreStatusViewModel(private val restore: RestoreRepository) : ViewModel
     val rollback: StateFlow<RollbackRun> = restore.rollbackRun
 
     val folderRecreated: StateFlow<Boolean> =
-        restore.folderRecreated.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
+        restore.folderRecreated.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
 
     fun dismissFolderRecreated() = restore.dismissFolderRecreated()
 
     fun fetchNow() = restore.fetchPhotosNow()
 
     fun rollBack() {
-        viewModelScope.launch { restore.rollBack() }
+        viewModelScope.launchSafely { restore.rollBack() }
     }
 
     private companion object {

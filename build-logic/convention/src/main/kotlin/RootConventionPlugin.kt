@@ -4,7 +4,7 @@ import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.register
 
 // 루트 프로젝트에만 쓴다(research R3).
-// 디자인 토큰 검사, 문자열 검사, git 훅 설치를 등록한다.
+// 디자인 토큰 검사, 코루틴 안전 검사, 문자열 검사, git 훅 설치를 등록한다.
 class RootConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         check(this == rootProject) { "diary.root는 루트 프로젝트에만 쓴다" }
@@ -28,6 +28,23 @@ class RootConventionPlugin : Plugin<Project> {
                 report.set(layout.buildDirectory.file("reports/designTokenCheck.txt"))
             }
         tasks.named("check").configure { dependsOn(designTokenCheck) }
+
+        val coroutineSafetyCheck =
+            tasks.register<CoroutineSafetyCheckTask>("coroutineSafetyCheck") {
+                group = "verification"
+                description = "화면 모델이 실패를 받아 주는 launchSafely·stateInSafely만 쓰는지 본다"
+                sources.from(
+                    listOf("shared/feature", "shared/app", "shared/core/ui").map { dir ->
+                        fileTree(dir) {
+                            include("**/*.kt")
+                            exclude("**/build/**", "**/src/*Test/**")
+                        }
+                    }
+                )
+                baseDirectory.set(layout.projectDirectory)
+                report.set(layout.buildDirectory.file("reports/coroutineSafetyCheck.txt"))
+            }
+        tasks.named("check").configure { dependsOn(coroutineSafetyCheck) }
 
         val stringResourceCheck =
             tasks.register<StringResourceCheckTask>("stringResourceCheck") {

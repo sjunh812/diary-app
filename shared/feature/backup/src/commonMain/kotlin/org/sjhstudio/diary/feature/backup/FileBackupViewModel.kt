@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.launchSafely
 
 sealed interface FileBackupUi {
     data object Idle : FileBackupUi
@@ -49,7 +50,7 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
 
     init {
         // 크기는 미리 알려 주는 곁일이라 읽지 못하면 비워 두고 파일 만들기는 그대로 할 수 있다.
-        viewModelScope.launch { _estimate.value = orElseOnFailure(null) { restore.bundleEstimate() } }
+        viewModelScope.launchSafely { _estimate.value = orElseOnFailure(null) { restore.bundleEstimate() } }
     }
 
     private var writing: Job? = null
@@ -63,7 +64,7 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     fun write(name: String, open: () -> BufferedSink, discard: suspend () -> Unit = {}) {
         _state.value = FileBackupUi.Writing(0, 1)
         writing =
-            viewModelScope.launch {
+            viewModelScope.launchSafely {
                 _state.value =
                     try {
                         val counted = CountingSink(open())
@@ -117,7 +118,7 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
      */
     fun read(open: () -> Source, size: () -> Long? = { null }, onReady: () -> Unit) {
         _state.value = FileBackupUi.Reading
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             val result =
                 try {
                     open().use { source -> restore.prepareFile(source, withContext(Dispatchers.IO) { size() }) }

@@ -18,6 +18,8 @@ import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.WelcomeStep
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 class WelcomeViewModel(
     private val welcome: WelcomeRepository,
@@ -32,7 +34,7 @@ class WelcomeViewModel(
     val connected: StateFlow<Boolean> =
         backup.status.map {
             it.connection != BackupConnection.NotConnected
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
+        }.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
 
     private val _connecting = MutableStateFlow(false)
     val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
@@ -52,7 +54,7 @@ class WelcomeViewModel(
      * 여기서 멈추거나 꺼지면 일기를 쓸 수 없다.
      */
     private fun refresh() {
-        viewModelScope.launch { _step.value = orElseOnFailure(WelcomeStep.DONE) { welcome.step() } }
+        viewModelScope.launchSafely { _step.value = orElseOnFailure(WelcomeStep.DONE) { welcome.step() } }
     }
 
     fun letterRead() = pass(WelcomeStep.ONBOARDING_UPDATED) { welcome.letterRead() }
@@ -65,7 +67,7 @@ class WelcomeViewModel(
      * 다음에 앱을 열면 같은 화면을 다시 볼 뿐이고, 여기서 막히면 앱을 쓸 수 없다.
      */
     private fun pass(next: WelcomeStep, write: suspend () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             _step.value =
                 runCatching {
                     write()
@@ -81,7 +83,7 @@ class WelcomeViewModel(
      * 까닭은 [connectFailure]로 알리고 백업은 나중에 설정에서 켤 수 있다.
      */
     fun connect(next: () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             _connecting.value = true
             runCatching { backup.connect(settings.settings.first().legacyBackup?.account) }
                 .onFailure { if (it is CancellationException) throw it }

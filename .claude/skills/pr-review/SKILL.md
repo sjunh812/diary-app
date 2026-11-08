@@ -17,7 +17,7 @@ disable-model-invocation: false
 2. 로컬에서 검사를 돌린다.
 
    ```bash
-   ./gradlew spotlessCheck designTokenCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug
+   ./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug
    ```
 
 3. 화면이 바뀌었으면 에뮬레이터에서 찍는다(`/emulator-check`). 한국어 라이트, 다크, 태블릿 순서다.

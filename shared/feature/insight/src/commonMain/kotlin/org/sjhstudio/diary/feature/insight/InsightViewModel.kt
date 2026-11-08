@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -34,6 +35,8 @@ import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.mostFrequent
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /** 기간 탭. */
 enum class InsightKind { Week, Month, Year, All }
@@ -65,16 +68,16 @@ class InsightViewModel(
      * 요금제를 바꾸면 바로 따른다.
      */
     val advancedOpen: StateFlow<Boolean> =
-        (plans?.plan ?: flowOf(Plan.FREE))
+        (plans?.confirmed?.filterNotNull() ?: flowOf(Plan.FREE))
             .map { it.advancedStats }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, false)
 
     // 시스템이 앱을 끄고 다시 띄워도 보던 기간이 남는다.
     private val _period = MutableStateFlow(saved.get<String>(PERIOD_KEY)?.let(::decodePeriod) ?: StatsPeriod.Month(today().yearMonth))
     val period: StateFlow<StatsPeriod> = _period.asStateFlow()
 
     init {
-        viewModelScope.launch { _period.collect { saved[PERIOD_KEY] = encodePeriod(it) } }
+        viewModelScope.launchSafely { _period.collect { saved[PERIOD_KEY] = encodePeriod(it) } }
     }
 
     private val _todayState = MutableStateFlow(today())
@@ -112,11 +115,11 @@ class InsightViewModel(
      */
     val state: StateFlow<InsightState> =
         combine(_period, readPeriod) { period, read -> read.takeIf { it.period == period } ?: InsightState(period, cache[period]) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), InsightState(_period.value, null))
+            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), InsightState(_period.value, null))
 
     init {
         // 다른 탭도 미리 읽어 처음 눌러도 바로 보인다.
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             InsightKind.entries.map { it.periodOf(today()) }.filter { it != _period.value }.forEach { period ->
                 orElseOnFailure(Unit) { cache.getOrPut(period) { read(period).first() } }
             }

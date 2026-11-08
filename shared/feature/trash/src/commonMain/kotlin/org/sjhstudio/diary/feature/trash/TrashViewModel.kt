@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.model.TrashedEntry
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 휴지통(FR-034).
@@ -16,7 +17,7 @@ import org.sjhstudio.diary.core.ui.launchWrite
  */
 class TrashViewModel(private val trash: TrashRepository) : ViewModel() {
     val items: StateFlow<List<TrashedEntry>?> =
-        trash.items().stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+        trash.items().stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
 
     fun restore(id: String, onDone: () -> Unit = {}) {
         viewModelScope.launchWrite {
