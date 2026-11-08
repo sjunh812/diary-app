@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
-import platform.UIKit.UIApplicationOpenSettingsURLString
+import platform.UIKit.UIApplicationOpenNotificationSettingsURLString
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionSound
 import platform.UserNotifications.UNAuthorizationStatusNotDetermined
@@ -35,10 +35,9 @@ actual fun rememberNotificationAccess(): NotificationAccess = remember {
             }
         }
 
-        // 알림 설정 바로가기 주소는 설정 앱이 앞서 머물던 화면이나 설정 첫 화면을 여는 때가 있어(2026-11-08 사용자 지적),
-        // 늘 이 앱의 설정 화면이 열리는 주소를 쓴다. 그 화면 맨 위에 [알림]이 있다.
+        // 이 앱의 알림 설정 화면을 여는 Apple 공식 주소다.
         override fun openSettings() {
-            val url = NSURL.URLWithString(UIApplicationOpenSettingsURLString) ?: return
+            val url = NSURL.URLWithString(UIApplicationOpenNotificationSettingsURLString) ?: return
             UIApplication.sharedApplication.openURL(url, options = emptyMap<Any?, Any>(), completionHandler = null)
         }
     }
