@@ -52,7 +52,8 @@ class CalendarViewModelTest {
         ),
         FakeSettingsRepository(),
         NoFonts,
-        today = { today }
+        today = { today },
+        saved = SavedStateHandle()
     )
 
     private fun viewModel(rows: List<EntryRow> = emptyList(), slowDays: Map<LocalDate, Flow<List<EntryRow>>>): CalendarViewModel {
@@ -60,7 +61,7 @@ class CalendarViewModelTest {
             object : EntryRepository by FakeEntryRepository(rows = rows) {
                 override fun day(date: LocalDate): Flow<List<EntryRow>> = slowDays[date] ?: flowOf(rows.filter { it.date == date })
             }
-        return CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = { today })
+        return CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = { today }, saved = SavedStateHandle())
     }
 
     @Test
@@ -264,7 +265,9 @@ class CalendarViewModelTest {
         emptyList()
     )
 
-    private fun menuViewModel(entries: Menu) = CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = { today })
+    private fun menuViewModel(entries: Menu) = CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = {
+        today
+    }, saved = SavedStateHandle())
 
     @Test
     fun menu_flips_favorite_from_the_stored_entry() {

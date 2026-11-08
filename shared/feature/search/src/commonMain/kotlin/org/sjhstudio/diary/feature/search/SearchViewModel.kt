@@ -54,7 +54,7 @@ class SearchViewModel(
     settings: SettingsRepository,
     fonts: FontInstaller,
     private val today: () -> LocalDate = { currentDate() },
-    private val saved: SavedStateHandle = SavedStateHandle()
+    private val saved: SavedStateHandle
 ) : ViewModel() {
     // 시스템이 앱을 끄고 다시 띄워도 치던 글과 고른 조건이 남는다.
     private val _filter = MutableStateFlow(saved.get<String>(FILTER_KEY)?.let(::decodeFilter) ?: initial)
@@ -142,15 +142,19 @@ internal fun encodeFilter(filter: SearchFilter): String = listOf(
 
 /** 앱이 바뀌어 읽을 수 없는 값이면 처음 조건으로 돌아간다. */
 internal fun decodeFilter(text: String): SearchFilter? = runCatching {
-    val part = text.split(SEP)
+    // 접은 순서 그대로 하나씩 꺼낸다.
+    val part = text.split(SEP).iterator()
     fun <T : Enum<T>> names(value: String, all: Array<T>) =
         value.split(",").filter { it.isNotEmpty() }.mapNotNullTo(HashSet()) { name -> all.firstOrNull { it.name == name } }
     SearchFilter(
-        query = part[0],
-        moods = names(part[1], Mood.entries.toTypedArray()),
-        weathers = names(part[2], Weather.entries.toTypedArray()),
-        hasPhoto = part[3].toBoolean(),
-        favoritesOnly = part[4].toBoolean(),
-        period = if (part[5].isEmpty()) null else DateRange(LocalDate.parse(part[5]), LocalDate.parse(part[6]))
+        query = part.next(),
+        moods = names(part.next(), Mood.entries.toTypedArray()),
+        weathers = names(part.next(), Weather.entries.toTypedArray()),
+        hasPhoto = part.next().toBoolean(),
+        favoritesOnly = part.next().toBoolean(),
+        period = period(part.next(), part.next())
     )
 }.getOrNull()
+
+private fun period(start: String, end: String): DateRange? =
+    if (start.isEmpty()) null else DateRange(LocalDate.parse(start), LocalDate.parse(end))

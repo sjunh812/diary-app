@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.insight
 
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -47,14 +48,14 @@ class InsightViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = InsightViewModel(NoStats, { today })
+    private fun viewModel() = InsightViewModel(NoStats, { today }, saved = SavedStateHandle())
 
     /** 고급 통계는 Plus만 연다. 기존 통계는 어느 요금제든 그대로다(FR-012). */
     @Test
     fun advanced_stats_open_only_on_plus() = runTest(dispatcher) {
         val table = mapOf(Plan.FREE to false, Plan.AD_FREE to false, Plan.PLUS to true)
         for ((plan, open) in table) {
-            val model = InsightViewModel(NoStats, { today }, FakePlanRepository(plan))
+            val model = InsightViewModel(NoStats, { today }, FakePlanRepository(plan), SavedStateHandle())
             advanceUntilIdle()
 
             assertEquals(open, model.advancedOpen.value, "$plan")
@@ -66,7 +67,7 @@ class InsightViewModelTest {
     @Test
     fun advanced_stats_close_when_plus_ends() = runTest(dispatcher) {
         val plans = FakePlanRepository(Plan.PLUS)
-        val model = InsightViewModel(NoStats, { today }, plans)
+        val model = InsightViewModel(NoStats, { today }, plans, SavedStateHandle())
         advanceUntilIdle()
         assertEquals(true, model.advancedOpen.value)
 
@@ -137,7 +138,7 @@ class InsightViewModelTest {
     @Test
     fun a_new_period_hides_the_numbers_of_the_last_one() = runTest(dispatcher) {
         val counts = MutableStateFlow<Map<StatsPeriod, MoodCounts>>(mapOf(october to MoodCounts(mapOf(Mood.GOOD to 3), 0)))
-        val model = InsightViewModel(SlowStats(counts), { today })
+        val model = InsightViewModel(SlowStats(counts), { today }, saved = SavedStateHandle())
         backgroundScope.launch { model.state.collect() }
         advanceUntilIdle()
         assertEquals(3, model.state.value.data?.counts?.total)
@@ -157,7 +158,7 @@ class InsightViewModelTest {
     /** 다른 탭에 다녀와 다시 읽어도 보던 숫자가 비워지지 않는다. */
     @Test
     fun coming_back_keeps_the_numbers_while_reading_again() = runTest(dispatcher) {
-        val model = InsightViewModel(NoStats, { today })
+        val model = InsightViewModel(NoStats, { today }, saved = SavedStateHandle())
         val watching = backgroundScope.launch { model.state.collect() }
         advanceUntilIdle()
         val read = model.state.value.data

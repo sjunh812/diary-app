@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.search
 
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -32,7 +33,7 @@ class SearchViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun viewModel(filter: SearchFilter = SearchFilter()) =
-        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts, today = { today })
+        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts, today = { today }, saved = SavedStateHandle())
 
     @Test
     fun preset_periods_follow_today() {

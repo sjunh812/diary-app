@@ -56,7 +56,7 @@ class InsightViewModel(
     private val stats: StatsRepository,
     private val today: () -> LocalDate = { currentDate() },
     plans: PlanRepository? = null,
-    private val saved: SavedStateHandle = SavedStateHandle()
+    private val saved: SavedStateHandle
 ) : ViewModel() {
     /**
      * 고급 통계를 볼 수 있는지.

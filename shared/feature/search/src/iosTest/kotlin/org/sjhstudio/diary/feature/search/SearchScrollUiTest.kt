@@ -16,6 +16,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -70,7 +71,7 @@ class SearchScrollUiTest {
             modules(
                 module {
                     viewModel { (initial: SearchFilter) ->
-                        SearchViewModel(entries, initial, FakeSettingsRepository(), NoFonts).also { model = it }
+                        SearchViewModel(entries, initial, FakeSettingsRepository(), NoFonts, saved = SavedStateHandle()).also { model = it }
                     }
                 }
             )

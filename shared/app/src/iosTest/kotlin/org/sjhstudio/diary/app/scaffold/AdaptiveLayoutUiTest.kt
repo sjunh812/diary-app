@@ -23,6 +23,7 @@ import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -100,7 +101,7 @@ class AdaptiveLayoutUiTest {
                     single<EntryRepository> { FakeEntryRepository(moods, rows) }
                     viewModel { (entryId: String) -> EntryDetailViewModel(entryId, get(), FakeSettingsRepository(), NoAdaptiveFonts) }
                     viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
-                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
+                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts, saved = SavedStateHandle()) }
                 }
             )
         }

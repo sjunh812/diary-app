@@ -53,7 +53,7 @@ class CalendarViewModel(
     settings: SettingsRepository,
     fonts: FontInstaller,
     private val today: () -> LocalDate = { currentDate() },
-    private val saved: SavedStateHandle = SavedStateHandle()
+    private val saved: SavedStateHandle
 ) : ViewModel() {
     // 시스템이 앱을 끄고 다시 띄워도 고른 날이 남는다.
     private val _selected =
@@ -148,12 +148,9 @@ class CalendarViewModel(
         if (_selected.value?.yearMonth == month) return
         // 빨리 넘기면 늦게 끝난 앞 달 읽기가 고른 날을 덮는다. 앞 읽기는 버린다.
         monthRead?.cancel()
-        picked[month]?.let {
-            _selected.value = it
-            return
-        }
-        if (month == thisMonth()) {
-            _selected.value = today()
+        val known = picked[month] ?: today().takeIf { month == thisMonth() }
+        if (known != null) {
+            _selected.value = known
             return
         }
         monthRead = viewModelScope.launch { _selected.value = entries.month(month).first().keys.maxOrNull() }

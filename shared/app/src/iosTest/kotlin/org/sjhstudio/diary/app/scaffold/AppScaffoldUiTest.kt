@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -102,7 +103,7 @@ class AppScaffoldUiTest {
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(rows = rows) }
                     viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts).also { homeModels += it } }
-                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts) }
+                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts, saved = SavedStateHandle()) }
                 }
             )
         }
