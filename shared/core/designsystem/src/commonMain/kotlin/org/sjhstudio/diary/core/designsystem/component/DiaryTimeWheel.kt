@@ -30,6 +30,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -66,6 +68,13 @@ import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
  */
 private val WheelRow: Dp = 40.dp
 private const val VISIBLE_ROWS = 5
+private const val COMPACT_ROWS = 3
+
+/**
+ * 달력과 한 시트에 놓여도 바퀴 다섯 칸이 스크롤 없이 들어가는 창 높이.
+ * 2026-11-08 재 봄: 384×832dp 폰은 들어가고, 360×780dp 폰은 스크롤된다.
+ */
+private val RoomyWindowHeight: Dp = 820.dp
 private val WheelColumnWidth: Dp = 72.dp
 
 /** 달 이름이 긴 언어(September)도 줄지 않는 폭. */
@@ -77,6 +86,16 @@ private const val MONTHS = 12
  * 이만큼 되풀이해 두고 가운데에서 시작한다.
  */
 private const val LOOP_REPEAT = 400
+
+/**
+ * 달력 아래에 바퀴를 둘 때의 칸 수.
+ * 창이 넉넉하면 다섯 칸, 낮으면 세 칸으로 줄여 시트가 스크롤되지 않게 한다.
+ */
+@Composable
+fun rememberCalendarWheelRows(): Int {
+    val height = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+    return if (height >= RoomyWindowHeight) VISIBLE_ROWS else COMPACT_ROWS
+}
 
 /**
  * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠).

@@ -59,6 +59,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryTimeWheel
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.rememberCalendarWheelRows
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -352,9 +353,6 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
     }
 }
 
-/** 날짜·시각 시트의 시각 바퀴 칸 수. */
-private const val SHEET_WHEEL_ROWS = 3
-
 /**
  * 날짜와 시각 고르기.
  * 과거·미래 어느 날이든 고를 수 있다(FR-004).
@@ -372,9 +370,9 @@ internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate,
             DiaryMonthDays(month, isPicked = { it == picked }, onPick = { picked = it })
         }
         BasicText(stringResource(Res.string.write_time), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
-        // 6주인 달과 시각 바퀴 다섯 칸이 한 시트에 들어가지 않아 바퀴를 세 칸으로 줄인다.
+        // 창이 낮은 폰에서는 6주인 달과 바퀴 다섯 칸이 한 시트에 들어가지 않아 세 칸으로 줄인다.
         // 스크롤이 생기면 달력과 바퀴의 끌기가 시트 스크롤과 엉킨다.
-        DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour, rows = SHEET_WHEEL_ROWS)
+        DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour, rows = rememberCalendarWheelRows())
         SheetButtons(
             stringResource(Res.string.write_close),
             onDismiss,
