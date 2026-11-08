@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -88,6 +89,7 @@ class MigrationViewModel(
     private val _notices = Channel<MigrationNotice>(Channel.BUFFERED)
     val notices: Flow<MigrationNotice> = _notices.receiveAsFlow()
     private var followedUp = false
+    private var running: Job? = null
 
     init {
         viewModelScope.launch {
@@ -145,8 +147,10 @@ class MigrationViewModel(
     }
 
     private fun start() {
+        // 다시 시도를 연달아 눌러도 하나만 돈다.
+        if (running?.isActive == true) return
         _state.value = MigrationUiState.Preparing
-        viewModelScope.launch {
+        running = viewModelScope.launch {
             // 진행 값은 0.25초마다 옮겨 담는다(contracts/migration-flow.md).
             val ticker =
                 launch {

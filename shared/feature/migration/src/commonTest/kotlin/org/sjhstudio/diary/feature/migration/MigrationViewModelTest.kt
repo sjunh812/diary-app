@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.time.Instant
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -14,6 +15,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.migration.FollowUpResult
@@ -110,6 +112,35 @@ class MigrationViewModelTest {
         advanceUntilIdle()
 
         assertEquals(true, assertIs<MigrationUiState.Failed>(vm.state.value).hasCopy)
+    }
+
+    /** 다시 시도를 연달아 눌러도 이전은 한 번만 돈다. */
+    @Test
+    fun double_tap_on_retry_runs_once() = runTest(dispatcher) {
+        var runs = 0
+        val gate = CompletableDeferred<Unit>()
+        val migration =
+            object : LegacyMigration by NoLegacyMigration {
+                override fun needsMigration(): Boolean = true
+
+                override suspend fun run(): MigrationResult {
+                    runs++
+                    if (runs > 1) gate.await()
+                    return MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.SNAPSHOT_IO)
+                }
+            }
+        val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
+        advanceUntilIdle()
+
+        vm.retry()
+        vm.retry()
+        // 진행 값을 옮겨 담는 반복이 도는 동안이라 다 끝날 때까지 기다리지 않고 지금 할 일만 돌린다.
+        runCurrent()
+        gate.complete(Unit)
+        advanceUntilIdle()
+
+        assertEquals(2, runs)
+        assertIs<MigrationUiState.Failed>(vm.state.value)
     }
 
     /** 이전이 예외를 던져도 앱을 끄지 않고 실패 화면을 보인다. */

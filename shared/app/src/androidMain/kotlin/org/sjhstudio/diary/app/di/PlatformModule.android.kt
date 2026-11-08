@@ -39,6 +39,7 @@ import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.migration.MigrationPaths
 import org.sjhstudio.diary.core.migration.MigrationRunner
 import org.sjhstudio.diary.core.migration.MigrationTelemetry
+import org.sjhstudio.diary.core.migration.OneAtATimeMigration
 import org.sjhstudio.diary.core.migration.OriginalExporter
 import org.sjhstudio.diary.core.migration.SnapshotLegacyArchive
 import org.sjhstudio.diary.core.migration.SupportBundle
@@ -135,18 +136,21 @@ internal actual val platformModule: Module =
         single<LegacyMigration> {
             val files = get<AppFiles>()
             val factory = get<DatabaseFactory>()
-            MigrationRunner(
-                fileSystem = FileSystem.SYSTEM,
-                paths = get(),
-                clock = Clock.System,
-                timeZone = TimeZone.currentSystemDefault(),
-                newId = { Uuid.random().toString() },
-                freeBytes = ::freeBytes,
-                openDatabase = factory::createAt,
-                imageSize = AndroidImageSizeReader,
-                events = get(),
-                versionCode = versionCode(androidContext()),
-                makeThumbnail = get<ThumbnailRepository>()::ensure
+            // 다시 시도와 설정의 다시 옮기기가 겹쳐도 하나씩 돈다.
+            OneAtATimeMigration(
+                MigrationRunner(
+                    fileSystem = FileSystem.SYSTEM,
+                    paths = get(),
+                    clock = Clock.System,
+                    timeZone = TimeZone.currentSystemDefault(),
+                    newId = { Uuid.random().toString() },
+                    freeBytes = ::freeBytes,
+                    openDatabase = factory::createAt,
+                    imageSize = AndroidImageSizeReader,
+                    events = get(),
+                    versionCode = versionCode(androidContext()),
+                    makeThumbnail = get<ThumbnailRepository>()::ensure
+                )
             )
         }
     }
