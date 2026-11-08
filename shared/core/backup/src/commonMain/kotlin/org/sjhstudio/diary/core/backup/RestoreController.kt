@@ -440,8 +440,10 @@ class RestoreController(
 
     private suspend fun fetchPhotos(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
         val dao = db.value.backupDao()
-        val entries = dao.visibleEntryCount()
-        val total = dao.pendingFiles().size
+        // 일기는 이미 합쳤다.
+        // 여기서 세기에 실패해도 복원이 실패했다고 하지 않는다. 실패라고 하면 다시 시도가 할 일이 없어 멈춰 보인다.
+        val entries = orElseOnFailure(counts.added + counts.updated + counts.keptBoth) { dao.visibleEntryCount() }
+        val total = orElseOnFailure(0) { dao.pendingFiles().size }
         _state.value = RestoreState.FetchingPhotos(entries, 0, total)
         val tally = PhotoTally()
         // 글은 이미 합쳤다.
@@ -461,7 +463,7 @@ class RestoreController(
                 if (zip != null) dropBundle()
             }
         guarded { rememberStop(stop, tally.notThere) }
-        val left = dao.pendingFiles().size
+        val left = orElseOnFailure((total - tally.fetched - tally.broken).coerceAtLeast(0)) { dao.pendingFiles().size }
         // 드라이브에 없는 사진은 앱을 다시 열어도 오지 않아서 남은 사진으로 세지 않는다.
         val notInBackup = if (ready.bundle == null) tally.notThere else ready.manifest.media.count { !it.inBackup }
         val onOriginal = minOf(left, notInBackup)
