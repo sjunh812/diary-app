@@ -14,6 +14,13 @@ interface NotificationAccess {
 
     /** 이 앱의 알림 설정 화면을 연다. */
     fun openSettings()
+
+    /**
+     * 안내의 [허용하기]를 눌렀을 때.
+     * 아직 한 번도 묻지 않았으면 묻는 창을 띄우고, 이미 거절했으면 알림 설정을 연다.
+     * 안드로이드는 거절한 뒤로 창이 뜨지 않는 때를 미리 알 수 없어 설정을 연다.
+     */
+    fun allow(onResult: (granted: Boolean) -> Unit) = openSettings()
 }
 
 @Composable

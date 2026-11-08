@@ -135,7 +135,7 @@ fun ReminderSettingsRoute(onBack: () -> Unit) {
             if (enabled && state.notificationsAllowed != true) access.request { viewModel.refreshPermission() }
         },
         onTime = { picking = true },
-        onAllow = access::openSettings,
+        onAllow = { access.allow { viewModel.refreshPermission() } },
         onBack = onBack
     )
     if (picking) {
