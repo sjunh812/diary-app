@@ -1,9 +1,11 @@
 package org.sjhstudio.diary.feature.insight
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -32,6 +35,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -52,15 +59,20 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.DiaryTextTabs
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.diaryTouchOutset
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -74,6 +86,7 @@ import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayPart
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCompany
+import org.sjhstudio.diary.core.model.MoodTone
 import org.sjhstudio.diary.core.model.MoodTrend
 import org.sjhstudio.diary.core.model.RecentMood
 import org.sjhstudio.diary.core.model.RecordHabit
@@ -81,6 +94,7 @@ import org.sjhstudio.diary.core.model.StatsChange
 import org.sjhstudio.diary.core.model.ToneShare
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.compactCount
+import org.sjhstudio.diary.core.model.tone
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.emphasis
 import org.sjhstudio.diary.core.ui.grouped
@@ -133,8 +147,11 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_place
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_weather
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_weekday
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_title
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_note
-import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_note_hard
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_info
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_neutral
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_ok
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_sheet_body
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_tone_sheet_title
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_unit_big
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_unit_small
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_fri
@@ -223,7 +240,7 @@ internal fun AdvancedStatsScreen(
                 }
             }
             Spacer(Modifier.height(DiarySpacing.x6))
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)) { Sections(stats, period, onMood) }
+            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) { Sections(stats, period, onMood) }
         }
     }
 }
@@ -249,7 +266,7 @@ private fun Sections(stats: AdvancedStats?, period: AdvancedPeriod, onMood: (Moo
 /**
  * 고급 통계의 한 묶음(`docs/design.md` 고급 통계 간격).
  * 제목과 내용 사이 [titleGap](기본 16), 내용끼리 [gap](기본 12).
- * [trailing]은 제목 줄 옆에 붙는 거르개(칩)이고, 글자가 커져 자리가 모자라면 다음 줄로 내려간다.
+ * [trailing]은 제목 옆에 붙는 작은 것(안내 단추)이고, 제목 줄 높이를 늘리지 않아야 한다.
  */
 @Composable
 private fun Section(
@@ -261,7 +278,7 @@ private fun Section(
 ) {
     Column {
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
             itemVerticalAlignment = Alignment.CenterVertically
         ) {
@@ -272,8 +289,7 @@ private fun Section(
             )
             trailing?.invoke()
         }
-        // 칩(32)이 제목 글줄보다 높아 제목 줄이 커지므로, 칩이 있으면 그만큼 덜 띄워 보이는 간격을 다른 묶음과 맞춘다.
-        Spacer(Modifier.height(if (trailing != null) titleGap - DiarySpacing.x1 else titleGap))
+        Spacer(Modifier.height(titleGap))
         Column(verticalArrangement = Arrangement.spacedBy(gap), content = content)
     }
 }
@@ -452,21 +468,29 @@ private fun characters(value: Long): String {
     }
 }
 
-/** 일기 수를 함께 적어 적은 일기로 낸 비율을 크게 믿지 않게 한다. */
+/**
+ * 상황별 기분(`docs/design.md` 상황별 기분).
+ * 고르지 않고 한 줄에 좋은 기분(왼쪽부터)과 힘든 기분(오른쪽부터)을 함께 그린다.
+ * 무엇을 좋은 기분과 힘든 기분으로 세는지는 제목 옆 안내 단추가 시트로 보인다.
+ */
 @Composable
 private fun MoodTimes(stats: AdvancedStats) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    var hard by rememberSaveable { mutableStateOf(false) }
-    // 칩은 "이 기분"이 가리키는 대상이라 제목 줄에 붙인다.
-    // 탭 → 막대 16, 막대끼리 8, 막대 → 설명 12로 조작과 결과를 나눈다.
+    var explaining by rememberSaveable { mutableStateOf(false) }
     Section(
         Res.string.insight_adv_when,
         gap = Dp.Hairline,
+        titleGap = DiarySpacing.x2,
         trailing = {
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                DiaryChip(stringResource(Res.string.insight_adv_change_good), selected = !hard, onClick = { hard = false })
-                DiaryChip(stringResource(Res.string.insight_adv_change_hard), selected = hard, onClick = { hard = true })
-            }
+            // 누르는 곳은 48 그대로 두고 자리는 아이콘만큼만 차지해, 제목 줄이 높아지거나 아이콘이 멀어지지 않게 한다.
+            DiaryIconButton(
+                DiaryIcons.Info,
+                contentDescription = stringResource(Res.string.insight_adv_tone_info),
+                onClick = { explaining = true },
+                modifier = Modifier.diaryTouchOutset(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x3),
+                tint = DiaryTheme.colors.textTertiary,
+                iconSize = DiaryIconSize.i20
+            )
         }
     ) {
         // 화면 전체를 거르는 기간 탭(상자)과 모양을 나눠, 이 묶음 안쪽만 바꾼다는 것이 보이게 글자 탭으로 둔다.
@@ -489,34 +513,69 @@ private fun MoodTimes(stats: AdvancedStats) {
                 else -> stats.places
             }
         Spacer(Modifier.height(DiarySpacing.x4))
+        // 범례는 막대 바로 위에 두어, 색을 읽을 곳과 뜻을 적은 곳이 붙어 있게 한다.
+        if (rows.isNotEmpty()) {
+            ToneLegend()
+            Spacer(Modifier.height(DiarySpacing.x3))
+        }
         if (rows.isEmpty()) {
             BasicText(
                 stringResource(Res.string.insight_adv_when_empty),
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
             )
         }
-        val counts = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, if (hard) share.hardPercent else share.percent) }
+        val good = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, share.percent) }
+        val hard = rows.map { (_, share) -> stringResource(Res.string.insight_adv_share, share.hardPercent) }
         val labelWidth = widestText(rows.map { it.first }, DiaryTheme.typography.caption).coerceAtMost(DiarySpacing.x14 * 2)
-        val countWidth = widestText(counts, DiaryTheme.typography.captionStrong)
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+        val valueWidth = widestText(good + hard, DiaryTheme.typography.captionStrong)
+        val goodName = stringResource(Res.string.insight_adv_change_good)
+        val hardName = stringResource(Res.string.insight_adv_change_hard)
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
             rows.forEachIndexed { index, (label, share) ->
-                ShareRow(label, counts[index], if (hard) share.hardRate else share.rate, labelWidth, countWidth)
+                ToneRow(
+                    label = label,
+                    share = share,
+                    good = good[index],
+                    hard = hard[index],
+                    description = "$label, $goodName ${good[index]}, $hardName ${hard[index]}",
+                    labelWidth = labelWidth,
+                    valueWidth = valueWidth
+                )
             }
         }
-        Spacer(Modifier.height(DiarySpacing.x3))
-        BasicText(
-            stringResource(if (hard) Res.string.insight_adv_tone_note_hard else Res.string.insight_adv_tone_note),
-            style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
-        )
+    }
+    if (explaining) ToneSheet(onDismiss = { explaining = false })
+}
+
+/** 막대 색이 무엇인지 알려 주는 한 줄. */
+@Composable
+private fun ToneLegend() {
+    val colors = DiaryTheme.colors
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
+        LegendItem(colors.accentText, stringResource(Res.string.insight_adv_change_good))
+        LegendItem(colors.mood.angry, stringResource(Res.string.insight_adv_change_hard))
     }
 }
 
 @Composable
-private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp, countWidth: Dp) {
+private fun LegendItem(color: Color, label: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(DiarySpacing.x2).clip(DiaryShapes.full).background(color))
+        BasicText(label, style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary))
+    }
+}
+
+/**
+ * 이름 · 막대 · 좋은 기분 % · 힘든 기분 %.
+ * 좋은 기분은 왼쪽부터, 힘든 기분은 오른쪽부터 채우고 가운데 빈 곳은 그 밖의 기분이다.
+ * 둘이 맞닿으면 사이를 2 띄워 경계가 보이게 한다.
+ */
+@Composable
+private fun ToneRow(label: String, share: ToneShare, good: String, hard: String, description: String, labelWidth: Dp, valueWidth: Dp) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Row(
-        Modifier.fillMaxWidth().clearAndSetSemantics { contentDescription = "$label $count" },
+        Modifier.fillMaxWidth().clearAndSetSemantics { contentDescription = description },
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -527,13 +586,93 @@ private fun ShareRow(label: String, count: String, rate: Double, labelWidth: Dp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        DiaryProgressBar(rate.toFloat(), Modifier.weight(1f))
-        BasicText(
-            count,
-            Modifier.width(countWidth),
-            style = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End),
-            maxLines = 1
+        ToneBar(share.rate.toFloat(), share.hardRate.toFloat(), Modifier.weight(1f))
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            BasicText(
+                good,
+                Modifier.width(valueWidth),
+                style = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End),
+                maxLines = 1
+            )
+            BasicText(
+                hard,
+                Modifier.width(valueWidth),
+                style = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End),
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun ToneBar(good: Float, hard: Float, modifier: Modifier) {
+    val colors = DiaryTheme.colors
+    val goodColor = colors.accentText
+    val hardColor = colors.mood.angry
+    val track = colors.sunken
+    Canvas(modifier.height(DiarySpacing.x2).clip(DiaryShapes.full).background(track)) {
+        val gap = DiarySpacing.x0_5.toPx()
+        val g = size.width * good.coerceIn(0f, 1f)
+        val h = size.width * hard.coerceIn(0f, 1f)
+        val meet = g + h >= size.width - gap
+        val goodEnd = if (meet) (g - gap / 2).coerceAtLeast(0f) else g
+        val hardStart = if (meet) (size.width - h + gap / 2).coerceAtMost(size.width) else size.width - h
+        val radius = CornerRadius(size.height / 2, size.height / 2)
+        if (goodEnd > 0f) drawRoundRect(goodColor, size = Size(goodEnd, size.height), cornerRadius = radius)
+        if (hardStart < size.width) {
+            drawRoundRect(
+                hardColor,
+                topLeft = Offset(hardStart, 0f),
+                size = Size(size.width - hardStart, size.height),
+                cornerRadius = radius
+            )
+        }
+    }
+}
+
+/**
+ * 좋은 기분과 힘든 기분을 무엇으로 세는지(`docs/design.md` 상황별 기분, DECISIONS 2026-11-04 쿨은 보통).
+ * 기분의 밝고 어두움(심리학의 정서가)으로 나누고, 어느 쪽인지 애매한 보통과 쿨은 세지 않는다.
+ */
+@Composable
+private fun ToneSheet(onDismiss: () -> Unit) {
+    val colors = DiaryTheme.colors
+    val typography = DiaryTheme.typography
+    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.insight_adv_tone_sheet_title)) {
+        BasicText(stringResource(Res.string.insight_adv_tone_sheet_body), style = typography.body.copy(color = colors.textSecondary))
+        Spacer(Modifier.height(DiarySpacing.x2))
+        ToneGroup(colors.accentText, stringResource(Res.string.insight_adv_change_good), Mood.entries.filter { it.tone == MoodTone.GOOD })
+        ToneGroup(colors.mood.angry, stringResource(Res.string.insight_adv_change_hard), Mood.entries.filter { it.tone == MoodTone.HARD })
+        ToneGroup(
+            colors.lineStrong,
+            stringResource(Res.string.insight_adv_tone_neutral),
+            Mood.entries.filter {
+                it.tone == MoodTone.NEUTRAL
+            }
         )
+        Spacer(Modifier.height(DiarySpacing.x2))
+        DiaryButton(stringResource(Res.string.insight_adv_tone_ok), onDismiss, Modifier.fillMaxWidth(), kind = DiaryButtonKind.Secondary)
+    }
+}
+
+/** 묶음 이름과 그 묶음의 기분 얼굴·이름. 순서는 기분 고르기와 같다. */
+@Composable
+private fun ToneGroup(color: Color, name: String, moods: List<Mood>) {
+    val colors = DiaryTheme.colors
+    val typography = DiaryTheme.typography
+    Column(Modifier.fillMaxWidth().padding(vertical = DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+        LegendItem(color, name)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
+        ) {
+            Mood.ordered.filter { it in moods }.forEach { mood ->
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
+                    MoodFace(mood, DiaryIconSize.i24, contentDescription = null)
+                    BasicText(moodName(mood), style = typography.bodyStrong.copy(color = colors.textPrimary))
+                }
+            }
+        }
     }
 }
 

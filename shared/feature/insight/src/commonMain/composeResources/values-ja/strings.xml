@@ -51,13 +51,12 @@
     <string name="insight_adv_change_recent">前の30日と比較</string>
     <string name="insight_adv_change_year">去年の同じ時期と比較</string>
     <string name="insight_adv_change_good">良い気分</string>
-    <string name="insight_adv_when">気分が出やすいとき</string>
+    <string name="insight_adv_when">状況別の気分</string>
     <string name="insight_adv_tab_weekday">曜日</string>
     <string name="insight_adv_tab_part">時間帯</string>
     <string name="insight_adv_tab_weather">天気</string>
     <string name="insight_adv_tab_place">場所</string>
     <string name="insight_adv_share">%1$d%</string>
-    <string name="insight_adv_tone_note">「良い」か「笑顔」を選んだ日記の割合です。</string>
     <string name="insight_adv_when_empty">まだ日記が少なめです。</string>
     <string name="insight_adv_company">気分ごとに多い天気・曜日・場所</string>
     <string name="insight_adv_habit">わたしの記録</string>
@@ -99,9 +98,13 @@
     <string name="insight_adv_change_hard">つらい気分</string>
     <string name="insight_adv_change_top">一番多い気分</string>
     <string name="insight_adv_change_before">%1$s →</string>
-    <string name="insight_adv_tone_note_hard">「怒り」「悲しい」「悪い」「具合が悪い」「疲れた」を選んだ日記の割合です。</string>
     <string name="insight_adv_unit_small">10000</string>
     <string name="insight_adv_unit_big">100000000</string>
     <string name="insight_adv_characters_small">%1$s万字</string>
     <string name="insight_adv_characters_big">%1$s億字</string>
+    <string name="insight_adv_tone_info">気分の分け方</string>
+    <string name="insight_adv_tone_sheet_title">良い気分とつらい気分</string>
+    <string name="insight_adv_tone_sheet_body">バーは、その状況で書いた日記のうち良い気分とつらい気分を選んだ割合です。</string>
+    <string name="insight_adv_tone_neutral">数えない気分</string>
+    <string name="insight_adv_tone_ok">OK</string>
 </resources>

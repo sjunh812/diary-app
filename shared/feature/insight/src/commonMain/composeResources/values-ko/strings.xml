@@ -51,13 +51,12 @@
     <string name="insight_adv_change_recent">이전 30일과 비교</string>
     <string name="insight_adv_change_year">작년 이맘때와 비교</string>
     <string name="insight_adv_change_good">좋은 기분</string>
-    <string name="insight_adv_when">이 기분이 많았던 때</string>
+    <string name="insight_adv_when">상황별 기분</string>
     <string name="insight_adv_tab_weekday">요일</string>
     <string name="insight_adv_tab_part">시간대</string>
     <string name="insight_adv_tab_weather">날씨</string>
     <string name="insight_adv_tab_place">장소</string>
     <string name="insight_adv_share">%1$d%</string>
-    <string name="insight_adv_tone_note">좋음이나 웃음을 고른 일기의 비율이에요.</string>
     <string name="insight_adv_when_empty">아직 일기가 적어요.</string>
     <string name="insight_adv_company">기분마다 자주 나온 날씨·요일·장소</string>
     <string name="insight_adv_habit">내 기록</string>
@@ -99,9 +98,13 @@
     <string name="insight_adv_change_hard">힘든 기분</string>
     <string name="insight_adv_change_top">자주 고른 기분</string>
     <string name="insight_adv_change_before">%1$s →</string>
-    <string name="insight_adv_tone_note_hard">화남, 슬픔, 나쁨, 아픔, 피곤을 고른 일기의 비율이에요.</string>
     <string name="insight_adv_unit_small">10000</string>
     <string name="insight_adv_unit_big">100000000</string>
     <string name="insight_adv_characters_small">%1$s만 자</string>
     <string name="insight_adv_characters_big">%1$s억 자</string>
+    <string name="insight_adv_tone_info">좋은 기분과 힘든 기분 기준</string>
+    <string name="insight_adv_tone_sheet_title">좋은 기분과 힘든 기분</string>
+    <string name="insight_adv_tone_sheet_body">막대마다 그 상황에 쓴 일기 가운데 좋은 기분과 힘든 기분을 고른 비율이에요.</string>
+    <string name="insight_adv_tone_neutral">세지 않는 기분</string>
+    <string name="insight_adv_tone_ok">확인</string>
 </resources>
