@@ -14,8 +14,11 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
+import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.ContextTip
+import org.sjhstudio.diary.core.model.WelcomeStep
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
@@ -64,6 +67,29 @@ class WelcomeViewModelTest {
 
         assertEquals(true, moved)
         assertNull(backup.connectFailure.value)
+    }
+
+    /** 저장 공간 문제로 어디까지 봤는지 읽지 못해도 앱이 꺼지거나 시작 화면에 갇히지 않는다. */
+    @Test
+    fun an_unreadable_step_opens_the_app_instead_of_crashing() = runTest(dispatcher) {
+        val broken =
+            object : WelcomeRepository {
+                override suspend fun step(): WelcomeStep = error("읽을 수 없음")
+
+                override fun migratedEntries(): Int? = null
+
+                override suspend fun letterRead() = Unit
+
+                override suspend fun onboardingFinished() = Unit
+
+                override suspend fun claim(tip: ContextTip): Boolean = false
+
+                override suspend fun done(tip: ContextTip) = Unit
+            }
+        val viewModel = WelcomeViewModel(broken, backup, FakeSettingsRepository())
+        advanceUntilIdle()
+
+        assertEquals(WelcomeStep.DONE, viewModel.step.value)
     }
 
     /** 연결이 예외를 던져도 온보딩이 멈추거나 꺼지지 않는다. */

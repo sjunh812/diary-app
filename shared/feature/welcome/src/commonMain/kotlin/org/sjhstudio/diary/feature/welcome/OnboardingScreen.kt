@@ -116,7 +116,10 @@ fun OnboardingScreen(
                 DiaryButton(
                     stringResource(if (asking) Res.string.onboarding_later else Res.string.onboarding_skip),
                     if (asking) next else onFinish,
-                    kind = DiaryButtonKind.Text
+                    kind = DiaryButtonKind.Text,
+                    // 연결하는 동안 미루면 미룬 뒤에 연결이 끝나 버린다.
+                    // 아래 버튼처럼 연결이 끝날 때까지 막는다.
+                    enabled = !connecting
                 )
             }
         }

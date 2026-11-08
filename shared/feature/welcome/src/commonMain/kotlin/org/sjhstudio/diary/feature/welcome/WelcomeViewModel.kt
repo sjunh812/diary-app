@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.WelcomeStep
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 class WelcomeViewModel(
     private val welcome: WelcomeRepository,
@@ -45,8 +46,13 @@ class WelcomeViewModel(
         refresh()
     }
 
+    /**
+     * 어디까지 봤는지 읽는다.
+     * 저장 공간 문제로 읽지 못하면 편지와 온보딩을 건너뛰고 앱을 연다.
+     * 여기서 멈추거나 꺼지면 일기를 쓸 수 없다.
+     */
     private fun refresh() {
-        viewModelScope.launch { _step.value = welcome.step() }
+        viewModelScope.launch { _step.value = orElseOnFailure(WelcomeStep.DONE) { welcome.step() } }
     }
 
     fun letterRead() = pass(WelcomeStep.ONBOARDING_UPDATED) { welcome.letterRead() }
