@@ -158,5 +158,10 @@ The project documents are written in Korean.
 
 ## License
 
-No open source license has been chosen yet.
-Licenses for the libraries and fonts used in the app are listed in the app under Settings > Open source licenses.
+Copyright © 2021–2026 서주냥 (서준형). All rights reserved.
+
+This repository is public so the code can be read, but it is not open source.
+You may not copy, modify, or distribute this code, or publish an app built from it, without written permission. See [`LICENSE`](LICENSE).
+
+The libraries and fonts used in the app keep their own licenses.
+They are listed in the app under Settings > Open source licenses.
