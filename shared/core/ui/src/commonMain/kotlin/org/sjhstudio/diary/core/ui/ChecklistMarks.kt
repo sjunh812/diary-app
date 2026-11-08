@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -24,6 +25,7 @@ import org.sjhstudio.diary.core.ui.resources.checklist_check
 import org.sjhstudio.diary.core.ui.resources.checklist_uncheck
 
 private const val CORNER = 0.25f
+
 private val GAP = 6.dp
 
 /** 글자 가운데가 기준선에서 위로 떨어진 거리. 글자 크기에 대한 비율이다. */
@@ -47,6 +49,7 @@ private const val CHECK_END_Y = 0.33f
 @Composable
 fun Modifier.checklistMarks(text: () -> String, layout: () -> TextLayoutResult?, background: Color = DiaryTheme.colors.canvas): Modifier {
     val colors = DiaryTheme.colors
+    val measurer = rememberTextMeasurer()
     return drawWithContent {
         drawContent()
         val result = layout() ?: return@drawWithContent
@@ -55,11 +58,13 @@ fun Modifier.checklistMarks(text: () -> String, layout: () -> TextLayoutResult?,
         for (line in text().split('\n')) {
             if (Checklist.isItem(line) && start < length) {
                 val glyph = result.getBoundingBox(start)
-                // 글꼴마다 표시와 칸의 폭이 달라서, 글과 닿지 않는 크기로 맞춘다.
+                // 덮개는 그 줄의 실제 표시 폭까지 덮어야 넓은 그림 문자가 비치지 않는다.
                 val advance = result.getBoundingBox(start + 1).right - glyph.left
                 val outdent = OUTDENT.toPx()
-                val room = advance - GAP.toPx() + outdent
                 val fontSize = result.layoutInput.style.fontSize
+                // 칸 크기는 빈 표시와 띄어쓰기("☐ ")의 폭으로 정해 체크 전후가 같다.
+                // 그 줄의 표시 폭으로 재면 iOS에서 체크한 표시(☑)가 그림 문자라 더 넓어서 체크하면 칸이 커졌다(2026-11-08 사용자 지적).
+                val room = measurer.measure(Checklist.PREFIX, result.layoutInput.style).size.width - GAP.toPx() + outdent
                 val side = minOf(if (fontSize.isSp) fontSize.toPx() else glyph.height, room)
                 // 줄 상자 가운데보다 글자 가운데에 맞춰야 칸이 글과 나란하다.
                 val middle =
@@ -70,7 +75,7 @@ fun Modifier.checklistMarks(text: () -> String, layout: () -> TextLayoutResult?,
                     }
                 val topLeft = Offset(glyph.left - outdent, middle - side / 2)
                 // 표시 글자는 뒤의 칸까지 덮어야 넓은 그림 문자가 비치지 않는다.
-                drawRect(background, glyph.topLeft, Size(advance, glyph.height))
+                drawRect(background, glyph.topLeft, Size(maxOf(advance, side + outdent), glyph.height))
                 if (line[0] == Checklist.DONE) {
                     drawRoundRect(colors.accent, topLeft, Size(side, side), CornerRadius(side * CORNER))
                     drawCheck(topLeft, side, colors.onAccent)
