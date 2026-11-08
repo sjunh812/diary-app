@@ -28,12 +28,22 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+      # 한 번 받은 gitleaks 묶음은 캐시에 두고 꺼내 쓴다.
+      # GitHub 릴리스 다운로드가 몇 분씩 504를 내면 다시 받기로도 실패해 검사가 빨개졌다(2026-11-08).
+      - id: gitleaks-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/gitleaks
+          key: gitleaks-${{ env.GITLEAKS_VERSION }}-${{ env.GITLEAKS_SHA256 }}
       - name: gitleaks 받기
         run: |
           archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
-          curl -fsSL --retry 8 --retry-delay 15 --retry-all-errors -o "$RUNNER_TEMP/$archive" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$archive"
-          echo "$GITLEAKS_SHA256  $RUNNER_TEMP/$archive" | sha256sum -c -
-          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP" gitleaks
+          mkdir -p ~/.cache/gitleaks
+          if [ ! -f ~/.cache/gitleaks/"$archive" ]; then
+            curl -fsSL --retry 8 --retry-delay 15 --retry-all-errors -o ~/.cache/gitleaks/"$archive" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$archive"
+          fi
+          echo "$GITLEAKS_SHA256  $HOME/.cache/gitleaks/$archive" | sha256sum -c -
+          tar -xzf ~/.cache/gitleaks/"$archive" -C "$RUNNER_TEMP" gitleaks
       - name: 이번 변경에서 비밀값 찾기
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
