@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -32,7 +33,9 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 고른 날과 그날 일기.
@@ -67,7 +70,7 @@ class CalendarViewModel(
     val menu = EntryMenuWork(viewModelScope, entries)
 
     init {
-        viewModelScope.launch { _selected.collect { date -> date?.let { saved[SELECTED_KEY] = it.toString() } } }
+        viewModelScope.launchSafely { _selected.collect { date -> date?.let { saved[SELECTED_KEY] = it.toString() } } }
     }
 
     val selected: StateFlow<LocalDate?> = _selected.asStateFlow()
@@ -80,19 +83,47 @@ class CalendarViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val readDay: Flow<CalendarDay> =
         _selected.flatMapLatest { date ->
-            if (date == null) flowOf(CalendarDay(null, emptyList())) else entries.day(date).map { CalendarDay(date, it) }
+            if (date == null) {
+                flowOf(CalendarDay(null, emptyList()))
+            } else {
+                entries.day(date).map { rows ->
+                    dayRows[date] = rows
+                    CalendarDay(date, rows)
+                }
+            }
         }
 
     /**
      * 날짜와 그 날짜의 일기를 한 값으로 묶는다.
-     * 날을 바꾸면 새 일기가 올 때까지 읽는 중이고, 지난 날 일기는 보이지 않는다.
-     * 다른 탭에 다녀와 다시 읽을 때는 같은 날이라 보던 일기를 그대로 둔다.
+     * 날을 바꾸면 미리 읽어 둔 일기를 바로 보이고, 다시 읽은 값으로 바꾼다.
+     * 지난 날 일기는 새 날 이름 아래 보이지 않는다.
+     * 미리 읽은 것이 없을 때만 잠깐 읽는 중이다.
      */
     val day: StateFlow<CalendarDay> =
-        combine(_selected, readDay) { date, read -> read.takeIf { it.date == date } ?: CalendarDay(date, null) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), CalendarDay(_selected.value, null))
+        combine(_selected, readDay) { date, read -> read.takeIf { it.date == date } ?: CalendarDay(date, date?.let(::knownRows)) }
+            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), CalendarDay(_selected.value, null))
 
     private val monthMoods = HashMap<YearMonth, StateFlow<Map<LocalDate, DayMood>>>()
+
+    /**
+     * 날마다 읽어 둔 일기.
+     * 날을 누를 때마다 읽는 동안 비었다 채워지면 목록이 깜빡인다.
+     */
+    private val dayRows = HashMap<LocalDate, List<EntryRow>>()
+
+    /** 다 읽은 달. 이 달의 날 가운데 기분 지도에 없는 날은 일기가 없다. */
+    private val readMonths = HashSet<YearMonth>()
+
+    /** 미리 아는 그날 일기. 모르면 null이다. */
+    private fun knownRows(date: LocalDate): List<EntryRow>? =
+        dayRows[date] ?: if (date.yearMonth in readMonths && date !in monthMoods[date.yearMonth]?.value.orEmpty()) emptyList() else null
+
+    /** 일기가 있는 날을 미리 읽어 둔다. 한 달 일기는 많지 않다. */
+    private fun prefetch(days: Collection<LocalDate>) {
+        viewModelScope.launchSafely {
+            for (date in days) if (date !in dayRows) dayRows[date] = entries.day(date).first()
+        }
+    }
 
     /**
      * 넘길 수 있는 마지막 달.
@@ -100,12 +131,12 @@ class CalendarViewModel(
      */
     val lastMonth: StateFlow<YearMonth> =
         combine(entries.months(), _todayState) { months, date -> maxOf(months.maxOrNull() ?: date.yearMonth, date.yearMonth) }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, thisMonth())
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, thisMonth())
 
     val look: StateFlow<BodyLook> =
         settings.settings
             .map { it.bodyLook(fonts::installedPath) }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, BodyLook())
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
 
     fun today(): LocalDate = today.invoke()
 
@@ -116,7 +147,15 @@ class CalendarViewModel(
      * 읽은 달은 값을 들고 있어, 달을 넘겨 다녀오거나 탭을 옮겼다 와도 얼굴이 사라졌다 나타나지 않는다.
      */
     fun moods(month: YearMonth): StateFlow<Map<LocalDate, DayMood>> = monthMoods.getOrPut(month) {
-        entries.month(month).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyMap())
+        entries
+            .month(month)
+            .onEach { map ->
+                readMonths += month
+                // 이 달 일기가 바뀌었으니 미리 읽은 것을 버리고 다시 읽는다.
+                dayRows.keys.removeAll { it.yearMonth == month }
+                prefetch(map.keys)
+            }
+            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyMap())
     }
 
     fun select(date: LocalDate) {
@@ -154,7 +193,8 @@ class CalendarViewModel(
             _selected.value = known
             return
         }
-        monthRead = viewModelScope.launch { _selected.value = orElseOnFailure(null) { entries.month(month).first().keys.maxOrNull() } }
+        monthRead =
+            viewModelScope.launchSafely { _selected.value = orElseOnFailure(null) { entries.month(month).first().keys.maxOrNull() } }
     }
 
     private var monthRead: Job? = null

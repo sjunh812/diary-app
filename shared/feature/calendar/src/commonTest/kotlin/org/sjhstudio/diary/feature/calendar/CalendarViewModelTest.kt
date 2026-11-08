@@ -127,6 +127,20 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(today, emptyList()), model.day.value)
     }
 
+    /** 달을 읽은 뒤 일기가 없는 날을 누르면 읽기를 기다리지 않고 바로 빈 날이다. 비었다 채워지는 깜빡임이 없다. */
+    @Test
+    fun an_empty_day_of_a_read_month_is_empty_at_once() = runTest {
+        val empty = LocalDate(today.year, today.month, 2)
+        val slow = MutableSharedFlow<List<EntryRow>>()
+        val model = viewModel(rows = listOf(fakeEntryRow("a", today)), slowDays = mapOf(empty to slow))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.day.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.moods(today.yearMonth).collect() }
+
+        model.select(empty)
+
+        assertEquals(CalendarDay(empty, emptyList()), model.day.value)
+    }
+
     /** 새 날짜 아래에 지난 날 일기가 보이지 않는다. */
     @Test
     fun picking_another_day_hides_the_rows_of_the_last_one() = runTest {
