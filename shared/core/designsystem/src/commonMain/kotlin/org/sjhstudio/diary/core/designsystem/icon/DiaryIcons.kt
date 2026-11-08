@@ -20,6 +20,7 @@ object DiaryIcons {
     private const val STAR = "M 12 4 L 14.4 9 L 19.8 9.6 L 15.8 13.3 L 16.9 18.6 L 12 16 L 7.1 18.6 L 8.2 13.3 L 4.2 9.6 L 9.6 9 L 12 4 Z"
     private const val GEAR =
         "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+    private const val SLASH = "M 3.5 3.5 L 20.5 20.5"
     private const val CIRCLE = "M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0"
 
     val ChevronLeft: ImageVector by lazy { lucide("chevron-left", "m15 18-6-6 6-6") }
@@ -391,6 +392,12 @@ object DiaryIcons {
     /** 즐겨찾기 빈 별과 찬 별(Figma 별 경로). */
     val StarOutline: ImageVector by lazy { lucide("star-outline", STAR) }
     val StarFilled: ImageVector by lazy { lucide("star-filled", STAR, filled = true) }
+
+    /**
+     * 즐겨찾기 해제. 별 위에 빗금을 그어, 누르면 즐겨찾기가 풀린다는 뜻으로 읽힌다.
+     * 꽉 찬 별은 즐겨찾기가 된다는 뜻으로 읽힐 수 있었다(2026-11-08 사용자 결정, iOS의 해제 동작도 빗금 아이콘을 쓴다).
+     */
+    val StarOff: ImageVector by lazy { lucide("star-off", STAR, SLASH) }
 
     private fun tab(name: String, stroke: Float, vararg paths: String): ImageVector = lucide(name, *paths, strokeWidth = stroke)
 
