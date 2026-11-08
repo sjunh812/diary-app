@@ -77,6 +77,9 @@ private const val ENVELOPE_RATIO = 1.42f
  * 봉투 높이에 대한 비율이다.
  */
 private const val FLAP_DEPTH = 0.74f
+
+/** 봉인을 덮개 끝에서 올리는 정도. 반지름에 대한 비율이다. */
+private const val SEAL_LIFT = 0.5f
 private const val POCKET_DEPTH = 0.5f
 
 /** 아래 날개 끝의 높이. 봉투 높이에 대한 비율이고 덮개 끝보다 위에 있다. */
@@ -323,8 +326,11 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
  * 덮개 끝을 따라 움직이고 덮개가 넘어갈수록 옅어진다.
  * 종이처럼 옅은 그림자를 둬서 봉투 위에 붙어 있게 보인다.
  */
-private fun DrawScope.drawSeal(center: Offset, alpha: Float, colors: DiaryColors, pen: VectorPainter) {
+private fun DrawScope.drawSeal(tipCenter: Offset, alpha: Float, colors: DiaryColors, pen: VectorPainter) {
     val radius = DiarySpacing.x6.toPx()
+    // 덮개 끝에 가운데를 두면 봉인 대부분이 봉투 몸통으로 내려와 처져 보인다.
+    // 반지름의 절반만큼 올려 덮개 끝을 감싸게 붙인다(2026-11-08 사용자 지적).
+    val center = tipCenter.copy(y = tipCenter.y - radius * SEAL_LIFT)
     val icon = DiarySpacing.x6.toPx()
     softSealShadow(center, radius, colors, alpha)
     drawCircle(colors.accent, radius, center, alpha)
