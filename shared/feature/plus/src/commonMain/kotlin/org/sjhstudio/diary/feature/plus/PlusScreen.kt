@@ -275,13 +275,9 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
         val room = maxHeight
         SubcomposeLayout(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) { constraints ->
             val width = constraints.copy(minHeight = 0)
-            // 혜택 사이는 20에서 시작해 자리가 남으면 24까지 넓힌다. 붙어 보이지 않는 것이 먼저다.
-            val roomPx = room.roundToPx()
-            val tight = subcompose("tight") { PaywallBenefits(adFreeOwned, DiarySpacing.x5) }.sumOf { it.measure(width).height }
-            val wideGap = if (roomPx - tight > (DiarySpacing.x10 * 3).roundToPx()) DiarySpacing.x6 else DiarySpacing.x5
-            val text = subcompose("text") { PaywallBenefits(adFreeOwned, wideGap) }.map { it.measure(width) }
+            val text = subcompose("text") { PaywallBenefits(adFreeOwned) }.map { it.measure(width) }
             val textHeight = text.sumOf { it.height }
-            val gap = DiarySpacing.x4.roundToPx()
+            val gap = DiarySpacing.x6.roundToPx()
             val left = room.roundToPx() - textHeight - gap - DiarySpacing.x2.roundToPx()
             val art =
                 if (left < DiaryArtSize.paywallArtMin.roundToPx()) {
@@ -291,12 +287,10 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
                     subcompose("art") { PlusArt(height, Modifier.padding(top = DiarySpacing.x2)) }.map { it.measure(width) }
                 }
             val artHeight = art.sumOf { it.height } + if (art.isEmpty()) 0 else gap
-            // 남는 높이는 그림과 혜택 사이, 혜택과 결제 버튼 사이에 똑같이 나눈다.
-            // 한쪽에 몰리면 가운데로 뭉치거나 버튼 위가 비어 보인다.
-            val spare = (room.roundToPx() - artHeight - textHeight).coerceAtLeast(0)
-            layout(constraints.maxWidth, artHeight + textHeight + spare) {
+            // 위에서부터 정한 간격으로 쌓는다. 남는 자리는 결제 버튼 위에 둔다.
+            layout(constraints.maxWidth, artHeight + textHeight) {
                 art.forEach { it.placeRelative(0, 0) }
-                text.forEach { it.placeRelative(0, artHeight + if (art.isEmpty()) 0 else spare / 2) }
+                text.forEach { it.placeRelative(0, artHeight) }
             }
         }
     }
@@ -304,12 +298,12 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
 
 /** 제목과 혜택. */
 @Composable
-private fun PaywallBenefits(adFreeOwned: Boolean, gap: Dp = DiarySpacing.x5) {
+private fun PaywallBenefits(adFreeOwned: Boolean) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
         BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
-        PlusBenefits(gap)
+        PlusBenefits()
         if (adFreeOwned) {
             BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
         }
