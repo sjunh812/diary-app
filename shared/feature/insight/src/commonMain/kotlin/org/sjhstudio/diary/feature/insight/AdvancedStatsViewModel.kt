@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -15,6 +16,7 @@ import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /**
  * 고급 통계.
@@ -41,7 +43,8 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
     init {
         viewModelScope.launch {
             combine(_period, day, ::Pair).collectLatest { (period, date) ->
-                stats.advanced(period, date).collect {
+                // 읽기에 실패하면 앱을 끄지 않고 보던 숫자를 그대로 둔다.
+                stats.advanced(period, date).catch {}.collect {
                     cache[period] = it
                     _data.value = it
                 }
@@ -50,7 +53,7 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
         // 다른 기간도 미리 읽어 탭을 눌러도 바로 보인다.
         viewModelScope.launch {
             AdvancedPeriod.entries.filter { it != _period.value }.forEach { period ->
-                cache.getOrPut(period) { stats.advanced(period, day.value).first() }
+                orElseOnFailure(Unit) { cache.getOrPut(period) { stats.advanced(period, day.value).first() } }
             }
         }
     }

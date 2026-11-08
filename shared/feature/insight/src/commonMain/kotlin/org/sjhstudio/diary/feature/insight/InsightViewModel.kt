@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -32,6 +33,7 @@ import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.mostFrequent
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /** 기간 탭. */
 enum class InsightKind { Week, Month, Year, All }
@@ -89,10 +91,13 @@ class InsightViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val readPeriod: Flow<InsightState> =
         _period.flatMapLatest { period ->
-            read(period).map { data ->
-                cache[period] = data
-                InsightState(period, data)
-            }
+            read(period)
+                .map { data ->
+                    cache[period] = data
+                    InsightState(period, data)
+                }
+                // 읽기에 실패하면 앱을 끄지 않고 읽는 중으로 둔다. 다른 기간을 고르면 다시 읽는다.
+                .catch {}
         }
 
     private fun read(period: StatsPeriod): Flow<InsightData> {
@@ -113,7 +118,7 @@ class InsightViewModel(
         // 다른 탭도 미리 읽어 처음 눌러도 바로 보인다.
         viewModelScope.launch {
             InsightKind.entries.map { it.periodOf(today()) }.filter { it != _period.value }.forEach { period ->
-                cache.getOrPut(period) { read(period).first() }
+                orElseOnFailure(Unit) { cache.getOrPut(period) { read(period).first() } }
             }
         }
     }
