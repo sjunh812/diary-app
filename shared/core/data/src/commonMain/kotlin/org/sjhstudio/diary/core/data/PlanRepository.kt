@@ -1,8 +1,12 @@
 package org.sjhstudio.diary.core.data
 
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
@@ -25,6 +29,16 @@ interface PlanRepository {
 }
 
 private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow()
+
+/**
+ * 한 편에 새로 붙일 수 있는 사진 수.
+ * 재설치 직후 스토어 답이 오기 전에는 요금제가 무료로 보여서, 산 사람에게 10장 한도와 Plus 권유가 뜬다.
+ * 그래서 요금제를 알 때까지 [wait]만큼 기다리고, 그래도 모르면 지금 값을 쓴다.
+ */
+suspend fun PlanRepository.knownPhotoLimit(wait: Duration = 3.seconds): Int {
+    withTimeoutOrNull(wait) { known.first { it } }
+    return plan.value.photoLimit
+}
 
 /**
  * 스토어 답을 요금제로 옮기는 규칙.

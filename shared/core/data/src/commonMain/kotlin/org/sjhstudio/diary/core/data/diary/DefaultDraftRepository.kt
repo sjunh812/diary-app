@@ -41,8 +41,9 @@ class DefaultDraftRepository(
     /**
      * 한 편에 새로 붙일 수 있는 사진 수.
      * 지금 요금제를 따른다.
+     * 재설치 직후처럼 요금제를 아직 모르면 아는 때까지 잠깐 기다린다.
      */
-    private val photoLimit: () -> Int = { PhotoLimit.FREE }
+    private val photoLimit: suspend () -> Int = { PhotoLimit.FREE }
 ) : DraftRepository {
     private val drafts get() = db.draftDao()
     private val entries get() = db.entryDao()
