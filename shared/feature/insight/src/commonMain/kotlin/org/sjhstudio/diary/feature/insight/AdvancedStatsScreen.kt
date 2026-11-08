@@ -707,9 +707,21 @@ private fun CompanyRow(row: MoodCompany, onClick: () -> Unit) {
     ) {
         MoodFace(row.mood, DiarySpacing.x8, contentDescription = null)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
+            // 기분 이름만 굵게 두고 편수는 보조로 낮춘다.
+            // 둘 다 굵으면 "좋음 · 62편"이 한 덩어리로 읽혀 이름이 먼저 들어오지 않았다(2026-11-08 사용자 지적).
+            val name = moodName(row.mood)
+            val title = pluralStringResource(Res.plurals.insight_adv_company_title, row.entries, name, row.entries.grouped())
+            val start = title.indexOf(name).coerceAtLeast(0)
             BasicText(
-                pluralStringResource(Res.plurals.insight_adv_company_title, row.entries, moodName(row.mood), row.entries.grouped()),
-                style = typography.bodyStrong.copy(color = colors.textPrimary)
+                buildAnnotatedString {
+                    append(title)
+                    addStyle(
+                        SpanStyle(fontWeight = typography.bodyStrong.fontWeight, color = colors.textPrimary),
+                        start,
+                        (start + name.length).coerceAtMost(title.length)
+                    )
+                },
+                style = typography.body.copy(color = colors.textSecondary)
             )
             val together =
                 listOfNotNull(
