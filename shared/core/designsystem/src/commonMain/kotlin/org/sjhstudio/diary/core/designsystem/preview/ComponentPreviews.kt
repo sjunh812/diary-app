@@ -23,6 +23,8 @@ import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlot
+import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlots
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
@@ -211,3 +213,20 @@ private fun InviteCardLight() = PreviewCanvas(dark = false) {
 private fun InviteCardDark() = PreviewCanvas(dark = true) {
     DiaryInviteCard("광고 없이, 더 편하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
 }
+
+@Composable
+private fun DateSlotStates() {
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+        DiaryDateSlots("시작일", null, "종료일", null, "날짜 선택", DiaryDateSlot.Start, {}, null)
+        DiaryDateSlots("시작일", "11월 3일", "종료일", null, "날짜 선택", DiaryDateSlot.End, {}, {})
+        DiaryDateSlots("시작일", "11월 3일", "종료일", "11월 9일", "날짜 선택", null, {}, {})
+    }
+}
+
+@Preview(name = "기간 두 칸 · 라이트", locale = "ko", widthDp = 360)
+@Composable
+private fun DateSlotsLight() = PreviewCanvas(dark = false) { DateSlotStates() }
+
+@Preview(name = "기간 두 칸 · 다크", locale = "ko", widthDp = 360)
+@Composable
+private fun DateSlotsDark() = PreviewCanvas(dark = true) { DateSlotStates() }

@@ -8,6 +8,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -19,6 +22,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlot
+import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlots
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
@@ -41,6 +46,10 @@ import org.sjhstudio.diary.feature.search.resources.search_period_month
 import org.sjhstudio.diary.feature.search.resources.search_period_range
 import org.sjhstudio.diary.feature.search.resources.search_period_week
 import org.sjhstudio.diary.feature.search.resources.search_period_year
+import org.sjhstudio.diary.feature.search.resources.search_pick_many
+import org.sjhstudio.diary.feature.search.resources.search_range_end
+import org.sjhstudio.diary.feature.search.resources.search_range_pick
+import org.sjhstudio.diary.feature.search.resources.search_range_start
 
 @Composable
 internal fun periodLabel(period: SearchPeriod): String = stringResource(
@@ -54,23 +63,45 @@ internal fun periodLabel(period: SearchPeriod): String = stringResource(
 
 /**
  * 여러 개를 고를 수 있다.
- * 고를 때마다 결과가 바로 바뀐다.
+ * 시트 안에서 고른 것은 [완료]를 눌러야 결과에 쓴다.
+ * 결과가 시트에 가려 바로 바꿔도 보이지 않고, 모바일 필터는 다 고른 뒤 한 번에 적용하는 편이 낫다(NN/g, 사용자 제안 2026-11-09).
+ * 내려서 닫으면 고르기 전으로 둔다.
  */
 @Composable
-internal fun MoodSheet(selected: Set<Mood>, onChange: (Set<Mood>) -> Unit, onDismiss: () -> Unit) {
-    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_chip_mood)) {
-        DiaryMoodGrid({ it in selected }, { onChange(if (it in selected) selected - it else selected + it) })
-        SheetButtons({ onChange(emptySet()) }, onDismiss)
+internal fun MoodSheet(selected: Set<Mood>, onApply: (Set<Mood>) -> Unit, onDismiss: () -> Unit) {
+    var draft by rememberSaveable(stateSaver = enumSetSaver { Mood.valueOf(it) }) { mutableStateOf(selected) }
+    DiaryBottomSheet(
+        onDismiss = onDismiss,
+        title = stringResource(Res.string.search_chip_mood),
+        description = stringResource(Res.string.search_pick_many)
+    ) {
+        DiaryMoodGrid({ it in draft }, { draft = if (it in draft) draft - it else draft + it })
+        SheetButtons({ draft = emptySet() }) {
+            onApply(draft)
+            onDismiss()
+        }
     }
 }
 
 @Composable
-internal fun WeatherSheet(selected: Set<Weather>, onChange: (Set<Weather>) -> Unit, onDismiss: () -> Unit) {
-    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_chip_weather)) {
-        DiaryWeatherGrid({ it in selected }, { onChange(if (it in selected) selected - it else selected + it) })
-        SheetButtons({ onChange(emptySet()) }, onDismiss)
+internal fun WeatherSheet(selected: Set<Weather>, onApply: (Set<Weather>) -> Unit, onDismiss: () -> Unit) {
+    var draft by rememberSaveable(stateSaver = enumSetSaver { Weather.valueOf(it) }) { mutableStateOf(selected) }
+    DiaryBottomSheet(
+        onDismiss = onDismiss,
+        title = stringResource(Res.string.search_chip_weather),
+        description = stringResource(Res.string.search_pick_many)
+    ) {
+        DiaryWeatherGrid({ it in draft }, { draft = if (it in draft) draft - it else draft + it })
+        SheetButtons({ draft = emptySet() }) {
+            onApply(draft)
+            onDismiss()
+        }
     }
 }
+
+/** 화면을 돌려도 시트에서 고르던 것이 남게 이름 목록으로 저장한다. */
+private fun <T : Enum<T>> enumSetSaver(restore: (String) -> T): Saver<Set<T>, Any> =
+    listSaver({ set -> set.map { it.name } }, { names -> names.map(restore).toSet() })
 
 @Composable
 private fun SheetButtons(onClear: () -> Unit, onDone: () -> Unit) {
@@ -147,15 +178,31 @@ private fun PeriodRow(label: String, selected: Boolean, description: String?, on
 }
 
 /**
- * 시작 날과 끝 날을 차례로 누른다.
- * 끝을 시작보다 앞에 누르면 둘을 바꾼다.
+ * 시작일과 종료일을 차례로 누른다.
+ * 달력 위 두 칸이 다음에 누를 날을 알려 준다(사용자 확인 2026-11-09).
+ * 종료일을 시작일보다 앞에 누르면 둘을 바꾼다.
+ * 둘 다 고른 뒤 다른 날을 누르면 그날로 새로 시작한다.
+ * 시작일만 고르고 [완료]를 누르면 그날 하루로 찾는다.
  */
 @Composable
 internal fun RangeSheet(initial: DateRange?, today: LocalDate, onDone: (DateRange) -> Unit, onDismiss: () -> Unit) {
     var month by remember { mutableStateOf<YearMonth>((initial?.end ?: today).yearMonth) }
     var start by remember { mutableStateOf(initial?.start) }
     var end by remember { mutableStateOf(initial?.end) }
+    var active by remember { mutableStateOf<DiaryDateSlot?>(if (initial == null) DiaryDateSlot.Start else null) }
+    val dates = rememberDiaryDateFormat()
+    val label: (LocalDate) -> String = { if (it.year == today.year) dates.monthDay(it) else dates.fullDate(it) }
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_period_custom)) {
+        DiaryDateSlots(
+            startLabel = stringResource(Res.string.search_range_start),
+            start = start?.let(label),
+            endLabel = stringResource(Res.string.search_range_end),
+            end = end?.let(label),
+            placeholder = stringResource(Res.string.search_range_pick),
+            active = active,
+            onStart = { active = DiaryDateSlot.Start },
+            onEnd = { active = DiaryDateSlot.End }.takeIf { start != null }
+        )
         DiaryMonthPicker(month, onChange = { month = it }) {
             DiaryMonthDays(
                 month = month,
@@ -164,29 +211,34 @@ internal fun RangeSheet(initial: DateRange?, today: LocalDate, onDone: (DateRang
                 onPick = { day ->
                     val first = start
                     when {
-                        first == null || end != null -> {
+                        // 시작일을 고르는 중이거나, 둘 다 고른 뒤 다시 누르면 그날로 새로 시작한다.
+                        first == null || active != DiaryDateSlot.End -> {
                             start = day
-                            end = null
+                            end = end?.takeIf { active == DiaryDateSlot.Start && it >= day }
+                            active = if (end == null) DiaryDateSlot.End else null
                         }
 
                         day < first -> {
                             start = day
                             end = first
+                            active = null
                         }
 
-                        else -> end = day
+                        else -> {
+                            end = day
+                            active = null
+                        }
                     }
                 }
             )
         }
         val from = start
-        val to = end
         DiaryButton(
             stringResource(Res.string.search_done),
-            { if (from != null && to != null) onDone(DateRange(from, to)) },
+            { if (from != null) onDone(DateRange(from, end ?: from)) },
             Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
             size = DiaryButtonSize.XLarge,
-            enabled = from != null && to != null
+            enabled = from != null
         )
     }
 }

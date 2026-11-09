@@ -15,6 +15,10 @@
     <string name="search_period_range">%1$s〜%2$s</string>
     <string name="search_clear_filter">クリア</string>
     <string name="search_done">完了</string>
+    <string name="search_pick_many">複数選べます。</string>
+    <string name="search_range_start">開始日</string>
+    <string name="search_range_end">終了日</string>
+    <string name="search_range_pick">日付を選択</string>
     <string name="search_empty_title">該当する日記はありません</string>
     <string name="search_empty_body">別のキーワードで探すか、条件を変えてみてください。</string>
     <plurals name="search_result_count">

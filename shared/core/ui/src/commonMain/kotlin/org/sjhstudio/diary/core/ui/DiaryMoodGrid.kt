@@ -47,13 +47,16 @@ fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modif
     Column(
         modifier.layout { measurable, constraints ->
             val placeable = measurable.measure(constraints)
-            val side = (placeable.width / GRID_COLUMNS - DiaryWriteSize.moodFace.roundToPx()) / 2
+            val gaps = DiarySpacing.x1.roundToPx() * (GRID_COLUMNS - 1)
+            val side = ((placeable.width - gaps) / GRID_COLUMNS - DiaryWriteSize.moodFace.roundToPx()) / 2
             layout(placeable.width, placeable.height) { placeable.placeRelative(-side, 0) }
         },
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         for (row in Mood.ordered.chunked(GRID_COLUMNS)) {
-            Row(Modifier.fillMaxWidth()) {
+            // 칸 사이를 4 띄운다.
+            // 찾기에서 여러 개를 고르면 칠한 칸끼리 붙어 하나로 보였다(사용자 지적 2026-11-09).
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 for (mood in row) {
                     Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
                 }

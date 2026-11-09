@@ -15,6 +15,10 @@
     <string name="search_period_range">%1$s – %2$s</string>
     <string name="search_clear_filter">Clear</string>
     <string name="search_done">Done</string>
+    <string name="search_pick_many">You can pick more than one.</string>
+    <string name="search_range_start">Start</string>
+    <string name="search_range_end">End</string>
+    <string name="search_range_pick">Pick a date</string>
     <string name="search_empty_title">No matching entries</string>
     <string name="search_empty_body">Try a different keyword or change your filters.</string>
     <plurals name="search_result_count">
