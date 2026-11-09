@@ -81,6 +81,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
 import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.SnapTitleOnRest
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.diaryTouchOutset
 import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryInsightSize
@@ -651,8 +652,11 @@ private fun MoodBar(
         Modifier
             .fillMaxWidth()
             .heightIn(min = DiaryInsightSize.barRow)
+            // 누름 면이 얼굴과 숫자에 딱 붙지 않게 양옆으로 12 내어 그리고, 안쪽을 같은 만큼 들여 내용은 제자리에 둔다(2026-11-10 사용자 지적).
+            .diaryTouchOutset(horizontal = DiarySpacing.x3)
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-            .clickable(enabled = count > 0, interactionSource = interaction, indication = null, role = Role.Button) { onClick(mood) },
+            .clickable(enabled = count > 0, interactionSource = interaction, indication = null, role = Role.Button) { onClick(mood) }
+            .padding(horizontal = DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {

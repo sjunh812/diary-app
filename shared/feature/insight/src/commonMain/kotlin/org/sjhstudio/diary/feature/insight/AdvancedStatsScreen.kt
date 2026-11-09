@@ -700,9 +700,11 @@ private fun CompanyRow(row: MoodCompany, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
+            // 누름 면을 양옆으로 12 내어 얼굴과 숫자가 가장자리에 붙지 않게 한다(돌아보기 기분 막대와 같다, 2026-11-10).
+            .diaryTouchOutset(horizontal = DiarySpacing.x3)
             .diaryPress(press, colors.textPrimary, DiaryShapes.r12)
             .clickable(interactionSource = press, indication = null, role = Role.Button, onClick = onClick)
-            .padding(vertical = DiarySpacing.x2),
+            .padding(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically
     ) {
