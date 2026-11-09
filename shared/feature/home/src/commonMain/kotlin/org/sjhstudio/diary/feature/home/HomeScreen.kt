@@ -248,7 +248,9 @@ internal fun HomeScreen(
             // 불러오는 동안에는 마지막으로 다 불러왔을 때의 답을 그대로 둔다.
             // 즐겨찾기를 켜고 끄면 목록을 다시 읽는데, 그사이 화살표를 다시 보이면 빈 목록에서 화살표가 반짝였다(사용자 지적 2026-11-09).
             val loadedEmpty = if (rows.loadState.refresh is LoadState.NotLoading) rows.itemCount == 0 else null
-            var lastEmpty by remember { mutableStateOf(false) }
+            // 처음 다 읽기 전에는 숨긴다.
+            // 보였다가 숨기면 일기가 없는 첫 실행에서 반짝이고, 숨겼다가 보이면 목록이 나타나는 때와 같이 나온다.
+            var lastEmpty by remember { mutableStateOf(true) }
             SideEffect { loadedEmpty?.let { lastEmpty = it } }
             val noMonths = loadedEmpty ?: lastEmpty
             val pickMonth = onPickMonth.takeUnless { noMonths }
