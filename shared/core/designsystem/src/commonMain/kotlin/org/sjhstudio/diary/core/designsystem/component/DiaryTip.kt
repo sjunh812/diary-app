@@ -17,6 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -51,10 +54,16 @@ fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Mo
             size = DiaryIconSize.i16,
             modifier = Modifier.padding(start = DiarySpacing.x4)
         )
+        // iOS는 한글 낱말 가운데서도 줄을 바꿔 "있어 / 요."처럼 끊겼다(2026-11-09, Figma에서 발견).
+        // 상태 상자 머리와 같이 그릴 때만 붙임 글자를 넣고, 화면 읽기와 시험에는 원래 글을 준다.
         BasicText(
-            text,
+            keepWords(text),
             style = DiaryTheme.typography.caption.copy(color = colors.onToast),
-            modifier = Modifier.weight(1f).padding(top = DiarySpacing.x3, bottom = DiarySpacing.x3)
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(top = DiarySpacing.x3, bottom = DiarySpacing.x3)
+                    .clearAndSetSemantics { this.text = AnnotatedString(text) }
         )
         Box(
             Modifier

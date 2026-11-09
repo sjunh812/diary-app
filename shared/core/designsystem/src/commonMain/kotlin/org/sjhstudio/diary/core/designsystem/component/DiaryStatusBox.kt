@@ -65,7 +65,7 @@ fun DiaryStatusBox(
                     style = typography.bodyStrong.copy(color = colors.textPrimary, lineBreak = LineBreak.Heading)
                 )
             }
-            BasicText(body, style = typography.body.copy(color = colors.textSecondary))
+            PhraseText(body, style = typography.body.copy(color = colors.textSecondary))
         }
         if (actionLabel != null && onAction != null) {
             // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 들어가지 않으면 아래 줄로 내려간다.

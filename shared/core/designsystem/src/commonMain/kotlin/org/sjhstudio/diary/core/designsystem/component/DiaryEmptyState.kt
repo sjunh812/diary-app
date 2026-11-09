@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,9 +43,9 @@ fun DiaryEmptyState(
             DiaryIcon(icon, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i32)
             Spacer(Modifier.height(DiarySpacing.x1))
         }
-        BasicText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
+        PhraseText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
         if (description != null) {
-            BasicText(
+            PhraseText(
                 text = description,
                 style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
             )
@@ -70,7 +69,7 @@ fun DiaryEmptyLine(text: String, actionLabel: String, onAction: () -> Unit, modi
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
-        BasicText(text, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary, textAlign = TextAlign.Center))
+        PhraseText(text, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary, textAlign = TextAlign.Center))
         DiaryButton(actionLabel, onAction, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
     }
 }

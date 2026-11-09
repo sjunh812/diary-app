@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,8 +47,8 @@ fun DiaryNoteBox(notes: List<DiaryNote>, modifier: Modifier = Modifier) {
             ) {
                 FirstLineIcon(note.icon, DiaryTheme.typography.bodyStrong, colors.textSecondary)
                 Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-                    BasicText(note.title, style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
-                    if (note.body != null) BasicText(note.body, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+                    PhraseText(note.title, style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
+                    if (note.body != null) PhraseText(note.body, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
                 }
             }
         }

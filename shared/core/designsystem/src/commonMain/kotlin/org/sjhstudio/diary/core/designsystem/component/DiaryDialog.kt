@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,8 +48,8 @@ fun DiaryDialog(
                     .padding(DiarySpacing.x6),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
         ) {
-            BasicText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
-            if (message != null) BasicText(text = message, style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
+            PhraseText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
+            if (message != null) PhraseText(text = message, style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
             DiaryButtonPair(
                 secondary = stringResource(Res.string.ds_close),
                 onSecondary = onDismiss,

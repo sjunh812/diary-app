@@ -38,8 +38,8 @@ fun DiaryInviteCard(title: String, body: String, action: String, onClick: () -> 
             .padding(DiarySpacing.x5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
-        BasicText(title, style = typography.bodyStrong.copy(color = colors.textPrimary))
-        BasicText(body, style = typography.caption.copy(color = colors.textSecondary))
+        PhraseText(title, style = typography.bodyStrong.copy(color = colors.textPrimary))
+        PhraseText(body, style = typography.caption.copy(color = colors.textSecondary))
         BasicText(action, Modifier.padding(top = DiarySpacing.x2), style = typography.captionStrong.copy(color = colors.accentText))
     }
 }

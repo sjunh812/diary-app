@@ -126,7 +126,7 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BasicText(
+            PhraseText(
                 text = shown.message,
                 style = DiaryTheme.typography.bodyStrong.copy(color = colors.onToast),
                 onTextLayout = { multiline = it.lineCount > 1 },
