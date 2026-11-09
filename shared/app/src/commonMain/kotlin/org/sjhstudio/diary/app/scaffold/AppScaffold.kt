@@ -412,8 +412,10 @@ private fun Content(
                             // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
                             // 광고 수는 늘지 않는다.
                             // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않는다.
+                            // 한 칸에서는 상세가 목록을 덮으니 따지지 않는다.
+                            // 따지면 일기를 누르는 순간 광고가 빠져, 넘어가는 동안 목록이 들썩였다(사용자 지적 2026-11-09).
                             adSlot = { order, slot ->
-                                if (homeStack.none { it is EntryDetailKey }) {
+                                if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
                                     AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card, slot)
                                 }
                             }
