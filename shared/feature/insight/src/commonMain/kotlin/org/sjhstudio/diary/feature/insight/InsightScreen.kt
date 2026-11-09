@@ -169,9 +169,15 @@ fun InsightRoute(
         onKind = viewModel::select,
         onPrevious = viewModel::previous,
         onNext = viewModel::next,
-        onMood = { onMood(it, period.range) },
+        onMood = {
+            viewModel.tried()
+            onMood(it, period.range)
+        },
         modifier = modifier,
-        onPeriod = onPeriod,
+        onPeriod = {
+            viewModel.tried()
+            onPeriod(it)
+        },
         advancedOpen = advancedOpen,
         onPlus = onPlus,
         onAdvanced = onAdvanced,
@@ -369,6 +375,11 @@ private fun Content(
     val rows = counts.sorted().filter { (_, count) -> count > 0 }
     if (rows.isEmpty()) return
     SectionTitle(stringResource(Res.string.insight_section_moods))
+    // 기분 막대를 누를 수 있다는 것을 처음 한 번 알린다.
+    // "기분을 누르면"이 가리키는 곳 바로 위에 둔다.
+    // 주별 기분 위에 두니 주 칸을 누르라는 말로 읽혔다(사용자 지적 2026-11-09, 2026-11-08에는 맨 위 묶음에 있었다).
+    // 막대 줄이 위아래로 제 여백을 가지므로 안내 아래는 띄우지 않는다.
+    ContextTipBar(ContextTip.INSIGHT_OPEN, stringResource(Res.string.tip_insight_open), Modifier.padding(top = DiarySpacing.x3))
     val most = counts.counts.values.maxOrNull() ?: 0
     // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
     val names = rows.map { (mood, _) -> moodName(mood) }
@@ -489,9 +500,6 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
         )
     Column {
         SectionTitle(title)
-        // 칸과 기분 막대를 누를 수 있다는 것을 처음 한 번 알린다.
-        // 화면 맨 위 묶음이라 처음 들어온 사람이 바로 본다(2026-11-08 사용자 제안, 전에는 기분 막대 위에 있었다).
-        ContextTipBar(ContextTip.INSIGHT_OPEN, stringResource(Res.string.tip_insight_open), Modifier.padding(top = DiarySpacing.x3))
         Spacer(Modifier.height(DiarySpacing.x3))
         // 줄 사이를 얼굴과 이름 사이보다 넓혀 이름이 어느 얼굴 것인지 헷갈리지 않게 한다.
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {

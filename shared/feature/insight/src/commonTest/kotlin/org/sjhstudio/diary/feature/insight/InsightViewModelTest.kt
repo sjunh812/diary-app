@@ -25,6 +25,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.AdvancedPeriod
+import org.sjhstudio.diary.core.model.ContextTip
+import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -52,6 +54,23 @@ class InsightViewModelTest {
     private fun viewModel() = InsightViewModel(NoStats, { today }, saved = SavedStateHandle())
 
     /** 고급 통계는 Plus만 연다. 기존 통계는 어느 요금제든 그대로다(FR-012). */
+    @Test
+    fun trying_what_the_tip_says_closes_the_tip_for_good() = runTest(dispatcher) {
+        val done = mutableListOf<ContextTip>()
+        val tips =
+            object : ContextTips {
+                override suspend fun claim(tip: ContextTip) = true
+
+                override suspend fun done(tip: ContextTip) {
+                    done += tip
+                }
+            }
+        val model = InsightViewModel(NoStats, { today }, saved = SavedStateHandle(), tips = tips)
+        model.tried()
+        advanceUntilIdle()
+        assertEquals(listOf(ContextTip.INSIGHT_OPEN), done)
+    }
+
     @Test
     fun advanced_stats_open_only_on_plus() = runTest(dispatcher) {
         val table = mapOf(Plan.FREE to false, Plan.AD_FREE to false, Plan.PLUS to true)

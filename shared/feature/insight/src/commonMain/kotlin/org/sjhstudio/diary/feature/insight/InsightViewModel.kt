@@ -27,6 +27,8 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
+import org.sjhstudio.diary.core.model.ContextTip
+import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -62,7 +64,8 @@ class InsightViewModel(
     private val stats: StatsRepository,
     private val today: () -> LocalDate = { currentDate() },
     plans: PlanRepository? = null,
-    private val saved: SavedStateHandle
+    private val saved: SavedStateHandle,
+    private val tips: ContextTips? = null
 ) : ViewModel() {
     /**
      * 고급 통계를 볼 수 있는지.
@@ -128,6 +131,16 @@ class InsightViewModel(
     }
 
     fun today(): LocalDate = today.invoke()
+
+    /**
+     * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 했다.
+     * ×를 누르지 않아도 다시 띄우지 않는다(사용자 제안 2026-11-09, Apple TipKit의 actionPerformed와 같다).
+     * 화면이 찾기로 넘어가도 끝까지 쓰도록 화면 모델에서 저장한다.
+     */
+    fun tried() {
+        val tips = tips ?: return
+        viewModelScope.launchSafely { tips.done(ContextTip.INSIGHT_OPEN) }
+    }
 
     fun select(kind: InsightKind) {
         _period.value = kind.periodOf(today())

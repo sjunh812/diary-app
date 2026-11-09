@@ -5,6 +5,6 @@ import org.koin.dsl.module
 
 val insightFeatureModule =
     module {
-        viewModel { InsightViewModel(get(), plans = get(), saved = get()) }
+        viewModel { InsightViewModel(get(), plans = get(), saved = get(), tips = getOrNull()) }
         viewModel { AdvancedStatsViewModel(get()) }
     }
