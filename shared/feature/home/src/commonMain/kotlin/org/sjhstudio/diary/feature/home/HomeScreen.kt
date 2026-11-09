@@ -245,8 +245,12 @@ internal fun HomeScreen(
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
             // 일기가 없으면 고를 달도 없다.
-            // 불러오는 동안에는 화살표가 깜빡이지 않게 그대로 둔다.
-            val noMonths = rows.itemCount == 0 && rows.loadState.refresh is LoadState.NotLoading
+            // 불러오는 동안에는 마지막으로 다 불러왔을 때의 답을 그대로 둔다.
+            // 즐겨찾기를 켜고 끄면 목록을 다시 읽는데, 그사이 화살표를 다시 보이면 빈 목록에서 화살표가 반짝였다(사용자 지적 2026-11-09).
+            val loadedEmpty = if (rows.loadState.refresh is LoadState.NotLoading) rows.itemCount == 0 else null
+            var lastEmpty by remember { mutableStateOf(false) }
+            SideEffect { loadedEmpty?.let { lastEmpty = it } }
+            val noMonths = loadedEmpty ?: lastEmpty
             val pickMonth = onPickMonth.takeUnless { noMonths }
             // 스크롤하면 큰 제목과 백업 줄이 위로 접히고 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
             // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추를 둔다.
