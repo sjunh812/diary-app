@@ -10,14 +10,28 @@ import java.io.File
 import kotlin.math.max
 
 actual object ImageDecoder {
-    actual fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean {
+    /**
+     * 메모리가 모자라면 false를 돌려줘 "읽지 못한 사진" 안내로 이어진다.
+     * 큰 사진(4800만 화소 등)은 줄이는 동안 수십 MB를 써서 저사양 기기에서 메모리 부족이 날 수 있다.
+     * 메모리 부족은 Exception이 아니라 Error라 위의 안전망이 잡지 못해 앱이 꺼졌다(2026-11-10 코드 검토, 앱 꺼짐은 절대 없어야 한다).
+     */
+    actual fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean = try {
+        shrink(source, target, maxSide, quality)
+    } catch (_: OutOfMemoryError) {
+        File(target).delete()
+        false
+    }
+
+    private fun shrink(source: String, target: String, maxSide: Int, quality: Int): Boolean {
         // 크기만 먼저 읽고, 긴 변이 maxSide 아래로 내려가지 않는 가장 큰 2의 거듭제곱으로 다운샘플링해 읽는다.
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         BitmapFactory.decodeFile(source, bounds)
-        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return false
         var sample = 1
         while (max(bounds.outWidth, bounds.outHeight) / (sample * 2) >= maxSide) sample *= 2
-        val decoded = BitmapFactory.decodeFile(source, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return false
+        val readable = bounds.outWidth > 0 && bounds.outHeight > 0
+        val decoded =
+            (if (readable) BitmapFactory.decodeFile(source, BitmapFactory.Options().apply { inSampleSize = sample }) else null)
+                ?: return false
         // 정확한 크기로 줄이고 방향을 돌리는 일을 한 번에 한다.
         val scale = minOf(1f, maxSide.toFloat() / max(decoded.width, decoded.height))
         val matrix = orientation(source).apply { postScale(scale, scale) }

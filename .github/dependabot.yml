@@ -11,6 +11,10 @@ updates:
     commit-message:
       prefix: build
       include: scope
+    # 편집기 라이브러리는 쓰기 화면이 내부 함수에 기대고(DiaryRichEditor.kt, EditorInput.kt) 선택 핸들 동작을 손봐서,
+    # 판을 올리면 소리 없이 동작이 바뀔 수 있다. 자동으로 올리지 않고 원본과 견주며 손으로 올린다(2026-11-10).
+    ignore:
+      - dependency-name: "com.mohamedrejeb.richeditor*"
     groups:
       # 같이 움직여야 빌드가 되는 것끼리 묶는다.
       kotlin-compose:

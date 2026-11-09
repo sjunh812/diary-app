@@ -414,7 +414,7 @@ class MigrationRunner(
         val permits = Semaphore(THUMBNAIL_PARALLEL)
         return coroutineScope {
             files.distinct()
-                .map { file -> async { permits.withPermit { runCatching { make(file) }.getOrDefault(false) } } }
+                .map { file -> async { permits.withPermit { orElseOnFailure(false) { make(file) } } } }
                 .awaitAll()
                 .count { !it }
         }
