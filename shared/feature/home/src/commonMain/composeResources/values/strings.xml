@@ -2,6 +2,7 @@
 <resources>
     <string name="home_favorites_only">Favorites only</string>
     <string name="home_favorites_empty">No favorite entries</string>
+    <string name="home_favorites_show_all">Show all entries</string>
     <string name="home_empty_title">No entries yet</string>
     <string name="home_empty_body">Your first entry can be just one line.</string>
     <string name="home_empty_action">Write an entry</string>

@@ -22,14 +22,18 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
  * 화면 위쪽이나 목록 아래에서 지금 화면의 규칙을 짧게 알린다.
  */
 @Composable
-fun DiaryNotice(text: String, modifier: Modifier = Modifier, icon: ImageVector = DiaryIcons.Info) {
+fun DiaryNotice(text: String, modifier: Modifier = Modifier, icon: ImageVector = DiaryIcons.Info, failure: Boolean = false) {
     val colors = DiaryTheme.colors
+    // 실패는 안내와 같은 상자에 아이콘과 글만 바꿔 묻히지 않게 한다(경고 아이콘, 진한 글).
+    // 색을 더하지 않고 강조를 한 곳에 둔다(2026-11-10 화면 검토).
+    val tint = if (failure) colors.danger else colors.textSecondary
+    val ink = if (failure) colors.textPrimary else colors.textSecondary
     Row(
         modifier = modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x4),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
         verticalAlignment = Alignment.Top
     ) {
-        FirstLineIcon(icon, DiaryTheme.typography.caption, colors.textSecondary)
-        PhraseText(text, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+        FirstLineIcon(if (failure) DiaryIcons.CircleAlert else icon, DiaryTheme.typography.caption, tint)
+        PhraseText(text, style = DiaryTheme.typography.caption.copy(color = ink))
     }
 }

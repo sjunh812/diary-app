@@ -94,6 +94,7 @@ import org.sjhstudio.diary.feature.home.resources.home_error_retry
 import org.sjhstudio.diary.feature.home.resources.home_error_title
 import org.sjhstudio.diary.feature.home.resources.home_favorites_empty
 import org.sjhstudio.diary.feature.home.resources.home_favorites_only
+import org.sjhstudio.diary.feature.home.resources.home_favorites_show_all
 import org.sjhstudio.diary.feature.home.resources.home_month_sheet_title
 import org.sjhstudio.diary.feature.home.resources.home_search
 
@@ -292,7 +293,7 @@ internal fun HomeScreen(
 
                     refresh is LoadState.NotLoading -> {
                         ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                        Empty(favoritesOnly, onWrite)
+                        Empty(favoritesOnly, onWrite, onToggleFavorites)
                     }
 
                     refresh is LoadState.Error -> LoadFailed(rows::retry)
@@ -336,10 +337,16 @@ private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: (
 }
 
 @Composable
-private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit) {
+private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit, onShowAll: () -> Unit) {
     DiaryEmptyArea {
         if (favoritesOnly) {
-            DiaryEmptyState(DiaryIcons.StarOutline, stringResource(Res.string.home_favorites_empty))
+            // 위 별을 다시 눌러야 풀린다는 것을 알기 어려워 여기서도 풀 수 있게 한다(2026-11-10 화면 검토, 빈 상태에 다음 할 일).
+            DiaryEmptyState(
+                DiaryIcons.StarOutline,
+                stringResource(Res.string.home_favorites_empty),
+                actionLabel = stringResource(Res.string.home_favorites_show_all),
+                onAction = onShowAll
+            )
         } else {
             DiaryEmptyState(
                 DiaryIcons.Pen,

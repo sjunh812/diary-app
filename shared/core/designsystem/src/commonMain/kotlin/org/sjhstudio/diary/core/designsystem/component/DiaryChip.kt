@@ -37,7 +37,10 @@ fun DiaryChip(
     leadingIcon: ImageVector? = null,
     leading: (@Composable () -> Unit)? = null,
     trailingIcon: ImageVector? = null,
-    trailing: (@Composable () -> Unit)? = null
+    trailing: (@Composable () -> Unit)? = null,
+    // 뒤에 아래 화살표가 붙은 칩은 시트를 여는 단추라 화면 읽기에 단추로 읽힌다.
+    // 체크박스로 두면 "체크박스, 선택됨"으로 읽혀 무엇이 열리는지 알 수 없었다(2026-11-10 화면 검토, M3 거르는 칩·동작 칩).
+    role: Role = if (trailingIcon != null || trailing != null) Role.Button else Role.Checkbox
 ) {
     val colors = DiaryTheme.colors
     val content = if (selected) colors.accentText else colors.textPrimary
@@ -48,7 +51,7 @@ fun DiaryChip(
     Box(
         modifier
             .heightIn(min = DiarySpacing.minTouchTarget)
-            .selectable(selected = selected, role = Role.Checkbox, interactionSource = interaction, indication = null, onClick = onClick),
+            .selectable(selected = selected, role = role, interactionSource = interaction, indication = null, onClick = onClick),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(

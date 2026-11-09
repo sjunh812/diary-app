@@ -190,7 +190,10 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(estimate: Bundl
             )
             when (state) {
                 is FileBackupUi.WriteFailed ->
-                    DiaryNotice(stringResource(if (state.left) Res.string.file_write_failed else Res.string.file_write_failed_removed))
+                    DiaryNotice(
+                        stringResource(if (state.left) Res.string.file_write_failed else Res.string.file_write_failed_removed),
+                        failure = true
+                    )
 
                 else -> Unit
             }

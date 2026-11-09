@@ -22,7 +22,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
  * 대화상자(`docs/design.md` 대화상자, M3 Dialog, 토스 UX 가이드).
- * 폭 312(최대 560) · 모서리 28 · 안쪽 24. 왼쪽 버튼은 늘 "닫기", 오른쪽이 하려는 일이다.
+ * 폭 280~560(M3 대화상자 최소 280, 폭 320 폰에서도 양옆이 남는다, 2026-11-10) · 모서리 28 · 안쪽 24. 왼쪽 버튼은 늘 "닫기", 오른쪽이 하려는 일이다.
  * 큰 글자나 낮은 화면에서 넘치면 스크롤해서 버튼에 닿을 수 있다.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +41,7 @@ fun DiaryDialog(
         Column(
             modifier =
                 Modifier
-                    .widthIn(min = 312.dp, max = 560.dp)
+                    .widthIn(min = 280.dp, max = 560.dp)
                     .clip(DiaryShapes.r28)
                     .background(colors.surface)
                     .verticalScroll(rememberScrollState())

@@ -77,7 +77,6 @@ import org.sjhstudio.diary.feature.plus.resources.plus_ads_title
 import org.sjhstudio.diary.feature.plus.resources.plus_checklist_body
 import org.sjhstudio.diary.feature.plus.resources.plus_checklist_title
 import org.sjhstudio.diary.feature.plus.resources.plus_close
-import org.sjhstudio.diary.feature.plus.resources.plus_coming
 import org.sjhstudio.diary.feature.plus.resources.plus_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_benefits
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_note
@@ -308,7 +307,7 @@ private fun PaywallBenefits(adFreeOwned: Boolean) {
         BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
         PlusBenefits()
         if (adFreeOwned) {
-            BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.accentText))
+            BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.textSecondary))
         }
     }
 }
@@ -428,8 +427,6 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 PhraseText(stringResource(Res.string.plus_manage_benefits), style = typography.label.copy(color = colors.textSecondary))
                 Spacer(Modifier.height(DiarySpacing.x3))
                 PlusBenefits()
-                Spacer(Modifier.height(DiarySpacing.x4))
-                PhraseText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
             }
             Spacer(Modifier.height(DiarySpacing.x4))
             if (price != null) {
