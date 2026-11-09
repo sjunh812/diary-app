@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.model.PickedImage
  * 쓰기 화면 시험용 임시 저장소.
  * 메모리에만 둔다.
  */
+@Suppress("TooManyFunctions")
 class FakeDraftRepository(
     initial: List<Draft> = emptyList(),
     /** 수정 화면으로 열면 돌려줄 임시 저장본. */
@@ -96,12 +97,22 @@ class FakeDraftRepository(
         return AddPhotosResult.Added(picked.size)
     }
 
-    override suspend fun removePhoto(key: DraftKey, index: Int) {
+    override suspend fun removePhoto(key: DraftKey, index: Int): DraftPhoto? {
         check(!failWrites) { "쓰기 실패" }
+        val removed = drafts.value[key]?.photos?.getOrNull(index) ?: return null
         drafts.update { all ->
             val draft = all[key] ?: return@update all
             all + (key to draft.copy(photos = draft.photos.filterIndexed { i, _ -> i != index }))
         }
+        return removed
+    }
+
+    override suspend fun restorePhoto(key: DraftKey, photo: DraftPhoto, index: Int): Boolean {
+        check(!failWrites) { "쓰기 실패" }
+        val draft = drafts.value[key] ?: return false
+        val photos = draft.photos.toMutableList().apply { add(index.coerceIn(0, size), photo) }
+        drafts.update { it + (key to draft.copy(photos = photos)) }
+        return true
     }
 
     override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) {

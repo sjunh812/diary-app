@@ -409,6 +409,28 @@ class DraftRepositoryTest {
         assertEquals(listOf(before[2], before[1]), repository.draft(DraftKey.New()).first()?.photos)
     }
 
+    /** 뺀 사진은 되돌리면 원래 자리로 돌아오고, 파일은 그대로라 다시 쓸 수 있다. */
+    @Test
+    fun a_removed_photo_comes_back_in_place() = runTest {
+        repository.save(newDraft())
+        repository.addPhotos(DraftKey.New(), listOf(image("a"), image("b"), image("c")))
+        val before = assertNotNull(repository.draft(DraftKey.New()).first()).photos
+
+        val removed = assertNotNull(repository.removePhoto(DraftKey.New(), 1))
+        assertEquals(before[1], removed)
+        assertEquals(true, repository.restorePhoto(DraftKey.New(), removed, 1))
+
+        assertEquals(before, repository.draft(DraftKey.New()).first()?.photos)
+        assertEquals(listOf(0, 1, 2), db.draftDao().media(DraftKey.New().value).map { it.sortOrder })
+    }
+
+    /** 없는 자리를 빼면 아무것도 돌려주지 않는다. */
+    @Test
+    fun removing_a_missing_photo_returns_nothing() = runTest {
+        repository.save(newDraft())
+        assertEquals(null, repository.removePhoto(DraftKey.New(), 3))
+    }
+
     /** 앞선 더하기가 그림을 읽는 동안 다른 더하기가 끼어들어도 같은 순번을 쓰지 않는다. */
     @Test
     fun adding_photos_at_the_same_time_keeps_every_photo() = runTest {

@@ -11,6 +11,8 @@
     <string name="write_camera">カメラ</string>
     <string name="write_photo_count">%1$d/%2$d</string>
     <string name="write_photo_remove">写真を外す</string>
+    <string name="write_photo_removed">写真を外しました</string>
+    <string name="write_photo_undo">元に戻す</string>
     <string name="write_photo_limit">写真は1件につき%1$d枚まで追加できます</string>
     <string name="write_entry_changed">その間にこの日記が変わりました。保存すると両方残ります。</string>
     <string name="write_adding_photos">写真を追加しています…</string>

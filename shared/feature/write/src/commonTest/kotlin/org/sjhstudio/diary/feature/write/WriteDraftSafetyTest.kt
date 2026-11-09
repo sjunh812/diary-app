@@ -217,6 +217,32 @@ class WriteDraftSafetyTest {
         assertEquals(0, repository.saved.single().photos.size)
     }
 
+    // 잘못 뺀 사진은 토스트의 [되돌리기]로 원래 자리에 돌아온다(2026-11-10).
+    @Test
+    fun undo_puts_a_removed_photo_back_in_place() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        advanceUntilIdle()
+        vm.onBodyChange("<p>글</p>")
+        vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }, PickedImage { byteArrayOf(2) }, PickedImage { byteArrayOf(3) }))
+        advanceUntilIdle()
+        val before = repository.saved.single().photos
+
+        vm.removePhoto(1)
+        advanceUntilIdle()
+        assertEquals(1, vm.state.value.photoRemoved)
+        assertEquals(2, repository.saved.single().photos.size)
+
+        vm.undoRemovePhoto()
+        advanceUntilIdle()
+        assertEquals(before, repository.saved.single().photos)
+
+        // 한 번 되돌린 뒤에는 다시 눌러도 아무것도 하지 않는다.
+        vm.undoRemovePhoto()
+        advanceUntilIdle()
+        assertEquals(before, repository.saved.single().photos)
+    }
+
     @Test
     fun discarding_shows_only_for_a_draft_left_before() = runTest(dispatcher) {
         val key = DraftKey.Edit("e1")

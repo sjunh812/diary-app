@@ -10,6 +10,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
@@ -112,6 +114,11 @@ data class WriteUiState(
     val addingPhotos: Boolean = false,
     /** 남겨 둔 임시 저장본을 이어 열었다. 그때만 버리는 길을 보인다. */
     val canDiscard: Boolean = false,
+    /**
+     * 사진을 뺄 때마다 늘어난다.
+     * 화면이 바뀔 때마다 [되돌리기] 토스트를 띄운다.
+     */
+    val photoRemoved: Int = 0,
     /**
      * 쓰고 있는 새 일기 임시 저장본의 키.
      * 화면이 저장해 두었다가 화면 모델이 다시 만들어져도 같은 글을 잇는다.
@@ -244,6 +251,9 @@ class WriteViewModel(
     /** 화면을 떠나는 중이다. 닫기를 연타해도 한 번만 닫는다. */
     private var leaving = false
     private var lastRemoved: Instant? = null
+
+    /** 마지막으로 뺀 사진과 자리. 되돌리기에 쓴다. */
+    private var undoRemove: Pair<DraftPhoto, Int>? = null
 
     /** 전에 남겨 둔 임시 저장본을 이어 열었다. */
     private var resumed = false
@@ -535,7 +545,21 @@ class WriteViewModel(
         val now = clock.now()
         if (lastRemoved?.let { now - it < REMOVE_GAP } == true) return
         lastRemoved = now
-        write { drafts.removePhoto(key, index) }
+        write {
+            val photo = drafts.removePhoto(key, index) ?: return@write
+            undoRemove = photo to index
+            _state.update { it.copy(photoRemoved = it.photoRemoved + 1) }
+        }
+    }
+
+    /**
+     * 방금 뺀 사진을 원래 자리에 되돌린다.
+     * 사진 칸의 빼기 단추가 72 칸의 절반 가까이를 덮어 잘못 누르기 쉬워서 둔다(2026-11-10 화면 검토, TDS 토스트의 되돌리기).
+     */
+    fun undoRemovePhoto() {
+        val (photo, index) = undoRemove ?: return
+        undoRemove = null
+        write { drafts.restorePhoto(key, photo, index) }
     }
 
     fun movePhoto(from: Int, to: Int) {
@@ -708,7 +732,9 @@ class WriteViewModel(
         // 빈 글은 저장본을 만들지 않는다.
         // 다음에 "쓰던 일기가 있어요"가 뜨지 않게 하려고다.
         if (!stored && !draft.canSave() && !force) return
-        drafts.save(draft)
+        // 한 번 시작한 쓰기는 끝까지 한다.
+        // 화면을 떠나며 화면 모델이 정리되면 쓰기가 취소돼 마지막 입력을 잃을 수 있었다(2026-11-10 코드 검토).
+        withContext(NonCancellable) { drafts.save(draft) }
         stored = true
         dirty = false
         _state.update { it.copy(saveFailed = false) }

@@ -154,10 +154,22 @@ interface DraftDao {
      * 그 사이 사진이 줄어 없는 자리면 그대로 둔다.
      */
     @Transaction
-    suspend fun removeMediaAt(key: String, index: Int) {
+    suspend fun removeMediaAt(key: String, index: Int): DraftMediaEntity? {
         val rows = media(key)
-        if (index !in rows.indices) return
+        val removed = rows.getOrNull(index) ?: return null
         replaceMedia(key, rows.filterIndexed { i, _ -> i != index }.mapIndexed { i, row -> row.copy(sortOrder = i) })
+        return removed
+    }
+
+    /**
+     * 뺀 사진을 원래 자리에 다시 넣는다(되돌리기).
+     * 그 사이 사진이 줄었으면 가능한 가장 가까운 자리에 둔다.
+     */
+    @Transaction
+    suspend fun insertMediaAt(key: String, row: DraftMediaEntity, index: Int) {
+        val rows = media(key).toMutableList()
+        rows.add(index.coerceIn(0, rows.size), row.copy(draftKey = key))
+        replaceMedia(key, rows.mapIndexed { i, media -> media.copy(sortOrder = i) })
     }
 
     /** [order]가 지금 사진을 빠짐없이 나열하지 않으면 그 사이 사진이 바뀐 것이라 그대로 둔다. */

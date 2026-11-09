@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.database.isEditable
 import org.sjhstudio.diary.core.model.AddPhotosResult
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
+import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
@@ -103,6 +104,10 @@ class DefaultDraftRepository(
                 } catch (_: Exception) {
                     failed++
                     continue
+                } catch (_: OutOfMemoryError) {
+                    // 아주 큰 원본을 통째로 읽다 메모리가 모자라면 앱을 끄지 않고 그 사진만 못 넣은 것으로 센다(2026-11-10).
+                    failed++
+                    continue
                 }
             val stored =
                 try {
@@ -124,7 +129,18 @@ class DefaultDraftRepository(
         }
     }
 
-    override suspend fun removePhoto(key: DraftKey, index: Int) = inOrder(key) { drafts.removeMediaAt(key.value, index) }
+    override suspend fun removePhoto(key: DraftKey, index: Int): DraftPhoto? = inOrder(key) {
+        drafts.removeMediaAt(key.value, index)?.let { DraftPhoto(it.fileName, it.sha256, it.width, it.height, it.byteSize) }
+    }
+
+    override suspend fun restorePhoto(key: DraftKey, photo: DraftPhoto, index: Int): Boolean = inOrder(key) {
+        if (drafts.get(key.value) == null) return@inOrder false
+        val fixed = (key as? DraftKey.Edit)?.let { edit -> media.forEntry(edit.entryId).count { it.status != MediaStatus.NORMAL.id } } ?: 0
+        if (drafts.media(key.value).size + fixed >= photoLimit()) return@inOrder false
+        val row = DraftMediaEntity(key.value, photo.fileName, photo.sha256, photo.width, photo.height, photo.byteSize, sortOrder = 0)
+        drafts.insertMediaAt(key.value, row, index)
+        true
+    }
 
     override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) = inOrder(key) { drafts.reorderMedia(key.value, order) }
 

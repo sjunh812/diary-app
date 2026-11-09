@@ -12,6 +12,7 @@ import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
+import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.Mood
@@ -78,6 +79,8 @@ data class OpenedEdit(
     override fun toString(): String = "OpenedEdit"
 }
 
+// 임시 저장본 하나를 다루는 일(글, 사진 넣기·빼기·되돌리기·순서, 저장)이 한곳에 모여 있어야 순서를 지킬 수 있다(inOrder).
+@Suppress("TooManyFunctions")
 interface DraftRepository {
     fun draft(key: DraftKey): Flow<Draft?>
 
@@ -115,7 +118,17 @@ interface DraftRepository {
      */
     suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult
 
-    suspend fun removePhoto(key: DraftKey, index: Int)
+    /**
+     * [index]번째 사진을 빼고 뺀 사진을 돌려준다.
+     * 사진 파일은 지우지 않아 [restorePhoto]로 되돌릴 수 있다. 없는 자리면 null이다.
+     */
+    suspend fun removePhoto(key: DraftKey, index: Int): DraftPhoto?
+
+    /**
+     * 뺀 사진을 [index] 자리에 다시 넣는다(되돌리기).
+     * 그 사이 한도만큼 채웠거나 임시 저장본이 없어졌으면 넣지 않고 false를 돌려준다.
+     */
+    suspend fun restorePhoto(key: DraftKey, photo: DraftPhoto, index: Int): Boolean
 
     /**
      * [order]는 지금 사진 위치를 새 순서대로 나열한 것이다.
