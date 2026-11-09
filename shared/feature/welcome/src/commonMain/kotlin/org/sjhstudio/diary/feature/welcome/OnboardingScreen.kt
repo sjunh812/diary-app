@@ -38,6 +38,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -233,8 +234,8 @@ private fun FreshRow(icon: ImageVector, title: StringResource, body: StringResou
             DiaryIcon(icon, contentDescription = null, tint = colors.accentText)
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            BasicText(stringResource(title), style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
-            BasicText(stringResource(body), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+            PhraseText(stringResource(title), style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
+            PhraseText(stringResource(body), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         }
     }
 }

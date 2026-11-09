@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.ProductId
@@ -74,10 +75,10 @@ internal fun AdFreeSheetContent(
                 if (price != null) {
                     BasicText(stringResource(Res.string.adfree_price, price), style = typography.title2.copy(color = colors.textPrimary))
                 } else if (noPrice) {
-                    BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
+                    PhraseText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
                 }
                 if (state.buyFailed) {
-                    BasicText(stringResource(Res.string.plus_failed), style = typography.body.copy(color = colors.danger))
+                    PhraseText(stringResource(Res.string.plus_failed), style = typography.body.copy(color = colors.danger))
                 }
             }
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {

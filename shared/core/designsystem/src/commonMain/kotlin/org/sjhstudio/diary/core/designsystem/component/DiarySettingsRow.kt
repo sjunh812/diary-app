@@ -274,7 +274,7 @@ private fun RowFrame(
                 overflow = TextOverflow.Ellipsis
             )
             if (description != null) {
-                BasicText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+                PhraseText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
             }
         }
         trailing()

@@ -56,6 +56,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -379,7 +380,7 @@ private fun PaywallBuy(
             )
             PaywallLegal()
         } else {
-            BasicText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
+            PhraseText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
             DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
         }
     }
@@ -422,13 +423,13 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 Spacer(Modifier.height(DiarySpacing.x4))
                 BasicText(stringResource(Res.string.plus_manage_title), style = typography.title1.copy(color = colors.textPrimary))
                 Spacer(Modifier.height(DiarySpacing.x1))
-                BasicText(stringResource(Res.string.plus_manage_thanks), style = typography.body.copy(color = colors.textSecondary))
+                PhraseText(stringResource(Res.string.plus_manage_thanks), style = typography.body.copy(color = colors.textSecondary))
                 Spacer(Modifier.height(DiarySpacing.x6))
-                BasicText(stringResource(Res.string.plus_manage_benefits), style = typography.label.copy(color = colors.textSecondary))
+                PhraseText(stringResource(Res.string.plus_manage_benefits), style = typography.label.copy(color = colors.textSecondary))
                 Spacer(Modifier.height(DiarySpacing.x3))
                 PlusBenefits()
                 Spacer(Modifier.height(DiarySpacing.x4))
-                BasicText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
+                PhraseText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
             }
             Spacer(Modifier.height(DiarySpacing.x4))
             if (price != null) {
@@ -464,8 +465,8 @@ private fun OwnedBenefit(icon: ImageVector, title: StringResource, body: StringR
             DiaryIcon(icon, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            BasicText(stringResource(title), style = typography.bodyStrong.copy(color = colors.textPrimary))
-            BasicText(stringResource(body), style = typography.caption.copy(color = colors.textSecondary))
+            PhraseText(stringResource(title), style = typography.bodyStrong.copy(color = colors.textPrimary))
+            PhraseText(stringResource(body), style = typography.caption.copy(color = colors.textSecondary))
         }
     }
 }

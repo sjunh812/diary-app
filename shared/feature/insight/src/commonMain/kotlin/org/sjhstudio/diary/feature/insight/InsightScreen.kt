@@ -78,6 +78,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.SnapTitleOnRest
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.titleCollapse
@@ -365,7 +366,7 @@ private fun Content(
     if (period is StatsPeriod.Year) {
         SectionTitle(stringResource(Res.string.insight_section_days))
         Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(stringResource(Res.string.insight_map_hint), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+        PhraseText(stringResource(Res.string.insight_map_hint), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         Spacer(Modifier.height(DiarySpacing.x3))
         YearMap(period.year, pixels, today)
         Spacer(Modifier.height(DiarySpacing.x6))

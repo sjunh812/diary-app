@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -77,7 +78,7 @@ fun TextSizeSettingsScreen(
             Row(Modifier.fillMaxWidth()) {
                 for (size in BodyTextSize.entries) SizeStep(size, selected == size, Modifier.weight(1f)) { onSelect(size) }
             }
-            BasicText(stringResource(Res.string.text_size_note), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+            PhraseText(stringResource(Res.string.text_size_note), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         }
     }
 }
