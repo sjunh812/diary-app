@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -361,9 +362,10 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
 internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate, LocalTime) -> Unit, onDismiss: () -> Unit) {
     val dates = rememberDiaryDateFormat()
     val colors = DiaryTheme.colors
-    var picked by remember { mutableStateOf(date) }
-    var month by remember { mutableStateOf(YearMonth(date.year, date.month.number)) }
-    var minute by remember { mutableIntStateOf(time.hour * 60 + time.minute) }
+    // 화면을 돌려도 고르던 날짜와 시각이 처음 값으로 돌아가지 않는다(2026-11-10).
+    var picked by rememberSaveable(stateSaver = DaySaver) { mutableStateOf(date) }
+    var month by rememberSaveable(stateSaver = MonthSaver) { mutableStateOf(YearMonth(date.year, date.month.number)) }
+    var minute by rememberSaveable { mutableIntStateOf(time.hour * 60 + time.minute) }
     // 고르는 날짜는 뒤 상단 바와 달력의 동그라미가 이미 보여서 시트 제목을 따로 두지 않는다.
     DiaryBottomSheet(onDismiss = onDismiss) {
         DiaryMonthPicker(month, onChange = { month = it }) {
@@ -381,3 +383,14 @@ internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate,
         )
     }
 }
+
+private val DaySaver = Saver<LocalDate, Long>(save = { it.toEpochDays() }, restore = { LocalDate.fromEpochDays(it) })
+
+private val MonthSaver = Saver<YearMonth, Int>(save = { it.year * MONTHS + it.month.number - 1 }, restore = {
+    YearMonth(
+        it / MONTHS,
+        it % MONTHS + 1
+    )
+})
+
+private const val MONTHS = 12

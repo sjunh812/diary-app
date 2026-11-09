@@ -209,6 +209,12 @@ object DiaryWriteSize {
     /** 본문 칸 최소 높이. */
     val editorMin: Dp = 240.dp
 
+    /**
+     * 본문 스크롤이 커서·선택 끝을 보일 때 위아래 가장자리에서 띄우는 거리.
+     * 한 줄 높이(28)와 선택 핸들(약 22)이 도구 줄에 걸리지 않는 값이다(2026-11-10).
+     */
+    val editorScrollMargin: Dp = 56.dp
+
     /** 두 칸의 왼쪽 목록 폭(M3 고정 판). */
     val listPane: Dp = 360.dp
 
