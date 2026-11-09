@@ -66,17 +66,22 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberToday
+import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.search.resources.Res
 import org.sjhstudio.diary.feature.search.resources.search_back
 import org.sjhstudio.diary.feature.search.resources.search_chip_favorite
 import org.sjhstudio.diary.feature.search.resources.search_chip_mood
+import org.sjhstudio.diary.feature.search.resources.search_chip_more
 import org.sjhstudio.diary.feature.search.resources.search_chip_period
 import org.sjhstudio.diary.feature.search.resources.search_chip_photo
 import org.sjhstudio.diary.feature.search.resources.search_chip_weather
@@ -259,7 +264,8 @@ private fun FilterChips(
     ) {
         item {
             DiaryChip(
-                stringResource(Res.string.search_chip_mood),
+                // 고른 기분을 칩에 쓴다. 기간 칩처럼 무엇으로 걸렀는지 시트를 열지 않고 보인다(2026-11-10).
+                chosenLabel(Mood.ordered.filter { it in filter.moods }.map { moodName(it) }) ?: stringResource(Res.string.search_chip_mood),
                 filter.moods.isNotEmpty(),
                 { onSheet(SheetRequest.Mood) },
                 leadingIcon = DiaryIcons.Smile,
@@ -268,7 +274,8 @@ private fun FilterChips(
         }
         item {
             DiaryChip(
-                stringResource(Res.string.search_chip_weather),
+                chosenLabel(Weather.entries.filter { it in filter.weathers }.map { weatherName(it) })
+                    ?: stringResource(Res.string.search_chip_weather),
                 filter.weathers.isNotEmpty(),
                 { onSheet(SheetRequest.Weather) },
                 leadingIcon = DiaryIcons.WeatherSunny,
@@ -382,4 +389,15 @@ private fun Results(
             }
         }
     }
+}
+
+/**
+ * 고른 것이 하나면 그 이름, 여럿이면 "좋음 외 1"처럼 쓴다.
+ * 아무것도 고르지 않았으면 null이다.
+ */
+@Composable
+private fun chosenLabel(names: List<String>): String? = when (names.size) {
+    0 -> null
+    1 -> names.first()
+    else -> stringResource(Res.string.search_chip_more, names.first(), names.size - 1)
 }

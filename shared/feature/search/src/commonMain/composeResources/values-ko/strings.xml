@@ -4,6 +4,7 @@
     <string name="search_hint">일기 찾기</string>
     <string name="search_clear">지우기</string>
     <string name="search_chip_mood">기분</string>
+    <string name="search_chip_more">%1$s 외 %2$d</string>
     <string name="search_chip_weather">날씨</string>
     <string name="search_chip_period">기간</string>
     <string name="search_chip_photo">사진 있음</string>
