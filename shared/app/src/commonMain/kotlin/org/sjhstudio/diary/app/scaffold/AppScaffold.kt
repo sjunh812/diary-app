@@ -518,10 +518,11 @@ private val TabSwap: ContentTransform get() = EnterTransition.None togetherWith 
 /**
  * 두 칸에서 고른 일기가 없을 때의 오른쪽.
  * 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보인다.
+ * 아이콘은 두지 않는다. 연필은 쓰기 단추와 같아 누를 것처럼 보였다(사용자 결정 2026-11-09, Apple 메일·메모의 빈 칸처럼 글 한 줄).
  */
 @Composable
 private fun PickHint() {
     DiaryEmptyArea(Modifier.background(DiaryTheme.colors.canvas)) {
-        DiaryEmptyState(DiaryIcons.Pen, stringResource(Res.string.detail_pick_hint))
+        DiaryEmptyState(icon = null, title = stringResource(Res.string.detail_pick_hint))
     }
 }

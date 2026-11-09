@@ -25,7 +25,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
  */
 @Composable
 fun DiaryEmptyState(
-    icon: ImageVector,
+    icon: ImageVector?,
     title: String,
     modifier: Modifier = Modifier,
     description: String? = null,
@@ -39,8 +39,11 @@ fun DiaryEmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        DiaryIcon(icon, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i32)
-        Spacer(Modifier.height(DiarySpacing.x1))
+        // 아이콘이 없으면 글만 둔다(두 칸의 빈 상세 칸처럼 뜻이 글로 충분한 곳).
+        if (icon != null) {
+            DiaryIcon(icon, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i32)
+            Spacer(Modifier.height(DiarySpacing.x1))
+        }
         BasicText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
         if (description != null) {
             BasicText(
