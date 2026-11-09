@@ -123,4 +123,28 @@ class EditorInputTest {
         input.apply(state.textFieldValue.copy(selection = TextRange(1, 3)))
         assertEquals(TextRange(1, 3), state.selection)
     }
+
+    // 선택 핸들을 끄는 중에는 손가락이 가리킨 범위를 그대로 쓴다.
+    // 라이브러리 보정을 거치면 끝이 붙잡혀 핸들이 가다가 멈췄다(2026-11-10).
+    @Test
+    fun handleDragKeepsTheExactRange() {
+        val state = RichTextState()
+        state.setText("alpha beta gamma delta epsilon zeta eta")
+        val input = EditorInput(state, fixKeyboard = false)
+        state.selection = TextRange(17, 22)
+        input.apply(state.textFieldValue.copy(selection = TextRange(17, 35)))
+        assertEquals(TextRange(17, 35), state.selection)
+        assertEquals(true, input.dragging)
+    }
+
+    @Test
+    fun typingEndsTheDrag() {
+        val state = RichTextState()
+        state.setText("alpha beta")
+        val input = EditorInput(state, fixKeyboard = false)
+        state.selection = TextRange(0, 5)
+        input.apply(state.textFieldValue.copy(selection = TextRange(0, 10)))
+        input.apply(TextFieldValue("alpha beta!", TextRange(11)))
+        assertEquals(false, input.dragging)
+    }
 }
