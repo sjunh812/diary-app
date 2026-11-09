@@ -141,7 +141,11 @@ class BackupController(
             } else {
                 val dao = db.value.backupDao()
                 combine(dao.visibleEntries(), dao.visiblePhotos()) { entries, photos ->
-                    if (migrated() || entries >= NUDGE_ENTRIES || photos > 0) BackupNudge(entries, photos, legacyAccount()) else null
+                    // 이전한 사용자는 첫 홈부터 권하지만, 지킬 일기와 사진이 하나도 없으면 권하지 않는다.
+                    // 옮긴 일기를 모두 지우면 "일기 0편이 이 휴대폰에만 있어요"가 떴다(2026-11-09).
+                    val hasAny = entries > 0 || photos > 0
+                    val worth = (migrated() && hasAny) || entries >= NUDGE_ENTRIES || photos > 0
+                    if (worth) BackupNudge(entries, photos, legacyAccount()) else null
                 }
             }
         }
