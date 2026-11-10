@@ -37,10 +37,10 @@ import org.sjhstudio.diary.feature.lock.resources.lock_wait_title
 import org.sjhstudio.diary.feature.lock.resources.lock_wrong
 
 /**
- * 잠금 화면(Figma "잠금 (L1)", 스펙 001 FR-015~FR-020).
- * 틀리면 점이 빨갛게 바뀌고 남은 횟수 표시.
- * 5번 틀리면 30초 동안 숫자판을 흐리게 막음.
- * 뒤로 가기는 따로 받지 않아 앱을 닫음.
+ * 잠금 화면(Figma "잠금 (L1)", 스펙 001 FR-015~FR-020)
+ * 틀리면 점이 빨갛게 바뀌고 남은 횟수 표시
+ * 5번 틀리면 30초 동안 숫자판을 흐리게 막음
+ * 뒤로 가기는 따로 받지 않아 앱을 닫음
  */
 @Composable
 fun LockScreen(

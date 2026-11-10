@@ -27,10 +27,10 @@ import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
- * 잠금 화면(L1) 상태.
- * 입력한 숫자는 담지 않고 몇 칸 찼는지만 둠.
- * [wrongCount]는 틀릴 때마다 늘어남.
- * 점이 흔들리는 신호라 같은 수로 두 번 틀려도 다시 흔들림.
+ * 잠금 화면(L1) 상태
+ * 입력한 숫자는 담지 않고 몇 칸 찼는지만 둠
+ * [wrongCount]는 틀릴 때마다 늘어남
+ * 점이 흔들리는 신호라 같은 수로 두 번 틀려도 다시 흔들림
  */
 data class LockUiState(
     val entered: Int = 0,
@@ -46,40 +46,40 @@ sealed interface LockMessage {
 
     data class Waiting(val seconds: Int) : LockMessage
 
-    /** 기기 키를 쓸 수 없어 비밀번호를 대어 보지 못함. */
+    /** 기기 키를 쓸 수 없어 비밀번호를 대어 보지 못함 */
     data object KeyUnavailable : LockMessage
 
-    /** 비밀번호는 맞았지만 잠금을 끈 것을 저장하지 못함. */
+    /** 비밀번호는 맞았지만 잠금을 끈 것을 저장하지 못함 */
     data object NotSaved : LockMessage
 }
 
 /**
- * 넣은 비밀번호로 할 일.
- * 잠금 화면은 [Verify], 잠금 설정의 "잠금 사용" 끄기는 [Disable].
+ * 넣은 비밀번호로 할 일
+ * 잠금 화면은 [Verify], 잠금 설정의 "잠금 사용" 끄기는 [Disable]
  */
 enum class PinCheck { Verify, Disable }
 
 sealed interface LockEvent {
-    /** 비밀번호가 맞았음([PinCheck.Disable]이면 잠금도 껐음). */
+    /** 비밀번호가 맞았음([PinCheck.Disable]이면 잠금도 껐음) */
     data object Unlocked : LockEvent
 
     /**
-     * 비밀번호를 대어 볼 수 없음.
-     * 폰 화면 잠금 확인으로 감.
+     * 비밀번호를 대어 볼 수 없음
+     * 폰 화면 잠금 확인으로 감
      */
     data object KeyMissing : LockEvent
 }
 
 /**
- * 잠금 화면의 숫자 입력과 확인(contracts/lock.md).
- * 입력한 숫자는 글자 배열에만 두고 확인하자마자 지움.
+ * 잠금 화면의 숫자 입력과 확인(contracts/lock.md)
+ * 입력한 숫자는 글자 배열에만 두고 확인하자마자 지움
  */
 class LockViewModel(
     private val repository: LockRepository,
     private val clock: Clock = Clock.System,
     /**
-     * 결과(`ok`·`wrong`·`waiting`)만 보냄.
-     * 비밀번호와 횟수는 보내지 않음(contracts/lock.md).
+     * 결과(`ok`·`wrong`·`waiting`)만 보냄
+     * 비밀번호와 횟수는 보내지 않음(contracts/lock.md)
      */
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
@@ -117,7 +117,7 @@ class LockViewModel(
         _state.update { it.copy(entered = count) }
     }
 
-    /** 잠금 설정에서 지금 비밀번호를 다시 받을 때 처음부터 시작. */
+    /** 잠금 설정에서 지금 비밀번호를 다시 받을 때 처음부터 시작 */
     fun start(check: PinCheck) {
         this.check = check
         clearDigits()
@@ -125,8 +125,8 @@ class LockViewModel(
     }
 
     /**
-     * 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없을 때 잠금을 끔.
-     * 끄지 못하면 false. 그때는 앱을 열면 안 됨.
+     * 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없을 때 잠금을 끔
+     * 끄지 못하면 false. 그때는 앱을 열면 안 됨
      */
     suspend fun turnOffWithoutPin(): Boolean {
         val off =
@@ -190,8 +190,8 @@ class LockViewModel(
     }
 
     /**
-     * 생체 인증 결과.
-     * 열렸으면 `biometric_ok`, 사용자가 닫았으면 `biometric_cancel`.
+     * 생체 인증 결과
+     * 열렸으면 `biometric_ok`, 사용자가 닫았으면 `biometric_cancel`
      */
     fun logBiometric(opened: Boolean) =
         telemetry.log(AnalyticsEvents.LOCK_RESULT, mapOf("result" to if (opened) "biometric_ok" else "biometric_cancel"))
@@ -222,7 +222,7 @@ class LockViewModel(
 }
 
 /**
- * 남은 기다림.
- * 기기 시계를 뒤로 돌리면 저장된 시각이 먼 미래가 되어 한 번의 기다림보다 길어지지 않게 자름.
+ * 남은 기다림
+ * 기기 시계를 뒤로 돌리면 저장된 시각이 먼 미래가 되어 한 번의 기다림보다 길어지지 않게 자름
  */
 internal fun waitLeft(until: Instant, now: Instant): Duration = (until - now).coerceAtMost(LockRepository.WAIT)

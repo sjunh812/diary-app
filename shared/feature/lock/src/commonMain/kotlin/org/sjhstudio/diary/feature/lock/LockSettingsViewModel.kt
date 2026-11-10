@@ -15,8 +15,8 @@ import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
- * 잠금 설정(L4).
- * 켜기·끄기·바꾸기는 비밀번호 화면을 거쳐 [LockRepository]가 함.
+ * 잠금 설정(L4)
+ * 켜기·끄기·바꾸기는 비밀번호 화면을 거쳐 [LockRepository]가 함
  */
 class LockSettingsViewModel(
     private val repository: LockRepository,
@@ -39,16 +39,16 @@ class LockSettingsViewModel(
     }
 
     /**
-     * 공간이 꽉 차 저장하지 못해도 꺼지지 않음.
-     * 화면은 저장된 값을 따라가 스위치가 그대로 남음.
+     * 공간이 꽉 차 저장하지 못해도 꺼지지 않음
+     * 화면은 저장된 값을 따라가 스위치가 그대로 남음
      */
     private fun save(block: suspend () -> Unit) {
         viewModelScope.launchSafely { block() }
     }
 
     /**
-     * 잠금을 켜거나 끈 뒤에 부름.
-     * 켜고 끄기는 비밀번호 화면을 거쳐 [LockRepository]가 함.
+     * 잠금을 켜거나 끈 뒤에 부름
+     * 켜고 끄기는 비밀번호 화면을 거쳐 [LockRepository]가 함
      */
     fun onLockChanged(enabled: Boolean) = changed("lock", enabled.toString())
 

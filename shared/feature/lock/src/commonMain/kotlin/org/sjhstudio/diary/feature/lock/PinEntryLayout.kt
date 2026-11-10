@@ -31,19 +31,19 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-/** 제목 아래 한 줄(틀림, 기다림, 서로 다름). */
+/** 제목 아래 한 줄(틀림, 기다림, 서로 다름) */
 internal class PinLine(val text: String, val color: Color)
 
 /**
- * 잠금 배지 위 여백.
- * 상단 바가 없는 화면은 배지가 상태 표시줄 아래 92에 옴(Figma L1·L2).
+ * 잠금 배지 위 여백
+ * 상단 바가 없는 화면은 배지가 상태 표시줄 아래 92에 옴(Figma L1·L2)
  */
 internal val BadgeTop = DiarySpacing.x14 + DiarySpacing.x8 + DiarySpacing.x1
 
 /**
- * 잠금 화면(L1)과 비밀번호 정하기(L2)가 같이 쓰는 틀.
- * 위에는 배지·제목·점, 아래에는 숫자판.
- * 화면이 낮으면 통째로 스크롤.
+ * 잠금 화면(L1)과 비밀번호 정하기(L2)가 같이 쓰는 틀
+ * 위에는 배지·제목·점, 아래에는 숫자판
+ * 화면이 낮으면 통째로 스크롤
  */
 @Composable
 internal fun PinEntryLayout(

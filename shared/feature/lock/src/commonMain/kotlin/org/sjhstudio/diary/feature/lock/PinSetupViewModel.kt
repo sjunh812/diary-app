@@ -15,9 +15,9 @@ import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
- * 비밀번호 정하기(L2) 상태.
- * [again]이면 두 번째 입력.
- * [wrongCount]는 두 번 입력이 다를 때마다 늘어남(점이 흔들리는 신호).
+ * 비밀번호 정하기(L2) 상태
+ * [again]이면 두 번째 입력
+ * [wrongCount]는 두 번 입력이 다를 때마다 늘어남(점이 흔들리는 신호)
  */
 data class PinSetupUiState(
     val entered: Int = 0,
@@ -25,13 +25,13 @@ data class PinSetupUiState(
     val mismatch: Boolean = false,
     val saving: Boolean = false,
     val wrongCount: Int = 0,
-    /** 기기 키를 만들지 못했거나 저장하지 못함. 처음부터 다시 받음. */
+    /** 기기 키를 만들지 못했거나 저장하지 못함. 처음부터 다시 받음 */
     val saveFailed: Boolean = false
 )
 
 /**
- * 새 비밀번호를 두 번 받아 같으면 정함(contracts/lock.md).
- * 다르면 처음부터 다시 받음.
+ * 새 비밀번호를 두 번 받아 같으면 정함(contracts/lock.md)
+ * 다르면 처음부터 다시 받음
  */
 class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
     private val first = CharArray(Pin.LENGTH)
@@ -43,7 +43,7 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
 
     private val _done = Channel<Unit>(Channel.BUFFERED)
 
-    /** 비밀번호를 정했음. */
+    /** 비밀번호를 정했음 */
     val done: Flow<Unit> = _done.receiveAsFlow()
 
     fun onDigit(digit: Char) {
@@ -71,14 +71,14 @@ class PinSetupViewModel(private val repository: LockRepository) : ViewModel() {
         _state.value = _state.value.copy(entered = count)
     }
 
-    /** 새로 정하기를 시작할 때 지난번 입력을 비움. */
+    /** 새로 정하기를 시작할 때 지난번 입력을 비움 */
     fun reset() {
         clear()
         _state.value = PinSetupUiState()
     }
 
     /**
-     * 두 번째 입력에서 뒤로 가면 첫 입력부터 다시 함.
+     * 두 번째 입력에서 뒤로 가면 첫 입력부터 다시 함
      * 첫 입력이었으면 false.
      */
     fun back(): Boolean {
