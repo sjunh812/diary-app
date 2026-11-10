@@ -50,6 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -94,6 +95,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -225,8 +228,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 키보드가 다 내려가길 기다리지 않고 바로 띄움
     // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려줌
     // 시트가 뜰 때 초점을 거둬, 돌려주지 않으면 본문을 다시 눌러야 하고 커서도 누른 자리로 옮겨짐
-    var editorFocused by remember { mutableStateOf(false) }
-    var refocus by remember { mutableStateOf(false) }
+    var editorFocused by rememberSaveable { mutableStateOf(false) }
+    // 회전처럼 화면을 다시 만들면 초점이 사라짐. 쓰던 중이었으면 돌려줌
+    var refocus by remember { mutableStateOf(editorFocused) }
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    // 화면을 다시 만들려고 내려가며 잃는 초점은 기억하지 않음
+    val onEditorFocus = { focused: Boolean ->
+        if (focused || lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) editorFocused = focused
+    }
     val openSheet = { target: Sheet ->
         refocus = editorFocused
         sheet = target
@@ -311,6 +320,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     LaunchedEffect(sheet, checklistLocked) {
         if (sheet == null && !checklistLocked && refocus) {
             refocus = false
+            // 다시 만든 화면은 한 프레임 뒤에 편집기가 붙음
+            withFrameNanos {}
             editorFocus.requestFocus()
             softKeyboard?.show()
         }
@@ -348,8 +359,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                                     editorFocus,
                                     geometry,
                                     Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth().onFocusChanged {
-                                        editorFocused =
-                                            it.hasFocus
+                                        onEditorFocus(it.hasFocus)
                                     }
                                 )
                             }
@@ -379,10 +389,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                                 bodyStyle,
                                 editorFocus,
                                 geometry,
-                                Modifier.fillMaxWidth().onFocusChanged {
-                                    editorFocused =
-                                        it.hasFocus
-                                }
+                                Modifier.fillMaxWidth().onFocusChanged { onEditorFocus(it.hasFocus) }
                             )
                         }
                     }
