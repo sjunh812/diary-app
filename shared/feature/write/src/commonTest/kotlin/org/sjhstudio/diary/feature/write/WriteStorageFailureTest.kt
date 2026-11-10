@@ -43,7 +43,7 @@ class WriteStorageFailureTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun vm(target: WriteTarget = WriteTarget.New(), drafts: FakeDraftRepository = repository) =
-        WriteViewModel(target, drafts, clock, TimeZone.UTC)
+        testWriteViewModel(target, drafts, clock, TimeZone.UTC)
 
     private fun TestScope.events(vm: WriteViewModel): MutableList<WriteEvent> {
         val out = mutableListOf<WriteEvent>()

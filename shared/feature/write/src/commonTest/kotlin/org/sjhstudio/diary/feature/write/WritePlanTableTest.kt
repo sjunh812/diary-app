@@ -48,7 +48,7 @@ class WritePlanTableTest {
         plans: FakePlanRepository,
         drafts: FakeDraftRepository = FakeDraftRepository(),
         target: WriteTarget = WriteTarget.New()
-    ) = WriteViewModel(target, drafts, clock, TimeZone.UTC, plans = plans)
+    ) = testWriteViewModel(target, drafts, clock, TimeZone.UTC, plans = plans)
 
     @Test
     fun the_checklist_tool_and_the_photo_limit_follow_the_table() = runTest(dispatcher) {

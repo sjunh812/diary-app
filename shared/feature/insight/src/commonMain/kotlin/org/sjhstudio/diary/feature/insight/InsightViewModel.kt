@@ -60,13 +60,13 @@ data class InsightState(val period: StatsPeriod, val data: InsightData?, val fai
 class InsightViewModel(
     private val stats: StatsRepository,
     private val today: () -> LocalDate = { currentDate() },
-    plans: PlanRepository? = null,
+    plans: PlanRepository,
     private val saved: SavedStateHandle,
-    private val tips: ContextTips? = null
+    private val tips: ContextTips
 ) : ViewModel() {
     /** 고급 통계를 볼 수 있는지. 요금제가 바뀌면 바로 따름 */
     val advancedOpen: StateFlow<Boolean> =
-        (plans?.confirmed?.filterNotNull() ?: flowOf(Plan.FREE))
+        plans.confirmed.filterNotNull()
             .map { it.advancedStats }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, false)
 

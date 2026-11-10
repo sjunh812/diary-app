@@ -58,7 +58,7 @@ class WriteViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun vm(repository: FakeDraftRepository, target: WriteTarget = WriteTarget.New()) =
-        WriteViewModel(target, repository, clock, TimeZone.UTC)
+        testWriteViewModel(target, repository, clock, TimeZone.UTC)
 
     private fun draft(key: DraftKey = DraftKey.New(), body: String = "<p>쓰던 글</p>", mood: Mood? = null) = Draft(
         key, today, LocalTime(9, 0), body, mood, null, null, false, false, clock.now()
@@ -75,7 +75,7 @@ class WriteViewModelTest {
         val plans = object : PlanRepository {
             override val plan = MutableStateFlow(Plan.FREE)
         }
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
         assertEquals(false, viewModel.checklistOpen.value)
 
         plans.plan.value = Plan.AD_FREE
@@ -96,7 +96,7 @@ class WriteViewModelTest {
         val plans = object : PlanRepository {
             override val plan = MutableStateFlow(Plan.FREE)
         }
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
         assertEquals(10, viewModel.photoLimit.value)
 
         plans.plan.value = Plan.PLUS
@@ -651,7 +651,7 @@ class WriteViewModelTest {
     @Test
     fun found_place_waits_for_done_and_is_not_saved_by_itself() = runTest(dispatcher) {
         val finder = OnePlace(PlaceLookup.Found("마포구 망원동"))
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
         advanceUntilIdle()
 
         viewModel.findPlace()
@@ -664,7 +664,7 @@ class WriteViewModelTest {
     @Test
     fun place_is_read_only_when_asked() = runTest(dispatcher) {
         val finder = OnePlace(PlaceLookup.NotFound)
-        WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
         advanceUntilIdle()
 
         assertEquals(0, finder.calls)
@@ -673,7 +673,7 @@ class WriteViewModelTest {
     @Test
     fun closing_the_sheet_stops_finding_and_clears_the_note() = runTest(dispatcher) {
         val finder = OnePlace(PlaceLookup.Denied, wait = true)
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
         advanceUntilIdle()
 
         viewModel.findPlace()

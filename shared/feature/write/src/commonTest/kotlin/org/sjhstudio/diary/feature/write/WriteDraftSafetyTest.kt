@@ -48,7 +48,7 @@ class WriteDraftSafetyTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun vm(repository: FakeDraftRepository, target: WriteTarget = WriteTarget.New()) =
-        WriteViewModel(target, repository, clock, TimeZone.UTC)
+        testWriteViewModel(target, repository, clock, TimeZone.UTC)
 
     private fun draft(key: DraftKey = DraftKey.New(), body: String = "<p>쓰던 글</p>") =
         Draft(key, today, LocalTime(9, 0), body, null, null, null, false, false, clock.now())
@@ -64,7 +64,7 @@ class WriteDraftSafetyTest {
         val key = DraftKey.New("new-1")
         val repository = FakeDraftRepository(listOf(draft(key, body = "<p>남겨 둔 글</p>")))
         // 카메라에서 돌아온 결과가 화면 모델이 글을 읽기 전에 들어온다.
-        val vm = WriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
+        val vm = testWriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
         vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }))
         advanceUntilIdle()
 
@@ -80,7 +80,7 @@ class WriteDraftSafetyTest {
         val key = DraftKey.New("new-1")
         val repository = FakeDraftRepository(listOf(draft(key), draft(DraftKey.New("new-2"))))
 
-        val vm = WriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
+        val vm = testWriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
         advanceUntilIdle()
 
         assertEquals(null, vm.state.value.resume)
@@ -184,7 +184,7 @@ class WriteDraftSafetyTest {
             object : DraftRepository by fake {
                 override fun draft(key: DraftKey): Flow<Draft?> = if (reads++ == 0) emptyFlow() else fake.draft(key)
             }
-        val vm = WriteViewModel(WriteTarget.New(), slow, clock, TimeZone.UTC)
+        val vm = testWriteViewModel(WriteTarget.New(), slow, clock, TimeZone.UTC)
         val events = events(vm)
         advanceUntilIdle()
         vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }))

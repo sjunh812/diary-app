@@ -73,7 +73,7 @@ class WriteRouteUiTest {
     fun coming_back_keeps_what_was_typed() = runComposeUiTest {
         val key = DraftKey.Edit("e1")
         val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, "<p>옛 글</p>")))
-        val viewModel = WriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
+        val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
         var shown by mutableStateOf(true)
         showWrite(viewModel) { shown }
         assertEquals("옛 글", editorText())
@@ -104,7 +104,7 @@ class WriteRouteUiTest {
         val key = DraftKey.Edit("e1")
         val body = """<p><span style="color:#b91c1c">빨강</span></p>"""
         val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key, body)))
-        val viewModel = WriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
+        val viewModel = testWriteViewModel(WriteTarget.Edit("e1"), repository, timeZone = TimeZone.UTC)
         var shown by mutableStateOf(true)
         var dark by mutableStateOf(true)
         showWrite(viewModel, { dark }) { shown }
@@ -134,7 +134,7 @@ class WriteRouteUiTest {
         val a = DraftKey.Edit("a")
         val b = DraftKey.Edit("b")
         val repository = FakeDraftRepository(editable = mapOf("a" to draft(a, "<p>일기 가</p>"), "b" to draft(b, "<p>일기 나</p>")))
-        startKoin { modules(module { viewModel { (target: WriteTarget) -> WriteViewModel(target, repository) } }) }
+        startKoin { modules(module { viewModel { (target: WriteTarget) -> testWriteViewModel(target, repository) } }) }
         val owner =
             object : ViewModelStoreOwner {
                 override val viewModelStore = ViewModelStore()

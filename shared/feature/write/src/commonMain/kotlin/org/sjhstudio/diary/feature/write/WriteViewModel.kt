@@ -164,10 +164,10 @@ class WriteViewModel(
     private val clock: Clock = Clock.System,
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
     private val mediaPath: (String) -> String = { it },
-    settings: SettingsRepository? = null,
+    settings: SettingsRepository,
     /** 글꼴 ID로 받아 둔 글꼴 파일을 찾는다(`FontInstaller.installedPath`). */
     fontPath: (String) -> String? = { null },
-    plans: PlanRepository? = null,
+    plans: PlanRepository,
     private val places: PlaceFinder = NoPlaceFinder,
     /** 앱이 종료되거나 잠겼다 돌아와 이어 쓰는 새 일기의 키. */
     private val restoredKey: String? = null
@@ -177,7 +177,7 @@ class WriteViewModel(
      * 요금제를 바꾸면 바로 따른다.
      */
     val photoLimit: StateFlow<Int> =
-        (plans?.confirmed?.filterNotNull() ?: flowOf(Plan.FREE))
+        plans.confirmed.filterNotNull()
             .map { it.photoLimit }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, Plan.FREE.photoLimit)
 
@@ -186,12 +186,12 @@ class WriteViewModel(
      * 구독이 끝나도 이미 쓴 체크리스트는 고치고 체크할 수 있다.
      */
     val checklistOpen: StateFlow<Boolean> =
-        (plans?.confirmed?.filterNotNull() ?: flowOf(Plan.FREE))
+        plans.confirmed.filterNotNull()
             .map { it.checklist }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, Plan.FREE.checklist)
 
     /** 본문은 고른 글꼴과 글자 크기로 보인다(FR-014). */
-    val look: StateFlow<BodyLook> = settings?.bodyLookIn(viewModelScope, fontPath) ?: MutableStateFlow(BodyLook())
+    val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fontPath)
 
     fun mediaPath(fileName: String): String = mediaPath.invoke(fileName)
 

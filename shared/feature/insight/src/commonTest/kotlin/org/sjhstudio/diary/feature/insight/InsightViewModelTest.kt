@@ -55,7 +55,7 @@ class InsightViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = InsightViewModel(NoStats, { today }, saved = SavedStateHandle())
+    private fun viewModel() = testInsightViewModel(NoStats, { today }, saved = SavedStateHandle())
 
     /** 고급 통계는 Plus만. 기존 통계는 어느 요금제든 그대로(FR-012) */
     @Test
@@ -69,7 +69,7 @@ class InsightViewModelTest {
                     done += tip
                 }
             }
-        val model = InsightViewModel(NoStats, { today }, saved = SavedStateHandle(), tips = tips)
+        val model = testInsightViewModel(NoStats, { today }, saved = SavedStateHandle(), tips = tips)
         model.tried()
         advanceUntilIdle()
         assertEquals(listOf(ContextTip.INSIGHT_OPEN), done)
@@ -79,7 +79,7 @@ class InsightViewModelTest {
     fun advanced_stats_open_only_on_plus() = runTest(dispatcher) {
         val table = mapOf(Plan.FREE to false, Plan.AD_FREE to false, Plan.PLUS to true)
         for ((plan, open) in table) {
-            val model = InsightViewModel(NoStats, { today }, FakePlanRepository(plan), SavedStateHandle())
+            val model = testInsightViewModel(NoStats, { today }, FakePlanRepository(plan), SavedStateHandle())
             advanceUntilIdle()
 
             assertEquals(open, model.advancedOpen.value, "$plan")
@@ -91,7 +91,7 @@ class InsightViewModelTest {
     @Test
     fun advanced_stats_close_when_plus_ends() = runTest(dispatcher) {
         val plans = FakePlanRepository(Plan.PLUS)
-        val model = InsightViewModel(NoStats, { today }, plans, SavedStateHandle())
+        val model = testInsightViewModel(NoStats, { today }, plans, SavedStateHandle())
         advanceUntilIdle()
         assertEquals(true, model.advancedOpen.value)
 
@@ -183,7 +183,7 @@ class InsightViewModelTest {
     @Test
     fun a_new_period_hides_the_numbers_of_the_last_one() = runTest(dispatcher) {
         val counts = MutableStateFlow<Map<StatsPeriod, MoodCounts>>(mapOf(october to MoodCounts(mapOf(Mood.GOOD to 3), 0)))
-        val model = InsightViewModel(SlowStats(counts), { today }, saved = SavedStateHandle())
+        val model = testInsightViewModel(SlowStats(counts), { today }, saved = SavedStateHandle())
         backgroundScope.launch { model.state.collect() }
         advanceUntilIdle()
         assertEquals(3, model.state.value.data?.counts?.total)
@@ -211,7 +211,7 @@ class InsightViewModelTest {
                     emit(MoodCounts(mapOf(Mood.GOOD to 2), 0))
                 }
             }
-        val model = InsightViewModel(stats, { today }, saved = SavedStateHandle())
+        val model = testInsightViewModel(stats, { today }, saved = SavedStateHandle())
         backgroundScope.launch { model.state.collect() }
         advanceUntilIdle()
         assertTrue(model.state.value.failed)
@@ -228,7 +228,7 @@ class InsightViewModelTest {
     /** 다른 탭에 다녀와 다시 읽어도 보던 숫자가 비워지지 않음 */
     @Test
     fun coming_back_keeps_the_numbers_while_reading_again() = runTest(dispatcher) {
-        val model = InsightViewModel(NoStats, { today }, saved = SavedStateHandle())
+        val model = testInsightViewModel(NoStats, { today }, saved = SavedStateHandle())
         val watching = backgroundScope.launch { model.state.collect() }
         advanceUntilIdle()
         val read = model.state.value.data
