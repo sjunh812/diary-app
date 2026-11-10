@@ -29,10 +29,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-/**
- * 날짜 열 최소 폭(요일 + 날짜 숫자).
- * 큰 글자에서는 열이 늘어나 숫자가 두 줄로 꺾이지 않는다.
- */
+/** 날짜 열 최소 폭(요일 + 날짜 숫자). 큰 글자에서는 열이 늘어나 숫자가 두 줄로 꺾이지 않음. */
 val DiaryEntryDateColumn = 36.dp
 
 /** 날짜 열과 글 사이. */
@@ -57,17 +54,13 @@ fun DiaryEntryRow(
 /**
  * 일기 줄(피드, `docs/design.md` 일기 줄·구분선, Day One 목록).
  * 위아래 16 · 좌우 화면 여백 · 날짜 열 36 · 사이 14 · 메타 한 줄 · 미리보기 `body` 3줄 · 사진 칸 64.
- * 날짜 열은 그날 첫 줄에만 보인다.
- * 구분선은 날짜가 바뀌면 좌우 20부터, 같은 날이면 글 시작점부터 긋는다.
+ * 날짜 열은 그날 첫 줄에만 보임.
+ * 구분선은 날짜가 바뀌면 좌우 20부터, 같은 날이면 글 시작점부터.
  *
- * @param weekday 요일 한 글자.
- * 같은 날 두 번째 줄부터 null.
- * @param day 날짜 숫자.
- * 같은 날 두 번째 줄부터 null.
- * @param meta 기분 얼굴, 시각, 날씨, 장소 같은 덧붙임.
- * 사이 6으로 한 줄에 놓인다.
- * @param dividerAbove 위에 구분선을 그을지.
- * 달 머리 바로 뒤와 첫 줄은 false.
+ * @param weekday 요일 한 글자. 같은 날 두 번째 줄부터 null.
+ * @param day 날짜 숫자. 같은 날 두 번째 줄부터 null.
+ * @param meta 기분 얼굴, 시각, 날씨, 장소 같은 덧붙임. 사이 6으로 한 줄에 놓임.
+ * @param dividerAbove 위 구분선 여부. 달 머리 바로 뒤와 첫 줄은 false.
  */
 @Composable
 fun DiaryEntryRow(
@@ -89,7 +82,7 @@ fun DiaryEntryRow(
             Box(
                 Modifier
                     .padding(
-                        // 같은 날 두 번째 줄부터는 글 시작점에서 긋는다.
+                        // 같은 날 두 번째 줄부터는 글 시작점에서 그음
                         start = if (day != null || !dateColumn) gutter else gutter + DiaryEntryDateColumn + DiaryEntryDateGap,
                         end = gutter
                     )
@@ -149,7 +142,7 @@ fun DiaryEntryRow(
 /**
  * 달 머리(`docs/design.md` 달 머리, Apple 저널).
  * 띠 없이 글자만 · 위 28 · 아래 4 · `headline`.
- * 같은 해면 연도를 빼는 일은 부르는 쪽이 문구로 정한다.
+ * 같은 해면 연도를 빼는 일은 부르는 쪽이 문구로 정함.
  */
 @Composable
 fun DiaryMonthHeader(text: String, modifier: Modifier = Modifier) {

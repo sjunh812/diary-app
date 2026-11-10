@@ -8,8 +8,8 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 모서리 단계(`docs/design.md` 간격, 모서리).
- * 이 밖의 값은 쓰지 않는다.
- * SEED radius 단계, TDS 버튼 모서리, M3 시트·대화상자 28을 합쳤다.
+ * 이 밖의 값은 쓰지 않음.
+ * SEED radius 단계, TDS 버튼 모서리, M3 시트·대화상자 28을 합침.
  */
 object DiaryRadius {
     /** 작은 버튼, 뱃지. */

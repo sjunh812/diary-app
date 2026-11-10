@@ -30,16 +30,13 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-/**
- * 상단 바 오른쪽 글자 동작(저장 같은).
- * 채운 버튼이 아니라 글자 버튼이다.
- */
+/** 상단 바 오른쪽 글자 동작(저장 같은). 채운 버튼이 아니라 글자 버튼. */
 class DiaryTopBarAction(val label: String, val enabled: Boolean = true, val danger: Boolean = false, val onClick: () -> Unit)
 
 /**
  * 상단 바(`docs/design.md` 컴포넌트 규격, SEED TopNavigation 56).
- * 높이 56(글자가 커지면 늘어난다), 가운데 제목 headline, 왼쪽 뒤로 가기 칸 48, 오른쪽은 글자 동작.
- * 앱 틀 맨 위 화면(설정 같은)은 상단 바 대신 큰 제목을 쓴다.
+ * 높이 56(글자가 커지면 늘어남), 가운데 제목 headline, 왼쪽 뒤로 가기 칸 48, 오른쪽은 글자 동작.
+ * 앱 틀 맨 위 화면(설정 같은)은 상단 바 대신 큰 제목을 씀.
  */
 @Composable
 fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Unit)? = null, action: DiaryTopBarAction? = null) {
@@ -59,8 +56,7 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
             )
             Box {
                 if (action != null) {
-                    // 글자 끝이 화면 여백에 맞는다.
-                    // 글자 버튼 안쪽이 12다.
+                    // 글자 버튼 안쪽이 12라 글자 끝이 화면 여백에 맞음
                     DiaryTopBarTextButton(
                         action.label,
                         action.onClick,
@@ -75,7 +71,7 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
         val loose = constraints.copy(minWidth = 0, minHeight = 0)
         val back = measurables[0].measure(loose)
         val end = measurables[2].measure(loose)
-        // 제목은 가운데에 두되 넓은 쪽 칸만큼 양쪽을 비운다.
+        // 제목은 가운데에 두되 넓은 쪽 칸만큼 양쪽을 비움
         val side = maxOf(back.width, end.width, DiarySpacing.x14.roundToPx())
         val middle = measurables[1].measure(loose.copy(maxWidth = (constraints.maxWidth - side * 2).coerceAtLeast(0)))
         val height = maxOf(constraints.minHeight, back.height, middle.height, end.height)
@@ -108,8 +104,8 @@ private fun TopBarBack(onBack: () -> Unit) {
 /**
  * 맨 위 줄 오른쪽의 글자 버튼(저장, 건너뛰기, 달력의 오늘 같은).
  * `headline` · `accentText` · 좌우·위아래 12 · 알약 모양 누름 면, 할 수 없으면 38%.
- * 상단 바, 쓰기 화면, 탭 상단 바가 모두 이것을 써서 위 줄 글자 버튼이 한 모양이다(2026-11-10 사용자 결정).
- * 글자 끝을 화면 여백에 맞추는 바깥 여백은 부르는 쪽이 정한다.
+ * 상단 바, 쓰기 화면, 탭 상단 바가 모두 이것을 써 위 줄 글자 버튼이 한 모양.
+ * 글자 끝을 화면 여백에 맞추는 바깥 여백은 부르는 쪽이 정함.
  */
 @Composable
 fun DiaryTopBarTextButton(

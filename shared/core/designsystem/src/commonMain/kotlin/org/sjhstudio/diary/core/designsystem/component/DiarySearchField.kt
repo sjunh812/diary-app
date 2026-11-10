@@ -33,9 +33,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
  * 찾기 입력 칸(`docs/design.md` 검색 칸, Figma "찾기 (S1-a)").
- * 높이 44, 모서리 12, 글이 있으면 지우기 버튼이 나온다.
- * 지우기는 원 16에 누르는 곳 48이다.
- * 누르는 곳이 칸 높이 44보다 커서 칸을 `clip`하지 않고 모양은 바탕으로만 그린다.
+ * 높이 44, 모서리 12, 글이 있으면 지우기 버튼이 나옴.
+ * 지우기는 원 16에 누르는 곳 48.
+ * 누르는 곳이 칸 높이 44보다 커 칸을 `clip`하지 않고 모양은 바탕으로만 그림.
  */
 @Composable
 fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: String, clearLabel: String, modifier: Modifier = Modifier) {
@@ -69,7 +69,7 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
         )
         if (value.isNotEmpty()) {
             val interaction = remember { MutableInteractionSource() }
-            // 바깥 칸은 원 크기만 차지해서 입력 칸 높이를 밀어 올리지 않고, 누르는 곳만 넘쳐 48이 된다.
+            // 바깥 칸은 원 크기만 차지해 입력 칸 높이를 밀어 올리지 않고, 누르는 곳만 넘쳐 48이 됨
             Box(Modifier.size(DiaryIconSize.i16), contentAlignment = Alignment.Center) {
                 Box(
                     Modifier
@@ -77,14 +77,14 @@ fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: Strin
                         .clickable(interactionSource = interaction, indication = null, role = Role.Button) { onValueChange("") },
                     contentAlignment = Alignment.Center
                 ) {
-                    // 누름 면은 입력 칸 안에 들어가게 원 둘레 8까지만 그린다.
+                    // 누름 면은 입력 칸 안에 들어가게 원 둘레 8까지만
                     Box(
                         Modifier.size(DiaryIconSize.i16 + DiarySpacing.x4).diaryPress(interaction, colors.textPrimary, DiaryShapes.full),
                         contentAlignment = Alignment.Center
                     ) {
                         Box(Modifier.size(DiaryIconSize.i16).clip(DiaryShapes.full).background(colors.textTertiary)) {
-                            // X는 원보다 한 단계 작게 둔다.
-                            // 원과 같은 크기면 X가 원을 꽉 채워 커 보였다(2026-11-08 사용자 지적, iOS 검색칸 지우기도 X가 원의 3분의 1 남짓이다).
+                            // X는 원보다 한 단계 작게. 같은 크기면 X가 원을 꽉 채워 커 보임
+                            // (iOS 검색칸 지우기도 X가 원의 3분의 1 남짓)
                             DiaryIcon(
                                 DiaryIcons.Close,
                                 contentDescription = clearLabel,

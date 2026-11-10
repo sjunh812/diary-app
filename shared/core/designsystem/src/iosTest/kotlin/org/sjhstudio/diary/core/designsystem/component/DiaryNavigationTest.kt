@@ -21,8 +21,8 @@ import kotlin.test.assertEquals
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-// 하단 탭·레일 이름이 기기 글자 크기 200%에서도 칸 80 안에 잘리지 않는다(docs/design.md 하단 탭, DECISIONS 2026-11-03).
-// 세 언어 이름을 직접 넣어 시뮬레이터 언어와 상관없이 본다.
+// 하단 탭·레일 이름이 기기 글자 크기 200%에서도 칸 80 안에서 잘리지 않음(docs/design.md 하단 탭, DECISIONS 2026-11-03).
+// 세 언어 이름을 직접 넣어 시뮬레이터 언어와 상관없이 봄
 @OptIn(ExperimentalTestApi::class)
 class DiaryNavigationTest {
     private val labels =
@@ -60,7 +60,7 @@ class DiaryNavigationTest {
             setContent {
                 val density = LocalDensity.current
                 CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                    // 가장 좁은 폰(360)과 레일이 서는 높이.
+                    // 가장 좁은 폰(360)과 레일이 서는 높이
                     DiaryTheme(darkTheme = false) { Box(Modifier.width(360.dp).height(640.dp)) { content() } }
                 }
             }
@@ -76,8 +76,8 @@ class DiaryNavigationTest {
             results.single()
         }
 
-    // `hasVisualOverflow`는 쓰지 않는다.
-    // 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 넘치지 않아도 폭이 넘친다고 나온다.
-    // 그래서 글자 높이가 칸보다 큰지, 글자가 제 폭보다 좁게 보이는지로 잘림을 본다.
+    // `hasVisualOverflow`는 쓰지 않음.
+    // 가운데 맞춘 한 줄 글자는 칸 폭으로 배치돼 넘치지 않아도 폭이 넘친다고 나옴.
+    // 그래서 글자 높이가 칸보다 큰지, 글자가 제 폭보다 좁게 보이는지로 잘림을 봄
     private fun TextLayoutResult.isClipped() = didOverflowHeight || multiParagraph.maxIntrinsicWidth > size.width + 0.5f
 }

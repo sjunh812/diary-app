@@ -48,14 +48,11 @@ enum class DiaryButtonSize {
     /** 32 · 좌우 10 · 모서리 8 · captionStrong */
     Small,
 
-    /** 32 · 좌우 10 · 모서리 8 · label. 위쪽 줄에 홀로 놓이는 글자 버튼에 쓴다. */
+    /** 32 · 좌우 10 · 모서리 8 · label. 위쪽 줄에 홀로 놓이는 글자 버튼용 */
     Header
 }
 
-/**
- * 버튼 종류(TDS 버튼 색 종류).
- * 한 화면에 [Primary]는 하나만 둔다.
- */
+/** 버튼 종류(TDS 버튼 색 종류). 한 화면에 [Primary]는 하나만. */
 enum class DiaryButtonKind { Primary, Secondary, Weak, Text, QuietText, Danger }
 
 private class ButtonSpec(val height: Dp, val horizontal: Dp, val shape: Shape)
@@ -71,12 +68,10 @@ private fun DiaryButtonSize.spec() = when (this) {
 }
 
 /**
- * 버튼 하나.
- * 글은 문자열 리소스에서 받아 넘긴다.
- * 보이는 높이가 48보다 작아도 누르는 영역은 48이다.
- * 자리는 보이는 크기만큼만 차지해서 옆 내용과의 간격은 규격 그대로다.
- * 높이는 최소 규격이라 큰 글자에서 글이 두 줄이 되면 버튼이 늘어난다.
- * 잘리지 않게 위아래 4를 둔다.
+ * 버튼 하나. 글은 문자열 리소스에서 받음.
+ * 보이는 높이가 48보다 작아도 누르는 영역은 48.
+ * 자리는 보이는 크기만 차지해 옆 내용과의 간격은 규격 그대로.
+ * 높이는 최소 규격이라 큰 글자로 두 줄이 되면 늘어남. 잘리지 않게 위아래 4.
  */
 @Composable
 fun DiaryButton(
@@ -108,7 +103,7 @@ fun DiaryButton(
     val spec = size.spec()
     val interaction = remember { MutableInteractionSource() }
     val touch = ((DiarySpacing.minTouchTarget - spec.height) / 2).coerceAtLeast(Dp.Hairline)
-    // 바깥 칸이 48로 누르기를 받고 안쪽 칸이 보이는 버튼을 그린다.
+    // 바깥 칸 48이 누르기를 받고 안쪽 칸이 보이는 버튼을 그림
     Box(
         modifier
             .widthIn(min = DiarySpacing.minTouchTarget)
@@ -154,10 +149,9 @@ fun DiaryButton(
 }
 
 /**
- * 나란한 두 버튼.
- * 폭은 늘 같고 주 버튼이 오른쪽이다.
- * 어느 한쪽 글이 반 칸에 들어가지 않으면 잘리는 대신 위아래로 쌓고 주 버튼을 위에 둔다.
- * 언어와 글자 크기에 따라 글 길이가 달라져서 넓이를 재고 정한다(M3 대화상자의 쌓인 버튼과 같다).
+ * 나란한 두 버튼. 폭은 늘 같고 주 버튼이 오른쪽.
+ * 한쪽 글이라도 반 칸에 안 들어가면 자르지 않고 위아래로 쌓아 주 버튼을 위에 둠.
+ * 언어·글자 크기마다 글 길이가 달라 넓이를 재서 정함(M3 대화상자의 쌓인 버튼과 같음).
  */
 @Composable
 fun DiaryButtonPair(

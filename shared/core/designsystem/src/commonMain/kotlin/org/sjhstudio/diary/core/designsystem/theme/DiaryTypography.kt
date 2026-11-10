@@ -19,8 +19,8 @@ import org.sjhstudio.diary.core.designsystem.resources.pretendard_semibold
 
 /**
  * 글자 토큰 13단계(`docs/design.md` 글자 표, Figma 글자 스타일과 같은 이름).
- * 자간은 모두 0이고 줄 높이도 sp라서 기기 글자 크기를 따라 함께 커진다.
- * 일기 본문은 사용자가 고른 글꼴과 크기를 따른다(스펙 001 T068).
+ * 자간은 모두 0이고 줄 높이도 sp라 기기 글자 크기를 따라 함께 커짐.
+ * 일기 본문은 사용자가 고른 글꼴과 크기를 따름(스펙 001 T068).
  */
 @Immutable
 data class DiaryTypography(
@@ -63,16 +63,15 @@ fun pretendardFamily(): FontFamily = FontFamily(
 
 /**
  * 한국어·일본어 줄바꿈.
- * Android 13 이상은 구절 단위, 그 밖은 플랫폼 기본값이다.
- * 영어에는 영향이 없다.
+ * Android 13 이상은 구절 단위, 그 밖은 플랫폼 기본값. 영어에는 영향 없음.
  */
 internal expect val PHRASE_LINE_BREAK: LineBreak
 
 @Composable
 internal fun diaryTypography(chosen: FontFamily? = null): DiaryTypography {
-    // 기본 글꼴의 일본어 화면은 시스템 글꼴을 쓴다(열린 결정 D13 추천, docs/design.md 여러 언어).
-    // Pretendard에는 가나는 있지만 한자가 없어서 섞으면 한 낱말 안에서 글꼴이 바뀐다.
-    // 고른 글꼴이 있고 없을 때 Font() 호출이 달라져서 자리를 나눈다(iOS).
+    // 기본 글꼴의 일본어 화면은 시스템 글꼴을 씀(열린 결정 D13 추천, docs/design.md 여러 언어).
+    // Pretendard에는 가나는 있지만 한자가 없어 섞으면 한 낱말 안에서 글꼴이 바뀜.
+    // 고른 글꼴 유무에 따라 Font() 호출이 달라져 자리를 나눔(iOS)
     val family = key(chosen == null) { chosen ?: if (diaryLanguage() == "ja") FontFamily.Default else pretendardFamily() }
     fun style(size: TextUnit, lineHeight: TextUnit, weight: FontWeight) = TextStyle(
         fontFamily = family,
@@ -80,11 +79,10 @@ internal fun diaryTypography(chosen: FontFamily? = null): DiaryTypography {
         lineHeight = lineHeight,
         fontWeight = weight,
         letterSpacing = 0.sp,
-        // Figma처럼 줄 높이 안에서 글자를 가운데 둔다.
+        // Figma처럼 줄 높이 안에서 글자를 가운데에
         lineHeightStyle = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.None),
-        // 한국어·일본어는 낱말 가운데서 줄을 바꾸지 않고 구절 단위로 바꾼다(Android 13 이상, 2026-11-01 에뮬레이터 확인).
-        // 글의 언어는 정하지 않고 화면 언어를 따른다.
-        // 한국어로 묶으면 일본어 한자가 한국어 글자 모양으로 그려진다.
+        // 한국어·일본어는 낱말 가운데서 줄을 바꾸지 않고 구절 단위로 바꿈(Android 13 이상).
+        // 글의 언어는 정하지 않고 화면 언어를 따름. 한국어로 묶으면 일본어 한자가 한국어 글자 모양으로 그려짐
         lineBreak = PHRASE_LINE_BREAK
     )
     return DiaryTypography(

@@ -51,8 +51,9 @@ data class DiaryPadKey(val icon: ImageVector, val label: String, val onClick: ()
 
 /**
  * 비밀번호 숫자판(`docs/design.md` 숫자판, TDS NumberKeypad).
- * 3열 · 키 높이 64 · 폭 최대 350 · 숫자 `keypad` · 지우기 24 · 왼쪽 아래 키 32 · 누르면 모서리 20 면과 살짝 축소(누름 효과).
- * [enabled]가 거짓이면 38%로 흐리게 두고 누르지 못한다(5번 틀린 뒤 기다림).
+ * 3열 · 키 높이 64 · 폭 최대 350 · 숫자 `keypad` · 지우기 24 · 왼쪽 아래 키 32
+ * · 누르면 모서리 20 면과 살짝 축소(누름 효과).
+ * [enabled]가 거짓이면 38%로 흐리게 두고 누르지 못함(5번 틀린 뒤 기다림).
  */
 @Composable
 fun DiaryNumberPad(
@@ -105,11 +106,10 @@ private fun RowScope.PadKey(enabled: Boolean, label: String?, onClick: () -> Uni
 
 /**
  * 비밀번호 칸 점(Figma pin-dots, `docs/design.md` 숫자판).
- * 지름 14 · 사이 20.
- * 빈 칸은 `textTertiary` 선 1.5, 찬 칸은 `textPrimary`다.
- * [wrongCount]가 늘 때마다(틀렸을 때) 점 넷을 `danger`로 채워 좌우로 0.4초 흔들고 진동한 뒤 [filled]대로 돌아간다.
- * 틀린 입력은 그 뒤 바로 비어 있어 지우지 않고 다시 누른다(AOSP 잠금 화면, GNOME 잠금 화면).
- * [error]는 흔들지 않고 빨간 점만 보이는 정지 화면용(미리보기, 디자인 견본)이다.
+ * 지름 14 · 사이 20. 빈 칸은 `textTertiary` 선 1.5, 찬 칸은 `textPrimary`.
+ * [wrongCount]가 늘 때마다(틀렸을 때) 점 넷을 `danger`로 채워 좌우로 0.4초 흔들고 진동한 뒤 [filled]대로 돌아감.
+ * 틀린 입력은 바로 비워져 지우지 않고 다시 누름(AOSP 잠금 화면, GNOME 잠금 화면).
+ * [error]는 흔들지 않고 빨간 점만 보이는 정지 화면용(미리보기, 디자인 견본).
  */
 @Composable
 fun DiaryPinDots(filled: Int, modifier: Modifier = Modifier, length: Int = 4, error: Boolean = false, wrongCount: Int = 0) {
@@ -152,8 +152,5 @@ fun DiaryPinDots(filled: Int, modifier: Modifier = Modifier, length: Int = 4, er
 
 private const val SHAKE_MILLIS = 400
 
-/**
- * 흔들림 위치(dp).
- * 점점 줄어들며 가운데로 돌아온다.
- */
+/** 흔들림 위치(dp). 점점 줄어들며 가운데로 돌아옴. */
 private val SHAKE_OFFSETS = listOf(-8f, 8f, -6f, 6f, -3f, 3f)

@@ -36,34 +36,32 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 private const val PRESS_MILLIS = 80
 private const val RELEASE_MILLIS = 180
 
-// 버튼·칩·키는 6%까지 줄이고, 화면 폭만 한 줄은 양옆이 6dp씩만 들어오게 줄인다(2026-11-03 사용자 결정, 토스 0.96보다 조금 더).
-// 같은 비율로 줄이면 긴 줄이 눈에 띄게 오그라든다.
+// 버튼·칩·키는 6%까지, 화면 폭만 한 줄은 양옆 6dp씩만 줄임(토스 0.96보다 조금 더).
+// 같은 비율로 줄이면 긴 줄이 크게 오그라듦
 private const val MAX_SHRINK_RATIO = 0.06f
 private val MaxShrink = 12.dp
 private val FocusGap = 2.dp
 private val FocusWidth = 3.dp
 
-// 뗄 때 크기는 살짝 튕기며 돌아온다(토스 키패드의 bounce).
-// 면은 튕기지 않고 그냥 옅어진다.
+// 뗄 때 크기는 살짝 튕기며 돌아옴(토스 키패드의 bounce). 면은 튕기지 않고 그냥 옅어짐
 private val ReleaseBounce = spring<Float>(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium)
 
 /**
  * 누름 효과(`docs/design.md` 상태).
  * 누르는 즉시 [shape] 모양으로 옅은 면(`color` 10%, 가리키면 8%)을 깔고
- * 살짝 줄였다가 손을 떼면 살짝 튕기며 되돌린다.
- * 토스·당근처럼 누른 것이 바로 반응해 보이게 하려고 물결은 쓰지 않는다
- * (물결은 누른 뒤 천천히 퍼져 늦게 반응하는 것처럼 보인다, 2026-11-02 사용자 결정).
+ * 살짝 줄였다가 손을 떼면 살짝 튕기며 되돌림.
+ * 물결은 누른 뒤 천천히 퍼져 늦게 반응해 보여 쓰지 않음(토스·당근처럼 바로 반응).
  *
  * 칠한 면까지 같이 줄도록 `clip`·`background`보다 앞에 달고, 누르기는 같은 [interactionSource]의
- * `clickable(indication = null)`이 받는다.
+ * `clickable(indication = null)`이 받음.
  */
 fun Modifier.diaryPress(interactionSource: InteractionSource, color: Color, shape: Shape = RectangleShape): Modifier =
     this then DiaryPressElement(interactionSource, color, shape)
 
 /**
- * 보이는 크기대로 자리를 차지하고 누르는 곳만 넓힌다.
- * 작은 부품의 터치 영역을 48로 넓혀도 옆 내용과의 간격은 규격 그대로다.
- * 이 수식어 뒤에 `clickable`을 달고, 그 안쪽에서 같은 값만큼 패딩을 주어 보이는 면을 제자리에 둔다.
+ * 보이는 크기대로 자리를 차지하고 누르는 곳만 넓힘.
+ * 작은 부품의 터치 영역을 48로 넓혀도 옆 내용과의 간격은 규격 그대로.
+ * 이 수식어 뒤에 `clickable`을 달고, 그 안쪽에 같은 값만큼 패딩을 줘 보이는 면을 제자리에 둠.
  */
 fun Modifier.diaryTouchOutset(horizontal: Dp = Dp.Hairline, vertical: Dp = Dp.Hairline): Modifier = layout { measurable, constraints ->
     val sides = horizontal.roundToPx()
@@ -106,8 +104,8 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
 
     override fun onAttach() = collect()
 
-    // 목록에서 줄이 화면 밖으로 나가면 애니메이션이 도중에 끊긴다.
-    // 다시 쓰일 때 줄어든 채로 나오지 않게 되돌린다.
+    // 목록에서 줄이 화면 밖으로 나가면 애니메이션이 도중에 끊김.
+    // 다시 쓰일 때 줄어든 채로 나오지 않게 되돌림
     override fun onDetach() {
         pressed = Animatable(0f)
         shrink = Animatable(0f)
@@ -150,8 +148,7 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
         val pressedJob = pressing
         releasing =
             coroutineScope.launch {
-                // 톡 치고 바로 떼면 누른 모습이 한 번도 안 보인다.
-                // 다 눌린 뒤에 돌아오게 한다.
+                // 톡 치고 바로 떼면 누른 모습이 한 번도 안 보여 다 눌린 뒤에 돌아오게 함
                 pressedJob?.join()
                 launch { shrink.animateTo(0f, ReleaseBounce) { invalidateDraw() } }
                 pressed.animateTo(0f, tween(RELEASE_MILLIS)) { invalidateDraw() }
@@ -168,7 +165,7 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
             return
         }
         val ratio = min(MAX_SHRINK_RATIO, MaxShrink.toPx() / max(size.width, size.height))
-        // 튕길 때는 squeeze가 잠깐 0 아래로 내려가 원래보다 아주 조금 커진다.
+        // 튕길 때는 squeeze가 잠깐 0 아래로 내려가 원래보다 아주 조금 커짐
         scale(1f - ratio * squeeze, pivot = center) {
             this@draw.drawContent()
             if (focused) drawFocusRing()
@@ -176,7 +173,7 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
         }
     }
 
-    /** 하드웨어 키보드로 옮겨 다닐 때 지금 자리를 알린다. 터치에서는 포커스가 생기지 않아 보이지 않는다. */
+    /** 하드웨어 키보드로 옮겨 다닐 때 지금 자리 표시. 터치에서는 포커스가 생기지 않아 안 보임. */
     private fun DrawScope.drawFocusRing() {
         val gap = FocusGap.toPx()
         val outline = shape.createOutline(Size(size.width + gap * 2, size.height + gap * 2), layoutDirection, this)

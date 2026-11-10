@@ -33,7 +33,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-// 공통 부품의 크기와 배치가 `docs/design.md` 규격을 지키는지 잰다.
+// 공통 부품의 크기와 배치가 `docs/design.md` 규격을 지키는지 잼
 @OptIn(ExperimentalTestApi::class)
 class DiaryComponentLayoutTest {
     @Test
@@ -167,7 +167,7 @@ class DiaryComponentLayoutTest {
         waitForIdle()
         val windowHeight = onNodeWithTag("window").getBoundsInRoot().let { it.bottom - it.top }
         val first = onNodeWithTag("first").getBoundsInRoot()
-        // 시트 맨 위 안쪽(손잡이 위 12 + 손잡이 4 + 아래 20)을 빼면 시트 위 끝이다.
+        // 시트 맨 위 안쪽(손잡이 위 12 + 손잡이 4 + 아래 20)을 빼면 시트 위 끝
         assertTrue(windowHeight - (first.top - 36.dp) <= windowHeight * 0.9f + 11.dp, "sheet top ${first.top} of $windowHeight")
         onNodeWithText("완료").performScrollTo().assertIsDisplayed()
     }

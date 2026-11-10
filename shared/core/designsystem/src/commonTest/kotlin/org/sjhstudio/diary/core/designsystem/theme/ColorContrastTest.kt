@@ -8,8 +8,8 @@ import kotlin.math.min
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-// 글자는 4.5:1 이상이라는 규칙(`docs/design.md` 색, WCAG 1.4.3)을 토큰 값으로 지킨다.
-// textTertiary와 placeholder는 규칙이 허용한 자리에만 쓰므로 뺀다.
+// 글자 4.5:1 이상 규칙(`docs/design.md` 색, WCAG 1.4.3)을 토큰 값으로 지킴.
+// textTertiary와 placeholder는 규칙이 허용한 자리에만 쓰므로 뺌
 class ColorContrastTest {
     private fun contrast(a: Color, b: Color): Double {
         val la = a.luminance().toDouble()
@@ -39,7 +39,7 @@ class ColorContrastTest {
             }
             assertReadable(mode, "onAccent/accent", c.onAccent, c.accent)
             assertReadable(mode, "onDanger/danger", c.onDanger, c.danger)
-            // 흰 사진 위에 얹힌 반투명 바탕.
+            // 흰 사진 위에 얹힌 반투명 바탕
             val onWhite = c.onPhoto.compositeOver(Color.White)
             assertReadable(mode, "onAccent/onPhoto", c.onAccent, onWhite)
             assertTrue(contrast(c.accentText, c.sunken) >= 3.0, "$mode 진행 막대 채움")

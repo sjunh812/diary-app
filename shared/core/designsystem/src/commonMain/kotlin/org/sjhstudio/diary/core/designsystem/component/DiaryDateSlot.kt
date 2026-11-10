@@ -28,10 +28,10 @@ enum class DiaryDateSlot { Start, End }
 
 /**
  * 기간 달력 위의 시작일·종료일 두 칸.
- * 다음에 채울 칸에 액센트 테두리를 둬서, 날짜를 두 번 누른다는 것을 안내 글 없이 알린다.
- * Material 3 기간 달력의 머리와 숙소 앱의 체크인·체크아웃 칸과 같은 방식이다(사용자 확인 2026-11-09).
- * 고른 날짜는 그 칸에 바로 들어간다.
- * [onEnd]가 null이면 종료일 칸을 누를 수 없다(시작일을 아직 고르지 않았을 때).
+ * 다음에 채울 칸에 액센트 테두리를 둬, 날짜를 두 번 누른다는 것을 안내 글 없이 알림.
+ * Material 3 기간 달력의 머리, 숙소 앱의 체크인·체크아웃 칸과 같은 방식.
+ * 고른 날짜는 그 칸에 바로 들어감.
+ * [onEnd]가 null이면 종료일 칸을 누를 수 없음(시작일을 고르기 전).
  */
 @Composable
 fun DiaryDateSlots(
@@ -63,8 +63,8 @@ private fun Slot(
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     val interaction = remember { MutableInteractionSource() }
-    // 고르는 칸은 바탕을 비우고 테두리만 둬서 입력창에 초점이 간 것처럼 보이게 한다.
-    // 테두리는 숫자 키패드 빈 칸과 같은 1.5로, 1이면 옅은 보라가 바탕에 묻혔다.
+    // 고르는 칸은 바탕을 비우고 테두리만 둬 입력창에 초점이 간 것처럼 보이게 함.
+    // 테두리는 숫자 키패드 빈 칸과 같은 1.5. 1이면 옅은 보라가 바탕에 묻힘
     val shape = DiaryShapes.r12
     Column(
         modifier

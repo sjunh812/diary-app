@@ -35,14 +35,13 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 // 디자인 시스템 토큰과 컴포넌트 프리뷰.
-// 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같다.
-// 견본 글은 Figma 화면과 같은 지어낸 글이고 화면 문구가 아니다(문구는 각 기능의 문자열 리소스).
-// 한국어를 먼저 보고, 라이트와 다크를 나란히 둔다.
+// 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같음.
+// 견본 글은 Figma 화면과 같은 지어낸 글이고 화면 문구 아님(문구는 각 기능의 문자열 리소스).
+// 한국어를 먼저 보고, 라이트와 다크를 나란히
 
 /**
- * 프리뷰 바탕.
- * 폰 폭 390에 화면 바탕색을 깐다.
- * 다른 모듈의 프리뷰도 쓴다.
+ * 프리뷰 바탕. 폰 폭 390에 화면 바탕색을 깖.
+ * 다른 모듈의 프리뷰도 씀.
  */
 @Composable
 fun PreviewCanvas(dark: Boolean, content: @Composable () -> Unit) {
@@ -91,7 +90,7 @@ private fun ButtonPairLight() = PreviewCanvas(dark = false) { ButtonPairs() }
 @Composable
 private fun ButtonPairDark() = PreviewCanvas(dark = true) { ButtonPairs() }
 
-/** 글이 반 칸에 들어가면 나란히, 넘치면 위아래로 쌓인다. */
+/** 글이 반 칸에 들어가면 나란히, 넘치면 위아래로 쌓임. */
 @Composable
 private fun ButtonPairs() = Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
     DiaryButtonPair("괜찮아요", {}, "광고 없애기", {}, size = DiaryButtonSize.XLarge)

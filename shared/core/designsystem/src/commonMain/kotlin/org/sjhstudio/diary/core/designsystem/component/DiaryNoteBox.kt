@@ -28,8 +28,8 @@ class DiaryNote(val icon: ImageVector, val title: String, val body: String?)
 /**
  * 결과 안내 상자(Figma result-notes, `docs/design.md` 안내 상자, SEED Callout).
  * 바탕 sunken · 모서리 16 · 안쪽 20 · 줄 사이 16 · 아이콘 16과 글 사이 12(`docs/design.md` 상자 여백).
- * 아이콘은 제목 첫 줄 가운데에 둔다.
- * 정보는 문장보다 상자로 모아 훑어보기 쉽게 한다(토스 UX 라이팅).
+ * 아이콘은 제목 첫 줄 가운데.
+ * 정보는 문장보다 상자로 모아 훑어보기 쉽게(토스 UX 라이팅).
  */
 @Composable
 fun DiaryNoteBox(notes: List<DiaryNote>, modifier: Modifier = Modifier) {
@@ -57,7 +57,7 @@ fun DiaryNoteBox(notes: List<DiaryNote>, modifier: Modifier = Modifier) {
 
 /**
  * 옆 글의 첫 줄 높이 칸 가운데에 놓는 아이콘(`docs/design.md` 아이콘과 그림).
- * 줄 높이가 sp라서 기기 글자 크기가 커져도 첫 줄 가운데에 맞는다.
+ * 줄 높이가 sp라 기기 글자 크기가 커져도 첫 줄 가운데에 맞음.
  */
 @Composable
 fun FirstLineIcon(icon: ImageVector, line: TextStyle, tint: Color, size: Dp = DiaryIconSize.i16) {

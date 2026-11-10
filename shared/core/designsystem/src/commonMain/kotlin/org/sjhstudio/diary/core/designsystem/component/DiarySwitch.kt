@@ -20,8 +20,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
  * 스위치 모양(`docs/design.md` 스위치, SEED switchmark 32).
- * 트랙 52×32, 안쪽 3, 손잡이 26. 누르는 곳은 줄 전체라 이 모양은 누르기를 받지 않는다([DiarySettingsSwitchRow]).
- * 꺼진 트랙은 비텍스트 대비 3:1을 넘는 textTertiary다.
+ * 트랙 52×32, 안쪽 3, 손잡이 26.
+ * 누르는 곳은 줄 전체라 이 모양은 누르기를 받지 않음([DiarySettingsSwitchRow]).
+ * 꺼진 트랙은 비텍스트 대비 3:1을 넘는 textTertiary.
  */
 @Composable
 fun DiarySwitchMark(checked: Boolean, modifier: Modifier = Modifier, enabled: Boolean = true) {

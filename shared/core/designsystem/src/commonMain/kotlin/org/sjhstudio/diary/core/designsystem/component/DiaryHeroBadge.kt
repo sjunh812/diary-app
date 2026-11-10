@@ -15,10 +15,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 enum class DiaryBadgeTone { Accent, Danger }
 
-/**
- * 결과·진행 화면 위의 큰 배지(Figma badge).
- * 원 56 · 그림 32.
- */
+/** 결과·진행 화면 위의 큰 배지(Figma badge). 원 56 · 그림 32. */
 @Composable
 fun DiaryHeroBadge(icon: ImageVector, modifier: Modifier = Modifier, tone: DiaryBadgeTone = DiaryBadgeTone.Accent) {
     val colors = DiaryTheme.colors

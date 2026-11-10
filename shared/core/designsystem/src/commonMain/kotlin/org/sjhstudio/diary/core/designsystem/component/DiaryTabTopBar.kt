@@ -52,16 +52,16 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
  * 탭 화면 맨 위 줄(`docs/design.md` 탭 상단 바).
- * 큰 제목이 이 줄 밑으로 들어가는 만큼 왼쪽에 작은 제목이 나타나고, 다 들어가면 아래 선이 생긴다.
- * 바탕은 화면 바탕과 같은 불투명 색이다.
- * Apple HIG(큰 제목은 스크롤하면 보통 제목으로)와 Material 3(큰 바는 작은 바로 접히고 스크롤하면 바탕과 구분)를 따른다.
+ * 큰 제목이 이 줄 밑으로 들어가는 만큼 왼쪽에 작은 제목이 나타나고, 다 들어가면 아래 선이 생김.
+ * 바탕은 화면 바탕과 같은 불투명 색.
+ * Apple HIG(큰 제목은 스크롤하면 보통 제목으로)와 Material 3(큰 바는 작은 바로 접히고 스크롤하면 바탕과 구분)를 따름.
  *
- * [collapsed]는 0(큰 제목이 다 보임)에서 1(바 밑으로 다 들어감)까지를 돌려준다.
- * 시간이 아니라 스크롤한 만큼 바뀌어서 어중간하게 움직이지 않는다.
- * 스크롤마다 바뀌는 값이라 그리기 단계에서만 읽고, 반을 넘었는지와 다 접혔는지가 바뀔 때만 다시 구성한다.
- * [onTitleClick]이 있으면 작은 제목도 큰 제목처럼 눌러 고를 수 있다(홈의 달 고르기).
- * [accessory]는 접혔을 때만 작은 제목 옆에 붙는다(홈의 백업 경고).
- * [contentMaxWidth]는 넓은 화면에서 글과 단추를 아래 내용 칸에 맞추는 폭이다.
+ * [collapsed]는 0(큰 제목이 다 보임)에서 1(바 밑으로 다 들어감)까지.
+ * 시간이 아니라 스크롤한 만큼 바뀌어 어중간하게 움직이지 않음.
+ * 스크롤마다 바뀌는 값이라 그리기 단계에서만 읽고, 반을 넘었는지와 다 접혔는지가 바뀔 때만 다시 구성.
+ * [onTitleClick]이 있으면 작은 제목도 큰 제목처럼 눌러 고를 수 있음(홈의 달 고르기).
+ * [accessory]는 접혔을 때만 작은 제목 옆에 붙음(홈의 백업 경고).
+ * [contentMaxWidth]는 넓은 화면에서 글과 단추를 아래 내용 칸에 맞추는 폭.
  */
 @Composable
 fun DiaryTabTopBar(
@@ -77,7 +77,7 @@ fun DiaryTabTopBar(
     val progress by rememberUpdatedState(collapsed)
     val half by remember { derivedStateOf { progress() >= HALF } }
     val full by remember { derivedStateOf { progress() >= 1f } }
-    // 선과 바탕은 창 너비 끝까지, 글과 단추는 아래 내용 칸 너비에 맞춘다.
+    // 선과 바탕은 창 너비 끝까지, 글과 단추는 아래 내용 칸 너비에 맞춤
     Column(modifier.fillMaxWidth().background(colors.canvas), horizontalAlignment = Alignment.CenterHorizontally) {
         Row(
             Modifier
@@ -88,18 +88,18 @@ fun DiaryTabTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                // 반투명은 이 칸 크기의 판에 그려 합친다.
-                // 칸을 바 높이 전체로 두어, 넓힌 누르는 곳까지 판 안에 들어가 위아래가 잘리지 않는다(천천히 스크롤할 때 보였다, 2026-11-08 사용자 지적).
-                // 색마다 투명도를 곱하는 방식은 iOS에서 먹지 않아 맨 위에서도 작은 제목이 보였다.
+                // 반투명은 이 칸 크기의 판에 그려 합침.
+                // 칸을 바 높이 전체로 둬, 넓힌 누르는 곳까지 판 안에 들어가 천천히 스크롤해도 위아래가 잘리지 않음.
+                // 색마다 투명도를 곱하는 방식은 iOS에서 먹지 않아 맨 위에서도 작은 제목이 보였음
                 Modifier.weight(1f).fillMaxHeight().graphicsLayer {
-                    // 큰 제목이 반 넘게 가려진 뒤부터 나타나 두 제목이 겹쳐 보이는 순간이 없다(iOS 큰 제목과 같다).
-                    // 처음부터 따라 나타나면 너무 빨리 생기는 느낌이었다(2026-11-08 사용자 지적).
+                    // 큰 제목이 반 넘게 가려진 뒤부터 나타나 두 제목이 겹쳐 보이지 않음(iOS 큰 제목과 같음).
+                    // 처음부터 따라 나타나면 너무 빨리 생기는 느낌
                     alpha = ((progress() - HALF) / HALF).coerceIn(0f, 1f)
                 },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
             ) {
-                // 반쯤 들어가기 전에는 큰 제목이 읽히고 있으니 화면 읽기와 누르기에서 빠진다.
+                // 반쯤 들어가기 전에는 큰 제목이 읽히고 있어 화면 읽기와 누르기에서 뺌
                 if (half) SmallTitle(title, onTitleClick) else SmallTitle(title, null, Modifier.clearAndSetSemantics {})
                 if (half) accessory()
             }
@@ -119,8 +119,8 @@ private fun SmallTitle(title: String, onClick: (() -> Unit)?, modifier: Modifier
                 if (onClick == null) {
                     Modifier
                 } else {
-                    // 누르는 면만 글자 양옆 8까지 넓히고 글자는 큰 제목과 같은 왼쪽 선에 둔다.
-                    // 넓힌 만큼 안쪽을 다시 채우지 않으면 접히는 순간 글자가 왼쪽으로 밀려 보였다(2026-11-08 사용자 지적).
+                    // 누르는 면만 글자 양옆 8까지 넓히고 글자는 큰 제목과 같은 왼쪽 선에 둠.
+                    // 넓힌 만큼 안쪽을 다시 채우지 않으면 접히는 순간 글자가 왼쪽으로 밀려 보임
                     Modifier
                         .diaryTouchOutset(horizontal = DiarySpacing.x2, vertical = DiarySpacing.x2)
                         .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
@@ -148,13 +148,13 @@ private fun SmallTitle(title: String, onClick: (() -> Unit)?, modifier: Modifier
 
 /**
  * 목록 위 머리(큰 제목과 그 아래 줄)를 스크롤한 만큼 접는 상태.
- * 위로 올리면 머리부터 접히고, 목록이 맨 위에 닿은 뒤 더 내려야 다시 펼쳐진다(Material 3 큰 바와 같다).
- * 손을 떼면 반 넘게 접힌 쪽으로 붙는다.
- * 플랫폼 코드 없이 Compose 중첩 스크롤만 써서 Android와 iOS에서 같게 움직인다.
+ * 위로 올리면 머리부터 접히고, 목록이 맨 위에 닿은 뒤 더 내려야 다시 펼쳐짐(Material 3 큰 바와 같음).
+ * 손을 떼면 반 넘게 접힌 쪽으로 붙음.
+ * 플랫폼 코드 없이 Compose 중첩 스크롤만 써 Android와 iOS에서 같게 움직임.
  */
 @Stable
 class DiaryCollapsingHeaderState(initialFraction: Float = 0f) {
-    /** 머리 전체 높이(px). 그려질 때 정해진다. */
+    /** 머리 전체 높이(px). 그려질 때 정해짐. */
     var height by mutableFloatStateOf(0f)
         internal set
 
@@ -173,7 +173,7 @@ class DiaryCollapsingHeaderState(initialFraction: Float = 0f) {
         offset = -keep * full
     }
 
-    /** 탭을 다시 눌러 맨 위로 갈 때처럼 스크롤 없이 목록을 올릴 때 머리도 펼친다. */
+    /** 탭을 다시 눌러 맨 위로 갈 때처럼 스크롤 없이 목록을 올릴 때 머리도 펼침. */
     suspend fun expand() {
         animate(offset, 0f) { value, _ -> offset = value }
     }
@@ -197,8 +197,8 @@ class DiaryCollapsingHeaderState(initialFraction: Float = 0f) {
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                // 반쯤 걸쳐 멈추지 않게 가까운 쪽으로 붙인다.
-                // 반쯤 접힌 채라면 목록은 맨 위라 펼쳐도 내용이 튀지 않는다.
+                // 반쯤 걸쳐 멈추지 않게 가까운 쪽으로 붙임.
+                // 반쯤 접힌 채라면 목록은 맨 위라 펼쳐도 내용이 튀지 않음
                 val now = fraction
                 if (height > 0f && now > 0f && now < 1f) {
                     val target = if (now < HALF) 0f else -height
@@ -219,8 +219,8 @@ fun rememberDiaryCollapsingHeaderState(): DiaryCollapsingHeaderState =
 
 /**
  * [state]만큼 위로 밀려 접히는 머리.
- * 머리 높이가 줄어드는 만큼 아래 목록이 따라 올라온다.
- * 내용은 위로 밀리며 바 밑으로 사라지고, 접히는 동안 옅어지지 않는다(큰 제목이 바 밑으로 들어가는 모습).
+ * 머리 높이가 줄어드는 만큼 아래 목록이 따라 올라옴.
+ * 내용은 위로 밀리며 바 밑으로 사라지고, 접히는 동안 옅어지지 않음(큰 제목이 바 밑으로 들어가는 모습).
  */
 @Composable
 fun DiaryCollapsingHeader(state: DiaryCollapsingHeaderState, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
@@ -240,8 +240,8 @@ fun DiaryCollapsingHeader(state: DiaryCollapsingHeaderState, modifier: Modifier 
 }
 
 /**
- * 스크롤 안에 큰 제목이 있는 화면(돌아보기, 설정)에서 접힌 정도를 잰다.
- * 제목이 스크롤 내용 맨 위에 있다고 보고, 스크롤한 거리를 제목 높이로 나눈다.
+ * 스크롤 안에 큰 제목이 있는 화면(돌아보기, 설정)에서 접힌 정도를 잼.
+ * 제목이 스크롤 내용 맨 위에 있다고 보고, 스크롤한 거리를 제목 높이로 나눔.
  */
 fun titleCollapse(scrolled: Int, titleHeight: Int): Float = if (titleHeight <=
     0
@@ -252,8 +252,8 @@ fun titleCollapse(scrolled: Int, titleHeight: Int): Float = if (titleHeight <=
 }
 
 /**
- * 스크롤이 멈췄을 때 큰 제목이 반쯤 걸쳐 있으면 가까운 쪽으로 붙인다.
- * 홈의 접히는 머리와 같은 규칙이라 탭마다 손맛이 같다.
+ * 스크롤이 멈췄을 때 큰 제목이 반쯤 걸쳐 있으면 가까운 쪽으로 붙임.
+ * 홈의 접히는 머리와 같은 규칙이라 탭마다 손맛이 같음.
  */
 @Composable
 fun SnapTitleOnRest(scroll: ScrollState, titleHeight: Int) {

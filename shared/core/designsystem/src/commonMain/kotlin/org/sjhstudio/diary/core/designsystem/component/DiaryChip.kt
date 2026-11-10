@@ -41,16 +41,15 @@ fun DiaryChip(
     leading: (@Composable () -> Unit)? = null,
     trailingIcon: ImageVector? = null,
     trailing: (@Composable () -> Unit)? = null,
-    // 뒤에 아래 화살표가 붙은 칩은 시트를 여는 단추라 화면 읽기에 단추로 읽힌다.
-    // 체크박스로 두면 "체크박스, 선택됨"으로 읽혀 무엇이 열리는지 알 수 없었다(2026-11-10 화면 검토, M3 거르는 칩·동작 칩).
+    // 아래 화살표가 붙은 칩은 시트를 여는 단추라 화면 읽기에 단추로 읽힘.
+    // 체크박스면 "체크박스, 선택됨"으로 읽혀 무엇이 열리는지 알 수 없음(M3 거르는 칩·동작 칩)
     role: Role = if (trailingIcon != null || trailing != null) Role.Button else Role.Checkbox
 ) {
     val colors = DiaryTheme.colors
     val content = if (selected) colors.accentText else colors.textPrimary
     val interaction = remember { MutableInteractionSource() }
-    // 누르는 곳은 높이 48이고 보이는 칩은 32다.
-    // 폭은 칩 그대로 둔다.
-    // 최소 터치 폭까지 넓히면 글자가 짧은 칩이 칸 가운데로 밀려 줄 왼쪽이 어긋난다.
+    // 누르는 곳은 높이 48, 보이는 칩은 32. 폭은 칩 그대로.
+    // 최소 터치 폭까지 넓히면 짧은 칩이 칸 가운데로 밀려 줄 왼쪽이 어긋남
     Box(
         modifier
             .heightIn(min = DiarySpacing.minTouchTarget)
@@ -63,15 +62,14 @@ fun DiaryChip(
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
                 .clip(DiaryShapes.full)
                 .background(if (selected) colors.selected else colors.sunken)
-                // 아이콘 쪽은 아이콘 자체 여백이 있어 10으로 줄여 눈으로 좌우를 맞춘다(이 칩 안에서만 쓰는 값).
+                // 아이콘 자체 여백이 있어 아이콘 쪽은 10으로 줄여 좌우를 눈으로 맞춤(이 칩 전용 값)
                 .padding(start = if (leadingIcon != null || leading != null) 10.dp else DiarySpacing.x3, end = DiarySpacing.x3),
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
             verticalAlignment = Alignment.CenterVertically
         ) {
             leading?.invoke()
             if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = content, size = DiaryIconSize.i16)
-            // 칩은 LazyRow처럼 폭이 끝없는 곳에도 놓여서 weight를 쓰지 않는다.
-            // 쓰면 글자 폭이 0이 된다.
+            // 칩은 LazyRow처럼 폭이 끝없는 곳에도 놓여 weight를 쓰지 않음. 쓰면 글자 폭이 0이 됨
             BasicText(
                 text = text,
                 style = DiaryTheme.typography.label.copy(color = content),
@@ -85,9 +83,9 @@ fun DiaryChip(
 }
 
 /**
- * 글자 없이 아이콘만 있는 칩. 찾기 조건 초기화처럼 칩 줄 안에 놓는 동작이다.
- * 32 · 좌우 10 · full · 아이콘 16, 바탕은 고르지 않은 칩과 같다.
- * 이름은 화면 읽기에만 쓴다.
+ * 글자 없이 아이콘만 있는 칩. 찾기 조건 초기화처럼 칩 줄 안에 놓는 동작.
+ * 32 · 좌우 10 · full · 아이콘 16, 바탕은 고르지 않은 칩과 같음.
+ * 이름은 화면 읽기에만 씀.
  */
 @Composable
 fun DiaryIconChip(icon: ImageVector, contentDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {

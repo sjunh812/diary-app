@@ -47,10 +47,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 enum class DiaryToastResult { Dismissed, ActionPerformed }
 
-/**
- * 토스트 하나.
- * 앞의 것이 사라져야 다음 것이 뜬다.
- */
+/** 토스트 하나. 앞의 것이 사라져야 다음 것이 뜸. */
 class DiaryToastData internal constructor(
     val message: String,
     val actionLabel: String?,
@@ -61,7 +58,7 @@ class DiaryToastData internal constructor(
     }
 }
 
-/** 화면 모델이 아니라 화면에서 만들어 [DiaryToastHost]에 넘긴다. */
+/** 화면 모델이 아니라 화면에서 만들어 [DiaryToastHost]에 넘김. */
 @Stable
 class DiaryToastState {
     private val mutex = Mutex()
@@ -81,8 +78,8 @@ class DiaryToastState {
 /**
  * 토스트(`docs/design.md` 토스트, TDS Toast, SEED Snackbar).
  * 폭 화면 - 40, 최대 400 · 높이 48 · 한 줄 full, 여러 줄 20 · bodyStrong.
- * 버튼이 있으면 5초, 없으면 3초 보이고(TDS Toast), 누르는 동안은 사라지지 않는다.
- * 탭과 쓰기 버튼 위에 오도록 부르는 쪽이 자리를 잡는다.
+ * 버튼이 있으면 5초, 없으면 3초 보이고(TDS Toast), 누르는 동안은 사라지지 않음.
+ * 탭과 쓰기 버튼 위에 오도록 부르는 쪽이 자리를 잡음.
  */
 @Composable
 fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
@@ -120,8 +117,8 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
                             pressed = false
                         }
                     }.semantics { liveRegion = LiveRegionMode.Polite }
-                    // 버튼은 토스트 높이를 다 써서 누르는 곳이 48이 된다.
-                    // 그래서 위아래 여백은 글에만 주고, 오른쪽은 버튼 안쪽 8만큼 줄인다.
+                    // 버튼은 토스트 높이를 다 써 누르는 곳이 48.
+                    // 그래서 위아래 여백은 글에만 주고, 오른쪽은 버튼 안쪽 8만큼 줄임
                     .padding(start = DiarySpacing.x5, end = if (action != null) DiarySpacing.x3 else DiarySpacing.x5),
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
             verticalAlignment = Alignment.CenterVertically
@@ -141,7 +138,7 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
                         .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
                             shown.finish(DiaryToastResult.ActionPerformed)
                         }
-                        // 누름 면이 토스트 끝에 닿지 않게 위아래를 조금 안으로 넣는다.
+                        // 누름 면이 토스트 끝에 닿지 않게 위아래를 조금 안으로
                         .padding(vertical = DiarySpacing.x1_5)
                         .diaryPress(interaction, colors.onToast, DiaryShapes.r10)
                         .padding(horizontal = DiarySpacing.x2),
@@ -154,7 +151,7 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
     }
 }
 
-// 태블릿에서도 폰과 같은 크기로 보이게 막는다(M3 스낵바 344~672, 안드로이드 태블릿 스낵바 576 안쪽).
+// 태블릿에서도 폰과 같은 크기로 보이게 막음(M3 스낵바 344~672, 안드로이드 태블릿 스낵바 576 안쪽)
 private val MaxWidth = 400.dp
 private const val ACTION_MILLIS = 5_000L
 private const val PLAIN_MILLIS = 3_000L
