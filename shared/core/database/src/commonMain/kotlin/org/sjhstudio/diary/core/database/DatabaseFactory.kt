@@ -27,7 +27,7 @@ fun RoomDatabase.Builder<DiaryDatabase>.configured(): RoomDatabase.Builder<Diary
     .setQueryCoroutineContext(RoomQueryContext)
 
 /**
- * Room 안쪽 작업(변경 감지 등)의 예외로 앱이 꺼지지 않게 받음.
+ * Room 안쪽 작업(변경 감지 등)의 예외로 앱이 꺼지지 않게 받음
  * 쿼리 실패는 부른 쪽에도 그대로 가서 저장소가 결과로 돌려줌
  */
 internal val RoomQueryContext: CoroutineContext =
