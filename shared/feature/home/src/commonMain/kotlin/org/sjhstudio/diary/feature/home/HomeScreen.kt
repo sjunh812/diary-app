@@ -97,7 +97,7 @@ import org.sjhstudio.diary.feature.home.resources.home_month_sheet_title
 import org.sjhstudio.diary.feature.home.resources.home_search
 
 /**
- * 홈(Figma "홈 (S1)").
+ * 홈(Figma "홈 (S1)")
  * 큰 제목은 지금 보이는 달이고 누르면 그 달로 감. 넓은 화면에서는 왼쪽 칸, 고른 줄은 [selectedId]
  */
 @Composable
@@ -125,7 +125,7 @@ fun HomeRoute(
     val grid = rememberLazyGridState()
     val header = rememberDiaryCollapsingHeaderState()
     OnTabReselected {
-        // 코드로 올리면 중첩 스크롤을 안 거쳐 머리가 접힌 채 남아 머리도 함께 펼침.
+        // 코드로 올리면 중첩 스크롤을 안 거쳐 머리가 접힌 채 남아 머리도 함께 펼침
         // 멀리서 부드럽게 올리면 수백 줄을 지나며 느리고 번쩍여, 몇 줄 앞으로 바로 옮긴 뒤 짧게만 올림(Google 앱 방식)
         coroutineScope {
             launch { header.expand() }
@@ -206,8 +206,8 @@ fun HomeRoute(
 }
 
 /**
- * 제목에 보일 날짜.
- * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜 유지. 오늘로 튀었다 돌아오면 반짝임.
+ * 제목에 보일 날짜
+ * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜 유지. 오늘로 튀었다 돌아오면 반짝임
  * 목록이 비면 오늘이 든 달
  */
 internal fun shownDate(visible: LocalDate?, held: LocalDate?, hasRows: Boolean, today: LocalDate): LocalDate =
@@ -239,7 +239,7 @@ internal fun HomeScreen(
 ) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
-            // 일기가 없으면 고를 달도 없음.
+            // 일기가 없으면 고를 달도 없음
             // 불러오는 동안은 마지막으로 다 불러왔을 때의 답 유지. 즐겨찾기를 켜고 끌 때 화살표가 반짝이지 않게
             val loadedEmpty = if (rows.loadState.refresh is LoadState.NotLoading) rows.itemCount == 0 else null
             // 처음 다 읽기 전에는 숨김. 보였다 숨기면 일기 없는 첫 실행에서 반짝이고, 숨겼다 보이면 목록과 같이 나옴
@@ -247,8 +247,8 @@ internal fun HomeScreen(
             SideEffect { loadedEmpty?.let { lastEmpty = it } }
             val noMonths = loadedEmpty ?: lastEmpty
             val pickMonth = onPickMonth.takeUnless { noMonths }
-            // 스크롤하면 큰 제목과 백업 줄이 접히고 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바).
-            // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추.
+            // 스크롤하면 큰 제목과 백업 줄이 접히고 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
+            // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추
             // 작은 제목은 큰 제목이 가려진 만큼만 따름. 머리 전체로 재면 큰 제목이 다 가려지기 전에 진해져 겹쳐 보임
             var titleHeight by remember { mutableIntStateOf(0) }
             DiaryTabTopBar(
@@ -416,7 +416,7 @@ private fun Feed(
 }
 
 /**
- * 목록과 함께 움직이는 맨 위 자리. 권하기 카드처럼 잠깐 보이는 안내가 일기 칸을 계속 차지하지 않게.
+ * 목록과 함께 움직이는 맨 위 자리. 권하기 카드처럼 잠깐 보이는 안내가 일기 칸을 계속 차지하지 않게
  * 아래 여백이 늘 있어 안내가 늦게 떠도 맨 위 줄로 남고 일기에 밀려 위로 숨지 않음
  */
 @Composable

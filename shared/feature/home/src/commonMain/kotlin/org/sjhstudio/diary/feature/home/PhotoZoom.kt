@@ -22,7 +22,7 @@ internal const val DOUBLE_TAP_ZOOM = 2.5f
 private const val SETTLE_ZOOM = 1.05f
 
 /**
- * 사진 한 장의 크기와 위치. 가장자리가 화면 안으로 들어오지 않을 만큼만 움직임.
+ * 사진 한 장의 크기와 위치. 가장자리가 화면 안으로 들어오지 않을 만큼만 움직임
  * [photo]는 원래 크기, 모르면 화면을 채운다고 봄
  */
 @Stable

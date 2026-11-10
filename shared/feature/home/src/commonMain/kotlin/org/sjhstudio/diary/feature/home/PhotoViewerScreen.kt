@@ -59,7 +59,7 @@ import org.sjhstudio.diary.feature.home.resources.detail_photo_close
 import org.sjhstudio.diary.feature.home.resources.detail_photo_page
 
 /**
- * 사진 크게 보기(Figma "S3-a · 사진 크게"). 바탕은 사진을 위해 테마와 상관없이 검정.
+ * 사진 크게 보기(Figma "S3-a · 사진 크게"). 바탕은 사진을 위해 테마와 상관없이 검정
  * 좌우로 넘기고, 두 손가락이나 두 번 눌러 키움(FR-020)
  */
 @Composable
@@ -95,7 +95,7 @@ fun PhotoViewerRoute(entryId: String, index: Int, onClose: () -> Unit, modifier:
 }
 
 /**
- * 위 줄: 닫기와 몇 번째 사진인지.
+ * 위 줄: 닫기와 몇 번째 사진인지
  * 바탕이 늘 검어 누름 면은 흰색. `DiaryIconButton`의 글자색 면은 라이트 테마에서 안 보임
  */
 @Composable
@@ -132,7 +132,7 @@ private fun PhotoNotice(pending: Boolean, modifier: Modifier = Modifier) {
 }
 
 /**
- * 키우지 않았을 때 손가락 하나는 넘기기에 넘김. 두 손가락이거나 이미 키웠을 때만 여기서 받음.
+ * 키우지 않았을 때 손가락 하나는 넘기기에 넘김. 두 손가락이거나 이미 키웠을 때만 여기서 받음
  * 키운 사진은 넘어가지 않고, 두 번 눌러 되돌리면 다시 넘길 수 있음
  */
 @Composable

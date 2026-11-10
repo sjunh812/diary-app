@@ -32,7 +32,7 @@ import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
- * 홈 목록(FR-015~FR-018, FR-021).
+ * 홈 목록(FR-015~FR-018, FR-021)
  * 60편씩 읽어 1만 편이어도 첫 화면이 빠름
  */
 class HomeViewModel(private val entries: EntryRepository, private val settings: SettingsRepository, fonts: FontInstaller) : ViewModel() {
