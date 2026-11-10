@@ -49,7 +49,7 @@ class AdRepositoryFailureTest {
             if (crash) error("광고 SDK 실패")
         }
 
-        override suspend fun showInterstitial(): Boolean {
+        override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
             if (crash) error("광고 SDK 실패")
             shown++
             return closed.await()

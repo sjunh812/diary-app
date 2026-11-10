@@ -79,7 +79,7 @@ class PlanTableTest {
             prepared++
         }
 
-        override suspend fun showInterstitial(): Boolean {
+        override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
             interstitials++
             return true
         }

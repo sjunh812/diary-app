@@ -12,6 +12,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.Plan
@@ -33,14 +34,21 @@ class AdRepositoryTest {
         var reward = true
         var ready = true
         var dayWhileShowing: String? = null
+        var dayBeforeImpression: String? = null
+
+        /** 거짓이면 광고가 화면에 나오기 전에 닫히거나 앱이 꺼진 때다. */
+        var impression = true
         override val available = true
 
         override fun prepareInterstitial() {
             prepared++
         }
 
-        override suspend fun showInterstitial(): Boolean {
-            if (!ready) return false
+        override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
+            if (ready) dayBeforeImpression = store.current().lastInterstitialDay
+            if (!ready || !impression) return false
+            onImpression()
+            yield()
             dayWhileShowing = store.current().lastInterstitialDay
             shown++
             return true
@@ -166,12 +174,30 @@ class AdRepositoryTest {
         assertEquals(1, player.shown)
     }
 
-    /** 광고를 보는 중에 앱이 꺼져도 오늘 본 것으로 이미 적혀 있다. 다시 열었을 때 또 뜨지 않는다. */
+    /**
+     * 광고가 화면에 나온 순간 오늘 본 것으로 적는다.
+     * 보는 중에 앱이 꺼져도 다시 열었을 때 또 뜨지 않는다.
+     */
     @Test
-    fun the_day_is_written_before_the_ad_shows() = runTest {
+    fun the_day_is_written_when_the_ad_appears() = runTest {
         repo().backToList()
 
+        assertEquals(null, player.dayBeforeImpression)
         assertEquals("2026-11-05", player.dayWhileShowing)
+    }
+
+    /** 광고가 나오기 전에 꺼졌으면 본 것이 아니다. 다음에 목록으로 돌아오면 다시 띄운다. */
+    @Test
+    fun an_ad_closed_before_it_appeared_shows_again_next_time() = runTest {
+        val repository = repo()
+        player.impression = false
+        repository.backToList()
+        assertEquals(null, store.current().lastInterstitialDay)
+
+        player.impression = true
+        repository.backToList()
+        assertEquals(1, player.shown)
+        assertEquals("2026-11-05", store.current().lastInterstitialDay)
     }
 
     @Test

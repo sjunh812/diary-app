@@ -166,13 +166,15 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
         )
     }
 
-    override suspend fun showInterstitial(): Boolean {
+    override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
         val ad = interstitial ?: return false
         val screen = activity ?: return false
         interstitial = null
         return suspendCancellableCoroutine { result ->
             ad.fullScreenContentCallback =
                 object : FullScreenContentCallback() {
+                    override fun onAdImpression() = onImpression()
+
                     override fun onAdDismissedFullScreenContent() {
                         if (result.isActive) result.resume(true)
                     }
