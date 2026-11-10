@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""온보딩 설명 그림 로띠 두 개를 만든다.
+"""온보딩 설명 그림 로띠를 만든다.
 
   python3 scripts/lottie/make_onboarding.py
 
@@ -244,7 +244,123 @@ def plus():
     c.save()
 
 
+def lines_static(c, name, lines, color="@textTertiary", width=5, opacity=50):
+    c.layer(name, [group([path(f"M {x1} {y} L {x2} {y}") for x1, x2, y in lines] + [stroke(color, width, opacity)])])
+
+
+def style():
+    """꾸미기와 임시 저장. 다 쓴 일기에서 한 줄은 굵어지고, 한 줄은 색이 들고, 한 줄에 형광펜이 칠해진 뒤 "저장됨" 표시가 뜬다."""
+    c = Comp("onboarding_style", 100)
+    lines = [(36, 252, 92), (36, 216, 116), (36, 156, 140)]
+    # 저장됨 표시: 체크와 짧은 글줄이 든 알약.
+    c.layer("저장됨", [
+        group([path("M 20 6 L 9 17 L 4 12", 0.5, 206, 44), stroke("@accent", 2)]),
+        group([path("M 224 50 L 246 50"), stroke("@accent", 3)]),
+        group([rect(226, 50, 56, 24, 12), fill("@selected")]),
+    ], anchor=(226, 50), scale=pop(78, 92))
+    c.layer("굵게", [group([path("M 36 92 L 252 92"), {"ty": "st", "c": static("@textTertiary"), "o": static(100),
+                                                         "w": keys([(12, 5), (24, 8.5)]), "lc": 2, "lj": 2, "ml": 4}])],
+            opacity=keys([(12, 0), (14, 100)], LINEAR))
+    c.layer("글자색", [group([
+        path("M 36 116 L 216 116"),
+        {"ty": "tm", "s": static(0), "e": keys([(32, 0), (48, 100)], LINEAR), "o": static(0), "m": 1},
+        stroke("@accent", 5),
+    ])])
+    lines_static(c, "글줄", lines)
+    c.layer("형광펜", [group([
+        path("M 32 140 L 160 140"),
+        {"ty": "tm", "s": static(0), "e": keys([(54, 0), (70, 100)], LINEAR), "o": static(0), "m": 1},
+        {"ty": "st", "c": static("@moodB"), "o": static(100), "w": static(16), "lc": 1, "lj": 2, "ml": 4},
+    ])])
+    card(c)
+    c.save()
+
+
+def find():
+    """찾기와 돌아보기. 기분·날씨 조건을 고르면 목록이 걸러지고, 기분 막대가 올라온다."""
+    c = Comp("onboarding_find", 100)
+    for i, (x, h, start) in enumerate([(208, 22, 60), (226, 38, 64), (244, 54, 68)]):
+        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 12, h, 4), fill("@accent")])], pos=static([x, 172, 0]),
+                scale=keys([(start, [100, 0, 100]), (start + 12, [100, 100, 100])]))
+    c.layer("통계 칸", [group([rect(226, 142, 78, 74, 16), stroke("@line", 1), fill("@surface")])], anchor=(226, 142),
+            scale=pop(52, 64))
+    for n, y in enumerate([164, 136]):
+        c.layer(f"걸러지는 줄 {n + 1}", [*face(46, y, 8), group([path(f"M 62 {y} L 168 {y}"), stroke("@textTertiary", 5, 50)])],
+                anchor=(110, y), opacity=keys([(34 + n * 4, 100), (46 + n * 4, 0)]),
+                scale=keys([(34 + n * 4, [100, 100, 100]), (46 + n * 4, [100, 70, 100])]))
+    c.layer("남는 줄", [*face(46, 108, 8), group([path("M 62 108 L 168 108"), stroke("@textTertiary", 5, 50)])])
+    sun = [group([ellipse(118, 74, 4.5), stroke("@accent", 1.8)])] + [
+        group([path(f"M {118 + 7 * math.cos(a)} {74 + 7 * math.sin(a)} L {118 + 9.5 * math.cos(a)} {74 + 9.5 * math.sin(a)}"),
+               stroke("@accent", 1.8)]) for a in [k * math.pi / 4 for k in range(8)]]
+    c.layer("날씨 칩", [*sun, group([path("M 130 74 L 146 74"), stroke("@accent", 3)]),
+                       group([rect(130, 74, 52, 24, 12), fill("@selected")])], anchor=(130, 74), scale=pop(20, 32))
+    c.layer("기분 칩", [*face(58, 74, 7), group([path("M 70 74 L 86 74"), stroke("@accent", 3)]),
+                       group([rect(70, 74, 52, 24, 12), fill("@selected")])], anchor=(70, 74), scale=pop(10, 22))
+    k = 14 / 24
+    c.layer("찾기 칸", [
+        group([ellipse(41, 38, 5), stroke("@textTertiary", 1.8)]),
+        group([path("M 45 42 L 49 46"), stroke("@textTertiary", 1.8)]),
+        group([path("M 60 40 L 120 40"), stroke("@textTertiary", 4, 40)]),
+        group([rect(144, 40, 236, 28, 14), fill("@sunken")]),
+    ])
+    c.layer("카드", [group([rect(144, 104, 270, 176, 16), stroke("@line", 1), fill("@surface")])])
+    c.save()
+
+
+def trash():
+    """휴지통 30일. 일기가 휴지통에 들어갔다가 다시 나와 제자리로 돌아온다."""
+    c = Comp("onboarding_trash", 104)
+    top, bin_y = (144, 58), (144, 158)
+    check(180, 36, 12, c, 84, 98)
+    lid = keys([(0, 0), (12, 0), (18, -24), (34, -24), (40, 0), (50, 0), (56, -24), (74, -24), (80, 0)])
+    c.layer("뚜껑", [
+        group([path("M 136 117 C 136 111 152 111 152 117"), stroke("@textTertiary", 3)]),
+        group([path("M 112 120 L 176 120"), stroke("@textTertiary", 4)]),
+    ], anchor=(112, 120), rotation=lid)
+    c.layer("통", [
+        group([path("M 132 136 L 132 176 M 144 136 L 144 176 M 156 136 L 156 176"), stroke("@textTertiary", 3, 60)]),
+        group([path("M 118 126 L 170 126 L 164 190 L 124 190 Z"), stroke("@textTertiary", 3), fill("@surface")]),
+    ])
+    pos = keys([(0, [*top, 0]), (16, [*top, 0]), (34, [*bin_y, 0]), (54, [*bin_y, 0]), (74, [*top, 0])])
+    scl = keys([(16, [100, 100, 100]), (34, [40, 40, 100]), (54, [40, 40, 100]), (74, [100, 100, 100])])
+    opa = keys([(0, 100), (30, 100), (34, 0), (54, 0), (58, 100)], LINEAR)
+    c.layer("일기", [
+        *face(118, 48, 9),
+        group([path("M 134 48 L 172 48"), stroke("@textTertiary", 4, 50)]),
+        group([path("M 116 68 L 164 68"), stroke("@textTertiary", 4, 50)]),
+        group([rect(144, 58, 92, 60, 12), stroke("@line", 1), fill("@surface")]),
+    ], anchor=top, pos=pos, scale=scl, opacity=opa)
+    c.save()
+
+
+def tablet():
+    """태블릿. 폰 화면이 태블릿만큼 넓어지고, 목록 옆에 고른 일기가 열린다."""
+    c = Comp("onboarding_tablet", 100)
+    grow = (14, 40)
+    detail_in = keys([(40, [196, 104, 0]), (58, [184, 104, 0])])
+    c.layer("상세", [
+        *face(140, 52, 9),
+        group([path("M 130 74 L 236 74"), stroke("@textTertiary", 5, 50)]),
+        group([path("M 130 90 L 210 90"), stroke("@textTertiary", 5, 50)]),
+        *image_icon(170, 132, 18, "@surface"),
+        group([rect(170, 132, 84, 46, 8), fill("@moodA")]),
+    ], anchor=(184, 104), pos=detail_in, opacity=keys([(40, 0), (54, 100)]))
+    rows = []
+    for n, y in enumerate([40, 64, 88, 112, 136]):
+        rows.append(group([path(f"M -18 {y} L 18 {y}"), stroke("@textTertiary", 4, 50)]))
+        rows.append(group([ellipse(-26, y, 5), fill("@moodA" if n else "@face")]))
+        rows.append(group([rect(-4, y, 64, 18, 6), fill("@selected" if n == 0 else "@sunken")]))
+    c.layer("목록", rows, pos=keys([(grow[0], [144, 12, 0]), (grow[1], [64, 12, 0])]))
+    frame = {"ty": "rc", "p": static([0, 0]), "s": keys([(grow[0], [92, 176]), (grow[1], [252, 176])]), "r": static(16), "d": 1}
+    c.layer("기기", [group([frame, stroke("@line", 1.5), fill("@surface")])], pos=static([144, 104, 0]))
+    c.save()
+
+
 if __name__ == "__main__":
     write_lines()
     backup()
     plus()
+    style()
+    find()
+    trash()
+    tablet()

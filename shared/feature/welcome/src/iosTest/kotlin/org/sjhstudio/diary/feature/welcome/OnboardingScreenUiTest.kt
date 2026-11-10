@@ -1,8 +1,6 @@
 package org.sjhstudio.diary.feature.welcome
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -11,42 +9,55 @@ import kotlin.test.assertEquals
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.feature.welcome.resources.Res
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_later
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_next
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_skip
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_start
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_tablet_title
 
-// 업데이트 사용자의 백업 장에서 [나중에]가 연결과 엇갈리지 않는지 본다.
+// 업데이트 사용자 다섯 장, 새 사용자 네 장. 마지막은 태블릿
 @OptIn(ExperimentalTestApi::class)
 class OnboardingScreenUiTest {
-    @Test
-    fun later_waits_while_the_drive_is_connecting() = runComposeUiTest {
-        var later = ""
+    private fun goesThrough(updated: Boolean, pages: Int) = runComposeUiTest {
+        var next = ""
+        var start = ""
+        var tablet = ""
+        var finished = 0
         setContent {
-            later = stringResource(Res.string.onboarding_later)
-            DiaryTheme(darkTheme = false) {
-                OnboardingScreen(updated = true, connected = false, connecting = true, onConnect = {}, onFinish = {})
-            }
+            next = stringResource(Res.string.onboarding_next)
+            start = stringResource(Res.string.onboarding_start)
+            tablet = stringResource(Res.string.onboarding_tablet_title)
+            DiaryTheme(darkTheme = false) { OnboardingScreen(updated = updated, onFinish = { finished++ }) }
         }
 
-        onNode(hasText(later)).assertIsNotEnabled()
+        repeat(pages - 1) {
+            onNode(hasText(next)).performClick()
+            waitForIdle()
+        }
+        onNode(hasText(tablet)).assertExists()
+        onNode(hasText(start)).performClick()
+        waitForIdle()
+
+        assertEquals(1, finished)
     }
 
     @Test
-    fun later_moves_on_without_connecting() = runComposeUiTest {
-        var later = ""
-        var start = ""
-        var connects = 0
+    fun an_updated_user_sees_five_pages_ending_with_tablet() = goesThrough(updated = true, pages = 5)
+
+    @Test
+    fun a_new_user_sees_four_pages_ending_with_tablet() = goesThrough(updated = false, pages = 4)
+
+    @Test
+    fun skip_finishes_at_once() = runComposeUiTest {
+        var skip = ""
+        var finished = 0
         setContent {
-            later = stringResource(Res.string.onboarding_later)
-            start = stringResource(Res.string.onboarding_start)
-            DiaryTheme(darkTheme = false) {
-                OnboardingScreen(updated = true, connected = false, connecting = false, onConnect = { connects++ }, onFinish = {})
-            }
+            skip = stringResource(Res.string.onboarding_skip)
+            DiaryTheme(darkTheme = false) { OnboardingScreen(updated = true, onFinish = { finished++ }) }
         }
 
-        onNode(hasText(later)).assertIsEnabled().performClick()
+        onNode(hasText(skip)).performClick()
         waitForIdle()
 
-        onNode(hasText(start)).assertExists()
-        assertEquals(0, connects)
+        assertEquals(1, finished)
     }
 }

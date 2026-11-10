@@ -27,3 +27,10 @@
 ## 마무리
 
 - [x] T011 프리뷰, 태블릿, 글자 200%, 에뮬레이터·시뮬레이터 확인, 문서 동기화
+
+## 온보딩 다시 짜기 (2026-11-10)
+
+- [x] T012 로띠 넷 더하기(꾸미기, 찾기·돌아보기, 휴지통, 태블릿) `scripts/lottie/make_onboarding.py`
+- [x] T013 장 구성 바꾸기, 백업 버튼과 목록 장 빼기 `shared/feature/welcome/.../OnboardingScreen.kt`, `WelcomeViewModel.kt`, `WelcomeGate.kt`
+- [x] T014 문구 세 언어, 프리뷰, 화면 시험, 개발자 모드 화면 견본
+- [ ] T015 Figma W2·W3 고치기

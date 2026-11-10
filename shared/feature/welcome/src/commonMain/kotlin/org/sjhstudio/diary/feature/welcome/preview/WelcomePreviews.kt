@@ -29,8 +29,20 @@ private fun FullLetterDark() = DiaryTheme(darkTheme = true) { FullLetterScreen(1
 
 @Preview(locale = "ko")
 @Composable
-private fun UpdatedLight() = DiaryTheme(darkTheme = false) { OnboardingScreen(true, false, false, {}, {}) }
+private fun UpdatedLight() = DiaryTheme(darkTheme = false) { OnboardingScreen(updated = true, onFinish = {}) }
 
 @Preview(locale = "ko")
 @Composable
-private fun NewDark() = DiaryTheme(darkTheme = true) { OnboardingScreen(false, false, false, {}, {}) }
+private fun UpdatedDark() = DiaryTheme(darkTheme = true) { OnboardingScreen(updated = true, onFinish = {}) }
+
+@Preview(locale = "ko")
+@Composable
+private fun NewLight() = DiaryTheme(darkTheme = false) { OnboardingScreen(updated = false, onFinish = {}) }
+
+@Preview(locale = "ko")
+@Composable
+private fun NewDark() = DiaryTheme(darkTheme = true) { OnboardingScreen(updated = false, onFinish = {}) }
+
+@Preview(locale = "ko", widthDp = 1024, heightDp = 720)
+@Composable
+private fun NewTablet() = DiaryTheme(darkTheme = false) { OnboardingScreen(updated = false, onFinish = {}) }

@@ -29,7 +29,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
@@ -37,9 +36,6 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
-import org.sjhstudio.diary.core.designsystem.component.PhraseText
-import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -47,53 +43,51 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.feature.welcome.resources.Res
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_action
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_backup_title
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_fresh_title
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_later
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_find_body
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_find_title
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_look_back_body
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_look_back_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_next
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_own_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_own_title
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_plus_body
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_plus_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_skip
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_start
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_style_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_style_title
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_tablet_body
+import org.sjhstudio.diary.feature.welcome.resources.onboarding_tablet_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_trash_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_trash_title
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_wide_body
-import org.sjhstudio.diary.feature.welcome.resources.onboarding_wide_title
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_write_body
 import org.sjhstudio.diary.feature.welcome.resources.onboarding_write_title
 
-private enum class Page { WRITE, OWN, BACKUP, FRESH }
-
-/** 업데이트 사용자는 편지를 읽고 왔으니 할 일과 달라진 점만 본다. */
-private val UpdatedPages = listOf(Page.BACKUP, Page.FRESH)
+/** 한 장에 그림 하나, 제목 한 줄, 설명 두 줄. 여러 기능을 목록으로 몰지 않음 */
+private enum class Page(val title: StringResource, val body: StringResource) {
+    BACKUP(Res.string.onboarding_backup_title, Res.string.onboarding_backup_body),
+    STYLE(Res.string.onboarding_style_title, Res.string.onboarding_style_body),
+    FIND(Res.string.onboarding_find_title, Res.string.onboarding_find_body),
+    TRASH(Res.string.onboarding_trash_title, Res.string.onboarding_trash_body),
+    TABLET(Res.string.onboarding_tablet_title, Res.string.onboarding_tablet_body),
+    WRITE(Res.string.onboarding_write_title, Res.string.onboarding_write_body),
+    LOOK_BACK(Res.string.onboarding_look_back_title, Res.string.onboarding_look_back_body),
+    OWN(Res.string.onboarding_own_title, Res.string.onboarding_own_body)
+}
 
 /**
- * 새 사용자에게는 왜 쓰는지와 기록이 어디에 있는지만 말한다.
- * 나머지는 쓰면서 맥락 팁으로 알려 준다.
+ * 업데이트 사용자는 쓰는 법 대신 달라진 점만.
+ * 백업은 홈 백업 줄에서 켜므로 버튼 없이 좋아진 점만. 태블릿은 폰에서도 보여 있는 줄 알게 함
  */
-private val NewPages = listOf(Page.WRITE, Page.OWN)
+private val UpdatedPages = listOf(Page.BACKUP, Page.STYLE, Page.FIND, Page.TRASH, Page.TABLET)
 
-/**
- * 온보딩(Figma W2, W3).
- * 두 장이고 언제든 건너뛴다.
- * 권한은 묻지 않는다(FR-007, FR-012).
- */
+/** 새 사용자는 무엇을 하는 앱인지, 무엇을 얻는지, 기록이 어디 있는지 */
+private val NewPages = listOf(Page.WRITE, Page.LOOK_BACK, Page.OWN, Page.TABLET)
+
+/** 온보딩(Figma W2, W3). 언제든 건너뜀. 권한과 연결은 묻지 않음(FR-007, FR-012) */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun OnboardingScreen(
-    updated: Boolean,
-    connected: Boolean,
-    connecting: Boolean,
-    onConnect: (next: () -> Unit) -> Unit,
-    onFinish: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun OnboardingScreen(updated: Boolean, onFinish: () -> Unit, modifier: Modifier = Modifier) {
     val pages = if (updated) UpdatedPages else NewPages
     val pager = rememberPagerState { pages.size }
     val scope = rememberCoroutineScope()
@@ -104,7 +98,6 @@ fun OnboardingScreen(
     BackHandler(enabled = pager.currentPage > 0) { scope.launch { pager.animateScrollToPage(pager.currentPage - 1) } }
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        val asking = pages[pager.currentPage] == Page.BACKUP && !connected
         // 마지막 장은 아래 버튼이 곧 끝이라 건너뛸 것이 없다.
         // 칸은 남겨 그림이 움직이지 않게 한다.
         // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
@@ -113,47 +106,35 @@ fun OnboardingScreen(
             Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(end = LocalScreenGutter.current - DiarySpacing.x4),
             contentAlignment = Alignment.CenterEnd
         ) {
-            if (asking || !last) {
-                DiaryButton(
-                    stringResource(if (asking) Res.string.onboarding_later else Res.string.onboarding_skip),
-                    if (asking) next else onFinish,
-                    kind = DiaryButtonKind.Text,
-                    // 연결하는 동안 미루면 미룬 뒤에 연결이 끝나 버린다.
-                    // 아래 버튼처럼 연결이 끝날 때까지 막는다.
-                    enabled = !connecting
-                )
-            }
+            if (!last) DiaryButton(stringResource(Res.string.onboarding_skip), onFinish, kind = DiaryButtonKind.Text)
         }
         HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth()) { index -> PageBody(pages[index], active = index == pager.currentPage) }
         Dots(pages.size, pager.currentPage)
         Spacer(Modifier.height(DiarySpacing.x6))
-        val label =
-            when {
-                asking -> Res.string.onboarding_backup_action
-                last -> Res.string.onboarding_start
-                else -> Res.string.onboarding_next
-            }
         DiaryButton(
-            stringResource(label),
-            { if (asking) onConnect { next() } else next() },
+            stringResource(if (last) Res.string.onboarding_start else Res.string.onboarding_next),
+            next,
             Modifier
                 .widthIn(max = DiaryWriteSize.bodyMax)
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
-            size = DiaryButtonSize.XLarge,
-            enabled = !connecting
+            size = DiaryButtonSize.XLarge
         )
     }
 }
 
 @Composable
 private fun PageBody(page: Page, active: Boolean) {
-    when (page) {
-        Page.WRITE -> ArtPage(Res.string.onboarding_write_title, Res.string.onboarding_write_body) { WriteArt(active) }
-        Page.OWN -> ArtPage(Res.string.onboarding_own_title, Res.string.onboarding_own_body) { BackupArt(active) }
-        Page.BACKUP -> ArtPage(Res.string.onboarding_backup_title, Res.string.onboarding_backup_body) { BackupArt(active) }
-        Page.FRESH -> FreshPage()
+    ArtPage(page.title, page.body) {
+        when (page) {
+            Page.BACKUP, Page.OWN -> BackupArt(active)
+            Page.WRITE -> WriteArt(active)
+            Page.STYLE -> StyleArt(active)
+            Page.FIND, Page.LOOK_BACK -> FindArt(active)
+            Page.TRASH -> TrashArt(active)
+            Page.TABLET -> TabletArt(active)
+        }
     }
 }
 
@@ -198,45 +179,6 @@ private fun ArtPage(title: StringResource, body: StringResource, art: @Composabl
             modifier = Modifier.widthIn(max = DiaryWriteSize.bodyMax),
             minLines = 2
         )
-    }
-}
-
-/**
- * 달라진 점은 한 장에 모아 훑어보게 한다.
- * 넘기는 장을 늘리지 않는다.
- */
-@Composable
-private fun FreshPage() {
-    val colors = DiaryTheme.colors
-    PageColumn {
-        BasicText(
-            stringResource(Res.string.onboarding_fresh_title),
-            style = DiaryTheme.typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
-        )
-        Spacer(Modifier.height(DiarySpacing.x8))
-        Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-            FreshRow(DiaryIcons.TextColor, Res.string.onboarding_style_title, Res.string.onboarding_style_body)
-            FreshRow(DiaryIcons.Trash, Res.string.onboarding_trash_title, Res.string.onboarding_trash_body)
-            FreshRow(DiaryIcons.Tablet, Res.string.onboarding_wide_title, Res.string.onboarding_wide_body)
-            FreshRow(DiaryIcons.Sparkles, Res.string.onboarding_plus_title, Res.string.onboarding_plus_body)
-        }
-    }
-}
-
-@Composable
-private fun FreshRow(icon: ImageVector, title: StringResource, body: StringResource) {
-    val colors = DiaryTheme.colors
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4), verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            Modifier.size(DiaryArtSize.rowBadge).clip(DiaryShapes.full).background(colors.selected),
-            contentAlignment = Alignment.Center
-        ) {
-            DiaryIcon(icon, contentDescription = null, tint = colors.accentText)
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            PhraseText(stringResource(title), style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
-            PhraseText(stringResource(body), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
-        }
     }
 }
 

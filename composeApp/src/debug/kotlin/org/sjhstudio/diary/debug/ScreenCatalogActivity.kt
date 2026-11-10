@@ -52,6 +52,7 @@ import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportUiState
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
 import org.sjhstudio.diary.feature.welcome.LetterScreen
+import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 
 /**
  * 개발 빌드에만 있는 화면 모음.
@@ -131,6 +132,10 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     FULL_LETTER -> FullLetterScreen(1204, onBack = ::finish)
 
+                    ONBOARDING_UPDATED -> OnboardingScreen(updated = true, onFinish = ::finish)
+
+                    ONBOARDING_NEW -> OnboardingScreen(updated = false, onFinish = ::finish)
+
                     RESTORE_LEGACY ->
                         RestorePreviewScreen(
                             RestorePreparation.Ready(
@@ -173,6 +178,8 @@ class ScreenCatalogActivity : ComponentActivity() {
         const val RESTORE_NO_SPACE = "restore_no_space"
         const val LETTER = "letter"
         const val FULL_LETTER = "full_letter"
+        const val ONBOARDING_UPDATED = "onboarding_updated"
+        const val ONBOARDING_NEW = "onboarding_new"
         const val RESTORE_LEGACY = "restore_legacy"
         const val RESTORE_LEGACY_RESULT = "restore_legacy_result"
         const val RESTORE_RUNNING = "restore_running"

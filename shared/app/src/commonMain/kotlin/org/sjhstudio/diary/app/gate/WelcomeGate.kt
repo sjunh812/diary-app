@@ -10,7 +10,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.WelcomeStep
-import org.sjhstudio.diary.feature.backup.BackupConnectFailedSheet
 import org.sjhstudio.diary.feature.welcome.LetterScreen
 import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 import org.sjhstudio.diary.feature.welcome.WelcomeViewModel
@@ -24,9 +23,6 @@ import org.sjhstudio.diary.feature.welcome.WelcomeViewModel
 fun WelcomeGate(content: @Composable () -> Unit) {
     val viewModel = koinViewModel<WelcomeViewModel>()
     val step by viewModel.step.collectAsStateWithLifecycle()
-    val connected by viewModel.connected.collectAsStateWithLifecycle()
-    val connecting by viewModel.connecting.collectAsStateWithLifecycle()
-    val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
     val entries by viewModel.entries.collectAsStateWithLifecycle()
     when (step) {
         null -> Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
@@ -35,9 +31,7 @@ fun WelcomeGate(content: @Composable () -> Unit) {
 
         WelcomeStep.LETTER -> LetterScreen(entries, viewModel::letterRead)
 
-        WelcomeStep.ONBOARDING_UPDATED, WelcomeStep.ONBOARDING_NEW -> {
-            OnboardingScreen(step == WelcomeStep.ONBOARDING_UPDATED, connected, connecting, viewModel::connect, viewModel::finish)
-            connectFailure?.let { BackupConnectFailedSheet(it, viewModel::connectFailureShown) }
-        }
+        WelcomeStep.ONBOARDING_UPDATED, WelcomeStep.ONBOARDING_NEW ->
+            OnboardingScreen(step == WelcomeStep.ONBOARDING_UPDATED, viewModel::finish)
     }
 }

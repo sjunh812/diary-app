@@ -7,31 +7,33 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.ui.DiaryLottie
 import org.sjhstudio.diary.feature.welcome.resources.Res
 
-private const val WRITE_MILLIS = 4_000
-private const val BACKUP_MILLIS = 3_200
+// 온보딩 그림. 글자가 없어 언어를 타지 않고, 색은 토큰을 따라 다크도 맞는다.
+// 재생 시간은 로띠 프레임 수 / 30fps(scripts/lottie/make_onboarding.py).
 
-/**
- * 쓰는 그림.
- * 기분을 고르고, 글을 쓰고, 저장한다.
- * 글자가 없어 언어를 타지 않는다.
- */
+/** 기분 고르기, 글쓰기, 저장 */
 @Composable
-internal fun WriteArt(active: Boolean, modifier: Modifier = Modifier) = DiaryLottie(
-    { Res.readBytes("files/onboarding_write.json") },
-    WRITE_MILLIS,
-    active,
-    modifier.size(DiaryArtSize.width, DiaryArtSize.height)
-)
+internal fun WriteArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_write", 4_000, active, modifier)
 
-/**
- * 백업 그림.
- * 휴대폰의 글과 사진이 내 드라이브로 올라간다.
- * 휴대폰 쪽 기록은 그대로 남는다.
- */
+/** 휴대폰의 글과 사진이 내 드라이브로. 휴대폰 쪽 기록은 그대로 */
 @Composable
-internal fun BackupArt(active: Boolean, modifier: Modifier = Modifier) = DiaryLottie(
-    { Res.readBytes("files/onboarding_backup.json") },
-    BACKUP_MILLIS,
-    active,
-    modifier.size(DiaryArtSize.width, DiaryArtSize.height)
-)
+internal fun BackupArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_backup", 3_200, active, modifier)
+
+/** 한 줄은 굵게, 한 줄은 글자색, 한 줄은 형광펜. 끝에 저장됨 표시 */
+@Composable
+internal fun StyleArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_style", 3_333, active, modifier)
+
+/** 기분·날씨 칩을 고르면 목록이 걸러지고 기분 막대가 올라옴 */
+@Composable
+internal fun FindArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_find", 3_333, active, modifier)
+
+/** 휴지통에 들어간 일기가 제자리로 돌아옴 */
+@Composable
+internal fun TrashArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_trash", 3_467, active, modifier)
+
+/** 폰 화면이 넓어지고 목록 옆에 일기가 열림 */
+@Composable
+internal fun TabletArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_tablet", 3_333, active, modifier)
+
+@Composable
+private fun OnboardingLottie(name: String, millis: Int, active: Boolean, modifier: Modifier = Modifier) =
+    DiaryLottie({ Res.readBytes("files/$name.json") }, millis, active, modifier.size(DiaryArtSize.width, DiaryArtSize.height))

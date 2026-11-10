@@ -8,9 +8,7 @@
     <string name="letter_sign">From SeoJuNyang</string>
     <string name="letter_start">Continue</string>
     <string name="onboarding_backup_title">Your photos are backed up too</string>
-    <string name="onboarding_backup_body">Your diary and photos stay with you when you change phones.\nThey're saved only to your own Google Drive.</string>
-    <string name="onboarding_backup_action">Turn on automatic backup</string>
-    <string name="onboarding_fresh_title">What's changed</string>
+    <string name="onboarding_backup_body">With automatic backup on, entries go to your Google Drive once a day.\nChange phones and your diary and photos are still there.</string>
     <string name="onboarding_write_title">One line a day is enough</string>
     <string name="onboarding_write_body">Pick a mood and jot down a few lines.</string>
     <string name="onboarding_own_title">Your diary, only in your Drive</string>
@@ -18,18 +16,19 @@
     <string name="onboarding_next">Next</string>
     <string name="onboarding_start">Get started</string>
     <string name="onboarding_skip">Skip</string>
-    <string name="onboarding_later">Later</string>
     <plurals name="letter_moved"><item quantity="one">You've written **%1$s entry** so far.\nThank you so much for sticking with an app that's far from perfect.</item><item quantity="other">You've written **%1$s entries** so far.\nThank you so much for sticking with an app that's far from perfect.</item></plurals>
     <string name="letter_promise_free">Features you've been using stay free</string>
     <string name="letter_promise_ads">No ads while you write or read an entry</string>
     <string name="letter_close">I hope you'll stay with me 🙇‍♂️</string>
     <string name="onboarding_style_title">Style your words</string>
-    <string name="onboarding_style_body">Try bold, text color, highlight, and lists.</string>
+    <string name="onboarding_style_body">Try bold, text color, highlight, and lists.\nDrafts save automatically as you write.</string>
     <string name="onboarding_trash_title">Deleted by mistake? No problem</string>
     <string name="onboarding_trash_body">You can restore entries from Trash for 30 days.</string>
-    <string name="onboarding_wide_title">Easier on big screens</string>
-    <string name="onboarding_wide_body">On tablets, see your list and an entry side by side.</string>
-    <string name="onboarding_plus_title">Easier with Plus</string>
-    <string name="onboarding_plus_body">No ads, 30 photos per entry, checklists, and advanced stats.</string>
     <string name="letter_to">To everyone who uses 1 Day 1 Diary</string>
+    <string name="onboarding_find_title">Easier to find and look back</string>
+    <string name="onboarding_find_body">Find entries by mood, weather, or date range,\nand see your moods by week, month, or year.</string>
+    <string name="onboarding_tablet_title">More room on a tablet</string>
+    <string name="onboarding_tablet_body">See your list and an entry side by side,\nand write right away with a keyboard.</string>
+    <string name="onboarding_look_back_title">Look back on past days</string>
+    <string name="onboarding_look_back_body">See how your moods flow at a glance,\nand find entries by mood, weather, or date range.</string>
 </resources>

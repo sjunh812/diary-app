@@ -107,6 +107,8 @@ class DevModeActivity : ComponentActivity() {
             listOf(
                 "개발자의 편지(봉투)" to "letter",
                 "편지 다시 읽기" to "full_letter",
+                "온보딩 (업데이트한 사람)" to "onboarding_updated",
+                "온보딩 (새로 설치)" to "onboarding_new",
                 "디자인 시스템 견본" to "design_catalog",
                 "기록 이전 결과" to "migration_report",
                 "1만 편 목록" to "list_performance"

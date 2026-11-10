@@ -5,39 +5,16 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import org.sjhstudio.diary.core.data.BackupRepository
-import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
-import org.sjhstudio.diary.core.model.BackupConnection
-import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.WelcomeStep
 import org.sjhstudio.diary.core.model.orElseOnFailure
-import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
-import org.sjhstudio.diary.core.ui.stateInSafely
 
-class WelcomeViewModel(
-    private val welcome: WelcomeRepository,
-    private val backup: BackupRepository,
-    private val settings: SettingsRepository
-) : ViewModel() {
+class WelcomeViewModel(private val welcome: WelcomeRepository) : ViewModel() {
     private val _step = MutableStateFlow<WelcomeStep?>(null)
 
     /** null이면 아직 읽는 중이다. */
     val step: StateFlow<WelcomeStep?> = _step.asStateFlow()
-
-    val connected: StateFlow<Boolean> =
-        backup.status.map {
-            it.connection != BackupConnection.NotConnected
-        }.stateInSafely(viewModelScope, WhileUiSubscribed, false)
-
-    private val _connecting = MutableStateFlow(false)
-    val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
-
-    /** 방금 연결에 실패한 까닭. 온보딩을 막지 않고 시트로 알린다. */
-    val connectFailure: StateFlow<BackupFailure?> = backup.connectFailure
 
     private val _entries = MutableStateFlow<Int?>(null)
 
@@ -79,23 +56,6 @@ class WelcomeViewModel(
                 }
         }
     }
-
-    /**
-     * 예전 앱이 쓰던 계정을 먼저 보인다.
-     * 연결을 마치거나 물러나면 [next]로 넘어간다.
-     * 실패해도 온보딩은 막지 않는다.
-     * 까닭은 [connectFailure]로 알리고 백업은 나중에 설정에서 켤 수 있다.
-     */
-    fun connect(next: () -> Unit) {
-        viewModelScope.launchSafely {
-            _connecting.value = true
-            orElseOnFailure(Unit) { backup.connect(settings.settings.first().legacyBackup?.account) }
-            _connecting.value = false
-            next()
-        }
-    }
-
-    fun connectFailureShown() = backup.connectFailureShown()
 }
 
 /** 설정에서 다시 읽는 편지. */
