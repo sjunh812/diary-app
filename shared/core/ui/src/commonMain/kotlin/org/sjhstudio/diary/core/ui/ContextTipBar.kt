@@ -17,8 +17,8 @@ import org.sjhstudio.diary.core.ui.resources.Res
 import org.sjhstudio.diary.core.ui.resources.tip_close
 
 /**
- * [tip]을 처음 만날 때 한 번 보인다.
- * 세션당 하나만 뜬다(스펙 004 FR-011).
+ * [tip]을 처음 만날 때 한 번 보임
+ * 세션당 하나만 뜸(스펙 004 FR-011)
  */
 @Composable
 fun ContextTipBar(tip: ContextTip, text: String, modifier: Modifier = Modifier) {

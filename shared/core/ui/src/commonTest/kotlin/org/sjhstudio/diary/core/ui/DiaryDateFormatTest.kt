@@ -13,7 +13,7 @@ class DiaryDateFormatTest {
 
     @Test
     fun screenLanguageWinsWhenDeviceLanguageIsNotSupported() {
-        // 프랑스어 기기는 영어 화면이 보이고 날짜도 영어다.
+        // 프랑스어 기기는 영어 화면이 보이고 날짜도 영어
         assertEquals("en", formatLocaleTag("en", "fr-FR"))
         assertEquals("en", formatLocaleTag("en", "zh-Hant-TW"))
     }

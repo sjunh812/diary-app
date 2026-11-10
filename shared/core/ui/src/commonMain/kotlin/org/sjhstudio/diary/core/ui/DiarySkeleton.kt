@@ -53,15 +53,15 @@ private const val PULSE_MILLIS = 650
 private const val PULSE_LOW = 0.35f
 
 /**
- * 스켈레톤(`docs/design.md` 스켈레톤).
- * 자리 모양을 아는 목록이 네트워크나 많은 기록 때문에 늦을 때만 쓴다.
- * 짧은 로딩에서 깜빡이지 않게 0.3초 뒤에 나타나고, 끝없는 움직임을 줄이려 빛이 지나가는 대신 천천히 숨 쉰다.
- * 동작 줄이기를 켜면 멈춘 칸으로 보인다.
- * 그림일 뿐이라 화면 읽기에는 읽히지 않는다.
+ * 스켈레톤(`docs/design.md` 스켈레톤)
+ * 자리 모양을 아는 목록이 네트워크나 많은 기록 때문에 늦을 때만 씀
+ * 짧은 로딩에서 깜빡이지 않게 0.3초 뒤에 나타남. 끝없는 움직임을 줄이려 빛이 지나가는 대신 천천히 숨 쉼
+ * 동작 줄이기를 켜면 멈춘 칸으로 보임
+ * 그림일 뿐이라 화면 낭독기가 읽지 않음
  */
 @Composable
 fun DiarySkeleton(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    // 미리보기에는 시간이 흐르지 않아서 바로 보인다.
+    // 미리보기에는 시간이 흐르지 않아서 바로 보임
     val inspecting = LocalInspectionMode.current
     var visible by remember { mutableStateOf(inspecting) }
     LaunchedEffect(Unit) {
@@ -77,21 +77,21 @@ fun DiarySkeleton(modifier: Modifier = Modifier, content: @Composable () -> Unit
             val value = transition.animateFloat(1f, PULSE_LOW, infiniteRepeatable(tween(PULSE_MILLIS), RepeatMode.Reverse))
             remember(value) { { value.value } }
         }
-    // 숨 쉬는 것은 뼈대 칸뿐이다.
-    // 카드 바탕처럼 실제 화면에도 있는 면은 그대로 두어, 내용이 들어올 때 카드가 깜빡이지 않는다.
+    // 숨 쉬는 것은 뼈대 칸뿐
+    // 카드 바탕처럼 실제 화면에도 있는 면은 그대로 둬서 내용이 들어올 때 카드가 깜빡이지 않음
     CompositionLocalProvider(LocalSkeletonPulse provides pulse) {
         Box(modifier.clearAndSetSemantics {}) { content() }
     }
 }
 
 /**
- * 뼈대 칸의 숨 쉬는 정도.
- * 매 프레임 값을 그리기 단계에서만 읽어서, 숨 쉬는 동안 화면을 다시 짜지 않는다.
+ * 뼈대 칸의 숨 쉬는 정도
+ * 매 프레임 값을 그리기 단계에서만 읽어서 숨 쉬는 동안 화면을 다시 짜지 않음
  */
 @Suppress("CompositionLocalAllowlist")
 private val LocalSkeletonPulse = staticCompositionLocalOf<() -> Float> { { 1f } }
 
-/** 글 한 줄이나 사진 자리 하나. */
+/** 글 한 줄이나 사진 자리 하나 */
 @Composable
 fun SkeletonBlock(modifier: Modifier = Modifier, shape: Shape = DiaryShapes.r8) {
     val pulse = LocalSkeletonPulse.current
@@ -99,15 +99,15 @@ fun SkeletonBlock(modifier: Modifier = Modifier, shape: Shape = DiaryShapes.r8) 
 }
 
 /**
- * 글줄 하나.
- * 높이는 글자 높이쯤이다.
+ * 글줄 하나
+ * 높이는 글자 높이쯤
  */
 @Composable
 fun SkeletonLine(modifier: Modifier = Modifier, height: Dp = DiarySpacing.x3) {
     SkeletonBlock(modifier.height(height), DiaryShapes.full)
 }
 
-/** 홈 피드 일기 줄 자리(날짜, 시각과 기분, 글 두 줄). 날짜 열, 사이, 얼굴은 실제 일기 줄과 같다. */
+/** 홈 피드 일기 줄 자리(날짜, 시각과 기분, 글 두 줄). 날짜 열, 사이, 얼굴은 실제 일기 줄과 같음 */
 @Composable
 fun SkeletonEntryRows(modifier: Modifier = Modifier, count: Int = 6) {
     DiarySkeleton(modifier) {
@@ -139,7 +139,7 @@ fun SkeletonEntryRows(modifier: Modifier = Modifier, count: Int = 6) {
     }
 }
 
-/** 홈 카드 보기 자리. 카드 면과 여백은 실제 카드와 같다(`docs/design.md` 카드). */
+/** 홈 카드 보기 자리. 카드 면과 여백은 실제 카드와 같음(`docs/design.md` 카드) */
 @Composable
 fun SkeletonEntryCards(modifier: Modifier = Modifier, count: Int = 4) {
     DiarySkeleton(modifier) {
@@ -164,7 +164,7 @@ fun SkeletonEntryCards(modifier: Modifier = Modifier, count: Int = 4) {
     }
 }
 
-/** 홈 사진 격자 자리. 칸 수와 틈은 실제 격자와 같다. */
+/** 홈 사진 격자 자리. 칸 수와 틈은 실제 격자와 같음 */
 @Composable
 fun SkeletonPhotoGrid(modifier: Modifier = Modifier, count: Int = 18) {
     DiarySkeleton(modifier) {

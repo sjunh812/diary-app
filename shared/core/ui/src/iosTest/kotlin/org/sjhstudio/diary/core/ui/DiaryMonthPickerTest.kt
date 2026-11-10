@@ -22,7 +22,7 @@ class DiaryMonthPickerTest {
         onNodeWithText("days").assertExists()
         onAllNodes(hasClickAction()).assertCountEquals(3)
 
-        // 화살표 둘 사이의 가운데가 제목이다.
+        // 화살표 둘 사이의 가운데가 제목
         onAllNodes(hasClickAction())[1].performClick()
         onAllNodesWithText("days").assertCountEquals(0)
         onAllNodes(hasClickAction()).assertCountEquals(1)

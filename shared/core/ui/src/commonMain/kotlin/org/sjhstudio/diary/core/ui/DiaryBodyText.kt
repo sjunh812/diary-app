@@ -24,8 +24,8 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 
 /**
- * 앱에 넣은 본문 글꼴(3.5MB 이하, `docs/design.md` 일기 본문 글꼴 10종).
- * 나머지는 고를 때 받는다.
+ * 앱에 넣은 본문 글꼴(3.5MB 이하, `docs/design.md` 일기 본문 글꼴 10종)
+ * 나머지는 고를 때 받음
  */
 val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
     setOf(
@@ -38,16 +38,16 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
     )
 
 /**
- * 사용자가 고른 글꼴.
- * 앱에 넣은 글꼴은 리소스에서 읽고, 받는 글꼴은 [installed]가 돌려주는 받은 파일로 만든다.
- * 받기 전이거나 읽지 못하면 Pretendard로 보인다(글꼴을 받는 동안에도 일기는 읽힌다).
- * 고른 글꼴 하나만 읽는다.
- * 앱 전체 글자에 쓴다(헌법 V, 2026-11-04 사용자 결정).
+ * 사용자가 고른 글꼴
+ * 앱에 넣은 글꼴은 리소스에서 읽고, 받는 글꼴은 [installed]의 받은 파일로 만듦
+ * 받기 전이거나 읽지 못하면 Pretendard로 보임(글꼴을 받는 동안에도 일기는 읽힘)
+ * 고른 글꼴 하나만 읽음
+ * 앱 전체 글자에 씀(헌법 V)
  */
 @Composable
 fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = key(font) {
-    // iOS의 Font()는 화면 상태 자리를 쓴다.
-    // 글꼴마다 자리를 나누지 않으면 글꼴을 바꿀 때 자리가 어긋나 앱이 멈춘다.
+    // iOS의 Font()는 화면 상태 자리를 씀
+    // 글꼴마다 자리를 나누지 않으면 글꼴을 바꿀 때 자리가 어긋나 앱이 멈춤
     fontFamilyOf(font, installed)
 }
 
@@ -63,9 +63,9 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
 }
 
 /**
- * 앱에 넣은 글꼴의 리소스 파일 이름(`composeResources/.../font/`).
- * 시작할 때 미리 읽는 쪽이 쓴다.
- * [fontFamilyOf]의 리소스와 같은 파일이어야 미리 읽은 것이 쓰인다.
+ * 앱에 넣은 글꼴의 리소스 파일 이름(`composeResources/.../font/`)
+ * 시작할 때 미리 읽는 쪽이 씀
+ * [fontFamilyOf]의 리소스와 같은 파일이어야 미리 읽은 것이 쓰임
  */
 val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
     mapOf(
@@ -76,9 +76,9 @@ val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
     )
 
 /**
- * 일기 본문 글자 스타일: 고른 글꼴과 본문 글자 크기 단계(research R17).
- * 크기는 sp라 기기 글자 크기 위에 곱해진다.
- * 글자 크기 단계는 일기 본문에만 걸려서 메뉴와 버튼은 이 스타일을 쓰지 않는다.
+ * 일기 본문 글자 스타일: 고른 글꼴과 본문 글자 크기 단계(research R17)
+ * 크기는 sp라 기기 글자 크기 위에 곱해짐
+ * 글자 크기 단계는 일기 본문에만 걸려서 메뉴와 버튼은 이 스타일을 쓰지 않음
  */
 @Composable
 fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily? = { null }): TextStyle =
@@ -89,9 +89,9 @@ fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFon
     )
 
 /**
- * 목록 미리보기.
- * 고른 글꼴을 쓰고, 크기는 기본 단계에서 `body`가 되도록 같은 비율로 줄인다.
- * 본문보다 한 단계 작아야 목록이 빽빽하지 않다.
+ * 목록 미리보기
+ * 고른 글꼴을 쓰고, 크기는 기본 단계에서 `body`가 되게 같은 비율로 줄임
+ * 본문보다 한 단계 작아야 목록이 빽빽하지 않음
  */
 @Composable
 fun diaryPreviewTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily? = { null }): TextStyle {
@@ -105,21 +105,21 @@ fun diaryPreviewTextStyle(font: DiaryFont, size: BodyTextSize, installed: (Diary
 }
 
 /**
- * 사용자가 고른 글꼴과 본문 크기.
- * 목록 미리보기, 상세, 쓰기가 같이 쓴다.
+ * 사용자가 고른 글꼴과 본문 크기
+ * 목록 미리보기, 상세, 쓰기가 같이 씀
  */
 data class BodyLook(val font: DiaryFont = DiaryFont.DEFAULT, val size: BodyTextSize = BodyTextSize.DEFAULT, val fontPath: String? = null)
 
 /**
- * 설정에서 본문 모양을 꺼낸다.
- * [fontPath]는 글꼴 ID로 받아 둔 파일을 찾는다.
+ * 설정에서 꺼낸 본문 모양
+ * [fontPath]는 글꼴 ID로 받아 둔 파일을 찾음
  */
 fun AppSettings.bodyLook(fontPath: (String) -> String?): BodyLook = BodyLook(font, bodyTextSize, fontPath(font.id))
 
 /**
- * 화면 모델이 쓰는 본문 모양.
- * 홈, 상세, 달력, 찾기가 같이 쓴다.
- * 글꼴을 바꾸면 바로 따라오도록 화면 모델이 살아 있는 동안 늘 본다.
+ * 화면 모델이 쓰는 본문 모양
+ * 홈, 상세, 달력, 찾기가 같이 씀
+ * 글꼴을 바꾸면 바로 따라오게 화면 모델이 살아 있는 동안 늘 봄
  */
 fun SettingsRepository.bodyLookIn(scope: CoroutineScope, fontPath: (String) -> String?): StateFlow<BodyLook> =
     settings.map { it.bodyLook(fontPath) }.stateInSafely(scope, SharingStarted.Eagerly, BodyLook())

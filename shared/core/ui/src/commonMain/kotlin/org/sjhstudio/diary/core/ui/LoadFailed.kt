@@ -13,9 +13,9 @@ import org.sjhstudio.diary.core.ui.resources.load_failed_retry
 import org.sjhstudio.diary.core.ui.resources.load_failed_title
 
 /**
- * 일기를 읽지 못했을 때 화면 가운데에 보이는 안내.
- * 뼈대나 빈 화면을 계속 두지 않고 까닭과 [다시 시도]를 보인다.
- * 홈 목록, 일기 상세, 달력, 돌아보기, 휴지통이 같이 쓴다.
+ * 일기를 읽지 못했을 때 화면 가운데에 보이는 안내
+ * 뼈대나 빈 화면을 계속 두지 않고 까닭과 [다시 시도]를 보임
+ * 홈 목록, 일기 상세, 달력, 돌아보기, 휴지통이 같이 씀
  */
 @Composable
 fun LoadFailed(onRetry: () -> Unit, modifier: Modifier = Modifier) {
@@ -31,14 +31,14 @@ fun LoadFailed(onRetry: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 /**
- * 화면 일부(달력 아래 그날 일기처럼)를 읽지 못했을 때의 한 줄 안내.
- * 칸이 작아 화면 전체용 안내 대신 빈 줄과 같은 모양으로 까닭과 [다시 시도]를 둔다.
+ * 화면 일부(달력 아래 그날 일기처럼)를 읽지 못했을 때의 한 줄 안내
+ * 칸이 작아 화면 전체용 안내 대신 빈 줄과 같은 모양으로 까닭과 [다시 시도]를 둠
  */
 @Composable
 fun LoadFailedLine(onRetry: () -> Unit, modifier: Modifier = Modifier) {
     DiaryEmptyLine(stringResource(Res.string.load_failed_title), stringResource(Res.string.load_failed_retry), onRetry, modifier)
 }
 
-/** [다시 시도] 단추 글. 화면 시험이 이 글로 단추를 찾는다. */
+/** [다시 시도] 버튼 글. 화면 시험이 이 글로 버튼을 찾음 */
 @Composable
 fun loadFailedRetryLabel(): String = stringResource(Res.string.load_failed_retry)

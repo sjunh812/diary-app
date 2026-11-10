@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Checklist
 
-// 칸은 그림이라 화면 낭독기는 동작으로 체크를 바꾼다.
+// 칸은 그림이라 화면 낭독기는 동작으로 체크를 바꿈
 @OptIn(ExperimentalTestApi::class)
 class DiaryRichTextChecklistTest {
     private val html = "<p>${Checklist.OPEN} 우유<br>${Checklist.DONE} 달걀</p>"

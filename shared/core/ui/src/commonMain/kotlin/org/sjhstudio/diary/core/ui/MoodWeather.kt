@@ -47,15 +47,15 @@ import org.sjhstudio.diary.core.ui.resources.weather_snow
 import org.sjhstudio.diary.core.ui.resources.weather_sunny
 
 /**
- * 얼굴 선 색.
- * 기분 색은 두 테마에서 같은 파스텔이라 선도 어두운 색 하나다(Figma 기분 칸).
+ * 얼굴 선 색
+ * 기분 색은 두 테마에서 같은 파스텔이라 선도 어두운 색 하나(Figma 기분 칸)
  */
 val MoodFaceLine = Color(0xFF1A1C20)
 
 /**
- * 기분 얼굴.
- * 그림만으로 구별하지 않게 이름과 함께 쓴다.
- * [contentDescription]이 없으면 장식이다.
+ * 기분 얼굴
+ * 그림만으로 구별하지 않게 이름과 함께 씀
+ * [contentDescription]이 없으면 장식
  */
 @Composable
 fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescription: String? = null) {
@@ -64,15 +64,15 @@ fun MoodFace(mood: Mood, size: Dp, modifier: Modifier = Modifier, contentDescrip
         Image(
             painter = rememberVectorPainter(remember(face, size) { face.vector(size) }),
             contentDescription = contentDescription,
-            // 나쁨만 바탕이 어두워 선을 희게 둔다.
+            // 나쁨만 바탕이 어두워 선을 희게 둠
             colorFilter = ColorFilter.tint(if (mood == Mood.BAD) Color.White else MoodFaceLine)
         )
     }
 }
 
 /**
- * 기분 없이 글만 쓴 일기.
- * 회색 원 안 글줄 둘이고, 굵기는 기분 얼굴의 선과 같다.
+ * 기분 없이 글만 쓴 일기
+ * 회색 원 안 글줄 둘. 굵기는 기분 얼굴의 선과 같음
  */
 @Composable
 fun NoMoodFace(size: Dp, modifier: Modifier = Modifier) {
@@ -81,7 +81,7 @@ fun NoMoodFace(size: Dp, modifier: Modifier = Modifier) {
     Canvas(modifier.size(size).clip(DiaryShapes.full).background(colors.sunken)) {
         val unit = this.size.width / NO_MOOD_GRID
         val stroke = moodFaceLine(size).toPx()
-        // 둥근 끝이 선 밖으로 나오므로 그만큼 안쪽에서 끝낸다.
+        // 둥근 끝이 선 밖으로 나오므로 그만큼 안쪽에서 끝냄
         val left = NO_MOOD_LEFT * unit + stroke / 2
         drawLine(
             line,
@@ -100,7 +100,7 @@ fun NoMoodFace(size: Dp, modifier: Modifier = Modifier) {
     }
 }
 
-// 칸 28 기준의 글줄 자리.
+// 칸 28 기준의 글줄 자리
 private const val NO_MOOD_GRID = 28f
 private const val NO_MOOD_LEFT = 8f
 private const val NO_MOOD_FIRST_END = 20f
@@ -108,7 +108,7 @@ private const val NO_MOOD_SECOND_END = 16f
 private const val NO_MOOD_FIRST_Y = 12f
 private const val NO_MOOD_SECOND_Y = 16f
 
-/** 날씨 아이콘. */
+/** 날씨 아이콘 */
 @Composable
 fun WeatherIcon(weather: Weather, size: Dp, tint: Color, modifier: Modifier = Modifier, contentDescription: String? = null) {
     DiaryIcon(weather.icon(), contentDescription = contentDescription, tint = tint, size = size, modifier = modifier)
@@ -165,8 +165,8 @@ fun Weather.icon(): ImageVector = when (this) {
 }
 
 /**
- * 기분 색.
- * 그래프처럼 얼굴 없이 색만 쓸 때 부른다.
+ * 기분 색
+ * 그래프처럼 얼굴 없이 색만 쓸 때
  */
 @Composable
 fun moodColor(mood: Mood): Color = DiaryTheme.colors.mood.of(mood)

@@ -50,10 +50,10 @@ import org.sjhstudio.diary.core.ui.resources.ui_next_month
 import org.sjhstudio.diary.core.ui.resources.ui_previous_month
 
 /**
- * 시트 안의 달력.
- * 화살표로 한 달씩 넘기고, 연월 제목을 누르면 날짜 칸 자리에 연·월 휠이 나와 먼 달로 바로 간다.
- * 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아온다.
- * [days]는 날짜 칸이다.
+ * 시트 안의 달력
+ * 화살표로 한 달씩 넘기고, 연월 제목을 누르면 날짜 칸 자리에 연·월 휠이 나와 먼 달로 바로 감
+ * 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아옴
+ * [days]는 날짜 칸
  */
 @Composable
 fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: Modifier = Modifier, days: @Composable () -> Unit) {
@@ -61,8 +61,8 @@ fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: 
     var wheel by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            // 휠을 여는 동안 화살표는 쓸 일이 없다.
-            // 자리는 그대로 둬서 제목이 움직이지 않게 한다.
+            // 휠을 여는 동안 화살표는 쓸 일 없음
+            // 자리는 그대로 둬서 제목이 움직이지 않게 함
             if (wheel) {
                 Spacer(Modifier.size(DiarySpacing.minTouchTarget))
             } else {
@@ -141,10 +141,10 @@ private fun MonthArrow(icon: ImageVector, label: String, onClick: () -> Unit) {
 }
 
 /**
- * 날짜 고르기 칸.
- * 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보인다.
- * 어느 달이든 6주를 그려서, 달을 넘길 때 시트 높이가 한 줄씩 늘었다 줄지 않는다(Material 3 날짜 고르기와 같다).
- * [inRange]는 기간을 고를 때 사이의 날이다.
+ * 날짜 고르기 칸
+ * 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보임
+ * 어느 달이든 6주를 그려 달을 넘길 때 시트 높이가 한 줄씩 늘었다 줄지 않음(Material 3 날짜 고르기와 같음)
+ * [inRange]는 기간을 고를 때 사이의 날
  */
 @Composable
 fun DiaryMonthDays(
@@ -171,7 +171,7 @@ fun DiaryMonthDays(
     }
 }
 
-/** 한 달이 걸칠 수 있는 가장 많은 주. */
+/** 한 달이 걸칠 수 있는 가장 많은 주 */
 private const val WEEKS_SHOWN = 6
 
 @Composable
@@ -183,7 +183,7 @@ private fun DayCell(date: LocalDate, selected: Boolean, between: Boolean, inMont
 
             !inMonth -> colors.placeholder
 
-            // 기간 안의 날은 selected 바탕이라 주말 색의 대비가 모자란다.
+            // 기간 안의 날은 selected 바탕이라 주말 색의 대비가 모자람
             between -> colors.textPrimary
 
             date.dayOfWeek == DayOfWeek.SUNDAY -> colors.danger
@@ -199,7 +199,7 @@ private fun DayCell(date: LocalDate, selected: Boolean, between: Boolean, inMont
             else -> colors.surface
         }
     val interaction = remember { MutableInteractionSource() }
-    // 고른 원은 40이고 누르는 곳은 칸 전체(높이 48)다.
+    // 고른 원은 40, 누르는 곳은 칸 전체(높이 48)
     Box(
         modifier
             .height(DiarySpacing.minTouchTarget)
@@ -224,7 +224,7 @@ private const val MONTHS = 12
 private const val HALF_TURN = 180f
 
 /**
- * 연 휠의 첫해.
- * 이보다 옛 일기가 있으면 그 해부터 보인다.
+ * 연 휠의 첫해
+ * 이보다 옛 일기가 있으면 그 해부터 보임
  */
 private const val FIRST_YEAR = 2010

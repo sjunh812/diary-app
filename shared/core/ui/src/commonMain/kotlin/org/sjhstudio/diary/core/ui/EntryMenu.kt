@@ -18,9 +18,9 @@ import org.sjhstudio.diary.core.ui.resources.entry_menu_trash
 import org.sjhstudio.diary.core.ui.resources.entry_menu_unfavorite
 
 /**
- * 일기 줄을 길게 눌렀을 때의 메뉴.
- * 홈과 달력이 같은 메뉴를 쓴다.
- * 즐겨찾기는 그 일기의 상태에 따라 넣기와 해제로 바뀐다.
+ * 일기 줄을 길게 눌렀을 때의 메뉴
+ * 홈과 달력이 같은 메뉴를 씀
+ * 즐겨찾기는 그 일기의 상태에 따라 넣기와 해제로 바뀜
  */
 @Composable
 fun EntryMenu(
@@ -46,8 +46,8 @@ fun EntryMenu(
 }
 
 /**
- * 일기 메뉴가 저장소에 시키는 일.
- * 홈과 달력의 화면 모델이 하나씩 들고 같은 일을 한다.
+ * 일기 메뉴가 저장소에 맡기는 일
+ * 홈과 달력의 화면 모델이 하나씩 들고 같은 일을 함
  */
 class EntryMenuWork(private val scope: CoroutineScope, private val entries: EntryRepository) {
     fun toggleFavorite(id: String) {
@@ -57,7 +57,7 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
         }
     }
 
-    /** 휴지통에 넣은 뒤에 [onDone]을 부른다. 실패하면 부르지 않고 실패 안내만 뜬다. */
+    /** 휴지통에 넣은 뒤 [onDone]. 실패하면 부르지 않고 실패 안내만 뜸 */
     fun moveToTrash(id: String, onDone: () -> Unit) {
         scope.launchWrite {
             entries.moveToTrash(id)
@@ -65,13 +65,13 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
         }
     }
 
-    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만든다.
+    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만듦
     suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
 
     /**
-     * 공유할 일기를 읽어 [onReady]로 건넨다.
-     * 메뉴는 누르자마자 닫혀 화면에서 빠지므로 화면 모델의 범위에서 읽는다.
-     * 메뉴 안에서 읽으면 닫히면서 함께 취소되어 공유 창이 뜨지 않는다.
+     * 공유할 일기를 읽어 [onReady]로 넘김
+     * 메뉴는 누르자마자 닫혀 화면에서 빠지므로 화면 모델의 범위에서 읽음
+     * 메뉴 안에서 읽으면 닫히면서 함께 취소돼 공유 창이 뜨지 않음
      */
     fun share(id: String, onReady: (Entry) -> Unit) {
         scope.launchSafely { entryToShare(id)?.let(onReady) }
@@ -79,8 +79,8 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
 }
 
 /**
- * [EntryMenu]를 띄우고 고른 일을 [work]에 넘긴다.
- * 홈과 달력이 같은 순서로 닫고 실행해야 해서 한곳에 둔다.
+ * [EntryMenu]를 띄우고 고른 일을 [work]에 넘김
+ * 홈과 달력이 같은 순서로 닫고 실행해야 해서 한곳에 둠
  */
 @Composable
 fun EntryMenuFor(
@@ -91,7 +91,7 @@ fun EntryMenuFor(
     onEdit: (String) -> Unit,
     onTrash: (String) -> Unit
 ) {
-    // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
+    // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비
     val share = rememberShareText()
     val shareText = rememberEntryShareText()
     EntryMenu(

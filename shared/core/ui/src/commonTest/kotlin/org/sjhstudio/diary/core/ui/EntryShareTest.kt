@@ -9,7 +9,7 @@ import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
-// 공유한 글이 일기처럼 읽힌다. 날짜와 시각, 기분·날씨·장소, 빈 줄, 본문 차례다.
+// 공유한 글이 일기처럼 읽힘. 날짜와 시각, 기분·날씨·장소, 빈 줄, 본문 차례
 class EntryShareTest {
     private val dates =
         object : DiaryDateFormat {

@@ -10,10 +10,10 @@ import org.sjhstudio.diary.core.ui.resources.Res
 import org.sjhstudio.diary.core.ui.resources.share_when
 
 /**
- * 공유할 일기 글.
- * 첫 줄은 날짜와 시각, 둘째 줄은 기분·날씨·장소, 빈 줄 뒤에 본문이다.
- * 없는 값은 빼고, 셋 다 없으면 둘째 줄을 두지 않는다.
- * 사진은 넣지 않는다. 사용자가 공유를 눌러 직접 보내는 글이다.
+ * 공유할 일기 글
+ * 첫 줄은 날짜와 시각, 둘째 줄은 기분·날씨·장소, 빈 줄 뒤에 본문
+ * 없는 값은 빼고, 셋 다 없으면 둘째 줄을 두지 않음
+ * 사진은 넣지 않음. 사용자가 공유를 눌러 직접 보내는 글
  */
 @Composable
 fun rememberEntryShareText(): (Entry) -> String {

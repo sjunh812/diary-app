@@ -21,15 +21,15 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
     val device = current.localeIdentifier
     return remember(language, device) {
         val tag = formatLocaleTag(language, device)
-        // 기기 언어와 같으면 기기 설정이 담긴 지금 로캘을 그대로 쓴다.
+        // 기기 언어와 같으면 기기 설정이 담긴 지금 로캘을 그대로 씀
         val locale = if (tag == languageTag(device)) current else NSLocale(localeIdentifier = tag)
         IosDateFormat(locale, is24Hour = usesTwentyFourHour(current))
     }
 }
 
 /**
- * 기기가 24시간 표기를 쓰는지.
- * 이 언어의 기본 시각 틀에 오전·오후(a)가 없으면 24시간이다.
+ * 기기가 24시간 표기를 쓰는지
+ * 이 언어의 기본 시각 틀에 오전·오후(a)가 없으면 24시간
  */
 internal fun usesTwentyFourHour(locale: NSLocale): Boolean = NSDateFormatter.dateFormatFromTemplate("j", 0u, locale)?.contains('a') == false
 

@@ -7,13 +7,13 @@ import kotlinx.datetime.LocalTime
 import platform.Foundation.NSLocale
 
 class DiaryDateFormatIosTest {
-    // 2026-11-01은 일요일이다.
+    // 2026-11-01은 일요일
     private val date = LocalDate(2026, 11, 1)
     private val time = LocalTime(15, 5)
 
     private fun format(tag: String, is24Hour: Boolean = false) = IosDateFormat(NSLocale(localeIdentifier = tag), is24Hour)
 
-    // 오전·오후 앞뒤에 좁은 공백(U+202F)을 쓰는 판이 있어 보통 공백으로 맞춰 견준다.
+    // 오전·오후 앞뒤에 좁은 공백(U+202F)을 쓰는 버전이 있어 보통 공백으로 맞춰 비교
     private fun String.plain() = replace(' ', ' ').replace(' ', ' ')
 
     @Test

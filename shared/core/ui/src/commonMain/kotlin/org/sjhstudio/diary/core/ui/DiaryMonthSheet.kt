@@ -39,9 +39,9 @@ import org.sjhstudio.diary.core.ui.resources.ui_next_year
 import org.sjhstudio.diary.core.ui.resources.ui_previous_year
 
 /**
- * 연·월 고르기(Figma "S1 · 연·월 고르기").
- * 홈은 일기가 있는 달만, 달력은 넘길 수 있는 달만 [enabled]로 연다(FR-017).
- * [hasYear]가 false인 해로는 넘어가지 않는다.
+ * 연·월 고르기(Figma "S1 · 연·월 고르기")
+ * 홈은 일기가 있는 달만, 달력은 넘길 수 있는 달만 [enabled]로 열기(FR-017)
+ * [hasYear]가 false인 해로는 넘어가지 않음
  */
 @Composable
 fun DiaryMonthSheet(
@@ -108,8 +108,8 @@ private fun MonthCell(label: String, selected: Boolean, enabled: Boolean, modifi
             .height(DiarySpacing.minTouchTarget)
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .clip(DiaryShapes.r12)
-            // 못 고르는 달은 칠하지 않는다.
-            // canvas로 칠하면 다크 시트 위에서 구멍처럼 보인다.
+            // 못 고르는 달은 칠하지 않음
+            // canvas로 칠하면 다크 시트 위에서 구멍처럼 보임
             .then(
                 when {
                     selected -> Modifier.background(colors.selected)

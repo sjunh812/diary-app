@@ -11,9 +11,9 @@ import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.model.currentDate
 
 /**
- * 오늘 날짜.
- * 앱이 돌아올 때마다 다시 읽는다.
- * `remember`로 잡아 두면 켜 둔 채 자정을 넘긴 뒤에도 어제가 오늘로 남는다.
+ * 오늘 날짜
+ * 앱이 돌아올 때마다 다시 읽음
+ * `remember`로 잡아 두면 켜 둔 채 자정을 넘긴 뒤에도 어제가 오늘로 남음
  */
 @Composable
 fun rememberToday(read: () -> LocalDate = ::currentDate): LocalDate {

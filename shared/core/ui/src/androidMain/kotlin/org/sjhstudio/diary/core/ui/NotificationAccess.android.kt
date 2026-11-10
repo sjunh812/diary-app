@@ -26,7 +26,7 @@ actual fun rememberNotificationAccess(): NotificationAccess {
     return remember(context, launcher) {
         object : NotificationAccess {
             override fun request(onResult: (Boolean) -> Unit) {
-                // 안드로이드 12까지는 알림 권한이 없고 앱 알림 켜짐만 있다.
+                // 안드로이드 12까지는 알림 권한 없이 앱 알림 켜짐만 있음
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     pending = onResult
                     launcher.launch(Manifest.permission.POST_NOTIFICATIONS)

@@ -5,7 +5,7 @@ import androidx.compose.runtime.remember
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
-// mailto를 물어보려면 Info.plist의 LSApplicationQueriesSchemes에 있어야 한다.
+// mailto를 물어보려면 Info.plist의 LSApplicationQueriesSchemes에 있어야 함
 @Composable
 actual fun rememberOpenLink(): (String) -> Boolean = remember {
     { url ->

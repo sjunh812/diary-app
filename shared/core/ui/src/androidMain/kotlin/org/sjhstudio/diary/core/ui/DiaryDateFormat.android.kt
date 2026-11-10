@@ -16,7 +16,7 @@ import kotlinx.datetime.LocalTime
 @Composable
 internal actual fun rememberPlatformDateFormat(language: String): DiaryDateFormat {
     val context = LocalContext.current
-    // 기기 언어나 앱별 언어가 바뀌면 구성이 바뀌어 다시 만든다.
+    // 기기 언어나 앱별 언어가 바뀌면 구성이 바뀌어 다시 만듦
     val device = LocalConfiguration.current.locales[0].toLanguageTag()
     val is24Hour = DateFormat.is24HourFormat(context)
     return remember(language, device, is24Hour) {

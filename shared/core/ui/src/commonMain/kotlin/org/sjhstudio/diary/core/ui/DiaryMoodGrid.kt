@@ -37,10 +37,10 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
 /**
- * 기분 고르기 칸 9개.
- * 쓰기는 하나, 찾기는 여러 개를 고른다.
- * 두 줄이 같은 다섯 칸을 쓰고 아랫줄은 왼쪽부터 채운다.
- * 칸이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춘다.
+ * 기분 고르기 칸 9개
+ * 쓰기는 하나, 찾기는 여러 개를 고름
+ * 두 줄이 같은 다섯 칸을 쓰고 아랫줄은 왼쪽부터 채움
+ * 칸이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춤
  */
 @Composable
 fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
@@ -54,8 +54,8 @@ fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modif
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         for (row in Mood.ordered.chunked(GRID_COLUMNS)) {
-            // 칸 사이를 4 띄운다.
-            // 찾기에서 여러 개를 고르면 칠한 칸끼리 붙어 하나로 보였다(사용자 지적 2026-11-09).
+            // 칸 사이 4
+            // 붙이면 찾기에서 여러 개를 고를 때 칠한 칸끼리 하나로 보임
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 for (mood in row) {
                     Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
@@ -78,7 +78,7 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
                 .heightIn(min = DiaryWriteSize.moodCellHeight)
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
                 .clip(DiaryShapes.r16)
-                // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠한다.
+                // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠함
                 .then(if (selected) Modifier.background(colors.selected) else Modifier)
                 .semantics { this.selected = selected }
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
@@ -96,7 +96,7 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
                 color = colors.textSecondary,
                 textAlign = TextAlign.Center
             ),
-            // 칸 폭이 고정이라 긴 이름은 두 줄까지 쓴다.
+            // 칸 폭이 고정이라 긴 이름은 두 줄까지
             maxLines = NAME_LINES,
             overflow = TextOverflow.Ellipsis
         )
@@ -104,14 +104,14 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
 }
 
 /**
- * 날씨 고르기.
- * 기분이 주인공이라 날씨는 칩으로 가볍게 두고, 고른 칩만 색이 든다.
- * 칩은 폭만큼 줄을 바꿔서 긴 영어 이름이나 큰 글씨에서도 잘리지 않는다.
+ * 날씨 고르기
+ * 기분이 주인공이라 날씨는 칩으로 가볍게 두고 고른 칩만 색을 칠함
+ * 칩은 폭만큼 줄을 바꿔서 긴 영어 이름이나 큰 글씨에서도 잘리지 않음
  */
 @Composable
 fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Unit, modifier: Modifier = Modifier) {
-    // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다.
-    // 보이는 틈은 16이다.
+    // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않음
+    // 보이는 틈은 16
     FlowRow(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         for (weather in Weather.entries) {
             DiaryChip(weatherName(weather), isSelected(weather), { onToggle(weather) }, leadingIcon = weather.icon())
