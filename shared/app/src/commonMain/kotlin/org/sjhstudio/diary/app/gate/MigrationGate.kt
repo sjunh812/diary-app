@@ -38,12 +38,12 @@ private val ToastAboveButtons =
     DiarySpacing.x5 + DiarySpacing.x14 + DiarySpacing.x2 + DiarySpacing.minTouchTarget + DiarySpacing.x4
 
 /**
- * 기록 이전 관문(contracts/migration-flow.md "화면 상태").
- * 이전이 없거나 끝났으면 [content]로 감.
- * 실패 화면에서는 다시 시도하거나, 공간 부족이 아니면 새 일기부터 쓰기로 앱 틀로 갈 수 있음.
- * 그때는 임시 DB로 바꾸지 않고 예전 일기를 지금 DB에 더해 새로 쓴 일기를 지킴.
- * 실패 화면에서는 예전 일기 보기(읽기 전용), 원본 내보내기, 문의하기 가능(FR-009).
- * 잠금이 켜져 있으면 이 관문은 잠금 관문 안쪽에 놓임(FR-015, 스펙 001 US2).
+ * 기록 이전 관문(contracts/migration-flow.md "화면 상태")
+ * 이전이 없거나 끝났으면 [content]로 감
+ * 실패 화면에서는 다시 시도하거나, 공간 부족이 아니면 새 일기부터 쓰기로 앱 틀로 갈 수 있음
+ * 그때는 임시 DB로 바꾸지 않고 예전 일기를 지금 DB에 더해 새로 쓴 일기를 지킴
+ * 실패 화면에서는 예전 일기 보기(읽기 전용), 원본 내보내기, 문의하기 가능(FR-009)
+ * 잠금이 켜져 있으면 이 관문은 잠금 관문 안쪽에 놓임(FR-015, 스펙 001 US2)
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

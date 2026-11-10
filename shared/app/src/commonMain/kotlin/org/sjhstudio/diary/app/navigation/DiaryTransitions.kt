@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
 
-// 두 플랫폼 모두 iOS식 밀기(docs/design.md "화면 전환").
+// 두 플랫폼 모두 iOS식 밀기(docs/design.md "화면 전환")
 // 아래 화면은 4분의 1만 비키고, 불투명도를 낮춰 뒤의 검은 바탕으로 어두워짐
 // 그래서 화면 바탕은 늘 불투명. 두 화면을 같이 흐리게 하는 전환은 쓰지 않음
 
@@ -64,7 +64,7 @@ private fun slideBack(eased: Boolean, dimmedAlpha: Float): ContentTransform {
 internal val TabSwap: ContentTransform get() = ContentTransform(EnterTransition.None, ExitTransition.None)
 
 /**
- * 탭 첫 화면용 전환. 다른 탭 첫 화면에서 홈으로 돌아갈 때는 스와이프 중에도 밀지 않고 바로 바꿈.
+ * 탭 첫 화면용 전환. 다른 탭 첫 화면에서 홈으로 돌아갈 때는 스와이프 중에도 밀지 않고 바로 바꿈
  * 밀면 홈이 그 아래 쌓여 있던 것처럼 보임
  */
 internal val TabTransitions: Map<String, Any> =

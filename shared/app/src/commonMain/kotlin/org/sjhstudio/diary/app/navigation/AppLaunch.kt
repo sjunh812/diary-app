@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * 앱 밖에서 들어온 길(스펙 001 FR-022).
- * 플랫폼 쪽이 요청을 남기고, 앱 틀이 그려질 때 가져감.
+ * 앱 밖에서 들어온 길(스펙 001 FR-022)
+ * 플랫폼 쪽이 요청을 남기고, 앱 틀이 그려질 때 가져감
  * 앱 틀은 잠금과 기록 이전 관문을 지난 뒤에만 그려져 잠금을 풀어야 쓰기가 열림
  */
 class AppLaunch {

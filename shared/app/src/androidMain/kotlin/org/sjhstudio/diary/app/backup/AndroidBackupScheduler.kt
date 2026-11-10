@@ -49,8 +49,8 @@ import org.sjhstudio.diary.feature.backup.restoreProgressText
 import org.sjhstudio.diary.feature.backup.restoreProgressTitle
 
 /**
- * 시스템이 때를 골라 돌리는 백업(research R14).
- * 네트워크가 있을 때만 돌고, 잠깐 실패면 시스템이 다시 부름.
+ * 시스템이 때를 골라 돌리는 백업(research R14)
+ * 네트워크가 있을 때만 돌고, 잠깐 실패면 시스템이 다시 부름
  */
 class BackupWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
@@ -76,9 +76,9 @@ class BackupWorker(context: Context, params: WorkerParameters) :
 }
 
 /**
- * 사용자가 누른 지금 백업(스펙 003 T043).
- * 앱을 나가도 끊기지 않게 진행 알림과 함께 실행.
- * 알림 권한이 없어도 백업은 돌고, 진행은 앱 안에서 봄.
+ * 사용자가 누른 지금 백업(스펙 003 T043)
+ * 앱을 나가도 끊기지 않게 진행 알림과 함께 실행
+ * 알림 권한이 없어도 백업은 돌고, 진행은 앱 안에서 봄
  */
 class BackupNowWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
@@ -129,8 +129,8 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
     }
 
     /**
-     * 앱을 나가 있으면 끝났다고 알림.
-     * 화면을 보고 있으면 화면이 보여 줌.
+     * 앱을 나가 있으면 끝났다고 알림
+     * 화면을 보고 있으면 화면이 보여 줌
      */
     private suspend fun tellIfAway(outcome: BackupOutcome) {
         if (appIsVisible()) return
@@ -155,9 +155,9 @@ class BackupNowWorker(context: Context, params: WorkerParameters) :
 }
 
 /**
- * 복원 사진을 받는 동안 앱을 지킴.
- * 받기는 앱 범위에서 돌고, 이 작업은 앱을 나가도 시스템이 멈추지 않게 알림과 함께 떠 있음.
- * 앱이 끝내 죽으면 시스템이 이 작업을 다시 부르고, 그때 남은 사진을 여기서 이어 받음.
+ * 복원 사진을 받는 동안 앱을 지킴
+ * 받기는 앱 범위에서 돌고, 이 작업은 앱을 나가도 시스템이 멈추지 않게 알림과 함께 떠 있음
+ * 앱이 끝내 죽으면 시스템이 이 작업을 다시 부르고, 그때 남은 사진을 여기서 이어 받음
  */
 class RestorePhotosWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params),
@@ -214,9 +214,9 @@ class RestorePhotosWorker(context: Context, params: WorkerParameters) :
 }
 
 /**
- * 7일 실패 알림.
- * 예약한 때까지 백업이 없었다는 뜻.
- * 내용은 예약할 때 받은 그대로.
+ * 7일 실패 알림
+ * 예약한 때까지 백업이 없었다는 뜻
+ * 내용은 예약할 때 받은 그대로
  */
 class BackupAlertWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
@@ -255,8 +255,8 @@ class AndroidBackupNotifier(private val context: Context, private val clock: Clo
 }
 
 /**
- * 작업 관리자의 하루 주기 작업 하나.
- * 조건은 네트워크 연결됨, 배터리 부족 아님.
+ * 작업 관리자의 하루 주기 작업 하나
+ * 조건은 네트워크 연결됨, 배터리 부족 아님
  */
 class AndroidBackupScheduler(private val context: Context) : BackupScheduler {
     private val manager get() = WorkManager.getInstance(context)

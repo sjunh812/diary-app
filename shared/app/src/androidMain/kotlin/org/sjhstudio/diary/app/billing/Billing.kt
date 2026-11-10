@@ -65,8 +65,8 @@ fun billing(context: Context): Billing {
 private val CustomerInfo.active: Set<String> get() = entitlements.active.keys
 
 /**
- * RevenueCat에 닿는 자리.
- * 라이브러리 오류를 [StoreFailure]로 바꾸기만 하고, 판단은 [StoreBilling]이 함.
+ * RevenueCat에 닿는 자리
+ * 라이브러리 오류를 [StoreFailure]로 바꾸기만 하고, 판단은 [StoreBilling]이 함
  */
 private class RevenueCatClient(private val app: Application, key: String) : StoreClient {
     private var activity: Activity? = null

@@ -8,7 +8,7 @@ import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
- * 이전 관문을 지난 뒤(일기 DB를 연 뒤) 한 번 하는 일.
+ * 이전 관문을 지난 뒤(일기 DB를 연 뒤) 한 번 하는 일
  * 화면 효과에 두면 화면을 돌릴 때마다 다시 돌아 화면 모델로 옮김
  */
 class AppRootViewModel(cleanup: DiaryCleanup, backup: BackupRepository, private val restore: RestoreRepository) : ViewModel() {

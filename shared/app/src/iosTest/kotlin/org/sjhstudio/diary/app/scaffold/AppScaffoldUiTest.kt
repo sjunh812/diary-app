@@ -164,7 +164,7 @@ class AppScaffoldUiTest {
 
     @Test
     fun choosing_a_tab_selects_it_and_logs_only_the_screen_key() = shell(width = 400.dp) {
-        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다.
+        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다
         val tabs = isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
         onAllNodes(tabs)[1].performClick()
         waitForIdle()
@@ -236,7 +236,7 @@ class AppScaffoldUiTest {
     private val favoritesSwitch = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch)
 
     private fun ComposeUiTest.tab(index: Int) {
-        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다.
+        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다
         onAllNodes(isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))[index].performClick()
     }
 

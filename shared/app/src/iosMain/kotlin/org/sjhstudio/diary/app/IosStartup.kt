@@ -75,7 +75,7 @@ internal object IosDrive {
 fun isPrivacyCoverNeeded(): Boolean = KoinPlatform.getKoin().get<LockController>().lockEnabled
 
 /**
- * 사용자가 알림을 누름.
+ * 사용자가 알림을 누름
  * 매일 알림이면 쓰기 화면을 엶. 잠겨 있으면 잠금을 푼 뒤에 열림
  */
 fun onNotificationTapped(identifier: String) {

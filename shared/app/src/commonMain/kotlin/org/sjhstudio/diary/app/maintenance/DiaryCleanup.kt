@@ -6,9 +6,9 @@ import org.sjhstudio.diary.core.data.diary.MediaRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 
 /**
- * 이전 관문을 지난 뒤 앱을 열 때마다 한 번 하는 정리(FR-035).
- * 30일 지난 휴지통을 먼저 비워야 그 일기에만 쓰인 사진 파일까지 함께 지워짐.
- * 실패해도 앱은 쓸 수 있고 다음에 열 때 다시 함.
+ * 이전 관문을 지난 뒤 앱을 열 때마다 한 번 하는 정리(FR-035)
+ * 30일 지난 휴지통을 먼저 비워야 그 일기에만 쓰인 사진 파일까지 함께 지워짐
+ * 실패해도 앱은 쓸 수 있고 다음에 열 때 다시 함
  */
 class DiaryCleanup(
     private val trash: TrashRepository,

@@ -43,7 +43,7 @@ val FullScreenEntry: Map<String, Any> = mapOf(FULL_SCREEN to true)
 
 /**
  * 탭 첫 화면. 폰에서는 탭 바와 쓰기 버튼을 함께 그려
- * 상세로 넘어갈 때 탭 바가 이 화면과 같이 움직이고 새 화면이 그 위를 덮음.
+ * 상세로 넘어갈 때 탭 바가 이 화면과 같이 움직이고 새 화면이 그 위를 덮음
  */
 fun tabRoot(tab: TabScreen): Map<String, Any> = mapOf(TAB_ROOT to true, ROOT_OF to tab) + TabTransitions
 
@@ -53,7 +53,7 @@ private val NavEntry<NavKey>.isList get() = metadata["pane"] == "list"
 private val NavEntry<NavKey>.isDetail get() = metadata["pane"] == "detail"
 
 /**
- * 840dp부터 목록과 상세를 나란히 놓음(스펙 001 research R25, contracts/navigation.md).
+ * 840dp부터 목록과 상세를 나란히 놓음(스펙 001 research R25, contracts/navigation.md)
  * 스택은 폭과 상관없이 [목록, 상세]라 폭이 좁아지면 상세가 한 칸으로 쌓인 상태가 됨(FR-037)
  */
 class ListDetailSceneStrategy(private val wide: Boolean, private val placeholder: @Composable () -> Unit) : SceneStrategy<NavKey> {

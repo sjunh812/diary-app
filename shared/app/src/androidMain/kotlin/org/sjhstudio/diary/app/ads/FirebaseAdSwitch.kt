@@ -12,8 +12,8 @@ private const val KEY = "interstitial_enabled"
 private const val FETCH_SECONDS = 12 * 60 * 60L
 
 /**
- * Firebase 설정 파일 없이 만든 빌드는 늘 켜짐.
- * 받기에 실패하면 마지막 값을 씀.
+ * Firebase 설정 파일 없이 만든 빌드는 늘 켜짐
+ * 받기에 실패하면 마지막 값을 씀
  */
 fun adSwitch(context: Context): AdSwitch {
     if (FirebaseApp.getApps(context).isEmpty()) return AdSwitch { true }

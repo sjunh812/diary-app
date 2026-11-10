@@ -29,7 +29,7 @@ interface AfterSaveAds {
 }
 
 /**
- * 앱 틀이 하던 업무 규칙(광고 차례, 화면 통계, 휴지통 되돌리기, 홈 쓰기 버튼)을 맡는 화면 모델.
+ * 앱 틀이 하던 업무 규칙(광고 차례, 화면 통계, 휴지통 되돌리기, 홈 쓰기 버튼)을 맡는 화면 모델
  * 돈과 관련된 규칙이라 화면 밖에서 시험
  */
 class AppShellViewModel(
@@ -89,14 +89,14 @@ val appShellModule =
     }
 
 /**
- * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력 목록으로 돌아왔을 때만.
- * 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있는데 설정에는 광고가 없어(헌법 III) 다음 목록까지 미룸.
+ * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력 목록으로 돌아왔을 때만
+ * 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있는데 설정에는 광고가 없어(헌법 III) 다음 목록까지 미룸
  */
 internal fun interstitialMayShow(backStack: List<NavKey>): Boolean =
     backStack.size == 1 && (backStack.last() == HomeKey || backStack.last() == CalendarKey)
 
 /**
- * 저장 뒤 전면 광고 차례. 저장한 탭을 기억했다가 같은 탭 목록으로 돌아오면 한 번.
+ * 저장 뒤 전면 광고 차례. 저장한 탭을 기억했다가 같은 탭 목록으로 돌아오면 한 번
  * 다른 탭으로 가면 기회를 버림. 몇 시간 뒤 탭을 누를 때 뜨면 "저장하고 목록으로 돌아갈 때"가 아님
  */
 internal class AfterSaveAdTurn {

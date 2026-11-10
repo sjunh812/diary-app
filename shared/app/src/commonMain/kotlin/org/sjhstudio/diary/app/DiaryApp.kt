@@ -50,8 +50,8 @@ private fun chosenFontFamily(font: DiaryFont): FontFamily? {
 }
 
 /**
- * 안드로이드와 iOS가 같이 띄우는 앱의 뿌리(contracts/app-shell.md 시작 순서 3).
- * `DiaryTheme` → 잠금 관문 → 이전 관문 → 앱 틀 순.
+ * 안드로이드와 iOS가 같이 띄우는 앱의 뿌리(contracts/app-shell.md 시작 순서 3)
+ * `DiaryTheme` → 잠금 관문 → 이전 관문 → 앱 틀 순
  * 홈·달력·돌아보기 탭의 화면은 스펙 002가 채움
  */
 @Composable

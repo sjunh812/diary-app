@@ -37,9 +37,9 @@ private val BackStackConfiguration =
     }
 
 /**
- * 탭마다 화면을 따로 쌓음(공식 nav3-recipes `multiplestacks`).
- * 탭의 화면 키가 쌓임에 남아 있으면 화면 모델과 저장 상태가 살아 있음.
- * 그래서 탭을 옮겼다 와도 스크롤, 고른 날, 기간, 필터가 그대로.
+ * 탭마다 화면을 따로 쌓음(공식 nav3-recipes `multiplestacks`)
+ * 탭의 화면 키가 쌓임에 남아 있으면 화면 모델과 저장 상태가 살아 있음
+ * 그래서 탭을 옮겼다 와도 스크롤, 고른 날, 기간, 필터가 그대로
  * 앱은 늘 홈을 지나서 닫힘(`contracts/navigation.md` 뒤로 가기)
  */
 class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen, MutableList<NavKey>>) {
@@ -65,8 +65,8 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
         private set
 
     /**
-     * 탭 누름.
-     * 다른 탭이면 그 탭에서 보던 화면으로, 지금 탭이면 첫 화면으로 감.
+     * 탭 누름
+     * 다른 탭이면 그 탭에서 보던 화면으로, 지금 탭이면 첫 화면으로 감
      * 이미 첫 화면이면 맨 위로 감
      */
     fun selectTab(target: TabScreen) {
@@ -87,7 +87,7 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     }
 
     /**
-     * 알림에서 [target] 탭의 [key] 화면으로 바로 감.
+     * 알림에서 [target] 탭의 [key] 화면으로 바로 감
      * 다른 탭에 쌓인 화면은 그대로 둬 쓰던 일기도 닫히지 않음
      */
     fun openInTab(target: TabScreen, key: NavKey) {
@@ -96,7 +96,7 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     }
 
     /**
-     * 모든 탭을 첫 화면으로 돌리고 [target]을 엶.
+     * 모든 탭을 첫 화면으로 돌리고 [target]을 엶
      * 복원이 일기를 바꾼 뒤에는 쌓인 상세가 없는 일기를 볼 수 있음
      */
     fun startOver(target: TabScreen) {
@@ -143,8 +143,8 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
 }
 
 /**
- * 앱이 죽었다 살아나도 탭과 화면 쌓임을 복원.
- * 같은 자리에서 여러 번 부르는 저장 상태라 탭마다 `key`로 자리를 가름.
+ * 앱이 죽었다 살아나도 탭과 화면 쌓임을 복원
+ * 같은 자리에서 여러 번 부르는 저장 상태라 탭마다 `key`로 자리를 가름
  * 가르지 않으면 쌓임의 화면 모델과 복원 순서가 서로 섞임
  */
 @Composable
@@ -180,8 +180,8 @@ fun TabNavigation.decoratedEntries(
 }
 
 /**
- * 탭마다 화면 모델 저장소.
- * 잠기면 잠금 관문이 앱 화면을 치우는데, 저장소가 그 안에 있으면 만들던 백업 파일과 복원 사본까지 함께 지워짐.
+ * 탭마다 화면 모델 저장소
+ * 잠기면 잠금 관문이 앱 화면을 치우는데, 저장소가 그 안에 있으면 만들던 백업 파일과 복원 사본까지 함께 지워짐
  * 그래서 잠금 관문 바깥에서 만들어 넘김
  */
 @Suppress("CompositionLocalAllowlist") // 잠금 관문 바깥의 저장소를 탭 쌓임까지 건네는 길

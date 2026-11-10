@@ -95,8 +95,8 @@ import org.sjhstudio.diary.feature.welcome.LetterViewModel
 import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 
 /**
- * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스).
- * 기능 모듈끼리는 서로 몰라 어디서 어디로 가는지는 여기서 정함.
+ * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스)
+ * 기능 모듈끼리는 서로 몰라 어디서 어디로 가는지는 여기서 정함
  */
 fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit, home: () -> Unit) {
     entry<SettingsKey>(metadata = tabRoot(SettingsKey)) {
@@ -215,8 +215,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
 }
 
 /**
- * 설정 > 기록 이전 결과.
- * 문의하기는 복구 문의 시트를 먼저 띄움(FR-010a).
+ * 설정 > 기록 이전 결과
+ * 문의하기는 복구 문의 시트를 먼저 띄움(FR-010a)
  */
 @Composable
 private fun MigrationReportPage(onBack: () -> Unit) {

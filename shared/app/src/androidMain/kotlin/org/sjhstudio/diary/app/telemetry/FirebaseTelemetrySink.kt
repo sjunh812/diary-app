@@ -10,8 +10,8 @@ import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.TelemetrySink
 
 /**
- * 고정 표를 지난 이벤트와 키만 받음([org.sjhstudio.diary.core.platform.Telemetry]).
- * 일기 내용은 여기까지 오지 않음(헌법 II).
+ * 고정 표를 지난 이벤트와 키만 받음([org.sjhstudio.diary.core.platform.Telemetry])
+ * 일기 내용은 여기까지 오지 않음(헌법 II)
  */
 private class FirebaseTelemetrySink(context: Context) : TelemetrySink {
     private val analytics = FirebaseAnalytics.getInstance(context)

@@ -8,8 +8,8 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 /**
- * 화면 키(contracts/app-shell.md 화면 키).
- * 스택을 저장할 때 쓸 직렬화기를 한 번에 등록하려고 sealed interface로 묶음.
+ * 화면 키(contracts/app-shell.md 화면 키)
+ * 스택을 저장할 때 쓸 직렬화기를 한 번에 등록하려고 sealed interface로 묶음
  * 일기 ID 같은 값을 든 키는 `toString()`에 그 값을 담지 않음. 비정상 종료 보고에 섞이지 않게(헌법 II)
  */
 @Serializable
@@ -77,8 +77,8 @@ data class PhotoViewerKey(val entryId: String, val index: Int) : Screen {
 }
 
 /**
- * 쓰기.
- * [date]는 `yyyy-MM-dd`로, 달력 빈 날에서 오면 있음.
+ * 쓰기
+ * [date]는 `yyyy-MM-dd`로, 달력 빈 날에서 오면 있음
  * [entryId]가 있으면 수정
  */
 @OptIn(ExperimentalSerializationApi::class, ExperimentalUuidApi::class)
@@ -87,15 +87,15 @@ data class WriteKey(
     val date: String? = null,
     val entryId: String? = null,
     /**
-     * 쓰기를 열 때마다 새로 만듦.
+     * 쓰기를 열 때마다 새로 만듦
      * 없으면 닫히는 화면이 사라지기 전에 다시 열 때 그 화면 모델을 그대로 받아
-     * 닫는 중인 채로 시작해 뒤로 가기가 먹지 않고 키보드도 뜨지 않음.
+     * 닫는 중인 채로 시작해 뒤로 가기가 먹지 않고 키보드도 뜨지 않음
      * 앱이 다시 떠도 같은 화면으로 이어지게 함께 저장
      */
     @EncodeDefault val opened: String = Uuid.random().toString()
 ) : Screen {
     /**
-     * 화면 모델과 저장 상태를 열 때마다 가르는 키.
+     * 화면 모델과 저장 상태를 열 때마다 가르는 키
      * 기본 키는 [toString]을 써서 모든 쓰기가 같은 키가 됨
      */
     val contentKey: String get() = "write:$entryId:$date:$opened"

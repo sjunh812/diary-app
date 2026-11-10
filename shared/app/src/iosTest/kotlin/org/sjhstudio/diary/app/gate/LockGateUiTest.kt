@@ -127,8 +127,8 @@ class LockGateUiTest {
     }
 
     /**
-     * 화면이 먼저 사라지고 앱이 뒤로 갔다는 알림이 나중에 와도 다시 잠김.
-     * Android 11까지는 맨 앞 화면에서 뒤로 가면 이렇게 끝나고, 프로세스는 살아 있음.
+     * 화면이 먼저 사라지고 앱이 뒤로 갔다는 알림이 나중에 와도 다시 잠김
+     * Android 11까지는 맨 앞 화면에서 뒤로 가면 이렇게 끝나고, 프로세스는 살아 있음
      */
     @Test
     fun leaving_after_the_screen_is_gone_still_locks() = runComposeUiTest {
@@ -209,8 +209,8 @@ class LockGateUiTest {
 }
 
 /**
- * 보던 화면의 상태 대신 쓰는 숫자.
- * 저장 상태로 두어 잠금을 지나도 남는지 봄.
+ * 보던 화면의 상태 대신 쓰는 숫자
+ * 저장 상태로 두어 잠금을 지나도 남는지 봄
  */
 @Composable
 private fun Counter() {

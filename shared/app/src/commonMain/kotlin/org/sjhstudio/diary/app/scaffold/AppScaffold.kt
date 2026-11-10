@@ -151,12 +151,12 @@ import org.sjhstudio.diary.feature.write.WriteRoute
 import org.sjhstudio.diary.feature.write.WriteTarget
 
 /**
- * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면).
- * 폭 600dp 미만은 하단 탭, 이상은 레일.
- * 탭은 홈·달력·돌아보기·설정, 하단 탭은 탭의 맨 위 화면에서만 보임(Figma S6·G2).
- * 탭마다 화면을 따로 쌓아 옮겼다 와도 보던 자리 그대로.
- * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있음. 일기가 없는 홈은 빈 상태의 버튼 하나만.
- * 쓰기 화면은 탭과 레일 없이 전체 화면.
+ * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면)
+ * 폭 600dp 미만은 하단 탭, 이상은 레일
+ * 탭은 홈·달력·돌아보기·설정, 하단 탭은 탭의 맨 위 화면에서만 보임(Figma S6·G2)
+ * 탭마다 화면을 따로 쌓아 옮겼다 와도 보던 자리 그대로
+ * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있음. 일기가 없는 홈은 빈 상태의 버튼 하나만
+ * 쓰기 화면은 탭과 레일 없이 전체 화면
  * 잠금·이전 관문은 이 바깥에 있어 뒤로 가기로 벗어날 수 없음
  */
 @Composable
@@ -272,9 +272,9 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
 private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
 
 /**
- * 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비움.
- * 쓰기처럼 전체를 쓰는 화면은 그대로 둠.
- * 탭 바가 시스템 내비게이션 높이까지 맡으니 그만큼 다 쓴 것으로 알림.
+ * 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비움
+ * 쓰기처럼 전체를 쓰는 화면은 그대로 둠
+ * 탭 바가 시스템 내비게이션 높이까지 맡으니 그만큼 다 쓴 것으로 알림
  * 안쪽 화면은 탭 바가 없는 넓은 화면에서만 시스템 내비게이션 높이를 비움
  */
 private val TabBarSpace =
@@ -312,7 +312,7 @@ private val TabBarSpace =
     })
 
 /**
- * 탭 첫 화면이 함께 그리는 탭 바와 쓰기 버튼(폰).
+ * 탭 첫 화면이 함께 그리는 탭 바와 쓰기 버튼(폰)
  * 화면 위에 따로 얹으면 상세로 넘어갈 때 먼저 사라지거나 새 화면 위에 남음. 넓은 화면은 레일이라 null
  */
 private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScreen) -> Unit)?> { null }
@@ -539,8 +539,8 @@ private fun Content(
 private const val HALF = 0.5f
 
 /**
- * 두 칸에서 고른 일기가 없을 때의 오른쪽.
- * 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보임.
+ * 두 칸에서 고른 일기가 없을 때의 오른쪽
+ * 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보임
  * 아이콘은 두지 않음. 연필은 쓰기 단추와 같아 누를 것처럼 보임(Apple 메일·메모의 빈 칸처럼 글 한 줄)
  */
 @Composable

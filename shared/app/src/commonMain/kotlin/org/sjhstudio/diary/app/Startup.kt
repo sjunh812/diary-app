@@ -13,9 +13,9 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.LockSettings
 
 /**
- * 앱이 처음 그리기 전에 끝내야 하는 일(contracts/app-shell.md 시작 순서 1).
- * 설정과 잠금 파일을 읽어 첫 화면의 테마와 잠금 여부를 정함. 일기 DB(Room)는 열지 않음.
- * 목표는 300ms 안.
+ * 앱이 처음 그리기 전에 끝내야 하는 일(contracts/app-shell.md 시작 순서 1)
+ * 설정과 잠금 파일을 읽어 첫 화면의 테마와 잠금 여부를 정함. 일기 DB(Room)는 열지 않음
+ * 목표는 300ms 안
  * 옛 앱의 잠금과 설정 잇기는 읽기 전에 끝냄(research R16). 잠금이 먼저
  */
 class Startup(
