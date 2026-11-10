@@ -21,9 +21,9 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
- * 앱 설정 `settings.preferences_pb`.
- * 키 이름, 타입, 기본값은 data-model.md 설정 표 그대로다.
- * 모르는 값은 기본값으로 읽고, 이 저장소가 모르는 키(스펙 002의 목록 모양 같은)는 건드리지 않는다.
+ * 앱 설정 `settings.preferences_pb`
+ * 키 이름, 타입, 기본값은 data-model.md 설정 표 그대로
+ * 모르는 값은 기본값으로 읽고, 이 저장소가 모르는 키(스펙 002의 목록 모양 같은)는 건드리지 않음
  */
 class SettingsStore(private val dataStore: DataStore<Preferences>) {
     val settings: Flow<AppSettings> =

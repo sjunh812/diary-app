@@ -19,26 +19,26 @@ import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.PhotoStop
 
 /**
- * `backup.preferences_pb`의 값(data-model.md 표).
- * 기기 것이라 스냅샷에도 기기 간 이전에도 넣지 않는다.
+ * `backup.preferences_pb`의 값(data-model.md 표)
+ * 기기 것이라 스냅샷에도 기기 간 이전에도 넣지 않음
  */
 data class BackupPrefs(
     val accountKey: String? = null,
     val accountLabel: String? = null,
     val rootFolderId: String? = null,
-    /** [rootFolderId]가 어느 계정의 폴더인지. */
+    /** [rootFolderId]가 어느 계정의 폴더인지 */
     val rootFolderAccount: String? = null,
     /**
-     * 드라이브에서 지워진 백업 폴더를 새로 만들었다.
-     * 사용자가 확인하면 내린다.
+     * 드라이브에서 지워진 백업 폴더를 새로 만듦
+     * 사용자가 확인하면 내림
      */
     val folderRecreated: Boolean = false,
     /**
-     * 드라이브에서 찾은 백업을 사용자가 아직 고르지 않았다.
-     * 고르기 전에는 이 기기 일기를 올리지 않는다.
+     * 드라이브에서 찾은 백업을 사용자가 아직 고르지 않음
+     * 고르기 전에는 이 기기 일기를 올리지 않음
      */
     val foundBackupWaiting: Boolean = false,
-    /** 기기에 둔 복원 목록이 어느 계정의 것인지. */
+    /** 기기에 둔 복원 목록이 어느 계정의 것인지 */
     val listedAccount: String? = null,
     val deviceId: String? = null,
     val autoEnabled: Boolean = false,
@@ -55,31 +55,31 @@ data class BackupPrefs(
     val userDisconnected: Boolean = false,
     val rollbackUntil: Instant? = null,
     /**
-     * 마지막 성공 때의 일기·사진·설정 지문.
-     * 같으면 자동 백업을 건너뛴다.
+     * 마지막 성공 때의 일기·사진·설정 지문
+     * 같으면 자동 백업을 건너뜀
      */
     val lastSuccessFingerprint: String? = null,
-    /** 사진을 마저 올리려면 드라이브에 더 필요한 양. */
+    /** 사진을 마저 올리려면 드라이브에 더 필요한 양 */
     val bytesShort: Long = 0,
     /**
-     * 이 기기로 드라이브 백업을 복원했을 때 그 백업을 만든 시각.
-     * 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻이다.
+     * 이 기기로 드라이브 백업을 복원했을 때 그 백업을 만든 시각
+     * 이 기기에서 백업한 적은 없어도 드라이브에는 백업이 있다는 뜻
      */
     val restoredBackupAt: Instant? = null,
-    /** 사진을 다 꺼내지 못한 복원 파일을 이때까지 둔다. */
+    /** 사진을 다 꺼내지 못한 복원 파일을 이때까지 둠 */
     val unpackUntil: Instant? = null,
-    /** 복원 사진을 받다 멈춘 까닭. */
+    /** 복원 사진을 받다 멈춘 까닭 */
     val photoStop: PhotoStop? = null,
     /**
-     * 대기 중인 사진 가운데 백업에 없어 받을 수 없는 장수.
-     * 남은 장수와 이어 받기에서 뺀다.
+     * 대기 중인 사진 가운데 백업에 없어 받을 수 없는 장수
+     * 남은 장수와 이어 받기에서 뺌
      */
     val photosUnreachable: Int = 0,
-    /** 묶음 파일을 만드는 중이다. 앱이 꺼진 뒤에도 남아 있으면 끝나지 못한 것이다. */
+    /** 묶음 파일을 만드는 중. 앱이 꺼진 뒤에도 남아 있으면 끝나지 못한 것 */
     val bundleWriting: Boolean = false,
     /**
-     * 기기에서 파일이 깨지거나 없어져 올릴 수 없는 사진의 내용 확인값.
-     * 기다려도 올라가지 않으니 남은 사진으로 세지 않는다.
+     * 기기에서 파일이 깨지거나 없어져 올릴 수 없는 사진의 내용 확인값
+     * 기다려도 올라가지 않으니 남은 사진으로 세지 않음
      */
     val unusablePhotos: Set<String> = emptySet()
 )
@@ -94,9 +94,9 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
     }
 
     /**
-     * 기기 구분값.
-     * 처음 읽을 때 만든다.
-     * 앱을 지웠다 깔면 새로 만든다.
+     * 기기 구분값
+     * 처음 읽을 때 만듦
+     * 앱을 삭제했다 다시 설치하면 새로 만듦
      */
     @OptIn(ExperimentalUuidApi::class)
     suspend fun deviceId(): String {

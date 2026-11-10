@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /**
- * `ads.preferences_pb`.
- * 기기 것이라 백업에 넣지 않는다.
+ * `ads.preferences_pb`
+ * 기기 것이라 백업에 넣지 않음
  */
 data class AdPrefs(val lastInterstitialDay: String? = null, val rewardUntil: Instant? = null)
 
@@ -22,7 +22,7 @@ class AdStore(private val dataStore: DataStore<Preferences>) {
 
     suspend fun current(): AdPrefs = prefs.first()
 
-    /** [day]가 null이면 기록을 지운다. */
+    /** [day]가 null이면 기록 삭제 */
     suspend fun interstitialShown(day: String?) = dataStore.edit { prefs ->
         if (day == null) prefs.remove(LAST_INTERSTITIAL) else prefs[LAST_INTERSTITIAL] = day
     }
