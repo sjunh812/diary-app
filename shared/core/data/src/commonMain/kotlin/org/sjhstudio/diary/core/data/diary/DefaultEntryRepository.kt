@@ -8,6 +8,7 @@ import androidx.paging.PagingSource
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -72,7 +73,8 @@ class DefaultEntryRepository(
      * 일기 표만 살피는 쪽은 받은 사진을 모르니, 사진 상태가 바뀌면 보던 쪽을 다시 읽음
      */
     private fun pages(factory: InvalidatingPagingSourceFactory<Int, EntryRow>): Flow<PagingData<EntryRow>> = channelFlow {
-        launch { media.photoStatusChanges(photoRefreshEvery).collect { factory.invalidate() } }
+        // 사진 상태를 못 읽어도 목록은 그대로 둠. 목록은 화면 스레드에서 모아 예외가 나면 앱이 꺼짐
+        launch { media.photoStatusChanges(photoRefreshEvery).catch { }.collect { factory.invalidate() } }
         Pager(pageConfig, pagingSourceFactory = factory).flow.collect { send(it) }
     }
 

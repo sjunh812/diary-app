@@ -2,6 +2,8 @@ package org.sjhstudio.diary.core.database
 
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
@@ -22,4 +24,11 @@ expect class DatabaseFactory {
  * 시험도 이 설정을 그대로 씀
  */
 fun RoomDatabase.Builder<DiaryDatabase>.configured(): RoomDatabase.Builder<DiaryDatabase> = setDriver(BundledSQLiteDriver())
-    .setQueryCoroutineContext(Dispatchers.IO)
+    .setQueryCoroutineContext(RoomQueryContext)
+
+/**
+ * Room 안쪽 작업(변경 감지 등)의 예외로 앱이 꺼지지 않게 받음.
+ * 쿼리 실패는 부른 쪽에도 그대로 가서 저장소가 결과로 돌려줌
+ */
+internal val RoomQueryContext: CoroutineContext =
+    Dispatchers.IO + CoroutineExceptionHandler { _, error -> println("DB 작업 실패: ${error::class.simpleName}") }

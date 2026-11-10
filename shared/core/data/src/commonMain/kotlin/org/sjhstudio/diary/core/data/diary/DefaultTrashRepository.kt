@@ -7,7 +7,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
@@ -25,7 +28,8 @@ class DefaultTrashRepository(
     private val entries get() = db.entryDao()
     private val drafts get() = db.draftDao()
 
-    override fun count(): Flow<Int> = entries.trashedCount()
+    // 설정 화면이 바로 모으는 흐름이라 읽지 못하면 개수를 비워 둠. 예외가 화면까지 가면 앱이 꺼짐
+    override fun count(): Flow<Int> = flow { emitAll(entries.trashedCount()) }.catch { }
 
     override fun items(): Flow<List<TrashedEntry>> = combine(
         entries.trashed(),
