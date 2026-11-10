@@ -11,12 +11,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import org.sjhstudio.diary.core.model.DiaryFont
 
 // 라이선스 목록 라이브러리가 Java 21로 빌드돼 안드로이드 호스트 JVM(17)에서는 못 돌아 iOS 시뮬레이터에서 돈다.
@@ -36,17 +36,19 @@ class LicensesViewModelTest {
     @Test
     fun an_unreadable_list_shows_a_retry_and_trying_again_reads_it() = runTest {
         var broken = true
-        val viewModel = LicensesViewModel(readList = { if (broken) error("읽을 수 없음") else list })
+        val viewModel =
+            LicensesViewModel(readList = { if (broken) error("읽을 수 없음") else list }, background = StandardTestDispatcher(testScheduler))
         backgroundScope.launch { viewModel.libraries.collect {} }
-        withContext(Dispatchers.Default) { withTimeout(5_000) { viewModel.failed.first { it } } }
+        advanceUntilIdle()
+        assertTrue(viewModel.failed.value)
         assertNull(viewModel.libraries.value)
 
         broken = false
         viewModel.retry()
-        val loaded = withContext(Dispatchers.Default) { withTimeout(5_000) { viewModel.libraries.first { it != null } } }
+        advanceUntilIdle()
 
         assertFalse(viewModel.failed.value)
-        assertEquals(listOf("Alpha"), loaded!!.map { it.name })
+        assertEquals(listOf("Alpha"), viewModel.libraries.value!!.map { it.name })
     }
 
     @Test

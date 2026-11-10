@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.entity.Library
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +41,10 @@ data class LibraryText(val name: String, val licenseName: String, val details: S
 @OptIn(ExperimentalCoroutinesApi::class)
 class LicensesViewModel(
     private val readList: suspend () -> String = { Res.readBytes("files/aboutlibraries.json").decodeToString() },
-    private val readFont: suspend (String) -> String = { DsRes.readBytes("files/licenses/$it").decodeToString() }
+    private val readFont: suspend (String) -> String = { DsRes.readBytes("files/licenses/$it").decodeToString() },
+    // 시험은 시험 디스패처를 넘긴다.
+    // 시험이 끝난 뒤 다른 스레드에서 늦게 끝난 읽기가 다음 시험을 깨뜨렸다.
+    private val background: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
     private var libs: List<Library>? = null
     private val attempt = MutableStateFlow(0)
@@ -64,7 +68,7 @@ class LicensesViewModel(
                 emit(null)
             }
         }
-            .flowOn(Dispatchers.Default)
+            .flowOn(background)
             .stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
     fun retry() = attempt.update { it + 1 }
