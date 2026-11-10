@@ -202,9 +202,10 @@ fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: ()
         viewModel.dismiss()
     }
     val access = rememberNotificationAccess()
-    // 사진을 받는 동안 앱을 나가도 끝나면 알릴 수 있게 시작할 때 한 번 물음
+    // 받을 사진이 있을 때 한 번 물음. 앱을 나가도 끝나면 알리려는 것이라 바로 끝나는 복원에서는 묻지 않음
     // 거절해도 복원은 그대로 돎
-    LaunchedEffect(access) { access.request {} }
+    val fetching = (state as? RestoreState.FetchingPhotos)?.let { it.total > 0 } == true
+    LaunchedEffect(access, fetching) { if (fetching) access.request {} }
     val home by rememberUpdatedState(onHome)
     // 할 일 없이 열렸을 때만 바로 나감. 결과를 닫아 비었을 때는 이미 나가는 중
     LaunchedEffect(state) { if (state == RestoreState.Idle && !leaving) home() }
