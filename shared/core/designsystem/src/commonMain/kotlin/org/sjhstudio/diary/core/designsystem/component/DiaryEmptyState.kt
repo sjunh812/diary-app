@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -43,11 +44,22 @@ fun DiaryEmptyState(
             DiaryIcon(icon, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i32)
             Spacer(Modifier.height(DiarySpacing.x1))
         }
-        PhraseText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
+        PhraseText(
+            text = title,
+            style = DiaryTheme.typography.title2.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
         if (description != null) {
             PhraseText(
                 text = description,
-                style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+                style = DiaryTheme.typography.body.copy(
+                    color = colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                    lineBreak = CenteredLineBreak
+                )
             )
         }
         if (actionLabel != null && onAction != null) {
@@ -69,7 +81,14 @@ fun DiaryEmptyLine(text: String, actionLabel: String, onAction: () -> Unit, modi
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
-        PhraseText(text, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary, textAlign = TextAlign.Center))
+        PhraseText(
+            text,
+            style = DiaryTheme.typography.body.copy(
+                color = DiaryTheme.colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
         DiaryButton(actionLabel, onAction, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
     }
 }

@@ -39,6 +39,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
@@ -324,7 +325,14 @@ private fun Frame(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (footnote != null) {
-                BasicText(footnote, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.Center))
+                BasicText(
+                    footnote,
+                    style = DiaryTheme.typography.caption.copy(
+                        color = colors.textSecondary,
+                        textAlign = TextAlign.Center,
+                        lineBreak = CenteredLineBreak
+                    )
+                )
                 Spacer(Modifier.height(DiarySpacing.x3))
             }
             if (secondaryActions.isNotEmpty()) {

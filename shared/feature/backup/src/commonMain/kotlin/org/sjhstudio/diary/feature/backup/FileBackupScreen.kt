@@ -53,6 +53,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
@@ -283,7 +284,21 @@ private fun Heading(icon: androidx.compose.ui.graphics.vector.ImageVector, title
     ) {
         DiaryHeroBadge(icon, tone = DiaryBadgeTone.Accent)
         Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
-        BasicText(body, style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center))
+        BasicText(
+            title,
+            style = DiaryTheme.typography.title2.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
+        BasicText(
+            body,
+            style = DiaryTheme.typography.body.copy(
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
     }
 }

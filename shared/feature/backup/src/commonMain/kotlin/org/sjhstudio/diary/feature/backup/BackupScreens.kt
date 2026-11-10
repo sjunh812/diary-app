@@ -59,6 +59,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -464,7 +465,11 @@ private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Uni
         Spacer(Modifier.height(DiarySpacing.x1))
         BasicText(
             stringResource(Res.string.backup_no_space_title),
-            style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+            style = DiaryTheme.typography.title2.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
         )
         BasicText(
             if (status.failingSince != null) {
@@ -472,7 +477,11 @@ private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Uni
             } else {
                 pluralStringResource(Res.plurals.backup_space_photos, status.photosNotBackedUp, status.photosNotBackedUp.grouped(), size)
             },
-            style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+            style = DiaryTheme.typography.body.copy(
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
         )
     }
     DiarySettingsRow(stringResource(Res.string.backup_space_manage), onClick = { links.openUri(STORAGE_URL) })
@@ -542,11 +551,19 @@ private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
         Spacer(Modifier.height(DiarySpacing.x1))
         BasicText(
             stringResource(Res.string.backup_intro_title),
-            style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+            style = DiaryTheme.typography.title2.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
         )
         BasicText(
             stringResource(Res.string.backup_intro_body),
-            style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+            style = DiaryTheme.typography.body.copy(
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
         )
         Spacer(Modifier.height(DiarySpacing.x4))
         DiaryNotice(stringResource(Res.string.backup_intro_note))

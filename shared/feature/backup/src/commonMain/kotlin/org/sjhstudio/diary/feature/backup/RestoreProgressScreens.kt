@@ -59,6 +59,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -267,7 +268,11 @@ internal fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntr
     Bottom {
         BasicText(
             stringResource(if (workContinuesInBackground) Res.string.restore_running_note else Res.string.restore_running_note_open),
-            style = DiaryTheme.typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
+            style = DiaryTheme.typography.caption.copy(
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            ),
             modifier = Modifier.fillMaxWidth()
         )
         if (photos != null) {

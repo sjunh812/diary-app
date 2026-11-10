@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryPinDots
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
@@ -66,7 +67,11 @@ internal fun PinEntryLayout(
             Spacer(Modifier.height(DiarySpacing.x5))
             BasicText(
                 title,
-                style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
+                style = DiaryTheme.typography.title2.copy(
+                    color = colors.textPrimary,
+                    textAlign = TextAlign.Center,
+                    lineBreak = CenteredLineBreak
+                ),
                 modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { heading() }
             )
             Spacer(Modifier.height(DiarySpacing.x10))
@@ -78,7 +83,11 @@ internal fun PinEntryLayout(
             Spacer(Modifier.height(DiarySpacing.x4))
             BasicText(
                 line?.text.orEmpty(),
-                style = DiaryTheme.typography.body.copy(color = line?.color ?: colors.textPrimary, textAlign = TextAlign.Center),
+                style = DiaryTheme.typography.body.copy(
+                    color = line?.color ?: colors.textPrimary,
+                    textAlign = TextAlign.Center,
+                    lineBreak = CenteredLineBreak
+                ),
                 modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { liveRegion = LiveRegionMode.Polite }
             )
             middle()

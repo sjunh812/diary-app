@@ -36,6 +36,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -170,12 +171,20 @@ private fun ArtPage(title: StringResource, body: StringResource, art: @Composabl
         Spacer(Modifier.height(DiarySpacing.x10))
         BasicText(
             stringResource(title),
-            style = DiaryTheme.typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+            style = DiaryTheme.typography.title1.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
         )
         Spacer(Modifier.height(DiarySpacing.x2))
         BasicText(
             stringResource(body),
-            style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center),
+            style = DiaryTheme.typography.body.copy(
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            ),
             modifier = Modifier.widthIn(max = DiaryWriteSize.bodyMax),
             minLines = 2
         )

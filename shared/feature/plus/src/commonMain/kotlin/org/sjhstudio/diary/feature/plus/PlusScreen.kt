@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -377,8 +378,7 @@ private fun PaywallBuy(
             BasicText(
                 stringResource(Res.string.plus_notice),
                 Modifier.fillMaxWidth(),
-                // 두 줄 길이를 고르게 나눠 마지막 낱말만 떨어지지 않게 함
-                style = typography.micro.copy(color = colors.textSecondary, textAlign = TextAlign.Center, lineBreak = LineBreak.Heading)
+                style = typography.micro.copy(color = colors.textSecondary, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
             )
             PaywallLegal()
         } else {

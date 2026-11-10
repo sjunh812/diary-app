@@ -54,6 +54,7 @@ import kotlin.math.PI
 import kotlin.math.cos
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryColors
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -207,12 +208,12 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
                 BasicText(
                     stringResource(Res.string.letter_arrived),
                     Modifier.semantics { heading() },
-                    style = typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
+                    style = typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
                 )
                 Spacer(Modifier.height(DiarySpacing.x2))
                 BasicText(
                     stringResource(Res.string.letter_to),
-                    style = typography.label.copy(color = colors.accentText, textAlign = TextAlign.Center)
+                    style = typography.label.copy(color = colors.accentText, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
                 )
             }
             Spacer(Modifier.height(DiarySpacing.x10))

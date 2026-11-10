@@ -67,6 +67,9 @@ fun pretendardFamily(): FontFamily = FontFamily(
  */
 internal expect val PHRASE_LINE_BREAK: LineBreak
 
+/** 가운데 맞춘 여러 줄 글. 줄 길이를 고르게 나눠 마지막 낱말만 떨어지지 않게 함 */
+expect val CenteredLineBreak: LineBreak
+
 @Composable
 internal fun diaryTypography(chosen: FontFamily? = null): DiaryTypography {
     // 기본 글꼴의 일본어 화면은 시스템 글꼴을 씀(열린 결정 D13 추천, docs/design.md 여러 언어).

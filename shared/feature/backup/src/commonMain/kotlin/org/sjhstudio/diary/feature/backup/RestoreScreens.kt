@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -550,8 +551,24 @@ internal fun ColumnScope.Hero(
     ) {
         DiaryHeroBadge(icon, tone = tone)
         Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
-        body?.let { BasicText(it, style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center)) }
+        BasicText(
+            title,
+            style = DiaryTheme.typography.title2.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
+        body?.let {
+            BasicText(
+                it,
+                style = DiaryTheme.typography.body.copy(
+                    color = colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                    lineBreak = CenteredLineBreak
+                )
+            )
+        }
     }
 }
 

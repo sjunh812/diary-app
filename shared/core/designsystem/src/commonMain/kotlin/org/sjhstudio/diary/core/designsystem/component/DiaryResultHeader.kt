@@ -15,6 +15,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
@@ -52,11 +53,22 @@ fun DiaryResultHeader(
         Spacer(Modifier.height(DiarySpacing.x1))
         BasicText(
             title,
-            style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
+            style = DiaryTheme.typography.title2.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            ),
             modifier = Modifier.semantics { heading() }
         )
         if (description != null) {
-            BasicText(description, style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center))
+            BasicText(
+                description,
+                style = DiaryTheme.typography.body.copy(
+                    color = colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                    lineBreak = CenteredLineBreak
+                )
+            )
         }
     }
 }
