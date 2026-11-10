@@ -37,7 +37,7 @@ import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
 
 /**
  * 하단 탭·레일 한 칸.
- * 고른 칸은 [selectedIcon](굵은 선)을 쓴다.
+ * 고른 칸은 [selectedIcon](채운 아이콘)을 쓴다.
  */
 class DiaryNavItem(val label: String, val icon: ImageVector, val selectedIcon: ImageVector)
 
@@ -59,7 +59,7 @@ fun ProvideScreenGutter(content: @Composable () -> Unit) {
 /**
  * 하단 탭(`docs/design.md` 하단 탭, M3 내비 바 64, Figma "설정 (S6)" tab-bar).
  * 64 + 안전 영역 · 칸은 폭을 고르게 나누고 높이 56 · 아이콘 24 · 이름 `micro` · 위 경계선 `line`.
- * 고른 탭은 보라가 아니라 `textPrimary`와 굵은 선, 나머지는 `textTertiary`다.
+ * 고른 탭은 보라가 아니라 `textPrimary`와 채운 아이콘, 나머지는 `textSecondary`다.
  */
 @Composable
 fun DiaryNavigationBar(items: List<DiaryNavItem>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
