@@ -20,8 +20,8 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 휴지통(FR-034).
- * 처음 읽기 전에는 null이라 빈 상태가 잠깐 비치지 않는다.
- * 읽지 못하면 [failed]가 참이 되어 다시 시도를 보인다.
+ * 처음 읽기 전에는 null이라 빈 상태가 잠깐 비치지 않음.
+ * 읽지 못하면 [failed]가 참이 되어 다시 시도를 보임.
  */
 class TrashViewModel(private val trash: TrashRepository) : ViewModel() {
     private val attempt = MutableStateFlow(0)

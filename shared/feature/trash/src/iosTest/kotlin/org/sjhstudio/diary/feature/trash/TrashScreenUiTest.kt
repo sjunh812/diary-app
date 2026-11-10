@@ -15,7 +15,7 @@ import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.trash.resources.Res
 import org.sjhstudio.diary.feature.trash.resources.trash_empty
 
-// 휴지통 화면에 시험이 하나도 없었다. 잘못 누르면 일기를 영영 잃는 화면이다.
+// 잘못 누르면 일기를 영영 잃는 화면이라 시험을 둠
 @OptIn(ExperimentalTestApi::class)
 class TrashScreenUiTest {
     private val day = LocalDate(2026, 11, 1)

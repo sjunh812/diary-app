@@ -80,12 +80,12 @@ import org.sjhstudio.diary.feature.trash.resources.trash_restored
 import org.sjhstudio.diary.feature.trash.resources.trash_row_when
 import org.sjhstudio.diary.feature.trash.resources.trash_title
 
-/** 마지막 날이 다가오면 빨갛게 보인다. */
+/** 마지막 날이 다가오면 빨갛게 보임. */
 private const val URGENT_DAYS = 1
 
 /**
  * 휴지통(Figma "휴지통 (S6-7)").
- * 줄을 누르면 복원하기와 완전히 지우기를 고른다.
+ * 줄을 누르면 복원하기와 완전히 지우기를 고름.
  */
 @Composable
 fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
@@ -179,7 +179,7 @@ internal fun TrashScreen(
                 }
 
             else -> {
-                // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
+                // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비움
                 val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
                 LazyColumn(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth(), contentPadding = PaddingValues(bottom = bottom)) {
                     item {
@@ -235,7 +235,7 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
                     )
                     row.weather?.let { WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary, contentDescription = weatherName(it)) }
                     row.placeName?.let {
-                        // 장소가 길어도 앞의 시각과 날씨를 밀어내지 않는다.
+                        // 장소가 길어도 앞의 시각과 날씨를 밀어내지 않음
                         BasicText(
                             it,
                             modifier = Modifier.weight(1f, fill = false),

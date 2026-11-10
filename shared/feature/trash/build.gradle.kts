@@ -1,4 +1,4 @@
-// 휴지통 화면.
+// 휴지통 화면
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }
