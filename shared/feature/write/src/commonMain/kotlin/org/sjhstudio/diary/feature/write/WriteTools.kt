@@ -83,6 +83,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -435,7 +436,7 @@ internal fun ToolButton(
     tint: Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    active: Boolean = false
+    active: Boolean? = null
 ) {
     val theme = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -443,11 +444,13 @@ internal fun ToolButton(
         modifier
             .size(DiarySpacing.minTouchTarget)
             .diaryPress(interaction, theme.textPrimary, DiaryShapes.full)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            // 켜고 끄는 도구만 화면 읽기에 켜짐 상태를 알림
+            .then(if (active != null) Modifier.semantics { selected = active } else Modifier),
         contentAlignment = Alignment.Center
     ) {
         // 켜진 도구는 색만이 아니라 바탕으로도 알림
-        if (active) Box(Modifier.size(DiaryWriteSize.swatch + DiarySpacing.x2).background(theme.selected, DiaryShapes.r12))
+        if (active == true) Box(Modifier.size(DiaryWriteSize.swatch + DiarySpacing.x2).background(theme.selected, DiaryShapes.r12))
         DiaryIcon(icon, contentDescription = description, tint = tint)
     }
 }
