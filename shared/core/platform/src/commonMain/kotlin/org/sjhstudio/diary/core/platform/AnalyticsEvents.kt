@@ -13,8 +13,8 @@ import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
  * 사용 통계로 보낼 수 있는 이벤트와 값의 고정 표(contracts/app-shell.md, contracts/migration-flow.md).
- * 값은 열거형 ID와 개수 구간뿐이다.
- * 일기 글, 장소, 기분, 경로, 예외 메시지는 표에 들어올 자리가 없다(헌법 II).
+ * 값은 열거형 ID와 개수 구간뿐.
+ * 일기 글, 장소, 기분, 경로, 예외 메시지는 표에 들어올 자리가 없음(헌법 II).
  */
 object AnalyticsEvents {
     const val SCREEN_VIEW = "screen_view"
@@ -30,7 +30,7 @@ object AnalyticsEvents {
     const val BACKUP_NUDGE = "backup_nudge"
     const val BACKUP_EXPORT = "backup_export"
 
-    /** contracts/app-shell.md 화면 키 이름. */
+    /** contracts/app-shell.md 화면 키 이름 */
     val SCREENS =
         setOf(
             "HomeKey",
@@ -86,7 +86,7 @@ object AnalyticsEvents {
     private val BOOLEAN = setOf("true", "false")
     private val ATTEMPTS = (1..99).map(Int::toString).toSet()
 
-    /** `settings_changed`의 `name`마다 받을 수 있는 `value`. */
+    /** `settings_changed`의 `name`마다 받을 수 있는 `value` */
     private val SETTING_VALUES: Map<String, Set<String>> =
         mapOf(
             "font" to DiaryFont.entries.map { it.id }.toSet(),
@@ -98,7 +98,7 @@ object AnalyticsEvents {
             "relock_after" to RelockAfter.entries.map { it.id }.toSet()
         )
 
-    /** 이벤트마다 받을 수 있는 키와 값. */
+    /** 이벤트마다 받을 수 있는 키와 값 */
     private val TABLE: Map<String, Map<String, Set<String>>> =
         mapOf(
             SCREEN_VIEW to mapOf("screen" to SCREENS),
@@ -145,10 +145,7 @@ object AnalyticsEvents {
                 mapOf("kind" to setOf("export", "import"), "result" to setOf("ok", "cancel", "failed"), "photos" to COUNT_BUCKETS.toSet())
         )
 
-    /**
-     * 표에 맞으면 null, 아니면 무엇이 어긋났는지.
-     * 설명에는 이벤트와 키 이름만 넣고 값은 넣지 않는다.
-     */
+    /** 표에 맞으면 null, 아니면 어긋난 곳. 설명에는 이벤트와 키 이름만 넣고 값은 넣지 않음 */
     fun violation(event: String, params: Map<String, String>): String? {
         val allowed = TABLE[event] ?: return "표에 없는 이벤트: $event"
         params.forEach { (key, value) ->

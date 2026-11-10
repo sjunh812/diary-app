@@ -8,7 +8,7 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
 actual object AppForeground {
     actual fun observe(onBackground: () -> Unit, onForeground: () -> Unit): () -> Unit {
         val center = NSNotificationCenter.defaultCenter
-        // 생체 인증 창이 뜰 때는 비활성(resign active)만 되고 백그라운드로 가지 않는다.
+        // 생체 인증 창이 뜰 때는 비활성(resign active)만 되고 백그라운드로 가지 않음
         val background =
             center.addObserverForName(UIApplicationDidEnterBackgroundNotification, null, NSOperationQueue.mainQueue) { onBackground() }
         val foreground =

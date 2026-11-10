@@ -45,7 +45,7 @@ import platform.posix.memcpy
 
 actual fun devicePinKeyStore(): PinKeyStore = IosPinKeyStore
 
-/** CommonCrypto HMAC-SHA256. 키체인과 떼어 두어 시뮬레이터 시험에서 표준 시험값으로 확인한다. */
+/** CommonCrypto HMAC-SHA256. 키체인과 떼어 두어 시뮬레이터 시험에서 표준 시험값으로 확인 */
 @OptIn(ExperimentalForeignApi::class)
 internal fun hmacSha256(key: ByteArray, data: ByteArray): ByteArray {
     require(key.isNotEmpty() && data.isNotEmpty())
@@ -62,7 +62,7 @@ internal fun hmacSha256(key: ByteArray, data: ByteArray): ByteArray {
 
 /**
  * 키체인에 둔 256비트 임의 키와 CommonCrypto HMAC-SHA256.
- * `AfterFirstUnlockThisDeviceOnly`라 iCloud 키체인이나 다른 기기 백업으로 옮겨 가지 않는다.
+ * `AfterFirstUnlockThisDeviceOnly`라 iCloud 키체인이나 다른 기기 백업으로 옮겨 가지 않음.
  */
 @OptIn(ExperimentalForeignApi::class)
 private object IosPinKeyStore : PinKeyStore {

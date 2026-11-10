@@ -26,8 +26,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
- * 글꼴마다 하나인 Play 필요할 때 설치 모듈(`fonts/<id>`, 모듈 이름이 글꼴 ID다)을 받아 자산 `fonts/<id>.ttf`를 앱 파일로 복사한다.
- * 받은 모듈은 앱을 다시 켜지 않고 [SplitCompat]으로 읽는다(`DiaryApplication.attachBaseContext`).
+ * 글꼴마다 하나인 Play 필요할 때 설치 모듈(`fonts/<id>`, 모듈 이름이 글꼴 ID)을 받아 자산 `fonts/<id>.ttf`를 앱 파일로 복사.
+ * 받은 모듈은 앱을 다시 켜지 않고 [SplitCompat]으로 읽음(`DiaryApplication.attachBaseContext`).
  */
 class AndroidFontInstaller(context: Context, private val files: AppFiles) : FontInstaller {
     private val context = context.applicationContext
@@ -35,13 +35,10 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
 
     override fun installedPath(id: String): String? = target(id).takeIf { it.isFile && it.length() > 0 }?.absolutePath
 
-    /**
-     * Play는 진행 중인 받기가 있으면 새 요청을 거절한다.
-     * 글꼴 둘을 연달아 눌러도 차례로 받는다.
-     */
+    /** Play는 진행 중인 받기가 있으면 새 요청을 거절함. 글꼴 둘을 연달아 눌러도 차례로 받음 */
     private val oneAtATime = Mutex()
 
-    /** 큰 모듈은 Play가 사용자 확인을 요구한다. 확인 창을 띄울 화면이다. */
+    /** 큰 모듈은 Play가 사용자 확인을 요구함. 확인 창을 띄울 화면 */
     private var activity: Activity? = null
 
     init {
@@ -76,14 +73,13 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
             close()
             return@callbackFlow
         }
-        // 개발 빌드는 자산을 앱 안에 담아 둔다.
-        // 출시 빌드는 받은 모듈이 있을 때만 여기로 온다.
+        // 개발 빌드는 자산을 앱 안에 담음. 출시 빌드는 받은 모듈이 있을 때만 여기로 옴
         if (id in manager.installedModules || hasAsset(id)) {
             send(copied(id))
             close()
             return@callbackFlow
         }
-        // 받기가 빨리 끝나면 시작 결과보다 상태가 먼저 올 수 있어 세션 번호가 아니라 모듈 이름으로 고른다.
+        // 받기가 빨리 끝나면 시작 결과보다 상태가 먼저 올 수 있어 세션 번호가 아니라 모듈 이름으로 고름
         val listener =
             SplitInstallStateUpdatedListener { state ->
                 if (id !in state.moduleNames()) return@SplitInstallStateUpdatedListener
@@ -103,7 +99,7 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
                         close()
                     }
 
-                    // 큰 모듈은 받기 전에 사용자에게 묻는다. 묻지 않으면 받는 중에서 멈춘다.
+                    // 큰 모듈은 받기 전에 사용자에게 물음. 묻지 않으면 받는 중에서 멈춤
                     SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> {
                         val screen = activity
                         if (screen == null) {
@@ -128,10 +124,7 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
         awaitClose { manager.unregisterListener(listener) }
     }.flowOn(Dispatchers.Main)
 
-    /**
-     * 저장 공간이 없으면 복사가 실패한다.
-     * 받기 실패로 알리고 다음에 앱을 열 때 다시 한다.
-     */
+    /** 저장 공간이 없으면 복사가 실패함. 받기 실패로 알리고 다음에 앱을 열 때 다시 함 */
     private suspend fun copied(id: String): FontInstallState = try {
         FontInstallState.Installed(copy(id))
     } catch (error: CancellationException) {
@@ -142,10 +135,7 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
 
     private fun hasAsset(id: String): Boolean = runCatching { context.assets.open("fonts/$id.ttf").close() }.isSuccess
 
-    /**
-     * 받은 모듈의 자산을 앱 파일 자리로 복사한다.
-     * 반쯤 쓴 파일을 남기지 않게 임시 파일에 쓴 뒤 이름을 바꾼다.
-     */
+    /** 받은 모듈의 자산을 앱 파일 자리로 복사. 반쯤 쓴 파일이 남지 않게 임시 파일에 쓴 뒤 이름을 바꿈 */
     private suspend fun copy(id: String): String = withContext(Dispatchers.IO) {
         SplitCompat.install(context)
         val assets = context.createPackageContext(context.packageName, 0).assets

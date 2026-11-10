@@ -10,7 +10,7 @@ actual class AppFiles(context: Context) {
     actual val databasePath: String = context.getDatabasePath(DATABASE_FILE).absolutePath
     actual val mediaDirectory: String = File(filesDir, "media").absolutePath
 
-    // no_backup은 안드로이드 자동 백업에 들어가지 않는다.
+    // no_backup은 안드로이드 자동 백업에 들어가지 않음
     actual val thumbnailDirectory: String = File(noBackupDir, "thumbs").absolutePath
     actual val fontDirectory: String = File(noBackupDir, "fonts").absolutePath
     actual val dataStoreDirectory: String = File(filesDir, "datastore").absolutePath

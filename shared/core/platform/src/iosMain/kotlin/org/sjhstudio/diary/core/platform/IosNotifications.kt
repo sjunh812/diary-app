@@ -19,7 +19,7 @@ import platform.UserNotifications.UNNotificationRequest
 import platform.UserNotifications.UNNotificationSound
 import platform.UserNotifications.UNUserNotificationCenter
 
-/** 알림이 허용(임시 허용 포함)되어 있는지. */
+/** 알림이 허용(임시 허용 포함)되어 있는지 */
 class IosNotificationPermission : NotificationPermission {
     override suspend fun isGranted(): Boolean = suspendCancellableCoroutine { continuation ->
         UNUserNotificationCenter.currentNotificationCenter().getNotificationSettingsWithCompletionHandler { settings ->
@@ -34,10 +34,8 @@ class IosNotificationPermission : NotificationPermission {
 
 /**
  * 매일 알림(스펙 001 FR-022, research R15).
- * 그 시각에 날마다 되풀이하는 달력 알림 하나를 건다.
- * 같은 이름으로 다시 걸면 앞의 것을 바꾼다.
- * 알림 글은 iosApp의 `Localizable.strings`에 있다.
- * 알림에는 일기 내용을 넣지 않는다(헌법 II).
+ * 그 시각에 날마다 되풀이하는 달력 알림 하나를 걺. 같은 이름으로 다시 걸면 앞의 것을 바꿈.
+ * 알림 글은 iosApp의 `Localizable.strings`에 있고, 일기 내용은 넣지 않음(헌법 II).
  */
 class IosReminderScheduler : ReminderScheduler {
     private val center = UNUserNotificationCenter.currentNotificationCenter()
@@ -68,7 +66,7 @@ class IosReminderScheduler : ReminderScheduler {
     private fun localized(key: String): String = NSBundle.mainBundle.localizedStringForKey(key, value = null, table = null)
 
     companion object {
-        /** 이 이름의 알림을 누르면 쓰기 화면이 열린다. */
+        /** 이 이름의 알림을 누르면 쓰기 화면이 열림 */
         const val REQUEST_ID = "daily-reminder"
         private const val TITLE_KEY = "reminder_title"
         private const val BODY_KEY = "reminder_body"

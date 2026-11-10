@@ -11,7 +11,7 @@ import platform.UIKit.UIDevice
 import platform.posix.uname
 import platform.posix.utsname
 
-/** `UIDevice.model`은 "iPhone"까지만 알려 주므로 기종 이름은 시스템에서 읽는다. */
+/** `UIDevice.model`은 "iPhone"까지만 알려 줘 기종 이름은 시스템에서 읽음 */
 actual fun deviceInfo(): DeviceInfo {
     val device = UIDevice.currentDevice
     val machine = memScoped {

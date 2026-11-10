@@ -30,10 +30,7 @@ class AndroidFreeSpace(private val context: Context) : FreeSpace {
     override fun bytes(): Long = StatFs(context.filesDir.path).availableBytes
 }
 
-/**
- * 알림 하나를 띄운다.
- * 예약은 앱 모듈의 작업 관리자가 맡는다.
- */
+/** 알림 하나를 띄움. 예약은 앱 모듈의 작업 관리자가 맡음 */
 class BackupAlertPoster(context: Context, private val channelName: String) {
     private val context = context.applicationContext
     private val manager = context.getSystemService(NotificationManager::class.java)
@@ -42,7 +39,7 @@ class BackupAlertPoster(context: Context, private val channelName: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
-            // 허용이 없으면 보내지 않고 홈의 빨간 점이 대신한다.
+            // 허용이 없으면 보내지 않고 홈의 빨간 점이 대신함
             return
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -75,22 +72,15 @@ class BackupAlertPoster(context: Context, private val channelName: String) {
     }
 }
 
-/**
- * 앱이 화면에 있는지.
- * 있으면 끝났다는 알림을 보내지 않는다.
- * 화면이 이미 말해 준다.
- */
+/** 앱이 화면에 있는지. 있으면 화면이 이미 알려 주니 끝났다는 알림을 보내지 않음 */
 fun appIsVisible(): Boolean = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
-/**
- * 지금 백업의 진행 알림.
- * 소리 없이 한 줄로 머문다.
- */
+/** 지금 백업의 진행 알림. 소리 없이 한 줄로 머묾 */
 class BackupProgressNotifications(context: Context) {
     private val context = context.applicationContext
     private val manager = this.context.getSystemService(NotificationManager::class.java)
 
-    /** 채널은 처음 한 번 이름과 함께 만든다. */
+    /** 채널은 처음 한 번 이름과 함께 만듦 */
     fun createChannel(name: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             manager.createNotificationChannel(NotificationChannel(CHANNEL, name, NotificationManager.IMPORTANCE_LOW))
@@ -105,7 +95,7 @@ class BackupProgressNotifications(context: Context) {
                 @Suppress("DEPRECATION")
                 android.app.Notification.Builder(context)
             }
-        // 알림을 누르면 앱으로 돌아와 진행을 본다.
+        // 알림을 누르면 앱으로 돌아와 진행을 봄
         val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
         val open = launch?.let { android.app.PendingIntent.getActivity(context, 0, it, android.app.PendingIntent.FLAG_IMMUTABLE) }
         return builder.setSmallIcon(R.drawable.ic_notification).setContentTitle(title).setContentText(body).setContentIntent(open)
@@ -116,7 +106,7 @@ class BackupProgressNotifications(context: Context) {
         manager.notify(ID, build(title, body, done, total))
     }
 
-    /** 작업이 끝난 뒤 늦게 올라온 진행 알림이 남지 않게 지운다. */
+    /** 작업이 끝난 뒤 늦게 올라온 진행 알림이 남지 않게 지움 */
     fun clear() = manager.cancel(ID)
 
     companion object {

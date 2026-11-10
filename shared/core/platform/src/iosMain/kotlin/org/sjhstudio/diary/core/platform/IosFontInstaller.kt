@@ -13,9 +13,9 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSURLErrorDomain
 
 /**
- * 글꼴마다 하나인 On-Demand Resources 태그(글꼴 ID)를 받아 `<id>.ttf`를 앱 파일 자리로 복사한다.
- * 태그는 `iosApp/project.yml`이 정한다.
- * 개발 빌드는 시험할 수 있게 자료를 앱 안에 담는다(EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE).
+ * 글꼴마다 하나인 On-Demand Resources 태그(글꼴 ID)를 받아 `<id>.ttf`를 앱 파일 자리로 복사.
+ * 태그는 `iosApp/project.yml`이 정함.
+ * 개발 빌드는 시험할 수 있게 자료를 앱 안에 담음(EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE).
  */
 @OptIn(ExperimentalForeignApi::class)
 class IosFontInstaller(private val files: AppFiles) : FontInstaller {
@@ -31,7 +31,7 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         }
         val request = NSBundleResourceRequest(tags = setOf(id))
         request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
-        // 진행은 따로 알려 주지 않아 잠깐마다 읽는다.
+        // 진행을 따로 알려 주지 않아 잠깐마다 읽음
         val progress = launch {
             while (isActive) {
                 send(FontInstallState.Downloading(request.progress.fractionCompleted.toFloat()))
@@ -52,7 +52,7 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         awaitClose { progress.cancel() }
     }
 
-    /** 반쯤 쓴 파일을 남기지 않게 임시 이름으로 복사한 뒤 옮긴다. */
+    /** 반쯤 쓴 파일이 남지 않게 임시 이름으로 복사한 뒤 옮김 */
     private fun copy(source: String, id: String): String? {
         val target = target(id)
         val partial = "$target.part"

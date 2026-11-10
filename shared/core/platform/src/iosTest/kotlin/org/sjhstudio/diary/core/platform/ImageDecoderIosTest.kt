@@ -23,7 +23,7 @@ import platform.UIKit.UIImageOrientation
 class ImageDecoderIosTest {
     private fun path(name: String) = NSTemporaryDirectory() + NSUUID().UUIDString + "-" + name
 
-    /** 1200×800 그림을 만들어 [orientation] 방향 표시를 붙여 JPEG로 쓴다. */
+    /** 1200×800 그림을 만들어 [orientation] 방향 표시를 붙여 JPEG로 씀 */
     private fun photo(orientation: UIImageOrientation): String {
         val format = UIGraphicsImageRendererFormat.defaultFormat().apply { setScale(1.0) }
         val drawn =
@@ -47,7 +47,7 @@ class ImageDecoderIosTest {
         assertEquals(480 to 320, size(target))
     }
 
-    /** 옆으로 찍어 방향 표시만 붙은 사진은 세워서 줄인다. */
+    /** 옆으로 찍어 방향 표시만 붙은 사진은 세워서 줄임 */
     @Test
     fun exif_orientation_is_applied() {
         val target = path("thumb.jpg")

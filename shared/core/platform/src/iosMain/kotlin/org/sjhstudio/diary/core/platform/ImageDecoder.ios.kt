@@ -36,8 +36,8 @@ import platform.ImageIO.kCGImageSourceCreateThumbnailWithTransform
 import platform.ImageIO.kCGImageSourceThumbnailMaxPixelSize
 import platform.UIKit.UIImage
 
-// CGImageSource 썸네일은 원본을 다 풀지 않고 줄인 크기로 읽어 큰 사진에서도 메모리를 적게 쓴다.
-// 방향(EXIF)은 WithTransform으로 반영한다.
+// CGImageSource 썸네일은 원본을 다 풀지 않고 줄인 크기로 읽어 큰 사진에서도 메모리를 적게 씀.
+// 방향(EXIF)은 WithTransform으로 반영.
 @OptIn(ExperimentalForeignApi::class)
 actual object ImageDecoder {
     actual fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean = memScoped {

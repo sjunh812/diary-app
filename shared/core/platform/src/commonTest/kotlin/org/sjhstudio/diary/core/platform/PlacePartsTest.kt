@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-/** 기기 지오코더가 실제로 돌려준 값으로 시험한다. */
+/** 기기 지오코더가 실제로 돌려준 값으로 시험 */
 class PlacePartsTest {
     @Test
     fun seoul_uses_gu_and_dong() {

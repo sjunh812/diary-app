@@ -14,8 +14,7 @@ actual fun devicePinKeyStore(): PinKeyStore = AndroidPinKeyStore
 
 /**
  * Android Keystore의 HMAC-SHA256 키(API 23부터).
- * 사용자 인증을 요구하지 않는다.
- * 잠금 화면에서 비밀번호를 대어 볼 때마다 생체 인증을 띄울 수는 없어서다.
+ * 잠금 화면에서 비밀번호를 대어 볼 때마다 생체 인증을 띄울 수 없어 사용자 인증을 요구하지 않음.
  */
 private object AndroidPinKeyStore : PinKeyStore {
     private const val PROVIDER = "AndroidKeyStore"
@@ -40,7 +39,7 @@ private object AndroidPinKeyStore : PinKeyStore {
     } catch (_: IOException) {
         null
     } catch (_: ProviderException) {
-        // 공간이 꽉 찬 기기의 Keystore는 이 예외를 던진다.
+        // 공간이 꽉 찬 기기의 Keystore는 이 예외를 던짐
         null
     }
 }

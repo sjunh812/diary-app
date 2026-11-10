@@ -18,8 +18,8 @@ import platform.Foundation.timeIntervalSinceNow
 import platform.darwin.NSObject
 
 /**
- * 위치를 한 번 읽고 기기 지오코더로 동네 이름을 찾는다.
- * CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API가 iOS 26부터라 최소 버전 17에서는 이것을 쓴다.
+ * 위치를 한 번 읽고 기기 지오코더로 동네 이름을 찾음.
+ * CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API가 iOS 26부터라 최소 버전 17에서는 이것을 씀.
  */
 class IosPlaceFinder : PlaceFinder {
     override suspend fun find(): PlaceLookup = withContext(Dispatchers.Main) {
@@ -30,8 +30,7 @@ class IosPlaceFinder : PlaceFinder {
             status != kCLAuthorizationStatusAuthorizedWhenInUse && status != kCLAuthorizationStatusAuthorizedAlways -> PlaceLookup.Denied
 
             else -> {
-                // 실내에서는 위치를 얻는 데만 몇 초가 걸린다.
-                // 두 단계의 시간을 나눠야 주소 변환이 굶지 않는다.
+                // 실내에서는 위치를 얻는 데만 몇 초가 걸림. 두 단계 시간을 나눠야 주소 변환할 시간이 남음
                 val location = recentLocation() ?: withTimeoutOrNull(LOCATE_MILLIS) { currentLocation() }
                 val mark = location?.let { withTimeoutOrNull(ADDRESS_MILLIS) { placemark(it) } }
                 val name = mark?.parts()?.label()
@@ -40,7 +39,7 @@ class IosPlaceFinder : PlaceFinder {
         }
     }
 
-    // 한국 주소는 subLocality가 동·읍·면이고, 군은 subAdministrativeArea, 시는 locality로 온다.
+    // 한국 주소는 subLocality가 동·읍·면, 군은 subAdministrativeArea, 시는 locality로 옴
     private fun CLPlacemark.parts() = PlaceParts(
         countryCode = ISOcountryCode,
         region = administrativeArea,
@@ -49,7 +48,7 @@ class IosPlaceFinder : PlaceFinder {
         street = subLocality
     )
 
-    /** 몇 분 안에 얻은 위치가 있으면 기다리지 않고 쓴다. */
+    /** 몇 분 안에 얻은 위치가 있으면 기다리지 않고 씀 */
     private fun recentLocation(): CLLocation? =
         CLLocationManager().location?.takeIf { -it.timestamp.timeIntervalSinceNow <= RECENT_SECONDS }
 
@@ -61,7 +60,7 @@ class IosPlaceFinder : PlaceFinder {
                 continuation.resume(location)
             }
         continuation.invokeOnCancellation {
-            // 관리자는 대리자를 약하게 잡으니 끝날 때까지 여기서 들고 있는다.
+            // 관리자는 대리자를 약하게 잡아 끝날 때까지 여기서 들고 있음
             listener.hashCode()
             manager.stopUpdatingLocation()
         }

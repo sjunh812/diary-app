@@ -72,7 +72,7 @@ class TelemetryTest {
         assertFailsWith<IllegalArgumentException> { telemetry.log("entry_saved", mapOf("text" to "오늘 한강")) }
         assertFailsWith<IllegalArgumentException> { telemetry.log(AnalyticsEvents.SCREEN_VIEW, mapOf("place" to "서울")) }
         assertFailsWith<IllegalArgumentException> { telemetry.log(AnalyticsEvents.LOCK_RESULT, mapOf("result" to "1234")) }
-        // 다른 설정의 값을 섞어 보내도 막는다.
+        // 다른 설정의 값을 섞어 보내도 막음
         assertFailsWith<IllegalArgumentException> {
             telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "theme", "value" to "nanum_cheer"))
         }

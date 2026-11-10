@@ -20,8 +20,8 @@ import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometr
 
 /**
  * `LAContext`(research R12).
- * 열기는 `.deviceOwnerAuthenticationWithBiometrics`, 분실은 `.deviceOwnerAuthentication`(생체 또는 기기 암호)이다.
- * Face ID 문구는 `Info.plist`의 `NSFaceIDUsageDescription`이다.
+ * 열기는 `.deviceOwnerAuthenticationWithBiometrics`, 분실은 `.deviceOwnerAuthentication`(생체 또는 기기 암호).
+ * Face ID 문구는 `Info.plist`의 `NSFaceIDUsageDescription`.
  */
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 class IosDeviceAuthenticator : DeviceAuthenticator {
@@ -43,8 +43,7 @@ class IosDeviceAuthenticator : DeviceAuthenticator {
     private suspend fun evaluate(biometricOnly: Boolean, prompt: AuthPrompt): AuthResult = suspendCancellableCoroutine { continuation ->
         val context = LAContext()
         context.localizedCancelTitle = prompt.cancel
-        // 생체 인증만 받을 때는 "암호 입력" 버튼을 숨긴다.
-        // 숫자판이 그 일을 한다.
+        // 생체 인증만 받을 때는 "암호 입력" 버튼을 숨김. 숫자판이 그 일을 함
         if (biometricOnly) context.localizedFallbackTitle = ""
         val policy = if (biometricOnly) LAPolicyDeviceOwnerAuthenticationWithBiometrics else LAPolicyDeviceOwnerAuthentication
         context.evaluatePolicy(policy, localizedReason = prompt.reason ?: prompt.title) { success, error ->

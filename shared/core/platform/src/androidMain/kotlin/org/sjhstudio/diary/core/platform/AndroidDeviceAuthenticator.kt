@@ -12,8 +12,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * `androidx.biometric` 1.1.0(research R12).
- * 열기는 `BIOMETRIC_WEAK`만, 분실은 `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`이다.
- * `DEVICE_CREDENTIAL` 단독은 API 30 미만에서 안 되고, `BIOMETRIC_WEAK`와 묶으면 API 24부터 된다.
+ * 열기는 `BIOMETRIC_WEAK`만, 분실은 `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`.
+ * `DEVICE_CREDENTIAL` 단독은 API 30 미만에서 안 되고, `BIOMETRIC_WEAK`와 묶으면 API 24부터 됨.
  */
 class AndroidDeviceAuthenticator(private val activity: FragmentActivity) : DeviceAuthenticator {
     override fun biometricStatus(): BiometricStatus = when (BiometricManager.from(activity).canAuthenticate(BIOMETRIC_WEAK)) {
@@ -32,7 +32,7 @@ class AndroidDeviceAuthenticator(private val activity: FragmentActivity) : Devic
             .build()
     )
 
-    // 폰 화면 잠금을 함께 받을 때는 취소 버튼 글을 넣을 수 없다(시스템이 정한다).
+    // 휴대폰 화면 잠금을 함께 받을 때는 취소 버튼 글을 넣을 수 없음(시스템이 정함)
     override suspend fun authenticateDeviceOwner(prompt: AuthPrompt): AuthResult = authenticate(
         BiometricPrompt.PromptInfo.Builder()
             .setTitle(prompt.title)
@@ -47,8 +47,7 @@ class AndroidDeviceAuthenticator(private val activity: FragmentActivity) : Devic
                     if (continuation.isActive) continuation.resume(AuthResult.Success)
                 }
 
-                // 한 번 틀리면 창은 그대로 남는다.
-                // 창이 닫힐 때만 끝낸다.
+                // 한 번 틀려도 창은 그대로라 창이 닫힐 때만 끝냄
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     if (!continuation.isActive) return
                     val canceled =

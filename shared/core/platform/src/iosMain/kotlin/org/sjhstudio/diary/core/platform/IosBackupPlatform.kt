@@ -28,21 +28,14 @@ import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
 import platform.darwin.dispatch_get_global_queue
 
 /**
- * Swift의 GoogleSignIn을 부르는 다리.
- * iosApp이 앱을 켤 때 건다(research R2).
- * 값이 없으면 빈 문자열을 넘긴다.
+ * Swift의 GoogleSignIn을 부르는 다리. iosApp이 앱을 켤 때 걺(research R2).
+ * 값이 없으면 빈 문자열을 넘김.
  */
 interface IosDriveBridge {
-    /**
-     * 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘긴다.
-     * 실패는 "cancelled", "offline", "failed"다.
-     */
+    /** 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘김. 실패는 "cancelled", "offline", "failed" */
     fun connect(hint: String?, done: (key: String?, email: String?, error: String?) -> Unit)
 
-    /**
-     * 끝나면 (토큰, 계정 고유 ID, 이메일, 실패)를 넘긴다.
-     * 실패는 "needsUser", "offline", "failed"다.
-     */
+    /** 끝나면 (토큰, 계정 고유 ID, 이메일, 실패)를 넘김. 실패는 "needsUser", "offline", "failed" */
     fun accessToken(done: (token: String?, key: String?, email: String?, error: String?) -> Unit)
 
     fun disconnect(done: () -> Unit)
@@ -66,7 +59,7 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
                 )
             }
         }
-        // 연결하는 사이에 옛 계정으로 받은 토큰이 남아 있을 수 있다.
+        // 연결하는 사이에 옛 계정으로 받은 토큰이 남아 있을 수 있음
         tokens.clear()
         return result
     }
@@ -98,10 +91,7 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
     }
 }
 
-/**
- * 경로 감시로 지금 연결을 안다.
- * 데이터 요금이 있으면 `expensive`다.
- */
+/** 경로 감시로 지금 연결을 앎. 데이터 요금이 있으면 `expensive` */
 class IosNetworkState : NetworkState {
     override var isConnected: Boolean = true
         private set
@@ -126,7 +116,7 @@ class IosDeviceName : DeviceName {
 
 @OptIn(ExperimentalForeignApi::class)
 class IosFreeSpace : FreeSpace {
-    /** 시스템이 비워 줄 수 있는 공간까지 센다. 설정 앱의 남은 공간과 같은 값이다. */
+    /** 시스템이 비워 줄 수 있는 공간까지 셈. 설정 앱의 남은 공간과 같은 값 */
     override fun bytes(): Long {
         val home = NSURL.fileURLWithPath(NSHomeDirectory())
         val important = home.resourceValuesForKeys(listOf(NSURLVolumeAvailableCapacityForImportantUsageKey), null)
