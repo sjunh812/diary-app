@@ -21,10 +21,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 대화상자(`docs/design.md` 대화상자, M3 Dialog, 토스 UX 가이드).
+ * 대화상자(`docs/design.md` 대화상자, M3 Dialog, 토스 UX 가이드)
  * 폭 280~560(M3 대화상자 최소 280, 폭 320 폰에서도 양옆이 남음) · 모서리 28 · 안쪽 24.
- * 왼쪽 버튼은 늘 "닫기", 오른쪽이 하려는 일.
- * 큰 글자나 낮은 화면에서 넘치면 스크롤해 버튼에 닿음.
+ * 왼쪽 버튼은 늘 "닫기", 오른쪽이 하려는 일
+ * 큰 글자나 낮은 화면에서 넘치면 스크롤해 버튼에 닿음
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

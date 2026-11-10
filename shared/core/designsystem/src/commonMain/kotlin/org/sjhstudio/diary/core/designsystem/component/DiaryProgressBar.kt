@@ -26,9 +26,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 진행 막대(`docs/design.md` 진행 막대, TDS ProgressBar bold 8).
+ * 진행 막대(`docs/design.md` 진행 막대, TDS ProgressBar bold 8)
  * [progress]는 0~1.
- * `sunken` 상자 안에서는 트랙이 바탕에 묻혀 [onSunken]으로 한 단계 진하게.
+ * `sunken` 상자 안에서는 트랙이 바탕에 묻혀 [onSunken]으로 한 단계 진하게
  */
 @Composable
 fun DiaryProgressBar(progress: Float, modifier: Modifier = Modifier, onSunken: Boolean = false) {
@@ -46,7 +46,7 @@ fun DiaryProgressBar(progress: Float, modifier: Modifier = Modifier, onSunken: B
     }
 }
 
-/** 끝을 모르는 진행 막대(사본을 만드는 동안). 채움 조각이 왼쪽에서 오른쪽으로 흐름. */
+/** 끝을 모르는 진행 막대(사본을 만드는 동안). 채움 조각이 왼쪽에서 오른쪽으로 흐름 */
 @Composable
 fun DiaryIndeterminateProgressBar(modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition()

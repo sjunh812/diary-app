@@ -25,9 +25,9 @@ private const val FADE_MILLIS = 450
 private const val STEP_MILLIS = 150
 
 /**
- * 짧은 기다림을 알리는 점 세 개(`docs/design.md` 칩).
- * 글로 이미 알렸으니 화면 읽기에는 읽히지 않음.
- * 동작 줄이기에서는 [animated]를 끄면 점이 멈춰 있음.
+ * 짧은 기다림을 알리는 점 세 개(`docs/design.md` 칩)
+ * 글로 이미 알렸으니 화면 읽기에는 읽히지 않음
+ * 동작 줄이기에서는 [animated]를 끄면 점이 멈춰 있음
  */
 @Composable
 fun DiaryLoadingDots(color: Color, modifier: Modifier = Modifier, animated: Boolean = true) {

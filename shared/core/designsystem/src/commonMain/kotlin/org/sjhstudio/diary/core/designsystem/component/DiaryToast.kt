@@ -47,7 +47,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 enum class DiaryToastResult { Dismissed, ActionPerformed }
 
-/** 토스트 하나. 앞의 것이 사라져야 다음 것이 뜸. */
+/** 토스트 하나. 앞의 것이 사라져야 다음 것이 뜸 */
 class DiaryToastData internal constructor(
     val message: String,
     val actionLabel: String?,
@@ -58,7 +58,7 @@ class DiaryToastData internal constructor(
     }
 }
 
-/** 화면 모델이 아니라 화면에서 만들어 [DiaryToastHost]에 넘김. */
+/** 화면 모델이 아니라 화면에서 만들어 [DiaryToastHost]에 넘김 */
 @Stable
 class DiaryToastState {
     private val mutex = Mutex()
@@ -76,10 +76,10 @@ class DiaryToastState {
 }
 
 /**
- * 토스트(`docs/design.md` 토스트, TDS Toast, SEED Snackbar).
+ * 토스트(`docs/design.md` 토스트, TDS Toast, SEED Snackbar)
  * 폭 화면 - 40, 최대 400 · 높이 48 · 한 줄 full, 여러 줄 20 · bodyStrong.
- * 버튼이 있으면 5초, 없으면 3초 보이고(TDS Toast), 누르는 동안은 사라지지 않음.
- * 탭과 쓰기 버튼 위에 오도록 부르는 쪽이 자리를 잡음.
+ * 버튼이 있으면 5초, 없으면 3초 보이고(TDS Toast), 누르는 동안은 사라지지 않음
+ * 탭과 쓰기 버튼 위에 오도록 부르는 쪽이 자리를 잡음
  */
 @Composable
 fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {

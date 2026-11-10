@@ -32,10 +32,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 찾기 입력 칸(`docs/design.md` 검색 칸, Figma "찾기 (S1-a)").
- * 높이 44, 모서리 12, 글이 있으면 지우기 버튼이 나옴.
+ * 찾기 입력 칸(`docs/design.md` 검색 칸, Figma "찾기 (S1-a)")
+ * 높이 44, 모서리 12, 글이 있으면 지우기 버튼이 나옴
  * 지우기는 원 16에 누르는 곳 48.
- * 누르는 곳이 칸 높이 44보다 커 칸을 `clip`하지 않고 모양은 바탕으로만 그림.
+ * 누르는 곳이 칸 높이 44보다 커 칸을 `clip`하지 않고 모양은 바탕으로만 그림
  */
 @Composable
 fun DiarySearchField(value: String, onValueChange: (String) -> Unit, hint: String, clearLabel: String, modifier: Modifier = Modifier) {

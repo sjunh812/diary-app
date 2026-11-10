@@ -22,10 +22,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 상태 상자(`docs/design.md` 상태 상자, Figma "permission-needed").
- * 안내 상자와 같은 계열.
- * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 6 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백).
- * 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼.
+ * 상태 상자(`docs/design.md` 상태 상자, Figma "permission-needed")
+ * 안내 상자와 같은 계열
+ * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 6 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백)
+ * 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼
  */
 @Composable
 fun DiaryStatusBox(
@@ -56,8 +56,8 @@ fun DiaryStatusBox(
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
             Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.Top) {
                 FirstLineIcon(icon, typography.bodyStrong, colors.textPrimary)
-                // 한글은 글자마다 줄이 바뀌어 마지막 줄에 "요" 한 글자만 남음.
-                // 낱말 안 글자 사이를 묶어 띄어쓰기에서만 줄이 바뀌게 하고, 줄은 고르게 나눔.
+                // 한글은 글자마다 줄이 바뀌어 마지막 줄에 "요" 한 글자만 남음
+                // 낱말 안 글자 사이를 묶어 띄어쓰기에서만 줄이 바뀌게 하고, 줄은 고르게 나눔
                 // 붙임 글자는 그릴 때만 쓰고, 화면 읽기와 시험에는 원래 머리를 줌
                 BasicText(
                     keepWords(title),
@@ -68,7 +68,7 @@ fun DiaryStatusBox(
             PhraseText(body, style = typography.body.copy(color = colors.textSecondary))
         }
         if (actionLabel != null && onAction != null) {
-            // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 안 들어가면 아래 줄로 내려감.
+            // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 안 들어가면 아래 줄로 내려감
             // 줄 사이 16은 누르는 곳 48끼리 겹치지 않는 값
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
@@ -86,7 +86,7 @@ fun DiaryStatusBox(
     }
 }
 
-/** 한글 낱말 안 글자 사이에 줄바꿈하지 않는 표시(U+2060)를 넣음. 화면 표시용. */
+/** 한글 낱말 안 글자 사이에 줄바꿈하지 않는 표시(U+2060)를 넣음. 화면 표시용 */
 internal fun keepWords(text: String): String = buildString(text.length * 2) {
     text.forEachIndexed { index, char ->
         if (index > 0 && char.isHangul() && text[index - 1].isHangul()) append(WORD_JOINER)

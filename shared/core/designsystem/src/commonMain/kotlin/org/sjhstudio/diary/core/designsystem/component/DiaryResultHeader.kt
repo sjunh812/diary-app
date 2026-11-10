@@ -21,9 +21,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
- * 결과·진행 화면의 머리(`docs/design.md` 결과 머리, SEED Result Section).
+ * 결과·진행 화면의 머리(`docs/design.md` 결과 머리, SEED Result Section)
  * 배지 56 · 제목 `title2` · 설명 `body` · 가운데 맞춤 · 위아래 24 · 배지와 제목 사이 20 · 제목과 설명 사이 8.
- * 칸을 채워 놓으면 내용이 세로 가운데에 옴.
+ * 칸을 채워 놓으면 내용이 세로 가운데에 옴
  */
 @Composable
 fun DiaryResultHeader(
@@ -34,7 +34,7 @@ fun DiaryResultHeader(
     tone: DiaryBadgeTone = DiaryBadgeTone.Accent
 ) = DiaryResultHeader(icon, title, description?.let(::AnnotatedString), modifier, tone)
 
-/** 설명 안에 강조한 낱말이 있는 [DiaryResultHeader]. */
+/** 설명 안에 강조한 낱말이 있는 [DiaryResultHeader] */
 @Composable
 fun DiaryResultHeader(
     icon: ImageVector,

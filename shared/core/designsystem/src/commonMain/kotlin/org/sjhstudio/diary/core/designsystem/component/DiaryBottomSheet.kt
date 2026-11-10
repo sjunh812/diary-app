@@ -47,22 +47,22 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 시트 최대 높이. 창 높이 대비 비율(`docs/design.md` 바텀 시트). */
+/** 시트 최대 높이. 창 높이 대비 비율(`docs/design.md` 바텀 시트) */
 private const val MAX_HEIGHT_RATIO = 0.9f
 
 /**
- * 시트 안 두 버튼이 스스로 더 띄우는 위 여백.
+ * 시트 안 두 버튼이 스스로 더 띄우는 위 여백
  * 시트 기본 간격 12에 더해 글과 버튼 사이가 24.
- * 시트마다 버튼을 슬롯으로 넘기지 않게 버튼 쪽이 앎.
+ * 시트마다 버튼을 슬롯으로 넘기지 않게 버튼 쪽이 앎
  */
 internal val LocalSheetButtonGap = staticCompositionLocalOf { 0.dp }
 
 /**
- * 떠 있는 바텀 시트(`docs/design.md` 바텀 시트, TDS BottomSheet, SEED 최대 폭 480).
+ * 떠 있는 바텀 시트(`docs/design.md` 바텀 시트, TDS BottomSheet, SEED 최대 폭 480)
  * 좌우·아래 10 띄움 · 모서리 28 · 손잡이 48×4 · 안쪽 24 · 제목 title2 · 폭 최대 480 · 높이 최대 90%.
- * 내용이 90%를 넘으면 손잡이는 두고 내용만 스크롤. 낮은 폰과 가로 화면에서 아래 버튼이 잘리지 않음.
+ * 내용이 90%를 넘으면 손잡이는 두고 내용만 스크롤. 낮은 폰과 가로 화면에서 아래 버튼이 잘리지 않음
  * 내용 사이 12, 글과 두 버튼 사이 24.
- * 내용에 지연 목록이나 세로 `weight`를 넣지 않음.
+ * 내용에 지연 목록이나 세로 `weight`를 넣지 않음
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +75,7 @@ fun DiaryBottomSheet(
 ) {
     val colors = DiaryTheme.colors
     val maxHeight = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() } * MAX_HEIGHT_RATIO
-    // 시트가 뜨면 뒤 화면 키보드를 내림(작성·검색 어디서 열어도 같음).
+    // 시트가 뜨면 뒤 화면 키보드를 내림(작성·검색 어디서 열어도 같음)
     // 시트 안은 따로 그려지는 창이라 뒤 화면의 초점과 키보드는 시트 밖에서 잡음
     val behindFocus = LocalFocusManager.current
     val behindKeyboard = LocalSoftwareKeyboardController.current
@@ -93,7 +93,7 @@ fun DiaryBottomSheet(
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
         modifier = modifier
     ) {
-        // 시트 안 입력칸에 커서가 있을 때만 키보드 위로 올라옴.
+        // 시트 안 입력칸에 커서가 있을 때만 키보드 위로 올라옴
         // 늘 키보드를 따르면 뒤 화면 키보드가 내려가는 동안 시트가 출렁이며 늦게 떠서,
         // 키보드 내리기와 시트 올리기를 동시에 함
         Box(
@@ -149,9 +149,9 @@ fun DiaryBottomSheet(
 }
 
 /**
- * 시트 안의 동작 줄(`docs/design.md` 누름).
- * 글자는 시트 안쪽 선에 맞추고, 누름 면은 양옆 12 나와 글자에 여백이 보임.
- * 면이 줄 폭과 같으면 아이콘이 면 끝에 붙어 보임.
+ * 시트 안의 동작 줄(`docs/design.md` 누름)
+ * 글자는 시트 안쪽 선에 맞추고, 누름 면은 양옆 12 나와 글자에 여백이 보임
+ * 면이 줄 폭과 같으면 아이콘이 면 끝에 붙어 보임
  */
 @Composable
 fun DiarySheetAction(icon: ImageVector, label: String, tint: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {

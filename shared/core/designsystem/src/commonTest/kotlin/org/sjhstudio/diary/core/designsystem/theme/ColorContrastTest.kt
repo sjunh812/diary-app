@@ -8,7 +8,7 @@ import kotlin.math.min
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-// 글자 4.5:1 이상 규칙(`docs/design.md` 색, WCAG 1.4.3)을 토큰 값으로 지킴.
+// 글자 4.5:1 이상 규칙(`docs/design.md` 색, WCAG 1.4.3)을 토큰 값으로 지킴
 // textTertiary와 placeholder는 규칙이 허용한 자리에만 쓰므로 뺌
 class ColorContrastTest {
     private fun contrast(a: Color, b: Color): Double {

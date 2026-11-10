@@ -34,7 +34,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 버튼 크기 다섯(`docs/design.md` 컴포넌트 규격, TDS 버튼 xlarge·large·medium·small). */
+/** 버튼 크기 다섯(`docs/design.md` 컴포넌트 규격, TDS 버튼 xlarge·large·medium·small) */
 enum class DiaryButtonSize {
     /** 56 · 좌우 16 · 모서리 16 · headline */
     XLarge,
@@ -52,12 +52,12 @@ enum class DiaryButtonSize {
     Header
 }
 
-/** 버튼 종류(TDS 버튼 색 종류). 한 화면에 [Primary]는 하나만. */
+/** 버튼 종류(TDS 버튼 색 종류). 한 화면에 [Primary]는 하나만 */
 enum class DiaryButtonKind { Primary, Secondary, Weak, Text, QuietText, Danger }
 
 private class ButtonSpec(val height: Dp, val horizontal: Dp, val shape: Shape)
 
-/** 버튼 글의 줄 수 끝. */
+/** 버튼 글의 줄 수 끝 */
 private const val BUTTON_MAX_LINES = 2
 
 private fun DiaryButtonSize.spec() = when (this) {
@@ -68,9 +68,9 @@ private fun DiaryButtonSize.spec() = when (this) {
 }
 
 /**
- * 버튼 하나. 글은 문자열 리소스에서 받음.
+ * 버튼 하나. 글은 문자열 리소스에서 받음
  * 보이는 높이가 48보다 작아도 누르는 영역은 48.
- * 자리는 보이는 크기만 차지해 옆 내용과의 간격은 규격 그대로.
+ * 자리는 보이는 크기만 차지해 옆 내용과의 간격은 규격 그대로
  * 높이는 최소 규격이라 큰 글자로 두 줄이 되면 늘어남. 잘리지 않게 위아래 4.
  */
 @Composable
@@ -149,9 +149,9 @@ fun DiaryButton(
 }
 
 /**
- * 나란한 두 버튼. 폭은 늘 같고 주 버튼이 오른쪽.
- * 한쪽 글이라도 반 칸에 안 들어가면 자르지 않고 위아래로 쌓아 주 버튼을 위에 둠.
- * 언어·글자 크기마다 글 길이가 달라 넓이를 재서 정함(M3 대화상자의 쌓인 버튼과 같음).
+ * 나란한 두 버튼. 폭은 늘 같고 주 버튼이 오른쪽
+ * 한쪽 글이라도 반 칸에 안 들어가면 자르지 않고 위아래로 쌓아 주 버튼을 위에 둠
+ * 언어·글자 크기마다 글 길이가 달라 넓이를 재서 정함(M3 대화상자의 쌓인 버튼과 같음)
  */
 @Composable
 fun DiaryButtonPair(

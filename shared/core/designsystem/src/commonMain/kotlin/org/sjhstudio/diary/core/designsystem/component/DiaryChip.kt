@@ -28,7 +28,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 칩(`docs/design.md` 칩, SEED Chip).
+ * 칩(`docs/design.md` 칩, SEED Chip)
  * 32 · 좌우 12(아이콘이 있으면 왼쪽 10) · full · label · 아이콘 16 · 터치 영역 48.
  */
 @Composable
@@ -41,14 +41,14 @@ fun DiaryChip(
     leading: (@Composable () -> Unit)? = null,
     trailingIcon: ImageVector? = null,
     trailing: (@Composable () -> Unit)? = null,
-    // 아래 화살표가 붙은 칩은 시트를 여는 단추라 화면 읽기에 단추로 읽힘.
+    // 아래 화살표가 붙은 칩은 시트를 여는 단추라 화면 읽기에 단추로 읽힘
     // 체크박스면 "체크박스, 선택됨"으로 읽혀 무엇이 열리는지 알 수 없음(M3 거르는 칩·동작 칩)
     role: Role = if (trailingIcon != null || trailing != null) Role.Button else Role.Checkbox
 ) {
     val colors = DiaryTheme.colors
     val content = if (selected) colors.accentText else colors.textPrimary
     val interaction = remember { MutableInteractionSource() }
-    // 누르는 곳은 높이 48, 보이는 칩은 32. 폭은 칩 그대로.
+    // 누르는 곳은 높이 48, 보이는 칩은 32. 폭은 칩 그대로
     // 최소 터치 폭까지 넓히면 짧은 칩이 칸 가운데로 밀려 줄 왼쪽이 어긋남
     Box(
         modifier
@@ -83,9 +83,9 @@ fun DiaryChip(
 }
 
 /**
- * 글자 없이 아이콘만 있는 칩. 찾기 조건 초기화처럼 칩 줄 안에 놓는 동작.
- * 32 · 좌우 10 · full · 아이콘 16, 바탕은 고르지 않은 칩과 같음.
- * 이름은 화면 읽기에만 씀.
+ * 글자 없이 아이콘만 있는 칩. 찾기 조건 초기화처럼 칩 줄 안에 놓는 동작
+ * 32 · 좌우 10 · full · 아이콘 16, 바탕은 고르지 않은 칩과 같음
+ * 이름은 화면 읽기에만 씀
  */
 @Composable
 fun DiaryIconChip(icon: ImageVector, contentDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {

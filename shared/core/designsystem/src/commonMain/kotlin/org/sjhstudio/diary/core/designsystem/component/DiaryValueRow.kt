@@ -14,8 +14,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
- * 이름과 값을 양끝에 두는 읽기 전용 줄(`docs/design.md` 값 줄, Figma 기록 이전 결과 M5의 count 줄).
- * 최소 48 · 좌우 화면 여백 · 이름 `body`(textSecondary) · 값 `bodyStrong`(textPrimary).
+ * 이름과 값을 양끝에 두는 읽기 전용 줄(`docs/design.md` 값 줄, Figma 기록 이전 결과 M5의 count 줄)
+ * 최소 48 · 좌우 화면 여백 · 이름 `body`(textSecondary) · 값 `bodyStrong`(textPrimary)
  */
 @Composable
 fun DiaryValueRow(label: String, value: String, modifier: Modifier = Modifier) {

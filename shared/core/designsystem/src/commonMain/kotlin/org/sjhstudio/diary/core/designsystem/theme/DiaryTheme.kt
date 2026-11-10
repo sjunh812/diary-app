@@ -14,9 +14,9 @@ private val LocalDiaryColors = staticCompositionLocalOf { LightDiaryColors }
 private val LocalDiaryTypography = staticCompositionLocalOf<DiaryTypography> { error("DiaryTheme 안에서만 쓴다") }
 
 /**
- * 앱의 틀이 늘 같은 디자인 시스템을 따르게 함(헌법 V).
- * 화면 코드는 `DiaryTheme.colors`, `DiaryTheme.typography`와 간격·모서리 토큰만 씀.
- * MaterialTheme은 시트·대화상자 같은 Material 컴포넌트가 스스로 고르는 색과 글자를 우리 토큰에 맞추는 용도로만 깖.
+ * 앱의 틀이 늘 같은 디자인 시스템을 따르게 함(헌법 V)
+ * 화면 코드는 `DiaryTheme.colors`, `DiaryTheme.typography`와 간격·모서리 토큰만 씀
+ * MaterialTheme은 시트·대화상자 같은 Material 컴포넌트가 스스로 고르는 색과 글자를 우리 토큰에 맞추는 용도로만 깖
  */
 @Composable
 fun DiaryTheme(darkTheme: Boolean, fontFamily: FontFamily? = null, content: @Composable () -> Unit) {
@@ -32,8 +32,8 @@ fun DiaryTheme(darkTheme: Boolean, fontFamily: FontFamily? = null, content: @Com
 }
 
 /**
- * 사용자가 고른 글꼴은 [fontFamily]로 받아 앱 전체 글자에 씀. null이면 기본 글꼴.
- * 글자 크기·굵기·줄 높이는 글꼴과 상관없이 같은 토큰.
+ * 사용자가 고른 글꼴은 [fontFamily]로 받아 앱 전체 글자에 씀. null이면 기본 글꼴
+ * 글자 크기·굵기·줄 높이는 글꼴과 상관없이 같은 토큰
  */
 object DiaryTheme {
     val colors: DiaryColors

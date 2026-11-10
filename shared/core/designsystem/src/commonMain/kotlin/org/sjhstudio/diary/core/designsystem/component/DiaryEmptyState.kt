@@ -19,9 +19,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
- * 빈 상태(`docs/design.md` 빈 상태, SEED Result Section, 토스 UX 가이드).
- * 아이콘 하나 · 제목 title2 · 설명 body · 버튼 하나.
- * 문구는 긍정형 해요체.
+ * 빈 상태(`docs/design.md` 빈 상태, SEED Result Section, 토스 UX 가이드)
+ * 아이콘 하나 · 제목 title2 · 설명 body · 버튼 하나
+ * 문구는 긍정형 해요체
  */
 @Composable
 fun DiaryEmptyState(
@@ -70,8 +70,8 @@ fun DiaryEmptyState(
 }
 
 /**
- * 화면 한 칸만 비었을 때의 한 줄(`docs/design.md` 빈 상태, Figma "S4 · 빈 날").
- * 달력의 고른 날, 돌아보기의 빈 기간처럼 위에 탭이나 달력이 그대로 있을 때 씀.
+ * 화면 한 칸만 비었을 때의 한 줄(`docs/design.md` 빈 상태, Figma "S4 · 빈 날")
+ * 달력의 고른 날, 돌아보기의 빈 기간처럼 위에 탭이나 달력이 그대로 있을 때 씀
  * 아이콘과 큰 제목 없이 `body` 한 줄과 약한 버튼만. 위아래 24, 사이 12.
  */
 @Composable
@@ -94,9 +94,9 @@ fun DiaryEmptyLine(text: String, actionLabel: String, onAction: () -> Unit, modi
 }
 
 /**
- * 빈 상태를 화면 칸에 놓음.
- * 정가운데는 처져 보여 위 2, 아래 3으로 조금 올림(Figma "S1 · 빈 상태" 자리).
- * 위아래 칸이 없으면 줄어들어 큰 글씨에서도 잘리지 않음.
+ * 빈 상태를 화면 칸에 놓음
+ * 정가운데는 처져 보여 위 2, 아래 3으로 조금 올림(Figma "S1 · 빈 상태" 자리)
+ * 위아래 칸이 없으면 줄어들어 큰 글씨에서도 잘리지 않음
  */
 @Composable
 fun DiaryEmptyArea(modifier: Modifier = Modifier, content: @Composable () -> Unit) {

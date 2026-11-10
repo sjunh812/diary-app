@@ -63,28 +63,28 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
 
-/** 휠 한 칸 높이. 다섯 칸이 보이고 가운데가 고른 값(`docs/design.md` 시각 고르기). */
+/** 휠 한 칸 높이. 다섯 칸이 보이고 가운데가 고른 값(`docs/design.md` 시각 고르기) */
 private val WheelRow: Dp = 40.dp
 private const val VISIBLE_ROWS = 5
 private const val COMPACT_ROWS = 3
 
 /**
- * 달력과 한 시트에 놓여도 바퀴 다섯 칸이 스크롤 없이 들어가는 창 높이.
- * 384×832dp 폰은 들어가고, 360×780dp 폰은 스크롤됨.
+ * 달력과 한 시트에 놓여도 바퀴 다섯 칸이 스크롤 없이 들어가는 창 높이
+ * 384×832dp 폰은 들어가고, 360×780dp 폰은 스크롤됨
  */
 private val RoomyWindowHeight: Dp = 820.dp
 private val WheelColumnWidth: Dp = 72.dp
 
-/** 달 이름이 긴 언어(September)도 줄지 않는 폭. */
+/** 달 이름이 긴 언어(September)도 줄지 않는 폭 */
 private val MonthWheelColumnWidth: Dp = 128.dp
 private const val MONTHS = 12
 
-/** 시·분은 끝에서 처음으로 이어 돎. 이만큼 되풀이해 두고 가운데에서 시작. */
+/** 시·분은 끝에서 처음으로 이어 돎. 이만큼 되풀이해 두고 가운데에서 시작 */
 private const val LOOP_REPEAT = 400
 
 /**
- * 달력 아래에 바퀴를 둘 때의 칸 수.
- * 창이 넉넉하면 다섯 칸, 낮으면 세 칸으로 줄여 시트가 스크롤되지 않게 함.
+ * 달력 아래에 바퀴를 둘 때의 칸 수
+ * 창이 넉넉하면 다섯 칸, 낮으면 세 칸으로 줄여 시트가 스크롤되지 않게 함
  */
 @Composable
 fun rememberCalendarWheelRows(): Int {
@@ -93,13 +93,13 @@ fun rememberCalendarWheelRows(): Int {
 }
 
 /**
- * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠).
- * 바텀 시트 안에 둠.
- * 오전·오후 / 시 / 분(1분 단위) 세 열이고, [is24Hour]면 오전·오후 열 없이 0~23시.
- * 한국어·일본어는 오전·오후가 앞, 영어는 뒤(플랫폼 시각 형식과 같은 순서).
- * 돌리다 멈출 때마다 [onChange]로 하루 중 몇 분째인지(0~1439) 알림.
- * 칸이 정해져 있어 글자는 기기 글자 크기를 1.3배까지만 따름.
- * [rows]는 보이는 칸 수(홀수). 달력과 한 시트에 놓일 때는 3으로 줄여 시트가 스크롤되지 않게 함.
+ * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠)
+ * 바텀 시트 안에 둠
+ * 오전·오후 / 시 / 분(1분 단위) 세 열이고, [is24Hour]면 오전·오후 열 없이 0~23시
+ * 한국어·일본어는 오전·오후가 앞, 영어는 뒤(플랫폼 시각 형식과 같은 순서)
+ * 돌리다 멈출 때마다 [onChange]로 하루 중 몇 분째인지(0~1439) 알림
+ * 칸이 정해져 있어 글자는 기기 글자 크기를 1.3배까지만 따름
+ * [rows]는 보이는 칸 수(홀수). 달력과 한 시트에 놓일 때는 3으로 줄여 시트가 스크롤되지 않게 함
  */
 @Composable
 fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean, modifier: Modifier = Modifier, rows: Int = VISIBLE_ROWS) {
@@ -154,10 +154,10 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
 }
 
 /**
- * 연·월 고르기 휠.
- * 달력의 연월 제목을 누르면 날짜 칸 자리에 나옴(HIG 피커의 휠, `docs/design.md` 시각 고르기와 같은 규격).
- * 한국어·일본어는 연이 앞, 영어는 달이 앞.
- * 달은 끝에서 처음으로 이어 돌고 연은 [years] 끝에서 멈춤.
+ * 연·월 고르기 휠
+ * 달력의 연월 제목을 누르면 날짜 칸 자리에 나옴(HIG 피커의 휠, `docs/design.md` 시각 고르기와 같은 규격)
+ * 한국어·일본어는 연이 앞, 영어는 달이 앞
+ * 달은 끝에서 처음으로 이어 돌고 연은 [years] 끝에서 멈춤
  */
 @Composable
 fun DiaryMonthWheel(
@@ -212,7 +212,7 @@ fun DiaryMonthWheel(
     }
 }
 
-/** 휠 안에서 남은 끌기와 튕김을 다 써 버려, 휠 끝에 닿아도 바텀 시트가 끌려 내려가지 않게 함. */
+/** 휠 안에서 남은 끌기와 튕김을 다 써 버려, 휠 끝에 닿아도 바텀 시트가 끌려 내려가지 않게 함 */
 private val ConsumeRemaining =
     object : NestedScrollConnection {
         override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset = available
@@ -300,7 +300,7 @@ private fun WheelColumn(
     }
 }
 
-/** 가운데는 `numeral` `textPrimary`, 한 칸 떨어지면 `reading` `textTertiary`, 그 밖은 `body` `placeholder`. */
+/** 가운데는 `numeral` `textPrimary`, 한 칸 떨어지면 `reading` `textTertiary`, 그 밖은 `body` `placeholder` */
 @Composable
 private fun wheelStyle(distance: Int, center: TextStyle, near: TextStyle, far: TextStyle): TextStyle {
     val colors = DiaryTheme.colors

@@ -30,13 +30,13 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-/** 상단 바 오른쪽 글자 동작(저장 같은). 채운 버튼이 아니라 글자 버튼. */
+/** 상단 바 오른쪽 글자 동작(저장 같은). 채운 버튼이 아니라 글자 버튼 */
 class DiaryTopBarAction(val label: String, val enabled: Boolean = true, val danger: Boolean = false, val onClick: () -> Unit)
 
 /**
- * 상단 바(`docs/design.md` 컴포넌트 규격, SEED TopNavigation 56).
- * 높이 56(글자가 커지면 늘어남), 가운데 제목 headline, 왼쪽 뒤로 가기 칸 48, 오른쪽은 글자 동작.
- * 앱 틀 맨 위 화면(설정 같은)은 상단 바 대신 큰 제목을 씀.
+ * 상단 바(`docs/design.md` 컴포넌트 규격, SEED TopNavigation 56)
+ * 높이 56(글자가 커지면 늘어남), 가운데 제목 headline, 왼쪽 뒤로 가기 칸 48, 오른쪽은 글자 동작
+ * 앱 틀 맨 위 화면(설정 같은)은 상단 바 대신 큰 제목을 씀
  */
 @Composable
 fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Unit)? = null, action: DiaryTopBarAction? = null) {
@@ -102,10 +102,10 @@ private fun TopBarBack(onBack: () -> Unit) {
 }
 
 /**
- * 맨 위 줄 오른쪽의 글자 버튼(저장, 건너뛰기, 달력의 오늘 같은).
+ * 맨 위 줄 오른쪽의 글자 버튼(저장, 건너뛰기, 달력의 오늘 같은)
  * `headline` · `accentText` · 좌우·위아래 12 · 알약 모양 누름 면, 할 수 없으면 38%.
- * 상단 바, 쓰기 화면, 탭 상단 바가 모두 이것을 써 위 줄 글자 버튼이 한 모양.
- * 글자 끝을 화면 여백에 맞추는 바깥 여백은 부르는 쪽이 정함.
+ * 상단 바, 쓰기 화면, 탭 상단 바가 모두 이것을 써 위 줄 글자 버튼이 한 모양
+ * 글자 끝을 화면 여백에 맞추는 바깥 여백은 부르는 쪽이 정함
  */
 @Composable
 fun DiaryTopBarTextButton(

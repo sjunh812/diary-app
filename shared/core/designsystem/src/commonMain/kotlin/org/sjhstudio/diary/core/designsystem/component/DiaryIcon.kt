@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.Dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 
-/** 아이콘 하나. 크기는 `DiaryIconSize` 네 단계만 씀. */
+/** 아이콘 하나. 크기는 `DiaryIconSize` 네 단계만 씀 */
 @Composable
 fun DiaryIcon(
     imageVector: ImageVector,

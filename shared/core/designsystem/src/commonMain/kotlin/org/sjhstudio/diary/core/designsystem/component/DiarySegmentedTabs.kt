@@ -24,9 +24,9 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 기간 고르기 같은 탭 한 줄(`docs/design.md` 탭 한 줄).
- * 높이 48, 바탕 `sunken`, 고른 칸은 `canvas`.
- * 칸은 폭을 고르게 나누고, 위아래 4를 띄운 고른 표시가 40이어도 누르는 곳은 줄 높이 전체.
+ * 기간 고르기 같은 탭 한 줄(`docs/design.md` 탭 한 줄)
+ * 높이 48, 바탕 `sunken`, 고른 칸은 `canvas`
+ * 칸은 폭을 고르게 나누고, 위아래 4를 띄운 고른 표시가 40이어도 누르는 곳은 줄 높이 전체
  */
 @Composable
 fun DiarySegmentedTabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {

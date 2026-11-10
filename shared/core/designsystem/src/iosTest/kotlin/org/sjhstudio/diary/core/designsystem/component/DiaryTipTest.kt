@@ -14,7 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-// 팁 글은 낱말 가운데서 줄이 끊기지 않게 그릴 때만 붙임 글자를 넣음.
+// 팁 글은 낱말 가운데서 줄이 끊기지 않게 그릴 때만 붙임 글자를 넣음
 // 화면 읽기와 시험에는 원래 글이 가야 함
 @OptIn(ExperimentalTestApi::class)
 class DiaryTipTest {

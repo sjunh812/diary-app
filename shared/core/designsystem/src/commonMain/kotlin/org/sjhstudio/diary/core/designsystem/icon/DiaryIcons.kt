@@ -10,12 +10,12 @@ import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 
 /**
- * 앱 틀 아이콘.
- * 경로는 Lucide(`lucide-static` 1.66.0, ISC 라이선스)의 SVG를 그대로 옮김.
- * 일기 화면 아이콘(찾기부터 날씨까지)은 Figma "화면" 페이지의 아이콘 경로를 그대로 옮김.
- * `circle`, `line`, `rect`는 같은 모양의 경로로 바꿈.
- * 선 굵기는 1.75(`docs/design.md` 아이콘과 그림).
- * 아이콘 세트를 확정하면 이 파일을 바꿈.
+ * 앱 틀 아이콘
+ * 경로는 Lucide(`lucide-static` 1.66.0, ISC 라이선스)의 SVG를 그대로 옮김
+ * 일기 화면 아이콘(찾기부터 날씨까지)은 Figma "화면" 페이지의 아이콘 경로를 그대로 옮김
+ * `circle`, `line`, `rect`는 같은 모양의 경로로 바꿈
+ * 선 굵기는 1.75(`docs/design.md` 아이콘과 그림)
+ * 아이콘 세트를 확정하면 이 파일을 바꿈
  */
 object DiaryIcons {
     private const val STAR = "M 12 4 L 14.4 9 L 19.8 9.6 L 15.8 13.3 L 16.9 18.6 L 12 16 L 7.1 18.6 L 8.2 13.3 L 4.2 9.6 L 9.6 9 L 12 4 Z"
@@ -237,9 +237,9 @@ object DiaryIcons {
     }
 
     /**
-     * 이미 쓴 일기 수정. 글줄 옆에 연필.
-     * 새 일기 버튼의 연필([Pen])과 한 화면에 함께 보여 모양을 가름.
-     * 글줄과 연필을 합친 범위가 가운데에 오게 놓음.
+     * 이미 쓴 일기 수정. 글줄 옆에 연필
+     * 새 일기 버튼의 연필([Pen])과 한 화면에 함께 보여 모양을 가름
+     * 글줄과 연필을 합친 범위가 가운데에 오게 놓음
      */
     val EditText: ImageVector by lazy {
         lucide(
@@ -356,7 +356,7 @@ object DiaryIcons {
         )
     }
 
-    /** 고른 조건 초기화. 모양은 [Restore]와 같은 되돌리기 화살표다(lucide rotate-ccw). */
+    /** 고른 조건 초기화. 모양은 [Restore]와 같은 되돌리기 화살표다(lucide rotate-ccw) */
     val Reset: ImageVector get() = Restore
     val WeatherSunny: ImageVector by lazy {
         lucide(
@@ -410,15 +410,15 @@ object DiaryIcons {
         )
     }
 
-    /** 즐겨찾기 빈 별과 찬 별(Figma 별 경로). */
+    /** 즐겨찾기 빈 별과 찬 별(Figma 별 경로) */
     val StarOutline: ImageVector by lazy { lucide("star-outline", STAR) }
     val StarFilled: ImageVector by lazy { lucide("star-filled", STAR, filled = true) }
 
     /**
-     * 즐겨찾기 해제. 별 위에 빗금을 그어 누르면 즐겨찾기가 풀린다는 뜻으로 읽힘.
-     * 꽉 찬 별은 즐겨찾기가 된다는 뜻으로 읽힐 수 있음(iOS 해제 동작도 빗금 아이콘).
+     * 즐겨찾기 해제. 별 위에 빗금을 그어 누르면 즐겨찾기가 풀린다는 뜻으로 읽힘
+     * 꽉 찬 별은 즐겨찾기가 된다는 뜻으로 읽힐 수 있음(iOS 해제 동작도 빗금 아이콘)
      */
-    // 빗금이 지나는 두 곳에서 별 테두리를 끊어 선이 겹치지 않게 함(Lucide star-off와 같은 방식).
+    // 빗금이 지나는 두 곳에서 별 테두리를 끊어 선이 겹치지 않게 함(Lucide star-off와 같은 방식)
     // 끊는 폭은 빗금에서 2 떨어진 곳까지라 둥근 선 끝까지 빗금과 틈이 보임
     val StarOff: ImageVector by lazy {
         lucide(
@@ -432,7 +432,7 @@ object DiaryIcons {
     private fun tab(name: String, stroke: Float, vararg paths: String): ImageVector = lucide(name, *paths, strokeWidth = stroke)
 
     /**
-     * 고른 탭의 채운 아이콘.
+     * 고른 탭의 채운 아이콘
      * [fill]의 안쪽 고리는 구멍(EvenOdd). [outlined]면 1.75 선을 둘러 모서리를 둥글게. [lines]는 선만
      */
     private fun filledTab(name: String, fill: String, outlined: Boolean = true, lines: String? = null): ImageVector {

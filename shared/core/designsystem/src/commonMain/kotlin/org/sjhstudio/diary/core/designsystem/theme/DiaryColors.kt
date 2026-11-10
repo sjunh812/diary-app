@@ -4,8 +4,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * 색 토큰(`docs/design.md` 색 표, Figma 변수 "색 · 라이트"·"색 · 다크"와 같은 이름).
- * 화면 코드는 원시 색 대신 `DiaryTheme.colors`만 씀(헌법 V).
+ * 색 토큰(`docs/design.md` 색 표, Figma 변수 "색 · 라이트"·"색 · 다크"와 같은 이름)
+ * 화면 코드는 원시 색 대신 `DiaryTheme.colors`만 씀(헌법 V)
  */
 @Immutable
 data class DiaryColors(
@@ -42,14 +42,14 @@ data class DiaryColors(
     /** 입력 안내. 꼭 필요한 정보를 싣지 않음 */
     val placeholder: Color,
     /**
-     * 고급 통계의 긍정적인 기분 막대와 범례 점. 브랜드 보라(`accentText`)와 같은 값.
-     * 기분 색이 아니라 이 앱의 강조색이라 긍정 쪽 한 곳에만 씀.
+     * 고급 통계의 긍정적인 기분 막대와 범례 점. 브랜드 보라(`accentText`)와 같은 값
+     * 기분 색이 아니라 이 앱의 강조색이라 긍정 쪽 한 곳에만 씀
      */
     val toneGood: Color,
     /**
-     * 고급 통계의 부정적인 기분 막대와 범례 점. 푸른 회색.
-     * 옅은 회색은 "세지 않는 기분"(`lineStrong`)과 비슷해 부정적인 기분이 무시되는 듯 보임.
-     * 차가운 쪽이 부정인 Apple 마음 상태 색과도 맞음.
+     * 고급 통계의 부정적인 기분 막대와 범례 점. 푸른 회색
+     * 옅은 회색은 "세지 않는 기분"(`lineStrong`)과 비슷해 부정적인 기분이 무시되는 듯 보임
+     * 차가운 쪽이 부정인 Apple 마음 상태 색과도 맞음
      */
     val toneHard: Color,
     /** 지우기, 실패 */
@@ -67,17 +67,17 @@ data class DiaryColors(
     /** 사진 위 +N 뱃지 */
     val overlay: Color,
 
-    /** 사진 위 글자와 지우기 버튼의 바탕. 흰 사진에서도 글자가 4.5:1을 넘게 [overlay]보다 진함. */
+    /** 사진 위 글자와 지우기 버튼의 바탕. 흰 사진에서도 글자가 4.5:1을 넘게 [overlay]보다 진함 */
     val onPhoto: Color,
     /** 쓰기 버튼 그림자 */
     val shadow: Color,
     /** 사진 크게 보기 바탕. 두 테마 모두 검정 */
     val photoBackdrop: Color = Color(0xFF000000),
-    /** 기분 9색. 면과 점으로만 쓰고 글자색으로 쓰지 않음. */
+    /** 기분 9색. 면과 점으로만 쓰고 글자색으로 쓰지 않음 */
     val mood: DiaryMoodColors,
-    /** 일기 본문 글자색(스펙 002 contracts/rich-text-html.md). */
+    /** 일기 본문 글자색(스펙 002 contracts/rich-text-html.md) */
     val ink: DiaryInkColors,
-    /** 일기 본문 형광펜. */
+    /** 일기 본문 형광펜 */
     val mark: DiaryMarkColors
 )
 
