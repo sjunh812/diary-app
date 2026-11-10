@@ -30,4 +30,7 @@
     <string name="ui_previous_month">前の月</string>
     <string name="ui_next_month">次の月</string>
     <string name="share_when">%1$s(%2$s) %3$s</string>
+    <string name="load_failed_title">日記を読み込めませんでした</string>
+    <string name="load_failed_body">少し時間をおいて、もう一度お試しください。</string>
+    <string name="load_failed_retry">もう一度試す</string>
 </resources>

@@ -30,4 +30,7 @@
     <string name="ui_previous_month">이전 달</string>
     <string name="ui_next_month">다음 달</string>
     <string name="share_when">%1$s %2$s %3$s</string>
+    <string name="load_failed_title">일기를 불러오지 못했어요</string>
+    <string name="load_failed_body">잠시 뒤에 다시 시도해 주세요.</string>
+    <string name="load_failed_retry">다시 시도</string>
 </resources>

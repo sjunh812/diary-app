@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -32,7 +33,9 @@ import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
@@ -40,9 +43,10 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 /**
  * 고른 날과 그날 일기.
  * [rows]가 null이면 아직 읽는 중이고, 빈 목록이면 쓴 글이 없는 날이다.
+ * [failed]면 읽지 못해 다시 시도를 보인다.
  * 일기가 들어 있어 [toString]에 담지 않는다(헌법 II).
  */
-data class CalendarDay(val date: LocalDate?, val rows: List<EntryRow>?) {
+data class CalendarDay(val date: LocalDate?, val rows: List<EntryRow>?, val failed: Boolean = false) {
     override fun toString(): String = "CalendarDay"
 }
 
@@ -75,21 +79,31 @@ class CalendarViewModel(
 
     val selected: StateFlow<LocalDate?> = _selected.asStateFlow()
 
+    fun retry() {
+        attempt.value++
+    }
+
     private val _todayState = MutableStateFlow(today())
 
     /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꾼다. */
     val todayState: StateFlow<LocalDate> = _todayState.asStateFlow()
 
+    /** 다시 시도할 때마다 올라가서 고른 날을 새로 읽는다. */
+    private val attempt = MutableStateFlow(0)
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val readDay: Flow<CalendarDay> =
-        _selected.flatMapLatest { date ->
+        combine(_selected, attempt) { date, _ -> date }.flatMapLatest { date ->
             if (date == null) {
                 flowOf(CalendarDay(null, emptyList()))
             } else {
-                entries.day(date).map { rows ->
-                    dayRows[date] = rows
-                    CalendarDay(date, rows)
-                }
+                entries.day(date)
+                    .map { rows ->
+                        dayRows[date] = rows
+                        CalendarDay(date, rows)
+                    }
+                    // 읽지 못하면 읽는 중으로 남기지 않고 다시 시도를 보인다.
+                    .catch { if (it is Exception) emit(CalendarDay(date, null, failed = true)) else throw it }
             }
         }
 
@@ -101,7 +115,7 @@ class CalendarViewModel(
      */
     val day: StateFlow<CalendarDay> =
         combine(_selected, readDay) { date, read -> read.takeIf { it.date == date } ?: CalendarDay(date, date?.let(::knownRows)) }
-            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), CalendarDay(_selected.value, null))
+            .stateInSafely(viewModelScope, WhileUiSubscribed, CalendarDay(_selected.value, null))
 
     private val monthMoods = HashMap<YearMonth, StateFlow<Map<LocalDate, DayMood>>>()
 
@@ -134,9 +148,7 @@ class CalendarViewModel(
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, thisMonth())
 
     val look: StateFlow<BodyLook> =
-        settings.settings
-            .map { it.bodyLook(fonts::installedPath) }
-            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
+        settings.bodyLookIn(viewModelScope, fonts::installedPath)
 
     fun today(): LocalDate = today.invoke()
 
@@ -155,7 +167,7 @@ class CalendarViewModel(
                 dayRows.keys.removeAll { it.yearMonth == month }
                 prefetch(map.keys)
             }
-            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), emptyMap())
+            .stateInSafely(viewModelScope, WhileUiSubscribed, emptyMap())
     }
 
     fun select(date: LocalDate) {
@@ -198,10 +210,6 @@ class CalendarViewModel(
     }
 
     private var monthRead: Job? = null
-
-    private companion object {
-        const val STOP_MILLIS = 5_000L
-    }
 }
 
 /**

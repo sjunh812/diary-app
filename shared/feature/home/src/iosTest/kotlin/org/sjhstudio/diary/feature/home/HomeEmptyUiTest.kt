@@ -19,10 +19,10 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.ui.loadFailedRetryLabel
 import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
-import org.sjhstudio.diary.feature.home.resources.home_error_retry
 import org.sjhstudio.diary.feature.home.resources.home_favorites_empty
 
 // 첫 실행과 즐겨찾기 없음, 읽기 실패에서 사용자가 무엇을 하면 되는지 보이는지 본다.
@@ -45,7 +45,7 @@ class HomeEmptyUiTest {
             labels.title = stringResource(Res.string.home_empty_title)
             labels.action = stringResource(Res.string.home_empty_action)
             labels.favorites = stringResource(Res.string.home_favorites_empty)
-            labels.retry = stringResource(Res.string.home_error_retry)
+            labels.retry = loadFailedRetryLabel()
             DiaryTheme(darkTheme = false) {
                 HomeScreen(
                     title = "2026년 10월",

@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -123,6 +124,25 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(today, null), model.day.value)
 
         slow.emit(emptyList())
+
+        assertEquals(CalendarDay(today, emptyList()), model.day.value)
+    }
+
+    /** 그날 일기를 읽지 못하면 읽는 중으로 남지 않고 다시 시도를 보이며, 다시 시도하면 다시 읽는다. */
+    @Test
+    fun a_failed_day_shows_retry_and_reads_again() = runTest {
+        var fail = true
+        val day = flow {
+            if (fail) throw IllegalStateException("disk")
+            emit(emptyList<EntryRow>())
+        }
+        val model = viewModel(slowDays = mapOf(today to day))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.day.collect() }
+
+        assertEquals(CalendarDay(today, null, failed = true), model.day.value)
+
+        fail = false
+        model.retry()
 
         assertEquals(CalendarDay(today, emptyList()), model.day.value)
     }

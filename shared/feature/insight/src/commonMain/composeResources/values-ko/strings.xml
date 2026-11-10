@@ -83,7 +83,7 @@
     </plurals>
     <string name="insight_section_days">날짜별 기분</string>
     <string name="insight_map_hint">한 칸이 하루예요. 색은 그날 고른 기분이에요.</string>
-    <string name="tip_insight_open">기분을 누르면 그 기분으로 쓴 일기를 볼 수 있어요.</string>
+    <string name="tip_insight_open">기분을 누르면 해당 일기를 모아 볼 수 있어요.</string>
     <string name="insight_section_moods">자주 고른 기분</string>
     <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
     <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 보여 드려요.</string>

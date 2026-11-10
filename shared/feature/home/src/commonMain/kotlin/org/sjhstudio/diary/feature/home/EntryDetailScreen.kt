@@ -57,6 +57,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryPhoto
 import org.sjhstudio.diary.core.ui.DiaryRichText
+import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle

@@ -121,6 +121,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
+import org.sjhstudio.diary.core.designsystem.component.DiaryTopBarTextButton
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -535,7 +536,7 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                 DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
             }
             // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
-            // 글자 버튼 안쪽이 16이다.
+            // 글자 버튼 안쪽이 12다.
             // 저장이 0.3초를 넘기면 [저장] 자리에 점을 띄운다(사진을 넣는 중이면 다 들어갈 때까지 기다린다).
             // 글자만 회색이 되면 눌렸는지 알기 어려웠다(2026-11-10 화면 검토, 스켈레톤과 같은 0.3초 지연).
             var slowSave by remember { mutableStateOf(false) }
@@ -546,12 +547,11 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                     slowSave = true
                 }
             }
-            Box(Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x4), contentAlignment = Alignment.Center) {
-                DiaryButton(
+            Box(Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x3), contentAlignment = Alignment.Center) {
+                DiaryTopBarTextButton(
                     stringResource(Res.string.write_save),
                     onSave,
                     Modifier.alpha(if (slowSave) 0f else 1f),
-                    kind = DiaryButtonKind.Text,
                     enabled = state.canSave && !state.saving
                 )
                 if (slowSave) DiaryLoadingDots(colors.accent)

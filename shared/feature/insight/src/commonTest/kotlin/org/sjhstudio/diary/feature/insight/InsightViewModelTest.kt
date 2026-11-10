@@ -5,12 +5,16 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
@@ -194,6 +198,31 @@ class InsightViewModelTest {
 
         assertEquals(september, model.state.value.period)
         assertEquals(1, model.state.value.data?.counts?.total)
+    }
+
+    /** 숫자를 읽지 못하면 뼈대로 남지 않고 다시 시도를 보이며, 다시 시도하면 다시 읽는다. */
+    @Test
+    fun a_failed_read_shows_retry_and_reads_again() = runTest(dispatcher) {
+        var fail = true
+        val stats =
+            object : StatsRepository by NoStats {
+                override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = flow {
+                    if (fail) throw IllegalStateException("disk")
+                    emit(MoodCounts(mapOf(Mood.GOOD to 2), 0))
+                }
+            }
+        val model = InsightViewModel(stats, { today }, saved = SavedStateHandle())
+        backgroundScope.launch { model.state.collect() }
+        advanceUntilIdle()
+        assertTrue(model.state.value.failed)
+        assertNull(model.state.value.data)
+
+        fail = false
+        model.retry()
+        advanceUntilIdle()
+
+        assertFalse(model.state.value.failed)
+        assertEquals(2, model.state.value.data?.counts?.total)
     }
 
     /** 다른 탭에 다녀와 다시 읽어도 보던 숫자가 비워지지 않는다. */

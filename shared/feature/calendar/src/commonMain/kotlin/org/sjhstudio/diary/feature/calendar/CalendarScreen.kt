@@ -67,12 +67,10 @@ import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryButton
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
-import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
+import org.sjhstudio.diary.core.designsystem.component.DiaryTopBarTextButton
 import org.sjhstudio.diary.core.designsystem.component.SnapTitleOnRest
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.titleCollapse
@@ -91,6 +89,7 @@ import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
 import org.sjhstudio.diary.core.ui.EntryMenu
 import org.sjhstudio.diary.core.ui.EntryMenuFor
+import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
@@ -180,6 +179,8 @@ fun CalendarRoute(
             DayPanel(
                 date = date,
                 rows = day.rows,
+                failed = day.failed,
+                onRetry = viewModel::retry,
                 dates = dates,
                 previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
                 twoPane = twoPane,
@@ -308,7 +309,7 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
     val colors = DiaryTheme.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
         if (showToday) {
-            DiaryButton(stringResource(Res.string.calendar_today), onToday, kind = DiaryButtonKind.Text, size = DiaryButtonSize.Header)
+            DiaryTopBarTextButton(stringResource(Res.string.calendar_today), onToday)
         }
         DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.calendar_previous_month), { onMove(-1) })
         DiaryIconButton(DiaryIcons.ChevronRight, stringResource(Res.string.calendar_next_month), { onMove(1) }, enabled = hasNext)
@@ -477,7 +478,9 @@ internal fun DayPanel(
     twoPane: Boolean,
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
-    onWrite: () -> Unit
+    onWrite: () -> Unit,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
@@ -496,7 +499,10 @@ internal fun DayPanel(
                 color = if (twoPane) colors.textPrimary else colors.textSecondary
             )
         )
-        if (rows == null) return@Column
+        if (rows == null) {
+            if (failed) LoadFailedLine(onRetry, Modifier.padding(horizontal = LocalScreenGutter.current))
+            return@Column
+        }
         if (rows.isEmpty()) {
             // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다.
             // 고른 날에 쓴 글이 없다는 것만 조용히 말한다.

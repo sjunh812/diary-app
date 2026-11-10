@@ -20,7 +20,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 class DiaryTipTest {
     @Test
     fun screen_readers_get_the_original_text_and_close_still_works() = runComposeUiTest {
-        val text = "기분을 누르면 그 기분으로 쓴 일기를 볼 수 있어요."
+        val text = "기분을 누르면 해당 일기를 모아 볼 수 있어요."
         var closed = false
         setContent {
             DiaryTheme(darkTheme = false) {

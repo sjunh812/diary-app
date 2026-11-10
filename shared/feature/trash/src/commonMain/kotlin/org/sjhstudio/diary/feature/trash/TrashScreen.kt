@@ -57,6 +57,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.TrashedEntry
 import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
+import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.moodName
@@ -89,6 +90,7 @@ private const val URGENT_DAYS = 1
 fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<TrashViewModel>()
     val items by viewModel.items.collectAsStateWithLifecycle()
+    val failed by viewModel.failed.collectAsStateWithLifecycle()
     var pickedId by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmOne by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmAll by rememberSaveable { mutableStateOf(false) }
@@ -97,7 +99,7 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val restored = stringResource(Res.string.trash_restored)
     val list = items
     Box(modifier.fillMaxSize()) {
-        TrashScreen(list, onBack, onEmpty = { confirmAll = true }, onPick = { pickedId = it })
+        TrashScreen(list, onBack, onEmpty = { confirmAll = true }, onPick = { pickedId = it }, failed = failed, onRetry = viewModel::retry)
         DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
     }
     pickedId?.let { id ->
@@ -143,7 +145,14 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty: () -> Unit, onPick: (String) -> Unit) {
+internal fun TrashScreen(
+    items: List<TrashedEntry>?,
+    onBack: () -> Unit,
+    onEmpty: () -> Unit,
+    onPick: (String) -> Unit,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {}
+) {
     val colors = DiaryTheme.colors
     Column(Modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(
@@ -157,7 +166,7 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
                 }
         )
         when {
-            items == null -> Unit
+            items == null -> if (failed) LoadFailed(onRetry)
 
             items.isEmpty() ->
                 DiaryEmptyArea {

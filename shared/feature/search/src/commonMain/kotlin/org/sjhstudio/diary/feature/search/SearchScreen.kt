@@ -71,6 +71,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
+import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.moodName
@@ -90,9 +91,6 @@ import org.sjhstudio.diary.feature.search.resources.search_clear
 import org.sjhstudio.diary.feature.search.resources.search_clear_conditions
 import org.sjhstudio.diary.feature.search.resources.search_empty_body
 import org.sjhstudio.diary.feature.search.resources.search_empty_title
-import org.sjhstudio.diary.feature.search.resources.search_error_body
-import org.sjhstudio.diary.feature.search.resources.search_error_retry
-import org.sjhstudio.diary.feature.search.resources.search_error_title
 import org.sjhstudio.diary.feature.search.resources.search_hint
 import org.sjhstudio.diary.feature.search.resources.search_idle
 import org.sjhstudio.diary.feature.search.resources.search_result_count
@@ -323,23 +321,6 @@ private fun Empty() {
             DiaryIcons.Search,
             stringResource(Res.string.search_empty_title),
             description = stringResource(Res.string.search_empty_body)
-        )
-    }
-}
-
-/**
- * 결과를 읽지 못했을 때.
- * 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다.
- */
-@Composable
-private fun LoadFailed(onRetry: () -> Unit) {
-    DiaryEmptyArea {
-        DiaryEmptyState(
-            DiaryIcons.CircleAlert,
-            stringResource(Res.string.search_error_title),
-            description = stringResource(Res.string.search_error_body),
-            actionLabel = stringResource(Res.string.search_error_retry),
-            onAction = onRetry
         )
     }
 }

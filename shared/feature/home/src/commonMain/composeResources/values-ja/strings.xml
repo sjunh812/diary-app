@@ -24,9 +24,6 @@
     <string name="detail_kept_both_keep">こちらだけ残す</string>
     <string name="detail_kept_both_close">両方残す</string>
     <string name="detail_elsewhere_photo">元のスマートフォンにある写真</string>
-    <string name="home_error_title">日記を読み込めませんでした</string>
-    <string name="home_error_body">少し時間をおいて、もう一度お試しください。</string>
-    <string name="home_error_retry">もう一度試す</string>
     <string name="detail_missing_title">日記が見つかりません</string>
     <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
 </resources>

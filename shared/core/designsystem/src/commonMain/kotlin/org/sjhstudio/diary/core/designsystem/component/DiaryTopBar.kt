@@ -58,7 +58,17 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
                 modifier = Modifier.semantics { heading() }
             )
             Box {
-                if (action != null) TopBarAction(action)
+                if (action != null) {
+                    // 글자 끝이 화면 여백에 맞는다.
+                    // 글자 버튼 안쪽이 12다.
+                    DiaryTopBarTextButton(
+                        action.label,
+                        action.onClick,
+                        Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x3),
+                        enabled = action.enabled,
+                        danger = action.danger
+                    )
+                }
             }
         }
     ) { measurables, constraints ->
@@ -95,28 +105,32 @@ private fun TopBarBack(onBack: () -> Unit) {
     }
 }
 
+/**
+ * 맨 위 줄 오른쪽의 글자 버튼(저장, 건너뛰기, 달력의 오늘 같은).
+ * `headline` · `accentText` · 좌우·위아래 12 · 알약 모양 누름 면, 할 수 없으면 38%.
+ * 상단 바, 쓰기 화면, 탭 상단 바가 모두 이것을 써서 위 줄 글자 버튼이 한 모양이다(2026-11-10 사용자 결정).
+ * 글자 끝을 화면 여백에 맞추는 바깥 여백은 부르는 쪽이 정한다.
+ */
 @Composable
-private fun TopBarAction(action: DiaryTopBarAction) {
+fun DiaryTopBarTextButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    danger: Boolean = false
+) {
     val colors = DiaryTheme.colors
     val press = remember { MutableInteractionSource() }
     BasicText(
-        text = action.label,
-        style = DiaryTheme.typography.headline.copy(color = if (action.danger) colors.danger else colors.accentText),
+        text = label,
+        style = DiaryTheme.typography.headline.copy(color = if (danger) colors.danger else colors.accentText),
+        maxLines = 1,
         modifier =
-            Modifier
-                // 글자 끝이 화면 여백에 맞는다.
-                // 글자 버튼 안쪽이 12다.
-                .padding(end = LocalScreenGutter.current - DiarySpacing.x3)
-                .alpha(if (action.enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
+            modifier
+                .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
                 .diaryPress(press, colors.textPrimary, CircleShape)
                 .clip(CircleShape)
-                .clickable(
-                    interactionSource = press,
-                    indication = null,
-                    enabled = action.enabled,
-                    role = Role.Button,
-                    onClick = action.onClick
-                )
-                .padding(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x3)
+                .clickable(interactionSource = press, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+                .padding(DiarySpacing.x3)
     )
 }

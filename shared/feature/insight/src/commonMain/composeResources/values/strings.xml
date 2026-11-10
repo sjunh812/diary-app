@@ -90,7 +90,7 @@
     </plurals>
     <string name="insight_section_days">Mood each day</string>
     <string name="insight_map_hint">Each square is a day, colored by that day's mood.</string>
-    <string name="tip_insight_open">Tap a mood to see the entries you wrote with it.</string>
+    <string name="tip_insight_open">Tap a mood to see those entries together.</string>
     <string name="insight_section_moods">Top moods</string>
     <string name="insight_adv_no_moods">Not enough entries with a mood</string>
     <string name="insight_adv_no_moods_body">Pick a mood on 7 entries and we'll look for differences.</string>

@@ -38,6 +38,7 @@ import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.mostFrequent
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -49,10 +50,10 @@ data class InsightData(val counts: MoodCounts, val days: List<DayMood>, val pixe
 
 /**
  * 기간과 그 기간의 숫자.
- * [data]가 null이면 아직 읽는 중이다.
+ * [data]가 null이면 아직 읽는 중이고, [failed]면 읽지 못해 다시 시도를 보인다.
  * 기분 기록이 들어 있어 [toString]에 담지 않는다(헌법 II).
  */
-data class InsightState(val period: StatsPeriod, val data: InsightData?) {
+data class InsightState(val period: StatsPeriod, val data: InsightData?, val failed: Boolean = false) {
     override fun toString(): String = "InsightState"
 }
 
@@ -95,16 +96,19 @@ class InsightViewModel(
      */
     private val cache = mutableMapOf<StatsPeriod, InsightData>()
 
+    /** 다시 시도할 때마다 올라가서 고른 기간을 새로 읽는다. */
+    private val attempt = MutableStateFlow(0)
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val readPeriod: Flow<InsightState> =
-        _period.flatMapLatest { period ->
+        combine(_period, attempt) { period, _ -> period }.flatMapLatest { period ->
             read(period)
                 .map { data ->
                     cache[period] = data
                     InsightState(period, data)
                 }
-                // 읽기에 실패하면 앱을 끄지 않고 읽는 중으로 둔다. 다른 기간을 고르면 다시 읽는다.
-                .catch {}
+                // 읽기에 실패하면 읽는 중으로 남기지 않고 다시 시도를 보인다.
+                .catch { if (it is Exception) emit(InsightState(period, null, failed = true)) else throw it }
         }
 
     private fun read(period: StatsPeriod): Flow<InsightData> {
@@ -119,7 +123,7 @@ class InsightViewModel(
      */
     val state: StateFlow<InsightState> =
         combine(_period, readPeriod) { period, read -> read.takeIf { it.period == period } ?: InsightState(period, cache[period]) }
-            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), InsightState(_period.value, null))
+            .stateInSafely(viewModelScope, WhileUiSubscribed, InsightState(_period.value, null))
 
     init {
         // 다른 탭도 미리 읽어 처음 눌러도 바로 보인다.
@@ -137,6 +141,10 @@ class InsightViewModel(
      * ×를 누르지 않아도 다시 띄우지 않는다(사용자 제안 2026-11-09, Apple TipKit의 actionPerformed와 같다).
      * 화면이 찾기로 넘어가도 끝까지 쓰도록 화면 모델에서 저장한다.
      */
+    fun retry() {
+        attempt.value++
+    }
+
     fun tried() {
         val tips = tips ?: return
         viewModelScope.launchSafely { tips.done(ContextTip.INSIGHT_OPEN) }
@@ -165,10 +173,6 @@ class InsightViewModel(
 
     fun next() {
         _period.value.next(today())?.let { _period.value = it }
-    }
-
-    private companion object {
-        const val STOP_MILLIS = 5_000L
     }
 }
 

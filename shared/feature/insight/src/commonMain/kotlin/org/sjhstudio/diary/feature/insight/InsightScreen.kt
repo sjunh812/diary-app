@@ -100,6 +100,7 @@ import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.percentOf
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
+import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.moodColor
@@ -167,6 +168,8 @@ fun InsightRoute(
     InsightScreen(
         period = period,
         data = state.data,
+        failed = state.failed,
+        onRetry = viewModel::retry,
         today = today,
         onKind = viewModel::select,
         onPrevious = viewModel::previous,
@@ -198,6 +201,8 @@ internal fun InsightScreen(
     onNext: () -> Unit,
     onMood: (Mood) -> Unit,
     modifier: Modifier = Modifier,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {},
     onPeriod: (DateRange) -> Unit = {},
     advancedOpen: Boolean = false,
     onPlus: () -> Unit = {},
@@ -283,7 +288,11 @@ internal fun InsightScreen(
 
                     else -> Column(hidden) { Content(period, shown.counts, shown.days, shown.pixels, today, onMood, onPeriod) }
                 }
-                if (data == null) InsightSkeleton(period.kind)
+                when {
+                    data != null -> Unit
+                    failed -> LoadFailedLine(onRetry)
+                    else -> InsightSkeleton(period.kind)
+                }
             }
             if (shown != null && shown.counts.total > 0) {
                 // 기분 막대 줄은 위아래가 비어 있어서 같은 24로 보이게 줄여 둔다.
@@ -362,6 +371,11 @@ private fun Content(
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
     Spacer(Modifier.height(DiarySpacing.x6))
+    // 기분을 누를 수 있다는 것을 처음 한 번 알린다.
+    // 주별 기분 칸(그 주 일기)과 자주 고른 기분 줄(그 기분 일기)이 모두 눌려서, 처음 만나는 누를 곳인 주별 기분 위에 두고 두 곳에 다 맞는 말로 쓴다.
+    // 2026-11-09에는 "그 기분으로 쓴 일기"라는 말이 주 칸과 맞지 않아 자주 고른 기분 위로 옮겼다가, 위쪽도 눌린다는 지적으로 문구와 함께 되돌렸다(2026-11-10 사용자 결정).
+    // 안내가 닫히면 자리를 남기지 않도록 아래 여백은 안내에 붙인다.
+    ContextTipBar(ContextTip.INSIGHT_OPEN, stringResource(Res.string.tip_insight_open), Modifier.padding(bottom = DiarySpacing.x6))
     MoodFlow(period, days, rememberDiaryDateFormat(), onPeriod)
     Spacer(Modifier.height(DiarySpacing.x6))
     if (period is StatsPeriod.Year) {
@@ -377,11 +391,6 @@ private fun Content(
     val rows = counts.sorted().filter { (_, count) -> count > 0 }
     if (rows.isEmpty()) return
     SectionTitle(stringResource(Res.string.insight_section_moods))
-    // 기분 막대를 누를 수 있다는 것을 처음 한 번 알린다.
-    // "기분을 누르면"이 가리키는 곳 바로 위에 둔다.
-    // 주별 기분 위에 두니 주 칸을 누르라는 말로 읽혔다(사용자 지적 2026-11-09, 2026-11-08에는 맨 위 묶음에 있었다).
-    // 막대 줄이 위아래로 제 여백을 가지므로 안내 아래는 띄우지 않는다.
-    ContextTipBar(ContextTip.INSIGHT_OPEN, stringResource(Res.string.tip_insight_open), Modifier.padding(top = DiarySpacing.x3))
     val most = counts.counts.values.maxOrNull() ?: 0
     // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
     val names = rows.map { (mood, _) -> moodName(mood) }

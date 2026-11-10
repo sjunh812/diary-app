@@ -83,7 +83,7 @@
     </plurals>
     <string name="insight_section_days">毎日の気分</string>
     <string name="insight_map_hint">1マスが1日です。色はその日の気分です。</string>
-    <string name="tip_insight_open">気分をタップすると、その気分で書いた日記を見られます。</string>
+    <string name="tip_insight_open">気分をタップすると、該当する日記をまとめて見られます。</string>
     <string name="insight_section_moods">よく選んだ気分</string>
     <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
     <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>

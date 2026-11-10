@@ -76,6 +76,7 @@ import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
 import org.sjhstudio.diary.core.ui.EntryMenu
 import org.sjhstudio.diary.core.ui.EntryMenuFor
+import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
@@ -89,9 +90,6 @@ import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_body
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
-import org.sjhstudio.diary.feature.home.resources.home_error_body
-import org.sjhstudio.diary.feature.home.resources.home_error_retry
-import org.sjhstudio.diary.feature.home.resources.home_error_title
 import org.sjhstudio.diary.feature.home.resources.home_favorites_empty
 import org.sjhstudio.diary.feature.home.resources.home_favorites_only
 import org.sjhstudio.diary.feature.home.resources.home_favorites_show_all
@@ -358,23 +356,6 @@ private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit, onShowAll: () -> 
                 actionKind = DiaryButtonKind.Primary
             )
         }
-    }
-}
-
-/**
- * 목록이나 일기를 읽지 못했을 때.
- * 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다.
- */
-@Composable
-internal fun LoadFailed(onRetry: () -> Unit) {
-    DiaryEmptyArea {
-        DiaryEmptyState(
-            DiaryIcons.CircleAlert,
-            stringResource(Res.string.home_error_title),
-            description = stringResource(Res.string.home_error_body),
-            actionLabel = stringResource(Res.string.home_error_retry),
-            onAction = onRetry
-        )
     }
 }
 
