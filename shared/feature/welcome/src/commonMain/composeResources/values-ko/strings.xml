@@ -25,7 +25,7 @@
     <string name="onboarding_trash_title">실수로 삭제해도 괜찮아요</string>
     <string name="onboarding_trash_body">휴지통에서 30일 동안 복원할 수 있어요.</string>
     <string name="letter_to">To. 1일 1일기 사용자분들께</string>
-    <string name="onboarding_find_title">찾고 돌아보기 쉬워졌어요</string>
+    <string name="onboarding_find_title">찾기도 돌아보기도 쉬워졌어요</string>
     <string name="onboarding_find_body">기분, 날씨, 기간으로 일기를 찾고\n기분 흐름을 주·달·해로 볼 수 있어요.</string>
     <string name="onboarding_tablet_title">태블릿에서는 더 넓게</string>
     <string name="onboarding_tablet_body">목록과 일기를 나란히 보고\n키보드로 바로 쓸 수 있어요.</string>
