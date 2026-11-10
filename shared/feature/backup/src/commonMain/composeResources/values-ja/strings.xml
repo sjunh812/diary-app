@@ -108,7 +108,7 @@
     <string name="restore_lock_title">ロックを設定し直してください</string>
     <string name="restore_lock_body">バックアップしたスマートフォンでロックを使っていました。パスコードはバックアップされません。</string>
     <string name="restore_lock_action">設定する</string>
-    <string name="restore_start">はじめる</string>
+    <string name="restore_start">完了</string>
     <string name="restore_failed_busy_title">復元が終わってからお試しください</string>
     <string name="restore_failed_busy_body">いま復元しています。終わると別のバックアップを選べます。</string>
     <string name="restore_failed_mismatch_title">バックアップを確認できませんでした</string>
