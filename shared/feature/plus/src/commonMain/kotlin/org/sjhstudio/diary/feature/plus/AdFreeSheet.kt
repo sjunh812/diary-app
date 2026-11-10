@@ -37,10 +37,10 @@ import org.sjhstudio.diary.feature.plus.resources.plus_retry
 
 /**
  * 광고만 없애는 시트(Figma P2).
- * 광고의 ×가 연다.
- * 온 화면은 그대로다.
- * [onDayOff]는 영상을 보고 하루만 없애는 길이다.
- * 뷰모델이 오래 살아서 처음 오프라인이었어도 열 때마다 가격을 다시 받는다.
+ * 광고의 ×를 누르면 열림.
+ * 온 화면은 그대로.
+ * [onDayOff]는 영상을 보고 하루만 없애는 길.
+ * 뷰모델이 오래 살아 처음 오프라인이었어도 열 때마다 가격을 다시 받음.
  */
 @Composable
 fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
@@ -70,7 +70,7 @@ internal fun AdFreeSheetContent(
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     val price = state.price(ProductId.AD_FREE)
-    // 가격을 못 받으면 결제 버튼 자리가 곧 다시 시도다.
+    // 가격을 못 받으면 결제 버튼 자리가 곧 다시 시도
     val noPrice = price == null && !state.loading
     DiaryBottomSheet(onDismiss, title = stringResource(Res.string.adfree_title), description = stringResource(Res.string.adfree_body)) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {

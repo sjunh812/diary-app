@@ -112,7 +112,7 @@ private const val ART_TINT = 0.4f
 
 /**
  * 설정 초대 카드와 뱃지, 사진 한도, 고급 통계 버튼이 여는 화면.
- * 이미 Plus면 관리 화면이다(US3).
+ * 이미 Plus면 관리 화면(US3).
  */
 @Composable
 fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
@@ -142,8 +142,8 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
         }
     }
     val uri = LocalUriHandler.current
-    // 결제 화면의 아래 결제 칸 높이.
-    // 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄운다.
+    // 결제 화면의 아래 결제 칸 높이
+    // 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄움
     var buyHeight by remember { mutableIntStateOf(0) }
     var adFreeSheet by rememberSaveable { mutableStateOf(false) }
     Box(modifier.fillMaxSize()) {
@@ -174,12 +174,12 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
 
 /**
  * 결제 화면(Figma P1).
- * 제목, 혜택 네 줄(무엇을 얻는지 한 문장씩), 결제액을 적은 버튼을 둔다.
- * 그림은 남는 자리에만 그리고, 버튼은 아래에 고정된다.
- * 닫기는 처음부터 보이고 실제 결제액이 가장 크다(FR-005).
- * 작은 화면이나 큰 글자에서만 위쪽이 스크롤된다.
- * 넓은 화면도 폰과 같은 한 칸이다.
- * 혜택과 가격이 한눈에 이어지도록 가운데에 모은다.
+ * 제목, 혜택 네 줄(무엇을 얻는지 한 문장씩), 결제액을 적은 버튼.
+ * 그림은 남는 자리에만 그리고, 버튼은 아래에 고정.
+ * 닫기는 처음부터 보이고 실제 결제액이 가장 큼(FR-005).
+ * 작은 화면이나 큰 글자에서만 위쪽이 스크롤됨.
+ * 넓은 화면도 휴대폰과 같은 한 칸.
+ * 혜택과 가격이 한눈에 이어지게 가운데에 모음.
  */
 @Composable
 internal fun PaywallScreen(
@@ -198,7 +198,7 @@ internal fun PaywallScreen(
     val colors = DiaryTheme.colors
     BoxWithConstraints(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().navigationBarsPadding()) {
         val wide = maxWidth >= DiaryWriteSize.twoPaneMin
-        // 넓은 화면의 결제 칸은 가운데에 있어 화면 아래에 고정된 것이 없다.
+        // 넓은 화면의 결제 칸은 가운데에 있어 화면 아래에 고정된 것이 없음
         LaunchedEffect(wide) { if (wide) onBuyHeight(0) }
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(
@@ -246,8 +246,8 @@ internal fun PaywallScreen(
 
 /**
  * 그림 칸.
- * 폭을 채우고 그림은 가운데에 둔다.
- * 결제 화면과 구독 중 화면이 같이 쓴다.
+ * 폭을 채우고 그림은 가운데에 둠.
+ * 결제 화면과 구독 중 화면이 같이 씀.
  */
 @Composable
 private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
@@ -266,9 +266,9 @@ private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
 }
 
 /**
- * 혜택이 한눈에 보이는 것이 먼저다.
- * 글을 다 놓고 남는 높이만큼만 그림을 그린다.
- * 남는 자리가 작으면 그림을 빼고, 그래도 넘칠 때만 스크롤된다.
+ * 혜택이 한눈에 보이는 것이 먼저.
+ * 글을 다 놓고 남는 높이만큼만 그림을 그림.
+ * 남는 자리가 작으면 그림을 빼고, 그래도 넘칠 때만 스크롤됨.
  */
 @Composable
 private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
@@ -279,7 +279,7 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
             val text = subcompose("text") { PaywallBenefits(adFreeOwned) }.map { it.measure(width) }
             val textHeight = text.sumOf { it.height }
             val gap = DiarySpacing.x6.roundToPx()
-            // 결제 버튼과 혜택 사이는 적어도 24를 둔다. 자리가 모자라면 그림이 먼저 줄고, 그래도 모자라면 스크롤된다.
+            // 결제 버튼과 혜택 사이는 적어도 24. 자리가 모자라면 그림이 먼저 줄고, 그래도 모자라면 스크롤됨
             val bottomGap = DiarySpacing.x6.roundToPx()
             val left = room.roundToPx() - textHeight - gap - DiarySpacing.x2.roundToPx() - bottomGap
             val art =
@@ -290,7 +290,7 @@ private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
                     subcompose("art") { PlusArt(height, Modifier.padding(top = DiarySpacing.x2)) }.map { it.measure(width) }
                 }
             val artHeight = art.sumOf { it.height } + if (art.isEmpty()) 0 else gap
-            // 위에서부터 정한 간격으로 쌓는다. 남는 자리는 결제 버튼 위에 둔다.
+            // 위에서부터 정한 간격으로 쌓고, 남는 자리는 결제 버튼 위에 둠
             layout(constraints.maxWidth, artHeight + textHeight + bottomGap) {
                 art.forEach { it.placeRelative(0, 0) }
                 text.forEach { it.placeRelative(0, artHeight) }
@@ -336,8 +336,8 @@ private fun PaywallLegal() {
 
 /**
  * 실제 결제액, 버튼, 자동 갱신 고지(FR-005).
- * 가격을 못 받으면 지어내지 않고 다시 시도를 보인다.
- * 읽는 동안에는 결제액 자리를 비워 두고 버튼을 비활성으로 두어 칸이 뛰지 않는다.
+ * 가격을 못 받으면 지어내지 않고 다시 시도를 보임.
+ * 읽는 동안에는 결제액 자리를 비워 두고 버튼을 비활성으로 두어 칸이 뛰지 않음.
  */
 @Composable
 private fun PaywallBuy(
@@ -352,19 +352,19 @@ private fun PaywallBuy(
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    // 혜택이 먼저 보이게 아래 칸은 촘촘하게 둔다. 결제 버튼, 다른 선택, 고지가 한 묶음이다.
+    // 혜택이 먼저 보이게 아래 칸은 촘촘하게. 결제 버튼, 다른 선택, 고지가 한 묶음
     Column(modifier, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         if (price != null || loading) {
             DiaryButton(
-                // 요금은 하나뿐이라 고르는 칸을 두지 않고 버튼에 바로 적는다.
+                // 요금이 하나뿐이라 고르는 칸 없이 버튼에 바로 적음
                 price?.let { stringResource(Res.string.plus_start_price, it) } ?: stringResource(Res.string.plus_start),
                 onBuy,
                 Modifier.fillMaxWidth(),
                 size = DiaryButtonSize.XLarge,
                 enabled = price != null && !busy
             )
-            // 광고의 ×를 찾지 않아도 살 수 있게 둔다.
-            // 결제 버튼 바로 아래에 두어 다른 선택지로 읽히게 하고, 이미 산 사람에게는 보이지 않는다.
+            // 광고의 ×를 찾지 않아도 살 수 있게 둠
+            // 결제 버튼 바로 아래에 두어 다른 선택지로 읽히게 하고, 이미 산 사람에게는 보이지 않음
             if (!adFreeOwned) {
                 DiaryButton(
                     stringResource(Res.string.plus_ads_only),
@@ -377,7 +377,7 @@ private fun PaywallBuy(
             BasicText(
                 stringResource(Res.string.plus_notice),
                 Modifier.fillMaxWidth(),
-                // 두 줄 길이를 고르게 나눠 마지막 낱말만 떨어지지 않게 한다.
+                // 두 줄 길이를 고르게 나눠 마지막 낱말만 떨어지지 않게 함
                 style = typography.micro.copy(color = colors.textSecondary, textAlign = TextAlign.Center, lineBreak = LineBreak.Heading)
             )
             PaywallLegal()
@@ -388,7 +388,7 @@ private fun PaywallBuy(
     }
 }
 
-/** 혜택 네 가지. 결제 화면과 구독 중 화면이 같은 말로 보인다. */
+/** 혜택 네 가지. 결제 화면과 구독 중 화면이 같은 말로 보임. */
 @Composable
 private fun PlusBenefits(gap: Dp = DiarySpacing.x5) {
     Column(verticalArrangement = Arrangement.spacedBy(gap)) {
@@ -401,9 +401,9 @@ private fun PlusBenefits(gap: Dp = DiarySpacing.x5) {
 
 /**
  * 이미 Plus인 사람의 화면(Figma P4).
- * 권유하지 않고, 구독해 준 사람에게 지금 받는 것과 요금, 관리할 곳을 한곳에 보인다.
- * 요금은 스토어에서 받은 값만 쓰고 받지 못하면 줄을 뺀다.
- * 다음 결제일과 해지는 스토어가 맡는다(HIG 인앱 구매).
+ * 권유하지 않고, 구독해 준 사람에게 지금 받는 것과 요금, 관리할 곳을 한곳에 보임.
+ * 요금은 스토어에서 받은 값만 쓰고 받지 못하면 줄을 뺌.
+ * 다음 결제일과 해지는 스토어가 맡음(HIG 인앱 구매).
  */
 @Composable
 internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () -> Unit, modifier: Modifier = Modifier) {
@@ -453,7 +453,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
 
 /**
  * 혜택 한 줄.
- * 무엇을 받는지 한 문장으로 덧붙인다.
+ * 무엇을 받는지 한 문장으로 덧붙임.
  */
 @Composable
 private fun OwnedBenefit(icon: ImageVector, title: StringResource, body: StringResource) {
