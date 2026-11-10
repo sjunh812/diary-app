@@ -1,4 +1,4 @@
-// 기록 이전 진행, 결과, 실패 화면.
+// 기록 이전 진행, 결과, 실패 화면
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

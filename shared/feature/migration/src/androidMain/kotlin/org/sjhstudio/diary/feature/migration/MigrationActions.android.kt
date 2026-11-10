@@ -45,7 +45,7 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
     val exporter = koinInject<OriginalExporter>()
     val migration = koinInject<LegacyMigration>()
     val bundle = koinInject<SupportBundle>()
-    // 저장 창(SAF): 사용자가 고른 곳에만 쓴다.
+    // 저장 창(SAF): 사용자가 고른 곳에만 씀
     val saver =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri: Uri? ->
             if (uri == null) return@rememberLauncherForActivityResult
@@ -103,8 +103,8 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
                 scope.launch {
                     val today = currentDate()
                     val fileName = getString(Res.string.support_file_name, exportDateStamp(today))
-                    // 사용자가 "첨부해서 문의"를 고를 때만 만든다.
-                    // 하루가 지나면 이전 후속 작업이 지운다(FR-010a).
+                    // 사용자가 "첨부해서 문의"를 고를 때만 만듦
+                    // 하루가 지나면 이전 후속 작업이 지움(FR-010a)
                     val file = withContext(Dispatchers.IO) { runCatching { bundle.create(fileName) }.getOrNull() }
                     if (file == null) {
                         onMessage.show(getString(Res.string.support_failed))
@@ -117,7 +117,7 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
                     }.getOrNull().orEmpty()
                     val body =
                         getString(Res.string.support_mail_body, version, "Android ${Build.VERSION.RELEASE}", summary.unreadableBucket)
-                    // 첨부가 있으면 SENDTO가 아니라 SEND를 쓰고, 메일 앱만 고르게 mailto 선택자를 단다(Android 공통 인텐트 문서).
+                    // 첨부가 있으면 SENDTO 대신 SEND. 메일 앱만 고르게 mailto 선택자 추가(Android 공통 인텐트 문서)
                     val intent =
                         Intent(Intent.ACTION_SEND).apply {
                             putExtra(Intent.EXTRA_EMAIL, arrayOf(SUPPORT_EMAIL))

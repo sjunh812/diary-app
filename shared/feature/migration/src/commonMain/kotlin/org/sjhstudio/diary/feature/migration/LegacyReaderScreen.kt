@@ -42,9 +42,9 @@ import org.sjhstudio.diary.feature.migration.resources.migration_retry
 
 /**
  * 예전 일기 보기(Figma M4).
- * 기록 이전이 실패한 기기에서 사본을 읽기만 한다.
- * 줄 모양은 일기 핵심 목록과 같은 일기 줄이다.
- * 기분 얼굴 그림을 그리기 전까지는 기분 색 점으로 보인다.
+ * 기록 이전이 실패한 기기에서 사본을 읽기만 함.
+ * 줄 모양은 일기 핵심 목록과 같은 일기 줄.
+ * 기분 얼굴 그림을 그리기 전까지는 기분 색 점으로 보임.
  */
 @Composable
 fun LegacyReaderScreen(
@@ -61,7 +61,7 @@ fun LegacyReaderScreen(
             last >= listState.layoutInfo.totalItemsCount - 10
         }
     }
-    // 읽지 못했으면 스스로 다시 부르지 않고 다시 시도 버튼을 기다린다.
+    // 읽지 못했으면 스스로 다시 부르지 않고 다시 시도 버튼을 기다림
     LaunchedEffect(nearEnd, state.entries.size) { if (nearEnd && !state.end && !state.failed) onLoadMore() }
     val dates = rememberDiaryDateFormat()
     val colors = DiaryTheme.colors
@@ -107,7 +107,7 @@ fun LegacyReaderScreen(
                                 overflow = TextOverflow.Ellipsis
                             )
                             entry.placeName?.let {
-                                // 장소가 길어도 뒤에 오는 즐겨찾기 별을 밀어내지 않는다.
+                                // 장소가 길어도 뒤의 즐겨찾기 별을 밀어내지 않음
                                 BasicText(
                                     it,
                                     modifier = Modifier.weight(1f, fill = false),

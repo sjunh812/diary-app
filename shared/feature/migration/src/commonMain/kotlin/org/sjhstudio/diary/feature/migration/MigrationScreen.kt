@@ -88,8 +88,8 @@ import org.sjhstudio.diary.feature.migration.resources.migration_view_legacy
 
 /**
  * 기록 이전 화면들(Figma "화면" M0·M1·M2·M2-b·M3).
- * 상태만 받아 그리는 함수다.
- * 고르는 동작(예전 일기 보기, 원본 내보내기, 문의하기)은 null이면 그 줄을 숨긴다.
+ * 상태만 받아 그림.
+ * 고르는 동작(예전 일기 보기, 원본 내보내기, 문의하기)이 null이면 그 줄을 숨김.
  */
 @Composable
 fun MigrationScreen(
@@ -138,7 +138,7 @@ private fun CopyingContent(state: MigrationUiState.Copying) {
         val total = (state.entriesTotal + state.photosTotal).coerceAtLeast(1)
         DiaryProgressBar(done.toFloat() / total)
         Spacer(Modifier.height(DiarySpacing.x4))
-        // 값 줄이 스스로 화면 여백을 두는데 이 칸은 이미 여백 안이다.
+        // 값 줄이 스스로 화면 여백을 두는데 이 칸은 이미 여백 안임
         CompositionLocalProvider(LocalScreenGutter provides Dp.Hairline) {
             DiaryValueRow(
                 stringResource(Res.string.migration_progress_entries),
@@ -235,7 +235,7 @@ private fun FailedContent(
     val noSpace = state.kind == MigrationFailureKind.NO_SPACE
     val body =
         when (state.kind) {
-            // 얼마가 모자란지가 할 일이라 그 크기를 강조한다.
+            // 얼마가 모자란지가 할 일이라 그 크기를 강조
             MigrationFailureKind.NO_SPACE -> stringResource(
                 Res.string.migration_no_space_body,
                 emphasis(formatBytes(state.shortfallBytes ?: 0))
@@ -256,13 +256,13 @@ private fun FailedContent(
         tone = DiaryBadgeTone.Danger,
         title = stringResource(if (noSpace) Res.string.migration_no_space_title else Res.string.migration_failed_title),
         body = body,
-        // 공간 부족은 까닭이 분명해서 안내하고 멈춘다.
-        // 그 밖에는 이유를 알 수 없으니 먼저 앱을 쓰게 한다.
+        // 공간 부족은 까닭이 분명해 안내하고 멈춤
+        // 그 밖에는 이유를 알 수 없어 먼저 앱을 쓰게 함
         secondaryActions = if (noSpace) emptyList() else listOf(stringResource(Res.string.migration_skip) to onSkip),
         primary = stringResource(if (noSpace) Res.string.migration_check_again else Res.string.migration_retry) to onRetry,
         fullWidthContent = true
     ) {
-        // 사본이 없으면 볼 것이 없어 빈 화면만 나온다.
+        // 사본이 없으면 볼 것이 없어 빈 화면만 나옴
         if (state.hasCopy) {
             onViewLegacy?.let { DiarySettingsRow(stringResource(Res.string.migration_view_legacy), it, leadingIcon = DiaryIcons.BookOpen) }
         }
@@ -275,7 +275,7 @@ private fun FailedContent(
     }
 }
 
-/** 설명 안 숫자 강조. 본문은 옅은 글자라 진한 글자와 한 단계 굵기로 띄운다. */
+/** 설명 안 숫자 강조. 본문은 옅은 글자라 진한 글자와 한 단계 굵기로 띄움. */
 @Composable
 private fun numberEmphasis(): SpanStyle =
     SpanStyle(color = DiaryTheme.colors.textPrimary, fontWeight = DiaryTheme.typography.bodyStrong.fontWeight)
@@ -309,7 +309,7 @@ private fun Frame(
                     .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 머리가 위아래 24를 스스로 두어서 그만큼 빼고, 배지와 내용의 자리는 전과 같게 둔다.
+            // 머리가 위아래 24를 스스로 두어 그만큼 빼고, 배지와 내용 자리는 그대로
             Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x14 - DiarySpacing.x6))
             DiaryResultHeader(icon, title, description = body, tone = tone)
             Spacer(Modifier.height(DiarySpacing.x8 - DiarySpacing.x6))

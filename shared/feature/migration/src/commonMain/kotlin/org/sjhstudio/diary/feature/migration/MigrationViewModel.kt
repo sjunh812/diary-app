@@ -29,7 +29,7 @@ import org.sjhstudio.diary.core.ui.launchSafely
 sealed interface MigrationUiState {
     /**
      * 원본 확인 중.
-     * 바탕색만 보인다(보통 1초 안).
+     * 바탕색만 보임(보통 1초 안).
      */
     data object Checking : MigrationUiState
 
@@ -41,7 +41,7 @@ sealed interface MigrationUiState {
 
     /**
      * 옮기고 검증하는 중(M1).
-     * 일기 내용과 사진은 없다.
+     * 일기 내용과 사진은 없음.
      */
     data class Copying(val entriesDone: Int, val entriesTotal: Int, val photosDone: Int, val photosTotal: Int) : MigrationUiState
 
@@ -50,21 +50,21 @@ sealed interface MigrationUiState {
 
     /**
      * 실패(M3).
-     * 공간 부족 말고는 새 일기부터 쓰기로 앱 틀로 갈 수 있다.
-     * [hasCopy]는 예전 일기 보기가 읽을 사본이 있는지다.
+     * 공간 부족 말고는 새 일기부터 쓰기로 앱 틀로 갈 수 있음.
+     * [hasCopy]: 예전 일기 보기가 읽을 사본이 있는지.
      */
     data class Failed(val kind: MigrationFailureKind, val shortfallBytes: Long?, val hasCopy: Boolean = false) : MigrationUiState
 
     /**
-     * 옮길 것이 없거나 끝났다.
-     * 앱 틀로 간다.
+     * 옮길 것이 없거나 끝남.
+     * 앱 틀로 감.
      */
     data object Passed : MigrationUiState
 }
 
 /**
  * 관문을 지난 뒤 한 번 알리는 일(FR-011).
- * 앱 틀이 토스트로 띄운다.
+ * 앱 틀이 토스트로 띄움.
  */
 sealed interface MigrationNotice {
     data class EntriesRecovered(val count: Int) : MigrationNotice
@@ -76,12 +76,12 @@ class MigrationViewModel(
     private val migration: LegacyMigration,
     /**
      * 이전이 끝난 기기의 후속 작업(`MigrationFollowUp.run`).
-     * 관문을 지난 뒤 한 번만 부른다.
+     * 관문을 지난 뒤 한 번만 부름.
      */
     private val followUp: suspend () -> FollowUpResult,
     /**
      * 파일을 읽는 일을 돌리는 곳.
-     * 시험에서는 시험 디스패처로 바꾼다.
+     * 시험에서는 시험 디스패처로 바꿈.
      */
     private val background: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
@@ -95,8 +95,8 @@ class MigrationViewModel(
 
     init {
         viewModelScope.launchSafely {
-            // 있는지 알 수 없으면 있다고 보고 이전에 맡긴다.
-            // 그쪽 실패는 실패 화면으로 간다.
+            // 있는지 알 수 없으면 있다고 보고 이전에 맡김
+            // 그쪽 실패는 실패 화면으로 감
             val needed =
                 try {
                     withContext(background) { migration.needsMigration() }
@@ -114,12 +114,12 @@ class MigrationViewModel(
 
     /**
      * 실패 화면의 새 일기부터 쓰기.
-     * 예전 일기는 설정에서 다시 옮기고, 앱이 업데이트되면 저절로 다시 해 본다.
+     * 예전 일기는 설정에서 다시 옮기고, 앱이 업데이트되면 저절로 다시 시도.
      */
     fun skip() {
         viewModelScope.launchSafely {
-            // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 연다.
-            // 다음에 앱을 열면 이전부터 다시 본다.
+            // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 엶
+            // 다음에 앱을 열면 이전부터 다시 봄
             orElseOnFailure(Unit) { withContext(background) { migration.defer() } }
             pass()
         }
@@ -127,7 +127,7 @@ class MigrationViewModel(
 
     /**
      * 결과 화면의 시작하기.
-     * 결과는 한 번만 보인다.
+     * 결과는 한 번만 보임.
      */
     fun acknowledgeResult() = pass()
 
@@ -136,8 +136,8 @@ class MigrationViewModel(
         if (followedUp) return
         followedUp = true
         viewModelScope.launchSafely {
-            // 후속 작업이 실패해도 일기를 쓰고 읽는 것은 막지 않는다.
-            // 다음에 앱을 열 때 다시 본다.
+            // 후속 작업이 실패해도 일기 쓰기·읽기는 막지 않음
+            // 다음에 앱을 열 때 다시 봄
             val result =
                 orElseOnFailure(null) { withContext(background) { followUp() } } ?: return@launchSafely
             if (result.entriesRecovered > 0) _notices.send(MigrationNotice.EntriesRecovered(result.entriesRecovered))
@@ -146,11 +146,11 @@ class MigrationViewModel(
     }
 
     private fun start() {
-        // 다시 시도를 연달아 눌러도 하나만 돈다.
+        // 다시 시도를 연달아 눌러도 하나만 돎
         if (running?.isActive == true) return
         _state.value = MigrationUiState.Preparing
         running = viewModelScope.launchSafely {
-            // 진행 값은 0.25초마다 옮겨 담는다(contracts/migration-flow.md).
+            // 진행 값은 0.25초마다 옮겨 담음(contracts/migration-flow.md)
             val ticker =
                 launch {
                     while (isActive) {
@@ -161,7 +161,7 @@ class MigrationViewModel(
                         delay(PROGRESS_MILLIS)
                     }
                 }
-            // 어떤 실패든 앱을 끄지 않고 실패 화면으로 보낸다.
+            // 어떤 실패든 앱을 끄지 않고 실패 화면으로 보냄
             val result =
                 try {
                     migration.run()
@@ -171,7 +171,7 @@ class MigrationViewModel(
                     MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.UNKNOWN)
                 }
             ticker.cancel()
-            // 결과를 보여 줄 것이 없으면 바로 앱 틀로 간다.
+            // 결과를 보여 줄 것이 없으면 바로 앱 틀로 감
             val next =
                 when (result) {
                     is MigrationResult.Finished -> if (result.showResult) MigrationUiState.Result(result.report) else null
@@ -182,7 +182,7 @@ class MigrationViewModel(
         }
     }
 
-    /** 사본을 볼 수 없으면 없는 것처럼 줄을 숨긴다. */
+    /** 사본을 볼 수 없으면 없는 것처럼 줄을 숨김. */
     private suspend fun hasCopy(): Boolean = try {
         withContext(background) { migration.hasLegacyCopy() }
     } catch (e: CancellationException) {
