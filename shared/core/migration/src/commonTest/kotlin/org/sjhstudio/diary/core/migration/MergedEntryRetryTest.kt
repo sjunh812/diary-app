@@ -14,8 +14,8 @@ import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationStep
 
 /**
- * 이전을 미루거나 일부만 옮긴 뒤 다른 기기 백업을 합친 기기(`docs/migration.md` "미룬 이전과 합친 일기").
- * 번호가 겹쳐도 옛 일기를 건너뛰거나 합쳐 온 일기를 지우면 안 됨.
+ * 이전을 미루거나 일부만 옮긴 뒤 다른 기기 백업을 합친 기기(`docs/migration.md` "미룬 이전과 합친 일기")
+ * 번호가 겹쳐도 옛 일기를 건너뛰거나 합쳐 온 일기를 지우면 안 됨
  */
 class MergedEntryRetryTest {
     private val jpeg = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 1, 2, 3)

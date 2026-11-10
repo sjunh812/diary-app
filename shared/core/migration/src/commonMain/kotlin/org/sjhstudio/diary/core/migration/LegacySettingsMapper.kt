@@ -8,8 +8,8 @@ import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
- * 옛 앱 설정(`pref.xml`, `pref2.xml`)을 새 설정으로 옮김(contracts/legacy-mapping.md "설정", data-model.md DiaryFont·BodyTextSize).
- * 잠금은 [LegacyLockBootstrap]이 따로 옮김.
+ * 옛 앱 설정(`pref.xml`, `pref2.xml`)을 새 설정으로 옮김(contracts/legacy-mapping.md "설정", data-model.md DiaryFont·BodyTextSize)
+ * 잠금은 [LegacyLockBootstrap]이 따로 옮김
  */
 object LegacySettingsMapper {
     fun map(pref: Map<String, Any>, pref2: Map<String, Any>, base: AppSettings = AppSettings()): AppSettings {
@@ -43,9 +43,9 @@ object LegacySettingsMapper {
     }
 
     /**
-     * 옛 파일에 실제로 있던 설정(이전 결과의 `settingsMigrated`).
-     * 값이 없어 기본값을 쓴 설정은 넣지 않음.
-     * 잠금과 생체 인증은 켜 두었을 때만 넣음.
+     * 옛 파일에 실제로 있던 설정(이전 결과의 `settingsMigrated`)
+     * 값이 없어 기본값을 쓴 설정은 넣지 않음
+     * 잠금과 생체 인증은 켜 두었을 때만 넣음
      */
     fun migrated(pref: Map<String, Any>, pref2: Map<String, Any>): List<MigratedSetting> = buildList {
         if (FONT_KEY in pref) add(MigratedSetting.FONT)
@@ -100,8 +100,8 @@ object LegacySettingsMapper {
     private val SAME_FONT_KEYS = setOf(-1, 0, 3, 100)
 
     /**
-     * 1.7.4 글꼴 고르기 화면의 이름(`activity_font.xml`).
-     * 바뀐 글꼴을 처음 열 때 한 번 알리는 데 씀.
+     * 1.7.4 글꼴 고르기 화면의 이름(`activity_font.xml`)
+     * 바뀐 글꼴을 처음 열 때 한 번 알리는 데 씀
      */
     private val LEGACY_FONT_NAMES =
         mapOf(

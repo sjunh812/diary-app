@@ -13,16 +13,16 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.platform.sha256Hex
 
 /**
- * EXIF 방향을 반영한 사진 가로세로.
- * 읽지 못하면 null(Android `BitmapFactory` + `ExifInterface`).
+ * EXIF 방향을 반영한 사진 가로세로
+ * 읽지 못하면 null(Android `BitmapFactory` + `ExifInterface`)
  */
 fun interface ImageSizeReader {
     fun read(path: String): Pair<Int, Int>?
 }
 
 /**
- * `photos.json` 한 줄: 레거시 경로 → 해시(research R8).
- * 사진 자체는 `media/`에 있음.
+ * `photos.json` 한 줄: 레거시 경로 → 해시(research R8)
+ * 사진 자체는 `media/`에 있음
  */
 @Serializable
 data class PhotoRecord(val path: String, val sha256: String?, val size: Long?)
@@ -33,11 +33,11 @@ data class ImportedPhoto(val media: Media, val record: PhotoRecord) {
 }
 
 /**
- * 옛 앱 사진을 `media/<sha256>.<ext>`로 한 번만 복사(contracts/legacy-mapping.md "사진", research R8).
- * 원본(캐시 사진)은 읽기만 함.
- * 임시 이름으로 쓰고 해시를 다시 잰 뒤 이름을 바꿈.
- * 같은 해시가 이미 있으면 복사하지 않음(같은 파일 두 번, 다시 시도).
- * 이전이 실패해도 `media/`의 사본은 지우지 않음.
+ * 옛 앱 사진을 `media/<sha256>.<ext>`로 한 번만 복사(contracts/legacy-mapping.md "사진", research R8)
+ * 원본(캐시 사진)은 읽기만 함
+ * 임시 이름으로 쓰고 해시를 다시 잰 뒤 이름을 바꿈
+ * 같은 해시가 이미 있으면 복사하지 않음(같은 파일 두 번, 다시 시도)
+ * 이전이 실패해도 `media/`의 사본은 지우지 않음
  */
 class MediaImporter(
     private val fileSystem: FileSystem,
@@ -51,8 +51,8 @@ class MediaImporter(
         fragments.mapIndexed { order, fragment -> importOne(entryId, order, fragment, known[fragment]?.sha256) }
 
     /**
-     * 조각 하나.
-     * 찾지 못하거나 읽다 실패하면 `missing` 줄.
+     * 조각 하나
+     * 찾지 못하거나 읽다 실패하면 `missing` 줄
      */
     fun importOne(entryId: String, sortOrder: Int, fragment: String, knownSha256: String? = null): ImportedPhoto {
         val now = clock.now()
@@ -85,8 +85,8 @@ class MediaImporter(
     private class Copied(val fileName: String, val sha256: String, val bytes: Long, val size: Pair<Int, Int>?)
 
     /**
-     * 앞선 시도가 옮겨 둔 사본. 캐시의 원본은 그사이 OS가 지울 수 있음(헌법 I).
-     * 이름에 든 해시와 내용이 맞을 때만 씀.
+     * 앞선 시도가 옮겨 둔 사본. 캐시의 원본은 그사이 OS가 지울 수 있음(헌법 I)
+     * 이름에 든 해시와 내용이 맞을 때만 씀
      */
     private fun earlierCopy(sha256: String, fragment: String): Copied? {
         val name = PhotoPaths.extensions(fragment).map { PhotoPaths.fileName(sha256, it) }.firstOrNull(::verify) ?: return null

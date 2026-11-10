@@ -16,14 +16,14 @@ import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.currentDate
 
 /**
- * 예전 일기 보기의 한 줄.
+ * 예전 일기 보기의 한 줄
  * 사진은 앱 저장소 파일 경로, 찾을 수 없는 사진은 null.
  */
 data class LegacyEntryView(
     val id: Long,
     /**
-     * 다음 쪽을 읽을 때 쓰는 원래 줄.
-     * 화면은 안 씀.
+     * 다음 쪽을 읽을 때 쓰는 원래 줄
+     * 화면은 안 씀
      */
     val source: LegacyNote,
     val date: LocalDate,
@@ -37,14 +37,14 @@ data class LegacyEntryView(
 )
 
 /**
- * 이전에 실패한 기기에서 옛 일기를 읽기 전용으로 보여 줌(FR-009, contracts/migration-flow.md "예전 일기 보기").
- * 원본이 아닌 사본(`legacy-snapshot/note.db`)을 엶.
- * 수정·삭제 없음.
- * 일기 날짜 최근 순.
+ * 이전에 실패한 기기에서 옛 일기를 읽기 전용으로 보여 줌(FR-009, contracts/migration-flow.md "예전 일기 보기")
+ * 원본이 아닌 사본(`legacy-snapshot/note.db`)을 엶
+ * 수정·삭제 없음
+ * 일기 날짜 최근 순
  */
 interface LegacyArchive {
     /**
-     * [after] 다음부터 [limit]편.
+     * [after] 다음부터 [limit]편
      * 처음은 null.
      */
     suspend fun page(after: LegacyEntryView?, limit: Int = PAGE): List<LegacyEntryView>

@@ -7,9 +7,9 @@ import okio.FileSystem
 import okio.Path
 
 /**
- * 시험용 옛 앱 `note.db` 생성(스펙 001 T031, docs/migration.md "시험").
- * 표 정의는 레거시 `NoteDatabase.java`의 SQL 그대로.
- * 저장소에 파일로 두지 않고 시험마다 만들어, Android 호스트와 iOS 시뮬레이터에서 같은 자료로 돎.
+ * 시험용 옛 앱 `note.db` 생성(스펙 001 T031, docs/migration.md "시험")
+ * 표 정의는 레거시 `NoteDatabase.java`의 SQL 그대로
+ * 저장소에 파일로 두지 않고 시험마다 만들어, Android 호스트와 iOS 시뮬레이터에서 같은 자료로 돎
  */
 object LegacyFixtures {
     const val CREATE_V2 =
@@ -98,8 +98,8 @@ object LegacyFixtures {
     }
 
     /**
-     * `count`줄.
-     * 날짜는 하루씩, 글 길이는 [contentLength].
+     * `count`줄
+     * 날짜는 하루씩, 글 길이는 [contentLength]
      */
     fun manyRows(count: Int, contentLength: Int = 20): List<Row> = (0 until count).map { i ->
         val day = i % 28 + 1
@@ -113,8 +113,8 @@ object LegacyFixtures {
     }
 
     /**
-     * 가운데 페이지 몇 장을 망가뜨림.
-     * 첫 페이지(머리)는 그대로 둠.
+     * 가운데 페이지 몇 장을 망가뜨림
+     * 첫 페이지(머리)는 그대로 둠
      */
     fun corruptMiddlePages(path: Path, pages: Int = 3) {
         val fs = FileSystem.SYSTEM

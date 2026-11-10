@@ -5,8 +5,8 @@ import okio.FileSystem
 import okio.Path
 
 /**
- * 시험마다 새 임시 폴더.
- * 끝나면 지움.
+ * 시험마다 새 임시 폴더
+ * 끝나면 지움
  */
 class TempDir : AutoCloseable {
     val fs: FileSystem = FileSystem.SYSTEM

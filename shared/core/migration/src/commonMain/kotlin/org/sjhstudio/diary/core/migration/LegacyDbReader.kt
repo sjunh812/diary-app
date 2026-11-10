@@ -13,10 +13,10 @@ import androidx.sqlite.execSQL
 data class LegacyReadSummary(val read: Int, val unreadable: Int)
 
 /**
- * `legacy-snapshot/note.db`(사본)를 번들 드라이버의 날 SQL로 읽음(research R5).
- * 레거시 스키마의 `TIMESTAMP` 열 때문에 Room으로는 못 엶.
- * 원본이 아닌 사본만 엶.
- * 사본의 WAL은 사본에 합쳐져도 괜찮음.
+ * `legacy-snapshot/note.db`(사본)를 번들 드라이버의 날 SQL로 읽음(research R5)
+ * 레거시 스키마의 `TIMESTAMP` 열 때문에 Room으로는 못 엶
+ * 원본이 아닌 사본만 엶
+ * 사본의 WAL은 사본에 합쳐져도 괜찮음
  */
 class LegacyDbReader private constructor(private val connection: SQLiteConnection) : AutoCloseable {
     private val columns: Set<String> by lazy {
@@ -26,8 +26,8 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
     }
 
     /**
-     * `Note` 표가 있는가.
-     * 없으면 옮길 일기가 없음.
+     * `Note` 표가 있는가
+     * 없으면 옮길 일기가 없음
      */
     val hasNoteTable: Boolean get() = "_id" in columns
 
@@ -35,7 +35,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
         runCatching { connection.prepare("PRAGMA integrity_check").use { it.step() && it.getText(0) == "ok" } }.getOrDefault(false)
 
     /**
-     * 줄 수.
+     * 줄 수
      * 표가 없으면 0, 깨져서 셀 수 없으면 null.
      */
     fun count(): Long? {
@@ -49,9 +49,9 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
     }
 
     /**
-     * `_id` 순으로 [onRow]에 넘김.
-     * 한 번에 [PAGE]줄씩 읽고, 깨진 범위를 만나면 반씩 나눠 읽히는 줄만 건짐.
-     * 못 읽은 범위의 `_id`는 있는지조차 모를 수 있어 "못 읽은 줄"은 추정.
+     * `_id` 순으로 [onRow]에 넘김
+     * 한 번에 [PAGE]줄씩 읽고, 깨진 범위를 만나면 반씩 나눠 읽히는 줄만 건짐
+     * 못 읽은 범위의 `_id`는 있는지조차 모를 수 있어 "못 읽은 줄"은 추정
      */
     fun readAll(onRow: (LegacyNote) -> Unit): LegacyReadSummary {
         if (!hasNoteTable) return LegacyReadSummary(0, 0)
@@ -83,10 +83,10 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
     }
 
     /**
-     * 예전 일기 보기(contracts/migration-flow.md 실패 화면): 일기 날짜 최근 순(`create_date` 역순, 같으면 `_id` 역순)으로 [limit]줄.
-     * 사용자가 지난 날짜를 골라 쓸 수 있어 `_id`가 아닌 날짜로 줄을 세움.
-     * [after]로 준 줄 다음부터.
-     * 깨진 사본이면 읽히는 줄만 모아 같은 차례로.
+     * 예전 일기 보기(contracts/migration-flow.md 실패 화면): 일기 날짜 최근 순(`create_date` 역순, 같으면 `_id` 역순)으로 [limit]줄
+     * 사용자가 지난 날짜를 골라 쓸 수 있어 `_id`가 아닌 날짜로 줄을 세움
+     * [after]로 준 줄 다음부터
+     * 깨진 사본이면 읽히는 줄만 모아 같은 차례로
      */
     fun readNewestFirst(after: LegacyNote?, limit: Int): List<LegacyNote> {
         if (!hasNoteTable) return emptyList()
@@ -192,8 +192,8 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
             )
 
         /**
-         * 사본을 엶.
-         * 사본의 WAL을 읽으려면 쓰기 모드로 엶(원본은 절대 열지 않음).
+         * 사본을 엶
+         * 사본의 WAL을 읽으려면 쓰기 모드로 엶(원본은 절대 열지 않음)
          */
         fun open(snapshotDbPath: String): LegacyDbReader {
             val connection = BundledSQLiteDriver().open(snapshotDbPath)

@@ -23,9 +23,9 @@ class SupportBundleTest {
     )
 
     /**
-     * 일기 파일 사본만 담음.
-     * 사진과 설정 파일은 제외(FR-010a).
-     * 설정에는 옛 백업 계정 이메일과 드라이브 파일 ID가 있을 수 있음.
+     * 일기 파일 사본만 담음
+     * 사진과 설정 파일은 제외(FR-010a)
+     * 설정에는 옛 백업 계정 이메일과 드라이브 파일 ID가 있을 수 있음
      */
     @Test
     fun bundle_holds_only_the_diary_file() {

@@ -56,8 +56,8 @@ internal class MigrationEnv(val dir: TempDir) {
     )
 
     /**
-     * 검증에 들어설 때 [action] 실행.
-     * 복사와 검증 사이에 무언가 어긋난 상황을 만듦.
+     * 검증에 들어설 때 [action] 실행
+     * 복사와 검증 사이에 무언가 어긋난 상황을 만듦
      */
     fun onVerifying(action: () -> Unit) = object : MigrationEvents {
         override fun stepStarted(step: MigrationStep) {

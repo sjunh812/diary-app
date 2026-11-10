@@ -1,8 +1,8 @@
 package org.sjhstudio.diary.core.migration
 
 /**
- * 옛 앱 설정 파일(`shared_prefs/pref.xml`, `pref2.xml`)을 XML 글로 직접 읽음(research R5).
- * `getSharedPreferences`로 열면 나중에 같은 이름으로 쓸 때 원본이 다시 쓰일 수 있어 안 씀.
+ * 옛 앱 설정 파일(`shared_prefs/pref.xml`, `pref2.xml`)을 XML 글로 직접 읽음(research R5)
+ * `getSharedPreferences`로 열면 나중에 같은 이름으로 쓸 때 원본이 다시 쓰일 수 있어 안 씀
  */
 object LegacyPrefs {
     /** 값은 String, Boolean, Int, Long, Float, Set<String> 중 하나 */
@@ -29,8 +29,8 @@ object LegacyPrefs {
     }
 
     /**
-     * 사본에 쓸 글.
-     * `password` 줄만 빼고 나머지는 한 글자도 바꾸지 않음.
+     * 사본에 쓸 글
+     * `password` 줄만 빼고 나머지는 한 글자도 바꾸지 않음
      */
     fun withoutPassword(xml: String): String = PASSWORD_LINE.replace(xml, "")
 
@@ -63,8 +63,8 @@ object LegacyPrefs {
     private val ENTITY = Regex("""&(#x[0-9a-fA-F]+|#[0-9]+|amp|lt|gt|quot|apos);""")
 
     /**
-     * 비밀번호 줄.
-     * 앞 들여쓰기와 뒤 줄바꿈까지 함께 뺌.
+     * 비밀번호 줄
+     * 앞 들여쓰기와 뒤 줄바꿈까지 함께 뺌
      */
     private val PASSWORD_LINE =
         Regex("""[ \t]*<string\s+name="password"\s*(?:/>|>.*?</string>)[ \t]*\r?\n?""", RegexOption.DOT_MATCHES_ALL)

@@ -7,9 +7,9 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.richtext.toPlainText
 
 /**
- * 검증 지문(contracts/legacy-mapping.md "검증 지문").
- * 원본 줄로 만든 지문과 새 DB에서 다시 읽은 값으로 만든 지문이 줄마다 같아야 이전이 끝남.
- * 필드는 U+001F, 사진 항목은 U+001E로 잇고 UTF-8 바이트의 SHA-256을 소문자 hex로 씀.
+ * 검증 지문(contracts/legacy-mapping.md "검증 지문")
+ * 원본 줄로 만든 지문과 새 DB에서 다시 읽은 값으로 만든 지문이 줄마다 같아야 이전이 끝남
+ * 필드는 U+001F, 사진 항목은 U+001E로 잇고 UTF-8 바이트의 SHA-256을 소문자 hex로 씀
  */
 object Fingerprint {
     private const val US = '\u001F'

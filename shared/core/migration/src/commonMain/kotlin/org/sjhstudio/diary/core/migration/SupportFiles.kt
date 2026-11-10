@@ -6,9 +6,9 @@ import okio.FileSystem
 import okio.Path
 
 /**
- * 복구 문의 묶음을 두는 곳과 지우는 때(FR-010a, contracts/migration-flow.md "복구 문의").
- * 캐시가 아닌 `files/migration/support`에 두고 만든 시각을 함께 적음.
- * 메일 앱이 첨부를 언제 읽을지 알 수 없어 보낸 직후에는 지우지 않고, 하루가 지나면 지움(헌법 II 예외).
+ * 복구 문의 묶음을 두는 곳과 지우는 때(FR-010a, contracts/migration-flow.md "복구 문의")
+ * 캐시가 아닌 `files/migration/support`에 두고 만든 시각을 함께 적음
+ * 메일 앱이 첨부를 언제 읽을지 알 수 없어 보낸 직후에는 지우지 않고, 하루가 지나면 지움(헌법 II 예외)
  */
 class SupportFiles(private val fileSystem: FileSystem, migrationDir: Path, private val clock: Clock) {
     val directory: Path = migrationDir / DIRECTORY
@@ -23,7 +23,7 @@ class SupportFiles(private val fileSystem: FileSystem, migrationDir: Path, priva
     }
 
     /**
-     * 만든 지 하루가 지났거나 만든 시각을 모르면 지움.
+     * 만든 지 하루가 지났거나 만든 시각을 모르면 지움
      * 지웠으면 true.
      */
     fun deleteExpired(): Boolean {

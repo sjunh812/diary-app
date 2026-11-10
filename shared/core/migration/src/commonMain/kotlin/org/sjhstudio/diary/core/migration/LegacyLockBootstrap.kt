@@ -9,13 +9,13 @@ import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.Pin
 
 /**
- * 옛 앱(1.7.x)의 잠금을 새 잠금으로 이음(contracts/legacy-mapping.md "설정", research R16).
- * 스플래시 동안 기록 이전보다 먼저 돎.
- * 잠금 화면을 먼저 띄우려면 확인값이 먼저 있어야 해서.
- * 옛 `pref.xml`은 읽기만 함.
+ * 옛 앱(1.7.x)의 잠금을 새 잠금으로 이음(contracts/legacy-mapping.md "설정", research R16)
+ * 스플래시 동안 기록 이전보다 먼저 돎
+ * 잠금 화면을 먼저 띄우려면 확인값이 먼저 있어야 해서
+ * 옛 `pref.xml`은 읽기만 함
  *
- * 이전을 시작하기 전(`NotStarted`)에만 함.
- * 이전이 시작된 뒤에는 새 앱의 잠금 설정이 기준이라, 사용자가 끈 잠금을 옛 파일로 다시 켜지 않음.
+ * 이전을 시작하기 전(`NotStarted`)에만 함
+ * 이전이 시작된 뒤에는 새 앱의 잠금 설정이 기준이라, 사용자가 끈 잠금을 옛 파일로 다시 켜지 않음
  */
 class LegacyLockBootstrap(
     private val fileSystem: FileSystem,
@@ -52,8 +52,8 @@ class LegacyLockBootstrap(
     }
 
     /**
-     * 잠금은 켜고 확인값은 비움.
-     * 잠금 관문이 휴대폰 화면 잠금 확인 뒤 새 비밀번호를 정하게 함.
+     * 잠금은 켜고 확인값은 비움
+     * 잠금 관문이 휴대폰 화면 잠금 확인 뒤 새 비밀번호를 정하게 함
      */
     private suspend fun lockWithoutPin(biometric: Boolean): Boolean {
         lockStore.update { it.copy(enabled = true, pinMac = null, pinSalt = null, biometricEnabled = biometric) }

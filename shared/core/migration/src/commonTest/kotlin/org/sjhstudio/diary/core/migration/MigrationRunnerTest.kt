@@ -273,8 +273,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 몇 편이 어긋나도 나머지는 옮기고 앱을 쓰게 함.
-     * 뺀 일기는 업데이트 뒤 다시 읽음.
+     * 몇 편이 어긋나도 나머지는 옮기고 앱을 쓰게 함
+     * 뺀 일기는 업데이트 뒤 다시 읽음
      */
     @Test
     fun an_entry_that_fails_checking_is_left_out_and_the_rest_moves() = runTest {
@@ -390,8 +390,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 사진 파일이 깨져도 일기는 옮기고 그 사진만 찾을 수 없는 사진이 됨.
-     * 끊겨서 다시 검증해도 일기를 빼지 않음.
+     * 사진 파일이 깨져도 일기는 옮기고 그 사진만 찾을 수 없는 사진이 됨
+     * 끊겨서 다시 검증해도 일기를 빼지 않음
      */
     @Test
     fun a_broken_photo_file_keeps_the_entry() = runTest {
@@ -419,8 +419,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 단계마다 상태를 적은 뒤 알림.
-     * 개발 빌드의 강제 종료 훅이 이 알림에서 끊음(T049).
+     * 단계마다 상태를 적은 뒤 알림
+     * 개발 빌드의 강제 종료 훅이 이 알림에서 끊음(T049)
      */
     @Test
     fun steps_are_announced_in_order() = runTest {
@@ -452,8 +452,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 썸네일을 못 만들어도 이전은 끝나고 수만 셈.
-     * 한 번에 3개를 넘게 만들지 않음(FR-037, R9).
+     * 썸네일을 못 만들어도 이전은 끝나고 수만 셈
+     * 한 번에 3개를 넘게 만들지 않음(FR-037, R9)
      */
     @Test
     fun thumbnail_failures_are_counted_not_fatal() = runTest {

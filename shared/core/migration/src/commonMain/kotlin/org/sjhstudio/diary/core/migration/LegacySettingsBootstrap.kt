@@ -7,11 +7,11 @@ import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.model.MigrationStep
 
 /**
- * 옛 앱(1.7.x)의 글꼴, 글자 크기, 화면 모드, 위치 안내, 매일 알림을 새 설정으로 이음(스펙 001 US3, research R16).
- * 스플래시 동안 돌아 첫 화면부터 옛 화면 모드와 글꼴로 그림.
- * 옛 파일은 읽기만 함.
- * [LegacyLockBootstrap]처럼 이전을 시작하기 전에만 함.
- * 그 뒤에는 새 앱에서 바꾼 설정이 기준.
+ * 옛 앱(1.7.x)의 글꼴, 글자 크기, 화면 모드, 위치 안내, 매일 알림을 새 설정으로 이음(스펙 001 US3, research R16)
+ * 스플래시 동안 돌아 첫 화면부터 옛 화면 모드와 글꼴로 그림
+ * 옛 파일은 읽기만 함
+ * [LegacyLockBootstrap]처럼 이전을 시작하기 전에만 함
+ * 그 뒤에는 새 앱에서 바꾼 설정이 기준
  */
 class LegacySettingsBootstrap(
     private val fileSystem: FileSystem,

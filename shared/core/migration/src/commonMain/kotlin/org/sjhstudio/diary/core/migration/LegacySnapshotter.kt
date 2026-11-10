@@ -12,8 +12,8 @@ import okio.use
 import org.sjhstudio.diary.core.platform.sha256Hex
 
 /**
- * 원본 파일 하나의 크기와 SHA-256(`snapshot.json`).
- * 이전 전후로 원본이 같은지 시험에서 견줌.
+ * 원본 파일 하나의 크기와 SHA-256(`snapshot.json`)
+ * 이전 전후로 원본이 같은지 시험에서 견줌
  */
 @Serializable
 data class SnapshotFile(val name: String, val size: Long, val sha256: String)
@@ -22,10 +22,10 @@ data class SnapshotFile(val name: String, val size: Long, val sha256: String)
 data class SnapshotManifest(val createdAtMillis: Long, val files: List<SnapshotFile>)
 
 /**
- * 원본을 `legacy-snapshot/`에 바이트 그대로 복사(contracts/migration-flow.md `Snapshotting`, research R5).
- * 원본에는 SQLite 연결을 열지 않음.
- * 연결을 열었다 닫으면 WAL이 본 파일에 합쳐져 원본이 바뀌기 때문.
- * 설정 사본에서는 비밀번호 줄을 뺌.
+ * 원본을 `legacy-snapshot/`에 바이트 그대로 복사(contracts/migration-flow.md `Snapshotting`, research R5)
+ * 원본에는 SQLite 연결을 열지 않음
+ * 연결을 열었다 닫으면 WAL이 본 파일에 합쳐져 원본이 바뀌기 때문
+ * 설정 사본에서는 비밀번호 줄을 뺌
  */
 class LegacySnapshotter(private val fileSystem: FileSystem, private val clock: Clock) {
     /** 같은 원본으로 만든 사본이 이미 있으면 다시 복사하지 않음(다시 시도) */

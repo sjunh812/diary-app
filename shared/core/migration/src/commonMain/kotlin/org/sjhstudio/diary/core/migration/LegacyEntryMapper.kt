@@ -14,8 +14,8 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
 /**
- * 레거시 줄 하나를 옮긴 결과.
- * 사진 줄은 [PhotoPaths]와 사진 옮기기가 따로 만듦.
+ * 레거시 줄 하나를 옮긴 결과
+ * 사진 줄은 [PhotoPaths]와 사진 옮기기가 따로 만듦
  */
 data class MappedEntry(
     val entry: Entry,
@@ -26,15 +26,15 @@ data class MappedEntry(
 )
 
 /**
- * 레거시 `Note` 줄을 새 [Entry]로 옮김.
- * 규칙은 contracts/legacy-mapping.md "일기 줄" 표 그대로.
+ * 레거시 `Note` 줄을 새 [Entry]로 옮김
+ * 규칙은 contracts/legacy-mapping.md "일기 줄" 표 그대로
  *
- * @param migratedOn 이전한 날(기기 시간대).
- * 날짜를 전혀 읽지 못한 줄에 씀.
- * @param timeZone 이전하는 기기의 시간대.
- * `created_at`·`updated_at`을 만들 때 씀.
- * @param newId 새 일기 ID(UUID).
- * 시험에서 고정.
+ * @param migratedOn 이전한 날(기기 시간대)
+ * 날짜를 전혀 읽지 못한 줄에 씀
+ * @param timeZone 이전하는 기기의 시간대
+ * `created_at`·`updated_at`을 만들 때 씀
+ * @param newId 새 일기 ID(UUID)
+ * 시험에서 고정
  */
 class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone: TimeZone, private val newId: () -> String) {
     fun map(note: LegacyNote): MappedEntry {
@@ -91,8 +91,8 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
         }
 
         /**
-         * 12~16번째 글자가 `HH:mm`(00~23, 00~59)이면 그 시각.
-         * 초 자리는 버림.
+         * 12~16번째 글자가 `HH:mm`(00~23, 00~59)이면 그 시각
+         * 초 자리는 버림
          */
         internal fun parseTime(text: String): LocalTime? {
             if (text.length < 16) return null
@@ -112,8 +112,8 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
         }
 
         /**
-         * 옛 앱이 `SimpleDateFormat("yyyy-MM-dd HH:mm:ss")`(느슨한 해석)으로 읽은 날짜.
-         * 넘치는 값은 다음 단위로 넘김.
+         * 옛 앱이 `SimpleDateFormat("yyyy-MM-dd HH:mm:ss")`(느슨한 해석)으로 읽은 날짜
+         * 넘치는 값은 다음 단위로 넘김
          * 예 `2024-03-01 23:59:457` → 3월 2일 00:07:37.
          * 형식이 아예 다르면 null.
          */

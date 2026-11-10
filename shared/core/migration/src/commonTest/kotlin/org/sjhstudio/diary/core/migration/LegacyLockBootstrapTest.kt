@@ -101,8 +101,8 @@ class LegacyLockBootstrapTest {
     }
 
     /**
-     * 이전이 시작된 뒤에는 옛 파일로 잠금을 다시 켜지 않음.
-     * 사용자가 새 앱에서 끈 잠금이 되살아나면 안 됨.
+     * 이전이 시작된 뒤에는 옛 파일로 잠금을 다시 켜지 않음
+     * 사용자가 새 앱에서 끈 잠금이 되살아나면 안 됨
      */
     @Test
     fun runs_only_before_migration_starts() = runTest {
