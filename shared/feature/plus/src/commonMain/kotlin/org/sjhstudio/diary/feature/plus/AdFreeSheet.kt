@@ -36,11 +36,11 @@ import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_retry
 
 /**
- * 광고만 없애는 시트(Figma P2).
- * 광고의 ×를 누르면 열림.
- * 온 화면은 그대로.
- * [onDayOff]는 영상을 보고 하루만 없애는 길.
- * 뷰모델이 오래 살아 처음 오프라인이었어도 열 때마다 가격을 다시 받음.
+ * 광고만 없애는 시트(Figma P2)
+ * 광고의 ×를 누르면 열림
+ * 온 화면은 그대로
+ * [onDayOff]는 영상을 보고 하루만 없애는 길
+ * 뷰모델이 오래 살아 처음 오프라인이었어도 열 때마다 가격을 다시 받음
  */
 @Composable
 fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
