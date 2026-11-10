@@ -102,7 +102,7 @@ private enum class Sheet { Mood, Weather, Period, Range }
 private const val RESULTS_SETTLE_MILLIS = 1_000L
 
 /**
- * 찾기(Figma "찾기 (S1-a)"). 넓은 화면에서는 왼쪽 칸, 고른 줄은 [selectedId].
+ * 찾기(Figma "찾기 (S1-a)"). 넓은 화면에서는 왼쪽 칸, 고른 줄은 [selectedId]
  * 조건 없이 들어오면 입력 칸에 바로 포커스
  */
 @Composable
@@ -120,7 +120,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
     LaunchedEffect(filter) {
         if (filter.hashCode() == listedFilter) return@LaunchedEffect
         listedFilter = filter.hashCode()
-        // 찾기는 잠깐 멈춘 뒤 돌아 결과가 늦게 옴.
+        // 찾기는 잠깐 멈춘 뒤 돌아 결과가 늦게 옴
         // 목록이 보던 줄을 따라가려 해 새 결과가 와도 맨 위로 되돌림
         withTimeoutOrNull(RESULTS_SETTLE_MILLIS) {
             snapshotFlow { results.itemCount to results.itemCount.takeIf { it > 0 }?.let { results.peek(0)?.id } }

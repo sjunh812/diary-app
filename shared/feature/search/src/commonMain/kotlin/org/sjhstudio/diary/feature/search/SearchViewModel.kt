@@ -43,8 +43,8 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 enum class SearchPeriod { Week, Month, Year, Custom }
 
 /**
- * 찾기(FR-025~FR-027). 상세에 다녀와도 이 모델이 살아 있어 입력과 조건 유지.
- * 글자는 칠 때마다 찾지 않고 잠깐 멈춘 뒤 찾음.
+ * 찾기(FR-025~FR-027). 상세에 다녀와도 이 모델이 살아 있어 입력과 조건 유지
+ * 글자는 칠 때마다 찾지 않고 잠깐 멈춘 뒤 찾음
  * 결과는 홈처럼 쪽으로 읽어 1만 편이 걸려도 보는 만큼만 메모리에 둠
  */
 class SearchViewModel(
