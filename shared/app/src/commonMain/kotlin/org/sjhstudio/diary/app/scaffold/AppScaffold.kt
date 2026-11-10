@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -286,6 +287,31 @@ private val TabBarSpace =
 internal fun interstitialMayShow(backStack: List<NavKey>): Boolean =
     backStack.size == 1 && (backStack.last() == HomeKey || backStack.last() == CalendarKey)
 
+/**
+ * 저장 뒤 전면 광고를 띄울 차례.
+ * 일기를 저장하면 그 탭을 기억하고, 같은 탭의 목록으로 돌아오면 한 번 띄운다.
+ * 다른 탭으로 가면 기회를 버린다. 몇 시간 뒤 탭을 누를 때 뜨면 "저장하고 목록으로 돌아갈 때"가 아니다.
+ * 하루 한 번인지는 [AdRepository]가 본다.
+ */
+@Stable
+internal class AfterSaveAdTurn {
+    /** 기다리는 탭. 화면이 바뀔 때 다시 보도록 상태로 둔다. */
+    var savedOn: TabScreen? by mutableStateOf(null)
+        private set
+
+    fun saved(tab: TabScreen) {
+        savedOn = tab
+    }
+
+    /** 화면이 바뀔 때마다 부른다. 참이면 지금 띄우고 차례는 끝난다. */
+    fun takeTurn(tab: TabScreen, backStack: List<NavKey>): Boolean {
+        val pending = savedOn
+        val show = pending == tab && interstitialMayShow(backStack)
+        if (pending != tab || show) savedOn = null
+        return show
+    }
+}
+
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
 private enum class Message { Saved, DraftKept }
 
@@ -365,16 +391,10 @@ private fun Content(
     // 저장은 이미 끝나 있다(FR-010).
     val ads = koinInject<AdRepository>()
     val adScope = rememberCoroutineScope()
-    var adAfterSave by remember { mutableStateOf(false) }
-    var savedOnTab by remember { mutableStateOf<TabScreen?>(null) }
-    LaunchedEffect(top, adAfterSave) {
-        // 다른 탭으로 가면 기회를 버린다. 몇 시간 뒤 탭을 누를 때 뜨면 "저장하고 목록으로 돌아갈 때"가 아니다.
-        if (adAfterSave && nav.tab != savedOnTab) adAfterSave = false
-        if (adAfterSave && interstitialMayShow(nav.current)) {
-            adAfterSave = false
-            // 값이 바뀌면 이 효과가 다시 시작되니 광고는 앱 틀의 범위에서 띄운다.
-            adScope.launch { ads.backToList() }
-        }
+    val adTurn = remember { AfterSaveAdTurn() }
+    LaunchedEffect(top, adTurn.savedOn) {
+        // 값이 바뀌면 이 효과가 다시 시작되니 광고는 앱 틀의 범위에서 띄운다.
+        if (adTurn.savedOn != null && adTurn.takeTurn(nav.tab, nav.current)) adScope.launch { ads.backToList() }
     }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { PickHint() } }
     val homeStack = nav.stacks.getValue(HomeKey)
@@ -491,8 +511,7 @@ private fun Content(
                                 // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
                                 if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
                                 notify(Message.Saved)
-                                adAfterSave = true
-                                savedOnTab = nav.tab
+                                adTurn.saved(nav.tab)
                                 adScope.launch { ads.afterSave() }
                             },
                             onClosed = { kept ->
