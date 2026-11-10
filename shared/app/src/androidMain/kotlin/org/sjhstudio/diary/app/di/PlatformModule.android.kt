@@ -77,8 +77,8 @@ internal actual val platformModule: Module =
         single<AdSwitch> { adSwitch(androidContext()) }
         // 앱이 켜질 때 만들어야 재설치 뒤 구매를 바로 되찾는다.
         single(createdAtStart = true) { billing(androidContext()) }
-        single<PlanRepository> { get<Billing>() }
-        single<PurchaseRepository> { get<Billing>() }
+        single<PlanRepository> { get<Billing>().plans }
+        single<PurchaseRepository> { get<Billing>().purchases }
         single<TelemetrySink> { telemetrySink(androidContext()) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }

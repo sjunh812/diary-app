@@ -103,6 +103,12 @@ object StoreIds {
         ProductId.PLUS_YEARLY -> PLUS_PRODUCT
     }
 
+    /**
+     * 스토어가 돌려준 상품 ID에서 기본 ID만 뗀다.
+     * 구독은 `plus_yearly:yearly`처럼 기본 요금제 이름이 붙어 온다.
+     */
+    fun baseOf(storeProductId: String): String = storeProductId.substringBefore(':')
+
     /** 지금 켜진 권한으로 요금제를 정한다. 둘 다 있으면 Plus다. */
     fun planOf(active: Set<String>): Plan = when {
         PLUS_ENTITLEMENT in active -> Plan.PLUS

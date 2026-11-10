@@ -19,35 +19,30 @@ import com.revenuecat.purchases.awaitGetProducts
 import com.revenuecat.purchases.awaitPurchase
 import com.revenuecat.purchases.awaitRestore
 import com.revenuecat.purchases.interfaces.SyncPurchasesCallback
+import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.StoreBilling
+import org.sjhstudio.diary.core.data.StoreClient
+import org.sjhstudio.diary.core.data.StoreFailure
 import org.sjhstudio.diary.core.data.StoreIds
-import org.sjhstudio.diary.core.data.StorePlanState
 import org.sjhstudio.diary.core.model.Plan
-import org.sjhstudio.diary.core.model.ProductId
-import org.sjhstudio.diary.core.model.PurchaseResult
-import org.sjhstudio.diary.core.model.StoreProduct
 
 private const val MANAGE_URL = "https://play.google.com/store/account/subscriptions"
 private const val PREFS = "plan"
 private const val PLAN_KEY = "last_plan"
 
-/** 요금제와 구매를 한곳에서 맡는다. 화면은 나뉜 두 인터페이스만 본다. */
-interface Billing :
-    PlanRepository,
-    PurchaseRepository
-
-private class NoBilling(plans: PlanRepository, purchases: PurchaseRepository) :
-    Billing,
-    PlanRepository by plans,
-    PurchaseRepository by purchases
+/** 요금제와 구매. 화면은 나뉜 두 인터페이스만 본다. */
+class Billing(val plans: PlanRepository, val purchases: PurchaseRepository)
 
 /** 키 없이 만든 빌드는 구매가 없는 무료 앱이다. */
 fun billing(context: Context): Billing {
@@ -55,110 +50,82 @@ fun billing(context: Context): Billing {
     val key =
         app.packageManager.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA)
             .metaData?.getString("org.sjhstudio.diary.revenuecat_key").orEmpty()
-    return if (key.isEmpty()) NoBilling(FreePlanRepository(), NoPurchases()) else RevenueCatBilling(app, key)
+    if (key.isEmpty()) return Billing(FreePlanRepository(), NoPurchases())
+    val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    val saved = prefs.getString(PLAN_KEY, null)?.let { name -> Plan.entries.firstOrNull { it.name == name } }
+    val client = RevenueCatClient(app, key)
+    val store = StoreBilling(client, saved, MANAGE_URL) { plan -> prefs.edit { putString(PLAN_KEY, plan.name) } }
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    Purchases.sharedInstance.updatedCustomerInfoListener =
+        UpdatedCustomerInfoListener { info -> scope.launch { store.onUpdate(info.active) } }
+    scope.launch { store.refresh() }
+    return Billing(store, store)
 }
 
-/**
- * RevenueCat 구현.
- * 마지막 요금제를 기기에 남겨서 산 사람이 앱을 켤 때나 오프라인에서도 광고를 보지 않는다.
- * 재설치로 남긴 값이 없으면 스토어 답을 들을 때까지 요금제를 모른다고 말한다.
- */
-private class RevenueCatBilling(private val app: Application, key: String) : Billing {
-    private val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-    private val saved = prefs.getString(PLAN_KEY, null)?.let { name -> Plan.entries.firstOrNull { it.name == name } }
-    private val state = StorePlanState(saved) { plan -> prefs.edit { putString(PLAN_KEY, plan.name) } }
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private var activity: Activity? = null
+private val CustomerInfo.active: Set<String> get() = entitlements.active.keys
 
-    override val plan: StateFlow<Plan> = state.plan
-    override val known: StateFlow<Boolean> = state.known
-    override val manageUrl: String = MANAGE_URL
+/**
+ * RevenueCat에 닿는 자리.
+ * 라이브러리 오류를 [StoreFailure]로 바꾸는 일만 하고, 판단은 [StoreBilling]이 한다.
+ */
+private class RevenueCatClient(private val app: Application, key: String) : StoreClient {
+    private var activity: Activity? = null
 
     init {
         Purchases.configure(PurchasesConfiguration.Builder(app, key).build())
         watchActivity()
-        Purchases.sharedInstance.updatedCustomerInfoListener =
-            com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener { apply(it) }
-        scope.launch { refresh() }
     }
 
-    /** 처음 켠 기기는 구글 계정의 구매를 조용히 가져온다. 재설치한 사람이 다시 사지 않게 한다. */
-    private suspend fun refresh() {
-        try {
-            apply(Purchases.sharedInstance.awaitCustomerInfo())
-        } catch (_: PurchasesException) {
-            // 오프라인이면 남긴 값을 쓴다.
-            state.onUnreachable()
-        }
-    }
+    override suspend fun entitlements(): Set<String> = store { Purchases.sharedInstance.awaitCustomerInfo().active }
 
-    private fun sync() {
+    override suspend fun sync(): Set<String> = suspendCancellableCoroutine { cont ->
         Purchases.sharedInstance.syncPurchases(
             object : SyncPurchasesCallback {
-                override fun onSuccess(customerInfo: CustomerInfo) = state.onSynced(planOf(customerInfo))
+                override fun onSuccess(customerInfo: CustomerInfo) = cont.resume(customerInfo.active)
 
-                override fun onError(error: PurchasesError) = state.onUnreachable()
+                override fun onError(error: PurchasesError) = cont.resumeWithException(StoreFailure(StoreFailure.Reason.OTHER))
             }
         )
     }
 
-    private fun planOf(info: CustomerInfo) = StoreIds.planOf(info.entitlements.active.keys)
-
-    private fun apply(info: CustomerInfo) {
-        if (state.onAnswer(planOf(info))) sync()
+    override suspend fun prices(storeIds: List<String>): Map<String, String> = store {
+        Purchases.sharedInstance.awaitGetProducts(storeIds).associate { StoreIds.baseOf(it.id) to it.price.formatted }
     }
 
-    override suspend fun products(): List<StoreProduct> = try {
-        val ids = ProductId.entries.associateBy(StoreIds::productOf)
-        Purchases.sharedInstance.awaitGetProducts(ids.keys.toList()).mapNotNull { product ->
-            ids[product.id.substringBefore(':')]?.let { StoreProduct(it, product.price.formatted) }
-        }
-    } catch (_: PurchasesException) {
-        emptyList()
+    override suspend fun purchase(storeId: String): Set<String> = store {
+        val screen = activity ?: throw StoreFailure(StoreFailure.Reason.OTHER)
+        // 구독은 기본 요금제마다 상품이 따로 올 수 있어서 ID로 정확히 고른다.
+        val product =
+            Purchases.sharedInstance.awaitGetProducts(listOf(storeId)).firstOrNull { StoreIds.baseOf(it.id) == storeId }
+                ?: throw StoreFailure(StoreFailure.Reason.OTHER)
+        Purchases.sharedInstance.awaitPurchase(PurchaseParams.Builder(screen, product).build()).customerInfo.active
     }
 
-    override suspend fun buy(id: ProductId): PurchaseResult = try {
-        val screen = checkNotNull(activity) { "화면이 없다" }
-        val product = Purchases.sharedInstance.awaitGetProducts(listOf(StoreIds.productOf(id))).first()
-        apply(Purchases.sharedInstance.awaitPurchase(PurchaseParams.Builder(screen, product).build()).customerInfo)
-        PurchaseResult.DONE
+    override suspend fun restore(): Set<String> = store { Purchases.sharedInstance.awaitRestore().active }
+
+    private inline fun <T> store(block: () -> T): T = try {
+        block()
     } catch (e: PurchasesTransactionException) {
-        when {
-            e.userCancelled -> PurchaseResult.CANCELLED
-
-            e.code == PurchasesErrorCode.PaymentPendingError -> PurchaseResult.PENDING
-
-            // 재설치 뒤 구매를 아직 못 가져온 사람이 다시 샀다. 돈을 또 받지 않고 구매를 가져온다.
-            e.code == PurchasesErrorCode.ProductAlreadyPurchasedError -> restore().takeIf { it == PurchaseResult.DONE }
-                ?: PurchaseResult.FAILED
-
-            else -> PurchaseResult.FAILED
+        val reason = when {
+            e.userCancelled -> StoreFailure.Reason.CANCELLED
+            e.code == PurchasesErrorCode.PaymentPendingError -> StoreFailure.Reason.PENDING
+            e.code == PurchasesErrorCode.ProductAlreadyPurchasedError -> StoreFailure.Reason.ALREADY_OWNED
+            else -> StoreFailure.Reason.OTHER
         }
-    } catch (_: PurchasesException) {
-        PurchaseResult.FAILED
-    } catch (_: IllegalStateException) {
-        PurchaseResult.FAILED
-    } catch (_: NoSuchElementException) {
-        PurchaseResult.FAILED
-    }
-
-    override suspend fun restore(): PurchaseResult = try {
-        val info = Purchases.sharedInstance.awaitRestore()
-        state.onSynced(planOf(info))
-        if (info.entitlements.active.isEmpty()) PurchaseResult.NOTHING else PurchaseResult.DONE
-    } catch (_: PurchasesException) {
-        PurchaseResult.FAILED
+        throw StoreFailure(reason, e)
+    } catch (e: PurchasesException) {
+        throw StoreFailure(StoreFailure.Reason.OTHER, e)
     }
 
     private fun watchActivity() {
         app.registerActivityLifecycleCallbacks(
             object : Application.ActivityLifecycleCallbacks {
                 override fun onActivityResumed(activity: Activity) {
-                    this@RevenueCatBilling.activity = activity
+                    this@RevenueCatClient.activity = activity
                 }
 
                 override fun onActivityPaused(activity: Activity) {
-                    if (this@RevenueCatBilling.activity === activity) this@RevenueCatBilling.activity = null
+                    if (this@RevenueCatClient.activity === activity) this@RevenueCatClient.activity = null
                 }
 
                 override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
