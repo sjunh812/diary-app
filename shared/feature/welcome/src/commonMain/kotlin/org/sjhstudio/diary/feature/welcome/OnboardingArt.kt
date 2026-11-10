@@ -18,7 +18,7 @@ internal fun WriteArt(active: Boolean, modifier: Modifier = Modifier) = Onboardi
 @Composable
 internal fun BackupArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_backup", 3_200, active, modifier)
 
-/** 한 줄은 굵게, 한 줄은 글자색, 한 줄은 형광펜. 끝에 저장됨 표시 */
+/** 도구 막대의 굵게·글자색·형광펜·목록이 차례로 눌리며 줄이 바뀜 */
 @Composable
 internal fun StyleArt(active: Boolean, modifier: Modifier = Modifier) = OnboardingLottie("onboarding_style", 3_333, active, modifier)
 

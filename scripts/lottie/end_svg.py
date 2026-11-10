@@ -12,7 +12,7 @@ import sys
 
 # 토큰별 표시 색. 겹치지 않게 첫 자리만 바꾼다.
 MARK = ["@surface", "@sunken", "@selected", "@line", "@accent", "@onAccent", "@textTertiary",
-        "@face", "@moodA", "@moodB", "@moodC", "@faceLine"]
+        "@face", "@moodA", "@moodB", "@moodC", "@faceLine", "@textPrimary"]
 
 
 def mark_hex(token):
