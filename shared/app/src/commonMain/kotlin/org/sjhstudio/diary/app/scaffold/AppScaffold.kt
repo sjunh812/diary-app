@@ -1,13 +1,10 @@
 package org.sjhstudio.diary.app.scaffold
 
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,9 +27,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -41,9 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.defaultPopTransitionSpec
-import androidx.navigation3.ui.defaultTransitionSpec
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
@@ -68,6 +69,7 @@ import org.sjhstudio.diary.app.navigation.LocalRailWidth
 import org.sjhstudio.diary.app.navigation.OpenRequestedScreens
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.PlusKey
+import org.sjhstudio.diary.app.navigation.ROOT_OF
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.RestoreProgressKey
 import org.sjhstudio.diary.app.navigation.Screen
@@ -76,11 +78,16 @@ import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.TABS
 import org.sjhstudio.diary.app.navigation.TAB_ROOT
 import org.sjhstudio.diary.app.navigation.TabNavigation
-import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TabScreen
+import org.sjhstudio.diary.app.navigation.TabSwap
 import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.app.navigation.decoratedEntries
+import org.sjhstudio.diary.app.navigation.dimmedAlpha
+import org.sjhstudio.diary.app.navigation.popTransition
+import org.sjhstudio.diary.app.navigation.predictivePopTransition
+import org.sjhstudio.diary.app.navigation.pushTransition
 import org.sjhstudio.diary.app.navigation.rememberTabNavigation
+import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.app.resources.detail_trashed
@@ -182,8 +189,6 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     // 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
     val entries = koinInject<EntryRepository>()
     val months by remember(entries) { entries.months() }.collectAsStateWithLifecycle(null)
-    val emptyHome = nav.top == HomeKey && months?.isEmpty() == true
-    val floatingWrite = nav.current.size == 1 && nav.top != SettingsKey && !emptyHome
 
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth
@@ -221,7 +226,28 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
             CompositionLocalProvider(
                 LocalRailWidth provides if (wide) railWidth else Dp.Hairline,
                 LocalTabBarHeight provides if (wide) Dp.Hairline else barHeight,
-                LocalTabReselect provides nav.reselected
+                LocalTabReselect provides nav.reselected,
+                LocalRootChrome provides
+                    if (wide) {
+                        null
+                    } else {
+                        { root ->
+                            val homeEmpty = root == HomeKey && months?.isEmpty() == true
+                            if (root != SettingsKey && !homeEmpty) {
+                                DiaryWriteButton(
+                                    writeLabel,
+                                    onWrite,
+                                    Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(end = LocalScreenGutter.current, bottom = DiarySpacing.x4 + barHeight)
+                                        .offset { IntOffset(0, -writeLift.roundToPx()) }
+                                )
+                            }
+                            Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = with(density) { it.height.toDp() } }) {
+                                DiaryNavigationBar(items, TABS.indexOf(root), onSelect)
+                            }
+                        }
+                    }
             ) {
                 ContentWithToast(
                     nav,
@@ -238,21 +264,6 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                     DiaryNavigationRail(items, selected, onSelect, header = {
                         DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
                     })
-                }
-            }
-            if (!wide && floatingWrite) {
-                DiaryWriteButton(
-                    writeLabel,
-                    onWrite,
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = LocalScreenGutter.current, bottom = DiarySpacing.x4 + barInset)
-                        .offset { IntOffset(0, -writeLift.roundToPx()) }
-                )
-            }
-            if (tabsShown) {
-                Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = with(density) { it.height.toDp() } }) {
-                    DiaryNavigationBar(items, selected, onSelect)
                 }
             }
         }
@@ -275,10 +286,44 @@ private val TabBarSpace =
     NavEntryDecorator<NavKey>(decorate = { entry ->
         val bottom = if (entry.metadata[TAB_ROOT] == true) LocalTabBarHeight.current else Dp.Hairline
         val start = if (entry.metadata[FULL_SCREEN] == true || LocalInListDetail.current) Dp.Hairline else LocalRailWidth.current
-        Box(Modifier.fillMaxSize().padding(start = start, bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
-            entry.Content()
+        val chrome = LocalRootChrome.current
+        val root = entry.metadata[ROOT_OF] as? TabScreen
+        val colors = DiaryTheme.colors
+        // 화면이 바뀌는 0.3초 동안은 두 화면 모두 누르지 못하게 한다.
+        // 빠르게 누르면 사라지는 화면의 줄이나 단추가 눌렸다(2026-11-10 사용자 지적).
+        val moving = LocalNavAnimatedContentScope.current.transition.isRunning
+        // 화면마다 바탕을 깐다.
+        // 바탕이 빈 화면이 있으면 전환 중에 뒤의 검은 바탕이 비친다.
+        // 양옆 바깥의 선은 평소에는 화면 밖이라 안 보이고, 전환 중에만 두 화면 사이에 보인다(다크에서 두 화면을 가른다).
+        Box(
+            Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    val edge = Dp.Hairline.toPx().coerceAtLeast(1f)
+                    drawRect(colors.line, topLeft = Offset(-edge, 0f), size = Size(edge, size.height))
+                    drawRect(colors.line, topLeft = Offset(size.width, 0f), size = Size(edge, size.height))
+                }.background(colors.canvas)
+        ) {
+            Box(Modifier.fillMaxSize().padding(start = start, bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
+                entry.Content()
+            }
+            if (root != null) chrome?.invoke(this, root)
+            if (moving) {
+                Box(
+                    Modifier.matchParentSize().pointerInput(Unit) {
+                        awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } }
+                    }
+                )
+            }
         }
     })
+
+/**
+ * 폰에서 탭 맨 위 화면이 함께 그리는 탭 바와 쓰기 버튼.
+ * 화면 위에 따로 얹으면 상세로 넘어가는 순간 먼저 사라지거나 새 화면 위에 남아 보였다(2026-11-10 사용자 지적).
+ * 넓은 화면은 레일이라 null이다.
+ */
+private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScreen) -> Unit)?> { null }
 
 /**
  * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력의 목록으로 돌아왔을 때만이다.
@@ -398,8 +443,10 @@ private fun Content(
     }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { PickHint() } }
     val homeStack = nav.stacks.getValue(HomeKey)
-    val pushMotion = defaultTransitionSpec<NavKey>()
-    val popMotion = defaultPopTransitionSpec<NavKey>()
+    val dimmed = dimmedAlpha(DiaryTheme.colors.canvas.luminance() < HALF)
+    val pushMotion = remember(dimmed) { pushTransition<NavKey>(dimmed) }
+    val popMotion = remember(dimmed) { popTransition<NavKey>(dimmed) }
+    val predictivePopMotion = remember(dimmed) { predictivePopTransition<NavKey>(dimmed) }
     // 동작 줄이기를 켠 사람에게는 밀어 들어오는 전환을 쓰지 않는다.
     val reduceMotion = rememberReduceMotion()
     NavDisplay(
@@ -407,7 +454,7 @@ private fun Content(
             nav.decoratedEntries(
                 TabBarSpace,
                 entryProvider {
-                    entry<HomeKey>(metadata = ListPane + TabRoot) {
+                    entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
                         HomeRoute(
                             backupLine = {
                                 BackupStatusLine(onOpen = {
@@ -468,7 +515,7 @@ private fun Content(
                     entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
                         PhotoViewerRoute(key.entryId, key.index, onClose = pop)
                     }
-                    entry<CalendarKey>(metadata = TabRoot) {
+                    entry<CalendarKey>(metadata = tabRoot(CalendarKey)) {
                         CalendarRoute(
                             twoPane = splitWindow,
                             onOpen = nav::openEntry,
@@ -477,7 +524,7 @@ private fun Content(
                             onTrash = closeTrashed
                         )
                     }
-                    entry<InsightKey>(metadata = TabRoot) {
+                    entry<InsightKey>(metadata = tabRoot(InsightKey)) {
                         InsightRoute(
                             onMood = { mood, range ->
                                 nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
@@ -523,16 +570,18 @@ private fun Content(
                     }
                 }
             ),
-        modifier = modifier,
+        // 밀려나는 화면이 어두워 보이도록 뒤에 검은 바탕을 깐다(DiaryTransitions).
+        // 화면이 모두 불투명해서 평소에는 안 보인다.
+        modifier = modifier.background(DiaryTheme.colors.scrim.copy(alpha = 1f)),
         sceneStrategies = listOf(listDetail),
         transitionSpec = { if (nav.movedBetweenTabs || reduceMotion) TabSwap else pushMotion() },
         popTransitionSpec = { if (nav.movedBetweenTabs || reduceMotion) TabSwap else popMotion() },
+        predictivePopTransitionSpec = { if (reduceMotion) TabSwap else predictivePopMotion(it) },
         onBack = pop
     )
 }
 
-/** 탭을 옮길 때는 겹치지 않고 바로 바꾼다. 두 화면이 포개지면 반짝여 보인다. */
-private val TabSwap: ContentTransform get() = EnterTransition.None togetherWith ExitTransition.None
+private const val HALF = 0.5f
 
 /**
  * 두 칸에서 고른 일기가 없을 때의 오른쪽.

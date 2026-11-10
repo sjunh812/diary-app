@@ -45,10 +45,10 @@ import org.sjhstudio.diary.app.navigation.RestoreListKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.RestoreProgressKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
-import org.sjhstudio.diary.app.navigation.TabRoot
 import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
+import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
@@ -99,7 +99,7 @@ import org.sjhstudio.diary.feature.welcome.OnboardingScreen
  * 기능 모듈끼리는 서로 모르므로 어디서 어디로 가는지는 여기서 정한다.
  */
 fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit, home: () -> Unit) {
-    entry<SettingsKey>(metadata = TabRoot) {
+    entry<SettingsKey>(metadata = tabRoot(SettingsKey)) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val trash = koinInject<TrashRepository>()
