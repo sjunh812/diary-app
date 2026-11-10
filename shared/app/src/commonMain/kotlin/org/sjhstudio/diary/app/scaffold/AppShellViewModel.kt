@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.AppRootViewModel
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.TabScreen
@@ -71,6 +72,7 @@ class AppShellViewModel(
 /** 앱 틀 화면 모델 등록. 앱과 화면 시험이 함께 씀 */
 val appShellModule =
     module {
+        viewModel { AppRootViewModel(get(), get(), get()) }
         viewModel {
             val ads = get<AdRepository>()
             AppShellViewModel(

@@ -35,6 +35,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_running_title
 val backupFeatureModule =
     module {
         viewModel { BackupViewModel(get(), get()) }
+        viewModel { BundleNoticeViewModel(get()) }
         viewModel { RestoreListViewModel(get()) }
         viewModel { parameters -> RestorePreviewViewModel(parameters.get(), get()) }
         viewModel { RestoreProgressViewModel(get()) }

@@ -90,10 +90,12 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
  */
 @Composable
 fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
-    val restore = koinInject<RestoreRepository>()
+    val viewModel = koinViewModel<BundleNoticeViewModel>()
+    val pending by viewModel.pending.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
-    LaunchedEffect(restore) {
-        if (!restore.takeStoppedBundle()) return@LaunchedEffect
+    LaunchedEffect(pending) {
+        if (!pending) return@LaunchedEffect
+        viewModel.shown()
         val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
         if (shown == DiaryToastResult.ActionPerformed) open()
     }
