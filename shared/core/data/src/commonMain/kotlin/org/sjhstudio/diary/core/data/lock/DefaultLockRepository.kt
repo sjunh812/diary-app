@@ -2,7 +2,6 @@ package org.sjhstudio.diary.core.data.lock
 
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.encoding.Base64
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -113,7 +112,7 @@ class DefaultLockRepository(
     private fun judge(lock: LockSettings, pin: Pin, now: Instant): Pair<LockSettings, VerifyResult> {
         lock.retryAfter?.let { until ->
             // 기기 시각을 뒤로 돌려도 30초보다 오래 묶이지 않게 한다.
-            val capped = minOf(until, now + WAIT)
+            val capped = minOf(until, now + LockRepository.WAIT)
             if (now < capped) return lock.copy(retryAfter = capped) to VerifyResult.Waiting(capped)
         }
         val expected = lock.pinMac?.let(::decode)
@@ -124,7 +123,7 @@ class DefaultLockRepository(
         val failed = lock.failedAttempts + 1
         if (failed < MAX_ATTEMPTS) return lock.copy(failedAttempts = failed, retryAfter = null) to VerifyResult.Wrong(MAX_ATTEMPTS - failed)
         // 기다림이 끝나면 다시 다섯 번을 준다.
-        val until = now + WAIT
+        val until = now + LockRepository.WAIT
         return lock.copy(failedAttempts = 0, retryAfter = until) to VerifyResult.Waiting(until)
     }
 
@@ -170,7 +169,6 @@ class DefaultLockRepository(
 
     companion object {
         const val MAX_ATTEMPTS = 5
-        val WAIT = 30.seconds
     }
 }
 

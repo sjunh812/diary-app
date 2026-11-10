@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.data.lock
 
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import org.sjhstudio.diary.core.model.LockSettings
@@ -41,6 +43,14 @@ interface LockRepository {
     suspend fun setBiometric(enabled: Boolean)
 
     suspend fun setRelockAfter(value: RelockAfter)
+
+    companion object {
+        /**
+         * 다섯 번 틀린 뒤 기다리는 시간.
+         * 화면은 남은 시간을 보일 때 이것보다 길게 보이지 않는다(시계를 뒤로 돌려도 숫자판이 막히지 않게).
+         */
+        val WAIT: Duration = 30.seconds
+    }
 }
 
 sealed interface VerifyResult {

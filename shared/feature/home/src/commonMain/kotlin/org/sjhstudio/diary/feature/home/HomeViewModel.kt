@@ -27,6 +27,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -53,9 +54,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     val rows: Flow<PagingData<EntryRow>> = favoritesOnly.flatMapLatest { entries.timeline(it) }.cachedIn(viewModelScope)
 
     val look: StateFlow<BodyLook> =
-        settings.settings
-            .map { it.bodyLook(fonts::installedPath) }
-            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
+        settings.bodyLookIn(viewModelScope, fonts::installedPath)
 
     /**
      * 일기가 있는 달.

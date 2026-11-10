@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.lock.VerifyResult
 import org.sjhstudio.diary.core.model.Pin
@@ -226,4 +225,4 @@ class LockViewModel(
  * 남은 기다림.
  * 기기 시계를 뒤로 돌리면 저장된 시각이 먼 미래가 되므로 한 번의 기다림보다 길어지지 않게 자른다.
  */
-internal fun waitLeft(until: Instant, now: Instant): Duration = (until - now).coerceAtMost(DefaultLockRepository.WAIT)
+internal fun waitLeft(until: Instant, now: Instant): Duration = (until - now).coerceAtMost(LockRepository.WAIT)

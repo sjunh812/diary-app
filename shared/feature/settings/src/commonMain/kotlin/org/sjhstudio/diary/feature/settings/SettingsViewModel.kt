@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -17,6 +16,7 @@ import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -45,7 +45,7 @@ class SettingsViewModel(
         combine(settings.settings, lock.settings) { app, lockSettings ->
             SettingsUiState(app, lockSettings, migrationReport, loaded = true)
         }
-            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState(showsMigrationReport = migrationReport))
+            .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState(showsMigrationReport = migrationReport))
 
     fun setBodyTextSize(size: BodyTextSize) {
         viewModelScope.launchWrite { settings.setBodyTextSize(size) }

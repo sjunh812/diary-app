@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.entity.Library
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.stateInSafely
 import org.sjhstudio.diary.feature.settings.resources.Res
 
@@ -38,7 +38,7 @@ class LicensesViewModel : ViewModel() {
     val libraries: StateFlow<List<LibraryNotice>?> =
         flow { emit(load().map { it.notice() }) }
             .flowOn(Dispatchers.Default)
-            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+            .stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
     // OFL 원문은 70자마다 줄을 바꿔 두어 폰 폭에서 줄이 들쭉날쭉하다.
     // 문단 안의 줄바꿈(다음 줄이 소문자나 여는 괄호, 따옴표로 시작)만 띄어쓰기로 잇고 낱말은 그대로 둔다.
@@ -73,7 +73,6 @@ class LicensesViewModel : ViewModel() {
     private fun Library.licenseName(): String = licenses.joinToString(", ") { it.name }
 
     private companion object {
-        const val STOP_MILLIS = 5_000L
         val SOFT_BREAK = Regex("(?<=\\S)[ \\t]*\n(?!https?:)(?=[a-z(\"])")
     }
 }

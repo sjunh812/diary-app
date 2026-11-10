@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -21,6 +20,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.BUNDLED_DIARY_FONTS
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
@@ -67,7 +67,7 @@ class FontSettingsViewModel(
 
     val state: StateFlow<FontUiState> =
         combine(settings.settings, installed, downloading) { app, paths, progress -> FontUiState(app, paths, progress) }
-            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(5_000), FontUiState(installedPaths = installed.value))
+            .stateInSafely(viewModelScope, WhileUiSubscribed, FontUiState(installedPaths = installed.value))
 
     fun select(font: DiaryFont) {
         picked = font

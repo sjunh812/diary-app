@@ -2,8 +2,6 @@ package org.sjhstudio.diary.feature.lock
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.lock.LockRepository
@@ -12,6 +10,7 @@ import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -25,7 +24,7 @@ class LockSettingsViewModel(
 ) : ViewModel() {
     val settings: StateFlow<LockSettings> = repository.settings.stateInSafely(
         viewModelScope,
-        SharingStarted.WhileSubscribed(5_000),
+        WhileUiSubscribed,
         LockSettings()
     )
 
@@ -44,9 +43,7 @@ class LockSettingsViewModel(
      * 화면은 저장된 값을 따라가므로 스위치가 그대로 남는다.
      */
     private fun save(block: suspend () -> Unit) {
-        viewModelScope.launchSafely {
-            runCatching { block() }.onFailure { if (it is CancellationException) throw it }
-        }
+        viewModelScope.launchSafely { block() }
     }
 
     /**

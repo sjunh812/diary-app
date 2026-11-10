@@ -180,23 +180,3 @@ fun SkeletonPhotoGrid(modifier: Modifier = Modifier, count: Int = 18) {
         }
     }
 }
-
-/**
- * 설정·복원 목록의 줄 자리.
- * [rows]만큼 왼쪽 글줄과 오른쪽 짧은 값을 그린다.
- * 이미 여백이 있는 칸에 넣을 때는 [gutter]를 0으로 준다.
- */
-@Composable
-fun SkeletonRows(modifier: Modifier = Modifier, rows: Int = 3, gutter: Dp = LocalScreenGutter.current) {
-    DiarySkeleton(modifier) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = gutter), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-            repeat(rows) { index ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    SkeletonLine(Modifier.fillMaxWidth(if (index % 2 == 0) 0.5f else 0.38f))
-                    Spacer(Modifier.weight(1f))
-                    SkeletonLine(Modifier.width(DiarySpacing.x10))
-                }
-            }
-        }
-    }
-}

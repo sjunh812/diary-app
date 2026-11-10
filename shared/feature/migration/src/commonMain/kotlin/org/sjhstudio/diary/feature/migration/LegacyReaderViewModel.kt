@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.migration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.migration.LegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyEntryView
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
@@ -50,9 +50,7 @@ class LegacyReaderViewModel(private val archive: LegacyArchive) : ViewModel() {
             viewModelScope.launchSafely {
                 val after = _state.value.entries.lastOrNull()
                 val page =
-                    runCatching { archive.page(after = after) }
-                        .onFailure { if (it is CancellationException) throw it }
-                        .getOrNull()
+                    orElseOnFailure(null) { archive.page(after = after) }
                 _state.update {
                     if (page == null) {
                         it.copy(loading = false, failed = true)

@@ -6,7 +6,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.resources.Font
+import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.changwon_round_regular
 import org.sjhstudio.diary.core.designsystem.resources.maru_buri_regular
@@ -97,3 +102,11 @@ data class BodyLook(val font: DiaryFont = DiaryFont.DEFAULT, val size: BodyTextS
  * [fontPath]는 글꼴 ID로 받아 둔 파일을 찾는다.
  */
 fun AppSettings.bodyLook(fontPath: (String) -> String?): BodyLook = BodyLook(font, bodyTextSize, fontPath(font.id))
+
+/**
+ * 화면 모델이 쓰는 본문 모양.
+ * 홈, 상세, 달력, 찾기가 같이 쓴다.
+ * 글꼴을 바꾸면 바로 따라오도록 화면 모델이 살아 있는 동안 늘 본다.
+ */
+fun SettingsRepository.bodyLookIn(scope: CoroutineScope, fontPath: (String) -> String?): StateFlow<BodyLook> =
+    settings.map { it.bodyLook(fontPath) }.stateInSafely(scope, SharingStarted.Eagerly, BodyLook())

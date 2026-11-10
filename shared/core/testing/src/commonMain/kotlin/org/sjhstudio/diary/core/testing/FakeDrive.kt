@@ -64,8 +64,6 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
 
     fun usage(): Long = files.values.sumOf { it.bytes.size.toLong() }
 
-    fun expireSessions() = sessions.values.forEach { it.expired = true }
-
     /** 사용자가 드라이브에서 지운 경우. */
     fun deleteByUser(fileId: String) {
         files.getValue(fileId).trashed = true

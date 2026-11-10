@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.ui
 
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -9,8 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.sjhstudio.diary.core.ui.launchSafely
-import org.sjhstudio.diary.core.ui.stateInSafely
 
 /*
  * 화면 모델이 앱을 끄지 않게 하는 마지막 안전망.
@@ -41,3 +40,9 @@ fun CoroutineScope.launchSafely(onFailure: (Exception) -> Unit = {}, block: susp
  */
 fun <T> Flow<T>.stateInSafely(scope: CoroutineScope, started: SharingStarted, initialValue: T): StateFlow<T> =
     catch { if (it !is Exception) throw it }.stateIn(scope, started, initialValue)
+
+/**
+ * 화면 모델 흐름을 화면이 보는 동안만 돌리는 규칙.
+ * 화면을 돌리거나 잠깐 다른 앱에 다녀와도 5초 안이면 다시 읽지 않는다(Now in Android `WhileUiSubscribed`와 같다).
+ */
+val WhileUiSubscribed: SharingStarted = SharingStarted.WhileSubscribed(5.seconds.inWholeMilliseconds)

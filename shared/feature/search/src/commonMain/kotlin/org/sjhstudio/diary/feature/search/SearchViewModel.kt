@@ -35,6 +35,7 @@ import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -73,9 +74,7 @@ class SearchViewModel(
             .cachedIn(viewModelScope)
 
     val look: StateFlow<BodyLook> =
-        settings.settings
-            .map { it.bodyLook(fonts::installedPath) }
-            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
+        settings.bodyLookIn(viewModelScope, fonts::installedPath)
 
     init {
         viewModelScope.launchSafely { _filter.collect { saved[FILTER_KEY] = encodeFilter(it) } }

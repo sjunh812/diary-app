@@ -2,9 +2,7 @@ package org.sjhstudio.diary.feature.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -18,6 +16,7 @@ import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.WelcomeStep
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -34,7 +33,7 @@ class WelcomeViewModel(
     val connected: StateFlow<Boolean> =
         backup.status.map {
             it.connection != BackupConnection.NotConnected
-        }.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
+        }.stateInSafely(viewModelScope, WhileUiSubscribed, false)
 
     private val _connecting = MutableStateFlow(false)
     val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
@@ -69,10 +68,10 @@ class WelcomeViewModel(
     private fun pass(next: WelcomeStep, write: suspend () -> Unit) {
         viewModelScope.launchSafely {
             _step.value =
-                runCatching {
+                orElseOnFailure(next) {
                     write()
                     welcome.step()
-                }.onFailure { if (it is CancellationException) throw it }.getOrDefault(next)
+                }
         }
     }
 
@@ -85,18 +84,13 @@ class WelcomeViewModel(
     fun connect(next: () -> Unit) {
         viewModelScope.launchSafely {
             _connecting.value = true
-            runCatching { backup.connect(settings.settings.first().legacyBackup?.account) }
-                .onFailure { if (it is CancellationException) throw it }
+            orElseOnFailure(Unit) { backup.connect(settings.settings.first().legacyBackup?.account) }
             _connecting.value = false
             next()
         }
     }
 
     fun connectFailureShown() = backup.connectFailureShown()
-
-    private companion object {
-        const val STOP_MILLIS = 5_000L
-    }
 }
 
 /** 설정에서 다시 읽는 편지. */

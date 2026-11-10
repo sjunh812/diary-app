@@ -143,8 +143,8 @@ class LockRepositoryTest {
         assertEquals(VerifyResult.Wrong(3), repository.verify(pin("1111"), now))
         assertEquals(VerifyResult.Wrong(2), repository.verify(pin("1111"), now))
         assertEquals(VerifyResult.Wrong(1), repository.verify(pin("1111"), now))
-        assertEquals(VerifyResult.Waiting(now + DefaultLockRepository.WAIT), repository.verify(pin("1111"), now))
-        assertEquals(VerifyResult.Waiting(now + DefaultLockRepository.WAIT), repository.verify(pin("2580"), now + 1.seconds))
+        assertEquals(VerifyResult.Waiting(now + LockRepository.WAIT), repository.verify(pin("1111"), now))
+        assertEquals(VerifyResult.Waiting(now + LockRepository.WAIT), repository.verify(pin("2580"), now + 1.seconds))
     }
 
     @Test

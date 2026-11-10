@@ -116,9 +116,6 @@ data class BackupEntry(
     val state: BackupEntryState
 )
 
-/** 1.7.x가 드라이브에 올린 `note.db`. */
-data class LegacyBackupEntry(val driveFileId: String, val modifiedAt: Instant, val byteSize: Long)
-
 /** 합치기 전에 보이는 숫자(FR-023). */
 data class RestorePreview(
     val entriesAdded: Int,

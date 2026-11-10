@@ -20,7 +20,9 @@ import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.bodyLook
+import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -68,16 +70,14 @@ class EntryDetailViewModel(
                     else -> EntryDetailState.Missing
                 }
             }.catch { if (it is Exception) emit(EntryDetailState.Failed) else throw it }
-        }.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), EntryDetailState.Loading)
+        }.stateInSafely(viewModelScope, WhileUiSubscribed, EntryDetailState.Loading)
 
     fun retry() {
         attempt.value++
     }
 
     val look: StateFlow<BodyLook> =
-        settings.settings
-            .map { it.bodyLook(fonts::installedPath) }
-            .stateInSafely(viewModelScope, SharingStarted.Eagerly, BodyLook())
+        settings.bodyLookIn(viewModelScope, fonts::installedPath)
 
     private val _trashed = Channel<Unit>(Channel.BUFFERED)
     val trashed: Flow<Unit> = _trashed.receiveAsFlow()
@@ -111,9 +111,5 @@ class EntryDetailViewModel(
             entries.moveToTrash(entryId)
             _trashed.send(Unit)
         }
-    }
-
-    private companion object {
-        const val STOP_MILLIS = 5_000L
     }
 }

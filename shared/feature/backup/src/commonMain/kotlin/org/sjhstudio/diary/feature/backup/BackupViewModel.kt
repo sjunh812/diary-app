@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -18,13 +17,14 @@ import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
     val status: StateFlow<BackupStatus> = controller.status.stateInSafely(
         viewModelScope,
-        SharingStarted.WhileSubscribed(STOP_MILLIS),
+        WhileUiSubscribed,
         BackupStatus()
     )
 
@@ -34,12 +34,12 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
      */
     val loadedStatus: StateFlow<BackupStatus?> = controller.status
         .map<BackupStatus, BackupStatus?> { it }
-        .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+        .stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
     /** 지금 백업이 올리지 않고 끝났을 때 한 번 온다. */
     val skipped: Flow<BackupSkip> = controller.skipped
 
-    val nudge: StateFlow<BackupNudge?> = controller.nudge.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), null)
+    val nudge: StateFlow<BackupNudge?> = controller.nudge.stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
     private val _connecting = MutableStateFlow(false)
     val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
@@ -47,7 +47,7 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     /** 바꾸기 뒤 되돌릴 수 있는 동안만 값이 있다. */
     val rollback: StateFlow<RollbackInfo?> = restore.rollback.stateInSafely(
         viewModelScope,
-        SharingStarted.WhileSubscribed(STOP_MILLIS),
+        WhileUiSubscribed,
         null
     )
 
@@ -113,8 +113,4 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
      * 스위치는 저장된 값을 그리므로 적지 못하면 원래 자리로 돌아가 사실과 어긋나지 않는다.
      */
     private suspend fun quietly(block: suspend () -> Unit) = orElseOnFailure(Unit) { block() }
-
-    private companion object {
-        const val STOP_MILLIS = 5_000L
-    }
 }

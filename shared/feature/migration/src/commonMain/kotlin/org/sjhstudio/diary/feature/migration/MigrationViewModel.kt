@@ -22,6 +22,7 @@ import org.sjhstudio.diary.core.migration.MigrationResult
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationStep
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 관문이 보는 이전 화면 상태(contracts/migration-flow.md "화면 상태"). */
@@ -119,8 +120,7 @@ class MigrationViewModel(
         viewModelScope.launchSafely {
             // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 연다.
             // 다음에 앱을 열면 이전부터 다시 본다.
-            runCatching { withContext(background) { migration.defer() } }
-                .onFailure { if (it is CancellationException) throw it }
+            orElseOnFailure(Unit) { withContext(background) { migration.defer() } }
             pass()
         }
     }
@@ -139,9 +139,7 @@ class MigrationViewModel(
             // 후속 작업이 실패해도 일기를 쓰고 읽는 것은 막지 않는다.
             // 다음에 앱을 열 때 다시 본다.
             val result =
-                runCatching { withContext(background) { followUp() } }
-                    .onFailure { if (it is CancellationException) throw it }
-                    .getOrNull() ?: return@launchSafely
+                orElseOnFailure(null) { withContext(background) { followUp() } } ?: return@launchSafely
             if (result.entriesRecovered > 0) _notices.send(MigrationNotice.EntriesRecovered(result.entriesRecovered))
             if (result.photosFound > 0) _notices.send(MigrationNotice.PhotosFound(result.photosFound))
         }

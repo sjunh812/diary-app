@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +16,7 @@ import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.MigrationResult
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationStep
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 미뤄 둔 이전의 다시 시도 상태. */
@@ -64,9 +64,7 @@ class MigrationReportViewModel(
         viewModelScope.launchSafely {
             // 화면을 떠나 취소된 것은 실패가 아니다.
             val result =
-                runCatching { withContext(background) { retryDeferred() } }
-                    .onFailure { if (it is CancellationException) throw it }
-                    .getOrNull()
+                orElseOnFailure(null) { withContext(background) { retryDeferred() } }
             if (result is MigrationResult.Finished) {
                 load()
             } else {

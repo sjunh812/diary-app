@@ -3,7 +3,6 @@ package org.sjhstudio.diary.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -15,6 +14,7 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
@@ -47,7 +47,7 @@ class ReminderSettingsViewModel(
 
     val state: StateFlow<ReminderUiState> =
         combine(settings.settings, allowed) { app, granted -> ReminderUiState(app.reminderEnabled, app.reminderMinuteOfDay, granted) }
-            .stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReminderUiState())
+            .stateInSafely(viewModelScope, WhileUiSubscribed, ReminderUiState())
 
     /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽는다. */
     fun refreshPermission() {
