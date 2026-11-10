@@ -340,18 +340,21 @@ def find():
 def trash():
     """휴지통 30일. 일기가 휴지통에 들어갔다가 다시 나와 제자리로 돌아온다."""
     c = Comp("onboarding_trash", 104)
-    top, bin_y = (144, 58), (144, 158)
-    check(180, 36, 12, c, 84, 98)
-    lid = keys([(0, 0), (12, 0), (18, -24), (34, -24), (40, 0), (50, 0), (56, -24), (74, -24), (80, 0)])
-    # 카드·백업 그림과 같은 그림체: 옅은 면 + 얇은 테두리, 둥근 모서리
+    top, bin_y = (144, 50), (144, 150)
+    check(182, 26, 12, c, 84, 98)
+    lid = keys([(0, 0), (12, 0), (18, -20), (34, -20), (40, 0), (50, 0), (56, -20), (74, -20), (80, 0)])
+    # 백업 그림의 구름처럼 연보라 원 안에 보라 선 휴지통(Lucide trash-2)
+    k = 40 / 24
+    dx, dy = bin_y[0] - 20, bin_y[1] - 20
     c.layer("뚜껑", [
-        group([rect(144, 113, 20, 9, 4.5), stroke("@line", 1), fill("@sunken")]),
-        group([rect(144, 121, 68, 10, 5), stroke("@line", 1), fill("@sunken")]),
-    ], anchor=(110, 121), rotation=lid)
+        group([path("M 3 6 L 21 6", k, dx, dy), path("M 8 6 L 8 4 C 8 3 9 2 10 2 L 14 2 C 15 2 16 3 16 4 L 16 6", k, dx, dy),
+               stroke("@accent", 3.2)]),
+    ], anchor=(dx + 3 * k, dy + 6 * k), rotation=lid)
     c.layer("통", [
-        group([path("M 134 142 L 134 174 M 154 142 L 154 174"), stroke("@textTertiary", 3, 30)]),
-        group([rect(144, 158, 56, 58, 10), stroke("@line", 1), fill("@sunken")]),
+        group([path("M 19 6 L 19 20 C 19 21 18 22 17 22 L 7 22 C 6 22 5 21 5 20 L 5 6", k, dx, dy),
+               path("M 10 11 L 10 17 M 14 11 L 14 17", k, dx, dy), stroke("@accent", 3.2)]),
     ])
+    c.layer("원", [group([ellipse(*bin_y, 48), fill("@selected")])])
     pos = keys([(0, [*top, 0]), (16, [*top, 0]), (34, [*bin_y, 0]), (54, [*bin_y, 0]), (74, [*top, 0])])
     scl = keys([(16, [100, 100, 100]), (34, [40, 40, 100]), (54, [40, 40, 100]), (74, [100, 100, 100])])
     opa = keys([(0, 100), (30, 100), (34, 0), (54, 0), (58, 100)], LINEAR)
