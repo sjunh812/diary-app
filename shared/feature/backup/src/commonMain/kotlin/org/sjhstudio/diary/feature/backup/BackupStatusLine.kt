@@ -44,6 +44,7 @@ import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.ui.loadFailedRetryLabel
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_finding_title
@@ -61,6 +62,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_line_running_plain
 import org.sjhstudio.diary.feature.backup.resources.backup_line_today
 import org.sjhstudio.diary.feature.backup.resources.backup_line_waiting
 import org.sjhstudio.diary.feature.backup.resources.backup_line_yesterday
+import org.sjhstudio.diary.feature.backup.resources.backup_status_failed
 
 private val LONG_FAILURE = 7.days
 
@@ -72,17 +74,40 @@ private val LONG_FAILURE = 7.days
 fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.loadedStatus.collectAsStateWithLifecycle()
+    val failed by viewModel.statusFailed.collectAsStateWithLifecycle()
     val photos by viewModel.photoProgress.collectAsStateWithLifecycle()
-    // 읽기 전에는 틀린 말을 하지 않고 자리만 잡아 둔다.
-    status?.let { BackupStatusLine(it, onOpen, modifier, photos) }
-        ?: BackupStatusLine(BackupStatus(), onOpen = {}, modifier.alpha(0f))
+    val current = status
+    when {
+        // 읽지 못한 것을 숨기면 백업이 도는지 사용자가 알 수 없다.
+        // 꺼짐이라고도 하지 않고 읽지 못했다고 말한 뒤 그 자리에서 다시 읽는다.
+        failed -> BackupStatusFailedLine(viewModel::retryStatus, modifier)
+
+        current != null -> BackupStatusLine(current, onOpen, modifier, photos)
+
+        // 읽기 전에는 틀린 말을 하지 않고 자리만 잡아 둔다.
+        else -> BackupStatusLine(BackupStatus(), onOpen = {}, modifier.alpha(0f))
+    }
 }
 
 @Composable
 internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier: Modifier = Modifier, photos: PhotoProgress? = null) {
+    StatusLineRow(lineFor(status, photos), onOpen, modifier)
+}
+
+/** 상태를 읽지 못했을 때의 홈 줄. 누르면 그 자리에서 다시 읽는다. */
+@Composable
+internal fun BackupStatusFailedLine(onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    StatusLineRow(
+        Line(DiaryIcons.CircleAlert, stringResource(Res.string.backup_status_failed), action = loadFailedRetryLabel()),
+        onRetry,
+        modifier
+    )
+}
+
+@Composable
+private fun StatusLineRow(line: Line, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
-    val line = lineFor(status, photos)
     val caption = DiaryTheme.typography.caption
     // 글줄 모양은 그대로 두고 누르는 곳만 48로 넓힌다.
     // 누름 면은 글자에서 위아래 6, 옆 8까지만 나와서 위 큰 제목에 닿지 않는다.
@@ -92,7 +117,7 @@ internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier
         modifier
             .padding(horizontal = LocalScreenGutter.current)
             .diaryTouchOutset(horizontal = DiarySpacing.x2, vertical = touch)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onOpen)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
             .padding(vertical = touch - DiarySpacing.x1_5)
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .padding(horizontal = DiarySpacing.x2, vertical = DiarySpacing.x1_5),

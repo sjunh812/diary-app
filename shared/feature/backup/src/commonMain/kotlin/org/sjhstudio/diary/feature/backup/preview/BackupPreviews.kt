@@ -10,14 +10,16 @@ import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.feature.backup.BackupNudgeContent
 import org.sjhstudio.diary.feature.backup.BackupSettingsScreen
+import org.sjhstudio.diary.feature.backup.BackupStatusFailedLine
+import org.sjhstudio.diary.feature.backup.BackupStatusRead
 
 private val Connected =
     BackupStatus(BackupConnection.Connected("diary@gmail.com"), Instant.parse("2026-11-04T12:30:00Z"), autoEnabled = true)
 
 @Composable
-private fun Screen(status: BackupStatus, dark: Boolean) = DiaryTheme(darkTheme = dark) {
+private fun Screen(status: BackupStatus, dark: Boolean, read: BackupStatusRead = BackupStatusRead.Loaded) = DiaryTheme(darkTheme = dark) {
     BackupSettingsScreen(status, connecting = false, onConnect = {
-    }, onBackUp = {}, onCellular = {}, onAuto = {}, onOptions = {}, onRestore = {}, onBack = {})
+    }, onBackUp = {}, onCellular = {}, onAuto = {}, onOptions = {}, onRestore = {}, onBack = {}, statusRead = read)
 }
 
 @Preview(locale = "ko")
@@ -75,3 +77,19 @@ private fun FailedDark() = Screen(Failed, dark = true)
 @Preview(name = "첫 백업 실패", locale = "ko")
 @Composable
 private fun FirstFailedLight() = Screen(Failed.copy(lastSuccessAt = null), dark = false)
+
+@Preview(name = "상태를 읽지 못함", locale = "ko")
+@Composable
+private fun StatusFailedLight() = Screen(BackupStatus(), dark = false, read = BackupStatusRead.Failed)
+
+@Preview(name = "상태를 읽지 못함 · 다크", locale = "ko")
+@Composable
+private fun StatusFailedDark() = Screen(BackupStatus(), dark = true, read = BackupStatusRead.Failed)
+
+@Preview(name = "홈 줄 · 상태를 읽지 못함", locale = "ko")
+@Composable
+private fun StatusFailedLineLight() = DiaryTheme(darkTheme = false) { BackupStatusFailedLine({}) }
+
+@Preview(name = "홈 줄 · 상태를 읽지 못함 · 다크", locale = "ko")
+@Composable
+private fun StatusFailedLineDark() = DiaryTheme(darkTheme = true) { BackupStatusFailedLine({}) }

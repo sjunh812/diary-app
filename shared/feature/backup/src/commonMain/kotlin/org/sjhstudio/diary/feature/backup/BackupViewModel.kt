@@ -2,11 +2,16 @@ package org.sjhstudio.diary.feature.backup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -21,20 +26,37 @@ import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
+@OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("TooManyFunctions") // 홈 줄, 백업 화면, 백업 설정이 같은 상태를 함께 본다.
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
-    val status: StateFlow<BackupStatus> = controller.status.stateInSafely(
-        viewModelScope,
-        WhileUiSubscribed,
-        BackupStatus()
-    )
+    private val statusAttempt = MutableStateFlow(0)
+
+    private val statusRead: StateFlow<StatusRead> =
+        statusAttempt.flatMapLatest {
+            controller.status
+                .map<BackupStatus, StatusRead> { StatusRead.Loaded(it) }
+                .onStart { emit(StatusRead.Loading) }
+                .catch { if (it is Exception) emit(StatusRead.Failed) else throw it }
+        }.stateInSafely(viewModelScope, WhileUiSubscribed, StatusRead.Loading)
 
     /**
-     * 저장해 둔 상태를 읽기 전에는 null이다.
-     * 앱이 뜨는 순간 켜 둔 백업이 꺼짐으로 보이지 않게 홈 줄은 이 값을 본다.
+     * 저장해 둔 상태를 읽기 전이나 읽지 못하면 null이다.
+     * 기본값을 그리면 켜 둔 백업이 잠깐 또는 계속 꺼짐으로 보여서, 홈 줄과 백업 화면은 이 값을 본다.
      */
-    val loadedStatus: StateFlow<BackupStatus?> = controller.status
-        .map<BackupStatus, BackupStatus?> { it }
-        .stateInSafely(viewModelScope, WhileUiSubscribed, null)
+    val loadedStatus: StateFlow<BackupStatus?> =
+        statusRead.map { (it as? StatusRead.Loaded)?.status }.stateInSafely(viewModelScope, WhileUiSubscribed, null)
+
+    /** 상태를 읽지 못했다. 홈 줄과 백업 화면이 다시 시도를 보인다. */
+    val statusFailed: StateFlow<Boolean> =
+        statusRead.map { it == StatusRead.Failed }.stateInSafely(viewModelScope, WhileUiSubscribed, false)
+
+    /** 백업 설정(B13)처럼 연결한 뒤에만 여는 화면이 본다. */
+    val status: StateFlow<BackupStatus> =
+        statusRead.map {
+            (it as? StatusRead.Loaded)?.status ?: BackupStatus()
+        }.stateInSafely(viewModelScope, WhileUiSubscribed, BackupStatus())
+
+    fun retryStatus() = statusAttempt.update { it + 1 }
 
     /** 지금 백업이 올리지 않고 끝났을 때 한 번 온다. */
     val skipped: Flow<BackupSkip> = controller.skipped
@@ -113,4 +135,12 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
      * 스위치는 저장된 값을 그리므로 적지 못하면 원래 자리로 돌아가 사실과 어긋나지 않는다.
      */
     private suspend fun quietly(block: suspend () -> Unit) = orElseOnFailure(Unit) { block() }
+}
+
+private sealed interface StatusRead {
+    data object Loading : StatusRead
+
+    data class Loaded(val status: BackupStatus) : StatusRead
+
+    data object Failed : StatusRead
 }

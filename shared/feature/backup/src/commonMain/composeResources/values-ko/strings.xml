@@ -237,6 +237,7 @@
     <string name="backup_failed_drive">구글 드라이브가 응답하지 않아요. 잠시 뒤 지금 백업을 눌러 주세요.</string>
     <string name="backup_failed_local">이 휴대폰에서 파일을 읽거나 쓰지 못했어요. 저장 공간을 확인하고 지금 백업을 눌러 주세요.</string>
     <string name="backup_line_failed">백업을 끝내지 못했어요</string>
+    <string name="backup_status_failed">백업 상태를 불러오지 못했어요</string>
     <string name="backup_skip_empty">아직 백업할 일기가 없어요</string>
     <string name="backup_skip_busy">다른 작업이 끝난 뒤에 다시 눌러 주세요</string>
     <string name="backup_connect_failed_title">구글 드라이브에 연결하지 못했어요</string>

@@ -44,6 +44,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
@@ -72,6 +73,7 @@ import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.KeepScreenOn
 import org.sjhstudio.diary.core.ui.grouped
+import org.sjhstudio.diary.core.ui.loadFailedRetryLabel
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
@@ -129,6 +131,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_space_photos
 import org.sjhstudio.diary.feature.backup.resources.backup_space_retry
 import org.sjhstudio.diary.feature.backup.resources.backup_space_text
 import org.sjhstudio.diary.feature.backup.resources.backup_space_trash
+import org.sjhstudio.diary.feature.backup.resources.backup_status_failed
 import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.backup_title
 import org.sjhstudio.diary.feature.backup.resources.backup_upload_cellular
@@ -182,7 +185,9 @@ fun BackupSettingsRoute(
         ExpectedLeave.mark()
         picker.launch()
     }
-    val status by viewModel.status.collectAsStateWithLifecycle()
+    val loaded by viewModel.loadedStatus.collectAsStateWithLifecycle()
+    val statusFailed by viewModel.statusFailed.collectAsStateWithLifecycle()
+    val status = loaded ?: BackupStatus()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val found by viewModel.found.collectAsStateWithLifecycle()
     val rollback by viewModel.rollback.collectAsStateWithLifecycle()
@@ -215,7 +220,13 @@ fun BackupSettingsRoute(
                 viewModel::rollBack,
                 onFileBackup,
                 onFileRestore = openPicker,
-                fileState = fileState
+                fileState = fileState,
+                statusRead = when {
+                    statusFailed -> BackupStatusRead.Failed
+                    loaded == null -> BackupStatusRead.Loading
+                    else -> BackupStatusRead.Loaded
+                },
+                onRetryStatus = viewModel::retryStatus
             )
             statusBar(openPicker)
         }
@@ -311,7 +322,9 @@ internal fun BackupSettingsScreen(
     onRollBack: () -> Unit = {},
     onFile: () -> Unit = {},
     onFileRestore: () -> Unit = {},
-    fileState: FileBackupUi = FileBackupUi.Idle
+    fileState: FileBackupUi = FileBackupUi.Idle,
+    statusRead: BackupStatusRead = BackupStatusRead.Loaded,
+    onRetryStatus: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -323,7 +336,26 @@ internal fun BackupSettingsScreen(
                     Rollback(it, onRollBack)
                 }
             }
-            if (status.connection == BackupConnection.NotConnected) {
+            if (statusRead == BackupStatusRead.Failed) {
+                // 연결을 모르니 드라이브 줄은 두지 않는다.
+                // 파일로 백업하기와 불러오기는 드라이브 없이 되므로 그대로 둔다.
+                DiaryEmptyLine(
+                    stringResource(Res.string.backup_status_failed),
+                    loadFailedRetryLabel(),
+                    onRetryStatus,
+                    Modifier.padding(horizontal = LocalScreenGutter.current)
+                )
+                FileRestoreNotice(fileState)
+                DiarySettingsRow(
+                    stringResource(Res.string.file_top),
+                    onClick = onFile,
+                    description = stringResource(Res.string.file_row_body)
+                )
+                FileRestoreRow(onFileRestore)
+            } else if (statusRead == BackupStatusRead.Loading) {
+                // 읽기 전에 기본값으로 그리면 켜 둔 백업이 잠깐 꺼짐으로 보인다.
+                // 읽는 데 한 순간이라 아무것도 그리지 않는다.
+            } else if (status.connection == BackupConnection.NotConnected) {
                 NotConnected(connecting, onConnect)
                 FileRestoreNotice(fileState)
                 DiarySettingsRow(
@@ -390,6 +422,9 @@ internal fun BackupSettingsScreen(
         }
     }
 }
+
+/** 백업 화면이 저장해 둔 상태를 어디까지 읽었는지. */
+internal enum class BackupStatusRead { Loading, Loaded, Failed }
 
 @Composable
 private fun FileRestoreRow(onClick: () -> Unit) {

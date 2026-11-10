@@ -240,6 +240,7 @@
     <string name="backup_failed_drive">Google Drive isn't responding. Wait a moment, then tap Back up now.</string>
     <string name="backup_failed_local">Couldn't read or write files on this phone. Check your storage, then tap Back up now.</string>
     <string name="backup_line_failed">Backup didn't finish</string>
+    <string name="backup_status_failed">Couldn't load backup status</string>
     <string name="backup_skip_empty">No diary entries to back up yet</string>
     <string name="backup_skip_busy">Another task is running. Try again when it's done.</string>
     <string name="backup_connect_failed_title">Couldn't connect to Google Drive</string>

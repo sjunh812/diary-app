@@ -237,6 +237,7 @@
     <string name="backup_failed_drive">Googleドライブが応答していません。しばらくしてから［今すぐバックアップ］をタップしてください。</string>
     <string name="backup_failed_local">このスマートフォンのファイルを読み書きできませんでした。ストレージを確認してから［今すぐバックアップ］をタップしてください。</string>
     <string name="backup_line_failed">バックアップを完了できませんでした</string>
+    <string name="backup_status_failed">バックアップの状態を読み込めませんでした</string>
     <string name="backup_skip_empty">バックアップする日記がまだありません</string>
     <string name="backup_skip_busy">別の処理が終わってからもう一度タップしてください</string>
     <string name="backup_connect_failed_title">Googleドライブに接続できませんでした</string>
