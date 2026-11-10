@@ -39,7 +39,9 @@ fun interface DriveConsentLauncher {
 class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private val context = context.applicationContext
     private val client = Identity.getAuthorizationClient(this.context)
-    private val prefs = this.context.getSharedPreferences("drive_auth", Context.MODE_PRIVATE)
+
+    // 여는 데 디스크를 읽어 화면 스레드에서 만들지 않음. 읽고 쓰기는 IO에서
+    private val prefs by lazy { this.context.getSharedPreferences("drive_auth", Context.MODE_PRIVATE) }
     private val tokens = DriveTokenCache(fetch = ::fetchToken)
 
     var consent: DriveConsentLauncher? = null
@@ -59,7 +61,7 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
                 first
             }
         val account = account(result.accessToken ?: return ConnectResult.Failed(BackupFailure.AUTH))
-        prefs.edit { putString(KEY_EMAIL, account.email) }
+        withContext(Dispatchers.IO) { prefs.edit { putString(KEY_EMAIL, account.email) } }
         // 연결하는 사이에 옛 계정으로 받은 토큰이 남아 있을 수 있음
         tokens.clear()
         ConnectResult.Connected(account)
@@ -74,7 +76,7 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     override suspend fun accessToken(): TokenResult = tokens.get()
 
     private suspend fun fetchToken(): TokenResult = try {
-        val email = prefs.getString(KEY_EMAIL, null) ?: return TokenResult.NeedsUser
+        val email = withContext(Dispatchers.IO) { prefs.getString(KEY_EMAIL, null) } ?: return TokenResult.NeedsUser
         val result = client.authorize(request(email)).await()
         val token = result.accessToken
         if (result.hasResolution() || token == null) TokenResult.NeedsUser else TokenResult.Token(token, account(token))
@@ -90,7 +92,7 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
 
     override suspend fun disconnect() {
         tokens.clear()
-        prefs.edit { remove(KEY_EMAIL) }
+        withContext(Dispatchers.IO) { prefs.edit { remove(KEY_EMAIL) } }
         // 구글 쪽 권한은 취소하지 않음
         // drive.file을 취소하면 다시 연결해도 앱이 만든 백업이 안 보일 수 있어(헌법 I), 확인 전까지 이 기기 연결만 끊음
     }

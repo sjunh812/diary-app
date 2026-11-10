@@ -13,9 +13,11 @@ import okio.Path.Companion.toOkioPath
  * 읽기만 함
  */
 fun legacyFiles(context: Context): LegacyFiles {
-    val prefs = File(context.applicationInfo.dataDir, "shared_prefs")
+    // getDatabasePath는 폴더를 만들려고 디스크를 건드려, 같은 자리를 경로로만 셈
+    val data = context.applicationInfo.dataDir
+    val prefs = File(data, "shared_prefs")
     return LegacyFiles(
-        noteDb = context.getDatabasePath("note.db").toOkioPath(),
+        noteDb = File(File(data, "databases"), "note.db").toOkioPath(),
         prefXml = File(prefs, "pref.xml").toOkioPath(),
         pref2Xml = File(prefs, "pref2.xml").toOkioPath()
     )

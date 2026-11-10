@@ -126,4 +126,32 @@ class StartupTest {
 
         assertTrue(startup.ready)
     }
+
+    /** 결제 준비와 글꼴 확인은 첫 화면 전에 뒤에서 끝냄. 화면 스레드가 디스크를 읽지 않게 */
+    @Test
+    fun platform_work_and_font_check_finish_before_ready() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val done = mutableListOf<String>()
+        val startup =
+            Startup({}, settings, lock, this, platformWork = { done += "billing" }, knowFont = { done += "font" })
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(startup.ready)
+        assertEquals(listOf("font", "billing"), done)
+    }
+
+    @Test
+    fun failed_platform_work_still_opens_the_app() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({}, settings, lock, this, platformWork = { error("결제를 준비하지 못함") })
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(startup.ready)
+    }
 }

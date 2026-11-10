@@ -12,6 +12,7 @@ import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListene
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -33,7 +34,13 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
     private val context = context.applicationContext
     private val manager = SplitInstallManagerFactory.create(this.context)
 
-    override fun installedPath(id: String): String? = target(id).takeIf { it.isFile && it.length() > 0 }?.absolutePath
+    // 화면을 그릴 때도 불러 파일 확인은 글꼴마다 한 번만. 시작 화면 동안 뒤에서 먼저 채움(Startup)
+    private val known = ConcurrentHashMap<String, String>()
+
+    override fun installedPath(id: String): String? = known.getOrPut(id) {
+        target(id).takeIf { it.isFile && it.length() > 0 }?.absolutePath.orEmpty()
+    }
+        .ifEmpty { null }
 
     /** Play는 진행 중인 받기가 있으면 새 요청을 거절함. 글꼴 둘을 연달아 눌러도 차례로 받음 */
     private val oneAtATime = Mutex()
@@ -144,7 +151,7 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
         val partial = File(target.parentFile, "$id.ttf.part")
         assets.open("fonts/$id.ttf").use { input -> partial.outputStream().use { input.copyTo(it) } }
         check(partial.renameTo(target)) { "글꼴 파일 이름을 바꾸지 못했다" }
-        target.absolutePath
+        target.absolutePath.also { known[id] = it }
     }
 
     private fun target(id: String) = File(files.fontDirectory, "$id.ttf")

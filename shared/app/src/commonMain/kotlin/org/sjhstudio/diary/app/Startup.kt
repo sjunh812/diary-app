@@ -28,6 +28,10 @@ class Startup(
     private val bootstrapLegacyLock: suspend () -> Unit = {},
     /** 옛 앱 설정 잇기(`LegacySettingsBootstrap`). 실패해도 기본 설정으로 엶 */
     private val bootstrapLegacySettings: suspend () -> Unit = {},
+    /** 플랫폼이 시작 화면 동안 뒤에서 할 일(Android 결제 준비). 화면 스레드를 막지 않게 */
+    private val platformWork: suspend () -> Unit = {},
+    /** 고른 글꼴 파일이 있는지 확인해 둠. 첫 화면이 화면 스레드에서 파일을 보지 않게 */
+    private val knowFont: suspend (AppSettings) -> Unit = {},
     /** 고른 글꼴을 뒤에서 미리 읽기(`FontWarmup`). 시작 화면을 더 붙잡지 않고 나란히 돎 */
     private val warmFont: suspend (AppSettings) -> Unit = {},
     /** 첫 화면을 그린 뒤 해도 되는 일(매일 알림 다시 예약). 실패해도 앱은 엶 */
@@ -48,6 +52,8 @@ class Startup(
             attempt { bootstrapLegacySettings() }
             val lock = attempt { lockStore.lock.first() }
             val settings = attempt { settingsStore.settings.first() } ?: AppSettings()
+            attempt { knowFont(settings) }
+            attempt { platformWork() }
             scope.launch { attempt { warmFont(settings) } }
             // 잇기나 읽기에 실패하면 잠금이 있었는지 모름
             // 풀어 두는 대신 잠근 채 새 비밀번호를 정하게 함(헌법 II)
@@ -75,4 +81,9 @@ sealed interface StartupState {
     data object Loading : StartupState
 
     data class Ready(val settings: AppSettings, val lock: LockSettings) : StartupState
+}
+
+/** 플랫폼이 앱 시작 때 뒤에서 해 둘 일 */
+fun interface StartupWork {
+    suspend fun run()
 }

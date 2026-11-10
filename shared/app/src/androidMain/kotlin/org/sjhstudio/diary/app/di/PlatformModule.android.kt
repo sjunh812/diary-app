@@ -12,6 +12,7 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.ads.AdMobPlayer
 import org.sjhstudio.diary.app.ads.AdUnits
 import org.sjhstudio.diary.app.ads.adSwitch
@@ -77,8 +78,9 @@ internal actual val platformModule: Module =
         // 광고 SDK는 처음 부를 때 켜짐
         single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
         single<AdSwitch> { adSwitch(androidContext()) }
-        // 앱이 켜질 때 만들어야 재설치 뒤 구매를 바로 복원
-        single(createdAtStart = true) { billing(androidContext()) }
+        // 재설치 뒤 구매를 바로 복원하게 앱 시작 때 만듦. 디스크를 읽어 화면 스레드가 아니라 시작 단계에서
+        single { billing(androidContext()) }
+        single<StartupWork> { StartupWork { get<Billing>() } }
         single<PlanRepository> { get<Billing>().plans }
         single<PurchaseRepository> { get<Billing>().purchases }
         single<TelemetrySink> { telemetrySink(androidContext()) }

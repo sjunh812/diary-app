@@ -14,6 +14,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
+import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.backup.BackupSettingsBridge
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
@@ -84,6 +85,7 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.Telemetry
@@ -175,6 +177,8 @@ private fun coreModule(isDebug: Boolean) = module {
             get(APP_SCOPE),
             bootstrapLegacyLock = { legacyLock?.run() },
             bootstrapLegacySettings = { legacySettings?.run() },
+            platformWork = { getOrNull<StartupWork>()?.run() },
+            knowFont = { getOrNull<FontInstaller>()?.installedPath(it.font.id) },
             warmFont = { getOrNull<FontWarmup>()?.warm(it.font) },
             afterReady = {
                 get<ReminderRepository>().reschedule()
