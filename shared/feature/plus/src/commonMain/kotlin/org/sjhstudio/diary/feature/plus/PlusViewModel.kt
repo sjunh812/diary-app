@@ -51,6 +51,10 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
     private val _messages = Channel<PlusMessage>(Channel.BUFFERED)
     val messages: Flow<PlusMessage> = _messages.receiveAsFlow()
 
+    // 결제가 끝남(이미 가진 것 포함). 화면 콜백을 쥐지 않고 이벤트로 보내 화면이 다시 만들어져도 받음
+    private val _purchased = Channel<ProductId>(Channel.BUFFERED)
+    val purchased: Flow<ProductId> = _purchased.receiveAsFlow()
+
     private var loading: Job? = null
 
     init {
@@ -80,18 +84,18 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
             }
     }
 
-    fun buy(id: ProductId, onDone: () -> Unit = {}) {
+    fun buy(id: ProductId) {
         if (_state.value.busy) return
         // 이미 가진 혜택을 두 번 결제하지 않게 스토어로 보내지 않는다.
         if (owns(id)) {
-            onDone()
+            _purchased.trySend(id)
             return
         }
         viewModelScope.launchSafely {
             val result = attempt { purchases.buy(id) }
             _state.update { it.copy(buyFailed = result == PurchaseResult.FAILED, restoreNotice = null) }
             when (result) {
-                PurchaseResult.DONE -> onDone()
+                PurchaseResult.DONE -> _purchased.send(id)
                 PurchaseResult.FAILED -> _messages.send(PlusMessage.Failed)
                 PurchaseResult.PENDING -> _messages.send(PlusMessage.Pending)
                 PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> Unit

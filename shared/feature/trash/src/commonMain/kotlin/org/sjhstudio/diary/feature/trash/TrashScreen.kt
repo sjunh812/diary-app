@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -97,6 +98,7 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val toast = remember { DiaryToastState() }
     val scope = rememberCoroutineScope()
     val restored = stringResource(Res.string.trash_restored)
+    LaunchedEffect(viewModel) { viewModel.restored.collect { scope.launch { toast.show(restored) } } }
     val list = items
     Box(modifier.fillMaxSize()) {
         TrashScreen(list, onBack, onEmpty = { confirmAll = true }, onPick = { pickedId = it }, failed = failed, onRetry = viewModel::retry)
@@ -106,8 +108,7 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
         DiaryBottomSheet(onDismiss = { pickedId = null }) {
             DiarySheetAction(DiaryIcons.Restore, stringResource(Res.string.trash_restore), DiaryTheme.colors.textPrimary) {
                 pickedId = null
-                // 공간이 차서 실패하면 앱 틀이 실패를 알린다. 그때 "복원했어요"를 함께 띄우지 않는다.
-                viewModel.restore(id) { scope.launch { toast.show(restored) } }
+                viewModel.restore(id)
             }
             DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.trash_delete_forever), DiaryTheme.colors.danger) {
                 pickedId = null

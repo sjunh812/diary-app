@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,11 +47,13 @@ fun AdFreeSheet(onDismiss: () -> Unit, onDayOff: (() -> Unit)? = null) {
     val viewModel = koinViewModel<PlusViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(viewModel) { viewModel.load() }
+    val dismiss by rememberUpdatedState(onDismiss)
+    LaunchedEffect(viewModel) { viewModel.purchased.collect { if (it == ProductId.AD_FREE) dismiss() } }
     DisposableEffect(viewModel) { onDispose(viewModel::failureShown) }
     AdFreeSheetContent(
         state = state,
         onDismiss = onDismiss,
-        onBuy = { viewModel.buy(ProductId.AD_FREE, onDismiss) },
+        onBuy = { viewModel.buy(ProductId.AD_FREE) },
         onRetry = viewModel::load,
         onDayOff = onDayOff
     )

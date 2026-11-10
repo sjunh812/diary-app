@@ -60,6 +60,18 @@ class TrashViewModelTest {
         assertEquals(listOf("restore a", "delete [b]", "empty"), calls)
     }
 
+    /** 복원이 끝나면 화면에 이벤트로 알림. 콜백을 쥐지 않아 화면이 다시 만들어져도 받음 */
+    @Test
+    fun a_restore_is_announced_once_done() = runTest(UnconfinedTestDispatcher()) {
+        val model = TrashViewModel(repository)
+        val restored = mutableListOf<String>()
+        backgroundScope.launch { model.restored.collect { restored += it } }
+
+        model.restore("a")
+
+        assertEquals(listOf("a"), restored)
+    }
+
     /** 휴지통을 읽지 못하면 빈 화면으로 남지 않고 다시 시도를 보이며, 다시 시도하면 다시 읽는다. */
     @Test
     fun a_failed_read_shows_retry_and_reads_again() = runTest(UnconfinedTestDispatcher()) {

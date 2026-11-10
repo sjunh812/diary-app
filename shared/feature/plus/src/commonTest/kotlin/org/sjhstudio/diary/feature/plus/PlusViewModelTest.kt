@@ -10,7 +10,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
@@ -75,6 +78,16 @@ class PlusViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
+    /** 결제가 끝났다는 이벤트를 모음 */
+    private fun TestScope.purchases(viewModel: PlusViewModel) = mutableListOf<ProductId>().also { list ->
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.purchased.collect {
+                list +=
+                    it
+            }
+        }
+    }
+
     @Test
     fun no_store_shows_no_price() = runTest(dispatcher) {
         val viewModel = PlusViewModel(plans, Store())
@@ -105,10 +118,10 @@ class PlusViewModelTest {
         assertEquals(false, viewModel.state.value.busy)
 
         store.result = PurchaseResult.CANCELLED
-        var done = false
-        viewModel.buy(ProductId.PLUS_YEARLY) { done = true }
+        val bought = purchases(viewModel)
+        viewModel.buy(ProductId.PLUS_YEARLY)
         advanceUntilIdle()
-        assertEquals(false, done)
+        assertEquals(emptyList(), bought)
     }
 
     @Test
@@ -117,15 +130,15 @@ class PlusViewModelTest {
         val viewModel = PlusViewModel(plans, store)
         advanceUntilIdle()
 
-        var done = false
-        viewModel.buy(ProductId.PLUS_YEARLY) { done = true }
+        val bought = purchases(viewModel)
+        viewModel.buy(ProductId.PLUS_YEARLY)
         advanceUntilIdle()
 
         assertEquals(PlusMessage.Pending, viewModel.messages.first())
         assertEquals(false, viewModel.state.value.buyFailed)
         assertEquals(false, viewModel.state.value.busy)
         // 승인되기 전에는 산 것처럼 화면을 닫지 않는다.
-        assertEquals(false, done)
+        assertEquals(emptyList(), bought)
     }
 
     @Test
@@ -226,13 +239,13 @@ class PlusViewModelTest {
         plans.plan.value = Plan.PLUS
         advanceUntilIdle()
 
-        var done = 0
-        viewModel.buy(ProductId.PLUS_YEARLY) { done++ }
-        viewModel.buy(ProductId.AD_FREE) { done++ }
+        val bought = purchases(viewModel)
+        viewModel.buy(ProductId.PLUS_YEARLY)
+        viewModel.buy(ProductId.AD_FREE)
         advanceUntilIdle()
 
         assertEquals(0, store.buys)
-        assertEquals(2, done)
+        assertEquals(listOf(ProductId.PLUS_YEARLY, ProductId.AD_FREE), bought)
     }
 
     @Test
@@ -296,11 +309,11 @@ class PlusViewModelTest {
         val viewModel = PlusViewModel(plans, FlippingStore(plans))
         advanceUntilIdle()
 
-        var done = false
-        viewModel.buy(ProductId.PLUS_YEARLY) { done = true }
+        val bought = purchases(viewModel)
+        viewModel.buy(ProductId.PLUS_YEARLY)
         advanceUntilIdle()
 
-        assertEquals(true, done)
+        assertEquals(listOf(ProductId.PLUS_YEARLY), bought)
         assertEquals(Plan.PLUS, viewModel.plan.value)
     }
 

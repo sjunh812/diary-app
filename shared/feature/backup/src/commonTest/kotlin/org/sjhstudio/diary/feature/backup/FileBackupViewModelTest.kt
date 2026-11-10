@@ -10,9 +10,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -21,8 +23,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okio.Buffer
 import okio.IOException
+import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
+import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -117,12 +122,28 @@ class FileBackupViewModelTest {
         assertEquals(0, restore.bundle.bundleForgets)
     }
 
+    /** 확인이 끝나면 미리보기로 가라는 이벤트. 콜백을 쥐지 않아 화면이 다시 만들어져도 받음 */
+    @Test
+    fun a_checked_file_announces_ready() = runTest {
+        val entry = BackupEntry("f", "d", "기기", "android", Instant.fromEpochSeconds(0), 1, 0, 0, "2.0.0", BackupEntryState.Ready)
+        restore.preparation = RestorePreparation.Ready(entry, RestorePreview(1, 0, 0, 0, 0, 0, 0, false, 1_000))
+        val viewModel = viewModel()
+        var ready = 0
+        val collecting = backgroundScope.launch(Dispatchers.Default) { viewModel.ready.collect { ready++ } }
+
+        viewModel.read({ Buffer() })
+        waitUntil { ready == 1 }
+
+        assertEquals(FileBackupUi.Idle, viewModel.state.value)
+        collecting.cancel()
+    }
+
     @Test
     fun a_lack_of_space_reaches_the_screen_with_the_number() = runTest {
         restore.preparation = RestorePreparation.Failed(RestoreFailure.NO_SPACE, 5_000)
         val viewModel = viewModel()
 
-        viewModel.read({ Buffer() }, { 1_234L }) {}
+        viewModel.read({ Buffer() }, { 1_234L })
         waitUntil { viewModel.state.value != FileBackupUi.Reading }
 
         assertEquals(1_234L, restore.preparedFileSize)
@@ -159,7 +180,7 @@ class FileBackupViewModelTest {
     fun a_picked_file_that_cannot_be_opened_is_not_called_a_wrong_file() = runTest {
         val viewModel = viewModel()
 
-        viewModel.read({ throw IOException("열 수 없다") }) {}
+        viewModel.read({ throw IOException("열 수 없다") })
         waitUntil { viewModel.state.value != FileBackupUi.Reading }
 
         assertEquals(FileBackupUi.ReadFailed(RestoreFailure.OTHER), viewModel.state.value)
@@ -171,7 +192,7 @@ class FileBackupViewModelTest {
         restore.preparation = RestorePreparation.Failed(RestoreFailure.NO_SPACE, 5_000)
         val viewModel = viewModel()
 
-        viewModel.read({ Buffer() }, { throw IOException("크기를 모른다") }) {}
+        viewModel.read({ Buffer() }, { throw IOException("크기를 모른다") })
         waitUntil { viewModel.state.value != FileBackupUi.Reading }
 
         // 저장소까지 가서 공간 답을 받았다.

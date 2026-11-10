@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -179,8 +180,10 @@ fun BackupSettingsRoute(
             files.pickFailed()
         }) { file: PlatformFile? ->
             ExpectedLeave.clear()
-            file?.let { picked -> files.read({ OkioSource(picked.source()) }, { picked.sizeOrNull() }, onFilePreview) }
+            file?.let { picked -> files.read({ OkioSource(picked.source()) }, { picked.sizeOrNull() }) }
         }
+    val preview by rememberUpdatedState(onFilePreview)
+    LaunchedEffect(files) { files.ready.collect { preview() } }
     val openPicker = {
         ExpectedLeave.mark()
         picker.launch()

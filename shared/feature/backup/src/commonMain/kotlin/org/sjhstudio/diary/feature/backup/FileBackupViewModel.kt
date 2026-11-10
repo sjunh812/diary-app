@@ -3,9 +3,12 @@ package org.sjhstudio.diary.feature.backup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import okio.Sink
 import okio.Source
 import org.sjhstudio.diary.core.data.BundleSave
@@ -82,19 +85,23 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
         _state.value = FileBackupUi.Idle
     }
 
+    // 파일 확인이 끝남. 미리보기로 가는 신호
+    private val _ready = Channel<Unit>(Channel.BUFFERED)
+    val ready: Flow<Unit> = _ready.receiveAsFlow()
+
     /**
      * 고른 파일을 앱 안으로 옮겨 확인한다.
-     * 끝나면 [onReady]로 미리보기에 간다.
+     * 끝나면 [ready]로 미리보기에 간다.
      * [size]는 고른 파일의 크기다.
      * 몰라도 옮기다 공간이 차면 그렇게 알린다.
      */
-    fun read(open: () -> Source, size: () -> Long? = { null }, onReady: () -> Unit) {
+    fun read(open: () -> Source, size: () -> Long? = { null }) {
         _state.value = FileBackupUi.Reading
         viewModelScope.launchSafely {
             when (val result = restore.prepareFile(open, size)) {
                 is RestorePreparation.Ready -> {
                     _state.value = FileBackupUi.Idle
-                    onReady()
+                    _ready.send(Unit)
                 }
 
                 is RestorePreparation.Failed -> _state.value = FileBackupUi.ReadFailed(result.reason, result.bytesShort)

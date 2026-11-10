@@ -3,12 +3,15 @@ package org.sjhstudio.diary.feature.trash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.model.TrashedEntry
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
@@ -37,10 +40,14 @@ class TrashViewModel(private val trash: TrashRepository) : ViewModel() {
         attempt.value++
     }
 
-    fun restore(id: String, onDone: () -> Unit = {}) {
+    // 복원이 끝남. 실패하면 앱 틀이 실패를 알리고 이 이벤트는 오지 않음
+    private val _restored = Channel<String>(Channel.BUFFERED)
+    val restored: Flow<String> = _restored.receiveAsFlow()
+
+    fun restore(id: String) {
         viewModelScope.launchWrite {
             trash.restore(id)
-            onDone()
+            _restored.send(id)
         }
     }
 
