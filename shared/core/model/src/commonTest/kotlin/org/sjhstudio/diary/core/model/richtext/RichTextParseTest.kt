@@ -8,7 +8,7 @@ import org.sjhstudio.diary.core.model.RichSpan
 import org.sjhstudio.diary.core.model.RichStyle
 import org.sjhstudio.diary.core.model.parseRichText
 
-// 그리는 쪽이 쓰는 글과 저장되는 서식 없는 글이 어긋나지 않는지 본다.
+// 그리는 쪽이 쓰는 글과 저장되는 서식 없는 글이 어긋나지 않는지 확인
 class RichTextParseTest {
     @Test
     fun text_matches_plain_text() {

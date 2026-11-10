@@ -2,10 +2,7 @@ package org.sjhstudio.diary.core.model
 
 import kotlin.time.Instant
 
-/**
- * 백업이 실패한 까닭(contracts/backup-flow.md "실패의 종류").
- * 이름이 `last_failure`에 그대로 저장된다.
- */
+/** 백업 실패 까닭(contracts/backup-flow.md "실패의 종류"). 이름이 `last_failure`에 그대로 저장됨 */
 enum class BackupFailure {
     AUTH,
     NO_SPACE,
@@ -20,16 +17,16 @@ enum class BackupFailure {
     }
 }
 
-/** 지금 백업을 눌렀는데 올리지 않고 끝난 까닭. */
+/** 지금 백업을 눌렀는데 올리지 않고 끝난 까닭 */
 enum class BackupSkip {
-    /** 백업할 일기가 없다. */
+    /** 백업할 일기 없음 */
     NO_ENTRIES,
 
-    /** 복원이나 기록 이전이 도는 중이다. */
+    /** 복원이나 기록 이전이 도는 중 */
     BUSY
 }
 
-/** 드라이브 연결 상태. */
+/** 드라이브 연결 상태 */
 sealed interface BackupConnection {
     data object NotConnected : BackupConnection
 
@@ -38,10 +35,7 @@ sealed interface BackupConnection {
     data object NeedsReconnect : BackupConnection
 }
 
-/**
- * 백업 상태 기계의 단계(data-model.md).
- * 이름이 `backup/state.json`에 그대로 저장된다.
- */
+/** 백업 상태 기계의 단계(data-model.md). 이름이 `backup/state.json`에 그대로 저장됨 */
 enum class BackupStep {
     Preparing,
     Snapshotting,
@@ -62,30 +56,27 @@ data class BackupProgress(
     val bytesTotal: Long = 0
 )
 
-/**
- * 홈과 설정이 같이 보는 백업 상태.
- * 보이는 시각은 목록 파일까지 확인한 마지막 성공이다.
- */
+/** 홈과 설정이 같이 보는 백업 상태. 보이는 시각은 목록 파일까지 확인한 마지막 성공 */
 data class BackupStatus(
     val connection: BackupConnection = BackupConnection.NotConnected,
     val lastSuccessAt: Instant? = null,
     val photosNotBackedUp: Int = 0,
-    /** 기기에서 깨지거나 없어져 올릴 수 없는 사진. [photosNotBackedUp]에 들지 않는다. */
+    /** 기기에서 깨지거나 없어져 올릴 수 없는 사진. [photosNotBackedUp]에 들지 않음 */
     val photosUnusable: Int = 0,
     val running: BackupProgress? = null,
     val failingSince: Instant? = null,
     val lastFailure: BackupFailure? = null,
     val autoEnabled: Boolean = false,
     val photosOnCellular: Boolean = false,
-    /** 공간이 부족해 못 올린 사진의 양. */
+    /** 공간이 부족해 못 올린 사진의 양 */
     val bytesShort: Long = 0,
-    /** 드라이브 백업을 복원했으면 그 백업을 만든 시각. */
+    /** 드라이브 백업을 복원했으면 그 백업을 만든 시각 */
     val restoredBackupAt: Instant? = null,
-    /** 연결한 뒤 드라이브의 백업을 찾는 중이다. */
+    /** 연결한 뒤 드라이브의 백업을 찾는 중 */
     val findingBackup: Boolean = false
 )
 
-/** 복원 목록 한 줄의 상태. */
+/** 복원 목록 한 줄의 상태 */
 sealed interface BackupEntryState {
     data object Ready : BackupEntryState
 
@@ -96,13 +87,10 @@ sealed interface BackupEntryState {
 
 enum class DamageReason { MANIFEST, SNAPSHOT_MISSING, SNAPSHOT_MISMATCH }
 
-/** 예전 앱 백업 줄의 [BackupEntry.platform] 값. */
+/** 예전 앱 백업 줄의 [BackupEntry.platform] 값 */
 const val PLATFORM_LEGACY = "legacy"
 
-/**
- * 복원 목록 한 줄.
- * 일기 내용은 없다.
- */
+/** 복원 목록 한 줄. 일기 내용은 없음 */
 data class BackupEntry(
     val snapshotName: String,
     val deviceId: String,
@@ -116,7 +104,7 @@ data class BackupEntry(
     val state: BackupEntryState
 )
 
-/** 합치기 전에 보이는 숫자(FR-023). */
+/** 합치기 전에 보이는 숫자(FR-023) */
 data class RestorePreview(
     val entriesAdded: Int,
     val entriesUpdated: Int,
@@ -127,10 +115,7 @@ data class RestorePreview(
     val photosNotInBackup: Int,
     val settingsChange: Boolean,
     val deviceBytesFree: Long,
-    /**
-     * 지금 이 기기에 보이는 일기 수.
-     * 바꾸기 확인에 쓴다.
-     */
+    /** 지금 이 기기에 보이는 일기 수. 바꾸기 확인에 씀 */
     val entriesHere: Int = 0
 )
 
@@ -142,56 +127,38 @@ data class RestoreResult(
     val photosMissing: Int,
     val photosPending: Int,
     val rollbackUntil: Instant? = null,
-    /**
-     * 공간이 부족해 백업에 없던 사진.
-     * 원래 기기에 있다.
-     */
+    /** 공간이 부족해 백업에 없던 사진. 원래 기기에 있음 */
     val photosOnOriginal: Int = 0,
-    /**
-     * 백업한 기기가 잠금을 쓰고 있었다.
-     * 비밀번호는 백업하지 않는다.
-     */
+    /** 백업한 기기가 잠금을 썼음. 비밀번호는 백업하지 않음 */
     val lockWasOn: Boolean = false,
-    /**
-     * 1.7.x가 올린 `note.db`를 불러왔다.
-     * 사진 자리는 찾을 수 없는 사진으로 남는다.
-     */
+    /** 1.7.x가 올린 `note.db`를 불러옴. 사진 자리는 찾을 수 없는 사진으로 남음 */
     val fromLegacy: Boolean = false,
-    /**
-     * 합치지 않고 이 백업으로 바꿨다.
-     * 지금 일기가 그대로라고 말하면 안 된다.
-     */
+    /** 합치지 않고 이 백업으로 바꿈. 지금 일기가 그대로라고 말하면 안 됨 */
     val replaced: Boolean = false,
-    /**
-     * 파일에서 복원했다.
-     * 파일에 없는 사진은 앱을 다시 열어도 저절로 오지 않는다.
-     */
+    /** 파일에서 복원함. 파일에 없는 사진은 앱을 다시 열어도 저절로 오지 않음 */
     val fromFile: Boolean = false,
-    /**
-     * 사진을 다 받기 전에 멈춘 까닭.
-     * 끝까지 돌았으면 null이다.
-     */
+    /** 사진을 다 받기 전에 멈춘 까닭. 끝까지 돌았으면 null */
     val photosStop: PhotoStop? = null
 )
 
-/** 사진을 더 받지 못하고 멈춘 까닭. 까닭마다 사용자가 할 일이 다르다. */
+/** 사진을 더 받지 못하고 멈춘 까닭. 까닭마다 사용자가 할 일이 다름 */
 enum class PhotoStop {
-    /** 휴대폰 공간이 부족하다. */
+    /** 휴대폰 공간 부족 */
     NO_SPACE,
 
-    /** 잠깐 끊겼다. 앱을 다시 열면 잇는다. */
+    /** 잠깐 끊김. 앱을 다시 열면 이어 받음 */
     INTERRUPTED,
 
-    /** 인터넷이 끊겼다. 연결되면 잇는다. */
+    /** 인터넷 끊김. 연결되면 이어 받음 */
     NETWORK,
 
-    /** 모바일 데이터라 Wi-Fi를 기다린다. */
+    /** 모바일 데이터라 Wi-Fi를 기다림 */
     WIFI,
 
-    /** 드라이브 연결이 풀렸다. */
+    /** 드라이브 연결이 풀림 */
     ACCOUNT,
 
-    /** 남은 사진이 든 파일을 다시 골라야 한다. */
+    /** 남은 사진이 든 파일을 다시 골라야 함 */
     FILE;
 
     companion object {
@@ -199,10 +166,7 @@ enum class PhotoStop {
     }
 }
 
-/**
- * 아직 받지 못한 복원 사진.
- * [stop]이 null이면 지금 받고 있다.
- */
+/** 아직 받지 못한 복원 사진. [stop]이 null이면 지금 받는 중 */
 data class WaitingPhotos(val count: Int, val stop: PhotoStop?)
 
 enum class RestoreFailure {
@@ -210,54 +174,45 @@ enum class RestoreFailure {
     NO_SPACE,
     NEEDS_UPDATE,
 
-    /** 복원이 도는 중이라 다른 백업을 받지 않았다. */
+    /** 복원이 도는 중이라 다른 백업을 받지 않음 */
     BUSY,
     OTHER
 }
 
-/**
- * 파일로 만들 묶음의 크기.
- * 파일 크기는 어림값이다.
- */
+/** 파일로 만들 묶음의 크기. 파일 크기는 어림값 */
 data class BundleEstimate(val entries: Int, val photos: Int, val bytes: Long)
 
-/** 사용자가 고른 파일의 미리보기를 찾는 이름. */
+/** 사용자가 고른 파일의 미리보기를 찾는 이름 */
 const val RESTORE_FROM_FILE = "file"
 
-/**
- * 바꾸기를 되돌릴 수 있는 동안의 정보.
- * 일기 수만 담는다.
- */
+/** 바꾸기를 되돌릴 수 있는 동안의 정보. 일기 수만 담음 */
 data class RollbackInfo(val until: Instant, val entriesBefore: Int, val entriesAfter: Int)
 
-/** 되돌리기가 어디까지 왔는지. */
+/** 되돌리기가 어디까지 왔는지 */
 enum class RollbackRun {
     IDLE,
 
-    /** 복원이나 백업이 끝나기를 기다린다. */
+    /** 복원이나 백업이 끝나기를 기다림 */
     WAITING,
     RUNNING,
 
-    /** 되돌리지 못했다. 기기의 일기는 그대로다. */
+    /** 되돌리지 못함. 기기의 일기는 그대로 */
     FAILED
 }
 
-/** 스냅샷을 받아 확인한 결과. */
+/** 스냅샷을 받아 확인한 결과 */
 sealed interface RestorePreparation {
     data class Ready(val entry: BackupEntry, val preview: RestorePreview) : RestorePreparation
 
-    /** [bytesShort]는 공간이 얼마나 더 있어야 하는지다. 모르면 0이다. */
+    /** [bytesShort]는 더 있어야 하는 공간. 모르면 0 */
     data class Failed(val reason: RestoreFailure, val bytesShort: Long = 0) : RestorePreparation
 }
 
-/**
- * 복원하기 진행.
- * 화면을 떠나도 앱이 켜져 있으면 계속 간다.
- */
+/** 복원하기 진행. 화면을 떠나도 앱이 켜져 있으면 계속됨 */
 sealed interface RestoreState {
     data object Idle : RestoreState
 
-    /** 도는 백업이 끝나야 일기를 합칠 수 있어 기다린다. */
+    /** 도는 백업이 끝나야 일기를 합칠 수 있어 기다림 */
     data object WaitingForBackup : RestoreState
 
     data object Merging : RestoreState
@@ -272,19 +227,16 @@ sealed interface RestoreState {
 /**
  * 끝난 사진 받기의 결과.
  * [fetched]는 실제로 받은 장수, [left]는 다시 시도하면 받을 수 있는 장수,
- * [unavailable]은 깨졌거나 드라이브에 없어 받을 수 없는 장수다.
+ * [unavailable]은 깨졌거나 드라이브에 없어 받을 수 없는 장수.
  */
 data class PhotoRun(val fetched: Int, val left: Int, val unavailable: Int) {
-    /** 받을 사진을 하나도 빠짐없이 받았다. */
+    /** 받을 사진을 빠짐없이 다 받음 */
     val complete: Boolean
         get() = left == 0 && unavailable == 0
 }
 
-/** 권하기 카드(FR-036). */
+/** 권하기 카드(FR-036) */
 data class BackupNudge(val entryCount: Int, val photoCount: Int, val suggestedAccount: String? = null)
 
-/**
- * 사진 받기 진행.
- * 복원 화면이 닫혀 있어도 알림으로 보인다.
- */
+/** 사진 받기 진행. 복원 화면이 닫혀 있어도 알림으로 보임 */
 data class PhotoProgress(val done: Int, val total: Int)

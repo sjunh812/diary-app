@@ -3,8 +3,8 @@ package org.sjhstudio.diary.core.model
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// DB, 설정, 백업에 저장하는 ID가 data-model.md와 같은지 본다.
-// 이 값이 바뀌면 이미 저장된 기록을 읽지 못하므로 시험으로 묶어 둔다(헌법 I).
+// DB, 설정, 백업에 저장하는 ID가 data-model.md와 같은지 확인.
+// 바뀌면 이미 저장된 기록을 읽지 못해 시험으로 묶어 둠(헌법 I).
 class StoredIdsTest {
     @Test
     fun mood_ids_and_legacy_codes() {

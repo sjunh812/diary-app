@@ -33,7 +33,7 @@ class AdvancedStatsTest {
         assertEquals(MoodTone.NEUTRAL, Mood.MEH.tone)
     }
 
-    /** 좋은 기분과 힘든 기분을 나란히 보여도 합이 100을 넘지 않는다. */
+    /** 좋은 기분과 힘든 기분을 나란히 보여도 합이 100을 넘지 않음 */
     @Test
     fun good_and_hard_shares_never_pass_100() {
         for (total in 1..40) {
@@ -187,10 +187,7 @@ class AdvancedStatsTest {
         assertEquals(30, habit.entries)
     }
 
-    /**
-     * 일기 앞뒤로 기분이 이어지는 경향까지 넣은 가짜 기록.
-     * 조건과 기분 사이에 관계를 일부러 넣을 수 있다.
-     */
+    /** 일기 앞뒤로 기분이 이어지는 경향까지 넣은 가짜 기록. 조건과 기분 사이에 관계를 일부러 넣을 수 있음 */
 
     private val weatherPool =
         List(9) { Weather.SUNNY } + List(5) { Weather.PARTLY_CLOUDY } + List(3) { Weather.RAIN } + Weather.SNOW + List(2) { Weather.CLOUDY }

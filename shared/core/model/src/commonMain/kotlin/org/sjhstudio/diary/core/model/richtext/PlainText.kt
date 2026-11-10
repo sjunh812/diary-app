@@ -3,15 +3,14 @@ package org.sjhstudio.diary.core.model.richtext
 import org.sjhstudio.diary.core.model.decodeHtmlEntity
 
 /**
- * 본문 HTML을 서식 없는 글로 바꾼다(스펙 002 contracts/rich-text-html.md "서식 없는 글 만들기").
+ * 본문 HTML을 서식 없는 글로 바꿈(스펙 002 contracts/rich-text-html.md "서식 없는 글 만들기").
  *
- * - 문단(`p`)과 목록(`ul`) 같은 덩어리 사이는 빈 줄 하나(`"\n\n"`)다.
- * - `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `를 붙인다.
- * - 엔티티는 글자로 풀고, 공백·탭·`\r`은 줄이거나 바꾸지 않는다.
- * - 허용 목록 밖의 태그는 태그만 버리고 안의 글은 남긴다.
- * `script`, `style`, `iframe`은 안의 글까지 버린다.
+ * - 문단(`p`)과 목록(`ul`) 같은 덩어리 사이는 빈 줄 하나(`"\n\n"`).
+ * - `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `를 붙임.
+ * - 엔티티는 글자로 풀고, 공백·탭·`\r`은 줄이거나 바꾸지 않음.
+ * - 허용 목록 밖의 태그는 태그만 버리고 안의 글은 남김. `script`, `style`, `iframe`은 안의 글까지 버림.
  *
- * 레거시 글은 `toPlainText(legacyToHtml(c)) == c`여야 한다(스펙 001 contracts/legacy-mapping.md).
+ * 레거시 글은 `toPlainText(legacyToHtml(c)) == c`여야 함(스펙 001 contracts/legacy-mapping.md).
  */
 fun toPlainText(html: String): String {
     if (html.isEmpty()) return ""
@@ -24,7 +23,7 @@ fun toPlainText(html: String): String {
         if (c == '<') {
             val end = html.indexOf('>', i)
             if (end < 0) {
-                // 닫히지 않은 꺾쇠는 글자로 둔다.
+                // 닫히지 않은 꺾쇠는 글자로 둠
                 out.append(html, i, html.length)
                 break
             }
@@ -63,7 +62,7 @@ fun toPlainText(html: String): String {
                 i = decoded.second
             }
         } else {
-            // 덩어리 밖에 놓인 글도 덩어리 하나로 센다.
+            // 덩어리 밖에 놓인 글도 덩어리 하나로 셈
             if (blocks == 0) blocks = 1
             out.append(c)
             i++

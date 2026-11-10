@@ -1,32 +1,24 @@
 package org.sjhstudio.diary.core.model.richtext
 
 /**
- * 본문 HTML을 허용 목록만 남기고 정리한다(스펙 002 contracts/rich-text-html.md).
+ * 본문 HTML을 허용 목록만 남기고 정리(스펙 002 contracts/rich-text-html.md).
  *
- * - `p`, `br`, `b`(`strong`도 `b`로), `u`, `ul`, `li`만 남기고 속성은 모두 버린다.
- * - `span`은 팔레트 안의 `color`, `background-color`만 남긴다.
- * 남길 것이 없으면 태그를 버리고 글은 남긴다.
- * - 그 밖의 태그는 태그만 버린다.
- * `script`, `style`, `iframe`은 안의 글까지 버린다.
- * - 목록은 한 단계만 둔다.
- * 안쪽 `ul`은 태그만 버린다.
- * - 짝이 맞지 않는 닫는 태그는 버리고, 닫히지 않은 태그는 끝에서 닫는다.
- * - 태그가 아닌 꺾쇠는 `&lt;`로 바꾼다.
- * 글자와 공백은 그대로 둔다.
+ * - `p`, `br`, `b`(`strong`도 `b`로), `u`, `ul`, `li`만 남기고 속성은 모두 버림.
+ * - `span`은 팔레트 안의 `color`, `background-color`만 남김. 남길 것이 없으면 태그를 버리고 글은 남김.
+ * - 그 밖의 태그는 태그만 버림. `script`, `style`, `iframe`은 안의 글까지 버림.
+ * - 목록은 한 단계만. 안쪽 `ul`은 태그만 버림.
+ * - 짝이 맞지 않는 닫는 태그는 버리고, 닫히지 않은 태그는 끝에서 닫음.
+ * - 태그가 아닌 꺾쇠는 `&lt;`로 바꿈. 글자와 공백은 그대로.
  */
 object RichTextSanitizer {
-    /**
-     * 라이트 hex 팔레트(소문자).
-     * 저장은 이 값만 쓴다.
-     */
+    /** 라이트 hex 팔레트(소문자). 저장은 이 값만 씀 */
     val INK: Set<String> = setOf("#b91c1c", "#c2410c", "#15803d", "#1d4ed8", "#6b7280", "#6d28d9", "#be185d")
     val MARK: Set<String> = setOf("#fef08a", "#bbf7d0", "#bfdbfe", "#ddd6fe", "#fbcfe8")
 
     fun sanitize(html: String): String {
         if (html.isEmpty()) return ""
         val out = StringBuilder(html.length)
-        // 열린 태그.
-        // 버린 태그는 null로 넣어 닫는 태그와 짝을 맞춘다.
+        // 열린 태그. 버린 태그는 null로 넣어 닫는 태그와 짝을 맞춤
         val open = ArrayList<OpenTag>()
         var i = 0
         while (i < html.length) {
@@ -69,10 +61,7 @@ object RichTextSanitizer {
         return out.toString()
     }
 
-    /**
-     * `span` 스타일에서 팔레트 값만 뽑는다.
-     * 편집기가 쓰는 `rgb()`와 `background`도 받는다.
-     */
+    /** `span` 스타일에서 팔레트 값만 뽑음. 편집기가 쓰는 `rgb()`와 `background`도 받음 */
     internal fun spanStyle(attributes: String): String? {
         val style = styleAttribute(attributes) ?: return null
         var color: String? = null
@@ -98,7 +87,7 @@ object RichTextSanitizer {
             "p", "u" -> push(name, name, open, out)
 
             "li" -> {
-                // 안쪽 목록을 한 단계로 펴면 항목이 겹치므로 앞 항목을 닫는다.
+                // 안쪽 목록을 한 단계로 펴면 항목이 겹쳐 앞 항목을 닫음
                 closeTag(name, open, out)
                 push(name, name, open, out)
             }
@@ -129,14 +118,14 @@ object RichTextSanitizer {
     private fun closeTag(name: String, open: MutableList<OpenTag>, out: StringBuilder) {
         val at = open.indexOfLast { it.name == name || (name == "strong" && it.name == "b") || (name == "b" && it.name == "strong") }
         if (at < 0) return
-        // 안쪽에 닫히지 않은 태그가 있으면 함께 닫는다.
+        // 안쪽에 닫히지 않은 태그가 있으면 함께 닫음
         for (k in open.lastIndex downTo at) {
             open[k].written?.let { out.append("</").append(it).append('>') }
             open.removeAt(k)
         }
     }
 
-    /** 따옴표 안의 `>`는 건너뛰고 태그 끝을 찾는다. */
+    /** 따옴표 안의 `>`는 건너뛰고 태그 끝을 찾음 */
     private fun tagEnd(html: String, start: Int): Int {
         var quote: Char? = null
         var i = start + 1
@@ -158,7 +147,7 @@ object RichTextSanitizer {
         return match.groupValues[1].ifEmpty { match.groupValues[2] }
     }
 
-    /** `#RRGGBB`, `#RGB`, `rgb(r, g, b)`, `rgba(r, g, b, 1)`을 소문자 `#rrggbb`로 바꾼다. */
+    /** `#RRGGBB`, `#RGB`, `rgb(r, g, b)`, `rgba(r, g, b, 1)`을 소문자 `#rrggbb`로 바꿈 */
     private fun hexOf(value: String): String? {
         val lower = value.lowercase().removeSuffix("!important").trim()
         if (lower.startsWith('#')) {
