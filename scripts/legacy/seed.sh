@@ -8,6 +8,7 @@
 # ALARM=0을 주면 매일 알림을 끈 설정을 넣는다.
 # COUNT=1000을 주면 일기를 그만큼 더 넣는다(T051 큰 견본).
 # PHOTO_EVERY=3이면 세 편마다 사진 한 장이고 기본은 한 편마다다.
+# PHOTO_SOURCE=폴더를 주면 그 폴더의 JPEG를 차례로 돌려 쓴다(성능 시험용 큰 사진). 없으면 fixtures의 작은 사진.
 # 넣은 수는 files/debug/seed.json에 적어 계측 시험이 읽는다.
 # 1.7.4는 알림이 켜져 있으면 Android 14 이상에서 정확한 알람 권한이 없어 꺼진다(2026-11-01 Android 16 에뮬레이터에서 확인).
 # 옛 앱과 같은 SQL로 만든 note.db, 캐시 사진,
@@ -59,9 +60,17 @@ SQL
   # 사진마다 해시가 다르게 JPEG 끝(EOI) 뒤에 번호를 붙인다.
   # 그림은 그대로 읽힌다.
   mkdir -p "$WORK/big"
+  if [ -n "${PHOTO_SOURCE:-}" ]; then
+    set -- "$PHOTO_SOURCE"/*.jpg
+  else
+    set -- "$ROOT/scripts/legacy/fixtures/photo-landscape-exif6.jpg"
+  fi
+  n=0
   i=$PHOTO_EVERY
   while [ $i -le "$COUNT" ]; do
-    cp "$ROOT/scripts/legacy/fixtures/photo-landscape-exif6.jpg" "$WORK/big/big-$i.jpg"
+    n=$((n % $# + 1))
+    eval "src=\${$n}"
+    cp "$src" "$WORK/big/big-$i.jpg"
     printf '%s' "$i" >> "$WORK/big/big-$i.jpg"
     i=$((i + PHOTO_EVERY))
   done
