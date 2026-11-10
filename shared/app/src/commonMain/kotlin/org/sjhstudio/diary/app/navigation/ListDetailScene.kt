@@ -51,9 +51,8 @@ val LocalInListDetail = compositionLocalOf { false }
 val FullScreenEntry: Map<String, Any> = mapOf(FULL_SCREEN to true)
 
 /**
- * 탭의 맨 위 화면.
- * 폰에서는 이 화면이 탭 바와 쓰기 버튼을 함께 그린다.
- * 상세로 넘어갈 때 탭 바가 따로 사라지지 않고 이 화면과 같이 움직이고, 새 화면이 그 위를 덮는다.
+ * 탭 첫 화면. 폰에서는 탭 바와 쓰기 버튼을 함께 그려
+ * 상세로 넘어갈 때 탭 바가 이 화면과 같이 움직이고 새 화면이 그 위를 덮음.
  */
 fun tabRoot(tab: TabScreen): Map<String, Any> = mapOf(TAB_ROOT to true, ROOT_OF to tab) + TabTransitions
 

@@ -132,8 +132,7 @@ object DiaryIcons {
     }
 
     // 하단 탭·레일 아이콘(Figma "설정 (S6)"의 tab-bar 경로 그대로).
-    // 고른 탭은 채운 아이콘이다(docs/design.md 하단 탭, 2026-11-10 사용자 결정).
-    // 채운 모양의 바깥 끝은 선 아이콘의 바깥 끝과 같아서 고를 때 크기가 바뀌어 보이지 않는다.
+    // 고른 탭은 채운 아이콘. 바깥 끝을 선 아이콘과 맞춰 고를 때 크기가 변해 보이지 않음
     val TabHome: ImageVector by lazy {
         tab(
             "tab-home",
@@ -151,8 +150,7 @@ object DiaryIcons {
         )
     }
 
-    // 통째로 채우고 선 아이콘의 가로줄 자리만 틈으로 비운다(2026-11-10 사용자 결정).
-    // 머리 띠만 채우면 선 아이콘과 거의 같아 보였다.
+    // 통째로 채우고 가로줄 자리만 틈으로. 머리 띠만 채우면 선 아이콘과 구분이 안 됨
     val TabCalendarSelected: ImageVector by lazy {
         filledTab(
             "tab-calendar-selected",
@@ -166,8 +164,7 @@ object DiaryIcons {
     }
     val TabInsight: ImageVector by lazy { tab("tab-insight", 1.75f, "M 5 20 L 5 11 M 12 20 L 12 5 M 19 20 L 19 14") }
 
-    // 막대는 넓혀서 채운다.
-    // 위아래 끝은 선 아이콘과 같다.
+    // 막대만 굵게. 위아래 끝은 선 아이콘과 같음
     val TabInsightSelected: ImageVector by lazy {
         tab("tab-insight-selected", 3.25f, "M 5 19.25 L 5 11.75 M 12 19.25 L 12 5.75 M 19 19.25 L 19 14.75")
     }
@@ -180,7 +177,7 @@ object DiaryIcons {
         )
     }
 
-    // 톱니를 채우고 가운데 원은 비운다.
+    // 톱니는 채우고 가운데 원은 비움
     val TabSettingsSelected: ImageVector by lazy {
         filledTab("tab-settings-selected", fill = "$GEAR M 15.5 12 A 3.5 3.5 0 1 0 8.5 12 A 3.5 3.5 0 1 0 15.5 12 Z")
     }
@@ -437,9 +434,7 @@ object DiaryIcons {
 
     /**
      * 고른 탭의 채운 아이콘.
-     * [fill]은 안쪽 고리를 구멍으로 남긴다(EvenOdd).
-     * [outlined]면 채운 모양에 선 아이콘과 같은 선(1.75)을 둘러 모서리를 둥글게 맞춘다.
-     * [lines]는 채움 없이 선으로만 그린다.
+     * [fill]의 안쪽 고리는 구멍(EvenOdd). [outlined]면 1.75 선을 둘러 모서리를 둥글게. [lines]는 선만
      */
     private fun filledTab(name: String, fill: String, outlined: Boolean = true, lines: String? = null): ImageVector {
         val builder = ImageVector.Builder(

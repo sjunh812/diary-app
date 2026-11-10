@@ -111,11 +111,9 @@ class MainActivity : FragmentActivity() {
     }
 
     /**
-     * 시작 화면은 앱 코드가 돌기 전에 시스템이 그려서 앱 화면 모드를 모른다.
-     * 앱을 라이트로 두어도 휴대폰이 다크면 시작 화면만 다크로 떴다(2026-11-10 사용자 지적).
-     * Android 12부터는 앱의 모드를 시스템에 맡겨 두면 다음 시작 화면부터 그 모드로 그린다([UiModeManager.setApplicationNightMode]).
-     * 11 이하는 시작 화면이 휴대폰 모드를 따른다.
-     * 바뀐 모드가 지금 화면과 다르면 화면을 한 번 다시 만든다.
+     * 스플래시는 앱 코드보다 먼저 시스템이 그려 앱 화면 모드를 모름.
+     * Android 12부터 앱 모드를 시스템에 넘겨 다음 시작부터 맞춤. 11 이하는 휴대폰 모드를 따름.
+     * 모드가 지금 화면과 다르면 화면을 한 번 다시 만듦.
      */
     private fun keepSplashInMode(mode: ThemeMode) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return

@@ -42,8 +42,7 @@ data class LibraryText(val name: String, val licenseName: String, val details: S
 class LicensesViewModel(
     private val readList: suspend () -> String = { Res.readBytes("files/aboutlibraries.json").decodeToString() },
     private val readFont: suspend (String) -> String = { DsRes.readBytes("files/licenses/$it").decodeToString() },
-    // 시험은 시험 디스패처를 넘긴다.
-    // 시험이 끝난 뒤 다른 스레드에서 늦게 끝난 읽기가 다음 시험을 깨뜨렸다.
+    // 시험은 시험 디스패처 사용. 다른 스레드에서 늦게 끝난 읽기가 다음 시험을 깨뜨렸음
     private val background: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
     private var libs: List<Library>? = null

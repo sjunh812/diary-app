@@ -307,8 +307,7 @@ private fun PaywallBenefits(adFreeOwned: Boolean) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
         BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
         PlusBenefits()
-        // 지금 받는 혜택과 구분해 작은 글씨로 둔다.
-        // 특정 기능이나 날짜는 약속하지 않는다(사용자 결정, 지우지 않는다).
+        // 지금 혜택과 구분해 작은 글씨로. 사용자 결정 문구라 빼지 않음
         PhraseText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
         if (adFreeOwned) {
             BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.textSecondary))

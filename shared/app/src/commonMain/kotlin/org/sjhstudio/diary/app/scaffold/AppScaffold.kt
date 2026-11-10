@@ -289,12 +289,10 @@ private val TabBarSpace =
         val chrome = LocalRootChrome.current
         val root = entry.metadata[ROOT_OF] as? TabScreen
         val colors = DiaryTheme.colors
-        // 화면이 바뀌는 0.3초 동안은 두 화면 모두 누르지 못하게 한다.
-        // 빠르게 누르면 사라지는 화면의 줄이나 단추가 눌렸다(2026-11-10 사용자 지적).
+        // 전환 중에는 두 화면 모두 터치 막음. 빠르게 누르면 사라지는 화면이 눌렸음
         val moving = LocalNavAnimatedContentScope.current.transition.isRunning
-        // 화면마다 바탕을 깐다.
-        // 바탕이 빈 화면이 있으면 전환 중에 뒤의 검은 바탕이 비친다.
-        // 양옆 바깥의 선은 평소에는 화면 밖이라 안 보이고, 전환 중에만 두 화면 사이에 보인다(다크에서 두 화면을 가른다).
+        // 바탕이 빈 화면은 전환 중 뒤의 검은 바탕이 비쳐 바탕을 깖.
+        // 양옆 바깥 선은 전환 중에만 두 화면 사이에 보임(다크에서 두 화면 구분)
         Box(
             Modifier
                 .fillMaxSize()
@@ -319,9 +317,8 @@ private val TabBarSpace =
     })
 
 /**
- * 폰에서 탭 맨 위 화면이 함께 그리는 탭 바와 쓰기 버튼.
- * 화면 위에 따로 얹으면 상세로 넘어가는 순간 먼저 사라지거나 새 화면 위에 남아 보였다(2026-11-10 사용자 지적).
- * 넓은 화면은 레일이라 null이다.
+ * 탭 첫 화면이 함께 그리는 탭 바와 쓰기 버튼(폰).
+ * 화면 위에 따로 얹으면 상세로 넘어갈 때 먼저 사라지거나 새 화면 위에 남음. 넓은 화면은 레일이라 null
  */
 private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScreen) -> Unit)?> { null }
 
@@ -570,8 +567,7 @@ private fun Content(
                     }
                 }
             ),
-        // 밀려나는 화면이 어두워 보이도록 뒤에 검은 바탕을 깐다(DiaryTransitions).
-        // 화면이 모두 불투명해서 평소에는 안 보인다.
+        // 밀려나는 화면을 어둡게 하는 뒤 바탕(DiaryTransitions). 평소에는 화면에 가려 안 보임
         modifier = modifier.background(DiaryTheme.colors.scrim.copy(alpha = 1f)),
         sceneStrategies = listOf(listDetail),
         transitionSpec = { if (nav.movedBetweenTabs || reduceMotion) TabSwap else pushMotion() },
