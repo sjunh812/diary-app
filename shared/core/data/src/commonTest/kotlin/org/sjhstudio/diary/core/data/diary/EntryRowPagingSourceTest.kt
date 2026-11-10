@@ -33,6 +33,10 @@ class EntryRowPagingSourceTest {
 
     @Test
     fun a_read_that_never_ends_becomes_a_load_error() = runTest {
-        assertIs<PagingSource.LoadResult.Error<Int, *>>(EntryRowPagingSource(Stuck(), loadTimeout = 100.milliseconds) { emptyList() }.load(first))
+        assertIs<PagingSource.LoadResult.Error<Int, *>>(
+            EntryRowPagingSource(Stuck(), loadTimeout = 100.milliseconds) {
+                emptyList()
+            }.load(first)
+        )
     }
 }
