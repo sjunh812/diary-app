@@ -476,7 +476,7 @@ class BackupRunnerTest {
 
     /**
      * 이어 올리기 세션이 끝나지 않는 드라이브
-     * 고치기 전에는 끝없이 돌아 시험을 끊으려고 상한을 둠
+     * 끝없이 돌면 시험이 멈추지 않아 상한을 둠
      */
     private class EndlessUpload(private val real: DriveApi, private val answer: ChunkResult) : DriveApi by real {
         var starts = 0
