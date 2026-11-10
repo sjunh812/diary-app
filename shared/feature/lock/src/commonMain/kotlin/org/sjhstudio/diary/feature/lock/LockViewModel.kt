@@ -28,9 +28,9 @@ import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
  * 잠금 화면(L1) 상태.
- * 입력한 숫자는 담지 않고 몇 칸 찼는지만 둔다.
- * [wrongCount]는 틀릴 때마다 는다.
- * 점이 흔들리는 신호라 같은 수로 두 번 틀려도 다시 흔들린다.
+ * 입력한 숫자는 담지 않고 몇 칸 찼는지만 둠.
+ * [wrongCount]는 틀릴 때마다 늘어남.
+ * 점이 흔들리는 신호라 같은 수로 두 번 틀려도 다시 흔들림.
  */
 data class LockUiState(
     val entered: Int = 0,
@@ -46,40 +46,40 @@ sealed interface LockMessage {
 
     data class Waiting(val seconds: Int) : LockMessage
 
-    /** 기기 키를 쓸 수 없어 비밀번호를 대어 보지 못했다. */
+    /** 기기 키를 쓸 수 없어 비밀번호를 대어 보지 못함. */
     data object KeyUnavailable : LockMessage
 
-    /** 비밀번호는 맞았지만 잠금을 끈 것을 저장하지 못했다. */
+    /** 비밀번호는 맞았지만 잠금을 끈 것을 저장하지 못함. */
     data object NotSaved : LockMessage
 }
 
 /**
- * 넣은 비밀번호로 무엇을 하는가.
- * 잠금 화면은 [Verify], 잠금 설정의 "잠금 사용" 끄기는 [Disable]이다.
+ * 넣은 비밀번호로 할 일.
+ * 잠금 화면은 [Verify], 잠금 설정의 "잠금 사용" 끄기는 [Disable].
  */
 enum class PinCheck { Verify, Disable }
 
 sealed interface LockEvent {
-    /** 비밀번호가 맞았다([PinCheck.Disable]이면 잠금도 껐다). */
+    /** 비밀번호가 맞았음([PinCheck.Disable]이면 잠금도 껐음). */
     data object Unlocked : LockEvent
 
     /**
-     * 비밀번호를 대어 볼 수 없다.
-     * 폰 화면 잠금 확인으로 간다.
+     * 비밀번호를 대어 볼 수 없음.
+     * 폰 화면 잠금 확인으로 감.
      */
     data object KeyMissing : LockEvent
 }
 
 /**
  * 잠금 화면의 숫자 입력과 확인(contracts/lock.md).
- * 입력한 숫자는 글자 배열에만 두고 확인하자마자 지운다.
+ * 입력한 숫자는 글자 배열에만 두고 확인하자마자 지움.
  */
 class LockViewModel(
     private val repository: LockRepository,
     private val clock: Clock = Clock.System,
     /**
-     * 결과(`ok`·`wrong`·`waiting`)만 보낸다.
-     * 비밀번호와 횟수는 보내지 않는다(contracts/lock.md).
+     * 결과(`ok`·`wrong`·`waiting`)만 보냄.
+     * 비밀번호와 횟수는 보내지 않음(contracts/lock.md).
      */
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
@@ -95,7 +95,7 @@ class LockViewModel(
     val events: Flow<LockEvent> = _events.receiveAsFlow()
 
     init {
-        // 앱을 껐다 켜도 기다림이 이어진다(FR-020).
+        // 앱을 껐다 켜도 기다림이 이어짐(FR-020)
         viewModelScope.launchSafely {
             val until = repository.settings.first().retryAfter
             if (until != null && clock.now() < until) waitUntil(until)
@@ -106,7 +106,7 @@ class LockViewModel(
         val current = _state.value
         if (current.checking || current.message is LockMessage.Waiting || count >= Pin.LENGTH) return
         digits[count++] = digit
-        // 틀린 뒤 새로 누르면 안내를 지운다.
+        // 틀린 뒤 새로 누르면 안내 지움
         _state.update { it.copy(entered = count, message = LockMessage.None) }
         if (count == Pin.LENGTH) check()
     }
@@ -117,7 +117,7 @@ class LockViewModel(
         _state.update { it.copy(entered = count) }
     }
 
-    /** 잠금 설정에서 지금 비밀번호를 다시 받을 때 처음부터 시작한다. */
+    /** 잠금 설정에서 지금 비밀번호를 다시 받을 때 처음부터 시작. */
     fun start(check: PinCheck) {
         this.check = check
         clearDigits()
@@ -125,8 +125,8 @@ class LockViewModel(
     }
 
     /**
-     * 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없을 때 잠금을 끈다.
-     * 끄지 못했으면 false이고, 그때는 앱을 열면 안 된다.
+     * 비밀번호를 대어 볼 수 없고 폰에도 화면 잠금이 없을 때 잠금을 끔.
+     * 끄지 못하면 false. 그때는 앱을 열면 안 됨.
      */
     suspend fun turnOffWithoutPin(): Boolean {
         val off =
@@ -147,7 +147,7 @@ class LockViewModel(
         if (pin == null) return
         _state.update { it.copy(checking = true) }
         viewModelScope.launchSafely {
-            // 확인하다 실패하면 열지 않고 키를 쓸 수 없을 때의 길로 보낸다.
+            // 확인 중 실패하면 열지 않고 키를 쓸 수 없을 때의 길로 보냄
             val result =
                 try {
                     if (check == PinCheck.Disable) repository.disable(pin, clock.now()) else repository.verify(pin, clock.now())
@@ -163,8 +163,8 @@ class LockViewModel(
                     _events.send(LockEvent.Unlocked)
                 }
 
-                // 점은 흔들린 뒤 바로 비어 다시 누르면 된다.
-                // 남은 횟수 안내는 다음 숫자를 누를 때까지 남는다.
+                // 점은 흔들린 뒤 바로 비어 다시 누르면 됨
+                // 남은 횟수 안내는 다음 숫자를 누를 때까지 남음
                 is VerifyResult.Wrong ->
                     _state.update {
                         LockUiState(message = LockMessage.Wrong(result.remainingBeforeWait), wrongCount = it.wrongCount + 1)
@@ -223,6 +223,6 @@ class LockViewModel(
 
 /**
  * 남은 기다림.
- * 기기 시계를 뒤로 돌리면 저장된 시각이 먼 미래가 되므로 한 번의 기다림보다 길어지지 않게 자른다.
+ * 기기 시계를 뒤로 돌리면 저장된 시각이 먼 미래가 되어 한 번의 기다림보다 길어지지 않게 자름.
  */
 internal fun waitLeft(until: Instant, now: Instant): Duration = (until - now).coerceAtMost(LockRepository.WAIT)

@@ -15,8 +15,8 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 
 /**
- * 하드웨어 키보드로 숫자와 지우기를 받는다(태블릿 키보드, 시험 스크립트의 `input keyevent`).
- * 화면이 뜨면 바로 초점을 잡는다.
+ * 하드웨어 키보드로 숫자와 지우기를 받음(태블릿 키보드, 시험 스크립트의 `input keyevent`).
+ * 화면이 뜨면 바로 초점을 잡음.
  */
 @Composable
 internal fun Modifier.pinKeys(enabled: Boolean, onDigit: (Char) -> Unit, onDelete: () -> Unit): Modifier {

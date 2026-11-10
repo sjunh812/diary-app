@@ -23,8 +23,8 @@ import org.sjhstudio.diary.feature.lock.resources.pin_setup_title
 
 /**
  * 비밀번호 정하기(Figma "비밀번호 정하기 (L2)", FR-019).
- * 두 번 넣어 같으면 정한다.
- * 휴대폰 잠금을 아는 사람도 일기를 열 수 있다는 점을 미리 알린다.
+ * 두 번 넣어 같으면 정함.
+ * 휴대폰 잠금을 아는 사람도 일기를 열 수 있다는 점을 미리 알림.
  */
 @Composable
 fun PinSetupScreen(
@@ -47,7 +47,7 @@ fun PinSetupScreen(
         modifier = modifier.pinKeys(enabled = !state.saving, onDigit = onDigit, onDelete = onDelete),
         top = {
             DiaryTopBar(title = "", onBack = onBack)
-            // 상단 바가 있어도 배지는 잠금 화면과 같은 자리에 온다.
+            // 상단 바가 있어도 배지는 잠금 화면과 같은 자리
             Spacer(Modifier.height(BadgeTop - DiarySpacing.x14))
         },
         middle = {
@@ -61,7 +61,7 @@ fun PinSetupScreen(
         }
     ) {
         DiaryNumberPad(onDigit = onDigit, onDelete = onDelete, enabled = !state.saving)
-        // 잠금 화면의 "비밀번호를 잊어버렸어요" 줄만큼 비워 숫자판 자리를 맞춘다.
+        // 잠금 화면의 "비밀번호를 잊어버렸어요" 줄만큼 비워 숫자판 자리를 맞춤
         Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x2))
     }
 }

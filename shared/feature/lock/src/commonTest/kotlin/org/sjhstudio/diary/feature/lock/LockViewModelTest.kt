@@ -30,7 +30,7 @@ import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-// 잠금 화면과 비밀번호 정하기의 입력 흐름(스펙 001 T061).
+// 잠금 화면과 비밀번호 정하기의 입력 흐름(스펙 001 T061)
 @OptIn(ExperimentalCoroutinesApi::class)
 class LockViewModelTest {
     private val dispatcher = StandardTestDispatcher()
@@ -44,7 +44,7 @@ class LockViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    /** 기다림이 시험 시계와 함께 흐르게 가상 시각을 벽시계로 쓴다. */
+    /** 기다림이 시험 시계와 함께 흐르게 가상 시각을 벽시계로 씀. */
     private fun TestScope.clock() = object : Clock {
         override fun now(): Instant = Instant.fromEpochMilliseconds(1_793_500_000_000 + testScheduler.currentTime)
     }
@@ -60,10 +60,10 @@ class LockViewModelTest {
 
         vm.type("1111")
         advanceUntilIdle()
-        // 틀리면 점은 바로 비고, 흔들림 신호(wrongCount)가 는다.
+        // 틀리면 점은 바로 비고 흔들림 신호(wrongCount)가 늘어남
         assertEquals(LockUiState(message = LockMessage.Wrong(4), wrongCount = 1), vm.state.value)
 
-        // 새로 누르면 안내를 지운다.
+        // 새로 누르면 안내 지움
         vm.onDigit('0')
         assertEquals(LockUiState(entered = 1, wrongCount = 1), vm.state.value)
         vm.type("427")
@@ -72,7 +72,7 @@ class LockViewModelTest {
         assertEquals(LockUiState(), vm.state.value)
     }
 
-    /** 5번 틀리면 30초 동안 숫자를 받지 않고, 남은 초를 세다가 다시 받는다. */
+    /** 5번 틀리면 30초 동안 숫자를 받지 않고, 남은 초를 세다가 다시 받음. */
     @Test
     fun fifth_wrong_blocks_input_for_thirty_seconds() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
@@ -116,7 +116,7 @@ class LockViewModelTest {
         assertEquals(LockUiState(), lock.state.value)
     }
 
-    /** 두 번째 입력에서 뒤로 가면 첫 입력부터 다시 한다. */
+    /** 두 번째 입력에서 뒤로 가면 첫 입력부터 다시 함. */
     @Test
     fun back_on_second_entry_restarts() = runTest(dispatcher) {
         val vm = PinSetupViewModel(repository)
@@ -126,7 +126,7 @@ class LockViewModelTest {
         assertEquals(false, vm.back())
     }
 
-    /** 기기 키를 못 만들면 꺼지지 않고 안내한 뒤 처음부터 다시 받는다. 잠금은 켜지지 않는다. */
+    /** 기기 키를 못 만들면 꺼지지 않고 안내한 뒤 처음부터 다시 받음. 잠금은 켜지지 않음. */
     @Test
     fun a_pin_that_cannot_be_saved_says_so_and_starts_over() = runTest(dispatcher) {
         val vm = PinSetupViewModel(repository)
@@ -145,7 +145,7 @@ class LockViewModelTest {
         assertEquals(false, vm.state.value.saveFailed)
     }
 
-    /** 공간이 꽉 차 비밀번호를 못 적어도 같다. */
+    /** 공간이 꽉 차 비밀번호를 못 적어도 같음. */
     @Test
     fun a_full_disk_while_saving_the_pin_does_not_open_the_app() = runTest(dispatcher) {
         val vm = PinSetupViewModel(repository)
@@ -161,7 +161,7 @@ class LockViewModelTest {
         assertEquals(true, vm.state.value.saveFailed)
     }
 
-    /** 키를 쓸 수 없으면 열지 않고 복구 길로 보낸다. */
+    /** 키를 쓸 수 없으면 열지 않고 복구 길로 보냄. */
     @Test
     fun a_keystore_crash_goes_to_recovery_and_never_unlocks() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))
@@ -177,7 +177,7 @@ class LockViewModelTest {
         assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)
     }
 
-    /** 저장소 구현이 예외를 던져도 숫자판이 멈추거나 꺼지지 않는다. */
+    /** 저장소 구현이 예외를 던져도 숫자판이 멈추거나 꺼지지 않음. */
     @Test
     fun a_repository_crash_keeps_the_lock_screen_alive() = runTest(dispatcher) {
         val broken =
@@ -223,7 +223,7 @@ class LockViewModelTest {
         assertEquals(LockMessage.NotSaved, vm.state.value.message)
     }
 
-    /** 끄지 못했는데 끈 것처럼 앱을 열면 안 된다. 그대로 잠근 채 알린다. */
+    /** 끄지 못했는데 끈 것처럼 앱을 열면 안 됨. 그대로 잠근 채 알림. */
     @Test
     fun a_lock_that_cannot_be_turned_off_stays_locked_and_says_so() = runTest(dispatcher) {
         repository.setPin(checkNotNull(Pin.of("0427")))

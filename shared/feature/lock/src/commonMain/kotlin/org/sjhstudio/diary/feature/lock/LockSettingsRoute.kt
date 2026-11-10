@@ -23,14 +23,14 @@ private enum class SettingsStep { Main, ConfirmToDisable, ConfirmToChange, NewPi
  * 켜기: 새 비밀번호 두 번.
  * 끄기: 지금 비밀번호.
  * 바꾸기: 지금 비밀번호 → 새 비밀번호 두 번.
- * 지금 비밀번호를 잊어버렸으면 앱 잠금 화면의 "비밀번호를 잊어버렸어요"로 다시 정한다.
+ * 지금 비밀번호를 잊어버렸으면 앱 잠금 화면의 "비밀번호를 잊어버렸어요"로 다시 정함.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LockSettingsRoute(onBack: () -> Unit) {
     val authenticator = rememberDeviceAuthenticator()
     val viewModel = koinViewModel<LockSettingsViewModel>()
-    // 잠금 관문의 화면 상태와 섞이지 않게 따로 둔다.
+    // 잠금 관문의 화면 상태와 섞이지 않게 따로 둠
     val confirm = koinViewModel<LockViewModel>(key = "lock-settings-confirm")
     val setup = koinViewModel<PinSetupViewModel>(key = "lock-settings-setup")
     val settings by viewModel.settings.collectAsStateWithLifecycle()

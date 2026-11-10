@@ -44,9 +44,9 @@ import org.sjhstudio.diary.feature.lock.resources.relock_one_minute
 
 /**
  * 잠금 설정(Figma "잠금 설정 (L4)", FR-017~FR-019).
- * 잠금을 켜면 비밀번호 줄과 생체 인증, 다시 잠그기가 나온다.
- * 생체 인증을 지금 기기에서 쓸 수 없으면 그 까닭을 보인다.
- * 켜 둔 것은 끄지 않는다(contracts/lock.md).
+ * 잠금을 켜면 비밀번호 줄과 생체 인증, 다시 잠그기가 나옴.
+ * 생체 인증을 지금 기기에서 쓸 수 없으면 그 까닭을 보임.
+ * 켜 둔 것은 끄지 않음(contracts/lock.md).
  */
 @Composable
 fun LockSettingsScreen(
@@ -62,7 +62,7 @@ fun LockSettingsScreen(
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.lock_settings_title), onBack = onBack)
-        // 넓은 화면에서는 설정 목록 폭을 폰과 같게 둔다.
+        // 넓은 화면에서도 설정 목록 폭은 폰과 같게
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsSwitchRow(
                 stringResource(Res.string.lock_settings_enable),

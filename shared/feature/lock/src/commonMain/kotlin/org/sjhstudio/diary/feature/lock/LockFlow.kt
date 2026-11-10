@@ -33,10 +33,11 @@ private enum class LockStep { Enter, NewPin }
 /**
  * 잠금 관문 안쪽 흐름(contracts/lock.md).
  * 잠금 화면 → "비밀번호를 잊어버렸어요" → 폰 화면 잠금 확인 → 새 비밀번호 정하기.
- * [needsNewPin]이면(키 없음) 숫자판 대신 바로 폰 화면 잠금 확인으로 가고, 폰에 화면 잠금이 없으면 잠금을 끄고 알린다.
- * 잠금을 끄지 못하면 앱을 열지 않고 [onKeepLock]로 잠금 화면에 남는다.
- * [withoutRelock]은 폰 잠금 확인으로 앱이 잠깐 가려지는 동안 다시 잠그지 않게 감싼다.
- * [authenticator]는 시험이 시스템 인증 창 대신 대역을 넣는 자리다.
+ * [needsNewPin](키 없음)이면 숫자판 없이 바로 폰 화면 잠금 확인.
+ * 폰에 화면 잠금이 없으면 잠금을 끄고 알림.
+ * 잠금을 끄지 못하면 앱을 열지 않고 [onKeepLock]로 잠금 화면에 남음.
+ * [withoutRelock]: 폰 잠금 확인으로 앱이 잠깐 가려지는 동안 다시 잠그지 않게 감쌈.
+ * [authenticator]: 시험에서 시스템 인증 창 대신 대역을 넣는 자리.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -79,14 +80,14 @@ fun LockFlow(
         }
     }
     LaunchedEffect(setup) { setup.done.collect { onUnlocked() } }
-    // 열자마자 생체 인증을 띄운다.
-    // 취소하거나 실패하면 숫자판이 그대로 남는다.
-    // 실패 까닭(지문 불일치, 잠시 잠김)은 시스템 창이 직접 말하고, 창이 닫히면 숫자판이 남는다.
+    // 열자마자 생체 인증 띄움
+    // 취소·실패하면 숫자판이 그대로 남음
+    // 실패 까닭(지문 불일치, 잠시 잠김)은 시스템 창이 직접 알림
     val unlockWithBiometric: suspend () -> Unit = {
         val result = authenticator.authenticateBiometric(biometricPrompt)
         if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
         if (result == AuthResult.Success) {
-            // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 센다.
+            // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 셈
             lock.start(PinCheck.Verify)
             onUnlocked()
         }
