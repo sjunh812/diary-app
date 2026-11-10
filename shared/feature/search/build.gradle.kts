@@ -1,4 +1,4 @@
-// 찾기 화면.
+// 찾기 화면
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

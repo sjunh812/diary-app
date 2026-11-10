@@ -62,10 +62,9 @@ internal fun periodLabel(period: SearchPeriod): String = stringResource(
 )
 
 /**
- * 여러 개를 고를 수 있다.
- * 시트 안에서 고른 것은 [완료]를 눌러야 결과에 쓴다.
- * 결과가 시트에 가려 바로 바꿔도 보이지 않고, 모바일 필터는 다 고른 뒤 한 번에 적용하는 편이 낫다(NN/g, 사용자 제안 2026-11-09).
- * 내려서 닫으면 고르기 전으로 둔다.
+ * 여러 개를 고를 수 있음. 시트에서 고른 것은 [완료]를 눌러야 결과에 씀.
+ * 결과가 시트에 가려 바로 바꿔도 안 보이고, 모바일 필터는 다 고른 뒤 한 번에 적용하는 편이 나음(NN/g).
+ * 내려서 닫으면 고르기 전으로
  */
 @Composable
 internal fun MoodSheet(selected: Set<Mood>, onApply: (Set<Mood>) -> Unit, onDismiss: () -> Unit) {
@@ -99,7 +98,7 @@ internal fun WeatherSheet(selected: Set<Weather>, onApply: (Set<Weather>) -> Uni
     }
 }
 
-/** 화면을 돌려도 시트에서 고르던 것이 남게 이름 목록으로 저장한다. */
+/** 화면을 돌려도 시트에서 고르던 것이 남게 이름 목록으로 저장 */
 private fun <T : Enum<T>> enumSetSaver(restore: (String) -> T): Saver<Set<T>, Any> =
     listSaver({ set -> set.map { it.name } }, { names -> names.map(restore).toSet() })
 
@@ -115,8 +114,8 @@ private fun SheetButtons(onClear: () -> Unit, onDone: () -> Unit) {
 }
 
 /**
- * 직접 선택한 기간을 짧게 쓴다.
- * 올해 안이면 "11월 1일 ~ 11월 7일", 다른 해가 끼면 연도까지 쓴다. 하루면 그날만 쓴다.
+ * 직접 선택한 기간을 짧게.
+ * 올해 안이면 "11월 1일 ~ 11월 7일", 다른 해가 끼면 연도까지, 하루면 그날만
  */
 @Composable
 internal fun rangeLabel(range: DateRange, today: LocalDate): String {
@@ -136,11 +135,11 @@ internal fun PeriodSheet(
     onDismiss: () -> Unit
 ) {
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.search_chip_period)) {
-        // 고르기 목록의 줄끼리는 시트의 내용 간격 없이 붙인다.
+        // 고르기 목록 줄끼리는 시트 내용 간격 없이 붙임
         Column {
             for (period in SearchPeriod.entries) {
                 val isCustom = period == SearchPeriod.Custom
-                // 직접 선택한 기간은 줄 아래에 짧게 보여, 시트를 열었을 때 무엇을 골랐는지 바로 안다(2026-11-08 사용자 제안).
+                // 직접 선택한 기간은 줄 아래에 짧게 보여 시트를 열면 무엇을 골랐는지 바로 알게
                 val description = if (isCustom && period == selected) customRange else null
                 PeriodRow(periodLabel(period), period == selected, description) {
                     when {
@@ -154,10 +153,7 @@ internal fun PeriodSheet(
     }
 }
 
-/**
- * 고르기 목록 줄(`docs/design.md` 고르기 목록).
- * 글은 시트 안쪽 선에 맞추고 누름 면만 글 양옆으로 12 나온다.
- */
+/** 고르기 목록 줄(`docs/design.md` 고르기 목록). 글은 시트 안쪽 선에 맞추고 누름 면만 양옆으로 12 나옴 */
 @Composable
 private fun PeriodRow(label: String, selected: Boolean, description: String?, onClick: () -> Unit) {
     CompositionLocalProvider(LocalScreenGutter provides DiarySpacing.x3) {
@@ -178,11 +174,9 @@ private fun PeriodRow(label: String, selected: Boolean, description: String?, on
 }
 
 /**
- * 시작일과 종료일을 차례로 누른다.
- * 달력 위 두 칸이 다음에 누를 날을 알려 준다(사용자 확인 2026-11-09).
- * 종료일을 시작일보다 앞에 누르면 둘을 바꾼다.
- * 둘 다 고른 뒤 다른 날을 누르면 그날로 새로 시작한다.
- * 시작일만 고르고 [완료]를 누르면 그날 하루로 찾는다.
+ * 시작일과 종료일을 차례로 누름. 달력 위 두 칸이 다음에 누를 날을 알려 줌.
+ * 종료일을 시작일보다 앞에 누르면 둘을 바꿈. 둘 다 고른 뒤 다른 날을 누르면 그날로 새로 시작.
+ * 시작일만 고르고 [완료]를 누르면 그날 하루로 찾음
  */
 @Composable
 internal fun RangeSheet(initial: DateRange?, today: LocalDate, onDone: (DateRange) -> Unit, onDismiss: () -> Unit) {
@@ -211,7 +205,7 @@ internal fun RangeSheet(initial: DateRange?, today: LocalDate, onDone: (DateRang
                 onPick = { day ->
                     val first = start
                     when {
-                        // 시작일을 고르는 중이거나, 둘 다 고른 뒤 다시 누르면 그날로 새로 시작한다.
+                        // 시작일을 고르는 중이거나, 둘 다 고른 뒤 다시 누르면 그날로 새로 시작
                         first == null || active != DiaryDateSlot.End -> {
                             start = day
                             end = end?.takeIf { active == DiaryDateSlot.Start && it >= day }

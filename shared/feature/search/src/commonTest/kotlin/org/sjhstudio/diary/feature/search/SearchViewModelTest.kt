@@ -84,7 +84,7 @@ class SearchViewModelTest {
         assertEquals(SearchFilter(query = "바다", hasPhoto = true, favoritesOnly = true), model.filter.value)
     }
 
-    /** 초기화는 고른 조건만 지우고 쓴 낱말은 남긴다. */
+    /** 초기화는 고른 조건만 지우고 쓴 낱말은 남김 */
     @Test
     fun clearing_conditions_keeps_the_query() {
         val range = DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31))
@@ -106,7 +106,7 @@ class SearchViewModelTest {
         override fun install(id: String) = emptyFlow<FontInstallState>()
     }
 
-    /** 앱이 꺼졌다 돌아와도 치던 글과 고른 조건이 남는다. */
+    /** 앱이 꺼졌다 돌아와도 치던 글과 고른 조건 유지 */
     @Test
     fun the_filter_survives_the_app_being_killed() {
         val filter = SearchFilter(

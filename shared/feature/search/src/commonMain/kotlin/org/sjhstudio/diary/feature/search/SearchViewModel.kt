@@ -39,17 +39,13 @@ import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
-/**
- * 기간 칩의 고르는 값.
- * [Custom]은 직접 고른 범위이고 돌아보기에서 넘어온 기간도 여기다.
- */
+/** 기간 칩의 고르는 값. [Custom]은 직접 고른 범위, 돌아보기에서 넘어온 기간도 여기 */
 enum class SearchPeriod { Week, Month, Year, Custom }
 
 /**
- * 찾기(FR-025~FR-027).
- * 상세에 다녀와도 이 모델이 살아 있어 입력과 조건이 그대로다.
- * 글자는 칠 때마다 찾지 않고 잠깐 멈춘 뒤에 찾는다.
- * 결과는 홈처럼 쪽으로 읽어서 1만 편이 걸려도 보는 만큼만 메모리에 둔다.
+ * 찾기(FR-025~FR-027). 상세에 다녀와도 이 모델이 살아 있어 입력과 조건 유지.
+ * 글자는 칠 때마다 찾지 않고 잠깐 멈춘 뒤 찾음.
+ * 결과는 홈처럼 쪽으로 읽어 1만 편이 걸려도 보는 만큼만 메모리에 둠
  */
 class SearchViewModel(
     private val entries: EntryRepository,
@@ -59,7 +55,7 @@ class SearchViewModel(
     private val today: () -> LocalDate = { currentDate() },
     private val saved: SavedStateHandle
 ) : ViewModel() {
-    // 시스템이 앱을 끄고 다시 띄워도 치던 글과 고른 조건이 남는다.
+    // 시스템이 앱을 끄고 다시 띄워도 치던 글과 고른 조건 유지
     private val _filter = MutableStateFlow(saved.get<String>(FILTER_KEY)?.let(::decodeFilter) ?: initial)
     val filter: StateFlow<SearchFilter> = _filter.asStateFlow()
 
@@ -90,16 +86,13 @@ class SearchViewModel(
 
     fun toggleFavorites() = _filter.update { it.copy(favoritesOnly = !it.favoritesOnly) }
 
-    /** 고른 조건을 모두 지운다. 쓴 낱말은 그대로 둔다. */
+    /** 고른 조건만 모두 지움. 쓴 낱말은 그대로 */
     fun clearConditions() {
         _period.value = null
         _filter.update { SearchFilter(query = it.query) }
     }
 
-    /**
-     * 이번 주·이번 달·올해.
-     * 범위는 고른 날의 오늘을 기준으로 정한다.
-     */
+    /** 이번 주·이번 달·올해. 범위는 고른 날의 오늘 기준 */
     fun setPeriod(period: SearchPeriod?) {
         val date = today()
         val range =
@@ -122,8 +115,7 @@ class SearchViewModel(
     private companion object {
         const val DEBOUNCE_MILLIS = 200L
 
-        // 아직 찾지 않았을 때.
-        // "찾지 못했어요"가 비치지 않게 읽는 중으로 둔다.
+        // 아직 찾지 않았을 때. "찾지 못했어요"가 비치지 않게 읽는 중으로
         val WAITING =
             LoadStates(
                 refresh = LoadState.Loading,
@@ -136,7 +128,7 @@ class SearchViewModel(
 private const val FILTER_KEY = "search_filter"
 private const val SEP = "\u001F"
 
-/** 저장 상태에 넣을 수 있게 글자 하나로 접는다. 기분과 날씨는 이름, 기간은 날짜다. */
+/** 저장 상태에 넣게 글자 하나로 접음. 기분과 날씨는 이름, 기간은 날짜 */
 internal fun encodeFilter(filter: SearchFilter): String = listOf(
     filter.query,
     filter.moods.joinToString(",") { it.name },
@@ -147,9 +139,9 @@ internal fun encodeFilter(filter: SearchFilter): String = listOf(
     filter.period?.end?.toString().orEmpty()
 ).joinToString(SEP)
 
-/** 앱이 바뀌어 읽을 수 없는 값이면 처음 조건으로 돌아간다. */
+/** 앱이 바뀌어 읽을 수 없는 값이면 처음 조건으로 */
 internal fun decodeFilter(text: String): SearchFilter? = runCatching {
-    // 접은 순서 그대로 하나씩 꺼낸다.
+    // 접은 순서 그대로 하나씩 꺼냄
     val part = text.split(SEP).iterator()
     fun <T : Enum<T>> names(value: String, all: Array<T>) =
         value.split(",").filter { it.isNotEmpty() }.mapNotNullTo(HashSet()) { name -> all.firstOrNull { it.name == name } }

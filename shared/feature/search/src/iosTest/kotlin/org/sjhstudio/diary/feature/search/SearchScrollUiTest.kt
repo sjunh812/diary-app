@@ -46,13 +46,13 @@ private object NoFonts : FontInstaller {
     override fun install(id: String) = emptyFlow<FontInstallState>()
 }
 
-/** 조건이 바뀌면 맨 위로, 상세에 다녀왔을 때는 보던 자리로(FR-027). */
+/** 조건이 바뀌면 맨 위로, 상세에 다녀왔을 때는 보던 자리로(FR-027) */
 @OptIn(ExperimentalTestApi::class)
 class SearchScrollUiTest {
     private val filter = SearchFilter(moods = setOf(Mood.GOOD))
     private lateinit var model: SearchViewModel
 
-    /** 사진 조건을 켜면 앞의 줄이 빠지고, 끄면 돌아온다. 맨 위 줄이 달라진다. */
+    /** 사진 조건을 켜면 앞 줄이 빠지고 끄면 돌아옴. 맨 위 줄이 달라짐 */
     private val entries =
         object : EntryRepository by FakeEntryRepository() {
             override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> {
@@ -92,7 +92,7 @@ class SearchScrollUiTest {
     }
 
     private fun ComposeUiTest.scrollFar(lastIndex: Int = ROWS) {
-        // 조건 칩 줄도 스크롤되니 세로 목록만 고른다.
+        // 조건 칩 줄도 스크롤돼 세로 목록만 고름
         onNode(
             hasScrollToIndexAction() and SemanticsMatcher.keyIsDefined(SemanticsProperties.VerticalScrollAxisRange)
         ).performScrollToIndex(lastIndex)
@@ -109,7 +109,7 @@ class SearchScrollUiTest {
         waitShown(FIRST_WITH_PHOTO)
     }
 
-    /** 첫 줄이 뒤로 밀려도 그 줄을 따라가지 않고 맨 위로 간다. */
+    /** 첫 줄이 뒤로 밀려도 그 줄을 따라가지 않고 맨 위로 */
     @Test
     fun a_wider_filter_goes_to_the_top() = runComposeUiTest {
         search()

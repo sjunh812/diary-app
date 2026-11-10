@@ -95,16 +95,15 @@ import org.sjhstudio.diary.feature.search.resources.search_hint
 import org.sjhstudio.diary.feature.search.resources.search_idle
 import org.sjhstudio.diary.feature.search.resources.search_result_count
 
-/** 어느 칩의 시트가 열렸는지. */
+/** 어느 칩의 시트가 열렸는지 */
 private enum class Sheet { Mood, Weather, Period, Range }
 
-/** 조건을 바꾼 뒤 결과가 자리 잡을 때까지 맨 위를 지키는 시간. 그 뒤로는 사용자의 스크롤을 따른다. */
+/** 조건을 바꾼 뒤 결과가 자리 잡을 때까지 맨 위를 지키는 시간. 그 뒤로는 사용자 스크롤을 따름 */
 private const val RESULTS_SETTLE_MILLIS = 1_000L
 
 /**
- * 찾기(Figma "찾기 (S1-a)").
- * 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
- * 조건 없이 들어오면 입력 칸에 바로 포커스를 둔다.
+ * 찾기(Figma "찾기 (S1-a)"). 넓은 화면에서는 왼쪽 칸, 고른 줄은 [selectedId].
+ * 조건 없이 들어오면 입력 칸에 바로 포커스
  */
 @Composable
 fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, onOpen: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -116,14 +115,13 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
     val family = rememberFileFontFamily(look.fontPath)
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
     val list = rememberLazyListState()
-    // 상세에 다녀와도 이 화면은 다시 그려진다.
-    // 조건이 그대로면 보던 자리에 두려고 마지막 조건을 저장해 둔다.
+    // 상세에 다녀오면 이 화면을 다시 그려, 조건이 그대로면 보던 자리에 두려고 마지막 조건을 저장
     var listedFilter by rememberSaveable { mutableIntStateOf(filter.hashCode()) }
     LaunchedEffect(filter) {
         if (filter.hashCode() == listedFilter) return@LaunchedEffect
         listedFilter = filter.hashCode()
-        // 찾기는 잠깐 멈춘 뒤에 돌아서 결과가 늦게 온다.
-        // 목록은 보던 줄을 따라가려 해서, 새 결과가 와도 맨 위로 되돌린다.
+        // 찾기는 잠깐 멈춘 뒤 돌아 결과가 늦게 옴.
+        // 목록이 보던 줄을 따라가려 해 새 결과가 와도 맨 위로 되돌림
         withTimeoutOrNull(RESULTS_SETTLE_MILLIS) {
             snapshotFlow { results.itemCount to results.itemCount.takeIf { it > 0 }?.let { results.peek(0)?.id } }
                 .collect { list.scrollToItem(0) }
@@ -218,7 +216,7 @@ internal fun SearchScreen(
                 )
             }
             FilterChips(filter, period, onSheet, onPhoto, onFavorites, onClear)
-            // 없는 글자를 이어 칠 때 뼈대가 깜빡이지 않게, 없었으면 다 읽을 때까지 없음을 둔다.
+            // 없는 글자를 이어 칠 때 스켈레톤이 깜빡이지 않게, 없었으면 다 읽을 때까지 없음 유지
             val refresh = results.loadState.refresh
             var wasEmpty by remember { mutableStateOf(false) }
             LaunchedEffect(refresh, filter.isEmpty) {
@@ -248,7 +246,7 @@ internal fun SearchScreen(
     }
 }
 
-/** [SearchScreen]이 여는 시트. */
+/** [SearchScreen]이 여는 시트 */
 internal enum class SheetRequest { Mood, Weather, Period }
 
 @Composable
@@ -265,14 +263,13 @@ private fun FilterChips(
         contentPadding = PaddingValues(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        // 조건이 있을 때만 맨 앞에 둔다.
-        // 끝에 두면 칩이 많을 때 밀어야 보인다(2026-11-10 사용자 결정, eBay Playbook 칩 가로 스크롤).
+        // 조건이 있을 때만 맨 앞에. 끝에 두면 칩이 많을 때 밀어야 보임(eBay Playbook 칩 가로 스크롤)
         if (filter.hasConditions) {
             item(key = "clear") { DiaryIconChip(DiaryIcons.Reset, stringResource(Res.string.search_clear_conditions), onClear) }
         }
         item {
             DiaryChip(
-                // 고른 기분을 칩에 쓴다. 기간 칩처럼 무엇으로 걸렀는지 시트를 열지 않고 보인다(2026-11-10).
+                // 고른 기분을 칩에 씀. 기간 칩처럼 무엇으로 걸렀는지 시트를 열지 않고 보이게
                 chosenLabel(Mood.ordered.filter { it in filter.moods }.map { moodName(it) }) ?: stringResource(Res.string.search_chip_mood),
                 filter.moods.isNotEmpty(),
                 { onSheet(SheetRequest.Mood) },
@@ -292,7 +289,7 @@ private fun FilterChips(
         }
         item {
             DiaryChip(
-                // 직접 선택했으면 "직접 선택" 대신 그 기간을 칩에 쓴다(돌아보기에서 넘어와도 무엇으로 걸렀는지 보인다).
+                // 직접 선택했으면 "직접 선택" 대신 그 기간을 칩에 씀(돌아보기에서 넘어와도 무엇으로 걸렀는지 보이게)
                 filter.period?.takeIf { period == SearchPeriod.Custom }?.let { rangeLabel(it, rememberToday()) }
                     ?: period?.let { periodLabel(it) }
                     ?: stringResource(Res.string.search_chip_period),
@@ -325,10 +322,7 @@ private fun Empty() {
     }
 }
 
-/**
- * 달이 바뀌면 달 머리를 넣는다.
- * 결과는 최신순이다.
- */
+/** 달이 바뀌면 달 머리를 넣음. 결과는 최신순 */
 @Composable
 private fun Results(
     rows: LazyPagingItems<EntryRow>,
@@ -341,7 +335,7 @@ private fun Results(
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     val today = rememberToday()
-    // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
+    // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래 여백
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = bottom)) {
         item {
@@ -352,8 +346,7 @@ private fun Results(
             )
         }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
-            // 아직 읽지 않은 줄은 자리만 잡는다.
-            // 앞 줄은 읽기를 부르지 않게 엿보기만 한다.
+            // 아직 읽지 않은 줄은 자리만 잡음. 앞 줄은 읽기를 부르지 않게 엿보기만
             val row = rows[index]
             if (row == null) {
                 Spacer(Modifier.fillMaxWidth().height(DiarySpacing.x14 + DiarySpacing.x14))
@@ -382,10 +375,7 @@ private fun Results(
     }
 }
 
-/**
- * 고른 것이 하나면 그 이름, 여럿이면 "좋음 외 1"처럼 쓴다.
- * 아무것도 고르지 않았으면 null이다.
- */
+/** 고른 것이 하나면 그 이름, 여럿이면 "좋음 외 1"처럼. 아무것도 고르지 않았으면 null */
 @Composable
 private fun chosenLabel(names: List<String>): String? = when (names.size) {
     0 -> null
