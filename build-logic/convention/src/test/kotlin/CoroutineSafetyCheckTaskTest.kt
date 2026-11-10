@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 
-// 코루틴 안전 검사: 맨 launch와 stateIn은 실패하고, 안전한 함수와 시험·주석은 통과한다.
+// 코루틴 안전 검사: 맨 launch와 stateIn은 실패, 안전한 함수와 시험·주석은 통과
 class CoroutineSafetyCheckTaskTest {
     private val root: File = createTempDirectory("coroutine-safety-check").toFile()
 

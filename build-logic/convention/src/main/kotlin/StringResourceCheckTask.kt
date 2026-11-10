@@ -14,10 +14,10 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.w3c.dom.Element
 
-// 화면 문구가 세 언어에 다 있는지 본다(docs/design.md 여러 언어, research R18).
-// values(영어)를 기준으로 values-ko, values-ja가 같은 이름과 꼴, 같은 %1$s 자리를 갖는지 견준다.
-// 영어 개수 문구는 one·other, 한국어·일본어는 other가 있어야 한다.
-// Compose 리소스는 \' 와 \" 를 풀지 않아 역슬래시가 화면에 그대로 보이므로 막는다.
+// 화면 문구가 세 언어에 다 있는지 검사(docs/design.md 여러 언어, research R18)
+// values(영어) 기준으로 values-ko, values-ja의 이름·꼴·%1$s 자리가 같은지 비교
+// 개수 문구는 영어 one·other, 한국어·일본어 other가 있어야 함
+// Compose 리소스는 \' 와 \" 를 풀지 않아 역슬래시가 화면에 그대로 보여 막음
 @CacheableTask
 abstract class StringResourceCheckTask : DefaultTask() {
     @get:InputFiles

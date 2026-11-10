@@ -8,7 +8,7 @@ import org.sjhstudio.diary.buildlogic.javaVersion
 import org.sjhstudio.diary.buildlogic.jvmTarget
 import org.sjhstudio.diary.buildlogic.libs
 
-// 다른 모듈의 APK를 띄워 재는 테스트 모듈(:benchmarks)에 쓴다.
+// 다른 모듈의 APK를 띄워 재는 테스트 모듈(:benchmarks)용
 class AndroidTestConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("com.android.test")
@@ -17,7 +17,7 @@ class AndroidTestConventionPlugin : Plugin<Project> {
             compileSdk = libs.int("androidCompileSdk")
 
             defaultConfig {
-                // Baseline Profile은 안드로이드 9부터 만들 수 있다.
+                // Baseline Profile은 안드로이드 9부터 만들 수 있음
                 minSdk = maxOf(libs.int("androidMinSdk"), 28)
                 targetSdk = libs.int("androidTargetSdk")
             }

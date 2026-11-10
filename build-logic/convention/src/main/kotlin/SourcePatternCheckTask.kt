@@ -10,9 +10,9 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
-// 코드에서 금지한 꼴을 줄 단위로 찾는 검사의 공통 틀.
-// 디자인 토큰 검사와 코루틴 안전 검사가 규칙만 바꿔 쓴다.
-// 줄 단위 문자열 검사라 주석 줄은 건너뛴다.
+// 금지한 꼴을 줄 단위로 찾는 검사의 공통 틀
+// 디자인 토큰 검사와 코루틴 안전 검사가 규칙만 바꿔 씀
+// 줄 단위 문자열 검사라 주석 줄은 건너뜀
 abstract class SourcePatternCheckTask : DefaultTask() {
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)

@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.CacheableTask
 
-// 화면 코드가 디자인 시스템 토큰과 문자열 리소스만 쓰는지 본다(FR-028, FR-030, research R18).
-// 디자인 시스템 모듈과 미리보기 파일은 루트 등록에서 뺀다.
+// 화면 코드가 디자인 시스템 토큰과 문자열 리소스만 쓰는지 검사(FR-028, FR-030, research R18)
+// 디자인 시스템 모듈과 미리보기 파일은 루트 등록에서 제외
 @CacheableTask
 abstract class DesignTokenCheckTask : SourcePatternCheckTask() {
     override val checkName = "디자인 토큰"

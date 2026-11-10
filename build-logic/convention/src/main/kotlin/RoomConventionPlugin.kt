@@ -7,8 +7,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.sjhstudio.diary.buildlogic.library
 import org.sjhstudio.diary.buildlogic.libs
 
-// shared/core/database에 쓴다(research R4).
-// 스키마 JSON을 저장소에 남겨 버전을 올릴 때 바뀐 열을 비교하고 이전 시험에 쓴다.
+// shared/core/database용(research R4)
+// 스키마 JSON을 저장소에 남겨 버전을 올릴 때 바뀐 열을 비교하고 이전 시험에 씀
 class RoomConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) = with(target) {
         pluginManager.apply("diary.kmp.library")
@@ -26,7 +26,7 @@ class RoomConventionPlugin : Plugin<Project> {
             }
         }
 
-        // KMP에서 KSP는 타깃마다 따로 건다.
+        // KMP에서 KSP는 타깃마다 따로 걸어야 함
         dependencies {
             listOf("kspAndroid", "kspIosArm64", "kspIosSimulatorArm64").forEach { configuration ->
                 add(configuration, libs.library("androidx-room3-compiler"))
