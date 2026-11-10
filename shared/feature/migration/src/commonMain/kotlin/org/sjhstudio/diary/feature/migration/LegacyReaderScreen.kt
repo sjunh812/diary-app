@@ -41,10 +41,10 @@ import org.sjhstudio.diary.feature.migration.resources.legacy_reader_title
 import org.sjhstudio.diary.feature.migration.resources.migration_retry
 
 /**
- * 예전 일기 보기(Figma M4).
- * 기록 이전이 실패한 기기에서 사본을 읽기만 함.
- * 줄 모양은 일기 핵심 목록과 같은 일기 줄.
- * 기분 얼굴 그림을 그리기 전까지는 기분 색 점으로 보임.
+ * 예전 일기 보기(Figma M4)
+ * 기록 이전이 실패한 기기에서 사본을 읽기만 함
+ * 줄 모양은 일기 핵심 목록과 같은 일기 줄
+ * 기분 얼굴 그림을 그리기 전까지는 기분 색 점으로 보임
  */
 @Composable
 fun LegacyReaderScreen(

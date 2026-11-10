@@ -88,9 +88,9 @@ import org.sjhstudio.diary.feature.migration.resources.migration_start
 import org.sjhstudio.diary.feature.migration.resources.migration_view_legacy
 
 /**
- * 기록 이전 화면들(Figma "화면" M0·M1·M2·M2-b·M3).
- * 상태만 받아 그림.
- * 고르는 동작(예전 일기 보기, 원본 내보내기, 문의하기)이 null이면 그 줄을 숨김.
+ * 기록 이전 화면들(Figma "화면" M0·M1·M2·M2-b·M3)
+ * 상태만 받아 그림
+ * 고르는 동작(예전 일기 보기, 원본 내보내기, 문의하기)이 null이면 그 줄을 숨김
  */
 @Composable
 fun MigrationScreen(
@@ -276,13 +276,13 @@ private fun FailedContent(
     }
 }
 
-/** 설명 안 숫자 강조. 본문은 옅은 글자라 진한 글자와 한 단계 굵기로 띄움. */
+/** 설명 안 숫자 강조. 본문은 옅은 글자라 진한 글자와 한 단계 굵기로 띄움 */
 @Composable
 private fun numberEmphasis(): SpanStyle =
     SpanStyle(color = DiaryTheme.colors.textPrimary, fontWeight = DiaryTheme.typography.bodyStrong.fontWeight)
 
 /**
- * 배지 · 제목 · 설명 · 내용 · (안내 글) · (글자 버튼) · 큰 버튼.
+ * 배지 · 제목 · 설명 · 내용 · (안내 글) · (글자 버튼) · 큰 버튼
  * 넓은 화면에서는 가운데 폭 480.
  */
 @Composable

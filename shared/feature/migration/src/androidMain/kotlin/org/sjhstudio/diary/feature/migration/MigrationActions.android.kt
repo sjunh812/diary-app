@@ -35,7 +35,7 @@ import org.sjhstudio.diary.feature.migration.resources.support_file_name
 import org.sjhstudio.diary.feature.migration.resources.support_mail_body
 import org.sjhstudio.diary.feature.migration.resources.support_mail_subject
 
-/** 옛 앱 문의처(contracts/migration-flow.md "문의하기"). */
+/** 옛 앱 문의처(contracts/migration-flow.md "문의하기") */
 private const val SUPPORT_EMAIL = "sjunh812@naver.com"
 
 @Composable

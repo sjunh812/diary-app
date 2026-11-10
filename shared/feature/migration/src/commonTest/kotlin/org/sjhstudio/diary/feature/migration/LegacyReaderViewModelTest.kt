@@ -44,7 +44,7 @@ class LegacyReaderViewModelTest {
         photos = emptyList()
     )
 
-    /** 첫 쪽이 늦게 오는 동안 "더 읽기"가 여러 번 불려도 같은 쪽이 두 번 붙지 않음. */
+    /** 첫 쪽이 늦게 오는 동안 "더 읽기"가 여러 번 불려도 같은 쪽이 두 번 붙지 않음 */
     @Test
     fun repeated_load_more_while_loading_does_not_duplicate() = runTest(dispatcher) {
         val gate = CompletableDeferred<Unit>()
@@ -69,8 +69,8 @@ class LegacyReaderViewModelTest {
     }
 
     /**
-     * 읽지 못한 것은 빈 목록과 다름.
-     * 끝으로 치지 않고, 다시 시도하면 이어서 읽음.
+     * 읽지 못한 것은 빈 목록과 다름
+     * 끝으로 치지 않고, 다시 시도하면 이어서 읽음
      */
     @Test
     fun failed_page_is_not_an_empty_list() = runTest(dispatcher) {
@@ -95,7 +95,7 @@ class LegacyReaderViewModelTest {
         assertEquals(listOf(1L), vm.state.value.entries.map { it.id })
     }
 
-    /** 취소는 실패가 아님. */
+    /** 취소는 실패가 아님 */
     @Test
     fun cancellation_is_not_reported_as_failure() = runTest(dispatcher) {
         val archive =
