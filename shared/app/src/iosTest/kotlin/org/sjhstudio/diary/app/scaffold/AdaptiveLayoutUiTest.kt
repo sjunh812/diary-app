@@ -90,6 +90,7 @@ class AdaptiveLayoutUiTest {
         startKoin {
             modules(
                 backupFeatureModule,
+                appShellModule,
                 module {
                     single { AppLaunch() }
                     single<PlanRepository> { FreePlanRepository() }

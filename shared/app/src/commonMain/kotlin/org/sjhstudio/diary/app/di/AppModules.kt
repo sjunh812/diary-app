@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
@@ -17,6 +18,7 @@ import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.navigation.AppLaunch
+import org.sjhstudio.diary.app.scaffold.appShellModule
 import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
@@ -138,6 +140,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     backupFeatureModule,
     welcomeFeatureModule,
     plusFeatureModule,
+    appShellModule,
     module {
         single(APP_SCOPE) { appCoroutineScope() }
         single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }

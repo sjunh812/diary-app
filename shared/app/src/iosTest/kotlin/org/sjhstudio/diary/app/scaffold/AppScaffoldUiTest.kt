@@ -92,6 +92,7 @@ class AppScaffoldUiTest {
         startKoin {
             modules(
                 backupFeatureModule,
+                appShellModule,
                 module {
                     single { AppLaunch() }
                     single<PlanRepository> { FreePlanRepository() }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
@@ -45,10 +46,12 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.app.ads.AdShape
 import org.sjhstudio.diary.app.ads.AdSlot
 import org.sjhstudio.diary.app.navigation.AdvancedStatsKey
@@ -122,6 +125,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
@@ -185,9 +189,10 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     RestoreResultNotice(toast, onResultScreen = nav.top is RestoreProgressKey, quiet = fullScreen) {
         nav.push(RestoreProgressKey)
     }
+    val shell = koinViewModel<AppShellViewModel>()
+    val actions = remember(shell) { ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed) }
     // 홈 쓰기 버튼은 일기 유무를 읽은 뒤 표시. 미리 두면 빈 홈에서 보였다 사라짐
-    val entries = koinInject<EntryRepository>()
-    val months by remember(entries) { entries.months() }.collectAsStateWithLifecycle(null)
+    val hasEntries by shell.hasEntries.collectAsStateWithLifecycle()
 
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth
@@ -231,7 +236,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                         null
                     } else {
                         { root ->
-                            val hideOnHome = root == HomeKey && months?.isEmpty() != false
+                            val hideOnHome = root == HomeKey && hasEntries != true
                             if (root != SettingsKey && !hideOnHome) {
                                 DiaryWriteButton(
                                     writeLabel,
@@ -255,7 +260,8 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                     onWrite,
                     Modifier.fillMaxSize(),
                     bottomInset = barInset,
-                    onToastHeight = { toastHeight = it }
+                    onToastHeight = { toastHeight = it },
+                    shell = actions
                 )
             }
             if (wide && !fullScreen) {
@@ -321,37 +327,14 @@ private val TabBarSpace =
  */
 private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScreen) -> Unit)?> { null }
 
-/**
- * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력의 목록으로 돌아왔을 때만이다.
- * 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있는데 설정에는 광고가 없다(헌법 III). 다음에 목록으로 갈 때까지 미룬다.
- */
-internal fun interstitialMayShow(backStack: List<NavKey>): Boolean =
-    backStack.size == 1 && (backStack.last() == HomeKey || backStack.last() == CalendarKey)
-
-/**
- * 저장 뒤 전면 광고를 띄울 차례.
- * 일기를 저장하면 그 탭을 기억하고, 같은 탭의 목록으로 돌아오면 한 번 띄운다.
- * 다른 탭으로 가면 기회를 버린다. 몇 시간 뒤 탭을 누를 때 뜨면 "저장하고 목록으로 돌아갈 때"가 아니다.
- * 하루 한 번인지는 [AdRepository]가 본다.
- */
-@Stable
-internal class AfterSaveAdTurn {
-    /** 기다리는 탭. 화면이 바뀔 때 다시 보도록 상태로 둔다. */
-    var savedOn: TabScreen? by mutableStateOf(null)
-        private set
-
-    fun saved(tab: TabScreen) {
-        savedOn = tab
-    }
-
-    /** 화면이 바뀔 때마다 부른다. 참이면 지금 띄우고 차례는 끝난다. */
-    fun takeTurn(tab: TabScreen, backStack: List<NavKey>): Boolean {
-        val pending = savedOn
-        val show = pending == tab && interstitialMayShow(backStack)
-        if (pending != tab || show) savedOn = null
-        return show
-    }
-}
+/** 앱 틀 화면 모델([AppShellViewModel])에서 화면에 넘기는 상태와 동작 */
+@Immutable
+private class ShellActions(
+    val plan: StateFlow<Plan>,
+    val onScreen: (NavKey, TabScreen, List<NavKey>) -> Unit,
+    val onSaved: (TabScreen, List<NavKey>) -> Unit,
+    val onRestore: (String) -> Unit
+)
 
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
 private enum class Message { Saved, DraftKept }
@@ -365,18 +348,19 @@ private fun ContentWithToast(
     onWrite: () -> Unit,
     modifier: Modifier,
     bottomInset: Dp = Dp.Hairline,
-    onToastHeight: (Dp) -> Unit = {}
+    onToastHeight: (Dp) -> Unit = {},
+    shell: ShellActions
 ) {
     Box(modifier) {
         val saved = stringResource(Res.string.write_saved)
         val draftKept = stringResource(Res.string.write_draft_kept)
         val trashed = stringResource(Res.string.detail_trashed)
         val undo = stringResource(Res.string.detail_trashed_undo)
-        val entries = koinInject<EntryRepository>()
         val scope = rememberCoroutineScope()
         val writeFailed = stringResource(Res.string.write_failed)
         LaunchedEffect(toast) { WriteFailures.events.collect { toast.show(writeFailed) } }
         Content(
+            shell,
             nav,
             twoPane,
             onWrite,
@@ -384,7 +368,7 @@ private fun ContentWithToast(
             notify = { message -> scope.launch { toast.show(if (message == Message.Saved) saved else draftKept) } },
             onTrashed = { id ->
                 // 알림이 사라진 뒤에도 앱 틀은 그대로라 화면이 닫혀도 되돌릴 수 있다.
-                scope.launchWrite { if (toast.show(trashed, undo) == DiaryToastResult.ActionPerformed) entries.restore(id) }
+                scope.launch { if (toast.show(trashed, undo) == DiaryToastResult.ActionPerformed) shell.onRestore(id) }
             }
         )
         val density = LocalDensity.current
@@ -408,6 +392,7 @@ private fun SearchKey.toFilter() = SearchFilter(
 
 @Composable
 private fun Content(
+    shell: ShellActions,
     nav: TabNavigation,
     twoPane: Boolean,
     onWrite: () -> Unit,
@@ -424,19 +409,9 @@ private fun Content(
     // 화면 목록은 쌓임이 바뀔 때만 다시 만들어진다.
     // 창 폭은 그 사이에도 바뀌니 값을 잡아 두지 않고 읽는다.
     val splitWindow by rememberUpdatedState(twoPane)
-    // 보는 화면이 바뀔 때마다 화면 키 이름만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
-    val telemetry = koinInject<Telemetry>()
+    // 화면이 바뀌면 통계(화면 키 이름만)와 저장 뒤 광고 차례(FR-010)를 화면 모델에 알림
     val top = nav.top
-    LaunchedEffect(top) { if (top != null) telemetry.screen(top.toString()) }
-    // 저장 뒤 상세에서 목록으로 돌아올 때 하루 한 번 전면 광고를 띄운다.
-    // 저장은 이미 끝나 있다(FR-010).
-    val ads = koinInject<AdRepository>()
-    val adScope = rememberCoroutineScope()
-    val adTurn = remember { AfterSaveAdTurn() }
-    LaunchedEffect(top, adTurn.savedOn) {
-        // 값이 바뀌면 이 효과가 다시 시작되니 광고는 앱 틀의 범위에서 띄운다.
-        if (adTurn.savedOn != null && adTurn.takeTurn(nav.tab, nav.current)) adScope.launch { ads.backToList() }
-    }
+    LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList()) }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { PickHint() } }
     val homeStack = nav.stacks.getValue(HomeKey)
     val dimmed = dimmedAlpha(DiaryTheme.colors.canvas.luminance() < HALF)
@@ -534,7 +509,7 @@ private fun Content(
                     }
                     entry<AdvancedStatsKey> {
                         // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아간다.
-                        val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
+                        val plan by shell.plan.collectAsStateWithLifecycle()
                         LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
                         AdvancedStatsRoute(
                             onBack = pop,
@@ -554,8 +529,7 @@ private fun Content(
                                 // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
                                 if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
                                 notify(Message.Saved)
-                                adTurn.saved(nav.tab)
-                                adScope.launch { ads.afterSave() }
+                                shell.onSaved(nav.tab, nav.current.toList())
                             },
                             onClosed = { kept ->
                                 pop()
