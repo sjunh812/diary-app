@@ -184,7 +184,7 @@ class MigrationViewModel(
 
     /** 사본을 볼 수 없으면 없는 것처럼 줄을 숨긴다. */
     private suspend fun hasCopy(): Boolean = try {
-        withContext(background) { migration.hasLegacyCopy }
+        withContext(background) { migration.hasLegacyCopy() }
     } catch (e: CancellationException) {
         throw e
     } catch (_: Exception) {

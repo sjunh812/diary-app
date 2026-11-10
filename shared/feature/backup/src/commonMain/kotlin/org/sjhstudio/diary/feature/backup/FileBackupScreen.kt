@@ -37,7 +37,6 @@ import io.github.vinceglb.filekit.sink
 import io.github.vinceglb.filekit.size
 import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.launch
-import okio.buffer
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -112,7 +111,7 @@ fun FileBackupRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
         }) { file: PlatformFile? ->
             ExpectedLeave.clear()
             file?.let { target ->
-                viewModel.write(target.name, { OkioSink(target.sink()).buffer() }, { target.delete(mustExist = false) })
+                viewModel.write(target.name, { OkioSink(target.sink()) }, { target.delete(mustExist = false) })
             }
         }
     // 나가면 파일을 끝까지 만들지 못한다.

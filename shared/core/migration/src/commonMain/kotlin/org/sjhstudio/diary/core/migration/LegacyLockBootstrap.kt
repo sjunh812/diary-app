@@ -20,7 +20,7 @@ import org.sjhstudio.diary.core.model.Pin
 class LegacyLockBootstrap(
     private val fileSystem: FileSystem,
     private val files: LegacyFiles,
-    private val migrationStep: () -> MigrationStep,
+    private val migrationStep: suspend () -> MigrationStep,
     private val lock: LockRepository,
     private val lockStore: LockStore
 ) {

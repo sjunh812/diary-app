@@ -27,12 +27,13 @@ fun WelcomeGate(content: @Composable () -> Unit) {
     val connected by viewModel.connected.collectAsStateWithLifecycle()
     val connecting by viewModel.connecting.collectAsStateWithLifecycle()
     val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
+    val entries by viewModel.entries.collectAsStateWithLifecycle()
     when (step) {
         null -> Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
 
         WelcomeStep.DONE -> content()
 
-        WelcomeStep.LETTER -> LetterScreen(viewModel.entries, viewModel::letterRead)
+        WelcomeStep.LETTER -> LetterScreen(entries, viewModel::letterRead)
 
         WelcomeStep.ONBOARDING_UPDATED, WelcomeStep.ONBOARDING_NEW -> {
             OnboardingScreen(step == WelcomeStep.ONBOARDING_UPDATED, connected, connecting, viewModel::connect, viewModel::finish)

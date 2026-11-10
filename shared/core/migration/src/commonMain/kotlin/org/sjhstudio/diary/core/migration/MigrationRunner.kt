@@ -149,16 +149,16 @@ class MigrationRunner(
     private val _progress = MutableStateFlow(MigrationProgress(MigrationStep.NOT_STARTED))
     override val progress: StateFlow<MigrationProgress> = _progress.asStateFlow()
 
-    override fun state(): MigrationState = store.readState()
+    override suspend fun state(): MigrationState = withContext(io) { store.readState() }
 
-    override fun report(): MigrationReport? = store.readReport()
+    override suspend fun report(): MigrationReport? = withContext(io) { store.readReport() }
 
-    override val hasLegacyCopy: Boolean get() = fileSystem.exists(paths.snapshotDir / paths.legacy.noteDb.name)
+    override suspend fun hasLegacyCopy(): Boolean = withContext(io) { fileSystem.exists(paths.snapshotDir / paths.legacy.noteDb.name) }
 
     /** 원본이 있고 아직 끝나지 않았는가(관문이 이전 화면을 띄울지 정한다). */
-    override fun needsMigration(): Boolean {
+    override suspend fun needsMigration(): Boolean = withContext(io) {
         val step = store.readState().step
-        return step != MigrationStep.DONE && step != MigrationStep.PARTIAL && step != MigrationStep.DEFERRED &&
+        step != MigrationStep.DONE && step != MigrationStep.PARTIAL && step != MigrationStep.DEFERRED &&
             paths.legacy.exist(fileSystem)
     }
 
@@ -606,9 +606,9 @@ class MigrationRunner(
         notes.map { it.id.toInt() }.chunked(SQL_ARGS).forEach { db.entryDao().clearLegacyIds(it) }
     }
 
-    override fun defer() {
+    override suspend fun defer() = withContext(io) {
         val state = store.readState()
-        if (state.step != MigrationStep.FAILED) return
+        if (state.step != MigrationStep.FAILED) return@withContext
         store.writeState(state.copy(step = MigrationStep.DEFERRED, retriedVersionCode = versionCode, updatedAt = clock.now()))
     }
 

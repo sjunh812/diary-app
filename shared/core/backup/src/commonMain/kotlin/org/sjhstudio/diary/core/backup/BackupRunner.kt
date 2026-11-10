@@ -109,7 +109,7 @@ class BackupRunner(
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
     private val alerts: BackupAlerts? = null,
     private val gate: BackupGate = BackupGate(),
-    private val dataReady: () -> Boolean = { true }
+    private val dataReady: suspend () -> Boolean = { true }
 ) {
     private val _progress = MutableStateFlow<BackupProgress?>(null)
 

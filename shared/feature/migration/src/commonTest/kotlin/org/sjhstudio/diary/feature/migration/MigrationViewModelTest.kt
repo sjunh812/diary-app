@@ -67,7 +67,7 @@ class MigrationViewModelTest {
         var calls = 0
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun needsMigration(): Boolean = true
+                override suspend fun needsMigration(): Boolean = true
 
                 override suspend fun run(): MigrationResult = MigrationResult.Finished(report, showResult = true)
             }
@@ -96,9 +96,9 @@ class MigrationViewModelTest {
         var copy = false
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun needsMigration(): Boolean = true
+                override suspend fun needsMigration(): Boolean = true
 
-                override val hasLegacyCopy: Boolean get() = copy
+                override suspend fun hasLegacyCopy(): Boolean = copy
 
                 override suspend fun run(): MigrationResult =
                     MigrationResult.Failed(MigrationStep.SNAPSHOTTING, MigrationFailureKind.SNAPSHOT_IO)
@@ -121,7 +121,7 @@ class MigrationViewModelTest {
         val gate = CompletableDeferred<Unit>()
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun needsMigration(): Boolean = true
+                override suspend fun needsMigration(): Boolean = true
 
                 override suspend fun run(): MigrationResult {
                     runs++
@@ -148,7 +148,7 @@ class MigrationViewModelTest {
     fun a_crash_in_the_migration_lands_on_the_failure_screen() = runTest(dispatcher) {
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun needsMigration(): Boolean = true
+                override suspend fun needsMigration(): Boolean = true
 
                 override suspend fun run(): MigrationResult = error("저장 공간 없음")
             }
@@ -163,7 +163,7 @@ class MigrationViewModelTest {
     fun a_crash_while_checking_lands_on_the_failure_screen() = runTest(dispatcher) {
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun needsMigration(): Boolean = error("읽을 수 없음")
+                override suspend fun needsMigration(): Boolean = error("읽을 수 없음")
 
                 override suspend fun run(): MigrationResult = error("읽을 수 없음")
             }
@@ -178,12 +178,12 @@ class MigrationViewModelTest {
     fun skip_opens_the_app_even_when_the_deferral_cannot_be_written() = runTest(dispatcher) {
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun needsMigration(): Boolean = true
+                override suspend fun needsMigration(): Boolean = true
 
                 override suspend fun run(): MigrationResult =
                     MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
 
-                override fun defer() = error("저장 공간 없음")
+                override suspend fun defer() = error("저장 공간 없음")
             }
         val vm = MigrationViewModel(migration, followUp = { FollowUpResult() }, background = dispatcher)
         advanceUntilIdle()
@@ -200,12 +200,12 @@ class MigrationViewModelTest {
         var deferred = 0
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun needsMigration(): Boolean = true
+                override suspend fun needsMigration(): Boolean = true
 
                 override suspend fun run(): MigrationResult =
                     MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
 
-                override fun defer() {
+                override suspend fun defer() {
                     deferred++
                 }
             }

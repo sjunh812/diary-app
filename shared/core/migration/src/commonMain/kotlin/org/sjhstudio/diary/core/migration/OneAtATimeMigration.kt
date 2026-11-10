@@ -19,5 +19,8 @@ class OneAtATimeMigration(private val inner: LegacyMigration) : LegacyMigration 
     override suspend fun retryDeferred(db: DiaryDatabase, onlyAfterUpdate: Boolean): MigrationResult =
         lock.withLock { inner.retryDeferred(db, onlyAfterUpdate) }
 
+    /** 실패 화면의 새 일기부터 쓰기와 다시 시도를 겹쳐 눌러도 상태 파일을 함께 쓰지 않는다. */
+    override suspend fun defer() = lock.withLock { inner.defer() }
+
     override suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = lock.withLock { inner.recheckMissingPhotos(db) }
 }

@@ -16,7 +16,7 @@ import org.sjhstudio.diary.core.model.MigrationStep
 class LegacySettingsBootstrap(
     private val fileSystem: FileSystem,
     private val files: LegacyFiles,
-    private val migrationStep: () -> MigrationStep,
+    private val migrationStep: suspend () -> MigrationStep,
     private val store: SettingsStore
 ) {
     /**

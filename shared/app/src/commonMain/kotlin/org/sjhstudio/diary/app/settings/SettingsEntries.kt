@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.app.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,6 +55,7 @@ import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
@@ -168,7 +170,12 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<RestoreProgressKey> { RestoreProgressRoute(onHome = home, onLock = { push(LockSettingsKey) }, onPickOther = pop) }
     entry<TrashKey> { TrashRoute(onBack = pop) }
     entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
-    entry<LetterKey> { FullLetterScreen(entries = koinViewModel<LetterViewModel>().entries, onBack = pop) }
+    entry<LetterKey> {
+        val letter by koinViewModel<LetterViewModel>().letter.collectAsStateWithLifecycle()
+        // 읽는 동안은 바탕만 그린다(편지는 개수 문단까지 한 번에 나온다).
+        letter?.let { FullLetterScreen(entries = it.entries, onBack = pop) }
+            ?: Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
+    }
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()

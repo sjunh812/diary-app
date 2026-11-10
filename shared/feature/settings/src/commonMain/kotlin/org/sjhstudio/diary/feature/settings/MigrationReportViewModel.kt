@@ -84,5 +84,5 @@ class MigrationReportViewModel(
  * 일부만 옮겨졌거나 옮기기를 미룬 기기에서만 둔다.
  * 다 옮긴 기기에는 줄이 없다.
  */
-fun showsMigrationReport(migration: LegacyMigration): Boolean =
+suspend fun showsMigrationReport(migration: LegacyMigration): Boolean =
     migration.state().step.let { it == MigrationStep.PARTIAL || it == MigrationStep.DEFERRED }

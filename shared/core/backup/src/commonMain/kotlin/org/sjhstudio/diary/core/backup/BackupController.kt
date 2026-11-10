@@ -82,7 +82,7 @@ class BackupController(
     private val notifier: BackupNotifier,
     private val scope: CoroutineScope,
     private val clock: Clock = Clock.System,
-    private val migrated: () -> Boolean = { false },
+    private val migrated: suspend () -> Boolean = { false },
     private val legacyAccount: suspend () -> String? = { null },
     /**
      * 드라이브에 있는 가장 최근 백업.

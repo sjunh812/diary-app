@@ -76,7 +76,7 @@ class WelcomeViewModelTest {
             object : WelcomeRepository {
                 override suspend fun step(): WelcomeStep = error("읽을 수 없음")
 
-                override fun migratedEntries(): Int? = null
+                override suspend fun migratedEntries(): Int? = null
 
                 override suspend fun letterRead() = Unit
 

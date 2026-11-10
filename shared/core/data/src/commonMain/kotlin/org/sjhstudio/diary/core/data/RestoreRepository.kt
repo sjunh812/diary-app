@@ -1,19 +1,30 @@
 package org.sjhstudio.diary.core.data
 
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
+import okio.Buffer
 import okio.BufferedSink
+import okio.Sink
 import okio.Source
+import okio.buffer
+import okio.use
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
+import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
+import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /** 묶음 파일 만들기. */
 interface BundleFiles {
@@ -31,6 +42,56 @@ interface BundleFiles {
 
     /** 사용자가 파일 만들기를 멈췄다. 다음에 알릴 일이 아니다. */
     fun forgetStoppedBundle()
+
+    /**
+     * 사용자가 고른 자리에 묶음 파일을 만든다.
+     * [open]으로 열고, 다 쓰면 닫는다.
+     * 끝까지 쓰지 못하면 [discard]로 지운다.
+     * 쓰다 만 파일이 완성본 이름으로 남아 나중에 복원을 시도하게 두지 않는다.
+     * 멈추라고 해서 끝나도 지우고 멈춤을 그대로 알린다.
+     */
+    suspend fun saveBundle(open: () -> Sink, discard: suspend () -> Unit, onProgress: (done: Int, total: Int) -> Unit): BundleSave =
+        withContext(Dispatchers.IO) {
+            try {
+                val counted = CountingSink(open())
+                counted.buffer().use { writeBundle(it, onProgress) }
+                BundleSave.Saved(counted.written)
+            } catch (error: CancellationException) {
+                withContext(NonCancellable) { removed(discard) }
+                throw error
+            } catch (_: Exception) {
+                BundleSave.Failed(left = !removed(discard))
+            }
+        }
+}
+
+/** 파일 만들기의 끝. */
+sealed interface BundleSave {
+    /** [bytes]는 어림값이 아니라 실제로 쓴 크기다. */
+    data class Saved(val bytes: Long) : BundleSave
+
+    /** [left]면 쓰다 만 파일을 지우지 못했다. 사용자가 지워야 한다. */
+    data class Failed(val left: Boolean) : BundleSave
+}
+
+private suspend fun removed(discard: suspend () -> Unit): Boolean = try {
+    discard()
+    true
+} catch (error: CancellationException) {
+    throw error
+} catch (_: Exception) {
+    false
+}
+
+/** 실제로 쓴 크기를 센다. */
+private class CountingSink(private val delegate: Sink) : Sink by delegate {
+    var written = 0L
+        private set
+
+    override fun write(source: Buffer, byteCount: Long) {
+        delegate.write(source, byteCount)
+        written += byteCount
+    }
 }
 
 /**
@@ -131,4 +192,27 @@ interface RestoreRepository :
 interface SavedBackups {
     /** 없거나 다른 계정의 것이면 빈 목록이다. */
     suspend fun savedBackups(): List<BackupEntry> = emptyList()
+}
+
+/**
+ * 고른 파일을 [open]으로 열어 [prepareFile]에 넘기고 닫는다.
+ * 크기를 묻고 여는 일은 입출력 스레드에서 한다.
+ * 열지 못하면 고른 파일을 받지 못한 것으로 알린다.
+ */
+suspend fun RestoreRepository.prepareFile(open: () -> Source, byteSize: () -> Long?): RestorePreparation = withContext(Dispatchers.IO) {
+    val source =
+        try {
+            open()
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            return@withContext RestorePreparation.Failed(RestoreFailure.OTHER)
+        }
+    try {
+        source.use { prepareFile(it, orElseOnFailure(null) { byteSize() }) }
+    } catch (error: CancellationException) {
+        throw error
+    } catch (_: Exception) {
+        RestorePreparation.Failed(RestoreFailure.MISMATCH)
+    }
 }

@@ -144,7 +144,7 @@ class MigrationNoSpaceTest {
 
             runner.run()
 
-            assertFalse(runner.hasLegacyCopy)
+            assertFalse(runner.hasLegacyCopy())
         }
     }
 
@@ -157,7 +157,7 @@ class MigrationNoSpaceTest {
 
             runner.run()
 
-            assertTrue(runner.hasLegacyCopy)
+            assertTrue(runner.hasLegacyCopy())
         }
     }
 }

@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flow
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.AppSettings
@@ -13,6 +12,7 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
@@ -36,16 +36,20 @@ data class SettingsUiState(
 class SettingsViewModel(
     private val settings: SettingsRepository,
     lock: LockRepository,
-    showsMigrationReport: () -> Boolean,
+    showsMigrationReport: suspend () -> Boolean,
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
-    private val migrationReport = showsMigrationReport()
+    /**
+     * 이전 상태 파일을 읽지 못하면 줄을 두지 않는다.
+     * 줄 하나 때문에 설정 전체를 못 쓰게 하지 않는다.
+     */
+    private val migrationReport = flow { emit(orElseOnFailure(false) { showsMigrationReport() }) }
 
     val state: StateFlow<SettingsUiState> =
-        combine(settings.settings, lock.settings) { app, lockSettings ->
-            SettingsUiState(app, lockSettings, migrationReport, loaded = true)
+        combine(settings.settings, lock.settings, migrationReport) { app, lockSettings, report ->
+            SettingsUiState(app, lockSettings, report, loaded = true)
         }
-            .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState(showsMigrationReport = migrationReport))
+            .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState())
 
     fun setBodyTextSize(size: BodyTextSize) {
         viewModelScope.launchWrite { settings.setBodyTextSize(size) }

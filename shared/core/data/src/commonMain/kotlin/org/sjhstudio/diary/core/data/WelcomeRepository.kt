@@ -16,7 +16,7 @@ interface WelcomeRepository : ContextTips {
      * 옮긴 일기 수.
      * 이전한 적이 없으면 null이다.
      */
-    fun migratedEntries(): Int?
+    suspend fun migratedEntries(): Int?
 
     suspend fun letterRead()
 
@@ -26,7 +26,7 @@ interface WelcomeRepository : ContextTips {
 class DefaultWelcomeRepository(
     private val store: WelcomeStore,
     private val onLetterRead: suspend () -> Unit = {},
-    private val migrated: () -> Int?
+    private val migrated: suspend () -> Int?
 ) : WelcomeRepository {
     private var tipShown = false
 
@@ -41,7 +41,7 @@ class DefaultWelcomeRepository(
         }
     }
 
-    override fun migratedEntries(): Int? = migrated()
+    override suspend fun migratedEntries(): Int? = migrated()
 
     override suspend fun letterRead() {
         store.letterSeen()

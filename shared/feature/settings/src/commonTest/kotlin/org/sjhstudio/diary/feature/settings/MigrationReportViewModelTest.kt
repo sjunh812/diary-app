@@ -45,9 +45,9 @@ class MigrationReportViewModelTest {
         )
 
     private fun migration(step: MigrationStep, result: MigrationReport?) = object : LegacyMigration by NoLegacyMigration {
-        override fun state(): MigrationState = MigrationState(step = step)
+        override suspend fun state(): MigrationState = MigrationState(step = step)
 
-        override fun report(): MigrationReport? = result
+        override suspend fun report(): MigrationReport? = result
     }
 
     /** 옮긴 날은 기기 시간대의 날짜다. */
@@ -76,9 +76,9 @@ class MigrationReportViewModelTest {
         var result: MigrationResult = MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun state(): MigrationState = MigrationState(step = step)
+                override suspend fun state(): MigrationState = MigrationState(step = step)
 
-                override fun report(): MigrationReport? = report.takeIf { step != MigrationStep.DEFERRED }
+                override suspend fun report(): MigrationReport? = report.takeIf { step != MigrationStep.DEFERRED }
             }
         val vm = MigrationReportViewModel(migration, TimeZone.UTC, dispatcher) { result }
         advanceUntilIdle()
@@ -98,7 +98,7 @@ class MigrationReportViewModelTest {
 
     /** 설정 줄은 일부만 옮겨졌거나 미룬 기기에서만 둔다. */
     @Test
-    fun settings_row_only_for_partial_or_deferred() {
+    fun settings_row_only_for_partial_or_deferred() = runTest {
         assertTrue(showsMigrationReport(migration(MigrationStep.PARTIAL, report)))
         assertTrue(showsMigrationReport(migration(MigrationStep.DEFERRED, null)))
         assertFalse(showsMigrationReport(migration(MigrationStep.DONE, report)))

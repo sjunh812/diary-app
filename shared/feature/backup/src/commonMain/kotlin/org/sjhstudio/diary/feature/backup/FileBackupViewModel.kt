@@ -2,23 +2,15 @@ package org.sjhstudio.diary.feature.backup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okio.Buffer
-import okio.BufferedSink
 import okio.Sink
 import okio.Source
-import okio.buffer
-import okio.use
+import org.sjhstudio.diary.core.data.BundleSave
 import org.sjhstudio.diary.core.data.RestoreRepository
+import org.sjhstudio.diary.core.data.prepareFile
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
@@ -57,40 +49,20 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
 
     /**
      * 저장 위치가 정해지면 부른다.
-     * [open]은 그곳에 쓰는 흐름을 연다.
-     * 끝까지 쓰지 못하면 [discard]로 지운다.
-     * 쓰다 만 파일이 완성본 이름으로 남아 나중에 복원을 시도하게 두지 않는다.
+     * [open]은 그곳에 쓰는 흐름을 열고, [discard]는 그 파일을 지운다.
+     * 열고 닫기와 실패한 파일 지우기는 저장소가 맡는다.
      */
-    fun write(name: String, open: () -> BufferedSink, discard: suspend () -> Unit = {}) {
+    fun write(name: String, open: () -> Sink, discard: suspend () -> Unit = {}) {
         _state.value = FileBackupUi.Writing(0, 1)
         writing =
             viewModelScope.launchSafely {
+                val saved = restore.saveBundle(open, discard) { done, total -> _state.value = FileBackupUi.Writing(done, total) }
                 _state.value =
-                    try {
-                        val counted = CountingSink(open())
-                        counted.buffer().use { sink ->
-                            restore.writeBundle(sink) { done, total ->
-                                _state.value =
-                                    FileBackupUi.Writing(done, total)
-                            }
-                        }
-                        FileBackupUi.Saved(name, counted.written)
-                    } catch (error: CancellationException) {
-                        withContext(NonCancellable) { removed(discard) }
-                        throw error
-                    } catch (_: Exception) {
-                        FileBackupUi.WriteFailed(left = !removed(discard))
+                    when (saved) {
+                        is BundleSave.Saved -> FileBackupUi.Saved(name, saved.bytes)
+                        is BundleSave.Failed -> FileBackupUi.WriteFailed(saved.left)
                     }
             }
-    }
-
-    private suspend fun removed(discard: suspend () -> Unit): Boolean = try {
-        discard()
-        true
-    } catch (error: CancellationException) {
-        throw error
-    } catch (_: Exception) {
-        false
     }
 
     /** 저장 창을 열지 못했다. */
@@ -119,15 +91,7 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     fun read(open: () -> Source, size: () -> Long? = { null }, onReady: () -> Unit) {
         _state.value = FileBackupUi.Reading
         viewModelScope.launchSafely {
-            val result =
-                try {
-                    open().use { source -> restore.prepareFile(source, withContext(Dispatchers.IO) { size() }) }
-                } catch (error: CancellationException) {
-                    throw error
-                } catch (_: Exception) {
-                    RestorePreparation.Failed(RestoreFailure.MISMATCH)
-                }
-            when (result) {
+            when (val result = restore.prepareFile(open, size)) {
                 is RestorePreparation.Ready -> {
                     _state.value = FileBackupUi.Idle
                     onReady()
@@ -140,19 +104,5 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
 
     fun clear() {
         _state.value = FileBackupUi.Idle
-    }
-}
-
-/**
- * 실제로 쓴 크기를 센다.
- * 끝난 화면에 어림값이 아니라 파일 크기를 보이려고 쓴다.
- */
-private class CountingSink(private val delegate: Sink) : Sink by delegate {
-    var written = 0L
-        private set
-
-    override fun write(source: Buffer, byteCount: Long) {
-        delegate.write(source, byteCount)
-        written += byteCount
     }
 }

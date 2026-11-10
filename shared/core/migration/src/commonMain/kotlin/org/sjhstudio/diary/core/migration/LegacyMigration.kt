@@ -10,21 +10,24 @@ import org.sjhstudio.diary.core.model.MigrationStep
 /**
  * 앱 틀(관문, 설정)이 보는 기록 이전.
  * Android는 [MigrationRunner], iOS는 옮길 것이 없어 [NoLegacyMigration]이다.
+ * 모두 파일을 읽어서 suspend다.
+ * 부르는 쪽이 화면 스레드에서 막히지 않게 구현이 입출력 스레드로 옮긴다.
  */
+@Suppress("TooManyFunctions") // 앱 틀이 보는 이전의 입구 하나라 나누면 같은 상태 파일을 여러 곳이 읽는다.
 interface LegacyMigration {
     val progress: StateFlow<MigrationProgress>
 
-    fun needsMigration(): Boolean
+    suspend fun needsMigration(): Boolean
 
-    fun state(): MigrationState
+    suspend fun state(): MigrationState
 
-    fun report(): MigrationReport?
+    suspend fun report(): MigrationReport?
 
     /**
      * 예전 일기 보기가 읽을 사본이 있는가.
      * 사본을 만들기 전에 실패했으면 없다.
      */
-    val hasLegacyCopy: Boolean get() = false
+    suspend fun hasLegacyCopy(): Boolean = false
 
     suspend fun run(): MigrationResult
 
@@ -38,7 +41,7 @@ interface LegacyMigration {
      * 실패 화면의 새 일기부터 쓰기.
      * 앱을 쓰게 하고 예전 일기는 [retryDeferred]로 나중에 옮긴다.
      */
-    fun defer() = Unit
+    suspend fun defer() = Unit
 
     /**
      * 미뤄 둔 이전을 다시 한다.
@@ -74,11 +77,11 @@ interface LegacyMigration {
 object NoLegacyMigration : LegacyMigration {
     override val progress: StateFlow<MigrationProgress> = MutableStateFlow(MigrationProgress(MigrationStep.NOT_STARTED))
 
-    override fun needsMigration(): Boolean = false
+    override suspend fun needsMigration(): Boolean = false
 
-    override fun state(): MigrationState = MigrationState()
+    override suspend fun state(): MigrationState = MigrationState()
 
-    override fun report(): MigrationReport? = null
+    override suspend fun report(): MigrationReport? = null
 
     override suspend fun run(): MigrationResult = MigrationResult.NoLegacy
 

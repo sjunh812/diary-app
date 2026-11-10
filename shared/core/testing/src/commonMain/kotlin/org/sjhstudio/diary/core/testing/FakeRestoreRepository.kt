@@ -30,7 +30,11 @@ class FakeBundleFiles : BundleFiles {
     var writing = false
         private set
 
+    /** 파일에 쓸 바이트 수. */
+    var bundleBytes = 0
+
     override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) {
+        sink.write(ByteArray(bundleBytes))
         writeFailure?.let { throw it }
         if (holdWrite) {
             writing = true

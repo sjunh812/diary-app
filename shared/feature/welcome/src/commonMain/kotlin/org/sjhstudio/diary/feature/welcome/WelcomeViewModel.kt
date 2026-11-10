@@ -7,8 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
@@ -41,7 +39,10 @@ class WelcomeViewModel(
     /** 방금 연결에 실패한 까닭. 온보딩을 막지 않고 시트로 알린다. */
     val connectFailure: StateFlow<BackupFailure?> = backup.connectFailure
 
-    val entries: Int? = welcome.migratedEntries()
+    private val _entries = MutableStateFlow<Int?>(null)
+
+    /** 옮긴 일기 수. 편지가 쓴다. */
+    val entries: StateFlow<Int?> = _entries.asStateFlow()
 
     init {
         refresh()
@@ -53,7 +54,11 @@ class WelcomeViewModel(
      * 여기서 멈추거나 꺼지면 일기를 쓸 수 없다.
      */
     private fun refresh() {
-        viewModelScope.launchSafely { _step.value = orElseOnFailure(WelcomeStep.DONE) { welcome.step() } }
+        viewModelScope.launchSafely {
+            // 편지가 개수 없이 먼저 그려졌다가 문단이 끼어들지 않게 개수부터 읽는다.
+            _entries.value = orElseOnFailure(null) { welcome.migratedEntries() }
+            _step.value = orElseOnFailure(WelcomeStep.DONE) { welcome.step() }
+        }
     }
 
     fun letterRead() = pass(WelcomeStep.ONBOARDING_UPDATED) { welcome.letterRead() }
@@ -95,5 +100,15 @@ class WelcomeViewModel(
 
 /** 설정에서 다시 읽는 편지. */
 class LetterViewModel(welcome: WelcomeRepository) : ViewModel() {
-    val entries: Int? = welcome.migratedEntries()
+    private val _letter = MutableStateFlow<Letter?>(null)
+
+    /** null이면 아직 읽는 중이다. 개수 없는 편지를 먼저 그리지 않는다. */
+    val letter: StateFlow<Letter?> = _letter.asStateFlow()
+
+    init {
+        viewModelScope.launchSafely { _letter.value = Letter(orElseOnFailure(null) { welcome.migratedEntries() }) }
+    }
 }
+
+/** [entries]는 옮긴 일기 수다. 새로 설치했거나 읽지 못하면 null이다. */
+data class Letter(val entries: Int?)
