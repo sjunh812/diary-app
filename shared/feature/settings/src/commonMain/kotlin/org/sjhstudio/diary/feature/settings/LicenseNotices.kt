@@ -9,7 +9,7 @@ import org.sjhstudio.diary.feature.settings.resources.license_ofl
 
 /**
  * 글꼴 라이선스 갈래.
- * 줄 아래에 이름을 보인다.
+ * 줄 아래에 이름을 보임.
  */
 internal enum class FontLicense(val label: StringResource) {
     OFL(Res.string.license_ofl),
@@ -19,13 +19,13 @@ internal enum class FontLicense(val label: StringResource) {
 
 /**
  * 글꼴 하나의 고지(`docs/release.md` 글꼴 라이선스).
- * 전문은 디자인 시스템 모듈의 `files/licenses/<file>`에 받은 원문 그대로 있다.
+ * 전문은 디자인 시스템 모듈의 `files/licenses/<file>`에 받은 원문 그대로 있음.
  */
 internal data class FontLicenseNotice(val font: DiaryFont, val license: FontLicense, val file: String)
 
 /**
  * 고지 화면의 글꼴 순서(`docs/design.md` 일기 본문 글꼴 표).
- * 시스템 글꼴은 앱에 넣지 않아 없다.
+ * 시스템 글꼴은 앱에 넣지 않아 없음.
  */
 internal val FONT_NOTICES: List<FontLicenseNotice> =
     listOf(

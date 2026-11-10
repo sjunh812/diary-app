@@ -78,8 +78,8 @@ import org.sjhstudio.diary.feature.settings.resources.settings_version
 
 /**
  * 설정 목록(Figma "설정 (S6)").
- * 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 쓴다.
- * 백업(스펙 003)과 목록 모양은 그 화면과 함께 더한다.
+ * 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 씀.
+ * 백업(스펙 003)과 목록 모양 줄은 그 화면과 함께 추가.
  */
 @Composable
 fun SettingsScreen(
@@ -109,15 +109,15 @@ fun SettingsScreen(
     onRate: (() -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
-    // 폰은 탭 바가 시스템 내비게이션 높이까지 맡고, 앱 틀이 그만큼 다 썼다고 알려서 아래가 두 번 뜨지 않는다.
-    // 탭 바가 없는 넓은 화면에서만 마지막 줄 아래를 시스템 내비게이션 높이만큼 비운다.
+    // 폰은 탭 바가 시스템 내비게이션 높이까지 맡고, 앱 틀이 다 썼다고 알려 아래가 두 번 뜨지 않음
+    // 탭 바가 없는 넓은 화면에서만 마지막 줄 아래를 시스템 내비게이션 높이만큼 비움
     val scroll = rememberScrollState()
     OnTabReselected { scroll.animateScrollTo(0) }
     var titleHeight by remember { mutableIntStateOf(0) }
     SnapTitleOnRest(scroll, titleHeight)
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        // 큰 제목이 스크롤되어 바 밑으로 들어가는 만큼 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
-        // 구독 중이면 바 오른쪽에 뱃지를 둔다.
+        // 큰 제목이 스크롤되어 바 밑으로 들어가는 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
+        // 구독 중이면 바 오른쪽에 뱃지
         DiaryTabTopBar(
             title = stringResource(Res.string.settings_title),
             collapsed = { titleCollapse(scroll.value, titleHeight) },
@@ -127,7 +127,7 @@ fun SettingsScreen(
                     DiaryButton(
                         stringResource(Res.string.settings_plus_badge),
                         onPlus,
-                        // 바 끝은 아이콘 단추 자리로 1만 비워 두어, 글자 단추는 화면 여백에 맞춘다.
+                        // 바 끝은 아이콘 단추 자리로 1만 비워 글자 단추를 화면 여백에 맞춤
                         modifier = Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x1),
                         size = DiaryButtonSize.Small,
                         kind = DiaryButtonKind.Weak,
@@ -154,7 +154,7 @@ fun SettingsScreen(
                         .semantics { heading() }
             )
             if (!plusActive) {
-                // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드로 둔다.
+                // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드
                 DiaryInviteCard(
                     stringResource(if (adsRemoved) Res.string.settings_plus_title_ad_free else Res.string.settings_plus_title),
                     stringResource(Res.string.settings_plus_body),

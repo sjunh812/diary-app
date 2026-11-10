@@ -70,7 +70,7 @@ class ReminderSettingsViewModelTest {
         assertEquals(1, scheduler.scheduled.size)
     }
 
-    /** 허용 여부를 읽기 전에는 안내를 보이지 않고, 켜 두었는데 허용되지 않았을 때만 보인다. */
+    /** 허용 여부를 읽기 전에는 안내를 보이지 않고, 켜 두었는데 허용되지 않았을 때만 보임. */
     @Test
     fun permission_notice_shows_only_when_on_and_not_allowed() = runTest(dispatcher) {
         val vm = viewModel()

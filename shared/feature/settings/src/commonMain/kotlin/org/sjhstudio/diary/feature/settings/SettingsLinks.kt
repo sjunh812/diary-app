@@ -16,15 +16,15 @@ data class FeedbackLink(val url: String, val noMail: String)
 
 /**
  * 스토어의 앱 페이지.
- * 인앱 평가 창은 버튼으로 부르면 안 되고 뜨지 않을 수도 있어서, 버튼은 스토어로 보낸다(`docs/DECISIONS.md` 2026-11-07).
- * App Store 번호는 출시 뒤에 정해져서 그때까지 iOS에는 줄을 두지 않는다.
+ * 인앱 평가 창은 버튼으로 부르면 안 되고 뜨지 않을 수도 있어 버튼은 스토어로 보냄(`docs/DECISIONS.md` 2026-11-07).
+ * App Store 번호는 출시 뒤에 정해져 그때까지 iOS에는 줄을 두지 않음.
  */
 fun storeReviewUrl(platform: String): String? = PLAY_LISTING.takeIf { platform == PLATFORM_ANDROID }
 
 /**
  * 의견 메일.
- * 앱 버전, 운영체제, 기종만 넣고 일기 내용은 넣지 않는다(헌법 II).
- * 사용자가 보내기 전에 메일에서 보고 지울 수 있다.
+ * 앱 버전, 운영체제, 기종만 넣고 일기 내용은 넣지 않음(헌법 II).
+ * 사용자가 보내기 전에 메일에서 보고 지울 수 있음.
  */
 @Composable
 fun rememberFeedbackLink(version: String, os: String, model: String): FeedbackLink {
@@ -36,7 +36,7 @@ fun rememberFeedbackLink(version: String, os: String, model: String): FeedbackLi
     )
 }
 
-/** 메일 주소 뒤의 값은 UTF-8로 낱낱이 바꿔야 어느 메일 앱에서나 깨지지 않는다. */
+/** 메일 주소 뒤의 값은 UTF-8로 낱낱이 바꿔야 어느 메일 앱에서나 깨지지 않음. */
 internal fun String.percentEncoded(): String = encodeToByteArray().joinToString("") { byte ->
     val value = byte.toInt() and BYTE_MASK
     val char = value.toChar()

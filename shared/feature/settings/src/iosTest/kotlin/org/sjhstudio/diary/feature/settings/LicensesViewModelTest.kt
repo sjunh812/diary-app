@@ -19,8 +19,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.model.DiaryFont
 
-// 라이선스 목록 라이브러리가 Java 21로 빌드돼 안드로이드 호스트 JVM(17)에서는 못 돌아 iOS 시뮬레이터에서 돈다.
-// 앱에 든 라이선스 파일을 읽지 못해도 목록이 말없이 사라지거나 앱이 꺼지지 않는다.
+// 라이선스 목록 라이브러리가 Java 21 빌드라 안드로이드 호스트 JVM(17)에서 못 돌아 iOS 시뮬레이터에서 돌림
+// 앱에 든 라이선스 파일을 읽지 못해도 목록이 말없이 사라지거나 앱이 꺼지지 않음
 @OptIn(ExperimentalCoroutinesApi::class)
 class LicensesViewModelTest {
     @BeforeTest

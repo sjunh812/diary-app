@@ -14,11 +14,11 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.font_replaced_change
 import org.sjhstudio.diary.feature.settings.resources.font_replaced_notice
 
-/** 옛 글꼴이 새 앱에 없어 다른 글꼴로 옮겼으면 그 글꼴을 한 번만 내준다. */
+/** 옛 글꼴이 새 앱에 없어 다른 글꼴로 옮겼으면 그 글꼴을 한 번만 내줌. */
 class FontReplacedNoticeViewModel(private val settings: SettingsRepository) : ViewModel() {
     /**
-     * 알릴 것이 있으면 지금 글꼴을 내주고 표시를 지운다.
-     * 다시 부르면 null이다.
+     * 알릴 것이 있으면 지금 글꼴을 내주고 표시를 지움.
+     * 다시 부르면 null.
      */
     suspend fun take(): DiaryFont? {
         val current = settings.settings.first()
@@ -30,8 +30,8 @@ class FontReplacedNoticeViewModel(private val settings: SettingsRepository) : Vi
 
 /**
  * "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요" 토스트(Figma 프로토타입 "H1 홈 · 글꼴이 바뀌었어요", `docs/design.md` 일기 본문 글꼴).
- * 이전 뒤 앱 틀이 처음 뜰 때 한 번만 띄우고, "바꾸기"를 누르면 [onChange]로 글꼴 화면에 간다.
- * 띄운 뒤에는 누르지 않아도 다시 띄우지 않는다.
+ * 이전 뒤 앱 틀이 처음 뜰 때 한 번만 띄우고, "바꾸기"를 누르면 [onChange]로 글꼴 화면에 감.
+ * 띄운 뒤에는 누르지 않아도 다시 띄우지 않음.
  */
 @Composable
 fun FontReplacedNotice(toast: DiaryToastState, onChange: () -> Unit) {

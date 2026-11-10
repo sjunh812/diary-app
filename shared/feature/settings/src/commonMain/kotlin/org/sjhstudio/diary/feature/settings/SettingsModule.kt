@@ -8,7 +8,7 @@ import org.sjhstudio.diary.core.migration.MigrationFollowUp
 val settingsFeatureModule =
     module {
         viewModel {
-            // MigrationFollowUp은 앱 모듈이 일기 DB와 함께 만든다.
+            // MigrationFollowUp은 앱 모듈이 일기 DB와 함께 만듦
             val followUp = get<MigrationFollowUp>()
             MigrationReportViewModel(get(), TimeZone.currentSystemDefault(), retryDeferred = followUp::retryDeferredNow)
         }

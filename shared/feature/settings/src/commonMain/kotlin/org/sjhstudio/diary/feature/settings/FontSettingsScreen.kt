@@ -59,9 +59,9 @@ import org.sjhstudio.diary.feature.settings.resources.settings_font
 /**
  * 글꼴(Figma "글꼴 (G1)", "글꼴 상태").
  * 설정 > 글꼴.
- * 맨 위 미리보기 상자는 고른 글꼴과 본문 글자 크기로 일기 문장을 보인다.
- * 줄 이름은 그 글꼴로 그리고, 받기 전 글꼴은 이름 그림과 "받기 · 크기"를 보인다.
- * 누르면 받고, 다 받으면 바로 바뀐다.
+ * 맨 위 미리보기 상자는 고른 글꼴과 본문 글자 크기로 일기 문장을 보임.
+ * 줄 이름은 그 글꼴로 그리고, 받기 전 글꼴은 이름 그림과 "받기 · 크기"를 보임.
+ * 누르면 받고, 다 받으면 바로 바뀜.
  */
 @Composable
 fun FontSettingsScreen(state: FontUiState, onSelect: (DiaryFont) -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier) {
@@ -126,7 +126,7 @@ private fun FontRow(font: DiaryFont, state: FontUiState, selected: Boolean, onCl
 
 /**
  * 줄 이름.
- * 쓸 수 있는 글꼴은 그 글꼴로 쓰고, 받기 전 글꼴은 그 글꼴로 그린 이름 그림을 글자색으로 물들여 보인다.
+ * 쓸 수 있는 글꼴은 그 글꼴로 쓰고, 받기 전 글꼴은 그 글꼴로 그린 이름 그림을 글자색으로 물들여 보임.
  */
 @Composable
 private fun FontName(font: DiaryFont, name: String, ready: Boolean, installedPath: String?) {
@@ -134,8 +134,8 @@ private fun FontName(font: DiaryFont, name: String, ready: Boolean, installedPat
     val style = DiaryTheme.typography.reading
     val preview = font.namePreview(korean = diaryLanguage() == "ko")
     if (!ready && preview != null) {
-        // 그림은 줄 높이 28에 맞춰 그렸다(글자 17).
-        // 기기 글자 크기를 따라 같이 커진다.
+        // 이름 그림은 줄 높이 28 기준(글자 17)
+        // 기기 글자 크기를 따라 같이 커짐
         val height = with(LocalDensity.current) { style.lineHeight.toDp() }
         Image(
             painterResource(preview),
@@ -153,8 +153,8 @@ private fun FontName(font: DiaryFont, name: String, ready: Boolean, installedPat
 }
 
 /**
- * 글꼴 화면과 받기 실패 알림을 잇는다.
- * 앱 틀은 이것만 부른다.
+ * 글꼴 화면과 받기 실패 알림을 이음.
+ * 앱 틀은 이것만 부름.
  */
 @Composable
 fun FontSettingsRoute(onBack: () -> Unit) {

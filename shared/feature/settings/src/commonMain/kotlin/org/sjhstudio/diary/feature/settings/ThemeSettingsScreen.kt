@@ -27,7 +27,7 @@ import org.sjhstudio.diary.feature.settings.resources.theme_note
 
 /**
  * 화면 모드(Figma "화면 모드 (G3)").
- * 고르면 바로 바뀐다.
+ * 고르면 바로 바뀜.
  */
 @Composable
 fun ThemeSettingsScreen(selected: ThemeMode, onSelect: (ThemeMode) -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier) {

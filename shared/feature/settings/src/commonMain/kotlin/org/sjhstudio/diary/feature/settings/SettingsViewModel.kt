@@ -24,11 +24,11 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 data class SettingsUiState(
     val settings: AppSettings = AppSettings(),
     val lock: LockSettings = LockSettings(),
-    /** 일부만 옮겨진 기기에만 "기록 이전 결과" 줄이 있다(FR-011). */
+    /** 일부만 옮겨진 기기에만 "기록 이전 결과" 줄이 있음(FR-011). */
     val showsMigrationReport: Boolean = false,
     /**
-     * 설정을 읽었다.
-     * 읽기 전의 기본값(잠금 꺼짐 같은)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보인다.
+     * 설정을 읽었음.
+     * 읽기 전 기본값(잠금 꺼짐 등)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보임.
      */
     val loaded: Boolean = false
 )
@@ -40,8 +40,8 @@ class SettingsViewModel(
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
     /**
-     * 이전 상태 파일을 읽지 못하면 줄을 두지 않는다.
-     * 줄 하나 때문에 설정 전체를 못 쓰게 하지 않는다.
+     * 이전 상태 파일을 읽지 못하면 줄을 두지 않음.
+     * 줄 하나 때문에 설정 전체를 못 쓰게 하지 않음.
      */
     private val migrationReport = flow { emit(orElseOnFailure(false) { showsMigrationReport() }) }
 
@@ -65,7 +65,7 @@ class SettingsViewModel(
         changed("theme", mode.id)
     }
 
-    // 설정 이름과 고른 값의 ID만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
+    // 설정 이름과 고른 값의 ID만 보냄(contracts/app-shell.md 사용 통계 고정 표)
     private fun changed(name: String, value: String) = telemetry.log(
         AnalyticsEvents.SETTINGS_CHANGED,
         mapOf(

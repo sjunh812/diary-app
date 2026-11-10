@@ -21,8 +21,8 @@ import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-// 이전 상태는 파일을 읽어서 안다.
-// 화면을 만들 때 막고 읽지 않고, 읽지 못해도 설정은 그대로 쓴다.
+// 이전 상태는 파일을 읽어서 앎
+// 화면을 만들 때 막고 읽지 않고, 읽지 못해도 설정은 그대로 씀
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
     private val dispatcher = StandardTestDispatcher()

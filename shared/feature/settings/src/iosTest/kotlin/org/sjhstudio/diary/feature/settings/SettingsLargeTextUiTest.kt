@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AppSettings
 
-// 글자 크기를 200%로 키운 작은 폰에서도 설정 줄의 글자가 잘리거나 화면 밖으로 나가지 않는다.
+// 글자 크기를 200%로 키운 작은 폰에서도 설정 줄 글자가 잘리거나 화면 밖으로 나가지 않음
 @OptIn(ExperimentalTestApi::class)
 class SettingsLargeTextUiTest {
     private val width = 360.dp
@@ -65,7 +65,7 @@ class SettingsLargeTextUiTest {
                         null
                     }?.action?.invoke(layouts)
                     val layout = layouts.singleOrNull() ?: continue
-                    // 줄 수를 막아 위아래가 잘렸거나 화면 오른쪽 밖으로 나간 글자를 모은다.
+                    // 줄 수를 막아 위아래가 잘렸거나 화면 오른쪽 밖으로 나간 글자를 모음
                     if (layout.didOverflowHeight || bounds.right > width + 0.5.dp) cut += layout.layoutInput.text.text
                 }
                 assertEquals(emptyList(), cut, "dark=$dark")

@@ -27,8 +27,8 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 글꼴(G1) 상태.
- * [installedPaths]는 받아 둔 글꼴 파일, [downloading]은 받는 중인 글꼴과 진행(0~1, 모르면 null)이다.
- * 앱에 넣은 글꼴은 늘 쓸 수 있다.
+ * [installedPaths]는 받아 둔 글꼴 파일, [downloading]은 받는 중인 글꼴과 진행(0~1, 모르면 null).
+ * 앱에 넣은 글꼴은 늘 쓸 수 있음.
  */
 data class FontUiState(
     val settings: AppSettings = AppSettings(),
@@ -38,14 +38,14 @@ data class FontUiState(
     fun isReady(font: DiaryFont): Boolean = font in BUNDLED_DIARY_FONTS || font in installedPaths
 }
 
-/** 받지 못했을 때 한 번 알리는 것. */
+/** 받지 못했을 때 한 번 알림. */
 enum class FontNotice { Offline, Failed }
 
 /**
  * 글꼴 고르기.
- * 앱에 있거나 받아 둔 글꼴은 바로 바꾸고, 아니면 받은 뒤 바꾼다(`docs/design.md` 일기 본문 글꼴 10종).
- * 받지 못하면 쓰던 글꼴을 그대로 둔다.
- * 받는 동안 다른 글꼴은 그대로 고를 수 있다.
+ * 앱에 있거나 받아 둔 글꼴은 바로 바꾸고, 아니면 받은 뒤 바꿈(`docs/design.md` 일기 본문 글꼴 10종).
+ * 받지 못하면 쓰던 글꼴을 그대로 둠.
+ * 받는 동안 다른 글꼴은 그대로 고를 수 있음.
  */
 class FontSettingsViewModel(
     private val settings: SettingsRepository,
@@ -85,7 +85,7 @@ class FontSettingsViewModel(
                     is FontInstallState.Installed -> {
                         downloading.update { it - font }
                         installed.update { it + (font to result.path) }
-                        // 받는 동안 다른 글꼴을 골랐으면 그것을 둔다.
+                        // 받는 동안 다른 글꼴을 골랐으면 그것을 둠
                         if (picked == font) apply(font)
                     }
 
@@ -100,7 +100,7 @@ class FontSettingsViewModel(
 
     private fun apply(font: DiaryFont) {
         viewModelScope.launchWrite { settings.setFont(font) }
-        // 글꼴 ID만 보낸다(contracts/app-shell.md 사용 통계 고정 표).
+        // 글꼴 ID만 보냄(contracts/app-shell.md 사용 통계 고정 표)
         telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "font", "value" to font.id))
     }
 }
