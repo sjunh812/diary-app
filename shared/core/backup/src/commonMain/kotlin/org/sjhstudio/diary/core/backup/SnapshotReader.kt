@@ -7,8 +7,8 @@ import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
 
 /**
- * 받은 스냅샷을 읽기 전용으로 열어 일기와 사진 줄을 읽는다.
- * 버전이 달라도 읽는 열은 여기 한곳에서 맞춘다(FR-035).
+ * 받은 스냅샷을 읽기 전용으로 열어 일기와 사진 줄을 읽음
+ * 버전이 달라도 읽는 열은 여기 한곳에서 맞춤(FR-035)
  */
 object SnapshotReader {
     fun read(path: Path): List<MergeEntry> {

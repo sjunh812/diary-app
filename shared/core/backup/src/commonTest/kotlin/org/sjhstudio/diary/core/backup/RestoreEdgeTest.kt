@@ -33,8 +33,8 @@ import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.testing.FakeDrive
 
 /**
- * 끊김, 깨짐, 두 번 복원처럼 일이 꼬였을 때 기기 기록이 그대로인지 본다.
- * 기기 둘이 드라이브 대역을 같이 쓴다.
+ * 끊김, 깨짐, 두 번 복원처럼 일이 꼬였을 때 기기 기록이 그대로인지 확인
+ * 기기 둘이 드라이브 대역을 같이 씀
  */
 class RestoreEdgeTest {
     private val fs = FileSystem.SYSTEM
@@ -64,8 +64,8 @@ class RestoreEdgeTest {
     }
 
     /**
-     * 일기 셋에 사진 한 장씩.
-     * 확인값을 돌려준다.
+     * 일기 셋에 사진 한 장씩
+     * 확인값을 돌려줌
      */
     private suspend fun threeWithPhotos(): List<String> {
         listOf("one", "two", "three").forEach { a.write(it) }
@@ -74,7 +74,7 @@ class RestoreEdgeTest {
 
     private fun latest(list: List<RestoreCandidate>) = list.first { it.entry.state == BackupEntryState.Ready }
 
-    /** 합치고 사진까지 받는다. */
+    /** 합치고 사진까지 받음 */
     private suspend fun TestPhone.restoreLatest(api: DriveApi = drive): MergeCounts {
         val prepared = planner().prepare(latest(catalog().list()))
         val counts = applier().apply(prepared.plan, "drive")
@@ -184,7 +184,7 @@ class RestoreEdgeTest {
         threeWithPhotos()
         a.backUp()
         b.write("mine")
-        // 백업의 사진 줄과 같은 번호의 줄이 기기에 있어 넣다가 실패한다.
+        // 백업의 사진 줄과 같은 번호의 줄이 기기에 있어 넣다가 실패
         b.db.mediaDao().insertAll(listOf(photoRow("mine", 0, "내 사진").copy(id = "one-0")))
         val controller = b.controller(backgroundScope)
         controller.ready()
@@ -513,7 +513,7 @@ class RestoreEdgeTest {
         threeWithPhotos()
         a.backUp()
         var written = false
-        // 사진은 동시에 받으니 한 번만 쓰도록 잠근다.
+        // 사진은 동시에 받으니 한 번만 쓰도록 잠금
         val lock = Mutex()
         val writing = object : DriveApi by drive {
             override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {
@@ -761,7 +761,7 @@ class RestoreEdgeTest {
         a.write("thrown", deletedAt = deleted)
         val written = a.entries()
         a.backUp()
-        // 기기 날짜가 과거로 틀어져 있다.
+        // 기기 날짜가 과거로 틀어져 있음
         b.clock.setWallClock(Instant.parse("2020-01-01T00:00:00Z"))
 
         b.restoreLatest()
@@ -855,7 +855,7 @@ class RestoreEdgeTest {
     private fun fileOf(hash: String) = drive.visible.first { it.name.startsWith(hash) }
 }
 
-/** 받은 사진 수를 센다. */
+/** 받은 사진 수를 셈 */
 private class CountingDrive(private val real: DriveApi) : DriveApi by real {
     private val lock = Mutex()
     var downloads = 0
@@ -867,7 +867,7 @@ private class CountingDrive(private val real: DriveApi) : DriveApi by real {
     }
 }
 
-/** 스냅샷을 받을 때만 끊긴다. */
+/** 스냅샷을 받을 때만 끊김 */
 private class CutOnlySnapshot(private val real: DriveApi) : DriveApi by real {
     override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {
         if (to.name.endsWith(".db")) throw DriveNotFound()
@@ -875,7 +875,7 @@ private class CutOnlySnapshot(private val real: DriveApi) : DriveApi by real {
     }
 }
 
-/** 이름이 맞는 파일 대신 다른 내용을 주는 드라이브. */
+/** 이름이 맞는 파일 대신 다른 내용을 주는 드라이브 */
 private class DamagedDrive(private val real: DriveApi, private val fs: FileSystem, private val damage: Map<String, ByteArray>) :
     DriveApi by real {
     override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {

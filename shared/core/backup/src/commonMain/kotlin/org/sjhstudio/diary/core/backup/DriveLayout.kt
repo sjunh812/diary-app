@@ -9,14 +9,14 @@ import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.drive.listAll
 
 /**
- * 드라이브의 백업 폴더 셋.
- * [created]면 이번에 없던 폴더를 새로 만들었다.
+ * 드라이브의 백업 폴더 셋
+ * [created]면 이번에 없던 폴더를 새로 만들었음
  */
 data class DriveFolders(val root: String, val snapshots: String, val media: String, val created: Boolean = false)
 
 /**
- * 폴더를 이름이 아니라 `appProperties`로 찾는다(contracts/backup-format.md).
- * 사용자가 이름을 바꿔도 이어진다.
+ * 폴더를 이름이 아니라 `appProperties`로 찾음(contracts/backup-format.md)
+ * 사용자가 이름을 바꿔도 이어짐
  */
 class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSystem) {
     suspend fun ensure(workDir: Path, readme: String): DriveFolders {
@@ -34,7 +34,7 @@ class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSyste
         return DriveFolders(root.id, snapshots.id, media.id, created)
     }
 
-    /** 같은 종류가 여럿이면 가장 먼저 만든 것을 쓴다. */
+    /** 같은 종류가 여럿이면 가장 먼저 만든 것을 씀 */
     private suspend fun find(kind: String, parent: String?): DriveFile? =
         drive.listAll(DriveQuery(parentId = parent, props = mapOf(KEY_KIND to kind))).minByOrNull { it.createdAt }
 
@@ -62,12 +62,12 @@ class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSyste
 }
 
 /**
- * `<기기 현지 시각>_<기기 이름, 공백은 ->_<기기 ID 앞 4자>`.
- * 드라이브에서 사람이 보고 고를 수 있게 한다.
- * 이 이름이 파일 이름도 되니 기기 이름이 백업을 막지 못하게 줄인다.
- * 이모지처럼 두 글자로 쓰는 문자는 SQLite 드라이버가 경로로 넘기면서 바이트가 달라져 파일을 열지 못한다.
- * 긴 이름은 파일 시스템의 이름 한도에 걸린다.
- * 기기 이름 원문은 목록 파일에 그대로 적는다.
+ * `<기기 현지 시각>_<기기 이름, 공백은 ->_<기기 ID 앞 4자>`
+ * 드라이브에서 사람이 보고 고를 수 있는 이름
+ * 이 이름이 파일 이름도 되니 기기 이름이 백업을 막지 못하게 줄임
+ * 이모지처럼 두 글자로 쓰는 문자는 SQLite 드라이버가 경로로 넘기면서 바이트가 달라져 파일을 열지 못함
+ * 긴 이름은 파일 시스템의 이름 한도에 걸림
+ * 기기 이름 원문은 목록 파일에 그대로 적음
  */
 fun snapshotBaseName(localTime: String, deviceName: String, deviceId: String): String {
     val device =
@@ -76,5 +76,5 @@ fun snapshotBaseName(localTime: String, deviceName: String, deviceId: String): S
     return "${localTime}_${device}_${deviceId.take(4)}"
 }
 
-/** 한글 한 글자가 3바이트라 시각과 확장자를 더해도 255바이트 안에 든다. */
+/** 한글 한 글자가 3바이트라 시각과 확장자를 더해도 255바이트 안에 듦 */
 private const val MAX_DEVICE_CHARS = 40

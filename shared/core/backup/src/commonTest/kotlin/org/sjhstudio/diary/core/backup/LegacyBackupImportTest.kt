@@ -206,7 +206,7 @@ class LegacyBackupImportTest {
         assertEquals(1, plan.preview.entriesUnchanged)
     }
 
-    /** 분까지 같고 초가 다르면 다른 일기다. 글이 같아도 빼지 않는다. */
+    /** 분까지 같고 초가 다르면 다른 일기. 글이 같아도 빼지 않음 */
     @Test
     fun same_minute_and_text_but_another_second_stays() = runTest {
         val file = upload(Triple(1, "2026-10-01 08:00:05", "같은 글"), Triple(2, "2026-10-01 08:00:40", "같은 글"))

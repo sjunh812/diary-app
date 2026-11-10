@@ -15,7 +15,7 @@ import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.platform.DeviceName
 
-/** 드라이브 폴더와 같은 내용을 zip 하나로 내보낸다(contracts/backup-format.md "묶음 파일", FR-031). */
+/** 드라이브 폴더와 같은 내용을 zip 하나로 내보냄(contracts/backup-format.md "묶음 파일", FR-031) */
 class BundleExporter(
     private val db: DiaryDatabase,
     private val store: BackupStore,
@@ -39,7 +39,7 @@ class BundleExporter(
         )
     }
 
-    /** 스냅샷은 빈 쪽 없이 만들어지므로 빈 쪽을 뺀 크기가 파일 안의 DB 크기와 가깝다. */
+    /** 스냅샷은 빈 쪽 없이 만들어져 빈 쪽을 뺀 크기가 파일 안의 DB 크기와 비슷함 */
     private suspend fun databaseBytes(): Long = db.useReaderConnection { connection ->
         suspend fun pragma(name: String): Long = connection.usePrepared("PRAGMA $name") { statement ->
             statement.step()
@@ -49,8 +49,8 @@ class BundleExporter(
     }
 
     /**
-     * 글을 먼저 담고 사진을 잇는다.
-     * 쓰다 멈추면 저장한 곳의 파일은 쓸 수 없고 기기의 기록은 그대로다.
+     * 글을 먼저 담고 사진을 이음
+     * 쓰다 멈추면 저장한 곳의 파일은 쓸 수 없고 기기의 기록은 그대로
      */
     suspend fun write(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }) = withContext(Dispatchers.IO) {
         val dir = workDir / OUTGOING
@@ -80,11 +80,11 @@ class BundleExporter(
                 listOf(BundleItem(README, dir / README), BundleItem(MANIFEST, dir / MANIFEST), BundleItem(SNAPSHOT, snapshot.path)) +
                     local.map { row -> row.fileName!!.let { BundleItem("$MEDIA/$it", mediaDir / it) } }
             BundleWriter(fileSystem).write(sink, items) { done ->
-                // 멈추라고 하면 다음 항목을 쓰지 않는다.
+                // 멈추라고 하면 다음 항목을 쓰지 않음
                 ensureActive()
                 onProgress(done, items.size)
             }
-            // 파일로만 주고받아도 다음 합치기가 한쪽만 고쳤는지 알아볼 수 있게 드라이브 백업처럼 적어 둔다.
+            // 파일로만 주고받아도 다음 합치기가 한쪽만 고쳤는지 알 수 있게 드라이브 백업처럼 적어 둠
             db.rememberBases(snapshot.path)
         } finally {
             fileSystem.deleteRecursively(dir)

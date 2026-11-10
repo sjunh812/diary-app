@@ -30,7 +30,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.testing.FakeDrive
 
-/** 묶음 파일이 잘리거나 깨지거나 남이 만든 것이어도 기기가 그대로인지 본다. */
+/** 묶음 파일이 잘리거나 깨지거나 남이 만든 것이어도 기기가 그대로인지 확인 */
 class BundleDamageTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path
@@ -57,7 +57,7 @@ class BundleDamageTest {
 
     private fun copiesLeft() = fs.listOrNull(incoming).orEmpty()
 
-    /** 일기 둘과 사진 둘을 묶음 파일로 낸다. */
+    /** 일기 둘과 사진 둘을 묶음 파일로 냄 */
     private suspend fun export(): Path {
         a.write("one")
         a.write("two")
@@ -78,7 +78,7 @@ class BundleDamageTest {
 
     private fun unpack(zip: Path, name: String) = fs.openZip(zip).read("/".toPath() / name) { readByteArray() }
 
-    /** 정상 묶음에서 항목을 고르거나 더해 다시 묶는다. */
+    /** 정상 묶음에서 항목을 고르거나 더해 다시 묶음 */
     private fun rebuilt(zip: Path, extra: Map<String, ByteArray> = emptyMap(), without: Set<String> = emptySet()): Path {
         val archive = fs.openZip(zip)
         val photos = archive.list("/media".toPath()).map { "media/${it.name}" }
@@ -279,7 +279,7 @@ class BundleDamageTest {
         val second = TestPhone.hashOf("둘째 사진")
         val whole = bytes(zip)
         val at = indexOf(whole, "media/$first.jpg".encodeToByteArray())
-        // 이름 앞 30바이트가 머리이고 그 첫 네 바이트가 표시다.
+        // 이름 앞 30바이트가 머리이고 그 첫 네 바이트가 표시
         for (index in at - 30 until at - 26) whole[index] = 0
         val controller = b.controller(scope)
         assertIs<RestorePreparation.Ready>(controller.pick(fileOf(whole)))
@@ -343,7 +343,7 @@ class BundleDamageTest {
         assertTrue(copiesLeft().isEmpty())
     }
 
-    /** 공간이 찬 것을 파일이 깨졌다고 말하지 않는다. */
+    /** 공간이 찬 것을 파일이 깨졌다고 말하지 않음 */
     @Test
     fun a_full_disk_is_not_called_a_broken_file() = runTest {
         scope = backgroundScope
@@ -472,8 +472,8 @@ class BundleDamageTest {
 
         val result = controller.pick(fileOf(note.copyOf(note.size / 2)))
 
-        // 읽히는 만큼 살리거나 거절한다.
-        // 어느 쪽이든 기기 일기는 그대로다.
+        // 읽히는 만큼 살리거나 거절
+        // 어느 쪽이든 기기 일기는 그대로
         if (result is RestorePreparation.Ready) {
             controller.merge()
             assertIs<RestoreState.Done>(controller.finished())

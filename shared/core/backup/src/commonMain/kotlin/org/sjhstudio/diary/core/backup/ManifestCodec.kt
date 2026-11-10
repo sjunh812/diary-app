@@ -8,8 +8,8 @@ import kotlinx.serialization.json.Json
 import org.sjhstudio.diary.core.database.LocalPhotoRow
 
 /**
- * 목록 파일(contracts/backup-format.md).
- * 일기 내용, 장소, 기분, 사진 경로, 잠금 확인값은 담지 않는다.
+ * 목록 파일(contracts/backup-format.md)
+ * 일기 내용, 장소, 기분, 사진 경로, 잠금 확인값은 담지 않음
  */
 @Serializable
 data class Manifest(
@@ -28,9 +28,9 @@ data class Manifest(
         const val FORMAT = "org.sjhstudio.diary.backup"
         const val FORMAT_VERSION = 2
 
-        /** 이 앱이 읽을 수 있는 스냅샷 DB 버전. */
-        // 스냅샷에 든 표의 판이다.
-        // 임시 저장본은 스냅샷에 싣지 않아서 그 표만 바뀐 DB 버전 3은 이 값을 올리지 않는다.
+        /** 이 앱이 읽을 수 있는 스냅샷 DB 버전 */
+        // 스냅샷에 든 표의 판
+        // 임시 저장본은 스냅샷에 싣지 않아 그 표만 바뀐 DB 버전 3은 이 값을 올리지 않음
         const val MAX_DB_VERSION = 2
     }
 }
@@ -70,8 +70,8 @@ data class ManifestSettings(
 )
 
 /**
- * 읽을 수 있는지.
- * 복원 목록의 이유로 쓴다.
+ * 읽을 수 있는지
+ * 복원 목록의 이유로 씀
  */
 enum class ManifestCheck { OK, BROKEN, NEEDS_NEWER_APP }
 
@@ -87,8 +87,8 @@ object ManifestCodec {
     fun encode(manifest: Manifest): String = json.encodeToString(Manifest.serializer(), manifest)
 
     /**
-     * 깨졌으면 null이다.
-     * 모르는 키는 무시하고 없는 키는 기본값으로 본다.
+     * 깨졌으면 null
+     * 모르는 키는 무시하고 없는 키는 기본값으로 봄
      */
     fun decode(text: String): Manifest? = runCatching { json.decodeFromString(Manifest.serializer(), text) }.getOrNull()?.takeIf {
         it.format ==
@@ -103,7 +103,7 @@ object ManifestCodec {
     }
 }
 
-/** 드라이브 목록 파일과 묶음 파일의 `manifest.json`을 같은 모양으로 만든다. */
+/** 드라이브 목록 파일과 묶음 파일의 `manifest.json`을 같은 모양으로 만듦 */
 internal fun manifestOf(
     now: Instant,
     timeZone: TimeZone,

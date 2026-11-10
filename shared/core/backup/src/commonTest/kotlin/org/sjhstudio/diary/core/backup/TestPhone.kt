@@ -40,8 +40,8 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.TestClock
 
 /**
- * 시험용 기기 하나.
- * DB, 사진 폴더, 설정, 시계를 따로 갖고 드라이브만 다른 기기와 같이 쓴다.
+ * 시험용 기기 하나
+ * DB, 사진 폴더, 설정, 시계를 따로 갖고 드라이브만 다른 기기와 같이 씀
  */
 internal class TestPhone(
     val root: Path,
@@ -61,10 +61,10 @@ internal class TestPhone(
     var zone: TimeZone = TimeZone.UTC
     var freeBytes = 1_000_000_000L
 
-    /** 복원이 복원한 설정. */
+    /** 복원한 설정 */
     val appliedSettings = mutableListOf<ManifestSettings>()
 
-    /** 설정을 쓰다 실패하게 할 때 값을 넣는다. */
+    /** 설정을 쓰다 실패하게 할 때 값을 넣음 */
     var settingsFailure: Exception? = null
 
     val db: DiaryDatabase
@@ -125,8 +125,8 @@ internal class TestPhone(
     }
 
     /**
-     * 일기 하나를 넣는다.
-     * 시각은 시계가 아니라 [updated]다.
+     * 일기 하나를 넣음
+     * 시각은 시계가 아니라 [updated]
      */
     suspend fun write(
         id: String,
@@ -139,7 +139,7 @@ internal class TestPhone(
         db.entryDao().insertAll(listOf(entry(id, updated, date, body, deletedAt, legacyId)))
     }
 
-    /** 사진 파일과 줄을 넣고 내용 확인값을 돌려준다. */
+    /** 사진 파일과 줄을 넣고 내용 확인값 반환 */
     suspend fun photo(entryId: String, order: Int, content: String): String {
         val row = photoRow(entryId, order, content)
         fs.write(media / requireNotNull(row.fileName)) { writeUtf8(content) }
@@ -153,12 +153,12 @@ internal class TestPhone(
 
     suspend fun photoStates() = db.backupDao().allMedia().associate { it.id to it.status }
 
-    /** 받는 중 쓰던 임시 파일이 남았는지 본다. */
+    /** 받는 중 쓰던 임시 파일이 남았는지 확인 */
     fun partsLeft() = fs.listOrNull(work).orEmpty().filter { it.name.endsWith(".part") }
 
     /**
-     * 드라이브에 파일 하나를 만들어 올린다.
-     * 깨지거나 남이 만든 백업을 흉내 낸다.
+     * 드라이브에 파일 하나를 만들어 올림
+     * 깨지거나 남이 만든 백업을 흉내 냄
      */
     suspend fun plant(name: String, bytes: ByteArray, props: Map<String, String>, parent: String? = null): DriveFile {
         fs.createDirectories(work)
@@ -191,12 +191,12 @@ internal class TestPhone(
     }
 }
 
-/** 복원이 끝나거나 실패할 때까지 기다린다. */
+/** 복원이 끝나거나 실패할 때까지 기다림 */
 internal suspend fun RestoreController.finished(): RestoreState = withContext(Dispatchers.Default) {
     withTimeout(10_000) { state.first { it is RestoreState.Done || it is RestoreState.Failed } }
 }
 
-/** 조건이 참이 될 때까지 기다린다. */
+/** 조건이 참이 될 때까지 기다림 */
 internal suspend fun until(check: suspend () -> Boolean) = withContext(Dispatchers.Default) {
     withTimeout(10_000) {
         while (!check()) kotlinx.coroutines.delay(10)
@@ -204,8 +204,8 @@ internal suspend fun until(check: suspend () -> Boolean) = withContext(Dispatche
 }
 
 /**
- * 사진을 [after]장 받은 뒤로는 네트워크가 끊긴 드라이브.
- * 사진은 동시에 받으니 잠그고 센다.
+ * 사진을 [after]장 받은 뒤로는 네트워크가 끊긴 드라이브
+ * 사진은 동시에 받으니 잠그고 셈
  */
 internal class CutDrive(private val real: DriveApi, private val after: Int) : DriveApi by real {
     private val lock = Mutex()
@@ -219,8 +219,8 @@ internal class CutDrive(private val real: DriveApi, private val after: Int) : Dr
 }
 
 /**
- * 파일을 쓸 때 실패하는 기기.
- * [jam]이 참인 경로에서 저장 공간이 없는 것처럼 군다.
+ * 파일을 쓸 때 실패하는 기기
+ * [jam]이 참인 경로에서 저장 공간이 없는 것처럼 굶
  */
 internal class JammedFiles(base: FileSystem, var jam: (Path) -> Boolean = { false }) : ForwardingFileSystem(base) {
     override fun sink(file: Path, mustCreate: Boolean): Sink {

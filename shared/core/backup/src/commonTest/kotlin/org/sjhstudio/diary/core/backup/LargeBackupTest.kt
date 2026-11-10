@@ -38,9 +38,9 @@ import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
 /**
- * 일기 1만 편, 사진 1만 장(30MB 석 장 포함)이 메모리 상한 안에서 끝까지 간다(스펙 003 T038, SC-005).
- * 파일 크기만큼 메모리를 쓰지 않는지 재야 해서 내용을 쌓아 두지 않는 대역을 쓴다.
- * 힙을 재는 시험이라 JVM에서만 돈다.
+ * 일기 1만 편, 사진 1만 장(30MB 석 장 포함)이 메모리 상한 안에서 끝까지 감(스펙 003 T038, SC-005)
+ * 파일 크기만큼 메모리를 쓰지 않는지 재야 해서 내용을 쌓아 두지 않는 대역을 씀
+ * 힙을 재는 시험이라 JVM에서만 돎
  */
 class LargeBackupTest {
     private val fs = FileSystem.SYSTEM
@@ -139,8 +139,8 @@ class LargeBackupTest {
     }
 
     /**
-     * 내용은 저장하지 않고 확인값만 남긴다.
-     * 조각도 실제 드라이브처럼 나눠 받는다.
+     * 내용은 저장하지 않고 확인값만 남김
+     * 조각도 실제 드라이브처럼 나눠 받음
      */
     private class StreamingDrive(private val fileSystem: FileSystem, var onFile: suspend (Int) -> Unit) : DriveApi {
         private val files = LinkedHashMap<String, DriveFile>()

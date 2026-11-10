@@ -30,17 +30,17 @@ import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.currentDate
 
 /**
- * 레거시 경로의 사진을 `media/`로 옮긴다.
- * 찾지 못하면 null이다.
- * iOS에서는 늘 null이다.
+ * 레거시 경로의 사진을 `media/`로 옮김
+ * 찾지 못하면 null
+ * iOS에서는 늘 null
  */
 fun interface LegacyPhotoCopier {
     fun copy(entryId: String, sortOrder: Int, fragment: String): MediaEntity?
 }
 
 /**
- * 더할 일기 하나.
- * [sameTimeAs]는 같은 날 같은 시각에 글이 다른 기기 일기다.
+ * 더할 일기 하나
+ * [sameTimeAs]는 같은 날 같은 시각에 글이 다른 기기 일기
  */
 data class LegacyItem(val entry: EntryEntity, val photos: List<String>, val sameTimeAs: String?)
 
@@ -60,8 +60,8 @@ data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int) {
 }
 
 /**
- * 1.7.x가 드라이브에 올린 `note.db`를 찾아 합친다(contracts/merge-rules.md "이전 버전 백업").
- * 다른 기기의 파일이면 같은 번호가 다른 일기라서 `legacy_id`로는 견주지 않는다.
+ * 1.7.x가 드라이브에 올린 `note.db`를 찾아 합침(contracts/merge-rules.md "이전 버전 백업")
+ * 다른 기기의 파일이면 같은 번호가 다른 일기라 `legacy_id`로는 견주지 않음
  */
 @OptIn(ExperimentalUuidApi::class)
 class LegacyBackupImporter(
@@ -74,7 +74,7 @@ class LegacyBackupImporter(
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
     private val newId: () -> String = { Uuid.random().toString() }
 ) {
-    /** 옛 설정에 남은 파일을 먼저 보고, 이름으로도 찾아 최근 것을 위로 둔다. */
+    /** 옛 설정에 남은 파일을 먼저 보고, 이름으로도 찾아 최근 것을 위로 둠 */
     suspend fun find(knownFileId: String?): List<DriveFile> {
         val known =
             knownFileId?.let {
@@ -96,7 +96,7 @@ class LegacyBackupImporter(
         return prepared(path)
     }
 
-    /** 고쳐 돌려받은 `note.db`나 그것이 든 zip을 사용자가 고른 경우. */
+    /** 고쳐 돌려받은 `note.db`나 그것이 든 zip을 사용자가 고른 경우 */
     suspend fun prepareFile(file: Path, zipped: Boolean): LegacyPlan {
         val path = localPath()
         fileSystem.delete(path, mustExist = false)
@@ -125,8 +125,8 @@ class LegacyBackupImporter(
 
     private fun read(path: Path): List<LegacyNote> = try {
         LegacyDbReader.open(path.toString()).use { reader ->
-            // 일부가 깨져도 읽히는 만큼 살린다.
-            // 일기 표가 없으면 다른 파일이다.
+            // 일부가 깨져도 읽히는 만큼 살림
+            // 일기 표가 없으면 다른 파일
             if (!reader.hasNoteTable) throw RestoreMismatch()
             buildList { reader.readAll { add(it) } }
         }
@@ -144,8 +144,8 @@ class LegacyBackupImporter(
         val mapper = LegacyEntryMapper(currentDate(clock, zone), zone, newId)
         val sameTime = local.groupBy { it.date to it.time }
         val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
-        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 가른다.
-        // 분까지만 보면 글이 같고 사진이 다른 일기가 빠진다.
+        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 가름
+        // 분까지만 보면 글이 같고 사진이 다른 일기가 빠짐
         val inFile = HashSet<Triple<Triple<String, String, String>, String?, String?>>()
         val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }
         val items = ArrayList<LegacyItem>()

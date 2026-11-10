@@ -37,10 +37,10 @@ import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 
 /**
- * 연결한 드라이브에서 권할 백업.
- * 새 백업을 먼저 고르고, 없으면 예전 앱이 올린 백업을 고른다.
- * 예전 백업은 편수를 몰라 0편으로 온다.
- * [migrated]면 이 폰에서 이미 옮겨 온 일기와 같은 백업이라 권하지 않는다.
+ * 연결한 드라이브에서 권할 백업
+ * 새 백업을 먼저 고르고, 없으면 예전 앱이 올린 백업을 고름
+ * 예전 백업은 편수를 몰라 0편으로 옴
+ * [migrated]면 이 휴대폰에서 이미 옮겨 온 일기와 같은 백업이라 권하지 않음
  */
 fun backupToOffer(backups: List<BackupEntry>?, migrated: Boolean): BackupEntry? {
     val ready = backups.orEmpty().filter { it.state == BackupEntryState.Ready }
@@ -48,10 +48,10 @@ fun backupToOffer(backups: List<BackupEntry>?, migrated: Boolean): BackupEntry? 
 }
 
 /**
- * 권할 백업이 이 기기에 더할 것을 실제로 갖고 있을 때만 권한다.
- * 같은 기기가 올린 백업처럼 더할 일기도, 받을 사진도 없으면 "백업이 있어요"를 띄우지 않는다(2026-11-08 사용자 지적).
- * 받아 보지 못했으면(오프라인, 깨진 파일) 그대로 권해서 사용자가 복원 화면에서 까닭을 보게 한다.
- * 받아 둔 백업은 복원 화면이 다시 받지 않고 쓴다.
+ * 권할 백업이 이 기기에 더할 것을 실제로 갖고 있을 때만 권함
+ * 같은 기기가 올린 백업처럼 더할 일기도, 받을 사진도 없으면 "백업이 있어요"를 띄우지 않음
+ * 받아 보지 못했으면(오프라인, 깨진 파일) 그대로 권해 복원 화면에서 까닭을 보게 함
+ * 받아 둔 백업은 복원 화면이 다시 받지 않고 씀
  */
 suspend fun offerIfNew(entry: BackupEntry?, prepare: suspend (String) -> RestorePreparation): BackupEntry? {
     if (entry == null || entry.platform == PLATFORM_LEGACY) return entry
@@ -66,12 +66,12 @@ suspend fun offerIfNew(entry: BackupEntry?, prepare: suspend (String) -> Restore
     return entry.takeIf { ready == null || ready.preview.bringsSomething() }
 }
 
-/** 합치면 이 기기에 무언가 더해지거나 바뀐다. */
+/** 합치면 이 기기에 무언가 더해지거나 바뀜 */
 fun RestorePreview.bringsSomething(): Boolean = entriesAdded + entriesUpdated + entriesKeptBoth + photosToDownload > 0
 
 /**
- * [BackupRepository]의 구현.
- * 드라이브와 일기 DB는 처음 쓸 때 연다.
+ * [BackupRepository]의 구현
+ * 드라이브와 일기 DB는 처음 쓸 때 엶
  */
 class BackupController(
     private val store: BackupStore,
@@ -85,19 +85,19 @@ class BackupController(
     private val migrated: suspend () -> Boolean = { false },
     private val legacyAccount: suspend () -> String? = { null },
     /**
-     * 드라이브에 있는 가장 최근 백업.
-     * 못 읽으면 null이다.
+     * 드라이브에 있는 가장 최근 백업
+     * 못 읽으면 null
      */
     private val findBackup: suspend () -> BackupEntry? = { null },
-    /** 7일 실패 알림을 다시 걸 때 쓴다. */
+    /** 7일 실패 알림을 다시 걸 때 씀 */
     private val alerts: BackupAlerts? = null,
-    /** 지금 백업이나 자동 백업이 올리고 있는가. */
+    /** 지금 백업이나 자동 백업이 올리는 중인지 */
     private val running: () -> Boolean = { runner.value.progress.value != null }
 ) : BackupRepository {
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
     override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
 
-    /** 연결한 뒤 드라이브를 찾는 동안 켜진다. 몇 초 걸려서 화면이 알린다. */
+    /** 연결한 뒤 드라이브를 찾는 동안 켜짐. 몇 초 걸려 화면이 알림 */
     private val finding = MutableStateFlow(false)
 
     private val _connectFailure = MutableStateFlow<BackupFailure?>(null)
@@ -141,8 +141,8 @@ class BackupController(
             } else {
                 val dao = db.value.backupDao()
                 combine(dao.visibleEntries(), dao.visiblePhotos()) { entries, photos ->
-                    // 이전한 사용자는 첫 홈부터 권하지만, 지킬 일기와 사진이 하나도 없으면 권하지 않는다.
-                    // 옮긴 일기를 모두 지우면 "일기 0편이 이 휴대폰에만 있어요"가 떴다(2026-11-09).
+                    // 이전한 사용자는 첫 홈부터 권하지만, 지킬 일기와 사진이 하나도 없으면 권하지 않음
+                    // 없을 때 권하면 "일기 0편이 이 휴대폰에만 있어요"가 뜸
                     val hasAny = entries > 0 || photos > 0
                     val worth = (migrated() && hasAny) || entries >= NUDGE_ENTRIES || photos > 0
                     if (worth) BackupNudge(entries, photos, legacyAccount()) else null
@@ -168,7 +168,7 @@ class BackupController(
             } catch (_: Exception) {
                 ConnectResult.Failed(BackupFailure.UNKNOWN)
             }
-        // 취소는 사용자가 고른 일이라 말없이 넘어간다.
+        // 취소는 사용자가 고른 일이라 말없이 넘어감
         _connectFailure.value = (result as? ConnectResult.Failed)?.kind
         if (result !is ConnectResult.Connected) return result
         return try {
@@ -177,17 +177,17 @@ class BackupController(
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            // 공간이 차서 연결을 적지 못했다.
-            // 연결되지 않은 것이라 실패로 알린다.
+            // 공간이 차서 연결을 적지 못함
+            // 연결되지 않은 것이라 실패로 알림
             _connectFailure.value = BackupFailure.UNKNOWN
             ConnectResult.Failed(BackupFailure.UNKNOWN)
         }
     }
 
     private suspend fun start(result: ConnectResult.Connected) {
-        // 자동 백업은 처음 연결할 때만 켠다.
-        // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킨다.
-        // 다른 계정을 고르면 앞 계정의 백업 기록은 이 계정의 것이 아니다.
+        // 자동 백업은 처음 연결할 때만 켬
+        // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킴
+        // 다른 계정을 고르면 앞 계정의 백업 기록은 이 계정의 것이 아님
         store.update {
             val kept = if (it.accountKey == null || it.accountKey == result.account.key) it else it.withoutBackupRecord()
             kept.copy(
@@ -199,7 +199,7 @@ class BackupController(
             )
         }
         if (store.current().autoEnabled) scheduler.scheduleDaily()
-        // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않는다(US2 시나리오 7).
+        // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않음(US2 시나리오 7)
         finding.value = true
         val found =
             try {
@@ -232,17 +232,17 @@ class BackupController(
     }
 
     override fun backUpNow(cellularOnce: Boolean) {
-        // 시스템 작업은 새 요청이 앞선 작업을 대신하므로, 올리는 중이면 끊지 않게 넘기지 않는다.
-        // 도는 동안은 화면에 버튼도 없다.
+        // 시스템 작업은 새 요청이 앞선 작업을 대신해 올리는 중이면 끊지 않게 넘기지 않음
+        // 도는 동안은 화면에 버튼도 없음
         if (running()) return
         if (scheduler.startNow(cellularOnce)) return
         scope.launch { nowFinished(runner.value.run(cellularOnce)) }
     }
 
     /**
-     * 지금 백업이 끝났다.
-     * 올리지 않고 끝난 일은 상태에 남지 않아 따로 알린다.
-     * 실패는 상태가 말한다.
+     * 지금 백업이 끝남
+     * 올리지 않고 끝난 일은 상태에 남지 않아 따로 알림
+     * 실패는 상태로 알림
      */
     fun nowFinished(outcome: BackupOutcome) {
         when (outcome) {
@@ -253,7 +253,7 @@ class BackupController(
     }
 
     override suspend fun backUpIfDue() {
-        // 찾은 백업 안내는 메모리에만 있어 앱을 다시 열면 다시 찾아 보여 준다.
+        // 찾은 백업 안내는 메모리에만 있어 앱을 다시 열면 다시 찾아 보여 줌
         if (store.current().foundBackupWaiting) {
             if (_foundBackup.value == null) findBackupAgain()
             return
@@ -268,7 +268,7 @@ class BackupController(
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                // 오프라인이면 다음에 앱을 열 때 다시 본다.
+                // 오프라인이면 다음에 앱을 열 때 다시 봄
                 return
             }
         if (found != null) _foundBackup.value = found else store.update { it.copy(foundBackupWaiting = false) }
@@ -279,11 +279,11 @@ class BackupController(
     }
 
     /**
-     * 자동 백업 한 번.
-     * 바뀐 것이 없어 올리지 않은 날도 백업은 잘 되는 중이라 7일 알림을 뒤로 민다.
+     * 자동 백업 한 번
+     * 바뀐 것이 없어 올리지 않은 날도 백업은 잘 되는 중이라 7일 알림을 뒤로 밂
      */
     suspend fun runAutomatic(): BackupOutcome {
-        // 끄거나 끊은 뒤에 남아 있던 시스템 작업이 깨워도 올리지 않는다.
+        // 끄거나 끊은 뒤에 남아 있던 시스템 작업이 깨워도 올리지 않음
         val prefs = store.current()
         if (prefs.accountKey == null || !prefs.autoEnabled || prefs.foundBackupWaiting) return BackupOutcome.Unchanged
         val outcome = runner.value.runIfChanged()
@@ -292,9 +292,9 @@ class BackupController(
     }
 
     /**
-     * 일기가 마지막 백업 그대로라 지난 실패는 더 이을 것이 없다.
-     * 연결이 끊긴 것만은 사용자가 풀어야 해서 남긴다.
-     * 공간이 차서 적지 못해도 다음 자동 백업이 다시 한다.
+     * 일기가 마지막 백업 그대로라 지난 실패는 더 이을 것이 없음
+     * 연결이 끊긴 것만은 사용자가 풀어야 해서 남김
+     * 공간이 차서 적지 못해도 다음 자동 백업이 다시 함
      */
     private suspend fun stillBackedUp() {
         try {
@@ -325,8 +325,8 @@ class BackupController(
         store.update { it.copy(autoEnabled = enabled) }
         if (enabled) {
             scheduler.scheduleDaily()
-            // 끌 때 지운 알림을 되살린다.
-            // 없으면 자동 백업이 멈춰도 아무도 모른다.
+            // 끌 때 지운 알림을 다시 걺
+            // 없으면 자동 백업이 멈춰도 아무도 모름
             alerts?.schedule(clock.now() + ALERT_AFTER, null)
         } else {
             scheduler.cancelDaily()
@@ -337,10 +337,10 @@ class BackupController(
     override suspend fun setPhotosOnCellular(enabled: Boolean) = store.update { it.copy(photosOnCellular = enabled) }
 
     override suspend fun disconnect() {
-        // 기록을 먼저 지운다.
-        // 계정 권한부터 지우고 기록을 적지 못하면, 화면은 연결된 채로 보이는데 백업은 실패한다.
-        // 마지막 백업 기록은 끊은 계정의 것이다.
-        // 남겨 두면 다른 계정을 연결했을 때 그 계정의 백업처럼 보인다.
+        // 기록을 먼저 삭제
+        // 계정 권한부터 지우고 기록을 적지 못하면 화면은 연결된 채로 보이는데 백업은 실패함
+        // 마지막 백업 기록은 끊은 계정의 것
+        // 남겨 두면 다른 계정을 연결했을 때 그 계정의 백업처럼 보임
         store.update {
             it.withoutBackupRecord().copy(
                 accountKey = null,
@@ -371,7 +371,7 @@ class BackupController(
     )
 }
 
-/** 실패 알림까지의 시간(FR-016). 백업이 성공할 때 거는 값과 같다. */
+/** 실패 알림까지의 시간(FR-016). 백업이 성공할 때 거는 값과 같음 */
 private val ALERT_AFTER = 7.days
 
 private const val NUDGE_ENTRIES = 3

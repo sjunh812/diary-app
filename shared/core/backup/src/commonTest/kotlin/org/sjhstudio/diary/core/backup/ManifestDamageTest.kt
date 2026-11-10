@@ -20,7 +20,7 @@ import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.testing.FakeDrive
 
-/** 목록 파일이 어떻게 깨져도 앱이 죽지 않고, 깨진 백업만 고를 수 없게 보이는지 본다. */
+/** 목록 파일이 어떻게 깨져도 앱이 죽지 않고, 깨진 백업만 고를 수 없게 보이는지 확인 */
 class ManifestDamageTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path

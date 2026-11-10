@@ -44,8 +44,8 @@ import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.testing.FakeDrive
 
 /**
- * 사진을 받다가 일이 꼬였을 때 남은 사진이 돌아오는지 본다.
- * 파일 복원 중 다른 파일 고르기, 앱 종료, 공간 부족, 네트워크 끊김을 다룬다.
+ * 사진을 받다가 일이 꼬였을 때 남은 사진이 돌아오는지 확인
+ * 파일 복원 중 다른 파일 고르기, 앱 종료, 공간 부족, 네트워크 끊김
  */
 class RestorePhotosTest {
     private val fs = FileSystem.SYSTEM
@@ -69,7 +69,7 @@ class RestorePhotosTest {
         fs.deleteRecursively(dir)
     }
 
-    /** 일기 둘과 사진 둘을 묶음 파일로 낸다. */
+    /** 일기 둘과 사진 둘을 묶음 파일로 냄 */
     private suspend fun export(name: String = "export.zip"): Path {
         a.write("one")
         a.write("two")
@@ -95,7 +95,7 @@ class RestorePhotosTest {
         val zip = export()
         val controller = b.controller(backgroundScope)
         assertIs<RestorePreparation.Ready>(controller.pick(zip))
-        // 백업이 돌고 있어 복원이 시작만 하고 기다린다.
+        // 백업이 돌고 있어 복원이 시작만 하고 기다림
         b.gate.enter()
         controller.merge()
 
@@ -114,7 +114,7 @@ class RestorePhotosTest {
 
     private val held get() = b.work / "unpacking" / "bundle.zip"
 
-    /** 사진을 꺼내다 실패하는 기기로 복원한다. */
+    /** 사진을 꺼내다 실패하는 기기로 복원 */
     private suspend fun cutFileRestore(zip: Path, scope: CoroutineScope): RestoreResult {
         val cut = b.controller(scope, files = JammedFiles(fs) { it.name.endsWith(".part") })
         assertIs<RestorePreparation.Ready>(cut.pick(zip))
@@ -134,8 +134,8 @@ class RestorePhotosTest {
         assertEquals(2, result.photosPending)
         assertTrue(fs.exists(held), "남은 사진이 든 파일을 지웠다")
 
-        // 앱을 다시 열었다.
-        // 드라이브를 연결하지 않은 사람도 이어서 꺼낸다.
+        // 앱을 다시 엶
+        // 드라이브를 연결하지 않은 사람도 이어서 꺼냄
         b.controller(backgroundScope).resumePhotos()
 
         assertEquals(setOf(MediaStatus.NORMAL.id), b.photoStates().values.toSet())
@@ -232,7 +232,7 @@ class RestorePhotosTest {
 
     // 받은 수로 말하기
 
-    /** 일기 둘, 사진 둘을 드라이브에 올린다. */
+    /** 일기 둘, 사진 둘을 드라이브에 올림 */
     private suspend fun backedUp() {
         a.write("one")
         a.write("two")
@@ -289,7 +289,7 @@ class RestorePhotosTest {
 
     // 드라이브 사진 이어 받기
 
-    /** 사진 둘을 받다 끊긴 기기. */
+    /** 사진 둘을 받다 끊긴 기기 */
     private suspend fun cutDriveRestore(scope: CoroutineScope): RestoreResult {
         backedUp()
         b.store.update { it.copy(accountKey = "sub-1") }
@@ -464,7 +464,7 @@ class RestorePhotosTest {
 
         controller.merge()
         until { controller.state.value == RestoreState.WaitingForBackup }
-        // 기다리는 동안 복원을 두 번 시작하거나 닫아도 사라지지 않는다.
+        // 기다리는 동안 복원을 두 번 시작하거나 닫아도 사라지지 않음
         controller.merge()
         controller.dismiss()
         assertEquals(RestoreState.WaitingForBackup, controller.state.value)
@@ -489,7 +489,7 @@ class RestorePhotosTest {
 
     // 되돌리기
 
-    /** 바꾸기를 마쳐 되돌릴 수 있는 기기. */
+    /** 바꾸기를 마쳐 되돌릴 수 있는 기기 */
     private suspend fun replaced(scope: CoroutineScope): RestoreController {
         val zip = export()
         b.write("mine")
@@ -633,15 +633,15 @@ class RestorePhotosTest {
         first.merge()
         assertIs<RestoreState.Done>(first.finished())
         first.dismiss()
-        // 받던 파일이 깨져 찾을 수 없는 사진으로 굳었다.
+        // 받던 파일이 깨져 찾을 수 없는 사진으로 굳음
         val photos = b.db.backupDao().allMedia()
         photos.forEach { row ->
             fs.delete(b.media / requireNotNull(row.fileName))
             b.db.mediaDao().update(row.copy(status = MediaStatus.MISSING.id))
         }
 
-        // 앱의 복원기는 하나다.
-        // 둘을 만들면 앞 복원기가 뒤늦게 지우는 사본이 뒤 복원기의 파일과 부딪힌다.
+        // 앱의 복원기는 하나
+        // 둘을 만들면 앞 복원기가 뒤늦게 지우는 사본이 뒤 복원기의 파일과 부딪힘
         val ready = assertIs<RestorePreparation.Ready>(first.pick(zip))
         assertEquals(2, ready.preview.photosToDownload)
         first.merge()
@@ -694,7 +694,7 @@ class RestorePhotosTest {
     }
 }
 
-/** 받은 사진 수를 센다. */
+/** 받은 사진 수를 셈 */
 private class CountingDownloads(private val real: DriveApi) : DriveApi by real {
     var downloads = 0
         private set
@@ -705,12 +705,12 @@ private class CountingDownloads(private val real: DriveApi) : DriveApi by real {
     }
 }
 
-/** 로그인이 풀린 드라이브. */
+/** 로그인이 풀린 드라이브 */
 private class DeniedDrive(private val real: DriveApi) : DriveApi by real {
     override suspend fun download(fileId: String, to: Path, fromByte: Long): Long = throw DriveUnauthorized()
 }
 
-/** 첫 글자부터 쓰지 못하는 저장 위치. */
+/** 첫 글자부터 쓰지 못하는 저장 위치 */
 private class FailingSink : Sink {
     override fun write(source: Buffer, byteCount: Long) = throw IOException("저장 공간이 없다")
 

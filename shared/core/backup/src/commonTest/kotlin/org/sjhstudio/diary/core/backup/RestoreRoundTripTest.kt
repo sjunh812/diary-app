@@ -51,8 +51,8 @@ import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
 /**
- * 한 기기에서 백업하고 빈 기기에서 복원한다.
- * 드라이브 대역을 두 기기가 같이 쓴다.
+ * 한 기기에서 백업하고 빈 기기에서 복원
+ * 드라이브 대역을 두 기기가 같이 씀
  */
 class RestoreRoundTripTest {
     private val fs = FileSystem.SYSTEM
@@ -148,7 +148,7 @@ class RestoreRoundTripTest {
         }
     }
 
-    /** 앱을 다시 열어도 받아 둔 목록 파일은 다시 받지 않는다. 백업이 늘어도 목록이 느려지지 않는다. */
+    /** 앱을 다시 열어도 받아 둔 목록 파일은 다시 받지 않음. 백업이 늘어도 목록이 느려지지 않음 */
     @Test
     fun the_list_is_not_downloaded_again_after_reopening() = runTest {
         backUp()
@@ -164,7 +164,7 @@ class RestoreRoundTripTest {
         assertEquals(first.map { it.entry }, second.map { it.entry })
     }
 
-    /** 드라이브에 묻지 않고 지난번 목록을 낸다. 끊긴 상태에서도 나온다. */
+    /** 드라이브에 묻지 않고 지난번 목록을 냄. 끊긴 상태에서도 나옴 */
     @Test
     fun the_saved_list_needs_no_drive() = runTest {
         backUp()
@@ -331,8 +331,8 @@ class RestoreRoundTripTest {
     fun every_field_and_photo_row_comes_back_the_same() = runTest {
         val hash = "내용".encodeToByteArray().toByteString().sha256().hex()
         fs.write(dir / "a" / "media" / "$hash.jpg") { write("내용".encodeToByteArray()) }
-        // 합치기는 진짜 시계를 쓰니 휴지통 날짜도 오늘에 맞춘다.
-        // 고정 날짜면 30일이 지난 뒤부터 이 시험이 깨진다.
+        // 합치기는 진짜 시계를 쓰니 휴지통 날짜도 오늘에 맞춤
+        // 고정 날짜면 30일이 지난 뒤부터 이 시험이 깨짐
         val trashedRecently = (Clock.System.now() - 3.days).toEpochMilliseconds()
         val full = EntryEntity(
             "full", "2026-03-01", "07:05", "<p>글</p>", "글", "good", "sunny", "망원동", true, 11, 22, null, 5, "2024-03-01 07:05:00", "1|2"
@@ -449,7 +449,7 @@ class RestoreRoundTripTest {
         assertEquals(false, (done as RestoreState.Done).result.lockWasOn)
     }
 
-    /** 내려받기가 어느 디스패처에서 도는지 적는다. */
+    /** 내려받기가 어느 디스패처에서 도는지 적음 */
     private class WatchingDrive(private val real: DriveApi) : DriveApi by real {
         var seen: ContinuationInterceptor? = null
             private set

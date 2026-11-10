@@ -142,7 +142,7 @@ class BundleTest {
         val zip = exportFromA()
         val saved = fs.metadata(zip).size!!
 
-        // 사진과 DB가 파일 대부분이고 남는 것은 안내 글, 목록 파일, zip 머리뿐이다.
+        // 사진과 DB가 파일 대부분이고 남는 것은 안내 글, 목록 파일, zip 머리뿐
         assertTrue(estimated in (saved - saved / 5)..saved, "예상 $estimated, 실제 $saved")
     }
 
@@ -200,7 +200,7 @@ class BundleTest {
 
     private val incoming get() = dir / "b" / "backup" / "incoming"
 
-    /** 사진 파일을 옮길 때 실패하는 기기. */
+    /** 사진 파일을 옮길 때 실패하는 기기 */
     private val jammed =
         object : ForwardingFileSystem(fs) {
             override fun atomicMove(source: Path, target: Path) = throw IOException("저장 공간이 없다")

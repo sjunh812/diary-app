@@ -24,7 +24,7 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.testing.FakeDrive
 
-/** 바꾸기가 실패하거나 시계가 틀어져도 바꾸기 전 기록으로 돌아갈 수 있는지 본다. */
+/** 바꾸기가 실패하거나 시계가 틀어져도 바꾸기 전 기록으로 돌아갈 수 있는지 확인 */
 class RollbackEdgeTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path
@@ -131,7 +131,7 @@ class RollbackEdgeTest {
     fun an_entry_written_with_the_clock_set_back_survives_the_rollback() = runTest {
         replaced("new")
         val replacedAt = phone.clock.now()
-        // 바꾼 뒤에 기기 시계가 뒤로 갔다.
+        // 바꾼 뒤에 기기 시계가 뒤로 감
         phone.clock.setWallClock(replacedAt - 2.days)
         phone.write("after", updated = phone.clock.now().toEpochMilliseconds())
 

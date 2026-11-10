@@ -17,8 +17,8 @@ import org.sjhstudio.diary.core.testing.FakeBackupScheduler
 import org.sjhstudio.diary.core.testing.FakeDrive
 
 /**
- * "7일 동안 백업하지 못했어요" 알림(FR-016).
- * 잘 되고 있거나 사용자가 끈 사람에게는 오면 안 된다.
+ * "7일 동안 백업하지 못했어요" 알림(FR-016)
+ * 잘 되고 있거나 사용자가 끈 사람에게는 오면 안 됨
  */
 class BackupAlertTest {
     private val fs = FileSystem.SYSTEM
@@ -52,7 +52,7 @@ class BackupAlertTest {
         phone.write("e1")
     }
 
-    /** 일기를 쓰지 않은 주에도 백업은 잘 되는 중이다. 알림을 뒤로 민다. */
+    /** 일기를 쓰지 않은 주에도 백업은 잘 되는 중이라 알림을 뒤로 밂 */
     @Test
     fun nothing_new_pushes_the_alert_back() = runTest {
         connected()
@@ -67,7 +67,7 @@ class BackupAlertTest {
         assertEquals("까닭 없음", notifier.body)
     }
 
-    /** 앱을 열 때 도는 자동 백업도 같은 길로 간다. */
+    /** 앱을 열 때 도는 자동 백업도 같은 길 */
     @Test
     fun opening_the_app_with_nothing_new_pushes_the_alert_back() = runTest {
         connected()
@@ -80,7 +80,7 @@ class BackupAlertTest {
         assertEquals(first + 9.days, notifier.at)
     }
 
-    /** 바뀐 것이 없으면 지난 실패는 지나간 일이다. 백업은 이미 드라이브에 있다. */
+    /** 바뀐 것이 없으면 지난 실패는 지나간 일. 백업은 이미 드라이브에 있음 */
     @Test
     fun nothing_new_clears_an_old_failure() = runTest {
         connected()
@@ -93,7 +93,7 @@ class BackupAlertTest {
         assertNull(phone.store.current().failingSince)
     }
 
-    /** 다시 연결이 필요한 상태는 바뀐 것이 없어도 그대로다. 이어서 올릴 길이 막혀 있다. */
+    /** 다시 연결이 필요한 상태는 바뀐 것이 없어도 그대로. 이어서 올릴 길이 막혀 있음 */
     @Test
     fun nothing_new_keeps_a_broken_connection() = runTest {
         connected()
@@ -105,7 +105,7 @@ class BackupAlertTest {
         assertEquals(BackupFailure.AUTH, phone.store.current().lastFailure)
     }
 
-    /** 자동 백업을 끈 사람이 직접 눌러 성공해도 7일 뒤 알림을 걸지 않는다. */
+    /** 자동 백업을 끈 사람이 직접 눌러 성공해도 7일 뒤 알림을 걸지 않음 */
     @Test
     fun a_manual_backup_with_auto_off_sets_no_alert() = runTest {
         connected(auto = false)
@@ -148,7 +148,7 @@ class BackupAlertTest {
         assertNull(notifier.at)
     }
 
-    /** 끈 사이 지워진 알림은 다시 켜면 돌아온다. 아니면 백업이 멈춰도 아무도 모른다. */
+    /** 끈 사이 지워진 알림은 다시 켜면 돌아옴. 아니면 백업이 멈춰도 아무도 모름 */
     @Test
     fun turning_auto_back_on_sets_the_alert_again() = runTest {
         connected()

@@ -21,16 +21,16 @@ import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.platform.FreeSpace
 
 /**
- * 되돌릴 사본을 둘 자리가 없다.
- * 바꾸기를 시작하지 않아서 기기의 기록은 그대로다.
+ * 되돌릴 사본을 둘 자리가 없음
+ * 바꾸기를 시작하지 않아 기기의 기록은 그대로
  */
 class NoRoomForRollback : Exception("no room for the rollback copy")
 
 /**
- * 바꾸기와 7일 되돌리기(contracts/merge-rules.md).
- * 바꾸기는 기기 일기를 비우는 유일한 길이라서
- * 사본을 뜨고 열어서 확인한 뒤에만 비운다.
- * 7일이 지나기 전에는 사진 정리도 멈춘다.
+ * 바꾸기와 7일 되돌리기(contracts/merge-rules.md)
+ * 바꾸기는 기기 일기를 비우는 유일한 길이라
+ * 사본을 뜨고 열어서 확인한 뒤에만 비움
+ * 7일이 지나기 전에는 사진 정리도 멈춤
  */
 class RollbackManager(
     private val db: DiaryDatabase,
@@ -47,8 +47,8 @@ class RollbackManager(
     private val json = Json { ignoreUnknownKeys = true }
 
     /**
-     * 사본은 `rollback/<되돌릴 수 있는 마지막 시각>/`에 둔다.
-     * 저장해 둔 그 시각이 지금 쓸 사본을 가리킨다.
+     * 사본은 `rollback/<되돌릴 수 있는 마지막 시각>/`에 둠
+     * 저장해 둔 그 시각이 지금 쓸 사본을 가리킴
      */
     private fun slot(until: Instant) = dir / until.toEpochMilliseconds().toString()
 
@@ -71,16 +71,16 @@ class RollbackManager(
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            // 사본이 깨졌으면 되돌릴 수 없으니 안내를 감춘다.
-            // 화면 흐름을 죽이지 않는다.
+            // 사본이 깨졌으면 되돌릴 수 없으니 안내를 숨김
+            // 화면 흐름을 죽이지 않음
             null
         }
     }
 
     /**
-     * 사본을 새 자리에 만들고 확인한 뒤 한 트랜잭션으로 백업 내용으로 바꾼다.
-     * 끝나기 전에는 앞선 사본을 지우지 않는다.
-     * 실패해도 앞선 바꾸기는 되돌릴 수 있고, 일기 사본도 남기지 않는다.
+     * 사본을 새 자리에 만들고 확인한 뒤 한 트랜잭션으로 백업 내용으로 바꿈
+     * 끝나기 전에는 앞선 사본을 지우지 않음
+     * 실패해도 앞선 바꾸기는 되돌릴 수 있고, 일기 사본도 남기지 않음
      */
     suspend fun replace(backup: List<MergeEntry>, source: String) {
         val needed = databaseBytes() * 2
@@ -110,8 +110,8 @@ class RollbackManager(
     }
 
     /**
-     * 바꾸기는 이미 끝났다.
-     * 지우지 못한 사본은 7일 뒤에 함께 지워진다.
+     * 바꾸기는 이미 끝남
+     * 지우지 못한 사본은 7일 뒤에 함께 지워짐
      */
     private fun clearOlderCopies(keep: Path) {
         try {
@@ -122,8 +122,8 @@ class RollbackManager(
     }
 
     /**
-     * 바꾸기 전으로 돌아간다.
-     * 바꾼 뒤에 쓰거나 고친 일기는 합치기 규칙으로 함께 남긴다.
+     * 바꾸기 전으로 되돌림
+     * 바꾼 뒤에 쓰거나 고친 일기는 합치기 규칙으로 함께 남김
      */
     suspend fun rollBack(): Boolean {
         val until = store.current().rollbackUntil ?: return false
@@ -138,8 +138,8 @@ class RollbackManager(
         val dao = db.backupDao()
         val media = dao.allMedia().groupBy { it.entryId }
         val used = before.mapNotNullTo(HashSet()) { it.entry.legacyId }
-        // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같다.
-        // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 본다.
+        // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음
+        // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 봄
         val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
         val newer =
             dao.allEntries().filter { it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
@@ -161,8 +161,8 @@ class RollbackManager(
     }
 
     /**
-     * 앱을 열 때 부른다.
-     * 7일이 지났으면 사본을 지운다.
+     * 앱을 열 때 호출
+     * 7일이 지났으면 사본 삭제
      */
     suspend fun expire() {
         val until = store.current().rollbackUntil ?: return

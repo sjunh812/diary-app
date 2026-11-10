@@ -38,8 +38,8 @@ class PhotoFetcherTest {
     private lateinit var db: DiaryDatabase
 
     /**
-     * 사진을 받는 데 잠깐 걸리는 드라이브.
-     * 동시에 몇 장을 받았는지 잰다.
+     * 사진을 받는 데 잠깐 걸리는 드라이브
+     * 동시에 몇 장을 받았는지 잼
      */
     private inner class SlowDrive(private val photos: Map<String, ByteArray>, private val failing: Map<String, Exception> = emptyMap()) :
         DriveApi by FakeDrive(fs) {
@@ -60,7 +60,7 @@ class PhotoFetcherTest {
             delay(WAIT_MILLIS)
             lock.withLock { flying-- }
             failing[fileId]?.let { error ->
-                // 받다가 끊기면 반쯤 쓴 파일이 남는다.
+                // 받다가 끊기면 반쯤 쓴 파일이 남음
                 fs.write(to) { writeUtf8("쓰다 만") }
                 throw error
             }
@@ -140,10 +140,10 @@ class PhotoFetcherTest {
 
     @Test
     fun an_expired_login_stops_the_rest() = runTest {
-        // 동시에 받는 몇 장은 멈추기 전에 더 나갈 수 있어서 충분히 많이 둔다.
+        // 동시에 받는 몇 장은 멈추기 전에 더 나갈 수 있어 충분히 많이 둠
         val photos = waiting(COUNT * 10)
-        // 받는 순서는 정해져 있지 않다.
-        // 어느 장이 먼저여도 같도록 모든 장이 거절당하게 둔다.
+        // 받는 순서는 정해져 있지 않음
+        // 어느 장이 먼저여도 같도록 모든 장이 거절당하게 둠
         val drive = SlowDrive(photos, photos.keys.associateWith { DriveException(BackupFailure.AUTH) })
 
         assertFailsWith<DriveException> { fetcher(drive).fetch() }

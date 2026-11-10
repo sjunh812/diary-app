@@ -74,7 +74,7 @@ class BackupConnectTest {
         assertEquals(entry, controller.foundBackup.value)
     }
 
-    /** 안내를 고르지 않고 앱을 다시 열어도 이 기기 일기가 먼저 올라가지 않는다. */
+    /** 안내를 고르지 않고 앱을 다시 열어도 이 기기 일기가 먼저 올라가지 않음 */
     @Test
     fun a_found_backup_still_waits_after_reopening_the_app() = runTest {
         controller(found = entry).connect()
@@ -116,7 +116,7 @@ class BackupConnectTest {
         assertTrue(scheduler.daily)
     }
 
-    /** 끊긴 연결을 다시 이어도 사용자가 꺼 둔 자동 백업을 말없이 켜지 않는다. */
+    /** 끊긴 연결을 다시 이어도 사용자가 꺼 둔 자동 백업을 말없이 켜지 않음 */
     @Test
     fun reconnecting_keeps_auto_backup_off() = runTest {
         store.update { it.copy(accountKey = "sub-1", autoEnabled = false, lastFailure = BackupFailure.AUTH) }
@@ -165,7 +165,7 @@ class BackupConnectTest {
         assertEquals(0, prefs.bytesShort)
     }
 
-    /** 끊은 뒤 다른 계정을 연결해도 옛 계정의 백업 시각이 보이지 않는다. */
+    /** 끊은 뒤 다른 계정을 연결해도 옛 계정의 백업 시각이 보이지 않음 */
     @Test
     fun disconnecting_forgets_the_last_backup() = runTest {
         backedUp()
@@ -175,7 +175,7 @@ class BackupConnectTest {
         assertNoBackupRecord(store.current())
     }
 
-    /** 다시 연결하며 다른 계정을 골라도 같다. */
+    /** 다시 연결하며 다른 계정을 골라도 같음 */
     @Test
     fun reconnecting_with_another_account_forgets_the_last_backup() = runTest {
         backedUp()
@@ -197,7 +197,7 @@ class BackupConnectTest {
         assertEquals("folder", store.current().rootFolderId)
     }
 
-    /** 재시도를 기다리는 동안 다시 눌러도 그 요청과 "이번만 모바일 데이터"가 시스템까지 간다. */
+    /** 재시도를 기다리는 동안 다시 눌러도 그 요청과 "이번만 모바일 데이터"가 시스템까지 감 */
     @Test
     fun every_press_reaches_the_system_with_its_own_choice() {
         val controller = controller()
@@ -209,7 +209,7 @@ class BackupConnectTest {
         assertTrue(scheduler.lastCellular)
     }
 
-    /** 시스템 작업은 새 요청이 앞선 작업을 대신한다. 도는 백업을 끊지 않게 넘기지 않는다. */
+    /** 시스템 작업은 새 요청이 앞선 작업을 대신함. 도는 백업을 끊지 않게 넘기지 않음 */
     @Test
     fun a_running_backup_is_not_interrupted() {
         val controller = controller()
@@ -220,7 +220,7 @@ class BackupConnectTest {
         assertEquals(0, scheduler.startedNow)
     }
 
-    /** 일기가 없거나 복원 중이면 올리지 않고 끝난다. 눌렀는데 반응이 없으면 안 된다. */
+    /** 일기가 없거나 복원 중이면 올리지 않고 끝남. 눌렀는데 반응이 없으면 안 됨 */
     @Test
     fun a_press_that_uploads_nothing_is_told_once() = runTest {
         val controller = controller()
@@ -237,13 +237,13 @@ class BackupConnectTest {
 
     private val legacy = entry.copy(snapshotName = "legacy:1", platform = PLATFORM_LEGACY, entryCount = 0, photoCount = 0)
 
-    /** 옛 note.db는 편수를 몰라 0편이다. 그래도 새 폰 사용자에게는 있다고 알려야 한다. */
+    /** 옛 note.db는 편수를 몰라 0편. 그래도 새 휴대폰 사용자에게는 있다고 알려야 함 */
     @Test
     fun an_old_backup_is_offered_to_a_new_phone() {
         assertEquals(legacy, backupToOffer(listOf(legacy), migrated = false))
     }
 
-    /** 이 폰에서 이미 옮겨 온 일기와 같은 백업이라 다시 권하지 않는다. */
+    /** 이 휴대폰에서 이미 옮겨 온 일기와 같은 백업이라 다시 권하지 않음 */
     @Test
     fun an_old_backup_is_not_offered_after_migrating_here() {
         assertNull(backupToOffer(listOf(legacy), migrated = true))
@@ -263,7 +263,7 @@ class BackupConnectTest {
         assertNull(backupToOffer(null, migrated = false))
     }
 
-    /** 실패는 종류와 함께 화면까지 간다. */
+    /** 실패는 종류와 함께 화면까지 감 */
     @Test
     fun a_failed_connection_is_kept_for_the_screen() = runTest {
         authorizer.connectResult = ConnectResult.Failed(BackupFailure.OFFLINE)
@@ -275,7 +275,7 @@ class BackupConnectTest {
         assertNull(store.current().accountKey)
     }
 
-    /** 사용자가 물러난 것은 실패가 아니다. */
+    /** 사용자가 물러난 것은 실패가 아님 */
     @Test
     fun cancelling_says_nothing() = runTest {
         authorizer.connectResult = ConnectResult.Cancelled
@@ -305,7 +305,7 @@ class BackupConnectTest {
         assertEquals(BackupFailure.UNKNOWN, controller.connectFailure.value)
     }
 
-    /** 공간이 꽉 차 연결을 적지 못하면 연결된 것이 아니다. 꺼지지 않고 실패로 알린다. */
+    /** 공간이 꽉 차 연결을 적지 못하면 연결된 것이 아님. 꺼지지 않고 실패로 알림 */
     @Test
     fun a_connection_that_cannot_be_saved_is_a_failure() = runTest {
         dataStore.failWrites = true
@@ -352,7 +352,7 @@ class BackupConnectTest {
         deviceBytesFree = 0
     )
 
-    /** 이 기기가 올린 백업처럼 합쳐도 달라질 것이 없으면 "백업이 있어요"를 띄우지 않는다. */
+    /** 이 기기가 올린 백업처럼 합쳐도 달라질 것이 없으면 "백업이 있어요"를 띄우지 않음 */
     @Test
     fun a_backup_with_nothing_new_is_not_offered() = runTest {
         assertNull(offerIfNew(entry) { RestorePreparation.Ready(entry, preview()) })
@@ -366,14 +366,14 @@ class BackupConnectTest {
         assertEquals(entry, offerIfNew(entry) { RestorePreparation.Ready(entry, preview(photos = 1)) })
     }
 
-    /** 받아 보지 못한 백업은 숨기지 않고 권해서 복원 화면에서 까닭을 보게 한다. */
+    /** 받아 보지 못한 백업은 숨기지 않고 권해 복원 화면에서 까닭을 보게 함 */
     @Test
     fun a_backup_that_could_not_be_checked_is_still_offered() = runTest {
         assertEquals(entry, offerIfNew(entry) { RestorePreparation.Failed(RestoreFailure.OTHER) })
         assertEquals(entry, offerIfNew(entry) { error("오프라인") })
     }
 
-    /** 옛 백업은 받아 보지 않고 그대로 권한다. */
+    /** 옛 백업은 받아 보지 않고 그대로 권함 */
     @Test
     fun an_old_backup_is_offered_without_checking() = runTest {
         assertEquals(legacy, offerIfNew(legacy) { error("받지 않는다") })

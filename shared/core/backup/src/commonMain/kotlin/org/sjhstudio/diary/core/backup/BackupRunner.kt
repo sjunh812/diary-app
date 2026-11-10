@@ -40,35 +40,35 @@ import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.TokenResult
 
 /**
- * 앱 정보.
- * 목록 파일에 적는다.
+ * 앱 정보
+ * 목록 파일에 적음
  */
 data class BackupAppInfo(val versionName: String, val versionCode: Int, val platform: String)
 
-/** 한 번 돈 결과. */
+/** 한 번 돈 결과 */
 sealed interface BackupOutcome {
-    /** [photosUnusable]은 기기에서 깨지거나 없어져 올릴 수 없는 사진이다. [photosLeft]에 들지 않는다. */
+    /** [photosUnusable]은 기기에서 깨지거나 없어져 올릴 수 없는 사진. [photosLeft]에 들지 않음 */
     data class Done(val photosUploaded: Int, val photosLeft: Int, val photosUnusable: Int = 0) : BackupOutcome
 
     data class Failed(val kind: BackupFailure) : BackupOutcome
 
-    /** 다른 백업이나 복원이 도는 중이거나 기록 이전이 끝나지 않았다. */
+    /** 다른 백업이나 복원이 도는 중이거나 기록 이전이 끝나지 않음 */
     data object Busy : BackupOutcome
 
-    /** 자동 백업인데 마지막 성공 뒤로 바뀐 것이 없다. */
+    /** 자동 백업인데 마지막 성공 뒤로 바뀐 것이 없음 */
     data object Unchanged : BackupOutcome
 
     /**
-     * 휴지통까지 비어 일기가 한 편도 없다.
-     * 새 폰이나 실수로 비운 앱의 빈 백업이 앞선 백업을 가리지 않게 올리지 않는다.
+     * 휴지통까지 비어 일기가 한 편도 없음
+     * 새 휴대폰이나 실수로 비운 앱의 빈 백업이 앞선 백업을 가리지 않게 올리지 않음
      */
     data object Empty : BackupOutcome
 }
 
 /**
- * 오래 실패했을 때의 알림.
- * [text]는 까닭에 맞는 제목과 본문을 준다.
- * 까닭을 모르면 null이다.
+ * 오래 실패했을 때의 알림
+ * [text]는 까닭에 맞는 제목과 본문
+ * 까닭을 모르면 null
  */
 class BackupAlerts(
     private val notifier: BackupNotifier,
@@ -80,7 +80,7 @@ class BackupAlerts(
         notifier.schedule(at, title, body)
     }
 
-    /** 사용자가 지운 백업 폴더를 새로 만들었다고 한 번 알린다(`docs/backup.md` "지운 폴더"). */
+    /** 사용자가 지운 백업 폴더를 새로 만들었다고 한 번 알림(`docs/backup.md` "지운 폴더") */
     suspend fun folderRecreated() {
         val (title, body) = folderText()
         notifier.show(title, body)
@@ -88,9 +88,9 @@ class BackupAlerts(
 }
 
 /**
- * 백업 상태 기계(data-model.md).
- * 사진 → 스냅샷 → 목록 파일 순서로 올리고, 파일마다 드라이브의 확인값을 견준 뒤에만 완료라고 한다(FR-007, FR-008).
- * 사진 이름이 내용 확인값이라 몇 번을 다시 올려도 결과가 같다.
+ * 백업 상태 기계(data-model.md)
+ * 사진 → 스냅샷 → 목록 파일 순서로 올리고, 파일마다 드라이브의 확인값을 견준 뒤에만 완료(FR-007, FR-008)
+ * 사진 이름이 내용 확인값이라 몇 번을 다시 올려도 결과가 같음
  */
 class BackupRunner(
     private val db: DiaryDatabase,
@@ -114,17 +114,17 @@ class BackupRunner(
     private val _progress = MutableStateFlow<BackupProgress?>(null)
 
     /**
-     * 도는 동안의 단계와 숫자.
-     * 홈과 설정이 같이 본다.
+     * 도는 동안의 단계와 숫자
+     * 홈과 설정이 같이 봄
      */
     val progress: StateFlow<BackupProgress?> = _progress.asStateFlow()
 
-    /** [cellularOnce]는 사용자가 이번만 모바일 데이터로 사진을 올리겠다고 고른 경우다. */
+    /** [cellularOnce]는 사용자가 이번만 모바일 데이터로 사진을 올리겠다고 고른 경우 */
     suspend fun run(cellularOnce: Boolean = false): BackupOutcome = running(cellularOnce, automatic = false)
 
     private suspend fun running(cellularOnce: Boolean, automatic: Boolean): BackupOutcome = runCatchingFailure {
-        // 기록 이전이 끝나기 전의 일기는 일부뿐이다.
-        // 그 상태를 가장 새 백업으로 남기지 않는다.
+        // 기록 이전이 끝나기 전의 일기는 일부뿐
+        // 그 상태를 가장 새 백업으로 남기지 않음
         if (!dataReady() || !gate.tryEnter()) return@runCatchingFailure BackupOutcome.Busy
         try {
             if (db.backupDao().entryRows() == 0) return@runCatchingFailure BackupOutcome.Empty
@@ -138,10 +138,10 @@ class BackupRunner(
     }
 
     /**
-     * 자동 백업.
-     * 일기, 사진, 설정이 마지막 성공 뒤로 그대로이고 그 백업이 드라이브에 있으면 올리지 않는다(contracts/backup-flow.md).
-     * 올리지 못한 사진이 남아 있어도 이번에 더 올릴 수 없으면 같다.
-     * 같은 내용 백업이 쌓이면 최근 5개 시점이 밀려난다.
+     * 자동 백업
+     * 일기, 사진, 설정이 마지막 성공 뒤로 그대로이고 그 백업이 드라이브에 있으면 올리지 않음(contracts/backup-flow.md)
+     * 올리지 못한 사진이 남아 있어도 이번에 더 올릴 수 없으면 같음
+     * 같은 내용 백업이 쌓이면 최근 5개 시점이 밀려남
      */
     suspend fun runIfChanged(): BackupOutcome = runCatchingFailure {
         val prefs = store.current()
@@ -158,7 +158,7 @@ class BackupRunner(
     private suspend fun sameAsLastBackup(prefs: BackupPrefs, fingerprint: String): Boolean =
         prefs.lastSuccessFingerprint == fingerprint && stillOnDrive(prefs.lastSuccessSnapshot)
 
-    /** 깨졌던 사진 파일이 돌아왔으면 올릴 수 있다. */
+    /** 깨졌던 사진 파일이 돌아왔으면 올릴 수 있음 */
     private suspend fun repaired(unusable: Set<String>): Boolean {
         if (unusable.isEmpty()) return false
         return db.backupDao().localPhotos().any { row ->
@@ -169,8 +169,8 @@ class BackupRunner(
     private fun intact(path: Path, sha256: String) = fileSystem.exists(path) && fileSystem.hashes(path).sha256 == sha256
 
     /**
-     * 사용자가 드라이브에서 지웠으면 일기가 그대로여도 백업이 없는 것이다.
-     * 드라이브를 볼 수 없으면 있다고 보고 다음 기회를 기다린다.
+     * 사용자가 드라이브에서 지웠으면 일기가 그대로여도 백업이 없는 것
+     * 드라이브를 볼 수 없으면 있다고 보고 다음 기회를 기다림
      */
     private suspend fun stillOnDrive(snapshot: String?): Boolean {
         if (snapshot == null) return false
@@ -186,8 +186,8 @@ class BackupRunner(
     }
 
     /**
-     * 임시 사본을 지우지 못해도 잠금은 풀어야 한다.
-     * 남은 사본은 다음 백업이 덮어쓴다.
+     * 임시 사본을 지우지 못해도 잠금은 풀어야 함
+     * 남은 사본은 다음 백업이 덮어씀
      */
     private fun clearOutgoing() {
         try {
@@ -203,10 +203,10 @@ class BackupRunner(
     }
 
     /**
-     * 어떤 실패도 앱을 끄지 않게 결과로 바꾼다.
-     * 멈추라는 신호만 그대로 내보낸다.
-     * 저장 공간이 차면 SQLite 예외가, 공용 와이파이의 안내 페이지를 받으면 JSON 예외가 온다.
-     * 예외 메시지에는 일기 내용이 섞일 수 있어 어디에도 적지 않고 종류만 남긴다.
+     * 어떤 실패도 앱을 끄지 않게 결과로 바꿈
+     * 멈추라는 신호만 그대로 내보냄
+     * 저장 공간이 차면 SQLite 예외가, 공용 와이파이의 안내 페이지를 받으면 JSON 예외가 옴
+     * 예외 메시지에는 일기 내용이 섞일 수 있어 어디에도 적지 않고 종류만 남김
      */
     private suspend fun runCatchingFailure(block: suspend () -> BackupOutcome): BackupOutcome = try {
         block()
@@ -226,14 +226,14 @@ class BackupRunner(
             store.update { it.copy(lastFailure = kind, failingSince = it.failingSince ?: now) }
             val prefs = store.current()
             val since = prefs.lastSuccessAt ?: prefs.failingSince ?: now
-            // 까닭이 바뀌면 문구만 바꾼다.
-            // 때가 지났으면 이미 한 번 알렸다.
+            // 까닭이 바뀌면 문구만 바꿈
+            // 때가 지났으면 이미 한 번 알렸음
             if (since + ALERT_AFTER > now) alerts?.schedule(since + ALERT_AFTER, kind)
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            // 공간이 차면 실패 기록도 못 쓸 수 있다.
-            // 그래도 실패는 실패로 돌려준다.
+            // 공간이 차면 실패 기록도 못 쓸 수 있음
+            // 그래도 실패는 실패로 돌려줌
         }
         return BackupOutcome.Failed(kind)
     }
@@ -256,7 +256,7 @@ class BackupRunner(
         val snapshot = SnapshotWriter(db, fileSystem).write(workDir / OUTGOING / "$base.db")
 
         val photos = sendPhotos(snapshot, folders, account, now, cellularOnce)
-        // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업이다.
+        // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업
         if (automatic && photos.uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
             store.update {
                 it.copy(
@@ -290,8 +290,8 @@ class BackupRunner(
         }
 
         step(BackupStep.Pruning)
-        // 성공은 이미 적었다.
-        // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 한다.
+        // 성공은 이미 적었음
+        // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 함
         quietly {
             alerts?.schedule(now + ALERT_AFTER, null)
             prune(folders, deviceId, now)
@@ -308,7 +308,7 @@ class BackupRunner(
     private suspend fun openFolders(account: DriveAccount): DriveFolders {
         val before = store.current()
         val folders = DriveLayout(drive, fileSystem).ensure(workDir / OUTGOING, readme())
-        // 처음 백업이나 다른 계정이면 지운 폴더가 아니라 원래 없던 폴더다.
+        // 처음 백업이나 다른 계정이면 지운 폴더가 아니라 원래 없던 폴더
         val recreated = folders.created && before.rootFolderId != null && before.rootFolderAccount == account.key
         store.update {
             it.copy(rootFolderId = folders.root, rootFolderAccount = account.key, folderRecreated = it.folderRecreated || recreated)
@@ -317,7 +317,7 @@ class BackupRunner(
         return folders
     }
 
-    /** 사진을 올린 결과. */
+    /** 사진을 올린 결과 */
     private class PhotoRound(
         val local: List<LocalPhotoRow>,
         val inBackup: Set<String>,
@@ -337,8 +337,8 @@ class BackupRunner(
         val onDrive = drive.listAll(DriveQuery(parentId = folders.media, props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
         val driveHashes = onDrive.associateBy { it.name.substringBefore('.') }
         val dao = db.backupDao()
-        // 드라이브가 원본이다.
-        // 표에는 있는데 드라이브에 없어진 사진은 잊고 다시 올린다.
+        // 드라이브가 원본
+        // 표에는 있는데 드라이브에 없어진 사진은 잊고 다시 올림
         dao.forget(account.key, dao.confirmed(account.key).map { it.sha256 }.filter { it !in driveHashes })
         dao.confirm(
             onDrive.map {
@@ -358,12 +358,12 @@ class BackupRunner(
         val planned = if (allowed) fitting(missing, quotaLimit?.minus(reserve)) else emptyList()
         val unusable = HashSet<String>()
         val uploaded = uploadPhotos(planned, folders, account.key, unusable)
-        // 이번에 살펴보지 않은 사진은 지난번 판단을 이어 간다.
+        // 이번에 살펴보지 않은 사진은 지난번 판단을 이어 감
         val tried = planned.mapTo(HashSet()) { it.sha256 }
         val hashes = local.mapTo(HashSet()) { it.sha256 }
         unusable += store.current().unusablePhotos.filter { it !in tried && it in hashes }
         val inBackup = driveHashes.keys + uploaded
-        // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보인다(FR-018, FR-019).
+        // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보여 줌(FR-018, FR-019)
         val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusable }.sumOf { it.byteSize ?: 0 } else 0
         return PhotoRound(local, inBackup, uploaded, unusable, local.count { it.sha256 !in inBackup && it.sha256 !in unusable }, short)
     }
@@ -403,10 +403,10 @@ class BackupRunner(
         )
     }
 
-    /** 알림과 뒷정리가 실패해도 백업을 멈추거나 실패로 만들지 않는다. */
+    /** 알림과 뒷정리가 실패해도 백업을 멈추거나 실패로 만들지 않음 */
     private suspend fun quietly(block: suspend () -> Unit) = orElseOnFailure(Unit) { block() }
 
-    /** 공간이 부족하면 앞(최근 일기)에서부터 들어가는 만큼만 고른다. */
+    /** 공간이 부족하면 앞(최근 일기)에서부터 들어가는 만큼만 고름 */
     private fun fitting(photos: List<LocalPhotoRow>, free: Long?): List<LocalPhotoRow> {
         if (free == null) return photos
         var left: Long = free
@@ -417,9 +417,9 @@ class BackupRunner(
     }
 
     /**
-     * 올린 사진의 확인값을 돌려준다.
-     * 파일이 없거나 내용이 이름과 다르면 [unusable]에 적고 건너뛴다.
-     * 깨진 내용을 이 이름으로 올리면 복원할 수 없는 사진을 백업됐다고 말하게 되고, 드라이브에 이미 있다고 보여 좋은 사본도 못 올라간다.
+     * 올린 사진의 확인값 반환
+     * 파일이 없거나 내용이 이름과 다르면 [unusable]에 적고 건너뜀
+     * 깨진 내용을 이 이름으로 올리면 복원할 수 없는 사진을 백업됐다고 말하게 되고, 드라이브에 이미 있다고 보여 좋은 사본도 못 올라감
      */
     private suspend fun uploadPhotos(
         photos: List<LocalPhotoRow>,
@@ -450,7 +450,7 @@ class BackupRunner(
                 )
                 done += photo.sha256
             } catch (error: DriveException) {
-                // 공간이 찼으면 올린 만큼으로 스냅샷과 목록 파일을 올려 본다(contracts/backup-format.md).
+                // 공간이 찼으면 올린 만큼으로 스냅샷과 목록 파일을 올려 봄(contracts/backup-format.md)
                 if (error.kind == BackupFailure.NO_SPACE) return done
                 throw error
             }
@@ -461,8 +461,8 @@ class BackupRunner(
     }
 
     /**
-     * 올리고 드라이브의 확인값을 견준다.
-     * 다르면 지우고 한 번 더 올린다.
+     * 올리고 드라이브의 확인값을 견줌
+     * 다르면 지우고 한 번 더 올림
      */
     private suspend fun upload(path: Path, meta: NewFile, hashes: FileHashes): DriveFile {
         val first = send(path, meta, hashes.byteSize)
@@ -482,7 +482,7 @@ class BackupRunner(
         var from = 0L
         var restarts = 0
         var stalls = 0
-        // 드라이브가 끝을 주지 않아도 백업이 잠금을 쥔 채 머물지 않게 횟수를 센다.
+        // 드라이브가 끝을 주지 않아도 백업이 잠금을 쥔 채 머물지 않게 횟수를 셈
         while (true) {
             when (val result = drive.uploadChunk(session, from, path)) {
                 is ChunkResult.Done -> return result.file
@@ -493,7 +493,7 @@ class BackupRunner(
                     from = result.confirmedBytes
                 }
 
-                // 세션이 없어졌으면 처음부터 다시 올린다.
+                // 세션이 없어졌으면 처음부터 다시 올림
                 ChunkResult.Expired -> {
                     if (++restarts > MAX_RESTARTS) throw DriveException(BackupFailure.DRIVE_ERROR)
                     session = drive.startResumable(meta, size)
@@ -506,8 +506,8 @@ class BackupRunner(
     private fun deviceProps(kind: String, deviceId: String) = mapOf(DriveLayout.KEY_KIND to kind, DriveLayout.KEY_DEVICE to deviceId)
 
     /**
-     * 끝까지 된 내 백업만 정리한다.
-     * 지우지 않고 드라이브 휴지통에 넣고, 목록 파일을 먼저 넣는다.
+     * 끝까지 된 내 백업만 정리
+     * 지우지 않고 드라이브 휴지통에 넣고, 목록 파일을 먼저 넣음
      */
     private suspend fun prune(folders: DriveFolders, deviceId: String, now: Instant) {
         val mine = drive.listAll(DriveQuery(parentId = folders.snapshots, props = mapOf(DriveLayout.KEY_DEVICE to deviceId)))
@@ -528,7 +528,7 @@ class BackupRunner(
             manifests.firstOrNull { it.name == "$name.json" }?.let { drive.trash(it.id) }
             snapshots.firstOrNull { it.name == "$name.db" }?.let { drive.trash(it.id) }
         }
-        // 목록 파일 없이 7일 넘게 남은 스냅샷은 끊긴 백업이다.
+        // 목록 파일 없이 7일 넘게 남은 스냅샷은 끊긴 백업
         val named = manifests.map { it.name.removeSuffix(".json") }.toSet()
         val cutoff = (now - 7.days).toEpochMilliseconds()
         snapshots.filter { it.name.removeSuffix(".db") !in named && it.createdAt < cutoff }.forEach { drive.trash(it.id) }
@@ -552,10 +552,10 @@ class BackupRunner(
         const val OUTGOING = "outgoing"
         const val MANIFEST_RESERVE = 1024L * 1024
 
-        /** 이어 올리기 세션을 다시 여는 횟수. */
+        /** 이어 올리기 세션을 다시 여는 횟수 */
         const val MAX_RESTARTS = 3
 
-        /** 조각을 보내도 받은 양이 늘지 않을 때 더 보내 보는 횟수. */
+        /** 조각을 보내도 받은 양이 늘지 않을 때 더 보내 보는 횟수 */
         const val MAX_STALLS = 3
     }
 }

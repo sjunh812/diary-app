@@ -170,7 +170,7 @@ class BackupRunnerTest {
     @Test
     fun low_space_uploads_recent_photos_first() = runTest {
         val (old, new) = seed()
-        // README 6, 스냅샷, 목록 파일 몫 1MiB에 사진 한 장(10바이트)이 겨우 들어가는 공간이다.
+        // README 6, 스냅샷, 목록 파일 몫 1MiB에 사진 한 장(10바이트)이 겨우 들어가는 공간
         val snapshot = SnapshotWriter(db, fs).write(dir / "probe.db").hashes.byteSize
         drive.limit = 6 + snapshot + 1024L * 1024 + 15
 
@@ -469,14 +469,14 @@ class BackupRunnerTest {
         assertEquals(1, otherDrive.visible.count { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO })
     }
 
-    /** 저장 공간 확인에서 뜻밖의 예외를 던지는 드라이브. */
+    /** 저장 공간 확인에서 뜻밖의 예외를 던지는 드라이브 */
     private class ThrowingDrive(private val real: DriveApi, private val error: Exception) : DriveApi by real {
         override suspend fun about() = throw error
     }
 
     /**
-     * 이어 올리기 세션이 끝나지 않는 드라이브.
-     * 고치기 전에는 끝없이 돌아서 시험을 끊으려고 상한을 둔다.
+     * 이어 올리기 세션이 끝나지 않는 드라이브
+     * 고치기 전에는 끝없이 돌아 시험을 끊으려고 상한을 둠
      */
     private class EndlessUpload(private val real: DriveApi, private val answer: ChunkResult) : DriveApi by real {
         var starts = 0
