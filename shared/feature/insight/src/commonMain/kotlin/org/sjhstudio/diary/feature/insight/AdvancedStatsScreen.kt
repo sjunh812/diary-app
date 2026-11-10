@@ -201,7 +201,7 @@ internal fun AdvancedStatsScreen(
                 .padding(horizontal = LocalScreenGutter.current)
                 .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6)
         ) {
-            // 기간 탭은 화면 전체를 거르는 줄이라 내용과 24로 가깝게, 묶음 사이는 32.
+            // 기간 탭은 화면 전체를 거르는 줄이라 내용과 24로 가깝게, 묶음 사이는 32
             // 빈 한 줄은 탭 아래 칸이라 다른 묶음 사이보다 가깝게
             Column {
                 DiarySegmentedTabs(
@@ -471,7 +471,7 @@ private fun CompanyRow(row: MoodCompany, onClick: () -> Unit) {
     ) {
         MoodFace(row.mood, DiarySpacing.x8, contentDescription = null)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            // 기분 이름만 굵게, 편수는 보조로 낮춤.
+            // 기분 이름만 굵게, 편수는 보조로 낮춤
             // 둘 다 굵으면 "좋음 · 62편"이 한 덩어리로 읽혀 이름이 먼저 들어오지 않음
             val name = moodName(row.mood)
             val title = pluralStringResource(Res.plurals.insight_adv_company_title, row.entries, name, row.entries.grouped())

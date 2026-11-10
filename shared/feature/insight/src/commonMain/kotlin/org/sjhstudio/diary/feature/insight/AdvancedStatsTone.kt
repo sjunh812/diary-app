@@ -199,7 +199,7 @@ internal fun MoodTimes(stats: AdvancedStats) {
     Section(
         Res.string.insight_adv_when,
         gap = Dp.Hairline,
-        // 글자 탭은 누르는 곳 48 가운데에 글자가 있어 위 여백이 붙음.
+        // 글자 탭은 누르는 곳 48 가운데에 글자가 있어 위 여백이 붙음
         // 제목과 탭을 따로 띄우면 한 묶음으로 안 보여 사이를 두지 않음
         titleGap = Dp.Hairline,
         onInfo = { explaining = true }
@@ -349,7 +349,7 @@ internal fun ToneSheet(onDismiss: () -> Unit) {
     val typography = DiaryTheme.typography
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.insight_adv_tone_sheet_title)) {
         PhraseText(stringResource(Res.string.insight_adv_tone_sheet_body), style = typography.body.copy(color = colors.textSecondary))
-        // 설명 → 첫 묶음 16, 묶음 사이 20, 마지막 묶음 → 확인 32(시트 기본 사이 12 + 8에 버튼 둘레 여백, 재서 맞춤).
+        // 설명 → 첫 묶음 16, 묶음 사이 20, 마지막 묶음 → 확인 32(시트 기본 사이 12 + 8에 버튼 둘레 여백, 재서 맞춤)
         // 시트 규칙은 글과 버튼 사이 24지만, 여기는 묶음 사이가 20이라 24면 버튼이 내용에 붙어 보임
         Column(Modifier.padding(top = DiarySpacing.x1), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
             ToneGroup(colors.toneGood, stringResource(Res.string.insight_adv_change_good), Mood.entries.filter { it.tone == MoodTone.GOOD })
@@ -373,7 +373,7 @@ internal fun ToneSheet(onDismiss: () -> Unit) {
 internal fun ToneGroup(color: Color, name: String, moods: List<Mood>) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    // 얼굴 줄이 둘로 넘어가도 줄 사이(12)가 이름·얼굴 사이와 같아야 한 묶음으로 읽힘.
+    // 얼굴 줄이 둘로 넘어가도 줄 사이(12)가 이름·얼굴 사이와 같아야 한 묶음으로 읽힘
     // 8이면 얼굴 24끼리 거의 붙어 보임
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         LegendItem(color, name)
