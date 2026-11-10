@@ -183,9 +183,9 @@ import org.sjhstudio.diary.feature.backup.resources.restore_when
 // 복원 진행·결과·실패 화면
 
 /**
- * 복원하는 중과 결과(Figma B5, B6).
- * 뒤로 가면 멈추지 않고 홈으로 감.
- * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 엶([RestoreResultNotice]).
+ * 복원하는 중과 결과(Figma B5, B6)
+ * 뒤로 가면 멈추지 않고 홈으로 감
+ * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 엶([RestoreResultNotice])
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -426,8 +426,8 @@ internal fun pendingBody(result: RestoreResult): StringResource = when {
 }
 
 /**
- * Figma "B6 · 백업을 확인하지 못했어요".
- * 어떤 실패든 기기의 기록은 그대로.
+ * Figma "B6 · 백업을 확인하지 못했어요"
+ * 어떤 실패든 기기의 기록은 그대로
  */
 @Composable
 internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onPickOther: () -> Unit) {

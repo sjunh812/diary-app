@@ -64,9 +64,9 @@ import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_title
 
 /**
- * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알림.
- * 토스트의 보기를 누르면 결과 화면이 열림.
- * 일기를 쓰는 동안은 기다림([quiet]).
+ * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알림
+ * 토스트의 보기를 누르면 결과 화면이 열림
+ * 일기를 쓰는 동안은 기다림([quiet])
  */
 @Composable
 fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: Boolean, onOpen: () -> Unit) {
@@ -85,8 +85,8 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
 }
 
 /**
- * 파일을 만들다 앱이 꺼졌으면 다음에 앱을 열 때 한 번 알림.
- * 보기를 누르면 파일로 백업하기로 감.
+ * 파일을 만들다 앱이 꺼졌으면 다음에 앱을 열 때 한 번 알림
+ * 보기를 누르면 파일로 백업하기로 감
  */
 @Composable
 fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
@@ -102,9 +102,9 @@ fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
 }
 
 /**
- * 백업 화면 아래에 두는 복원 소식.
- * 멈춘 사진이 몇 장인지, 왜 멈췄는지, 무엇을 하면 되는지 보임.
- * 할 일이 없으면 자리를 차지하지 않음.
+ * 백업 화면 아래에 두는 복원 소식
+ * 멈춘 사진이 몇 장인지, 왜 멈췄는지, 무엇을 하면 되는지 보임
+ * 할 일이 없으면 자리를 차지하지 않음
  */
 @Composable
 fun RestoreStatusBar(onPickFile: () -> Unit, modifier: Modifier = Modifier) {

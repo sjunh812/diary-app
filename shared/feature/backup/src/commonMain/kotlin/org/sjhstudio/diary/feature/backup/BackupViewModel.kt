@@ -41,7 +41,7 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
 
     /**
      * 저장해 둔 상태를 읽기 전이나 읽지 못하면 null.
-     * 기본값을 그리면 켜 둔 백업이 잠깐 또는 계속 꺼짐으로 보여 홈 줄과 백업 화면은 이 값을 봄.
+     * 기본값을 그리면 켜 둔 백업이 잠깐 또는 계속 꺼짐으로 보여 홈 줄과 백업 화면은 이 값을 봄
      */
     val loadedStatus: StateFlow<BackupStatus?> =
         statusRead.map { (it as? StatusRead.Loaded)?.status }.stateInSafely(viewModelScope, WhileUiSubscribed, null)
@@ -91,8 +91,8 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     }
 
     /**
-     * [hint]는 예전 앱이 쓰던 구글 계정.
-     * Android에서 먼저 보임.
+     * [hint]는 예전 앱이 쓰던 구글 계정
+     * Android에서 먼저 보임
      */
     fun connect(hint: String? = null) {
         viewModelScope.launchSafely {
@@ -107,8 +107,8 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     }
 
     /**
-     * [나중에].
-     * 이때 이 기기의 첫 백업을 함.
+     * [나중에]
+     * 이때 이 기기의 첫 백업을 함
      */
     fun skipFound() = controller.skipFoundBackup()
 
@@ -131,8 +131,8 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     }
 
     /**
-     * 저장 공간이 차서 설정을 적지 못해도 앱을 끄지 않음.
-     * 스위치는 저장된 값을 그려 적지 못하면 원래 자리로 돌아감. 사실과 어긋나지 않음.
+     * 저장 공간이 차서 설정을 적지 못해도 앱을 끄지 않음
+     * 스위치는 저장된 값을 그려 적지 못하면 원래 자리로 돌아감. 사실과 어긋나지 않음
      */
     private suspend fun quietly(block: suspend () -> Unit) = orElseOnFailure(Unit) { block() }
 }

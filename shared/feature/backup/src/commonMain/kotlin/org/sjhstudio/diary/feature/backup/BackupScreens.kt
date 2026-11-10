@@ -246,9 +246,9 @@ fun BackupSettingsRoute(
 }
 
 /**
- * 구글 드라이브 연결 실패 안내.
- * 까닭에 맞는 할 일을 말함.
- * 사용자가 취소한 때는 띄우지 않음.
+ * 구글 드라이브 연결 실패 안내
+ * 까닭에 맞는 할 일을 말함
+ * 사용자가 취소한 때는 띄우지 않음
  */
 @Composable
 fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
@@ -274,9 +274,9 @@ fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modi
 }
 
 /**
- * Figma "B2 · 드라이브에 백업이 있어요".
- * 연결한 뒤 드라이브에서 찾은 백업을 권함.
- * 예전 앱 백업은 기기와 편수를 몰라 날짜와 사진이 없다는 것만 말함.
+ * Figma "B2 · 드라이브에 백업이 있어요"
+ * 연결한 뒤 드라이브에서 찾은 백업을 권함
+ * 예전 앱 백업은 기기와 편수를 몰라 날짜와 사진이 없다는 것만 말함
  */
 @Composable
 fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> Unit) {
@@ -448,8 +448,8 @@ private fun FileRestoreNotice(state: FileBackupUi) {
 }
 
 /**
- * Figma "드라이브 공간이 부족해요 (B10)".
- * 공간을 팔지 않고 정리할 곳만 알려 줌(FR-019).
+ * Figma "드라이브 공간이 부족해요 (B10)"
+ * 공간을 팔지 않고 정리할 곳만 알려 줌(FR-019)
  */
 @Composable
 private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Unit) {
@@ -656,8 +656,8 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
 }
 
 /**
- * 마지막 시도 실패.
- * 까닭과 할 일을 말하고, 앞선 성공이 있으면 언제까지 백업됐는지 함께 보임.
+ * 마지막 시도 실패
+ * 까닭과 할 일을 말하고, 앞선 성공이 있으면 언제까지 백업됐는지 함께 보임
  */
 @Composable
 private fun FailedStatus(failure: BackupFailure?, last: String?) {
@@ -676,8 +676,8 @@ private fun FailedStatus(failure: BackupFailure?, last: String?) {
 }
 
 /**
- * 복원한 백업 안내.
- * 홈 상태 줄과 백업 화면이 같이 씀.
+ * 복원한 백업 안내
+ * 홈 상태 줄과 백업 화면이 같이 씀
  */
 @Composable
 internal fun restoredBackupText(at: Instant): String {

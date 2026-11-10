@@ -3,8 +3,8 @@ package org.sjhstudio.diary.feature.backup
 import org.sjhstudio.diary.core.model.RestoreState
 
 /**
- * 복원 화면을 떠난 뒤에 나온 결과를 알릴지 정함.
- * 결과는 닫을 때까지 남아 있어 같은 결과를 두 번 알리지 않게 기억함.
+ * 복원 화면을 떠난 뒤에 나온 결과를 알릴지 정함
+ * 결과는 닫을 때까지 남아 있어 같은 결과를 두 번 알리지 않게 기억함
  */
 internal class RestoreResultWatch {
     private var told: RestoreState? = null

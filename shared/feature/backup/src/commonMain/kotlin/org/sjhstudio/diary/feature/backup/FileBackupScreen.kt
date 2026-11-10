@@ -95,8 +95,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_body
 
 /**
- * 파일로 백업하기(Figma "파일로 백업하기 (B8)").
- * 저장 위치는 사용자가 시스템 창에서 고름(FR-031).
+ * 파일로 백업하기(Figma "파일로 백업하기 (B8)")
+ * 저장 위치는 사용자가 시스템 창에서 고름(FR-031)
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable

@@ -24,8 +24,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 
 /**
- * 홈 목록 맨 위의 권하기 카드(Figma B11, FR-036).
- * 창으로 막지 않음. 조건이 맞을 때만 보이고 목록과 함께 스크롤됨.
+ * 홈 목록 맨 위의 권하기 카드(Figma B11, FR-036)
+ * 창으로 막지 않음. 조건이 맞을 때만 보이고 목록과 함께 스크롤됨
  */
 @Composable
 fun BackupNudgeCard(modifier: Modifier = Modifier) {
@@ -37,8 +37,8 @@ fun BackupNudgeCard(modifier: Modifier = Modifier) {
 }
 
 /**
- * 연결했더니 찾은 백업이나 연결 실패를 알리는 시트.
- * 카드가 스크롤로 사라져도 뜨도록 카드 밖에 둠.
+ * 연결했더니 찾은 백업이나 연결 실패를 알리는 시트
+ * 카드가 스크롤로 사라져도 뜨도록 카드 밖에 둠
  */
 @Composable
 fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {

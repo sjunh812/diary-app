@@ -67,8 +67,8 @@ import org.sjhstudio.diary.feature.backup.resources.backup_status_failed
 private val LONG_FAILURE = 7.days
 
 /**
- * 홈 머리의 백업 상태 줄(Figma B11, `docs/design.md` 홈 백업 줄).
- * 누르면 설정의 백업으로 감.
+ * 홈 머리의 백업 상태 줄(Figma B11, `docs/design.md` 홈 백업 줄)
+ * 누르면 설정의 백업으로 감
  */
 @Composable
 fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
@@ -144,8 +144,8 @@ private class Line(val icon: ImageVector, val text: String, val action: String? 
 internal enum class BackupAttention { Reconnect, LongFailure }
 
 /**
- * 손봐야 할 백업 상태 고르기.
- * [lineFor]와 같은 순서로 따짐. 줄이 다른 말을 하는 동안(사진 받는 중, 꺼짐, 올리는 중, 찾는 중)은 경고하지 않음.
+ * 손봐야 할 백업 상태 고르기
+ * [lineFor]와 같은 순서로 따짐. 줄이 다른 말을 하는 동안(사진 받는 중, 꺼짐, 올리는 중, 찾는 중)은 경고하지 않음
  */
 internal fun attentionOf(status: BackupStatus, receivingPhotos: Boolean, now: Instant): BackupAttention? {
     val last = status.lastSuccessAt
@@ -159,9 +159,9 @@ internal fun attentionOf(status: BackupStatus, receivingPhotos: Boolean, now: In
 }
 
 /**
- * 홈 머리가 접혔을 때 바의 작은 제목 옆에 두는 백업 경고(`docs/design.md` 탭 상단 바).
- * 손봐야 할 때만 보이고, 누르면 홈 백업 줄처럼 설정의 백업으로 감.
- * 평소 상태는 맨 위로 올리면 백업 줄이 말하므로 바에 두지 않음.
+ * 홈 머리가 접혔을 때 바의 작은 제목 옆에 두는 백업 경고(`docs/design.md` 탭 상단 바)
+ * 손봐야 할 때만 보이고, 누르면 홈 백업 줄처럼 설정의 백업으로 감
+ * 평소 상태는 맨 위로 올리면 백업 줄이 말하므로 바에 두지 않음
  */
 @Composable
 fun BackupAlertButton(onOpen: () -> Unit, modifier: Modifier = Modifier) {

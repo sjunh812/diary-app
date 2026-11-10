@@ -51,9 +51,9 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     private var writing: Job? = null
 
     /**
-     * 저장 위치가 정해지면 부름.
-     * [open]은 그곳에 쓰는 흐름을 열고, [discard]는 그 파일을 지움.
-     * 열고 닫기와 실패한 파일 지우기는 저장소가 맡음.
+     * 저장 위치가 정해지면 부름
+     * [open]은 그곳에 쓰는 흐름을 열고, [discard]는 그 파일을 지움
+     * 열고 닫기와 실패한 파일 지우기는 저장소가 맡음
      */
     fun write(name: String, open: () -> Sink, discard: suspend () -> Unit = {}) {
         _state.value = FileBackupUi.Writing(0, 1)
@@ -90,10 +90,10 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     val ready: Flow<Unit> = _ready.receiveAsFlow()
 
     /**
-     * 고른 파일을 앱 안으로 옮겨 확인.
-     * 끝나면 [ready]로 미리보기에 감.
-     * [size]는 고른 파일의 크기.
-     * 몰라도 옮기다 공간이 차면 그렇게 알림.
+     * 고른 파일을 앱 안으로 옮겨 확인
+     * 끝나면 [ready]로 미리보기에 감
+     * [size]는 고른 파일의 크기
+     * 몰라도 옮기다 공간이 차면 그렇게 알림
      */
     fun read(open: () -> Source, size: () -> Long? = { null }) {
         _state.value = FileBackupUi.Reading

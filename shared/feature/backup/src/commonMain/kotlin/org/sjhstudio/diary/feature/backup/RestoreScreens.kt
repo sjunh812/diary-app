@@ -180,8 +180,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.restore_when
 
 /**
- * 백업에서 복원하기(Figma "백업에서 복원하기 (B3)").
- * 기기마다 묶어 보이고, 깨진 백업은 고를 수 없음.
+ * 백업에서 복원하기(Figma "백업에서 복원하기 (B3)")
+ * 기기마다 묶어 보이고, 깨진 백업은 고를 수 없음
  */
 @Composable
 fun RestoreListRoute(onBack: () -> Unit, onPick: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -255,8 +255,8 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
 }
 
 /**
- * 값 줄 묶음.
- * 값 줄이 스스로 화면 여백을 둬 이미 여백 안이면 겹치지 않게 뺌.
+ * 값 줄 묶음
+ * 값 줄이 스스로 화면 여백을 둬 이미 여백 안이면 겹치지 않게 뺌
  */
 @Composable
 internal fun ValueGroup(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
@@ -264,8 +264,8 @@ internal fun ValueGroup(modifier: Modifier = Modifier, content: @Composable Colu
 }
 
 /**
- * 고를 수 없는 백업.
- * 자리는 남겨 왜 없는지 보임.
+ * 고를 수 없는 백업
+ * 자리는 남겨 왜 없는지 보임
  */
 @Composable
 private fun Unavailable(title: String, reason: String) {
@@ -287,8 +287,8 @@ private fun problemText(state: BackupEntryState): String? = when (state) {
 }
 
 /**
- * 복원하기 전에 확인(Figma "복원하기 전에 확인 (B4)").
- * 합치기는 지금 일기를 지우지 않음.
+ * 복원하기 전에 확인(Figma "복원하기 전에 확인 (B4)")
+ * 합치기는 지금 일기를 지우지 않음
  */
 @Composable
 fun RestorePreviewRoute(snapshotName: String, onBack: () -> Unit, onMerged: () -> Unit, modifier: Modifier = Modifier) {
@@ -404,8 +404,8 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
 }
 
 /**
- * 예전 앱 백업(Figma B7).
- * 합치기로만 불러옴.
+ * 예전 앱 백업(Figma B7)
+ * 합치기로만 불러옴
  */
 @Composable
 private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePreview, onImport: () -> Unit) {
@@ -463,8 +463,8 @@ private fun Page(title: String, onBack: () -> Unit, modifier: Modifier, content:
 }
 
 /**
- * 백업 목록을 읽는 동안.
- * 나올 목록처럼 기기 머리 아래에 두 줄짜리 백업 줄을 둠.
+ * 백업 목록을 읽는 동안
+ * 나올 목록처럼 기기 머리 아래에 두 줄짜리 백업 줄을 둠
  */
 @Composable
 private fun LoadingList() {
@@ -498,8 +498,8 @@ private fun LoadingList() {
 }
 
 /**
- * 고른 백업을 받아 보는 동안.
- * 나올 확인 화면처럼 배지, 제목, 값 줄 넷, 안내 상자, 버튼 자리를 둠.
+ * 고른 백업을 받아 보는 동안
+ * 나올 확인 화면처럼 배지, 제목, 값 줄 넷, 안내 상자, 버튼 자리를 둠
  */
 @Composable
 private fun ColumnScope.LoadingPreview() {
@@ -530,8 +530,8 @@ private fun ColumnScope.LoadingPreview() {
 }
 
 /**
- * 큰 배지, 제목, 설명.
- * [fill]이면 남은 자리 가운데에 둠.
+ * 큰 배지, 제목, 설명
+ * [fill]이면 남은 자리 가운데에 둠
  */
 @Composable
 internal fun ColumnScope.Hero(
