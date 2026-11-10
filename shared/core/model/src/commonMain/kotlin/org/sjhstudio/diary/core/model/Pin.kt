@@ -1,8 +1,8 @@
 package org.sjhstudio.diary.core.model
 
 /**
- * 잠금 비밀번호 4자리(contracts/lock.md).
- * 글자 배열로 들고 있다가 쓰고 나면 [clear]로 지움. String은 지울 수 없어 메모리에 남음.
+ * 잠금 비밀번호 4자리(contracts/lock.md)
+ * 글자 배열로 들고 있다가 쓰고 나면 [clear]로 지움. String은 지울 수 없어 메모리에 남음
  */
 class Pin private constructor(private val digits: CharArray) {
     /** 확인값을 만들 ASCII 바이트. 받은 쪽이 쓰고 나서 지움 */

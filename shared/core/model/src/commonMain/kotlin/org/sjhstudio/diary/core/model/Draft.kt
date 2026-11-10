@@ -5,8 +5,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
 /**
- * 임시 저장본 열쇠. 수정하는 일기는 일기마다 하나(FR-009).
- * 새 일기는 보통 하나지만, 쓰던 글을 두고 [새로 쓰기]를 고르면 버리기 전까지 함께 남아야 해 여럿일 수 있음(FR-010).
+ * 임시 저장본 열쇠. 수정하는 일기는 일기마다 하나(FR-009)
+ * 새 일기는 보통 하나지만, 쓰던 글을 두고 [새로 쓰기]를 고르면 버리기 전까지 함께 남아야 해 여럿일 수 있음(FR-010)
  */
 sealed interface DraftKey {
     val value: String

@@ -11,8 +11,8 @@ data class ChecklistItem(val start: Int, val done: Boolean, val label: String) {
 }
 
 /**
- * 체크리스트(contracts/rich-text-html.md "체크리스트"). 줄 맨 앞의 표시 글자로 나타냄.
- * 본문 글자라 HTML 허용 목록, 백업 형식, 이전이 그대로.
+ * 체크리스트(contracts/rich-text-html.md "체크리스트"). 줄 맨 앞의 표시 글자로 나타냄
+ * 본문 글자라 HTML 허용 목록, 백업 형식, 이전이 그대로
  */
 object Checklist {
     const val OPEN: Char = '\u2610'
@@ -70,8 +70,8 @@ object Checklist {
     }
 
     /**
-     * 도구 버튼. 고른 줄이 모두 항목이면 표시를 빼고, 아니면 항목이 아닌 줄에 표시를 넣음.
-     * 앞 편집이 뒤 자리를 밀지 않게 뒤에서부터 돌려줌.
+     * 도구 버튼. 고른 줄이 모두 항목이면 표시를 빼고, 아니면 항목이 아닌 줄에 표시를 넣음
+     * 앞 편집이 뒤 자리를 밀지 않게 뒤에서부터 돌려줌
      */
     fun toggleLines(text: String, selectionStart: Int, selectionEnd: Int): List<ChecklistEdit> {
         val starts = ArrayList<Int>()
@@ -94,8 +94,8 @@ object Checklist {
     }
 
     /**
-     * 글이 바뀐 뒤 목록을 이어 갈 편집. [cursor]는 바뀐 뒤 커서 자리.
-     * 줄바꿈하면 다음 항목을 잇고, 빈 항목에서 줄바꿈하거나 표시 뒤 칸을 지우면 항목을 끝냄.
+     * 글이 바뀐 뒤 목록을 이어 갈 편집. [cursor]는 바뀐 뒤 커서 자리
+     * 줄바꿈하면 다음 항목을 잇고, 빈 항목에서 줄바꿈하거나 표시 뒤 칸을 지우면 항목을 끝냄
      */
     fun afterEdit(before: String, after: String, cursor: Int): ChecklistEdit? = when {
         after.length == before.length + 1 && cursor > 0 && after[cursor - 1] == '\n' -> {

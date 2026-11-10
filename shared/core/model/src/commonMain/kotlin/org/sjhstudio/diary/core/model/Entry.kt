@@ -5,8 +5,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
 /**
- * 일기 한 편.
- * 뜻과 화면 규칙은 스펙 002 data-model.md, 저장 형식은 스펙 001 data-model.md `entry` 표를 따름.
+ * 일기 한 편
+ * 뜻과 화면 규칙은 스펙 002 data-model.md, 저장 형식은 스펙 001 data-model.md `entry` 표를 따름
  */
 data class Entry(
     val id: String,

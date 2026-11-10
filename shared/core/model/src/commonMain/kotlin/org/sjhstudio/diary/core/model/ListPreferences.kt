@@ -13,7 +13,7 @@ enum class ListStyle(val id: String) {
 }
 
 /**
- * 홈 목록 설정. 미리보기는 늘 3줄이라 줄 수 설정은 없음.
- * [favoritesOnly]는 더 쓰지 않음. 저장과 백업 형식을 그대로 두려고 칸만 남김.
+ * 홈 목록 설정. 미리보기는 늘 3줄이라 줄 수 설정은 없음
+ * [favoritesOnly]는 더 쓰지 않음. 저장과 백업 형식을 그대로 두려고 칸만 남김
  */
 data class ListPreferences(val listStyle: ListStyle = ListStyle.FEED, val favoritesOnly: Boolean = false)

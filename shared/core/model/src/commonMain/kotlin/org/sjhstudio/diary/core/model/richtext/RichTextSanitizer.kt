@@ -1,14 +1,14 @@
 package org.sjhstudio.diary.core.model.richtext
 
 /**
- * 본문 HTML을 허용 목록만 남기고 정리(스펙 002 contracts/rich-text-html.md).
+ * 본문 HTML을 허용 목록만 남기고 정리(스펙 002 contracts/rich-text-html.md)
  *
- * - `p`, `br`, `b`(`strong`도 `b`로), `u`, `ul`, `li`만 남기고 속성은 모두 버림.
- * - `span`은 팔레트 안의 `color`, `background-color`만 남김. 남길 것이 없으면 태그를 버리고 글은 남김.
- * - 그 밖의 태그는 태그만 버림. `script`, `style`, `iframe`은 안의 글까지 버림.
- * - 목록은 한 단계만. 안쪽 `ul`은 태그만 버림.
- * - 짝이 맞지 않는 닫는 태그는 버리고, 닫히지 않은 태그는 끝에서 닫음.
- * - 태그가 아닌 꺾쇠는 `&lt;`로 바꿈. 글자와 공백은 그대로.
+ * - `p`, `br`, `b`(`strong`도 `b`로), `u`, `ul`, `li`만 남기고 속성은 모두 버림
+ * - `span`은 팔레트 안의 `color`, `background-color`만 남김. 남길 것이 없으면 태그를 버리고 글은 남김
+ * - 그 밖의 태그는 태그만 버림. `script`, `style`, `iframe`은 안의 글까지 버림
+ * - 목록은 한 단계만. 안쪽 `ul`은 태그만 버림
+ * - 짝이 맞지 않는 닫는 태그는 버리고, 닫히지 않은 태그는 끝에서 닫음
+ * - 태그가 아닌 꺾쇠는 `&lt;`로 바꿈. 글자와 공백은 그대로
  */
 object RichTextSanitizer {
     /** 라이트 hex 팔레트(소문자). 저장은 이 값만 씀 */

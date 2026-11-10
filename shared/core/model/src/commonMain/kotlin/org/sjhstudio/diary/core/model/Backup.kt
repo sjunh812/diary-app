@@ -225,9 +225,9 @@ sealed interface RestoreState {
 }
 
 /**
- * 끝난 사진 받기의 결과.
+ * 끝난 사진 받기의 결과
  * [fetched]는 실제로 받은 장수, [left]는 다시 시도하면 받을 수 있는 장수,
- * [unavailable]은 깨졌거나 드라이브에 없어 받을 수 없는 장수.
+ * [unavailable]은 깨졌거나 드라이브에 없어 받을 수 없는 장수
  */
 data class PhotoRun(val fetched: Int, val left: Int, val unavailable: Int) {
     /** 받을 사진을 빠짐없이 다 받음 */

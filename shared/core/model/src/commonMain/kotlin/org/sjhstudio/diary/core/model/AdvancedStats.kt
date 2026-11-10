@@ -78,8 +78,8 @@ data class StatsChange(val before: StatsSnapshot, val now: StatsSnapshot)
 enum class MoodTrend { BETTER, HARDER, STEADY }
 
 /**
- * 최근 30일과 그 전 30일의 기분. 까닭은 말하지 않고 일어난 변화만 한 줄로.
- * 좋은 기분이 늘거나 힘든 기분이 줄면 나아진 것으로 보고, 더 많이 움직인 쪽을 [hardMoved]로 알림.
+ * 최근 30일과 그 전 30일의 기분. 까닭은 말하지 않고 일어난 변화만 한 줄로
+ * 좋은 기분이 늘거나 힘든 기분이 줄면 나아진 것으로 보고, 더 많이 움직인 쪽을 [hardMoved]로 알림
  */
 data class RecentMood(val trend: MoodTrend, val before: ToneShare, val now: ToneShare) {
     val hardMoved: Boolean get() = abs(now.hardRate - before.hardRate) > abs(now.rate - before.rate)
@@ -206,14 +206,14 @@ fun recentMood(rows: List<StatsEntry>, today: LocalDate): RecentMood? {
 }
 
 /**
- * 큰 수를 짧게 쓸 때의 값.
- * [small]과 [big]은 언어마다 다른 묶음 단위(한국어·일본어는 만·억, 영어는 천·백만).
+ * 큰 수를 짧게 쓸 때의 값
+ * [small]과 [big]은 언어마다 다른 묶음 단위(한국어·일본어는 만·억, 영어는 천·백만)
  */
 data class CompactCount(val digits: String, val big: Boolean)
 
 /**
  * [FULL_LIMIT]보다 작으면 그대로 다 적어 null.
- * 그 위는 작은 단위는 정수로, 큰 단위는 소수 한 자리까지.
+ * 그 위는 작은 단위는 정수로, 큰 단위는 소수 한 자리까지
  */
 fun compactCount(value: Long, small: Long, big: Long): CompactCount? = when {
     value < FULL_LIMIT -> null

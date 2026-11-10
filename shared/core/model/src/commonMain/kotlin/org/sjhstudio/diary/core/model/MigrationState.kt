@@ -3,8 +3,8 @@ package org.sjhstudio.diary.core.model
 import kotlin.time.Instant
 
 /**
- * 기록 이전이 어디까지 왔는지(`migration/state.json`).
- * 일기 내용, 경로, 예외 메시지는 담지 않음(헌법 II).
+ * 기록 이전이 어디까지 왔는지(`migration/state.json`)
+ * 일기 내용, 경로, 예외 메시지는 담지 않음(헌법 II)
  * 단계와 다시 시작 규칙은 contracts/migration-flow.md.
  */
 data class MigrationState(

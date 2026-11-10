@@ -6,9 +6,9 @@ enum class WelcomeStep { LETTER, ONBOARDING_UPDATED, ONBOARDING_NEW, DONE }
 /** 처음 만날 때 한 번 보이는 팁. [id]가 저장 값 */
 enum class ContextTip(val id: String) {
     /**
-     * 돌아보기에서 칸과 기분 막대를 누르면 일기를 모아 볼 수 있다는 안내.
-     * 예전 "insight_mood"(기분 막대만 알리던 것)를 대신함.
-     * 이름을 새로 지어 예전 안내를 닫은 사람에게도 한 번 더 보임.
+     * 돌아보기에서 칸과 기분 막대를 누르면 일기를 모아 볼 수 있다는 안내
+     * 예전 "insight_mood"(기분 막대만 알리던 것)를 대신함
+     * 이름을 새로 지어 예전 안내를 닫은 사람에게도 한 번 더 보임
      */
     INSIGHT_OPEN("insight_open")
 }

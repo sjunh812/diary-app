@@ -14,7 +14,7 @@ enum class ProductId { AD_FREE, PLUS_YEARLY }
 data class StoreProduct(val id: ProductId, val price: String)
 
 /**
- * [NOTHING]은 복원할 구매가 없음. 스토어에 닿지 못한 [FAILED]와 다름.
- * [PENDING]은 결제 승인 대기 중이고, 승인되면 혜택이 저절로 켜짐.
+ * [NOTHING]은 복원할 구매가 없음. 스토어에 닿지 못한 [FAILED]와 다름
+ * [PENDING]은 결제 승인 대기 중이고, 승인되면 혜택이 저절로 켜짐
  */
 enum class PurchaseResult { DONE, CANCELLED, NOTHING, FAILED, PENDING }

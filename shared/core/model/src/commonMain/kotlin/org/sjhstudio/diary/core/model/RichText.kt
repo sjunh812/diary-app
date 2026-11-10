@@ -47,9 +47,9 @@ data class RichText(val text: String, val spans: List<RichSpan>) {
 }
 
 /**
- * 정리된 본문 HTML을 글과 서식으로 풂.
- * 줄바꿈 규칙은 서식 없는 글(contracts/rich-text-html.md)과 같고, 모르는 태그는 글만 남김.
- * 그리는 쪽은 이 값만 쓰고 HTML을 직접 다루지 않음.
+ * 정리된 본문 HTML을 글과 서식으로 풂
+ * 줄바꿈 규칙은 서식 없는 글(contracts/rich-text-html.md)과 같고, 모르는 태그는 글만 남김
+ * 그리는 쪽은 이 값만 쓰고 HTML을 직접 다루지 않음
  */
 fun parseRichText(html: String): RichText {
     val out = StringBuilder(html.length)

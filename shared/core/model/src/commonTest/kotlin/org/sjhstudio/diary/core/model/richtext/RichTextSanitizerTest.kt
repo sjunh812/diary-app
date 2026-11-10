@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
 
-// 저장 전 정리(스펙 002 T017, contracts/rich-text-html.md).
+// 저장 전 정리(스펙 002 T017, contracts/rich-text-html.md)
 class RichTextSanitizerTest {
     private fun clean(html: String) = RichTextSanitizer.sanitize(html)
 

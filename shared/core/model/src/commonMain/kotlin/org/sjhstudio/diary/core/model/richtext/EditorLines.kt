@@ -1,11 +1,11 @@
 package org.sjhstudio.diary.core.model.richtext
 
-// 에디터는 줄마다 문단 하나, 저장 형식은 빈 줄로 나뉜 덩어리가 문단이고 줄바꿈은 `br`(contracts/rich-text-html.md).
-// 옛 글(`legacyToHtml`)과 규칙을 맞추려고 에디터를 오갈 때만 바꿈.
-// 그래야 줄바꿈 한 번이 읽기 화면에서 빈 줄로 보이지 않음.
+// 에디터는 줄마다 문단 하나, 저장 형식은 빈 줄로 나뉜 덩어리가 문단이고 줄바꿈은 `br`(contracts/rich-text-html.md)
+// 옛 글(`legacyToHtml`)과 규칙을 맞추려고 에디터를 오갈 때만 바꿈
+// 그래야 줄바꿈 한 번이 읽기 화면에서 빈 줄로 보이지 않음
 //
-// 에디터가 낸 것은 아는 꼴이 아니어도 버리지 않음.
-// 줄 맨 앞에 `1. `을 치면 에디터가 스스로 번호 목록을 만들고, 붙여넣기도 다른 태그를 들여옴.
+// 에디터가 낸 것은 아는 꼴이 아니어도 버리지 않음
+// 줄 맨 앞에 `1. `을 치면 에디터가 스스로 번호 목록을 만들고, 붙여넣기도 다른 태그를 들여옴
 
 private val OPTIONS = setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
 private val BLOCK = Regex("""<p\b[^>]*>(.*?)</p>|<(?:ul|ol)\b[^>]*>|<br\s*/?>""", OPTIONS)
@@ -134,8 +134,8 @@ fun bodyToEditor(html: String): String {
 }
 
 /**
- * 에디터는 HTML을 읽을 때 겹친 공백을 합치고 줄 앞 공백을 지움.
- * 옛 일기를 한 글자만 수정해도 들여쓰기가 사라져 글자 참조로 지킴.
+ * 에디터는 HTML을 읽을 때 겹친 공백을 합치고 줄 앞 공백을 지움
+ * 옛 일기를 한 글자만 수정해도 들여쓰기가 사라져 글자 참조로 지킴
  */
 private fun keepSpaces(line: String): String = KEPT_SPACE.replace(line) { match -> match.value.replace(" ", "&#32;").replace("\t", "&#9;") }
 
@@ -143,8 +143,8 @@ private fun keepSpaces(line: String): String = KEPT_SPACE.replace(line) { match 
 fun hasWords(editorText: String): Boolean = editorText.lineSequence().any { it.replace(LIST_MARK, "").isNotBlank() }
 
 /**
- * 변환 결과가 비었는데 에디터에는 글이 있으면 보이는 글을 그대로 저장 형식으로 만듦.
- * 라이브러리가 낯선 꼴을 내놓아도 사용자의 글은 남아야 함(헌법 I).
+ * 변환 결과가 비었는데 에디터에는 글이 있으면 보이는 글을 그대로 저장 형식으로 만듦
+ * 라이브러리가 낯선 꼴을 내놓아도 사용자의 글은 남아야 함(헌법 I)
  */
 fun keepingEditorText(body: String, editorText: String): String {
     if (toPlainText(RichTextSanitizer.sanitize(body)).isNotBlank() || !hasWords(editorText)) return body

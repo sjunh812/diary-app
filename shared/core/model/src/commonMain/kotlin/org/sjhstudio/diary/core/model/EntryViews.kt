@@ -5,7 +5,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
 /**
- * 목록 한 줄에 필요한 것만 담음. 일기 내용이 있어 로그나 사용 통계로 넘기지 않음(헌법 II).
+ * 목록 한 줄에 필요한 것만 담음. 일기 내용이 있어 로그나 사용 통계로 넘기지 않음(헌법 II)
  * [photos]는 앱 저장소의 절대경로, 원래 기기에 있어 찾을 수 없는 사진은 null.
  */
 data class EntryRow(
@@ -38,9 +38,9 @@ data class EntryDetail(val entry: Entry, val photos: List<EntryPhoto>, val keptB
 }
 
 /**
- * 달력 칸과 기분 흐름. [mood]는 그날 마지막 일기의 기분, [count]는 편수.
- * [previousMood]는 바로 앞 일기의 기분으로 달력에서 뒤에 겹쳐 그림.
- * [moods]는 그날 일기의 기분을 시간순으로 모은 것으로 통계가 셈.
+ * 달력 칸과 기분 흐름. [mood]는 그날 마지막 일기의 기분, [count]는 편수
+ * [previousMood]는 바로 앞 일기의 기분으로 달력에서 뒤에 겹쳐 그림
+ * [moods]는 그날 일기의 기분을 시간순으로 모은 것으로 통계가 셈
  */
 data class DayMood(
     val date: LocalDate,

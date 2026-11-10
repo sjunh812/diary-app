@@ -1,7 +1,7 @@
 package org.sjhstudio.diary.core.model
 
 /**
- * 앱 글꼴 10종과 시스템 글꼴. 고른 글꼴은 일기 본문과 앱 전체에 씀(헌법 V).
+ * 앱 글꼴 10종과 시스템 글꼴. 고른 글꼴은 일기 본문과 앱 전체에 씀(헌법 V)
  * 레거시 `font_key` 대응은 contracts/legacy-mapping.md.
  */
 enum class DiaryFont(val id: String) {

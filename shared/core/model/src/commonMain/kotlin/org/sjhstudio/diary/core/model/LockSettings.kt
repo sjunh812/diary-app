@@ -3,8 +3,8 @@ package org.sjhstudio.diary.core.model
 import kotlin.time.Instant
 
 /**
- * 잠금 설정(`lock.preferences_pb`).
- * 비밀번호 평문은 어디에도 두지 않고 기기에 묶인 키로 만든 확인값만 둠(research R11).
+ * 잠금 설정(`lock.preferences_pb`)
+ * 비밀번호 평문은 어디에도 두지 않고 기기에 묶인 키로 만든 확인값만 둠(research R11)
  */
 data class LockSettings(
     val enabled: Boolean = false,
