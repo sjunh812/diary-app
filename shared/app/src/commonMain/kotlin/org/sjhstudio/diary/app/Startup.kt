@@ -37,6 +37,11 @@ class Startup(
      */
     private val bootstrapLegacySettings: suspend () -> Unit = {},
     /**
+     * 고른 글꼴을 뒤에서 미리 읽기(`FontWarmup`).
+     * 시작 화면을 더 붙잡지 않고 나란히 돈다.
+     */
+    private val warmFont: suspend (AppSettings) -> Unit = {},
+    /**
      * 첫 화면을 그린 뒤 해도 되는 일(매일 알림 다시 예약).
      * 실패해도 앱은 연다.
      */
@@ -57,6 +62,7 @@ class Startup(
             attempt { bootstrapLegacySettings() }
             val lock = attempt { lockStore.lock.first() }
             val settings = attempt { settingsStore.settings.first() } ?: AppSettings()
+            scope.launch { attempt { warmFont(settings) } }
             // 잇기나 읽기에 실패하면 잠금이 있었는지 모른다.
             // 풀어 두는 대신 잠근 채 새 비밀번호를 정하게 한다(헌법 II).
             _state.value =

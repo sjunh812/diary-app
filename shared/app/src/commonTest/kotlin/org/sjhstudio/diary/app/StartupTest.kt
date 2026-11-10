@@ -6,9 +6,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.datastore.SettingsStore
+import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
@@ -91,5 +93,40 @@ class StartupTest {
         testScheduler.advanceUntilIdle()
 
         assertFalse((startup.state.value as StartupState.Ready).lock.enabled)
+    }
+
+    /** 고른 글꼴을 미리 읽는 동안에도 시작 화면은 기다리지 않는다. */
+    @Test
+    fun font_warmup_runs_alongside_and_does_not_hold_the_splash() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        settings.update { it.copy(font = DiaryFont.NANUM_CHEER) }
+        val warming = CompletableDeferred<Unit>()
+        var warmed: DiaryFont? = null
+        val startup =
+            Startup({}, settings, lock, this, warmFont = {
+                warmed = it.font
+                warming.await()
+            })
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(startup.ready)
+        assertEquals(DiaryFont.NANUM_CHEER, warmed)
+        warming.complete(Unit)
+    }
+
+    /** 미리 읽기가 실패해도 앱은 열린다. */
+    @Test
+    fun a_failed_font_warmup_still_opens_the_app() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val startup = Startup({}, settings, lock, this, warmFont = { error("글꼴을 읽지 못함") })
+
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(startup.ready)
     }
 }

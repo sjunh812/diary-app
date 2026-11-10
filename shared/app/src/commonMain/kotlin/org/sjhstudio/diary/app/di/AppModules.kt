@@ -85,6 +85,7 @@ import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
+import org.sjhstudio.diary.core.ui.FontWarmup
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.backup.backupFolderText
@@ -164,6 +165,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 get(APP_SCOPE),
                 bootstrapLegacyLock = { legacyLock?.run() },
                 bootstrapLegacySettings = { legacySettings?.run() },
+                warmFont = { getOrNull<FontWarmup>()?.warm(it.font) },
                 afterReady = {
                     get<ReminderRepository>().reschedule()
                     // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작한다(이전 직후 포함).

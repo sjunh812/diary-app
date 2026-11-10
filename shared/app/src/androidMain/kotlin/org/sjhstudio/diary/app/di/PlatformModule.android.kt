@@ -66,6 +66,8 @@ import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 import org.sjhstudio.diary.core.platform.TelemetrySink
+import org.sjhstudio.diary.core.ui.AndroidFontWarmup
+import org.sjhstudio.diary.core.ui.FontWarmup
 
 @OptIn(ExperimentalUuidApi::class)
 internal actual val platformModule: Module =
@@ -84,6 +86,7 @@ internal actual val platformModule: Module =
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }
         single<PlaceFinder> { AndroidPlaceFinder(androidContext()) }
         single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }
+        single<FontWarmup> { AndroidFontWarmup(androidContext()) { font -> get<FontInstaller>().installedPath(font.id) } }
         single { DatabaseFactory(androidContext(), get()) }
         single { AndroidDriveAuthorizer(androidContext()) }
         single<DriveAuthorizer> { get<AndroidDriveAuthorizer>() }

@@ -1255,3 +1255,16 @@ Refs: https://support.google.com/admob/table/16327896, https://support.google.co
 이제 "라이브러리 목록을 불러오지 못했어요"와 [다시 시도]를 둔다.
 전문 화면은 그리는 중에 파일을 읽어서, 읽다 실패하면 앱이 꺼질 수 있었다.
 이제 "라이선스 전문을 불러오지 못했어요"를 보인다. 앱에 든 파일이라 다시 읽어도 같아서 다시 시도는 두지 않는다.
+
+## 2026-11-10 고른 글꼴은 시작 화면 동안 뒤에서 미리 읽는다 (사용자 결정)
+
+출시용 빌드(R8, Baseline Profile)로 폰 에뮬레이터에서 콜드 스타트를 10번씩 쟀다(StartupBenchmark, 중앙값).
+일기 수는 거의 상관없었다. 일기 1편 1.42초, 12,005편 1.27초(Pretendard).
+고른 글꼴이 4.6MB 손글씨 글꼴이면 1.61초로 목표 1.5초(스펙 001 SC-007)를 넘었다.
+첫 화면이 글자를 잴 때 화면 스레드에서 글꼴 파일을 읽느라 327ms 멈췄다. 고른 글꼴은 앱 전체에 써서 첫 화면부터 읽힌다.
+
+공식 방법을 따른다. `FontFamily.Resolver.preload`로 미리 읽고, `createFontFamilyResolver`로 만든 것은 화면과 글꼴 캐시를 함께 쓴다([Android 문서](https://developer.android.com/reference/kotlin/androidx/compose/ui/text/font/package-summary)).
+시작이 설정을 읽는 즉시 고른 글꼴(기본이면 Pretendard)을 뒤에서 읽고, 시작 화면은 더 붙잡지 않는다(`FontWarmup`).
+Now in Android는 시스템 글꼴, KotlinConf 앱은 작은 영문 글꼴이라 미리 읽지 않는다. 한글 손글씨 글꼴은 3~13MB라 필요하다.
+고친 뒤 손글씨 글꼴 1.35초, 첫 측정은 30~90ms다.
+iOS는 리소스 글꼴을 바로 읽어서 글씨가 바뀌어 보이지 않고 이번에 바꾸지 않았다.

@@ -63,6 +63,19 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
 }
 
 /**
+ * 앱에 넣은 글꼴의 리소스 파일 이름(`composeResources/.../font/`).
+ * 시작할 때 미리 읽는 쪽이 쓴다.
+ * [fontFamilyOf]의 리소스와 같은 파일이어야 미리 읽은 것이 쓰인다.
+ */
+val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
+    mapOf(
+        DiaryFont.NANUM_CHEER to "nanum_cheer_regular.ttf",
+        DiaryFont.NANUM_PEN to "nanum_pen_regular.ttf",
+        DiaryFont.CHANGWON_ROUND to "changwon_round_regular.otf",
+        DiaryFont.MARU_BURI to "maru_buri_regular.otf"
+    )
+
+/**
  * 일기 본문 글자 스타일: 고른 글꼴과 본문 글자 크기 단계(research R17).
  * 크기는 sp라 기기 글자 크기 위에 곱해진다.
  * 글자 크기 단계는 일기 본문에만 걸려서 메뉴와 버튼은 이 스타일을 쓰지 않는다.
