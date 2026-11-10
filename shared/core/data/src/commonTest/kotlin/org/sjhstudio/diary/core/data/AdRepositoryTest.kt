@@ -36,7 +36,7 @@ class AdRepositoryTest {
         var dayWhileShowing: String? = null
         var dayBeforeImpression: String? = null
 
-        /** 거짓이면 광고가 화면에 나오기 전에 닫히거나 앱이 꺼진 때다. */
+        /** 거짓이면 광고가 화면에 나오기 전에 닫혔거나 앱이 꺼진 경우 */
         var impression = true
         override val available = true
 
@@ -123,7 +123,7 @@ class AdRepositoryTest {
         assertEquals(0, player.shown)
     }
 
-    /** 재설치 직후 산 사람에게 광고가 스치면 안 된다. */
+    /** 재설치 직후 산 사람에게 광고가 스치면 안 됨 */
     @Test
     fun an_unknown_plan_shows_no_ads() = runTest {
         val unknown =
@@ -175,8 +175,8 @@ class AdRepositoryTest {
     }
 
     /**
-     * 광고가 화면에 나온 순간 오늘 본 것으로 적는다.
-     * 보는 중에 앱이 꺼져도 다시 열었을 때 또 뜨지 않는다.
+     * 광고가 화면에 나온 순간 오늘 본 것으로 기록
+     * 보는 중에 앱이 꺼져도 다시 열었을 때 또 뜨지 않음
      */
     @Test
     fun the_day_is_written_when_the_ad_appears() = runTest {
@@ -186,7 +186,7 @@ class AdRepositoryTest {
         assertEquals("2026-11-05", player.dayWhileShowing)
     }
 
-    /** 광고가 나오기 전에 꺼졌으면 본 것이 아니다. 다음에 목록으로 돌아오면 다시 띄운다. */
+    /** 광고가 나오기 전에 꺼졌으면 본 것이 아님. 다음에 목록으로 돌아오면 다시 띄움 */
     @Test
     fun an_ad_closed_before_it_appeared_shows_again_next_time() = runTest {
         val repository = repo()
@@ -250,7 +250,7 @@ class AdRepositoryTest {
         assertFalse(repository.showAds.first())
     }
 
-    /** 자정은 기기 시간대를 따른다(`docs/business.md` 저장 뒤 하루 1번). */
+    /** 자정은 기기 시간대를 따름(`docs/business.md` 저장 뒤 하루 1번) */
     @Test
     fun the_day_changes_at_local_midnight() = runTest {
         val repository = AdRepository(plans, store, player, { true }, clock, { TimeZone.of("Asia/Seoul") })
@@ -263,7 +263,7 @@ class AdRepositoryTest {
         assertEquals(2, player.shown, "서울은 자정이 지났다")
     }
 
-    /** 시간대를 옮겨 날짜가 뒤로 가도 그 날짜는 이미 봤다고 보아 덜 보이는 쪽으로 간다. */
+    /** 시간대를 옮겨 날짜가 뒤로 가도 그 날짜는 이미 본 것으로 보아 덜 보이는 쪽으로 감 */
     @Test
     fun flying_west_does_not_show_a_second_time() = runTest {
         var zone = TimeZone.of("Asia/Seoul")
@@ -304,7 +304,7 @@ class AdRepositoryTest {
         assertTrue(repository.showAds.first())
     }
 
-    /** iOS처럼 광고 구현이 없으면 어느 요금제든 광고가 없다. */
+    /** iOS처럼 광고 구현이 없으면 어느 요금제든 광고 없음 */
     @Test
     fun without_an_ad_player_nothing_shows() = runTest {
         val repository = AdRepository(plans, store, NoAdPlayer, { true }, clock, { TimeZone.UTC })
@@ -314,7 +314,7 @@ class AdRepositoryTest {
         repository.backToList()
     }
 
-    /** 광고를 받지 못한 날은 기록하지 않는다. 다음 저장 때 다시 뜰 수 있다. */
+    /** 광고를 받지 못한 날은 기록하지 않음. 다음 저장 때 다시 뜰 수 있음 */
     @Test
     fun a_day_without_an_ad_records_nothing() = runTest {
         player.ready = false
@@ -323,7 +323,7 @@ class AdRepositoryTest {
         assertEquals(null, store.current().lastInterstitialDay)
     }
 
-    /** 보상 시각을 시계가 앞서 있을 때 적었어도 하루를 넘겨 쉬지 못한다. */
+    /** 보상 시각을 시계가 앞서 있을 때 적었어도 하루를 넘겨 쉬지 못함 */
     @Test
     fun a_reward_written_ahead_of_the_clock_is_ignored() = runTest {
         store.rewardUntil(now + 25.hours)

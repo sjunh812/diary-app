@@ -22,25 +22,25 @@ import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /**
- * 광고 SDK. 공통 코드는 이것만 본다.
- * 안드로이드만 구현이 있고 iOS는 R2에 붙인다.
+ * 광고 SDK. 공통 코드는 이것만 봄
+ * 구현은 안드로이드만 있고 iOS는 R2에 붙임
  */
 interface AdPlayer {
     val available: Boolean
 
     /**
-     * 전면 광고를 미리 받는다.
-     * 돌아갈 때 기다리지 않게 하려고 저장할 때 부른다.
+     * 전면 광고를 미리 받음
+     * 돌아갈 때 기다리지 않게 저장 시점에 호출
      */
     fun prepareInterstitial()
 
     /**
-     * 받아 둔 광고가 있어 띄웠으면 닫힌 뒤 true다.
-     * 광고가 화면에 나와 노출이 잡히는 순간 [onImpression]을 부른다(AdMob `onAdImpression`).
+     * 받아 둔 광고를 띄웠으면 닫힌 뒤 true
+     * 광고가 화면에 나와 노출이 잡히는 순간 [onImpression] 호출(AdMob `onAdImpression`)
      */
     suspend fun showInterstitial(onImpression: () -> Unit): Boolean
 
-    /** 끝까지 봐서 보상을 받았으면 true다. */
+    /** 끝까지 봐서 보상을 받았으면 true */
     suspend fun showRewarded(): Boolean
 }
 
@@ -55,17 +55,17 @@ object NoAdPlayer : AdPlayer {
 }
 
 /**
- * 전면 광고의 원격 스위치(FR-007, 헌법 III).
- * 안드로이드는 Firebase Remote Config의 `interstitial_enabled`를 따른다.
- * 값을 받지 못하면 마지막 값을 쓰고, 처음이면 켜짐이다.
+ * 전면 광고의 원격 스위치(FR-007, 헌법 III)
+ * 안드로이드는 Firebase Remote Config의 `interstitial_enabled`를 따름
+ * 값을 받지 못하면 마지막 값, 처음이면 켜짐
  */
 fun interface AdSwitch {
     fun enabled(): Boolean
 }
 
 /**
- * 광고를 보일지 정하는 곳.
- * 자리와 빈도 규칙은 `docs/business.md` "광고 자리"다.
+ * 광고를 보일지 정하는 곳
+ * 자리와 빈도 규칙은 `docs/business.md` "광고 자리"
  */
 class AdRepository(
     private val plans: PlanRepository,
@@ -75,18 +75,18 @@ class AdRepository(
     private val clock: Clock = Clock.System,
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() }
 ) {
-    /** 저장 공간이 차서 파일에 적지 못해도 이 프로세스 안에서는 하루 한 번을 지킨다. */
+    /** 저장 공간이 차 파일에 못 적어도 이 프로세스 안에서는 하루 한 번을 지킴 */
     private var shownDay: String? = null
 
     val showAds: Flow<Boolean> =
         combine(plans.confirmed, store.prefs) { plan, prefs -> plan?.showsAds == true && adsAllowed(prefs) }
-            // 기록을 읽지 못하면 덜 보이는 쪽으로 본다.
+            // 기록을 읽지 못하면 덜 보이는 쪽으로 판단
             .catch { if (it is IOException) emit(false) else throw it }
             .distinctUntilChanged()
 
     private fun adsAllowed(prefs: AdPrefs) = player.available && !rewarded(prefs.rewardUntil)
 
-    /** 기기 시각을 앞으로 돌려 받은 값은 믿지 않는다. */
+    /** 기기 시각을 앞으로 돌려 받은 값은 믿지 않음 */
     private fun rewarded(until: Instant?): Boolean {
         val left = (until ?: return false) - clock.now()
         return left.isPositive() && left <= REWARD
@@ -94,23 +94,23 @@ class AdRepository(
 
     private fun today(): String = currentDate(clock, timeZone()).toString()
 
-    /** 오늘 아직 안 봤으면 미리 받는다. */
+    /** 오늘 아직 안 봤으면 미리 받음 */
     suspend fun afterSave() {
         quietly(Unit) { if (interstitialDue()) player.prepareInterstitial() }
     }
 
     /**
-     * 저장 뒤 목록으로 돌아왔을 때 부른다.
-     * 하루 한 번만 띄운다.
-     * 시각이 뒤로 가면 덜 보이는 쪽으로 본다.
+     * 저장 뒤 목록으로 돌아왔을 때 호출
+     * 하루 한 번만 띄움
+     * 시각이 뒤로 가면 덜 보이는 쪽으로 판단
      */
     suspend fun backToList() {
         onceStarted(Unit) {
             if (!interstitialDue()) return@onceStarted
-            // 광고가 화면에 나와 노출이 잡힌 순간 적는다(2026-11-10 사용자 결정).
-            // 전면 광고 수익은 끝까지 보는 것이 아니라 노출로 잡혀서, 그 뒤에 앱이 꺼지면 같은 날 또 띄우지 않는다.
-            // 나오기 전에 꺼지거나 띄우지 못했으면 적지 않아 다음에 목록으로 돌아올 때 다시 띄운다.
-            // 공간이 차서 적지 못해도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킨다.
+            // 광고가 화면에 나와 노출이 잡힌 순간 기록
+            // 전면 광고 수익은 끝까지 보기가 아니라 노출로 잡혀, 그 뒤 앱이 꺼져도 같은 날 다시 띄우지 않음
+            // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음에 목록으로 돌아올 때 다시 띄움
+            // 공간이 차 못 적어도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킴
             val day = today()
             coroutineScope {
                 val seen = CompletableDeferred<Unit>()
@@ -123,7 +123,7 @@ class AdRepository(
                     seen.complete(Unit)
                 }
                 when {
-                    // 노출 알림 없이 닫혔어도 화면에는 나왔으니 본 것으로 적는다.
+                    // 노출 알림 없이 닫혀도 화면에는 나왔으니 본 것으로 기록
                     shown -> {
                         shownDay = day
                         seen.complete(Unit)
@@ -136,9 +136,9 @@ class AdRepository(
     }
 
     /**
-     * 오늘은 전면 광고를 띄우지 않는다.
-     * 업데이트 뒤 개발자 편지를 처음 읽은 날에 부른다(`docs/business.md` 광고 자리).
-     * 이미 띄운 날로 적으므로 날짜가 바뀌면 평소대로 돌아간다.
+     * 오늘은 전면 광고를 띄우지 않음
+     * 업데이트 뒤 개발자 편지를 처음 읽은 날에 호출(`docs/business.md` 광고 자리)
+     * 이미 띄운 날로 적어 날짜가 바뀌면 평소대로 돌아감
      */
     suspend fun skipInterstitialToday() {
         onceStarted(Unit) {
@@ -162,13 +162,13 @@ class AdRepository(
     }
 
     /**
-     * 광고가 뜨면 끝까지 기다린다.
-     * 영상을 가로로 보고 돌아오면 화면이 다시 만들어져 부른 쪽이 먼저 끝난다.
-     * 그때 멈추면 본 광고가 기록되지 않아 같은 날 또 뜨고, 끝까지 본 보상을 잃는다.
+     * 광고가 뜨면 끝까지 기다림
+     * 영상을 가로로 보고 돌아오면 화면이 다시 만들어져 부른 쪽이 먼저 끝남
+     * 그때 멈추면 본 광고가 기록되지 않아 같은 날 또 뜨고, 끝까지 본 보상도 잃음
      */
     private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T = quietly(failed) { withContext(NonCancellable) { block() } }
 
-    /** 광고는 곁일이다. 광고 쪽 실패로 앱이 꺼지면 안 된다. 다음 기회에 다시 해 본다. */
+    /** 광고는 곁일. 광고 쪽 실패로 앱이 꺼지면 안 됨. 다음 기회에 다시 시도 */
     private suspend fun <T> quietly(failed: T, block: suspend () -> T): T = orElseOnFailure(failed) { block() }
 
     private companion object {

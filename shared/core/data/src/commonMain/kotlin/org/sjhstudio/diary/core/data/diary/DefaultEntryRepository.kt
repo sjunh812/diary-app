@@ -36,9 +36,9 @@ import org.sjhstudio.diary.core.model.richtext.toPlainText
 private const val PAGE = 60
 
 /**
- * 읽은 곳에서 이만큼 벗어나면 사이 쪽을 건너뛰고 그 자리부터 읽는다.
- * Paging 문서가 권하는 쪽 크기의 몇 배로 둔다.
- * 평소 스크롤은 이 안에 있어 쪽을 차례로 읽는다.
+ * 읽은 곳에서 이만큼 벗어나면 사이 쪽을 건너뛰고 그 자리부터 읽음
+ * Paging 문서가 권하는 쪽 크기의 몇 배
+ * 평소 스크롤은 이 안이라 쪽을 차례로 읽음
  */
 private const val JUMP_ROWS = PAGE * 3
 
@@ -61,15 +61,15 @@ class DefaultEntryRepository(
             jumpThreshold = JUMP_ROWS
         )
 
-    // 표시는 일기 표 밖에 있어서 지울 때 목록을 직접 새로 읽힌다.
+    // 표시는 일기 표 밖에 있어 지울 때 목록을 직접 다시 읽힘
     private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries()) { pageRows(it) } }
     private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries()) { pageRows(it) } }
 
     override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = pages(if (favoritesOnly) favoritePages else allPages)
 
     /**
-     * 자리 표시를 켜서 다른 달로 바로 건너뛸 수 있게 한다.
-     * 일기 표만 살피는 쪽은 받은 사진을 모르니, 사진 상태가 바뀌면 보던 쪽을 다시 읽는다.
+     * 자리 표시를 켜 다른 달로 바로 건너뛸 수 있게 함
+     * 일기 표만 살피는 쪽은 받은 사진을 모르니, 사진 상태가 바뀌면 보던 쪽을 다시 읽음
      */
     private fun pages(factory: InvalidatingPagingSourceFactory<Int, EntryRow>): Flow<PagingData<EntryRow>> = channelFlow {
         launch { media.photoStatusChanges(photoRefreshEvery).collect { factory.invalidate() } }
@@ -77,8 +77,8 @@ class DefaultEntryRepository(
     }
 
     /**
-     * 쪽 하나를 한 번에 읽는다.
-     * 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어진다.
+     * 쪽 하나를 한 번에 읽음
+     * 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어짐
      */
     private suspend fun pageRows(page: List<EntryListRow>, query: String = ""): List<EntryRow> {
         val marked = marks.markedIds().toSet()
@@ -88,7 +88,7 @@ class DefaultEntryRepository(
 
     override fun entry(id: String): Flow<EntryDetail?> = combine(
         entries.observeVisible(id),
-        // 다른 일기의 사진을 받을 때마다 사진 줄을 다시 읽으니 같은 값은 내보내지 않는다.
+        // 다른 일기의 사진을 받을 때마다 사진 줄을 다시 읽으니 같은 값은 내보내지 않음
         media.observeForEntry(id).distinctUntilChanged(),
         marks.markedPair(id)
     ) { entity, rows, pair ->
@@ -110,7 +110,7 @@ class DefaultEntryRepository(
         favoritePages.invalidate()
     }
 
-    /** 한쪽을 지우거나 표시를 닫으면 짝의 표시도 함께 지운다. */
+    /** 한쪽을 지우거나 표시를 닫으면 짝의 표시도 함께 지움 */
     private suspend fun clearMarks(id: String) {
         marks.markedPair(id).first()?.let { marks.clearMark(it) }
         marks.clearMark(id)
@@ -140,8 +140,8 @@ class DefaultEntryRepository(
     override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = pages(InvalidatingPagingSourceFactory { searchPages(filter) })
 
     /**
-     * 찾기 결과 쪽.
-     * 찾은 글자가 미리보기에 보이게 줄마다 글자를 넘긴다.
+     * 찾기 결과 쪽
+     * 찾은 글자가 미리보기에 보이게 줄마다 글자를 넘김
      */
     internal fun searchPages(filter: SearchFilter): PagingSource<Int, EntryRow> {
         val query = filter.query.trim()
@@ -168,7 +168,7 @@ class DefaultEntryRepository(
                 entry.copy(bodyHtml = body, plainText = toPlainText(body), updatedAt = nowMillis())
             }
         }
-        // 고치다 남겨 둔 글을 저장해도 지금 누른 체크가 사라지지 않게 한다.
+        // 고치다 남겨 둔 글을 저장해도 지금 누른 체크가 사라지지 않게
         db.draftDao().markEntryChanged(id)
     }
 
@@ -183,7 +183,7 @@ class DefaultEntryRepository(
     private fun nowMillis() = clock.now().toEpochMilliseconds()
 }
 
-/** 사용자가 쓴 `%`, `_`, `\`가 글자 그대로 찾아지게 한다. */
+/** 사용자가 쓴 `%`, `_`, `\`가 글자 그대로 찾아지게 함 */
 internal fun escapeLike(text: String): String = buildString(text.length) {
     for (c in text) {
         if (c == '\\' || c == '%' || c == '_') append('\\')
@@ -192,8 +192,8 @@ internal fun escapeLike(text: String): String = buildString(text.length) {
 }
 
 /**
- * 시간순 줄을 날짜로 묶는다.
- * 뒤에 있는 줄이 그날 마지막 일기다.
+ * 시간순 줄을 날짜로 묶음
+ * 뒤에 있는 줄이 그날 마지막 일기
  */
 internal fun toDayMoods(rows: List<DayMoodRow>): Map<LocalDate, DayMood> = rows.groupBy { it.date }.entries.associate { (date, day) ->
     val parsed = LocalDate.parse(date)

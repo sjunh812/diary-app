@@ -10,8 +10,8 @@ import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
 
-// 결제 뒤에 켜져야 할 것이 켜지는지, 실패·취소·대기·복원에서 돈과 요금제가 맞는지 본다.
-// 스토어는 가짜로 두고 우리 판단만 시험한다.
+// 결제 뒤에 켜져야 할 것이 켜지는지, 실패·취소·대기·복원에서 돈과 요금제가 맞는지 봄
+// 스토어는 가짜로 두고 우리 판단만 시험
 class StoreBillingTest {
     private val stored = ArrayList<Plan>()
 

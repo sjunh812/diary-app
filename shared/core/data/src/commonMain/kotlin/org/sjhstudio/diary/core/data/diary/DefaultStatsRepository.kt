@@ -38,7 +38,7 @@ class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
     override fun advanced(period: AdvancedPeriod, today: LocalDate): Flow<AdvancedStats> {
         val range = period.range(today)
         val before = period.compare(today)
-        // 요즘 기분은 어느 기간을 고르든 같은 60일을 본다.
+        // 요즘 기분은 어느 기간을 고르든 같은 60일을 봄
         val recent = AdvancedPeriod.RECENT.compare(today)
         val from = listOfNotNull(before?.start, recent?.start).minOrNull()
         val start = if (range == null) null else from

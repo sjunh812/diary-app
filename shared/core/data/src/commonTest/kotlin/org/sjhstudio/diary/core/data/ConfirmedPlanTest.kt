@@ -12,8 +12,8 @@ import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.Plan
 
-// 재설치 직후 스토어 답이 오기 전에는 요금제를 확정하지 않는다.
-// 사진을 고른 Plus 사용자에게 10장 한도를 대지 않고, 광고와 Plus 기능도 확정된 값만 본다.
+// 재설치 직후 스토어 답이 오기 전에는 요금제를 확정하지 않음
+// 사진을 고른 Plus 사용자에게 10장 한도를 대지 않고, 광고와 Plus 기능도 확정된 값만 봄
 class ConfirmedPlanTest {
     private class Plans(start: Plan, known: Boolean) : PlanRepository {
         override val plan = MutableStateFlow(start)

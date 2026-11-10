@@ -18,8 +18,8 @@ import kotlinx.coroutines.withTimeout
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 달을 골라 먼 곳으로 건너뛸 때 사이 쪽을 다 읽지 않는다.
-// 다 읽는 동안 빈 줄만 오래 보인다(스펙 002 FR-015).
+// 달을 골라 먼 곳으로 건너뛸 때 사이 쪽을 다 읽지 않음
+// 다 읽는 동안 빈 줄만 오래 보임(스펙 002 FR-015)
 class TimelineJumpTest {
     private val db = memoryDatabase()
     private val entries = DefaultEntryRepository(db, MEDIA_DIR, TestClock(T0))
@@ -58,7 +58,7 @@ class TimelineJumpTest {
         }
     }
 
-    /** 찾기 결과도 같은 자리를 쓴다. */
+    /** 찾기 결과도 같은 자리를 씀 */
     @Test
     fun every_list_source_can_jump() {
         val timeline = EntryRowPagingSource(db.entryDao().visibleEntries()) { emptyList() }

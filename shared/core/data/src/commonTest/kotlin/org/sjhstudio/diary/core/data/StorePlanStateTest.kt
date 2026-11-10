@@ -6,7 +6,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.model.Plan
 
-// 산 사람에게 광고가 스치지 않게 하는 규칙. 결제 라이브러리 밖에서 전이를 본다.
+// 산 사람에게 광고가 스치지 않게 하는 규칙. 결제 라이브러리 밖에서 전이를 봄
 class StorePlanStateTest {
     private val stored = ArrayList<Plan>()
 

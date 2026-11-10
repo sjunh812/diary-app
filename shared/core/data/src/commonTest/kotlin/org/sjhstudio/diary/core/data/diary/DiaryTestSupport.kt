@@ -85,8 +85,8 @@ internal fun newDraft(body: String = "<p>오늘</p>", mood: Mood? = null) = Draf
 )
 
 /**
- * 그림 대신 받은 바이트를 그대로 복사한다.
- * 빈 바이트는 읽을 수 없는 그림으로 본다.
+ * 그림 대신 받은 바이트를 그대로 복사
+ * 빈 바이트는 읽을 수 없는 그림으로 봄
  */
 internal fun copyEncoder(fileSystem: FileSystem) = ThumbnailEncoder { source, target, _, _ ->
     val bytes = fileSystem.read(source.toPath()) { readByteArray() }

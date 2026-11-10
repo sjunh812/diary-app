@@ -14,8 +14,8 @@ import org.sjhstudio.diary.core.database.DraftEntity
 import org.sjhstudio.diary.core.database.DraftMediaEntity
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 완전히 지운 일기의 글과 사진이 고치던 저장본에 남지 않는다(헌법 II).
-// 지울 일기가 아닌 저장본과 다른 일기의 사진은 잃지 않는다(헌법 I).
+// 완전히 지운 일기의 글과 사진이 고치던 저장본에 남지 않음(헌법 II)
+// 지울 일기가 아닌 저장본과 다른 일기의 사진은 잃지 않음(헌법 I)
 class TrashDraftCleanupTest {
     private val db = memoryDatabase()
     private val trash = DefaultTrashRepository(db, MEDIA_DIR, TestClock(T0))
@@ -85,7 +85,7 @@ class TrashDraftCleanupTest {
         assertNotNull(db.draftDao().get("recent"))
     }
 
-    /** 되돌릴 수 있는 일기의 고치던 글은 그대로다. */
+    /** 되돌릴 수 있는 일기의 고치던 글은 그대로 */
     @Test
     fun a_draft_of_an_entry_outside_the_trash_stays() = runTest {
         db.seed(entry("a", deletedAt = T0), entry("b"))
@@ -108,7 +108,7 @@ class TrashDraftCleanupTest {
         assertNotNull(db.draftDao().get("new"))
     }
 
-    /** 같은 사진은 파일 하나를 함께 쓴다. */
+    /** 같은 사진은 파일 하나를 함께 씀 */
     @Test
     fun a_photo_another_entry_uses_is_kept() = runTest {
         db.seed(entry("a", deletedAt = T0), entry("b"))

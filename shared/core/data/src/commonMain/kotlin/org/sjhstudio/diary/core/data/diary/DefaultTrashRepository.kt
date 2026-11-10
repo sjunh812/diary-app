@@ -41,8 +41,8 @@ class DefaultTrashRepository(
 
     override suspend fun restore(id: String) = entries.setDeletedAt(id, null, clock.now().toEpochMilliseconds())
 
-    // 완전히 지운 일기의 글과 사진이 고치던 임시 저장본에 남으면 안 된다(헌법 II).
-    // 임시 저장본이 사라지면 그 사진 파일도 다음 사진 정리에서 함께 지워진다.
+    // 완전히 지운 일기의 글과 사진이 고치던 임시 저장본에 남으면 안 됨(헌법 II)
+    // 임시 저장본이 사라지면 그 사진 파일도 다음 사진 정리에서 함께 지워짐
     override suspend fun deleteForever(ids: List<String>) = ids.chunked(CHUNK).forEach { chunk ->
         db.withWriteTransaction {
             drafts.deleteTrashed(chunk)
@@ -69,8 +69,8 @@ class DefaultTrashRepository(
 }
 
 /**
- * 남은 날을 올림해서 센다.
- * 오늘 지웠으면 30일, 마지막 날은 1일이다.
+ * 남은 날을 올림해서 셈
+ * 오늘 지웠으면 30일, 마지막 날은 1일
  */
 internal fun daysLeft(deletedAt: Instant, now: Instant): Int {
     val left = (deletedAt + KEEP - now) / 1.days

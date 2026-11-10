@@ -36,7 +36,7 @@ private val SHORT = 50.milliseconds
 private val WAIT = 10.seconds
 private const val BURST = 300
 
-/** 복원이 사진을 받는 동안 보던 화면이 따라오는지(받은 사진이 대기로 남던 문제). */
+/** 복원이 사진을 받는 동안 보던 화면이 따라오는지(받은 사진이 대기로 남던 문제) */
 @OptIn(ExperimentalCoroutinesApi::class)
 class PhotoRefreshTest {
     private val db = memoryDatabase()
@@ -54,7 +54,7 @@ class PhotoRefreshTest {
 
     private suspend fun received(id: String) = db.backupDao().settlePending(id, "$id.jpg", MediaStatus.NORMAL.id)
 
-    /** 화면 대신 쪽을 받아 지금 보이는 줄을 알려 준다. */
+    /** 화면 대신 쪽을 받아 지금 보이는 줄을 알려 줌 */
     private class Rows(context: CoroutineContext) : PagingDataPresenter<EntryRow>(context) {
         override suspend fun presentPagingDataEvent(event: PagingDataEvent<EntryRow>) = Unit
 
@@ -86,7 +86,7 @@ class PhotoRefreshTest {
         }
     }
 
-    /** 사진 하나가 다른 일기의 것이면 상세를 다시 그릴 일이 없다. */
+    /** 사진 하나가 다른 일기의 것이면 상세를 다시 그릴 일이 없음 */
     @Test
     fun detail_ignores_photos_of_other_entries() = runTest {
         db.seed(entry("a"), entry("b"))
@@ -160,7 +160,7 @@ class PhotoRefreshTest {
         }
     }
 
-    /** 수백 장을 받아도 목록을 다시 읽으라는 알림은 시간 간격 수만큼만 온다. */
+    /** 수백 장을 받아도 목록을 다시 읽으라는 알림은 시간 간격 수만큼만 옴 */
     @Test
     fun many_photos_refresh_only_at_intervals() = runTest {
         db.seed(entry("a"))
@@ -170,10 +170,10 @@ class PhotoRefreshTest {
         withContext(Dispatchers.Default) {
             var refreshes = 0
             val watching = launch { db.mediaDao().photoStatusChanges(every).collect { refreshes++ } }
-            delay(SHORT) // 처음 값을 읽고 나서 바꾼다.
+            delay(SHORT) // 처음 값을 읽고 나서 바꿈
             val elapsed = timed { repeat(BURST) { received("p$it") } }
             waitUntil { db.backupDao().pendingFiles().isEmpty() }
-            delay(every * 3) // 묶어 둔 마지막 알림까지 기다린다.
+            delay(every * 3) // 묶어 둔 마지막 알림까지 기다림
             watching.cancelAndJoin()
 
             assertTrue(refreshes >= 1, "받은 사진을 알리지 않았다")
@@ -183,7 +183,7 @@ class PhotoRefreshTest {
         }
     }
 
-    /** 다른 까닭으로 사진 표가 바뀌어도 상태 수가 그대로면 목록을 다시 읽지 않는다. */
+    /** 다른 까닭으로 사진 표가 바뀌어도 상태 수가 그대로면 목록을 다시 읽지 않음 */
     @Test
     fun saved_photos_do_not_refresh_the_list() = runTest {
         db.seed(entry("a"))

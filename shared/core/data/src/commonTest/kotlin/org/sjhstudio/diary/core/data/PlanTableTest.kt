@@ -37,11 +37,11 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.TestClock
 
 /**
- * 요금제마다 무엇이 달라지는지 표로 본다(`docs/business.md`, 스펙 006).
- * 표에 없는 것은 어느 요금제든 같다. 쓰던 기능은 그대로고 기록은 하나도 사라지지 않는다(헌법 I, III).
+ * 요금제마다 무엇이 달라지는지 표로 봄(`docs/business.md`, 스펙 006)
+ * 표에 없는 것은 어느 요금제든 같음. 쓰던 기능은 그대로고 기록은 하나도 사라지지 않음(헌법 I, III)
  */
 class PlanTableTest {
-    /** 표 한 줄. [ads]가 참이면 광고 자리, 전면 광고, 보상 광고가 모두 살아 있다. */
+    /** 표 한 줄. [ads]가 참이면 광고 자리, 전면 광고, 보상 광고가 모두 살아 있음 */
     private data class Row(
         val plan: Plan,
         val ads: Boolean,
@@ -94,10 +94,10 @@ class PlanTableTest {
         val plans = FakePlanRepository(plan)
         val player = Player()
 
-        /** 파일에 있는 값. 앱을 다시 켜도 남는다. */
+        /** 파일에 있는 값. 앱을 다시 켜도 남음 */
         val file = InMemoryDataStore<Preferences>(emptyPreferences())
 
-        /** 앱을 켤 때마다 새로 만든다. */
+        /** 앱을 켤 때마다 새로 만듦 */
         fun repository() = AdRepository(plans, AdStore(file), player, { true }, clock, { TimeZone.UTC })
     }
 
@@ -164,7 +164,7 @@ class PlanTableTest {
         }
     }
 
-    /** 1.7.4는 한도가 없었다. 어느 요금제든 옮겨 온 사진은 모두 남고 고쳐 저장해도 그대로다. */
+    /** 1.7.4는 한도가 없었음. 어느 요금제든 옮겨 온 사진은 모두 남고 고쳐 저장해도 그대로 */
     @Test
     fun migrated_photos_stay_on_every_plan() = runTest {
         for (row in table) {
@@ -181,7 +181,7 @@ class PlanTableTest {
         }
     }
 
-    /** 사진을 빼서 한도 아래로 내려가면 그때부터 다시 더할 수 있다(FR-006). */
+    /** 사진을 빼서 한도 아래로 내려가면 그때부터 다시 더할 수 있음(FR-006) */
     @Test
     fun an_entry_over_the_limit_opens_up_only_below_the_limit() = runTest {
         db.seed(entry("e1"))
@@ -199,7 +199,7 @@ class PlanTableTest {
         assertEquals(10, db.mediaDao().forEntry("e1").size)
     }
 
-    /** 구독이 끝나도 30장 일기는 그대로고 저장할 수 있다. 새로 붙일 때만 10장 한도가 걸린다(US4). */
+    /** 구독이 끝나도 30장 일기는 그대로고 저장할 수 있음. 새로 붙일 때만 10장 한도가 걸림(US4) */
     @Test
     fun when_plus_ends_thirty_photos_stay_and_only_adding_stops() = runTest {
         val plans = FakePlanRepository(Plan.PLUS)
@@ -218,7 +218,7 @@ class PlanTableTest {
         assertEquals(30, db.mediaDao().forEntry(id).size)
     }
 
-    /** 쓰던 임시 저장본도 마찬가지다. 구독이 끝났다고 저장을 막지 않는다. */
+    /** 쓰던 임시 저장본도 마찬가지. 구독이 끝났다고 저장을 막지 않음 */
     @Test
     fun a_draft_with_many_photos_can_still_be_saved_after_plus_ends() = runTest {
         var limit = PhotoLimit.PLUS
@@ -269,7 +269,7 @@ class PlanTableTest {
         val ads = Ads(Plan.PLUS, clock)
         val repository = ads.repository()
 
-        // 광고 제거는 평생권이라 구독이 끝나면 광고 제거로 돌아간다.
+        // 광고 제거는 평생권이라 구독이 끝나면 광고 제거로 돌아감
         ads.plans.plan.value = Plan.AD_FREE
 
         assertFalse(repository.showAds.first())
@@ -304,7 +304,7 @@ class PlanTableTest {
         assertTrue(ads.repository().showAds.first())
     }
 
-    /** 보상이 끝나기 전에 산 사람도, 보상이 남은 채 구독이 끝난 사람도 표대로다. */
+    /** 보상이 끝나기 전에 산 사람도, 보상이 남은 채 구독이 끝난 사람도 표대로 */
     @Test
     fun a_reward_outlives_the_plan_change_only_for_its_day() = runTest {
         val ads = Ads(Plan.FREE, clock)

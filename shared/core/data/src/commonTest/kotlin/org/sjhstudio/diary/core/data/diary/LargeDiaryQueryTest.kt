@@ -19,8 +19,8 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 
 /**
- * 일기 1만 편, 사진 5천 장에서 첫 화면과 찾기가 Android 시험에서 1초 안에 끝나는지 본다(SC-003).
- * 메모리 DB라 실제 기기보다 빠르므로, 넘치면 기기에서는 더 느리다고 읽는다.
+ * 일기 1만 편, 사진 5천 장에서 첫 화면과 찾기가 Android 시험에서 1초 안에 끝나는지 봄(SC-003)
+ * 메모리 DB라 실제 기기보다 빠르니, 넘치면 기기에서는 더 느리다고 봄
  */
 class LargeDiaryQueryTest {
     private lateinit var db: DiaryDatabase
@@ -70,7 +70,7 @@ class LargeDiaryQueryTest {
             db.mediaDao().forRows(rows.map { it.id })
         }
         assertFast("드문 글자 찾기") { entries.searchAll(SearchFilter(query = "바닷가")) }
-        // 1만 편이 모두 걸리는 가장 나쁜 경우다.
+        // 1만 편이 모두 걸리는 가장 나쁜 경우
         assertFast("흔한 글자 찾기", WORST_QUERY_BUDGET_MILLIS) { entries.searchAll(SearchFilter(query = "한강")) }
         assertFast("달력 한 달") { entries.month(YearMonth(2026, 10)).first() }
     }

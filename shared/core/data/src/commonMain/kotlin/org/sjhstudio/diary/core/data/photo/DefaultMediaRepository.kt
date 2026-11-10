@@ -12,9 +12,9 @@ import org.sjhstudio.diary.core.data.diary.MediaRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
 
 /**
- * 어디에서도 쓰지 않는 사진 파일을 지운다(스펙 002 data-model.md "사진 파일 정리").
- * 방금 고른 사진이 임시 저장본에 잇기 전에 지워지지 않게 하루 넘은 파일만 본다.
- * 휴지통 일기의 사진은 남긴다.
+ * 어디에서도 쓰지 않는 사진 파일을 지움(스펙 002 data-model.md "사진 파일 정리")
+ * 방금 고른 사진이 임시 저장본에 잇기 전에 지워지지 않게 하루 넘은 파일만 봄
+ * 휴지통 일기의 사진은 남김
  */
 class DefaultMediaRepository(
     private val db: DiaryDatabase,

@@ -42,8 +42,8 @@ class ThumbnailRepositoryTest {
     fun cleanUp() = fs.deleteRecursively(root)
 
     /**
-     * 처음에만 만들고 다음부터는 있는 것을 쓴다.
-     * 이름은 원본 해시다.
+     * 처음에만 만들고 다음부터는 있는 것을 씀
+     * 이름은 원본 해시
      */
     @Test
     fun made_once_then_reused() = runTest(dispatcher) {
@@ -56,7 +56,7 @@ class ThumbnailRepositoryTest {
         assertTrue(fs.list(thumbs).none { it.name.endsWith(".tmp") })
     }
 
-    /** 지워졌으면 다시 만든다(FR-037). */
+    /** 지워졌으면 다시 만듦(FR-037) */
     @Test
     fun deleted_thumbnail_is_made_again() = runTest(dispatcher) {
         val repo = repository()
@@ -73,7 +73,7 @@ class ThumbnailRepositoryTest {
         assertTrue(!fs.exists(thumbs) || fs.list(thumbs).isEmpty())
     }
 
-    /** 사진 폴더 밖의 파일(예전 앱 캐시 경로)은 맡지 않는다. */
+    /** 사진 폴더 밖의 파일(예전 앱 캐시 경로)은 맡지 않음 */
     @Test
     fun files_outside_media_are_not_handled() = runTest(dispatcher) {
         fs.createDirectories(root / "cache")

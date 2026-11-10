@@ -33,14 +33,14 @@ import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.testing.TestClock
 
-/** 찾은 줄을 쪽 나눔 없이 모두 읽는다. */
+/** 찾은 줄을 쪽 나눔 없이 모두 읽음 */
 internal suspend fun DefaultEntryRepository.searchAll(filter: SearchFilter): List<EntryRow> =
     (searchPages(filter).loadOnce(ALL_ROWS) as PagingSource.LoadResult.Page).data
 
 /**
- * 한 번 읽고 원본을 닫는다.
- * Room의 쪽 원본은 뒤에서 변경 감시를 시작하는데, 닫힌 DB를 만나면 프로세스째 죽는다.
- * 앱은 DB를 닫지 않아 시험에서만 생기는 일이다.
+ * 한 번 읽고 원본을 닫음
+ * Room의 쪽 원본은 뒤에서 변경 감시를 시작하는데, 닫힌 DB를 만나면 프로세스째 죽음
+ * 앱은 DB를 닫지 않아 시험에서만 생기는 일
  */
 internal suspend fun <V : Any> PagingSource<Int, V>.loadOnce(size: Int): PagingSource.LoadResult<Int, V> = try {
     load(PagingSource.LoadParams.Refresh(null, size, false))
@@ -51,7 +51,7 @@ internal suspend fun <V : Any> PagingSource<Int, V>.loadOnce(size: Int): PagingS
 private const val ALL_ROWS = 100_000
 private const val ROUNDS = 30
 
-// 달력, 찾기, 돌아보기, 휴지통, 사진 정리(스펙 002 T044 묶음).
+// 달력, 찾기, 돌아보기, 휴지통, 사진 정리(스펙 002 T044 묶음)
 class DiaryReadRepositoryTest {
     private val db = memoryDatabase()
     private val clock = TestClock(T0)
@@ -90,7 +90,7 @@ class DiaryReadRepositoryTest {
         assertTrue(after.updatedAt > stored.updatedAt)
     }
 
-    /** 읽고 고쳐 쓰는 사이에 다른 체크가 끼어들면 앞의 체크가 사라진다. */
+    /** 읽고 고쳐 쓰는 사이에 다른 체크가 끼어들면 앞의 체크가 사라짐 */
     @Test
     fun checking_two_items_at_once_keeps_both() = runTest {
         db.seed(entry("a"))
@@ -175,7 +175,7 @@ class DiaryReadRepositoryTest {
         )
 
         assertEquals(setOf(YearMonth(2026, 10), YearMonth(2026, 9)), entries.months().first())
-        // 즐겨찾기만 볼 때는 즐겨찾기가 있는 달만 고를 수 있다. 다른 달을 고르면 엉뚱한 달로 가 버린다.
+        // 즐겨찾기만 볼 때는 즐겨찾기가 있는 달만 고를 수 있음. 다른 달을 고르면 엉뚱한 달로 감
         assertEquals(setOf(YearMonth(2026, 9)), entries.favoriteMonths().first())
         assertEquals(0, entries.positionOf(YearMonth(2026, 10), favoritesOnly = false))
         assertEquals(2, entries.positionOf(YearMonth(2026, 9), favoritesOnly = false))
@@ -289,12 +289,12 @@ class DiaryReadRepositoryTest {
         )
         val october = DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31))
 
-        // 빈칸만 친 것은 아무것도 안 친 것과 같고, 휴지통 일기는 찾지 않는다.
+        // 빈칸만 친 것은 아무것도 안 친 것과 같고, 휴지통 일기는 찾지 않음
         assertEquals(setOf("a", "b", "c"), ids(SearchFilter(query = "   ")).toSet())
-        // 영어는 대소문자를 가리지 않는다.
+        // 영어는 대소문자를 가리지 않음
         assertEquals(setOf("a", "c"), ids(SearchFilter(query = "SEA")).toSet())
         assertEquals(listOf("b"), ids(SearchFilter(query = "C:\\")))
-        // 기간은 첫날과 마지막 날을 모두 넣는다.
+        // 기간은 첫날과 마지막 날을 모두 넣음
         assertEquals(setOf("a", "b"), ids(SearchFilter(period = october)).toSet())
     }
 
@@ -323,8 +323,8 @@ class DiaryReadRepositoryTest {
 
     @Test
     fun list_preview_matches_the_whole_text() = runTest {
-        // 잘라 읽어도 미리보기는 같아야 한다.
-        // 이모지가 끊기는 자리도 본다.
+        // 잘라 읽어도 미리보기는 같아야 함
+        // 이모지가 끊기는 자리도 봄
         val long = "🌊".repeat(100) + "오늘은\n\n바다에 갔다 ".repeat(200)
         db.seed(entry("a", text = long))
 
@@ -364,7 +364,7 @@ class DiaryReadRepositoryTest {
 
     @Test
     fun mood_flow_keeps_every_mood_of_the_day() = runTest {
-        // 마지막 일기에 기분이 없어도 그날의 다른 기분은 통계가 세어야 한다.
+        // 마지막 일기에 기분이 없어도 그날의 다른 기분은 통계가 세어야 함
         db.seed(entry("a", time = "09:00", mood = Mood.SICK), entry("b", time = "10:00", mood = Mood.MEH), entry("c", time = "11:00"))
 
         val day = stats.moodFlow(StatsPeriod.Month(YearMonth(2026, 10))).first().single()
@@ -395,7 +395,7 @@ class DiaryReadRepositoryTest {
         assertTrue(db.entryDao().get("keep") != null)
     }
 
-    /** 약속은 30일이다. 정확히 30일째까지 남고 그 뒤에 지운다. */
+    /** 약속은 30일. 정확히 30일째까지 남고 그 뒤에 지움 */
     @Test
     fun the_thirtieth_day_is_exact() = runTest {
         db.seed(entry("edge", deletedAt = T0 - 30.days), entry("over", deletedAt = T0 - 30.days - 1.milliseconds))
@@ -440,7 +440,7 @@ class DiaryReadRepositoryTest {
         val written = Instant.fromEpochMilliseconds(files.metadata(MEDIA_DIR / "stale.jpg").lastModifiedAtMillis!!)
         val cleaner = DefaultMediaRepository(db, files, MEDIA_DIR, THUMB_DIR)
 
-        // 방금 고른 사진은 아직 잇기 전일 수 있어 남긴다.
+        // 방금 고른 사진은 아직 잇기 전일 수 있어 남김
         cleaner.cleanUnused(written + 1.hours)
         assertEquals(setOf("kept.jpg", "stale.jpg"), files.list(MEDIA_DIR).map { it.name }.toSet())
 

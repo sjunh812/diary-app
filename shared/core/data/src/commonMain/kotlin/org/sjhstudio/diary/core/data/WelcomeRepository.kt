@@ -6,15 +6,15 @@ import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.WelcomeStep
 
 /**
- * 시작 흐름과 맥락 팁의 상태.
- * 각 단계는 끝나면 다시 뜨지 않는다(FR-001).
+ * 시작 흐름과 맥락 팁의 상태
+ * 각 단계는 끝나면 다시 뜨지 않음(FR-001)
  */
 interface WelcomeRepository : ContextTips {
     suspend fun step(): WelcomeStep
 
     /**
-     * 옮긴 일기 수.
-     * 이전한 적이 없으면 null이다.
+     * 옮긴 일기 수
+     * 이전한 적이 없으면 null
      */
     suspend fun migratedEntries(): Int?
 
