@@ -7,6 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Instant
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okio.ByteString.Companion.toByteString
@@ -23,7 +24,7 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 class LegacyLockBootstrapTest {
     private val dataStore = InMemoryDataStore<Preferences>(emptyPreferences())
     private val store = LockStore(dataStore)
-    private val repository = DefaultLockRepository(store, FakePinKeyStore())
+    private val repository = DefaultLockRepository(store, FakePinKeyStore(), keyWork = Dispatchers.Unconfined)
     private val now = Instant.parse("2026-11-02T09:00:00Z")
 
     private fun pref(vararg lines: String) =

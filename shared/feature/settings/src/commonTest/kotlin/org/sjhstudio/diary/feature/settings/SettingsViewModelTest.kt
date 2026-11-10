@@ -26,7 +26,12 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
     private val dispatcher = StandardTestDispatcher()
-    private val lock = DefaultLockRepository(LockStore(InMemoryDataStore<Preferences>(emptyPreferences())), FakePinKeyStore())
+    private val lock =
+        DefaultLockRepository(
+            LockStore(InMemoryDataStore<Preferences>(emptyPreferences())),
+            FakePinKeyStore(),
+            keyWork = Dispatchers.Unconfined
+        )
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)

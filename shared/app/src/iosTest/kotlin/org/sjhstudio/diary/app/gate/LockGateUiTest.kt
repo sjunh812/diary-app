@@ -59,7 +59,7 @@ import org.sjhstudio.diary.feature.lock.lockFeatureModule
 class LockGateUiTest {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val lockStore = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
-    private val repository = DefaultLockRepository(lockStore, FakePinKeyStore())
+    private val repository = DefaultLockRepository(lockStore, FakePinKeyStore(), keyWork = Dispatchers.Unconfined)
     private var appLeft: () -> Unit = {}
     private var appCameBack: () -> Unit = {}
     private val controller =

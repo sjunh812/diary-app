@@ -8,6 +8,7 @@ import kotlin.test.assertFalse
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
@@ -25,7 +26,8 @@ import org.sjhstudio.diary.core.testing.TestClock
 class LockControllerTest {
     private val clock = TestClock()
     private val keys = FakePinKeyStore()
-    private val repository = DefaultLockRepository(LockStore(InMemoryDataStore<Preferences>(emptyPreferences())), keys)
+    private val repository =
+        DefaultLockRepository(LockStore(InMemoryDataStore<Preferences>(emptyPreferences())), keys, keyWork = Dispatchers.Unconfined)
 
     private suspend fun TestScope.started(relockAfter: RelockAfter): LockController {
         repository.setPin(checkNotNull(Pin.of("2580")))

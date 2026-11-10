@@ -5,8 +5,12 @@ import kotlin.io.encoding.Base64
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.Pin
@@ -23,19 +27,21 @@ import org.sjhstudio.diary.core.platform.PinKeyStore
 class DefaultLockRepository(
     private val store: LockStore,
     private val keys: PinKeyStore,
-    private val newSalt: () -> ByteArray = ::randomSalt
+    private val newSalt: () -> ByteArray = ::randomSalt,
+    // 기기 키 저장소는 디스크를 써 화면 스레드에서 부르지 않음. 틀린 횟수가 섞이지 않게 한 줄로
+    private val keyWork: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(1)
 ) : LockRepository {
     override val settings: Flow<LockSettings> = store.lock
 
     /** 파일에 적지 못한 틀린 횟수와 기다림 */
     private var unsaved: Attempts? = null
 
-    override suspend fun needsNewPin(): Boolean {
+    override suspend fun needsNewPin(): Boolean = withContext(keyWork) {
         val lock = store.lock.first()
-        return lock.enabled && !canCheck(lock)
+        lock.enabled && !canCheck(lock)
     }
 
-    override suspend fun setPin(pin: Pin) {
+    override suspend fun setPin(pin: Pin) = withContext(keyWork) {
         try {
             val alias = LockSettings.DEFAULT_KEY_ALIAS
             keys.ensureKey(alias)
@@ -57,11 +63,12 @@ class DefaultLockRepository(
         }
     }
 
-    override suspend fun verify(pin: Pin, now: Instant): VerifyResult = judgeAndWrite(pin, now) { it }
+    override suspend fun verify(pin: Pin, now: Instant): VerifyResult = withContext(keyWork) { judgeAndWrite(pin, now) { it } }
 
-    override suspend fun disable(current: Pin, now: Instant): VerifyResult = judgeAndWrite(current, now) { it.turnedOff() }
+    override suspend fun disable(current: Pin, now: Instant): VerifyResult =
+        withContext(keyWork) { judgeAndWrite(current, now) { it.turnedOff() } }
 
-    override suspend fun turnOffWithoutPin(): Boolean {
+    override suspend fun turnOffWithoutPin(): Boolean = withContext(keyWork) {
         var done = false
         store.update { lock ->
             if (lock.enabled && keyIsGone(lock)) {
@@ -71,7 +78,7 @@ class DefaultLockRepository(
                 lock
             }
         }
-        return done
+        done
     }
 
     override suspend fun setBiometric(enabled: Boolean) = store.update { it.copy(biometricEnabled = enabled) }

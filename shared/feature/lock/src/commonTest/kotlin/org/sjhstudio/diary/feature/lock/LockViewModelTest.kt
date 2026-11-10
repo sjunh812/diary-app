@@ -36,7 +36,7 @@ class LockViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private val dataStore = InMemoryDataStore<Preferences>(emptyPreferences())
     private val keys = FakePinKeyStore()
-    private val repository = DefaultLockRepository(LockStore(dataStore), keys)
+    private val repository = DefaultLockRepository(LockStore(dataStore), keys, keyWork = Dispatchers.Unconfined)
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)
