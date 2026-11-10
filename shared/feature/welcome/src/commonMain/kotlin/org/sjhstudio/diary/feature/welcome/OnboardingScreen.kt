@@ -98,10 +98,10 @@ fun OnboardingScreen(updated: Boolean, onFinish: () -> Unit, modifier: Modifier 
     BackHandler(enabled = pager.currentPage > 0) { scope.launch { pager.animateScrollToPage(pager.currentPage - 1) } }
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        // 마지막 장은 아래 버튼이 곧 끝이라 건너뛸 것이 없다.
-        // 칸은 남겨 그림이 움직이지 않게 한다.
-        // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
-        // 글자 버튼 안쪽이 16이다.
+        // 마지막 장은 아래 버튼이 곧 끝이라 건너뛸 것이 없음
+        // 칸은 남겨 그림이 움직이지 않게 함
+        // 글자 끝을 상단 바와 같은 화면 여백에 맞춤
+        // 글자 버튼 안쪽이 16
         Box(
             Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(end = LocalScreenGutter.current - DiarySpacing.x4),
             contentAlignment = Alignment.CenterEnd
@@ -139,8 +139,8 @@ private fun PageBody(page: Page, active: Boolean) {
 }
 
 /**
- * 장 내용을 가운데에 둔다.
- * 낮은 화면이나 큰 글자에서 넘치면 장 안에서 스크롤한다.
+ * 장 내용을 가운데에 둠.
+ * 낮은 화면이나 큰 글자에서 넘치면 장 안에서 스크롤.
  */
 @Composable
 private fun PageColumn(content: @Composable ColumnScope.() -> Unit) {
@@ -160,7 +160,7 @@ private fun PageColumn(content: @Composable ColumnScope.() -> Unit) {
 
 /**
  * 그림 하나, 제목 한 줄, 설명.
- * 그림 칸 높이가 같아서 장을 넘겨도 제목이 움직이지 않는다.
+ * 그림 칸 높이가 같아 장을 넘겨도 제목이 움직이지 않음.
  */
 @Composable
 private fun ArtPage(title: StringResource, body: StringResource, art: @Composable () -> Unit) {

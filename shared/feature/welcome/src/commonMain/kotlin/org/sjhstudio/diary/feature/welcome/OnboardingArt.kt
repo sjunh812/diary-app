@@ -7,7 +7,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.ui.DiaryLottie
 import org.sjhstudio.diary.feature.welcome.resources.Res
 
-// 온보딩 그림. 글자가 없어 언어를 타지 않고, 색은 토큰을 따라 다크도 맞는다.
+// 온보딩 그림. 글자가 없어 언어를 타지 않고, 색은 토큰을 따라 다크도 맞음
 // 재생 시간은 로띠 프레임 수 / 30fps(scripts/lottie/make_onboarding.py).
 
 /** 기분 고르기, 글쓰기, 저장 */
