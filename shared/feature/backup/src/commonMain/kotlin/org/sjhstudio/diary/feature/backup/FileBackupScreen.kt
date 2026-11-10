@@ -144,7 +144,8 @@ fun FileBackupRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 saver.launch(suggestedName = getString(Res.string.file_name, today.toString()), defaultExtension = "zip")
             }
         },
-        onDone = viewModel::clear,
+        // 다 끝났으니 닫음. 상태를 먼저 지우면 밀려 나가는 동안 만들기 화면이 보임
+        onDone = onBack,
         onBack = { if (writing) asking = true else onBack() },
         modifier = modifier
     )

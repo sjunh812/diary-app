@@ -192,18 +192,29 @@ import org.sjhstudio.diary.feature.backup.resources.restore_when
 fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestoreProgressViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    // 결과를 닫으면 상태가 비는데, 밀려 나가는 동안 빈 화면이 되지 않게 마지막 화면을 그대로 그림
+    val held = remember { HeldState() }
+    val shown = if (state == RestoreState.Idle) held.last else state.also { held.last = it }
+    var leaving by remember { mutableStateOf(false) }
     val finish = {
-        viewModel.dismiss()
+        leaving = true
         onHome()
+        viewModel.dismiss()
     }
     val access = rememberNotificationAccess()
     // 사진을 받는 동안 앱을 나가도 끝나면 알릴 수 있게 시작할 때 한 번 물음
     // 거절해도 복원은 그대로 돎
     LaunchedEffect(access) { access.request {} }
     val home by rememberUpdatedState(onHome)
-    LaunchedEffect(state) { if (state == RestoreState.Idle) home() }
+    // 할 일 없이 열렸을 때만 바로 나감. 결과를 닫아 비었을 때는 이미 나가는 중
+    LaunchedEffect(state) { if (state == RestoreState.Idle && !leaving) home() }
     BackHandler(onBack = if (state is RestoreState.Done) finish else onHome)
-    RestoreProgressScreen(state, onHome, finish, onLock, viewModel::retry, onPickOther, modifier)
+    RestoreProgressScreen(shown, onHome, finish, onLock, viewModel::retry, onPickOther, modifier)
+}
+
+/** 나가는 동안 그릴 마지막 상태. 그리기 상태가 아니라 다시 그리지 않음 */
+private class HeldState {
+    var last: RestoreState = RestoreState.Idle
 }
 
 @Composable
@@ -289,11 +300,23 @@ internal fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntr
 
 @Composable
 internal fun ColumnScope.Result(result: RestoreResult, onLock: () -> Unit, onStart: () -> Unit) {
+    val notes = resultNotes(result)
+    // 덧붙일 안내가 없으면 다른 완료 화면처럼 가운데에
+    if (notes.isEmpty() && !result.lockWasOn) {
+        Hero(DiaryIcons.CircleCheck, resultTitle(result), resultBody(result))
+    } else {
+        ResultWithNotes(result, notes, onLock)
+    }
+    Bottom { DiaryButton(stringResource(Res.string.restore_start), onStart, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge) }
+}
+
+@Composable
+private fun ColumnScope.ResultWithNotes(result: RestoreResult, notes: List<DiaryNote>, onLock: () -> Unit) {
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Hero(DiaryIcons.CircleCheck, resultTitle(result), resultBody(result), fill = false)
         Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
-            DiaryNoteBox(resultNotes(result))
+            DiaryNoteBox(notes)
             if (result.lockWasOn) {
                 DiaryStatusBox(
                     DiaryIcons.Lock,
@@ -305,7 +328,6 @@ internal fun ColumnScope.Result(result: RestoreResult, onLock: () -> Unit, onSta
             }
         }
     }
-    Bottom { DiaryButton(stringResource(Res.string.restore_start), onStart, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge) }
 }
 
 @Composable
