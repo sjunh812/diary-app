@@ -185,8 +185,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     RestoreResultNotice(toast, onResultScreen = nav.top is RestoreProgressKey, quiet = fullScreen) {
         nav.push(RestoreProgressKey)
     }
-    // 달을 읽기 전에는 일기가 있다고 보고 버튼을 둔다.
-    // 일기가 있는 사람에게 버튼이 늦게 뜨면 안 된다.
+    // 홈 쓰기 버튼은 일기 유무를 읽은 뒤 표시. 미리 두면 빈 홈에서 보였다 사라짐
     val entries = koinInject<EntryRepository>()
     val months by remember(entries) { entries.months() }.collectAsStateWithLifecycle(null)
 
@@ -232,8 +231,8 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                         null
                     } else {
                         { root ->
-                            val homeEmpty = root == HomeKey && months?.isEmpty() == true
-                            if (root != SettingsKey && !homeEmpty) {
+                            val hideOnHome = root == HomeKey && months?.isEmpty() != false
+                            if (root != SettingsKey && !hideOnHome) {
                                 DiaryWriteButton(
                                     writeLabel,
                                     onWrite,
