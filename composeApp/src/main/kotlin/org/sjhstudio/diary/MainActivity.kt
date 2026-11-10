@@ -1,8 +1,10 @@
 package org.sjhstudio.diary
 
+import android.app.UiModeManager
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -69,6 +71,7 @@ class MainActivity : FragmentActivity() {
             // 앱만 다크일 때 시각이 안 보이지 않게.
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 get<SettingsRepository>().settings.map { it.themeMode }.distinctUntilChanged().collect { mode ->
+                    keepSplashInMode(mode)
                     val dark =
                         when (mode) {
                             ThemeMode.SYSTEM -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
@@ -105,6 +108,24 @@ class MainActivity : FragmentActivity() {
         }
         // 화면을 돌려 다시 만들어질 때는 쌓인 화면이 이미 되살아난다.
         if (savedInstanceState == null) handleIntent(intent)
+    }
+
+    /**
+     * 시작 화면은 앱 코드가 돌기 전에 시스템이 그려서 앱 화면 모드를 모른다.
+     * 앱을 라이트로 두어도 휴대폰이 다크면 시작 화면만 다크로 떴다(2026-11-10 사용자 지적).
+     * Android 12부터는 앱의 모드를 시스템에 맡겨 두면 다음 시작 화면부터 그 모드로 그린다([UiModeManager.setApplicationNightMode]).
+     * 11 이하는 시작 화면이 휴대폰 모드를 따른다.
+     * 바뀐 모드가 지금 화면과 다르면 화면을 한 번 다시 만든다.
+     */
+    private fun keepSplashInMode(mode: ThemeMode) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        val night =
+            when (mode) {
+                ThemeMode.SYSTEM -> UiModeManager.MODE_NIGHT_AUTO
+                ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
+                ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES
+            }
+        getSystemService(UiModeManager::class.java)?.setApplicationNightMode(night)
     }
 
     override fun onNewIntent(intent: Intent) {
