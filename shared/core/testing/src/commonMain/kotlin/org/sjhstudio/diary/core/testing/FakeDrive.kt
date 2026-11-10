@@ -24,7 +24,7 @@ enum class DriveFault { OFFLINE, UNAUTHORIZED, RATE_LIMIT, SERVER_ERROR, NO_SPAC
 
 /**
  * 메모리 드라이브(contracts/drive-gateway.md FakeDrive).
- * 실제 드라이브처럼 SHA-256·MD5를 계산하고 `appProperties` 질의와 쪽 넘김을 흉내 낸다.
+ * 실제 드라이브처럼 SHA-256·MD5를 계산하고 `appProperties` 질의와 쪽 넘김을 흉내 냄.
  */
 class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, private val pageSize: Int = 1000) : DriveApi {
     private class Stored(var meta: DriveFile, val bytes: ByteArray, var trashed: Boolean = false)
@@ -36,21 +36,21 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
     private var nextId = 1
     private var clock = 1L
 
-    /** 호출마다 앞에서 하나씩 꺼내 실패시킨다. */
+    /** 호출마다 앞에서 하나씩 꺼내 실패시킴. */
     val faults = ArrayDeque<DriveFault>()
 
     /** 이름이 맞는 파일은 드라이브가 다른 확인값을 돌려준다. */
     val corruptNames = HashSet<String>()
 
-    /** 이어 올리기 조각을 이만큼 받은 뒤 끊는다. */
+    /** 이어 올리기 조각을 이만큼 받은 뒤 끊음. */
     var dropAfterChunks: Int? = null
 
     /** 드라이브가 `sha256Checksum`을 주지 않는 경우. */
     var omitSha256 = false
 
     /**
-     * 파일을 받을 때마다 부른다.
-     * 백업이 도는 도중에 일어나는 일을 흉내 낸다.
+     * 파일을 받을 때마다 부름.
+     * 백업 도중에 일어나는 일을 흉내 냄.
      */
     var onUpload: (suspend (NewFile) -> Unit)? = null
 

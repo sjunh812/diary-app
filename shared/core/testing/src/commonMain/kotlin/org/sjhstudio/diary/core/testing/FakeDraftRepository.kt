@@ -15,7 +15,7 @@ import org.sjhstudio.diary.core.model.PickedImage
 
 /**
  * 쓰기 화면 시험용 임시 저장소.
- * 메모리에만 둔다.
+ * 메모리에만 둠.
  */
 @Suppress("TooManyFunctions")
 class FakeDraftRepository(
@@ -25,22 +25,22 @@ class FakeDraftRepository(
 ) : DraftRepository {
     private val drafts = MutableStateFlow(initial.associateBy { it.key })
 
-    /** [commit]이 실패하는 상황을 만든다. */
+    /** [commit] 실패 상황. */
     var failCommit = false
 
-    /** 임시 저장본 쓰기가 실패하는 상황을 만든다(저장 공간이 찼을 때처럼). */
+    /** 임시 저장본 쓰기 실패 상황(저장 공간이 찼을 때처럼). */
     var failWrites = false
 
-    /** 쓰기 화면을 열 때 읽기가 실패하는 상황을 만든다(DB를 읽지 못할 때처럼). */
+    /** 쓰기 화면을 열 때 읽기 실패 상황(DB를 읽지 못할 때처럼). */
     var failReads = false
 
     /**
      * 다음 [addPhotos]가 돌려줄 값.
-     * 없으면 받은 수만큼 더한다.
+     * 없으면 받은 수만큼 더함.
      */
     var nextAddResult: AddPhotosResult? = null
 
-    /** 있으면 사진을 더하기 전에 기다린다. 사진을 넣는 중인 상황을 만든다. */
+    /** 있으면 사진을 더하기 전에 기다림. 사진을 넣는 중인 상황용. */
     var addGate: CompletableDeferred<Unit>? = null
 
     val saved: List<Draft> get() = drafts.value.values.toList()

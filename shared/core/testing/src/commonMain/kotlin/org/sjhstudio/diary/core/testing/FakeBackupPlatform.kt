@@ -11,7 +11,7 @@ class FakeBackupNotifier : BackupNotifier {
     /** 바로 띄운 알림의 본문. */
     val shown = mutableListOf<String>()
 
-    /** 값을 넣으면 알림을 띄우다 실패한다. */
+    /** 값을 넣으면 알림을 띄우다 실패함. */
     var showFailure: Exception? = null
 
     override fun show(title: String, body: String) {
@@ -46,7 +46,7 @@ class FakeBackupScheduler : BackupScheduler {
         restoreKept++
     }
 
-    /** 복원 사진을 기다리는 작업을 맡긴 기록. 값은 Wi-Fi에서만 받는지다. */
+    /** 복원 사진을 기다리는 작업을 맡긴 기록. 값은 Wi-Fi에서만 받는지. */
     val photoWaits = mutableListOf<Boolean>()
 
     override fun waitForPhotoNetwork(wifiOnly: Boolean) {
@@ -65,7 +65,7 @@ class FakeBackupScheduler : BackupScheduler {
     var startedNow = 0
         private set
 
-    /** 마지막 지금 백업이 이번만 모바일 데이터를 골랐는가. */
+    /** 마지막 지금 백업이 이번만 모바일 데이터를 골랐는지. */
     var lastCellular = false
         private set
 
@@ -77,7 +77,7 @@ class FakeBackupScheduler : BackupScheduler {
         daily = false
     }
 
-    /** true면 시스템 작업이 받은 것처럼 군다. */
+    /** true면 시스템 작업이 받은 것으로 침. */
     var takesNow = false
 
     override fun startNow(cellularOnce: Boolean): Boolean {

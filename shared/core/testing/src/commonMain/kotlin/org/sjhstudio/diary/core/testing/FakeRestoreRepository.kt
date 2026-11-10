@@ -22,10 +22,10 @@ import org.sjhstudio.diary.core.model.WaitingPhotos
 class FakeBundleFiles : BundleFiles {
     override suspend fun bundleEstimate() = BundleEstimate(0, 0, 0)
 
-    /** 값을 넣으면 파일을 쓰다 실패한다. */
+    /** 값을 넣으면 파일을 쓰다 실패함. */
     var writeFailure: Exception? = null
 
-    /** 참이면 멈추라고 할 때까지 파일을 쓰는 중에 머문다. */
+    /** 참이면 멈추라고 할 때까지 파일을 쓰는 중에 머묾. */
     var holdWrite = false
     var writing = false
         private set
@@ -54,7 +54,7 @@ class FakeBundleFiles : BundleFiles {
     }
 }
 
-@Suppress("TooManyFunctions") // 저장소 약속을 그대로 흉내 내는 시험 대역이다.
+@Suppress("TooManyFunctions") // 저장소 약속을 그대로 흉내 내는 시험 대역
 class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val bundle: FakeBundleFiles = FakeBundleFiles()) :
     RestoreRepository,
     BundleFiles by bundle {
@@ -102,7 +102,7 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val b
     /** 지난번에 읽어 둔 목록. */
     var saved: List<BackupEntry> = emptyList()
 
-    /** 있으면 드라이브 목록 답을 이것이 끝날 때까지 미룬다. */
+    /** 있으면 드라이브 목록 답을 이것이 끝날 때까지 미룸. */
     var backupsGate: CompletableDeferred<Unit>? = null
 
     override suspend fun savedBackups(): List<BackupEntry> = saved

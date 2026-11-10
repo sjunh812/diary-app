@@ -31,8 +31,8 @@ fun fakeEntryRow(id: String, date: LocalDate, preview: String = "글 $id", isFav
 /**
  * 화면 시험용.
  * [moods]에 넣은 날에 일기가 있는 것으로 보인다.
- * [rows]는 홈과 그날 목록에 나오는 줄이다.
- * 기본은 일기가 하나도 없다.
+ * [rows]는 홈과 그날 목록에 나오는 줄.
+ * 기본은 일기 없음.
  */
 class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(), private val rows: List<EntryRow> = emptyList()) :
     EntryRepository {
