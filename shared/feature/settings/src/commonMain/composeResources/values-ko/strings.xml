@@ -35,6 +35,8 @@
     <string name="settings_licenses">오픈소스 라이선스</string>
     <string name="licenses_group_fonts">글꼴</string>
     <string name="licenses_group_libraries">라이브러리</string>
+    <string name="licenses_libraries_failed">라이브러리 목록을 불러오지 못했어요</string>
+    <string name="licenses_text_failed">라이선스 전문을 불러오지 못했어요</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_changwon_round">창원단감둥근체 안내</string>
     <string name="license_naver">네이버 글꼴 라이선스</string>

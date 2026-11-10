@@ -5,11 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.entity.Library
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
+import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.stateInSafely
 import org.sjhstudio.diary.feature.settings.resources.Res
@@ -31,22 +37,50 @@ data class LibraryText(val name: String, val licenseName: String, val details: S
  * 라이브러리 목록은 빌드 때 만든 `files/aboutlibraries.json`을 읽는다(KotlinConf 앱과 같은 방식).
  * 글꼴 전문은 디자인 시스템 모듈에 둔 원문 파일을 읽는다.
  */
-class LicensesViewModel : ViewModel() {
+@OptIn(ExperimentalCoroutinesApi::class)
+class LicensesViewModel(
+    private val readList: suspend () -> String = { Res.readBytes("files/aboutlibraries.json").decodeToString() },
+    private val readFont: suspend (String) -> String = { DsRes.readBytes("files/licenses/$it").decodeToString() }
+) : ViewModel() {
     private var libs: List<Library>? = null
+    private val attempt = MutableStateFlow(0)
+    private val _failed = MutableStateFlow(false)
 
-    /** 읽는 동안은 null이다. */
+    /**
+     * 목록을 읽지 못했다.
+     * 앱에 든 파일이라 드물지만, 그때는 라이브러리 묶음이 말없이 사라지지 않고 다시 시도를 보인다.
+     */
+    val failed: StateFlow<Boolean> = _failed.asStateFlow()
+
+    /** 읽는 동안이나 읽지 못하면 null이다. */
     val libraries: StateFlow<List<LibraryNotice>?> =
-        flow { emit(load().map { it.notice() }) }
+        attempt.flatMapLatest {
+            flow<List<LibraryNotice>?> {
+                _failed.value = false
+                emit(load().map { it.notice() })
+            }.catch {
+                if (it !is Exception) throw it
+                _failed.value = true
+                emit(null)
+            }
+        }
             .flowOn(Dispatchers.Default)
             .stateInSafely(viewModelScope, WhileUiSubscribed, null)
+
+    fun retry() = attempt.update { it + 1 }
 
     // OFL 원문은 70자마다 줄을 바꿔 두어 폰 폭에서 줄이 들쭉날쭉하다.
     // 문단 안의 줄바꿈(다음 줄이 소문자나 여는 괄호, 따옴표로 시작)만 띄어쓰기로 잇고 낱말은 그대로 둔다.
     // 주소로 시작하는 줄은 잇지 않는다.
-    internal suspend fun fontText(notice: FontLicenseNotice): String =
-        DsRes.readBytes("files/licenses/${notice.file}").decodeToString().replace(SOFT_BREAK, " ")
+    // 읽지 못하면 null이다.
+    // 화면이 그리는 중에 부르므로 예외를 넘기면 앱이 꺼진다.
+    internal suspend fun fontText(notice: FontLicenseNotice): String? =
+        orElseOnFailure(null) { readFont(notice.file).replace(SOFT_BREAK, " ") }
 
-    suspend fun libraryText(id: String): LibraryText? {
+    /** 목록에 없거나 읽지 못하면 null이다. */
+    suspend fun libraryText(id: String): LibraryText? = orElseOnFailure(null) { findLibraryText(id) }
+
+    private suspend fun findLibraryText(id: String): LibraryText? {
         val library = load().firstOrNull { it.uniqueId == id } ?: return null
         val details =
             listOfNotNull(
@@ -60,7 +94,7 @@ class LicensesViewModel : ViewModel() {
     }
 
     private suspend fun load(): List<Library> = libs ?: Libs.Builder()
-        .withJson(Res.readBytes("files/aboutlibraries.json").decodeToString())
+        .withJson(readList())
         .build()
         .libraries
         .sortedBy { it.name.lowercase() }

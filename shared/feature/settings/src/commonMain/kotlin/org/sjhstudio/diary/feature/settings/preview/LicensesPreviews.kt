@@ -71,3 +71,21 @@ private fun LibraryTextLight() = DiaryTheme(darkTheme = false) {
         details = "androidx.activity:activity 1.12.0\nThe Android Open Source Project"
     )
 }
+
+@Preview(name = "I1 오픈소스 라이선스 · 목록을 읽지 못함", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ListFailedLight() = DiaryTheme(darkTheme = false) {
+    LicensesScreen(null, onFont = {}, onLibrary = {}, onBack = {}, failed = true)
+}
+
+@Preview(name = "I1 오픈소스 라이선스 · 목록을 읽지 못함 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ListFailedDark() = DiaryTheme(darkTheme = true) {
+    LicensesScreen(null, onFont = {}, onLibrary = {}, onBack = {}, failed = true)
+}
+
+@Preview(name = "I2 전문 · 읽지 못함", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun TextFailedLight() = DiaryTheme(darkTheme = false) {
+    LicenseTextScreen("감자꽃", "SIL Open Font License 1.1", null, onBack = {}, failed = true)
+}

@@ -40,6 +40,8 @@
     <string name="settings_licenses">Open source licenses</string>
     <string name="licenses_group_fonts">Fonts</string>
     <string name="licenses_group_libraries">Libraries</string>
+    <string name="licenses_libraries_failed">Couldn't load the library list</string>
+    <string name="licenses_text_failed">Couldn't load this license</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_changwon_round">Changwon Dangam Round License</string>
     <string name="license_naver">NAVER font license</string>

@@ -35,6 +35,8 @@
     <string name="settings_licenses">オープンソースライセンス</string>
     <string name="licenses_group_fonts">フォント</string>
     <string name="licenses_group_libraries">ライブラリ</string>
+    <string name="licenses_libraries_failed">ライブラリ一覧を読み込めませんでした</string>
+    <string name="licenses_text_failed">ライセンス全文を読み込めませんでした</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_changwon_round">Changwon Dangam Round ライセンス</string>
     <string name="license_naver">NAVERフォントライセンス</string>
