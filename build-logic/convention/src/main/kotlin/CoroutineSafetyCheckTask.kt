@@ -9,6 +9,7 @@ abstract class CoroutineSafetyCheckTask : SourcePatternCheckTask() {
     override val rules =
         listOf(
             PatternRule(Regex("""viewModelScope\.launch\b(?!Safely|Write)"""), "화면 모델은 launchSafely나 launchWrite로 시작한다"),
-            PatternRule(Regex("""\.stateIn\(\s*viewModelScope"""), "화면 모델의 흐름은 stateInSafely로 담는다")
+            // 줄 단위로 보므로 `stateIn(`에서 줄을 바꾼 것도 잡는다.
+            PatternRule(Regex("""\.stateIn\((\s*viewModelScope|\s*$)"""), "화면 모델의 흐름은 stateInSafely로 담는다")
         )
 }

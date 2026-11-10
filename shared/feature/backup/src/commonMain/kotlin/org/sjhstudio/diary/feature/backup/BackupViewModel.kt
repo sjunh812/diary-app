@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -23,7 +22,7 @@ import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
-    val status: StateFlow<BackupStatus> = controller.status.stateIn(
+    val status: StateFlow<BackupStatus> = controller.status.stateInSafely(
         viewModelScope,
         SharingStarted.WhileSubscribed(STOP_MILLIS),
         BackupStatus()

@@ -2,12 +2,15 @@ package org.sjhstudio.diary.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -30,6 +33,9 @@ sealed interface EntryDetailState {
 
     data object Missing : EntryDetailState
 
+    /** 읽다가 실패했다. 계속 불러오는 중으로 두지 않고 다시 시도를 보인다. */
+    data object Failed : EntryDetailState
+
     data class Ready(val detail: EntryDetail) : EntryDetailState
 }
 
@@ -49,14 +55,24 @@ class EntryDetailViewModel(
      */
     private val leaving = MutableStateFlow(false)
 
+    /** 다시 시도할 때마다 올라가서 읽기를 새로 시작한다. */
+    private val attempt = MutableStateFlow(0)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     val state: StateFlow<EntryDetailState> =
-        combine(entries.entry(entryId), leaving) { detail, leaving ->
-            when {
-                detail != null -> EntryDetailState.Ready(detail)
-                leaving -> EntryDetailState.Loading
-                else -> EntryDetailState.Missing
-            }
+        attempt.flatMapLatest {
+            combine(entries.entry(entryId), leaving) { detail, leaving ->
+                when {
+                    detail != null -> EntryDetailState.Ready(detail)
+                    leaving -> EntryDetailState.Loading
+                    else -> EntryDetailState.Missing
+                }
+            }.catch { if (it is Exception) emit(EntryDetailState.Failed) else throw it }
         }.stateInSafely(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), EntryDetailState.Loading)
+
+    fun retry() {
+        attempt.value++
+    }
 
     val look: StateFlow<BodyLook> =
         settings.settings

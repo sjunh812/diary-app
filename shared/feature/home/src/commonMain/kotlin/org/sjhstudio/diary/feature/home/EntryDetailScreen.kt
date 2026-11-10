@@ -144,6 +144,8 @@ fun EntryDetailRoute(
                 )
 
             state == EntryDetailState.Missing -> EntryMissing()
+
+            state == EntryDetailState.Failed -> LoadFailed(viewModel::retry)
         }
     }
     if (more && current != null) {

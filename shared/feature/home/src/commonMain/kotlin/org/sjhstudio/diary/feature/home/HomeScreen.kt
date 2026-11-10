@@ -362,11 +362,11 @@ private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit, onShowAll: () -> 
 }
 
 /**
- * 목록을 읽지 못했을 때.
+ * 목록이나 일기를 읽지 못했을 때.
  * 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다.
  */
 @Composable
-private fun LoadFailed(onRetry: () -> Unit) {
+internal fun LoadFailed(onRetry: () -> Unit) {
     DiaryEmptyArea {
         DiaryEmptyState(
             DiaryIcons.CircleAlert,

@@ -37,13 +37,18 @@ class CoroutineSafetyCheckTaskTest {
             """
             fun a() = viewModelScope.launch { load() }
             val b = flow.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+            val c = flow.stateIn(
+                viewModelScope,
+                SharingStarted.Eagerly,
+                0
+            )
             """
         )
 
         val (result, report) = check()
 
         assertTrue(result.exceptionOrNull() is GradleException)
-        assertEquals(2, report.lines().count { it.isNotBlank() }, report)
+        assertEquals(3, report.lines().count { it.isNotBlank() }, report)
     }
 
     @Test

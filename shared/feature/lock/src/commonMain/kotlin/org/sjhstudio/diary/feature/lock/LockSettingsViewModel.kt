@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.model.LockSettings
@@ -14,6 +13,7 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 잠금 설정(L4).
@@ -23,7 +23,7 @@ class LockSettingsViewModel(
     private val repository: LockRepository,
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
-    val settings: StateFlow<LockSettings> = repository.settings.stateIn(
+    val settings: StateFlow<LockSettings> = repository.settings.stateInSafely(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
         LockSettings()

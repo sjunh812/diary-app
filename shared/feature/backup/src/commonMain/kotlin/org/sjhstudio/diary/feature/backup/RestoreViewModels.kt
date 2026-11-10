@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
@@ -81,7 +80,7 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
 }
 
 class RestoreStatusViewModel(private val restore: RestoreRepository) : ViewModel() {
-    val waiting: StateFlow<WaitingPhotos?> = restore.waitingPhotos.stateIn(
+    val waiting: StateFlow<WaitingPhotos?> = restore.waitingPhotos.stateInSafely(
         viewModelScope,
         SharingStarted.WhileSubscribed(STOP_MILLIS),
         null
