@@ -77,7 +77,7 @@ private enum class Page(val title: StringResource, val body: StringResource) {
 }
 
 /**
- * 업데이트 사용자는 쓰는 법 대신 달라진 점만.
+ * 업데이트 사용자는 쓰는 법 대신 달라진 점만
  * 백업은 홈 백업 줄에서 켜므로 버튼 없이 좋아진 점만. 태블릿은 폰에서도 보여 있는 줄 알게 함
  */
 private val UpdatedPages = listOf(Page.BACKUP, Page.STYLE, Page.FIND, Page.TRASH, Page.TABLET)
@@ -140,8 +140,8 @@ private fun PageBody(page: Page, active: Boolean) {
 }
 
 /**
- * 장 내용을 가운데에 둠.
- * 낮은 화면이나 큰 글자에서 넘치면 장 안에서 스크롤.
+ * 장 내용을 가운데에 둠
+ * 낮은 화면이나 큰 글자에서 넘치면 장 안에서 스크롤
  */
 @Composable
 private fun PageColumn(content: @Composable ColumnScope.() -> Unit) {
@@ -160,8 +160,8 @@ private fun PageColumn(content: @Composable ColumnScope.() -> Unit) {
 }
 
 /**
- * 그림 하나, 제목 한 줄, 설명.
- * 그림 칸 높이가 같아 장을 넘겨도 제목이 움직이지 않음.
+ * 그림 하나, 제목 한 줄, 설명
+ * 그림 칸 높이가 같아 장을 넘겨도 제목이 움직이지 않음
  */
 @Composable
 private fun ArtPage(title: StringResource, body: StringResource, art: @Composable () -> Unit) {

@@ -13,12 +13,12 @@ import org.sjhstudio.diary.core.ui.launchSafely
 class WelcomeViewModel(private val welcome: WelcomeRepository) : ViewModel() {
     private val _step = MutableStateFlow<WelcomeStep?>(null)
 
-    /** null이면 아직 읽는 중. */
+    /** null이면 아직 읽는 중 */
     val step: StateFlow<WelcomeStep?> = _step.asStateFlow()
 
     private val _entries = MutableStateFlow<Int?>(null)
 
-    /** 옮긴 일기 수. 편지가 씀. */
+    /** 옮긴 일기 수. 편지가 씀 */
     val entries: StateFlow<Int?> = _entries.asStateFlow()
 
     init {
@@ -26,9 +26,9 @@ class WelcomeViewModel(private val welcome: WelcomeRepository) : ViewModel() {
     }
 
     /**
-     * 어디까지 봤는지 읽음.
-     * 저장 공간 문제로 읽지 못하면 편지와 온보딩을 건너뛰고 앱을 엶.
-     * 여기서 멈추거나 꺼지면 일기를 쓸 수 없음.
+     * 어디까지 봤는지 읽음
+     * 저장 공간 문제로 읽지 못하면 편지와 온보딩을 건너뛰고 앱을 엶
+     * 여기서 멈추거나 꺼지면 일기를 쓸 수 없음
      */
     private fun refresh() {
         viewModelScope.launchSafely {
@@ -43,9 +43,9 @@ class WelcomeViewModel(private val welcome: WelcomeRepository) : ViewModel() {
     fun finish() = pass(WelcomeStep.DONE) { welcome.onboardingFinished() }
 
     /**
-     * 본 것을 적고 다음 화면으로 감.
-     * 저장 공간이 차 적지 못해도 넘어감.
-     * 다음에 앱을 열면 같은 화면을 다시 볼 뿐이고, 여기서 막히면 앱을 쓸 수 없음.
+     * 본 것을 적고 다음 화면으로 감
+     * 저장 공간이 차 적지 못해도 넘어감
+     * 다음에 앱을 열면 같은 화면을 다시 볼 뿐이고, 여기서 막히면 앱을 쓸 수 없음
      */
     private fun pass(next: WelcomeStep, write: suspend () -> Unit) {
         viewModelScope.launchSafely {
@@ -58,11 +58,11 @@ class WelcomeViewModel(private val welcome: WelcomeRepository) : ViewModel() {
     }
 }
 
-/** 설정에서 다시 읽는 편지. */
+/** 설정에서 다시 읽는 편지 */
 class LetterViewModel(welcome: WelcomeRepository) : ViewModel() {
     private val _letter = MutableStateFlow<Letter?>(null)
 
-    /** null이면 아직 읽는 중. 개수 없는 편지를 먼저 그리지 않음. */
+    /** null이면 아직 읽는 중. 개수 없는 편지를 먼저 그리지 않음 */
     val letter: StateFlow<Letter?> = _letter.asStateFlow()
 
     init {

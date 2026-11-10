@@ -68,70 +68,70 @@ import org.sjhstudio.diary.feature.welcome.resources.letter_to
 private const val ARRIVE_MILLIS = 450
 
 /**
- * 봉투 비율.
- * 편지 봉투 C6(162×114)에 가까움.
+ * 봉투 비율
+ * 편지 봉투 C6(162×114)에 가까움
  */
 private const val ENVELOPE_RATIO = 1.42f
 
 /**
- * 덮개가 내려오는 깊이와 앞면이 파인 깊이.
- * 봉투 높이에 대한 비율.
+ * 덮개가 내려오는 깊이와 앞면이 파인 깊이
+ * 봉투 높이에 대한 비율
  */
 private const val FLAP_DEPTH = 0.74f
 
-/** 봉인을 덮개 끝에서 올리는 정도. 반지름에 대한 비율. */
+/** 봉인을 덮개 끝에서 올리는 정도. 반지름에 대한 비율 */
 private const val SEAL_LIFT = 0.5f
 private const val POCKET_DEPTH = 0.5f
 
-/** 아래 날개 끝의 높이. 봉투 높이에 대한 비율이고 덮개 끝보다 위. */
+/** 아래 날개 끝의 높이. 봉투 높이에 대한 비율이고 덮개 끝보다 위 */
 private const val LOWER_TIP = 0.4f
 
-/** 아래 날개는 종이가 맞닿아 있어 덮개보다 그림자가 훨씬 옅음. */
+/** 아래 날개는 종이가 맞닿아 있어 덮개보다 그림자가 훨씬 옅음 */
 private const val LOWER_SHADOW = 0.6f
 
 /**
- * 덮개가 열린 뒤의 아래 날개 그림자.
- * 닫혔을 때는 덮개 그림자와 어울리지만, 열리면 혼자 남고 끝이 드러나 진해 보임.
- * 위쪽 틈의 가는 선과 비슷한 무게로 줄임.
+ * 덮개가 열린 뒤의 아래 날개 그림자
+ * 닫혔을 때는 덮개 그림자와 어울리지만, 열리면 혼자 남고 끝이 드러나 진해 보임
+ * 위쪽 틈의 가는 선과 비슷한 무게로 줄임
  */
 private const val LOWER_SHADOW_OPEN = 0.34f
 private const val LOWER_REACH_OPEN = 0.5f
 
 /**
- * 열리는 진행 값의 구간.
- * 덮개가 넘어가고 잠깐 뒤에 편지지가 천천히 올라옴.
- * 편지지는 다 올라오기 전부터 펼쳐져 멈춘 데 없이 이어짐.
+ * 열리는 진행 값의 구간
+ * 덮개가 넘어가고 잠깐 뒤에 편지지가 천천히 올라옴
+ * 편지지는 다 올라오기 전부터 펼쳐져 멈춘 데 없이 이어짐
  */
 private const val FLAP_END = 0.28f
 private const val RISE_START = 0.34f
 private const val RISE_END = 0.74f
 private const val UNFOLD_START = 0.62f
 
-/** 편지지가 반쯤 나오면 글자가 드러남. */
+/** 편지지가 반쯤 나오면 글자가 드러남 */
 private const val BLANK_END = 0.56f
 
-/** 편지지가 봉투 높이의 얼마만큼 올라오는지. */
+/** 편지지가 봉투 높이의 얼마만큼 올라오는지 */
 private const val RISE_SHARE = 0.55f
 
-/** 머리 글은 편지지가 올라올 자리를 비켜 줌. */
+/** 머리 글은 편지지가 올라올 자리를 비켜 줌 */
 private const val HEAD_FADE_END = 0.2f
 
-/** 봉투는 내려가면서 끝 무렵에 사라짐. */
+/** 봉투는 내려가면서 끝 무렵에 사라짐 */
 private const val FADE_START = 0.85f
 
 private val Float.halfTurn get() = this * PI.toFloat()
 
-/** 진행 값 한 구간을 0에서 1로 펴고 시작과 끝을 부드럽게. */
+/** 진행 값 한 구간을 0에서 1로 펴고 시작과 끝을 부드럽게 */
 private fun Float.between(start: Float, end: Float): Float =
     FastOutSlowInEasing.transform(((this - start) / (end - start)).coerceIn(0f, 1f))
 
 /**
- * 도착한 봉투(Figma W0).
- * 덮개가 열리면 진짜 편지지가 줄어든 채 봉투에서 올라오고, 봉투가 내려가며 제자리로 펼쳐짐.
- * 뒷면, 편지지, 앞면을 겹쳐 그려 편지지가 앞면 뒤에서 나옴.
- * [progress]는 0에서 1까지 열린 정도.
- * 값을 그리는 단계에서 읽어 화면을 다시 짜지 않음.
- * [letter]는 받은 수식어를 편지지 카드에 달아야 함.
+ * 도착한 봉투(Figma W0)
+ * 덮개가 열리면 진짜 편지지가 줄어든 채 봉투에서 올라오고, 봉투가 내려가며 제자리로 펼쳐짐
+ * 뒷면, 편지지, 앞면을 겹쳐 그려 편지지가 앞면 뒤에서 나옴
+ * [progress]는 0에서 1까지 열린 정도
+ * 값을 그리는 단계에서 읽어 화면을 다시 짜지 않음
+ * [letter]는 받은 수식어를 편지지 카드에 달아야 함
  */
 @Composable
 internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Modifier = Modifier, letter: @Composable (Modifier) -> Unit) {
@@ -231,8 +231,8 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
 }
 
 /**
- * 편지지가 펼쳐지는 동안 봉투가 내려가는 거리.
- * 화면 아래로 빠질 만큼.
+ * 편지지가 펼쳐지는 동안 봉투가 내려가는 거리
+ * 화면 아래로 빠질 만큼
  */
 private fun DrawScope.drop(progress: Float, envelope: Rect): Float = progress.between(UNFOLD_START, 1f) * (size.height - envelope.top)
 
@@ -246,8 +246,8 @@ private fun DrawScope.bodyPath(area: Size) =
 private fun DrawScope.outline() = Stroke(DiarySpacing.hairline.toPx(), join = StrokeJoin.Round)
 
 /**
- * 봉투 안쪽과 다 넘어간 덮개.
- * 편지지보다 뒤.
+ * 봉투 안쪽과 다 넘어간 덮개
+ * 편지지보다 뒤
  */
 private fun DrawScope.drawBack(area: Size, progress: Float, colors: DiaryColors) {
     drawPath(bodyPath(area), colors.sunken)
@@ -260,8 +260,8 @@ private fun DrawScope.drawBack(area: Size, progress: Float, colors: DiaryColors)
 }
 
 /**
- * 글자를 가리는 빈 종이.
- * 편지지가 봉투 안에 있을 때의 자리와 같음.
+ * 글자를 가리는 빈 종이
+ * 편지지가 봉투 안에 있을 때의 자리와 같음
  */
 private fun DrawScope.drawBlankPaper(area: Size, alpha: Float, colors: DiaryColors) {
     val inset = DiarySpacing.x4.toPx()
@@ -276,8 +276,8 @@ private fun DrawScope.drawBlankPaper(area: Size, alpha: Float, colors: DiaryColo
 }
 
 /**
- * 봉투 앞면과 닫힌 덮개, 봉인.
- * 편지지보다 앞.
+ * 봉투 앞면과 닫힌 덮개, 봉인
+ * 편지지보다 앞
  */
 private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors, pen: VectorPainter) {
     val width = area.width
@@ -323,9 +323,9 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
 }
 
 /**
- * 봉인.
- * 덮개 끝을 따라 움직이고 덮개가 넘어갈수록 옅어짐.
- * 종이처럼 옅은 그림자를 둬 봉투 위에 붙어 보임.
+ * 봉인
+ * 덮개 끝을 따라 움직이고 덮개가 넘어갈수록 옅어짐
+ * 종이처럼 옅은 그림자를 둬 봉투 위에 붙어 보임
  */
 private fun DrawScope.drawSeal(tipCenter: Offset, alpha: Float, colors: DiaryColors, pen: VectorPainter) {
     val radius = DiarySpacing.x6.toPx()

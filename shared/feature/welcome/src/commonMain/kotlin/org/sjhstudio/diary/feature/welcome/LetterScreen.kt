@@ -78,8 +78,8 @@ private const val OPEN_DELAY_MILLIS = 180L
 private const val BACKDROP_ALPHA = 0.4f
 
 /**
- * 편지 바탕.
- * 편지지가 도드라질 만큼만 아주 옅은 라벤더.
+ * 편지 바탕
+ * 편지지가 도드라질 만큼만 아주 옅은 라벤더
  */
 @Composable
 private fun Modifier.letterBackdrop(): Modifier {
@@ -88,11 +88,11 @@ private fun Modifier.letterBackdrop(): Modifier {
 }
 
 /**
- * 개발자의 편지(Figma W0, W1).
- * 판매 장치 없이 만든 사람의 말만 둠(FR-003, FR-005).
- * 봉투를 열면 편지지가 나옴.
- * 버튼 자리를 그대로 두어 열고 나서 같은 곳을 누르면 넘어감.
- * 동작 줄이기에서는 바로 편지지를 보임.
+ * 개발자의 편지(Figma W0, W1)
+ * 판매 장치 없이 만든 사람의 말만 둠(FR-003, FR-005)
+ * 봉투를 열면 편지지가 나옴
+ * 버튼 자리를 그대로 두어 열고 나서 같은 곳을 누르면 넘어감
+ * 동작 줄이기에서는 바로 편지지를 보임
  */
 @Composable
 fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifier) {
@@ -146,8 +146,8 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
 }
 
 /**
- * 설정에서 다시 읽는 편지.
- * 봉투 없이 바로 편지지이고 계속하기 대신 뒤로 가기가 있음.
+ * 설정에서 다시 읽는 편지
+ * 봉투 없이 바로 편지지이고 계속하기 대신 뒤로 가기가 있음
  */
 @Composable
 fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Modifier) {
@@ -158,8 +158,8 @@ fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Mod
 }
 
 /**
- * 처음 본 편지와 다시 읽는 편지가 함께 쓰는 본문.
- * 옮긴 일기가 없으면 고맙다는 문단은 없음.
+ * 처음 본 편지와 다시 읽는 편지가 함께 쓰는 본문
+ * 옮긴 일기가 없으면 고맙다는 문단은 없음
  */
 @Composable
 private fun LetterBody(entries: Int?) {
@@ -180,10 +180,10 @@ private fun LetterBody(entries: Int?) {
 }
 
 /**
- * 편지지 한 장.
- * 받는 사람, 인사, 본문, 보내는 사람 순서로 편지 꼴을 갖춤.
- * 문단 사이는 빈 줄이 아니라 간격 16(줄 높이 28의 1.5배 이상이 되는 값, WCAG 1.4.8).
- * 설정에서 열 때는 한 번 살짝 올라오고, 봉투에서 나올 때와 동작 줄이기면 그대로.
+ * 편지지 한 장
+ * 받는 사람, 인사, 본문, 보내는 사람 순서로 편지 꼴을 갖춤
+ * 문단 사이는 빈 줄이 아니라 간격 16(줄 높이 28의 1.5배 이상이 되는 값, WCAG 1.4.8)
+ * 설정에서 열 때는 한 번 살짝 올라오고, 봉투에서 나올 때와 동작 줄이기면 그대로
  */
 @Composable
 private fun LetterSheet(
@@ -217,8 +217,8 @@ private fun LetterSheet(
 }
 
 /**
- * 편지지 카드.
- * 편지 꼴을 갖춘 면이고 테두리 없이 부드러운 모서리.
+ * 편지지 카드
+ * 편지 꼴을 갖춘 면이고 테두리 없이 부드러운 모서리
  */
 @Composable
 private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit, content: @Composable ColumnScope.() -> Unit) {
@@ -245,8 +245,8 @@ private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit,
 }
 
 /**
- * 약속 한 줄.
- * 글에 묻히지 않게 표시를 앞에 둠.
+ * 약속 한 줄
+ * 글에 묻히지 않게 표시를 앞에 둠
  */
 @Composable
 private fun Promise(text: String) {
@@ -259,8 +259,8 @@ private fun Promise(text: String) {
 }
 
 /**
- * 문자열의 빈 줄을 문단으로 나눠 그림.
- * 간격은 부모의 16을 따름.
+ * 문자열의 빈 줄을 문단으로 나눠 그림
+ * 간격은 부모의 16을 따름
  */
 @Composable
 private fun LetterParagraphs(text: String) {
@@ -271,8 +271,8 @@ private fun LetterParagraphs(text: String) {
 }
 
 /**
- * `**`로 감싼 곳만 굵게 함.
- * 번역할 때 강조 자리를 문장에 맞게 옮기려고 문자열에 둠.
+ * `**`로 감싼 곳만 굵게 함
+ * 번역할 때 강조 자리를 문장에 맞게 옮기려고 문자열에 둠
  */
 private fun emphasized(text: String, weight: FontWeight): AnnotatedString = buildAnnotatedString {
     text.split("**").forEachIndexed { index, part ->
