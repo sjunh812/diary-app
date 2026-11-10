@@ -21,9 +21,9 @@ fun interface FreeSpace {
 /** 백업 알림. 일기 내용, 사진, 개수를 넣지 않음(FR-016) */
 interface BackupNotifier {
     /**
-     * 백업이 없는 채로 [at]이 되면 한 번 알림(FR-016).
-     * 앱이 돌지 못해도 와야 해서 미리 예약하고, 다시 부르면 앞의 예약을 바꿈.
-     * 일기 내용과 개수는 넣지 않음.
+     * 백업이 없는 채로 [at]이 되면 한 번 알림(FR-016)
+     * 앱이 돌지 못해도 와야 해서 미리 예약하고, 다시 부르면 앞의 예약을 바꿈
+     * 일기 내용과 개수는 넣지 않음
      */
     suspend fun schedule(at: Instant, title: String, body: String)
 
@@ -40,8 +40,8 @@ interface BackupScheduler {
     fun cancelDaily()
 
     /**
-     * 사용자가 누른 지금 백업을 시스템 작업으로 넘김. 넘겼으면 true, 아니면 앱이 직접 돌림.
-     * 앞선 요청이 재시도를 기다리고 있으면 이 요청이 대신함.
+     * 사용자가 누른 지금 백업을 시스템 작업으로 넘김. 넘겼으면 true, 아니면 앱이 직접 돌림
+     * 앞선 요청이 재시도를 기다리고 있으면 이 요청이 대신함
      */
     fun startNow(cellularOnce: Boolean): Boolean
 

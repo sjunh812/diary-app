@@ -11,9 +11,9 @@ import kotlin.math.max
 
 actual object ImageDecoder {
     /**
-     * 메모리가 모자라면 false를 돌려줘 "읽지 못한 사진" 안내로 이어짐.
-     * 큰 사진(4800만 화소 등)은 줄이는 동안 수십 MB를 써 저사양 기기에서 메모리 부족이 날 수 있음.
-     * 메모리 부족은 Exception이 아닌 Error라 바깥 안전망이 못 잡고 앱이 꺼지므로 여기서 잡음.
+     * 메모리가 모자라면 false를 돌려줘 "읽지 못한 사진" 안내로 이어짐
+     * 큰 사진(4800만 화소 등)은 줄이는 동안 수십 MB를 써 저사양 기기에서 메모리 부족이 날 수 있음
+     * 메모리 부족은 Exception이 아닌 Error라 바깥 안전망이 못 잡고 앱이 꺼지므로 여기서 잡음
      */
     actual fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean = try {
         shrink(source, target, maxSide, quality)

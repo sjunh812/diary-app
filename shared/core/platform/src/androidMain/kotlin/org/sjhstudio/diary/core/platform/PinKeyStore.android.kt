@@ -13,8 +13,8 @@ import javax.crypto.SecretKey
 actual fun devicePinKeyStore(): PinKeyStore = AndroidPinKeyStore
 
 /**
- * Android Keystore의 HMAC-SHA256 키(API 23부터).
- * 잠금 화면에서 비밀번호를 대어 볼 때마다 생체 인증을 띄울 수 없어 사용자 인증을 요구하지 않음.
+ * Android Keystore의 HMAC-SHA256 키(API 23부터)
+ * 잠금 화면에서 비밀번호를 대어 볼 때마다 생체 인증을 띄울 수 없어 사용자 인증을 요구하지 않음
  */
 private object AndroidPinKeyStore : PinKeyStore {
     private const val PROVIDER = "AndroidKeyStore"

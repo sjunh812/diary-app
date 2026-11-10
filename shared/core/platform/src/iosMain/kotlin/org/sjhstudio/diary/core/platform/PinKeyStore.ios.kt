@@ -62,7 +62,7 @@ internal fun hmacSha256(key: ByteArray, data: ByteArray): ByteArray {
 
 /**
  * 키체인에 둔 256비트 임의 키와 CommonCrypto HMAC-SHA256.
- * `AfterFirstUnlockThisDeviceOnly`라 iCloud 키체인이나 다른 기기 백업으로 옮겨 가지 않음.
+ * `AfterFirstUnlockThisDeviceOnly`라 iCloud 키체인이나 다른 기기 백업으로 옮겨 가지 않음
  */
 @OptIn(ExperimentalForeignApi::class)
 private object IosPinKeyStore : PinKeyStore {

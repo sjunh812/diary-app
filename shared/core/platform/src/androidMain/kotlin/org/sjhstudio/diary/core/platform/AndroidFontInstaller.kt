@@ -26,8 +26,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
- * 글꼴마다 하나인 Play 필요할 때 설치 모듈(`fonts/<id>`, 모듈 이름이 글꼴 ID)을 받아 자산 `fonts/<id>.ttf`를 앱 파일로 복사.
- * 받은 모듈은 앱을 다시 켜지 않고 [SplitCompat]으로 읽음(`DiaryApplication.attachBaseContext`).
+ * 글꼴마다 하나인 Play 필요할 때 설치 모듈(`fonts/<id>`, 모듈 이름이 글꼴 ID)을 받아 자산 `fonts/<id>.ttf`를 앱 파일로 복사
+ * 받은 모듈은 앱을 다시 켜지 않고 [SplitCompat]으로 읽음(`DiaryApplication.attachBaseContext`)
  */
 class AndroidFontInstaller(context: Context, private val files: AppFiles) : FontInstaller {
     private val context = context.applicationContext

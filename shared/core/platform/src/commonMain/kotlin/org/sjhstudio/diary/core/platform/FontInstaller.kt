@@ -3,10 +3,10 @@ package org.sjhstudio.diary.core.platform
 import kotlinx.coroutines.flow.Flow
 
 /**
- * 고를 때 받는 일기 글꼴(`docs/design.md` 일기 본문 글꼴 10종, research R17).
- * Android는 Play 필요할 때 설치 모듈(`fonts/<id>`), iOS는 On-Demand Resources로 받음.
- * 둘 다 스토어가 내려 주어 우리 서버가 없음.
- * 받으면 [AppFiles.fontDirectory]에 `<id>.ttf`로 복사해 두고 그 파일로 글꼴을 만듦.
+ * 고를 때 받는 일기 글꼴(`docs/design.md` 일기 본문 글꼴 10종, research R17)
+ * Android는 Play 필요할 때 설치 모듈(`fonts/<id>`), iOS는 On-Demand Resources로 받음
+ * 둘 다 스토어가 내려 주어 우리 서버가 없음
+ * 받으면 [AppFiles.fontDirectory]에 `<id>.ttf`로 복사해 두고 그 파일로 글꼴을 만듦
  */
 interface FontInstaller {
     /** 받아 둔 글꼴 파일. 아직 받지 않았으면 null */

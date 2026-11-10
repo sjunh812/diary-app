@@ -28,8 +28,8 @@ import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
 import platform.darwin.dispatch_get_global_queue
 
 /**
- * Swift의 GoogleSignIn을 부르는 다리. iosApp이 앱을 켤 때 걺(research R2).
- * 값이 없으면 빈 문자열을 넘김.
+ * Swift의 GoogleSignIn을 부르는 다리. iosApp이 앱을 켤 때 걺(research R2)
+ * 값이 없으면 빈 문자열을 넘김
  */
 interface IosDriveBridge {
     /** 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘김. 실패는 "cancelled", "offline", "failed" */

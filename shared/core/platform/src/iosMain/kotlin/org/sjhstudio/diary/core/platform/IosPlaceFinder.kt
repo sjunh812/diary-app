@@ -18,8 +18,8 @@ import platform.Foundation.timeIntervalSinceNow
 import platform.darwin.NSObject
 
 /**
- * 위치를 한 번 읽고 기기 지오코더로 동네 이름을 찾음.
- * CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API가 iOS 26부터라 최소 버전 17에서는 이것을 씀.
+ * 위치를 한 번 읽고 기기 지오코더로 동네 이름을 찾음
+ * CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API가 iOS 26부터라 최소 버전 17에서는 이것을 씀
  */
 class IosPlaceFinder : PlaceFinder {
     override suspend fun find(): PlaceLookup = withContext(Dispatchers.Main) {

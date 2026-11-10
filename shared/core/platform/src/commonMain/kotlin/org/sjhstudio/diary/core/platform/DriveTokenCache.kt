@@ -11,8 +11,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.sjhstudio.diary.core.model.BackupFailure
 
 /**
- * 받은 토큰을 잠깐 다시 씀. 사진마다 플랫폼 인증을 부르면 그것만으로 한 장에 시간이 듦.
- * 토큰이 만료돼 사진 여섯 장이 함께 물어도 [fetch]는 한 번만 돎.
+ * 받은 토큰을 잠깐 다시 씀. 사진마다 플랫폼 인증을 부르면 그것만으로 한 장에 시간이 듦
+ * 토큰이 만료돼 사진 여섯 장이 함께 물어도 [fetch]는 한 번만 돎
  */
 class DriveTokenCache(private val timeSource: TimeSource = TimeSource.Monotonic, private val fetch: suspend () -> TokenResult) {
     private class Kept(val token: TokenResult.Token, val until: TimeMark, val connection: Any)

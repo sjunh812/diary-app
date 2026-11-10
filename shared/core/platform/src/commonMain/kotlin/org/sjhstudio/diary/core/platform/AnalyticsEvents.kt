@@ -12,9 +12,9 @@ import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
- * 사용 통계로 보낼 수 있는 이벤트와 값의 고정 표(contracts/app-shell.md, contracts/migration-flow.md).
- * 값은 열거형 ID와 개수 구간뿐.
- * 일기 글, 장소, 기분, 경로, 예외 메시지는 표에 들어올 자리가 없음(헌법 II).
+ * 사용 통계로 보낼 수 있는 이벤트와 값의 고정 표(contracts/app-shell.md, contracts/migration-flow.md)
+ * 값은 열거형 ID와 개수 구간뿐
+ * 일기 글, 장소, 기분, 경로, 예외 메시지는 표에 들어올 자리가 없음(헌법 II)
  */
 object AnalyticsEvents {
     const val SCREEN_VIEW = "screen_view"

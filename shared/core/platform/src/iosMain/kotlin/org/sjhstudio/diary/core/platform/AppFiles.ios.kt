@@ -34,8 +34,8 @@ actual class AppFiles {
         listOf(root, mediaDirectory, thumbnailDirectory, fontDirectory, dataStoreDirectory, backupDirectory).forEach { path ->
             manager.createDirectoryAtPath(path, withIntermediateDirectories = true, attributes = null, error = null)
         }
-        // 썸네일과 받은 글꼴은 다시 만들거나 받을 수 있어 iCloud·기기 백업에서 뺌.
-        // 복원 전 사본과 묶음 작업 파일도 잠깐 쓰는 것이라 뺌.
+        // 썸네일과 받은 글꼴은 다시 만들거나 받을 수 있어 iCloud·기기 백업에서 뺌
+        // 복원 전 사본과 묶음 작업 파일도 잠깐 쓰는 것이라 뺌
         for (path in listOf(thumbnailDirectory, fontDirectory, backupDirectory)) {
             NSURL.fileURLWithPath(path, isDirectory = true)
                 .setResourceValue(NSNumber(bool = true), forKey = NSURLIsExcludedFromBackupKey, error = null)

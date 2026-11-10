@@ -12,8 +12,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * `androidx.biometric` 1.1.0(research R12).
- * 열기는 `BIOMETRIC_WEAK`만, 분실은 `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`.
- * `DEVICE_CREDENTIAL` 단독은 API 30 미만에서 안 되고, `BIOMETRIC_WEAK`와 묶으면 API 24부터 됨.
+ * 열기는 `BIOMETRIC_WEAK`만, 분실은 `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`
+ * `DEVICE_CREDENTIAL` 단독은 API 30 미만에서 안 되고, `BIOMETRIC_WEAK`와 묶으면 API 24부터 됨
  */
 class AndroidDeviceAuthenticator(private val activity: FragmentActivity) : DeviceAuthenticator {
     override fun biometricStatus(): BiometricStatus = when (BiometricManager.from(activity).canAuthenticate(BIOMETRIC_WEAK)) {

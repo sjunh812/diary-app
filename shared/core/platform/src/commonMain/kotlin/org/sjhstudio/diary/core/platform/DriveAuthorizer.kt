@@ -3,8 +3,8 @@ package org.sjhstudio.diary.core.platform
 import org.sjhstudio.diary.core.model.BackupFailure
 
 /**
- * 연결한 구글 계정. [key]는 구글 계정 고유 ID(sub), [email]은 화면에만 보임.
- * 둘 다 로그와 통계에 넣지 않음.
+ * 연결한 구글 계정. [key]는 구글 계정 고유 ID(sub), [email]은 화면에만 보임
+ * 둘 다 로그와 통계에 넣지 않음
  */
 data class DriveAccount(val key: String, val email: String) {
     override fun toString(): String = "DriveAccount"

@@ -1,9 +1,9 @@
 package org.sjhstudio.diary.core.platform
 
 /**
- * 일기 DB, 사진, 설정이 놓이는 자리(data-model.md "파일 자리").
- * 모두 앱 전용 저장소이고 캐시 폴더에는 아무것도 두지 않음(헌법 I).
- * 경로는 절대경로이고 DB에는 담지 않음.
+ * 일기 DB, 사진, 설정이 놓이는 자리(data-model.md "파일 자리")
+ * 모두 앱 전용 저장소이고 캐시 폴더에는 아무것도 두지 않음(헌법 I)
+ * 경로는 절대경로이고 DB에는 담지 않음
  */
 expect class AppFiles {
     /** 일기 DB 파일 */

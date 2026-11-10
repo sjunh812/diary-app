@@ -32,9 +32,9 @@ fun interface DriveConsentLauncher {
 }
 
 /**
- * `AuthorizationClient`로 `drive.file`만 받음(research R2).
- * 토큰은 기기에 두지 않고 1시간짜리를 그때그때 받음.
- * 응답에 계정이 없어 받은 토큰으로 userinfo를 불러 앎. 계정 이메일은 로그에 남기지 않음.
+ * `AuthorizationClient`로 `drive.file`만 받음(research R2)
+ * 토큰은 기기에 두지 않고 1시간짜리를 그때그때 받음
+ * 응답에 계정이 없어 받은 토큰으로 userinfo를 불러 앎. 계정 이메일은 로그에 남기지 않음
  */
 class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private val context = context.applicationContext
@@ -91,7 +91,7 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     override suspend fun disconnect() {
         tokens.clear()
         prefs.edit { remove(KEY_EMAIL) }
-        // 구글 쪽 권한은 취소하지 않음.
+        // 구글 쪽 권한은 취소하지 않음
         // drive.file을 취소하면 다시 연결해도 앱이 만든 백업이 안 보일 수 있어(헌법 I), 확인 전까지 이 기기 연결만 끊음
     }
 

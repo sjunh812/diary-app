@@ -20,8 +20,8 @@ import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometr
 
 /**
  * `LAContext`(research R12).
- * 열기는 `.deviceOwnerAuthenticationWithBiometrics`, 분실은 `.deviceOwnerAuthentication`(생체 또는 기기 암호).
- * Face ID 문구는 `Info.plist`의 `NSFaceIDUsageDescription`.
+ * 열기는 `.deviceOwnerAuthenticationWithBiometrics`, 분실은 `.deviceOwnerAuthentication`(생체 또는 기기 암호)
+ * Face ID 문구는 `Info.plist`의 `NSFaceIDUsageDescription`
  */
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 class IosDeviceAuthenticator : DeviceAuthenticator {
