@@ -39,7 +39,7 @@ internal suspend fun DefaultEntryRepository.searchAll(filter: SearchFilter): Lis
 
 /**
  * 한 번 읽고 원본을 닫음
- * Room의 쪽 원본은 뒤에서 변경 감시를 시작하는데, 닫힌 DB를 만나면 프로세스째 죽음
+ * Room의 쪽 원본은 뒤에서 변경 감시를 시작해, 시험이 DB를 닫은 뒤 그 감시가 예외를 냄(RoomQueryContext가 받음)
  * 앱은 DB를 닫지 않아 시험에서만 생기는 일
  */
 internal suspend fun <V : Any> PagingSource<Int, V>.loadOnce(size: Int): PagingSource.LoadResult<Int, V> = try {
