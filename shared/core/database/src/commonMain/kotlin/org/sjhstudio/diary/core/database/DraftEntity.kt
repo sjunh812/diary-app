@@ -7,9 +7,9 @@ import androidx.room3.Index
 import androidx.room3.PrimaryKey
 
 /**
- * 임시 저장본(스펙 002 data-model.md Draft).
- * 새 일기는 키 `new`, 고치는 일기는 일기 ID를 키로 하나씩 둔다.
- * 백업에 싣지 않는다(`docs/backup.md`).
+ * 임시 저장본(스펙 002 data-model.md Draft)
+ * 새 일기는 키 `new`, 고치는 일기는 일기 ID를 키로 하나씩 둠
+ * 백업에 싣지 않음(`docs/backup.md`)
  */
 @Entity(tableName = "draft")
 data class DraftEntity(
@@ -24,16 +24,16 @@ data class DraftEntity(
     @ColumnInfo(name = "weather_auto_filled") val weatherAutoFilled: Boolean,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     /**
-     * 이 저장본을 남겨 둔 뒤에 복원이 일기를 바꿨다.
-     * 저장할 때 덮어쓰지 않고 둘 다 남긴다(헌법 I).
+     * 이 저장본을 남겨 둔 뒤 복원이 일기를 바꿨음
+     * 저장할 때 덮어쓰지 않고 둘 다 남김(헌법 I)
      */
     @ColumnInfo(name = "entry_changed", defaultValue = "0") val entryChanged: Boolean = false
 )
 
 /**
- * 임시 저장본의 사진.
- * 저장하면 `media`로 옮기고 지운다.
- * 옮겨 온 일기처럼 같은 사진이 두 줄일 수 있어 순서를 키로 쓴다.
+ * 임시 저장본의 사진
+ * 저장하면 `media`로 옮기고 지움
+ * 옮겨 온 일기처럼 같은 사진이 두 줄일 수 있어 순서를 키로 씀
  */
 @Entity(
     tableName = "draft_media",

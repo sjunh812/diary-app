@@ -21,8 +21,8 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
-// 번들 드라이버 메모리 DB로 표의 제약과 색인을 본다(스펙 001 T022).
-// Android 호스트와 iOS 시뮬레이터에서 같은 시험이 돈다.
+// 번들 드라이버 메모리 DB로 표의 제약과 색인을 봄(스펙 001 T022)
+// Android 호스트와 iOS 시뮬레이터에서 같은 시험이 돎
 class DiaryDatabaseTest {
     private lateinit var db: DiaryDatabase
 

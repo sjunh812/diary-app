@@ -6,9 +6,9 @@ import androidx.room3.ForeignKey
 import androidx.room3.PrimaryKey
 
 /**
- * 드라이브에 올라가 확인까지 끝난 사진.
- * 드라이브가 원본이고 이 표는 거울이다.
- * 스냅샷에서는 비운다.
+ * 드라이브에 올라가 확인까지 끝난 사진
+ * 드라이브가 원본이고 이 표는 거울
+ * 스냅샷에서는 비움
  */
 @Entity(tableName = "backup_media", primaryKeys = ["account_key", "sha256"])
 data class BackupMediaEntity(
@@ -20,9 +20,9 @@ data class BackupMediaEntity(
 )
 
 /**
- * 마지막으로 백업이나 복원으로 맞춰진 때의 `updated_at`.
- * 합치기에서 어느 쪽이 고쳐졌는지 가른다.
- * 스냅샷에서는 비운다.
+ * 마지막으로 백업이나 복원으로 맞춰진 때의 `updated_at`
+ * 합치기에서 어느 쪽이 고쳐졌는지 가름
+ * 스냅샷에서는 비움
  */
 @Entity(
     tableName = "sync_base",
@@ -36,8 +36,8 @@ data class SyncBaseEntity(
 )
 
 /**
- * 합치기 결과로 알려야 하는 일기("두 가지로 남겼어요").
- * 스냅샷에서는 비운다.
+ * 합치기 결과로 알려야 하는 일기("두 가지로 남겼어요")
+ * 스냅샷에서는 비움
  */
 @Entity(
     tableName = "merge_mark",
