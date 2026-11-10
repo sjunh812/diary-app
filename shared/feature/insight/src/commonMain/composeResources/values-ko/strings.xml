@@ -61,11 +61,11 @@
     <string name="insight_adv_company">기분마다 자주 나온 날씨·요일·장소</string>
     <string name="insight_adv_habit">내 기록</string>
     <string name="insight_adv_habit_entries">일기</string>
-    <string name="insight_adv_habit_days">쓴 날</string>
+    <string name="insight_adv_habit_days">작성한 날</string>
     <string name="insight_adv_habit_run">최장 연속 기록</string>
     <string name="insight_adv_habit_characters">글자 수</string>
     <string name="insight_adv_habit_photos">사진</string>
-    <string name="insight_adv_habit_part">자주 쓴 시간대</string>
+    <string name="insight_adv_habit_part">자주 작성한 시간대</string>
     <plurals name="insight_adv_company_title">
         <item quantity="other">%1$s · %2$s편</item>
     </plurals>
