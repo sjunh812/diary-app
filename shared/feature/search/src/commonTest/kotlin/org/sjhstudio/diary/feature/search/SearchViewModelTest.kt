@@ -5,7 +5,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
@@ -80,6 +82,22 @@ class SearchViewModelTest {
         model.setQuery("바다")
 
         assertEquals(SearchFilter(query = "바다", hasPhoto = true, favoritesOnly = true), model.filter.value)
+    }
+
+    /** 초기화는 고른 조건만 지우고 쓴 낱말은 남긴다. */
+    @Test
+    fun clearing_conditions_keeps_the_query() {
+        val range = DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31))
+        val model = viewModel(SearchFilter(moods = setOf(Mood.GOOD), period = range))
+        model.togglePhoto()
+        model.setQuery("바다")
+        assertTrue(model.filter.value.hasConditions)
+
+        model.clearConditions()
+
+        assertEquals(SearchFilter(query = "바다"), model.filter.value)
+        assertEquals(null, model.period.value)
+        assertFalse(model.filter.value.hasConditions)
     }
 
     private object NoFonts : FontInstaller {

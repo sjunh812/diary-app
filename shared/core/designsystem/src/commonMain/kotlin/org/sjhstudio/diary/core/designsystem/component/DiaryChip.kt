@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -77,6 +80,36 @@ fun DiaryChip(
             )
             if (trailingIcon != null) DiaryIcon(trailingIcon, contentDescription = null, tint = content, size = DiaryIconSize.i16)
             trailing?.invoke()
+        }
+    }
+}
+
+/**
+ * 글자 없이 아이콘만 있는 칩. 찾기 조건 초기화처럼 칩 줄 안에 놓는 동작이다.
+ * 32 · 좌우 10 · full · 아이콘 16, 바탕은 고르지 않은 칩과 같다.
+ * 이름은 화면 읽기에만 쓴다.
+ */
+@Composable
+fun DiaryIconChip(icon: ImageVector, contentDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = DiaryTheme.colors
+    val interaction = remember { MutableInteractionSource() }
+    Box(
+        modifier
+            .heightIn(min = DiarySpacing.minTouchTarget)
+            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick)
+            .semantics { this.contentDescription = contentDescription },
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Box(
+            Modifier
+                .height(32.dp)
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
+                .clip(DiaryShapes.full)
+                .background(colors.sunken)
+                .padding(horizontal = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            DiaryIcon(icon, contentDescription = null, tint = colors.textPrimary, size = DiaryIconSize.i16)
         }
     }
 }

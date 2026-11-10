@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>탭 대비와 찾기 초기화 시안</title>
+<style>
+  :root { --tp:#1A1C20; --ts:#555D6D; --tt:#868B94; --canvas:#FFFFFF; --sunken:#F3F4F5; --line:#E9EAEC; --accent:#6550B9; --sel:#EBE4FF; --page:#F7F7F8; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 16px 48px; background:var(--page); color:var(--tp); font:15px/22px -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif; }
+  h1 { font-size:22px; line-height:30px; margin:0 0 4px; }
+  h2 { font-size:17px; line-height:24px; margin:40px 0 4px; }
+  p.lead { color:var(--ts); margin:0 0 16px; }
+  .row { display:flex; flex-wrap:wrap; gap:16px; }
+  .card { background:var(--canvas); border-radius:16px; padding:16px; width:360px; max-width:100%; }
+  .card.dark { --tp:#F3F4F5; --ts:#DCDEE3; --tt:#B0B3BA; --canvas:#16171B; --sunken:#2B2E35; --line:#2B2E35; --accent:#BAA7FF; --sel:#291F43; }
+  .card h3 { font-size:15px; line-height:22px; margin:0 0 2px; color:var(--tp); }
+  .card .note { font-size:13px; line-height:18px; color:var(--ts); margin:0 0 12px; }
+  .tabs { display:flex; height:64px; border-top:1px solid var(--line); background:var(--canvas); }
+  .tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:12px; line-height:16px; font-weight:500; }
+  .tab svg { width:24px; height:24px; }
+  .ratio { font-size:13px; color:var(--ts); margin-top:10px; }
+  .badge { display:inline-block; font-size:12px; line-height:16px; padding:2px 8px; border-radius:999px; background:var(--sel); color:var(--accent); font-weight:600; margin-left:6px; }
+  .search { height:44px; border-radius:12px; background:var(--sunken); display:flex; align-items:center; padding:0 12px; color:var(--tt); gap:8px; }
+  .chips { display:flex; gap:8px; overflow:hidden; margin-top:12px; align-items:center; white-space:nowrap; }
+  .chip { height:32px; border-radius:999px; padding:0 12px; display:inline-flex; align-items:center; gap:4px; font-size:14px; font-weight:500; border:1px solid var(--line); color:var(--tp); background:var(--canvas); flex:none; }
+  .chip.on { background:var(--sel); border-color:transparent; color:var(--accent); }
+  .chip.icon { padding:0 10px; }
+  .text-btn { font-size:14px; font-weight:500; color:var(--ts); padding:0 4px; flex:none; display:inline-flex; align-items:center; gap:4px; }
+  .summary { display:flex; justify-content:space-between; align-items:center; margin-top:16px; font-size:13px; color:var(--ts); }
+  .summary b { color:var(--tp); font-weight:600; }
+  .summary .link { color:var(--accent); font-weight:500; }
+  .result { height:56px; border-radius:12px; background:var(--sunken); margin-top:8px; }
+  ul { margin:8px 0 0; padding-left:18px; color:var(--ts); font-size:13px; line-height:20px; }
+  .pick { outline:2px solid #6E56CF; }
+  @media (max-width:420px) { .card { width:100%; } }
+</style>
+</head>
+<body>
+<h1>탭 이름 대비와 찾기 초기화 시안</h1>
+<p class="lead">색은 앱 토큰 그대로입니다. 대비는 흰 바탕·어두운 바탕에 대고 잰 값입니다.</p>
+
+<h2>1. 안 고른 탭 이름 대비</h2>
+<p class="lead">지금 라이트 화면의 안 고른 탭은 textTertiary(#868B94)라 3.42:1입니다. 글자 기준(WCAG 4.5:1)에 못 미칩니다. 다크는 8.53:1이라 그대로 둡니다.</p>
+<div class="row" id="tabs"></div>
+
+<h2>2. 찾기 조건 한 번에 지우기</h2>
+<p class="lead">기간·기분 두 조건을 고른 상태입니다. 초기화는 조건이 하나라도 있을 때만 보입니다.</p>
+<div class="row" id="reset"></div>
+
+<h2>근거</h2>
+<ul>
+  <li>Material 3 내비게이션 바: 안 고른 칸 이름은 onSurfaceVariant(본문에 가까운 진한 회색)를 씁니다. 흐린 회색을 쓰지 않습니다.</li>
+  <li>Air France 디자인 시스템 칩: 결과 위 칩 묶음 옆에 "Clear all" 링크 버튼을 둡니다.</li>
+  <li>eBay Playbook 필터 칩: 칩이 화면보다 길면 가로로 밀어 보게 합니다. 끝에 둔 버튼은 밀어야 보입니다.</li>
+  <li>Baymard 계열 자료: 고른 조건마다 지우기와 "모두 지우기"를 함께 두라고 권합니다(원문 지침 페이지는 열어 확인하지 못했습니다).</li>
+  <li>토스·당근 앱의 실제 초기화 위치는 이번에 직접 열어 확인하지 못했습니다.</li>
+</ul>
+
+<script>
+const ic = {
+  home:'<path d="M4 10.5 12 4l8 6.5V20h-5v-6h-6v6H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+  homeOn:'<path d="M4 10.5 12 4l8 6.5V20h-5v-6h-6v6H4z" fill="currentColor"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M9 3v4M15 3v4" stroke="currentColor" stroke-width="1.8"/>',
+  find:'<circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  chart:'<path d="M5 19V11M12 19V5M19 19v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+  gear:'<circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-dasharray="3 2.3"/>',
+  reset:'<path d="M5 12a7 7 0 1 0 2.1-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M5 4v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  down:'<path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+  x:'<path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
+};
+const svg = (k, s=24) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}">${ic[k]}</svg>`;
+const tabBar = (off) => {
+  const items = [['homeOn','홈',true],['cal','달력'],['find','찾기'],['chart','돌아보기'],['gear','설정']];
+  return `<div class="tabs">${items.map(([k,n,on]) => `<div class="tab" style="color:${on ? 'var(--tp)' : off}">${svg(k)}${n}</div>`).join('')}</div>`;
+};
+const tabs = [
+  ['A. 지금', '안 고른 칸 textTertiary', 'var(--tt)', '라이트 3.42:1 · 다크 8.53:1', '', ''],
+  ['B. 안 고른 칸을 textSecondary로', '고른 칸은 채운 아이콘과 textPrimary로 구분', 'var(--ts)', '라이트 6.62:1 · 다크 13.31:1', '추천', 'pick'],
+  ['C. 라이트만 textSecondary', '다크는 지금처럼 textTertiary', 'var(--ts)', '라이트 6.62:1 · 다크 8.53:1', '', '']
+];
+document.getElementById('tabs').innerHTML = tabs.map(([t,n,off,r,b,cls]) => ['', 'dark'].map(d => {
+  const o = d && t.startsWith('C') ? 'var(--tt)' : off;
+  return `<div class="card ${d} ${cls}"><h3>${t}${b ? `<span class="badge">${b}</span>` : ''} · ${d ? '다크' : '라이트'}</h3><p class="note">${n}</p>${tabBar(o)}<div class="ratio">${r}</div></div>`;
+}).join('')).join('');
+
+const chipsA = `<div class="chips"><span class="chip icon" aria-label="초기화">${svg('reset',18)}</span><span class="chip on">이번 달 ${svg('down',16)}</span><span class="chip on">기쁨 외 1 ${svg('down',16)}</span><span class="chip">날씨 ${svg('down',16)}</span><span class="chip">사진 있음</span></div>`;
+const chipsB = `<div class="chips"><span class="chip on">이번 달 ${svg('down',16)}</span><span class="chip on">기쁨 외 1 ${svg('down',16)}</span><span class="chip">날씨 ${svg('down',16)}</span><span class="text-btn">${svg('reset',16)}초기화</span></div>`;
+const chipsC = `<div class="chips"><span class="chip on">이번 달 ${svg('down',16)}</span><span class="chip on">기쁨 외 1 ${svg('down',16)}</span><span class="chip">날씨 ${svg('down',16)}</span><span class="chip">사진 있음</span></div><div class="summary"><span>조건 <b>2개</b> · 일기 <b>12편</b></span><span class="link">초기화</span></div>`;
+const resets = [
+  ['A. 칩 줄 맨 앞에 초기화 아이콘 칩', '조건이 생기면 맨 앞에 나타납니다. 칩을 밀지 않아도 늘 보입니다. 이름은 화면 읽기에만 "초기화".', chipsA, '추천', 'pick'],
+  ['B. 칩 줄 끝에 [초기화] 글자', '칩이 많으면 밀어야 보입니다.', chipsB, '', ''],
+  ['C. 결과 위 요약 줄 오른쪽', '몇 개를 골랐고 몇 편이 나왔는지 함께 보입니다. 줄이 하나 늘어납니다.', chipsC, '', '']
+];
+document.getElementById('reset').innerHTML = resets.map(([t,n,c,b,cls]) => ['', 'dark'].map(d =>
+  `<div class="card ${d} ${cls}"><h3>${t}${b ? `<span class="badge">${b}</span>` : ''} · ${d ? '다크' : '라이트'}</h3><p class="note">${n}</p><div class="search">${svg('find',20)}낱말로 찾기</div>${c}<div class="result"></div><div class="result"></div></div>`
+).join('')).join('');
+</script>
+</body>
+</html>

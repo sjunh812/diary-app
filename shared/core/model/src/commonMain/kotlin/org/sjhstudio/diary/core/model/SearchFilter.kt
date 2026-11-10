@@ -21,5 +21,9 @@ data class SearchFilter(
     val isEmpty: Boolean
         get() = query.isBlank() && moods.isEmpty() && weathers.isEmpty() && !hasPhoto && !favoritesOnly && period == null
 
+    /** 낱말 말고 고른 조건이 하나라도 있다. 있으면 찾기 칩 줄 맨 앞에 초기화가 보인다. */
+    val hasConditions: Boolean
+        get() = moods.isNotEmpty() || weathers.isNotEmpty() || hasPhoto || favoritesOnly || period != null
+
     override fun toString(): String = "SearchFilter"
 }

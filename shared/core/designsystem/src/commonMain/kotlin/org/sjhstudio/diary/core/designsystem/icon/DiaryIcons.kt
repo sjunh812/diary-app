@@ -337,6 +337,9 @@ object DiaryIcons {
             "M 5 4 L 5 8 L 9 8"
         )
     }
+
+    /** 고른 조건 초기화. 모양은 [Restore]와 같은 되돌리기 화살표다(lucide rotate-ccw). */
+    val Reset: ImageVector get() = Restore
     val WeatherSunny: ImageVector by lazy {
         lucide(
             "weather-sunny",

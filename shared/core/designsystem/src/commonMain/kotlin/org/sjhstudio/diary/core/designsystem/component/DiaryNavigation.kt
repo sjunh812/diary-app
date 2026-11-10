@@ -113,7 +113,7 @@ fun DiaryNavigationRail(
 @Composable
 private fun NavCell(item: DiaryNavItem, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
-    val tint = if (selected) colors.textPrimary else colors.textTertiary
+    val tint = if (selected) colors.textPrimary else colors.textSecondary
     val interaction = remember { MutableInteractionSource() }
     Column(
         modifier =

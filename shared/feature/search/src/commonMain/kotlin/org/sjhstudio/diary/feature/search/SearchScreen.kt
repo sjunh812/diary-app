@@ -55,6 +55,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiarySearchField
@@ -86,6 +87,7 @@ import org.sjhstudio.diary.feature.search.resources.search_chip_period
 import org.sjhstudio.diary.feature.search.resources.search_chip_photo
 import org.sjhstudio.diary.feature.search.resources.search_chip_weather
 import org.sjhstudio.diary.feature.search.resources.search_clear
+import org.sjhstudio.diary.feature.search.resources.search_clear_conditions
 import org.sjhstudio.diary.feature.search.resources.search_empty_body
 import org.sjhstudio.diary.feature.search.resources.search_empty_title
 import org.sjhstudio.diary.feature.search.resources.search_error_body
@@ -149,6 +151,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
         onSheet = { sheet = Sheet.valueOf(it.name).name },
         onPhoto = viewModel::togglePhoto,
         onFavorites = viewModel::toggleFavorites,
+        onClear = viewModel::clearConditions,
         modifier = modifier
     )
     val today = rememberToday()
@@ -197,6 +200,7 @@ internal fun SearchScreen(
     onSheet: (SheetRequest) -> Unit,
     onPhoto: () -> Unit,
     onFavorites: () -> Unit,
+    onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = DiaryTheme.colors
@@ -215,7 +219,7 @@ internal fun SearchScreen(
                     modifier = Modifier.weight(1f).focusRequester(focus)
                 )
             }
-            FilterChips(filter, period, onSheet, onPhoto, onFavorites)
+            FilterChips(filter, period, onSheet, onPhoto, onFavorites, onClear)
             // 없는 글자를 이어 칠 때 뼈대가 깜빡이지 않게, 없었으면 다 읽을 때까지 없음을 둔다.
             val refresh = results.loadState.refresh
             var wasEmpty by remember { mutableStateOf(false) }
@@ -255,13 +259,19 @@ private fun FilterChips(
     period: SearchPeriod?,
     onSheet: (SheetRequest) -> Unit,
     onPhoto: () -> Unit,
-    onFavorites: () -> Unit
+    onFavorites: () -> Unit,
+    onClear: () -> Unit
 ) {
     LazyRow(
         Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
+        // 조건이 있을 때만 맨 앞에 둔다.
+        // 끝에 두면 칩이 많을 때 밀어야 보인다(2026-11-10 사용자 결정, eBay Playbook 칩 가로 스크롤).
+        if (filter.hasConditions) {
+            item(key = "clear") { DiaryIconChip(DiaryIcons.Reset, stringResource(Res.string.search_clear_conditions), onClear) }
+        }
         item {
             DiaryChip(
                 // 고른 기분을 칩에 쓴다. 기간 칩처럼 무엇으로 걸렀는지 시트를 열지 않고 보인다(2026-11-10).

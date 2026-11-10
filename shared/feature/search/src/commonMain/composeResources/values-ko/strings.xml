@@ -14,6 +14,7 @@
     <string name="search_period_year">올해</string>
     <string name="search_period_custom">직접 선택</string>
     <string name="search_period_range">%1$s ~ %2$s</string>
+    <string name="search_clear_conditions">조건 초기화</string>
     <string name="search_clear_filter">지우기</string>
     <string name="search_done">완료</string>
     <string name="search_pick_many">여러 개 고를 수 있어요.</string>

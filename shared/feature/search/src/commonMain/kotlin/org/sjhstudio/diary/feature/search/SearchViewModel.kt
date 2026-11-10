@@ -91,6 +91,12 @@ class SearchViewModel(
 
     fun toggleFavorites() = _filter.update { it.copy(favoritesOnly = !it.favoritesOnly) }
 
+    /** 고른 조건을 모두 지운다. 쓴 낱말은 그대로 둔다. */
+    fun clearConditions() {
+        _period.value = null
+        _filter.update { SearchFilter(query = it.query) }
+    }
+
     /**
      * 이번 주·이번 달·올해.
      * 범위는 고른 날의 오늘을 기준으로 정한다.
