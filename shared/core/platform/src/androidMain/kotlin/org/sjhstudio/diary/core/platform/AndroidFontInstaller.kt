@@ -42,6 +42,8 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
     }
         .ifEmpty { null }
 
+    override fun knownPath(id: String): String? = known[id]?.ifEmpty { null }
+
     /** Play는 진행 중인 받기가 있으면 새 요청을 거절함. 글꼴 둘을 연달아 눌러도 차례로 받음 */
     private val oneAtATime = Mutex()
 

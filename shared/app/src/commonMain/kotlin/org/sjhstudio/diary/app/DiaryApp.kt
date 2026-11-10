@@ -7,13 +7,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -43,7 +47,10 @@ import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 private fun chosenFontFamily(font: DiaryFont): FontFamily? {
     val installer = koinInject<FontInstaller>()
     val finished by koinInject<ChosenFontDownload>().finished.collectAsStateWithLifecycle()
-    val path = remember(font, finished) { installer.installedPath(font.id) }
+    // 화면 스레드에서 파일을 보지 않음. 시작 때 확인해 둔 값을 먼저 쓰고, 이전처럼 글꼴이 바뀌면 뒤에서 확인
+    val path by produceState(installer.knownPath(font.id), font, finished) {
+        value = withContext(Dispatchers.IO) { installer.installedPath(font.id) }
+    }
     val installed = rememberFileFontFamily(path)
     val family = diaryBodyFontFamily(font) { installed }
     return family.takeUnless { font == DiaryFont.PRETENDARD }

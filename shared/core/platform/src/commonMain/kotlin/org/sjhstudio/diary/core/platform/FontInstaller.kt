@@ -12,6 +12,9 @@ interface FontInstaller {
     /** 받아 둔 글꼴 파일. 아직 받지 않았으면 null */
     fun installedPath(id: String): String?
 
+    /** 이미 확인해 둔 경로만. 파일을 보지 않아 화면을 그리는 중에 불러도 됨. 모르면 null */
+    fun knownPath(id: String): String? = installedPath(id)
+
     /** 받음. 이미 받았으면 바로 [FontInstallState.Installed]를 냄 */
     fun install(id: String): Flow<FontInstallState>
 }
