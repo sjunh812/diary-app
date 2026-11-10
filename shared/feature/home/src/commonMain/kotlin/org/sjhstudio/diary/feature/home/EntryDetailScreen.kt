@@ -128,7 +128,7 @@ fun EntryDetailRoute(
                     viewModel::toggleFavorite,
                     tint = if (favorite) colors.accent else colors.textPrimary
                 )
-                DiaryIconButton(DiaryIcons.Pen, stringResource(Res.string.detail_edit), onEdit)
+                DiaryIconButton(DiaryIcons.EditText, stringResource(Res.string.detail_edit), onEdit)
                 DiaryIconButton(DiaryIcons.More, stringResource(Res.string.detail_more), { more = true })
             }
         }

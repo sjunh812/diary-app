@@ -33,7 +33,7 @@ fun EntryMenu(
 ) {
     val colors = DiaryTheme.colors
     DiaryBottomSheet(onDismiss = onDismiss) {
-        DiarySheetAction(DiaryIcons.Pen, stringResource(Res.string.entry_menu_edit), colors.textPrimary, onClick = onEdit)
+        DiarySheetAction(DiaryIcons.EditText, stringResource(Res.string.entry_menu_edit), colors.textPrimary, onClick = onEdit)
         DiarySheetAction(
             if (favorite) DiaryIcons.StarOff else DiaryIcons.StarOutline,
             stringResource(if (favorite) Res.string.entry_menu_unfavorite else Res.string.entry_menu_favorite),
