@@ -80,12 +80,12 @@ import org.sjhstudio.diary.feature.trash.resources.trash_restored
 import org.sjhstudio.diary.feature.trash.resources.trash_row_when
 import org.sjhstudio.diary.feature.trash.resources.trash_title
 
-/** 마지막 날이 다가오면 빨갛게 보임. */
+/** 마지막 날이 다가오면 빨갛게 보임 */
 private const val URGENT_DAYS = 1
 
 /**
- * 휴지통(Figma "휴지통 (S6-7)").
- * 줄을 누르면 복원하기와 완전히 지우기를 고름.
+ * 휴지통(Figma "휴지통 (S6-7)")
+ * 줄을 누르면 복원하기와 완전히 지우기를 고름
  */
 @Composable
 fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {

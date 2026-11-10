@@ -72,7 +72,7 @@ class TrashViewModelTest {
         assertEquals(listOf("a"), restored)
     }
 
-    /** 휴지통을 읽지 못하면 빈 화면으로 남지 않고 다시 시도를 보이며, 다시 시도하면 다시 읽음. */
+    /** 휴지통을 읽지 못하면 빈 화면으로 남지 않고 다시 시도를 보이며, 다시 시도하면 다시 읽음 */
     @Test
     fun a_failed_read_shows_retry_and_reads_again() = runTest(UnconfinedTestDispatcher()) {
         var fail = true
