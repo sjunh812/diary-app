@@ -62,7 +62,7 @@ class DefaultEntryRepository(
             jumpThreshold = JUMP_ROWS
         )
 
-    // 표시는 일기 표 밖에 있어 지울 때 목록을 직접 다시 읽힘
+    // 표시는 일기 표 밖에 있어 지울 때 목록을 직접 다시 읽게 함
     private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries()) { pageRows(it) } }
     private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries()) { pageRows(it) } }
 

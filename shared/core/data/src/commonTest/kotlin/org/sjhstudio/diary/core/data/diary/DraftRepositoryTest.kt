@@ -448,7 +448,7 @@ class DraftRepositoryTest {
             val first = async { repository.addPhotos(DraftKey.New(), listOf(slow)) }
             reading.await()
             val second = async { repository.addPhotos(DraftKey.New(), listOf(image("b"))) }
-            // 고치기 전에는 뒤의 더하기가 먼저 끝나고, 고친 뒤에는 앞의 것을 기다림
+            // 뒤의 더하기는 앞의 더하기가 끝날 때까지 기다려야 함
             withTimeoutOrNull(WAIT_MILLIS) { second.join() }
             release.complete(Unit)
             awaitAll(first, second)
