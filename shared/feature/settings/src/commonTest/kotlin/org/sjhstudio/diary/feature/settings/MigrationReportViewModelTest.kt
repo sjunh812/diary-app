@@ -50,7 +50,7 @@ class MigrationReportViewModelTest {
         override suspend fun report(): MigrationReport? = result
     }
 
-    /** 옮긴 날은 기기 시간대의 날짜. */
+    /** 옮긴 날은 기기 시간대의 날짜 */
     @Test
     fun report_and_local_day_are_shown() = runTest(dispatcher) {
         val vm = MigrationReportViewModel(migration(MigrationStep.PARTIAL, report), TimeZone.of("Asia/Seoul"), dispatcher)
@@ -67,8 +67,8 @@ class MigrationReportViewModelTest {
     }
 
     /**
-     * 미룬 기기는 다시 시도를 보이고, 실패하면 알림.
-     * 앱은 그대로 씀.
+     * 미룬 기기는 다시 시도를 보이고, 실패하면 알림
+     * 앱은 그대로 씀
      */
     @Test
     fun deferred_retry_shows_failure_then_result() = runTest(dispatcher) {
@@ -96,7 +96,7 @@ class MigrationReportViewModelTest {
         assertEquals(report, vm.state.value.report)
     }
 
-    /** 설정 줄은 일부만 옮겨졌거나 미룬 기기에서만 둠. */
+    /** 설정 줄은 일부만 옮겨졌거나 미룬 기기에서만 둠 */
     @Test
     fun settings_row_only_for_partial_or_deferred() = runTest {
         assertTrue(showsMigrationReport(migration(MigrationStep.PARTIAL, report)))

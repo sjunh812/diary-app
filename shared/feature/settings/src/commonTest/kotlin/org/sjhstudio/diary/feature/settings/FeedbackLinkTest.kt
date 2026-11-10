@@ -3,7 +3,7 @@ package org.sjhstudio.diary.feature.settings
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/** 메일 주소 뒤의 글자는 어느 메일 앱에서나 깨지지 않게 낱낱이 바꿈. */
+/** 메일 주소 뒤의 글자는 어느 메일 앱에서나 깨지지 않게 낱낱이 바꿈 */
 class FeedbackLinkTest {
     @Test
     fun encodesKoreanAndEmojiByteByByte() {

@@ -20,9 +20,9 @@ import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
- * 매일 알림(R1) 상태.
+ * 매일 알림(R1) 상태
  * [notificationsAllowed]는 아직 모르면 null.
- * 알림을 꺼 두면 허용 안내를 보이지 않음.
+ * 알림을 꺼 두면 허용 안내를 보이지 않음
  */
 data class ReminderUiState(
     val enabled: Boolean = false,
@@ -34,8 +34,8 @@ data class ReminderUiState(
 }
 
 /**
- * 매일 알림 켜기·끄기와 시각.
- * 바꿀 때마다 다시 예약(스펙 001 FR-022).
+ * 매일 알림 켜기·끄기와 시각
+ * 바꿀 때마다 다시 예약(스펙 001 FR-022)
  */
 class ReminderSettingsViewModel(
     private val settings: SettingsRepository,
@@ -49,7 +49,7 @@ class ReminderSettingsViewModel(
         combine(settings.settings, allowed) { app, granted -> ReminderUiState(app.reminderEnabled, app.reminderMinuteOfDay, granted) }
             .stateInSafely(viewModelScope, WhileUiSubscribed, ReminderUiState())
 
-    /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽음. */
+    /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽음 */
     fun refreshPermission() {
         viewModelScope.launchSafely { allowed.value = permission.isGranted() }
     }

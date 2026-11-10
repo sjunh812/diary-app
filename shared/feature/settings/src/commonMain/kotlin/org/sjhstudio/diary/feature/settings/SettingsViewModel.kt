@@ -20,15 +20,15 @@ import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
-/** 설정 목록(S6)과 본문 글자 크기(G2)·화면 모드(G3)가 보는 값. */
+/** 설정 목록(S6)과 본문 글자 크기(G2)·화면 모드(G3)가 보는 값 */
 data class SettingsUiState(
     val settings: AppSettings = AppSettings(),
     val lock: LockSettings = LockSettings(),
-    /** 일부만 옮겨진 기기에만 "기록 이전 결과" 줄이 있음(FR-011). */
+    /** 일부만 옮겨진 기기에만 "기록 이전 결과" 줄이 있음(FR-011) */
     val showsMigrationReport: Boolean = false,
     /**
-     * 설정을 읽었음.
-     * 읽기 전 기본값(잠금 꺼짐 등)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보임.
+     * 설정을 읽었음
+     * 읽기 전 기본값(잠금 꺼짐 등)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보임
      */
     val loaded: Boolean = false
 )
@@ -40,8 +40,8 @@ class SettingsViewModel(
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
     /**
-     * 이전 상태 파일을 읽지 못하면 줄을 두지 않음.
-     * 줄 하나 때문에 설정 전체를 못 쓰게 하지 않음.
+     * 이전 상태 파일을 읽지 못하면 줄을 두지 않음
+     * 줄 하나 때문에 설정 전체를 못 쓰게 하지 않음
      */
     private val migrationReport = flow { emit(orElseOnFailure(false) { showsMigrationReport() }) }
 

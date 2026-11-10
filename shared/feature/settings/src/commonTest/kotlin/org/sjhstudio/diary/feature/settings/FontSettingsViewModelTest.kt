@@ -24,7 +24,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 
 // 글꼴(G1): 앱에 있는 글꼴은 바로, 받는 글꼴은 받은 뒤에 바뀜
-// 받지 못하면 쓰던 글꼴 그대로(docs/design.md 일기 본문 글꼴 10종).
+// 받지 못하면 쓰던 글꼴 그대로(docs/design.md 일기 본문 글꼴 10종)
 @OptIn(ExperimentalCoroutinesApi::class)
 class FontSettingsViewModelTest {
     private val dispatcher = StandardTestDispatcher()
@@ -67,7 +67,7 @@ class FontSettingsViewModelTest {
         assertEquals(listOf("gamja_flower"), installer.requested)
     }
 
-    /** 받는 동안 다른 글꼴을 고르면 받기가 끝나도 그 글꼴을 둠. 고른 것을 말없이 바꾸지 않음. */
+    /** 받는 동안 다른 글꼴을 고르면 받기가 끝나도 그 글꼴을 둠. 고른 것을 말없이 바꾸지 않음 */
     @Test
     fun a_finished_download_does_not_replace_a_font_picked_later() = runTest(dispatcher) {
         val vm = FontSettingsViewModel(settings, installer)

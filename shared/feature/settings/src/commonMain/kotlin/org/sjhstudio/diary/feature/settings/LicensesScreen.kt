@@ -44,11 +44,11 @@ import org.sjhstudio.diary.feature.settings.resources.licenses_text_failed
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 
 /**
- * 오픈소스 라이선스(Figma "오픈소스 라이선스 (I1)").
- * 설정 > 정보 > 오픈소스 라이선스.
- * 글꼴 10종은 `docs/design.md` 표 순서, 앱에 들어간 라이브러리는 이름순.
- * 누르면 전문(I2)으로 감.
- * 라이브러리가 150개가 넘어 지연 목록에 담음.
+ * 오픈소스 라이선스(Figma "오픈소스 라이선스 (I1)")
+ * 설정 > 정보 > 오픈소스 라이선스
+ * 글꼴 10종은 `docs/design.md` 표 순서, 앱에 들어간 라이브러리는 이름순
+ * 누르면 전문(I2)으로 감
+ * 라이브러리가 150개가 넘어 지연 목록에 담음
  */
 @Composable
 fun LicensesScreen(
@@ -96,9 +96,9 @@ fun LicensesScreen(
 }
 
 /**
- * 라이선스 전문(Figma "오픈소스 라이선스 상태" I2).
- * 상단 바에 글꼴이나 라이브러리 이름, 맨 위에 라이선스 이름.
- * 전문은 받은 원문 그대로 보이고 번역하지 않음.
+ * 라이선스 전문(Figma "오픈소스 라이선스 상태" I2)
+ * 상단 바에 글꼴이나 라이브러리 이름, 맨 위에 라이선스 이름
+ * 전문은 받은 원문 그대로 보이고 번역하지 않음
  * 읽는 동안 [text]는 null.
  */
 @Composable
@@ -139,8 +139,8 @@ fun LicenseTextScreen(
 }
 
 /**
- * 오픈소스 라이선스 목록을 이음.
- * 앱 틀은 이것만 부름.
+ * 오픈소스 라이선스 목록을 이음
+ * 앱 틀은 이것만 부름
  */
 @Composable
 fun LicensesRoute(onFont: (DiaryFont) -> Unit, onLibrary: (String) -> Unit, onBack: () -> Unit) {
@@ -151,8 +151,8 @@ fun LicensesRoute(onFont: (DiaryFont) -> Unit, onLibrary: (String) -> Unit, onBa
 }
 
 /**
- * 글꼴 전문.
- * [fontId]가 고지가 없는 글꼴이면 바로 돌아감.
+ * 글꼴 전문
+ * [fontId]가 고지가 없는 글꼴이면 바로 돌아감
  */
 @Composable
 fun FontLicenseRoute(fontId: String, onBack: () -> Unit) {
@@ -176,8 +176,8 @@ fun FontLicenseRoute(fontId: String, onBack: () -> Unit) {
 }
 
 /**
- * 라이브러리 전문.
- * 목록에 없는 [libraryId]면 이름 없이 빈 화면.
+ * 라이브러리 전문
+ * 목록에 없는 [libraryId]면 이름 없이 빈 화면
  */
 @Composable
 fun LibraryLicenseRoute(libraryId: String, onBack: () -> Unit) {

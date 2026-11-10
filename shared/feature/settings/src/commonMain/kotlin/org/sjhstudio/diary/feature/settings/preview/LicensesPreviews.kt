@@ -40,7 +40,7 @@ private fun ListLight() = List(dark = false)
 @Composable
 private fun ListDark() = List(dark = true)
 
-/** 라이브러리 목록을 읽는 동안은 글꼴만 보임. */
+/** 라이브러리 목록을 읽는 동안은 글꼴만 보임 */
 @Preview(name = "I1 오픈소스 라이선스 · 읽는 중", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun ListLoading() = DiaryTheme(darkTheme = false) {

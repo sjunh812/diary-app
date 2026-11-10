@@ -22,21 +22,21 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 import org.sjhstudio.diary.feature.settings.resources.Res
 
 /**
- * 라이브러리 줄 하나.
- * [author]는 만든 곳(조직이나 첫 개발자). 없으면 비어 있음.
+ * 라이브러리 줄 하나
+ * [author]는 만든 곳(조직이나 첫 개발자). 없으면 비어 있음
  */
 data class LibraryNotice(val id: String, val name: String, val author: String, val licenseName: String)
 
 /**
- * 라이브러리 전문.
- * [details]는 묶음 이름·버전, 만든 곳, 누리집. [text]는 라이선스 전문(여럿이면 차례로).
+ * 라이브러리 전문
+ * [details]는 묶음 이름·버전, 만든 곳, 누리집. [text]는 라이선스 전문(여럿이면 차례로)
  */
 data class LibraryText(val name: String, val licenseName: String, val details: String, val text: String)
 
 /**
- * 오픈소스 라이선스(Figma "오픈소스 라이선스 (I1)").
- * 라이브러리 목록은 빌드 때 만든 `files/aboutlibraries.json`을 읽음(KotlinConf 앱과 같은 방식).
- * 글꼴 전문은 디자인 시스템 모듈에 둔 원문 파일을 읽음.
+ * 오픈소스 라이선스(Figma "오픈소스 라이선스 (I1)")
+ * 라이브러리 목록은 빌드 때 만든 `files/aboutlibraries.json`을 읽음(KotlinConf 앱과 같은 방식)
+ * 글꼴 전문은 디자인 시스템 모듈에 둔 원문 파일을 읽음
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class LicensesViewModel(
@@ -50,8 +50,8 @@ class LicensesViewModel(
     private val _failed = MutableStateFlow(false)
 
     /**
-     * 목록을 읽지 못함.
-     * 앱에 든 파일이라 드물지만, 그때도 라이브러리 묶음을 말없이 없애지 않고 다시 시도를 보임.
+     * 목록을 읽지 못함
+     * 앱에 든 파일이라 드물지만, 그때도 라이브러리 묶음을 말없이 없애지 않고 다시 시도를 보임
      */
     val failed: StateFlow<Boolean> = _failed.asStateFlow()
 

@@ -47,10 +47,10 @@ import org.sjhstudio.diary.feature.settings.resources.migration_report_unreadabl
 import org.sjhstudio.diary.feature.settings.resources.migration_report_when
 
 /**
- * 설정 > 기록 이전 결과(Figma M5 · 일부만).
- * 옮긴 날, 개수 다섯 줄, 일부만 옮겨진 까닭, 원본 내보내기와 문의하기.
- * 내보내기와 문의하기는 기록 이전 기능이 만들어 앱 틀이 넘겨줌.
- * 없는 플랫폼(iOS)에서는 줄을 숨김.
+ * 설정 > 기록 이전 결과(Figma M5 · 일부만)
+ * 옮긴 날, 개수 다섯 줄, 일부만 옮겨진 까닭, 원본 내보내기와 문의하기
+ * 내보내기와 문의하기는 기록 이전 기능이 만들어 앱 틀이 넘겨줌
+ * 없는 플랫폼(iOS)에서는 줄을 숨김
  */
 @Composable
 fun MigrationReportScreen(

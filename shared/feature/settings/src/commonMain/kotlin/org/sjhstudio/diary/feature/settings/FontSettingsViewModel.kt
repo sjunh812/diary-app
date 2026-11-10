@@ -26,9 +26,9 @@ import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
- * 글꼴(G1) 상태.
- * [installedPaths]는 받아 둔 글꼴 파일, [downloading]은 받는 중인 글꼴과 진행(0~1, 모르면 null).
- * 앱에 넣은 글꼴은 늘 쓸 수 있음.
+ * 글꼴(G1) 상태
+ * [installedPaths]는 받아 둔 글꼴 파일, [downloading]은 받는 중인 글꼴과 진행(0~1, 모르면 null)
+ * 앱에 넣은 글꼴은 늘 쓸 수 있음
  */
 data class FontUiState(
     val settings: AppSettings = AppSettings(),
@@ -38,14 +38,14 @@ data class FontUiState(
     fun isReady(font: DiaryFont): Boolean = font in BUNDLED_DIARY_FONTS || font in installedPaths
 }
 
-/** 받지 못했을 때 한 번 알림. */
+/** 받지 못했을 때 한 번 알림 */
 enum class FontNotice { Offline, Failed }
 
 /**
- * 글꼴 고르기.
- * 앱에 있거나 받아 둔 글꼴은 바로 바꾸고, 아니면 받은 뒤 바꿈(`docs/design.md` 일기 본문 글꼴 10종).
- * 받지 못하면 쓰던 글꼴을 그대로 둠.
- * 받는 동안 다른 글꼴은 그대로 고를 수 있음.
+ * 글꼴 고르기
+ * 앱에 있거나 받아 둔 글꼴은 바로 바꾸고, 아니면 받은 뒤 바꿈(`docs/design.md` 일기 본문 글꼴 10종)
+ * 받지 못하면 쓰던 글꼴을 그대로 둠
+ * 받는 동안 다른 글꼴은 그대로 고를 수 있음
  */
 class FontSettingsViewModel(
     private val settings: SettingsRepository,
@@ -61,7 +61,7 @@ class FontSettingsViewModel(
     private val downloading = MutableStateFlow<Map<DiaryFont, Float?>>(emptyMap())
     private val notices = Channel<FontNotice>(Channel.BUFFERED)
 
-    /** 마지막으로 누른 글꼴. */
+    /** 마지막으로 누른 글꼴 */
     private var picked: DiaryFont? = null
     val notice: Flow<FontNotice> = notices.receiveAsFlow()
 

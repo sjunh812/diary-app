@@ -77,9 +77,9 @@ import org.sjhstudio.diary.feature.settings.resources.settings_trash_count
 import org.sjhstudio.diary.feature.settings.resources.settings_version
 
 /**
- * 설정 목록(Figma "설정 (S6)").
- * 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 씀.
- * 백업(스펙 003)과 목록 모양 줄은 그 화면과 함께 추가.
+ * 설정 목록(Figma "설정 (S6)")
+ * 앱 틀 맨 위 화면이라 상단 바 대신 큰 제목을 씀
+ * 백업(스펙 003)과 목록 모양 줄은 그 화면과 함께 추가
  */
 @Composable
 fun SettingsScreen(

@@ -19,8 +19,8 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 
 /**
- * 목록 모양(FR-018).
- * 고르면 바로 바뀌고 기억함.
+ * 목록 모양(FR-018)
+ * 고르면 바로 바뀌고 기억함
  */
 @Composable
 fun ListStyleSettingsScreen(selected: ListStyle, onSelect: (ListStyle) -> Unit, onBack: () -> Unit, modifier: Modifier = Modifier) {
