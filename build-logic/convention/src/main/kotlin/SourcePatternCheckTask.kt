@@ -24,7 +24,7 @@ abstract class SourcePatternCheckTask : DefaultTask() {
     @get:OutputFile
     abstract val report: RegularFileProperty
 
-    /** 실패 문구 앞에 붙는 검사 이름. */
+    /** 실패 문구 앞에 붙는 검사 이름 */
     @get:Internal
     protected abstract val checkName: String
 
