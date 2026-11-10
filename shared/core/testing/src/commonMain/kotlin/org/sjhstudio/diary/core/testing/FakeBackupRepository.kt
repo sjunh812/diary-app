@@ -22,7 +22,7 @@ class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepos
         nudge.value = null
     }
 
-    /** 다음 [connect]의 결과. */
+    /** 다음 [connect]의 결과 */
     var connectResult: ConnectResult = ConnectResult.Cancelled
 
     override val connectFailure = MutableStateFlow<BackupFailure?>(null)
