@@ -25,7 +25,7 @@ import org.sjhstudio.diary.feature.home.resources.home_empty_action
 import org.sjhstudio.diary.feature.home.resources.home_empty_title
 import org.sjhstudio.diary.feature.home.resources.home_favorites_empty
 
-// 첫 실행과 즐겨찾기 없음, 읽기 실패에서 사용자가 무엇을 하면 되는지 보이는지 본다.
+// 첫 실행·즐겨찾기 없음·읽기 실패에서 다음에 할 일이 보이는지 확인
 @OptIn(ExperimentalTestApi::class)
 class HomeEmptyUiTest {
     private val done = LoadState.NotLoading(endOfPaginationReached = true)

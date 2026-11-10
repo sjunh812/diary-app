@@ -98,8 +98,7 @@ import org.sjhstudio.diary.feature.home.resources.home_search
 
 /**
  * 홈(Figma "홈 (S1)").
- * 큰 제목은 지금 보이는 달을 보이고 누르면 그 달로 간다.
- * 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
+ * 큰 제목은 지금 보이는 달이고 누르면 그 달로 감. 넓은 화면에서는 왼쪽 칸, 고른 줄은 [selectedId]
  */
 @Composable
 fun HomeRoute(
@@ -126,10 +125,8 @@ fun HomeRoute(
     val grid = rememberLazyGridState()
     val header = rememberDiaryCollapsingHeaderState()
     OnTabReselected {
-        // 목록을 코드로 올리면 중첩 스크롤을 거치지 않아 머리가 접힌 채 남는다.
-        // 맨 위로 갈 때 머리도 함께 펼친다.
-        // 멀리 내려가 있으면 수백 줄을 하나씩 지나며 움직여 느리고 번쩍인다.
-        // 몇 줄 앞으로 바로 옮긴 뒤 짧게만 부드럽게 올린다(Google 앱들과 같은 방식).
+        // 코드로 올리면 중첩 스크롤을 안 거쳐 머리가 접힌 채 남아 머리도 함께 펼침.
+        // 멀리서 부드럽게 올리면 수백 줄을 지나며 느리고 번쩍여, 몇 줄 앞으로 바로 옮긴 뒤 짧게만 올림(Google 앱 방식)
         coroutineScope {
             launch { header.expand() }
             if (style == ListStyle.PHOTO_GRID) {
@@ -146,7 +143,7 @@ fun HomeRoute(
     val today = rememberToday()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 스크롤마다 화면을 다시 그리지 않게 맨 위 일기가 바뀔 때만 값이 바뀐다.
+    // 스크롤마다 다시 그리지 않게 맨 위 일기가 바뀔 때만 값이 바뀜
     val visible by remember(rows, list, grid) {
         derivedStateOf {
             val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
@@ -210,9 +207,8 @@ fun HomeRoute(
 
 /**
  * 제목에 보일 날짜.
- * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜를 둔다.
- * 오늘로 튀었다 돌아오면 제목이 반짝인다.
- * 목록이 비어 있으면 오늘이 든 달을 보인다.
+ * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜 유지. 오늘로 튀었다 돌아오면 반짝임.
+ * 목록이 비면 오늘이 든 달
  */
 internal fun shownDate(visible: LocalDate?, held: LocalDate?, hasRows: Boolean, today: LocalDate): LocalDate =
     visible ?: held?.takeIf { hasRows } ?: today
@@ -243,20 +239,17 @@ internal fun HomeScreen(
 ) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxSize()) {
-            // 일기가 없으면 고를 달도 없다.
-            // 불러오는 동안에는 마지막으로 다 불러왔을 때의 답을 그대로 둔다.
-            // 즐겨찾기를 켜고 끄면 목록을 다시 읽는데, 그사이 화살표를 다시 보이면 빈 목록에서 화살표가 반짝였다(사용자 지적 2026-11-09).
+            // 일기가 없으면 고를 달도 없음.
+            // 불러오는 동안은 마지막으로 다 불러왔을 때의 답 유지. 즐겨찾기를 켜고 끌 때 화살표가 반짝이지 않게
             val loadedEmpty = if (rows.loadState.refresh is LoadState.NotLoading) rows.itemCount == 0 else null
-            // 처음 다 읽기 전에는 숨긴다.
-            // 보였다가 숨기면 일기가 없는 첫 실행에서 반짝이고, 숨겼다가 보이면 목록이 나타나는 때와 같이 나온다.
+            // 처음 다 읽기 전에는 숨김. 보였다 숨기면 일기 없는 첫 실행에서 반짝이고, 숨겼다 보이면 목록과 같이 나옴
             var lastEmpty by remember { mutableStateOf(true) }
             SideEffect { loadedEmpty?.let { lastEmpty = it } }
             val noMonths = loadedEmpty ?: lastEmpty
             val pickMonth = onPickMonth.takeUnless { noMonths }
-            // 스크롤하면 큰 제목과 백업 줄이 위로 접히고 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
-            // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추를 둔다.
-            // 바의 작은 제목은 머리 전체가 아니라 큰 제목이 가려진 만큼만 따른다.
-            // 머리 전체로 재면 큰 제목이 다 가려지기 전에 작은 제목이 진하게 떠서 둘이 겹쳐 보였다.
+            // 스크롤하면 큰 제목과 백업 줄이 접히고 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바).
+            // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추.
+            // 작은 제목은 큰 제목이 가려진 만큼만 따름. 머리 전체로 재면 큰 제목이 다 가려지기 전에 진해져 겹쳐 보임
             var titleHeight by remember { mutableIntStateOf(0) }
             DiaryTabTopBar(
                 title = title,
@@ -298,7 +291,7 @@ internal fun HomeScreen(
 
                     else -> {
                         ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                        // 곧 나올 목록과 같은 꼴을 그린다.
+                        // 곧 나올 목록과 같은 꼴
                         when (style) {
                             ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
                             ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
@@ -316,7 +309,7 @@ private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: (
     val colors = DiaryTheme.colors
     Row {
         DiaryIconButton(DiaryIcons.Search, stringResource(Res.string.home_search), onSearch)
-        // 켜고 끄는 단추라 화면 읽기에 스위치로 읽히게 역할을 Switch로 둔다.
+        // 켜고 끄는 단추라 화면 읽기에서 스위치로 읽게 역할을 Switch로
         val interaction = remember { MutableInteractionSource() }
         Box(
             Modifier
@@ -338,7 +331,7 @@ private fun TopActions(favoritesOnly: Boolean, onToggle: () -> Unit, onSearch: (
 private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit, onShowAll: () -> Unit) {
     DiaryEmptyArea {
         if (favoritesOnly) {
-            // 위 별을 다시 눌러야 풀린다는 것을 알기 어려워 여기서도 풀 수 있게 한다(2026-11-10 화면 검토, 빈 상태에 다음 할 일).
+            // 위 별을 다시 눌러야 풀린다는 걸 알기 어려워 여기서도 풀 수 있게
             DiaryEmptyState(
                 DiaryIcons.StarOutline,
                 stringResource(Res.string.home_favorites_empty),
@@ -352,17 +345,14 @@ private fun Empty(favoritesOnly: Boolean, onWrite: () -> Unit, onShowAll: () -> 
                 description = stringResource(Res.string.home_empty_body),
                 actionLabel = stringResource(Res.string.home_empty_action),
                 onAction = onWrite,
-                // 이 화면의 하나뿐인 쓰기 길이라 다른 빈 화면보다 강하게 둔다.
+                // 이 화면의 하나뿐인 쓰기 길이라 다른 빈 화면보다 강하게
                 actionKind = DiaryButtonKind.Primary
             )
         }
     }
 }
 
-/**
- * 달이 바뀌면 달 머리를, 날이 바뀌면 날짜 열을 보인다.
- * 그날 둘째 줄부터 날짜 열은 비운다.
- */
+/** 달이 바뀌면 달 머리, 날이 바뀌면 날짜 열을 보임. 그날 둘째 줄부터 날짜 열은 비움 */
 @Composable
 private fun Feed(
     rows: LazyPagingItems<EntryRow>,
@@ -377,7 +367,7 @@ private fun Feed(
     adSlot: @Composable (Int, Modifier) -> Unit
 ) {
     val colors = DiaryTheme.colors
-    // 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
+    // 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)) {
         item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current)) }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
@@ -387,7 +377,7 @@ private fun Feed(
                 return@items
             }
             val previous = if (index > 0) rows.peek(index - 1) else null
-            // 앞 줄을 아직 못 읽었으면 머리글을 그렸다 지우지 않게 기다린다(찾기 화면과 같다).
+            // 앞 줄을 아직 못 읽었으면 머리글을 그렸다 지우지 않게 기다림(찾기 화면과 같음)
             val unknown = index > 0 && previous == null
             val newMonth = !unknown && (previous == null || previous.date.year != row.date.year || previous.date.month != row.date.month)
             val newDay = !unknown && (previous == null || previous.date != row.date)
@@ -413,7 +403,7 @@ private fun Feed(
                                 onClick = { onOpen(row.id) }
                             )
                 )
-                // 광고가 없는 사람에게 빈 틈이 남지 않게 여백은 광고에만 준다.
+                // 광고 없는 사람에게 빈 틈이 남지 않게 여백은 광고에만
                 if (isAdSlot(
                         index
                     )
@@ -426,9 +416,8 @@ private fun Feed(
 }
 
 /**
- * 목록과 함께 움직이는 맨 위 자리.
- * 권하기 카드처럼 잠깐 보이는 안내가 일기 칸을 계속 차지하지 않게 한다.
- * 아래 여백이 늘 있어서 안내가 늦게 떠도 맨 위 줄로 남고, 일기에 밀려 위로 숨지 않는다.
+ * 목록과 함께 움직이는 맨 위 자리. 권하기 카드처럼 잠깐 보이는 안내가 일기 칸을 계속 차지하지 않게.
+ * 아래 여백이 늘 있어 안내가 늦게 떠도 맨 위 줄로 남고 일기에 밀려 위로 숨지 않음
  */
 @Composable
 internal fun ListTop(content: @Composable () -> Unit, modifier: Modifier = Modifier) {
@@ -438,24 +427,18 @@ internal fun ListTop(content: @Composable () -> Unit, modifier: Modifier = Modif
     }
 }
 
-/** 다섯째 일기 아래 한 개, 그 뒤 20편마다 한 개(`docs/business.md` 광고 자리). */
+/** 다섯째 일기 아래 한 개, 그 뒤 20편마다 한 개(`docs/business.md` 광고 자리) */
 internal fun isAdSlot(index: Int): Boolean = index >= FIRST_AD && (index - FIRST_AD) % AD_EVERY == 0
 
-/**
- * 몇 번째 광고 자리인지.
- * 앱이 이 번호로 얇은 줄과 카드를 번갈아 고른다.
- */
+/** 몇 번째 광고 자리인지. 앱이 이 번호로 얇은 줄과 카드를 번갈아 고름 */
 internal fun adOrder(index: Int): Int = (index - FIRST_AD) / AD_EVERY
 
-/**
- * 일기 줄 앞에 있는 항목 수.
- * 스크롤 위치를 일기 번호로 바꿀 때 뺀다.
- */
+/** 일기 줄 앞 항목 수. 스크롤 위치를 일기 번호로 바꿀 때 뺌 */
 internal const val LIST_TOP_ITEMS = 1
 internal const val LIST_TOP_KEY = "list-top"
 
 private const val FIRST_AD = 4
 private const val AD_EVERY = 20
 
-/** 탭을 다시 눌렀을 때 이보다 아래면 이 줄까지 바로 옮긴 뒤 부드럽게 올린다. */
+/** 탭을 다시 눌렀을 때 이보다 아래면 이 줄까지 바로 옮긴 뒤 부드럽게 올림 */
 private const val RESELECT_JUMP = 6

@@ -33,10 +33,10 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 홈 목록(FR-015~FR-018, FR-021).
- * 줄은 60편씩 읽어서 1만 편이어도 첫 화면이 빠르다.
+ * 60편씩 읽어 1만 편이어도 첫 화면이 빠름
  */
 class HomeViewModel(private val entries: EntryRepository, private val settings: SettingsRepository, fonts: FontInstaller) : ViewModel() {
-    /** 일기 줄을 길게 눌렀을 때의 메뉴(홈과 달력이 같다). */
+    /** 일기 줄 길게 누르기 메뉴(달력과 같음) */
     val menu = EntryMenuWork(viewModelScope, entries)
 
     val style: StateFlow<ListStyle> =
@@ -45,8 +45,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
             .distinctUntilChanged()
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, ListStyle.FEED)
 
-    // 앱을 다시 열면 풀린다.
-    // 켠 채로 남으면 쓴 일기가 사라진 것처럼 보인다.
+    // 앱을 다시 열면 풀림. 켠 채로 남으면 쓴 일기가 사라진 것처럼 보임
     private val favorites = MutableStateFlow(false)
     val favoritesOnly: StateFlow<Boolean> = favorites.asStateFlow()
 
@@ -56,10 +55,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     val look: StateFlow<BodyLook> =
         settings.bodyLookIn(viewModelScope, fonts::installedPath)
 
-    /**
-     * 일기가 있는 달.
-     * 연·월 고르기 시트가 이 달만 고르게 한다.
-     */
+    /** 일기가 있는 달. 연·월 고르기 시트가 이 달만 고르게 함 */
     val months: StateFlow<Set<YearMonth>> =
         favoritesOnly.flatMapLatest { only -> if (only) entries.favoriteMonths() else entries.months() }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, emptySet())
@@ -68,6 +64,6 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
         favorites.update { !it }
     }
 
-    /** 그 달 첫 일기의 목록 위치. */
+    /** 그 달 첫 일기의 목록 위치 */
     suspend fun positionOf(month: YearMonth): Int = entries.positionOf(month, favoritesOnly.value)
 }

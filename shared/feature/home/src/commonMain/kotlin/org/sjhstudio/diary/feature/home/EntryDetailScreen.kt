@@ -85,9 +85,8 @@ import org.sjhstudio.diary.feature.home.resources.detail_unfavorite
 
 /**
  * 일기 상세(Figma "일기 상세 (S3)").
- * 날짜, 기분·시각·날씨·장소 한 줄, 사진, 본문 순서다.
- * 공유는 서식 없는 글이다(FR-019).
- * 넓은 화면의 오른쪽 칸에서는 [onBack]이 null이다.
+ * 날짜, 기분·시각·날씨·장소 한 줄, 사진, 본문 순. 공유는 서식 없는 글(FR-019).
+ * 넓은 화면 오른쪽 칸에서는 [onBack]이 null
  */
 @Composable
 fun EntryDetailRoute(
@@ -163,10 +162,7 @@ fun EntryDetailRoute(
     }
 }
 
-/**
- * 삭제했거나 휴지통으로 옮겨 더 없는 일기.
- * 알림이나 위젯으로 들어오면 만날 수 있다.
- */
+/** 삭제했거나 휴지통으로 옮겨 없는 일기. 알림이나 위젯으로 들어오면 만날 수 있음 */
 @Composable
 internal fun EntryMissing() {
     DiaryEmptyArea {
@@ -201,8 +197,8 @@ internal fun Body(
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
         BasicText(dates.dayWithWeekday(entry.date), style = DiaryTheme.typography.title1.copy(color = colors.textPrimary))
-        // 아이콘과 글자는 한 묶음으로 붙이고 묶음 사이를 띄운다.
-        // 긴 장소 이름은 다음 줄로 내려가고 두 줄에서 말줄임한다.
+        // 아이콘과 글자는 한 묶음으로 붙이고 묶음 사이를 띄움.
+        // 긴 장소 이름은 다음 줄로 내려가 두 줄에서 말줄임
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
@@ -254,7 +250,7 @@ internal fun Body(
     }
 }
 
-/** 사진 격자: 1장 꽉, 2장 나란히, 3장 큰 칸 + 둘, 4장 이상 셋째 칸에 +N. 칸 사이 2. */
+/** 사진 격자: 1장 꽉, 2장 나란히, 3장 큰 칸 + 둘, 4장 이상 셋째 칸에 +N. 칸 사이 2 */
 @Composable
 private fun Gallery(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth().aspectRatio(GALLERY_RATIO).clip(DiaryShapes.r12)) {
@@ -315,10 +311,10 @@ private fun Cell(photo: EntryPhoto, modifier: Modifier, onClick: () -> Unit) {
     }
 }
 
-/** 폰 350×230, 태블릿 600×396과 같은 비율. */
+/** 폰 350×230, 태블릿 600×396과 같은 비율 */
 private const val GALLERY_RATIO = 1.52f
 
-/** 장소 이름 줄 수의 끝. */
+/** 장소 이름 최대 줄 수 */
 private const val PLACE_LINES = 2
 
 @Composable

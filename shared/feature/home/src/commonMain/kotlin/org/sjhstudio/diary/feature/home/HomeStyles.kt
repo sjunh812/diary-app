@@ -46,10 +46,7 @@ import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
 
-/**
- * 카드 목록(Figma "홈 · 카드").
- * 일기마다 카드 하나, 사진은 네 칸까지다.
- */
+/** 카드 목록(Figma "홈 · 카드"). 일기마다 카드 하나, 사진은 네 칸까지 */
 @Composable
 internal fun CardList(
     rows: LazyPagingItems<EntryRow>,
@@ -115,13 +112,11 @@ private fun EntryCard(
             )
             .padding(DiarySpacing.x4)
     ) {
-        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데에 둔다(2026-11-06 사용자 지적).
-        // 날짜 줄에만 맞추면 위로 떠 보인다.
+        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데. 날짜 줄에만 맞추면 위로 떠 보임
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             Column(Modifier.fillMaxWidth().padding(end = if (row.mood != null) DiaryHomeSize.cardFace + DiarySpacing.x2 else Dp.Hairline)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
-                    // 카드는 달 머리가 없어서 달까지 적는다.
-                    // 맨 위 제목만으로는 카드가 어느 달인지 헷갈린다(2026-11-07 사용자 지적).
+                    // 카드는 달 머리가 없어 달까지 적음. 맨 위 제목만으로는 어느 달인지 헷갈림
                     BasicText(
                         dates.monthDay(row.date),
                         modifier = Modifier.alignByBaseline(),
@@ -146,7 +141,7 @@ private fun EntryCard(
                     )
                     row.weather?.let { WeatherIcon(it, DiaryHomeSize.cardIcon, colors.textSecondary, contentDescription = weatherName(it)) }
                     row.placeName?.let {
-                        // 장소가 길어도 시각과 날씨를 밀어내지 않는다.
+                        // 장소가 길어도 시각과 날씨를 밀어내지 않게
                         BasicText(
                             it,
                             modifier = Modifier.weight(1f, fill = false),
@@ -155,7 +150,7 @@ private fun EntryCard(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    // 피드형과 같은 자리에 둔다. 모양만 다른 같은 목록이다.
+                    // 피드형과 같은 자리. 모양만 다른 같은 목록
                     if (row.isFavorite) {
                         DiaryIcon(
                             DiaryIcons.StarFilled,
@@ -178,11 +173,11 @@ private fun EntryCard(
             )
         }
         if (row.photos.isNotEmpty()) {
-            // 글이 없어도 사진은 시각 줄과 같은 간격으로 떨어진다.
+            // 글이 없어도 사진은 시각 줄과 같은 간격
             Row(Modifier.padding(top = DiarySpacing.x3), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 val shown = row.photos.take(CARD_PHOTOS)
                 shown.forEachIndexed { index, photo ->
-                    // 피드의 사진 칸과 같이 마지막 칸까지 더한 수를 보인다.
+                    // 피드 사진 칸과 같이 마지막 칸까지 더한 수
                     val more = if (index == CARD_PHOTOS - 1 && row.photos.size > CARD_PHOTOS) row.photos.size - CARD_PHOTOS + 1 else 0
                     Box(Modifier.weight(1f).aspectRatio(1f).clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(photo), more = more) }
                 }
@@ -192,10 +187,7 @@ private fun EntryCard(
     }
 }
 
-/**
- * 사진 격자(FR-018).
- * 사진이 없는 일기는 첫 글을 대신 보여서 일기가 빠지지 않게 한다.
- */
+/** 사진 격자(FR-018). 사진 없는 일기는 첫 글을 대신 보여 일기가 빠지지 않게 */
 @Composable
 internal fun PhotoGrid(
     rows: LazyPagingItems<EntryRow>,

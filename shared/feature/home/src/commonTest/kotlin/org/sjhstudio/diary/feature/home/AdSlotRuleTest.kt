@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// 광고 자리는 정한 규칙 그대로다(docs/business.md).
+// 광고 자리는 정한 규칙 그대로(docs/business.md)
 class AdSlotRuleTest {
     @Test
     fun slots_follow_the_business_rule() {

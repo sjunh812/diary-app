@@ -72,10 +72,7 @@ class EntryDetailViewModelTest {
         assertEquals(EntryDetailState.Missing, vm.state.value)
     }
 
-    /**
-     * 휴지통으로 옮기면 화면이 닫히는 중이다.
-     * 닫히는 동안 "찾을 수 없어요"가 비치면 안 된다.
-     */
+    /** 휴지통으로 옮기면 화면이 닫히는 중. 닫히는 동안 "찾을 수 없어요"가 비치면 안 됨 */
     @Test
     fun moving_to_trash_never_shows_missing() = runTest(UnconfinedTestDispatcher()) {
         val vm = viewModel(Entries(MutableStateFlow(detail)))
@@ -89,7 +86,7 @@ class EntryDetailViewModelTest {
         assertFalse(EntryDetailState.Missing in seen)
     }
 
-    /** 읽기가 실패하면 계속 불러오는 중으로 두지 않고, 다시 시도하면 다시 읽는다. */
+    /** 읽기 실패 시 불러오는 중으로 두지 않고, 다시 시도하면 다시 읽음 */
     @Test
     fun a_failed_read_shows_failed_and_retry_reads_again() = runTest(UnconfinedTestDispatcher()) {
         var fail = true

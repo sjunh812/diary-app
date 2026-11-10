@@ -7,12 +7,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// 사진 크게 보기의 크기와 위치(스펙 002 FR-020).
+// 사진 크게 보기의 크기와 위치(스펙 002 FR-020)
 class PhotoZoomTest {
     private val screen = Size(400f, 800f)
     private val center = Offset(200f, 400f)
 
-    /** 가로로 긴 사진. 화면에 맞추면 폭 400, 높이 200이다. */
+    /** 가로로 긴 사진. 화면에 맞추면 폭 400, 높이 200 */
     private fun landscape() = PhotoZoom(Size(2000f, 1000f)).apply { container = screen }
 
     @Test
@@ -30,7 +30,7 @@ class PhotoZoomTest {
 
         zoom.transform(1f, Offset(5000f, 0f), center)
 
-        // 두 배면 폭 800이라 양쪽으로 200씩 움직일 수 있다.
+        // 두 배면 폭 800이라 양쪽으로 200씩 움직일 수 있음
         assertEquals(200f, zoom.offset.x)
     }
 
@@ -41,7 +41,7 @@ class PhotoZoomTest {
 
         zoom.transform(1f, Offset(0f, 5000f), center)
 
-        // 두 배여도 높이 400이라 화면보다 작다.
+        // 두 배여도 높이 400이라 화면보다 작음
         assertEquals(0f, zoom.offset.y)
     }
 
@@ -67,7 +67,7 @@ class PhotoZoomTest {
         assertEquals(Offset.Zero, zoom.offset)
     }
 
-    /** 손가락 사이 지점이 제자리에 남는다. */
+    /** 손가락 사이 지점이 제자리에 남음 */
     @Test
     fun pinching_keeps_the_point_between_the_fingers_in_place() {
         val zoom = PhotoZoom(null).apply { container = screen }
@@ -75,7 +75,7 @@ class PhotoZoomTest {
 
         zoom.transform(2f, Offset.Zero, fingers)
 
-        // 가운데에서 (100, 100) 떨어진 곳이 두 배로 밀려나지 않게 반대로 옮긴다.
+        // 가운데에서 (100, 100) 떨어진 곳이 두 배로 밀려나지 않게 반대로 옮김
         assertEquals(Offset(-100f, -100f), zoom.offset)
     }
 
@@ -94,7 +94,7 @@ class PhotoZoomTest {
         assertEquals(Offset.Zero, zoom.offset)
     }
 
-    /** 살짝 커진 채로 남으면 넘기기가 막힌다. */
+    /** 살짝 커진 채로 남으면 넘기기가 막힘 */
     @Test
     fun letting_go_just_above_its_own_size_settles_back() {
         val zoom = landscape()
