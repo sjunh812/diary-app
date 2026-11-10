@@ -243,8 +243,8 @@ private fun Sections(stats: AdvancedStats?, period: AdvancedPeriod, onMood: (Moo
 }
 
 /**
- * 고급 통계의 한 묶음(`docs/design.md` 고급 통계 간격).
- * 제목과 내용 사이 [titleGap](기본 16), 내용끼리 [gap](기본 12).
+ * 고급 통계의 한 묶음(`docs/design.md` 고급 통계 간격)
+ * 제목과 내용 사이 [titleGap](기본 16), 내용끼리 [gap](기본 12)
  * [onInfo]가 있으면 제목 줄 오른쪽 끝에 기준 안내 단추
  */
 @Composable

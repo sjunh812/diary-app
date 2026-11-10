@@ -49,7 +49,7 @@ enum class InsightKind { Week, Month, Year, All }
 data class InsightData(val counts: MoodCounts, val days: List<DayMood>, val pixels: Map<LocalDate, Mood?>)
 
 /**
- * 기간과 그 기간의 숫자. [data]가 null이면 읽는 중, [failed]면 다시 시도를 보임.
+ * 기간과 그 기간의 숫자. [data]가 null이면 읽는 중, [failed]면 다시 시도를 보임
  * 기분 기록이 들어 있어 [toString]에서 뺌(헌법 II)
  */
 data class InsightState(val period: StatsPeriod, val data: InsightData?, val failed: Boolean = false) {
@@ -107,8 +107,8 @@ class InsightViewModel(
     }
 
     /**
-     * 기간과 그 기간의 숫자를 한 값으로 묶음.
-     * 기간을 바꾸면 읽어 둔 값을 바로, 없으면 읽는 중. 앞 기간 숫자는 내놓지 않음.
+     * 기간과 그 기간의 숫자를 한 값으로 묶음
+     * 기간을 바꾸면 읽어 둔 값을 바로, 없으면 읽는 중. 앞 기간 숫자는 내놓지 않음
      * 다른 탭에 다녀와 다시 읽을 때는 같은 기간이라 보던 숫자 유지
      */
     val state: StateFlow<InsightState> =
@@ -127,8 +127,8 @@ class InsightViewModel(
     fun today(): LocalDate = today.invoke()
 
     /**
-     * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 함.
-     * ×를 누르지 않아도 다시 띄우지 않음(Apple TipKit `actionPerformed`).
+     * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 함
+     * ×를 누르지 않아도 다시 띄우지 않음(Apple TipKit `actionPerformed`)
      * 화면이 찾기로 넘어가도 끝까지 쓰게 화면 모델에서 저장
      */
     fun retry() {
@@ -145,7 +145,7 @@ class InsightViewModel(
     }
 
     /**
-     * 앱이 돌아올 때 오늘을 다시 읽음.
+     * 앱이 돌아올 때 오늘을 다시 읽음
      * 이번 주·이번 달을 보던 중이면 새 기간으로 옮기고, 지난 기간을 보던 중이면 그대로
      */
     fun refreshToday() {
@@ -185,9 +185,9 @@ internal val StatsPeriod.kind: InsightKind
 internal fun MoodCounts.sorted(): List<Pair<Mood, Int>> = Mood.ordered.map { it to (counts[it] ?: 0) }.sortedByDescending { it.second }
 
 /**
- * 기분 흐름 한 칸.
+ * 기분 흐름 한 칸
  * [mood]: 그 칸에서 가장 많은 기분, 고른 기분이 없으면 null.
- * [range]: 칸이 덮는 날짜. 누르면 이 기간 일기를 찾기로 모아 봄.
+ * [range]: 칸이 덮는 날짜. 누르면 이 기간 일기를 찾기로 모아 봄
  * [written]: 그 칸에 일기가 한 편이라도 있는지. 없으면 누를 수 없음
  */
 internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?, val range: DateRange, val written: Boolean)
@@ -203,7 +203,7 @@ internal sealed interface BucketSlot {
 }
 
 /**
- * 기간을 칸으로 나눔: 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다.
+ * 기간을 칸으로 나눔: 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다
  * 칸의 기분은 그 칸 일기의 기분을 모두 세어 정하고, 같으면 나중 기분
  */
 internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBucket> = when (period) {

@@ -28,7 +28,7 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
 
     /**
      * 읽는 동안 null.
-     * 기간을 바꾸면 읽어 둔 값을 바로 보이고, 없으면 앞 기간 숫자가 새 기간 이름 아래 남지 않게 비움.
+     * 기간을 바꾸면 읽어 둔 값을 바로 보이고, 없으면 앞 기간 숫자가 새 기간 이름 아래 남지 않게 비움
      * 스켈레톤은 0.3초 뒤에 나타나 짧은 읽기에서는 비어 있음
      */
     val data: StateFlow<AdvancedStats?> = _data.asStateFlow()

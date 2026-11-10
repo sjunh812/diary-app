@@ -214,7 +214,7 @@ internal fun InsightScreen(
     var titleHeight by remember { mutableIntStateOf(0) }
     SnapTitleOnRest(scroll, titleHeight)
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        // 큰 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바).
+        // 큰 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
         // 고급 통계 단추는 탭마다 같아 어느 탭에서나 보이는 바 오른쪽에
         DiaryTabTopBar(
             title = stringResource(Res.string.insight_title),
@@ -258,7 +258,7 @@ internal fun InsightScreen(
             )
             Spacer(Modifier.height(DiarySpacing.x1))
             PeriodNav(periodLabel(period, dates), period.previous() != null, period.next(today) != null, onPrevious, onNext)
-            // 빈 한 줄은 위 24를 스스로 둠.
+            // 빈 한 줄은 위 24를 스스로 둠
             // 새 기간을 읽는 동안 앞 기간 숫자는 숨기고 자리만 유지. 빼면 아래 광고가 올라왔다 내려가며 새로 불려 옴
             var read by remember { mutableStateOf(data) }
             SideEffect { if (data != null) read = data }
@@ -318,7 +318,7 @@ private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = w
 private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onPrevious: () -> Unit, onNext: () -> Unit) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게.
+        // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게
         // 누르는 칸 안쪽 여백만큼 밀어 화살표를 위아래 내용과 같은 선에 맞춤
         DiaryIconButton(
             DiaryIcons.ChevronLeft,
@@ -356,7 +356,7 @@ private fun Content(
 ) {
     val colors = DiaryTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-        // 가장 많았던 기분 이름 앞에 글자 크기만 한 얼굴을 붙여 문장 안에서 먼저 읽히게.
+        // 가장 많았던 기분 이름 앞에 글자 크기만 한 얼굴을 붙여 문장 안에서 먼저 읽히게
         // 굵기나 색으로 나누면 굵기가 하나뿐인 글꼴에서 강조가 사라지거나 문장이 흐려짐
         val title = DiaryTheme.typography.title2
         BasicText(
@@ -367,8 +367,8 @@ private fun Content(
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
     Spacer(Modifier.height(DiarySpacing.x6))
-    // 기분을 누를 수 있다는 걸 처음 한 번 알림.
-    // 주별 기분 칸과 자주 고른 기분 줄이 모두 눌려, 처음 만나는 주별 기분 위에 두고 두 곳에 맞는 문구로.
+    // 기분을 누를 수 있다는 걸 처음 한 번 알림
+    // 주별 기분 칸과 자주 고른 기분 줄이 모두 눌려, 처음 만나는 주별 기분 위에 두고 두 곳에 맞는 문구로
     // 안내가 닫히면 자리가 남지 않게 아래 여백은 안내에 붙임
     ContextTipBar(ContextTip.INSIGHT_OPEN, stringResource(Res.string.tip_insight_open), Modifier.padding(bottom = DiarySpacing.x6))
     MoodFlow(period, days, rememberDiaryDateFormat(), onPeriod)
@@ -506,7 +506,7 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
             for (row in buckets.chunked(columns)) {
                 Row(Modifier.fillMaxWidth()) {
                     for (bucket in row) {
-                        // 일기가 있는 칸을 누르면 그 기간 일기를 찾기로 모아 봄.
+                        // 일기가 있는 칸을 누르면 그 기간 일기를 찾기로 모아 봄
                         // 칸 얼굴은 기간 요약이라 기분으로 거르지 않고 그때 쓴 일기를 모두 보임
                         val press = remember { MutableInteractionSource() }
                         Column(
@@ -546,7 +546,7 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
 }
 
 /**
- * 고른 기분이 없는 칸. 기분을 보는 줄이라 일기를 썼는지는 구분하지 않음.
+ * 고른 기분이 없는 칸. 기분을 보는 줄이라 일기를 썼는지는 구분하지 않음
  * 쓴 날은 달력에, 기분 없는 일기 수는 위 요약 줄에 있음
  */
 @Composable
@@ -563,7 +563,7 @@ private fun slotLabel(slot: BucketSlot, dates: DiaryDateFormat): String = when (
 }
 
 /**
- * 연간 지도: 달마다 한 줄, 하루 한 칸(Daylio Year in Pixels와 같은 꼴).
+ * 연간 지도: 달마다 한 줄, 하루 한 칸(Daylio Year in Pixels와 같은 꼴)
  * 칸은 정사각형, 달 번호는 칸보다 커 세 달마다. 앞으로 올 날은 비움
  */
 @Composable

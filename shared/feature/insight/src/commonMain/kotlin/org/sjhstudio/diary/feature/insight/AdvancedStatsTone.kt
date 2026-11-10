@@ -188,8 +188,8 @@ internal val DayParts: List<Pair<DayPart, StringResource>> =
     )
 
 /**
- * 상황별 기분(`docs/design.md` 상황별 기분).
- * 한 줄에 긍정적인 기분(왼쪽부터)과 부정적인 기분(오른쪽부터)을 함께 그림.
+ * 상황별 기분(`docs/design.md` 상황별 기분)
+ * 한 줄에 긍정적인 기분(왼쪽부터)과 부정적인 기분(오른쪽부터)을 함께 그림
  * 어느 쪽으로 세는지는 제목 줄 오른쪽 끝 안내 단추의 시트에서 보임
  */
 @Composable
@@ -283,7 +283,7 @@ internal fun LegendItem(color: Color, label: String) {
 
 /**
  * 이름 · 막대 · 좋은 기분 % · 힘든 기분 %.
- * 좋은 기분은 왼쪽부터, 힘든 기분은 오른쪽부터 채우고 가운데 빈 곳은 그 밖의 기분.
+ * 좋은 기분은 왼쪽부터, 힘든 기분은 오른쪽부터 채우고 가운데 빈 곳은 그 밖의 기분
  * 둘이 맞닿으면 2 띄워 경계가 보이게
  */
 @Composable
@@ -340,7 +340,7 @@ internal fun ToneBar(good: Float, hard: Float, modifier: Modifier = Modifier) {
 }
 
 /**
- * 좋은 기분과 힘든 기분을 무엇으로 세는지(`docs/design.md` 상황별 기분, DECISIONS 2026-11-04 쿨은 보통).
+ * 좋은 기분과 힘든 기분을 무엇으로 세는지(`docs/design.md` 상황별 기분, DECISIONS 2026-11-04 쿨은 보통)
  * 기분의 밝고 어두움(심리학의 정서가)으로 나누고, 애매한 보통과 쿨은 세지 않음
  */
 @Composable
