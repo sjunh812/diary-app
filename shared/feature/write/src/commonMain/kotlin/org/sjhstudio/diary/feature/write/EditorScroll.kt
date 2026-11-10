@@ -16,9 +16,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Dp
 
 /**
- * 본문 스크롤이 커서나 선택 끝을 보이게 할 때 가장자리에서 [margin]만큼 띄움.
- * 편집기는 스스로 스크롤하지 않고 바깥 칸이 스크롤함.
- * 기본값은 커서를 가장자리에 붙여, 쓰는 줄이 도구 줄에 붙고 선택 핸들이 도구 줄·키보드에 걸려 더 끌 수 없음.
+ * 본문 스크롤이 커서나 선택 끝을 보이게 할 때 가장자리에서 [margin]만큼 띄움
+ * 편집기는 스스로 스크롤하지 않고 바깥 칸이 스크롤함
+ * 기본값은 커서를 가장자리에 붙여, 쓰는 줄이 도구 줄에 붙고 선택 핸들이 도구 줄·키보드에 걸려 더 끌 수 없음
  * 띄워 두면 핸들을 아래로 끄는 동안 선택 끝이 바뀔 때마다 본문이 조금씩 따라 올라옴
  */
 @OptIn(ExperimentalFoundationApi::class)
@@ -36,8 +36,8 @@ private class MarginSpec(private val margin: Float) : BringIntoViewSpec {
 }
 
 /**
- * 보일 곳의 시작 [offset]과 크기 [size]를 화면 높이 [containerSize] 안에 [margin]을 두고 넣는 데 필요한 스크롤 거리.
- * 이미 보이면 0, 위로 넘치면 음수, 아래로 넘치면 양수.
+ * 보일 곳의 시작 [offset]과 크기 [size]를 화면 높이 [containerSize] 안에 [margin]을 두고 넣는 데 필요한 스크롤 거리
+ * 이미 보이면 0, 위로 넘치면 음수, 아래로 넘치면 양수
  * 여백까지 다 넣을 수 없으면 기본 규칙(가장자리에 맞춤)
  */
 internal fun scrollDistance(offset: Float, size: Float, containerSize: Float, margin: Float): Float {
@@ -53,10 +53,10 @@ internal fun scrollDistance(offset: Float, size: Float, containerSize: Float, ma
 }
 
 /**
- * 선택에서 움직인 끝의 위치.
- * 핸들 하나를 끌면 한쪽 끝만 바뀜.
- * 커서에서 새로 고른 낱말(길게 누르기)이면 끝 쪽을 봄.
- * 이미 고른 상태에서 두 끝이 함께 바뀌면(모두 선택) 화면을 옮기지 않음. 옮기면 글 끝으로 튐.
+ * 선택에서 움직인 끝의 위치
+ * 핸들 하나를 끌면 한쪽 끝만 바뀜
+ * 커서에서 새로 고른 낱말(길게 누르기)이면 끝 쪽을 봄
+ * 이미 고른 상태에서 두 끝이 함께 바뀌면(모두 선택) 화면을 옮기지 않음. 옮기면 글 끝으로 튐
  * 커서만 있거나 바뀐 것이 없으면 null
  */
 internal fun movingEdge(before: TextRange, after: TextRange): Int? = when {
@@ -68,7 +68,7 @@ internal fun movingEdge(before: TextRange, after: TextRange): Int? = when {
 }
 
 /**
- * 본문 칸을 누른 자리를 글자 위치로 바꾸는 데 쓰는 배치 정보.
+ * 본문 칸을 누른 자리를 글자 위치로 바꾸는 데 쓰는 배치 정보
  * [viewport]는 누름을 받는 스크롤 칸, [field]는 입력칸, [layout]은 그 글 배치
  */
 internal class EditorGeometry {
@@ -77,7 +77,7 @@ internal class EditorGeometry {
     var layout: TextLayoutResult? = null
 
     /**
-     * 스크롤 칸에서 누른 [tap]에 가장 가까운 글자 위치.
+     * 스크롤 칸에서 누른 [tap]에 가장 가까운 글자 위치
      * 글 아래 빈 곳이면 null이라 부르는 쪽이 글 끝에 둠
      */
     fun offsetAt(tap: Offset): Int? {

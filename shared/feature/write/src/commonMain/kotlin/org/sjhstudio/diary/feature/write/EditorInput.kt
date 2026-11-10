@@ -15,10 +15,10 @@ private const val HANGUL_START = 'ㄱ'
 private const val HANGUL_END = '힣'
 
 /**
- * 키보드 입력을 편집기에 넘김.
- * iOS 한글 키보드는 공백 뒤 글자를 조합할 때 공백과 글자를 함께 골라 지운 뒤 공백과 새 글자를 다시 넣음.
- * 편집기는 줄바꿈과 목록 기호 뒤를 공백으로 들고 있어, 이 순서를 그대로 받으면 줄이 합쳐지고 목록 기호가 깨짐.
- * 그래서 공백은 그대로 두고 글자만 바꿈.
+ * 키보드 입력을 편집기에 넘김
+ * iOS 한글 키보드는 공백 뒤 글자를 조합할 때 공백과 글자를 함께 골라 지운 뒤 공백과 새 글자를 다시 넣음
+ * 편집기는 줄바꿈과 목록 기호 뒤를 공백으로 들고 있어, 이 순서를 그대로 받으면 줄이 합쳐지고 목록 기호가 깨짐
+ * 그래서 공백은 그대로 두고 글자만 바꿈
  * 안드로이드는 이 순서로 입력하지 않아 [fixKeyboard]가 꺼져 있고 입력을 그대로 넘김
  */
 internal class EditorInput(private val state: RichTextState, private val fixKeyboard: Boolean = currentPlatform.isIOS) {
@@ -29,7 +29,7 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
     private var echoed: Int? = null
 
     /**
-     * 선택 핸들을 끄는 중이면 늘어나는 수.
+     * 선택 핸들을 끄는 중이면 늘어나는 수
      * 편집기는 이 값이 멈춘 뒤에야 꾸밈을 바꿔 그림([DiaryRichEditor])
      */
     var dragTick by mutableIntStateOf(0)
@@ -40,9 +40,9 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
 
     fun apply(new: TextFieldValue) {
         if (isHandleDrag(state.textFieldValue, new)) {
-            // 선택 핸들을 끄는 중이면 일반 입력칸처럼 선택만 바꿈.
+            // 선택 핸들을 끄는 중이면 일반 입력칸처럼 선택만 바꿈
             // 라이브러리는 선택마다 끌기 끝을 손가락 줄과 문단 시작에 맞춰 고치는데,
-            // 그 보정이 끌던 끝을 붙잡아 핸들이 가다가 멈춤.
+            // 그 보정이 끌던 끝을 붙잡아 핸들이 가다가 멈춤
             // 커서를 놓거나 새로 고를 때(길게 누르기)는 라이브러리 보정을 그대로 거침
             dragging = true
             dragTick++

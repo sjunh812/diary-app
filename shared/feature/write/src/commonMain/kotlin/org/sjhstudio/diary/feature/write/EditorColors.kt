@@ -9,7 +9,7 @@ import org.sjhstudio.diary.core.model.richtext.bodyToEditor
 import org.sjhstudio.diary.core.model.richtext.editorToBody
 
 /**
- * 저장 값은 라이트 hex 하나지만 편집기는 지금 테마의 토큰 색으로 보여야 함(contracts/rich-text-html.md).
+ * 저장 값은 라이트 hex 하나지만 편집기는 지금 테마의 토큰 색으로 보여야 함(contracts/rich-text-html.md)
  * 편집기에 넣을 때와 꺼낼 때 팔레트 색을 서로 바꿈
  */
 internal class EditorColors(colors: DiaryColors) {
@@ -46,7 +46,7 @@ internal class EditorColors(colors: DiaryColors) {
     }
 
     /**
-     * 편집기가 낸 `rgba()`나 hex를 저장 값으로.
+     * 편집기가 낸 `rgba()`나 hex를 저장 값으로
      * 정리기가 팔레트 밖 색을 버리므로 여기서 꼭 돌려놓음
      */
     fun fromEditor(html: String): String {

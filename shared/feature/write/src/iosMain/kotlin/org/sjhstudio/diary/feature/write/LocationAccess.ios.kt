@@ -45,7 +45,7 @@ private class AuthorizationWaiter(private val onDecided: () -> Unit) :
     NSObject(),
     CLLocationManagerDelegateProtocol {
     override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) {
-        // 대리자를 달자마자 지금 상태로 한 번 불림.
+        // 대리자를 달자마자 지금 상태로 한 번 불림
         // 고른 뒤에만 넘어감
         if (manager.authorizationStatus != kCLAuthorizationStatusNotDetermined) onDecided()
     }

@@ -34,8 +34,8 @@ import com.mohamedrejeb.richeditor.ui.drawRichSpanStyle
 import kotlinx.coroutines.delay
 
 /**
- * 일기 본문 편집기.
- * 라이브러리의 `BasicRichTextEditor`와 같고, 키보드 입력만 [EditorInput]을 거침.
+ * 일기 본문 편집기
+ * 라이브러리의 `BasicRichTextEditor`와 같고, 키보드 입력만 [EditorInput]을 거침
  * 라이브러리를 올릴 때 이 파일을 원본과 견줌(compose-rich-editor 1.2.1)
  */
 @Composable
@@ -66,9 +66,9 @@ internal fun DiaryRichEditor(
             }
         }
     }
-    // 핸들을 끄는 동안에는 화면 변환을 바꾸지 않음.
+    // 핸들을 끄는 동안에는 화면 변환을 바꾸지 않음
     // 형광펜(바탕색)이 있으면 라이브러리가 선택마다 꾸밈을 다시 만들고 화면 변환을 새로 바꿔
-    // 안드로이드가 끌던 핸들을 놓치고 핸들이 가다가 멈춤(라이브러리 #730·#731).
+    // 안드로이드가 끌던 핸들을 놓치고 핸들이 가다가 멈춤(라이브러리 #730·#731)
     // 끌기가 멈추면(잠깐 새 끌기가 없으면) 그때의 꾸밈으로 다시 그림
     val live = state.visualTransformation
     var held by remember { mutableStateOf(live) }

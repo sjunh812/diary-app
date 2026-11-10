@@ -124,7 +124,7 @@ private fun ClearButton(onClick: () -> Unit) {
 }
 
 /**
- * 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고름.
+ * 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고름
  * 하나만 고르는 시트라 누르면 바로 들어가고 닫힘. 완료를 한 번 더 누르게 하지 않음
  */
 @Composable
@@ -164,7 +164,7 @@ internal fun PlaceSheet(
 ) {
     var text by rememberSaveable { mutableStateOf(initial) }
     val colors = DiaryTheme.colors
-    // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둠.
+    // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둠
     // 완료를 눌러야 일기에 들어감
     val found = ((locating as? PlaceLocating.Done)?.result as? PlaceLookup.Found)?.name
     LaunchedEffect(found) {
@@ -179,7 +179,7 @@ internal fun PlaceSheet(
             PlaceField(text, locating == PlaceLocating.Finding, onChange = { text = it.take(MAX_PLACE) }, onLocate = onLocate)
             PlaceResult((locating as? PlaceLocating.Done)?.result, onOpenSettings)
         }
-        // 전에 쓴 곳은 한 번에 고름.
+        // 전에 쓴 곳은 한 번에 고름
         // 적는 글자에 맞는 곳만 남김
         val typed = text.trim()
         PlaceChips(
@@ -200,8 +200,8 @@ internal fun PlaceSheet(
 }
 
 /**
- * 장소를 적는 칸.
- * 직접 적기와 내 위치 가져오기는 같은 값을 채우는 일이라 한 칸에 둠.
+ * 장소를 적는 칸
+ * 직접 적기와 내 위치 가져오기는 같은 값을 채우는 일이라 한 칸에 둠
  * 위치는 누를 때만 읽음
  */
 @Composable
@@ -276,7 +276,7 @@ private fun PlaceNote(text: String, onOpenSettings: (() -> Unit)?) {
     ) {
         BasicText(text, Modifier.weight(1f), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         if (onOpenSettings != null) {
-            // 글자 끝을 입력 칸 끝에 맞추고 누르는 영역만 줄 높이로 넓힘.
+            // 글자 끝을 입력 칸 끝에 맞추고 누르는 영역만 줄 높이로 넓힘
             // 누름 면이 글자에 붙지 않게 옆으로 8 내어 시트 안쪽 여백을 씀
             val interaction = remember { MutableInteractionSource() }
             Box(
@@ -316,7 +316,7 @@ private fun SheetButtons(secondary: String, onSecondary: () -> Unit, primary: St
 }
 
 /**
- * "쓰던 일기가 있어요"(Figma "S2 · 쓰던 일기").
+ * "쓰던 일기가 있어요"(Figma "S2 · 쓰던 일기")
  * 버리기는 한 번 더 물음(FR-011)
  */
 @Composable
@@ -363,7 +363,7 @@ internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate,
             DiaryMonthDays(month, isPicked = { it == picked }, onPick = { picked = it })
         }
         BasicText(stringResource(Res.string.write_time), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
-        // 창이 낮은 폰에서는 6주인 달과 바퀴 다섯 칸이 한 시트에 들어가지 않아 세 칸으로 줄임.
+        // 창이 낮은 폰에서는 6주인 달과 바퀴 다섯 칸이 한 시트에 들어가지 않아 세 칸으로 줄임
         // 스크롤이 생기면 달력과 바퀴의 끌기가 시트 스크롤과 엉킴
         DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour, rows = rememberCalendarWheelRows())
         SheetButtons(

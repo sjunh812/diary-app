@@ -204,7 +204,7 @@ import org.sjhstudio.diary.feature.write.resources.write_weather
 internal enum class PaletteKind { Ink, Mark }
 
 /**
- * 키보드 위 서식 도구(Figma "서식 도구 줄").
+ * 키보드 위 서식 도구(Figma "서식 도구 줄")
  * 글자색·형광펜을 누르면 줄이 그 팔레트로 바뀜
  */
 internal class WriteTools(

@@ -109,7 +109,7 @@ data class WriteUiState(
     /** 사진을 뺄 때마다 늘어남. 바뀔 때마다 화면이 [되돌리기] 토스트를 띄움 */
     val photoRemoved: Int = 0,
     /**
-     * 쓰고 있는 새 일기 임시 저장본의 키.
+     * 쓰고 있는 새 일기 임시 저장본의 키
      * 화면이 저장해 두었다가 화면 모델이 다시 만들어져도 같은 글을 이음
      */
     val draftKey: String? = null,
@@ -139,10 +139,10 @@ sealed interface WriteEvent {
 }
 
 /**
- * 쓰기와 수정(FR-002~FR-012).
- * 내용이 바뀌면 입력이 멈추고 1초 뒤 임시 저장본에 쓰고, 화면을 떠날 때는 바로 씀.
- * 본문은 글자마다 HTML로 바꾸지 않고 바뀜 표시만 해 두었다가 쓰기 직전에 편집기에서 꺼냄.
- * 빈 글은 임시 저장본을 만들지 않음.
+ * 쓰기와 수정(FR-002~FR-012)
+ * 내용이 바뀌면 입력이 멈추고 1초 뒤 임시 저장본에 쓰고, 화면을 떠날 때는 바로 씀
+ * 본문은 글자마다 HTML로 바꾸지 않고 바뀜 표시만 해 두었다가 쓰기 직전에 편집기에서 꺼냄
+ * 빈 글은 임시 저장본을 만들지 않음
  * 사진은 고른 즉시 저장소로 들어감(research R6)
  */
 class WriteViewModel(
@@ -186,7 +186,7 @@ class WriteViewModel(
     private var body: String = ""
 
     /**
-     * 편집기가 불러온 뒤 다시 내보낸 HTML과 그때의 저장 값.
+     * 편집기가 불러온 뒤 다시 내보낸 HTML과 그때의 저장 값
      * 태그 모양만 다른 값을 고친 것으로 치지 않는 데 씀
      */
     private var loadedBody: String? = null
@@ -210,8 +210,8 @@ class WriteViewModel(
     private var locatingJob: Job? = null
 
     /**
-     * 어떤 글을 쓸지 정해짐.
-     * 그 전에 임시 저장본을 쓰면 빈 글로 남겨 둔 글을 덮음.
+     * 어떤 글을 쓸지 정해짐
+     * 그 전에 임시 저장본을 쓰면 빈 글로 남겨 둔 글을 덮음
      * 카메라에서 돌아온 결과는 화면 모델이 글을 읽기 전에 들어오기도 함
      */
     private val ready = CompletableDeferred<Unit>()
@@ -314,7 +314,7 @@ class WriteViewModel(
     private fun freshKey() = DraftKey.New("${DraftKey.New.PREFIX}-${Uuid.random()}")
 
     /**
-     * 시트에서 아무것도 고르지 않고 뒤로 가면 들어온 화면으로 돌아감.
+     * 시트에서 아무것도 고르지 않고 뒤로 가면 들어온 화면으로 돌아감
      * 쓰던 글은 불러오지도, 건드리지도 않음
      */
     fun leaveOffer() {
@@ -378,8 +378,8 @@ class WriteViewModel(
     }
 
     /**
-     * 글자를 칠 때마다 불림.
-     * 변환은 글이 길수록 느려 표시만 해 두고 임시 저장본에 쓰기 직전에 꺼냄.
+     * 글자를 칠 때마다 불림
+     * 변환은 글이 길수록 느려 표시만 해 두고 임시 저장본에 쓰기 직전에 꺼냄
      * [hasText]는 변환 전에도 저장 버튼을 바로 켜고 끄는 데 씀
      */
     fun onEditorChanged(hasText: Boolean) {
@@ -401,7 +401,7 @@ class WriteViewModel(
     }
 
     /**
-     * 쓰기 직전이나 화면을 떠날 때 불림.
+     * 쓰기 직전이나 화면을 떠날 때 불림
      * 앱이 꺼져도 마지막 입력이 남게 여기서 동기로 꺼냄(헌법 I)
      */
     private fun takeEditorBody() {
@@ -506,7 +506,7 @@ class WriteViewModel(
     }
 
     /**
-     * 방금 뺀 사진을 원래 자리에 되돌림.
+     * 방금 뺀 사진을 원래 자리에 되돌림
      * 사진 칸의 빼기 단추가 72 칸의 절반 가까이를 덮어 잘못 누르기 쉬움(TDS 토스트의 되돌리기)
      */
     fun undoRemovePhoto() {
@@ -562,7 +562,7 @@ class WriteViewModel(
 
     /** 뒤로 가기. 쓴 것이 있으면 묻지 않고 임시 저장(FR-011) */
     fun close() {
-        // 저장이 끝났으면 화면이 이미 닫히는 중.
+        // 저장이 끝났으면 화면이 이미 닫히는 중
         // 저장 중이면 곧 닫히니 임시 저장본을 다시 만들지 않음
         if (leaving || _state.value.saving) return
         leaving = true
@@ -599,14 +599,14 @@ class WriteViewModel(
     }
 
     /**
-     * 화면이 아직 모르는 사진까지 넣은 임시 저장본.
+     * 화면이 아직 모르는 사진까지 넣은 임시 저장본
      * DB는 사진을 적은 뒤 조금 늦게 알려 줘, 화면 값만 보고 빈 글로 치면 방금 넣은 사진을 버림
      */
     private suspend fun withStoredPhotos(draft: Draft): Draft =
         if (draft.photos.isEmpty() && stored) draft.copy(photos = drafts.draft(key).first()?.photos.orEmpty()) else draft
 
     /**
-     * [버리기]. 화면이 한 번 물은 뒤에 불림.
+     * [버리기]. 화면이 한 번 물은 뒤에 불림
      * 수정하던 일기는 그대로 남고 고친 내용만 버림
      */
     fun discard() {
@@ -641,8 +641,8 @@ class WriteViewModel(
     }
 
     /**
-     * 임시 저장본을 고치는 일.
-     * 저장 공간이 차서 실패해도 앱을 끄지 않음. 앱이 꺼지면 아직 쓰지 못한 글을 잃음.
+     * 임시 저장본을 고치는 일
+     * 저장 공간이 차서 실패해도 앱을 끄지 않음. 앱이 꺼지면 아직 쓰지 못한 글을 잃음
      * 글은 화면에 남아 있으니 알리고, 다음에 쓸 때 다시 해 봄
      */
     private fun write(onFailure: () -> Unit = {}, block: suspend () -> Unit): Job = viewModelScope.launchSafely {
@@ -673,7 +673,7 @@ class WriteViewModel(
         val draft = currentDraft()
         // 빈 글은 저장본을 만들지 않음. 다음에 "쓰던 일기가 있어요"가 뜨지 않게
         if (!stored && !draft.canSave() && !force) return
-        // 한 번 시작한 쓰기는 끝까지.
+        // 한 번 시작한 쓰기는 끝까지
         // 화면을 떠나며 화면 모델이 정리되면 쓰기가 취소돼 마지막 입력을 잃을 수 있음
         withContext(NonCancellable) { drafts.save(draft) }
         stored = true
