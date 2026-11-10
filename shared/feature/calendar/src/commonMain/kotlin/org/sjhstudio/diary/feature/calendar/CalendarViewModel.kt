@@ -41,8 +41,8 @@ import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
- * 고른 날과 그날 일기.
- * [rows]: null이면 읽는 중, 빈 목록이면 쓴 글이 없는 날. [failed]면 다시 시도를 보임.
+ * 고른 날과 그날 일기
+ * [rows]: null이면 읽는 중, 빈 목록이면 쓴 글이 없는 날. [failed]면 다시 시도를 보임
  * 일기가 들어 있어 [toString]에서 뺌(헌법 II)
  */
 data class CalendarDay(val date: LocalDate?, val rows: List<EntryRow>?, val failed: Boolean = false) {
@@ -50,7 +50,7 @@ data class CalendarDay(val date: LocalDate?, val rows: List<EntryRow>?, val fail
 }
 
 /**
- * 달력(FR-022~FR-024).
+ * 달력(FR-022~FR-024)
  * 달을 넘기면 그 달에서 마지막으로 일기를 쓴 날, 이번 달이면 오늘을 고름. 일기가 없는 달은 고르지 않음
  */
 class CalendarViewModel(
@@ -105,7 +105,7 @@ class CalendarViewModel(
         }
 
     /**
-     * 날짜와 그날 일기를 한 값으로 묶어 지난 날 일기가 새 날 아래 보이지 않게 함.
+     * 날짜와 그날 일기를 한 값으로 묶어 지난 날 일기가 새 날 아래 보이지 않게 함
      * 날을 바꾸면 미리 읽은 일기를 바로 보이고 다시 읽은 값으로 바꿈. 미리 읽은 게 없을 때만 잠깐 읽는 중
      */
     val day: StateFlow<CalendarDay> =
@@ -115,7 +115,7 @@ class CalendarViewModel(
     private val monthMoods = HashMap<YearMonth, StateFlow<Map<LocalDate, DayMood>>>()
 
     /**
-     * 날마다 읽어 둔 일기.
+     * 날마다 읽어 둔 일기
      * 없으면 날을 누를 때마다 목록이 비었다 채워지며 깜빡임
      */
     private val dayRows = HashMap<LocalDate, List<EntryRow>>()
@@ -165,8 +165,8 @@ class CalendarViewModel(
     }
 
     /**
-     * 앱이 돌아올 때 오늘을 다시 읽음.
-     * 어제의 오늘을 보던 중이면 새 오늘로 옮기고, 고른 다른 날은 그대로.
+     * 앱이 돌아올 때 오늘을 다시 읽음
+     * 어제의 오늘을 보던 중이면 새 오늘로 옮기고, 고른 다른 날은 그대로
      * @return 달까지 바뀌어 달력을 넘겨야 하면 true. 넘기면 [showMonth]가 오늘을 고름
      */
     fun refreshToday(): Boolean {
@@ -180,7 +180,7 @@ class CalendarViewModel(
     }
 
     /**
-     * 달을 넘겼을 때. 이미 그 달 날을 골랐으면 그대로.
+     * 달을 넘겼을 때. 이미 그 달 날을 골랐으면 그대로
      * 아니면 그 달에서 고른 날, 없으면 이번 달은 오늘, 지난 달은 마지막으로 쓴 날
      */
     fun showMonth(month: YearMonth) {

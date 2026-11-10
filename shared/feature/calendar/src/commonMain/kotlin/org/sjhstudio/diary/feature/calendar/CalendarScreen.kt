@@ -112,7 +112,7 @@ import org.sjhstudio.diary.feature.calendar.resources.calendar_write_on_day
 private const val DAYS_IN_WEEK = 7
 
 /**
- * 달력(Figma "달력 (S4)").
+ * 달력(Figma "달력 (S4)")
  * 그날 일기는 폰에서 달력 아래, 넓은 화면에서 옆. 주는 일요일 시작
  */
 @Composable
@@ -215,7 +215,7 @@ fun CalendarRoute(
         }
     } else {
         Column(modifier.then(canvas), horizontalAlignment = Alignment.CenterHorizontally) {
-            // 큰 달 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바).
+            // 큰 달 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
             // 오늘·달 넘기기 단추는 늘 바 오른쪽. 작은 제목은 남는 폭만 써 단추와 겹치지 않음
             DiaryTabTopBar(
                 title = dates.yearMonth(shown.onDay(1)),
@@ -437,7 +437,7 @@ private fun DayCell(
 }
 
 /**
- * 그날 마지막 일기의 얼굴.
+ * 그날 마지막 일기의 얼굴
  * 여러 편이면 앞 일기 기분 색을 뒤에 겹침. 편수는 고른 날 목록에서 보임
  */
 @Composable
@@ -460,7 +460,7 @@ private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) 
 }
 
 /**
- * 고른 날의 일기. 없으면 그날 쓰기를 권함.
+ * 고른 날의 일기. 없으면 그날 쓰기를 권함
  * [rows]가 null이면 읽는 중이라 날짜만 두고 아래는 비움. 곧 끝나는 일이라 스켈레톤 없음
  */
 @Composable
