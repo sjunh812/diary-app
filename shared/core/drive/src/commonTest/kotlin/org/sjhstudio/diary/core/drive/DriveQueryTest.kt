@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-// 찾기 조건은 드라이브 질의 글이다. 기기 이름이 파일 이름에 들어가서 따옴표가 그대로 오면 질의가 깨진다.
+// 찾기 조건은 드라이브 질의문. 기기 이름이 파일 이름에 들어가 따옴표가 그대로 오면 질의가 깨짐
 class DriveQueryTest {
     @Test
     fun trashed_files_are_always_left_out() {
