@@ -183,8 +183,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_when
 
 /**
  * 복원하는 중과 결과(Figma B5, B6).
- * 뒤로 가면 멈추지 않고 홈으로 간다.
- * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 연다([RestoreResultNotice]).
+ * 뒤로 가면 멈추지 않고 홈으로 감.
+ * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 엶([RestoreResultNotice]).
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -196,8 +196,8 @@ fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: ()
         onHome()
     }
     val access = rememberNotificationAccess()
-    // 사진을 받는 동안 앱을 나가도 끝나면 알릴 수 있게 시작할 때 한 번 묻는다.
-    // 거절해도 복원은 그대로 돈다.
+    // 사진을 받는 동안 앱을 나가도 끝나면 알릴 수 있게 시작할 때 한 번 물음
+    // 거절해도 복원은 그대로 돎
     LaunchedEffect(access) { access.request {} }
     val home by rememberUpdatedState(onHome)
     LaunchedEffect(state) { if (state == RestoreState.Idle) home() }
@@ -262,7 +262,7 @@ internal fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntr
             }
         }
     }
-    // 화면이 꺼지면 iOS에서는 받기가 멈춘다.
+    // 화면이 꺼지면 iOS에서는 받기가 멈춤
     KeepScreenOn()
     Bottom {
         BasicText(
@@ -391,7 +391,7 @@ internal fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
     }
 }
 
-/** 남은 사진마다 까닭과 할 일이 달라서 나눠 말한다. */
+/** 남은 사진마다 까닭과 할 일이 달라 나눠 말함 */
 internal fun pendingBody(result: RestoreResult): StringResource = when {
     result.photosStop == PhotoStop.NO_SPACE -> Res.string.restore_note_pending_space_body
     result.fromFile && result.photosStop == null -> Res.string.restore_note_pending_file_body
@@ -400,7 +400,7 @@ internal fun pendingBody(result: RestoreResult): StringResource = when {
 
 /**
  * Figma "B6 · 백업을 확인하지 못했어요".
- * 어떤 실패든 기기의 기록은 그대로다.
+ * 어떤 실패든 기기의 기록은 그대로.
  */
 @Composable
 internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onPickOther: () -> Unit) {
@@ -425,7 +425,7 @@ internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, on
         val openLink = rememberOpenLink()
         var noMail by rememberSaveable { mutableStateOf(false) }
         DiarySettingsRow(stringResource(Res.string.restore_contact), onClick = {
-            // 메일 앱이 없으면 보낼 곳을 글로 알린다.
+            // 메일 앱이 없으면 보낼 곳을 글로 알림
             noMail = !openLink(SUPPORT_MAIL)
         }, leadingIcon = DiaryIcons.Mail)
         if (noMail) {

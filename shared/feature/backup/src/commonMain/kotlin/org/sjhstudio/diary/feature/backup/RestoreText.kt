@@ -209,7 +209,7 @@ internal fun countsText(entry: BackupEntry): String = stringResource(
     pluralStringResource(Res.plurals.restore_count_photos, entry.photoCount, entry.photoCount.grouped())
 )
 
-/** 받을 사진이 없으면 크기는 뜻이 없어 장수만 보인다. */
+/** 받을 사진이 없으면 크기는 뜻이 없어 장수만 보임 */
 @Composable
 internal fun photosToReceive(photos: Int, bytes: Long): String {
     val count = pluralStringResource(Res.plurals.restore_unit_photos, photos, photos.grouped())

@@ -17,7 +17,7 @@ import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 
-// 복원 목록은 지난번 것을 먼저 보이고 드라이브 답으로 바꾼다.
+// 복원 목록은 지난번 것을 먼저 보이고 드라이브 답으로 바꿈
 @OptIn(ExperimentalCoroutinesApi::class)
 class RestoreListViewModelTest {
     private val dispatcher = StandardTestDispatcher()
@@ -58,7 +58,7 @@ class RestoreListViewModelTest {
         assertEquals(RestoreListUi.Loaded(listOf(entry("지금"))), vm.state.value)
     }
 
-    /** 드라이브에 닿지 못하면 지난 목록을 그대로 두지 않고 사실대로 알린다. */
+    /** 드라이브에 닿지 못하면 지난 목록을 그대로 두지 않고 사실대로 알림 */
     @Test
     fun a_failed_answer_replaces_the_saved_list() = runTest(dispatcher) {
         val repository = FakeRestoreRepository()

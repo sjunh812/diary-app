@@ -25,7 +25,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 
 /**
  * 홈 목록 맨 위의 권하기 카드(Figma B11, FR-036).
- * 창을 띄워 막지 않고, 조건이 맞을 때만 보이며, 목록과 함께 스크롤된다.
+ * 창으로 막지 않음. 조건이 맞을 때만 보이고 목록과 함께 스크롤됨.
  */
 @Composable
 fun BackupNudgeCard(modifier: Modifier = Modifier) {
@@ -38,7 +38,7 @@ fun BackupNudgeCard(modifier: Modifier = Modifier) {
 
 /**
  * 연결했더니 찾은 백업이나 연결 실패를 알리는 시트.
- * 카드가 스크롤로 사라져도 뜨도록 카드 밖에 둔다.
+ * 카드가 스크롤로 사라져도 뜨도록 카드 밖에 둠.
  */
 @Composable
 fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {
@@ -68,8 +68,8 @@ internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLat
             pluralStringResource(Res.plurals.backup_nudge_entries, nudge.entryCount, nudge.entryCount.grouped())
         },
         stringResource(Res.string.backup_nudge_body),
-        // 카드 위(백업 줄 → 카드)와 아래(카드 → 첫 일기 줄)가 같아 보이게 위를 12로 둔다.
-        // 16이면 위가 4쯤 넓어 카드가 아래로 쏠려 보였다(2026-11-08 사용자 지적, 화면에서 재서 맞춤).
+        // 카드 위(백업 줄 → 카드)와 아래(카드 → 첫 일기 줄)가 같아 보이게 위는 12
+        // 16이면 위가 4쯤 넓어 카드가 아래로 쏠려 보임(화면에서 재서 맞춤)
         modifier.padding(top = DiarySpacing.x3),
         actionLabel = stringResource(Res.string.backup_nudge_action),
         onAction = onConnect,

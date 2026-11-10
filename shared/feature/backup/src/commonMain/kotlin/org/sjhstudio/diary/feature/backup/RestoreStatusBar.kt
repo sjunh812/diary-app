@@ -64,9 +64,9 @@ import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_title
 
 /**
- * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알린다.
- * 토스트의 보기를 누르면 결과 화면이 열린다.
- * 일기를 쓰는 동안은 기다린다([quiet]).
+ * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알림.
+ * 토스트의 보기를 누르면 결과 화면이 열림.
+ * 일기를 쓰는 동안은 기다림([quiet]).
  */
 @Composable
 fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: Boolean, onOpen: () -> Unit) {
@@ -74,7 +74,7 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
     val state by restore.state.collectAsStateWithLifecycle()
     val watch = remember { RestoreResultWatch() }
     val open by rememberUpdatedState(onOpen)
-    // 화면을 옮겨도 떠 있는 토스트가 사라지지 않게 효과 밖에서 띄운다.
+    // 화면을 옮겨도 떠 있는 토스트가 사라지지 않게 효과 밖에서 띄움
     val scope = rememberCoroutineScope()
     LaunchedEffect(state, onResultScreen, quiet) {
         if (!watch.shouldTell(state, onResultScreen, quiet)) return@LaunchedEffect
@@ -85,8 +85,8 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
 }
 
 /**
- * 파일을 만들다 앱이 꺼졌으면 다음에 앱을 열 때 한 번 알린다.
- * 보기를 누르면 파일로 백업하기로 간다.
+ * 파일을 만들다 앱이 꺼졌으면 다음에 앱을 열 때 한 번 알림.
+ * 보기를 누르면 파일로 백업하기로 감.
  */
 @Composable
 fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
@@ -103,8 +103,8 @@ fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
 
 /**
  * 백업 화면 아래에 두는 복원 소식.
- * 멈춘 사진이 몇 장인지, 왜 멈췄는지, 무엇을 하면 되는지 보인다.
- * 할 일이 없으면 자리를 차지하지 않는다.
+ * 멈춘 사진이 몇 장인지, 왜 멈췄는지, 무엇을 하면 되는지 보임.
+ * 할 일이 없으면 자리를 차지하지 않음.
  */
 @Composable
 fun RestoreStatusBar(onPickFile: () -> Unit, modifier: Modifier = Modifier) {
@@ -184,7 +184,7 @@ private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifie
 private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () -> Unit, modifier: Modifier = Modifier) {
     val (label, action) =
         when (waiting.stop) {
-            // 받는 중이거나 연결이 풀렸으면 눌러도 나아지지 않는다.
+            // 받는 중이거나 연결이 풀렸으면 눌러도 나아지지 않음
             null, PhotoStop.ACCOUNT -> null to null
 
             PhotoStop.FILE -> Res.string.restore_wait_pick to onPickFile
@@ -201,7 +201,7 @@ private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () 
     )
 }
 
-/** 시스템이 깨워 주지 않는 플랫폼에서는 앱을 다시 열어야 잇는다. */
+/** 시스템이 깨워 주지 않는 플랫폼에서는 앱을 다시 열어야 이어짐 */
 private fun waitingBody(stop: PhotoStop?): StringResource = when (stop) {
     null -> Res.string.restore_wait_running
     PhotoStop.NO_SPACE -> Res.string.restore_note_pending_space_body

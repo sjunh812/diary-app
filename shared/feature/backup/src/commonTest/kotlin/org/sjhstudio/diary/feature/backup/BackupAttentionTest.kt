@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.BackupStep
 
-/** 접힌 바의 백업 경고는 홈 백업 줄의 빨간 점과 같은 때만 보인다. */
+/** 접힌 바의 백업 경고는 홈 백업 줄의 빨간 점과 같은 때만 보임 */
 class BackupAttentionTest {
     private val now = Instant.parse("2026-11-08T09:00:00Z")
     private val connected = BackupConnection.Connected("me")
@@ -30,7 +30,7 @@ class BackupAttentionTest {
     fun a_short_failure_or_a_healthy_backup_stays_quiet() {
         assertNull(attentionOf(BackupStatus(connection = connected, lastSuccessAt = now - 3.days, failingSince = now - 2.days), false, now))
         assertNull(attentionOf(BackupStatus(connection = connected, lastSuccessAt = now - 1.days), false, now))
-        // 백업을 켜지 않은 것은 고장이 아니라 선택이라 경고하지 않는다.
+        // 백업을 켜지 않은 것은 고장이 아니라 선택이라 경고하지 않음
         assertNull(attentionOf(BackupStatus(), false, now))
     }
 

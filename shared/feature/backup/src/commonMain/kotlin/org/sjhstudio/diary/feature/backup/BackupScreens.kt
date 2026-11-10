@@ -159,7 +159,7 @@ import org.sjhstudio.diary.feature.backup.resources.rollback_title
 import org.sjhstudio.diary.feature.backup.resources.rollback_tomorrow
 import org.sjhstudio.diary.feature.backup.resources.rollback_until
 
-/** 설정 > 백업(Figma "백업 (B1)"). */
+/** 설정 > 백업(Figma "백업 (B1)") */
 @Composable
 fun BackupSettingsRoute(
     onBack: () -> Unit,
@@ -203,8 +203,8 @@ fun BackupSettingsRoute(
     LaunchedEffect(viewModel) {
         viewModel.skipped.collect { skip -> toast.show(if (skip == BackupSkip.NO_ENTRIES) nothingYet else busy) }
     }
-    // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 묻는다.
-    // 거절해도 백업은 그대로 돈다.
+    // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 물음
+    // 거절해도 백업은 그대로 돎
     LaunchedEffect(running) { if (running) access.request {} }
     Box(modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
@@ -246,8 +246,8 @@ fun BackupSettingsRoute(
 
 /**
  * 구글 드라이브 연결 실패 안내.
- * 까닭에 맞는 할 일을 말한다.
- * 사용자가 취소한 때는 띄우지 않는다.
+ * 까닭에 맞는 할 일을 말함.
+ * 사용자가 취소한 때는 띄우지 않음.
  */
 @Composable
 fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
@@ -274,8 +274,8 @@ fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modi
 
 /**
  * Figma "B2 · 드라이브에 백업이 있어요".
- * 연결한 뒤 드라이브에서 찾은 백업을 권한다.
- * 예전 앱이 올린 백업은 기기와 편수를 몰라서 날짜와 사진이 없다는 것만 말한다.
+ * 연결한 뒤 드라이브에서 찾은 백업을 권함.
+ * 예전 앱 백업은 기기와 편수를 몰라 날짜와 사진이 없다는 것만 말함.
  */
 @Composable
 fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> Unit) {
@@ -333,15 +333,15 @@ internal fun BackupSettingsScreen(
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.backup_title), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
-            // 파일로 바꾼 사람은 연결이 없어도 되돌릴 수 있어야 한다.
+            // 파일로 바꾼 사람은 연결이 없어도 되돌릴 수 있어야 함
             rollback?.let {
                 Box(Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x4)) {
                     Rollback(it, onRollBack)
                 }
             }
             if (statusRead == BackupStatusRead.Failed) {
-                // 연결을 모르니 드라이브 줄은 두지 않는다.
-                // 파일로 백업하기와 불러오기는 드라이브 없이 되므로 그대로 둔다.
+                // 연결을 모르니 드라이브 줄은 두지 않음
+                // 파일로 백업하기와 불러오기는 드라이브 없이 되므로 그대로 둠
                 DiaryEmptyLine(
                     stringResource(Res.string.backup_status_failed),
                     loadFailedRetryLabel(),
@@ -356,8 +356,8 @@ internal fun BackupSettingsScreen(
                 )
                 FileRestoreRow(onFileRestore)
             } else if (statusRead == BackupStatusRead.Loading) {
-                // 읽기 전에 기본값으로 그리면 켜 둔 백업이 잠깐 꺼짐으로 보인다.
-                // 읽는 데 한 순간이라 아무것도 그리지 않는다.
+                // 읽기 전에 기본값으로 그리면 켜 둔 백업이 잠깐 꺼짐으로 보임
+                // 읽는 데 한 순간이라 아무것도 그리지 않음
             } else if (status.connection == BackupConnection.NotConnected) {
                 NotConnected(connecting, onConnect)
                 FileRestoreNotice(fileState)
@@ -368,8 +368,8 @@ internal fun BackupSettingsScreen(
                 )
                 FileRestoreRow(onFileRestore)
             } else {
-                // 공간 안내는 상태 자리만 대신한다.
-                // 공간이 없어도 복원, 자동 백업, 백업 설정 길은 그대로 있어야 한다.
+                // 공간 안내는 상태 자리만 대신함
+                // 공간이 없어도 복원, 자동 백업, 백업 설정 길은 그대로 있어야 함
                 if (status.lastFailure == BackupFailure.NO_SPACE && status.running == null) {
                     NoSpace(status, onBackUp, onFile)
                 } else {
@@ -379,7 +379,7 @@ internal fun BackupSettingsScreen(
                     ) {
                         Status(status, onCellular, onConnect)
                         if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
-                            // 다른 기기의 백업을 고르기 전에 이 기기 것을 올리지 않게 찾는 동안 막는다.
+                            // 다른 기기의 백업을 고르기 전에 이 기기 것을 올리지 않게 찾는 동안 막음
                             DiaryButton(
                                 stringResource(Res.string.backup_now),
                                 onBackUp,
@@ -398,7 +398,7 @@ internal fun BackupSettingsScreen(
                         }
                     }
                 }
-                // 백업과 복원을 두 묶음으로 나눠 복원을 찾으러 다른 화면을 뒤지지 않게 한다.
+                // 백업과 복원을 두 묶음으로 나눠 복원을 찾으러 다른 화면을 뒤지지 않게 함
                 DiarySettingsHeader(stringResource(Res.string.backup_group_backup))
                 DiarySettingsSwitchRow(
                     stringResource(Res.string.backup_auto),
@@ -426,7 +426,7 @@ internal fun BackupSettingsScreen(
     }
 }
 
-/** 백업 화면이 저장해 둔 상태를 어디까지 읽었는지. */
+/** 백업 화면이 저장해 둔 상태를 어디까지 읽었는지 */
 internal enum class BackupStatusRead { Loading, Loaded, Failed }
 
 @Composable
@@ -434,7 +434,7 @@ private fun FileRestoreRow(onClick: () -> Unit) {
     DiarySettingsRow(stringResource(Res.string.file_restore), onClick = onClick, description = stringResource(Res.string.file_restore_body))
 }
 
-/** 고른 파일을 앱으로 옮기는 동안의 안내와 실패 까닭. */
+/** 고른 파일을 앱으로 옮기는 동안의 안내와 실패 까닭 */
 @Composable
 private fun FileRestoreNotice(state: FileBackupUi) {
     val text =
@@ -448,7 +448,7 @@ private fun FileRestoreNotice(state: FileBackupUi) {
 
 /**
  * Figma "드라이브 공간이 부족해요 (B10)".
- * 우리가 공간을 팔지 않고 정리할 곳만 알려 준다(FR-019).
+ * 공간을 팔지 않고 정리할 곳만 알려 줌(FR-019).
  */
 @Composable
 private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Unit) {
@@ -490,7 +490,7 @@ private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Uni
 private const val STORAGE_URL = "https://drive.google.com/settings/storage"
 private const val TRASH_URL = "https://drive.google.com/drive/trash"
 
-/** Figma "B9 백업 · 되돌릴 수 있어요". */
+/** Figma "B9 백업 · 되돌릴 수 있어요" */
 @Composable
 private fun Rollback(info: RollbackInfo, onRollBack: () -> Unit) {
     var asking by remember { mutableStateOf(false) }
@@ -574,7 +574,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             )
 
         running != null -> {
-            // 화면이 꺼지면 iOS에서는 올리기가 멈춘다.
+            // 화면이 꺼지면 iOS에서는 올리기가 멈춤
             KeepScreenOn()
             Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                 DiaryStatusBox(
@@ -589,8 +589,8 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                         )
                     }
                 )
-                // 올릴 양을 세기 전에는 막대를 그리지 않는다.
-                // 빈 막대는 멈춘 것처럼 보인다.
+                // 올릴 양을 세기 전에는 막대를 그리지 않음
+                // 빈 막대는 멈춘 것처럼 보임
                 if (running.bytesTotal > 0) DiaryProgressBar(running.bytesDone.toFloat() / running.bytesTotal, onSunken = true)
             }
         }
@@ -602,9 +602,9 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                 stringResource(Res.string.backup_reconnect_body)
             )
 
-        // 마지막 시도가 실패했으면 앞선 성공보다 그 까닭과 할 일을 먼저 말한다.
-        // 첫 백업이 끊긴 때도 같다.
-        // 올린 사진은 남아 있다.
+        // 마지막 시도가 실패했으면 앞선 성공보다 그 까닭과 할 일을 먼저 말함
+        // 첫 백업이 끊긴 때도 같음
+        // 올린 사진은 남아 있음
         status.lastFailure != null -> FailedStatus(status.lastFailure, last)
 
         status.photosNotBackedUp > 0 && last != null ->
@@ -625,8 +625,8 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
 
         last != null -> DiaryStatusBox(DiaryIcons.ShieldCheck, last, stringResource(Res.string.backup_all_done))
 
-        // 이 기기에서 백업한 적은 없어도 복원한 백업이 드라이브에 있다.
-        // 첫 백업이라고 말하면 틀린 말이 된다.
+        // 이 기기에서 백업한 적은 없어도 복원한 백업이 드라이브에 있음
+        // 첫 백업이라고 하면 틀린 말
         else -> {
             val restored = status.restoredBackupAt
             DiaryStatusBox(
@@ -639,8 +639,8 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
 }
 
 /**
- * 마지막 시도가 실패했다.
- * 까닭과 할 일을 말하고, 앞선 성공이 있으면 언제까지 백업됐는지 함께 보인다.
+ * 마지막 시도 실패.
+ * 까닭과 할 일을 말하고, 앞선 성공이 있으면 언제까지 백업됐는지 함께 보임.
  */
 @Composable
 private fun FailedStatus(failure: BackupFailure?, last: String?) {
@@ -659,8 +659,8 @@ private fun FailedStatus(failure: BackupFailure?, last: String?) {
 }
 
 /**
- * 복원한 백업을 말한다.
- * 홈 상태 줄과 백업 화면이 같이 쓴다.
+ * 복원한 백업 안내.
+ * 홈 상태 줄과 백업 화면이 같이 씀.
  */
 @Composable
 internal fun restoredBackupText(at: Instant): String {
@@ -675,7 +675,7 @@ private fun lastBackupText(at: Instant): String {
     return stringResource(Res.string.backup_last, dates.dayWithWeekday(local.date), dates.time(local.time))
 }
 
-/** 백업 설정(Figma "백업 설정 (B13)"). */
+/** 백업 설정(Figma "백업 설정 (B13)") */
 @Composable
 fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()

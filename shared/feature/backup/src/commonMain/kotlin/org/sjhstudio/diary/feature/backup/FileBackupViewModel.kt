@@ -27,12 +27,12 @@ sealed interface FileBackupUi {
 
     data class Saved(val name: String, val bytes: Long) : FileBackupUi
 
-    /** [left]면 쓰다 만 파일을 지우지 못했다. 사용자가 지워야 한다. */
+    /** [left]면 쓰다 만 파일을 지우지 못함. 사용자가 지워야 함 */
     data class WriteFailed(val left: Boolean) : FileBackupUi
 
     data object Reading : FileBackupUi
 
-    /** [bytesShort]는 공간이 얼마나 더 있어야 하는지다. 모르면 0이다. */
+    /** [bytesShort]는 더 있어야 하는 공간. 모르면 0 */
     data class ReadFailed(val reason: RestoreFailure, val bytesShort: Long = 0) : FileBackupUi
 }
 
@@ -44,16 +44,16 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     val state: StateFlow<FileBackupUi> = _state.asStateFlow()
 
     init {
-        // 크기는 미리 알려 주는 곁일이라 읽지 못하면 비워 두고 파일 만들기는 그대로 할 수 있다.
+        // 크기는 미리 알려 주는 곁일이라 읽지 못하면 비워 둠. 파일 만들기는 그대로 됨
         viewModelScope.launchSafely { _estimate.value = orElseOnFailure(null) { restore.bundleEstimate() } }
     }
 
     private var writing: Job? = null
 
     /**
-     * 저장 위치가 정해지면 부른다.
-     * [open]은 그곳에 쓰는 흐름을 열고, [discard]는 그 파일을 지운다.
-     * 열고 닫기와 실패한 파일 지우기는 저장소가 맡는다.
+     * 저장 위치가 정해지면 부름.
+     * [open]은 그곳에 쓰는 흐름을 열고, [discard]는 그 파일을 지움.
+     * 열고 닫기와 실패한 파일 지우기는 저장소가 맡음.
      */
     fun write(name: String, open: () -> Sink, discard: suspend () -> Unit = {}) {
         _state.value = FileBackupUi.Writing(0, 1)
@@ -68,17 +68,17 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
             }
     }
 
-    /** 저장 창을 열지 못했다. */
+    /** 저장 창을 열지 못함 */
     fun saveFailed() {
         _state.value = FileBackupUi.WriteFailed(left = false)
     }
 
-    /** 파일 고르기 창을 열지 못했거나 고른 파일을 받지 못했다. */
+    /** 파일 고르기 창을 열지 못했거나 고른 파일을 받지 못함 */
     fun pickFailed() {
         _state.value = FileBackupUi.ReadFailed(RestoreFailure.OTHER)
     }
 
-    /** 사용자가 나가기로 해서 멈춘다. 만들던 파일은 지운다. */
+    /** 사용자가 나가기로 해 멈춤. 만들던 파일은 지움 */
     fun stop() {
         writing?.cancel()
         restore.forgetStoppedBundle()
@@ -90,10 +90,10 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
     val ready: Flow<Unit> = _ready.receiveAsFlow()
 
     /**
-     * 고른 파일을 앱 안으로 옮겨 확인한다.
-     * 끝나면 [ready]로 미리보기에 간다.
-     * [size]는 고른 파일의 크기다.
-     * 몰라도 옮기다 공간이 차면 그렇게 알린다.
+     * 고른 파일을 앱 안으로 옮겨 확인.
+     * 끝나면 [ready]로 미리보기에 감.
+     * [size]는 고른 파일의 크기.
+     * 몰라도 옮기다 공간이 차면 그렇게 알림.
      */
     fun read(open: () -> Source, size: () -> Long? = { null }) {
         _state.value = FileBackupUi.Reading

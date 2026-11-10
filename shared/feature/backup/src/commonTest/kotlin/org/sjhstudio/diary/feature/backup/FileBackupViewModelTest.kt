@@ -49,7 +49,7 @@ class FileBackupViewModelTest {
         return ViewModelProvider.create(store, factory)[FileBackupViewModel::class]
     }
 
-    /** 화면 모델은 입출력 스레드를 거친다. 시험 시계가 아니라 실제 시간으로 기다린다. */
+    /** 화면 모델이 입출력 스레드를 거쳐 시험 시계가 아니라 실제 시간으로 기다림 */
     private suspend fun waitUntil(check: () -> Boolean) = withContext(Dispatchers.Default) {
         withTimeout(5_000) {
             while (!check()) delay(5)
@@ -150,7 +150,7 @@ class FileBackupViewModelTest {
         assertEquals(FileBackupUi.ReadFailed(RestoreFailure.NO_SPACE, 5_000), viewModel.state.value)
     }
 
-    /** 끝난 화면은 어림값이 아니라 실제로 쓴 크기를 보인다. */
+    /** 끝난 화면은 어림값이 아니라 실제로 쓴 크기를 보임 */
     @Test
     fun the_saved_size_is_what_was_written() = runTest {
         restore.bundle.bundleBytes = 4_321
@@ -164,7 +164,7 @@ class FileBackupViewModelTest {
         assertEquals(4_321, target.size)
     }
 
-    /** 저장 자리를 열지 못해도 꺼지지 않고, 지울 파일이 없으니 지우라고 하지 않는다. */
+    /** 저장 자리를 열지 못해도 꺼지지 않고, 지울 파일이 없으니 지우라고 하지 않음 */
     @Test
     fun a_place_that_cannot_be_opened_fails_without_a_file_left() = runTest {
         val viewModel = viewModel()
@@ -175,7 +175,7 @@ class FileBackupViewModelTest {
         assertEquals(FileBackupUi.WriteFailed(left = false), viewModel.state.value)
     }
 
-    /** 고른 파일을 열지 못하면 파일이 틀렸다고 하지 않고 받지 못했다고 알린다. */
+    /** 고른 파일을 열지 못하면 파일이 틀렸다고 하지 않고 받지 못했다고 알림 */
     @Test
     fun a_picked_file_that_cannot_be_opened_is_not_called_a_wrong_file() = runTest {
         val viewModel = viewModel()
@@ -186,7 +186,7 @@ class FileBackupViewModelTest {
         assertEquals(FileBackupUi.ReadFailed(RestoreFailure.OTHER), viewModel.state.value)
     }
 
-    /** 크기를 묻다 실패해도 읽기는 이어 간다. */
+    /** 크기를 묻다 실패해도 읽기는 이어 감 */
     @Test
     fun an_unknown_size_still_reads_the_file() = runTest {
         restore.preparation = RestorePreparation.Failed(RestoreFailure.NO_SPACE, 5_000)
@@ -195,7 +195,7 @@ class FileBackupViewModelTest {
         viewModel.read({ Buffer() }, { throw IOException("크기를 모른다") })
         waitUntil { viewModel.state.value != FileBackupUi.Reading }
 
-        // 저장소까지 가서 공간 답을 받았다.
+        // 저장소까지 가서 공간 답을 받음
         assertEquals(FileBackupUi.ReadFailed(RestoreFailure.NO_SPACE, 5_000), viewModel.state.value)
         assertEquals(null, restore.preparedFileSize)
     }

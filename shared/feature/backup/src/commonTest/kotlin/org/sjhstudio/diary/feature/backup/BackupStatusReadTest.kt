@@ -24,7 +24,7 @@ import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 
-// 홈 줄과 백업 화면은 저장해 둔 상태를 읽지 못해도 꺼짐이라고 하지 않고 다시 시도를 보인다.
+// 홈 줄과 백업 화면은 저장해 둔 상태를 읽지 못해도 꺼짐이라고 하지 않고 다시 시도를 보임
 @OptIn(ExperimentalCoroutinesApi::class)
 class BackupStatusReadTest {
     private val dispatcher = StandardTestDispatcher()
@@ -36,7 +36,7 @@ class BackupStatusReadTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    /** 처음 [failures]번은 읽다 실패하고 그다음부터 [on]을 준다. */
+    /** 처음 [failures]번은 읽다 실패하고 그다음부터 [on]을 줌 */
     private class Flaky(private val fake: FakeBackupRepository, var failures: Int, private val on: BackupStatus) :
         BackupRepository by fake {
         override val status: Flow<BackupStatus> = flow {
@@ -79,7 +79,7 @@ class BackupStatusReadTest {
     fun before_reading_nothing_is_claimed() = runTest(dispatcher) {
         val viewModel = viewModel(FakeBackupRepository(on))
 
-        // 아직 읽지 않았다.
+        // 아직 읽지 않음
         assertNull(viewModel.loadedStatus.value)
         assertFalse(viewModel.statusFailed.value)
 

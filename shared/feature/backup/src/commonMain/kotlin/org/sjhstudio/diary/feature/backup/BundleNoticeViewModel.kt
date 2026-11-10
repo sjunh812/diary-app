@@ -11,7 +11,7 @@ import org.sjhstudio.diary.core.ui.launchSafely
 
 /**
  * 파일을 만들다 앱이 꺼진 일을 한 번 알림.
- * 꺼내면 지워지는 값이라 화면 모델이 한 번만 꺼내 둠. 화면이 다시 만들어져도 안내를 잃지 않음
+ * 꺼내면 지워지는 값이라 화면 모델이 한 번만 꺼내 둠. 화면이 다시 만들어져도 안내를 잃지 않음.
  */
 class BundleNoticeViewModel(restore: RestoreRepository) : ViewModel() {
     private val _pending = MutableStateFlow(false)

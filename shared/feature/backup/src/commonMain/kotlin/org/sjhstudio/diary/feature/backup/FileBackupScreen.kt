@@ -95,7 +95,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_body
 
 /**
  * 파일로 백업하기(Figma "파일로 백업하기 (B8)").
- * 저장 위치는 사용자가 시스템 창에서 고른다(FR-031).
+ * 저장 위치는 사용자가 시스템 창에서 고름(FR-031).
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -114,8 +114,8 @@ fun FileBackupRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 viewModel.write(target.name, { OkioSink(target.sink()) }, { target.delete(mustExist = false) })
             }
         }
-    // 나가면 파일을 끝까지 만들지 못한다.
-    // 모르고 나가지 않게 한 번 묻는다.
+    // 나가면 파일을 끝까지 만들지 못함
+    // 모르고 나가지 않게 한 번 물음
     var asking by remember { mutableStateOf(false) }
     val writing = state is FileBackupUi.Writing
     BackHandler(enabled = writing) { asking = true }
@@ -226,8 +226,8 @@ private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBack
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Heading(DiaryIcons.CircleCheck, stringResource(Res.string.file_saved_title), stringResource(Res.string.file_saved_body))
-        // 파일 이름은 설명 글과 섞이지 않게 따로 둔다.
-        // 파일 앱에서 찾을 때 이 줄을 본다.
+        // 파일 이름은 설명 글과 섞이지 않게 따로 둠
+        // 파일 앱에서 찾을 때 이 줄을 봄
         DiaryNoteBox(
             listOf(DiaryNote(DiaryIcons.Download, saved.name, sizeText(saved.bytes))),
             Modifier.padding(horizontal = LocalScreenGutter.current)
@@ -254,7 +254,7 @@ internal fun readFailedText(failed: FileBackupUi.ReadFailed): String = when (fai
     else -> stringResource(Res.string.file_read_failed)
 }
 
-/** 크기를 알려 주지 않는 저장소도 있다. */
+/** 크기를 알려 주지 않는 저장소도 있음 */
 internal fun PlatformFile.sizeOrNull(): Long? = try {
     size().takeIf { it > 0 }
 } catch (_: Exception) {

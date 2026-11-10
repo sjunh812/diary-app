@@ -38,7 +38,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 
-/** 화면이 사실을 말하는지 본다. 실패했는데 다 됐다고 하면 안 된다. */
+/** 화면이 사실을 말하는지 확인. 실패했는데 다 됐다고 하면 안 됨 */
 @OptIn(ExperimentalTestApi::class)
 class BackupStatusUiTest {
     private val connected =
@@ -53,7 +53,7 @@ class BackupStatusUiTest {
         BackupSettingsScreen(status, false, {}, {}, {}, {}, {}, {}, {})
     }
 
-    /** 비행기 모드에서 지금 백업: 예전 성공이 있어도 실패를 말한다. */
+    /** 비행기 모드에서 지금 백업: 예전 성공이 있어도 실패를 말함 */
     @Test
     fun a_failed_attempt_is_not_reported_as_all_backed_up() = runComposeUiTest {
         var allDone = ""
@@ -71,7 +71,7 @@ class BackupStatusUiTest {
         onAllNodesWithText(allDone).assertCountEquals(0)
     }
 
-    /** 연결한 뒤 드라이브를 찾는 동안에는 찾는다고 말하고 백업을 막는다. */
+    /** 연결한 뒤 드라이브를 찾는 동안에는 찾는다고 말하고 백업을 막음 */
     @Test
     fun finding_backups_is_shown_and_backup_waits() = runComposeUiTest {
         var title = ""
@@ -87,7 +87,7 @@ class BackupStatusUiTest {
         onNode(hasText(now) and hasClickAction()).assertIsNotEnabled()
     }
 
-    /** 사진을 받는 동안 홈이 사진까지 모두 백업했다고 말하면 안 된다. */
+    /** 사진을 받는 동안 홈이 사진까지 모두 백업했다고 말하면 안 됨 */
     @Test
     fun the_home_line_shows_photos_arriving() = runComposeUiTest {
         var receiving = ""
@@ -129,7 +129,7 @@ class BackupStatusUiTest {
         onAllNodesWithText(all, substring = true).assertCountEquals(0)
     }
 
-    /** 글은 올렸고 공간 때문에 사진만 남았으면 실패가 아니다. */
+    /** 글은 올렸고 공간 때문에 사진만 남았으면 실패가 아님 */
     @Test
     fun the_home_line_keeps_the_success_when_only_photos_wait() = runComposeUiTest {
         var failed = ""
@@ -163,7 +163,7 @@ class BackupStatusUiTest {
         onNodeWithText(days).assertExists()
     }
 
-    /** 드라이브 공간이 부족해도 복원, 자동 백업, 백업 설정 길이 사라지면 안 된다. */
+    /** 드라이브 공간이 부족해도 복원, 자동 백업, 백업 설정 길이 사라지면 안 됨 */
     @Test
     fun running_out_of_drive_space_keeps_every_other_path() = runComposeUiTest {
         var title = ""
@@ -195,7 +195,7 @@ class BackupStatusUiTest {
         onNodeWithText(offline).assertExists()
     }
 
-    /** 예전 앱 백업은 편수를 모른다. 0편으로 보이면 빈 백업인 줄 안다. */
+    /** 예전 앱 백업은 편수를 모름. 0편으로 보이면 빈 백업으로 오해함 */
     @Test
     fun an_old_backup_shows_no_counts() = runComposeUiTest {
         val old =

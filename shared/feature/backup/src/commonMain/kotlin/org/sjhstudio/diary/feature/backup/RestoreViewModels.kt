@@ -36,7 +36,7 @@ class RestoreListViewModel(private val restore: RestoreRepository) : ViewModel()
     fun load() {
         _state.value = RestoreListUi.Loading
         viewModelScope.launchSafely {
-            // 드라이브에 묻는 데 몇 초가 걸리니 지난번 목록을 먼저 보여 준다.
+            // 드라이브에 묻는 데 몇 초가 걸려 지난번 목록을 먼저 보여 줌
             restore.savedBackups().takeIf { it.isNotEmpty() }?.let { _state.value = RestoreListUi.Loaded(it) }
             _state.value = restore.backups()?.let { RestoreListUi.Loaded(it) } ?: RestoreListUi.Failed
         }
@@ -46,7 +46,7 @@ class RestoreListViewModel(private val restore: RestoreRepository) : ViewModel()
 class RestorePreviewViewModel(private val snapshotName: String, private val restore: RestoreRepository) : ViewModel() {
     private val _state = MutableStateFlow<RestorePreparation?>(null)
 
-    /** null이면 받아서 확인하는 중이다. */
+    /** null이면 받아서 확인하는 중 */
     val state: StateFlow<RestorePreparation?> = _state.asStateFlow()
 
     init {
@@ -55,7 +55,7 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
 
     fun load() {
         _state.value = null
-        // 앱이 꺼졌다 돌아와 목록부터 다시 받다가 끊겨도 앱을 끄지 않고 실패 화면에서 다시 시도하게 한다.
+        // 앱이 꺼졌다 돌아와 목록부터 다시 받다가 끊겨도 앱을 끄지 않고 실패 화면에서 다시 시도
         viewModelScope.launchSafely {
             _state.value = orElseOnFailure(RestorePreparation.Failed(RestoreFailure.OTHER)) { restore.prepare(snapshotName) }
         }
@@ -73,7 +73,7 @@ class RestorePreviewViewModel(private val snapshotName: String, private val rest
         restore.replace()
     }
 
-    /** 복원하지 않고 나가면 받아 둔 일기 사본을 지운다. */
+    /** 복원하지 않고 나가면 받아 둔 일기 사본을 지움 */
     override fun onCleared() {
         if (!restoring) restore.dismiss()
     }

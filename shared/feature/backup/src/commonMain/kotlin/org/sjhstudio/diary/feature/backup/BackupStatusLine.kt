@@ -68,7 +68,7 @@ private val LONG_FAILURE = 7.days
 
 /**
  * 홈 머리의 백업 상태 줄(Figma B11, `docs/design.md` 홈 백업 줄).
- * 누르면 설정의 백업으로 간다.
+ * 누르면 설정의 백업으로 감.
  */
 @Composable
 fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
@@ -78,13 +78,13 @@ fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val photos by viewModel.photoProgress.collectAsStateWithLifecycle()
     val current = status
     when {
-        // 읽지 못한 것을 숨기면 백업이 도는지 사용자가 알 수 없다.
-        // 꺼짐이라고도 하지 않고 읽지 못했다고 말한 뒤 그 자리에서 다시 읽는다.
+        // 읽지 못한 것을 숨기면 백업이 도는지 사용자가 알 수 없음
+        // 꺼짐이라고 하지 않고 읽지 못했다고 말한 뒤 그 자리에서 다시 읽음
         failed -> BackupStatusFailedLine(viewModel::retryStatus, modifier)
 
         current != null -> BackupStatusLine(current, onOpen, modifier, photos)
 
-        // 읽기 전에는 틀린 말을 하지 않고 자리만 잡아 둔다.
+        // 읽기 전에는 틀린 말을 하지 않고 자리만 잡아 둠
         else -> BackupStatusLine(BackupStatus(), onOpen = {}, modifier.alpha(0f))
     }
 }
@@ -94,7 +94,7 @@ internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier
     StatusLineRow(lineFor(status, photos), onOpen, modifier)
 }
 
-/** 상태를 읽지 못했을 때의 홈 줄. 누르면 그 자리에서 다시 읽는다. */
+/** 상태를 읽지 못했을 때의 홈 줄. 누르면 그 자리에서 다시 읽음 */
 @Composable
 internal fun BackupStatusFailedLine(onRetry: () -> Unit, modifier: Modifier = Modifier) {
     StatusLineRow(
@@ -109,8 +109,8 @@ private fun StatusLineRow(line: Line, onClick: () -> Unit, modifier: Modifier = 
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     val caption = DiaryTheme.typography.caption
-    // 글줄 모양은 그대로 두고 누르는 곳만 48로 넓힌다.
-    // 누름 면은 글자에서 위아래 6, 옆 8까지만 나와서 위 큰 제목에 닿지 않는다.
+    // 글줄 모양은 그대로 두고 누르는 곳만 48로 넓힘
+    // 누름 면은 글자에서 위아래 6, 옆 8까지만 나와 위 큰 제목에 닿지 않음
     val lineHeight = with(LocalDensity.current) { caption.lineHeight.toDp() }
     val touch = ((DiarySpacing.minTouchTarget - lineHeight) / 2).coerceAtLeast(DiarySpacing.x1_5)
     Row(
@@ -125,7 +125,7 @@ private fun StatusLineRow(line: Line, onClick: () -> Unit, modifier: Modifier = 
         verticalAlignment = Alignment.CenterVertically
     ) {
         DiaryIcon(line.icon, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
-        // 글이 길면 글만 말줄임해서 뒤 동작과 빨간 점이 밀려나지 않는다.
+        // 글이 길면 글만 말줄임해 뒤 동작과 빨간 점이 밀려나지 않음
         BasicText(
             line.text,
             modifier = Modifier.weight(1f, fill = false),
@@ -140,12 +140,12 @@ private fun StatusLineRow(line: Line, onClick: () -> Unit, modifier: Modifier = 
 
 private class Line(val icon: ImageVector, val text: String, val action: String? = null, val alert: Boolean = false)
 
-/** 사용자가 손봐야 하는 백업 상태. 홈 줄의 빨간 점과 접힌 바의 경고 단추가 같은 기준을 쓴다. */
+/** 사용자가 손봐야 하는 백업 상태. 홈 줄의 빨간 점과 접힌 바의 경고 단추가 같은 기준을 씀 */
 internal enum class BackupAttention { Reconnect, LongFailure }
 
 /**
- * 손봐야 할 백업 상태를 고른다.
- * [lineFor]와 같은 순서로 따져서, 줄이 다른 말을 하는 동안(사진 받는 중, 꺼짐, 올리는 중, 찾는 중)에는 경고하지 않는다.
+ * 손봐야 할 백업 상태 고르기.
+ * [lineFor]와 같은 순서로 따짐. 줄이 다른 말을 하는 동안(사진 받는 중, 꺼짐, 올리는 중, 찾는 중)은 경고하지 않음.
  */
 internal fun attentionOf(status: BackupStatus, receivingPhotos: Boolean, now: Instant): BackupAttention? {
     val last = status.lastSuccessAt
@@ -160,8 +160,8 @@ internal fun attentionOf(status: BackupStatus, receivingPhotos: Boolean, now: In
 
 /**
  * 홈 머리가 접혔을 때 바의 작은 제목 옆에 두는 백업 경고(`docs/design.md` 탭 상단 바).
- * 손봐야 할 때만 보이고, 누르면 홈 백업 줄처럼 설정의 백업으로 간다.
- * 평소 상태는 맨 위로 올리면 백업 줄이 말하므로 바에 두지 않는다.
+ * 손봐야 할 때만 보이고, 누르면 홈 백업 줄처럼 설정의 백업으로 감.
+ * 평소 상태는 맨 위로 올리면 백업 줄이 말하므로 바에 두지 않음.
  */
 @Composable
 fun BackupAlertButton(onOpen: () -> Unit, modifier: Modifier = Modifier) {
@@ -189,10 +189,10 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
     val running = status.running
     val last = status.lastSuccessAt
     val now = Clock.System.now()
-    // 아이콘이 상태를 말한다(Figma B11 상태들과 같다).
-    // 방패는 사진까지 다 올라간 때만 쓴다.
+    // 아이콘이 상태를 말함(Figma B11 상태들)
+    // 방패는 사진까지 다 올라간 때만 씀
     return when {
-        // 사진을 받는 동안 "사진까지 모두"라고 말하면 틀린 말이 된다.
+        // 사진을 받는 동안 "사진까지 모두"라고 하면 틀린 말
         photos != null -> Line(DiaryIcons.Download, stringResource(Res.string.backup_line_receiving, photos.done, photos.total))
 
         status.connection == BackupConnection.NotConnected ->
@@ -203,8 +203,8 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
 
         running != null -> Line(
             DiaryIcons.CloudUpload,
-            // 글을 먼저 올리는 동안은 사진 수를 모른다.
-            // 0/0을 보이지 않는다.
+            // 글을 먼저 올리는 동안은 사진 수를 모름
+            // 0/0은 보이지 않음
             if (running.photosTotal > 0) {
                 stringResource(Res.string.backup_line_running, running.photosDone, running.photosTotal)
             } else {
@@ -214,11 +214,11 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
 
         status.findingBackup -> Line(DiaryIcons.Cloud, stringResource(Res.string.backup_finding_title))
 
-        // 실패가 7일을 넘으면 마지막 성공이 얼마나 지났는지가 더 중요하다.
+        // 실패가 7일을 넘으면 마지막 성공이 얼마나 지났는지가 더 중요함
         last != null && now - (status.failingSince ?: now) >= LONG_FAILURE ->
             Line(DiaryIcons.CloudOff, stringResource(Res.string.backup_line_days, (now - last).inWholeDays.toInt()), alert = true)
 
-        // 글을 올린 뒤 공간 때문에 사진만 남은 것은 실패가 아니라서 아래 줄이 말한다.
+        // 글을 올린 뒤 공간 때문에 사진만 남은 것은 실패가 아니라 아래 줄이 말함
         status.lastFailure != null && status.failingSince != null ->
             Line(DiaryIcons.CircleAlert, stringResource(Res.string.backup_line_failed))
 
@@ -234,7 +234,7 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
                 } else {
                     stringResource(Res.string.backup_line_all)
                 }
-            // 방패는 사진까지 다 올라가 지킬 것이 없을 때만 쓴다.
+            // 방패는 사진까지 다 올라가 지킬 것이 없을 때만 씀
             val icon = if (status.photosNotBackedUp > 0) DiaryIcons.Cloud else DiaryIcons.ShieldCheck
             Line(icon, stringResource(Res.string.backup_line_at, whenText(last), detail))
         }
