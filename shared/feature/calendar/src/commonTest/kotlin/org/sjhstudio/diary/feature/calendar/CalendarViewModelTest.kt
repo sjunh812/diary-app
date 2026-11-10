@@ -114,7 +114,7 @@ class CalendarViewModelTest {
         assertEquals(YearMonth(2026, 10), viewModel(LocalDate(2026, 1, 1)).lastMonth.value)
     }
 
-    /** 일기가 있는 날에 "이 날 쓰기"가 먼저 보이지 않게 읽는 중과 빈 날을 가른다. */
+    /** 일기가 있는 날에 "이 날 쓰기"가 먼저 보이지 않게 읽는 중과 빈 날을 구분 */
     @Test
     fun before_the_rows_arrive_the_day_is_unknown_not_empty() = runTest {
         val slow = MutableSharedFlow<List<EntryRow>>()
@@ -128,7 +128,7 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(today, emptyList()), model.day.value)
     }
 
-    /** 그날 일기를 읽지 못하면 읽는 중으로 남지 않고 다시 시도를 보이며, 다시 시도하면 다시 읽는다. */
+    /** 그날 일기를 읽지 못하면 읽는 중 대신 다시 시도를 보이고, 다시 시도하면 다시 읽음 */
     @Test
     fun a_failed_day_shows_retry_and_reads_again() = runTest {
         var fail = true
@@ -147,7 +147,7 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(today, emptyList()), model.day.value)
     }
 
-    /** 달을 읽은 뒤 일기가 없는 날을 누르면 읽기를 기다리지 않고 바로 빈 날이다. 비었다 채워지는 깜빡임이 없다. */
+    /** 달을 읽은 뒤 일기 없는 날을 누르면 기다리지 않고 바로 빈 날. 비었다 채워지는 깜빡임 없음 */
     @Test
     fun an_empty_day_of_a_read_month_is_empty_at_once() = runTest {
         val empty = LocalDate(today.year, today.month, 2)
@@ -161,7 +161,7 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(empty, emptyList()), model.day.value)
     }
 
-    /** 새 날짜 아래에 지난 날 일기가 보이지 않는다. */
+    /** 새 날짜 아래에 지난 날 일기가 보이지 않음 */
     @Test
     fun picking_another_day_hides_the_rows_of_the_last_one() = runTest {
         val written = LocalDate(2026, 10, 5)
@@ -176,7 +176,7 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(written, null), model.day.value)
     }
 
-    /** 다른 달에 다녀와도 그 달에서 고른 날로 돌아온다. 고른 것이 저절로 바뀌지 않는다. */
+    /** 다른 달에 다녀와도 그 달에서 고른 날로 돌아옴. 고른 날이 저절로 바뀌지 않음 */
     @Test
     fun the_picked_day_comes_back_after_visiting_another_month() = runTest {
         val model = viewModel(LocalDate(2026, 9, 3))
@@ -189,7 +189,7 @@ class CalendarViewModelTest {
         assertEquals(picked, model.selected.value)
     }
 
-    /** 앱이 꺼졌다 돌아와도 고른 날이 남는다. */
+    /** 앱이 꺼졌다 돌아와도 고른 날 유지 */
     @Test
     fun the_picked_day_survives_the_app_being_killed() {
         val saved = SavedStateHandle()
@@ -200,7 +200,7 @@ class CalendarViewModelTest {
         assertEquals(LocalDate(2026, 9, 3), again.selected.value)
     }
 
-    /** 달을 넘겨 다녀와도 얼굴이 사라졌다 나타나지 않게 읽은 값을 둔다. */
+    /** 달을 넘겨 다녀와도 얼굴이 사라졌다 나타나지 않게 읽은 값 유지 */
     @Test
     fun a_month_read_once_is_there_at_once_when_you_come_back() = runTest {
         val day = LocalDate(2026, 9, 3)
@@ -213,7 +213,7 @@ class CalendarViewModelTest {
         assertEquals(setOf(day), model.moods(month).value.keys)
     }
 
-    /** 켜 둔 채 자정을 넘기면 오늘을 보던 사람은 새 오늘을 본다. */
+    /** 켜 둔 채 자정을 넘기면 오늘을 보던 사람은 새 오늘을 봄 */
     @Test
     fun a_new_day_moves_today_and_the_selection_that_followed_it() {
         today = LocalDate(2026, 10, 30)
@@ -338,7 +338,7 @@ class CalendarViewModelTest {
         assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).menu.entryToShare("a")?.plainText)
     }
 
-    /** 메뉴가 닫혀도 공유할 일기는 화면 모델의 범위에서 끝까지 읽힌다. */
+    /** 메뉴가 닫혀도 공유할 일기는 화면 모델 범위에서 끝까지 읽힘 */
     @Test
     fun sharing_survives_the_menu_closing() = runTest {
         val vm = menuViewModel(Menu(detail(favorite = false)))

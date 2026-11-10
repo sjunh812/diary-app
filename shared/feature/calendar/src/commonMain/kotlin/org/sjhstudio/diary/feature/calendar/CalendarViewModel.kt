@@ -42,9 +42,8 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
  * 고른 날과 그날 일기.
- * [rows]가 null이면 아직 읽는 중이고, 빈 목록이면 쓴 글이 없는 날이다.
- * [failed]면 읽지 못해 다시 시도를 보인다.
- * 일기가 들어 있어 [toString]에 담지 않는다(헌법 II).
+ * [rows]: null이면 읽는 중, 빈 목록이면 쓴 글이 없는 날. [failed]면 다시 시도를 보임.
+ * 일기가 들어 있어 [toString]에서 뺌(헌법 II)
  */
 data class CalendarDay(val date: LocalDate?, val rows: List<EntryRow>?, val failed: Boolean = false) {
     override fun toString(): String = "CalendarDay"
@@ -52,9 +51,7 @@ data class CalendarDay(val date: LocalDate?, val rows: List<EntryRow>?, val fail
 
 /**
  * 달력(FR-022~FR-024).
- * 달을 넘기면 그 달에서 마지막으로 일기를 쓴 날을 고른다.
- * 이번 달로 오면 오늘을 고른다.
- * 일기가 없는 달은 아무 날도 고르지 않는다.
+ * 달을 넘기면 그 달에서 마지막으로 일기를 쓴 날, 이번 달이면 오늘을 고름. 일기가 없는 달은 고르지 않음
  */
 class CalendarViewModel(
     private val entries: EntryRepository,
@@ -63,14 +60,14 @@ class CalendarViewModel(
     private val today: () -> LocalDate = { currentDate() },
     private val saved: SavedStateHandle
 ) : ViewModel() {
-    // 시스템이 앱을 끄고 다시 띄워도 고른 날이 남는다.
+    // 시스템이 앱을 끄고 다시 띄워도 고른 날 유지
     private val _selected =
         MutableStateFlow<LocalDate?>(saved.get<String>(SELECTED_KEY)?.let { runCatching { LocalDate.parse(it) }.getOrNull() } ?: today())
 
-    /** 달마다 사용자가 마지막으로 고른 날. 다른 달에 다녀와도 그날로 돌아온다. */
+    /** 달마다 마지막으로 고른 날. 다른 달에 다녀와도 그날로 돌아옴 */
     private val picked = HashMap<YearMonth, LocalDate>()
 
-    /** 일기 줄을 길게 눌렀을 때의 메뉴(홈과 달력이 같다). */
+    /** 일기 줄 길게 누르기 메뉴(홈과 같음) */
     val menu = EntryMenuWork(viewModelScope, entries)
 
     init {
@@ -85,10 +82,10 @@ class CalendarViewModel(
 
     private val _todayState = MutableStateFlow(today())
 
-    /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꾼다. */
+    /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꿈 */
     val todayState: StateFlow<LocalDate> = _todayState.asStateFlow()
 
-    /** 다시 시도할 때마다 올라가서 고른 날을 새로 읽는다. */
+    /** 다시 시도마다 올라 고른 날을 새로 읽음 */
     private val attempt = MutableStateFlow(0)
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -102,16 +99,14 @@ class CalendarViewModel(
                         dayRows[date] = rows
                         CalendarDay(date, rows)
                     }
-                    // 읽지 못하면 읽는 중으로 남기지 않고 다시 시도를 보인다.
+                    // 읽지 못하면 읽는 중으로 남기지 않고 다시 시도를 보임
                     .catch { if (it is Exception) emit(CalendarDay(date, null, failed = true)) else throw it }
             }
         }
 
     /**
-     * 날짜와 그 날짜의 일기를 한 값으로 묶는다.
-     * 날을 바꾸면 미리 읽어 둔 일기를 바로 보이고, 다시 읽은 값으로 바꾼다.
-     * 지난 날 일기는 새 날 이름 아래 보이지 않는다.
-     * 미리 읽은 것이 없을 때만 잠깐 읽는 중이다.
+     * 날짜와 그날 일기를 한 값으로 묶어 지난 날 일기가 새 날 아래 보이지 않게 함.
+     * 날을 바꾸면 미리 읽은 일기를 바로 보이고 다시 읽은 값으로 바꿈. 미리 읽은 게 없을 때만 잠깐 읽는 중
      */
     val day: StateFlow<CalendarDay> =
         combine(_selected, readDay) { date, read -> read.takeIf { it.date == date } ?: CalendarDay(date, date?.let(::knownRows)) }
@@ -121,28 +116,25 @@ class CalendarViewModel(
 
     /**
      * 날마다 읽어 둔 일기.
-     * 날을 누를 때마다 읽는 동안 비었다 채워지면 목록이 깜빡인다.
+     * 없으면 날을 누를 때마다 목록이 비었다 채워지며 깜빡임
      */
     private val dayRows = HashMap<LocalDate, List<EntryRow>>()
 
-    /** 다 읽은 달. 이 달의 날 가운데 기분 지도에 없는 날은 일기가 없다. */
+    /** 다 읽은 달. 이 달에서 기분 지도에 없는 날은 일기 없음 */
     private val readMonths = HashSet<YearMonth>()
 
-    /** 미리 아는 그날 일기. 모르면 null이다. */
+    /** 미리 아는 그날 일기. 모르면 null */
     private fun knownRows(date: LocalDate): List<EntryRow>? =
         dayRows[date] ?: if (date.yearMonth in readMonths && date !in monthMoods[date.yearMonth]?.value.orEmpty()) emptyList() else null
 
-    /** 일기가 있는 날을 미리 읽어 둔다. 한 달 일기는 많지 않다. */
+    /** 일기가 있는 날을 미리 읽어 둠. 한 달 일기는 많지 않음 */
     private fun prefetch(days: Collection<LocalDate>) {
         viewModelScope.launchSafely {
             for (date in days) if (date !in dayRows) dayRows[date] = entries.day(date).first()
         }
     }
 
-    /**
-     * 넘길 수 있는 마지막 달.
-     * 이번 달과 일기가 있는 마지막 달 가운데 늦은 쪽이다(옛 앱은 미래 날짜도 허용했다).
-     */
+    /** 넘길 수 있는 마지막 달. 이번 달과 일기가 있는 마지막 달 중 늦은 쪽(옛 앱은 미래 날짜도 허용) */
     val lastMonth: StateFlow<YearMonth> =
         combine(entries.months(), _todayState) { months, date -> maxOf(months.maxOrNull() ?: date.yearMonth, date.yearMonth) }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, thisMonth())
@@ -154,16 +146,13 @@ class CalendarViewModel(
 
     fun thisMonth(): YearMonth = today().yearMonth
 
-    /**
-     * 달의 기분.
-     * 읽은 달은 값을 들고 있어, 달을 넘겨 다녀오거나 탭을 옮겼다 와도 얼굴이 사라졌다 나타나지 않는다.
-     */
+    /** 달의 기분. 읽은 달은 값을 들고 있어 달·탭을 옮겼다 와도 얼굴이 사라졌다 나타나지 않음 */
     fun moods(month: YearMonth): StateFlow<Map<LocalDate, DayMood>> = monthMoods.getOrPut(month) {
         entries
             .month(month)
             .onEach { map ->
                 readMonths += month
-                // 이 달 일기가 바뀌었으니 미리 읽은 것을 버리고 다시 읽는다.
+                // 이 달 일기가 바뀌어 미리 읽은 것을 버리고 다시 읽음
                 dayRows.keys.removeAll { it.yearMonth == month }
                 prefetch(map.keys)
             }
@@ -176,10 +165,9 @@ class CalendarViewModel(
     }
 
     /**
-     * 앱이 돌아올 때 오늘을 다시 읽는다.
-     * 어제의 오늘을 보고 있었으면 새 오늘로 옮기고, 사용자가 고른 다른 날은 그대로 둔다.
-     * 달까지 바뀌어 달력을 넘겨야 하면 true를 돌려준다.
-     * 달을 넘기면 [showMonth]가 오늘을 고른다.
+     * 앱이 돌아올 때 오늘을 다시 읽음.
+     * 어제의 오늘을 보던 중이면 새 오늘로 옮기고, 고른 다른 날은 그대로.
+     * @return 달까지 바뀌어 달력을 넘겨야 하면 true. 넘기면 [showMonth]가 오늘을 고름
      */
     fun refreshToday(): Boolean {
         val before = _todayState.value
@@ -192,13 +180,12 @@ class CalendarViewModel(
     }
 
     /**
-     * 달을 넘겼을 때.
-     * 이미 그 달의 날을 고른 상태면 그대로 둔다.
-     * 그 달에서 고른 날이 있으면 그날, 없으면 이번 달은 오늘, 지난 달은 마지막으로 쓴 날이다.
+     * 달을 넘겼을 때. 이미 그 달 날을 골랐으면 그대로.
+     * 아니면 그 달에서 고른 날, 없으면 이번 달은 오늘, 지난 달은 마지막으로 쓴 날
      */
     fun showMonth(month: YearMonth) {
         if (_selected.value?.yearMonth == month) return
-        // 빨리 넘기면 늦게 끝난 앞 달 읽기가 고른 날을 덮는다. 앞 읽기는 버린다.
+        // 빨리 넘기면 늦게 끝난 앞 달 읽기가 고른 날을 덮어 앞 읽기는 취소
         monthRead?.cancel()
         val known = picked[month] ?: today().takeIf { month == thisMonth() }
         if (known != null) {
@@ -212,10 +199,7 @@ class CalendarViewModel(
     private var monthRead: Job? = null
 }
 
-/**
- * 달력 넘기기의 쪽 번호.
- * 1970년 1월이 0쪽이다.
- */
+/** 달력 넘기기의 쪽 번호. 1970년 1월이 0쪽 */
 internal fun YearMonth.pageIndex(): Int = (year - FIRST_YEAR) * MONTHS + (month.number - 1)
 
 internal fun monthOfPage(page: Int): YearMonth = YearMonth(FIRST_YEAR + page / MONTHS, page % MONTHS + 1)

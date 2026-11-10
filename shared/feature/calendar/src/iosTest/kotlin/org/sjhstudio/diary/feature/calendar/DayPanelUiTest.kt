@@ -14,7 +14,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 
-/** 달력의 그날 일기 줄은 누르면 열리고 길게 누르면 메뉴를 부른다. */
+/** 달력 그날 일기 줄: 누르면 열림, 길게 누르면 메뉴 */
 @OptIn(ExperimentalTestApi::class)
 class DayPanelUiTest {
     private val day = LocalDate(2026, 11, 1)

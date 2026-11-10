@@ -113,8 +113,7 @@ private const val DAYS_IN_WEEK = 7
 
 /**
  * 달력(Figma "달력 (S4)").
- * 폰은 달력 아래, 넓은 화면은 옆에 그날 일기가 나온다.
- * 주는 일요일에 시작한다.
+ * 그날 일기는 폰에서 달력 아래, 넓은 화면에서 옆. 주는 일요일 시작
  */
 @Composable
 fun CalendarRoute(
@@ -196,8 +195,7 @@ fun CalendarRoute(
     OnTabReselected { scroll.animateScrollTo(0) }
     if (twoPane) {
         Row(modifier.then(canvas)) {
-            // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데에 둔다.
-            // 달력이 왼쪽에 붙어 치우치지 않는다.
+            // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데. 왼쪽으로 치우치지 않게
             Column(
                 Modifier.weight(1f).fillMaxHeight().verticalScroll(scroll),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -217,8 +215,8 @@ fun CalendarRoute(
         }
     } else {
         Column(modifier.then(canvas), horizontalAlignment = Alignment.CenterHorizontally) {
-            // 큰 달 제목이 스크롤되어 바 밑으로 들어가는 만큼 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
-            // 오늘과 달 넘기기 단추는 늘 바 오른쪽에 있고, 작은 제목은 남는 폭만 써서 단추와 겹치지 않는다.
+            // 큰 달 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바).
+            // 오늘·달 넘기기 단추는 늘 바 오른쪽. 작은 제목은 남는 폭만 써 단추와 겹치지 않음
             DiaryTabTopBar(
                 title = dates.yearMonth(shown.onDay(1)),
                 collapsed = { titleCollapse(scroll.value, titleHeight) },
@@ -226,7 +224,7 @@ fun CalendarRoute(
                 onTitleClick = { picking = true },
                 actions = { MonthNav(shown < last, selected != today, onToday, onMove) }
             )
-            // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
+            // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
             Column(
                 Modifier.fillMaxWidth().weight(1f).verticalScroll(scroll).padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -290,7 +288,7 @@ internal fun CalendarPanel(
                 nav()
             }
         } else {
-            // 폰에서는 오늘과 달 넘기기 단추가 위 바에 있다.
+            // 폰에서는 오늘·달 넘기기 단추가 위 바에 있음
             DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick, Modifier.onSizeChanged { onTitleHeight(it.height) })
         }
         Spacer(Modifier.height(DiarySpacing.x4))
@@ -320,8 +318,7 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
 private fun Weekdays(dates: DiaryDateFormat) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth()) {
-        // 2026년 11월 1일이 일요일이다.
-        // 요일 이름만 언어에 맞게 빌려 온다.
+        // 2026년 11월 1일이 일요일. 요일 이름만 언어에 맞게 빌려 옴
         for (offset in 0 until DAYS_IN_WEEK) {
             val date = LocalDate(WEEK_YEAR, WEEK_MONTH, 1 + offset)
             BasicText(
@@ -351,12 +348,12 @@ private fun MonthGrid(
     onSelect: (LocalDate) -> Unit
 ) {
     val first = month.onDay(1)
-    // 일요일을 0으로 센 첫날 앞의 빈칸 수.
+    // 일요일을 0으로 센 첫날 앞 빈칸 수
     val blanks = first.dayOfWeek.ordinal.let { (it + 1) % DAYS_IN_WEEK }
     val cells: List<LocalDate?> = List(blanks) { null } + (1..month.numberOfDays).map { month.onDay(it) }
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
         for (week in cells.chunked(DAYS_IN_WEEK)) {
-            // 기기 글자를 키워도 날짜가 잘리지 않게 칸은 내용만큼 자란다.
+            // 기기 글자를 키워도 날짜가 잘리지 않게 칸이 내용만큼 자람
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
                 for (index in 0 until DAYS_IN_WEEK) {
                     val date = week.getOrNull(index)
@@ -415,7 +412,7 @@ private fun DayCell(
         ) {
             BasicText(
                 date.day.toString(),
-                // 고른 칸은 selected 바탕이라 일요일 색의 대비가 모자란다(4.2:1).
+                // 고른 칸은 selected 바탕이라 일요일 색 대비가 부족함(4.2:1)
                 style = DiaryTheme.typography.captionStrong.copy(
                     color =
                         when {
@@ -441,8 +438,7 @@ private fun DayCell(
 
 /**
  * 그날 마지막 일기의 얼굴.
- * 여러 편이면 앞 일기의 기분 색을 뒤에 겹친다(2026-11-05 사용자 결정).
- * 편수는 고른 날 목록에 있다.
+ * 여러 편이면 앞 일기 기분 색을 뒤에 겹침. 편수는 고른 날 목록에서 보임
  */
 @Composable
 private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) {
@@ -464,10 +460,8 @@ private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) 
 }
 
 /**
- * 고른 날의 일기.
- * 없으면 그날 쓰기를 권한다.
- * [rows]가 null이면 읽는 중이라 날짜만 두고 아래는 비운다.
- * 곧 끝나는 일이라 뼈대를 새로 끼우지 않는다.
+ * 고른 날의 일기. 없으면 그날 쓰기를 권함.
+ * [rows]가 null이면 읽는 중이라 날짜만 두고 아래는 비움. 곧 끝나는 일이라 스켈레톤 없음
  */
 @Composable
 internal fun DayPanel(
@@ -504,8 +498,7 @@ internal fun DayPanel(
             return@Column
         }
         if (rows.isEmpty()) {
-            // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다.
-            // 고른 날에 쓴 글이 없다는 것만 조용히 말한다.
+            // 달력 아래 한 칸이라 화면 전체용 빈 상태 대신 쓴 글이 없다는 것만 조용히 알림
             DiaryEmptyLine(
                 stringResource(Res.string.calendar_empty),
                 stringResource(Res.string.calendar_write_on_day),
