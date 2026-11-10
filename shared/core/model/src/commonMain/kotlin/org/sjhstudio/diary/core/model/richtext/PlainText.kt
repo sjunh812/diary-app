@@ -1,4 +1,4 @@
-package org.sjhstudio.diary.core.data.richtext
+package org.sjhstudio.diary.core.model.richtext
 
 import org.sjhstudio.diary.core.model.decodeHtmlEntity
 

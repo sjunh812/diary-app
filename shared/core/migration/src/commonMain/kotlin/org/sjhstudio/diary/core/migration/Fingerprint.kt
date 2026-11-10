@@ -1,10 +1,10 @@
 package org.sjhstudio.diary.core.migration
 
 import okio.ByteString.Companion.encodeUtf8
-import org.sjhstudio.diary.core.data.richtext.toPlainText
 import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.richtext.toPlainText
 
 /**
  * 검증 지문(contracts/legacy-mapping.md "검증 지문").

@@ -2,11 +2,11 @@ package org.sjhstudio.diary.feature.write
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import org.sjhstudio.diary.core.data.richtext.bodyToEditor
-import org.sjhstudio.diary.core.data.richtext.editorToBody
 import org.sjhstudio.diary.core.designsystem.theme.DiaryColors
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
+import org.sjhstudio.diary.core.model.richtext.bodyToEditor
+import org.sjhstudio.diary.core.model.richtext.editorToBody
 
 /**
  * 저장 값은 라이트 hex 하나지만 편집기는 지금 테마의 토큰 색으로 보여야 한다(contracts/rich-text-html.md).

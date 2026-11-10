@@ -1,4 +1,4 @@
-package org.sjhstudio.diary.core.data.richtext
+package org.sjhstudio.diary.core.model.richtext
 
 /**
  * 본문 HTML을 허용 목록만 남기고 정리한다(스펙 002 contracts/rich-text-html.md).

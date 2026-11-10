@@ -22,9 +22,9 @@ import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import kotlinx.coroutines.flow.drop
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import org.sjhstudio.diary.core.data.richtext.hasWords
-import org.sjhstudio.diary.core.data.richtext.keepingEditorText
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.richtext.hasWords
+import org.sjhstudio.diary.core.model.richtext.keepingEditorText
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 

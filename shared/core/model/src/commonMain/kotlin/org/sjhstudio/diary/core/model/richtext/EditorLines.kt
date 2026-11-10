@@ -1,4 +1,4 @@
-package org.sjhstudio.diary.core.data.richtext
+package org.sjhstudio.diary.core.model.richtext
 
 // 에디터는 줄마다 문단 하나로 다루고, 저장 형식은 빈 줄로 나뉜 덩어리를 문단으로 삼고 줄바꿈은 `br`이다(contracts/rich-text-html.md).
 // 옛 글(`legacyToHtml`)과 같은 규칙으로 맞추려고 에디터를 오갈 때만 바꾼다.

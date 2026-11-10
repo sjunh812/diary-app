@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.sjhstudio.diary.core.data.photo.PhotoStore
-import org.sjhstudio.diary.core.data.richtext.RichTextSanitizer
-import org.sjhstudio.diary.core.data.richtext.toPlainText
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.DraftEntity
 import org.sjhstudio.diary.core.database.DraftMediaEntity
@@ -28,6 +26,8 @@ import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
+import org.sjhstudio.diary.core.model.richtext.RichTextSanitizer
+import org.sjhstudio.diary.core.model.richtext.toPlainText
 
 /**
  * 저장 조건(FR-002): 글, 사진, 기분 가운데 하나는 있어야 한다.

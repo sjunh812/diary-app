@@ -19,7 +19,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
 import okio.Path
-import org.sjhstudio.diary.core.data.richtext.toPlainText
 import org.sjhstudio.diary.core.database.DayMoodRow
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.EntryListRow
@@ -32,6 +31,7 @@ import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.model.richtext.toPlainText
 
 private const val PAGE = 60
 

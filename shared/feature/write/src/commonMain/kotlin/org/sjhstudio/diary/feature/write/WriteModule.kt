@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.write
 
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.core.platform.FontInstaller
 
 val writeFeatureModule =
     module {
@@ -11,7 +12,7 @@ val writeFeatureModule =
                 get(),
                 mediaPath = get<WriteMediaPath>()::resolve,
                 settings = get(),
-                fonts = get(),
+                fontPath = get<FontInstaller>()::installedPath,
                 plans = get(),
                 places = get(),
                 restoredKey = restoredKey.value
