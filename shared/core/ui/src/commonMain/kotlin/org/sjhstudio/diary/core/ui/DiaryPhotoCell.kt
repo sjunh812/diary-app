@@ -30,6 +30,11 @@ import org.sjhstudio.diary.core.model.EntryRow
 @Composable
 fun DiaryPhotoCell(photos: List<String?>, modifier: Modifier = Modifier, more: Int = 0) {
     if (photos.isEmpty()) return
+    // 모두 찾을 수 없거나 모두 받는 중이면 아이콘 하나로. 칸을 나눠도 보여 줄 사진이 없음
+    if (photos.distinct().size == 1 && (photos[0] == null || photos[0] == EntryRow.PHOTO_PENDING)) {
+        Photo(photos[0], modifier)
+        return
+    }
     val extra = if (photos.size > MAX_TILES) photos.size - MAX_TILES + 1 else more
     Box(modifier.fillMaxSize()) {
         when (photos.size) {
