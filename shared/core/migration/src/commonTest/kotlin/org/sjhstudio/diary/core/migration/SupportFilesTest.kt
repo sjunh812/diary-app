@@ -7,7 +7,7 @@ import kotlin.time.Duration.Companion.hours
 import org.sjhstudio.diary.core.testing.TestClock
 
 class SupportFilesTest {
-    /** 메일 앱이 첨부를 읽을 시간을 두고, 하루가 지나면 지운다(FR-010a). */
+    /** 메일 앱이 첨부를 읽을 시간을 두고, 하루가 지나면 지움(FR-010a) */
     @Test
     fun bundle_is_kept_for_a_day_then_deleted() {
         TempDir().use { dir ->
@@ -26,7 +26,7 @@ class SupportFilesTest {
         }
     }
 
-    /** 만든 시각을 모르는 묶음은 남겨 두지 않는다. */
+    /** 만든 시각을 모르는 묶음은 남겨 두지 않음 */
     @Test
     fun bundle_without_stamp_is_deleted() {
         TempDir().use { dir ->

@@ -9,7 +9,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 예전 일기 보기: 사본을 읽기 전용으로 일기 날짜 최근 순 60편씩(FR-009).
+// 예전 일기 보기: 사본을 읽기 전용으로 일기 날짜 최근 순 60편씩(FR-009)
 class LegacyArchiveTest {
     private fun paths(dir: TempDir): MigrationPaths {
         val legacy = LegacyFiles(
@@ -34,7 +34,7 @@ class LegacyArchiveTest {
             val second = archive.page(after = first.last())
             val third = archive.page(after = second.last())
 
-            // manyRows는 _id가 커질수록 날짜도 늦어서 날짜 최근 순이 _id 역순과 같다.
+            // manyRows는 _id가 커질수록 날짜도 늦어 날짜 최근 순이 _id 역순과 같음
             assertEquals((130L downTo 71L).toList(), first.map { it.id })
             assertEquals(60, second.size)
             assertEquals(10, third.size)

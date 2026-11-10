@@ -15,13 +15,13 @@ import org.sjhstudio.diary.core.model.MigrationStep
 
 /**
  * 이전을 미루거나 일부만 옮긴 뒤 다른 기기 백업을 합친 기기(`docs/migration.md` "미룬 이전과 합친 일기").
- * 번호가 겹쳐도 옛 일기를 건너뛰거나 합쳐 온 일기를 지우면 안 된다.
+ * 번호가 겹쳐도 옛 일기를 건너뛰거나 합쳐 온 일기를 지우면 안 됨.
  */
 class MergedEntryRetryTest {
     private val jpeg = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 1, 2, 3)
     private val png = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 9, 9)
 
-    /** 다른 기기에서 이전된 일기가 합쳐 왔다. 같은 옛 번호를 들고 있어도 이 기기의 일기와는 다른 일기다. */
+    /** 다른 기기에서 이전된 일기가 합쳐 옴. 같은 옛 번호를 들고 있어도 이 기기의 일기와는 다른 일기 */
     private fun MigrationEnv.mergedFromOtherPhone(legacyId: Int, createDate: String, text: String) = Entry(
         "other-$legacyId",
         LocalDate(2020, 5, 5),
@@ -38,7 +38,7 @@ class MergedEntryRetryTest {
         legacyCreateDate = createDate
     )
 
-    /** 일기 두 편을 이전하다 실패하고 "새 일기부터 쓰기"를 고른 기기. */
+    /** 일기 두 편을 이전하다 실패하고 "새 일기부터 쓰기"를 고른 기기 */
     private suspend fun MigrationEnv.deferredWithTwoOldEntries() {
         val picture = photo("a.jpg", jpeg)
         LegacyFixtures.create(
@@ -52,7 +52,7 @@ class MergedEntryRetryTest {
         runner().defer()
     }
 
-    /** 이전 뒤 완전히 삭제한 일기는 못 옮긴 일기가 아니다. 다시 읽기가 되살리면 안 된다. */
+    /** 이전 뒤 완전히 삭제한 일기는 못 옮긴 일기가 아님. 다시 읽기가 되살리면 안 됨 */
     @Test
     fun partial_retry_does_not_bring_back_entries_deleted_for_good() = runTest {
         TempDir().use { dir ->
@@ -82,7 +82,7 @@ class MergedEntryRetryTest {
         }
     }
 
-    /** 공간이 차 미뤘다고 적지 못해도 앱은 열린다. 그사이 쓴 일기를 새 DB로 덮으면 다 잃는다. */
+    /** 공간이 차 미뤘다고 적지 못해도 앱은 열림. 그사이 쓴 일기를 새 DB로 덮으면 다 잃음 */
     @Test
     fun an_unwritten_deferral_does_not_replace_entries_written_since() = runTest {
         TempDir().use { dir ->
@@ -131,7 +131,7 @@ class MergedEntryRetryTest {
                 assertEquals(3, db.entryDao().countAll())
                 assertEquals("첫째", db.entryDao().getByLegacyId(1)?.plainText)
                 assertEquals("둘째", db.entryDao().getByLegacyId(2)?.plainText)
-                // 다른 기기 일기는 내용 그대로 남고 번호만 내준다.
+                // 다른 기기 일기는 내용 그대로 남고 번호만 내줌
                 val kept = assertNotNull(db.entryDao().get(other.id))
                 assertEquals("다른 기기 일기", kept.plainText)
                 assertNull(kept.legacyId)
@@ -144,7 +144,7 @@ class MergedEntryRetryTest {
         }
     }
 
-    /** 검증이 번호로 찾다가 다른 기기 일기를 지우면 안 된다. */
+    /** 검증이 번호로 찾다가 다른 기기 일기를 지우면 안 됨 */
     @Test
     fun a_failed_check_during_a_deferred_retry_never_removes_a_merged_entry() = runTest {
         TempDir().use { dir ->
@@ -165,7 +165,7 @@ class MergedEntryRetryTest {
         }
     }
 
-    /** 같은 옛 기록을 나눠 가진 두 기기: 같은 시각, 같은 글이면 같은 일기라서 두 번 넣지 않는다. */
+    /** 같은 옛 기록을 나눠 가진 두 기기: 같은 시각, 같은 글이면 같은 일기라 두 번 넣지 않음 */
     @Test
     fun deferred_retry_does_not_add_what_a_merged_backup_already_brought() = runTest {
         TempDir().use { dir ->
@@ -187,7 +187,7 @@ class MergedEntryRetryTest {
         }
     }
 
-    /** 같은 옛 일기를 다른 기기에서 고쳤으면 어느 쪽 글도 잃지 않는다. */
+    /** 같은 옛 일기를 다른 기기에서 고쳤으면 어느 쪽 글도 잃지 않음 */
     @Test
     fun deferred_retry_keeps_both_when_the_merged_entry_was_edited_elsewhere() = runTest {
         TempDir().use { dir ->
@@ -209,7 +209,7 @@ class MergedEntryRetryTest {
         }
     }
 
-    /** 일부만 옮긴 기기에서도 번호가 같다고 빠진 일기를 옮긴 일기로 치지 않는다. 사용자가 고친 일기는 다시 넣지 않는다. */
+    /** 일부만 옮긴 기기에서도 번호가 같다고 빠진 일기를 옮긴 일기로 치지 않음. 사용자가 고친 일기는 다시 넣지 않음 */
     @Test
     fun partial_retry_tells_a_merged_entry_from_an_edited_one() = runTest {
         TempDir().use { dir ->

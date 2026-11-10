@@ -15,26 +15,26 @@ import org.sjhstudio.diary.core.model.Weather
 
 /**
  * 레거시 줄 하나를 옮긴 결과.
- * 사진 줄은 [PhotoPaths]와 사진 옮기기가 따로 만든다.
+ * 사진 줄은 [PhotoPaths]와 사진 옮기기가 따로 만듦.
  */
 data class MappedEntry(
     val entry: Entry,
-    /** 날짜나 시각을 읽지 못해 대체 규칙을 썼다(`MigrationReport.dateUnparsed`). */
+    /** 날짜나 시각을 읽지 못해 대체 규칙을 씀(`MigrationReport.dateUnparsed`) */
     val dateUnparsed: Boolean,
-    /** 앞 10글자 날짜와 옛 앱의 느슨한 해석 날짜가 다르다(`MigrationReport.dateDiffers`). */
+    /** 앞 10글자 날짜와 옛 앱의 느슨한 해석 날짜가 다름(`MigrationReport.dateDiffers`) */
     val dateDiffers: Boolean
 )
 
 /**
- * 레거시 `Note` 줄을 새 [Entry]로 옮긴다.
- * 규칙은 contracts/legacy-mapping.md "일기 줄" 표 그대로다.
+ * 레거시 `Note` 줄을 새 [Entry]로 옮김.
+ * 규칙은 contracts/legacy-mapping.md "일기 줄" 표 그대로.
  *
  * @param migratedOn 이전한 날(기기 시간대).
- * 날짜를 전혀 읽지 못한 줄에 쓴다.
+ * 날짜를 전혀 읽지 못한 줄에 씀.
  * @param timeZone 이전하는 기기의 시간대.
- * `created_at`·`updated_at`을 만든다.
+ * `created_at`·`updated_at`을 만들 때 씀.
  * @param newId 새 일기 ID(UUID).
- * 시험에서 고정한다.
+ * 시험에서 고정.
  */
 class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone: TimeZone, private val newId: () -> String) {
     fun map(note: LegacyNote): MappedEntry {
@@ -75,14 +75,14 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
 
         fun weatherOf(code: Long?): Weather? = code?.takeIf { it in 0L..6L }?.let { Weather.fromLegacyCode(it.toInt()) }
 
-        /** 앞뒤 공백을 뺀 값이 비면 null, 아니면 원문 그대로(자르지 않는다). */
+        /** 앞뒤 공백을 뺀 값이 비면 null, 아니면 원문 그대로(자르지 않음) */
         fun placeNameOf(address: String?): String? = address?.takeIf { it.isNotBlank() }
 
-        /** 둘 다 비었거나 null이면 null, 아니면 `x|y` 원문. */
+        /** 둘 다 비었거나 null이면 null, 아니면 `x|y` 원문 */
         fun legacyLocationOf(x: String?, y: String?): String? =
             if (x.isNullOrEmpty() && y.isNullOrEmpty()) null else "${x.orEmpty()}|${y.orEmpty()}"
 
-        /** 앞 10글자가 `yyyy-MM-dd`이고 실제 있는 날짜면 그 날. */
+        /** 앞 10글자가 `yyyy-MM-dd`이고 실제 있는 날짜면 그 날 */
         internal fun parseDate(text: String): LocalDate? {
             if (text.length < 10) return null
             val head = text.substring(0, 10)
@@ -92,7 +92,7 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
 
         /**
          * 12~16번째 글자가 `HH:mm`(00~23, 00~59)이면 그 시각.
-         * 초 자리는 버린다.
+         * 초 자리는 버림.
          */
         internal fun parseTime(text: String): LocalTime? {
             if (text.length < 16) return null
@@ -104,7 +104,7 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
             return LocalTime(hour, minute)
         }
 
-        /** `yyyy-MM-dd HH:mm`까지 읽히면 그 시각. */
+        /** `yyyy-MM-dd HH:mm`까지 읽히면 그 시각 */
         internal fun parseDateTime(text: String): LocalDateTime? {
             val date = parseDate(text) ?: return null
             val time = parseTime(text) ?: return null
@@ -113,7 +113,7 @@ class LegacyEntryMapper(private val migratedOn: LocalDate, private val timeZone:
 
         /**
          * 옛 앱이 `SimpleDateFormat("yyyy-MM-dd HH:mm:ss")`(느슨한 해석)으로 읽은 날짜.
-         * 넘치는 값은 다음 단위로 넘긴다.
+         * 넘치는 값은 다음 단위로 넘김.
          * 예 `2024-03-01 23:59:457` → 3월 2일 00:07:37.
          * 형식이 아예 다르면 null.
          */

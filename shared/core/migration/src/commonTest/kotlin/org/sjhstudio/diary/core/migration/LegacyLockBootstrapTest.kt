@@ -19,7 +19,7 @@ import org.sjhstudio.diary.core.model.Pin
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-// 옛 잠금 잇기(스펙 001 T054, contracts/legacy-mapping.md "설정").
+// 옛 잠금 잇기(스펙 001 T054, contracts/legacy-mapping.md "설정")
 class LegacyLockBootstrapTest {
     private val dataStore = InMemoryDataStore<Preferences>(emptyPreferences())
     private val store = LockStore(dataStore)
@@ -51,12 +51,12 @@ class LegacyLockBootstrapTest {
             assertTrue(lock.hasPin)
             assertFalse(lock.biometricEnabled)
             assertEquals(VerifyResult.Ok, repository.verify(checkNotNull(Pin.of("0427")), now))
-            // 원본은 그대로다.
+            // 원본은 그대로
             assertEquals(xml, dir.fs.read(dir.root / "shared_prefs/pref.xml") { readUtf8() })
         }
     }
 
-    /** 확인값과 저장소 어디에도 옛 비밀번호 평문이 없다. */
+    /** 확인값과 저장소 어디에도 옛 비밀번호 평문이 없음 */
     @Test
     fun stored_lock_has_no_plain_password() = runTest {
         TempDir().use { dir ->
@@ -101,8 +101,8 @@ class LegacyLockBootstrapTest {
     }
 
     /**
-     * 이전이 시작된 뒤에는 옛 파일로 잠금을 다시 켜지 않는다.
-     * 사용자가 새 앱에서 끈 잠금이 되살아나면 안 된다.
+     * 이전이 시작된 뒤에는 옛 파일로 잠금을 다시 켜지 않음.
+     * 사용자가 새 앱에서 끈 잠금이 되살아나면 안 됨.
      */
     @Test
     fun runs_only_before_migration_starts() = runTest {

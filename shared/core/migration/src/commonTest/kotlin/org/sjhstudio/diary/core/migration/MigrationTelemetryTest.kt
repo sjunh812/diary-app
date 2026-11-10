@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 
-// 고정 표를 엄격하게 보는 Telemetry로 보내 표 밖 값이 없음을 확인한다(FR-013).
+// 고정 표를 엄격하게 보는 Telemetry로 보내 표 밖 값이 없는지 확인(FR-013)
 class MigrationTelemetryTest {
     private val events = mutableListOf<Pair<String, Map<String, String>>>()
     private val keys = mutableMapOf<String, String>()

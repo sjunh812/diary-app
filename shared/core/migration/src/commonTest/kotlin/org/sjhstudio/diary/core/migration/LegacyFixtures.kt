@@ -7,9 +7,9 @@ import okio.FileSystem
 import okio.Path
 
 /**
- * 시험용 옛 앱 `note.db`를 만든다(스펙 001 T031, docs/migration.md "시험").
- * 표 정의는 레거시 `NoteDatabase.java`의 SQL을 그대로 옮겼다.
- * 파일로 저장소에 두는 대신 시험마다 만들어, Android 호스트와 iOS 시뮬레이터에서 같은 자료로 돈다.
+ * 시험용 옛 앱 `note.db` 생성(스펙 001 T031, docs/migration.md "시험").
+ * 표 정의는 레거시 `NoteDatabase.java`의 SQL 그대로.
+ * 저장소에 파일로 두지 않고 시험마다 만들어, Android 호스트와 iOS 시뮬레이터에서 같은 자료로 돎.
  */
 object LegacyFixtures {
     const val CREATE_V2 =
@@ -29,12 +29,12 @@ object LegacyFixtures {
             "star INTEGER DEFAULT 0" +
             ");"
 
-    /** 즐겨찾기가 생기기 전(버전 1) 표. */
+    /** 즐겨찾기가 생기기 전(버전 1) 표 */
     val CREATE_V1 = CREATE_V2.replace(",star INTEGER DEFAULT 0", "")
 
     const val CREATE_INDEX = "CREATE UNIQUE INDEX IF NOT EXISTS Note_Index ON Note(create_date);"
 
-    /** 버전 1에서 2로 올릴 때 옛 앱이 쓴 SQL. 옛 줄의 `star`는 NULL이다. */
+    /** 버전 1에서 2로 올릴 때 옛 앱이 쓴 SQL. 옛 줄의 `star`는 NULL */
     const val UPGRADE_V1_TO_V2 = "ALTER TABLE Note ADD COLUMN star INTAGER;"
 
     data class Row(
@@ -113,8 +113,8 @@ object LegacyFixtures {
     }
 
     /**
-     * 가운데 페이지 몇 장을 망가뜨린다.
-     * 첫 페이지(머리)는 그대로 둔다.
+     * 가운데 페이지 몇 장을 망가뜨림.
+     * 첫 페이지(머리)는 그대로 둠.
      */
     fun corruptMiddlePages(path: Path, pages: Int = 3) {
         val fs = FileSystem.SYSTEM

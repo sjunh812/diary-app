@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// 옛 설정 XML 읽기와 비밀번호 줄 빼기(스펙 001 T036).
+// 옛 설정 XML 읽기와 비밀번호 줄 빼기(스펙 001 T036)
 class LegacyPrefsReaderTest {
     private val pref =
         """

@@ -17,13 +17,13 @@ import org.sjhstudio.diary.core.model.currentDate
 
 /**
  * 예전 일기 보기의 한 줄.
- * 사진은 앱 저장소 파일 경로이고 찾을 수 없는 사진은 null이다.
+ * 사진은 앱 저장소 파일 경로, 찾을 수 없는 사진은 null.
  */
 data class LegacyEntryView(
     val id: Long,
     /**
      * 다음 쪽을 읽을 때 쓰는 원래 줄.
-     * 화면은 쓰지 않는다.
+     * 화면은 안 씀.
      */
     val source: LegacyNote,
     val date: LocalDate,
@@ -37,10 +37,10 @@ data class LegacyEntryView(
 )
 
 /**
- * 이전에 실패한 기기에서 옛 일기를 읽기 전용으로 보여 준다(FR-009, contracts/migration-flow.md "예전 일기 보기").
- * 원본이 아니라 사본(`legacy-snapshot/note.db`)을 연다.
- * 수정·삭제는 없다.
- * 일기 날짜 최근 순이다.
+ * 이전에 실패한 기기에서 옛 일기를 읽기 전용으로 보여 줌(FR-009, contracts/migration-flow.md "예전 일기 보기").
+ * 원본이 아닌 사본(`legacy-snapshot/note.db`)을 엶.
+ * 수정·삭제 없음.
+ * 일기 날짜 최근 순.
  */
 interface LegacyArchive {
     /**
@@ -50,12 +50,12 @@ interface LegacyArchive {
     suspend fun page(after: LegacyEntryView?, limit: Int = PAGE): List<LegacyEntryView>
 
     companion object {
-        /** 한 번에 60편(contracts/migration-flow.md). */
+        /** 한 번에 60편(contracts/migration-flow.md) */
         const val PAGE = 60
     }
 }
 
-/** 옛 앱이 없는 플랫폼(iOS). */
+/** 옛 앱이 없는 플랫폼(iOS) */
 object EmptyLegacyArchive : LegacyArchive {
     override suspend fun page(after: LegacyEntryView?, limit: Int): List<LegacyEntryView> = emptyList()
 }
@@ -91,7 +91,7 @@ class SnapshotLegacyArchive(
         }
     }
 
-    /** 옮겨 둔 사본이 있으면 그것, 없으면 원래 자리에 아직 있는 파일(읽기만 한다). */
+    /** 옮겨 둔 사본이 있으면 그것, 없으면 원래 자리에 아직 있는 파일(읽기만 함) */
     private fun photoPath(fragment: String, hashes: Map<String, String?>, files: Map<String, String>): String? {
         hashes[fragment]?.let { sha -> files[sha]?.let { return (paths.mediaDir / it).toString() } }
         return PhotoPaths.candidates(fragment).firstOrNull { fileSystem.metadataOrNull(it.toPath())?.isRegularFile == true }

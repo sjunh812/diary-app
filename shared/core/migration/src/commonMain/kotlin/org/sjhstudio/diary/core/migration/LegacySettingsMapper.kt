@@ -8,8 +8,8 @@ import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
- * 옛 앱 설정(`pref.xml`, `pref2.xml`)을 새 설정으로 옮긴다(contracts/legacy-mapping.md "설정", data-model.md DiaryFont·BodyTextSize).
- * 잠금은 [LegacyLockBootstrap]이 따로 옮긴다.
+ * 옛 앱 설정(`pref.xml`, `pref2.xml`)을 새 설정으로 옮김(contracts/legacy-mapping.md "설정", data-model.md DiaryFont·BodyTextSize).
+ * 잠금은 [LegacyLockBootstrap]이 따로 옮김.
  */
 object LegacySettingsMapper {
     fun map(pref: Map<String, Any>, pref2: Map<String, Any>, base: AppSettings = AppSettings()): AppSettings {
@@ -44,8 +44,8 @@ object LegacySettingsMapper {
 
     /**
      * 옛 파일에 실제로 있던 설정(이전 결과의 `settingsMigrated`).
-     * 값이 없어 기본값을 쓴 설정은 넣지 않는다.
-     * 잠금과 생체 인증은 켜 두었을 때만 넣는다.
+     * 값이 없어 기본값을 쓴 설정은 넣지 않음.
+     * 잠금과 생체 인증은 켜 두었을 때만 넣음.
      */
     fun migrated(pref: Map<String, Any>, pref2: Map<String, Any>): List<MigratedSetting> = buildList {
         if (FONT_KEY in pref) add(MigratedSetting.FONT)
@@ -77,7 +77,7 @@ object LegacySettingsMapper {
         else -> BodyTextSize.MEDIUM
     }
 
-    /** 값이 true인 이메일 모양 키가 계정, `"<계정>'s id"` 글이 드라이브 파일 ID다(레거시 `BackupActivity`). */
+    /** 값이 true인 이메일 모양 키가 계정, `"<계정>'s id"` 글이 드라이브 파일 ID(레거시 `BackupActivity`) */
     private fun backupLink(pref: Map<String, Any>): LegacyBackupLink? {
         val account = pref.entries.firstOrNull { (key, value) -> value == true && EMAIL.matches(key) }?.key ?: return null
         return LegacyBackupLink(account, (pref["$account's id"] as? String)?.takeIf { it.isNotBlank() })
@@ -91,17 +91,17 @@ object LegacySettingsMapper {
     private const val HOUR_KEY = "hour_key"
     private const val MINUTE_KEY = "minute_key"
 
-    // 잠금은 LegacyLockBootstrap이 옮기고, 여기서는 옮겼는지만 센다.
+    // 잠금은 LegacyLockBootstrap이 옮기고, 여기서는 옮겼는지만 셈
     private const val USE_PW = "use_pw"
     private const val FINGER_PRINT = "finger_print"
     private val EMAIL = Regex("""[^@\s]+@[^@\s]+\.[^@\s]+""")
 
-    /** 새 앱에도 같은 글꼴이 있어 바뀌었다고 알리지 않는 키(프리텐다드, 시스템, 점꼴체). */
+    /** 새 앱에도 같은 글꼴이 있어 바뀌었다고 알리지 않는 키(프리텐다드, 시스템, 점꼴체) */
     private val SAME_FONT_KEYS = setOf(-1, 0, 3, 100)
 
     /**
      * 1.7.4 글꼴 고르기 화면의 이름(`activity_font.xml`).
-     * 바뀐 글꼴을 처음 열 때 한 번 알리는 데 쓴다.
+     * 바뀐 글꼴을 처음 열 때 한 번 알리는 데 씀.
      */
     private val LEGACY_FONT_NAMES =
         mapOf(

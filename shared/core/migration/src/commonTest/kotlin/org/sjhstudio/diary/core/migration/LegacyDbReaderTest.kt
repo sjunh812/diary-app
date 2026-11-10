@@ -8,7 +8,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import okio.Path
 
-// 옛 DB 사본 읽기(스펙 001 T031, T040, docs/migration.md "시험").
+// 옛 DB 사본 읽기(스펙 001 T031, T040, docs/migration.md "시험")
 class LegacyDbReaderTest {
     private fun readAll(path: Path): Pair<List<LegacyNote>, LegacyReadSummary> {
         val rows = mutableListOf<LegacyNote>()
@@ -71,7 +71,7 @@ class LegacyDbReaderTest {
     fun rows_only_in_the_wal_are_read_from_the_copied_wal() {
         TempDir().use { dir ->
             val original = dir.root / "databases" / "note.db"
-            // 옛 앱이 연결을 닫지 않은 채로 둔 상태: 줄이 아직 WAL에만 있다.
+            // 옛 앱이 연결을 닫지 않은 채로 둔 상태: 줄이 아직 WAL에만 있음
             val open = LegacyFixtures.create(original, LegacyFixtures.manyRows(50), wal = true)
             val copy = dir.root / "legacy-snapshot"
             dir.fs.createDirectories(copy)

@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.testing.TestClock
 
-/** 이전 시험의 기기 하나. 옛 파일 자리와 새 파일 자리를 갖는다. */
+/** 이전 시험의 기기 하나. 옛 파일 자리와 새 파일 자리를 가짐 */
 internal class MigrationEnv(val dir: TempDir) {
     val clock = TestClock()
     var ids = 0
@@ -56,8 +56,8 @@ internal class MigrationEnv(val dir: TempDir) {
     )
 
     /**
-     * 검증에 들어설 때 [action]을 한다.
-     * 복사와 검증 사이에 무언가 어긋난 상황을 만든다.
+     * 검증에 들어설 때 [action] 실행.
+     * 복사와 검증 사이에 무언가 어긋난 상황을 만듦.
      */
     fun onVerifying(action: () -> Unit) = object : MigrationEvents {
         override fun stepStarted(step: MigrationStep) {
@@ -65,14 +65,14 @@ internal class MigrationEnv(val dir: TempDir) {
         }
     }
 
-    /** 사진 목록의 해시를 바꿔 그 사진이 든 일기의 지문이 어긋나게 한다. */
+    /** 사진 목록의 해시를 바꿔 그 사진이 든 일기의 지문을 어긋나게 함 */
     fun breakFingerprints() {
         val list = paths.photosJson
         val text = dir.fs.read(list) { readUtf8() }
         dir.fs.write(list) { writeUtf8(text.replace(Regex("\"sha256\":\"[0-9a-f]{64}\""), "\"sha256\":\"${"0".repeat(64)}\"")) }
     }
 
-    /** [photo]의 해시만 목록에서 바꿔 그 사진이 든 일기 하나의 지문을 어긋나게 한다. */
+    /** [photo]의 해시만 목록에서 바꿔 그 사진이 든 일기 하나의 지문을 어긋나게 함 */
     fun breakFingerprintOf(photo: Path) {
         val text = dir.fs.read(paths.photosJson) { readUtf8() }
         dir.fs.write(paths.photosJson) { writeUtf8(text.replace(sha(photo), "0".repeat(64))) }
@@ -87,7 +87,7 @@ internal class MigrationEnv(val dir: TempDir) {
 
     fun sha(path: Path) = LegacySnapshotter(dir.fs, clock).sha256(path)
 
-    /** 검증 단계에서 끊긴 이전. 사진 사본과 목록은 남고 일기는 아직 옮겨지지 않았다. */
+    /** 검증 단계에서 끊긴 이전. 사진 사본과 목록은 남고 일기는 아직 안 옮겨짐 */
     fun failAtVerifying() = object : MigrationEvents {
         override fun stepStarted(step: MigrationStep) {
             check(step != MigrationStep.VERIFYING) { "끊김" }

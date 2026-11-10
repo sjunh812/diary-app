@@ -31,12 +31,12 @@ import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.testing.TestClock
 
-// docs/migration.md "시험"과 contracts/migration-flow.md 단계(스펙 001 T037).
+// docs/migration.md "시험"과 contracts/migration-flow.md 단계(스펙 001 T037)
 class MigrationRunnerTest {
     private val jpeg = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 1, 2, 3)
     private val png = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 9, 9)
 
-    /** 이전 뒤 사용자가 새로 쓴 일기. */
+    /** 이전 뒤 사용자가 새로 쓴 일기 */
     private fun MigrationEnv.written() = Entry(
         "mine",
         LocalDate(
@@ -99,18 +99,18 @@ class MigrationRunnerTest {
                 assertEquals(1, photosMissing)
                 assertEquals(1, dateDiffers)
                 assertEquals(MigrationOutcome.DONE, outcome)
-                // 옛 설정 파일에는 글꼴만 있었다.
+                // 옛 설정 파일에는 글꼴만 있었음
                 assertEquals(listOf(MigratedSetting.FONT), settingsMigrated)
             }
-            // 원본은 바이트 하나 바뀌지 않는다(SC-002).
+            // 원본은 바이트 하나 바뀌지 않음(SC-002)
             assertEquals(before, originals.map(env::sha))
             assertEquals(MigrationStep.DONE, env.runner().state().step)
             assertFalse(dir.fs.exists(env.paths.newDatabase))
-            // 임시 DB 자리에는 상태·결과 파일만 남는다(잠금·저널 파일까지 치운다).
+            // 임시 DB 자리에는 상태·결과 파일만 남음(잠금·저널 파일까지 정리)
             assertEquals(setOf("state.json", "report.json"), dir.fs.list(env.paths.migrationDir).map { it.name }.toSet())
             assertTrue(dir.fs.exists(env.paths.snapshotDir / "snapshot.json"))
             assertEquals(4, dir.fs.read(env.paths.photosJson) { readUtf8() }.split("\"path\"").size - 1)
-            // 같은 파일은 하나만 둔다.
+            // 같은 파일은 하나만 둠
             assertEquals(setOf("${env.sha(a)}.jpg", "${env.sha(b)}.png"), dir.fs.list(env.paths.mediaDir).map { it.name }.toSet())
 
             val db = env.open(env.paths.databasePath.toString())
@@ -150,7 +150,7 @@ class MigrationRunnerTest {
             TempDir().use { dir ->
                 val env = MigrationEnv(dir)
                 LegacyFixtures.create(env.legacy.noteDb, LegacyFixtures.manyRows(450)).close()
-                // 그 단계에서 프로세스가 죽은 상태를 만든다.
+                // 그 단계에서 프로세스가 죽은 상태를 만듦
                 MigrationStateStore(dir.fs, env.paths.migrationDir).writeState(
                     org.sjhstudio.diary.core.model.MigrationState(step = step, attempt = 1)
                 )
@@ -205,7 +205,7 @@ class MigrationRunnerTest {
             val env = MigrationEnv(dir)
             val photo = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$photo,"))).close()
-            // 복사할 자리는 충분하지만 OS가 캐시를 지우기 시작하는 선에 가깝다.
+            // 복사할 자리는 충분하지만 OS가 캐시를 지우기 시작하는 선에 가까움
             env.free = 500L * 1024 * 1024
 
             val failed = assertIs<MigrationResult.Failed>(env.runner().run())
@@ -221,7 +221,7 @@ class MigrationRunnerTest {
             val env = MigrationEnv(dir)
             val photo = env.photo("a.jpg", jpeg)
             LegacyFixtures.create(env.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00", picture = "$photo,"))).close()
-            // 쓰기가 실패하는 DB: 열자마자 닫는다.
+            // 쓰기가 실패하는 DB: 열자마자 닫음
             val failed = assertIs<MigrationResult.Failed>(env.runner(openDb = { path -> env.open(path).also { it.close() } }).run())
 
             assertEquals(MigrationFailureKind.WRITE_ERROR, failed.kind)
@@ -253,10 +253,10 @@ class MigrationRunnerTest {
                 val written = env.written()
                 db.entryDao().insertAll(listOf(written.asEntity()))
 
-                // 같은 버전에서는 같은 파일을 같은 방법으로 읽어 결과가 같으므로 다시 읽지 않는다.
+                // 같은 버전에서는 같은 파일을 같은 방법으로 읽어 결과가 같으므로 다시 읽지 않음
                 assertNull(env.runner().retryPartial(db))
 
-                // 새 버전이 더 잘 읽는다고 치고 사본을 멀쩡한 파일로 바꾼다.
+                // 새 버전이 더 잘 읽는다고 치고 사본을 멀쩡한 파일로 바꿈
                 dir.fs.delete(env.paths.snapshotDir / "note.db")
                 dir.fs.copy(healthy, env.paths.snapshotDir / "note.db")
                 val added = env.runner(versionCode = 38).retryPartial(db)
@@ -273,8 +273,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 몇 편이 어긋나도 나머지는 옮기고 앱을 쓰게 한다.
-     * 뺀 일기는 업데이트 뒤 다시 읽는다(2026-11-04 사용자 결정).
+     * 몇 편이 어긋나도 나머지는 옮기고 앱을 쓰게 함.
+     * 뺀 일기는 업데이트 뒤 다시 읽음.
      */
     @Test
     fun an_entry_that_fails_checking_is_left_out_and_the_rest_moves() = runTest {
@@ -300,7 +300,7 @@ class MigrationRunnerTest {
             val db = env.open(env.paths.databasePath.toString())
             try {
                 assertEquals(1, db.entryDao().countAll())
-                // 다음 버전은 뺀 일기를 다시 읽어 옮긴다.
+                // 다음 버전은 뺀 일기를 다시 읽어 옮김
                 assertEquals(1, env.runner(versionCode = 38).retryPartial(db))
                 assertEquals(2, db.entryDao().countAll())
             } finally {
@@ -310,7 +310,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 옮길 수 있는 일기가 한 편도 없으면 빈 앱으로 넘기지 않고 알린다. */
+    /** 옮길 수 있는 일기가 한 편도 없으면 빈 앱으로 넘기지 않고 알림 */
     @Test
     fun nothing_moved_is_a_failure() = runTest {
         TempDir().use { dir ->
@@ -328,7 +328,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 새 일기부터 쓰기: 앱을 쓰다가 다시 시도하면 그 사이 쓴 일기를 두고 예전 일기를 더한다. */
+    /** 새 일기부터 쓰기: 앱을 쓰다가 다시 시도하면 그 사이 쓴 일기를 두고 예전 일기를 더함 */
     @Test
     fun deferred_migration_adds_old_entries_and_keeps_new_ones() = runTest {
         TempDir().use { dir ->
@@ -360,7 +360,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 다시 시도가 실패해도 앱은 그대로 쓰고, 다음 업데이트 때 저절로 다시 해 본다. */
+    /** 다시 시도가 실패해도 앱은 그대로 쓰고, 다음 업데이트 때 저절로 다시 해 봄 */
     @Test
     fun deferred_retry_failure_stays_deferred_and_tries_after_an_update() = runTest {
         TempDir().use { dir ->
@@ -390,8 +390,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 사진 파일이 깨져도 일기는 옮기고 그 사진만 찾을 수 없는 사진이 된다.
-     * 끊겨서 다시 검증해도 일기를 빼지 않는다.
+     * 사진 파일이 깨져도 일기는 옮기고 그 사진만 찾을 수 없는 사진이 됨.
+     * 끊겨서 다시 검증해도 일기를 빼지 않음.
      */
     @Test
     fun a_broken_photo_file_keeps_the_entry() = runTest {
@@ -419,8 +419,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 단계마다 상태를 적은 뒤 알린다.
-     * 개발 빌드의 강제 종료 훅이 이 알림에서 끊는다(T049).
+     * 단계마다 상태를 적은 뒤 알림.
+     * 개발 빌드의 강제 종료 훅이 이 알림에서 끊음(T049).
      */
     @Test
     fun steps_are_announced_in_order() = runTest {
@@ -452,8 +452,8 @@ class MigrationRunnerTest {
     }
 
     /**
-     * 썸네일을 못 만들어도 이전은 끝나고 수만 센다.
-     * 한 번에 3개를 넘게 만들지 않는다(FR-037, R9).
+     * 썸네일을 못 만들어도 이전은 끝나고 수만 셈.
+     * 한 번에 3개를 넘게 만들지 않음(FR-037, R9).
      */
     @Test
     fun thumbnail_failures_are_counted_not_fatal() = runTest {
@@ -470,8 +470,8 @@ class MigrationRunnerTest {
                 )
             }
             LegacyFixtures.create(env.legacy.noteDb, rows).close()
-            // 이전은 IO 스레드에서 돌아 썸네일 만들기가 정말로 나란히 불린다.
-            // 세는 값은 잠금 안에서만 바꾼다.
+            // 이전은 IO 스레드에서 돌아 썸네일 만들기가 정말로 나란히 불림
+            // 세는 값은 잠금 안에서만 바꿈
             val lock = Mutex()
             var running = 0
             var most = 0
@@ -551,7 +551,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 캐시 원본은 OS가 언제든 지운다. 앞선 시도가 옮겨 둔 사본이 있으면 다시 시도가 그것을 쓴다(헌법 I). */
+    /** 캐시 원본은 OS가 언제든 지움. 앞선 시도가 옮겨 둔 사본이 있으면 다시 시도가 그것을 씀(헌법 I) */
     @Test
     fun a_retry_uses_the_copy_when_the_cached_original_is_gone() = runTest {
         TempDir().use { dir ->
@@ -579,7 +579,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 경로에 확장자가 없는 사진도 사본을 찾는다. */
+    /** 경로에 확장자가 없는 사진도 사본을 찾음 */
     @Test
     fun a_retry_finds_a_copy_named_from_the_file_head() = runTest {
         TempDir().use { dir ->
@@ -597,7 +597,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 사본이 깨졌으면 쓰지 않는다. 깨진 그림을 정상 사진으로 남기지 않는다. */
+    /** 사본이 깨졌으면 쓰지 않음. 깨진 그림을 정상 사진으로 남기지 않음 */
     @Test
     fun a_retry_does_not_trust_a_damaged_copy() = runTest {
         TempDir().use { dir ->
@@ -616,7 +616,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 복사 중에 앱이 죽어도 어느 사진을 옮겼는지 알아야 사본을 다시 쓴다. 묶음마다 목록을 적는다. */
+    /** 복사 중에 앱이 죽어도 어느 사진을 옮겼는지 알아야 사본을 다시 씀. 묶음마다 목록을 적음 */
     @Test
     fun the_photo_list_is_written_while_copying() = runTest {
         TempDir().use { dir ->
@@ -641,7 +641,7 @@ class MigrationRunnerTest {
         }
     }
 
-    /** 원본 내보내기가 이 목록으로 사진을 담는다. 다시 읽기가 앞선 사진을 지우면 안 된다. */
+    /** 원본 내보내기가 이 목록으로 사진을 담음. 다시 읽기가 앞선 사진을 지우면 안 됨 */
     @Test
     fun reading_again_keeps_the_photos_already_listed() = runTest {
         TempDir().use { dir ->

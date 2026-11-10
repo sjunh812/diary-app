@@ -9,14 +9,14 @@ import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 
-/** 읽은 줄 수와 깨져서 읽지 못한 줄 수(추정). */
+/** 읽은 줄 수와 깨져서 읽지 못한 줄 수(추정) */
 data class LegacyReadSummary(val read: Int, val unreadable: Int)
 
 /**
- * `legacy-snapshot/note.db`(사본)를 번들 드라이버의 날 SQL로 읽는다(research R5).
- * 레거시 스키마의 `TIMESTAMP` 열 때문에 Room으로는 열 수 없다.
- * 원본이 아니라 사본만 연다.
- * 사본의 WAL은 사본에 합쳐져도 괜찮다.
+ * `legacy-snapshot/note.db`(사본)를 번들 드라이버의 날 SQL로 읽음(research R5).
+ * 레거시 스키마의 `TIMESTAMP` 열 때문에 Room으로는 못 엶.
+ * 원본이 아닌 사본만 엶.
+ * 사본의 WAL은 사본에 합쳐져도 괜찮음.
  */
 class LegacyDbReader private constructor(private val connection: SQLiteConnection) : AutoCloseable {
     private val columns: Set<String> by lazy {
@@ -27,7 +27,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
 
     /**
      * `Note` 표가 있는가.
-     * 없으면 옮길 일기가 없다.
+     * 없으면 옮길 일기가 없음.
      */
     val hasNoteTable: Boolean get() = "_id" in columns
 
@@ -49,9 +49,9 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
     }
 
     /**
-     * `_id` 순으로 [onRow]에 넘긴다.
-     * 한 번에 [PAGE]줄씩 읽고, 읽다 깨진 범위를 만나면 범위를 반씩 나눠 읽히는 줄만 건진다.
-     * 못 읽은 범위의 `_id` 하나하나는 있는지조차 모를 수 있어 "못 읽은 줄"은 추정이다.
+     * `_id` 순으로 [onRow]에 넘김.
+     * 한 번에 [PAGE]줄씩 읽고, 깨진 범위를 만나면 반씩 나눠 읽히는 줄만 건짐.
+     * 못 읽은 범위의 `_id`는 있는지조차 모를 수 있어 "못 읽은 줄"은 추정.
      */
     fun readAll(onRow: (LegacyNote) -> Unit): LegacyReadSummary {
         if (!hasNoteTable) return LegacyReadSummary(0, 0)
@@ -69,8 +69,8 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
                 lastId = rows.last().id
                 continue
             }
-            // 이 쪽은 깨졌다.
-            // 다음 읽히는 줄까지 반씩 나눠 건진다.
+            // 이 쪽은 깨짐
+            // 다음 읽히는 줄까지 반씩 나눠 건짐
             val end = maxId ?: break
             val start = if (lastId == Long.MIN_VALUE) minIdOrOne() else lastId + 1
             if (start > end) break
@@ -84,9 +84,9 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
 
     /**
      * 예전 일기 보기(contracts/migration-flow.md 실패 화면): 일기 날짜 최근 순(`create_date` 역순, 같으면 `_id` 역순)으로 [limit]줄.
-     * 사용자가 지난 날짜를 골라 쓸 수 있어서 `_id`가 아니라 날짜로 줄을 세운다.
-     * [after]로 준 줄 다음부터 준다.
-     * 깨진 사본이면 읽히는 줄만 모아 같은 차례로 준다.
+     * 사용자가 지난 날짜를 골라 쓸 수 있어 `_id`가 아닌 날짜로 줄을 세움.
+     * [after]로 준 줄 다음부터.
+     * 깨진 사본이면 읽히는 줄만 모아 같은 차례로.
      */
     fun readNewestFirst(after: LegacyNote?, limit: Int): List<LegacyNote> {
         if (!hasNoteTable) return emptyList()
@@ -139,7 +139,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
             return LegacyReadSummary(rows.size, 0)
         }
         if (lo == hi) {
-            // 줄이 있는지 셀 수 있고 없다고 나오면 못 읽은 줄이 아니다.
+            // 줄 수를 셀 수 있고 없다고 나오면 못 읽은 줄이 아님
             val exists = runCatching { singleLongOrNull("SELECT COUNT(*) FROM Note WHERE _id = ?", lo) }.getOrNull()
             return LegacyReadSummary(0, if (exists == 0L) 0 else 1)
         }
@@ -173,7 +173,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
 
     private fun SQLiteStatement.textOrNull(i: Int): String? = if (getColumnType(i) == SQLITE_DATA_NULL) null else getText(i)
 
-    /** 정수 열에 글이 들어 있어도 숫자로 읽히는 것만 숫자로 본다(SQLite는 열 타입을 강제하지 않는다). */
+    /** 정수 열에 글이 들어 있어도 숫자로 읽히는 것만 숫자로 봄(SQLite는 열 타입을 강제하지 않음) */
     private fun SQLiteStatement.longOrNull(i: Int): Long? = when (getColumnType(i)) {
         SQLITE_DATA_INTEGER -> getLong(i)
         SQLITE_DATA_FLOAT -> getDouble(i).toLong()
@@ -192,12 +192,12 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
             )
 
         /**
-         * 사본을 연다.
-         * 사본의 WAL을 읽으려면 쓰기 모드로 연다(원본은 절대 열지 않는다).
+         * 사본을 엶.
+         * 사본의 WAL을 읽으려면 쓰기 모드로 엶(원본은 절대 열지 않음).
          */
         fun open(snapshotDbPath: String): LegacyDbReader {
             val connection = BundledSQLiteDriver().open(snapshotDbPath)
-            // 깨진 파일에서 쓸데없이 기다리지 않는다.
+            // 깨진 파일에서 쓸데없이 기다리지 않음
             runCatching { connection.execSQL("PRAGMA busy_timeout = 1000") }
             return LegacyDbReader(connection)
         }

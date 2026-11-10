@@ -13,7 +13,7 @@ import kotlinx.datetime.toInstant
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
-// contracts/legacy-mapping.md "일기 줄" 표(스펙 001 T033).
+// contracts/legacy-mapping.md "일기 줄" 표(스펙 001 T033)
 class LegacyEntryMapperTest {
     private val seoul = TimeZone.of("Asia/Seoul")
     private val mapper = LegacyEntryMapper(migratedOn = LocalDate(2026, 11, 1), timeZone = seoul, newId = { "new-id" })

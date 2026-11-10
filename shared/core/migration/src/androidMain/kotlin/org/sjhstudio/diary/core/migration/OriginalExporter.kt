@@ -12,12 +12,12 @@ import okio.use
 
 /**
  * 원본 파일 내보내기(FR-009, contracts/migration-flow.md "원본 내보내기").
- * 사용자가 저장 창에서 고른 곳에 zip을 쓴다.
+ * 사용자가 저장 창에서 고른 곳에 zip을 씀.
  * 담는 것: `legacy-snapshot/`의 파일 전부(설정은 비밀번호 줄을 뺀 사본),
  * `media/`의 이전 사진, `README.txt`.
- * 사본을 만들기 전에 실패한 기기는 사본에 없는 파일을 원본에서 읽어 같은 자리에 담는다.
- * 원본은 읽기만 하고 SQLite 연결을 열지 않는다.
- * 담을 파일이 하나도 없으면 안내문만 든 묶음을 내보냈다고 하지 않게 실패한다.
+ * 사본을 만들기 전에 실패한 기기는 사본에 없는 파일을 원본에서 읽어 같은 자리에 담음.
+ * 원본은 읽기만 하고 SQLite 연결은 열지 않음.
+ * 담을 파일이 없으면 실패. 안내문만 든 묶음을 내보냈다고 하지 않기 위함.
  */
 class OriginalExporter(private val fileSystem: FileSystem, private val paths: MigrationPaths) {
     fun write(out: OutputStream, readme: String) {
@@ -44,7 +44,7 @@ class OriginalExporter(private val fileSystem: FileSystem, private val paths: Mi
         listOf(noteDb, noteDbWal, noteDbShm, prefXml, pref2Xml).filter { it.name !in copied && fileSystem.exists(it) }
     }
 
-    /** 사본처럼 설정에서 비밀번호 줄을 뺀다. */
+    /** 사본처럼 설정에서 비밀번호 줄 제외 */
     private fun addOriginal(zip: ZipOutputStream, file: Path) {
         if (file != paths.legacy.prefXml) {
             add(zip, "$FOLDER/${file.name}", file)
@@ -56,8 +56,8 @@ class OriginalExporter(private val fileSystem: FileSystem, private val paths: Mi
     }
 
     /**
-     * `photos.json`에 적힌 이전 사진만 담는다.
-     * 새로 붙인 사진은 이전과 상관없다.
+     * `photos.json`에 적힌 이전 사진만 담음.
+     * 새로 붙인 사진은 이전과 무관.
      */
     private fun legacyPhotoFiles(): List<String> {
         if (!fileSystem.exists(paths.photosJson) || !fileSystem.exists(paths.mediaDir)) return emptyList()

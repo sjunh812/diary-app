@@ -9,10 +9,10 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.Telemetry
 
 /**
- * 이전 사건을 사용 통계로 보낸다(FR-013, contracts/migration-flow.md "보내도 되는 값").
- * 개수는 구간으로, 실패는 단계와 종류만 보낸다.
- * 예외 메시지, 경로, 글, 기분은 보내지 않는다.
- * 비정상 종료 보고에는 지금 단계(`migration_step`)만 남긴다.
+ * 이전 사건을 사용 통계로 보냄(FR-013, contracts/migration-flow.md "보내도 되는 값").
+ * 개수는 구간으로, 실패는 단계와 종류만.
+ * 예외 메시지, 경로, 글, 기분은 보내지 않음.
+ * 비정상 종료 보고에는 지금 단계(`migration_step`)만 남김.
  */
 class MigrationTelemetry(private val telemetry: Telemetry) : MigrationEvents {
     override fun started(entries: Int, photos: Int, attempt: Int) {

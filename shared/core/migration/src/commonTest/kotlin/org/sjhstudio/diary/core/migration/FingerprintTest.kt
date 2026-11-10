@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 
-// 같은 일기는 원본 지문과 새 DB 지문이 같고, 하나만 달라도 다르다(스펙 001 T035).
+// 같은 일기는 원본 지문과 새 DB 지문이 같고, 하나만 달라도 다름(스펙 001 T035)
 class FingerprintTest {
     private val mapper = LegacyEntryMapper(LocalDate(2026, 11, 1), TimeZone.of("Asia/Seoul")) { "id-1" }
     private val note =

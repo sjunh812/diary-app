@@ -20,7 +20,7 @@ import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 저장 공간이 꽉 찬 기기의 이전. 앱이 꺼지지 않고 공간 부족을 말해야 한다.
+// 저장 공간이 꽉 찬 기기의 이전. 앱이 꺼지지 않고 공간 부족을 알려야 함
 class MigrationNoSpaceTest {
     private class Env(val dir: TempDir) {
         var free = Long.MAX_VALUE
@@ -39,7 +39,7 @@ class MigrationNoSpaceTest {
                 databasePath = dir.root / "databases" / "diary.db"
             )
 
-        /** 새 파일을 쓰지 못한다. 원본을 읽는 것은 된다. */
+        /** 새 파일은 못 씀. 원본 읽기는 됨 */
         val fullDisk: FileSystem =
             object : ForwardingFileSystem(dir.fs) {
                 override fun sink(file: Path, mustCreate: Boolean): Sink = throw IOException("ENOSPC")
@@ -65,7 +65,7 @@ class MigrationNoSpaceTest {
 
     private fun Env.oneEntry() = LegacyFixtures.create(paths.legacy.noteDb, listOf(LegacyFixtures.Row("2024-01-01 10:00:00"))).close()
 
-    /** 공간이 0인 기기: 상태 파일도 못 쓰지만 꺼지지 않고 얼마나 더 필요한지 말한다. */
+    /** 공간이 0인 기기: 상태 파일도 못 쓰지만 꺼지지 않고 얼마나 더 필요한지 알림 */
     @Test
     fun a_full_disk_on_the_first_step_says_so_instead_of_crashing() = runTest {
         TempDir().use { dir ->
@@ -80,7 +80,7 @@ class MigrationNoSpaceTest {
         }
     }
 
-    /** 여유가 있다고 읽혔는데 막상 못 쓰는 때도 앱이 꺼지지 않는다. */
+    /** 여유가 있다고 읽혔는데 막상 못 쓸 때도 앱이 꺼지지 않음 */
     @Test
     fun a_write_failure_with_room_left_fails_softly() = runTest {
         TempDir().use { dir ->
@@ -93,7 +93,7 @@ class MigrationNoSpaceTest {
         }
     }
 
-    /** 공간을 재고 난 뒤 시작하자마자 찼어도 까닭은 공간 부족이다. */
+    /** 공간을 잰 뒤 시작하자마자 찼어도 까닭은 공간 부족 */
     @Test
     fun running_out_after_the_check_is_still_no_space() = runTest {
         TempDir().use { dir ->
@@ -118,7 +118,7 @@ class MigrationNoSpaceTest {
         }
     }
 
-    /** 공간을 비우고 다시 확인하면 끝까지 옮긴다. */
+    /** 공간을 비우고 다시 확인하면 끝까지 옮김 */
     @Test
     fun retry_after_freeing_space_finishes() = runTest {
         TempDir().use { dir ->
@@ -133,7 +133,7 @@ class MigrationNoSpaceTest {
         }
     }
 
-    /** 공간이 없어 사본을 만들기 전에 멈췄으면 예전 일기 보기에 볼 것이 없다. */
+    /** 공간이 없어 사본을 만들기 전에 멈췄으면 예전 일기 보기에 볼 것이 없음 */
     @Test
     fun stopping_before_the_copy_leaves_nothing_to_read() = runTest {
         TempDir().use { dir ->

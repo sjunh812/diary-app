@@ -7,7 +7,7 @@ import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.model.MigrationStep
 
 class MigrationCommitTest {
-    /** 끝났다고 적지 못해 앱이 그대로 열렸다. 그 사이 고친 일기를 다음 실행이 지우면 안 된다. */
+    /** 끝났다고 적지 못해 앱이 그대로 열림. 그 사이 고친 일기를 다음 실행이 지우면 안 됨 */
     @Test
     fun an_entry_edited_before_the_finish_was_recorded_survives() = runTest {
         TempDir().use { dir ->

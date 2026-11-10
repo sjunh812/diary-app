@@ -15,7 +15,7 @@ import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-// 옛 설정 잇기를 언제 하는지(스펙 001 T067).
+// 옛 설정 잇기를 언제 하는지(스펙 001 T067)
 class LegacySettingsBootstrapTest {
     private val store = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
 
@@ -49,7 +49,7 @@ class LegacySettingsBootstrapTest {
         }
     }
 
-    /** 이전을 시작한 뒤에는 새 앱에서 바꾼 설정을 옛 파일로 덮지 않는다. */
+    /** 이전을 시작한 뒤에는 새 앱에서 바꾼 설정을 옛 파일로 덮지 않음 */
     @Test
     fun does_nothing_after_migration_started_or_on_new_install() = runTest {
         TempDir().use { dir ->
