@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.debug
 
 import android.content.Intent
+import android.os.StrictMode
 import java.io.File
 import org.koin.android.ext.android.get
 import org.koin.core.context.loadKoinModules
@@ -18,6 +19,11 @@ import org.sjhstudio.diary.core.platform.DevMenu
  */
 class DebugApplication : DiaryApplication() {
     override fun onCreate() {
+        // 화면 스레드의 디스크·네트워크 작업과 닫지 않은 자원을 로그(StrictMode 태그)로 잡음. 앱은 끄지 않음
+        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build())
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder().detectLeakedClosableObjects().detectLeakedSqlLiteObjects().penaltyLog().build()
+        )
         super.onCreate()
         // 출시 빌드와 같은 알림(사용 통계)을 감싸서 덮어씀
         val released = get<MigrationEvents>()
