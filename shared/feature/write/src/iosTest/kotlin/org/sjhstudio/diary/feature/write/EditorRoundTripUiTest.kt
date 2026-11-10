@@ -21,8 +21,8 @@ import org.sjhstudio.diary.core.model.parseRichText
 import org.sjhstudio.diary.core.model.richtext.RichTextSanitizer
 import org.sjhstudio.diary.core.model.richtext.toPlainText
 
-// 편집기를 지나도 서식이 그대로 남는지 본다(FR-008).
-// 편집기는 라이브러리라 내보내는 모양이 저장 규칙을 지나는지가 위험하다.
+// 편집기를 지나도 서식이 그대로 남는지(FR-008).
+// 편집기는 라이브러리라 내보내는 모양이 저장 규칙을 지나는지가 위험함
 @OptIn(ExperimentalTestApi::class)
 class EditorRoundTripUiTest {
     private val body =
@@ -46,7 +46,7 @@ class EditorRoundTripUiTest {
         assertEquals(expected.spans.map { it.style }.toSet(), actual.spans.map { it.style }.toSet(), saved)
     }
 
-    /** 줄바꿈 한 번은 한 줄로, 빈 줄은 문단 나눔으로 남는다. */
+    /** 줄바꿈 한 번은 한 줄로, 빈 줄은 문단 나눔으로 남음 */
     @Test
     fun lines_and_paragraphs_survive() = runComposeUiTest {
         lateinit var colors: DiaryColors
@@ -60,7 +60,7 @@ class EditorRoundTripUiTest {
         }
     }
 
-    /** 사람이 치듯 한 글자씩 넣는다. 그래야 `1. `을 목록으로 바꾸는 편집기 동작까지 지난다. */
+    /** 사람이 치듯 한 글자씩 넣어야 `1. `을 목록으로 바꾸는 편집기 동작까지 지남 */
     private fun RichTextState.typeOut(text: String) {
         for (letter in text) {
             val value = textFieldValue
@@ -162,7 +162,7 @@ class EditorRoundTripUiTest {
         assertEquals("😀 <b>가</b> & 나  다", toPlainText(savedBody(editor, state)))
     }
 
-    /** 옛 일기를 열어 저장해도 들여쓰기와 겹친 공백이 그대로다. */
+    /** 옛 일기를 열어 저장해도 들여쓰기와 겹친 공백이 그대로 */
     @Test
     fun spaces_in_an_old_entry_stay() = withEditor { editor ->
         val saved = "<p>  첫 줄<br>\t둘째  줄 끝</p>"

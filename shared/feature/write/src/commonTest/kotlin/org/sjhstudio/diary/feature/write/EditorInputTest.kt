@@ -9,14 +9,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * iOS 한글 키보드가 실제로 보내는 순서를 시뮬레이터에서 찍어 그대로 옮겼다.
+ * iOS 한글 키보드가 실제로 보내는 순서를 시뮬레이터에서 찍어 그대로 옮김.
  * 공백 뒤의 `ㄴ`을 `나`로 바꿀 때: 공백과 글자 고르기, 지우기, 공백 넣기, 글자 넣기.
  */
 class EditorInputTest {
     private class Keyboard(val state: RichTextState, iosFix: Boolean = true) {
         private val input = EditorInput(state, iosFix)
 
-        /** 수정 전 경로: 키보드가 고른 범위를 그대로 받는다. */
+        /** 수정 전 경로: 키보드가 고른 범위를 그대로 받음 */
         fun type(text: String) {
             val value = state.textFieldValue
             val caret = value.selection.max
@@ -30,7 +30,7 @@ class EditorInputTest {
             input.apply(TextFieldValue(value.text.removeRange(start, value.selection.max), TextRange(start)))
         }
 
-        /** 시뮬레이터 로그와 같은 순서로 글자를 바꾼다. */
+        /** 시뮬레이터 로그와 같은 순서로 글자를 바꿈 */
         fun compose(jamo: String, syllable: String) {
             type(jamo)
             val value = state.textFieldValue
@@ -124,8 +124,8 @@ class EditorInputTest {
         assertEquals(TextRange(1, 3), state.selection)
     }
 
-    // 선택 핸들을 끄는 중에는 손가락이 가리킨 범위를 그대로 쓴다.
-    // 라이브러리 보정을 거치면 끝이 붙잡혀 핸들이 가다가 멈췄다(2026-11-10).
+    // 선택 핸들을 끄는 중에는 손가락이 가리킨 범위를 그대로 씀.
+    // 라이브러리 보정을 거치면 끝이 붙잡혀 핸들이 가다가 멈춤
     @Test
     fun handleDragKeepsTheExactRange() {
         val state = RichTextState()

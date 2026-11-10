@@ -197,10 +197,7 @@ import org.sjhstudio.diary.feature.write.resources.write_save
 import org.sjhstudio.diary.feature.write.resources.write_save_failed
 import org.sjhstudio.diary.feature.write.resources.write_weather
 
-/**
- * 화면 동작 묶음.
- * 화면은 상태만 받아 그린다.
- */
+/** 화면 동작 묶음. 화면은 상태만 받아 그림 */
 internal class WriteActions(
     val viewModel: WriteViewModel,
     val rich: RichTextState,
@@ -213,21 +210,21 @@ private enum class Sheet { Mood, Weather, Place, DateTime }
 
 /**
  * 쓰기 화면(Figma "쓰기 (S2)").
- * 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순서다.
- * 폭 840부터는 본문을 가운데 두고 기분·날씨·사진·장소를 옆 칸으로 옮긴다.
- * 사진 고르기는 iOS 때문에 시트가 아닌 이 화면에서 기억한다(research R4).
+ * 위 줄, 첨부 칩, 사진 줄, 본문, 서식 도구 줄 순.
+ * 폭 840부터는 본문을 가운데 두고 기분·날씨·사진·장소를 옆 칸으로 옮김.
+ * 사진 고르기는 iOS 때문에 시트가 아닌 이 화면에서 기억함(research R4)
  */
 @Composable
 internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: TextStyle, modifier: Modifier = Modifier) {
     val vm = actions.viewModel
     val colors = DiaryTheme.colors
-    // 화면을 돌리거나 폴더블을 펴도 고르던 시트가 닫히지 않는다.
+    // 화면을 돌리거나 폴더블을 펴도 고르던 시트가 닫히지 않게
     var sheet by rememberSaveable { mutableStateOf<Sheet?>(null) }
     val locationAccess = rememberLocationAccess()
-    // 시트가 뜰 때 키보드는 시트 부품이 내린다(DiaryBottomSheet).
-    // 키보드가 다 내려가길 기다리지 않고 바로 띄운다.
-    // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려준다.
-    // 시트가 뜰 때 초점을 거둬서, 돌려주지 않으면 본문을 다시 눌러야 했고 커서도 누른 자리로 옮겨졌다(2026-11-10).
+    // 시트가 뜰 때 키보드는 시트 부품이 내림(DiaryBottomSheet).
+    // 키보드가 다 내려가길 기다리지 않고 바로 띄움.
+    // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려줌.
+    // 시트가 뜰 때 초점을 거둬, 돌려주지 않으면 본문을 다시 눌러야 하고 커서도 누른 자리로 옮겨짐
     var editorFocused by remember { mutableStateOf(false) }
     var refocus by remember { mutableStateOf(false) }
     val openSheet = { target: Sheet ->
@@ -240,8 +237,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     var askDiscard by remember { mutableStateOf(false) }
     var askDiscardHere by rememberSaveable { mutableStateOf(false) }
     val editorFocus = remember { FocusRequester() }
-    // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 준다.
-    // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않는다.
+    // 새 글은 바로 쓸 수 있게 처음 한 번만 커서를 줌.
+    // 수정은 먼저 읽어 보는 때가 많아 키보드를 띄우지 않음
     var autoFocused by rememberSaveable { mutableStateOf(false) }
     val readyToWrite = !state.loading && state.resume == null && !state.isEdit
     LaunchedEffect(readyToWrite) {
@@ -250,10 +247,9 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             editorFocus.requestFocus()
         }
     }
-    // 글 아래 빈 곳을 눌러도 쓰기로 이어진다.
-    // 글 아래 빈 곳을 누르면 글 끝에서 이어 쓴다.
-    // 글 옆 여백이나 위를 누르면 그 줄에서 가장 가까운 자리에 커서를 둔다.
-    // 전에는 어디를 눌러도 글 끝으로 가서, 줄 앞을 누르려다 맨 아래로 끌려갔다(2026-11-10).
+    // 글 아래 빈 곳을 누르면 글 끝에서 이어 씀.
+    // 글 옆 여백이나 위를 누르면 그 줄에서 가장 가까운 자리에 커서를 둠.
+    // 어디든 글 끝으로 보내면 줄 앞을 누르려다 맨 아래로 끌려감
     val geometry = remember { EditorGeometry() }
     val tapToWrite =
         Modifier
@@ -265,8 +261,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                     softKeyboard?.show()
                 }
             }
-    // 쓰는 동안에는 자리를 차지하지 않게 키보드가 내려갔을 때만 보인다.
-    // 키보드가 움직이는 프레임마다 화면을 다시 그리지 않게 보임 여부가 바뀔 때만 읽는다.
+    // 쓰는 동안에는 자리를 차지하지 않게 키보드가 내려갔을 때만 보임.
+    // 키보드가 움직이는 프레임마다 다시 그리지 않게 보임 여부가 바뀔 때만 읽음
     val imeHidden by remember(imeInsets, density) { derivedStateOf { imeInsets.getBottom(density) == 0 } }
     val discardRow: @Composable () -> Unit = {
         if (state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
@@ -319,14 +315,14 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             softKeyboard?.show()
         }
     }
-    // 하드웨어 키보드의 Ctrl/⌘+S로 저장한다(FR-039).
+    // 하드웨어 키보드의 Ctrl/⌘+S로 저장(FR-039)
     val keyboard =
         Modifier.onPreviewKeyEvent { event ->
             val save = event.type == KeyEventType.KeyDown && (event.isCtrlPressed || event.isMetaPressed) && event.key == Key.S
             if (save && state.canSave && !state.saving) vm.save()
             save
         }
-    // 사진을 빼면 5초 동안 되돌릴 수 있다(TDS 토스트, 버튼이 있으면 5초).
+    // 사진을 빼면 5초 동안 되돌릴 수 있음(TDS 토스트, 버튼이 있으면 5초)
     val toast = remember { DiaryToastState() }
     val removedMessage = stringResource(Res.string.write_photo_removed)
     val undoLabel = stringResource(Res.string.write_photo_undo)
@@ -340,7 +336,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             if (wide) {
                 Row(Modifier.weight(1f).fillMaxWidth()) {
                     Column(Modifier.weight(1f).fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        // 에디터가 스스로 스크롤하면 체크 칸 자리가 글과 어긋나서 바깥에서 스크롤한다.
+                        // 에디터가 스스로 스크롤하면 체크 칸 자리가 글과 어긋나 바깥에서 스크롤
                         EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
                             Column(
                                 Modifier.fillMaxSize().then(tapToWrite).verticalScroll(rememberScrollState()),
@@ -371,7 +367,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                         Modifier.fillMaxSize().then(tapToWrite).verticalScroll(rememberScrollState()),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // 태블릿 세로 폭에서도 줄이 너무 길어지지 않게 막는다.
+                        // 태블릿 세로 폭에서도 줄이 너무 길어지지 않게
                         Column(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
                             Chips(state, onMood = {
                                 openSheet(Sheet.Mood)
@@ -396,7 +392,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 tools.Toolbar(onPhoto = { openPicker() }, onCamera = { openCamera() })
             }
         }
-        // 서식 도구 줄 위에 띄운다.
+        // 서식 도구 줄 위에 띄움
         DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).padding(bottom = DiaryWriteSize.toolbar + DiarySpacing.x3))
     }
     when (sheet) {
@@ -513,7 +509,7 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
             )
             Row(
                 Modifier
-                    // 고치는 일기는 날짜를 읽기 전에 오늘이 비치지 않게 한다.
+                    // 수정하는 일기는 날짜를 읽기 전에 오늘이 비치지 않게
                     .alpha(if (state.loading && state.isEdit) 0f else 1f)
                     .heightIn(min = DiarySpacing.minTouchTarget)
                     .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
@@ -532,10 +528,9 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                 )
                 DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
             }
-            // 글자 끝을 상단 바와 같은 화면 여백에 맞춘다.
-            // 글자 버튼 안쪽이 12다.
-            // 저장이 0.3초를 넘기면 [저장] 자리에 점을 띄운다(사진을 넣는 중이면 다 들어갈 때까지 기다린다).
-            // 글자만 회색이 되면 눌렸는지 알기 어려웠다(2026-11-10 화면 검토, 스켈레톤과 같은 0.3초 지연).
+            // 글자 끝을 상단 바와 같은 화면 여백에 맞춤. 글자 버튼 안쪽이 12.
+            // 저장이 0.3초를 넘기면 [저장] 자리에 점을 띄움(사진을 넣는 중이면 다 들어갈 때까지 기다림).
+            // 글자만 회색이 되면 눌렸는지 알기 어려움(스켈레톤과 같은 0.3초 지연)
             var slowSave by remember { mutableStateOf(false) }
             LaunchedEffect(state.saving) {
                 slowSave = false
@@ -559,8 +554,8 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
         val loose = constraints.copy(minWidth = 0, minHeight = 0)
         val start = close.measure(loose)
         val end = save.measure(loose)
-        // 날짜는 늘 화면 가운데다.
-        // 양옆 가운데 넓은 쪽만큼 비워서 긴 언어나 큰 글자에서도 저장 글자와 겹치지 않고 날짜 글자가 말줄임된다.
+        // 날짜는 늘 화면 가운데.
+        // 양옆 중 넓은 쪽만큼 비워 긴 언어나 큰 글자에서도 저장 글자와 겹치지 않고 날짜 글자가 말줄임됨
         val side = maxOf(start.width, end.width)
         val middle = title.measure(loose.copy(maxWidth = (constraints.maxWidth - side * 2).coerceAtLeast(0)))
         val height = constraints.maxHeight
@@ -606,7 +601,7 @@ private fun Chips(state: WriteUiState, onMood: () -> Unit, onWeather: () -> Unit
 private fun Notices(state: WriteUiState, modifier: Modifier = Modifier) {
     val text =
         when (val notice = state.photoNotice) {
-            // 더 넣을 수 있는 길이 있으면 시트로 알린다(Figma P3).
+            // 더 넣을 수 있는 길이 있으면 시트로 알림(Figma P3)
             is PhotoNotice.Limit -> if (notice.canUpgrade) null else stringResource(Res.string.write_photo_limit, notice.limit)
 
             PhotoNotice.NoSpace -> stringResource(Res.string.write_photo_no_space)
@@ -624,8 +619,8 @@ private fun Notices(state: WriteUiState, modifier: Modifier = Modifier) {
 }
 
 /**
- * 저장 실패와 불러오기 실패는 글이 길어도 보이게 스크롤 밖에 둔다.
- * 안내가 맨 위에 있으면 닫기를 눌러도 아무 일이 없는 것처럼 보인다.
+ * 저장 실패와 불러오기 실패는 글이 길어도 보이게 스크롤 밖에 둠.
+ * 안내가 맨 위에 있으면 닫기를 눌러도 아무 일이 없는 것처럼 보임
  */
 @Composable
 private fun SaveFailedNotice(state: WriteUiState) {
@@ -650,8 +645,8 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
             BasicText(stringResource(Res.string.write_hint), style = style.copy(color = colors.placeholder))
         }
         var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
-        // 서식 없는 본문은 글이 바뀔 때 한 번만 만든다.
-        // 전에는 한 글자 칠 때마다 체크 칸 그리기, 접근성 동작, 변화 감시가 각자 문단 트리를 다 돌아 4번 넘게 만들었다(2026-11-10).
+        // 서식 없는 본문은 글이 바뀔 때 한 번만 만듦.
+        // 체크 칸 그리기, 접근성 동작, 변화 감시가 각자 만들면 한 글자마다 문단 트리를 4번 넘게 돎
         val plain = remember(state) { derivedStateOf { state.annotatedString.let { state.toText() } } }
         val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
         LaunchedEffect(state) {
@@ -662,9 +657,9 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
                 before = if (edit == null) after else state.toText()
             }
         }
-        // 선택 핸들을 끄는 동안 움직이는 끝을 가장자리에서 띄워 보이게 한다.
-        // 편집기는 스스로 스크롤하지 않아 핸들을 화면 끝으로 끌면 도구 줄·키보드 밑으로 숨고 더 끌 수 없었다(2026-11-10 사용자 지적).
-        // 바깥 스크롤이 [EditorScrollMargin]의 여백만큼 따라 올라와 이어서 끌 수 있다.
+        // 선택 핸들을 끄는 동안 움직이는 끝을 가장자리에서 띄워 보이게.
+        // 편집기는 스스로 스크롤하지 않아 핸들을 화면 끝으로 끌면 도구 줄·키보드 밑으로 숨어 더 끌 수 없음.
+        // 바깥 스크롤이 [EditorScrollMargin]의 여백만큼 따라 올라와 이어서 끌 수 있음
         val reveal = remember { BringIntoViewRequester() }
         LaunchedEffect(state) {
             var before = state.selection
@@ -692,8 +687,8 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
                     .semantics { customActions = actions }
                     .checklistMarks({ plain.value }, { layout })
                     .pointerInput(state) {
-                        // 표시를 누르면 커서를 옮기지 않고 체크만 바꾼다.
-                        // 글자를 누르면 평소처럼 커서가 간다.
+                        // 표시를 누르면 커서를 옮기지 않고 체크만 바꿈.
+                        // 글자를 누르면 평소처럼 커서가 감
                         awaitEachGesture {
                             val down = awaitFirstDown(pass = PointerEventPass.Initial)
                             val start = layout?.checkLineAt(down.position, touch, state.toText(), editing = true) ?: return@awaitEachGesture
@@ -721,7 +716,7 @@ internal fun RichTextState.applyEdit(edit: ChecklistEdit) = when {
     else -> replaceTextRange(TextRange(edit.start, edit.end), edit.text)
 }
 
-/** 넓은 화면 옆 칸: 기분, 날씨, 사진, 장소(Figma "S2 · 태블릿"). */
+/** 넓은 화면 옆 칸: 기분, 날씨, 사진, 장소(Figma "S2 · 태블릿") */
 @Composable
 private fun SidePanel(state: WriteUiState, actions: WriteActions, onPick: () -> Unit, onPlace: () -> Unit) {
     val vm = actions.viewModel

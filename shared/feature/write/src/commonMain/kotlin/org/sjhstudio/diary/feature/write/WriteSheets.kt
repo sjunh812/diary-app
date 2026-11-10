@@ -106,7 +106,7 @@ import org.sjhstudio.diary.feature.write.resources.write_time
 import org.sjhstudio.diary.feature.write.resources.write_weather_body
 import org.sjhstudio.diary.feature.write.resources.write_weather_title
 
-/** 같은 칸을 다시 누르면 풀린다. */
+/** 같은 칸을 다시 누르면 풀림 */
 @Composable
 internal fun MoodGrid(selected: Mood?, onSelect: (Mood) -> Unit, modifier: Modifier = Modifier) {
     DiaryMoodGrid({ it == selected }, onSelect, modifier)
@@ -117,20 +117,15 @@ internal fun WeatherGrid(selected: Weather?, onSelect: (Weather) -> Unit, modifi
     DiaryWeatherGrid({ it == selected }, onSelect, modifier)
 }
 
-/**
- * 이미 고른 값을 지우는 버튼.
- * 고르기 전에는 할 일이 없어서 두지 않는다.
- */
+/** 이미 고른 값을 지우는 버튼. 고르기 전에는 할 일이 없어 두지 않음 */
 @Composable
 private fun ClearButton(onClick: () -> Unit) {
     DiaryButton(stringResource(Res.string.write_none), onClick, Modifier.fillMaxWidth(), kind = DiaryButtonKind.Text)
 }
 
 /**
- * 기분 칩에서 여는 시트.
- * 날씨는 날씨 칩에서 따로 고른다(2026-11-05 사용자 지적).
- * 하나만 고르는 시트라 누르면 바로 들어가고 닫힌다.
- * 완료를 한 번 더 누르게 하지 않는다.
+ * 기분 칩에서 여는 시트. 날씨는 날씨 칩에서 따로 고름.
+ * 하나만 고르는 시트라 누르면 바로 들어가고 닫힘. 완료를 한 번 더 누르게 하지 않음
  */
 @Composable
 internal fun MoodSheet(mood: Mood?, onMood: (Mood) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
@@ -144,7 +139,7 @@ internal fun MoodSheet(mood: Mood?, onMood: (Mood) -> Unit, onClear: () -> Unit,
     }
 }
 
-/** 날씨 칩에서 여는 시트. */
+/** 날씨 칩에서 여는 시트 */
 @Composable
 internal fun WeatherSheet(weather: Weather?, onWeather: (Weather) -> Unit, onClear: () -> Unit, onDismiss: () -> Unit) {
     DiaryBottomSheet(
@@ -169,8 +164,8 @@ internal fun PlaceSheet(
 ) {
     var text by rememberSaveable { mutableStateOf(initial) }
     val colors = DiaryTheme.colors
-    // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둔다.
-    // 완료를 눌러야 일기에 들어간다.
+    // 찾은 이름은 입력 칸에 넣어 고칠 수 있게 둠.
+    // 완료를 눌러야 일기에 들어감
     val found = ((locating as? PlaceLocating.Done)?.result as? PlaceLookup.Found)?.name
     LaunchedEffect(found) {
         if (found != null) text = found.take(MAX_PLACE)
@@ -184,8 +179,8 @@ internal fun PlaceSheet(
             PlaceField(text, locating == PlaceLocating.Finding, onChange = { text = it.take(MAX_PLACE) }, onLocate = onLocate)
             PlaceResult((locating as? PlaceLocating.Done)?.result, onOpenSettings)
         }
-        // 전에 쓴 곳은 한 번에 고른다.
-        // 적는 글자에 맞는 곳만 남긴다.
+        // 전에 쓴 곳은 한 번에 고름.
+        // 적는 글자에 맞는 곳만 남김
         val typed = text.trim()
         PlaceChips(
             stringResource(Res.string.write_place_recent),
@@ -206,8 +201,8 @@ internal fun PlaceSheet(
 
 /**
  * 장소를 적는 칸.
- * 직접 적기와 내 위치 가져오기는 같은 값을 채우는 일이라 한 칸에 둔다.
- * 위치는 누를 때만 읽는다.
+ * 직접 적기와 내 위치 가져오기는 같은 값을 채우는 일이라 한 칸에 둠.
+ * 위치는 누를 때만 읽음
  */
 @Composable
 private fun PlaceField(text: String, finding: Boolean, onChange: (String) -> Unit, onLocate: () -> Unit) {
@@ -260,7 +255,7 @@ private fun PlaceField(text: String, finding: Boolean, onChange: (String) -> Uni
     }
 }
 
-/** 찾지 못해도 쓰기는 그대로고 칸 아래 한 줄로 알린다. */
+/** 찾지 못해도 쓰기는 그대로고 칸 아래 한 줄로 알림 */
 @Composable
 private fun PlaceResult(result: PlaceLookup?, onOpenSettings: (locationOff: Boolean) -> Unit) {
     when (result) {
@@ -281,8 +276,8 @@ private fun PlaceNote(text: String, onOpenSettings: (() -> Unit)?) {
     ) {
         BasicText(text, Modifier.weight(1f), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         if (onOpenSettings != null) {
-            // 글자 끝을 입력 칸 끝에 맞추고 누르는 영역만 줄 높이로 넓힌다.
-            // 누름 면이 글자에 붙지 않게 옆으로 8 내어 시트 안쪽 여백을 쓴다.
+            // 글자 끝을 입력 칸 끝에 맞추고 누르는 영역만 줄 높이로 넓힘.
+            // 누름 면이 글자에 붙지 않게 옆으로 8 내어 시트 안쪽 여백을 씀
             val interaction = remember { MutableInteractionSource() }
             Box(
                 Modifier
@@ -308,8 +303,7 @@ private fun PlaceChips(title: String, places: List<String>, onPick: (String) -> 
     if (places.isEmpty()) return
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         BasicText(title, style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary))
-        // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다.
-        // 보이는 틈은 16이다.
+        // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않음. 보이는 틈은 16
         FlowRow(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             for (place in places) DiaryChip(place, selected = false, onClick = { onPick(place) })
         }
@@ -323,7 +317,7 @@ private fun SheetButtons(secondary: String, onSecondary: () -> Unit, primary: St
 
 /**
  * "쓰던 일기가 있어요"(Figma "S2 · 쓰던 일기").
- * 버리기는 한 번 더 묻는다(FR-011).
+ * 버리기는 한 번 더 물음(FR-011)
  */
 @Composable
 internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: () -> Unit, onDiscard: () -> Unit, onDismiss: () -> Unit) {
@@ -334,7 +328,7 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
         title = stringResource(Res.string.write_resume_title),
         description = stringResource(Res.string.write_resume_body, dates.fullDate(offer.date), dates.time(offer.time))
     ) {
-        // 기분이나 사진만 남긴 글은 미리 보여 줄 글자가 없다.
+        // 기분이나 사진만 남긴 글은 미리 보여 줄 글자가 없음
         if (offer.preview.isNotBlank()) {
             BasicText(
                 Checklist.forPreview(offer.preview),
@@ -354,26 +348,23 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
     }
 }
 
-/**
- * 날짜와 시각 고르기.
- * 과거·미래 어느 날이든 고를 수 있다(FR-004).
- */
+/** 날짜와 시각 고르기. 과거·미래 어느 날이든 고를 수 있음(FR-004) */
 @Composable
 internal fun DateTimeSheet(date: LocalDate, time: LocalTime, onDone: (LocalDate, LocalTime) -> Unit, onDismiss: () -> Unit) {
     val dates = rememberDiaryDateFormat()
     val colors = DiaryTheme.colors
-    // 화면을 돌려도 고르던 날짜와 시각이 처음 값으로 돌아가지 않는다(2026-11-10).
+    // 화면을 돌려도 고르던 날짜와 시각이 처음 값으로 돌아가지 않게
     var picked by rememberSaveable(stateSaver = DaySaver) { mutableStateOf(date) }
     var month by rememberSaveable(stateSaver = MonthSaver) { mutableStateOf(YearMonth(date.year, date.month.number)) }
     var minute by rememberSaveable { mutableIntStateOf(time.hour * 60 + time.minute) }
-    // 고르는 날짜는 뒤 상단 바와 달력의 동그라미가 이미 보여서 시트 제목을 따로 두지 않는다.
+    // 고르는 날짜는 뒤 상단 바와 달력의 동그라미가 이미 보여 시트 제목을 따로 두지 않음
     DiaryBottomSheet(onDismiss = onDismiss) {
         DiaryMonthPicker(month, onChange = { month = it }) {
             DiaryMonthDays(month, isPicked = { it == picked }, onPick = { picked = it })
         }
         BasicText(stringResource(Res.string.write_time), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
-        // 창이 낮은 폰에서는 6주인 달과 바퀴 다섯 칸이 한 시트에 들어가지 않아 세 칸으로 줄인다.
-        // 스크롤이 생기면 달력과 바퀴의 끌기가 시트 스크롤과 엉킨다.
+        // 창이 낮은 폰에서는 6주인 달과 바퀴 다섯 칸이 한 시트에 들어가지 않아 세 칸으로 줄임.
+        // 스크롤이 생기면 달력과 바퀴의 끌기가 시트 스크롤과 엉킴
         DiaryTimeWheel(minuteOfDay = minute, onChange = { minute = it }, is24Hour = dates.is24Hour, rows = rememberCalendarWheelRows())
         SheetButtons(
             stringResource(Res.string.write_close),

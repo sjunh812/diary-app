@@ -36,9 +36,9 @@ import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import platform.UIKit.UIViewController
 
-// 화면을 돌리거나 다른 화면에 가렸다 돌아와도 편집기가 옛 글로 돌아가지 않는지 본다(헌법 I).
-// 컴포지션을 없앴다가 저장된 상태로 다시 만들어 돌리기를 흉내 낸다.
-// 화면 모델은 돌리기에서 살아남으니 밖에 둔다.
+// 화면을 돌리거나 다른 화면에 가렸다 돌아와도 편집기가 옛 글로 돌아가지 않는지(헌법 I).
+// 컴포지션을 없앴다가 저장된 상태로 다시 만들어 돌리기를 흉내 냄.
+// 화면 모델은 돌리기에서 살아남으니 밖에 둠
 @OptIn(ExperimentalTestApi::class)
 class WriteRouteUiTest {
     private fun draft(key: DraftKey, body: String) =
@@ -49,10 +49,7 @@ class WriteRouteUiTest {
         return node.config[SemanticsProperties.EditableText].text
     }
 
-    /**
-     * 화면을 돌리는 흉내.
-     * 컴포지션을 없앴다가 저장해 둔 상태로 다시 만든다.
-     */
+    /** 화면을 돌리는 흉내. 컴포지션을 없앴다가 저장해 둔 상태로 다시 만듦 */
     private fun ComposeUiTest.showWrite(viewModel: WriteViewModel, dark: () -> Boolean = { false }, shown: () -> Boolean) {
         setContent {
             CompositionLocalProvider(LocalUIViewController provides UIViewController()) {
@@ -96,8 +93,8 @@ class WriteRouteUiTest {
     }
 
     /**
-     * 라이트로 바뀌어 돌아와도 친 글과 글자색이 남는다.
-     * 편집기 안의 다크 색은 라이트에서 저장 값으로 되돌릴 수 없다.
+     * 라이트로 바뀌어 돌아와도 친 글과 글자색이 남음.
+     * 편집기 안의 다크 색은 라이트에서 저장 값으로 되돌릴 수 없음
      */
     @Test
     fun a_new_theme_keeps_the_text_and_its_colors() = runComposeUiTest {
@@ -128,7 +125,7 @@ class WriteRouteUiTest {
         assertTrue("새 글" in stored && "더" in stored, stored)
     }
 
-    /** 앱 틀이 화면 모델 저장소를 나눠 주지 못해도 다른 일기의 화면 모델을 받지 않는다. */
+    /** 앱 틀이 화면 모델 저장소를 나눠 주지 못해도 다른 일기의 화면 모델을 받지 않음 */
     @Test
     fun another_entry_gets_its_own_screen_model() = runComposeUiTest {
         val a = DraftKey.Edit("a")

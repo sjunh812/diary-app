@@ -199,10 +199,7 @@ import org.sjhstudio.diary.feature.write.resources.write_weather
 
 // 쓰기 화면의 Plus 안내 시트
 
-/**
- * 체크리스트는 Plus 기능이다(Figma P9).
- * 쓰던 글은 그대로라고 말하고 막지 않는다.
- */
+/** 체크리스트는 Plus 기능(Figma P9). 쓰던 글은 그대로라고 말하고 막지 않음 */
 @Composable
 internal fun ChecklistPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
     DiaryBottomSheet(
@@ -226,7 +223,7 @@ internal fun ChecklistPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
 
 /**
  * 사진 한도 시트(Figma P3).
- * 고른 사진과 글은 그대로라고 먼저 말하고, 쓰는 일을 막지 않는다.
+ * 고른 사진과 글은 그대로라고 먼저 말하고 쓰는 일을 막지 않음
  */
 @Composable
 internal fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Unit) {

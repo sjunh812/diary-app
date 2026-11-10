@@ -25,7 +25,7 @@ import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 쓰기 화면이 요금제에서 받는 값. 표에 없는 것은 어느 요금제든 같고, 쓰던 글은 막지 않는다(헌법 III).
+// 쓰기 화면이 요금제에서 받는 값. 표에 없는 것은 어느 요금제든 같고, 쓰던 글은 막지 않음(헌법 III)
 @OptIn(ExperimentalCoroutinesApi::class)
 class WritePlanTableTest {
     private val dispatcher = StandardTestDispatcher()
@@ -61,7 +61,7 @@ class WritePlanTableTest {
         }
     }
 
-    /** 쓰는 도중에 구독이 끝나면 화면이 바로 따르고 쓰던 글은 그대로다. */
+    /** 쓰는 도중에 구독이 끝나면 화면이 바로 따르고 쓰던 글은 그대로 */
     @Test
     fun plus_ending_while_writing_changes_only_the_tools() = runTest(dispatcher) {
         val plans = FakePlanRepository(Plan.PLUS)
@@ -79,7 +79,7 @@ class WritePlanTableTest {
         assertEquals(true, viewModel.state.value.canSave)
     }
 
-    /** 구독이 끝나도 이미 쓴 체크리스트는 고쳐 저장할 수 있다(FR-020). */
+    /** 구독이 끝나도 이미 쓴 체크리스트는 수정해 저장할 수 있음(FR-020) */
     @Test
     fun an_old_checklist_can_be_saved_on_every_plan() = runTest(dispatcher) {
         for ((plan) in table) {

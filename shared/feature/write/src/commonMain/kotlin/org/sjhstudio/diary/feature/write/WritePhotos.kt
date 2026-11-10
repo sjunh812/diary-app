@@ -202,7 +202,7 @@ import org.sjhstudio.diary.feature.write.resources.write_weather
 /** 끄는 사진을 살짝 키워 집어 든 것처럼 */
 private const val DRAG_SCALE = 1.06f
 
-/** 길게 눌러 옆으로 끌면 순서가 바뀐다(FR-007). */
+/** 길게 눌러 옆으로 끌면 순서가 바뀜(FR-007) */
 @Composable
 internal fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> Unit, inset: Dp? = LocalScreenGutter.current) {
     val colors = DiaryTheme.colors
@@ -254,7 +254,7 @@ internal fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: D
         Modifier
             .zIndex(if (dragging) 1f else 0f)
             .graphicsLayer {
-                // 끄는 동안 손을 따라오게 그린다.
+                // 끄는 동안 손을 따라오게 그림
                 translationX = shift
                 scaleX = if (dragging) DRAG_SCALE else 1f
                 scaleY = if (dragging) DRAG_SCALE else 1f

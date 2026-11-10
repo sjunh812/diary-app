@@ -9,8 +9,8 @@ import org.sjhstudio.diary.core.model.richtext.bodyToEditor
 import org.sjhstudio.diary.core.model.richtext.editorToBody
 
 /**
- * 저장 값은 라이트 hex 하나지만 편집기는 지금 테마의 토큰 색으로 보여야 한다(contracts/rich-text-html.md).
- * 편집기에 넣을 때와 꺼낼 때 팔레트 색을 서로 바꾼다.
+ * 저장 값은 라이트 hex 하나지만 편집기는 지금 테마의 토큰 색으로 보여야 함(contracts/rich-text-html.md).
+ * 편집기에 넣을 때와 꺼낼 때 팔레트 색을 서로 바꿈
  */
 internal class EditorColors(colors: DiaryColors) {
     val ink: Map<InkColor, Color> =
@@ -37,20 +37,17 @@ internal class EditorColors(colors: DiaryColors) {
 
     private val back: Map<String, String> = pairs.associate { (stored, shown) -> shown to stored }
 
-    /**
-     * 테마가 바뀌었는지 가르는 값.
-     * 화면을 다시 만든 뒤에도 견줄 수 있게 글자로 둔다.
-     */
+    /** 테마가 바뀌었는지 가르는 값. 화면을 다시 만든 뒤에도 견줄 수 있게 글자로 둠 */
     val signature: String = pairs.joinToString("") { (_, shown) -> shown }
 
-    /** 저장된 라이트 hex를 지금 테마 색으로, 문단 안 줄바꿈을 에디터의 줄로. */
+    /** 저장된 라이트 hex를 지금 테마 색으로, 문단 안 줄바꿈을 에디터의 줄로 */
     fun toEditor(html: String): String = inStyles(bodyToEditor(html)) { style ->
         pairs.fold(style) { text, (stored, shown) -> text.replace(stored, shown, ignoreCase = true) }
     }
 
     /**
      * 편집기가 낸 `rgba()`나 hex를 저장 값으로.
-     * 정리기가 팔레트 밖 색을 버리므로 여기서 꼭 돌려놓는다.
+     * 정리기가 팔레트 밖 색을 버리므로 여기서 꼭 돌려놓음
      */
     fun fromEditor(html: String): String {
         val stored =
@@ -62,7 +59,7 @@ internal class EditorColors(colors: DiaryColors) {
         return editorToBody(stored)
     }
 
-    /** 색은 `style` 값 안에서만 바꾼다. 본문에 쓴 `#b91c1c` 같은 글자는 사용자의 글이다. */
+    /** 색은 `style` 값 안에서만 바꿈. 본문에 쓴 `#b91c1c` 같은 글자는 사용자의 글 */
     private fun inStyles(html: String, change: (String) -> String): String = STYLE.replace(html) { match -> change(match.value) }
 
     private fun rgbToHex(match: MatchResult): String? {

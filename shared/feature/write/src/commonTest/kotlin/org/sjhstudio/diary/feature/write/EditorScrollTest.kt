@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-// 본문 스크롤이 커서·선택 끝을 가장자리에서 띄워 보이게 하는지 본다.
+// 본문 스크롤이 커서·선택 끝을 가장자리에서 띄워 보이게 하는지
 class EditorScrollTest {
     private val height = 600f
     private val margin = 56f
@@ -14,14 +14,14 @@ class EditorScrollTest {
     fun already_visible_with_room_does_not_scroll() = assertEquals(0f, scrollDistance(100f, 28f, height, margin))
 
     @Test
-    fun line_at_the_bottom_edge_scrolls_up_to_leave_room() = // 572~600에 있는 줄은 아래에 56을 남기도록 56만큼 올라간다.
+    fun line_at_the_bottom_edge_scrolls_up_to_leave_room() = // 572~600에 있는 줄은 아래에 56을 남기게 56만큼 올라감
         assertEquals(56f, scrollDistance(572f, 28f, height, margin))
 
     @Test
     fun line_above_the_top_scrolls_down_to_leave_room() = assertEquals(-76f, scrollDistance(-20f, 28f, height, margin))
 
     @Test
-    fun too_tall_to_fit_with_room_falls_back_to_the_edge() = // 여백까지 넣을 수 없으면 가장자리에 맞춘다.
+    fun too_tall_to_fit_with_room_falls_back_to_the_edge() = // 여백까지 넣을 수 없으면 가장자리에 맞춤
         assertEquals(100f, scrollDistance(150f, 550f, height, margin))
 
     @Test

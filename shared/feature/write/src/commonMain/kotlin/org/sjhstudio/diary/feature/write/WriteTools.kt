@@ -199,15 +199,12 @@ import org.sjhstudio.diary.feature.write.resources.write_weather
 
 // 쓰기 화면의 꾸미기 도구 막대와 색 고르기
 
-/**
- * 도구 줄이 바뀌는 팔레트.
- * 글자색과 형광펜은 쓰임이 달라 각자의 색만 보인다(2026-11-05 사용자 지적).
- */
+/** 도구 줄이 바뀌는 팔레트. 글자색과 형광펜은 쓰임이 달라 각자의 색만 보임 */
 internal enum class PaletteKind { Ink, Mark }
 
 /**
  * 키보드 위 서식 도구(Figma "서식 도구 줄").
- * 글자색·형광펜을 누르면 줄이 그 팔레트로 바뀐다.
+ * 글자색·형광펜을 누르면 줄이 그 팔레트로 바뀜
  */
 internal class WriteTools(
     val rich: RichTextState,
@@ -215,7 +212,7 @@ internal class WriteTools(
     val checklistOpen: () -> Boolean,
     val onChecklistLocked: () -> Unit
 ) {
-    /** 서식 없는 본문. 글이 바뀔 때만 다시 만든다. */
+    /** 서식 없는 본문. 글이 바뀔 때만 다시 만듦 */
     private val plain = derivedStateOf { rich.annotatedString.let { rich.toText() } }
 
     @Composable
@@ -243,7 +240,7 @@ internal class WriteTools(
     private fun RowScope.Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, openPalette: (PaletteKind) -> Unit) {
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
-        // 좁은 폰에서는 칸을 고르게 줄여 도구가 모두 보이게 한다.
+        // 좁은 폰에서는 칸을 고르게 줄여 도구가 모두 보이게
         val slot = Modifier.weight(1f, fill = false)
         val checked = Checklist.isItemAt(plain.value, rich.selection.min)
         fun tint(active: Boolean) = if (active) theme.accentText else theme.textPrimary
@@ -270,7 +267,7 @@ internal class WriteTools(
                 rich.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
             }
         )
-        // 글자색 도구는 지금 고른 색을 그대로 보인다.
+        // 글자색 도구는 지금 고른 색을 그대로 보임
         ToolButton(
             DiaryIcons.TextColor,
             stringResource(Res.string.write_format_color),
@@ -315,8 +312,7 @@ internal class WriteTools(
             modifier = slot,
             active = checked,
             onClick = {
-                // 이미 있는 항목을 푸는 것은 언제나 된다.
-                // 새로 만드는 것만 Plus다.
+                // 이미 있는 항목을 푸는 것은 언제나 됨. 새로 만드는 것만 Plus
                 if (!checked && !checklistOpen()) {
                     onChecklistLocked()
                     return@ToolButton
@@ -336,7 +332,7 @@ internal class WriteTools(
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
         ToolButton(DiaryIcons.ChevronLeft, stringResource(Res.string.write_palette_back), theme.textPrimary, onClick = close)
-        // 고른 색이 몇 개든 한 번에 풀어서, 여러 색이 섞인 글도 기본으로 돌아간다.
+        // 고른 색이 몇 개든 한 번에 풀어 여러 색이 섞인 글도 기본으로 돌아감
         fun clearInk() = colors.ink.values.forEach { rich.removeSpanStyle(SpanStyle(color = it)) }
         fun clearMark() = colors.mark.values.forEach { rich.removeSpanStyle(SpanStyle(background = it)) }
         Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
@@ -404,10 +400,7 @@ internal fun ColorChip(color: Color, shape: Shape) {
     Box(Modifier.size(DiaryWriteSize.swatch).background(color, shape))
 }
 
-/**
- * 고른 색은 액센트 고리로 보인다.
- * 고리와 색 사이를 띄워서 보라 칸에서도 고리가 구별된다.
- */
+/** 고른 색은 액센트 고리로 보임. 고리와 색 사이를 띄워 보라 칸에서도 고리가 구별됨 */
 @Composable
 internal fun Swatch(
     description: String,
@@ -453,11 +446,11 @@ internal fun ToolButton(
             .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        // 켜진 도구는 색만이 아니라 바탕으로도 알린다.
+        // 켜진 도구는 색만이 아니라 바탕으로도 알림
         if (active) Box(Modifier.size(DiaryWriteSize.swatch + DiarySpacing.x2).background(theme.selected, DiaryShapes.r12))
         DiaryIcon(icon, contentDescription = description, tint = tint)
     }
 }
 
-/** 저장이 이보다 오래 걸리면 진행 점을 보인다. */
+/** 저장이 이보다 오래 걸리면 진행 점을 보임 */
 internal const val SAVE_PROGRESS_DELAY_MS = 300L

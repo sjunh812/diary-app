@@ -16,7 +16,7 @@ internal actual fun rememberLocationAccess(): LocationAccess = remember { IosLoc
 private class IosLocationAccess : LocationAccess {
     private val manager = CLLocationManager()
 
-    // 관리자는 대리자를 약하게 잡으니 여기서 들고 있는다.
+    // 관리자는 대리자를 약하게 잡아 여기서 들고 있음
     private var waiter: AuthorizationWaiter? = null
 
     override fun request(onDone: () -> Unit) {
@@ -35,8 +35,7 @@ private class IosLocationAccess : LocationAccess {
     }
 
     override fun openSettings(locationOff: Boolean) {
-        // iOS는 앱 설정만 바로 열 수 있다.
-        // 위치 서비스도 그 안내를 따라간다.
+        // iOS는 앱 설정만 바로 열 수 있어 위치 서비스도 그 안내를 따라감
         val url = NSURL.URLWithString(UIApplicationOpenSettingsURLString) ?: return
         UIApplication.sharedApplication.openURL(url, options = emptyMap<Any?, Any>(), completionHandler = null)
     }
@@ -46,8 +45,8 @@ private class AuthorizationWaiter(private val onDecided: () -> Unit) :
     NSObject(),
     CLLocationManagerDelegateProtocol {
     override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) {
-        // 대리자를 달자마자 지금 상태로 한 번 불린다.
-        // 고른 뒤에만 넘어간다.
+        // 대리자를 달자마자 지금 상태로 한 번 불림.
+        // 고른 뒤에만 넘어감
         if (manager.authorizationStatus != kCLAuthorizationStatusNotDetermined) onDecided()
     }
 }

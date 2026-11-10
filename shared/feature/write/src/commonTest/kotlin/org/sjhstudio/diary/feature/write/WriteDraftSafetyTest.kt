@@ -34,7 +34,7 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 앱이 종료되거나 잠겼다 돌아와도, 연타해도 쓴 글을 잃지 않는지 본다(헌법 I).
+// 앱이 종료되거나 잠겼다 돌아와도, 연타해도 쓴 글을 잃지 않는지(헌법 I)
 @OptIn(ExperimentalCoroutinesApi::class)
 class WriteDraftSafetyTest {
     private val dispatcher = StandardTestDispatcher()
@@ -63,7 +63,7 @@ class WriteDraftSafetyTest {
     fun a_photo_arriving_before_the_draft_is_read_keeps_the_draft() = runTest(dispatcher) {
         val key = DraftKey.New("new-1")
         val repository = FakeDraftRepository(listOf(draft(key, body = "<p>남겨 둔 글</p>")))
-        // 카메라에서 돌아온 결과가 화면 모델이 글을 읽기 전에 들어온다.
+        // 카메라에서 돌아온 결과가 화면 모델이 글을 읽기 전에 들어옴
         val vm = testWriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
         vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }))
         advanceUntilIdle()
@@ -138,7 +138,7 @@ class WriteDraftSafetyTest {
     fun a_left_edit_that_matches_the_entry_is_not_kept() = runTest(dispatcher) {
         val key = DraftKey.Edit("e1")
         val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key)))
-        // 앱이 다시 떠서 전에 만든 저장본을 이어 연 때다.
+        // 앱이 다시 떠서 전에 만든 저장본을 이어 연 때
         repository.openEdit("e1")
         val vm = vm(repository, WriteTarget.Edit("e1"))
         val events = events(vm)
@@ -174,7 +174,7 @@ class WriteDraftSafetyTest {
         assertFalse(vm.state.value.addingPhotos)
     }
 
-    /** Room은 사진을 적은 뒤 조금 늦게 알린다. 화면이 아직 모른다고 빈 글로 보면 사진을 잃는다. */
+    /** Room은 사진을 적은 뒤 조금 늦게 알림. 화면이 아직 모른다고 빈 글로 보면 사진을 잃음 */
     @Test
     fun a_photo_the_screen_has_not_seen_yet_is_kept_on_closing() = runTest(dispatcher) {
         val gate = CompletableDeferred<Unit>()
@@ -217,7 +217,7 @@ class WriteDraftSafetyTest {
         assertEquals(0, repository.saved.single().photos.size)
     }
 
-    // 잘못 뺀 사진은 토스트의 [되돌리기]로 원래 자리에 돌아온다(2026-11-10).
+    // 잘못 뺀 사진은 토스트의 [되돌리기]로 원래 자리에 돌아옴
     @Test
     fun undo_puts_a_removed_photo_back_in_place() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
@@ -237,7 +237,7 @@ class WriteDraftSafetyTest {
         advanceUntilIdle()
         assertEquals(before, repository.saved.single().photos)
 
-        // 한 번 되돌린 뒤에는 다시 눌러도 아무것도 하지 않는다.
+        // 한 번 되돌린 뒤에는 다시 눌러도 아무것도 하지 않음
         vm.undoRemovePhoto()
         advanceUntilIdle()
         assertEquals(before, repository.saved.single().photos)

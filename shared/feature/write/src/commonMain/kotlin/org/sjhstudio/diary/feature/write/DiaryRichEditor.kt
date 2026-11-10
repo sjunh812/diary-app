@@ -35,8 +35,8 @@ import kotlinx.coroutines.delay
 
 /**
  * 일기 본문 편집기.
- * 라이브러리의 `BasicRichTextEditor`와 같고, 키보드 입력만 [EditorInput]을 지나게 했다.
- * 라이브러리를 올릴 때 이 파일을 원본과 견준다(compose-rich-editor 1.2.1).
+ * 라이브러리의 `BasicRichTextEditor`와 같고, 키보드 입력만 [EditorInput]을 거침.
+ * 라이브러리를 올릴 때 이 파일을 원본과 견줌(compose-rich-editor 1.2.1)
  */
 @Composable
 internal fun DiaryRichEditor(
@@ -66,10 +66,10 @@ internal fun DiaryRichEditor(
             }
         }
     }
-    // 핸들을 끄는 동안에는 화면 변환을 바꾸지 않는다.
-    // 형광펜(바탕색)이 있으면 라이브러리가 선택이 바뀔 때마다 꾸밈을 다시 만들고 화면 변환을 새로 바꾸는데,
-    // 안드로이드는 그때 끌던 핸들을 놓쳐 핸들이 가다가 멈췄다(2026-11-10 사용자 실기기, 라이브러리 #730·#731).
-    // 끌기가 멈추면(잠깐 새 끌기가 없으면) 그때의 꾸밈으로 다시 그린다.
+    // 핸들을 끄는 동안에는 화면 변환을 바꾸지 않음.
+    // 형광펜(바탕색)이 있으면 라이브러리가 선택마다 꾸밈을 다시 만들고 화면 변환을 새로 바꿔
+    // 안드로이드가 끌던 핸들을 놓치고 핸들이 가다가 멈춤(라이브러리 #730·#731).
+    // 끌기가 멈추면(잠깐 새 끌기가 없으면) 그때의 꾸밈으로 다시 그림
     val live = state.visualTransformation
     var held by remember { mutableStateOf(live) }
     if (!input.dragging) held = live
@@ -114,5 +114,5 @@ internal fun DiaryRichEditor(
     }
 }
 
-/** 핸들 끌기가 멈췄다고 보는 시간. 손가락을 잠깐 멈췄다 다시 끌어도 이어지게 넉넉히 둔다. */
+/** 핸들 끌기가 멈췄다고 보는 시간. 손가락을 잠깐 멈췄다 다시 끌어도 이어지게 넉넉히 */
 private const val DRAG_SETTLE_MS = 1_000L

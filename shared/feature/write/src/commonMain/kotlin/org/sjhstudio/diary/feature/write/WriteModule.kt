@@ -20,16 +20,10 @@ val writeFeatureModule =
         }
     }
 
-/**
- * 화면이 기억해 둔 임시 저장본 키.
- * 비어 있을 수 있어서 값 클래스 대신 감싸서 넘긴다.
- */
+/** 화면이 기억해 둔 임시 저장본 키. 비어 있을 수 있어 값 클래스 대신 감싸서 넘김 */
 class RestoredDraftKey(val value: String?)
 
-/**
- * 사진 파일 이름을 앱 저장소 경로로 바꾼다.
- * 앱 틀이 파일 자리를 알아 넘긴다.
- */
+/** 사진 파일 이름을 앱 저장소 경로로. 파일 자리를 아는 앱 틀이 넘김 */
 fun interface WriteMediaPath {
     fun resolve(fileName: String): String
 }

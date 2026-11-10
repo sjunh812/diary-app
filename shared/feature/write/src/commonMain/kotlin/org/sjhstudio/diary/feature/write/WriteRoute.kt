@@ -29,9 +29,8 @@ import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 
 /**
- * 쓰기 진입점.
- * 어디로 갈지는 앱 틀이 정한다.
- * [onSaved]는 일기 ID를, [onClosed]는 임시 저장을 남겼는지를 받는다.
+ * 쓰기 진입점. 어디로 갈지는 앱 틀이 정함.
+ * [onSaved]는 일기 ID를, [onClosed]는 임시 저장을 남겼는지를 받음
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -43,8 +42,8 @@ fun WriteRoute(
     onPlus: () -> Unit = {},
     injected: WriteViewModel? = null
 ) {
-    // 잠금이나 앱 종료로 화면 모델이 사라져도 쓰던 글을 그대로 잇는다.
-    // 이게 없으면 쓰던 화면인데 "쓰던 일기가 있어요"를 다시 묻는다.
+    // 잠금이나 앱 종료로 화면 모델이 사라져도 쓰던 글을 그대로 이음.
+    // 없으면 쓰던 화면인데 "쓰던 일기가 있어요"를 다시 물음
     var draftKey by rememberSaveable { mutableStateOf<String?>(null) }
     val viewModel =
         injected ?: koinViewModel<WriteViewModel>(key = target.viewModelKey()) { parametersOf(target, RestoredDraftKey(draftKey)) }
@@ -76,21 +75,20 @@ fun WriteRoute(
         viewModel.attachEditor { keepingEditorText(colors.fromEditor(rich.toHtml()), rich.annotatedString.text) }
         onDispose(viewModel::detachEditor)
     }
-    // 편집기는 화면을 돌려도 스스로 살아남는다.
-    // 받은 본문을 다시 넣으면 그 뒤에 친 글이 사라지니, 넣은 판을 함께 기억한다.
-    // 테마가 바뀌면 편집기 안의 색을 저장 값으로 되돌릴 수 없어서 그때는 지금 본문을 다시 넣는다.
+    // 편집기는 화면을 돌려도 스스로 살아남음.
+    // 받은 본문을 다시 넣으면 그 뒤에 친 글이 사라져 넣은 판을 함께 기억.
+    // 테마가 바뀌면 편집기 안의 색을 저장 값으로 되돌릴 수 없어 그때는 지금 본문을 다시 넣음
     var applied by rememberSaveable { mutableStateOf("") }
     val wanted = "${state.bodyVersion}/${colors.signature}"
     LaunchedEffect(wanted) {
         if (state.bodyVersion > 0 && applied != wanted) {
             rich.setHtml(colors.toEditor(viewModel.currentBody()))
-            // 편집기가 다시 낸 모양을 기준으로 삼는다.
+            // 편집기가 다시 낸 모양이 기준
             viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
             applied = wanted
         }
     }
-    // HTML 변환은 쓰기 직전으로 미룬다.
-    // 여기서는 바뀌었다는 표시만 한다.
+    // HTML 변환은 쓰기 직전으로 미루고 여기서는 바뀜 표시만
     LaunchedEffect(rich) {
         snapshotFlow { rich.annotatedString }.drop(1).collect { viewModel.onEditorChanged(hasWords(it.text)) }
     }
@@ -108,7 +106,7 @@ fun WriteRoute(
 
 /**
  * 화면 모델을 일기마다 따로 두는 키.
- * 앱 틀이 저장소를 나눠 주지 못하는 때도 다른 일기의 화면 모델을 받지 않게 한다.
+ * 앱 틀이 저장소를 나눠 주지 못할 때도 다른 일기의 화면 모델을 받지 않게
  */
 private fun WriteTarget.viewModelKey(): String = when (this) {
     is WriteTarget.Edit -> "write:edit:$entryId"

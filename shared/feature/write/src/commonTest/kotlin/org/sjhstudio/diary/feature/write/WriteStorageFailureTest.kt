@@ -29,7 +29,7 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 저장 공간이 차서 임시 저장본을 쓰지 못해도 앱이 꺼지지 않고, 쓴 글이 화면에 남아야 한다(헌법 I).
+// 저장 공간이 차서 임시 저장본을 쓰지 못해도 앱이 꺼지지 않고 쓴 글이 화면에 남는지(헌법 I)
 @OptIn(ExperimentalCoroutinesApi::class)
 class WriteStorageFailureTest {
     private val dispatcher = StandardTestDispatcher()
@@ -79,7 +79,7 @@ class WriteStorageFailureTest {
         vm.save()
         advanceUntilIdle()
 
-        // 빈 화면에서 친 글로 원래 일기를 덮어쓰지 않는다.
+        // 빈 화면에서 친 글로 원래 일기를 덮어쓰지 않음
         assertEquals(false, vm.state.value.canSave)
         assertTrue(drafts.committed.isEmpty())
     }
