@@ -4,11 +4,11 @@ import FirebaseCrashlytics
 import Foundation
 import Shared
 
-/// 고정 표를 지난 이벤트와 키만 받는다(research R21).
-/// 일기 내용은 여기까지 오지 않는다.
+/// 고정 표를 거친 이벤트와 키만 받음(research R21)
+/// 일기 내용은 여기까지 오지 않음
 final class FirebaseReporter: FirebaseReporting {
-    /// 설정 파일이 없는 빌드는 Firebase를 켜지 않는다.
-    /// `configure`는 파일이 없으면 앱을 끝낸다.
+    /// 설정 파일 없는 빌드는 Firebase를 켜지 않음
+    /// `configure`는 파일이 없으면 앱을 종료함
     static func start() -> FirebaseReporter? {
         guard Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil else { return nil }
         FirebaseApp.configure()
