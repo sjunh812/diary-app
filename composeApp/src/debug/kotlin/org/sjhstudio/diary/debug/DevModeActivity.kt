@@ -34,15 +34,15 @@ import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
- * 개발자 모드. 설정 맨 아래 줄로 들어오고 출시 빌드에는 없다.
- * 앱과 같은 화면 모드를 따라서 기기 설정과 달라도 앱과 같게 보인다.
- * 개발자만 보는 화면이라 문구를 리소스에 두지 않는다.
+ * 개발자 모드. 설정 맨 아래 줄로 들어오고 출시 빌드에는 없음.
+ * 앱과 같은 화면 모드를 따라 기기 설정과 달라도 앱과 같게 보임.
+ * 개발자만 보는 화면이라 문구를 리소스에 두지 않음.
  */
 class DevModeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험한다.
+        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험
         if (intent.getBooleanExtra(EXTRA_CRASH, false)) crash()
         val plans = get<PlanRepository>() as DevPlanRepository
         val ads = get<AdStore>()

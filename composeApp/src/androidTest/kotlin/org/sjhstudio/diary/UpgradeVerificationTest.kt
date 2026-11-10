@@ -19,10 +19,10 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
 /**
- * 1.7.4에서 올린 기기의 기록 이전을 기기 안에서 확인한다(스펙 001 T050, quickstart §2).
- * `scripts/legacy/upgrade-test.sh`가 1.7.4를 깔고 `seed.sh` 견본을 넣은 뒤 새 APK를 덮어 깔고 이 시험을 부른다.
- * 기대값은 `seed.sh`의 네 편과 덧붙인 큰 견본 수(`files/debug/seed.json`)다.
- * 견본이 없는 기기에서는 건너뛴다.
+ * 1.7.4에서 올린 기기의 기록 이전을 기기 안에서 확인(스펙 001 T050, quickstart §2).
+ * `scripts/legacy/upgrade-test.sh`가 1.7.4를 깔고 `seed.sh` 견본을 넣은 뒤 새 APK를 덮어 깔고 이 시험을 부름.
+ * 기대값은 `seed.sh`의 네 편과 덧붙인 큰 견본 수(`files/debug/seed.json`).
+ * 견본이 없는 기기에서는 건너뜀.
  */
 @RunWith(AndroidJUnit4::class)
 class UpgradeVerificationTest {
@@ -51,14 +51,14 @@ class UpgradeVerificationTest {
             assertEquals(listOf("jpg", "png"), photos.map { it.fileName!!.substringAfterLast('.') })
             for (photo in photos) {
                 assertTrue(File(context.filesDir, "media/${photo.fileName}").exists())
-                // 썸네일도 이전할 때 만든다(FR-037).
+                // 썸네일도 이전할 때 만듦(FR-037)
                 assertTrue(File(context.noBackupFilesDir, "thumbs/${photo.sha256}.jpg").exists())
             }
 
             // 2편: 이모지와 잘못된 밀리초 날짜도 글은 그대로
             assertTrue(checkNotNull(db.entryDao().getByLegacyId(2)).asModel().plainText.contains("😵"))
 
-            // 3편: 캐시에서 지워진 사진은 자리만 남는다(FR-004)
+            // 3편: 캐시에서 지워진 사진은 자리만 남음(FR-004)
             val third = checkNotNull(db.entryDao().getByLegacyId(3)).asModel()
             val missing = db.mediaDao().forEntry(third.id).map { it.asModel() }
             assertEquals(listOf(MediaStatus.MISSING), missing.map { it.status })
@@ -72,8 +72,8 @@ class UpgradeVerificationTest {
     }
 
     /**
-     * 이전이 끝날 때까지 기다린다.
-     * 이전은 화면의 관문이 시작한다.
+     * 이전이 끝날 때까지 기다림.
+     * 이전은 화면의 관문이 시작함.
      */
     private fun waitForMigration() {
         val state = File(context.filesDir, "migration/state.json")
