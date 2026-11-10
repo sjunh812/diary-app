@@ -41,10 +41,10 @@ private const val MANAGE_URL = "https://play.google.com/store/account/subscripti
 private const val PREFS = "plan"
 private const val PLAN_KEY = "last_plan"
 
-/** 요금제와 구매. 화면은 나뉜 두 인터페이스만 본다. */
+/** 요금제와 구매. 화면은 나뉜 두 인터페이스만 봄 */
 class Billing(val plans: PlanRepository, val purchases: PurchaseRepository)
 
-/** 키 없이 만든 빌드는 구매가 없는 무료 앱이다. */
+/** 키 없이 만든 빌드는 구매가 없는 무료 앱 */
 fun billing(context: Context): Billing {
     val app = context.applicationContext as Application
     val key =
@@ -66,7 +66,7 @@ private val CustomerInfo.active: Set<String> get() = entitlements.active.keys
 
 /**
  * RevenueCat에 닿는 자리.
- * 라이브러리 오류를 [StoreFailure]로 바꾸는 일만 하고, 판단은 [StoreBilling]이 한다.
+ * 라이브러리 오류를 [StoreFailure]로 바꾸기만 하고, 판단은 [StoreBilling]이 함.
  */
 private class RevenueCatClient(private val app: Application, key: String) : StoreClient {
     private var activity: Activity? = null
@@ -94,7 +94,7 @@ private class RevenueCatClient(private val app: Application, key: String) : Stor
 
     override suspend fun purchase(storeId: String): Set<String> = store {
         val screen = activity ?: throw StoreFailure(StoreFailure.Reason.OTHER)
-        // 구독은 기본 요금제마다 상품이 따로 올 수 있어서 ID로 정확히 고른다.
+        // 구독은 기본 요금제마다 상품이 따로 올 수 있어 ID로 정확히 고름
         val product =
             Purchases.sharedInstance.awaitGetProducts(listOf(storeId)).firstOrNull { StoreIds.baseOf(it.id) == storeId }
                 ?: throw StoreFailure(StoreFailure.Reason.OTHER)

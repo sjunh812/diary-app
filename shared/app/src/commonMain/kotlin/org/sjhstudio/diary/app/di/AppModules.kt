@@ -108,13 +108,13 @@ import org.sjhstudio.diary.feature.write.writeFeatureModule
 
 /**
  * 앱 프로세스와 함께 사는 코루틴 범위.
- * DataStore와 시작 작업이 쓴다.
+ * DataStore와 시작 작업이 씀.
  */
 internal val APP_SCOPE = named("appScope")
 
 /**
- * 앱 범위의 일 하나가 실패해도 앱이 꺼지지 않는다.
- * 예외 메시지에는 일기 내용이 섞일 수 있어 [report]에는 종류만 넘긴다.
+ * 앱 범위의 일 하나가 실패해도 앱이 꺼지지 않음.
+ * 예외 메시지에는 일기 내용이 섞일 수 있어 [report]에는 종류만 넘김.
  */
 internal fun appCoroutineScope(
     context: CoroutineContext = Dispatchers.IO,
@@ -124,7 +124,7 @@ internal fun appCoroutineScope(
     return CoroutineScope(SupervisorJob() + context + handler)
 }
 
-/** 플랫폼마다 다른 것: 파일 자리([AppFiles])와 DB 만들기([DatabaseFactory]). */
+/** 플랫폼마다 다른 것: 파일 자리([AppFiles])와 DB 만들기([DatabaseFactory]) */
 internal expect val platformModule: Module
 
 internal fun appModules(isDebug: Boolean): List<Module> = listOf(
@@ -154,18 +154,18 @@ private fun coreModule(isDebug: Boolean) = module {
     single { SettingsStore(get<DataStoreFactory>().settings()) }
     single { LockStore(get<DataStoreFactory>().lock()) }
     single<SettingsRepository> { DefaultSettingsRepository(get()) }
-    // 잠금 확인값은 기기 키로 만든다(research R11).
+    // 잠금 확인값은 기기 키로 만듦(research R11)
     single<LockRepository> { DefaultLockRepository(get(), devicePinKeyStore()) }
     single { LockController(get(), get(APP_SCOPE)) }
-    // 매일 알림(FR-022).
-    // 앱을 열 때와 알림 수신기가 다시 예약한다.
+    // 매일 알림(FR-022)
+    // 앱을 열 때와 알림 수신기가 다시 예약
     single { ReminderRepository(get(), get()) }
     single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
     single { AppLaunch() }
-    // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
+    // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꿈(스펙 001 T028)
     single { Telemetry(get(), strict = isDebug) }
     single {
-        // 옛 앱이 없는 iOS에는 잠금·설정 잇기가 없다.
+        // 옛 앱이 없는 iOS에는 잠금·설정 잇기 없음
         val legacyLock = getOrNull<LegacyLockBootstrap>()
         val legacySettings = getOrNull<LegacySettingsBootstrap>()
         Startup(
@@ -178,8 +178,8 @@ private fun coreModule(isDebug: Boolean) = module {
             warmFont = { getOrNull<FontWarmup>()?.warm(it.font) },
             afterReady = {
                 get<ReminderRepository>().reschedule()
-                // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작한다(이전 직후 포함).
-                // 따로 돌아 다른 일을 막지 않는다.
+                // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작(이전 직후 포함)
+                // 따로 돌아 다른 일을 막지 않음
                 get<ChosenFontDownload>().start()
             }
         )
@@ -198,11 +198,11 @@ private fun coreModule(isDebug: Boolean) = module {
 /** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */
 private val diaryDataModule =
     module {
-        // 처음 쓸 때 연다.
-        // 시작 단계에서는 열지 않는다.
+        // 처음 쓸 때 엶
+        // 시작 단계에서는 열지 않음
         single { get<DatabaseFactory>().create() }
-        // 썸네일(research R9).
-        // 사진 칸과 기록 이전이 같이 쓴다.
+        // 썸네일(research R9)
+        // 사진 칸과 기록 이전이 같이 씀
         single {
             val files = get<AppFiles>()
             ThumbnailRepository(
@@ -212,13 +212,13 @@ private val diaryDataModule =
                 ThumbnailEncoder(ImageDecoder::writeThumbnail)
             )
         }
-        // 일기 저장소(스펙 002).
-        // 일기 DB는 이전 관문을 지난 뒤 화면이 처음 쓸 때 열린다.
+        // 일기 저장소(스펙 002)
+        // 일기 DB는 이전 관문을 지난 뒤 화면이 처음 쓸 때 열림
         single {
             val files = get<AppFiles>()
             PhotoStore(FileSystem.SYSTEM, files.mediaDirectory.toPath(), ThumbnailEncoder(ImageDecoder::writeThumbnail), ImageDecoder::size)
         }
-        // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾는다.
+        // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾음
         single<DraftRepository> {
             val koin = getKoin()
             DefaultDraftRepository(get(), get(), photoLimit = { koin.get<PlanRepository>().awaitConfirmed().photoLimit })
@@ -232,15 +232,15 @@ private val diaryDataModule =
                 FileSystem.SYSTEM,
                 files.mediaDirectory.toPath(),
                 files.thumbnailDirectory.toPath(),
-                // 되돌릴 수 있는 동안에는 바꾸기 전 일기가 가리키던 사진을 지우지 않는다.
+                // 되돌릴 수 있는 동안에는 바꾸기 전 일기가 가리키던 사진을 지우지 않음
                 keepEverything = { get<BackupStore>().current().rollbackUntil != null }
             )
         }
         single { DiaryCleanup(get(), get(), keepPhotos = { get<LegacyMigration>().keepsPhotoCopies() }) }
         single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
         single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
-        // 이전이 끝난 기기의 후속 작업(FR-011).
-        // 일기 DB는 이전이 끝난 뒤에만 꺼낸다.
+        // 이전이 끝난 기기의 후속 작업(FR-011)
+        // 일기 DB는 이전이 끝난 뒤에만 꺼냄
         single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
     }
 
@@ -255,8 +255,8 @@ private val backupModule =
                 reschedule = { get<ReminderRepository>().reschedule() }
             )
         }
-        // 백업(스펙 003).
-        // 드라이브와 일기 DB는 처음 쓸 때 연다.
+        // 백업(스펙 003)
+        // 드라이브와 일기 DB는 처음 쓸 때 엶
         single { BackupStore(get<DataStoreFactory>().backup()) }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
         single { BackupGate() }
@@ -296,7 +296,7 @@ private val backupModule =
                 findBackup = {
                     val restore = get<RestoreRepository>()
                     val latest = backupToOffer(restore.backups(), get<LegacyMigration>().report() != null)
-                    // 권하지 않으면 확인하려고 받은 사본을 지운다.
+                    // 권하지 않으면 확인하려고 받은 사본을 지움
                     offerIfNew(latest) { restore.prepare(it) }.also { if (it == null && latest != null) restore.dismiss() }
                 },
                 alerts = get()
@@ -307,8 +307,8 @@ private val backupModule =
             val work = files.backupDirectory.toPath()
             val media = files.mediaDirectory.toPath()
             val system = FileSystem.SYSTEM
-            // DB만 늦게 연다.
-            // 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 한다.
+            // DB만 늦게 엶
+            // 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 함
             val drive = get<DriveApi>()
             val copier = get<LegacyPhotoCopier>()
             val freeSpace = get<FreeSpace>()

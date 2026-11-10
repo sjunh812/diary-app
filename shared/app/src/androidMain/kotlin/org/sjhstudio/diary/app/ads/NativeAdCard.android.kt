@@ -29,11 +29,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 private const val PADDING_DP = 16
 private const val GAP_DP = 12
 
-// 영상 광고는 그림 자리가 가로세로 120dp 이상이어야 들어온다(AdMob 네이티브 정책).
+// 영상 광고는 그림 자리가 가로세로 120dp 이상이어야 들어옴(AdMob 네이티브 정책)
 private const val MEDIA_DP = 120
 
-// 오른쪽 칸은 비워 둔다.
-// 위에는 앱의 ×가, 아래에는 AdChoices가 온다.
+// 오른쪽 칸은 비워 둠
+// 위에는 앱의 ×, 아래에는 AdChoices가 옴
 private const val CLOSE_ROOM_DP = 28
 private const val TITLE_SP = 15f
 private const val SMALL_SP = 13f
@@ -41,8 +41,8 @@ private const val SMALL_SP = 13f
 private class AdColors(val title: Int, val body: Int)
 
 /**
- * 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둔다(AdMob 네이티브 정책).
- * 받기 전이나 못 받으면 그리지 않는다.
+ * 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둠(AdMob 네이티브 정책).
+ * 받기 전이나 못 받으면 그리지 않음.
  */
 @Composable
 internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit) {
@@ -84,7 +84,7 @@ private fun adView(context: Context, shape: AdShape, label: String, colors: AdCo
         root.mediaView = media
     }
     val column = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-    // AdMob은 제목 앞부분을 자르지 말라고 해서 두 줄까지 둔다.
+    // AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
     val headline = context.text(TITLE_SP, colors.title, bold = true).apply { maxLines = 2 }
     val action = context.text(SMALL_SP, colors.title, bold = true)
     column.addView(headline)

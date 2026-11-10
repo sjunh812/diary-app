@@ -73,11 +73,11 @@ import org.sjhstudio.diary.core.ui.FontWarmup
 internal actual val platformModule: Module =
     module {
         single { AppFiles(androidContext()) }
-        // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않는다.
-        // 광고 SDK는 처음 부를 때 켜진다.
+        // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않음
+        // 광고 SDK는 처음 부를 때 켜짐
         single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
         single<AdSwitch> { adSwitch(androidContext()) }
-        // 앱이 켜질 때 만들어야 재설치 뒤 구매를 바로 되찾는다.
+        // 앱이 켜질 때 만들어야 재설치 뒤 구매를 바로 복원
         single(createdAtStart = true) { billing(androidContext()) }
         single<PlanRepository> { get<Billing>().plans }
         single<PurchaseRepository> { get<Billing>().purchases }
@@ -100,7 +100,7 @@ internal actual val platformModule: Module =
                 MediaImporter(FileSystem.SYSTEM, get<AppFiles>().mediaDirectory.toPath(), AndroidImageSizeReader, Clock.System) {
                     Uuid.random().toString()
                 }
-            // 찾지 못한 사진은 합치는 쪽이 찾을 수 없는 사진 줄로 남긴다.
+            // 찾지 못한 사진은 합치는 쪽이 찾을 수 없는 사진 줄로 남김
             LegacyPhotoCopier { entryId, order, fragment ->
                 importer.importOne(entryId, order, fragment).takeIf { it.found }?.media?.asEntity()
             }
@@ -121,25 +121,25 @@ internal actual val platformModule: Module =
         }
         single<LegacyArchive> { SnapshotLegacyArchive(FileSystem.SYSTEM, get(), Clock.System, TimeZone.currentSystemDefault()) }
         single { OriginalExporter(FileSystem.SYSTEM, get()) }
-        // 복구 문의 묶음(FR-010a).
-        // 지우는 때는 SupportFiles가 정한다.
+        // 복구 문의 묶음(FR-010a)
+        // 삭제 시점은 SupportFiles가 정함
         single {
             SupportBundle(FileSystem.SYSTEM, get(), SupportFiles(FileSystem.SYSTEM, get<MigrationPaths>().migrationDir, Clock.System))
         }
-        // 이전 단계 알림.
-        // 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어쓴다(quickstart §3).
+        // 이전 단계 알림
+        // 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어씀(quickstart §3)
         single<MigrationEvents> { MigrationTelemetry(get()) }
-        // 1.7.x 잠금과 설정을 이전보다 먼저 잇는다(research R16).
-        // 이전을 시작한 뒤에는 하지 않는다.
+        // 1.7.x 잠금과 설정을 이전보다 먼저 이음(research R16)
+        // 이전을 시작한 뒤에는 하지 않음
         single {
             LegacyLockBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get(), get())
         }
         single { LegacySettingsBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get()) }
-        // 1.7.x 원본이 같은 패키지에 남아 있으면 옮긴다(docs/migration.md).
+        // 1.7.x 원본이 같은 패키지에 남아 있으면 옮김(docs/migration.md)
         single<LegacyMigration> {
             val files = get<AppFiles>()
             val factory = get<DatabaseFactory>()
-            // 다시 시도와 설정의 다시 옮기기가 겹쳐도 하나씩 돈다.
+            // 다시 시도와 설정의 다시 옮기기가 겹쳐도 하나씩 실행
             OneAtATimeMigration(
                 MigrationRunner(
                     fileSystem = FileSystem.SYSTEM,
@@ -158,7 +158,7 @@ internal actual val platformModule: Module =
         }
     }
 
-/** 설치된 앱의 versionCode. 업데이트 뒤 다시 읽기(FR-011)가 버전을 견준다. */
+/** 설치된 앱의 versionCode. 업데이트 뒤 다시 읽기(FR-011)의 버전 비교용 */
 private fun versionCode(context: Context): Int {
     val info = context.packageManager.getPackageInfo(context.packageName, 0)
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

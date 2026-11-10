@@ -52,9 +52,9 @@ import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
 
-// 잠금 관문(스펙 001 T055, contracts/lock.md, research R13).
-// 잠긴 동안 안쪽 화면은 그리지 않고, 열면 보던 상태 그대로 돌아온다.
-// 생체 인증을 취소하면 숫자판이 남는다.
+// 잠금 관문(스펙 001 T055, contracts/lock.md, research R13)
+// 잠긴 동안 안쪽 화면은 그리지 않고, 열면 보던 상태 그대로 돌아옴
+// 생체 인증을 취소하면 숫자판이 남음
 @OptIn(ExperimentalTestApi::class)
 class LockGateUiTest {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -102,7 +102,7 @@ class LockGateUiTest {
             DiaryTheme(darkTheme = false) { LockGate(authenticator = FakeAuthenticator(BiometricStatus.Unavailable)) { Counter() } }
         }
 
-        // 처음에는 잠겨 있고 안쪽 화면이 없다.
+        // 처음에는 잠겨 있고 안쪽 화면이 없음
         waitUntilKeypad()
         onNodeWithTag(COUNTER).assertDoesNotExist()
 
@@ -111,8 +111,8 @@ class LockGateUiTest {
         repeat(3) { onNodeWithTag(COUNTER).performClick() }
         onNodeWithTag(COUNTER).assertTextEquals("3")
 
-        // 뒤로 갔다 오면 바로 잠긴다(바로 잠금).
-        // 잠긴 동안 안쪽 화면은 그리지 않는다.
+        // 뒤로 갔다 오면 바로 잠김(바로 잠금)
+        // 잠긴 동안 안쪽 화면은 그리지 않음
         runOnIdle {
             controller.onBackground()
             controller.onForeground()
@@ -120,15 +120,15 @@ class LockGateUiTest {
         waitUntilKeypad()
         onNodeWithTag(COUNTER).assertDoesNotExist()
 
-        // 다시 열면 보던 화면의 상태가 그대로다.
+        // 다시 열면 보던 화면의 상태가 그대로
         enterPin()
         waitUntilExactlyOneExists(hasTestTag(COUNTER), TIMEOUT)
         onNodeWithTag(COUNTER).assertTextEquals("3")
     }
 
     /**
-     * 화면이 먼저 사라지고 앱이 뒤로 갔다는 알림이 나중에 와도 다시 잠근다.
-     * Android 11까지는 맨 앞 화면에서 뒤로 가면 이렇게 끝나고, 프로세스는 살아 있다.
+     * 화면이 먼저 사라지고 앱이 뒤로 갔다는 알림이 나중에 와도 다시 잠김.
+     * Android 11까지는 맨 앞 화면에서 뒤로 가면 이렇게 끝나고, 프로세스는 살아 있음.
      */
     @Test
     fun leaving_after_the_screen_is_gone_still_locks() = runComposeUiTest {
@@ -162,7 +162,7 @@ class LockGateUiTest {
         waitUntilKeypad()
         waitUntil(timeoutMillis = TIMEOUT) { authenticator.biometricAsked == 1 }
         waitForIdle()
-        // 취소해도 열리지 않고 숫자판으로 열 수 있다.
+        // 취소해도 열리지 않고 숫자판으로 열 수 있음
         onNodeWithTag(COUNTER).assertDoesNotExist()
         enterPin()
         waitUntilExactlyOneExists(hasTestTag(COUNTER), TIMEOUT)
@@ -210,7 +210,7 @@ class LockGateUiTest {
 
 /**
  * 보던 화면의 상태 대신 쓰는 숫자.
- * 저장 상태로 두어 잠금을 지나도 남는지 본다.
+ * 저장 상태로 두어 잠금을 지나도 남는지 봄.
  */
 @Composable
 private fun Counter() {

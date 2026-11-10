@@ -10,14 +10,14 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * 앱 밖에서 들어온 길(스펙 001 FR-022).
- * 플랫폼 쪽이 요청을 남기고, 앱 틀이 그려질 때 가져간다.
- * 앱 틀은 잠금과 기록 이전 관문을 지난 뒤에만 그려져서 잠금을 풀어야 쓰기가 열린다.
+ * 플랫폼 쪽이 요청을 남기고, 앱 틀이 그려질 때 가져감.
+ * 앱 틀은 잠금과 기록 이전 관문을 지난 뒤에만 그려져 잠금을 풀어야 쓰기가 열림
  */
 class AppLaunch {
     private val requested = MutableStateFlow(false)
     val writeRequested: StateFlow<Boolean> = requested.asStateFlow()
 
-    /** "한 줄만 남겨 보세요" 알림을 눌렀다. */
+    /** "한 줄만 남겨 보세요" 알림을 누름 */
     fun requestWrite() {
         requested.value = true
     }
@@ -27,10 +27,7 @@ class AppLaunch {
     }
 }
 
-/**
- * 들어온 요청대로 화면을 연다.
- * 이미 쓰는 중이면 그 글을 그대로 둔다.
- */
+/** 들어온 요청대로 화면을 엶. 이미 쓰는 중이면 그 글을 그대로 둠 */
 @Composable
 internal fun OpenRequestedScreens(launch: AppLaunch, nav: TabNavigation) {
     val write by launch.writeRequested.collectAsStateWithLifecycle()

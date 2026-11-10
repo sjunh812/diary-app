@@ -30,22 +30,22 @@ private const val TAG = "DiaryAds"
 
 /**
  * 들고 있는 네이티브 광고 수의 끝.
- * 광고는 메모리를 많이 써서 스크롤로 자리가 늘어도 이만큼만 둔다.
+ * 광고는 메모리를 많이 써 스크롤로 자리가 늘어도 이만큼만 둠.
  */
 private const val MAX_NATIVES = 5
 
-/** 네이티브 광고를 받을 때의 선택. */
+/** 네이티브 광고를 받을 때의 선택 */
 internal fun nativeAdOptions(): NativeAdOptions = NativeAdOptions.Builder()
-    // 영상은 소리 없이 시작한다(`docs/business.md`).
+    // 영상은 소리 없이 시작(`docs/business.md`)
     .setVideoOptions(VideoOptions.Builder().setStartMuted(true).build())
-    // 기본 자리는 오른쪽 위라 앱의 ×와 겹친다.
-    // AdChoices는 가리면 안 되어서 ×가 없는 오른쪽 아래로 보낸다.
+    // 기본 자리는 오른쪽 위라 앱의 ×와 겹침
+    // AdChoices는 가리면 안 되어 ×가 없는 오른쪽 아래로 보냄
     .setAdChoicesPlacement(NativeAdOptions.ADCHOICES_BOTTOM_RIGHT)
     .build()
 
 /**
  * 매니페스트에 든 광고 단위.
- * 개발 빌드는 시험 단위이고, 출시 빌드에 값이 없으면 광고를 부르지 않는다.
+ * 개발 빌드는 시험 단위, 출시 빌드에 값이 없으면 광고를 부르지 않음.
  */
 class AdUnits(context: Context) {
     private val meta: Bundle? =
@@ -58,7 +58,7 @@ class AdUnits(context: Context) {
 
 /**
  * AdMob 구현.
- * 광고 요청에 일기 내용을 넣지 않는다(헌법 II).
+ * 광고 요청에 일기 내용을 넣지 않음(헌법 II).
  */
 class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     private val app = context.applicationContext as Application
@@ -94,14 +94,14 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
 
     /**
      * 받아 둔 네이티브 광고.
-     * 스크롤해 다시 보여도 최근 자리는 다시 요청하지 않는다.
+     * 스크롤해 다시 보여도 최근 자리는 다시 요청하지 않음.
      */
     val natives = mutableStateMapOf<String, NativeAd>()
     private val loading = mutableSetOf<String>()
 
     /**
      * [natives]의 받은 순서.
-     * 오래된 자리부터 내보낸다.
+     * 오래된 자리부터 내보냄.
      */
     private val nativeOrder = ArrayDeque<String>()
 
@@ -125,8 +125,8 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     }
 
     /**
-     * 새 광고를 두고, 끝을 넘으면 가장 오래된 광고를 치운다.
-     * 치운 자리가 다시 보이면 새로 받는다.
+     * 새 광고를 두고, 끝을 넘으면 가장 오래된 광고를 치움.
+     * 치운 자리가 다시 보이면 새로 받음.
      */
     private fun keepNative(key: String, ad: NativeAd) {
         natives[key] = ad
@@ -135,8 +135,8 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     }
 
     /**
-     * 처음 광고를 부를 때 한 번 켠다.
-     * 유료 사용자는 켜지지 않는다.
+     * 처음 광고를 부를 때 한 번 켬.
+     * 유료 사용자는 켜지지 않음.
      */
     fun start() {
         if (started) return

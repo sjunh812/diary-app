@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// 탭마다 따로 쌓는 화면(contracts/navigation.md 뒤로 가기, 공식 nav3-recipes multiplestacks).
+// 탭마다 따로 쌓는 화면(contracts/navigation.md 뒤로 가기, 공식 nav3-recipes multiplestacks)
 class TabNavigationTest {
     private fun navigation(start: TabScreen = HomeKey) = TabNavigation(
         selected = mutableStateOf(start),
@@ -108,7 +108,7 @@ class TabNavigationTest {
         assertEquals(listOf<NavKey>(SettingsKey, BackupSettingsKey), nav.current)
     }
 
-    /** 복원이 끝나면 다른 탭에 쌓인 복원 화면과 상세가 남지 않는다. */
+    /** 복원이 끝나면 다른 탭에 쌓인 복원 화면과 상세가 남지 않음 */
     @Test
     fun starting_over_clears_every_tab() {
         val nav = navigation()
@@ -133,7 +133,7 @@ class TabNavigationTest {
         assertEquals(2, nav.current.size)
     }
 
-    /** 쓰기 화면 키는 열 때마다 새 값이다. 두 번 눌러도 쓰기 화면은 하나다. */
+    /** 쓰기 화면 키는 열 때마다 새 값. 두 번 눌러도 쓰기 화면은 하나 */
     @Test
     fun two_writes_in_a_row_keep_one() {
         val nav = navigation()
@@ -154,7 +154,7 @@ class TabNavigationTest {
         assertEquals(listOf<NavKey>(HomeKey, EntryDetailKey("b")), nav.current)
     }
 
-    /** 다른 탭에 같은 일기가 열려 있어도 지운 일기를 보이지 않는다. */
+    /** 다른 탭에 같은 일기가 열려 있어도 지운 일기를 보이지 않음 */
     @Test
     fun a_trashed_entry_closes_in_every_tab() {
         val nav = navigation()

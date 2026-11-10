@@ -152,13 +152,12 @@ import org.sjhstudio.diary.feature.write.WriteTarget
 
 /**
  * 앱 틀(contracts/app-shell.md, `docs/design.md` 넓은 화면).
- * 폭 600dp 미만은 하단 탭, 이상은 레일이다.
- * 탭은 홈·달력·돌아보기·설정이고, 하단 탭은 탭의 맨 위 화면에서만 보인다(Figma S6·G2).
- * 탭마다 화면을 따로 쌓아 옮겼다 와도 보던 자리 그대로다.
- * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있다.
- * 일기가 없는 홈은 빈 상태의 버튼 하나만 둔다.
- * 쓰기 화면은 탭과 레일 없이 전체 화면이다.
- * 잠금·이전 관문은 이 바깥에 있어 뒤로 가기로 벗어날 수 없다.
+ * 폭 600dp 미만은 하단 탭, 이상은 레일.
+ * 탭은 홈·달력·돌아보기·설정, 하단 탭은 탭의 맨 위 화면에서만 보임(Figma S6·G2).
+ * 탭마다 화면을 따로 쌓아 옮겼다 와도 보던 자리 그대로.
+ * 쓰기 버튼은 홈·달력·돌아보기에 뜨고 레일에는 늘 있음. 일기가 없는 홈은 빈 상태의 버튼 하나만.
+ * 쓰기 화면은 탭과 레일 없이 전체 화면.
+ * 잠금·이전 관문은 이 바깥에 있어 뒤로 가기로 벗어날 수 없음
  */
 @Composable
 fun AppScaffold(startTab: TabScreen = HomeKey) {
@@ -175,17 +174,15 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     val onSelect = { index: Int -> nav.selectTab(TABS[index]) }
     val onWrite: () -> Unit = { nav.push(WriteKey()) }
     val writeLabel = stringResource(Res.string.write_new)
-    // 앱 틀 전체에 하나 두는 토스트.
-    // 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 쓴다.
+    // 앱 틀 전체에 하나 두는 토스트. 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 씀
     val toast = remember { DiaryToastState() }
     FontReplacedNotice(toast) { nav.openInTab(SettingsKey, FontSettingsKey) }
-    // 쓰기, 사진 크게 보기, 결제는 전체 화면이다.
-    // 탭과 레일을 그리지 않는다.
+    // 쓰기, 사진 크게 보기, 결제는 전체 화면이라 탭과 레일을 그리지 않음
     val writing = nav.top is WriteKey
     val fullScreen = writing || nav.top is PhotoViewerKey || nav.top is PlusKey
-    // 파일 불러오기는 일기를 지우지 않으니 다른 탭에 쌓인 화면(쓰던 일기 포함)을 비울 까닭이 없다.
+    // 파일 불러오기는 일기를 지우지 않으니 다른 탭에 쌓인 화면(쓰던 일기 포함)을 비울 까닭 없음
     BundleStoppedNotice(toast) { nav.openInTab(SettingsKey, FileBackupKey) }
-    // 복원 중에 화면을 떠나도 결과를 다시 열 수 있게 한다.
+    // 복원 중에 화면을 떠나도 결과를 다시 열 수 있게
     RestoreResultNotice(toast, onResultScreen = nav.top is RestoreProgressKey, quiet = fullScreen) {
         nav.push(RestoreProgressKey)
     }
@@ -197,8 +194,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     BoxWithConstraints(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas)) {
         val wide = maxWidth >= DiaryRailMinWidth
         val twoPane = maxWidth >= DiaryWriteSize.twoPaneMin
-        // 키 입력은 포커스가 있는 곳으로만 간다.
-        // 앱을 막 열면 포커스가 없어서 틀이 받아 둔다.
+        // 키 입력은 포커스가 있는 곳으로만 감. 앱을 막 열면 포커스가 없어 틀이 받아 둠
         val keyTarget = remember { FocusRequester() }
         val top = nav.top
         LaunchedEffect(top) {
@@ -209,17 +205,14 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                 onNewEntry = { if (!writing) onWrite() },
                 onSearch = { if (!fullScreen && nav.current.none { it is SearchKey }) nav.push(SearchKey()) }
             ).focusRequester(keyTarget).focusTarget()
-        // 화면 칸은 폭이 바뀌어도 같은 자리에 둔다.
-        // 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어진다.
-        // 레일과 탭 바는 위에 얹는다.
-        // 쓰기로 넘어갈 때 사라져도 지난 화면이 밀리지 않는다.
+        // 화면 칸은 폭이 바뀌어도 같은 자리에 둠. 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어짐
+        // 레일과 탭 바는 위에 얹음. 쓰기로 넘어갈 때 사라져도 지난 화면이 밀리지 않음
         val density = LocalDensity.current
         var railWidth by remember { mutableStateOf(Dp.Hairline) }
         var barHeight by remember { mutableStateOf(Dp.Hairline) }
         val tabsShown = !wide && nav.current.size <= 1
         val barInset = if (tabsShown) barHeight else Dp.Hairline
-        // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올린다.
-        // 토스트는 제자리에 뜨고 버튼은 가리지 않는다.
+        // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올림. 토스트는 제자리에 뜨고 버튼은 가리지 않음
         var toastHeight by remember { mutableStateOf(Dp.Hairline) }
         val reduceMotion = rememberReduceMotion()
         val writeLift by animateDpAsState(
@@ -275,17 +268,14 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     }
 }
 
-/**
- * 위에 얹은 탭 바의 높이.
- * 탭 화면은 전환 중에도 이 높이만큼 비워 둔다.
- */
+/** 위에 얹은 탭 바의 높이. 탭 화면은 전환 중에도 이 높이만큼 비워 둠 */
 private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
 
 /**
- * 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비운다.
- * 쓰기처럼 전체를 쓰는 화면은 그대로 둔다.
- * 탭 바가 시스템 내비게이션 높이까지 맡으니 그만큼 다 쓴 것으로 알린다.
- * 안쪽 화면은 탭 바가 없는 넓은 화면에서만 시스템 내비게이션 높이를 비우게 된다.
+ * 탭 맨 위 화면은 탭 바 자리를, 전체 화면이 아니면 레일 자리를 비움.
+ * 쓰기처럼 전체를 쓰는 화면은 그대로 둠.
+ * 탭 바가 시스템 내비게이션 높이까지 맡으니 그만큼 다 쓴 것으로 알림.
+ * 안쪽 화면은 탭 바가 없는 넓은 화면에서만 시스템 내비게이션 높이를 비움
  */
 private val TabBarSpace =
     NavEntryDecorator<NavKey>(decorate = { entry ->
@@ -296,7 +286,7 @@ private val TabBarSpace =
         val colors = DiaryTheme.colors
         // 전환 중에는 두 화면 모두 터치 막음. 빠르게 누르면 사라지는 화면이 눌렸음
         val moving = LocalNavAnimatedContentScope.current.transition.isRunning
-        // 바탕이 빈 화면은 전환 중 뒤의 검은 바탕이 비쳐 바탕을 깖.
+        // 바탕이 빈 화면은 전환 중 뒤의 검은 바탕이 비쳐 바탕을 깖
         // 양옆 바깥 선은 전환 중에만 두 화면 사이에 보임(다크에서 두 화면 구분)
         Box(
             Modifier
@@ -336,10 +326,10 @@ private class ShellActions(
     val onRestore: (String) -> Unit
 )
 
-/** 화면을 닫고 나서 앱 틀이 띄우는 알림. */
+/** 화면을 닫고 나서 앱 틀이 띄우는 알림 */
 private enum class Message { Saved, DraftKept }
 
-/** 토스트는 탭과 레일 위, 화면 아래쪽에 뜬다(`docs/design.md` 토스트). */
+/** 토스트는 탭과 레일 위, 화면 아래쪽에 뜸(`docs/design.md` 토스트) */
 @Composable
 private fun ContentWithToast(
     nav: TabNavigation,
@@ -367,13 +357,12 @@ private fun ContentWithToast(
             Modifier.fillMaxSize(),
             notify = { message -> scope.launch { toast.show(if (message == Message.Saved) saved else draftKept) } },
             onTrashed = { id ->
-                // 알림이 사라진 뒤에도 앱 틀은 그대로라 화면이 닫혀도 되돌릴 수 있다.
+                // 알림이 사라진 뒤에도 앱 틀은 그대로라 화면이 닫혀도 되돌릴 수 있음
                 scope.launch { if (toast.show(trashed, undo) == DiaryToastResult.ActionPerformed) shell.onRestore(id) }
             }
         )
         val density = LocalDensity.current
-        // 탭 바 높이에는 시스템 내비게이션 높이가 이미 들어 있다.
-        // 또 더하면 그만큼 높이 뜬다.
+        // 탭 바 높이에 시스템 내비게이션 높이가 이미 들어 있어 또 더하면 그만큼 높이 뜸
         DiaryToastHost(
             toast,
             Modifier
@@ -401,13 +390,13 @@ private fun Content(
     onTrashed: (String) -> Unit
 ) {
     val pop: () -> Unit = nav::back
-    // 두 칸에서 그 일기가 열려 있으면 닫는다.
+    // 두 칸에서 그 일기가 열려 있으면 닫음
     val closeTrashed: (String) -> Unit = { id ->
         nav.closeEntry(id)
         onTrashed(id)
     }
-    // 화면 목록은 쌓임이 바뀔 때만 다시 만들어진다.
-    // 창 폭은 그 사이에도 바뀌니 값을 잡아 두지 않고 읽는다.
+    // 화면 목록은 쌓임이 바뀔 때만 다시 만들어짐
+    // 창 폭은 그 사이에도 바뀌니 값을 잡아 두지 않고 읽음
     val splitWindow by rememberUpdatedState(twoPane)
     // 화면이 바뀌면 통계(화면 키 이름만)와 저장 뒤 광고 차례(FR-010)를 화면 모델에 알림
     val top = nav.top
@@ -418,7 +407,7 @@ private fun Content(
     val pushMotion = remember(dimmed) { pushTransition<NavKey>(dimmed) }
     val popMotion = remember(dimmed) { popTransition<NavKey>(dimmed) }
     val predictivePopMotion = remember(dimmed) { predictivePopTransition<NavKey>(dimmed) }
-    // 동작 줄이기를 켠 사람에게는 밀어 들어오는 전환을 쓰지 않는다.
+    // 동작 줄이기를 켠 사람에게는 밀어 들어오는 전환을 쓰지 않음
     val reduceMotion = rememberReduceMotion()
     NavDisplay(
         entries =
@@ -447,11 +436,9 @@ private fun Content(
                             onEdit = { nav.push(WriteKey(entryId = it)) },
                             onTrashed = closeTrashed,
                             selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
-                            // 같은 자리에서 얇은 줄과 카드를 번갈아 쓴다.
-                            // 광고 수는 늘지 않는다.
-                            // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않는다.
-                            // 한 칸에서는 상세가 목록을 덮으니 따지지 않는다.
-                            // 따지면 일기를 누르는 순간 광고가 빠져, 넘어가는 동안 목록이 들썩였다(사용자 지적 2026-11-09).
+                            // 같은 자리에서 얇은 줄과 카드를 번갈아 씀. 광고 수는 늘지 않음
+                            // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않음
+                            // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
                             adSlot = { order, slot ->
                                 if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
                                     AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card, slot)
@@ -467,12 +454,11 @@ private fun Content(
                             onOpen = nav::openEntry
                         )
                     }
-                    // 화면 키의 문자열에는 일기 ID를 담지 않으니, 저장 자리 구분은 ID로 따로 준다.
+                    // 화면 키의 문자열에는 일기 ID를 담지 않아 저장 자리 구분은 ID로 따로 줌
                     entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
                         EntryDetailRoute(
                             entryId = key.entryId,
-                            // 창이 넓어도 달력에서 연 상세는 한 칸이다.
-                            // 목록이 옆에 그려질 때만 뒤로 버튼을 뺀다.
+                            // 창이 넓어도 달력에서 연 상세는 한 칸. 목록이 옆에 그려질 때만 뒤로 버튼을 뺌
                             onBack = pop.takeUnless { LocalInListDetail.current },
                             onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
                             onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
@@ -508,7 +494,7 @@ private fun Content(
                         )
                     }
                     entry<AdvancedStatsKey> {
-                        // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아간다.
+                        // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아감
                         val plan by shell.plan.collectAsStateWithLifecycle()
                         LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
                         AdvancedStatsRoute(
@@ -526,7 +512,7 @@ private fun Content(
                             target = target,
                             onSaved = { id ->
                                 pop()
-                                // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 간다(FR-012).
+                                // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 감(FR-012)
                                 if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
                                 notify(Message.Saved)
                                 shell.onSaved(nav.tab, nav.current.toList())
@@ -554,8 +540,8 @@ private const val HALF = 0.5f
 
 /**
  * 두 칸에서 고른 일기가 없을 때의 오른쪽.
- * 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보인다.
- * 아이콘은 두지 않는다. 연필은 쓰기 단추와 같아 누를 것처럼 보였다(사용자 결정 2026-11-09, Apple 메일·메모의 빈 칸처럼 글 한 줄).
+ * 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보임.
+ * 아이콘은 두지 않음. 연필은 쓰기 단추와 같아 누를 것처럼 보임(Apple 메일·메모의 빈 칸처럼 글 한 줄)
  */
 @Composable
 private fun PickHint() {

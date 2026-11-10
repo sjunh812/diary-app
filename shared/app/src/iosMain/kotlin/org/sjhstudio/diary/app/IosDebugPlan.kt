@@ -11,9 +11,9 @@ import platform.Foundation.NSUserDefaults
 private const val PLAN_ARGUMENT = "diaryPlan"
 
 /**
- * 개발 빌드에서만 요금제를 정한다.
- * 안드로이드의 개발자 모드 대신 실행 인자 `-diaryPlan PLUS`로 유료 상태를 시험한다.
- * 출시 빌드는 부르지 않는다.
+ * 개발 빌드에서만 요금제를 정함.
+ * 안드로이드의 개발자 모드 대신 실행 인자 `-diaryPlan PLUS`로 유료 상태를 시험.
+ * 출시 빌드는 부르지 않음
  */
 internal fun applyDebugPlan() {
     val name = NSUserDefaults.standardUserDefaults.stringForKey(PLAN_ARGUMENT) ?: return

@@ -38,10 +38,7 @@ import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 import org.sjhstudio.diary.core.ui.diaryBodyFontFamily
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 
-/**
- * 고른 글꼴은 앱 전체에 쓴다(헌법 V).
- * 기본 글꼴이면 null이라 테마가 언어에 맞는 글꼴을 고른다.
- */
+/** 고른 글꼴은 앱 전체에 씀(헌법 V). 기본 글꼴이면 null이라 테마가 언어에 맞는 글꼴을 고름 */
 @Composable
 private fun chosenFontFamily(font: DiaryFont): FontFamily? {
     val installer = koinInject<FontInstaller>()
@@ -54,8 +51,8 @@ private fun chosenFontFamily(font: DiaryFont): FontFamily? {
 
 /**
  * 안드로이드와 iOS가 같이 띄우는 앱의 뿌리(contracts/app-shell.md 시작 순서 3).
- * `DiaryTheme` → 잠금 관문 → 이전 관문 → 앱 틀 순서다.
- * 홈·달력·돌아보기 탭의 화면은 스펙 002가 채운다.
+ * `DiaryTheme` → 잠금 관문 → 이전 관문 → 앱 틀 순.
+ * 홈·달력·돌아보기 탭의 화면은 스펙 002가 채움
  */
 @Composable
 fun DiaryApp() {
@@ -63,7 +60,7 @@ fun DiaryApp() {
     ProvideDiaryImageLoader { thumbnails.thumbnail(it.toPath())?.toString() }
     val startup = koinInject<Startup>()
     val repository = koinInject<SettingsRepository>()
-    // 시작 단계에서 읽은 설정으로 첫 프레임부터 화면 모드를 맞춘다.
+    // 시작 단계에서 읽은 설정으로 첫 프레임부터 화면 모드를 맞춤
     val initial = (startup.state.value as? StartupState.Ready)?.settings ?: AppSettings()
     val settings by repository.settings.collectAsStateWithLifecycle(initialValue = initial)
     val darkTheme =

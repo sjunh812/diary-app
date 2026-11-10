@@ -6,7 +6,7 @@ import androidx.compose.ui.uikit.LocalUIViewController
 import org.sjhstudio.diary.core.model.ThemeMode
 import platform.UIKit.UIUserInterfaceStyle
 
-// 창 전체의 화면 스타일을 바꿔 상태 표시줄과 시스템 창(Face ID 같은)도 앱 화면 모드를 따른다.
+// 창 전체의 화면 스타일을 바꿔 상태 표시줄과 시스템 창(Face ID 같은)도 앱 화면 모드를 따름
 @Composable
 internal actual fun ApplyPlatformTheme(mode: ThemeMode) {
     val controller = LocalUIViewController.current

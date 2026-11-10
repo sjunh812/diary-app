@@ -9,8 +9,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// 알림을 눌러 들어온 길(스펙 001 FR-022).
-// 앱 틀은 잠금과 이전 관문을 지난 뒤에만 그려져서, 요청은 그때까지 기다린다.
+// 알림을 눌러 들어온 길(스펙 001 FR-022)
+// 앱 틀은 잠금과 이전 관문을 지난 뒤에만 그려져 요청은 그때까지 기다림
 @OptIn(ExperimentalTestApi::class)
 class AppLaunchUiTest {
     private fun navigation(vararg keys: NavKey) = TabNavigation(
@@ -44,7 +44,7 @@ class AppLaunchUiTest {
         assertTrue((nav.top as? WriteKey)?.sameTarget(WriteKey()) == true)
     }
 
-    /** 잠금을 풀고 앱 틀이 다시 그려져도 쓰기가 또 열리지 않는다. */
+    /** 잠금을 풀고 앱 틀이 다시 그려져도 쓰기가 또 열리지 않음 */
     @Test
     fun one_request_opens_write_only_once() = runComposeUiTest {
         val launch = AppLaunch()
@@ -59,7 +59,7 @@ class AppLaunchUiTest {
         assertEquals(HomeKey, nav.top)
     }
 
-    /** 고치던 글 위에 새 글이 열리면 어느 글을 쓰는지 헷갈린다. */
+    /** 수정하던 글 위에 새 글이 열리면 어느 글을 쓰는지 헷갈림 */
     @Test
     fun writing_stays_as_it_is() = runComposeUiTest {
         val launch = AppLaunch()

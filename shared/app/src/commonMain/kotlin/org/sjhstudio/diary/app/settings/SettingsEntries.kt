@@ -96,14 +96,14 @@ import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 
 /**
  * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스).
- * 기능 모듈끼리는 서로 모르므로 어디서 어디로 가는지는 여기서 정한다.
+ * 기능 모듈끼리는 서로 몰라 어디서 어디로 가는지는 여기서 정함.
  */
 fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit, home: () -> Unit) {
     entry<SettingsKey>(metadata = tabRoot(SettingsKey)) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val trash = koinInject<TrashRepository>()
-        // 탭을 옮겼다 와도 개수가 0으로 비쳤다 돌아오지 않게 값을 저장해 둔다.
+        // 탭을 옮겼다 와도 개수가 잠깐 0으로 보이지 않게 값을 저장해 둠
         var trashCount by rememberSaveable { mutableIntStateOf(0) }
         LaunchedEffect(trash) { trash.count().collect { trashCount = it } }
         val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
@@ -119,7 +119,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 state,
                 appVersion = app.versionName,
                 onFeedback = {
-                    // 메일 앱이 없는 기기에서도 보낼 곳을 알 수 있게 한다.
+                    // 메일 앱이 없는 기기에서도 보낼 곳을 알 수 있게
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
                 onRate = storeReviewUrl(app.platform)?.let { url -> { links.openUri(url) } },
@@ -172,21 +172,21 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
     entry<LetterKey> {
         val letter by koinViewModel<LetterViewModel>().letter.collectAsStateWithLifecycle()
-        // 읽는 동안은 바탕만 그린다(편지는 개수 문단까지 한 번에 나온다).
+        // 읽는 동안은 바탕만 그림(편지는 개수 문단까지 한 번에 나옴)
         letter?.let { FullLetterScreen(entries = it.entries, onBack = pop) }
             ?: Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
     }
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다린다.
+        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
         if (!state.loaded) return@entry
         ListStyleSettingsScreen(state.settings.list.listStyle, onSelect = viewModel::setListStyle, onBack = pop)
     }
     entry<TextSizeSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다린다.
+        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
         if (!state.loaded) return@entry
         TextSizeSettingsScreen(
             selected = state.settings.bodyTextSize,
@@ -199,7 +199,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<ThemeSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다린다.
+        // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
         if (!state.loaded) return@entry
         ThemeSettingsScreen(state.settings.themeMode, onSelect = viewModel::setThemeMode, onBack = pop)
     }
@@ -216,7 +216,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
 
 /**
  * 설정 > 기록 이전 결과.
- * 문의하기는 복구 문의 시트를 먼저 띄운다(FR-010a).
+ * 문의하기는 복구 문의 시트를 먼저 띄움(FR-010a).
  */
 @Composable
 private fun MigrationReportPage(onBack: () -> Unit) {

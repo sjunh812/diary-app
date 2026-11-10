@@ -37,23 +37,23 @@ import org.sjhstudio.diary.feature.plus.AdFreeSheet
 
 /**
  * 광고 모양.
- * 얇은 줄은 글만, 카드는 왼쪽에 그림이나 영상을 둔다(`docs/business.md` 광고 자리).
+ * 얇은 줄은 글만, 카드는 왼쪽에 그림이나 영상을 둠(`docs/business.md` 광고 자리).
  */
 enum class AdShape { Row, Card }
 
 /**
  * 네이티브 광고 한 자리(Figma P5).
- * 유료이거나 광고를 못 받으면 아무것도 그리지 않아 목록이 그대로 이어진다(US1).
- * [key]가 같으면 스크롤해 다시 보여도 같은 광고를 쓴다.
- * [frame]은 광고를 받은 뒤에만 불러 빈 자리가 남지 않는다.
+ * 유료이거나 광고를 못 받으면 아무것도 그리지 않아 목록이 그대로 이어짐(US1).
+ * [key]가 같으면 스크롤해 다시 보여도 같은 광고를 씀.
+ * [frame]은 광고를 받은 뒤에만 불러 빈 자리가 남지 않음.
  */
 @Composable
 internal expect fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit)
 
 /**
  * 홈과 돌아보기의 광고 자리.
- * 오른쪽 위 ×를 누르면 광고를 없애는 길을 보여 준다.
- * AdChoices는 ×에 가리지 않게 오른쪽 아래에 둔다(`nativeAdOptions`).
+ * 오른쪽 위 ×를 누르면 광고를 없애는 방법을 보여 줌.
+ * AdChoices는 ×에 가리지 않게 오른쪽 아래에 둠(`nativeAdOptions`).
  */
 @Composable
 internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) {
@@ -97,7 +97,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
                 )
             }
 
-        // 광고를 받지 못했거나 끝까지 보지 않은 때다. 아무 말 없이 넘어가면 받은 줄 안다.
+        // 광고를 받지 못했거나 끝까지 보지 않은 때. 아무 말 없이 넘어가면 받은 줄 오해함
         AdSheet.RewardFailed ->
             DiaryBottomSheet(
                 { sheet = null },

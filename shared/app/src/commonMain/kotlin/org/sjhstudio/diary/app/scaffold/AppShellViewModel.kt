@@ -30,7 +30,7 @@ interface AfterSaveAds {
 
 /**
  * 앱 틀이 하던 업무 규칙(광고 차례, 화면 통계, 휴지통 되돌리기, 홈 쓰기 버튼)을 맡는 화면 모델.
- * 돈과 관련된 규칙이라 화면 밖에서 시험한다.
+ * 돈과 관련된 규칙이라 화면 밖에서 시험
  */
 class AppShellViewModel(
     private val entries: EntryRepository,

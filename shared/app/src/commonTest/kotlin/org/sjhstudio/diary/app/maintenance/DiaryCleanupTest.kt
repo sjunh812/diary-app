@@ -43,7 +43,7 @@ class DiaryCleanupTest {
         assertEquals(listOf("purge", "clean"), calls)
     }
 
-    /** 미뤄 둔 이전의 사진 사본은 일기 줄이 없어 쓰지 않는 파일처럼 보인다. 휴지통만 비운다(헌법 I). */
+    /** 미뤄 둔 이전의 사진 사본은 일기 줄이 없어 쓰지 않는 파일처럼 보임. 휴지통만 비움(헌법 I) */
     @Test
     fun photo_files_stay_while_old_entries_are_waiting_to_move() = runTest {
         DiaryCleanup(trash(), media, TestClock(Instant.fromEpochSeconds(0)), keepPhotos = { true }).run()

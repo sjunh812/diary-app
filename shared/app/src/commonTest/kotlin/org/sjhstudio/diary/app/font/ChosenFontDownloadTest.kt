@@ -11,7 +11,7 @@ import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 
-// 고른 글꼴이 받는 글꼴인데 없을 때만 받는다(스펙 001 T067).
+// 고른 글꼴이 받는 글꼴인데 없을 때만 받음(스펙 001 T067)
 class ChosenFontDownloadTest {
     private class RecordingInstaller(private val installed: Set<String> = emptySet()) : FontInstaller {
         val requested = mutableListOf<String>()

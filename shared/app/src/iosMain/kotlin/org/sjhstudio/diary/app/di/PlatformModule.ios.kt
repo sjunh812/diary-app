@@ -46,11 +46,11 @@ internal actual val platformModule: Module =
     module {
         single { AppFiles() }
         single<AdPlayer> { NoAdPlayer }
-        // iOS는 R2에서 구매와 광고를 붙인다.
+        // iOS는 R2에서 구매와 광고를 붙임
         single<AdSwitch> { AdSwitch { true } }
         single<PlanRepository> { FreePlanRepository() }
         single<PurchaseRepository> { NoPurchases() }
-        // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15).
+        // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15)
         single<TelemetrySink> { IosTelemetry.sink }
         single<ReminderScheduler> { IosReminderScheduler() }
         single<NotificationPermission> { IosNotificationPermission() }
@@ -63,7 +63,7 @@ internal actual val platformModule: Module =
         single<BackupScheduler> { NoBackupScheduler }
         single<BackupNotifier> { IosBackupNotifier() }
         single<FreeSpace> { IosFreeSpace() }
-        // iOS에는 레거시 사진 경로가 없어 예전 백업의 사진은 찾을 수 없는 사진으로 남는다(FR-030).
+        // iOS에는 레거시 사진 경로가 없어 예전 백업의 사진은 찾을 수 없는 사진으로 남음(FR-030)
         single { LegacyPhotoCopier { _, _, _ -> null } }
         single {
             val info = NSBundle.mainBundle.infoDictionary
@@ -73,7 +73,7 @@ internal actual val platformModule: Module =
                 "ios"
             )
         }
-        // iOS에는 옮길 옛 앱이 없다(contracts/migration-flow.md).
+        // iOS에는 옮길 옛 앱이 없음(contracts/migration-flow.md)
         single<LegacyMigration> { NoLegacyMigration }
         single<LegacyArchive> { EmptyLegacyArchive }
     }

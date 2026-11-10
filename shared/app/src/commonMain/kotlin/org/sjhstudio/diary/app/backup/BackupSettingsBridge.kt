@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
  * 백업에 담는 설정과 복원할 때 적용하는 설정.
- * 잠금과 백업 설정은 바꾸지 않음(contracts/merge-rules.md "설정")
+ * 잠금과 백업 설정은 바꾸지 않음(contracts/merge-rules.md "설정").
  */
 class BackupSettingsBridge(
     private val settings: SettingsRepository,

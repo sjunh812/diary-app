@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
-// 시작 관문(시작 → 잠금 → 이전)과 화면 전환 뼈대, Koin 모듈 모음.
-// 안드로이드는 composeApp이 감싸고, iOS는 이 모듈을 static framework Shared로 받는다(research R22).
+// 시작 관문(시작 → 잠금 → 이전)과 화면 전환 뼈대, Koin 모듈 모음
+// 안드로이드는 composeApp이 감싸고, iOS는 이 모듈을 static framework Shared로 받음(research R22)
 plugins {
     alias(libs.plugins.diary.kmp.library)
     alias(libs.plugins.compose.multiplatform)
@@ -65,17 +65,15 @@ kotlin {
             implementation(libs.koin.android)
             // 자동 백업(AndroidBackupScheduler)
             implementation(libs.androidx.work.runtime)
-            // 광고(AdMobPlayer, NativeAdCard).
-            // R1은 안드로이드만 낸다.
+            // 광고(AdMobPlayer, NativeAdCard). R1은 안드로이드만 냄
             implementation(libs.play.services.ads)
             // 사용 통계와 비정상 종료 보고(FirebaseTelemetrySink, research R21)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.analytics)
             implementation(libs.firebase.crashlytics)
-            // 전면 광고를 앱 업데이트 없이 끈다(FirebaseAdSwitch).
+            // 전면 광고를 앱 업데이트 없이 끔(FirebaseAdSwitch)
             implementation(libs.firebase.config)
-            // 구매와 구독 확인(RevenueCatBilling).
-            // R1은 안드로이드만 내서 KMP 묶음 대신 안드로이드 SDK를 쓴다.
+            // 구매와 구독 확인(RevenueCatBilling). R1은 안드로이드만 내서 KMP 묶음 대신 안드로이드 SDK
             implementation(libs.revenuecat.purchases)
         }
         commonTest.dependencies {

@@ -33,17 +33,17 @@ import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.message
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 
-/** 결과·실패 화면의 아래 버튼 위 16. 화면 끝 20 + 큰 버튼 56 + 사이 8 + 글자 버튼 48 위에 뜬다. */
+/** 결과·실패 화면의 아래 버튼 위 16. 화면 끝 20 + 큰 버튼 56 + 사이 8 + 글자 버튼 48 위에 뜸 */
 private val ToastAboveButtons =
     DiarySpacing.x5 + DiarySpacing.x14 + DiarySpacing.x2 + DiarySpacing.minTouchTarget + DiarySpacing.x4
 
 /**
  * 기록 이전 관문(contracts/migration-flow.md "화면 상태").
- * 이전이 없거나 끝났으면 [content]로 간다.
- * 실패 화면에서는 다시 시도하거나, 공간 부족이 아니면 새 일기부터 쓰기로 앱 틀로 갈 수 있다.
- * 그때는 임시 DB로 바꾸지 않고 예전 일기를 지금 DB에 더해 새로 쓴 일기를 지킨다.
- * 실패 화면에서는 예전 일기 보기(읽기 전용), 원본 내보내기, 문의하기를 할 수 있다(FR-009).
- * 잠금이 켜져 있으면 이 관문은 잠금 관문 안쪽에 놓인다(FR-015, 스펙 001 US2).
+ * 이전이 없거나 끝났으면 [content]로 감.
+ * 실패 화면에서는 다시 시도하거나, 공간 부족이 아니면 새 일기부터 쓰기로 앱 틀로 갈 수 있음.
+ * 그때는 임시 DB로 바꾸지 않고 예전 일기를 지금 DB에 더해 새로 쓴 일기를 지킴.
+ * 실패 화면에서는 예전 일기 보기(읽기 전용), 원본 내보내기, 문의하기 가능(FR-009).
+ * 잠금이 켜져 있으면 이 관문은 잠금 관문 안쪽에 놓임(FR-015, 스펙 001 US2).
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -52,7 +52,7 @@ fun MigrationGate(content: @Composable () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val toast = remember { DiaryToastState() }
     val scope = rememberCoroutineScope()
-    // 관문을 지난 뒤의 알림(FR-011)은 앱 틀 위에 한 번 띄운다.
+    // 관문을 지난 뒤의 알림(FR-011)은 앱 틀 위에 한 번 띄움
     LaunchedEffect(viewModel) { viewModel.notices.collect { toast.show(it.message()) } }
     var reading by rememberSaveable { mutableStateOf(false) }
     Box(Modifier.fillMaxSize()) {
@@ -78,8 +78,8 @@ fun MigrationGate(content: @Composable () -> Unit) {
                 onSkip = viewModel::skip,
                 onViewLegacy = { reading = true },
                 onExportOriginal = actions?.exportOriginal,
-                // 일부만 옮겨진 기기는 복구 문의 시트를 먼저 띄운다(FR-010a).
-                // 실패한 기기는 바로 메일을 쓴다.
+                // 일부만 옮겨진 기기는 복구 문의 시트를 먼저 띄움(FR-010a)
+                // 실패한 기기는 바로 메일 작성
                 onContact = actions?.let { a -> if (state is MigrationUiState.Result) ({ asking = true }) else a.contact }
             )
             if (asking && actions != null) {

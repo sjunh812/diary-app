@@ -11,7 +11,7 @@ import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.WriteKey
 
-// 저장 뒤 전면 광고가 뜰 수 있는 자리(docs/business.md 광고 자리, 헌법 III).
+// 저장 뒤 전면 광고가 뜰 수 있는 자리(docs/business.md 광고 자리, 헌법 III)
 class InterstitialPlaceTest {
     @Test
     fun it_shows_on_the_lists() {
@@ -19,7 +19,7 @@ class InterstitialPlaceTest {
         assertTrue(interstitialMayShow(listOf(CalendarKey)))
     }
 
-    /** 돌아보기는 일기 목록이 아니다. 저장 뒤 레일로 옮겨 간 태블릿에서도 뜨지 않는다. */
+    /** 돌아보기는 일기 목록이 아님. 저장 뒤 레일로 옮겨 간 태블릿에서도 뜨지 않음 */
     @Test
     fun it_never_shows_on_insight() {
         assertFalse(interstitialMayShow(listOf(InsightKey)))
@@ -32,7 +32,7 @@ class InterstitialPlaceTest {
         assertFalse(interstitialMayShow(listOf(HomeKey, SearchKey())))
     }
 
-    /** 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있다. 설정에는 광고가 없다. */
+    /** 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있음. 설정에는 광고가 없음 */
     @Test
     fun it_never_shows_on_settings() {
         assertFalse(interstitialMayShow(listOf(SettingsKey)))

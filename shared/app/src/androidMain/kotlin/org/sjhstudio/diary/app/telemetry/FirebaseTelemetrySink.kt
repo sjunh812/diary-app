@@ -10,8 +10,8 @@ import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.TelemetrySink
 
 /**
- * 고정 표를 지난 이벤트와 키만 받는다([org.sjhstudio.diary.core.platform.Telemetry]).
- * 일기 내용은 여기까지 오지 않는다(헌법 II).
+ * 고정 표를 지난 이벤트와 키만 받음([org.sjhstudio.diary.core.platform.Telemetry]).
+ * 일기 내용은 여기까지 오지 않음(헌법 II).
  */
 private class FirebaseTelemetrySink(context: Context) : TelemetrySink {
     private val analytics = FirebaseAnalytics.getInstance(context)
@@ -37,6 +37,6 @@ private class FirebaseTelemetrySink(context: Context) : TelemetrySink {
     override fun setCustomKey(key: String, value: String) = crashlytics.setCustomKey(key, value)
 }
 
-/** `google-services.json` 없이 만든 빌드는 Firebase가 켜지지 않으므로 아무것도 보내지 않는다. */
+/** `google-services.json` 없이 만든 빌드는 Firebase가 꺼져 있어 아무것도 보내지 않음 */
 fun telemetrySink(context: Context): TelemetrySink =
     if (FirebaseApp.getApps(context).isEmpty()) NoTelemetrySink else FirebaseTelemetrySink(context)

@@ -14,10 +14,10 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BUNDLED_DIARY_FONTS
 
 /**
- * 고른 글꼴이 받는 글꼴인데 아직 없으면 앱을 연 뒤 받기 시작한다(스펙 001 T067, `docs/design.md` 일기 본문 글꼴 10종).
- * 예전 앱에서 옮겨 온 글꼴이 받는 글꼴일 때와, 다른 기기에서 복원해 글꼴 파일이 없을 때가 여기에 걸린다.
- * 받을 때까지 앱은 Pretendard로 보이고, 받지 못하면 다음에 앱을 열 때 다시 한다.
- * 묻거나 알리지 않는다.
+ * 고른 글꼴이 받는 글꼴인데 아직 없으면 앱을 연 뒤 받기 시작(스펙 001 T067, `docs/design.md` 일기 본문 글꼴 10종).
+ * 예전 앱에서 옮겨 온 글꼴이 받는 글꼴일 때, 다른 기기에서 복원해 글꼴 파일이 없을 때 해당.
+ * 받을 때까지 앱은 Pretendard로 보이고, 받지 못하면 다음에 앱을 열 때 다시 받음.
+ * 묻거나 알리지 않음.
  */
 class ChosenFontDownload(
     private val settings: SettingsRepository,
@@ -27,8 +27,8 @@ class ChosenFontDownload(
     private val _finished = MutableStateFlow(0)
 
     /**
-     * 받기가 끝날 때마다 늘어난다.
-     * 앱 뿌리가 이 값을 보고 받은 글꼴로 바꾼다.
+     * 받기가 끝날 때마다 늘어남.
+     * 앱 뿌리가 이 값을 보고 받은 글꼴로 바꿈.
      */
     val finished: StateFlow<Int> = _finished.asStateFlow()
 
