@@ -5,6 +5,8 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import com.google.android.gms.ads.AdError
@@ -22,6 +24,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.sjhstudio.diary.core.data.AdPlayer
@@ -66,6 +69,12 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     private var interstitial: InterstitialAd? = null
     private var started = false
 
+    // 초기화가 끝나기 전에 화면 스레드에서 광고를 만들면 SDK 잠금을 기다리다 ANR이 남. 끝난 뒤에만 부름
+    private val main = Handler(Looper.getMainLooper())
+    private var ready = false
+    private var failed = false
+    private val waiting = mutableListOf<Pair<() -> Unit, () -> Unit>>()
+
     init {
         app.registerActivityLifecycleCallbacks(
             object : Application.ActivityLifecycleCallbacks {
@@ -107,7 +116,10 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
 
     fun loadNative(key: String) {
         if (!available || key in natives || !loading.add(key)) return
-        start()
+        whenReady { requestNative(key) }
+    }
+
+    private fun requestNative(key: String) {
         AdLoader.Builder(app, units.native)
             .forNativeAd { ad ->
                 loading -= key
@@ -137,19 +149,50 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     /**
      * 처음 광고를 부를 때 한 번 켬
      * 유료 사용자는 켜지지 않음
+     * 초기화는 디스크를 읽어 Google 안내대로 뒤 스레드에서. 등급 설정은 첫 요청보다 먼저라 바로 둠
      */
-    fun start() {
+    @Suppress("TooGenericExceptionCaught")
+    private fun start() {
         if (started) return
         started = true
         MobileAds.setRequestConfiguration(
             RequestConfiguration.Builder().setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_T).build()
         )
-        MobileAds.initialize(app)
+        thread(name = "ads-init") {
+            try {
+                MobileAds.initialize(app) {
+                    main.post {
+                        ready = true
+                        waiting.forEach { (request, _) -> request() }
+                        waiting.clear()
+                    }
+                }
+            } catch (e: Exception) {
+                // 광고 SDK가 실패해도 앱은 그대로. 광고만 부르지 않음
+                Log.w(TAG, "광고 SDK를 켜지 못함: ${e::class.simpleName}")
+                main.post {
+                    failed = true
+                    waiting.forEach { (_, onFailed) -> onFailed() }
+                    waiting.clear()
+                }
+            }
+        }
+    }
+
+    /** 화면 스레드에서 부름. 초기화가 끝났으면 바로, 아니면 끝난 뒤에. 초기화를 못 하면 [onFailed] */
+    private fun whenReady(onFailed: () -> Unit = {}, request: () -> Unit) {
+        if (failed) return onFailed()
+        start()
+        if (ready) request() else waiting += request to onFailed
     }
 
     override fun prepareInterstitial() {
         if (!available || interstitial != null) return
-        start()
+        whenReady { requestInterstitial() }
+    }
+
+    private fun requestInterstitial() {
+        if (interstitial != null) return
         InterstitialAd.load(
             app,
             units.interstitial,
@@ -189,7 +232,6 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
 
     override suspend fun showRewarded(): Boolean {
         if (!available) return false
-        start()
         val ad = loadRewarded() ?: return false
         val screen = activity ?: return false
         return suspendCancellableCoroutine { result ->
@@ -209,18 +251,21 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     }
 
     private suspend fun loadRewarded(): RewardedAd? = suspendCancellableCoroutine { result ->
+        // 초기화를 못 하면 기다리지 않고 없음으로
+        whenReady(onFailed = { if (result.isActive) result.resume(null) }) {
+            requestRewarded { ad -> if (result.isActive) result.resume(ad) }
+        }
+    }
+
+    private fun requestRewarded(done: (RewardedAd?) -> Unit) {
         RewardedAd.load(
             app,
             units.rewarded,
             AdRequest.Builder().build(),
             object : RewardedAdLoadCallback() {
-                override fun onAdLoaded(ad: RewardedAd) {
-                    if (result.isActive) result.resume(ad)
-                }
+                override fun onAdLoaded(ad: RewardedAd) = done(ad)
 
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    if (result.isActive) result.resume(null)
-                }
+                override fun onAdFailedToLoad(error: LoadAdError) = done(null)
             }
         )
     }
