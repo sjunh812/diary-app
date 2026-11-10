@@ -11,7 +11,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
 
-// 요약 문장에 기분 얼굴을 글줄 안에 넣는다. 얼굴 자리 하나라도 잘못 만들면 돌아보기를 여는 순간 앱이 꺼진다.
+// 요약 문장 글줄 안의 기분 얼굴. 얼굴 자리 하나라도 잘못 만들면 돌아보기를 여는 순간 앱이 꺼짐
 @OptIn(ExperimentalTestApi::class)
 class InsightSummaryUiTest {
     private fun show(counts: MoodCounts, dark: Boolean = false) = runComposeUiTest {

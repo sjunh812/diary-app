@@ -29,7 +29,7 @@ private const val ALL_YEARS = 6
 private const val VALUE_ROWS = 3
 private const val VALUE_SECTIONS = 2
 
-/** 탭마다 칸 수와 줄 수가 달라서 곧 나올 모양대로 그린다(`docs/design.md` 스켈레톤). */
+/** 탭마다 칸 수와 줄 수가 달라 곧 나올 모양대로 그림(`docs/design.md` 스켈레톤) */
 private fun InsightKind.flowSlots(): Int = when (this) {
     InsightKind.Week -> WEEK_DAYS
     InsightKind.Month -> MONTH_WEEKS
@@ -37,7 +37,7 @@ private fun InsightKind.flowSlots(): Int = when (this) {
     InsightKind.All -> ALL_YEARS
 }
 
-/** 돌아보기 탭의 자리: 요약, 기분 흐름, 연간 지도(년만), 기분 막대. */
+/** 돌아보기 탭의 자리: 요약, 기분 흐름, 연간 지도(년만), 기분 막대 */
 @Composable
 internal fun InsightSkeleton(kind: InsightKind, modifier: Modifier = Modifier) {
     DiarySkeleton(modifier) {
@@ -100,7 +100,7 @@ private fun MoodRow() {
     }
 }
 
-/** 고급 통계의 자리: 요즘 기분 카드와 값 줄 묶음. */
+/** 고급 통계의 자리: 요즘 기분 카드와 값 줄 묶음 */
 @Composable
 internal fun AdvancedSkeleton(modifier: Modifier = Modifier) {
     DiarySkeleton(modifier) {

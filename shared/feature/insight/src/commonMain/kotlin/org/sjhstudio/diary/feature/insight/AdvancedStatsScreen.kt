@@ -185,10 +185,7 @@ private val DayParts: List<Pair<DayPart, StringResource>> =
         DayPart.EVENING to Res.string.insight_adv_day_evening
     )
 
-/**
- * 고급 통계(Figma P8).
- * 기분을 누르면 그 일기들로 간다.
- */
+/** 고급 통계(Figma P8). 기분을 누르면 그 일기들로 감 */
 @Composable
 fun AdvancedStatsRoute(onBack: () -> Unit, onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier, onWrite: () -> Unit = {}) {
     val viewModel = koinViewModel<AdvancedStatsViewModel>()
@@ -223,8 +220,8 @@ internal fun AdvancedStatsScreen(
                 .padding(horizontal = LocalScreenGutter.current)
                 .padding(top = DiarySpacing.x2, bottom = DiarySpacing.x6)
         ) {
-            // 기간 탭은 화면 전체를 거르는 줄이라 내용과 24로 가깝게 두고, 묶음 사이는 32로 나눈다.
-            // 빈 한 줄은 탭 아래 칸이라 다른 묶음 사이보다 가깝게 둔다.
+            // 기간 탭은 화면 전체를 거르는 줄이라 내용과 24로 가깝게, 묶음 사이는 32.
+            // 빈 한 줄은 탭 아래 칸이라 다른 묶음 사이보다 가깝게
             Column {
                 DiarySegmentedTabs(
                     labels =
@@ -267,7 +264,7 @@ private fun Sections(stats: AdvancedStats?, period: AdvancedPeriod, onMood: (Moo
 /**
  * 고급 통계의 한 묶음(`docs/design.md` 고급 통계 간격).
  * 제목과 내용 사이 [titleGap](기본 16), 내용끼리 [gap](기본 12).
- * [onInfo]가 있으면 제목 줄 오른쪽 끝에 기준 안내 단추를 둔다.
+ * [onInfo]가 있으면 제목 줄 오른쪽 끝에 기준 안내 단추
  */
 @Composable
 private fun Section(
@@ -286,7 +283,7 @@ private fun Section(
             )
             if (onInfo != null) {
                 Spacer(Modifier.width(DiarySpacing.x3))
-                // 누르는 곳은 48에 가깝게 두고 자리는 아이콘만큼만 차지해 제목 줄이 높아지지 않게 한다.
+                // 누르는 곳은 48에 가깝게, 자리는 아이콘만큼만 차지해 제목 줄이 높아지지 않게
                 DiaryIconButton(
                     DiaryIcons.Info,
                     contentDescription = stringResource(Res.string.insight_adv_tone_info),
@@ -316,10 +313,7 @@ private fun Card(modifier: Modifier = Modifier, content: @Composable ColumnScope
     )
 }
 
-/**
- * 일기는 많은데 기분을 고른 일기가 적을 때.
- * 일기가 적다고 말하면 틀린 말이 된다.
- */
+/** 일기는 많은데 기분을 고른 일기가 적을 때. 일기가 적다고 하면 틀린 말 */
 @Composable
 private fun NoMoods() {
     val colors = DiaryTheme.colors
@@ -330,10 +324,7 @@ private fun NoMoods() {
     }
 }
 
-/**
- * 요즘 기분 한 줄.
- * 까닭이나 조언 없이 일어난 변화만 말한다.
- */
+/** 요즘 기분 한 줄. 까닭이나 조언 없이 일어난 변화만 */
 @Composable
 private fun Recent(recent: RecentMood) {
     val colors = DiaryTheme.colors
@@ -383,16 +374,13 @@ private fun Recent(recent: RecentMood) {
     }
 }
 
-/**
- * 값이 있는 줄만 보인다.
- * 앞 기간은 흐리게, 지금은 또렷하게 둔다.
- */
+/** 값이 있는 줄만 보임. 앞 기간은 흐리게, 지금은 또렷하게 */
 @Composable
 private fun Change(period: AdvancedPeriod, change: StatsChange) {
     val before = change.before
     val now = change.now
     val title = if (period == AdvancedPeriod.THIS_YEAR) Res.string.insight_adv_change_year else Res.string.insight_adv_change_recent
-    // 긍정적인·부정적인 기분 줄이 있을 때만 그 기준을 여는 단추를 둔다.
+    // 긍정적인·부정적인 기분 줄이 있을 때만 기준 안내 단추
     var explaining by rememberSaveable { mutableStateOf(false) }
     val tones = before.moods != null && now.moods != null
     if (explaining) ToneSheet(onDismiss = { explaining = false })
@@ -440,7 +428,7 @@ private fun Change(period: AdvancedPeriod, change: StatsChange) {
 private fun Value(label: String, before: String, now: String) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    // 글자가 커져 한 줄에 못 들어가면 값이 다음 줄로 내려간다.
+    // 글자가 커져 한 줄에 못 들어가면 값이 다음 줄로
     FlowRow(
         Modifier.fillMaxWidth().semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.SpaceBetween
@@ -456,11 +444,7 @@ private fun Value(label: String, before: String, now: String) {
     }
 }
 
-/**
- * 글자 수.
- * 십만부터는 묶음 단위로 줄인다.
- * 단위는 언어마다 달라서 문자열에 둔다.
- */
+/** 글자 수. 십만부터는 묶음 단위로 줄임. 단위는 언어마다 달라 문자열에 둠 */
 @Composable
 private fun characters(value: Long): String {
     val small = stringResource(Res.string.insight_adv_unit_small).toLong()
@@ -482,8 +466,8 @@ private fun characters(value: Long): String {
 
 /**
  * 상황별 기분(`docs/design.md` 상황별 기분).
- * 고르지 않고 한 줄에 긍정적인 기분(왼쪽부터)과 부정적인 기분(오른쪽부터)을 함께 그린다.
- * 무엇을 어느 쪽으로 세는지는 제목 줄 오른쪽 끝 안내 단추가 시트로 보인다.
+ * 한 줄에 긍정적인 기분(왼쪽부터)과 부정적인 기분(오른쪽부터)을 함께 그림.
+ * 어느 쪽으로 세는지는 제목 줄 오른쪽 끝 안내 단추의 시트에서 보임
  */
 @Composable
 private fun MoodTimes(stats: AdvancedStats) {
@@ -492,12 +476,12 @@ private fun MoodTimes(stats: AdvancedStats) {
     Section(
         Res.string.insight_adv_when,
         gap = Dp.Hairline,
-        // 글자 탭은 누르는 곳 48 안에 글자가 가운데 있어 위로 여백이 붙는다.
-        // 제목과 탭을 따로 띄우면 한 묶음으로 보이지 않아 사이를 두지 않는다.
+        // 글자 탭은 누르는 곳 48 가운데에 글자가 있어 위 여백이 붙음.
+        // 제목과 탭을 따로 띄우면 한 묶음으로 안 보여 사이를 두지 않음
         titleGap = Dp.Hairline,
         onInfo = { explaining = true }
     ) {
-        // 화면 전체를 거르는 기간 탭(상자)과 모양을 나눠, 이 묶음 안쪽만 바꾼다는 것이 보이게 글자 탭으로 둔다.
+        // 화면 전체를 거르는 기간 탭(상자)과 구분해 이 묶음 안만 바꾼다는 게 보이게 글자 탭으로
         DiaryTextTabs(
             labels =
                 listOf(
@@ -517,7 +501,7 @@ private fun MoodTimes(stats: AdvancedStats) {
                 else -> stats.places
             }
         Spacer(Modifier.height(DiarySpacing.x4))
-        // 범례는 막대 바로 위에 두어, 색을 읽을 곳과 뜻을 적은 곳이 붙어 있게 한다.
+        // 범례는 막대 바로 위. 색을 읽을 곳과 뜻을 적은 곳이 붙어 있게
         if (rows.isNotEmpty()) {
             ToneLegend()
             Spacer(Modifier.height(DiarySpacing.x3))
@@ -551,11 +535,11 @@ private fun MoodTimes(stats: AdvancedStats) {
     if (explaining) ToneSheet(onDismiss = { explaining = false })
 }
 
-/** 막대 색이 무엇인지 알려 주는 한 줄. */
+/** 막대 색이 무엇인지 알려 주는 한 줄 */
 @Composable
 private fun ToneLegend() {
     val colors = DiaryTheme.colors
-    // 글자가 커져 한 줄에 다 들어가지 않으면 다음 줄로 내린다.
+    // 글자가 커져 한 줄에 다 들어가지 않으면 다음 줄로
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x4),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
@@ -576,8 +560,8 @@ private fun LegendItem(color: Color, label: String) {
 
 /**
  * 이름 · 막대 · 좋은 기분 % · 힘든 기분 %.
- * 좋은 기분은 왼쪽부터, 힘든 기분은 오른쪽부터 채우고 가운데 빈 곳은 그 밖의 기분이다.
- * 둘이 맞닿으면 사이를 2 띄워 경계가 보이게 한다.
+ * 좋은 기분은 왼쪽부터, 힘든 기분은 오른쪽부터 채우고 가운데 빈 곳은 그 밖의 기분.
+ * 둘이 맞닿으면 2 띄워 경계가 보이게
  */
 @Composable
 private fun ToneRow(label: String, share: ToneShare, good: String, hard: String, description: String, labelWidth: Dp, valueWidth: Dp) {
@@ -596,7 +580,7 @@ private fun ToneRow(label: String, share: ToneShare, good: String, hard: String,
             overflow = TextOverflow.Ellipsis
         )
         ToneBar(share.rate.toFloat(), share.hardRate.toFloat(), Modifier.weight(1f))
-        // 둘 가운데 더 많은 쪽 값을 진하게 둔다. 같으면 둘 다 진하다.
+        // 둘 중 더 많은 쪽 값을 진하게. 같으면 둘 다 진하게
         val strong = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End)
         val weak = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End)
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
@@ -634,7 +618,7 @@ private fun ToneBar(good: Float, hard: Float, modifier: Modifier) {
 
 /**
  * 좋은 기분과 힘든 기분을 무엇으로 세는지(`docs/design.md` 상황별 기분, DECISIONS 2026-11-04 쿨은 보통).
- * 기분의 밝고 어두움(심리학의 정서가)으로 나누고, 어느 쪽인지 애매한 보통과 쿨은 세지 않는다.
+ * 기분의 밝고 어두움(심리학의 정서가)으로 나누고, 애매한 보통과 쿨은 세지 않음
  */
 @Composable
 private fun ToneSheet(onDismiss: () -> Unit) {
@@ -643,7 +627,7 @@ private fun ToneSheet(onDismiss: () -> Unit) {
     DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.insight_adv_tone_sheet_title)) {
         PhraseText(stringResource(Res.string.insight_adv_tone_sheet_body), style = typography.body.copy(color = colors.textSecondary))
         // 설명 → 첫 묶음 16, 묶음 사이 20, 마지막 묶음 → 확인 32(시트 기본 사이 12 + 8에 버튼 둘레 여백, 재서 맞춤).
-        // 시트 규칙은 글과 버튼 사이 24지만, 여기는 묶음 사이가 20이라 24면 버튼이 내용에 붙어 보였다(2026-11-08 사용자 지적).
+        // 시트 규칙은 글과 버튼 사이 24지만, 여기는 묶음 사이가 20이라 24면 버튼이 내용에 붙어 보임
         Column(Modifier.padding(top = DiarySpacing.x1), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
             ToneGroup(colors.toneGood, stringResource(Res.string.insight_adv_change_good), Mood.entries.filter { it.tone == MoodTone.GOOD })
             ToneGroup(colors.toneHard, stringResource(Res.string.insight_adv_change_hard), Mood.entries.filter { it.tone == MoodTone.HARD })
@@ -661,13 +645,13 @@ private fun ToneSheet(onDismiss: () -> Unit) {
     }
 }
 
-/** 묶음 이름과 그 묶음의 기분 얼굴·이름. 순서는 기분 고르기와 같다. */
+/** 묶음 이름과 그 묶음의 기분 얼굴·이름. 순서는 기분 고르기와 같음 */
 @Composable
 private fun ToneGroup(color: Color, name: String, moods: List<Mood>) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    // 얼굴 줄이 둘로 넘어가도 줄 사이(12)가 이름과 얼굴 사이와 같아야 한 묶음으로 읽힌다.
-    // 8로 두면 얼굴 24끼리 거의 붙어 보였다(2026-11-08 사용자 지적).
+    // 얼굴 줄이 둘로 넘어가도 줄 사이(12)가 이름·얼굴 사이와 같아야 한 묶음으로 읽힘.
+    // 8이면 얼굴 24끼리 거의 붙어 보임
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         LegendItem(color, name)
         FlowRow(
@@ -686,7 +670,7 @@ private fun ToneGroup(color: Color, name: String, moods: List<Mood>) {
 
 @Composable
 private fun Company(company: List<MoodCompany>, onMood: (Mood) -> Unit) {
-    // 줄마다 위아래 8을 스스로 두어서 제목과 사이는 8만 더해 보이는 간격을 16으로 맞춘다.
+    // 줄마다 위아래 8을 스스로 둬 제목과 사이는 8만 더해 보이는 간격 16
     Section(Res.string.insight_adv_company, gap = Dp.Hairline, titleGap = DiarySpacing.x2) {
         company.forEach { row -> CompanyRow(row) { onMood(row.mood) } }
     }
@@ -700,7 +684,7 @@ private fun CompanyRow(row: MoodCompany, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
-            // 누름 면을 양옆으로 12 내어 얼굴과 숫자가 가장자리에 붙지 않게 한다(돌아보기 기분 막대와 같다, 2026-11-10).
+            // 누름 면을 양옆으로 12 내어 얼굴·숫자가 가장자리에 붙지 않게(돌아보기 기분 막대와 같음)
             .diaryTouchOutset(horizontal = DiarySpacing.x3)
             .diaryPress(press, colors.textPrimary, DiaryShapes.r12)
             .clickable(interactionSource = press, indication = null, role = Role.Button, onClick = onClick)
@@ -710,8 +694,8 @@ private fun CompanyRow(row: MoodCompany, onClick: () -> Unit) {
     ) {
         MoodFace(row.mood, DiarySpacing.x8, contentDescription = null)
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            // 기분 이름만 굵게 두고 편수는 보조로 낮춘다.
-            // 둘 다 굵으면 "좋음 · 62편"이 한 덩어리로 읽혀 이름이 먼저 들어오지 않았다(2026-11-08 사용자 지적).
+            // 기분 이름만 굵게, 편수는 보조로 낮춤.
+            // 둘 다 굵으면 "좋음 · 62편"이 한 덩어리로 읽혀 이름이 먼저 들어오지 않음
             val name = moodName(row.mood)
             val title = pluralStringResource(Res.plurals.insight_adv_company_title, row.entries, name, row.entries.grouped())
             val start = title.indexOf(name).coerceAtLeast(0)
@@ -778,10 +762,7 @@ private fun Tile(label: String, value: String, modifier: Modifier) {
     }
 }
 
-/**
- * 숫자를 먼저 읽히게 단위는 작은 보조색으로 둔다.
- * 색을 더하지 않아도 숫자가 앞에 선다(`docs/design.md` 합계 칸).
- */
+/** 숫자가 먼저 읽히게 단위는 작은 보조색으로. 색을 더하지 않아도 숫자가 앞에 섬(`docs/design.md` 합계 칸) */
 @Composable
 private fun tileValue(value: String): AnnotatedString {
     val colors = DiaryTheme.colors
@@ -791,11 +772,11 @@ private fun tileValue(value: String): AnnotatedString {
         buildAnnotatedString {
             val number = NUMBER.find(value)
             if (number == null) {
-                // 숫자가 없는 값(시간대)은 그대로 둔다.
+                // 숫자가 없는 값(시간대)은 그대로
                 append(value)
             } else {
                 append(value.substring(0, number.range.last + 1))
-                // 크기가 달라 붙어 보이지 않게 숫자와 단위 사이에 작은 빈칸을 둔다.
+                // 크기가 달라 붙어 보이지 않게 숫자와 단위 사이에 작은 빈칸
                 withStyle(SpanStyle(fontSize = unit.fontSize * UNIT_GAP)) { append(' ') }
                 withStyle(small) { append(value.substring(number.range.last + 1)) }
             }

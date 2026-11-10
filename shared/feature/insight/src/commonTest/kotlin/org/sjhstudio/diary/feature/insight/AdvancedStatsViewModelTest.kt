@@ -66,7 +66,7 @@ class AdvancedStatsViewModelTest {
         assertNull(viewModel.range())
     }
 
-    /** 새 기간 이름 아래에 앞 기간 숫자가 보이지 않는다. */
+    /** 새 기간 이름 아래에 앞 기간 숫자가 보이지 않음 */
     @Test
     fun switching_hides_the_last_numbers_until_the_new_ones_arrive() = runTest {
         val slow = MutableSharedFlow<AdvancedStats>()
@@ -97,7 +97,7 @@ class AdvancedStatsViewModelTest {
         assertSame(first, viewModel.data.value)
     }
 
-    /** 켜 둔 채 날이 바뀌면 최근 기간을 새 오늘로 다시 잰다. */
+    /** 켜 둔 채 날이 바뀌면 최근 기간을 새 오늘로 다시 잼 */
     @Test
     fun a_new_day_measures_the_period_again() = runTest {
         var date = today

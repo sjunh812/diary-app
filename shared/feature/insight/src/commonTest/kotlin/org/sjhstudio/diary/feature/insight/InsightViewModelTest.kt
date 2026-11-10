@@ -57,7 +57,7 @@ class InsightViewModelTest {
 
     private fun viewModel() = InsightViewModel(NoStats, { today }, saved = SavedStateHandle())
 
-    /** 고급 통계는 Plus만 연다. 기존 통계는 어느 요금제든 그대로다(FR-012). */
+    /** 고급 통계는 Plus만. 기존 통계는 어느 요금제든 그대로(FR-012) */
     @Test
     fun trying_what_the_tip_says_closes_the_tip_for_good() = runTest(dispatcher) {
         val done = mutableListOf<ContextTip>()
@@ -87,7 +87,7 @@ class InsightViewModelTest {
         }
     }
 
-    /** 구독이 끝나면 칸이 바로 잠기고 앱 틀이 고급 통계 화면을 닫는다. */
+    /** 구독이 끝나면 칸이 바로 잠기고 앱 틀이 고급 통계 화면을 닫음 */
     @Test
     fun advanced_stats_close_when_plus_ends() = runTest(dispatcher) {
         val plans = FakePlanRepository(Plan.PLUS)
@@ -134,7 +134,7 @@ class InsightViewModelTest {
         assertEquals(StatsPeriod.Month(YearMonth(2026, 10)), model.period.value)
     }
 
-    /** 켜 둔 채 달이 바뀌면 이번 달을 보던 사람은 새 달을 본다. */
+    /** 켜 둔 채 달이 바뀌면 이번 달을 보던 사람은 새 달을 봄 */
     @Test
     fun a_new_month_moves_the_current_period_along() {
         val model = viewModel()
@@ -146,7 +146,7 @@ class InsightViewModelTest {
         assertEquals(StatsPeriod.Month(YearMonth(2026, 11)), model.period.value)
     }
 
-    /** 켜 둔 채 해가 바뀌면 올해를 보던 사람은 새해를 보고, 새해 첫 주는 지난해 마지막 주와 이어진다. */
+    /** 켜 둔 채 해가 바뀌면 올해를 보던 사람은 새해를 보고, 새해 첫 주는 지난해 마지막 주와 이어짐 */
     @Test
     fun a_new_year_moves_this_year_and_this_week_along() {
         today = LocalDate(2026, 12, 31)
@@ -179,7 +179,7 @@ class InsightViewModelTest {
         assertEquals(september, model.period.value)
     }
 
-    /** 새 기간 이름 아래에 앞 기간 숫자가 보이지 않는다. */
+    /** 새 기간 이름 아래에 앞 기간 숫자가 보이지 않음 */
     @Test
     fun a_new_period_hides_the_numbers_of_the_last_one() = runTest(dispatcher) {
         val counts = MutableStateFlow<Map<StatsPeriod, MoodCounts>>(mapOf(october to MoodCounts(mapOf(Mood.GOOD to 3), 0)))
@@ -200,7 +200,7 @@ class InsightViewModelTest {
         assertEquals(1, model.state.value.data?.counts?.total)
     }
 
-    /** 숫자를 읽지 못하면 뼈대로 남지 않고 다시 시도를 보이며, 다시 시도하면 다시 읽는다. */
+    /** 숫자를 읽지 못하면 스켈레톤으로 남지 않고 다시 시도를 보이고, 다시 시도하면 다시 읽음 */
     @Test
     fun a_failed_read_shows_retry_and_reads_again() = runTest(dispatcher) {
         var fail = true
@@ -225,7 +225,7 @@ class InsightViewModelTest {
         assertEquals(2, model.state.value.data?.counts?.total)
     }
 
-    /** 다른 탭에 다녀와 다시 읽어도 보던 숫자가 비워지지 않는다. */
+    /** 다른 탭에 다녀와 다시 읽어도 보던 숫자가 비워지지 않음 */
     @Test
     fun coming_back_keeps_the_numbers_while_reading_again() = runTest(dispatcher) {
         val model = InsightViewModel(NoStats, { today }, saved = SavedStateHandle())
@@ -254,7 +254,7 @@ class InsightViewModelTest {
 
     @Test
     fun month_buckets_follow_calendar_weeks() {
-        // 2026년 10월 1일은 목요일이라 첫 주는 3일까지다.
+        // 2026년 10월 1일은 목요일이라 첫 주는 3일까지
         val period = StatsPeriod.Month(YearMonth(2026, 10))
         val days =
             listOf(
@@ -276,7 +276,7 @@ class InsightViewModelTest {
 
     @Test
     fun each_cell_knows_the_dates_it_covers() {
-        // 2026년 10월 1일은 목요일이라 첫 주는 1~3일, 마지막 주는 25~31일이다.
+        // 2026년 10월 1일은 목요일이라 첫 주는 1~3일, 마지막 주는 25~31일
         val october = moodBuckets(StatsPeriod.Month(YearMonth(2026, 10)), listOf(DayMood(LocalDate(2026, 10, 31), null, 1)))
         assertEquals(DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 3)), october[0].range)
         assertEquals(DateRange(LocalDate(2026, 10, 4), LocalDate(2026, 10, 10)), october[1].range)
@@ -295,7 +295,7 @@ class InsightViewModelTest {
 
     @Test
     fun only_cells_with_entries_can_be_opened() {
-        // 기분을 고르지 않은 일기만 있는 칸도 열 수 있다.
+        // 기분을 고르지 않은 일기만 있는 칸도 열 수 있음
         val october = moodBuckets(StatsPeriod.Month(YearMonth(2026, 10)), listOf(DayMood(LocalDate(2026, 10, 31), null, 1)))
         assertEquals(listOf(false, false, false, false, true), october.map { it.written })
 
@@ -313,7 +313,7 @@ class InsightViewModelTest {
 
     @Test
     fun last_entry_without_mood_does_not_empty_the_cell() {
-        // 마지막 일기에 기분이 없어도 앞 일기의 기분으로 칸을 채운다.
+        // 마지막 일기에 기분이 없어도 앞 일기의 기분으로 칸을 채움
         val day = DayMood(LocalDate(2026, 11, 5), null, 7, moods = listOf(Mood.SICK, Mood.MEH))
 
         assertEquals(Mood.MEH, moodBuckets(StatsPeriod.All, listOf(day)).single().mood)
@@ -343,7 +343,7 @@ class InsightViewModelTest {
         assertEquals(listOf(Mood.SAD, null, Mood.GOOD), buckets.map { it.mood })
     }
 
-    /** 넣어 준 기간만 숫자를 내놓는다. */
+    /** 넣어 준 기간만 숫자를 내놓음 */
     private class SlowStats(private val counts: StateFlow<Map<StatsPeriod, MoodCounts>>) : StatsRepository by NoStats {
         override fun moodCounts(period: StatsPeriod): Flow<MoodCounts> = counts.mapNotNull { it[period] }
     }
@@ -358,7 +358,7 @@ class InsightViewModelTest {
         override fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>> = flowOf(emptyMap())
     }
 
-    /** 앱이 꺼졌다 돌아와도 보던 기간이 남는다. */
+    /** 앱이 꺼졌다 돌아와도 보던 기간 유지 */
     @Test
     fun the_period_survives_the_app_being_killed() {
         for (period in listOf(

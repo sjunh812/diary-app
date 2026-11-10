@@ -142,10 +142,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_write
 import org.sjhstudio.diary.feature.insight.resources.insight_year_map
 import org.sjhstudio.diary.feature.insight.resources.tip_insight_open
 
-/**
- * 돌아보기(Figma "돌아보기 (S5)").
- * 숫자보다 말로 먼저 알려 주고 기분 막대를 누르면 그 일기들로 간다.
- */
+/** 돌아보기(Figma "돌아보기 (S5)"). 숫자보다 말로 먼저 알리고, 기분 막대를 누르면 그 일기들로 감 */
 @Composable
 fun InsightRoute(
     onMood: (Mood, DateRange?) -> Unit,
@@ -217,8 +214,8 @@ internal fun InsightScreen(
     var titleHeight by remember { mutableIntStateOf(0) }
     SnapTitleOnRest(scroll, titleHeight)
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
-        // 큰 제목이 스크롤되어 바 밑으로 들어가는 만큼 바에 작은 제목이 나타난다(`docs/design.md` 탭 상단 바).
-        // 고급 통계 단추는 탭마다 같아서 어느 탭에서나 보이는 바 오른쪽에 둔다.
+        // 큰 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바).
+        // 고급 통계 단추는 탭마다 같아 어느 탭에서나 보이는 바 오른쪽에
         DiaryTabTopBar(
             title = stringResource(Res.string.insight_title),
             collapsed = { titleCollapse(scroll.value, titleHeight) },
@@ -261,13 +258,12 @@ internal fun InsightScreen(
             )
             Spacer(Modifier.height(DiarySpacing.x1))
             PeriodNav(periodLabel(period, dates), period.previous() != null, period.next(today) != null, onPrevious, onNext)
-            // 빈 한 줄은 위 24를 스스로 둔다.
-            // 새 기간을 읽는 동안 앞 기간 숫자는 보이지 않게 두고 자리만 지킨다.
-            // 빼 버리면 아래 광고가 올라왔다 내려가고 새로 불려 온다.
+            // 빈 한 줄은 위 24를 스스로 둠.
+            // 새 기간을 읽는 동안 앞 기간 숫자는 숨기고 자리만 유지. 빼면 아래 광고가 올라왔다 내려가며 새로 불려 옴
             var read by remember { mutableStateOf(data) }
             SideEffect { if (data != null) read = data }
             val shown = data ?: read
-            // 처음 보는 기간을 잠깐 읽는 동안 하얗게 번쩍이지 않게 천천히 옅어진다.
+            // 처음 보는 기간을 잠깐 읽는 동안 하얗게 번쩍이지 않게 천천히 옅어짐
             val reduceMotion = rememberReduceMotion()
             val shade by animateFloatAsState(if (data == null) 0f else 1f, tween(if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS))
             val hidden =
@@ -277,7 +273,7 @@ internal fun InsightScreen(
                     Modifier.fillMaxWidth().alpha(shade)
                 }
             if (shown?.counts?.total != 0) Spacer(Modifier.height(DiarySpacing.x3))
-            // 뼈대는 0.3초 뒤에 나타나서 짧은 틈에는 보이지 않는다.
+            // 스켈레톤은 0.3초 뒤에 나타나 짧은 틈에는 안 보임
             Box {
                 when {
                     shown == null -> Unit
@@ -295,7 +291,7 @@ internal fun InsightScreen(
                 }
             }
             if (shown != null && shown.counts.total > 0) {
-                // 기분 막대 줄은 위아래가 비어 있어서 같은 24로 보이게 줄여 둔다.
+                // 기분 막대 줄은 위아래가 비어 있어 같은 24로 보이게 줄임
                 Spacer(Modifier.height(if (shown.counts.top.isEmpty()) DiarySpacing.x6 else DiarySpacing.x3))
                 adSlot()
             }
@@ -322,8 +318,8 @@ private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = w
 private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onPrevious: () -> Unit, onNext: () -> Unit) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게 보인다.
-        // 누르는 칸 안쪽 여백만큼 밀어 화살표가 위아래 내용과 같은 선에 서게 한다.
+        // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게.
+        // 누르는 칸 안쪽 여백만큼 밀어 화살표를 위아래 내용과 같은 선에 맞춤
         DiaryIconButton(
             DiaryIcons.ChevronLeft,
             stringResource(Res.string.insight_previous),
@@ -360,8 +356,8 @@ private fun Content(
 ) {
     val colors = DiaryTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-        // 가장 많았던 기분 이름 앞에 그 기분 얼굴을 글자 크기만큼 붙여 문장 안에서 먼저 읽히게 한다.
-        // 굵기나 색으로 나누면 굵기가 하나뿐인 글꼴에서 강조가 사라지거나 문장이 흐려진다(2026-11-08 사용자 결정).
+        // 가장 많았던 기분 이름 앞에 글자 크기만 한 얼굴을 붙여 문장 안에서 먼저 읽히게.
+        // 굵기나 색으로 나누면 굵기가 하나뿐인 글꼴에서 강조가 사라지거나 문장이 흐려짐
         val title = DiaryTheme.typography.title2
         BasicText(
             summary(period, counts, today),
@@ -371,10 +367,9 @@ private fun Content(
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
     Spacer(Modifier.height(DiarySpacing.x6))
-    // 기분을 누를 수 있다는 것을 처음 한 번 알린다.
-    // 주별 기분 칸(그 주 일기)과 자주 고른 기분 줄(그 기분 일기)이 모두 눌려서, 처음 만나는 누를 곳인 주별 기분 위에 두고 두 곳에 다 맞는 말로 쓴다.
-    // 2026-11-09에는 "그 기분으로 쓴 일기"라는 말이 주 칸과 맞지 않아 자주 고른 기분 위로 옮겼다가, 위쪽도 눌린다는 지적으로 문구와 함께 되돌렸다(2026-11-10 사용자 결정).
-    // 안내가 닫히면 자리를 남기지 않도록 아래 여백은 안내에 붙인다.
+    // 기분을 누를 수 있다는 걸 처음 한 번 알림.
+    // 주별 기분 칸과 자주 고른 기분 줄이 모두 눌려, 처음 만나는 주별 기분 위에 두고 두 곳에 맞는 문구로.
+    // 안내가 닫히면 자리가 남지 않게 아래 여백은 안내에 붙임
     ContextTipBar(ContextTip.INSIGHT_OPEN, stringResource(Res.string.tip_insight_open), Modifier.padding(bottom = DiarySpacing.x6))
     MoodFlow(period, days, rememberDiaryDateFormat(), onPeriod)
     Spacer(Modifier.height(DiarySpacing.x6))
@@ -386,16 +381,15 @@ private fun Content(
         YearMap(period.year, pixels, today)
         Spacer(Modifier.height(DiarySpacing.x6))
     }
-    // 쓴 적 없는 기분은 줄을 차지하지 않는다.
-    // 주 보기에서는 0인 줄이 대부분이었다.
+    // 쓴 적 없는 기분은 줄을 차지하지 않게. 주 보기에서는 0인 줄이 대부분
     val rows = counts.sorted().filter { (_, count) -> count > 0 }
     if (rows.isEmpty()) return
     SectionTitle(stringResource(Res.string.insight_section_moods))
     val most = counts.counts.values.maxOrNull() ?: 0
-    // 이름과 숫자 칸은 언어와 일기 수로 길이가 달라져서, 가장 긴 글에 맞춰 줄마다 같은 폭으로 둔다.
+    // 이름·숫자 칸은 언어와 일기 수로 길이가 달라 가장 긴 글에 맞춰 줄마다 같은 폭
     val names = rows.map { (mood, _) -> moodName(mood) }
     val amounts = rows.map { (_, count) -> moodAmount(count, percentOf(count, counts.total)) }
-    // 글자가 아주 커져도 막대 자리가 남게 이름 칸 끝을 막는다.
+    // 글자가 아주 커져도 막대 자리가 남게 이름 칸 최대 폭 제한
     val nameWidth = widestText(names, DiaryTheme.typography.caption).coerceAtMost(DiarySpacing.x14 * 2)
     val amountWidth = widestText(amounts, DiaryTheme.typography.captionStrong)
     rows.forEachIndexed { index, (mood, count) ->
@@ -403,10 +397,7 @@ private fun Content(
     }
 }
 
-/**
- * 돌아보기 묶음 제목.
- * 기분 흐름, 연간 지도, 기분 막대가 같이 쓴다.
- */
+/** 돌아보기 묶음 제목. 기분 흐름, 연간 지도, 기분 막대가 같이 씀 */
 @Composable
 private fun SectionTitle(text: String) {
     BasicText(
@@ -416,7 +407,7 @@ private fun SectionTitle(text: String) {
     )
 }
 
-/** 기분 이름은 모두 받침으로 끝나서 문구에 조사 "이"를 그대로 둔다. */
+/** 기분 이름은 모두 받침으로 끝나 문구에 조사 "이"를 그대로 둠 */
 @Composable
 private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): AnnotatedString {
     val top = counts.top
@@ -432,10 +423,10 @@ private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): 
 private const val FACE_START = '\uE002'
 private const val FACE_END = '\uE003'
 
-/** 리소스 자리에 넣을 기분 이름 앞에 얼굴 자리 표시를 붙인다. 어순이 달라도 얼굴이 이름에 붙는다. */
+/** 리소스 자리에 넣을 기분 이름 앞에 얼굴 자리 표시. 어순이 달라도 얼굴이 이름에 붙음 */
 private fun withFace(index: Int, name: String): String = "$FACE_START$index$FACE_END$name"
 
-/** 얼굴 자리 표시를 글줄 안 그림 자리로 바꾼다. */
+/** 얼굴 자리 표시를 글줄 안 그림 자리로 */
 private fun String.withFaces(): AnnotatedString = buildAnnotatedString {
     var rest = this@withFaces
     while (true) {
@@ -447,7 +438,7 @@ private fun String.withFaces(): AnnotatedString = buildAnnotatedString {
         }
         append(rest.substring(0, start))
         val index = rest.substring(start + 1, end)
-        // 대체 글자는 비우면 Compose가 예외를 던진다. 화면 읽기와 복사에는 빈칸 하나로 둔다.
+        // 대체 글자가 비면 Compose가 예외를 던져 빈칸 하나로 둠(화면 읽기·복사용)
         appendInlineContent(faceId(index), " ")
         rest = rest.substring(end + 1)
     }
@@ -455,7 +446,7 @@ private fun String.withFaces(): AnnotatedString = buildAnnotatedString {
 
 private fun faceId(index: Any) = "mood-face-$index"
 
-/** 글줄 높이만 한 기분 얼굴. 뒤 글자와 사이를 조금 띄운다. */
+/** 글줄 높이만 한 기분 얼굴. 뒤 글자와 조금 띄움 */
 @Composable
 private fun moodFaces(moods: List<Mood>, lineHeight: TextUnit): Map<String, InlineTextContent> {
     val size = with(LocalDensity.current) { lineHeight.toDp() } * FACE_SCALE
@@ -469,7 +460,7 @@ private fun moodFaces(moods: List<Mood>, lineHeight: TextUnit): Map<String, Inli
     }.toMap()
 }
 
-/** 얼굴은 글줄 높이의 0.86배(20/28 글자에서 24), 뒤 글자와 사이는 그 0.14배. */
+/** 얼굴은 글줄 높이의 0.86배(20/28 글자에서 24), 뒤 글자와 사이는 그 0.14배 */
 private const val FACE_SCALE = 0.86f
 private const val FACE_GAP = 0.14f
 
@@ -492,11 +483,7 @@ private fun countLine(counts: MoodCounts): String {
     )
 }
 
-/**
- * 기분 흐름.
- * 칸마다 가장 많은 기분의 얼굴을 보인다.
- * 색만 있는 띠는 기분이 여러 가지라 읽히지 않았다.
- */
+/** 기분 흐름. 칸마다 가장 많은 기분의 얼굴. 색만 있는 띠는 기분이 여러 가지라 읽히지 않음 */
 @Composable
 private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateFormat, onPeriod: (DateRange) -> Unit) {
     val colors = DiaryTheme.colors
@@ -512,15 +499,15 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
     Column {
         SectionTitle(title)
         Spacer(Modifier.height(DiarySpacing.x3))
-        // 줄 사이를 얼굴과 이름 사이보다 넓혀 이름이 어느 얼굴 것인지 헷갈리지 않게 한다.
+        // 줄 사이를 얼굴·이름 사이보다 넓혀 이름이 어느 얼굴 것인지 헷갈리지 않게
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             val buckets = remember(period, days) { moodBuckets(period, days) }
             val columns = if (period is StatsPeriod.Year || period == StatsPeriod.All) WIDE_COLUMNS else buckets.size
             for (row in buckets.chunked(columns)) {
                 Row(Modifier.fillMaxWidth()) {
                     for (bucket in row) {
-                        // 일기가 있는 칸을 누르면 그 기간의 일기를 찾기로 모아 본다(2026-11-08 사용자 제안).
-                        // 기분으로 거르지 않는다. 칸의 얼굴은 그 기간을 요약한 것이라 그때 쓴 일기를 모두 보는 편이 맞다.
+                        // 일기가 있는 칸을 누르면 그 기간 일기를 찾기로 모아 봄.
+                        // 칸 얼굴은 기간 요약이라 기분으로 거르지 않고 그때 쓴 일기를 모두 보임
                         val press = remember { MutableInteractionSource() }
                         Column(
                             Modifier
@@ -550,7 +537,7 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
                             )
                         }
                     }
-                    // 해가 적어도 칸 폭은 같게 둔다.
+                    // 해가 적어도 칸 폭은 같게
                     repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
@@ -559,9 +546,8 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
 }
 
 /**
- * 고른 기분이 없는 칸.
- * 여기는 기분을 보는 줄이라 일기를 썼는지는 가르지 않는다.
- * 쓴 날은 달력이 보이고, 기분 없는 일기의 수는 위 요약 줄에 있다.
+ * 고른 기분이 없는 칸. 기분을 보는 줄이라 일기를 썼는지는 구분하지 않음.
+ * 쓴 날은 달력에, 기분 없는 일기 수는 위 요약 줄에 있음
  */
 @Composable
 private fun EmptyMoodSlot(size: Dp) {
@@ -578,8 +564,7 @@ private fun slotLabel(slot: BucketSlot, dates: DiaryDateFormat): String = when (
 
 /**
  * 연간 지도: 달마다 한 줄, 하루 한 칸(Daylio Year in Pixels와 같은 꼴).
- * 칸은 정사각형이고, 달 번호는 칸보다 커서 세 달마다 둔다.
- * 앞으로 올 날은 비워 둔다.
+ * 칸은 정사각형, 달 번호는 칸보다 커 세 달마다. 앞으로 올 날은 비움
  */
 @Composable
 private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) {
@@ -626,15 +611,12 @@ private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) 
     }
 }
 
-/** 없는 기분은 숫자만 둔다. */
+/** 없는 기분은 숫자만 */
 @Composable
 private fun moodAmount(count: Int, percent: Int): String =
     if (count > 0) stringResource(Res.string.insight_count_percent, count, percent) else count.toString()
 
-/**
- * 글을 잘리지 않게 담을 폭.
- * 글자 크기와 고른 글꼴을 그대로 따른다.
- */
+/** 글이 잘리지 않게 담을 폭. 글자 크기와 고른 글꼴을 따름 */
 @Composable
 internal fun widestText(texts: List<String>, style: TextStyle): Dp {
     val measurer = rememberTextMeasurer()
@@ -661,7 +643,7 @@ private fun MoodBar(
         Modifier
             .fillMaxWidth()
             .heightIn(min = DiaryInsightSize.barRow)
-            // 누름 면이 얼굴과 숫자에 딱 붙지 않게 양옆으로 12 내어 그리고, 안쪽을 같은 만큼 들여 내용은 제자리에 둔다(2026-11-10 사용자 지적).
+            // 누름 면이 얼굴·숫자에 붙지 않게 양옆으로 12 내어 그리고, 안쪽을 같은 만큼 들여 내용은 제자리
             .diaryTouchOutset(horizontal = DiarySpacing.x3)
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .clickable(enabled = count > 0, interactionSource = interaction, indication = null, role = Role.Button) { onClick(mood) }
@@ -676,8 +658,8 @@ private fun MoodBar(
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
             maxLines = 1
         )
-        // 트랙을 두지 않는다.
-        // 웃음과 슬픔 파스텔은 sunken과 밝기가 거의 같아서 끝이 보이지 않았고, 막대는 가장 많은 기분을 끝으로 재서 트랙이 뜻하는 값도 없다.
+        // 트랙 없음. 웃음·슬픔 파스텔은 sunken과 밝기가 거의 같아 끝이 안 보이고,
+        // 막대는 가장 많은 기분을 끝으로 재 트랙이 뜻하는 값도 없음
         Box(Modifier.weight(1f).height(DiaryInsightSize.barHeight)) {
             if (count > 0) {
                 val filled = count.toFloat() / most

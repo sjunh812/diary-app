@@ -42,25 +42,21 @@ import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
 
-/** 기간 탭. */
+/** 기간 탭 */
 enum class InsightKind { Week, Month, Year, All }
 
-/** 한 기간을 읽은 값. */
+/** 한 기간을 읽은 값 */
 data class InsightData(val counts: MoodCounts, val days: List<DayMood>, val pixels: Map<LocalDate, Mood?>)
 
 /**
- * 기간과 그 기간의 숫자.
- * [data]가 null이면 아직 읽는 중이고, [failed]면 읽지 못해 다시 시도를 보인다.
- * 기분 기록이 들어 있어 [toString]에 담지 않는다(헌법 II).
+ * 기간과 그 기간의 숫자. [data]가 null이면 읽는 중, [failed]면 다시 시도를 보임.
+ * 기분 기록이 들어 있어 [toString]에서 뺌(헌법 II)
  */
 data class InsightState(val period: StatsPeriod, val data: InsightData?, val failed: Boolean = false) {
     override fun toString(): String = "InsightState"
 }
 
-/**
- * 돌아보기(FR-028~FR-031).
- * 기간을 칸으로 나눈 기분 흐름과, 년은 하루 한 칸 지도를 함께 읽는다.
- */
+/** 돌아보기(FR-028~FR-031). 기간을 칸으로 나눈 기분 흐름과, 년은 하루 한 칸 지도도 함께 읽음 */
 class InsightViewModel(
     private val stats: StatsRepository,
     private val today: () -> LocalDate = { currentDate() },
@@ -68,16 +64,13 @@ class InsightViewModel(
     private val saved: SavedStateHandle,
     private val tips: ContextTips? = null
 ) : ViewModel() {
-    /**
-     * 고급 통계를 볼 수 있는지.
-     * 요금제를 바꾸면 바로 따른다.
-     */
+    /** 고급 통계를 볼 수 있는지. 요금제가 바뀌면 바로 따름 */
     val advancedOpen: StateFlow<Boolean> =
         (plans?.confirmed?.filterNotNull() ?: flowOf(Plan.FREE))
             .map { it.advancedStats }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, false)
 
-    // 시스템이 앱을 끄고 다시 띄워도 보던 기간이 남는다.
+    // 시스템이 앱을 끄고 다시 띄워도 보던 기간 유지
     private val _period = MutableStateFlow(saved.get<String>(PERIOD_KEY)?.let(::decodePeriod) ?: StatsPeriod.Month(today().yearMonth))
     val period: StateFlow<StatsPeriod> = _period.asStateFlow()
 
@@ -87,16 +80,13 @@ class InsightViewModel(
 
     private val _todayState = MutableStateFlow(today())
 
-    /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꾼다. */
+    /** 화면이 보는 오늘. 앱이 돌아올 때 [refreshToday]가 바꿈 */
     val todayState: StateFlow<LocalDate> = _todayState.asStateFlow()
 
-    /**
-     * 읽어 둔 기간.
-     * 탭을 누를 때마다 비웠다 그리면 화면이 번쩍여서, 있는 값을 바로 보이고 새 값으로 바꾼다.
-     */
+    /** 읽어 둔 기간. 탭마다 비웠다 그리면 번쩍여, 있는 값을 바로 보이고 새 값으로 바꿈 */
     private val cache = mutableMapOf<StatsPeriod, InsightData>()
 
-    /** 다시 시도할 때마다 올라가서 고른 기간을 새로 읽는다. */
+    /** 다시 시도마다 올라 고른 기간을 새로 읽음 */
     private val attempt = MutableStateFlow(0)
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -107,7 +97,7 @@ class InsightViewModel(
                     cache[period] = data
                     InsightState(period, data)
                 }
-                // 읽기에 실패하면 읽는 중으로 남기지 않고 다시 시도를 보인다.
+                // 읽기 실패 시 읽는 중으로 남기지 않고 다시 시도를 보임
                 .catch { if (it is Exception) emit(InsightState(period, null, failed = true)) else throw it }
         }
 
@@ -117,16 +107,16 @@ class InsightViewModel(
     }
 
     /**
-     * 기간과 그 기간의 숫자를 한 값으로 묶는다.
-     * 기간을 바꾸면 읽어 둔 값을 바로 내놓고, 없으면 읽는 중이다. 앞 기간 숫자는 내놓지 않는다.
-     * 다른 탭에 다녀와 다시 읽을 때는 같은 기간이라 보던 숫자를 그대로 둔다.
+     * 기간과 그 기간의 숫자를 한 값으로 묶음.
+     * 기간을 바꾸면 읽어 둔 값을 바로, 없으면 읽는 중. 앞 기간 숫자는 내놓지 않음.
+     * 다른 탭에 다녀와 다시 읽을 때는 같은 기간이라 보던 숫자 유지
      */
     val state: StateFlow<InsightState> =
         combine(_period, readPeriod) { period, read -> read.takeIf { it.period == period } ?: InsightState(period, cache[period]) }
             .stateInSafely(viewModelScope, WhileUiSubscribed, InsightState(_period.value, null))
 
     init {
-        // 다른 탭도 미리 읽어 처음 눌러도 바로 보인다.
+        // 다른 탭도 미리 읽어 처음 눌러도 바로 보이게
         viewModelScope.launchSafely {
             InsightKind.entries.map { it.periodOf(today()) }.filter { it != _period.value }.forEach { period ->
                 orElseOnFailure(Unit) { cache.getOrPut(period) { read(period).first() } }
@@ -137,9 +127,9 @@ class InsightViewModel(
     fun today(): LocalDate = today.invoke()
 
     /**
-     * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 했다.
-     * ×를 누르지 않아도 다시 띄우지 않는다(사용자 제안 2026-11-09, Apple TipKit의 actionPerformed와 같다).
-     * 화면이 찾기로 넘어가도 끝까지 쓰도록 화면 모델에서 저장한다.
+     * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 함.
+     * ×를 누르지 않아도 다시 띄우지 않음(Apple TipKit `actionPerformed`).
+     * 화면이 찾기로 넘어가도 끝까지 쓰게 화면 모델에서 저장
      */
     fun retry() {
         attempt.value++
@@ -155,8 +145,8 @@ class InsightViewModel(
     }
 
     /**
-     * 앱이 돌아올 때 오늘을 다시 읽는다.
-     * 이번 주나 이번 달을 보고 있었으면 새 기간으로 옮기고, 지난 기간을 보던 사람은 그대로 둔다.
+     * 앱이 돌아올 때 오늘을 다시 읽음.
+     * 이번 주·이번 달을 보던 중이면 새 기간으로 옮기고, 지난 기간을 보던 중이면 그대로
      */
     fun refreshToday() {
         val before = _todayState.value
@@ -191,17 +181,14 @@ internal val StatsPeriod.kind: InsightKind
         StatsPeriod.All -> InsightKind.All
     }
 
-/**
- * 많은 기분부터.
- * 같은 수면 기분 순서를 따른다.
- */
+/** 많은 기분부터. 같은 수면 기분 순서 */
 internal fun MoodCounts.sorted(): List<Pair<Mood, Int>> = Mood.ordered.map { it to (counts[it] ?: 0) }.sortedByDescending { it.second }
 
 /**
  * 기분 흐름 한 칸.
- * [mood]는 그 칸의 날들에서 가장 많은 기분이고, 고른 기분이 없으면 null이다.
- * [range]는 칸이 덮는 날짜다. 누르면 이 기간의 일기를 찾기로 모아 본다.
- * [written]은 그 칸에 일기가 한 편이라도 있는지다. 없으면 누를 수 없다.
+ * [mood]: 그 칸에서 가장 많은 기분, 고른 기분이 없으면 null.
+ * [range]: 칸이 덮는 날짜. 누르면 이 기간 일기를 찾기로 모아 봄.
+ * [written]: 그 칸에 일기가 한 편이라도 있는지. 없으면 누를 수 없음
  */
 internal data class MoodBucket(val slot: BucketSlot, val mood: Mood?, val range: DateRange, val written: Boolean)
 
@@ -216,10 +203,8 @@ internal sealed interface BucketSlot {
 }
 
 /**
- * 기간을 칸으로 나눈다.
- * 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다다.
- * 칸의 기분은 그 칸 일기의 기분을 모두 세어 정한다.
- * 같으면 나중 기분을 쓴다.
+ * 기간을 칸으로 나눔: 주는 날마다, 달은 주마다(달력처럼 일요일 시작), 년은 달마다, 전체는 해마다.
+ * 칸의 기분은 그 칸 일기의 기분을 모두 세어 정하고, 같으면 나중 기분
  */
 internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBucket> = when (period) {
     is StatsPeriod.Week -> {
@@ -235,7 +220,7 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
         val weeks = (blanks + period.month.numberOfDays - 1) / DAYS_IN_WEEK + 1
         val byWeek = days.groupBy { (blanks + it.date.day - 1) / DAYS_IN_WEEK }
         List(weeks) { week ->
-            // 달의 첫 주와 마지막 주는 그 달 안의 날만 덮는다(화면이 보여 주는 것도 그 달뿐이다).
+            // 달의 첫 주와 마지막 주는 그 달 안의 날만 덮음(화면도 그 달만 보임)
             val first = (week * DAYS_IN_WEEK - blanks + 1).coerceAtLeast(1)
             val last = (first + DAYS_IN_WEEK - 1 - if (week == 0) blanks else 0).coerceAtMost(period.month.numberOfDays)
             val range = DateRange(period.month.onDay(first), period.month.onDay(last))
@@ -254,7 +239,7 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
 
     StatsPeriod.All -> {
         val byYear = days.groupBy { it.date.year }
-        // 일기가 없는 해도 빈 칸으로 두어 흐름이 끊긴 것이 보이게 한다.
+        // 일기 없는 해도 빈 칸으로 두어 흐름이 끊긴 게 보이게
         val years = if (byYear.isEmpty()) IntRange.EMPTY else byYear.keys.min()..byYear.keys.max()
         years.map { year ->
             val range = DateRange(LocalDate(year, 1, 1), LocalDate(year, MONTHS, LAST_DAY_OF_DECEMBER))
