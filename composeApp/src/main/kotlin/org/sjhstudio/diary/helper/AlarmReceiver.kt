@@ -29,11 +29,11 @@ import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.platform.R as PlatformR
 
 /**
- * 매일 알림 수신기(스펙 001 FR-022, research R15).
- * 옛 앱(1.7.x)이 예약에 쓴 이름 그대로.
- * 이름을 바꾸면 업데이트 직후 옛 예약이 갈 곳을 잃음.
- * 부팅, 앱 업데이트, 시각·시간대 바뀜에는 다시 예약만 하고, 예약한 시각에는 알림을 띄운 뒤 다음 날을 예약.
- * 알림에는 일기 내용을 넣지 않음(헌법 II).
+ * 매일 알림 수신기(스펙 001 FR-022, research R15)
+ * 옛 앱(1.7.x)이 예약에 쓴 이름 그대로
+ * 이름을 바꾸면 업데이트 직후 옛 예약이 갈 곳을 잃음
+ * 부팅, 앱 업데이트, 시각·시간대 바뀜에는 다시 예약만 하고, 예약한 시각에는 알림을 띄운 뒤 다음 날을 예약
+ * 알림에는 일기 내용을 넣지 않음(헌법 II)
  */
 class AlarmReceiver :
     BroadcastReceiver(),

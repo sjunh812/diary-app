@@ -55,16 +55,16 @@ import org.sjhstudio.diary.feature.welcome.LetterScreen
 import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 
 /**
- * 개발 빌드에만 있는 화면 모음.
- * 앱 틀에서 아직 들어갈 길이 없는 화면을 견본 상태로 띄워 Figma와 견줌.
- * 일기 DB나 설정은 건드리지 않음.
+ * 개발 빌드에만 있는 화면 모음
+ * 앱 틀에서 아직 들어갈 길이 없는 화면을 견본 상태로 띄워 Figma와 견줌
+ * 일기 DB나 설정은 건드리지 않음
  *
  *   adb shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
  *   화면 이름: migration_report(M5), support_sheet(M5 · 복구 문의), photo_cell(일기 줄 사진 칸, 옮긴 사진으로),
  *   lock_forgot(L3 · 비밀번호를 잊어버렸을 때), lock_settings(L4 잠금 설정), settings(앱 틀의 설정 탭: S6과 G2·G3·L4·M5),
  *   design_catalog(디자인 시스템 견본), list_performance(목록 성능 견본, 일기 1만 편·사진 5천 장, 따로 둔 견본 DB)
- * lock_settings와 settings는 실제 설정을 바꿈.
- * 에뮬레이터에서 잠금을 켜거나 설정을 바꿔 볼 때 씀.
+ * lock_settings와 settings는 실제 설정을 바꿈
+ * 에뮬레이터에서 잠금을 켜거나 설정을 바꿔 볼 때 씀
  */
 class ScreenCatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -230,9 +230,9 @@ class ScreenCatalogActivity : ComponentActivity() {
 }
 
 /**
- * 옮긴 사진(`files/media`)으로 일기 줄 사진 칸을 그림.
- * 사진 칸은 썸네일만 읽고, 없으면 처음 보일 때 만듦(FR-036·FR-037).
- * 앱 틀처럼 이미지 로더를 썸네일 저장소에 이음.
+ * 옮긴 사진(`files/media`)으로 일기 줄 사진 칸을 그림
+ * 사진 칸은 썸네일만 읽고, 없으면 처음 보일 때 만듦(FR-036·FR-037)
+ * 앱 틀처럼 이미지 로더를 썸네일 저장소에 이음
  */
 @Composable
 private fun PhotoCellSample() {

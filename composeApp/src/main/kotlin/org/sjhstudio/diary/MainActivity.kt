@@ -68,7 +68,7 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         lifecycleScope.launch {
             // 앱 화면 모드(시스템·라이트·다크)에 맞춰 상태·내비게이션 막대 아이콘 색을 바꿈
-            // 앱만 다크일 때 시각이 안 보이지 않게.
+            // 앱만 다크일 때 시각이 안 보이지 않게
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 get<SettingsRepository>().settings.map { it.themeMode }.distinctUntilChanged().collect { mode ->
                     keepSplashInMode(mode)
@@ -111,9 +111,9 @@ class MainActivity : FragmentActivity() {
     }
 
     /**
-     * 스플래시는 앱 코드보다 먼저 시스템이 그려 앱 화면 모드를 모름.
-     * Android 12부터 앱 모드를 시스템에 넘겨 다음 시작부터 맞춤. 11 이하는 휴대폰 모드를 따름.
-     * 모드가 지금 화면과 다르면 화면을 한 번 다시 만듦.
+     * 스플래시는 앱 코드보다 먼저 시스템이 그려 앱 화면 모드를 모름
+     * Android 12부터 앱 모드를 시스템에 넘겨 다음 시작부터 맞춤. 11 이하는 휴대폰 모드를 따름
+     * 모드가 지금 화면과 다르면 화면을 한 번 다시 만듦
      */
     private fun keepSplashInMode(mode: ThemeMode) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
@@ -133,10 +133,10 @@ class MainActivity : FragmentActivity() {
     }
 
     /**
-     * 알림이 보낸 요청만 받음.
-     * 이 화면은 밖에 열려 있지 않아, 이름을 곧바로 가리킨 인텐트는 앱이 만든 것.
-     * 런처는 옛 이름(.SplashActivity)으로 들어옴.
-     * 최근 앱에서 다시 열면 시스템이 처음 인텐트를 또 주니 건너뜀.
+     * 알림이 보낸 요청만 받음
+     * 이 화면은 밖에 열려 있지 않아, 이름을 곧바로 가리킨 인텐트는 앱이 만든 것
+     * 런처는 옛 이름(.SplashActivity)으로 들어옴
+     * 최근 앱에서 다시 열면 시스템이 처음 인텐트를 또 주니 건너뜀
      */
     private fun handleIntent(intent: Intent) {
         val fromRecents = intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0

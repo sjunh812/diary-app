@@ -49,8 +49,8 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 
-// 목록 성능 견본(스펙 001 T083, SC-010·SC-011).
-// 스펙 002 홈이 같은 방식을 쓴다.
+// 목록 성능 견본(스펙 001 T083, SC-010·SC-011)
+// 스펙 002 홈이 같은 방식을 쓴다
 // 일기 1만 편·사진 5천 장을 따로 둔 견본 DB(`no_backup/perf-sample/`)에 한 번 만들고, 실제 일기 DB는 건드리지 않음
 // 60편씩 읽고(Paging 3), 줄 키는 일기 ID, 줄 모델은 불변, 사진 칸은 썸네일 크기 JPEG만 읽음
 
@@ -58,12 +58,12 @@ private const val ENTRIES = 10_000
 private const val PHOTOS = 5_000
 private const val PAGE = 60
 
-/** 견본 DB와 사진 폴더. */
+/** 견본 DB와 사진 폴더 */
 private class Sample(val db: DiaryDatabase, val photoDir: File)
 
 /**
- * 목록 한 줄.
- * 바뀌지 않는 값만 들어 있어 Compose가 같은 줄을 다시 그리지 않음.
+ * 목록 한 줄
+ * 바뀌지 않는 값만 들어 있어 Compose가 같은 줄을 다시 그리지 않음
  */
 @Immutable
 private data class SampleRow(val id: String, val weekday: String, val day: String, val preview: String, val photos: List<String?>)
@@ -131,7 +131,7 @@ private fun SampleList(sample: Sample) {
 // 실제 홈은 플랫폼 날짜 형식을 씀
 private val WEEKDAYS = listOf("월", "화", "수", "목", "금", "토", "일")
 
-/** 견본 DB를 열고, 비었으면 일기 1만 편과 사진 5천 장(480px JPEG 80)을 만듦. */
+/** 견본 DB를 열고, 비었으면 일기 1만 편과 사진 5천 장(480px JPEG 80)을 만듦 */
 private suspend fun openSample(context: Context, progress: (Int) -> Unit): Sample {
     val dir = context.noBackupFilesDir.resolve("perf-sample").apply { mkdirs() }
     val photos = dir.resolve("photos").apply { mkdirs() }

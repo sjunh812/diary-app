@@ -12,9 +12,9 @@ import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.platform.DevMenu
 
 /**
- * 개발 빌드의 앱.
- * 기록 이전에 강제 종료 훅을 끼우고 요금제를 바꿀 수 있게 함(T049).
- * 출시 빌드에는 없음.
+ * 개발 빌드의 앱
+ * 기록 이전에 강제 종료 훅을 끼우고 요금제를 바꿀 수 있게 함(T049)
+ * 출시 빌드에는 없음
  */
 class DebugApplication : DiaryApplication() {
     override fun onCreate() {
