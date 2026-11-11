@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -90,15 +91,28 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
     ) {
         MoodFace(mood, DiaryWriteSize.moodFace)
-        BasicText(
-            moodName(mood),
-            style = (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
+        val name = moodName(mood)
+        val style =
+            (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
                 color = colors.textSecondary,
                 textAlign = TextAlign.Center
-            ),
-            // 칸 폭이 고정이라 긴 이름은 두 줄까지
-            maxLines = NAME_LINES,
-            overflow = TextOverflow.Ellipsis
+            )
+        // 칸 폭이 고정이라 긴 이름은 두 줄까지
+        // 한 낱말은 글자 단위로 쪼개지지 않게 한 줄로 두고, 넘치면 글자를 조금 줄임(영어 Laughing)
+        val oneWord = ' ' !in name
+        BasicText(
+            name,
+            style = style,
+            maxLines = if (oneWord) 1 else NAME_LINES,
+            overflow = TextOverflow.Ellipsis,
+            autoSize = if (oneWord) {
+                TextAutoSize.StepBased(
+                    minFontSize = style.fontSize * MIN_NAME_SCALE,
+                    maxFontSize = style.fontSize
+                )
+            } else {
+                null
+            }
         )
     }
 }
@@ -121,3 +135,6 @@ fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Un
 
 private const val GRID_COLUMNS = 5
 private const val NAME_LINES = 2
+
+/** 한 낱말 이름을 줄일 수 있는 끝(본래 크기의 80%) */
+private const val MIN_NAME_SCALE = 0.8f
