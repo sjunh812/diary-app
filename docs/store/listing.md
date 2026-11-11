@@ -139,91 +139,99 @@ You can remove ads with a one-time purchase.
 
 ## 자세한 설명 · 영어(원어민 검수 전)
 
+Play 입력용이다. 한국어 판과 같이 묶음 제목만 `<b>`로 굵게, 묶음 안 줄은 줄머리표(•)로 쓴다.
+
+```text
 Leave today's entry in just a few lines, even on busy days.
 No sign-up needed. Start writing right after you install.
 
-[Write]
-Keep words, photos, mood, weather, and place together in one entry.
-Add up to 10 photos per entry.
-Organize your writing with bold, text color, highlights, and lists.
-Your draft is saved as you write.
+<b>Write</b>
+• Keep words, photos, mood, weather, and place together in one entry.
+• Add up to 10 photos per entry.
+• Organize your writing with bold, text color, highlights, and lists.
+• Your draft is saved as you write.
 
-[Look back]
-Browse past entries in a list or on a calendar.
-Find them again with search and favorites.
-See your mood statistics, too.
+<b>Look back</b>
+• Browse past entries in a list or on a calendar.
+• Find them again with search and favorites.
+• See your mood statistics, too.
 
-[Backup and restore]
-Back up entries and photos to your own Google Drive.
-Restoring merges with the entries already on your phone instead of erasing them.
-You can also keep everything in a single file without Drive.
+<b>Backup and restore</b>
+• Back up entries and photos to your own Google Drive.
+• Restoring merges with the entries already on your phone instead of erasing them.
+• You can also keep everything in a single file without Drive.
 
-[Lock and trash]
-Lock the app with a passcode or biometrics.
-Deleted entries can be restored for 30 days.
+<b>Lock and trash</b>
+• Lock the app with a passcode or biometrics.
+• Deleted entries can be restored for 30 days.
 
-[Make it yours]
-Choose from 10 fonts, body text size, dark mode, and 3 list views.
-On tablets, see the list and an entry side by side.
+<b>Make it yours</b>
+• Choose from 10 fonts, body text size, dark mode, and 3 list views.
+• On tablets, see the list and an entry side by side.
 
-[Ads and Plus]
-There are no ads while you write or read an entry, on the lock screen, in backup and restore, or in Settings.
-Ads appear in the list and Insights.
-A full-screen ad may appear once a day when you save an entry and return to the list.
-Remove ads with a one-time purchase.
-Plus is a yearly subscription. On top of no ads, it gives you 30 photos per entry, checklists, and advanced statistics.
+<b>Ads and Plus</b>
+• There are no ads while you write or read an entry, on the lock screen, in backup and restore, or in Settings.
+• Ads appear in the list and Insights.
+• A full-screen ad may appear once a day when you save an entry and return to the list.
+• Remove ads with a one-time purchase.
+• Plus is a yearly subscription. On top of no ads, it gives you 30 photos per entry, checklists, and advanced stats.
 
-[If you used the previous version]
+<b>If you used the previous version</b>
 Your entries, photos, and settings move to the new app. The originals are never changed or deleted.
 
-[Privacy]
+<b>Privacy</b>
 Your entries and photos go nowhere except the storage you choose.
 
 Contact: sjunh812@naver.com
+```
 
 ## 자세한 설명 · 일본어(원어민 검수 전)
 
+Play 입력용이다. 한국어 판과 같이 묶음 제목만 `<b>`로 굵게, 묶음 안 줄은 줄머리표(•)로 쓴다.
+
+```text
 忙しい日でも、数行で今日の日記を残せます。
 会員登録は不要。インストールしてすぐに書けます。
 
-【書く】
-文章、写真、気分、天気、場所を1つの日記にまとめられます。
-写真は1つの日記に10枚まで追加できます。
-太字、文字色、マーカー、リストで文章を整えられます。
-書いている間は自動で下書き保存されます。
+<b>書く</b>
+• 文章、写真、気分、天気、場所を1つの日記にまとめられます。
+• 写真は1つの日記に10枚まで追加できます。
+• 太字、文字色、マーカー、リストで文章を整えられます。
+• 書いている間は自動で下書き保存されます。
 
-【ふりかえる】
-一覧とカレンダーで過去の日記を見られます。
-検索とお気に入りで日記をすぐに探せます。
-気分の統計も見られます。
+<b>ふりかえる</b>
+• 一覧とカレンダーで過去の日記を見られます。
+• 検索とお気に入りで日記をすぐに探せます。
+• 気分の統計も見られます。
 
-【バックアップと復元】
-日記と写真を自分のGoogleドライブにバックアップできます。
-復元するときは、今のスマートフォンの日記を消さずにまとめます。
-ドライブを使わずに1つのファイルで保管することもできます。
+<b>バックアップと復元</b>
+• 日記と写真を自分のGoogleドライブにバックアップできます。
+• 復元するときは、今のスマートフォンの日記を消さずにまとめます。
+• ドライブを使わずに1つのファイルで保管することもできます。
 
-【ロックとゴミ箱】
-パスコードと生体認証でロックできます。
-削除した日記は30日間復元できます。
+<b>ロックとゴミ箱</b>
+• パスコードと生体認証でロックできます。
+• 削除した日記は30日間復元できます。
 
-【自分好みに】
-フォント10種類、本文の文字サイズ、ダークモード、3種類の一覧表示を選べます。
-タブレットでは一覧と日記を並べて表示します。
+<b>自分好みに</b>
+• フォント10種類、本文の文字サイズ、ダークモード、3種類の一覧表示を選べます。
+• タブレットでは一覧と日記を並べて表示します。
 
-【広告とPlus】
-日記を書く画面と読む画面、ロック、バックアップと復元、設定には広告がありません。
-一覧とふりかえりには広告が表示されます。
-日記を保存して一覧に戻るとき、1日1回全画面広告が表示されることがあります。
-広告は1回の購入で消せます。
-Plusは年間サブスクリプションです。広告なしに加えて、1つの日記に写真30枚、チェックリスト、詳しい統計を使えます。
+<b>広告とPlus</b>
+• 日記を書く画面と読む画面、ロック、バックアップと復元、設定には広告がありません。
+• 一覧とふりかえりには広告が表示されます。
+• 日記を保存して一覧に戻るとき、1日1回全画面広告が表示されることがあります。
+• 広告は1回の購入で消せます。
+• Plusは年間サブスクリプションです。広告なしに加えて、1つの日記に写真30枚、チェックリスト、詳しい統計を使えます。
 
-【以前のバージョンをお使いの方へ】
+<b>以前のバージョンをお使いの方へ</b>
 日記、写真、設定を新しいアプリに移行します。元のデータは変更も削除もしません。
 
-【プライバシー】
+<b>プライバシー</b>
 日記の内容と写真は、ご自身で選んだ保存先以外には送信しません。
 
 お問い合わせ: sjunh812@naver.com
+```
 
 ## 스크린샷 머리말
 
