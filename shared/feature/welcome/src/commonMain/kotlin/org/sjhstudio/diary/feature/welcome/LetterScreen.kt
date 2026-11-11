@@ -247,11 +247,13 @@ private fun LetterSheet(
                 .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
             verticalArrangement = if (centered) Arrangement.Center else Arrangement.Top
         ) {
-            LetterCard(cardModifier, {
+            val riseLayer: GraphicsLayerScope.() -> Unit = {
                 alpha = rise.value
                 translationY = (1f - rise.value) * DiarySpacing.x6.toPx()
-            }, content)
-            footer()
+            }
+            LetterCard(cardModifier, riseLayer, content)
+            // 카드 아래 내용도 카드와 한 덩어리로 올라옴
+            Column(Modifier.fillMaxWidth().graphicsLayer(riseLayer)) { footer() }
         }
     }
 }
