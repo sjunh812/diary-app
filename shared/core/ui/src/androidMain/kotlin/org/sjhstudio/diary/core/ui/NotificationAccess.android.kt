@@ -42,13 +42,11 @@ actual fun rememberNotificationAccess(): NotificationAccess {
             }
 
             override fun askInContext() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
-                val permission = Manifest.permission.POST_NOTIFICATIONS
-                if (ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) return
-                // 한 번 거절한 뒤에는 이 값이 참. 그때는 묻지 않고 매일 알림 설정의 [허용하기]에 맡김
-                val activity = context.findActivity() ?: return
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) return
-                launcher.launch(permission)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    context.neverAnswered(Manifest.permission.POST_NOTIFICATIONS)
+                ) {
+                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
             }
 
             override fun openSettings() {
@@ -67,3 +65,11 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     is ContextWrapper -> baseContext.findActivity()
     else -> null
 }
+
+/**
+ * 아직 허용하지 않았고 한 번도 답하지 않음
+ * 한 번 거절한 뒤에는 묻는 까닭을 보이라는 값이 참. 그때는 묻지 않고 매일 알림 설정의 [허용하기]에 맡김
+ */
+private fun Context.neverAnswered(permission: String): Boolean =
+    ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED &&
+        findActivity()?.let { !ActivityCompat.shouldShowRequestPermissionRationale(it, permission) } == true
