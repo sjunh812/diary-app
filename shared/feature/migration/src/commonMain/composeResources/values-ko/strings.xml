@@ -86,6 +86,6 @@
     <string name="support_file_name">1일1일기-문의용-%1$s.zip</string>
     <string name="support_failed">문의용 파일을 만들지 못했어요. 첨부 없이 문의해 주세요.</string>
     <string name="support_mail_subject">[1일 1일기] 깨진 일기 복구 문의</string>
-    <string name="support_mail_body">보내 주신 파일은 복구해서 돌려드린 뒤 바로 지워요. 일기 파일만 담았고 사진과 비밀번호는 뺐어요.\n\n앱 버전: %1$s\n기기: %2$s\n읽지 못한 일기 수: %3$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
+    <string name="support_mail_body">보내 주신 파일은 복구해서 돌려드린 뒤 바로 삭제해요. 일기 파일만 담았고 사진과 비밀번호는 뺐어요.\n\n앱 버전: %1$s\n기기: %2$s\n읽지 못한 일기 수: %3$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>
     <string name="legacy_reader_failed">예전 일기를 읽지 못했어요</string>
 </resources>
