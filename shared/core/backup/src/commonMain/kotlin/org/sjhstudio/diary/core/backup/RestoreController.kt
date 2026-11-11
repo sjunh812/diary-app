@@ -433,7 +433,8 @@ class RestoreController(
             val at = Instant.fromEpochMilliseconds(ready.manifest.createdAt)
             guarded { store.update { it.copy(restoredBackupAt = at) } }
         }
-        fileSystem.delete(ready.snapshot, mustExist = false)
+        // 받아 둔 사본 지우기도 곁일. 실패라고 하면 다시 시도로 같은 백업을 또 합침
+        guarded { fileSystem.delete(ready.snapshot, mustExist = false) }
         prepared = null
         return fetchPhotos(counts, ready)
     }

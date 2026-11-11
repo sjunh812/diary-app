@@ -445,6 +445,25 @@ class RestoreEdgeTest {
         assertEquals(setOf("normal"), b.photoStates().values.toSet())
     }
 
+    /** 합치기를 마친 뒤 받아 둔 사본을 지우지 못해도 복원은 끝났다고 알림. 실패라고 하면 다시 시도로 같은 백업을 또 합침 */
+    @Test
+    fun a_leftover_copy_that_cannot_be_removed_does_not_fail_the_restore() = runTest {
+        threeWithPhotos()
+        a.backUp()
+        val stuck = object : okio.ForwardingFileSystem(fs) {
+            override fun delete(path: Path, mustExist: Boolean) {
+                if (path.name.endsWith(".db")) throw IOException("지울 수 없다")
+                super.delete(path, mustExist)
+            }
+        }
+        val controller = b.controller(backgroundScope, files = stuck)
+        controller.ready()
+
+        controller.mergedResult()
+
+        assertEquals(3, b.ids().size)
+    }
+
     @Test
     fun a_full_disk_while_downloading_the_snapshot_keeps_the_device_as_it_was() = runTest {
         threeWithPhotos()
