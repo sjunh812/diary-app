@@ -76,6 +76,7 @@ import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
 import org.sjhstudio.diary.feature.plus.PlusRoute
+import org.sjhstudio.diary.feature.settings.FEATURE_SURVEY_URL
 import org.sjhstudio.diary.feature.settings.FontLicenseRoute
 import org.sjhstudio.diary.feature.settings.FontSettingsRoute
 import org.sjhstudio.diary.feature.settings.LibraryLicenseRoute
@@ -89,7 +90,6 @@ import org.sjhstudio.diary.feature.settings.SettingsViewModel
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 import org.sjhstudio.diary.feature.settings.rememberFeedbackLink
-import org.sjhstudio.diary.feature.settings.rememberSurveyUrl
 import org.sjhstudio.diary.feature.settings.storeReviewUrl
 import org.sjhstudio.diary.feature.trash.TrashRoute
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
@@ -181,7 +181,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val app = koinInject<BackupAppInfo>()
         val device = remember { deviceInfo() }
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
-        val survey = rememberSurveyUrl()
         val openLink = rememberOpenLink()
         val toast = remember { DiaryToastState() }
         val scope = rememberCoroutineScope()
@@ -191,9 +190,9 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 FullLetterScreen(
                     entries = it.entries,
                     onBack = pop,
-                    // 설문이 있으면 설문, 없거나 열지 못하면 메일
+                    // 설문을 열지 못하면 메일
                     onFeedback = {
-                        val opened = survey?.let(openLink) == true || openLink(feedback.url)
+                        val opened = openLink(FEATURE_SURVEY_URL) || openLink(feedback.url)
                         if (!opened) scope.launch { toast.show(feedback.noMail) }
                     }
                 )

@@ -31,7 +31,6 @@
     <string name="settings_rate">Write a review</string>
     <string name="settings_version">App version</string>
     <string name="settings_plus_badge">Plus active</string>
-    <string name="settings_survey_url"></string>
     <string name="settings_feedback_subject">1 Day 1 Diary feedback</string>
     <string name="settings_feedback_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\nTell us what you think 😊\n</string>
     <string name="settings_feedback_no_mail">No mail app found. Please write to %1$s.</string>

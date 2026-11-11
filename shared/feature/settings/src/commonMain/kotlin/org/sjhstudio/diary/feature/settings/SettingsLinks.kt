@@ -6,11 +6,16 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.settings_feedback_body
 import org.sjhstudio.diary.feature.settings.resources.settings_feedback_no_mail
 import org.sjhstudio.diary.feature.settings.resources.settings_feedback_subject
-import org.sjhstudio.diary.feature.settings.resources.settings_survey_url
 
 private const val SUPPORT_EMAIL = "sjunh812@naver.com"
 private const val PLAY_LISTING = "https://play.google.com/store/apps/details?id=org.sjhstudio.diary"
 private const val PLATFORM_ANDROID = "android"
+
+/**
+ * 원하는 기능 설문(구글 폼). 한국어 폼 하나를 모든 언어가 같이 씀
+ * 다른 언어 사용자는 브라우저 번역으로 읽음(사용자 결정 2026-11-11)
+ */
+const val FEATURE_SURVEY_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdPvleZ5KnV9QbCScs7shJNHFb_LNVaRTUqw8z2h8iUY4IA_Q/viewform"
 
 /** 의견 메일 주소와, 메일 앱이 없을 때 보일 안내 */
 data class FeedbackLink(val url: String, val noMail: String)
@@ -36,13 +41,6 @@ fun rememberFeedbackLink(version: String, os: String, model: String): FeedbackLi
         stringResource(Res.string.settings_feedback_no_mail, SUPPORT_EMAIL)
     )
 }
-
-/**
- * 원하는 기능 설문(구글 폼). 한국어 화면에만 있고 다른 언어는 null이라 메일로 받음
- * 구글 폼은 한 폼에 여러 언어를 둘 수 없음
- */
-@Composable
-fun rememberSurveyUrl(): String? = stringResource(Res.string.settings_survey_url).ifBlank { null }
 
 /** 메일 주소 뒤의 값은 UTF-8로 낱낱이 바꿔야 어느 메일 앱에서나 깨지지 않음 */
 internal fun String.percentEncoded(): String = encodeToByteArray().joinToString("") { byte ->
