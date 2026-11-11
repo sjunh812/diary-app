@@ -5,6 +5,9 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # 태그 없이 손으로 돌리면 서명 확인만: 서명된 AAB를 만들고 검증한다. Play 업로드와 릴리스 초안은 하지 않는다.
+  # 비밀값(키 비밀번호·별칭)이 맞는지 출시 전에 미리 본다.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,12 +32,15 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
       - name: 태그와 앱 버전 맞추기
+        if: github.event_name == 'push'
         run: sh scripts/release/check-version.sh "$GITHUB_REF_NAME"
       - name: 변경 기록 뽑기
+        if: github.event_name == 'push'
         run: |
           sh scripts/release/changelog.sh "$GITHUB_REF_NAME" > "$RUNNER_TEMP/changelog.md"
           cat "$RUNNER_TEMP/changelog.md" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: github.event_name == 'push'
         with:
           name: changelog
           path: ${{ runner.temp }}/changelog.md
@@ -143,7 +149,7 @@ jobs:
           retention-days: 3
           compression-level: 0
       - name: Play 내부 트랙에 올리기
-        if: needs.prepare.outputs.play == 'true'
+        if: needs.prepare.outputs.play == 'true' && github.event_name == 'push'
         uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
@@ -256,7 +262,7 @@ jobs:
   draft:
     name: GitHub Release 초안
     needs: [prepare, android, ios]
-    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.android.result != 'failure' && needs.ios.result != 'failure' }}
+    if: ${{ !cancelled() && github.event_name == 'push' && needs.prepare.result == 'success' && needs.android.result != 'failure' && needs.ios.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
