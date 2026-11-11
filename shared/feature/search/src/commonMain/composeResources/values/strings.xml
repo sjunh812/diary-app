@@ -24,8 +24,8 @@
     <string name="search_empty_title">No matching entries</string>
     <string name="search_empty_body">Try a different keyword or change your filters.</string>
     <plurals name="search_result_count">
-        <item quantity="one">%1$d entry</item>
-        <item quantity="other">%1$d entries</item>
+        <item quantity="one">%1$s entry</item>
+        <item quantity="other">%1$s entries</item>
     </plurals>
     <string name="search_idle">Enter a keyword or pick a filter to find entries.</string>
 </resources>

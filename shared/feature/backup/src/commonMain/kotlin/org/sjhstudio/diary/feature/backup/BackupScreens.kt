@@ -603,7 +603,8 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                     DiaryIcons.ShieldCheck,
                     stringResource(Res.string.backup_running),
                     if (running.photosTotal > 0) {
-                        val done = stringResource(Res.string.backup_running_photos, running.photosDone, running.photosTotal)
+                        val done =
+                            stringResource(Res.string.backup_running_photos, running.photosDone.grouped(), running.photosTotal.grouped())
                         if (workContinuesInBackground) done else done + "\n" + stringResource(Res.string.backup_running_body_open)
                     } else {
                         stringResource(
@@ -633,7 +634,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             DiaryStatusBox(
                 DiaryIcons.ShieldCheck,
                 last,
-                pluralStringResource(Res.plurals.backup_photos_waiting, status.photosNotBackedUp, status.photosNotBackedUp),
+                pluralStringResource(Res.plurals.backup_photos_waiting, status.photosNotBackedUp, status.photosNotBackedUp.grouped()),
                 actionLabel = stringResource(Res.string.backup_upload_cellular),
                 onAction = onCellular
             )
@@ -642,7 +643,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
             DiaryStatusBox(
                 DiaryIcons.ShieldCheck,
                 last,
-                pluralStringResource(Res.plurals.backup_photos_unusable, status.photosUnusable, status.photosUnusable)
+                pluralStringResource(Res.plurals.backup_photos_unusable, status.photosUnusable, status.photosUnusable.grouped())
             )
 
         last != null -> DiaryStatusBox(DiaryIcons.ShieldCheck, last, stringResource(Res.string.backup_all_done))

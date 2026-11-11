@@ -44,6 +44,7 @@ import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.loadFailedRetryLabel
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.backup.resources.Res
@@ -193,7 +194,10 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
     // 방패는 사진까지 다 올라간 때만 씀
     return when {
         // 사진을 받는 동안 "사진까지 모두"라고 하면 틀린 말
-        photos != null -> Line(DiaryIcons.Download, stringResource(Res.string.backup_line_receiving, photos.done, photos.total))
+        photos != null -> Line(
+            DiaryIcons.Download,
+            stringResource(Res.string.backup_line_receiving, photos.done.grouped(), photos.total.grouped())
+        )
 
         status.connection == BackupConnection.NotConnected ->
             Line(DiaryIcons.CloudOff, stringResource(Res.string.backup_line_off), action = stringResource(Res.string.backup_line_on))
@@ -230,7 +234,7 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
         else -> {
             val detail =
                 if (status.photosNotBackedUp > 0) {
-                    stringResource(Res.string.backup_line_waiting, status.photosNotBackedUp)
+                    stringResource(Res.string.backup_line_waiting, status.photosNotBackedUp.grouped())
                 } else {
                     stringResource(Res.string.backup_line_all)
                 }

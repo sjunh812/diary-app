@@ -16,6 +16,6 @@
         <item quantity="other">残り%1$d日</item>
     </plurals>
     <plurals name="trash_confirm_body_all">
-        <item quantity="other">ゴミ箱の日記%1$d件が完全に削除され、元に戻せません。</item>
+        <item quantity="other">ゴミ箱の日記%1$s件が完全に削除され、元に戻せません。</item>
     </plurals>
 </resources>

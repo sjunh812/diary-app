@@ -12,7 +12,7 @@
     <string name="backup_running">Backing up</string>
     <string name="backup_running_body">It keeps going if you leave the app. We'll notify you when it's done.</string>
     <string name="backup_running_body_open">It runs while the app is open. If you leave, it pauses and picks up when you come back.</string>
-    <string name="backup_running_photos">Photos %1$d / %2$d</string>
+    <string name="backup_running_photos">Photos %1$s / %2$s</string>
     <string name="backup_reconnect">Reconnect</string>
     <string name="backup_reconnect_title">Google account disconnected</string>
     <string name="backup_reconnect_body">Reconnect to continue. Your backups on Drive are safe.</string>
@@ -38,20 +38,20 @@
     <string name="backup_line_off">Backup off</string>
     <string name="backup_line_on">Turn on</string>
     <string name="backup_line_reconnect">Reconnect needed</string>
-    <string name="backup_line_receiving">Receiving photos · %1$d/%2$d</string>
+    <string name="backup_line_receiving">Receiving photos · %1$s/%2$s</string>
     <string name="backup_line_running">Backing up · Photos %1$d/%2$d</string>
     <string name="backup_line_running_plain">Backing up</string>
     <string name="backup_line_at">Backed up %1$s · %2$s</string>
     <string name="backup_line_all">with photos</string>
-    <string name="backup_line_waiting">photos waiting: %1$d</string>
+    <string name="backup_line_waiting">photos waiting: %1$s</string>
     <string name="backup_line_days">Last backup %1$d days ago</string>
     <string name="backup_line_today">today at %1$s</string>
     <string name="backup_line_yesterday">yesterday at %1$s</string>
     <plurals name="backup_photos_unusable">
-        <item quantity="one">%1$d photo couldn't be found, so it wasn't backed up.</item>
-        <item quantity="other">%1$d photos couldn't be found, so they weren't backed up.</item>
+        <item quantity="one">%1$s photo couldn't be found, so it wasn't backed up.</item>
+        <item quantity="other">%1$s photos couldn't be found, so they weren't backed up.</item>
     </plurals>
-    <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
+    <plurals name="backup_photos_waiting"><item quantity="one">%1$s photo uploads on Wi-Fi.</item><item quantity="other">%1$s photos upload on Wi-Fi.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Restore from Google Drive</string>
     <string name="restore_row_body">Merge a backup from another phone or the previous version.</string>

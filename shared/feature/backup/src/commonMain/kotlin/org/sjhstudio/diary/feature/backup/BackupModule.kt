@@ -96,7 +96,7 @@ suspend fun backupProgressTitle(): String = getString(Res.string.backup_running)
  * 일기 내용은 넣지 않음(헌법 II)
  */
 suspend fun backupProgressText(progress: BackupProgress): String? = if (progress.step == BackupStep.UploadingPhotos) {
-    getString(Res.string.backup_running_photos, progress.photosDone, progress.photosTotal)
+    getString(Res.string.backup_running_photos, progress.photosDone.grouped(), progress.photosTotal.grouped())
 } else {
     null
 }

@@ -61,6 +61,7 @@ import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
 import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
+import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
@@ -144,7 +145,7 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 viewModel.empty()
             },
             onDismiss = { confirmAll = false },
-            message = pluralStringResource(Res.plurals.trash_confirm_body_all, count, count),
+            message = pluralStringResource(Res.plurals.trash_confirm_body_all, count, count.grouped()),
             destructive = true
         )
     }

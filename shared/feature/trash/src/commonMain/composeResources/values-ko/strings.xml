@@ -16,6 +16,6 @@
         <item quantity="other">%1$d일 남음</item>
     </plurals>
     <plurals name="trash_confirm_body_all">
-        <item quantity="other">휴지통의 일기 %1$d편이 사라지고 되돌릴 수 없어요.</item>
+        <item quantity="other">휴지통의 일기 %1$s편이 사라지고 되돌릴 수 없어요.</item>
     </plurals>
 </resources>

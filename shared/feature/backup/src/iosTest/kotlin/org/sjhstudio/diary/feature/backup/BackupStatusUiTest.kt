@@ -93,7 +93,7 @@ class BackupStatusUiTest {
         var receiving = ""
         var all = ""
         setContent {
-            receiving = stringResource(Res.string.backup_line_receiving, 3, 10)
+            receiving = stringResource(Res.string.backup_line_receiving, "3", "10")
             all = stringResource(Res.string.backup_line_all)
             DiaryTheme(darkTheme = false) { BackupStatusLine(connected, {}, photos = PhotoProgress(3, 10)) }
         }

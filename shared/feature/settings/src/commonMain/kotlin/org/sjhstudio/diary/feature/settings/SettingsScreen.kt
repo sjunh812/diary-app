@@ -42,6 +42,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.OnTabReselected
+import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
@@ -168,7 +169,13 @@ fun SettingsScreen(
             DiarySettingsRow(
                 stringResource(Res.string.settings_trash),
                 onClick = onTrash,
-                value = if (trashCount > 0) pluralStringResource(Res.plurals.settings_trash_count, trashCount, trashCount) else null
+                value = if (trashCount >
+                    0
+                ) {
+                    pluralStringResource(Res.plurals.settings_trash_count, trashCount, trashCount.grouped())
+                } else {
+                    null
+                }
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_style), gapAbove = true)
             DiarySettingsRow(

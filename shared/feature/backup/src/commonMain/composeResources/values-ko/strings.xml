@@ -12,7 +12,7 @@
     <string name="backup_running">백업하고 있어요</string>
     <string name="backup_running_body">앱을 나가도 계속 올려요. 끝나면 알림으로 알려 드려요.</string>
     <string name="backup_running_body_open">앱을 켜 둔 동안 올려요. 앱을 나가면 멈추고, 다시 열면 이어서 올려요.</string>
-    <string name="backup_running_photos">사진 %1$d / %2$d장</string>
+    <string name="backup_running_photos">사진 %1$s / %2$s장</string>
     <string name="backup_reconnect">다시 연결</string>
     <string name="backup_reconnect_title">구글 계정 연결이 끊겼어요</string>
     <string name="backup_reconnect_body">다시 연결하면 백업을 이어서 해요. 드라이브에 있는 백업은 그대로예요.</string>
@@ -38,17 +38,17 @@
     <string name="backup_line_off">백업 꺼짐</string>
     <string name="backup_line_on">켜기</string>
     <string name="backup_line_reconnect">다시 연결이 필요해요</string>
-    <string name="backup_line_receiving">사진 받는 중 · %1$d/%2$d장</string>
+    <string name="backup_line_receiving">사진 받는 중 · %1$s/%2$s장</string>
     <string name="backup_line_running">백업 중 · 사진 %1$d/%2$d</string>
     <string name="backup_line_running_plain">백업 중</string>
     <string name="backup_line_at">%1$s 백업 · %2$s</string>
     <string name="backup_line_all">사진까지 모두</string>
-    <string name="backup_line_waiting">사진 %1$d장 대기</string>
+    <string name="backup_line_waiting">사진 %1$s장 대기</string>
     <string name="backup_line_days">마지막 백업 %1$d일 전</string>
     <string name="backup_line_today">오늘 %1$s</string>
     <string name="backup_line_yesterday">어제 %1$s</string>
-    <plurals name="backup_photos_unusable"><item quantity="other">찾을 수 없는 사진 %1$d장은 백업하지 못했어요.</item></plurals>
-    <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$d장은 Wi-Fi에 연결되면 올려요.</item></plurals>
+    <plurals name="backup_photos_unusable"><item quantity="other">찾을 수 없는 사진 %1$s장은 백업하지 못했어요.</item></plurals>
+    <plurals name="backup_photos_waiting"><item quantity="other">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">구글 드라이브에서 복원하기</string>
     <string name="restore_row_body">다른 휴대폰이나 예전 앱의 백업을 합쳐요.</string>

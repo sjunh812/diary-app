@@ -74,6 +74,7 @@ import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -340,7 +341,7 @@ private fun Results(
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = bottom)) {
         item {
             BasicText(
-                pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount),
+                pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount.grouped()),
                 modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x1),
                 style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
             )

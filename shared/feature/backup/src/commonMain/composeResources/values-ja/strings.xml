@@ -12,7 +12,7 @@
     <string name="backup_running">バックアップ中</string>
     <string name="backup_running_body">アプリを閉じても続きます。終わったら通知でお知らせします。</string>
     <string name="backup_running_body_open">アプリを開いている間アップロードします。アプリを閉じると止まり、また開くと続きから再開します。</string>
-    <string name="backup_running_photos">写真 %1$d / %2$d枚</string>
+    <string name="backup_running_photos">写真 %1$s / %2$s枚</string>
     <string name="backup_reconnect">再接続</string>
     <string name="backup_reconnect_title">Google アカウントの接続が切れました</string>
     <string name="backup_reconnect_body">再接続するとバックアップを再開します。ドライブのバックアップはそのままです。</string>
@@ -38,17 +38,17 @@
     <string name="backup_line_off">バックアップオフ</string>
     <string name="backup_line_on">オンにする</string>
     <string name="backup_line_reconnect">再接続が必要です</string>
-    <string name="backup_line_receiving">写真を受信中 · %1$d/%2$d枚</string>
+    <string name="backup_line_receiving">写真を受信中 · %1$s/%2$s枚</string>
     <string name="backup_line_running">バックアップ中・写真 %1$d/%2$d</string>
     <string name="backup_line_running_plain">バックアップ中</string>
     <string name="backup_line_at">%1$sにバックアップ・%2$s</string>
     <string name="backup_line_all">写真もすべて</string>
-    <string name="backup_line_waiting">写真%1$d枚待ち</string>
+    <string name="backup_line_waiting">写真%1$s枚待ち</string>
     <string name="backup_line_days">前回のバックアップ %1$d日前</string>
     <string name="backup_line_today">今日 %1$s</string>
     <string name="backup_line_yesterday">昨日 %1$s</string>
-    <plurals name="backup_photos_unusable"><item quantity="other">見つからない写真%1$d枚はバックアップできませんでした。</item></plurals>
-    <plurals name="backup_photos_waiting"><item quantity="other">写真%1$d枚はWi-Fi接続時にアップロードします。</item></plurals>
+    <plurals name="backup_photos_unusable"><item quantity="other">見つからない写真%1$s枚はバックアップできませんでした。</item></plurals>
+    <plurals name="backup_photos_waiting"><item quantity="other">写真%1$s枚はWi-Fi接続時にアップロードします。</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Google ドライブから復元</string>
     <string name="restore_row_body">別のスマートフォンや以前のアプリのバックアップを統合します。</string>

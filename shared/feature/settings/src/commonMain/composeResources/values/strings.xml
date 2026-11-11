@@ -114,8 +114,8 @@
     <string name="settings_group_diary">Diary</string>
     <string name="settings_trash">Trash</string>
     <plurals name="settings_trash_count">
-        <item quantity="one">%1$d entry</item>
-        <item quantity="other">%1$d entries</item>
+        <item quantity="one">%1$s entry</item>
+        <item quantity="other">%1$s entries</item>
     </plurals>
     <string name="settings_list_style">List view</string>
     <string name="list_style_feed">Feed</string>
