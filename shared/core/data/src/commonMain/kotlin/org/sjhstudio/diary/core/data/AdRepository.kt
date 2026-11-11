@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import okio.IOException
@@ -170,10 +172,17 @@ class AdRepository(
         return allowed && (shown == null || shown < today())
     }
 
+    /** 보상 광고는 한 번에 하나. 앞서 부른 보기가 끝날 때까지 기다림 */
+    private val rewardTurn = Mutex()
+
     suspend fun watchReward(): Boolean = onceStarted(false) {
-        if (!showAds.first() || !player.showRewarded()) return@onceStarted false
-        store.rewardUntil(clock.now() + REWARD)
-        true
+        rewardTurn.withLock {
+            // 앞서 누른 보기가 이미 보상을 받았으면 또 띄우지 않고 그 결과를 알림
+            if (rewarded(store.prefs.first().rewardUntil)) return@withLock true
+            if (!showAds.first() || !player.showRewarded()) return@withLock false
+            store.rewardUntil(clock.now() + REWARD)
+            true
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -59,7 +60,14 @@ class AdRepositoryTest {
             return true
         }
 
-        override suspend fun showRewarded() = reward
+        var rewardedShown = 0
+
+        override suspend fun showRewarded(): Boolean {
+            rewardedShown++
+            // 영상을 받는 몇 초 동안
+            yield()
+            return reward
+        }
     }
 
     private val player = Player()
@@ -156,6 +164,19 @@ class AdRepositoryTest {
 
         now += 25.hours
         assertTrue(repo().showAds.first())
+    }
+
+    /** 영상을 받는 동안 시트를 닫고 다시 [보기]를 눌러도 영상은 하나. 둘째는 첫째가 받은 보상을 그대로 알림 */
+    @Test
+    fun watching_twice_at_once_shows_one_video() = runTest {
+        val repo = repo()
+
+        val first = async { repo.watchReward() }
+        val second = async { repo.watchReward() }
+
+        assertTrue(first.await())
+        assertTrue(second.await())
+        assertEquals(1, player.rewardedShown)
     }
 
     @Test
