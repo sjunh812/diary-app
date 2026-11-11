@@ -35,6 +35,23 @@ class StartupTest {
         assertTrue(ready.lock.enabled)
     }
 
+    /** 알림이나 업데이트로 앱이 깨면 앱과 수신기가 거의 함께 시작을 부름. 옛 설정 잇기와 뒤 일은 한 번만 */
+    @Test
+    fun starting_twice_runs_each_step_once() = runTest {
+        val settings = SettingsStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        val lock = LockStore(InMemoryDataStore<Preferences>(emptyPreferences()))
+        var prepared = 0
+        var after = 0
+        val startup = Startup({ prepared++ }, settings, lock, this, afterReady = { after++ })
+
+        startup.start()
+        startup.start()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(1, prepared)
+        assertEquals(1, after)
+    }
+
     /** 옛 잠금을 이은 뒤에 잠금을 읽어야 첫 화면이 잠금 화면 */
     @Test
     fun legacy_lock_is_bootstrapped_before_reading_lock() = runTest {

@@ -44,8 +44,11 @@ class Startup(
     val ready: Boolean
         get() = _state.value is StartupState.Ready
 
+    // 시작했는지는 끝나야 바뀌는 상태로 알 수 없음. 앱과 알림 수신기가 다른 스레드에서 거의 함께 불러도 한 번만 들어오게 따로 둠
+    private val started = MutableStateFlow(false)
+
     fun start() {
-        if (_state.value != StartupState.Loading) return
+        if (!started.compareAndSet(expect = false, update = true)) return
         scope.launch {
             attempt { prepareStorage() }
             val bootstrapped = attempt { bootstrapLegacyLock() } != null
