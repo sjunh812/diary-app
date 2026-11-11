@@ -228,9 +228,11 @@ class WriteDraftSafetyTest {
         advanceUntilIdle()
         val before = repository.saved.single().photos
 
+        val removals = mutableListOf<Unit>()
+        backgroundScope.launch { vm.photoRemovals.collect { removals += it } }
         vm.removePhoto(1)
         advanceUntilIdle()
-        assertEquals(1, vm.state.value.photoRemoved)
+        assertEquals(1, removals.size)
         assertEquals(2, repository.saved.single().photos.size)
 
         vm.undoRemovePhoto()

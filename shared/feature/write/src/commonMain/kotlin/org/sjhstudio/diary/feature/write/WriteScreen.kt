@@ -338,8 +338,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val toast = remember { DiaryToastState() }
     val removedMessage = stringResource(Res.string.write_photo_removed)
     val undoLabel = stringResource(Res.string.write_photo_undo)
-    LaunchedEffect(state.photoRemoved) {
-        if (state.photoRemoved > 0 && toast.show(removedMessage, undoLabel) == DiaryToastResult.ActionPerformed) vm.undoRemovePhoto()
+    LaunchedEffect(vm) {
+        vm.photoRemovals.collect { if (toast.show(removedMessage, undoLabel) == DiaryToastResult.ActionPerformed) vm.undoRemovePhoto() }
     }
     BoxWithConstraints(modifier.then(keyboard).fillMaxSize().background(colors.canvas).systemBarsPadding().imePadding()) {
         val wide = maxWidth >= DiaryWriteSize.twoPaneMin

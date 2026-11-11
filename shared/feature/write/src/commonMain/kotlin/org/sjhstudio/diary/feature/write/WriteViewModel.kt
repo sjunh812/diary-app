@@ -106,8 +106,6 @@ data class WriteUiState(
     val addingPhotos: Boolean = false,
     /** 남겨 둔 임시 저장본을 이어 엶. 그때만 버리는 길을 보임 */
     val canDiscard: Boolean = false,
-    /** 사진을 뺄 때마다 늘어남. 바뀔 때마다 화면이 [되돌리기] 토스트를 띄움 */
-    val photoRemoved: Int = 0,
     /**
      * 쓰고 있는 새 일기 임시 저장본의 키
      * 화면이 저장해 두었다가 화면 모델이 다시 만들어져도 같은 글을 이음
@@ -181,6 +179,11 @@ class WriteViewModel(
 
     private val _events = Channel<WriteEvent>(Channel.BUFFERED)
     val events: Flow<WriteEvent> = _events.receiveAsFlow()
+
+    // 사진을 뺄 때마다 한 번. 화면이 [되돌리기] 토스트를 띄움
+    // 상태로 두면 화면을 다시 그릴 때(회전, 잠금 풀기, 결제 화면에서 돌아오기) 토스트가 또 뜸
+    private val _photoRemovals = Channel<Unit>(Channel.CONFLATED)
+    val photoRemovals: Flow<Unit> = _photoRemovals.receiveAsFlow()
 
     private var key: DraftKey = DraftKey.New()
     private var body: String = ""
@@ -502,7 +505,7 @@ class WriteViewModel(
         write {
             val photo = drafts.removePhoto(key, index) ?: return@write
             undoRemove = photo to index
-            _state.update { it.copy(photoRemoved = it.photoRemoved + 1) }
+            _photoRemovals.send(Unit)
         }
     }
 
