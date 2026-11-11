@@ -12,7 +12,7 @@ enum class ContextTip(val id: String) {
      */
     INSIGHT_OPEN("insight_open"),
 
-    /** 홈 목록을 카드나 사진 격자로도 볼 수 있다는 안내. 설정 안에만 있어 모르는 사람이 많음 */
+    /** 일기 목록을 카드나 사진 격자로도 볼 수 있다는 안내. 설정 안에만 있어 모르는 사람이 많음 */
     HOME_LIST_STYLE("home_list_style")
 }
 
