@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -33,7 +34,14 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
  * 토스트와 같은 색이라 강조를 늘리지 않음
  */
 @Composable
-fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun DiaryTip(
+    text: String,
+    closeLabel: String,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+    action: String? = null,
+    onAction: () -> Unit = {}
+) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     Row(
@@ -65,14 +73,31 @@ fun DiaryTip(text: String, closeLabel: String, onClose: () -> Unit, modifier: Mo
                     .padding(top = DiarySpacing.x3, bottom = DiarySpacing.x3)
                     .clearAndSetSemantics { this.text = AnnotatedString(text) }
         )
-        Box(
-            Modifier
-                .size(DiarySpacing.minTouchTarget)
-                .diaryPress(interaction, colors.onToast, DiaryShapes.full)
-                .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClose),
-            contentAlignment = Alignment.Center
-        ) {
-            DiaryIcon(DiaryIcons.Close, closeLabel, colors.onToast, size = DiaryIconSize.i16)
+        // 팁이 가리키는 곳으로 바로 가는 글자 버튼(토스트 동작과 같은 꼴)
+        // 닫기와 한 묶음이라 사이 간격 없이 붙임. 닫기 칸 안쪽 16이 보이는 간격이 됨
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (action != null) {
+                val actionPress = remember { MutableInteractionSource() }
+                Box(
+                    Modifier
+                        .heightIn(min = DiarySpacing.minTouchTarget)
+                        .diaryPress(actionPress, colors.onToast, DiaryShapes.r12)
+                        .clickable(interactionSource = actionPress, indication = null, role = Role.Button, onClick = onAction)
+                        .padding(start = DiarySpacing.x2),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BasicText(action, style = DiaryTheme.typography.captionStrong.copy(color = colors.toastAction), maxLines = 1)
+                }
+            }
+            Box(
+                Modifier
+                    .size(DiarySpacing.minTouchTarget)
+                    .diaryPress(interaction, colors.onToast, DiaryShapes.full)
+                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClose),
+                contentAlignment = Alignment.Center
+            ) {
+                DiaryIcon(DiaryIcons.Close, closeLabel, colors.onToast, size = DiaryIconSize.i16)
+            }
         }
     }
 }

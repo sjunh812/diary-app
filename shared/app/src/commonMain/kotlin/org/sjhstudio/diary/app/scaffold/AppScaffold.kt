@@ -67,6 +67,7 @@ import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.InsightKey
 import org.sjhstudio.diary.app.navigation.ListDetailSceneStrategy
 import org.sjhstudio.diary.app.navigation.ListPane
+import org.sjhstudio.diary.app.navigation.ListStyleSettingsKey
 import org.sjhstudio.diary.app.navigation.LocalInListDetail
 import org.sjhstudio.diary.app.navigation.LocalRailWidth
 import org.sjhstudio.diary.app.navigation.OpenRequestedScreens
@@ -137,6 +138,7 @@ import org.sjhstudio.diary.feature.backup.BackupAlertButton
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
+import org.sjhstudio.diary.feature.backup.BackupViewModel
 import org.sjhstudio.diary.feature.backup.BundleStoppedNotice
 import org.sjhstudio.diary.feature.backup.RestoreResultNotice
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
@@ -424,6 +426,7 @@ private fun Content(
                 TabBarSpace,
                 entryProvider {
                     entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
+                        val backupNudge by koinViewModel<BackupViewModel>().nudge.collectAsStateWithLifecycle()
                         HomeRoute(
                             backupLine = {
                                 BackupStatusLine(onOpen = {
@@ -439,6 +442,11 @@ private fun Content(
                                 })
                             },
                             listTop = { BackupNudgeCard() },
+                            // 백업 안내가 떠 있는 동안은 목록 보기 팁을 미룸
+                            onListStyle = {
+                                nav.openTab(SettingsKey)
+                                nav.push(ListStyleSettingsKey)
+                            }.takeIf { backupNudge == null },
                             onOpen = nav::openEntry,
                             onWrite = onWrite,
                             onSearch = { nav.push(SearchKey()) },

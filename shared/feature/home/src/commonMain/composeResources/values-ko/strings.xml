@@ -26,4 +26,6 @@
     <string name="detail_elsewhere_photo">원래 휴대폰에 있는 사진</string>
     <string name="detail_missing_title">일기를 찾을 수 없어요</string>
     <string name="detail_missing_body">삭제했거나 휴지통으로 옮긴 일기일 수 있어요.</string>
+    <string name="tip_home_list_style">카드나 사진 격자로도 볼 수 있어요.</string>
+    <string name="tip_home_list_style_action">바꿔 보기</string>
 </resources>

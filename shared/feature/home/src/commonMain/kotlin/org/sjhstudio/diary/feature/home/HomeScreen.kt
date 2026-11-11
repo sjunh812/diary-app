@@ -68,8 +68,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
@@ -96,6 +98,8 @@ import org.sjhstudio.diary.feature.home.resources.home_favorites_only
 import org.sjhstudio.diary.feature.home.resources.home_favorites_show_all
 import org.sjhstudio.diary.feature.home.resources.home_month_sheet_title
 import org.sjhstudio.diary.feature.home.resources.home_search
+import org.sjhstudio.diary.feature.home.resources.tip_home_list_style
+import org.sjhstudio.diary.feature.home.resources.tip_home_list_style_action
 
 /**
  * 홈(Figma "홈 (S1)")
@@ -113,7 +117,8 @@ fun HomeRoute(
     backupLine: @Composable () -> Unit = {},
     backupAlert: @Composable () -> Unit = {},
     listTop: @Composable () -> Unit = {},
-    adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> }
+    adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> },
+    onListStyle: (() -> Unit)? = null
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
@@ -176,7 +181,20 @@ fun HomeRoute(
         backupLine = backupLine,
         backupAlert = backupAlert,
         header = header,
-        listTop = listTop,
+        listTop = {
+            listTop()
+            // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 쌓여 모양 차이가 보일 때, 아직 기본 피드일 때만
+            // 백업 안내가 떠 있으면 앱이 null을 넘겨 목록 위 안내가 겹치지 않음
+            if (onListStyle != null && style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) {
+                ContextTipBar(
+                    ContextTip.HOME_LIST_STYLE,
+                    stringResource(Res.string.tip_home_list_style),
+                    Modifier.padding(top = DiarySpacing.x2, bottom = DiarySpacing.x3),
+                    action = stringResource(Res.string.tip_home_list_style_action),
+                    onAction = onListStyle
+                )
+            }
+        },
         adSlot = adSlot
     )
     menuFor?.let { id ->
@@ -438,6 +456,9 @@ internal fun adOrder(index: Int): Int = (index - FIRST_AD) / AD_EVERY
 
 /** 일기 줄 앞 항목 수. 스크롤 위치를 일기 번호로 바꿀 때 뺌 */
 internal const val LIST_TOP_ITEMS = 1
+
+/** 목록 보기 팁을 띄우는 일기 수. 이보다 적으면 모양을 바꿔도 차이가 잘 안 보임 */
+private const val LIST_STYLE_TIP_AFTER = 5
 internal const val LIST_TOP_KEY = "list-top"
 
 private const val FIRST_AD = 4

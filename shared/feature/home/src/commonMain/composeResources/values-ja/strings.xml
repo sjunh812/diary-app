@@ -26,4 +26,6 @@
     <string name="detail_elsewhere_photo">元のスマートフォンにある写真</string>
     <string name="detail_missing_title">日記が見つかりません</string>
     <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
+    <string name="tip_home_list_style">カードや写真グリッドでも見られます。</string>
+    <string name="tip_home_list_style_action">変更する</string>
 </resources>

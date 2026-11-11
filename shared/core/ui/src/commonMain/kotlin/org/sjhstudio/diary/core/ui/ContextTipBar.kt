@@ -19,17 +19,29 @@ import org.sjhstudio.diary.core.ui.resources.tip_close
 /**
  * [tip]을 처음 만날 때 한 번 보임
  * 세션당 하나만 뜸(스펙 004 FR-011)
+ * [action]을 누르면 할 일을 한 것이라 다시 띄우지 않음(Apple TipKit `actionPerformed`)
  */
 @Composable
-fun ContextTipBar(tip: ContextTip, text: String, modifier: Modifier = Modifier) {
+fun ContextTipBar(tip: ContextTip, text: String, modifier: Modifier = Modifier, action: String? = null, onAction: () -> Unit = {}) {
     val tips = remember { KoinPlatform.getKoinOrNull()?.getOrNull<ContextTips>() } ?: return
     var showing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     LaunchedEffect(tip) { showing = tips.claim(tip) }
     if (showing) {
-        DiaryTip(text, stringResource(Res.string.tip_close), onClose = {
+        val finish = {
             showing = false
             scope.launchSafely { tips.done(tip) }
-        }, modifier)
+        }
+        DiaryTip(
+            text,
+            stringResource(Res.string.tip_close),
+            onClose = { finish() },
+            modifier = modifier,
+            action = action,
+            onAction = {
+                finish()
+                onAction()
+            }
+        )
     }
 }

@@ -10,7 +10,10 @@ enum class ContextTip(val id: String) {
      * 예전 "insight_mood"(기분 막대만 알리던 것)를 대신함
      * 이름을 새로 지어 예전 안내를 닫은 사람에게도 한 번 더 보임
      */
-    INSIGHT_OPEN("insight_open")
+    INSIGHT_OPEN("insight_open"),
+
+    /** 홈 목록을 카드나 사진 격자로도 볼 수 있다는 안내. 설정 안에만 있어 모르는 사람이 많음 */
+    HOME_LIST_STYLE("home_list_style")
 }
 
 /** 세션당 하나, 팁마다 한 번(FR-011) */
