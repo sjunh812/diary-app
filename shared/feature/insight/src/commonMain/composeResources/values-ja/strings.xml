@@ -8,7 +8,6 @@
     <string name="insight_previous">前の期間</string>
     <string name="insight_next">次の期間</string>
     <string name="insight_period_sheet_title">期間を選ぶ</string>
-    <string name="insight_all_time">全期間</string>
     <string name="insight_week_range">%1$s〜%2$s</string>
     <string name="insight_empty">この期間の日記はありません</string>
     <string name="insight_write">日記を書く</string>
@@ -20,7 +19,7 @@
     <string name="insight_top_past">この期間は「%1$s」が一番多かったです</string>
     <string name="insight_mood_join">%1$s、%2$s</string>
     <string name="insight_summary_counts">%1$s・%2$s</string>
-    <string name="insight_count_percent">%1$d編・%2$d%</string>
+    <string name="insight_count_percent">%1$s編・%2$d%</string>
     <string name="insight_year_map">今年の毎日の気分</string>
     <string name="insight_flow_week">毎日の気分</string>
     <string name="insight_flow_month">週別の気分</string>
@@ -28,10 +27,10 @@
     <string name="insight_flow_year">月別の気分</string>
     <string name="insight_week_number">第%1$d週</string>
     <plurals name="insight_entry_count">
-        <item quantity="other">日記%1$d件</item>
+        <item quantity="other">日記%1$s件</item>
     </plurals>
     <plurals name="insight_no_mood_count">
-        <item quantity="other">気分なしの日記%1$d件</item>
+        <item quantity="other">気分なしの日記%1$s件</item>
     </plurals>
     <string name="insight_adv_title">詳しい統計</string>
     <string name="insight_adv_wd_sun">日曜日</string>

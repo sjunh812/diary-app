@@ -107,13 +107,13 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
+import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.insight.resources.Res
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_title
-import org.sjhstudio.diary.feature.insight.resources.insight_all_time
 import org.sjhstudio.diary.feature.insight.resources.insight_count_percent
 import org.sjhstudio.diary.feature.insight.resources.insight_empty
 import org.sjhstudio.diary.feature.insight.resources.insight_entry_count
@@ -267,15 +267,20 @@ internal fun InsightScreen(
                 selected = period.kind.ordinal,
                 onSelect = { onKind(InsightKind.entries[it]) }
             )
-            Spacer(Modifier.height(DiarySpacing.x1))
-            PeriodNav(
-                periodLabel(period, dates),
-                period.previous() != null,
-                period.next(today) != null,
-                onPrevious,
-                onNext,
-                onPick = if (period == StatsPeriod.All) null else ({ picking = true })
-            )
+            // 전체는 넘기거나 고를 기간이 없어 기간 줄 없이 요약을 바로 붙임
+            if (period == StatsPeriod.All) {
+                Spacer(Modifier.height(DiarySpacing.x3))
+            } else {
+                Spacer(Modifier.height(DiarySpacing.x1))
+                PeriodNav(
+                    periodLabel(period, dates),
+                    period.previous() != null,
+                    period.next(today) != null,
+                    onPrevious,
+                    onNext,
+                    onPick = { picking = true }
+                )
+            }
             // 빈 한 줄은 위 24를 스스로 둠
             // 새 기간을 읽는 동안 앞 기간 숫자는 숨기고 자리만 유지. 빼면 아래 광고가 올라왔다 내려가며 새로 불려 옴
             var read by remember { mutableStateOf(data) }
@@ -341,7 +346,8 @@ private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = w
 
     is StatsPeriod.Year -> dates.year(LocalDate(period.year, 1, 1))
 
-    StatsPeriod.All -> stringResource(Res.string.insight_all_time)
+    // 전체는 기간 줄을 그리지 않음
+    StatsPeriod.All -> ""
 }
 
 /** 기간 이름을 누르면 기간 고르기. 전체 기간처럼 고를 곳이 없으면 [onPick]이 null */
@@ -352,11 +358,11 @@ private fun PeriodNav(
     hasNext: Boolean,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
-    onPick: (() -> Unit)? = null
+    onPick: () -> Unit
 ) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게
+        // 넘길 곳이 없으면 자리는 두고 흐리게
         // 누르는 칸 안쪽 여백만큼 밀어 화살표를 위아래 내용과 같은 선에 맞춤
         DiaryIconButton(
             DiaryIcons.ChevronLeft,
@@ -366,27 +372,23 @@ private fun PeriodNav(
             enabled = hasPrevious
         )
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            if (onPick == null) {
+            // 이름과 아래 화살표를 한 덩어리로 가운데에. 누르는 면은 달력 시트 제목과 같음
+            val interaction = remember { MutableInteractionSource() }
+            Row(
+                Modifier
+                    .heightIn(min = DiarySpacing.minTouchTarget)
+                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                    .clickable(
+                        interactionSource = interaction,
+                        indication = null,
+                        role = Role.Button,
+                        onClickLabel = stringResource(Res.string.insight_period_sheet_title),
+                        onClick = onPick
+                    )
+                    .padding(horizontal = DiarySpacing.x2),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 PeriodLabel(label)
-            } else {
-                // 이름과 아래 화살표를 한 덩어리로 가운데에. 누르는 면은 달력 시트 제목과 같음
-                val interaction = remember { MutableInteractionSource() }
-                Row(
-                    Modifier
-                        .heightIn(min = DiarySpacing.minTouchTarget)
-                        .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-                        .clickable(
-                            interactionSource = interaction,
-                            indication = null,
-                            role = Role.Button,
-                            onClickLabel = stringResource(Res.string.insight_period_sheet_title),
-                            onClick = onPick
-                        )
-                        .padding(horizontal = DiarySpacing.x2),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    PeriodLabel(label, chevron = true)
-                }
             }
         }
         DiaryIconButton(
@@ -404,13 +406,13 @@ private fun PeriodNav(
  * 아래 화살표는 글줄 끝에 붙여 두 줄이어도 글 바로 뒤에 옴
  */
 @Composable
-private fun PeriodLabel(label: String, chevron: Boolean = false) {
+private fun PeriodLabel(label: String) {
     val colors = DiaryTheme.colors
     val iconSize = with(LocalDensity.current) { (DiaryIconSize.i16 + DiarySpacing.x1).toSp() }
     val text =
         buildAnnotatedString {
             append(label)
-            if (chevron) appendInlineContent(CHEVRON_ID, " ")
+            appendInlineContent(CHEVRON_ID, " ")
         }
     val inline =
         mapOf(
@@ -565,12 +567,12 @@ private fun summaryResource(period: StatsPeriod, today: LocalDate): StringResour
 
 @Composable
 private fun countLine(counts: MoodCounts): String {
-    val entries = pluralStringResource(Res.plurals.insight_entry_count, counts.total, counts.total)
+    val entries = pluralStringResource(Res.plurals.insight_entry_count, counts.total, counts.total.grouped())
     if (counts.noMood == 0) return entries
     return stringResource(
         Res.string.insight_summary_counts,
         entries,
-        pluralStringResource(Res.plurals.insight_no_mood_count, counts.noMood, counts.noMood)
+        pluralStringResource(Res.plurals.insight_no_mood_count, counts.noMood, counts.noMood.grouped())
     )
 }
 
@@ -705,7 +707,7 @@ private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) 
 /** 없는 기분은 숫자만 */
 @Composable
 private fun moodAmount(count: Int, percent: Int): String =
-    if (count > 0) stringResource(Res.string.insight_count_percent, count, percent) else count.toString()
+    if (count > 0) stringResource(Res.string.insight_count_percent, count.grouped(), percent) else count.grouped()
 
 /** 글이 잘리지 않게 담을 폭. 글자 크기와 고른 글꼴을 따름 */
 @Composable

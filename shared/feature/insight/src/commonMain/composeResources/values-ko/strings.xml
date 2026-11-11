@@ -8,7 +8,6 @@
     <string name="insight_previous">이전 기간</string>
     <string name="insight_next">다음 기간</string>
     <string name="insight_period_sheet_title">기간 고르기</string>
-    <string name="insight_all_time">전체 기간</string>
     <string name="insight_week_range">%1$s ~ %2$s</string>
     <string name="insight_empty">이 기간에 쓴 일기가 없어요</string>
     <string name="insight_write">일기 쓰기</string>
@@ -20,7 +19,7 @@
     <string name="insight_top_past">이 기간엔 %1$s이 가장 많았어요</string>
     <string name="insight_mood_join">%1$s, %2$s</string>
     <string name="insight_summary_counts">%1$s · %2$s</string>
-    <string name="insight_count_percent">%1$d편 · %2$d%</string>
+    <string name="insight_count_percent">%1$s편 · %2$d%</string>
     <string name="insight_year_map">올해 날짜별 기분</string>
     <string name="insight_flow_week">날짜별 기분</string>
     <string name="insight_flow_month">주별 기분</string>
@@ -28,10 +27,10 @@
     <string name="insight_flow_year">월별 기분</string>
     <string name="insight_week_number">%1$d주</string>
     <plurals name="insight_entry_count">
-        <item quantity="other">일기 %1$d편</item>
+        <item quantity="other">일기 %1$s편</item>
     </plurals>
     <plurals name="insight_no_mood_count">
-        <item quantity="other">기분 없는 일기 %1$d편</item>
+        <item quantity="other">기분 없는 일기 %1$s편</item>
     </plurals>
     <string name="insight_adv_title">고급 통계</string>
     <string name="insight_adv_wd_sun">일요일</string>

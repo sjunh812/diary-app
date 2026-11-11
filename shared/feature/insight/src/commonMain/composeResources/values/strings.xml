@@ -8,7 +8,6 @@
     <string name="insight_previous">Previous period</string>
     <string name="insight_next">Next period</string>
     <string name="insight_period_sheet_title">Choose a period</string>
-    <string name="insight_all_time">All time</string>
     <string name="insight_week_range">%1$s – %2$s</string>
     <string name="insight_empty">No entries in this period</string>
     <string name="insight_write">New entry</string>
@@ -20,7 +19,7 @@
     <string name="insight_top_past">Top mood in this period: %1$s</string>
     <string name="insight_mood_join">%1$s, %2$s</string>
     <string name="insight_summary_counts">%1$s · %2$s</string>
-    <string name="insight_count_percent">%1$d · %2$d%</string>
+    <string name="insight_count_percent">%1$s · %2$d%</string>
     <string name="insight_year_map">Each day's mood this year</string>
     <string name="insight_flow_week">Mood each day</string>
     <string name="insight_flow_month">Top mood each week</string>
@@ -28,12 +27,12 @@
     <string name="insight_flow_year">Top mood each month</string>
     <string name="insight_week_number">Wk %1$d</string>
     <plurals name="insight_entry_count">
-        <item quantity="one">%1$d entry</item>
-        <item quantity="other">%1$d entries</item>
+        <item quantity="one">%1$s entry</item>
+        <item quantity="other">%1$s entries</item>
     </plurals>
     <plurals name="insight_no_mood_count">
-        <item quantity="one">%1$d without a mood</item>
-        <item quantity="other">%1$d without a mood</item>
+        <item quantity="one">%1$s without a mood</item>
+        <item quantity="other">%1$s without a mood</item>
     </plurals>
     <string name="insight_adv_title">Advanced stats</string>
     <string name="insight_adv_wd_sun">Sunday</string>

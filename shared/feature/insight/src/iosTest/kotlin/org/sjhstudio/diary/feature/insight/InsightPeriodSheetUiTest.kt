@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isEnabled
 import androidx.compose.ui.test.performClick
@@ -21,8 +22,9 @@ import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.insight.resources.Res
-import org.sjhstudio.diary.feature.insight.resources.insight_all_time
+import org.sjhstudio.diary.feature.insight.resources.insight_next
 import org.sjhstudio.diary.feature.insight.resources.insight_period_sheet_title
+import org.sjhstudio.diary.feature.insight.resources.insight_previous
 
 // 기간 이름을 누르면 기간 고르기가 열리고, 고른 기간으로 감
 @OptIn(ExperimentalTestApi::class)
@@ -99,13 +101,16 @@ class InsightPeriodSheetUiTest {
         )
     }
 
+    /** 전체는 넘기거나 고를 기간이 없어 기간 줄을 두지 않음 */
     @Test
-    fun all_time_has_no_sheet() = runComposeUiTest {
+    fun all_time_has_no_period_row() = runComposeUiTest {
         var title = ""
-        var all = ""
+        var previous = ""
+        var next = ""
         setContent {
             title = stringResource(Res.string.insight_period_sheet_title)
-            all = stringResource(Res.string.insight_all_time)
+            previous = stringResource(Res.string.insight_previous)
+            next = stringResource(Res.string.insight_next)
             DiaryTheme(darkTheme = false) {
                 InsightScreen(
                     period = StatsPeriod.All,
@@ -118,8 +123,9 @@ class InsightPeriodSheetUiTest {
                 )
             }
         }
+        onNode(hasContentDescription(title)).assertDoesNotExist()
         onNode(hasText(title)).assertDoesNotExist()
-        onNode(hasText(all)).assertExists()
-        onNode(hasText(all).and(hasClickAction())).assertDoesNotExist()
+        onNode(hasContentDescription(previous)).assertDoesNotExist()
+        onNode(hasContentDescription(next)).assertDoesNotExist()
     }
 }
