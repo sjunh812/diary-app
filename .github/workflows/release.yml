@@ -132,6 +132,26 @@ jobs:
             echo "admob.rewarded=$ADMOB_REWARDED"
             echo "revenuecat.android=$REVENUECAT_ANDROID"
           } > local.properties
+      # 키가 틀리면 10분 넘는 빌드 끝에야 알 수 있어 먼저 몇 초 만에 확인
+      - name: 서명 키 먼저 확인
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          probe="$RUNNER_TEMP/probe"
+          mkdir -p "$probe" && echo ok > "$probe/ok.txt"
+          (cd "$probe" && jar cf probe.jar ok.txt)
+          if ! keytool -list -keystore "$DIARY_KEYSTORE_PATH" -storepass:env STORE_PASSWORD -alias "$KEY_ALIAS" > /dev/null 2>&1; then
+            echo "::error::키 파일 비밀번호(ANDROID_KEYSTORE_PASSWORD)나 별칭(ANDROID_KEY_ALIAS)이 맞지 않습니다"
+            exit 1
+          fi
+          if ! jarsigner -keystore "$DIARY_KEYSTORE_PATH" -storepass:env STORE_PASSWORD -keypass:env KEY_PASSWORD \
+              "$probe/probe.jar" "$KEY_ALIAS" > /dev/null 2>&1; then
+            echo "::error::키 비밀번호(ANDROID_KEY_PASSWORD)가 맞지 않습니다"
+            exit 1
+          fi
+          echo "서명 키 확인됨"
       - name: AAB 만들기
         env:
           DIARY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
