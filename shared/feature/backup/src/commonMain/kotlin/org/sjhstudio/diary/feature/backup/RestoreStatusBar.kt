@@ -72,14 +72,17 @@ import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_title
 fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: Boolean, onOpen: () -> Unit) {
     val restore = koinInject<RestoreRepository>()
     val state by restore.state.collectAsStateWithLifecycle()
-    val watch = remember { RestoreResultWatch() }
+    // 앱 틀이 다시 만들어져도(백 뒤 다시 열기, 회전) 이미 알린 결과를 또 알리지 않게 앱에 하나
+    val watch = koinInject<RestoreResultWatch>()
     val open by rememberUpdatedState(onOpen)
+    val doneTitle = stringResource(Res.string.restore_notice_title)
+    val stoppedTitle = stringResource(Res.string.restore_stopped_title)
+    val action = stringResource(Res.string.restore_see_result)
     // 화면을 옮겨도 떠 있는 토스트가 사라지지 않게 효과 밖에서 띄움
     val scope = rememberCoroutineScope()
     LaunchedEffect(state, onResultScreen, quiet) {
         if (!watch.shouldTell(state, onResultScreen, quiet)) return@LaunchedEffect
-        val message = getString(if (state is RestoreState.Done) Res.string.restore_notice_title else Res.string.restore_stopped_title)
-        val action = getString(Res.string.restore_see_result)
+        val message = if (state is RestoreState.Done) doneTitle else stoppedTitle
         scope.launch { if (toast.show(message, action) == DiaryToastResult.ActionPerformed) open() }
     }
 }
