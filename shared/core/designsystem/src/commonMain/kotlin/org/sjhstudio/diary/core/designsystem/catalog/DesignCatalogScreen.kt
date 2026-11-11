@@ -284,6 +284,11 @@ internal fun CatalogButtons() {
             DiaryButton("첨부 없이 문의", {}, Modifier.weight(1f), kind = DiaryButtonKind.Secondary)
             DiaryButton("첨부해서 문의", {}, Modifier.weight(1f))
         }
+        // 누른 일을 기다리는 중
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            DiaryButton("닫기", {}, Modifier.weight(1f), kind = DiaryButtonKind.Secondary)
+            DiaryButton("영상 보기", {}, Modifier.weight(1f), loading = true)
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             DiaryButton("오늘 일기 쓰기", {}, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
             DiaryButton("백업", {}, size = DiaryButtonSize.Small, kind = DiaryButtonKind.Weak)

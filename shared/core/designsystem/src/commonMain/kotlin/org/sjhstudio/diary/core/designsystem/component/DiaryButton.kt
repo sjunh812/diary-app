@@ -81,7 +81,9 @@ fun DiaryButton(
     size: DiaryButtonSize = DiaryButtonSize.Large,
     kind: DiaryButtonKind = DiaryButtonKind.Primary,
     enabled: Boolean = true,
-    leadingIcon: ImageVector? = null
+    leadingIcon: ImageVector? = null,
+    /** 누른 일이 끝나기를 기다리는 중. 글 자리는 그대로 두고 점을 보이며 다시 누를 수 없음(TDS·SEED Button loading) */
+    loading: Boolean = false
 ) {
     val colors = DiaryTheme.colors
     val (container, content) =
@@ -111,7 +113,7 @@ fun DiaryButton(
             .clickable(
                 interactionSource = interaction,
                 indication = null,
-                enabled = enabled,
+                enabled = enabled && !loading,
                 role = Role.Button,
                 onClick = onClick
             )
@@ -127,23 +129,32 @@ fun DiaryButton(
                     .clip(spec.shape)
                     .background(container)
                     .padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (leadingIcon != null) {
-                DiaryIcon(
-                    leadingIcon,
-                    contentDescription = null,
-                    tint = content,
-                    size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
-                )
+            Box(contentAlignment = Alignment.Center) {
+                Row(
+                    Modifier.alpha(if (loading) 0f else 1f),
+                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (leadingIcon != null) {
+                        DiaryIcon(
+                            leadingIcon,
+                            contentDescription = null,
+                            tint = content,
+                            size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
+                        )
+                    }
+                    BasicText(
+                        text = text,
+                        style = style.copy(color = content, textAlign = TextAlign.Center),
+                        maxLines = BUTTON_MAX_LINES,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (loading) DiaryLoadingDots(content)
             }
-            BasicText(
-                text = text,
-                style = style.copy(color = content, textAlign = TextAlign.Center),
-                maxLines = BUTTON_MAX_LINES,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }
@@ -163,12 +174,21 @@ fun DiaryButtonPair(
     size: DiaryButtonSize = DiaryButtonSize.Large,
     secondaryKind: DiaryButtonKind = DiaryButtonKind.Secondary,
     primaryKind: DiaryButtonKind = DiaryButtonKind.Primary,
-    primaryEnabled: Boolean = true
+    primaryEnabled: Boolean = true,
+    primaryLoading: Boolean = false
 ) {
     Layout(
         content = {
             DiaryButton(secondary, onSecondary, Modifier.fillMaxWidth(), size = size, kind = secondaryKind)
-            DiaryButton(primary, onPrimary, Modifier.fillMaxWidth(), size = size, kind = primaryKind, enabled = primaryEnabled)
+            DiaryButton(
+                primary,
+                onPrimary,
+                Modifier.fillMaxWidth(),
+                size = size,
+                kind = primaryKind,
+                enabled = primaryEnabled,
+                loading = primaryLoading
+            )
         },
         modifier = modifier.padding(top = LocalSheetButtonGap.current).fillMaxWidth()
     ) { (second, first), constraints ->
