@@ -62,6 +62,8 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.androidx.navigation3.ui)
+            // 화면 모드를 상태 막대와 창 바탕에 알림(PlatformTheme.android)
+            implementation(libs.androidx.activity.compose)
             implementation(libs.koin.android)
             // 자동 백업(AndroidBackupScheduler)
             implementation(libs.androidx.work.runtime)

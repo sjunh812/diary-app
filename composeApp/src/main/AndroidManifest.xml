@@ -61,8 +61,10 @@
 
 
         <!-- 알림과 런처 어느 길로 와도 화면 하나가 받음. 쓰기 알림으로 시작한 뒤 아이콘이나 백업 알림을 누르면 새 화면이 쌓였다 -->
+        <!-- 화면 모드 바뀜은 앱 화면이 직접 받음. 창을 다시 만들면 바뀔 때 한 번 더 깜빡였다 -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode"
             android:exported="false"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Diary.Starting"

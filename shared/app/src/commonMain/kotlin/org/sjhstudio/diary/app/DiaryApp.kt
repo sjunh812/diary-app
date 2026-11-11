@@ -76,8 +76,8 @@ fun DiaryApp() {
             ThemeMode.LIGHT -> false
             ThemeMode.DARK -> true
         }
-    ApplyPlatformTheme(settings.themeMode)
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font)) {
+        ApplyPlatformTheme(settings.themeMode, darkTheme)
         ProvideScreenGutter {
             ProvideTabViewModelStores {
                 LockGate {

@@ -1,12 +1,7 @@
 package org.sjhstudio.diary
 
-import android.app.UiModeManager
 import android.content.Intent
-import android.content.res.Configuration
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
@@ -31,9 +26,7 @@ import org.koin.android.ext.android.get
 import org.sjhstudio.diary.app.DiaryApp
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.navigation.AppLaunch
-import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
-import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AndroidDriveAuthorizer
 import org.sjhstudio.diary.core.platform.DriveConsentLauncher
 
@@ -67,32 +60,6 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         lifecycleScope.launch {
-            // 앱 화면 모드(시스템·라이트·다크)에 맞춰 상태·내비게이션 막대 아이콘 색을 바꿈
-            // 앱만 다크일 때 시각이 안 보이지 않게
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                get<SettingsRepository>().settings.map { it.themeMode }.distinctUntilChanged().collect { mode ->
-                    keepSplashInMode(mode)
-                    val dark =
-                        when (mode) {
-                            ThemeMode.SYSTEM -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
-                                Configuration.UI_MODE_NIGHT_YES
-
-                            ThemeMode.LIGHT -> false
-
-                            ThemeMode.DARK -> true
-                        }
-                    val style = if (dark) {
-                        SystemBarStyle.dark(
-                            Color.TRANSPARENT
-                        )
-                    } else {
-                        SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-                    }
-                    enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
-                }
-            }
-        }
-        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 get<LockRepository>().settings.map { it.enabled }.distinctUntilChanged().collect(recents::setEnabled)
             }
@@ -108,22 +75,6 @@ class MainActivity : FragmentActivity() {
         }
         // 화면을 돌려 다시 만들어질 때는 쌓인 화면이 이미 복원됨
         if (savedInstanceState == null) handleIntent(intent)
-    }
-
-    /**
-     * 스플래시는 앱 코드보다 먼저 시스템이 그려 앱 화면 모드를 모름
-     * Android 12부터 앱 모드를 시스템에 넘겨 다음 시작부터 맞춤. 11 이하는 휴대폰 모드를 따름
-     * 모드가 지금 화면과 다르면 화면을 한 번 다시 만듦
-     */
-    private fun keepSplashInMode(mode: ThemeMode) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
-        val night =
-            when (mode) {
-                ThemeMode.SYSTEM -> UiModeManager.MODE_NIGHT_AUTO
-                ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
-                ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES
-            }
-        getSystemService(UiModeManager::class.java)?.setApplicationNightMode(night)
     }
 
     override fun onNewIntent(intent: Intent) {
