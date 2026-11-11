@@ -187,3 +187,6 @@ Plusは年間サブスクリプションです。広告なしに加えて、1つ
 5. 백업: 사진까지 / 드라이브에 백업해요
 
 태블릿(가로 한 줄): 오늘 기분부터 가볍게 골라 봐요 / 목록과 일기를 나란히 봐요 / 한 달 기분을 달력으로 봐요 / 내 기분 흐름을 돌아봐요
+
+영어(원어민 검수 전): Start with today's mood / Past entries at a glance / Your month's moods on a calendar / Look back on your moods. 태블릿 2번은 Your list and entry, side by side.
+일본어(원어민 검수 전): 今日の気分から気軽に選べます / 過去の日記がひと目でわかる / 1か月の気分をカレンダーで / 気分の流れをふりかえる. 태블릿 2번은 一覧と日記を並べて見られます.
