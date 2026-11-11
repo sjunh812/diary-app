@@ -88,6 +88,14 @@ android {
         localeFilters += listOf("en", "ko", "ja")
     }
 
+    // 언어별로 나누면 기기 언어 조각만 깔려, 앱 언어를 따로 고른 사람의 알림·앱 이름이 기기 언어로 나옴
+    // 세 언어뿐이라 함께 넣음
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     // 고를 때 받는 일기 글꼴 다섯 종(research R17)
     // 받은 뒤 SplitCompat으로 자산을 읽음
     dynamicFeatures +=
