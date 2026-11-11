@@ -78,6 +78,7 @@ import org.sjhstudio.diary.core.ui.EntryMenu
 import org.sjhstudio.diary.core.ui.EntryMenuFor
 import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.OnTabReselected
+import org.sjhstudio.diary.core.ui.ReportDrawnWhen
 import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
@@ -116,6 +117,8 @@ fun HomeRoute(
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
     val rows = viewModel.rows.collectAsLazyPagingItems()
+    // 첫 목록을 읽어야 다 그려진 것(시작 시간 측정 기준)
+    ReportDrawnWhen { rows.loadState.refresh !is LoadState.Loading }
     val favoritesOnly by viewModel.favoritesOnly.collectAsStateWithLifecycle()
     val months by viewModel.months.collectAsStateWithLifecycle()
     val look by viewModel.look.collectAsStateWithLifecycle()
