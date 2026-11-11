@@ -120,7 +120,16 @@ admob.interstitial=ca-app-pub-.../...
 admob.rewarded=ca-app-pub-.../...
 ```
 
-개발 빌드는 늘 Google 시험 광고를 받는다. 실제 광고를 눌러 시험하지 않는다.
+iOS는 `iosApp/iosApp/Local.xcconfig`에 넣는다(예시는 `Local.xcconfig.example`). xcconfig는 `//`를 주석으로 읽어 광고 단위의 슬래시를 `/$()`로 끊는다. CD는 이 파일을 `IOS_LOCAL_XCCONFIG_BASE64`로 받는다.
+
+```xcconfig
+ADMOB_APP_ID = ca-app-pub-...~...
+ADMOB_NATIVE = ca-app-pub-.../$()...
+ADMOB_INTERSTITIAL = ca-app-pub-.../$()...
+ADMOB_REWARDED = ca-app-pub-.../$()...
+```
+
+개발 빌드는 늘 Google 시험 광고를 받는다. 실제 광고를 눌러 시험하지 않는다. iOS 앱 ID가 비면 SDK가 앱을 끝내서 `Config.xcconfig`에 구글 공개 시험 앱 ID를 기본으로 둔다.
 
 ## 사업자 준비
 
@@ -216,7 +225,8 @@ admob.rewarded=ca-app-pub-.../...
 - [x] 처리방침과 약관을 공개하고 앱에 걸기(`LegalLinks`, 원문은 `docs/legal/`, 2026-11-07)
 - [ ] 처리방침 URL을 Play Console, App Store Connect에 넣기
 - [ ] Play 데이터 보안, App Store 개인정보 라벨, Privacy Manifest 작성(광고를 넣으므로 AdMob 항목 포함)
-- [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 `SKAdNetworkItems`, UMP 동의
+- [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 창(아직 없음, `SKAdNetworkItems`는 구글 ID 하나만 넣음), UMP 동의
+- [ ] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(계정 재활성화 심사 뒤)
 - [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기
 - [ ] 스크린샷(폰 ✓, 7"·10" 태블릿 ✓, iPhone medium·large, iPad 13"), 피처 그래픽 ✓, 아이콘 ✓. 영어·일본어 Play 스크린샷 ✓(원어민 검수 전)
 - [ ] 영어·일본어 화면 문구와 스토어 설명 원어민 검수(2026-11-01 초안은 개발자가 씀). 앱 이름(D12)과 일본어 화면 글꼴(D13)도 이때 정한다

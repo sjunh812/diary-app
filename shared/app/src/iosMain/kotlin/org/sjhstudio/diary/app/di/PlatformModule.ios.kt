@@ -2,8 +2,10 @@ package org.sjhstudio.diary.app.di
 
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.IosAds
 import org.sjhstudio.diary.app.IosDrive
 import org.sjhstudio.diary.app.IosTelemetry
+import org.sjhstudio.diary.app.ads.IosAdPlayer
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
@@ -45,9 +47,10 @@ import platform.Foundation.NSBundle
 internal actual val platformModule: Module =
     module {
         single { AppFiles() }
-        single<AdPlayer> { NoAdPlayer }
-        // iOS는 R2에서 구매와 광고를 붙임
+        // 광고는 Swift의 구글 광고 다리로(GoogleAdsBridge.swift). 개발 빌드는 늘 시험 광고
+        single<AdPlayer>(createdAtStart = true) { IosAds.bridge?.let(::IosAdPlayer) ?: NoAdPlayer }
         single<AdSwitch> { AdSwitch { true } }
+        // 구매는 RevenueCat iOS를 붙일 때까지 무료 요금제로 둠
         single<PlanRepository> { FreePlanRepository() }
         single<PurchaseRepository> { NoPurchases() }
         // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15)

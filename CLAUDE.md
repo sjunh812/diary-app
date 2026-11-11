@@ -101,7 +101,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - 개발 빌드는 StrictMode로 화면 스레드의 디스크·네트워크 작업과 닫지 않은 자원을 로그에 남긴다. 화면이나 시작 순서를 바꾸면 `adb logcat -s StrictMode`로 새 위반이 없는지 본다(개발자 모드 요금제 도구의 읽기는 개발 빌드에만 있다).
 - 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드의 설정 맨 아래 줄로 들어가고 출시 빌드에는 없다. iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.
-- 광고는 `AdRepository`가 정하고, 안드로이드만 `AdMobPlayer` 구현이 있다. 개발 빌드는 시험 광고만 받는다. 광고 ID는 `local.properties`(`docs/release.md`).
+- 광고는 `AdRepository`가 정한다. Android는 `AdMobPlayer`, iOS는 Swift `GoogleAdsBridge`를 `IosAdPlayer`가 감싼다. 개발 빌드는 시험 광고만 받는다. 광고 ID는 Android `local.properties`, iOS `iosApp/iosApp/Local.xcconfig`(`docs/release.md`).
 - 온보딩 로띠는 `python3 -I scripts/lottie/make_onboarding.py`로 만든다. 색은 `@accent` 같은 자리표시로 두고 `OnboardingArt.kt`가 토큰 값으로 바꾼다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
   빌드 단계가 `:shared:app:embedAndSignAppleFrameworkForXcode`를 불러 Shared 프레임워크를 만든다.

@@ -17,6 +17,10 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 13.1.1
+  # 광고(AdMob). 무료 요금제의 목록·돌아보기 광고, 전면, 보상형(docs/business.md 광고 자리)
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads
+    exactVersion: 13.11.0
 targets:
   iosApp:
     type: application
@@ -34,6 +38,8 @@ targets:
         product: FirebaseAnalytics
       - package: Firebase
         product: FirebaseCrashlytics
+      - package: GoogleMobileAds
+        product: GoogleMobileAds
     sources:
       - path: iosApp
         excludes:
@@ -85,6 +91,14 @@ targets:
           - CFBundleTypeRole: Editor
             CFBundleURLSchemes:
               - $(GID_REVERSED_CLIENT_ID)
+        # 광고 앱 ID와 광고 단위. 값은 저장소 밖 Local.xcconfig에서 온다(Config.xcconfig). 개발 빌드는 늘 구글 시험 광고 단위를 쓴다.
+        GADApplicationIdentifier: $(ADMOB_APP_ID)
+        DiaryAdNative: $(ADMOB_NATIVE)
+        DiaryAdInterstitial: $(ADMOB_INTERSTITIAL)
+        DiaryAdRewarded: $(ADMOB_REWARDED)
+        # 광고 성과 측정(구글 안내의 구글 네트워크 ID). 추적 허용 창(ATT)은 띄우지 않는다
+        SKAdNetworkItems:
+          - SKAdNetworkIdentifier: cstr6suwn9.skadnetwork
         # 자동 백업(스펙 003 research R15).
         BGTaskSchedulerPermittedIdentifiers:
           - org.sjhstudio.diary.backup.daily

@@ -43,6 +43,14 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>DiaryAdInterstitial</key>
+	<string>$(ADMOB_INTERSTITIAL)</string>
+	<key>DiaryAdNative</key>
+	<string>$(ADMOB_NATIVE)</string>
+	<key>DiaryAdRewarded</key>
+	<string>$(ADMOB_REWARDED)</string>
+	<key>GADApplicationIdentifier</key>
+	<string>$(ADMOB_APP_ID)</string>
 	<key>GIDClientID</key>
 	<string>$(GID_CLIENT_ID)</string>
 	<key>GOOGLE_ANALYTICS_DEFAULT_ALLOW_AD_PERSONALIZATION_SIGNALS</key>
@@ -59,6 +67,13 @@
 	<string>Use Face ID to unlock your diary.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Your location is used only when you tap Use my location, to find your neighborhood name.</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>processing</string>

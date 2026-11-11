@@ -3,4 +3,10 @@
 // 없어도 빌드는 되고, 그때는 드라이브 연결만 실패한다.
 GID_CLIENT_ID =
 GID_REVERSED_CLIENT_ID =
+// 광고 앱 ID는 비면 SDK가 앱을 끝내 구글 공개 시험 앱 ID를 기본으로 둔다.
+// 광고 단위가 비면 출시 빌드는 광고를 부르지 않는다.
+ADMOB_APP_ID = ca-app-pub-3940256099942544~1458002511
+ADMOB_NATIVE =
+ADMOB_INTERSTITIAL =
+ADMOB_REWARDED =
 #include? "Local.xcconfig"

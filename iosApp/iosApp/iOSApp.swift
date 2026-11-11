@@ -37,7 +37,7 @@ struct iOSApp: App {
 
     init() {
         // 첫 화면 전에 Koin 시작, 설정과 잠금 읽기(contracts/app-shell.md 시작 순서 1)
-        IosStartupKt.startApp(driveBridge: GoogleDriveBridge(), firebase: FirebaseReporter.start())
+        IosStartupKt.startApp(driveBridge: GoogleDriveBridge(), firebase: FirebaseReporter.start(), ads: GoogleAdsBridge())
         DailyBackupTask.register()
         UNUserNotificationCenter.current().delegate = NotificationTapDelegate.shared
     }

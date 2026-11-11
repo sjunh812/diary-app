@@ -16,6 +16,7 @@
 		29DF7BAEAB8CEF5CBDD81D0F /* gowun_dodum.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */; settings = {ASSET_TAGS = (gowun_dodum, ); }; };
 		307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668CECA83ACC03A83C85A623 /* iOSApp.swift */; };
 		3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */; settings = {ASSET_TAGS = (gowun_batang, ); }; };
+		379D4C6DBBA934A8EF44CDDE /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = D653C9A304F35EF27606B403 /* GoogleMobileAds */; };
 		445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */; };
 		47A150204EBF9E2799632D13 /* nanum_jeomggol.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */; settings = {ASSET_TAGS = (nanum_jeomggol, ); }; };
 		56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */; };
@@ -24,6 +25,7 @@
 		8619E6AF02B493D74581D733 /* gamja_flower.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F61F643C588442012994C221 /* gamja_flower.ttf */; settings = {ASSET_TAGS = (gamja_flower, ); }; };
 		86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7F3482AB68B54C1CB27AB9D /* Localizable.strings */; };
 		9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6111777718F5751E749AACD /* PrivacyCover.swift */; };
+		ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */; };
 		B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
 		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
 /* End PBXBuildFile section */
@@ -43,6 +45,7 @@
 		95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = nanum_jeomggol.ttf; sourceTree = "<group>"; };
 		A200F24526F2E89B50E53BA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_batang.ttf; sourceTree = "<group>"; };
+		AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAdsBridge.swift; sourceTree = "<group>"; };
 		AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveBridge.swift; sourceTree = "<group>"; };
 		C117AD187833E2513BD2F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C35CD2C849A242A9332863DC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -63,6 +66,7 @@
 				1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */,
 				445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */,
 				B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */,
+				379D4C6DBBA934A8EF44CDDE /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +104,7 @@
 				343488E477CB7C977BDDC8FF /* Config.xcconfig */,
 				CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */,
 				7497B00B5F8A0AE75FFEA1E1 /* FirebaseReporter.swift */,
+				AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */,
 				C117AD187833E2513BD2F553 /* Info.plist */,
 				668CECA83ACC03A83C85A623 /* iOSApp.swift */,
 				7009FFABBC02111FC2C6BBEA /* Local.xcconfig */,
@@ -359,6 +364,7 @@
 				B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */,
 				1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */,
 				108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */,
+				D653C9A304F35EF27606B403 /* GoogleMobileAds */,
 			);
 			productName = iosApp;
 			productReference = 86038AE1032E284E79B32AD6 /* iosApp.app */;
@@ -398,6 +404,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -501,6 +508,7 @@
 				56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */,
 				23CEA18C5D402BAD832FD636 /* DailyBackupTask.swift in Sources */,
 				08511472D23A90B696221D80 /* FirebaseReporter.swift in Sources */,
+				ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */,
 				F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */,
 				9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */,
 				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
@@ -727,6 +735,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = exactVersion;
+				version = 13.11.0;
+			};
+		};
 		7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -760,6 +776,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignIn;
+		};
+		D653C9A304F35EF27606B403 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
