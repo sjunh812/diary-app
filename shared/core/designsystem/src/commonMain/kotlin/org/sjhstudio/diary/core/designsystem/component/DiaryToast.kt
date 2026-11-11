@@ -1,9 +1,13 @@
 package org.sjhstudio.diary.core.designsystem.component
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -20,6 +24,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,8 +87,11 @@ class DiaryToastState {
  * 탭과 쓰기 버튼 위에 오도록 부르는 쪽이 자리를 잡음
  */
 @Composable
-fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
+fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier, reduceMotion: Boolean = false) {
     val data = state.current
+    // 사라지는 동안에도 마지막 글을 그려 페이드가 보이게. 비자마자 그리기를 멈추면 뚝 끊김
+    var last by remember { mutableStateOf<DiaryToastData?>(null) }
+    SideEffect { if (data != null) last = data }
     var pressed by remember { mutableStateOf(false) }
     LaunchedEffect(data, pressed) {
         if (data == null || pressed) return@LaunchedEffect
@@ -92,11 +100,23 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
     }
     AnimatedVisibility(
         visible = data != null,
-        enter = fadeIn(tween(DiaryMotion.QUICK_MILLIS)),
-        exit = fadeOut(tween(DiaryMotion.QUICK_MILLIS)),
+        // 아래에서 조금 올라오며 나타나고, 더 짧게 내려가며 사라짐(iOS·TDS 토스트, M3 스낵바)
+        enter =
+            if (reduceMotion) {
+                EnterTransition.None
+            } else {
+                fadeIn(tween(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate)) +
+                    slideInVertically(tween(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate)) { it / ENTER_RISE }
+            },
+        exit =
+            if (reduceMotion) {
+                ExitTransition.None
+            } else {
+                fadeOut(tween(DiaryMotion.EXIT_MILLIS)) + slideOutVertically(tween(DiaryMotion.EXIT_MILLIS)) { it / EXIT_DROP }
+            },
         modifier = modifier
     ) {
-        val shown = data ?: return@AnimatedVisibility
+        val shown = data ?: last ?: return@AnimatedVisibility
         val colors = DiaryTheme.colors
         var multiline by remember(shown) { mutableStateOf(false) }
         val action = shown.actionLabel
@@ -155,3 +175,9 @@ fun DiaryToastHost(state: DiaryToastState, modifier: Modifier = Modifier) {
 private val MaxWidth = 400.dp
 private const val ACTION_MILLIS = 5_000L
 private const val PLAIN_MILLIS = 3_000L
+
+/** 나타날 때 토스트 높이의 1/3만큼 아래에서 올라옴 */
+private const val ENTER_RISE = 3
+
+/** 사라질 때 높이의 1/6만큼 내려감 */
+private const val EXIT_DROP = 6

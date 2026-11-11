@@ -11,6 +11,9 @@ object DiaryMotion {
     /** 화면 전환, 시트 */
     const val STANDARD_MILLIS = 300
 
+    /** 사라짐. 나타날 때보다 짧게(M3 motion: 나갈 때가 더 빠름) */
+    const val EXIT_MILLIS = 150
+
     /** 감속 곡선 */
     val decelerate: Easing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
 }

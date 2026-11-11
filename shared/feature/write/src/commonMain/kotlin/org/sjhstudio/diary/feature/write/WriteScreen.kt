@@ -149,6 +149,7 @@ import org.sjhstudio.diary.core.ui.checklistMarks
 import org.sjhstudio.diary.core.ui.icon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
@@ -400,7 +401,11 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             }
         }
         // 서식 도구 줄 위에 띄움
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).padding(bottom = DiaryWriteSize.toolbar + DiarySpacing.x3))
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).padding(bottom = DiaryWriteSize.toolbar + DiarySpacing.x3),
+            reduceMotion = rememberReduceMotion()
+        )
     }
     when (sheet) {
         Sheet.Mood ->

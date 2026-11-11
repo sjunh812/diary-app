@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.migration.LegacyReaderScreen
 import org.sjhstudio.diary.feature.migration.LegacyReaderViewModel
 import org.sjhstudio.diary.feature.migration.MigrationMessage
@@ -102,6 +103,10 @@ fun MigrationGate(content: @Composable () -> Unit) {
                 reading && state is MigrationUiState.Failed -> DiarySpacing.x4
                 else -> ToastAboveButtons
             }
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = bottom))
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = bottom),
+            reduceMotion = rememberReduceMotion()
+        )
     }
 }

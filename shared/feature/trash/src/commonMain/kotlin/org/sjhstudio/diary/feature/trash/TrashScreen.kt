@@ -63,6 +63,7 @@ import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.trash.resources.Res
 import org.sjhstudio.diary.feature.trash.resources.trash_confirm_body_all
@@ -102,7 +103,11 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val list = items
     Box(modifier.fillMaxSize()) {
         TrashScreen(list, onBack, onEmpty = { confirmAll = true }, onPick = { pickedId = it }, failed = failed, onRetry = viewModel::retry)
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4),
+            reduceMotion = rememberReduceMotion()
+        )
     }
     pickedId?.let { id ->
         DiaryBottomSheet(onDismiss = { pickedId = null }) {

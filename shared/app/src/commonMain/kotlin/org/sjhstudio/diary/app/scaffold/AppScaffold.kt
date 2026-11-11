@@ -215,9 +215,15 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올림. 토스트는 제자리에 뜨고 버튼은 가리지 않음
         var toastHeight by remember { mutableStateOf(Dp.Hairline) }
         val reduceMotion = rememberReduceMotion()
+        // 토스트와 같은 때, 같은 곡선으로 움직임. 토스트가 사라질 때는 같이 짧게 내려옴
+        val toastShown = toast.current != null
         val writeLift by animateDpAsState(
-            if (toast.current != null) toastHeight + DiarySpacing.x2 else Dp.Hairline,
-            tween(if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS)
+            if (toastShown) toastHeight + DiarySpacing.x2 else Dp.Hairline,
+            when {
+                reduceMotion -> tween(0)
+                toastShown -> tween(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate)
+                else -> tween(DiaryMotion.EXIT_MILLIS)
+            }
         )
         Box(Modifier.fillMaxSize().then(shortcuts)) {
             CompositionLocalProvider(
@@ -369,7 +375,10 @@ private fun ContentWithToast(
                 .align(Alignment.BottomCenter)
                 .then(if (bottomInset > Dp.Hairline) Modifier else Modifier.navigationBarsPadding())
                 .padding(start = LocalRailWidth.current, bottom = DiarySpacing.x4 + bottomInset)
-                .onSizeChanged { if (it.height > 0) onToastHeight(with(density) { it.height.toDp() }) }
+                .onSizeChanged { size ->
+                    if (size.height > 0) onToastHeight(with(density) { size.height.toDp() })
+                },
+            reduceMotion = rememberReduceMotion()
         )
     }
 }

@@ -62,6 +62,7 @@ import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
 import org.sjhstudio.diary.core.ui.LegalLinks
 import org.sjhstudio.diary.core.ui.rememberOpenLink
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
 import org.sjhstudio.diary.feature.backup.BackupSettingsRoute
@@ -142,7 +143,11 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 onPrivacy = { links.openUri(LegalLinks.PRIVACY) },
                 onPlus = { push(PlusKey) }
             )
-            DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).padding(bottom = toastBottomOverApp()))
+            DiaryToastHost(
+                toast,
+                Modifier.align(Alignment.BottomCenter).padding(bottom = toastBottomOverApp()),
+                reduceMotion = rememberReduceMotion()
+            )
         }
     }
     entry<BackupSettingsKey> {
@@ -247,6 +252,10 @@ private fun MigrationReportPage(onBack: () -> Unit) {
                 }
             )
         }
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4),
+            reduceMotion = rememberReduceMotion()
+        )
     }
 }

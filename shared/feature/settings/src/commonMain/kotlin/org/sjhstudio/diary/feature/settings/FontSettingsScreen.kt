@@ -47,6 +47,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.ui.diaryBodyFontFamily
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.font_download
 import org.sjhstudio.diary.feature.settings.resources.font_downloading
@@ -168,6 +169,10 @@ fun FontSettingsRoute(onBack: () -> Unit) {
     }
     Box(Modifier.fillMaxSize()) {
         FontSettingsScreen(state, onSelect = viewModel::select, onBack = onBack)
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4),
+            reduceMotion = rememberReduceMotion()
+        )
     }
 }
