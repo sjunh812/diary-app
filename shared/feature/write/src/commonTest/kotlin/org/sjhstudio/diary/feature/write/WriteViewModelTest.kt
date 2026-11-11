@@ -396,6 +396,23 @@ class WriteViewModelTest {
         assertEquals(listOf<WriteEvent>(WriteEvent.Saved("saved-id")), events)
     }
 
+    /** 뒤로 가기를 처리하는 동안 저장을 눌러도 나가는 길은 하나. 저장한 일기의 임시 저장본이 되살아나 같은 일기가 둘 되면 안 됨 */
+    @Test
+    fun saving_while_closing_is_ignored() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+        vm.onBodyChange("<p>글</p>")
+
+        vm.close()
+        vm.save()
+        advanceUntilIdle()
+
+        assertTrue(repository.committed.isEmpty())
+        assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = true)), events)
+    }
+
     @Test
     fun failed_save_keeps_the_draft_and_tells_the_screen() = runTest(dispatcher) {
         val repository = FakeDraftRepository().apply { failCommit = true }

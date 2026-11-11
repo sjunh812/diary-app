@@ -201,8 +201,6 @@ class WriteViewModel(
     /** [editorChanged]인 동안 저장 버튼을 켤지 정하는 값 */
     private var editorHasText = false
 
-    /** 일기로 저장을 마침. 임시 저장본이 지워졌으니 다시 쓰면 안 됨 */
-    private var committed = false
     private var weatherAutoFilled = false
     private var isFavorite = false
     private var pending: Job? = null
@@ -219,7 +217,10 @@ class WriteViewModel(
     /** 넣는 중인 사진. 닫기와 저장은 이 일이 끝나길 기다림 */
     private val photoWork = mutableListOf<Job>()
 
-    /** 화면을 떠나는 중. 닫기를 연타해도 한 번만 닫음 */
+    /**
+     * 화면을 떠나는 중. 저장, 닫기, 버리기는 모두 떠나는 길이라 먼저 시작한 하나만 감
+     * 실패해 남게 되면 다시 풂
+     */
     private var leaving = false
     private var lastRemoved: Instant? = null
 
@@ -536,11 +537,12 @@ class WriteViewModel(
         write { flush() }
     }
 
-    /** 연타해도 한 번만 저장. 메인에서만 불리니 표시를 먼저 세우면 두 번째가 들어오지 못함 */
+    /** 연타해도 한 번만 저장. 메인에서만 불리니 표시를 먼저 세우면 두 번째나 닫기가 들어오지 못함 */
     fun save() {
-        if (_state.value.saving) return
+        if (leaving) return
         takeEditorBody()
         if (!_state.value.canSave) return
+        leaving = true
         _state.update { it.copy(saving = true) }
         viewModelScope.launchSafely {
             pending?.cancel()
@@ -548,13 +550,12 @@ class WriteViewModel(
                 photoWork.toList().joinAll()
                 flush(force = true)
                 val id = drafts.commit(key)
-                committed = true
-                leaving = true
                 _events.send(WriteEvent.Saved(id))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 // 임시 저장본은 그대로 있어 다시 누를 수 있게 알리기만
+                leaving = false
                 _state.update { it.copy(saving = false, saveFailed = true) }
             }
         }
@@ -562,9 +563,8 @@ class WriteViewModel(
 
     /** 뒤로 가기. 쓴 것이 있으면 묻지 않고 임시 저장(FR-011) */
     fun close() {
-        // 저장이 끝났으면 화면이 이미 닫히는 중
-        // 저장 중이면 곧 닫히니 임시 저장본을 다시 만들지 않음
-        if (leaving || _state.value.saving) return
+        // 저장 중이거나 저장이 끝났으면 화면이 이미 닫히는 중. 임시 저장본을 다시 만들지 않음
+        if (leaving) return
         leaving = true
         // 쓸 글을 고르기 전이면 남겨 둔 글을 건드리지 않음
         if (!ready.isCompleted) {

@@ -84,7 +84,8 @@ class DefaultDraftRepository(
     private suspend fun photosChanged(key: DraftKey, oldMedia: List<MediaEntity>): Boolean =
         drafts.media(key.value).map { it.sha256 } != oldMedia.filter { it.isEditable }.map { it.sha256 }
 
-    override suspend fun save(draft: Draft) = drafts.upsert(draft.asEntity())
+    // 저장과 지우기 사이에 끼어 저장한 일기의 임시 저장본이 되살아나지 않게 같은 줄에 세움
+    override suspend fun save(draft: Draft) = inOrder(draft.key) { drafts.upsert(draft.asEntity()) }
 
     override suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult = inOrder(key) {
         // 화면이 더하는 사이 저장이나 버리기로 임시 저장본이 지워졌으면 붙일 곳이 없음
