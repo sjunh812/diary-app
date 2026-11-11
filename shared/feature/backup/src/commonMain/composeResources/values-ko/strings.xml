@@ -12,6 +12,7 @@
     <string name="backup_running">백업하고 있어요</string>
     <string name="backup_running_body">앱을 나가도 계속 올려요. 끝나면 알림으로 알려 드려요.</string>
     <string name="backup_running_body_open">앱을 켜 둔 동안 올려요. 앱을 나가면 멈추고, 다시 열면 이어서 올려요.</string>
+    <string name="backup_running_body_quiet">앱을 나가도 계속 올려요.</string>
     <string name="backup_running_photos">사진 %1$s / %2$s장</string>
     <string name="backup_reconnect">다시 연결</string>
     <string name="backup_reconnect_title">구글 계정 연결이 끊겼어요</string>
@@ -88,6 +89,7 @@
     <string name="restore_value_photo">사진</string>
     <string name="restore_photo_progress">%1$s / %2$s</string>
     <string name="restore_running_note">앱을 나가도 계속 받고, 끝나면 알림으로 알려 드려요. 앱이 꺼져도 남은 사진만 이어서 받아요.</string>
+    <string name="restore_running_note_quiet">앱을 나가도 계속 받아요. 앱이 꺼져도 남은 사진만 이어서 받아요.</string>
     <string name="restore_running_note_open">앱을 켜 둔 동안 받아요. 앱을 나가면 멈추고, 다시 열면 남은 사진만 이어서 받아요.</string>
     <string name="restore_see_entries">일기 먼저 보기</string>
     <string name="restore_done_nothing">백업을 합쳤어요</string>

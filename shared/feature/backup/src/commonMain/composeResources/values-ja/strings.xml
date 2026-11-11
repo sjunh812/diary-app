@@ -12,6 +12,7 @@
     <string name="backup_running">バックアップ中</string>
     <string name="backup_running_body">アプリを閉じても続きます。終わったら通知でお知らせします。</string>
     <string name="backup_running_body_open">アプリを開いている間アップロードします。アプリを閉じると止まり、また開くと続きから再開します。</string>
+    <string name="backup_running_body_quiet">アプリを閉じても続きます。</string>
     <string name="backup_running_photos">写真 %1$s / %2$s枚</string>
     <string name="backup_reconnect">再接続</string>
     <string name="backup_reconnect_title">Google アカウントの接続が切れました</string>
@@ -88,6 +89,7 @@
     <string name="restore_value_photo">写真</string>
     <string name="restore_photo_progress">%1$s / %2$s</string>
     <string name="restore_running_note">アプリを閉じても続き、終わったら通知でお知らせします。アプリが終了しても残りの写真だけ続きからダウンロードします。</string>
+    <string name="restore_running_note_quiet">アプリを閉じても続きます。アプリが終了しても残りの写真だけ続きからダウンロードします。</string>
     <string name="restore_running_note_open">アプリを開いている間ダウンロードします。アプリを閉じると止まり、また開くと残りの写真だけダウンロードします。</string>
     <string name="restore_see_entries">先に日記を見る</string>
     <string name="restore_done_nothing">バックアップを統合しました</string>

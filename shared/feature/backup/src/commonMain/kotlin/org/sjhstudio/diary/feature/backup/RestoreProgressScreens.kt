@@ -160,6 +160,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_retry
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_running_note
 import org.sjhstudio.diary.feature.backup.resources.restore_running_note_open
+import org.sjhstudio.diary.feature.backup.resources.restore_running_note_quiet
 import org.sjhstudio.diary.feature.backup.resources.restore_running_title
 import org.sjhstudio.diary.feature.backup.resources.restore_see_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_settings_note
@@ -279,7 +280,13 @@ internal fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntr
     KeepScreenOn()
     Bottom {
         BasicText(
-            stringResource(if (workContinuesInBackground) Res.string.restore_running_note else Res.string.restore_running_note_open),
+            stringResource(
+                when {
+                    !workContinuesInBackground -> Res.string.restore_running_note_open
+                    notificationsAllowed() -> Res.string.restore_running_note
+                    else -> Res.string.restore_running_note_quiet
+                }
+            ),
             style = DiaryTheme.typography.caption.copy(
                 color = colors.textSecondary,
                 textAlign = TextAlign.Center,

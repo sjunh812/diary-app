@@ -12,6 +12,7 @@
     <string name="backup_running">Backing up</string>
     <string name="backup_running_body">It keeps going if you leave the app. We'll notify you when it's done.</string>
     <string name="backup_running_body_open">It runs while the app is open. If you leave, it pauses and picks up when you come back.</string>
+    <string name="backup_running_body_quiet">It keeps going if you leave the app.</string>
     <string name="backup_running_photos">Photos %1$s / %2$s</string>
     <string name="backup_reconnect">Reconnect</string>
     <string name="backup_reconnect_title">Google account disconnected</string>
@@ -91,6 +92,7 @@
     <string name="restore_value_photo">Photos</string>
     <string name="restore_photo_progress">%1$s / %2$s</string>
     <string name="restore_running_note">It keeps going if you leave the app, and we'll notify you when it's done. If the app closes, only the remaining photos download.</string>
+    <string name="restore_running_note_quiet">It keeps going if you leave the app. If the app closes, only the remaining photos download.</string>
     <string name="restore_running_note_open">It runs while the app is open. If you leave, it pauses, and only the remaining photos download when you come back.</string>
     <string name="restore_see_entries">See entries first</string>
     <string name="restore_done_nothing">Backup merged</string>

@@ -125,6 +125,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_restored_title
 import org.sjhstudio.diary.feature.backup.resources.backup_running
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body
 import org.sjhstudio.diary.feature.backup.resources.backup_running_body_open
+import org.sjhstudio.diary.feature.backup.resources.backup_running_body_quiet
 import org.sjhstudio.diary.feature.backup.resources.backup_running_photos
 import org.sjhstudio.diary.feature.backup.resources.backup_skip_busy
 import org.sjhstudio.diary.feature.backup.resources.backup_skip_empty
@@ -608,7 +609,11 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: ()
                         if (workContinuesInBackground) done else done + "\n" + stringResource(Res.string.backup_running_body_open)
                     } else {
                         stringResource(
-                            if (workContinuesInBackground) Res.string.backup_running_body else Res.string.backup_running_body_open
+                            when {
+                                !workContinuesInBackground -> Res.string.backup_running_body_open
+                                notificationsAllowed() -> Res.string.backup_running_body
+                                else -> Res.string.backup_running_body_quiet
+                            }
                         )
                     }
                 )
