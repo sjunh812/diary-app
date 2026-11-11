@@ -13,7 +13,8 @@ Play는 기존 앱 업데이트, App Store는 새 출시다. 조사일 2026-10-3
 ## CD 비밀값
 
 `v*` 태그를 올리면 `.github/workflows/release.yml`이 돈다. 태그와 앱 버전이 다르면 멈춘다(`scripts/release/check-version.sh`). 변경 기록은 `feat`·`fix` 커밋 제목에서 뽑아 GitHub Release 초안으로 남긴다(`scripts/release/changelog.sh`).
-비밀값이 없으면 그 단계만 건너뛰고 경고를 남긴다. 값은 Settings > Environments > `release`의 Environment secrets에 넣는다. 여기에 사용자 본인을 Required reviewers로 걸면 태그마다 승인 뒤에 돈다.
+비밀값이 없으면 그 단계만 건너뛰고 경고를 남긴다. 값은 Settings > Environments > `release`의 Environment secrets에 넣는다.
+Android 값은 `sh scripts/release/set-secrets.sh <업로드 키 .jks> [Play 서비스 계정 .json]`으로 한 번에 넣는다. 광고 ID와 RevenueCat 키는 `local.properties`에서 읽고, 비밀번호는 실행 중에 묻는다. 값은 화면에 나오지 않는다. 사람이 직접 돌린다. 여기에 사용자 본인을 Required reviewers로 걸면 태그마다 승인 뒤에 돈다.
 
 | 비밀값 | 무엇 | 없으면 |
 | --- | --- | --- |
