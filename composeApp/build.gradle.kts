@@ -43,6 +43,13 @@ fun localProperty(key: String, fallback: String): String {
     return Properties().apply { file.inputStream().use { load(it) } }.getProperty(key) ?: fallback
 }
 
+/** Google 공개 시험 광고 단위. 실제 광고를 누르면 무효 트래픽이 됨 */
+val testAds = mapOf(
+    "adNative" to "ca-app-pub-3940256099942544/2247696110",
+    "adInterstitial" to "ca-app-pub-3940256099942544/1033173712",
+    "adRewarded" to "ca-app-pub-3940256099942544/5224354917"
+)
+
 // 서명 정보는 저장소에 두지 않음. CI는 환경 변수로 받고(.github/workflows/release.yml), 값이 없으면 서명 없는 빌드
 val releaseKeystorePath = providers.environmentVariable("DIARY_KEYSTORE_PATH").orNull
 
@@ -113,13 +120,9 @@ android {
         // 개발 빌드는 Google 시험 광고만 받음
         // 실제 광고를 누르면 무효 트래픽이 됨
         debug {
-            manifestPlaceholders += mapOf(
-                "adNative" to "ca-app-pub-3940256099942544/2247696110",
-                "adInterstitial" to "ca-app-pub-3940256099942544/1033173712",
-                "adRewarded" to "ca-app-pub-3940256099942544/5224354917",
-                "firebaseCollection" to localProperty("firebase.debug", "false")
-            )
+            manifestPlaceholders += testAds + mapOf("firebaseCollection" to localProperty("firebase.debug", "false"))
         }
+
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -191,4 +194,15 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
 
     baselineProfile(projects.benchmarks)
+}
+
+// 측정·프로필 생성 빌드(Baseline Profile 플러그인이 만듦)도 시험 광고만, 사용 통계는 보내지 않음
+// 출시 빌드를 본떠 실제 광고 ID를 물려받으면 시험 기기에서 실제 광고가 뜸
+// 플러그인이 출시 설정을 나중에 덮어써서 변형 단계에서 바꿈
+androidComponents {
+    onVariants { variant ->
+        if (variant.buildType == "benchmarkRelease" || variant.buildType == "nonMinifiedRelease") {
+            (testAds + mapOf("firebaseCollection" to "false")).forEach { (key, value) -> variant.manifestPlaceholders.put(key, value) }
+        }
+    }
 }
