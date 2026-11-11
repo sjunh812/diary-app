@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
@@ -38,6 +39,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -85,6 +87,8 @@ import org.sjhstudio.diary.app.navigation.TabNavigation
 import org.sjhstudio.diary.app.navigation.TabScreen
 import org.sjhstudio.diary.app.navigation.TabSwap
 import org.sjhstudio.diary.app.navigation.WriteKey
+import org.sjhstudio.diary.app.navigation.coverTransition
+import org.sjhstudio.diary.app.navigation.coversAll
 import org.sjhstudio.diary.app.navigation.decoratedEntries
 import org.sjhstudio.diary.app.navigation.dimmedAlpha
 import org.sjhstudio.diary.app.navigation.popTransition
@@ -92,6 +96,7 @@ import org.sjhstudio.diary.app.navigation.predictivePopTransition
 import org.sjhstudio.diary.app.navigation.pushTransition
 import org.sjhstudio.diary.app.navigation.rememberTabNavigation
 import org.sjhstudio.diary.app.navigation.tabRoot
+import org.sjhstudio.diary.app.navigation.uncoverTransition
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.app.resources.detail_trashed
@@ -179,7 +184,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     // 앱 틀 전체에 하나 두는 토스트. 지금은 "쓰던 글꼴 대신 ○○ 글꼴로 보여 드려요"만 씀
     val toast = remember { DiaryToastState() }
     FontReplacedNotice(toast) { nav.openInTab(SettingsKey, FontSettingsKey) }
-    // 쓰기, 사진 크게 보기, 결제는 전체 화면이라 탭과 레일을 그리지 않음
+    // 쓰기, 사진 크게 보기, 결제는 전체 화면이라 탭과 레일을 덮음
     val writing = nav.top is WriteKey
     val fullScreen = writing || nav.top is PhotoViewerKey || nav.top is PlusKey
     // 파일 불러오기는 일기를 지우지 않으니 다른 탭에 쌓인 화면(쓰던 일기 포함)을 비울 까닭 없음
@@ -259,18 +264,30 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                     toast,
                     twoPane,
                     onWrite,
+                    actions,
                     Modifier.fillMaxSize(),
                     bottomInset = barInset,
                     onToastHeight = { toastHeight = it },
-                    shell = actions
+                    rail =
+                        if (wide) {
+                            {
+                                // 전체 화면이 덮은 동안은 화면 읽기와 키 이동에서 뺌
+                                val covered =
+                                    if (fullScreen) {
+                                        Modifier.clearAndSetSemantics {}.focusProperties { canFocus = false }
+                                    } else {
+                                        Modifier
+                                    }
+                                Box(covered.onSizeChanged { railWidth = with(density) { it.width.toDp() } }) {
+                                    DiaryNavigationRail(items, selected, onSelect, header = {
+                                        DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
+                                    })
+                                }
+                            }
+                        } else {
+                            null
+                        }
                 )
-            }
-            if (wide && !fullScreen) {
-                Box(Modifier.onSizeChanged { railWidth = with(density) { it.width.toDp() } }) {
-                    DiaryNavigationRail(items, selected, onSelect, header = {
-                        DiaryWriteButton(writeLabel, onWrite, Modifier.padding(bottom = DiarySpacing.x8))
-                    })
-                }
             }
         }
     }
@@ -288,33 +305,51 @@ private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
 private val TabBarSpace =
     NavEntryDecorator<NavKey>(decorate = { entry ->
         val bottom = if (entry.metadata[TAB_ROOT] == true) LocalTabBarHeight.current else Dp.Hairline
-        val start = if (entry.metadata[FULL_SCREEN] == true || LocalInListDetail.current) Dp.Hairline else LocalRailWidth.current
+        val fullScreen = entry.metadata[FULL_SCREEN] == true
+        val start = if (fullScreen || LocalInListDetail.current) Dp.Hairline else LocalRailWidth.current
         val chrome = LocalRootChrome.current
         val root = entry.metadata[ROOT_OF] as? TabScreen
         val colors = DiaryTheme.colors
         // 전환 중에는 두 화면 모두 터치 막음. 빠르게 누르면 사라지는 화면이 눌렸음
         val moving = LocalNavAnimatedContentScope.current.transition.isRunning
-        // 바탕이 빈 화면은 전환 중 뒤의 검은 바탕이 비쳐 바탕을 깖
-        // 양옆 바깥 선은 전환 중에만 두 화면 사이에 보임(다크에서 두 화면 구분)
+        // 레일 자리는 비워 밑에 깐 레일이 보이게 함
+        // 전체 화면은 레일까지 덮으니 그 자리를 누르거나 읽어도 레일에 닿지 않게 받아 둠
         Box(
             Modifier
                 .fillMaxSize()
-                .drawBehind {
-                    val edge = Dp.Hairline.toPx().coerceAtLeast(1f)
-                    drawRect(colors.line, topLeft = Offset(-edge, 0f), size = Size(edge, size.height))
-                    drawRect(colors.line, topLeft = Offset(size.width, 0f), size = Size(edge, size.height))
-                }.background(colors.canvas)
-        ) {
-            Box(Modifier.fillMaxSize().padding(start = start, bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
-                entry.Content()
-            }
-            if (root != null) chrome?.invoke(this, root)
-            if (moving) {
-                Box(
-                    Modifier.matchParentSize().pointerInput(Unit) {
-                        awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } }
+                .padding(start = start)
+                .then(
+                    if (fullScreen) {
+                        Modifier.pointerInput(Unit) {
+                            awaitPointerEventScope { while (true) awaitPointerEvent() }
+                        }
+                    } else {
+                        Modifier
                     }
                 )
+        ) {
+            // 바탕이 빈 화면은 전환 중 뒤의 검은 바탕이 비쳐 바탕을 깖
+            // 양옆 바깥 선은 전환 중에만 두 화면 사이에 보임(다크에서 두 화면 구분)
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        val edge = Dp.Hairline.toPx().coerceAtLeast(1f)
+                        drawRect(colors.line, topLeft = Offset(-edge, 0f), size = Size(edge, size.height))
+                        drawRect(colors.line, topLeft = Offset(size.width, 0f), size = Size(edge, size.height))
+                    }.background(colors.canvas)
+            ) {
+                Box(Modifier.fillMaxSize().padding(bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
+                    entry.Content()
+                }
+                if (root != null) chrome?.invoke(this, root)
+                if (moving) {
+                    Box(
+                        Modifier.matchParentSize().pointerInput(Unit) {
+                            awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } }
+                        }
+                    )
+                }
             }
         }
     })
@@ -344,10 +379,11 @@ private fun ContentWithToast(
     toast: DiaryToastState,
     twoPane: Boolean,
     onWrite: () -> Unit,
+    shell: ShellActions,
     modifier: Modifier,
     bottomInset: Dp = Dp.Hairline,
     onToastHeight: (Dp) -> Unit = {},
-    shell: ShellActions
+    rail: (@Composable () -> Unit)? = null
 ) {
     Box(modifier) {
         val saved = stringResource(Res.string.write_saved)
@@ -362,8 +398,9 @@ private fun ContentWithToast(
             nav,
             twoPane,
             onWrite,
-            Modifier.fillMaxSize(),
+            rail = rail,
             notify = { message -> scope.launch { toast.show(if (message == Message.Saved) saved else draftKept) } },
+            modifier = Modifier.fillMaxSize(),
             onTrashed = { id ->
                 // 알림이 사라진 뒤에도 앱 틀은 그대로라 화면이 닫혀도 되돌릴 수 있음
                 scope.launch { if (toast.show(trashed, undo) == DiaryToastResult.ActionPerformed) shell.onRestore(id) }
@@ -396,8 +433,9 @@ private fun Content(
     nav: TabNavigation,
     twoPane: Boolean,
     onWrite: () -> Unit,
-    modifier: Modifier,
+    rail: (@Composable () -> Unit)?,
     notify: (Message) -> Unit,
+    modifier: Modifier,
     onTrashed: (String) -> Unit
 ) {
     val pop: () -> Unit = nav::back
@@ -420,137 +458,162 @@ private fun Content(
     val predictivePopMotion = remember(dimmed) { predictivePopTransition<NavKey>(dimmed) }
     // 동작 줄이기를 켠 사람에게는 밀어 들어오는 전환을 쓰지 않음
     val reduceMotion = rememberReduceMotion()
-    NavDisplay(
-        entries =
-            nav.decoratedEntries(
-                TabBarSpace,
-                entryProvider {
-                    entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
-                        val backupNudge by koinViewModel<BackupViewModel>().nudge.collectAsStateWithLifecycle()
-                        HomeRoute(
-                            backupLine = {
-                                BackupStatusLine(onOpen = {
+    // 레일은 넓은 화면에만 있음
+    val wide = rail != null
+    // 뒤 바탕(밀려나는 화면을 어둡게 하는 DiaryTransitions) → 레일 → 화면 순으로 쌓음
+    // 레일 자리는 화면이 비워 두어 레일이 보이고, 전체 화면은 밀려 들어오며 레일까지 덮음
+    // 레일을 위에 얹으면 전체 화면으로 갈 때 레일이 먼저 사라져 그 자리에 뒤 바탕이 비쳤음
+    Box(modifier.background(DiaryTheme.colors.scrim.copy(alpha = 1f))) {
+        rail?.invoke()
+        NavDisplay(
+            entries =
+                nav.decoratedEntries(
+                    TabBarSpace,
+                    entryProvider {
+                        entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
+                            val backupNudge by koinViewModel<BackupViewModel>().nudge.collectAsStateWithLifecycle()
+                            HomeRoute(
+                                backupLine = {
+                                    BackupStatusLine(onOpen = {
+                                        nav.openTab(SettingsKey)
+                                        nav.push(BackupSettingsKey)
+                                    })
+                                    BackupFoundPrompt(onRestoreEntry = { nav.push(RestorePreviewKey(it)) })
+                                },
+                                backupAlert = {
+                                    BackupAlertButton(onOpen = {
+                                        nav.openTab(SettingsKey)
+                                        nav.push(BackupSettingsKey)
+                                    })
+                                },
+                                listTop = { BackupNudgeCard() },
+                                // 백업 안내가 떠 있는 동안은 목록 보기 팁을 미룸
+                                onListStyle = {
                                     nav.openTab(SettingsKey)
-                                    nav.push(BackupSettingsKey)
-                                })
-                                BackupFoundPrompt(onRestoreEntry = { nav.push(RestorePreviewKey(it)) })
-                            },
-                            backupAlert = {
-                                BackupAlertButton(onOpen = {
-                                    nav.openTab(SettingsKey)
-                                    nav.push(BackupSettingsKey)
-                                })
-                            },
-                            listTop = { BackupNudgeCard() },
-                            // 백업 안내가 떠 있는 동안은 목록 보기 팁을 미룸
-                            onListStyle = {
-                                nav.openTab(SettingsKey)
-                                nav.push(ListStyleSettingsKey)
-                            }.takeIf { backupNudge == null },
-                            onOpen = nav::openEntry,
-                            onWrite = onWrite,
-                            onSearch = { nav.push(SearchKey()) },
-                            onEdit = { nav.push(WriteKey(entryId = it)) },
-                            onTrashed = closeTrashed,
-                            selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
-                            // 같은 자리에서 얇은 줄과 카드를 번갈아 씀. 광고 수는 늘지 않음
-                            // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않음
-                            // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
-                            adSlot = { order, slot ->
-                                if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
-                                    AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card, slot)
+                                    nav.push(ListStyleSettingsKey)
+                                }.takeIf { backupNudge == null },
+                                onOpen = nav::openEntry,
+                                onWrite = onWrite,
+                                onSearch = { nav.push(SearchKey()) },
+                                onEdit = { nav.push(WriteKey(entryId = it)) },
+                                onTrashed = closeTrashed,
+                                selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
+                                // 같은 자리에서 얇은 줄과 카드를 번갈아 씀. 광고 수는 늘지 않음
+                                // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않음
+                                // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
+                                adSlot = { order, slot ->
+                                    if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
+                                        AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card, slot)
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
+                        entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
+                            SearchRoute(
+                                initial = key.toFilter(),
+                                selectedId = nav.current.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
+                                onBack = pop,
+                                onOpen = nav::openEntry
+                            )
+                        }
+                        // 화면 키의 문자열에는 일기 ID를 담지 않아 저장 자리 구분은 ID로 따로 줌
+                        entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
+                            EntryDetailRoute(
+                                entryId = key.entryId,
+                                // 창이 넓어도 달력에서 연 상세는 한 칸. 목록이 옆에 그려질 때만 뒤로 버튼을 뺌
+                                onBack = pop.takeUnless { LocalInListDetail.current },
+                                onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
+                                onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
+                                onOtherVersion = nav::openEntry,
+                                onTrashed = {
+                                    nav.closeEntry(key.entryId)
+                                    onTrashed(key.entryId)
+                                }
+                            )
+                        }
+                        entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
+                            PhotoViewerRoute(key.entryId, key.index, onClose = pop)
+                        }
+                        entry<CalendarKey>(metadata = tabRoot(CalendarKey)) {
+                            CalendarRoute(
+                                twoPane = splitWindow,
+                                onOpen = nav::openEntry,
+                                onWriteOn = { nav.push(WriteKey(date = it.toString())) },
+                                onEdit = { nav.push(WriteKey(entryId = it)) },
+                                onTrash = closeTrashed
+                            )
+                        }
+                        entry<InsightKey>(metadata = tabRoot(InsightKey)) {
+                            InsightRoute(
+                                onMood = { mood, range ->
+                                    nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                                },
+                                onPeriod = { range -> nav.push(SearchKey(from = range.start.toString(), to = range.end.toString())) },
+                                onPlus = { nav.push(PlusKey) },
+                                onAdvanced = { nav.push(AdvancedStatsKey) },
+                                onWrite = onWrite,
+                                adSlot = { AdSlot("insight", AdShape.Card) }
+                            )
+                        }
+                        entry<AdvancedStatsKey> {
+                            // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아감
+                            val plan by shell.plan.collectAsStateWithLifecycle()
+                            LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
+                            AdvancedStatsRoute(
+                                onBack = pop,
+                                onMood = { mood, range ->
+                                    nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                                },
+                                onWrite = onWrite
+                            )
+                        }
+                        settingsEntries(push = nav::push, pop = pop, home = { nav.startOver(HomeKey) })
+                        entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
+                            val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
+                            WriteRoute(
+                                target = target,
+                                onSaved = { id ->
+                                    pop()
+                                    // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 감(FR-012)
+                                    if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
+                                    notify(Message.Saved)
+                                    shell.onSaved(nav.tab, nav.current.toList())
+                                },
+                                onClosed = { kept ->
+                                    pop()
+                                    if (kept) notify(Message.DraftKept)
+                                },
+                                onPlus = { nav.push(PlusKey) }
+                            )
+                        }
                     }
-                    entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
-                        SearchRoute(
-                            initial = key.toFilter(),
-                            selectedId = nav.current.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
-                            onBack = pop,
-                            onOpen = nav::openEntry
-                        )
-                    }
-                    // 화면 키의 문자열에는 일기 ID를 담지 않아 저장 자리 구분은 ID로 따로 줌
-                    entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
-                        EntryDetailRoute(
-                            entryId = key.entryId,
-                            // 창이 넓어도 달력에서 연 상세는 한 칸. 목록이 옆에 그려질 때만 뒤로 버튼을 뺌
-                            onBack = pop.takeUnless { LocalInListDetail.current },
-                            onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
-                            onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
-                            onOtherVersion = nav::openEntry,
-                            onTrashed = {
-                                nav.closeEntry(key.entryId)
-                                onTrashed(key.entryId)
-                            }
-                        )
-                    }
-                    entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
-                        PhotoViewerRoute(key.entryId, key.index, onClose = pop)
-                    }
-                    entry<CalendarKey>(metadata = tabRoot(CalendarKey)) {
-                        CalendarRoute(
-                            twoPane = splitWindow,
-                            onOpen = nav::openEntry,
-                            onWriteOn = { nav.push(WriteKey(date = it.toString())) },
-                            onEdit = { nav.push(WriteKey(entryId = it)) },
-                            onTrash = closeTrashed
-                        )
-                    }
-                    entry<InsightKey>(metadata = tabRoot(InsightKey)) {
-                        InsightRoute(
-                            onMood = { mood, range ->
-                                nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                            },
-                            onPeriod = { range -> nav.push(SearchKey(from = range.start.toString(), to = range.end.toString())) },
-                            onPlus = { nav.push(PlusKey) },
-                            onAdvanced = { nav.push(AdvancedStatsKey) },
-                            onWrite = onWrite,
-                            adSlot = { AdSlot("insight", AdShape.Card) }
-                        )
-                    }
-                    entry<AdvancedStatsKey> {
-                        // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아감
-                        val plan by shell.plan.collectAsStateWithLifecycle()
-                        LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
-                        AdvancedStatsRoute(
-                            onBack = pop,
-                            onMood = { mood, range ->
-                                nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                            },
-                            onWrite = onWrite
-                        )
-                    }
-                    settingsEntries(push = nav::push, pop = pop, home = { nav.startOver(HomeKey) })
-                    entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
-                        val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
-                        WriteRoute(
-                            target = target,
-                            onSaved = { id ->
-                                pop()
-                                // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 감(FR-012)
-                                if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
-                                notify(Message.Saved)
-                                shell.onSaved(nav.tab, nav.current.toList())
-                            },
-                            onClosed = { kept ->
-                                pop()
-                                if (kept) notify(Message.DraftKept)
-                            },
-                            onPlus = { nav.push(PlusKey) }
-                        )
-                    }
+                ),
+            modifier = Modifier.fillMaxSize(),
+            sceneStrategies = listOf(listDetail),
+            transitionSpec = {
+                when {
+                    nav.movedBetweenTabs || reduceMotion -> TabSwap
+                    wide && coversAll(FULL_SCREEN) -> coverTransition()
+                    else -> pushMotion()
                 }
-            ),
-        // 밀려나는 화면을 어둡게 하는 뒤 바탕(DiaryTransitions). 평소에는 화면에 가려 안 보임
-        modifier = modifier.background(DiaryTheme.colors.scrim.copy(alpha = 1f)),
-        sceneStrategies = listOf(listDetail),
-        transitionSpec = { if (nav.movedBetweenTabs || reduceMotion) TabSwap else pushMotion() },
-        popTransitionSpec = { if (nav.movedBetweenTabs || reduceMotion) TabSwap else popMotion() },
-        predictivePopTransitionSpec = { if (reduceMotion) TabSwap else predictivePopMotion(it) },
-        onBack = pop
-    )
+            },
+            popTransitionSpec = {
+                when {
+                    nav.movedBetweenTabs || reduceMotion -> TabSwap
+                    wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = true)
+                    else -> popMotion()
+                }
+            },
+            predictivePopTransitionSpec = {
+                when {
+                    reduceMotion -> TabSwap
+                    wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = false)
+                    else -> predictivePopMotion(it)
+                }
+            },
+            onBack = pop
+        )
+    }
 }
 
 private const val HALF = 0.5f

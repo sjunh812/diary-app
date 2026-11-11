@@ -60,6 +60,28 @@ private fun slideBack(eased: Boolean, dimmedAlpha: Float): ContentTransform {
     )
 }
 
+/**
+ * 레일이 있는 넓은 화면에서 전체 화면(쓰기, 사진, 결제)을 열 때
+ * 아래 화면은 레일과 함께 제자리에 두고 새 화면만 밀려 들어와 레일까지 덮음(iPad 전체 화면 덮개처럼)
+ * 아래 화면을 비키면 레일 위로 겹쳐 지나가 레일만 따로 남아 보였음
+ */
+internal fun coverTransition(): ContentTransform = ContentTransform(
+    targetContentEnter = slideInHorizontally(tween(SLIDE_MILLIS, easing = SlideEasing)) { it },
+    initialContentExit = fadeOut(tween(SLIDE_MILLIS), targetAlpha = 1f)
+)
+
+/** 덮은 전체 화면을 걷을 때. 걷히는 화면이 위에 남아 아래 화면을 드러냄 */
+internal fun uncoverTransition(eased: Boolean): ContentTransform = ContentTransform(
+    targetContentEnter = EnterTransition.None,
+    initialContentExit = slideOutHorizontally(tween(SLIDE_MILLIS, easing = if (eased) SlideEasing else LinearEasing)) { it },
+    targetContentZIndex = -1f
+)
+
+/** 들어오거나 나가는 쪽이 전체 화면인지 */
+internal fun AnimatedContentTransitionScope<out Scene<*>>.coversAll(fullScreenKey: String): Boolean =
+    initialState.entries.lastOrNull()?.metadata?.get(fullScreenKey) == true ||
+        targetState.entries.lastOrNull()?.metadata?.get(fullScreenKey) == true
+
 /** 탭 이동. 쌓는 화면이 아니라 바로 바꿈 */
 internal val TabSwap: ContentTransform get() = ContentTransform(EnterTransition.None, ExitTransition.None)
 
