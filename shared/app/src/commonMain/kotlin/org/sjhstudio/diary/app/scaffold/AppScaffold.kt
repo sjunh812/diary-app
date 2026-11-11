@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.app.scaffold
 
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -310,8 +311,10 @@ private val TabBarSpace =
         val chrome = LocalRootChrome.current
         val root = entry.metadata[ROOT_OF] as? TabScreen
         val colors = DiaryTheme.colors
-        // 전환 중에는 두 화면 모두 터치 막음. 빠르게 누르면 사라지는 화면이 눌렸음
-        val moving = LocalNavAnimatedContentScope.current.transition.isRunning
+        // 사라지는 화면은 터치를 막음. 빠르게 누르면 사라지는 화면이 눌렸음
+        // 전환이 도는지가 아니라 이 화면이 나가는 쪽인지로 봄
+        // 뒤로 밀다 되돌리면 전환이 끝나지 않은 채로 남는 기기가 있어, 그 값으로 막으면 남은 화면 전체가 눌리지 않았음
+        val moving = LocalNavAnimatedContentScope.current.transition.targetState != EnterExitState.Visible
         // 레일 자리는 비워 밑에 깐 레일이 보이게 함
         // 전체 화면은 레일까지 덮으니 그 자리를 누르거나 읽어도 레일에 닿지 않게 받아 둠
         Box(
