@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -66,31 +67,38 @@ fun DiaryTip(
         // 상태 상자 머리처럼 그릴 때만 붙임 글자를 넣고, 화면 읽기와 시험에는 원래 글을 줌
         BasicText(
             keepWords(text),
-            style = DiaryTheme.typography.caption.copy(color = colors.onToast),
+            style = DiaryTheme.typography.caption.copy(color = colors.onToast, lineBreak = CenteredLineBreak),
             modifier =
                 Modifier
                     .weight(1f)
                     .padding(top = DiarySpacing.x3, bottom = DiarySpacing.x3)
                     .clearAndSetSemantics { this.text = AnnotatedString(text) }
         )
-        // 팁이 가리키는 곳으로 바로 가는 글자 버튼(토스트 동작과 같은 꼴)
-        // 닫기와 한 묶음이라 사이 간격 없이 붙임. 닫기 칸 안쪽 16이 보이는 간격이 됨
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // 팁이 가리키는 곳으로 바로 가는 글자 버튼(토스트 동작과 같은 규격: 누르는 칸 높이 48, 보이는 면 위아래 6·좌우 12·모서리 10)
+        // 닫기는 누르는 칸 48을 두고 보이는 자리만 32로 좁혀 버튼과 한 묶음으로 보이게 함
+        Row(Modifier.padding(end = DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
             if (action != null) {
                 val actionPress = remember { MutableInteractionSource() }
                 Box(
                     Modifier
                         .heightIn(min = DiarySpacing.minTouchTarget)
-                        .diaryPress(actionPress, colors.onToast, DiaryShapes.r12)
-                        .clickable(interactionSource = actionPress, indication = null, role = Role.Button, onClick = onAction)
-                        .padding(start = DiarySpacing.x2),
+                        .clickable(interactionSource = actionPress, indication = null, role = Role.Button, onClick = onAction),
                     contentAlignment = Alignment.Center
                 ) {
-                    BasicText(action, style = DiaryTheme.typography.captionStrong.copy(color = colors.toastAction), maxLines = 1)
+                    BasicText(
+                        action,
+                        style = DiaryTheme.typography.captionStrong.copy(color = colors.toastAction),
+                        maxLines = 1,
+                        modifier =
+                            Modifier
+                                .diaryPress(actionPress, colors.onToast, DiaryShapes.r10)
+                                .padding(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x1_5)
+                    )
                 }
             }
             Box(
                 Modifier
+                    .diaryTouchOutset(horizontal = DiarySpacing.x2)
                     .size(DiarySpacing.minTouchTarget)
                     .diaryPress(interaction, colors.onToast, DiaryShapes.full)
                     .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClose),
