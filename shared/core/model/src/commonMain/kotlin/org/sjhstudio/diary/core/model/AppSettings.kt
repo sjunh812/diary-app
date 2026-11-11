@@ -14,7 +14,7 @@ data class AppSettings(
     val fontReplacedFrom: String? = null,
     /** 옛 앱이 드라이브에 올린 백업(스펙 003 이전 백업 찾기에 씀) */
     val legacyBackup: LegacyBackupLink? = null,
-    /** 홈 목록 모양과 즐겨찾기만 보기(스펙 002 FR-018) */
+    /** 홈 목록 보기와 즐겨찾기만 보기(스펙 002 FR-018) */
     val list: ListPreferences = ListPreferences()
 ) {
     companion object {

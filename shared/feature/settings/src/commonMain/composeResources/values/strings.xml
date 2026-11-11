@@ -35,7 +35,7 @@
     <string name="settings_feedback_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\nTell us what you think 😊\n</string>
     <string name="settings_feedback_no_mail">No mail app found. Please write to %1$s.</string>
     <string name="settings_title">Settings</string>
-    <string name="settings_group_style">Style</string>
+    <string name="settings_group_style">Display</string>
     <string name="settings_group_info">App info</string>
     <string name="settings_licenses">Open source licenses</string>
     <string name="licenses_group_fonts">Fonts</string>
@@ -117,7 +117,7 @@
         <item quantity="one">%1$d entry</item>
         <item quantity="other">%1$d entries</item>
     </plurals>
-    <string name="settings_list_style">List style</string>
+    <string name="settings_list_style">List view</string>
     <string name="list_style_feed">Feed</string>
     <string name="list_style_card">Cards</string>
     <string name="list_style_photo">Photo grid</string>

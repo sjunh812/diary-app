@@ -83,7 +83,7 @@ object DiaryIconSize {
     val i32: Dp = 32.dp
 }
 
-/** 홈 목록 모양 크기 */
+/** 홈 목록 보기 크기 */
 object DiaryHomeSize {
     /** 카드의 기분 얼굴과 날씨 아이콘 */
     val cardFace: Dp = 28.dp

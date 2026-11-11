@@ -30,7 +30,7 @@
     <string name="settings_feedback_body">사용 버전: %1$s\nOS: %2$s\n휴대폰 기종: %3$s\n\n여러분의 소중한 의견을 적어 주세요 😊\n</string>
     <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s로 보내 주세요.</string>
     <string name="settings_title">설정</string>
-    <string name="settings_group_style">꾸미기</string>
+    <string name="settings_group_style">화면</string>
     <string name="settings_group_info">앱 정보</string>
     <string name="settings_licenses">오픈소스 라이선스</string>
     <string name="licenses_group_fonts">글꼴</string>
@@ -111,7 +111,7 @@
     <plurals name="settings_trash_count">
         <item quantity="other">%1$d편</item>
     </plurals>
-    <string name="settings_list_style">목록 모양</string>
+    <string name="settings_list_style">목록 보기</string>
     <string name="list_style_feed">피드</string>
     <string name="list_style_card">카드</string>
     <string name="list_style_photo">사진 격자</string>

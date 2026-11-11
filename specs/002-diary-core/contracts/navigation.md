@@ -14,7 +14,7 @@
 | `Search(filter?)` | 검색 (S1-a) | 통계에서 오면 조건이 채워져 있다 |
 | `Insight` | 기분 통계 (S5) | |
 | `Trash` | 휴지통 (S6-7) | |
-| `ListStyleSettings` | 설정 > 목록 모양 | |
+| `ListStyleSettings` | 설정 > 화면 > 목록 보기 | |
 
 코드의 키 이름은 뒤에 `Key`가 붙는다(`EntryDetailKey`). 달력은 달을 키에 두지 않고 화면 안에서 넘긴다. `Search`는 기분과 기간만 키에 담는다.
 

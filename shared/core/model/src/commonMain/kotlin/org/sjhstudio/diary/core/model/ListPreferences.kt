@@ -1,6 +1,6 @@
 package org.sjhstudio.diary.core.model
 
-/** 목록 모양(FR-018). 저장 값은 [id] */
+/** 목록 보기(FR-018). 저장 값은 [id] */
 enum class ListStyle(val id: String) {
     FEED("feed"),
     CARD("card"),
