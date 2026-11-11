@@ -12,6 +12,13 @@ interface NotificationAccess {
      */
     fun request(onResult: (granted: Boolean) -> Unit)
 
+    /**
+     * 백업·복원처럼 하던 일 곁에서 알림이 쓸모 있을 때 한 번만 물음
+     * 이미 허용했거나 한 번 답했으면 다시 띄우지 않음. 판단은 운영체제가 아는 상태로 함
+     * 안드로이드는 두 번 거절하면 영영 묻지 못해, 사용자가 직접 켤 때를 위해 남겨 둠
+     */
+    fun askInContext()
+
     /** 이 앱의 알림 설정 화면 열기 */
     fun openSettings()
 
