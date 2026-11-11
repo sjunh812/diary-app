@@ -11,7 +11,7 @@
     <string name="detail_trashed">Moved to Trash</string>
     <string name="detail_trashed_undo">Undo</string>
     <string name="detail_pick_hint">No entry selected</string>
-    <string name="detail_pick_body">Select an entry from the list.</string>
+    <string name="detail_pick_body">Tap an entry in the list to read it here.</string>
     <string name="ad_label">Ad</string>
     <string name="reward_title">Get an ad-free day</string>
     <string name="reward_body">Watch one short video to the end and you won't see other ads for 24 hours.</string>
