@@ -108,8 +108,4 @@ class FileBackupViewModel(private val restore: RestoreRepository) : ViewModel() 
             }
         }
     }
-
-    fun clear() {
-        _state.value = FileBackupUi.Idle
-    }
 }

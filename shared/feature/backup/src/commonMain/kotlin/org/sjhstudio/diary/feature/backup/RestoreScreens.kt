@@ -235,10 +235,11 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
         )
         val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
         // 보통 가장 최근 백업을 복원해 휴대폰마다 최근 것만 먼저 보임. 예전 앱 백업은 몇 개뿐이라 다 보임
-        var opened by remember { mutableStateOf(emptySet<Pair<String, String>>()) }
-        ordered.groupBy { it.platform to it.deviceName }.entries.forEachIndexed { index, (device, group) ->
+        // 펼친 휴대폰은 화면을 돌려도 펼친 채로. 같은 모델 두 대가 섞이지 않게 기기 ID로 묶음
+        var opened by rememberSaveable { mutableStateOf(listOf<String>()) }
+        ordered.groupBy { "${it.platform}/${it.deviceId}" }.entries.forEachIndexed { index, (device, group) ->
             DiarySettingsHeader(deviceLabel(group.first()), gapAbove = index > 0)
-            val all = device.first == PLATFORM_LEGACY || device in opened
+            val all = group.first().platform == PLATFORM_LEGACY || device in opened
             val shown = if (all) group else group.take(RECENT_PER_DEVICE)
             shown.forEach { entry ->
                 val problem = problemText(entry.state)
