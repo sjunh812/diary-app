@@ -104,7 +104,8 @@ class MediaImporter(
         val meta = fileSystem.metadataOrNull(source) ?: return null
         if (!meta.isRegularFile) return null
         fileSystem.createDirectories(mediaDir)
-        shrunk(source)?.let { return it }
+        // 줄이다 예외가 나도 사진을 잃지 않게 원본 복사로 넘어감
+        runCatching { shrunk(source) }.getOrNull()?.let { return it }
         val head = fileSystem.read(source) { readByteArray(minOf(HEAD_BYTES, meta.size ?: HEAD_BYTES)) }
         val temp = mediaDir / ".import-${newId()}.tmp"
         val hashing = HashingSink.sha256(fileSystem.sink(temp))

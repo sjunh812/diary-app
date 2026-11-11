@@ -25,7 +25,7 @@ class MediaImporterShrinkTest {
     }
 
     /** 줄인 사본을 쓰는 가짜 인코더. [works]가 거짓이면 실패 */
-    private class Encoder(var works: Boolean = true) : ThumbnailEncoder {
+    private class Encoder(var works: Boolean = true, var throws: Boolean = false, var writes: String = "SMALL") : ThumbnailEncoder {
         var calls = 0
         var lastMaxSide = 0
         var lastQuality = 0
@@ -34,8 +34,9 @@ class MediaImporterShrinkTest {
             calls++
             lastMaxSide = maxSide
             lastQuality = quality
+            if (throws) throw IllegalArgumentException("bitmap")
             if (!works) return false
-            okio.FileSystem.SYSTEM.write(target.toPath()) { writeUtf8("SMALL of ${source.toPath().name}") }
+            okio.FileSystem.SYSTEM.write(target.toPath()) { writeUtf8("$writes of ${source.toPath().name}") }
             return true
         }
     }
@@ -106,6 +107,35 @@ class MediaImporterShrinkTest {
 
             assertEquals(MediaStatus.NORMAL, again.media.status)
             assertEquals(first.media.fileName, again.media.fileName)
+        }
+    }
+
+    @Test
+    fun an_encoder_that_throws_still_copies_the_original() {
+        TempDir().use { dir ->
+            val source = dir.write("cache/big.png", "BIG photo".encodeToByteArray())
+
+            val photo = importer(dir, Encoder(throws = true)).importOne("e1", 0, source.toString())
+
+            assertEquals(MediaStatus.NORMAL, photo.media.status)
+            assertEquals(hash(dir, source), photo.media.sha256)
+            assertEquals(listOf(photo.media.fileName), dir.fs.list(dir.root / "media").map { it.name })
+        }
+    }
+
+    /** 줄인 파일을 다시 읽지 못하면 그 사본은 버리고 원본을 복사함 */
+    @Test
+    fun an_unreadable_shrunk_copy_falls_back_to_the_original() {
+        TempDir().use { dir ->
+            val source = dir.write("cache/big.png", "BIG photo".encodeToByteArray())
+            val sizes = ImageSizeReader { path -> if (path.endsWith("big.png")) 4000 to 3000 else null }
+            val importer =
+                MediaImporter(dir.fs, dir.root / "media", sizes, TestClock(), newId = { "id" }, shrink = Encoder(writes = "BROKEN"))
+
+            val photo = importer.importOne("e1", 0, source.toString())
+
+            assertEquals(hash(dir, source), photo.media.sha256)
+            assertEquals(listOf(photo.media.fileName), dir.fs.list(dir.root / "media").map { it.name })
         }
     }
 }
