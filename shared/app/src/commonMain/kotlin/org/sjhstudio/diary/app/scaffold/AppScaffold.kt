@@ -99,6 +99,7 @@ import org.sjhstudio.diary.app.navigation.rememberTabNavigation
 import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.app.navigation.uncoverTransition
 import org.sjhstudio.diary.app.resources.Res
+import org.sjhstudio.diary.app.resources.detail_pick_body
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.app.resources.detail_trashed
 import org.sjhstudio.diary.app.resources.detail_trashed_undo
@@ -624,11 +625,15 @@ private const val HALF = 0.5f
 /**
  * 두 칸에서 고른 일기가 없을 때의 오른쪽
  * 일기가 아직 없어도 칸이 통째로 비지 않게 늘 보임
- * 아이콘은 두지 않음. 연필은 쓰기 단추와 같아 누를 것처럼 보임(Apple 메일·메모의 빈 칸처럼 글 한 줄)
+ * 아이콘은 두지 않음. 연필은 쓰기 단추와 같아 누를 것처럼 보임(Apple 메일·메모처럼 지금 상태와 할 일만 글로)
  */
 @Composable
 private fun PickHint() {
     DiaryEmptyArea(Modifier.background(DiaryTheme.colors.canvas)) {
-        DiaryEmptyState(icon = null, title = stringResource(Res.string.detail_pick_hint))
+        DiaryEmptyState(
+            icon = null,
+            title = stringResource(Res.string.detail_pick_hint),
+            description = stringResource(Res.string.detail_pick_body)
+        )
     }
 }
