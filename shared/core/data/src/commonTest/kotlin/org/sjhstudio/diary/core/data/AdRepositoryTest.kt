@@ -31,6 +31,7 @@ class AdRepositoryTest {
     private inner class Player : AdPlayer {
         var shown = 0
         var prepared = 0
+        var warmed = 0
         var reward = true
         var ready = true
         var dayWhileShowing: String? = null
@@ -39,6 +40,10 @@ class AdRepositoryTest {
         /** 거짓이면 광고가 화면에 나오기 전에 닫혔거나 앱이 꺼진 경우 */
         var impression = true
         override val available = true
+
+        override fun warmUp() {
+            warmed++
+        }
 
         override fun prepareInterstitial() {
             prepared++
@@ -329,5 +334,28 @@ class AdRepositoryTest {
         store.rewardUntil(now + 25.hours)
 
         assertTrue(repo().showAds.first())
+    }
+
+    /** 광고를 볼 사용자만 시작 뒤 SDK를 미리 켬. Plus는 켜지 않음 */
+    @Test
+    fun only_users_who_see_ads_warm_up_the_sdk() = runTest {
+        repo().warmUp()
+        assertEquals(1, player.warmed)
+        // 오늘 전면 광고 차례가 남아 미리 받아 둠
+        assertEquals(1, player.prepared)
+
+        plans.plan.value = Plan.PLUS
+        repo().warmUp()
+        assertEquals(1, player.warmed)
+    }
+
+    /** 오늘 전면 광고를 이미 넘긴 날은 미리 받지 않음 */
+    @Test
+    fun warm_up_does_not_fetch_an_interstitial_on_a_skipped_day() = runTest {
+        val repo = repo()
+        repo.skipInterstitialToday()
+        repo.warmUp()
+        assertEquals(1, player.warmed)
+        assertEquals(0, player.prepared)
     }
 }

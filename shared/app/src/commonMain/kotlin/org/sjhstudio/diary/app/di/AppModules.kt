@@ -185,6 +185,7 @@ private fun coreModule(isDebug: Boolean) = module {
                 // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작(이전 직후 포함)
                 // 따로 돌아 다른 일을 막지 않음
                 get<ChosenFontDownload>().start()
+                get<AdRepository>().warmUp()
             }
         )
     }

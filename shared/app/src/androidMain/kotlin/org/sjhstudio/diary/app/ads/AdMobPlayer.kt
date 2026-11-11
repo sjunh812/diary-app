@@ -24,6 +24,7 @@ import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -67,7 +68,9 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     private val app = context.applicationContext as Application
     private var activity: Activity? = null
     private var interstitial: InterstitialAd? = null
-    private var started = false
+
+    // 시작 단계(뒤 스레드)와 화면이 함께 부를 수 있어 한 번만 켜지게
+    private val started = AtomicBoolean(false)
 
     // 초기화가 끝나기 전에 화면 스레드에서 광고를 만들면 SDK 잠금을 기다리다 ANR이 남. 끝난 뒤에만 부름
     private val main = Handler(Looper.getMainLooper())
@@ -153,8 +156,7 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
      */
     @Suppress("TooGenericExceptionCaught")
     private fun start() {
-        if (started) return
-        started = true
+        if (!started.compareAndSet(false, true)) return
         MobileAds.setRequestConfiguration(
             RequestConfiguration.Builder().setMaxAdContentRating(RequestConfiguration.MAX_AD_CONTENT_RATING_T).build()
         )
@@ -186,27 +188,34 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
         if (ready) request() else waiting += request to onFailed
     }
 
-    override fun prepareInterstitial() {
-        if (!available || interstitial != null) return
-        whenReady { requestInterstitial() }
+    override fun warmUp() {
+        if (available) start()
     }
 
-    private fun requestInterstitial() {
-        if (interstitial != null) return
-        InterstitialAd.load(
-            app,
-            units.interstitial,
-            AdRequest.Builder().build(),
-            object : InterstitialAdLoadCallback() {
-                override fun onAdLoaded(ad: InterstitialAd) {
-                    interstitial = ad
-                }
+    override fun prepareInterstitial() {
+        // 앱 시작 단계(뒤 스레드)에서도 불러, 광고 상태는 화면 스레드에서만 만짐
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            main.post { prepareInterstitial() }
+            return
+        }
+        if (!available || interstitial != null) return
+        whenReady {
+            if (interstitial != null) return@whenReady
+            InterstitialAd.load(
+                app,
+                units.interstitial,
+                AdRequest.Builder().build(),
+                object : InterstitialAdLoadCallback() {
+                    override fun onAdLoaded(ad: InterstitialAd) {
+                        interstitial = ad
+                    }
 
-                override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.w(TAG, "전면 광고를 받지 못함: ${error.code}")
+                    override fun onAdFailedToLoad(error: LoadAdError) {
+                        Log.w(TAG, "전면 광고를 받지 못함: ${error.code}")
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {

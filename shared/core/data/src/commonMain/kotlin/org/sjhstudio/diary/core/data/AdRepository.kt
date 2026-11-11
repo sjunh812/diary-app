@@ -28,6 +28,9 @@ import org.sjhstudio.diary.core.model.orElseOnFailure
 interface AdPlayer {
     val available: Boolean
 
+    /** 광고 SDK를 미리 켬. 첫 광고가 늦지 않게. 화면 스레드를 막지 않고, 실패해도 던지지 않음 */
+    fun warmUp() {}
+
     /**
      * 전면 광고를 미리 받음
      * 돌아갈 때 기다리지 않게 저장 시점에 호출
@@ -83,6 +86,18 @@ class AdRepository(
             // 기록을 읽지 못하면 덜 보이는 쪽으로 판단
             .catch { if (it is IOException) emit(false) else throw it }
             .distinctUntilChanged()
+
+    /**
+     * 광고를 볼 사용자만 앱 시작 뒤 SDK를 미리 켬. Plus 사용자는 켜지 않음
+     * 오늘 전면 광고 차례가 남았으면 미리 받아 둠. 저장할 때 받으면 첫 저장 뒤 목록으로 돌아올 때 늦음
+     */
+    suspend fun warmUp() {
+        quietly(Unit) {
+            if (!showAds.first()) return@quietly
+            player.warmUp()
+            if (interstitialDue()) player.prepareInterstitial()
+        }
+    }
 
     private fun adsAllowed(prefs: AdPrefs) = player.available && !rewarded(prefs.rewardUntil)
 
