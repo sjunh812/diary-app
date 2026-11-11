@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
 import com.google.android.gms.ads.AdError
@@ -38,6 +39,9 @@ private const val TAG = "DiaryAds"
  */
 private const val MAX_NATIVES = 5
 
+/** 전면 광고를 받아 두는 시간. 1시간보다 조금 짧게 */
+private const val INTERSTITIAL_FRESH_MILLIS = 55 * 60 * 1000L
+
 /** 네이티브 광고를 받을 때의 선택 */
 internal fun nativeAdOptions(): NativeAdOptions = NativeAdOptions.Builder()
     // 영상은 소리 없이 시작(`docs/business.md`)
@@ -68,6 +72,13 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     private val app = context.applicationContext as Application
     private var activity: Activity? = null
     private var interstitial: InterstitialAd? = null
+
+    // 받은 전면 광고는 1시간이 지나면 띄우지 않음(Google 안내). 조금 앞서 버리고 새로 받음
+    private var interstitialAt = 0L
+    private var loadingInterstitial = false
+    private val interstitialFresh: () -> Boolean = {
+        interstitial != null && SystemClock.elapsedRealtime() - interstitialAt < INTERSTITIAL_FRESH_MILLIS
+    }
 
     // 시작 단계(뒤 스레드)와 화면이 함께 부를 수 있어 한 번만 켜지게
     private val started = AtomicBoolean(false)
@@ -169,8 +180,8 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
                         waiting.clear()
                     }
                 }
-            } catch (e: Exception) {
-                // 광고 SDK가 실패해도 앱은 그대로. 광고만 부르지 않음
+            } catch (e: Throwable) {
+                // 광고 SDK가 실패해도 앱은 그대로. 광고만 부르지 않음. 클래스를 못 찾는 Error까지 받음
                 Log.w(TAG, "광고 SDK를 켜지 못함: ${e::class.simpleName}")
                 main.post {
                     failed = true
@@ -198,9 +209,10 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
             main.post { prepareInterstitial() }
             return
         }
-        if (!available || interstitial != null) return
-        whenReady {
-            if (interstitial != null) return@whenReady
+        if (!available || loadingInterstitial || interstitialFresh()) return
+        interstitial = null
+        loadingInterstitial = true
+        whenReady(onFailed = { loadingInterstitial = false }) {
             InterstitialAd.load(
                 app,
                 units.interstitial,
@@ -208,9 +220,12 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
                 object : InterstitialAdLoadCallback() {
                     override fun onAdLoaded(ad: InterstitialAd) {
                         interstitial = ad
+                        interstitialAt = SystemClock.elapsedRealtime()
+                        loadingInterstitial = false
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
+                        loadingInterstitial = false
                         Log.w(TAG, "전면 광고를 받지 못함: ${error.code}")
                     }
                 }
@@ -219,7 +234,7 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     }
 
     override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
-        val ad = interstitial ?: return false
+        val ad = interstitial?.takeIf { interstitialFresh() } ?: return false
         val screen = activity ?: return false
         interstitial = null
         return suspendCancellableCoroutine { result ->
