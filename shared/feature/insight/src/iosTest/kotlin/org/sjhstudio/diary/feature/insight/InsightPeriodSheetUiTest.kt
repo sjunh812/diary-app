@@ -29,16 +29,23 @@ import org.sjhstudio.diary.feature.insight.resources.insight_period_sheet_title
 class InsightPeriodSheetUiTest {
     private val today = LocalDate(2026, 11, 11)
 
-    /** [cell]은 언어마다 다른 칸 이름을 날짜 형식으로 만듦 */
-    private fun pick(start: StatsPeriod, label: String, cell: @Composable (DiaryDateFormat) -> String): StatsPeriod? {
+    /** [label]·[cell]은 언어마다 다른 이름이라 날짜 형식으로 만듦 */
+    private fun pick(
+        start: StatsPeriod,
+        label: @Composable (DiaryDateFormat) -> String,
+        cell: @Composable (DiaryDateFormat) -> String
+    ): StatsPeriod? {
         var picked: StatsPeriod? = null
         runComposeUiTest {
             var title = ""
             var target = ""
+            var name = ""
             var period by mutableStateOf(start)
             setContent {
                 title = stringResource(Res.string.insight_period_sheet_title)
-                target = cell(rememberDiaryDateFormat())
+                val dates = rememberDiaryDateFormat()
+                target = cell(dates)
+                name = label(dates)
                 DiaryTheme(darkTheme = false) {
                     InsightScreen(
                         period = period,
@@ -56,7 +63,7 @@ class InsightPeriodSheetUiTest {
                     )
                 }
             }
-            onNode(hasText(label, substring = true).and(hasClickAction())).performClick()
+            onNode(hasText(name, substring = true).and(hasClickAction())).performClick()
             waitForIdle()
             onNode(hasText(title)).assertExists()
             onNode(hasText(target).and(hasClickAction()).and(isEnabled())).performClick()
@@ -70,7 +77,7 @@ class InsightPeriodSheetUiTest {
     fun a_month_cell_goes_to_that_month() {
         assertEquals(
             StatsPeriod.Month(YearMonth(2026, 3)),
-            pick(StatsPeriod.Month(YearMonth(2026, 11)), "2026") {
+            pick(StatsPeriod.Month(YearMonth(2026, 11)), { "2026" }) {
                 it.monthShort(LocalDate(2026, 3, 1))
             }
         )
@@ -78,13 +85,18 @@ class InsightPeriodSheetUiTest {
 
     @Test
     fun a_year_cell_goes_to_that_year() {
-        assertEquals(StatsPeriod.Year(2024), pick(StatsPeriod.Year(2026), "2026") { it.year(LocalDate(2024, 1, 1)) })
+        assertEquals(StatsPeriod.Year(2024), pick(StatsPeriod.Year(2026), { "2026" }) { it.year(LocalDate(2024, 1, 1)) })
     }
 
     /** 주는 날짜를 누르면 그날이 든 주 */
     @Test
     fun a_day_goes_to_its_week() {
-        assertEquals(StatsPeriod.Week(LocalDate(2026, 11, 1)), pick(StatsPeriod.Week(LocalDate(2026, 11, 8)), "~") { "4" })
+        assertEquals(
+            StatsPeriod.Week(LocalDate(2026, 11, 1)),
+            pick(StatsPeriod.Week(LocalDate(2026, 11, 8)), {
+                it.monthDay(LocalDate(2026, 11, 8))
+            }) { "4" }
+        )
     }
 
     @Test
