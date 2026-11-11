@@ -137,6 +137,7 @@
     <plurals name="restore_not_in_backup"><item quantity="one">%1$s photo isn't in this backup. It's on the original phone.</item><item quantity="other">%1$s photos aren't in this backup. They're on the original phone.</item></plurals>
     <string name="restore_group_legacy">Previous version backups</string>
     <string name="restore_legacy_row">From the previous version · No photos</string>
+    <plurals name="restore_more_backups"><item quantity="one">Show %1$s older backup</item><item quantity="other">Show %1$s older backups</item></plurals>
     <string name="restore_legacy_title">Restore a backup from the previous version</string>
     <string name="restore_legacy_body">Uploaded by the previous version on %1$s.</string>
     <string name="restore_legacy_no_photos">These backups don't include photos</string>

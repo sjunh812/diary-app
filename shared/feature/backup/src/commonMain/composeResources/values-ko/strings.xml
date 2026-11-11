@@ -134,6 +134,7 @@
     <plurals name="restore_not_in_backup"><item quantity="other">사진 %1$s장은 백업에 없어요. 원래 휴대폰에 있어요.</item></plurals>
     <string name="restore_group_legacy">예전 앱 백업</string>
     <string name="restore_legacy_row">예전 앱이 올린 백업 · 사진 없음</string>
+    <plurals name="restore_more_backups"><item quantity="other">이전 백업 %1$s개 더 보기</item></plurals>
     <string name="restore_legacy_title">예전 앱 백업을 불러올게요</string>
     <string name="restore_legacy_body">%1$s에 예전 앱이 올린 백업이에요.</string>
     <string name="restore_legacy_no_photos">예전 백업에는 사진이 없어요</string>

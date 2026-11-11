@@ -134,6 +134,7 @@
     <plurals name="restore_not_in_backup"><item quantity="other">写真%1$s枚はこのバックアップにありません。元のスマートフォンにあります。</item></plurals>
     <string name="restore_group_legacy">以前のアプリのバックアップ</string>
     <string name="restore_legacy_row">以前のアプリのバックアップ・写真なし</string>
+    <plurals name="restore_more_backups"><item quantity="other">以前のバックアップをあと%1$s件表示</item></plurals>
     <string name="restore_legacy_title">以前のアプリのバックアップを復元します</string>
     <string name="restore_legacy_body">%1$sに以前のアプリが保存したバックアップです。</string>
     <string name="restore_legacy_no_photos">以前のバックアップに写真は含まれません</string>

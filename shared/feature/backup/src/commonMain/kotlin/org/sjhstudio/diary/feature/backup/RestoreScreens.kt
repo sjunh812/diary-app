@@ -128,6 +128,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_lock_body
 import org.sjhstudio.diary.feature.backup.resources.restore_lock_title
 import org.sjhstudio.diary.feature.backup.resources.restore_merge
 import org.sjhstudio.diary.feature.backup.resources.restore_merging_body
+import org.sjhstudio.diary.feature.backup.resources.restore_more_backups
 import org.sjhstudio.diary.feature.backup.resources.restore_needs_update
 import org.sjhstudio.diary.feature.backup.resources.restore_no_mail
 import org.sjhstudio.diary.feature.backup.resources.restore_no_space
@@ -233,9 +234,13 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
             modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
         )
         val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
-        ordered.groupBy { it.platform to it.deviceName }.values.forEachIndexed { index, group ->
+        // 보통 가장 최근 백업을 복원해 휴대폰마다 최근 것만 먼저 보임. 예전 앱 백업은 몇 개뿐이라 다 보임
+        var opened by remember { mutableStateOf(emptySet<Pair<String, String>>()) }
+        ordered.groupBy { it.platform to it.deviceName }.entries.forEachIndexed { index, (device, group) ->
             DiarySettingsHeader(deviceLabel(group.first()), gapAbove = index > 0)
-            group.forEach { entry ->
+            val all = device.first == PLATFORM_LEGACY || device in opened
+            val shown = if (all) group else group.take(RECENT_PER_DEVICE)
+            shown.forEach { entry ->
                 val problem = problemText(entry.state)
                 if (entry.platform == PLATFORM_LEGACY) {
                     DiarySettingsRow(
@@ -248,6 +253,17 @@ private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
                 } else {
                     Unavailable(whenText(entry), problem)
                 }
+            }
+            val hidden = group.size - shown.size
+            if (hidden > 0) {
+                DiaryButton(
+                    pluralStringResource(Res.plurals.restore_more_backups, hidden, hidden.grouped()),
+                    { opened = opened + device },
+                    // 버튼 안쪽 여백만큼 덜 띄워 글자를 위 줄과 맞춤
+                    Modifier.padding(start = LocalScreenGutter.current - DiarySpacing.x4),
+                    size = DiaryButtonSize.Medium,
+                    kind = DiaryButtonKind.Text
+                )
             }
         }
         Spacer(Modifier.height(DiarySpacing.x8))
@@ -580,3 +596,6 @@ internal fun Bottom(content: @Composable ColumnScope.() -> Unit) {
         content = content
     )
 }
+
+/** 휴대폰마다 먼저 보이는 최근 백업 수 */
+private const val RECENT_PER_DEVICE = 2
