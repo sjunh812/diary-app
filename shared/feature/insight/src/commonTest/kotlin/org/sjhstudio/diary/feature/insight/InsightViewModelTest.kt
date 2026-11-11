@@ -38,6 +38,7 @@ import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.advancedStats
+import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -356,6 +357,34 @@ class InsightViewModelTest {
         override fun moodFlow(period: StatsPeriod): Flow<List<DayMood>> = flowOf(emptyList())
 
         override fun yearPixels(year: Int): Flow<Map<LocalDate, Mood?>> = flowOf(emptyMap())
+    }
+
+    /** 기간 고르기에서 고른 기간으로 바로 감. 오늘 뒤 기간은 받지 않음 */
+    @Test
+    fun picking_a_period_jumps_there_but_not_past_today() {
+        val model = viewModel()
+
+        model.jump(StatsPeriod.Month(YearMonth(2024, 3)))
+        assertEquals(StatsPeriod.Month(YearMonth(2024, 3)), model.period.value)
+
+        model.jump(StatsPeriod.Week(LocalDate(2026, 10, 25)))
+        assertEquals(StatsPeriod.Week(LocalDate(2026, 10, 25)), model.period.value)
+
+        model.jump(StatsPeriod.Month(YearMonth(2026, 11)))
+        model.jump(StatsPeriod.Year(2027))
+        assertEquals(StatsPeriod.Week(LocalDate(2026, 10, 25)), model.period.value)
+    }
+
+    /** 기간 고르기는 첫 일기의 해부터 보임 */
+    @Test
+    fun the_first_year_comes_from_the_oldest_entry() = runTest(dispatcher) {
+        val days = listOf(DayMood(LocalDate(2023, 5, 2), Mood.GOOD, 1), DayMood(LocalDate(2021, 12, 31), null, 1))
+        val entries = FakeEntryRepository(days.associateBy { it.date })
+        val model = testInsightViewModel(NoStats, { today }, saved = SavedStateHandle(), entries = entries)
+        backgroundScope.launch { model.firstYear.collect() }
+        advanceUntilIdle()
+
+        assertEquals(2021, model.firstYear.value)
     }
 
     /** 앱이 꺼졌다 돌아와도 보던 기간 유지 */

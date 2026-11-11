@@ -3,9 +3,11 @@ package org.sjhstudio.diary.feature.insight
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.ContextTips
+import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 
 /** 팁을 띄우지 않는 시험용 */
@@ -21,5 +23,6 @@ internal fun testInsightViewModel(
     today: () -> LocalDate,
     plans: PlanRepository = FakePlanRepository(),
     saved: SavedStateHandle = SavedStateHandle(),
-    tips: ContextTips = NoTips
-) = InsightViewModel(stats, today, plans, saved, tips)
+    tips: ContextTips = NoTips,
+    entries: EntryRepository = FakeEntryRepository()
+) = InsightViewModel(stats, today, plans, saved, tips, entries)

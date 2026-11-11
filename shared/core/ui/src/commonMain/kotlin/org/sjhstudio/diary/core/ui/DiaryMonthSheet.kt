@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
 import org.jetbrains.compose.resources.stringResource
@@ -67,7 +69,7 @@ fun DiaryMonthSheet(
             YearArrow(DiaryIcons.ChevronRight, stringResource(Res.string.ui_next_year), enabled = hasYear(year + 1)) { year++ }
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            for (quarter in (1..12).chunked(4)) {
+            for (quarter in (1..12).chunked(CELLS_IN_ROW)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                     for (number in quarter) {
                         val month = YearMonth(year, number)
@@ -78,6 +80,34 @@ fun DiaryMonthSheet(
         }
     }
 }
+
+/** 해 고르기. 달 고르기와 같은 칸으로 한 줄에 넷 */
+@Composable
+fun DiaryYearSheet(
+    title: String,
+    years: IntRange,
+    shown: Int,
+    onPick: (Int) -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val dates = rememberDiaryDateFormat()
+    DiaryBottomSheet(onDismiss = onDismiss, modifier = modifier, title = title) {
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            for (row in years.toList().chunked(CELLS_IN_ROW)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                    for (year in row) {
+                        MonthCell(dates.year(LocalDate(year, 1, 1)), year == shown, enabled = true, Modifier.weight(1f)) { onPick(year) }
+                    }
+                    // 해가 모자란 줄도 칸 폭은 같게
+                    repeat(CELLS_IN_ROW - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+private const val CELLS_IN_ROW = 4
 
 @Composable
 private fun YearArrow(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit) {

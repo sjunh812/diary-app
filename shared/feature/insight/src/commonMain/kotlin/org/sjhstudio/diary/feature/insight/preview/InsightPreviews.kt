@@ -10,6 +10,7 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.feature.insight.InsightData
+import org.sjhstudio.diary.feature.insight.InsightPeriodSheet
 import org.sjhstudio.diary.feature.insight.InsightScreen
 
 private val Today = LocalDate(2026, 10, 31)
@@ -48,3 +49,24 @@ private fun YearLight() = Insight(dark = false, StatsPeriod.Year(2026), Counts)
 @Preview(name = "돌아보기 · 빈 기간", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun EmptyLight() = Insight(dark = false, StatsPeriod.Month(YearMonth(2026, 3)), MoodCounts(emptyMap(), 0))
+
+@Composable
+private fun PeriodSheet(dark: Boolean, period: StatsPeriod) = DiaryTheme(darkTheme = dark) {
+    InsightPeriodSheet(period, Today, firstYear = 2022, onPick = {}, onDismiss = {})
+}
+
+@Preview(name = "기간 고르기 · 주 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun WeekSheetLight() = PeriodSheet(dark = false, StatsPeriod.Week(LocalDate(2026, 10, 25)))
+
+@Preview(name = "기간 고르기 · 주 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun WeekSheetDark() = PeriodSheet(dark = true, StatsPeriod.Week(LocalDate(2026, 10, 25)))
+
+@Preview(name = "기간 고르기 · 월 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun MonthSheetLight() = PeriodSheet(dark = false, StatsPeriod.Month(YearMonth(2026, 10)))
+
+@Preview(name = "기간 고르기 · 년 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun YearSheetDark() = PeriodSheet(dark = true, StatsPeriod.Year(2026))

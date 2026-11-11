@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,6 +76,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
+import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiarySegmentedTabs
 import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
@@ -84,6 +86,8 @@ import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.diaryTouchOutset
 import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
+import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryInsightSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -122,6 +126,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_mood_join
 import org.sjhstudio.diary.feature.insight.resources.insight_next
 import org.sjhstudio.diary.feature.insight.resources.insight_no_mood_count
 import org.sjhstudio.diary.feature.insight.resources.insight_no_moods
+import org.sjhstudio.diary.feature.insight.resources.insight_period_sheet_title
 import org.sjhstudio.diary.feature.insight.resources.insight_previous
 import org.sjhstudio.diary.feature.insight.resources.insight_section_days
 import org.sjhstudio.diary.feature.insight.resources.insight_section_moods
@@ -158,6 +163,7 @@ fun InsightRoute(
     val period = state.period
     val advancedOpen by viewModel.advancedOpen.collectAsStateWithLifecycle()
     val today by viewModel.todayState.collectAsStateWithLifecycle()
+    val firstYear by viewModel.firstYear.collectAsStateWithLifecycle()
     LifecycleResumeEffect(viewModel) {
         viewModel.refreshToday()
         onPauseOrDispose {}
@@ -171,6 +177,8 @@ fun InsightRoute(
         onKind = viewModel::select,
         onPrevious = viewModel::previous,
         onNext = viewModel::next,
+        onJump = viewModel::jump,
+        firstYear = firstYear,
         onMood = {
             viewModel.tried()
             onMood(it, period.range)
@@ -198,6 +206,8 @@ internal fun InsightScreen(
     onNext: () -> Unit,
     onMood: (Mood) -> Unit,
     modifier: Modifier = Modifier,
+    onJump: (StatsPeriod) -> Unit = {},
+    firstYear: Int? = null,
     failed: Boolean = false,
     onRetry: () -> Unit = {},
     onPeriod: (DateRange) -> Unit = {},
@@ -213,6 +223,7 @@ internal fun InsightScreen(
     OnTabReselected { scroll.animateScrollTo(0) }
     var titleHeight by remember { mutableIntStateOf(0) }
     SnapTitleOnRest(scroll, titleHeight)
+    var picking by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         // 큰 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
         // 고급 통계 단추는 탭마다 같아 어느 탭에서나 보이는 바 오른쪽에
@@ -257,7 +268,14 @@ internal fun InsightScreen(
                 onSelect = { onKind(InsightKind.entries[it]) }
             )
             Spacer(Modifier.height(DiarySpacing.x1))
-            PeriodNav(periodLabel(period, dates), period.previous() != null, period.next(today) != null, onPrevious, onNext)
+            PeriodNav(
+                periodLabel(period, dates),
+                period.previous() != null,
+                period.next(today) != null,
+                onPrevious,
+                onNext,
+                onPick = if (period == StatsPeriod.All) null else ({ picking = true })
+            )
             // 빈 한 줄은 위 24를 스스로 둠
             // 새 기간을 읽는 동안 앞 기간 숫자는 숨기고 자리만 유지. 빼면 아래 광고가 올라왔다 내려가며 새로 불려 옴
             var read by remember { mutableStateOf(data) }
@@ -297,6 +315,18 @@ internal fun InsightScreen(
             }
         }
     }
+    if (picking) {
+        InsightPeriodSheet(
+            period,
+            today,
+            firstYear,
+            onPick = {
+                picking = false
+                onJump(it)
+            },
+            onDismiss = { picking = false }
+        )
+    }
 }
 
 @Composable
@@ -314,8 +344,16 @@ private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = w
     StatsPeriod.All -> stringResource(Res.string.insight_all_time)
 }
 
+/** 기간 이름을 누르면 기간 고르기. 전체 기간처럼 고를 곳이 없으면 [onPick]이 null */
 @Composable
-private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onPrevious: () -> Unit, onNext: () -> Unit) {
+private fun PeriodNav(
+    label: String,
+    hasPrevious: Boolean,
+    hasNext: Boolean,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    onPick: (() -> Unit)? = null
+) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         // 전체 기간처럼 넘길 곳이 없으면 자리는 두고 흐리게
@@ -327,13 +365,30 @@ private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onP
             Modifier.offset(x = -DiarySpacing.x3),
             enabled = hasPrevious
         )
-        BasicText(
-            label,
-            modifier = Modifier.weight(1f),
-            style = DiaryTheme.typography.headline.copy(color = colors.textPrimary, textAlign = TextAlign.Center),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+            if (onPick == null) {
+                PeriodLabel(label)
+            } else {
+                // 이름과 아래 화살표를 한 덩어리로 가운데에. 누르는 면은 달력 시트 제목과 같음
+                val interaction = remember { MutableInteractionSource() }
+                Row(
+                    Modifier
+                        .heightIn(min = DiarySpacing.minTouchTarget)
+                        .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                        .clickable(
+                            interactionSource = interaction,
+                            indication = null,
+                            role = Role.Button,
+                            onClickLabel = stringResource(Res.string.insight_period_sheet_title),
+                            onClick = onPick
+                        )
+                        .padding(horizontal = DiarySpacing.x2),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PeriodLabel(label, chevron = true)
+                }
+            }
+        }
         DiaryIconButton(
             DiaryIcons.ChevronRight,
             stringResource(Res.string.insight_next),
@@ -342,6 +397,41 @@ private fun PeriodNav(label: String, hasPrevious: Boolean, hasNext: Boolean, onP
             enabled = hasNext
         )
     }
+}
+
+/**
+ * 글자가 커져 넘치면 기간이 가려지지 않게 두 줄까지, 줄 길이는 고르게
+ * 아래 화살표는 글줄 끝에 붙여 두 줄이어도 글 바로 뒤에 옴
+ */
+@Composable
+private fun PeriodLabel(label: String, chevron: Boolean = false) {
+    val colors = DiaryTheme.colors
+    val iconSize = with(LocalDensity.current) { (DiaryIconSize.i16 + DiarySpacing.x1).toSp() }
+    val text =
+        buildAnnotatedString {
+            append(label)
+            if (chevron) appendInlineContent(CHEVRON_ID, " ")
+        }
+    val inline =
+        mapOf(
+            CHEVRON_ID to
+                InlineTextContent(Placeholder(iconSize, iconSize, PlaceholderVerticalAlign.TextCenter)) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.CenterEnd) {
+                        DiaryIcon(DiaryIcons.ChevronDown, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
+                    }
+                }
+        )
+    BasicText(
+        text,
+        style = DiaryTheme.typography.headline.copy(
+            color = colors.textPrimary,
+            textAlign = TextAlign.Center,
+            lineBreak = CenteredLineBreak
+        ),
+        inlineContent = inline,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
@@ -420,6 +510,7 @@ private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): 
     return stringResource(summaryResource(period, today), names).withFaces()
 }
 
+private const val CHEVRON_ID = "period-chevron"
 private const val FACE_START = '\uE002'
 private const val FACE_END = '\uE003'
 

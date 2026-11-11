@@ -26,6 +26,7 @@ import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.ContextTips
@@ -62,7 +63,8 @@ class InsightViewModel(
     private val today: () -> LocalDate = { currentDate() },
     plans: PlanRepository,
     private val saved: SavedStateHandle,
-    private val tips: ContextTips
+    private val tips: ContextTips,
+    entries: EntryRepository
 ) : ViewModel() {
     /** 고급 통계를 볼 수 있는지. 요금제가 바뀌면 바로 따름 */
     val advancedOpen: StateFlow<Boolean> =
@@ -127,6 +129,15 @@ class InsightViewModel(
     fun today(): LocalDate = today.invoke()
 
     /**
+     * 첫 일기의 해. 기간 고르기가 이 해부터 보임. 일기가 없으면 null
+     * 전체 기분 목록 대신 가벼운 달 목록으로 셈(일기가 바뀔 때마다 다시 읽음)
+     */
+    val firstYear: StateFlow<Int?> =
+        entries.months()
+            .map { months -> months.minOfOrNull { it.year } }
+            .stateInSafely(viewModelScope, WhileUiSubscribed, null)
+
+    /**
      * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 함
      * ×를 누르지 않아도 다시 띄우지 않음(Apple TipKit `actionPerformed`)
      * 화면이 찾기로 넘어가도 끝까지 쓰게 화면 모델에서 저장
@@ -155,6 +166,12 @@ class InsightViewModel(
         _todayState.value = now
         val kind = _period.value.kind
         if (_period.value == kind.periodOf(before)) _period.value = kind.periodOf(now)
+    }
+
+    /** 기간 고르기에서 고른 기간으로. 오늘 뒤 기간은 받지 않음 */
+    fun jump(period: StatsPeriod) {
+        val start = period.range?.start
+        if (start == null || start <= today()) _period.value = period
     }
 
     fun previous() {

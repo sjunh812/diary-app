@@ -7,6 +7,7 @@
     <string name="insight_tab_all">すべて</string>
     <string name="insight_previous">前の期間</string>
     <string name="insight_next">次の期間</string>
+    <string name="insight_period_sheet_title">期間を選ぶ</string>
     <string name="insight_all_time">全期間</string>
     <string name="insight_week_range">%1$s〜%2$s</string>
     <string name="insight_empty">この期間の日記はありません</string>
