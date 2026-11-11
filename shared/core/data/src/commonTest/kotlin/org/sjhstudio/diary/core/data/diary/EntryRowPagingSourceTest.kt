@@ -39,4 +39,17 @@ class EntryRowPagingSourceTest {
             }.load(first)
         )
     }
+
+    private class OnePage : PagingSource<Int, EntryListRow>() {
+        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, EntryListRow> = LoadResult.Page(emptyList(), null, null)
+
+        override fun getRefreshKey(state: PagingState<Int, EntryListRow>): Int? = null
+    }
+
+    /** 일기는 읽었는데 사진·표시를 다시 읽다 실패해도 앱을 끄지 않음 */
+    @Test
+    fun a_failure_while_building_rows_becomes_a_load_error() = runTest {
+        val source = EntryRowPagingSource(OnePage()) { error("disk I/O error") }
+        assertIs<PagingSource.LoadResult.Error<Int, *>>(source.load(first))
+    }
 }

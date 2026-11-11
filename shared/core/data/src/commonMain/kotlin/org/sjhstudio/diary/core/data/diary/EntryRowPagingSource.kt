@@ -28,19 +28,25 @@ internal class EntryRowPagingSource(
     override val jumpingSupported: Boolean get() = source.jumpingSupported
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, EntryRow> = when (val result = loadSafely(params)) {
-        is LoadResult.Page ->
-            // 페이징은 화면 스레드에서 돌아 미리보기 만드는 일은 밖으로 뺌
-            LoadResult.Page(
-                withContext(Dispatchers.Default) { toRows(result.data) },
-                result.prevKey,
-                result.nextKey,
-                result.itemsBefore,
-                result.itemsAfter
-            )
-
+        is LoadResult.Page -> rowsOf(result)
         is LoadResult.Error -> LoadResult.Error(result.throwable)
-
         is LoadResult.Invalid -> LoadResult.Invalid()
+    }
+
+    // 미리보기 만드는 일은 화면 스레드 밖에서. 사진·표시도 DB에서 다시 읽어, 실패하면 읽기 오류로
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun rowsOf(page: LoadResult.Page<Int, EntryListRow>): LoadResult<Int, EntryRow> = try {
+        LoadResult.Page(
+            withContext(Dispatchers.Default) { toRows(page.data) },
+            page.prevKey,
+            page.nextKey,
+            page.itemsBefore,
+            page.itemsAfter
+        )
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        LoadResult.Error(e)
     }
 
     // 화면 스레드에서 돌아 DB를 못 열면 앱이 꺼짐. 실패는 읽기 오류로 넘겨 화면이 다시 시도를 보임.

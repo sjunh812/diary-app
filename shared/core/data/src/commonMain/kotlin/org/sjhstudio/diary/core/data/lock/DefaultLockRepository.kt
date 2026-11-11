@@ -28,7 +28,7 @@ class DefaultLockRepository(
     private val store: LockStore,
     private val keys: PinKeyStore,
     private val newSalt: () -> ByteArray = ::randomSalt,
-    // 기기 키 저장소는 디스크를 써 화면 스레드에서 부르지 않음. 틀린 횟수가 섞이지 않게 한 줄로
+    // 기기 키 저장소는 디스크를 써 화면 스레드에서 부르지 않음. 틀린 횟수는 DataStore update가 차례로 적음
     private val keyWork: CoroutineDispatcher = Dispatchers.IO.limitedParallelism(1)
 ) : LockRepository {
     override val settings: Flow<LockSettings> = store.lock
