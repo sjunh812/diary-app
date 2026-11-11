@@ -61,6 +61,7 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
     val show by ads.showAds.collectAsStateWithLifecycle(false)
     if (!show) return
     var sheet by remember { mutableStateOf<AdSheet?>(null) }
+    var rewardLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val colors = DiaryTheme.colors
     NativeAdCard(key, shape) { ad ->
@@ -89,11 +90,17 @@ internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) 
                     secondary = stringResource(Res.string.reward_close),
                     onSecondary = { sheet = null },
                     primary = stringResource(Res.string.reward_watch),
+                    // 영상을 받는 몇 초 동안 시트를 두고 진행 점을 보임. 닫으면 눌린 줄 몰라 다시 누름
                     onPrimary = {
-                        sheet = null
-                        scope.launch { if (!ads.watchReward()) sheet = AdSheet.RewardFailed }
+                        rewardLoading = true
+                        scope.launch {
+                            val earned = ads.watchReward()
+                            rewardLoading = false
+                            sheet = if (earned) null else AdSheet.RewardFailed
+                        }
                     },
-                    size = DiaryButtonSize.XLarge
+                    size = DiaryButtonSize.XLarge,
+                    primaryLoading = rewardLoading
                 )
             }
 
