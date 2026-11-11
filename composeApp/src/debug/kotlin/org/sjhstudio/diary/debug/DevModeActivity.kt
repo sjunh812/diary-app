@@ -32,6 +32,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.platform.BackupAlertPoster
+import org.sjhstudio.diary.helper.AlarmReceiver
 
 /**
  * 개발자 모드. 설정 맨 아래 줄로 들어오고 출시 빌드에는 없음
@@ -44,6 +46,12 @@ class DevModeActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험
         if (intent.getBooleanExtra(EXTRA_CRASH, false)) crash()
+        // adb로 --es notify reminder|backup을 넘기면 실제 알림을 띄우고 닫음. 알림으로 열 때 화면이 쌓이는지 시험
+        intent.getStringExtra(EXTRA_NOTIFY)?.let {
+            notify(it)
+            finish()
+            return
+        }
         val plans = get<PlanRepository>() as DevPlanRepository
         val ads = get<AdStore>()
         val themeMode = get<SettingsRepository>().settings.map { it.themeMode }
@@ -97,12 +105,20 @@ class DevModeActivity : ComponentActivity() {
         startActivity(Intent(this, ScreenCatalogActivity::class.java).putExtra(ScreenCatalogActivity.EXTRA_SCREEN, screen))
     }
 
+    private fun notify(kind: String) {
+        when (kind) {
+            "reminder" -> AlarmReceiver().showReminder(this)
+            "backup" -> BackupAlertPoster(this, "백업").show("백업 알림 시험", "누르면 앱이 열려요")
+        }
+    }
+
     private fun crash() {
         window.decorView.post { error("Crashlytics 시험") }
     }
 
     private companion object {
         const val EXTRA_CRASH = "crash"
+        const val EXTRA_NOTIFY = "notify"
         val SCREENS =
             listOf(
                 "개발자의 편지(봉투)" to "letter",

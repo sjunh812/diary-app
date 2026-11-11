@@ -60,9 +60,11 @@
             android:value="${adRewarded}" />
 
 
+        <!-- 알림과 런처 어느 길로 와도 화면 하나가 받음. 쓰기 알림으로 시작한 뒤 아이콘이나 백업 알림을 누르면 새 화면이 쌓였다 -->
         <activity
             android:name=".MainActivity"
             android:exported="false"
+            android:launchMode="singleTask"
             android:theme="@style/Theme.Diary.Starting"
             android:windowSoftInputMode="adjustResize" />
         <!-- 런처는 옛 앱(1.7.x)의 이름 .SplashActivity를 그대로 쓴다. 이름이 바뀌면 홈 화면 아이콘과 바로가기가 깨질 수 있다(research R14). -->

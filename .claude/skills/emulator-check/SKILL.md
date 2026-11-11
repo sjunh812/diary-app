@@ -64,6 +64,14 @@ adb -s emulator-5554 shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogA
 요금제 바꾸기, 전면 광고 초기화, 화면 견본은 개발 빌드의 설정 맨 아래 개발자 모드(`DevModeActivity`)에 있다.
 비정상 종료 시험은 `adb shell am start -n org.sjhstudio.diary/.debug.DevModeActivity --ez crash true` 뒤 앱을 다시 연다.
 
+## 알림으로 열 때 화면 쌓임
+
+```bash
+ANDROID_SERIAL=emulator-5554 sh scripts/android/notification-stack-test.sh
+```
+
+개발자 모드가 실제 쓰기 알림과 백업 알림을 띄우고, 스크립트가 알림 판에서 눌러 여러 순서로 연다. 어느 순서든 앱 화면이 하나여야 통과다. 알림, 시작 화면, 매니페스트를 바꾸면 돌린다.
+
 ## 업그레이드 시험
 
 ```bash
