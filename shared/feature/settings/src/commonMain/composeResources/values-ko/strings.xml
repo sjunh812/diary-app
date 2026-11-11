@@ -26,6 +26,7 @@
     <string name="settings_rate">리뷰 남기기</string>
     <string name="settings_version">앱 버전</string>
     <string name="settings_plus_badge">Plus 이용 중</string>
+    <string name="settings_survey_url">https://docs.google.com/forms/d/e/1FAIpQLSdPvleZ5KnV9QbCScs7shJNHFb_LNVaRTUqw8z2h8iUY4IA_Q/viewform</string>
     <string name="settings_feedback_subject">1일 1일기 피드백</string>
     <string name="settings_feedback_body">사용 버전: %1$s\nOS: %2$s\n휴대폰 기종: %3$s\n\n여러분의 소중한 의견을 적어 주세요 😊\n</string>
     <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s로 보내 주세요.</string>

@@ -89,6 +89,7 @@ import org.sjhstudio.diary.feature.settings.SettingsViewModel
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 import org.sjhstudio.diary.feature.settings.rememberFeedbackLink
+import org.sjhstudio.diary.feature.settings.rememberSurveyUrl
 import org.sjhstudio.diary.feature.settings.storeReviewUrl
 import org.sjhstudio.diary.feature.trash.TrashRoute
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
@@ -180,6 +181,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         val app = koinInject<BackupAppInfo>()
         val device = remember { deviceInfo() }
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
+        val survey = rememberSurveyUrl()
         val openLink = rememberOpenLink()
         val toast = remember { DiaryToastState() }
         val scope = rememberCoroutineScope()
@@ -189,7 +191,11 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 FullLetterScreen(
                     entries = it.entries,
                     onBack = pop,
-                    onFeedback = { if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) } }
+                    // 설문이 있으면 설문, 없거나 열지 못하면 메일
+                    onFeedback = {
+                        val opened = survey?.let(openLink) == true || openLink(feedback.url)
+                        if (!opened) scope.launch { toast.show(feedback.noMail) }
+                    }
                 )
             } ?: Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
             DiaryToastHost(
