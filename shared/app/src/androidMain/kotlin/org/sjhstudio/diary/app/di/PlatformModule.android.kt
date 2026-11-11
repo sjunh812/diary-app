@@ -27,6 +27,7 @@ import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.asEntity
@@ -62,6 +63,7 @@ import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.FreeSpace
+import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
@@ -99,9 +101,14 @@ internal actual val platformModule: Module =
         single<FreeSpace> { AndroidFreeSpace(androidContext()) }
         single {
             val importer =
-                MediaImporter(FileSystem.SYSTEM, get<AppFiles>().mediaDirectory.toPath(), AndroidImageSizeReader, Clock.System) {
-                    Uuid.random().toString()
-                }
+                MediaImporter(
+                    FileSystem.SYSTEM,
+                    get<AppFiles>().mediaDirectory.toPath(),
+                    AndroidImageSizeReader,
+                    Clock.System,
+                    newId = { Uuid.random().toString() },
+                    shrink = ThumbnailEncoder(ImageDecoder::writeThumbnail)
+                )
             // 찾지 못한 사진은 합치는 쪽이 찾을 수 없는 사진 줄로 남김
             LegacyPhotoCopier { entryId, order, fragment ->
                 importer.importOne(entryId, order, fragment).takeIf { it.found }?.media?.asEntity()
@@ -154,7 +161,8 @@ internal actual val platformModule: Module =
                     imageSize = AndroidImageSizeReader,
                     events = get(),
                     versionCode = versionCode(androidContext()),
-                    makeThumbnail = get<ThumbnailRepository>()::ensure
+                    makeThumbnail = get<ThumbnailRepository>()::ensure,
+                    shrink = ThumbnailEncoder(ImageDecoder::writeThumbnail)
                 )
             )
         }

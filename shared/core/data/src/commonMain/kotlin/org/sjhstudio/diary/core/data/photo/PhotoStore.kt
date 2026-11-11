@@ -59,7 +59,8 @@ class PhotoStore(
         }
     }
 
-    private companion object {
+    companion object {
+        /** 일기 사진을 보관하는 긴 변. 옛 앱에서 옮긴 사진도 같음 */
         const val MAX_SIDE = 2560
         const val QUALITY = 85
     }

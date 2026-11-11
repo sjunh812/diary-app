@@ -21,6 +21,7 @@ import kotlinx.datetime.TimeZone
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
+import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.asEntity
@@ -139,13 +140,15 @@ class MigrationRunner(
      * 앱은 `ThumbnailRepository.ensure`를 넘김
      */
     private val makeThumbnail: (suspend (Path) -> Boolean)? = null,
+    /** 큰 사진을 줄이는 인코더. 앱은 새로 붙인 사진과 같은 것을 넘김 */
+    shrink: ThumbnailEncoder? = null,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : LegacyMigration {
     private val store = MigrationStateStore(fileSystem, paths.migrationDir)
     private val moved = MovedNumbers(fileSystem, paths.migrationDir)
     private val photoRecords = PhotoRecordFile(fileSystem, paths)
     private val snapshotter = LegacySnapshotter(fileSystem, clock)
-    private val importer = MediaImporter(fileSystem, paths.mediaDir, imageSize, clock, newId)
+    private val importer = MediaImporter(fileSystem, paths.mediaDir, imageSize, clock, newId, shrink)
     private val _progress = MutableStateFlow(MigrationProgress(MigrationStep.NOT_STARTED))
     override val progress: StateFlow<MigrationProgress> = _progress.asStateFlow()
 

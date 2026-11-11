@@ -88,7 +88,7 @@
 ## 이전 원칙
 
 1. **원본은 건드리지 않는다.** 이전하는 동안 `note.db`, `-wal`, `-shm`, 캐시의 사진, SharedPreferences를 고치거나 지우지 않는다. 지우는 것은 새 앱에서 첫 정상 백업이 끝나고 몇 버전 지난 뒤, 따로 결정한다. 그때까지 사진은 캐시 원본과 `media/` 사본으로 두 번 자리를 차지한다(캐시 원본은 OS가 지울 수 있다).
-2. **먼저 안전한 곳에 사본을 둔다.** 새 앱 첫 실행에서 어떤 연결도 열기 전에 `note.db`, `note.db-wal`, `note.db-shm`을 바이트 그대로 함께 `filesDir/legacy-snapshot/`으로 복사한다. `shared_prefs/*.xml`도 복사하되 `pref.xml`에서는 `password` 줄을 뺀다. DB가 가리키는 사진은 `filesDir/media/<SHA-256>.<ext>`로 한 번만 복사하고 이전이 실패해도 지우지 않으며, 사본 폴더에는 "경로 → 해시" 목록만 둔다(스펙 001 research R8). 목록은 복사하는 묶음마다 적어, 끊긴 뒤 다시 할 때 원본이 사라진 사진은 이 목록으로 사본을 찾는다. 캐시가 아니라 지워지지 않는 곳이다. DB를 한 번이라도 열면 닫을 때 WAL이 본 파일에 합쳐지므로 복사가 먼저다.
+2. **먼저 안전한 곳에 사본을 둔다.** 새 앱 첫 실행에서 어떤 연결도 열기 전에 `note.db`, `note.db-wal`, `note.db-shm`을 바이트 그대로 함께 `filesDir/legacy-snapshot/`으로 복사한다. `shared_prefs/*.xml`도 복사하되 `pref.xml`에서는 `password` 줄을 뺀다. DB가 가리키는 사진은 `filesDir/media/<SHA-256>.<ext>`로 한 번만 복사하고 이전이 실패해도 지우지 않으며(긴 변이 2,560px을 넘으면 새로 붙인 사진처럼 줄인 JPEG 85 사본을 두고 그 해시로 이름을 붙인다. 원본은 읽기만 하고, 줄이지 못하면 그대로 복사한다, 2026-11-11 사용자 결정), 사본 폴더에는 "경로 → 해시" 목록만 둔다(스펙 001 research R8). 목록은 복사하는 묶음마다 적어, 끊긴 뒤 다시 할 때 원본이 사라진 사진은 이 목록으로 사본을 찾는다. 캐시가 아니라 지워지지 않는 곳이다. DB를 한 번이라도 열면 닫을 때 WAL이 본 파일에 합쳐지므로 복사가 먼저다.
 3. **사본에서 읽고, 새 DB에 쓰고, 검증한 뒤에 바꾼다.** 원본이 아니라 사본(세 파일)을 날 SQL로 열어 줄 단위로 읽는다. 기존 파일에 Room Migration을 거는 방식은 쓰지 않는다. 원본을 고치게 되고, 이전 코드에 버그가 있으면 되돌릴 곳이 없다. 임시 새 DB(Room)에 쓰고, 줄 수와 줄마다의 지문을 견준다. 지문은 레거시 줄의 값과, 새 DB의 값을 옛 표현으로 되돌린 값을 각각 이은 문자열의 SHA-256이다(형식은 스펙 001 `contracts/legacy-mapping.md`). 하나라도 다르면 새 DB를 버리고 이전 실패 화면으로 간다. 맞으면 이름 바꾸기로 한 번에 바꾼다.
 4. **다시 해도 같은 결과다.** 이전 상태(`NotStarted → Snapshotting → Copying → Verifying → Committing → Done`, 끝은 `Done`·`Partial`·`Failed`)를 기록한다(스펙 001 `contracts/migration-flow.md`). 중간에 앱이 죽으면 새 DB를 버리고 처음부터 다시 한다. 원본이 그대로라 몇 번을 해도 안전하다.
 5. **되는 만큼 옮기고 앱을 쓰게 한다.** 일기 몇 편을 옮기지 못해도 멈추지 않는다. 그 일기만 빼고 나머지를 옮긴 뒤 "일부만 옮김"으로 끝내고, 뺀 일기는 앱이 업데이트된 뒤 다시 읽는다. 사진 파일이 깨지면 일기는 두고 그 사진만 찾을 수 없는 사진이 된다(2026-11-04 사용자 결정).
@@ -108,7 +108,7 @@
 | `weather` | `Entry.weather` | 0~6을 문자열 ID(`sunny`, `partly_cloudy`, `mostly_cloudy`, `cloudy`, `rain`, `sleet`, `snow`)로. -1은 null |
 | `address` | `Entry.placeName` | 빈 문자열은 null |
 | `star` | `Entry.isFavorite` | NULL은 false |
-| `picture` | `Media` 여러 줄 | 쉼표로 나눠 순서대로 `sortOrder`. 파일이 있으면 `filesDir/media/<SHA-256>.<ext>`로 복사하고 DB에는 절대경로가 아니라 파일 이름과 가로세로를 담는다(백업 형식의 사진 이름과 같다, `docs/backup.md`). 없으면 `Media.status = MISSING`으로 "찾을 수 없는 사진"을 보여 준다. 원래 경로는 찾은 사진에도 `legacy_path`로 남긴다 |
+| `picture` | `Media` 여러 줄 | 쉼표로 나눠 순서대로 `sortOrder`. 파일이 있으면 `filesDir/media/<SHA-256>.<ext>`로 복사하고(큰 사진은 2,560px로 줄인 사본) DB에는 절대경로가 아니라 파일 이름과 가로세로를 담는다(백업 형식의 사진 이름과 같다, `docs/backup.md`). 없으면 `Media.status = MISSING`으로 "찾을 수 없는 사진"을 보여 준다. 원래 경로는 찾은 사진에도 `legacy_path`로 남긴다 |
 | `year`, `month` | 담지 않음 | `create_date`에서 다시 만든다. 값이 어긋난 줄은 이전 보고에 수만 센다 |
 
 같은 파일을 가리키는 사진(같은 초 덮어쓰기)은 내용 해시가 같으니 파일은 하나만 두고 `Media` 줄은 레거시 순서대로 둔다.

@@ -8,6 +8,8 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
 import okio.use
+import org.sjhstudio.diary.core.data.photo.PhotoStore
+import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.platform.sha256Hex
@@ -35,6 +37,8 @@ data class ImportedPhoto(val media: Media, val record: PhotoRecord) {
 /**
  * 옛 앱 사진을 `media/<sha256>.<ext>`로 한 번만 복사(contracts/legacy-mapping.md "사진", research R8)
  * 원본(캐시 사진)은 읽기만 함
+ * 긴 변이 [PhotoStore.MAX_SIDE]를 넘는 사진은 새로 붙인 사진처럼 줄인 사본을 둠. 백업이 드라이브를 덜 씀(2026-11-11 사용자 결정)
+ * 줄이지 못하면 원본 그대로 복사해 사진을 잃지 않음
  * 임시 이름으로 쓰고 해시를 다시 잰 뒤 이름을 바꿈
  * 같은 해시가 이미 있으면 복사하지 않음(같은 파일 두 번, 다시 시도)
  * 이전이 실패해도 `media/`의 사본은 지우지 않음
@@ -44,7 +48,9 @@ class MediaImporter(
     private val mediaDir: Path,
     private val imageSize: ImageSizeReader,
     private val clock: Clock,
-    private val newId: () -> String
+    private val newId: () -> String,
+    /** 큰 사진을 줄이는 인코더. 없으면 모두 그대로 복사 */
+    private val shrink: ThumbnailEncoder? = null
 ) {
     /** [known]은 앞선 시도가 적어 둔 목록. 원본이 사라졌으면 여기 적힌 사본을 씀 */
     fun import(entryId: String, fragments: List<String>, known: Map<String, PhotoRecord> = emptyMap()): List<ImportedPhoto> =
@@ -98,6 +104,7 @@ class MediaImporter(
         val meta = fileSystem.metadataOrNull(source) ?: return null
         if (!meta.isRegularFile) return null
         fileSystem.createDirectories(mediaDir)
+        shrunk(source)?.let { return it }
         val head = fileSystem.read(source) { readByteArray(minOf(HEAD_BYTES, meta.size ?: HEAD_BYTES)) }
         val temp = mediaDir / ".import-${newId()}.tmp"
         val hashing = HashingSink.sha256(fileSystem.sink(temp))
@@ -116,6 +123,32 @@ class MediaImporter(
         } finally {
             if (fileSystem.exists(temp)) fileSystem.delete(temp)
         }
+    }
+
+    /** 큰 사진이면 줄인 JPEG 사본. 작거나 줄이지 못하면 null(그대로 복사) */
+    private fun shrunk(source: Path): Copied? {
+        val encoder = shrink?.takeIf { isLarge(source) } ?: return null
+        val temp = mediaDir / ".import-${newId()}.jpg"
+        try {
+            val written = encoder.encode(source.toString(), temp.toString(), PhotoStore.MAX_SIDE, PhotoStore.QUALITY)
+            val bytes = fileSystem.metadataOrNull(temp)?.size ?: 0
+            val size = if (written && bytes > 0) imageSize.read(temp.toString()) else null
+            return size?.let { keep(temp, bytes, it) }
+        } finally {
+            if (fileSystem.exists(temp)) fileSystem.delete(temp)
+        }
+    }
+
+    private fun isLarge(source: Path): Boolean =
+        imageSize.read(source.toString())?.let { (w, h) -> maxOf(w, h) > PhotoStore.MAX_SIDE } == true
+
+    /** 다 쓴 사본을 해시 이름으로 둠. 같은 사진이 이미 있으면 그것을 씀 */
+    private fun keep(temp: Path, bytes: Long, size: Pair<Int, Int>): Copied {
+        val sha = sha256(temp)
+        val name = PhotoPaths.fileName(sha, "jpg")
+        val target = mediaDir / name
+        if (fileSystem.exists(target) && sha256(target) == sha) fileSystem.delete(temp) else fileSystem.atomicMove(temp, target)
+        return Copied(name, sha, fileSystem.metadata(target).size ?: bytes, size)
     }
 
     private fun sha256(path: Path): String = fileSystem.sha256Hex(path)
