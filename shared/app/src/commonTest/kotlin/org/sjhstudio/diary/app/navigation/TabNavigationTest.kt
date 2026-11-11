@@ -144,6 +144,60 @@ class TabNavigationTest {
         assertEquals(2, nav.current.size)
     }
 
+    /** 쓰던 글 위에 결제 화면이 있을 때 알림을 눌러도 쓰기는 하나. 둘이면 같은 임시 저장본을 둘이 고쳐 글이 덮임 */
+    @Test
+    fun a_write_under_another_screen_comes_back_instead_of_a_second_one() {
+        val nav = navigation()
+        val writing = WriteKey()
+        nav.push(writing)
+        nav.push(PlusKey)
+
+        nav.push(WriteKey())
+
+        assertEquals(listOf<NavKey>(HomeKey, writing), nav.current)
+    }
+
+    /** 다른 탭에 쓰던 글이 있으면 그 탭으로 가서 이어 씀 */
+    @Test
+    fun a_write_in_another_tab_comes_back_instead_of_a_second_one() {
+        val nav = navigation()
+        val writing = WriteKey()
+        nav.push(writing)
+        nav.openInTab(SettingsKey, FileBackupKey)
+
+        nav.push(WriteKey())
+
+        assertEquals(HomeKey, nav.tab)
+        assertEquals(listOf<NavKey>(HomeKey, writing), nav.current)
+        assertEquals(listOf<NavKey>(SettingsKey, FileBackupKey), nav.stacks.getValue(SettingsKey))
+    }
+
+    /** 복원 진행 화면도 앱에 하나. 넓은 화면에서 다른 탭으로 옮긴 뒤 결과 보기를 눌러도 하나 */
+    @Test
+    fun restore_progress_stays_one_across_tabs() {
+        val nav = navigation(SettingsKey)
+        nav.push(RestoreProgressKey)
+        nav.selectTab(HomeKey)
+
+        nav.push(RestoreProgressKey)
+
+        assertEquals(SettingsKey, nav.tab)
+        assertEquals(listOf<NavKey>(HomeKey), nav.stacks.getValue(HomeKey))
+        assertEquals(listOf<NavKey>(SettingsKey, RestoreProgressKey), nav.current)
+    }
+
+    /** 찾기에서 아래에 이미 열린 일기를 고르면 아래 것을 걷고 위에 엶. 같은 일기가 한 쌓임에 둘이면 뒤로 가도 같은 화면 */
+    @Test
+    fun the_same_detail_is_not_stacked_twice() {
+        val nav = navigation()
+        nav.openEntry("a")
+        nav.push(SearchKey())
+
+        nav.openEntry("a")
+
+        assertEquals(listOf<NavKey>(HomeKey, SearchKey(), EntryDetailKey("a")), nav.current)
+    }
+
     @Test
     fun a_new_detail_replaces_the_one_on_top() {
         val nav = navigation()

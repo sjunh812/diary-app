@@ -209,7 +209,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         }
         val shortcuts =
             Modifier.diaryShortcuts(
-                onNewEntry = { if (!writing) onWrite() },
+                onNewEntry = onWrite,
                 onSearch = { if (!fullScreen && nav.current.none { it is SearchKey }) nav.push(SearchKey()) }
             ).focusRequester(keyTarget).focusTarget()
         // 화면 칸은 폭이 바뀌어도 같은 자리에 둠. 갈라 두면 접거나 돌릴 때 쓰던 화면이 새로 만들어짐

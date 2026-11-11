@@ -105,12 +105,25 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
         stacks.values.forEach { it.keepFirst() }
     }
 
-    /** 화면을 엶. 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둠 */
+    /**
+     * 화면을 엶. 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둠
+     * 앱에 하나만 있어야 하는 화면은 어느 탭에 있든 그 화면으로 돌아감
+     */
     fun push(key: NavKey) {
         movedBetweenTabs = false
-        // 쓰기 화면 키는 열 때마다 새 값이라 같은지로는 못 막음. 화면이 바뀌는 동안 두 번 눌러도 하나만 엶
-        if (top == key || (key is WriteKey && top is WriteKey)) return
+        val single = key.singleScreen()
+        if (single != null && bringBack(single)) return
+        if (top == key) return
         current.add(key)
+    }
+
+    /** [match]에 맞는 화면이 쌓여 있으면 그 탭으로 가서 그 위 화면을 걷음 */
+    private fun bringBack(match: (NavKey) -> Boolean): Boolean {
+        val (owner, stack) = stacks.entries.firstOrNull { (_, stack) -> stack.any(match) } ?: return false
+        movedBetweenTabs = owner != tab
+        tab = owner
+        while (!match(stack.last())) stack.removeAt(stack.lastIndex)
+        return true
     }
 
     /** 뒤로 가기. 탭 첫 화면이면 홈으로, 홈 첫 화면이면 시스템이 앱을 닫음 */
@@ -126,6 +139,8 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     fun openEntry(entryId: String) {
         movedBetweenTabs = false
         if (top is EntryDetailKey) current.removeAt(current.lastIndex)
+        // 한 쌓임에 같은 일기는 하나. 아래에 열려 있으면 걷고 위에 엶
+        current.removeAll { it is EntryDetailKey && it.entryId == entryId }
         current.add(EntryDetailKey(entryId))
     }
 
@@ -135,6 +150,16 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
         stacks.values.forEach { stack ->
             stack.removeAll { (it is EntryDetailKey && it.entryId == entryId) || (it is PhotoViewerKey && it.entryId == entryId) }
         }
+    }
+
+    /**
+     * 앱에 하나만 있어야 하는 화면
+     * 쓰기는 같은 임시 저장본을 둘이 고치면 먼저 쓴 글이 덮이고, 복원 진행은 복원이 하나뿐임
+     */
+    private fun NavKey.singleScreen(): ((NavKey) -> Boolean)? = when (this) {
+        is WriteKey -> { key -> key is WriteKey }
+        RestoreProgressKey -> { key -> key == RestoreProgressKey }
+        else -> null
     }
 
     private fun MutableList<NavKey>.keepFirst() {

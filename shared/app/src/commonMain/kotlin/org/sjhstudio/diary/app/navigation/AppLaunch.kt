@@ -27,13 +27,14 @@ class AppLaunch {
     }
 }
 
-/** 들어온 요청대로 화면을 엶. 이미 쓰는 중이면 그 글을 그대로 둠 */
+/** 들어온 요청대로 화면을 엶 */
 @Composable
 internal fun OpenRequestedScreens(launch: AppLaunch, nav: TabNavigation) {
     val write by launch.writeRequested.collectAsStateWithLifecycle()
     LaunchedEffect(write) {
         if (!write) return@LaunchedEffect
         launch.writeHandled()
-        if (nav.top !is WriteKey) nav.push(WriteKey())
+        // 쓰던 글이 있으면 쌓기가 그 글로 돌려보냄
+        nav.push(WriteKey())
     }
 }
