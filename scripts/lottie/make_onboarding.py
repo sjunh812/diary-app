@@ -193,8 +193,9 @@ def write_lines():
 
 def backup():
     c = Comp("onboarding_backup", 96)
-    start, end, peak = (46, 104), (240, 104), 36
-    check(268, 136, 16, c, 74, 90)
+    # 구름 원은 반지름 48에 7%까지 커져, 칸 끝에 붙여 두면 커질 때 잘림. 휴대폰과 원을 4씩 안으로
+    start, end, peak = (50, 104), (236, 104), 36
+    check(264, 136, 16, c, 74, 90)
     icons = [lambda: group([path(PEN, 0.75, -9, -9), fill("@onAccent")]),
              lambda: group(image_icon(0, 0, 18, "@onAccent")),
              lambda: group(image_icon(0, 0, 18, "@onAccent"))]
@@ -213,12 +214,12 @@ def backup():
     c.layer("구름", [group([path(CLOUD, 44 / 24, end[0] - 22, end[1] - 21), stroke("@accent", 3.2)]),
                    group([ellipse(*end, 48), fill("@selected")])], anchor=end, scale=bump)
     c.layer("휴대폰", [
-        *face(24, 46, 10),
-        group([path("M 16 70 L 76 70"), stroke("@sunken", 6)]),
-        group([path("M 16 84 L 76 84"), stroke("@sunken", 6)]),
-        *image_icon(46, 130, 16, "@textTertiary"),
-        group([rect(46, 130, 68, 60, 8), fill("@sunken")]),
-        group([rect(46, 104, 91, 155, 16), stroke("@line", 1), fill("@surface")]),
+        *face(28, 46, 10),
+        group([path("M 20 70 L 80 70"), stroke("@sunken", 6)]),
+        group([path("M 20 84 L 80 84"), stroke("@sunken", 6)]),
+        *image_icon(50, 130, 16, "@textTertiary"),
+        group([rect(50, 130, 68, 60, 8), fill("@sunken")]),
+        group([rect(50, 104, 91, 155, 16), stroke("@line", 1), fill("@surface")]),
     ])
     c.save()
 
