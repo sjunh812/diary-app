@@ -1,6 +1,7 @@
 // 스토어 스크린샷과 피처 그래픽을 만든다.
 // 실제 앱 캡처 위에 머리말을 얹는다.
-// 쓰는 법: swift scripts/store/make_screens.swift <캡처 폴더> <결과 폴더> <글꼴 폴더>
+// 쓰는 법: swift scripts/store/make_screens.swift <캡처 폴더> <결과 폴더> <글꼴 폴더> [태블릿 캡처 폴더]
+// 태블릿 폴더를 주면 2560×1600 가로 캡처(write, list, calendar, insight)로 태블릿 4장도 만든다.
 import AppKit
 import CoreText
 
@@ -54,10 +55,11 @@ func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ 
     label.draw(in: rect)
 }
 
-/** 캡처 위쪽 상태 표시줄 높이. */
-let statusBar: CGFloat = 56
+/** 캡처 위쪽 상태 표시줄 높이. 폰 56, 태블릿 48 */
+var statusBar: CGFloat = 56
+var shotFolder = source
 
-func shot(_ name: String) -> NSImage { NSImage(contentsOfFile: "\(source)/\(name).png")! }
+func shot(_ name: String) -> NSImage { NSImage(contentsOfFile: "\(shotFolder)/\(name).png")! }
 
 func shadowed(_ alpha: CGFloat, _ blur: CGFloat, _ body: () -> Void) {
     let shadow = NSShadow()
@@ -122,3 +124,24 @@ let feature = canvas(1024, 500) {
     phone("list", NSRect(x: 640, y: -640, width: 300, height: 1040), 26, bezel: false)
 }
 save(feature, "feature")
+
+// 태블릿: 가로 2560×1600, 머리말은 한 줄로 위에 두고 화면은 아래로 잘린다.
+// Play 7"·10" 태블릿 칸에 같은 이미지를 쓴다. 백업 화면은 드라이브 연결이 필요해 뺀다.
+if args.count > 4 {
+    shotFolder = args[4]
+    statusBar = 48
+    let tabletSlides: [(String, String, String)] = [
+        ("write", "오늘 기분부터 가볍게 골라 봐요", "기분"),
+        ("list", "목록과 일기를 나란히 봐요", "나란히"),
+        ("calendar", "한 달 기분을 달력으로 봐요", "달력"),
+        ("insight", "내 기분 흐름을 돌아봐요", "돌아봐요")
+    ]
+    for (index, (name, words, word)) in tabletSlides.enumerated() {
+        let rep = canvas(2560, 1600) {
+            text(words, 96, ink, NSRect(x: 80, y: 1270, width: 2400, height: 160), .center, accented: word)
+            // 화면 높이는 캡처 비율에 맞추고 아래 제스처 막대가 잘리게 내림
+            phone(name, NSRect(x: 280, y: -70, width: 2000, height: 1212), 48)
+        }
+        save(rep, "tablet-\(index + 1)")
+    }
+}

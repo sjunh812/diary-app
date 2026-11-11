@@ -1,6 +1,6 @@
 # 스토어 등록 문구
 
-Google Play 2.0.0 기준이다. 스크린샷은 `docs/store/screens/`, 만드는 법은 `scripts/store/make_screens.swift`다.
+Google Play 2.0.0 기준이다. 스크린샷은 `docs/store/screens/`(폰 `phone-*`, 태블릿 `tablet-*`), 만드는 법은 `scripts/store/make_screens.swift`다.
 없는 기능(위젯, 동기화, 스티커)과 순위·수상·할인 표현은 쓰지 않는다(Play 메타데이터 정책).
 
 ## 앱 이름
@@ -59,10 +59,122 @@ Plus는 연 구독이에요. 광고 제거에 더해 한 편에 사진 30장, �
 
 ## 새로운 기능
 
+Play는 언어마다 500자까지 받는다. 기존 사용자가 업데이트 뒤 광고를 처음 보게 되므로 광고와 광고 제거를 함께 적는다(`docs/release.md` 출시 전 확인).
+
+### 한국어
+
 앱을 처음부터 새롭게 만들었어요.
 쓰시던 기능은 계속 무료예요.
 기존 일기와 사진은 자동으로 옮겨져요.
 이제 사진까지 함께 백업할 수 있어요.
+목록과 돌아보기에 광고가 생겼어요. 일기 쓰기와 상세 화면에는 광고가 없어요.
+광고는 1회 구매로 없앨 수 있어요.
+
+### 영어(원어민 검수 전)
+
+We rebuilt the app from the ground up.
+Everything you used before stays free.
+Your entries and photos move over automatically.
+Backups now include your photos.
+Ads now appear in the list and Insights. There are no ads while you write or read an entry.
+You can remove ads with a one-time purchase.
+
+### 일본어(원어민 검수 전)
+
+アプリを一から作り直しました。
+これまで使っていた機能はずっと無料です。
+今までの日記と写真は自動で移行されます。
+写真もまとめてバックアップできるようになりました。
+一覧とふりかえりに広告が表示されるようになりました。日記を書く画面と読む画面には広告はありません。
+広告は1回の購入で消せます。
+
+## 자세한 설명 · 영어(원어민 검수 전)
+
+Leave today's entry in just a few lines, even on busy days.
+No sign-up needed. Start writing right after you install.
+
+[Write]
+Keep words, photos, mood, weather, and place together in one entry.
+Add up to 10 photos per entry.
+Organize your writing with bold, text color, highlights, and lists.
+Your draft is saved as you write.
+
+[Look back]
+Browse past entries in a list or on a calendar.
+Find them again with search and favorites.
+See your mood statistics, too.
+
+[Backup and restore]
+Back up entries and photos to your own Google Drive.
+Restoring merges with the entries already on your phone instead of erasing them.
+You can also keep everything in a single file without Drive.
+
+[Lock and trash]
+Lock the app with a passcode or biometrics.
+Deleted entries can be restored for 30 days.
+
+[Make it yours]
+Choose from 10 fonts, body text size, dark mode, and 3 list views.
+On tablets, see the list and an entry side by side.
+
+[Ads and Plus]
+There are no ads while you write or read an entry, on the lock screen, in backup and restore, or in Settings.
+Ads appear in the list and Insights.
+A full-screen ad may appear once a day when you save an entry and return to the list.
+Remove ads with a one-time purchase.
+Plus is a yearly subscription. On top of no ads, it gives you 30 photos per entry, checklists, and advanced statistics.
+
+[If you used the previous version]
+Your entries, photos, and settings move to the new app. The originals are never changed or deleted.
+
+[Privacy]
+Your entries and photos go nowhere except the storage you choose.
+
+Contact: sjunh812@naver.com
+
+## 자세한 설명 · 일본어(원어민 검수 전)
+
+忙しい日でも、数行で今日の日記を残せます。
+会員登録は不要。インストールしてすぐに書けます。
+
+【書く】
+文章、写真、気分、天気、場所を1つの日記にまとめられます。
+写真は1つの日記に10枚まで追加できます。
+太字、文字色、マーカー、リストで文章を整えられます。
+書いている間は自動で下書き保存されます。
+
+【ふりかえる】
+一覧とカレンダーで過去の日記を見られます。
+検索とお気に入りで日記をすぐに探せます。
+気分の統計も見られます。
+
+【バックアップと復元】
+日記と写真を自分のGoogleドライブにバックアップできます。
+復元するときは、今のスマートフォンの日記を消さずにまとめます。
+ドライブを使わずに1つのファイルで保管することもできます。
+
+【ロックとゴミ箱】
+パスコードと生体認証でロックできます。
+削除した日記は30日間復元できます。
+
+【自分好みに】
+フォント10種類、本文の文字サイズ、ダークモード、3種類の一覧表示を選べます。
+タブレットでは一覧と日記を並べて表示します。
+
+【広告とPlus】
+日記を書く画面と読む画面、ロック、バックアップと復元、設定には広告がありません。
+一覧とふりかえりには広告が表示されます。
+日記を保存して一覧に戻るとき、1日1回全画面広告が表示されることがあります。
+広告は1回の購入で消せます。
+Plusは年間サブスクリプションです。広告なしに加えて、1つの日記に写真30枚、チェックリスト、詳しい統計を使えます。
+
+【以前のバージョンをお使いの方へ】
+日記、写真、設定を新しいアプリに移行します。元のデータは変更も削除もしません。
+
+【プライバシー】
+日記の内容と写真は、ご自身で選んだ保存先以外には送信しません。
+
+お問い合わせ: sjunh812@naver.com
 
 ## 스크린샷 머리말
 
@@ -73,3 +185,5 @@ Plus는 연 구독이에요. 광고 제거에 더해 한 편에 사진 30장, �
 3. 달력: 한 달 기분을 / 달력으로 봐요
 4. 돌아보기: 내 기분 흐름을 / 돌아봐요
 5. 백업: 사진까지 / 드라이브에 백업해요
+
+태블릿(가로 한 줄): 오늘 기분부터 가볍게 골라 봐요 / 목록과 일기를 나란히 봐요 / 한 달 기분을 달력으로 봐요 / 내 기분 흐름을 돌아봐요
