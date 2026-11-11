@@ -227,7 +227,10 @@ ADMOB_REWARDED = ca-app-pub-.../$()...
 - [ ] 처리방침 URL을 Play Console, App Store Connect에 넣기
 - [ ] Play 데이터 보안, App Store 개인정보 라벨, Privacy Manifest 작성(광고를 넣으므로 AdMob 항목 포함)
 - [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 창(아직 없음, `SKAdNetworkItems`는 구글 ID 하나만 넣음), UMP 동의
-- [ ] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(계정 재활성화 심사 뒤)
+- [x] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(2026-11-11, 계정 승인 뒤)
+- [x] `app-ads.txt`를 `https://sjunh812.github.io/app-ads.txt`에 올리기(개발자 블로그 저장소 맨 앞, 2026-11-11)
+- [ ] Play Console 스토어 설정의 개발자 웹사이트를 `https://sjunh812.github.io`로 바꾸기(지금 `developer.android.com`이라 AdMob 앱 인증이 실패한다). 바꾼 뒤 AdMob 앱 목록에서 "업데이트 확인"
+- [ ] App Store 출시 뒤 AdMob iOS 앱에 스토어를 연결하고, App Store의 마케팅 URL도 같은 주소로 둔다
 - [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기
 - [ ] 스크린샷(폰 ✓, 7"·10" 태블릿 ✓, iPhone medium·large, iPad 13"), 피처 그래픽 ✓, 아이콘 ✓. 영어·일본어 Play 스크린샷 ✓(원어민 검수 전)
 - [ ] 영어·일본어 화면 문구와 스토어 설명 원어민 검수(2026-11-01 초안은 개발자가 씀). 앱 이름(D12)과 일본어 화면 글꼴(D13)도 이때 정한다
