@@ -45,11 +45,13 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -61,6 +63,8 @@ import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.welcome.resources.Res
 import org.sjhstudio.diary.feature.welcome.resources.letter_close
+import org.sjhstudio.diary.feature.welcome.resources.letter_feedback
+import org.sjhstudio.diary.feature.welcome.resources.letter_feedback_invite
 import org.sjhstudio.diary.feature.welcome.resources.letter_hello
 import org.sjhstudio.diary.feature.welcome.resources.letter_moved
 import org.sjhstudio.diary.feature.welcome.resources.letter_open
@@ -148,12 +152,46 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
 /**
  * 설정에서 다시 읽는 편지
  * 봉투 없이 바로 편지지이고 계속하기 대신 뒤로 가기가 있음
+ * 편지 아래에 의견 보내기. 처음 보는 편지에는 두지 않음
  */
 @Composable
-fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun FullLetterScreen(entries: Int?, onBack: () -> Unit, modifier: Modifier = Modifier, onFeedback: (() -> Unit)? = null) {
     Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(stringResource(Res.string.letter_title), onBack = onBack)
-        LetterSheet(Modifier.weight(1f).navigationBarsPadding(), centered = false) { LetterBody(entries) }
+        LetterSheet(
+            Modifier.weight(1f).navigationBarsPadding(),
+            centered = false,
+            footer = { onFeedback?.let { FeedbackInvite(it) } }
+        ) { LetterBody(entries) }
+    }
+}
+
+/**
+ * 편지를 다 읽은 자리의 의견 보내기
+ * 편지가 주인공이라 약한 버튼 하나만 둠
+ */
+@Composable
+private fun FeedbackInvite(onFeedback: () -> Unit) {
+    val colors = DiaryTheme.colors
+    Column(
+        Modifier.fillMaxWidth().padding(top = DiarySpacing.x8),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+    ) {
+        BasicText(
+            stringResource(Res.string.letter_feedback_invite),
+            style = DiaryTheme.typography.body.copy(
+                color = colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
+        DiaryButton(
+            stringResource(Res.string.letter_feedback),
+            onFeedback,
+            size = DiaryButtonSize.Medium,
+            kind = DiaryButtonKind.Weak
+        )
     }
 }
 
@@ -191,6 +229,7 @@ private fun LetterSheet(
     cardModifier: Modifier = Modifier,
     rises: Boolean = true,
     centered: Boolean = true,
+    footer: @Composable ColumnScope.() -> Unit = {},
     content: @Composable ColumnScope.() -> Unit
 ) {
     val still = !rises || rememberReduceMotion() || LocalInspectionMode.current
@@ -212,6 +251,7 @@ private fun LetterSheet(
                 alpha = rise.value
                 translationY = (1f - rise.value) * DiarySpacing.x6.toPx()
             }, content)
+            footer()
         }
     }
 }

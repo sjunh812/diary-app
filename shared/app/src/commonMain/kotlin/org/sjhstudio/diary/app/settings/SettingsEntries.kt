@@ -177,9 +177,27 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
     entry<LetterKey> {
         val letter by koinViewModel<LetterViewModel>().letter.collectAsStateWithLifecycle()
-        // 읽는 동안은 바탕만 그림(편지는 개수 문단까지 한 번에 나옴)
-        letter?.let { FullLetterScreen(entries = it.entries, onBack = pop) }
-            ?: Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
+        val app = koinInject<BackupAppInfo>()
+        val device = remember { deviceInfo() }
+        val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
+        val openLink = rememberOpenLink()
+        val toast = remember { DiaryToastState() }
+        val scope = rememberCoroutineScope()
+        Box(Modifier.fillMaxSize()) {
+            // 읽는 동안은 바탕만 그림(편지는 개수 문단까지 한 번에 나옴)
+            letter?.let {
+                FullLetterScreen(
+                    entries = it.entries,
+                    onBack = pop,
+                    onFeedback = { if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) } }
+                )
+            } ?: Box(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas))
+            DiaryToastHost(
+                toast,
+                Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4),
+                reduceMotion = rememberReduceMotion()
+            )
+        }
     }
     entry<ListStyleSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()

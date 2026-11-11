@@ -25,6 +25,8 @@
     <string name="onboarding_trash_title">Deleted by mistake? No problem</string>
     <string name="onboarding_trash_body">You can restore entries from Trash for 30 days.</string>
     <string name="letter_to">To everyone who uses 1 Day 1 Diary</string>
+    <string name="letter_feedback_invite">If there is a feature you would like, let us know.</string>
+    <string name="letter_feedback">Send feedback</string>
     <string name="onboarding_find_title">Easier to find and look back</string>
     <string name="onboarding_find_body">Find entries by mood, weather, or date range,\nand see your moods by week, month, or year.</string>
     <string name="onboarding_tablet_title">More room on a tablet</string>

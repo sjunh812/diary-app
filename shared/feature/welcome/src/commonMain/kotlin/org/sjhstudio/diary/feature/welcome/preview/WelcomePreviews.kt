@@ -21,11 +21,11 @@ private fun LetterNoEntriesLight() = DiaryTheme(darkTheme = false) { FullLetterS
 
 @Preview(locale = "ko")
 @Composable
-private fun FullLetterLight() = DiaryTheme(darkTheme = false) { FullLetterScreen(1204, {}) }
+private fun FullLetterLight() = DiaryTheme(darkTheme = false) { FullLetterScreen(1204, {}, onFeedback = {}) }
 
 @Preview(locale = "ko")
 @Composable
-private fun FullLetterDark() = DiaryTheme(darkTheme = true) { FullLetterScreen(1204, {}) }
+private fun FullLetterDark() = DiaryTheme(darkTheme = true) { FullLetterScreen(1204, {}, onFeedback = {}) }
 
 @Preview(locale = "ko")
 @Composable
