@@ -127,4 +127,21 @@ object LegacyFixtures {
         }
         fs.write(path) { write(bytes) }
     }
+
+    /** 복사가 끊긴 파일처럼 뒤쪽을 잘라 냄 */
+    fun truncate(path: Path, keep: Double = 0.6) {
+        val fs = FileSystem.SYSTEM
+        val bytes = fs.read(path) { readByteArray() }
+        fs.write(path) { write(bytes, 0, (bytes.size * keep).toInt()) }
+    }
+
+    /** SQLite 파일이 아니게 머리를 망가뜨림 */
+    fun corruptHeader(path: Path) {
+        val fs = FileSystem.SYSTEM
+        val bytes = fs.read(path) { readByteArray() }
+        for (i in 0 until HEADER_BYTES) bytes[i] = (i * 7 + 13).toByte()
+        fs.write(path) { write(bytes) }
+    }
+
+    private const val HEADER_BYTES = 100
 }

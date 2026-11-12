@@ -19,15 +19,15 @@ data class LegacyReadSummary(val read: Int, val unreadable: Int)
  * 사본의 WAL은 사본에 합쳐져도 괜찮음
  */
 class LegacyDbReader private constructor(private val connection: SQLiteConnection) : AutoCloseable {
+    // 스키마를 못 읽으면 예외를 그대로 올림. 삼키면 깨진 파일이 "표 없음"으로 보여 옮길 일기가 없다고 끝남
     private val columns: Set<String> by lazy {
-        runCatching {
-            connection.prepare("PRAGMA table_info(Note)").use { s -> buildSet { while (s.step()) add(s.getText(1)) } }
-        }.getOrDefault(emptySet())
+        connection.prepare("PRAGMA table_info(Note)").use { s -> buildSet { while (s.step()) add(s.getText(1)) } }
     }
 
     /**
      * `Note` 표가 있는가
      * 없으면 옮길 일기가 없음
+     * 파일이 깨져 스키마를 못 읽으면 예외
      */
     val hasNoteTable: Boolean get() = "_id" in columns
 
@@ -39,7 +39,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
      * 표가 없으면 0, 깨져서 셀 수 없으면 null.
      */
     fun count(): Long? {
-        if (!hasNoteTable) return 0
+        if (!(runCatching { hasNoteTable }.getOrNull() ?: return null)) return 0
         return runCatching {
             connection.prepare("SELECT COUNT(*) FROM Note").use {
                 it.step()
@@ -58,7 +58,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
         var read = 0
         var unreadable = 0
         var lastId = Long.MIN_VALUE
-        val maxId = runCatching { singleLongOrNull("SELECT MAX(_id) FROM Note") }.getOrNull()
+        val maxId = lastIdOrNull()
         while (true) {
             val page = runCatching { query("WHERE _id > ? ORDER BY _id LIMIT $PAGE", lastId) }
             val rows = page.getOrNull()
@@ -71,7 +71,8 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
             }
             // 이 쪽은 깨짐
             // 다음 읽히는 줄까지 반씩 나눠 건짐
-            val end = maxId ?: break
+            // 끝을 모르면 몇 줄이 빠졌는지 셀 수 없음. 다 읽었다고 하지 않게 한 줄로 셈
+            val end = maxId ?: return LegacyReadSummary(read, unreadable + 1)
             val start = if (lastId == Long.MIN_VALUE) minIdOrOne() else lastId + 1
             if (start > end) break
             val salvaged = salvage(start, end, onRow)
@@ -89,7 +90,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
      * 깨진 사본이면 읽히는 줄만 모아 같은 차례로
      */
     fun readNewestFirst(after: LegacyNote?, limit: Int): List<LegacyNote> {
-        if (!hasNoteTable) return emptyList()
+        if (runCatching { hasNoteTable }.getOrDefault(false).not()) return emptyList()
         return runCatching {
             if (after == null) {
                 queryText("ORDER BY ifnull(create_date, '') DESC, _id DESC LIMIT $limit")
@@ -124,6 +125,10 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
         s.step()
         if (s.isNull(0)) null else s.getLong(0)
     }
+
+    /** 마지막 `_id`. 표 끝이 깨져 못 구하면 번호표(`sqlite_sequence`)에서 찾음 */
+    private fun lastIdOrNull(): Long? = runCatching { singleLongOrNull("SELECT MAX(_id) FROM Note") }.getOrNull()
+        ?: runCatching { singleLongOrNull("SELECT seq FROM sqlite_sequence WHERE name = 'Note'") }.getOrNull()
 
     private fun minIdOrOne(): Long = runCatching {
         connection.prepare("SELECT MIN(_id) FROM Note").use {

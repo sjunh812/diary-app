@@ -232,6 +232,23 @@ class MigrationRunnerTest {
         }
     }
 
+    // 깨진 파일을 "옮길 일기 없음"으로 끝내면 빈 앱이 열리고 다시 읽지도 않음
+    @Test
+    fun a_file_too_broken_to_read_fails_instead_of_finishing_empty() = runTest {
+        for (breakIt in listOf<(okio.Path) -> Unit>({ LegacyFixtures.truncate(it) }, { LegacyFixtures.corruptHeader(it) })) {
+            TempDir().use { dir ->
+                val env = MigrationEnv(dir)
+                LegacyFixtures.create(env.legacy.noteDb, LegacyFixtures.manyRows(2_000, contentLength = 300)).close()
+                breakIt(env.legacy.noteDb)
+
+                val result = env.runner().run()
+
+                assertIs<MigrationResult.Failed>(result)
+                assertEquals(MigrationStep.FAILED, env.runner().state().step)
+            }
+        }
+    }
+
     @Test
     fun partial_reads_again_once_after_an_update_and_keeps_new_entries() = runTest {
         TempDir().use { dir ->
