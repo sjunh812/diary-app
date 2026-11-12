@@ -47,25 +47,25 @@ internal class IosDateFormat(private val locale: NSLocale, override val is24Hour
     private val weekdayFormat = formatter(DateSkeleton.WEEKDAY_SHORT)
     private val timeFormat = formatter(if (is24Hour) DateSkeleton.TIME_24 else DateSkeleton.TIME_12)
 
-    override fun month(date: LocalDate): String = monthFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun month(date: LocalDate): String = monthFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun yearMonth(date: LocalDate): String = yearMonthFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun yearMonth(date: LocalDate): String = yearMonthFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun monthShort(date: LocalDate): String = monthShortFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun monthShort(date: LocalDate): String = monthShortFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun weekday(date: LocalDate): String = weekdayFullFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun weekday(date: LocalDate): String = weekdayFullFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun year(date: LocalDate): String = yearFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun year(date: LocalDate): String = yearFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun monthDay(date: LocalDate): String = monthDayFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun monthDay(date: LocalDate): String = monthDayFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun fullDate(date: LocalDate): String = fullDateFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun fullDate(date: LocalDate): String = fullDateFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun dayWithWeekday(date: LocalDate): String = dayWeekdayFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun dayWithWeekday(date: LocalDate): String = dayWeekdayFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun weekdayShort(date: LocalDate): String = weekdayFormat.stringFromDate(nsDate(date.utcMillis()))
+    override fun weekdayShort(date: LocalDate): String = weekdayFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
-    override fun time(time: LocalTime): String = timeFormat.stringFromDate(nsDate(time.utcMillis()))
+    override fun time(time: LocalTime): String = timeFormat.stringFromDate(nsDate(time.utcMillis())).keepTogether()
 
     private fun formatter(template: String) = NSDateFormatter().also {
         it.locale = locale

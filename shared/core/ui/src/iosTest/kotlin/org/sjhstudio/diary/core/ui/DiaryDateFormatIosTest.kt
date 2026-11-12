@@ -19,30 +19,30 @@ class DiaryDateFormatIosTest {
     @Test
     fun korean() {
         val f = format("ko-KR")
-        assertEquals("11월", f.month(date))
-        assertEquals("2026년 11월", f.yearMonth(date))
-        assertEquals("2026년 11월 1일", f.fullDate(date))
-        assertEquals("일", f.weekdayShort(date))
+        assertEquals("11월", f.month(date).plain())
+        assertEquals("2026년 11월", f.yearMonth(date).plain())
+        assertEquals("2026년 11월 1일", f.fullDate(date).plain())
+        assertEquals("일", f.weekdayShort(date).plain())
         assertEquals("오후 3:05", f.time(time).plain())
     }
 
     @Test
     fun english() {
         val f = format("en-US")
-        assertEquals("November", f.month(date))
-        assertEquals("November 2026", f.yearMonth(date))
-        assertEquals("November 1, 2026", f.fullDate(date))
-        assertEquals("Sun", f.weekdayShort(date))
+        assertEquals("November", f.month(date).plain())
+        assertEquals("November 2026", f.yearMonth(date).plain())
+        assertEquals("November 1, 2026", f.fullDate(date).plain())
+        assertEquals("Sun", f.weekdayShort(date).plain())
         assertEquals("3:05 PM", f.time(time).plain())
     }
 
     @Test
     fun japanese() {
         val f = format("ja-JP")
-        assertEquals("11月", f.month(date))
-        assertEquals("2026年11月", f.yearMonth(date))
-        assertEquals("2026年11月1日", f.fullDate(date))
-        assertEquals("日", f.weekdayShort(date))
+        assertEquals("11月", f.month(date).plain())
+        assertEquals("2026年11月", f.yearMonth(date).plain())
+        assertEquals("2026年11月1日", f.fullDate(date).plain())
+        assertEquals("日", f.weekdayShort(date).plain())
         assertEquals("午後3:05", f.time(time).plain())
     }
 

@@ -36,25 +36,25 @@ private class AndroidDateFormat(locale: Locale, override val is24Hour: Boolean) 
     private val weekdayFormat = formatter(locale, DateSkeleton.WEEKDAY_SHORT)
     private val timeFormat = formatter(locale, if (is24Hour) DateSkeleton.TIME_24 else DateSkeleton.TIME_12)
 
-    override fun month(date: LocalDate): String = monthFormat.format(Date(date.utcMillis()))
+    override fun month(date: LocalDate): String = monthFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun yearMonth(date: LocalDate): String = yearMonthFormat.format(Date(date.utcMillis()))
+    override fun yearMonth(date: LocalDate): String = yearMonthFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun monthShort(date: LocalDate): String = monthShortFormat.format(Date(date.utcMillis()))
+    override fun monthShort(date: LocalDate): String = monthShortFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun weekday(date: LocalDate): String = weekdayFullFormat.format(Date(date.utcMillis()))
+    override fun weekday(date: LocalDate): String = weekdayFullFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun year(date: LocalDate): String = yearFormat.format(Date(date.utcMillis()))
+    override fun year(date: LocalDate): String = yearFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun monthDay(date: LocalDate): String = monthDayFormat.format(Date(date.utcMillis()))
+    override fun monthDay(date: LocalDate): String = monthDayFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun fullDate(date: LocalDate): String = fullDateFormat.format(Date(date.utcMillis()))
+    override fun fullDate(date: LocalDate): String = fullDateFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun dayWithWeekday(date: LocalDate): String = dayWeekdayFormat.format(Date(date.utcMillis()))
+    override fun dayWithWeekday(date: LocalDate): String = dayWeekdayFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun weekdayShort(date: LocalDate): String = weekdayFormat.format(Date(date.utcMillis()))
+    override fun weekdayShort(date: LocalDate): String = weekdayFormat.format(Date(date.utcMillis())).keepTogether()
 
-    override fun time(time: LocalTime): String = timeFormat.format(Date(time.utcMillis()))
+    override fun time(time: LocalTime): String = timeFormat.format(Date(time.utcMillis())).keepTogether()
 }
 
 private fun formatter(locale: Locale, skeleton: String): SimpleDateFormat {

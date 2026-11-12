@@ -88,6 +88,12 @@ internal fun formatLocaleTag(language: String, deviceTag: String): String {
     return if (device.substringBefore('-').equals(language, ignoreCase = true)) device else language
 }
 
+/**
+ * 날짜·시각 안에서 줄이 바뀌지 않게 띄어쓰기를 줄바꿈 없는 공백으로 바꿈
+ * 문장에 넣으면 "11월 / 12일"처럼 끊겼음
+ */
+internal fun String.keepTogether(): String = replace(' ', ' ')
+
 /** iOS 로캘 이름(ja_JP@calendar=japanese)을 언어 태그(ja-JP)로 바꿈 */
 internal fun languageTag(localeName: String): String = localeName.substringBefore('@').replace('_', '-')
 

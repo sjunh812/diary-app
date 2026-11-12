@@ -17,4 +17,10 @@ class DiaryDateFormatTest {
         assertEquals("en", formatLocaleTag("en", "fr-FR"))
         assertEquals("en", formatLocaleTag("en", "zh-Hant-TW"))
     }
+
+    // 문장 안에서 "11월 / 12일"처럼 끊기지 않게 함
+    @Test
+    fun dateKeepsItsPartsOnOneLine() {
+        assertEquals("11월 12일 오후 7:48", "11월 12일 오후 7:48".keepTogether())
+    }
 }
