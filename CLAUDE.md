@@ -142,7 +142,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - 브랜치(사용자 결정 2026-11-07): `main`은 배포·운영, `develop`은 개발이다. `master`는 옛 소스 보관용이라 건드리지 않고, PR #2도 머지하지 않는다.
 - 기능은 개발할 때만 `develop`에서 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`) 브랜치를 만들고, 끝나면 `develop`에 머지한다.
 - 출시 전에는 PR 없이 머지하고 푸시한다. 출시 이후 기능은 PR을 올리고, 머지는 사용자에게 묻는다(순서는 `/pr-review`).
-- 릴리스는 `develop`을 `main`에 머지한 뒤 `main`에서 `chore(release): 2.0.0 (37)` 커밋과 `v2.0.0` 태그를 만든다. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
+- 릴리스는 `develop`을 `main`에 머지한 뒤 `main`에서 `chore(release): 2.0.0 (<빌드 번호>)` 커밋과 `v2.0.0` 태그를 만든다. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
 - 스펙 001에서 commit-msg 훅(저장소의 `.githooks/`, `git config core.hooksPath .githooks`)으로 형식을 검사한다.
 
 ```text
