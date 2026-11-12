@@ -74,8 +74,10 @@ unlock() {
     sleep 1
   done
   adb shell rm -f /data/local/tmp/diary-ui.xml
-  if adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -qE '"step":"(Snapshotting|Copying|Verifying|Committing|Done|Partial|Failed)"'; then
-    echo "잠긴 동안 이전이 시작됐어요" >&2; exit 1
+  # 끊긴 뒤 다시 열면 지난 시도의 단계가 남아 있음. 열기 전 상태에서 바뀌었을 때만 시작한 것
+  NOW_STATE=$(adb shell run-as $PKG cat files/migration/state.json 2>/dev/null || true)
+  if [ "$NOW_STATE" != "${OPENED_STATE:-}" ] && printf '%s' "$NOW_STATE" | grep -qE '"step":"(Snapshotting|Copying|Verifying|Committing|Done|Partial|Failed)"'; then
+    echo "잠긴 동안 이전이 시작됐어요: $NOW_STATE" >&2; exit 1
   fi
   echo "잠금 화면: 잠긴 동안 이전 시작 안 함"
   if [ "${BIOMETRIC:-0}" = 1 ]; then
@@ -95,6 +97,7 @@ unlock() {
   fi
 }
 START=$(date +%s)
+OPENED_STATE=$(adb shell run-as $PKG cat files/migration/state.json 2>/dev/null || true)
 adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
 if [ -n "${LOCK:-}" ]; then unlock; fi
 if [ -n "${KILL_AT:-}" ]; then
@@ -105,7 +108,8 @@ if [ -n "${KILL_AT:-}" ]; then
     i=$((i + 1)); [ $i -gt 300 ] && { echo "$KILL_AT 단계에서 끊기지 않았어요" >&2; exit 1; }
     sleep 1
   done
-  echo "끊김: $(adb shell run-as $PKG cat files/migration/state.json)"
+  OPENED_STATE=$(adb shell run-as $PKG cat files/migration/state.json)
+  echo "끊김: $OPENED_STATE"
   adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
   # 프로세스가 새로 시작했으니 다시 잠겨 있다.
   if [ -n "${LOCK:-}" ]; then unlock; fi
