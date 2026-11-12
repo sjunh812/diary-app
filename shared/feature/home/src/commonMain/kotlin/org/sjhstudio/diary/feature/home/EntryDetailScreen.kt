@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -31,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -253,7 +255,17 @@ internal fun Body(
 /** 사진 격자: 1장 꽉, 2장 나란히, 3장 큰 칸 + 둘, 4장 이상 셋째 칸에 +N. 칸 사이 2 */
 @Composable
 private fun Gallery(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit) {
-    BoxWithConstraints(Modifier.fillMaxWidth().aspectRatio(GALLERY_RATIO).clip(DiaryShapes.r12)) {
+    val window = LocalWindowInfo.current.containerSize
+    val windowHeight = with(LocalDensity.current) { window.height.toDp() }
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val height = minOf(maxWidth / galleryRatio(photos), windowHeight * GALLERY_MAX_HEIGHT)
+        GalleryCells(photos, onPhoto, Modifier.fillMaxWidth().height(height).clip(DiaryShapes.r12))
+    }
+}
+
+@Composable
+private fun GalleryCells(photos: List<EntryPhoto>, onPhoto: (Int) -> Unit, modifier: Modifier = Modifier) {
+    Box(modifier) {
         val gap = DiarySpacing.x0_5
         when (photos.size) {
             1 -> Cell(photos[0], Modifier.fillMaxSize()) { onPhoto(0) }
@@ -311,8 +323,25 @@ private fun Cell(photo: EntryPhoto, modifier: Modifier, onClick: () -> Unit) {
     }
 }
 
+/**
+ * 사진 묶음의 가로÷세로
+ * 한 장은 사진 비율 그대로라 전체 보기와 같은 장면. 4:5~1.91:1로 묶어 본문을 밀어내지 않음(Instagram 피드와 같은 범위)
+ * 여러 장이나 크기를 모르는 사진은 격자 비율
+ */
+internal fun galleryRatio(photos: List<EntryPhoto>): Float {
+    val only = photos.singleOrNull()
+    val width = only?.width ?: 0
+    val height = only?.height ?: 0
+    return if (width > 0 && height > 0) (width.toFloat() / height).coerceIn(TALLEST_RATIO, WIDEST_RATIO) else GALLERY_RATIO
+}
+
 /** 폰 350×230, 태블릿 600×396과 같은 비율 */
-private const val GALLERY_RATIO = 1.52f
+internal const val GALLERY_RATIO = 1.52f
+
+/** 사진 높이는 창 높이의 60%까지. 태블릿 가로에서 세로 사진이 본문을 화면 밖으로 밀지 않게 넘는 만큼만 자름 */
+private const val GALLERY_MAX_HEIGHT = 0.6f
+private const val TALLEST_RATIO = 0.8f
+private const val WIDEST_RATIO = 1.91f
 
 /** 장소 이름 최대 줄 수 */
 private const val PLACE_LINES = 2
