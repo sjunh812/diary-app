@@ -23,13 +23,13 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -146,7 +146,6 @@ fun HomeRoute(
             }
         }
     }
-    val scope = rememberCoroutineScope()
     val dates = rememberDiaryDateFormat()
     val today = rememberToday()
     var picking by remember { mutableStateOf(false) }
@@ -207,6 +206,12 @@ fun HomeRoute(
             onTrash = onTrashed
         )
     }
+    LaunchedEffect(viewModel, style) {
+        viewModel.jumps.collect { position ->
+            val index = position + LIST_TOP_ITEMS
+            if (style == ListStyle.PHOTO_GRID) grid.scrollToItem(index) else list.scrollToItem(index)
+        }
+    }
     if (picking) {
         DiaryMonthSheet(
             title = stringResource(Res.string.home_month_sheet_title),
@@ -216,10 +221,7 @@ fun HomeRoute(
             enabled = { it in months },
             onPick = { month ->
                 picking = false
-                scope.launch {
-                    val position = viewModel.positionOf(month) + LIST_TOP_ITEMS
-                    if (style == ListStyle.PHOTO_GRID) grid.scrollToItem(position) else list.scrollToItem(position)
-                }
+                viewModel.jumpTo(month)
             },
             onDismiss = { picking = false }
         )

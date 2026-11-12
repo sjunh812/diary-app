@@ -12,7 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.model.DateRange
@@ -34,8 +36,23 @@ class SearchViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel(filter: SearchFilter = SearchFilter()) =
-        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts, today = { today }, saved = SavedStateHandle())
+    private fun viewModel(filter: SearchFilter = SearchFilter(), saved: SavedStateHandle = SavedStateHandle()) =
+        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts, today = { today }, saved = saved)
+
+    /** 시스템이 앱을 껐다 다시 띄워도 고른 기간 칩이 그대로여야 함 */
+    @Test
+    fun the_chosen_period_chip_survives_being_restored() = runTest {
+        val saved = SavedStateHandle()
+        viewModel(saved = saved).apply {
+            setPeriod(SearchPeriod.Month)
+            advanceUntilIdle()
+        }
+
+        val restored = viewModel(saved = saved)
+
+        assertEquals(SearchPeriod.Month, restored.period.value)
+        assertEquals(DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31)), restored.filter.value.period)
+    }
 
     @Test
     fun preset_periods_follow_today() {

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -28,6 +30,7 @@ import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
 import org.sjhstudio.diary.core.ui.bodyLook
 import org.sjhstudio.diary.core.ui.bodyLookIn
+import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -64,6 +67,13 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
         favorites.update { !it }
     }
 
-    /** 그 달 첫 일기의 목록 위치 */
-    suspend fun positionOf(month: YearMonth): Int = entries.positionOf(month, favoritesOnly.value)
+    private val _jumps = Channel<Int>(Channel.CONFLATED)
+
+    /** 고른 달 첫 일기의 목록 위치. 화면이 받아 그 자리로 스크롤 */
+    val jumps: Flow<Int> = _jumps.receiveAsFlow()
+
+    /** 읽지 못하면 목록을 그대로 둠 */
+    fun jumpTo(month: YearMonth) {
+        viewModelScope.launchSafely { _jumps.send(entries.positionOf(month, favoritesOnly.value)) }
+    }
 }

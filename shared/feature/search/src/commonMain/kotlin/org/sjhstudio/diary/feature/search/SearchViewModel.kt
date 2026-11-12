@@ -59,7 +59,12 @@ class SearchViewModel(
     private val _filter = MutableStateFlow(saved.get<String>(FILTER_KEY)?.let(::decodeFilter) ?: initial)
     val filter: StateFlow<SearchFilter> = _filter.asStateFlow()
 
-    private val _period = MutableStateFlow(if (initial.period != null) SearchPeriod.Custom else null)
+    // 기간 종류도 함께 남김. 범위만 남기면 다시 떴을 때 결과는 걸러져 있는데 칩은 고르지 않은 모양이 됨
+    private val _period =
+        MutableStateFlow(
+            saved.get<String>(PERIOD_KEY)?.let { name -> SearchPeriod.entries.firstOrNull { it.name == name } }
+                ?: SearchPeriod.Custom.takeIf { _filter.value.period != null }
+        )
     val period: StateFlow<SearchPeriod?> = _period.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
@@ -88,7 +93,7 @@ class SearchViewModel(
 
     /** 고른 조건만 모두 지움. 쓴 낱말은 그대로 */
     fun clearConditions() {
-        _period.value = null
+        choose(null)
         _filter.update { SearchFilter(query = it.query) }
     }
 
@@ -103,13 +108,18 @@ class SearchViewModel(
                 SearchPeriod.Custom -> _filter.value.period
                 null -> null
             }
-        _period.value = period
+        choose(period)
         _filter.update { it.copy(period = range) }
     }
 
     fun setCustomPeriod(range: DateRange) {
-        _period.value = SearchPeriod.Custom
+        choose(SearchPeriod.Custom)
         _filter.update { it.copy(period = range) }
+    }
+
+    private fun choose(period: SearchPeriod?) {
+        _period.value = period
+        saved[PERIOD_KEY] = period?.name
     }
 
     private companion object {
@@ -126,6 +136,7 @@ class SearchViewModel(
 }
 
 private const val FILTER_KEY = "search_filter"
+private const val PERIOD_KEY = "search_period"
 private const val SEP = "\u001F"
 
 /** 저장 상태에 넣게 글자 하나로 접음. 기분과 날씨는 이름, 기간은 날짜 */

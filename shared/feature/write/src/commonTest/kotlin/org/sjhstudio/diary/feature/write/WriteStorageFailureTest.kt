@@ -219,4 +219,17 @@ class WriteStorageFailureTest {
         assertTrue(vm.state.value.resume != null, "지우지 못했으면 시트가 그대로 남는다")
         assertTrue(vm.state.value.saveFailed)
     }
+
+    /** 화면은 옮긴 칸 수만 넘김. 끝을 넘겨 끌면 지금 목록의 맨 끝에 놓임 */
+    @Test
+    fun dragging_a_photo_past_the_end_puts_it_last() = runTest(dispatcher) {
+        val drafts = FakeDraftRepository(editable = mapOf("e1" to draft(DraftKey.Edit("e1"), photo("a"), photo("b"), photo("c"))))
+        val vm = vm(WriteTarget.Edit("e1"), drafts)
+        advanceUntilIdle()
+
+        vm.movePhoto(0, 5)
+        advanceUntilIdle()
+
+        assertEquals(listOf("b", "c", "a"), vm.state.value.photos.map { it.sha256 })
+    }
 }

@@ -218,7 +218,7 @@ internal fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> 
                 mediaPath = actions.mediaPath,
                 step = step,
                 onRemove = { vm.removePhoto(index) },
-                onMove = { by -> vm.movePhoto(index, (index + by).coerceIn(0, state.photos.lastIndex)) }
+                onMove = { by -> vm.movePhoto(index, by) }
             )
         }
         item {

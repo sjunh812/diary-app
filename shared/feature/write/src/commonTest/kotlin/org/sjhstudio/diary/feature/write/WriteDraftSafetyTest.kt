@@ -259,4 +259,20 @@ class WriteDraftSafetyTest {
         advanceUntilIdle()
         assertTrue(left.state.value.canDiscard)
     }
+
+    /** 닫히는 전환 중에 뒤로 가기가 또 오면 닫힘이 두 번 나가 밑의 화면까지 닫혔음 */
+    @Test
+    fun leaving_the_resume_sheet_and_pressing_back_again_closes_once() = runTest(dispatcher) {
+        val repository = FakeDraftRepository(listOf(draft()))
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+
+        vm.leaveOffer()
+        vm.close()
+        vm.leaveOffer()
+        advanceUntilIdle()
+
+        assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = false)), events)
+    }
 }

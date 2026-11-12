@@ -293,7 +293,7 @@ class WriteViewModel(
     private suspend fun openEdit(entry: WriteTarget.Edit) {
         val edit = drafts.openEdit(entry.entryId)
         if (edit == null) {
-            _events.send(WriteEvent.Closed(keptDraft = false))
+            closed(keptDraft = false)
             return
         }
         resumed = edit.resumed
@@ -322,8 +322,10 @@ class WriteViewModel(
      * 쓰던 글은 불러오지도, 건드리지도 않음
      */
     fun leaveOffer() {
+        if (leaving) return
+        leaving = true
         _state.update { it.copy(resume = null) }
-        viewModelScope.launchSafely { _events.send(WriteEvent.Closed(keptDraft = false)) }
+        viewModelScope.launchSafely { closed(keptDraft = false) }
     }
 
     private fun load(draft: Draft, isEdit: Boolean) {
@@ -519,9 +521,12 @@ class WriteViewModel(
         write { drafts.restorePhoto(key, photo, index) }
     }
 
-    fun movePhoto(from: Int, to: Int) {
+    /** [from]번째 사진을 [by]칸 옮김. 범위는 지금 목록으로 자름(화면이 쥔 목록은 옛것일 수 있음) */
+    fun movePhoto(from: Int, by: Int) {
         val size = _state.value.photos.size
-        if (from !in 0 until size || to !in 0 until size || from == to) return
+        if (from !in 0 until size) return
+        val to = (from + by).coerceIn(0, size - 1)
+        if (from == to) return
         val order = (0 until size).toMutableList().apply { add(to, removeAt(from)) }
         write { drafts.reorderPhotos(key, order) }
     }
@@ -564,6 +569,12 @@ class WriteViewModel(
         }
     }
 
+    /** 닫힘을 알리는 길은 여기 하나. 닫히는 전환 중에 뒤로 가기가 또 와도 밑의 화면까지 닫지 않게 표시를 세움 */
+    private suspend fun closed(keptDraft: Boolean) {
+        leaving = true
+        _events.send(WriteEvent.Closed(keptDraft))
+    }
+
     /** 뒤로 가기. 쓴 것이 있으면 묻지 않고 임시 저장(FR-011) */
     fun close() {
         // 저장 중이거나 저장이 끝났으면 화면이 이미 닫히는 중. 임시 저장본을 다시 만들지 않음
@@ -571,7 +582,7 @@ class WriteViewModel(
         leaving = true
         // 쓸 글을 고르기 전이면 남겨 둔 글을 건드리지 않음
         if (!ready.isCompleted) {
-            viewModelScope.launchSafely { _events.send(WriteEvent.Closed(keptDraft = false)) }
+            viewModelScope.launchSafely { closed(keptDraft = false) }
             return
         }
         pending?.cancel()
@@ -583,19 +594,19 @@ class WriteViewModel(
             when {
                 !withStoredPhotos(currentDraft()).canSave() -> {
                     if (stored) drafts.discard(key)
-                    _events.send(WriteEvent.Closed(keptDraft = false))
+                    closed(keptDraft = false)
                 }
 
                 edit != null -> {
                     flush(force = true)
                     val same = drafts.matchesEntry(edit)
                     if (same) drafts.discard(key)
-                    _events.send(WriteEvent.Closed(keptDraft = !same))
+                    closed(keptDraft = !same)
                 }
 
                 else -> {
                     flush(force = true)
-                    _events.send(WriteEvent.Closed(keptDraft = true))
+                    closed(keptDraft = true)
                 }
             }
         }
