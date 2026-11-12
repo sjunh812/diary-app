@@ -46,7 +46,7 @@
     <string name="backup_line_on">켜기</string>
     <string name="backup_line_reconnect">다시 연결이 필요해요</string>
     <string name="backup_line_receiving">사진 받는 중 · %1$s/%2$s장</string>
-    <string name="backup_line_running">백업 중 · 사진 %1$d/%2$d</string>
+    <string name="backup_line_running">백업 중 · 사진 %1$s/%2$s장</string>
     <string name="backup_line_running_plain">백업 중</string>
     <string name="backup_line_at">%1$s 백업 · %2$s</string>
     <string name="backup_line_all">사진까지 모두</string>
@@ -244,7 +244,7 @@
     <string name="restore_notice_some">받지 못한 사진이 있어요. 앱에서 확인해 주세요.</string>
     <string name="restore_notice_left">남은 사진은 앱을 열면 이어서 받아요.</string>
     <string name="backup_failed_offline">인터넷에 연결되지 않았어요. 연결한 뒤 지금 백업을 눌러 주세요.</string>
-    <string name="backup_failed_drive">구글 드라이브가 응답하지 않아요. 잠시 뒤 지금 백업을 눌러 주세요.</string>
+    <string name="backup_failed_drive">구글 드라이브가 응답하지 않아요. 잠시 뒤 [지금 백업]을 눌러 주세요.</string>
     <string name="backup_failed_local">이 휴대폰에서 파일을 읽거나 쓰지 못했어요. 저장 공간을 확인하고 지금 백업을 눌러 주세요.</string>
     <string name="backup_line_failed">백업을 끝내지 못했어요</string>
     <string name="backup_status_failed">백업 상태를 불러오지 못했어요</string>
@@ -255,5 +255,5 @@
     <string name="backup_connect_failed_auth">구글 계정을 확인하지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
     <string name="backup_connect_failed_other">잠시 뒤 다시 시도해 주세요.</string>
     <string name="backup_connect_failed_close">확인</string>
-    <string name="restore_no_mail">메일 앱을 찾지 못했어요. %1$s로 보내 주세요.</string>
+    <string name="restore_no_mail">메일 앱을 찾지 못했어요. %1$s 주소로 보내 주세요.</string>
 </resources>

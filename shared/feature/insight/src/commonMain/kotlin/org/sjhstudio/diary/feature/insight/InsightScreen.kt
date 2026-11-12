@@ -662,7 +662,7 @@ private fun slotLabel(slot: BucketSlot, dates: DiaryDateFormat): String = when (
 @Composable
 private fun YearMap(year: Int, pixels: Map<LocalDate, Mood?>, today: LocalDate) {
     val colors = DiaryTheme.colors
-    val description = stringResource(Res.string.insight_year_map)
+    val description = stringResource(Res.string.insight_year_map, year)
     val moodColors = Mood.entries.associateWith { moodColor(it) }
     val labelWidth = DiaryInsightSize.mapLabel * LocalDensity.current.fontScale
     BoxWithConstraints(Modifier.semantics { contentDescription = description }) {

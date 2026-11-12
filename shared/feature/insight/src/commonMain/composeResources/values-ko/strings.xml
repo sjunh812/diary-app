@@ -20,7 +20,7 @@
     <string name="insight_mood_join">%1$s, %2$s</string>
     <string name="insight_summary_counts">%1$s · %2$s</string>
     <string name="insight_count_percent">%1$s편 · %2$d%</string>
-    <string name="insight_year_map">올해 날짜별 기분</string>
+    <string name="insight_year_map">%1$d년 날짜별 기분</string>
     <string name="insight_flow_week">날짜별 기분</string>
     <string name="insight_flow_month">주별 기분</string>
     <string name="insight_flow_all">연도별 기분</string>

@@ -211,7 +211,7 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
             // 글을 먼저 올리는 동안은 사진 수를 모름
             // 0/0은 보이지 않음
             if (running.photosTotal > 0) {
-                stringResource(Res.string.backup_line_running, running.photosDone, running.photosTotal)
+                stringResource(Res.string.backup_line_running, running.photosDone.grouped(), running.photosTotal.grouped())
             } else {
                 stringResource(Res.string.backup_line_running_plain)
             }

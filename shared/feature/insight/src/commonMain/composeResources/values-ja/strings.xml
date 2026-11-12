@@ -20,7 +20,7 @@
     <string name="insight_mood_join">%1$s、%2$s</string>
     <string name="insight_summary_counts">%1$s・%2$s</string>
     <string name="insight_count_percent">%1$s編・%2$d%</string>
-    <string name="insight_year_map">今年の毎日の気分</string>
+    <string name="insight_year_map">%1$d年の毎日の気分</string>
     <string name="insight_flow_week">毎日の気分</string>
     <string name="insight_flow_month">週別の気分</string>
     <string name="insight_flow_all">年別の気分</string>
