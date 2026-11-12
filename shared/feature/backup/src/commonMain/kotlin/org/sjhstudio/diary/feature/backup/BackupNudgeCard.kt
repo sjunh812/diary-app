@@ -57,7 +57,8 @@ fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {
 @Composable
 internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLater: () -> Unit, modifier: Modifier = Modifier) {
     DiaryStatusBox(
-        DiaryIcons.ShieldCheck,
+        // 아직 올리지 않았다는 안내라 안전을 뜻하는 방패가 아니라 올리기(Figma B11)
+        DiaryIcons.CloudUpload,
         if (nudge.photoCount > 0) {
             stringResource(
                 Res.string.backup_nudge_entries_photos,
@@ -68,9 +69,8 @@ internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLat
             pluralStringResource(Res.plurals.backup_nudge_entries, nudge.entryCount, nudge.entryCount.grouped())
         },
         stringResource(Res.string.backup_nudge_body),
-        // 카드 위(백업 줄 → 카드)와 아래(카드 → 첫 일기 줄)가 같아 보이게 위는 12
-        // 16이면 위가 4쯤 넓어 카드가 아래로 쏠려 보임(화면에서 재서 맞춤)
-        modifier.padding(top = DiarySpacing.x3),
+        // 위아래 12(Figma B11). 아래가 없으면 두 칸 화면의 고른 줄 바탕이 카드에 붙음
+        modifier.padding(vertical = DiarySpacing.x3),
         actionLabel = stringResource(Res.string.backup_nudge_action),
         onAction = onConnect,
         secondaryLabel = stringResource(Res.string.backup_nudge_later),
