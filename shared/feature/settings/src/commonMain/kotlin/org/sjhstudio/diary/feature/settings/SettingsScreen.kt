@@ -1,7 +1,6 @@
 package org.sjhstudio.diary.feature.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -60,7 +59,6 @@ import org.sjhstudio.diary.feature.settings.resources.settings_letter
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 import org.sjhstudio.diary.feature.settings.resources.settings_lock
-import org.sjhstudio.diary.feature.settings.resources.settings_plus
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_action
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_badge
 import org.sjhstudio.diary.feature.settings.resources.settings_plus_body

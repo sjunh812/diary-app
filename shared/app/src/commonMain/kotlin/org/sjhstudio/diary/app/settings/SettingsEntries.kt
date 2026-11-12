@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.compose.getKoin
 import org.koin.compose.koinInject
@@ -94,7 +93,6 @@ import org.sjhstudio.diary.feature.settings.storeReviewUrl
 import org.sjhstudio.diary.feature.trash.TrashRoute
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
 import org.sjhstudio.diary.feature.welcome.LetterViewModel
-import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 
 /**
  * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스)

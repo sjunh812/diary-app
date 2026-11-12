@@ -11,16 +11,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
@@ -34,10 +30,8 @@ import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
-import org.sjhstudio.diary.core.ui.bodyLook
 import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchSafely
-import org.sjhstudio.diary.core.ui.stateInSafely
 
 /** 기간 칩의 고르는 값. [Custom]은 직접 고른 범위, 돌아보기에서 넘어온 기간도 여기 */
 enum class SearchPeriod { Week, Month, Year, Custom }

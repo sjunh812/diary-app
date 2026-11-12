@@ -1,12 +1,9 @@
 package org.sjhstudio.diary.core.migration
 
-import androidx.room3.Room
-import androidx.room3.RoomDatabase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
@@ -18,18 +15,14 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import okio.Path
-import org.sjhstudio.diary.core.database.DiaryDatabase
-import org.sjhstudio.diary.core.database.DiaryDatabaseConstructor
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
-import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationStep
-import org.sjhstudio.diary.core.testing.TestClock
 
 // docs/migration.md "시험"과 contracts/migration-flow.md 단계(스펙 001 T037)
 class MigrationRunnerTest {

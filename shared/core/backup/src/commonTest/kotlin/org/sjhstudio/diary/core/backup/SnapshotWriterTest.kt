@@ -10,7 +10,6 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
-import okio.Path.Companion.toPath
 import org.sjhstudio.diary.core.database.BackupMediaEntity
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.EntryEntity

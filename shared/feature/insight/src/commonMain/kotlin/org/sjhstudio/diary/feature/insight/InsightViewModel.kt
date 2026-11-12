@@ -16,8 +16,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -34,7 +32,6 @@ import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
-import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.mostFrequent

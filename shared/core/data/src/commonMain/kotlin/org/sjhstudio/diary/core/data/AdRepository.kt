@@ -1,6 +1,5 @@
 package org.sjhstudio.diary.core.data
 
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant

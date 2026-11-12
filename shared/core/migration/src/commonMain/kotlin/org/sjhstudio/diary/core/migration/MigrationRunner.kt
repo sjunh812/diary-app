@@ -22,7 +22,6 @@ import okio.Path
 import okio.Path.Companion.toPath
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.database.DiaryDatabase
-import org.sjhstudio.diary.core.database.MediaEntity
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
 import org.sjhstudio.diary.core.model.Media

@@ -61,7 +61,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
@@ -87,7 +86,6 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
-import org.sjhstudio.diary.core.ui.EntryMenu
 import org.sjhstudio.diary.core.ui.EntryMenuFor
 import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
@@ -98,7 +96,6 @@ import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
-import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.feature.calendar.resources.Res
 import org.sjhstudio.diary.feature.calendar.resources.calendar_day_count
 import org.sjhstudio.diary.feature.calendar.resources.calendar_day_summary

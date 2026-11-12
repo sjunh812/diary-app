@@ -34,8 +34,9 @@ style:
     active: false
   TrailingWhitespace:
     active: false
+  # 파일을 나눌 때 import 머리를 통째로 복사하면 안 쓰는 줄이 쌓인다.
   UnusedImport:
-    active: false
+    active: true
   WildcardImport:
     active: false
 

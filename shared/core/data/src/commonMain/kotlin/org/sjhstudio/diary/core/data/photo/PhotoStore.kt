@@ -6,11 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import okio.FileSystem
-import okio.HashingSink
 import okio.Path
-import okio.blackholeSink
-import okio.buffer
-import okio.use
 import org.sjhstudio.diary.core.platform.ImageSize
 import org.sjhstudio.diary.core.platform.sha256Hex
 

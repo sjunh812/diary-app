@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -19,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,7 +77,6 @@ import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.ROOT_OF
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.RestoreProgressKey
-import org.sjhstudio.diary.app.navigation.Screen
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.TABS
@@ -112,9 +109,6 @@ import org.sjhstudio.diary.app.resources.write_failed
 import org.sjhstudio.diary.app.resources.write_new
 import org.sjhstudio.diary.app.resources.write_saved
 import org.sjhstudio.diary.app.settings.settingsEntries
-import org.sjhstudio.diary.core.data.AdRepository
-import org.sjhstudio.diary.core.data.PlanRepository
-import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavItem
@@ -135,11 +129,8 @@ import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.SearchFilter
-import org.sjhstudio.diary.core.platform.AnalyticsEvents
-import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.LocalTabReselect
 import org.sjhstudio.diary.core.ui.WriteFailures
-import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.backup.BackupAlertButton
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt

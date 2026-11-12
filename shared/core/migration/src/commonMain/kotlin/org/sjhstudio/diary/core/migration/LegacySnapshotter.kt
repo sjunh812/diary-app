@@ -6,7 +6,6 @@ import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.HashingSink
 import okio.Path
-import okio.blackholeSink
 import okio.buffer
 import okio.use
 import org.sjhstudio.diary.core.platform.sha256Hex

@@ -8,7 +8,6 @@ import org.sjhstudio.diary.core.model.StoreProduct
 import org.sjhstudio.diary.feature.plus.AdFreeSheetContent
 import org.sjhstudio.diary.feature.plus.PaywallScreen
 import org.sjhstudio.diary.feature.plus.PlusManageScreen
-import org.sjhstudio.diary.feature.plus.PlusMessage
 import org.sjhstudio.diary.feature.plus.PlusUiState
 
 @Preview(locale = "ko")

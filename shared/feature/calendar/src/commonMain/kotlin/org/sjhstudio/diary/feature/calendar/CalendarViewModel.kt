@@ -17,8 +17,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
@@ -26,7 +24,6 @@ import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
-import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
@@ -34,10 +31,8 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
-import org.sjhstudio.diary.core.ui.bodyLook
 import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchSafely
-import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**

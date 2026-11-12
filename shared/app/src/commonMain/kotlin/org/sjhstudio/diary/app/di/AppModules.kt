@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.first
 import okio.FileSystem
 import okio.Path.Companion.toPath
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
@@ -44,7 +43,6 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.PlanRepository
-import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
@@ -78,11 +76,8 @@ import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
-import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
-import org.sjhstudio.diary.core.model.ListStyle
-import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.FontInstaller

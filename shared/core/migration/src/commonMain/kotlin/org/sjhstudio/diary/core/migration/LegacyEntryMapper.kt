@@ -1,6 +1,5 @@
 package org.sjhstudio.diary.core.migration
 
-import kotlin.time.Instant
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
