@@ -391,7 +391,7 @@ fun BackupSettingsScreen(
                         Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
                     ) {
-                        Status(status, onCellular, onConnect)
+                        Status(status, onCellular)
                         if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
                             // 다른 기기의 백업을 고르기 전에 이 기기 것을 올리지 않게 찾는 동안 막음
                             DiaryButton(
@@ -595,7 +595,7 @@ private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
 }
 
 @Composable
-private fun Status(status: BackupStatus, onCellular: () -> Unit, onReconnect: () -> Unit) {
+private fun Status(status: BackupStatus, onCellular: () -> Unit) {
     val running = status.running
     val last = status.lastSuccessAt?.let { lastBackupText(it) }
     when {

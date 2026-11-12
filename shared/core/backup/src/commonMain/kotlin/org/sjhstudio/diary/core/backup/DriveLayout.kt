@@ -51,7 +51,6 @@ class DriveLayout(private val drive: DriveApi, private val fileSystem: FileSyste
         const val KEY_KIND = "diary.kind"
         const val KEY_DEVICE = "diary.device"
         const val KEY_FORMAT = "diary.format"
-        const val KEY_UNREF_SINCE = "diary.unrefSince"
         const val KIND_ROOT = "root"
         const val KIND_SNAPSHOTS = "snapshots"
         const val KIND_MEDIA = "media"

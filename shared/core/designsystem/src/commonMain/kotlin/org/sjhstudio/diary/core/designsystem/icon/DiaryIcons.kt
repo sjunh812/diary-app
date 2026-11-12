@@ -208,14 +208,6 @@ object DiaryIcons {
         )
     }
     val LinkOff: ImageVector by lazy { lucide("link-2-off", "M9 17H7A5 5 0 0 1 7 7", "M15 7h2a5 5 0 0 1 4 8", "M8 12L12 12", "M2 2L22 22") }
-    val Sparkles: ImageVector by lazy {
-        lucide(
-            "sparkles",
-            "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z",
-            "M20 3v4",
-            "M22 5h-4"
-        )
-    }
     val SparklesSolid: ImageVector by lazy {
         lucide(
             "sparkles-solid",
@@ -224,9 +216,6 @@ object DiaryIcons {
             filled = true,
             strokeWidth = 0.6f
         )
-    }
-    val Tablet: ImageVector by lazy {
-        lucide("tablet", "M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z", "M12 18h.01")
     }
 
     /** 합쳐서 복원(B4, B7) */
@@ -369,12 +358,6 @@ object DiaryIcons {
             "M 5.9 7 C 5.9 7.5 5.5 7.9 5 7.9 C 4.5 7.9 4.1 7.5 4.1 7 C 4.1 6.5 4.5 6.1 5 6.1 C 5.5 6.1 5.9 6.5 5.9 7 Z",
             "M 5.9 12 C 5.9 12.5 5.5 12.9 5 12.9 C 4.5 12.9 4.1 12.5 4.1 12 C 4.1 11.5 4.5 11.1 5 11.1 C 5.5 11.1 5.9 11.5 5.9 12 Z",
             "M 5.9 17 C 5.9 17.5 5.5 17.9 5 17.9 C 4.5 17.9 4.1 17.5 4.1 17 C 4.1 16.5 4.5 16.1 5 16.1 C 5.5 16.1 5.9 16.5 5.9 17 Z"
-        )
-    }
-    val Plus: ImageVector by lazy {
-        lucide(
-            "plus",
-            "M 12 5 L 12 19 M 5 12 L 19 12"
         )
     }
     val Smile: ImageVector by lazy {

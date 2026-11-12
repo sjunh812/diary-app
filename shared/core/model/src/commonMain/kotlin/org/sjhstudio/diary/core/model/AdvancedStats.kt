@@ -61,10 +61,6 @@ data class ToneShare(val good: Int, val total: Int, val hard: Int = 0) {
     val hardPercent: Int get() = minOf(percentOf(hard, total), if (good + hard <= total) 100 - percent else 100)
 
     private fun rateOf(count: Int) = if (total == 0) 0.0 else count.toDouble() / total
-
-    private companion object {
-        const val PERCENT = 100
-    }
 }
 
 /** 한 기간의 값. 기분을 고른 일기가 부족하면 [moods]와 [topMood]는 null */

@@ -775,4 +775,3 @@ private const val MONTHS = 12
 internal const val WIDE_COLUMNS = 6
 private const val MAP_LABEL_EVERY = 3
 private const val DAYS_MAX = 31
-private const val PERCENT = 100

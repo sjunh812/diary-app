@@ -7,8 +7,3 @@ package org.sjhstudio.diary.core.platform
 interface NotificationPermission {
     suspend fun isGranted(): Boolean
 }
-
-/** 알림이 없는 자리(미리보기, 시험). 늘 허용된 것으로 봄 */
-object GrantedNotificationPermission : NotificationPermission {
-    override suspend fun isGranted(): Boolean = true
-}
