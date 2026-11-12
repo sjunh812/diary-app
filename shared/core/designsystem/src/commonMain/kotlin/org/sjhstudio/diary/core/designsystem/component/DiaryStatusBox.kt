@@ -86,12 +86,21 @@ fun DiaryStatusBox(
     }
 }
 
-/** 한글 낱말 안 글자 사이에 줄바꿈하지 않는 표시(U+2060)를 넣음. 화면 표시용 */
+/**
+ * 한글이 든 낱말 안 글자 사이에 줄바꿈하지 않는 표시(U+2060)를 넣음. 화면 표시용
+ * 숫자와 단위도 묶어 "5,002 / 장"처럼 끊기지 않음
+ */
 internal fun keepWords(text: String): String = buildString(text.length * 2) {
     text.forEachIndexed { index, char ->
-        if (index > 0 && char.isHangul() && text[index - 1].isHangul()) append(WORD_JOINER)
+        val before = text.getOrNull(index - 1)
+        if (before != null && joins(before, char)) append(WORD_JOINER)
         append(char)
     }
+}
+
+private fun joins(before: Char, char: Char): Boolean {
+    if (before.isWhitespace() || char.isWhitespace()) return false
+    return before.isHangul() || char.isHangul()
 }
 
 private fun Char.isHangul(): Boolean = this in '\uAC00'..'\uD7A3'
