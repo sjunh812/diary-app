@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,8 +46,6 @@ import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
 import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.core.backup.BackupAppInfo
-import org.sjhstudio.diary.core.data.PlanRepository
-import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -102,11 +98,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<SettingsKey>(metadata = tabRoot(SettingsKey)) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
-        val trash = koinInject<TrashRepository>()
-        // 탭을 옮겼다 와도 개수가 잠깐 0으로 보이지 않게 값을 저장해 둠
-        var trashCount by rememberSaveable { mutableIntStateOf(0) }
-        LaunchedEffect(trash) { trash.count().collect { trashCount = it } }
-        val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
         val app = koinInject<BackupAppInfo>()
         val toast = remember { DiaryToastState() }
         val openWeb = rememberOpenWebLink(toast)
@@ -123,8 +114,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
                 onRate = storeReviewUrl(app.platform)?.let { url -> { openWeb(url) } },
-                plusActive = plan == Plan.PLUS,
-                adsRemoved = plan == Plan.AD_FREE,
+                plusActive = state.plan == Plan.PLUS,
+                adsRemoved = state.plan == Plan.AD_FREE,
                 onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
                 onFont = { push(FontSettingsKey) },
                 onTextSize = { push(TextSizeSettingsKey) },
@@ -135,7 +126,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 onLicenses = { push(LicensesKey) },
                 onListStyle = { push(ListStyleSettingsKey) },
                 onTrash = { push(TrashKey) },
-                trashCount = trashCount,
+                trashCount = state.trashCount,
                 onBackup = { push(BackupSettingsKey) },
                 onLetter = { push(LetterKey) },
                 onTerms = { openWeb(LegalLinks.TERMS) },

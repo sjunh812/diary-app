@@ -28,7 +28,7 @@ class DefaultTrashRepository(
     private val entries get() = db.entryDao()
     private val drafts get() = db.draftDao()
 
-    // 설정 화면이 바로 모으는 흐름이라 읽지 못하면 개수를 비워 둠. 예외가 화면까지 가면 앱이 꺼짐
+    // 읽지 못하면 개수를 비워 둠. 설정 줄 하나라 실패를 알리지 않음
     override fun count(): Flow<Int> = flow { emitAll(entries.trashedCount()) }.catch { }
 
     override fun items(): Flow<List<TrashedEntry>> = combine(
