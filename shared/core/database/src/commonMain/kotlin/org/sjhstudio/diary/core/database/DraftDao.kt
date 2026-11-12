@@ -104,6 +104,36 @@ interface DraftDao {
     @Insert
     suspend fun insertMedia(media: List<DraftMediaEntity>)
 
+    /**
+     * 수정하다 둔 저장본에 뒤늦게 도착한 사진을 더함
+     * 저장본은 연 순간의 사진만 담아, 더하지 않으면 저장할 때 사용자가 뺀 사진으로 보고 지움
+     */
+    @Transaction
+    suspend fun adoptArrived(sha256: String) {
+        for (entryId in editedEntriesWith(sha256)) {
+            val held = media(entryId)
+            val arrived = arrivedMedia(entryId, sha256).drop(held.count { it.sha256 == sha256 })
+            val next = (held.maxOfOrNull { it.sortOrder } ?: -1) + 1
+            val rows =
+                arrived.mapIndexed { index, row ->
+                    DraftMediaEntity(entryId, row.fileName!!, sha256, row.width, row.height, row.byteSize, next + index)
+                }
+            if (rows.isNotEmpty()) insertMedia(rows)
+        }
+    }
+
+    @Query(
+        "SELECT DISTINCT m.entry_id FROM media m JOIN draft d ON d.`key` = m.entry_id " +
+            "WHERE m.sha256 = :sha256 AND m.status = 'normal' AND m.file_name IS NOT NULL"
+    )
+    suspend fun editedEntriesWith(sha256: String): List<String>
+
+    @Query(
+        "SELECT * FROM media WHERE entry_id = :entryId AND sha256 = :sha256 AND status = 'normal' " +
+            "AND file_name IS NOT NULL ORDER BY sort_order"
+    )
+    suspend fun arrivedMedia(entryId: String, sha256: String): List<MediaEntity>
+
     @Query("SELECT COALESCE(MAX(sort_order), -1) + 1 FROM draft_media WHERE draft_key = :key")
     suspend fun nextMediaOrder(key: String): Int
 

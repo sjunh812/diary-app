@@ -301,6 +301,7 @@ class PhotoFetcher(
             }
             fileSystem.atomicMove(partial, mediaDir / name)
             dao.settlePending(photo.sha256, name, MediaStatus.NORMAL.id)
+            db.draftDao().adoptArrived(photo.sha256)
             return Settled.FETCHED
         } catch (_: BrokenPhoto) {
             dao.settlePending(photo.sha256, name, MediaStatus.MISSING.id)

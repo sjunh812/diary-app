@@ -3,7 +3,6 @@ package org.sjhstudio.diary.core.migration
 import androidx.room3.withWriteTransaction
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -149,6 +148,7 @@ class MigrationRunner(
     private val photoRecords = PhotoRecordFile(fileSystem, paths)
     private val snapshotter = LegacySnapshotter(fileSystem, clock)
     private val importer = MediaImporter(fileSystem, paths.mediaDir, imageSize, clock, newId, shrink)
+    private val photoRecheck = MissingPhotoRecheck(store, importer, clock, paths.mediaDir, ::makeThumbnails)
     private val _progress = MutableStateFlow(MigrationProgress(MigrationStep.NOT_STARTED))
     override val progress: StateFlow<MigrationProgress> = _progress.asStateFlow()
 
@@ -683,42 +683,7 @@ class MigrationRunner(
         }
     }
 
-    /**
-     * 찾을 수 없는 사진 중 원래 경로를 아는 것을 하루 한 번 다시 찾음(FR-011)
-     * 있으면 이전과 같은 방법으로 옮기고 `normal`로 바꿈
-     * 찾은 장 수를 돌려줌
-     * 하루가 안 지났으면 null.
-     */
-    override suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = withContext(io) {
-        val state = store.readState()
-        if (state.step != MigrationStep.DONE && state.step != MigrationStep.PARTIAL) return@withContext null
-        val now = clock.now()
-        val last = state.photoRecheckAt
-        if (last != null && now - last < RECHECK_INTERVAL) return@withContext null
-        store.writeState(state.copy(photoRecheckAt = now, updatedAt = now))
-        var found = 0
-        for (row in db.mediaDao().missingWithLegacyPath()) {
-            val photo = importer.importOne(row.entryId, row.sortOrder, row.legacyPath ?: continue)
-            if (!photo.found) continue
-            db.mediaDao().update(photo.media.copy(id = row.id, createdAt = Instant.fromEpochMilliseconds(row.createdAt)).asEntity())
-            photo.media.fileName?.let { makeThumbnails(listOf(paths.mediaDir / it)) }
-            found++
-        }
-        if (found > 0) {
-            store.readReport()?.let { r ->
-                store.writeReport(
-                    r.copy(
-                        photosFound = r.photosFound + found,
-                        photosMissing = (
-                            r.photosMissing -
-                                found
-                            ).coerceAtLeast(0)
-                    )
-                )
-            }
-        }
-        found
-    }
+    override suspend fun recheckMissingPhotos(db: DiaryDatabase): Int? = withContext(io) { photoRecheck.run(db) }
 
     override suspend fun cleanUpSupportFiles(): Boolean = withContext(io) {
         SupportFiles(fileSystem, paths.migrationDir, clock).deleteExpired()
@@ -859,8 +824,6 @@ class MigrationRunner(
 
         /** 여유 50MB(research R8) */
         const val MARGIN_BYTES = 50L * 1024 * 1024
-
-        val RECHECK_INTERVAL = 24.hours
     }
 }
 

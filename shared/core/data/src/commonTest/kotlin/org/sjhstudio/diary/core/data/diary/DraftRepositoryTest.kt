@@ -143,6 +143,27 @@ class DraftRepositoryTest {
         assertEquals(MediaStatus.MISSING.id, rows[1].status)
     }
 
+    // 저장본은 연 순간의 사진만 담음. 뒤에 도착한 사진을 뺀 사진으로 보면 일기에서 사라짐
+    @Test
+    fun a_photo_that_arrives_while_editing_stays_on_the_entry() = runTest {
+        db.seed(entry("e1"))
+        db.seedPhotos(
+            photo("p1", "e1", 0),
+            photo("late", "e1", 1).copy(status = MediaStatus.PENDING)
+        )
+        val draft = assertNotNull(repository.openEdit("e1")).draft
+        assertEquals(1, draft.photos.size)
+
+        db.backupDao().settlePending("late", "late.jpg", MediaStatus.NORMAL.id)
+        db.draftDao().adoptArrived("late")
+        repository.save(draft.copy(bodyHtml = "<p>고침</p>"))
+        repository.commit(DraftKey.Edit("e1"))
+
+        val rows = db.mediaDao().forEntry("e1")
+        assertEquals(listOf("p1", "late"), rows.map { it.id })
+        assertTrue(rows.all { it.status == MediaStatus.NORMAL.id })
+    }
+
     /** 고치던 글을 남겨 둔 사이에 복원이 일기를 바꾼 상황을 만듦 */
     private suspend fun leftDraftThenRestore(id: String, merged: String = "합쳐 온 글"): org.sjhstudio.diary.core.model.Draft {
         val draft = assertNotNull(repository.openEdit(id)).draft

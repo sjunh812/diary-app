@@ -109,7 +109,9 @@ class MergeApplier(
         val dao = db.backupDao()
         for (photo in dao.missingFiles().filter { it.sha256 in inBackup }) {
             val name = photo.fileName ?: continue
-            dao.reviveMissing(photo.sha256, name, (if (fileExists(name)) MediaStatus.NORMAL else MediaStatus.PENDING).id)
+            val here = fileExists(name)
+            dao.reviveMissing(photo.sha256, name, (if (here) MediaStatus.NORMAL else MediaStatus.PENDING).id)
+            if (here) db.draftDao().adoptArrived(photo.sha256)
         }
     }
 
