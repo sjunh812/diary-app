@@ -58,9 +58,10 @@
         <meta-data
             android:name="org.sjhstudio.diary.ad_rewarded"
             android:value="${adRewarded}" />
+        <!-- 시험 광고에 붙는 AdMob 점검 창을 끈다. 광고를 따라 창을 다시 배치해 스크롤 측정을 흐린다. 출시 빌드에는 뜨지 않는다. -->
         <meta-data
             android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
-            android:value="${nativeAdValidator}" />
+            android:value="false" />
 
 
         <!-- 알림과 런처 어느 길로 와도 화면 하나가 받음. 쓰기 알림으로 시작한 뒤 아이콘이나 백업 알림을 누르면 새 화면이 쌓였다 -->
