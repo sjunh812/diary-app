@@ -29,7 +29,8 @@
     <string name="backup_finding_body">Google ドライブのバックアップを確認しています。</string>
     <string name="backup_first_title">最初のバックアップの準備ができました</string>
     <string name="backup_first_body">［今すぐバックアップ］をタップすると日記と写真をアップロードします。</string>
-    <string name="backup_last">前回のバックアップ %1$s %2$s</string>
+    <string name="backup_last">前回のバックアップ %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">アカウント</string>
     <string name="backup_account">Google アカウント</string>
     <string name="backup_group_upload">アップロード</string>

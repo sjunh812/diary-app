@@ -64,6 +64,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_line_today
 import org.sjhstudio.diary.feature.backup.resources.backup_line_waiting
 import org.sjhstudio.diary.feature.backup.resources.backup_line_yesterday
 import org.sjhstudio.diary.feature.backup.resources.backup_status_failed
+import org.sjhstudio.diary.feature.backup.resources.backup_when_day_time
 
 private val LONG_FAILURE = 7.days
 
@@ -240,13 +241,17 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
                 }
             // 방패는 사진까지 다 올라가 지킬 것이 없을 때만 씀
             val icon = if (status.photosNotBackedUp > 0) DiaryIcons.Cloud else DiaryIcons.ShieldCheck
-            Line(icon, stringResource(Res.string.backup_line_at, whenText(last), detail))
+            Line(icon, stringResource(Res.string.backup_line_at, backupWhen(last), detail))
         }
     }
 }
 
+/**
+ * 백업 시각. 오늘·어제는 "오늘 오후 9:30"처럼, 그 전은 날짜만
+ * [withTime]이면 그 전 날짜에도 시각을 붙임(백업 화면 상태 상자)
+ */
 @Composable
-private fun whenText(at: Instant): String {
+internal fun backupWhen(at: Instant, withTime: Boolean = false): String {
     val dates = rememberDiaryDateFormat()
     val zone = TimeZone.currentSystemDefault()
     val local = at.toLocalDateTime(zone)
@@ -254,7 +259,17 @@ private fun whenText(at: Instant): String {
     val time = dates.time(local.time)
     return when (local.date) {
         today -> stringResource(Res.string.backup_line_today, time)
+
         today.minus(DatePeriod(days = 1)) -> stringResource(Res.string.backup_line_yesterday, time)
-        else -> dates.dayWithWeekday(local.date)
+
+        else -> if (withTime) {
+            stringResource(
+                Res.string.backup_when_day_time,
+                dates.dayWithWeekday(local.date),
+                time
+            )
+        } else {
+            dates.dayWithWeekday(local.date)
+        }
     }
 }

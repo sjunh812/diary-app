@@ -708,11 +708,7 @@ internal fun restoredBackupText(at: Instant): String {
 }
 
 @Composable
-private fun lastBackupText(at: Instant): String {
-    val dates = rememberDiaryDateFormat()
-    val local = at.toLocalDateTime(TimeZone.currentSystemDefault())
-    return stringResource(Res.string.backup_last, dates.dayWithWeekday(local.date), dates.time(local.time))
-}
+private fun lastBackupText(at: Instant): String = stringResource(Res.string.backup_last, backupWhen(at, withTime = true))
 
 /** 백업 설정(Figma "백업 설정 (B13)") */
 @Composable

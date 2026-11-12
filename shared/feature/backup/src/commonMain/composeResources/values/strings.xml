@@ -29,7 +29,8 @@
     <string name="backup_finding_body">Checking your Google Drive for backups.</string>
     <string name="backup_first_title">Ready for your first backup</string>
     <string name="backup_first_body">Tap Back up now to upload entries and photos.</string>
-    <string name="backup_last">Last backup %1$s %2$s</string>
+    <string name="backup_last">Last backup %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">Account</string>
     <string name="backup_account">Google account</string>
     <string name="backup_group_upload">Upload</string>

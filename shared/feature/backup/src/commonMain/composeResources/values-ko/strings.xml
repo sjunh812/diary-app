@@ -29,7 +29,8 @@
     <string name="backup_finding_body">구글 드라이브에 있는 백업을 확인하는 중이에요.</string>
     <string name="backup_first_title">첫 백업을 준비했어요</string>
     <string name="backup_first_body">지금 백업을 누르면 일기와 사진을 올려요.</string>
-    <string name="backup_last">마지막 백업 %1$s %2$s</string>
+    <string name="backup_last">마지막 백업 %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">계정</string>
     <string name="backup_account">구글 계정</string>
     <string name="backup_group_upload">올리기</string>
