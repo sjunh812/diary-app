@@ -325,7 +325,7 @@ private fun Cell(photo: EntryPhoto, modifier: Modifier, onClick: () -> Unit) {
 
 /**
  * 사진 묶음의 가로÷세로
- * 한 장은 사진 비율 그대로라 전체 보기와 같은 장면. 4:5~1.91:1로 묶어 본문을 밀어내지 않음(Instagram 피드와 같은 범위)
+ * 한 장은 사진 비율 그대로라 전체 보기와 같은 장면. 세로는 정사각형까지만 키워 첫 화면에 본문이 남게 함
  * 여러 장이나 크기를 모르는 사진은 격자 비율
  */
 internal fun galleryRatio(photos: List<EntryPhoto>): Float {
@@ -340,7 +340,7 @@ internal const val GALLERY_RATIO = 1.52f
 
 /** 사진 높이는 창 높이의 60%까지. 태블릿 가로에서 세로 사진이 본문을 화면 밖으로 밀지 않게 넘는 만큼만 자름 */
 private const val GALLERY_MAX_HEIGHT = 0.6f
-private const val TALLEST_RATIO = 0.8f
+private const val TALLEST_RATIO = 1f
 private const val WIDEST_RATIO = 1.91f
 
 /** 장소 이름 최대 줄 수 */

@@ -14,10 +14,11 @@ class GalleryRatioTest {
         assertEquals(1f, galleryRatio(listOf(photo(1080, 1080))), 0.001f)
     }
 
-    /** 아주 길쭉한 사진은 4:5, 1.91:1에서 멈춤. 본문을 밀어내지 않게 */
+    /** 세로 사진은 정사각형, 아주 넓은 사진은 1.91:1에서 멈춤. 본문을 밀어내지 않게 */
     @Test
-    fun very_tall_or_wide_photo_is_clamped() {
-        assertEquals(0.8f, galleryRatio(listOf(photo(1080, 2400))), 0.001f)
+    fun tall_or_very_wide_photo_is_clamped() {
+        assertEquals(1f, galleryRatio(listOf(photo(3000, 4000))), 0.001f)
+        assertEquals(1f, galleryRatio(listOf(photo(1080, 2400))), 0.001f)
         assertEquals(1.91f, galleryRatio(listOf(photo(4000, 1000))), 0.001f)
     }
 
