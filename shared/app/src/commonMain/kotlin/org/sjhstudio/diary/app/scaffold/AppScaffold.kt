@@ -53,6 +53,8 @@ import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.app.ads.AdRemovalSheets
+import org.sjhstudio.diary.app.ads.AdRemovalViewModel
 import org.sjhstudio.diary.app.ads.AdShape
 import org.sjhstudio.diary.app.ads.AdSlot
 import org.sjhstudio.diary.app.navigation.AdvancedStatsKey
@@ -187,7 +189,11 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         nav.push(RestoreProgressKey)
     }
     val shell = koinViewModel<AppShellViewModel>()
-    val actions = remember(shell) { ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed) }
+    val adRemoval = koinViewModel<AdRemovalViewModel>()
+    val actions = remember(shell, adRemoval) {
+        ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed, adRemoval::open)
+    }
+    AdRemovalSheets(adRemoval)
     // 홈 쓰기 버튼은 일기 유무를 읽은 뒤 표시. 미리 두면 빈 홈에서 보였다 사라짐
     val hasEntries by shell.hasEntries.collectAsStateWithLifecycle()
 
@@ -355,13 +361,14 @@ private val TabBarSpace =
  */
 private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScreen) -> Unit)?> { null }
 
-/** 앱 틀 화면 모델([AppShellViewModel])에서 화면에 넘기는 상태와 동작 */
+/** 앱 틀 화면 모델([AppShellViewModel], [AdRemovalViewModel])에서 화면에 넘기는 상태와 동작 */
 @Immutable
 private class ShellActions(
     val plan: StateFlow<Plan>,
     val onScreen: (NavKey, TabScreen, List<NavKey>) -> Unit,
     val onSaved: (TabScreen, List<NavKey>) -> Unit,
-    val onRestore: (String) -> Unit
+    val onRestore: (String) -> Unit,
+    val onAdClose: () -> Unit
 )
 
 /** 화면을 닫고 나서 앱 틀이 띄우는 알림 */
@@ -498,7 +505,7 @@ private fun Content(
                                 // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
                                 adSlot = { order, slot ->
                                     if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
-                                        AdSlot("home-$order", if (order == 0) AdShape.Row else AdShape.Card, slot)
+                                        AdSlot("home-$order", if (order == 0) AdShape.Row else AdShape.Card, shell.onAdClose, slot)
                                     }
                                 }
                             )
@@ -547,7 +554,7 @@ private fun Content(
                                 onPlus = { nav.push(PlusKey) },
                                 onAdvanced = { nav.push(AdvancedStatsKey) },
                                 onWrite = onWrite,
-                                adSlot = { AdSlot("insight", AdShape.Card) }
+                                adSlot = { AdSlot("insight", AdShape.Card, shell.onAdClose) }
                             )
                         }
                         entry<AdvancedStatsKey> {

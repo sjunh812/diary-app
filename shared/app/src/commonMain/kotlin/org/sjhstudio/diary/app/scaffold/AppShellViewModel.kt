@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.map
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.AppRootViewModel
+import org.sjhstudio.diary.app.ads.AdRemovalViewModel
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.TabScreen
@@ -86,6 +87,7 @@ val appShellModule =
                 screen = get<Telemetry>()::screen
             )
         }
+        viewModel { AdRemovalViewModel(get<AdRepository>()::watchReward) }
     }
 
 /**
