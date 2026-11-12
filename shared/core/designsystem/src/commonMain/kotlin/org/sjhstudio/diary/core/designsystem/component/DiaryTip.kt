@@ -21,7 +21,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -65,7 +64,7 @@ fun DiaryTip(
         // 상태 상자 머리처럼 그릴 때만 붙임 글자를 넣고, 화면 읽기와 시험에는 원래 글을 줌
         BasicText(
             keepWords(text),
-            style = DiaryTheme.typography.caption.copy(color = colors.onToast, lineBreak = CenteredLineBreak),
+            style = DiaryTheme.typography.caption.copy(color = colors.onToast),
             modifier =
                 Modifier
                     .weight(1f)
