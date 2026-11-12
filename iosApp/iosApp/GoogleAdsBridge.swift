@@ -1,3 +1,4 @@
+import AppTrackingTransparency
 import GoogleMobileAds
 import Shared
 import UIKit
@@ -29,6 +30,8 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     private var nativeOrder: [String] = []
     private var loaders: [String: NativeLoader] = [:]
     private var presenting: FullScreenHandler?
+    /// 추적 허용 답을 기다리는 광고 칸. nil이면 묻는 중이 아님
+    private var trackingWaiters: [() -> Void]?
 
     override init() {
         #if DEBUG
@@ -128,7 +131,32 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                 onLoaded()
             }
             loaders[key] = loader
-            loader.load()
+            // 홈 목록의 광고 칸이 첫 광고 자리. 잠금·온보딩이 끝나고 광고를 볼 사람에게만 옴
+            askTrackingOnce { loader.load() }
+        }
+    }
+
+    /// 앱 추적 허용(ATT)을 아직 묻지 않았으면 묻고 답을 받은 뒤 [then]. 거절해도 광고는 광고 ID 없이 받음
+    /// 앱이 앞에 있어야 창이 뜸. 아니면 묻지 않고 넘어가 다음 광고 칸에서 다시 봄
+    private func askTrackingOnce(then: @escaping () -> Void) {
+        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined,
+              UIApplication.shared.applicationState == .active
+        else {
+            then()
+            return
+        }
+        // 답을 기다리는 동안 온 광고 칸은 같은 요청에 모음. 창은 한 번만
+        if trackingWaiters != nil {
+            trackingWaiters?.append(then)
+            return
+        }
+        trackingWaiters = [then]
+        ATTrackingManager.requestTrackingAuthorization { [weak self] _ in
+            DispatchQueue.main.async {
+                let waiters = self?.trackingWaiters ?? []
+                self?.trackingWaiters = nil
+                waiters.forEach { $0() }
+            }
         }
     }
 
