@@ -171,7 +171,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
 
     func nativeView(key: String, card: Bool, style: IosAdStyle) -> UIView? {
         guard let ad = natives[key] else { return nil }
-        return NativeAdCardView(ad: ad, card: card, style: style)
+        return NativeAdFrame(ad: NativeAdCardView(ad: ad, card: card, style: style), style: style)
     }
 
     func fittingHeight(view: UIView, width: Double) -> Double {
@@ -238,23 +238,48 @@ private final class NativeLoader: NSObject, NativeAdLoaderDelegate {
     func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) { done(nil) }
 }
 
-/// Android NativeAdCard와 같은 꼴: 안쪽 16, 오른쪽은 ×와 AdChoices 자리 28, 그림 120, 사이 12
+/// 둥근 면. 광고 뷰를 안쪽 8에 둠
+/// SDK가 광고 뷰 구석에 넣는 AdChoices가 모서리 곡선에 잘리지 않음(AdMob 정책: 잘 보여야 함)
+private final class NativeAdFrame: UIView {
+    static let inset: CGFloat = 8
+
+    init(ad: NativeAdCardView, style: IosAdStyle) {
+        super.init(frame: .zero)
+        backgroundColor = UIColor(argb: style.surface)
+        layer.cornerRadius = CGFloat(style.corner)
+        clipsToBounds = true
+        ad.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(ad)
+        NSLayoutConstraint.activate([
+            ad.topAnchor.constraint(equalTo: topAnchor, constant: Self.inset),
+            ad.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Self.inset),
+            ad.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Self.inset),
+            ad.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Self.inset)
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { nil }
+}
+
+/// Android NativeAdCard와 같은 꼴: 면 안쪽 16(면 8 + 광고 뷰 8), 오른쪽은 ×와 AdChoices 자리, 그림 120, 아이콘 40, 사이 12
 private final class NativeAdCardView: NativeAdView {
     private enum Size {
-        static let padding: CGFloat = 16
+        static let padding: CGFloat = 8
         static let gap: CGFloat = 12
         // 영상 광고는 그림 자리가 가로세로 120 이상이어야 들어옴(AdMob 네이티브 정책)
         static let media: CGFloat = 120
-        static let closeRoom: CGFloat = 28
+        // 얇은 줄의 광고 아이콘(1:1). 없는 광고는 글만
+        static let icon: CGFloat = 40
+        static let iconCorner: CGFloat = 8
+        // 면 기준 28
+        static let closeRoom: CGFloat = 20
         static let title: CGFloat = 15
         static let small: CGFloat = 13
     }
 
     init(ad: NativeAd, card: Bool, style: IosAdStyle) {
         super.init(frame: .zero)
-        backgroundColor = UIColor(argb: style.surface)
-        layer.cornerRadius = CGFloat(style.corner)
-        clipsToBounds = true
 
         // AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
         let headline = Self.label(Size.title, .bold, UIColor(argb: style.title))
@@ -285,6 +310,18 @@ private final class NativeAdCardView: NativeAdView {
             ])
             row.insertArrangedSubview(media, at: 0)
             mediaView = media
+        } else if let image = ad.icon?.image {
+            let icon = UIImageView(image: image)
+            icon.contentMode = .scaleAspectFill
+            icon.layer.cornerRadius = Size.iconCorner
+            icon.clipsToBounds = true
+            icon.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                icon.widthAnchor.constraint(equalToConstant: Size.icon),
+                icon.heightAnchor.constraint(equalToConstant: Size.icon)
+            ])
+            row.insertArrangedSubview(icon, at: 0)
+            iconView = icon
         }
         row.translatesAutoresizingMaskIntoConstraints = false
         addSubview(row)
