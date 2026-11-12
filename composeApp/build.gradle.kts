@@ -77,7 +77,9 @@ android {
             "revenueCatKey" to localProperty("revenuecat.android", ""),
             // 개발 빌드는 보내지 않음
             // 확인할 때만 local.properties의 firebase.debug=true로 켬
-            "firebaseCollection" to "true"
+            "firebaseCollection" to "true",
+            // 시험 광고에 붙는 AdMob 네이티브 광고 검사 창. 개발 빌드에서 구현 점검용
+            "nativeAdValidator" to "true"
         )
     }
 
@@ -210,7 +212,10 @@ dependencies {
 androidComponents {
     onVariants { variant ->
         if (variant.buildType == "benchmarkRelease" || variant.buildType == "nonMinifiedRelease") {
-            (testAds + mapOf("firebaseCollection" to "false")).forEach { (key, value) -> variant.manifestPlaceholders.put(key, value) }
+            // 검사 창은 광고를 따라 움직이며 스크롤 중 창을 다시 배치해 프레임 측정을 흐림
+            (testAds + mapOf("firebaseCollection" to "false", "nativeAdValidator" to "false")).forEach { (key, value) ->
+                variant.manifestPlaceholders.put(key, value)
+            }
         }
     }
 }

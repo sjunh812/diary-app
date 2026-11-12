@@ -58,6 +58,9 @@
         <meta-data
             android:name="org.sjhstudio.diary.ad_rewarded"
             android:value="${adRewarded}" />
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
+            android:value="${nativeAdValidator}" />
 
 
         <!-- 알림과 런처 어느 길로 와도 화면 하나가 받음. 쓰기 알림으로 시작한 뒤 아이콘이나 백업 알림을 누르면 새 화면이 쌓였다 -->
