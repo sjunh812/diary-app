@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.platform
 
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -17,11 +19,26 @@ import platform.Foundation.NSURLErrorDomain
  * 태그는 `iosApp/project.yml`이 정함
  * 개발 빌드는 시험할 수 있게 자료를 앱 안에 담음(EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE)
  */
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalAtomicApi::class)
 class IosFontInstaller(private val files: AppFiles) : FontInstaller {
     private val manager = NSFileManager.defaultManager
 
-    override fun installedPath(id: String): String? = target(id).takeIf { manager.fileExistsAtPath(it) }
+    // 화면을 그릴 때도 불러 파일 확인은 글꼴마다 한 번만. 시작 뒤 뒤에서 먼저 채움(Startup)
+    private val known = AtomicReference<Map<String, String>>(emptyMap())
+
+    override fun installedPath(id: String): String? = (known.load()[id] ?: check(id)).ifEmpty { null }
+
+    override fun knownPath(id: String): String? = known.load()[id]?.ifEmpty { null }
+
+    /** 없으면 빈 글자로 기억. 받으면 [copy]가 고쳐 둠 */
+    private fun check(id: String): String = (target(id).takeIf { manager.fileExistsAtPath(it) } ?: "").also { remember(id, it) }
+
+    private fun remember(id: String, path: String) {
+        while (true) {
+            val now = known.load()
+            if (known.compareAndSet(now, now + (id to path))) return
+        }
+    }
 
     override fun install(id: String): Flow<FontInstallState> = callbackFlow {
         installedPath(id)?.let {
@@ -60,7 +77,7 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         manager.removeItemAtPath(partial, error = null)
         if (!manager.copyItemAtPath(source, toPath = partial, error = null)) return null
         manager.removeItemAtPath(target, error = null)
-        return target.takeIf { manager.moveItemAtPath(partial, toPath = it, error = null) }
+        return target.takeIf { manager.moveItemAtPath(partial, toPath = it, error = null) }?.also { remember(id, it) }
     }
 
     private fun target(id: String) = "${files.fontDirectory}/$id.ttf"

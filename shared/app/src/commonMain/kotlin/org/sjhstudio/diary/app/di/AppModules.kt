@@ -185,6 +185,8 @@ private fun coreModule(isDebug: Boolean) = module {
                 // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작(이전 직후 포함)
                 // 따로 돌아 다른 일을 막지 않음
                 get<ChosenFontDownload>().start()
+                // 글꼴 설정 화면이 받아 둔 글꼴을 처음부터 맞게 그리게 파일 확인을 미리 해 둠
+                getOrNull<FontInstaller>()?.let { installer -> DiaryFont.entries.forEach { installer.installedPath(it.id) } }
                 get<AdRepository>().warmUp()
             }
         )

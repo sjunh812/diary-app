@@ -39,7 +39,7 @@ class FontSettingsViewModelTest {
 
     @Test
     fun bundled_font_changes_right_away() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.select(DiaryFont.MARU_BURI)
@@ -48,9 +48,21 @@ class FontSettingsViewModelTest {
         assertEquals(emptyList(), installer.requested)
     }
 
+    /** 받아 둔 글꼴 확인은 파일을 읽어 화면 스레드에서 하지 않음. 확인이 끝나면 바로 고를 수 있음 */
+    @Test
+    fun downloaded_fonts_are_checked_off_the_screen_thread() = runTest(dispatcher) {
+        installer.downloaded["gamja_flower"] = "/fonts/gamja_flower.ttf"
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
+        assertEquals(0, installer.fileChecks, "만들 때 파일을 읽지 않음")
+
+        advanceUntilIdle()
+        assertTrue(vm.state.value.isReady(DiaryFont.GAMJA_FLOWER))
+    }
+
     @Test
     fun downloaded_font_changes_after_it_is_installed() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.select(DiaryFont.GAMJA_FLOWER)
@@ -70,7 +82,7 @@ class FontSettingsViewModelTest {
     /** 받는 동안 다른 글꼴을 고르면 받기가 끝나도 그 글꼴을 둠. 고른 것을 말없이 바꾸지 않음 */
     @Test
     fun a_finished_download_does_not_replace_a_font_picked_later() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
         vm.select(DiaryFont.GAMJA_FLOWER)
@@ -86,7 +98,7 @@ class FontSettingsViewModelTest {
 
     @Test
     fun offline_keeps_the_current_font_and_tells_once() = runTest(dispatcher) {
-        val vm = FontSettingsViewModel(settings, installer)
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
         val notices = mutableListOf<FontNotice>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.notice.collect { notices += it } }
@@ -106,7 +118,15 @@ class FontSettingsViewModelTest {
 
         suspend fun emit(state: FontInstallState) = results.emit(state)
 
-        override fun installedPath(id: String): String? = null
+        val downloaded = mutableMapOf<String, String>()
+        var fileChecks = 0
+
+        override fun installedPath(id: String): String? {
+            fileChecks++
+            return downloaded[id]
+        }
+
+        override fun knownPath(id: String): String? = null
 
         override fun install(id: String): Flow<FontInstallState> {
             requested += id

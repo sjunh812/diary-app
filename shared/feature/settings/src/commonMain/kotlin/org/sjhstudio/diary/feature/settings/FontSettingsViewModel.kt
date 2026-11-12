@@ -2,15 +2,17 @@ package org.sjhstudio.diary.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.DiaryFont
@@ -50,20 +52,24 @@ enum class FontNotice { Offline, Failed }
 class FontSettingsViewModel(
     private val settings: SettingsRepository,
     private val installer: FontInstaller,
-    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
+    private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true),
+    io: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
-    private val installed =
-        MutableStateFlow(
-            DiaryFont.entries.filter {
-                it !in BUNDLED_DIARY_FONTS
-            }.mapNotNull { font -> installer.installedPath(font.id)?.let { font to it } }.toMap()
-        )
+    // 처음엔 확인해 둔 경로로 그리고, 파일 확인은 화면 스레드 밖에서
+    private val installed = MutableStateFlow(installedPaths(installer::knownPath))
     private val downloading = MutableStateFlow<Map<DiaryFont, Float?>>(emptyMap())
     private val notices = Channel<FontNotice>(Channel.BUFFERED)
 
     /** 마지막으로 누른 글꼴 */
     private var picked: DiaryFont? = null
     val notice: Flow<FontNotice> = notices.receiveAsFlow()
+
+    init {
+        viewModelScope.launchSafely {
+            val found = withContext(io) { installedPaths(installer::installedPath) }
+            installed.update { it + found }
+        }
+    }
 
     val state: StateFlow<FontUiState> =
         combine(settings.settings, installed, downloading) { app, paths, progress -> FontUiState(app, paths, progress) }
@@ -104,3 +110,7 @@ class FontSettingsViewModel(
         telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "font", "value" to font.id))
     }
 }
+
+/** 받는 글꼴 가운데 경로를 아는 것 */
+private fun installedPaths(path: (String) -> String?): Map<DiaryFont, String> =
+    DiaryFont.entries.filter { it !in BUNDLED_DIARY_FONTS }.mapNotNull { font -> path(font.id)?.let { font to it } }.toMap()
