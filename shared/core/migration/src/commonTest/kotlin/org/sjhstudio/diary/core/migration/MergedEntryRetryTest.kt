@@ -244,4 +244,35 @@ class MergedEntryRetryTest {
             assertEquals(MigrationStep.DONE, env.runner().state().step)
         }
     }
+
+    /** 사진을 복사하는 사이에 합치기가 같은 번호의 일기를 넣음. 번호로 검증하면 합쳐 온 일기를 지움 */
+    @Test
+    fun an_entry_merged_while_photos_are_copied_is_not_deleted() = runTest {
+        TempDir().use { dir ->
+            val env = MigrationEnv(dir)
+            val picture = env.photo("a.jpg", jpeg)
+            LegacyFixtures.create(
+                env.legacy.noteDb,
+                listOf(LegacyFixtures.Row("2024-01-01 10:00:00", contents = "옛 일기", picture = picture.toString()))
+            ).close()
+            assertIs<MigrationResult.Failed>(env.runner(events = env.failAtVerifying()).run())
+            env.runner().defer()
+            val db = env.open(env.paths.databasePath.toString())
+            try {
+                val other = env.mergedFromOtherPhone(1, "2020-05-05 08:00:00", "다른 기기 일기")
+                val mergeMeanwhile: suspend (okio.Path) -> Boolean = {
+                    if (db.entryDao().get(other.id) == null) db.entryDao().insertAll(listOf(other.asEntity()))
+                    true
+                }
+
+                assertIs<MigrationResult.Finished>(env.runner(makeThumbnail = mergeMeanwhile).retryDeferred(db))
+
+                assertEquals("다른 기기 일기", db.entryDao().get(other.id)?.plainText)
+                assertEquals("옛 일기", db.entryDao().getByLegacyId(1)?.plainText)
+                assertEquals(2, db.entryDao().countAll())
+            } finally {
+                db.close()
+            }
+        }
+    }
 }

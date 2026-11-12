@@ -165,9 +165,10 @@ class MigrationRunner(
             paths.legacy.exist(fileSystem)
     }
 
+    /** 시작했지만 다 끝나지 않은 이전은 옮겨 둔 사진 사본을 다시 씀 */
     override suspend fun keepsPhotoCopies(): Boolean = withContext(io) {
         val step = store.readState().step
-        step == MigrationStep.DEFERRED || step == MigrationStep.PARTIAL
+        step != MigrationStep.NOT_STARTED && step != MigrationStep.DONE
     }
 
     /**
@@ -225,7 +226,8 @@ class MigrationRunner(
     private suspend fun afterCommit(previous: MigrationState): MigrationResult? {
         if (previous.step != MigrationStep.COMMITTING || !fileSystem.exists(paths.databasePath)) return null
         val resumed = orElseOnFailure(null) { finishAlreadyCommitted(previous) }
-        if (resumed == null && !orElseOnFailure(false) { hasWrittenEntries() }) deleteDatabase(paths.databasePath)
+        // 열지 못해 일기가 있는지 모르면 지우지 않음
+        if (resumed == null && !orElseOnFailure(true) { hasWrittenEntries() }) deleteDatabase(paths.databasePath)
         return resumed
     }
 
@@ -292,14 +294,10 @@ class MigrationRunner(
 
             step = MigrationStep.COMMITTING
             writeStep(step, attempt, startedAt)
-            // 닫은 뒤 남는 빈 저널·잠금 파일 정리
-            // 옮기는 것은 DB 파일 하나
-            for (leftover in listOf(
-                "diary-new.db-journal",
-                "diary-new.db.lck"
-            )) {
-                fileSystem.delete(paths.migrationDir / leftover, mustExist = false)
-            }
+            // 옮기는 것은 DB 파일 하나. 닫은 뒤 남는 빈 저널·잠금 파일 정리
+            deleteSidecars(paths.newDatabase)
+            // 빈 채 열렸던 옛 DB의 WAL이 새 DB에 다시 적용되지 않게
+            deleteSidecars(paths.databasePath)
             paths.databasePath.parent?.let(fileSystem::createDirectories)
             fileSystem.atomicMove(paths.newDatabase, paths.databasePath)
             val report = counts.report(notes.size - leftOut, summary.unreadable + leftOut)
@@ -403,7 +401,12 @@ class MigrationRunner(
         }
     }
 
+    /**
+     * 옮길 일기의 번호를 쥔 일기가 있으면 번호만 비우고 넣음(`docs/migration.md` "미룬 이전과 합친 일기")
+     * 번호는 겹칠 수 없음. 그사이 합치기가 같은 번호를 넣어도 막히지 않게 같은 트랜잭션에서 비움
+     */
     private suspend fun insert(db: DiaryDatabase, rows: List<CopiedRow>) {
+        rows.mapNotNull { it.mapped.entry.legacyId }.chunked(SQL_ARGS).forEach { db.entryDao().clearLegacyIds(it) }
         db.entryDao().insertAll(rows.map { it.mapped.entry.asEntity() })
         db.mediaDao().insertAll(rows.flatMap { row -> row.photos.map { it.media.asEntity() } })
     }
@@ -429,12 +432,13 @@ class MigrationRunner(
      * 사본은 그대로라 앱이 업데이트되면 다시 읽음
      * 사진 파일이 없거나 해시가 이름과 다르면 일기는 두고 그 사진만 찾을 수 없는 사진으로 바꿈
      * 빠진 일기 수를 돌려줌
-     * [only]가 있으면 그 레거시 번호만 봄(새로 쓴 일기가 있는 다시 읽기)
+     * [only]가 있으면 그 레거시 번호만, 이번에 넣은 일기 ID로 찾아 봄(새로 쓴 일기가 있는 다시 읽기)
+     * 번호로 찾으면 그사이 합쳐 온 다른 기기 일기를 틀린 일기로 보아 지움
      */
     private suspend fun verify(
         db: DiaryDatabase,
         expectedRows: Int,
-        only: Set<Int>? = null,
+        only: Map<Int, String?>? = null,
         counts: Counts? = null,
         keep: Boolean = false
     ): Int {
@@ -448,8 +452,9 @@ class MigrationRunner(
         var leftOut = 0
         _progress.value = _progress.value.copy(step = MigrationStep.VERIFYING)
         for (note in notes) {
-            if (only != null && note.id.toInt() !in only) continue
-            val entity = db.entryDao().getByLegacyId(note.id.toInt())
+            val number = note.id.toInt()
+            if (only != null && number !in only) continue
+            val entity = if (only == null) db.entryDao().getByLegacyId(number) else only[number]?.let { db.entryDao().get(it) }
             if (entity == null) {
                 leftOut++
                 continue
@@ -544,7 +549,6 @@ class MigrationRunner(
     override suspend fun retryPartial(db: DiaryDatabase): Int? = withContext(io) {
         val state = store.readState()
         if (state.step != MigrationStep.PARTIAL || versionCode <= state.retriedVersionCode) return@withContext null
-        store.writeState(state.copy(retriedVersionCode = versionCode, updatedAt = clock.now()))
         val (notes, summary) = readSnapshot() ?: return@withContext 0
         // 이미 옮긴 일기는 사용자가 고쳤을 수 있어 글은 견주지 않음
         // 옮긴 뒤 완전히 삭제한 일기는 표에 없어도 못 옮긴 일기가 아님
@@ -553,10 +557,9 @@ class MigrationRunner(
         val counts = Counts()
         var leftOut = 0
         if (missing.isNotEmpty()) {
-            releaseNumbers(db, missing)
             copy(db, missing, missing.sumOf { PhotoPaths.fragments(it.picture).size }, counts)
             // 사용자가 쓰고 고친 일기는 건드리지 않게 방금 더한 줄만 봄
-            leftOut = verify(db, notes.size, only = missing.map { it.id.toInt() }.toSet(), counts = counts)
+            leftOut = verify(db, notes.size, only = counts.added(missing), counts = counts)
             rememberMoved(db)
         }
         val added = missing.size - leftOut
@@ -576,9 +579,9 @@ class MigrationRunner(
                 outcome = if (unreadable > 0) MigrationOutcome.PARTIAL else MigrationOutcome.DONE
             )
         store.writeReport(report)
-        if (report.outcome == MigrationOutcome.DONE) {
-            store.writeState(store.readState().copy(step = MigrationStep.DONE, updatedAt = clock.now()))
-        }
+        // 끝까지 돈 뒤에 적음. 도중에 꺼지면 다음에 켤 때 다시 읽음
+        val step = if (report.outcome == MigrationOutcome.DONE) MigrationStep.DONE else MigrationStep.PARTIAL
+        store.writeState(store.readState().copy(step = step, retriedVersionCode = versionCode, updatedAt = clock.now()))
         added
     }
 
@@ -598,15 +601,6 @@ class MigrationRunner(
             val row = byNumber[note.id.toInt()]?.takeIf { it.legacyCreateDate == note.createDate }
             (note.createDate to text) in written || (row != null && (editsAreOurs || row.plainText == text))
         }
-    }
-
-    /**
-     * 옮길 일기의 번호를 쥔 일기가 있으면 번호만 비움(`docs/migration.md` "미룬 이전과 합친 일기")
-     * 번호는 겹칠 수 없고 검증은 번호로 일기를 찾음
-     * 비우지 않으면 넣지 못하고, 검증이 다른 기기 일기를 틀린 일기로 보아 지움
-     */
-    private suspend fun releaseNumbers(db: DiaryDatabase, notes: List<LegacyNote>) {
-        notes.map { it.id.toInt() }.chunked(SQL_ARGS).forEach { db.entryDao().clearLegacyIds(it) }
     }
 
     override suspend fun defer() = withContext(io) {
@@ -651,9 +645,8 @@ class MigrationRunner(
             val counts = Counts()
             var leftOut = 0
             if (missing.isNotEmpty()) {
-                releaseNumbers(db, missing)
                 copy(db, missing, fragments.size, counts)
-                leftOut = verify(db, notes.size, only = missing.map { it.id.toInt() }.toSet(), counts = counts)
+                leftOut = verify(db, notes.size, only = counts.added(missing), counts = counts)
                 if (leftOut ==
                     missing.size
                 ) {
@@ -777,15 +770,12 @@ class MigrationRunner(
     }
 
     private fun deleteDatabase(path: Path) {
-        for (suffix in listOf(
-            "",
-            "-journal",
-            "-wal",
-            "-shm",
-            ".lck"
-        )) {
-            fileSystem.delete((path.toString() + suffix).toPath(), mustExist = false)
-        }
+        fileSystem.delete(path, mustExist = false)
+        deleteSidecars(path)
+    }
+
+    private fun deleteSidecars(path: Path) {
+        for (suffix in listOf("-journal", "-wal", "-shm", ".lck")) fileSystem.delete("$path$suffix".toPath(), mustExist = false)
     }
 
     private fun sizeOf(path: Path): Long = fileSystem.metadataOrNull(path)?.size ?: 0
@@ -851,9 +841,16 @@ private class Counts(
     var thumbnailsFailed: Int = 0,
     var written: Int = 0
 ) {
+    /** 이번에 넣은 일기: 옛 번호 → 새 ID */
+    private val entryIds = HashMap<Int, String>()
+
+    /** [notes]의 옛 번호마다 이번에 넣은 일기 ID. 넣지 못했으면 null */
+    fun added(notes: List<LegacyNote>): Map<Int, String?> = notes.associate { it.id.toInt() to entryIds[it.id.toInt()] }
+
     /** 새 DB에 들어간 일기만 셈 */
     fun add(row: CopiedRow) {
         written++
+        row.mapped.entry.legacyId?.let { entryIds[it] = row.mapped.entry.id }
         if (row.mapped.dateUnparsed) dateUnparsed++
         if (row.mapped.dateDiffers) dateDiffers++
         for (photo in row.photos) if (photo.found) photosFound++ else photosMissing++
