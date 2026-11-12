@@ -219,6 +219,7 @@ fun SettingsScreen(
                 value = if (state.loaded) stringResource(state.lock.label()) else null
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_feedback), gapAbove = true)
+            DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
             DiarySettingsRow(stringResource(Res.string.settings_feedback), onClick = onFeedback)
             onRate?.let { DiarySettingsRow(stringResource(Res.string.settings_rate), onClick = it) }
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
@@ -229,7 +230,6 @@ fun SettingsScreen(
             if (state.showsMigrationReport) {
                 DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
             }
-            DiarySettingsRow(stringResource(Res.string.settings_letter), onClick = onLetter)
             onDevMode?.let { DiarySettingsRow(stringResource(Res.string.settings_dev_mode), onClick = it) }
         }
     }
