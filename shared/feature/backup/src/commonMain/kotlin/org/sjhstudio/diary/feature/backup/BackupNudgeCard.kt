@@ -55,7 +55,7 @@ fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {
 }
 
 @Composable
-internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLater: () -> Unit, modifier: Modifier = Modifier) {
+fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLater: () -> Unit, modifier: Modifier = Modifier) {
     DiaryStatusBox(
         // 아직 올리지 않았다는 안내라 안전을 뜻하는 방패가 아니라 올리기(Figma B11)
         DiaryIcons.CloudUpload,

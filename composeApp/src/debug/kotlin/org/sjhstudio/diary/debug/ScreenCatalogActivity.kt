@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
@@ -25,11 +26,13 @@ import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.component.ProvideScreenGutter
+import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.BackupStep
@@ -46,6 +49,7 @@ import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 import org.sjhstudio.diary.feature.backup.BackupFoundSheet
+import org.sjhstudio.diary.feature.backup.BackupNudgeContent
 import org.sjhstudio.diary.feature.backup.BackupOptionsScreen
 import org.sjhstudio.diary.feature.backup.BackupSettingsScreen
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
@@ -187,6 +191,9 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     BACKUP_LINES -> BackupLines()
 
+                    BACKUP_NUDGE -> BackupNudgeContent(BackupNudge(10_004, 5_003), {
+                    }, {}, Modifier.statusBarsPadding().padding(horizontal = DiarySpacing.x5))
+
                     else -> finish()
                 }
             }
@@ -249,6 +256,7 @@ class ScreenCatalogActivity : ComponentActivity() {
         const val BACKUP_NO_SPACE = "backup_no_space"
         const val BACKUP_OPTIONS = "backup_options"
         const val BACKUP_LINES = "backup_lines"
+        const val BACKUP_NUDGE = "backup_nudge"
         private const val DAY = 24 * 60 * 60 * 1000L
         private const val WEEK = 7 * DAY
         private val SAMPLE_NOW = System.currentTimeMillis()
