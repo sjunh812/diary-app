@@ -47,5 +47,6 @@ class FakePurchases(private val plans: DevPlanRepository) : PurchaseRepository {
         return PurchaseResult.DONE
     }
 
-    override suspend fun restore(): PurchaseResult = PurchaseResult.DONE
+    // 스토어처럼 고른 요금제가 없으면 복원할 것이 없음. 늘 복원했다고 하면 시험이 거짓 안내를 놓침
+    override suspend fun restore(): PurchaseResult = if (plans.plan.value == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
 }
