@@ -502,12 +502,12 @@ private fun Content(
                                 onEdit = { nav.push(WriteKey(entryId = it)) },
                                 onTrashed = closeTrashed,
                                 selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
-                                // 같은 자리에서 얇은 줄과 카드를 번갈아 씀. 광고 수는 늘지 않음
+                                // 첫 광고는 얇은 줄, 그 뒤는 그림 카드. 홈을 처음 열 때 큰 광고가 바로 보이지 않게 함
                                 // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않음
                                 // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
                                 adSlot = { order, slot ->
                                     if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
-                                        AdSlot("home-$order", if (order % 2 == 0) AdShape.Row else AdShape.Card, slot)
+                                        AdSlot("home-$order", if (order == 0) AdShape.Row else AdShape.Card, slot)
                                     }
                                 }
                             )

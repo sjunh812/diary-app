@@ -448,10 +448,10 @@ internal fun ListTop(content: @Composable () -> Unit, modifier: Modifier = Modif
     }
 }
 
-/** 다섯째 일기 아래 한 개, 그 뒤 20편마다 한 개(`docs/business.md` 광고 자리) */
+/** 다섯째 일기 아래 한 개, 그 뒤 10편마다 한 개(`docs/business.md` 광고 자리) */
 internal fun isAdSlot(index: Int): Boolean = index >= FIRST_AD && (index - FIRST_AD) % AD_EVERY == 0
 
-/** 몇 번째 광고 자리인지. 앱이 이 번호로 얇은 줄과 카드를 번갈아 고름 */
+/** 몇 번째 광고 자리인지. 앱이 이 번호로 얇은 줄과 카드를 고름 */
 internal fun adOrder(index: Int): Int = (index - FIRST_AD) / AD_EVERY
 
 /** 일기 줄 앞 항목 수. 스크롤 위치를 일기 번호로 바꿀 때 뺌 */
@@ -462,7 +462,7 @@ private const val LIST_STYLE_TIP_AFTER = 5
 internal const val LIST_TOP_KEY = "list-top"
 
 private const val FIRST_AD = 4
-private const val AD_EVERY = 20
+private const val AD_EVERY = 10
 
 /** 탭을 다시 눌렀을 때 이보다 아래면 이 줄까지 바로 옮긴 뒤 부드럽게 올림 */
 private const val RESELECT_JUMP = 6
