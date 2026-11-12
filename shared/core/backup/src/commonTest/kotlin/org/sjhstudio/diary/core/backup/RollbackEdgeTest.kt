@@ -359,4 +359,33 @@ class RollbackEdgeTest {
             other.close()
         }
     }
+
+    /** 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임 */
+    @Test
+    fun an_entry_merged_after_the_replace_survives_the_rollback() = runTest {
+        replaced("first")
+        val applier = phone.applier()
+        applier.apply(applier.plan(backup("merged")), "file")
+
+        assertTrue(phone.manager().rollBack())
+
+        assertEquals(setOf("before", "merged"), phone.ids())
+    }
+
+    /** 사본을 뜬 뒤 비우기 전에 저장한 일기는 사본에도 백업에도 없음 */
+    @Test
+    fun an_entry_saved_after_the_copy_was_taken_stops_the_replace() = runTest {
+        phone.write("before")
+        val savedMeanwhile: suspend () -> ManifestSettings = {
+            phone.write("late", updated = 20)
+            ManifestSettings()
+        }
+        val manager =
+            RollbackManager(phone.db, phone.applier(), phone.store, { Long.MAX_VALUE }, fs, phone.work, savedMeanwhile, {}, phone.clock)
+
+        assertFails { manager.replace(backup("first"), "drive") }
+
+        assertEquals(setOf("before", "late"), phone.ids())
+        assertNull(phone.manager().info.first())
+    }
 }

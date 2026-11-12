@@ -59,7 +59,9 @@ class BundleExporter(
         try {
             val snapshot = SnapshotWriter(db, fileSystem).write(dir / SNAPSHOT)
             val dao = db.backupDao()
-            val local = dao.localPhotos().filter { row -> row.fileName?.let { fileSystem.exists(mediaDir / it) } == true }
+            // 파일이 없는 사진도 목록에는 "백업에 없음"으로 적음. 빼 버리면 복원한 기기가 없는 사진을 계속 기다림
+            val known = dao.localPhotos().filter { it.fileName != null }
+            val local = known.filter { fileSystem.exists(mediaDir / it.fileName!!) }
             val inBundle = local.mapTo(HashSet()) { it.sha256 }
             val manifest =
                 manifestOf(
@@ -69,7 +71,7 @@ class BundleExporter(
                     deviceId = store.deviceId(),
                     deviceName = deviceName.current(),
                     snapshot = snapshot,
-                    local = local,
+                    local = known,
                     pending = dao.pendingFiles(),
                     inBackup = inBundle,
                     settings = settings()

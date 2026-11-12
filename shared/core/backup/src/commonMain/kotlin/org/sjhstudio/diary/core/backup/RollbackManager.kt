@@ -9,11 +9,14 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.IOException
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.ENTRIES_FINGERPRINT
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.SyncBaseEntity
 import org.sjhstudio.diary.core.datastore.BackupStore
@@ -56,6 +59,9 @@ class RollbackManager(
 
     private fun settingsIn(slot: Path) = slot / "settings.json"
 
+    /** 바꾸기가 넣은 일기 ID. 되돌릴 때 이 밖의 일기는 모두 남김 */
+    private fun insertedIn(slot: Path) = slot / "inserted.json"
+
     val info: Flow<RollbackInfo?> = store.prefs.map { prefs -> prefs.rollbackUntil?.takeIf { it > clock.now() }?.let { info(it) } }
 
     private suspend fun info(until: Instant): RollbackInfo? {
@@ -92,11 +98,13 @@ class RollbackManager(
         try {
             fileSystem.createDirectories(slot)
             SnapshotWriter(db, fileSystem).copyInto(copy)
-            check(countIn(copy, "SELECT COUNT(*) FROM entry") == db.backupDao().entryRows() && integrityOk(copy)) {
-                "rollback copy does not match"
-            }
+            check(integrityOk(copy)) { "rollback copy is damaged" }
+            val copied = textIn(copy, ENTRIES_FINGERPRINT)
             fileSystem.write(settingsIn(slot)) { writeUtf8(json.encodeToString(ManifestSettings.serializer(), currentSettings())) }
+            fileSystem.write(insertedIn(slot)) { writeUtf8(json.encodeToString(IDS, backup.map { it.entry.id })) }
             db.withWriteTransaction {
+                // 사본을 뜬 뒤에 저장한 일기는 사본에 없음. 비우기 직전에 다시 견줘 다르면 멈춤
+                check(db.backupDao().entriesFingerprint() == copied) { "rollback copy does not match" }
                 clearAll()
                 applier.apply(applier.plan(backup), source)
                 db.draftDao().markAllEntriesChanged()
@@ -141,8 +149,10 @@ class RollbackManager(
         // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음
         // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 봄
         val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
+        // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 가름
+        val inserted = insertedIds(slot(until))
         val newer =
-            dao.allEntries().filter { it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
+            dao.allEntries().filter { it.id !in inserted || it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
                 val legacyId = entry.legacyId?.takeUnless { it in used }
                 MergeEntry(entry.copy(legacyId = legacyId), media[entry.id].orEmpty())
             }
@@ -194,6 +204,20 @@ class RollbackManager(
         pages * size
     }
 
+    /** 적어 둔 목록이 없으면 모두 남길 일기로 봄 */
+    private fun insertedIds(slot: Path): Set<String> {
+        val file = insertedIn(slot)
+        if (!fileSystem.exists(file)) return emptySet()
+        return json.decodeFromString(IDS, fileSystem.read(file) { readUtf8() }).toSet()
+    }
+
+    private fun textIn(copy: Path, sql: String): String = connection(copy) {
+        it.prepare(sql).use { statement ->
+            statement.step()
+            statement.getText(0)
+        }
+    }
+
     private fun countIn(copy: Path, sql: String): Int = connection(copy) {
         it.prepare(sql).use { statement ->
             statement.step()
@@ -234,6 +258,7 @@ class RollbackManager(
     private companion object {
         val KEEP_FOR = 7.days
         const val SOURCE_ROLLBACK = "rollback"
+        val IDS = ListSerializer(String.serializer())
 
         // SQLITE_OPEN_READONLY
         const val READ_ONLY = 0x00000001

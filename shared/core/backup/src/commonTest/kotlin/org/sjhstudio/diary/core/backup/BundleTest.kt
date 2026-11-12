@@ -100,6 +100,12 @@ class BundleTest {
     private val hash = photo.toByteString().sha256().hex()
     private var estimated = 0L
 
+    private fun exporterA() = BundleExporter(
+        phoneA, BackupStore(InMemoryDataStore(emptyPreferences())), DeviceName { "A" }, fs, dir / "a" / "media",
+        dir / "a" / "backup",
+        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+    )
+
     private suspend fun exportFromA(): Path {
         fs.write(dir / "a" / "media" / "$hash.jpg") { write(photo) }
         phoneA.entryDao().insertAll(
@@ -108,12 +114,7 @@ class BundleTest {
             }
         )
         phoneA.mediaDao().insertAll(listOf(MediaEntity("m", "one", 0, "normal", "$hash.jpg", hash, 1, 1, photo.size.toLong(), null, 1)))
-        val exporter =
-            BundleExporter(
-                phoneA, BackupStore(InMemoryDataStore(emptyPreferences())), DeviceName { "A" }, fs, dir / "a" / "media",
-                dir / "a" / "backup",
-                BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
-            )
+        val exporter = exporterA()
         estimated = exporter.estimate().bytes
         val zip = dir / "exported.zip"
         fs.sink(zip).buffer().use { exporter.write(it) }
@@ -300,5 +301,21 @@ class BundleTest {
         val estimate = exporter.estimate()
 
         assertEquals(1, estimate.entries)
+    }
+
+    /** 줄은 있는데 파일이 없는 사진을 목록에서 빼면 복원한 기기가 그 사진을 계속 기다림 */
+    @Test
+    fun a_photo_without_its_file_is_listed_as_not_in_the_file() = runTest {
+        val zip = exportFromA()
+        val before = checkNotNull(ManifestCodec.decode(read(zip, "manifest.json")))
+        val lost = before.media.first()
+        fs.delete(dir / "a" / "media" / "${lost.sha256}.${lost.ext}")
+
+        val again = dir / "again.zip"
+        fs.sink(again).buffer().use { exporterA().write(it) }
+
+        val manifest = checkNotNull(ManifestCodec.decode(read(again, "manifest.json")))
+        assertEquals(before.media.size, manifest.media.size)
+        assertEquals(listOf(lost.sha256), manifest.media.filter { !it.inBackup }.map { it.sha256 })
     }
 }

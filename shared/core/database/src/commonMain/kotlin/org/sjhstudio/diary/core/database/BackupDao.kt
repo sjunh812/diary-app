@@ -7,6 +7,9 @@ import androidx.room3.Query
 import androidx.room3.Update
 import kotlinx.coroutines.flow.Flow
 
+/** [BackupDao.entriesFingerprint]의 SQL. 되돌릴 사본에도 같은 식을 씀 */
+const val ENTRIES_FINGERPRINT = "SELECT COUNT(*) || ':' || COALESCE(MAX(updated_at), 0) || ':' || COALESCE(SUM(updated_at), 0) FROM entry"
+
 @Dao
 interface BackupDao {
     @Query("SELECT * FROM backup_media WHERE account_key = :accountKey")
@@ -109,7 +112,7 @@ interface BackupDao {
      * 일기가 바뀌었는지 보는 값
      * 가장 늦은 시각만 보면 시계가 앞선 기기의 일기가 하나 섞인 뒤로는 어떤 일기를 고쳐도 값이 그대로라 합계까지 봄
      */
-    @Query("SELECT COUNT(*) || ':' || COALESCE(MAX(updated_at), 0) || ':' || COALESCE(SUM(updated_at), 0) FROM entry")
+    @Query(ENTRIES_FINGERPRINT)
     suspend fun entriesFingerprint(): String
 
     @Query("SELECT COUNT(*) FROM entry")

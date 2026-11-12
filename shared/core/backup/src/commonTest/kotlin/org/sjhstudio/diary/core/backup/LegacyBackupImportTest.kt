@@ -273,4 +273,19 @@ class LegacyBackupImportTest {
                 "picture TEXT DEFAULT '', create_date TIMESTAMP, modify_date TIMESTAMP, year INTEGER DEFAULT 1900, " +
                 "month INTEGER DEFAULT 1, star INTEGER DEFAULT 0);"
     }
+
+    /** 날짜를 못 읽은 줄은 불러온 날로 적힘. 다른 날 다시 불러와도 한 편 더 생기면 안 됨 */
+    @Test
+    fun an_entry_with_an_unreadable_date_is_not_added_again_on_another_day() = runTest {
+        val file = upload(Triple(1, "날짜 아님", "글"))
+        importer().apply(importer().prepare(file))
+        val imported = db.backupDao().allEntries().single()
+        // 다른 날 불러오면 불러온 날이 달라짐
+        db.entryDao().update(imported.copy(date = "2020-01-01"))
+
+        val second = importer().prepare(file)
+
+        assertEquals(0, second.preview.entriesAdded)
+        assertEquals(1, second.preview.entriesUnchanged)
+    }
 }
