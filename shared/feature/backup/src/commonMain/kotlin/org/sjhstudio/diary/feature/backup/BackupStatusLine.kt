@@ -92,7 +92,7 @@ fun BackupStatusLine(onOpen: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier: Modifier = Modifier, photos: PhotoProgress? = null) {
+fun BackupStatusLine(status: BackupStatus, onOpen: () -> Unit, modifier: Modifier = Modifier, photos: PhotoProgress? = null) {
     StatusLineRow(lineFor(status, photos), onOpen, modifier)
 }
 

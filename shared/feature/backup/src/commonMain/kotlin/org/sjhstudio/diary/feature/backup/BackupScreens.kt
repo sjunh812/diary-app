@@ -324,7 +324,7 @@ fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> U
 }
 
 @Composable
-internal fun BackupSettingsScreen(
+fun BackupSettingsScreen(
     status: BackupStatus,
     connecting: Boolean,
     onConnect: () -> Unit,
@@ -441,7 +441,7 @@ internal fun BackupSettingsScreen(
 }
 
 /** 백업 화면이 저장해 둔 상태를 어디까지 읽었는지 */
-internal enum class BackupStatusRead { Loading, Loaded, Failed }
+enum class BackupStatusRead { Loading, Loaded, Failed }
 
 @Composable
 private fun FileRestoreRow(onClick: () -> Unit) {
@@ -715,6 +715,27 @@ private fun lastBackupText(at: Instant): String = stringResource(Res.string.back
 fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.status.collectAsStateWithLifecycle()
+    BackupOptionsScreen(
+        status = status,
+        onPhotosOnCellular = viewModel::setPhotosOnCellular,
+        onDisconnect = {
+            viewModel.disconnect()
+            onBack()
+        },
+        onBack = onBack,
+        modifier = modifier
+    )
+}
+
+/** 상태만 받아 그림. 화면 견본에서도 씀 */
+@Composable
+fun BackupOptionsScreen(
+    status: BackupStatus,
+    onPhotosOnCellular: (Boolean) -> Unit,
+    onDisconnect: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var asking by remember { mutableStateOf(false) }
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -729,7 +750,7 @@ fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             DiarySettingsSwitchRow(
                 stringResource(Res.string.backup_wifi_only),
                 !status.photosOnCellular,
-                { viewModel.setPhotosOnCellular(!it) },
+                { onPhotosOnCellular(!it) },
                 description = stringResource(Res.string.backup_wifi_only_body)
             )
             DiarySettingsHeader(stringResource(Res.string.backup_group_connection), gapAbove = true)
@@ -746,8 +767,7 @@ fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
             confirmLabel = stringResource(Res.string.backup_disconnect),
             onConfirm = {
                 asking = false
-                viewModel.disconnect()
-                onBack()
+                onDisconnect()
             },
             onDismiss = { asking = false },
             message = stringResource(Res.string.backup_disconnect_message),
