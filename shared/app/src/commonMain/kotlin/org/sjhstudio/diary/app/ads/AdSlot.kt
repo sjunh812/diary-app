@@ -53,7 +53,7 @@ internal expect fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
 /**
  * 홈과 돌아보기의 광고 자리
  * 오른쪽 위 ×를 누르면 광고를 없애는 방법을 보여 줌
- * AdChoices는 ×에 가리지 않게 오른쪽 아래에 둠(`nativeAdOptions`)
+ * ×는 둥근 면 위에 있지만 광고 뷰 밖임. 플랫폼 쪽이 광고 뷰를 × 자리만큼 왼쪽에서 끝냄
  */
 @Composable
 internal fun AdSlot(key: String, shape: AdShape, modifier: Modifier = Modifier) {

@@ -43,9 +43,6 @@ private const val ICON_CORNER_DP = 8
 // 영상 광고는 그림 자리가 가로세로 120dp 이상이어야 들어옴(AdMob 네이티브 정책)
 private const val MEDIA_DP = 120
 
-// 오른쪽 칸은 비워 둠(면 기준 28)
-// 위에는 앱의 ×, 아래에는 AdChoices가 옴
-private const val CLOSE_ROOM_DP = 20
 private const val TITLE_SP = 15f
 private const val SMALL_SP = 13f
 
@@ -68,7 +65,12 @@ internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
             factory = { adView(it, shape, label) },
             // 색은 여기서 넣음. 보이는 중에 다크 모드를 바꾸면 뷰는 그대로라 factory에 두면 옛 색이 남음
             update = { bind(it, ad, palette) },
-            modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x2)
+            // 오른쪽은 앱의 × 자리. 광고 뷰가 그 밑까지 오면 ×가 광고를 덮음(AdMob: 앱 콘텐츠가 네이티브 광고와 겹치면 안 됨)
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(DiaryShapes.r16)
+                .background(colors.sunken)
+                .padding(start = DiarySpacing.x2, top = DiarySpacing.x2, end = DiarySpacing.minTouchTarget, bottom = DiarySpacing.x2)
         )
     }
 }
@@ -86,7 +88,8 @@ private fun adView(context: Context, shape: AdShape, label: String): NativeAdVie
     val root = NativeAdView(context)
     val row = LinearLayout(context).apply {
         orientation = LinearLayout.HORIZONTAL
-        setPadding(pad, pad, context.dp(CLOSE_ROOM_DP), pad)
+        // 오른쪽 여백은 광고 뷰 밖의 × 자리가 대신함
+        setPadding(pad, pad, 0, pad)
     }
     if (shape == AdShape.Card) {
         val media = MediaView(context).apply { setImageScaleType(ImageView.ScaleType.FIT_CENTER) }

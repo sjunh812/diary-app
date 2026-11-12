@@ -19,6 +19,6 @@
     <string name="reward_close">닫기</string>
     <string name="reward_failed_title">광고 없는 하루를 받지 못했어요</string>
     <string name="reward_failed_body">영상을 불러오지 못했거나 끝까지 보지 않았어요. 잠시 뒤에 다시 해 보세요.</string>
-    <string name="ad_close">광고 닫기</string>
+    <string name="ad_close">광고 없애기</string>
     <string name="write_failed">저장하지 못했어요. 휴대폰 저장 공간을 확인해 주세요.</string>
 </resources>

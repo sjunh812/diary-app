@@ -238,10 +238,12 @@ private final class NativeLoader: NSObject, NativeAdLoaderDelegate {
     func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) { done(nil) }
 }
 
-/// 둥근 면. 광고 뷰를 안쪽 8에 둠
+/// 둥근 면. 광고 뷰를 안쪽 8에 두고 오른쪽은 앱의 × 자리(48)만큼 비움
+/// 광고 뷰가 × 밑까지 오면 앱 콘텐츠가 광고를 덮음(AdMob 네이티브 정책)
 /// SDK가 광고 뷰 구석에 넣는 AdChoices가 모서리 곡선에 잘리지 않음(AdMob 정책: 잘 보여야 함)
 private final class NativeAdFrame: UIView {
     static let inset: CGFloat = 8
+    static let closeColumn: CGFloat = 48
 
     init(ad: NativeAdCardView, style: IosAdStyle) {
         super.init(frame: .zero)
@@ -253,7 +255,7 @@ private final class NativeAdFrame: UIView {
         NSLayoutConstraint.activate([
             ad.topAnchor.constraint(equalTo: topAnchor, constant: Self.inset),
             ad.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Self.inset),
-            ad.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Self.inset),
+            ad.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Self.closeColumn),
             ad.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Self.inset)
         ])
     }
@@ -262,7 +264,7 @@ private final class NativeAdFrame: UIView {
     required init?(coder: NSCoder) { nil }
 }
 
-/// Android NativeAdCard와 같은 꼴: 면 안쪽 16(면 8 + 광고 뷰 8), 오른쪽은 ×와 AdChoices 자리, 그림 120, 아이콘 40, 사이 12
+/// Android NativeAdCard와 같은 꼴: 면 안쪽 16(면 8 + 광고 뷰 8), 오른쪽 여백은 광고 뷰 밖의 × 자리, 그림 120, 아이콘 40, 사이 12
 private final class NativeAdCardView: NativeAdView {
     private enum Size {
         static let padding: CGFloat = 8
@@ -272,8 +274,6 @@ private final class NativeAdCardView: NativeAdView {
         // 얇은 줄의 광고 아이콘(1:1). 없는 광고는 글만
         static let icon: CGFloat = 40
         static let iconCorner: CGFloat = 8
-        // 면 기준 28
-        static let closeRoom: CGFloat = 20
         static let title: CGFloat = 15
         static let small: CGFloat = 13
     }
@@ -328,7 +328,7 @@ private final class NativeAdCardView: NativeAdView {
         NSLayoutConstraint.activate([
             row.topAnchor.constraint(equalTo: topAnchor, constant: Size.padding),
             row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Size.padding),
-            row.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -Size.closeRoom),
+            row.trailingAnchor.constraint(equalTo: trailingAnchor),
             row.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Size.padding)
         ])
         headlineView = headline
