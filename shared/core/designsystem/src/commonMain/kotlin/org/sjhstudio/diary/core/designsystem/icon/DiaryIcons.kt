@@ -228,6 +228,43 @@ object DiaryIcons {
     val Tablet: ImageVector by lazy {
         lucide("tablet", "M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z", "M12 18h.01")
     }
+
+    /** 합쳐서 복원(B4, B7) */
+    val GitMerge: ImageVector by lazy {
+        lucide(
+            "git-merge",
+            "M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0",
+            "M3 6a3 3 0 1 0 6 0a3 3 0 1 0 -6 0",
+            "M6 21V9a9 9 0 0 0 9 9"
+        )
+    }
+    val Smartphone: ImageVector by lazy {
+        lucide("smartphone", "M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z", "M12 18h.01")
+    }
+    val FolderOpen: ImageVector by lazy {
+        lucide(
+            "folder-open",
+            "m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
+        )
+    }
+    val Gift: ImageVector by lazy {
+        lucide(
+            "gift",
+            "M4 8h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z",
+            "M12 8v13",
+            "M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7",
+            "M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"
+        )
+    }
+    val Package: ImageVector by lazy {
+        lucide(
+            "package",
+            "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z",
+            "M12 22V12",
+            "m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7",
+            "m7.5 4.27 9 5.15"
+        )
+    }
     val Pen: ImageVector by lazy {
         lucide(
             "pen",
