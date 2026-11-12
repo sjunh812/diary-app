@@ -19,6 +19,12 @@ class KeepWordsTest {
         assertEquals("요⁠.", keepWords("요."))
     }
 
+    // "사진 / 5,003장이"처럼 낱말과 숫자 사이에서 끊겼음
+    @Test
+    fun keepsWordWithTheCountAfterIt() {
+        assertEquals(listOf("일기\u00A010,004편과", "사진\u00A05,003장이"), breakable("일기 10,004편과 사진 5,003장이"))
+    }
+
     @Test
     fun leavesTextWithoutHangulAlone() {
         assertEquals("1,204 photos", keepWords("1,204 photos"))

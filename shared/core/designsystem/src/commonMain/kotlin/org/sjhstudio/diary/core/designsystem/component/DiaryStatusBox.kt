@@ -89,13 +89,19 @@ fun DiaryStatusBox(
 /**
  * 한글이 든 낱말 안 글자 사이에 줄바꿈하지 않는 표시(U+2060)를 넣음. 화면 표시용
  * 숫자와 단위도 묶어 "5,002 / 장"처럼 끊기지 않음
+ * 낱말 뒤 숫자 앞 띄어쓰기는 줄바꿈 없는 공백으로 바꿔 "사진 / 5,002장"처럼 끊기지 않음
  */
 internal fun keepWords(text: String): String = buildString(text.length * 2) {
     text.forEachIndexed { index, char ->
         val before = text.getOrNull(index - 1)
         if (before != null && joins(before, char)) append(WORD_JOINER)
-        append(char)
+        append(if (char == ' ' && countFollows(text, index)) NO_BREAK_SPACE else char)
     }
+}
+
+private fun countFollows(text: String, space: Int): Boolean {
+    val before = text.getOrNull(space - 1) ?: return false
+    return before.isHangul() && text.getOrNull(space + 1)?.isDigit() == true
 }
 
 private fun joins(before: Char, char: Char): Boolean {
@@ -106,3 +112,4 @@ private fun joins(before: Char, char: Char): Boolean {
 private fun Char.isHangul(): Boolean = this in '\uAC00'..'\uD7A3'
 
 private const val WORD_JOINER = '\u2060'
+private const val NO_BREAK_SPACE = '\u00A0'
