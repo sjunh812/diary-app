@@ -29,7 +29,6 @@ import org.sjhstudio.diary.feature.backup.resources.restore_notice_left
 import org.sjhstudio.diary.feature.backup.resources.restore_notice_some
 import org.sjhstudio.diary.feature.backup.resources.restore_notice_stopped_title
 import org.sjhstudio.diary.feature.backup.resources.restore_notice_title
-import org.sjhstudio.diary.feature.backup.resources.restore_photo_progress
 import org.sjhstudio.diary.feature.backup.resources.restore_running_title
 
 val backupFeatureModule =
@@ -107,10 +106,10 @@ suspend fun restoreProgressTitle(): String = getString(Res.string.restore_runnin
 
 /**
  * 복원 사진을 받는 동안의 알림 본문
- * 장수만 넣음(헌법 II)
+ * 장수만 넣음(헌법 II). 알림에는 "사진" 칸 이름이 없어 백업 알림과 같은 꼴로 씀
  */
 suspend fun restoreProgressText(done: Int, total: Int): String =
-    getString(Res.string.restore_photo_progress, done.grouped(), total.grouped())
+    getString(Res.string.backup_running_photos, done.grouped(), total.grouped())
 
 /** 알림 채널 이름 */
 suspend fun backupChannelName(): String = getString(Res.string.backup_channel)

@@ -144,7 +144,6 @@ import org.sjhstudio.diary.feature.backup.resources.restore_note_pending
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_file_body
 import org.sjhstudio.diary.feature.backup.resources.restore_note_pending_space_body
-import org.sjhstudio.diary.feature.backup.resources.restore_photo_progress
 import org.sjhstudio.diary.feature.backup.resources.restore_pick_other
 import org.sjhstudio.diary.feature.backup.resources.restore_platform_android
 import org.sjhstudio.diary.feature.backup.resources.restore_platform_ios
