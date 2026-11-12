@@ -150,6 +150,7 @@
     <string name="restore_legacy_recent">그 뒤에 쓴 일기는 빠져 있을 수 있어요.</string>
     <string name="restore_legacy_recent_body">예전 앱에서 마지막으로 백업한 때까지의 일기만 들어 있어요.</string>
     <string name="restore_value_existing">이미 있는 일기</string>
+    <string name="restore_value_unreadable">읽지 못한 일기</string>
     <string name="restore_legacy_action">불러오기</string>
     <string name="restore_legacy_same_time_body">같은 날 같은 시각에 글이 달라요. 둘 다 남기고 표시해 뒀어요.</string>
     <string name="restore_legacy_gaps_body">예전 백업에는 사진이 없어서 찾을 수 없는 사진으로 표시했어요.</string>

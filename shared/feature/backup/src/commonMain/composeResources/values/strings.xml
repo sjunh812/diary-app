@@ -153,6 +153,7 @@
     <string name="restore_legacy_recent">Entries written after that may be missing.</string>
     <string name="restore_legacy_recent_body">This backup only has entries up to the last time the previous version backed up.</string>
     <string name="restore_value_existing">Entries already on this phone</string>
+    <string name="restore_value_unreadable">Entries that couldn't be read</string>
     <string name="restore_legacy_action">Restore</string>
     <string name="restore_legacy_same_time_body">Same date and time with different text. Both are kept and marked.</string>
     <string name="restore_legacy_gaps_body">These backups have no photos, so they're marked as not found.</string>

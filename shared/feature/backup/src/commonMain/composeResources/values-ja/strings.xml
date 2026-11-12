@@ -150,6 +150,7 @@
     <string name="restore_legacy_recent">その後に書いた日記は含まれていない場合があります。</string>
     <string name="restore_legacy_recent_body">以前のアプリで最後にバックアップしたときまでの日記だけが入っています。</string>
     <string name="restore_value_existing">すでにある日記</string>
+    <string name="restore_value_unreadable">読み込めなかった日記</string>
     <string name="restore_legacy_action">復元する</string>
     <string name="restore_legacy_same_time_body">同じ日時で文章が異なります。両方残して印を付けました。</string>
     <string name="restore_legacy_gaps_body">以前のバックアップに写真がないため、見つからない写真として残しました。</string>

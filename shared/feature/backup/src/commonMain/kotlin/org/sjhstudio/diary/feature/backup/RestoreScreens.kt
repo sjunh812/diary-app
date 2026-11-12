@@ -99,6 +99,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_value_added
 import org.sjhstudio.diary.feature.backup.resources.restore_value_both
 import org.sjhstudio.diary.feature.backup.resources.restore_value_existing
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photos
+import org.sjhstudio.diary.feature.backup.resources.restore_value_unreadable
 import org.sjhstudio.diary.feature.backup.resources.restore_value_updated
 
 /**
@@ -369,6 +370,13 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
                     DiaryValueRow(
                         stringResource(Res.string.restore_value_both),
                         pluralStringResource(entries, preview.entriesKeptBoth, preview.entriesKeptBoth.grouped())
+                    )
+                }
+                // 깨진 파일은 읽힌 만큼만 불러옴. 다 불러오는 것처럼 보이면 안 됨
+                if (preview.entriesUnreadable > 0) {
+                    DiaryValueRow(
+                        stringResource(Res.string.restore_value_unreadable),
+                        pluralStringResource(entries, preview.entriesUnreadable, preview.entriesUnreadable.grouped())
                     )
                 }
             }

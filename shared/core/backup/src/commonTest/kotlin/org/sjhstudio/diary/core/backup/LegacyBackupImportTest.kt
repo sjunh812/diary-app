@@ -9,6 +9,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import okio.FileSystem
@@ -287,5 +288,30 @@ class LegacyBackupImportTest {
 
         assertEquals(0, second.preview.entriesAdded)
         assertEquals(1, second.preview.entriesUnchanged)
+    }
+
+    /** 가운데가 깨진 파일은 읽힌 만큼만 더하고, 못 읽은 수를 미리보기에 실음 */
+    @Test
+    fun a_partly_broken_file_says_how_many_entries_it_could_not_read() = runTest {
+        val filler = "가".repeat(300)
+        val rows = (1L..2000L).map { Triple(it, "2026-10-01 08:00:00", "글 $it $filler") }.toTypedArray()
+        val bytes = drive.bytes(upload(*rows).id)
+        val pageSize = ((bytes[16].toInt() and 0xFF) shl 8) or (bytes[17].toInt() and 0xFF)
+        val start = bytes.size / pageSize / 2
+        for (page in start until start + 3) {
+            for (i in 0 until pageSize) bytes[page * pageSize + i] = (i * 7 + 13).toByte()
+        }
+
+        val preview = importer().prepare(uploadBytes(bytes)).preview
+
+        assertTrue(preview.entriesUnreadable > 0, "못 읽은 줄 ${preview.entriesUnreadable}")
+        assertEquals(2000, preview.entriesAdded + preview.entriesUnreadable)
+    }
+
+    @Test
+    fun a_whole_file_has_nothing_unreadable() = runTest {
+        val preview = importer().prepare(upload(Triple(1, "2026-10-01 08:00:00", "글"))).preview
+
+        assertEquals(0, preview.entriesUnreadable)
     }
 }

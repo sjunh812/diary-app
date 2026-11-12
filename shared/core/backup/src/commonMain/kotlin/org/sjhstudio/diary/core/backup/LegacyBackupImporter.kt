@@ -44,7 +44,8 @@ fun interface LegacyPhotoCopier {
  */
 data class LegacyItem(val entry: EntryEntity, val photos: List<String>, val sameTimeAs: String?)
 
-data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int) {
+/** [unreadable]은 파일이 깨져 읽지 못한 줄 수(추정) */
+data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int, val unreadable: Int = 0) {
     val preview: RestorePreview
         get() = RestorePreview(
             entriesAdded = items.size,
@@ -55,7 +56,8 @@ data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int) {
             bytesToDownload = 0,
             photosNotInBackup = items.sumOf { it.photos.size },
             settingsChange = false,
-            deviceBytesFree = Long.MAX_VALUE
+            deviceBytesFree = Long.MAX_VALUE,
+            entriesUnreadable = unreadable
         )
 }
 
@@ -117,18 +119,21 @@ class LegacyBackupImporter(
 
     private suspend fun prepared(path: Path): LegacyPlan {
         try {
-            return plan(read(path))
+            val (notes, unreadable) = read(path)
+            return plan(notes).copy(unreadable = unreadable)
         } finally {
             for (suffix in listOf("", "-wal", "-shm")) fileSystem.delete(workDir / INCOMING / "$LOCAL_NAME$suffix", mustExist = false)
         }
     }
 
-    private fun read(path: Path): List<LegacyNote> = try {
+    /** 읽힌 줄과 읽지 못한 줄 수 */
+    private fun read(path: Path): Pair<List<LegacyNote>, Int> = try {
         LegacyDbReader.open(path.toString()).use { reader ->
             // 일부가 깨져도 읽히는 만큼 살림
             // 일기 표가 없으면 다른 파일
             if (!reader.hasNoteTable) throw RestoreMismatch()
-            buildList { reader.readAll { add(it) } }
+            val notes = ArrayList<LegacyNote>()
+            notes to reader.readAll { notes += it }.unreadable
         }
     } catch (error: CancellationException) {
         throw error

@@ -116,7 +116,9 @@ data class RestorePreview(
     val settingsChange: Boolean,
     val deviceBytesFree: Long,
     /** 지금 이 기기에 보이는 일기 수. 바꾸기 확인에 씀 */
-    val entriesHere: Int = 0
+    val entriesHere: Int = 0,
+    /** 예전 앱 백업 파일이 깨져 읽지 못한 일기 수(추정) */
+    val entriesUnreadable: Int = 0
 )
 
 data class RestoreResult(
