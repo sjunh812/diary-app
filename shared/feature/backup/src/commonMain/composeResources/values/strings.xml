@@ -8,7 +8,12 @@
     <string name="backup_connect">Connect Google Drive</string>
     <string name="backup_intro_title">Back up to Google Drive</string>
     <string name="backup_intro_body">Keep your entries and photos in your own Google Drive. Restore everything when you switch phones.</string>
-    <string name="backup_intro_note">We only use the 1일 1일기 백업 folder and never see your other files.</string>
+    <string name="backup_intro_photos_title">Photos are backed up too</string>
+    <string name="backup_intro_photos_body">Entries, moods, weather, places, and photos are all uploaded.</string>
+    <string name="backup_intro_folder_title">Only in your Drive</string>
+    <string name="backup_intro_folder_body">Saved in the 1일 1일기 백업 folder. We never look at your other files.</string>
+    <string name="backup_intro_free_title">It's free</string>
+    <string name="backup_intro_free_body">Auto backup is free too. It uses your own Google Drive storage.</string>
     <string name="backup_running">Backing up</string>
     <string name="backup_running_body">It keeps going if you leave the app. We'll notify you when it's done.</string>
     <string name="backup_running_body_open">It runs while the app is open. If you leave, it pauses and picks up when you come back.</string>
@@ -141,10 +146,11 @@
     <string name="restore_legacy_row">From the previous version · No photos</string>
     <plurals name="restore_more_backups"><item quantity="one">Show %1$s older backup</item><item quantity="other">Show %1$s older backups</item></plurals>
     <string name="restore_legacy_title">Restore a backup from the previous version</string>
-    <string name="restore_legacy_body">Uploaded by the previous version on %1$s.</string>
+    <string name="restore_legacy_body">Uploaded by the previous version on %1$s.\nEntries on this phone are kept and the backup is merged in.</string>
     <string name="restore_legacy_no_photos">These backups don't include photos</string>
     <string name="restore_legacy_no_photos_body">Text, mood, weather, place, and favorites will be restored.</string>
     <string name="restore_legacy_recent">Entries written after that may be missing.</string>
+    <string name="restore_legacy_recent_body">This backup only has entries up to the last time the previous version backed up.</string>
     <string name="restore_value_existing">Entries already on this phone</string>
     <string name="restore_legacy_action">Restore</string>
     <string name="restore_legacy_same_time_body">Same date and time with different text. Both are kept and marked.</string>

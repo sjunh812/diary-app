@@ -176,12 +176,16 @@ fun FileBackupScreen(
 private fun androidx.compose.foundation.layout.ColumnScope.Start(estimate: BundleEstimate?, state: FileBackupUi, onMake: () -> Unit) {
     val busy = state is FileBackupUi.Writing || state == FileBackupUi.Reading
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
-        Heading(DiaryIcons.Download, stringResource(Res.string.file_title), estimate?.let { bodyOf(it) }.orEmpty())
+        Heading(DiaryIcons.Package, stringResource(Res.string.file_title), estimate?.let { bodyOf(it) }.orEmpty())
         Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             DiaryNoteBox(
                 listOf(
-                    DiaryNote(DiaryIcons.Download, stringResource(Res.string.file_place_title), stringResource(Res.string.file_place_body)),
-                    DiaryNote(DiaryIcons.Copy, stringResource(Res.string.file_move_title), stringResource(Res.string.file_move_body)),
+                    DiaryNote(
+                        DiaryIcons.FolderOpen,
+                        stringResource(Res.string.file_place_title),
+                        stringResource(Res.string.file_place_body)
+                    ),
+                    DiaryNote(DiaryIcons.Smartphone, stringResource(Res.string.file_move_title), stringResource(Res.string.file_move_body)),
                     DiaryNote(
                         DiaryIcons.ShieldCheck,
                         stringResource(Res.string.file_trust_title),
@@ -276,7 +280,7 @@ private fun bodyOf(estimate: BundleEstimate): String = if (estimate.entries == 0
 }
 
 @Composable
-private fun Heading(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, body: String) {
+internal fun Heading(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, body: String) {
     val colors = DiaryTheme.colors
     Column(
         Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),

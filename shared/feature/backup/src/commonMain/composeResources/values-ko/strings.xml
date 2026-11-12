@@ -8,7 +8,12 @@
     <string name="backup_connect">구글 드라이브 연결하기</string>
     <string name="backup_intro_title">구글 드라이브에 백업해요</string>
     <string name="backup_intro_body">일기와 사진을 내 구글 드라이브에 올려 둬요. 휴대폰을 바꿔도 그대로 복원할 수 있어요.</string>
-    <string name="backup_intro_note">1일 1일기 백업 폴더만 쓰고, 그 밖의 파일은 보지 않아요.</string>
+    <string name="backup_intro_photos_title">사진까지 모두 올려요</string>
+    <string name="backup_intro_photos_body">일기 글, 기분, 날씨, 장소와 사진을 빠짐없이 올려요.</string>
+    <string name="backup_intro_folder_title">내 드라이브에만 둬요</string>
+    <string name="backup_intro_folder_body">1일 1일기 백업 폴더에 두고, 그 밖의 파일은 보지 않아요.</string>
+    <string name="backup_intro_free_title">무료예요</string>
+    <string name="backup_intro_free_body">자동 백업도 무료예요. 내 구글 드라이브 공간에 저장해요.</string>
     <string name="backup_running">백업하고 있어요</string>
     <string name="backup_running_body">앱을 나가도 계속 올려요. 끝나면 알림으로 알려 드려요.</string>
     <string name="backup_running_body_open">앱을 켜 둔 동안 올려요. 앱을 나가면 멈추고, 다시 열면 이어서 올려요.</string>
@@ -138,10 +143,11 @@
     <string name="restore_legacy_row">예전 앱이 올린 백업 · 사진 없음</string>
     <plurals name="restore_more_backups"><item quantity="other">이전 백업 %1$s개 더 보기</item></plurals>
     <string name="restore_legacy_title">예전 앱 백업을 불러올게요</string>
-    <string name="restore_legacy_body">%1$s에 예전 앱이 올린 백업이에요.</string>
+    <string name="restore_legacy_body">%1$s에 예전 앱이 올린 백업이에요.\n지금 휴대폰의 일기는 그대로 두고 합쳐요.</string>
     <string name="restore_legacy_no_photos">예전 백업에는 사진이 없어요</string>
     <string name="restore_legacy_no_photos_body">글, 기분, 날씨, 장소, 즐겨찾기를 복원해요.</string>
     <string name="restore_legacy_recent">그 뒤에 쓴 일기는 빠져 있을 수 있어요.</string>
+    <string name="restore_legacy_recent_body">예전 앱에서 마지막으로 백업한 때까지의 일기만 들어 있어요.</string>
     <string name="restore_value_existing">이미 있는 일기</string>
     <string name="restore_legacy_action">불러오기</string>
     <string name="restore_legacy_same_time_body">같은 날 같은 시각에 글이 달라요. 둘 다 남기고 표시해 뒀어요.</string>

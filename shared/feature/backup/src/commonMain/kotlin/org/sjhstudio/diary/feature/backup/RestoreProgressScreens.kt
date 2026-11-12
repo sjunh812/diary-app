@@ -400,7 +400,7 @@ internal fun backupNotes(result: RestoreResult): List<DiaryNote> = buildList {
     if (result.photosOnOriginal > 0) {
         add(
             DiaryNote(
-                DiaryIcons.Image,
+                DiaryIcons.Smartphone,
                 pluralStringResource(Res.plurals.restore_note_original, result.photosOnOriginal, result.photosOnOriginal.grouped()),
                 stringResource(Res.string.restore_note_original_body)
             )

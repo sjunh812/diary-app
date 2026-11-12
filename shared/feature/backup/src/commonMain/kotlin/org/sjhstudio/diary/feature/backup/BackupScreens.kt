@@ -48,6 +48,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryNote
+import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
@@ -109,7 +111,12 @@ import org.sjhstudio.diary.feature.backup.resources.backup_group_restore
 import org.sjhstudio.diary.feature.backup.resources.backup_group_upload
 import org.sjhstudio.diary.feature.backup.resources.backup_interrupted_body
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_body
-import org.sjhstudio.diary.feature.backup.resources.backup_intro_note
+import org.sjhstudio.diary.feature.backup.resources.backup_intro_folder_body
+import org.sjhstudio.diary.feature.backup.resources.backup_intro_folder_title
+import org.sjhstudio.diary.feature.backup.resources.backup_intro_free_body
+import org.sjhstudio.diary.feature.backup.resources.backup_intro_free_title
+import org.sjhstudio.diary.feature.backup.resources.backup_intro_photos_body
+import org.sjhstudio.diary.feature.backup.resources.backup_intro_photos_title
 import org.sjhstudio.diary.feature.backup.resources.backup_intro_title
 import org.sjhstudio.diary.feature.backup.resources.backup_last
 import org.sjhstudio.diary.feature.backup.resources.backup_no_space_title
@@ -545,42 +552,46 @@ private fun Rollback(info: RollbackInfo, onRollBack: () -> Unit) {
     }
 }
 
+/**
+ * Figma "B1 · 연결 안 함". 무엇을 어디에 올리는지 먼저 보여 줌
+ * 드라이브·파일 백업·파일 복원 세 갈래로 가는 화면이라 버튼을 아래에 붙이지 않고 위에서부터 쌓음
+ */
 @Composable
 private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
-    val colors = DiaryTheme.colors
-    Column(
-        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-    ) {
-        DiaryIcon(DiaryIcons.ShieldCheck, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i32)
-        Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(
-            stringResource(Res.string.backup_intro_title),
-            style = DiaryTheme.typography.title2.copy(
-                color = colors.textPrimary,
-                textAlign = TextAlign.Center,
-                lineBreak = CenteredLineBreak
+    Column(Modifier.fillMaxWidth()) {
+        Heading(DiaryIcons.CloudUpload, stringResource(Res.string.backup_intro_title), stringResource(Res.string.backup_intro_body))
+        Column(
+            Modifier.padding(horizontal = LocalScreenGutter.current),
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
+        ) {
+            DiaryNoteBox(
+                listOf(
+                    DiaryNote(
+                        DiaryIcons.Image,
+                        stringResource(Res.string.backup_intro_photos_title),
+                        stringResource(Res.string.backup_intro_photos_body)
+                    ),
+                    DiaryNote(
+                        DiaryIcons.FolderOpen,
+                        stringResource(Res.string.backup_intro_folder_title),
+                        stringResource(Res.string.backup_intro_folder_body)
+                    ),
+                    DiaryNote(
+                        DiaryIcons.Gift,
+                        stringResource(Res.string.backup_intro_free_title),
+                        stringResource(Res.string.backup_intro_free_body)
+                    )
+                )
             )
-        )
-        BasicText(
-            stringResource(Res.string.backup_intro_body),
-            style = DiaryTheme.typography.body.copy(
-                color = colors.textSecondary,
-                textAlign = TextAlign.Center,
-                lineBreak = CenteredLineBreak
+            DiaryButton(
+                stringResource(Res.string.backup_connect),
+                onConnect,
+                Modifier.fillMaxWidth(),
+                size = DiaryButtonSize.XLarge,
+                enabled = !connecting
             )
-        )
+        }
         Spacer(Modifier.height(DiarySpacing.x4))
-        DiaryNotice(stringResource(Res.string.backup_intro_note))
-        Spacer(Modifier.height(DiarySpacing.x4))
-        DiaryButton(
-            stringResource(Res.string.backup_connect),
-            onConnect,
-            Modifier.fillMaxWidth(),
-            size = DiaryButtonSize.XLarge,
-            enabled = !connecting
-        )
     }
 }
 

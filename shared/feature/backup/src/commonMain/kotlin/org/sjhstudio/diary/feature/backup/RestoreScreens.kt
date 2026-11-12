@@ -117,6 +117,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_legacy_gaps_body
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_no_photos
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_no_photos_body
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_recent
+import org.sjhstudio.diary.feature.backup.resources.restore_legacy_recent_body
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_same_time
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_same_time_body
@@ -351,7 +352,7 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
     var asking by remember { mutableStateOf(false) }
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Hero(
-            DiaryIcons.Restore,
+            DiaryIcons.GitMerge,
             stringResource(Res.string.restore_preview_title),
             stringResource(Res.string.restore_preview_body, deviceName(entry), whenText(entry)),
             fill = false
@@ -428,7 +429,7 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
 private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePreview, onImport: () -> Unit) {
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Hero(
-            DiaryIcons.Restore,
+            DiaryIcons.GitMerge,
             stringResource(Res.string.restore_legacy_title),
             stringResource(Res.string.restore_legacy_body, legacyDate(entry)),
             fill = false
@@ -458,7 +459,11 @@ private fun ColumnScope.LegacyPreview(entry: BackupEntry, preview: RestorePrevie
                         stringResource(Res.string.restore_legacy_no_photos),
                         stringResource(Res.string.restore_legacy_no_photos_body)
                     ),
-                    DiaryNote(DiaryIcons.Info, stringResource(Res.string.restore_legacy_recent), null)
+                    DiaryNote(
+                        DiaryIcons.History,
+                        stringResource(Res.string.restore_legacy_recent),
+                        stringResource(Res.string.restore_legacy_recent_body)
+                    )
                 )
             )
         }
