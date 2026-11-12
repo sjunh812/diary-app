@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.app.di
 
+import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
@@ -12,6 +13,7 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.CurrentActivity
 import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.ads.AdMobPlayer
 import org.sjhstudio.diary.app.ads.AdUnits
@@ -77,11 +79,12 @@ internal actual val platformModule: Module =
     module {
         single { AppFiles(androidContext()) }
         // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않음
+        single(createdAtStart = true) { CurrentActivity(androidContext().applicationContext as Application) }
         // 광고 SDK는 처음 부를 때 켜짐
-        single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
+        single<AdPlayer> { AdMobPlayer(androidContext(), AdUnits(androidContext()), get()) }
         single<AdSwitch> { adSwitch(androidContext()) }
         // 재설치 뒤 구매를 바로 복원하게 앱 시작 때 만듦. 디스크를 읽어 화면 스레드가 아니라 시작 단계에서
-        single { billing(androidContext()) }
+        single { billing(androidContext(), get()) }
         single<StartupWork> { StartupWork { get<Billing>() } }
         single<PlanRepository> { get<Billing>().plans }
         single<PurchaseRepository> { get<Billing>().purchases }

@@ -50,11 +50,13 @@ actual fun rememberNotificationAccess(): NotificationAccess {
             }
 
             override fun openSettings() {
-                context.startActivity(
-                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                        .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+                // 앱 알림 설정 화면은 안드로이드 8부터 있음
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                    context.openSystemSettings(intent)
+                } else {
+                    context.openAppInfo()
+                }
             }
         }
     }

@@ -1,6 +1,5 @@
 package org.sjhstudio.diary.app.ads
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
@@ -29,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.sjhstudio.diary.app.CurrentActivity
 import org.sjhstudio.diary.core.data.AdPlayer
 
 private const val TAG = "DiaryAds"
@@ -68,9 +68,8 @@ class AdUnits(context: Context) {
  * AdMob 구현
  * 광고 요청에 일기 내용을 넣지 않음(헌법 II)
  */
-class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
+class AdMobPlayer(context: Context, val units: AdUnits, private val current: CurrentActivity) : AdPlayer {
     private val app = context.applicationContext as Application
-    private var activity: Activity? = null
     private var interstitial: InterstitialAd? = null
 
     // 받은 전면 광고는 1시간이 지나면 띄우지 않음(Google 안내). 조금 앞서 버리고 새로 받음
@@ -88,30 +87,6 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     private var ready = false
     private var failed = false
     private val waiting = mutableListOf<Pair<() -> Unit, () -> Unit>>()
-
-    init {
-        app.registerActivityLifecycleCallbacks(
-            object : Application.ActivityLifecycleCallbacks {
-                override fun onActivityResumed(activity: Activity) {
-                    this@AdMobPlayer.activity = activity
-                }
-
-                override fun onActivityPaused(activity: Activity) {
-                    if (this@AdMobPlayer.activity === activity) this@AdMobPlayer.activity = null
-                }
-
-                override fun onActivityCreated(activity: Activity, state: Bundle?) = Unit
-
-                override fun onActivityStarted(activity: Activity) = Unit
-
-                override fun onActivityStopped(activity: Activity) = Unit
-
-                override fun onActivitySaveInstanceState(activity: Activity, state: Bundle) = Unit
-
-                override fun onActivityDestroyed(activity: Activity) = Unit
-            }
-        )
-    }
 
     override val available: Boolean = units.native.isNotEmpty()
 
@@ -235,7 +210,7 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
 
     override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
         val ad = interstitial?.takeIf { interstitialFresh() } ?: return false
-        val screen = activity ?: return false
+        val screen = current.value ?: return false
         interstitial = null
         return suspendCancellableCoroutine { result ->
             ad.fullScreenContentCallback =
@@ -257,7 +232,7 @@ class AdMobPlayer(context: Context, val units: AdUnits) : AdPlayer {
     override suspend fun showRewarded(): Boolean {
         if (!available) return false
         val ad = loadRewarded() ?: return false
-        val screen = activity ?: return false
+        val screen = current.value ?: return false
         return suspendCancellableCoroutine { result ->
             var earned = false
             ad.fullScreenContentCallback =

@@ -65,8 +65,9 @@ internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
     val palette = AdColors(colors.textPrimary.toArgb(), colors.textSecondary.toArgb())
     frame {
         AndroidView(
-            factory = { adView(it, shape, label, palette) },
-            update = { bind(it, ad) },
+            factory = { adView(it, shape, label) },
+            // 색은 여기서 넣음. 보이는 중에 다크 모드를 바꾸면 뷰는 그대로라 factory에 두면 옛 색이 남음
+            update = { bind(it, ad, palette) },
             modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x2)
         )
     }
@@ -75,13 +76,12 @@ internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
 private fun Context.dp(value: Int): Int =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), resources.displayMetrics).toInt()
 
-private fun Context.text(size: Float, color: Int, bold: Boolean = false): TextView = TextView(this).apply {
+private fun Context.text(size: Float, bold: Boolean = false): TextView = TextView(this).apply {
     setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
-    setTextColor(color)
     if (bold) setTypeface(typeface, Typeface.BOLD)
 }
 
-private fun adView(context: Context, shape: AdShape, label: String, colors: AdColors): NativeAdView {
+private fun adView(context: Context, shape: AdShape, label: String): NativeAdView {
     val pad = context.dp(PADDING_DP)
     val root = NativeAdView(context)
     val row = LinearLayout(context).apply {
@@ -105,15 +105,17 @@ private fun adView(context: Context, shape: AdShape, label: String, colors: AdCo
     }
     val column = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
     // AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
-    val headline = context.text(TITLE_SP, colors.title, bold = true).apply { maxLines = 2 }
-    val action = context.text(SMALL_SP, colors.title, bold = true)
+    val headline = context.text(TITLE_SP, bold = true).apply { maxLines = 2 }
+    val action = context.text(SMALL_SP, bold = true)
+    val mark = context.text(SMALL_SP).apply { text = label }
     column.addView(headline)
-    column.addView(context.text(SMALL_SP, colors.body).apply { text = label })
+    column.addView(mark)
     column.addView(action)
     row.addView(column, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
     root.addView(row)
     root.headlineView = headline
     root.callToActionView = action
+    root.tag = mark
     return root
 }
 
@@ -121,7 +123,10 @@ private fun rounded(radius: Float) = object : ViewOutlineProvider() {
     override fun getOutline(view: View, outline: Outline) = outline.setRoundRect(0, 0, view.width, view.height, radius)
 }
 
-private fun bind(view: NativeAdView, ad: NativeAd) {
+private fun bind(view: NativeAdView, ad: NativeAd, colors: AdColors) {
+    (view.headlineView as TextView).setTextColor(colors.title)
+    (view.callToActionView as TextView).setTextColor(colors.title)
+    (view.tag as TextView).setTextColor(colors.body)
     (view.iconView as? ImageView)?.apply {
         setImageDrawable(ad.icon?.drawable)
         visibility = if (ad.icon?.drawable == null) View.GONE else View.VISIBLE

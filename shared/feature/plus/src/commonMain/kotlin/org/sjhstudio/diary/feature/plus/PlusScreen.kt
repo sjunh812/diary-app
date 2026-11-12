@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -70,6 +69,7 @@ import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.ui.DiaryLottie
 import org.sjhstudio.diary.core.ui.LegalLinks
+import org.sjhstudio.diary.core.ui.rememberOpenWebLink
 import org.sjhstudio.diary.feature.plus.resources.Res
 import org.sjhstudio.diary.feature.plus.resources.plus_ad_free_owned
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_body
@@ -142,14 +142,14 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
             }
         }
     }
-    val uri = LocalUriHandler.current
+    val openWeb = rememberOpenWebLink(toast)
     // 결제 화면의 아래 결제 칸 높이
     // 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄움
     var buyHeight by remember { mutableIntStateOf(0) }
     var adFreeSheet by rememberSaveable { mutableStateOf(false) }
     Box(modifier.fillMaxSize()) {
         if (plan == Plan.PLUS) {
-            PlusManageScreen(state.price(ProductId.PLUS_YEARLY), onClose, onStore = { uri.openUri(viewModel.manageUrl) })
+            PlusManageScreen(state.price(ProductId.PLUS_YEARLY), onClose, onStore = { openWeb(viewModel.manageUrl) })
         } else {
             PaywallScreen(
                 price = state.price(ProductId.PLUS_YEARLY),
@@ -161,7 +161,8 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 onRetry = viewModel::load,
                 onBuy = { viewModel.buy(ProductId.PLUS_YEARLY) },
                 onBuyHeight = { buyHeight = it },
-                onAdFree = { adFreeSheet = true }
+                onAdFree = { adFreeSheet = true },
+                onLink = openWeb
             )
         }
         val fixedBottom = if (plan == Plan.PLUS) Dp.Hairline else with(LocalDensity.current) { buyHeight.toDp() }
@@ -194,7 +195,8 @@ internal fun PaywallScreen(
     onBuy: () -> Unit,
     modifier: Modifier = Modifier,
     onBuyHeight: (Int) -> Unit = {},
-    onAdFree: () -> Unit = {}
+    onAdFree: () -> Unit = {},
+    onLink: (String) -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     BoxWithConstraints(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().navigationBarsPadding()) {
@@ -225,7 +227,7 @@ internal fun PaywallScreen(
                     ) {
                         PlusArt(DiaryArtSize.banner, Modifier.padding(top = DiarySpacing.x2))
                         PaywallBenefits(adFreeOwned)
-                        PaywallBuy(price, loading, busy, onRetry, onBuy, adFreeOwned, onAdFree, Modifier.fillMaxWidth())
+                        PaywallBuy(price, loading, busy, onRetry, onBuy, adFreeOwned, onAdFree, onLink, Modifier.fillMaxWidth())
                     }
                 }
             } else {
@@ -238,6 +240,7 @@ internal fun PaywallScreen(
                     onBuy,
                     adFreeOwned,
                     onAdFree,
+                    onLink,
                     column.onSizeChanged { onBuyHeight(it.height) }.padding(vertical = DiarySpacing.x3)
                 )
             }
@@ -317,18 +320,17 @@ private fun PaywallBenefits(adFreeOwned: Boolean) {
 }
 
 @Composable
-private fun PaywallLegal() {
-    val links = LocalUriHandler.current
+private fun PaywallLegal(onLink: (String) -> Unit) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         DiaryButton(
             stringResource(Res.string.plus_terms),
-            { links.openUri(LegalLinks.TERMS) },
+            { onLink(LegalLinks.TERMS) },
             kind = DiaryButtonKind.QuietText,
             size = DiaryButtonSize.Small
         )
         DiaryButton(
             stringResource(Res.string.plus_privacy),
-            { links.openUri(LegalLinks.PRIVACY) },
+            { onLink(LegalLinks.PRIVACY) },
             kind = DiaryButtonKind.QuietText,
             size = DiaryButtonSize.Small
         )
@@ -349,6 +351,7 @@ private fun PaywallBuy(
     onBuy: () -> Unit,
     adFreeOwned: Boolean,
     onAdFree: () -> Unit,
+    onLink: (String) -> Unit,
     modifier: Modifier
 ) {
     val colors = DiaryTheme.colors
@@ -380,7 +383,7 @@ private fun PaywallBuy(
                 Modifier.fillMaxWidth(),
                 style = typography.micro.copy(color = colors.textSecondary, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
             )
-            PaywallLegal()
+            PaywallLegal(onLink)
         } else {
             PhraseText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
             DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)

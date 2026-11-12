@@ -17,7 +17,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -62,6 +61,7 @@ import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
 import org.sjhstudio.diary.core.ui.LegalLinks
 import org.sjhstudio.diary.core.ui.rememberOpenLink
+import org.sjhstudio.diary.core.ui.rememberOpenWebLink
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.backup.BackupOptionsRoute
@@ -110,8 +110,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
         LaunchedEffect(trash) { trash.count().collect { trashCount = it } }
         val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
         val app = koinInject<BackupAppInfo>()
-        val links = LocalUriHandler.current
         val toast = remember { DiaryToastState() }
+        val openWeb = rememberOpenWebLink(toast)
         val scope = rememberCoroutineScope()
         val device = remember { deviceInfo() }
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
@@ -124,7 +124,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                     // 메일 앱이 없는 기기에서도 보낼 곳을 알 수 있게
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
-                onRate = storeReviewUrl(app.platform)?.let { url -> { links.openUri(url) } },
+                onRate = storeReviewUrl(app.platform)?.let { url -> { openWeb(url) } },
                 plusActive = plan == Plan.PLUS,
                 adsRemoved = plan == Plan.AD_FREE,
                 onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
@@ -140,8 +140,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 trashCount = trashCount,
                 onBackup = { push(BackupSettingsKey) },
                 onLetter = { push(LetterKey) },
-                onTerms = { links.openUri(LegalLinks.TERMS) },
-                onPrivacy = { links.openUri(LegalLinks.PRIVACY) },
+                onTerms = { openWeb(LegalLinks.TERMS) },
+                onPrivacy = { openWeb(LegalLinks.PRIVACY) },
                 onPlus = { push(PlusKey) }
             )
             DiaryToastHost(

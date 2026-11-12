@@ -33,4 +33,5 @@
     <string name="load_failed_title">일기를 불러오지 못했어요</string>
     <string name="load_failed_body">잠시 뒤에 다시 시도해 주세요.</string>
     <string name="load_failed_retry">다시 시도</string>
+    <string name="link_no_browser">브라우저 앱을 찾지 못했어요.</string>
 </resources>

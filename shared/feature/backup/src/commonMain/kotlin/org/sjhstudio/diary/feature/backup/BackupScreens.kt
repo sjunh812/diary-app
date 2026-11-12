@@ -24,7 +24,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vinceglb.filekit.PlatformFile
@@ -80,6 +79,7 @@ import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.loadFailedRetryLabel
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberNotificationAccess
+import org.sjhstudio.diary.core.ui.rememberOpenWebLink
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
@@ -239,7 +239,8 @@ fun BackupSettingsRoute(
                     loaded == null -> BackupStatusRead.Loading
                     else -> BackupStatusRead.Loaded
                 },
-                onRetryStatus = viewModel::retryStatus
+                onRetryStatus = viewModel::retryStatus,
+                onLink = rememberOpenWebLink(toast)
             )
             statusBar(openPicker)
         }
@@ -341,7 +342,8 @@ fun BackupSettingsScreen(
     onFileRestore: () -> Unit = {},
     fileState: FileBackupUi = FileBackupUi.Idle,
     statusRead: BackupStatusRead = BackupStatusRead.Loaded,
-    onRetryStatus: () -> Unit = {}
+    onRetryStatus: () -> Unit = {},
+    onLink: (String) -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -385,7 +387,7 @@ fun BackupSettingsScreen(
                 // 공간 안내는 상태 자리만 대신함
                 // 공간이 없어도 복원, 자동 백업, 백업 설정 길은 그대로 있어야 함
                 if (status.lastFailure == BackupFailure.NO_SPACE && status.running == null) {
-                    NoSpace(status, onBackUp, onFile)
+                    NoSpace(status, onBackUp, onFile, onLink)
                 } else {
                     Column(
                         Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
@@ -465,9 +467,8 @@ private fun FileRestoreNotice(state: FileBackupUi) {
  * 공간을 팔지 않고 정리할 곳만 알려 줌(FR-019)
  */
 @Composable
-private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Unit) {
+private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Unit, onLink: (String) -> Unit) {
     val colors = DiaryTheme.colors
-    val links = LocalUriHandler.current
     val size = sizeText(status.bytesShort)
     Column(
         Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
@@ -497,8 +498,8 @@ private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Uni
             )
         )
     }
-    DiarySettingsRow(stringResource(Res.string.backup_space_manage), onClick = { links.openUri(STORAGE_URL) })
-    DiarySettingsRow(stringResource(Res.string.backup_space_trash), onClick = { links.openUri(TRASH_URL) })
+    DiarySettingsRow(stringResource(Res.string.backup_space_manage), onClick = { onLink(STORAGE_URL) })
+    DiarySettingsRow(stringResource(Res.string.backup_space_trash), onClick = { onLink(TRASH_URL) })
     DiarySettingsRow(stringResource(Res.string.file_top), onClick = onFile)
     Column(
         Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),

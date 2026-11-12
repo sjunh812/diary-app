@@ -1,10 +1,8 @@
 package org.sjhstudio.diary.app.billing
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Bundle
 import androidx.core.content.edit
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.PurchaseParams
@@ -22,11 +20,11 @@ import com.revenuecat.purchases.interfaces.SyncPurchasesCallback
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import org.sjhstudio.diary.app.CurrentActivity
+import org.sjhstudio.diary.app.di.appCoroutineScope
 import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
@@ -45,7 +43,7 @@ private const val PLAN_KEY = "last_plan"
 class Billing(val plans: PlanRepository, val purchases: PurchaseRepository)
 
 /** 키 없이 만든 빌드는 구매가 없는 무료 앱 */
-fun billing(context: Context): Billing {
+fun billing(context: Context, current: CurrentActivity): Billing {
     val app = context.applicationContext as Application
     val key =
         app.packageManager.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA)
@@ -53,9 +51,10 @@ fun billing(context: Context): Billing {
     if (key.isEmpty()) return Billing(FreePlanRepository(), NoPurchases())
     val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     val saved = prefs.getString(PLAN_KEY, null)?.let { name -> Plan.entries.firstOrNull { it.name == name } }
-    val client = RevenueCatClient(app, key)
+    val client = RevenueCatClient(app, key, current)
     val store = StoreBilling(client, saved, MANAGE_URL) { plan -> prefs.edit { putString(PLAN_KEY, plan.name) } }
-    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    // 결제 라이브러리가 뜻밖의 예외를 던져도 앱이 꺼지지 않게 처리기가 있는 범위를 씀
+    val scope = appCoroutineScope(Dispatchers.Main.immediate)
     Purchases.sharedInstance.updatedCustomerInfoListener =
         UpdatedCustomerInfoListener { info -> scope.launch { store.onUpdate(info.active) } }
     scope.launch { store.refresh() }
@@ -68,12 +67,9 @@ private val CustomerInfo.active: Set<String> get() = entitlements.active.keys
  * RevenueCat에 닿는 자리
  * 라이브러리 오류를 [StoreFailure]로 바꾸기만 하고, 판단은 [StoreBilling]이 함
  */
-private class RevenueCatClient(private val app: Application, key: String) : StoreClient {
-    private var activity: Activity? = null
-
+private class RevenueCatClient(app: Application, key: String, private val current: CurrentActivity) : StoreClient {
     init {
         Purchases.configure(PurchasesConfiguration.Builder(app, key).build())
-        watchActivity()
     }
 
     override suspend fun entitlements(): Set<String> = store { Purchases.sharedInstance.awaitCustomerInfo().active }
@@ -93,7 +89,7 @@ private class RevenueCatClient(private val app: Application, key: String) : Stor
     }
 
     override suspend fun purchase(storeId: String): Set<String> = store {
-        val screen = activity ?: throw StoreFailure(StoreFailure.Reason.OTHER)
+        val screen = current.value ?: throw StoreFailure(StoreFailure.Reason.OTHER)
         // 구독은 기본 요금제마다 상품이 따로 올 수 있어 ID로 정확히 고름
         val product =
             Purchases.sharedInstance.awaitGetProducts(listOf(storeId)).firstOrNull { StoreIds.baseOf(it.id) == storeId }
@@ -115,29 +111,5 @@ private class RevenueCatClient(private val app: Application, key: String) : Stor
         throw StoreFailure(reason, e)
     } catch (e: PurchasesException) {
         throw StoreFailure(StoreFailure.Reason.OTHER, e)
-    }
-
-    private fun watchActivity() {
-        app.registerActivityLifecycleCallbacks(
-            object : Application.ActivityLifecycleCallbacks {
-                override fun onActivityResumed(activity: Activity) {
-                    this@RevenueCatClient.activity = activity
-                }
-
-                override fun onActivityPaused(activity: Activity) {
-                    if (this@RevenueCatClient.activity === activity) this@RevenueCatClient.activity = null
-                }
-
-                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
-
-                override fun onActivityStarted(activity: Activity) = Unit
-
-                override fun onActivityStopped(activity: Activity) = Unit
-
-                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
-
-                override fun onActivityDestroyed(activity: Activity) = Unit
-            }
-        )
     }
 }

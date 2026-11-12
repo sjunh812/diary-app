@@ -33,4 +33,5 @@
     <string name="load_failed_title">日記を読み込めませんでした</string>
     <string name="load_failed_body">少し時間をおいて、もう一度お試しください。</string>
     <string name="load_failed_retry">もう一度試す</string>
+    <string name="link_no_browser">ブラウザアプリが見つかりませんでした。</string>
 </resources>

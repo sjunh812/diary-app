@@ -2,7 +2,6 @@ package org.sjhstudio.diary.feature.write
 
 import android.Manifest
 import android.content.Intent
-import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,6 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import org.sjhstudio.diary.core.ui.openAppInfo
+import org.sjhstudio.diary.core.ui.openSystemSettings
 
 @Composable
 internal actual fun rememberLocationAccess(): LocationAccess {
@@ -31,13 +32,7 @@ internal actual fun rememberLocationAccess(): LocationAccess {
             }
 
             override fun openSettings(locationOff: Boolean) {
-                val intent =
-                    if (locationOff) {
-                        Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                    } else {
-                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
-                    }
-                context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                if (locationOff) context.openSystemSettings(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) else context.openAppInfo()
             }
         }
     }
