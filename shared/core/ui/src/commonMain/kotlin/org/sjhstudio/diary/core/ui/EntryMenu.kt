@@ -1,8 +1,17 @@
 package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
@@ -45,11 +54,22 @@ fun EntryMenu(
     }
 }
 
+/** 일기 메뉴의 일이 끝나 화면이 이어서 할 일 */
+sealed interface EntryMenuEvent {
+    data class Trashed(val id: String) : EntryMenuEvent
+
+    data class Share(val entry: Entry) : EntryMenuEvent
+}
+
 /**
  * 일기 메뉴가 저장소에 맡기는 일
  * 홈과 달력의 화면 모델이 하나씩 들고 같은 일을 함
+ * 끝난 일은 [events]로 알림. 화면이 다시 만들어져도 새 화면이 받음
  */
 class EntryMenuWork(private val scope: CoroutineScope, private val entries: EntryRepository) {
+    private val _events = Channel<EntryMenuEvent>(Channel.BUFFERED)
+    val events: Flow<EntryMenuEvent> = _events.receiveAsFlow()
+
     fun toggleFavorite(id: String) {
         scope.launchWrite {
             val entry = entries.entry(id).first()?.entry ?: return@launchWrite
@@ -57,24 +77,53 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
         }
     }
 
-    /** 휴지통에 넣은 뒤 [onDone]. 실패하면 부르지 않고 실패 안내만 뜸 */
-    fun moveToTrash(id: String, onDone: () -> Unit) {
+    /** 휴지통에 넣은 뒤 [EntryMenuEvent.Trashed]. 실패하면 보내지 않고 실패 안내만 뜸 */
+    fun moveToTrash(id: String) {
         scope.launchWrite {
             entries.moveToTrash(id)
-            onDone()
+            _events.send(EntryMenuEvent.Trashed(id))
         }
     }
 
-    // 공유할 일기. 화면이 날짜·기분과 함께 글로 만듦
-    suspend fun entryToShare(id: String): Entry? = entries.entry(id).first()?.entry
-
     /**
-     * 공유할 일기를 읽어 [onReady]로 넘김
+     * 공유할 일기를 읽어 [EntryMenuEvent.Share]로 넘김
      * 메뉴는 누르자마자 닫혀 화면에서 빠지므로 화면 모델의 범위에서 읽음
-     * 메뉴 안에서 읽으면 닫히면서 함께 취소돼 공유 창이 뜨지 않음
      */
-    fun share(id: String, onReady: (Entry) -> Unit) {
-        scope.launchSafely { entryToShare(id)?.let(onReady) }
+    fun share(id: String) {
+        scope.launchSafely {
+            entries.entry(id).first()?.entry?.let { _events.send(EntryMenuEvent.Share(it)) }
+        }
+    }
+}
+
+/**
+ * [EntryMenuWork.events]를 받아 공유 창을 띄우고, 휴지통에 넣었으면 [onTrash]를 부름
+ * 메뉴가 닫힌 뒤에 끝나는 일이라 메뉴가 아닌 화면에 둠
+ */
+@Composable
+fun EntryMenuEvents(work: EntryMenuWork, onTrash: (String) -> Unit) {
+    val trashed by rememberUpdatedState(onTrash)
+    var sharing by remember { mutableStateOf<Entry?>(null) }
+    LaunchedEffect(work) {
+        work.events.collect { event ->
+            when (event) {
+                is EntryMenuEvent.Trashed -> trashed(event.id)
+                is EntryMenuEvent.Share -> sharing = event.entry
+            }
+        }
+    }
+    sharing?.let { entry -> ShareEntry(entry, onShow = { sharing = null }) }
+}
+
+// iOS의 공유 창은 화면 컨트롤러가 있어야 해서 공유할 때만 준비
+@Composable
+private fun ShareEntry(entry: Entry, onShow: () -> Unit) {
+    val share = rememberShareText()
+    val shareText = rememberEntryShareText()
+    val shown by rememberUpdatedState(onShow)
+    LaunchedEffect(entry) {
+        share(shareText(entry))
+        shown()
     }
 }
 
@@ -83,17 +132,7 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
  * 홈과 달력이 같은 순서로 닫고 실행해야 해서 한곳에 둠
  */
 @Composable
-fun EntryMenuFor(
-    id: String,
-    favorite: Boolean,
-    work: EntryMenuWork,
-    onDismiss: () -> Unit,
-    onEdit: (String) -> Unit,
-    onTrash: (String) -> Unit
-) {
-    // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비
-    val share = rememberShareText()
-    val shareText = rememberEntryShareText()
+fun EntryMenuFor(id: String, favorite: Boolean, work: EntryMenuWork, onDismiss: () -> Unit, onEdit: (String) -> Unit) {
     EntryMenu(
         favorite = favorite,
         onDismiss = onDismiss,
@@ -107,11 +146,11 @@ fun EntryMenuFor(
         },
         onShare = {
             onDismiss()
-            work.share(id) { entry -> share(shareText(entry)) }
+            work.share(id)
         },
         onTrash = {
             onDismiss()
-            work.moveToTrash(id) { onTrash(id) }
+            work.moveToTrash(id)
         }
     )
 }

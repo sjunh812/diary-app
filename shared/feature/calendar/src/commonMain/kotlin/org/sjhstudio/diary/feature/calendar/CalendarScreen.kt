@@ -86,6 +86,7 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.EntryMenuEvents
 import org.sjhstudio.diary.core.ui.EntryMenuFor
 import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
@@ -240,10 +241,10 @@ fun CalendarRoute(
             favorite = day.rows?.firstOrNull { it.id == id }?.isFavorite == true,
             work = viewModel.menu,
             onDismiss = { menuFor = null },
-            onEdit = onEdit,
-            onTrash = onTrash
+            onEdit = onEdit
         )
     }
+    EntryMenuEvents(viewModel.menu, onTrash)
     if (picking) {
         DiaryMonthSheet(
             title = stringResource(Res.string.calendar_month_sheet_title),

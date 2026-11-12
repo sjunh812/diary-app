@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.fakeEntryRow
+import org.sjhstudio.diary.core.ui.EntryMenuEvent
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CalendarViewModelTest {
@@ -323,31 +325,28 @@ class CalendarViewModelTest {
         assertNull(entries.favorite)
     }
 
+    /** 화면이 받기 전에 끝나도 다음에 받는 화면에 전해짐 */
     @Test
-    fun menu_tells_the_screen_after_the_entry_is_in_the_trash() {
+    fun menu_tells_the_screen_after_the_entry_is_in_the_trash() = runTest {
         val entries = Menu(detail(favorite = false))
-        var done: String? = null
+        val vm = menuViewModel(entries)
 
-        menuViewModel(entries).menu.moveToTrash("a") { done = entries.trashed }
+        vm.menu.moveToTrash("a")
+        advanceUntilIdle()
 
-        assertEquals("a", done)
-    }
-
-    @Test
-    fun menu_shares_plain_text() = runTest {
-        assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).menu.entryToShare("a")?.plainText)
+        assertEquals("a", entries.trashed)
+        assertEquals(EntryMenuEvent.Trashed("a"), vm.menu.events.first())
     }
 
     /** 메뉴가 닫혀도 공유할 일기는 화면 모델 범위에서 끝까지 읽힘 */
     @Test
     fun sharing_survives_the_menu_closing() = runTest {
         val vm = menuViewModel(Menu(detail(favorite = false)))
-        var shared: String? = null
 
-        vm.menu.share("a") { shared = it.plainText }
+        vm.menu.share("a")
         advanceUntilIdle()
 
-        assertEquals("공유할 글", shared)
+        assertEquals("공유할 글", (vm.menu.events.first() as EntryMenuEvent.Share).entry.plainText)
     }
 
     private object NoFonts : FontInstaller {

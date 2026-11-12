@@ -75,6 +75,7 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
+import org.sjhstudio.diary.core.ui.EntryMenuEvents
 import org.sjhstudio.diary.core.ui.EntryMenuFor
 import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.OnTabReselected
@@ -199,10 +200,10 @@ fun HomeRoute(
             favorite = rows.itemSnapshotList.items.firstOrNull { it.id == id }?.isFavorite == true,
             work = viewModel.menu,
             onDismiss = { menuFor = null },
-            onEdit = onEdit,
-            onTrash = onTrashed
+            onEdit = onEdit
         )
     }
+    EntryMenuEvents(viewModel.menu, onTrashed)
     LaunchedEffect(viewModel, style) {
         viewModel.jumps.collect { position ->
             val index = position + LIST_TOP_ITEMS
