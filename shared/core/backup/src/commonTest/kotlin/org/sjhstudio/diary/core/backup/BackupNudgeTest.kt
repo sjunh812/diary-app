@@ -85,6 +85,20 @@ class BackupNudgeTest {
         assertEquals(1, controller().nudge.first()?.photoCount)
     }
 
+    // 백업·복원 화면처럼 사진 파일 수로 셈. 같은 사진이 두 일기에 붙어도 한 장
+    @Test
+    fun same_photo_in_two_entries_counts_once() = runTest {
+        entries(2)
+        db.mediaDao().insertAll(
+            listOf(
+                MediaEntity("m0", "e0", 0, "normal", "a.jpg", "a", 1, 1, 1, null, 1),
+                MediaEntity("m1", "e1", 0, "normal", "a.jpg", "a", 1, 1, 1, null, 1)
+            )
+        )
+
+        assertEquals(1, controller().nudge.first()?.photoCount)
+    }
+
     @Test
     fun migrated_user_sees_it_right_away_with_the_old_account() = runTest {
         entries(1)

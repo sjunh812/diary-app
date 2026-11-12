@@ -153,7 +153,14 @@ interface BackupDao {
     )
     suspend fun entrySizes(): EntrySizes
 
-    @Query("SELECT COUNT(*) FROM media WHERE entry_id IN (SELECT id FROM entry WHERE deleted_at IS NULL) AND status = 'normal'")
+    /**
+     * 보이는 일기의 사진 파일 수
+     * 백업·복원 화면과 같은 기준이라 같은 사진이 여러 일기에 붙어도 한 장
+     */
+    @Query(
+        "SELECT COUNT(DISTINCT sha256) FROM media WHERE entry_id IN (SELECT id FROM entry WHERE deleted_at IS NULL) " +
+            "AND status = 'normal' AND sha256 IS NOT NULL"
+    )
     fun visiblePhotos(): Flow<Int>
 
     @Query("DELETE FROM merge_mark WHERE entry_id = :entryId")
