@@ -38,9 +38,12 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
      * 줄 수
      * 표가 없으면 0, 깨져서 셀 수 없으면 null.
      */
-    fun count(): Long? {
-        if (!(runCatching { hasNoteTable }.getOrNull() ?: return null)) return 0
-        return runCatching {
+    fun count(): Long? = when (runCatching { hasNoteTable }.getOrNull()) {
+        null -> null
+
+        false -> 0
+
+        true -> runCatching {
             connection.prepare("SELECT COUNT(*) FROM Note").use {
                 it.step()
                 it.getLong(0)
@@ -72,7 +75,11 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
             // 이 쪽은 깨짐
             // 다음 읽히는 줄까지 반씩 나눠 건짐
             // 끝을 모르면 몇 줄이 빠졌는지 셀 수 없음. 다 읽었다고 하지 않게 한 줄로 셈
-            val end = maxId ?: return LegacyReadSummary(read, unreadable + 1)
+            if (maxId == null) {
+                unreadable += 1
+                break
+            }
+            val end: Long = maxId
             val start = if (lastId == Long.MIN_VALUE) minIdOrOne() else lastId + 1
             if (start > end) break
             val salvaged = salvage(start, end, onRow)
