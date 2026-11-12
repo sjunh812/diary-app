@@ -70,7 +70,8 @@ fun TextSizeSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
         ) {
             PreviewBox(
-                dates.fullDate(sampleDate),
+                // 일기 상세 제목과 같은 꼴로 보여 줌
+                dates.dayWithWeekday(sampleDate),
                 stringResource(Res.string.text_size_sample_body),
                 diaryBodyTextStyle(font, selected),
                 Modifier.padding(top = DiarySpacing.x4)

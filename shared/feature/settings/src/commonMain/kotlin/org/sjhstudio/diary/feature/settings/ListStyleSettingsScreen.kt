@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,7 +31,8 @@ fun ListStyleSettingsScreen(selected: ListStyle, onSelect: (ListStyle) -> Unit, 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         DiaryTopBar(title = stringResource(Res.string.settings_list_style), onBack = onBack)
-        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth()) {
+        // 글자를 키우거나 가로로 두면 줄이 화면을 넘을 수 있음
+        Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             for (style in ListStyle.entries) {
                 DiarySettingsChoiceRow(stringResource(style.label()), selected = selected == style, onClick = { onSelect(style) })
             }
