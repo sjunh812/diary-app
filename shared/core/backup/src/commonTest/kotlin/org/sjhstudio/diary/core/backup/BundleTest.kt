@@ -318,4 +318,19 @@ class BundleTest {
         assertEquals(before.media.size, manifest.media.size)
         assertEquals(listOf(lost.sha256), manifest.media.filter { !it.inBackup }.map { it.sha256 })
     }
+
+    /** 내보내기 전에 보이는 사진 수는 파일에 실제로 담길 수 */
+    @Test
+    fun the_estimate_leaves_out_a_photo_without_its_file() = runTest {
+        val manifest = checkNotNull(ManifestCodec.decode(read(exportFromA(), "manifest.json")))
+        val all = exporterA().estimate()
+        val lost = manifest.media.first()
+        fs.delete(dir / "a" / "media" / "${lost.sha256}.${lost.ext}")
+
+        val estimate = exporterA().estimate()
+
+        assertEquals(manifest.media.size, all.photos)
+        assertEquals(all.photos - 1, estimate.photos)
+        assertTrue(estimate.bytes < all.bytes)
+    }
 }

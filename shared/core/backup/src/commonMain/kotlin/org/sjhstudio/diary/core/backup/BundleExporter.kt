@@ -29,10 +29,11 @@ class BundleExporter(
     private val clock: Clock = Clock.System,
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() }
 ) {
-    suspend fun estimate(): BundleEstimate {
+    /** 파일에 실제로 담길 만큼만 셈. 줄만 있고 파일이 없는 사진은 담기지 않음 */
+    suspend fun estimate(): BundleEstimate = withContext(Dispatchers.IO) {
         val dao = db.backupDao()
-        val photos = dao.localPhotos().filter { it.fileName != null }
-        return BundleEstimate(
+        val photos = dao.localPhotos().filter { row -> row.fileName?.let { fileSystem.exists(mediaDir / it) } == true }
+        BundleEstimate(
             entries = dao.entrySizes().visibleEntries,
             photos = photos.size,
             bytes = photos.sumOf { it.byteSize ?: 0 } + databaseBytes()
