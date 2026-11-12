@@ -112,11 +112,13 @@ jobs:
         run: |
           echo "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/upload.jks"
           echo "DIARY_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
-          if [ -n "$GOOGLE_SERVICES" ]; then
-            echo "$GOOGLE_SERVICES" | base64 --decode > composeApp/google-services.json
-          else
-            echo "::warning::google-services.json이 없어 사용 통계와 비정상 종료 보고가 꺼진 빌드입니다"
+          # 없으면 비정상 종료 보고와 이전 실패 통계, 전면 광고 원격 스위치가 모두 빠진다.
+          # 단계적 출시를 멈출 근거가 없는 빌드라 스토어로 내보내지 않는다.
+          if [ -z "$GOOGLE_SERVICES" ]; then
+            echo "::error::GOOGLE_SERVICES_JSON_BASE64 비밀값이 없습니다"
+            exit 1
           fi
+          echo "$GOOGLE_SERVICES" | base64 --decode > composeApp/google-services.json
           # 광고나 구매가 빠진 앱이 스토어로 나가지 않게 여기서 멈춘다.
           for name in ADMOB_APP_ID ADMOB_NATIVE ADMOB_INTERSTITIAL ADMOB_REWARDED REVENUECAT_ANDROID; do
             eval "value=\$$name"

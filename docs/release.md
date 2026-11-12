@@ -22,7 +22,7 @@ Android 값은 `sh scripts/release/set-secrets.sh <업로드 키 .jks> [Play 서
 | `ANDROID_KEYSTORE_BASE64` | 업로드 키 파일을 `base64 -i upload.jks`로 바꾼 값 | AAB를 건너뛴다 |
 | `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | 키 파일 비밀번호, 별칭, 키 비밀번호 | AAB를 건너뛴다 |
 | `PLAY_SERVICE_ACCOUNT_JSON` | Play Console에서 권한을 준 서비스 계정 키(JSON 원문) | 내부 트랙 업로드를 건너뛴다 |
-| `GOOGLE_SERVICES_JSON_BASE64` | `composeApp/google-services.json`의 base64 | 사용 통계·비정상 종료 보고가 꺼진 빌드 |
+| `GOOGLE_SERVICES_JSON_BASE64` | `composeApp/google-services.json`의 base64 | 빌드를 멈춘다. 비정상 종료 보고, 이전 실패 통계, 전면 광고 원격 스위치가 빠진 앱은 내보내지 않는다(2026-11-13) |
 | `ADMOB_APP_ID`, `ADMOB_NATIVE`, `ADMOB_INTERSTITIAL`, `ADMOB_REWARDED` | 위 "광고와 결제 키"의 값 | 광고가 나오지 않는 빌드 |
 | `IOS_CERTIFICATE_P12_BASE64`, `IOS_CERTIFICATE_PASSWORD` | Apple Distribution 인증서(.p12)의 base64와 비밀번호 | 아카이브를 건너뛴다 |
 | `IOS_PROVISIONING_PROFILE_BASE64` | App Store 배포 프로필의 base64 | 아카이브를 건너뛴다 |

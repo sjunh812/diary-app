@@ -135,6 +135,8 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             signingConfig = signingConfigs.findByName("release")
+            // DB 네이티브 라이브러리에서 꺼지면 Play가 스택의 함수 이름을 읽을 수 있게 기호 표를 올림
+            ndk { debugSymbolLevel = "SYMBOL_TABLE" }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
