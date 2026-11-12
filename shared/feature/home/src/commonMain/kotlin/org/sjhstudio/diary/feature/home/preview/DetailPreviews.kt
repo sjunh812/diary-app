@@ -3,9 +3,11 @@ package org.sjhstudio.diary.feature.home.preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -15,6 +17,7 @@ import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryPhoto
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.feature.home.Body
+import org.sjhstudio.diary.feature.home.DetailScrollLines
 import org.sjhstudio.diary.feature.home.EntryMissing
 
 private val Written = Instant.parse("2026-10-31T12:40:00Z")
@@ -36,6 +39,37 @@ private val Sample = Entry(
 @Composable
 private fun Detail(dark: Boolean, detail: EntryDetail) = DiaryTheme(darkTheme = dark) {
     Body(detail, DiaryTheme.typography.body, onPhoto = {})
+}
+
+// 기분 줄이 위에 붙은 자리. 본문이 길어야 스크롤됨
+private val LongEntry = Sample.copy(
+    weather = null,
+    bodyHtml = (1..30).joinToString("") { "<p>퇴근길에 한강까지 걸었다. 바람이 차가워졌는데 그래서 더 좋았다.</p>" }
+)
+
+@Composable
+private fun Scrolled(dark: Boolean) = DiaryTheme(darkTheme = dark) {
+    Box(Modifier.background(DiaryTheme.colors.canvas)) {
+        Body(EntryDetail(LongEntry, emptyList()), DiaryTheme.typography.body, {}, rememberScrollState(SCROLLED), DetailScrollLines())
+    }
+}
+
+private const val SCROLLED = 400
+
+@Preview(name = "스크롤 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ScrolledLight() = Scrolled(dark = false)
+
+@Preview(name = "스크롤 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ScrolledDark() = Scrolled(dark = true)
+
+@Preview(name = "두 칸 오른쪽 · 라이트", locale = "ko", widthDp = 840, heightDp = 800)
+@Composable
+private fun PaneLight() = DiaryTheme(darkTheme = false) {
+    Box(Modifier.background(DiaryTheme.colors.canvas)) {
+        Body(EntryDetail(LongEntry, emptyList()), DiaryTheme.typography.body, {}, contentMax = Dp.Unspecified)
+    }
 }
 
 @Preview(locale = "ko")
