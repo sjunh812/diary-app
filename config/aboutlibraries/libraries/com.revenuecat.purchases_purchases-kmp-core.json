@@ -1,0 +1,15 @@
+{
+  "uniqueId": "com.revenuecat.purchases:purchases-kmp-core",
+  "artifactVersion": "4.1.0",
+  "name": "purchases-kmp",
+  "description": "RevenueCat Kotlin Multiplatform SDK (iOS).",
+  "website": "https://github.com/RevenueCat/purchases-kmp",
+  "developers": [
+    {
+      "name": "RevenueCat, Inc."
+    }
+  ],
+  "licenses": [
+    "MIT"
+  ]
+}

@@ -26,6 +26,10 @@ if (firebaseConfigured) {
 // `./gradlew :composeApp:exportLibraryDefinitions`로 다시 만듦
 // 의존성을 바꾸면 같은 커밋에서 다시 만듦
 aboutLibraries {
+    // 의존성이 아닌 것(Lucide 아이콘 경로)과 iOS에만 들어가는 SDK를 더함
+    collect {
+        configPath = file("../config/aboutlibraries")
+    }
     // 같은 라이브러리의 플랫폼별 묶음(compose-ui와 compose-ui-android 같은)은 하나로 합침(KotlinConf 앱 방식)
     library {
         duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE

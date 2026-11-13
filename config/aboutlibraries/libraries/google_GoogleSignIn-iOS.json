@@ -1,0 +1,15 @@
+{
+  "uniqueId": "google/GoogleSignIn-iOS",
+  "artifactVersion": "10.1.0",
+  "name": "Google Sign-In for iOS",
+  "description": "Google Sign-In SDK for iOS.",
+  "website": "https://github.com/google/GoogleSignIn-iOS",
+  "developers": [
+    {
+      "name": "Google LLC"
+    }
+  ],
+  "licenses": [
+    "Apache-2.0"
+  ]
+}

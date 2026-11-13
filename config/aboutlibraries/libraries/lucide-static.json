@@ -1,0 +1,15 @@
+{
+  "uniqueId": "lucide-static",
+  "artifactVersion": "1.66.0",
+  "name": "Lucide",
+  "description": "Icon paths for weather and interface icons.",
+  "website": "https://lucide.dev",
+  "developers": [
+    {
+      "name": "Lucide Icons and Contributors"
+    }
+  ],
+  "licenses": [
+    "ISC"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "uniqueId": "firebase/firebase-ios-sdk",
+  "artifactVersion": "13.1.1",
+  "name": "Firebase iOS SDK",
+  "description": "Firebase Analytics, Crashlytics and Remote Config for iOS.",
+  "website": "https://github.com/firebase/firebase-ios-sdk",
+  "developers": [
+    {
+      "name": "Google LLC"
+    }
+  ],
+  "licenses": [
+    "Apache-2.0"
+  ]
+}
