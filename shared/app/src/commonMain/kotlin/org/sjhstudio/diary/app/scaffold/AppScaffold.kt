@@ -91,6 +91,7 @@ import org.sjhstudio.diary.app.navigation.coverTransition
 import org.sjhstudio.diary.app.navigation.coversAll
 import org.sjhstudio.diary.app.navigation.decoratedEntries
 import org.sjhstudio.diary.app.navigation.dimmedAlpha
+import org.sjhstudio.diary.app.navigation.isSwipe
 import org.sjhstudio.diary.app.navigation.popTransition
 import org.sjhstudio.diary.app.navigation.predictivePopTransition
 import org.sjhstudio.diary.app.navigation.pushTransition
@@ -609,7 +610,7 @@ private fun Content(
             predictivePopTransitionSpec = {
                 when {
                     reduceMotion -> TabSwap
-                    wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = false)
+                    wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = !isSwipe(it))
                     else -> predictivePopMotion(it)
                 }
             },
