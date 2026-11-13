@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -30,8 +31,8 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.diaryTouchOutset
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -124,19 +125,24 @@ private fun StatusLineRow(line: Line, onClick: () -> Unit, modifier: Modifier = 
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .padding(horizontal = DiarySpacing.x2, vertical = DiarySpacing.x1_5),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
-        DiaryIcon(line.icon, contentDescription = null, tint = colors.textSecondary, size = DiaryIconSize.i16)
-        // 글이 길면 글만 말줄임해 뒤 동작과 빨간 점이 밀려나지 않음
+        FirstLineIcon(line.icon, caption, colors.textSecondary)
+        // 큰 글자에서 "사진까지 모두"가 잘리지 않게 두 줄까지, 넘으면 말줄임
+        // 글만 줄여 뒤 동작과 빨간 점은 남김
         BasicText(
             line.text,
             modifier = Modifier.weight(1f, fill = false),
             style = caption.copy(color = colors.textSecondary),
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
         line.action?.let { BasicText(it, style = caption.copy(color = colors.accentText), maxLines = 1) }
-        if (line.alert) Box(Modifier.size(DiarySpacing.x1_5).clip(DiaryShapes.full).background(colors.danger))
+        if (line.alert) {
+            Box(Modifier.height(lineHeight), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(DiarySpacing.x1_5).clip(DiaryShapes.full).background(colors.danger))
+            }
+        }
     }
 }
 
