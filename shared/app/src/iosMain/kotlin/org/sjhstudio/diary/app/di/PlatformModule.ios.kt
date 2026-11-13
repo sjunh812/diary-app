@@ -1,18 +1,21 @@
 package org.sjhstudio.diary.app.di
 
+import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.IosAds
 import org.sjhstudio.diary.app.IosDrive
+import org.sjhstudio.diary.app.IosStore
 import org.sjhstudio.diary.app.IosTelemetry
+import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.ads.IosAdPlayer
+import org.sjhstudio.diary.app.billing.IosBilling
+import org.sjhstudio.diary.app.billing.iosBilling
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdSwitch
-import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoAdPlayer
-import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
@@ -49,10 +52,12 @@ internal actual val platformModule: Module =
         single { AppFiles() }
         // 광고는 Swift의 구글 광고 다리로(GoogleAdsBridge.swift). 개발 빌드는 늘 시험 광고
         single<AdPlayer>(createdAtStart = true) { IosAds.bridge?.let(::IosAdPlayer) ?: NoAdPlayer }
-        single<AdSwitch> { AdSwitch { true } }
-        // 구매는 RevenueCat iOS를 붙일 때까지 무료 요금제로 둠
-        single<PlanRepository> { FreePlanRepository() }
-        single<PurchaseRepository> { NoPurchases() }
+        single<AdSwitch> { IosAds.switch }
+        // 재설치 뒤 구매를 바로 가져오게 앱 시작 때 만듦
+        single { iosBilling(IosStore.bridge, appCoroutineScope(Dispatchers.Main.immediate)) }
+        single<StartupWork> { StartupWork { get<IosBilling>() } }
+        single<PlanRepository> { get<IosBilling>().plans }
+        single<PurchaseRepository> { get<IosBilling>().purchases }
         // 날마다 되풀이하는 달력 알림 하나(스펙 001 T070, research R15)
         single<TelemetrySink> { IosTelemetry.sink }
         single<ReminderScheduler> { IosReminderScheduler() }

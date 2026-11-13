@@ -13,10 +13,11 @@
 		1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */; };
 		22EA1CB33A17DCC6FC82406D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F543015C899423D4B01CEB2E /* Assets.xcassets */; };
 		23CEA18C5D402BAD832FD636 /* DailyBackupTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61482D56A37EB21A053921AF /* DailyBackupTask.swift */; };
+		24323778ABA0C668C758086B /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 1CD52D4E4E08653A055AB61A /* RevenueCat */; };
 		29DF7BAEAB8CEF5CBDD81D0F /* gowun_dodum.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */; settings = {ASSET_TAGS = (gowun_dodum, ); }; };
 		307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668CECA83ACC03A83C85A623 /* iOSApp.swift */; };
 		3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */; settings = {ASSET_TAGS = (gowun_batang, ); }; };
-		379D4C6DBBA934A8EF44CDDE /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = D653C9A304F35EF27606B403 /* GoogleMobileAds */; };
+		379D4C6DBBA934A8EF44CDDE /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */; };
 		445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */; };
 		47A150204EBF9E2799632D13 /* nanum_jeomggol.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */; settings = {ASSET_TAGS = (nanum_jeomggol, ); }; };
 		56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */; };
@@ -25,8 +26,10 @@
 		8619E6AF02B493D74581D733 /* gamja_flower.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F61F643C588442012994C221 /* gamja_flower.ttf */; settings = {ASSET_TAGS = (gamja_flower, ); }; };
 		86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7F3482AB68B54C1CB27AB9D /* Localizable.strings */; };
 		9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6111777718F5751E749AACD /* PrivacyCover.swift */; };
+		A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = D653C9A304F35EF27606B403 /* GoogleMobileAds */; };
 		ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */; };
 		B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
+		D37ECF5D0B93D5B0DCA0A4F6 /* PurchasesBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EFE830ECD5FACA0F25EFBD /* PurchasesBridge.swift */; };
 		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +40,7 @@
 		41124284CE98EC53B9064222 /* hi_melody.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = hi_melody.ttf; sourceTree = "<group>"; };
 		424A11BA3CA8492ED2631CE4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		61482D56A37EB21A053921AF /* DailyBackupTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBackupTask.swift; sourceTree = "<group>"; };
+		65EFE830ECD5FACA0F25EFBD /* PurchasesBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchasesBridge.swift; sourceTree = "<group>"; };
 		668CECA83ACC03A83C85A623 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_dodum.ttf; sourceTree = "<group>"; };
 		7009FFABBC02111FC2C6BBEA /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
@@ -66,7 +70,9 @@
 				1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */,
 				445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */,
 				B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */,
-				379D4C6DBBA934A8EF44CDDE /* GoogleMobileAds in Frameworks */,
+				379D4C6DBBA934A8EF44CDDE /* FirebaseRemoteConfig in Frameworks */,
+				A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */,
+				24323778ABA0C668C758086B /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +117,7 @@
 				38A2317CA7F32917D748F615 /* Local.xcconfig.example */,
 				D6111777718F5751E749AACD /* PrivacyCover.swift */,
 				C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */,
+				65EFE830ECD5FACA0F25EFBD /* PurchasesBridge.swift */,
 				2987522560EBD04F5F94FA64 /* Backup */,
 				37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */,
 				A7F3482AB68B54C1CB27AB9D /* Localizable.strings */,
@@ -364,7 +371,9 @@
 				B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */,
 				1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */,
 				108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */,
+				A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */,
 				D653C9A304F35EF27606B403 /* GoogleMobileAds */,
+				1CD52D4E4E08653A055AB61A /* RevenueCat */,
 			);
 			productName = iosApp;
 			productReference = 86038AE1032E284E79B32AD6 /* iosApp.app */;
@@ -406,6 +415,7 @@
 				7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				CFF5FF0479D7605F797E8717 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 94C98B8B3A2BFC1966447269 /* Products */;
@@ -511,6 +521,7 @@
 				ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */,
 				F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */,
 				9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */,
+				D37ECF5D0B93D5B0DCA0A4F6 /* PurchasesBridge.swift in Sources */,
 				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -751,6 +762,14 @@
 				version = 13.1.1;
 			};
 		};
+		CFF5FF0479D7605F797E8717 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm";
+			requirement = {
+				kind = exactVersion;
+				version = 5.102.3;
+			};
+		};
 		DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -771,6 +790,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		1CD52D4E4E08653A055AB61A /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CFF5FF0479D7605F797E8717 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+		A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
 		};
 		B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

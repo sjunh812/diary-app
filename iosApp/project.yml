@@ -21,6 +21,10 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads
     exactVersion: 13.11.0
+  # 구매와 구독 확인. Android와 같은 RevenueCat 프로젝트를 쓴다(docs/release.md 결제 콘솔 설정).
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios-spm
+    exactVersion: 5.102.3
 targets:
   iosApp:
     type: application
@@ -38,8 +42,13 @@ targets:
         product: FirebaseAnalytics
       - package: Firebase
         product: FirebaseCrashlytics
+      # 전면 광고를 앱 업데이트 없이 끈다(FirebaseReporter).
+      - package: Firebase
+        product: FirebaseRemoteConfig
       - package: GoogleMobileAds
         product: GoogleMobileAds
+      - package: RevenueCat
+        product: RevenueCat
     sources:
       - path: iosApp
         excludes:
@@ -98,6 +107,8 @@ targets:
         DiaryAdNative: $(ADMOB_NATIVE)
         DiaryAdInterstitial: $(ADMOB_INTERSTITIAL)
         DiaryAdRewarded: $(ADMOB_REWARDED)
+        # RevenueCat Apple 공개 키. 비면 구매가 없는 무료 앱으로 뜬다(PurchasesBridge).
+        RevenueCatKey: $(REVENUECAT_IOS)
         # 광고 성과 측정. Google이 권하는 구매자 ID 목록(developers.google.com/admob/ios/3p-skadnetworks, 2026-01-30판)
         SKAdNetworkItems:
           - SKAdNetworkIdentifier: cstr6suwn9.skadnetwork

@@ -69,6 +69,8 @@
 	<string>Your location is used only when you tap Use my location, to find your neighborhood name.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>If you allow, you'll see ads that match your interests. Your diary entries are never used for ads.</string>
+	<key>RevenueCatKey</key>
+	<string>$(REVENUECAT_IOS)</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

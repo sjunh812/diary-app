@@ -9,4 +9,6 @@ ADMOB_APP_ID = ca-app-pub-3940256099942544~1458002511
 ADMOB_NATIVE =
 ADMOB_INTERSTITIAL =
 ADMOB_REWARDED =
+// RevenueCat Apple 공개 키가 비면 구매가 없는 무료 앱으로 뜬다.
+REVENUECAT_IOS =
 #include? "Local.xcconfig"
