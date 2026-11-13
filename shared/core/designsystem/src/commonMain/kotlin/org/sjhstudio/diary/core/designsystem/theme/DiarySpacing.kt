@@ -150,8 +150,11 @@ object DiaryArtSize {
     /** 넓은 화면 결제 칸 폭. 글이 길게 늘어나지 않게 폰보다 조금만 넓음 */
     val paywallMax: Dp = 600.dp
 
-    /** 결제 화면 그림의 최소 높이. 이보다 자리가 적으면 그림을 뺌 */
-    val paywallArtMin: Dp = 96.dp
+    /**
+     * 결제 화면 그림의 최소 높이. 이보다 자리가 적으면 그림을 뺌
+     * 그림은 아래가 잘리는 꼴이라 낮아도 일기 한 장의 윗부분이 보임
+     */
+    val paywallArtMin: Dp = 64.dp
 }
 
 /** 네이티브 광고 크기(Figma "네이티브 광고") */

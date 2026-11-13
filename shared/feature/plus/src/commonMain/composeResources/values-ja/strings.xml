@@ -10,7 +10,7 @@
     <string name="plus_price">年額%1$s</string>
     <string name="plus_start">Plusを始める</string>
     <string name="plus_start_price">年額%1$sで始める</string>
-    <string name="plus_notice">1年ごとに自動更新されます。更新の24時間前までストアで解約できます。</string>
+    <string name="plus_notice">1年ごとに自動更新され、いつでも解約できます。</string>
     <string name="plus_retry">もう一度試す</string>
     <string name="plus_no_store">価格を読み込めませんでした。インターネット接続を確認してください。</string>
     <string name="plus_failed">決済を完了できませんでした。支払い済みの場合は［購入を復元］をタップしてください。</string>
