@@ -99,6 +99,16 @@ class DraftRepositoryTest {
     }
 
     @Test
+    fun a_body_of_only_spaces_and_blank_lines_is_saved_empty() = runTest {
+        repository.save(newDraft("<p>&#32;&#32;<br><br></p>", Mood.GOOD))
+
+        val entry = assertNotNull(db.entryDao().get(repository.commit(DraftKey.New())))
+
+        assertEquals("", entry.bodyHtml)
+        assertEquals("", entry.plainText)
+    }
+
+    @Test
     fun failed_commit_keeps_the_draft_and_writes_nothing() = runTest {
         repository.save(newDraft())
         val draft = assertNotNull(db.draftDao().get(DraftKey.New().value))

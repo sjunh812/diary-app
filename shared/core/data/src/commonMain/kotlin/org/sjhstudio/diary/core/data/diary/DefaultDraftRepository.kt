@@ -172,8 +172,10 @@ class DefaultDraftRepository(
     private fun DraftEntity.toEntry(id: String, old: EntryEntity?, now: Long, photosChanged: Boolean): EntryEntity {
         // 고치지 않은 본문은 그대로 둠
         // 레거시 원문과 서식 없는 글이 바뀌지 않게
-        val body = if (old != null && bodyHtml == old.bodyHtml) bodyHtml else RichTextSanitizer.sanitize(bodyHtml)
-        val plain = if (old != null && bodyHtml == old.bodyHtml) old.plainText else toPlainText(body)
+        val kept = old != null && bodyHtml == old.bodyHtml
+        // 공백과 빈 줄뿐인 본문은 빈 본문(기분만 남긴 일기)
+        val body = if (kept) bodyHtml else RichTextSanitizer.sanitize(bodyHtml).takeUnless { toPlainText(it).isBlank() }.orEmpty()
+        val plain = if (kept) old.plainText else toPlainText(body)
         val entry =
             EntryEntity(
                 id = id,
