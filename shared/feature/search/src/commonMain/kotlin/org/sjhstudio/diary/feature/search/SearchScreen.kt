@@ -74,6 +74,7 @@ import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.grouped
+import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -356,7 +357,7 @@ private fun Results(
             val newMonth =
                 index == 0 || (previous != null && (previous.date.year != row.date.year || previous.date.month != row.date.month))
             Column {
-                if (newMonth) DiaryMonthHeader(if (row.date.year == today.year) dates.month(row.date) else dates.yearMonth(row.date))
+                if (newMonth) DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                 val interaction = remember { MutableInteractionSource() }
                 DiaryEntryLine(
                     row = row,

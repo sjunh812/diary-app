@@ -229,6 +229,12 @@ internal fun Body(
     ) {
         // 위 8을 안쪽 여백이 아니라 칸으로 둬, 붙는 자리 계산(positionInParent)이 스크롤 내용 좌표와 같음
         Spacer(Modifier.height(DiarySpacing.x2))
+        // 큰 날짜에는 연도가 없어 몇 해 전 일기인지 알 수 없음. 날짜 위에 작게 둠
+        BasicText(
+            dates.year(entry.date),
+            modifier = content,
+            style = DiaryTheme.typography.caption.copy(color = colors.textSecondary)
+        )
         BasicText(
             dates.dayWithWeekday(entry.date),
             modifier = content.onPlaced { lines.titleBottom = it.positionInParent().y + it.size.height },

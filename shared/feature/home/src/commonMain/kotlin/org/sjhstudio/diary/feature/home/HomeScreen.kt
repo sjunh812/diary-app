@@ -84,6 +84,7 @@ import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberToday
@@ -404,7 +405,7 @@ private fun Feed(
             val newDay = !unknown && (previous == null || previous.date != row.date)
             Column {
                 if (newMonth && index > 0) {
-                    DiaryMonthHeader(if (row.date.year == today.year) dates.month(row.date) else dates.yearMonth(row.date))
+                    DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                 }
                 val interaction = remember { MutableInteractionSource() }
                 DiaryEntryLine(

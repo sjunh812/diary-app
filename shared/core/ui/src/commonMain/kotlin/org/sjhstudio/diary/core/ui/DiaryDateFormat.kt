@@ -54,6 +54,14 @@ interface DiaryDateFormat {
     val is24Hour: Boolean
 }
 
+/**
+ * 일기 목록의 달 머리글
+ * 올해면 달만 적음. 다른 해거나 앞 줄([previous])과 해가 바뀌는 자리면 연도까지 적음
+ * 내년 일기 밑에 올해 일기가 이어질 때 어느 해인지 알 수 있음
+ */
+fun DiaryDateFormat.monthHeader(date: LocalDate, thisYear: Int, previous: LocalDate?): String =
+    if (date.year == thisYear && (previous == null || previous.year == date.year)) month(date) else yearMonth(date)
+
 @Composable
 fun rememberDiaryDateFormat(): DiaryDateFormat = rememberPlatformDateFormat(diaryLanguage())
 
