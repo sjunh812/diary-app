@@ -57,7 +57,7 @@
     <string name="insight_adv_tab_weather">날씨</string>
     <string name="insight_adv_tab_place">장소</string>
     <string name="insight_adv_share">%1$d%</string>
-    <string name="insight_adv_when_empty">아직 일기가 적어요.</string>
+    <string name="insight_adv_when_empty">일기가 더 쌓이면 보여 드려요.</string>
     <string name="insight_adv_company">기분마다 자주 나온 날씨·요일·장소</string>
     <string name="insight_adv_habit">내 기록</string>
     <string name="insight_adv_habit_entries">일기</string>
@@ -83,16 +83,16 @@
     </plurals>
     <string name="insight_section_days">날짜별 기분</string>
     <string name="insight_map_hint">한 칸이 하루예요. 색은 그날 고른 기분이에요.</string>
-    <string name="tip_insight_open">기분을 누르면 해당 일기를 모아 볼 수 있어요.</string>
+    <string name="tip_insight_open">기분을 누르면 그 기분의 일기를 모아 볼 수 있어요.</string>
     <string name="insight_section_moods">자주 고른 기분</string>
     <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
     <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 보여 드려요.</string>
     <string name="insight_adv_recent_better">요즘 좋은 날이 많아졌어요 ☀️</string>
     <string name="insight_adv_recent_harder">요즘 힘든 날이 많았네요 ☁️</string>
     <string name="insight_adv_recent_steady">요즘은 평소와 비슷해요 ⛅</string>
-    <string name="insight_adv_recent_steady_body">그 전 30일과 크게 다르지 않아요.</string>
-    <string name="insight_adv_recent_good_up">그 전 30일보다 긍정적인 기분이 늘었어요. %1$d% → %2$d%</string>
-    <string name="insight_adv_recent_good_down">그 전 30일보다 긍정적인 기분이 줄었어요. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_steady_body">이전 30일과 크게 다르지 않아요.</string>
+    <string name="insight_adv_recent_good_up">이전 30일보다 긍정적인 기분이 늘었어요. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_good_down">이전 30일보다 긍정적인 기분이 줄었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_recent_hard_up">그 전 30일보다 부정적인 기분이 늘었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_recent_hard_down">그 전 30일보다 부정적인 기분이 줄었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_change_hard">부정적인 기분</string>

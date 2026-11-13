@@ -34,7 +34,7 @@
     <string name="lock_settings_title">잠금</string>
     <string name="lock_settings_enable">잠금 사용</string>
     <string name="lock_settings_change">비밀번호 바꾸기</string>
-    <string name="lock_settings_biometric_unavailable">지금 기기에서 생체 인증을 쓸 수 없어요.</string>
+    <string name="lock_settings_biometric_unavailable">이 휴대폰에서는 생체 인증을 쓸 수 없어요.</string>
     <string name="lock_settings_relock">다시 잠그기</string>
     <string name="lock_settings_relock_body">다른 앱을 쓰다가 돌아왔을 때 고른 시간이 지났으면 다시 잠가요.</string>
     <string name="relock_immediately">바로</string>

@@ -60,7 +60,7 @@
     <string name="reminder_time">알림 시각</string>
     <string name="reminder_save">저장</string>
     <string name="reminder_permission_title">알림이 꺼져 있어요</string>
-    <string name="reminder_permission_body">휴대폰 설정에서 1일 1일기 알림을 허용해야 매일 알림이 와요.</string>
+    <string name="reminder_permission_body">휴대폰 설정에서 1일 1일기 알림을 허용해야 쓰기 알림이 와요.</string>
     <string name="reminder_permission_allow">허용하기</string>
 
     <!-- 글꼴(G1) -->

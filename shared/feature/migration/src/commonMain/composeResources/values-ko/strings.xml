@@ -11,7 +11,7 @@
     <string name="migration_progress_entries_value">%1$s / %2$s편</string>
     <string name="migration_progress_photos">사진</string>
     <string name="migration_progress_photos_value">%1$s / %2$s장</string>
-    <string name="migration_progress_note">중간에 앱이 꺼져도 처음부터 다시 옮겨요. 원래 기록은 그대로 있어요.</string>
+    <string name="migration_progress_note">중간에 앱이 꺼지면 다시 열 때 처음부터 옮겨요. 원래 기록은 그대로 있어요.</string>
 
     <!-- 결과(M2) -->
     <plurals name="migration_done_title">
@@ -78,7 +78,7 @@
     <!-- 복구 문의(M5 시트, FR-010a) -->
     <string name="support_sheet_title">깨진 일기를 복구해 드릴 수 있어요</string>
     <string name="support_sheet_body">일기 파일을 메일에 첨부해 보내 주시면 읽을 수 있게 복구해서 돌려드려요.</string>
-    <string name="support_sheet_contains">일기 글이 그대로 들어 있어요. 사진과 비밀번호는 빼요.</string>
+    <string name="support_sheet_contains">일기 글이 그대로 들어 있어요. 사진과 비밀번호는 들어 있지 않아요.</string>
     <string name="support_sheet_deleted">복구한 파일을 돌려드린 뒤 바로 삭제해요.</string>
     <string name="support_sheet_restore">받은 파일은 "파일에서 복원하기"로 합치면 돼요.</string>
     <string name="support_without">첨부 없이 문의</string>

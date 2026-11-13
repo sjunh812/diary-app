@@ -80,7 +80,7 @@
     <string name="restore_value_updated">최근에 수정한 쪽으로 바뀔 일기</string>
     <string name="restore_value_both">둘 다 남길 일기</string>
     <string name="restore_value_photos">받을 사진</string>
-    <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 알림 설정도 백업 때로 바뀌어요.</string>
+    <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 알림 설정도 백업할 때의 설정으로 바뀌어요.</string>
     <string name="restore_no_space">사진을 받을 공간이 %1$s 부족해요. 휴대폰 저장 공간을 비운 뒤 다시 시도해 주세요.</string>
     <string name="restore_merge">합치기</string>
     <string name="restore_size_gb">%1$sGB</string>
@@ -164,7 +164,7 @@
     <string name="backup_channel">백업</string>
     <string name="backup_nudge_entries_photos">%1$s과 %2$s이 이 휴대폰에만 있어요</string>
     <plurals name="backup_nudge_entries"><item quantity="other">일기 %1$s편이 이 휴대폰에만 있어요</item></plurals>
-    <string name="backup_nudge_body">구글 드라이브에 백업해 두면 휴대폰을 바꿔도 그대로예요.</string>
+    <string name="backup_nudge_body">구글 드라이브에 백업해 두면 휴대폰을 바꿔도 그대로 복원할 수 있어요.</string>
     <string name="backup_nudge_action">백업 켜기</string>
     <string name="backup_nudge_later">나중에</string>
     <string name="restore_replace_entry">대신 이 백업으로 바꾸기</string>

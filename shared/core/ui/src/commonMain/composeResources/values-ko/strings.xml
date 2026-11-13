@@ -19,7 +19,7 @@
     <string name="entry_kept_both">두 가지</string>
     <string name="tip_close">닫기</string>
     <string name="checklist_check">%1$s 체크하기</string>
-    <string name="checklist_uncheck">%1$s 체크 풀기</string>
+    <string name="checklist_uncheck">%1$s 체크 해제</string>
     <string name="entry_menu_edit">수정하기</string>
     <string name="entry_menu_favorite">즐겨찾기</string>
     <string name="entry_menu_unfavorite">즐겨찾기 해제</string>
@@ -31,7 +31,7 @@
     <string name="ui_next_month">다음 달</string>
     <string name="share_when">%1$s %2$s %3$s</string>
     <string name="load_failed_title">일기를 불러오지 못했어요</string>
-    <string name="load_failed_body">잠시 뒤에 다시 시도해 주세요.</string>
+    <string name="load_failed_body">잠시 뒤 다시 시도해 주세요.</string>
     <string name="load_failed_retry">다시 시도</string>
     <string name="link_no_browser">브라우저 앱을 찾지 못했어요.</string>
 </resources>

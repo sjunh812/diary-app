@@ -20,7 +20,7 @@
     <string name="write_discard_edit_title">수정한 내용을 버릴까요?</string>
     <string name="write_photo_no_space">휴대폰 저장 공간이 부족해 일부 사진을 넣지 못했어요</string>
     <string name="write_photo_unreadable">읽지 못한 사진이 있어요</string>
-    <string name="write_save_failed">저장하지 못했어요. 쓴 글은 그대로 있으니 다시 눌러 주세요.</string>
+    <string name="write_save_failed">저장하지 못했어요. 쓴 글은 그대로 있으니 [저장]을 다시 눌러 주세요.</string>
     <string name="write_open_failed">일기를 불러오지 못했어요. 닫고 다시 열어 주세요.</string>
     <string name="write_format_bold">굵게</string>
     <string name="write_format_underline">밑줄</string>
@@ -63,7 +63,7 @@
     <string name="write_place_finding">위치 찾는 중</string>
     <string name="write_place_denied">위치 권한을 허용하면 가져올 수 있어요.</string>
     <string name="write_place_off">기기의 위치가 꺼져 있어요.</string>
-    <string name="write_place_not_found">위치를 찾지 못했어요. 직접 적어 주세요.</string>
+    <string name="write_place_not_found">위치를 찾지 못했어요. 직접 입력해 주세요.</string>
     <string name="write_place_settings">설정 열기</string>
     <string name="write_mood_body">기분을 남겨 두면 돌아보기에서 흐름을 볼 수 있어요.</string>
     <string name="write_weather_body">그날 날씨를 남겨 두면 나중에 다시 읽을 때 더 생생해요.</string>
