@@ -86,6 +86,7 @@ import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.core.ui.FontWarmup
+import org.sjhstudio.diary.core.ui.SafetyNet
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.backup.backupFolderText
@@ -160,7 +161,8 @@ private fun coreModule(isDebug: Boolean) = module {
     single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
     single { AppLaunch() }
     // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꿈(스펙 001 T028)
-    single { Telemetry(get(), strict = isDebug) }
+    // 앱을 열 때 만들어 화면 모델 안전망이 받은 예외를 처음부터 보고함
+    single(createdAtStart = true) { Telemetry(get(), strict = isDebug).also { telemetry -> SafetyNet.report = telemetry::caught } }
     single {
         // 옛 앱이 없는 iOS에는 잠금·설정 잇기 없음
         val legacyLock = getOrNull<LegacyLockBootstrap>()

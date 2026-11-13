@@ -30,6 +30,7 @@ fun CoroutineScope.launchSafely(onFailure: (Exception) -> Unit = {}, block: susp
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
+        SafetyNet.report(e)
         onFailure(e)
     }
 }
@@ -38,8 +39,10 @@ fun CoroutineScope.launchSafely(onFailure: (Exception) -> Unit = {}, block: susp
  * 실패해도 앱을 끄지 않는 `stateIn`
  * 원본 흐름이 실패하면 마지막 값을 그대로 둠
  */
-fun <T> Flow<T>.stateInSafely(scope: CoroutineScope, started: SharingStarted, initialValue: T): StateFlow<T> =
-    catch { if (it !is Exception) throw it }.stateIn(scope, started, initialValue)
+fun <T> Flow<T>.stateInSafely(scope: CoroutineScope, started: SharingStarted, initialValue: T): StateFlow<T> = catch {
+    if (it !is Exception) throw it
+    SafetyNet.report(it)
+}.stateIn(scope, started, initialValue)
 
 /**
  * 화면 모델 흐름을 화면이 보는 동안만 돌리는 규칙

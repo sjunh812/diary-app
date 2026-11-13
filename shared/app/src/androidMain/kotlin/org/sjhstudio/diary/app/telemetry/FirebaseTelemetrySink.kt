@@ -35,7 +35,15 @@ private class FirebaseTelemetrySink(context: Context) : TelemetrySink {
     }
 
     override fun setCustomKey(key: String, value: String) = crashlytics.setCustomKey(key, value)
+
+    // 메시지와 원인은 버리고 예외 종류와 호출 위치만 남김. 메시지에 일기 글이 섞일 수 있음
+    override fun recordCaught(error: Throwable) {
+        crashlytics.recordException(CaughtException(error.javaClass.name).apply { stackTrace = error.stackTrace })
+    }
 }
+
+/** 처리된 예외를 보고할 때 쓰는 껍데기. 이름에 원래 예외 종류만 담음 */
+private class CaughtException(kind: String) : Exception(kind)
 
 /** `google-services.json` 없이 만든 빌드는 Firebase가 꺼져 있어 아무것도 보내지 않음 */
 fun telemetrySink(context: Context): TelemetrySink =

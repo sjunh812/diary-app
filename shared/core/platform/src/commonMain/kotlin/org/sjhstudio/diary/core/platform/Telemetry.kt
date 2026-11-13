@@ -14,6 +14,12 @@ interface TelemetrySink {
      * 값은 표에 있는 이름뿐
      */
     fun setCustomKey(key: String, value: String)
+
+    /**
+     * 앱이 받아 넘긴 예외를 비정상 종료 보고의 "처리된 예외"로 남김
+     * 메시지에는 일기 글이 섞일 수 있어 구현은 예외 종류와 위치만 보냄(헌법 II)
+     */
+    fun recordCaught(error: Throwable) = Unit
 }
 
 /** Firebase 설정 파일이 없는 빌드와 시험에서 씀. 아무것도 보내지 않음 */
@@ -38,6 +44,9 @@ class Telemetry(private val sink: TelemetrySink, private val strict: Boolean) {
         }
         sink.log(event, params)
     }
+
+    /** 화면 모델의 안전망이 받은 예외. 앱은 꺼지지 않았지만 고칠 곳이 있다는 뜻 */
+    fun caught(error: Throwable) = sink.recordCaught(error)
 
     fun setMigrationStep(step: MigrationStep) = sink.setCustomKey(MIGRATION_STEP_KEY, step.id)
 
