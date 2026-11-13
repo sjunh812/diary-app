@@ -1,10 +1,5 @@
 package org.sjhstudio.diary.feature.calendar
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -37,6 +32,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,7 +76,6 @@ import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryCalendarSize
-import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -179,15 +174,11 @@ fun CalendarRoute(
         )
     }
     val dayPanel: @Composable () -> Unit = {
-        // 날이 바뀌면 짧게 겹쳐 바꿈. 휴대폰 안 일기라 로딩 표시 없이 번쩍이지 않게만
-        // 사라지는 쪽은 그날 값을 그대로 그려 새 날 일기가 앞 날짜 아래 보이지 않게
-        AnimatedContent(
-            day,
-            transitionSpec = { fadeIn(tween(DiaryMotion.QUICK_MILLIS)) togetherWith fadeOut(tween(DiaryMotion.EXIT_MILLIS)) },
-            contentKey = { it.date },
-            label = "day"
-        ) { shown ->
-            shown.date?.let { date ->
+        // 그날 일기를 읽는 동안은 비워 두고 날짜와 목록을 한 번에 바꿈. 움직임 없이
+        // 날짜만 먼저 나왔다가 목록이 붙으면 두 번 바뀌어 보임
+        val shown = day.takeIf { it.rows != null || it.failed } ?: PendingDay
+        shown.date?.let { date ->
+            key(date) {
                 DayPanel(
                     date = date,
                     rows = shown.rows,
@@ -553,3 +544,6 @@ internal fun DayPanel(
 
 private const val WEEK_YEAR = 2026
 private const val WEEK_MONTH = 11
+
+/** 그날 일기를 읽는 중. 아무것도 그리지 않음 */
+private val PendingDay = CalendarDay(null, null)
