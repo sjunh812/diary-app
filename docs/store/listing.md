@@ -131,6 +131,44 @@ Contact: sjunh812@naver.com
 お問い合わせ: sjunh812@naver.com
 ```
 
+## App Store 설명
+
+본문은 위 "자세한 설명"과 같다. App Store는 `<b>`를 그리지 않아 묶음 제목은 굵게 하지 않고 그대로 두며, "태블릿"은 "iPad"로 바꾼다.
+구독 앱은 설명에 이용약관 링크가 있어야 한다(App Store 심사 지침 3.1.2). Day One, Daylio, Journey, Diarium, 꼬박일기처럼 설명 끝에 우리 이용약관과 처리방침 주소를 적는다. App Store Connect의 사용권 계약(EULA) 칸은 비워 Apple 표준 사용권 계약을 쓴다(2026-11-13 조사).
+
+### 한국어
+
+```text
+Plus 구독 안내
+• 1년마다 자동으로 갱신돼요. 갱신 24시간 전까지 해지하지 않으면 다음 1년 요금이 결제돼요.
+• 구독 관리와 해지는 설정 > Apple 계정 > 구독에서 할 수 있어요.
+
+이용약관: https://sjunh812.notion.site/411ec02c164a80d3b1f5f1b5bbe1c7c4
+개인정보처리방침: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
+```
+
+### 영어
+
+```text
+About Plus
+• Renews automatically every year unless canceled at least 24 hours before the renewal date.
+• Manage or cancel in Settings > Apple Account > Subscriptions.
+
+Terms of Use: https://sjunh812.notion.site/411ec02c164a80d3b1f5f1b5bbe1c7c4
+Privacy Policy: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
+```
+
+### 일본어
+
+```text
+Plusについて
+• 更新日の24時間前までに解約しない限り、1年ごとに自動更新されます。
+• 管理と解約は「設定」>「Apple アカウント」>「サブスクリプション」から行えます。
+
+利用規約: https://sjunh812.notion.site/411ec02c164a80d3b1f5f1b5bbe1c7c4
+プライバシーポリシー: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
+```
+
 ## 맞춤 스토어 등록정보
 
 "1일 1일기"(검색 키워드 대상). 문구와 그래픽은 기본 등록정보를 그대로 물려받는다(그룹 애셋 상속). 검색 키워드는 일기, 일기장, 다이어리, 일기 앱, 감정 일기, 기분 일기, 하루 일기, 사진 일기, 비밀 일기다(2026-11-12).

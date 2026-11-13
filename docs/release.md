@@ -235,7 +235,7 @@ REVENUECAT_IOS = appl_...
 - [x] `app-ads.txt`를 `https://sjunh812.github.io/app-ads.txt`에 올리기(개발자 블로그 저장소 맨 앞, 2026-11-11)
 - [x] Play Console 스토어 설정의 개발자 웹사이트를 `https://sjunh812.github.io`로 바꿈(2026-11-11). AdMob 앱 인증은 크롤러가 새 주소를 읽을 때까지(최대 7일) 기다린 뒤 "업데이트 확인"
 - [ ] App Store 출시 뒤 AdMob iOS 앱에 스토어를 연결하고, App Store의 마케팅 URL도 같은 주소로 둔다
-- [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기(Play 문구는 `docs/store/listing.md`에 씀, App Store 설명은 아직)
+- [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기(Play 문구와 App Store 설명 끝 약관 줄은 `docs/store/listing.md`에 씀)
 - [ ] 스크린샷(폰 ✓, 7"·10" 태블릿 ✓, iPhone medium·large, iPad 13"), 피처 그래픽 ✓, 아이콘 ✓. 영어·일본어 Play 스크린샷 ✓(원어민 검수 전)
 - [ ] 영어·일본어 화면 문구와 스토어 설명을 그 언어 앱·운영체제 용어로 검색해 맞추기(원어민 검수는 하지 않기로 함, 2026-11-11). 앱 이름(D12)과 일본어 화면 글꼴(D13)도 이때 정한다
 - [ ] 세 언어로 화면 확인: 가장 긴 영어에서 잘리거나 겹치는 곳이 없는지, 날짜·시각이 그 언어 형식인지
@@ -256,14 +256,14 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 | 알림 | 매일 알림과 백업 알림 모두 기기 안 알림이다. 푸시 권한(APNs)과 인증서는 쓰지 않는다 | `IosReminderScheduler`, `IosBackupNotifier` |
 | 추적 동의(ATT) | 홈 목록의 첫 광고를 받기 직전에 한 번 묻는다. 거절해도 광고는 나온다 | `GoogleAdsBridge` |
 | 광고 동의 창(UMP) | 넣지 않았다. 처음 출시 국가에 EEA·영국·스위스가 없다 | 위 "출시 국가" |
-| 개인정보 매니페스트 | 앱이 직접 쓰는 필수 사유 API 네 가지(남은 공간, 파일 시각, 부팅 시각, UserDefaults)를 적었다. 수집 데이터는 SDK(Firebase, Google 광고, GoogleSignIn, RevenueCat)가 각자 매니페스트로 알린다 | `iosApp/iosApp/PrivacyInfo.xcprivacy` |
+| 개인정보 매니페스트 | 앱이 직접 쓰는 필수 사유 API 네 가지(남은 공간, 파일 시각, 부팅 시각, UserDefaults)를 적었다. 수집 데이터는 SDK(Firebase, Google 광고, GoogleSignIn)가 각자 매니페스트로 알린다. RevenueCat은 KMP SDK 안에 정적으로 묶여 와서 자체 매니페스트가 따라오지 않으므로, 그 매니페스트의 구매 기록(앱 기능, 연결 안 됨)을 우리 매니페스트에 옮겨 적었다. 제출 전에 Archive > Generate Privacy Report로 한 번 본다 | `iosApp/iosApp/PrivacyInfo.xcprivacy` |
 | 수출 규정 | 표준 HTTPS만 써서 `ITSAppUsesNonExemptEncryption`을 false로 뒀다. TestFlight가 빌드마다 묻지 않는다 | `iosApp/project.yml` |
 | 구글 드라이브 | iOS OAuth 클라이언트 ID를 `Local.xcconfig`에서 읽는다. 로그인은 드라이브 권한만 받고 계정을 만들지 않는다 | `GoogleDriveBridge` |
 | 자동 백업 | 백그라운드 작업 하나(`org.sjhstudio.diary.backup.daily`)와 앱이 뒤로 갈 때 확인. 실행 시각은 시스템이 정한다 | `DailyBackupTask` |
-| 구매 | RevenueCat iOS SDK. 광고 제거, Plus 연 구독, 구매 복원, 구독 관리 링크 | `PurchasesBridge`, `IosBilling.kt` |
+| 구매 | RevenueCat KMP SDK. 광고 제거, Plus 연 구독, 구매 복원, 구독 관리 링크. 복원은 Apple 계정 로그인 창을 띄울 수 있다 | `IosBilling.kt` |
 | 전면 광고 원격 스위치 | Firebase Remote Config `interstitial_enabled`. Android와 같은 값을 본다 | `FirebaseReporter` |
 
-아직 없는 것: 위젯(WidgetKit 확장), 설정의 "리뷰 남기기" 줄(App Store 앱 번호가 정해진 뒤 `storeReviewUrl`에 넣는다), 개발자 모드(실행 인자 `-diaryPlan PLUS`로 요금제만 바꾼다).
+아직 없는 것: 설정의 "리뷰 남기기" 줄(App Store 앱 번호가 정해진 뒤 `storeReviewUrl`에 넣는다), 개발자 모드(실행 인자 `-diaryPlan PLUS`로 요금제만 바꾼다).
 
 ### 콘솔에서 할 일
 
@@ -276,7 +276,8 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 - [ ] Firebase(`diary-app`): iOS 앱을 더해 `GoogleService-Info.plist`를 받는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
 - [ ] 개인정보 라벨: 위 "스토어 신고" 표대로 답한다. 광고에 쓰는 기기 ID와 광고 데이터는 "추적에 사용"으로 답한다(ATT를 띄운다). 일기, 사진, 기분, 주소는 수집하지 않는다.
 - [ ] 연령 등급 설문, 카테고리(라이프스타일), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
-- [ ] 구독 앱은 설명이나 EULA 칸에 이용약관 링크가 있어야 한다(3.1.2). Apple 표준 EULA를 쓸지 우리 약관 주소를 넣을지 정한다.
+- [ ] 구독 앱은 설명에 이용약관 링크가 있어야 한다(3.1.2). 레퍼런스 앱 대부분처럼 설명 끝에 우리 약관과 처리방침 주소를 적고 EULA 칸은 비워 Apple 표준을 쓴다(2026-11-13 사용자 결정, 문구는 `docs/store/listing.md` "App Store 설명").
+- [ ] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꾼다. 결제·환불·해지를 App Store까지 담았다.
 - [ ] 스크린샷: iPhone 6.9"(1320×2868)와 iPad 13"(2064×2752)를 세 언어로. Play용 틀(`docs/store/screens/`)과 크기가 달라 새로 찍는다.
 - [ ] 심사 메모: 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
 - [ ] 출시 국가: 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(D11). 미국 일부 주의 연령 확인 요구(위 "나라마다 걸리는 일")가 이 앱에 걸리는지 제출 직전에 다시 본다.
