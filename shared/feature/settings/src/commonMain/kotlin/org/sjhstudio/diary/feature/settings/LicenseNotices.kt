@@ -4,8 +4,11 @@ import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.license_changwon_round
+import org.sjhstudio.diary.feature.settings.resources.license_gangwon
+import org.sjhstudio.diary.feature.settings.resources.license_kimjungchul
 import org.sjhstudio.diary.feature.settings.resources.license_naver
 import org.sjhstudio.diary.feature.settings.resources.license_ofl
+import org.sjhstudio.diary.feature.settings.resources.license_sejong
 
 /**
  * 글꼴 라이선스 갈래
@@ -14,7 +17,10 @@ import org.sjhstudio.diary.feature.settings.resources.license_ofl
 internal enum class FontLicense(val label: StringResource) {
     OFL(Res.string.license_ofl),
     NAVER(Res.string.license_naver),
-    CHANGWON_ROUND(Res.string.license_changwon_round)
+    CHANGWON_ROUND(Res.string.license_changwon_round),
+    KIMJUNGCHUL(Res.string.license_kimjungchul),
+    GANGWON(Res.string.license_gangwon),
+    SEJONG(Res.string.license_sejong)
 }
 
 /**
@@ -30,13 +36,13 @@ internal data class FontLicenseNotice(val font: DiaryFont, val license: FontLice
 internal val FONT_NOTICES: List<FontLicenseNotice> =
     listOf(
         FontLicenseNotice(DiaryFont.PRETENDARD, FontLicense.OFL, "pretendard.txt"),
-        FontLicenseNotice(DiaryFont.GOWUN_DODUM, FontLicense.OFL, "gowun_dodum.txt"),
+        FontLicenseNotice(DiaryFont.GMARKET_SANS, FontLicense.OFL, "gmarket_sans.txt"),
         FontLicenseNotice(DiaryFont.CHANGWON_ROUND, FontLicense.CHANGWON_ROUND, "changwon_round.txt"),
-        FontLicenseNotice(DiaryFont.MARU_BURI, FontLicense.NAVER, "maru_buri.txt"),
+        FontLicenseNotice(DiaryFont.KIMJUNGCHUL_MYUNGJO, FontLicense.KIMJUNGCHUL, "kimjungchul_myungjo.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_BATANG, FontLicense.OFL, "gowun_batang.txt"),
-        FontLicenseNotice(DiaryFont.NANUM_PEN, FontLicense.OFL, "nanum_pen.txt"),
+        FontLicenseNotice(DiaryFont.KCC_JEONGBEOM, FontLicense.OFL, "kcc_jeongbeom.txt"),
         FontLicenseNotice(DiaryFont.NANUM_JEOMGGOL, FontLicense.NAVER, "nanum_jeomggol.txt"),
         FontLicenseNotice(DiaryFont.NANUM_CHEER, FontLicense.NAVER, "nanum_cheer.txt"),
-        FontLicenseNotice(DiaryFont.GAMJA_FLOWER, FontLicense.OFL, "gamja_flower.txt"),
-        FontLicenseNotice(DiaryFont.HI_MELODY, FontLicense.OFL, "hi_melody.txt")
+        FontLicenseNotice(DiaryFont.GANGWON_SAEUM, FontLicense.GANGWON, "gangwon_saeum.txt"),
+        FontLicenseNotice(DiaryFont.SEJONG_GEULGGOT, FontLicense.SEJONG, "sejong_geulggot.txt")
     )

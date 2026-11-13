@@ -1,5 +1,10 @@
-Copyright 2021 The Gowun Dodum Project Authors (https://github.com/yangheeryu/Gowun-Dodum)
+KCC정범체
 
+© 2021 Korea Copyright Commission. All rights reserved.
+
+한국저작권위원회가 공유마당에서 SIL Open Font License 1.1로 공개한 글꼴입니다.
+출처: 공유마당 KCC정범체
+https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13300206&menuNo=200023
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

@@ -48,21 +48,18 @@ targets:
         excludes:
           - GoogleService-Info.plist
       # 고를 때 받는 일기 글꼴(research R17). 안드로이드 글꼴 모듈과 같은 파일을 On-Demand Resources 태그(글꼴 ID)로 둔다.
-      - path: ../fonts/gowun_dodum/src/main/assets/fonts/gowun_dodum.ttf
-        buildPhase: resources
-        resourceTags: [gowun_dodum]
       - path: ../fonts/gowun_batang/src/main/assets/fonts/gowun_batang.ttf
         buildPhase: resources
         resourceTags: [gowun_batang]
+      - path: ../fonts/kimjungchul_myungjo/src/main/assets/fonts/kimjungchul_myungjo.ttf
+        buildPhase: resources
+        resourceTags: [kimjungchul_myungjo]
       - path: ../fonts/nanum_jeomggol/src/main/assets/fonts/nanum_jeomggol.ttf
         buildPhase: resources
         resourceTags: [nanum_jeomggol]
-      - path: ../fonts/gamja_flower/src/main/assets/fonts/gamja_flower.ttf
+      - path: ../fonts/sejong_geulggot/src/main/assets/fonts/sejong_geulggot.ttf
         buildPhase: resources
-        resourceTags: [gamja_flower]
-      - path: ../fonts/hi_melody/src/main/assets/fonts/hi_melody.ttf
-        buildPhase: resources
-        resourceTags: [hi_melody]
+        resourceTags: [sejong_geulggot]
     info:
       path: iosApp/Info.plist
       properties:

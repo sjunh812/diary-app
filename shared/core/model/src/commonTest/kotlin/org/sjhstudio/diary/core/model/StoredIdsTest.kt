@@ -42,20 +42,29 @@ class StoredIdsTest {
     }
 
     @Test
+    fun a_replaced_font_moves_to_the_font_in_its_place() {
+        assertEquals(DiaryFont.GMARKET_SANS, DiaryFont.fromId("gowun_dodum"))
+        assertEquals(DiaryFont.KIMJUNGCHUL_MYUNGJO, DiaryFont.fromId("maru_buri"))
+        assertEquals(DiaryFont.KCC_JEONGBEOM, DiaryFont.fromId("nanum_pen"))
+        assertEquals(DiaryFont.GANGWON_SAEUM, DiaryFont.fromId("gamja_flower"))
+        assertEquals(DiaryFont.SEJONG_GEULGGOT, DiaryFont.fromId("hi_melody"))
+    }
+
+    @Test
     fun font_ids() {
         assertEquals(
             listOf(
                 "pretendard",
                 "system",
-                "gowun_dodum",
+                "gmarket_sans",
                 "changwon_round",
-                "maru_buri",
+                "kimjungchul_myungjo",
                 "gowun_batang",
-                "nanum_pen",
+                "kcc_jeongbeom",
                 "nanum_jeomggol",
                 "nanum_cheer",
-                "gamja_flower",
-                "hi_melody"
+                "gangwon_saeum",
+                "sejong_geulggot"
             ),
             DiaryFont.entries.map { it.id }
         )

@@ -13,9 +13,10 @@ import org.jetbrains.compose.resources.Font
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.changwon_round_regular
-import org.sjhstudio.diary.core.designsystem.resources.maru_buri_regular
+import org.sjhstudio.diary.core.designsystem.resources.gangwon_saeum_regular
+import org.sjhstudio.diary.core.designsystem.resources.gmarket_sans_medium
+import org.sjhstudio.diary.core.designsystem.resources.kcc_jeongbeom_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
-import org.sjhstudio.diary.core.designsystem.resources.nanum_pen_regular
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.pretendardFamily
 import org.sjhstudio.diary.core.model.AppSettings
@@ -31,9 +32,10 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
         DiaryFont.PRETENDARD,
         DiaryFont.SYSTEM,
         DiaryFont.NANUM_CHEER,
-        DiaryFont.NANUM_PEN,
         DiaryFont.CHANGWON_ROUND,
-        DiaryFont.MARU_BURI
+        DiaryFont.GMARKET_SANS,
+        DiaryFont.GANGWON_SAEUM,
+        DiaryFont.KCC_JEONGBEOM
     )
 
 /**
@@ -51,13 +53,14 @@ fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? =
 }
 
 @Composable
-private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?): FontFamily = when (font) {
+private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = when (font) {
     DiaryFont.SYSTEM -> FontFamily.Default
     DiaryFont.PRETENDARD -> pretendardFamily()
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
-    DiaryFont.NANUM_PEN -> FontFamily(Font(Res.font.nanum_pen_regular))
     DiaryFont.CHANGWON_ROUND -> FontFamily(Font(Res.font.changwon_round_regular))
-    DiaryFont.MARU_BURI -> FontFamily(Font(Res.font.maru_buri_regular))
+    DiaryFont.GMARKET_SANS -> FontFamily(Font(Res.font.gmarket_sans_medium))
+    DiaryFont.GANGWON_SAEUM -> FontFamily(Font(Res.font.gangwon_saeum_regular))
+    DiaryFont.KCC_JEONGBEOM -> FontFamily(Font(Res.font.kcc_jeongbeom_regular))
     else -> installed(font) ?: pretendardFamily()
 }
 
@@ -69,9 +72,10 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
 val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
     mapOf(
         DiaryFont.NANUM_CHEER to "nanum_cheer_regular.ttf",
-        DiaryFont.NANUM_PEN to "nanum_pen_regular.ttf",
         DiaryFont.CHANGWON_ROUND to "changwon_round_regular.otf",
-        DiaryFont.MARU_BURI to "maru_buri_regular.otf"
+        DiaryFont.GMARKET_SANS to "gmarket_sans_medium.ttf",
+        DiaryFont.GANGWON_SAEUM to "gangwon_saeum_regular.ttf",
+        DiaryFont.KCC_JEONGBEOM to "kcc_jeongbeom_regular.otf"
     )
 
 /**

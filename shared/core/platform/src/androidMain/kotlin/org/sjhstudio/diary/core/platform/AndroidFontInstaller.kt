@@ -167,6 +167,12 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
         }.getOrElse { context.createPackageContext(context.packageName, 0).assets.open(path) }
     }
 
+    override fun removeExcept(ids: Set<String>) {
+        File(files.fontDirectory).listFiles()?.filter { it.name.substringBefore('.') !in ids }?.forEach { file ->
+            if (file.delete()) known.remove(file.name.substringBefore('.'))
+        }
+    }
+
     private fun target(id: String) = File(files.fontDirectory, "$id.ttf")
 }
 

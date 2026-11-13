@@ -28,7 +28,7 @@ class SettingsStoreTest {
             val store = SettingsStore(dataStore)
             val changed =
                 AppSettings(
-                    font = DiaryFont.NANUM_PEN,
+                    font = DiaryFont.KCC_JEONGBEOM,
                     bodyTextSize = BodyTextSize.XLARGE,
                     themeMode = ThemeMode.DARK,
                     askLocationAgain = false,
@@ -58,7 +58,7 @@ class SettingsStoreTest {
                 ),
                 raw.keys
             )
-            assertEquals("nanum_pen", raw["font"])
+            assertEquals("kcc_jeongbeom", raw["font"])
         }
     }
 

@@ -80,6 +80,14 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         return target.takeIf { manager.moveItemAtPath(partial, toPath = it, error = null) }?.also { remember(id, it) }
     }
 
+    override fun removeExcept(ids: Set<String>) {
+        val names = manager.contentsOfDirectoryAtPath(files.fontDirectory, error = null).orEmpty().filterIsInstance<String>()
+        for (name in names) {
+            val id = name.substringBefore('.')
+            if (id !in ids && manager.removeItemAtPath("${files.fontDirectory}/$name", error = null)) remember(id, "")
+        }
+    }
+
     private fun target(id: String) = "${files.fontDirectory}/$id.ttf"
 
     private companion object {

@@ -7,15 +7,15 @@ package org.sjhstudio.diary.core.model
 enum class DiaryFont(val id: String) {
     PRETENDARD("pretendard"),
     SYSTEM("system"),
-    GOWUN_DODUM("gowun_dodum"),
+    GMARKET_SANS("gmarket_sans"),
     CHANGWON_ROUND("changwon_round"),
-    MARU_BURI("maru_buri"),
+    KIMJUNGCHUL_MYUNGJO("kimjungchul_myungjo"),
     GOWUN_BATANG("gowun_batang"),
-    NANUM_PEN("nanum_pen"),
+    KCC_JEONGBEOM("kcc_jeongbeom"),
     NANUM_JEOMGGOL("nanum_jeomggol"),
     NANUM_CHEER("nanum_cheer"),
-    GAMJA_FLOWER("gamja_flower"),
-    HI_MELODY("hi_melody")
+    GANGWON_SAEUM("gangwon_saeum"),
+    SEJONG_GEULGGOT("sejong_geulggot")
     ;
 
     companion object {
@@ -23,7 +23,15 @@ enum class DiaryFont(val id: String) {
 
         fun fromId(id: String?): DiaryFont? = entries.firstOrNull { it.id == (RENAMED[id] ?: id) }
 
-        /** 시험판에서 앞서 고른 글꼴은 이 글꼴로 이음 */
-        private val RENAMED = listOf("cafe24_surround", "line_seed", "binggrae", "hyemin").associateWith { "changwon_round" }
+        /** 시험판에서 앞서 고른 글꼴은 자리를 이은 글꼴로 이음 */
+        private val RENAMED =
+            listOf("cafe24_surround", "line_seed", "binggrae", "hyemin").associateWith { "changwon_round" } +
+                mapOf(
+                    "gowun_dodum" to "gmarket_sans",
+                    "maru_buri" to "kimjungchul_myungjo",
+                    "nanum_pen" to "kcc_jeongbeom",
+                    "gamja_flower" to "gangwon_saeum",
+                    "hi_melody" to "sejong_geulggot"
+                )
     }
 }

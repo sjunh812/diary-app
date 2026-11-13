@@ -20,10 +20,10 @@ class LegacySettingsMapperTest {
             mapOf(
                 -1 to DiaryFont.PRETENDARD, 0 to DiaryFont.PRETENDARD, 100 to DiaryFont.SYSTEM,
                 1 to DiaryFont.NANUM_CHEER, 5 to DiaryFont.NANUM_CHEER,
-                2 to DiaryFont.NANUM_PEN, 7 to DiaryFont.NANUM_PEN, 11 to DiaryFont.NANUM_PEN,
+                2 to DiaryFont.KCC_JEONGBEOM, 7 to DiaryFont.KCC_JEONGBEOM, 11 to DiaryFont.KCC_JEONGBEOM,
                 3 to DiaryFont.NANUM_JEOMGGOL,
-                4 to DiaryFont.GAMJA_FLOWER, 10 to DiaryFont.GAMJA_FLOWER,
-                6 to DiaryFont.HI_MELODY, 13 to DiaryFont.HI_MELODY,
+                4 to DiaryFont.GANGWON_SAEUM, 10 to DiaryFont.GANGWON_SAEUM,
+                6 to DiaryFont.SEJONG_GEULGGOT, 13 to DiaryFont.SEJONG_GEULGGOT,
                 8 to DiaryFont.GOWUN_BATANG,
                 9 to DiaryFont.CHANGWON_ROUND, 12 to DiaryFont.CHANGWON_ROUND,
                 99 to DiaryFont.PRETENDARD

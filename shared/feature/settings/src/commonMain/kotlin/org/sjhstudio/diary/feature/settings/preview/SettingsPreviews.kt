@@ -106,4 +106,4 @@ private fun FontDark() = Font(dark = true, fontSample)
 
 @Preview(name = "G1 글꼴 · 받는 중", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
-private fun FontDownloading() = Font(dark = false, fontSample.copy(downloading = mapOf(DiaryFont.GAMJA_FLOWER to 0.42f)))
+private fun FontDownloading() = Font(dark = false, fontSample.copy(downloading = mapOf(DiaryFont.SEJONG_GEULGGOT to 0.42f)))

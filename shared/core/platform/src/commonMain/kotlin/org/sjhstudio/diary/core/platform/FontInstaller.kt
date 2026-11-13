@@ -17,6 +17,9 @@ interface FontInstaller {
 
     /** 받음. 이미 받았으면 바로 [FontInstallState.Installed]를 냄 */
     fun install(id: String): Flow<FontInstallState>
+
+    /** [ids] 밖의 받은 글꼴 파일 삭제. 앱에서 뺀 글꼴이 저장 공간을 차지하지 않게 함 */
+    fun removeExcept(ids: Set<String>) = Unit
 }
 
 sealed interface FontInstallState {

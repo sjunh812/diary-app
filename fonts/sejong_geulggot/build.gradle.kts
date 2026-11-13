@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "org.sjhstudio.diary.fonts.gamja_flower"
+    namespace = "org.sjhstudio.diary.fonts.sejong_geulggot"
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.androidMinSdk.get().toInt()

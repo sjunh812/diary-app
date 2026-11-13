@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "org.sjhstudio.diary.fonts.hi_melody"
+    namespace = "org.sjhstudio.diary.fonts.kimjungchul_myungjo"
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.androidMinSdk.get().toInt()

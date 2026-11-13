@@ -5,25 +5,23 @@ import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.font_name_changwon_round
-import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower
-import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower_ko
-import org.sjhstudio.diary.feature.settings.resources.font_name_gamja_flower_latin
+import org.sjhstudio.diary.feature.settings.resources.font_name_gangwon_saeum
+import org.sjhstudio.diary.feature.settings.resources.font_name_gmarket_sans
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_latin
-import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_dodum
-import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_dodum_ko
-import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_dodum_latin
-import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody
-import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody_ko
-import org.sjhstudio.diary.feature.settings.resources.font_name_hi_melody_latin
-import org.sjhstudio.diary.feature.settings.resources.font_name_maru_buri
+import org.sjhstudio.diary.feature.settings.resources.font_name_kcc_jeongbeom
+import org.sjhstudio.diary.feature.settings.resources.font_name_kimjungchul_myungjo
+import org.sjhstudio.diary.feature.settings.resources.font_name_kimjungchul_myungjo_ko
+import org.sjhstudio.diary.feature.settings.resources.font_name_kimjungchul_myungjo_latin
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_cheer
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_latin
-import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_pen
 import org.sjhstudio.diary.feature.settings.resources.font_name_pretendard
+import org.sjhstudio.diary.feature.settings.resources.font_name_sejong_geulggot
+import org.sjhstudio.diary.feature.settings.resources.font_name_sejong_geulggot_ko
+import org.sjhstudio.diary.feature.settings.resources.font_name_sejong_geulggot_latin
 import org.sjhstudio.diary.feature.settings.resources.font_name_system
 
 /**
@@ -38,25 +36,24 @@ internal val FONT_ORDER: List<DiaryFont> = listOf(DiaryFont.SYSTEM) + DiaryFont.
  */
 internal val FONT_DOWNLOAD_MB: Map<DiaryFont, Double> =
     mapOf(
-        DiaryFont.GOWUN_DODUM to 7.2,
+        DiaryFont.KIMJUNGCHUL_MYUNGJO to 12.1,
         DiaryFont.GOWUN_BATANG to 8.4,
         DiaryFont.NANUM_JEOMGGOL to 6.7,
-        DiaryFont.GAMJA_FLOWER to 12.6,
-        DiaryFont.HI_MELODY to 12.6
+        DiaryFont.SEJONG_GEULGGOT to 7.8
     )
 
 internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.SYSTEM -> Res.string.font_name_system
     DiaryFont.PRETENDARD -> Res.string.font_name_pretendard
-    DiaryFont.GOWUN_DODUM -> Res.string.font_name_gowun_dodum
+    DiaryFont.GMARKET_SANS -> Res.string.font_name_gmarket_sans
     DiaryFont.CHANGWON_ROUND -> Res.string.font_name_changwon_round
-    DiaryFont.MARU_BURI -> Res.string.font_name_maru_buri
+    DiaryFont.KIMJUNGCHUL_MYUNGJO -> Res.string.font_name_kimjungchul_myungjo
     DiaryFont.GOWUN_BATANG -> Res.string.font_name_gowun_batang
-    DiaryFont.NANUM_PEN -> Res.string.font_name_nanum_pen
+    DiaryFont.KCC_JEONGBEOM -> Res.string.font_name_kcc_jeongbeom
     DiaryFont.NANUM_JEOMGGOL -> Res.string.font_name_nanum_jeomggol
     DiaryFont.NANUM_CHEER -> Res.string.font_name_nanum_cheer
-    DiaryFont.GAMJA_FLOWER -> Res.string.font_name_gamja_flower
-    DiaryFont.HI_MELODY -> Res.string.font_name_hi_melody
+    DiaryFont.GANGWON_SAEUM -> Res.string.font_name_gangwon_saeum
+    DiaryFont.SEJONG_GEULGGOT -> Res.string.font_name_sejong_geulggot
 }
 
 /**
@@ -65,10 +62,14 @@ internal fun DiaryFont.label(): StringResource = when (this) {
  * 이 글꼴들에는 가나가 없어 일본어 화면도 로마자 이름을 씀
  */
 internal fun DiaryFont.namePreview(korean: Boolean): DrawableResource? = when (this) {
-    DiaryFont.GOWUN_DODUM -> if (korean) Res.drawable.font_name_gowun_dodum_ko else Res.drawable.font_name_gowun_dodum_latin
+    DiaryFont.KIMJUNGCHUL_MYUNGJO ->
+        if (korean) Res.drawable.font_name_kimjungchul_myungjo_ko else Res.drawable.font_name_kimjungchul_myungjo_latin
+
     DiaryFont.GOWUN_BATANG -> if (korean) Res.drawable.font_name_gowun_batang_ko else Res.drawable.font_name_gowun_batang_latin
+
     DiaryFont.NANUM_JEOMGGOL -> if (korean) Res.drawable.font_name_nanum_jeomggol_ko else Res.drawable.font_name_nanum_jeomggol_latin
-    DiaryFont.GAMJA_FLOWER -> if (korean) Res.drawable.font_name_gamja_flower_ko else Res.drawable.font_name_gamja_flower_latin
-    DiaryFont.HI_MELODY -> if (korean) Res.drawable.font_name_hi_melody_ko else Res.drawable.font_name_hi_melody_latin
+
+    DiaryFont.SEJONG_GEULGGOT -> if (korean) Res.drawable.font_name_sejong_geulggot_ko else Res.drawable.font_name_sejong_geulggot_latin
+
     else -> null
 }

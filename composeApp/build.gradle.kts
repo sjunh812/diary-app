@@ -103,12 +103,14 @@ android {
     // 고를 때 받는 일기 글꼴 다섯 종(research R17)
     // 받은 뒤 SplitCompat으로 자산을 읽음
     dynamicFeatures +=
-        setOf(":fonts:gowun_dodum", ":fonts:gowun_batang", ":fonts:nanum_jeomggol", ":fonts:gamja_flower", ":fonts:hi_melody")
+        setOf(":fonts:gowun_batang", ":fonts:kimjungchul_myungjo", ":fonts:nanum_jeomggol", ":fonts:sejong_geulggot")
 
     // adb로 깐 개발 빌드는 Play에서 글꼴 모듈을 받을 수 없어 iOS 개발 빌드처럼 앱 안에 담음
     // 출시 빌드에는 들어가지 않고 Play 필요할 때 설치 모듈로 받음
     sourceSets.getByName("debug").assets.directories.addAll(
-        listOf("gowun_dodum", "gowun_batang", "nanum_jeomggol", "gamja_flower", "hi_melody").map { "../fonts/$it/src/main/assets" }
+        listOf("gowun_batang", "kimjungchul_myungjo", "nanum_jeomggol", "sejong_geulggot").map {
+            "../fonts/$it/src/main/assets"
+        }
     )
 
     buildFeatures {
