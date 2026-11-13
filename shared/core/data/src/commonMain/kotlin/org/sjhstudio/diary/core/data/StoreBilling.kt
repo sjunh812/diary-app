@@ -91,7 +91,8 @@ class StoreBilling(private val client: StoreClient, saved: Plan?, override val m
         val active = client.restore()
         state.onSynced(StoreIds.planOf(active))
         if (StoreIds.planOf(active) == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
-    } catch (_: StoreFailure) {
-        PurchaseResult.FAILED
+    } catch (e: StoreFailure) {
+        // iOS는 복원 때 Apple 계정 로그인 창을 띄울 수 있음. 닫은 것은 실패가 아님
+        if (e.reason == StoreFailure.Reason.CANCELLED) PurchaseResult.CANCELLED else PurchaseResult.FAILED
     }
 }

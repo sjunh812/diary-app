@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withTimeoutOrNull
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.model.Plan
@@ -161,6 +162,20 @@ class PlusViewModelTest {
         advanceUntilIdle()
 
         assertEquals(PlusMessage.RestoreFailed, viewModel.messages.first())
+    }
+
+    /** 구매를 취소할 때처럼 아무 말 없이 그대로 돌아옴 */
+    @Test
+    fun closing_the_sign_in_during_restore_says_nothing() = runTest(dispatcher) {
+        val viewModel = PlusViewModel(plans, Store(PurchaseResult.CANCELLED))
+        advanceUntilIdle()
+
+        viewModel.restore()
+        advanceUntilIdle()
+
+        assertNull(withTimeoutOrNull(1) { viewModel.messages.first() })
+        assertNull(viewModel.state.value.restoreNotice)
+        assertEquals(false, viewModel.state.value.busy)
     }
 
     @Test

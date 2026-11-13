@@ -52,7 +52,13 @@ class StoreBillingTest {
             return owned
         }
 
-        override suspend fun restore(): Set<String> = sync()
+        override suspend fun restore(): Set<String> {
+            failNext?.let {
+                failNext = null
+                throw StoreFailure(it)
+            }
+            return sync()
+        }
     }
 
     private val store = FakeStore()
@@ -132,6 +138,15 @@ class StoreBillingTest {
         store.accountOwned = setOf(StoreIds.PLUS_ENTITLEMENT)
         assertEquals(PurchaseResult.DONE, billing.restore())
         assertEquals(Plan.PLUS, billing.plan.value)
+    }
+
+    /** iOS 복원은 Apple 계정 로그인 창을 띄울 수 있음. 닫으면 실패가 아니라 취소 */
+    @Test
+    fun closing_the_sign_in_during_restore_is_a_cancel() = runTest {
+        val billing = billing(Plan.AD_FREE)
+        store.failNext = StoreFailure.Reason.CANCELLED
+        assertEquals(PurchaseResult.CANCELLED, billing.restore())
+        assertEquals(Plan.AD_FREE, billing.plan.value)
     }
 
     @Test

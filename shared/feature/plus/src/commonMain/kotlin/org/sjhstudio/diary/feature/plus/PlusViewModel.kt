@@ -126,14 +126,16 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
     fun restore() {
         if (_state.value.busy) return
         viewModelScope.launchSafely {
+            // 취소는 구매 취소처럼 아무 말 없이 그대로 둠
             val message =
                 when (attempt { purchases.restore() }) {
                     PurchaseResult.DONE -> PlusMessage.Restored
                     PurchaseResult.FAILED -> PlusMessage.RestoreFailed
-                    PurchaseResult.CANCELLED, PurchaseResult.NOTHING, PurchaseResult.PENDING -> PlusMessage.RestoreNone
+                    PurchaseResult.NOTHING, PurchaseResult.PENDING -> PlusMessage.RestoreNone
+                    PurchaseResult.CANCELLED -> null
                 }
             _state.update { it.copy(buyFailed = false, restoreNotice = message.takeUnless { message == PlusMessage.Restored }) }
-            _messages.send(message)
+            message?.let { _messages.send(it) }
         }
     }
 }

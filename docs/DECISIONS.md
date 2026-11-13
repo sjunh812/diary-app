@@ -1484,6 +1484,7 @@ AdMob 콘솔(iOS 앱과 광고 단위)이 계정 재활성화 심사 뒤에야 �
 - 알려진 문제: KMP SDK가 자기 빌드 맥의 Xcode 경로를 박아 둬서 Kotlin iOS 시험 실행 파일이 Swift 호환 라이브러리를 찾지 못한다(purchases-kmp#1067, 열려 있음). 앱은 Xcode가 링크해 상관없다. `shared/app` 시험 실행 파일에만 지금 Xcode의 Swift 라이브러리 경로를 더했고, SDK가 고치면 지운다.
 - Android는 2.0.0 내부 테스트 중이라 Android SDK를 그대로 둔다. 출시 뒤 Android도 KMP SDK로 옮기면 결제 코드가 공통 코드 하나가 된다. 그때 Android SDK 버전(지금 11.2.0, KMP 4.1.0은 11.0.1)을 맞춘다.
 - 상품 ID와 권한 이름은 두 스토어가 같다(`ad_free`, `plus_yearly`). 구매는 스토어마다 따로다.
+- iOS 구매 복원은 Apple 계정 로그인 창을 띄울 수 있다. 창을 닫으면 "구매 내역을 확인하지 못했어요"가 떴는데, 구매 취소처럼 아무 말 없이 그대로 두게 했다. Android도 같은 공통 코드라 함께 바뀐다.
 - 전면 광고 원격 스위치도 iOS에 붙였다. 같은 Remote Config 값 `interstitial_enabled`를 본다.
 - CD: iOS도 Firebase 설정 파일이나 `Local.xcconfig`의 값(구글 클라이언트 ID, 광고 ID, RevenueCat 키)이 빠지면 멈춘다. 11-07에 Android에 건 규칙과 같다. iOS 서명 비밀값만 넣고 나머지를 비운 채 태그를 올리면 iOS 작업이 실패해 GitHub Release 초안이 만들어지지 않는다.
 - 확인한 것과 못 한 것: RevenueCat 오류가 취소, 승인 대기, 이미 가짐, 실패로 맞게 바뀌는지 시험했다. 가짜 키를 넣은 시뮬레이터 빌드에서 SDK가 켜져 서버에 닿고(키 거절), 가격 대신 다시 시도 화면, 구매 복원의 Apple 계정 로그인 창, 실패 안내가 나오고 앱이 꺼지지 않는 것을 봤다. 실제 구매는 RevenueCat Apple 키와 App Store Connect 상품이 있어야 해서 확인하지 못했다.
