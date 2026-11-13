@@ -62,6 +62,7 @@ sealed interface WriteTarget {
 }
 
 /** "쓰던 일기가 있어요" 시트에 보일 것 */
+/** [date]·[time]은 마지막으로 고친 때. 일기 날짜가 아님 */
 data class ResumeOffer(val date: LocalDate, val time: LocalTime, val preview: String) {
     override fun toString(): String = "ResumeOffer"
 }
@@ -263,8 +264,10 @@ class WriteViewModel(
         }
         val existing = drafts.latestNew()
         if (existing != null && existing.canSave()) {
+            // "…에 쓰던 글"은 마지막으로 고친 때. 일기 날짜를 지난날로 바꿨어도 쓴 때를 알림
+            val edited = existing.updatedAt.toLocalDateTime(timeZone)
             _state.update {
-                blank(new.date).copy(resume = ResumeOffer(existing.date, existing.time, toPlainText(existing.bodyHtml)))
+                blank(new.date).copy(resume = ResumeOffer(edited.date, edited.time, toPlainText(existing.bodyHtml)))
             }
             return
         }

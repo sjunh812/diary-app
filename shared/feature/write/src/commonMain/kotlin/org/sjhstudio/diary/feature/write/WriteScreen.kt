@@ -118,6 +118,7 @@ import org.sjhstudio.diary.core.ui.icon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
@@ -460,6 +461,7 @@ private fun DiscardButton(isEdit: Boolean, modifier: Modifier = Modifier, onClic
 private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
+    val today = rememberToday()
     val interaction = remember { MutableInteractionSource() }
     Layout(
         content = {
@@ -482,8 +484,9 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // 올해가 아니면 연도까지. 요일만 보면 지난해 일기인지 알 수 없음
                 BasicText(
-                    dates.dayWithWeekday(state.date),
+                    if (state.date.year == today.year) dates.dayWithWeekday(state.date) else dates.fullDate(state.date),
                     modifier = Modifier.weight(1f, fill = false),
                     style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
                     maxLines = 1,
