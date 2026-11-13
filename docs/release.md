@@ -253,6 +253,23 @@ REVENUECAT_IOS = appl_...
 
 App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서 사람이 할 일을 나눠 적는다. 규격과 정책은 제출 직전에 다시 본다.
 
+### 출시 순서 (2026-11-14 정리)
+
+앞 단계가 뒤 단계의 전제다. 자세한 값은 아래 "콘솔에서 할 일"과 "결제 콘솔 설정"에 있다. [사용자]는 로그인·계약·키 입력이라 직접, [같이]는 화면을 보며 함께, [코드]는 저장소에서 한다.
+
+1. [사용자] Apple Developer Program 가입·갱신 상태를 확인한다. 팀 ID를 적어 둔다(`project.yml`에 아직 서명 팀이 없다).
+2. [사용자] App Store Connect > Business: 유료 앱 계약, 세금, 은행, Korean Law(사업자등록번호). 승인에 시간이 걸릴 수 있어 가장 먼저 낸다.
+3. [사용자] Apple Developer: 앱 ID `org.sjhstudio.diary`(인앱 결제만), Apple Distribution 인증서, App Store 배포 프로필.
+4. [같이] App Store Connect 앱 만들기(기본 한국어, 영어·일본어 더함). 인앱 구입 `ad_free`, 구독 그룹과 `plus_yearly`를 세 언어로 만든다.
+5. [사용자] RevenueCat: 계정 권한 문제("앱 구성을 추가할 권한이 없다")를 먼저 푼다 → App Store 앱 추가 → 인앱 구입 키 올리기 → 두 상품을 권한 `ad_free`·`plus`에 잇기 → Apple 공개 키 받기.
+6. [사용자] 키 넣기: `iosApp/iosApp/Local.xcconfig`에 `REVENUECAT_IOS` 줄이 아직 없다(구글·광고 값 6개는 있음). CD 비밀값 `IOS_*` 4개, `GOOGLE_SERVICE_INFO_PLIST_BASE64`, `IOS_LOCAL_XCCONFIG_BASE64`.
+7. [코드] 출시 전 앱 손볼 것: iOS 네이티브 광고 카드를 Android와 같은 모양(앱 글꼴, 목록 줄·작은 연보라 버튼)으로 맞춘다(Android만 2026-11-13에 바뀜). iOS 세 언어·큰 글자 화면을 시뮬레이터에서 본다(Android만 봄).
+8. [같이] Xcode Archive → Privacy Report 확인 → TestFlight 업로드. CD는 IPA만 만들고 올리지 않는다.
+9. [사용자] TestFlight 실기기: 샌드박스 구매·취소·승인 대기·복원·재설치 뒤 복원·구독 만료, 구글 드라이브 백업·복원, 첫 광고 앞 추적 허용(ATT) 창, Face ID 잠금.
+10. [같이] 등록 정보: 이름·부제·홍보 문구·키워드·설명(끝에 약관·처리방침), 스크린샷(iPhone 6.3"·iPad 13"), 연령 등급, 카테고리, 개인정보 라벨, URL(처리방침 노션·지원·마케팅), 심사 메모, 출시 국가.
+11. [사용자] 심사 제출.
+12. 출시 뒤: [코드] 설정 "리뷰 남기기"에 App Store 앱 번호, [사용자] AdMob iOS 앱에 스토어 연결, Google Cloud iOS OAuth 클라이언트에 App Store ID·팀 ID.
+
 ### 앱에 들어 있는 것
 
 | 항목 | 상태 | 자리 |
