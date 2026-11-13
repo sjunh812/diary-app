@@ -151,6 +151,8 @@ class KtorDriveApi(
                         )
                     )
                 }
+            } catch (error: CancellationException) {
+                throw error
             } catch (error: Exception) {
                 throw unreadable ?: error
             }
@@ -272,8 +274,16 @@ class KtorDriveApi(
     }
 
     private suspend fun failure(response: HttpResponse): DriveException {
-        val reason = runCatching { response.bodyAsBytes().decodeToString() }.getOrNull()?.let(::errorReason)
-        return DriveErrorMapper.map(response.status.value, reason)
+        // 본문을 못 읽어도 상태 코드로 가름. 취소는 그대로 올림
+        val body =
+            try {
+                response.bodyAsBytes().decodeToString()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                null
+            }
+        return DriveErrorMapper.map(response.status.value, body?.let(::errorReason))
     }
 
     private fun errorReason(body: String): String? = runCatching {

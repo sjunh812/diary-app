@@ -16,6 +16,7 @@ import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.LocalPhotoRow
 import org.sjhstudio.diary.core.database.MediaEntity
+import org.sjhstudio.diary.core.database.hasReadableDate
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveException
 import org.sjhstudio.diary.core.drive.DriveFile
@@ -129,7 +130,9 @@ class RestorePlanner(
         }
         val entries = SnapshotReader.read(path)
         val namesOk = entries.all { entry -> entry.media.all { row -> row.fileName?.let { RestoreNames.isPhoto(it, row.sha256) } ?: true } }
-        if (!namesOk || entries.count { it.entry.deletedAt == null } != manifest.counts.entries) {
+        // 날짜나 시각을 읽을 수 없는 줄이 있으면 통째로 받지 않음. 넣고 나면 목록을 읽지 못함
+        val datesOk = entries.all { it.entry.hasReadableDate() }
+        if (!namesOk || !datesOk || entries.count { it.entry.deletedAt == null } != manifest.counts.entries) {
             fileSystem.delete(path, mustExist = false)
             throw RestoreMismatch()
         }

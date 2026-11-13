@@ -27,6 +27,12 @@ private val TIME_FORMAT =
         minute()
     }
 
+/**
+ * 날짜와 시각이 이 앱이 읽는 꼴인지
+ * 밖에서 들어온 줄(복원)을 넣기 전에 봄. 꼴이 다른 한 줄이 들어오면 목록 전체가 읽기 오류로 막힘
+ */
+fun EntryEntity.hasReadableDate(): Boolean = LocalDate.Formats.ISO.parseOrNull(date) != null && TIME_FORMAT.parseOrNull(time) != null
+
 fun EntryEntity.asModel(): Entry = Entry(
     id = id,
     date = LocalDate.parse(date),
