@@ -54,6 +54,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.PhraseText
+import org.sjhstudio.diary.core.designsystem.component.diaryScrollFade
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
@@ -276,7 +277,9 @@ private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
 private fun PaywallTop(adFreeOwned: Boolean, onLink: (String) -> Unit, modifier: Modifier) {
     BoxWithConstraints(modifier) {
         val room = maxHeight
-        SubcomposeLayout(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) { constraints ->
+        val scroll = rememberScrollState()
+        // 짧은 화면에서는 혜택 아래가 가려짐. 끝을 흐려 더 있다는 것을 보임
+        SubcomposeLayout(Modifier.fillMaxWidth().diaryScrollFade(scroll, DiaryTheme.colors.canvas).verticalScroll(scroll)) { constraints ->
             val width = constraints.copy(minHeight = 0)
             val text = subcompose("text") { PaywallBenefits(adFreeOwned) }.map { it.measure(width) }
             val legal = subcompose("legal") { PaywallLegal(onLink) }.map { it.measure(width) }

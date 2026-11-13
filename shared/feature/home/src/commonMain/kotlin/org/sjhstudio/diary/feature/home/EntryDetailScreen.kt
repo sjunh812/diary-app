@@ -355,8 +355,9 @@ private fun SmallDate(date: LocalDate, collapsed: () -> Float) {
     val dates = rememberDiaryDateFormat()
     val progress by rememberUpdatedState(collapsed)
     val half by remember { derivedStateOf { progress() >= HALF } }
+    // 접히면 큰 날짜 위의 연도가 가려짐. 좁은 자리라 요일을 빼고 연도를 넣음
     BasicText(
-        dates.dayWithWeekday(date),
+        dates.fullDate(date),
         modifier = Modifier
             .graphicsLayer { alpha = ((progress() - HALF) / HALF).coerceIn(0f, 1f) }
             .then(if (half) Modifier else Modifier.clearAndSetSemantics {}),

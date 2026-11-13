@@ -32,10 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -54,6 +50,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
+import org.sjhstudio.diary.core.designsystem.component.diaryScrollFade
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
@@ -306,24 +303,7 @@ private fun LetterCard(
             // 버튼이 있으면 글만 스크롤하고 버튼은 편지지 아래에 붙어 있음
             // 아래에 글이 더 있으면 끝을 종이색으로 흐려 이어진다는 것을 보임
             if (action != null) {
-                Modifier
-                    .weight(1f, fill = false)
-                    .drawWithContent {
-                        drawContent()
-                        if (scroll.canScrollForward) {
-                            val fade = DiarySpacing.x8.toPx()
-                            drawRect(
-                                Brush.verticalGradient(
-                                    listOf(colors.paper.copy(alpha = 0f), colors.paper),
-                                    size.height - fade,
-                                    size.height
-                                ),
-                                topLeft = Offset(0f, size.height - fade),
-                                size = Size(size.width, fade)
-                            )
-                        }
-                    }
-                    .verticalScroll(scroll)
+                Modifier.weight(1f, fill = false).diaryScrollFade(scroll, colors.paper).verticalScroll(scroll)
             } else {
                 Modifier
             },
