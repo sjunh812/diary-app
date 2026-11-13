@@ -268,11 +268,11 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 
 - [ ] Apple Developer: 앱 ID `org.sjhstudio.diary`를 만든다. 켤 기능은 인앱 결제뿐이다(푸시, iCloud, App Group은 쓰지 않는다). Apple Distribution 인증서와 App Store 배포 프로필을 만들어 CD 비밀값에 넣는다.
 - [ ] App Store Connect > Business: 유료 앱 계약, 세금, 은행 정보. 계약이 끝나야 상품 가격이 내려온다. Compliance > Korean Law에 사업자등록번호를 넣는다(위 "사업자 준비" 4).
-- [ ] 앱 만들기: 번들 ID `org.sjhstudio.diary`, 기본 언어 한국어, 영어와 일본어 현지화를 더한다. 앱 이름은 D12(영어 "1 Day 1 Diary", 일본어 「1日1日記」는 임시)다.
+- [ ] 앱 만들기: 번들 ID `org.sjhstudio.diary`, 기본 언어 한국어, 영어와 일본어 현지화를 더한다. 앱 이름은 영어 "1 Day 1 Diary", 일본어 「1日1日記」로 정했다(D12, 2026-11-13).
 - [ ] 인앱 구입: 비소모품 `ad_free`(₩9,900), 구독 그룹 하나에 `plus_yearly`(1년, ₩14,900, 체험 없음). 상품마다 세 언어 표시 이름과 설명, 심사용 화면 캡처를 넣는다. 첫 상품은 앱 빌드와 함께 심사에 낸다.
-- [ ] RevenueCat: 같은 프로젝트에 App Store 앱을 더하고 인앱 구입 키(App Store Connect > 사용자 및 액세스 > 통합)를 올린다. 두 상품을 권한에 잇고 Apple 공개 키를 `Local.xcconfig`에 넣는다.
-- [ ] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인지 본다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
-- [ ] Firebase(`diary-app`): iOS 앱을 더해 `GoogleService-Info.plist`를 받는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
+- [ ] RevenueCat: 계정에 "앱 구성을 추가할 권한이 없다"고 나와 먼저 계정 조건(이메일 인증 등)을 푼다(2026-11-13 확인). 같은 프로젝트에 App Store 앱을 더하고 인앱 구입 키(App Store Connect > 사용자 및 액세스 > 통합)를 올린다. 두 상품을 권한에 잇고 Apple 공개 키를 `Local.xcconfig`에 넣는다.
+- [x] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인 것을 확인했다(2026-11-13). App Store ID와 팀 ID 칸은 앱이 생긴 뒤 넣는다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
+- [x] Firebase(`diary-app`): iOS 앱은 이미 있었고 `GoogleService-Info.plist`를 받아 `iosApp/iosApp/`에 두었다(2026-11-13). CD 비밀값 `GOOGLE_SERVICE_INFO_PLIST_BASE64`는 직접 넣는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
 - [ ] 개인정보 라벨: 위 "스토어 신고" 표대로 답한다. 광고에 쓰는 기기 ID와 광고 데이터는 "추적에 사용"으로 답한다(ATT를 띄운다). 일기, 사진, 기분, 주소는 수집하지 않는다.
 - [ ] 연령 등급 설문, 카테고리(라이프스타일), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
 - [ ] 이름·부제·홍보 문구·키워드·설명 넣기: 문구는 `docs/store/listing.md`의 "App Store 부제·홍보 문구·키워드"와 "App Store 설명"에 세 언어로 있다.
