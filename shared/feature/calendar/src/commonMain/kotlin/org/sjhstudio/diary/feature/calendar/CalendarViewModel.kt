@@ -199,7 +199,7 @@ internal fun YearMonth.pageIndex(): Int = (year - FIRST_YEAR) * MONTHS + (month.
 
 internal fun monthOfPage(page: Int): YearMonth = YearMonth(FIRST_YEAR + page / MONTHS, page % MONTHS + 1)
 
-private const val FIRST_YEAR = 1970
+internal const val FIRST_YEAR = 1970
 private const val MONTHS = 12
 
 private const val SELECTED_KEY = "calendar_selected"

@@ -42,7 +42,7 @@ internal fun InsightPeriodSheet(
             title = title,
             initialYear = period.month.year,
             shown = period.month,
-            hasYear = { it in years },
+            years = years.toList(),
             enabled = { it <= today.yearMonth },
             onPick = { onPick(StatsPeriod.Month(it)) },
             onDismiss = onDismiss

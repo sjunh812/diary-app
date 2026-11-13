@@ -217,7 +217,7 @@ fun HomeRoute(
             title = stringResource(Res.string.home_month_sheet_title),
             initialYear = shown.year,
             shown = YearMonth(shown.year, shown.month.number),
-            hasYear = { year -> months.any { it.year == year } },
+            years = remember(months) { months.map { it.year }.distinct().sorted() },
             enabled = { it in months },
             onPick = { month ->
                 picking = false

@@ -250,7 +250,7 @@ fun CalendarRoute(
             title = stringResource(Res.string.calendar_month_sheet_title),
             initialYear = shown.year,
             shown = shown,
-            hasYear = { it <= last.year },
+            years = remember(last.year) { (FIRST_YEAR..last.year).toList() },
             enabled = { it <= last },
             onPick = { month ->
                 picking = false
