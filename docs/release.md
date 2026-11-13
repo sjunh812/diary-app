@@ -222,7 +222,7 @@ REVENUECAT_IOS = appl_...
 - [ ] Play Console 포그라운드 서비스 신고: 지금 백업·복원이 `dataSync` 종류를 쓴다(스펙 003 research R14). 쓰는 까닭과 화면 영상을 낸다
 - [ ] 구글 동의 화면 브랜드 검증: 앱 이름·로고를 띄우려면 필요하다(2~3영업일)
       ([Google](https://support.google.com/cloud/answer/13463073), 스펙 003 근거).
-      준비는 끝났다(2026-11-13). Search Console에서 `https://sjunh812.github.io/` 소유가 확인됐고, 브랜딩에 홈페이지 `https://sjunh812.github.io`,
+      준비는 끝났다(2026-11-13). Search Console에서 `https://sjunh812.github.io/` 소유가 확인됐고, 브랜딩에 홈페이지 `https://sjunh812.github.io/1day1diary/`(앱 소개, 처리방침·약관 링크),
       처리방침 `https://sjunh812.github.io/1day1diary/privacy/`, 약관 `https://sjunh812.github.io/1day1diary/terms/`, 승인된 도메인 `sjunh812.github.io`를 넣어 저장했다.
       로고는 옛 회색 연필에서 지금 스토어 아이콘(`docs/store/play-512.png`)으로 바꿨다(사용자, 2026-11-13). 아이콘을 바꾸면 이 로고도 함께 바꾼다.
       같은 날 [브랜딩 확인]을 냈지만 자동 검사가 "홈페이지 웹사이트가 나에게 등록되어 있지 않다"로 막았다. 소유 확인이 시스템에 반영되기까지 24시간을 기다린 뒤
@@ -283,7 +283,7 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 - [ ] 연령 등급 설문, 카테고리(라이프스타일), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
 - [ ] 이름·부제·홍보 문구·키워드·설명 넣기: 문구는 `docs/store/listing.md`의 "App Store 부제·홍보 문구·키워드"와 "App Store 설명"에 세 언어로 있다.
 - [ ] 구독 앱은 설명에 이용약관 링크가 있어야 한다(3.1.2). 레퍼런스 앱 대부분처럼 설명 끝에 우리 약관과 처리방침 주소를 적고 EULA 칸은 비워 Apple 표준을 쓴다(2026-11-13 사용자 결정, 문구는 `docs/store/listing.md` "App Store 설명").
-- [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인).
+- [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 같은 날 읽기 쉬운 말로 다시 쓴 글로 노션과 GitHub Pages를 함께 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인).
 - [ ] 스크린샷 올리기: `docs/store/screens/ios/{ko,en,ja}/`의 iPhone 4장은 위 표의 medium(1206×2622) 칸, iPad 4장은 13" 칸에 올린다. App Store Connect가 6.9"(large) 칸을 따로 요구하면 1320×2868로 다시 만든다(확인 못 함).
 - [ ] 심사 메모: 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
 - [ ] 출시 국가: 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(D11). 미국 일부 주의 연령 확인 요구(위 "나라마다 걸리는 일")가 이 앱에 걸리는지 제출 직전에 다시 본다.
