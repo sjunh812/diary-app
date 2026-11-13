@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform
 import org.sjhstudio.diary.app.ads.IosAdBridge
-import org.sjhstudio.diary.app.billing.IosStoreBridge
 import org.sjhstudio.diary.app.di.APP_SCOPE
 import org.sjhstudio.diary.app.di.initKoin
 import org.sjhstudio.diary.app.lock.LockController
@@ -21,11 +20,10 @@ import org.sjhstudio.diary.core.platform.TelemetrySink
 
 /** iosApp의 `iOSApp.init`에서 Koin을 켜고 시작 단계를 돌림(contracts/app-shell.md 시작 순서 1) */
 @OptIn(ExperimentalNativeApi::class)
-fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?, ads: IosAdBridge, store: IosStoreBridge?) {
+fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?, ads: IosAdBridge) {
     IosDrive.bridge = driveBridge.asBridge()
     IosAds.bridge = ads
     firebase?.let { IosAds.switch = AdSwitch(it::interstitialEnabled) }
-    IosStore.bridge = store
     IosTelemetry.sink = firebase?.asSink() ?: NoTelemetrySink
     initKoin(isDebug = Platform.isDebugBinary)
     if (Platform.isDebugBinary) applyDebugPlan()
@@ -47,11 +45,6 @@ internal object IosAds {
 
     /** Firebase 설정 파일 없이 만든 빌드는 늘 켜짐 */
     var switch: AdSwitch = AdSwitch { true }
-}
-
-/** Swift가 건 결제 다리. 키 없이 만든 빌드는 null */
-internal object IosStore {
-    var bridge: IosStoreBridge? = null
 }
 
 internal object IosTelemetry {

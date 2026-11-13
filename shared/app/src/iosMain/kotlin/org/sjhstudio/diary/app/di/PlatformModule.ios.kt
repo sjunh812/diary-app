@@ -5,7 +5,6 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.IosAds
 import org.sjhstudio.diary.app.IosDrive
-import org.sjhstudio.diary.app.IosStore
 import org.sjhstudio.diary.app.IosTelemetry
 import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.ads.IosAdPlayer
@@ -54,7 +53,7 @@ internal actual val platformModule: Module =
         single<AdPlayer>(createdAtStart = true) { IosAds.bridge?.let(::IosAdPlayer) ?: NoAdPlayer }
         single<AdSwitch> { IosAds.switch }
         // 재설치 뒤 구매를 바로 가져오게 앱 시작 때 만듦
-        single { iosBilling(IosStore.bridge, appCoroutineScope(Dispatchers.Main.immediate)) }
+        single { iosBilling(appCoroutineScope(Dispatchers.Main.immediate)) }
         single<StartupWork> { StartupWork { get<IosBilling>() } }
         single<PlanRepository> { get<IosBilling>().plans }
         single<PurchaseRepository> { get<IosBilling>().purchases }

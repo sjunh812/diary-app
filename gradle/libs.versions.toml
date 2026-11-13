@@ -3,6 +3,8 @@
 agp = "9.3.3"
 firebaseBom = "35.1.0"
 revenuecat = "11.2.0"
+# iOS 구매. Android는 위 Android SDK를 그대로 쓴다
+revenuecatKmp = "4.1.0"
 firebaseCrashlyticsPlugin = "3.0.8"
 googleServices = "4.5.0"
 kotlin = "2.4.21"
@@ -134,6 +136,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
 revenuecat-purchases = { module = "com.revenuecat.purchases:purchases", version.ref = "revenuecat" }
+revenuecat-kmp-core = { module = "com.revenuecat.purchases:purchases-kmp-core", version.ref = "revenuecatKmp" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 rich-editor = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richEditor" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }

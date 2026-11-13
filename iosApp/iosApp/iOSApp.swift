@@ -40,8 +40,7 @@ struct iOSApp: App {
         IosStartupKt.startApp(
             driveBridge: GoogleDriveBridge(),
             firebase: FirebaseReporter.start(),
-            ads: GoogleAdsBridge(),
-            store: PurchasesBridge.start()
+            ads: GoogleAdsBridge()
         )
         DailyBackupTask.register()
         UNUserNotificationCenter.current().delegate = NotificationTapDelegate.shared
