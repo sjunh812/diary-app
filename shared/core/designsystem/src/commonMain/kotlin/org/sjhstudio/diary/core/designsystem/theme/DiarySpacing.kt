@@ -154,6 +154,15 @@ object DiaryArtSize {
     val paywallArtMin: Dp = 96.dp
 }
 
+/** 네이티브 광고 크기(Figma "네이티브 광고") */
+object DiaryAdSize {
+    /** 카드의 그림 자리. 가로세로 120 이상이어야 영상 광고가 들어옴(AdMob 네이티브 정책) */
+    val media: Dp = 120.dp
+
+    /** 얇은 줄의 광고 아이콘 */
+    val icon: Dp = 40.dp
+}
+
 /** 쓰기 화면 크기(Figma "쓰기 (S2)") */
 object DiaryWriteSize {
     /** 위 줄 사진 칸과 더하기 칸 */
