@@ -84,6 +84,7 @@ import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.entryMarks
 import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -399,10 +400,7 @@ private fun Feed(
                 return@items
             }
             val previous = if (index > 0) rows.peek(index - 1) else null
-            // 앞 줄을 아직 못 읽었으면 머리글을 그렸다 지우지 않게 기다림(찾기 화면과 같음)
-            val unknown = index > 0 && previous == null
-            val newMonth = !unknown && (previous == null || previous.date.year != row.date.year || previous.date.month != row.date.month)
-            val newDay = !unknown && (previous == null || previous.date != row.date)
+            val (newMonth, newDay) = entryMarks(index, row, previous)
             Column {
                 if (newMonth && index > 0) {
                     DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
