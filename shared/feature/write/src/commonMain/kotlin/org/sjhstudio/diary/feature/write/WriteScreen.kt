@@ -224,7 +224,16 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
         PhotoLimitSheet(notice.limit, actions.onPlus, vm::photoNoticeShown)
     }
-    if (checklistLocked) ChecklistPlusSheet(actions.onPlus) { checklistLocked = false }
+    // Plus 화면으로 가면 편집기에 초점을 되돌리지 않음. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
+    if (checklistLocked) {
+        ChecklistPlusSheet(
+            onPlus = {
+                refocus = false
+                actions.onPlus()
+            },
+            onDismiss = { checklistLocked = false }
+        )
+    }
     val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
     val pick =
         rememberFilePickerLauncher(
