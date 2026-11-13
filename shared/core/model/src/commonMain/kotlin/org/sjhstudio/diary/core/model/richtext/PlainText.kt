@@ -5,7 +5,8 @@ import org.sjhstudio.diary.core.model.decodeHtmlEntity
 /**
  * 본문 HTML을 서식 없는 글로 바꿈(스펙 002 contracts/rich-text-html.md "서식 없는 글 만들기")
  *
- * - 문단(`p`)과 목록(`ul`) 같은 덩어리 사이는 빈 줄 하나(`"\n\n"`)
+ * - 문단(`p`) 사이는 빈 줄 하나(`"\n\n"`), 목록(`ul`) 앞뒤는 줄바꿈 하나
+ *   편집기에서 목록은 이웃 줄에 붙어 있고, 띄운 줄은 `br`로 남음
  * - `br`과 `li` 사이는 줄바꿈 하나, `li` 앞에는 `• `를 붙임
  * - 엔티티는 글자로 풀고, 공백·탭·`\r`은 줄이거나 바꾸지 않음
  * - 허용 목록 밖의 태그는 태그만 버리고 안의 글은 남김. `script`, `style`, `iframe`은 안의 글까지 버림
@@ -17,6 +18,7 @@ fun toPlainText(html: String): String {
     val out = StringBuilder(html.length)
     var blocks = 0
     var itemsInList = 0
+    var lastBlock = ""
     var i = 0
     while (i < html.length) {
         val c = html[i]
@@ -38,8 +40,9 @@ fun toPlainText(html: String): String {
                 tag.closing -> Unit
 
                 tag.name == "p" || tag.name == "ul" -> {
-                    if (blocks > 0) out.append("\n\n")
+                    if (blocks > 0) out.append(blockGap(lastBlock, tag.name))
                     blocks++
+                    lastBlock = tag.name
                     if (tag.name == "ul") itemsInList = 0
                 }
 
@@ -70,6 +73,9 @@ fun toPlainText(html: String): String {
     }
     return out.toString()
 }
+
+/** 덩어리 사이 간격. 목록이 끼면 줄바꿈 하나 */
+internal fun blockGap(previous: String, next: String): String = if (previous == "ul" || next == "ul") "\n" else "\n\n"
 
 private val SKIP_CONTENT = setOf("script", "style", "iframe")
 

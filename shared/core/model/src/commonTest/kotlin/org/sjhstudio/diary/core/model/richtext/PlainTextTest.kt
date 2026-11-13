@@ -9,7 +9,9 @@ class PlainTextTest {
         assertEquals("", toPlainText(""))
         assertEquals("a\n\nb", toPlainText("<p>a</p><p>b</p>"))
         assertEquals("a\nb", toPlainText("<p>a<br>b</p>"))
-        assertEquals("앞\n\n• 하나\n• 둘\n\n뒤", toPlainText("<p>앞</p><ul><li>하나</li><li>둘</li></ul><p>뒤</p>"))
+        assertEquals("앞\n• 하나\n• 둘\n뒤", toPlainText("<p>앞</p><ul><li>하나</li><li>둘</li></ul><p>뒤</p>"))
+        // 편집기에서 띄운 줄은 br로 남아 빈 줄 하나
+        assertEquals("앞\n\n• 하나\n\n뒤", toPlainText("<p>앞<br></p><ul><li>하나</li></ul><p><br>뒤</p>"))
     }
 
     @Test

@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.model
 
+import org.sjhstudio.diary.core.model.richtext.blockGap
+
 /** 글자색 팔레트(contracts/rich-text-html.md). [hex]는 저장 값, 그릴 때는 테마 토큰을 씀 */
 enum class InkColor(val hex: String) {
     GRAY("#6b7280"),
@@ -57,6 +59,7 @@ fun parseRichText(html: String): RichText {
     val open = ArrayList<Open>()
     var blocks = 0
     var items = 0
+    var lastBlock = ""
     var i = 0
     while (i < html.length) {
         val c = html[i]
@@ -81,8 +84,9 @@ fun parseRichText(html: String): RichText {
                 }
 
                 name == "p" || name == "ul" -> {
-                    if (blocks > 0) out.append("\n\n")
+                    if (blocks > 0) out.append(blockGap(lastBlock, name))
                     blocks++
+                    lastBlock = name
                     if (name == "ul") items = 0
                 }
 
