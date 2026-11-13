@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
@@ -59,10 +60,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.minus
 import kotlinx.datetime.onDay
+import kotlinx.datetime.plus
 import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -78,6 +82,7 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryCalendarSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
@@ -134,10 +139,12 @@ fun CalendarRoute(
     val dates = rememberDiaryDateFormat()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 반 넘게 넘어가 달이 정해지는 순간 아래 일기도 그 달로. 멈출 때까지 앞 달 일기가 남지 않게
+    // 반 넘게 넘어가 달이 정해지는 순간 그 달 날을 고름
     LaunchedEffect(pager) { snapshotFlow { pager.currentPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
     val shown = monthOfPage(pager.currentPage)
     val today by viewModel.todayState.collectAsStateWithLifecycle()
+    // 오늘이 아닌 날을 골랐거나 다른 달을 보면 오늘로 돌아가는 단추
+    val awayFromToday = selected != today || shown != today.yearMonth
     LifecycleResumeEffect(viewModel) {
         if (viewModel.refreshToday()) {
             scope.launch {
@@ -148,11 +155,12 @@ fun CalendarRoute(
         }
         onPauseOrDispose {}
     }
-    val onToday = {
-        viewModel.select(today)
-        scope.launch { pager.animateScrollToPage(today.yearMonth.pageIndex()) }
-        Unit
+    // 날을 고르고 다른 달이면 그 달로 넘김. 오늘 단추와 앞뒤 달 날짜가 같이 씀
+    val pick: (LocalDate) -> Unit = { date ->
+        viewModel.select(date)
+        scope.launch { pager.animateScrollToPage(date.yearMonth.pageIndex()) }
     }
+    val onToday = { pick(today) }
     var titleHeight by remember { mutableIntStateOf(0) }
     val onMove: (Int) -> Unit = { step -> scope.launch { pager.animateScrollToPage(pager.currentPage + step) } }
     val calendar: @Composable () -> Unit = {
@@ -163,10 +171,10 @@ fun CalendarRoute(
             today = today,
             selected = selected,
             lastMonth = last,
-            showToday = selected != today,
+            showToday = awayFromToday,
             dates = dates,
             moods = viewModel::moods,
-            onSelect = viewModel::select,
+            onSelect = pick,
             onToday = onToday,
             onPick = { picking = true },
             onMove = onMove,
@@ -176,13 +184,13 @@ fun CalendarRoute(
     val dayPanel: @Composable () -> Unit = {
         // 그날 일기를 읽는 동안은 비워 두고 날짜와 목록을 한 번에 바꿈. 움직임 없이
         // 날짜만 먼저 나왔다가 목록이 붙으면 두 번 바뀌어 보임
-        val shown = day.takeIf { it.rows != null || it.failed } ?: PendingDay
-        shown.date?.let { date ->
+        val ready = day.takeIf { it.rows != null || it.failed } ?: PendingDay
+        ready.date?.let { date ->
             key(date) {
                 DayPanel(
                     date = date,
-                    rows = shown.rows,
-                    failed = shown.failed,
+                    rows = ready.rows,
+                    failed = ready.failed,
                     onRetry = viewModel::retry,
                     dates = dates,
                     previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
@@ -227,7 +235,7 @@ fun CalendarRoute(
                 collapsed = { titleCollapse(scroll.value, titleHeight) },
                 contentMaxWidth = DiaryCalendarSize.pane,
                 onTitleClick = { picking = true },
-                actions = { MonthNav(shown < last, selected != today, onToday, onMove) }
+                actions = { MonthNav(shown < last, awayFromToday, onToday, onMove) }
             )
             // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
             Column(
@@ -299,12 +307,26 @@ internal fun CalendarPanel(
         Spacer(Modifier.height(DiarySpacing.x4))
         Weekdays(dates)
         Spacer(Modifier.height(DiarySpacing.x1_5))
-        HorizontalPager(pager, Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) { page ->
+        // 이웃 달을 미리 그려 그 달 기분과 일기를 먼저 읽음
+        HorizontalPager(pager, Modifier.fillMaxWidth(), beyondViewportPageCount = 1, verticalAlignment = Alignment.Top) { page ->
             val month = monthOfPage(page)
-            val days by remember(month) { moods(month) }.collectAsStateWithLifecycle()
-            MonthGrid(month, days, today, selected, twoPane, dates, onSelect)
+            val cells = remember(month) { monthCells(month) }
+            MonthGrid(month, cells, gridMoods(month, cells, moods), today, selected, lastMonth, twoPane, dates, onSelect)
         }
     }
+}
+
+/** 격자에 보이는 앞뒤 달 날짜까지의 기분 */
+@Composable
+private fun gridMoods(
+    month: YearMonth,
+    cells: List<LocalDate>,
+    moods: (YearMonth) -> StateFlow<Map<LocalDate, DayMood>>
+): Map<LocalDate, DayMood> {
+    val before by remember(month) { moods(cells.first().yearMonth) }.collectAsStateWithLifecycle()
+    val inMonth by remember(month) { moods(month) }.collectAsStateWithLifecycle()
+    val after by remember(month) { moods(cells.last().yearMonth) }.collectAsStateWithLifecycle()
+    return remember(before, inMonth, after) { before + inMonth + after }
 }
 
 @Composable
@@ -345,27 +367,36 @@ private fun dayColor(date: LocalDate, otherwise: Color): Color = when (date.dayO
 @Composable
 private fun MonthGrid(
     month: YearMonth,
+    cells: List<LocalDate>,
     days: Map<LocalDate, DayMood>,
     today: LocalDate,
     selected: LocalDate?,
+    lastMonth: YearMonth,
     wide: Boolean,
     dates: DiaryDateFormat,
     onSelect: (LocalDate) -> Unit
 ) {
-    val first = month.onDay(1)
-    // 일요일을 0으로 센 첫날 앞 빈칸 수
-    val blanks = first.dayOfWeek.ordinal.let { (it + 1) % DAYS_IN_WEEK }
-    val cells: List<LocalDate?> = List(blanks) { null } + (1..month.numberOfDays).map { month.onDay(it) }
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
         for (week in cells.chunked(DAYS_IN_WEEK)) {
             // 기기 글자를 키워도 날짜가 잘리지 않게 칸이 내용만큼 자람
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
                 for (index in 0 until DAYS_IN_WEEK) {
-                    val date = week.getOrNull(index)
+                    val date = week[index]
                     Box(
                         Modifier.weight(1f).heightIn(min = if (wide) DiaryCalendarSize.cellWide else DiaryCalendarSize.cell).fillMaxHeight()
                     ) {
-                        if (date != null) DayCell(date, days[date], date == today, date == selected, wide, dates) { onSelect(date) }
+                        val inMonth = date.yearMonth == month
+                        // 넘길 수 없는 달(첫 달 앞, 일기가 있는 마지막 달 뒤)의 날은 누르지 않음
+                        DayCell(
+                            date = date,
+                            day = days[date],
+                            today = inMonth && date == today,
+                            selected = inMonth && date == selected,
+                            outside = !inMonth,
+                            wide = wide,
+                            dates = dates,
+                            onClick = { onSelect(date) }.takeIf { date.yearMonth in monthOfPage(0)..lastMonth }
+                        )
                     }
                 }
             }
@@ -373,15 +404,20 @@ private fun MonthGrid(
     }
 }
 
+/**
+ * 날짜 칸. [outside]는 앞뒤 달의 날이라 숫자는 `placeholder`(달력 시트와 같음), 얼굴은 흐리게 그림
+ * [onClick]이 null이면 누를 수 없음
+ */
 @Composable
 private fun DayCell(
     date: LocalDate,
     day: DayMood?,
     today: Boolean,
     selected: Boolean,
+    outside: Boolean,
     wide: Boolean,
     dates: DiaryDateFormat,
-    onClick: () -> Unit
+    onClick: (() -> Unit)?
 ) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -392,16 +428,23 @@ private fun DayCell(
             day?.mood?.let { moodName(it) },
             day?.let { pluralStringResource(Res.plurals.calendar_day_count, it.count, it.count) }
         ).joinToString(", ")
+    val press =
+        if (onClick == null) {
+            Modifier
+        } else {
+            Modifier
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                .clip(DiaryShapes.r12)
+                .background(if (selected) colors.selected else colors.canvas)
+                .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+        }
     Column(
         Modifier
             .fillMaxSize()
-            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-            .clip(DiaryShapes.r12)
-            .background(if (selected) colors.selected else colors.canvas)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+            .then(press)
             .clearAndSetSemantics {
                 contentDescription = description
-                role = Role.Button
+                if (onClick != null) role = Role.Button
                 this.selected = selected
             }
             .padding(top = DiarySpacing.x1),
@@ -421,6 +464,7 @@ private fun DayCell(
                 style = DiaryTheme.typography.captionStrong.copy(
                     color =
                         when {
+                            outside -> colors.placeholder
                             today -> colors.onAccent
                             selected -> colors.textPrimary
                             else -> dayColor(date, colors.textPrimary)
@@ -431,12 +475,15 @@ private fun DayCell(
             )
         }
         if (day != null) {
-            DayFace(
-                day,
-                faceSize,
-                if (wide) DiaryCalendarSize.stackOffsetWide else DiaryCalendarSize.stackOffset,
-                if (selected) colors.selected else colors.canvas
-            )
+            // 흐리게 그릴 때 옆으로 비켜 겹친 원이 잘리지 않게 칸 폭만큼 그림
+            Box(Modifier.fillMaxWidth().alpha(if (outside) DiaryStateAlpha.DISABLED_CONTENT else 1f), contentAlignment = Alignment.Center) {
+                DayFace(
+                    day,
+                    faceSize,
+                    if (wide) DiaryCalendarSize.stackOffsetWide else DiaryCalendarSize.stackOffset,
+                    if (selected) colors.selected else colors.canvas
+                )
+            }
         }
     }
 }
@@ -547,3 +594,18 @@ private const val WEEK_MONTH = 11
 
 /** 그날 일기를 읽는 중. 아무것도 그리지 않음 */
 private val PendingDay = CalendarDay(null, null)
+
+/**
+ * 달력 격자의 날 42개(6주, 일요일 시작)
+ * 어느 달이든 6주를 그리고 빈칸은 앞뒤 달 날로 채움. 달을 넘겨도 격자 높이가 그대로라 아래 목록이 움직이지 않음
+ */
+internal fun monthCells(month: YearMonth): List<LocalDate> {
+    val first = month.onDay(1)
+    // 일요일을 0으로 센 첫날 앞 칸 수
+    val before = first.dayOfWeek.ordinal.let { (it + 1) % DAYS_IN_WEEK }
+    val start = first.minus(before, DateTimeUnit.DAY)
+    return List(WEEKS_SHOWN * DAYS_IN_WEEK) { start.plus(it, DateTimeUnit.DAY) }
+}
+
+/** 달력 격자의 주 수. 가장 긴 달에 맞춤 */
+private const val WEEKS_SHOWN = 6
