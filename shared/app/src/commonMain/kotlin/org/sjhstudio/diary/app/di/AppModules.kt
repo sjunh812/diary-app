@@ -189,10 +189,7 @@ private fun coreModule(isDebug: Boolean) = module {
         )
     }
     single<WelcomeRepository> {
-        DefaultWelcomeRepository(
-            WelcomeStore(get<DataStoreFactory>().welcome()),
-            onLetterRead = { get<AdRepository>().skipInterstitialToday() }
-        ) { get<LegacyMigration>().report()?.entriesMigrated }
+        DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome())) { get<LegacyMigration>().report()?.entriesMigrated }
     }
     single<ContextTips> { get<WelcomeRepository>() }
     single { AdStore(get<DataStoreFactory>().ads()) }

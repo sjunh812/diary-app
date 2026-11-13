@@ -152,19 +152,6 @@ class AdRepository(
         }
     }
 
-    /**
-     * 오늘은 전면 광고를 띄우지 않음
-     * 업데이트 뒤 개발자 편지를 처음 읽은 날에 호출(`docs/business.md` 광고 자리)
-     * 이미 띄운 날로 적어 날짜가 바뀌면 평소대로 돌아감
-     */
-    suspend fun skipInterstitialToday() {
-        onceStarted(Unit) {
-            val day = today()
-            shownDay = day
-            store.interstitialShown(day)
-        }
-    }
-
     private suspend fun interstitialDue(): Boolean {
         val prefs = store.current()
         val shown = listOfNotNull(prefs.lastInterstitialDay, shownDay).maxOrNull()
