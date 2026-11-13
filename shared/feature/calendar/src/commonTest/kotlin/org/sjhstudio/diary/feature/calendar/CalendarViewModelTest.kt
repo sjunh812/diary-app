@@ -73,26 +73,18 @@ class CalendarViewModelTest {
     }
 
     @Test
-    fun moving_to_a_month_selects_its_last_written_day() {
-        val model = viewModel(LocalDate(2026, 9, 3), LocalDate(2026, 9, 20))
+    fun moving_to_another_month_selects_its_first_day() {
+        val model = viewModel(LocalDate(2026, 9, 20))
 
         model.showMonth(YearMonth(2026, 9))
 
-        assertEquals(LocalDate(2026, 9, 20), model.selected.value)
+        assertEquals(LocalDate(2026, 9, 1), model.selected.value)
     }
 
     @Test
-    fun an_empty_month_selects_nothing() {
+    fun coming_back_to_this_month_selects_today_not_the_old_pick() {
         val model = viewModel()
-
-        model.showMonth(YearMonth(2026, 3))
-
-        assertNull(model.selected.value)
-    }
-
-    @Test
-    fun coming_back_to_this_month_selects_today() {
-        val model = viewModel(LocalDate(2026, 9, 3))
+        model.select(LocalDate(2026, 10, 5))
         model.showMonth(YearMonth(2026, 9))
 
         model.showMonth(YearMonth(2026, 10))
@@ -100,14 +92,26 @@ class CalendarViewModelTest {
         assertEquals(today, model.selected.value)
     }
 
+    /** 앞뒤 달 날짜를 눌러 넘어가면 누른 날을 그대로 둠 */
     @Test
     fun keeps_a_day_picked_in_the_shown_month() {
         val model = viewModel()
-        model.select(LocalDate(2026, 10, 5))
+        model.select(LocalDate(2026, 9, 28))
 
-        model.showMonth(YearMonth(2026, 10))
+        model.showMonth(YearMonth(2026, 9))
 
-        assertEquals(LocalDate(2026, 10, 5), model.selected.value)
+        assertEquals(LocalDate(2026, 9, 28), model.selected.value)
+    }
+
+    /** 고른 날은 하나. 새로 고르면 앞서 고른 날은 남지 않음 */
+    @Test
+    fun picking_a_day_replaces_the_previous_pick() {
+        val model = viewModel(LocalDate(2026, 9, 3))
+        model.select(LocalDate(2026, 10, 3))
+
+        model.select(LocalDate(2026, 9, 7))
+
+        assertEquals(LocalDate(2026, 9, 7), model.selected.value)
     }
 
     @Test
@@ -178,19 +182,6 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(written, null), model.day.value)
     }
 
-    /** 다른 달에 다녀와도 그 달에서 고른 날로 돌아옴. 고른 날이 저절로 바뀌지 않음 */
-    @Test
-    fun the_picked_day_comes_back_after_visiting_another_month() = runTest {
-        val model = viewModel(LocalDate(2026, 9, 3))
-        val picked = LocalDate(today.year, today.month, 2)
-
-        model.select(picked)
-        model.showMonth(YearMonth(2026, 9))
-        model.showMonth(today.yearMonth)
-
-        assertEquals(picked, model.selected.value)
-    }
-
     /** 앱이 꺼졌다 돌아와도 고른 날 유지 */
     @Test
     fun the_picked_day_survives_the_app_being_killed() {
@@ -249,7 +240,6 @@ class CalendarViewModelTest {
 
         assertEquals(true, model.refreshToday())
         assertEquals(YearMonth(2026, 11), model.lastMonth.value)
-        model.showMonth(YearMonth(2026, 11))
         assertEquals(today, model.selected.value)
     }
 

@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,13 +19,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
+import kotlinx.datetime.onDay
 import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.currentDate
-import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
@@ -46,7 +45,7 @@ data class CalendarDay(val date: LocalDate?, val rows: List<EntryRow>?, val fail
 
 /**
  * 달력(FR-022~FR-024)
- * 달을 넘기면 그 달에서 마지막으로 일기를 쓴 날, 이번 달이면 오늘을 고름. 일기가 없는 달은 고르지 않음
+ * 고른 날은 하나. 달을 넘기면 이번 달은 오늘, 다른 달은 1일을 고름
  */
 class CalendarViewModel(
     private val entries: EntryRepository,
@@ -58,9 +57,6 @@ class CalendarViewModel(
     // 시스템이 앱을 끄고 다시 띄워도 고른 날 유지
     private val _selected =
         MutableStateFlow<LocalDate?>(saved.get<String>(SELECTED_KEY)?.let { runCatching { LocalDate.parse(it) }.getOrNull() } ?: today())
-
-    /** 달마다 마지막으로 고른 날. 다른 달에 다녀와도 그날로 돌아옴 */
-    private val picked = HashMap<YearMonth, LocalDate>()
 
     /** 일기 줄 길게 누르기 메뉴(홈과 같음) */
     val menu = EntryMenuWork(viewModelScope, entries)
@@ -156,51 +152,30 @@ class CalendarViewModel(
 
     fun select(date: LocalDate) {
         _selected.value = date
-        picked[date.yearMonth] = date
+    }
+
+    /**
+     * 달을 넘겼을 때. 그 달 날을 이미 골랐으면 그대로
+     * 아니면 이번 달은 오늘, 다른 달은 1일(Apple 캘린더와 같음)
+     */
+    fun showMonth(month: YearMonth) {
+        if (_selected.value?.yearMonth == month) return
+        _selected.value = if (month == thisMonth()) today() else month.onDay(1)
     }
 
     /**
      * 앱이 돌아올 때 오늘을 다시 읽음
      * 어제의 오늘을 보던 중이면 새 오늘로 옮기고, 고른 다른 날은 그대로
-     * @return 달까지 바뀌어 달력을 넘겨야 하면 true. 넘기면 [showMonth]가 오늘을 고름
+     * @return 달까지 바뀌어 달력을 넘겨야 하면 true
      */
     fun refreshToday(): Boolean {
         val before = _todayState.value
         val now = today()
         _todayState.value = now
         val followed = now != before && _selected.value == before
-        val newMonth = now.yearMonth != before.yearMonth
-        if (followed && !newMonth) _selected.value = now
-        return followed && newMonth
+        if (followed) _selected.value = now
+        return followed && now.yearMonth != before.yearMonth
     }
-
-    /**
-     * 달을 넘겼을 때. 이미 그 달 날을 골랐으면 그대로
-     * 아니면 그 달에서 고른 날, 없으면 이번 달은 오늘, 지난 달은 마지막으로 쓴 날
-     */
-    fun showMonth(month: YearMonth) {
-        if (_selected.value?.yearMonth == month) return
-        // 빨리 넘기면 늦게 끝난 앞 달 읽기가 고른 날을 덮어 앞 읽기는 취소
-        monthRead?.cancel()
-        val known = picked[month] ?: today().takeIf { month == thisMonth() }
-        when {
-            known != null -> _selected.value = known
-
-            // 옆 달은 달력이 미리 읽어 둠. 읽은 달은 바로 고름
-            month in readMonths -> _selected.value = monthMoods[month]?.value.orEmpty().keys.maxOrNull()
-
-            else -> {
-                // 모르는 달은 앞 달 일기를 남기지 않고 읽는 대로 고름
-                _selected.value = null
-                monthRead =
-                    viewModelScope.launchSafely {
-                        _selected.value = orElseOnFailure(null) { entries.month(month).first().keys.maxOrNull() }
-                    }
-            }
-        }
-    }
-
-    private var monthRead: Job? = null
 }
 
 /** 달력 넘기기의 쪽 번호. 1970년 1월이 0쪽 */
