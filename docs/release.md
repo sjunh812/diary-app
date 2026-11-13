@@ -27,8 +27,8 @@ Android 값은 `sh scripts/release/set-secrets.sh <업로드 키 .jks> [Play 서
 | `IOS_CERTIFICATE_P12_BASE64`, `IOS_CERTIFICATE_PASSWORD` | Apple Distribution 인증서(.p12)의 base64와 비밀번호 | 아카이브를 건너뛴다 |
 | `IOS_PROVISIONING_PROFILE_BASE64` | App Store 배포 프로필의 base64 | 아카이브를 건너뛴다 |
 | `IOS_TEAM_ID` | Apple 개발자 팀 ID | 아카이브를 건너뛴다 |
-| `GOOGLE_SERVICE_INFO_PLIST_BASE64` | `iosApp/iosApp/GoogleService-Info.plist`의 base64 | 사용 통계·비정상 종료 보고가 꺼진 빌드 |
-| `IOS_LOCAL_XCCONFIG_BASE64` | `iosApp/iosApp/Local.xcconfig`의 base64 | 구글 드라이브 연결이 안 되는 빌드 |
+| `GOOGLE_SERVICE_INFO_PLIST_BASE64` | `iosApp/iosApp/GoogleService-Info.plist`의 base64 | iOS 빌드를 멈춘다. 비정상 종료 보고와 전면 광고 원격 스위치가 빠진 앱은 내보내지 않는다(2026-11-13) |
+| `IOS_LOCAL_XCCONFIG_BASE64` | `iosApp/iosApp/Local.xcconfig`의 base64. 구글 클라이언트 ID, 광고 ID, RevenueCat Apple 키가 다 들어 있어야 한다 | iOS 빌드를 멈춘다. 값이 하나라도 비어도 멈춘다(`scripts/release/check-ios-config.sh`) |
 
 - Play 업로드는 내부 트랙만 간다. 워크플로에 프로덕션으로 가는 길이 없고 승격은 Play Console에서 사람이 한다.
 - Play 앱 서명을 쓰므로 CI에는 업로드 키만 둔다. 앱 서명 키는 CI에 넣지 않는다.
@@ -129,7 +129,10 @@ ADMOB_APP_ID = ca-app-pub-...~...
 ADMOB_NATIVE = ca-app-pub-.../$()...
 ADMOB_INTERSTITIAL = ca-app-pub-.../$()...
 ADMOB_REWARDED = ca-app-pub-.../$()...
+REVENUECAT_IOS = appl_...
 ```
+
+`REVENUECAT_IOS`는 RevenueCat 프로젝트에 만든 App Store 앱의 공개 키다. 비면 iOS는 구매가 없는 무료 앱으로 뜨고, CD는 그런 빌드를 만들지 않는다.
 
 개발 빌드는 늘 Google 시험 광고를 받는다. 실제 광고를 눌러 시험하지 않는다. iOS 앱 ID가 비면 SDK가 앱을 끝내서 `Config.xcconfig`에 구글 공개 시험 앱 ID를 기본으로 둔다.
 
@@ -226,7 +229,7 @@ ADMOB_REWARDED = ca-app-pub-.../$()...
 - [x] 개인정보처리방침에 "복구 문의"를 적는다: 사용자가 스스로 첨부한 예전 일기 파일만 받고, 복구에만 쓰며, 복구한 파일을 돌려준 뒤 바로 지운다(헌법 II 예외, 스펙 001 FR-010a). 받는 곳(메일 계정)과 지우는 방법도 적는다
 - [x] 처리방침과 약관을 공개하고 앱에 걸기(`LegalLinks`, 원문은 `docs/legal/`, 2026-11-07)
 - [ ] 처리방침 URL을 Play Console, App Store Connect에 넣기
-- [ ] Play 데이터 보안, App Store 개인정보 라벨, Privacy Manifest 작성(광고를 넣으므로 AdMob 항목 포함)
+- [ ] Play 데이터 보안, App Store 개인정보 라벨(Privacy Manifest는 넣음, 위 "App Store 제출")
 - [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 창은 넣음(2026-11-12, `SKAdNetworkItems` Google 목록 50개). 처리방침 3번에 iOS의 추적 끄는 곳을 더함(원문과 Notion, 2026-11-12), UMP 동의
 - [x] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(2026-11-11, 계정 승인 뒤)
 - [x] `app-ads.txt`를 `https://sjunh812.github.io/app-ads.txt`에 올리기(개발자 블로그 저장소 맨 앞, 2026-11-11)
@@ -239,6 +242,45 @@ ADMOB_REWARDED = ca-app-pub-.../$()...
 - [ ] Play Console 판매자(trader) 상태 선언: 모든 계정이 2027-02-01까지 한다(위 "출시 국가")
 - [x] 출시 국가(D11): 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(2026-11-11 사용자 결정). 일본에 유료 기능을 팔기 전에 특정상거래법 표시와 결제 프로필 동의를 마친다
 - [ ] 이전 업그레이드 계측 테스트 통과(`docs/migration.md` 시험)
+
+## App Store 제출
+
+App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서 사람이 할 일을 나눠 적는다. 규격과 정책은 제출 직전에 다시 본다.
+
+### 앱에 들어 있는 것
+
+| 항목 | 상태 | 자리 |
+| --- | --- | --- |
+| 권한 문구(Face ID, 카메라, 위치, 추적) 세 언어 | 있음 | `iosApp/project.yml`, `*.lproj/InfoPlist.strings` |
+| 사진 고르기 | 권한 문구가 필요 없다. 시스템 사진 고르기는 앱에 보관함 권한을 주지 않는다 | FileKit |
+| 알림 | 매일 알림과 백업 알림 모두 기기 안 알림이다. 푸시 권한(APNs)과 인증서는 쓰지 않는다 | `IosReminderScheduler`, `IosBackupNotifier` |
+| 추적 동의(ATT) | 홈 목록의 첫 광고를 받기 직전에 한 번 묻는다. 거절해도 광고는 나온다 | `GoogleAdsBridge` |
+| 광고 동의 창(UMP) | 넣지 않았다. 처음 출시 국가에 EEA·영국·스위스가 없다 | 위 "출시 국가" |
+| 개인정보 매니페스트 | 앱이 직접 쓰는 필수 사유 API 네 가지(남은 공간, 파일 시각, 부팅 시각, UserDefaults)를 적었다. 수집 데이터는 SDK(Firebase, Google 광고, GoogleSignIn, RevenueCat)가 각자 매니페스트로 알린다 | `iosApp/iosApp/PrivacyInfo.xcprivacy` |
+| 수출 규정 | 표준 HTTPS만 써서 `ITSAppUsesNonExemptEncryption`을 false로 뒀다. TestFlight가 빌드마다 묻지 않는다 | `iosApp/project.yml` |
+| 구글 드라이브 | iOS OAuth 클라이언트 ID를 `Local.xcconfig`에서 읽는다. 로그인은 드라이브 권한만 받고 계정을 만들지 않는다 | `GoogleDriveBridge` |
+| 자동 백업 | 백그라운드 작업 하나(`org.sjhstudio.diary.backup.daily`)와 앱이 뒤로 갈 때 확인. 실행 시각은 시스템이 정한다 | `DailyBackupTask` |
+| 구매 | RevenueCat iOS SDK. 광고 제거, Plus 연 구독, 구매 복원, 구독 관리 링크 | `PurchasesBridge`, `IosBilling.kt` |
+| 전면 광고 원격 스위치 | Firebase Remote Config `interstitial_enabled`. Android와 같은 값을 본다 | `FirebaseReporter` |
+
+아직 없는 것: 위젯(WidgetKit 확장), 설정의 "리뷰 남기기" 줄(App Store 앱 번호가 정해진 뒤 `storeReviewUrl`에 넣는다), 개발자 모드(실행 인자 `-diaryPlan PLUS`로 요금제만 바꾼다).
+
+### 콘솔에서 할 일
+
+- [ ] Apple Developer: 앱 ID `org.sjhstudio.diary`를 만든다. 켤 기능은 인앱 결제뿐이다(푸시, iCloud, App Group은 쓰지 않는다). Apple Distribution 인증서와 App Store 배포 프로필을 만들어 CD 비밀값에 넣는다.
+- [ ] App Store Connect > Business: 유료 앱 계약, 세금, 은행 정보. 계약이 끝나야 상품 가격이 내려온다. Compliance > Korean Law에 사업자등록번호를 넣는다(위 "사업자 준비" 4).
+- [ ] 앱 만들기: 번들 ID `org.sjhstudio.diary`, 기본 언어 한국어, 영어와 일본어 현지화를 더한다. 앱 이름은 D12(영어 "1 Day 1 Diary", 일본어 「1日1日記」는 임시)다.
+- [ ] 인앱 구입: 비소모품 `ad_free`(₩9,900), 구독 그룹 하나에 `plus_yearly`(1년, ₩14,900, 체험 없음). 상품마다 세 언어 표시 이름과 설명, 심사용 화면 캡처를 넣는다. 첫 상품은 앱 빌드와 함께 심사에 낸다.
+- [ ] RevenueCat: 같은 프로젝트에 App Store 앱을 더하고 인앱 구입 키(App Store Connect > 사용자 및 액세스 > 통합)를 올린다. 두 상품을 권한에 잇고 Apple 공개 키를 `Local.xcconfig`에 넣는다.
+- [ ] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인지 본다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
+- [ ] Firebase(`diary-app`): iOS 앱을 더해 `GoogleService-Info.plist`를 받는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
+- [ ] 개인정보 라벨: 위 "스토어 신고" 표대로 답한다. 광고에 쓰는 기기 ID와 광고 데이터는 "추적에 사용"으로 답한다(ATT를 띄운다). 일기, 사진, 기분, 주소는 수집하지 않는다.
+- [ ] 연령 등급 설문, 카테고리(라이프스타일), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
+- [ ] 구독 앱은 설명이나 EULA 칸에 이용약관 링크가 있어야 한다(3.1.2). Apple 표준 EULA를 쓸지 우리 약관 주소를 넣을지 정한다.
+- [ ] 스크린샷: iPhone 6.9"(1320×2868)와 iPad 13"(2064×2752)를 세 언어로. Play용 틀(`docs/store/screens/`)과 크기가 달라 새로 찍는다.
+- [ ] 심사 메모: 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
+- [ ] 출시 국가: 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(D11). 미국 일부 주의 연령 확인 요구(위 "나라마다 걸리는 일")가 이 앱에 걸리는지 제출 직전에 다시 본다.
+- [ ] TestFlight에서 샌드박스 계정으로 구매, 취소, 승인 대기(구입 요청), 복원, 재설치 뒤 자동 복원, 구독 만료를 확인한다. 시뮬레이터에서는 RevenueCat 키가 없어 확인하지 못했다(2026-11-13).
 
 ## Firebase
 
@@ -259,5 +301,7 @@ Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
 - Play 상품: 인앱 `ad_free`(광고 제거), 구독 `plus_yearly`(기본 요금제 연간).
 - RevenueCat 권한: `ad_free`는 `ad_free` 상품, `plus`는 `plus_yearly` 상품에 잇는다.
 - RevenueCat Google 공개 키를 `local.properties`의 `revenuecat.android`와 CD 비밀값 `REVENUECAT_ANDROID`에 넣는다. 이 값이나 광고 ID가 없으면 CD가 멈춘다.
+- App Store 상품도 같은 ID로 만든다: 비소모품 `ad_free`, 자동 갱신 구독 `plus_yearly`(구독 그룹 하나, 1년). RevenueCat 같은 프로젝트에 App Store 앱을 더하고 두 상품을 같은 권한(`ad_free`, `plus`)에 잇는다. 구매는 스토어마다 따로다(`docs/business.md` 결제 구현 원칙).
+- RevenueCat Apple 공개 키를 `iosApp/iosApp/Local.xcconfig`의 `REVENUECAT_IOS`에 넣는다.
 
 현황(2026-11-07): AdMob 앱과 광고 단위 3개(전면, 네이티브, 보상형)를 만들었고 계정은 재활성화 심사 중이다. RevenueCat 프로젝트, Play 앱, 권한 `plus`와 `ad_free`를 만들었다. 서비스 계정 JSON과 Play 상품 연결이 남았다. RevenueCat 이메일 인증도 남았다.

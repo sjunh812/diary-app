@@ -1473,3 +1473,14 @@ AdMob 콘솔(iOS 앱과 광고 단위)이 계정 재활성화 심사 뒤에야 �
 
 - 2.0.0 (37)은 11-12에 Play 내부 테스트에 올렸다. Play는 같은 `versionCode`를 다시 받지 않아, 그 뒤 고친 것을 담은 빌드는 38로 올린다. 버전 이름은 2.0.0 그대로다.
 - 프로덕션에 낼 번호는 마지막으로 내부 테스트를 통과한 빌드의 번호다. "2.0.0은 37부터"는 그대로이고, 릴리스 커밋 제목의 번호만 그때 번호로 쓴다.
+
+## 2026-11-13 iOS 결제는 RevenueCat iOS SDK를 Swift 다리로 (제안, 사용자 확인 필요)
+
+- iOS는 광고가 켜져 있는데 구매가 비어 있었다. 광고의 ×, Plus 카드, 사진 한도 시트가 가격 없는 "다시 시도" 화면으로 갔고 구매 복원은 늘 실패했다.
+- 붙이기 전까지 진입점을 숨기는 안은 고르지 않았다. 광고만 있고 없앨 길이 없는 앱이 되고, Plus를 R1부터 판다는 결정(D9)과 "안드로이드와 iOS 기능은 같다"(헌법 VI)에 어긋난다.
+- KMP SDK(purchases-kmp)로 바꾸는 안도 고르지 않았다. Android 결제 코드까지 바꿔야 해서 내부 테스트 중인 Android 2.0.0을 건드린다. KMP SDK도 Xcode에 네이티브 SDK를 따로 넣어야 해서 줄어드는 일이 적다.
+- 고른 안: RevenueCat iOS SDK(Swift Package)를 Swift `PurchasesBridge`가 감싸고 Kotlin `IosStoreClient`가 `StoreClient`로 옮긴다. 광고, 드라이브, Firebase와 같은 꼴이다. 재설치 뒤 조용히 가져오기, 마지막 요금제 남기기, 이미 산 상품 처리는 Android와 같은 `StoreBilling`이 한다.
+- 상품 ID와 권한 이름은 두 스토어가 같다(`ad_free`, `plus_yearly`). 구매는 스토어마다 따로다.
+- 전면 광고 원격 스위치도 iOS에 붙였다. 같은 Remote Config 값 `interstitial_enabled`를 본다.
+- CD: iOS도 Firebase 설정 파일이나 `Local.xcconfig`의 값(구글 클라이언트 ID, 광고 ID, RevenueCat 키)이 빠지면 멈춘다. 11-07에 Android에 건 규칙과 같다. iOS 서명 비밀값만 넣고 나머지를 비운 채 태그를 올리면 iOS 작업이 실패해 GitHub Release 초안이 만들어지지 않는다.
+- 확인한 것과 못 한 것: 가짜 다리로 구매, 취소, 승인 대기, 복원, 재설치 뒤 가져오기를 시험했고 시뮬레이터 빌드가 된다. 실제 App Store 구매는 RevenueCat Apple 키와 App Store Connect 상품이 있어야 해서 확인하지 못했다.

@@ -197,7 +197,7 @@ App Store 한국 페이지의 앱 내 구입 칸과 설명에서 직접 본 값�
 
 - Android는 Play 결제, iOS는 App Store 인앱 결제. 같은 Plus를 두 스토어에서 따로 판다(Diarium처럼 플랫폼마다 따로). 플랫폼 간 구매 공유는 계정이 필요해서 하지 않는다(헌법 II: 회원 계정 없음).
 - 구매 복원 버튼, 약관·개인정보처리방침 링크를 결제 화면에 둔다(App Store 3.1.1·3.1.2, `docs/release.md`). 복원은 구독 화면에만 두고 광고 없애기 시트에는 두지 않는다(2026-11-07 사용자 지적).
-- 구현은 RevenueCat KMP SDK다(사용자 결정 2026-10-31). 월 추적 매출 $2,500까지 무료이고 그 위는 1%다. 서버 없이 두 스토어 결제와 구매 상태를 다루고, StoreKit 2(Swift 전용)를 위한 Swift 브리지를 직접 만들지 않아도 된다([요금](https://www.revenuecat.com/pricing/), [purchases-kmp 4.0.0](https://github.com/RevenueCat/purchases-kmp/releases/tag/4.0.0)).
+- 구현은 RevenueCat이다(사용자 결정 2026-10-31). Android는 RevenueCat Android SDK, iOS는 RevenueCat iOS SDK를 Swift 다리로 붙이고, 무엇을 언제 믿을지는 공통 코드(`StoreBilling`)가 정한다(2026-11-13, `docs/DECISIONS.md`). 처음 계획은 KMP SDK였다. 월 추적 매출 $2,500까지 무료이고 그 위는 1%다. 서버 없이 두 스토어 결제와 구매 상태를 다루고, StoreKit 2(Swift 전용)를 위한 Swift 브리지를 직접 만들지 않아도 된다([요금](https://www.revenuecat.com/pricing/), [purchases-kmp 4.0.0](https://github.com/RevenueCat/purchases-kmp/releases/tag/4.0.0)).
 - 직접 구현하면 Google은 구매 검증과 승인을 백엔드에서 하라고 하고 기기 로직은 변조되기 쉽다고 한다([보안](https://developer.android.com/google/play/billing/security)). Plus 같은 저가 비소모품은 기기 검증으로 감수할 수 있는 수준이지만, 3일 안에 승인하지 않으면 자동 환불된다는 점은 꼭 지킨다.
 - Play 결제 라이브러리는 8 이상이어야 한다(2026-08-31부터 신규·업데이트 앱).
 - 팔기 전에: 한국 개발자가 유료 앱이나 인앱 상품을 내려면 Play는 사업자등록번호와 통신판매업 신고번호를, Apple은 사업자등록번호를 받는다.
