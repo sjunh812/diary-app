@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 // 드라이브 확인 화면(스펙 003 quickstart 1).
-// 버튼 순서대로 누르고, 아래 기록을 research R1에 옮겨 적는다.
+// 버튼을 순서대로 누르고 아래 기록을 research R1에 옮겨 적기
 class MainActivity : ComponentActivity() {
     private var token: String? = null
     private lateinit var log: TextView
@@ -98,8 +98,8 @@ class MainActivity : ComponentActivity() {
         legacy.forEach { f -> write("  · ${f.getString("name")} ${f.optString("size")}바이트, ${f.optString("createdTime")}") }
     }
 
-    // 확인용으로 만든 폴더와 파일만 휴지통으로 옮긴다.
-    // 예전 앱 note.db는 건드리지 않는다.
+    // 확인용으로 만든 폴더와 파일만 휴지통으로 이동
+    // 예전 앱 note.db는 건드리지 않음
     private fun cleanup(token: String) {
         val targets = DriveRest.list(token, DriveAuth.PROBE_FILES) + DriveRest.list(token, DriveAuth.PROBE_ROOTS)
         targets.forEach { DriveRest.trash(token, it.getString("id")) }
@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun enqueueWorker() {
-        // 네트워크 조건이 없으면 백그라운드 작업에 네트워크가 열리지 않을 수 있어 연결됨 조건을 건다(2026-11-01 확인).
+        // 네트워크 조건이 없으면 백그라운드 작업에 네트워크가 열리지 않을 수 있어 연결됨 조건 추가
         val work = OneTimeWorkRequestBuilder<TokenWorker>()
             .setInitialDelay(15, TimeUnit.SECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())

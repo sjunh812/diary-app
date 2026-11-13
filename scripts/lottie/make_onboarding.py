@@ -165,7 +165,7 @@ def card(c):
 
 def write_lines():
     """공책 줄처럼 곧은 줄 셋을 넓게 둔다. 줄 끝은 길이를 달리해 글처럼 보이게 한다."""
-    speed = 240 / FPS  # 1초에 240. 110은 늘어졌다.
+    speed = 240 / FPS  # 1초에 240. 110은 늘어져 보임
     lift = 8  # 다음 줄로 펜을 옮기는 프레임
     lines = [(36, 252, 92), (36, 216, 116), (36, 156, 140)]
     frame, pen, tilt, spans = 18.0, [], [], []
@@ -266,7 +266,7 @@ def style():
     for n, (x1, x2, y) in enumerate(rows):
         a = steps[3][0] + n * 3
         c.layer(f"목록 점 {n + 1}", [group([ellipse(40, y, 3), fill("@textTertiary")])], anchor=(40, y), scale=pop(a, a + 10))
-    # 굵게: 진한 색으로 두꺼워진다
+    # 굵게: 진한 색으로 두꺼워짐
     x1, x2, y = rows[0]
     c.layer("굵게", [group([path(f"M {x1} {y} L {x2} {y}"), {"ty": "st", "c": static("@textPrimary"), "o": static(100),
                                                            "w": keys([(steps[0][0], 5), (steps[0][1], 6)]), "lc": 2, "lj": 2, "ml": 4}])],

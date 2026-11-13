@@ -4,8 +4,8 @@ plugins {
 }
 
 android {
-    // 실제 앱과 같은 패키지로 시험한다.
-    // 디버그 키 지문은 클라우드 콘솔의 "1일 1일기 Debug (2026)" 클라이언트에 등록돼 있다.
+    // 실제 앱과 같은 패키지로 시험
+    // 디버그 키 지문은 클라우드 콘솔의 "1일 1일기 Debug (2026)" 클라이언트에 등록
     namespace = "org.sjhstudio.diary.drivecheck"
     compileSdk = 35
 

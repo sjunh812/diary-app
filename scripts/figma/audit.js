@@ -1,7 +1,7 @@
 // Figma "화면" 페이지 규격 검사.
-// figma_execute에 그대로 넣어 돌린다(읽기만 한다).
-// 화면을 고친 뒤에 돌려서 나온 곳을 고친다.
-// 눈으로 보는 점검을 대신하지는 않는다.
+// figma_execute에 그대로 넣어 실행(읽기 전용)
+// 화면을 고친 뒤 실행해 나온 곳 수정
+// 눈으로 하는 점검을 대신하지 않음
 // 잡는 것: 칩 좌우 안쪽, 손으로 찍은 부품, 규격에 없는 글자·모서리·안쪽 여백, 변수를 안 쓴 색, 라이트·다크가 뒤바뀐 부품.
 if (figma.root.name !== '1일 1일기') throw new Error('wrong file');
 await figma.loadAllPagesAsync();
@@ -41,7 +41,7 @@ for (const n of page.findAll((x) => x.visible !== false && !skip(x))) {
       const left = first && first.type === 'TEXT' ? 12 : 10;
       if (n.paddingLeft !== left || n.paddingRight !== 12 || Math.round(n.height) !== 32) report('칩 규격', n, `${n.paddingLeft}/${n.paddingRight}`);
     }
-    // 뒤로·닫기·아이콘 버튼·상자는 라이트 변형뿐이고 다크 화면에서는 색 변수를 덮어써서 쓴다.
+    // 뒤로·닫기·아이콘 버튼·상자는 라이트 변형뿐이라 다크 화면에서는 색 변수를 덮어씀
     const oneTheme = /종류=(nav·back|icon-button|닫기|상자)/.test(main ? main.name : '');
     if (main && !oneTheme && main.name.includes('테마=') && main.name.includes('다크') !== dark(n)) report('테마가 다른 부품', n, main.name);
   }

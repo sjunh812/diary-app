@@ -1,6 +1,6 @@
 #!/bin/sh
 # .githooks/commit-msg 시험(FR-031).
-# 저장소 루트에서 sh scripts/test-commit-msg.sh로 돌린다.
+# 실행: 저장소 루트에서 sh scripts/test-commit-msg.sh
 hook="$(dirname "$0")/../.githooks/commit-msg"
 tmp=$(mktemp)
 failures=0

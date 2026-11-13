@@ -50,7 +50,7 @@ import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 
 // 목록 성능 견본(스펙 001 T083, SC-010·SC-011)
-// 스펙 002 홈이 같은 방식을 쓴다
+// 스펙 002 홈과 같은 방식
 // 일기 1만 편·사진 5천 장을 따로 둔 견본 DB(`no_backup/perf-sample/`)에 한 번 만들고, 실제 일기 DB는 건드리지 않음
 // 60편씩 읽고(Paging 3), 줄 키는 일기 ID, 줄 모델은 불변, 사진 칸은 썸네일 크기 JPEG만 읽음
 

@@ -1,23 +1,23 @@
 #!/bin/sh
-# 1.7.4 → 새 앱 업그레이드를 에뮬레이터에서 돌려 본다(스펙 001 T050, quickstart §2).
-# 실기기에는 쓰지 않는다.
+# 1.7.4 → 새 앱 업그레이드를 에뮬레이터에서 시험(스펙 001 T050, quickstart §2)
+# 실기기 사용 금지
 #
 #   ANDROID_SERIAL=emulator-5554 sh scripts/legacy/upgrade-test.sh
 #
 # 순서: 지우기 → 1.7.4 깔고 한 번 열기 → seed.sh → 원본 해시 → 새 APK 덮어 설치 → 열기 → 이전 끝 기다리기 → 확인.
 # 확인: 원본 다섯 파일의 SHA-256이 전후로 같은지, 새 DB의 일기·사진 수, 남은 파일.
-# 새 앱은 한국어로 연다.
-# APP_LOCALE=ja-JP처럼 주면 그 언어로 연다(Android 13 이상, 그 아래는 기기 언어, docs/design.md 여러 언어).
-# COUNT=1000: 일기를 그만큼 더 넣는다(seed.sh, T051 큰 견본).
-# PHOTO_EVERY=3이면 세 편마다 사진 한 장이다.
-# WAIT=1800으로 이전을 기다리는 초를 늘린다.
-# KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 연다(개발 빌드의 KillAtHook, quickstart §3).
-# Snapshotting, Verifying, Committing도 된다.
-# INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest를 돌린다(T050).
+# 새 앱은 한국어로 실행
+# APP_LOCALE=ja-JP: 그 언어로 실행(Android 13 이상, 그 아래는 기기 언어, docs/design.md 여러 언어)
+# COUNT=1000: 일기를 그만큼 추가(seed.sh, T051 큰 견본)
+# PHOTO_EVERY=3: 세 편마다 사진 한 장
+# WAIT=1800: 이전을 기다리는 시간(초)
+# KILL_AT=Copying: 그 단계에서 앱을 끊었다가 다시 실행(개발 빌드의 KillAtHook, quickstart §3)
+# Snapshotting, Verifying, Committing도 가능
+# INSTRUMENT=1: 끝난 뒤 기기 안에서 계측 시험 UpgradeVerificationTest 실행(T050)
 # 먼저 :composeApp:assembleDebugAndroidTest.
 # LOCK=0427: 1.7.4에 그 비밀번호로 잠금을 켜 두고(seed.sh), 새 앱이 잠금 화면부터 띄우는지와 잠긴 동안 이전이 시작되지 않는지 본 뒤
-# 하드웨어 키로 비밀번호를 넣는다(스펙 001 US2, quickstart §4).
-# BIOMETRIC=1이면 지문 설정도 켜고, 비밀번호 대신 에뮬레이터 지문(손가락 1, 미리 등록)으로 연다.
+# 하드웨어 키로 비밀번호 입력(스펙 001 US2, quickstart §4)
+# BIOMETRIC=1: 지문 설정도 켜고, 비밀번호 대신 에뮬레이터 지문(손가락 1, 미리 등록)으로 잠금 해제
 set -eu
 : "${ANDROID_SERIAL:?ANDROID_SERIAL을 에뮬레이터로 정해 주세요(예: emulator-5554)}"
 case "$ANDROID_SERIAL" in emulator-*) ;; *) echo "에뮬레이터에만 씁니다: $ANDROID_SERIAL" >&2; exit 1 ;; esac
@@ -32,7 +32,7 @@ WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 ORIGINALS="databases/note.db shared_prefs/pref.xml shared_prefs/pref2.xml cache/1699000000001.jpg cache/1699000000002.png"
 
-# 원본 다섯 파일의 SHA-256. API 24에는 기기 쪽 sha256sum이 없어 꺼내서 이 컴퓨터에서 잰다.
+# 원본 다섯 파일의 SHA-256. API 24는 기기에 sha256sum이 없어 파일을 꺼내 이 컴퓨터에서 계산
 hash_originals() {
   for f in $ORIGINALS; do
     printf '%s  %s\n' "$(adb exec-out run-as $PKG cat "$f" | shasum -a 256 | cut -d' ' -f1)" "$f"
@@ -50,8 +50,8 @@ sh "$ROOT/scripts/legacy/seed.sh"
 hash_originals > "$WORK/before"
 
 adb install -r "$NEW_APK" >/dev/null
-# 앱 언어는 한국어가 기본이다.
-# 앱별 언어는 Android 13(API 33)부터 있어 그 아래는 기기 언어를 따른다.
+# 앱 언어 기본값은 한국어
+# 앱별 언어는 Android 13(API 33)부터 지원. 그 아래는 기기 언어
 if [ "$(adb shell getprop ro.build.version.sdk | tr -d '\r')" -ge 33 ]; then
   adb shell cmd locale set-app-locales $PKG --locales "${APP_LOCALE:-ko-KR}"
 fi
@@ -61,13 +61,13 @@ if [ -n "${KILL_AT:-}" ]; then
   adb shell run-as $PKG sh -c "'mkdir -p files/debug && cp /data/local/tmp/diary-kill_at files/debug/kill_at'"
   adb shell rm -f /data/local/tmp/diary-kill_at
 fi
-# 잠금 화면이 뜨기를 기다려, 잠긴 동안 이전이 시작되지 않았는지 보고 비밀번호를 넣는다.
-# 시스템 생체 인증 창: Android 12는 systemui의 biometric_icon, Android 15부터는 "Fingerprint sensor"처럼 기기 언어로 된 설명이 붙는다.
+# 잠금 화면이 뜰 때까지 기다린 뒤, 잠긴 동안 이전이 시작되지 않았는지 확인하고 비밀번호 입력
+# 시스템 생체 인증 창: Android 12는 systemui의 biometric_icon, Android 15부터는 "Fingerprint sensor"처럼 기기 언어로 된 설명
 PROMPT='com.android.systemui:id/biometric_icon|com.android.systemui:id/button_negative|content-desc="(Fingerprint sensor|지문 센서)"'
 unlock() {
   i=0
-  # 생체 인증을 켜 두었으면(BIOMETRIC=1) 시스템 생체 인증 창이 잠금 화면을 덮는다.
-  # 그 창(지문 센서)도 잠금 화면으로 본다.
+  # 생체 인증을 켜 두면(BIOMETRIC=1) 시스템 생체 인증 창이 잠금 화면을 덮음
+  # 그 창(지문 센서)도 잠금 화면으로 간주
   until adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
     adb shell cat /data/local/tmp/diary-ui.xml | grep -qE '비밀번호를 입력해 주세요|Enter your passcode|パスコードを入力してください|'"$PROMPT"; do
     i=$((i + 1)); [ $i -gt 60 ] && { echo "잠금 화면이 뜨지 않았어요" >&2; exit 1; }
@@ -81,9 +81,9 @@ unlock() {
   fi
   echo "잠금 화면: 잠긴 동안 이전 시작 안 함"
   if [ "${BIOMETRIC:-0}" = 1 ]; then
-    # 에뮬레이터에 등록한 지문(손가락 1)을 댄다.
-    # 에뮬레이터에서 지문을 먼저 등록해 둬야 한다.
-    # 창이 막 뜨는 중에 대면 인식하지 않아서, 창이 사라질 때까지 몇 번 댄다.
+    # 에뮬레이터에 등록한 지문(손가락 1) 인식
+    # 에뮬레이터에 지문을 미리 등록해야 함
+    # 창이 뜨는 중에는 인식되지 않아 창이 사라질 때까지 반복
     n=0
     while adb shell uiautomator dump /data/local/tmp/diary-ui.xml >/dev/null 2>&1 &&
       adb shell cat /data/local/tmp/diary-ui.xml | grep -qE "$PROMPT"; do
@@ -101,8 +101,8 @@ OPENED_STATE=$(adb shell run-as $PKG cat files/migration/state.json 2>/dev/null 
 adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
 if [ -n "${LOCK:-}" ]; then unlock; fi
 if [ -n "${KILL_AT:-}" ]; then
-  # 훅이 그 단계에 들어서며 프로세스를 끝낸다.
-  # 끊긴 것을 본 뒤 다시 연다.
+  # 훅이 그 단계에 들어서며 프로세스 종료
+  # 끊긴 것을 확인한 뒤 다시 실행
   i=0
   until ! adb shell pidof $PKG >/dev/null 2>&1 && adb shell run-as $PKG cat files/migration/state.json 2>/dev/null | grep -q "\"step\":\"$KILL_AT\""; do
     i=$((i + 1)); [ $i -gt 300 ] && { echo "$KILL_AT 단계에서 끊기지 않았어요" >&2; exit 1; }
@@ -111,7 +111,7 @@ if [ -n "${KILL_AT:-}" ]; then
   OPENED_STATE=$(adb shell run-as $PKG cat files/migration/state.json)
   echo "끊김: $OPENED_STATE"
   adb shell am start -n $PKG/.SplashActivity >/dev/null 2>&1
-  # 프로세스가 새로 시작했으니 다시 잠겨 있다.
+  # 프로세스가 새로 시작해 다시 잠긴 상태
   if [ -n "${LOCK:-}" ]; then unlock; fi
 fi
 i=0

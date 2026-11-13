@@ -1,7 +1,7 @@
 #!/bin/sh
-# 쓰는 도중 앱을 강제 종료해도 5초 전까지 쓴 글이 남는지 COUNT번 본다(스펙 002 SC-002).
-# 에뮬레이터에서만 돈다.
-# 잠금이 없고 앱을 한 번 연 기기에 쓴다.
+# 쓰는 도중 앱을 강제 종료해도 5초 전까지 쓴 글이 남는지 COUNT번 확인(스펙 002 SC-002)
+# 에뮬레이터 전용
+# 잠금이 없고 앱을 한 번 연 기기에서 실행
 #
 # ANDROID_SERIAL=emulator-5558 COUNT=100 WRITE_X=80 WRITE_Y=168 BODY_X=900 BODY_Y=400 \
 #   CONTINUE_TEXT="Keep writing" sh scripts/qa/kill-while-writing.sh
@@ -26,8 +26,8 @@ trap 'rm -rf "$WORK"' EXIT
 
 pause() { perl -e "select(undef,undef,undef,$1)"; }
 
-# 화면에서 글자를 찾아 가운데를 누른다.
-# 없으면 실패를 돌려준다.
+# 화면에서 글자를 찾아 가운데 누르기
+# 없으면 실패 반환
 tap_text() {
   adb shell uiautomator dump /sdcard/qa.xml >/dev/null 2>&1 || return 1
   adb shell cat /sdcard/qa.xml > "$WORK/ui.xml"
@@ -46,8 +46,8 @@ PY
   adb shell input tap $point
 }
 
-# 임시 저장본에 표시 글자가 있는지 DB 파일을 받아 본다.
-# 일기 내용을 출력하지 않는다.
+# DB 파일을 받아 임시 저장본에 표시 글자가 있는지 확인
+# 일기 내용은 출력하지 않음
 has_mark() {
   rm -f "$WORK"/diary.db*
   adb exec-out run-as "$PACKAGE" cat databases/diary.db > "$WORK/diary.db"
@@ -64,7 +64,7 @@ passed=0
 index=1
 while [ "$index" -le "$COUNT" ]; do
   adb shell monkey -p "$PACKAGE" -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1
-  # 앱이 늦게 뜰 때가 있어서 쓰기 화면이 열린 것을 본 뒤에 입력한다.
+  # 앱이 늦게 뜰 때가 있어 쓰기 화면이 열린 것을 확인한 뒤 입력
   attempt=0
   opened=no
   while [ "$attempt" -lt 6 ]; do
@@ -88,9 +88,9 @@ while [ "$index" -le "$COUNT" ]; do
   pause 1
   mark="qa${index}x"
   adb shell input text "$mark"
-  # 쓴 뒤 5초가 지나면 종료 시점까지 남아 있어야 한다.
+  # 쓴 뒤 5초가 지난 글은 종료 뒤에도 남아야 함
   pause 5
-  # 실패를 살펴볼 때 SHOT에 경로를 주면 종료 직전 화면을 남긴다.
+  # SHOT에 경로를 주면 종료 직전 화면 저장(실패 분석용)
   if [ -n "${SHOT:-}" ]; then adb exec-out screencap -p > "$SHOT"; fi
   adb shell am force-stop "$PACKAGE"
   pause 1

@@ -9,8 +9,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// 스펙 003 research O4: 작업 관리자 안에서 화면 없이 토큰을 받을 수 있는지 본다.
-// 결과는 기기 안 SharedPreferences에만 적고, 토큰 자체는 적지 않는다.
+// 스펙 003 research O4: 작업 관리자 안에서 화면 없이 토큰을 받을 수 있는지 확인
+// 결과는 기기 안 SharedPreferences에만 기록. 토큰은 기록하지 않음
 class TokenWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val at = SimpleDateFormat("HH:mm:ss", Locale.KOREA).format(Date())

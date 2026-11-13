@@ -1,8 +1,8 @@
-// 스토어 스크린샷과 피처 그래픽을 만든다.
-// 실제 앱 캡처 위에 머리말을 얹는다.
+// 스토어 스크린샷과 피처 그래픽 생성
+// 실제 앱 캡처 위에 머리말 배치
 // 쓰는 법: swift scripts/store/make_screens.swift <캡처 폴더> <결과 폴더> <글꼴 폴더> [태블릿 캡처 폴더] [언어 ko·en·ja]
-// 태블릿 폴더를 주면 2560×1600 가로 캡처(write, list, calendar, insight)로 태블릿 4장도 만든다. "-"를 주면 건너뛴다.
-// 영어·일본어는 백업 화면(드라이브 연결 필요)과 피처 그래픽 없이 4장씩 만든다.
+// 태블릿 폴더를 주면 2560×1600 가로 캡처(write, list, calendar, insight)로 태블릿 4장도 생성. "-"를 주면 건너뜀
+// 영어·일본어는 백업 화면(드라이브 연결 필요)과 피처 그래픽 없이 4장씩 생성
 import AppKit
 import CoreText
 
@@ -22,11 +22,11 @@ let ink = color(0x1B1B23)
 let weak = color(0x4A4A5C)
 let accent = color(0x6C56CE)
 
-/** 바탕은 앱 전용 색 하나다(`selected`). */
+/** 바탕은 앱 전용 색 하나(`selected`) */
 let background = color(0xEBE4FF)
 
 func canvas(_ width: Int, _ height: Int, _ draw: () -> Void) -> NSBitmapImageRep {
-    // 스토어는 알파 없는 PNG를 받는다.
+    // 스토어는 알파 없는 PNG만 받음
     let context = CGContext(
         data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
         space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
@@ -43,9 +43,9 @@ func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ 
     let style = NSMutableParagraphStyle()
     style.alignment = align
     style.lineHeightMultiple = 1.16
-    // 앱 화면과 같은 글꼴을 쓴다.
-    // 이 글꼴은 굵기가 하나뿐이라 윤곽선을 둘러 제목 무게를 낸다.
-    // 일본어는 이 글꼴에 가나와 문장부호가 없어 앱의 일본어 화면처럼 시스템 글꼴(히라기노)을 쓴다(D13)
+    // 앱 화면과 같은 글꼴 사용
+    // 이 글꼴은 굵기가 하나뿐이라 윤곽선을 둘러 제목을 굵게 표시
+    // 일본어는 이 글꼴에 가나와 문장부호가 없어 앱의 일본어 화면처럼 시스템 글꼴(히라기노) 사용(D13)
     let japanese = language == "ja"
     let font = (japanese ? NSFont(name: "HiraginoSans-W6", size: size) : NSFont(name: "ChangwonDangamRound-Regular", size: size))
         ?? NSFont.boldSystemFont(ofSize: size)
@@ -77,7 +77,7 @@ func shadowed(_ alpha: CGFloat, _ blur: CGFloat, _ body: () -> Void) {
     NSGraphicsContext.restoreGraphicsState()
 }
 
-/** 기기 틀 안의 실제 앱 화면. 아래는 화면 밖으로 잘린다. */
+/** 기기 틀 안의 실제 앱 화면. 아래쪽은 화면 밖으로 잘림 */
 func phone(_ name: String, _ rect: NSRect, _ radius: CGFloat, bezel: Bool = true) {
     let frame = bezel ? rect.insetBy(dx: -14, dy: -14) : rect
     let outer = radius + (bezel ? 14 : 0)
@@ -90,7 +90,7 @@ func phone(_ name: String, _ rect: NSRect, _ radius: CGFloat, bezel: Bool = true
     let image = shot(name)
     let scale = rect.width / image.size.width
     let height = image.size.height * scale
-    // 상태 표시줄은 잘라 낸다.
+    // 상태 표시줄은 잘라 냄
     image.draw(in: NSRect(x: rect.minX, y: rect.maxY - height + statusBar * scale, width: rect.width, height: height))
     NSGraphicsContext.restoreGraphicsState()
 }
@@ -99,9 +99,9 @@ func save(_ rep: NSBitmapImageRep, _ name: String) {
     try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "\(output)/\(name).png"))
 }
 
-// 기준: 심플하고 미감 있고 잘 읽혀야 한다.
-// 앱 색 바탕, 큰 제목, 곧게 놓은 실제 화면만 둔다.
-// 장식과 기울임을 넣지 않고 강조는 낱말 하나만 쓴다(2026-11-07 사용자 지적).
+// 기준: 심플하고 미감 있고 잘 읽힐 것
+// 앱 색 바탕, 큰 제목, 곧게 놓은 실제 화면만 배치
+// 장식과 기울임 없이 강조는 낱말 하나만
 let phoneSlides: [String: [(String, String, String)]] = [
     "ko": [
         ("write", "오늘 기분부터\n가볍게 골라 봐요", "기분"),
@@ -127,7 +127,7 @@ let phoneSlides: [String: [(String, String, String)]] = [
 for (index, (name, words, word)) in phoneSlides[language]!.enumerated() {
     let rep = canvas(1080, 1920) {
         text(words, language == "ja" ? 80 : 88, ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
-        // 첫 장은 아래쪽 기분 시트까지 보이게 화면 전체를 넣는다.
+        // 첫 장은 아래쪽 기분 시트까지 보이게 화면 전체 사용
         if name == "write" {
             phone(name, NSRect(x: 215, y: 40, width: 650, height: 1400), 56)
         } else {
@@ -141,14 +141,14 @@ if language == "ko" {
 let feature = canvas(1024, 500) {
     text("바쁜 날에도\n일기를 남겨 봐요", 60, ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
     text("회원가입 없이, 사진까지 내 드라이브에", 25, weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
-    // 피처 그래픽에는 기기 틀을 넣지 않는다(Play 안내).
+    // 피처 그래픽에는 기기 틀을 넣지 않음(Play 안내)
     phone("list", NSRect(x: 640, y: -640, width: 300, height: 1040), 26, bezel: false)
 }
 save(feature, "feature")
 }
 
-// 태블릿: 가로 2560×1600, 머리말은 한 줄로 위에 두고 화면은 아래로 잘린다.
-// Play 7"·10" 태블릿 칸에 같은 이미지를 쓴다. 백업 화면은 드라이브 연결이 필요해 뺀다.
+// 태블릿: 가로 2560×1600, 머리말은 위에 한 줄, 화면은 아래쪽이 잘림
+// Play 7"·10" 태블릿 칸에 같은 이미지 사용. 백업 화면은 드라이브 연결이 필요해 제외
 if args.count > 4, args[4] != "-" {
     shotFolder = args[4]
     statusBar = 48
