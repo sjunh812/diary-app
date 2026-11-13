@@ -162,9 +162,9 @@ REVENUECAT_IOS = appl_...
 
 - [ ] 개발자 계정 > 내 정보에 사업자등록번호, 전자상거래 라이선스 번호, 발급 기관을 넣는다. 한국 사용자에게 보인다([요구사항](https://support.google.com/googleplay/android-developer/answer/6223646?hl=ko)).
 - [x] 판매 계정은 결제 프로필 주소가 공개된다. 집 주소가 공개되어도 그대로 간다(2026-11-06 사용자 결정).
-- [ ] 결제 프로필 > 대한민국 세금 정보에 사업자등록번호를 넣는다. 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)).
-- [ ] 수수료 프로그램에 등록한다. 첫 100만 달러 15%, 초과분 30%, 구독 갱신 15%다([수수료](https://support.google.com/googleplay/android-developer/answer/112622?hl=ko), [등록](https://support.google.com/googleplay/android-developer/answer/10632485?hl=ko)).
-- [ ] 정산 계좌를 시험 입금으로 인증한다([인증](https://support.google.com/googleplay/android-developer/answer/7161378?hl=ko)). 지급은 다음 달 15일쯤이다.
+- [ ] 결제 프로필 > 대한민국 세금 정보에 사업자등록번호를 넣는다. 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)). 2026-11-13 Google에 문의 중(사용자). 진행 상태는 콘솔에서 보이지 않는다.
+- [x] 수수료 프로그램에 등록한다. 첫 100만 달러 15%, 초과분 30%, 구독 갱신 15%다([수수료](https://support.google.com/googleplay/android-developer/answer/112622?hl=ko), [등록](https://support.google.com/googleplay/android-developer/answer/10632485?hl=ko)). 2026-11-12 Play 알림 "계정 그룹이 15% 서비스 수수료 프로그램에 등록됨"으로 확인.
+- [x] 정산 계좌를 시험 입금으로 인증한다([인증](https://support.google.com/googleplay/android-developer/answer/7161378?hl=ko)). 지급은 다음 달 15일쯤이다. 사용자 인증 완료(2026-11-13 확인).
 
 **4. App Store (R2)**
 
@@ -220,7 +220,7 @@ REVENUECAT_IOS = appl_...
 - [x] 네이버 글꼴 라이선스 전문: 네이버 글꼴 저작권 안내와 OFL 전문이 앱에 들어 있다(`files/licenses/`). 네이버 도움말 원문과 글자 단위 대조는 도움말 페이지가 도구로 열리지 않아 하지 않았다(2026-11-13 사용자 확인으로 완료 처리).
 - [x] 교보손글씨 2019 사용자는 KCC정범체로 옮겨 간다(2026-11-13). KCC정범체는 한국저작권위원회가 공유마당에서 OFL로 공개했다.
 - [ ] 777미니콩다방·777꼬마나비는 2.0.0에서 빠진다. 1.7.5로 먼저 빼는 안은 내지 않기로 했고(2026-11-01), 그때까지 1.7.4가 그대로 배포된다
-- [ ] Play Console 포그라운드 서비스 신고: 지금 백업·복원이 `dataSync` 종류를 쓴다(스펙 003 research R14). 쓰는 까닭과 화면 영상을 낸다
+- [x] Play Console 포그라운드 서비스 신고: 지금 백업·복원이 `dataSync` 종류를 쓴다(스펙 003 research R14). 쓰는 까닭과 화면 영상을 낸다 2026-11-12 신고 완료(`FOREGROUND_SERVICE_DATA_SYNC`), 앱 코드도 `dataSync` 한 종류만 쓴다(2026-11-14 확인).
 - [ ] 구글 동의 화면 브랜드 검증: 앱 이름·로고를 띄우려면 필요하다(2~3영업일)
       ([Google](https://support.google.com/cloud/answer/13463073), 스펙 003 근거).
       준비는 끝났다(2026-11-13). Search Console에서 `https://sjunh812.github.io/` 소유가 확인됐고, 브랜딩에 홈페이지 `https://sjunh812.github.io/1day1diary/`(앱 소개, 처리방침·약관 링크),
@@ -234,8 +234,8 @@ REVENUECAT_IOS = appl_...
 - [x] 위치정보지원센터 문의: 하지 않기로 함(2026-11-11 사용자 결정, `docs/DECISIONS.md`)
 - [x] 개인정보처리방침에 "복구 문의"를 적는다: 사용자가 스스로 첨부한 예전 일기 파일만 받고, 복구에만 쓰며, 복구한 파일을 돌려준 뒤 바로 지운다(헌법 II 예외, 스펙 001 FR-010a). 받는 곳(메일 계정)과 지우는 방법도 적는다
 - [x] 처리방침과 약관을 공개하고 앱에 걸기(`LegalLinks`, 원문은 `docs/legal/`, 2026-11-07)
-- [ ] 처리방침 URL을 Play Console, App Store Connect에 넣기
-- [ ] Play 데이터 보안, App Store 개인정보 라벨(Privacy Manifest는 넣음, 위 "App Store 제출")
+- [ ] 처리방침 URL을 Play Console, App Store Connect에 넣기 Play는 2026-11-13 검토 승인(노션 주소). App Store는 앱을 만든 뒤.
+- [ ] Play 데이터 보안, App Store 개인정보 라벨(Privacy Manifest는 넣음, 위 "App Store 제출") Play 데이터 보안은 2026-11-13 검토 승인.
 - [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 창은 넣음(2026-11-12, `SKAdNetworkItems` Google 목록 50개). 처리방침 3번에 iOS의 추적 끄는 곳을 더함(원문과 Notion, 2026-11-12), UMP 동의
 - [x] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(2026-11-11, 계정 승인 뒤)
 - [x] `app-ads.txt`를 `https://sjunh812.github.io/app-ads.txt`에 올리기(개발자 블로그 저장소 맨 앞, 2026-11-11)
@@ -244,10 +244,10 @@ REVENUECAT_IOS = appl_...
 - [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기(Play 문구와 App Store 설명 끝 약관 줄은 `docs/store/listing.md`에 씀)
 - [ ] 스크린샷(폰 ✓, 7"·10" 태블릿 ✓, iPhone 6.3" ✓, iPad 13" ✓ 세 언어, 2026-11-13), 피처 그래픽 ✓, 아이콘 ✓. 영어·일본어 Play 스크린샷 ✓(원어민 검수 전)
 - [ ] 영어·일본어 화면 문구와 스토어 설명을 그 언어 앱·운영체제 용어로 검색해 맞추기(원어민 검수는 하지 않기로 함, 2026-11-11). 앱 이름(D12)과 일본어 화면 글꼴(D13)도 이때 정한다
-- [ ] 세 언어로 화면 확인: 가장 긴 영어에서 잘리거나 겹치는 곳이 없는지, 날짜·시각이 그 언어 형식인지
-- [ ] Play Console 판매자(trader) 상태 선언: 모든 계정이 2027-02-01까지 한다(위 "출시 국가")
+- [ ] 세 언어로 화면 확인: 가장 긴 영어에서 잘리거나 겹치는 곳이 없는지, 날짜·시각이 그 언어 형식인지 2026-11-14 폰(API 36)에서 홈·달력·돌아보기·설정·쓰기·Plus·백업을 세 언어, 기본·1.3배 글자로 봤다. 겹침은 없고 날짜·시각은 각 언어 형식. 1.3배에서 홈의 백업 상태 줄이 영어·일본어로 말줄임되고, 일본어 백업 화면 설명이 "変わった/分だけ"처럼 어절 중간에서 줄이 나뉜다(다듬을 거리). 태블릿은 보지 못했다.
+- [x] Play Console 판매자(trader) 상태 선언: 모든 계정이 2027-02-01까지 한다(위 "출시 국가") 2026-11-13 검토 승인.
 - [x] 출시 국가(D11): 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(2026-11-11 사용자 결정). 일본에 유료 기능을 팔기 전에 특정상거래법 표시와 결제 프로필 동의를 마친다
-- [ ] 이전 업그레이드 계측 테스트 통과(`docs/migration.md` 시험)
+- [x] 이전 업그레이드 계측 테스트 통과(`docs/migration.md` 시험) 2026-11-14 별도 에뮬레이터(API 29)에서 통과: 기본, 1004편·사진 336장, 복사 중·바꿔 넣기 중 강제 종료, 잠금(0427) 다섯 가지 모두 원본 해시 그대로, 일기·사진 수 일치, 계측 시험 통과.
 
 ## App Store 제출
 
