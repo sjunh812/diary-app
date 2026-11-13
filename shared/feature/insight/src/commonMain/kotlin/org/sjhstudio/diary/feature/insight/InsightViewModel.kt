@@ -35,7 +35,7 @@ import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.mostFrequent
-import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
@@ -118,7 +118,7 @@ class InsightViewModel(
         // 다른 탭도 미리 읽어 처음 눌러도 바로 보이게
         viewModelScope.launchSafely {
             InsightKind.entries.map { it.periodOf(today()) }.filter { it != _period.value }.forEach { period ->
-                orElseOnFailure(Unit) { cache.getOrPut(period) { read(period).first() } }
+                quietly { cache.getOrPut(period) { read(period).first() } }
             }
         }
     }

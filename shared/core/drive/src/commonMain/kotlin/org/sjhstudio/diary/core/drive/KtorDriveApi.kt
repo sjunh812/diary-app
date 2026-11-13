@@ -28,6 +28,7 @@ import kotlinx.io.IOException as KotlinxIOException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
@@ -296,7 +297,7 @@ class KtorDriveApi(
     private fun NewFile.toJson(): String = buildJsonObject {
         put("name", name)
         put("mimeType", mimeType)
-        parentId?.let { parent -> putJsonArray("parents") { add(kotlinx.serialization.json.JsonPrimitive(parent)) } }
+        parentId?.let { parent -> putJsonArray("parents") { add(JsonPrimitive(parent)) } }
         if (props.isNotEmpty()) putJsonObject("appProperties") { props.forEach { (key, value) -> put(key, value) } }
     }.toString()
 

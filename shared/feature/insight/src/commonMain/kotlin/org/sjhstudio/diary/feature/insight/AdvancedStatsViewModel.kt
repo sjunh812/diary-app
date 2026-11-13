@@ -15,7 +15,7 @@ import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.currentDate
-import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 고급 통계. 차이를 찾으려면 일기가 많을수록 좋아 전체부터 보임 */
@@ -50,7 +50,7 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
         // 다른 기간도 미리 읽어 탭을 눌러도 바로 보이게
         viewModelScope.launchSafely {
             AdvancedPeriod.entries.filter { it != _period.value }.forEach { period ->
-                orElseOnFailure(Unit) { cache.getOrPut(period) { stats.advanced(period, day.value).first() } }
+                quietly { cache.getOrPut(period) { stats.advanced(period, day.value).first() } }
             }
         }
     }

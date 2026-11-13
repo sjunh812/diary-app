@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
@@ -205,7 +206,7 @@ internal fun EntryMissing() {
 @Composable
 internal fun Body(
     detail: EntryDetail,
-    bodyStyle: androidx.compose.ui.text.TextStyle,
+    bodyStyle: TextStyle,
     onPhoto: (Int) -> Unit,
     scroll: ScrollState = rememberScrollState(),
     lines: DetailScrollLines = remember { DetailScrollLines() },

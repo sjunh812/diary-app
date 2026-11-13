@@ -5,6 +5,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -106,7 +107,7 @@ class BackupController(
     private val _skipped = MutableSharedFlow<BackupSkip>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val skipped: SharedFlow<BackupSkip> = _skipped.asSharedFlow()
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val status: Flow<BackupStatus> =
         store.prefs.flatMapLatest { prefs ->
             val waiting = prefs.accountKey?.let { db.value.backupDao().notBackedUp(it) } ?: flowOf(0)
@@ -133,7 +134,7 @@ class BackupController(
             }
         }
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val nudge: Flow<BackupNudge?> =
         store.prefs.flatMapLatest { prefs ->
             if (!mayNudge(prefs)) {

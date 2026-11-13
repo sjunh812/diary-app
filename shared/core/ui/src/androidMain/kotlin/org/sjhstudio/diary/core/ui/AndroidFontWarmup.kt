@@ -11,7 +11,7 @@ import org.jetbrains.compose.resources.getString
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.ds_language
 import org.sjhstudio.diary.core.model.DiaryFont
-import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 
 /**
  * 안드로이드 글꼴 미리 읽기
@@ -25,7 +25,7 @@ class AndroidFontWarmup(context: Context, private val installedPath: (DiaryFont)
 
     override suspend fun warm(font: DiaryFont) {
         withContext(Dispatchers.Default) {
-            orElseOnFailure(Unit) { familyFor(font)?.let { resolver.preload(it) } }
+            quietly { familyFor(font)?.let { resolver.preload(it) } }
         }
     }
 

@@ -24,6 +24,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -118,10 +120,10 @@ fun DiaryEntryRow(
                     meta()
                     if (favorite) {
                         DiaryIcon(
-                            org.sjhstudio.diary.core.designsystem.icon.DiaryIcons.StarFilled,
+                            DiaryIcons.StarFilled,
                             contentDescription = null,
                             tint = colors.accent,
-                            size = org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize.i16
+                            size = DiaryIconSize.i16
                         )
                     }
                 }

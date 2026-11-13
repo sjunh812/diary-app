@@ -21,6 +21,7 @@ import org.sjhstudio.diary.core.datastore.AdPrefs
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 
 /**
  * 광고 SDK. 공통 코드는 이것만 봄
@@ -132,7 +133,7 @@ class AdRepository(
                 val seen = CompletableDeferred<Unit>()
                 val record = launch {
                     seen.await()
-                    orElseOnFailure(Unit) { store.interstitialShown(day) }
+                    quietly { store.interstitialShown(day) }
                 }
                 val shown = player.showInterstitial {
                     shownDay = day

@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.MigratedSetting
@@ -35,6 +36,7 @@ import org.sjhstudio.diary.core.model.MigrationState
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.platform.AnalyticsEvents
 
 /**
  * 이전이 읽고 쓰는 자리
@@ -504,7 +506,7 @@ class MigrationRunner(
     }
 
     /** 원본 날짜·시각을 읽을 수 있었던 줄은 새 DB 값이 그 규칙과 같아야 함 */
-    private fun sameDateRule(note: LegacyNote, entry: org.sjhstudio.diary.core.model.Entry): Boolean {
+    private fun sameDateRule(note: LegacyNote, entry: Entry): Boolean {
         val created = note.createDate ?: return true
         val date = LegacyEntryMapper.parseDate(created)
         val time = LegacyEntryMapper.parseTime(created)
@@ -695,9 +697,9 @@ class MigrationRunner(
         SupportSummary(
             failure = state.failure,
             attempt = state.attempt,
-            entriesBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(entries),
-            photosBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(photos),
-            unreadableBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(report?.entriesUnreadable ?: 0)
+            entriesBucket = AnalyticsEvents.countBucket(entries),
+            photosBucket = AnalyticsEvents.countBucket(photos),
+            unreadableBucket = AnalyticsEvents.countBucket(report?.entriesUnreadable ?: 0)
         )
     }
 

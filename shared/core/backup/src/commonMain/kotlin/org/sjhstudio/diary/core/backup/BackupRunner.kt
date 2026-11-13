@@ -29,7 +29,7 @@ import org.sjhstudio.diary.core.drive.listAll
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupProgress
 import org.sjhstudio.diary.core.model.BackupStep
-import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAccount
@@ -400,9 +400,6 @@ class BackupRunner(
             fileSystem.hashes(manifestPath)
         )
     }
-
-    /** 알림과 뒷정리가 실패해도 백업을 멈추거나 실패로 만들지 않음 */
-    private suspend fun quietly(block: suspend () -> Unit) = orElseOnFailure(Unit) { block() }
 
     /** 공간이 부족하면 앞(최근 일기)에서부터 들어가는 만큼만 고름 */
     private fun fitting(photos: List<LocalPhotoRow>, free: Long?): List<LocalPhotoRow> {

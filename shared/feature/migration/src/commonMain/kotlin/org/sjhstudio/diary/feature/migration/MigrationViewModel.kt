@@ -23,6 +23,7 @@ import org.sjhstudio.diary.core.model.MigrationFailureKind
 import org.sjhstudio.diary.core.model.MigrationReport
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 관문이 보는 이전 화면 상태(contracts/migration-flow.md "화면 상태") */
@@ -120,7 +121,7 @@ class MigrationViewModel(
         viewModelScope.launchSafely {
             // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 엶
             // 다음에 앱을 열면 이전부터 다시 봄
-            orElseOnFailure(Unit) { withContext(background) { migration.defer() } }
+            quietly { withContext(background) { migration.defer() } }
             pass()
         }
     }

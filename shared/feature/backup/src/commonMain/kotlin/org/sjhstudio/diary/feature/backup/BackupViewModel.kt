@@ -20,7 +20,7 @@ import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
-import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
@@ -128,12 +128,6 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
     fun disconnect() {
         viewModelScope.launchSafely { quietly { controller.disconnect() } }
     }
-
-    /**
-     * 저장 공간이 차서 설정을 적지 못해도 앱을 끄지 않음
-     * 스위치는 저장된 값을 그려 적지 못하면 원래 자리로 돌아감. 사실과 어긋나지 않음
-     */
-    private suspend fun quietly(block: suspend () -> Unit) = orElseOnFailure(Unit) { block() }
 }
 
 private sealed interface StatusRead {
