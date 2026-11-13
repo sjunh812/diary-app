@@ -183,12 +183,21 @@ class CalendarViewModel(
         // 빨리 넘기면 늦게 끝난 앞 달 읽기가 고른 날을 덮어 앞 읽기는 취소
         monthRead?.cancel()
         val known = picked[month] ?: today().takeIf { month == thisMonth() }
-        if (known != null) {
-            _selected.value = known
-            return
+        when {
+            known != null -> _selected.value = known
+
+            // 옆 달은 달력이 미리 읽어 둠. 읽은 달은 바로 고름
+            month in readMonths -> _selected.value = monthMoods[month]?.value.orEmpty().keys.maxOrNull()
+
+            else -> {
+                // 모르는 달은 앞 달 일기를 남기지 않고 읽는 대로 고름
+                _selected.value = null
+                monthRead =
+                    viewModelScope.launchSafely {
+                        _selected.value = orElseOnFailure(null) { entries.month(month).first().keys.maxOrNull() }
+                    }
+            }
         }
-        monthRead =
-            viewModelScope.launchSafely { _selected.value = orElseOnFailure(null) { entries.month(month).first().keys.maxOrNull() } }
     }
 
     private var monthRead: Job? = null

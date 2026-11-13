@@ -1,5 +1,10 @@
 package org.sjhstudio.diary.feature.calendar
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -75,6 +80,7 @@ import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryCalendarSize
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -133,7 +139,8 @@ fun CalendarRoute(
     val dates = rememberDiaryDateFormat()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
+    // 반 넘게 넘어가 달이 정해지는 순간 아래 일기도 그 달로. 멈출 때까지 앞 달 일기가 남지 않게
+    LaunchedEffect(pager) { snapshotFlow { pager.currentPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
     val shown = monthOfPage(pager.currentPage)
     val today by viewModel.todayState.collectAsStateWithLifecycle()
     LifecycleResumeEffect(viewModel) {
@@ -172,19 +179,28 @@ fun CalendarRoute(
         )
     }
     val dayPanel: @Composable () -> Unit = {
-        selected?.let { date ->
-            DayPanel(
-                date = date,
-                rows = day.rows,
-                failed = day.failed,
-                onRetry = viewModel::retry,
-                dates = dates,
-                previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
-                twoPane = twoPane,
-                onOpen = onOpen,
-                onMenu = { menuFor = it },
-                onWrite = { onWriteOn(date) }
-            )
+        // 날이 바뀌면 짧게 겹쳐 바꿈. 휴대폰 안 일기라 로딩 표시 없이 번쩍이지 않게만
+        // 사라지는 쪽은 그날 값을 그대로 그려 새 날 일기가 앞 날짜 아래 보이지 않게
+        AnimatedContent(
+            day,
+            transitionSpec = { fadeIn(tween(DiaryMotion.QUICK_MILLIS)) togetherWith fadeOut(tween(DiaryMotion.EXIT_MILLIS)) },
+            contentKey = { it.date },
+            label = "day"
+        ) { shown ->
+            shown.date?.let { date ->
+                DayPanel(
+                    date = date,
+                    rows = shown.rows,
+                    failed = shown.failed,
+                    onRetry = viewModel::retry,
+                    dates = dates,
+                    previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
+                    twoPane = twoPane,
+                    onOpen = onOpen,
+                    onMenu = { menuFor = it },
+                    onWrite = { onWriteOn(date) }
+                )
+            }
         }
     }
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
