@@ -249,7 +249,7 @@ class WriteViewModel(
 
                 // 수정할 일기를 읽지 못하면 빈 글로 덮어쓰지 않게 안내만 하고 저장 준비를 끝내지 않음
                 is WriteTarget.Edit ->
-                    orElseOnFailure(null) { openEdit(target) } ?: _state.update { it.copy(loading = false, openFailed = true) }
+                    orElseOnFailure(null) { openEdit(target) } ?: openFailed()
             }
         }
     }
@@ -466,8 +466,14 @@ class WriteViewModel(
         changed()
     }
 
+    // 열지 못한 일기에는 사진을 붙일 글이 없음. 준비를 기다리던 사진 넣기를 끝내 "넣는 중"이 남지 않게 함
+    private fun openFailed() {
+        _state.update { it.copy(loading = false, openFailed = true) }
+        photoWork.toList().forEach { it.cancel() }
+    }
+
     fun addPhotos(picked: List<PickedImage>) {
-        if (picked.isEmpty() || _state.value.saving) return
+        if (picked.isEmpty() || _state.value.saving || _state.value.openFailed) return
         _state.update { it.copy(addingPhotos = true) }
         val work = viewModelScope.launchSafely {
             ready.await()

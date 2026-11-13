@@ -55,6 +55,7 @@ import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.model.RollbackRun
 import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.NetworkState
@@ -127,7 +128,7 @@ class RestoreController(
             _rollbackRun.value = RollbackRun.RUNNING
         }
         try {
-            val done = guarded { rollbackManager.value.rollBack() } ?: false
+            val done = orElseOnFailure(false) { rollbackManager.value.rollBack() }
             _rollbackRun.value = if (done) RollbackRun.IDLE else RollbackRun.FAILED
             // 바꾸기 결과는 이제 사실이 아님
             if (done && _state.value is RestoreState.Done) _state.value = RestoreState.Idle
@@ -140,7 +141,7 @@ class RestoreController(
     private val RollbackRun.isGoing: Boolean
         get() = this == RollbackRun.WAITING || this == RollbackRun.RUNNING
 
-    override suspend fun backups(): List<BackupEntry>? = guarded {
+    override suspend fun backups(): List<BackupEntry>? = orElseOnFailure(null) {
         candidates = catalog.value.list()
         // 어느 계정의 목록인지 적어 다른 계정을 연결했을 때 먼저 보이지 않게 함
         store.update { it.copy(listedAccount = it.accountKey) }
@@ -403,7 +404,8 @@ class RestoreController(
     private suspend fun importLegacy(plan: LegacyPlan): RestoreResult {
         val result = legacy.value.apply(plan)
         preparedLegacy = null
-        fileSystem.delete(workDir / INCOMING / PICKED, mustExist = false)
+        // 받아 둔 파일 지우기는 곁일. 실패라고 하면 이미 들어온 일기를 두고 복원 실패로 말함
+        quietly { fileSystem.delete(workDir / INCOMING / PICKED, mustExist = false) }
         return result
     }
 
@@ -424,17 +426,17 @@ class RestoreController(
     }
 
     private suspend fun settle(counts: MergeCounts, ready: PreparedRestore): RestoreResult {
-        guarded { applier.value.revive(ready.manifest.media.filter { it.inBackup }.mapTo(HashSet()) { it.sha256 }) }
+        quietly { applier.value.revive(ready.manifest.media.filter { it.inBackup }.mapTo(HashSet()) { it.sha256 }) }
         // 일기는 이미 합침
         // 설정을 쓰지 못해도 복원이 실패했다고 하지 않고 사진을 마저 받음
-        guarded { applySettings(ready.manifest.settings) }
+        quietly { applySettings(ready.manifest.settings) }
         // 파일에서 복원한 것은 드라이브 백업이 있다는 뜻이 아님
         if (ready.bundle == null) {
             val at = Instant.fromEpochMilliseconds(ready.manifest.createdAt)
-            guarded { store.update { it.copy(restoredBackupAt = at) } }
+            quietly { store.update { it.copy(restoredBackupAt = at) } }
         }
         // 받아 둔 사본 지우기도 곁일. 실패라고 하면 다시 시도로 같은 백업을 또 합침
-        guarded { fileSystem.delete(ready.snapshot, mustExist = false) }
+        quietly { fileSystem.delete(ready.snapshot, mustExist = false) }
         prepared = null
         return fetchPhotos(counts, ready)
     }
@@ -463,7 +465,7 @@ class RestoreController(
                 // 멈췄으면 파일을 두어 앱을 다시 열 때 이음
                 if (zip != null) dropBundle()
             }
-        guarded { rememberStop(stop, tally.notThere) }
+        quietly { rememberStop(stop, tally.notThere) }
         val left = orElseOnFailure((total - tally.fetched - tally.broken).coerceAtLeast(0)) { dao.pendingFiles().size }
         // 드라이브에 없는 사진은 앱을 다시 열어도 오지 않아 남은 사진으로 세지 않음
         val notInBackup = if (ready.bundle == null) tally.notThere else ready.manifest.media.count { !it.inBackup }
@@ -606,7 +608,7 @@ class RestoreController(
 
     /** 진행 숫자에는 받지 못한 장도 들어 있어 실제로 받은 수와 남은 수로 적음 */
     private suspend fun runOf(tally: PhotoTally): PhotoRun {
-        val left = guarded { db.value.backupDao().pendingFiles().size } ?: 0
+        val left = orElseOnFailure(0) { db.value.backupDao().pendingFiles().size }
         return PhotoRun(tally.fetched, (left - tally.notThere).coerceAtLeast(0), tally.broken + tally.notThere)
     }
 
@@ -628,12 +630,12 @@ class RestoreController(
 
     /** 백업이나 복원이 돌고 있으면 그 일이 끝난 뒤에 다시 불러야 함 */
     private suspend fun resuming(cellularOnce: Boolean): Boolean {
-        guarded { rollbackManager.value.expire() }
-        guarded { clearAbandonedCopies() }
+        quietly { rollbackManager.value.expire() }
+        quietly { clearAbandonedCopies() }
         if (!gate.tryEnter()) return true
         return try {
-            guarded { unpackLeftovers() }
-            guarded { fromDrive(cellularOnce) } ?: false
+            quietly { unpackLeftovers() }
+            orElseOnFailure(false) { fromDrive(cellularOnce) }
         } finally {
             gate.leave()
         }
@@ -659,14 +661,6 @@ class RestoreController(
     private suspend fun clearAbandonedCopies() = preparing.withLock {
         val inUse = prepared != null || preparedLegacy != null || preparedFile != null || restoring
         if (!inUse) withContext(Dispatchers.IO) { clearCopies() }
-    }
-
-    private inline fun <T> guarded(block: () -> T): T? = try {
-        block()
-    } catch (error: CancellationException) {
-        throw error
-    } catch (_: Exception) {
-        null
     }
 
     private val heldBundle: Path

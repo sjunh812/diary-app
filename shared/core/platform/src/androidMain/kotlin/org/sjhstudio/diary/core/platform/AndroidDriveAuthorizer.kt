@@ -71,6 +71,9 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         if (error.statusCode == CommonStatusCodes.CANCELED) ConnectResult.Cancelled else ConnectResult.Failed(error.kind())
     } catch (_: IOException) {
         ConnectResult.Failed(BackupFailure.OFFLINE)
+    } catch (_: Exception) {
+        // 동의 창을 띄우지 못한 경우 등. 결과로 돌려줘야 화면의 연결 중 표시가 끝나고 실패 안내가 뜸
+        ConnectResult.Failed(BackupFailure.UNKNOWN)
     }
 
     override suspend fun accessToken(): TokenResult = tokens.get()
