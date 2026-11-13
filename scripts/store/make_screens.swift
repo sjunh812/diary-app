@@ -3,6 +3,7 @@
 // 쓰는 법: swift scripts/store/make_screens.swift <캡처 폴더> <결과 폴더> <글꼴 폴더> [태블릿 캡처 폴더] [언어 ko·en·ja]
 // 태블릿 폴더를 주면 2560×1600 가로 캡처(write, list, calendar, insight)로 태블릿 4장도 만든다. "-"를 주면 건너뛴다.
 // 영어·일본어는 백업 화면(드라이브 연결 필요)과 피처 그래픽 없이 4장씩 만든다.
+// 여섯째 인자로 ios를 주면 App Store용으로 iPhone 1206×2622 세로와 iPad 2752×2064 가로를 4장씩 만든다.
 import AppKit
 import CoreText
 
@@ -10,6 +11,7 @@ let args = CommandLine.arguments
 _ = NSApplication.shared
 let source = args[1], output = args[2], fonts = args[3]
 let language = args.count > 5 ? args[5] : "ko"
+let ios = args.count > 6 && args[6] == "ios"
 for name in ["changwon_round_regular.otf"] {
     CTFontManagerRegisterFontsForURL(URL(fileURLWithPath: "\(fonts)/\(name)") as CFURL, .process, nil)
 }
@@ -124,7 +126,7 @@ let phoneSlides: [String: [(String, String, String)]] = [
         ("insight", "気分の流れを\nふりかえる", "ふりかえる")
     ]
 ]
-for (index, (name, words, word)) in phoneSlides[language]!.enumerated() {
+for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where !ios {
     let rep = canvas(1080, 1920) {
         text(words, language == "ja" ? 80 : 88, ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
         // 첫 장은 아래쪽 기분 시트까지 보이게 화면 전체를 넣는다.
@@ -137,7 +139,7 @@ for (index, (name, words, word)) in phoneSlides[language]!.enumerated() {
     save(rep, "phone-\(index + 1)")
 }
 
-if language == "ko" {
+if language == "ko", !ios {
 let feature = canvas(1024, 500) {
     text("바쁜 날에도\n일기를 남겨 봐요", 60, ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
     text("회원가입 없이, 사진까지 내 드라이브에", 25, weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
@@ -149,7 +151,7 @@ save(feature, "feature")
 
 // 태블릿: 가로 2560×1600, 머리말은 한 줄로 위에 두고 화면은 아래로 잘린다.
 // Play 7"·10" 태블릿 칸에 같은 이미지를 쓴다. 백업 화면은 드라이브 연결이 필요해 뺀다.
-if args.count > 4, args[4] != "-" {
+if !ios, args.count > 4, args[4] != "-" {
     shotFolder = args[4]
     statusBar = 48
     let tabletSlides: [String: [(String, String, String)]] = [
@@ -179,5 +181,51 @@ if args.count > 4, args[4] != "-" {
             phone(name, NSRect(x: 280, y: -70, width: 2000, height: 1212), 48)
         }
         save(rep, "tablet-\(index + 1)")
+    }
+}
+
+// App Store: iPhone 1206×2622(6.3", 필수 규격)과 iPad 13" 가로 2752×2064
+// 백업 화면은 드라이브 연결이 필요해 세 언어 모두 4장이다.
+if ios {
+    statusBar = 150
+    for (index, (name, words, word)) in phoneSlides[language]!.prefix(4).enumerated() {
+        let rep = canvas(1206, 2622) {
+            text(words, language == "ja" ? 92 : 100, ink, NSRect(x: 40, y: 2080, width: 1126, height: 360), .center, accented: word)
+            // 화면이 길어 아래 탭 바까지 전체를 넣는다. 잘리면 탭 이름이 반만 보임
+            phone(name, NSRect(x: 113, y: 24, width: 980, height: 2008), 80)
+        }
+        save(rep, "iphone-\(index + 1)")
+    }
+    if args.count > 4, args[4] != "-" {
+        shotFolder = args[4]
+        statusBar = 48
+        let tabletSlides: [String: [(String, String, String)]] = [
+            "ko": [
+                ("write", "오늘 기분부터 가볍게 골라 봐요", "기분"),
+                ("list", "목록과 일기를 나란히 봐요", "나란히"),
+                ("calendar", "한 달 기분을 달력으로 봐요", "달력"),
+                ("insight", "내 기분 흐름을 돌아봐요", "돌아봐요")
+            ],
+            "en": [
+                ("write", "Start with today's mood", "mood"),
+                ("list", "Your list and entry, side by side", "side by side"),
+                ("calendar", "Your month's moods on a calendar", "calendar"),
+                ("insight", "Look back on your moods", "Look back")
+            ],
+            "ja": [
+                ("write", "今日の気分から気軽に選べます", "気分"),
+                ("list", "一覧と日記を並べて見られます", "並べて"),
+                ("calendar", "1か月の気分をカレンダーで", "カレンダー"),
+                ("insight", "気分の流れをふりかえる", "ふりかえる")
+            ]
+        ]
+        for (index, (name, words, word)) in tabletSlides[language]!.enumerated() {
+            let rep = canvas(2752, 2064) {
+                text(words, language == "ja" ? 96 : 104, ink, NSRect(x: 80, y: 1700, width: 2592, height: 180), .center, accented: word)
+                // 아래 가장자리는 화면 밖으로 내려 잘리게 둠
+                phone(name, NSRect(x: 276, y: -90, width: 2200, height: 1700), 56)
+            }
+            save(rep, "ipad-\(index + 1)")
+        }
     }
 }
