@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.write
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -13,10 +14,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,14 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -55,30 +54,66 @@ import org.sjhstudio.diary.feature.write.resources.write_photo_remove
 /** 끄는 사진을 살짝 키워 집어 든 것처럼 */
 private const val DRAG_SCALE = 1.06f
 
-/** 길게 눌러 옆으로 끌면 순서가 바뀜(FR-007) */
+/**
+ * 길게 눌러 옆으로 끌면 순서가 바뀜(FR-007)
+ * 끄는 동안 옆 사진이 비켜 놓일 자리가 보이고, 놓을 때 한 번 저장
+ */
 @Composable
 internal fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> Unit, inset: Dp? = LocalScreenGutter.current) {
     val colors = DiaryTheme.colors
     val vm = actions.viewModel
-    val step = DiaryWriteSize.photo + DiarySpacing.x2
+    val haptic = LocalHapticFeedback.current
+    val list = rememberLazyListState()
+    // 끄는 동안의 순서(저장된 목록의 자리 번호). 저장된 목록이 바뀌면 그 순서를 다시 따름
+    var order by remember(state.photos) { mutableStateOf(state.photos.indices.toList()) }
+    val keyed = remember { PhotoKeys() }
+    val keys = remember(state.photos) { keyed.assign(state.photos) }
+    val drag = rememberPhotoDrag(
+        list = list,
+        count = { order.size },
+        onSwap = { from, to ->
+            order = order.toMutableList().apply { add(to, removeAt(from)) }
+            keyed.moved(from, to)
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        },
+        onDrop = { from, to -> vm.movePhoto(from, to - from) }
+    )
     LazyRow(
+        modifier = Modifier.pointerInput(drag) {
+            detectDragGesturesAfterLongPress(
+                onDragStart = { at -> if (drag.start(at.x)) haptic.performHapticFeedback(HapticFeedbackType.LongPress) },
+                onDragEnd = drag::drop,
+                onDragCancel = drag::drop
+            ) { change, amount ->
+                change.consume()
+                drag.dragBy(amount.x)
+            }
+        },
+        state = list,
         contentPadding = inset?.let { PaddingValues(horizontal = it, vertical = DiarySpacing.x2) } ?: PaddingValues(),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        itemsIndexed(state.photos, key = { index, photo -> "$index-${photo.sha256}" }) { index, photo ->
+        itemsIndexed(order, key = { _, saved -> keys[saved] }) { index, saved ->
+            val dragging = drag.dragging == index
             PhotoCell(
-                photo = photo,
+                photo = state.photos[saved],
                 mediaPath = actions.mediaPath,
-                step = step,
-                onRemove = { vm.removePhoto(index) },
-                onMove = { by -> vm.movePhoto(index, by) }
+                dragging = dragging,
+                // 끄는 칸은 손을, 놓은 칸은 제자리로 돌아오는 움직임을 따름. 나머지는 비키는 움직임
+                modifier = when {
+                    dragging -> Modifier.zIndex(1f).graphicsLayer { translationX = drag.offset }
+                    drag.settling == index -> Modifier.zIndex(1f).graphicsLayer { translationX = drag.settleOffset }
+                    else -> Modifier.animateItem()
+                },
+                onRemove = { vm.removePhoto(saved) }
             )
         }
-        item {
+        item(key = ADD_KEY) {
             val interaction = remember { MutableInteractionSource() }
             val photoLimit by actions.viewModel.photoLimit.collectAsStateWithLifecycle()
             Column(
                 Modifier
+                    .animateItem()
                     .size(DiaryWriteSize.photo)
                     .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
                     .clip(DiaryShapes.r12)
@@ -97,44 +132,51 @@ internal fun PhotoRow(state: WriteUiState, actions: WriteActions, onPick: () -> 
     }
 }
 
+private const val ADD_KEY = "add"
+
+/**
+ * 사진 줄의 목록 키
+ * 같은 사진을 두 번 붙일 수 있어 내용 지문만으로는 키가 겹침
+ * 순서를 바꿔도 사진마다 키가 그대로여야 비키는 움직임이 이어지고 줄이 튀지 않음
+ */
+internal class PhotoKeys {
+    // 화면에 보이는 순서대로의 (내용 지문, 키)
+    private var shown: List<Pair<String, String>> = emptyList()
+
+    /** 저장된 목록에 키를 붙임. 보이던 사진은 보이던 순서대로 같은 키를 이어받음 */
+    fun assign(photos: List<DraftPhoto>): List<String> {
+        val kept = shown.groupBy({ it.first }, { it.second }).mapValues { ArrayDeque(it.value) }
+        val taken = shown.mapTo(HashSet()) { it.second }
+        val keys = photos.map { photo ->
+            kept[photo.sha256]?.removeFirstOrNull() ?: generateSequence(0) { it + 1 }.map { "${photo.sha256}-$it" }.first(taken::add)
+        }
+        shown = photos.map { it.sha256 }.zip(keys)
+        return keys
+    }
+
+    /** 끄는 동안 보이는 순서가 바뀜 */
+    fun moved(from: Int, to: Int) {
+        shown = shown.toMutableList().apply { add(to, removeAt(from)) }
+    }
+}
+
 @Composable
-internal fun PhotoCell(photo: DraftPhoto, mediaPath: (String) -> String, step: Dp, onRemove: () -> Unit, onMove: (Int) -> Unit) {
+internal fun PhotoCell(
+    photo: DraftPhoto,
+    mediaPath: (String) -> String,
+    dragging: Boolean,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val colors = DiaryTheme.colors
-    val haptic = LocalHapticFeedback.current
-    var shift by remember { mutableFloatStateOf(0f) }
-    var dragging by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(if (dragging) DRAG_SCALE else 1f)
     Box(
-        Modifier
-            .zIndex(if (dragging) 1f else 0f)
+        modifier
             .graphicsLayer {
-                // 끄는 동안 손을 따라오게 그림
-                translationX = shift
-                scaleX = if (dragging) DRAG_SCALE else 1f
-                scaleY = if (dragging) DRAG_SCALE else 1f
+                scaleX = scale
+                scaleY = scale
             }
             .size(DiaryWriteSize.photo)
-            .pointerInput(photo.sha256) {
-                detectDragGesturesAfterLongPress(
-                    onDragStart = {
-                        shift = 0f
-                        dragging = true
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    },
-                    onDragEnd = {
-                        val by = (shift / step.toPx()).roundToInt()
-                        shift = 0f
-                        dragging = false
-                        onMove(by)
-                    },
-                    onDragCancel = {
-                        shift = 0f
-                        dragging = false
-                    }
-                ) { change, amount ->
-                    change.consume()
-                    shift += amount.x
-                }
-            }
     ) {
         Box(Modifier.fillMaxSize().clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(mediaPath(photo.fileName))) }
         val interaction = remember { MutableInteractionSource() }
