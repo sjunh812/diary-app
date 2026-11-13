@@ -239,4 +239,24 @@ class TabNavigationTest {
         nav.back()
         assertTrue(nav.movedBetweenTabs)
     }
+
+    @Test
+    fun a_setting_opened_from_the_list_replaces_the_one_open_beside_it() {
+        val nav = navigation(SettingsKey)
+        nav.openInTab(SettingsKey, BackupSettingsKey)
+        nav.push(RestoreListKey)
+
+        nav.openInTab(SettingsKey, FontSettingsKey)
+
+        assertEquals(listOf<NavKey>(SettingsKey, FontSettingsKey), nav.current)
+    }
+
+    @Test
+    fun opening_the_same_setting_twice_keeps_one() {
+        val nav = navigation(SettingsKey)
+        nav.openInTab(SettingsKey, FontSettingsKey)
+        nav.openInTab(SettingsKey, FontSettingsKey)
+
+        assertEquals(listOf<NavKey>(SettingsKey, FontSettingsKey), nav.current)
+    }
 }

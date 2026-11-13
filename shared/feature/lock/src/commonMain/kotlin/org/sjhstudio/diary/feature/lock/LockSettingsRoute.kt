@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.feature.lock
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.LocalTopBarBackHidden
 import org.sjhstudio.diary.core.platform.BiometricStatus
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.lock_confirm_title
@@ -65,49 +67,53 @@ fun LockSettingsRoute(onBack: () -> Unit) {
         }
     }
 
-    when (step) {
-        SettingsStep.Main ->
-            LockSettingsScreen(
-                settings = settings,
-                biometricAvailable = biometricAvailable,
-                deviceSecure = deviceSecure,
-                onBack = onBack,
-                onEnabledChange = { on ->
-                    if (on) {
-                        setup.reset()
-                        step = SettingsStep.NewPin
-                    } else {
-                        confirm.start(PinCheck.Disable)
-                        step = SettingsStep.ConfirmToDisable
-                    }
-                },
-                onChangePin = {
-                    confirm.start(PinCheck.Verify)
-                    step = SettingsStep.ConfirmToChange
-                },
-                onBiometricChange = viewModel::setBiometric,
-                onRelockChange = viewModel::setRelockAfter
-            )
+    // 비밀번호 확인·새 비밀번호 단계는 이 화면 안의 이동이라 두 칸 오른쪽에서도 뒤로 단추를 둠
+    val hideBack = LocalTopBarBackHidden.current && step == SettingsStep.Main
+    CompositionLocalProvider(LocalTopBarBackHidden provides hideBack) {
+        when (step) {
+            SettingsStep.Main ->
+                LockSettingsScreen(
+                    settings = settings,
+                    biometricAvailable = biometricAvailable,
+                    deviceSecure = deviceSecure,
+                    onBack = onBack,
+                    onEnabledChange = { on ->
+                        if (on) {
+                            setup.reset()
+                            step = SettingsStep.NewPin
+                        } else {
+                            confirm.start(PinCheck.Disable)
+                            step = SettingsStep.ConfirmToDisable
+                        }
+                    },
+                    onChangePin = {
+                        confirm.start(PinCheck.Verify)
+                        step = SettingsStep.ConfirmToChange
+                    },
+                    onBiometricChange = viewModel::setBiometric,
+                    onRelockChange = viewModel::setRelockAfter
+                )
 
-        SettingsStep.ConfirmToDisable, SettingsStep.ConfirmToChange -> {
-            val back = { step = SettingsStep.Main }
-            BackHandler(onBack = back)
-            LockScreen(
-                state = confirmState,
-                showBiometric = false,
-                onDigit = confirm::onDigit,
-                onDelete = confirm::onDelete,
-                onBiometric = {},
-                onForgot = null,
-                title = stringResource(Res.string.lock_confirm_title),
-                onBack = back
-            )
-        }
+            SettingsStep.ConfirmToDisable, SettingsStep.ConfirmToChange -> {
+                val back = { step = SettingsStep.Main }
+                BackHandler(onBack = back)
+                LockScreen(
+                    state = confirmState,
+                    showBiometric = false,
+                    onDigit = confirm::onDigit,
+                    onDelete = confirm::onDelete,
+                    onBiometric = {},
+                    onForgot = null,
+                    title = stringResource(Res.string.lock_confirm_title),
+                    onBack = back
+                )
+            }
 
-        SettingsStep.NewPin -> {
-            val back = { if (!setup.back()) step = SettingsStep.Main }
-            BackHandler(onBack = back)
-            PinSetupScreen(setupState, onDigit = setup::onDigit, onDelete = setup::onDelete, onBack = back, deviceSecure = deviceSecure)
+            SettingsStep.NewPin -> {
+                val back = { if (!setup.back()) step = SettingsStep.Main }
+                BackHandler(onBack = back)
+                PinSetupScreen(setupState, onDigit = setup::onDigit, onDelete = setup::onDelete, onBack = back, deviceSecure = deviceSecure)
+            }
         }
     }
 }

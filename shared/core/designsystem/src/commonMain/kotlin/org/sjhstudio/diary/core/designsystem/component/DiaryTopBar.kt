@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,12 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
+/**
+ * 두 칸의 오른쪽 첫 화면이면 true
+ * 왼쪽 목록이 옆에 있어 돌아갈 곳이 없으니 뒤로 단추를 두지 않음
+ */
+val LocalTopBarBackHidden = compositionLocalOf { false }
+
 /** 상단 바 오른쪽 글자 동작(저장 같은). 채운 버튼이 아니라 글자 버튼 */
 class DiaryTopBarAction(val label: String, val enabled: Boolean = true, val danger: Boolean = false, val onClick: () -> Unit)
 
@@ -45,7 +52,7 @@ fun DiaryTopBar(title: String, modifier: Modifier = Modifier, onBack: (() -> Uni
         modifier = modifier.fillMaxWidth().defaultMinSize(minHeight = DiarySpacing.x14).padding(vertical = DiarySpacing.x0_5),
         content = {
             Box {
-                if (onBack != null) TopBarBack(onBack)
+                if (onBack != null && !LocalTopBarBackHidden.current) TopBarBack(onBack)
             }
             BasicText(
                 text = title,

@@ -15,6 +15,7 @@ import org.sjhstudio.diary.feature.settings.FontSettingsScreen
 import org.sjhstudio.diary.feature.settings.FontUiState
 import org.sjhstudio.diary.feature.settings.ReminderSettingsScreen
 import org.sjhstudio.diary.feature.settings.ReminderUiState
+import org.sjhstudio.diary.feature.settings.SettingsPane
 import org.sjhstudio.diary.feature.settings.SettingsScreen
 import org.sjhstudio.diary.feature.settings.SettingsUiState
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
@@ -34,6 +35,14 @@ private val sample =
 private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
     SettingsScreen(sample, onFont = {
     }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {})
+}
+
+/** 태블릿 두 칸 왼쪽 목록. 오른쪽에 연 줄을 칠함 */
+@Preview(name = "S6 설정 · 태블릿 목록 · 글꼴 고름", locale = "ko", widthDp = 360, heightDp = 834)
+@Composable
+private fun ListPicked() = DiaryTheme(darkTheme = false) {
+    SettingsScreen(sample, onFont = {
+    }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {}, selected = SettingsPane.FONT)
 }
 
 @Preview(name = "S6 설정 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)

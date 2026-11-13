@@ -12,6 +12,8 @@
     <string name="detail_trashed_undo">元に戻す</string>
     <string name="detail_pick_hint">日記が選択されていません</string>
     <string name="detail_pick_body">一覧で日記をタップすると、ここで読めます。</string>
+    <string name="settings_pick_hint">設定が選択されていません</string>
+    <string name="settings_pick_body">一覧で設定をタップすると、ここに表示されます。</string>
     <string name="ad_label">広告</string>
     <string name="reward_title">広告なしの1日をもらう</string>
     <string name="reward_body">短い広告動画を最後まで見ると、24時間ほかの広告が表示されません。</string>

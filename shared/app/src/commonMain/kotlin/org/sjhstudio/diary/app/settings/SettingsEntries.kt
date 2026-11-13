@@ -40,7 +40,9 @@ import org.sjhstudio.diary.app.navigation.ReminderSettingsKey
 import org.sjhstudio.diary.app.navigation.RestoreListKey
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.RestoreProgressKey
+import org.sjhstudio.diary.app.navigation.SettingsDetailPane
 import org.sjhstudio.diary.app.navigation.SettingsKey
+import org.sjhstudio.diary.app.navigation.SettingsListPane
 import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
@@ -81,6 +83,7 @@ import org.sjhstudio.diary.feature.settings.ListStyleSettingsScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportViewModel
 import org.sjhstudio.diary.feature.settings.ReminderSettingsRoute
+import org.sjhstudio.diary.feature.settings.SettingsPane
 import org.sjhstudio.diary.feature.settings.SettingsScreen
 import org.sjhstudio.diary.feature.settings.SettingsViewModel
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
@@ -95,8 +98,14 @@ import org.sjhstudio.diary.feature.welcome.LetterViewModel
  * 설정 탭의 화면들(설정 목록 → 글꼴, 본문 글자 크기, 화면 모드, 매일 알림, 잠금, 기록 이전 결과, 오픈소스 라이선스)
  * 기능 모듈끼리는 서로 몰라 어디서 어디로 가는지는 여기서 정함
  */
-fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -> Unit, home: () -> Unit) {
-    entry<SettingsKey>(metadata = tabRoot(SettingsKey)) {
+fun EntryProviderScope<NavKey>.settingsEntries(
+    push: (NavKey) -> Unit,
+    pop: () -> Unit,
+    home: () -> Unit,
+    open: (NavKey) -> Unit = push,
+    opened: () -> NavKey? = { null }
+) {
+    entry<SettingsKey>(metadata = SettingsListPane + tabRoot(SettingsKey)) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val app = koinInject<BackupAppInfo>()
@@ -118,22 +127,23 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 plusActive = state.plan == Plan.PLUS,
                 adsRemoved = state.plan == Plan.AD_FREE,
                 onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
-                onFont = { push(FontSettingsKey) },
-                onTextSize = { push(TextSizeSettingsKey) },
-                onTheme = { push(ThemeSettingsKey) },
-                onReminder = { push(ReminderSettingsKey) },
-                onLock = { push(LockSettingsKey) },
-                onMigrationReport = { push(MigrationReportKey) },
-                onLicenses = { push(LicensesKey) },
-                onListStyle = { push(ListStyleSettingsKey) },
-                onTrash = { push(TrashKey) },
+                onFont = { open(FontSettingsKey) },
+                onTextSize = { open(TextSizeSettingsKey) },
+                onTheme = { open(ThemeSettingsKey) },
+                onReminder = { open(ReminderSettingsKey) },
+                onLock = { open(LockSettingsKey) },
+                onMigrationReport = { open(MigrationReportKey) },
+                onLicenses = { open(LicensesKey) },
+                onListStyle = { open(ListStyleSettingsKey) },
+                onTrash = { open(TrashKey) },
                 trashCount = state.trashCount,
-                onBackup = { push(BackupSettingsKey) },
+                onBackup = { open(BackupSettingsKey) },
                 backupValue = state.lastBackupAt?.let { settingsBackupValue(it) },
                 onLetter = { push(LetterKey) },
                 onTerms = { openWeb(LegalLinks.TERMS) },
                 onPrivacy = { openWeb(LegalLinks.PRIVACY) },
-                onPlus = { push(PlusKey) }
+                onPlus = { push(PlusKey) },
+                selected = opened()?.let(::settingsPane)
             )
             DiaryToastHost(
                 toast,
@@ -142,7 +152,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             )
         }
     }
-    entry<BackupSettingsKey> {
+    entry<BackupSettingsKey>(metadata = SettingsDetailPane) {
         Column(Modifier.fillMaxSize()) {
             BackupSettingsRoute(
                 onBack = pop,
@@ -155,17 +165,17 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             )
         }
     }
-    entry<BackupOptionsKey> { BackupOptionsRoute(onBack = pop) }
-    entry<RestoreListKey> { RestoreListRoute(onBack = pop, onPick = { push(RestorePreviewKey(it)) }) }
-    entry<FileBackupKey> { FileBackupRoute(onBack = pop) }
-    entry<RestorePreviewKey> { key ->
+    entry<BackupOptionsKey>(metadata = SettingsDetailPane) { BackupOptionsRoute(onBack = pop) }
+    entry<RestoreListKey>(metadata = SettingsDetailPane) { RestoreListRoute(onBack = pop, onPick = { push(RestorePreviewKey(it)) }) }
+    entry<FileBackupKey>(metadata = SettingsDetailPane) { FileBackupRoute(onBack = pop) }
+    entry<RestorePreviewKey>(metadata = SettingsDetailPane) { key ->
         RestorePreviewRoute(key.snapshotName, onBack = pop, onMerged = {
             pop()
             push(RestoreProgressKey)
         })
     }
     entry<RestoreProgressKey> { RestoreProgressRoute(onHome = home, onLock = { push(LockSettingsKey) }, onPickOther = pop) }
-    entry<TrashKey> { TrashRoute(onBack = pop) }
+    entry<TrashKey>(metadata = SettingsDetailPane) { TrashRoute(onBack = pop) }
     entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
     entry<LetterKey> {
         val letter by koinViewModel<LetterViewModel>().letter.collectAsStateWithLifecycle()
@@ -195,14 +205,14 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             )
         }
     }
-    entry<ListStyleSettingsKey> {
+    entry<ListStyleSettingsKey>(metadata = SettingsDetailPane) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
         if (!state.loaded) return@entry
         ListStyleSettingsScreen(state.settings.list.listStyle, onSelect = viewModel::setListStyle, onBack = pop)
     }
-    entry<TextSizeSettingsKey> {
+    entry<TextSizeSettingsKey>(metadata = SettingsDetailPane) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         val look by viewModel.look.collectAsStateWithLifecycle()
@@ -216,22 +226,22 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
             onBack = pop
         )
     }
-    entry<ThemeSettingsKey> {
+    entry<ThemeSettingsKey>(metadata = SettingsDetailPane) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
         // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
         if (!state.loaded) return@entry
         ThemeSettingsScreen(state.settings.themeMode, onSelect = viewModel::setThemeMode, onBack = pop)
     }
-    entry<FontSettingsKey> { FontSettingsRoute(onBack = pop) }
-    entry<ReminderSettingsKey> { ReminderSettingsRoute(onBack = pop) }
-    entry<LockSettingsKey> { LockSettingsRoute(onBack = pop) }
-    entry<MigrationReportKey> { MigrationReportPage(onBack = pop) }
-    entry<LicensesKey> {
+    entry<FontSettingsKey>(metadata = SettingsDetailPane) { FontSettingsRoute(onBack = pop) }
+    entry<ReminderSettingsKey>(metadata = SettingsDetailPane) { ReminderSettingsRoute(onBack = pop) }
+    entry<LockSettingsKey>(metadata = SettingsDetailPane) { LockSettingsRoute(onBack = pop) }
+    entry<MigrationReportKey>(metadata = SettingsDetailPane) { MigrationReportPage(onBack = pop) }
+    entry<LicensesKey>(metadata = SettingsDetailPane) {
         LicensesRoute(onFont = { push(FontLicenseKey(it.id)) }, onLibrary = { push(LibraryLicenseKey(it)) }, onBack = pop)
     }
-    entry<FontLicenseKey> { key -> FontLicenseRoute(key.fontId, onBack = pop) }
-    entry<LibraryLicenseKey> { key -> LibraryLicenseRoute(key.libraryId, onBack = pop) }
+    entry<FontLicenseKey>(metadata = SettingsDetailPane) { key -> FontLicenseRoute(key.fontId, onBack = pop) }
+    entry<LibraryLicenseKey>(metadata = SettingsDetailPane) { key -> LibraryLicenseRoute(key.libraryId, onBack = pop) }
 }
 
 /**
@@ -273,4 +283,19 @@ private fun MigrationReportPage(onBack: () -> Unit) {
             reduceMotion = rememberReduceMotion()
         )
     }
+}
+
+/** 오른쪽에 열린 화면이 어느 설정 줄에서 왔는지 */
+private fun settingsPane(key: NavKey): SettingsPane? = when (key) {
+    BackupSettingsKey -> SettingsPane.BACKUP
+    TrashKey -> SettingsPane.TRASH
+    FontSettingsKey -> SettingsPane.FONT
+    TextSizeSettingsKey -> SettingsPane.TEXT_SIZE
+    ThemeSettingsKey -> SettingsPane.THEME
+    ListStyleSettingsKey -> SettingsPane.LIST_STYLE
+    ReminderSettingsKey -> SettingsPane.REMINDER
+    LockSettingsKey -> SettingsPane.LOCK
+    LicensesKey -> SettingsPane.LICENSES
+    MigrationReportKey -> SettingsPane.MIGRATION_REPORT
+    else -> null
 }

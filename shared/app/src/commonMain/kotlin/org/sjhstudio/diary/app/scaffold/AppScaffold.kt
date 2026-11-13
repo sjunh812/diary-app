@@ -79,6 +79,7 @@ import org.sjhstudio.diary.app.navigation.PlusKey
 import org.sjhstudio.diary.app.navigation.ROOT_OF
 import org.sjhstudio.diary.app.navigation.RestorePreviewKey
 import org.sjhstudio.diary.app.navigation.RestoreProgressKey
+import org.sjhstudio.diary.app.navigation.SETTINGS_LIST
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.TABS
@@ -103,6 +104,8 @@ import org.sjhstudio.diary.app.resources.detail_pick_body
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.app.resources.detail_trashed
 import org.sjhstudio.diary.app.resources.detail_trashed_undo
+import org.sjhstudio.diary.app.resources.settings_pick_body
+import org.sjhstudio.diary.app.resources.settings_pick_hint
 import org.sjhstudio.diary.app.resources.tab_calendar
 import org.sjhstudio.diary.app.resources.tab_home
 import org.sjhstudio.diary.app.resources.tab_insight
@@ -122,6 +125,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastResult
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryWriteButton
+import org.sjhstudio.diary.core.designsystem.component.LocalTopBarBackHidden
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -453,7 +457,7 @@ private fun Content(
     // 화면이 바뀌면 통계(화면 키 이름만)와 저장 뒤 광고 차례(FR-010)를 화면 모델에 알림
     val top = nav.top
     LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList()) }
-    val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { PickHint() } }
+    val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { list -> PickHint(list) } }
     val homeStack = nav.stacks.getValue(HomeKey)
     val dimmed = dimmedAlpha(DiaryTheme.colors.canvas.luminance() < HALF)
     val pushMotion = remember(dimmed) { pushTransition<NavKey>(dimmed) }
@@ -523,8 +527,8 @@ private fun Content(
                         entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
                             EntryDetailRoute(
                                 entryId = key.entryId,
-                                // 창이 넓어도 달력에서 연 상세는 한 칸. 목록이 옆에 그려질 때만 뒤로 버튼을 뺌
-                                onBack = pop.takeUnless { LocalInListDetail.current },
+                                // 창이 넓어도 달력에서 연 상세는 한 칸. 목록 바로 옆 첫 화면일 때만 뒤로 버튼을 뺌
+                                onBack = pop.takeUnless { LocalTopBarBackHidden.current },
                                 onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
                                 onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
                                 onOtherVersion = nav::openEntry,
@@ -570,7 +574,15 @@ private fun Content(
                                 onWrite = onWrite
                             )
                         }
-                        settingsEntries(push = nav::push, pop = pop, home = { nav.startOver(HomeKey) })
+                        settingsEntries(
+                            push = nav::push,
+                            pop = pop,
+                            home = { nav.startOver(HomeKey) },
+                            // 설정 목록 바로 위에 엶. 두 칸에서 다른 줄을 고르면 오른쪽 화면이 쌓이지 않고 바뀜
+                            open = { nav.openInTab(SettingsKey, it) },
+                            // 두 칸일 때만 왼쪽 목록에서 열린 줄을 칠함
+                            opened = { nav.stacks.getValue(SettingsKey).getOrNull(1)?.takeIf { splitWindow } }
+                        )
                         entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
                             val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
                             WriteRoute(
@@ -627,12 +639,13 @@ private const val HALF = 0.5f
  * 아이콘은 두지 않음. 연필은 쓰기 단추와 같아 누를 것처럼 보임(Apple 메일·메모처럼 지금 상태와 할 일만 글로)
  */
 @Composable
-private fun PickHint() {
+private fun PickHint(list: String?) {
+    val settings = list == SETTINGS_LIST
     DiaryEmptyArea(Modifier.background(DiaryTheme.colors.canvas)) {
         DiaryEmptyState(
             icon = null,
-            title = stringResource(Res.string.detail_pick_hint),
-            description = stringResource(Res.string.detail_pick_body)
+            title = stringResource(if (settings) Res.string.settings_pick_hint else Res.string.detail_pick_hint),
+            description = stringResource(if (settings) Res.string.settings_pick_body else Res.string.detail_pick_body)
         )
     }
 }

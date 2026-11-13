@@ -105,7 +105,8 @@ fun SettingsScreen(
     backupValue: String? = null,
     appVersion: String = "",
     onFeedback: () -> Unit = {},
-    onRate: (() -> Unit)? = null
+    onRate: (() -> Unit)? = null,
+    selected: SettingsPane? = null
 ) {
     val colors = DiaryTheme.colors
     // 폰은 탭 바가 시스템 내비게이션 높이까지 맡고, 앱 틀이 다 썼다고 알려 아래가 두 번 뜨지 않음
@@ -163,10 +164,17 @@ fun SettingsScreen(
                 )
             }
             DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
-            DiarySettingsRow(stringResource(Res.string.settings_backup), onClick = onBackup, value = backupValue)
+            DiarySettingsRow(
+                stringResource(Res.string.settings_backup),
+                onClick = onBackup,
+                value = backupValue,
+                selected =
+                    selected == SettingsPane.BACKUP
+            )
             DiarySettingsRow(
                 stringResource(Res.string.settings_trash),
                 onClick = onTrash,
+                selected = selected == SettingsPane.TRASH,
                 value = if (trashCount >
                     0
                 ) {
@@ -179,21 +187,25 @@ fun SettingsScreen(
             DiarySettingsRow(
                 stringResource(Res.string.settings_font),
                 onClick = onFont,
+                selected = selected == SettingsPane.FONT,
                 value = if (state.loaded) stringResource(state.settings.font.label()) else null
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_text_size),
                 onClick = onTextSize,
+                selected = selected == SettingsPane.TEXT_SIZE,
                 value = if (state.loaded) stringResource(state.settings.bodyTextSize.label()) else null
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_theme),
                 onClick = onTheme,
+                selected = selected == SettingsPane.THEME,
                 value = if (state.loaded) stringResource(state.settings.themeMode.label()) else null
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_list_style),
                 onClick = onListStyle,
+                selected = selected == SettingsPane.LIST_STYLE,
                 value = if (state.loaded) stringResource(state.settings.list.listStyle.label()) else null
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_notification_security), gapAbove = true)
@@ -207,6 +219,7 @@ fun SettingsScreen(
             DiarySettingsRow(
                 stringResource(Res.string.settings_reminder),
                 onClick = onReminder,
+                selected = selected == SettingsPane.REMINDER,
                 value = reminderValue.takeIf {
                     state.loaded
                 }
@@ -214,6 +227,7 @@ fun SettingsScreen(
             DiarySettingsRow(
                 stringResource(Res.string.settings_lock),
                 onClick = onLock,
+                selected = selected == SettingsPane.LOCK,
                 value = if (state.loaded) stringResource(state.lock.label()) else null
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_feedback), gapAbove = true)
@@ -222,11 +236,21 @@ fun SettingsScreen(
             onRate?.let { DiarySettingsRow(stringResource(Res.string.settings_rate), onClick = it) }
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
             DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
-            DiarySettingsRow(stringResource(Res.string.settings_licenses), onClick = onLicenses)
+            DiarySettingsRow(
+                stringResource(Res.string.settings_licenses),
+                onClick = onLicenses,
+                selected =
+                    selected == SettingsPane.LICENSES
+            )
             DiarySettingsRow(stringResource(Res.string.settings_terms), onClick = onTerms)
             DiarySettingsRow(stringResource(Res.string.settings_privacy), onClick = onPrivacy)
             if (state.showsMigrationReport) {
-                DiarySettingsRow(stringResource(Res.string.migration_report_title), onClick = onMigrationReport)
+                DiarySettingsRow(
+                    stringResource(Res.string.migration_report_title),
+                    onClick = onMigrationReport,
+                    selected =
+                        selected == SettingsPane.MIGRATION_REPORT
+                )
             }
             onDevMode?.let { DiarySettingsRow(stringResource(Res.string.settings_dev_mode), onClick = it) }
         }
