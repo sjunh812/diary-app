@@ -47,8 +47,11 @@ data class Draft(
     override fun toString(): String = "Draft"
 }
 
-/** 사진 고르기 화면이 넘긴 그림 하나. 바이트는 쓸 때 읽어 메모리에 오래 두지 않음 */
-class PickedImage(val read: suspend () -> ByteArray)
+/**
+ * 사진 고르기 화면이 넘긴 그림 하나
+ * 원본을 통째로 메모리에 올리지 않게 조각으로 넘김. [copy]는 읽은 조각(버퍼, 길이)마다 받은 함수를 부름
+ */
+class PickedImage(val copy: suspend (write: (ByteArray, Int) -> Unit) -> Unit)
 
 /** 사진 추가 결과. 한도나 공간 때문에 못 추가해도 저장은 막지 않음(FR-006) */
 sealed interface AddPhotosResult {

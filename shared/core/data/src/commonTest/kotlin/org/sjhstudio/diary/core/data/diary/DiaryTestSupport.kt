@@ -20,6 +20,7 @@ import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.platform.ImageSize
 
 internal val MEDIA_DIR: Path = "/files/media".toPath()
@@ -100,3 +101,9 @@ internal fun copyEncoder(fileSystem: FileSystem) = ThumbnailEncoder { source, ta
 
 internal fun photoStore(fileSystem: FakeFileSystem = FakeFileSystem()) =
     PhotoStore(fileSystem, MEDIA_DIR, copyEncoder(fileSystem), { ImageSize(10, 20) })
+
+/** 바이트를 한 조각으로 넘기는 고른 사진. 읽기가 느리거나 실패하는 경우도 [read]로 흉내 냄 */
+fun bytesImage(read: suspend () -> ByteArray) = PickedImage { write ->
+    val bytes = read()
+    write(bytes, bytes.size)
+}

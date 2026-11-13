@@ -97,22 +97,9 @@ class DefaultDraftRepository(
         var failed = 0
         for (image in picked.take(room)) {
             // 읽지 못한 그림은 공간 문제가 아니라 나머지를 계속 더함
-            val bytes =
-                try {
-                    image.read()
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (_: Exception) {
-                    failed++
-                    continue
-                } catch (_: OutOfMemoryError) {
-                    // 아주 큰 원본을 통째로 읽다 메모리가 모자라면 앱을 끄지 않고 그 사진만 못 넣은 것으로 셈
-                    failed++
-                    continue
-                }
             val stored =
                 try {
-                    photos.store(bytes)
+                    photos.store(image)
                 } catch (_: okio.IOException) {
                     return@inOrder AddPhotosResult.NoSpace(added)
                 }
