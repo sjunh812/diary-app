@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -31,6 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -93,7 +98,7 @@ private fun Modifier.letterBackdrop(): Modifier {
  * 개발자의 편지(Figma W0, W1)
  * 판매 장치 없이 만든 사람의 말만 둠(FR-003, FR-005)
  * 봉투를 열면 편지지가 나옴
- * 버튼 자리를 그대로 두어 열고 나서 같은 곳을 누르면 넘어감
+ * [계속하기]는 편지지 안 아래쪽. 편지지와 함께 펼쳐져 화면 아래에 빈 띠가 남지 않음
  * 동작 줄이기에서는 바로 편지지를 보임
  */
 @Composable
@@ -103,8 +108,8 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
     val opening = remember { Animatable(0f) }
     var waiting by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    // 누르면 버튼이 먼저 물러나고, 편지지가 다 펼쳐지면 [계속하기]로 돌아옴
-    val buttonShown by animateFloatAsState(if (waiting && !opened) 0f else 1f, tween(DiaryMotion.QUICK_MILLIS))
+    // 누르면 [편지 열기]가 물러나고 봉투가 열림
+    val openShown by animateFloatAsState(if (waiting) 0f else 1f, tween(DiaryMotion.QUICK_MILLIS))
     val open: () -> Unit = {
         when {
             still -> opened = true
@@ -119,28 +124,35 @@ fun LetterScreen(entries: Int?, onStart: () -> Unit, modifier: Modifier = Modifi
             }
         }
     }
-    Column(modifier.fillMaxSize().letterBackdrop().statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
+    val start = stringResource(Res.string.letter_start)
+    Box(modifier.fillMaxSize().letterBackdrop().statusBarsPadding().navigationBarsPadding(), contentAlignment = Alignment.TopCenter) {
         if (opened) {
             // 봉투에서 펼쳐진 편지지를 그대로 이음
             // 여기서 다시 올라오면 깜빡임
-            LetterSheet(Modifier.weight(1f), rises = false) { LetterBody(entries) }
+            LetterSheet(
+                Modifier.fillMaxSize(),
+                rises = false,
+                action = { DiaryButton(start, onStart, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge) }
+            ) { LetterBody(entries) }
         } else {
-            LetterStage({ opening.value }, open, Modifier.weight(1f)) { card ->
-                LetterSheet(Modifier.fillMaxSize(), card, rises = false) { LetterBody(entries) }
+            LetterStage({ opening.value }, open, Modifier.fillMaxSize()) { card ->
+                LetterSheet(
+                    Modifier.fillMaxSize(),
+                    card,
+                    rises = false,
+                    // 다 펼쳐지기 전에는 눌러도 넘어가지 않음
+                    action = { DiaryButton(start, {}, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge) }
+                ) { LetterBody(entries) }
             }
-        }
-        Column(
-            Modifier
-                .widthIn(max = DiaryWriteSize.bodyMax)
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
             DiaryButton(
-                stringResource(if (opened) Res.string.letter_start else Res.string.letter_open),
-                if (opened) onStart else open,
-                Modifier.fillMaxWidth().alpha(buttonShown),
+                stringResource(Res.string.letter_open),
+                open,
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .widthIn(max = DiaryWriteSize.bodyMax)
+                    .fillMaxWidth()
+                    .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x3)
+                    .alpha(openShown),
                 size = DiaryButtonSize.XLarge
             )
         }
@@ -228,12 +240,27 @@ private fun LetterSheet(
     rises: Boolean = true,
     centered: Boolean = true,
     footer: @Composable ColumnScope.() -> Unit = {},
+    action: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val still = !rises || rememberReduceMotion() || LocalInspectionMode.current
     val rise = remember { Animatable(if (still) 1f else 0f) }
     LaunchedEffect(still) { if (!still) rise.animateTo(1f, tween(RISE_MILLIS)) }
-    // 처음 보는 편지는 아래 버튼이 있어 남는 자리의 가운데에 둠
+    val riseLayer: GraphicsLayerScope.() -> Unit = {
+        alpha = rise.value
+        translationY = (1f - rise.value) * DiarySpacing.x6.toPx()
+    }
+    // 처음 보는 편지는 화면 가운데에 두고 버튼을 편지지 안에 둠. 길면 편지지 안에서 스크롤
+    if (action != null) {
+        Box(
+            modifier
+                .widthIn(max = DiaryWriteSize.bodyMax)
+                .fillMaxWidth()
+                .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
+            contentAlignment = Alignment.Center
+        ) { LetterCard(cardModifier, riseLayer, action, content) }
+        return
+    }
     // 다시 읽는 편지는 위에 바만 있어 가운데에 두면 처져 보여 바 바로 아래부터 놓음
     // 길면 스크롤
     BoxWithConstraints(modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth()) {
@@ -245,11 +272,7 @@ private fun LetterSheet(
                 .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x4),
             verticalArrangement = if (centered) Arrangement.Center else Arrangement.Top
         ) {
-            val riseLayer: GraphicsLayerScope.() -> Unit = {
-                alpha = rise.value
-                translationY = (1f - rise.value) * DiarySpacing.x6.toPx()
-            }
-            LetterCard(cardModifier, riseLayer, content)
+            LetterCard(cardModifier, riseLayer, action = null, content)
             // 카드 아래 내용도 카드와 한 덩어리로 올라옴
             Column(Modifier.fillMaxWidth().graphicsLayer(riseLayer)) { footer() }
         }
@@ -261,7 +284,12 @@ private fun LetterSheet(
  * 편지 꼴을 갖춘 면이고 테두리 없이 부드러운 모서리
  */
 @Composable
-private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit, content: @Composable ColumnScope.() -> Unit) {
+private fun LetterCard(
+    modifier: Modifier,
+    layer: GraphicsLayerScope.() -> Unit,
+    action: (@Composable () -> Unit)?,
+    content: @Composable ColumnScope.() -> Unit
+) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Column(
@@ -271,16 +299,46 @@ private fun LetterCard(modifier: Modifier, layer: GraphicsLayerScope.() -> Unit,
             .clip(DiaryShapes.r28)
             .background(colors.paper)
             .padding(DiarySpacing.x6),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x5)
     ) {
-        BasicText(stringResource(Res.string.letter_to), style = typography.label.copy(color = colors.accentText))
-        BasicText(stringResource(Res.string.letter_hello), style = typography.title2.copy(color = colors.textPrimary))
-        content()
-        BasicText(
-            stringResource(Res.string.letter_sign),
-            Modifier.fillMaxWidth(),
-            style = typography.label.copy(color = colors.textSecondary, textAlign = TextAlign.End)
-        )
+        val scroll = rememberScrollState()
+        Column(
+            // 버튼이 있으면 글만 스크롤하고 버튼은 편지지 아래에 붙어 있음
+            // 아래에 글이 더 있으면 끝을 종이색으로 흐려 이어진다는 것을 보임
+            if (action != null) {
+                Modifier
+                    .weight(1f, fill = false)
+                    .drawWithContent {
+                        drawContent()
+                        if (scroll.canScrollForward) {
+                            val fade = DiarySpacing.x8.toPx()
+                            drawRect(
+                                Brush.verticalGradient(
+                                    listOf(colors.paper.copy(alpha = 0f), colors.paper),
+                                    size.height - fade,
+                                    size.height
+                                ),
+                                topLeft = Offset(0f, size.height - fade),
+                                size = Size(size.width, fade)
+                            )
+                        }
+                    }
+                    .verticalScroll(scroll)
+            } else {
+                Modifier
+            },
+            verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
+        ) {
+            BasicText(stringResource(Res.string.letter_to), style = typography.label.copy(color = colors.accentText))
+            BasicText(stringResource(Res.string.letter_hello), style = typography.title2.copy(color = colors.textPrimary))
+            content()
+            BasicText(
+                stringResource(Res.string.letter_sign),
+                Modifier.fillMaxWidth(),
+                style = typography.label.copy(color = colors.textSecondary, textAlign = TextAlign.End)
+            )
+        }
+        action?.invoke()
     }
 }
 
