@@ -91,30 +91,38 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
     ) {
         MoodFace(mood, DiaryWriteSize.moodFace)
-        val name = moodName(mood)
-        val style =
-            (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
-                color = colors.textSecondary,
-                textAlign = TextAlign.Center
-            )
-        // 칸 폭이 고정이라 긴 이름은 두 줄까지
-        // 한 낱말은 글자 단위로 쪼개지지 않게 한 줄로 두고, 넘치면 글자를 조금 줄임(영어 Laughing)
-        val oneWord = ' ' !in name
-        BasicText(
-            name,
-            style = style,
-            maxLines = if (oneWord) 1 else NAME_LINES,
-            overflow = TextOverflow.Ellipsis,
-            autoSize = if (oneWord) {
-                TextAutoSize.StepBased(
-                    minFontSize = style.fontSize * MIN_NAME_SCALE,
-                    maxFontSize = style.fontSize
-                )
-            } else {
-                null
-            }
-        )
+        MoodName(moodName(mood), selected)
     }
+}
+
+/** 기분 칸 아래 이름 */
+@Composable
+internal fun MoodName(name: String, selected: Boolean, modifier: Modifier = Modifier) {
+    val colors = DiaryTheme.colors
+    val style =
+        (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
+            color = colors.textSecondary,
+            textAlign = TextAlign.Center
+        )
+    // 칸 폭이 고정이라 긴 이름은 두 줄까지
+    // 한 낱말은 글자 단위로 쪼개지지 않게 한 줄로 두고, 넘치면 글자를 조금 줄임(영어 Laughing, 일본어 具合が悪い)
+    // 말줄임을 함께 걸면 줄이기 전에 …로 맞춰 버려 줄이기가 동작하지 않음
+    val oneWord = ' ' !in name
+    BasicText(
+        name,
+        modifier = modifier,
+        style = style,
+        maxLines = if (oneWord) 1 else NAME_LINES,
+        overflow = if (oneWord) TextOverflow.Clip else TextOverflow.Ellipsis,
+        autoSize = if (oneWord) {
+            TextAutoSize.StepBased(
+                minFontSize = style.fontSize * MIN_NAME_SCALE,
+                maxFontSize = style.fontSize
+            )
+        } else {
+            null
+        }
+    )
 }
 
 /**
