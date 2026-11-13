@@ -27,7 +27,7 @@ class AppLaunch {
     }
 }
 
-/** 들어온 요청대로 화면을 엶 */
+/** 들어온 요청대로 화면 열기 */
 @Composable
 internal fun OpenRequestedScreens(launch: AppLaunch, nav: TabNavigation) {
     val write by launch.writeRequested.collectAsStateWithLifecycle()

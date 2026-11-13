@@ -55,7 +55,7 @@ internal class PhotoDrag(
 
     /** 누른 곳에 사진이 있으면 끌기 시작. [x]는 줄의 왼쪽 끝부터 잰 거리 */
     fun start(x: Float): Boolean {
-        // 칸 위치는 안쪽 여백 뒤부터 잼
+        // 칸 위치는 안쪽 여백 뒤부터 측정
         val at = x.toInt() + list.layoutInfo.viewportStartOffset
         val item =
             list.layoutInfo.visibleItemsInfo.firstOrNull { it.index < count() && at in it.offset..it.offset + it.size } ?: return false
@@ -97,7 +97,7 @@ internal class PhotoDrag(
         val end = start + item.size
         val zone = item.size / 2f
         val info = list.layoutInfo
-        // 끈 쪽으로만 밂. 줄 끝에 있던 사진을 집자마자 밀리지 않게
+        // 끈 쪽으로만 밀어냄. 줄 끝에 있던 사진을 집자마자 밀리지 않게
         return when {
             dragged > 0 && end > info.viewportEndOffset - zone -> end - (info.viewportEndOffset - zone)
             dragged < 0 && start < info.viewportStartOffset + zone -> start - (info.viewportStartOffset + zone)

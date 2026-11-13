@@ -212,7 +212,7 @@ fun BackupSettingsRoute(
         viewModel.skipped.collect { skip -> toast.show(if (skip == BackupSkip.NO_ENTRIES) nothingYet else busy) }
     }
     // 백업이 시작되면 끝날 때 알릴 수 있게 한 번 물음
-    // 거절해도 백업은 그대로 돎
+    // 거절해도 백업은 그대로 실행
     LaunchedEffect(running) { if (running) access.askInContext() }
     Box(modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {

@@ -101,7 +101,7 @@ data class WriteUiState(
     val entryChanged: Boolean = false,
     /** 고른 사진을 넣는 중 */
     val addingPhotos: Boolean = false,
-    /** 남겨 둔 임시 저장본을 이어 엶. 그때만 버리는 길을 보임 */
+    /** 남겨 둔 임시 저장본을 이어 열기. 그때만 버리는 길을 보임 */
     val canDiscard: Boolean = false,
     /**
      * 쓰고 있는 새 일기 임시 저장본의 키
@@ -219,7 +219,7 @@ class WriteViewModel(
 
     /**
      * 화면을 떠나는 중. 저장, 닫기, 버리기는 모두 떠나는 길이라 먼저 시작한 하나만 감
-     * 실패해 남게 되면 다시 풂
+     * 실패해 남게 되면 다시 해제
      */
     private var leaving = false
     private var lastRemoved: Instant? = null
@@ -227,7 +227,7 @@ class WriteViewModel(
     /** 마지막으로 뺀 사진과 자리. 되돌리기용 */
     private var undoRemove: Pair<DraftPhoto, Int>? = null
 
-    /** 전에 남겨 둔 임시 저장본을 이어 엶 */
+    /** 전에 남겨 둔 임시 저장본을 이어 열기 */
     private var resumed = false
 
     /** 저장본에 쓴 뒤로 바뀐 것이 있는가 */
@@ -415,7 +415,7 @@ class WriteViewModel(
         refreshCanSave()
     }
 
-    /** 같은 기분을 다시 누르면 풂(FR-003) */
+    /** 같은 기분을 다시 누르면 해제(FR-003) */
     fun selectMood(mood: Mood?) {
         _state.update { it.copy(mood = if (it.mood == mood) null else mood) }
         changed()

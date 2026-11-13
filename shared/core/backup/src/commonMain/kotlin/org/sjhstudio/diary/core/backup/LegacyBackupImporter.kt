@@ -151,7 +151,7 @@ class LegacyBackupImporter(
         val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
         // 날짜를 못 읽은 줄은 불러온 날로 적혀 날짜로는 같은 일기인지 모름. 옛 작성 시각과 글로도 봄
         val seenLegacy = local.filter { it.legacyCreateDate != null }.mapTo(HashSet()) { it.legacyCreateDate to it.plainText }
-        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 가름
+        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 구분
         // 분까지만 보면 글이 같고 사진이 다른 일기가 빠짐
         val inFile = HashSet<Triple<Triple<String, String, String>, String?, String?>>()
         val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }

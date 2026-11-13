@@ -62,7 +62,7 @@ fun toPlainText(html: String): String {
                 i = decoded.second
             }
         } else {
-            // 덩어리 밖에 놓인 글도 덩어리 하나로 셈
+            // 덩어리 밖에 놓인 글도 덩어리 하나로 계산
             if (blocks == 0) blocks = 1
             out.append(c)
             i++

@@ -115,7 +115,7 @@ class RestoreController(
     override val rollbackRun: StateFlow<RollbackRun> = _rollbackRun.asStateFlow()
 
     /**
-     * 화면을 떠나도 끝까지 돎
+     * 화면을 떠나도 끝까지 실행
      * 중간에 멈추면 일기는 돌아왔는데 되돌리기가 남음
      * 사진을 받는 중에 누르면 조용히 버리지 않고 끝난 뒤에 이어서 돌림
      */
@@ -240,7 +240,7 @@ class RestoreController(
     }
 
     /**
-     * 준비는 한 번에 하나만, 메인 스레드 밖에서 돎
+     * 준비는 한 번에 하나만, 메인 스레드 밖에서 실행
      * 지난번 사본을 지우고 시작하고, 멈추면 쓰던 사본을 남기지 않음
      * 받는 파일은 일기 사본이라 쓰지 않게 되면 바로 지움
      */
@@ -416,7 +416,7 @@ class RestoreController(
     }
 
     private suspend fun mergeBackup(ready: PreparedRestore): RestoreResult {
-        // 미리보기 뒤에 일기를 고쳤을 수 있어 합치기 직전의 기기 상태로 다시 가름
+        // 미리보기 뒤에 일기를 고쳤을 수 있어 합치기 직전의 기기 상태로 다시 판단
         // 가른 뒤 쓰기 전에 저장한 일기를 덮어쓰지 않게 가르기부터 한 트랜잭션에 넣음
         val counts =
             db.value.withWriteTransaction {

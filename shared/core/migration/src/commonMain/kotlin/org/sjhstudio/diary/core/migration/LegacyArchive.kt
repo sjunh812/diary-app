@@ -38,7 +38,7 @@ data class LegacyEntryView(
 
 /**
  * 이전에 실패한 기기에서 옛 일기를 읽기 전용으로 보여 줌(FR-009, contracts/migration-flow.md "예전 일기 보기")
- * 원본이 아닌 사본(`legacy-snapshot/note.db`)을 엶
+ * 원본이 아닌 사본(`legacy-snapshot/note.db`) 열기
  * 수정·삭제 없음
  * 일기 날짜 최근 순
  */

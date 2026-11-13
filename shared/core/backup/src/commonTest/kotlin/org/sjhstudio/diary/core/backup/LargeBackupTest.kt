@@ -40,7 +40,7 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 /**
  * 일기 1만 편, 사진 1만 장(30MB 석 장 포함)이 메모리 상한 안에서 끝까지 감(스펙 003 T038, SC-005)
  * 파일 크기만큼 메모리를 쓰지 않는지 재야 해서 내용을 쌓아 두지 않는 대역을 씀
- * 힙을 재는 시험이라 JVM에서만 돎
+ * 힙을 재는 시험이라 JVM에서만 실행
  */
 class LargeBackupTest {
     private val fs = FileSystem.SYSTEM

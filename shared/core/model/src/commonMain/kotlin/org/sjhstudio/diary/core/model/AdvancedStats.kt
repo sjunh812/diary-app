@@ -83,7 +83,7 @@ data class RecentMood(val trend: MoodTrend, val before: ToneShare, val now: Tone
 /** 한 기분과 가장 자주 함께한 것 */
 data class MoodCompany(val mood: Mood, val entries: Int, val weather: Weather?, val weekday: DayOfWeek?, val place: String?)
 
-/** 기록 습관. 기분과 상관없이 쓴 만큼 셈 */
+/** 기록 습관. 기분과 상관없이 쓴 만큼 계산 */
 data class RecordHabit(
     val entries: Int,
     val daysWritten: Int,

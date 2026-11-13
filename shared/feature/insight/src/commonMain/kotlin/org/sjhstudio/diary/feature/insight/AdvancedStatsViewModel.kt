@@ -55,7 +55,7 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
         }
     }
 
-    /** 앱이 돌아올 때. 날이 바뀌었으면 기간을 새 오늘로 다시 잼 */
+    /** 앱이 돌아올 때. 날이 바뀌었으면 기간을 새 오늘로 다시 계산 */
     fun refreshToday() {
         val now = today()
         if (now != day.value) cache.clear()

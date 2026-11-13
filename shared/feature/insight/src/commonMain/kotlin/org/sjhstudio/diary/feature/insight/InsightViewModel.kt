@@ -127,7 +127,7 @@ class InsightViewModel(
 
     /**
      * 첫 일기의 해. 기간 고르기가 이 해부터 보임. 일기가 없으면 null
-     * 전체 기분 목록 대신 가벼운 달 목록으로 셈(일기가 바뀔 때마다 다시 읽음)
+     * 전체 기분 목록 대신 가벼운 달 목록으로 계산(일기가 바뀔 때마다 다시 읽음)
      */
     val firstYear: StateFlow<Int?> =
         entries.months()

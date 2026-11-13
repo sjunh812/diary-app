@@ -34,7 +34,7 @@ fun interface DriveConsentLauncher {
 /**
  * `AuthorizationClient`로 `drive.file`만 받음(research R2)
  * 토큰은 기기에 두지 않고 1시간짜리를 그때그때 받음
- * 응답에 계정이 없어 받은 토큰으로 userinfo를 불러 앎. 계정 이메일은 로그에 남기지 않음
+ * 응답에 계정이 없어 받은 토큰으로 userinfo를 불러 확인. 계정 이메일은 로그에 남기지 않음
  */
 class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     private val context = context.applicationContext

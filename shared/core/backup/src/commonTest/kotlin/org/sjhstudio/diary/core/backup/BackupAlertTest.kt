@@ -52,7 +52,7 @@ class BackupAlertTest {
         phone.write("e1")
     }
 
-    /** 일기를 쓰지 않은 주에도 백업은 잘 되는 중이라 알림을 뒤로 밂 */
+    /** 일기를 쓰지 않은 주에도 백업은 잘 되는 중이라 알림을 뒤로 미룸 */
     @Test
     fun nothing_new_pushes_the_alert_back() = runTest {
         connected()

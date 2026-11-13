@@ -92,7 +92,7 @@ private fun NativeAdFrame(ad: NativeAd, content: @Composable (NativeAdView) -> U
 
 /**
  * 광고 요소 하나를 안드로이드 뷰로 감싸 [register]로 [NativeAdView]에 등록
- * AdMob은 등록된 뷰의 눌림만 셈. 바탕까지 눌리게 하면 정책 위반이라 요소마다 따로 등록
+ * AdMob은 등록된 뷰의 눌림만 집계. 바탕까지 눌리게 하면 정책 위반이라 요소마다 따로 등록
  */
 @Composable
 private fun AdAsset(adView: NativeAdView, register: NativeAdView.(View) -> Unit, content: @Composable () -> Unit) {

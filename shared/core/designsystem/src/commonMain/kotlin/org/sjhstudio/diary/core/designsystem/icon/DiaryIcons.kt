@@ -264,7 +264,7 @@ object DiaryIcons {
 
     /**
      * 이미 쓴 일기 수정. 글줄 옆에 연필
-     * 새 일기 버튼의 연필([Pen])과 한 화면에 함께 보여 모양을 가름
+     * 새 일기 버튼의 연필([Pen])과 한 화면에 함께 보여 모양 구분
      * 글줄과 연필을 합친 범위가 가운데에 오게 놓음
      */
     val EditText: ImageVector by lazy {

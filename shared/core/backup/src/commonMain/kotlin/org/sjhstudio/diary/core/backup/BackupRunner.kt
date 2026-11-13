@@ -477,7 +477,7 @@ class BackupRunner(
         var from = 0L
         var restarts = 0
         var stalls = 0
-        // 드라이브가 끝을 주지 않아도 백업이 잠금을 쥔 채 머물지 않게 횟수를 셈
+        // 드라이브가 끝을 주지 않아도 백업이 잠금을 쥔 채 머물지 않게 횟수 계산
         while (true) {
             when (val result = drive.uploadChunk(session, from, path)) {
                 is ChunkResult.Done -> return result.file

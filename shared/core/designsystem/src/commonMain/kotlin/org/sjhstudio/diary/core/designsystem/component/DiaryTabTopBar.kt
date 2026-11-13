@@ -240,7 +240,7 @@ fun DiaryCollapsingHeader(state: DiaryCollapsingHeaderState, modifier: Modifier 
 }
 
 /**
- * 스크롤 안에 큰 제목이 있는 화면(돌아보기, 설정)에서 접힌 정도를 잼
+ * 스크롤 안에 큰 제목이 있는 화면(돌아보기, 설정)에서 접힌 정도 측정
  * 제목이 스크롤 내용 맨 위에 있다고 보고, 스크롤한 거리를 제목 높이로 나눔
  */
 fun titleCollapse(scrolled: Int, titleHeight: Int): Float = if (titleHeight <=

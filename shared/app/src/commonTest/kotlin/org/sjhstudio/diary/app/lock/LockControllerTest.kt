@@ -80,7 +80,7 @@ class LockControllerTest {
         assertEquals(LockState.Locked, newProcess.state.value)
     }
 
-    /** 기기 시각을 앞뒤로 바꿔도 단조 시계로 잼 */
+    /** 기기 시각을 앞뒤로 바꿔도 단조 시계로 측정 */
     @Test
     fun wall_clock_changes_do_not_matter() = runTest {
         val controller = started(RelockAfter.FIVE_MINUTES)
@@ -156,7 +156,7 @@ class LockControllerTest {
         assertEquals(LockState.NeedsNewPin, keyLost.state.value)
     }
 
-    /** 화면을 다시 그릴 때마다 불려도 듣는 곳은 하나. 두 곳에서 들으면 돌아온 시각을 두 번 잼 */
+    /** 화면을 다시 그릴 때마다 불려도 듣는 곳은 하나. 두 곳에서 들으면 돌아온 시각을 두 번 측정 */
     @Test
     fun watching_starts_once_however_often_the_gate_appears() = runTest {
         var watchers = 0

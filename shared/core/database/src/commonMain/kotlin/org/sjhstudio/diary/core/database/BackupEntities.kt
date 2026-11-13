@@ -21,7 +21,7 @@ data class BackupMediaEntity(
 
 /**
  * 마지막으로 백업이나 복원으로 맞춰진 때의 `updated_at`
- * 합치기에서 어느 쪽이 고쳐졌는지 가름
+ * 합치기에서 어느 쪽이 고쳐졌는지 구분
  * 스냅샷에서는 비움
  */
 @Entity(

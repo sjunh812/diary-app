@@ -97,7 +97,7 @@ class AdvancedStatsViewModelTest {
         assertSame(first, viewModel.data.value)
     }
 
-    /** 켜 둔 채 날이 바뀌면 최근 기간을 새 오늘로 다시 잼 */
+    /** 켜 둔 채 날이 바뀌면 최근 기간을 새 오늘로 다시 계산 */
     @Test
     fun a_new_day_measures_the_period_again() = runTest {
         var date = today

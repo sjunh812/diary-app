@@ -75,7 +75,7 @@ class BackupAlertPoster(context: Context, private val channelName: String) {
 /** 앱이 화면에 있는지. 있으면 화면이 이미 알려 주니 끝났다는 알림을 보내지 않음 */
 fun appIsVisible(): Boolean = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
 
-/** 지금 백업의 진행 알림. 소리 없이 한 줄로 머묾 */
+/** 지금 백업의 진행 알림. 소리 없이 한 줄로 유지 */
 class BackupProgressNotifications(context: Context) {
     private val context = context.applicationContext
     private val manager = this.context.getSystemService(NotificationManager::class.java)

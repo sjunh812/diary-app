@@ -17,7 +17,7 @@ kotlin {
             // 예전 앱 백업(note.db)을 이전과 같은 규칙으로 읽음
             implementation(projects.shared.core.migration)
             implementation(libs.okio)
-            // 스냅샷 사본을 Room 없이 직접 엶
+            // 스냅샷 사본을 Room 없이 직접 열기
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)

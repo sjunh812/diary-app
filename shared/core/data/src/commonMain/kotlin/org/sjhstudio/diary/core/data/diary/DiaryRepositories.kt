@@ -114,7 +114,7 @@ interface DraftRepository {
 
     /**
      * 한도와 공간이 허락하는 만큼 더함
-     * 임시 저장본이 없으면 모두 못 더한 것으로 셈
+     * 임시 저장본이 없으면 모두 못 더한 것으로 처리
      */
     suspend fun addPhotos(key: DraftKey, picked: List<PickedImage>): AddPhotosResult
 

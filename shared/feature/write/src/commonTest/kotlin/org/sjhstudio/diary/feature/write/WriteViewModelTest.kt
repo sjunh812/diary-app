@@ -694,7 +694,7 @@ class WriteViewModelTest {
         assertEquals(PlaceLocating.Idle, viewModel.state.value.locating)
     }
 
-    /** 편집기 흉내. HTML을 꺼낸 횟수를 셈 */
+    /** 편집기 흉내. HTML을 꺼낸 횟수 계산 */
     private class FakeEditor(private val vm: WriteViewModel) {
         var text = ""
         var reads = 0

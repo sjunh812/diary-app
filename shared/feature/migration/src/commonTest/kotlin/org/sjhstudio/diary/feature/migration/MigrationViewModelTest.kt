@@ -114,7 +114,7 @@ class MigrationViewModelTest {
         assertEquals(true, assertIs<MigrationUiState.Failed>(vm.state.value).hasCopy)
     }
 
-    /** 다시 시도를 연달아 눌러도 이전은 한 번만 돎 */
+    /** 다시 시도를 연달아 눌러도 이전은 한 번만 실행 */
     @Test
     fun double_tap_on_retry_runs_once() = runTest(dispatcher) {
         var runs = 0
@@ -173,7 +173,7 @@ class MigrationViewModelTest {
         assertIs<MigrationUiState.Failed>(vm.state.value)
     }
 
-    /** 공간이 차 미뤄 두기를 적지 못해도 새 일기부터 쓰기는 앱을 엶 */
+    /** 공간이 차 미뤄 두기를 적지 못해도 새 일기부터 쓰기로 앱 열림 */
     @Test
     fun skip_opens_the_app_even_when_the_deferral_cannot_be_written() = runTest(dispatcher) {
         val migration =

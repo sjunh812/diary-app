@@ -156,7 +156,7 @@ class RollbackManager(
         // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음
         // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 봄
         val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
-        // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 가름
+        // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 구분
         val inserted = insertedIds(slot(until))
         val newer =
             dao.allEntries().filter { it.id !in inserted || it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->

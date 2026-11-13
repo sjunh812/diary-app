@@ -37,7 +37,7 @@ data class ImportedPhoto(val media: Media, val record: PhotoRecord) {
 /**
  * 옛 앱 사진을 `media/<sha256>.<ext>`로 한 번만 복사(contracts/legacy-mapping.md "사진", research R8)
  * 원본(캐시 사진)은 읽기만 함
- * 긴 변이 [PhotoStore.MAX_SIDE]를 넘는 사진은 새로 붙인 사진처럼 줄인 사본을 둠. 백업이 드라이브를 덜 씀(2026-11-11 사용자 결정)
+ * 긴 변이 [PhotoStore.MAX_SIDE]를 넘는 사진은 새로 붙인 사진처럼 줄인 사본을 둠. 백업이 드라이브를 덜 씀
  * 줄이지 못하면 원본 그대로 복사해 사진을 잃지 않음
  * 임시 이름으로 쓰고 해시를 다시 잰 뒤 이름을 바꿈
  * 같은 해시가 이미 있으면 복사하지 않음(같은 파일 두 번, 다시 시도)

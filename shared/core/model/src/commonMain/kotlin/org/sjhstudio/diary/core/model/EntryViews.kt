@@ -40,7 +40,7 @@ data class EntryDetail(val entry: Entry, val photos: List<EntryPhoto>, val keptB
 /**
  * 달력 칸과 기분 흐름. [mood]는 그날 마지막 일기의 기분, [count]는 편수
  * [previousMood]는 바로 앞 일기의 기분으로 달력에서 뒤에 겹쳐 그림
- * [moods]는 그날 일기의 기분을 시간순으로 모은 것으로 통계가 셈
+ * [moods]는 그날 일기의 기분을 시간순으로 모은 것. 통계에 사용
  */
 data class DayMood(
     val date: LocalDate,
@@ -65,7 +65,7 @@ data class TrashedEntry(val row: EntryRow, val deletedAt: Instant, val daysLeft:
     override fun toString(): String = "TrashedEntry"
 }
 
-/** 한 기간의 기분 개수. 기분 없는 일기는 [noMood]로 따로 셈 */
+/** 한 기간의 기분 개수. 기분 없는 일기는 [noMood]로 따로 집계 */
 data class MoodCounts(val counts: Map<Mood, Int>, val noMood: Int) {
     val total: Int get() = counts.values.sum() + noMood
 

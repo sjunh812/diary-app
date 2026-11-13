@@ -34,7 +34,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
  * 화면 전체를 거르는 [DiarySegmentedTabs]와 모양을 달리해 위계를 보임
  * 고른 칸은 `bodyStrong` `textPrimary`와 밑줄 2, 나머지는 `body` `textSecondary`
  * 칸 사이 20 · 누르는 곳은 줄 높이 48 · 아래 `line` 1.
- * 글자가 커져 한 줄에 다 들어가지 않으면 옆으로 밂
+ * 글자가 커져 한 줄에 다 들어가지 않으면 옆으로 스크롤
  */
 @Composable
 fun DiaryTextTabs(labels: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {

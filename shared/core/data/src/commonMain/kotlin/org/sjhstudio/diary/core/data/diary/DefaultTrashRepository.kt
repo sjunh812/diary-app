@@ -73,7 +73,7 @@ class DefaultTrashRepository(
 }
 
 /**
- * 남은 날을 올림해서 셈
+ * 남은 날을 올림해서 계산
  * 오늘 지웠으면 30일, 마지막 날은 1일
  */
 internal fun daysLeft(deletedAt: Instant, now: Instant): Int {

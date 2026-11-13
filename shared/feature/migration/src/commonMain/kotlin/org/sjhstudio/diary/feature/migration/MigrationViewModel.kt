@@ -119,7 +119,7 @@ class MigrationViewModel(
      */
     fun skip() {
         viewModelScope.launchSafely {
-            // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 엶
+            // 공간이 차 미뤄 뒀다고 적지 못해도 앱은 열림
             // 다음에 앱을 열면 이전부터 다시 봄
             quietly { withContext(background) { migration.defer() } }
             pass()
@@ -147,7 +147,7 @@ class MigrationViewModel(
     }
 
     private fun start() {
-        // 다시 시도를 연달아 눌러도 하나만 돎
+        // 다시 시도를 연달아 눌러도 하나만 실행
         if (running?.isActive == true) return
         _state.value = MigrationUiState.Preparing
         running = viewModelScope.launchSafely {

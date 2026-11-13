@@ -200,7 +200,7 @@ private fun coreModule(isDebug: Boolean) = module {
 /** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */
 private val diaryDataModule =
     module {
-        // 처음 쓸 때 엶
+        // 처음 쓸 때 열기
         // 시작 단계에서는 열지 않음
         single { get<DatabaseFactory>().create() }
         // 썸네일(research R9)
@@ -258,7 +258,7 @@ private val backupModule =
             )
         }
         // 백업(스펙 003)
-        // 드라이브와 일기 DB는 처음 쓸 때 엶
+        // 드라이브와 일기 DB는 처음 쓸 때 열기
         single { BackupStore(get<DataStoreFactory>().backup()) }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
         single { BackupGate() }
@@ -309,7 +309,7 @@ private val backupModule =
             val work = files.backupDirectory.toPath()
             val media = files.mediaDirectory.toPath()
             val system = FileSystem.SYSTEM
-            // DB만 늦게 엶
+            // DB만 늦게 열기
             // 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 함
             val drive = get<DriveApi>()
             val copier = get<LegacyPhotoCopier>()

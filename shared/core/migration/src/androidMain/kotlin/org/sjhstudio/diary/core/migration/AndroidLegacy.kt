@@ -13,7 +13,7 @@ import okio.Path.Companion.toOkioPath
  * 읽기만 함
  */
 fun legacyFiles(context: Context): LegacyFiles {
-    // getDatabasePath는 폴더를 만들려고 디스크를 건드려, 같은 자리를 경로로만 셈
+    // getDatabasePath는 폴더를 만들려고 디스크를 건드려, 같은 자리를 경로로만 계산
     val data = context.applicationInfo.dataDir
     val prefs = File(data, "shared_prefs")
     return LegacyFiles(
@@ -31,7 +31,7 @@ fun freeBytes(path: Path): Long {
 }
 
 /**
- * 사진 가로세로를 머리만 읽어 잼
+ * 사진 가로세로를 머리만 읽어 확인
  * EXIF가 90°·270° 돌림이면 가로세로를 바꿈(research R8)
  * 사진 전체는 디코딩하지 않음
  */

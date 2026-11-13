@@ -185,7 +185,7 @@ data class PhotoTally(var fetched: Int = 0, var broken: Int = 0, var notThere: I
 
 /**
  * 드라이브에서 찾아본 대기 사진
- * 드라이브에 없는 사진은 받을 길이 없어 [notThere]로 따로 셈
+ * 드라이브에 없는 사진은 받을 길이 없어 [notThere]로 따로 집계
  */
 class DrivePhotos(val files: Map<String, DriveFile>, val reachable: Int, val notThere: Int)
 

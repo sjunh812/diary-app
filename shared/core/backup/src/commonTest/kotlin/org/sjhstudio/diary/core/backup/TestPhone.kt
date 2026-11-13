@@ -205,7 +205,7 @@ internal suspend fun until(check: suspend () -> Boolean) = withContext(Dispatche
 
 /**
  * 사진을 [after]장 받은 뒤로는 네트워크가 끊긴 드라이브
- * 사진은 동시에 받으니 잠그고 셈
+ * 사진은 동시에 받으니 잠그고 계산
  */
 internal class CutDrive(private val real: DriveApi, private val after: Int) : DriveApi by real {
     private val lock = Mutex()

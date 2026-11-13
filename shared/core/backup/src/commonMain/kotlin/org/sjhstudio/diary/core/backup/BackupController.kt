@@ -72,7 +72,7 @@ fun RestorePreview.bringsSomething(): Boolean = entriesAdded + entriesUpdated + 
 
 /**
  * [BackupRepository]의 구현
- * 드라이브와 일기 DB는 처음 쓸 때 엶
+ * 드라이브와 일기 DB는 처음 쓸 때 열기
  */
 class BackupController(
     private val store: BackupStore,
@@ -281,7 +281,7 @@ class BackupController(
 
     /**
      * 자동 백업 한 번
-     * 바뀐 것이 없어 올리지 않은 날도 백업은 잘 되는 중이라 7일 알림을 뒤로 밂
+     * 바뀐 것이 없어 올리지 않은 날도 백업은 잘 되는 중이라 7일 알림을 뒤로 미룸
      */
     suspend fun runAutomatic(): BackupOutcome {
         // 끄거나 끊은 뒤에 남아 있던 시스템 작업이 깨워도 올리지 않음
@@ -326,7 +326,7 @@ class BackupController(
         store.update { it.copy(autoEnabled = enabled) }
         if (enabled) {
             scheduler.scheduleDaily()
-            // 끌 때 지운 알림을 다시 걺
+            // 끌 때 지운 알림 다시 예약
             // 없으면 자동 백업이 멈춰도 아무도 모름
             alerts?.schedule(clock.now() + ALERT_AFTER, null)
         } else {

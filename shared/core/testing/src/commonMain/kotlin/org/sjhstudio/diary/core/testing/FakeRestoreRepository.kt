@@ -25,7 +25,7 @@ class FakeBundleFiles : BundleFiles {
     /** 값을 넣으면 파일을 쓰다 실패함 */
     var writeFailure: Exception? = null
 
-    /** 참이면 멈추라고 할 때까지 파일을 쓰는 중에 머묾 */
+    /** 참이면 멈추라고 할 때까지 파일을 쓰는 중에 멈춰 있음 */
     var holdWrite = false
     var writing = false
         private set

@@ -51,7 +51,7 @@ fun DiaryTip(
             .background(colors.toast),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 글 앞의 안내 아이콘으로 실패 토스트와 생김새를 가름(Apple TipKit 팁처럼)
+        // 글 앞의 안내 아이콘으로 실패 토스트와 생김새 구분(Apple TipKit 팁처럼)
         // 색은 토스트 위 강조색이라 빨간 경고로 읽히지 않으면서 눈이 먼저 감
         DiaryIcon(
             DiaryIcons.Info,

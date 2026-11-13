@@ -253,7 +253,7 @@ internal fun ToneBar(good: Float, hard: Float, modifier: Modifier = Modifier) {
 }
 
 /**
- * 좋은 기분과 힘든 기분을 무엇으로 세는지(`docs/design.md` 상황별 기분, DECISIONS 2026-11-04 쿨은 보통)
+ * 좋은 기분과 힘든 기분을 무엇으로 세는지(`docs/design.md` 상황별 기분)
  * 기분의 밝고 어두움(심리학의 정서가)으로 나누고, 애매한 보통과 쿨은 세지 않음
  */
 @Composable

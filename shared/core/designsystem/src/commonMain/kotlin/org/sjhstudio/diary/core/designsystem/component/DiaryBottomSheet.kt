@@ -53,7 +53,7 @@ private const val MAX_HEIGHT_RATIO = 0.9f
 /**
  * 시트 안 두 버튼이 스스로 더 띄우는 위 여백
  * 시트 기본 간격 12에 더해 글과 버튼 사이가 24.
- * 시트마다 버튼을 슬롯으로 넘기지 않게 버튼 쪽이 앎
+ * 시트마다 버튼을 슬롯으로 넘기지 않게 버튼 쪽에서 판단
  */
 internal val LocalSheetButtonGap = staticCompositionLocalOf { 0.dp }
 

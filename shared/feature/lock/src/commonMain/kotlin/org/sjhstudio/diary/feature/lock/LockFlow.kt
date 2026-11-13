@@ -87,7 +87,7 @@ fun LockFlow(
         val result = authenticator.authenticateBiometric(biometricPrompt)
         if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
         if (result == AuthResult.Success) {
-            // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 셈
+            // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 처리
             lock.start(PinCheck.Verify)
             onUnlocked()
         }

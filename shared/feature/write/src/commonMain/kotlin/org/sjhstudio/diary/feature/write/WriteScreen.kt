@@ -609,7 +609,7 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
         }
         var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
         // 서식 없는 본문은 글이 바뀔 때 한 번만 만듦
-        // 체크 칸 그리기, 접근성 동작, 변화 감시가 각자 만들면 한 글자마다 문단 트리를 4번 넘게 돎
+        // 체크 칸 그리기, 접근성 동작, 변화 감시가 각자 만들면 한 글자마다 문단 트리를 4번 넘게 순회
         val plain = remember(state) { derivedStateOf { state.annotatedString.let { state.toText() } } }
         val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
         LaunchedEffect(state) {

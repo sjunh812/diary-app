@@ -493,7 +493,7 @@ class DraftRepositoryTest {
         assertEquals(listOf(0, 1), db.draftDao().media(DraftKey.New().value).map { it.sortOrder })
     }
 
-    /** 임시 저장본이 지워진 뒤 도착한 사진은 앱을 죽이지 않고 못 더한 것으로 셈 */
+    /** 임시 저장본이 지워진 뒤 도착한 사진은 앱을 죽이지 않고 못 더한 것으로 처리 */
     @Test
     fun photos_for_a_discarded_draft_are_counted_as_failed() = runTest {
         repository.save(newDraft())
