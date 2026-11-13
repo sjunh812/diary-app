@@ -44,11 +44,13 @@ class WelcomeRepositoryTest {
     }
 
     @Test
-    fun one_tip_per_session_and_never_again_once_closed() = runTest {
+    fun one_tip_per_session_stays_until_closed_and_never_again_after() = runTest {
         val session = repository()
 
         assertTrue(session.claim(ContextTip.INSIGHT_OPEN))
-        assertFalse(session.claim(ContextTip.INSIGHT_OPEN))
+        // 화면을 오가도 닫기 전까지는 같은 안내가 남음
+        assertTrue(session.claim(ContextTip.INSIGHT_OPEN))
+        assertFalse(session.claim(ContextTip.HOME_LIST_STYLE))
 
         val next = repository()
         assertTrue(next.claim(ContextTip.INSIGHT_OPEN))

@@ -69,4 +69,5 @@
     <string name="write_weather_body">Add the weather to help you remember the day later.</string>
     <string name="write_checklist_plus_title">Checklists are part of Plus</string>
     <string name="write_checklist_plus_body">Your writing is still here, and checklists you already have keep working.</string>
+    <string name="tip_photo_reorder">Press and hold a photo, then drag to change the order.</string>
 </resources>

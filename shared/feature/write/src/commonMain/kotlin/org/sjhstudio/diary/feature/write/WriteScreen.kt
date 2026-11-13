@@ -336,6 +336,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                                 openSheet(Sheet.Mood)
                             }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
                             if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { openPicker() })
+                            PhotoReorderTip(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                             Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                             Editor(
                                 actions.rich,
@@ -696,7 +697,10 @@ private fun SidePanel(state: WriteUiState, actions: WriteActions, onPick: () -> 
     ) {
         Section(stringResource(Res.string.write_mood)) { MoodGrid(state.mood, vm::selectMood) }
         Section(stringResource(Res.string.write_weather)) { WeatherGrid(state.weather, vm::selectWeather) }
-        Section(stringResource(Res.string.write_add_photo)) { PhotoRow(state, actions, onPick, inset = null) }
+        Section(stringResource(Res.string.write_add_photo)) {
+            PhotoRow(state, actions, onPick, inset = null)
+            PhotoReorderTip(state)
+        }
         Section(stringResource(Res.string.write_place)) {
             DiaryChip(
                 text = state.placeName.ifEmpty { stringResource(Res.string.write_place) },

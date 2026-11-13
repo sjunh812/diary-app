@@ -13,10 +13,13 @@ enum class ContextTip(val id: String) {
     INSIGHT_OPEN("insight_open"),
 
     /** 일기 목록을 카드나 사진 격자로도 볼 수 있다는 안내. 설정 안에만 있어 모르는 사람이 많음 */
-    HOME_LIST_STYLE("home_list_style")
+    HOME_LIST_STYLE("home_list_style"),
+
+    /** 사진을 길게 눌러 끌면 순서를 바꿀 수 있다는 안내. 사진이 둘 이상일 때 */
+    PHOTO_REORDER("photo_reorder")
 }
 
-/** 세션당 하나, 팁마다 한 번(FR-011) */
+/** 세션당 하나, 팁마다 한 번(FR-011). 닫거나 할 일을 누르기 전까지는 그 세션에서 다시 보임 */
 interface ContextTips {
     /** 지금 보여도 되면 true. 한 세션에 하나만 받음 */
     suspend fun claim(tip: ContextTip): Boolean

@@ -69,4 +69,5 @@
     <string name="write_weather_body">그날 날씨를 남겨 두면 나중에 다시 읽을 때 더 생생해요.</string>
     <string name="write_checklist_plus_title">체크리스트는 Plus에서 쓸 수 있어요</string>
     <string name="write_checklist_plus_body">쓰던 글은 그대로예요. 이미 쓴 체크리스트도 그대로 쓸 수 있어요.</string>
+    <string name="tip_photo_reorder">사진을 길게 누른 채 끌면 순서를 바꿀 수 있어요.</string>
 </resources>

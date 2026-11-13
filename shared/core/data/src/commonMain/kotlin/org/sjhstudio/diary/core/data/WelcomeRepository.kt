@@ -24,7 +24,8 @@ interface WelcomeRepository : ContextTips {
 }
 
 class DefaultWelcomeRepository(private val store: WelcomeStore, private val migrated: suspend () -> Int?) : WelcomeRepository {
-    private var tipShown = false
+    // 이번 세션에 띄운 안내. 화면을 오가도 닫거나 할 일을 누르기 전까지 같은 안내를 다시 보임
+    private var claimed: ContextTip? = null
 
     override suspend fun step(): WelcomeStep {
         val prefs = store.current()
@@ -46,8 +47,8 @@ class DefaultWelcomeRepository(private val store: WelcomeStore, private val migr
     override suspend fun onboardingFinished() = store.onboardingDone().let { }
 
     override suspend fun claim(tip: ContextTip): Boolean {
-        if (tipShown || tip.id in store.current().tipsSeen) return false
-        tipShown = true
+        if (tip.id in store.current().tipsSeen || (claimed != null && claimed != tip)) return false
+        claimed = tip
         return true
     }
 

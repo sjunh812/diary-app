@@ -42,9 +42,12 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.DraftPhoto
+import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.feature.write.resources.Res
+import org.sjhstudio.diary.feature.write.resources.tip_photo_reorder
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
 import org.sjhstudio.diary.feature.write.resources.write_photo_count
 import org.sjhstudio.diary.feature.write.resources.write_photo_remove
@@ -200,4 +203,11 @@ internal fun PhotoCell(
             }
         }
     }
+}
+
+/** 사진이 둘 이상이면 길게 눌러 끌어 순서를 바꿀 수 있다고 처음 한 번 알림 */
+@Composable
+internal fun PhotoReorderTip(state: WriteUiState, modifier: Modifier = Modifier) {
+    if (state.photos.size < 2) return
+    ContextTipBar(ContextTip.PHOTO_REORDER, stringResource(Res.string.tip_photo_reorder), modifier)
 }
