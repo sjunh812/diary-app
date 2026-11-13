@@ -8,6 +8,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
@@ -61,6 +62,16 @@ class SettingsViewModelTest {
 
         assertTrue(viewModel.state.value.loaded)
         assertFalse(viewModel.state.value.showsMigrationReport)
+    }
+
+    @Test
+    fun the_last_backup_time_comes_with_the_state() = runTest(dispatcher) {
+        val at = Instant.parse("2026-11-13T10:48:00Z")
+        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { false }, flowOf(at))
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+
+        assertEquals(at, viewModel.state.value.lastBackupAt)
     }
 
     @Test

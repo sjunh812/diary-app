@@ -273,3 +273,7 @@ internal fun backupWhen(at: Instant, withTime: Boolean = false): String {
         }
     }
 }
+
+/** 설정의 [백업과 복원] 줄 값. 홈 백업 줄과 같은 말 */
+@Composable
+fun settingsBackupValue(at: Instant): String = backupWhen(at)

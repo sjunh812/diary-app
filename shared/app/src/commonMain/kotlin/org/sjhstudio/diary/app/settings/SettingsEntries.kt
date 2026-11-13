@@ -66,6 +66,7 @@ import org.sjhstudio.diary.feature.backup.RestoreListRoute
 import org.sjhstudio.diary.feature.backup.RestorePreviewRoute
 import org.sjhstudio.diary.feature.backup.RestoreProgressRoute
 import org.sjhstudio.diary.feature.backup.RestoreStatusBar
+import org.sjhstudio.diary.feature.backup.settingsBackupValue
 import org.sjhstudio.diary.feature.lock.LockSettingsRoute
 import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
@@ -128,6 +129,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
                 onTrash = { push(TrashKey) },
                 trashCount = state.trashCount,
                 onBackup = { push(BackupSettingsKey) },
+                backupValue = state.lastBackupAt?.let { settingsBackupValue(it) },
                 onLetter = { push(LetterKey) },
                 onTerms = { openWeb(LegalLinks.TERMS) },
                 onPrivacy = { openWeb(LegalLinks.PRIVACY) },

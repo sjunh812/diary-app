@@ -1,8 +1,11 @@
 package org.sjhstudio.diary.feature.settings
 
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
@@ -21,6 +24,7 @@ val settingsFeatureModule =
                 trashCount = get<TrashRepository>().count(),
                 plan = get<PlanRepository>().plan,
                 showsMigrationReport = { showsMigrationReport(get()) },
+                lastBackupAt = get<BackupRepository>().status.map { it.lastSuccessAt }.distinctUntilChanged(),
                 telemetry = get()
             )
         }
