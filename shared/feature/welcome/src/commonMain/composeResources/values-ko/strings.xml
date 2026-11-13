@@ -10,7 +10,7 @@
     <string name="onboarding_backup_title">사진까지 백업해요</string>
     <string name="onboarding_backup_body">자동 백업을 켜면 하루 한 번 내 드라이브에 올려요.\n휴대폰을 바꿔도 일기와 사진이 그대로예요.</string>
     <string name="onboarding_write_title">하루 한 줄이면 충분해요</string>
-    <string name="onboarding_write_body">기분을 고르고 몇 줄만 남겨 보세요.</string>
+    <string name="onboarding_write_body">기분을 선택하고 한 줄만 써 보세요.</string>
     <string name="onboarding_own_title">일기는 내 드라이브에만</string>
     <string name="onboarding_own_body">회원가입 없이 내 구글 드라이브에\n사진까지 백업해요.</string>
     <string name="onboarding_next">다음</string>
@@ -26,11 +26,11 @@
     <string name="onboarding_trash_body">휴지통에서 30일 동안 복원할 수 있어요.</string>
     <string name="letter_to">To. 1일 1일기 사용자분들께</string>
     <string name="letter_feedback_invite">원하는 기능이 있으시면 편하게 알려 주세요.</string>
-    <string name="letter_feedback">의견 남기기</string>
+    <string name="letter_feedback">의견 보내기</string>
     <string name="onboarding_find_title">검색도 통계도 쉬워졌어요</string>
-    <string name="onboarding_find_body">기분, 날씨, 기간으로 일기를 찾고\n기분 흐름을 주·월·년으로 볼 수 있어요.</string>
+    <string name="onboarding_find_body">기분, 날씨, 기간으로 일기를 검색하고\n기분 흐름을 주·월·년으로 볼 수 있어요.</string>
     <string name="onboarding_tablet_title">태블릿에서는 더 넓게</string>
     <string name="onboarding_tablet_body">목록과 일기를 나란히 보고\n키보드로 바로 쓸 수 있어요.</string>
     <string name="onboarding_look_back_title">지난날을 돌아봐요</string>
-    <string name="onboarding_look_back_body">기분 흐름을 한눈에 보고\n기분, 날씨, 기간으로 일기를 찾아요.</string>
+    <string name="onboarding_look_back_body">기분 흐름을 한눈에 보고\n기분, 날씨, 기간으로 일기를 검색해요.</string>
 </resources>

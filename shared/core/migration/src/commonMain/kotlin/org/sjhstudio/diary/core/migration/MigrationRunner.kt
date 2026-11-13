@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.Entry
 import org.sjhstudio.diary.core.model.Media
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.MigratedSetting
@@ -35,6 +36,7 @@ import org.sjhstudio.diary.core.model.MigrationState
 import org.sjhstudio.diary.core.model.MigrationStep
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.platform.AnalyticsEvents
 
 /**
  * 이전이 읽고 쓰는 자리
@@ -123,7 +125,7 @@ class MigrationRunner(
     private val newId: () -> String,
     /** 그 폴더가 있는 저장소의 남은 바이트 */
     private val freeBytes: (Path) -> Long,
-    /** 이 경로에 Room DB를 엶(임시 DB는 TRUNCATE 저널) */
+    /** 이 경로에 Room DB 열기(임시 DB는 TRUNCATE 저널) */
     private val openDatabase: (String) -> DiaryDatabase,
     imageSize: ImageSizeReader,
     private val events: MigrationEvents = object : MigrationEvents {},
@@ -134,7 +136,7 @@ class MigrationRunner(
     private val versionCode: Int = 0,
     /**
      * 옮긴 사진의 썸네일 생성(research R9, FR-037)
-     * 실패해도 이전은 계속하고 수만 셈
+     * 실패해도 이전은 계속하고 수만 계산
      * 앱은 `ThumbnailRepository.ensure`를 넘김
      */
     private val makeThumbnail: (suspend (Path) -> Boolean)? = null,
@@ -350,7 +352,7 @@ class MigrationRunner(
             val rows = ArrayList<CopiedRow>(chunk.size)
             val copied = ArrayList<Path>()
             for (note in chunk) {
-                // 바꾸지 못하는 일기 한 편은 검증에서 빠진 일기로 셈
+                // 바꾸지 못하는 일기 한 편은 검증에서 빠진 일기로 처리
                 val mapped =
                     try {
                         mapper.map(note)
@@ -504,7 +506,7 @@ class MigrationRunner(
     }
 
     /** 원본 날짜·시각을 읽을 수 있었던 줄은 새 DB 값이 그 규칙과 같아야 함 */
-    private fun sameDateRule(note: LegacyNote, entry: org.sjhstudio.diary.core.model.Entry): Boolean {
+    private fun sameDateRule(note: LegacyNote, entry: Entry): Boolean {
         val created = note.createDate ?: return true
         val date = LegacyEntryMapper.parseDate(created)
         val time = LegacyEntryMapper.parseTime(created)
@@ -695,14 +697,14 @@ class MigrationRunner(
         SupportSummary(
             failure = state.failure,
             attempt = state.attempt,
-            entriesBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(entries),
-            photosBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(photos),
-            unreadableBucket = org.sjhstudio.diary.core.platform.AnalyticsEvents.countBucket(report?.entriesUnreadable ?: 0)
+            entriesBucket = AnalyticsEvents.countBucket(entries),
+            photosBucket = AnalyticsEvents.countBucket(photos),
+            unreadableBucket = AnalyticsEvents.countBucket(report?.entriesUnreadable ?: 0)
         )
     }
 
     /**
-     * 사본에 있는 옛 설정 파일(비밀번호를 뺀 것)에서 옮긴 설정을 셈
+     * 사본에 있는 옛 설정 파일(비밀번호를 뺀 것)에서 옮긴 설정 수 계산
      * 읽지 못하면 비워 둠
      * 이 목록은 결과에 남길 뿐이라 이전을 막지 않음
      */
@@ -755,7 +757,7 @@ class MigrationRunner(
 
     /**
      * 쓰다가 실패했는데 여유가 바닥났으면 [kind]보다 공간 부족이 까닭
-     * 그래야 사용자가 무엇을 하면 되는지 앎
+     * 그래야 사용자가 무엇을 하면 되는지 알 수 있음
      */
     private fun failOrNoSpace(step: MigrationStep, kind: MigrationFailureKind, attempt: Int): MigrationResult.Failed {
         val free = runCatching { freeBytes(paths.migrationDir.parent ?: paths.migrationDir) }.getOrDefault(Long.MAX_VALUE)
@@ -846,7 +848,7 @@ private class Counts(
     /** [notes]의 옛 번호마다 이번에 넣은 일기 ID. 넣지 못했으면 null */
     fun added(notes: List<LegacyNote>): Map<Int, String?> = notes.associate { it.id.toInt() to entryIds[it.id.toInt()] }
 
-    /** 새 DB에 들어간 일기만 셈 */
+    /** 새 DB에 들어간 일기만 계산 */
     fun add(row: CopiedRow) {
         written++
         row.mapped.entry.legacyId?.let { entryIds[it] = row.mapped.entry.id }

@@ -41,8 +41,10 @@ class DefaultStatsRepository(private val db: DiaryDatabase) : StatsRepository {
         // 요즘 기분은 어느 기간을 고르든 같은 60일을 봄
         val recent = AdvancedPeriod.RECENT.compare(today)
         val from = listOfNotNull(before?.start, recent?.start).minOrNull()
+        // 전체는 앞날짜 일기까지 셈. 돌아보기 전체와 같은 수
         val start = if (range == null) null else from
-        return entries.statsRows(start?.toString(), today.toString()).map { rows ->
+        val end = if (range == null) null else today
+        return entries.statsRows(start?.toString(), end?.toString()).map { rows ->
             val all = rows.map { it.toEntry() }
             val chosen = if (range == null) all else all.filter { it.date in range.start..range.end }
             val earlier = before?.let { window -> all.filter { it.date in window.start..window.end } }

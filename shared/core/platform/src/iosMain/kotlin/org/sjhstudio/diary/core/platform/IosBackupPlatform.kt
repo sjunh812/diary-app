@@ -28,7 +28,7 @@ import platform.darwin.DISPATCH_QUEUE_PRIORITY_DEFAULT
 import platform.darwin.dispatch_get_global_queue
 
 /**
- * Swift의 GoogleSignIn을 부르는 다리. iosApp이 앱을 켤 때 걺(research R2)
+ * Swift의 GoogleSignIn을 부르는 다리. iosApp이 앱을 켤 때 등록(research R2)
  * 값이 없으면 빈 문자열을 넘김
  */
 interface IosDriveBridge {
@@ -91,7 +91,7 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
     }
 }
 
-/** 경로 감시로 지금 연결을 앎. 데이터 요금이 있으면 `expensive` */
+/** 경로 감시로 지금 연결 확인. 데이터 요금이 있으면 `expensive` */
 class IosNetworkState : NetworkState {
     override var isConnected: Boolean = true
         private set
@@ -116,7 +116,7 @@ class IosDeviceName : DeviceName {
 
 @OptIn(ExperimentalForeignApi::class)
 class IosFreeSpace : FreeSpace {
-    /** 시스템이 비워 줄 수 있는 공간까지 셈. 설정 앱의 남은 공간과 같은 값 */
+    /** 시스템이 비워 줄 수 있는 공간까지 계산. 설정 앱의 남은 공간과 같은 값 */
     override fun bytes(): Long {
         val home = NSURL.fileURLWithPath(NSHomeDirectory())
         val important = home.resourceValuesForKeys(listOf(NSURLVolumeAvailableCapacityForImportantUsageKey), null)

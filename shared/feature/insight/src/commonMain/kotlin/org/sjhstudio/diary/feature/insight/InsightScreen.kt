@@ -137,6 +137,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_tab_week
 import org.sjhstudio.diary.feature.insight.resources.insight_tab_year
 import org.sjhstudio.diary.feature.insight.resources.insight_title
 import org.sjhstudio.diary.feature.insight.resources.insight_top_all
+import org.sjhstudio.diary.feature.insight.resources.insight_top_even
 import org.sjhstudio.diary.feature.insight.resources.insight_top_month
 import org.sjhstudio.diary.feature.insight.resources.insight_top_past
 import org.sjhstudio.diary.feature.insight.resources.insight_top_week
@@ -453,10 +454,12 @@ private fun Content(
         val title = DiaryTheme.typography.title2
         // 두 줄이면 줄 길이를 고르게(Android)
         // iOS는 이 설정이 없고 일본어는 아무 글자에서나 끊겨 마지막 줄에 "す"만 남아, 일본어 문구에 끊을 자리를 넣음
+        // 아래 기분 막대와 같은 순서
+        val top = Mood.ordered.filter { it in counts.top }
         BasicText(
-            summary(period, counts, today),
+            summary(period, top, today),
             style = title.copy(color = colors.textPrimary, lineBreak = CenteredLineBreak),
-            inlineContent = moodFaces(counts.top.toList(), title.lineHeight)
+            inlineContent = moodFaces(top, title.lineHeight)
         )
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
@@ -501,18 +504,28 @@ private fun SectionTitle(text: String) {
     )
 }
 
-/** 기분 이름은 모두 받침으로 끝나 문구에 조사 "이"를 그대로 둠 */
+/**
+ * 기분 이름은 모두 받침으로 끝나 문구에 조사 "이"를 그대로 둠
+ * 셋 이상 같으면 나열 대신 고르게 나뉘었다고 알림
+ */
 @Composable
-private fun summary(period: StatsPeriod, counts: MoodCounts, today: LocalDate): AnnotatedString {
-    val top = counts.top
-    if (top.isEmpty()) return AnnotatedString(stringResource(Res.string.insight_no_moods))
-    var names = withFace(0, moodName(top.first()))
-    top.drop(1).forEachIndexed { index, mood ->
-        names =
-            stringResource(Res.string.insight_mood_join, names, withFace(index + 1, moodName(mood)))
+private fun summary(period: StatsPeriod, top: List<Mood>, today: LocalDate): AnnotatedString = when {
+    top.isEmpty() -> AnnotatedString(stringResource(Res.string.insight_no_moods))
+
+    top.size > MAX_NAMED_TOP -> AnnotatedString(stringResource(Res.string.insight_top_even))
+
+    else -> {
+        var names = withFace(0, moodName(top.first()))
+        top.drop(1).forEachIndexed { index, mood ->
+            names = stringResource(Res.string.insight_mood_join, names, withFace(index + 1, moodName(mood)))
+        }
+        // 이름과 뒤 조사가 다른 줄로 갈리지 않게 단어 연결 문자
+        stringResource(summaryResource(period, today), names + WORD_JOINER).withFaces()
     }
-    return stringResource(summaryResource(period, today), names).withFaces()
 }
+
+private const val MAX_NAMED_TOP = 2
+private const val WORD_JOINER = '\u2060'
 
 private const val CHEVRON_ID = "period-chevron"
 private const val FACE_START = '\uE002'

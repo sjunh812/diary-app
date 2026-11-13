@@ -1,7 +1,7 @@
 #!/bin/sh
-# 릴리스 태그와 앱에 적힌 버전이 같은지 본다.
+# 릴리스 태그와 앱에 적힌 버전이 같은지 확인
 #   sh scripts/release/check-version.sh v2.0.0
-# Android와 iOS의 버전 이름, 빌드 번호가 서로 다르면 멈춘다.
+# Android와 iOS의 버전 이름, 빌드 번호가 서로 다르면 중단
 set -eu
 
 tag=${1:?태그를 주세요(예: v2.0.0)}

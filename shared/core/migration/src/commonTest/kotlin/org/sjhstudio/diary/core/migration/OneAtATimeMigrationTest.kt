@@ -7,7 +7,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.test.runTest
 
-// 다시 시도를 연달아 누르거나 설정의 다시 옮기기와 겹쳐도 이전은 한 번만 돎
+// 다시 시도를 연달아 누르거나 설정의 다시 옮기기와 겹쳐도 이전은 한 번만 실행
 class OneAtATimeMigrationTest {
     private val jpeg = byteArrayOf(0xFF.toByte(), 0xD8.toByte(), 0xFF.toByte(), 1, 2, 3)
 

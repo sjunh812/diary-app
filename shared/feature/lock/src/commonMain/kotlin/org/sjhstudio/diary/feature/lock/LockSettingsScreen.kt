@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric
+import org.sjhstudio.diary.feature.lock.resources.lock_note_no_device_lock
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_biometric_unavailable
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_change
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_enable
@@ -47,11 +48,13 @@ import org.sjhstudio.diary.feature.lock.resources.relock_one_minute
  * 잠금을 켜면 비밀번호 줄과 생체 인증, 다시 잠그기가 나옴
  * 생체 인증을 지금 기기에서 쓸 수 없으면 그 까닭을 보임
  * 켜 둔 것은 끄지 않음(contracts/lock.md)
+ * [deviceSecure]: 휴대폰 화면 잠금이 있어 비밀번호를 잊어도 다시 설정할 수 있는지
  */
 @Composable
 fun LockSettingsScreen(
     settings: LockSettings,
     biometricAvailable: Boolean,
+    deviceSecure: Boolean,
     onBack: () -> Unit,
     onEnabledChange: (Boolean) -> Unit,
     onChangePin: () -> Unit,
@@ -95,8 +98,9 @@ fun LockSettingsScreen(
                     })
                 }
             }
+            // 화면 잠금이 없으면 비밀번호를 다시 설정할 길이 없어 사실대로 알림
             DiaryNotice(
-                stringResource(Res.string.lock_settings_note),
+                stringResource(if (deviceSecure) Res.string.lock_settings_note else Res.string.lock_note_no_device_lock),
                 Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6)
             )
         }

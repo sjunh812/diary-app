@@ -17,6 +17,7 @@
     <string name="insight_top_year">Top mood this year: %1$s</string>
     <string name="insight_top_all">Top mood so far: %1$s</string>
     <string name="insight_top_past">Top mood in this period: %1$s</string>
+    <string name="insight_top_even">Your moods were evenly spread</string>
     <string name="insight_mood_join">%1$s, %2$s</string>
     <string name="insight_summary_counts">%1$s · %2$s</string>
     <string name="insight_count_percent">%1$s · %2$d%</string>
@@ -49,7 +50,10 @@
     <string name="insight_adv_range_recent">Last 30 days</string>
     <string name="insight_adv_range_year">This year</string>
     <string name="insight_adv_range_all">All</string>
-    <string name="insight_adv_not_enough">This appears once you've written 7 entries.</string>
+    <plurals name="insight_adv_not_enough">
+        <item quantity="one">This appears after %1$s more entry.</item>
+        <item quantity="other">This appears after %1$s more entries.</item>
+    </plurals>
     <string name="insight_adv_change_recent">Compared with the previous 30 days</string>
     <string name="insight_adv_change_year">Compared with this time last year</string>
     <string name="insight_adv_change_good">Positive moods</string>
@@ -93,7 +97,10 @@
     <string name="tip_insight_open">Tap a mood to see those entries together.</string>
     <string name="insight_section_moods">Top moods</string>
     <string name="insight_adv_no_moods">Not enough entries with a mood</string>
-    <string name="insight_adv_no_moods_body">Pick a mood on 7 entries and we'll look for differences.</string>
+    <plurals name="insight_adv_no_moods_body">
+        <item quantity="one">Pick a mood on %1$s more entry and we'll look for differences.</item>
+        <item quantity="other">Pick a mood on %1$s more entries and we'll look for differences.</item>
+    </plurals>
     <string name="insight_adv_recent_better">You've had more good days lately ☀️</string>
     <string name="insight_adv_recent_harder">Lately hasn't been easy ☁️</string>
     <string name="insight_adv_recent_steady">Things have been about the same lately ⛅</string>

@@ -3,7 +3,7 @@ package org.sjhstudio.diary.core.platform
 import android.content.Context
 import java.io.File
 
-// 시스템 폴더를 물으면 폴더를 만들려고 디스크를 건드려, 화면 스레드에서 만들어도 막지 않게 경로로만 셈
+// 시스템 폴더를 물으면 폴더를 만들려고 디스크를 건드려, 화면 스레드에서 만들어도 막지 않게 경로로만 계산
 actual class AppFiles(context: Context) {
     private val data = File(context.applicationInfo.dataDir)
     private val filesDir: File = File(data, "files")

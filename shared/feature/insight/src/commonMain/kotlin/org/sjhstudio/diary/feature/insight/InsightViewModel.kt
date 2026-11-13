@@ -35,7 +35,7 @@ import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.mostFrequent
-import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.stateInSafely
@@ -118,7 +118,7 @@ class InsightViewModel(
         // 다른 탭도 미리 읽어 처음 눌러도 바로 보이게
         viewModelScope.launchSafely {
             InsightKind.entries.map { it.periodOf(today()) }.filter { it != _period.value }.forEach { period ->
-                orElseOnFailure(Unit) { cache.getOrPut(period) { read(period).first() } }
+                quietly { cache.getOrPut(period) { read(period).first() } }
             }
         }
     }
@@ -127,7 +127,7 @@ class InsightViewModel(
 
     /**
      * 첫 일기의 해. 기간 고르기가 이 해부터 보임. 일기가 없으면 null
-     * 전체 기분 목록 대신 가벼운 달 목록으로 셈(일기가 바뀔 때마다 다시 읽음)
+     * 전체 기분 목록 대신 가벼운 달 목록으로 계산(일기가 바뀔 때마다 다시 읽음)
      */
     val firstYear: StateFlow<Int?> =
         entries.months()

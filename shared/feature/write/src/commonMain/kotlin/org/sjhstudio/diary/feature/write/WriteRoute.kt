@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -15,11 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.model.RichTextState
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -50,9 +53,25 @@ fun WriteRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.draftKey) { state.draftKey?.let { draftKey = it } }
     val look by viewModel.look.collectAsStateWithLifecycle()
-    val rich = rememberRichTextState()
     val theme = DiaryTheme.colors
     val colors = remember(theme) { EditorColors(theme) }
+    // 본문의 주인은 화면 모델(임시 저장본) 하나. 편집기는 화면 저장 상태에 글을 넣지 않음
+    // 넣으면 앱이 종료됐다 돌아올 때 임시 저장본과 다른 글이 보이고, 아주 긴 글은 저장 상태 크기 한도를 넘음
+    // 커서 자리만 저장해 회전 뒤에도 쓰던 자리에서 이어 씀
+    var caret by rememberSaveable { mutableIntStateOf(-1) }
+    val wanted = "${state.bodyVersion}/${colors.signature}"
+    // 화면 모델이 이미 본문을 갖고 있으면(회전) 처음 그릴 때부터 글을 넣음
+    // 뒤에 넣으면 커서를 다시 잡는 순간 글이 아직 배치되지 않아 커서 자리가 글 밖이 됨
+    var applied by remember { mutableStateOf("") }
+    val rich = remember {
+        RichTextState().also { editor ->
+            if (state.bodyVersion > 0) {
+                editor.setHtml(colors.toEditor(viewModel.currentBody()))
+                if (caret >= 0) editor.selection = TextRange(caret.coerceAtMost(editor.annotatedString.text.length))
+                applied = wanted
+            }
+        }
+    }
     val saved by rememberUpdatedState(onSaved)
     val haptic = LocalHapticFeedback.current
     val closed by rememberUpdatedState(onClosed)
@@ -75,18 +94,21 @@ fun WriteRoute(
         viewModel.attachEditor { keepingEditorText(colors.fromEditor(rich.toHtml()), rich.annotatedString.text) }
         onDispose(viewModel::detachEditor)
     }
-    // 편집기는 화면을 돌려도 스스로 살아남음
-    // 받은 본문을 다시 넣으면 그 뒤에 친 글이 사라져 넣은 판을 함께 기억
+    // 새로 읽은 본문만 넣음. 같은 판을 다시 넣으면 그 뒤에 친 글이 사라짐
     // 테마가 바뀌면 편집기 안의 색을 저장 값으로 되돌릴 수 없어 그때는 지금 본문을 다시 넣음
-    var applied by rememberSaveable { mutableStateOf("") }
-    val wanted = "${state.bodyVersion}/${colors.signature}"
     LaunchedEffect(wanted) {
         if (state.bodyVersion > 0 && applied != wanted) {
             rich.setHtml(colors.toEditor(viewModel.currentBody()))
             // 편집기가 다시 낸 모양이 기준
             viewModel.onBodyLoaded(colors.fromEditor(rich.toHtml()))
+            // 앱이 종료됐다 돌아와도 쓰던 자리에서 이어 씀
+            if (caret >= 0) rich.selection = TextRange(caret.coerceAtMost(rich.annotatedString.text.length))
             applied = wanted
         }
+    }
+    // 본문을 넣기 전 빈 편집기의 커서가 저장한 자리를 덮지 않게 넣은 뒤부터 기록
+    LaunchedEffect(rich) {
+        snapshotFlow { if (applied.isEmpty()) null else rich.selection.max }.filterNotNull().collect { caret = it }
     }
     // HTML 변환은 쓰기 직전으로 미루고 여기서는 바뀜 표시만
     LaunchedEffect(rich) {

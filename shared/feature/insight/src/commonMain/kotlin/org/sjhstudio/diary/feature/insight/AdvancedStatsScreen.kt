@@ -172,7 +172,12 @@ internal fun AdvancedStatsScreen(
                     onSelect = { onPeriod(AdvancedPeriod.entries[it]) }
                 )
                 if (stats?.enough == false) {
-                    DiaryEmptyLine(stringResource(Res.string.insight_adv_not_enough), stringResource(Res.string.insight_write), onWrite)
+                    val left = AdvancedStats.MIN_ENTRIES - stats.habit.entries
+                    DiaryEmptyLine(
+                        pluralStringResource(Res.plurals.insight_adv_not_enough, left, left),
+                        stringResource(Res.string.insight_write),
+                        onWrite
+                    )
                 }
             }
             Spacer(Modifier.height(DiarySpacing.x6))
@@ -190,7 +195,7 @@ private fun Sections(stats: AdvancedStats?, period: AdvancedPeriod, onMood: (Moo
 
         else -> {
             stats.recent?.let { Recent(it) }
-            if (!stats.moodReady) NoMoods()
+            if (!stats.moodReady) NoMoods(AdvancedStats.MIN_ENTRIES - stats.moodEntries)
             stats.change?.let { Change(period, it) }
             if (stats.moodReady) MoodTimes(stats)
             if (stats.company.isNotEmpty()) Company(stats.company, onMood)
@@ -253,12 +258,15 @@ private fun Card(modifier: Modifier = Modifier, content: @Composable ColumnScope
 
 /** 일기는 많은데 기분을 고른 일기가 적을 때. 일기가 적다고 하면 틀린 말 */
 @Composable
-private fun NoMoods() {
+private fun NoMoods(left: Int) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Card {
         PhraseText(stringResource(Res.string.insight_adv_no_moods), style = typography.bodyStrong.copy(color = colors.textPrimary))
-        PhraseText(stringResource(Res.string.insight_adv_no_moods_body), style = typography.caption.copy(color = colors.textSecondary))
+        PhraseText(
+            pluralStringResource(Res.plurals.insight_adv_no_moods_body, left, left),
+            style = typography.caption.copy(color = colors.textSecondary)
+        )
     }
 }
 

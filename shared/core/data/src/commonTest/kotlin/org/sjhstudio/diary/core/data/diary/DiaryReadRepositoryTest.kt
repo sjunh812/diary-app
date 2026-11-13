@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.database.EntryListRow
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.EntryRow
@@ -446,5 +447,18 @@ class DiaryReadRepositoryTest {
 
         cleaner.cleanUnused(written + 2.days)
         assertEquals(setOf("kept.jpg"), files.list(MEDIA_DIR).map { it.name }.toSet())
+    }
+
+    /** 전체는 돌아보기와 고급 통계가 같은 수. 앞날짜 일기도 셈 */
+    @Test
+    fun all_time_counts_future_entries_like_the_review() = runTest {
+        db.seed(entry("past", date = "2026-10-31", mood = Mood.GOOD), entry("future", date = "2027-01-10", mood = Mood.SAD))
+        val today = LocalDate(2026, 11, 13)
+
+        val advanced = stats.advanced(AdvancedPeriod.ALL, today).first()
+
+        assertEquals(stats.moodCounts(StatsPeriod.All).first().total, advanced.habit.entries)
+        assertEquals(2, advanced.habit.entries)
+        assertEquals(1, stats.advanced(AdvancedPeriod.THIS_YEAR, today).first().habit.entries)
     }
 }

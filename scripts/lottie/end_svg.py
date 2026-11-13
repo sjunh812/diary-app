@@ -10,7 +10,7 @@ import json
 import math
 import sys
 
-# 토큰별 표시 색. 겹치지 않게 첫 자리만 바꾼다.
+# 토큰별 표시 색. 겹치지 않게 첫 자리만 변경
 MARK = ["@surface", "@sunken", "@selected", "@line", "@accent", "@onAccent", "@textTertiary",
         "@face", "@moodA", "@moodB", "@moodC", "@faceLine", "@textPrimary"]
 
@@ -87,14 +87,14 @@ def layer_svg(layer):
     sx, sy = [v / 100 for v in last(ks["s"])[:2]]
     r = num(last(ks["r"]))
     t = f"translate({px} {py}) rotate({r}) scale({sx} {sy}) translate({-ax} {-ay})"
-    # 같은 층 안에서는 앞에 적은 그룹이 위다.
+    # 같은 층 안에서는 앞에 적은 그룹이 위
     body = "".join(group_svg(g) for g in reversed(layer["shapes"]))
     return f'<g transform="{t}" opacity="{num(last(ks["o"])) / 100}">{body}</g>'
 
 
 def main():
     data = json.load(open(sys.argv[1], encoding="utf-8"))
-    # 앞에 적은 층이 위다.
+    # 앞에 적은 층이 위
     body = "".join(layer_svg(l) for l in reversed(data["layers"]))
     print(f'<svg xmlns="http://www.w3.org/2000/svg" width="{data["w"]}" height="{data["h"]}" viewBox="0 0 {data["w"]} {data["h"]}">{body}</svg>')
 

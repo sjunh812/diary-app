@@ -28,6 +28,7 @@ import kotlinx.io.IOException as KotlinxIOException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
@@ -151,6 +152,8 @@ class KtorDriveApi(
                         )
                     )
                 }
+            } catch (error: CancellationException) {
+                throw error
             } catch (error: Exception) {
                 throw unreadable ?: error
             }
@@ -272,8 +275,16 @@ class KtorDriveApi(
     }
 
     private suspend fun failure(response: HttpResponse): DriveException {
-        val reason = runCatching { response.bodyAsBytes().decodeToString() }.getOrNull()?.let(::errorReason)
-        return DriveErrorMapper.map(response.status.value, reason)
+        // 본문을 못 읽어도 상태 코드로 가름. 취소는 그대로 올림
+        val body =
+            try {
+                response.bodyAsBytes().decodeToString()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                null
+            }
+        return DriveErrorMapper.map(response.status.value, body?.let(::errorReason))
     }
 
     private fun errorReason(body: String): String? = runCatching {
@@ -286,7 +297,7 @@ class KtorDriveApi(
     private fun NewFile.toJson(): String = buildJsonObject {
         put("name", name)
         put("mimeType", mimeType)
-        parentId?.let { parent -> putJsonArray("parents") { add(kotlinx.serialization.json.JsonPrimitive(parent)) } }
+        parentId?.let { parent -> putJsonArray("parents") { add(JsonPrimitive(parent)) } }
         if (props.isNotEmpty()) putJsonObject("appProperties") { props.forEach { (key, value) -> put(key, value) } }
     }.toString()
 

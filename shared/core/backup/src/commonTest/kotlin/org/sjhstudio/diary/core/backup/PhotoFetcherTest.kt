@@ -39,7 +39,7 @@ class PhotoFetcherTest {
 
     /**
      * 사진을 받는 데 잠깐 걸리는 드라이브
-     * 동시에 몇 장을 받았는지 잼
+     * 동시에 몇 장을 받았는지 측정
      */
     private inner class SlowDrive(private val photos: Map<String, ByteArray>, private val failing: Map<String, Exception> = emptyMap()) :
         DriveApi by FakeDrive(fs) {

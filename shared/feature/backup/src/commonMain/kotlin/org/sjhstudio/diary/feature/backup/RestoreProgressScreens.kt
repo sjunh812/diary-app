@@ -118,7 +118,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_waiting_body
 /**
  * 복원하는 중과 결과(Figma B5, B6)
  * 뒤로 가면 멈추지 않고 홈으로 감
- * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 엶([RestoreResultNotice])
+ * 나간 뒤에 나온 결과는 앱 틀의 토스트로 다시 알림([RestoreResultNotice])
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -136,7 +136,7 @@ fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: ()
     }
     val access = rememberNotificationAccess()
     // 받을 사진이 있을 때 한 번 물음. 앱을 나가도 끝나면 알리려는 것이라 바로 끝나는 복원에서는 묻지 않음
-    // 거절해도 복원은 그대로 돎
+    // 거절해도 복원은 그대로 실행
     val fetching = (state as? RestoreState.FetchingPhotos)?.let { it.total > 0 } == true
     LaunchedEffect(access, fetching) { if (fetching) access.askInContext() }
     val home by rememberUpdatedState(onHome)

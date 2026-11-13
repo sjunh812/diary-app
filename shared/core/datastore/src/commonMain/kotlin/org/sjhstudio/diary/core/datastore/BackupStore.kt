@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -13,8 +14,10 @@ import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import okio.IOException
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.PhotoStop
 
@@ -85,7 +88,11 @@ data class BackupPrefs(
 )
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
-    val prefs: Flow<BackupPrefs> = dataStore.data.map { it.toPrefs() }
+    // 파일을 읽지 못하면 연결 전 상태로 읽음. 예외가 흐름을 끊으면 백업 화면과 진행 표시가 멈춤
+    val prefs: Flow<BackupPrefs> =
+        dataStore.data
+            .catch { if (it is IOException) emit(emptyPreferences()) else throw it }
+            .map { it.toPrefs() }
 
     suspend fun current(): BackupPrefs = prefs.first()
 

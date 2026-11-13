@@ -97,22 +97,9 @@ class DefaultDraftRepository(
         var failed = 0
         for (image in picked.take(room)) {
             // 읽지 못한 그림은 공간 문제가 아니라 나머지를 계속 더함
-            val bytes =
-                try {
-                    image.read()
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (_: Exception) {
-                    failed++
-                    continue
-                } catch (_: OutOfMemoryError) {
-                    // 아주 큰 원본을 통째로 읽다 메모리가 모자라면 앱을 끄지 않고 그 사진만 못 넣은 것으로 셈
-                    failed++
-                    continue
-                }
             val stored =
                 try {
-                    photos.store(bytes)
+                    photos.store(image)
                 } catch (_: okio.IOException) {
                     return@inOrder AddPhotosResult.NoSpace(added)
                 }
@@ -185,8 +172,10 @@ class DefaultDraftRepository(
     private fun DraftEntity.toEntry(id: String, old: EntryEntity?, now: Long, photosChanged: Boolean): EntryEntity {
         // 고치지 않은 본문은 그대로 둠
         // 레거시 원문과 서식 없는 글이 바뀌지 않게
-        val body = if (old != null && bodyHtml == old.bodyHtml) bodyHtml else RichTextSanitizer.sanitize(bodyHtml)
-        val plain = if (old != null && bodyHtml == old.bodyHtml) old.plainText else toPlainText(body)
+        val kept = old != null && bodyHtml == old.bodyHtml
+        // 공백과 빈 줄뿐인 본문은 빈 본문(기분만 남긴 일기)
+        val body = if (kept) bodyHtml else RichTextSanitizer.sanitize(bodyHtml).takeUnless { toPlainText(it).isBlank() }.orEmpty()
+        val plain = if (kept) old.plainText else toPlainText(body)
         val entry =
             EntryEntity(
                 id = id,

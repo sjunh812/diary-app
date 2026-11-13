@@ -14,8 +14,8 @@ data class LegacyReadSummary(val read: Int, val unreadable: Int)
 
 /**
  * `legacy-snapshot/note.db`(사본)를 번들 드라이버의 날 SQL로 읽음(research R5)
- * 레거시 스키마의 `TIMESTAMP` 열 때문에 Room으로는 못 엶
- * 원본이 아닌 사본만 엶
+ * 레거시 스키마의 `TIMESTAMP` 열 때문에 Room으로는 열 수 없음
+ * 원본이 아닌 사본만 열기
  * 사본의 WAL은 사본에 합쳐져도 괜찮음
  */
 class LegacyDbReader private constructor(private val connection: SQLiteConnection) : AutoCloseable {
@@ -74,7 +74,7 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
             }
             // 이 쪽은 깨짐
             // 다음 읽히는 줄까지 반씩 나눠 건짐
-            // 끝을 모르면 몇 줄이 빠졌는지 셀 수 없음. 다 읽었다고 하지 않게 한 줄로 셈
+            // 끝을 모르면 몇 줄이 빠졌는지 셀 수 없음. 다 읽었다고 하지 않게 한 줄로 처리
             if (maxId == null) {
                 unreadable += 1
                 break
@@ -204,8 +204,8 @@ class LegacyDbReader private constructor(private val connection: SQLiteConnectio
             )
 
         /**
-         * 사본을 엶
-         * 사본의 WAL을 읽으려면 쓰기 모드로 엶(원본은 절대 열지 않음)
+         * 사본 열기
+         * 사본의 WAL을 읽으려면 쓰기 모드로 열기(원본은 절대 열지 않음)
          */
         fun open(snapshotDbPath: String): LegacyDbReader {
             val connection = BundledSQLiteDriver().open(snapshotDbPath)

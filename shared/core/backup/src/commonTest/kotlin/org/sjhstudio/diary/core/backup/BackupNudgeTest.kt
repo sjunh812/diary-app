@@ -85,7 +85,7 @@ class BackupNudgeTest {
         assertEquals(1, controller().nudge.first()?.photoCount)
     }
 
-    // 백업·복원 화면처럼 사진 파일 수로 셈. 같은 사진이 두 일기에 붙어도 한 장
+    // 백업·복원 화면처럼 사진 파일 수로 계산. 같은 사진이 두 일기에 붙어도 한 장
     @Test
     fun same_photo_in_two_entries_counts_once() = runTest {
         entries(2)

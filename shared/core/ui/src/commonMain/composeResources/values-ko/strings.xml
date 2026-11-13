@@ -8,7 +8,7 @@
     <string name="mood_meh">보통</string>
     <string name="mood_bad">나쁨</string>
     <string name="mood_good">좋음</string>
-    <string name="mood_tired">피곤</string>
+    <string name="mood_tired">피곤함</string>
     <string name="weather_sunny">맑음</string>
     <string name="weather_partly_cloudy">구름 조금</string>
     <string name="weather_mostly_cloudy">구름 많음</string>
@@ -16,12 +16,12 @@
     <string name="weather_rain">비</string>
     <string name="weather_sleet">비/눈</string>
     <string name="weather_snow">눈</string>
-    <string name="entry_kept_both">두 가지</string>
+    <string name="entry_kept_both">두 버전</string>
     <string name="tip_close">닫기</string>
     <string name="checklist_check">%1$s 체크하기</string>
-    <string name="checklist_uncheck">%1$s 체크 풀기</string>
+    <string name="checklist_uncheck">%1$s 체크 해제</string>
     <string name="entry_menu_edit">수정하기</string>
-    <string name="entry_menu_favorite">즐겨찾기</string>
+    <string name="entry_menu_favorite">즐겨찾기 추가</string>
     <string name="entry_menu_unfavorite">즐겨찾기 해제</string>
     <string name="entry_menu_share">공유하기</string>
     <string name="entry_menu_trash">휴지통으로 옮기기</string>
@@ -31,7 +31,7 @@
     <string name="ui_next_month">다음 달</string>
     <string name="share_when">%1$s %2$s %3$s</string>
     <string name="load_failed_title">일기를 불러오지 못했어요</string>
-    <string name="load_failed_body">잠시 뒤에 다시 시도해 주세요.</string>
+    <string name="load_failed_body">잠시 뒤 다시 시도해 주세요.</string>
     <string name="load_failed_retry">다시 시도</string>
-    <string name="link_no_browser">브라우저 앱을 찾지 못했어요.</string>
+    <string name="link_no_browser">브라우저 앱을 찾지 못했어요. 브라우저를 설치한 뒤 다시 눌러 주세요.</string>
 </resources>

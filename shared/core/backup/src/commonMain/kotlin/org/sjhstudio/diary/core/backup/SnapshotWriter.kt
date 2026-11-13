@@ -78,7 +78,7 @@ class SnapshotWriter(private val db: DiaryDatabase, private val fileSystem: File
 
 /**
  * [snapshot]에 담은 일기마다 "이 값까지 밖에 내보냈다"고 적음
- * 다음 합치기가 양쪽에서 고쳤는지, 한쪽만 고쳤는지를 이 값으로 가름
+ * 다음 합치기가 양쪽에서 고쳤는지, 한쪽만 고쳤는지를 이 값으로 구분
  * 스냅샷을 뜬 뒤에 영구 삭제한 일기는 적을 곳이 없어 뺌
  */
 internal suspend fun DiaryDatabase.rememberBases(snapshot: Path) {

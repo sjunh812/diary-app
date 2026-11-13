@@ -79,7 +79,7 @@ private val WheelColumnWidth: Dp = 72.dp
 private val MonthWheelColumnWidth: Dp = 128.dp
 private const val MONTHS = 12
 
-/** 시·분은 끝에서 처음으로 이어 돎. 이만큼 되풀이해 두고 가운데에서 시작 */
+/** 시·분은 끝에서 처음으로 이어짐. 이만큼 되풀이해 두고 가운데에서 시작 */
 private const val LOOP_REPEAT = 400
 
 /**

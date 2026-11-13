@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.room3.useReaderConnection
 import androidx.room3.withWriteTransaction
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
@@ -21,6 +22,7 @@ import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.SyncBaseEntity
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.platform.FreeSpace
 
 /**
@@ -94,6 +96,7 @@ class RollbackManager(
         val until = clock.now() + KEEP_FOR
         val slot = slot(until)
         val copy = copyIn(slot)
+        val before = store.current().rollbackUntil
         var replaced = false
         try {
             fileSystem.createDirectories(slot)
@@ -112,7 +115,11 @@ class RollbackManager(
             }
             replaced = true
         } finally {
-            if (!replaced) fileSystem.deleteRecursively(slot)
+            if (!replaced) {
+                fileSystem.deleteRecursively(slot)
+                // 되돌릴 시각은 트랜잭션 안에서 먼저 적힘. 커밋이 실패했으면 앞선 바꾸기의 시각으로 돌려 그 사본을 계속 가리키게 함
+                quietly { store.update { it.copy(rollbackUntil = before) } }
+            }
         }
         clearOlderCopies(slot)
     }
@@ -149,7 +156,7 @@ class RollbackManager(
         // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음
         // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 봄
         val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
-        // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 가름
+        // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 구분
         val inserted = insertedIds(slot(until))
         val newer =
             dao.allEntries().filter { it.id !in inserted || it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
@@ -246,7 +253,7 @@ class RollbackManager(
         }
     }
 
-    private fun <T> connection(copy: Path, block: (androidx.sqlite.SQLiteConnection) -> T): T {
+    private fun <T> connection(copy: Path, block: (SQLiteConnection) -> T): T {
         val connection = BundledSQLiteDriver().open(copy.toString(), READ_ONLY)
         return try {
             block(connection)

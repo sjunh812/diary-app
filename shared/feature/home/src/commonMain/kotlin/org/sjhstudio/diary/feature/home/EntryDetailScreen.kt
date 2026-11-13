@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
@@ -205,7 +206,7 @@ internal fun EntryMissing() {
 @Composable
 internal fun Body(
     detail: EntryDetail,
-    bodyStyle: androidx.compose.ui.text.TextStyle,
+    bodyStyle: TextStyle,
     onPhoto: (Int) -> Unit,
     scroll: ScrollState = rememberScrollState(),
     lines: DetailScrollLines = remember { DetailScrollLines() },
@@ -229,6 +230,12 @@ internal fun Body(
     ) {
         // 위 8을 안쪽 여백이 아니라 칸으로 둬, 붙는 자리 계산(positionInParent)이 스크롤 내용 좌표와 같음
         Spacer(Modifier.height(DiarySpacing.x2))
+        // 큰 날짜에는 연도가 없어 몇 해 전 일기인지 알 수 없음. 날짜 위에 작게 둠
+        BasicText(
+            dates.year(entry.date),
+            modifier = content,
+            style = DiaryTheme.typography.caption.copy(color = colors.textSecondary)
+        )
         BasicText(
             dates.dayWithWeekday(entry.date),
             modifier = content.onPlaced { lines.titleBottom = it.positionInParent().y + it.size.height },
@@ -326,7 +333,7 @@ internal class DetailScrollLines {
 }
 
 /**
- * 스크롤해 위 줄에 닿으면 그 자리에 머묾
+ * 스크롤해 위 줄에 닿으면 그 자리에 머무름
  * 바탕은 칸 전체 폭으로 칠해 지나가는 본문을 가리고, 붙은 동안만 아래 가는 선
  * 스크롤 값은 그리기 단계에서만 읽어 스크롤마다 다시 구성하지 않음
  */
@@ -349,8 +356,9 @@ private fun SmallDate(date: LocalDate, collapsed: () -> Float) {
     val dates = rememberDiaryDateFormat()
     val progress by rememberUpdatedState(collapsed)
     val half by remember { derivedStateOf { progress() >= HALF } }
+    // 접히면 큰 날짜 위의 연도가 가려짐. 좁은 자리라 요일을 빼고 연도를 넣음
     BasicText(
-        dates.dayWithWeekday(date),
+        dates.fullDate(date),
         modifier = Modifier
             .graphicsLayer { alpha = ((progress() - HALF) / HALF).coerceIn(0f, 1f) }
             .then(if (half) Modifier else Modifier.clearAndSetSemantics {}),

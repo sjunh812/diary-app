@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.model.Pin
 
 /**
  * 옛 앱(1.7.x)의 잠금을 새 잠금으로 이음(contracts/legacy-mapping.md "설정", research R16)
- * 스플래시 동안 기록 이전보다 먼저 돎
+ * 스플래시 동안 기록 이전보다 먼저 실행
  * 잠금 화면을 먼저 띄우려면 확인값이 먼저 있어야 해서
  * 옛 `pref.xml`은 읽기만 함
  *

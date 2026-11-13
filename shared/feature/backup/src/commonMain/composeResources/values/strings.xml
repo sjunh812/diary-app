@@ -78,6 +78,7 @@
     <string name="restore_retry">Try again</string>
     <string name="restore_preview_top">Restore</string>
     <string name="restore_preview_title">Merge this backup</string>
+    <string name="restore_preview_title_nothing">Everything in this backup is already here</string>
     <string name="restore_preview_body">Backup from %1$s, %2$s.\nEntries on this phone are kept and the backup is merged in.</string>
     <string name="restore_value_added">Entries to add</string>
     <string name="restore_value_updated">Entries updated to the newer version</string>
@@ -200,7 +201,7 @@
     <string name="file_place_title">Save it wherever you like</string>
     <string name="file_place_body">Choose phone storage or another cloud app.</string>
     <string name="file_move_title">Move it to your new phone yourself</string>
-    <string name="file_move_body">Copy it through a computer or a cloud app. It's too large to send through messaging apps.</string>
+    <string name="file_move_body">Copy it through a computer or a cloud app. With many photos, it may be too large for messaging apps.</string>
     <string name="file_trust_title">Keep it somewhere you trust</string>
     <string name="file_trust_body">The file holds your entries and photos as they are.</string>
     <string name="file_restore">Restore from a file</string>

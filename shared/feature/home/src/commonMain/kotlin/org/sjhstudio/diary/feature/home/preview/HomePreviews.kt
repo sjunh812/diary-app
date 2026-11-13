@@ -100,7 +100,7 @@ private fun MonthPicker() = DiaryTheme(darkTheme = false) {
             title = "날짜로 가기",
             initialYear = 2026,
             shown = YearMonth(2026, 10),
-            hasYear = { it == 2026 },
+            years = listOf(2026),
             enabled = { it == YearMonth(2026, 9) || it == YearMonth(2026, 10) },
             onPick = {},
             onDismiss = {}

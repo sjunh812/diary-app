@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.migration
 
 import kotlin.time.Instant
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okio.FileSystem
@@ -90,7 +91,7 @@ class MigrationStateStore(private val fileSystem: FileSystem, private val dir: P
         )
     )
 
-    private fun <T> read(path: Path, serializer: kotlinx.serialization.KSerializer<T>): T? = if (!fileSystem.exists(path)) {
+    private fun <T> read(path: Path, serializer: KSerializer<T>): T? = if (!fileSystem.exists(path)) {
         null
     } else {
         runCatching {
@@ -98,7 +99,7 @@ class MigrationStateStore(private val fileSystem: FileSystem, private val dir: P
         }.getOrNull()
     }
 
-    private fun <T> write(path: Path, serializer: kotlinx.serialization.KSerializer<T>, value: T) {
+    private fun <T> write(path: Path, serializer: KSerializer<T>, value: T) {
         fileSystem.createDirectories(dir)
         val temp = dir / "${path.name}.tmp"
         fileSystem.write(temp) { writeUtf8(JSON.encodeToString(serializer, value)) }

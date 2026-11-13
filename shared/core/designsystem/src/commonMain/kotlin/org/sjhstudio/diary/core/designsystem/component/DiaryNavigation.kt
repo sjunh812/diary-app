@@ -122,7 +122,7 @@ private fun NavCell(item: DiaryNavItem, selected: Boolean, modifier: Modifier, o
     ) {
         DiaryIcon(if (selected) item.selectedIcon else item.icon, contentDescription = null, tint = tint)
         Spacer(Modifier.height(DiarySpacing.x1))
-        // 이름은 기기 글자 크기를 1.3배까지만 따름. 더 키우면 칸 80 안에서 잘림(DECISIONS 2026-11-03)
+        // 이름은 기기 글자 크기를 1.3배까지만 따름. 더 키우면 칸 80 안에서 잘림
         BasicText(item.label, style = DiaryTheme.typography.micro.limitFontScale().copy(color = tint), maxLines = 1)
     }
 }

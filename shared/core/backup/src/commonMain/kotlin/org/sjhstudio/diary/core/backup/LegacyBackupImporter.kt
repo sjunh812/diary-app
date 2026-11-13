@@ -151,7 +151,7 @@ class LegacyBackupImporter(
         val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
         // 날짜를 못 읽은 줄은 불러온 날로 적혀 날짜로는 같은 일기인지 모름. 옛 작성 시각과 글로도 봄
         val seenLegacy = local.filter { it.legacyCreateDate != null }.mapTo(HashSet()) { it.legacyCreateDate to it.plainText }
-        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 가름
+        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 구분
         // 분까지만 보면 글이 같고 사진이 다른 일기가 빠짐
         val inFile = HashSet<Triple<Triple<String, String, String>, String?, String?>>()
         val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }
@@ -185,30 +185,55 @@ class LegacyBackupImporter(
                         ?: missing(item, order, fragment, now)
                 }
             }
-        val marks =
-            plan.items.flatMap { item ->
-                item.sameTimeAs?.let { other ->
-                    listOf(
-                        MergeMarkEntity(item.entry.id, KIND, other, SOURCE, now),
-                        MergeMarkEntity(other, KIND, item.entry.id, SOURCE, now)
-                    )
-                }.orEmpty()
+        val added =
+            db.withWriteTransaction {
+                // 미리보기 뒤에 같은 일기가 다른 길로 들어왔을 수 있어 넣기 직전에 다시 가름
+                val items = stillNew(plan.items)
+                val ids = items.mapTo(HashSet()) { it.entry.id }
+                val marks =
+                    items.flatMap { item ->
+                        item.sameTimeAs?.let { other ->
+                            listOf(
+                                MergeMarkEntity(item.entry.id, KIND, other, SOURCE, now),
+                                MergeMarkEntity(other, KIND, item.entry.id, SOURCE, now)
+                            )
+                        }.orEmpty()
+                    }
+                db.entryDao().insertAll(items.map { it.entry })
+                db.mediaDao().insertAll(rows.filter { it.entryId in ids })
+                db.backupDao().mark(marks)
+                items
             }
-        db.withWriteTransaction {
-            db.entryDao().insertAll(plan.items.map { it.entry })
-            db.mediaDao().insertAll(rows)
-            db.backupDao().mark(marks)
-        }
-        val copied = rows.count { it.status == MediaStatus.NORMAL.id }
+        val ids = added.mapTo(HashSet()) { it.entry.id }
+        val kept = rows.filter { it.entryId in ids }
+        val copied = kept.count { it.status == MediaStatus.NORMAL.id }
         return RestoreResult(
-            entriesAdded = plan.items.size,
+            entriesAdded = added.size,
             entriesUpdated = 0,
-            entriesKeptBoth = plan.items.count { it.sameTimeAs != null },
+            entriesKeptBoth = added.count { it.sameTimeAs != null },
             photosRestored = copied,
-            photosMissing = rows.size - copied,
+            photosMissing = kept.size - copied,
             photosPending = 0,
             fromLegacy = true
         )
+    }
+
+    /** 지금 기기에 없는 것만 남김. 옛 번호가 그사이 쓰였으면 번호를 비움 */
+    private suspend fun stillNew(items: List<LegacyItem>): List<LegacyItem> {
+        val local = db.backupDao().allEntries()
+        val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
+        val seenLegacy = local.filter { it.legacyCreateDate != null }.mapTo(HashSet()) { it.legacyCreateDate to it.plainText }
+        val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }
+        return items
+            .filter { item ->
+                val entry = item.entry
+                Triple(entry.date, entry.time, entry.plainText) !in seen &&
+                    (entry.legacyCreateDate == null || (entry.legacyCreateDate to entry.plainText) !in seenLegacy)
+            }
+            .map { item ->
+                val legacyId = item.entry.legacyId
+                if (legacyId != null && !usedLegacyIds.add(legacyId)) item.copy(entry = item.entry.copy(legacyId = null)) else item
+            }
     }
 
     private fun missing(item: LegacyItem, order: Int, fragment: String, now: Long) =

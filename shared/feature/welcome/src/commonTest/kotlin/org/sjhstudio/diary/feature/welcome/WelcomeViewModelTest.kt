@@ -19,7 +19,7 @@ import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.WelcomeStep
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-/** 편지·온보딩 상태를 읽지 못해도 앱을 엶 */
+/** 편지·온보딩 상태를 읽지 못해도 앱 열기 */
 @OptIn(ExperimentalCoroutinesApi::class)
 class WelcomeViewModelTest {
     private val dispatcher = StandardTestDispatcher()

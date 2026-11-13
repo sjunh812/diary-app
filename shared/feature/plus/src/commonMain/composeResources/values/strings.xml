@@ -10,7 +10,7 @@
     <string name="plus_price">%1$s a year</string>
     <string name="plus_start">Start Plus</string>
     <string name="plus_start_price">Start for %1$s/year</string>
-    <string name="plus_notice">Renews automatically every year. You can cancel in the store up to 24 hours before renewal.</string>
+    <string name="plus_notice">Renews every year. Cancel anytime in the store.</string>
     <string name="plus_retry">Try again</string>
     <string name="plus_no_store">Couldn't load the price. Check your connection.</string>
     <string name="plus_failed">Couldn't complete the payment. If you were charged, tap Restore purchases.</string>

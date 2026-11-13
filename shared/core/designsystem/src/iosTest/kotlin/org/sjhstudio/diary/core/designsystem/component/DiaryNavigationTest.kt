@@ -21,7 +21,7 @@ import kotlin.test.assertEquals
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-// 하단 탭·레일 이름이 기기 글자 크기 200%에서도 칸 80 안에서 잘리지 않음(docs/design.md 하단 탭, DECISIONS 2026-11-03)
+// 하단 탭·레일 이름이 기기 글자 크기 200%에서도 칸 80 안에서 잘리지 않음(docs/design.md 하단 탭)
 // 세 언어 이름을 직접 넣어 시뮬레이터 언어와 상관없이 봄
 @OptIn(ExperimentalTestApi::class)
 class DiaryNavigationTest {

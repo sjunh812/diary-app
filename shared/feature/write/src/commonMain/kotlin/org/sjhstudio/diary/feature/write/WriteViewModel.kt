@@ -61,7 +61,7 @@ sealed interface WriteTarget {
     data class Edit(val entryId: String) : WriteTarget
 }
 
-/** "쓰던 일기가 있어요" 시트에 보일 것 */
+/** "쓰던 일기가 있어요" 시트에 보일 것. [date]·[time]은 마지막으로 고친 때이고 일기 날짜가 아님 */
 data class ResumeOffer(val date: LocalDate, val time: LocalTime, val preview: String) {
     override fun toString(): String = "ResumeOffer"
 }
@@ -101,7 +101,7 @@ data class WriteUiState(
     val entryChanged: Boolean = false,
     /** 고른 사진을 넣는 중 */
     val addingPhotos: Boolean = false,
-    /** 남겨 둔 임시 저장본을 이어 엶. 그때만 버리는 길을 보임 */
+    /** 남겨 둔 임시 저장본을 이어 열기. 그때만 버리는 길을 보임 */
     val canDiscard: Boolean = false,
     /**
      * 쓰고 있는 새 일기 임시 저장본의 키
@@ -219,7 +219,7 @@ class WriteViewModel(
 
     /**
      * 화면을 떠나는 중. 저장, 닫기, 버리기는 모두 떠나는 길이라 먼저 시작한 하나만 감
-     * 실패해 남게 되면 다시 풂
+     * 실패해 남게 되면 다시 해제
      */
     private var leaving = false
     private var lastRemoved: Instant? = null
@@ -227,7 +227,7 @@ class WriteViewModel(
     /** 마지막으로 뺀 사진과 자리. 되돌리기용 */
     private var undoRemove: Pair<DraftPhoto, Int>? = null
 
-    /** 전에 남겨 둔 임시 저장본을 이어 엶 */
+    /** 전에 남겨 둔 임시 저장본을 이어 열기 */
     private var resumed = false
 
     /** 저장본에 쓴 뒤로 바뀐 것이 있는가 */
@@ -249,7 +249,7 @@ class WriteViewModel(
 
                 // 수정할 일기를 읽지 못하면 빈 글로 덮어쓰지 않게 안내만 하고 저장 준비를 끝내지 않음
                 is WriteTarget.Edit ->
-                    orElseOnFailure(null) { openEdit(target) } ?: _state.update { it.copy(loading = false, openFailed = true) }
+                    orElseOnFailure(null) { openEdit(target) } ?: openFailed()
             }
         }
     }
@@ -263,8 +263,10 @@ class WriteViewModel(
         }
         val existing = drafts.latestNew()
         if (existing != null && existing.canSave()) {
+            // "…에 쓰던 글"은 마지막으로 고친 때. 일기 날짜를 지난날로 바꿨어도 쓴 때를 알림
+            val edited = existing.updatedAt.toLocalDateTime(timeZone)
             _state.update {
-                blank(new.date).copy(resume = ResumeOffer(existing.date, existing.time, toPlainText(existing.bodyHtml)))
+                blank(new.date).copy(resume = ResumeOffer(edited.date, edited.time, toPlainText(existing.bodyHtml)))
             }
             return
         }
@@ -415,7 +417,7 @@ class WriteViewModel(
         refreshCanSave()
     }
 
-    /** 같은 기분을 다시 누르면 풂(FR-003) */
+    /** 같은 기분을 다시 누르면 해제(FR-003) */
     fun selectMood(mood: Mood?) {
         _state.update { it.copy(mood = if (it.mood == mood) null else mood) }
         changed()
@@ -466,8 +468,14 @@ class WriteViewModel(
         changed()
     }
 
+    // 열지 못한 일기에는 사진을 붙일 글이 없음. 준비를 기다리던 사진 넣기를 끝내 "넣는 중"이 남지 않게 함
+    private fun openFailed() {
+        _state.update { it.copy(loading = false, openFailed = true) }
+        photoWork.toList().forEach { it.cancel() }
+    }
+
     fun addPhotos(picked: List<PickedImage>) {
-        if (picked.isEmpty() || _state.value.saving) return
+        if (picked.isEmpty() || _state.value.saving || _state.value.openFailed) return
         _state.update { it.copy(addingPhotos = true) }
         val work = viewModelScope.launchSafely {
             ready.await()

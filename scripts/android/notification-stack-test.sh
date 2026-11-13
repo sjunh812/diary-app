@@ -1,5 +1,5 @@
 #!/bin/sh
-# 실제 알림과 런처로 여러 순서로 열어 앱 화면이 하나뿐인지 본다. 개발 빌드, 에뮬레이터 전용
+# 실제 알림과 런처로 여러 순서로 열어 앱 화면이 하나뿐인지 확인. 개발 빌드, 에뮬레이터 전용
 #   ANDROID_SERIAL=emulator-5554 sh scripts/android/notification-stack-test.sh
 set -u
 SERIAL=${ANDROID_SERIAL:?에뮬레이터를 ANDROID_SERIAL로 지정해 주세요}

@@ -96,7 +96,7 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     }
 
     /**
-     * 모든 탭을 첫 화면으로 돌리고 [target]을 엶
+     * 모든 탭을 첫 화면으로 돌리고 [target] 열기
      * 복원이 일기를 바꾼 뒤에는 쌓인 상세가 없는 일기를 볼 수 있음
      */
     fun startOver(target: TabScreen) {
@@ -106,7 +106,7 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     }
 
     /**
-     * 화면을 엶. 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둠
+     * 화면 열기. 연타로 같은 화면이 두 번 쌓이지 않게 맨 위와 같으면 그대로 둠
      * 앱에 하나만 있어야 하는 화면은 어느 탭에 있든 그 화면으로 돌아감
      */
     fun push(key: NavKey) {
@@ -135,11 +135,11 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
         }
     }
 
-    /** 상세를 엶. 넓은 화면에서 다른 줄을 고르면 상세가 쌓이지 않고 바뀜 */
+    /** 상세 열기. 넓은 화면에서 다른 줄을 고르면 상세가 쌓이지 않고 바뀜 */
     fun openEntry(entryId: String) {
         movedBetweenTabs = false
         if (top is EntryDetailKey) current.removeAt(current.lastIndex)
-        // 한 쌓임에 같은 일기는 하나. 아래에 열려 있으면 걷고 위에 엶
+        // 한 쌓임에 같은 일기는 하나. 아래에 열려 있으면 걷고 위에 열기
         current.removeAll { it is EntryDetailKey && it.entryId == entryId }
         current.add(EntryDetailKey(entryId))
     }
@@ -169,7 +169,7 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
 
 /**
  * 앱이 죽었다 살아나도 탭과 화면 쌓임을 복원
- * 같은 자리에서 여러 번 부르는 저장 상태라 탭마다 `key`로 자리를 가름
+ * 같은 자리에서 여러 번 부르는 저장 상태라 탭마다 `key`로 자리 구분
  * 가르지 않으면 쌓임의 화면 모델과 복원 순서가 서로 섞임
  */
 @Composable

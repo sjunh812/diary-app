@@ -21,6 +21,7 @@ import org.sjhstudio.diary.core.datastore.AdPrefs
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 
 /**
  * 광고 SDK. 공통 코드는 이것만 봄
@@ -132,7 +133,7 @@ class AdRepository(
                 val seen = CompletableDeferred<Unit>()
                 val record = launch {
                     seen.await()
-                    orElseOnFailure(Unit) { store.interstitialShown(day) }
+                    quietly { store.interstitialShown(day) }
                 }
                 val shown = player.showInterstitial {
                     shownDay = day
@@ -148,19 +149,6 @@ class AdRepository(
                     !seen.isCompleted -> record.cancel()
                 }
             }
-        }
-    }
-
-    /**
-     * 오늘은 전면 광고를 띄우지 않음
-     * 업데이트 뒤 개발자 편지를 처음 읽은 날에 호출(`docs/business.md` 광고 자리)
-     * 이미 띄운 날로 적어 날짜가 바뀌면 평소대로 돌아감
-     */
-    suspend fun skipInterstitialToday() {
-        onceStarted(Unit) {
-            val day = today()
-            shownDay = day
-            store.interstitialShown(day)
         }
     }
 

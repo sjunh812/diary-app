@@ -13,7 +13,7 @@ private const val PLATFORM_ANDROID = "android"
 
 /**
  * 원하는 기능 설문(구글 폼). 한국어 폼 하나를 모든 언어가 같이 씀
- * 다른 언어 사용자는 브라우저 번역으로 읽음(사용자 결정 2026-11-11)
+ * 다른 언어 사용자는 브라우저 번역으로 읽음
  */
 const val FEATURE_SURVEY_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdPvleZ5KnV9QbCScs7shJNHFb_LNVaRTUqw8z2h8iUY4IA_Q/viewform"
 
@@ -22,7 +22,7 @@ data class FeedbackLink(val url: String, val noMail: String)
 
 /**
  * 스토어의 앱 페이지
- * 인앱 평가 창은 버튼으로 부르면 안 되고 뜨지 않을 수도 있어 버튼은 스토어로 보냄(`docs/DECISIONS.md` 2026-11-07)
+ * 인앱 평가 창은 버튼으로 부르면 안 되고 뜨지 않을 수도 있어 버튼은 스토어로 보냄
  * App Store 번호는 출시 뒤에 정해져 그때까지 iOS에는 줄을 두지 않음
  */
 fun storeReviewUrl(platform: String): String? = PLAY_LISTING.takeIf { platform == PLATFORM_ANDROID }

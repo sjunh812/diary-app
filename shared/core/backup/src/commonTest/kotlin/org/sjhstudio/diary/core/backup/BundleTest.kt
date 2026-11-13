@@ -333,4 +333,18 @@ class BundleTest {
         assertEquals(all.photos - 1, estimate.photos)
         assertTrue(estimate.bytes < all.bytes)
     }
+
+    /** 시각 꼴이 다른 줄이 든 백업을 넣으면 목록을 읽지 못하게 됨. 넣기 전에 받지 않음 */
+    @Test
+    fun a_backup_with_an_unreadable_time_is_refused_before_anything_changes() = runTest {
+        phoneA.entryDao().insertAll(
+            listOf(EntryEntity("odd", "2026-10-31", "21:40:30", "<p>글</p>", "글", null, null, null, false, 1, 7, null, null, null, null))
+        )
+        val zip = dir / "odd.zip"
+        fs.sink(zip).buffer().use { exporterA().write(it) }
+
+        assertFailsWith<RestoreMismatch> { planner().prepareBundle(zip) }
+
+        assertEquals(0, phoneB.backupDao().allEntries().size)
+    }
 }

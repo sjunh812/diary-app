@@ -186,7 +186,7 @@ class TabNavigationTest {
         assertEquals(listOf<NavKey>(SettingsKey, RestoreProgressKey), nav.current)
     }
 
-    /** 찾기에서 아래에 이미 열린 일기를 고르면 아래 것을 걷고 위에 엶. 같은 일기가 한 쌓임에 둘이면 뒤로 가도 같은 화면 */
+    /** 찾기에서 아래에 이미 열린 일기를 고르면 아래 것을 걷고 위에 열기. 같은 일기가 한 쌓임에 둘이면 뒤로 가도 같은 화면 */
     @Test
     fun the_same_detail_is_not_stacked_twice() {
         val nav = navigation()

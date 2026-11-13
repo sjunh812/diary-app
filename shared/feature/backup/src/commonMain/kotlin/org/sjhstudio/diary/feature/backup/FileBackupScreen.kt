@@ -3,6 +3,7 @@ package org.sjhstudio.diary.feature.backup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vinceglb.filekit.PlatformFile
@@ -169,7 +171,7 @@ fun FileBackupScreen(
 }
 
 @Composable
-private fun androidx.compose.foundation.layout.ColumnScope.Start(estimate: BundleEstimate?, state: FileBackupUi, onMake: () -> Unit) {
+private fun ColumnScope.Start(estimate: BundleEstimate?, state: FileBackupUi, onMake: () -> Unit) {
     val busy = state is FileBackupUi.Writing || state == FileBackupUi.Reading
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Heading(DiaryIcons.Package, stringResource(Res.string.file_title), estimate?.let { bodyOf(it) }.orEmpty())
@@ -224,7 +226,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Start(estimate: Bundl
 }
 
 @Composable
-private fun androidx.compose.foundation.layout.ColumnScope.Saved(saved: FileBackupUi.Saved, onDone: () -> Unit) {
+private fun ColumnScope.Saved(saved: FileBackupUi.Saved, onDone: () -> Unit) {
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
         Heading(DiaryIcons.CircleCheck, stringResource(Res.string.file_saved_title), stringResource(Res.string.file_saved_body))
@@ -276,7 +278,7 @@ private fun bodyOf(estimate: BundleEstimate): String = if (estimate.entries == 0
 }
 
 @Composable
-internal fun Heading(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, body: String) {
+internal fun Heading(icon: ImageVector, title: String, body: String) {
     val colors = DiaryTheme.colors
     Column(
         Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),

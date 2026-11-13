@@ -84,6 +84,8 @@ import org.sjhstudio.diary.core.ui.SkeletonEntryCards
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.entryMarks
+import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberToday
@@ -215,7 +217,7 @@ fun HomeRoute(
             title = stringResource(Res.string.home_month_sheet_title),
             initialYear = shown.year,
             shown = YearMonth(shown.year, shown.month.number),
-            hasYear = { year -> months.any { it.year == year } },
+            years = remember(months) { months.map { it.year }.distinct().sorted() },
             enabled = { it in months },
             onPick = { month ->
                 picking = false
@@ -398,13 +400,10 @@ private fun Feed(
                 return@items
             }
             val previous = if (index > 0) rows.peek(index - 1) else null
-            // 앞 줄을 아직 못 읽었으면 머리글을 그렸다 지우지 않게 기다림(찾기 화면과 같음)
-            val unknown = index > 0 && previous == null
-            val newMonth = !unknown && (previous == null || previous.date.year != row.date.year || previous.date.month != row.date.month)
-            val newDay = !unknown && (previous == null || previous.date != row.date)
+            val (newMonth, newDay) = entryMarks(index, row, previous)
             Column {
                 if (newMonth && index > 0) {
-                    DiaryMonthHeader(if (row.date.year == today.year) dates.month(row.date) else dates.yearMonth(row.date))
+                    DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                 }
                 val interaction = remember { MutableInteractionSource() }
                 DiaryEntryLine(

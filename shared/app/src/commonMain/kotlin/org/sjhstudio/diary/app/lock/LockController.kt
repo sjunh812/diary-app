@@ -16,7 +16,7 @@ import org.sjhstudio.diary.core.platform.AppForeground
 /**
  * 앱이 잠겼는지 정함(contracts/lock.md, research R13)
  * 프로세스와 함께 사는 하나뿐인 객체라, 프로세스가 새로 시작하면 늘 잠긴 채로 시작
- * 다시 잠그기는 단조 시계로 잼
+ * 다시 잠그기는 단조 시계로 측정
  * 기기 시각을 바꿔도 피할 수 없음
  */
 class LockController(

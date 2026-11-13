@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import okio.fakefilesystem.FakeFileSystem
 import org.sjhstudio.diary.core.data.diary.DefaultDraftRepository
+import org.sjhstudio.diary.core.data.diary.bytesImage
 import org.sjhstudio.diary.core.data.diary.entry
 import org.sjhstudio.diary.core.data.diary.memoryDatabase
 import org.sjhstudio.diary.core.data.diary.newDraft
@@ -30,7 +31,6 @@ import org.sjhstudio.diary.core.model.AddPhotosResult
 import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.PhotoLimit
-import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
@@ -103,7 +103,7 @@ class PlanTableTest {
 
     private fun drafts(limit: () -> Int) = DefaultDraftRepository(db, photoStore(files), testClock, limit)
 
-    private fun image(text: String) = PickedImage { text.encodeToByteArray() }
+    private fun image(text: String) = bytesImage { text.encodeToByteArray() }
 
     @Test
     fun every_plan_is_on_the_table() {

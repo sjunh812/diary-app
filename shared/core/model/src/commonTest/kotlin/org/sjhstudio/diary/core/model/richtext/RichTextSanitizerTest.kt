@@ -111,6 +111,6 @@ class RichTextSanitizerTest {
     @Test
     fun plain_text_of_cleaned_html_matches_the_original_text() {
         val html = """<p><b>굵게</b> 글</p><ul><li>하나</li><li>둘</li></ul>"""
-        assertEquals("굵게 글\n\n• 하나\n• 둘", toPlainText(clean(html)))
+        assertEquals("굵게 글\n• 하나\n• 둘", toPlainText(clean(html)))
     }
 }

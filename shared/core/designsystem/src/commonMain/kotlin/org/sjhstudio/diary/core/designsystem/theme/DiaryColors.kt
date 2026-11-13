@@ -220,12 +220,13 @@ internal val DarkDiaryColors =
                 purple = Color(0xFFA78BFA),
                 pink = Color(0xFFF472B6)
             ),
+        // 형광펜 위 색 글자도 4.5:1 넘게 어둡게
         mark =
             DiaryMarkColors(
-                yellow = Color(0xFF713F12),
-                green = Color(0xFF14532D),
-                blue = Color(0xFF1E3A8A),
-                purple = Color(0xFF4C1D95),
-                pink = Color(0xFF831843)
+                yellow = Color(0xFF4D2B0C),
+                green = Color(0xFF0E3C20),
+                blue = Color(0xFF182E6E),
+                purple = Color(0xFF411980),
+                pink = Color(0xFF641233)
             )
     )

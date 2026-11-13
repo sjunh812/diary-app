@@ -20,6 +20,7 @@ import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.model.quietly
 
 /** 목록 파일을 한꺼번에 받는 수. 드라이브 요청 한도를 넘지 않게 묶음 */
 private const val MAX_DOWNLOADS = 8
@@ -85,7 +86,7 @@ class RestoreCatalog(
         }
         val manifest = ManifestCodec.decode(fileSystem.read(temp) { readUtf8() })
         // 깨진 파일은 남기지 않고 다음에 다시 받아 봄
-        if (manifest != null) orElseOnFailure(Unit) { fileSystem.atomicMove(temp, kept) }
+        if (manifest != null) quietly { fileSystem.atomicMove(temp, kept) }
         fileSystem.delete(temp, mustExist = false)
         return manifest
     }
@@ -103,7 +104,7 @@ class RestoreCatalog(
     private fun forgetExcept(manifests: List<DriveFile>) {
         val current = manifests.mapTo(HashSet()) { "${it.id}.json" }
         fileSystem.listOrNull(keptDir).orEmpty().filter { it.name !in current }.forEach { old ->
-            orElseOnFailure(Unit) { fileSystem.delete(old, mustExist = false) }
+            quietly { fileSystem.delete(old, mustExist = false) }
         }
     }
 

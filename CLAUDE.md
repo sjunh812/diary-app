@@ -45,7 +45,7 @@ Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store�
 | --- | --- |
 | `/diary-flow` | 기능 하나를 기획부터 마무리까지 |
 | `/emulator-check` | 에뮬레이터에 깔고 화면과 동작 확인, 업그레이드 시험 |
-| `/figma-audit` | Figma를 고친 뒤 규격을 재고 메인 컴포넌트부터 고치기 |
+| `/figma-audit` | Figma를 수정한 뒤 규격을 재고 메인 컴포넌트부터 수정 |
 | `/backup-roundtrip` | 백업·복원·드라이브·저장 형식을 건드린 뒤 왕복 확인 |
 | `/pr-review` | 출시 이후 PR 올리기, CI, 리뷰봇 지적 처리, 머지 묻기 |
 | `/release-prep` | 버전 올리기, Baseline Profile, 글꼴 모듈 시험, 태그 |
@@ -97,7 +97,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - `coroutineSafetyCheck`는 `shared/feature`, `shared/app`, `shared/core/ui`에서 맨 `viewModelScope.launch`와 `stateIn(viewModelScope, …)`을 찾으면 실패한다. 화면 모델은 `launchSafely`(읽기·곁일), `launchWrite`(사용자가 누른 쓰기, 실패하면 알림), `stateInSafely`만 쓴다. 예상되는 실패(저장 공간, 네트워크, DB 읽기)는 저장소가 받아 결과로 돌려주고, 이 함수들은 빠뜨린 예외에도 앱이 꺼지지 않게 하는 마지막 안전망이다(사용자 결정 2026-11-08: 앱 꺼짐은 절대 없어야 한다).
 - Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
-- 길이 없는 화면 띄우기와 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
+- 앱 안에서 들어갈 길이 없는 화면을 띄우는 방법과 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - 개발 빌드는 StrictMode로 화면 스레드의 디스크·네트워크 작업과 닫지 않은 자원을 로그에 남긴다. 화면이나 시작 순서를 바꾸면 `adb logcat -s StrictMode`로 새 위반이 없는지 본다(개발자 모드 요금제 도구의 읽기는 개발 빌드에만 있다).
 - 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드의 설정 맨 아래 줄로 들어가고 출시 빌드에는 없다. iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.

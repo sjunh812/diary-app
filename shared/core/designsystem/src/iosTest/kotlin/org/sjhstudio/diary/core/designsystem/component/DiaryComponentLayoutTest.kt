@@ -33,7 +33,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-// 공통 부품의 크기와 배치가 `docs/design.md` 규격을 지키는지 잼
+// 공통 부품의 크기와 배치가 `docs/design.md` 규격을 지키는지 확인
 @OptIn(ExperimentalTestApi::class)
 class DiaryComponentLayoutTest {
     @Test

@@ -43,7 +43,7 @@ data class StatsRow(
     val mood: String?,
     val weather: String?,
     @ColumnInfo(name = "place_name") val placeName: String?,
-    /** 글자 수만 셈 */
+    /** 글자 수만 계산 */
     val length: Int,
     val photos: Int
 )
@@ -207,7 +207,7 @@ interface EntryDao {
     suspend fun clearLegacyIds(legacyIds: List<Int>)
 
     /**
-     * 휴지통까지 셈
+     * 휴지통까지 포함
      * 개발 빌드의 목록 견본과 업그레이드 시험이 씀
      */
     @Query("SELECT COUNT(*) FROM entry")

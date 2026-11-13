@@ -73,7 +73,9 @@ import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.entryMarks
 import org.sjhstudio.diary.core.ui.grouped
+import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -353,15 +355,14 @@ private fun Results(
                 return@items
             }
             val previous = if (index > 0) rows.peek(index - 1) else null
-            val newMonth =
-                index == 0 || (previous != null && (previous.date.year != row.date.year || previous.date.month != row.date.month))
+            val (newMonth, newDay) = entryMarks(index, row, previous)
             Column {
-                if (newMonth) DiaryMonthHeader(if (row.date.year == today.year) dates.month(row.date) else dates.yearMonth(row.date))
+                if (newMonth) DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                 val interaction = remember { MutableInteractionSource() }
                 DiaryEntryLine(
                     row = row,
-                    showDate = previous?.date != row.date,
-                    dividerAbove = !newMonth,
+                    showDate = newDay,
+                    dividerAbove = index > 0 && !newMonth,
                     previewStyle = previewStyle,
                     highlight = query.trim(),
                     modifier =

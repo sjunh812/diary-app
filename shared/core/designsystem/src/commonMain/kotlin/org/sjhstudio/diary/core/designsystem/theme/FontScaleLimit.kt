@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 
-/** 칸 크기가 정해진 글자(탭·레일 이름, 시각 휠)가 따라가는 기기 글자 크기의 끝(`docs/design.md`, DECISIONS 2026-11-03) */
+/** 칸 크기가 정해진 글자(탭·레일 이름, 시각 휠)가 따라가는 기기 글자 크기의 끝(`docs/design.md`) */
 internal const val FIXED_CELL_MAX_FONT_SCALE = 1.3f
 
 /**

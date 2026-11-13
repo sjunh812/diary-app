@@ -42,6 +42,7 @@
     <string name="relock_five_minutes">5分後</string>
     <string name="relock_cold_start">アプリの起動時のみ</string>
     <string name="lock_settings_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば決め直せます。</string>
+    <string name="lock_note_no_device_lock">スマートフォンに画面ロックがないため、パスコードを忘れると再設定できません。</string>
     <string name="lock_confirm_title">現在のパスコードを入力してください</string>
     <string name="lock_settings_method">ロック方法</string>
     <string name="pin_setup_save_failed">パスワードを保存できませんでした。ストレージを確認して、もう一度入力してください。</string>

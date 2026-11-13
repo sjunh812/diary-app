@@ -91,7 +91,7 @@ object LegacySettingsMapper {
     private const val HOUR_KEY = "hour_key"
     private const val MINUTE_KEY = "minute_key"
 
-    // 잠금은 LegacyLockBootstrap이 옮기고, 여기서는 옮겼는지만 셈
+    // 잠금은 LegacyLockBootstrap이 옮기고, 여기서는 옮겼는지만 확인
     private const val USE_PW = "use_pw"
     private const val FINGER_PRINT = "finger_print"
     private val EMAIL = Regex("""[^@\s]+@[^@\s]+\.[^@\s]+""")

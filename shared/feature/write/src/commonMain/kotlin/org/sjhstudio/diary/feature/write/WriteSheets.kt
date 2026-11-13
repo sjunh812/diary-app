@@ -316,6 +316,7 @@ internal fun ResumeSheet(offer: ResumeOffer, onContinue: () -> Unit, onFresh: ()
         // 기분이나 사진만 남긴 글은 미리 보여 줄 글자가 없음
         if (offer.preview.isNotBlank()) {
             BasicText(
+                // 목록 앞뒤에 생기는 빈 줄은 미리보기에서 줄여 세 줄 안에 글이 더 보이게 함
                 Checklist.forPreview(offer.preview),
                 modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r12).background(colors.sunken).padding(DiarySpacing.x4),
                 style = DiaryTheme.typography.body.copy(color = colors.textPrimary),

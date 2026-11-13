@@ -43,14 +43,14 @@ import org.sjhstudio.diary.core.ui.resources.ui_previous_year
 /**
  * 연·월 고르기(Figma "S1 · 연·월 고르기")
  * 홈은 일기가 있는 달만, 달력은 넘길 수 있는 달만 [enabled]로 열기(FR-017)
- * [hasYear]가 false인 해로는 넘어가지 않음
+ * 해 화살표는 [years](오름차순)에서 앞뒤로 가장 가까운 해로 건너뜀. 일기가 없는 해는 넘김
  */
 @Composable
 fun DiaryMonthSheet(
     title: String,
     initialYear: Int,
     shown: YearMonth,
-    hasYear: (Int) -> Boolean,
+    years: List<Int>,
     enabled: (YearMonth) -> Boolean,
     onPick: (YearMonth) -> Unit,
     onDismiss: () -> Unit
@@ -60,13 +60,20 @@ fun DiaryMonthSheet(
     var year by remember { mutableIntStateOf(initialYear) }
     DiaryBottomSheet(onDismiss = onDismiss, title = title) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            YearArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.ui_previous_year), enabled = hasYear(year - 1)) { year-- }
+            val previous = years.lastOrNull { it < year }
+            val next = years.firstOrNull { it > year }
+            YearArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.ui_previous_year), enabled = previous != null) {
+                previous?.let {
+                    year =
+                        it
+                }
+            }
             BasicText(
                 year.toString(),
                 modifier = Modifier.weight(1f),
                 style = DiaryTheme.typography.headline.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
             )
-            YearArrow(DiaryIcons.ChevronRight, stringResource(Res.string.ui_next_year), enabled = hasYear(year + 1)) { year++ }
+            YearArrow(DiaryIcons.ChevronRight, stringResource(Res.string.ui_next_year), enabled = next != null) { next?.let { year = it } }
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             for (quarter in (1..12).chunked(CELLS_IN_ROW)) {

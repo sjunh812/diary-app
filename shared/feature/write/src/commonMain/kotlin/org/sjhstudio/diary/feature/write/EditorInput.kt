@@ -116,3 +116,12 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
         !new.selection.collapsed &&
         new.selection != old.selection
 }
+
+/**
+ * 키보드가 조합 중인 글자를 확정
+ * 한글 키보드는 낱말 전체를 조합 중으로 잡음. 그대로 서식을 바꾸면 다음 입력이 조합 낱말을 통째로 다시 넣어 서식이 되돌아감
+ * 조합 범위를 비우면 입력칸이 키보드를 다시 붙여 조합이 끝남
+ */
+internal fun RichTextState.commitComposition() {
+    if (composition != null) onTextFieldValueChange(textFieldValue.copy(composition = null))
+}

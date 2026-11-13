@@ -23,7 +23,7 @@ interface BackupDao {
 
     /**
      * 아직 올리지 못한 사진 파일 수
-     * 기기에 파일이 있는 것만 셈
+     * 기기에 파일이 있는 것만 집계
      */
     @Query(
         "SELECT COUNT(DISTINCT m.sha256) FROM media m WHERE m.status = 'normal' AND m.sha256 IS NOT NULL " +
@@ -147,7 +147,7 @@ interface BackupDao {
     suspend fun visibleEntriesUpdatedAfter(after: Long): Int
 
     /**
-     * 본문을 읽지 않고 일기 수와 본문 글자 수를 잼
+     * 본문을 읽지 않고 일기 수와 본문 글자 수 계산
      * 묶음 파일 크기를 어림할 때 씀
      */
     @Query(

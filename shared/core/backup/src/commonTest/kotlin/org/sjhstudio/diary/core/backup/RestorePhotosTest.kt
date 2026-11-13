@@ -134,7 +134,7 @@ class RestorePhotosTest {
         assertEquals(2, result.photosPending)
         assertTrue(fs.exists(held), "남은 사진이 든 파일을 지웠다")
 
-        // 앱을 다시 엶
+        // 앱 다시 열기
         // 드라이브를 연결하지 않은 사람도 이어서 꺼냄
         b.controller(backgroundScope).resumePhotos()
 
@@ -694,7 +694,7 @@ class RestorePhotosTest {
     }
 }
 
-/** 받은 사진 수를 셈 */
+/** 받은 사진 수 계산 */
 private class CountingDownloads(private val real: DriveApi) : DriveApi by real {
     var downloads = 0
         private set

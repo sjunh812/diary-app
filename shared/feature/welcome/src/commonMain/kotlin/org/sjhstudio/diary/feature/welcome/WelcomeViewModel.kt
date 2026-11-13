@@ -27,7 +27,7 @@ class WelcomeViewModel(private val welcome: WelcomeRepository) : ViewModel() {
 
     /**
      * 어디까지 봤는지 읽음
-     * 저장 공간 문제로 읽지 못하면 편지와 온보딩을 건너뛰고 앱을 엶
+     * 저장 공간 문제로 읽지 못하면 편지와 온보딩을 건너뛰고 앱 열기
      * 여기서 멈추거나 꺼지면 일기를 쓸 수 없음
      */
     private fun refresh() {

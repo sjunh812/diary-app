@@ -4,7 +4,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-/** 앱이 백그라운드로 간 뒤 다시 잠그기까지의 시간. 기기 시각이 아니라 단조 시계로 잼(research R13) */
+/** 앱이 백그라운드로 간 뒤 다시 잠그기까지의 시간. 기기 시각이 아니라 단조 시계로 측정(research R13) */
 enum class RelockAfter(
     val id: String,
     /** null이면 시간으로 잠그지 않고 앱 프로세스가 새로 시작할 때만 잠금 */

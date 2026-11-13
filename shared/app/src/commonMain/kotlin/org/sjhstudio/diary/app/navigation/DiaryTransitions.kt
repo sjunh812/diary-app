@@ -14,6 +14,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigationevent.NavigationEvent
 
 // 두 플랫폼 모두 iOS식 밀기(docs/design.md "화면 전환")
 // 아래 화면은 4분의 1만 비키고, 불투명도를 낮춰 뒤의 검은 바탕으로 어두워짐
@@ -45,10 +46,16 @@ internal fun <T : Any> popTransition(dimmedAlpha: Float): AnimatedContentTransit
     slideBack(eased = true, dimmedAlpha = dimmedAlpha)
 }
 
-/** 뒤로 가기 스와이프 중. 손가락을 따라가도록 곡선 없이 진행도만큼 */
-internal fun <T : Any> predictivePopTransition(dimmedAlpha: Float): AnimatedContentTransitionScope<Scene<T>>.(Int) -> ContentTransform = {
-    slideBack(eased = false, dimmedAlpha = dimmedAlpha)
-}
+/**
+ * 시스템 뒤로 가기
+ * 스와이프면 손가락을 따라가도록 곡선 없이 진행도만큼
+ * 백 키처럼 스와이프가 아니면 뒤로 가기 버튼과 같은 곡선. 같은 닫힘이 누르는 곳에 따라 달라 보이지 않게
+ */
+internal fun <T : Any> predictivePopTransition(dimmedAlpha: Float): AnimatedContentTransitionScope<Scene<T>>.(Int) -> ContentTransform =
+    { edge -> slideBack(eased = !isSwipe(edge), dimmedAlpha = dimmedAlpha) }
+
+/** 뒤로 가기가 화면 가장자리 스와이프에서 왔는가 */
+internal fun isSwipe(edge: Int): Boolean = edge != NavigationEvent.EDGE_NONE
 
 private fun slideBack(eased: Boolean, dimmedAlpha: Float): ContentTransform {
     val easing = if (eased) SlideEasing else LinearEasing

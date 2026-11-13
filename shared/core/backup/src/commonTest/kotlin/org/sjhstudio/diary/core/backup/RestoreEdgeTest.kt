@@ -874,7 +874,7 @@ class RestoreEdgeTest {
     private fun fileOf(hash: String) = drive.visible.first { it.name.startsWith(hash) }
 }
 
-/** 받은 사진 수를 셈 */
+/** 받은 사진 수 계산 */
 private class CountingDrive(private val real: DriveApi) : DriveApi by real {
     private val lock = Mutex()
     var downloads = 0

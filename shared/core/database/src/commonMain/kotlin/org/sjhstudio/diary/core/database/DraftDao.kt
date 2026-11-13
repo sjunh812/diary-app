@@ -68,7 +68,7 @@ interface DraftDao {
     suspend fun markAllEntriesChanged()
 
     /**
-     * 수정 화면을 엶
+     * 수정 화면 열기
      * 임시 저장본이 있으면 그대로 돌려주고, 없으면 일기에서 만듦
      * 일기가 없으면 null
      * 한 트랜잭션이라 사진 줄이 빠진 임시 저장본이 남지 않음
@@ -139,7 +139,7 @@ interface DraftDao {
 
     /**
      * 사진 한 장을 끝에 붙임
-     * 순번은 읽은 값을 믿지 않고 여기서 다시 셈
+     * 순번은 읽은 값을 믿지 않고 여기서 다시 계산
      */
     @Transaction
     suspend fun appendMedia(row: DraftMediaEntity) {

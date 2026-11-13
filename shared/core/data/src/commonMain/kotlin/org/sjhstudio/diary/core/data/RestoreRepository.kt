@@ -83,7 +83,7 @@ private suspend fun removed(discard: suspend () -> Unit): Boolean = try {
     false
 }
 
-/** 실제로 쓴 크기를 셈 */
+/** 실제로 쓴 크기 계산 */
 private class CountingSink(private val delegate: Sink) : Sink by delegate {
     var written = 0L
         private set

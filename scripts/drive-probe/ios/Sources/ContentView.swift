@@ -2,7 +2,7 @@ import GoogleSignIn
 import SwiftUI
 import UIKit
 
-// 버튼 순서대로 누르고, 아래 기록을 research R1에 옮겨 적는다.
+// 버튼을 순서대로 누르고 아래 기록을 research R1에 옮겨 적기
 struct ContentView: View {
     @State private var log = ""
     @Environment(\.scenePhase) private var scenePhase
@@ -53,7 +53,7 @@ struct ContentView: View {
         for f in legacy { write("  · \(f["name"] ?? "") \(f["size"] ?? "")바이트, \(f["createdTime"] ?? "")") }
     }
 
-    // 스펙 003 research O4(iOS): 앱이 백그라운드로 간 뒤 키체인에서 로그인을 복원하고 토큰을 받을 수 있는지 본다.
+    // 스펙 003 research O4(iOS): 백그라운드로 간 뒤 키체인에서 로그인을 복원하고 토큰을 받을 수 있는지 확인
     private func backgroundTokenCheck() {
         var task: UIBackgroundTaskIdentifier = .invalid
         task = UIApplication.shared.beginBackgroundTask { UIApplication.shared.endBackgroundTask(task) }

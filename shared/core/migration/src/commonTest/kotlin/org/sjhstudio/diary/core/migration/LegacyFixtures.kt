@@ -9,7 +9,7 @@ import okio.Path
 /**
  * 시험용 옛 앱 `note.db` 생성(스펙 001 T031, docs/migration.md "시험")
  * 표 정의는 레거시 `NoteDatabase.java`의 SQL 그대로
- * 저장소에 파일로 두지 않고 시험마다 만들어, Android 호스트와 iOS 시뮬레이터에서 같은 자료로 돎
+ * 저장소에 파일로 두지 않고 시험마다 만들어, Android 호스트와 iOS 시뮬레이터에서 같은 자료로 실행
  */
 object LegacyFixtures {
     const val CREATE_V2 =

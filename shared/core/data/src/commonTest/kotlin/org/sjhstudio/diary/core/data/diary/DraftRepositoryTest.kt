@@ -37,7 +37,6 @@ import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.PhotoLimit
-import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.platform.ImageSize
 import org.sjhstudio.diary.core.testing.TestClock
 
@@ -55,7 +54,7 @@ class DraftRepositoryTest {
         db.close()
     }
 
-    private fun image(text: String) = PickedImage { text.encodeToByteArray() }
+    private fun image(text: String) = bytesImage { text.encodeToByteArray() }
 
     /** 하루 지난 사진을 다시 고르면 고친 시각이 새로워져, 쓰지 않는 사진 정리가 방금 고른 사진을 지우지 않음 */
     @Test
@@ -67,10 +66,10 @@ class DraftRepositoryTest {
             }
         )
         val store = photoStore(fs)
-        val first = store.store(byteArrayOf(1, 2, 3))!!
+        val first = store.store(bytesImage { byteArrayOf(1, 2, 3) })!!
 
         now += 2.days
-        val again = store.store(byteArrayOf(1, 2, 3))!!
+        val again = store.store(bytesImage { byteArrayOf(1, 2, 3) })!!
 
         assertEquals(first.fileName, again.fileName)
         assertEquals(now.toEpochMilliseconds(), fs.metadata(MEDIA_DIR / again.fileName).lastModifiedAtMillis)
@@ -97,6 +96,16 @@ class DraftRepositoryTest {
         assertEquals("굵게 글", entry.plainText)
         assertEquals(listOf(0, 1), db.mediaDao().forEntry(id).map { it.sortOrder })
         assertNull(repository.draft(DraftKey.New()).first())
+    }
+
+    @Test
+    fun a_body_of_only_spaces_and_blank_lines_is_saved_empty() = runTest {
+        repository.save(newDraft("<p>&#32;&#32;<br><br></p>", Mood.GOOD))
+
+        val entry = assertNotNull(db.entryDao().get(repository.commit(DraftKey.New())))
+
+        assertEquals("", entry.bodyHtml)
+        assertEquals("", entry.plainText)
     }
 
     @Test
@@ -384,7 +393,7 @@ class DraftRepositoryTest {
     fun an_unreadable_image_is_counted_and_leaves_no_files() = runTest {
         repository.save(newDraft())
 
-        val result = repository.addPhotos(DraftKey.New(), listOf(PickedImage { ByteArray(0) }, image("a")))
+        val result = repository.addPhotos(DraftKey.New(), listOf(bytesImage { ByteArray(0) }, image("a")))
 
         assertEquals(AddPhotosResult.Added(1, failed = 1), result)
         assertEquals(1, files.list(MEDIA_DIR).size)
@@ -409,8 +418,8 @@ class DraftRepositoryTest {
     @Test
     fun an_image_that_cannot_be_read_is_counted_and_the_rest_are_added() = runTest {
         repository.save(newDraft())
-        val io = PickedImage { throw okio.IOException("읽기 실패") }
-        val other = PickedImage { throw IllegalStateException("파일이 사라짐") }
+        val io = bytesImage { throw okio.IOException("읽기 실패") }
+        val other = bytesImage { throw IllegalStateException("파일이 사라짐") }
 
         val result = repository.addPhotos(DraftKey.New(), listOf(image("a"), io, other, image("b")))
 
@@ -459,7 +468,7 @@ class DraftRepositoryTest {
         repository.addPhotos(DraftKey.New(), listOf(image("a")))
         val reading = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()
-        val slow = PickedImage {
+        val slow = bytesImage {
             reading.complete(Unit)
             release.await()
             "slow".encodeToByteArray()
@@ -494,7 +503,7 @@ class DraftRepositoryTest {
         assertEquals(listOf(0, 1), db.draftDao().media(DraftKey.New().value).map { it.sortOrder })
     }
 
-    /** 임시 저장본이 지워진 뒤 도착한 사진은 앱을 죽이지 않고 못 더한 것으로 셈 */
+    /** 임시 저장본이 지워진 뒤 도착한 사진은 앱을 죽이지 않고 못 더한 것으로 처리 */
     @Test
     fun photos_for_a_discarded_draft_are_counted_as_failed() = runTest {
         repository.save(newDraft())

@@ -24,8 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -156,6 +158,7 @@ private fun MonthArrow(icon: ImageVector, label: String, enabled: Boolean, onCli
 /**
  * 날짜 고르기 칸
  * 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보임
+ * 맨 위에 요일 머리글. 없으면 첫 칸이 일요일인지 월요일인지 알 수 없음(달력 탭과 같은 꼴)
  * 어느 달이든 6주를 그려 달을 넘길 때 시트 높이가 한 줄씩 늘었다 줄지 않음(Material 3 날짜 고르기와 같음)
  * [inRange]는 기간을 고를 때 사이의 날, [enabled]가 false인 날은 흐리게 두고 누를 수 없음
  * [isPickedWeek]는 주의 첫날(일요일)을 받아 그 줄 전체를 칠함
@@ -171,7 +174,18 @@ fun DiaryMonthDays(
 ) {
     val first = month.onDay(1)
     val start = first.minus(DatePeriod(days = (first.dayOfWeek.ordinal + 1) % DAYS_IN_WEEK))
+    val dates = rememberDiaryDateFormat()
     Column(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().padding(bottom = DiarySpacing.x1)) {
+            repeat(DAYS_IN_WEEK) { offset ->
+                val weekday = start.plus(DatePeriod(days = offset))
+                BasicText(
+                    dates.weekdayShort(weekday),
+                    modifier = Modifier.weight(1f),
+                    style = DiaryTheme.typography.captionStrong.copy(color = weekdayColor(weekday), textAlign = TextAlign.Center)
+                )
+            }
+        }
         var day = start
         repeat(WEEKS_SHOWN) {
             val week = isPickedWeek(day)
@@ -194,6 +208,13 @@ fun DiaryMonthDays(
             }
         }
     }
+}
+
+@Composable
+private fun weekdayColor(date: LocalDate): Color = when (date.dayOfWeek) {
+    DayOfWeek.SUNDAY -> DiaryTheme.colors.danger
+    DayOfWeek.SATURDAY -> DiaryTheme.colors.ink.blue
+    else -> DiaryTheme.colors.textSecondary
 }
 
 /** 한 달이 걸칠 수 있는 가장 많은 주 */

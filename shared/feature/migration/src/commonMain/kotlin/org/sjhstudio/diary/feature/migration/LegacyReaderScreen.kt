@@ -32,6 +32,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
+import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.migration.resources.Res
 import org.sjhstudio.diary.feature.migration.resources.legacy_reader_empty
@@ -89,7 +90,7 @@ fun LegacyReaderScreen(
                 val newDay = previous == null || previous.date != entry.date
                 Column {
                     if (newMonth && index > 0) {
-                        DiaryMonthHeader(if (entry.date.year == currentYear) dates.month(entry.date) else dates.yearMonth(entry.date))
+                        DiaryMonthHeader(dates.monthHeader(entry.date, currentYear, previous?.date))
                     }
                     DiaryEntryRow(
                         weekday = if (newDay) dates.weekdayShort(entry.date) else null,

@@ -86,6 +86,7 @@ import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
 import org.sjhstudio.diary.core.ui.FontWarmup
+import org.sjhstudio.diary.core.ui.SafetyNet
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.backup.backupFolderText
@@ -160,7 +161,8 @@ private fun coreModule(isDebug: Boolean) = module {
     single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
     single { AppLaunch() }
     // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꿈(스펙 001 T028)
-    single { Telemetry(get(), strict = isDebug) }
+    // 앱을 열 때 만들어 화면 모델 안전망이 받은 예외를 처음부터 보고함
+    single(createdAtStart = true) { Telemetry(get(), strict = isDebug).also { telemetry -> SafetyNet.report = telemetry::caught } }
     single {
         // 옛 앱이 없는 iOS에는 잠금·설정 잇기 없음
         val legacyLock = getOrNull<LegacyLockBootstrap>()
@@ -187,10 +189,7 @@ private fun coreModule(isDebug: Boolean) = module {
         )
     }
     single<WelcomeRepository> {
-        DefaultWelcomeRepository(
-            WelcomeStore(get<DataStoreFactory>().welcome()),
-            onLetterRead = { get<AdRepository>().skipInterstitialToday() }
-        ) { get<LegacyMigration>().report()?.entriesMigrated }
+        DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome())) { get<LegacyMigration>().report()?.entriesMigrated }
     }
     single<ContextTips> { get<WelcomeRepository>() }
     single { AdStore(get<DataStoreFactory>().ads()) }
@@ -200,7 +199,7 @@ private fun coreModule(isDebug: Boolean) = module {
 /** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */
 private val diaryDataModule =
     module {
-        // 처음 쓸 때 엶
+        // 처음 쓸 때 열기
         // 시작 단계에서는 열지 않음
         single { get<DatabaseFactory>().create() }
         // 썸네일(research R9)
@@ -258,7 +257,7 @@ private val backupModule =
             )
         }
         // 백업(스펙 003)
-        // 드라이브와 일기 DB는 처음 쓸 때 엶
+        // 드라이브와 일기 DB는 처음 쓸 때 열기
         single { BackupStore(get<DataStoreFactory>().backup()) }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
         single { BackupGate() }
@@ -309,7 +308,7 @@ private val backupModule =
             val work = files.backupDirectory.toPath()
             val media = files.mediaDirectory.toPath()
             val system = FileSystem.SYSTEM
-            // DB만 늦게 엶
+            // DB만 늦게 열기
             // 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 함
             val drive = get<DriveApi>()
             val copier = get<LegacyPhotoCopier>()
@@ -370,7 +369,8 @@ private val backupModule =
                 workDir = work,
                 applySettings = applyBackup,
                 scope = get(APP_SCOPE),
-                gate = get()
+                gate = get(),
+                lockOnHere = { get<LockRepository>().settings.first().enabled }
             )
         }
     }

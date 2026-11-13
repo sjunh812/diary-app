@@ -75,6 +75,7 @@
     <string name="restore_retry">もう一度試す</string>
     <string name="restore_preview_top">復元</string>
     <string name="restore_preview_title">このバックアップを統合します</string>
+    <string name="restore_preview_title_nothing">このバックアップの日記はすべてそろっています</string>
     <string name="restore_preview_body">%1$s・%2$sのバックアップです。\nこのスマートフォンの日記はそのまま残して統合します。</string>
     <string name="restore_value_added">追加される日記</string>
     <string name="restore_value_updated">新しい方に更新される日記</string>
@@ -197,7 +198,7 @@
     <string name="file_place_title">好きな場所に保存できます</string>
     <string name="file_place_body">スマートフォンの保存先やほかのクラウドアプリから選べます。</string>
     <string name="file_move_title">新しいスマートフォンへ自分で移します</string>
-    <string name="file_move_body">パソコン経由でコピーするか、クラウドアプリで移します。サイズが大きいので、メッセージアプリでは送りにくいです。</string>
+    <string name="file_move_body">パソコン経由でコピーするか、クラウドアプリで移します。写真が多いとサイズが大きくなり、メッセージアプリでは送りにくい場合があります。</string>
     <string name="file_trust_title">信頼できる場所にだけ置いてください</string>
     <string name="file_trust_body">ファイルには日記の文章と写真がそのまま入っています。</string>
     <string name="file_restore">ファイルから復元</string>

@@ -53,7 +53,7 @@ internal class EntryRowPagingSource(
     // DB 열기가 한 번 실패하면 Room이 연결을 끝없이 기다려, 오래 걸리면 실패로 봄
     @Suppress("TooGenericExceptionCaught")
     private suspend fun loadSafely(params: LoadParams<Int>): LoadResult<Int, EntryListRow> = try {
-        // 시험의 가상 시간이 아니라 실제 시간으로 잼
+        // 시험의 가상 시간이 아니라 실제 시간으로 측정
         withContext(Dispatchers.Default) { withTimeoutOrNull(loadTimeout) { source.load(params) } } ?: LoadResult.Error(LoadTimedOut())
     } catch (e: CancellationException) {
         throw e

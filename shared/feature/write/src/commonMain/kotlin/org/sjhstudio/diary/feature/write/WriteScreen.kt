@@ -74,15 +74,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamedrejeb.richeditor.model.RichTextState
+import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.compose.rememberCameraPickerLauncher
 import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.readBytes
+import io.github.vinceglb.filekit.source
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import kotlinx.io.buffered
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
@@ -116,6 +118,7 @@ import org.sjhstudio.diary.core.ui.icon
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
@@ -222,7 +225,16 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
         PhotoLimitSheet(notice.limit, actions.onPlus, vm::photoNoticeShown)
     }
-    if (checklistLocked) ChecklistPlusSheet(actions.onPlus) { checklistLocked = false }
+    // Plus 화면으로 가면 편집기에 초점을 되돌리지 않음. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
+    if (checklistLocked) {
+        ChecklistPlusSheet(
+            onPlus = {
+                refocus = false
+                actions.onPlus()
+            },
+            onDismiss = { checklistLocked = false }
+        )
+    }
     val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
     val pick =
         rememberFilePickerLauncher(
@@ -234,7 +246,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             }
         ) { files ->
             ExpectedLeave.clear()
-            if (files != null) vm.addPhotos(files.map { file -> PickedImage { file.readBytes() } })
+            if (files != null) vm.addPhotos(files.map { it.picked() })
         }
     val camera =
         rememberCameraPickerLauncher(onError = {
@@ -242,7 +254,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             vm.photoPickFailed()
         }) { file ->
             ExpectedLeave.clear()
-            if (file != null) vm.addPhotos(listOf(PickedImage { file.readBytes() }))
+            if (file != null) vm.addPhotos(listOf(file.picked()))
         }
     val openPicker = {
         ExpectedLeave.mark()
@@ -449,6 +461,7 @@ private fun DiscardButton(isEdit: Boolean, modifier: Modifier = Modifier, onClic
 private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit, onSave: () -> Unit) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
+    val today = rememberToday()
     val interaction = remember { MutableInteractionSource() }
     Layout(
         content = {
@@ -471,8 +484,9 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // 올해가 아니면 연도까지. 요일만 보면 지난해 일기인지 알 수 없음
                 BasicText(
-                    dates.dayWithWeekday(state.date),
+                    if (state.date.year == today.year) dates.dayWithWeekday(state.date) else dates.fullDate(state.date),
                     modifier = Modifier.weight(1f, fill = false),
                     style = DiaryTheme.typography.headline.copy(color = colors.textPrimary),
                     maxLines = 1,
@@ -598,7 +612,7 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
         }
         var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
         // 서식 없는 본문은 글이 바뀔 때 한 번만 만듦
-        // 체크 칸 그리기, 접근성 동작, 변화 감시가 각자 만들면 한 글자마다 문단 트리를 4번 넘게 돎
+        // 체크 칸 그리기, 접근성 동작, 변화 감시가 각자 만들면 한 글자마다 문단 트리를 4번 넘게 순회
         val plain = remember(state) { derivedStateOf { state.annotatedString.let { state.toText() } } }
         val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
         LaunchedEffect(state) {
@@ -700,5 +714,20 @@ private fun Section(title: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         BasicText(title, style = DiaryTheme.typography.label.copy(color = DiaryTheme.colors.textSecondary))
         content()
+    }
+}
+
+/** 한 번에 읽는 조각 크기 */
+private const val PHOTO_CHUNK = 64 * 1024
+
+// 원본을 통째로 메모리에 올리지 않고 조각으로 넘김. 수십 MB 사진 여러 장을 고르면 메모리가 모자람
+private fun PlatformFile.picked() = PickedImage { write ->
+    source().buffered().use { source ->
+        val chunk = ByteArray(PHOTO_CHUNK)
+        while (true) {
+            val read = source.readAtMostTo(chunk)
+            if (read < 0) break
+            write(chunk, read)
+        }
     }
 }
