@@ -103,8 +103,11 @@ fun DiarySettingsRow(
         description = description,
         leadingIcon = leadingIcon
     ) {
-        if (value != null) RowValue(value)
-        DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
+        // 값은 화살표에 붙여 둠(Figma 설정 줄 4)
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
+            if (value != null) RowValue(value)
+            DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
+        }
     }
 }
 

@@ -94,9 +94,10 @@ fun LockScreen(
             }
         )
         if (onForgot != null) {
-            Spacer(Modifier.height(DiarySpacing.x1_5))
+            // 버튼 안쪽 6을 더해 숫자판 → 글자 20, 글자 → 아래 24(Figma L1). 합이 아래 빈칸 64와 같음
+            Spacer(Modifier.height(DiarySpacing.x1_5 + DiarySpacing.x2))
             DiaryButton(stringResource(Res.string.lock_forgot), onForgot, kind = DiaryButtonKind.QuietText, size = DiaryButtonSize.Header)
-            Spacer(Modifier.height(DiarySpacing.x2 + DiarySpacing.x0_5))
+            Spacer(Modifier.height(DiarySpacing.x4 + DiarySpacing.x0_5))
         } else {
             Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x2))
         }

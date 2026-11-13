@@ -502,7 +502,14 @@ internal fun DayPanel(
     Column {
         BasicText(
             title,
-            modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
+            // 폰은 격자와 떼고 첫 일기 줄에 붙임(Figma S4: 위 16, 아래 4)
+            modifier =
+                Modifier.padding(
+                    start = LocalScreenGutter.current,
+                    end = LocalScreenGutter.current,
+                    top = if (twoPane) DiarySpacing.x2 else DiarySpacing.x4,
+                    bottom = if (twoPane) DiarySpacing.x2 else DiarySpacing.x1
+                ),
             style = (if (twoPane) typography.headline else typography.captionStrong).copy(
                 color = if (twoPane) colors.textPrimary else colors.textSecondary
             )

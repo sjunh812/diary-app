@@ -224,7 +224,7 @@ internal fun PaywallScreen(
                         column.verticalScroll(rememberScrollState()).heightIn(min = maxHeight).padding(bottom = DiarySpacing.x4),
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8, Alignment.CenterVertically)
                     ) {
-                        PlusArt(DiaryArtSize.banner, Modifier.padding(top = DiarySpacing.x2))
+                        PlusArt(DiaryArtSize.banner)
                         PaywallBenefits(adFreeOwned)
                         PaywallBuy(price, loading, busy, onRetry, onBuy, adFreeOwned, onAdFree, onLink, Modifier.fillMaxWidth())
                     }
@@ -241,7 +241,8 @@ internal fun PaywallScreen(
                     adFreeOwned,
                     onAdFree,
                     onLink = null,
-                    column.onSizeChanged { onBuyHeight(it.height) }.padding(vertical = DiarySpacing.x3)
+                    // 약관 글자 아래 12: 작은 버튼의 안쪽 여백만큼 위를 줄임(Figma P1)
+                    column.onSizeChanged { onBuyHeight(it.height) }.padding(top = DiarySpacing.x1_5, bottom = DiarySpacing.x3)
                 )
             }
         }
@@ -290,7 +291,7 @@ private fun PaywallTop(adFreeOwned: Boolean, onLink: (String) -> Unit, modifier:
             val legalGap = DiarySpacing.x4.roundToPx()
             val left = room.roundToPx() - top - gap - textHeight - legalGap - legalHeight
             val height = left.coerceIn(DiaryArtSize.paywallArtMin.roundToPx(), DiaryArtSize.banner.roundToPx()).toDp()
-            val art = subcompose("art") { PlusArt(height, Modifier.padding(top = DiarySpacing.x2)) }.map { it.measure(width) }
+            val art = subcompose("art") { PlusArt(height) }.map { it.measure(width) }
             val artHeight = art.sumOf { it.height } + gap
             // 남는 자리가 있으면 약관 링크를 결제 버튼 바로 위에 붙임
             val total = maxOf(artHeight + textHeight + legalGap + legalHeight, room.roundToPx())

@@ -137,7 +137,7 @@ fun EntryDetailRoute(
         // 두 칸 오른쪽(뒤로 단추 없음)은 본문이 칸 여백에서 시작해 작은 날짜도 그 선에 맞춤
         val dateStart = if (onBack == null) LocalScreenGutter.current - DiarySpacing.x1 else DiarySpacing.x1
         Row(
-            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(horizontal = DiarySpacing.x1),
+            Modifier.fillMaxWidth().heightIn(min = DiarySpacing.x14).padding(start = DiarySpacing.x1, end = DiarySpacing.x2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             onBack?.let { DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.detail_back), it) }
@@ -228,8 +228,8 @@ internal fun Body(
             .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // 위 8을 안쪽 여백이 아니라 칸으로 둬, 붙는 자리 계산(positionInParent)이 스크롤 내용 좌표와 같음
-        Spacer(Modifier.height(DiarySpacing.x2))
+        // 위 12를 안쪽 여백이 아니라 칸으로 둬, 붙는 자리 계산(positionInParent)이 스크롤 내용 좌표와 같음
+        Spacer(Modifier.height(DiarySpacing.x3))
         // 큰 날짜에는 연도가 없어 몇 해 전 일기인지 알 수 없음. 날짜 위에 작게 둠
         BasicText(
             dates.year(entry.date),

@@ -84,7 +84,7 @@ fun DiaryTabTopBar(
                 .widthIn(max = contentMaxWidth)
                 .fillMaxWidth()
                 .height(DiarySpacing.tabTitleTop)
-                .padding(start = LocalScreenGutter.current, end = DiarySpacing.x1),
+                .padding(start = LocalScreenGutter.current, end = DiarySpacing.x2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(

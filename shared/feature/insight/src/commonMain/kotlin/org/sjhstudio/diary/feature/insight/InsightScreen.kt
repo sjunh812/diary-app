@@ -606,7 +606,8 @@ private fun MoodFlow(period: StatsPeriod, days: List<DayMood>, dates: DiaryDateF
         )
     Column {
         SectionTitle(title)
-        Spacer(Modifier.height(DiarySpacing.x3))
+        // 칸 안쪽 위 4까지 합쳐 제목과 얼굴 사이 12
+        Spacer(Modifier.height(DiarySpacing.x2))
         // 줄 사이를 얼굴·이름 사이보다 넓혀 이름이 어느 얼굴 것인지 헷갈리지 않게
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             val buckets = remember(period, days) { moodBuckets(period, days) }

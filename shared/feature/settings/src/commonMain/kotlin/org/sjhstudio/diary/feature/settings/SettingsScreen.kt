@@ -159,7 +159,7 @@ fun SettingsScreen(
                     stringResource(Res.string.settings_plus_body),
                     stringResource(Res.string.settings_plus_action),
                     onPlus,
-                    Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x4)
+                    Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x5)
                 )
             }
             DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
