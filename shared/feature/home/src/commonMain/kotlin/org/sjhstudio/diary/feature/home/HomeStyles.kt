@@ -30,7 +30,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryHomeSize
@@ -43,15 +45,21 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
+import org.sjhstudio.diary.core.ui.entryMarks
+import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
 
-/** 카드 목록(Figma "홈 · 카드"). 일기마다 카드 하나, 사진은 네 칸까지 */
+/**
+ * 카드 목록(Figma "홈 · 카드"). 일기마다 카드 하나, 사진은 네 칸까지
+ * 피드형처럼 달이 바뀌는 자리에 달 머리. 올해가 아니거나 해가 바뀌면 연도까지
+ */
 @Composable
 internal fun CardList(
     rows: LazyPagingItems<EntryRow>,
     list: LazyListState,
     selectedId: String?,
+    today: LocalDate,
     previewStyle: TextStyle,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
@@ -62,23 +70,25 @@ internal fun CardList(
     LazyColumn(
         Modifier.fillMaxSize(),
         state = list,
-        contentPadding =
-            PaddingValues(
-                start = DiarySpacing.x4,
-                end = DiarySpacing.x4,
-                bottom = DiarySpacing.x14 + DiarySpacing.x6
-            ),
+        // 달 머리는 화면 여백에 맞추고 카드만 안쪽으로
+        contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
-        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop) }
+        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.x4)) }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "card" }) { index ->
             val row = rows[index]
             if (row == null) {
                 Box(Modifier.fillMaxWidth().aspectRatio(CARD_PLACEHOLDER_RATIO))
             } else {
+                val previous = if (index > 0) rows.peek(index - 1) else null
                 Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                    EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
-                    if (isAdSlot(index)) adSlot(adOrder(index), Modifier)
+                    if (index > 0 && entryMarks(index, row, previous).newMonth) {
+                        DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
+                    }
+                    Column(Modifier.padding(horizontal = DiarySpacing.x4), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                        EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
+                        if (isAdSlot(index)) adSlot(adOrder(index), Modifier)
+                    }
                 }
             }
         }
@@ -193,6 +203,7 @@ internal fun PhotoGrid(
     rows: LazyPagingItems<EntryRow>,
     grid: LazyGridState,
     selectedId: String?,
+    today: LocalDate,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
@@ -233,8 +244,9 @@ internal fun PhotoGrid(
 
                     else ->
                         Column(Modifier.padding(DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
+                            // 칸에 달 머리가 없어 올해가 아니면 연도까지
                             BasicText(
-                                dates.monthDay(row.date),
+                                if (row.date.year == today.year) dates.monthDay(row.date) else dates.fullDate(row.date),
                                 style = DiaryTheme.typography.micro.copy(color = colors.textSecondary),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
