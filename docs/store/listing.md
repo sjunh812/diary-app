@@ -133,12 +133,44 @@ Contact: sjunh812@naver.com
 
 ## App Store 설명
 
-본문은 위 "자세한 설명"과 같다. App Store는 `<b>`를 그리지 않아 묶음 제목은 굵게 하지 않고 그대로 두며, "태블릿"은 "iPad"로 바꾼다.
+App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태블릿"은 "iPad"로 바꿨다. 아래 본문 다음 줄에 문의 주소, 그 아래에 구독 안내와 약관 줄을 붙여 한 칸에 넣는다.
 구독 앱은 설명에 이용약관 링크가 있어야 한다(App Store 심사 지침 3.1.2). Day One, Daylio, Journey, Diarium, 꼬박일기처럼 설명 끝에 우리 이용약관과 처리방침 주소를 적는다. App Store Connect의 사용권 계약(EULA) 칸은 비워 Apple 표준 사용권 계약을 쓴다(2026-11-13 조사).
 
 ### 한국어
 
 ```text
+바쁜 날에도 몇 줄이면 오늘 일기를 남길 수 있어요.
+회원가입은 필요 없어요.
+
+일기 쓰기
+• 오늘 기분을 9가지 중에서 골라 남겨요.
+• 사진, 날씨, 장소도 함께 담아요. 사진은 한 편에 10장까지예요.
+• 굵게, 글자 색, 형광펜, 목록으로 글을 정리해요.
+• 쓰는 동안 자동으로 임시 저장돼요.
+
+지난 일기 보기
+• 목록과 달력으로 지난 일기를 한눈에 봐요.
+• 검색과 즐겨찾기로 원하는 일기를 바로 찾아요.
+• 주·월·년 통계로 내 기분 흐름을 살펴봐요.
+• 실수로 삭제한 일기도 30일 동안 휴지통에서 복원할 수 있어요.
+
+백업과 잠금
+• 일기와 사진을 내 구글 드라이브에 백업해요. 드라이브 없이 파일 하나로 보관할 수도 있어요.
+• 비밀번호와 생체 인증으로 나만 볼 수 있게 잠가요.
+
+글꼴과 화면
+• 글꼴 10종, 본문 글자 크기, 다크 모드를 원하는 대로 골라요.
+• 목록은 피드, 카드, 사진 격자 세 가지로 볼 수 있어요.
+• iPad에서는 목록과 일기가 나란히 보여요.
+
+Plus(연 구독)
+• 광고 없이 써요.
+• 한 편에 사진을 30장까지 넣어요.
+• 체크리스트와 고급 통계를 써요.
+• 광고만 없애는 1회 구매도 있어요.
+
+문의: sjunh812@naver.com
+
 Plus 구독 안내
 • 1년마다 자동으로 갱신돼요. 갱신 24시간 전까지 해지하지 않으면 다음 1년 요금이 결제돼요.
 • 구독 관리와 해지는 설정 > Apple 계정 > 구독에서 할 수 있어요.
@@ -150,6 +182,38 @@ Plus 구독 안내
 ### 영어
 
 ```text
+Leave today's entry in just a few lines, even on busy days.
+No sign-up needed.
+
+Write
+• Pick today's mood from nine options.
+• Add photos, weather, and place too. Up to 10 photos per entry.
+• Organize your writing with bold, text color, highlights, and lists.
+• Your draft is saved automatically as you write.
+
+Look back
+• See past entries at a glance in a list or on a calendar.
+• Find any entry quickly with search and favorites.
+• Follow how your mood changes with weekly, monthly, and yearly stats.
+• Deleted an entry by mistake? Restore it from Trash within 30 days.
+
+Backup and lock
+• Back up entries and photos to your own Google Drive, or keep them in a single file without Drive.
+• Lock the app with a passcode or biometrics so only you can read it.
+
+Fonts and display
+• Choose from 10 fonts, body text size, and dark mode.
+• View your list as a feed, cards, or a photo grid.
+• On iPad, the list and entry appear side by side.
+
+Plus (yearly subscription)
+• Write without ads.
+• Add up to 30 photos per entry.
+• Use checklists and advanced stats.
+• Just want to remove ads? There's a one-time purchase too.
+
+Contact: sjunh812@naver.com
+
 About Plus
 • Renews automatically every year unless canceled at least 24 hours before the renewal date.
 • Manage or cancel in Settings > Apple Account > Subscriptions.
@@ -161,6 +225,38 @@ Privacy Policy: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
 ### 일본어
 
 ```text
+忙しい日でも、数行で今日の日記を残せます。
+会員登録は不要です。
+
+日記を書く
+• 今日の気分を9種類の中から選んで残せます。
+• 写真、天気、場所も一緒に残せます。写真は1件に10枚までです。
+• 太字、文字色、マーカー、リストで文章を整えられます。
+• 書いている間は自動で下書き保存されます。
+
+過去の日記を見る
+• 一覧とカレンダーで過去の日記をひと目で見られます。
+• 検索とお気に入りで、読みたい日記をすぐに探せます。
+• 週・月・年の統計で、気分の流れをふりかえれます。
+• 間違えて削除した日記も、30日間はゴミ箱から復元できます。
+
+バックアップとロック
+• 日記と写真を自分のGoogleドライブにバックアップできます。ドライブを使わずに1つのファイルで保管することもできます。
+• パスコードと生体認証で、自分だけが見られるようにロックできます。
+
+フォントと画面
+• フォント10種類、本文の文字サイズ、ダークモードを好みに合わせて選べます。
+• 一覧はフィード、カード、写真グリッドの3種類で表示できます。
+• iPadでは一覧と日記が並んで表示されます。
+
+Plus（年間サブスクリプション）
+• 広告なしで使えます。
+• 1件に写真を30枚まで追加できます。
+• チェックリストと詳しい統計を使えます。
+• 広告だけを消せる1回の購入もあります。
+
+お問い合わせ: sjunh812@naver.com
+
 Plusについて
 • 更新日の24時間前までに解約しない限り、1年ごとに自動更新されます。
 • 管理と解約は「設定」>「Apple アカウント」>「サブスクリプション」から行えます。
