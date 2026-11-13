@@ -451,9 +451,11 @@ private fun Content(
         // 가장 많았던 기분 이름 앞에 글자 크기만 한 얼굴을 붙여 문장 안에서 먼저 읽히게
         // 굵기나 색으로 나누면 굵기가 하나뿐인 글꼴에서 강조가 사라지거나 문장이 흐려짐
         val title = DiaryTheme.typography.title2
+        // 두 줄이면 줄 길이를 고르게(Android)
+        // iOS는 이 설정이 없고 일본어는 아무 글자에서나 끊겨 마지막 줄에 "す"만 남아, 일본어 문구에 끊을 자리를 넣음
         BasicText(
             summary(period, counts, today),
-            style = title.copy(color = colors.textPrimary),
+            style = title.copy(color = colors.textPrimary, lineBreak = CenteredLineBreak),
             inlineContent = moodFaces(counts.top.toList(), title.lineHeight)
         )
         BasicText(countLine(counts), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
