@@ -12,6 +12,7 @@ import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListene
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import java.io.File
+import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -146,14 +147,24 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
 
     /** 받은 모듈의 자산을 앱 파일 자리로 복사. 반쯤 쓴 파일이 남지 않게 임시 파일에 쓴 뒤 이름을 바꿈 */
     private suspend fun copy(id: String): String = withContext(Dispatchers.IO) {
-        SplitCompat.install(context)
-        val assets = context.createPackageContext(context.packageName, 0).assets
         val target = target(id)
         target.parentFile?.mkdirs()
         val partial = File(target.parentFile, "$id.ttf.part")
-        assets.open("fonts/$id.ttf").use { input -> partial.outputStream().use { input.copyTo(it) } }
+        openFont(id).use { input -> partial.outputStream().use { input.copyTo(it) } }
         check(partial.renameTo(target)) { "글꼴 파일 이름을 바꾸지 못했다" }
         target.absolutePath.also { known[id] = it }
+    }
+
+    /**
+     * 앱을 켠 채 받은 모듈은 SplitCompat을 다시 입힌 애플리케이션 컨텍스트로만 보임(Play 문서 "다른 모듈에서 리소스 및 애셋 액세스")
+     * Play가 나중에 실제로 설치한 뒤에는 새 패키지 컨텍스트로 읽음
+     */
+    private fun openFont(id: String): InputStream {
+        val path = "fonts/$id.ttf"
+        SplitCompat.install(context)
+        return runCatching {
+            context.assets.open(path)
+        }.getOrElse { context.createPackageContext(context.packageName, 0).assets.open(path) }
     }
 
     private fun target(id: String) = File(files.fontDirectory, "$id.ttf")
