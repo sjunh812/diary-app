@@ -240,16 +240,19 @@ jobs:
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           cp "$RUNNER_TEMP/release.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$uuid.mobileprovision"
           echo "IOS_PROFILE_NAME=$name" >> "$GITHUB_ENV"
-          if [ -n "$GOOGLE_SERVICE_INFO" ]; then
-            echo "$GOOGLE_SERVICE_INFO" | base64 --decode > iosApp/iosApp/GoogleService-Info.plist
-          else
-            echo "::warning::GoogleService-Info.plist가 없어 사용 통계와 비정상 종료 보고가 꺼진 빌드입니다"
+          # 없으면 비정상 종료 보고와 전면 광고 원격 스위치가 빠진다. Android와 같이 여기서 멈춘다.
+          if [ -z "$GOOGLE_SERVICE_INFO" ]; then
+            echo "::error::GOOGLE_SERVICE_INFO_PLIST_BASE64 비밀값이 없습니다"
+            exit 1
           fi
-          if [ -n "$LOCAL_XCCONFIG" ]; then
-            echo "$LOCAL_XCCONFIG" | base64 --decode > iosApp/iosApp/Local.xcconfig
-          else
-            echo "::warning::Local.xcconfig가 없어 구글 드라이브 연결이 안 되는 빌드입니다"
+          echo "$GOOGLE_SERVICE_INFO" | base64 --decode > iosApp/iosApp/GoogleService-Info.plist
+          if [ -z "$LOCAL_XCCONFIG" ]; then
+            echo "::error::IOS_LOCAL_XCCONFIG_BASE64 비밀값이 없습니다"
+            exit 1
           fi
+          echo "$LOCAL_XCCONFIG" | base64 --decode > iosApp/iosApp/Local.xcconfig
+          # 드라이브 연결, 광고, 구매가 빠진 앱이 스토어로 나가지 않게 여기서 멈춘다.
+          sh scripts/release/check-ios-config.sh iosApp/iosApp/Local.xcconfig
       - name: 아카이브 만들기
         env:
           IOS_TEAM: ${{ secrets.IOS_TEAM_ID }}
