@@ -151,10 +151,10 @@ object DiaryArtSize {
     val paywallMax: Dp = 600.dp
 
     /**
-     * 결제 화면 그림의 최소 높이. 이보다 자리가 적으면 그림을 뺌
-     * 그림은 아래가 잘리는 꼴이라 낮아도 일기 한 장의 윗부분이 보임
+     * 결제 화면 그림의 최소 높이. 그림은 늘 보이고, 자리가 모자라면 이 높이로 두고 내용이 스크롤됨
+     * 일기 한 장의 얼굴과 사진 칸까지 보이는 높이
      */
-    val paywallArtMin: Dp = 64.dp
+    val paywallArtMin: Dp = 120.dp
 }
 
 /** 네이티브 광고 크기(Figma "네이티브 광고") */

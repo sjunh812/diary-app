@@ -229,7 +229,8 @@ internal fun PaywallScreen(
                     }
                 }
             } else {
-                PaywallTop(adFreeOwned, column.weight(1f))
+                PaywallTop(adFreeOwned, onLink, column.weight(1f))
+                // 약관 링크는 스크롤되는 내용 끝에 둠. 아래 고정 칸은 버튼과 갱신 안내만
                 PaywallBuy(
                     price,
                     loading,
@@ -238,7 +239,7 @@ internal fun PaywallScreen(
                     onBuy,
                     adFreeOwned,
                     onAdFree,
-                    onLink,
+                    onLink = null,
                     column.onSizeChanged { onBuyHeight(it.height) }.padding(vertical = DiarySpacing.x3)
                 )
             }
@@ -268,34 +269,32 @@ private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
 }
 
 /**
- * 혜택이 한눈에 보이는 것이 먼저
- * 글을 다 놓고 남는 높이만큼만 그림을 그림
- * 남는 자리가 작으면 그림을 빼고, 그래도 넘칠 때만 스크롤됨
+ * 그림, 혜택, 약관 링크
+ * 그림은 늘 보임. 글을 놓고 남는 높이만큼 키우고, 자리가 모자라면 최소 높이로 두고 내용이 스크롤됨
  */
 @Composable
-private fun PaywallTop(adFreeOwned: Boolean, modifier: Modifier) {
+private fun PaywallTop(adFreeOwned: Boolean, onLink: (String) -> Unit, modifier: Modifier) {
     BoxWithConstraints(modifier) {
         val room = maxHeight
         SubcomposeLayout(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) { constraints ->
             val width = constraints.copy(minHeight = 0)
             val text = subcompose("text") { PaywallBenefits(adFreeOwned) }.map { it.measure(width) }
+            val legal = subcompose("legal") { PaywallLegal(onLink) }.map { it.measure(width) }
             val textHeight = text.sumOf { it.height }
+            val legalHeight = legal.sumOf { it.height }
             val gap = DiarySpacing.x6.roundToPx()
-            // 결제 버튼과 혜택 사이는 적어도 24. 자리가 모자라면 그림이 먼저 줄고, 그래도 모자라면 스크롤됨
-            val bottomGap = DiarySpacing.x6.roundToPx()
-            val left = room.roundToPx() - textHeight - gap - DiarySpacing.x2.roundToPx() - bottomGap
-            val art =
-                if (left < DiaryArtSize.paywallArtMin.roundToPx()) {
-                    emptyList()
-                } else {
-                    val height = minOf(left, DiaryArtSize.banner.roundToPx()).toDp()
-                    subcompose("art") { PlusArt(height, Modifier.padding(top = DiarySpacing.x2)) }.map { it.measure(width) }
-                }
-            val artHeight = art.sumOf { it.height } + if (art.isEmpty()) 0 else gap
-            // 위에서부터 정한 간격으로 쌓고, 남는 자리는 결제 버튼 위에 둠
-            layout(constraints.maxWidth, artHeight + textHeight + bottomGap) {
+            val top = DiarySpacing.x2.roundToPx()
+            val legalGap = DiarySpacing.x4.roundToPx()
+            val left = room.roundToPx() - top - gap - textHeight - legalGap - legalHeight
+            val height = left.coerceIn(DiaryArtSize.paywallArtMin.roundToPx(), DiaryArtSize.banner.roundToPx()).toDp()
+            val art = subcompose("art") { PlusArt(height, Modifier.padding(top = DiarySpacing.x2)) }.map { it.measure(width) }
+            val artHeight = art.sumOf { it.height } + gap
+            // 남는 자리가 있으면 약관 링크를 결제 버튼 바로 위에 붙임
+            val total = maxOf(artHeight + textHeight + legalGap + legalHeight, room.roundToPx())
+            layout(constraints.maxWidth, total) {
                 art.forEach { it.placeRelative(0, 0) }
                 text.forEach { it.placeRelative(0, artHeight) }
+                legal.forEach { it.placeRelative(0, total - legalHeight) }
             }
         }
     }
@@ -349,7 +348,7 @@ private fun PaywallBuy(
     onBuy: () -> Unit,
     adFreeOwned: Boolean,
     onAdFree: () -> Unit,
-    onLink: (String) -> Unit,
+    onLink: ((String) -> Unit)?,
     modifier: Modifier
 ) {
     val colors = DiaryTheme.colors
@@ -381,7 +380,7 @@ private fun PaywallBuy(
                 Modifier.fillMaxWidth(),
                 style = typography.micro.copy(color = colors.textSecondary, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
             )
-            PaywallLegal(onLink)
+            onLink?.let { PaywallLegal(it) }
         } else {
             PhraseText(stringResource(Res.string.plus_no_store), style = typography.body.copy(color = colors.textSecondary))
             DiaryButton(stringResource(Res.string.plus_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
