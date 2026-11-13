@@ -58,7 +58,7 @@
 
 ### R10. 검색은 먼저 `LIKE`, 느리면 FTS5 trigram
 
-- Decision: `plainText`와 `placeName`에 `LIKE '%…%' ESCAPE '\'`(사용자 입력의 `%`, `_` 이스케이프)로 찾는다. 조건(기분, 날씨, 사진 있음, 즐겨찾기, 기간)은 같은 질의의 `WHERE`에 붙인다. 1만 편에서 1초를 넘으면 FTS5 trigram 색인을 더하고 1~2글자 검색만 `LIKE`로 남긴다.
+- Decision: `plainText`와 `placeName`에 `LIKE '%…%' ESCAPE '\'`(사용자 입력의 `%`, `_` 이스케이프)로 찾는다. 조건(기분, 날씨, 사진 포함, 즐겨찾기, 기간)은 같은 질의의 `WHERE`에 붙인다. 1만 편에서 1초를 넘으면 FTS5 trigram 색인을 더하고 1~2글자 검색만 `LIKE`로 남긴다.
 - Rationale: 한국어 한 글자 부분 일치(FR-025)는 단어 단위 FTS 토크나이저로 안 된다. trigram은 세 글자 이상만 색인을 탄다(판단, 출시 전 측정으로 확인). 번들 SQLite는 FTS5를 켜고 빌드된다(`docs/backup.md` 조사).
 - Alternatives: 처음부터 FTS5(1~2글자 검색이 안 됨), 앱 메모리에서 검색(1만 편 본문을 다 올려야 함).
 

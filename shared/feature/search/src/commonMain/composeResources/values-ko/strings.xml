@@ -7,7 +7,7 @@
     <string name="search_chip_more">%1$s 외 %2$d</string>
     <string name="search_chip_weather">날씨</string>
     <string name="search_chip_period">기간</string>
-    <string name="search_chip_photo">사진 있음</string>
+    <string name="search_chip_photo">사진 포함</string>
     <string name="search_chip_favorite">즐겨찾기</string>
     <string name="search_period_week">이번 주</string>
     <string name="search_period_month">이번 달</string>

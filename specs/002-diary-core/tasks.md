@@ -160,7 +160,7 @@ description: "스펙 002 일기 핵심 화면 작업 목록"
 
 - [x] T056 [P] [US4] 검색 시험: 한 글자 한국어, `%`·`_`·`\` 이스케이프, 본문+장소, 조건 조합, 조건만 검색, 휴지통 제외 `shared/core/data/{test}/core/data/SearchQueryTest.kt` 2026-11-04: `DiaryReadRepositoryTest`에 넣었다
 - [x] T057 [US4] `EntryRepository.search`(`LIKE … ESCAPE '\'`, research R10)를 `EntryRepositoryImpl.kt`에 더한다 2026-11-04: `DefaultEntryRepository`에 있다
-- [x] T058 [US4] 검색 화면(입력, 칩: 기분·날씨·사진 있음·즐겨찾기·기간, 결과 강조, "찾는 일기가 없어요", 돌아왔을 때 입력·조건·스크롤 유지)을 `shared/feature/search/{kt}/feature/search/SearchViewModel.kt`, `SearchScreen.kt`에 만들고 문구를 `strings.xml`에 둔다
+- [x] T058 [US4] 검색 화면(입력, 칩: 기분·날씨·사진 포함·즐겨찾기·기간, 결과 강조, "찾는 일기가 없어요", 돌아왔을 때 입력·조건·스크롤 유지)을 `shared/feature/search/{kt}/feature/search/SearchViewModel.kt`, `SearchScreen.kt`에 만들고 문구를 `strings.xml`에 둔다
 
 ---
 
