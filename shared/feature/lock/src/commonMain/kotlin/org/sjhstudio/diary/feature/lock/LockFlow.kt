@@ -118,7 +118,8 @@ fun LockFlow(
         LockStep.NewPin -> {
             val back = { if (!setup.back()) step = LockStep.Enter }
             BackHandler(onBack = back)
-            PinSetupScreen(setupState, onDigit = setup::onDigit, onDelete = setup::onDelete, onBack = back)
+            // 휴대폰 잠금으로 확인한 뒤에만 오는 화면
+            PinSetupScreen(setupState, onDigit = setup::onDigit, onDelete = setup::onDelete, onBack = back, deviceSecure = true)
         }
     }
     if (asking) {

@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.backhandler.BackHandler
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -38,6 +39,12 @@ fun LockSettingsRoute(onBack: () -> Unit) {
     val setupState by setup.state.collectAsStateWithLifecycle()
     var step by rememberSaveable { mutableStateOf(SettingsStep.Main) }
     val biometricAvailable = remember(authenticator) { authenticator.biometricStatus() == BiometricStatus.Available }
+    // 설정 앱에서 화면 잠금을 바꾸고 돌아올 수 있어 돌아올 때마다 다시 봄
+    var deviceSecure by remember(authenticator) { mutableStateOf(authenticator.isDeviceSecure()) }
+    LifecycleResumeEffect(authenticator) {
+        deviceSecure = authenticator.isDeviceSecure()
+        onPauseOrDispose {}
+    }
 
     LaunchedEffect(confirm) {
         confirm.events.collect { event ->
@@ -63,6 +70,7 @@ fun LockSettingsRoute(onBack: () -> Unit) {
             LockSettingsScreen(
                 settings = settings,
                 biometricAvailable = biometricAvailable,
+                deviceSecure = deviceSecure,
                 onBack = onBack,
                 onEnabledChange = { on ->
                     if (on) {
@@ -99,7 +107,7 @@ fun LockSettingsRoute(onBack: () -> Unit) {
         SettingsStep.NewPin -> {
             val back = { if (!setup.back()) step = SettingsStep.Main }
             BackHandler(onBack = back)
-            PinSetupScreen(setupState, onDigit = setup::onDigit, onDelete = setup::onDelete, onBack = back)
+            PinSetupScreen(setupState, onDigit = setup::onDigit, onDelete = setup::onDelete, onBack = back, deviceSecure = deviceSecure)
         }
     }
 }

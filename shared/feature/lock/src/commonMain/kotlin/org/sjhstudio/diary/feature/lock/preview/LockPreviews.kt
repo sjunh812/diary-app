@@ -44,7 +44,7 @@ private fun LockTablet() = Lock(LockUiState(), biometric = false)
 
 @Composable
 private fun Setup(state: PinSetupUiState, dark: Boolean = false) = DiaryTheme(darkTheme = dark) {
-    PinSetupScreen(state, onDigit = {}, onDelete = {}, onBack = {})
+    PinSetupScreen(state, onDigit = {}, onDelete = {}, onBack = {}, deviceSecure = true)
 }
 
 @Preview(name = "L2 새 비밀번호 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
@@ -64,17 +64,19 @@ private fun SetupAgain() = Setup(PinSetupUiState(entered = 1, again = true))
 private fun SetupMismatch() = Setup(PinSetupUiState(mismatch = true))
 
 @Composable
-private fun Settings(settings: LockSettings, dark: Boolean = false, biometricAvailable: Boolean = true) = DiaryTheme(darkTheme = dark) {
-    LockSettingsScreen(
-        settings,
-        biometricAvailable = biometricAvailable,
-        onBack = {},
-        onEnabledChange = {},
-        onChangePin = {},
-        onBiometricChange = {},
-        onRelockChange = {}
-    )
-}
+private fun Settings(settings: LockSettings, dark: Boolean = false, biometricAvailable: Boolean = true, deviceSecure: Boolean = true) =
+    DiaryTheme(darkTheme = dark) {
+        LockSettingsScreen(
+            settings,
+            biometricAvailable = biometricAvailable,
+            deviceSecure = deviceSecure,
+            onBack = {},
+            onEnabledChange = {},
+            onChangePin = {},
+            onBiometricChange = {},
+            onRelockChange = {}
+        )
+    }
 
 private val lockOn =
     LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", biometricEnabled = true, relockAfter = RelockAfter.ONE_MINUTE)
@@ -95,9 +97,15 @@ private fun SettingsNoBiometric() = Settings(lockOn, biometricAvailable = false)
 @Composable
 private fun SettingsOff() = Settings(LockSettings())
 
+@Preview(name = "L4 화면 잠금 없는 휴대폰", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsNoDeviceLock() = Settings(LockSettings(), deviceSecure = false)
+
 @Preview(name = "새 비밀번호 · 저장 실패", locale = "ko")
 @Composable
-private fun SetupSaveFailed() = DiaryTheme(darkTheme = false) { PinSetupScreen(PinSetupUiState(saveFailed = true), {}, {}, {}) }
+private fun SetupSaveFailed() = DiaryTheme(darkTheme = false) {
+    PinSetupScreen(PinSetupUiState(saveFailed = true), {}, {}, {}, deviceSecure = true)
+}
 
 @Preview(name = "잠금 · 확인할 수 없음", locale = "ko")
 @Composable

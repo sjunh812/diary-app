@@ -44,6 +44,7 @@
     <string name="relock_five_minutes">After 5 minutes</string>
     <string name="relock_cold_start">Only when the app restarts</string>
     <string name="lock_settings_note">If you forget your passcode, you can confirm with your phone's screen lock and set a new one.</string>
+    <string name="lock_note_no_device_lock">Your phone has no screen lock, so if you forget your passcode, you can't set a new one.</string>
     <string name="lock_confirm_title">Enter your current passcode</string>
     <string name="lock_settings_method">Lock method</string>
     <string name="pin_setup_save_failed">Couldn't save the password. Check your storage and enter it again.</string>

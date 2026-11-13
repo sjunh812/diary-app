@@ -42,6 +42,7 @@
     <string name="relock_five_minutes">5분 뒤</string>
     <string name="relock_cold_start">앱을 새로 열 때만</string>
     <string name="lock_settings_note">비밀번호를 잊어버리면 휴대폰 화면 잠금으로 확인하고 다시 설정할 수 있어요.</string>
+    <string name="lock_note_no_device_lock">휴대폰에 화면 잠금이 없어 비밀번호를 잊어버리면 다시 설정할 수 없어요.</string>
     <string name="lock_confirm_title">현재 비밀번호를 입력해 주세요</string>
     <string name="lock_settings_method">잠금 방법</string>
     <string name="pin_setup_save_failed">비밀번호를 저장하지 못했어요. 저장 공간을 확인하고 다시 입력해 주세요.</string>
