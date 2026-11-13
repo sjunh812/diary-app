@@ -130,6 +130,7 @@ internal class WriteTools(
         }
         val bold = style.fontWeight == FontWeight.Bold
         ToolButton(DiaryIcons.Bold, stringResource(Res.string.write_format_bold), tint(bold), modifier = slot, active = bold, onClick = {
+            rich.commitComposition()
             rich.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
         })
         val underline = style.textDecoration?.contains(TextDecoration.Underline) == true
@@ -142,6 +143,7 @@ internal class WriteTools(
             modifier = slot,
             active = underline,
             onClick = {
+                rich.commitComposition()
                 rich.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
             }
         )
@@ -178,6 +180,7 @@ internal class WriteTools(
             active = rich.isUnorderedList,
             onClick = {
                 if (checked) toggleChecklist()
+                rich.commitComposition()
                 rich.toggleUnorderedList()
             }
         )
@@ -202,6 +205,7 @@ internal class WriteTools(
     }
 
     private fun toggleChecklist() {
+        rich.commitComposition()
         Checklist.toggleLines(rich.toText(), rich.selection.min, rich.selection.max).forEach { rich.applyEdit(it) }
     }
 
@@ -211,8 +215,15 @@ internal class WriteTools(
         val style = rich.currentSpanStyle
         ToolButton(DiaryIcons.ChevronLeft, stringResource(Res.string.write_palette_back), theme.textPrimary, onClick = close)
         // 고른 색이 몇 개든 한 번에 풀어 여러 색이 섞인 글도 기본으로 돌아감
-        fun clearInk() = colors.ink.values.forEach { rich.removeSpanStyle(SpanStyle(color = it)) }
-        fun clearMark() = colors.mark.values.forEach { rich.removeSpanStyle(SpanStyle(background = it)) }
+        // 고르는 동안 조합 중인 글자는 먼저 확정해 고른 색이 되돌아가지 않게 함
+        fun clearInk() {
+            rich.commitComposition()
+            colors.ink.values.forEach { rich.removeSpanStyle(SpanStyle(color = it)) }
+        }
+        fun clearMark() {
+            rich.commitComposition()
+            colors.mark.values.forEach { rich.removeSpanStyle(SpanStyle(background = it)) }
+        }
         Row(Modifier.weight(1f).horizontalScroll(rememberScrollState()), verticalAlignment = Alignment.CenterVertically) {
             when (kind) {
                 PaletteKind.Ink -> {
