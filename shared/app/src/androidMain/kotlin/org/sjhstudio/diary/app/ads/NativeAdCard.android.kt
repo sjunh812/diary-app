@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -57,12 +58,7 @@ internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
                 .background(DiaryTheme.colors.sunken)
                 .padding(start = DiarySpacing.x4, top = DiarySpacing.x4, end = DiarySpacing.minTouchTarget, bottom = DiarySpacing.x4)
         ) {
-            NativeAdFrame(ad) { adView ->
-                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                    if (shape == AdShape.Card) AdMedia(ad, adView) else AdIcon(ad, adView)
-                    AdTexts(ad, adView, stacked = shape == AdShape.Card)
-                }
-            }
+            NativeAdFrame(ad) { adView -> if (shape == AdShape.Card) AdCard(ad, adView) else AdRow(ad, adView) }
         }
     }
 }
@@ -142,63 +138,69 @@ private fun AdIcon(ad: NativeAd, adView: NativeAdView) {
 }
 
 /**
- * 제목, "광고" 표시, 행동 버튼
- * 카드는 그림 옆에 세로로 쌓고, 얇은 줄은 표시와 버튼을 한 줄에 둬 높이를 줄임
+ * 얇은 줄: 아이콘, 제목과 "광고", 행동 버튼을 한 줄에 세로 가운데로 둠
+ * 앱 목록 줄과 같은 꼴이라 일기 사이에서 튀지 않음
  */
 @Composable
-private fun AdTexts(ad: NativeAd, adView: NativeAdView, stacked: Boolean) {
-    val typography = DiaryTheme.typography
-    val colors = DiaryTheme.colors
-    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
-        AdAsset(adView, register = { headlineView = it }) {
-            // AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
-            BasicText(
-                ad.headline.orEmpty(),
-                style = typography.bodyStrong.copy(color = colors.textPrimary),
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        if (stacked) {
+private fun AdRow(ad: NativeAd, adView: NativeAdView) {
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
+        AdIcon(ad, adView)
+        Column(Modifier.weight(1f)) {
+            AdHeadline(ad, adView)
             AdLabel()
-            AdCallToAction(ad, adView)
-        } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
+        }
+        AdCallToAction(ad, adView)
+    }
+}
+
+/** 카드: 그림 옆에 제목과 "광고"를 위에, 행동 버튼을 그림 아래 끝선에 맞춤 */
+@Composable
+private fun AdCard(ad: NativeAd, adView: NativeAdView) {
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        AdMedia(ad, adView)
+        Column(Modifier.weight(1f).heightIn(min = DiaryAdSize.media), verticalArrangement = Arrangement.SpaceBetween) {
+            Column {
+                AdHeadline(ad, adView)
                 AdLabel()
-                AdCallToAction(ad, adView)
             }
+            AdCallToAction(ad, adView)
         }
     }
 }
 
+// AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
+@Composable
+private fun AdHeadline(ad: NativeAd, adView: NativeAdView) {
+    val style = DiaryTheme.typography.bodyStrong.copy(color = DiaryTheme.colors.textPrimary)
+    AdAsset(adView, register = { headlineView = it }) {
+        BasicText(ad.headline.orEmpty(), style = style, maxLines = 2, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+// 일기 줄의 시각·날씨처럼 보조 글자로 둠. 칩으로 두면 면 위에 떠 보임
 @Composable
 private fun AdLabel() {
     BasicText(
         stringResource(Res.string.ad_label),
-        modifier = Modifier
-            .clip(DiaryShapes.r8)
-            .background(DiaryTheme.colors.surface)
-            .padding(horizontal = DiarySpacing.x1_5, vertical = DiarySpacing.x0_5),
-        style = DiaryTheme.typography.micro.copy(color = DiaryTheme.colors.textSecondary),
+        style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary),
         maxLines = 1
     )
 }
 
-// 행동 문구가 없는 광고는 버튼을 두지 않음
+/**
+ * 행동 버튼. 앱의 작은 연보라 버튼과 같은 모양
+ * 눌림은 AdMob이 세야 해서 버튼 부품을 쓰지 않고 모양만 맞춤
+ * 행동 문구가 없는 광고는 두지 않음
+ */
 @Composable
 private fun AdCallToAction(ad: NativeAd, adView: NativeAdView) {
     val action = ad.callToAction ?: return
-    val typography = DiaryTheme.typography
-    val colors = DiaryTheme.colors
+    val style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.accentText)
+    val fill = DiaryTheme.colors.selected
     AdAsset(adView, register = { callToActionView = it }) {
-        BasicText(
-            action,
-            modifier = Modifier
-                .clip(DiaryShapes.r8)
-                .background(colors.surface)
-                .padding(horizontal = DiarySpacing.x3, vertical = DiarySpacing.x1_5),
-            style = typography.captionStrong.copy(color = colors.textPrimary),
-            maxLines = 1
-        )
+        Box(
+            Modifier.heightIn(min = DiarySpacing.x8).clip(DiaryShapes.r8).background(fill).padding(horizontal = DiarySpacing.x3),
+            contentAlignment = Alignment.Center
+        ) { BasicText(action, style = style, maxLines = 1) }
     }
 }

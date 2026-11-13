@@ -63,7 +63,8 @@ internal fun AdSlot(key: String, shape: AdShape, onClose: () -> Unit, modifier: 
                 DiaryIcons.Close,
                 stringResource(Res.string.ad_close),
                 onClose,
-                Modifier.align(Alignment.TopEnd),
+                // 얇은 줄은 한 줄이라 ×도 세로 가운데. 카드는 오른쪽 위
+                Modifier.align(if (shape == AdShape.Row) Alignment.CenterEnd else Alignment.TopEnd),
                 tint = colors.textTertiary,
                 iconSize = DiaryIconSize.i16
             )
