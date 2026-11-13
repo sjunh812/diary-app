@@ -61,8 +61,7 @@ sealed interface WriteTarget {
     data class Edit(val entryId: String) : WriteTarget
 }
 
-/** "쓰던 일기가 있어요" 시트에 보일 것 */
-/** [date]·[time]은 마지막으로 고친 때. 일기 날짜가 아님 */
+/** "쓰던 일기가 있어요" 시트에 보일 것. [date]·[time]은 마지막으로 고친 때이고 일기 날짜가 아님 */
 data class ResumeOffer(val date: LocalDate, val time: LocalTime, val preview: String) {
     override fun toString(): String = "ResumeOffer"
 }
