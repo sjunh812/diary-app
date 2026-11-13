@@ -220,8 +220,12 @@ REVENUECAT_IOS = appl_...
 - [ ] (선택) 교보손글씨 2019를 다시 넣고 싶으면 교보문고에 앱 번들 허용을 서면으로 받는다. 지금 앱 사용자는 나눔손글씨 펜으로 옮겨 간다.
 - [ ] 777미니콩다방·777꼬마나비는 2.0.0에서 빠진다. 1.7.5로 먼저 빼는 안은 내지 않기로 했고(2026-11-01), 그때까지 1.7.4가 그대로 배포된다
 - [ ] Play Console 포그라운드 서비스 신고: 지금 백업·복원이 `dataSync` 종류를 쓴다(스펙 003 research R14). 쓰는 까닭과 화면 영상을 낸다
-- [ ] 구글 동의 화면 브랜드 검증: 앱 이름·로고를 띄우려면 필요하다(2~3영업일). 우리 소유로 인증된 도메인의 홈페이지와 개인정보처리방침을 먼저 준비한다
+- [ ] 구글 동의 화면 브랜드 검증: 앱 이름·로고를 띄우려면 필요하다(2~3영업일)
       ([Google](https://support.google.com/cloud/answer/13463073), 스펙 003 근거).
+      준비는 끝났다(2026-11-13). Search Console에서 `https://sjunh812.github.io/` 소유가 확인됐고, 브랜딩에 홈페이지 `https://sjunh812.github.io`,
+      처리방침 `https://sjunh812.github.io/1day1diary/privacy/`, 약관 `https://sjunh812.github.io/1day1diary/terms/`, 승인된 도메인 `sjunh812.github.io`를 넣어 저장했다.
+      남은 일은 브랜딩 페이지의 [브랜딩 확인]으로 심사를 내는 것뿐이다. 범위는 민감하지 않은 것만 쓰고 게시 상태는 프로덕션이라, 검증 전에도 로그인 사용자 수 제한은 없다.
+- [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 구글 브랜딩이 거는 GitHub Pages(`sjunh812.github.io` 저장소 `1day1diary/`). 고치면 세 곳을 함께 고친다.
 - [x] 기분·날씨 아이콘: 기분 얼굴은 우리가 Figma에서 그린 것을 코드로 옮겼다(`DiaryMoodFace`). 날씨와 화면 아이콘은 Lucide(ISC) 경로를 옮겼고, 빠져 있던 Lucide 고지를 오픈소스 라이선스 목록에 더했다. 같은 때 iOS에만 들어가는 SDK(GoogleSignIn, Firebase, Google Mobile Ads, RevenueCat KMP)도 목록에 더했다(`config/aboutlibraries/`, 2026-11-13)
 - [x] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(2026-11-01 해제, 시험 호출이 401 "Authentication Failed"). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
 - [x] 위치정보지원센터 문의: 하지 않기로 함(2026-11-11 사용자 결정, `docs/DECISIONS.md`)

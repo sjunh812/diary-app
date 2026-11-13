@@ -1498,6 +1498,11 @@ AdMob 콘솔(iOS 앱과 광고 단위)이 계정 재활성화 심사 뒤에야 �
 
 - Firebase(`diary-app`): iOS 앱(`org.sjhstudio.diary`)은 이미 등록돼 있었다. `GoogleService-Info.plist`를 받아 작업 폴더의 `iosApp/iosApp/`에 두었다(저장소 밖, 메인 체크아웃에는 이미 있었음). CD 비밀값 `GOOGLE_SERVICE_INFO_PLIST_BASE64`는 사용자가 넣는다.
 - Google Cloud: iOS OAuth 클라이언트("1일 1일기 iOS")의 번들 ID가 맞다. App Store ID와 팀 ID 칸은 앱과 Apple 팀이 생긴 뒤 넣는다.
-- Google Cloud 동의 화면 브랜딩은 홈페이지·처리방침·약관 링크가 비어 있고 승인된 도메인은 `sjhstudio.org` 하나다. 브랜딩 인증에는 소유를 증명한 도메인의 페이지가 필요한데 처리방침이 있는 `notion.site`는 증명할 수 없어, 어느 도메인에 둘지 정한 뒤 진행한다(바꾸지 않음).
+- Google Cloud 동의 화면 브랜딩은 홈페이지·처리방침·약관 링크가 비어 있었다. 브랜딩 인증에는 소유를 증명한 도메인의 페이지가 필요한데 처리방침이 있는 `notion.site`는 증명할 수 없다.
+  - 사용자가 `sjunh812.github.io`를 골랐다. 블로그 저장소에 `1day1diary/privacy/`, `1day1diary/terms/`로 원문을 올렸다.
+  - Search Console 소유 확인은 블로그에 이미 있던 HTML 파일로 바로 됐다.
+  - 브랜딩에 세 링크와 승인된 도메인 `sjunh812.github.io`를 넣어 저장했다. 옛 도메인 `sjhstudio.org`는 그대로 뒀다.
+  - [브랜딩 확인] 심사 제출은 사용자 확인 뒤에 한다.
+  - 앱과 스토어는 Notion 주소를 그대로 쓴다. 그래서 약관 원문이 세 곳(`docs/legal/`, Notion, GitHub Pages)에 있고, 고칠 때 함께 고친다.
 - RevenueCat: "앱 구성을 추가할 권한이 없다"고 나와 App Store 앱을 만들지 못했다. 이메일 인증 같은 계정 쪽 조건을 사용자가 풀어야 한다.
 - AdMob: iOS 앱과 광고 단위 3개가 있다. "검토 필요·게재 제한"은 App Store에 올라간 뒤 스토어를 연결하면 풀린다.
