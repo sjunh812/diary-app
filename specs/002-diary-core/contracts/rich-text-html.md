@@ -32,13 +32,13 @@ HTML에는 라이트 hex만 저장한다. 그릴 때는 hex로 키를 찾아 지
 | `ink-gray` | 글자색 | `#6B7280` | `#9CA3AF` |
 | `ink-purple` | 글자색 | `#6D28D9` | `#A78BFA` |
 | `ink-pink` | 글자색 | `#BE185D` | `#F472B6` |
-| `mark-yellow` | 형광펜 | `#FEF08A` | `#713F12` |
-| `mark-green` | 형광펜 | `#BBF7D0` | `#14532D` |
-| `mark-blue` | 형광펜 | `#BFDBFE` | `#1E3A8A` |
-| `mark-purple` | 형광펜 | `#DDD6FE` | `#4C1D95` |
-| `mark-pink` | 형광펜 | `#FBCFE8` | `#831843` |
+| `mark-yellow` | 형광펜 | `#FEF08A` | `#4D2B0C` |
+| `mark-green` | 형광펜 | `#BBF7D0` | `#0E3C20` |
+| `mark-blue` | 형광펜 | `#BFDBFE` | `#182E6E` |
+| `mark-purple` | 형광펜 | `#DDD6FE` | `#411980` |
+| `mark-pink` | 형광펜 | `#FBCFE8` | `#641233` |
 
-글자색은 두 테마 바탕(`canvas`, `surface`) 위에서 4.5:1 이상, 형광펜 위 `textPrimary`는 7:1 이상이다. hex 비교는 대소문자를 가리지 않는다.
+글자색은 두 테마 바탕(`canvas`, `surface`) 위에서 4.5:1 이상, 형광펜 위 `textPrimary`는 7:1 이상, 다크의 형광펜 위 글자색은 4.5:1 이상이다(2026-11-13). hex 비교는 대소문자를 가리지 않는다.
 팔레트에 없는 hex는 `span`째 버리고 글은 남긴다.
 
 기본 글자색은 저장 값이 없다. 기본으로 돌리면 `span`의 색이 빠진다. 2026-11-05에 글자색 둘, 형광펜 둘을 더했다. 아직 출시 전이라 백업 형식 버전은 그대로이고, 더하기만 해서 예전 값은 그대로 읽힌다.
