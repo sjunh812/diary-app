@@ -21,7 +21,9 @@ import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
+import org.sjhstudio.diary.core.ui.bodyLookIn
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
@@ -48,9 +50,13 @@ class SettingsViewModel(
     trashCount: Flow<Int>,
     plan: Flow<Plan>,
     showsMigrationReport: suspend () -> Boolean,
+    fontPath: (String) -> String?,
     lastBackupAt: Flow<Instant?> = flowOf(null),
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
+    /** 본문 글자 크기 견본이 고른 글꼴(받은 글꼴 포함)로 그림 */
+    val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fontPath)
+
     /**
      * 이전 상태 파일을 읽지 못하면 줄을 두지 않음
      * 줄 하나 때문에 설정 전체를 못 쓰게 하지 않음

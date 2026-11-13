@@ -10,6 +10,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.feature.settings.FontSettingsScreen
 import org.sjhstudio.diary.feature.settings.FontUiState
 import org.sjhstudio.diary.feature.settings.ReminderSettingsScreen
@@ -45,7 +46,7 @@ private fun ListDark() = SettingsList(dark = true)
 
 @Composable
 private fun TextSize(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), font = DiaryFont.NANUM_CHEER, onSelect = {
+    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), look = BodyLook(DiaryFont.NANUM_CHEER), onSelect = {
     }, onBack = {})
 }
 

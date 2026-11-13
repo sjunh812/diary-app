@@ -34,9 +34,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BodyTextSize
-import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.text_size_note
@@ -52,13 +53,14 @@ import org.sjhstudio.diary.feature.settings.resources.text_size_sample_glyph
 fun TextSizeSettingsScreen(
     selected: BodyTextSize,
     sampleDate: LocalDate,
-    font: DiaryFont,
+    look: BodyLook,
     onSelect: (BodyTextSize) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
+    val installed = rememberFileFontFamily(look.fontPath)
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_text_size), onBack = onBack)
         Column(
@@ -73,7 +75,7 @@ fun TextSizeSettingsScreen(
                 // 일기 상세 제목과 같은 꼴로 보여 줌
                 dates.dayWithWeekday(sampleDate),
                 stringResource(Res.string.text_size_sample_body),
-                diaryBodyTextStyle(font, selected),
+                diaryBodyTextStyle(look.font, selected) { installed },
                 Modifier.padding(top = DiarySpacing.x4)
             )
             Row(Modifier.fillMaxWidth()) {

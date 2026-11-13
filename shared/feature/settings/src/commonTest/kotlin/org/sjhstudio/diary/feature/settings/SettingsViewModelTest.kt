@@ -46,7 +46,7 @@ class SettingsViewModelTest {
 
     @Test
     fun the_report_row_follows_the_migration_state() = runTest(dispatcher) {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { true })
+        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { true }, fontPath = { null })
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -56,7 +56,8 @@ class SettingsViewModelTest {
 
     @Test
     fun an_unreadable_migration_state_leaves_settings_usable() = runTest(dispatcher) {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { error("읽을 수 없음") })
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { error("읽을 수 없음") }, fontPath = { null })
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -67,7 +68,10 @@ class SettingsViewModelTest {
     @Test
     fun the_last_backup_time_comes_with_the_state() = runTest(dispatcher) {
         val at = Instant.parse("2026-11-13T10:48:00Z")
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { false }, flowOf(at))
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
+                false
+            }, fontPath = { null }, lastBackupAt = flowOf(at))
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -76,7 +80,7 @@ class SettingsViewModelTest {
 
     @Test
     fun the_trash_count_and_plan_come_with_the_state() = runTest(dispatcher) {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), flowOf(Plan.PLUS), { false })
+        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), flowOf(Plan.PLUS), { false }, fontPath = { null })
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -87,7 +91,7 @@ class SettingsViewModelTest {
     /** 저장소는 개수를 읽지 못하면 값 없이 끝남. 그래도 설정은 열려야 함 */
     @Test
     fun an_unreadable_trash_count_leaves_settings_usable() = runTest(dispatcher) {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), flowOf(Plan.FREE), { false })
+        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), flowOf(Plan.FREE), { false }, fontPath = { null })
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 

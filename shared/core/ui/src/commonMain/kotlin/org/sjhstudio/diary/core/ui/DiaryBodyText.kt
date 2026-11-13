@@ -44,16 +44,17 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
  * 받기 전이거나 읽지 못하면 Pretendard로 보임(글꼴을 받는 동안에도 일기는 읽힘)
  * 고른 글꼴 하나만 읽음
  * 앱 전체 글자에 씀(헌법 V)
+ * [installed]는 기본값이 없음. 빠뜨리면 받은 글꼴이 Pretendard로 보임
  */
 @Composable
-fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = key(font) {
+fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily?): FontFamily = key(font) {
     // iOS의 Font()는 화면 상태 자리를 씀
     // 글꼴마다 자리를 나누지 않으면 글꼴을 바꿀 때 자리가 어긋나 앱이 멈춤
     fontFamilyOf(font, installed)
 }
 
 @Composable
-private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily? = { null }): FontFamily = when (font) {
+private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?): FontFamily = when (font) {
     DiaryFont.SYSTEM -> FontFamily.Default
     DiaryFont.PRETENDARD -> pretendardFamily()
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
@@ -84,7 +85,7 @@ val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
  * 글자 크기 단계는 일기 본문에만 걸려서 메뉴와 버튼은 이 스타일을 쓰지 않음
  */
 @Composable
-fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily? = { null }): TextStyle =
+fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily?): TextStyle =
     DiaryTheme.typography.reading.copy(
         fontFamily = diaryBodyFontFamily(font, installed),
         fontSize = size.fontSizeSp.sp,
@@ -97,7 +98,7 @@ fun diaryBodyTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFon
  * 본문보다 한 단계 작아야 목록이 빽빽하지 않음
  */
 @Composable
-fun diaryPreviewTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily? = { null }): TextStyle {
+fun diaryPreviewTextStyle(font: DiaryFont, size: BodyTextSize, installed: (DiaryFont) -> FontFamily?): TextStyle {
     val body = DiaryTheme.typography.body
     val ratio = size.fontSizeSp.toFloat() / BodyTextSize.DEFAULT.fontSizeSp
     return body.copy(

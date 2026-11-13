@@ -22,7 +22,7 @@ class MoodNameTest {
         val results = mutableListOf<TextLayoutResult>()
         runComposeUiTest {
             setContent {
-                DiaryTheme(darkTheme = false, fontFamily = diaryBodyFontFamily(font)) {
+                DiaryTheme(darkTheme = false, fontFamily = diaryBodyFontFamily(font) { null }) {
                     Box(Modifier.width(width.dp)) { MoodName(name, selected) }
                 }
             }

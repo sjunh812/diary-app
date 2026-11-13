@@ -9,6 +9,7 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
+import org.sjhstudio.diary.core.platform.FontInstaller
 
 val settingsFeatureModule =
     module {
@@ -24,6 +25,7 @@ val settingsFeatureModule =
                 trashCount = get<TrashRepository>().count(),
                 plan = get<PlanRepository>().plan,
                 showsMigrationReport = { showsMigrationReport(get()) },
+                fontPath = get<FontInstaller>()::installedPath,
                 lastBackupAt = get<BackupRepository>().status.map { it.lastSuccessAt }.distinctUntilChanged(),
                 telemetry = get()
             )

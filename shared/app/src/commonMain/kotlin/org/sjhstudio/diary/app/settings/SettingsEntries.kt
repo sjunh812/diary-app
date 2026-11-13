@@ -205,12 +205,13 @@ fun EntryProviderScope<NavKey>.settingsEntries(push: (NavKey) -> Unit, pop: () -
     entry<TextSizeSettingsKey> {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        val look by viewModel.look.collectAsStateWithLifecycle()
         // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
         if (!state.loaded) return@entry
         TextSizeSettingsScreen(
             selected = state.settings.bodyTextSize,
             sampleDate = rememberToday(),
-            font = state.settings.font,
+            look = look,
             onSelect = viewModel::setBodyTextSize,
             onBack = pop
         )
