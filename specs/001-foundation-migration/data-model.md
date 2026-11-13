@@ -92,7 +92,7 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | `kcc_jeongbeom` | KCC정범체 | 2, 7, 11 |
 | `nanum_jeomggol` | 나눔손글씨 점꼴체 | 3 |
 | `nanum_cheer` | 나눔손글씨 힘내라는 말보단 | 1, 5 |
-| `gangwon_saeum` | 강원교육새음체 | 4, 10 |
+| `rix_watermelon` | 수박양체 | 4, 10 |
 | `sejong_geulggot` | 세종글꽃체 | 6, 13 |
 
 옛 `font_key`가 1, 3, -1, 0, 100이 아니면(같은 글꼴이 없으면) `font_replaced_from`에 옛 이름을 남겨 처음 열 때 한 번 알린다.

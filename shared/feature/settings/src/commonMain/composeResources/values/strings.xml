@@ -46,7 +46,7 @@
     <string name="license_changwon_round">Changwon Dangam Round License</string>
     <string name="license_naver">NAVER font license</string>
     <string name="license_kimjungchul">Kim Jungchul Font License</string>
-    <string name="license_gangwon">Gangwon Education Font License</string>
+    <string name="license_watermelon">Watermelon Yang License</string>
     <string name="license_sejong">Sejong Geulggot License</string>
     <string name="settings_text_size">Diary text size</string>
     <string name="settings_theme">Appearance</string>
@@ -82,7 +82,7 @@
     <string name="font_name_kcc_jeongbeom">KCC Jeongbeom</string>
     <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
     <string name="font_name_nanum_cheer">Nanum Himnaeraneun</string>
-    <string name="font_name_gangwon_saeum">Gangwon Edu Saeeum</string>
+    <string name="font_name_rix_watermelon">Watermelon Yang</string>
     <string name="font_name_sejong_geulggot">Sejong Geulggot</string>
     <string name="font_preview_label">Preview</string>
     <string name="font_preview_sample">The breeze was cool today, so I walked all the way to the river.</string>

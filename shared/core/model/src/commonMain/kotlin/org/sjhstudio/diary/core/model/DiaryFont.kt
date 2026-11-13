@@ -14,7 +14,7 @@ enum class DiaryFont(val id: String) {
     KCC_JEONGBEOM("kcc_jeongbeom"),
     NANUM_JEOMGGOL("nanum_jeomggol"),
     NANUM_CHEER("nanum_cheer"),
-    GANGWON_SAEUM("gangwon_saeum"),
+    RIX_WATERMELON("rix_watermelon"),
     SEJONG_GEULGGOT("sejong_geulggot")
     ;
 
@@ -30,7 +30,7 @@ enum class DiaryFont(val id: String) {
                     "gowun_dodum" to "gmarket_sans",
                     "maru_buri" to "kimjungchul_myungjo",
                     "nanum_pen" to "kcc_jeongbeom",
-                    "gamja_flower" to "gangwon_saeum",
+                    "gamja_flower" to "rix_watermelon",
                     "hi_melody" to "sejong_geulggot"
                 )
     }

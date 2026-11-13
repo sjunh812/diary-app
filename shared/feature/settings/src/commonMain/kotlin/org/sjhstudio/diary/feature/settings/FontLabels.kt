@@ -5,7 +5,6 @@ import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.font_name_changwon_round
-import org.sjhstudio.diary.feature.settings.resources.font_name_gangwon_saeum
 import org.sjhstudio.diary.feature.settings.resources.font_name_gmarket_sans
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_ko
@@ -19,6 +18,7 @@ import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_latin
 import org.sjhstudio.diary.feature.settings.resources.font_name_pretendard
+import org.sjhstudio.diary.feature.settings.resources.font_name_rix_watermelon
 import org.sjhstudio.diary.feature.settings.resources.font_name_sejong_geulggot
 import org.sjhstudio.diary.feature.settings.resources.font_name_sejong_geulggot_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_sejong_geulggot_latin
@@ -52,7 +52,7 @@ internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.KCC_JEONGBEOM -> Res.string.font_name_kcc_jeongbeom
     DiaryFont.NANUM_JEOMGGOL -> Res.string.font_name_nanum_jeomggol
     DiaryFont.NANUM_CHEER -> Res.string.font_name_nanum_cheer
-    DiaryFont.GANGWON_SAEUM -> Res.string.font_name_gangwon_saeum
+    DiaryFont.RIX_WATERMELON -> Res.string.font_name_rix_watermelon
     DiaryFont.SEJONG_GEULGGOT -> Res.string.font_name_sejong_geulggot
 }
 

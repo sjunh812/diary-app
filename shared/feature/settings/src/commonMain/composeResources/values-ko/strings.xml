@@ -41,7 +41,7 @@
     <string name="license_changwon_round">창원단감둥근체 안내</string>
     <string name="license_naver">네이버 글꼴 라이선스</string>
     <string name="license_kimjungchul">김정철 서체 라이선스</string>
-    <string name="license_gangwon">강원교육 서체 안내</string>
+    <string name="license_watermelon">수박양체 안내</string>
     <string name="license_sejong">세종글꽃체 안내</string>
     <string name="settings_text_size">본문 글자 크기</string>
     <string name="settings_theme">화면 모드</string>
@@ -77,7 +77,7 @@
     <string name="font_name_kcc_jeongbeom">KCC정범체</string>
     <string name="font_name_nanum_jeomggol">나눔손글씨 점꼴체</string>
     <string name="font_name_nanum_cheer">힘내라는 말보단</string>
-    <string name="font_name_gangwon_saeum">강원교육새음체</string>
+    <string name="font_name_rix_watermelon">수박양체</string>
     <string name="font_name_sejong_geulggot">세종글꽃체</string>
     <string name="font_preview_label">미리보기</string>
     <string name="font_preview_sample">오늘은 바람이 선선해서 한강까지 걸었다.</string>

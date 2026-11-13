@@ -41,7 +41,7 @@
     <string name="license_changwon_round">Changwon Dangam Round ライセンス</string>
     <string name="license_naver">NAVERフォントライセンス</string>
     <string name="license_kimjungchul">Kim Jungchul フォントライセンス</string>
-    <string name="license_gangwon">Gangwon Education フォントライセンス</string>
+    <string name="license_watermelon">Watermelon Yang ライセンス</string>
     <string name="license_sejong">Sejong Geulggot ライセンス</string>
     <string name="settings_text_size">本文の文字サイズ</string>
     <string name="settings_theme">表示モード</string>
@@ -77,7 +77,7 @@
     <string name="font_name_kcc_jeongbeom">KCC Jeongbeom</string>
     <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
     <string name="font_name_nanum_cheer">Nanum Himnaeraneun</string>
-    <string name="font_name_gangwon_saeum">Gangwon Edu Saeeum</string>
+    <string name="font_name_rix_watermelon">Watermelon Yang</string>
     <string name="font_name_sejong_geulggot">Sejong Geulggot</string>
     <string name="font_preview_label">プレビュー</string>
     <string name="font_preview_sample">今日は風が涼しくて、川沿いまで歩いた。</string>

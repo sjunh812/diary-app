@@ -46,7 +46,7 @@ class StoredIdsTest {
         assertEquals(DiaryFont.GMARKET_SANS, DiaryFont.fromId("gowun_dodum"))
         assertEquals(DiaryFont.KIMJUNGCHUL_MYUNGJO, DiaryFont.fromId("maru_buri"))
         assertEquals(DiaryFont.KCC_JEONGBEOM, DiaryFont.fromId("nanum_pen"))
-        assertEquals(DiaryFont.GANGWON_SAEUM, DiaryFont.fromId("gamja_flower"))
+        assertEquals(DiaryFont.RIX_WATERMELON, DiaryFont.fromId("gamja_flower"))
         assertEquals(DiaryFont.SEJONG_GEULGGOT, DiaryFont.fromId("hi_melody"))
     }
 
@@ -63,7 +63,7 @@ class StoredIdsTest {
                 "kcc_jeongbeom",
                 "nanum_jeomggol",
                 "nanum_cheer",
-                "gangwon_saeum",
+                "rix_watermelon",
                 "sejong_geulggot"
             ),
             DiaryFont.entries.map { it.id }

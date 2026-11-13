@@ -13,10 +13,10 @@ import org.jetbrains.compose.resources.Font
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.changwon_round_regular
-import org.sjhstudio.diary.core.designsystem.resources.gangwon_saeum_regular
 import org.sjhstudio.diary.core.designsystem.resources.gmarket_sans_medium
 import org.sjhstudio.diary.core.designsystem.resources.kcc_jeongbeom_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
+import org.sjhstudio.diary.core.designsystem.resources.rix_watermelon_regular
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.pretendardFamily
 import org.sjhstudio.diary.core.model.AppSettings
@@ -34,7 +34,7 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
         DiaryFont.NANUM_CHEER,
         DiaryFont.CHANGWON_ROUND,
         DiaryFont.GMARKET_SANS,
-        DiaryFont.GANGWON_SAEUM,
+        DiaryFont.RIX_WATERMELON,
         DiaryFont.KCC_JEONGBEOM
     )
 
@@ -60,7 +60,7 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
     DiaryFont.CHANGWON_ROUND -> FontFamily(Font(Res.font.changwon_round_regular))
     DiaryFont.GMARKET_SANS -> FontFamily(Font(Res.font.gmarket_sans_medium))
-    DiaryFont.GANGWON_SAEUM -> FontFamily(Font(Res.font.gangwon_saeum_regular))
+    DiaryFont.RIX_WATERMELON -> FontFamily(Font(Res.font.rix_watermelon_regular))
     DiaryFont.KCC_JEONGBEOM -> FontFamily(Font(Res.font.kcc_jeongbeom_regular))
     else -> installed(font) ?: pretendardFamily()
 }
@@ -75,7 +75,7 @@ val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
         DiaryFont.NANUM_CHEER to "nanum_cheer_regular.ttf",
         DiaryFont.CHANGWON_ROUND to "changwon_round_regular.otf",
         DiaryFont.GMARKET_SANS to "gmarket_sans_medium.ttf",
-        DiaryFont.GANGWON_SAEUM to "gangwon_saeum_regular.ttf",
+        DiaryFont.RIX_WATERMELON to "rix_watermelon_regular.otf",
         DiaryFont.KCC_JEONGBEOM to "kcc_jeongbeom_regular.otf"
     )
 

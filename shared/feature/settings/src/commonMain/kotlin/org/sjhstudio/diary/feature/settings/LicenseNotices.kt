@@ -4,11 +4,11 @@ import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.license_changwon_round
-import org.sjhstudio.diary.feature.settings.resources.license_gangwon
 import org.sjhstudio.diary.feature.settings.resources.license_kimjungchul
 import org.sjhstudio.diary.feature.settings.resources.license_naver
 import org.sjhstudio.diary.feature.settings.resources.license_ofl
 import org.sjhstudio.diary.feature.settings.resources.license_sejong
+import org.sjhstudio.diary.feature.settings.resources.license_watermelon
 
 /**
  * 글꼴 라이선스 갈래
@@ -19,7 +19,7 @@ internal enum class FontLicense(val label: StringResource) {
     NAVER(Res.string.license_naver),
     CHANGWON_ROUND(Res.string.license_changwon_round),
     KIMJUNGCHUL(Res.string.license_kimjungchul),
-    GANGWON(Res.string.license_gangwon),
+    WATERMELON(Res.string.license_watermelon),
     SEJONG(Res.string.license_sejong)
 }
 
@@ -43,6 +43,6 @@ internal val FONT_NOTICES: List<FontLicenseNotice> =
         FontLicenseNotice(DiaryFont.KCC_JEONGBEOM, FontLicense.OFL, "kcc_jeongbeom.txt"),
         FontLicenseNotice(DiaryFont.NANUM_JEOMGGOL, FontLicense.NAVER, "nanum_jeomggol.txt"),
         FontLicenseNotice(DiaryFont.NANUM_CHEER, FontLicense.NAVER, "nanum_cheer.txt"),
-        FontLicenseNotice(DiaryFont.GANGWON_SAEUM, FontLicense.GANGWON, "gangwon_saeum.txt"),
+        FontLicenseNotice(DiaryFont.RIX_WATERMELON, FontLicense.WATERMELON, "rix_watermelon.txt"),
         FontLicenseNotice(DiaryFont.SEJONG_GEULGGOT, FontLicense.SEJONG, "sejong_geulggot.txt")
     )

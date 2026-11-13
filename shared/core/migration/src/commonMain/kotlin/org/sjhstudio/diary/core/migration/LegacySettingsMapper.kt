@@ -63,7 +63,7 @@ object LegacySettingsMapper {
         1, 5 -> DiaryFont.NANUM_CHEER
         2, 7, 11 -> DiaryFont.KCC_JEONGBEOM
         3 -> DiaryFont.NANUM_JEOMGGOL
-        4, 10 -> DiaryFont.GANGWON_SAEUM
+        4, 10 -> DiaryFont.RIX_WATERMELON
         6, 13 -> DiaryFont.SEJONG_GEULGGOT
         8 -> DiaryFont.GOWUN_BATANG
         9, 12 -> DiaryFont.CHANGWON_ROUND
