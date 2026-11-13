@@ -17,6 +17,7 @@
     <string name="insight_top_year">올해는 %1$s이 가장 많았어요</string>
     <string name="insight_top_all">지금까지 %1$s이 가장 많았어요</string>
     <string name="insight_top_past">이 기간엔 %1$s이 가장 많았어요</string>
+    <string name="insight_top_even">기분이 고르게 나뉘었어요</string>
     <string name="insight_mood_join">%1$s, %2$s</string>
     <string name="insight_summary_counts">%1$s · %2$s</string>
     <string name="insight_count_percent">%1$s편 · %2$d%</string>
@@ -47,7 +48,9 @@
     <string name="insight_adv_range_recent">최근 30일</string>
     <string name="insight_adv_range_year">올해</string>
     <string name="insight_adv_range_all">전체</string>
-    <string name="insight_adv_not_enough">일기가 7편 쌓이면 보여 드려요.</string>
+    <plurals name="insight_adv_not_enough">
+        <item quantity="other">일기를 %1$s편 더 쓰면 보여 드려요.</item>
+    </plurals>
     <string name="insight_adv_change_recent">이전 30일과 비교</string>
     <string name="insight_adv_change_year">작년 이맘때와 비교</string>
     <string name="insight_adv_change_good">긍정적인 기분</string>
@@ -86,7 +89,9 @@
     <string name="tip_insight_open">기분을 누르면 그 기분의 일기를 모아 볼 수 있어요.</string>
     <string name="insight_section_moods">자주 선택한 기분</string>
     <string name="insight_adv_no_moods">기분을 선택한 일기가 적어요</string>
-    <string name="insight_adv_no_moods_body">기분을 선택한 일기가 7편 쌓이면 보여 드려요.</string>
+    <plurals name="insight_adv_no_moods_body">
+        <item quantity="other">기분을 선택한 일기가 %1$s편 더 있으면 보여 드려요.</item>
+    </plurals>
     <string name="insight_adv_recent_better">요즘 좋은 날이 많아졌어요 ☀️</string>
     <string name="insight_adv_recent_harder">요즘 힘든 날이 많았네요 ☁️</string>
     <string name="insight_adv_recent_steady">요즘은 평소와 비슷해요 ⛅</string>

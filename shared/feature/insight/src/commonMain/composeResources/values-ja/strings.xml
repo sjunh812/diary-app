@@ -17,6 +17,7 @@
     <string name="insight_top_year">今年は「%1$s」が一番多かったです</string>
     <string name="insight_top_all">これまで「%1$s」が一番多いです</string>
     <string name="insight_top_past">この期間は「%1$s」が一番多かったです</string>
+    <string name="insight_top_even">気分がまんべんなく分かれました</string>
     <string name="insight_mood_join">%1$s、%2$s</string>
     <string name="insight_summary_counts">%1$s・%2$s</string>
     <string name="insight_count_percent">%1$s編・%2$d%</string>
@@ -47,7 +48,9 @@
     <string name="insight_adv_range_recent">過去30日</string>
     <string name="insight_adv_range_year">今年</string>
     <string name="insight_adv_range_all">すべて</string>
-    <string name="insight_adv_not_enough">日記が7件たまると表示します。</string>
+    <plurals name="insight_adv_not_enough">
+        <item quantity="other">あと%1$s件書くと表示します。</item>
+    </plurals>
     <string name="insight_adv_change_recent">前の30日と比較</string>
     <string name="insight_adv_change_year">去年の同じ時期と比較</string>
     <string name="insight_adv_change_good">ポジティブな気分</string>
@@ -86,7 +89,9 @@
     <string name="tip_insight_open">気分をタップすると、該当する日記をまとめて見られます。</string>
     <string name="insight_section_moods">よく選んだ気分</string>
     <string name="insight_adv_no_moods">気分を選んだ日記が少なめです</string>
-    <string name="insight_adv_no_moods_body">気分を選んだ日記が7件たまると調べます。</string>
+    <plurals name="insight_adv_no_moods_body">
+        <item quantity="other">気分を選んだ日記があと%1$s件あると調べます。</item>
+    </plurals>
     <string name="insight_adv_recent_better">最近、いい日が増えてきました ☀️</string>
     <string name="insight_adv_recent_harder">最近、つらい日が多かったようです ☁️</string>
     <string name="insight_adv_recent_steady">最近はいつもどおりです ⛅</string>
