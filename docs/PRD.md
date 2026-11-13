@@ -111,7 +111,7 @@ S6 설정
 원칙(근거):
 
 - 짧게, 두 장. 건너뛸 수 있고, 건너뛴 것은 다시 띄우지 않고 설정에서 다시 볼 수 있게(Apple HIG Onboarding, Material 온보딩의 "장점 최대 3개" 모델).
-- 한 번에 몰아 보여 주기보다 그 기능을 처음 만날 때 맥락 팁으로, 세션당 하나 이하(Apple TipKit, Material feature discovery).
+- 한 번에 몰아 보여 주기보다 그 기능을 처음 만날 때 맥락 팁으로 알리고, 팁마다 닫을 때까지 남긴다(Apple TipKit, Material feature discovery, 2026-11-13).
 - 권한은 그 기능을 처음 쓸 때 묻는다. 구매와 평점 요청은 써 본 뒤에(HIG).
 - 업데이트한 사용자에게는 쓰는 법을 다시 가르치지 않고 바뀐 점만 2~3장으로 보여 준다. 새 사용자는 혜택 중심 3장 이하, 끝나면 바로 쓰기 화면으로 간다
   ([Material 온보딩](https://web.archive.org/web/20191202200312/https://material.io/design/communication/onboarding.html)).

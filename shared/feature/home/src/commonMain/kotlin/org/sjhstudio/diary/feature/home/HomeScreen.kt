@@ -182,7 +182,7 @@ fun HomeRoute(
         header = header,
         listTop = {
             listTop()
-            // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 쌓여 모양 차이가 보일 때, 아직 기본 피드일 때만
+            // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
             // 백업 안내가 떠 있으면 앱이 null을 넘겨 목록 위 안내가 겹치지 않음
             if (onListStyle != null && style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) {
                 ContextTipBar(
@@ -300,8 +300,8 @@ internal fun HomeScreen(
                         val dates = rememberDiaryDateFormat()
                         when (style) {
                             ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                            ListStyle.CARD -> CardList(rows, list, selectedId, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                            ListStyle.PHOTO_GRID -> PhotoGrid(rows, grid, selectedId, dates, onOpen, onMenu, listTop)
+                            ListStyle.CARD -> CardList(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                            ListStyle.PHOTO_GRID -> PhotoGrid(rows, grid, selectedId, today, dates, onOpen, onMenu, listTop)
                         }
                     }
 
@@ -457,7 +457,7 @@ internal fun adOrder(index: Int): Int = (index - FIRST_AD) / AD_EVERY
 internal const val LIST_TOP_ITEMS = 1
 
 /** 목록 보기 팁을 띄우는 일기 수. 이보다 적으면 모양을 바꿔도 차이가 잘 안 보임 */
-private const val LIST_STYLE_TIP_AFTER = 5
+private const val LIST_STYLE_TIP_AFTER = 1
 internal const val LIST_TOP_KEY = "list-top"
 
 private const val FIRST_AD = 4

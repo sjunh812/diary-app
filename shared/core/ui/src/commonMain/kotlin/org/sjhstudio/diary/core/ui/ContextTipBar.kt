@@ -18,7 +18,7 @@ import org.sjhstudio.diary.core.ui.resources.tip_close
 
 /**
  * [tip]을 처음 만날 때 한 번 보임
- * 세션당 하나만 뜸(스펙 004 FR-011)
+ * 안내마다 따로, 닫거나 할 일을 누를 때까지 보임(스펙 004 FR-011)
  * [action]을 누르면 할 일을 한 것이라 다시 띄우지 않음(Apple TipKit `actionPerformed`)
  */
 @Composable

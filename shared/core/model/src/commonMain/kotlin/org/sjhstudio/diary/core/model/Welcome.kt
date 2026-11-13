@@ -19,9 +19,9 @@ enum class ContextTip(val id: String) {
     PHOTO_REORDER("photo_reorder")
 }
 
-/** 세션당 하나, 팁마다 한 번(FR-011). 닫거나 할 일을 누르기 전까지는 그 세션에서 다시 보임 */
+/** 안내마다 따로, 닫거나 할 일을 누를 때까지 보임(FR-011) */
 interface ContextTips {
-    /** 지금 보여도 되면 true. 한 세션에 하나만 받음 */
+    /** 아직 닫지 않은 안내면 true */
     suspend fun claim(tip: ContextTip): Boolean
 
     suspend fun done(tip: ContextTip)
