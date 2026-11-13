@@ -71,17 +71,20 @@ internal fun CardList(
         Modifier.fillMaxSize(),
         state = list,
         // 달 머리는 화면 여백에 맞추고 카드만 안쪽으로
-        contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+        // 카드 사이 12는 카드 위에만 둠. 목록 맨 위 칸과 첫 카드 사이는 피드형과 같은 백업 줄 아래 12(Figma S1-b)
+        contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)
     ) {
         item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.x4)) }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "card" }) { index ->
             val row = rows[index]
             if (row == null) {
-                Box(Modifier.fillMaxWidth().aspectRatio(CARD_PLACEHOLDER_RATIO))
+                Box(Modifier.padding(top = DiarySpacing.x3).fillMaxWidth().aspectRatio(CARD_PLACEHOLDER_RATIO))
             } else {
                 val previous = if (index > 0) rows.peek(index - 1) else null
-                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                Column(
+                    Modifier.padding(top = if (index > 0) DiarySpacing.x3 else Dp.Hairline),
+                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+                ) {
                     if (index > 0 && entryMarks(index, row, previous).newMonth) {
                         DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                     }
