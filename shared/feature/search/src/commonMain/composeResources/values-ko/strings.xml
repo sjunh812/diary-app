@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="search_back">뒤로 가기</string>
-    <string name="search_hint">일기 찾기</string>
+    <string name="search_hint">일기 검색</string>
     <string name="search_clear">지우기</string>
     <string name="search_chip_mood">기분</string>
     <string name="search_chip_more">%1$s 외 %2$d</string>
@@ -17,14 +17,14 @@
     <string name="search_clear_conditions">조건 초기화</string>
     <string name="search_clear_filter">지우기</string>
     <string name="search_done">완료</string>
-    <string name="search_pick_many">여러 개 고를 수 있어요.</string>
+    <string name="search_pick_many">여러 개 선택할 수 있어요.</string>
     <string name="search_range_start">시작일</string>
     <string name="search_range_end">종료일</string>
     <string name="search_range_pick">날짜 선택</string>
-    <string name="search_empty_title">찾는 일기가 없어요</string>
-    <string name="search_empty_body">다른 키워드로 찾거나 조건을 바꿔 보세요.</string>
+    <string name="search_empty_title">검색 결과가 없어요</string>
+    <string name="search_empty_body">다른 키워드로 검색하거나 조건을 바꿔 보세요.</string>
     <plurals name="search_result_count">
         <item quantity="other">%1$s편</item>
     </plurals>
-    <string name="search_idle">키워드를 입력하거나 조건을 고르면 일기를 찾을 수 있어요.</string>
+    <string name="search_idle">키워드를 입력하거나 조건을 선택하면 일기를 검색할 수 있어요.</string>
 </resources>

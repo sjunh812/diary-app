@@ -27,7 +27,7 @@
     <string name="settings_version">앱 버전</string>
     <string name="settings_plus_badge">Plus 이용 중</string>
     <string name="settings_feedback_subject">1일 1일기 피드백</string>
-    <string name="settings_feedback_body">사용 버전: %1$s\nOS: %2$s\n휴대폰 기종: %3$s\n\n여러분의 소중한 의견을 적어 주세요 😊\n</string>
+    <string name="settings_feedback_body">앱 버전: %1$s\nOS: %2$s\n기기: %3$s\n\n불편한 점이나 원하는 기능을 적어 주세요 😊\n</string>
     <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s 주소로 보내 주세요.</string>
     <string name="settings_title">설정</string>
     <string name="settings_group_style">화면</string>
@@ -117,9 +117,9 @@
     <string name="list_style_photo">사진 격자</string>
     <string name="settings_letter">개발자의 편지</string>
     <string name="settings_plus_title">광고 없이, 더 편하게 써요</string>
-    <string name="settings_plus_title_ad_free">일기를 더 넉넉하게 써요</string>
+    <string name="settings_plus_title_ad_free">Plus로 더 편하게</string>
     <string name="settings_dev_mode">개발자 모드</string>
-    <string name="settings_plus_body">일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.</string>
+    <string name="settings_plus_body">한 편에 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.</string>
     <string name="settings_plus_action">Plus 알아보기</string>
     <string name="settings_terms">이용약관</string>
     <string name="settings_privacy">개인정보처리방침</string>

@@ -16,7 +16,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.core.migration.LegacyMigration
@@ -49,22 +48,23 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
     val bundle = koinInject<SupportBundle>()
 
     // 파일을 읽거나 공유 주소를 만들다 실패하면 [failed]를 알림. 화면 범위에서 예외가 새면 앱이 꺼짐
-    fun attempt(failed: StringResource, block: suspend () -> Unit) {
+    fun attempt(failed: suspend () -> String, block: suspend () -> Unit) {
         scope.launch {
             try {
                 block()
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Exception) {
-                onMessage.show(getString(failed))
+                onMessage.show(failed())
             }
         }
     }
+    val noMail: suspend () -> String = { getString(Res.string.migration_mail_missing, SUPPORT_EMAIL) }
     // 저장 창(SAF): 사용자가 고른 곳에만 씀
     val saver =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri: Uri? ->
             if (uri == null) return@rememberLauncherForActivityResult
-            attempt(Res.string.migration_export_failed) {
+            attempt({ getString(Res.string.migration_export_failed) }) {
                 val readme = getString(Res.string.migration_readme)
                 val ok =
                     withContext(Dispatchers.IO) {
@@ -78,13 +78,13 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
     return remember(saver) {
         MigrationActions(
             exportOriginal = {
-                attempt(Res.string.migration_export_failed) {
+                attempt({ getString(Res.string.migration_export_failed) }) {
                     val today = currentDate()
                     saver.launch(getString(Res.string.migration_export_file_name, exportDateStamp(today)))
                 }
             },
             contact = {
-                attempt(Res.string.migration_mail_missing) {
+                attempt(noMail) {
                     val summary = migration.supportSummary()
                     val version = runCatching {
                         context.packageManager.getPackageInfo(context.packageName, 0).versionName
@@ -110,12 +110,12 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
                     try {
                         context.startActivity(intent)
                     } catch (e: ActivityNotFoundException) {
-                        onMessage.show(getString(Res.string.migration_mail_missing))
+                        onMessage.show(noMail())
                     }
                 }
             },
             contactWithAttachment = {
-                attempt(Res.string.support_failed) {
+                attempt({ getString(Res.string.support_failed) }) {
                     val today = currentDate()
                     val fileName = getString(Res.string.support_file_name, exportDateStamp(today))
                     // 사용자가 "첨부해서 문의"를 고를 때만 만듦
@@ -146,7 +146,7 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
                     try {
                         context.startActivity(intent)
                     } catch (e: ActivityNotFoundException) {
-                        onMessage.show(getString(Res.string.migration_mail_missing))
+                        onMessage.show(noMail())
                     }
                 }
             }

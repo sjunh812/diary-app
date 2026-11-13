@@ -7,11 +7,11 @@
     <string name="insight_tab_all">전체</string>
     <string name="insight_previous">이전 기간</string>
     <string name="insight_next">다음 기간</string>
-    <string name="insight_period_sheet_title">기간 고르기</string>
+    <string name="insight_period_sheet_title">기간 선택</string>
     <string name="insight_week_range">%1$s ~ %2$s</string>
     <string name="insight_empty">이 기간에 쓴 일기가 없어요</string>
     <string name="insight_write">일기 쓰기</string>
-    <string name="insight_no_moods">이 기간에 고른 기분이 없어요</string>
+    <string name="insight_no_moods">이 기간에 선택한 기분이 없어요</string>
     <string name="insight_top_week">이번 주엔 %1$s이 가장 많았어요</string>
     <string name="insight_top_month">이번 달엔 %1$s이 가장 많았어요</string>
     <string name="insight_top_year">올해는 %1$s이 가장 많았어요</string>
@@ -58,7 +58,7 @@
     <string name="insight_adv_tab_place">장소</string>
     <string name="insight_adv_share">%1$d%</string>
     <string name="insight_adv_when_empty">일기가 더 쌓이면 보여 드려요.</string>
-    <string name="insight_adv_company">기분마다 자주 나온 날씨·요일·장소</string>
+    <string name="insight_adv_company">기분별 날씨·요일·장소</string>
     <string name="insight_adv_habit">내 기록</string>
     <string name="insight_adv_habit_entries">일기</string>
     <string name="insight_adv_habit_days">작성한 날</string>
@@ -82,21 +82,21 @@
         <item quantity="other">%1$s장</item>
     </plurals>
     <string name="insight_section_days">날짜별 기분</string>
-    <string name="insight_map_hint">한 칸이 하루예요. 색은 그날 고른 기분이에요.</string>
+    <string name="insight_map_hint">한 칸이 하루예요. 색은 그날 선택한 기분이에요.</string>
     <string name="tip_insight_open">기분을 누르면 그 기분의 일기를 모아 볼 수 있어요.</string>
-    <string name="insight_section_moods">자주 고른 기분</string>
-    <string name="insight_adv_no_moods">기분을 고른 일기가 적어요</string>
-    <string name="insight_adv_no_moods_body">기분을 고른 일기가 7편 쌓이면 보여 드려요.</string>
+    <string name="insight_section_moods">자주 선택한 기분</string>
+    <string name="insight_adv_no_moods">기분을 선택한 일기가 적어요</string>
+    <string name="insight_adv_no_moods_body">기분을 선택한 일기가 7편 쌓이면 보여 드려요.</string>
     <string name="insight_adv_recent_better">요즘 좋은 날이 많아졌어요 ☀️</string>
     <string name="insight_adv_recent_harder">요즘 힘든 날이 많았네요 ☁️</string>
     <string name="insight_adv_recent_steady">요즘은 평소와 비슷해요 ⛅</string>
     <string name="insight_adv_recent_steady_body">이전 30일과 크게 다르지 않아요.</string>
     <string name="insight_adv_recent_good_up">이전 30일보다 긍정적인 기분이 늘었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_recent_good_down">이전 30일보다 긍정적인 기분이 줄었어요. %1$d% → %2$d%</string>
-    <string name="insight_adv_recent_hard_up">그 전 30일보다 부정적인 기분이 늘었어요. %1$d% → %2$d%</string>
-    <string name="insight_adv_recent_hard_down">그 전 30일보다 부정적인 기분이 줄었어요. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_up">이전 30일보다 부정적인 기분이 늘었어요. %1$d% → %2$d%</string>
+    <string name="insight_adv_recent_hard_down">이전 30일보다 부정적인 기분이 줄었어요. %1$d% → %2$d%</string>
     <string name="insight_adv_change_hard">부정적인 기분</string>
-    <string name="insight_adv_change_top">자주 고른 기분</string>
+    <string name="insight_adv_change_top">자주 선택한 기분</string>
     <string name="insight_adv_change_before">%1$s →</string>
     <string name="insight_adv_unit_small">10000</string>
     <string name="insight_adv_unit_big">100000000</string>
@@ -104,7 +104,7 @@
     <string name="insight_adv_characters_big">%1$s억 자</string>
     <string name="insight_adv_tone_info">기분을 나눈 기준</string>
     <string name="insight_adv_tone_sheet_title">긍정적인 기분과 부정적인 기분</string>
-    <string name="insight_adv_tone_sheet_body">기분을 고른 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여 줘요.</string>
-    <string name="insight_adv_tone_neutral">세지 않는 기분</string>
+    <string name="insight_adv_tone_sheet_body">기분을 선택한 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여 줘요.</string>
+    <string name="insight_adv_tone_neutral">포함하지 않는 기분</string>
     <string name="insight_adv_tone_ok">확인</string>
 </resources>

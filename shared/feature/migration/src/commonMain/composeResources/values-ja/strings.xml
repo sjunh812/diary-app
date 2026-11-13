@@ -71,7 +71,7 @@
     <string name="migration_export_file_name">1日1日記-元データ-%1$s.zip</string>
     <string name="migration_export_done">元のファイルを保存しました</string>
     <string name="migration_export_failed">元のファイルを保存できませんでした。保存先をもう一度選んでください。</string>
-    <string name="migration_mail_missing">メールアプリが見つかりませんでした。sjunh812@naver.comまでお送りください。</string>
+    <string name="migration_mail_missing">メールアプリが見つかりませんでした。%1$sまでお送りください。</string>
     <string name="migration_mail_subject">[1日1日記] 日記の移行についてのお問い合わせ</string>
     <string name="migration_mail_body">以下の内容は、問題を見つけて直すためだけに使います。日記の内容は含まれていません。\n\nアプリのバージョン：%1$s\nデバイス：%2$s\n止まった段階：%3$s\n問題の種類：%4$s\n試した回数：%5$s\n日記の数：%6$s\n写真の数：%7$s\n読み込めなかった日記の数：%8$s\n\n気になることや起きたことを書いてください。\n</string>
     <string name="migration_readme">1日1日記の元のファイルです。\n\n新しいアプリに移行する前に、以前のアプリ（1.7.x）が使っていた日記をそのまま入れています。\n\n- legacy-snapshot：日記のファイル（note.db）と設定。パスコードは入れていません。\n- media：以前のアプリから移行した写真\n\n日記を復元したいときは、このファイルを削除せずにsjunh812@naver.comまでお問い合わせください。\n</string>

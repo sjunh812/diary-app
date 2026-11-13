@@ -28,7 +28,7 @@
     <string name="backup_finding_title">백업을 찾고 있어요</string>
     <string name="backup_finding_body">구글 드라이브에 있는 백업을 확인하는 중이에요.</string>
     <string name="backup_first_title">첫 백업을 준비했어요</string>
-    <string name="backup_first_body">지금 백업을 누르면 일기와 사진을 올려요.</string>
+    <string name="backup_first_body">[지금 백업]을 누르면 일기와 사진을 올려요.</string>
     <string name="backup_last">마지막 백업 %1$s</string>
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">계정</string>
@@ -77,7 +77,7 @@
     <string name="restore_preview_title">이 백업을 합칠게요</string>
     <string name="restore_preview_body">%1$s · %2$s 백업이에요.\n지금 휴대폰의 일기는 그대로 두고 합쳐요.</string>
     <string name="restore_value_added">추가할 일기</string>
-    <string name="restore_value_updated">최근에 수정한 쪽으로 바뀔 일기</string>
+    <string name="restore_value_updated">최근에 수정한 버전으로 바뀔 일기</string>
     <string name="restore_value_both">둘 다 남길 일기</string>
     <string name="restore_value_photos">받을 사진</string>
     <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 알림 설정도 백업할 때의 설정으로 바뀌어요.</string>
@@ -100,30 +100,30 @@
     <string name="restore_see_entries">일기 먼저 보기</string>
     <string name="restore_done_nothing">백업을 합쳤어요</string>
     <string name="restore_done_body">지금 휴대폰의 일기는 그대로 있어요.</string>
-    <string name="restore_note_both_body">양쪽에서 수정한 일기예요. 목록에 표시해 뒀어요.</string>
-    <string name="restore_note_original_body">백업할 때 공간이 부족했던 사진이에요. 원래 휴대폰에서 다시 백업하면 여기서도 볼 수 있어요.</string>
+    <string name="restore_note_both_body">두 기기에서 따로 수정한 일기예요. 목록에 표시해 뒀어요.</string>
+    <string name="restore_note_original_body">백업할 때 공간이 부족했던 사진이에요. 백업한 휴대폰에서 다시 백업하면 여기서도 볼 수 있어요.</string>
     <string name="restore_note_pending_body">앱을 다시 열면 이어서 받아요.</string>
     <string name="restore_note_pending_file_body">이 파일에는 없는 사진이에요. 드라이브에 백업해 두었다면 연결했을 때 받아요.</string>
     <string name="restore_note_pending_space_body">휴대폰 저장 공간이 부족해서 멈췄어요. 공간을 비운 뒤 앱을 다시 열면 이어서 받아요.</string>
     <string name="restore_wait_running">사진을 받고 있어요.</string>
     <string name="restore_wait_network">인터넷에 연결되면 이어서 받아요.</string>
-    <string name="restore_wait_wifi">Wi-Fi에 연결되면 이어서 받아요. 모바일 데이터로 받으려면 지금 받기를 눌러 주세요.</string>
+    <string name="restore_wait_wifi">Wi-Fi에 연결되면 이어서 받아요. 모바일 데이터로 받으려면 [지금 받기]를 눌러 주세요.</string>
     <string name="restore_wait_account">드라이브 연결이 끊겨서 멈췄어요. 다시 연결하면 이어서 받아요.</string>
-    <string name="restore_wait_file">복원한 파일을 다시 고르면 남은 사진을 받아요.</string>
+    <string name="restore_wait_file">복원한 파일을 다시 선택하면 남은 사진을 받아요.</string>
     <string name="restore_wait_now">지금 받기</string>
-    <string name="restore_wait_pick">파일 고르기</string>
+    <string name="restore_wait_pick">파일 선택</string>
     <string name="restore_note_missing_body">백업할 때와 파일이 달라서 찾을 수 없는 사진으로 표시했어요.</string>
-    <string name="restore_lock_title">잠금을 다시 정해 주세요</string>
+    <string name="restore_lock_title">잠금을 다시 설정해 주세요</string>
     <string name="restore_lock_body">백업한 휴대폰에서 잠금을 쓰고 있었어요. 비밀번호는 백업하지 않아요.</string>
-    <string name="restore_lock_action">정하기</string>
+    <string name="restore_lock_action">설정하기</string>
     <string name="restore_start">확인</string>
     <string name="restore_failed_busy_title">복원이 끝난 뒤에 해 주세요</string>
-    <string name="restore_failed_busy_body">지금 복원하고 있어요. 끝나면 다른 백업을 고를 수 있어요.</string>
+    <string name="restore_failed_busy_body">지금 복원하고 있어요. 끝나면 다른 백업을 선택할 수 있어요.</string>
     <string name="restore_failed_mismatch_title">백업을 확인하지 못했어요</string>
     <string name="restore_failed_mismatch_body">받은 파일이 백업할 때와 달라서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="restore_failed_other_title">복원하지 못했어요</string>
     <string name="restore_failed_other_body">인터넷 연결을 확인하고 다시 시도해 주세요. 휴대폰의 기록은 그대로 있어요.</string>
-    <string name="restore_pick_other">다른 백업 고르기</string>
+    <string name="restore_pick_other">다른 백업 선택</string>
     <string name="restore_found_title">구글 드라이브에 백업이 있어요</string>
     <string name="restore_found_body">지금 휴대폰의 일기는 그대로 두고 합쳐요.</string>
     <string name="restore_found_later">나중에</string>
@@ -136,10 +136,10 @@
     <plurals name="restore_done_updated"><item quantity="other">일기 %1$s편을 최신으로 바꿨어요</item></plurals>
     <plurals name="restore_done_photos"><item quantity="other">사진 %1$s장도 모두 받았어요.</item></plurals>
     <plurals name="restore_note_both"><item quantity="other">둘 다 남긴 일기 %1$s편</item></plurals>
-    <plurals name="restore_note_original"><item quantity="other">원래 휴대폰에 있는 사진 %1$s장</item></plurals>
+    <plurals name="restore_note_original"><item quantity="other">백업한 휴대폰에 있는 사진 %1$s장</item></plurals>
     <plurals name="restore_note_pending"><item quantity="other">아직 못 받은 사진 %1$s장</item></plurals>
     <plurals name="restore_note_missing"><item quantity="other">확인하지 못한 사진 %1$s장</item></plurals>
-    <plurals name="restore_not_in_backup"><item quantity="other">사진 %1$s장은 백업에 없어요. 원래 휴대폰에 있어요.</item></plurals>
+    <plurals name="restore_not_in_backup"><item quantity="other">사진 %1$s장은 백업에 없어요. 백업한 휴대폰에 남아 있어요.</item></plurals>
     <string name="restore_group_legacy">예전 앱 백업</string>
     <string name="restore_legacy_row">예전 앱이 올린 백업 · 사진 없음</string>
     <plurals name="restore_more_backups"><item quantity="other">이전 백업 %1$s개 더 보기</item></plurals>
@@ -159,7 +159,7 @@
     <string name="backup_alert_title">7일 동안 백업하지 못했어요</string>
     <string name="backup_alert_auth">구글 계정 연결이 끊겼어요. 눌러서 다시 연결해 주세요.</string>
     <string name="backup_alert_space">드라이브 공간이 부족해요. 눌러서 확인해 주세요.</string>
-    <string name="backup_alert_offline">인터넷에 연결되지 않았어요. 연결되면 이어서 올려요.</string>
+    <string name="backup_alert_offline">인터넷에 연결되어 있지 않아요. 연결되면 이어서 올려요.</string>
     <string name="backup_alert_other">앱을 열어 백업 상태를 확인해 주세요.</string>
     <string name="backup_channel">백업</string>
     <string name="backup_nudge_entries_photos">%1$s과 %2$s이 이 휴대폰에만 있어요</string>
@@ -171,7 +171,7 @@
     <string name="restore_replace_title">이 백업으로 바꿀까요?</string>
     <string name="restore_replace_action">바꾸기</string>
     <string name="restore_failed_space_title">휴대폰 저장 공간이 부족해요</string>
-    <string name="restore_failed_space_body">지금 일기를 보관해 둘 공간이 없어서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
+    <string name="restore_failed_space_body">지금 휴대폰의 일기를 보관해 둘 공간이 부족해서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="backup_folder_title">백업 폴더를 새로 만들었어요</string>
     <string name="backup_folder_body">삭제한 폴더는 드라이브 휴지통에서 30일 동안 복원할 수 있어요.</string>
     <string name="backup_folder_ok">확인</string>
@@ -204,9 +204,9 @@
     <string name="file_restore_body">옮겨 온 백업 파일을 골라 지금 일기와 합쳐요.</string>
     <string name="file_action">파일 만들기</string>
     <string name="file_writing">파일을 만들고 있어요</string>
-    <string name="file_write_failed">파일을 끝까지 쓰지 못했어요. 저장한 곳의 파일은 삭제하고 다시 만들어 주세요. 휴대폰의 기록은 그대로 있어요.</string>
+    <string name="file_write_failed">파일을 끝까지 만들지 못했어요. 저장한 곳의 파일은 삭제하고 다시 만들어 주세요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_reading">파일을 확인하고 있어요</string>
-    <string name="file_write_failed_removed">파일을 끝까지 쓰지 못해서 만들던 파일을 삭제했어요. 휴대폰의 기록은 그대로 있어요.</string>
+    <string name="file_write_failed_removed">파일을 끝까지 만들지 못해서 만들던 파일을 삭제했어요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_stop_title">파일 만들기를 멈출까요?</string>
     <string name="file_stop_body">지금 나가면 만들던 파일을 삭제해요. 휴대폰의 기록은 그대로 있어요.</string>
     <string name="file_stop_action">멈추기</string>
@@ -230,24 +230,24 @@
     <string name="backup_space_retry">다시 백업</string>
     <plurals name="backup_space_photos"><item quantity="other">일기 글은 모두 올렸어요. 사진 %1$s장을 마저 올리려면 드라이브에 %2$s가 더 필요해요.</item></plurals>
     <string name="restore_contact">문의하기</string>
-    <string name="backup_interrupted_body">올린 사진은 그대로예요. 지금 백업을 누르면 이어서 올려요.</string>
+    <string name="backup_interrupted_body">올린 사진은 그대로예요. [지금 백업]을 누르면 이어서 올려요.</string>
     <string name="backup_restored_title">%1$s 백업으로 복원했어요</string>
     <string name="backup_restored_body">지금 백업하면 이 휴대폰의 일기까지 드라이브에 올려요.</string>
-    <string name="backup_done_title">백업을 마쳤어요</string>
+    <string name="backup_done_title">백업을 완료했어요</string>
     <string name="backup_done_body">일기와 사진을 드라이브에 모두 올렸어요.</string>
     <string name="backup_done_left">사진 %1$s장은 Wi-Fi에 연결되면 올려요.</string>
-    <string name="backup_stopped_title">백업을 끝내지 못했어요</string>
-    <string name="restore_stopped_title">복원을 마치지 못했어요</string>
+    <string name="backup_stopped_title">백업을 완료하지 못했어요</string>
+    <string name="restore_stopped_title">복원을 완료하지 못했어요</string>
     <string name="restore_see_result">보기</string>
-    <string name="restore_notice_title">복원을 마쳤어요</string>
+    <string name="restore_notice_title">복원을 완료했어요</string>
     <string name="restore_notice_body">일기와 사진을 모두 복원했어요.</string>
     <string name="restore_notice_stopped_title">사진을 다 받지 못했어요</string>
     <string name="restore_notice_some">받지 못한 사진이 있어요. 앱에서 확인해 주세요.</string>
     <string name="restore_notice_left">남은 사진은 앱을 열면 이어서 받아요.</string>
-    <string name="backup_failed_offline">인터넷에 연결되지 않았어요. 연결한 뒤 지금 백업을 눌러 주세요.</string>
+    <string name="backup_failed_offline">인터넷에 연결되어 있지 않아요. 연결한 뒤 [지금 백업]을 눌러 주세요.</string>
     <string name="backup_failed_drive">구글 드라이브가 응답하지 않아요. 잠시 뒤 [지금 백업]을 눌러 주세요.</string>
-    <string name="backup_failed_local">이 휴대폰에서 파일을 읽거나 쓰지 못했어요. 저장 공간을 확인하고 지금 백업을 눌러 주세요.</string>
-    <string name="backup_line_failed">백업을 끝내지 못했어요</string>
+    <string name="backup_failed_local">이 휴대폰에서 파일을 읽거나 쓰지 못했어요. 저장 공간을 확인하고 [지금 백업]을 눌러 주세요.</string>
+    <string name="backup_line_failed">백업을 완료하지 못했어요</string>
     <string name="backup_status_failed">백업 상태를 불러오지 못했어요</string>
     <string name="backup_skip_empty">아직 백업할 일기가 없어요</string>
     <string name="backup_skip_busy">다른 작업이 끝난 뒤에 다시 눌러 주세요</string>
