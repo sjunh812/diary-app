@@ -83,7 +83,8 @@ class RestoreController(
     private val gate: BackupGate = BackupGate(),
     private val scheduler: BackupScheduler = NoBackupScheduler,
     private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE },
-    private val clock: Clock = Clock.System
+    private val clock: Clock = Clock.System,
+    private val lockOnHere: suspend () -> Boolean = { false }
 ) : RestoreRepository {
     private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
     override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
@@ -479,7 +480,8 @@ class RestoreController(
             photosPending = left - onOriginal,
             fromFile = ready.bundle != null,
             photosOnOriginal = onOriginal,
-            lockWasOn = ready.manifest.settings.lockEnabled,
+            // 이 휴대폰에 이미 잠금이 있으면 다시 설정하라고 하지 않음
+            lockWasOn = ready.manifest.settings.lockEnabled && !lockOnHere(),
             photosStop = stop
         )
     }

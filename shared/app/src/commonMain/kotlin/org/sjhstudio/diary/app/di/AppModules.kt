@@ -369,7 +369,8 @@ private val backupModule =
                 workDir = work,
                 applySettings = applyBackup,
                 scope = get(APP_SCOPE),
-                gate = get()
+                gate = get(),
+                lockOnHere = { get<LockRepository>().settings.first().enabled }
             )
         }
     }
