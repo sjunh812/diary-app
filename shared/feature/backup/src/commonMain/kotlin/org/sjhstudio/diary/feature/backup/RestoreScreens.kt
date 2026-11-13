@@ -86,6 +86,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_no_space
 import org.sjhstudio.diary.feature.backup.resources.restore_not_in_backup
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_body
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_title
+import org.sjhstudio.diary.feature.backup.resources.restore_preview_title_nothing
 import org.sjhstudio.diary.feature.backup.resources.restore_preview_top
 import org.sjhstudio.diary.feature.backup.resources.restore_replace_action
 import org.sjhstudio.diary.feature.backup.resources.restore_replace_body
@@ -274,7 +275,8 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Hero(
             DiaryIcons.GitMerge,
-            stringResource(Res.string.restore_preview_title),
+            // 합칠 일기와 사진이 없으면 그렇다고 먼저 알림. 합치면 설정만 바뀜
+            stringResource(if (preview.nothingNew) Res.string.restore_preview_title_nothing else Res.string.restore_preview_title),
             stringResource(Res.string.restore_preview_body, deviceName(entry), whenText(entry)),
             fill = false
         )
@@ -533,3 +535,6 @@ internal fun Bottom(content: @Composable ColumnScope.() -> Unit) {
 
 /** 휴대폰마다 먼저 보이는 최근 백업 수 */
 private const val RECENT_PER_DEVICE = 2
+
+private val RestorePreview.nothingNew: Boolean
+    get() = entriesAdded == 0 && entriesUpdated == 0 && entriesKeptBoth == 0 && photosToDownload == 0

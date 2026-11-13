@@ -75,6 +75,7 @@
     <string name="restore_retry">다시 시도</string>
     <string name="restore_preview_top">복원하기</string>
     <string name="restore_preview_title">이 백업을 합칠게요</string>
+    <string name="restore_preview_title_nothing">이 백업의 일기는 이미 모두 있어요</string>
     <string name="restore_preview_body">%1$s · %2$s 백업이에요.\n지금 휴대폰의 일기는 그대로 두고 합쳐요.</string>
     <string name="restore_value_added">추가할 일기</string>
     <string name="restore_value_updated">최근에 수정한 버전으로 바뀔 일기</string>
@@ -197,7 +198,7 @@
     <string name="file_place_title">원하는 곳에 저장해요</string>
     <string name="file_place_body">휴대폰 저장소나 다른 클라우드 앱 중에서 골라요.</string>
     <string name="file_move_title">새 휴대폰으로 직접 옮겨요</string>
-    <string name="file_move_body">컴퓨터로 복사하거나 클라우드 앱으로 옮겨요. 파일이 커서 메신저로는 보내기 어려워요.</string>
+    <string name="file_move_body">컴퓨터로 복사하거나 클라우드 앱으로 옮겨요. 사진이 많으면 파일이 커서 메신저로는 보내기 어려울 수 있어요.</string>
     <string name="file_trust_title">믿을 수 있는 곳에만 두세요</string>
     <string name="file_trust_body">파일에는 일기 글과 사진이 그대로 들어 있어요.</string>
     <string name="file_restore">파일에서 복원하기</string>
