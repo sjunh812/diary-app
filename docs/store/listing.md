@@ -265,6 +265,42 @@ Plusについて
 プライバシーポリシー: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
 ```
 
+## App Store 부제·홍보 문구·키워드
+
+App Store에만 있는 칸이다. 이름과 부제의 낱말은 이미 검색에 잡혀 키워드에 다시 넣지 않고, 키워드는 쉼표로만 나눈다(Apple 안내). 앱 이름은 위 "앱 이름"과 같다(세 언어 모두 30자 안). 홍보 문구는 심사 없이 바꿀 수 있다.
+
+| 칸 | 한국어 | 영어 | 일본어 |
+| --- | --- | --- | --- |
+| 부제(30자) | 기분 고르고 몇 줄이면 오늘 일기 끝 | Pick a mood, write a few lines | 気分を選んで、数行書くだけ |
+
+홍보 문구(170자)
+
+```text
+회원가입 없이 바로 써요. 기분을 고르고 몇 줄만 남기면 오늘 일기 끝. 일기는 휴대폰에 저장되고, 원하면 사진까지 내 구글 드라이브에 백업할 수 있어요.
+```
+
+```text
+No sign-up. Pick a mood, write a few lines, and today's entry is done. Entries stay on your phone, and you can back them up, photos included, to your own Google Drive.
+```
+
+```text
+会員登録なしですぐ使えます。気分を選んで数行書けば今日の日記は完了。日記はスマートフォンに保存され、写真も含めて自分のGoogleドライブにバックアップできます。
+```
+
+키워드(100자)
+
+```text
+다이어리,감정,기분,무드,하루,기록,사진,한줄,메모,잠금,비밀,백업,캘린더,감사,습관,회고,일상,마음,데일리
+```
+
+```text
+mood,daily,log,feelings,tracker,photo,private,lock,backup,calendar,gratitude,notes,memories,reflect
+```
+
+```text
+ダイアリー,気分,感情,記録,写真,一行,メモ,ロック,バックアップ,カレンダー,感謝,習慣,ライフログ,振り返り,日常,デイリー
+```
+
 ## 맞춤 스토어 등록정보
 
 "1일 1일기"(검색 키워드 대상). 문구와 그래픽은 기본 등록정보를 그대로 물려받는다(그룹 애셋 상속). 검색 키워드는 일기, 일기장, 다이어리, 일기 앱, 감정 일기, 기분 일기, 하루 일기, 사진 일기, 비밀 일기다(2026-11-12).
