@@ -3,11 +3,8 @@ package org.sjhstudio.diary.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.model.AppSettings
@@ -15,12 +12,15 @@ import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.ui.WhileUiSubscribed
+import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
+import org.sjhstudio.diary.core.ui.stateInSafely
 
 /**
- * 매일 알림(R1) 상태.
- * [notificationsAllowed]는 아직 모르면 null이다.
- * 알림을 꺼 두면 허용 안내를 보이지 않는다.
+ * 매일 알림(R1) 상태
+ * [notificationsAllowed]는 아직 모르면 null.
+ * 알림을 꺼 두면 허용 안내를 보이지 않음
  */
 data class ReminderUiState(
     val enabled: Boolean = false,
@@ -32,8 +32,8 @@ data class ReminderUiState(
 }
 
 /**
- * 매일 알림 켜기·끄기와 시각.
- * 바꿀 때마다 다시 예약한다(스펙 001 FR-022).
+ * 매일 알림 켜기·끄기와 시각
+ * 바꿀 때마다 다시 예약(스펙 001 FR-022)
  */
 class ReminderSettingsViewModel(
     private val settings: SettingsRepository,
@@ -45,11 +45,11 @@ class ReminderSettingsViewModel(
 
     val state: StateFlow<ReminderUiState> =
         combine(settings.settings, allowed) { app, granted -> ReminderUiState(app.reminderEnabled, app.reminderMinuteOfDay, granted) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ReminderUiState())
+            .stateInSafely(viewModelScope, WhileUiSubscribed, ReminderUiState())
 
-    /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽는다. */
+    /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽음 */
     fun refreshPermission() {
-        viewModelScope.launch { allowed.value = permission.isGranted() }
+        viewModelScope.launchSafely { allowed.value = permission.isGranted() }
     }
 
     fun setEnabled(enabled: Boolean) {
@@ -57,8 +57,8 @@ class ReminderSettingsViewModel(
             settings.setReminder(enabled, state.value.minuteOfDay)
             reminder.reschedule()
         }
-        // 켜고 끈 것만 보낸다.
-        // 시각은 보내지 않는다(contracts/app-shell.md 사용 통계 고정 표).
+        // 켜고 끈 것만 보냄
+        // 시각은 보내지 않음(contracts/app-shell.md 사용 통계 고정 표)
         telemetry.log(AnalyticsEvents.SETTINGS_CHANGED, mapOf("name" to "reminder", "value" to enabled.toString()))
     }
 

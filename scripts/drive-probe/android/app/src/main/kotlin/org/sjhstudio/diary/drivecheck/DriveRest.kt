@@ -5,9 +5,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
-// 드라이브 REST v3를 가장 단순하게 부른다.
-// 확인용이라 라이브러리 없이 HttpURLConnection만 쓴다.
-// 토큰은 어디에도 남기지 않는다.
+// 드라이브 REST v3 최소 호출
+// 확인용이라 라이브러리 없이 HttpURLConnection만 사용
+// 토큰은 어디에도 남기지 않음
 object DriveRest {
     private const val FIELDS = "id,name,size,createdTime,appProperties,sha256Checksum,md5Checksum"
 
@@ -61,7 +61,7 @@ object DriveRest {
         return (0 until files.length()).map { files.getJSONObject(it) }
     }
 
-    // 지우지 않고 드라이브 휴지통으로 옮긴다(30일 안에 복원할 수 있음).
+    // 삭제하지 않고 드라이브 휴지통으로 이동(30일 안에 복원 가능)
     fun trash(token: String, fileId: String) {
         request(
             "PATCH",
@@ -74,7 +74,7 @@ object DriveRest {
 
     private fun request(method: String, url: String, token: String, body: ByteArray? = null, contentType: String? = null): String {
         val conn = URL(url).openConnection() as HttpURLConnection
-        // HttpURLConnection은 PATCH를 몰라서 POST에 덮어쓰기 머리글을 단다.
+        // HttpURLConnection에 PATCH가 없어 POST에 메서드 덮어쓰기 헤더 추가
         if (method == "PATCH") {
             conn.requestMethod = "POST"
             conn.setRequestProperty("X-HTTP-Method-Override", "PATCH")

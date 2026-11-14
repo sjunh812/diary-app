@@ -15,6 +15,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.feature.lock.resources.Res
+import org.sjhstudio.diary.feature.lock.resources.lock_note_no_device_lock
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_again
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_mismatch
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_note
@@ -22,9 +23,10 @@ import org.sjhstudio.diary.feature.lock.resources.pin_setup_save_failed
 import org.sjhstudio.diary.feature.lock.resources.pin_setup_title
 
 /**
- * 비밀번호 정하기(Figma "비밀번호 정하기 (L2)", FR-019).
- * 두 번 넣어 같으면 정한다.
- * 휴대폰 잠금을 아는 사람도 일기를 열 수 있다는 점을 미리 알린다.
+ * 비밀번호 정하기(Figma "비밀번호 정하기 (L2)", FR-019)
+ * 두 번 넣어 같으면 정함
+ * 휴대폰 잠금을 아는 사람도 일기를 열 수 있다는 점을 미리 알림
+ * 화면 잠금이 없으면([deviceSecure]가 false) 잊으면 다시 설정할 수 없다고 알림
  */
 @Composable
 fun PinSetupScreen(
@@ -32,6 +34,7 @@ fun PinSetupScreen(
     onDigit: (Char) -> Unit,
     onDelete: () -> Unit,
     onBack: () -> Unit,
+    deviceSecure: Boolean,
     modifier: Modifier = Modifier
 ) {
     PinEntryLayout(
@@ -47,21 +50,21 @@ fun PinSetupScreen(
         modifier = modifier.pinKeys(enabled = !state.saving, onDigit = onDigit, onDelete = onDelete),
         top = {
             DiaryTopBar(title = "", onBack = onBack)
-            // 상단 바가 있어도 배지는 잠금 화면과 같은 자리에 온다.
+            // 상단 바가 있어도 배지는 잠금 화면과 같은 자리
             Spacer(Modifier.height(BadgeTop - DiarySpacing.x14))
         },
         middle = {
             if (!state.again) {
                 Spacer(Modifier.height(DiarySpacing.x2))
                 DiaryNotice(
-                    stringResource(Res.string.pin_setup_note),
+                    stringResource(if (deviceSecure) Res.string.pin_setup_note else Res.string.lock_note_no_device_lock),
                     Modifier.widthIn(max = DiaryWriteSize.settingsMax).padding(horizontal = LocalScreenGutter.current)
                 )
             }
         }
     ) {
         DiaryNumberPad(onDigit = onDigit, onDelete = onDelete, enabled = !state.saving)
-        // 잠금 화면의 "비밀번호를 잊어버렸어요" 줄만큼 비워 숫자판 자리를 맞춘다.
+        // 잠금 화면의 "비밀번호를 잊어버렸어요" 줄만큼 비워 숫자판 자리를 맞춤
         Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x2))
     }
 }

@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.room3.useReaderConnection
 import androidx.room3.withWriteTransaction
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
@@ -9,28 +10,32 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.IOException
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
+import org.sjhstudio.diary.core.database.ENTRIES_FINGERPRINT
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.SyncBaseEntity
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.RollbackInfo
+import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.platform.FreeSpace
 
 /**
- * 되돌릴 사본을 둘 자리가 없다.
- * 바꾸기를 시작하지 않아서 기기의 기록은 그대로다.
+ * 되돌릴 사본을 둘 자리가 없음
+ * 바꾸기를 시작하지 않아 기기의 기록은 그대로
  */
 class NoRoomForRollback : Exception("no room for the rollback copy")
 
 /**
- * 바꾸기와 7일 되돌리기(contracts/merge-rules.md).
- * 바꾸기는 기기 일기를 비우는 유일한 길이라서
- * 사본을 뜨고 열어서 확인한 뒤에만 비운다.
- * 7일이 지나기 전에는 사진 정리도 멈춘다.
+ * 바꾸기와 7일 되돌리기(contracts/merge-rules.md)
+ * 바꾸기는 기기 일기를 비우는 유일한 길이라
+ * 사본을 뜨고 열어서 확인한 뒤에만 비움
+ * 7일이 지나기 전에는 사진 정리도 멈춤
  */
 class RollbackManager(
     private val db: DiaryDatabase,
@@ -47,14 +52,17 @@ class RollbackManager(
     private val json = Json { ignoreUnknownKeys = true }
 
     /**
-     * 사본은 `rollback/<되돌릴 수 있는 마지막 시각>/`에 둔다.
-     * 저장해 둔 그 시각이 지금 쓸 사본을 가리킨다.
+     * 사본은 `rollback/<되돌릴 수 있는 마지막 시각>/`에 둠
+     * 저장해 둔 그 시각이 지금 쓸 사본을 가리킴
      */
     private fun slot(until: Instant) = dir / until.toEpochMilliseconds().toString()
 
     private fun copyIn(slot: Path) = slot / "diary.db"
 
     private fun settingsIn(slot: Path) = slot / "settings.json"
+
+    /** 바꾸기가 넣은 일기 ID. 되돌릴 때 이 밖의 일기는 모두 남김 */
+    private fun insertedIn(slot: Path) = slot / "inserted.json"
 
     val info: Flow<RollbackInfo?> = store.prefs.map { prefs -> prefs.rollbackUntil?.takeIf { it > clock.now() }?.let { info(it) } }
 
@@ -71,16 +79,16 @@ class RollbackManager(
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            // 사본이 깨졌으면 되돌릴 수 없으니 안내를 감춘다.
-            // 화면 흐름을 죽이지 않는다.
+            // 사본이 깨졌으면 되돌릴 수 없으니 안내를 숨김
+            // 화면 흐름을 죽이지 않음
             null
         }
     }
 
     /**
-     * 사본을 새 자리에 만들고 확인한 뒤 한 트랜잭션으로 백업 내용으로 바꾼다.
-     * 끝나기 전에는 앞선 사본을 지우지 않는다.
-     * 실패해도 앞선 바꾸기는 되돌릴 수 있고, 일기 사본도 남기지 않는다.
+     * 사본을 새 자리에 만들고 확인한 뒤 한 트랜잭션으로 백업 내용으로 바꿈
+     * 끝나기 전에는 앞선 사본을 지우지 않음
+     * 실패해도 앞선 바꾸기는 되돌릴 수 있고, 일기 사본도 남기지 않음
      */
     suspend fun replace(backup: List<MergeEntry>, source: String) {
         val needed = databaseBytes() * 2
@@ -88,15 +96,18 @@ class RollbackManager(
         val until = clock.now() + KEEP_FOR
         val slot = slot(until)
         val copy = copyIn(slot)
+        val before = store.current().rollbackUntil
         var replaced = false
         try {
             fileSystem.createDirectories(slot)
             SnapshotWriter(db, fileSystem).copyInto(copy)
-            check(countIn(copy, "SELECT COUNT(*) FROM entry") == db.backupDao().entryRows() && integrityOk(copy)) {
-                "rollback copy does not match"
-            }
+            check(integrityOk(copy)) { "rollback copy is damaged" }
+            val copied = textIn(copy, ENTRIES_FINGERPRINT)
             fileSystem.write(settingsIn(slot)) { writeUtf8(json.encodeToString(ManifestSettings.serializer(), currentSettings())) }
+            fileSystem.write(insertedIn(slot)) { writeUtf8(json.encodeToString(IDS, backup.map { it.entry.id })) }
             db.withWriteTransaction {
+                // 사본을 뜬 뒤에 저장한 일기는 사본에 없음. 비우기 직전에 다시 견줘 다르면 멈춤
+                check(db.backupDao().entriesFingerprint() == copied) { "rollback copy does not match" }
                 clearAll()
                 applier.apply(applier.plan(backup), source)
                 db.draftDao().markAllEntriesChanged()
@@ -104,14 +115,18 @@ class RollbackManager(
             }
             replaced = true
         } finally {
-            if (!replaced) fileSystem.deleteRecursively(slot)
+            if (!replaced) {
+                fileSystem.deleteRecursively(slot)
+                // 되돌릴 시각은 트랜잭션 안에서 먼저 적힘. 커밋이 실패했으면 앞선 바꾸기의 시각으로 돌려 그 사본을 계속 가리키게 함
+                quietly { store.update { it.copy(rollbackUntil = before) } }
+            }
         }
         clearOlderCopies(slot)
     }
 
     /**
-     * 바꾸기는 이미 끝났다.
-     * 지우지 못한 사본은 7일 뒤에 함께 지워진다.
+     * 바꾸기는 이미 끝남
+     * 지우지 못한 사본은 7일 뒤에 함께 지워짐
      */
     private fun clearOlderCopies(keep: Path) {
         try {
@@ -122,8 +137,8 @@ class RollbackManager(
     }
 
     /**
-     * 바꾸기 전으로 돌아간다.
-     * 바꾼 뒤에 쓰거나 고친 일기는 합치기 규칙으로 함께 남긴다.
+     * 바꾸기 전으로 되돌림
+     * 바꾼 뒤에 쓰거나 고친 일기는 합치기 규칙으로 함께 남김
      */
     suspend fun rollBack(): Boolean {
         val until = store.current().rollbackUntil ?: return false
@@ -136,17 +151,20 @@ class RollbackManager(
         val saved = fileSystem.read(settingsIn(slot(until))) { readUtf8() }
         val replacedAt = (until - KEEP_FOR).toEpochMilliseconds()
         val dao = db.backupDao()
-        val media = dao.allMedia().groupBy { it.entryId }
         val used = before.mapNotNullTo(HashSet()) { it.entry.legacyId }
-        // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같다.
-        // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 본다.
-        val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
-        val newer =
-            dao.allEntries().filter { it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
-                val legacyId = entry.legacyId?.takeUnless { it in used }
-                MergeEntry(entry.copy(legacyId = legacyId), media[entry.id].orEmpty())
-            }
+        // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 구분
+        val inserted = insertedIds(slot(until))
+        // 남길 일기 고르기부터 같은 쓰기 안에서(사이에 들어온 일기 유실 방지)
         db.withWriteTransaction {
+            val media = dao.allMedia().groupBy { it.entryId }
+            // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음
+            // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 봄
+            val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
+            val newer =
+                dao.allEntries().filter { it.id !in inserted || it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
+                    val legacyId = entry.legacyId?.takeUnless { it in used }
+                    MergeEntry(entry.copy(legacyId = legacyId), media[entry.id].orEmpty())
+                }
             clearAll()
             db.entryDao().insertAll(before.map { it.entry })
             db.mediaDao().insertAll(before.flatMap { it.media })
@@ -161,8 +179,8 @@ class RollbackManager(
     }
 
     /**
-     * 앱을 열 때 부른다.
-     * 7일이 지났으면 사본을 지운다.
+     * 앱을 열 때 호출
+     * 7일이 지났으면 사본 삭제
      */
     suspend fun expire() {
         val until = store.current().rollbackUntil ?: return
@@ -194,6 +212,20 @@ class RollbackManager(
         pages * size
     }
 
+    /** 적어 둔 목록이 없으면 모두 남길 일기로 봄 */
+    private fun insertedIds(slot: Path): Set<String> {
+        val file = insertedIn(slot)
+        if (!fileSystem.exists(file)) return emptySet()
+        return json.decodeFromString(IDS, fileSystem.read(file) { readUtf8() }).toSet()
+    }
+
+    private fun textIn(copy: Path, sql: String): String = connection(copy) {
+        it.prepare(sql).use { statement ->
+            statement.step()
+            statement.getText(0)
+        }
+    }
+
     private fun countIn(copy: Path, sql: String): Int = connection(copy) {
         it.prepare(sql).use { statement ->
             statement.step()
@@ -222,7 +254,7 @@ class RollbackManager(
         }
     }
 
-    private fun <T> connection(copy: Path, block: (androidx.sqlite.SQLiteConnection) -> T): T {
+    private fun <T> connection(copy: Path, block: (SQLiteConnection) -> T): T {
         val connection = BundledSQLiteDriver().open(copy.toString(), READ_ONLY)
         return try {
             block(connection)
@@ -234,6 +266,7 @@ class RollbackManager(
     private companion object {
         val KEEP_FOR = 7.days
         const val SOURCE_ROLLBACK = "rollback"
+        val IDS = ListSerializer(String.serializer())
 
         // SQLITE_OPEN_READONLY
         const val READ_ONLY = 0x00000001

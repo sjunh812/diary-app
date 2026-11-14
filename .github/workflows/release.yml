@@ -5,6 +5,9 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # 태그 없이 손으로 돌리면 서명 확인만: 서명된 AAB를 만들고 검증한다. Play 업로드와 릴리스 초안은 하지 않는다.
+  # 비밀값(키 비밀번호·별칭)이 맞는지 출시 전에 미리 본다.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -29,12 +32,15 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
       - name: 태그와 앱 버전 맞추기
+        if: github.event_name == 'push'
         run: sh scripts/release/check-version.sh "$GITHUB_REF_NAME"
       - name: 변경 기록 뽑기
+        if: github.event_name == 'push'
         run: |
           sh scripts/release/changelog.sh "$GITHUB_REF_NAME" > "$RUNNER_TEMP/changelog.md"
           cat "$RUNNER_TEMP/changelog.md" >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: github.event_name == 'push'
         with:
           name: changelog
           path: ${{ runner.temp }}/changelog.md
@@ -75,7 +81,18 @@ jobs:
     environment: release
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+      # GitHub 다운로드 서버가 잠깐 504를 내면 자바 받기가 실패해 CI 전체가 빨개졌다(2026-11-08).
+      # 실패하면 30초 쉬고 한 번 더 받는다.
+      - id: java
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        continue-on-error: true
+        with:
+          distribution: temurin
+          java-version: 17
+      - if: steps.java.outcome == 'failure'
+        run: sleep 30
+      - if: steps.java.outcome == 'failure'
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: 17
@@ -95,11 +112,13 @@ jobs:
         run: |
           echo "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/upload.jks"
           echo "DIARY_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
-          if [ -n "$GOOGLE_SERVICES" ]; then
-            echo "$GOOGLE_SERVICES" | base64 --decode > composeApp/google-services.json
-          else
-            echo "::warning::google-services.json이 없어 사용 통계와 비정상 종료 보고가 꺼진 빌드입니다"
+          # 없으면 비정상 종료 보고와 이전 실패 통계, 전면 광고 원격 스위치가 모두 빠진다.
+          # 단계적 출시를 멈출 근거가 없는 빌드라 스토어로 내보내지 않는다.
+          if [ -z "$GOOGLE_SERVICES" ]; then
+            echo "::error::GOOGLE_SERVICES_JSON_BASE64 비밀값이 없습니다"
+            exit 1
           fi
+          echo "$GOOGLE_SERVICES" | base64 --decode > composeApp/google-services.json
           # 광고나 구매가 빠진 앱이 스토어로 나가지 않게 여기서 멈춘다.
           for name in ADMOB_APP_ID ADMOB_NATIVE ADMOB_INTERSTITIAL ADMOB_REWARDED REVENUECAT_ANDROID; do
             eval "value=\$$name"
@@ -115,6 +134,26 @@ jobs:
             echo "admob.rewarded=$ADMOB_REWARDED"
             echo "revenuecat.android=$REVENUECAT_ANDROID"
           } > local.properties
+      # 키가 틀리면 10분 넘는 빌드 끝에야 알 수 있어 먼저 몇 초 만에 확인
+      - name: 서명 키 먼저 확인
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          probe="$RUNNER_TEMP/probe"
+          mkdir -p "$probe" && echo ok > "$probe/ok.txt"
+          (cd "$probe" && jar cf probe.jar ok.txt)
+          if ! keytool -list -keystore "$DIARY_KEYSTORE_PATH" -storepass:env STORE_PASSWORD -alias "$KEY_ALIAS" > /dev/null 2>&1; then
+            echo "::error::키 파일 비밀번호(ANDROID_KEYSTORE_PASSWORD)나 별칭(ANDROID_KEY_ALIAS)이 맞지 않습니다"
+            exit 1
+          fi
+          if ! jarsigner -keystore "$DIARY_KEYSTORE_PATH" -storepass:env STORE_PASSWORD -keypass:env KEY_PASSWORD \
+              "$probe/probe.jar" "$KEY_ALIAS" > /dev/null 2>&1; then
+            echo "::error::키 비밀번호(ANDROID_KEY_PASSWORD)가 맞지 않습니다"
+            exit 1
+          fi
+          echo "서명 키 확인됨"
       - name: AAB 만들기
         env:
           DIARY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -132,7 +171,7 @@ jobs:
           retention-days: 3
           compression-level: 0
       - name: Play 내부 트랙에 올리기
-        if: needs.prepare.outputs.play == 'true'
+        if: needs.prepare.outputs.play == 'true' && github.event_name == 'push'
         uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
@@ -154,7 +193,18 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+      # GitHub 다운로드 서버가 잠깐 504를 내면 자바 받기가 실패해 CI 전체가 빨개졌다(2026-11-08).
+      # 실패하면 30초 쉬고 한 번 더 받는다.
+      - id: java
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        continue-on-error: true
+        with:
+          distribution: temurin
+          java-version: 17
+      - if: steps.java.outcome == 'failure'
+        run: sleep 30
+      - if: steps.java.outcome == 'failure'
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: temurin
           java-version: 17
@@ -190,16 +240,19 @@ jobs:
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           cp "$RUNNER_TEMP/release.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$uuid.mobileprovision"
           echo "IOS_PROFILE_NAME=$name" >> "$GITHUB_ENV"
-          if [ -n "$GOOGLE_SERVICE_INFO" ]; then
-            echo "$GOOGLE_SERVICE_INFO" | base64 --decode > iosApp/iosApp/GoogleService-Info.plist
-          else
-            echo "::warning::GoogleService-Info.plist가 없어 사용 통계와 비정상 종료 보고가 꺼진 빌드입니다"
+          # 없으면 비정상 종료 보고와 전면 광고 원격 스위치가 빠진다. Android와 같이 여기서 멈춘다.
+          if [ -z "$GOOGLE_SERVICE_INFO" ]; then
+            echo "::error::GOOGLE_SERVICE_INFO_PLIST_BASE64 비밀값이 없습니다"
+            exit 1
           fi
-          if [ -n "$LOCAL_XCCONFIG" ]; then
-            echo "$LOCAL_XCCONFIG" | base64 --decode > iosApp/iosApp/Local.xcconfig
-          else
-            echo "::warning::Local.xcconfig가 없어 구글 드라이브 연결이 안 되는 빌드입니다"
+          echo "$GOOGLE_SERVICE_INFO" | base64 --decode > iosApp/iosApp/GoogleService-Info.plist
+          if [ -z "$LOCAL_XCCONFIG" ]; then
+            echo "::error::IOS_LOCAL_XCCONFIG_BASE64 비밀값이 없습니다"
+            exit 1
           fi
+          echo "$LOCAL_XCCONFIG" | base64 --decode > iosApp/iosApp/Local.xcconfig
+          # 드라이브 연결, 광고, 구매가 빠진 앱이 스토어로 나가지 않게 여기서 멈춘다.
+          sh scripts/release/check-ios-config.sh iosApp/iosApp/Local.xcconfig
       - name: 아카이브 만들기
         env:
           IOS_TEAM: ${{ secrets.IOS_TEAM_ID }}
@@ -234,7 +287,7 @@ jobs:
   draft:
     name: GitHub Release 초안
     needs: [prepare, android, ios]
-    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.android.result != 'failure' && needs.ios.result != 'failure' }}
+    if: ${{ !cancelled() && github.event_name == 'push' && needs.prepare.result == 'success' && needs.android.result != 'failure' && needs.ios.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

@@ -29,7 +29,7 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 저장 공간이 차서 임시 저장본을 쓰지 못해도 앱이 꺼지지 않고, 쓴 글이 화면에 남아야 한다(헌법 I).
+// 저장 공간이 차서 임시 저장본을 쓰지 못해도 앱이 꺼지지 않고 쓴 글이 화면에 남는지(헌법 I)
 @OptIn(ExperimentalCoroutinesApi::class)
 class WriteStorageFailureTest {
     private val dispatcher = StandardTestDispatcher()
@@ -43,7 +43,7 @@ class WriteStorageFailureTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun vm(target: WriteTarget = WriteTarget.New(), drafts: FakeDraftRepository = repository) =
-        WriteViewModel(target, drafts, clock, TimeZone.UTC)
+        testWriteViewModel(target, drafts, clock, TimeZone.UTC)
 
     private fun TestScope.events(vm: WriteViewModel): MutableList<WriteEvent> {
         val out = mutableListOf<WriteEvent>()
@@ -66,6 +66,37 @@ class WriteStorageFailureTest {
         clock.now(),
         photos.toList()
     )
+
+    @Test
+    fun an_entry_that_cannot_be_read_is_never_overwritten() = runTest(dispatcher) {
+        val drafts = FakeDraftRepository().apply { failReads = true }
+        val vm = vm(WriteTarget.Edit("a"), drafts)
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.openFailed)
+        vm.onBodyChange("<p>빈 화면에 친 글</p>")
+        advanceUntilIdle()
+        vm.save()
+        advanceUntilIdle()
+
+        // 빈 화면에서 친 글로 원래 일기를 덮어쓰지 않음
+        assertEquals(false, vm.state.value.canSave)
+        assertTrue(drafts.committed.isEmpty())
+    }
+
+    @Test
+    fun a_new_entry_opens_blank_when_the_old_draft_cannot_be_read() = runTest(dispatcher) {
+        val drafts = FakeDraftRepository().apply { failReads = true }
+        val vm = vm(WriteTarget.New(), drafts)
+        advanceUntilIdle()
+
+        assertEquals(false, vm.state.value.loading)
+        assertEquals(false, vm.state.value.openFailed)
+        drafts.failReads = false
+        vm.onBodyChange("<p>바로 쓴다</p>")
+        advanceUntilIdle()
+        assertEquals(true, vm.state.value.canSave)
+    }
 
     @Test
     fun a_failed_autosave_keeps_the_text_and_says_so() = runTest(dispatcher) {
@@ -187,5 +218,18 @@ class WriteStorageFailureTest {
 
         assertTrue(vm.state.value.resume != null, "지우지 못했으면 시트가 그대로 남는다")
         assertTrue(vm.state.value.saveFailed)
+    }
+
+    /** 화면은 옮긴 칸 수만 넘김. 끝을 넘겨 끌면 지금 목록의 맨 끝에 놓임 */
+    @Test
+    fun dragging_a_photo_past_the_end_puts_it_last() = runTest(dispatcher) {
+        val drafts = FakeDraftRepository(editable = mapOf("e1" to draft(DraftKey.Edit("e1"), photo("a"), photo("b"), photo("c"))))
+        val vm = vm(WriteTarget.Edit("e1"), drafts)
+        advanceUntilIdle()
+
+        vm.movePhoto(0, 5)
+        advanceUntilIdle()
+
+        assertEquals(listOf("b", "c", "a"), vm.state.value.photos.map { it.sha256 })
     }
 }

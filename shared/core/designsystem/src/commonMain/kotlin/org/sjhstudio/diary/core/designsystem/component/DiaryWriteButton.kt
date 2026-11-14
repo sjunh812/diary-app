@@ -22,8 +22,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 쓰기 버튼(`docs/design.md` 쓰기 버튼, M3 FAB).
- * 56 · 모서리 16 · 화면 끝 20 · 탭 위 16 · 앱에서 하나뿐인 그림자.
+ * 쓰기 버튼(`docs/design.md` 쓰기 버튼, M3 FAB)
+ * 56 · 모서리 16 · 화면 끝 20 · 탭 위 16 · 앱에서 하나뿐인 그림자
  */
 @Composable
 fun DiaryWriteButton(contentDescription: String, onClick: () -> Unit, modifier: Modifier = Modifier) {

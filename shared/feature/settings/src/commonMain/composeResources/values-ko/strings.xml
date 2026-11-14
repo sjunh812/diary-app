@@ -21,23 +21,29 @@
     <string name="migration_report_contact">문의하기</string>
 
     <!-- 설정 목록(S6) -->
-    <string name="settings_group_feedback">의견과 평가</string>
+    <string name="settings_group_feedback">피드백</string>
     <string name="settings_feedback">의견 보내기</string>
-    <string name="settings_rate">앱 평가하기</string>
+    <string name="settings_rate">리뷰 남기기</string>
     <string name="settings_version">앱 버전</string>
     <string name="settings_plus_badge">Plus 이용 중</string>
     <string name="settings_feedback_subject">1일 1일기 피드백</string>
-    <string name="settings_feedback_body">사용 버전: %1$s\nOS: %2$s\n휴대폰 기종: %3$s\n\n의견을 적어 주세요 😊\n</string>
-    <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s로 보내 주세요.</string>
+    <string name="settings_feedback_body">앱 버전: %1$s\nOS: %2$s\n기기: %3$s\n\n여러분의 소중한 의견 부탁드립니다 ☺️\n</string>
+    <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s 주소로 보내 주세요.</string>
     <string name="settings_title">설정</string>
-    <string name="settings_group_style">꾸미기</string>
+    <string name="settings_group_style">화면</string>
     <string name="settings_group_info">앱 정보</string>
     <string name="settings_licenses">오픈소스 라이선스</string>
     <string name="licenses_group_fonts">글꼴</string>
     <string name="licenses_group_libraries">라이브러리</string>
+    <string name="licenses_libraries_failed">라이브러리 목록을 불러오지 못했어요</string>
+    <string name="licenses_text_failed">라이선스 전문을 불러오지 못했어요</string>
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_changwon_round">창원단감둥근체 안내</string>
+    <string name="license_busan">부산시 전용서체 안내</string>
     <string name="license_naver">네이버 글꼴 라이선스</string>
+    <string name="license_watermelon">수박양체 안내</string>
+    <string name="license_sejong">세종글꽃체 안내</string>
+    <string name="license_ownglyph">온글잎 폰트 안내</string>
     <string name="settings_text_size">본문 글자 크기</string>
     <string name="settings_theme">화면 모드</string>
     <string name="settings_lock">잠금</string>
@@ -58,29 +64,29 @@
     <string name="reminder_time">알림 시각</string>
     <string name="reminder_save">저장</string>
     <string name="reminder_permission_title">알림이 꺼져 있어요</string>
-    <string name="reminder_permission_body">휴대폰 설정에서 1일 1일기 알림을 허용해야 매일 알림이 와요.</string>
+    <string name="reminder_permission_body">휴대폰 설정에서 1일 1일기 알림을 허용해야 쓰기 알림이 와요.</string>
     <string name="reminder_permission_allow">허용하기</string>
 
     <!-- 글꼴(G1) -->
     <string name="settings_font">글꼴</string>
     <string name="font_name_system">시스템 글꼴</string>
     <string name="font_name_pretendard">Pretendard</string>
-    <string name="font_name_gowun_dodum">고운돋움</string>
+    <string name="font_name_hakgyoansim_badasseugi">학교안심 받아쓰기</string>
     <string name="font_name_changwon_round">창원단감둥근체</string>
-    <string name="font_name_maru_buri">마루 부리</string>
+    <string name="font_name_busan_dandi_myeongjo">부산단디명조</string>
     <string name="font_name_gowun_batang">고운바탕</string>
-    <string name="font_name_nanum_pen">나눔손글씨 펜</string>
+    <string name="font_name_ownglyph_wiseelist">온글잎 위씨리스트</string>
     <string name="font_name_nanum_jeomggol">나눔손글씨 점꼴체</string>
     <string name="font_name_nanum_cheer">힘내라는 말보단</string>
-    <string name="font_name_gamja_flower">감자꽃</string>
-    <string name="font_name_hi_melody">하이멜로디</string>
+    <string name="font_name_rix_watermelon">수박양체</string>
+    <string name="font_name_sejong_geulggot">세종글꽃체</string>
     <string name="font_preview_label">미리보기</string>
     <string name="font_preview_sample">오늘은 바람이 선선해서 한강까지 걸었다.</string>
     <string name="font_download">받기 · %1$s</string>
     <string name="font_downloading">받는 중 %1$s</string>
     <string name="font_offline">인터넷에 연결되면 받을 수 있어요</string>
     <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
-    <string name="font_replaced_notice">쓰던 글꼴 대신 %1$s 글꼴로 보여 드려요</string>
+    <string name="font_replaced_notice">쓰던 글꼴 대신 '%1$s' 글꼴로 보여 드려요</string>
     <string name="font_replaced_change">바꾸기</string>
 
     <!-- 본문 글자 크기(G2) -->
@@ -107,18 +113,17 @@
     <string name="settings_group_diary">일기</string>
     <string name="settings_trash">휴지통</string>
     <plurals name="settings_trash_count">
-        <item quantity="other">%1$d편</item>
+        <item quantity="other">%1$s편</item>
     </plurals>
-    <string name="settings_list_style">목록 모양</string>
+    <string name="settings_list_style">목록 보기</string>
     <string name="list_style_feed">피드</string>
     <string name="list_style_card">카드</string>
     <string name="list_style_photo">사진 격자</string>
     <string name="settings_letter">개발자의 편지</string>
-    <string name="settings_plus">Plus</string>
     <string name="settings_plus_title">광고 없이, 더 편하게 써요</string>
-    <string name="settings_plus_title_ad_free">일기를 더 넉넉하게 써요</string>
+    <string name="settings_plus_title_ad_free">Plus로 더 편하게</string>
     <string name="settings_dev_mode">개발자 모드</string>
-    <string name="settings_plus_body">일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.</string>
+    <string name="settings_plus_body">한 편에 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.</string>
     <string name="settings_plus_action">Plus 알아보기</string>
     <string name="settings_terms">이용약관</string>
     <string name="settings_privacy">개인정보처리방침</string>

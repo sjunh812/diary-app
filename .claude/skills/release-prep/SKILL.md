@@ -34,14 +34,21 @@ disable-model-invocation: false
 ./gradlew :composeApp:assembleNonMinifiedRelease :benchmarks:assembleNonMinifiedRelease
 ```
 
-`adb -s emulator-5554`로 두 APK를 깔고 다음으로 만든다.
+홈 목록 넘기기까지 담으려면 일기가 쌓인 Android 14 이상 에뮬레이터에서 만든다. Android 13 이하는 측정 도구가 앱을 다시 깔아 일기가 지워진다.
+사진이 있으면 이전에 여유 공간이 넉넉해야 해서(복사 뒤 1GB) 태블릿 에뮬레이터(Pixel_Tablet, API 35)를 쓴다.
+
+1. 견본 1만 편을 이전한다: `ANDROID_SERIAL=<에뮬레이터> ALARM=0 COUNT=10000 PHOTO_EVERY=2 WAIT=1800 sh scripts/legacy/upgrade-test.sh`
+2. 두 APK를 `adb install -r`로 덮어 깐다(일기는 남는다). 앱을 열어 편지와 온보딩을 넘겨 홈까지 간다.
+3. 다음으로 만든다.
 
 ```bash
 am instrument -w -e class org.sjhstudio.diary.benchmarks.BaselineProfileGenerator -e androidx.benchmark.enabledRules BaselineProfile org.sjhstudio.diary.benchmarks/androidx.test.runner.AndroidJUnitRunner
 ```
 
 결과(`/sdcard/Android/media/org.sjhstudio.diary.benchmarks/*-prof.txt`)를 `composeApp/src/main/generated/baselineProfiles/`에 넣는다.
+폰과 태블릿은 지나는 코드가 달라서, 한 기기에서만 만들었으면 지금 파일에 새 규칙만 덧붙인다(`awk '!seen[$0]++' 지금 새것 > 합친것`).
 `generateBaselineProfile` 작업은 붙은 기기를 모두 쓰므로 실기기가 연결되어 있을 때는 쓰지 않는다.
+홈 스크롤은 `ScrollBenchmark`를 `benchmarkRelease` APK로 돌린다. Android 14 이상에서는 Baseline Profile만 쓴 상태로 잰다.
 시작 시간은 같은 방법으로 `StartupBenchmark`를 `benchmarkRelease` APK로 돌린다(에뮬레이터는 `-e androidx.benchmark.suppressErrors EMULATOR`).
 
 ## 4. 고를 때 받는 글꼴

@@ -24,8 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -34,6 +36,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
+import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthWheel
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -44,25 +47,35 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.currentDate
+import org.sjhstudio.diary.core.ui.resources.Res
+import org.sjhstudio.diary.core.ui.resources.ui_next_month
+import org.sjhstudio.diary.core.ui.resources.ui_previous_month
 
 /**
- * 시트 안의 달력.
- * 화살표로 한 달씩 넘기고, 연월 제목을 누르면 날짜 칸 자리에 연·월 휠이 나와 먼 달로 바로 간다.
- * 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아온다.
- * [days]는 날짜 칸이다.
+ * 시트 안의 달력
+ * 화살표로 한 달씩 넘기고, 연월 제목을 누르면 날짜 칸 자리에 연·월 휠이 나와 먼 달로 바로 감
+ * 제목을 다시 누르면 고른 달의 날짜 칸으로 돌아옴
+ * [days]는 날짜 칸, [hasPrevious]·[hasNext]가 false면 그쪽 화살표를 흐리게
  */
 @Composable
-fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: Modifier = Modifier, days: @Composable () -> Unit) {
+fun DiaryMonthPicker(
+    month: YearMonth,
+    onChange: (YearMonth) -> Unit,
+    modifier: Modifier = Modifier,
+    hasPrevious: Boolean = true,
+    hasNext: Boolean = true,
+    days: @Composable () -> Unit
+) {
     val dates = rememberDiaryDateFormat()
     var wheel by rememberSaveable { mutableStateOf(false) }
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            // 휠을 여는 동안 화살표는 쓸 일이 없다.
-            // 자리는 그대로 둬서 제목이 움직이지 않게 한다.
+            // 휠을 여는 동안 화살표는 쓸 일 없음
+            // 자리는 그대로 둬서 제목이 움직이지 않게 함
             if (wheel) {
                 Spacer(Modifier.size(DiarySpacing.minTouchTarget))
             } else {
-                MonthArrow(DiaryIcons.ChevronLeft) {
+                MonthArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.ui_previous_month), hasPrevious) {
                     onChange(month.shifted(-1))
                 }
             }
@@ -70,7 +83,7 @@ fun DiaryMonthPicker(month: YearMonth, onChange: (YearMonth) -> Unit, modifier: 
             if (wheel) {
                 Spacer(Modifier.size(DiarySpacing.minTouchTarget))
             } else {
-                MonthArrow(DiaryIcons.ChevronRight) {
+                MonthArrow(DiaryIcons.ChevronRight, stringResource(Res.string.ui_next_month), hasNext) {
                     onChange(month.shifted(1))
                 }
             }
@@ -123,40 +136,71 @@ private fun YearMonth.shifted(by: Int): YearMonth {
 }
 
 @Composable
-private fun MonthArrow(icon: ImageVector, onClick: () -> Unit) {
+private fun MonthArrow(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit) {
+    val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     Box(
         Modifier
             .size(DiarySpacing.minTouchTarget)
-            .diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.full)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+            .diaryPress(interaction, colors.textPrimary, DiaryShapes.full)
+            .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        DiaryIcon(icon, contentDescription = null, tint = DiaryTheme.colors.textPrimary, size = DiaryIconSize.i20)
+        DiaryIcon(
+            icon,
+            contentDescription = label,
+            tint = if (enabled) colors.textPrimary else colors.placeholder,
+            size = DiaryIconSize.i20
+        )
     }
 }
 
 /**
- * 날짜 고르기 칸.
- * 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보인다.
- * [inRange]는 기간을 고를 때 사이의 날이다.
+ * 날짜 고르기 칸
+ * 주는 일요일에 시작하고 앞뒤 달의 날도 흐리게 보임
+ * 맨 위에 요일 머리글. 없으면 첫 칸이 일요일인지 월요일인지 알 수 없음(달력 탭과 같은 꼴)
+ * 어느 달이든 6주를 그려 달을 넘길 때 시트 높이가 한 줄씩 늘었다 줄지 않음(Material 3 날짜 고르기와 같음)
+ * [inRange]는 기간을 고를 때 사이의 날, [enabled]가 false인 날은 흐리게 두고 누를 수 없음
+ * [isPickedWeek]는 주의 첫날(일요일)을 받아 그 줄 전체를 칠함
  */
 @Composable
 fun DiaryMonthDays(
     month: YearMonth,
     isPicked: (LocalDate) -> Boolean,
     onPick: (LocalDate) -> Unit,
-    inRange: (LocalDate) -> Boolean = { false }
+    inRange: (LocalDate) -> Boolean = { false },
+    enabled: (LocalDate) -> Boolean = { true },
+    isPickedWeek: (LocalDate) -> Boolean = { false }
 ) {
     val first = month.onDay(1)
     val start = first.minus(DatePeriod(days = (first.dayOfWeek.ordinal + 1) % DAYS_IN_WEEK))
+    val dates = rememberDiaryDateFormat()
     Column(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().padding(bottom = DiarySpacing.x1)) {
+            repeat(DAYS_IN_WEEK) { offset ->
+                val weekday = start.plus(DatePeriod(days = offset))
+                BasicText(
+                    dates.weekdayShort(weekday),
+                    modifier = Modifier.weight(1f),
+                    style = DiaryTheme.typography.captionStrong.copy(color = weekdayColor(weekday), textAlign = TextAlign.Center)
+                )
+            }
+        }
         var day = start
-        while (day <= month.onDay(month.numberOfDays)) {
-            Row(Modifier.fillMaxWidth()) {
+        repeat(WEEKS_SHOWN) {
+            val week = isPickedWeek(day)
+            val row = if (week) Modifier.clip(DiaryShapes.full).background(DiaryTheme.colors.selected) else Modifier
+            Row(Modifier.fillMaxWidth().then(row)) {
                 repeat(DAYS_IN_WEEK) {
                     val current = day
-                    DayCell(current, isPicked(current), inRange(current), inMonth = current.month == first.month, Modifier.weight(1f)) {
+                    DayCell(
+                        current,
+                        isPicked(current),
+                        between = week || inRange(current),
+                        inMonth = current.month == first.month,
+                        enabled = enabled(current),
+                        modifier = Modifier.weight(1f)
+                    ) {
                         onPick(current)
                     }
                     day = day.plus(DatePeriod(days = 1))
@@ -167,15 +211,33 @@ fun DiaryMonthDays(
 }
 
 @Composable
-private fun DayCell(date: LocalDate, selected: Boolean, between: Boolean, inMonth: Boolean, modifier: Modifier, onClick: () -> Unit) {
+private fun weekdayColor(date: LocalDate): Color = when (date.dayOfWeek) {
+    DayOfWeek.SUNDAY -> DiaryTheme.colors.danger
+    DayOfWeek.SATURDAY -> DiaryTheme.colors.ink.blue
+    else -> DiaryTheme.colors.textSecondary
+}
+
+/** 한 달이 걸칠 수 있는 가장 많은 주 */
+private const val WEEKS_SHOWN = 6
+
+@Composable
+private fun DayCell(
+    date: LocalDate,
+    selected: Boolean,
+    between: Boolean,
+    inMonth: Boolean,
+    enabled: Boolean,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
     val colors = DiaryTheme.colors
     val color =
         when {
             selected -> colors.onAccent
 
-            !inMonth -> colors.placeholder
+            !inMonth || !enabled -> colors.placeholder
 
-            // 기간 안의 날은 selected 바탕이라 주말 색의 대비가 모자란다.
+            // 기간 안의 날은 selected 바탕이라 주말 색의 대비가 모자람
             between -> colors.textPrimary
 
             date.dayOfWeek == DayOfWeek.SUNDAY -> colors.danger
@@ -191,11 +253,11 @@ private fun DayCell(date: LocalDate, selected: Boolean, between: Boolean, inMont
             else -> colors.surface
         }
     val interaction = remember { MutableInteractionSource() }
-    // 고른 원은 40이고 누르는 곳은 칸 전체(높이 48)다.
+    // 고른 원은 40, 누르는 곳은 칸 전체(높이 48)
     Box(
         modifier
             .height(DiarySpacing.minTouchTarget)
-            .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
+            .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Box(
@@ -216,7 +278,7 @@ private const val MONTHS = 12
 private const val HALF_TURN = 180f
 
 /**
- * 연 휠의 첫해.
- * 이보다 옛 일기가 있으면 그 해부터 보인다.
+ * 연 휠의 첫해
+ * 이보다 옛 일기가 있으면 그 해부터 보임
  */
 private const val FIRST_YEAR = 2010

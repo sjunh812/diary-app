@@ -7,25 +7,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
- * 빈 상태(`docs/design.md` 빈 상태, SEED Result Section, 토스 UX 가이드).
- * 아이콘 하나 · 제목 title2 · 설명 body · 버튼 하나.
- * 문구는 긍정형 해요체로 쓴다.
+ * 빈 상태(`docs/design.md` 빈 상태, SEED Result Section, 토스 UX 가이드)
+ * 아이콘 하나 · 제목 title2 · 설명 body · 버튼 하나
+ * 문구는 긍정형 해요체
  */
 @Composable
 fun DiaryEmptyState(
-    icon: ImageVector,
+    icon: ImageVector?,
     title: String,
     modifier: Modifier = Modifier,
     description: String? = null,
@@ -39,13 +39,33 @@ fun DiaryEmptyState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        DiaryIcon(icon, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i32)
-        Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary, textAlign = TextAlign.Center))
+        // 아이콘이 없으면 글만(두 칸의 빈 상세 칸처럼 글로 뜻이 충분한 곳)
+        // 아이콘과 제목은 12로 붙여 한 묶음, 버튼은 24로 띄움(SEED·토스·Apple 모두 그림 쪽이 더 좁음)
+        if (icon != null) {
+            DiaryIcon(
+                icon,
+                contentDescription = null,
+                tint = colors.textTertiary,
+                size = DiaryIconSize.i32,
+                modifier = Modifier.padding(bottom = DiarySpacing.x1)
+            )
+        }
+        PhraseText(
+            text = title,
+            style = DiaryTheme.typography.title2.copy(
+                color = colors.textPrimary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
         if (description != null) {
-            BasicText(
+            PhraseText(
                 text = description,
-                style = DiaryTheme.typography.body.copy(color = colors.textSecondary, textAlign = TextAlign.Center)
+                style = DiaryTheme.typography.body.copy(
+                    color = colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                    lineBreak = CenteredLineBreak
+                )
             )
         }
         if (actionLabel != null && onAction != null) {
@@ -56,9 +76,9 @@ fun DiaryEmptyState(
 }
 
 /**
- * 화면 한 칸만 비었을 때의 한 줄(`docs/design.md` 빈 상태, Figma "S4 · 빈 날").
- * 달력의 고른 날, 돌아보기의 빈 기간처럼 위에 탭이나 달력이 그대로 있을 때 쓴다.
- * 아이콘과 큰 제목 없이 `body` 한 줄과 약한 버튼만 둔다. 위아래 24, 사이 12.
+ * 화면 한 칸만 비었을 때의 한 줄(`docs/design.md` 빈 상태, Figma "S4 · 빈 날")
+ * 달력의 고른 날, 돌아보기의 빈 기간처럼 위에 탭이나 달력이 그대로 있을 때 씀
+ * 아이콘과 큰 제목 없이 `body` 한 줄과 약한 버튼만. 위아래 24, 사이 12.
  */
 @Composable
 fun DiaryEmptyLine(text: String, actionLabel: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
@@ -67,15 +87,22 @@ fun DiaryEmptyLine(text: String, actionLabel: String, onAction: () -> Unit, modi
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
-        BasicText(text, style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary, textAlign = TextAlign.Center))
+        PhraseText(
+            text,
+            style = DiaryTheme.typography.body.copy(
+                color = DiaryTheme.colors.textSecondary,
+                textAlign = TextAlign.Center,
+                lineBreak = CenteredLineBreak
+            )
+        )
         DiaryButton(actionLabel, onAction, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
     }
 }
 
 /**
- * 빈 상태를 화면 칸에 놓는다.
- * 눈에는 정가운데가 처져 보여서 위 2, 아래 3으로 조금 올린다(Figma "S1 · 빈 상태" 자리).
- * 위아래 칸이 없으면 줄어들어 큰 글씨에서도 잘리지 않는다.
+ * 빈 상태를 화면 칸에 놓음
+ * 정가운데는 처져 보여 위 2, 아래 3으로 조금 올림(Figma "S1 · 빈 상태" 자리)
+ * 위아래 칸이 없으면 줄어들어 큰 글씨에서도 잘리지 않음
  */
 @Composable
 fun DiaryEmptyArea(modifier: Modifier = Modifier, content: @Composable () -> Unit) {

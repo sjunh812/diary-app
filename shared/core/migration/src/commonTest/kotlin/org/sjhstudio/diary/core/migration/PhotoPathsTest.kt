@@ -3,7 +3,7 @@ package org.sjhstudio.diary.core.migration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// contracts/legacy-mapping.md "사진"(스펙 001 T034).
+// contracts/legacy-mapping.md "사진"(스펙 001 T034)
 class PhotoPathsTest {
     @Test
     fun fragments_drop_empty_pieces_and_keep_order() {

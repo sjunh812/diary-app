@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
 
-// 디자인 토큰 검사(스펙 001 T079): 금지한 꼴이 든 화면 코드는 실패하고, 디자인 시스템·미리보기·주석은 통과한다.
+// 디자인 토큰 검사(스펙 001 T079): 금지한 꼴이 든 화면 코드는 실패, 디자인 시스템·미리보기·주석은 통과
 class DesignTokenCheckTaskTest {
     private val root: File = createTempDirectory("design-token-check").toFile()
 
@@ -26,8 +26,8 @@ class DesignTokenCheckTaskTest {
         val project = ProjectBuilder.builder().withProjectDir(root).build()
         project.pluginManager.apply(RootConventionPlugin::class.java)
         val task = project.tasks.getByName("designTokenCheck") as DesignTokenCheckTask
-        // Gradle이 작업을 돌릴 때는 출력 폴더를 먼저 만든다.
-        // 작업을 바로 부르는 시험이라 직접 만든다.
+        // Gradle은 작업 전에 출력 폴더를 만들지만
+        // 작업을 바로 부르는 시험이라 직접 만듦
         task.report.get().asFile.parentFile.mkdirs()
         val result = runCatching { task.check() }
         return result to task.report.get().asFile.readText()

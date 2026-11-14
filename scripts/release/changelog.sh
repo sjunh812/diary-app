@@ -1,8 +1,8 @@
 #!/bin/sh
-# 변경 기록을 feat·fix 커밋 제목에서 뽑는다(CLAUDE.md 커밋 규칙).
+# feat·fix 커밋 제목에서 변경 기록 뽑기(CLAUDE.md 커밋 규칙)
 #   sh scripts/release/changelog.sh v2.0.0            # 바로 앞 v* 태그부터 이 태그까지
-#   sh scripts/release/changelog.sh HEAD 88631feb     # 범위를 직접 준다
-# 앞 태그가 없으면 처음부터 본다.
+#   sh scripts/release/changelog.sh HEAD 88631feb     # 범위 직접 지정
+# 앞 태그가 없으면 첫 커밋부터
 set -eu
 
 end=${1:?끝 지점을 주세요(예: v2.0.0)}
@@ -14,7 +14,7 @@ else
   range=$end
 fi
 
-# 앞의 type(scope)!: 를 떼고 제목만 남긴다.
+# 앞의 type(scope)!: 를 떼고 제목만 남김
 section() {
   title=$1
   type=$2

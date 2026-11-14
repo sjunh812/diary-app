@@ -10,21 +10,25 @@
 		07116D6032514A5FC4CDB3DB /* Local.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = 38A2317CA7F32917D748F615 /* Local.xcconfig.example */; };
 		08511472D23A90B696221D80 /* FirebaseReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7497B00B5F8A0AE75FFEA1E1 /* FirebaseReporter.swift */; };
 		09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */; };
+		0BE538C381966DD42CD55526 /* sejong_geulggot.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 66E4C56D921DA099DF763B28 /* sejong_geulggot.ttf */; settings = {ASSET_TAGS = (sejong_geulggot, ); }; };
 		1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */; };
 		22EA1CB33A17DCC6FC82406D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F543015C899423D4B01CEB2E /* Assets.xcassets */; };
 		23CEA18C5D402BAD832FD636 /* DailyBackupTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61482D56A37EB21A053921AF /* DailyBackupTask.swift */; };
-		29DF7BAEAB8CEF5CBDD81D0F /* gowun_dodum.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */; settings = {ASSET_TAGS = (gowun_dodum, ); }; };
 		307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668CECA83ACC03A83C85A623 /* iOSApp.swift */; };
 		3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */; settings = {ASSET_TAGS = (gowun_batang, ); }; };
+		379D4C6DBBA934A8EF44CDDE /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */; };
+		41AD9C5825C619B43E33E493 /* busan_dandi_myeongjo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 40A69B856D98DA92416E2C1B /* busan_dandi_myeongjo.ttf */; settings = {ASSET_TAGS = (busan_dandi_myeongjo, ); }; };
 		445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */; };
 		47A150204EBF9E2799632D13 /* nanum_jeomggol.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */; settings = {ASSET_TAGS = (nanum_jeomggol, ); }; };
 		56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */; };
 		6B2031D9196667F65FD358E5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */; };
-		6FA3748879A5ED9307DECF5C /* hi_melody.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 41124284CE98EC53B9064222 /* hi_melody.ttf */; settings = {ASSET_TAGS = (hi_melody, ); }; };
-		8619E6AF02B493D74581D733 /* gamja_flower.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F61F643C588442012994C221 /* gamja_flower.ttf */; settings = {ASSET_TAGS = (gamja_flower, ); }; };
 		86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7F3482AB68B54C1CB27AB9D /* Localizable.strings */; };
 		9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6111777718F5751E749AACD /* PrivacyCover.swift */; };
+		A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = D653C9A304F35EF27606B403 /* GoogleMobileAds */; };
+		ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */; };
 		B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
+		C116126A0D40FD6BA0083649 /* KeychainLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */; };
+		E924E2D8C6238479BECB6373 /* ownglyph_wiseelist.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DAC30AE568A89DAAB66C81E0 /* ownglyph_wiseelist.ttf */; settings = {ASSET_TAGS = (ownglyph_wiseelist, ); }; };
 		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
 /* End PBXBuildFile section */
 
@@ -32,17 +36,19 @@
 		1F368840F5CE48EA3B21B976 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		343488E477CB7C977BDDC8FF /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		38A2317CA7F32917D748F615 /* Local.xcconfig.example */ = {isa = PBXFileReference; path = Local.xcconfig.example; sourceTree = "<group>"; };
-		41124284CE98EC53B9064222 /* hi_melody.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = hi_melody.ttf; sourceTree = "<group>"; };
+		40A69B856D98DA92416E2C1B /* busan_dandi_myeongjo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = busan_dandi_myeongjo.ttf; sourceTree = "<group>"; };
 		424A11BA3CA8492ED2631CE4 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		61482D56A37EB21A053921AF /* DailyBackupTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBackupTask.swift; sourceTree = "<group>"; };
 		668CECA83ACC03A83C85A623 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
-		6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_dodum.ttf; sourceTree = "<group>"; };
+		66E4C56D921DA099DF763B28 /* sejong_geulggot.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sejong_geulggot.ttf; sourceTree = "<group>"; };
 		7009FFABBC02111FC2C6BBEA /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
 		7497B00B5F8A0AE75FFEA1E1 /* FirebaseReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseReporter.swift; sourceTree = "<group>"; };
+		7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainLock.swift; sourceTree = "<group>"; };
 		86038AE1032E284E79B32AD6 /* iosApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = nanum_jeomggol.ttf; sourceTree = "<group>"; };
 		A200F24526F2E89B50E53BA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gowun_batang.ttf; sourceTree = "<group>"; };
+		AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAdsBridge.swift; sourceTree = "<group>"; };
 		AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveBridge.swift; sourceTree = "<group>"; };
 		C117AD187833E2513BD2F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C35CD2C849A242A9332863DC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -50,8 +56,8 @@
 		CBFF6F7B5E6378BAD9C2AD97 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D6111777718F5751E749AACD /* PrivacyCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyCover.swift; sourceTree = "<group>"; };
+		DAC30AE568A89DAAB66C81E0 /* ownglyph_wiseelist.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ownglyph_wiseelist.ttf; sourceTree = "<group>"; };
 		F543015C899423D4B01CEB2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F61F643C588442012994C221 /* gamja_flower.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = gamja_flower.ttf; sourceTree = "<group>"; };
 		FA0F3A778E3FD20C9033683F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -63,12 +69,22 @@
 				1C81D6F669B7BB6D2FFCCEB3 /* GoogleSignIn in Frameworks */,
 				445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */,
 				B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */,
+				379D4C6DBBA934A8EF44CDDE /* FirebaseRemoteConfig in Frameworks */,
+				A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		093F00878C0CCBB5226C9591 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				BACD3913A655AE3DC341F4DC /* assets */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
 		0AE5B04EE7BFB5205B82B79D /* nanum_jeomggol */ = {
 			isa = PBXGroup;
 			children = (
@@ -83,6 +99,22 @@
 				A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */,
 			);
 			path = fonts;
+			sourceTree = "<group>";
+		};
+		0CE94BD0A9D2705343791B37 /* ownglyph_wiseelist */ = {
+			isa = PBXGroup;
+			children = (
+				B2047EEE154D57EFB2E03A02 /* src */,
+			);
+			path = ownglyph_wiseelist;
+			sourceTree = "<group>";
+		};
+		120C43445237170CC6238342 /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				5DA9E621E9673D4641228985 /* fonts */,
+			);
+			path = assets;
 			sourceTree = "<group>";
 		};
 		14CEA4769894A39A7B36B660 /* assets */ = {
@@ -100,6 +132,7 @@
 				343488E477CB7C977BDDC8FF /* Config.xcconfig */,
 				CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */,
 				7497B00B5F8A0AE75FFEA1E1 /* FirebaseReporter.swift */,
+				AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */,
 				C117AD187833E2513BD2F553 /* Info.plist */,
 				668CECA83ACC03A83C85A623 /* iOSApp.swift */,
 				7009FFABBC02111FC2C6BBEA /* Local.xcconfig */,
@@ -113,29 +146,22 @@
 			path = iosApp;
 			sourceTree = "<group>";
 		};
+		2358BE54B164CA6E467EA54C /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				B697D2E89908316AD7A258E5 /* fonts */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
 		2987522560EBD04F5F94FA64 /* Backup */ = {
 			isa = PBXGroup;
 			children = (
 				61482D56A37EB21A053921AF /* DailyBackupTask.swift */,
 				AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */,
+				7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */,
 			);
 			path = Backup;
-			sourceTree = "<group>";
-		};
-		29BEC9CD5DE8F943431C7D09 /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				F61F643C588442012994C221 /* gamja_flower.ttf */,
-			);
-			path = fonts;
-			sourceTree = "<group>";
-		};
-		30D05558C26C0663717232AF /* main */ = {
-			isa = PBXGroup;
-			children = (
-				A25AB61164F49358E26AACC2 /* assets */,
-			);
-			path = main;
 			sourceTree = "<group>";
 		};
 		318E69AE669B000736444448 /* diary-project */ = {
@@ -147,14 +173,6 @@
 			path = ..;
 			sourceTree = "<group>";
 		};
-		31DDFD974AD831C6BCA3AEAF /* gamja_flower */ = {
-			isa = PBXGroup;
-			children = (
-				BE2E3579C3A9073FB4D17864 /* src */,
-			);
-			path = gamja_flower;
-			sourceTree = "<group>";
-		};
 		38B69C3F79CD97858CF7B609 = {
 			isa = PBXGroup;
 			children = (
@@ -164,36 +182,28 @@
 			);
 			sourceTree = "<group>";
 		};
-		4D4D2979B87720DB9C8F7961 /* gowun_dodum */ = {
+		4AC7601CE4789061FDA65DF8 /* main */ = {
 			isa = PBXGroup;
 			children = (
-				AD19FA46304B0E70EE5B27D5 /* src */,
-			);
-			path = gowun_dodum;
-			sourceTree = "<group>";
-		};
-		4E4F1BFC80DEAD1F3B779BF4 /* main */ = {
-			isa = PBXGroup;
-			children = (
-				A282D01ADD818A81B284CFAC /* assets */,
+				2358BE54B164CA6E467EA54C /* assets */,
 			);
 			path = main;
 			sourceTree = "<group>";
 		};
-		55C1EC3BEFB7CD9023E9BEBA /* hi_melody */ = {
+		5DA9E621E9673D4641228985 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
-				565DF50FEA61243CB503B473 /* src */,
+				66E4C56D921DA099DF763B28 /* sejong_geulggot.ttf */,
 			);
-			path = hi_melody;
+			path = fonts;
 			sourceTree = "<group>";
 		};
-		565DF50FEA61243CB503B473 /* src */ = {
+		68942A596C571B0971BDD0D7 /* busan_dandi_myeongjo */ = {
 			isa = PBXGroup;
 			children = (
-				4E4F1BFC80DEAD1F3B779BF4 /* main */,
+				7D965718CF2CE406BD5CFEC2 /* src */,
 			);
-			path = src;
+			path = busan_dandi_myeongjo;
 			sourceTree = "<group>";
 		};
 		71A7FAF270CF01953B07B10D /* src */ = {
@@ -212,14 +222,38 @@
 			path = assets;
 			sourceTree = "<group>";
 		};
+		77F197280322ED44CAEB56AD /* main */ = {
+			isa = PBXGroup;
+			children = (
+				120C43445237170CC6238342 /* assets */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
+		79C7358897E8B9621AF044FF /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				DAC30AE568A89DAAB66C81E0 /* ownglyph_wiseelist.ttf */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
+		7D965718CF2CE406BD5CFEC2 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				4AC7601CE4789061FDA65DF8 /* main */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		86CF2B2C439663701868C662 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
-				31DDFD974AD831C6BCA3AEAF /* gamja_flower */,
+				68942A596C571B0971BDD0D7 /* busan_dandi_myeongjo */,
 				B8B48948D6E08C787AF85340 /* gowun_batang */,
-				4D4D2979B87720DB9C8F7961 /* gowun_dodum */,
-				55C1EC3BEFB7CD9023E9BEBA /* hi_melody */,
 				0AE5B04EE7BFB5205B82B79D /* nanum_jeomggol */,
+				0CE94BD0A9D2705343791B37 /* ownglyph_wiseelist */,
+				BED61B1C2CC373D38AE316CF /* sejong_geulggot */,
 			);
 			path = fonts;
 			sourceTree = "<group>";
@@ -256,36 +290,20 @@
 			path = fonts;
 			sourceTree = "<group>";
 		};
-		A25AB61164F49358E26AACC2 /* assets */ = {
+		B2047EEE154D57EFB2E03A02 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				C3BCED455AC936B6655B42C0 /* fonts */,
-			);
-			path = assets;
-			sourceTree = "<group>";
-		};
-		A282D01ADD818A81B284CFAC /* assets */ = {
-			isa = PBXGroup;
-			children = (
-				F191B9409EBF16964F602163 /* fonts */,
-			);
-			path = assets;
-			sourceTree = "<group>";
-		};
-		A7C14026859304E73B9EB8DA /* main */ = {
-			isa = PBXGroup;
-			children = (
-				D7FDF4B0E6DBCB78CF20610A /* assets */,
-			);
-			path = main;
-			sourceTree = "<group>";
-		};
-		AD19FA46304B0E70EE5B27D5 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				30D05558C26C0663717232AF /* main */,
+				093F00878C0CCBB5226C9591 /* main */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		B697D2E89908316AD7A258E5 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				40A69B856D98DA92416E2C1B /* busan_dandi_myeongjo.ttf */,
+			);
+			path = fonts;
 			sourceTree = "<group>";
 		};
 		B8B48948D6E08C787AF85340 /* gowun_batang */ = {
@@ -296,28 +314,28 @@
 			path = gowun_batang;
 			sourceTree = "<group>";
 		};
-		BE2E3579C3A9073FB4D17864 /* src */ = {
+		BACD3913A655AE3DC341F4DC /* assets */ = {
 			isa = PBXGroup;
 			children = (
-				A7C14026859304E73B9EB8DA /* main */,
+				79C7358897E8B9621AF044FF /* fonts */,
+			);
+			path = assets;
+			sourceTree = "<group>";
+		};
+		BB5D8A74DB2738DF0FE02341 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				77F197280322ED44CAEB56AD /* main */,
 			);
 			path = src;
 			sourceTree = "<group>";
 		};
-		C3BCED455AC936B6655B42C0 /* fonts */ = {
+		BED61B1C2CC373D38AE316CF /* sejong_geulggot */ = {
 			isa = PBXGroup;
 			children = (
-				6CE015AFB50AD52F864497D7 /* gowun_dodum.ttf */,
+				BB5D8A74DB2738DF0FE02341 /* src */,
 			);
-			path = fonts;
-			sourceTree = "<group>";
-		};
-		D7FDF4B0E6DBCB78CF20610A /* assets */ = {
-			isa = PBXGroup;
-			children = (
-				29BEC9CD5DE8F943431C7D09 /* fonts */,
-			);
-			path = assets;
+			path = sejong_geulggot;
 			sourceTree = "<group>";
 		};
 		E6FCE561F91D3664CF23D05C /* main */ = {
@@ -326,14 +344,6 @@
 				14CEA4769894A39A7B36B660 /* assets */,
 			);
 			path = main;
-			sourceTree = "<group>";
-		};
-		F191B9409EBF16964F602163 /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				41124284CE98EC53B9064222 /* hi_melody.ttf */,
-			);
-			path = fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -359,6 +369,8 @@
 				B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */,
 				1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */,
 				108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */,
+				A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */,
+				D653C9A304F35EF27606B403 /* GoogleMobileAds */,
 			);
 			productName = iosApp;
 			productReference = 86038AE1032E284E79B32AD6 /* iosApp.app */;
@@ -378,11 +390,11 @@
 					};
 				};
 				knownAssetTags = (
-					gamja_flower,
+					busan_dandi_myeongjo,
 					gowun_batang,
-					gowun_dodum,
-					hi_melody,
 					nanum_jeomggol,
+					ownglyph_wiseelist,
+					sejong_geulggot,
 				);
 			};
 			buildConfigurationList = FF7CA1CA754D017066F1822F /* Build configuration list for PBXProject "iosApp" */;
@@ -398,6 +410,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 				DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -420,11 +433,11 @@
 				07116D6032514A5FC4CDB3DB /* Local.xcconfig.example in Resources */,
 				86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */,
 				09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */,
-				8619E6AF02B493D74581D733 /* gamja_flower.ttf in Resources */,
+				41AD9C5825C619B43E33E493 /* busan_dandi_myeongjo.ttf in Resources */,
 				3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */,
-				29DF7BAEAB8CEF5CBDD81D0F /* gowun_dodum.ttf in Resources */,
-				6FA3748879A5ED9307DECF5C /* hi_melody.ttf in Resources */,
 				47A150204EBF9E2799632D13 /* nanum_jeomggol.ttf in Resources */,
+				E924E2D8C6238479BECB6373 /* ownglyph_wiseelist.ttf in Resources */,
+				0BE538C381966DD42CD55526 /* sejong_geulggot.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -501,7 +514,9 @@
 				56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */,
 				23CEA18C5D402BAD832FD636 /* DailyBackupTask.swift in Sources */,
 				08511472D23A90B696221D80 /* FirebaseReporter.swift in Sources */,
+				ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */,
 				F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */,
+				C116126A0D40FD6BA0083649 /* KeychainLock.swift in Sources */,
 				9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */,
 				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
 			);
@@ -659,7 +674,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 42;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
@@ -685,7 +700,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 42;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = x86_64;
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../shared/app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)";
@@ -727,6 +742,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = exactVersion;
+				version = 13.11.0;
+			};
+		};
 		7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -756,10 +779,20 @@
 			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
 		};
+		A1BE688F1F56E46F4CAF1BC4 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7C4F1707FE80007C7DCEAE3C /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
 		B6E18E1D8AEE3BF1FDA1E5E9 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DF1BCD5B98717A06C1B5AE17 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignIn;
+		};
+		D653C9A304F35EF27606B403 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 725F7048BD13A1F327E4B712 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

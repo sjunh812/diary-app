@@ -4,3 +4,6 @@ import androidx.compose.ui.text.style.LineBreak
 
 internal actual val PHRASE_LINE_BREAK: LineBreak =
     LineBreak(strategy = LineBreak.Strategy.HighQuality, strictness = LineBreak.Strictness.Normal, wordBreak = LineBreak.WordBreak.Phrase)
+
+actual val CenteredLineBreak: LineBreak =
+    LineBreak(strategy = LineBreak.Strategy.Balanced, strictness = LineBreak.Strictness.Normal, wordBreak = LineBreak.WordBreak.Phrase)

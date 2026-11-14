@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -72,8 +73,8 @@ import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
 
-// 앱 틀(스펙 001 T084, contracts/app-shell.md, docs/design.md 넓은 화면).
-// 폭 600dp 미만은 하단 탭, 이상은 레일이고, 글자 배율 2.0에서도 탭 칸끼리 겹치거나 글자가 칸 밖으로 나가지 않는다.
+// 앱 틀(스펙 001 T084, contracts/app-shell.md, docs/design.md 넓은 화면)
+// 폭 600dp 미만은 하단 탭, 이상은 레일. 글자 배율 2.0에서도 탭 칸끼리 겹치거나 글자가 칸 밖으로 나가지 않음
 private object NoFonts : FontInstaller {
     override fun installedPath(id: String): String? = null
 
@@ -91,6 +92,7 @@ class AppScaffoldUiTest {
         startKoin {
             modules(
                 backupFeatureModule,
+                appShellModule,
                 module {
                     single { AppLaunch() }
                     single<PlanRepository> { FreePlanRepository() }
@@ -102,7 +104,7 @@ class AppScaffoldUiTest {
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(rows = rows) }
                     viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts).also { homeModels += it } }
-                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts) }
+                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts, saved = SavedStateHandle()) }
                 }
             )
         }
@@ -115,7 +117,7 @@ class AppScaffoldUiTest {
     fun phone_width_shows_bottom_tabs() = shell(width = 400.dp) {
         val tabs = tabBounds()
         assertEquals(4, tabs.size)
-        // 한 줄로 나란하고 화면 아래에 붙어 있다.
+        // 한 줄로 나란하고 화면 아래에 붙어 있음
         assertTrue(tabs.all { it.top == tabs.first().top }, "$tabs")
         assertTrue(tabs.zipWithNext().all { (a, b) -> a.right <= b.left }, "$tabs")
         assertTrue(tabs.first().bottom > HEIGHT - 72.dp, "${tabs.first()}")
@@ -133,7 +135,7 @@ class AppScaffoldUiTest {
             shell(width = width) {
                 val tabs = tabBounds()
                 assertEquals(4, tabs.size)
-                // 왼쪽 80 안에 위에서 아래로 쌓인다.
+                // 왼쪽 80 안에 위에서 아래로 쌓임
                 assertTrue(tabs.all { it.left == tabs.first().left && it.right <= 80.dp }, "$width $tabs")
                 assertTrue(tabs.zipWithNext().all { (a, b) -> a.bottom <= b.top }, "$width $tabs")
             }
@@ -147,13 +149,12 @@ class AppScaffoldUiTest {
                 shell(width = width, fontScale = 2f, dark = dark) {
                     val tabs = tabBounds()
                     assertTrue(tabs.zipWithNext().all { (a, b) -> !a.overlaps(b) }, "$width dark=$dark $tabs")
-                    // 이름 글자가 제 칸 밖으로 나가지 않는다.
+                    // 이름 글자가 제 칸 밖으로 나가지 않음
                     val labels = onAllNodes(hasAnyAncestor(isSelectable()) and hasAnyText(), useUnmergedTree = true).bounds()
                     labels.forEach { label ->
                         assertTrue(tabs.any { it.contains(label) }, "$width dark=$dark label=$label tabs=$tabs")
                     }
-                    // 칸에 맞춰 잘린 글자도 없다.
-                    // 잘리면 칸 안에 있어도 글자가 다 보이지 않는다.
+                    // 칸에 맞춰 잘린 글자도 없음. 잘리면 칸 안에 있어도 글자가 다 보이지 않음
                     val clipped = labelLayouts().filter { it.isClipped() }.map { it.layoutInput.text.text }
                     assertEquals(emptyList(), clipped, "$width dark=$dark")
                 }
@@ -163,7 +164,7 @@ class AppScaffoldUiTest {
 
     @Test
     fun choosing_a_tab_selects_it_and_logs_only_the_screen_key() = shell(width = 400.dp) {
-        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다.
+        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라냄
         val tabs = isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
         onAllNodes(tabs)[1].performClick()
         waitForIdle()
@@ -174,7 +175,7 @@ class AppScaffoldUiTest {
         )
     }
 
-    /** 탭을 옮겼다 와도 화면 모델이 살아 있어 필터가 그대로다. */
+    /** 탭을 옮겼다 와도 화면 모델이 살아 있어 필터가 그대로 */
     @Test
     fun a_tab_keeps_its_screen_model_while_you_are_away() = shell(width = 400.dp) {
         onNode(favoritesSwitch).performClick()
@@ -190,7 +191,7 @@ class AppScaffoldUiTest {
         assertTrue(homeModels.single().favoritesOnly.value)
     }
 
-    /** 탭을 옮길 때 두 화면이 겹쳐 보이지 않는다. */
+    /** 탭을 옮길 때 두 화면이 겹쳐 보이지 않음 */
     @Test
     fun changing_tabs_swaps_screens_at_once() = shell(width = 400.dp) {
         onAllNodes(favoritesSwitch).assertCountEquals(1)
@@ -207,7 +208,7 @@ class AppScaffoldUiTest {
         assertTrue(frames <= FRAMES_TO_SETTLE, "탭을 바꾸는 데 $frames 프레임")
     }
 
-    /** 홈을 내렸다가 달력에 다녀와도 보던 자리고, 뼈대를 거치지 않는다. */
+    /** 홈을 내렸다가 달력에 다녀와도 보던 자리이고 뼈대를 거치지 않음 */
     @Test
     fun home_comes_back_where_you_left_it() {
         rows = (0 until ROW_COUNT).map { row(it) }
@@ -235,7 +236,7 @@ class AppScaffoldUiTest {
     private val favoritesSwitch = SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch)
 
     private fun ComposeUiTest.tab(index: Int) {
-        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라낸다.
+        // 달력을 열면 날짜 칸도 고를 수 있는 항목이라 탭만 골라냄
         onAllNodes(isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab))[index].performClick()
     }
 
@@ -268,8 +269,7 @@ class AppScaffoldUiTest {
             results.single()
         }
 
-    // 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 `hasVisualOverflow`가 늘 참이다.
-    // 높이와 글자 제 폭으로 본다.
+    // 가운데 맞춘 한 줄 글자는 칸 폭으로 배치되어 `hasVisualOverflow`가 늘 참. 높이와 글자 제 폭으로 봄
     private fun TextLayoutResult.isClipped() = didOverflowHeight || multiParagraph.maxIntrinsicWidth > size.width + 0.5f
 
     private fun DpRect.overlaps(other: DpRect) = left < other.right && other.left < right && top < other.bottom && other.top < bottom
@@ -290,7 +290,7 @@ class AppScaffoldUiTest {
         const val FRAME = "frame"
         const val FRAMES_TO_SETTLE = 4
 
-        // 기본 전환인 0.7초 겹침.
+        // 기본 전환인 0.7초 겹침
         const val CROSS_FADE_FRAMES = 42
         const val ROW_COUNT = 40
         val HEIGHT = 800.dp

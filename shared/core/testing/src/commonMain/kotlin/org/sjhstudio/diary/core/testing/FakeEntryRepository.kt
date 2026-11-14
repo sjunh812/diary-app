@@ -15,7 +15,7 @@ import org.sjhstudio.diary.core.model.SearchFilter
 
 private const val NOON = 12
 
-/** 화면 시험에 쓰는 일기 한 줄. */
+/** 화면 시험에 쓰는 일기 한 줄 */
 fun fakeEntryRow(id: String, date: LocalDate, preview: String = "글 $id", isFavorite: Boolean = false) = EntryRow(
     id = id,
     date = date,
@@ -29,10 +29,10 @@ fun fakeEntryRow(id: String, date: LocalDate, preview: String = "글 $id", isFav
 )
 
 /**
- * 화면 시험용.
- * [moods]에 넣은 날에 일기가 있는 것으로 보인다.
- * [rows]는 홈과 그날 목록에 나오는 줄이다.
- * 기본은 일기가 하나도 없다.
+ * 화면 시험용
+ * [moods]에 넣은 날은 일기가 있는 날로 침
+ * [rows]는 홈과 그날 목록에 나오는 줄
+ * 기본은 일기 없음
  */
 class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(), private val rows: List<EntryRow> = emptyList()) :
     EntryRepository {
@@ -51,7 +51,7 @@ class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(
 
     override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = flowOf(PagingData.empty())
 
-    override suspend fun setFavorite(id: String, favorite: Boolean) = Unit
+    override suspend fun toggleFavorite(id: String) = Unit
 
     override suspend fun toggleCheck(id: String, index: Int) = Unit
 

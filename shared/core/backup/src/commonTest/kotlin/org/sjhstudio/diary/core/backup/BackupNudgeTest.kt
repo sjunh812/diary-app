@@ -25,7 +25,7 @@ import org.sjhstudio.diary.core.testing.FakeBackupNotifier
 import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-/** contracts/backup-flow.md 권하기 카드 조건. */
+/** contracts/backup-flow.md 권하기 카드 조건 */
 class BackupNudgeTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path
@@ -85,9 +85,31 @@ class BackupNudgeTest {
         assertEquals(1, controller().nudge.first()?.photoCount)
     }
 
+    // 백업·복원 화면처럼 사진 파일 수로 계산. 같은 사진이 두 일기에 붙어도 한 장
+    @Test
+    fun same_photo_in_two_entries_counts_once() = runTest {
+        entries(2)
+        db.mediaDao().insertAll(
+            listOf(
+                MediaEntity("m0", "e0", 0, "normal", "a.jpg", "a", 1, 1, 1, null, 1),
+                MediaEntity("m1", "e1", 0, "normal", "a.jpg", "a", 1, 1, 1, null, 1)
+            )
+        )
+
+        assertEquals(1, controller().nudge.first()?.photoCount)
+    }
+
     @Test
     fun migrated_user_sees_it_right_away_with_the_old_account() = runTest {
+        entries(1)
         assertEquals("old@gmail.com", controller(migrated = true, account = "old@gmail.com").nudge.first()?.suggestedAccount)
+    }
+
+    // 옮긴 일기를 모두 지우면 "일기 0편이 이 휴대폰에만 있어요"가 뜨면 안 됨
+    // 지킬 것이 없으면 권하지 않음
+    @Test
+    fun migrated_user_with_nothing_left_does_not_see_it() = runTest {
+        assertNull(controller(migrated = true, account = "old@gmail.com").nudge.first())
     }
 
     @Test

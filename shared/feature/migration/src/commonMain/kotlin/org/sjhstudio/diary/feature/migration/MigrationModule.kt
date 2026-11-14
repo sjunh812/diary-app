@@ -6,7 +6,7 @@ import org.sjhstudio.diary.core.migration.MigrationFollowUp
 
 val migrationFeatureModule =
     module {
-        // MigrationFollowUp은 일기 DB를 알아서 앱 모듈(shared/app)이 만든다.
+        // MigrationFollowUp은 일기 DB를 아는 앱 모듈(shared/app)이 만듦
         viewModel { MigrationViewModel(get(), get<MigrationFollowUp>()::run) }
         viewModel { LegacyReaderViewModel(get()) }
     }

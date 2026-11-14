@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +31,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -60,34 +63,46 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
 import org.sjhstudio.diary.core.designsystem.theme.limitFontScale
 
-/**
- * 휠 한 칸 높이.
- * 다섯 칸이 보이고 가운데가 고른 값이다(`docs/design.md` 시각 고르기).
- */
+/** 휠 한 칸 높이. 다섯 칸이 보이고 가운데가 고른 값(`docs/design.md` 시각 고르기) */
 private val WheelRow: Dp = 40.dp
 private const val VISIBLE_ROWS = 5
+private const val COMPACT_ROWS = 3
+
+/**
+ * 달력과 한 시트에 놓여도 바퀴 다섯 칸이 스크롤 없이 들어가는 창 높이
+ * 384×832dp 폰은 들어가고, 360×780dp 폰은 스크롤됨
+ */
+private val RoomyWindowHeight: Dp = 820.dp
 private val WheelColumnWidth: Dp = 72.dp
 
-/** 달 이름이 긴 언어(September)도 줄지 않는 폭. */
+/** 달 이름이 긴 언어(September)도 줄지 않는 폭 */
 private val MonthWheelColumnWidth: Dp = 128.dp
 private const val MONTHS = 12
 
-/**
- * 시·분은 끝에서 처음으로 이어 돈다.
- * 이만큼 되풀이해 두고 가운데에서 시작한다.
- */
+/** 시·분은 끝에서 처음으로 이어짐. 이만큼 되풀이해 두고 가운데에서 시작 */
 private const val LOOP_REPEAT = 400
 
 /**
- * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠).
- * 바텀 시트 안에 둔다.
- * 오전·오후 / 시 / 분(1분 단위) 세 열이고, [is24Hour]면 오전·오후 열 없이 0~23시다.
- * 한국어·일본어는 오전·오후가 앞, 영어는 뒤에 온다(플랫폼 시각 형식과 같은 순서).
- * 돌리다 멈출 때마다 [onChange]로 하루 중 몇 분째인지(0~1439)를 알린다.
- * 글자는 칸이 정해져 있어 기기 글자 크기를 1.3배까지만 따른다.
+ * 달력 아래에 바퀴를 둘 때의 칸 수
+ * 창이 넉넉하면 다섯 칸, 낮으면 세 칸으로 줄여 시트가 스크롤되지 않게 함
  */
 @Composable
-fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean, modifier: Modifier = Modifier) {
+fun rememberCalendarWheelRows(): Int {
+    val height = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+    return if (height >= RoomyWindowHeight) VISIBLE_ROWS else COMPACT_ROWS
+}
+
+/**
+ * 시각 고르기 휠(`docs/design.md` 시각 고르기, HIG 피커의 휠)
+ * 바텀 시트 안에 둠
+ * 오전·오후 / 시 / 분(1분 단위) 세 열이고, [is24Hour]면 오전·오후 열 없이 0~23시
+ * 한국어·일본어는 오전·오후가 앞, 영어는 뒤(플랫폼 시각 형식과 같은 순서)
+ * 돌리다 멈출 때마다 [onChange]로 하루 중 몇 분째인지(0~1439) 알림
+ * 칸이 정해져 있어 글자는 기기 글자 크기를 1.3배까지만 따름
+ * [rows]는 보이는 칸 수(홀수). 달력과 한 시트에 놓일 때는 3으로 줄여 시트가 스크롤되지 않게 함
+ */
+@Composable
+fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean, modifier: Modifier = Modifier, rows: Int = VISIBLE_ROWS) {
     var hour by remember { mutableIntStateOf(minuteOfDay / 60) }
     var minute by remember { mutableIntStateOf(minuteOfDay % 60) }
     val change by rememberUpdatedState(onChange)
@@ -100,14 +115,15 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
                 labels = listOf(stringResource(Res.string.ds_am), stringResource(Res.string.ds_pm)),
                 selected = if (hour >= 12) 1 else 0,
                 loop = false,
-                description = stringResource(Res.string.ds_wheel_ampm)
+                description = stringResource(Res.string.ds_wheel_ampm),
+                rows = rows
             ) { index ->
                 hour = hour % 12 + index * 12
                 emit()
             }
         }
     val colors = DiaryTheme.colors
-    Box(modifier.fillMaxWidth().height(WheelRow * VISIBLE_ROWS), contentAlignment = Alignment.Center) {
+    Box(modifier.fillMaxWidth().height(WheelRow * rows), contentAlignment = Alignment.Center) {
         // 가운데 고른 칸 띠
         Box(Modifier.fillMaxWidth().height(WheelRow).clip(DiaryShapes.r12).background(colors.sunken))
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
@@ -116,7 +132,8 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
                 labels = if (is24Hour) (0..23).map { it.toString() } else (listOf(12) + (1..11)).map { it.toString() },
                 selected = if (is24Hour) hour else hour % 12,
                 loop = true,
-                description = stringResource(Res.string.ds_wheel_hour)
+                description = stringResource(Res.string.ds_wheel_hour),
+                rows = rows
             ) { index ->
                 hour = if (is24Hour) index else index + if (hour >= 12) 12 else 0
                 emit()
@@ -125,7 +142,8 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
                 labels = (0..59).map { it.toString().padStart(2, '0') },
                 selected = minute,
                 loop = true,
-                description = stringResource(Res.string.ds_wheel_minute)
+                description = stringResource(Res.string.ds_wheel_minute),
+                rows = rows
             ) { index ->
                 minute = index
                 emit()
@@ -136,10 +154,10 @@ fun DiaryTimeWheel(minuteOfDay: Int, onChange: (Int) -> Unit, is24Hour: Boolean,
 }
 
 /**
- * 연·월 고르기 휠.
- * 달력의 연월 제목을 누르면 날짜 칸 자리에 나온다(HIG 피커의 휠, `docs/design.md` 시각 고르기와 같은 규격).
- * 한국어·일본어는 연이 앞, 영어는 달이 앞이다.
- * 달은 끝에서 처음으로 이어 돌고 연은 [years] 끝에서 멈춘다.
+ * 연·월 고르기 휠
+ * 달력의 연월 제목을 누르면 날짜 칸 자리에 나옴(HIG 피커의 휠, `docs/design.md` 시각 고르기와 같은 규격)
+ * 한국어·일본어는 연이 앞, 영어는 달이 앞
+ * 달은 끝에서 처음으로 이어 돌고 연은 [years] 끝에서 멈춤
  */
 @Composable
 fun DiaryMonthWheel(
@@ -194,7 +212,7 @@ fun DiaryMonthWheel(
     }
 }
 
-/** 휠 안에서 남은 끌기와 튕김을 다 써 버려서, 휠 끝에 닿아도 바텀 시트가 끌려 내려가지 않게 한다. */
+/** 휠 안에서 남은 끌기와 튕김을 다 써 버려, 휠 끝에 닿아도 바텀 시트가 끌려 내려가지 않게 함 */
 private val ConsumeRemaining =
     object : NestedScrollConnection {
         override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset = available
@@ -209,6 +227,7 @@ private fun WheelColumn(
     loop: Boolean,
     description: String,
     width: Dp = WheelColumnWidth,
+    rows: Int = VISIBLE_ROWS,
     onSelect: (Int) -> Unit
 ) {
     val size = labels.size
@@ -217,7 +236,7 @@ private fun WheelColumn(
     val fling = rememberSnapFlingBehavior(state, SnapPosition.Center)
     val scope = rememberCoroutineScope()
     val select by rememberUpdatedState(onSelect)
-    // 보이는 칸 가운데 줄에 가장 가까운 칸이 고른 칸이다.
+    // 보이는 칸 가운데 줄에 가장 가까운 칸이 고른 칸
     val center by remember {
         derivedStateOf {
             val info = state.layoutInfo
@@ -234,21 +253,21 @@ private fun WheelColumn(
     fun moveBy(step: Int): Boolean {
         val target = center + step
         if (target !in 0 until count) return false
-        // 맨 위 칸 앞에 두 칸 여백이 있어서, 그 칸으로 굴리면 가운데에 온다.
+        // 맨 위 칸 앞에 반 화면만큼 여백이 있어 그 칸으로 굴리면 가운데에 옴
         scope.launch { state.animateScrollToItem(target) }
         return true
     }
     LazyColumn(
         state = state,
         flingBehavior = fling,
-        contentPadding = PaddingValues(vertical = WheelRow * (VISIBLE_ROWS / 2)),
+        contentPadding = PaddingValues(vertical = WheelRow * (rows / 2)),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
             Modifier
                 .width(width)
-                .height(WheelRow * VISIBLE_ROWS)
+                .height(WheelRow * rows)
                 .nestedScroll(ConsumeRemaining)
-                // 화면 읽기 프로그램은 열 하나를 "시, 10"처럼 읽고, 이전·다음 동작으로 한 칸씩 옮긴다.
+                // 화면 읽기 프로그램은 열 하나를 "시, 10"처럼 읽고 이전·다음 동작으로 한 칸씩 옮김
                 .clearAndSetSemantics {
                     contentDescription = description
                     stateDescription = labels[center % size]
@@ -261,7 +280,16 @@ private fun WheelColumn(
     ) {
         items(count) { index ->
             val distance = abs(index - center)
-            Box(Modifier.width(width).height(WheelRow), contentAlignment = Alignment.Center) {
+            // 위아래에 보이는 칸을 누르면 그 칸이 가운데로 굴러와 골라짐(iOS 피커, Android NumberPicker와 같음)
+            Box(
+                Modifier
+                    .width(width)
+                    .height(WheelRow)
+                    .clickable(interactionSource = null, indication = null, enabled = distance != 0) {
+                        scope.launch { state.animateScrollToItem(index) }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
                 BasicText(
                     labels[index % size],
                     style = wheelStyle(distance, typography.numeral, typography.reading, typography.body),
@@ -272,7 +300,7 @@ private fun WheelColumn(
     }
 }
 
-/** 가운데는 `numeral` `textPrimary`, 한 칸 떨어지면 `reading` `textTertiary`, 그 밖은 `body` `placeholder`. */
+/** 가운데는 `numeral` `textPrimary`, 한 칸 떨어지면 `reading` `textTertiary`, 그 밖은 `body` `placeholder` */
 @Composable
 private fun wheelStyle(distance: Int, center: TextStyle, near: TextStyle, far: TextStyle): TextStyle {
     val colors = DiaryTheme.colors

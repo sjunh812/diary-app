@@ -1,4 +1,4 @@
-// 설정 > 백업, 복원, 파일로 백업하기, 홈 상태 줄과 권하기 카드.
+// 설정 > 백업, 복원, 파일로 백업하기, 홈 상태 줄과 권하기 카드
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

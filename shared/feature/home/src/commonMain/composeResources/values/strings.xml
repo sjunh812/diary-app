@@ -2,6 +2,7 @@
 <resources>
     <string name="home_favorites_only">Favorites only</string>
     <string name="home_favorites_empty">No favorite entries</string>
+    <string name="home_favorites_show_all">Show all entries</string>
     <string name="home_empty_title">No entries yet</string>
     <string name="home_empty_body">Your first entry can be just one line.</string>
     <string name="home_empty_action">Write an entry</string>
@@ -23,9 +24,8 @@
     <string name="detail_kept_both_keep">Keep this one</string>
     <string name="detail_kept_both_close">Keep both</string>
     <string name="detail_elsewhere_photo">On the original phone</string>
-    <string name="home_error_title">Couldn't load your entries</string>
-    <string name="home_error_body">Try again in a moment.</string>
-    <string name="home_error_retry">Try again</string>
     <string name="detail_missing_title">Entry not found</string>
     <string name="detail_missing_body">It may have been deleted or moved to Trash.</string>
+    <string name="tip_home_list_style">View your diary list as cards or a photo grid.</string>
+    <string name="tip_home_list_style_action">Change</string>
 </resources>

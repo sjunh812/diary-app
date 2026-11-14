@@ -9,6 +9,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -23,6 +24,7 @@ import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.database.EntryListRow
 import org.sjhstudio.diary.core.database.MergeMarkEntity
 import org.sjhstudio.diary.core.database.asModel
+import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.EntryRow
@@ -32,14 +34,25 @@ import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.testing.TestClock
 
-/** 찾은 줄을 쪽 나눔 없이 모두 읽는다. */
+/** 찾은 줄을 쪽 나눔 없이 모두 읽음 */
 internal suspend fun DefaultEntryRepository.searchAll(filter: SearchFilter): List<EntryRow> =
-    (searchPages(filter).load(PagingSource.LoadParams.Refresh(null, ALL_ROWS, false)) as PagingSource.LoadResult.Page).data
+    (searchPages(filter).loadOnce(ALL_ROWS) as PagingSource.LoadResult.Page).data
+
+/**
+ * 한 번 읽고 원본을 닫음
+ * Room의 쪽 원본은 뒤에서 변경 감시를 시작해, 시험이 DB를 닫은 뒤 그 감시가 예외를 냄(RoomQueryContext가 받음)
+ * 앱은 DB를 닫지 않아 시험에서만 생기는 일
+ */
+internal suspend fun <V : Any> PagingSource<Int, V>.loadOnce(size: Int): PagingSource.LoadResult<Int, V> = try {
+    load(PagingSource.LoadParams.Refresh(null, size, false))
+} finally {
+    invalidate()
+}
 
 private const val ALL_ROWS = 100_000
 private const val ROUNDS = 30
 
-// 달력, 찾기, 돌아보기, 휴지통, 사진 정리(스펙 002 T044 묶음).
+// 달력, 찾기, 돌아보기, 휴지통, 사진 정리(스펙 002 T044 묶음)
 class DiaryReadRepositoryTest {
     private val db = memoryDatabase()
     private val clock = TestClock(T0)
@@ -58,7 +71,7 @@ class DiaryReadRepositoryTest {
     fun timeline_is_newest_first_and_skips_trash() = runTest {
         db.seed(entry("old", date = "2026-09-01"), entry("new", date = "2026-10-02"), entry("gone", date = "2026-10-03", deletedAt = T0))
 
-        val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+        val page = db.entryDao().visibleEntries().loadOnce(10)
 
         assertEquals(listOf("new", "old"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryListRow).id })
     }
@@ -78,7 +91,7 @@ class DiaryReadRepositoryTest {
         assertTrue(after.updatedAt > stored.updatedAt)
     }
 
-    /** 읽고 고쳐 쓰는 사이에 다른 체크가 끼어들면 앞의 체크가 사라진다. */
+    /** 읽고 고쳐 쓰는 사이에 다른 체크가 끼어들면 앞의 체크가 사라짐 */
     @Test
     fun checking_two_items_at_once_keeps_both() = runTest {
         db.seed(entry("a"))
@@ -135,20 +148,63 @@ class DiaryReadRepositoryTest {
         assertEquals(2, entries.day(LocalDate.parse("2026-10-31")).first().size)
     }
 
+    /** 짝이 이미 다른 일기와 다시 둘 다 남겨졌으면 그 표시는 지우지 않음 */
     @Test
-    fun trashing_one_side_clears_both_marks() = runTest {
+    fun closing_an_old_pair_keeps_the_newer_pair() = runTest {
+        keepBoth("a", "b")
+        db.seed(entry("c"))
+        db.backupDao().mark(listOf(MergeMarkEntity("a", "kept_both", "c", "drive", 2), MergeMarkEntity("c", "kept_both", "a", "drive", 2)))
+
+        entries.clearKeptBoth("b")
+
+        assertEquals("c", entries.entry("a").first()?.keptBothWith)
+        assertEquals("a", entries.entry("c").first()?.keptBothWith)
+    }
+
+    /** A가 C와 다시 둘 다 남겨진 뒤 A의 표시를 닫아도, 아직 A와 겹치는 B의 표시는 남음 */
+    @Test
+    fun closing_a_mark_keeps_others_that_still_point_at_it() = runTest {
+        keepBoth("a", "b")
+        db.seed(entry("c"))
+        db.backupDao().mark(listOf(MergeMarkEntity("a", "kept_both", "c", "drive", 2), MergeMarkEntity("c", "kept_both", "a", "drive", 2)))
+
+        entries.clearKeptBoth("a")
+
+        assertEquals(null, entries.entry("a").first()?.keptBothWith)
+        assertEquals(null, entries.entry("c").first()?.keptBothWith)
+        assertEquals("a", entries.entry("b").first()?.keptBothWith)
+    }
+
+    /** 짝을 영구 삭제하면 남은 쪽 표시도 지움. 나중에 백업에서 짝이 다시 들어와도 한쪽만 켜지지 않게 */
+    @Test
+    fun deleting_the_pair_forever_clears_the_leftover_mark() = runTest {
+        keepBoth("a", "b")
+        entries.moveToTrash("b")
+
+        trash.deleteForever(listOf("b"))
+
+        assertEquals(emptyList(), db.backupDao().marks().first())
+    }
+
+    /** 이쪽만 남기기를 되돌리면 두 판 표시도 그대로 돌아옴 */
+    @Test
+    fun trashing_one_side_hides_the_mark_until_it_is_restored() = runTest {
         keepBoth("a", "b")
 
         entries.moveToTrash("b")
-
         assertEquals(null, entries.entry("a").first()?.keptBothWith)
+        assertEquals(false, entries.day(LocalDate.parse("2026-10-31")).first().single().keptBoth)
+
+        entries.restore("b")
+        assertEquals("b", entries.entry("a").first()?.keptBothWith)
+        assertEquals(true, entries.day(LocalDate.parse("2026-10-31")).first().all { it.keptBoth })
     }
 
     @Test
     fun favorites_only_keeps_starred_entries() = runTest {
         db.seed(entry("a", favorite = true), entry("b"))
 
-        val page = db.entryDao().favoriteEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+        val page = db.entryDao().favoriteEntries().loadOnce(10)
 
         assertEquals(listOf("a"), assertIs<PagingSource.LoadResult.Page<Int, *>>(page).data.map { (it as EntryListRow).id })
     }
@@ -163,9 +219,22 @@ class DiaryReadRepositoryTest {
         )
 
         assertEquals(setOf(YearMonth(2026, 10), YearMonth(2026, 9)), entries.months().first())
+        // 즐겨찾기만 볼 때는 즐겨찾기가 있는 달만 고를 수 있음. 다른 달을 고르면 엉뚱한 달로 감
+        assertEquals(setOf(YearMonth(2026, 9)), entries.favoriteMonths().first())
         assertEquals(0, entries.positionOf(YearMonth(2026, 10), favoritesOnly = false))
         assertEquals(2, entries.positionOf(YearMonth(2026, 9), favoritesOnly = false))
         assertEquals(0, entries.positionOf(YearMonth(2026, 9), favoritesOnly = true))
+    }
+
+    /** 빠르게 두 번 누르면 처음대로. 화면 값을 읽어 쓰면 두 번째가 묻힘 */
+    @Test
+    fun two_quick_favorite_taps_cancel_out() = runTest {
+        db.seed(entry("a"))
+
+        entries.toggleFavorite("a")
+        entries.toggleFavorite("a")
+
+        assertEquals(false, db.entryDao().get("a")!!.asModel().isFavorite)
     }
 
     @Test
@@ -173,7 +242,7 @@ class DiaryReadRepositoryTest {
         db.seed(entry("a"))
         clock.advance(1.hours)
 
-        entries.setFavorite("a", true)
+        entries.toggleFavorite("a")
 
         val saved = db.entryDao().get("a")!!.asModel()
         assertTrue(saved.isFavorite)
@@ -266,6 +335,25 @@ class DiaryReadRepositoryTest {
     }
 
     @Test
+    fun search_edges_blank_query_case_backslash_and_period_ends() = runTest {
+        db.seed(
+            entry("a", date = "2026-10-01", text = "Sea 바다"),
+            entry("b", date = "2026-10-31", text = "C:\\일기"),
+            entry("c", date = "2026-11-01", text = "sea"),
+            entry("d", date = "2026-09-30", text = "trashed", deletedAt = T0)
+        )
+        val october = DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31))
+
+        // 빈칸만 친 것은 아무것도 안 친 것과 같고, 휴지통 일기는 찾지 않음
+        assertEquals(setOf("a", "b", "c"), ids(SearchFilter(query = "   ")).toSet())
+        // 영어는 대소문자를 가리지 않음
+        assertEquals(setOf("a", "c"), ids(SearchFilter(query = "SEA")).toSet())
+        assertEquals(listOf("b"), ids(SearchFilter(query = "C:\\")))
+        // 기간은 첫날과 마지막 날을 모두 넣음
+        assertEquals(setOf("a", "b"), ids(SearchFilter(period = october)).toSet())
+    }
+
+    @Test
     fun search_combines_conditions() = runTest {
         db.seed(
             entry("a", date = "2026-10-01", mood = Mood.GOOD, favorite = true),
@@ -290,12 +378,12 @@ class DiaryReadRepositoryTest {
 
     @Test
     fun list_preview_matches_the_whole_text() = runTest {
-        // 잘라 읽어도 미리보기는 같아야 한다.
-        // 이모지가 끊기는 자리도 본다.
+        // 잘라 읽어도 미리보기는 같아야 함
+        // 이모지가 끊기는 자리도 봄
         val long = "🌊".repeat(100) + "오늘은\n\n바다에 갔다 ".repeat(200)
         db.seed(entry("a", text = long))
 
-        val page = db.entryDao().visibleEntries().load(PagingSource.LoadParams.Refresh(null, 10, false))
+        val page = db.entryDao().visibleEntries().loadOnce(10)
         val row = assertIs<PagingSource.LoadResult.Page<Int, EntryListRow>>(page).data.single()
 
         assertTrue(row.plainText.length < long.length)
@@ -331,7 +419,7 @@ class DiaryReadRepositoryTest {
 
     @Test
     fun mood_flow_keeps_every_mood_of_the_day() = runTest {
-        // 마지막 일기에 기분이 없어도 그날의 다른 기분은 통계가 세어야 한다.
+        // 마지막 일기에 기분이 없어도 그날의 다른 기분은 통계가 세어야 함
         db.seed(entry("a", time = "09:00", mood = Mood.SICK), entry("b", time = "10:00", mood = Mood.MEH), entry("c", time = "11:00"))
 
         val day = stats.moodFlow(StatsPeriod.Month(YearMonth(2026, 10))).first().single()
@@ -354,11 +442,23 @@ class DiaryReadRepositoryTest {
         db.seed(entry("keep"))
 
         assertEquals(listOf(2, 1), trash.items().first().map { it.daysLeft })
+        assertEquals(2, trash.count().first())
         trash.purgeExpired(T0)
 
         assertNull(db.entryDao().get("old"))
         assertTrue(db.entryDao().get("new") != null)
         assertTrue(db.entryDao().get("keep") != null)
+    }
+
+    /** 약속은 30일. 정확히 30일째까지 남고 그 뒤에 지움 */
+    @Test
+    fun the_thirtieth_day_is_exact() = runTest {
+        db.seed(entry("edge", deletedAt = T0 - 30.days), entry("over", deletedAt = T0 - 30.days - 1.milliseconds))
+
+        trash.purgeExpired(T0)
+
+        assertTrue(db.entryDao().get("edge") != null)
+        assertNull(db.entryDao().get("over"))
     }
 
     @Test
@@ -395,11 +495,24 @@ class DiaryReadRepositoryTest {
         val written = Instant.fromEpochMilliseconds(files.metadata(MEDIA_DIR / "stale.jpg").lastModifiedAtMillis!!)
         val cleaner = DefaultMediaRepository(db, files, MEDIA_DIR, THUMB_DIR)
 
-        // 방금 고른 사진은 아직 잇기 전일 수 있어 남긴다.
+        // 방금 고른 사진은 아직 잇기 전일 수 있어 남김
         cleaner.cleanUnused(written + 1.hours)
         assertEquals(setOf("kept.jpg", "stale.jpg"), files.list(MEDIA_DIR).map { it.name }.toSet())
 
         cleaner.cleanUnused(written + 2.days)
         assertEquals(setOf("kept.jpg"), files.list(MEDIA_DIR).map { it.name }.toSet())
+    }
+
+    /** 전체는 돌아보기와 고급 통계가 같은 수. 앞날짜 일기도 셈 */
+    @Test
+    fun all_time_counts_future_entries_like_the_review() = runTest {
+        db.seed(entry("past", date = "2026-10-31", mood = Mood.GOOD), entry("future", date = "2027-01-10", mood = Mood.SAD))
+        val today = LocalDate(2026, 11, 13)
+
+        val advanced = stats.advanced(AdvancedPeriod.ALL, today).first()
+
+        assertEquals(stats.moodCounts(StatsPeriod.All).first().total, advanced.habit.entries)
+        assertEquals(2, advanced.habit.entries)
+        assertEquals(1, stats.advanced(AdvancedPeriod.THIS_YEAR, today).first().habit.entries)
     }
 }

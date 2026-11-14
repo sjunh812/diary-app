@@ -2,6 +2,7 @@
 <resources>
     <string name="home_favorites_only">お気に入りのみ</string>
     <string name="home_favorites_empty">お気に入りの日記はありません</string>
+    <string name="home_favorites_show_all">すべての日記を見る</string>
     <string name="home_empty_title">まだ日記がありません</string>
     <string name="home_empty_body">最初の日記は一行だけでも大丈夫です。</string>
     <string name="home_empty_action">日記を書く</string>
@@ -23,9 +24,8 @@
     <string name="detail_kept_both_keep">こちらだけ残す</string>
     <string name="detail_kept_both_close">両方残す</string>
     <string name="detail_elsewhere_photo">元のスマートフォンにある写真</string>
-    <string name="home_error_title">日記を読み込めませんでした</string>
-    <string name="home_error_body">少し時間をおいて、もう一度お試しください。</string>
-    <string name="home_error_retry">もう一度試す</string>
     <string name="detail_missing_title">日記が見つかりません</string>
     <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
+    <string name="tip_home_list_style">日記の一覧はカードや写真グリッドでも見られます。</string>
+    <string name="tip_home_list_style_action">変更する</string>
 </resources>

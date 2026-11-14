@@ -8,6 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -24,9 +26,16 @@ import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.component.ProvideScreenGutter
+import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.BackupProgress
+import org.sjhstudio.diary.core.model.BackupStatus
+import org.sjhstudio.diary.core.model.BackupStep
 import org.sjhstudio.diary.core.model.DamageReason
 import org.sjhstudio.diary.core.model.MigrationOutcome
 import org.sjhstudio.diary.core.model.MigrationReport
@@ -36,9 +45,14 @@ import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.RestoreState
+import org.sjhstudio.diary.core.model.RollbackInfo
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 import org.sjhstudio.diary.feature.backup.BackupFoundSheet
+import org.sjhstudio.diary.feature.backup.BackupNudgeContent
+import org.sjhstudio.diary.feature.backup.BackupOptionsScreen
+import org.sjhstudio.diary.feature.backup.BackupSettingsScreen
+import org.sjhstudio.diary.feature.backup.BackupStatusLine
 import org.sjhstudio.diary.feature.backup.RestoreListScreen
 import org.sjhstudio.diary.feature.backup.RestoreListUi
 import org.sjhstudio.diary.feature.backup.RestorePreviewScreen
@@ -52,18 +66,20 @@ import org.sjhstudio.diary.feature.settings.MigrationReportScreen
 import org.sjhstudio.diary.feature.settings.MigrationReportUiState
 import org.sjhstudio.diary.feature.welcome.FullLetterScreen
 import org.sjhstudio.diary.feature.welcome.LetterScreen
+import org.sjhstudio.diary.feature.welcome.OnboardingScreen
 
 /**
- * 개발 빌드에만 있는 화면 모음.
- * 앱 틀에서 아직 들어갈 길이 없는 화면을 견본 상태로 띄워 Figma와 견준다.
- * 일기 DB나 설정은 건드리지 않는다.
+ * 개발 빌드에만 있는 화면 모음
+ * 앱 틀에서 아직 들어갈 길이 없는 화면을 견본 상태로 띄워 Figma와 견줌
+ * 일기 DB나 설정은 건드리지 않음
  *
  *   adb shell am start -n org.sjhstudio.diary/.debug.ScreenCatalogActivity --es screen migration_report
  *   화면 이름: migration_report(M5), support_sheet(M5 · 복구 문의), photo_cell(일기 줄 사진 칸, 옮긴 사진으로),
  *   lock_forgot(L3 · 비밀번호를 잊어버렸을 때), lock_settings(L4 잠금 설정), settings(앱 틀의 설정 탭: S6과 G2·G3·L4·M5),
- *   design_catalog(디자인 시스템 견본), list_performance(목록 성능 견본, 일기 1만 편·사진 5천 장, 따로 둔 견본 DB)
- * lock_settings와 settings는 실제 설정을 바꾼다.
- * 에뮬레이터에서 잠금을 켜거나 설정을 바꿔 보는 데 쓴다.
+ *   design_catalog(디자인 시스템 견본), list_performance(목록 성능 견본, 일기 1만 편·사진 5천 장, 따로 둔 견본 DB),
+ *   backup_connected(B1 연결됨), backup_rollback(B9 되돌리기), backup_no_space(B10), backup_options(B13), backup_lines(B11 홈 백업 줄)
+ * lock_settings와 settings는 실제 설정을 바꿈
+ * 에뮬레이터에서 잠금을 켜거나 설정을 바꿔 볼 때 씀
  */
 class ScreenCatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,6 +147,10 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     FULL_LETTER -> FullLetterScreen(1204, onBack = ::finish)
 
+                    ONBOARDING_UPDATED -> OnboardingScreen(updated = true, onFinish = ::finish)
+
+                    ONBOARDING_NEW -> OnboardingScreen(updated = false, onFinish = ::finish)
+
                     RESTORE_LEGACY ->
                         RestorePreviewScreen(
                             RestorePreparation.Ready(
@@ -155,10 +175,60 @@ class ScreenCatalogActivity : ComponentActivity() {
 
                     RESTORE_FOUND -> BackupFoundSheet(SAMPLE_BACKUP, onLater = ::finish, onRestore = {})
 
+                    BACKUP_CONNECTED -> BackupSample(SAMPLE_STATUS)
+
+                    BACKUP_ROLLBACK -> BackupSample(
+                        SAMPLE_STATUS,
+                        RollbackInfo(Instant.fromEpochMilliseconds(SAMPLE_NOW + WEEK), 1_204, 1_324)
+                    )
+
+                    BACKUP_NO_SPACE ->
+                        BackupSample(
+                            SAMPLE_STATUS.copy(lastFailure = BackupFailure.NO_SPACE, bytesShort = 1_200_000_000, photosNotBackedUp = 340)
+                        )
+
+                    BACKUP_OPTIONS -> BackupOptionsScreen(SAMPLE_STATUS, onPhotosOnCellular = {}, onDisconnect = {}, onBack = ::finish)
+
+                    BACKUP_LINES -> BackupLines()
+
+                    BACKUP_NUDGE -> BackupNudgeContent(BackupNudge(10_004, 5_003), {
+                    }, {}, Modifier.statusBarsPadding().padding(horizontal = DiarySpacing.x5))
+
                     else -> finish()
                 }
             }
         }
+    }
+
+    @Composable
+    private fun BackupSample(status: BackupStatus, rollback: RollbackInfo? = null) = BackupSettingsScreen(
+        status = status,
+        connecting = false,
+        onConnect = {},
+        onBackUp = {},
+        onCellular = {},
+        onAuto = {},
+        onOptions = {},
+        onRestore = {},
+        onBack = ::finish,
+        rollback = rollback
+    )
+
+    /** 홈 맨 위 백업 줄의 상태들(B11) */
+    @Composable
+    private fun BackupLines() = Column(Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()) {
+        BackupStatusLine(SAMPLE_STATUS, onOpen = {})
+        BackupStatusLine(SAMPLE_STATUS.copy(running = BackupProgress(BackupStep.UploadingPhotos, 120, 340)), onOpen = {})
+        BackupStatusLine(
+            SAMPLE_STATUS.copy(
+                failingSince = Instant.fromEpochMilliseconds(SAMPLE_NOW - 8 * DAY),
+                lastFailure = BackupFailure.OFFLINE,
+                lastSuccessAt = Instant.fromEpochMilliseconds(SAMPLE_NOW - 8 * DAY)
+            ),
+            onOpen = {}
+        )
+        BackupStatusLine(SAMPLE_STATUS.copy(connection = BackupConnection.NeedsReconnect), onOpen = {})
+        BackupStatusLine(BackupStatus(), onOpen = {})
     }
 
     @Composable
@@ -173,12 +243,29 @@ class ScreenCatalogActivity : ComponentActivity() {
         const val RESTORE_NO_SPACE = "restore_no_space"
         const val LETTER = "letter"
         const val FULL_LETTER = "full_letter"
+        const val ONBOARDING_UPDATED = "onboarding_updated"
+        const val ONBOARDING_NEW = "onboarding_new"
         const val RESTORE_LEGACY = "restore_legacy"
         const val RESTORE_LEGACY_RESULT = "restore_legacy_result"
         const val RESTORE_RUNNING = "restore_running"
         const val RESTORE_RESULT = "restore_result"
         const val RESTORE_FAILED = "restore_failed"
         const val RESTORE_FOUND = "restore_found"
+        const val BACKUP_CONNECTED = "backup_connected"
+        const val BACKUP_ROLLBACK = "backup_rollback"
+        const val BACKUP_NO_SPACE = "backup_no_space"
+        const val BACKUP_OPTIONS = "backup_options"
+        const val BACKUP_LINES = "backup_lines"
+        const val BACKUP_NUDGE = "backup_nudge"
+        private const val DAY = 24 * 60 * 60 * 1000L
+        private const val WEEK = 7 * DAY
+        private val SAMPLE_NOW = System.currentTimeMillis()
+        val SAMPLE_STATUS =
+            BackupStatus(
+                connection = BackupConnection.Connected("diary@gmail.com"),
+                lastSuccessAt = Instant.fromEpochMilliseconds(SAMPLE_NOW - 60 * 60 * 1000L),
+                autoEnabled = true
+            )
 
         // Figma B3·B4와 같은 숫자
         val SAMPLE_BACKUP =
@@ -223,9 +310,9 @@ class ScreenCatalogActivity : ComponentActivity() {
 }
 
 /**
- * 옮긴 사진(`files/media`)으로 일기 줄 사진 칸을 그린다.
- * 사진 칸은 썸네일만 읽고, 없으면 처음 보일 때 만든다(FR-036·FR-037).
- * 앱 틀처럼 이미지 로더를 썸네일 저장소에 잇는다.
+ * 옮긴 사진(`files/media`)으로 일기 줄 사진 칸을 그림
+ * 사진 칸은 썸네일만 읽고, 없으면 처음 보일 때 만듦(FR-036·FR-037)
+ * 앱 틀처럼 이미지 로더를 썸네일 저장소에 이음
  */
 @Composable
 private fun PhotoCellSample() {

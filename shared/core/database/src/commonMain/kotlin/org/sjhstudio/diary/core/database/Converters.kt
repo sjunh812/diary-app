@@ -13,12 +13,12 @@ import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
-// 표의 글자·숫자 값과 모델 사이를 오간다.
-// 저장 형식(data-model.md)을 여기 한곳에서만 다룬다.
+// 표의 글자·숫자 값과 모델 사이 변환
+// 저장 형식(data-model.md)은 여기 한곳에서만 다룸
 
 /**
- * `HH:mm`.
- * 초는 쓰지 않는다.
+ * `HH:mm`
+ * 초는 쓰지 않음
  */
 private val TIME_FORMAT =
     LocalTime.Format {
@@ -26,6 +26,12 @@ private val TIME_FORMAT =
         char(':')
         minute()
     }
+
+/**
+ * 날짜와 시각이 이 앱이 읽는 꼴인지
+ * 밖에서 들어온 줄(복원)을 넣기 전에 봄. 꼴이 다른 한 줄이 들어오면 목록 전체가 읽기 오류로 막힘
+ */
+fun EntryEntity.hasReadableDate(): Boolean = LocalDate.Formats.ISO.parseOrNull(date) != null && TIME_FORMAT.parseOrNull(time) != null
 
 fun EntryEntity.asModel(): Entry = Entry(
     id = id,
@@ -100,8 +106,8 @@ fun MediaEntity.asModel(): Media = Media(
     id = id,
     entryId = entryId,
     sortOrder = sortOrder,
-    // 모르는 상태는 화면에서 "원래 기기에 있는 사진"으로 보이게 한다.
-    // 줄은 그대로 둔다.
+    // 모르는 상태는 화면에서 "원래 기기에 있는 사진"으로 보이게 함
+    // 줄은 그대로 둠
     status = MediaStatus.fromId(status) ?: MediaStatus.MISSING,
     fileName = fileName,
     sha256 = sha256,

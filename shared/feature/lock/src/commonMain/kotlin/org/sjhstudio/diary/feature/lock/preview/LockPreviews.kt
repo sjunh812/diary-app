@@ -12,10 +12,10 @@ import org.sjhstudio.diary.feature.lock.LockUiState
 import org.sjhstudio.diary.feature.lock.PinSetupScreen
 import org.sjhstudio.diary.feature.lock.PinSetupUiState
 
-// 잠금 화면(L1)과 비밀번호 정하기(L2) 프리뷰.
-// 상태는 Figma "잠금 상태"와 같다.
-// 비밀번호를 잊어버렸을 때(L3)는 바텀 시트라 프리뷰 창에 그려지지 않는다.
-// 개발 빌드 화면 모음(lock_forgot)으로 본다.
+// 잠금 화면(L1)과 비밀번호 정하기(L2) 프리뷰
+// 상태는 Figma "잠금 상태"와 같음
+// 비밀번호를 잊어버렸을 때(L3)는 바텀 시트라 프리뷰 창에 그려지지 않음
+// 개발 빌드 화면 모음(lock_forgot)으로 봄
 
 @Composable
 private fun Lock(state: LockUiState, dark: Boolean = false, biometric: Boolean = true) = DiaryTheme(darkTheme = dark) {
@@ -44,7 +44,7 @@ private fun LockTablet() = Lock(LockUiState(), biometric = false)
 
 @Composable
 private fun Setup(state: PinSetupUiState, dark: Boolean = false) = DiaryTheme(darkTheme = dark) {
-    PinSetupScreen(state, onDigit = {}, onDelete = {}, onBack = {})
+    PinSetupScreen(state, onDigit = {}, onDelete = {}, onBack = {}, deviceSecure = true)
 }
 
 @Preview(name = "L2 새 비밀번호 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
@@ -64,17 +64,19 @@ private fun SetupAgain() = Setup(PinSetupUiState(entered = 1, again = true))
 private fun SetupMismatch() = Setup(PinSetupUiState(mismatch = true))
 
 @Composable
-private fun Settings(settings: LockSettings, dark: Boolean = false, biometricAvailable: Boolean = true) = DiaryTheme(darkTheme = dark) {
-    LockSettingsScreen(
-        settings,
-        biometricAvailable = biometricAvailable,
-        onBack = {},
-        onEnabledChange = {},
-        onChangePin = {},
-        onBiometricChange = {},
-        onRelockChange = {}
-    )
-}
+private fun Settings(settings: LockSettings, dark: Boolean = false, biometricAvailable: Boolean = true, deviceSecure: Boolean = true) =
+    DiaryTheme(darkTheme = dark) {
+        LockSettingsScreen(
+            settings,
+            biometricAvailable = biometricAvailable,
+            deviceSecure = deviceSecure,
+            onBack = {},
+            onEnabledChange = {},
+            onChangePin = {},
+            onBiometricChange = {},
+            onRelockChange = {}
+        )
+    }
 
 private val lockOn =
     LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", biometricEnabled = true, relockAfter = RelockAfter.ONE_MINUTE)
@@ -95,9 +97,15 @@ private fun SettingsNoBiometric() = Settings(lockOn, biometricAvailable = false)
 @Composable
 private fun SettingsOff() = Settings(LockSettings())
 
+@Preview(name = "L4 화면 잠금 없는 휴대폰", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsNoDeviceLock() = Settings(LockSettings(), deviceSecure = false)
+
 @Preview(name = "새 비밀번호 · 저장 실패", locale = "ko")
 @Composable
-private fun SetupSaveFailed() = DiaryTheme(darkTheme = false) { PinSetupScreen(PinSetupUiState(saveFailed = true), {}, {}, {}) }
+private fun SetupSaveFailed() = DiaryTheme(darkTheme = false) {
+    PinSetupScreen(PinSetupUiState(saveFailed = true), {}, {}, {}, deviceSecure = true)
+}
 
 @Preview(name = "잠금 · 확인할 수 없음", locale = "ko")
 @Composable

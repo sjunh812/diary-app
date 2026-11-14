@@ -43,8 +43,7 @@ import org.sjhstudio.diary.core.platform.PlaceLookup
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 쓰기 화면 모델(스펙 002 T034, T032 일부).
-// 쓴 글을 잃지 않는지를 먼저 본다.
+// 쓰기 화면 모델(스펙 002 T034, T032 일부). 쓴 글을 잃지 않는지를 먼저 봄
 @OptIn(ExperimentalCoroutinesApi::class)
 class WriteViewModelTest {
     private val dispatcher = StandardTestDispatcher()
@@ -58,7 +57,7 @@ class WriteViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun vm(repository: FakeDraftRepository, target: WriteTarget = WriteTarget.New()) =
-        WriteViewModel(target, repository, clock, TimeZone.UTC)
+        testWriteViewModel(target, repository, clock, TimeZone.UTC)
 
     private fun draft(key: DraftKey = DraftKey.New(), body: String = "<p>쓰던 글</p>", mood: Mood? = null) = Draft(
         key, today, LocalTime(9, 0), body, mood, null, null, false, false, clock.now()
@@ -75,7 +74,7 @@ class WriteViewModelTest {
         val plans = object : PlanRepository {
             override val plan = MutableStateFlow(Plan.FREE)
         }
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
         assertEquals(false, viewModel.checklistOpen.value)
 
         plans.plan.value = Plan.AD_FREE
@@ -96,7 +95,7 @@ class WriteViewModelTest {
         val plans = object : PlanRepository {
             override val plan = MutableStateFlow(Plan.FREE)
         }
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
         assertEquals(10, viewModel.photoLimit.value)
 
         plans.plan.value = Plan.PLUS
@@ -152,7 +151,7 @@ class WriteViewModelTest {
         assertEquals("<p>가</p>", repository.saved.single().bodyHtml)
     }
 
-    /** 글자를 치는 동안은 HTML로 바꾸지 않고, 입력이 멈춘 뒤 한 번만 바꾼다. */
+    /** 글자를 치는 동안은 HTML로 바꾸지 않고, 입력이 멈춘 뒤 한 번만 바꿈 */
     @Test
     fun typing_converts_once_after_the_pause() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
@@ -174,10 +173,7 @@ class WriteViewModelTest {
         assertEquals("<p>가나다</p>", repository.saved.single().bodyHtml)
     }
 
-    /**
-     * 앱이 꺼지기 전 마지막 기회다.
-     * 기다리지 않고 바로 꺼내 쓴다(헌법 I).
-     */
+    /** 앱이 꺼지기 전 마지막 기회. 기다리지 않고 바로 꺼내 씀(헌법 I) */
     @Test
     fun leaving_the_app_keeps_the_last_letter() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
@@ -225,10 +221,7 @@ class WriteViewModelTest {
         assertEquals(1, repository.committed.size)
     }
 
-    /**
-     * 다른 화면이 쓰기를 가리면 편집기가 사라진다.
-     * 그 전에 받아 둔 글이 저장된다.
-     */
+    /** 다른 화면이 쓰기를 가리면 편집기가 사라짐. 그 전에 받아 둔 글이 저장됨 */
     @Test
     fun an_editor_going_away_hands_over_the_last_letter() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
@@ -244,7 +237,7 @@ class WriteViewModelTest {
         assertEquals("<p>마지막 글자</p>", repository.saved.single().bodyHtml)
     }
 
-    /** 글을 다 지운 뒤에는 변환 전이라도 빈 글이 저장되지 않는다. */
+    /** 글을 다 지운 뒤에는 변환 전이라도 빈 글이 저장되지 않음 */
     @Test
     fun blank_editor_cannot_be_saved_before_it_is_converted() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
@@ -263,8 +256,8 @@ class WriteViewModelTest {
     }
 
     /**
-     * 고친 글을 도로 지워 불러온 모양과 같아지면 원문 그대로 남는다.
-     * 화면을 돌린 뒤에도 옛 값으로 돌아가지 않는다.
+     * 고친 글을 도로 지워 불러온 모양과 같아지면 원문 그대로 남음
+     * 화면을 돌린 뒤에도 옛 값으로 돌아가지 않음
      */
     @Test
     fun loading_again_compares_with_the_body_it_put_in() = runTest(dispatcher) {
@@ -364,10 +357,7 @@ class WriteViewModelTest {
         assertTrue(vm.state.value.saveFailed)
     }
 
-    /**
-     * 저장을 마친 뒤에는 버튼을 다시 켜지 않는다.
-     * 임시 저장본이 지워져 다시 저장할 것이 없다.
-     */
+    /** 저장을 마친 뒤에는 버튼을 다시 켜지 않음. 임시 저장본이 지워져 다시 저장할 것이 없음 */
     @Test
     fun a_finished_save_stays_finished() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
@@ -404,6 +394,23 @@ class WriteViewModelTest {
 
         assertTrue(repository.saved.isEmpty())
         assertEquals(listOf<WriteEvent>(WriteEvent.Saved("saved-id")), events)
+    }
+
+    /** 뒤로 가기를 처리하는 동안 저장을 눌러도 나가는 길은 하나. 저장한 일기의 임시 저장본이 되살아나 같은 일기가 둘 되면 안 됨 */
+    @Test
+    fun saving_while_closing_is_ignored() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+        vm.onBodyChange("<p>글</p>")
+
+        vm.close()
+        vm.save()
+        advanceUntilIdle()
+
+        assertTrue(repository.committed.isEmpty())
+        assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = true)), events)
     }
 
     @Test
@@ -467,8 +474,8 @@ class WriteViewModelTest {
     }
 
     /**
-     * 고르지 않고 뒤로 가면 쓰던 글을 불러오지 않고 나간다.
-     * 글은 다음에 다시 물을 수 있게 그대로 남는다.
+     * 고르지 않고 뒤로 가면 쓰던 글을 불러오지 않고 나감
+     * 글은 다음에 다시 물을 수 있게 그대로 남음
      */
     @Test
     fun leaving_the_offer_closes_without_loading_the_draft() = runTest(dispatcher) {
@@ -486,7 +493,7 @@ class WriteViewModelTest {
         assertEquals("<p>쓰던 글</p>", repository.latestNew()?.bodyHtml)
     }
 
-    /** [새로 쓰기]를 골라도 쓰던 글은 버리기 전까지 남는다(FR-010). */
+    /** [새로 쓰기]를 골라도 쓰던 글은 버리기 전까지 남음(FR-010) */
     @Test
     fun starting_fresh_keeps_the_old_draft() = runTest(dispatcher) {
         val repository = FakeDraftRepository(listOf(draft()))
@@ -532,7 +539,7 @@ class WriteViewModelTest {
         assertTrue(repository.saved.isEmpty())
     }
 
-    /** 전에 고치다 남겨 둔 임시 저장본을 손대지 않고 닫아도 그 내용은 남는다. */
+    /** 전에 수정하다 남겨 둔 임시 저장본을 손대지 않고 닫아도 그 내용은 남음 */
     @Test
     fun closing_a_resumed_edit_keeps_what_was_left() = runTest(dispatcher) {
         val key = DraftKey.Edit("e1")
@@ -614,6 +621,26 @@ class WriteViewModelTest {
     }
 
     @Test
+    fun a_place_cut_at_the_limit_keeps_its_emoji_whole() = runTest(dispatcher) {
+        val vm = vm(FakeDraftRepository())
+        advanceUntilIdle()
+
+        vm.setPlace("가".repeat(29) + "😀")
+
+        assertEquals("가".repeat(29), vm.state.value.placeName)
+    }
+
+    @Test
+    fun a_picker_failure_says_so() = runTest(dispatcher) {
+        val vm = vm(FakeDraftRepository())
+        advanceUntilIdle()
+
+        vm.photoPickFailed()
+
+        assertEquals(PhotoNotice.Unreadable, vm.state.value.photoNotice)
+    }
+
+    @Test
     fun photo_stays_when_text_is_stored_later() = runTest(dispatcher) {
         val repository = FakeDraftRepository()
         val vm = vm(repository)
@@ -631,7 +658,7 @@ class WriteViewModelTest {
     @Test
     fun found_place_waits_for_done_and_is_not_saved_by_itself() = runTest(dispatcher) {
         val finder = OnePlace(PlaceLookup.Found("마포구 망원동"))
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
         advanceUntilIdle()
 
         viewModel.findPlace()
@@ -644,7 +671,7 @@ class WriteViewModelTest {
     @Test
     fun place_is_read_only_when_asked() = runTest(dispatcher) {
         val finder = OnePlace(PlaceLookup.NotFound)
-        WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
         advanceUntilIdle()
 
         assertEquals(0, finder.calls)
@@ -653,7 +680,7 @@ class WriteViewModelTest {
     @Test
     fun closing_the_sheet_stops_finding_and_clears_the_note() = runTest(dispatcher) {
         val finder = OnePlace(PlaceLookup.Denied, wait = true)
-        val viewModel = WriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, places = finder)
         advanceUntilIdle()
 
         viewModel.findPlace()
@@ -667,10 +694,7 @@ class WriteViewModelTest {
         assertEquals(PlaceLocating.Idle, viewModel.state.value.locating)
     }
 
-    /**
-     * 편집기 흉내.
-     * HTML을 꺼낸 횟수를 센다.
-     */
+    /** 편집기 흉내. HTML을 꺼낸 횟수 계산 */
     private class FakeEditor(private val vm: WriteViewModel) {
         var text = ""
         var reads = 0

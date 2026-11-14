@@ -8,11 +8,17 @@
     <string name="backup_connect">Connect Google Drive</string>
     <string name="backup_intro_title">Back up to Google Drive</string>
     <string name="backup_intro_body">Keep your entries and photos in your own Google Drive. Restore everything when you switch phones.</string>
-    <string name="backup_intro_note">We only use the 1일 1일기 백업 folder and never see your other files.</string>
+    <string name="backup_intro_photos_title">Photos are backed up too</string>
+    <string name="backup_intro_photos_body">Entries, moods, weather, places, and photos are all uploaded.</string>
+    <string name="backup_intro_folder_title">Only in your Drive</string>
+    <string name="backup_intro_folder_body">Saved in the 1일 1일기 백업 folder. We never look at your other files.</string>
+    <string name="backup_intro_free_title">It's free</string>
+    <string name="backup_intro_free_body">Auto backup is free too. It uses your own Google Drive storage.</string>
     <string name="backup_running">Backing up</string>
     <string name="backup_running_body">It keeps going if you leave the app. We'll notify you when it's done.</string>
     <string name="backup_running_body_open">It runs while the app is open. If you leave, it pauses and picks up when you come back.</string>
-    <string name="backup_running_photos">Photos %1$d / %2$d</string>
+    <string name="backup_running_body_quiet">It keeps going if you leave the app.</string>
+    <string name="backup_running_photos">Photos %1$s / %2$s</string>
     <string name="backup_reconnect">Reconnect</string>
     <string name="backup_reconnect_title">Google account disconnected</string>
     <string name="backup_reconnect_body">Reconnect to continue. Your backups on Drive are safe.</string>
@@ -21,9 +27,10 @@
     <string name="backup_all_done">Everything is backed up, photos included.</string>
     <string name="backup_finding_title">Looking for backups</string>
     <string name="backup_finding_body">Checking your Google Drive for backups.</string>
-    <string name="backup_first_title">Ready for your first backup</string>
+    <string name="backup_first_title">No backup yet</string>
     <string name="backup_first_body">Tap Back up now to upload entries and photos.</string>
-    <string name="backup_last">Last backup %1$s %2$s</string>
+    <string name="backup_last">Last backup %1$s</string>
+    <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">Account</string>
     <string name="backup_account">Google account</string>
     <string name="backup_group_upload">Upload</string>
@@ -34,24 +41,24 @@
     <string name="backup_disconnect_body">Backups on Drive stay where they are.</string>
     <string name="backup_disconnect_title">Disconnect?</string>
     <string name="backup_disconnect_message">Automatic backup stops. Backups on Drive are not deleted.</string>
-    <string name="backup_readme_body">This folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.\n\n1일 1일기 앱의 백업 폴더예요. 이 폴더를 지우면 백업이 사라져요.</string>
+    <string name="backup_readme_body">This folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.\n\n1일 1일기 앱의 백업 폴더예요. 이 폴더를 삭제하면 백업이 사라져요.</string>
     <string name="backup_line_off">Backup off</string>
     <string name="backup_line_on">Turn on</string>
     <string name="backup_line_reconnect">Reconnect needed</string>
-    <string name="backup_line_receiving">Receiving photos · %1$d/%2$d</string>
-    <string name="backup_line_running">Backing up · Photos %1$d/%2$d</string>
+    <string name="backup_line_receiving">Receiving photos · %1$s/%2$s</string>
+    <string name="backup_line_running">Backing up · Photos %1$s/%2$s</string>
     <string name="backup_line_running_plain">Backing up</string>
     <string name="backup_line_at">Backed up %1$s · %2$s</string>
     <string name="backup_line_all">with photos</string>
-    <string name="backup_line_waiting">photos waiting: %1$d</string>
+    <string name="backup_line_waiting">photos waiting: %1$s</string>
     <string name="backup_line_days">Last backup %1$d days ago</string>
     <string name="backup_line_today">today at %1$s</string>
     <string name="backup_line_yesterday">yesterday at %1$s</string>
     <plurals name="backup_photos_unusable">
-        <item quantity="one">%1$d photo couldn't be found, so it wasn't backed up.</item>
-        <item quantity="other">%1$d photos couldn't be found, so they weren't backed up.</item>
+        <item quantity="one">%1$s photo couldn't be found, so it wasn't backed up.</item>
+        <item quantity="other">%1$s photos couldn't be found, so they weren't backed up.</item>
     </plurals>
-    <plurals name="backup_photos_waiting"><item quantity="one">%1$d photo uploads on Wi-Fi.</item><item quantity="other">%1$d photos upload on Wi-Fi.</item></plurals>
+    <plurals name="backup_photos_waiting"><item quantity="one">%1$s photo uploads on Wi-Fi.</item><item quantity="other">%1$s photos upload on Wi-Fi.</item></plurals>
     <!-- 복원(B2~B6) -->
     <string name="restore_row">Restore from Google Drive</string>
     <string name="restore_row_body">Merge a backup from another phone or the previous version.</string>
@@ -71,6 +78,7 @@
     <string name="restore_retry">Try again</string>
     <string name="restore_preview_top">Restore</string>
     <string name="restore_preview_title">Merge this backup</string>
+    <string name="restore_preview_title_nothing">Everything in this backup is already here</string>
     <string name="restore_preview_body">Backup from %1$s, %2$s.\nEntries on this phone are kept and the backup is merged in.</string>
     <string name="restore_value_added">Entries to add</string>
     <string name="restore_value_updated">Entries updated to the newer version</string>
@@ -91,12 +99,13 @@
     <string name="restore_value_photo">Photos</string>
     <string name="restore_photo_progress">%1$s / %2$s</string>
     <string name="restore_running_note">It keeps going if you leave the app, and we'll notify you when it's done. If the app closes, only the remaining photos download.</string>
+    <string name="restore_running_note_quiet">It keeps going if you leave the app. If the app closes, only the remaining photos download.</string>
     <string name="restore_running_note_open">It runs while the app is open. If you leave, it pauses, and only the remaining photos download when you come back.</string>
     <string name="restore_see_entries">See entries first</string>
     <string name="restore_done_nothing">Backup merged</string>
     <string name="restore_done_body">Entries on this phone are kept.</string>
     <string name="restore_note_both_body">These were edited in two places. They're marked in your list.</string>
-    <string name="restore_note_original_body">There wasn't enough space when backing up. Back up again on the original phone to see them here.</string>
+    <string name="restore_note_original_body">These photos haven't been backed up yet. Back up again on the original phone to see them here.</string>
     <string name="restore_note_pending_body">They'll finish downloading next time you open the app.</string>
     <string name="restore_note_pending_file_body">These photos aren't in the file. If they're backed up to Drive, they'll download once you connect.</string>
     <string name="restore_note_pending_space_body">Your phone ran out of space. Free up space and open the app again to finish.</string>
@@ -111,7 +120,7 @@
     <string name="restore_lock_title">Set your lock again</string>
     <string name="restore_lock_body">The lock was on when this was backed up. Passcodes aren't backed up.</string>
     <string name="restore_lock_action">Set up</string>
-    <string name="restore_start">Get started</string>
+    <string name="restore_start">Done</string>
     <string name="restore_failed_busy_title">Try again after the restore finishes</string>
     <string name="restore_failed_busy_body">A restore is running. You can pick another backup when it's done.</string>
     <string name="restore_failed_mismatch_title">Couldn't verify the backup</string>
@@ -137,12 +146,15 @@
     <plurals name="restore_not_in_backup"><item quantity="one">%1$s photo isn't in this backup. It's on the original phone.</item><item quantity="other">%1$s photos aren't in this backup. They're on the original phone.</item></plurals>
     <string name="restore_group_legacy">Previous version backups</string>
     <string name="restore_legacy_row">From the previous version · No photos</string>
+    <plurals name="restore_more_backups"><item quantity="one">Show %1$s older backup</item><item quantity="other">Show %1$s older backups</item></plurals>
     <string name="restore_legacy_title">Restore a backup from the previous version</string>
-    <string name="restore_legacy_body">Uploaded by the previous version on %1$s.</string>
+    <string name="restore_legacy_body">Uploaded by the previous version on %1$s.\nEntries on this phone are kept and the backup is merged in.</string>
     <string name="restore_legacy_no_photos">These backups don't include photos</string>
     <string name="restore_legacy_no_photos_body">Text, mood, weather, place, and favorites will be restored.</string>
     <string name="restore_legacy_recent">Entries written after that may be missing.</string>
+    <string name="restore_legacy_recent_body">This backup only has entries up to the last time the previous version backed up.</string>
     <string name="restore_value_existing">Entries already on this phone</string>
+    <string name="restore_value_unreadable">Entries that couldn't be read</string>
     <string name="restore_legacy_action">Restore</string>
     <string name="restore_legacy_same_time_body">Same date and time with different text. Both are kept and marked.</string>
     <string name="restore_legacy_gaps_body">These backups have no photos, so they're marked as not found.</string>
@@ -176,7 +188,7 @@
     <string name="rollback_running_title">Undoing the replace</string>
     <string name="rollback_running_body">This will only take a moment.</string>
     <string name="rollback_failed_title">Couldn't undo the replace</string>
-    <string name="rollback_failed_body">Nothing on this phone changed. Please try again.</string>
+    <string name="rollback_failed_body">No entries were deleted. Please try again.</string>
     <string name="rollback_ask_title">Undo the replacement?</string>
     <string name="rollback_ask_body">Your earlier entries (%1$s) will come back.</string>
     <string name="rollback_ask_after">Your earlier entries (%1$s) will come back. Entries written since then (%2$s) will stay.</string>
@@ -189,7 +201,7 @@
     <string name="file_place_title">Save it wherever you like</string>
     <string name="file_place_body">Choose phone storage or another cloud app.</string>
     <string name="file_move_title">Move it to your new phone yourself</string>
-    <string name="file_move_body">Copy it through a computer or a cloud app. It's too large to send through messaging apps.</string>
+    <string name="file_move_body">Copy it through a computer or a cloud app. With many photos, it may be too large for messaging apps.</string>
     <string name="file_trust_title">Keep it somewhere you trust</string>
     <string name="file_trust_body">The file holds your entries and photos as they are.</string>
     <string name="file_restore">Restore from a file</string>
@@ -240,6 +252,7 @@
     <string name="backup_failed_drive">Google Drive isn't responding. Wait a moment, then tap Back up now.</string>
     <string name="backup_failed_local">Couldn't read or write files on this phone. Check your storage, then tap Back up now.</string>
     <string name="backup_line_failed">Backup didn't finish</string>
+    <string name="backup_status_failed">Couldn't load backup status</string>
     <string name="backup_skip_empty">No diary entries to back up yet</string>
     <string name="backup_skip_busy">Another task is running. Try again when it's done.</string>
     <string name="backup_connect_failed_title">Couldn't connect to Google Drive</string>
@@ -247,4 +260,5 @@
     <string name="backup_connect_failed_auth">Couldn't verify your Google account. Try again in a moment.</string>
     <string name="backup_connect_failed_other">Try again in a moment.</string>
     <string name="backup_connect_failed_close">OK</string>
+    <string name="restore_no_mail">No mail app found. Please write to %1$s.</string>
 </resources>

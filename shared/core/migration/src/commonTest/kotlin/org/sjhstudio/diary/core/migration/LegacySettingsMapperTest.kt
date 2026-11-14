@@ -10,7 +10,7 @@ import org.sjhstudio.diary.core.model.LegacyBackupLink
 import org.sjhstudio.diary.core.model.MigratedSetting
 import org.sjhstudio.diary.core.model.ThemeMode
 
-// 옛 설정 옮기기(스펙 001 T065, data-model.md DiaryFont·BodyTextSize 표).
+// 옛 설정 옮기기(스펙 001 T065, data-model.md DiaryFont·BodyTextSize 표)
 class LegacySettingsMapperTest {
     private fun map(pref: Map<String, Any> = emptyMap(), pref2: Map<String, Any> = emptyMap()) = LegacySettingsMapper.map(pref, pref2)
 
@@ -20,10 +20,10 @@ class LegacySettingsMapperTest {
             mapOf(
                 -1 to DiaryFont.PRETENDARD, 0 to DiaryFont.PRETENDARD, 100 to DiaryFont.SYSTEM,
                 1 to DiaryFont.NANUM_CHEER, 5 to DiaryFont.NANUM_CHEER,
-                2 to DiaryFont.NANUM_PEN, 7 to DiaryFont.NANUM_PEN, 11 to DiaryFont.NANUM_PEN,
+                2 to DiaryFont.CHANGWON_ROUND, 7 to DiaryFont.CHANGWON_ROUND, 11 to DiaryFont.CHANGWON_ROUND,
                 3 to DiaryFont.NANUM_JEOMGGOL,
-                4 to DiaryFont.GAMJA_FLOWER, 10 to DiaryFont.GAMJA_FLOWER,
-                6 to DiaryFont.HI_MELODY, 13 to DiaryFont.HI_MELODY,
+                4 to DiaryFont.RIX_WATERMELON, 10 to DiaryFont.RIX_WATERMELON,
+                6 to DiaryFont.SEJONG_GEULGGOT, 13 to DiaryFont.SEJONG_GEULGGOT,
                 8 to DiaryFont.GOWUN_BATANG,
                 9 to DiaryFont.CHANGWON_ROUND, 12 to DiaryFont.CHANGWON_ROUND,
                 99 to DiaryFont.PRETENDARD
@@ -32,7 +32,7 @@ class LegacySettingsMapperTest {
         assertEquals(DiaryFont.PRETENDARD, map().font)
     }
 
-    /** 같은 글꼴이 없으면 옛 이름을 남겨 처음 열 때 한 번 알린다. */
+    /** 같은 글꼴이 없으면 옛 이름을 남겨 처음 열 때 한 번 알림 */
     @Test
     fun replaced_font_keeps_the_old_name() {
         for (same in listOf(-1, 0, 3, 100)) assertNull(map(mapOf("font_key" to same)).fontReplacedFrom, "font_key $same")
@@ -113,7 +113,7 @@ class LegacySettingsMapperTest {
                 mapOf("is_alarm_key" to false, "hour_key" to 21, "minute_key" to 30)
             )
         assertEquals(MigratedSetting.entries.toList(), all)
-        // 잠금을 끈 채 남은 생체 인증 값은 옮긴 것이 아니다.
+        // 잠금을 끈 채 남은 생체 인증 값은 옮긴 것이 아님
         val noLock = LegacySettingsMapper.migrated(mapOf("use_pw" to false, "finger_print" to true), emptyMap())
         assertEquals(emptyList(), noLock)
     }

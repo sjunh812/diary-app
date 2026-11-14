@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""온보딩 설명 그림 로띠 두 개를 만든다.
+"""온보딩 설명 그림 로띠를 만든다.
 
   python3 scripts/lottie/make_onboarding.py
 
@@ -57,7 +57,10 @@ def ellipse(cx, cy, r):
 
 
 def path(d, scale=1.0, dx=0.0, dy=0.0):
-    """M, L, C, Z만 쓰는 절대 좌표 경로를 로띠 도형으로 바꾼다."""
+    """M, L, C, Z만 쓰는 절대 좌표 경로를 로띠 도형으로. M이 여럿이면 하위 경로마다 도형 하나(이어 그리지 않게)"""
+    parts = [p for p in re.split(r"(?=M)", d.strip()) if p.strip()]
+    if len(parts) > 1:
+        return [path(p, scale, dx, dy) for p in parts]
     tokens = re.findall(r"[MLCZ]|-?[\d.]+", d)
     v, i, o, closed, pos = [], [], [], False, 0
 
@@ -90,7 +93,10 @@ def path(d, scale=1.0, dx=0.0, dy=0.0):
 
 def group(items):
     tr = {"ty": "tr", "p": static([0, 0]), "a": static([0, 0]), "s": static([100, 100]), "r": static(0), "o": static(100)}
-    return {"ty": "gr", "it": items + [tr]}
+    flat = []
+    for it in items:
+        flat.extend(it if isinstance(it, list) else [it])
+    return {"ty": "gr", "it": flat + [tr]}
 
 
 class Comp:
@@ -159,7 +165,7 @@ def card(c):
 
 def write_lines():
     """공책 줄처럼 곧은 줄 셋을 넓게 둔다. 줄 끝은 길이를 달리해 글처럼 보이게 한다."""
-    speed = 240 / FPS  # 1초에 240. 110은 늘어졌다.
+    speed = 240 / FPS  # 1초에 240. 110은 늘어져 보임
     lift = 8  # 다음 줄로 펜을 옮기는 프레임
     lines = [(36, 252, 92), (36, 216, 116), (36, 156, 140)]
     frame, pen, tilt, spans = 18.0, [], [], []
@@ -187,8 +193,9 @@ def write_lines():
 
 def backup():
     c = Comp("onboarding_backup", 96)
-    start, end, peak = (46, 104), (240, 104), 36
-    check(268, 136, 16, c, 74, 90)
+    # 구름 원은 반지름 48에 7%까지 커져, 칸 끝에 붙여 두면 커질 때 잘림. 휴대폰과 원을 4씩 안으로
+    start, end, peak = (50, 104), (236, 104), 36
+    check(264, 136, 16, c, 74, 90)
     icons = [lambda: group([path(PEN, 0.75, -9, -9), fill("@onAccent")]),
              lambda: group(image_icon(0, 0, 18, "@onAccent")),
              lambda: group(image_icon(0, 0, 18, "@onAccent"))]
@@ -207,12 +214,12 @@ def backup():
     c.layer("구름", [group([path(CLOUD, 44 / 24, end[0] - 22, end[1] - 21), stroke("@accent", 3.2)]),
                    group([ellipse(*end, 48), fill("@selected")])], anchor=end, scale=bump)
     c.layer("휴대폰", [
-        *face(24, 46, 10),
-        group([path("M 16 70 L 76 70"), stroke("@sunken", 6)]),
-        group([path("M 16 84 L 76 84"), stroke("@sunken", 6)]),
-        *image_icon(46, 130, 16, "@textTertiary"),
-        group([rect(46, 130, 68, 60, 8), fill("@sunken")]),
-        group([rect(46, 104, 91, 155, 16), stroke("@line", 1), fill("@surface")]),
+        *face(28, 46, 10),
+        group([path("M 20 70 L 80 70"), stroke("@sunken", 6)]),
+        group([path("M 20 84 L 80 84"), stroke("@sunken", 6)]),
+        *image_icon(50, 130, 16, "@textTertiary"),
+        group([rect(50, 130, 68, 60, 8), fill("@sunken")]),
+        group([rect(50, 104, 91, 155, 16), stroke("@line", 1), fill("@surface")]),
     ])
     c.save()
 
@@ -244,7 +251,151 @@ def plus():
     c.save()
 
 
+def lines_static(c, name, lines, color="@textTertiary", width=5, opacity=50):
+    c.layer(name, [group([path(f"M {x1} {y} L {x2} {y}") for x1, x2, y in lines] + [stroke(color, width, opacity)])])
+
+
+def style():
+    """꾸미기. 아래 도구 막대의 굵게·글자색·형광펜·목록이 차례로 눌리며 그 줄이 바뀐다."""
+    c = Comp("onboarding_style", 100)
+    rows = [(52, 228, 80), (52, 196, 104), (52, 150, 128)]
+    tools = [62, 100, 138, 176]  # 도구 칸 가운데 x
+    ty = 166
+    steps = [(10, 22), (30, 42), (50, 62), (70, 82)]
+    # 목록 점
+    for n, (x1, x2, y) in enumerate(rows):
+        a = steps[3][0] + n * 3
+        c.layer(f"목록 점 {n + 1}", [group([ellipse(40, y, 3), fill("@textTertiary")])], anchor=(40, y), scale=pop(a, a + 10))
+    # 굵게: 진한 색으로 두꺼워짐
+    x1, x2, y = rows[0]
+    c.layer("굵게", [group([path(f"M {x1} {y} L {x2} {y}"), {"ty": "st", "c": static("@textPrimary"), "o": static(100),
+                                                           "w": keys([(steps[0][0], 5), (steps[0][1], 6)]), "lc": 2, "lj": 2, "ml": 4}])],
+            opacity=keys([(steps[0][0], 0), (steps[0][0] + 4, 100)], LINEAR))
+    x1, x2, y = rows[1]
+    c.layer("글자색", [group([path(f"M {x1} {y} L {x2} {y}"),
+                              {"ty": "tm", "s": static(0), "e": keys([(steps[1][0], 0), (steps[1][1], 100)], LINEAR), "o": static(0), "m": 1},
+                              stroke("@accent", 5)])])
+    lines_static(c, "글줄", rows)
+    x1, x2, y = rows[2]
+    c.layer("형광펜", [group([path(f"M {x1 - 4} {y} L {x2 + 4} {y}"),
+                              {"ty": "tm", "s": static(0), "e": keys([(steps[2][0], 0), (steps[2][1], 100)], LINEAR), "o": static(0), "m": 1},
+                              {"ty": "st", "c": static("@moodB"), "o": static(100), "w": static(15), "lc": 1, "lj": 2, "ml": 4}])])
+    # 도구 막대: 아이콘, 눌린 칸 바탕, 위 경계선
+    k = 16 / 24
+    icons = [
+        [group([path("M 6 12 L 15 12 C 17.2 12 19 13.8 19 16 C 19 18.2 17.2 20 15 20 L 6 20 L 6 4 L 14 4 C 16.2 4 18 5.8 18 8 "
+                      "C 18 10.2 16.2 12 14 12", k, tools[0] - 8, ty - 8), stroke("@textTertiary", 2.2)])],
+        [group([path("M 7 18 L 12 5 L 17 18 M 9 13 L 15 13", k, tools[1] - 8, ty - 9), stroke("@textTertiary", 2)]),
+         group([path(f"M {tools[1] - 7} {ty + 8} L {tools[1] + 7} {ty + 8}"), stroke("@accent", 3)])],
+        [group([path("M 14 4 L 20 10 L 11 19 L 5 19 L 5 13 Z", k, tools[2] - 8, ty - 9), stroke("@textTertiary", 2)]),
+         group([path(f"M {tools[2] - 7} {ty + 8} L {tools[2] + 7} {ty + 8}"), stroke("@moodB", 3)])],
+        [group([path(f"M {tools[3] - 3} {ty - 5} L {tools[3] + 7} {ty - 5} M {tools[3] - 3} {ty} L {tools[3] + 7} {ty} "
+                     f"M {tools[3] - 3} {ty + 5} L {tools[3] + 7} {ty + 5}"), stroke("@textTertiary", 2)]),
+         group([ellipse(tools[3] - 7, ty - 5, 1.3), ellipse(tools[3] - 7, ty, 1.3), ellipse(tools[3] - 7, ty + 5, 1.3), fill("@textTertiary")])],
+    ]
+    for n, x in enumerate(tools):
+        c.layer(f"도구 {n + 1}", icons[n])
+    for n, (a, b) in enumerate(steps):
+        c.layer(f"눌림 {n + 1}", [group([rect(tools[n], ty, 30, 30, 8), fill("@selected")])], anchor=(tools[n], ty),
+                opacity=keys([(a - 2, 0), (a + 2, 100), (b + 2, 100), (b + 8, 0)], LINEAR))
+    c.layer("막대 선", [group([path("M 9 146 L 279 146"), stroke("@line", 1)])])
+    card(c)
+    c.save()
+
+
+def find():
+    """찾기와 돌아보기. 기분·날씨 조건을 고르면 목록이 걸러지고, 기분 막대가 올라온다."""
+    c = Comp("onboarding_find", 100)
+    for i, (x, h, start) in enumerate([(208, 22, 60), (226, 38, 64), (244, 54, 68)]):
+        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 12, h, 4), fill("@accent")])], pos=static([x, 172, 0]),
+                scale=keys([(start, [100, 0, 100]), (start + 12, [100, 100, 100])]))
+    c.layer("통계 칸", [group([rect(226, 142, 78, 74, 16), stroke("@line", 1), fill("@surface")])], anchor=(226, 142),
+            scale=pop(52, 64))
+    for n, y in enumerate([164, 136]):
+        c.layer(f"걸러지는 줄 {n + 1}", [*face(46, y, 8), group([path(f"M 62 {y} L 168 {y}"), stroke("@textTertiary", 5, 50)])],
+                anchor=(110, y), opacity=keys([(34 + n * 4, 100), (46 + n * 4, 0)]),
+                scale=keys([(34 + n * 4, [100, 100, 100]), (46 + n * 4, [100, 70, 100])]))
+    c.layer("남는 줄", [*face(46, 108, 8), group([path("M 62 108 L 168 108"), stroke("@textTertiary", 5, 50)])])
+    # 칩: 왼쪽 9 · 아이콘 14 · 사이 6 · 줄 14 · 오른쪽 10, 칩 사이 8
+    w, left1 = 53, 44
+    left2 = left1 + w + 8
+    sx = left2 + 9 + 7
+    sun = [group([ellipse(sx, 74, 3), stroke("@accent", 1.6)])] + [
+        group([path(f"M {sx + 5 * math.cos(a)} {74 + 5 * math.sin(a)} L {sx + 7 * math.cos(a)} {74 + 7 * math.sin(a)}"),
+               stroke("@accent", 1.6)]) for a in [k * math.pi / 4 for k in range(8)]]
+    c.layer("날씨 칩", [*sun, group([path(f"M {left2 + 29} 74 L {left2 + 43} 74"), stroke("@accent", 3)]),
+                       group([rect(left2 + w / 2, 74, w, 26, 13), fill("@selected")])], anchor=(left2 + w / 2, 74), scale=pop(20, 32))
+    c.layer("기분 칩", [*face(left1 + 16, 74, 7), group([path(f"M {left1 + 29} 74 L {left1 + 43} 74"), stroke("@accent", 3)]),
+                       group([rect(left1 + w / 2, 74, w, 26, 13), fill("@selected")])], anchor=(left1 + w / 2, 74), scale=pop(10, 22))
+    k = 14 / 24
+    c.layer("찾기 칸", [
+        group([ellipse(41, 38, 5), stroke("@textTertiary", 1.8)]),
+        group([path("M 45 42 L 49 46"), stroke("@textTertiary", 1.8)]),
+        group([path("M 60 40 L 120 40"), stroke("@textTertiary", 4, 40)]),
+        group([rect(144, 40, 236, 28, 14), fill("@sunken")]),
+    ])
+    c.layer("카드", [group([rect(144, 104, 270, 176, 16), stroke("@line", 1), fill("@surface")])])
+    c.save()
+
+
+def trash():
+    """휴지통 30일. 일기가 휴지통에 들어갔다가 다시 나와 제자리로 돌아온다."""
+    c = Comp("onboarding_trash", 104)
+    top, bin_y = (144, 50), (144, 150)
+    check(182, 26, 12, c, 84, 98)
+    lid = keys([(0, 0), (12, 0), (18, -20), (34, -20), (40, 0), (50, 0), (56, -20), (74, -20), (80, 0)])
+    # 백업 그림의 구름처럼 연보라 원 안에 보라 선 휴지통(Lucide trash-2)
+    k = 40 / 24
+    dx, dy = bin_y[0] - 20, bin_y[1] - 20
+    c.layer("뚜껑", [
+        group([path("M 3 6 L 21 6", k, dx, dy), path("M 8 6 L 8 4 C 8 3 9 2 10 2 L 14 2 C 15 2 16 3 16 4 L 16 6", k, dx, dy),
+               stroke("@accent", 3.2)]),
+    ], anchor=(dx + 3 * k, dy + 6 * k), rotation=lid)
+    c.layer("통", [
+        group([path("M 19 6 L 19 20 C 19 21 18 22 17 22 L 7 22 C 6 22 5 21 5 20 L 5 6", k, dx, dy),
+               path("M 10 11 L 10 17 M 14 11 L 14 17", k, dx, dy), stroke("@accent", 3.2)]),
+    ])
+    c.layer("원", [group([ellipse(*bin_y, 48), fill("@selected")])])
+    pos = keys([(0, [*top, 0]), (16, [*top, 0]), (34, [*bin_y, 0]), (54, [*bin_y, 0]), (74, [*top, 0])])
+    scl = keys([(16, [100, 100, 100]), (34, [40, 40, 100]), (54, [40, 40, 100]), (74, [100, 100, 100])])
+    opa = keys([(0, 100), (30, 100), (34, 0), (54, 0), (58, 100)], LINEAR)
+    c.layer("일기", [
+        *face(118, 48, 9),
+        group([path("M 134 48 L 172 48"), stroke("@textTertiary", 4, 50)]),
+        group([path("M 116 68 L 164 68"), stroke("@textTertiary", 4, 50)]),
+        group([rect(144, 58, 92, 60, 12), stroke("@line", 1), fill("@surface")]),
+    ], anchor=top, pos=pos, scale=scl, opacity=opa)
+    c.save()
+
+
+def tablet():
+    """태블릿. 폰 화면이 태블릿만큼 넓어지고, 목록 옆에 고른 일기가 열린다."""
+    c = Comp("onboarding_tablet", 100)
+    grow = (14, 40)
+    detail_in = keys([(40, [196, 104, 0]), (58, [184, 104, 0])])
+    c.layer("상세", [
+        *face(140, 52, 9),
+        group([path("M 130 74 L 236 74"), stroke("@textTertiary", 5, 50)]),
+        group([path("M 130 90 L 210 90"), stroke("@textTertiary", 5, 50)]),
+        *image_icon(170, 132, 18, "@surface"),
+        group([rect(170, 132, 84, 46, 8), fill("@moodA")]),
+    ], anchor=(184, 104), pos=detail_in, opacity=keys([(40, 0), (54, 100)]))
+    rows = []
+    for n, y in enumerate([40, 64, 88, 112, 136]):
+        rows.append(group([path(f"M -14 {y} L 18 {y}"), stroke("@textTertiary", 4, 50)]))
+        rows.append(group([ellipse(-26, y, 4.5), fill("@moodA" if n else "@face")]))
+        rows.append(group([rect(-4, y, 64, 18, 6), fill("@selected" if n == 0 else "@sunken")]))
+    c.layer("목록", rows, pos=keys([(grow[0], [144, 12, 0]), (grow[1], [64, 12, 0])]))
+    frame = {"ty": "rc", "p": static([0, 0]), "s": keys([(grow[0], [92, 176]), (grow[1], [252, 176])]), "r": static(16), "d": 1}
+    c.layer("기기", [group([frame, stroke("@line", 1.5), fill("@surface")])], pos=static([144, 104, 0]))
+    c.save()
+
+
 if __name__ == "__main__":
     write_lines()
     backup()
     plus()
+    style()
+    find()
+    trash()
+    tablet()

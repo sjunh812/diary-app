@@ -17,12 +17,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
@@ -31,17 +35,20 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.ui.loadFailedRetryLabel
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.licenses_group_fonts
 import org.sjhstudio.diary.feature.settings.resources.licenses_group_libraries
+import org.sjhstudio.diary.feature.settings.resources.licenses_libraries_failed
+import org.sjhstudio.diary.feature.settings.resources.licenses_text_failed
 import org.sjhstudio.diary.feature.settings.resources.settings_licenses
 
 /**
- * 오픈소스 라이선스(Figma "오픈소스 라이선스 (I1)").
- * 설정 > 정보 > 오픈소스 라이선스.
- * 글꼴 10종을 `docs/design.md` 표 순서로, 앱에 들어간 라이브러리를 이름순으로 보인다.
- * 누르면 전문(I2)으로 간다.
- * 라이브러리가 150개 넘어 지연 목록에 담는다.
+ * 오픈소스 라이선스(Figma "오픈소스 라이선스 (I1)")
+ * 설정 > 정보 > 오픈소스 라이선스
+ * 글꼴 10종은 `docs/design.md` 표 순서, 앱에 들어간 라이브러리는 이름순
+ * 누르면 전문(I2)으로 감
+ * 라이브러리가 150개가 넘어 지연 목록에 담음
  */
 @Composable
 fun LicensesScreen(
@@ -49,7 +56,9 @@ fun LicensesScreen(
     onFont: (DiaryFont) -> Unit,
     onLibrary: (String) -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -63,7 +72,16 @@ fun LicensesScreen(
                     description = stringResource(notice.license.label)
                 )
             }
-            if (!libraries.isNullOrEmpty()) {
+            if (failed) {
+                item(key = "libraries-failed") {
+                    DiaryEmptyLine(
+                        stringResource(Res.string.licenses_libraries_failed),
+                        loadFailedRetryLabel(),
+                        onRetry,
+                        Modifier.padding(horizontal = LocalScreenGutter.current)
+                    )
+                }
+            } else if (!libraries.isNullOrEmpty()) {
                 item(key = "libraries") { DiarySettingsHeader(stringResource(Res.string.licenses_group_libraries), gapAbove = true) }
                 items(libraries, key = { "lib-${it.id}" }) { library ->
                     DiarySettingsRow(
@@ -78,10 +96,10 @@ fun LicensesScreen(
 }
 
 /**
- * 라이선스 전문(Figma "오픈소스 라이선스 상태" I2).
- * 상단 바에 글꼴이나 라이브러리 이름, 맨 위에 라이선스 이름을 둔다.
- * 전문은 받은 원문 그대로 보이고 번역하지 않는다.
- * 읽는 동안 [text]는 null이다.
+ * 라이선스 전문(Figma "오픈소스 라이선스 상태" I2)
+ * 상단 바에 글꼴이나 라이브러리 이름, 맨 위에 라이선스 이름
+ * 전문은 받은 원문 그대로 보이고 번역하지 않음
+ * 읽는 동안 [text]는 null.
  */
 @Composable
 fun LicenseTextScreen(
@@ -90,7 +108,8 @@ fun LicenseTextScreen(
     text: String?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    details: String? = null
+    details: String? = null,
+    failed: Boolean = false
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -107,24 +126,33 @@ fun LicenseTextScreen(
             BasicText(licenseName, style = DiaryTheme.typography.bodyStrong.copy(color = colors.textPrimary))
             if (details != null) BasicText(details, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
             if (text != null) BasicText(text, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+            // 읽는 중으로 남겨 두지 않음
+            // 앱에 든 파일이라 다시 읽어도 같아 다시 시도는 두지 않음
+            if (failed) {
+                BasicText(
+                    stringResource(Res.string.licenses_text_failed),
+                    style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
+                )
+            }
         }
     }
 }
 
 /**
- * 오픈소스 라이선스 목록을 잇는다.
- * 앱 틀은 이것만 부른다.
+ * 오픈소스 라이선스 목록을 이음
+ * 앱 틀은 이것만 부름
  */
 @Composable
 fun LicensesRoute(onFont: (DiaryFont) -> Unit, onLibrary: (String) -> Unit, onBack: () -> Unit) {
     val viewModel = koinViewModel<LicensesViewModel>()
     val libraries by viewModel.libraries.collectAsStateWithLifecycle()
-    LicensesScreen(libraries, onFont = onFont, onLibrary = onLibrary, onBack = onBack)
+    val failed by viewModel.failed.collectAsStateWithLifecycle()
+    LicensesScreen(libraries, onFont = onFont, onLibrary = onLibrary, onBack = onBack, failed = failed, onRetry = viewModel::retry)
 }
 
 /**
- * 글꼴 전문.
- * [fontId]가 고지가 없는 글꼴이면 바로 돌아간다.
+ * 글꼴 전문
+ * [fontId]가 고지가 없는 글꼴이면 바로 돌아감
  */
 @Composable
 fun FontLicenseRoute(fontId: String, onBack: () -> Unit) {
@@ -134,18 +162,46 @@ fun FontLicenseRoute(fontId: String, onBack: () -> Unit) {
         LaunchedEffect(fontId) { onBack() }
         return
     }
-    val text by produceState<String?>(null, notice) { value = viewModel.fontText(notice) }
-    LicenseTextScreen(stringResource(notice.font.label()), stringResource(notice.license.label), text, onBack = onBack)
+    val text by produceState<TextRead>(TextRead.Loading, notice) {
+        value =
+            viewModel.fontText(notice)?.let(TextRead::Done) ?: TextRead.Failed
+    }
+    LicenseTextScreen(
+        stringResource(notice.font.label()),
+        stringResource(notice.license.label),
+        (text as? TextRead.Done)?.text,
+        onBack = onBack,
+        failed = text == TextRead.Failed
+    )
 }
 
 /**
- * 라이브러리 전문.
- * 목록에 없는 [libraryId]면 이름 없이 빈 화면이다.
+ * 라이브러리 전문
+ * 목록에 없는 [libraryId]면 이름 없이 빈 화면
  */
 @Composable
 fun LibraryLicenseRoute(libraryId: String, onBack: () -> Unit) {
     val viewModel = koinViewModel<LicensesViewModel>()
-    val library by produceState<LibraryText?>(null, libraryId) { value = viewModel.libraryText(libraryId) }
+    var failed by remember(libraryId) { mutableStateOf(false) }
+    val library by produceState<LibraryText?>(null, libraryId) {
+        value = viewModel.libraryText(libraryId)
+        failed = value == null
+    }
     val current = library
-    LicenseTextScreen(current?.name.orEmpty(), current?.licenseName.orEmpty(), current?.text, onBack = onBack, details = current?.details)
+    LicenseTextScreen(
+        current?.name.orEmpty(),
+        current?.licenseName.orEmpty(),
+        current?.text,
+        onBack = onBack,
+        details = current?.details,
+        failed = failed
+    )
+}
+
+private sealed interface TextRead {
+    data object Loading : TextRead
+
+    data class Done(val text: String) : TextRead
+
+    data object Failed : TextRead
 }

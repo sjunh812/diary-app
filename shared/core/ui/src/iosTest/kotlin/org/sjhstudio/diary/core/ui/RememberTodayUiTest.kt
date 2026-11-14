@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.datetime.LocalDate
 
-// 켜 둔 채 자정을 넘겨도 앱이 돌아오면 오늘이 바뀐다.
+// 켜 둔 채 자정을 넘겨도 앱이 돌아오면 오늘이 바뀜
 @OptIn(ExperimentalTestApi::class)
 class RememberTodayUiTest {
     private class Owner : LifecycleOwner {

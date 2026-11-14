@@ -32,6 +32,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,8 +42,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -56,22 +61,30 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.number
+import kotlinx.datetime.minus
 import kotlinx.datetime.onDay
+import kotlinx.datetime.plus
 import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryCollapsingHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
+import org.sjhstudio.diary.core.designsystem.component.DiaryTopBarTextButton
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.rememberDiaryCollapsingHeaderState
+import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryCalendarSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
+import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
@@ -81,7 +94,9 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
-import org.sjhstudio.diary.core.ui.EntryMenu
+import org.sjhstudio.diary.core.ui.EntryMenuEvents
+import org.sjhstudio.diary.core.ui.EntryMenuFor
+import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.NoMoodFace
 import org.sjhstudio.diary.core.ui.OnTabReselected
@@ -90,7 +105,6 @@ import org.sjhstudio.diary.core.ui.moodColor
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
-import org.sjhstudio.diary.core.ui.rememberShareText
 import org.sjhstudio.diary.feature.calendar.resources.Res
 import org.sjhstudio.diary.feature.calendar.resources.calendar_day_count
 import org.sjhstudio.diary.feature.calendar.resources.calendar_day_summary
@@ -104,9 +118,8 @@ import org.sjhstudio.diary.feature.calendar.resources.calendar_write_on_day
 private const val DAYS_IN_WEEK = 7
 
 /**
- * 달력(Figma "달력 (S4)").
- * 폰은 달력 아래, 넓은 화면은 옆에 그날 일기가 나온다.
- * 주는 일요일에 시작한다.
+ * 달력(Figma "달력 (S4)")
+ * 그날 일기는 폰에서 달력 아래, 넓은 화면에서 옆. 주는 일요일 시작
  */
 @Composable
 fun CalendarRoute(
@@ -128,9 +141,12 @@ fun CalendarRoute(
     val dates = rememberDiaryDateFormat()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
+    // 넘김이 멈춘 달의 날을 고름. 지나가는 달마다 고르면 [오늘]로 여러 달을 건널 때 아래 목록이 여러 번 바뀜
     LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
     val shown = monthOfPage(pager.currentPage)
     val today by viewModel.todayState.collectAsStateWithLifecycle()
+    // 오늘이 아닌 날을 골랐거나 다른 달을 보면 오늘로 돌아가는 버튼
+    val awayFromToday = selected != today || shown != today.yearMonth
     LifecycleResumeEffect(viewModel) {
         if (viewModel.refreshToday()) {
             scope.launch {
@@ -141,11 +157,14 @@ fun CalendarRoute(
         }
         onPauseOrDispose {}
     }
-    val onToday = {
-        viewModel.select(today)
-        scope.launch { pager.animateScrollToPage(today.yearMonth.pageIndex()) }
-        Unit
+    // 날을 고르고 다른 달이면 그 달로 넘김. 오늘 버튼과 앞뒤 달 날짜가 같이 씀
+    val pick: (LocalDate) -> Unit = { date ->
+        viewModel.select(date)
+        scope.launch { pager.animateScrollToPage(date.yearMonth.pageIndex()) }
     }
+    val onToday = { pick(today) }
+    var titleHeight by remember { mutableIntStateOf(0) }
+    val onMove: (Int) -> Unit = { step -> scope.launch { pager.animateScrollToPage(pager.currentPage + step) } }
     val calendar: @Composable () -> Unit = {
         CalendarPanel(
             shown = shown,
@@ -154,36 +173,46 @@ fun CalendarRoute(
             today = today,
             selected = selected,
             lastMonth = last,
-            showToday = selected != today,
+            showToday = awayFromToday,
             dates = dates,
             moods = viewModel::moods,
-            onSelect = viewModel::select,
+            onSelect = pick,
             onToday = onToday,
             onPick = { picking = true },
-            onMove = { step -> scope.launch { pager.animateScrollToPage(pager.currentPage + step) } }
+            onMove = onMove
         )
     }
     val dayPanel: @Composable () -> Unit = {
-        selected?.let { date ->
-            DayPanel(
-                date = date,
-                rows = day.rows,
-                dates = dates,
-                previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
-                twoPane = twoPane,
-                onOpen = onOpen,
-                onMenu = { menuFor = it },
-                onWrite = { onWriteOn(date) }
-            )
+        // 그날 일기를 읽는 동안은 비워 두고 날짜와 목록을 한 번에 바꿈. 움직임 없이
+        // 날짜만 먼저 나왔다가 목록이 붙으면 두 번 바뀌어 보임
+        val ready = day.takeIf { it.rows != null || it.failed } ?: PendingDay
+        ready.date?.let { date ->
+            key(date) {
+                DayPanel(
+                    date = date,
+                    rows = ready.rows,
+                    failed = ready.failed,
+                    onRetry = viewModel::retry,
+                    dates = dates,
+                    previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
+                    twoPane = twoPane,
+                    onOpen = onOpen,
+                    onMenu = { menuFor = it },
+                    onWrite = { onWriteOn(date) }
+                )
+            }
         }
     }
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
     val scroll = rememberScrollState()
-    OnTabReselected { scroll.animateScrollTo(0) }
+    val header = rememberDiaryCollapsingHeaderState()
+    OnTabReselected {
+        scroll.animateScrollTo(0)
+        header.expand()
+    }
     if (twoPane) {
         Row(modifier.then(canvas)) {
-            // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데에 둔다.
-            // 달력이 왼쪽에 붙어 치우치지 않는다.
+            // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데. 왼쪽으로 치우치지 않게
             Column(
                 Modifier.weight(1f).fillMaxHeight().verticalScroll(scroll),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -202,48 +231,59 @@ fun CalendarRoute(
             }
         }
     } else {
-        // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래를 비운다.
-        Column(
-            modifier.then(canvas).verticalScroll(scroll).padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) {
-                calendar()
-                Spacer(Modifier.height(DiarySpacing.x3))
-                dayPanel()
+        Column(modifier.then(canvas), horizontalAlignment = Alignment.CenterHorizontally) {
+            // 큰 달 제목이 바 밑으로 스크롤된 만큼 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
+            // 오늘·달 넘기기 단추는 늘 바 오른쪽. 작은 제목은 남는 폭만 써 단추와 겹치지 않음
+            DiaryTabTopBar(
+                title = dates.yearMonth(shown.onDay(1)),
+                collapsed = { titleCollapse((-header.offset).toInt(), titleHeight) },
+                contentMaxWidth = DiaryCalendarSize.pane,
+                onTitleClick = { picking = true },
+                actions = { MonthNav(shown < last, awayFromToday, onToday, onMove) }
+            )
+            // 큰 제목은 스크롤 밖 머리에 둠(홈과 같음). 스크롤 안에 두면 넓힌 누름 면이 위에서 잘림
+            DiaryCollapsingHeader(header, Modifier.widthIn(max = DiaryCalendarSize.pane)) {
+                Column(Modifier.padding(horizontal = LocalScreenGutter.current)) {
+                    DiaryTitleButton(dates.yearMonth(shown.onDay(1)), {
+                        picking = true
+                    }, Modifier.onSizeChanged { titleHeight = it.height })
+                    Spacer(Modifier.height(DiarySpacing.x4))
+                }
+            }
+            // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .nestedScroll(header.connection)
+                    .verticalScroll(scroll)
+                    .padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) {
+                    calendar()
+                    Spacer(Modifier.height(DiarySpacing.x3))
+                    dayPanel()
+                }
             }
         }
     }
     menuFor?.let { id ->
-        // iOS의 공유 창은 화면 컨트롤러가 있어야 해서 메뉴를 열 때만 준비한다.
-        val share = rememberShareText()
-        EntryMenu(
+        EntryMenuFor(
+            id,
             favorite = day.rows?.firstOrNull { it.id == id }?.isFavorite == true,
+            work = viewModel.menu,
             onDismiss = { menuFor = null },
-            onEdit = {
-                menuFor = null
-                onEdit(id)
-            },
-            onFavorite = {
-                menuFor = null
-                viewModel.toggleFavorite(id)
-            },
-            onShare = {
-                menuFor = null
-                scope.launch { viewModel.plainText(id)?.let(share) }
-            },
-            onTrash = {
-                menuFor = null
-                viewModel.moveToTrash(id) { onTrash(id) }
-            }
+            onEdit = onEdit
         )
     }
+    EntryMenuEvents(viewModel.menu, onTrash)
     if (picking) {
         DiaryMonthSheet(
             title = stringResource(Res.string.calendar_month_sheet_title),
             initialYear = shown.year,
             shown = shown,
-            hasYear = { it <= last.year },
+            years = remember(last.year) { (FIRST_YEAR..last.year).toList() },
             enabled = { it <= last },
             onPick = { month ->
                 picking = false
@@ -277,19 +317,31 @@ internal fun CalendarPanel(
                 Box(Modifier.weight(1f)) { DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick) }
                 nav()
             }
-        } else {
-            Box(Modifier.fillMaxWidth().padding(top = DiarySpacing.x1), contentAlignment = Alignment.CenterEnd) { nav() }
-            DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick)
+            Spacer(Modifier.height(DiarySpacing.x4))
         }
-        Spacer(Modifier.height(DiarySpacing.x4))
+        // 폰에서는 큰 제목이 머리에, 오늘·달 넘기기 단추가 위 바에 있음
         Weekdays(dates)
         Spacer(Modifier.height(DiarySpacing.x1_5))
-        HorizontalPager(pager, Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) { page ->
+        // 이웃 달을 미리 그려 그 달 기분과 일기를 먼저 읽음
+        HorizontalPager(pager, Modifier.fillMaxWidth(), beyondViewportPageCount = 1, verticalAlignment = Alignment.Top) { page ->
             val month = monthOfPage(page)
-            val days by remember(month) { moods(month) }.collectAsStateWithLifecycle()
-            MonthGrid(month, days, today, selected, twoPane, dates, onSelect)
+            val cells = remember(month) { monthCells(month) }
+            MonthGrid(month, cells, gridMoods(month, cells, moods), today, selected, lastMonth, twoPane, dates, onSelect)
         }
     }
+}
+
+/** 격자에 보이는 앞뒤 달 날짜까지의 기분 */
+@Composable
+private fun gridMoods(
+    month: YearMonth,
+    cells: List<LocalDate>,
+    moods: (YearMonth) -> StateFlow<Map<LocalDate, DayMood>>
+): Map<LocalDate, DayMood> {
+    val before by remember(month) { moods(cells.first().yearMonth) }.collectAsStateWithLifecycle()
+    val inMonth by remember(month) { moods(month) }.collectAsStateWithLifecycle()
+    val after by remember(month) { moods(cells.last().yearMonth) }.collectAsStateWithLifecycle()
+    return remember(before, inMonth, after) { before + inMonth + after }
 }
 
 @Composable
@@ -297,17 +349,7 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
     val colors = DiaryTheme.colors
     Row(verticalAlignment = Alignment.CenterVertically) {
         if (showToday) {
-            val interaction = remember { MutableInteractionSource() }
-            Box(
-                Modifier
-                    .height(DiarySpacing.minTouchTarget)
-                    .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-                    .clickable(interactionSource = interaction, indication = null, role = Role.Button, onClick = onToday)
-                    .padding(horizontal = DiarySpacing.x2),
-                contentAlignment = Alignment.Center
-            ) {
-                BasicText(stringResource(Res.string.calendar_today), style = DiaryTheme.typography.label.copy(color = colors.accentText))
-            }
+            DiaryTopBarTextButton(stringResource(Res.string.calendar_today), onToday)
         }
         DiaryIconButton(DiaryIcons.ChevronLeft, stringResource(Res.string.calendar_previous_month), { onMove(-1) })
         DiaryIconButton(DiaryIcons.ChevronRight, stringResource(Res.string.calendar_next_month), { onMove(1) }, enabled = hasNext)
@@ -318,8 +360,7 @@ private fun MonthNav(hasNext: Boolean, showToday: Boolean, onToday: () -> Unit, 
 private fun Weekdays(dates: DiaryDateFormat) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth()) {
-        // 2026년 11월 1일이 일요일이다.
-        // 요일 이름만 언어에 맞게 빌려 온다.
+        // 2026년 11월 1일이 일요일. 요일 이름만 언어에 맞게 빌려 옴
         for (offset in 0 until DAYS_IN_WEEK) {
             val date = LocalDate(WEEK_YEAR, WEEK_MONTH, 1 + offset)
             BasicText(
@@ -341,27 +382,36 @@ private fun dayColor(date: LocalDate, otherwise: Color): Color = when (date.dayO
 @Composable
 private fun MonthGrid(
     month: YearMonth,
+    cells: List<LocalDate>,
     days: Map<LocalDate, DayMood>,
     today: LocalDate,
     selected: LocalDate?,
+    lastMonth: YearMonth,
     wide: Boolean,
     dates: DiaryDateFormat,
     onSelect: (LocalDate) -> Unit
 ) {
-    val first = month.onDay(1)
-    // 일요일을 0으로 센 첫날 앞의 빈칸 수.
-    val blanks = first.dayOfWeek.ordinal.let { (it + 1) % DAYS_IN_WEEK }
-    val cells: List<LocalDate?> = List(blanks) { null } + (1..month.numberOfDays).map { month.onDay(it) }
     Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
         for (week in cells.chunked(DAYS_IN_WEEK)) {
-            // 기기 글자를 키워도 날짜가 잘리지 않게 칸은 내용만큼 자란다.
+            // 기기 글자를 키워도 날짜가 잘리지 않게 칸이 내용만큼 자람
             Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
                 for (index in 0 until DAYS_IN_WEEK) {
-                    val date = week.getOrNull(index)
+                    val date = week[index]
                     Box(
                         Modifier.weight(1f).heightIn(min = if (wide) DiaryCalendarSize.cellWide else DiaryCalendarSize.cell).fillMaxHeight()
                     ) {
-                        if (date != null) DayCell(date, days[date], date == today, date == selected, wide, dates) { onSelect(date) }
+                        val inMonth = date.yearMonth == month
+                        // 넘길 수 없는 달(첫 달 앞, 일기가 있는 마지막 달 뒤)의 날은 누르지 않음
+                        DayCell(
+                            date = date,
+                            day = days[date],
+                            today = inMonth && date == today,
+                            selected = inMonth && date == selected,
+                            outside = !inMonth,
+                            wide = wide,
+                            dates = dates,
+                            onClick = { onSelect(date) }.takeIf { date.yearMonth in monthOfPage(0)..lastMonth }
+                        )
                     }
                 }
             }
@@ -369,15 +419,20 @@ private fun MonthGrid(
     }
 }
 
+/**
+ * 날짜 칸. [outside]는 앞뒤 달의 날이라 숫자는 `placeholder`(달력 시트와 같음), 기분 아이콘은 흐리게
+ * [onClick]이 null이면 누를 수 없음
+ */
 @Composable
 private fun DayCell(
     date: LocalDate,
     day: DayMood?,
     today: Boolean,
     selected: Boolean,
+    outside: Boolean,
     wide: Boolean,
     dates: DiaryDateFormat,
-    onClick: () -> Unit
+    onClick: (() -> Unit)?
 ) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -388,16 +443,23 @@ private fun DayCell(
             day?.mood?.let { moodName(it) },
             day?.let { pluralStringResource(Res.plurals.calendar_day_count, it.count, it.count) }
         ).joinToString(", ")
+    val press =
+        if (onClick == null) {
+            Modifier
+        } else {
+            Modifier
+                .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
+                .clip(DiaryShapes.r12)
+                .background(if (selected) colors.selected else colors.canvas)
+                .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+        }
     Column(
         Modifier
             .fillMaxSize()
-            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
-            .clip(DiaryShapes.r12)
-            .background(if (selected) colors.selected else colors.canvas)
-            .clickable(interactionSource = interaction, indication = null, onClick = onClick)
+            .then(press)
             .clearAndSetSemantics {
                 contentDescription = description
-                role = Role.Button
+                if (onClick != null) role = Role.Button
                 this.selected = selected
             }
             .padding(top = DiarySpacing.x1),
@@ -413,10 +475,11 @@ private fun DayCell(
         ) {
             BasicText(
                 date.day.toString(),
-                // 고른 칸은 selected 바탕이라 일요일 색의 대비가 모자란다(4.2:1).
+                // 고른 칸은 selected 바탕이라 일요일 색 대비가 부족함(4.2:1)
                 style = DiaryTheme.typography.captionStrong.copy(
                     color =
                         when {
+                            outside -> colors.placeholder
                             today -> colors.onAccent
                             selected -> colors.textPrimary
                             else -> dayColor(date, colors.textPrimary)
@@ -427,20 +490,22 @@ private fun DayCell(
             )
         }
         if (day != null) {
-            DayFace(
-                day,
-                faceSize,
-                if (wide) DiaryCalendarSize.stackOffsetWide else DiaryCalendarSize.stackOffset,
-                if (selected) colors.selected else colors.canvas
-            )
+            // 흐리게 그릴 때 옆으로 비켜 겹친 원이 잘리지 않게 칸 폭만큼 그림
+            Box(Modifier.fillMaxWidth().alpha(if (outside) DiaryStateAlpha.DISABLED_CONTENT else 1f), contentAlignment = Alignment.Center) {
+                DayFace(
+                    day,
+                    faceSize,
+                    if (wide) DiaryCalendarSize.stackOffsetWide else DiaryCalendarSize.stackOffset,
+                    if (selected) colors.selected else colors.canvas
+                )
+            }
         }
     }
 }
 
 /**
- * 그날 마지막 일기의 얼굴.
- * 여러 편이면 앞 일기의 기분 색을 뒤에 겹친다(2026-11-05 사용자 결정).
- * 편수는 고른 날 목록에 있다.
+ * 그날 마지막 일기의 얼굴
+ * 여러 편이면 앞 일기 기분 색을 뒤에 겹침. 편수는 고른 날 목록에서 보임
  */
 @Composable
 private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) {
@@ -462,10 +527,8 @@ private fun DayFace(day: DayMood, size: Dp, stackOffset: Dp, background: Color) 
 }
 
 /**
- * 고른 날의 일기.
- * 없으면 그날 쓰기를 권한다.
- * [rows]가 null이면 읽는 중이라 날짜만 두고 아래는 비운다.
- * 곧 끝나는 일이라 뼈대를 새로 끼우지 않는다.
+ * 고른 날의 일기. 없으면 그날 쓰기를 권함
+ * [rows]가 null이면 읽는 중이라 날짜만 두고 아래는 비움. 곧 끝나는 일이라 스켈레톤 없음
  */
 @Composable
 internal fun DayPanel(
@@ -476,7 +539,9 @@ internal fun DayPanel(
     twoPane: Boolean,
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
-    onWrite: () -> Unit
+    onWrite: () -> Unit,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
@@ -490,15 +555,24 @@ internal fun DayPanel(
     Column {
         BasicText(
             title,
-            modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
+            // 폰은 격자와 떼고 첫 일기 줄에 붙임(Figma S4: 위 16, 아래 4)
+            modifier =
+                Modifier.padding(
+                    start = LocalScreenGutter.current,
+                    end = LocalScreenGutter.current,
+                    top = if (twoPane) DiarySpacing.x2 else DiarySpacing.x4,
+                    bottom = if (twoPane) DiarySpacing.x2 else DiarySpacing.x1
+                ),
             style = (if (twoPane) typography.headline else typography.captionStrong).copy(
                 color = if (twoPane) colors.textPrimary else colors.textSecondary
             )
         )
-        if (rows == null) return@Column
+        if (rows == null) {
+            if (failed) LoadFailedLine(onRetry, Modifier.padding(horizontal = LocalScreenGutter.current))
+            return@Column
+        }
         if (rows.isEmpty()) {
-            // 달력 아래 한 칸이라 화면 전체용 빈 상태를 쓰지 않는다.
-            // 고른 날에 쓴 글이 없다는 것만 조용히 말한다.
+            // 달력 아래 한 칸이라 화면 전체용 빈 상태 대신 쓴 글이 없다는 것만 조용히 알림
             DiaryEmptyLine(
                 stringResource(Res.string.calendar_empty),
                 stringResource(Res.string.calendar_write_on_day),
@@ -532,3 +606,21 @@ internal fun DayPanel(
 
 private const val WEEK_YEAR = 2026
 private const val WEEK_MONTH = 11
+
+/** 그날 일기를 읽는 중. 아무것도 그리지 않음 */
+private val PendingDay = CalendarDay(null, null)
+
+/**
+ * 달력 격자의 날 42개(6주, 일요일 시작)
+ * 어느 달이든 6주를 그리고 빈칸은 앞뒤 달 날로 채움. 달을 넘겨도 격자 높이가 그대로라 아래 목록이 움직이지 않음
+ */
+internal fun monthCells(month: YearMonth): List<LocalDate> {
+    val first = month.onDay(1)
+    // 일요일을 0으로 센 첫날 앞 칸 수
+    val before = first.dayOfWeek.ordinal.let { (it + 1) % DAYS_IN_WEEK }
+    val start = first.minus(before, DateTimeUnit.DAY)
+    return List(WEEKS_SHOWN * DAYS_IN_WEEK) { start.plus(it, DateTimeUnit.DAY) }
+}
+
+/** 달력 격자의 주 수. 가장 긴 달에 맞춤 */
+private const val WEEKS_SHOWN = 6

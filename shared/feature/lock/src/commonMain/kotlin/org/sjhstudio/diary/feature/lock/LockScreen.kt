@@ -1,26 +1,18 @@
 package org.sjhstudio.diary.feature.lock
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.component.DiaryButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
+import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryNumberPad
 import org.sjhstudio.diary.core.designsystem.component.DiaryPadKey
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
-import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.feature.lock.resources.Res
@@ -34,10 +26,10 @@ import org.sjhstudio.diary.feature.lock.resources.lock_wait_title
 import org.sjhstudio.diary.feature.lock.resources.lock_wrong
 
 /**
- * 잠금 화면(Figma "잠금 (L1)", 스펙 001 FR-015~FR-020).
- * 틀리면 점이 빨갛게 바뀌고 남은 횟수를 보인다.
- * 5번 틀리면 30초 동안 숫자판을 흐리게 막는다.
- * 뒤로 가기는 따로 받지 않아 앱을 닫는다.
+ * 잠금 화면(Figma "잠금 (L1)", 스펙 001 FR-015~FR-020)
+ * 틀리면 점이 빨갛게 바뀌고 남은 횟수 표시
+ * 5번 틀리면 30초 동안 숫자판을 흐리게 막음
+ * 뒤로 가기는 따로 받지 않아 앱을 닫음
  */
 @Composable
 fun LockScreen(
@@ -102,20 +94,10 @@ fun LockScreen(
             }
         )
         if (onForgot != null) {
-            val forgot = remember { MutableInteractionSource() }
-            Spacer(Modifier.height(DiarySpacing.x1_5))
-            Box(
-                modifier =
-                    Modifier
-                        .heightIn(min = DiarySpacing.minTouchTarget)
-                        .diaryPress(forgot, colors.textPrimary, DiaryShapes.r12)
-                        .clickable(forgot, indication = null, role = Role.Button, onClick = onForgot)
-                        .padding(horizontal = DiarySpacing.x3),
-                contentAlignment = Alignment.Center
-            ) {
-                BasicText(stringResource(Res.string.lock_forgot), style = DiaryTheme.typography.label.copy(color = colors.textSecondary))
-            }
-            Spacer(Modifier.height(DiarySpacing.x2 + DiarySpacing.x0_5))
+            // 버튼 안쪽 6을 더해 숫자판 → 글자 20, 글자 → 아래 24(Figma L1). 합이 아래 빈칸 64와 같음
+            Spacer(Modifier.height(DiarySpacing.x1_5 + DiarySpacing.x2))
+            DiaryButton(stringResource(Res.string.lock_forgot), onForgot, kind = DiaryButtonKind.QuietText, size = DiaryButtonSize.Header)
+            Spacer(Modifier.height(DiarySpacing.x4 + DiarySpacing.x0_5))
         } else {
             Spacer(Modifier.height(DiarySpacing.x14 + DiarySpacing.x2))
         }

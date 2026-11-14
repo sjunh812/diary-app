@@ -9,19 +9,21 @@ import okio.Path
 import okio.Path.Companion.toOkioPath
 
 /**
- * 옛 앱(1.7.x)이 같은 패키지에 남긴 원본 자리.
- * 읽기만 한다.
+ * 옛 앱(1.7.x)이 같은 패키지에 남긴 원본 자리
+ * 읽기만 함
  */
 fun legacyFiles(context: Context): LegacyFiles {
-    val prefs = File(context.applicationInfo.dataDir, "shared_prefs")
+    // getDatabasePath는 폴더를 만들려고 디스크를 건드려, 같은 자리를 경로로만 계산
+    val data = context.applicationInfo.dataDir
+    val prefs = File(data, "shared_prefs")
     return LegacyFiles(
-        noteDb = context.getDatabasePath("note.db").toOkioPath(),
+        noteDb = File(File(data, "databases"), "note.db").toOkioPath(),
         prefXml = File(prefs, "pref.xml").toOkioPath(),
         pref2Xml = File(prefs, "pref2.xml").toOkioPath()
     )
 }
 
-/** 그 폴더가 있는 저장소의 남은 바이트. */
+/** 그 폴더가 있는 저장소의 남은 바이트 */
 fun freeBytes(path: Path): Long {
     var dir: File? = path.toFile()
     while (dir != null && !dir.exists()) dir = dir.parentFile
@@ -29,9 +31,9 @@ fun freeBytes(path: Path): Long {
 }
 
 /**
- * 사진 가로세로를 머리만 읽어 잰다.
- * EXIF가 90°·270° 돌림이면 가로세로를 바꾼다(research R8).
- * 사진 전체를 디코딩하지 않는다.
+ * 사진 가로세로를 머리만 읽어 확인
+ * EXIF가 90°·270° 돌림이면 가로세로를 바꿈(research R8)
+ * 사진 전체는 디코딩하지 않음
  */
 object AndroidImageSizeReader : ImageSizeReader {
     override fun read(path: String): Pair<Int, Int>? {

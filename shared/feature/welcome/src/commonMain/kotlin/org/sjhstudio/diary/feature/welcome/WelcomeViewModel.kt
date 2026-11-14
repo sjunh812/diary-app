@@ -2,51 +2,40 @@ package org.sjhstudio.diary.feature.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import org.sjhstudio.diary.core.data.BackupRepository
-import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
-import org.sjhstudio.diary.core.model.BackupConnection
-import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.WelcomeStep
+import org.sjhstudio.diary.core.model.orElseOnFailure
+import org.sjhstudio.diary.core.ui.launchSafely
 
-class WelcomeViewModel(
-    private val welcome: WelcomeRepository,
-    private val backup: BackupRepository,
-    private val settings: SettingsRepository
-) : ViewModel() {
+class WelcomeViewModel(private val welcome: WelcomeRepository) : ViewModel() {
     private val _step = MutableStateFlow<WelcomeStep?>(null)
 
-    /** null이면 아직 읽는 중이다. */
+    /** null이면 아직 읽는 중 */
     val step: StateFlow<WelcomeStep?> = _step.asStateFlow()
 
-    val connected: StateFlow<Boolean> =
-        backup.status.map {
-            it.connection != BackupConnection.NotConnected
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MILLIS), false)
+    private val _entries = MutableStateFlow<Int?>(null)
 
-    private val _connecting = MutableStateFlow(false)
-    val connecting: StateFlow<Boolean> = _connecting.asStateFlow()
-
-    /** 방금 연결에 실패한 까닭. 온보딩을 막지 않고 시트로 알린다. */
-    val connectFailure: StateFlow<BackupFailure?> = backup.connectFailure
-
-    val entries: Int? = welcome.migratedEntries()
+    /** 옮긴 일기 수. 편지가 씀 */
+    val entries: StateFlow<Int?> = _entries.asStateFlow()
 
     init {
         refresh()
     }
 
+    /**
+     * 어디까지 봤는지 읽음
+     * 저장 공간 문제로 읽지 못하면 편지와 온보딩을 건너뛰고 앱 열기
+     * 여기서 멈추거나 꺼지면 일기를 쓸 수 없음
+     */
     private fun refresh() {
-        viewModelScope.launch { _step.value = welcome.step() }
+        viewModelScope.launchSafely {
+            // 편지가 개수 없이 먼저 그려졌다가 문단이 끼어들지 않게 개수부터 읽음
+            _entries.value = orElseOnFailure(null) { welcome.migratedEntries() }
+            _step.value = orElseOnFailure(WelcomeStep.DONE) { welcome.step() }
+        }
     }
 
     fun letterRead() = pass(WelcomeStep.ONBOARDING_UPDATED) { welcome.letterRead() }
@@ -54,44 +43,32 @@ class WelcomeViewModel(
     fun finish() = pass(WelcomeStep.DONE) { welcome.onboardingFinished() }
 
     /**
-     * 본 것을 적고 다음 화면으로 간다.
-     * 저장 공간이 차 적지 못해도 넘어간다.
-     * 다음에 앱을 열면 같은 화면을 다시 볼 뿐이고, 여기서 막히면 앱을 쓸 수 없다.
+     * 본 것을 적고 다음 화면으로 감
+     * 저장 공간이 차 적지 못해도 넘어감
+     * 다음에 앱을 열면 같은 화면을 다시 볼 뿐이고, 여기서 막히면 앱을 쓸 수 없음
      */
     private fun pass(next: WelcomeStep, write: suspend () -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launchSafely {
             _step.value =
-                runCatching {
+                orElseOnFailure(next) {
                     write()
                     welcome.step()
-                }.onFailure { if (it is CancellationException) throw it }.getOrDefault(next)
+                }
         }
-    }
-
-    /**
-     * 예전 앱이 쓰던 계정을 먼저 보인다.
-     * 연결을 마치거나 물러나면 [next]로 넘어간다.
-     * 실패해도 온보딩은 막지 않는다.
-     * 까닭은 [connectFailure]로 알리고 백업은 나중에 설정에서 켤 수 있다.
-     */
-    fun connect(next: () -> Unit) {
-        viewModelScope.launch {
-            _connecting.value = true
-            runCatching { backup.connect(settings.settings.first().legacyBackup?.account) }
-                .onFailure { if (it is CancellationException) throw it }
-            _connecting.value = false
-            next()
-        }
-    }
-
-    fun connectFailureShown() = backup.connectFailureShown()
-
-    private companion object {
-        const val STOP_MILLIS = 5_000L
     }
 }
 
-/** 설정에서 다시 읽는 편지. */
+/** 설정에서 다시 읽는 편지 */
 class LetterViewModel(welcome: WelcomeRepository) : ViewModel() {
-    val entries: Int? = welcome.migratedEntries()
+    private val _letter = MutableStateFlow<Letter?>(null)
+
+    /** null이면 아직 읽는 중. 개수 없는 편지를 먼저 그리지 않음 */
+    val letter: StateFlow<Letter?> = _letter.asStateFlow()
+
+    init {
+        viewModelScope.launchSafely { _letter.value = Letter(orElseOnFailure(null) { welcome.migratedEntries() }) }
+    }
 }
+
+/** [entries]는 옮긴 일기 수. 새로 설치했거나 읽지 못하면 null. */
+data class Letter(val entries: Int?)

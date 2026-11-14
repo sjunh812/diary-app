@@ -1,10 +1,12 @@
 package org.sjhstudio.diary.core.testing
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import okio.BufferedSink
+import okio.Sink
 import okio.Source
+import okio.buffer
 import org.sjhstudio.diary.core.data.BundleFiles
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
@@ -21,15 +23,21 @@ import org.sjhstudio.diary.core.model.WaitingPhotos
 class FakeBundleFiles : BundleFiles {
     override suspend fun bundleEstimate() = BundleEstimate(0, 0, 0)
 
-    /** 값을 넣으면 파일을 쓰다 실패한다. */
+    /** 값을 넣으면 파일을 쓰다 실패함 */
     var writeFailure: Exception? = null
 
-    /** 참이면 멈추라고 할 때까지 파일을 쓰는 중에 머문다. */
+    /** 참이면 멈추라고 할 때까지 파일을 쓰는 중에 멈춰 있음 */
     var holdWrite = false
     var writing = false
         private set
 
-    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) {
+    /** 파일에 쓸 바이트 수 */
+    var bundleBytes = 0
+
+    override suspend fun writeBundle(open: () -> Sink, onProgress: (done: Int, total: Int) -> Unit) {
+        val sink = open().buffer()
+        sink.write(ByteArray(bundleBytes))
+        sink.close()
         writeFailure?.let { throw it }
         if (holdWrite) {
             writing = true
@@ -49,6 +57,7 @@ class FakeBundleFiles : BundleFiles {
     }
 }
 
+@Suppress("TooManyFunctions") // 저장소 약속을 그대로 흉내 내는 시험 대역
 class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val bundle: FakeBundleFiles = FakeBundleFiles()) :
     RestoreRepository,
     BundleFiles by bundle {
@@ -93,7 +102,18 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val b
         return preparation
     }
 
-    override suspend fun backups(): List<BackupEntry>? = entries
+    /** 지난번에 읽어 둔 목록 */
+    var saved: List<BackupEntry> = emptyList()
+
+    /** 있으면 드라이브 목록 답을 이것이 끝날 때까지 미룸 */
+    var backupsGate: CompletableDeferred<Unit>? = null
+
+    override suspend fun savedBackups(): List<BackupEntry> = saved
+
+    override suspend fun backups(): List<BackupEntry>? {
+        backupsGate?.await()
+        return entries
+    }
 
     override suspend fun prepare(snapshotName: String): RestorePreparation = preparation
 

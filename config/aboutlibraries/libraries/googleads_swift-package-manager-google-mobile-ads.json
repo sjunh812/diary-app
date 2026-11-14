@@ -1,0 +1,15 @@
+{
+  "uniqueId": "googleads/swift-package-manager-google-mobile-ads",
+  "artifactVersion": "13.11.0",
+  "name": "Google Mobile Ads SDK for iOS",
+  "description": "Google Mobile Ads SDK for iOS.",
+  "website": "https://developers.google.com/admob/ios",
+  "developers": [
+    {
+      "name": "Google LLC"
+    }
+  ],
+  "licenses": [
+    "GMA-SDK-Terms"
+  ]
+}

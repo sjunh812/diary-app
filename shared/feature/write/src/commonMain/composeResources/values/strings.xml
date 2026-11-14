@@ -11,6 +11,8 @@
     <string name="write_camera">Camera</string>
     <string name="write_photo_count">%1$d/%2$d</string>
     <string name="write_photo_remove">Remove photo</string>
+    <string name="write_photo_removed">Photo removed</string>
+    <string name="write_photo_undo">Undo</string>
     <string name="write_photo_limit">You can add up to %1$d new photos per entry</string>
     <string name="write_entry_changed">This entry changed in the meantime. Saving keeps both versions.</string>
     <string name="write_adding_photos">Adding photos…</string>
@@ -19,6 +21,7 @@
     <string name="write_photo_no_space">Your phone is out of storage, so some photos weren't added</string>
     <string name="write_photo_unreadable">Some photos couldn't be read</string>
     <string name="write_save_failed">Couldn't save. Your writing is still here, so tap Save again.</string>
+    <string name="write_open_failed">Couldn't open this entry. Close and open it again.</string>
     <string name="write_format_bold">Bold</string>
     <string name="write_format_underline">Underline</string>
     <string name="write_format_color">Text color</string>
@@ -62,8 +65,11 @@
     <string name="write_place_off">Location is turned off on this device.</string>
     <string name="write_place_not_found">Couldn't find your location. Type it in instead.</string>
     <string name="write_place_settings">Open Settings</string>
+    <string name="write_camera_off_title">Camera access is off</string>
+    <string name="write_camera_off_message">Allow camera access in Settings to take photos.</string>
     <string name="write_mood_body">Save your mood to see how it changes in Insights.</string>
     <string name="write_weather_body">Add the weather to help you remember the day later.</string>
     <string name="write_checklist_plus_title">Checklists are part of Plus</string>
     <string name="write_checklist_plus_body">Your writing is still here, and checklists you already have keep working.</string>
+    <string name="tip_photo_reorder">Press and hold a photo, then drag to change the order.</string>
 </resources>

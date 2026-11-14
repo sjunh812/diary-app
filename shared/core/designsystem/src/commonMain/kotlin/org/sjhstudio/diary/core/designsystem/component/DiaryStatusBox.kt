@@ -13,15 +13,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.LineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 상태 상자(`docs/design.md` 상태 상자, Figma "permission-needed").
- * 안내 상자와 한 집안이다.
- * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 4 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백).
- * 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼.
+ * 상태 상자(`docs/design.md` 상태 상자, Figma "permission-needed")
+ * 안내 상자와 같은 계열
+ * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 6 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백)
+ * 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼
  */
 @Composable
 fun DiaryStatusBox(
@@ -48,16 +52,24 @@ fun DiaryStatusBox(
                 .padding(DiarySpacing.x5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
+        // 머리가 두 줄이 되면 4로는 설명과 붙어 보여 6
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
             Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.Top) {
                 FirstLineIcon(icon, typography.bodyStrong, colors.textPrimary)
-                BasicText(title, style = typography.bodyStrong.copy(color = colors.textPrimary))
+                // 한글은 글자마다 줄이 바뀌어 마지막 줄에 "요" 한 글자만 남음
+                // 낱말 안 글자 사이를 묶어 띄어쓰기에서만 줄이 바뀌게 하고, 줄은 고르게 나눔
+                // 붙임 글자는 그릴 때만 쓰고, 화면 읽기와 시험에는 원래 머리를 줌
+                BasicText(
+                    keepWords(title),
+                    Modifier.clearAndSetSemantics { text = AnnotatedString(title) },
+                    style = typography.bodyStrong.copy(color = colors.textPrimary, lineBreak = LineBreak.Heading)
+                )
             }
-            BasicText(body, style = typography.body.copy(color = colors.textSecondary))
+            PhraseText(body, style = typography.body.copy(color = colors.textSecondary))
         }
         if (actionLabel != null && onAction != null) {
-            // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 들어가지 않으면 아래 줄로 내려간다.
-            // 줄 사이 16은 누르는 곳 48끼리 겹치지 않는 값이다.
+            // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 안 들어가면 아래 줄로 내려감
+            // 줄 사이 16은 누르는 곳 48끼리 겹치지 않는 값
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
                 verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
@@ -73,3 +85,31 @@ fun DiaryStatusBox(
         }
     }
 }
+
+/**
+ * 한글이 든 낱말 안 글자 사이에 줄바꿈하지 않는 표시(U+2060)를 넣음. 화면 표시용
+ * 숫자와 단위도 묶어 "5,002 / 장"처럼 끊기지 않음
+ * 낱말 뒤 숫자 앞 띄어쓰기는 줄바꿈 없는 공백으로 바꿔 "사진 / 5,002장"처럼 끊기지 않음
+ */
+internal fun keepWords(text: String): String = buildString(text.length * 2) {
+    text.forEachIndexed { index, char ->
+        val before = text.getOrNull(index - 1)
+        if (before != null && joins(before, char)) append(WORD_JOINER)
+        append(if (char == ' ' && countFollows(text, index)) NO_BREAK_SPACE else char)
+    }
+}
+
+private fun countFollows(text: String, space: Int): Boolean {
+    val before = text.getOrNull(space - 1) ?: return false
+    return before.isHangul() && text.getOrNull(space + 1)?.isDigit() == true
+}
+
+private fun joins(before: Char, char: Char): Boolean {
+    if (before.isWhitespace() || char.isWhitespace()) return false
+    return before.isHangul() || char.isHangul()
+}
+
+private fun Char.isHangul(): Boolean = this in '\uAC00'..'\uD7A3'
+
+private const val WORD_JOINER = '\u2060'
+private const val NO_BREAK_SPACE = '\u00A0'

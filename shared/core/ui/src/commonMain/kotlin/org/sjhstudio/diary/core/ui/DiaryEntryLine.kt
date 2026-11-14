@@ -19,11 +19,11 @@ import org.sjhstudio.diary.core.ui.resources.Res
 import org.sjhstudio.diary.core.ui.resources.entry_kept_both
 
 /**
- * 목록 한 줄(`docs/design.md` 일기 줄).
- * 메타는 기분 얼굴, 시각, 날씨, 장소, 즐겨찾기 별 순서다.
- * [showDate]는 그날 첫 줄에서만 true다.
- * [previewStyle]은 사용자가 고른 본문 글꼴과 크기다.
- * [highlight]는 찾기에서 찾은 글자로, 미리보기와 장소에서 강조한다.
+ * 목록 한 줄(`docs/design.md` 일기 줄)
+ * 메타는 기분 얼굴, 시각, 날씨, 장소, 즐겨찾기 별 순서
+ * [showDate]는 그날 첫 줄에서만 true
+ * [previewStyle]은 사용자가 고른 본문 글꼴과 크기
+ * [highlight]는 찾기에서 찾은 글자. 미리보기와 장소에서 강조
  */
 @Composable
 fun DiaryEntryLine(
@@ -58,7 +58,7 @@ fun DiaryEntryLine(
             )
             row.weather?.let { WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary, contentDescription = weatherName(it)) }
             row.placeName?.let {
-                // 장소가 길어도 뒤에 오는 표시와 즐겨찾기 별을 밀어내지 않는다.
+                // 장소가 길어도 뒤에 오는 표시와 즐겨찾기 별을 밀어내지 않음
                 BasicText(
                     it.highlighted(highlight, colors.accentText),
                     modifier = Modifier.weight(1f, fill = false),
@@ -79,10 +79,10 @@ fun DiaryEntryLine(
     )
 }
 
-/** 일기 줄 메타의 기분 얼굴 크기. */
+/** 일기 줄 메타의 기분 얼굴 크기 */
 val DiaryEntryFaceSize = 18.dp
 
-/** 대소문자를 가리지 않고 찾은 글자마다 색을 입힌다. */
+/** 대소문자를 가리지 않고 찾은 글자마다 색을 입힘 */
 internal fun String.highlighted(query: String, color: Color): AnnotatedString = buildAnnotatedString {
     append(this@highlighted)
     if (query.isEmpty()) return@buildAnnotatedString

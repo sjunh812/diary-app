@@ -10,7 +10,10 @@
     <string name="write_draft_kept">Draft saved</string>
     <string name="detail_trashed">Moved to Trash</string>
     <string name="detail_trashed_undo">Undo</string>
-    <string name="detail_pick_hint">Pick an entry to read it here</string>
+    <string name="detail_pick_hint">No entry selected</string>
+    <string name="detail_pick_body">Tap an entry in the list to read it here.</string>
+    <string name="settings_pick_hint">No setting selected</string>
+    <string name="settings_pick_body">Tap a setting in the list to see it here.</string>
     <string name="ad_label">Ad</string>
     <string name="reward_title">Get an ad-free day</string>
     <string name="reward_body">Watch one short video to the end and you won't see other ads for 24 hours.</string>
@@ -18,6 +21,9 @@
     <string name="reward_close">Close</string>
     <string name="reward_failed_title">Couldn't get your ad-free day</string>
     <string name="reward_failed_body">The video didn't load or wasn't watched to the end. Please try again in a little while.</string>
-    <string name="ad_close">Close ad</string>
+    <string name="ad_close">Remove ads</string>
+    <string name="ad_notice_title">Full-screen ads appear once a day</string>
+    <string name="ad_notice_body">They show briefly only when you save an entry and return to the list.</string>
+    <string name="ad_notice_ok">OK</string>
     <string name="write_failed">Couldn't save. Check your phone's storage.</string>
 </resources>

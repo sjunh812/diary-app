@@ -34,7 +34,7 @@ import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 앱이 종료되거나 잠겼다 돌아와도, 연타해도 쓴 글을 잃지 않는지 본다(헌법 I).
+// 앱이 종료되거나 잠겼다 돌아와도, 연타해도 쓴 글을 잃지 않는지(헌법 I)
 @OptIn(ExperimentalCoroutinesApi::class)
 class WriteDraftSafetyTest {
     private val dispatcher = StandardTestDispatcher()
@@ -48,7 +48,7 @@ class WriteDraftSafetyTest {
     fun tearDown() = Dispatchers.resetMain()
 
     private fun vm(repository: FakeDraftRepository, target: WriteTarget = WriteTarget.New()) =
-        WriteViewModel(target, repository, clock, TimeZone.UTC)
+        testWriteViewModel(target, repository, clock, TimeZone.UTC)
 
     private fun draft(key: DraftKey = DraftKey.New(), body: String = "<p>쓰던 글</p>") =
         Draft(key, today, LocalTime(9, 0), body, null, null, null, false, false, clock.now())
@@ -63,8 +63,8 @@ class WriteDraftSafetyTest {
     fun a_photo_arriving_before_the_draft_is_read_keeps_the_draft() = runTest(dispatcher) {
         val key = DraftKey.New("new-1")
         val repository = FakeDraftRepository(listOf(draft(key, body = "<p>남겨 둔 글</p>")))
-        // 카메라에서 돌아온 결과가 화면 모델이 글을 읽기 전에 들어온다.
-        val vm = WriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
+        // 카메라에서 돌아온 결과가 화면 모델이 글을 읽기 전에 들어옴
+        val vm = testWriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
         vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }))
         advanceUntilIdle()
 
@@ -80,7 +80,7 @@ class WriteDraftSafetyTest {
         val key = DraftKey.New("new-1")
         val repository = FakeDraftRepository(listOf(draft(key), draft(DraftKey.New("new-2"))))
 
-        val vm = WriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
+        val vm = testWriteViewModel(WriteTarget.New(), repository, clock, TimeZone.UTC, restoredKey = key.value)
         advanceUntilIdle()
 
         assertEquals(null, vm.state.value.resume)
@@ -138,7 +138,7 @@ class WriteDraftSafetyTest {
     fun a_left_edit_that_matches_the_entry_is_not_kept() = runTest(dispatcher) {
         val key = DraftKey.Edit("e1")
         val repository = FakeDraftRepository(editable = mapOf("e1" to draft(key)))
-        // 앱이 다시 떠서 전에 만든 저장본을 이어 연 때다.
+        // 앱이 다시 떠서 전에 만든 저장본을 이어 연 때
         repository.openEdit("e1")
         val vm = vm(repository, WriteTarget.Edit("e1"))
         val events = events(vm)
@@ -174,7 +174,7 @@ class WriteDraftSafetyTest {
         assertFalse(vm.state.value.addingPhotos)
     }
 
-    /** Room은 사진을 적은 뒤 조금 늦게 알린다. 화면이 아직 모른다고 빈 글로 보면 사진을 잃는다. */
+    /** Room은 사진을 적은 뒤 조금 늦게 알림. 화면이 아직 모른다고 빈 글로 보면 사진을 잃음 */
     @Test
     fun a_photo_the_screen_has_not_seen_yet_is_kept_on_closing() = runTest(dispatcher) {
         val gate = CompletableDeferred<Unit>()
@@ -184,7 +184,7 @@ class WriteDraftSafetyTest {
             object : DraftRepository by fake {
                 override fun draft(key: DraftKey): Flow<Draft?> = if (reads++ == 0) emptyFlow() else fake.draft(key)
             }
-        val vm = WriteViewModel(WriteTarget.New(), slow, clock, TimeZone.UTC)
+        val vm = testWriteViewModel(WriteTarget.New(), slow, clock, TimeZone.UTC)
         val events = events(vm)
         advanceUntilIdle()
         vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }))
@@ -217,6 +217,34 @@ class WriteDraftSafetyTest {
         assertEquals(0, repository.saved.single().photos.size)
     }
 
+    // 잘못 뺀 사진은 토스트의 [되돌리기]로 원래 자리에 돌아옴
+    @Test
+    fun undo_puts_a_removed_photo_back_in_place() = runTest(dispatcher) {
+        val repository = FakeDraftRepository()
+        val vm = vm(repository)
+        advanceUntilIdle()
+        vm.onBodyChange("<p>글</p>")
+        vm.addPhotos(listOf(PickedImage { byteArrayOf(1) }, PickedImage { byteArrayOf(2) }, PickedImage { byteArrayOf(3) }))
+        advanceUntilIdle()
+        val before = repository.saved.single().photos
+
+        val removals = mutableListOf<Unit>()
+        backgroundScope.launch { vm.photoRemovals.collect { removals += it } }
+        vm.removePhoto(1)
+        advanceUntilIdle()
+        assertEquals(1, removals.size)
+        assertEquals(2, repository.saved.single().photos.size)
+
+        vm.undoRemovePhoto()
+        advanceUntilIdle()
+        assertEquals(before, repository.saved.single().photos)
+
+        // 한 번 되돌린 뒤에는 다시 눌러도 아무것도 하지 않음
+        vm.undoRemovePhoto()
+        advanceUntilIdle()
+        assertEquals(before, repository.saved.single().photos)
+    }
+
     @Test
     fun discarding_shows_only_for_a_draft_left_before() = runTest(dispatcher) {
         val key = DraftKey.Edit("e1")
@@ -230,5 +258,21 @@ class WriteDraftSafetyTest {
         val left = vm(repository, WriteTarget.Edit("e1"))
         advanceUntilIdle()
         assertTrue(left.state.value.canDiscard)
+    }
+
+    /** 닫히는 전환 중에 뒤로 가기가 또 오면 닫힘이 두 번 나가 밑의 화면까지 닫혔음 */
+    @Test
+    fun leaving_the_resume_sheet_and_pressing_back_again_closes_once() = runTest(dispatcher) {
+        val repository = FakeDraftRepository(listOf(draft()))
+        val vm = vm(repository)
+        val events = events(vm)
+        advanceUntilIdle()
+
+        vm.leaveOffer()
+        vm.close()
+        vm.leaveOffer()
+        advanceUntilIdle()
+
+        assertEquals(listOf<WriteEvent>(WriteEvent.Closed(keptDraft = false)), events)
     }
 }

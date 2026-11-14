@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.designsystem.icon
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -9,17 +10,21 @@ import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.unit.dp
 
 /**
- * 앱 틀 아이콘.
- * 경로는 Lucide(`lucide-static` 1.66.0, ISC 라이선스)의 SVG를 그대로 옮겼다.
- * 일기 화면 아이콘(찾기부터 날씨까지)은 Figma "화면" 페이지의 아이콘 경로를 그대로 옮겼다.
- * `circle`, `line`, `rect`는 같은 모양의 경로로 바꿨다.
- * 선 굵기는 1.75다(`docs/design.md` 아이콘과 그림).
- * 아이콘 세트를 확정하면 이 파일을 바꾼다.
+ * 앱 틀 아이콘
+ * 경로는 Lucide(`lucide-static` 1.66.0, ISC 라이선스)의 SVG를 그대로 옮김
+ * 일기 화면 아이콘(찾기부터 날씨까지)은 Figma "화면" 페이지의 아이콘 경로를 그대로 옮김
+ * `circle`, `line`, `rect`는 같은 모양의 경로로 바꿈
+ * 선 굵기는 1.75(`docs/design.md` 아이콘과 그림)
+ * 아이콘 세트를 확정하면 이 파일을 바꿈
  */
 object DiaryIcons {
     private const val STAR = "M 12 4 L 14.4 9 L 19.8 9.6 L 15.8 13.3 L 16.9 18.6 L 12 16 L 7.1 18.6 L 8.2 13.3 L 4.2 9.6 L 9.6 9 L 12 4 Z"
     private const val GEAR =
         "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+    private const val HOME =
+        "M 4 10.5 L 12 4 L 20 10.5 L 20 20 C 20 20.265 19.895 20.52 19.707 20.707 C 19.52 20.895 19.265 21 19 21 L 14.5 21 L 14.5 15 " +
+            "L 9.5 15 L 9.5 21 L 5 21 C 4.735 21 4.48 20.895 4.293 20.707 C 4.105 20.52 4 20.265 4 20 L 4 10.5 Z"
+    private const val SLASH = "M 3.5 3.5 L 20.5 20.5"
     private const val CIRCLE = "M2 12a10 10 0 1 0 20 0a10 10 0 1 0 -20 0"
 
     val ChevronLeft: ImageVector by lazy { lucide("chevron-left", "m15 18-6-6 6-6") }
@@ -126,22 +131,16 @@ object DiaryIcons {
         )
     }
 
-    // 하단 탭·레일 아이콘(Figma "설정 (S6)"의 tab-bar 경로 그대로).
-    // 고른 탭은 선이 굵다(docs/design.md 하단 탭).
+    // 하단 탭·레일 아이콘(Figma "설정 (S6)"의 tab-bar 경로 그대로)
+    // 고른 탭은 채운 아이콘. 바깥 끝을 선 아이콘과 맞춰 고를 때 크기가 변해 보이지 않음
     val TabHome: ImageVector by lazy {
         tab(
             "tab-home",
             1.75f,
-            "M 4 10.5 L 12 4 L 20 10.5 L 20 20 C 20 20.265 19.895 20.52 19.707 20.707 C 19.52 20.895 19.265 21 19 21 L 14.5 21 L 14.5 15 L 9.5 15 L 9.5 21 L 5 21 C 4.735 21 4.48 20.895 4.293 20.707 C 4.105 20.52 4 20.265 4 20 L 4 10.5 Z"
+            HOME
         )
     }
-    val TabHomeSelected: ImageVector by lazy {
-        tab(
-            "tab-home-selected",
-            2.25f,
-            "M 4 10.5 L 12 4 L 20 10.5 L 20 20 C 20 20.265 19.895 20.52 19.707 20.707 C 19.52 20.895 19.265 21 19 21 L 14.5 21 L 14.5 15 L 9.5 15 L 9.5 21 L 5 21 C 4.735 21 4.48 20.895 4.293 20.707 C 4.105 20.52 4 20.265 4 20 L 4 10.5 Z"
-        )
-    }
+    val TabHomeSelected: ImageVector by lazy { filledTab("tab-home-selected", fill = HOME) }
     val TabCalendar: ImageVector by lazy {
         tab(
             "tab-calendar",
@@ -150,16 +149,25 @@ object DiaryIcons {
             "M 4 10 L 20 10 M 8.5 3.5 L 8.5 7.5 M 15.5 3.5 L 15.5 7.5"
         )
     }
+
+    // 통째로 채우고 가로줄 자리만 틈으로. 머리 띠만 채우면 선 아이콘과 구분이 안 됨
     val TabCalendarSelected: ImageVector by lazy {
-        tab(
+        filledTab(
             "tab-calendar-selected",
-            2.25f,
-            "M 6.5 5.5 L 17.5 5.5 C 18.881 5.5 20 6.619 20 8 L 20 18 C 20 19.381 18.881 20.5 17.5 20.5 L 6.5 20.5 C 5.119 20.5 4 19.381 4 18 L 4 8 C 4 6.619 5.119 5.5 6.5 5.5 Z",
-            "M 4 10 L 20 10 M 8.5 3.5 L 8.5 7.5 M 15.5 3.5 L 15.5 7.5"
+            fill =
+                "M 6.5 4.625 L 17.5 4.625 A 3.375 3.375 0 0 1 20.875 8 L 20.875 18 A 3.375 3.375 0 0 1 17.5 21.375 L 6.5 21.375 " +
+                    "A 3.375 3.375 0 0 1 3.125 18 L 3.125 8 A 3.375 3.375 0 0 1 6.5 4.625 Z " +
+                    "M 3.125 9.25 L 20.875 9.25 L 20.875 10.75 L 3.125 10.75 Z",
+            outlined = false,
+            lines = "M 8.5 3.5 L 8.5 7.5 M 15.5 3.5 L 15.5 7.5"
         )
     }
     val TabInsight: ImageVector by lazy { tab("tab-insight", 1.75f, "M 5 20 L 5 11 M 12 20 L 12 5 M 19 20 L 19 14") }
-    val TabInsightSelected: ImageVector by lazy { tab("tab-insight-selected", 2.25f, "M 5 20 L 5 11 M 12 20 L 12 5 M 19 20 L 19 14") }
+
+    // 막대만 굵게. 위아래 끝은 선 아이콘과 같음
+    val TabInsightSelected: ImageVector by lazy {
+        tab("tab-insight-selected", 3.25f, "M 5 19.25 L 5 11.75 M 12 19.25 L 12 5.75 M 19 19.25 L 19 14.75")
+    }
     val TabSettings: ImageVector by lazy {
         tab(
             "tab-settings",
@@ -168,13 +176,10 @@ object DiaryIcons {
             GEAR
         )
     }
+
+    // 톱니는 채우고 가운데 원은 비움
     val TabSettingsSelected: ImageVector by lazy {
-        tab(
-            "tab-settings-selected",
-            2.25f,
-            "M 15 12 C 15 13.657 13.657 15 12 15 C 10.343 15 9 13.657 9 12 C 9 10.343 10.343 9 12 9 C 13.657 9 15 10.343 15 12 Z",
-            GEAR
-        )
+        filledTab("tab-settings-selected", fill = "$GEAR M 15.5 12 A 3.5 3.5 0 1 0 8.5 12 A 3.5 3.5 0 1 0 15.5 12 Z")
     }
 
     val Search: ImageVector by lazy {
@@ -191,14 +196,18 @@ object DiaryIcons {
         )
     }
     val Cloud: ImageVector by lazy { lucide("cloud", "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z") }
-    val Sparkles: ImageVector by lazy {
+    val CloudUpload: ImageVector by lazy {
+        lucide("cloud-upload", "M12 13v8", "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242", "m8 17 4-4 4 4")
+    }
+    val CloudOff: ImageVector by lazy {
         lucide(
-            "sparkles",
-            "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z",
-            "M20 3v4",
-            "M22 5h-4"
+            "cloud-off",
+            "M10.94 5.274A7 7 0 0 1 15.71 10h1.79a4.5 4.5 0 0 1 4.222 6.057",
+            "M18.796 18.81A4.5 4.5 0 0 1 17.5 19H9A7 7 0 0 1 5.79 5.78",
+            "m2 2 20 20"
         )
     }
+    val LinkOff: ImageVector by lazy { lucide("link-2-off", "M9 17H7A5 5 0 0 1 7 7", "M15 7h2a5 5 0 0 1 4 8", "M8 12L12 12", "M2 2L22 22") }
     val SparklesSolid: ImageVector by lazy {
         lucide(
             "sparkles-solid",
@@ -208,8 +217,42 @@ object DiaryIcons {
             strokeWidth = 0.6f
         )
     }
-    val Tablet: ImageVector by lazy {
-        lucide("tablet", "M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z", "M12 18h.01")
+
+    /** 합쳐서 복원(B4, B7) */
+    val GitMerge: ImageVector by lazy {
+        lucide(
+            "git-merge",
+            "M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0",
+            "M3 6a3 3 0 1 0 6 0a3 3 0 1 0 -6 0",
+            "M6 21V9a9 9 0 0 0 9 9"
+        )
+    }
+    val Smartphone: ImageVector by lazy {
+        lucide("smartphone", "M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z", "M12 18h.01")
+    }
+    val FolderOpen: ImageVector by lazy {
+        lucide(
+            "folder-open",
+            "m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"
+        )
+    }
+    val Gift: ImageVector by lazy {
+        lucide(
+            "gift",
+            "M4 8h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z",
+            "M12 8v13",
+            "M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7",
+            "M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"
+        )
+    }
+    val Package: ImageVector by lazy {
+        lucide(
+            "package",
+            "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z",
+            "M12 22V12",
+            "m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7",
+            "m7.5 4.27 9 5.15"
+        )
     }
     val Pen: ImageVector by lazy {
         lucide(
@@ -219,8 +262,22 @@ object DiaryIcons {
         )
     }
 
-    // 그림이 틀을 채우는 다른 아이콘과 크기가 맞게 폭을 넓혔다.
-    // 좁으면 옆 글자와의 틈이 혼자 넓어 보인다.
+    /**
+     * 이미 쓴 일기 수정. 글줄 옆에 연필
+     * 새 일기 버튼의 연필([Pen])과 한 화면에 함께 보여 모양 구분
+     * 글줄과 연필을 합친 범위가 가운데에 오게 놓음
+     */
+    val EditText: ImageVector by lazy {
+        lucide(
+            "edit-text",
+            "M 3.5 5.5 L 15 5.5",
+            "M 3.5 11 L 11.5 11",
+            "M 3.5 16.5 L 7.5 16.5",
+            "M 16.5 9 L 20.5 13 L 14 19.5 L 10 19.5 L 10 15.5 Z"
+        )
+    }
+
+    // 그림이 틀을 채우는 다른 아이콘과 크기가 맞게 폭을 넓힘. 좁으면 옆 글자와의 틈이 혼자 넓어 보임
     val Pin: ImageVector by lazy {
         lucide(
             "pin",
@@ -303,12 +360,6 @@ object DiaryIcons {
             "M 5.9 17 C 5.9 17.5 5.5 17.9 5 17.9 C 4.5 17.9 4.1 17.5 4.1 17 C 4.1 16.5 4.5 16.1 5 16.1 C 5.5 16.1 5.9 16.5 5.9 17 Z"
         )
     }
-    val Plus: ImageVector by lazy {
-        lucide(
-            "plus",
-            "M 12 5 L 12 19 M 5 12 L 19 12"
-        )
-    }
     val Smile: ImageVector by lazy {
         lucide(
             "smile",
@@ -324,6 +375,9 @@ object DiaryIcons {
             "M 5 4 L 5 8 L 9 8"
         )
     }
+
+    /** 고른 조건 초기화. 모양은 [Restore]와 같은 되돌리기 화살표(lucide rotate-ccw) */
+    val Reset: ImageVector get() = Restore
     val WeatherSunny: ImageVector by lazy {
         lucide(
             "weather-sunny",
@@ -346,7 +400,7 @@ object DiaryIcons {
         )
     }
 
-    // 흐림, 비, 비/눈, 눈은 구름 자리를 같게 두고 아래 표시만 다르게 한다.
+    // 흐림, 비, 비/눈, 눈은 구름 자리를 같게 두고 아래 표시만 다르게
     val WeatherCloudy: ImageVector by lazy {
         lucide(
             "weather-cloudy",
@@ -376,11 +430,58 @@ object DiaryIcons {
         )
     }
 
-    /** 즐겨찾기 빈 별과 찬 별(Figma 별 경로). */
+    /** 즐겨찾기 빈 별과 찬 별(Figma 별 경로) */
     val StarOutline: ImageVector by lazy { lucide("star-outline", STAR) }
     val StarFilled: ImageVector by lazy { lucide("star-filled", STAR, filled = true) }
 
+    /**
+     * 즐겨찾기 해제. 별 위에 빗금을 그어 누르면 즐겨찾기가 풀린다는 뜻으로 읽힘
+     * 꽉 찬 별은 즐겨찾기가 된다는 뜻으로 읽힐 수 있음(iOS 해제 동작도 빗금 아이콘)
+     */
+    // 빗금이 지나는 두 곳에서 별 테두리를 끊어 선이 겹치지 않게 함(Lucide star-off와 같은 방식)
+    // 끊는 폭은 빗금에서 2 떨어진 곳까지라 둥근 선 끝까지 빗금과 틈이 보임
+    val StarOff: ImageVector by lazy {
+        lucide(
+            "star-off",
+            "M 10.32 7.49 L 12 4 L 14.4 9 L 19.8 9.6 L 15.97 13.14",
+            "M 14.5 17.33 L 12 16 L 7.1 18.6 L 8.2 13.3 L 4.2 9.6 L 6.51 9.34",
+            SLASH
+        )
+    }
+
     private fun tab(name: String, stroke: Float, vararg paths: String): ImageVector = lucide(name, *paths, strokeWidth = stroke)
+
+    /**
+     * 고른 탭의 채운 아이콘
+     * [fill]의 안쪽 고리는 구멍(EvenOdd). [outlined]면 1.75 선을 둘러 모서리를 둥글게. [lines]는 선만
+     */
+    private fun filledTab(name: String, fill: String, outlined: Boolean = true, lines: String? = null): ImageVector {
+        val builder = ImageVector.Builder(
+            name = name,
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        )
+        builder.addPath(
+            pathData = addPathNodes(fill),
+            pathFillType = PathFillType.EvenOdd,
+            fill = SolidColor(Color.Black),
+            stroke = if (outlined) SolidColor(Color.Black) else null,
+            strokeLineWidth = 1.75f,
+            strokeLineCap = StrokeCap.Round,
+            strokeLineJoin = StrokeJoin.Round
+        )
+        if (lines != null) {
+            builder.addPath(
+                pathData = addPathNodes(lines),
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 1.75f,
+                strokeLineCap = StrokeCap.Round
+            )
+        }
+        return builder.build()
+    }
 
     private fun lucide(name: String, vararg paths: String, filled: Boolean = false, strokeWidth: Float = 1.75f): ImageVector {
         val builder = ImageVector.Builder(

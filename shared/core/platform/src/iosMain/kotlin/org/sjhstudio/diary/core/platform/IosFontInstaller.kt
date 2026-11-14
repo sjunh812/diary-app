@@ -1,10 +1,16 @@
 package org.sjhstudio.diary.core.platform
 
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import platform.Foundation.NSBundleResourceRequest
@@ -13,15 +19,33 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSURLErrorDomain
 
 /**
- * 글꼴마다 하나인 On-Demand Resources 태그(글꼴 ID)를 받아 `<id>.ttf`를 앱 파일 자리로 복사한다.
- * 태그는 `iosApp/project.yml`이 정한다.
- * 개발 빌드는 시험할 수 있게 자료를 앱 안에 담는다(EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE).
+ * 글꼴마다 하나인 On-Demand Resources 태그(글꼴 ID)를 받아 `<id>.ttf`를 앱 파일 자리로 복사
+ * 태그는 `iosApp/project.yml`이 정함
+ * 개발 빌드는 시험할 수 있게 자료를 앱 안에 담음(EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE)
  */
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, ExperimentalAtomicApi::class)
 class IosFontInstaller(private val files: AppFiles) : FontInstaller {
     private val manager = NSFileManager.defaultManager
 
-    override fun installedPath(id: String): String? = target(id).takeIf { manager.fileExistsAtPath(it) }
+    // 화면을 그릴 때도 불러 파일 확인은 글꼴마다 한 번만. 시작 뒤 뒤에서 먼저 채움(Startup)
+    private val known = AtomicReference<Map<String, String>>(emptyMap())
+
+    override fun installedPath(id: String): String? = (known.load()[id] ?: check(id)).ifEmpty { null }
+
+    override fun knownPath(id: String): String? = known.load()[id]?.ifEmpty { null }
+
+    private val _changes = MutableStateFlow(0)
+    override val changes: StateFlow<Int> = _changes.asStateFlow()
+
+    /** 없으면 빈 글자로 기억. 받으면 [copy]가 고쳐 둠 */
+    private fun check(id: String): String = (target(id).takeIf { manager.fileExistsAtPath(it) } ?: "").also { remember(id, it) }
+
+    private fun remember(id: String, path: String) {
+        while (true) {
+            val now = known.load()
+            if (known.compareAndSet(now, now + (id to path))) return
+        }
+    }
 
     override fun install(id: String): Flow<FontInstallState> = callbackFlow {
         installedPath(id)?.let {
@@ -31,7 +55,7 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         }
         val request = NSBundleResourceRequest(tags = setOf(id))
         request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
-        // 진행은 따로 알려 주지 않아 잠깐마다 읽는다.
+        // 진행을 따로 알려 주지 않아 잠깐마다 읽음
         val progress = launch {
             while (isActive) {
                 send(FontInstallState.Downloading(request.progress.fractionCompleted.toFloat()))
@@ -52,7 +76,7 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         awaitClose { progress.cancel() }
     }
 
-    /** 반쯤 쓴 파일을 남기지 않게 임시 이름으로 복사한 뒤 옮긴다. */
+    /** 반쯤 쓴 파일이 남지 않게 임시 이름으로 복사한 뒤 옮김 */
     private fun copy(source: String, id: String): String? {
         val target = target(id)
         val partial = "$target.part"
@@ -60,7 +84,21 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         manager.removeItemAtPath(partial, error = null)
         if (!manager.copyItemAtPath(source, toPath = partial, error = null)) return null
         manager.removeItemAtPath(target, error = null)
-        return target.takeIf { manager.moveItemAtPath(partial, toPath = it, error = null) }
+        return target.takeIf { manager.moveItemAtPath(partial, toPath = it, error = null) }?.also {
+            remember(id, it)
+            _changes.update { count -> count + 1 }
+        }
+    }
+
+    override fun removeExcept(ids: Set<String>) {
+        val names = manager.contentsOfDirectoryAtPath(files.fontDirectory, error = null).orEmpty().filterIsInstance<String>()
+        for (name in names) {
+            val id = name.substringBefore('.')
+            if (id !in ids && manager.removeItemAtPath("${files.fontDirectory}/$name", error = null)) {
+                remember(id, "")
+                _changes.update { it + 1 }
+            }
+        }
     }
 
     private fun target(id: String) = "${files.fontDirectory}/$id.ttf"

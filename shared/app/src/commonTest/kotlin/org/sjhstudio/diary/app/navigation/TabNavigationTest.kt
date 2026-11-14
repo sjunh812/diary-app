@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-// 탭마다 따로 쌓는 화면(contracts/navigation.md 뒤로 가기, 공식 nav3-recipes multiplestacks).
+// 탭마다 따로 쌓는 화면(contracts/navigation.md 뒤로 가기, 공식 nav3-recipes multiplestacks)
 class TabNavigationTest {
     private fun navigation(start: TabScreen = HomeKey) = TabNavigation(
         selected = mutableStateOf(start),
@@ -23,6 +23,19 @@ class TabNavigationTest {
         nav.selectTab(HomeKey)
 
         assertEquals(listOf<NavKey>(HomeKey, EntryDetailKey("a")), nav.current)
+    }
+
+    @Test
+    fun opening_a_screen_from_a_notice_keeps_the_entry_being_written() {
+        val nav = navigation()
+        val writing = WriteKey()
+        nav.push(writing)
+
+        nav.openInTab(SettingsKey, FileBackupKey)
+
+        assertEquals(listOf<NavKey>(SettingsKey, FileBackupKey), nav.current)
+        nav.selectTab(HomeKey)
+        assertEquals(listOf<NavKey>(HomeKey, writing), nav.current)
     }
 
     @Test
@@ -95,7 +108,7 @@ class TabNavigationTest {
         assertEquals(listOf<NavKey>(SettingsKey, BackupSettingsKey), nav.current)
     }
 
-    /** 복원이 끝나면 다른 탭에 쌓인 복원 화면과 상세가 남지 않는다. */
+    /** 복원이 끝나면 다른 탭에 쌓인 복원 화면과 상세가 남지 않음 */
     @Test
     fun starting_over_clears_every_tab() {
         val nav = navigation()
@@ -120,6 +133,71 @@ class TabNavigationTest {
         assertEquals(2, nav.current.size)
     }
 
+    /** 쓰기 화면 키는 열 때마다 새 값. 두 번 눌러도 쓰기 화면은 하나 */
+    @Test
+    fun two_writes_in_a_row_keep_one() {
+        val nav = navigation()
+
+        nav.push(WriteKey())
+        nav.push(WriteKey())
+
+        assertEquals(2, nav.current.size)
+    }
+
+    /** 쓰던 글 위에 결제 화면이 있을 때 알림을 눌러도 쓰기는 하나. 둘이면 같은 임시 저장본을 둘이 고쳐 글이 덮임 */
+    @Test
+    fun a_write_under_another_screen_comes_back_instead_of_a_second_one() {
+        val nav = navigation()
+        val writing = WriteKey()
+        nav.push(writing)
+        nav.push(PlusKey)
+
+        nav.push(WriteKey())
+
+        assertEquals(listOf<NavKey>(HomeKey, writing), nav.current)
+    }
+
+    /** 다른 탭에 쓰던 글이 있으면 그 탭으로 가서 이어 씀 */
+    @Test
+    fun a_write_in_another_tab_comes_back_instead_of_a_second_one() {
+        val nav = navigation()
+        val writing = WriteKey()
+        nav.push(writing)
+        nav.openInTab(SettingsKey, FileBackupKey)
+
+        nav.push(WriteKey())
+
+        assertEquals(HomeKey, nav.tab)
+        assertEquals(listOf<NavKey>(HomeKey, writing), nav.current)
+        assertEquals(listOf<NavKey>(SettingsKey, FileBackupKey), nav.stacks.getValue(SettingsKey))
+    }
+
+    /** 복원 진행 화면도 앱에 하나. 넓은 화면에서 다른 탭으로 옮긴 뒤 결과 보기를 눌러도 하나 */
+    @Test
+    fun restore_progress_stays_one_across_tabs() {
+        val nav = navigation(SettingsKey)
+        nav.push(RestoreProgressKey)
+        nav.selectTab(HomeKey)
+
+        nav.push(RestoreProgressKey)
+
+        assertEquals(SettingsKey, nav.tab)
+        assertEquals(listOf<NavKey>(HomeKey), nav.stacks.getValue(HomeKey))
+        assertEquals(listOf<NavKey>(SettingsKey, RestoreProgressKey), nav.current)
+    }
+
+    /** 찾기에서 아래에 이미 열린 일기를 고르면 아래 것을 걷고 위에 열기. 같은 일기가 한 쌓임에 둘이면 뒤로 가도 같은 화면 */
+    @Test
+    fun the_same_detail_is_not_stacked_twice() {
+        val nav = navigation()
+        nav.openEntry("a")
+        nav.push(SearchKey())
+
+        nav.openEntry("a")
+
+        assertEquals(listOf<NavKey>(HomeKey, SearchKey(), EntryDetailKey("a")), nav.current)
+    }
+
     @Test
     fun a_new_detail_replaces_the_one_on_top() {
         val nav = navigation()
@@ -130,7 +208,7 @@ class TabNavigationTest {
         assertEquals(listOf<NavKey>(HomeKey, EntryDetailKey("b")), nav.current)
     }
 
-    /** 다른 탭에 같은 일기가 열려 있어도 지운 일기를 보이지 않는다. */
+    /** 다른 탭에 같은 일기가 열려 있어도 지운 일기를 보이지 않음 */
     @Test
     fun a_trashed_entry_closes_in_every_tab() {
         val nav = navigation()
@@ -160,5 +238,25 @@ class TabNavigationTest {
 
         nav.back()
         assertTrue(nav.movedBetweenTabs)
+    }
+
+    @Test
+    fun a_setting_opened_from_the_list_replaces_the_one_open_beside_it() {
+        val nav = navigation(SettingsKey)
+        nav.openInTab(SettingsKey, BackupSettingsKey)
+        nav.push(RestoreListKey)
+
+        nav.openInTab(SettingsKey, FontSettingsKey)
+
+        assertEquals(listOf<NavKey>(SettingsKey, FontSettingsKey), nav.current)
+    }
+
+    @Test
+    fun opening_the_same_setting_twice_keeps_one() {
+        val nav = navigation(SettingsKey)
+        nav.openInTab(SettingsKey, FontSettingsKey)
+        nav.openInTab(SettingsKey, FontSettingsKey)
+
+        assertEquals(listOf<NavKey>(SettingsKey, FontSettingsKey), nav.current)
     }
 }

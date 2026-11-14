@@ -149,6 +149,17 @@ private fun CheckNoSpaceLight() = Check(false, RestorePreparation.Ready(Sample, 
 @Composable
 private fun CheckMismatchLight() = Check(false, RestorePreparation.Failed(RestoreFailure.MISMATCH))
 
+private val LegacyBroken =
+    RestorePreparation.Ready(Sample.copy(platform = PLATFORM_LEGACY, entryCount = 0, photoCount = 0), Numbers.copy(entriesUnreadable = 12))
+
+@Preview(locale = "ko")
+@Composable
+private fun CheckLegacyUnreadableLight() = Check(false, LegacyBroken)
+
+@Preview(locale = "ko")
+@Composable
+private fun CheckLegacyUnreadableDark() = Check(true, LegacyBroken)
+
 @Preview(locale = "ko")
 @Composable
 private fun RunningLight() = Progress(false, RestoreState.FetchingPhotos(1324, 120, 340))

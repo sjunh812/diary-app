@@ -14,29 +14,33 @@ import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.PickedImage
 
 /**
- * 쓰기 화면 시험용 임시 저장소.
- * 메모리에만 둔다.
+ * 쓰기 화면 시험용 임시 저장소
+ * 메모리에만 둠
  */
+@Suppress("TooManyFunctions")
 class FakeDraftRepository(
     initial: List<Draft> = emptyList(),
-    /** 수정 화면으로 열면 돌려줄 임시 저장본. */
+    /** 수정 화면으로 열면 돌려줄 임시 저장본 */
     private val editable: Map<String, Draft> = emptyMap()
 ) : DraftRepository {
     private val drafts = MutableStateFlow(initial.associateBy { it.key })
 
-    /** [commit]이 실패하는 상황을 만든다. */
+    /** [commit] 실패 상황 */
     var failCommit = false
 
-    /** 임시 저장본 쓰기가 실패하는 상황을 만든다(저장 공간이 찼을 때처럼). */
+    /** 임시 저장본 쓰기 실패 상황(저장 공간이 찼을 때처럼) */
     var failWrites = false
 
+    /** 쓰기 화면을 열 때 읽기 실패 상황(DB를 읽지 못할 때처럼) */
+    var failReads = false
+
     /**
-     * 다음 [addPhotos]가 돌려줄 값.
-     * 없으면 받은 수만큼 더한다.
+     * 다음 [addPhotos]가 돌려줄 값
+     * 없으면 받은 수만큼 더함
      */
     var nextAddResult: AddPhotosResult? = null
 
-    /** 있으면 사진을 더하기 전에 기다린다. 사진을 넣는 중인 상황을 만든다. */
+    /** 있으면 사진을 더하기 전에 기다림. 사진을 넣는 중인 상황용 */
     var addGate: CompletableDeferred<Unit>? = null
 
     val saved: List<Draft> get() = drafts.value.values.toList()
@@ -50,11 +54,18 @@ class FakeDraftRepository(
     /** 복원이 바꾼 일기 ID. */
     val changedByRestore = mutableSetOf<String>()
 
-    override suspend fun recentPlaces(): List<String> = places
+    override suspend fun recentPlaces(): List<String> {
+        check(!failReads) { "읽을 수 없음" }
+        return places
+    }
 
-    override suspend fun latestNew(): Draft? = drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
+    override suspend fun latestNew(): Draft? {
+        check(!failReads) { "읽을 수 없음" }
+        return drafts.value.values.filter { it.key is DraftKey.New }.maxByOrNull { it.updatedAt }
+    }
 
     override suspend fun openEdit(entryId: String): OpenedEdit? {
+        check(!failReads) { "읽을 수 없음" }
         val key = DraftKey.Edit(entryId)
         drafts.value[key]?.let { return OpenedEdit(it, resumed = true, entryChanged = entryId in changedByRestore) }
         val draft = editable[entryId] ?: return null
@@ -86,12 +97,22 @@ class FakeDraftRepository(
         return AddPhotosResult.Added(picked.size)
     }
 
-    override suspend fun removePhoto(key: DraftKey, index: Int) {
+    override suspend fun removePhoto(key: DraftKey, index: Int): DraftPhoto? {
         check(!failWrites) { "쓰기 실패" }
+        val removed = drafts.value[key]?.photos?.getOrNull(index) ?: return null
         drafts.update { all ->
             val draft = all[key] ?: return@update all
             all + (key to draft.copy(photos = draft.photos.filterIndexed { i, _ -> i != index }))
         }
+        return removed
+    }
+
+    override suspend fun restorePhoto(key: DraftKey, photo: DraftPhoto, index: Int): Boolean {
+        check(!failWrites) { "쓰기 실패" }
+        val draft = drafts.value[key] ?: return false
+        val photos = draft.photos.toMutableList().apply { add(index.coerceIn(0, size), photo) }
+        drafts.update { it + (key to draft.copy(photos = photos)) }
+        return true
     }
 
     override suspend fun reorderPhotos(key: DraftKey, order: List<Int>) {

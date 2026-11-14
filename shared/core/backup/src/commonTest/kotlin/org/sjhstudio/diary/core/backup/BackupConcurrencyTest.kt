@@ -28,7 +28,7 @@ import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-/** 백업이 도는 동안 일기가 바뀌어도 이번 백업은 한 시점이고, 복원·이전과는 겹치지 않는다(스펙 003 T037). */
+/** 백업이 도는 동안 일기가 바뀌어도 이번 백업은 한 시점이고, 복원·이전과는 겹치지 않음(스펙 003 T037) */
 class BackupConcurrencyTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path
@@ -81,7 +81,7 @@ class BackupConcurrencyTest {
     fun a_new_entry_during_backup_waits_for_the_next_backup() = runTest {
         seed()
         var added = false
-        // 스냅샷을 뜬 뒤 사진을 올리는 동안 새 일기를 쓴다.
+        // 스냅샷을 뜬 뒤 사진을 올리는 동안 새 일기를 씀
         drive.onUpload = { meta ->
             if (!added && meta.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO) {
                 added = true
@@ -116,7 +116,7 @@ class BackupConcurrencyTest {
 
         now = Instant.parse("2026-11-06T01:00:00Z")
         drive.onUpload = null
-        // 지운 일이 지문에 잡혀 다음 자동 백업이 건너뛰지 않는다.
+        // 지운 일이 지문에 잡혀 다음 자동 백업이 건너뛰지 않음
         assertIs<BackupOutcome.Done>(runner.runIfChanged())
     }
 

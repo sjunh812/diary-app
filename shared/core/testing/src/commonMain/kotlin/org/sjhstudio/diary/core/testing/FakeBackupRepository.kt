@@ -22,15 +22,12 @@ class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepos
         nudge.value = null
     }
 
-    /** 다음 [connect]의 결과. */
+    /** 다음 [connect]의 결과 */
     var connectResult: ConnectResult = ConnectResult.Cancelled
 
-    /** true면 [connect]가 예외를 던진다. */
-    var connectCrash = false
     override val connectFailure = MutableStateFlow<BackupFailure?>(null)
 
     override suspend fun connect(hint: String?): ConnectResult {
-        check(!connectCrash) { "연결할 수 없다" }
         connectFailure.value = (connectResult as? ConnectResult.Failed)?.kind
         return connectResult
     }

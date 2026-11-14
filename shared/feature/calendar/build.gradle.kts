@@ -1,4 +1,4 @@
-// 달력 화면.
+// 달력 화면
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

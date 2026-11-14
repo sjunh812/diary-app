@@ -1,7 +1,7 @@
 import Foundation
 
-// 드라이브 REST v3를 가장 단순하게 부른다.
-// 토큰은 어디에도 남기지 않는다.
+// 드라이브 REST v3 최소 호출
+// 토큰은 어디에도 남기지 않음
 enum DriveRest {
     static let fields = "id,name,size,createdTime,appProperties,sha256Checksum,md5Checksum"
     static let probeFiles = "appProperties has { key='diary.kind' and value='probe-file' } and trashed = false"

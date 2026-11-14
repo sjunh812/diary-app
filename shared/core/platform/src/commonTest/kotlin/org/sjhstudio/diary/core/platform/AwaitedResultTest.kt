@@ -23,7 +23,7 @@ class AwaitedResultTest {
         assertEquals(1, launched)
     }
 
-    /** 동의 창을 보는 동안 화면을 돌리면 결과는 새 화면으로 온다. 옛 화면의 코루틴이 기다리고 있어도 받아야 한다. */
+    /** 동의 창을 보는 동안 화면을 돌리면 결과는 새 화면으로 옴. 옛 화면의 코루틴이 기다려도 받아야 함 */
     @Test
     fun a_result_from_a_rebuilt_screen_still_arrives() = runTest {
         val shared = AwaitedResult<String>()

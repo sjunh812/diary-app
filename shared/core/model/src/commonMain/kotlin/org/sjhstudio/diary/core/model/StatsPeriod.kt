@@ -9,20 +9,17 @@ import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
 
-/**
- * 돌아보기 기간(FR-028).
- * 이전·다음은 같은 종류로 한 칸씩이고 오늘이 든 기간 뒤로는 가지 않는다.
- */
+/** 돌아보기 기간(FR-028). 이전·다음은 같은 종류로 한 칸씩, 오늘이 든 기간 뒤로는 가지 않음 */
 sealed interface StatsPeriod {
-    /** 전체면 null이다. */
+    /** 전체면 null */
     val range: DateRange?
 
     fun previous(): StatsPeriod?
 
-    /** 오늘이 든 기간이면 null이다. */
+    /** 오늘이 든 기간이면 null */
     fun next(today: LocalDate): StatsPeriod?
 
-    /** 주는 일요일에 시작한다(달력과 같다). */
+    /** 주는 일요일에 시작(달력과 같음) */
     data class Week(val start: LocalDate) : StatsPeriod {
         init {
             require(start.dayOfWeek == DayOfWeek.SUNDAY) { "주는 일요일에 시작한다" }

@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.calendar
 
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -11,15 +12,19 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Entry
@@ -30,6 +35,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.fakeEntryRow
+import org.sjhstudio.diary.core.ui.EntryMenuEvent
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CalendarViewModelTest {
@@ -41,15 +47,24 @@ class CalendarViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel(vararg days: LocalDate) =
-        CalendarViewModel(FakeEntryRepository(days.associateWith { DayMood(it, null, 1) }), FakeSettingsRepository(), NoFonts) { today }
+    private fun viewModel(vararg days: LocalDate) = CalendarViewModel(
+        FakeEntryRepository(
+            days.associateWith {
+                DayMood(it, null, 1)
+            }
+        ),
+        FakeSettingsRepository(),
+        NoFonts,
+        today = { today },
+        saved = SavedStateHandle()
+    )
 
     private fun viewModel(rows: List<EntryRow> = emptyList(), slowDays: Map<LocalDate, Flow<List<EntryRow>>>): CalendarViewModel {
         val entries =
             object : EntryRepository by FakeEntryRepository(rows = rows) {
                 override fun day(date: LocalDate): Flow<List<EntryRow>> = slowDays[date] ?: flowOf(rows.filter { it.date == date })
             }
-        return CalendarViewModel(entries, FakeSettingsRepository(), NoFonts) { today }
+        return CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = { today }, saved = SavedStateHandle())
     }
 
     @Test
@@ -58,26 +73,18 @@ class CalendarViewModelTest {
     }
 
     @Test
-    fun moving_to_a_month_selects_its_last_written_day() {
-        val model = viewModel(LocalDate(2026, 9, 3), LocalDate(2026, 9, 20))
+    fun moving_to_another_month_selects_its_first_day() {
+        val model = viewModel(LocalDate(2026, 9, 20))
 
         model.showMonth(YearMonth(2026, 9))
 
-        assertEquals(LocalDate(2026, 9, 20), model.selected.value)
+        assertEquals(LocalDate(2026, 9, 1), model.selected.value)
     }
 
     @Test
-    fun an_empty_month_selects_nothing() {
+    fun coming_back_to_this_month_selects_today_not_the_old_pick() {
         val model = viewModel()
-
-        model.showMonth(YearMonth(2026, 3))
-
-        assertNull(model.selected.value)
-    }
-
-    @Test
-    fun coming_back_to_this_month_selects_today() {
-        val model = viewModel(LocalDate(2026, 9, 3))
+        model.select(LocalDate(2026, 10, 5))
         model.showMonth(YearMonth(2026, 9))
 
         model.showMonth(YearMonth(2026, 10))
@@ -85,14 +92,26 @@ class CalendarViewModelTest {
         assertEquals(today, model.selected.value)
     }
 
+    /** 앞뒤 달 날짜를 눌러 넘어가면 누른 날을 그대로 둠 */
     @Test
     fun keeps_a_day_picked_in_the_shown_month() {
         val model = viewModel()
-        model.select(LocalDate(2026, 10, 5))
+        model.select(LocalDate(2026, 9, 28))
 
-        model.showMonth(YearMonth(2026, 10))
+        model.showMonth(YearMonth(2026, 9))
 
-        assertEquals(LocalDate(2026, 10, 5), model.selected.value)
+        assertEquals(LocalDate(2026, 9, 28), model.selected.value)
+    }
+
+    /** 고른 날은 하나. 새로 고르면 앞서 고른 날은 남지 않음 */
+    @Test
+    fun picking_a_day_replaces_the_previous_pick() {
+        val model = viewModel(LocalDate(2026, 9, 3))
+        model.select(LocalDate(2026, 10, 3))
+
+        model.select(LocalDate(2026, 9, 7))
+
+        assertEquals(LocalDate(2026, 9, 7), model.selected.value)
     }
 
     @Test
@@ -101,7 +120,7 @@ class CalendarViewModelTest {
         assertEquals(YearMonth(2026, 10), viewModel(LocalDate(2026, 1, 1)).lastMonth.value)
     }
 
-    /** 일기가 있는 날에 "이 날 쓰기"가 먼저 보이지 않게 읽는 중과 빈 날을 가른다. */
+    /** 일기가 있는 날에 "이 날 쓰기"가 먼저 보이지 않게 읽는 중과 빈 날을 구분 */
     @Test
     fun before_the_rows_arrive_the_day_is_unknown_not_empty() = runTest {
         val slow = MutableSharedFlow<List<EntryRow>>()
@@ -115,7 +134,40 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(today, emptyList()), model.day.value)
     }
 
-    /** 새 날짜 아래에 지난 날 일기가 보이지 않는다. */
+    /** 그날 일기를 읽지 못하면 읽는 중 대신 다시 시도를 보이고, 다시 시도하면 다시 읽음 */
+    @Test
+    fun a_failed_day_shows_retry_and_reads_again() = runTest {
+        var fail = true
+        val day = flow {
+            if (fail) throw IllegalStateException("disk")
+            emit(emptyList<EntryRow>())
+        }
+        val model = viewModel(slowDays = mapOf(today to day))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.day.collect() }
+
+        assertEquals(CalendarDay(today, null, failed = true), model.day.value)
+
+        fail = false
+        model.retry()
+
+        assertEquals(CalendarDay(today, emptyList()), model.day.value)
+    }
+
+    /** 달을 읽은 뒤 일기 없는 날을 누르면 기다리지 않고 바로 빈 날. 비었다 채워지는 깜빡임 없음 */
+    @Test
+    fun an_empty_day_of_a_read_month_is_empty_at_once() = runTest {
+        val empty = LocalDate(today.year, today.month, 2)
+        val slow = MutableSharedFlow<List<EntryRow>>()
+        val model = viewModel(rows = listOf(fakeEntryRow("a", today)), slowDays = mapOf(empty to slow))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.day.collect() }
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { model.moods(today.yearMonth).collect() }
+
+        model.select(empty)
+
+        assertEquals(CalendarDay(empty, emptyList()), model.day.value)
+    }
+
+    /** 새 날짜 아래에 지난 날 일기가 보이지 않음 */
     @Test
     fun picking_another_day_hides_the_rows_of_the_last_one() = runTest {
         val written = LocalDate(2026, 10, 5)
@@ -130,7 +182,18 @@ class CalendarViewModelTest {
         assertEquals(CalendarDay(written, null), model.day.value)
     }
 
-    /** 달을 넘겨 다녀와도 얼굴이 사라졌다 나타나지 않게 읽은 값을 둔다. */
+    /** 앱이 꺼졌다 돌아와도 고른 날 유지 */
+    @Test
+    fun the_picked_day_survives_the_app_being_killed() {
+        val saved = SavedStateHandle()
+        val first = CalendarViewModel(FakeEntryRepository(), FakeSettingsRepository(), NoFonts, today = { today }, saved = saved)
+        first.select(LocalDate(2026, 9, 3))
+        val again = CalendarViewModel(FakeEntryRepository(), FakeSettingsRepository(), NoFonts, today = { today }, saved = saved)
+
+        assertEquals(LocalDate(2026, 9, 3), again.selected.value)
+    }
+
+    /** 달을 넘겨 다녀와도 얼굴이 사라졌다 나타나지 않게 읽은 값 유지 */
     @Test
     fun a_month_read_once_is_there_at_once_when_you_come_back() = runTest {
         val day = LocalDate(2026, 9, 3)
@@ -143,7 +206,7 @@ class CalendarViewModelTest {
         assertEquals(setOf(day), model.moods(month).value.keys)
     }
 
-    /** 켜 둔 채 자정을 넘기면 오늘을 보던 사람은 새 오늘을 본다. */
+    /** 켜 둔 채 자정을 넘기면 오늘을 보던 사람은 새 오늘을 봄 */
     @Test
     fun a_new_day_moves_today_and_the_selection_that_followed_it() {
         today = LocalDate(2026, 10, 30)
@@ -177,7 +240,6 @@ class CalendarViewModelTest {
 
         assertEquals(true, model.refreshToday())
         assertEquals(YearMonth(2026, 11), model.lastMonth.value)
-        model.showMonth(YearMonth(2026, 11))
         assertEquals(today, model.selected.value)
     }
 
@@ -203,8 +265,9 @@ class CalendarViewModelTest {
 
         override fun entry(id: String): Flow<EntryDetail?> = flowOf(detail.takeIf { it.entry.id == id })
 
-        override suspend fun setFavorite(id: String, favorite: Boolean) {
-            this.favorite = favorite
+        // DB처럼 저장된 일기만 뒤집음
+        override suspend fun toggleFavorite(id: String) {
+            if (id == detail.entry.id) favorite = !(favorite ?: detail.entry.isFavorite)
         }
 
         override suspend fun moveToTrash(id: String) {
@@ -229,16 +292,18 @@ class CalendarViewModelTest {
         emptyList()
     )
 
-    private fun menuViewModel(entries: Menu) = CalendarViewModel(entries, FakeSettingsRepository(), NoFonts) { today }
+    private fun menuViewModel(entries: Menu) = CalendarViewModel(entries, FakeSettingsRepository(), NoFonts, today = {
+        today
+    }, saved = SavedStateHandle())
 
     @Test
     fun menu_flips_favorite_from_the_stored_entry() {
         val plain = Menu(detail(favorite = false))
-        menuViewModel(plain).toggleFavorite("a")
+        menuViewModel(plain).menu.toggleFavorite("a")
         assertEquals(true, plain.favorite)
 
         val starred = Menu(detail(favorite = true))
-        menuViewModel(starred).toggleFavorite("a")
+        menuViewModel(starred).menu.toggleFavorite("a")
         assertEquals(false, starred.favorite)
     }
 
@@ -246,24 +311,33 @@ class CalendarViewModelTest {
     fun menu_does_nothing_for_an_entry_that_is_gone() {
         val entries = Menu(detail(favorite = false))
 
-        menuViewModel(entries).toggleFavorite("gone")
+        menuViewModel(entries).menu.toggleFavorite("gone")
 
         assertNull(entries.favorite)
     }
 
+    /** 화면이 받기 전에 끝나도 다음에 받는 화면에 전해짐 */
     @Test
-    fun menu_tells_the_screen_after_the_entry_is_in_the_trash() {
+    fun menu_tells_the_screen_after_the_entry_is_in_the_trash() = runTest {
         val entries = Menu(detail(favorite = false))
-        var done: String? = null
+        val vm = menuViewModel(entries)
 
-        menuViewModel(entries).moveToTrash("a") { done = entries.trashed }
+        vm.menu.moveToTrash("a")
+        advanceUntilIdle()
 
-        assertEquals("a", done)
+        assertEquals("a", entries.trashed)
+        assertEquals(EntryMenuEvent.Trashed("a"), vm.menu.events.first())
     }
 
+    /** 메뉴가 닫혀도 공유할 일기는 화면 모델 범위에서 끝까지 읽힘 */
     @Test
-    fun menu_shares_plain_text() = runTest {
-        assertEquals("공유할 글", menuViewModel(Menu(detail(favorite = false))).plainText("a"))
+    fun sharing_survives_the_menu_closing() = runTest {
+        val vm = menuViewModel(Menu(detail(favorite = false)))
+
+        vm.menu.share("a")
+        advanceUntilIdle()
+
+        assertEquals("공유할 글", (vm.menu.events.first() as EntryMenuEvent.Share).entry.plainText)
     }
 
     private object NoFonts : FontInstaller {

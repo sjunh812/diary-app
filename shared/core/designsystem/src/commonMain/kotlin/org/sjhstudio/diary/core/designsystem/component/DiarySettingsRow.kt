@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
@@ -38,23 +37,25 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
-// 설정 줄(`docs/design.md` 설정 줄, TDS ListRow, M3 1줄 56).
-// 최소 56 · 위아래 14 · 좌우 화면 여백 · 이름 reading. 설명이 붙으면 이름 아래 caption 두 줄짜리다.
+// 설정 줄(`docs/design.md` 설정 줄, TDS ListRow, M3 1줄 56)
+// 최소 56 · 위아래 14 · 좌우 화면 여백 · 이름 reading. 설명이 붙으면 이름 아래 caption 두 줄짜리
 
-/**
- * 오른쪽 값이 줄에서 차지할 수 있는 몫의 끝.
- * 넘으면 값을 말줄임해 이름 자리를 남긴다.
- */
+/** 오른쪽 값이 줄에서 차지할 수 있는 최대 몫. 넘으면 값을 말줄임해 이름 자리를 남김 */
 private const val VALUE_MAX_SHARE = 0.5f
 
-/** 이름 줄 수의 끝. */
-private const val TITLE_MAX_LINES = 2
+/** 오른쪽 값 최대 줄 수 */
+private const val VALUE_MAX_LINES = 2
 
 /**
- * 설정 묶음 머리(SEED ListHeader 14 Medium).
- * [gapAbove]면 위 여백을 20 대신 24로 넓혀 앞 묶음과 나눈다
- * (2026-11-04 사용자 결정, 여백 20은 줄 사이와 비슷해 묶음이 한 덩어리로 보였다).
- * 화면의 첫 묶음은 20이다.
+ * 이름 최대 줄 수
+ * 영어처럼 긴 이름이 글자 200%에서 오른쪽 값과 나란히 서면 두 줄에 다 들어가지 않음
+ */
+private const val TITLE_MAX_LINES = 3
+
+/**
+ * 설정 묶음 머리(SEED ListHeader 14 Medium)
+ * [gapAbove]면 위 여백을 20 대신 24로 넓혀 앞 묶음과 나눔
+ * 여백 20은 줄 사이와 비슷해 묶음이 한 덩어리로 보임. 화면의 첫 묶음은 20.
  */
 @Composable
 fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: Boolean = false) {
@@ -74,10 +75,7 @@ fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: B
     )
 }
 
-/**
- * 누르면 다음 화면으로 가는 줄.
- * 오른쪽에 지금 값과 화살표.
- */
+/** 누르면 다음 화면으로 가는 줄. 오른쪽에 지금 값과 화살표 */
 @Composable
 fun DiarySettingsRow(
     title: String,
@@ -105,15 +103,15 @@ fun DiarySettingsRow(
         description = description,
         leadingIcon = leadingIcon
     ) {
-        if (value != null) RowValue(value)
-        DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
+        // 값은 화살표에 붙여 둠(Figma 설정 줄 4)
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
+            if (value != null) RowValue(value)
+            DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
+        }
     }
 }
 
-/**
- * 값만 보여 주는 줄.
- * 누를 수 없어서 화살표를 그리지 않는다.
- */
+/** 값만 보여 주는 줄. 누를 수 없어 화살표가 없음 */
 @Composable
 fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier) {
     RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
@@ -122,16 +120,18 @@ fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Mod
 }
 
 /**
- * 줄 오른쪽 값.
- * 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고 말줄임한다.
- * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정되어 값과 화살표가 줄 가운데에 뜬다.
+ * 줄 오른쪽 값
+ * 값이 길어도 이름을 밀어내지 않게 남은 폭의 반까지만 쓰고, 두 줄을 넘으면 말줄임
+ * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정돼 값과 화살표가 줄 가운데에 뜸
  */
 @Composable
 private fun RowValue(value: String) {
     BasicText(
         text = value,
         style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary),
-        maxLines = 1,
+        // 글자를 크게 키우면 "오늘 오전 12:52" 같은 값이 반 폭에 다 들어가지 않음
+        // 두 줄까지는 줄을 바꿔 다 보이고, 그보다 길 때만 말줄임
+        maxLines = VALUE_MAX_LINES,
         overflow = TextOverflow.Ellipsis,
         modifier =
             Modifier.layout { measurable, constraints ->
@@ -141,10 +141,7 @@ private fun RowValue(value: String) {
     )
 }
 
-/**
- * 오른쪽에 스위치가 있는 줄.
- * 줄 전체가 누르는 곳이다.
- */
+/** 오른쪽에 스위치가 있는 줄. 줄 전체가 누르는 곳 */
 @Composable
 fun DiarySettingsSwitchRow(
     title: String,
@@ -173,7 +170,7 @@ fun DiarySettingsSwitchRow(
 }
 
 /**
- * 하나만 고르는 목록의 줄(`docs/design.md` 고르기 목록).
+ * 하나만 고르는 목록의 줄(`docs/design.md` 고르기 목록)
  * 고른 줄 오른쪽에 체크 24.
  */
 @Composable
@@ -202,9 +199,9 @@ fun DiarySettingsChoiceRow(
 }
 
 /**
- * 제목 자리를 직접 그리는 고르기 줄(글꼴 목록처럼 이름을 그 글꼴이나 그림으로 그릴 때).
- * [label]은 화면 읽기 프로그램이 읽는 이름이다.
- * 오른쪽은 [trailing]이 정하고, 없으면 고른 줄에 체크를 둔다.
+ * 제목 자리를 직접 그리는 고르기 줄(글꼴 목록처럼 이름을 그 글꼴이나 그림으로 그릴 때)
+ * [label]은 화면 읽기 프로그램이 읽는 이름
+ * 오른쪽은 [trailing]이 정하고, 없으면 고른 줄에 체크를 둠
  */
 @Composable
 fun DiarySettingsChoiceRow(
@@ -266,7 +263,7 @@ private fun RowFrame(
                 overflow = TextOverflow.Ellipsis
             )
             if (description != null) {
-                BasicText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+                PhraseText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
             }
         }
         trailing()

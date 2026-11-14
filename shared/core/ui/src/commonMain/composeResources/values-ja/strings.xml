@@ -25,4 +25,13 @@
     <string name="entry_menu_unfavorite">お気に入りを解除</string>
     <string name="entry_menu_share">共有</string>
     <string name="entry_menu_trash">ゴミ箱に移動</string>
+    <string name="ui_previous_year">前の年</string>
+    <string name="ui_next_year">次の年</string>
+    <string name="ui_previous_month">前の月</string>
+    <string name="ui_next_month">次の月</string>
+    <string name="share_when">%1$s(%2$s) %3$s</string>
+    <string name="load_failed_title">日記を読み込めませんでした</string>
+    <string name="load_failed_body">少し時間をおいて、もう一度お試しください。</string>
+    <string name="load_failed_retry">もう一度試す</string>
+    <string name="link_no_browser">ブラウザアプリが見つかりませんでした。</string>
 </resources>

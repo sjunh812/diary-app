@@ -60,7 +60,8 @@ private fun Search(dark: Boolean, rows: List<EntryRow>?, query: String, failed: 
         onOpen = {},
         onSheet = {},
         onPhoto = {},
-        onFavorites = {}
+        onFavorites = {},
+        onClear = {}
     )
 }
 

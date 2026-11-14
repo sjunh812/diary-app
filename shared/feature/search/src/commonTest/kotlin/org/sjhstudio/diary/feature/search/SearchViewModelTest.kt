@@ -1,20 +1,26 @@
 package org.sjhstudio.diary.feature.search
 
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
@@ -30,8 +36,23 @@ class SearchViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel(filter: SearchFilter = SearchFilter()) =
-        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts) { today }
+    private fun viewModel(filter: SearchFilter = SearchFilter(), saved: SavedStateHandle = SavedStateHandle()) =
+        SearchViewModel(FakeEntryRepository(), filter, FakeSettingsRepository(), NoFonts, today = { today }, saved = saved)
+
+    /** 시스템이 앱을 껐다 다시 띄워도 고른 기간 칩이 그대로여야 함 */
+    @Test
+    fun the_chosen_period_chip_survives_being_restored() = runTest {
+        val saved = SavedStateHandle()
+        viewModel(saved = saved).apply {
+            setPeriod(SearchPeriod.Month)
+            advanceUntilIdle()
+        }
+
+        val restored = viewModel(saved = saved)
+
+        assertEquals(SearchPeriod.Month, restored.period.value)
+        assertEquals(DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31)), restored.filter.value.period)
+    }
 
     @Test
     fun preset_periods_follow_today() {
@@ -80,9 +101,41 @@ class SearchViewModelTest {
         assertEquals(SearchFilter(query = "바다", hasPhoto = true, favoritesOnly = true), model.filter.value)
     }
 
+    /** 초기화는 고른 조건만 지우고 쓴 낱말은 남김 */
+    @Test
+    fun clearing_conditions_keeps_the_query() {
+        val range = DateRange(LocalDate(2026, 10, 1), LocalDate(2026, 10, 31))
+        val model = viewModel(SearchFilter(moods = setOf(Mood.GOOD), period = range))
+        model.togglePhoto()
+        model.setQuery("바다")
+        assertTrue(model.filter.value.hasConditions)
+
+        model.clearConditions()
+
+        assertEquals(SearchFilter(query = "바다"), model.filter.value)
+        assertEquals(null, model.period.value)
+        assertFalse(model.filter.value.hasConditions)
+    }
+
     private object NoFonts : FontInstaller {
         override fun installedPath(id: String): String? = null
 
         override fun install(id: String) = emptyFlow<FontInstallState>()
+    }
+
+    /** 앱이 꺼졌다 돌아와도 치던 글과 고른 조건 유지 */
+    @Test
+    fun the_filter_survives_the_app_being_killed() {
+        val filter = SearchFilter(
+            query = "바다 😀",
+            moods = setOf(Mood.entries.first()),
+            weathers = setOf(Weather.entries.last()),
+            hasPhoto = true,
+            favoritesOnly = true,
+            period = DateRange(LocalDate(2026, 1, 1), LocalDate(2026, 1, 31))
+        )
+        assertEquals(filter, decodeFilter(encodeFilter(filter)))
+        assertEquals(SearchFilter(), decodeFilter(encodeFilter(SearchFilter())))
+        assertEquals(null, decodeFilter("깨진 값"))
     }
 }

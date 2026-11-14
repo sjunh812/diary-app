@@ -24,7 +24,7 @@ Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store�
 
 1. **기록은 잃지 않는다.** 이전과 복원은 원본을 고치거나 지우지 않고, 복사하고 검증한 뒤에 바꾼다. 복원은 합치기가 기본이다. 백업에 사진이 들어간다. 사진과 DB는 캐시에 두지 않는다.
 2. **일기는 사용자 것이다.** 내용, 사진, 주소, 기분은 사용자가 고른 저장소 말고는 나가지 않는다. 사용 통계, 비정상 종료 보고, 광고, 로그에 넣지 않는다. 회원 계정을 만들지 않는다. 예외는 깨진 일기를 고쳐 받으려고 사용자가 스스로 문의 메일에 첨부한 예전 일기 파일 하나이고, 고쳐 돌려준 뒤 바로 지운다(2026-11-01). 또 사용자가 [내 위치 가져오기]를 누른 때만 좌표를 운영체제의 주소 변환에 넘기고 좌표는 남기지 않는다(2026-11-05).
-3. **지금 무료인 기능은 계속 무료다.** 1.7.4의 무료 기능과 사진 포함 백업은 무료로 둔다. 예외로 한 편 새 사진은 무료 10장·Plus 30장이고 이전된 사진은 모두 남긴다. 일기 상세·작성 화면과 저장, 잠금, 백업·복원, 이전, 편지·온보딩, 설정에는 광고가 없고(태블릿 두 칸에서 상세가 열려 있으면 옆 목록에도 없다, 2026-11-07) 저장은 광고에 묶지 않는다. 전면 광고는 하루 1번, 일기를 저장하고 목록으로 돌아갈 때만(2026-11-01).
+3. **지금 무료인 기능은 계속 무료다.** 1.7.4의 무료 기능과 사진 포함 백업은 무료로 둔다. 예외로 한 편 새 사진은 무료 10장·Plus 30장이고 이전된 사진은 모두 남긴다. 일기 상세·작성 화면과 저장, 잠금, 백업·복원, 이전, 편지·온보딩, 설정에는 광고가 없고(태블릿 두 칸에서 상세가 열려 있으면 옆 목록에도 없다, 2026-11-07) 저장은 광고에 묶지 않는다. 전면 광고는 하루 1번, 일기를 저장하고 목록으로 돌아갈 때만(2026-11-01). 태블릿 두 칸은 저장 뒤 목록이 보이는 그때다(2026-11-15).
 4. **돈이 드는 서버를 두지 않는다.** 일기와 사진은 사용자 본인의 클라우드에 둔다. 작은 서버 일은 카드 없이 쓰는 무료 플랜에서만.
 5. **심플하고 맛있게.** 토큰만 쓰고, 강조는 한두 곳. 꾸미기는 일기 본문 안에서만(고른 글꼴만 앱 전체에 쓴다, 2026-11-04). 디자인 시스템은 하나다. 개발 전에 토스·당근과 유명 앱의
    디자인 시스템에 대어 보고, 고칠 것은 문서와 Figma부터 고친다.
@@ -45,7 +45,7 @@ Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store�
 | --- | --- |
 | `/diary-flow` | 기능 하나를 기획부터 마무리까지 |
 | `/emulator-check` | 에뮬레이터에 깔고 화면과 동작 확인, 업그레이드 시험 |
-| `/figma-audit` | Figma를 고친 뒤 규격을 재고 메인 컴포넌트부터 고치기 |
+| `/figma-audit` | Figma를 수정한 뒤 규격을 재고 메인 컴포넌트부터 수정 |
 | `/backup-roundtrip` | 백업·복원·드라이브·저장 형식을 건드린 뒤 왕복 확인 |
 | `/pr-review` | 출시 이후 PR 올리기, CI, 리뷰봇 지적 처리, 머지 묻기 |
 | `/release-prep` | 버전 올리기, Baseline Profile, 글꼴 모듈 시험, 태그 |
@@ -64,7 +64,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
   (스펙 001 plan.md, 구조 비교는 research.md).
 - 라이브러리(2026-10-31 조사, 버전은 스펙 001 research R2 표로 고정): DB는 Room 3 + `BundledSQLiteDriver`(FTS5, `VACUUM INTO`),
   설정은 DataStore, 에디터는 compose-rich-editor, 이미지는 Coil 3, 사진 선택은 FileKit, 움직이는 그림은 Compottie(Lottie),
-  결제는 RevenueCat(R1은 안드로이드 SDK, iOS는 R2에서 KMP), 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
+  결제는 RevenueCat(Android는 Android SDK, iOS는 KMP SDK `purchases-kmp-core`), 위젯은 Glance(Android)와 SwiftUI WidgetKit(iOS, App Group의 JSON 스냅샷을 읽음),
   생체 인증은 expect/actual(BiometricPrompt, LAContext). 레거시 DB는 Room이 아니라 날 SQL로 읽는다(`docs/migration.md`).
 - `applicationId`는 `org.sjhstudio.diary` 그대로, Play 앱 서명 키 그대로, `versionCode`는 37부터(36은 만들고 내지 않은 1.7.5가 썼다), `minSdk`는 24 그대로(D4). 구글 드라이브 OAuth는 지금과
   같은 Google Cloud 프로젝트를 쓴다(이전 백업이 보이려면 필요, `docs/migration.md`).
@@ -78,7 +78,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 JDK는 Gradle이 고른다(`gradle/gradle-daemon-jvm.properties`가 JDK 17을 받아 쓴다). 설치는 에뮬레이터에만 한다(`ANDROID_SERIAL` 지정).
 
 ```bash
-./gradlew spotlessCheck designTokenCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug   # CI와 같은 검사·린트·시험·빌드(iOS 시뮬레이터 시험 포함)
+./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck unusedImportCheck detekt :composeApp:lint allTests assembleDebug   # CI와 같은 검사·린트·시험·빌드(iOS 시뮬레이터 시험 포함)
 ./gradlew spotlessApply                                           # 코드 형식 맞추기(ktlint)
 ./gradlew detekt                                                  # 코드 냄새와 Compose 규칙(설정은 config/detekt)
 ./gradlew :composeApp:lint                                        # Android Lint. 공유 모듈까지 본다
@@ -90,16 +90,22 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
   -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath iosApp/build build
 ```
 
+- 실기기 빌드도 `-derivedDataPath iosApp/build`를 쓴다. 다른 폴더를 쓰면 Xcode가 받은 라이브러리의 git 저장소를 안드로이드 스튜디오가 이 프로젝트의 저장소로 잡는다(2026-11-14).
+
 - 첫 안드로이드 빌드가 `installGitHooks`로 `.githooks`를 켠다. 그 뒤로는 제목이 커밋 규칙에 맞지 않으면 커밋이 막힌다.
 - `detekt`와 `:composeApp:lint`는 기존 지적을 baseline(`config/detekt/baseline.xml`, `composeApp/lint-baseline.xml`)에 묶고 새 코드만 막는다. 새 지적은 고친다. baseline을 다시 만들어 넘기지 않는다(detekt baseline은 주석 변경에도 흔들려서, 코드가 그대로일 때만 `./gradlew detektBaseline`).
 - `designTokenCheck`는 `shared/feature`와 `shared/app`의 Kotlin에서 원시 색, 숫자 `.dp`·`.sp`, 숫자 모서리, `MaterialTheme` 색·글자,
   `Text("`를 찾으면 실패한다. 디자인 시스템 모듈, 미리보기 파일, 시험(`src/*Test`)은 뺀다.
+- `coroutineSafetyCheck`는 `shared/feature`, `shared/app`, `shared/core/ui`에서 맨 `viewModelScope.launch`와 `stateIn(viewModelScope, …)`을 찾으면 실패한다. 화면 모델은 `launchSafely`(읽기·곁일), `launchWrite`(사용자가 누른 쓰기, 실패하면 알림), `stateInSafely`만 쓴다. 예상되는 실패(저장 공간, 네트워크, DB 읽기)는 저장소가 받아 결과로 돌려주고, 이 함수들은 빠뜨린 예외에도 앱이 꺼지지 않게 하는 마지막 안전망이다(사용자 결정 2026-11-08: 앱 꺼짐은 절대 없어야 한다).
 - Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
-- 길이 없는 화면 띄우기와 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
+- 앱 안에서 들어갈 길이 없는 화면을 띄우는 방법과 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
+- `unusedImportCheck`는 안 쓰는 import를 찾으면 실패한다. detekt `UnusedImport`는 타입 분석이 있어야 돌고, Spotless의 ktlint도 이 규칙을 잡지 못해 따로 둔다(2026-11-15).
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
+- 개발 빌드는 StrictMode로 화면 스레드의 디스크·네트워크 작업과 닫지 않은 자원을 로그에 남긴다. 화면이나 시작 순서를 바꾸면 `adb logcat -s StrictMode`로 새 위반이 없는지 본다(개발자 모드 요금제 도구의 읽기는 개발 빌드에만 있다).
 - 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드의 설정 맨 아래 줄로 들어가고 출시 빌드에는 없다. iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.
-- 광고는 `AdRepository`가 정하고, 안드로이드만 `AdMobPlayer` 구현이 있다. 개발 빌드는 시험 광고만 받는다. 광고 ID는 `local.properties`(`docs/release.md`).
+- 결제는 `StoreBilling`이 정한다. Android는 `Billing.kt`, iOS는 `IosBilling.kt`가 RevenueCat을 `StoreClient`로 감싼다. 키가 없는 빌드는 구매가 없는 무료 앱이다.
+- 광고는 `AdRepository`가 정한다. Android는 `AdMobPlayer`, iOS는 Swift `GoogleAdsBridge`를 `IosAdPlayer`가 감싼다. 개발 빌드는 시험 광고만 받는다. 광고 ID는 Android `local.properties`, iOS `iosApp/iosApp/Local.xcconfig`(`docs/release.md`).
 - 온보딩 로띠는 `python3 -I scripts/lottie/make_onboarding.py`로 만든다. 색은 `@accent` 같은 자리표시로 두고 `OnboardingArt.kt`가 토큰 값으로 바꾼다.
 - iOS Xcode 프로젝트의 원본은 `iosApp/project.yml`이다. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
   빌드 단계가 `:shared:app:embedAndSignAppleFrameworkForXcode`를 불러 Shared 프레임워크를 만든다.
@@ -110,7 +116,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - 화면은 한국어, 영어, 일본어(맞는 언어가 없으면 영어). 한국어 말투는 해요체, 법적 고지와 개발자의 편지만 합니다체. 영어·일본어는 `docs/design.md` "여러 언어".
 - 화면 문구는 문자열 리소스에 둔다. 코드에 문자열 상수를 두지 않는다. `values`(영어), `values-ko`, `values-ja`를 같은 커밋에서 채운다.
   날짜·시각은 문자열로 조립하지 않고 플랫폼 형식을 쓴다.
-- 주석은 자연스러운 한국말로, 문장마다 줄을 바꾼다.
+- 주석은 짧고 깔끔하게, 한 줄에 한 가지. 예: "액티비티 생명주기 문제가 있어 해당 화면 제거". 늘어지는 서술형과 경위·날짜는 문서와 커밋으로 보낸다(사용자 요청 2026-11-10, `~/.claude/CLAUDE.md` "주석").
 - Composable 화면과 컴포넌트를 만들면 같은 모듈 `preview/`에 프리뷰를 함께 둔다. 한국어(`locale = "ko"`)를 먼저, 라이트·다크와 상태마다 하나씩(사용자 요청 2026-11-02).
 - 커밋과 푸시는 사용자가 요청할 때만. 형식은 아래 "커밋 규칙".
 
@@ -140,7 +146,8 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - 브랜치(사용자 결정 2026-11-07): `main`은 배포·운영, `develop`은 개발이다. `master`는 옛 소스 보관용이라 건드리지 않고, PR #2도 머지하지 않는다.
 - 기능은 개발할 때만 `develop`에서 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`) 브랜치를 만들고, 끝나면 `develop`에 머지한다.
 - 출시 전에는 PR 없이 머지하고 푸시한다. 출시 이후 기능은 PR을 올리고, 머지는 사용자에게 묻는다(순서는 `/pr-review`).
-- 릴리스는 `develop`을 `main`에 머지한 뒤 `main`에서 `chore(release): 2.0.0 (37)` 커밋과 `v2.0.0` 태그를 만든다. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
+- 버전·빌드 번호 올림은 다른 변경과 섞지 않고 그 커밋 하나로 둔다(`chore(release): 2.0.0 (43)`). 특정 빌드를 깃에서 바로 찾게 하려는 것이다(사용자 요청 2026-11-14).
+- 릴리스는 `develop`을 `main`에 머지한 뒤 `main`에서 `chore(release): 2.0.0 (<빌드 번호>)` 커밋과 `v2.0.0` 태그를 만든다. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
 - 스펙 001에서 commit-msg 훅(저장소의 `.githooks/`, `git config core.hooksPath .githooks`)으로 형식을 검사한다.
 
 ```text

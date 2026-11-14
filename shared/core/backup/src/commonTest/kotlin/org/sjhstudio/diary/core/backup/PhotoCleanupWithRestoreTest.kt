@@ -20,7 +20,7 @@ import org.sjhstudio.diary.core.database.DraftMediaEntity
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.testing.FakeDrive
 
-/** 앱을 열 때 도는 사진 정리는 파일을 영영 지우는 유일한 길이다. 복원과 겹쳐도 쓰는 사진은 지우지 않는다(헌법 I). */
+/** 앱을 열 때 도는 사진 정리는 파일을 영영 지우는 유일한 길. 복원과 겹쳐도 쓰는 사진은 지우지 않음(헌법 I) */
 class PhotoCleanupWithRestoreTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path
@@ -51,7 +51,7 @@ class PhotoCleanupWithRestoreTest {
         keepEverything = { store.current().rollbackUntil != null }
     )
 
-    /** 파일 시각보다 넉넉히 뒤다. 하루 넘은 파일만 지우는 규칙에 걸리게 한다. */
+    /** 파일 시각보다 넉넉히 뒤. 하루 넘은 파일만 지우는 규칙에 걸리게 함 */
     private fun later(): Instant = Clock.System.now() + 2.days
 
     private fun TestPhone.has(hash: String) = fs.exists(media / "$hash.jpg")
@@ -74,7 +74,7 @@ class PhotoCleanupWithRestoreTest {
         assertTrue(other.has(hash))
     }
 
-    /** 사진을 다 받기 전에 앱을 닫았다 열어도 받은 사진은 지우지 않는다. */
+    /** 사진을 다 받기 전에 앱을 닫았다 열어도 받은 사진은 지우지 않음 */
     @Test
     fun photos_fetched_halfway_stay_after_cleanup() = runTest {
         phone.write("e1")
@@ -119,7 +119,7 @@ class PhotoCleanupWithRestoreTest {
         assertTrue(phone.has(hash))
     }
 
-    /** 바꾸기 뒤 7일은 되돌릴 수 있으니 바꾸기 전 사진을 지우지 않는다. 되돌리면 그대로 보인다. */
+    /** 바꾸기 뒤 7일은 되돌릴 수 있으니 바꾸기 전 사진을 지우지 않음. 되돌리면 그대로 보임 */
     @Test
     fun photos_replaced_away_stay_while_the_rollback_is_open() = runTest {
         phone.write("before")
@@ -147,7 +147,7 @@ class PhotoCleanupWithRestoreTest {
         assertFalse(phone.has(hash))
     }
 
-    /** 사진 하나를 두 일기가 쓰면 한쪽을 지워도 파일은 남는다. */
+    /** 사진 하나를 두 일기가 쓰면 한쪽을 지워도 파일은 남음 */
     @Test
     fun a_photo_shared_with_a_living_entry_stays() = runTest {
         phone.write("e1")

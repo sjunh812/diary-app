@@ -28,9 +28,14 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.datetime.LocalDate
+import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryHomeSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -41,18 +46,22 @@ import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
+import org.sjhstudio.diary.core.ui.entryMarks
+import org.sjhstudio.diary.core.ui.loadMoreFailed
+import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
 
 /**
- * 카드 목록(Figma "홈 · 카드").
- * 일기마다 카드 하나, 사진은 네 칸까지다.
+ * 카드 목록(Figma "홈 · 카드"). 일기마다 카드 하나, 사진은 네 칸까지
+ * 피드형처럼 달이 바뀌는 자리에 달 머리. 올해가 아니거나 해가 바뀌면 연도까지
  */
 @Composable
 internal fun CardList(
     rows: LazyPagingItems<EntryRow>,
     list: LazyListState,
     selectedId: String?,
+    today: LocalDate,
     previewStyle: TextStyle,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
@@ -63,26 +72,33 @@ internal fun CardList(
     LazyColumn(
         Modifier.fillMaxSize(),
         state = list,
-        contentPadding =
-            PaddingValues(
-                start = DiarySpacing.x4,
-                end = DiarySpacing.x4,
-                bottom = DiarySpacing.x14 + DiarySpacing.x6
-            ),
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+        // 달 머리는 화면 여백에 맞추고 카드만 안쪽으로
+        // 카드 사이 12는 카드 위에만 둠. 목록 맨 위 칸과 첫 카드 사이는 피드형과 같은 백업 줄 아래 12(Figma S1-b)
+        contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)
     ) {
-        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop) }
+        item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.x4)) }
+        loadMoreFailed(rows.loadState.prepend is LoadState.Error, rows::retry, "prepend_failed")
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "card" }) { index ->
             val row = rows[index]
             if (row == null) {
-                Box(Modifier.fillMaxWidth().aspectRatio(CARD_PLACEHOLDER_RATIO))
+                Box(Modifier.padding(top = DiarySpacing.x3).fillMaxWidth().aspectRatio(CARD_PLACEHOLDER_RATIO))
             } else {
-                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                    EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
-                    if (isAdSlot(index)) adSlot(adOrder(index), Modifier)
+                val previous = if (index > 0) rows.peek(index - 1) else null
+                Column(
+                    Modifier.padding(top = if (index > 0) DiarySpacing.x3 else Dp.Hairline),
+                    verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
+                ) {
+                    if (index > 0 && entryMarks(index, row, previous).newMonth) {
+                        DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
+                    }
+                    Column(Modifier.padding(horizontal = DiarySpacing.x4), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+                        EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
+                        if (isAdSlot(index)) adSlot(adOrder(index), Modifier)
+                    }
                 }
             }
         }
+        loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
     }
 }
 
@@ -113,13 +129,11 @@ private fun EntryCard(
             )
             .padding(DiarySpacing.x4)
     ) {
-        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데에 둔다(2026-11-06 사용자 지적).
-        // 날짜 줄에만 맞추면 위로 떠 보인다.
+        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데. 날짜 줄에만 맞추면 위로 떠 보임
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
             Column(Modifier.fillMaxWidth().padding(end = if (row.mood != null) DiaryHomeSize.cardFace + DiarySpacing.x2 else Dp.Hairline)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
-                    // 카드는 달 머리가 없어서 달까지 적는다.
-                    // 맨 위 제목만으로는 카드가 어느 달인지 헷갈린다(2026-11-07 사용자 지적).
+                    // 카드는 달 머리가 없어 달까지 적음. 맨 위 제목만으로는 어느 달인지 헷갈림
                     BasicText(
                         dates.monthDay(row.date),
                         modifier = Modifier.alignByBaseline(),
@@ -144,13 +158,22 @@ private fun EntryCard(
                     )
                     row.weather?.let { WeatherIcon(it, DiaryHomeSize.cardIcon, colors.textSecondary, contentDescription = weatherName(it)) }
                     row.placeName?.let {
-                        // 장소가 길어도 시각과 날씨를 밀어내지 않는다.
+                        // 장소가 길어도 시각과 날씨를 밀어내지 않게
                         BasicText(
                             it,
                             modifier = Modifier.weight(1f, fill = false),
                             style = typography.caption.copy(color = colors.textSecondary),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    // 피드형과 같은 자리. 모양만 다른 같은 목록
+                    if (row.isFavorite) {
+                        DiaryIcon(
+                            DiaryIcons.StarFilled,
+                            contentDescription = null,
+                            tint = colors.accent,
+                            size = DiaryHomeSize.cardIcon
                         )
                     }
                 }
@@ -167,11 +190,11 @@ private fun EntryCard(
             )
         }
         if (row.photos.isNotEmpty()) {
-            // 글이 없어도 사진은 시각 줄과 같은 간격으로 떨어진다.
+            // 글이 없어도 사진은 시각 줄과 같은 간격
             Row(Modifier.padding(top = DiarySpacing.x3), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 val shown = row.photos.take(CARD_PHOTOS)
                 shown.forEachIndexed { index, photo ->
-                    // 피드의 사진 칸과 같이 마지막 칸까지 더한 수를 보인다.
+                    // 피드 사진 칸과 같이 마지막 칸까지 더한 수
                     val more = if (index == CARD_PHOTOS - 1 && row.photos.size > CARD_PHOTOS) row.photos.size - CARD_PHOTOS + 1 else 0
                     Box(Modifier.weight(1f).aspectRatio(1f).clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(photo), more = more) }
                 }
@@ -181,15 +204,13 @@ private fun EntryCard(
     }
 }
 
-/**
- * 사진 격자(FR-018).
- * 사진이 없는 일기는 첫 글을 대신 보여서 일기가 빠지지 않게 한다.
- */
+/** 사진 격자(FR-018). 사진 없는 일기는 첫 글을 대신 보여 일기가 빠지지 않게 */
 @Composable
 internal fun PhotoGrid(
     rows: LazyPagingItems<EntryRow>,
     grid: LazyGridState,
     selectedId: String?,
+    today: LocalDate,
     dates: DiaryDateFormat,
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
@@ -207,6 +228,7 @@ internal fun PhotoGrid(
         item(key = LIST_TOP_KEY, span = { GridItemSpan(maxLineSpan) }, contentType = LIST_TOP_KEY) {
             ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current - DiarySpacing.x0_5))
         }
+        loadMoreFailed(rows.loadState.prepend is LoadState.Error, rows::retry, "prepend_failed")
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "photo" }) { index ->
             val row = rows[index]
             val interaction = remember { MutableInteractionSource() }
@@ -230,8 +252,9 @@ internal fun PhotoGrid(
 
                     else ->
                         Column(Modifier.padding(DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
+                            // 칸에 달 머리가 없어 올해가 아니면 연도까지
                             BasicText(
-                                dates.monthDay(row.date),
+                                if (row.date.year == today.year) dates.monthDay(row.date) else dates.fullDate(row.date),
                                 style = DiaryTheme.typography.micro.copy(color = colors.textSecondary),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -246,6 +269,7 @@ internal fun PhotoGrid(
                 }
             }
         }
+        loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
     }
 }
 

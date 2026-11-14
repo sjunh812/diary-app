@@ -1,4 +1,4 @@
-// 홈 목록과 일기 상세 화면.
+// 홈 목록과 일기 상세 화면
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

@@ -33,6 +33,28 @@ class AdvancedStatsTest {
         assertEquals(MoodTone.NEUTRAL, Mood.MEH.tone)
     }
 
+    /** 좋은 기분과 힘든 기분을 나란히 보여도 합이 100을 넘지 않음 */
+    @Test
+    fun good_and_hard_shares_never_pass_100() {
+        for (total in 1..40) {
+            for (good in 0..total) {
+                for (hard in 0..(total - good)) {
+                    val share = ToneShare(good, total, hard)
+                    assertTrue(share.percent + share.hardPercent <= 100, "$good/$hard/$total")
+                }
+            }
+        }
+        assertEquals(13, ToneShare(1, 8, 7).percent)
+        assertEquals(87, ToneShare(1, 8, 7).hardPercent)
+    }
+
+    @Test
+    fun both_screens_round_the_same_way() {
+        assertEquals(67, percentOf(2, 3))
+        assertEquals(17, percentOf(1, 6))
+        assertEquals(0, percentOf(1, 0))
+    }
+
     @Test
     fun share_rounds_to_nearest_percent() {
         assertEquals(67, ToneShare(2, 3).percent)
@@ -165,25 +187,11 @@ class AdvancedStatsTest {
         assertEquals(30, habit.entries)
     }
 
-    /**
-     * 일기 앞뒤로 기분이 이어지는 경향까지 넣은 가짜 기록.
-     * 조건과 기분 사이에 관계를 일부러 넣을 수 있다.
-     */
-
-    private val weatherPool =
-        List(9) { Weather.SUNNY } + List(5) { Weather.PARTLY_CLOUDY } + List(3) { Weather.RAIN } + Weather.SNOW + List(2) { Weather.CLOUDY }
-    private val placePool = listOf("집", "집", "집", "회사", "회사", "카페", "공원", null, null, null)
-    private val hourPool = listOf(3, 9, 9, 14, 14, 20, 20, 20, 21, 22)
-
     @Test
     fun weekday_table_uses_real_weekdays() {
         val stats = advancedStats(List(5) { row(it * 7 + 3) })
 
         assertEquals(setOf(DayOfWeek.SUNDAY), stats.weekdays.keys)
-    }
-
-    private companion object {
-        const val TRIALS = 300
     }
 
     private val today = LocalDate(2026, 11, 6)

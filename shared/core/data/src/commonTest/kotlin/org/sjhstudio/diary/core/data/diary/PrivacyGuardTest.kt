@@ -13,8 +13,8 @@ import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.TrashedEntry
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 
-// 일기 내용이 로그나 비정상 종료 보고에 섞이지 않는지 본다(헌법 II, 스펙 002 T019).
-// 문자열로 바뀌는 값에 내용이 없으면 실수로 찍어도 새지 않는다.
+// 일기 내용이 로그나 비정상 종료 보고에 섞이지 않는지 봄(헌법 II, 스펙 002 T019)
+// 문자열로 바뀌는 값에 내용이 없으면 실수로 찍어도 새지 않음
 class PrivacyGuardTest {
     private val secret = "비밀스러운 글"
 
@@ -38,8 +38,8 @@ class PrivacyGuardTest {
 
     @Test
     fun screen_names_carry_no_content() {
-        // 화면 이름은 고정 표에 있는 값만 보낸다.
-        // 표에 공백이나 한글이 있으면 자유 글이 섞인 것이다.
+        // 화면 이름은 고정 표에 있는 값만 보냄
+        // 표에 공백이나 한글이 있으면 자유 글이 섞인 것
         for (name in AnalyticsEvents.SCREENS) {
             assertFalse(name.any { it == ' ' || it in '가'..'힣' }, name)
         }

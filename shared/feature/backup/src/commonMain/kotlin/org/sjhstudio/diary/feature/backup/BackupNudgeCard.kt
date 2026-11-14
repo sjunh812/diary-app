@@ -24,8 +24,8 @@ import org.sjhstudio.diary.feature.backup.resources.restore_count_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 
 /**
- * 홈 목록 맨 위의 권하기 카드(Figma B11, FR-036).
- * 창을 띄워 막지 않고, 조건이 맞을 때만 보이며, 목록과 함께 스크롤된다.
+ * 홈 목록 맨 위의 권하기 카드(Figma B11, FR-036)
+ * 창으로 막지 않음. 조건이 맞을 때만 보이고 목록과 함께 스크롤됨
  */
 @Composable
 fun BackupNudgeCard(modifier: Modifier = Modifier) {
@@ -37,8 +37,8 @@ fun BackupNudgeCard(modifier: Modifier = Modifier) {
 }
 
 /**
- * 연결했더니 찾은 백업이나 연결 실패를 알리는 시트.
- * 카드가 스크롤로 사라져도 뜨도록 카드 밖에 둔다.
+ * 연결했더니 찾은 백업이나 연결 실패를 알리는 시트
+ * 카드가 스크롤로 사라져도 뜨도록 카드 밖에 둠
  */
 @Composable
 fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {
@@ -55,9 +55,10 @@ fun BackupFoundPrompt(onRestoreEntry: (String) -> Unit) {
 }
 
 @Composable
-internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLater: () -> Unit, modifier: Modifier = Modifier) {
+fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLater: () -> Unit, modifier: Modifier = Modifier) {
     DiaryStatusBox(
-        DiaryIcons.ShieldCheck,
+        // 아직 올리지 않았다는 안내라 안전을 뜻하는 방패가 아니라 올리기(Figma B11)
+        DiaryIcons.CloudUpload,
         if (nudge.photoCount > 0) {
             stringResource(
                 Res.string.backup_nudge_entries_photos,
@@ -68,7 +69,8 @@ internal fun BackupNudgeContent(nudge: BackupNudge, onConnect: () -> Unit, onLat
             pluralStringResource(Res.plurals.backup_nudge_entries, nudge.entryCount, nudge.entryCount.grouped())
         },
         stringResource(Res.string.backup_nudge_body),
-        modifier.padding(top = DiarySpacing.x4),
+        // 위아래 12(Figma B11). 아래가 없으면 두 칸 화면의 고른 줄 바탕이 카드에 붙음
+        modifier.padding(vertical = DiarySpacing.x3),
         actionLabel = stringResource(Res.string.backup_nudge_action),
         onAction = onConnect,
         secondaryLabel = stringResource(Res.string.backup_nudge_later),

@@ -51,8 +51,8 @@ import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
 /**
- * 한 기기에서 백업하고 빈 기기에서 복원한다.
- * 드라이브 대역을 두 기기가 같이 쓴다.
+ * 한 기기에서 백업하고 빈 기기에서 복원
+ * 드라이브 대역을 두 기기가 같이 씀
  */
 class RestoreRoundTripTest {
     private val fs = FileSystem.SYSTEM
@@ -137,6 +137,62 @@ class RestoreRoundTripTest {
         assertTrue(fs.exists(dir / "b" / "media" / "$hash.jpg"))
         val restored = phoneB.backupDao().allEntries().first { it.id == "one" }
         assertEquals(entry("one").copy(updatedAt = restored.updatedAt), restored)
+    }
+
+    private inner class CountingDrive : DriveApi by drive {
+        var downloads = 0
+
+        override suspend fun download(fileId: String, to: okio.Path, fromByte: Long): Long {
+            downloads++
+            return drive.download(fileId, to, fromByte)
+        }
+    }
+
+    /** 앱을 다시 열어도 받아 둔 목록 파일은 다시 받지 않음. 백업이 늘어도 목록이 느려지지 않음 */
+    @Test
+    fun the_list_is_not_downloaded_again_after_reopening() = runTest {
+        backUp()
+        val counting = CountingDrive()
+        val work = dir / "b" / "backup"
+
+        val first = RestoreCatalog(counting, fs, work).list()
+        val afterFirst = counting.downloads
+        val second = RestoreCatalog(counting, fs, work).list()
+
+        assertEquals(1, afterFirst)
+        assertEquals(afterFirst, counting.downloads)
+        assertEquals(first.map { it.entry }, second.map { it.entry })
+    }
+
+    /** 드라이브에 묻지 않고 지난번 목록을 냄. 끊긴 상태에서도 나옴 */
+    @Test
+    fun the_saved_list_needs_no_drive() = runTest {
+        backUp()
+        val counting = CountingDrive()
+        val work = dir / "b" / "backup"
+        val first = RestoreCatalog(counting, fs, work).list()
+        val downloads = counting.downloads
+
+        val saved = RestoreCatalog(counting, fs, work).saved()
+
+        assertEquals(first.map { it.entry.snapshotName }, saved.map { it.snapshotName })
+        assertEquals(first.map { it.entry.entryCount }, saved.map { it.entryCount })
+        assertEquals(downloads, counting.downloads)
+    }
+
+    @Test
+    fun a_damaged_saved_list_is_downloaded_again() = runTest {
+        backUp()
+        val counting = CountingDrive()
+        val work = dir / "b" / "backup"
+        val list = RestoreCatalog(counting, fs, work).list()
+        val kept = fs.list(work / "manifests").single()
+        fs.write(kept) { writeUtf8("깨진 파일") }
+
+        val again = RestoreCatalog(counting, fs, work).list()
+
+        assertEquals(2, counting.downloads)
+        assertEquals(list.map { it.entry }, again.map { it.entry })
     }
 
     @Test
@@ -275,8 +331,8 @@ class RestoreRoundTripTest {
     fun every_field_and_photo_row_comes_back_the_same() = runTest {
         val hash = "내용".encodeToByteArray().toByteString().sha256().hex()
         fs.write(dir / "a" / "media" / "$hash.jpg") { write("내용".encodeToByteArray()) }
-        // 합치기는 진짜 시계를 쓰니 휴지통 날짜도 오늘에 맞춘다.
-        // 고정 날짜면 30일이 지난 뒤부터 이 시험이 깨진다.
+        // 합치기는 진짜 시계를 쓰니 휴지통 날짜도 오늘에 맞춤
+        // 고정 날짜면 30일이 지난 뒤부터 이 시험이 깨짐
         val trashedRecently = (Clock.System.now() - 3.days).toEpochMilliseconds()
         val full = EntryEntity(
             "full", "2026-03-01", "07:05", "<p>글</p>", "글", "good", "sunny", "망원동", true, 11, 22, null, 5, "2024-03-01 07:05:00", "1|2"
@@ -393,7 +449,7 @@ class RestoreRoundTripTest {
         assertEquals(false, (done as RestoreState.Done).result.lockWasOn)
     }
 
-    /** 내려받기가 어느 디스패처에서 도는지 적는다. */
+    /** 내려받기가 어느 디스패처에서 도는지 적음 */
     private class WatchingDrive(private val real: DriveApi) : DriveApi by real {
         var seen: ContinuationInterceptor? = null
             private set

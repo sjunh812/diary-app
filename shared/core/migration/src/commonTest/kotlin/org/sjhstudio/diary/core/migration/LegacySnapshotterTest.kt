@@ -6,7 +6,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.testing.TestClock
 
-// 원본은 바이트 그대로 복사하고 원본 해시는 그대로다(SC-002, contracts/migration-flow.md Snapshotting).
+// 원본은 바이트 그대로 복사하고 원본 해시는 그대로(SC-002, contracts/migration-flow.md Snapshotting)
 class LegacySnapshotterTest {
     private fun legacy(dir: TempDir) = LegacyFiles(
         noteDb = dir.root / "databases" / "note.db",

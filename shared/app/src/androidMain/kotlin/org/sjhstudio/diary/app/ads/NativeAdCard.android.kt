@@ -1,19 +1,29 @@
 package org.sjhstudio.diary.app.ads
 
-import android.content.Context
-import android.graphics.Typeface
-import android.util.TypedValue
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
@@ -23,83 +33,179 @@ import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.ad_label
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.designsystem.theme.DiaryAdSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
+import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-private const val PADDING_DP = 16
-private const val GAP_DP = 12
-
-// 영상 광고는 그림 자리가 가로세로 120dp 이상이어야 들어온다(AdMob 네이티브 정책).
-private const val MEDIA_DP = 120
-
-// 오른쪽 칸은 비워 둔다.
-// 위에는 앱의 ×가, 아래에는 AdChoices가 온다.
-private const val CLOSE_ROOM_DP = 28
-private const val TITLE_SP = 15f
-private const val SMALL_SP = 13f
-
-private class AdColors(val title: Int, val body: Int)
-
 /**
- * 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둔다(AdMob 네이티브 정책).
- * 받기 전이나 못 받으면 그리지 않는다.
+ * 일기 줄과 구별되게 `sunken` 면과 "광고" 표시를 둠(AdMob 네이티브 정책)
+ * 받기 전이나 못 받으면 그리지 않음
+ * 글은 앱 글꼴과 토큰으로 그려 다크 모드와 고른 글꼴을 그대로 따름
  */
 @Composable
 internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit) {
     val player = koinInject<AdPlayer>() as? AdMobPlayer ?: return
     LaunchedEffect(key) { player.loadNative(key) }
     val ad = player.natives[key] ?: return
-    val colors = DiaryTheme.colors
-    val label = stringResource(Res.string.ad_label)
-    val palette = AdColors(colors.textPrimary.toArgb(), colors.textSecondary.toArgb())
     frame {
-        AndroidView(
-            factory = { adView(it, shape, label, palette) },
-            update = { bind(it, ad) },
-            modifier = Modifier.fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken)
-        )
+        Box(
+            // 오른쪽은 앱의 × 자리. 광고 뷰가 그 밑까지 오면 ×가 광고를 덮음(AdMob: 앱 콘텐츠가 네이티브 광고와 겹치면 안 됨)
+            // 광고 뷰가 면 안쪽 16에 있어 SDK가 구석에 넣는 AdChoices가 모서리 곡선에 잘리지 않음
+            Modifier
+                .fillMaxWidth()
+                .clip(DiaryShapes.r16)
+                .background(DiaryTheme.colors.sunken)
+                .padding(start = DiarySpacing.x4, top = DiarySpacing.x4, end = DiarySpacing.minTouchTarget, bottom = DiarySpacing.x4)
+        ) {
+            NativeAdFrame(ad) { adView -> if (shape == AdShape.Card) AdCard(ad, adView) else AdRow(ad, adView) }
+        }
     }
 }
 
-private fun Context.dp(value: Int): Int =
-    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value.toFloat(), resources.displayMetrics).toInt()
-
-private fun Context.text(size: Float, color: Int, bold: Boolean = false): TextView = TextView(this).apply {
-    setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
-    setTextColor(color)
-    if (bold) setTypeface(typeface, Typeface.BOLD)
+/**
+ * [NativeAdView] 안에 Compose로 그린 광고를 담음
+ * 요소가 모두 등록된 뒤에 광고를 붙여야 눌림이 이어져 안쪽이 두 프레임 그려진 뒤에 붙임
+ */
+@Composable
+private fun NativeAdFrame(ad: NativeAd, content: @Composable (NativeAdView) -> Unit) {
+    val context = LocalContext.current
+    val adView = remember { NativeAdView(context) }
+    AndroidView(
+        factory = {
+            adView.apply {
+                addView(
+                    ComposeView(context).apply { setContent { content(adView) } },
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                )
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+    LaunchedEffect(ad) {
+        withFrameNanos { }
+        withFrameNanos { }
+        adView.setNativeAd(ad)
+    }
+    DisposableEffect(adView) { onDispose { adView.destroy() } }
 }
 
-private fun adView(context: Context, shape: AdShape, label: String, colors: AdColors): NativeAdView {
-    val pad = context.dp(PADDING_DP)
-    val root = NativeAdView(context)
-    val row = LinearLayout(context).apply {
-        orientation = LinearLayout.HORIZONTAL
-        setPadding(pad, pad, context.dp(CLOSE_ROOM_DP), pad)
-    }
-    if (shape == AdShape.Card) {
-        val media = MediaView(context).apply { setImageScaleType(ImageView.ScaleType.FIT_CENTER) }
-        val size = context.dp(MEDIA_DP)
-        row.addView(media, LinearLayout.LayoutParams(size, size).apply { marginEnd = context.dp(GAP_DP) })
-        root.mediaView = media
-    }
-    val column = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
-    // AdMob은 제목 앞부분을 자르지 말라고 해서 두 줄까지 둔다.
-    val headline = context.text(TITLE_SP, colors.title, bold = true).apply { maxLines = 2 }
-    val action = context.text(SMALL_SP, colors.title, bold = true)
-    column.addView(headline)
-    column.addView(context.text(SMALL_SP, colors.body).apply { text = label })
-    column.addView(action)
-    row.addView(column, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-    root.addView(row)
-    root.headlineView = headline
-    root.callToActionView = action
-    return root
+/**
+ * 광고 요소 하나를 안드로이드 뷰로 감싸 [register]로 [NativeAdView]에 등록
+ * AdMob은 등록된 뷰의 눌림만 집계. 바탕까지 눌리게 하면 정책 위반이라 요소마다 따로 등록
+ */
+@Composable
+private fun AdAsset(adView: NativeAdView, register: NativeAdView.(View) -> Unit, content: @Composable () -> Unit) {
+    AndroidView(
+        factory = { context ->
+            ComposeView(context).apply {
+                setContent(content)
+                adView.register(this)
+            }
+        }
+    )
 }
 
-private fun bind(view: NativeAdView, ad: NativeAd) {
-    (view.headlineView as TextView).text = ad.headline
-    (view.callToActionView as TextView).text = ad.callToAction
-    view.mediaView?.mediaContent = ad.mediaContent
-    view.setNativeAd(ad)
+// 정사각이 아닌 그림은 자르지 않고 칸 안에 맞춤(AdMob: 그림을 자르지 말 것). 남는 자리는 면보다 밝게
+@Composable
+private fun AdMedia(ad: NativeAd, adView: NativeAdView) {
+    AndroidView(
+        factory = { context ->
+            MediaView(context).also {
+                it.setImageScaleType(ImageView.ScaleType.FIT_CENTER)
+                it.mediaContent = ad.mediaContent
+                adView.mediaView = it
+            }
+        },
+        modifier = Modifier.size(DiaryAdSize.media).clip(DiaryShapes.r12).background(DiaryTheme.colors.surface)
+    )
+}
+
+// 아이콘이 없는 광고는 글만
+@Composable
+private fun AdIcon(ad: NativeAd, adView: NativeAdView) {
+    val drawable = ad.icon?.drawable ?: return
+    AndroidView(
+        factory = { context ->
+            ImageView(context).also {
+                it.scaleType = ImageView.ScaleType.CENTER_CROP
+                it.setImageDrawable(drawable)
+                adView.iconView = it
+            }
+        },
+        modifier = Modifier.size(DiaryAdSize.icon).clip(DiaryShapes.r8)
+    )
+}
+
+/**
+ * 얇은 줄: 아이콘, 제목과 "광고", 행동 버튼을 한 줄에 세로 가운데로 둠
+ * 앱 목록 줄과 같은 꼴이라 일기 사이에서 튀지 않음
+ * SDK가 오른쪽 아래 구석에 AdChoices를 얹어 그 자리를 비움(AdMob: AdChoices를 가리면 안 됨)
+ */
+@Composable
+private fun AdRow(ad: NativeAd, adView: NativeAdView) {
+    Row(
+        Modifier.padding(end = DiaryAdSize.adChoices),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AdIcon(ad, adView)
+        Column(Modifier.weight(1f)) {
+            AdHeadline(ad, adView)
+            AdLabel()
+        }
+        AdCallToAction(ad, adView)
+    }
+}
+
+/** 카드: 그림 옆에 제목과 "광고"를 위에, 행동 버튼을 그림 아래 끝선에 맞춤 */
+@Composable
+private fun AdCard(ad: NativeAd, adView: NativeAdView) {
+    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        AdMedia(ad, adView)
+        Column(Modifier.weight(1f).heightIn(min = DiaryAdSize.media), verticalArrangement = Arrangement.SpaceBetween) {
+            Column {
+                AdHeadline(ad, adView)
+                AdLabel()
+            }
+            AdCallToAction(ad, adView)
+        }
+    }
+}
+
+// AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
+@Composable
+private fun AdHeadline(ad: NativeAd, adView: NativeAdView) {
+    val style = DiaryTheme.typography.bodyStrong.copy(color = DiaryTheme.colors.textPrimary)
+    AdAsset(adView, register = { headlineView = it }) {
+        BasicText(ad.headline.orEmpty(), style = style, maxLines = 2, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+// 일기 줄의 시각·날씨처럼 보조 글자로 둠. 칩으로 두면 면 위에 떠 보임
+@Composable
+private fun AdLabel() {
+    BasicText(
+        stringResource(Res.string.ad_label),
+        style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary),
+        maxLines = 1
+    )
+}
+
+/**
+ * 행동 버튼. 앱의 작은 연보라 버튼과 같은 모양
+ * 눌림은 AdMob이 세야 해서 버튼 부품을 쓰지 않고 모양만 맞춤
+ * 행동 문구가 없는 광고는 두지 않음
+ */
+@Composable
+private fun AdCallToAction(ad: NativeAd, adView: NativeAdView) {
+    val action = ad.callToAction ?: return
+    val style = DiaryTheme.typography.captionStrong.copy(color = DiaryTheme.colors.accentText)
+    val fill = DiaryTheme.colors.selected
+    AdAsset(adView, register = { callToActionView = it }) {
+        Box(
+            Modifier.heightIn(min = DiarySpacing.x8).clip(DiaryShapes.r8).background(fill).padding(horizontal = DiarySpacing.x3),
+            contentAlignment = Alignment.Center
+        ) { BasicText(action, style = style, maxLines = 1) }
+    }
 }

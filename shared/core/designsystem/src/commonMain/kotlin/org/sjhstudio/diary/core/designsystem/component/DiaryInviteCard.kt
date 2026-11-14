@@ -18,9 +18,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * Plus로 가는 입구(`docs/design.md` 초대 카드).
- * 카드 전체를 누른다.
- * 바탕 selected 40%(글이 묻히지 않게 편지 바탕과 같은 농도로 둔다) · 모서리 16 · 안쪽 20 · 제목 bodyStrong · 설명 caption · 동작 captionStrong accentText.
+ * Plus로 가는 입구(`docs/design.md` 초대 카드)
+ * 카드 전체를 누름
+ * 바탕 selected 40%(글이 묻히지 않게 편지 바탕과 같은 농도) · 모서리 16 · 안쪽 20 · 제목 bodyStrong
+ * · 설명 caption · 동작 captionStrong accentText.
  */
 @Composable
 fun DiaryInviteCard(title: String, body: String, action: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -38,8 +39,8 @@ fun DiaryInviteCard(title: String, body: String, action: String, onClick: () -> 
             .padding(DiarySpacing.x5),
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
-        BasicText(title, style = typography.bodyStrong.copy(color = colors.textPrimary))
-        BasicText(body, style = typography.caption.copy(color = colors.textSecondary))
+        PhraseText(title, style = typography.bodyStrong.copy(color = colors.textPrimary))
+        PhraseText(body, style = typography.caption.copy(color = colors.textSecondary))
         BasicText(action, Modifier.padding(top = DiarySpacing.x2), style = typography.captionStrong.copy(color = colors.accentText))
     }
 }

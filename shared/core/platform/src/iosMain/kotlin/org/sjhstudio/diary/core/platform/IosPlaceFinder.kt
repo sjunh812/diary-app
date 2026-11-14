@@ -14,11 +14,12 @@ import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedWhenInUse
 import platform.CoreLocation.kCLLocationAccuracyHundredMeters
 import platform.Foundation.NSError
+import platform.Foundation.timeIntervalSinceNow
 import platform.darwin.NSObject
 
 /**
- * 위치를 한 번 읽고 기기 지오코더로 동네 이름을 찾는다.
- * CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API가 iOS 26부터라 최소 버전 17에서는 이것을 쓴다.
+ * 위치를 한 번 읽고 기기 지오코더로 동네 이름을 찾음
+ * CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API가 iOS 26부터라 최소 버전 17에서는 이것을 씀
  */
 class IosPlaceFinder : PlaceFinder {
     override suspend fun find(): PlaceLookup = withContext(Dispatchers.Main) {
@@ -29,14 +30,16 @@ class IosPlaceFinder : PlaceFinder {
             status != kCLAuthorizationStatusAuthorizedWhenInUse && status != kCLAuthorizationStatusAuthorizedAlways -> PlaceLookup.Denied
 
             else -> {
-                val mark = withTimeoutOrNull(TIMEOUT_MILLIS) { currentLocation()?.let { placemark(it) } }
+                // 실내에서는 위치를 얻는 데만 몇 초가 걸림. 두 단계 시간을 나눠야 주소 변환할 시간이 남음
+                val location = recentLocation() ?: withTimeoutOrNull(LOCATE_MILLIS) { currentLocation() }
+                val mark = location?.let { withTimeoutOrNull(ADDRESS_MILLIS) { placemark(it) } }
                 val name = mark?.parts()?.label()
                 if (name == null) PlaceLookup.NotFound else PlaceLookup.Found(name)
             }
         }
     }
 
-    // 한국 주소는 subLocality가 동·읍·면이고, 군은 subAdministrativeArea, 시는 locality로 온다.
+    // 한국 주소는 subLocality가 동·읍·면, 군은 subAdministrativeArea, 시는 locality로 옴
     private fun CLPlacemark.parts() = PlaceParts(
         countryCode = ISOcountryCode,
         region = administrativeArea,
@@ -44,6 +47,10 @@ class IosPlaceFinder : PlaceFinder {
         district = subAdministrativeArea,
         street = subLocality
     )
+
+    /** 몇 분 안에 얻은 위치가 있으면 기다리지 않고 씀 */
+    private fun recentLocation(): CLLocation? =
+        CLLocationManager().location?.takeIf { -it.timestamp.timeIntervalSinceNow <= RECENT_SECONDS }
 
     private suspend fun currentLocation(): CLLocation? = suspendCancellableCoroutine { continuation ->
         val manager = CLLocationManager()
@@ -53,7 +60,7 @@ class IosPlaceFinder : PlaceFinder {
                 continuation.resume(location)
             }
         continuation.invokeOnCancellation {
-            // 관리자는 대리자를 약하게 잡으니 끝날 때까지 여기서 들고 있는다.
+            // 관리자는 대리자를 약하게 잡아 끝날 때까지 여기서 들고 있음
             listener.hashCode()
             manager.stopUpdatingLocation()
         }
@@ -71,7 +78,9 @@ class IosPlaceFinder : PlaceFinder {
     }
 
     private companion object {
-        const val TIMEOUT_MILLIS = 10_000L
+        const val LOCATE_MILLIS = 15_000L
+        const val ADDRESS_MILLIS = 8_000L
+        const val RECENT_SECONDS = 300.0
     }
 }
 

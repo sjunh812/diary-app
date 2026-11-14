@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.debug
 
 import android.content.Intent
+import android.os.StrictMode
 import java.io.File
 import org.koin.android.ext.android.get
 import org.koin.core.context.loadKoinModules
@@ -12,19 +13,24 @@ import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.platform.DevMenu
 
 /**
- * 개발 빌드의 앱.
- * 기록 이전에 강제 종료 훅을 끼우고 요금제를 바꿀 수 있게 한다(T049).
- * 출시 빌드에는 없다.
+ * 개발 빌드의 앱
+ * 기록 이전에 강제 종료 훅을 끼우고 요금제를 바꿀 수 있게 함(T049)
+ * 출시 빌드에는 없음
  */
 class DebugApplication : DiaryApplication() {
     override fun onCreate() {
+        // 화면 스레드의 디스크·네트워크 작업과 닫지 않은 자원을 로그(StrictMode 태그)로 잡음. 앱은 끄지 않음
+        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build())
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder().detectLeakedClosableObjects().detectLeakedSqlLiteObjects().penaltyLog().build()
+        )
         super.onCreate()
-        // 출시 빌드와 같은 알림(사용 통계)을 감싸서 덮어쓴다.
+        // 출시 빌드와 같은 알림(사용 통계)을 감싸서 덮어씀
         val released = get<MigrationEvents>()
         loadKoinModules(
             module {
                 single<MigrationEvents> { KillAtHook(File(filesDir, "debug/kill_at"), released) }
-                // 개발자 모드에서 고른 요금제를 앱 전체가 따른다.
+                // 개발자 모드에서 고른 요금제를 앱 전체가 따름
                 single { DevPlanRepository(this@DebugApplication) }
                 single<PlanRepository> { get<DevPlanRepository>() }
                 single<PurchaseRepository> { FakePurchases(get()) }

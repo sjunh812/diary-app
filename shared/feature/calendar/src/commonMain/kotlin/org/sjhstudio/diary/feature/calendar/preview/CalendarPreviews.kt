@@ -25,7 +25,9 @@ private val Days =
         LocalDate(2026, 10, 1) to DayMood(LocalDate(2026, 10, 1), Mood.COOL, 1),
         LocalDate(2026, 10, 12) to DayMood(LocalDate(2026, 10, 12), null, 1),
         LocalDate(2026, 10, 13) to DayMood(LocalDate(2026, 10, 13), null, 2),
-        Today to DayMood(Today, Mood.GOOD, 2, Mood.COOL)
+        Today to DayMood(Today, Mood.GOOD, 2, Mood.COOL),
+        // 뒤 달 날짜의 흐린 얼굴
+        LocalDate(2026, 11, 2) to DayMood(LocalDate(2026, 11, 2), Mood.GOOD, 1)
     )
 
 @Composable

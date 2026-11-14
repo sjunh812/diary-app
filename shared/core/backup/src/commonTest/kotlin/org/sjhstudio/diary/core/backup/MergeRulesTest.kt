@@ -26,6 +26,15 @@ class MergeRulesTest {
     @Test
     fun case4_only_backup_changed_replaces() = assertEquals(MergeAction.REPLACE, MergeRules.decide(entry(9, "새"), entry(5), 5))
 
+    /** 폰이 고쳐 백업한 뒤, 그 수정을 받기 전 판에서 고친 태블릿 백업을 합쳐도 폰 수정이 덮이지 않음 */
+    @Test
+    fun case4_from_another_device_keeps_both() =
+        assertEquals(MergeAction.KEEP_BOTH, MergeRules.decide(entry(9, "태블릿"), entry(5, "폰"), 5, fromOtherDevice = true))
+
+    @Test
+    fun case4_from_another_device_with_the_same_content_stays() =
+        assertEquals(MergeAction.KEEP, MergeRules.decide(entry(9), entry(5), 5, fromOtherDevice = true))
+
     @Test
     fun case5_both_changed_keeps_both() = assertEquals(MergeAction.KEEP_BOTH, MergeRules.decide(entry(9, "백업"), entry(8, "기기"), 5))
 

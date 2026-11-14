@@ -5,7 +5,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.model.ContextTip
@@ -45,26 +44,17 @@ class WelcomeRepositoryTest {
     }
 
     @Test
-    fun reading_the_letter_tells_the_ad_side_once() = runTest {
-        var told = 0
-        val repository = DefaultWelcomeRepository(store, onLetterRead = { told++ }) { 3 }
-
-        repository.letterRead()
-
-        assertEquals(1, told)
-    }
-
-    @Test
-    fun one_tip_per_session_and_never_again_once_closed() = runTest {
+    fun each_tip_stays_on_its_own_until_closed() = runTest {
         val session = repository()
 
-        assertTrue(session.claim(ContextTip.INSIGHT_MOOD))
-        assertFalse(session.claim(ContextTip.INSIGHT_MOOD))
+        assertTrue(session.claim(ContextTip.INSIGHT_OPEN))
+        // 화면을 오가도 닫기 전까지 남고, 다른 안내도 따로 뜸
+        assertTrue(session.claim(ContextTip.INSIGHT_OPEN))
+        assertTrue(session.claim(ContextTip.HOME_LIST_STYLE))
 
-        val next = repository()
-        assertTrue(next.claim(ContextTip.INSIGHT_MOOD))
-        next.done(ContextTip.INSIGHT_MOOD)
+        session.done(ContextTip.INSIGHT_OPEN)
 
-        assertFalse(repository().claim(ContextTip.INSIGHT_MOOD))
+        assertFalse(repository().claim(ContextTip.INSIGHT_OPEN))
+        assertTrue(repository().claim(ContextTip.HOME_LIST_STYLE))
     }
 }

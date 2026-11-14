@@ -34,7 +34,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryStateAlpha
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-/** 버튼 크기 다섯(`docs/design.md` 컴포넌트 규격, TDS 버튼 xlarge·large·medium·small). */
+/** 버튼 크기 다섯(`docs/design.md` 컴포넌트 규격, TDS 버튼 xlarge·large·medium·small) */
 enum class DiaryButtonSize {
     /** 56 · 좌우 16 · 모서리 16 · headline */
     XLarge,
@@ -48,19 +48,16 @@ enum class DiaryButtonSize {
     /** 32 · 좌우 10 · 모서리 8 · captionStrong */
     Small,
 
-    /** 32 · 좌우 10 · 모서리 8 · label. 위쪽 줄에 홀로 놓이는 글자 버튼에 쓴다. */
+    /** 32 · 좌우 10 · 모서리 8 · label. 위쪽 줄에 홀로 놓이는 글자 버튼용 */
     Header
 }
 
-/**
- * 버튼 종류(TDS 버튼 색 종류).
- * 한 화면에 [Primary]는 하나만 둔다.
- */
+/** 버튼 종류(TDS 버튼 색 종류). 한 화면에 [Primary]는 하나만 */
 enum class DiaryButtonKind { Primary, Secondary, Weak, Text, QuietText, Danger }
 
 private class ButtonSpec(val height: Dp, val horizontal: Dp, val shape: Shape)
 
-/** 버튼 글의 줄 수 끝. */
+/** 버튼 글의 줄 수 끝 */
 private const val BUTTON_MAX_LINES = 2
 
 private fun DiaryButtonSize.spec() = when (this) {
@@ -71,12 +68,10 @@ private fun DiaryButtonSize.spec() = when (this) {
 }
 
 /**
- * 버튼 하나.
- * 글은 문자열 리소스에서 받아 넘긴다.
- * 보이는 높이가 48보다 작아도 누르는 영역은 48이다.
- * 자리는 보이는 크기만큼만 차지해서 옆 내용과의 간격은 규격 그대로다.
- * 높이는 최소 규격이라 큰 글자에서 글이 두 줄이 되면 버튼이 늘어난다.
- * 잘리지 않게 위아래 4를 둔다.
+ * 버튼 하나. 글은 문자열 리소스에서 받음
+ * 보이는 높이가 48보다 작아도 누르는 영역은 48.
+ * 자리는 보이는 크기만 차지해 옆 내용과의 간격은 규격 그대로
+ * 높이는 최소 규격이라 큰 글자로 두 줄이 되면 늘어남. 잘리지 않게 위아래 4.
  */
 @Composable
 fun DiaryButton(
@@ -86,7 +81,9 @@ fun DiaryButton(
     size: DiaryButtonSize = DiaryButtonSize.Large,
     kind: DiaryButtonKind = DiaryButtonKind.Primary,
     enabled: Boolean = true,
-    leadingIcon: ImageVector? = null
+    leadingIcon: ImageVector? = null,
+    /** 누른 일이 끝나기를 기다리는 중. 글 자리는 그대로 두고 점을 보이며 다시 누를 수 없음(TDS·SEED Button loading) */
+    loading: Boolean = false
 ) {
     val colors = DiaryTheme.colors
     val (container, content) =
@@ -108,7 +105,7 @@ fun DiaryButton(
     val spec = size.spec()
     val interaction = remember { MutableInteractionSource() }
     val touch = ((DiarySpacing.minTouchTarget - spec.height) / 2).coerceAtLeast(Dp.Hairline)
-    // 바깥 칸이 48로 누르기를 받고 안쪽 칸이 보이는 버튼을 그린다.
+    // 바깥 칸 48이 누르기를 받고 안쪽 칸이 보이는 버튼을 그림
     Box(
         modifier
             .widthIn(min = DiarySpacing.minTouchTarget)
@@ -116,7 +113,7 @@ fun DiaryButton(
             .clickable(
                 interactionSource = interaction,
                 indication = null,
-                enabled = enabled,
+                enabled = enabled && !loading,
                 role = Role.Button,
                 onClick = onClick
             )
@@ -132,32 +129,40 @@ fun DiaryButton(
                     .clip(spec.shape)
                     .background(container)
                     .padding(horizontal = spec.horizontal, vertical = DiarySpacing.x1),
-            horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (leadingIcon != null) {
-                DiaryIcon(
-                    leadingIcon,
-                    contentDescription = null,
-                    tint = content,
-                    size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
-                )
+            Box(contentAlignment = Alignment.Center) {
+                Row(
+                    Modifier.alpha(if (loading) 0f else 1f),
+                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5, Alignment.CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (leadingIcon != null) {
+                        DiaryIcon(
+                            leadingIcon,
+                            contentDescription = null,
+                            tint = content,
+                            size = if (size == DiaryButtonSize.Small) DiaryIconSize.i16 else DiaryIconSize.i20
+                        )
+                    }
+                    BasicText(
+                        text = text,
+                        style = style.copy(color = content, textAlign = TextAlign.Center),
+                        maxLines = BUTTON_MAX_LINES,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (loading) DiaryLoadingDots(content)
             }
-            BasicText(
-                text = text,
-                style = style.copy(color = content, textAlign = TextAlign.Center),
-                maxLines = BUTTON_MAX_LINES,
-                overflow = TextOverflow.Ellipsis
-            )
         }
     }
 }
 
 /**
- * 나란한 두 버튼.
- * 폭은 늘 같고 주 버튼이 오른쪽이다.
- * 어느 한쪽 글이 반 칸에 들어가지 않으면 잘리는 대신 위아래로 쌓고 주 버튼을 위에 둔다.
- * 언어와 글자 크기에 따라 글 길이가 달라져서 넓이를 재고 정한다(M3 대화상자의 쌓인 버튼과 같다).
+ * 나란한 두 버튼. 폭은 늘 같고 주 버튼이 오른쪽
+ * 한쪽 글이라도 반 칸에 안 들어가면 자르지 않고 위아래로 쌓아 주 버튼을 위에 둠
+ * 언어·글자 크기마다 글 길이가 달라 넓이를 재서 정함(M3 대화상자의 쌓인 버튼과 같음)
  */
 @Composable
 fun DiaryButtonPair(
@@ -169,12 +174,21 @@ fun DiaryButtonPair(
     size: DiaryButtonSize = DiaryButtonSize.Large,
     secondaryKind: DiaryButtonKind = DiaryButtonKind.Secondary,
     primaryKind: DiaryButtonKind = DiaryButtonKind.Primary,
-    primaryEnabled: Boolean = true
+    primaryEnabled: Boolean = true,
+    primaryLoading: Boolean = false
 ) {
     Layout(
         content = {
             DiaryButton(secondary, onSecondary, Modifier.fillMaxWidth(), size = size, kind = secondaryKind)
-            DiaryButton(primary, onPrimary, Modifier.fillMaxWidth(), size = size, kind = primaryKind, enabled = primaryEnabled)
+            DiaryButton(
+                primary,
+                onPrimary,
+                Modifier.fillMaxWidth(),
+                size = size,
+                kind = primaryKind,
+                enabled = primaryEnabled,
+                loading = primaryLoading
+            )
         },
         modifier = modifier.padding(top = LocalSheetButtonGap.current).fillMaxWidth()
     ) { (second, first), constraints ->

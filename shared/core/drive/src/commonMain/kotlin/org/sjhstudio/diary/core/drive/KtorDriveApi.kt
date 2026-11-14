@@ -28,6 +28,7 @@ import kotlinx.io.IOException as KotlinxIOException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
@@ -46,8 +47,8 @@ import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.TokenResult
 
 /**
- * 드라이브 REST v3를 공통 코드에서 직접 부른다(research R3).
- * 본문은 파일에서 스트리밍으로 보내고 받는다.
+ * 드라이브 REST v3를 공통 코드에서 직접 호출(research R3)
+ * 본문은 파일에서 스트리밍으로 주고받음
  */
 class KtorDriveApi(
     private val client: HttpClient,
@@ -86,7 +87,7 @@ class KtorDriveApi(
 
     override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile {
         val boundary = "diary-backup-boundary"
-        // 파일은 다시 해 볼 일이 아니라서 재시도 밖에서 읽는다.
+        // 파일 읽기는 재시도할 일이 아니라 재시도 밖에서 읽음
         val bytes = onDevice { fileSystem.read(body) { readByteArray() } }
         val head =
             "--$boundary\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta.toJson()}\r\n" +
@@ -118,7 +119,7 @@ class KtorDriveApi(
     override suspend fun uploadChunk(session: UploadSession, from: Long, body: Path): ChunkResult = call { token ->
         val end = minOf(from + UPLOAD_CHUNK, session.size)
         val length = end - from
-        // 본문을 쓰는 쪽에서 던지면 엔진마다 끝나는 모양이 달라서, 적어 두고 본문을 짧게 끝낸다.
+        // 본문 쓰는 쪽에서 던지면 엔진마다 끝나는 모양이 달라 적어 두고 본문을 짧게 끝냄
         var unreadable: DriveLocalFileFailure? = null
         val response =
             try {
@@ -151,6 +152,8 @@ class KtorDriveApi(
                         )
                     )
                 }
+            } catch (error: CancellationException) {
+                throw error
             } catch (error: Exception) {
                 throw unreadable ?: error
             }
@@ -207,8 +210,8 @@ class KtorDriveApi(
     }
 
     /**
-     * 토큰을 받아 부른다.
-     * 401은 한 번 새로 받아 다시 하고, 잠깐 거절은 1·2·4·8·16초쯤 쉬며 다섯 번까지 다시 한다.
+     * 토큰을 받아 호출
+     * 401은 토큰을 새로 받아 한 번 더, 잠깐 거절은 1·2·4·8·16초쯤 쉬며 다섯 번까지 다시 시도
      */
     private suspend fun <T> call(block: suspend (token: String) -> T): T {
         var attempt = 0
@@ -228,8 +231,8 @@ class KtorDriveApi(
                 if (!error.retryable || attempt >= RETRIES) throw error
                 backoff(attempt++)
             } catch (_: IOException) {
-                // 사진 수천 장을 올리다 보면 연결이 잠깐 끊긴다.
-                // 한 번에 백업 전체를 멈추지 않는다.
+                // 사진 수천 장을 올리다 보면 연결이 잠깐 끊김
+                // 한 번 끊겼다고 백업 전체를 멈추지 않음
                 if (attempt >= RETRIES) throw DriveException(BackupFailure.OFFLINE)
                 backoff(attempt++)
             } catch (_: KotlinxIOException) {
@@ -240,8 +243,8 @@ class KtorDriveApi(
     }
 
     /**
-     * 기기 파일을 만지는 일.
-     * 드라이브 호출과 달리 실패해도 다시 하지 않는다.
+     * 기기 파일을 다루는 일
+     * 드라이브 호출과 달리 실패해도 재시도하지 않음
      */
     private inline fun <T> onDevice(block: () -> T): T = try {
         block()
@@ -251,8 +254,12 @@ class KtorDriveApi(
 
     private suspend fun token(): String = when (val result = authorizer.accessToken()) {
         is TokenResult.Token -> result.value
+
         TokenResult.NeedsUser -> throw DriveException(BackupFailure.AUTH)
-        is TokenResult.Failed -> throw DriveException(result.kind, retryable = result.kind == BackupFailure.DRIVE_ERROR)
+
+        // 일시 실패(UNKNOWN)도 다시 시도. 받던 사진이 받을 수 없는 사진으로 셈해지지 않게
+        is TokenResult.Failed ->
+            throw DriveException(result.kind, retryable = result.kind == BackupFailure.DRIVE_ERROR || result.kind == BackupFailure.UNKNOWN)
     }
 
     private suspend fun chunkResult(response: HttpResponse): ChunkResult = when (response.status.value) {
@@ -272,8 +279,16 @@ class KtorDriveApi(
     }
 
     private suspend fun failure(response: HttpResponse): DriveException {
-        val reason = runCatching { response.bodyAsBytes().decodeToString() }.getOrNull()?.let(::errorReason)
-        return DriveErrorMapper.map(response.status.value, reason)
+        // 본문을 못 읽어도 상태 코드로 가름. 취소는 그대로 올림
+        val body =
+            try {
+                response.bodyAsBytes().decodeToString()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                null
+            }
+        return DriveErrorMapper.map(response.status.value, body?.let(::errorReason))
     }
 
     private fun errorReason(body: String): String? = runCatching {
@@ -286,7 +301,7 @@ class KtorDriveApi(
     private fun NewFile.toJson(): String = buildJsonObject {
         put("name", name)
         put("mimeType", mimeType)
-        parentId?.let { parent -> putJsonArray("parents") { add(kotlinx.serialization.json.JsonPrimitive(parent)) } }
+        parentId?.let { parent -> putJsonArray("parents") { add(JsonPrimitive(parent)) } }
         if (props.isNotEmpty()) putJsonObject("appProperties") { props.forEach { (key, value) -> put(key, value) } }
     }.toString()
 

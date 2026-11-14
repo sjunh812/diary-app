@@ -1,5 +1,13 @@
 package org.sjhstudio.diary.feature.search
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -46,7 +54,6 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -55,51 +62,61 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryIconChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiarySearchField
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
+import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.entryMarks
+import org.sjhstudio.diary.core.ui.grouped
+import org.sjhstudio.diary.core.ui.loadMoreFailed
+import org.sjhstudio.diary.core.ui.monthHeader
+import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.rememberToday
+import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.search.resources.Res
 import org.sjhstudio.diary.feature.search.resources.search_back
 import org.sjhstudio.diary.feature.search.resources.search_chip_favorite
 import org.sjhstudio.diary.feature.search.resources.search_chip_mood
+import org.sjhstudio.diary.feature.search.resources.search_chip_more
 import org.sjhstudio.diary.feature.search.resources.search_chip_period
 import org.sjhstudio.diary.feature.search.resources.search_chip_photo
 import org.sjhstudio.diary.feature.search.resources.search_chip_weather
 import org.sjhstudio.diary.feature.search.resources.search_clear
+import org.sjhstudio.diary.feature.search.resources.search_clear_conditions
 import org.sjhstudio.diary.feature.search.resources.search_empty_body
 import org.sjhstudio.diary.feature.search.resources.search_empty_title
-import org.sjhstudio.diary.feature.search.resources.search_error_body
-import org.sjhstudio.diary.feature.search.resources.search_error_retry
-import org.sjhstudio.diary.feature.search.resources.search_error_title
 import org.sjhstudio.diary.feature.search.resources.search_hint
 import org.sjhstudio.diary.feature.search.resources.search_idle
 import org.sjhstudio.diary.feature.search.resources.search_result_count
 
-/** 어느 칩의 시트가 열렸는지. */
+/** 어느 칩의 시트가 열렸는지 */
 private enum class Sheet { Mood, Weather, Period, Range }
 
-/** 조건을 바꾼 뒤 결과가 자리 잡을 때까지 맨 위를 지키는 시간. 그 뒤로는 사용자의 스크롤을 따른다. */
+/** 조건을 바꾼 뒤 결과가 자리 잡을 때까지 맨 위를 지키는 시간. 그 뒤로는 사용자 스크롤을 따름 */
 private const val RESULTS_SETTLE_MILLIS = 1_000L
 
 /**
- * 찾기(Figma "찾기 (S1-a)").
- * 넓은 화면에서는 왼쪽 칸이 되고 고른 줄을 [selectedId]로 표시한다.
- * 조건 없이 들어오면 입력 칸에 바로 포커스를 둔다.
+ * 찾기(Figma "찾기 (S1-a)"). 넓은 화면에서는 왼쪽 칸, 고른 줄은 [selectedId]
+ * 조건 없이 들어오면 입력 칸에 바로 포커스
  */
 @Composable
 fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, onOpen: (String) -> Unit, modifier: Modifier = Modifier) {
@@ -111,14 +128,13 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
     val family = rememberFileFontFamily(look.fontPath)
     var sheet by rememberSaveable { mutableStateOf<String?>(null) }
     val list = rememberLazyListState()
-    // 상세에 다녀와도 이 화면은 다시 그려진다.
-    // 조건이 그대로면 보던 자리에 두려고 마지막 조건을 저장해 둔다.
+    // 상세에 다녀오면 이 화면을 다시 그려, 조건이 그대로면 보던 자리에 두려고 마지막 조건을 저장
     var listedFilter by rememberSaveable { mutableIntStateOf(filter.hashCode()) }
     LaunchedEffect(filter) {
         if (filter.hashCode() == listedFilter) return@LaunchedEffect
         listedFilter = filter.hashCode()
-        // 찾기는 잠깐 멈춘 뒤에 돌아서 결과가 늦게 온다.
-        // 목록은 보던 줄을 따라가려 해서, 새 결과가 와도 맨 위로 되돌린다.
+        // 찾기는 잠깐 멈춘 뒤 돌아 결과가 늦게 옴
+        // 목록이 보던 줄을 따라가려 해 새 결과가 와도 맨 위로 되돌림
         withTimeoutOrNull(RESULTS_SETTLE_MILLIS) {
             snapshotFlow { results.itemCount to results.itemCount.takeIf { it > 0 }?.let { results.peek(0)?.id } }
                 .collect { list.scrollToItem(0) }
@@ -144,6 +160,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
         onSheet = { sheet = Sheet.valueOf(it.name).name },
         onPhoto = viewModel::togglePhoto,
         onFavorites = viewModel::toggleFavorites,
+        onClear = viewModel::clearConditions,
         modifier = modifier
     )
     val today = rememberToday()
@@ -155,6 +172,7 @@ fun SearchRoute(initial: SearchFilter, selectedId: String?, onBack: () -> Unit, 
         Sheet.Period.name ->
             PeriodSheet(
                 selected = period,
+                customRange = filter.period?.let { rangeLabel(it, today) },
                 onPick = {
                     viewModel.setPeriod(it)
                     sheet = null
@@ -191,6 +209,7 @@ internal fun SearchScreen(
     onSheet: (SheetRequest) -> Unit,
     onPhoto: () -> Unit,
     onFavorites: () -> Unit,
+    onClear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = DiaryTheme.colors
@@ -209,8 +228,8 @@ internal fun SearchScreen(
                     modifier = Modifier.weight(1f).focusRequester(focus)
                 )
             }
-            FilterChips(filter, period, onSheet, onPhoto, onFavorites)
-            // 없는 글자를 이어 칠 때 뼈대가 깜빡이지 않게, 없었으면 다 읽을 때까지 없음을 둔다.
+            FilterChips(filter, period, onSheet, onPhoto, onFavorites, onClear)
+            // 없는 글자를 이어 칠 때 스켈레톤이 깜빡이지 않게, 없었으면 다 읽을 때까지 없음 유지
             val refresh = results.loadState.refresh
             var wasEmpty by remember { mutableStateOf(false) }
             LaunchedEffect(refresh, filter.isEmpty) {
@@ -240,7 +259,9 @@ internal fun SearchScreen(
     }
 }
 
-/** [SearchScreen]이 여는 시트. */
+private fun <T> chipMotion() = tween<T>(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate)
+
+/** [SearchScreen]이 여는 시트 */
 internal enum class SheetRequest { Mood, Weather, Period }
 
 @Composable
@@ -249,42 +270,70 @@ private fun FilterChips(
     period: SearchPeriod?,
     onSheet: (SheetRequest) -> Unit,
     onPhoto: () -> Unit,
-    onFavorites: () -> Unit
+    onFavorites: () -> Unit,
+    onClear: () -> Unit
 ) {
+    val gutter = LocalScreenGutter.current
+    val reduceMotion = rememberReduceMotion()
     LazyRow(
         Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
+        // 초기화 칩 자리는 접혀 있어도 칩 사이 간격을 받음. 그만큼 앞 여백에서 뺌
+        contentPadding = PaddingValues(start = gutter - DiarySpacing.x2, end = gutter, top = DiarySpacing.x2, bottom = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        item {
+        // 조건이 있을 때만 맨 앞에 펼침. 끝에 두면 칩이 많을 때 밀어야 보임(eBay Playbook 칩 가로 스크롤)
+        // 자리를 늘 두고 키로 잡음. 줄은 보이는 첫 칩 기준으로 섬
+        // 맨 앞이면 펼쳐져 보이고, 밀어 둔 줄은 누른 칩이 제자리
+        item(key = "clear") {
+            AnimatedVisibility(
+                visible = filter.hasConditions,
+                enter = if (reduceMotion) EnterTransition.None else fadeIn(chipMotion()) + expandHorizontally(chipMotion()),
+                exit = if (reduceMotion) ExitTransition.None else fadeOut(chipMotion()) + shrinkHorizontally(chipMotion())
+            ) {
+                DiaryIconChip(
+                    DiaryIcons.Reset,
+                    stringResource(Res.string.search_clear_conditions),
+                    onClear,
+                    Modifier.padding(start = DiarySpacing.x2)
+                )
+            }
+        }
+        item(key = "mood") {
             DiaryChip(
-                stringResource(Res.string.search_chip_mood),
+                // 고른 기분을 칩에 씀. 기간 칩처럼 무엇으로 걸렀는지 시트를 열지 않고 보이게
+                chosenLabel(Mood.ordered.filter { it in filter.moods }.map { moodName(it) }) ?: stringResource(Res.string.search_chip_mood),
                 filter.moods.isNotEmpty(),
                 { onSheet(SheetRequest.Mood) },
                 leadingIcon = DiaryIcons.Smile,
                 trailingIcon = DiaryIcons.ChevronDown
             )
         }
-        item {
+        item(key = "weather") {
             DiaryChip(
-                stringResource(Res.string.search_chip_weather),
+                chosenLabel(Weather.entries.filter { it in filter.weathers }.map { weatherName(it) })
+                    ?: stringResource(Res.string.search_chip_weather),
                 filter.weathers.isNotEmpty(),
                 { onSheet(SheetRequest.Weather) },
                 leadingIcon = DiaryIcons.WeatherSunny,
                 trailingIcon = DiaryIcons.ChevronDown
             )
         }
-        item {
+        item(key = "period") {
             DiaryChip(
-                period?.let { periodLabel(it) } ?: stringResource(Res.string.search_chip_period),
+                // 직접 선택했으면 "직접 선택" 대신 그 기간을 칩에 씀(돌아보기에서 넘어와도 무엇으로 걸렀는지 보이게)
+                filter.period?.takeIf { period == SearchPeriod.Custom }?.let { rangeLabel(it, rememberToday()) }
+                    ?: period?.let { periodLabel(it) }
+                    ?: stringResource(Res.string.search_chip_period),
                 period != null,
                 { onSheet(SheetRequest.Period) },
                 leadingIcon = DiaryIcons.TabCalendar,
                 trailingIcon = DiaryIcons.ChevronDown
             )
         }
-        item { DiaryChip(stringResource(Res.string.search_chip_photo), filter.hasPhoto, onPhoto, leadingIcon = DiaryIcons.Image) }
-        item {
+        item(key = "photo") {
+            DiaryChip(stringResource(Res.string.search_chip_photo), filter.hasPhoto, onPhoto, leadingIcon = DiaryIcons.Image)
+        }
+        item(key = "favorite") {
             DiaryChip(
                 stringResource(Res.string.search_chip_favorite),
                 filter.favoritesOnly,
@@ -306,27 +355,7 @@ private fun Empty() {
     }
 }
 
-/**
- * 결과를 읽지 못했을 때.
- * 뼈대를 계속 두지 않고 까닭과 다시 시도를 보인다.
- */
-@Composable
-private fun LoadFailed(onRetry: () -> Unit) {
-    DiaryEmptyArea {
-        DiaryEmptyState(
-            DiaryIcons.CircleAlert,
-            stringResource(Res.string.search_error_title),
-            description = stringResource(Res.string.search_error_body),
-            actionLabel = stringResource(Res.string.search_error_retry),
-            onAction = onRetry
-        )
-    }
-}
-
-/**
- * 달이 바뀌면 달 머리를 넣는다.
- * 결과는 최신순이다.
- */
+/** 달이 바뀌면 달 머리를 넣음. 결과는 최신순 */
 @Composable
 private fun Results(
     rows: LazyPagingItems<EntryRow>,
@@ -339,34 +368,32 @@ private fun Results(
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     val today = rememberToday()
-    // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
+    // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래 여백
     val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = bottom)) {
         item {
             BasicText(
-                pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount),
+                pluralStringResource(Res.plurals.search_result_count, rows.itemCount, rows.itemCount.grouped()),
                 modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x1),
                 style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
             )
         }
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
-            // 아직 읽지 않은 줄은 자리만 잡는다.
-            // 앞 줄은 읽기를 부르지 않게 엿보기만 한다.
+            // 아직 읽지 않은 줄은 자리만 잡음. 앞 줄은 읽기를 부르지 않게 엿보기만
             val row = rows[index]
             if (row == null) {
                 Spacer(Modifier.fillMaxWidth().height(DiarySpacing.x14 + DiarySpacing.x14))
                 return@items
             }
             val previous = if (index > 0) rows.peek(index - 1) else null
-            val newMonth =
-                index == 0 || (previous != null && (previous.date.year != row.date.year || previous.date.month != row.date.month))
+            val (newMonth, newDay) = entryMarks(index, row, previous)
             Column {
-                if (newMonth) DiaryMonthHeader(if (row.date.year == today.year) dates.month(row.date) else dates.yearMonth(row.date))
+                if (newMonth) DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                 val interaction = remember { MutableInteractionSource() }
                 DiaryEntryLine(
                     row = row,
-                    showDate = previous?.date != row.date,
-                    dividerAbove = !newMonth,
+                    showDate = newDay,
+                    dividerAbove = index > 0 && !newMonth,
                     previewStyle = previewStyle,
                     highlight = query.trim(),
                     modifier =
@@ -377,5 +404,14 @@ private fun Results(
                 )
             }
         }
+        loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
     }
+}
+
+/** 고른 것이 하나면 그 이름, 여럿이면 "좋음 외 1"처럼. 아무것도 고르지 않았으면 null */
+@Composable
+private fun chosenLabel(names: List<String>): String? = when (names.size) {
+    0 -> null
+    1 -> names.first()
+    else -> stringResource(Res.string.search_chip_more, names.first(), names.size - 1)
 }

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -64,45 +63,50 @@ import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_body
 import org.sjhstudio.diary.feature.backup.resources.rollback_waiting_title
 
 /**
- * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알린다.
- * 토스트의 보기를 누르면 결과 화면이 열린다.
- * 일기를 쓰는 동안은 기다린다([quiet]).
+ * 복원 중에 화면을 떠나도 결과를 놓치지 않게 앱 틀에서 알림
+ * 토스트의 보기를 누르면 결과 화면이 열림
+ * 일기를 쓰는 동안은 기다림([quiet])
  */
 @Composable
 fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: Boolean, onOpen: () -> Unit) {
     val restore = koinInject<RestoreRepository>()
     val state by restore.state.collectAsStateWithLifecycle()
-    val watch = remember { RestoreResultWatch() }
+    // 앱 틀이 다시 만들어져도(백 뒤 다시 열기, 회전) 이미 알린 결과를 또 알리지 않게 앱에 하나
+    val watch = koinInject<RestoreResultWatch>()
     val open by rememberUpdatedState(onOpen)
-    // 화면을 옮겨도 떠 있는 토스트가 사라지지 않게 효과 밖에서 띄운다.
+    val doneTitle = stringResource(Res.string.restore_notice_title)
+    val stoppedTitle = stringResource(Res.string.restore_stopped_title)
+    val action = stringResource(Res.string.restore_see_result)
+    // 화면을 옮겨도 떠 있는 토스트가 사라지지 않게 효과 밖에서 띄움
     val scope = rememberCoroutineScope()
     LaunchedEffect(state, onResultScreen, quiet) {
         if (!watch.shouldTell(state, onResultScreen, quiet)) return@LaunchedEffect
-        val message = getString(if (state is RestoreState.Done) Res.string.restore_notice_title else Res.string.restore_stopped_title)
-        val action = getString(Res.string.restore_see_result)
+        val message = if (state is RestoreState.Done) doneTitle else stoppedTitle
         scope.launch { if (toast.show(message, action) == DiaryToastResult.ActionPerformed) open() }
     }
 }
 
 /**
- * 파일을 만들다 앱이 꺼졌으면 다음에 앱을 열 때 한 번 알린다.
- * 보기를 누르면 파일로 백업하기로 간다.
+ * 파일을 만들다 앱이 꺼졌으면 다음에 앱을 열 때 한 번 알림
+ * 보기를 누르면 파일로 백업하기로 감
  */
 @Composable
 fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
-    val restore = koinInject<RestoreRepository>()
+    val viewModel = koinViewModel<BundleNoticeViewModel>()
+    val pending by viewModel.pending.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
-    LaunchedEffect(restore) {
-        if (!restore.takeStoppedBundle()) return@LaunchedEffect
+    LaunchedEffect(pending) {
+        if (!pending) return@LaunchedEffect
+        viewModel.shown()
         val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
         if (shown == DiaryToastResult.ActionPerformed) open()
     }
 }
 
 /**
- * 백업 화면 아래에 두는 복원 소식.
- * 멈춘 사진이 몇 장인지, 왜 멈췄는지, 무엇을 하면 되는지 보인다.
- * 할 일이 없으면 자리를 차지하지 않는다.
+ * 백업 화면 아래에 두는 복원 소식
+ * 멈춘 사진이 몇 장인지, 왜 멈췄는지, 무엇을 하면 되는지 보임
+ * 할 일이 없으면 자리를 차지하지 않음
  */
 @Composable
 fun RestoreStatusBar(onPickFile: () -> Unit, modifier: Modifier = Modifier) {
@@ -182,7 +186,7 @@ private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifie
 private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () -> Unit, modifier: Modifier = Modifier) {
     val (label, action) =
         when (waiting.stop) {
-            // 받는 중이거나 연결이 풀렸으면 눌러도 나아지지 않는다.
+            // 받는 중이거나 연결이 풀렸으면 눌러도 나아지지 않음
             null, PhotoStop.ACCOUNT -> null to null
 
             PhotoStop.FILE -> Res.string.restore_wait_pick to onPickFile
@@ -199,7 +203,7 @@ private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () 
     )
 }
 
-/** 시스템이 깨워 주지 않는 플랫폼에서는 앱을 다시 열어야 잇는다. */
+/** 시스템이 깨워 주지 않는 플랫폼에서는 앱을 다시 열어야 이어짐 */
 private fun waitingBody(stop: PhotoStop?): StringResource = when (stop) {
     null -> Res.string.restore_wait_running
     PhotoStop.NO_SPACE -> Res.string.restore_note_pending_space_body

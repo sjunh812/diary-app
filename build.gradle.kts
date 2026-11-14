@@ -21,17 +21,26 @@ plugins {
 }
 
 // NIA처럼 Spotless로 ktlint를 돌린다(research R20). 규칙은 .editorconfig에 있다.
-// 레거시 app/과 확인용 빌드(scripts/)는 손대지 않는다. 메인 체크아웃 안의 작업 복사본(.claude/worktrees)도 보지 않는다.
+// 대상은 소스 폴더별 파일 트리로 준다. 글자 패턴("**/*.kt")으로 주면 저장소 맨 위부터 훑어
+// 메인 체크아웃 안의 작업 복사본(.claude/worktrees)과 그 빌드 산출물까지 들어가 메모리가 모자란다.
+// 레거시 app/과 확인용 빌드(scripts/)는 손대지 않는다.
+val formattedDirs = listOf("shared", "composeApp", "benchmarks", "build-logic", "fonts")
+
+fun sources(pattern: String) = formattedDirs.map { dir ->
+    fileTree(dir) {
+        include(pattern)
+        exclude("**/build/**")
+    }
+}
+
 spotless {
     val ktlintVersion = libs.versions.ktlint.get()
     kotlin {
-        target("**/*.kt")
-        targetExclude("**/build/**", "app/**", "scripts/**", ".claude/**")
+        target(sources("**/*.kt"))
         ktlint(ktlintVersion)
     }
     kotlinGradle {
-        target("**/*.gradle.kts")
-        targetExclude("**/build/**", "app/**", "scripts/**", ".claude/**")
+        target(sources("**/*.gradle.kts") + files("build.gradle.kts", "settings.gradle.kts"))
         ktlint(ktlintVersion)
     }
 }

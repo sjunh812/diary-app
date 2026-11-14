@@ -9,9 +9,11 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.Plan
@@ -30,42 +32,48 @@ class AdRepositoryTest {
     private inner class Player : AdPlayer {
         var shown = 0
         var prepared = 0
+        var warmed = 0
         var reward = true
         var ready = true
+        var dayWhileShowing: String? = null
+        var dayBeforeImpression: String? = null
+
+        /** 거짓이면 광고가 화면에 나오기 전에 닫혔거나 앱이 꺼진 경우 */
+        var impression = true
         override val available = true
+
+        override fun warmUp() {
+            warmed++
+        }
 
         override fun prepareInterstitial() {
             prepared++
         }
 
-        override suspend fun showInterstitial(): Boolean {
-            if (!ready) return false
+        override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
+            if (ready) dayBeforeImpression = store.current().lastInterstitialDay
+            if (!ready || !impression) return false
+            onImpression()
+            yield()
+            dayWhileShowing = store.current().lastInterstitialDay
             shown++
             return true
         }
 
-        override suspend fun showRewarded() = reward
+        var rewardedShown = 0
+
+        override suspend fun showRewarded(): Boolean {
+            rewardedShown++
+            // 영상을 받는 몇 초 동안
+            yield()
+            return reward
+        }
     }
 
     private val player = Player()
     private var enabled = true
 
     private fun repo() = AdRepository(plans, store, player, { enabled }, clock, { TimeZone.UTC })
-
-    @Test
-    fun no_interstitial_on_the_day_the_letter_was_read_and_back_the_next_day() = runTest {
-        val repo = repo()
-
-        repo.skipInterstitialToday()
-        repo.afterSave()
-        repo.backToList()
-        assertEquals(0, player.shown)
-        assertEquals(0, player.prepared)
-
-        now += 1.days
-        repo.backToList()
-        assertEquals(1, player.shown)
-    }
 
     @Test
     fun interstitial_shows_once_a_day() = runTest {
@@ -78,6 +86,31 @@ class AdRepositoryTest {
         now += 1.days
         repo.backToList()
         assertEquals(2, player.shown)
+    }
+
+    @Test
+    fun the_first_interstitial_gets_a_notice_only_once() = runTest {
+        val repo = repo()
+
+        assertTrue(repo.takeInterstitialNotice())
+        assertFalse(repo.takeInterstitialNotice())
+        repo.backToList()
+        assertEquals(1, player.shown)
+
+        now += 1.days
+        assertFalse(repo.takeInterstitialNotice())
+    }
+
+    @Test
+    fun no_notice_when_no_ad_is_due() = runTest {
+        plans.plan.value = Plan.AD_FREE
+        assertFalse(repo().takeInterstitialNotice())
+
+        plans.plan.value = Plan.FREE
+        val repo = repo()
+        repo.backToList()
+        assertFalse(repo.takeInterstitialNotice())
+        assertFalse(store.current().interstitialNoticed)
     }
 
     @Test
@@ -113,7 +146,7 @@ class AdRepositoryTest {
         assertEquals(0, player.shown)
     }
 
-    /** 재설치 직후 산 사람에게 광고가 스치면 안 된다. */
+    /** 재설치 직후 산 사람에게 광고가 스치면 안 됨 */
     @Test
     fun an_unknown_plan_shows_no_ads() = runTest {
         val unknown =
@@ -143,6 +176,19 @@ class AdRepositoryTest {
         assertTrue(repo().showAds.first())
     }
 
+    /** 영상을 받는 동안 시트를 닫고 다시 [보기]를 눌러도 영상은 하나. 둘째는 첫째가 받은 보상을 그대로 알림 */
+    @Test
+    fun watching_twice_at_once_shows_one_video() = runTest {
+        val repo = repo()
+
+        val first = async { repo.watchReward() }
+        val second = async { repo.watchReward() }
+
+        assertTrue(first.await())
+        assertTrue(second.await())
+        assertEquals(1, player.rewardedShown)
+    }
+
     @Test
     fun closed_reward_gives_nothing() = runTest {
         player.reward = false
@@ -162,6 +208,40 @@ class AdRepositoryTest {
         player.ready = true
         repository.backToList()
         assertEquals(1, player.shown)
+    }
+
+    /**
+     * 광고가 화면에 나온 순간 오늘 본 것으로 기록
+     * 보는 중에 앱이 꺼져도 다시 열었을 때 또 뜨지 않음
+     */
+    @Test
+    fun the_day_is_written_when_the_ad_appears() = runTest {
+        repo().backToList()
+
+        assertEquals(null, player.dayBeforeImpression)
+        assertEquals("2026-11-05", player.dayWhileShowing)
+    }
+
+    /** 광고가 나오기 전에 꺼졌으면 본 것이 아님. 다음에 목록으로 돌아오면 다시 띄움 */
+    @Test
+    fun an_ad_closed_before_it_appeared_shows_again_next_time() = runTest {
+        val repository = repo()
+        player.impression = false
+        repository.backToList()
+        assertEquals(null, store.current().lastInterstitialDay)
+
+        player.impression = true
+        repository.backToList()
+        assertEquals(1, player.shown)
+        assertEquals("2026-11-05", store.current().lastInterstitialDay)
+    }
+
+    @Test
+    fun an_ad_that_could_not_show_leaves_no_record() = runTest {
+        player.ready = false
+        repo().backToList()
+
+        assertEquals(null, store.current().lastInterstitialDay)
     }
 
     @Test
@@ -206,7 +286,7 @@ class AdRepositoryTest {
         assertFalse(repository.showAds.first())
     }
 
-    /** 자정은 기기 시간대를 따른다(`docs/business.md` 저장 뒤 하루 1번). */
+    /** 자정은 기기 시간대를 따름(`docs/business.md` 저장 뒤 하루 1번) */
     @Test
     fun the_day_changes_at_local_midnight() = runTest {
         val repository = AdRepository(plans, store, player, { true }, clock, { TimeZone.of("Asia/Seoul") })
@@ -219,7 +299,7 @@ class AdRepositoryTest {
         assertEquals(2, player.shown, "서울은 자정이 지났다")
     }
 
-    /** 시간대를 옮겨 날짜가 뒤로 가도 그 날짜는 이미 봤다고 보아 덜 보이는 쪽으로 간다. */
+    /** 시간대를 옮겨 날짜가 뒤로 가도 그 날짜는 이미 본 것으로 보아 덜 보이는 쪽으로 감 */
     @Test
     fun flying_west_does_not_show_a_second_time() = runTest {
         var zone = TimeZone.of("Asia/Seoul")
@@ -260,7 +340,7 @@ class AdRepositoryTest {
         assertTrue(repository.showAds.first())
     }
 
-    /** iOS처럼 광고 구현이 없으면 어느 요금제든 광고가 없다. */
+    /** iOS처럼 광고 구현이 없으면 어느 요금제든 광고 없음 */
     @Test
     fun without_an_ad_player_nothing_shows() = runTest {
         val repository = AdRepository(plans, store, NoAdPlayer, { true }, clock, { TimeZone.UTC })
@@ -270,7 +350,7 @@ class AdRepositoryTest {
         repository.backToList()
     }
 
-    /** 광고를 받지 못한 날은 기록하지 않는다. 다음 저장 때 다시 뜰 수 있다. */
+    /** 광고를 받지 못한 날은 기록하지 않음. 다음 저장 때 다시 뜰 수 있음 */
     @Test
     fun a_day_without_an_ad_records_nothing() = runTest {
         player.ready = false
@@ -279,11 +359,24 @@ class AdRepositoryTest {
         assertEquals(null, store.current().lastInterstitialDay)
     }
 
-    /** 보상 시각을 시계가 앞서 있을 때 적었어도 하루를 넘겨 쉬지 못한다. */
+    /** 보상 시각을 시계가 앞서 있을 때 적었어도 하루를 넘겨 쉬지 못함 */
     @Test
     fun a_reward_written_ahead_of_the_clock_is_ignored() = runTest {
         store.rewardUntil(now + 25.hours)
 
         assertTrue(repo().showAds.first())
+    }
+
+    /** 광고를 볼 사용자만 시작 뒤 SDK를 미리 켬. Plus는 켜지 않음 */
+    @Test
+    fun only_users_who_see_ads_warm_up_the_sdk() = runTest {
+        repo().warmUp()
+        assertEquals(1, player.warmed)
+        // 오늘 전면 광고 차례가 남아 미리 받아 둠
+        assertEquals(1, player.prepared)
+
+        plans.plan.value = Plan.PLUS
+        repo().warmUp()
+        assertEquals(1, player.warmed)
     }
 }

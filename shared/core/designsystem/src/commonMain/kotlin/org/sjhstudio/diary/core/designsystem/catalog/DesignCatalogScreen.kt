@@ -68,12 +68,11 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 /**
- * 디자인 시스템 견본(FR-029).
- * 토큰(색, 글자, 간격, 모서리)과 컴포넌트를 실제 코드로 한 화면에서 본다.
- * 개발 빌드의 설정 > 개발에서만 들어간다.
- * 출시 빌드에는 이 화면으로 가는 길이 없어서 안드로이드는 R8이 코드를 뺀다.
- * 컴포넌트 안의 견본 글은 Figma 화면과 같은 지어낸 글이고 화면 문구가 아니다(문구는 각 기능의 문자열 리소스).
- * 프리뷰(`preview/ComponentPreviews.kt`)가 같은 묶음을 쓴다.
+ * 디자인 시스템 견본(FR-029)
+ * 토큰(색, 글자, 간격, 모서리)과 컴포넌트를 실제 코드로 한 화면에서 봄
+ * 개발 빌드의 설정 > 개발에서만 들어감. 출시 빌드는 들어가는 길이 없어 안드로이드는 R8이 코드를 뺌
+ * 견본 글은 Figma 화면과 같은 지어낸 글이고 화면 문구 아님(문구는 각 기능의 문자열 리소스)
+ * 프리뷰(`preview/ComponentPreviews.kt`)와 같은 묶음
  */
 @Composable
 fun DesignCatalogScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
@@ -105,10 +104,7 @@ fun DesignCatalogScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 
-/**
- * 색 토큰 전부.
- * 이름은 `DiaryColors`의 필드 이름이고 값은 지금 모드(라이트·다크)의 것이다.
- */
+/** 색 토큰 전부. 이름은 `DiaryColors` 필드 이름, 값은 지금 모드(라이트·다크) 기준 */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun CatalogColors() {
@@ -140,6 +136,8 @@ internal fun CatalogColors() {
             "overlay" to c.overlay,
             "shadow" to c.shadow,
             "mood.angry" to c.mood.angry,
+            "toneGood" to c.toneGood,
+            "toneHard" to c.toneHard,
             "mood.cool" to c.mood.cool,
             "mood.sad" to c.mood.sad,
             "mood.sick" to c.mood.sick,
@@ -186,10 +184,7 @@ private fun Swatch(name: String, color: Color) {
     }
 }
 
-/**
- * 글자 토큰 13단계.
- * 이름 뒤에 크기/줄 높이와 굵기를 붙인다.
- */
+/** 글자 토큰 13단계. 이름 뒤에 크기/줄 높이와 굵기를 붙임 */
 @Composable
 internal fun CatalogTypography() {
     val t = DiaryTheme.typography
@@ -225,10 +220,7 @@ private fun TypeSample(name: String, style: TextStyle, sample: String) {
     }
 }
 
-/**
- * 간격 단계와 모서리 단계.
- * 모서리 견본은 56이라 r28과 full이 다르게 보인다.
- */
+/** 간격 단계와 모서리 단계. 모서리 견본은 56이라 r28과 full이 달라 보임 */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun CatalogSpacing() {
@@ -292,6 +284,11 @@ internal fun CatalogButtons() {
             DiaryButton("첨부 없이 문의", {}, Modifier.weight(1f), kind = DiaryButtonKind.Secondary)
             DiaryButton("첨부해서 문의", {}, Modifier.weight(1f))
         }
+        // 누른 일을 기다리는 중
+        Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            DiaryButton("닫기", {}, Modifier.weight(1f), kind = DiaryButtonKind.Secondary)
+            DiaryButton("영상 보기", {}, Modifier.weight(1f), loading = true)
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
             DiaryButton("오늘 일기 쓰기", {}, size = DiaryButtonSize.Medium, kind = DiaryButtonKind.Weak)
             DiaryButton("백업", {}, size = DiaryButtonSize.Small, kind = DiaryButtonKind.Weak)
@@ -305,10 +302,7 @@ internal fun CatalogButtons() {
     }
 }
 
-/**
- * 설정 줄 묶음.
- * 세로로 쌓는 Column 안에서 부른다.
- */
+/** 설정 줄 묶음. 세로 Column 안에서 부름 */
 @Composable
 internal fun CatalogSettingsRows() {
     DiaryTopBar(title = "설정", onBack = {})
@@ -335,7 +329,7 @@ internal fun CatalogBoxes() {
     }
 }
 
-/** 상태 상자와 시각 고르기 휠(오후 10:00). */
+/** 상태 상자와 시각 고르기 휠(오후 10:00) */
 @Composable
 internal fun CatalogTimeWheel() {
     Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
@@ -351,10 +345,7 @@ internal fun CatalogTimeWheel() {
     }
 }
 
-/**
- * 일기 줄과 빈 상태.
- * 세로로 쌓는 Column 안에서 부른다.
- */
+/** 일기 줄과 빈 상태. 세로 Column 안에서 부름 */
 @Composable
 internal fun CatalogEntries() {
     DiaryEntryRow(
@@ -399,7 +390,7 @@ private fun Caption(text: String, color: Color) {
     )
 }
 
-/** Figma 변수와 견주기 쉽게 #AARRGGBB로. */
+/** Figma 변수와 견주기 쉽게 #AARRGGBB로 */
 private fun Color.hex(): String = "#" + toArgb().toUInt().toString(16).uppercase().padStart(8, '0')
 
 private val SwatchWidth: Dp = DiarySpacing.x14 + DiarySpacing.x6

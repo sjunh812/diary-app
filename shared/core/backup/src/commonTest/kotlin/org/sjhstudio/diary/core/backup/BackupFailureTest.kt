@@ -26,7 +26,7 @@ import org.sjhstudio.diary.core.platform.TokenResult
 import org.sjhstudio.diary.core.testing.DriveFault
 import org.sjhstudio.diary.core.testing.FakeDrive
 
-/** 백업이 실패하거나 사진이 이상할 때 드라이브와 기기가 어떻게 남는지 본다. */
+/** 백업이 실패하거나 사진이 이상할 때 드라이브와 기기가 어떻게 남는지 확인 */
 class BackupFailureTest {
     private val fs = FileSystem.SYSTEM
     private lateinit var dir: Path
@@ -106,7 +106,7 @@ class BackupFailureTest {
 
     // 기기에서 깨진 사진
 
-    /** 일기 하나에 사진 둘, 하나는 파일이 깨졌다. */
+    /** 일기 하나에 사진 둘, 하나는 파일이 깨짐 */
     private suspend fun brokenPhoto(): String {
         phone.write("diary")
         phone.photo("diary", 0, "멀쩡한 사진")
@@ -469,7 +469,7 @@ class BackupFailureTest {
 
     @Test
     fun an_edit_older_than_the_newest_entry_is_still_backed_up() = runTest {
-        // 시계가 앞선 기기의 일기가 섞여 있으면 고쳐도 가장 늦은 시각은 그대로다.
+        // 시계가 앞선 기기의 일기가 섞여 있으면 고쳐도 가장 늦은 시각은 그대로
         phone.write("from-the-future", updated = 9_000)
         phone.write("diary", updated = 10)
         done()
@@ -511,7 +511,7 @@ class BackupFailureTest {
                 done()
             }
 
-            // 최근 5개에 그보다 옛것 가운데 달마다 1개를 남긴다.
+            // 최근 5개에 그보다 옛것 가운데 달마다 1개를 남김
             val mine = manifests().filter { it.name.contains("Galaxy") }
             assertEquals(6, mine.size)
             assertEquals(theirs, manifests().size - mine.size)
@@ -550,7 +550,7 @@ class BackupFailureTest {
             done()
         }
 
-        // 최근 5개에 그보다 옛것 가운데 달마다 1개를 남기고 나머지 하나의 목록 파일과 스냅샷을 치운다.
+        // 최근 5개에 그보다 옛것 가운데 달마다 1개를 남기고 나머지 하나의 목록 파일과 스냅샷을 치움
         assertEquals(6, manifests().size)
         assertEquals(2, drive.trashedNames.size)
     }
@@ -635,7 +635,7 @@ class BackupFailureTest {
     @Test
     fun a_device_that_cannot_write_its_work_folder_fails_and_keeps_its_entries() = runTest {
         phone.write("diary")
-        // 폴더가 있어야 할 자리에 파일이 있어 쓸 수 없다.
+        // 폴더가 있어야 할 자리에 파일이 있어 쓸 수 없음
         fs.write(phone.work) { writeUtf8("막힌 자리") }
 
         assertEquals(BackupOutcome.Failed(BackupFailure.LOCAL_IO), phone.runner().run())

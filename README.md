@@ -1,124 +1,168 @@
-<img src="https://user-images.githubusercontent.com/79048895/159389254-d84a5c96-8edc-4aec-bc12-53d5e0dba38b.png" width="96" alt="1일 1일기 앱 아이콘" />
+<img src="docs/store/readme-icon.png" width="96" alt="1일 1일기 app icon" />
 
-# 1일 1일기
+# 1일 1일기 (One Day, One Diary)
 
-바쁜 사람을 위한 간편한 일기장이다. 기분을 고르고 몇 줄만 남기면 하루가 쌓인다.
-회원가입은 없고, 기록은 사진까지 내 구글 드라이브에 백업한다.
+A simple diary for busy days: pick a mood, write a few lines, and the day is saved.
+No sign-up. Your entries and photos are backed up only to your own Google Drive.
 
-[Google Play에서 받기](https://play.google.com/store/apps/details?id=org.sjhstudio.diary)
+[Get it on Google Play](https://play.google.com/store/apps/details?id=org.sjhstudio.diary)
 
-지금 Play에 있는 버전은 Java/Kotlin View로 만든 1.7.4다.
-이 저장소에서는 앱을 Compose Multiplatform으로 다시 만들고 있다.
-2.0.0은 Play에 업데이트로 내고, iOS 버전은 그다음 단계에서 App Store에 새로 낸다.
-기획은 [`docs/PRD.md`](docs/PRD.md)에 있다.
+The version on Google Play today is 1.7.4, built with Java/Kotlin Views.
+This repository is 2.0, a full rewrite in Compose Multiplatform.
+2.0.0 ships as an update on Google Play, and the iOS version follows on the App Store in the next phase.
+The app itself is in Korean, English, and Japanese.
 
-## 스크린샷
+<p>
+  <img src="docs/store/screens/phone-1.png" width="19%" alt="Picking a mood" />
+  <img src="docs/store/screens/phone-2.png" width="19%" alt="Diary list" />
+  <img src="docs/store/screens/phone-3.png" width="19%" alt="Calendar" />
+  <img src="docs/store/screens/phone-4.png" width="19%" alt="Mood insights" />
+  <img src="docs/store/screens/phone-5.png" width="19%" alt="Google Drive backup" />
+</p>
 
-지금 Play에 있는 1.7 버전 화면이다.
+## Features
 
-<img src="https://github.com/user-attachments/assets/7ce84dea-878d-4948-902d-7ae501d0d9b7" width="180" height="324" alt="1.7 버전 화면 1" />
-<img src="https://github.com/user-attachments/assets/88d595ad-af2d-4232-94ab-6db6f3b857f8" width="180" height="324" alt="1.7 버전 화면 2" />
-<img src="https://github.com/user-attachments/assets/db682753-aeb2-405d-9a89-948fe74c2f08" width="180" height="324" alt="1.7 버전 화면 3" />
-<img src="https://github.com/user-attachments/assets/0bd05396-0e7a-4ba8-981f-76b8058ce017" width="180" height="324" alt="1.7 버전 화면 4" />
-<img src="https://github.com/user-attachments/assets/dc053af8-bce2-4b8b-9160-bf7758abb9ec" width="180" height="324" alt="1.7 버전 화면 5" />
-
-## 주요 기능
-
-2.0 기준이다.
-
-- **쓰기**: 글, 사진 여러 장, 기분 9가지, 날씨 7가지, 장소를 한 편에 담는다. 굵게, 글자색, 형광펜, 목록 같은 기본 서식을 쓸 수 있고 쓰는 동안 임시 저장된다.
-- **돌아보기**: 목록, 달력, 전문 검색, 즐겨찾기, 기분 통계로 지난 일기를 찾아본다.
-- **백업과 복원**: 일기와 사진을 내 구글 드라이브에 올린다. 복원은 지금 휴대폰의 일기를 지우지 않고 합친다. 드라이브 없이 파일 하나로 보관할 수도 있다.
-- **기록 이전**: 1.7.x에 쌓인 일기, 사진, 설정을 새 앱으로 옮긴다. 원본은 고치거나 지우지 않는다.
-- **잠금과 휴지통**: 비밀번호와 생체 인증으로 잠근다. 삭제한 일기는 30일 동안 복원할 수 있다.
-- **내게 맞게**: 글꼴 10종, 본문 글자 크기, 다크 모드, 목록 모양 3가지를 고른다. 태블릿에서는 목록과 일기를 나란히 본다. 화면은 한국어, 영어, 일본어로 나온다.
-
-1.7.4의 기능과 사진 포함 백업은 계속 무료다.
-2.0부터 광고가 들어가지만 일기를 쓰고 읽는 화면에는 없다.
-광고를 없애는 평생권과 연 구독 Plus(한 편에 사진 30장, 체크리스트, 고급 통계)를 따로 판다.
-
-## 기술 스택
-
-| 영역 | 사용 |
+| Feature | Details |
 | --- | --- |
-| 언어와 UI | Kotlin 2.4, Compose Multiplatform 1.12, Material 3 |
-| 구조 | Koin 4, Navigation 3, `build-logic` convention plugin |
-| 데이터 | Room 3 + `BundledSQLiteDriver`(FTS5, `VACUUM INTO`), DataStore, Paging |
-| 편집과 미디어 | compose-rich-editor, Coil 3, FileKit, Compottie(Lottie) |
-| 백업 | Google Drive REST(Ktor), WorkManager, okio |
-| 운영 | Firebase Analytics, Crashlytics, AdMob |
-| 빌드와 검사 | AGP 9.3, Spotless(ktlint), Baseline Profile, GitHub Actions |
+| Write | Text, photos, 9 moods, 7 weather types, and a place in one entry. Bold, underline, text color, highlight, and lists. Drafts survive the app being closed. |
+| Look back | Find past entries by list, calendar, search, or favorites. Shared entries include the date and mood. |
+| Insights | See which moods came up most by week, month, or year. |
+| Backup and restore | Backs up entries and photos to your Google Drive once a day. Restoring merges with the entries already on the phone instead of erasing them. You can also move everything as a single file, without Drive. |
+| Migration from 1.7.x | Moves existing entries, photos, and settings as they are. The original data is never changed or deleted. |
+| Lock and trash | Lock with a PIN or biometrics. Deleted entries stay in the trash for 30 days. |
+| Personalize | 10 diary fonts, body text size, dark mode, and list styles. Tablets show the list and the entry side by side. |
 
-결제(RevenueCat KMP)와 위젯(Glance, WidgetKit)은 아직 넣지 않았다.
-정확한 버전은 [`gradle/libs.versions.toml`](gradle/libs.versions.toml)에 있다.
+Everything that was free in 1.7.4, including backups with photos, stays free in 2.0.
+2.0 adds ads, but never on the writing and reading screens, lock, backup, or settings.
+There are two paid options.
 
-## 모듈 구조
+| Product | Price | What you get |
+| --- | --- | --- |
+| Remove ads | ₩9,900, one-time | No ads |
+| Plus | ₩14,900 per year | No ads, 30 photos per entry (10 on free), checklists, advanced insights |
+
+## Principles
+
+All work follows the [constitution](.specify/memory/constitution.md). In short:
+
+1. **Never lose a record.** Migration and restore copy and verify the original before changing anything.
+2. **The diary belongs to the user.** Entries, photos, and places never leave the storage the user chose. They are not included in analytics or crash reports.
+3. **What was free stays free.**
+4. **No paid servers.** Diaries live in the user's own Drive.
+5. **Comfortable on any device.** Phones, foldables, tablets, and iPad get the same features.
+
+## Tech stack
+
+| Area | Used |
+| --- | --- |
+| Language and UI | Kotlin 2.4, Compose Multiplatform 1.12 |
+| Architecture | Koin 4, Navigation 3, `build-logic` convention plugins |
+| Data | Room 3 + `BundledSQLiteDriver` (FTS5, `VACUUM INTO`), DataStore, Paging |
+| Editor and media | compose-rich-editor, Coil 3, FileKit, Compottie (Lottie) |
+| Backup | Google Drive REST (Ktor), WorkManager, iOS BGTask, okio |
+| Payments and ads | RevenueCat (Android), AdMob, Firebase Remote Config |
+| Operations | Firebase Analytics, Crashlytics |
+| Build and checks | AGP 9.3, Spotless (ktlint), detekt, Android Lint, Baseline Profile, GitHub Actions |
+
+iOS payments and home screen widgets come in phase 2.
+Exact versions are in [`gradle/libs.versions.toml`](gradle/libs.versions.toml).
+
+## Project structure
 
 ```text
-composeApp/       안드로이드 앱
-iosApp/           Xcode 프로젝트
+composeApp/       Android app (MainActivity, notification receivers)
+iosApp/           Xcode project, generated from project.yml
 shared/
-  app/            시작 관문과 화면 전환 뼈대
-  core/           model, database, datastore, data, drive, backup, migration,
-                  designsystem, ui, platform, testing
+  app/            Startup gate, navigation, dependency injection
+  core/
+    model/        Values shared by screens and repositories
+    database/     Room database and DAOs
+    datastore/    Settings and state files
+    data/         Repositories (entries, trash, plans, ads, reminders)
+    drive/        Google Drive REST
+    backup/       Backup, restore, file export
+    migration/    Migration from 1.7.x
+    designsystem/ Color, type, and spacing tokens and shared components
+    ui/           Screen pieces used by several features
+    platform/     Android/iOS differences (expect/actual)
+    testing/      Test doubles
   feature/        home, write, calendar, search, insight, trash, lock,
                   migration, settings, backup, welcome, plus
-fonts/            고를 때 받는 일기 글꼴(Play 필요할 때 설치 모듈)
-benchmarks/       시작 시간 측정과 Baseline Profile 생성
-build-logic/      Gradle convention plugin과 검사 작업
-app/              1.7.4 레거시 앱. 빌드에 포함되지 않고 이전 코드의 참고용으로 둔다
+fonts/            Diary fonts downloaded on demand (Play on-demand delivery)
+benchmarks/       Startup benchmarks and Baseline Profile
+build-logic/      Gradle convention plugins and check tasks
+app/              Legacy 1.7.4 app. Not part of the build; kept as a reference for migration
 ```
 
-구조는 Now in Android와 KotlinConf 앱을 열어 보고 정했다.
-비교한 내용은 [`specs/001-foundation-migration/research.md`](specs/001-foundation-migration/research.md)에 있다.
+Dependencies flow one way: `feature → core → model`.
+Screens only draw ViewModel state, and ViewModels only talk to repository interfaces.
+A new feature is one `shared/feature/<name>` module plus a few lines in `AppModules.kt`.
+The structure is based on [Now in Android](https://github.com/android/nowinandroid) and the [KotlinConf app](https://github.com/JetBrains/kotlinconf-app).
+The comparison is in [`specs/001-foundation-migration/research.md`](specs/001-foundation-migration/research.md).
 
-## 빌드
+## Build and test
 
-Android SDK가 필요하다. JDK 17은 Gradle이 받아서 쓴다.
+You need the Android SDK. Gradle downloads JDK 17 on its own.
 
 ```bash
-./gradlew :composeApp:assembleDebug                               # 개발 APK 빌드
-ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug   # 에뮬레이터에 설치
-./gradlew spotlessCheck designTokenCheck stringResourceCheck allTests assembleDebug   # CI와 같은 검사
+./gradlew :composeApp:assembleDebug
 ```
 
-iOS는 Xcode와 xcodegen이 필요하다. Xcode 프로젝트의 원본은 `iosApp/project.yml`이다.
+```bash
+ANDROID_SERIAL=emulator-5554 ./gradlew :composeApp:installDebug
+```
+
+The same checks as CI: formatting, design tokens, coroutine safety, string resources, detekt, Android Lint, tests on both platforms, and the build.
+
+```bash
+./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug
+```
+
+iOS needs Xcode and xcodegen.
 
 ```bash
 (cd iosApp && xcodegen generate)
+```
+
+```bash
 xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator \
   -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath iosApp/build build
 ```
 
-광고 ID와 Firebase 설정 파일은 저장소에 없다. 없어도 빌드되고, 광고와 사용 통계만 꺼진다.
-넣는 방법은 [`docs/release.md`](docs/release.md)에 있다.
+- UI tests (`runComposeUiTest`) live in each module's `src/iosTest` and run on the iOS simulator.
+- ViewModel and repository tests live in `src/commonTest` and run on both platforms.
+- `designTokenCheck` fails if screen code uses raw colors, numeric `dp`/`sp`, or string literals.
+- `coroutineSafetyCheck` fails if a ViewModel uses a bare `viewModelScope.launch` or `stateIn(viewModelScope, …)`. ViewModels use `launchSafely`, `launchWrite`, and `stateInSafely` so an unexpected exception never crashes the app.
+- Ad IDs, the RevenueCat key, and Firebase config files are not in the repository. The app builds without them; ads, payments, and analytics are simply off. See [`docs/release.md`](docs/release.md) to add them.
 
-## 문서
+## Documents
 
-| 문서 | 내용 |
+The project documents are written in Korean.
+
+| Document | Contents |
 | --- | --- |
-| [`docs/PRD.md`](docs/PRD.md) | 리뉴얼 기획 총괄 |
-| [`docs/migration.md`](docs/migration.md) | 기존 기록 이전. 저장 형식을 건드리기 전에 반드시 본다 |
-| [`docs/backup.md`](docs/backup.md) | 백업, 복원, 동기화 설계 |
-| [`docs/design.md`](docs/design.md) | 디자인 시스템과 넓은 화면 규칙 |
-| [`docs/business.md`](docs/business.md) | 수익 모델과 무료·유료 범위 |
-| [`docs/release.md`](docs/release.md) | 스토어 출시 준비 |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | 결정 기록과 열린 결정 |
-| [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | 모든 작업이 지키는 원칙 |
+| [`docs/PRD.md`](docs/PRD.md) | Renewal plan overview |
+| [`docs/migration.md`](docs/migration.md) | Migrating existing records. Read before changing any storage format |
+| [`docs/backup.md`](docs/backup.md) | Backup, restore, and sync design |
+| [`docs/design.md`](docs/design.md) | Design system and large-screen rules |
+| [`docs/business.md`](docs/business.md) | Business model and free/paid scope |
+| [`docs/release.md`](docs/release.md) | Store release preparation |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Decision log |
+| [`CLAUDE.md`](CLAUDE.md) | Working rules (commits, conventions, checks) |
 
-## 개발 흐름
+## Workflow
 
-기능 하나를 `/diary-flow` 순서로 만든다. 결과는 기능마다 `specs/<번호>-<이름>/`에 남는다.
+- Each feature goes through planning, a Figma prototype, Figma design, a design review, development, and wrap-up. Results go in `specs/<number>-<name>/`.
+- Branches: `main` (release), `develop` (development), and feature branches (`feat/<name>`). Feature branches start from `develop` and merge back into it.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). A Git hook enabled by the first build checks the format.
+- UI strings go into the Korean, English, and Japanese string resources together.
 
-```text
-기획 → Figma 프로토타입 → Figma 디자인 → 디자인 점검 → 개발 → 마무리
-```
+## License
 
-`/diary-flow`는 [Spec Kit](https://github.com/github/spec-kit) 스킬을 이 순서로 묶은 Claude Code 스킬이다.
-커밋은 [Conventional Commits](https://www.conventionalcommits.org/ko/v1.0.0/)를 따르고, 첫 빌드가 켜는 Git 훅이 형식을 검사한다.
-자세한 규칙은 [`CLAUDE.md`](CLAUDE.md)에 있다.
+Copyright © 2021 서주냥 (서준형). All rights reserved.
 
-## 라이선스
+This repository is public so the code can be read, but it is not open source.
+You may not copy, modify, or distribute this code, or publish an app built from it, without written permission. See [`LICENSE`](LICENSE).
 
-아직 오픈소스 라이선스를 정하지 않았다.
-앱에 쓴 라이브러리와 글꼴의 라이선스는 앱의 설정 > 정보 > 오픈소스 라이선스에서 볼 수 있다.
+The libraries and fonts used in the app keep their own licenses.
+They are listed in the app under Settings > Open source licenses.

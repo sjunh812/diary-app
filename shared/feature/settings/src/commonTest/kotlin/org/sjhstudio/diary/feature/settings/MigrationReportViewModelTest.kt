@@ -36,7 +36,7 @@ class MigrationReportViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    // 2026-10-31 15:30 UTC는 서울로 2026-11-01 00:30이다.
+    // 2026-10-31 15:30 UTC는 서울로 2026-11-01 00:30
     private val report =
         MigrationReport(
             entriesTotal = 1_296, entriesMigrated = 1_284, entriesUnreadable = 12, photosFound = 1_998, photosMissing = 33,
@@ -45,12 +45,12 @@ class MigrationReportViewModelTest {
         )
 
     private fun migration(step: MigrationStep, result: MigrationReport?) = object : LegacyMigration by NoLegacyMigration {
-        override fun state(): MigrationState = MigrationState(step = step)
+        override suspend fun state(): MigrationState = MigrationState(step = step)
 
-        override fun report(): MigrationReport? = result
+        override suspend fun report(): MigrationReport? = result
     }
 
-    /** 옮긴 날은 기기 시간대의 날짜다. */
+    /** 옮긴 날은 기기 시간대의 날짜 */
     @Test
     fun report_and_local_day_are_shown() = runTest(dispatcher) {
         val vm = MigrationReportViewModel(migration(MigrationStep.PARTIAL, report), TimeZone.of("Asia/Seoul"), dispatcher)
@@ -67,8 +67,8 @@ class MigrationReportViewModelTest {
     }
 
     /**
-     * 미룬 기기는 다시 시도를 보이고, 실패하면 알린다.
-     * 앱은 그대로 쓴다.
+     * 미룬 기기는 다시 시도를 보이고, 실패하면 알림
+     * 앱은 그대로 씀
      */
     @Test
     fun deferred_retry_shows_failure_then_result() = runTest(dispatcher) {
@@ -76,9 +76,9 @@ class MigrationReportViewModelTest {
         var result: MigrationResult = MigrationResult.Failed(MigrationStep.COPYING, MigrationFailureKind.WRITE_ERROR)
         val migration =
             object : LegacyMigration by NoLegacyMigration {
-                override fun state(): MigrationState = MigrationState(step = step)
+                override suspend fun state(): MigrationState = MigrationState(step = step)
 
-                override fun report(): MigrationReport? = report.takeIf { step != MigrationStep.DEFERRED }
+                override suspend fun report(): MigrationReport? = report.takeIf { step != MigrationStep.DEFERRED }
             }
         val vm = MigrationReportViewModel(migration, TimeZone.UTC, dispatcher) { result }
         advanceUntilIdle()
@@ -96,9 +96,9 @@ class MigrationReportViewModelTest {
         assertEquals(report, vm.state.value.report)
     }
 
-    /** 설정 줄은 일부만 옮겨졌거나 미룬 기기에서만 둔다. */
+    /** 설정 줄은 일부만 옮겨졌거나 미룬 기기에서만 둠 */
     @Test
-    fun settings_row_only_for_partial_or_deferred() {
+    fun settings_row_only_for_partial_or_deferred() = runTest {
         assertTrue(showsMigrationReport(migration(MigrationStep.PARTIAL, report)))
         assertTrue(showsMigrationReport(migration(MigrationStep.DEFERRED, null)))
         assertFalse(showsMigrationReport(migration(MigrationStep.DONE, report)))

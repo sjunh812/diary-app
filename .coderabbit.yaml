@@ -15,10 +15,10 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
-    # 리뉴얼이 master에 합쳐지기 전까지 기능 PR의 기준은 feat/foundation-migration이다.
+    # develop은 개발, main은 배포 브랜치다. master는 옛 소스 보관용이라 리뷰하지 않는다(2026-11-07 브랜치 결정).
     base_branches:
-      - master
-      - feat/foundation-migration
+      - develop
+      - main
   path_filters:
     # 레거시 앱은 참고용이고 고치지 않는다.
     - "!app/**"

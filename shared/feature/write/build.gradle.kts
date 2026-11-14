@@ -1,4 +1,4 @@
-// 쓰기와 수정 화면.
+// 쓰기와 수정 화면
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }
@@ -15,7 +15,7 @@ kotlin {
             implementation(libs.compose.ui.backhandler)
         }
         androidMain.dependencies {
-            // 현재 위치를 가져올 때 위치 권한 창을 띄운다.
+            // 현재 위치를 가져올 때 위치 권한 창을 띄움
             implementation(libs.androidx.activity.compose)
         }
     }

@@ -2,3 +2,4 @@
 "NSFaceIDUsageDescription" = "Face IDで日記のロックを解除します。";
 "NSLocationWhenInUseUsageDescription" = "［現在地を使う］をタップしたときだけ位置情報を読み取り、地域名を調べます。";
 "NSCameraUsageDescription" = "撮った写真を日記に入れるときだけカメラを使います。";
+"NSUserTrackingUsageDescription" = "許可すると、興味に合った広告が表示されます。日記の内容は広告に使いません。";

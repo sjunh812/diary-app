@@ -1,12 +1,9 @@
 package org.sjhstudio.diary.core.model
 
-/**
- * 날씨 7종.
- * DB와 백업에는 소문자 [id]를 둔다.
- */
+/** 날씨 7종. DB와 백업에는 소문자 [id]를 둠 */
 enum class Weather(
     val id: String,
-    /** 레거시 `weather` 값. */
+    /** 레거시 `weather` 값 */
     val legacyCode: Int
 ) {
     SUNNY("sunny", 0),

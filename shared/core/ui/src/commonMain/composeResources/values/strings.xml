@@ -25,4 +25,13 @@
     <string name="entry_menu_unfavorite">Remove from favorites</string>
     <string name="entry_menu_share">Share</string>
     <string name="entry_menu_trash">Move to Trash</string>
+    <string name="ui_previous_year">Previous year</string>
+    <string name="ui_next_year">Next year</string>
+    <string name="ui_previous_month">Previous month</string>
+    <string name="ui_next_month">Next month</string>
+    <string name="share_when">%2$s, %1$s, %3$s</string>
+    <string name="load_failed_title">Couldn't load your entries</string>
+    <string name="load_failed_body">Try again in a moment.</string>
+    <string name="load_failed_retry">Try again</string>
+    <string name="link_no_browser">Couldn't find a browser app.</string>
 </resources>

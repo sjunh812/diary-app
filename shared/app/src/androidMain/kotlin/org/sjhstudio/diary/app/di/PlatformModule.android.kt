@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.app.di
 
+import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
@@ -12,6 +13,8 @@ import okio.Path.Companion.toPath
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.CurrentActivity
+import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.ads.AdMobPlayer
 import org.sjhstudio.diary.app.ads.AdUnits
 import org.sjhstudio.diary.app.ads.adSwitch
@@ -26,6 +29,7 @@ import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.asEntity
@@ -39,6 +43,7 @@ import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.migration.MigrationPaths
 import org.sjhstudio.diary.core.migration.MigrationRunner
 import org.sjhstudio.diary.core.migration.MigrationTelemetry
+import org.sjhstudio.diary.core.migration.OneAtATimeMigration
 import org.sjhstudio.diary.core.migration.OriginalExporter
 import org.sjhstudio.diary.core.migration.SnapshotLegacyArchive
 import org.sjhstudio.diary.core.migration.SupportBundle
@@ -60,29 +65,35 @@ import org.sjhstudio.diary.core.platform.DeviceName
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.FreeSpace
+import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
 import org.sjhstudio.diary.core.platform.TelemetrySink
+import org.sjhstudio.diary.core.ui.AndroidFontWarmup
+import org.sjhstudio.diary.core.ui.FontWarmup
 
 @OptIn(ExperimentalUuidApi::class)
 internal actual val platformModule: Module =
     module {
         single { AppFiles(androidContext()) }
-        // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않는다.
-        // 광고 SDK는 처음 부를 때 켜진다.
-        single<AdPlayer>(createdAtStart = true) { AdMobPlayer(androidContext(), AdUnits(androidContext())) }
+        // 앱이 켜질 때 만들어야 지금 화면을 놓치지 않음
+        single(createdAtStart = true) { CurrentActivity(androidContext().applicationContext as Application) }
+        // 광고 SDK는 처음 부를 때 켜짐
+        single<AdPlayer> { AdMobPlayer(androidContext(), AdUnits(androidContext()), get()) }
         single<AdSwitch> { adSwitch(androidContext()) }
-        // 앱이 켜질 때 만들어야 재설치 뒤 구매를 바로 되찾는다.
-        single(createdAtStart = true) { billing(androidContext()) }
-        single<PlanRepository> { get<Billing>() }
-        single<PurchaseRepository> { get<Billing>() }
+        // 재설치 뒤 구매를 바로 복원하게 앱 시작 때 만듦. 디스크를 읽어 화면 스레드가 아니라 시작 단계에서
+        single { billing(androidContext(), get()) }
+        single<StartupWork> { StartupWork { get<Billing>() } }
+        single<PlanRepository> { get<Billing>().plans }
+        single<PurchaseRepository> { get<Billing>().purchases }
         single<TelemetrySink> { telemetrySink(androidContext()) }
         single<ReminderScheduler> { AndroidReminderScheduler(androidContext()) }
         single<NotificationPermission> { AndroidNotificationPermission(androidContext()) }
         single<PlaceFinder> { AndroidPlaceFinder(androidContext()) }
         single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }
+        single<FontWarmup> { AndroidFontWarmup(androidContext()) { font -> get<FontInstaller>().installedPath(font.id) } }
         single { DatabaseFactory(androidContext(), get()) }
         single { AndroidDriveAuthorizer(androidContext()) }
         single<DriveAuthorizer> { get<AndroidDriveAuthorizer>() }
@@ -93,10 +104,15 @@ internal actual val platformModule: Module =
         single<FreeSpace> { AndroidFreeSpace(androidContext()) }
         single {
             val importer =
-                MediaImporter(FileSystem.SYSTEM, get<AppFiles>().mediaDirectory.toPath(), AndroidImageSizeReader, Clock.System) {
-                    Uuid.random().toString()
-                }
-            // 찾지 못한 사진은 합치는 쪽이 찾을 수 없는 사진 줄로 남긴다.
+                MediaImporter(
+                    FileSystem.SYSTEM,
+                    get<AppFiles>().mediaDirectory.toPath(),
+                    AndroidImageSizeReader,
+                    Clock.System,
+                    newId = { Uuid.random().toString() },
+                    shrink = ThumbnailEncoder(ImageDecoder::writeThumbnail)
+                )
+            // 찾지 못한 사진은 합치는 쪽이 찾을 수 없는 사진 줄로 남김
             LegacyPhotoCopier { entryId, order, fragment ->
                 importer.importOne(entryId, order, fragment).takeIf { it.found }?.media?.asEntity()
             }
@@ -117,41 +133,45 @@ internal actual val platformModule: Module =
         }
         single<LegacyArchive> { SnapshotLegacyArchive(FileSystem.SYSTEM, get(), Clock.System, TimeZone.currentSystemDefault()) }
         single { OriginalExporter(FileSystem.SYSTEM, get()) }
-        // 복구 문의 묶음(FR-010a).
-        // 지우는 때는 SupportFiles가 정한다.
+        // 복구 문의 묶음(FR-010a)
+        // 삭제 시점은 SupportFiles가 정함
         single {
             SupportBundle(FileSystem.SYSTEM, get(), SupportFiles(FileSystem.SYSTEM, get<MigrationPaths>().migrationDir, Clock.System))
         }
-        // 이전 단계 알림.
-        // 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어쓴다(quickstart §3).
+        // 이전 단계 알림
+        // 출시 빌드는 사용 통계만, 개발 빌드는 강제 종료 훅이 이 자리를 덮어씀(quickstart §3)
         single<MigrationEvents> { MigrationTelemetry(get()) }
-        // 1.7.x 잠금과 설정을 이전보다 먼저 잇는다(research R16).
-        // 이전을 시작한 뒤에는 하지 않는다.
+        // 1.7.x 잠금과 설정을 이전보다 먼저 이음(research R16)
+        // 이전을 시작한 뒤에는 하지 않음
         single {
             LegacyLockBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get(), get())
         }
         single { LegacySettingsBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get()) }
-        // 1.7.x 원본이 같은 패키지에 남아 있으면 옮긴다(docs/migration.md).
+        // 1.7.x 원본이 같은 패키지에 남아 있으면 옮김(docs/migration.md)
         single<LegacyMigration> {
             val files = get<AppFiles>()
             val factory = get<DatabaseFactory>()
-            MigrationRunner(
-                fileSystem = FileSystem.SYSTEM,
-                paths = get(),
-                clock = Clock.System,
-                timeZone = TimeZone.currentSystemDefault(),
-                newId = { Uuid.random().toString() },
-                freeBytes = ::freeBytes,
-                openDatabase = factory::createAt,
-                imageSize = AndroidImageSizeReader,
-                events = get(),
-                versionCode = versionCode(androidContext()),
-                makeThumbnail = get<ThumbnailRepository>()::ensure
+            // 다시 시도와 설정의 다시 옮기기가 겹쳐도 하나씩 실행
+            OneAtATimeMigration(
+                MigrationRunner(
+                    fileSystem = FileSystem.SYSTEM,
+                    paths = get(),
+                    clock = Clock.System,
+                    timeZone = TimeZone.currentSystemDefault(),
+                    newId = { Uuid.random().toString() },
+                    freeBytes = ::freeBytes,
+                    openDatabase = factory::createAt,
+                    imageSize = AndroidImageSizeReader,
+                    events = get(),
+                    versionCode = versionCode(androidContext()),
+                    makeThumbnail = get<ThumbnailRepository>()::ensure,
+                    shrink = ThumbnailEncoder(ImageDecoder::writeThumbnail)
+                )
             )
         }
     }
 
-/** 설치된 앱의 versionCode. 업데이트 뒤 다시 읽기(FR-011)가 버전을 견준다. */
+/** 설치된 앱의 versionCode. 업데이트 뒤 다시 읽기(FR-011)의 버전 비교용 */
 private fun versionCode(context: Context): Int {
     val info = context.packageManager.getPackageInfo(context.packageName, 0)
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

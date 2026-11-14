@@ -32,18 +32,26 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.platform.BackupAlertPoster
+import org.sjhstudio.diary.helper.AlarmReceiver
 
 /**
- * 개발자 모드. 설정 맨 아래 줄로 들어오고 출시 빌드에는 없다.
- * 앱과 같은 화면 모드를 따라서 기기 설정과 달라도 앱과 같게 보인다.
- * 개발자만 보는 화면이라 문구를 리소스에 두지 않는다.
+ * 개발자 모드. 설정 맨 아래 줄로 들어오고 출시 빌드에는 없음
+ * 앱과 같은 화면 모드를 따라 기기 설정과 달라도 앱과 같게 보임
+ * 개발자만 보는 화면이라 문구를 리소스에 두지 않음
  */
 class DevModeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험한다.
+        // adb로 --ez crash true를 넘기면 비정상 종료 보고가 콘솔에 닿는지 시험
         if (intent.getBooleanExtra(EXTRA_CRASH, false)) crash()
+        // adb로 --es notify reminder|backup을 넘기면 실제 알림을 띄우고 닫음. 알림으로 열 때 화면이 쌓이는지 시험
+        intent.getStringExtra(EXTRA_NOTIFY)?.let {
+            notify(it)
+            finish()
+            return
+        }
         val plans = get<PlanRepository>() as DevPlanRepository
         val ads = get<AdStore>()
         val themeMode = get<SettingsRepository>().settings.map { it.themeMode }
@@ -97,16 +105,26 @@ class DevModeActivity : ComponentActivity() {
         startActivity(Intent(this, ScreenCatalogActivity::class.java).putExtra(ScreenCatalogActivity.EXTRA_SCREEN, screen))
     }
 
+    private fun notify(kind: String) {
+        when (kind) {
+            "reminder" -> AlarmReceiver().showReminder(this)
+            "backup" -> BackupAlertPoster(this, "백업").show("백업 알림 시험", "누르면 앱이 열려요")
+        }
+    }
+
     private fun crash() {
         window.decorView.post { error("Crashlytics 시험") }
     }
 
     private companion object {
         const val EXTRA_CRASH = "crash"
+        const val EXTRA_NOTIFY = "notify"
         val SCREENS =
             listOf(
                 "개발자의 편지(봉투)" to "letter",
                 "편지 다시 읽기" to "full_letter",
+                "온보딩 (업데이트한 사람)" to "onboarding_updated",
+                "온보딩 (새로 설치)" to "onboarding_new",
                 "디자인 시스템 견본" to "design_catalog",
                 "기록 이전 결과" to "migration_report",
                 "1만 편 목록" to "list_performance"

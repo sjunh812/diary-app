@@ -11,6 +11,8 @@
     <string name="write_camera">カメラ</string>
     <string name="write_photo_count">%1$d/%2$d</string>
     <string name="write_photo_remove">写真を外す</string>
+    <string name="write_photo_removed">写真を外しました</string>
+    <string name="write_photo_undo">元に戻す</string>
     <string name="write_photo_limit">写真は1件につき%1$d枚まで追加できます</string>
     <string name="write_entry_changed">その間にこの日記が変わりました。保存すると両方残ります。</string>
     <string name="write_adding_photos">写真を追加しています…</string>
@@ -19,6 +21,7 @@
     <string name="write_photo_no_space">空き容量が足りず、一部の写真を追加できませんでした</string>
     <string name="write_photo_unreadable">読み込めない写真がありました</string>
     <string name="write_save_failed">保存できませんでした。書いた内容は残っているので、もう一度タップしてください。</string>
+    <string name="write_open_failed">日記を読み込めませんでした。閉じてからもう一度開いてください。</string>
     <string name="write_format_bold">太字</string>
     <string name="write_format_underline">下線</string>
     <string name="write_format_color">文字色</string>
@@ -62,8 +65,11 @@
     <string name="write_place_off">デバイスの位置情報がオフになっています。</string>
     <string name="write_place_not_found">現在地を取得できませんでした。直接入力してください。</string>
     <string name="write_place_settings">設定を開く</string>
+    <string name="write_camera_off_title">カメラへのアクセスがオフです</string>
+    <string name="write_camera_off_message">設定でカメラを許可すると写真を撮れます。</string>
     <string name="write_mood_body">気分を残すと、ふりかえりで変化を確認できます。</string>
     <string name="write_weather_body">その日の天気を残すと、読み返すときに思い出しやすくなります。</string>
     <string name="write_checklist_plus_title">チェックリストはPlusで使えます</string>
     <string name="write_checklist_plus_body">書いた内容はそのままです。作成済みのチェックリストも引き続き使えます。</string>
+    <string name="tip_photo_reorder">写真を長押ししてドラッグすると、順番を変えられます。</string>
 </resources>

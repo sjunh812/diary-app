@@ -1,4 +1,4 @@
-// 개발자의 편지, 온보딩, 새 소식.
+// 개발자의 편지, 온보딩, 새 소식
 plugins {
     alias(libs.plugins.diary.kmp.feature)
 }

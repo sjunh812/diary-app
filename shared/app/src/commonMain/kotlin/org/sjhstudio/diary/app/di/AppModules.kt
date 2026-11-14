@@ -13,10 +13,13 @@ import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
+import org.sjhstudio.diary.app.StartupWork
+import org.sjhstudio.diary.app.backup.BackupSettingsBridge
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.navigation.AppLaunch
+import org.sjhstudio.diary.app.scaffold.appShellModule
 import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
@@ -34,12 +37,12 @@ import org.sjhstudio.diary.core.backup.RestoreController
 import org.sjhstudio.diary.core.backup.RestorePlanner
 import org.sjhstudio.diary.core.backup.RollbackManager
 import org.sjhstudio.diary.core.backup.backupToOffer
+import org.sjhstudio.diary.core.backup.offerIfNew
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.PlanRepository
-import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
@@ -73,17 +76,17 @@ import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
-import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
-import org.sjhstudio.diary.core.model.ListStyle
-import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.ImageDecoder
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.devicePinKeyStore
+import org.sjhstudio.diary.core.ui.FontWarmup
+import org.sjhstudio.diary.core.ui.SafetyNet
 import org.sjhstudio.diary.feature.backup.backupAlertText
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.backup.backupFolderText
@@ -102,14 +105,14 @@ import org.sjhstudio.diary.feature.write.WriteMediaPath
 import org.sjhstudio.diary.feature.write.writeFeatureModule
 
 /**
- * 앱 프로세스와 함께 사는 코루틴 범위.
- * DataStore와 시작 작업이 쓴다.
+ * 앱 프로세스와 함께 사는 코루틴 범위
+ * DataStore와 시작 작업이 씀
  */
 internal val APP_SCOPE = named("appScope")
 
 /**
- * 앱 범위의 일 하나가 실패해도 앱이 꺼지지 않는다.
- * 예외 메시지에는 일기 내용이 섞일 수 있어 [report]에는 종류만 넘긴다.
+ * 앱 범위의 일 하나가 실패해도 앱이 꺼지지 않음
+ * 예외 메시지에는 일기 내용이 섞일 수 있어 [report]에는 종류만 넘김
  */
 internal fun appCoroutineScope(
     context: CoroutineContext = Dispatchers.IO,
@@ -119,7 +122,7 @@ internal fun appCoroutineScope(
     return CoroutineScope(SupervisorJob() + context + handler)
 }
 
-/** 플랫폼마다 다른 것: 파일 자리([AppFiles])와 DB 만들기([DatabaseFactory]). */
+/** 플랫폼마다 다른 것: 파일 자리([AppFiles])와 DB 만들기([DatabaseFactory]) */
 internal expect val platformModule: Module
 
 internal fun appModules(isDebug: Boolean): List<Module> = listOf(
@@ -136,46 +139,71 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
     backupFeatureModule,
     welcomeFeatureModule,
     plusFeatureModule,
+    appShellModule,
+    coreModule(isDebug),
+    diaryDataModule,
+    backupModule
+)
+
+/** 시작, 설정, 잠금, 알림, 통계, 광고 */
+private fun coreModule(isDebug: Boolean) = module {
+    single(APP_SCOPE) { appCoroutineScope() }
+    single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
+    single { SettingsStore(get<DataStoreFactory>().settings()) }
+    single { LockStore(get<DataStoreFactory>().lock()) }
+    single<SettingsRepository> { DefaultSettingsRepository(get()) }
+    // 잠금 확인값은 기기 키로 만듦(research R11)
+    single<LockRepository> { DefaultLockRepository(get(), devicePinKeyStore()) }
+    single { LockController(get(), get(APP_SCOPE)) }
+    // 매일 알림(FR-022)
+    // 앱을 열 때와 알림 수신기가 다시 예약
+    single { ReminderRepository(get(), get()) }
+    single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
+    single { AppLaunch() }
+    // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꿈(스펙 001 T028)
+    // 앱을 열 때 만들어 화면 모델 안전망이 받은 예외를 처음부터 보고함
+    single(createdAtStart = true) { Telemetry(get(), strict = isDebug).also { telemetry -> SafetyNet.report = telemetry::caught } }
+    single {
+        // 옛 앱이 없는 iOS에는 잠금·설정 잇기 없음
+        val legacyLock = getOrNull<LegacyLockBootstrap>()
+        val legacySettings = getOrNull<LegacySettingsBootstrap>()
+        Startup(
+            get<AppFiles>()::ensureDirectories,
+            get(),
+            get(),
+            get(APP_SCOPE),
+            bootstrapLegacyLock = { legacyLock?.run() },
+            bootstrapLegacySettings = { legacySettings?.run() },
+            platformWork = { getOrNull<StartupWork>()?.run() },
+            knowFont = { getOrNull<FontInstaller>()?.installedPath(it.font.id) },
+            warmFont = { getOrNull<FontWarmup>()?.warm(it.font) },
+            afterReady = {
+                get<ReminderRepository>().reschedule()
+                // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작(이전 직후 포함)
+                // 따로 돌아 다른 일을 막지 않음
+                get<ChosenFontDownload>().start()
+                // 글꼴 설정 화면이 받아 둔 글꼴을 처음부터 맞게 그리게 파일 확인을 미리 해 둠
+                getOrNull<FontInstaller>()?.let { installer -> DiaryFont.entries.forEach { installer.installedPath(it.id) } }
+                get<AdRepository>().warmUp()
+            }
+        )
+    }
+    single<WelcomeRepository> {
+        DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome())) { get<LegacyMigration>().report()?.entriesMigrated }
+    }
+    single<ContextTips> { get<WelcomeRepository>() }
+    single { AdStore(get<DataStoreFactory>().ads()) }
+    single { AdRepository(get(), get(), get(), get()) }
+}
+
+/** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */
+private val diaryDataModule =
     module {
-        single(APP_SCOPE) { appCoroutineScope() }
-        single { DataStoreFactory(get<AppFiles>().dataStoreDirectory, get(APP_SCOPE)) }
-        single { SettingsStore(get<DataStoreFactory>().settings()) }
-        single { LockStore(get<DataStoreFactory>().lock()) }
-        single<SettingsRepository> { DefaultSettingsRepository(get()) }
-        // 잠금 확인값은 기기 키로 만든다(research R11).
-        single<LockRepository> { DefaultLockRepository(get(), devicePinKeyStore()) }
-        single { LockController(get(), get(APP_SCOPE)) }
-        // 매일 알림(FR-022).
-        // 앱을 열 때와 알림 수신기가 다시 예약한다.
-        single { ReminderRepository(get(), get()) }
-        single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
-        single { AppLaunch() }
-        // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꾼다(스펙 001 T028).
-        single { Telemetry(get(), strict = isDebug) }
-        single {
-            // 옛 앱이 없는 iOS에는 잠금·설정 잇기가 없다.
-            val legacyLock = getOrNull<LegacyLockBootstrap>()
-            val legacySettings = getOrNull<LegacySettingsBootstrap>()
-            Startup(
-                get<AppFiles>()::ensureDirectories,
-                get(),
-                get(),
-                get(APP_SCOPE),
-                bootstrapLegacyLock = { legacyLock?.run() },
-                bootstrapLegacySettings = { legacySettings?.run() },
-                afterReady = {
-                    get<ReminderRepository>().reschedule()
-                    // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작한다(이전 직후 포함).
-                    // 따로 돌아 다른 일을 막지 않는다.
-                    get<ChosenFontDownload>().start()
-                }
-            )
-        }
-        // 처음 쓸 때 연다.
-        // 시작 단계에서는 열지 않는다.
+        // 처음 쓸 때 열기
+        // 시작 단계에서는 열지 않음
         single { get<DatabaseFactory>().create() }
-        // 썸네일(research R9).
-        // 사진 칸과 기록 이전이 같이 쓴다.
+        // 썸네일(research R9)
+        // 사진 칸과 기록 이전이 같이 씀
         single {
             val files = get<AppFiles>()
             ThumbnailRepository(
@@ -185,22 +213,52 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 ThumbnailEncoder(ImageDecoder::writeThumbnail)
             )
         }
-        // 일기 저장소(스펙 002).
-        // 일기 DB는 이전 관문을 지난 뒤 화면이 처음 쓸 때 열린다.
+        // 일기 저장소(스펙 002)
+        // 일기 DB는 이전 관문을 지난 뒤 화면이 처음 쓸 때 열림
         single {
             val files = get<AppFiles>()
             PhotoStore(FileSystem.SYSTEM, files.mediaDirectory.toPath(), ThumbnailEncoder(ImageDecoder::writeThumbnail), ImageDecoder::size)
         }
-        // 백업(스펙 003).
-        // 드라이브와 일기 DB는 처음 쓸 때 연다.
-        single { BackupStore(get<DataStoreFactory>().backup()) }
-        single<WelcomeRepository> {
-            DefaultWelcomeRepository(
-                WelcomeStore(get<DataStoreFactory>().welcome()),
-                onLetterRead = { get<AdRepository>().skipInterstitialToday() }
-            ) { get<LegacyMigration>().report()?.entriesMigrated }
+        // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾음
+        single<DraftRepository> {
+            val koin = getKoin()
+            DefaultDraftRepository(get(), get(), photoLimit = { koin.get<PlanRepository>().awaitConfirmed().photoLimit })
         }
-        single<ContextTips> { get<WelcomeRepository>() }
+        single<StatsRepository> { DefaultStatsRepository(get()) }
+        single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
+        single<MediaRepository> {
+            val files = get<AppFiles>()
+            DefaultMediaRepository(
+                get(),
+                FileSystem.SYSTEM,
+                files.mediaDirectory.toPath(),
+                files.thumbnailDirectory.toPath(),
+                // 되돌릴 수 있는 동안에는 바꾸기 전 일기가 가리키던 사진을 지우지 않음
+                keepEverything = { get<BackupStore>().current().rollbackUntil != null }
+            )
+        }
+        single { DiaryCleanup(get(), get(), keepPhotos = { get<LegacyMigration>().keepsPhotoCopies() }) }
+        single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
+        single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
+        // 이전이 끝난 기기의 후속 작업(FR-011)
+        // 일기 DB는 이전이 끝난 뒤에만 꺼냄
+        single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
+    }
+
+/** 백업·복원(스펙 003). 드라이브와 일기 DB는 처음 쓸 때 열림 */
+private val backupModule =
+    module {
+        // 백업에 담는 설정과 복원할 때 적용할 설정(contracts/merge-rules.md "설정")
+        single {
+            BackupSettingsBridge(
+                settings = get(),
+                lockEnabled = { get<LockRepository>().settings.first().enabled },
+                reschedule = { get<ReminderRepository>().reschedule() }
+            )
+        }
+        // 백업(스펙 003)
+        // 드라이브와 일기 DB는 처음 쓸 때 열기
+        single { BackupStore(get<DataStoreFactory>().backup()) }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
         single { BackupGate() }
         single {
@@ -217,7 +275,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 workDir = files.backupDirectory.toPath(),
                 app = get(),
                 readme = { backupReadme() },
-                settings = { currentBackupSettings(get(), get()) },
+                settings = { get<BackupSettingsBridge>().current() },
                 alerts = get(),
                 gate = get(),
                 dataReady = { !get<LegacyMigration>().needsMigration() }
@@ -236,7 +294,12 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 scope = get(APP_SCOPE),
                 migrated = { get<LegacyMigration>().report() != null },
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
-                findBackup = { backupToOffer(get<RestoreRepository>().backups(), get<LegacyMigration>().report() != null) },
+                findBackup = {
+                    val restore = get<RestoreRepository>()
+                    val latest = backupToOffer(restore.backups(), get<LegacyMigration>().report() != null)
+                    // 권하지 않으면 확인하려고 받은 사본을 지움
+                    offerIfNew(latest) { restore.prepare(it) }.also { if (it == null && latest != null) restore.dismiss() }
+                },
                 alerts = get()
             )
         }
@@ -245,25 +308,25 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
             val work = files.backupDirectory.toPath()
             val media = files.mediaDirectory.toPath()
             val system = FileSystem.SYSTEM
-            // DB만 늦게 연다.
-            // 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 한다.
+            // DB만 늦게 열기
+            // 나머지는 여기서 꺼내 빠진 부품이 앱을 켤 때 바로 드러나게 함
             val drive = get<DriveApi>()
             val copier = get<LegacyPhotoCopier>()
             val freeSpace = get<FreeSpace>()
             val settings = get<SettingsRepository>()
-            val lock = get<LockRepository>()
             val store = get<BackupStore>()
             val deviceName = get<DeviceName>()
             val appInfo = get<BackupAppInfo>()
             val database = lazy { get<DiaryDatabase>() }
             val applier = lazy { MergeApplier(database.value, { system.exists(media / it) }) }
             val legacy = lazy { LegacyBackupImporter(database.value, drive, copier, system, work) }
-            val applyBackup: suspend (ManifestSettings) -> Unit = { applyBackupSettings(settings, it) }
+            val bridge = get<BackupSettingsBridge>()
+            val applyBackup: suspend (ManifestSettings) -> Unit = bridge::apply
             RestoreController(
                 catalog =
                     lazy {
                         RestoreCatalog(get(), system, work) {
-                            legacy.value.find(get<SettingsRepository>().settings.first().legacyBackup?.fileId)
+                            legacy.value.find(settings.settings.first().legacyBackup?.fileId)
                         }
                     },
                 planner = lazy { RestorePlanner(drive, applier.value, freeSpace, system, work, store::deviceId) },
@@ -281,7 +344,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                             workDir = work,
                             app = appInfo,
                             readme = { backupReadme() },
-                            settings = { currentBackupSettings(settings, lock) }
+                            settings = { bridge.current() }
                         )
                     },
                 rollbackManager =
@@ -293,7 +356,7 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                             freeSpace = freeSpace,
                             fileSystem = system,
                             rootDir = work,
-                            currentSettings = { currentBackupSettings(settings, lock) },
+                            currentSettings = { bridge.current() },
                             applySettings = applyBackup
                         )
                     },
@@ -306,64 +369,8 @@ internal fun appModules(isDebug: Boolean): List<Module> = listOf(
                 workDir = work,
                 applySettings = applyBackup,
                 scope = get(APP_SCOPE),
-                gate = get()
+                gate = get(),
+                lockOnHere = { get<LockRepository>().settings.first().enabled }
             )
         }
-        single { AdStore(get<DataStoreFactory>().ads()) }
-        single { AdRepository(get(), get(), get(), get()) }
-        // 개발 빌드가 요금제를 바꿔 끼울 수 있게 부를 때마다 찾는다.
-        single<DraftRepository> {
-            val koin = getKoin()
-            DefaultDraftRepository(get(), get(), photoLimit = { koin.get<PlanRepository>().plan.value.photoLimit })
-        }
-        single<StatsRepository> { DefaultStatsRepository(get()) }
-        single<TrashRepository> { DefaultTrashRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
-        single<MediaRepository> {
-            val files = get<AppFiles>()
-            DefaultMediaRepository(
-                get(),
-                FileSystem.SYSTEM,
-                files.mediaDirectory.toPath(),
-                files.thumbnailDirectory.toPath(),
-                // 되돌릴 수 있는 동안에는 바꾸기 전 일기가 가리키던 사진을 지우지 않는다.
-                keepEverything = { get<BackupStore>().current().rollbackUntil != null }
-            )
-        }
-        single { DiaryCleanup(get(), get(), keepPhotos = { get<LegacyMigration>().keepsPhotoCopies() }) }
-        single<EntryRepository> { DefaultEntryRepository(get(), get<AppFiles>().mediaDirectory.toPath()) }
-        single { WriteMediaPath { name -> (get<AppFiles>().mediaDirectory.toPath() / name).toString() } }
-        // 이전이 끝난 기기의 후속 작업(FR-011).
-        // 일기 DB는 이전이 끝난 뒤에만 꺼낸다.
-        single { MigrationFollowUp(get()) { get<DiaryDatabase>() } }
     }
-)
-
-private suspend fun currentBackupSettings(repository: SettingsRepository, lock: LockRepository): ManifestSettings {
-    val settings = repository.settings.first()
-    return ManifestSettings(
-        font = settings.font.id,
-        bodyTextSize = settings.bodyTextSize.id,
-        themeMode = settings.themeMode.id,
-        reminderEnabled = settings.reminderEnabled,
-        reminderMinuteOfDay = settings.reminderMinuteOfDay,
-        listStyle = settings.list.listStyle.id,
-        favoritesOnly = settings.list.favoritesOnly,
-        askLocationAgain = settings.askLocationAgain,
-        lockEnabled = lock.settings.first().enabled
-    )
-}
-
-/**
- * 잠금과 백업 설정은 바꾸지 않는다(contracts/merge-rules.md "설정").
- * 알림은 값이 바뀌면 다시 예약된다.
- */
-private suspend fun applyBackupSettings(repository: SettingsRepository, backup: ManifestSettings) {
-    DiaryFont.fromId(backup.font)?.let { repository.setFont(it) }
-    BodyTextSize.fromId(backup.bodyTextSize)?.let { repository.setBodyTextSize(it) }
-    ThemeMode.fromId(backup.themeMode)?.let { repository.setThemeMode(it) }
-    backup.listStyle?.let { repository.setListStyle(ListStyle.fromId(it)) }
-    backup.askLocationAgain?.let { repository.setAskLocationAgain(it) }
-    val minute = backup.reminderMinuteOfDay
-    val enabled = backup.reminderEnabled
-    if (enabled != null && minute != null) repository.setReminder(enabled, minute)
-}

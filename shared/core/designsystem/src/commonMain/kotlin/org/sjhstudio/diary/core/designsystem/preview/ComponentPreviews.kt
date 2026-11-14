@@ -23,6 +23,8 @@ import org.sjhstudio.diary.core.designsystem.catalog.DesignCatalogScreen
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlot
+import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlots
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
@@ -32,15 +34,14 @@ import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
-// 디자인 시스템 토큰과 컴포넌트 프리뷰.
-// 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같다.
-// 견본 글은 Figma 화면과 같은 지어낸 글이고 화면 문구가 아니다(문구는 각 기능의 문자열 리소스).
-// 한국어를 먼저 보고, 라이트와 다크를 나란히 둔다.
+// 디자인 시스템 토큰과 컴포넌트 프리뷰
+// 묶음은 디자인 견본 화면(`catalog/DesignCatalogScreen.kt`)과 같음
+// 견본 글은 Figma 화면과 같은 지어낸 글이고 화면 문구 아님(문구는 각 기능의 문자열 리소스)
+// 한국어를 먼저 보고, 라이트와 다크를 나란히
 
 /**
- * 프리뷰 바탕.
- * 폰 폭 390에 화면 바탕색을 깐다.
- * 다른 모듈의 프리뷰도 쓴다.
+ * 프리뷰 바탕. 폰 폭 390에 화면 바탕색을 깖
+ * 다른 모듈의 프리뷰도 씀
  */
 @Composable
 fun PreviewCanvas(dark: Boolean, content: @Composable () -> Unit) {
@@ -89,7 +90,7 @@ private fun ButtonPairLight() = PreviewCanvas(dark = false) { ButtonPairs() }
 @Composable
 private fun ButtonPairDark() = PreviewCanvas(dark = true) { ButtonPairs() }
 
-/** 글이 반 칸에 들어가면 나란히, 넘치면 위아래로 쌓인다. */
+/** 글이 반 칸에 들어가면 나란히, 넘치면 위아래로 쌓임 */
 @Composable
 private fun ButtonPairs() = Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
     DiaryButtonPair("괜찮아요", {}, "광고 없애기", {}, size = DiaryButtonSize.XLarge)
@@ -144,7 +145,7 @@ private fun IconButtonsLight() = PreviewCanvas(dark = false) { IconButtons() }
 @Composable
 private fun IconButtonsDark() = PreviewCanvas(dark = true) { IconButtons() }
 
-/** 기본, 색을 넘긴 버튼, 누를 수 없는 버튼. */
+/** 기본, 색을 넘긴 버튼, 누를 수 없는 버튼 */
 @Composable
 private fun IconButtons() = Row(
     Modifier.padding(horizontal = DiarySpacing.screenCompact),
@@ -163,7 +164,7 @@ private fun ResultHeadersLight() = PreviewCanvas(dark = false) { ResultHeaders()
 @Composable
 private fun ResultHeadersDark() = PreviewCanvas(dark = true) { ResultHeaders() }
 
-/** 끝난 결과, 문제가 있는 결과, 설명이 없는 머리. */
+/** 끝난 결과, 문제가 있는 결과, 설명이 없는 머리 */
 @Composable
 private fun ResultHeaders() = Column {
     DiaryResultHeader(DiaryIcons.CircleCheck, "백업을 마쳤어요", description = "일기 1,284편과 사진 320장을 담았어요.")
@@ -211,3 +212,20 @@ private fun InviteCardLight() = PreviewCanvas(dark = false) {
 private fun InviteCardDark() = PreviewCanvas(dark = true) {
     DiaryInviteCard("광고 없이, 더 편하게 써요", "일기마다 사진 30장, 체크리스트, 고급 통계까지 쓸 수 있어요.", "Plus 알아보기", {})
 }
+
+@Composable
+private fun DateSlotStates() {
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+        DiaryDateSlots("시작일", null, "종료일", null, "날짜 선택", DiaryDateSlot.Start, {}, null)
+        DiaryDateSlots("시작일", "11월 3일", "종료일", null, "날짜 선택", DiaryDateSlot.End, {}, {})
+        DiaryDateSlots("시작일", "11월 3일", "종료일", "11월 9일", "날짜 선택", null, {}, {})
+    }
+}
+
+@Preview(name = "기간 두 칸 · 라이트", locale = "ko", widthDp = 360)
+@Composable
+private fun DateSlotsLight() = PreviewCanvas(dark = false) { DateSlotStates() }
+
+@Preview(name = "기간 두 칸 · 다크", locale = "ko", widthDp = 360)
+@Composable
+private fun DateSlotsDark() = PreviewCanvas(dark = true) { DateSlotStates() }

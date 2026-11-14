@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
@@ -23,6 +24,7 @@ import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.lifecycle.SavedStateHandle
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -76,7 +78,7 @@ private object NoAdaptiveFonts : FontInstaller {
     override fun install(id: String) = emptyFlow<FontInstallState>()
 }
 
-/** 창 폭이 바뀌어도 고른 탭이 그대로이고, 840dp부터 두 칸이 된다(FR-037). */
+/** 창 폭이 바뀌어도 고른 탭이 그대로이고, 840dp부터 두 칸(FR-037) */
 @OptIn(ExperimentalTestApi::class)
 class AdaptiveLayoutUiTest {
     private val day = LocalDate(2026, 10, 31)
@@ -88,6 +90,7 @@ class AdaptiveLayoutUiTest {
         startKoin {
             modules(
                 backupFeatureModule,
+                appShellModule,
                 module {
                     single { AppLaunch() }
                     single<PlanRepository> { FreePlanRepository() }
@@ -100,7 +103,7 @@ class AdaptiveLayoutUiTest {
                     single<EntryRepository> { FakeEntryRepository(moods, rows) }
                     viewModel { (entryId: String) -> EntryDetailViewModel(entryId, get(), FakeSettingsRepository(), NoAdaptiveFonts) }
                     viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
-                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
+                    viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts, saved = SavedStateHandle()) }
                 }
             )
         }
@@ -126,7 +129,7 @@ class AdaptiveLayoutUiTest {
         assertEquals(1, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
     }
 
-    /** 일기가 아직 없어도 오른쪽 칸이 통째로 비지 않는다. */
+    /** 일기가 아직 없어도 오른쪽 칸이 통째로 비지 않음 */
     @Test
     fun hint_stays_when_there_are_no_entries() = runComposeUiTest {
         moods = emptyMap()
@@ -151,7 +154,7 @@ class AdaptiveLayoutUiTest {
         }
     }
 
-    /** 달력에서 연 상세는 넓은 화면에서도 한 칸이라 돌아갈 길이 있어야 한다. */
+    /** 달력에서 연 상세는 넓은 화면에서도 한 칸이라 돌아갈 길이 있어야 함 */
     @Test
     fun a_detail_opened_from_the_calendar_has_a_back_button() = runComposeUiTest {
         rows = listOf(fakeEntryRow("a", currentDate()))
@@ -160,23 +163,23 @@ class AdaptiveLayoutUiTest {
         onAllNodes(tabs)[1].performClick()
         waitForIdle()
 
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
 
         assertEquals(1, onAllNodes(backButton).fetchSemanticsNodes().size)
         onNode(backButton).performClick()
         waitForIdle()
-        assertEquals(1, onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size)
+        waitUntil(timeoutMillis = ROW_WAIT_MILLIS) { onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size == 1 }
     }
 
-    /** 두 칸에서는 왼쪽 목록이 그대로 보여 뒤로 버튼이 필요 없다. */
+    /** 두 칸에서는 왼쪽 목록이 그대로 보여 뒤로 버튼이 필요 없음 */
     @Test
     fun a_detail_beside_the_list_has_no_back_button() = runComposeUiTest {
         rows = listOf(fakeEntryRow("a", day))
         setContent { TwoPanes() }
         waitForIdle()
 
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
 
         assertEquals(0, onAllNodes(backButton).fetchSemanticsNodes().size)
@@ -188,7 +191,21 @@ class AdaptiveLayoutUiTest {
             key in node.config && node.config[key].any { it in BACK_LABELS }
         }
 
-    /** 상세의 공유가 화면 컨트롤러를 찾는다. */
+    /**
+     * 목록의 "글 a" 줄 열기
+     * 목록은 백그라운드에서 읽어 waitForIdle이 끝나도 줄이 아직 없을 수 있음
+     * 줄이 처음 나타나는 동안 합친 의미 트리에 글이 늦게 붙기도 해 느린 CI에서 가끔 못 찾음
+     * 그래서 합치기 전 트리에서 글을 찾고, 보일 때까지 기다린 뒤 누름
+     */
+    private fun ComposeUiTest.openRowA() {
+        val row = hasText("글 a", substring = true)
+        waitUntil(timeoutMillis = ROW_WAIT_MILLIS) {
+            onAllNodes(row, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        onAllNodes(row, useUnmergedTree = true)[0].performClick()
+    }
+
+    /** 상세의 공유가 화면 컨트롤러를 찾음 */
     @Composable
     private fun TwoPanes() {
         CompositionLocalProvider(LocalUIViewController provides UIViewController(null, null)) {
@@ -196,7 +213,7 @@ class AdaptiveLayoutUiTest {
         }
     }
 
-    /** 앱이 죽었다 살아나도 고른 탭과 쌓인 화면이 돌아온다. */
+    /** 앱이 죽었다 살아나도 고른 탭과 쌓인 화면이 돌아옴 */
     @Test
     fun tab_and_open_entry_come_back_after_the_app_dies() = runComposeUiTest {
         rows = listOf(fakeEntryRow("a", day))
@@ -206,7 +223,7 @@ class AdaptiveLayoutUiTest {
             if (running) CompositionLocalProvider(LocalSaveableStateRegistry provides registry) { TwoPanes() }
         }
         waitForIdle()
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
         assertEquals(0, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
         onAllNodes(tabs)[1].performClick()
@@ -225,13 +242,13 @@ class AdaptiveLayoutUiTest {
         assertEquals(0, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
     }
 
-    /** 두 칸에서 보던 일기는 다른 탭에 다녀와도 오른쪽에 그대로 있다. */
+    /** 두 칸에서 보던 일기는 다른 탭에 다녀와도 오른쪽에 그대로 있음 */
     @Test
     fun two_panes_keep_the_open_entry_across_tabs() = runComposeUiTest {
         rows = listOf(fakeEntryRow("a", day))
         setContent { TwoPanes() }
         waitForIdle()
-        onNode(hasText("글 a", substring = true)).performClick()
+        openRowA()
         waitForIdle()
 
         onAllNodes(tabs)[1].performClick()
@@ -240,8 +257,10 @@ class AdaptiveLayoutUiTest {
         waitForIdle()
 
         assertEquals(0, onAllNodes(hasText(hint)).fetchSemanticsNodes().size)
-        assertEquals(1, onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size)
+        waitUntil(timeoutMillis = ROW_WAIT_MILLIS) { onAllNodes(hasText("글 a", substring = true)).fetchSemanticsNodes().size == 1 }
     }
 }
 
 private val BACK_LABELS = setOf("뒤로 가기", "Back", "戻る")
+
+private const val ROW_WAIT_MILLIS = 5_000L

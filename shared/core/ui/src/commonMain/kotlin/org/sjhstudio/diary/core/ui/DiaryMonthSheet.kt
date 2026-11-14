@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -23,8 +24,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
+import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
@@ -33,18 +36,21 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.ui.resources.Res
+import org.sjhstudio.diary.core.ui.resources.ui_next_year
+import org.sjhstudio.diary.core.ui.resources.ui_previous_year
 
 /**
- * 연·월 고르기(Figma "S1 · 연·월 고르기").
- * 홈은 일기가 있는 달만, 달력은 넘길 수 있는 달만 [enabled]로 연다(FR-017).
- * [hasYear]가 false인 해로는 넘어가지 않는다.
+ * 연·월 고르기(Figma "S1 · 연·월 고르기")
+ * 홈은 일기가 있는 달만, 달력은 넘길 수 있는 달만 [enabled]로 열기(FR-017)
+ * 해 화살표는 [years](오름차순)에서 앞뒤로 가장 가까운 해로 건너뜀. 일기가 없는 해는 넘김
  */
 @Composable
 fun DiaryMonthSheet(
     title: String,
     initialYear: Int,
     shown: YearMonth,
-    hasYear: (Int) -> Boolean,
+    years: List<Int>,
     enabled: (YearMonth) -> Boolean,
     onPick: (YearMonth) -> Unit,
     onDismiss: () -> Unit
@@ -54,16 +60,23 @@ fun DiaryMonthSheet(
     var year by remember { mutableIntStateOf(initialYear) }
     DiaryBottomSheet(onDismiss = onDismiss, title = title) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            YearArrow(DiaryIcons.ChevronLeft, enabled = hasYear(year - 1)) { year-- }
+            val previous = years.lastOrNull { it < year }
+            val next = years.firstOrNull { it > year }
+            YearArrow(DiaryIcons.ChevronLeft, stringResource(Res.string.ui_previous_year), enabled = previous != null) {
+                previous?.let {
+                    year =
+                        it
+                }
+            }
             BasicText(
                 year.toString(),
                 modifier = Modifier.weight(1f),
                 style = DiaryTheme.typography.headline.copy(color = colors.textPrimary, textAlign = TextAlign.Center)
             )
-            YearArrow(DiaryIcons.ChevronRight, enabled = hasYear(year + 1)) { year++ }
+            YearArrow(DiaryIcons.ChevronRight, stringResource(Res.string.ui_next_year), enabled = next != null) { next?.let { year = it } }
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            for (quarter in (1..12).chunked(4)) {
+            for (quarter in (1..12).chunked(CELLS_IN_ROW)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
                     for (number in quarter) {
                         val month = YearMonth(year, number)
@@ -75,8 +88,36 @@ fun DiaryMonthSheet(
     }
 }
 
+/** 해 고르기. 달 고르기와 같은 칸으로 한 줄에 넷 */
 @Composable
-private fun YearArrow(icon: ImageVector, enabled: Boolean, onClick: () -> Unit) {
+fun DiaryYearSheet(
+    title: String,
+    years: IntRange,
+    shown: Int,
+    onPick: (Int) -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val dates = rememberDiaryDateFormat()
+    DiaryBottomSheet(onDismiss = onDismiss, modifier = modifier, title = title) {
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            for (row in years.toList().chunked(CELLS_IN_ROW)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+                    for (year in row) {
+                        MonthCell(dates.year(LocalDate(year, 1, 1)), year == shown, enabled = true, Modifier.weight(1f)) { onPick(year) }
+                    }
+                    // 해가 모자란 줄도 칸 폭은 같게
+                    repeat(CELLS_IN_ROW - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
+}
+
+private const val CELLS_IN_ROW = 4
+
+@Composable
+private fun YearArrow(icon: ImageVector, label: String, enabled: Boolean, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
     Box(
@@ -86,7 +127,12 @@ private fun YearArrow(icon: ImageVector, enabled: Boolean, onClick: () -> Unit) 
             .clickable(enabled = enabled, interactionSource = interaction, indication = null, role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        DiaryIcon(icon, contentDescription = null, tint = if (enabled) colors.textPrimary else colors.placeholder, size = DiaryIconSize.i20)
+        DiaryIcon(
+            icon,
+            contentDescription = label,
+            tint = if (enabled) colors.textPrimary else colors.placeholder,
+            size = DiaryIconSize.i20
+        )
     }
 }
 
@@ -99,8 +145,8 @@ private fun MonthCell(label: String, selected: Boolean, enabled: Boolean, modifi
             .height(DiarySpacing.minTouchTarget)
             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
             .clip(DiaryShapes.r12)
-            // 못 고르는 달은 칠하지 않는다.
-            // canvas로 칠하면 다크 시트 위에서 구멍처럼 보인다.
+            // 못 고르는 달은 칠하지 않음
+            // canvas로 칠하면 다크 시트 위에서 구멍처럼 보임
             .then(
                 when {
                     selected -> Modifier.background(colors.selected)

@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -71,10 +72,7 @@ class EntryDetailViewModelTest {
         assertEquals(EntryDetailState.Missing, vm.state.value)
     }
 
-    /**
-     * 휴지통으로 옮기면 화면이 닫히는 중이다.
-     * 닫히는 동안 "찾을 수 없어요"가 비치면 안 된다.
-     */
+    /** 휴지통으로 옮기면 화면이 닫히는 중. 닫히는 동안 "찾을 수 없어요"가 비치면 안 됨 */
     @Test
     fun moving_to_trash_never_shows_missing() = runTest(UnconfinedTestDispatcher()) {
         val vm = viewModel(Entries(MutableStateFlow(detail)))
@@ -86,6 +84,27 @@ class EntryDetailViewModelTest {
 
         assertEquals(EntryDetailState.Loading, vm.state.value)
         assertFalse(EntryDetailState.Missing in seen)
+    }
+
+    /** 읽기 실패 시 불러오는 중으로 두지 않고, 다시 시도하면 다시 읽음 */
+    @Test
+    fun a_failed_read_shows_failed_and_retry_reads_again() = runTest(UnconfinedTestDispatcher()) {
+        var fail = true
+        val entries =
+            object : EntryRepository by FakeEntryRepository() {
+                override fun entry(id: String): Flow<EntryDetail?> = flow {
+                    if (fail) throw IllegalStateException("disk")
+                    emit(detail)
+                }
+            }
+        val vm = viewModel(entries)
+        backgroundScope.launch { vm.state.collect {} }
+        assertEquals(EntryDetailState.Failed, vm.state.value)
+
+        fail = false
+        vm.retry()
+
+        assertEquals(EntryDetailState.Ready(detail), vm.state.value)
     }
 
     private object NoFonts : FontInstaller {

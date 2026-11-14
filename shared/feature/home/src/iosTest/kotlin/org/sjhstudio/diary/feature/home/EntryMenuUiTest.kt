@@ -40,7 +40,7 @@ private object NoFonts : FontInstaller {
     override fun install(id: String) = emptyFlow<FontInstallState>()
 }
 
-/** 홈 메뉴의 즐겨찾기는 그 일기의 상태를 따른다. */
+/** 홈 메뉴의 즐겨찾기는 그 일기 상태를 따름 */
 @OptIn(ExperimentalTestApi::class)
 class EntryMenuUiTest {
     private val add get() = runBlocking { getString(Res.string.detail_favorite) }

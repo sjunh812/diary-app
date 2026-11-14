@@ -3,9 +3,9 @@ package org.sjhstudio.diary.core.migration
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.sjhstudio.diary.core.data.richtext.toPlainText
+import org.sjhstudio.diary.core.model.richtext.toPlainText
 
-// contracts/legacy-mapping.md "본문 변환"의 고정 값과 왕복 규칙(스펙 001 T032).
+// contracts/legacy-mapping.md "본문 변환"의 고정 값과 왕복 규칙(스펙 001 T032)
 class LegacyTextTest {
     private val fixed =
         listOf(

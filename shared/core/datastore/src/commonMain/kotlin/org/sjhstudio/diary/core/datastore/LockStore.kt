@@ -18,12 +18,12 @@ import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 
 /**
- * 잠금 설정 `lock.preferences_pb`.
- * 키 이름, 타입, 기본값은 data-model.md 잠금 표 그대로다.
- * 백업에 올리지 않고 안드로이드 자동 백업에서도 뺀다.
+ * 잠금 설정 `lock.preferences_pb`
+ * 키 이름, 타입, 기본값은 data-model.md 잠금 표 그대로
+ * 백업에 올리지 않고 안드로이드 자동 백업에서도 뺌
  */
 class LockStore(private val dataStore: DataStore<Preferences>) {
-    // 파일을 읽지 못하면 잠금을 푸는 대신 잠긴 채 "키 없음" 흐름으로 보낸다(헌법 II).
+    // 파일을 읽지 못하면 잠금을 푸는 대신 잠긴 채 "키 없음" 흐름으로 보냄(헌법 II)
     val lock: Flow<LockSettings> =
         dataStore.data
             .catch { if (it is IOException) emit(lockedWithoutKey()) else throw it }
@@ -68,8 +68,8 @@ class LockStore(private val dataStore: DataStore<Preferences>) {
 
     companion object {
         /**
-         * 잠금만 켜고 확인값이 없는 상태.
-         * 폰 화면 잠금 확인 뒤 새 비밀번호를 정한다.
+         * 잠금만 켜고 확인값이 없는 상태
+         * 휴대폰 화면 잠금 확인 뒤 새 비밀번호를 정함
          */
         internal fun lockedWithoutKey(): Preferences = preferencesOf(Keys.ENABLED to true)
     }

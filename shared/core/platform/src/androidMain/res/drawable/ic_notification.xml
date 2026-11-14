@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 알림 작은 아이콘. 연필(Lucide pencil, ISC). 시스템이 한 가지 색으로 칠한다. 새 앱 아이콘(스펙 001 US4)이 생기면 그 모양으로 바꾼다. -->
+<!-- 알림 작은 아이콘. 꽉 찬 동그라미에 앱 아이콘의 연필을 비워 넣었다(시안 F, 사용자 선택 2026-11-09). -->
+<!-- 시스템이 한 가지 색으로 칠하므로 모양만 남긴다. 연필 자리는 evenOdd로 뚫는다. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
     <path
-        android:pathData="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <path
-        android:pathData="m15 5 4 4"
-        android:strokeWidth="2"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12 1.5a10.5 10.5 0 1 1 0 21a10.5 10.5 0 1 1 0 -21z M7.616 16.384 L8.186 13.008 L13.447 7.747 A1.364 1.364 0 0 1 15.376 7.747 L16.253 8.624 A1.364 1.364 0 0 1 16.253 10.553 L10.992 15.814 Z" />
 </vector>

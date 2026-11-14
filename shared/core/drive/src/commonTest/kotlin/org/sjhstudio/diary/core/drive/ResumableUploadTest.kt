@@ -38,8 +38,8 @@ class ResumableUploadTest {
                 engine {
                     addHandler { request ->
                         request.headers[HttpHeaders.ContentRange]?.let(ranges::add)
-                        // 실제 엔진처럼 본문을 끝까지 읽는다.
-                        // 파일을 읽지 못하면 여기서 터진다.
+                        // 실제 엔진처럼 본문을 끝까지 읽음
+                        // 파일을 읽지 못하면 여기서 터짐
                         request.body.toByteArray()
                         val (status, headers) = handler(count++)
                         val body = if (status.value in 200..299) fileJson else """{"error":{"errors":[{"reason":"backendError"}]}}"""
@@ -142,7 +142,7 @@ class ResumableUploadTest {
 
     private var calls = 0
 
-    /** 드라이브가 [reason]으로 거절하는 클라이언트. */
+    /** 드라이브가 [reason]으로 거절하는 클라이언트 */
     private fun refusing(status: HttpStatusCode, reason: String): KtorDriveApi {
         val client =
             HttpClient(MockEngine) {

@@ -10,17 +10,19 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.feature.settings.FontSettingsScreen
 import org.sjhstudio.diary.feature.settings.FontUiState
 import org.sjhstudio.diary.feature.settings.ReminderSettingsScreen
 import org.sjhstudio.diary.feature.settings.ReminderUiState
+import org.sjhstudio.diary.feature.settings.SettingsPane
 import org.sjhstudio.diary.feature.settings.SettingsScreen
 import org.sjhstudio.diary.feature.settings.SettingsUiState
 import org.sjhstudio.diary.feature.settings.TextSizeSettingsScreen
 import org.sjhstudio.diary.feature.settings.ThemeSettingsScreen
 
-// 설정 목록(S6), 글꼴(G1), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰.
-// 값은 Figma 화면과 같다.
+// 설정 목록(S6), 글꼴(G1), 본문 글자 크기(G2), 화면 모드(G3), 매일 알림(R1) 프리뷰
+// 값은 Figma 화면과 같음
 
 private val sample =
     SettingsUiState(
@@ -35,6 +37,14 @@ private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
     }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {})
 }
 
+/** 태블릿 두 칸 왼쪽 목록. 오른쪽에 연 줄을 칠함 */
+@Preview(name = "S6 설정 · 태블릿 목록 · 글꼴 고름", locale = "ko", widthDp = 360, heightDp = 834)
+@Composable
+private fun ListPicked() = DiaryTheme(darkTheme = false) {
+    SettingsScreen(sample, onFont = {
+    }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {}, selected = SettingsPane.FONT)
+}
+
 @Preview(name = "S6 설정 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun ListLight() = SettingsList(dark = false)
@@ -45,7 +55,7 @@ private fun ListDark() = SettingsList(dark = true)
 
 @Composable
 private fun TextSize(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), font = DiaryFont.NANUM_CHEER, onSelect = {
+    TextSizeSettingsScreen(BodyTextSize.LARGE, sampleDate = LocalDate(2026, 10, 31), look = BodyLook(DiaryFont.NANUM_CHEER), onSelect = {
     }, onBack = {})
 }
 
@@ -106,4 +116,4 @@ private fun FontDark() = Font(dark = true, fontSample)
 
 @Preview(name = "G1 글꼴 · 받는 중", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
-private fun FontDownloading() = Font(dark = false, fontSample.copy(downloading = mapOf(DiaryFont.GAMJA_FLOWER to 0.42f)))
+private fun FontDownloading() = Font(dark = false, fontSample.copy(downloading = mapOf(DiaryFont.SEJONG_GEULGGOT to 0.42f)))

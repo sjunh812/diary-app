@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -37,23 +38,26 @@ import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
 
 /**
- * 기분 고르기 칸 9개.
- * 쓰기는 하나, 찾기는 여러 개를 고른다.
- * 두 줄이 같은 다섯 칸을 쓰고 아랫줄은 왼쪽부터 채운다.
- * 칸이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춘다.
+ * 기분 고르기 칸 9개
+ * 쓰기는 하나, 찾기는 여러 개를 고름
+ * 두 줄이 같은 다섯 칸을 쓰고 아랫줄은 왼쪽부터 채움
+ * 칸이 얼굴보다 넓어서 그만큼 왼쪽으로 내어 얼굴을 제목 선에 맞춤
  */
 @Composable
 fun DiaryMoodGrid(isSelected: (Mood) -> Boolean, onToggle: (Mood) -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier.layout { measurable, constraints ->
             val placeable = measurable.measure(constraints)
-            val side = (placeable.width / GRID_COLUMNS - DiaryWriteSize.moodFace.roundToPx()) / 2
+            val gaps = DiarySpacing.x1.roundToPx() * (GRID_COLUMNS - 1)
+            val side = ((placeable.width - gaps) / GRID_COLUMNS - DiaryWriteSize.moodFace.roundToPx()) / 2
             layout(placeable.width, placeable.height) { placeable.placeRelative(-side, 0) }
         },
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         for (row in Mood.ordered.chunked(GRID_COLUMNS)) {
-            Row(Modifier.fillMaxWidth()) {
+            // 칸 사이 4
+            // 붙이면 찾기에서 여러 개를 고를 때 칠한 칸끼리 하나로 보임
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
                 for (mood in row) {
                     Box(Modifier.weight(1f)) { MoodCell(mood, isSelected(mood)) { onToggle(mood) } }
                 }
@@ -75,7 +79,7 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
                 .heightIn(min = DiaryWriteSize.moodCellHeight)
                 .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
                 .clip(DiaryShapes.r16)
-                // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠한다.
+                // 시트와 쓰기 옆 칸 어디서나 바탕 위에 그대로 놓이게 고른 칸만 칠함
                 .then(if (selected) Modifier.background(colors.selected) else Modifier)
                 .semantics { this.selected = selected }
                 .clickable(interactionSource = interaction, indication = null, role = Role.Button) {
@@ -87,28 +91,49 @@ private fun MoodCell(mood: Mood, selected: Boolean, onClick: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
     ) {
         MoodFace(mood, DiaryWriteSize.moodFace)
-        BasicText(
-            moodName(mood),
-            style = (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
-                color = colors.textSecondary,
-                textAlign = TextAlign.Center
-            ),
-            // 칸 폭이 고정이라 긴 이름은 두 줄까지 쓴다.
-            maxLines = NAME_LINES,
-            overflow = TextOverflow.Ellipsis
-        )
+        MoodName(moodName(mood), selected)
     }
 }
 
+/** 기분 칸 아래 이름 */
+@Composable
+internal fun MoodName(name: String, selected: Boolean, modifier: Modifier = Modifier) {
+    val colors = DiaryTheme.colors
+    val style =
+        (if (selected) DiaryTheme.typography.captionStrong else DiaryTheme.typography.caption).copy(
+            color = colors.textSecondary,
+            textAlign = TextAlign.Center
+        )
+    // 칸 폭이 고정이라 긴 이름은 두 줄까지
+    // 한 낱말은 글자 단위로 쪼개지지 않게 한 줄로 두고, 넘치면 글자를 조금 줄임(영어 Laughing, 일본어 具合が悪い)
+    // 말줄임을 함께 걸면 줄이기 전에 …로 맞춰 버려 줄이기가 동작하지 않음
+    val oneWord = ' ' !in name
+    BasicText(
+        name,
+        modifier = modifier,
+        style = style,
+        maxLines = if (oneWord) 1 else NAME_LINES,
+        overflow = if (oneWord) TextOverflow.Clip else TextOverflow.Ellipsis,
+        autoSize = if (oneWord) {
+            TextAutoSize.StepBased(
+                minFontSize = style.fontSize * MIN_NAME_SCALE,
+                maxFontSize = style.fontSize
+            )
+        } else {
+            null
+        }
+    )
+}
+
 /**
- * 날씨 고르기.
- * 기분이 주인공이라 날씨는 칩으로 가볍게 두고, 고른 칩만 색이 든다.
- * 칩은 폭만큼 줄을 바꿔서 긴 영어 이름이나 큰 글씨에서도 잘리지 않는다.
+ * 날씨 고르기
+ * 기분이 주인공이라 날씨는 칩으로 가볍게 두고 고른 칩만 색을 칠함
+ * 칩은 폭만큼 줄을 바꿔서 긴 영어 이름이나 큰 글씨에서도 잘리지 않음
  */
 @Composable
 fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Unit, modifier: Modifier = Modifier) {
-    // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않는다.
-    // 보이는 틈은 16이다.
+    // 칩 줄 높이가 누르는 곳 48이라 줄 사이를 더 띄우지 않음
+    // 보이는 틈은 16
     FlowRow(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         for (weather in Weather.entries) {
             DiaryChip(weatherName(weather), isSelected(weather), { onToggle(weather) }, leadingIcon = weather.icon())
@@ -118,3 +143,6 @@ fun DiaryWeatherGrid(isSelected: (Weather) -> Boolean, onToggle: (Weather) -> Un
 
 private const val GRID_COLUMNS = 5
 private const val NAME_LINES = 2
+
+/** 한 낱말 이름을 줄일 수 있는 끝(본래 크기의 80%) */
+private const val MIN_NAME_SCALE = 0.8f

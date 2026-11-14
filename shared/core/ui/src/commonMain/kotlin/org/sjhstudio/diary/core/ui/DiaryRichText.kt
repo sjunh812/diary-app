@@ -30,9 +30,9 @@ import org.sjhstudio.diary.core.model.RichStyle
 import org.sjhstudio.diary.core.model.parseRichText
 
 /**
- * 일기 본문을 서식과 함께 그린다.
- * [style]은 고른 글꼴과 글자 크기(`diaryBodyTextStyle`)다.
- * 글자색과 형광펜은 저장된 라이트 값 대신 지금 테마의 같은 토큰으로 그린다(contracts/rich-text-html.md).
+ * 일기 본문을 서식과 함께 그림
+ * [style]은 고른 글꼴과 글자 크기(`diaryBodyTextStyle`)
+ * 글자색과 형광펜은 저장된 라이트 값 대신 지금 테마의 같은 토큰으로 그림(contracts/rich-text-html.md)
  */
 @Composable
 fun DiaryRichText(html: String, style: TextStyle, modifier: Modifier = Modifier, onCheck: ((Int) -> Unit)? = null) {
@@ -42,7 +42,7 @@ fun DiaryRichText(html: String, style: TextStyle, modifier: Modifier = Modifier,
     val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
     val check by rememberUpdatedState(onCheck)
     val actions = if (onCheck == null) emptyList() else checklistActions(text.text) { _, index -> check?.invoke(index) }
-    // 누를 수 없는 본문은 손길을 가로채지 않는다.
+    // 누를 수 없는 본문은 터치를 가로채지 않음
     val tappable =
         if (actions.isEmpty()) {
             modifier

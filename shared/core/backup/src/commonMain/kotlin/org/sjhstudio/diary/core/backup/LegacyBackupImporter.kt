@@ -30,21 +30,22 @@ import org.sjhstudio.diary.core.model.RestoreResult
 import org.sjhstudio.diary.core.model.currentDate
 
 /**
- * 레거시 경로의 사진을 `media/`로 옮긴다.
- * 찾지 못하면 null이다.
- * iOS에서는 늘 null이다.
+ * 레거시 경로의 사진을 `media/`로 옮김
+ * 찾지 못하면 null
+ * iOS에서는 늘 null
  */
 fun interface LegacyPhotoCopier {
     fun copy(entryId: String, sortOrder: Int, fragment: String): MediaEntity?
 }
 
 /**
- * 더할 일기 하나.
- * [sameTimeAs]는 같은 날 같은 시각에 글이 다른 기기 일기다.
+ * 더할 일기 하나
+ * [sameTimeAs]는 같은 날 같은 시각에 글이 다른 기기 일기
  */
 data class LegacyItem(val entry: EntryEntity, val photos: List<String>, val sameTimeAs: String?)
 
-data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int) {
+/** [unreadable]은 파일이 깨져 읽지 못한 줄 수(추정) */
+data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int, val unreadable: Int = 0) {
     val preview: RestorePreview
         get() = RestorePreview(
             entriesAdded = items.size,
@@ -55,13 +56,14 @@ data class LegacyPlan(val items: List<LegacyItem>, val unchanged: Int) {
             bytesToDownload = 0,
             photosNotInBackup = items.sumOf { it.photos.size },
             settingsChange = false,
-            deviceBytesFree = Long.MAX_VALUE
+            deviceBytesFree = Long.MAX_VALUE,
+            entriesUnreadable = unreadable
         )
 }
 
 /**
- * 1.7.x가 드라이브에 올린 `note.db`를 찾아 합친다(contracts/merge-rules.md "이전 버전 백업").
- * 다른 기기의 파일이면 같은 번호가 다른 일기라서 `legacy_id`로는 견주지 않는다.
+ * 1.7.x가 드라이브에 올린 `note.db`를 찾아 합침(contracts/merge-rules.md "이전 버전 백업")
+ * 다른 기기의 파일이면 같은 번호가 다른 일기라 `legacy_id`로는 견주지 않음
  */
 @OptIn(ExperimentalUuidApi::class)
 class LegacyBackupImporter(
@@ -74,7 +76,7 @@ class LegacyBackupImporter(
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
     private val newId: () -> String = { Uuid.random().toString() }
 ) {
-    /** 옛 설정에 남은 파일을 먼저 보고, 이름으로도 찾아 최근 것을 위로 둔다. */
+    /** 옛 설정에 남은 파일을 먼저 보고, 이름으로도 찾아 최근 것을 위로 둠 */
     suspend fun find(knownFileId: String?): List<DriveFile> {
         val known =
             knownFileId?.let {
@@ -96,7 +98,7 @@ class LegacyBackupImporter(
         return prepared(path)
     }
 
-    /** 고쳐 돌려받은 `note.db`나 그것이 든 zip을 사용자가 고른 경우. */
+    /** 고쳐 돌려받은 `note.db`나 그것이 든 zip을 사용자가 고른 경우 */
     suspend fun prepareFile(file: Path, zipped: Boolean): LegacyPlan {
         val path = localPath()
         fileSystem.delete(path, mustExist = false)
@@ -117,18 +119,21 @@ class LegacyBackupImporter(
 
     private suspend fun prepared(path: Path): LegacyPlan {
         try {
-            return plan(read(path))
+            val (notes, unreadable) = read(path)
+            return plan(notes).copy(unreadable = unreadable)
         } finally {
             for (suffix in listOf("", "-wal", "-shm")) fileSystem.delete(workDir / INCOMING / "$LOCAL_NAME$suffix", mustExist = false)
         }
     }
 
-    private fun read(path: Path): List<LegacyNote> = try {
+    /** 읽힌 줄과 읽지 못한 줄 수 */
+    private fun read(path: Path): Pair<List<LegacyNote>, Int> = try {
         LegacyDbReader.open(path.toString()).use { reader ->
-            // 일부가 깨져도 읽히는 만큼 살린다.
-            // 일기 표가 없으면 다른 파일이다.
+            // 일부가 깨져도 읽히는 만큼 살림
+            // 일기 표가 없으면 다른 파일
             if (!reader.hasNoteTable) throw RestoreMismatch()
-            buildList { reader.readAll { add(it) } }
+            val notes = ArrayList<LegacyNote>()
+            notes to reader.readAll { notes += it }.unreadable
         }
     } catch (error: CancellationException) {
         throw error
@@ -144,12 +149,19 @@ class LegacyBackupImporter(
         val mapper = LegacyEntryMapper(currentDate(clock, zone), zone, newId)
         val sameTime = local.groupBy { it.date to it.time }
         val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
+        // 날짜를 못 읽은 줄은 불러온 날로 적혀 날짜로는 같은 일기인지 모름. 옛 작성 시각과 글로도 봄
+        val seenLegacy = local.filter { it.legacyCreateDate != null }.mapTo(HashSet()) { it.legacyCreateDate to it.plainText }
+        // 같은 파일 안에서는 초까지 찍힌 시각과 사진으로 구분
+        // 분까지만 보면 글이 같고 사진이 다른 일기가 빠짐
+        val inFile = HashSet<Triple<Triple<String, String, String>, String?, String?>>()
         val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }
         val items = ArrayList<LegacyItem>()
         var unchanged = 0
         for (note in notes) {
             val mapped = mapper.map(note).entry.asEntity()
-            if (!seen.add(Triple(mapped.date, mapped.time, mapped.plainText))) {
+            val same = Triple(mapped.date, mapped.time, mapped.plainText)
+            val known = same in seen || (note.createDate != null && (note.createDate to mapped.plainText) in seenLegacy)
+            if (known || !inFile.add(Triple(same, note.createDate, note.picture))) {
                 unchanged++
                 continue
             }
@@ -173,30 +185,55 @@ class LegacyBackupImporter(
                         ?: missing(item, order, fragment, now)
                 }
             }
-        val marks =
-            plan.items.flatMap { item ->
-                item.sameTimeAs?.let { other ->
-                    listOf(
-                        MergeMarkEntity(item.entry.id, KIND, other, SOURCE, now),
-                        MergeMarkEntity(other, KIND, item.entry.id, SOURCE, now)
-                    )
-                }.orEmpty()
+        val added =
+            db.withWriteTransaction {
+                // 미리보기 뒤에 같은 일기가 다른 길로 들어왔을 수 있어 넣기 직전에 다시 가름
+                val items = stillNew(plan.items)
+                val ids = items.mapTo(HashSet()) { it.entry.id }
+                val marks =
+                    items.flatMap { item ->
+                        item.sameTimeAs?.let { other ->
+                            listOf(
+                                MergeMarkEntity(item.entry.id, KIND, other, SOURCE, now),
+                                MergeMarkEntity(other, KIND, item.entry.id, SOURCE, now)
+                            )
+                        }.orEmpty()
+                    }
+                db.entryDao().insertAll(items.map { it.entry })
+                db.mediaDao().insertAll(rows.filter { it.entryId in ids })
+                db.backupDao().mark(marks)
+                items
             }
-        db.withWriteTransaction {
-            db.entryDao().insertAll(plan.items.map { it.entry })
-            db.mediaDao().insertAll(rows)
-            db.backupDao().mark(marks)
-        }
-        val copied = rows.count { it.status == MediaStatus.NORMAL.id }
+        val ids = added.mapTo(HashSet()) { it.entry.id }
+        val kept = rows.filter { it.entryId in ids }
+        val copied = kept.count { it.status == MediaStatus.NORMAL.id }
         return RestoreResult(
-            entriesAdded = plan.items.size,
+            entriesAdded = added.size,
             entriesUpdated = 0,
-            entriesKeptBoth = plan.items.count { it.sameTimeAs != null },
+            entriesKeptBoth = added.count { it.sameTimeAs != null },
             photosRestored = copied,
-            photosMissing = rows.size - copied,
+            photosMissing = kept.size - copied,
             photosPending = 0,
             fromLegacy = true
         )
+    }
+
+    /** 지금 기기에 없는 것만 남김. 옛 번호가 그사이 쓰였으면 번호를 비움 */
+    private suspend fun stillNew(items: List<LegacyItem>): List<LegacyItem> {
+        val local = db.backupDao().allEntries()
+        val seen = local.mapTo(HashSet()) { Triple(it.date, it.time, it.plainText) }
+        val seenLegacy = local.filter { it.legacyCreateDate != null }.mapTo(HashSet()) { it.legacyCreateDate to it.plainText }
+        val usedLegacyIds = local.mapNotNullTo(HashSet()) { it.legacyId }
+        return items
+            .filter { item ->
+                val entry = item.entry
+                Triple(entry.date, entry.time, entry.plainText) !in seen &&
+                    (entry.legacyCreateDate == null || (entry.legacyCreateDate to entry.plainText) !in seenLegacy)
+            }
+            .map { item ->
+                val legacyId = item.entry.legacyId
+                if (legacyId != null && !usedLegacyIds.add(legacyId)) item.copy(entry = item.entry.copy(legacyId = null)) else item
+            }
     }
 
     private fun missing(item: LegacyItem, order: Int, fragment: String, now: Long) =

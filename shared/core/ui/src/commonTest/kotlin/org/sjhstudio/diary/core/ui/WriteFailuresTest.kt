@@ -12,7 +12,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 
-// 저장 공간이 찬 기기에서 쓰기가 실패해도 앱이 꺼지지 않고 알림이 간다.
+// 저장 공간이 찬 기기에서 쓰기가 실패해도 앱이 꺼지지 않고 알림이 감
 @OptIn(ExperimentalCoroutinesApi::class)
 class WriteFailuresTest {
     @Test

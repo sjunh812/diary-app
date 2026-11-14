@@ -7,7 +7,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import okio.Path
 import org.sjhstudio.diary.core.database.DiaryDatabase
@@ -25,32 +28,37 @@ class DefaultTrashRepository(
     private val entries get() = db.entryDao()
     private val drafts get() = db.draftDao()
 
+    // 읽지 못하면 개수를 비워 둠. 설정 줄 하나라 실패를 알리지 않음
+    override fun count(): Flow<Int> = flow { emitAll(entries.trashedCount()) }.catch { }
+
     override fun items(): Flow<List<TrashedEntry>> = combine(
         entries.trashed(),
         db.mediaDao().photoStatusChanges(photoRefreshEvery).onStart { emit(Unit) }
     ) { rows, _ ->
-        val photos = db.mediaDao().forRows(rows.map { it.id })
+        val photos = db.mediaDao().forRows(rows.map { it.row.id })
         val now = clock.now()
-        rows.map { row ->
-            val deletedAt = Instant.fromEpochMilliseconds(requireNotNull(row.deletedAt))
-            TrashedEntry(row.toRow(photos[row.id].orEmpty(), mediaDir), deletedAt, daysLeft(deletedAt, now))
+        rows.map { trashed ->
+            val deletedAt = Instant.fromEpochMilliseconds(trashed.deletedAt)
+            TrashedEntry(trashed.row.toRow(photos[trashed.row.id].orEmpty(), mediaDir), deletedAt, daysLeft(deletedAt, now))
         }
-    }
+    }.rejoiningAfterFirst()
 
     override suspend fun restore(id: String) = entries.setDeletedAt(id, null, clock.now().toEpochMilliseconds())
 
-    // 완전히 지운 일기의 글과 사진이 고치던 임시 저장본에 남으면 안 된다(헌법 II).
-    // 임시 저장본이 사라지면 그 사진 파일도 다음 사진 정리에서 함께 지워진다.
+    // 완전히 지운 일기의 글과 사진이 고치던 임시 저장본에 남으면 안 됨(헌법 II)
+    // 임시 저장본이 사라지면 그 사진 파일도 다음 사진 정리에서 함께 지워짐
     override suspend fun deleteForever(ids: List<String>) = ids.chunked(CHUNK).forEach { chunk ->
         db.withWriteTransaction {
             drafts.deleteTrashed(chunk)
             entries.deleteTrashed(chunk)
+            db.backupDao().clearDanglingMarks()
         }
     }
 
     override suspend fun empty() = db.withWriteTransaction {
         drafts.deleteAllTrashed()
         entries.deleteAllTrashed()
+        db.backupDao().clearDanglingMarks()
     }
 
     override suspend fun purgeExpired(now: Instant) {
@@ -58,6 +66,7 @@ class DefaultTrashRepository(
         db.withWriteTransaction {
             drafts.purgeBefore(before)
             entries.purgeBefore(before)
+            db.backupDao().clearDanglingMarks()
         }
     }
 
@@ -67,8 +76,8 @@ class DefaultTrashRepository(
 }
 
 /**
- * 남은 날을 올림해서 센다.
- * 오늘 지웠으면 30일, 마지막 날은 1일이다.
+ * 남은 날을 올림해서 계산
+ * 오늘 지웠으면 30일, 마지막 날은 1일
  */
 internal fun daysLeft(deletedAt: Instant, now: Instant): Int {
     val left = (deletedAt + KEEP - now) / 1.days

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -33,9 +34,10 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BodyTextSize
-import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.diaryBodyTextStyle
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.settings_text_size
 import org.sjhstudio.diary.feature.settings.resources.text_size_note
@@ -43,21 +45,22 @@ import org.sjhstudio.diary.feature.settings.resources.text_size_sample_body
 import org.sjhstudio.diary.feature.settings.resources.text_size_sample_glyph
 
 /**
- * 본문 글자 크기(Figma "본문 글자 크기 (G2)", research R17).
- * 위 견본 글이 고른 크기로 바로 바뀌고 고른 본문 글꼴로 그린다.
- * 일기 본문에만 걸리고 앱 틀 글자는 기기 글자 크기를 따른다.
+ * 본문 글자 크기(Figma "본문 글자 크기 (G2)", research R17)
+ * 위 견본 글이 고른 크기로 바로 바뀌고 고른 본문 글꼴로 그림
+ * 일기 본문에만 걸리고 앱 틀 글자는 기기 글자 크기를 따름
  */
 @Composable
 fun TextSizeSettingsScreen(
     selected: BodyTextSize,
     sampleDate: LocalDate,
-    font: DiaryFont,
+    look: BodyLook,
     onSelect: (BodyTextSize) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
+    val installed = rememberFileFontFamily(look.fontPath)
     Column(modifier.fillMaxSize().background(colors.canvas).systemBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(title = stringResource(Res.string.settings_text_size), onBack = onBack)
         Column(
@@ -68,34 +71,26 @@ fun TextSizeSettingsScreen(
                 .padding(horizontal = LocalScreenGutter.current),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)
         ) {
-            Column(
-                Modifier.padding(
-                    top = DiarySpacing.x4
-                ).fillMaxWidth().clip(DiaryShapes.r16).background(colors.sunken).padding(DiarySpacing.x5),
-                verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
-            ) {
-                BasicText(
-                    dates.fullDate(sampleDate),
-                    style = DiaryTheme.typography.captionStrong.copy(color = colors.textSecondary)
-                )
-                BasicText(
-                    stringResource(Res.string.text_size_sample_body),
-                    style = diaryBodyTextStyle(font, selected).copy(color = colors.textPrimary)
-                )
-            }
+            PreviewBox(
+                // 일기 상세 제목과 같은 꼴로 보여 줌
+                dates.dayWithWeekday(sampleDate),
+                stringResource(Res.string.text_size_sample_body),
+                diaryBodyTextStyle(look.font, selected) { installed },
+                Modifier.padding(top = DiarySpacing.x4)
+            )
             Row(Modifier.fillMaxWidth()) {
                 for (size in BodyTextSize.entries) SizeStep(size, selected == size, Modifier.weight(1f)) { onSelect(size) }
             }
-            BasicText(stringResource(Res.string.text_size_note), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+            PhraseText(stringResource(Res.string.text_size_note), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         }
     }
 }
 
 /**
- * 단계 하나: 원 56 안의 견본 글자와 아래 이름.
- * 고른 단계는 `selected` 바탕에 `accentText`.
- * 칸은 다섯이 폭을 똑같이 나누고, 누름 면이 원과 이름에 붙지 않게 위아래 8을 둔다.
- * 폰 폭에서 칸은 70이라 원 둘레 좌우는 7이다(`docs/design.md` 누름).
+ * 단계 하나: 원 56 안의 견본 글자와 아래 이름
+ * 고른 단계는 `selected` 바탕에 `accentText`
+ * 칸은 다섯이 폭을 똑같이 나누고, 누름 면이 원과 이름에 붙지 않게 위아래 8.
+ * 폰 폭에서 칸은 70이라 원 둘레 좌우는 7(`docs/design.md` 누름)
  */
 @Composable
 private fun SizeStep(size: BodyTextSize, selected: Boolean, modifier: Modifier, onClick: () -> Unit) {

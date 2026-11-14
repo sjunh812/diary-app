@@ -26,12 +26,12 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 
 /**
- * 누르면 달을 고르는 큰 제목(홈, 달력).
- * `display` 제목 + 펼침 화살표 20, 사이 4. 긴 제목은 말줄임하고 화살표는 남긴다.
- * 차지하는 자리는 글 높이 그대로다.
- * 그래야 다른 탭 제목과 높이가 같고 제목 아래 간격도 그대로다.
- * [onClick]이 없으면 고를 달이 없다는 뜻이라 화살표 없는 글자만 둔다.
- * 누르는 곳만 위아래로 48까지, 옆으로 8 넓혀서 누름 면이 글자에 붙지 않는다(`docs/design.md` 터치 영역, 누름).
+ * 누르면 달을 고르는 큰 제목(홈, 달력)
+ * `display` 제목 + 펼침 화살표 20, 사이 4. 긴 제목은 말줄임하고 화살표는 남김
+ * 차지하는 자리는 글 높이 그대로
+ * 그래야 다른 탭 제목과 높이가 같고 제목 아래 간격도 그대로
+ * [onClick]이 없으면 고를 달이 없다는 뜻이라 화살표 없이 글자만 둠
+ * 누르는 곳만 위아래로 48까지, 옆으로 8 넓혀서 누름 면이 글자에 붙지 않음(`docs/design.md` 터치 영역, 누름)
  */
 @Composable
 fun DiaryTitleButton(text: String, onClick: (() -> Unit)?, modifier: Modifier = Modifier) {

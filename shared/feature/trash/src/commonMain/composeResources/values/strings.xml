@@ -17,7 +17,7 @@
         <item quantity="other">%1$d days left</item>
     </plurals>
     <plurals name="trash_confirm_body_all">
-        <item quantity="one">%1$d entry in Trash will be gone and can't be restored.</item>
-        <item quantity="other">%1$d entries in Trash will be gone and can't be restored.</item>
+        <item quantity="one">%1$s entry in Trash will be gone and can't be restored.</item>
+        <item quantity="other">%1$s entries in Trash will be gone and can't be restored.</item>
     </plurals>
 </resources>

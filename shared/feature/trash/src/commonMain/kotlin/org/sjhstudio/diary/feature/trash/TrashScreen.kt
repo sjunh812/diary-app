@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,10 +58,14 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.TrashedEntry
 import org.sjhstudio.diary.core.ui.DiaryEntryFaceSize
+import org.sjhstudio.diary.core.ui.LoadFailed
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
+import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.trash.resources.Res
 import org.sjhstudio.diary.feature.trash.resources.trash_confirm_body_all
@@ -78,34 +83,39 @@ import org.sjhstudio.diary.feature.trash.resources.trash_restored
 import org.sjhstudio.diary.feature.trash.resources.trash_row_when
 import org.sjhstudio.diary.feature.trash.resources.trash_title
 
-/** 마지막 날이 다가오면 빨갛게 보인다. */
+/** 마지막 날이 다가오면 빨갛게 보임 */
 private const val URGENT_DAYS = 1
 
 /**
- * 휴지통(Figma "휴지통 (S6-7)").
- * 줄을 누르면 복원하기와 완전히 지우기를 고른다.
+ * 휴지통(Figma "휴지통 (S6-7)")
+ * 줄을 누르면 복원하기와 완전히 지우기를 고름
  */
 @Composable
 fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<TrashViewModel>()
     val items by viewModel.items.collectAsStateWithLifecycle()
+    val failed by viewModel.failed.collectAsStateWithLifecycle()
     var pickedId by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmOne by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmAll by rememberSaveable { mutableStateOf(false) }
     val toast = remember { DiaryToastState() }
     val scope = rememberCoroutineScope()
     val restored = stringResource(Res.string.trash_restored)
+    LaunchedEffect(viewModel) { viewModel.restored.collect { scope.launch { toast.show(restored) } } }
     val list = items
     Box(modifier.fillMaxSize()) {
-        TrashScreen(list, onBack, onEmpty = { confirmAll = true }, onPick = { pickedId = it })
-        DiaryToastHost(toast, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4))
+        TrashScreen(list, onBack, onEmpty = { confirmAll = true }, onPick = { pickedId = it }, failed = failed, onRetry = viewModel::retry)
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4),
+            reduceMotion = rememberReduceMotion()
+        )
     }
     pickedId?.let { id ->
         DiaryBottomSheet(onDismiss = { pickedId = null }) {
             DiarySheetAction(DiaryIcons.Restore, stringResource(Res.string.trash_restore), DiaryTheme.colors.textPrimary) {
                 pickedId = null
                 viewModel.restore(id)
-                scope.launch { toast.show(restored) }
             }
             DiarySheetAction(DiaryIcons.Trash, stringResource(Res.string.trash_delete_forever), DiaryTheme.colors.danger) {
                 pickedId = null
@@ -136,14 +146,21 @@ fun TrashRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 viewModel.empty()
             },
             onDismiss = { confirmAll = false },
-            message = pluralStringResource(Res.plurals.trash_confirm_body_all, count, count),
+            message = pluralStringResource(Res.plurals.trash_confirm_body_all, count, count.grouped()),
             destructive = true
         )
     }
 }
 
 @Composable
-internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty: () -> Unit, onPick: (String) -> Unit) {
+internal fun TrashScreen(
+    items: List<TrashedEntry>?,
+    onBack: () -> Unit,
+    onEmpty: () -> Unit,
+    onPick: (String) -> Unit,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {}
+) {
     val colors = DiaryTheme.colors
     Column(Modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
         DiaryTopBar(
@@ -157,7 +174,7 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
                 }
         )
         when {
-            items == null -> Unit
+            items == null -> if (failed) LoadFailed(onRetry)
 
             items.isEmpty() ->
                 DiaryEmptyArea {
@@ -169,8 +186,9 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
                 }
 
             else -> {
-                // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비운다.
+                // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비움
                 val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
+                val thisYear = rememberToday().year
                 LazyColumn(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth(), contentPadding = PaddingValues(bottom = bottom)) {
                     item {
                         DiaryNotice(
@@ -181,7 +199,7 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
                     }
                     itemsIndexed(items, key = { _, item ->
                         item.row.id
-                    }) { index, item -> TrashRow(item, dividerAbove = index > 0) { onPick(item.row.id) } }
+                    }) { index, item -> TrashRow(item, dividerAbove = index > 0, thisYear) { onPick(item.row.id) } }
                 }
             }
         }
@@ -189,11 +207,13 @@ internal fun TrashScreen(items: List<TrashedEntry>?, onBack: () -> Unit, onEmpty
 }
 
 @Composable
-private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> Unit) {
+private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, thisYear: Int, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     val dates = rememberDiaryDateFormat()
     val row = item.row
+    // 올해가 아니면 연도까지. 작년 일기가 올해 날짜처럼 보이지 않게
+    val day = if (row.date.year == thisYear) dates.monthDay(row.date) else dates.fullDate(row.date)
     val interaction = remember { MutableInteractionSource() }
     Column(
         Modifier
@@ -218,14 +238,14 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
                     row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }
                     BasicText(
-                        stringResource(Res.string.trash_row_when, dates.monthDay(row.date), dates.time(row.time)),
+                        stringResource(Res.string.trash_row_when, day, dates.time(row.time)),
                         style = typography.captionStrong.copy(color = colors.textSecondary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     row.weather?.let { WeatherIcon(it, DiaryIconSize.i16, colors.textSecondary, contentDescription = weatherName(it)) }
                     row.placeName?.let {
-                        // 장소가 길어도 앞의 시각과 날씨를 밀어내지 않는다.
+                        // 장소가 길어도 앞의 시각과 날씨를 밀어내지 않음
                         BasicText(
                             it,
                             modifier = Modifier.weight(1f, fill = false),

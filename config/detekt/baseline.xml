@@ -309,7 +309,6 @@
     <ID>TooManyFunctions:RestoreController.kt:RestoreController : RestoreRepository</ID>
     <ID>TooManyFunctions:RollbackManager.kt:RollbackManager</ID>
     <ID>TooManyFunctions:WriteViewModel.kt:WriteViewModel : ViewModel</ID>
-    <ID>UnusedParameter:BackupScreens.kt:onReconnect: () -&gt; Unit</ID>
     <ID>VariableNaming:ReplaceAndRollbackTest.kt:ReplaceAndRollbackTest$private val T0 get() = now.toEpochMilliseconds()</ID>
     <ID>ViewModelForwarding:WriteRoute.kt:WriteActions(viewModel, rich, colors, viewModel::mediaPath, onPlus)</ID>
   </CurrentIssues>

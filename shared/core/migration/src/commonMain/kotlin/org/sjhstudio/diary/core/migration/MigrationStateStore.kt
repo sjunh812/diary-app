@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.migration
 
 import kotlin.time.Instant
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okio.FileSystem
@@ -14,9 +15,9 @@ import org.sjhstudio.diary.core.model.MigrationState
 import org.sjhstudio.diary.core.model.MigrationStep
 
 /**
- * `migration/state.json`, `report.json`을 임시 파일 + 이름 바꾸기로 쓴다(research R7).
- * Room 밖 작은 파일이라 DB가 없을 때도 읽힌다.
- * 일기 내용, 경로, 예외 메시지는 담지 않는다.
+ * `migration/state.json`, `report.json`을 임시 파일 + 이름 바꾸기로 씀(research R7)
+ * Room 밖 작은 파일이라 DB가 없을 때도 읽힘
+ * 일기 내용, 경로, 예외 메시지는 담지 않음
  */
 class MigrationStateStore(private val fileSystem: FileSystem, private val dir: Path) {
     private val statePath get() = dir / "state.json"
@@ -90,7 +91,7 @@ class MigrationStateStore(private val fileSystem: FileSystem, private val dir: P
         )
     )
 
-    private fun <T> read(path: Path, serializer: kotlinx.serialization.KSerializer<T>): T? = if (!fileSystem.exists(path)) {
+    private fun <T> read(path: Path, serializer: KSerializer<T>): T? = if (!fileSystem.exists(path)) {
         null
     } else {
         runCatching {
@@ -98,7 +99,7 @@ class MigrationStateStore(private val fileSystem: FileSystem, private val dir: P
         }.getOrNull()
     }
 
-    private fun <T> write(path: Path, serializer: kotlinx.serialization.KSerializer<T>, value: T) {
+    private fun <T> write(path: Path, serializer: KSerializer<T>, value: T) {
         fileSystem.createDirectories(dir)
         val temp = dir / "${path.name}.tmp"
         fileSystem.write(temp) { writeUtf8(JSON.encodeToString(serializer, value)) }

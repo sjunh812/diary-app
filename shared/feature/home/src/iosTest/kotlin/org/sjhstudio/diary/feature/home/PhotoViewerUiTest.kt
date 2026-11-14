@@ -25,7 +25,7 @@ import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryPhoto
 
-// 사진을 두 번 눌러 키우고 되돌리고, 원래 크기일 때만 넘긴다(스펙 002 FR-020).
+// 두 번 눌러 키우고 되돌림, 원래 크기일 때만 넘김(스펙 002 FR-020)
 @OptIn(ExperimentalTestApi::class)
 class PhotoViewerUiTest {
     private val photos = List(PAGES) { EntryPhoto("p$it", null, 2000, 1000) }
@@ -88,7 +88,7 @@ class PhotoViewerUiTest {
 
         assertEquals(0, pager.currentPage)
         assertTrue(zoom.zoomed)
-        // 손을 뗀 뒤에도 사진은 범위 안에 있다.
+        // 손을 뗀 뒤에도 사진은 범위 안
         assertTrue(zoom.offset.x.isFinite() && zoom.offset.x < 0f, "${zoom.offset}")
     }
 

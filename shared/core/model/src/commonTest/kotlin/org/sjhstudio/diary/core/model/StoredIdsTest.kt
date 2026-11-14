@@ -3,8 +3,8 @@ package org.sjhstudio.diary.core.model
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-// DB, 설정, 백업에 저장하는 ID가 data-model.md와 같은지 본다.
-// 이 값이 바뀌면 이미 저장된 기록을 읽지 못하므로 시험으로 묶어 둔다(헌법 I).
+// DB, 설정, 백업에 저장하는 ID가 data-model.md와 같은지 확인
+// 바뀌면 이미 저장된 기록을 읽지 못해 시험으로 묶어 둠(헌법 I)
 class StoredIdsTest {
     @Test
     fun mood_ids_and_legacy_codes() {
@@ -42,20 +42,35 @@ class StoredIdsTest {
     }
 
     @Test
+    fun a_replaced_font_moves_to_the_font_in_its_place() {
+        assertEquals(DiaryFont.HAKGYOANSIM_BADASSEUGI, DiaryFont.fromId("gowun_dodum"))
+        assertEquals(DiaryFont.HAKGYOANSIM_BADASSEUGI, DiaryFont.fromId("gmarket_sans"))
+        assertEquals(DiaryFont.BUSAN_DANDI_MYEONGJO, DiaryFont.fromId("maru_buri"))
+        assertEquals(DiaryFont.BUSAN_DANDI_MYEONGJO, DiaryFont.fromId("kimjungchul_myungjo"))
+        assertEquals(DiaryFont.BUSAN_DANDI_MYEONGJO, DiaryFont.fromId("iropke_batang"))
+        assertEquals(DiaryFont.BUSAN_DANDI_MYEONGJO, DiaryFont.fromId("hallym_myungjo"))
+        assertEquals(DiaryFont.CHANGWON_ROUND, DiaryFont.fromId("nanum_pen"))
+        assertEquals(DiaryFont.CHANGWON_ROUND, DiaryFont.fromId("kcc_jeongbeom"))
+        assertEquals(DiaryFont.CHANGWON_ROUND, DiaryFont.fromId("kyobo_2020"))
+        assertEquals(DiaryFont.RIX_WATERMELON, DiaryFont.fromId("gamja_flower"))
+        assertEquals(DiaryFont.SEJONG_GEULGGOT, DiaryFont.fromId("hi_melody"))
+    }
+
+    @Test
     fun font_ids() {
         assertEquals(
             listOf(
                 "pretendard",
                 "system",
-                "gowun_dodum",
+                "hakgyoansim_badasseugi",
                 "changwon_round",
-                "maru_buri",
+                "busan_dandi_myeongjo",
                 "gowun_batang",
-                "nanum_pen",
+                "ownglyph_wiseelist",
                 "nanum_jeomggol",
                 "nanum_cheer",
-                "gamja_flower",
-                "hi_melody"
+                "rix_watermelon",
+                "sejong_geulggot"
             ),
             DiaryFont.entries.map { it.id }
         )

@@ -24,6 +24,8 @@ import okio.ForwardingFileSystem
 import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.Sink
+import okio.blackholeSink
 import okio.buffer
 import okio.openZip
 import okio.use
@@ -100,6 +102,12 @@ class BundleTest {
     private val hash = photo.toByteString().sha256().hex()
     private var estimated = 0L
 
+    private fun exporterA() = BundleExporter(
+        phoneA, BackupStore(InMemoryDataStore(emptyPreferences())), DeviceName { "A" }, fs, dir / "a" / "media",
+        dir / "a" / "backup",
+        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+    )
+
     private suspend fun exportFromA(): Path {
         fs.write(dir / "a" / "media" / "$hash.jpg") { write(photo) }
         phoneA.entryDao().insertAll(
@@ -108,15 +116,10 @@ class BundleTest {
             }
         )
         phoneA.mediaDao().insertAll(listOf(MediaEntity("m", "one", 0, "normal", "$hash.jpg", hash, 1, 1, photo.size.toLong(), null, 1)))
-        val exporter =
-            BundleExporter(
-                phoneA, BackupStore(InMemoryDataStore(emptyPreferences())), DeviceName { "A" }, fs, dir / "a" / "media",
-                dir / "a" / "backup",
-                BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
-            )
+        val exporter = exporterA()
         estimated = exporter.estimate().bytes
         val zip = dir / "exported.zip"
-        fs.sink(zip).buffer().use { exporter.write(it) }
+        exporter.write({ fs.sink(zip) })
         return zip
     }
 
@@ -137,12 +140,28 @@ class BundleTest {
         assertEquals(mapOf("one" to 7L, "two" to 7L), phoneA.backupDao().bases().associate { it.entryId to it.baseUpdatedAt })
     }
 
+    /** 다 쓰고 닫다가 실패하면 저장하지 못한 파일이라 내보냈다고 적지 않음 */
+    @Test
+    fun a_file_that_fails_to_close_remembers_nothing() = runTest {
+        phoneA.entryDao().insertAll(
+            listOf(EntryEntity("one", "2026-10-31", "21:40", "<p>one</p>", "one", null, null, null, false, 1, 7, null, null, null, null))
+        )
+        val closeFails =
+            object : Sink by blackholeSink() {
+                override fun close() = throw IOException("닫지 못함")
+            }
+
+        assertFailsWith<IOException> { exporterA().write({ closeFails }) }
+
+        assertEquals(emptyList(), phoneA.backupDao().bases())
+    }
+
     @Test
     fun estimate_is_close_to_the_saved_file() = runTest {
         val zip = exportFromA()
         val saved = fs.metadata(zip).size!!
 
-        // 사진과 DB가 파일 대부분이고 남는 것은 안내 글, 목록 파일, zip 머리뿐이다.
+        // 사진과 DB가 파일 대부분이고 남는 것은 안내 글, 목록 파일, zip 머리뿐
         assertTrue(estimated in (saved - saved / 5)..saved, "예상 $estimated, 실제 $saved")
     }
 
@@ -200,7 +219,7 @@ class BundleTest {
 
     private val incoming get() = dir / "b" / "backup" / "incoming"
 
-    /** 사진 파일을 옮길 때 실패하는 기기. */
+    /** 사진 파일을 옮길 때 실패하는 기기 */
     private val jammed =
         object : ForwardingFileSystem(fs) {
             override fun atomicMove(source: Path, target: Path) = throw IOException("저장 공간이 없다")
@@ -300,5 +319,50 @@ class BundleTest {
         val estimate = exporter.estimate()
 
         assertEquals(1, estimate.entries)
+    }
+
+    /** 줄은 있는데 파일이 없는 사진을 목록에서 빼면 복원한 기기가 그 사진을 계속 기다림 */
+    @Test
+    fun a_photo_without_its_file_is_listed_as_not_in_the_file() = runTest {
+        val zip = exportFromA()
+        val before = checkNotNull(ManifestCodec.decode(read(zip, "manifest.json")))
+        val lost = before.media.first()
+        fs.delete(dir / "a" / "media" / "${lost.sha256}.${lost.ext}")
+
+        val again = dir / "again.zip"
+        exporterA().write({ fs.sink(again) })
+
+        val manifest = checkNotNull(ManifestCodec.decode(read(again, "manifest.json")))
+        assertEquals(before.media.size, manifest.media.size)
+        assertEquals(listOf(lost.sha256), manifest.media.filter { !it.inBackup }.map { it.sha256 })
+    }
+
+    /** 내보내기 전에 보이는 사진 수는 파일에 실제로 담길 수 */
+    @Test
+    fun the_estimate_leaves_out_a_photo_without_its_file() = runTest {
+        val manifest = checkNotNull(ManifestCodec.decode(read(exportFromA(), "manifest.json")))
+        val all = exporterA().estimate()
+        val lost = manifest.media.first()
+        fs.delete(dir / "a" / "media" / "${lost.sha256}.${lost.ext}")
+
+        val estimate = exporterA().estimate()
+
+        assertEquals(manifest.media.size, all.photos)
+        assertEquals(all.photos - 1, estimate.photos)
+        assertTrue(estimate.bytes < all.bytes)
+    }
+
+    /** 시각 꼴이 다른 줄이 든 백업을 넣으면 목록을 읽지 못하게 됨. 넣기 전에 받지 않음 */
+    @Test
+    fun a_backup_with_an_unreadable_time_is_refused_before_anything_changes() = runTest {
+        phoneA.entryDao().insertAll(
+            listOf(EntryEntity("odd", "2026-10-31", "21:40:30", "<p>글</p>", "글", null, null, null, false, 1, 7, null, null, null, null))
+        )
+        val zip = dir / "odd.zip"
+        exporterA().write({ fs.sink(zip) })
+
+        assertFailsWith<RestoreMismatch> { planner().prepareBundle(zip) }
+
+        assertEquals(0, phoneB.backupDao().allEntries().size)
     }
 }

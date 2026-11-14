@@ -8,10 +8,10 @@ import org.gradle.kotlin.dsl.withType
 import org.sjhstudio.diary.buildlogic.library
 import org.sjhstudio.diary.buildlogic.libs
 
-// 루트 프로젝트에만 쓴다.
-// 모듈마다 baseline을 두면 파일이 서른 개 가까이 되어서, 루트에서 소스를 한 번에 읽고 baseline을 하나만 둔다.
-// 설정은 config/detekt/detekt.yml, 기존 코드의 지적은 config/detekt/baseline.xml에 묶여 있다.
-// 포맷은 spotless(ktlint)가 맡는다. 겹치는 규칙은 detekt.yml에서 껐다.
+// 루트 프로젝트 전용
+// 모듈마다 baseline을 두면 서른 개 가까이 되어 루트에서 소스를 한 번에 읽고 baseline은 하나만
+// 설정은 config/detekt/detekt.yml, 기존 지적은 config/detekt/baseline.xml
+// 포맷은 spotless(ktlint) 담당, 겹치는 규칙은 detekt.yml에서 끔
 class DetektConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         check(this == rootProject) { "diary.detekt는 루트 프로젝트에만 쓴다" }
@@ -31,7 +31,7 @@ class DetektConventionPlugin : Plugin<Project> {
             config.setFrom(configFile)
             baseline.set(baselineFile)
             source.setFrom(sourceTree)
-            // 보고서의 경로를 저장소 기준으로 적는다. baseline이 컴퓨터마다 달라지지 않는다.
+            // 보고서 경로를 저장소 기준으로 적어 baseline이 컴퓨터마다 달라지지 않음
             basePath.set(layout.projectDirectory)
         }
 

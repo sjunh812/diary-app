@@ -9,6 +9,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import okio.FileSystem
@@ -206,6 +207,16 @@ class LegacyBackupImportTest {
         assertEquals(1, plan.preview.entriesUnchanged)
     }
 
+    /** 분까지 같고 초가 다르면 다른 일기. 글이 같아도 빼지 않음 */
+    @Test
+    fun same_minute_and_text_but_another_second_stays() = runTest {
+        val file = upload(Triple(1, "2026-10-01 08:00:05", "같은 글"), Triple(2, "2026-10-01 08:00:40", "같은 글"))
+
+        val plan = importer().prepare(file)
+
+        assertEquals(2, plan.preview.entriesAdded)
+    }
+
     @Test
     fun an_entry_in_the_trash_counts_as_already_here() = runTest {
         db.entryDao().insertAll(listOf(local("here", "같은 글").copy(deletedAt = 5)))
@@ -262,5 +273,45 @@ class LegacyBackupImportTest {
                 "location_x TEXT DEFAULT '', location_y TEXT DEFAULT '', contents TEXT DEFAULT '', mood INTEGER DEFAULT -1, " +
                 "picture TEXT DEFAULT '', create_date TIMESTAMP, modify_date TIMESTAMP, year INTEGER DEFAULT 1900, " +
                 "month INTEGER DEFAULT 1, star INTEGER DEFAULT 0);"
+    }
+
+    /** 날짜를 못 읽은 줄은 불러온 날로 적힘. 다른 날 다시 불러와도 한 편 더 생기면 안 됨 */
+    @Test
+    fun an_entry_with_an_unreadable_date_is_not_added_again_on_another_day() = runTest {
+        val file = upload(Triple(1, "날짜 아님", "글"))
+        importer().apply(importer().prepare(file))
+        val imported = db.backupDao().allEntries().single()
+        // 다른 날 불러오면 불러온 날이 달라짐
+        db.entryDao().update(imported.copy(date = "2020-01-01"))
+
+        val second = importer().prepare(file)
+
+        assertEquals(0, second.preview.entriesAdded)
+        assertEquals(1, second.preview.entriesUnchanged)
+    }
+
+    /** 가운데가 깨진 파일은 읽힌 만큼만 더하고, 못 읽은 수를 미리보기에 실음 */
+    @Test
+    fun a_partly_broken_file_says_how_many_entries_it_could_not_read() = runTest {
+        val filler = "가".repeat(300)
+        val rows = (1L..2000L).map { Triple(it, "2026-10-01 08:00:00", "글 $it $filler") }.toTypedArray()
+        val bytes = drive.bytes(upload(*rows).id)
+        val pageSize = ((bytes[16].toInt() and 0xFF) shl 8) or (bytes[17].toInt() and 0xFF)
+        val start = bytes.size / pageSize / 2
+        for (page in start until start + 3) {
+            for (i in 0 until pageSize) bytes[page * pageSize + i] = (i * 7 + 13).toByte()
+        }
+
+        val preview = importer().prepare(uploadBytes(bytes)).preview
+
+        assertTrue(preview.entriesUnreadable > 0, "못 읽은 줄 ${preview.entriesUnreadable}")
+        assertEquals(2000, preview.entriesAdded + preview.entriesUnreadable)
+    }
+
+    @Test
+    fun a_whole_file_has_nothing_unreadable() = runTest {
+        val preview = importer().prepare(upload(Triple(1, "2026-10-01 08:00:00", "글"))).preview
+
+        assertEquals(0, preview.entriesUnreadable)
     }
 }

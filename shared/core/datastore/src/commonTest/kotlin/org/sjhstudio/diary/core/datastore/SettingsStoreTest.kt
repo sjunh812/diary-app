@@ -28,7 +28,7 @@ class SettingsStoreTest {
             val store = SettingsStore(dataStore)
             val changed =
                 AppSettings(
-                    font = DiaryFont.NANUM_PEN,
+                    font = DiaryFont.OWNGLYPH_WISEELIST,
                     bodyTextSize = BodyTextSize.XLARGE,
                     themeMode = ThemeMode.DARK,
                     askLocationAgain = false,
@@ -58,7 +58,7 @@ class SettingsStoreTest {
                 ),
                 raw.keys
             )
-            assertEquals("nanum_pen", raw["font"])
+            assertEquals("ownglyph_wiseelist", raw["font"])
         }
     }
 
@@ -86,8 +86,8 @@ class SettingsStoreTest {
                 it[stringPreferencesKey("font")] = "kyobo_2019"
                 it[stringPreferencesKey("theme_mode")] = "sepia"
                 it[intPreferencesKey("reminder_minute_of_day")] = 2000
-                // 스펙 002가 더할 키.
-                // 이 저장소가 지우면 안 된다.
+                // 스펙 002가 더할 키
+                // 이 저장소가 지우면 안 됨
                 it[stringPreferencesKey("list_style")] = "card"
             }
             val store = SettingsStore(dataStore)

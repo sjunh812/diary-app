@@ -7,6 +7,7 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenNotificationSettingsURLString
 import platform.UserNotifications.UNAuthorizationOptionAlert
 import platform.UserNotifications.UNAuthorizationOptionSound
+import platform.UserNotifications.UNAuthorizationStatusNotDetermined
 import platform.UserNotifications.UNUserNotificationCenter
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
@@ -18,12 +19,26 @@ actual fun rememberNotificationAccess(): NotificationAccess = remember {
             UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptions(
                 UNAuthorizationOptionAlert or UNAuthorizationOptionSound
             ) { granted, _ ->
-                // 결과는 다른 스레드로 온다.
-                // 화면 상태는 메인 스레드에서 바꾼다.
+                // 결과는 다른 스레드로 옴
+                // 화면 상태는 메인 스레드에서 바꿈
                 dispatch_async(dispatch_get_main_queue()) { onResult(granted) }
             }
         }
 
+        // iOS는 운영체제가 한 번만 묻고, 그 뒤로는 창 없이 지난 답을 돌려줌
+        override fun askInContext() = request {}
+
+        // iOS는 처음 켤 때 창 없이 안내만 보이는 때가 있어서(앱 처음 실행 전에 알림을 켠 경우 등)
+        // [허용하기]가 곧장 설정으로 가면 묻는 창을 한 번도 못 봄
+        override fun allow(onResult: (Boolean) -> Unit) {
+            UNUserNotificationCenter.currentNotificationCenter().getNotificationSettingsWithCompletionHandler { settings ->
+                dispatch_async(dispatch_get_main_queue()) {
+                    if (settings?.authorizationStatus == UNAuthorizationStatusNotDetermined) request(onResult) else openSettings()
+                }
+            }
+        }
+
+        // 이 앱의 알림 설정 화면을 여는 Apple 공식 주소
         override fun openSettings() {
             val url = NSURL.URLWithString(UIApplicationOpenNotificationSettingsURLString) ?: return
             UIApplication.sharedApplication.openURL(url, options = emptyMap<Any?, Any>(), completionHandler = null)

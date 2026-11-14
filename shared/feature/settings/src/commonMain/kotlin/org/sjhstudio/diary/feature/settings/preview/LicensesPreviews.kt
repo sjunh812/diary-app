@@ -7,8 +7,8 @@ import org.sjhstudio.diary.feature.settings.LibraryNotice
 import org.sjhstudio.diary.feature.settings.LicenseTextScreen
 import org.sjhstudio.diary.feature.settings.LicensesScreen
 
-// 오픈소스 라이선스(I1)와 전문(I2) 프리뷰.
-// 값은 Figma 화면과 같다.
+// 오픈소스 라이선스(I1)와 전문(I2) 프리뷰
+// 값은 Figma 화면과 같음
 
 private val sampleLibraries =
     listOf(
@@ -40,7 +40,7 @@ private fun ListLight() = List(dark = false)
 @Composable
 private fun ListDark() = List(dark = true)
 
-/** 라이브러리 목록을 읽는 동안은 글꼴만 보인다. */
+/** 라이브러리 목록을 읽는 동안은 글꼴만 보임 */
 @Preview(name = "I1 오픈소스 라이선스 · 읽는 중", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun ListLoading() = DiaryTheme(darkTheme = false) {
@@ -70,4 +70,22 @@ private fun LibraryTextLight() = DiaryTheme(darkTheme = false) {
         onBack = {},
         details = "androidx.activity:activity 1.12.0\nThe Android Open Source Project"
     )
+}
+
+@Preview(name = "I1 오픈소스 라이선스 · 목록을 읽지 못함", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ListFailedLight() = DiaryTheme(darkTheme = false) {
+    LicensesScreen(null, onFont = {}, onLibrary = {}, onBack = {}, failed = true)
+}
+
+@Preview(name = "I1 오픈소스 라이선스 · 목록을 읽지 못함 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun ListFailedDark() = DiaryTheme(darkTheme = true) {
+    LicensesScreen(null, onFont = {}, onLibrary = {}, onBack = {}, failed = true)
+}
+
+@Preview(name = "I2 전문 · 읽지 못함", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun TextFailedLight() = DiaryTheme(darkTheme = false) {
+    LicenseTextScreen("감자꽃", "SIL Open Font License 1.1", null, onBack = {}, failed = true)
 }
