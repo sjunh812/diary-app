@@ -1,7 +1,6 @@
 package org.sjhstudio.diary.core.data.diary
 
 import androidx.room3.withWriteTransaction
-import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid

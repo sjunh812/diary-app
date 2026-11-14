@@ -17,8 +17,6 @@ import okio.ForwardingFileSystem
 import okio.IOException
 import okio.Path
 import okio.Sink
-import okio.buffer
-import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
