@@ -2,13 +2,19 @@ package org.sjhstudio.diary.core.data.diary
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.launch
 import okio.Path
 import org.sjhstudio.diary.core.database.EntryDao
 import org.sjhstudio.diary.core.database.EntryEntity
@@ -90,5 +96,66 @@ internal suspend fun MediaDao.forRows(entryIds: List<String>): Map<String, List<
  * 그래서 [every]에 한 번으로 묶고, 묶는 사이에 온 변화는 마지막 한 번으로 남겨 놓치지 않음
  * 일정한 시계를 돌리지 않아 바뀌는 게 없으면 아무 일도 하지 않음
  */
-internal fun MediaDao.photoStatusChanges(every: Duration): Flow<Unit> =
-    observeUnsettled().distinctUntilChanged().drop(1).conflate().onEach { delay(every) }.map { }
+internal fun MediaDao.photoStatusChanges(every: Duration, onBaseline: () -> Unit = {}): Flow<Unit> =
+    observeUnsettled().changesSinceFirst(onBaseline).conflate().onEach { delay(every) }.map { }
+
+/**
+ * 첫 값 뒤에 바뀐 값만. 첫 값은 보는 쪽이 이미 아는 기준
+ * 첫 값을 받기 전에 읽기가 실패했으면 기준이 없으니 다시 붙은 뒤의 첫 값도 냄
+ * 실패하면 잠시 뒤 다시 붙고([rejoining]), 다시 붙어도 같은 값은 내지 않음
+ */
+internal fun <T> Flow<T>.changesSinceFirst(onBaseline: () -> Unit = {}): Flow<T> = flow {
+    var failedEarly = false
+    var seen = false
+    rejoining {
+        if (!seen) {
+            failedEarly = true
+            onBaseline()
+        }
+    }.distinctUntilChanged().collect { value ->
+        if (seen || failedEarly) emit(value)
+        if (!seen) {
+            seen = true
+            onBaseline()
+        }
+    }
+}
+
+/**
+ * 감시를 띄우고, 기준을 잡으면(첫 값이나 첫 실패) 끝나는 값을 돌려줌. 그 뒤 바뀔 때마다 [onChange]
+ * 목록은 기준을 다 잡은 뒤에 시작해야 시작하는 사이의 변화를 놓치지 않음
+ */
+internal fun CoroutineScope.watchFromBaseline(changes: (onBaseline: () -> Unit) -> Flow<*>, onChange: () -> Unit): Deferred<Unit> {
+    val baseline = CompletableDeferred<Unit>()
+    launch { changes { baseline.complete(Unit) }.collect { onChange() } }
+    return baseline
+}
+
+/**
+ * 읽기에 실패하면 잠시 뒤 다시 붙음. 한 번 실패로 감시가 끝나면 그 목록을 다시 열 때까지 바뀐 것을 모름
+ * 쿼리 바로 뒤에 붙여, 다시 붙어도 뒤의 중복 거르기가 같은 값을 거름
+ * 목록은 화면 스레드에서 모아 예외가 새면 앱이 꺼짐
+ */
+internal fun <T> Flow<T>.rejoining(onFailure: () -> Unit = {}): Flow<T> = retryWhen { cause, _ ->
+    (cause is Exception).also { retry ->
+        if (retry) {
+            onFailure()
+            delay(REJOIN_AFTER)
+        }
+    }
+}
+
+/**
+ * 첫 값까지의 실패는 그대로 내 화면이 [다시 시도]를 보이고, 그 뒤의 실패는 잠시 뒤 조용히 다시 붙음
+ * 보던 화면이 한 번 실패로 멈춰 그 뒤 고친 것이 안 보이는 일이 없게
+ */
+internal fun <T> Flow<T>.rejoiningAfterFirst(): Flow<T> = flow {
+    var seen = false
+    emitAll(
+        onEach { seen = true }.retryWhen { cause, _ ->
+            (seen && cause is Exception).also { retry -> if (retry) delay(REJOIN_AFTER) }
+        }
+    )
+}
+
+private val REJOIN_AFTER = 5.seconds

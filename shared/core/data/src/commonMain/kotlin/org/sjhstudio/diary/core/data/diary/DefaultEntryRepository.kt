@@ -5,21 +5,15 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
-import androidx.room3.withWriteTransaction
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
@@ -76,16 +70,11 @@ class DefaultEntryRepository(
      * 일기 표만 살피는 쪽은 받은 사진과 두 판 표시를 모르니, 둘이 바뀌면 보던 쪽을 다시 읽음
      */
     private fun pages(factory: InvalidatingPagingSourceFactory<Int, EntryRow>): Flow<PagingData<EntryRow>> = channelFlow {
-        // 사진 상태를 못 읽어도 목록은 그대로 둠. 목록은 화면 스레드에서 모아 예외가 나면 앱이 꺼짐
-        launch { media.photoStatusChanges(photoRefreshEvery).catch { }.collect { factory.invalidate() } }
-        // 표시는 첫 값을 받은 뒤 목록을 시작. 그 사이에 바뀐 표시도 놓치지 않음
-        val firstMarks = CompletableDeferred<Unit>()
-        launch {
-            shownMarks().catch { firstMarks.complete(Unit) }.collectIndexed { index, _ ->
-                if (index == 0) firstMarks.complete(Unit) else factory.invalidate()
-            }
-        }
-        firstMarks.await()
+        // 사진 상태와 두 판 표시의 기준을 잡은 뒤 목록을 시작. 그 사이의 변화를 놓치지 않음
+        awaitAll(
+            watchFromBaseline({ media.photoStatusChanges(photoRefreshEvery, it) }) { factory.invalidate() },
+            watchFromBaseline({ marks.shownMarks().map { rows -> rows.toHashSet() }.changesSinceFirst(it) }) { factory.invalidate() }
+        )
         Pager(pageConfig, pagingSourceFactory = factory).flow.collect { send(it) }
     }
 
@@ -115,15 +104,16 @@ class DefaultEntryRepository(
                 keptBothWith = pair
             )
         }
-    }
+    }.rejoiningAfterFirst()
 
     /** 표시를 닫으면 짝의 표시도 함께 지움. 짝이 이미 다른 일기와 짝이면 그 표시는 둠 */
     override suspend fun clearKeptBoth(id: String) = marks.clearPair(id)
 
-    override fun months(): Flow<Set<YearMonth>> = entries.months().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
+    // 쓰는 곳(홈 쓰기 버튼, 연·월 고르기, 달력 끝 달)에 다시 시도가 없어 처음부터 다시 붙음
+    override fun months(): Flow<Set<YearMonth>> = entries.months().rejoining().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
 
     override fun favoriteMonths(): Flow<Set<YearMonth>> =
-        entries.favoriteMonths().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
+        entries.favoriteMonths().rejoining().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
 
     override suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int =
         entries.countAfter(month.onDay(month.numberOfDays).toString(), favoritesOnly)
@@ -135,13 +125,13 @@ class DefaultEntryRepository(
     ) { rows, ids, _ ->
         val photos = media.forRows(rows.map { it.id })
         rows.map { it.toRow(photos[it.id].orEmpty(), mediaDir).copy(keptBoth = it.id in ids) }
-    }
+    }.rejoiningAfterFirst()
 
-    /** 보일 두 판 표시. 같은 값은 다시 내지 않아 일기를 저장할 때마다 목록을 다시 읽지 않음 */
+    /** 보일 두 판 표시. 같은 값은 다시 내지 않아 일기를 저장할 때마다 다시 읽지 않음 */
     private fun shownMarks(): Flow<Set<String>> = marks.shownMarks().map { it.toHashSet() }.distinctUntilChanged()
 
     override fun month(month: YearMonth): Flow<Map<LocalDate, DayMood>> =
-        entries.dayMoods(month.onDay(1).toString(), month.onDay(month.numberOfDays).toString()).map(::toDayMoods)
+        entries.dayMoods(month.onDay(1).toString(), month.onDay(month.numberOfDays).toString()).rejoiningAfterFirst().map(::toDayMoods)
 
     override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = pages(InvalidatingPagingSourceFactory { searchPages(filter) })
 

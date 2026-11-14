@@ -41,7 +41,7 @@ class DefaultTrashRepository(
             val deletedAt = Instant.fromEpochMilliseconds(trashed.deletedAt)
             TrashedEntry(trashed.row.toRow(photos[trashed.row.id].orEmpty(), mediaDir), deletedAt, daysLeft(deletedAt, now))
         }
-    }
+    }.rejoiningAfterFirst()
 
     override suspend fun restore(id: String) = entries.setDeletedAt(id, null, clock.now().toEpochMilliseconds())
 
