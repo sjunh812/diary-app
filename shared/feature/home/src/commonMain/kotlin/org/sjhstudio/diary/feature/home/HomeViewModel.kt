@@ -46,13 +46,18 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     private val favorites = MutableStateFlow(false)
     val favoritesOnly: StateFlow<Boolean> = favorites.asStateFlow()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val rows: Flow<PagingData<EntryRow>> = favoritesOnly.flatMapLatest { entries.timeline(it) }.cachedIn(viewModelScope)
+    /**
+     * 전체 목록과 즐겨찾기 목록은 따로 페이징
+     * 한 흐름을 바꿔 끼우면 새 목록이 오기 전 한 순간 옛 필터의 빈 목록이 새 필터 문구로 보임
+     */
+    val allRows: Flow<PagingData<EntryRow>> = entries.timeline(false).cachedIn(viewModelScope)
+    val favoriteRows: Flow<PagingData<EntryRow>> = entries.timeline(true).cachedIn(viewModelScope)
 
     val look: StateFlow<BodyLook> =
         settings.bodyLookIn(viewModelScope, fonts::installedPath)
 
     /** 일기가 있는 달. 연·월 고르기 시트가 이 달만 고르게 함 */
+    @OptIn(ExperimentalCoroutinesApi::class)
     val months: StateFlow<Set<YearMonth>> =
         favoritesOnly.flatMapLatest { only -> if (only) entries.favoriteMonths() else entries.months() }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, emptySet())

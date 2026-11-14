@@ -121,10 +121,12 @@ fun HomeRoute(
     onListStyle: (() -> Unit)? = null
 ) {
     val viewModel = koinViewModel<HomeViewModel>()
-    val rows = viewModel.rows.collectAsLazyPagingItems()
-    // 첫 목록을 읽어야 다 그려진 것(시작 시간 측정 기준)
-    ReportDrawnWhen { rows.loadState.refresh !is LoadState.Loading }
+    val allRows = viewModel.allRows.collectAsLazyPagingItems()
+    val favoriteRows = viewModel.favoriteRows.collectAsLazyPagingItems()
     val favoritesOnly by viewModel.favoritesOnly.collectAsStateWithLifecycle()
+    val rows = if (favoritesOnly) favoriteRows else allRows
+    // 첫 목록을 읽어야 다 그려진 것(시작 시간 측정 기준)
+    ReportDrawnWhen { allRows.loadState.refresh !is LoadState.Loading }
     val months by viewModel.months.collectAsStateWithLifecycle()
     val look by viewModel.look.collectAsStateWithLifecycle()
     val style by viewModel.style.collectAsStateWithLifecycle()
