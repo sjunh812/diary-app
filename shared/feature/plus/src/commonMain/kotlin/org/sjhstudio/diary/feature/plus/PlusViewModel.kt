@@ -29,7 +29,9 @@ data class PlusUiState(
     /** 방금 결제가 실패함. 광고 제거 시트는 토스트가 없는 화면에서도 열려 시트가 직접 보임 */
     val buyFailed: Boolean = false,
     /** 방금 구매 복원의 결과. 찾지 못했거나 실패했을 때만 있고, 시트가 직접 보임 */
-    val restoreNotice: PlusMessage? = null
+    val restoreNotice: PlusMessage? = null,
+    /** 결제 화면이 한 번 띄울 안내. 띄운 뒤 [PlusViewModel.messageShown]으로 지움 */
+    val message: PlusMessage? = null
 ) {
     fun price(id: ProductId): Price? = products.firstOrNull { it.id == id }?.price
 }
@@ -46,9 +48,6 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
 
     private val _state = MutableStateFlow(PlusUiState())
     val state: StateFlow<PlusUiState> = _state.asStateFlow()
-
-    private val _messages = Channel<PlusMessage>(Channel.BUFFERED)
-    val messages: Flow<PlusMessage> = _messages.receiveAsFlow()
 
     // 결제가 끝남(이미 가진 것 포함). 화면 콜백을 쥐지 않고 이벤트로 보내 화면이 다시 만들어져도 받음
     private val _purchased = Channel<ProductId>(Channel.BUFFERED)
@@ -95,12 +94,14 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
             _state.update { it.copy(buyFailed = result == PurchaseResult.FAILED, restoreNotice = null) }
             when (result) {
                 PurchaseResult.DONE -> _purchased.send(id)
-                PurchaseResult.FAILED -> _messages.send(PlusMessage.Failed)
-                PurchaseResult.PENDING -> _messages.send(PlusMessage.Pending)
+                PurchaseResult.FAILED -> _state.update { it.copy(message = PlusMessage.Failed) }
+                PurchaseResult.PENDING -> _state.update { it.copy(message = PlusMessage.Pending) }
                 PurchaseResult.CANCELLED, PurchaseResult.NOTHING -> Unit
             }
         }
     }
+
+    fun messageShown() = _state.update { it.copy(message = null) }
 
     /** 시트를 닫음. 다시 열 때 지난 안내가 남아 있지 않게 지움 */
     fun failureShown() = _state.update { it.copy(buyFailed = false, restoreNotice = null) }
@@ -130,8 +131,9 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
                     PurchaseResult.NOTHING, PurchaseResult.PENDING -> PlusMessage.RestoreNone
                     PurchaseResult.CANCELLED -> null
                 }
-            _state.update { it.copy(buyFailed = false, restoreNotice = message.takeUnless { message == PlusMessage.Restored }) }
-            message?.let { _messages.send(it) }
+            _state.update {
+                it.copy(buyFailed = false, restoreNotice = message.takeUnless { message == PlusMessage.Restored }, message = message)
+            }
         }
     }
 }

@@ -116,7 +116,7 @@ class PlusViewModelTest {
 
         viewModel.buy(ProductId.PLUS_YEARLY)
         advanceUntilIdle()
-        assertEquals(PlusMessage.Failed, viewModel.messages.first())
+        assertEquals(PlusMessage.Failed, viewModel.state.value.message)
         assertEquals(false, viewModel.state.value.busy)
 
         store.result = PurchaseResult.CANCELLED
@@ -136,7 +136,7 @@ class PlusViewModelTest {
         viewModel.buy(ProductId.PLUS_YEARLY)
         advanceUntilIdle()
 
-        assertEquals(PlusMessage.Pending, viewModel.messages.first())
+        assertEquals(PlusMessage.Pending, viewModel.state.value.message)
         assertEquals(false, viewModel.state.value.buyFailed)
         assertEquals(false, viewModel.state.value.busy)
         // 승인되기 전에는 산 것처럼 화면을 닫지 않음
@@ -151,7 +151,7 @@ class PlusViewModelTest {
         viewModel.restore()
         advanceUntilIdle()
 
-        assertEquals(PlusMessage.RestoreNone, viewModel.messages.first())
+        assertEquals(PlusMessage.RestoreNone, viewModel.state.value.message)
     }
 
     @Test
@@ -162,7 +162,7 @@ class PlusViewModelTest {
         viewModel.restore()
         advanceUntilIdle()
 
-        assertEquals(PlusMessage.RestoreFailed, viewModel.messages.first())
+        assertEquals(PlusMessage.RestoreFailed, viewModel.state.value.message)
     }
 
     /** 구매를 취소할 때처럼 아무 말 없이 그대로 돌아옴 */
@@ -174,7 +174,7 @@ class PlusViewModelTest {
         viewModel.restore()
         advanceUntilIdle()
 
-        assertNull(withTimeoutOrNull(1) { viewModel.messages.first() })
+        assertNull(viewModel.state.value.message)
         assertNull(viewModel.state.value.restoreNotice)
         assertEquals(false, viewModel.state.value.busy)
     }
@@ -187,7 +187,7 @@ class PlusViewModelTest {
         viewModel.restore()
         advanceUntilIdle()
 
-        assertEquals(PlusMessage.Restored, viewModel.messages.first())
+        assertEquals(PlusMessage.Restored, viewModel.state.value.message)
     }
 
     @Test
@@ -199,7 +199,7 @@ class PlusViewModelTest {
         viewModel.buy(ProductId.PLUS_YEARLY)
         advanceUntilIdle()
 
-        assertEquals(PlusMessage.Failed, viewModel.messages.first())
+        assertEquals(PlusMessage.Failed, viewModel.state.value.message)
         assertEquals(false, viewModel.state.value.busy)
     }
 
@@ -211,7 +211,7 @@ class PlusViewModelTest {
         viewModel.restore()
         advanceUntilIdle()
 
-        assertEquals(PlusMessage.RestoreFailed, viewModel.messages.first())
+        assertEquals(PlusMessage.RestoreFailed, viewModel.state.value.message)
         assertEquals(false, viewModel.state.value.busy)
     }
 
@@ -341,7 +341,7 @@ class PlusViewModelTest {
         viewModel.restore()
         advanceUntilIdle()
 
-        assertEquals(PlusMessage.Restored, viewModel.messages.first())
+        assertEquals(PlusMessage.Restored, viewModel.state.value.message)
         assertEquals(Plan.AD_FREE, viewModel.plan.value)
     }
 

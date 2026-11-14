@@ -126,19 +126,19 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     val restored = stringResource(Res.string.plus_restored)
     val none = stringResource(Res.string.plus_restore_none)
     val restoreFailed = stringResource(Res.string.plus_restore_failed)
-    LaunchedEffect(viewModel) {
-        viewModel.messages.collect { message ->
-            scope.launch {
-                toast.show(
-                    when (message) {
-                        PlusMessage.Failed -> failed
-                        PlusMessage.Pending -> pending
-                        PlusMessage.Restored -> restored
-                        PlusMessage.RestoreNone -> none
-                        PlusMessage.RestoreFailed -> restoreFailed
-                    }
-                )
-            }
+    LaunchedEffect(state.message) {
+        val message = state.message ?: return@LaunchedEffect
+        viewModel.messageShown()
+        scope.launch {
+            toast.show(
+                when (message) {
+                    PlusMessage.Failed -> failed
+                    PlusMessage.Pending -> pending
+                    PlusMessage.Restored -> restored
+                    PlusMessage.RestoreNone -> none
+                    PlusMessage.RestoreFailed -> restoreFailed
+                }
+            )
         }
     }
     val openWeb = rememberOpenWebLink(toast)
