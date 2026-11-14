@@ -164,6 +164,9 @@ object DiaryAdSize {
 
     /** 얇은 줄의 광고 아이콘 */
     val icon: Dp = 40.dp
+
+    /** 얇은 줄 오른쪽 끝의 AdChoices 자리(아이콘 15 + 여백). 행동 버튼이 그 밑에 깔리지 않음 */
+    val adChoices: Dp = 20.dp
 }
 
 /** 쓰기 화면 크기(Figma "쓰기 (S2)") */

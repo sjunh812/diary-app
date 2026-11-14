@@ -140,10 +140,15 @@ private fun AdIcon(ad: NativeAd, adView: NativeAdView) {
 /**
  * 얇은 줄: 아이콘, 제목과 "광고", 행동 버튼을 한 줄에 세로 가운데로 둠
  * 앱 목록 줄과 같은 꼴이라 일기 사이에서 튀지 않음
+ * SDK가 오른쪽 아래 구석에 AdChoices를 얹어 그 자리를 비움(AdMob: AdChoices를 가리면 안 됨)
  */
 @Composable
 private fun AdRow(ad: NativeAd, adView: NativeAdView) {
-    Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        Modifier.padding(end = DiaryAdSize.adChoices),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         AdIcon(ad, adView)
         Column(Modifier.weight(1f)) {
             AdHeadline(ad, adView)
