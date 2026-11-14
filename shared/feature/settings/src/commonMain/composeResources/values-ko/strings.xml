@@ -43,6 +43,7 @@
     <string name="license_kimjungchul">김정철 서체 라이선스</string>
     <string name="license_watermelon">수박양체 안내</string>
     <string name="license_sejong">세종글꽃체 안내</string>
+    <string name="license_kyobo">교보 손글씨 서체 안내</string>
     <string name="settings_text_size">본문 글자 크기</string>
     <string name="settings_theme">화면 모드</string>
     <string name="settings_lock">잠금</string>
@@ -70,11 +71,11 @@
     <string name="settings_font">글꼴</string>
     <string name="font_name_system">시스템 글꼴</string>
     <string name="font_name_pretendard">Pretendard</string>
-    <string name="font_name_gmarket_sans">G마켓 산스</string>
+    <string name="font_name_hakgyoansim_badasseugi">학교안심 받아쓰기</string>
     <string name="font_name_changwon_round">창원단감둥근체</string>
     <string name="font_name_kimjungchul_myungjo">김정철명조</string>
     <string name="font_name_gowun_batang">고운바탕</string>
-    <string name="font_name_kcc_jeongbeom">KCC정범체</string>
+    <string name="font_name_kyobo_2020">교보손글씨 2020 박도연</string>
     <string name="font_name_nanum_jeomggol">나눔손글씨 점꼴체</string>
     <string name="font_name_nanum_cheer">힘내라는 말보단</string>
     <string name="font_name_rix_watermelon">수박양체</string>

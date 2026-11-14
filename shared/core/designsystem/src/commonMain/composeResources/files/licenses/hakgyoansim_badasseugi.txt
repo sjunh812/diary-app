@@ -1,10 +1,10 @@
-KCC정범체
+학교안심 받아쓰기
 
-© 2021 Korea Copyright Commission. All rights reserved.
+Copyright © KERIS. All rights reserved.
 
-한국저작권위원회가 공유마당에서 SIL Open Font License 1.1로 공개한 글꼴입니다.
-출처: 공유마당 KCC정범체
-https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13300206&menuNo=200023
+교육부와 한국교육학술정보원(KERIS)이 학교 안심폰트로 SIL Open Font License 1.1에 따라 공개한 글꼴입니다.
+출처: 교육저작권지원센터 학교 안심폰트
+https://copyright.keris.or.kr/wft/fntDwnld
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

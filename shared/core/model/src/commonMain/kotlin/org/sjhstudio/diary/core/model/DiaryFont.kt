@@ -7,11 +7,11 @@ package org.sjhstudio.diary.core.model
 enum class DiaryFont(val id: String) {
     PRETENDARD("pretendard"),
     SYSTEM("system"),
-    GMARKET_SANS("gmarket_sans"),
+    HAKGYOANSIM_BADASSEUGI("hakgyoansim_badasseugi"),
     CHANGWON_ROUND("changwon_round"),
     KIMJUNGCHUL_MYUNGJO("kimjungchul_myungjo"),
     GOWUN_BATANG("gowun_batang"),
-    KCC_JEONGBEOM("kcc_jeongbeom"),
+    KYOBO_2020("kyobo_2020"),
     NANUM_JEOMGGOL("nanum_jeomggol"),
     NANUM_CHEER("nanum_cheer"),
     RIX_WATERMELON("rix_watermelon"),
@@ -27,9 +27,11 @@ enum class DiaryFont(val id: String) {
         private val RENAMED =
             listOf("cafe24_surround", "line_seed", "binggrae", "hyemin").associateWith { "changwon_round" } +
                 mapOf(
-                    "gowun_dodum" to "gmarket_sans",
+                    "gowun_dodum" to "hakgyoansim_badasseugi",
+                    "gmarket_sans" to "hakgyoansim_badasseugi",
                     "maru_buri" to "kimjungchul_myungjo",
-                    "nanum_pen" to "kcc_jeongbeom",
+                    "nanum_pen" to "kyobo_2020",
+                    "kcc_jeongbeom" to "kyobo_2020",
                     "gamja_flower" to "rix_watermelon",
                     "hi_melody" to "sejong_geulggot"
                 )

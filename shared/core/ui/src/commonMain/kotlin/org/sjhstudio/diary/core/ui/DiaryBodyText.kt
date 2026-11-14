@@ -13,8 +13,8 @@ import org.jetbrains.compose.resources.Font
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.changwon_round_regular
-import org.sjhstudio.diary.core.designsystem.resources.gmarket_sans_medium
-import org.sjhstudio.diary.core.designsystem.resources.kcc_jeongbeom_regular
+import org.sjhstudio.diary.core.designsystem.resources.hakgyoansim_badasseugi_light
+import org.sjhstudio.diary.core.designsystem.resources.kyobo_2020_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
 import org.sjhstudio.diary.core.designsystem.resources.rix_watermelon_regular
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -33,9 +33,9 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
         DiaryFont.SYSTEM,
         DiaryFont.NANUM_CHEER,
         DiaryFont.CHANGWON_ROUND,
-        DiaryFont.GMARKET_SANS,
+        DiaryFont.HAKGYOANSIM_BADASSEUGI,
         DiaryFont.RIX_WATERMELON,
-        DiaryFont.KCC_JEONGBEOM
+        DiaryFont.KYOBO_2020
     )
 
 /**
@@ -59,9 +59,9 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
     DiaryFont.PRETENDARD -> pretendardFamily()
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
     DiaryFont.CHANGWON_ROUND -> FontFamily(Font(Res.font.changwon_round_regular))
-    DiaryFont.GMARKET_SANS -> FontFamily(Font(Res.font.gmarket_sans_medium))
+    DiaryFont.HAKGYOANSIM_BADASSEUGI -> FontFamily(Font(Res.font.hakgyoansim_badasseugi_light))
     DiaryFont.RIX_WATERMELON -> FontFamily(Font(Res.font.rix_watermelon_regular))
-    DiaryFont.KCC_JEONGBEOM -> FontFamily(Font(Res.font.kcc_jeongbeom_regular))
+    DiaryFont.KYOBO_2020 -> FontFamily(Font(Res.font.kyobo_2020_regular))
     else -> installed(font) ?: pretendardFamily()
 }
 
@@ -74,9 +74,9 @@ val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
     mapOf(
         DiaryFont.NANUM_CHEER to "nanum_cheer_regular.ttf",
         DiaryFont.CHANGWON_ROUND to "changwon_round_regular.otf",
-        DiaryFont.GMARKET_SANS to "gmarket_sans_medium.ttf",
+        DiaryFont.HAKGYOANSIM_BADASSEUGI to "hakgyoansim_badasseugi_light.otf",
         DiaryFont.RIX_WATERMELON to "rix_watermelon_regular.otf",
-        DiaryFont.KCC_JEONGBEOM to "kcc_jeongbeom_regular.otf"
+        DiaryFont.KYOBO_2020 to "kyobo_2020_regular.otf"
     )
 
 /**

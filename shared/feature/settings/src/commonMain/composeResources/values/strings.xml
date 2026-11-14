@@ -48,6 +48,7 @@
     <string name="license_kimjungchul">Kim Jungchul Font License</string>
     <string name="license_watermelon">Watermelon Yang License</string>
     <string name="license_sejong">Sejong Geulggot License</string>
+    <string name="license_kyobo">Kyobo Handwriting License</string>
     <string name="settings_text_size">Diary text size</string>
     <string name="settings_theme">Appearance</string>
     <string name="settings_lock">Lock</string>
@@ -75,11 +76,11 @@
     <string name="settings_font">Font</string>
     <string name="font_name_system">System font</string>
     <string name="font_name_pretendard">Pretendard</string>
-    <string name="font_name_gmarket_sans">Gmarket Sans</string>
+    <string name="font_name_hakgyoansim_badasseugi">Hakgyoansim Badasseugi</string>
     <string name="font_name_changwon_round">Changwon Dangam Round</string>
     <string name="font_name_kimjungchul_myungjo">Kim Jungchul Myungjo</string>
     <string name="font_name_gowun_batang">Gowun Batang</string>
-    <string name="font_name_kcc_jeongbeom">KCC Jeongbeom</string>
+    <string name="font_name_kyobo_2020">Kyobo Handwriting 2020</string>
     <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
     <string name="font_name_nanum_cheer">Nanum Himnaeraneun</string>
     <string name="font_name_rix_watermelon">Watermelon Yang</string>

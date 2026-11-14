@@ -61,7 +61,7 @@ object LegacySettingsMapper {
     private fun font(key: Int): DiaryFont = when (key) {
         100 -> DiaryFont.SYSTEM
         1, 5 -> DiaryFont.NANUM_CHEER
-        2, 7, 11 -> DiaryFont.KCC_JEONGBEOM
+        2, 7, 11 -> DiaryFont.KYOBO_2020
         3 -> DiaryFont.NANUM_JEOMGGOL
         4, 10 -> DiaryFont.RIX_WATERMELON
         6, 13 -> DiaryFont.SEJONG_GEULGGOT

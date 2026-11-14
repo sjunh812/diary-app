@@ -5,14 +5,14 @@ import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.font_name_changwon_round
-import org.sjhstudio.diary.feature.settings.resources.font_name_gmarket_sans
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_latin
-import org.sjhstudio.diary.feature.settings.resources.font_name_kcc_jeongbeom
+import org.sjhstudio.diary.feature.settings.resources.font_name_hakgyoansim_badasseugi
 import org.sjhstudio.diary.feature.settings.resources.font_name_kimjungchul_myungjo
 import org.sjhstudio.diary.feature.settings.resources.font_name_kimjungchul_myungjo_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_kimjungchul_myungjo_latin
+import org.sjhstudio.diary.feature.settings.resources.font_name_kyobo_2020
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_cheer
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_ko
@@ -45,11 +45,11 @@ internal val FONT_DOWNLOAD_MB: Map<DiaryFont, Double> =
 internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.SYSTEM -> Res.string.font_name_system
     DiaryFont.PRETENDARD -> Res.string.font_name_pretendard
-    DiaryFont.GMARKET_SANS -> Res.string.font_name_gmarket_sans
+    DiaryFont.HAKGYOANSIM_BADASSEUGI -> Res.string.font_name_hakgyoansim_badasseugi
     DiaryFont.CHANGWON_ROUND -> Res.string.font_name_changwon_round
     DiaryFont.KIMJUNGCHUL_MYUNGJO -> Res.string.font_name_kimjungchul_myungjo
     DiaryFont.GOWUN_BATANG -> Res.string.font_name_gowun_batang
-    DiaryFont.KCC_JEONGBEOM -> Res.string.font_name_kcc_jeongbeom
+    DiaryFont.KYOBO_2020 -> Res.string.font_name_kyobo_2020
     DiaryFont.NANUM_JEOMGGOL -> Res.string.font_name_nanum_jeomggol
     DiaryFont.NANUM_CHEER -> Res.string.font_name_nanum_cheer
     DiaryFont.RIX_WATERMELON -> Res.string.font_name_rix_watermelon

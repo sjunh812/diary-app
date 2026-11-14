@@ -85,11 +85,11 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | --- | --- | --- |
 | `pretendard` | Pretendard | -1, 0, 그 밖의 값 |
 | `system` | 시스템 글꼴 | 100 |
-| `gmarket_sans` | G마켓 산스 | 없음(새 글꼴) |
+| `hakgyoansim_badasseugi` | 학교안심 받아쓰기 | 없음(새 글꼴) |
 | `changwon_round` | 창원단감둥근체 | 9, 12 |
 | `kimjungchul_myungjo` | 김정철명조 | 없음(새 글꼴) |
 | `gowun_batang` | 고운바탕 | 8 |
-| `kcc_jeongbeom` | KCC정범체 | 2, 7, 11 |
+| `kyobo_2020` | 교보손글씨 2020 박도연 | 2, 7, 11 |
 | `nanum_jeomggol` | 나눔손글씨 점꼴체 | 3 |
 | `nanum_cheer` | 나눔손글씨 힘내라는 말보단 | 1, 5 |
 | `rix_watermelon` | 수박양체 | 4, 10 |

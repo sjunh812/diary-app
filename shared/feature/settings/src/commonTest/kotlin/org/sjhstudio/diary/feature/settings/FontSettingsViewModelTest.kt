@@ -42,9 +42,9 @@ class FontSettingsViewModelTest {
         val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
 
-        vm.select(DiaryFont.GMARKET_SANS)
+        vm.select(DiaryFont.HAKGYOANSIM_BADASSEUGI)
         advanceUntilIdle()
-        assertEquals(DiaryFont.GMARKET_SANS, settings.settings.first().font)
+        assertEquals(DiaryFont.HAKGYOANSIM_BADASSEUGI, settings.settings.first().font)
         assertEquals(emptyList(), installer.requested)
     }
 
@@ -87,12 +87,12 @@ class FontSettingsViewModelTest {
 
         vm.select(DiaryFont.SEJONG_GEULGGOT)
         advanceUntilIdle()
-        vm.select(DiaryFont.GMARKET_SANS)
+        vm.select(DiaryFont.HAKGYOANSIM_BADASSEUGI)
         advanceUntilIdle()
         installer.emit(FontInstallState.Installed("/fonts/sejong_geulggot.ttf"))
         advanceUntilIdle()
 
-        assertEquals(DiaryFont.GMARKET_SANS, settings.settings.first().font)
+        assertEquals(DiaryFont.HAKGYOANSIM_BADASSEUGI, settings.settings.first().font)
         assertTrue(vm.state.value.isReady(DiaryFont.SEJONG_GEULGGOT))
     }
 
