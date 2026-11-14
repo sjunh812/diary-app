@@ -9,7 +9,7 @@ enum class DiaryFont(val id: String) {
     SYSTEM("system"),
     HAKGYOANSIM_BADASSEUGI("hakgyoansim_badasseugi"),
     CHANGWON_ROUND("changwon_round"),
-    KIMJUNGCHUL_MYUNGJO("kimjungchul_myungjo"),
+    IROPKE_BATANG("iropke_batang"),
     GOWUN_BATANG("gowun_batang"),
     KYOBO_2020("kyobo_2020"),
     NANUM_JEOMGGOL("nanum_jeomggol"),
@@ -29,7 +29,8 @@ enum class DiaryFont(val id: String) {
                 mapOf(
                     "gowun_dodum" to "hakgyoansim_badasseugi",
                     "gmarket_sans" to "hakgyoansim_badasseugi",
-                    "maru_buri" to "kimjungchul_myungjo",
+                    "maru_buri" to "iropke_batang",
+                    "kimjungchul_myungjo" to "iropke_batang",
                     "nanum_pen" to "kyobo_2020",
                     "kcc_jeongbeom" to "kyobo_2020",
                     "gamja_flower" to "rix_watermelon",

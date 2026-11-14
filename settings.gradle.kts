@@ -43,7 +43,7 @@ include(":composeApp")
 include(":benchmarks")
 
 // 고를 때 받는 일기 글꼴. 글꼴마다 자산만 든 Play 필요할 때 설치 모듈이다(research R17). iOS도 같은 파일을 쓴다.
-include(":fonts:gowun_batang", ":fonts:kimjungchul_myungjo", ":fonts:nanum_jeomggol", ":fonts:sejong_geulggot")
+include(":fonts:gowun_batang", ":fonts:nanum_jeomggol", ":fonts:sejong_geulggot")
 
 // 시작 관문과 화면 전환 뼈대. 안드로이드는 composeApp이 감싸고, iOS는 이 모듈을 Shared 프레임워크로 받는다.
 include(":shared:app")

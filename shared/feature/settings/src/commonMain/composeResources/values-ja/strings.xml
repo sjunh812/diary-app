@@ -40,7 +40,6 @@
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_changwon_round">Changwon Dangam Round ライセンス</string>
     <string name="license_naver">NAVERフォントライセンス</string>
-    <string name="license_kimjungchul">Kim Jungchul フォントライセンス</string>
     <string name="license_watermelon">Watermelon Yang ライセンス</string>
     <string name="license_sejong">Sejong Geulggot ライセンス</string>
     <string name="license_kyobo">Kyobo Handwriting ライセンス</string>
@@ -73,7 +72,7 @@
     <string name="font_name_pretendard">Pretendard</string>
     <string name="font_name_hakgyoansim_badasseugi">Hakgyoansim Badasseugi</string>
     <string name="font_name_changwon_round">Changwon Dangam Round</string>
-    <string name="font_name_kimjungchul_myungjo">Kim Jungchul Myungjo</string>
+    <string name="font_name_iropke_batang">Iropke Batang</string>
     <string name="font_name_gowun_batang">Gowun Batang</string>
     <string name="font_name_kyobo_2020">Kyobo Handwriting 2020</string>
     <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>

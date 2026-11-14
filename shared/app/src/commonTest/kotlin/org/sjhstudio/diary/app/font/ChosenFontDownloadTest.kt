@@ -41,9 +41,9 @@ class ChosenFontDownloadTest {
 
     @Test
     fun skips_bundled_and_installed_fonts() = runTest {
-        val installer = RecordingInstaller(installed = setOf("kimjungchul_myungjo"))
+        val installer = RecordingInstaller(installed = setOf("gowun_batang"))
         ChosenFontDownload(FakeSettingsRepository(AppSettings(font = DiaryFont.NANUM_CHEER)), installer, backgroundScope).start()
-        ChosenFontDownload(FakeSettingsRepository(AppSettings(font = DiaryFont.KIMJUNGCHUL_MYUNGJO)), installer, backgroundScope).start()
+        ChosenFontDownload(FakeSettingsRepository(AppSettings(font = DiaryFont.GOWUN_BATANG)), installer, backgroundScope).start()
         testScheduler.runCurrent()
         assertEquals(emptyList(), installer.requested)
     }
@@ -55,6 +55,6 @@ class ChosenFontDownloadTest {
         testScheduler.runCurrent()
         val kept = checkNotNull(installer.kept)
         assertTrue("sejong_geulggot" in kept && "gowun_batang" in kept)
-        assertFalse("gamja_flower" in kept || "hi_melody" in kept || "gowun_dodum" in kept)
+        assertFalse("gamja_flower" in kept || "hi_melody" in kept || "gowun_dodum" in kept || "kimjungchul_myungjo" in kept)
     }
 }

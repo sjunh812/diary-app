@@ -40,7 +40,6 @@
     <string name="license_ofl">SIL Open Font License 1.1</string>
     <string name="license_changwon_round">창원단감둥근체 안내</string>
     <string name="license_naver">네이버 글꼴 라이선스</string>
-    <string name="license_kimjungchul">김정철 서체 라이선스</string>
     <string name="license_watermelon">수박양체 안내</string>
     <string name="license_sejong">세종글꽃체 안내</string>
     <string name="license_kyobo">교보 손글씨 서체 안내</string>
@@ -73,7 +72,7 @@
     <string name="font_name_pretendard">Pretendard</string>
     <string name="font_name_hakgyoansim_badasseugi">학교안심 받아쓰기</string>
     <string name="font_name_changwon_round">창원단감둥근체</string>
-    <string name="font_name_kimjungchul_myungjo">김정철명조</string>
+    <string name="font_name_iropke_batang">이롭게 바탕체</string>
     <string name="font_name_gowun_batang">고운바탕</string>
     <string name="font_name_kyobo_2020">교보손글씨 2020 박도연</string>
     <string name="font_name_nanum_jeomggol">나눔손글씨 점꼴체</string>

@@ -103,13 +103,13 @@ class FontSettingsViewModelTest {
         val notices = mutableListOf<FontNotice>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.notice.collect { notices += it } }
 
-        vm.select(DiaryFont.KIMJUNGCHUL_MYUNGJO)
+        vm.select(DiaryFont.GOWUN_BATANG)
         advanceUntilIdle()
         installer.emit(FontInstallState.Failed(offline = true))
         advanceUntilIdle()
         assertEquals(DiaryFont.PRETENDARD, settings.settings.first().font)
         assertEquals(listOf(FontNotice.Offline), notices)
-        assertTrue(DiaryFont.KIMJUNGCHUL_MYUNGJO !in vm.state.value.downloading)
+        assertTrue(DiaryFont.GOWUN_BATANG !in vm.state.value.downloading)
     }
 
     private class FakeInstaller : FontInstaller {

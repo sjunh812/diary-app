@@ -27,7 +27,6 @@
 		ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */; };
 		B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
 		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
-		F9D697E3F59EE4E2A1319473 /* kimjungchul_myungjo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FB8470A4633BEB9C67F7262D /* kimjungchul_myungjo.ttf */; settings = {ASSET_TAGS = (kimjungchul_myungjo, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,7 +53,6 @@
 		D6111777718F5751E749AACD /* PrivacyCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyCover.swift; sourceTree = "<group>"; };
 		F543015C899423D4B01CEB2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA0F3A778E3FD20C9033683F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		FB8470A4633BEB9C67F7262D /* kimjungchul_myungjo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = kimjungchul_myungjo.ttf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,14 +71,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0249EC890E47D3D37E7B769E /* fonts */ = {
-			isa = PBXGroup;
-			children = (
-				FB8470A4633BEB9C67F7262D /* kimjungchul_myungjo.ttf */,
-			);
-			path = fonts;
-			sourceTree = "<group>";
-		};
 		0AE5B04EE7BFB5205B82B79D /* nanum_jeomggol */ = {
 			isa = PBXGroup;
 			children = (
@@ -193,19 +183,10 @@
 			path = main;
 			sourceTree = "<group>";
 		};
-		7AB2034714713FE16EB08197 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				91018C891FB57C941A0B4091 /* main */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
 		86CF2B2C439663701868C662 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
 				B8B48948D6E08C787AF85340 /* gowun_batang */,
-				9FCBEAC3C19E20E9C3B624F9 /* kimjungchul_myungjo */,
 				0AE5B04EE7BFB5205B82B79D /* nanum_jeomggol */,
 				BED61B1C2CC373D38AE316CF /* sejong_geulggot */,
 			);
@@ -216,14 +197,6 @@
 			isa = PBXGroup;
 			children = (
 				75D0AB5F270D927C78C179FE /* assets */,
-			);
-			path = main;
-			sourceTree = "<group>";
-		};
-		91018C891FB57C941A0B4091 /* main */ = {
-			isa = PBXGroup;
-			children = (
-				DCBA1D56C937DA00933C67E5 /* assets */,
 			);
 			path = main;
 			sourceTree = "<group>";
@@ -242,14 +215,6 @@
 				E6FCE561F91D3664CF23D05C /* main */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		9FCBEAC3C19E20E9C3B624F9 /* kimjungchul_myungjo */ = {
-			isa = PBXGroup;
-			children = (
-				7AB2034714713FE16EB08197 /* src */,
-			);
-			path = kimjungchul_myungjo;
 			sourceTree = "<group>";
 		};
 		A01D1DDC5CF58E1D2132F7BF /* fonts */ = {
@@ -282,14 +247,6 @@
 				BB5D8A74DB2738DF0FE02341 /* src */,
 			);
 			path = sejong_geulggot;
-			sourceTree = "<group>";
-		};
-		DCBA1D56C937DA00933C67E5 /* assets */ = {
-			isa = PBXGroup;
-			children = (
-				0249EC890E47D3D37E7B769E /* fonts */,
-			);
-			path = assets;
 			sourceTree = "<group>";
 		};
 		E6FCE561F91D3664CF23D05C /* main */ = {
@@ -345,7 +302,6 @@
 				};
 				knownAssetTags = (
 					gowun_batang,
-					kimjungchul_myungjo,
 					nanum_jeomggol,
 					sejong_geulggot,
 				);
@@ -387,7 +343,6 @@
 				86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */,
 				09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */,
 				3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */,
-				F9D697E3F59EE4E2A1319473 /* kimjungchul_myungjo.ttf in Resources */,
 				47A150204EBF9E2799632D13 /* nanum_jeomggol.ttf in Resources */,
 				0BE538C381966DD42CD55526 /* sejong_geulggot.ttf in Resources */,
 			);

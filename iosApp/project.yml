@@ -51,9 +51,6 @@ targets:
       - path: ../fonts/gowun_batang/src/main/assets/fonts/gowun_batang.ttf
         buildPhase: resources
         resourceTags: [gowun_batang]
-      - path: ../fonts/kimjungchul_myungjo/src/main/assets/fonts/kimjungchul_myungjo.ttf
-        buildPhase: resources
-        resourceTags: [kimjungchul_myungjo]
       - path: ../fonts/nanum_jeomggol/src/main/assets/fonts/nanum_jeomggol.ttf
         buildPhase: resources
         resourceTags: [nanum_jeomggol]
