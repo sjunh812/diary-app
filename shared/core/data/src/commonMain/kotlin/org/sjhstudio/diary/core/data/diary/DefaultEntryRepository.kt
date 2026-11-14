@@ -5,6 +5,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
+import androidx.room3.withWriteTransaction
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlinx.coroutines.flow.Flow
@@ -114,7 +115,7 @@ class DefaultEntryRepository(
 
     /** 한쪽을 지우거나 표시를 닫으면 짝의 표시도 함께 지움 */
     private suspend fun clearMarks(id: String) {
-        marks.markedPair(id).first()?.let { marks.clearMark(it) }
+        marks.pairOf(id)?.let { marks.clearMark(it) }
         marks.clearMark(id)
     }
 
@@ -174,7 +175,8 @@ class DefaultEntryRepository(
         db.draftDao().markEntryChanged(id)
     }
 
-    override suspend fun moveToTrash(id: String) {
+    // 휴지통 옮기기와 짝 표시 지우기를 한 번에. 뒤만 실패하면 옮겼는데 실패로 보임
+    override suspend fun moveToTrash(id: String) = db.withWriteTransaction {
         val now = nowMillis()
         entries.setDeletedAt(id, now, now)
         clearMarks(id)

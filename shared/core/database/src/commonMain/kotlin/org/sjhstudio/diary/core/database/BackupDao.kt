@@ -105,6 +105,10 @@ interface BackupDao {
     @Query("SELECT pair_entry_id FROM merge_mark WHERE entry_id = :entryId LIMIT 1")
     fun markedPair(entryId: String): Flow<String?>
 
+    /** [markedPair]를 한 번만 읽음. 쓰기 트랜잭션 안에서 씀 */
+    @Query("SELECT pair_entry_id FROM merge_mark WHERE entry_id = :entryId LIMIT 1")
+    suspend fun pairOf(entryId: String): String?
+
     @Query("SELECT entry_id FROM merge_mark")
     suspend fun markedIds(): List<String>
 
