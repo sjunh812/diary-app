@@ -37,6 +37,12 @@ interface FirebaseReporting {
 
     fun setCustomKey(key: String, value: String)
 
+    /**
+     * 안전망이 받은 예외를 Crashlytics "처리된 예외"로 남김
+     * 메시지는 일기 글이 섞일 수 있어 빼고 종류와 호출 위치만(헌법 II)
+     */
+    fun recordCaught(kind: String, addresses: List<Long>)
+
     /** 전면 광고 원격 스위치(Remote Config `interstitial_enabled`). 받지 못하면 마지막 값, 처음이면 켜짐 */
     fun interstitialEnabled(): Boolean
 }
@@ -58,6 +64,10 @@ private fun FirebaseReporting.asSink(): TelemetrySink {
         override fun log(event: String, params: Map<String, String>) = firebase.log(event, params)
 
         override fun setCustomKey(key: String, value: String) = firebase.setCustomKey(key, value)
+
+        @OptIn(ExperimentalNativeApi::class)
+        override fun recordCaught(error: Throwable) =
+            firebase.recordCaught(error::class.qualifiedName ?: "Exception", error.getStackTraceAddresses())
     }
 }
 

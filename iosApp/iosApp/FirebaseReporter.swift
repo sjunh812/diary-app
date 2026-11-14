@@ -46,4 +46,12 @@ final class FirebaseReporter: FirebaseReporting {
     func setCustomKey(key: String, value: String) {
         Crashlytics.crashlytics().setCustomValue(value, forKey: key)
     }
+
+    /// 메시지는 일기 글이 섞일 수 있어 빼고 종류와 호출 위치만
+    /// 주소로 보내 dSYM으로 이름이 풀림
+    func recordCaught(kind: String, addresses: [KotlinLong]) {
+        let model = ExceptionModel(name: kind, reason: "")
+        model.stackTrace = addresses.map { StackFrame(address: UInt(truncatingIfNeeded: $0.int64Value)) }
+        Crashlytics.crashlytics().record(exceptionModel: model)
+    }
 }
