@@ -85,6 +85,7 @@ import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.SkeletonPhotoGrid
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.entryMarks
+import org.sjhstudio.diary.core.ui.loadMoreFailed
 import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
@@ -395,6 +396,7 @@ private fun Feed(
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
     LazyColumn(Modifier.fillMaxSize(), state = list, contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)) {
         item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current)) }
+        loadMoreFailed(rows.loadState.prepend is LoadState.Error, rows::retry, "prepend_failed")
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "entry" }) { index ->
             val row = rows[index]
             if (row == null) {
@@ -434,6 +436,7 @@ private fun Feed(
                 }
             }
         }
+        loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
     }
 }
 

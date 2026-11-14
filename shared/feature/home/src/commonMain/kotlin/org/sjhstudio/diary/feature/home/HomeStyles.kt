@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.datetime.LocalDate
@@ -46,6 +47,7 @@ import org.sjhstudio.diary.core.ui.DiaryPhotoCell
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.WeatherIcon
 import org.sjhstudio.diary.core.ui.entryMarks
+import org.sjhstudio.diary.core.ui.loadMoreFailed
 import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.weatherName
@@ -75,6 +77,7 @@ internal fun CardList(
         contentPadding = PaddingValues(bottom = DiarySpacing.x14 + DiarySpacing.x6)
     ) {
         item(key = LIST_TOP_KEY, contentType = LIST_TOP_KEY) { ListTop(listTop, Modifier.padding(horizontal = DiarySpacing.x4)) }
+        loadMoreFailed(rows.loadState.prepend is LoadState.Error, rows::retry, "prepend_failed")
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "card" }) { index ->
             val row = rows[index]
             if (row == null) {
@@ -95,6 +98,7 @@ internal fun CardList(
                 }
             }
         }
+        loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
     }
 }
 
@@ -224,6 +228,7 @@ internal fun PhotoGrid(
         item(key = LIST_TOP_KEY, span = { GridItemSpan(maxLineSpan) }, contentType = LIST_TOP_KEY) {
             ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current - DiarySpacing.x0_5))
         }
+        loadMoreFailed(rows.loadState.prepend is LoadState.Error, rows::retry, "prepend_failed")
         items(count = rows.itemCount, key = rows.itemKey { it.id }, contentType = { "photo" }) { index ->
             val row = rows[index]
             val interaction = remember { MutableInteractionSource() }
@@ -264,6 +269,7 @@ internal fun PhotoGrid(
                 }
             }
         }
+        loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
     }
 }
 

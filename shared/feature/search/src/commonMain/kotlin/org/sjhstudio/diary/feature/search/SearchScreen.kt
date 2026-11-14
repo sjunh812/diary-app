@@ -84,6 +84,7 @@ import org.sjhstudio.diary.core.ui.SkeletonEntryRows
 import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
 import org.sjhstudio.diary.core.ui.entryMarks
 import org.sjhstudio.diary.core.ui.grouped
+import org.sjhstudio.diary.core.ui.loadMoreFailed
 import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -403,6 +404,7 @@ private fun Results(
                 )
             }
         }
+        loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
     }
 }
 
