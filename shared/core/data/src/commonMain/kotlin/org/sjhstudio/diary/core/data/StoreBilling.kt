@@ -45,7 +45,10 @@ class StoreBilling(private val client: StoreClient, saved: Plan?, override val m
     override val plan: StateFlow<Plan> = state.plan
     override val known: StateFlow<Boolean> = state.known
 
-    /** 앱을 켤 때 호출. 처음 켠 기기는 구글 계정의 구매를 조용히 가져와 재설치한 사람이 다시 사지 않게 함 */
+    /**
+     * 앱을 켜거나 다시 앞으로 올 때 호출. 기기에 남은 답이 아니라 서버 답을 받아 환불·만료를 바로 반영
+     * 처음 켠 기기는 구글 계정의 구매를 조용히 가져와 재설치한 사람이 다시 사지 않게 함
+     */
     suspend fun refresh() {
         try {
             onUpdate(client.entitlements())

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.edit
+import com.revenuecat.purchases.CacheFetchPolicy
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.PurchaseParams
 import com.revenuecat.purchases.Purchases
@@ -35,6 +36,7 @@ import org.sjhstudio.diary.core.data.StoreFailure
 import org.sjhstudio.diary.core.data.StoreIds
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
+import org.sjhstudio.diary.core.platform.AppForeground
 
 private const val MANAGE_URL = "https://play.google.com/store/account/subscriptions"
 private const val PREFS = "plan"
@@ -58,7 +60,9 @@ fun billing(context: Context, current: CurrentActivity): Billing {
     val scope = appCoroutineScope(Dispatchers.Main.immediate)
     Purchases.sharedInstance.updatedCustomerInfoListener =
         UpdatedCustomerInfoListener { info -> scope.launch { store.onUpdate(info.active) } }
-    scope.launch { store.refresh() }
+    // 켤 때와 다시 앞으로 올 때마다 서버 답을 새로 받음. 환불·만료가 구매 복원 없이 반영됨
+    // 이미 앞에 있으면 바로 한 번 불리고, 관찰자는 화면 스레드에서 붙여야 해 scope 안에서 붙임
+    scope.launch { AppForeground.observe(onBackground = {}, onForeground = { scope.launch { store.refresh() } }) }
     return Billing(store, store)
 }
 
@@ -73,7 +77,9 @@ private class RevenueCatClient(app: Application, key: String, private val curren
         Purchases.configure(PurchasesConfiguration.Builder(app, key).build())
     }
 
-    override suspend fun entitlements(): Set<String> = store { Purchases.sharedInstance.awaitCustomerInfo().active }
+    override suspend fun entitlements(): Set<String> = store {
+        Purchases.sharedInstance.awaitCustomerInfo(CacheFetchPolicy.FETCH_CURRENT).active
+    }
 
     override suspend fun sync(): Set<String> = suspendCancellableCoroutine { cont ->
         Purchases.sharedInstance.syncPurchases(

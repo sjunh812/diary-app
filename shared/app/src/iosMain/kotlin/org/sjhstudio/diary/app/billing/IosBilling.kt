@@ -8,6 +8,7 @@ import com.revenuecat.purchases.kmp.ktx.awaitGetProducts
 import com.revenuecat.purchases.kmp.ktx.awaitPurchase
 import com.revenuecat.purchases.kmp.ktx.awaitRestore
 import com.revenuecat.purchases.kmp.ktx.awaitSyncPurchases
+import com.revenuecat.purchases.kmp.models.CacheFetchPolicy
 import com.revenuecat.purchases.kmp.models.CustomerInfo
 import com.revenuecat.purchases.kmp.models.PurchasesError
 import com.revenuecat.purchases.kmp.models.PurchasesErrorCode
@@ -26,6 +27,7 @@ import org.sjhstudio.diary.core.data.StoreClient
 import org.sjhstudio.diary.core.data.StoreFailure
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
+import org.sjhstudio.diary.core.platform.AppForeground
 import platform.Foundation.NSBundle
 import platform.Foundation.NSUserDefaults
 
@@ -62,7 +64,9 @@ internal fun iosBilling(scope: CoroutineScope): IosBilling {
                 ) -> Unit
             ) = Unit
         }
+    // 켤 때와 다시 앞으로 올 때마다 서버 답을 새로 받음. 환불·만료가 구매 복원 없이 반영됨
     scope.launch { store.refresh() }
+    AppForeground.observe(onBackground = {}, onForeground = { scope.launch { store.refresh() } })
     return IosBilling(store, store)
 }
 
@@ -73,7 +77,9 @@ private val CustomerInfo.active: Set<String> get() = entitlements.active.keys
  * 라이브러리 오류를 [StoreFailure]로 바꾸기만 하고, 판단은 [StoreBilling]이 함
  */
 private object RevenueCatClient : StoreClient {
-    override suspend fun entitlements(): Set<String> = store { Purchases.sharedInstance.awaitCustomerInfo().active }
+    override suspend fun entitlements(): Set<String> = store {
+        Purchases.sharedInstance.awaitCustomerInfo(CacheFetchPolicy.FETCH_CURRENT).active
+    }
 
     override suspend fun sync(): Set<String> = store { Purchases.sharedInstance.awaitSyncPurchases().active }
 
