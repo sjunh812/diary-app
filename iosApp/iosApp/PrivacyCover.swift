@@ -1,22 +1,48 @@
 import Shared
 import SwiftUI
+import UIKit
 
 // 잠금이 켜져 있으면 앱 비활성 때(앱 전환기, 알림 센터, Face ID 창) 화면을 덮어 일기를 가림
 // (스펙 001 FR-018, research R13)
 // 잠금이 꺼져 있으면 덮지 않음
+// 공유 시트처럼 앱 위에 띄운 화면까지 덮도록 맨 위 창으로 덮음
 struct PrivacyCover: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
-    @State private var covered = false
 
     func body(content: Content) -> some View {
-        content
-            .overlay {
-                // 시작 화면 색 에셋(LaunchBackground)이 생기면 그 색으로 교체(스펙 001 US4)
-                if covered { Color(uiColor: .systemBackground).ignoresSafeArea() }
+        content.onChange(of: scenePhase) { _, phase in
+            if phase != .active && IosStartupKt.isPrivacyCoverNeeded() {
+                CoverWindow.shared.show()
+            } else {
+                CoverWindow.shared.hide()
             }
-            .onChange(of: scenePhase) { _, phase in
-                covered = phase != .active && IosStartupKt.isPrivacyCoverNeeded()
-            }
+        }
+    }
+}
+
+/// 앱 창들 위에 뜨는 가림막 창
+@MainActor
+private final class CoverWindow {
+    static let shared = CoverWindow()
+    private var window: UIWindow?
+
+    func show() {
+        guard window == nil,
+              let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first
+        else { return }
+        let cover = UIWindow(windowScene: scene)
+        cover.windowLevel = .alert + 1
+        let screen = UIViewController()
+        // 시작 화면 색 에셋(LaunchBackground)이 생기면 그 색으로 교체(스펙 001 US4)
+        screen.view.backgroundColor = .systemBackground
+        cover.rootViewController = screen
+        cover.isHidden = false
+        window = cover
+    }
+
+    func hide() {
+        window?.isHidden = true
+        window = nil
     }
 }
 

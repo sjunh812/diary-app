@@ -10,6 +10,7 @@ import org.sjhstudio.diary.app.ads.IosAdBridge
 import org.sjhstudio.diary.app.di.APP_SCOPE
 import org.sjhstudio.diary.app.di.initKoin
 import org.sjhstudio.diary.app.lock.LockController
+import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.BackupRepository
@@ -85,8 +86,14 @@ internal object IosDrive {
     var bridge: IosDriveBridge? = null
 }
 
-/** 앱이 비활성일 때 화면을 덮을지(iosApp `PrivacyCover`, FR-018). 잠금이 켜져 있을 때만 덮음 */
-fun isPrivacyCoverNeeded(): Boolean = KoinPlatform.getKoin().get<LockController>().lockEnabled
+/**
+ * 앱이 비활성일 때 화면을 덮을지(iosApp `PrivacyCover`, FR-018)
+ * 잠금이 켜져 있고 지금 풀려 있을 때만. 잠긴 화면은 일기가 없어 덮지 않음(Face ID 창마다 깜빡임 방지)
+ */
+fun isPrivacyCoverNeeded(): Boolean = KoinPlatform.getKoin().get<LockController>().let {
+    it.lockEnabled &&
+        it.state.value == LockState.Unlocked
+}
 
 /**
  * 사용자가 알림을 누름
