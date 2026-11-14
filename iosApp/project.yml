@@ -48,6 +48,9 @@ targets:
         excludes:
           - GoogleService-Info.plist
       # 고를 때 받는 일기 글꼴(research R17). 안드로이드 글꼴 모듈과 같은 파일을 On-Demand Resources 태그(글꼴 ID)로 둔다.
+      - path: ../fonts/busan_dandi_myeongjo/src/main/assets/fonts/busan_dandi_myeongjo.ttf
+        buildPhase: resources
+        resourceTags: [busan_dandi_myeongjo]
       - path: ../fonts/gowun_batang/src/main/assets/fonts/gowun_batang.ttf
         buildPhase: resources
         resourceTags: [gowun_batang]
