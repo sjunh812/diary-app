@@ -51,12 +51,14 @@ class DefaultTrashRepository(
         db.withWriteTransaction {
             drafts.deleteTrashed(chunk)
             entries.deleteTrashed(chunk)
+            db.backupDao().clearDanglingMarks()
         }
     }
 
     override suspend fun empty() = db.withWriteTransaction {
         drafts.deleteAllTrashed()
         entries.deleteAllTrashed()
+        db.backupDao().clearDanglingMarks()
     }
 
     override suspend fun purgeExpired(now: Instant) {
@@ -64,6 +66,7 @@ class DefaultTrashRepository(
         db.withWriteTransaction {
             drafts.purgeBefore(before)
             entries.purgeBefore(before)
+            db.backupDao().clearDanglingMarks()
         }
     }
 

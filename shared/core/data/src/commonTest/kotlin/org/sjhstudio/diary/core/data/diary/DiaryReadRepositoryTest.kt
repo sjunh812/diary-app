@@ -148,13 +148,56 @@ class DiaryReadRepositoryTest {
         assertEquals(2, entries.day(LocalDate.parse("2026-10-31")).first().size)
     }
 
+    /** 짝이 이미 다른 일기와 다시 둘 다 남겨졌으면 그 표시는 지우지 않음 */
     @Test
-    fun trashing_one_side_clears_both_marks() = runTest {
+    fun closing_an_old_pair_keeps_the_newer_pair() = runTest {
+        keepBoth("a", "b")
+        db.seed(entry("c"))
+        db.backupDao().mark(listOf(MergeMarkEntity("a", "kept_both", "c", "drive", 2), MergeMarkEntity("c", "kept_both", "a", "drive", 2)))
+
+        entries.clearKeptBoth("b")
+
+        assertEquals("c", entries.entry("a").first()?.keptBothWith)
+        assertEquals("a", entries.entry("c").first()?.keptBothWith)
+    }
+
+    /** A가 C와 다시 둘 다 남겨진 뒤 A의 표시를 닫아도, 아직 A와 겹치는 B의 표시는 남음 */
+    @Test
+    fun closing_a_mark_keeps_others_that_still_point_at_it() = runTest {
+        keepBoth("a", "b")
+        db.seed(entry("c"))
+        db.backupDao().mark(listOf(MergeMarkEntity("a", "kept_both", "c", "drive", 2), MergeMarkEntity("c", "kept_both", "a", "drive", 2)))
+
+        entries.clearKeptBoth("a")
+
+        assertEquals(null, entries.entry("a").first()?.keptBothWith)
+        assertEquals(null, entries.entry("c").first()?.keptBothWith)
+        assertEquals("a", entries.entry("b").first()?.keptBothWith)
+    }
+
+    /** 짝을 영구 삭제하면 남은 쪽 표시도 지움. 나중에 백업에서 짝이 다시 들어와도 한쪽만 켜지지 않게 */
+    @Test
+    fun deleting_the_pair_forever_clears_the_leftover_mark() = runTest {
+        keepBoth("a", "b")
+        entries.moveToTrash("b")
+
+        trash.deleteForever(listOf("b"))
+
+        assertEquals(emptyList(), db.backupDao().marks().first())
+    }
+
+    /** 이쪽만 남기기를 되돌리면 두 판 표시도 그대로 돌아옴 */
+    @Test
+    fun trashing_one_side_hides_the_mark_until_it_is_restored() = runTest {
         keepBoth("a", "b")
 
         entries.moveToTrash("b")
-
         assertEquals(null, entries.entry("a").first()?.keptBothWith)
+        assertEquals(false, entries.day(LocalDate.parse("2026-10-31")).first().single().keptBoth)
+
+        entries.restore("b")
+        assertEquals("b", entries.entry("a").first()?.keptBothWith)
+        assertEquals(true, entries.day(LocalDate.parse("2026-10-31")).first().all { it.keptBoth })
     }
 
     @Test

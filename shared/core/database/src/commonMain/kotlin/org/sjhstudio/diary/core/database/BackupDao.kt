@@ -102,15 +102,20 @@ interface BackupDao {
     @Query("SELECT * FROM merge_mark")
     fun marks(): Flow<List<MergeMarkEntity>>
 
-    @Query("SELECT pair_entry_id FROM merge_mark WHERE entry_id = :entryId LIMIT 1")
+    /** 짝이 휴지통에 있거나 없으면 null. 짝을 되돌리면 표시도 돌아옴 */
+    @Query(
+        "SELECT m.pair_entry_id FROM merge_mark m JOIN entry e ON e.id = m.pair_entry_id " +
+            "WHERE m.entry_id = :entryId AND e.deleted_at IS NULL LIMIT 1"
+    )
     fun markedPair(entryId: String): Flow<String?>
 
-    /** [markedPair]를 한 번만 읽음. 쓰기 트랜잭션 안에서 씀 */
-    @Query("SELECT pair_entry_id FROM merge_mark WHERE entry_id = :entryId LIMIT 1")
-    suspend fun pairOf(entryId: String): String?
-
-    @Query("SELECT entry_id FROM merge_mark")
+    /** 표시를 보일 일기. 짝이 휴지통에 있거나 없으면 뺌 */
+    @Query(SHOWN_MARKS)
     suspend fun markedIds(): List<String>
+
+    /** [markedIds]를 계속 봄 */
+    @Query(SHOWN_MARKS)
+    fun shownMarks(): Flow<List<String>>
 
     /**
      * 일기가 바뀌었는지 보는 값
@@ -170,8 +175,16 @@ interface BackupDao {
     )
     fun visiblePhotos(): Flow<Int>
 
-    @Query("DELETE FROM merge_mark WHERE entry_id = :entryId")
-    suspend fun clearMark(entryId: String)
+    /** 내 표시와, 내 짝이 나를 가리킬 때 그 짝의 표시만 지움. 나를 가리키는 다른 일기의 표시는 둠 */
+    @Query(
+        "DELETE FROM merge_mark WHERE entry_id = :entryId OR (pair_entry_id = :entryId AND " +
+            "entry_id = (SELECT pair_entry_id FROM merge_mark WHERE entry_id = :entryId))"
+    )
+    suspend fun clearPair(entryId: String)
+
+    /** 영구 삭제한 일기를 가리키는 표시. 그 일기가 백업에서 다시 들어와도 한쪽만 켜지지 않게 */
+    @Query("DELETE FROM merge_mark WHERE pair_entry_id IS NOT NULL AND pair_entry_id NOT IN (SELECT id FROM entry)")
+    suspend fun clearDanglingMarks()
 }
 
 /**
@@ -185,3 +198,7 @@ data class LocalPhotoRow(val sha256: String, val fileName: String?, val byteSize
  * [bodyCharacters]는 휴지통의 일기까지 더함
  */
 data class EntrySizes(val visibleEntries: Int, val bodyCharacters: Long)
+
+private const val SHOWN_MARKS =
+    "SELECT m.entry_id FROM merge_mark m LEFT JOIN entry e ON e.id = m.pair_entry_id " +
+        "WHERE m.pair_entry_id IS NULL OR (e.id IS NOT NULL AND e.deleted_at IS NULL)"

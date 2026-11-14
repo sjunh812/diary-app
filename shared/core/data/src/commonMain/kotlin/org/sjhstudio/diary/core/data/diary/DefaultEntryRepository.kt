@@ -8,11 +8,14 @@ import androidx.paging.PagingSource
 import androidx.room3.withWriteTransaction
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
@@ -63,7 +66,6 @@ class DefaultEntryRepository(
             jumpThreshold = JUMP_ROWS
         )
 
-    // 표시는 일기 표 밖에 있어 지울 때 목록을 직접 다시 읽게 함
     private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries()) { pageRows(it) } }
     private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries()) { pageRows(it) } }
 
@@ -71,11 +73,19 @@ class DefaultEntryRepository(
 
     /**
      * 자리 표시를 켜 다른 달로 바로 건너뛸 수 있게 함
-     * 일기 표만 살피는 쪽은 받은 사진을 모르니, 사진 상태가 바뀌면 보던 쪽을 다시 읽음
+     * 일기 표만 살피는 쪽은 받은 사진과 두 판 표시를 모르니, 둘이 바뀌면 보던 쪽을 다시 읽음
      */
     private fun pages(factory: InvalidatingPagingSourceFactory<Int, EntryRow>): Flow<PagingData<EntryRow>> = channelFlow {
         // 사진 상태를 못 읽어도 목록은 그대로 둠. 목록은 화면 스레드에서 모아 예외가 나면 앱이 꺼짐
         launch { media.photoStatusChanges(photoRefreshEvery).catch { }.collect { factory.invalidate() } }
+        // 표시는 첫 값을 받은 뒤 목록을 시작. 그 사이에 바뀐 표시도 놓치지 않음
+        val firstMarks = CompletableDeferred<Unit>()
+        launch {
+            shownMarks().catch { firstMarks.complete(Unit) }.collectIndexed { index, _ ->
+                if (index == 0) firstMarks.complete(Unit) else factory.invalidate()
+            }
+        }
+        firstMarks.await()
         Pager(pageConfig, pagingSourceFactory = factory).flow.collect { send(it) }
     }
 
@@ -107,17 +117,8 @@ class DefaultEntryRepository(
         }
     }
 
-    override suspend fun clearKeptBoth(id: String) {
-        clearMarks(id)
-        allPages.invalidate()
-        favoritePages.invalidate()
-    }
-
-    /** 한쪽을 지우거나 표시를 닫으면 짝의 표시도 함께 지움 */
-    private suspend fun clearMarks(id: String) {
-        marks.pairOf(id)?.let { marks.clearMark(it) }
-        marks.clearMark(id)
-    }
+    /** 표시를 닫으면 짝의 표시도 함께 지움. 짝이 이미 다른 일기와 짝이면 그 표시는 둠 */
+    override suspend fun clearKeptBoth(id: String) = marks.clearPair(id)
 
     override fun months(): Flow<Set<YearMonth>> = entries.months().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
 
@@ -129,13 +130,15 @@ class DefaultEntryRepository(
 
     override fun day(date: LocalDate): Flow<List<EntryRow>> = combine(
         entries.onDay(date.toString()),
-        marks.marks(),
+        shownMarks(),
         media.photoStatusChanges(photoRefreshEvery).onStart { emit(Unit) }
-    ) { rows, marked, _ ->
+    ) { rows, ids, _ ->
         val photos = media.forRows(rows.map { it.id })
-        val ids = marked.mapTo(HashSet()) { it.entryId }
         rows.map { it.toRow(photos[it.id].orEmpty(), mediaDir).copy(keptBoth = it.id in ids) }
     }
+
+    /** 보일 두 판 표시. 같은 값은 다시 내지 않아 일기를 저장할 때마다 목록을 다시 읽지 않음 */
+    private fun shownMarks(): Flow<Set<String>> = marks.shownMarks().map { it.toHashSet() }.distinctUntilChanged()
 
     override fun month(month: YearMonth): Flow<Map<LocalDate, DayMood>> =
         entries.dayMoods(month.onDay(1).toString(), month.onDay(month.numberOfDays).toString()).map(::toDayMoods)
@@ -175,11 +178,10 @@ class DefaultEntryRepository(
         db.draftDao().markEntryChanged(id)
     }
 
-    // 휴지통 옮기기와 짝 표시 지우기를 한 번에. 뒤만 실패하면 옮겼는데 실패로 보임
-    override suspend fun moveToTrash(id: String) = db.withWriteTransaction {
+    // 짝 표시는 남김. 짝이 휴지통에 있으면 표시가 숨고, 되돌리면 다시 보임
+    override suspend fun moveToTrash(id: String) {
         val now = nowMillis()
         entries.setDeletedAt(id, now, now)
-        clearMarks(id)
     }
 
     override suspend fun restore(id: String) = entries.setDeletedAt(id, null, nowMillis())
