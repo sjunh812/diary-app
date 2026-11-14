@@ -90,6 +90,8 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
   -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath iosApp/build build
 ```
 
+- 실기기 빌드도 `-derivedDataPath iosApp/build`를 쓴다. 다른 폴더를 쓰면 Xcode가 받은 라이브러리의 git 저장소를 안드로이드 스튜디오가 이 프로젝트의 저장소로 잡는다(2026-11-14).
+
 - 첫 안드로이드 빌드가 `installGitHooks`로 `.githooks`를 켠다. 그 뒤로는 제목이 커밋 규칙에 맞지 않으면 커밋이 막힌다.
 - `detekt`와 `:composeApp:lint`는 기존 지적을 baseline(`config/detekt/baseline.xml`, `composeApp/lint-baseline.xml`)에 묶고 새 코드만 막는다. 새 지적은 고친다. baseline을 다시 만들어 넘기지 않는다(detekt baseline은 주석 변경에도 흔들려서, 코드가 그대로일 때만 `./gradlew detektBaseline`).
 - `designTokenCheck`는 `shared/feature`와 `shared/app`의 Kotlin에서 원시 색, 숫자 `.dp`·`.sp`, 숫자 모서리, `MaterialTheme` 색·글자,
