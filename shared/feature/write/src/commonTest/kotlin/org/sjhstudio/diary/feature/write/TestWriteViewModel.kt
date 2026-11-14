@@ -5,8 +5,10 @@ import kotlinx.datetime.TimeZone
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.DraftRepository
+import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoPlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceFinder
+import org.sjhstudio.diary.core.testing.FakeFontInstaller
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 
@@ -18,8 +20,8 @@ internal fun testWriteViewModel(
     timeZone: TimeZone = TimeZone.currentSystemDefault(),
     mediaPath: (String) -> String = { it },
     settings: SettingsRepository = FakeSettingsRepository(),
-    fontPath: (String) -> String? = { null },
+    fonts: FontInstaller = FakeFontInstaller(),
     plans: PlanRepository = FakePlanRepository(),
     places: PlaceFinder = NoPlaceFinder,
     restoredKey: String? = null
-) = WriteViewModel(target, drafts, clock, timeZone, mediaPath, settings, fontPath, plans, places, restoredKey)
+) = WriteViewModel(target, drafts, clock, timeZone, mediaPath, settings, fonts, plans, places, restoredKey)

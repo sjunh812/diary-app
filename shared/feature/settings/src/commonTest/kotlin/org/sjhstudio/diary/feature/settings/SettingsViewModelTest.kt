@@ -21,7 +21,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.datastore.LockStore
+import org.sjhstudio.diary.core.model.AppSettings
+import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.testing.FakeFontInstaller
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
@@ -44,9 +47,25 @@ class SettingsViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
+    /** 앱을 켜며 받기가 끝나면 설정이 그대로여도 본문 글꼴이 받은 파일을 씀 */
+    @Test
+    fun the_body_font_follows_a_download_that_finishes_later() = runTest(dispatcher) {
+        val fonts = FakeFontInstaller()
+        val settings = FakeSettingsRepository(AppSettings(font = DiaryFont.BUSAN_DANDI_MYEONGJO))
+        val viewModel = SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), { false }, fonts = fonts)
+        advanceUntilIdle()
+        assertEquals(null, viewModel.look.value.fontPath)
+
+        val path = fonts.finish(DiaryFont.BUSAN_DANDI_MYEONGJO.id)
+        advanceUntilIdle()
+
+        assertEquals(path, viewModel.look.value.fontPath)
+    }
+
     @Test
     fun the_report_row_follows_the_migration_state() = runTest(dispatcher) {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { true }, fontPath = { null })
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { true }, fonts = FakeFontInstaller())
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -57,7 +76,9 @@ class SettingsViewModelTest {
     @Test
     fun an_unreadable_migration_state_leaves_settings_usable() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { error("읽을 수 없음") }, fontPath = { null })
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
+                error("읽을 수 없음")
+            }, fonts = FakeFontInstaller())
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -71,7 +92,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
                 false
-            }, fontPath = { null }, lastBackupAt = flowOf(at))
+            }, fonts = FakeFontInstaller(), lastBackupAt = flowOf(at))
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -80,7 +101,8 @@ class SettingsViewModelTest {
 
     @Test
     fun the_trash_count_and_plan_come_with_the_state() = runTest(dispatcher) {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), flowOf(Plan.PLUS), { false }, fontPath = { null })
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), flowOf(Plan.PLUS), { false }, fonts = FakeFontInstaller())
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -91,7 +113,8 @@ class SettingsViewModelTest {
     /** 저장소는 개수를 읽지 못하면 값 없이 끝남. 그래도 설정은 열려야 함 */
     @Test
     fun an_unreadable_trash_count_leaves_settings_usable() = runTest(dispatcher) {
-        val viewModel = SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), flowOf(Plan.FREE), { false }, fontPath = { null })
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), flowOf(Plan.FREE), { false }, fonts = FakeFontInstaller())
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 

@@ -63,7 +63,7 @@ class EntryDetailViewModel(
     }
 
     val look: StateFlow<BodyLook> =
-        settings.bodyLookIn(viewModelScope, fonts::installedPath)
+        settings.bodyLookIn(viewModelScope, fonts)
 
     private val _trashed = Channel<Unit>(Channel.BUFFERED)
     val trashed: Flow<Unit> = _trashed.receiveAsFlow()

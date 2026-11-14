@@ -12,7 +12,7 @@ val writeFeatureModule =
                 get(),
                 mediaPath = get<WriteMediaPath>()::resolve,
                 settings = get(),
-                fontPath = get<FontInstaller>()::installedPath,
+                fonts = get<FontInstaller>(),
                 plans = get(),
                 places = get(),
                 restoredKey = restoredKey.value

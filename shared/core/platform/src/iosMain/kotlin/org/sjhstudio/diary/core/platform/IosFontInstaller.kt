@@ -6,7 +6,11 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import platform.Foundation.NSBundleResourceRequest
@@ -29,6 +33,9 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
     override fun installedPath(id: String): String? = (known.load()[id] ?: check(id)).ifEmpty { null }
 
     override fun knownPath(id: String): String? = known.load()[id]?.ifEmpty { null }
+
+    private val _changes = MutableStateFlow(0)
+    override val changes: StateFlow<Int> = _changes.asStateFlow()
 
     /** 없으면 빈 글자로 기억. 받으면 [copy]가 고쳐 둠 */
     private fun check(id: String): String = (target(id).takeIf { manager.fileExistsAtPath(it) } ?: "").also { remember(id, it) }
@@ -77,14 +84,20 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         manager.removeItemAtPath(partial, error = null)
         if (!manager.copyItemAtPath(source, toPath = partial, error = null)) return null
         manager.removeItemAtPath(target, error = null)
-        return target.takeIf { manager.moveItemAtPath(partial, toPath = it, error = null) }?.also { remember(id, it) }
+        return target.takeIf { manager.moveItemAtPath(partial, toPath = it, error = null) }?.also {
+            remember(id, it)
+            _changes.update { count -> count + 1 }
+        }
     }
 
     override fun removeExcept(ids: Set<String>) {
         val names = manager.contentsOfDirectoryAtPath(files.fontDirectory, error = null).orEmpty().filterIsInstance<String>()
         for (name in names) {
             val id = name.substringBefore('.')
-            if (id !in ids && manager.removeItemAtPath("${files.fontDirectory}/$name", error = null)) remember(id, "")
+            if (id !in ids && manager.removeItemAtPath("${files.fontDirectory}/$name", error = null)) {
+                remember(id, "")
+                _changes.update { it + 1 }
+            }
         }
     }
 

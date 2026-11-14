@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import org.jetbrains.compose.resources.Font
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.resources.Res
@@ -21,6 +21,7 @@ import org.sjhstudio.diary.core.designsystem.theme.pretendardFamily
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.platform.FontInstaller
 
 /**
  * 앱에 넣은 본문 글꼴(3.5MB 이하, `docs/design.md` 일기 본문 글꼴 10종)
@@ -118,8 +119,9 @@ fun AppSettings.bodyLook(fontPath: (String) -> String?): BodyLook = BodyLook(fon
 
 /**
  * 화면 모델이 쓰는 본문 모양
- * 홈, 상세, 달력, 찾기가 같이 씀
- * 글꼴을 바꾸면 바로 따라오게 화면 모델이 살아 있는 동안 늘 봄
+ * 홈, 상세, 달력, 찾기, 쓰기, 설정이 같이 씀
+ * 글꼴을 바꾸거나 고른 글꼴을 다 받으면 바로 따라오게 화면 모델이 살아 있는 동안 늘 봄
  */
-fun SettingsRepository.bodyLookIn(scope: CoroutineScope, fontPath: (String) -> String?): StateFlow<BodyLook> =
-    settings.map { it.bodyLook(fontPath) }.stateInSafely(scope, SharingStarted.Eagerly, BodyLook())
+fun SettingsRepository.bodyLookIn(scope: CoroutineScope, fonts: FontInstaller): StateFlow<BodyLook> =
+    combine(settings, fonts.changes) { app, _ -> app.bodyLook(fonts::installedPath) }
+        .stateInSafely(scope, SharingStarted.Eagerly, BodyLook())

@@ -18,10 +18,14 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -44,6 +48,9 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
         .ifEmpty { null }
 
     override fun knownPath(id: String): String? = known[id]?.ifEmpty { null }
+
+    private val _changes = MutableStateFlow(0)
+    override val changes: StateFlow<Int> = _changes.asStateFlow()
 
     /** Play는 진행 중인 받기가 있으면 새 요청을 거절함. 글꼴 둘을 연달아 눌러도 차례로 받음 */
     private val oneAtATime = Mutex()
@@ -152,7 +159,10 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
         val partial = File(target.parentFile, "$id.ttf.part")
         openFont(id).use { input -> partial.outputStream().use { input.copyTo(it) } }
         check(partial.renameTo(target)) { "글꼴 파일 이름을 바꾸지 못했다" }
-        target.absolutePath.also { known[id] = it }
+        target.absolutePath.also {
+            known[id] = it
+            _changes.update { count -> count + 1 }
+        }
     }
 
     /**
@@ -169,7 +179,10 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
 
     override fun removeExcept(ids: Set<String>) {
         File(files.fontDirectory).listFiles()?.filter { it.name.substringBefore('.') !in ids }?.forEach { file ->
-            if (file.delete()) known.remove(file.name.substringBefore('.'))
+            if (file.delete()) {
+                known.remove(file.name.substringBefore('.'))
+                _changes.update { it + 1 }
+            }
         }
     }
 

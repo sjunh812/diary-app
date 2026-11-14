@@ -69,7 +69,7 @@ class SearchViewModel(
             .cachedIn(viewModelScope)
 
     val look: StateFlow<BodyLook> =
-        settings.bodyLookIn(viewModelScope, fonts::installedPath)
+        settings.bodyLookIn(viewModelScope, fonts)
 
     init {
         viewModelScope.launchSafely { _filter.collect { saved[FILTER_KEY] = encodeFilter(it) } }

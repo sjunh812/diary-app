@@ -13,7 +13,6 @@ import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.gate.LockGate
 import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.app.gate.WelcomeGate
@@ -35,9 +34,9 @@ import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 @Composable
 private fun chosenFontFamily(font: DiaryFont): FontFamily? {
     val installer = koinInject<FontInstaller>()
-    val finished by koinInject<ChosenFontDownload>().finished.collectAsStateWithLifecycle()
-    // 화면 스레드에서 파일을 보지 않음. 시작 때 확인해 둔 값을 먼저 쓰고, 이전처럼 글꼴이 바뀌면 뒤에서 확인
-    val path by produceState(installer.knownPath(font.id), font, finished) {
+    val changes by installer.changes.collectAsStateWithLifecycle()
+    // 화면 스레드에서 파일을 보지 않음. 시작 때 확인해 둔 값을 먼저 쓰고, 글꼴이나 받은 파일이 바뀌면 뒤에서 확인
+    val path by produceState(installer.knownPath(font.id), font, changes) {
         value = withContext(Dispatchers.IO) { installer.installedPath(font.id) }
     }
     val installed = rememberFileFontFamily(path)

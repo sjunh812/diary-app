@@ -45,6 +45,7 @@ import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.model.richtext.toPlainText
+import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoPlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceLookup
@@ -147,8 +148,8 @@ class WriteViewModel(
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
     private val mediaPath: (String) -> String = { it },
     settings: SettingsRepository,
-    /** 글꼴 ID로 받아 둔 글꼴 파일 찾기(`FontInstaller.installedPath`) */
-    fontPath: (String) -> String? = { null },
+    /** 받아 둔 글꼴 파일 */
+    fonts: FontInstaller,
     plans: PlanRepository,
     private val places: PlaceFinder = NoPlaceFinder,
     /** 앱이 종료되거나 잠겼다 돌아와 이어 쓰는 새 일기의 키 */
@@ -167,7 +168,7 @@ class WriteViewModel(
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, Plan.FREE.checklist)
 
     /** 본문은 고른 글꼴과 글자 크기로 보임(FR-014) */
-    val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fontPath)
+    val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fonts)
 
     fun mediaPath(fileName: String): String = mediaPath.invoke(fileName)
 

@@ -54,7 +54,7 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     val favoriteRows: Flow<PagingData<EntryRow>> = entries.timeline(true).cachedIn(viewModelScope)
 
     val look: StateFlow<BodyLook> =
-        settings.bodyLookIn(viewModelScope, fonts::installedPath)
+        settings.bodyLookIn(viewModelScope, fonts)
 
     /** 일기가 있는 달. 연·월 고르기 시트가 이 달만 고르게 함 */
     @OptIn(ExperimentalCoroutinesApi::class)

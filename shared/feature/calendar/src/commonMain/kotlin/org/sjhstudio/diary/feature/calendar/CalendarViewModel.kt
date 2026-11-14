@@ -131,7 +131,7 @@ class CalendarViewModel(
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, thisMonth())
 
     val look: StateFlow<BodyLook> =
-        settings.bodyLookIn(viewModelScope, fonts::installedPath)
+        settings.bodyLookIn(viewModelScope, fonts)
 
     fun today(): LocalDate = today.invoke()
 

@@ -14,6 +14,8 @@ kotlin {
             api(projects.shared.core.model)
             // 일기 메뉴(EntryMenuWork)가 즐겨찾기·휴지통·공유를 저장소에 맡김
             implementation(projects.shared.core.data)
+            // 본문 글꼴이 받은 글꼴 파일을 따라감(bodyLookIn)
+            implementation(projects.shared.core.platform)
             // 날짜 형식(DiaryDateFormat) 공개 API가 날짜 형을 씀
             api(libs.kotlinx.datetime)
             // 일기 사진 칸
