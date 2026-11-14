@@ -10,6 +10,14 @@ case "$subject" in
   "Merge "*|"Revert \""*) exit 0 ;;
 esac
 
+# --fixup·--squash로 만든 커밋은 rebase --autosquash로 원래 커밋에 합쳐 사라짐. 뒤의 원래 제목을 검사
+while :; do
+  case "$subject" in
+    "fixup! "*|"squash! "*|"amend! "*) subject=${subject#* } ;;
+    *) break ;;
+  esac
+done
+
 fail() {
   cat >&2 <<MSG
 커밋 제목이 형식에 맞지 않아요: $subject

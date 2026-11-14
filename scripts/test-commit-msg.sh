@@ -31,6 +31,9 @@ expect fail "feat:콜론 뒤 빈칸 없음"
 expect fail "feat:  빈칸 두 번"
 expect fail "사진 여러 장 한 번에 고르기"
 expect fail "Feat: 대문자 type"
+expect pass "fixup! fix(ios): 드라이브 연결 오류 구분"
+expect pass "squash! fixup! feat(write): 사진 여러 장 한 번에 고르기"
+expect fail "fixup! 형식 없는 원래 제목"
 
 rm -f "$tmp"
 if [ "$failures" -eq 0 ]; then echo "커밋 형식 검사 시험 통과"; else echo "${failures}개 틀림"; exit 1; fi
