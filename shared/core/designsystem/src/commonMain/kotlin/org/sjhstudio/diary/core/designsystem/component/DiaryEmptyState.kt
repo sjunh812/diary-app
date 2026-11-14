@@ -40,9 +40,15 @@ fun DiaryEmptyState(
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         // 아이콘이 없으면 글만(두 칸의 빈 상세 칸처럼 글로 뜻이 충분한 곳)
+        // 아이콘과 제목은 12로 붙여 한 묶음, 버튼은 24로 띄움(SEED·토스·Apple 모두 그림 쪽이 더 좁음)
         if (icon != null) {
-            DiaryIcon(icon, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i32)
-            Spacer(Modifier.height(DiarySpacing.x1))
+            DiaryIcon(
+                icon,
+                contentDescription = null,
+                tint = colors.textTertiary,
+                size = DiaryIconSize.i32,
+                modifier = Modifier.padding(bottom = DiarySpacing.x1)
+            )
         }
         PhraseText(
             text = title,
