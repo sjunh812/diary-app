@@ -71,6 +71,7 @@
     <string name="migration_export_file_name">1일1일기-원본-%1$s.zip</string>
     <string name="migration_export_done">원본을 저장했어요</string>
     <string name="migration_export_failed">원본을 저장하지 못했어요. 저장할 곳을 다시 골라 주세요.</string>
+    <string name="migration_export_failed_left">원본을 저장하지 못했어요. 저장한 곳에 남은 파일은 지워 주세요.</string>
     <string name="migration_mail_missing">메일 앱을 찾지 못했어요. %1$s 주소로 보내 주세요.</string>
     <string name="migration_mail_subject">[1일 1일기] 기록 이전 문의</string>
     <string name="migration_mail_body">아래 내용은 문제를 해결할 때만 써요. 일기 내용은 담지 않았어요.\n\n앱 버전: %1$s\n기기: %2$s\n멈춘 단계: %3$s\n문제 종류: %4$s\n시도 횟수: %5$s\n일기 수: %6$s\n사진 수: %7$s\n읽지 못한 일기 수: %8$s\n\n궁금한 점이나 겪은 일을 적어 주세요.\n</string>

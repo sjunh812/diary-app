@@ -80,6 +80,7 @@
     <string name="migration_export_file_name">1Day1Diary-original-%1$s.zip</string>
     <string name="migration_export_done">Original files saved</string>
     <string name="migration_export_failed">Couldn't save the original files. Choose where to save them again.</string>
+    <string name="migration_export_failed_left">Couldn't save the original files. Delete the unfinished file where you saved it.</string>
     <string name="migration_mail_missing">No email app found. Please write to %1$s.</string>
     <string name="migration_mail_subject">[1 Day 1 Diary] Help with transferring entries</string>
     <string name="migration_mail_body">The details below are only used to find and fix the problem. Your entries aren't included.\n\nApp version: %1$s\nDevice: %2$s\nStopped at: %3$s\nProblem type: %4$s\nAttempts: %5$s\nEntries: %6$s\nPhotos: %7$s\nUnreadable entries: %8$s\n\nTell us what happened or what you'd like to ask.\n</string>

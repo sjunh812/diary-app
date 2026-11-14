@@ -5,6 +5,7 @@ import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.provider.DocumentsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ import org.sjhstudio.diary.core.model.currentDate
 import org.sjhstudio.diary.feature.migration.resources.Res
 import org.sjhstudio.diary.feature.migration.resources.migration_export_done
 import org.sjhstudio.diary.feature.migration.resources.migration_export_failed
+import org.sjhstudio.diary.feature.migration.resources.migration_export_failed_left
 import org.sjhstudio.diary.feature.migration.resources.migration_export_file_name
 import org.sjhstudio.diary.feature.migration.resources.migration_mail_body
 import org.sjhstudio.diary.feature.migration.resources.migration_mail_missing
@@ -66,13 +68,22 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
             if (uri == null) return@rememberLauncherForActivityResult
             attempt({ getString(Res.string.migration_export_failed) }) {
                 val readme = getString(Res.string.migration_readme)
-                val ok =
+                val result =
                     withContext(Dispatchers.IO) {
-                        runCatching {
+                        val written = runCatching {
                             context.contentResolver.openOutputStream(uri)?.use { exporter.write(it, readme) } ?: error("열 수 없음")
-                        }.isSuccess
+                        }
+                        when {
+                            written.isSuccess -> Res.string.migration_export_done
+
+                            // 쓰다 만 zip을 온전한 원본으로 알고 보관하지 않게 지움. 못 지우면 사용자가 지우게 알림
+                            runCatching { DocumentsContract.deleteDocument(context.contentResolver, uri) }.getOrDefault(false) ->
+                                Res.string.migration_export_failed
+
+                            else -> Res.string.migration_export_failed_left
+                        }
                     }
-                onMessage.show(getString(if (ok) Res.string.migration_export_done else Res.string.migration_export_failed))
+                onMessage.show(getString(result))
             }
         }
     return remember(saver) {
