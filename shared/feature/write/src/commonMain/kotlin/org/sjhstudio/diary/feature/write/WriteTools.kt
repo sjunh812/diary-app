@@ -23,6 +23,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.mohamedrejeb.richeditor.model.RichTextState
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
@@ -87,7 +89,7 @@ internal enum class PaletteKind { Ink, Mark }
 internal class WriteTools(
     val rich: RichTextState,
     val colors: EditorColors,
-    val checklistOpen: () -> Boolean,
+    val checklistAllowed: suspend () -> Boolean,
     val onChecklistLocked: () -> Unit
 ) {
     /** 서식 없는 본문. 글이 바뀔 때만 다시 만듦 */
@@ -121,6 +123,9 @@ internal class WriteTools(
         // 좁은 폰에서는 칸을 고르게 줄여 도구가 모두 보이게
         val slot = Modifier.weight(1f, fill = false)
         val checked = Checklist.isItemAt(plain.value, rich.selection.min)
+        val scope = rememberCoroutineScope()
+        // 요금제를 기다리는 동안 다시 눌러도 쌓이지 않게
+        var deciding by remember { mutableStateOf(false) }
         fun tint(active: Boolean) = if (active) theme.accentText else theme.textPrimary
         onPhoto?.let {
             ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), theme.textPrimary, modifier = slot, onClick = it)
@@ -189,17 +194,31 @@ internal class WriteTools(
             stringResource(
                 Res.string.write_format_check
             ),
-            tint(checked),
+            // 요금제를 기다리는 동안은 흐리게
+            if (deciding) theme.textSecondary else tint(checked),
             modifier = slot,
             active = checked,
             onClick = {
                 // 이미 있는 항목을 푸는 것은 언제나 됨. 새로 만드는 것만 Plus
-                if (!checked && !checklistOpen()) {
-                    onChecklistLocked()
-                    return@ToolButton
+                if (deciding) return@ToolButton
+                deciding = true
+                // 누른 순간의 글과 자리. 기다리는 사이 글을 고쳤으면 엉뚱한 줄에 걸지 않게 적용하지 않음
+                val before = plain.value
+                val at = rich.selection
+                scope.launch {
+                    try {
+                        if (!checked && !checklistAllowed()) {
+                            onChecklistLocked()
+                            return@launch
+                        }
+                        if (plain.value != before) return@launch
+                        if (rich.selection != at) rich.selection = at
+                        if (rich.isUnorderedList) rich.toggleUnorderedList()
+                        toggleChecklist()
+                    } finally {
+                        deciding = false
+                    }
                 }
-                if (rich.isUnorderedList) rich.toggleUnorderedList()
-                toggleChecklist()
             }
         )
     }

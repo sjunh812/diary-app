@@ -150,7 +150,7 @@ class WriteViewModel(
     settings: SettingsRepository,
     /** 받아 둔 글꼴 파일 */
     fonts: FontInstaller,
-    plans: PlanRepository,
+    private val plans: PlanRepository,
     private val places: PlaceFinder = NoPlaceFinder,
     /** 앱이 종료되거나 잠겼다 돌아와 이어 쓰는 새 일기의 키 */
     private val restoredKey: String? = null
@@ -166,6 +166,12 @@ class WriteViewModel(
         plans.confirmed.filterNotNull()
             .map { it.checklist }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, Plan.FREE.checklist)
+
+    /**
+     * 새 체크리스트를 지금 만들 수 있는지
+     * 재설치 직후 요금제를 모르면 확정될 때까지 잠깐 기다림. Plus 사용자에게 Plus 권유가 스치지 않게
+     */
+    suspend fun checklistAllowed(): Boolean = checklistOpen.value || plans.awaitConfirmed().checklist
 
     /** 본문은 고른 글꼴과 글자 크기로 보임(FR-014) */
     val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fonts)

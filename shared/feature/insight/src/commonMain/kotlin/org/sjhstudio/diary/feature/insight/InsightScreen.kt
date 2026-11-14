@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,6 +64,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.number
@@ -192,6 +194,7 @@ fun InsightRoute(
         advancedOpen = advancedOpen,
         onPlus = onPlus,
         onAdvanced = onAdvanced,
+        advancedAllowed = viewModel::advancedAllowed,
         onWrite = onWrite,
         adSlot = adSlot
     )
@@ -213,6 +216,7 @@ internal fun InsightScreen(
     onRetry: () -> Unit = {},
     onPeriod: (DateRange) -> Unit = {},
     advancedOpen: Boolean = false,
+    advancedAllowed: suspend () -> Boolean = { advancedOpen },
     onPlus: () -> Unit = {},
     onAdvanced: () -> Unit = {},
     onWrite: () -> Unit = {},
@@ -221,6 +225,9 @@ internal fun InsightScreen(
     val colors = DiaryTheme.colors
     val dates = rememberDiaryDateFormat()
     val scroll = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    // 요금제를 기다리는 동안 다시 눌러도 화면이 두 번 열리지 않게
+    var deciding by remember { mutableStateOf(false) }
     OnTabReselected { scroll.animateScrollTo(0) }
     var titleHeight by remember { mutableIntStateOf(0) }
     SnapTitleOnRest(scroll, titleHeight)
@@ -235,11 +242,24 @@ internal fun InsightScreen(
             actions = {
                 DiaryButton(
                     stringResource(Res.string.insight_adv_title),
-                    if (advancedOpen) onAdvanced else onPlus,
+                    {
+                        if (!deciding) {
+                            deciding = true
+                            scope.launch {
+                                try {
+                                    if (advancedAllowed()) onAdvanced() else onPlus()
+                                } finally {
+                                    deciding = false
+                                }
+                            }
+                        }
+                    },
                     modifier = Modifier.padding(end = LocalScreenGutter.current - DiarySpacing.x1),
                     size = DiaryButtonSize.Small,
                     kind = DiaryButtonKind.Weak,
-                    leadingIcon = DiaryIcons.SparklesSolid
+                    leadingIcon = DiaryIcons.SparklesSolid,
+                    // 요금제를 기다리는 동안 누른 것이 보이게
+                    loading = deciding
                 )
             }
         )

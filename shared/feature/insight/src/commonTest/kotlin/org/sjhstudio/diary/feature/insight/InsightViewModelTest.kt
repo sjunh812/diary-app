@@ -88,6 +88,15 @@ class InsightViewModelTest {
         }
     }
 
+    /** 요금제를 끝내 모르면(오프라인) 기다린 뒤 지금 값으로 정함 */
+    @Test
+    fun an_unknown_plan_falls_back_after_the_wait() = runTest(dispatcher) {
+        val model = testInsightViewModel(NoStats, { today }, FakePlanRepository(Plan.FREE, known = false), SavedStateHandle())
+        advanceUntilIdle()
+
+        assertEquals(false, model.advancedAllowed())
+    }
+
     /** 구독이 끝나면 칸이 바로 잠기고 앱 틀이 고급 통계 화면을 닫음 */
     @Test
     fun advanced_stats_close_when_plus_ends() = runTest(dispatcher) {

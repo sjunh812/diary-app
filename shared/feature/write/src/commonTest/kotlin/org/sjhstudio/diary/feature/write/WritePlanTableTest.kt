@@ -7,7 +7,9 @@ import kotlin.test.assertEquals
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -59,6 +61,22 @@ class WritePlanTableTest {
             assertEquals(checklist, viewModel.checklistOpen.value, "$plan 체크리스트")
             assertEquals(photos, viewModel.photoLimit.value, "$plan 사진")
         }
+    }
+
+    /** 재설치 직후 요금제를 모를 때 체크리스트를 누르면 확정을 기다려 Plus 사용자에게 권유가 스치지 않음 */
+    @Test
+    fun an_unknown_plan_waits_before_locking_the_checklist() = runTest(dispatcher) {
+        val plans = FakePlanRepository(Plan.FREE, known = false)
+        val viewModel = vm(plans)
+        advanceUntilIdle()
+        val allowed = async { viewModel.checklistAllowed() }
+        advanceTimeBy(1_000)
+
+        plans.plan.value = Plan.PLUS
+        plans.known.value = true
+        advanceUntilIdle()
+
+        assertEquals(true, allowed.await())
     }
 
     /** 쓰는 도중에 구독이 끝나면 화면이 바로 따르고 쓰던 글은 그대로 */

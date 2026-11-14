@@ -274,7 +274,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         }
     }
     val tools = remember(actions) {
-        WriteTools(actions.rich, actions.colors, { vm.checklistOpen.value }, {
+        WriteTools(actions.rich, actions.colors, vm::checklistAllowed, {
             refocus = editorFocused
             checklistLocked = true
         })

@@ -58,7 +58,7 @@ data class InsightState(val period: StatsPeriod, val data: InsightData?, val fai
 class InsightViewModel(
     private val stats: StatsRepository,
     private val today: () -> LocalDate = { currentDate() },
-    plans: PlanRepository,
+    private val plans: PlanRepository,
     private val saved: SavedStateHandle,
     private val tips: ContextTips,
     entries: EntryRepository
@@ -68,6 +68,12 @@ class InsightViewModel(
         plans.confirmed.filterNotNull()
             .map { it.advancedStats }
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, false)
+
+    /**
+     * 고급 통계를 지금 열 수 있는지
+     * 재설치 직후 요금제를 모르면 확정될 때까지 잠깐 기다림. Plus 사용자에게 결제 화면이 스치지 않게
+     */
+    suspend fun advancedAllowed(): Boolean = advancedOpen.value || plans.awaitConfirmed().advancedStats
 
     // 시스템이 앱을 끄고 다시 띄워도 보던 기간 유지
     private val _period = MutableStateFlow(saved.get<String>(PERIOD_KEY)?.let(::decodePeriod) ?: StatsPeriod.Month(today().yearMonth))
