@@ -38,7 +38,8 @@ object MergeRules {
 
             // 시계가 뒤로 간 뒤에 고치면 L이 S보다 작음
             // S와 다르면 이 기기에서 고친 것
-            l == base -> MergeAction.REPLACE
+            // S는 이 기기가 내보낸 값이라, 다른 기기가 그 판을 보고 고쳤는지는 알 수 없음. 그때는 둘 다 남겨 고르게 함
+            l == base && !fromOtherDevice -> MergeAction.REPLACE
 
             sameContent(backup, local) -> MergeAction.KEEP
 
