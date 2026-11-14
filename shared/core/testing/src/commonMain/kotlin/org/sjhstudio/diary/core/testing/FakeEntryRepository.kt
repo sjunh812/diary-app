@@ -51,7 +51,7 @@ class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(
 
     override fun search(filter: SearchFilter): Flow<PagingData<EntryRow>> = flowOf(PagingData.empty())
 
-    override suspend fun setFavorite(id: String, favorite: Boolean) = Unit
+    override suspend fun toggleFavorite(id: String) = Unit
 
     override suspend fun toggleCheck(id: String, index: Int) = Unit
 

@@ -71,10 +71,7 @@ class EntryMenuWork(private val scope: CoroutineScope, private val entries: Entr
     val events: Flow<EntryMenuEvent> = _events.receiveAsFlow()
 
     fun toggleFavorite(id: String) {
-        scope.launchWrite {
-            val entry = entries.entry(id).first()?.entry ?: return@launchWrite
-            entries.setFavorite(id, !entry.isFavorite)
-        }
+        scope.launchWrite { entries.toggleFavorite(id) }
     }
 
     /** 휴지통에 넣은 뒤 [EntryMenuEvent.Trashed]. 실패하면 보내지 않고 실패 안내만 뜸 */

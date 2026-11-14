@@ -157,6 +157,10 @@ interface EntryDao {
     @Query("UPDATE entry SET is_favorite = :favorite, updated_at = :now WHERE id = :id")
     suspend fun setFavorite(id: String, favorite: Boolean, now: Long)
 
+    /** 저장된 값을 뒤집음. 화면 값을 읽어 반대로 쓰면 빠르게 두 번 누를 때 두 번째가 묻힘 */
+    @Query("UPDATE entry SET is_favorite = NOT is_favorite, updated_at = :now WHERE id = :id")
+    suspend fun toggleFavorite(id: String, now: Long)
+
     /**
      * 휴지통 넣기와 꺼내기
      * 합치기 복원이 고친 쪽을 가르도록 `updated_at`도 바꿈

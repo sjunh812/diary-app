@@ -265,8 +265,9 @@ class CalendarViewModelTest {
 
         override fun entry(id: String): Flow<EntryDetail?> = flowOf(detail.takeIf { it.entry.id == id })
 
-        override suspend fun setFavorite(id: String, favorite: Boolean) {
-            this.favorite = favorite
+        // DB처럼 저장된 일기만 뒤집음
+        override suspend fun toggleFavorite(id: String) {
+            if (id == detail.entry.id) favorite = !(favorite ?: detail.entry.isFavorite)
         }
 
         override suspend fun moveToTrash(id: String) {

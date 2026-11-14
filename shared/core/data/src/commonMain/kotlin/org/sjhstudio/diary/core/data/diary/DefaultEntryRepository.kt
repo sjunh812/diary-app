@@ -163,7 +163,7 @@ class DefaultEntryRepository(
         return EntryRowPagingSource(source) { pageRows(it, query) }
     }
 
-    override suspend fun setFavorite(id: String, favorite: Boolean) = entries.setFavorite(id, favorite, nowMillis())
+    override suspend fun toggleFavorite(id: String) = entries.toggleFavorite(id, nowMillis())
 
     override suspend fun toggleCheck(id: String, index: Int) {
         entries.edit(id) { entry ->

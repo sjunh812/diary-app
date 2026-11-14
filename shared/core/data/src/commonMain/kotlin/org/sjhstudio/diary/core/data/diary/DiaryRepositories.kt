@@ -47,7 +47,7 @@ interface EntryRepository {
 
     fun search(filter: SearchFilter): Flow<PagingData<EntryRow>>
 
-    suspend fun setFavorite(id: String, favorite: Boolean)
+    suspend fun toggleFavorite(id: String)
 
     /**
      * 체크리스트 [index]번째 항목을 뒤집음

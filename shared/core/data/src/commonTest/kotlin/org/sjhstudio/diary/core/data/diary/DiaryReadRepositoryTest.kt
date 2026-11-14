@@ -183,12 +183,23 @@ class DiaryReadRepositoryTest {
         assertEquals(0, entries.positionOf(YearMonth(2026, 9), favoritesOnly = true))
     }
 
+    /** 빠르게 두 번 누르면 처음대로. 화면 값을 읽어 쓰면 두 번째가 묻힘 */
+    @Test
+    fun two_quick_favorite_taps_cancel_out() = runTest {
+        db.seed(entry("a"))
+
+        entries.toggleFavorite("a")
+        entries.toggleFavorite("a")
+
+        assertEquals(false, db.entryDao().get("a")!!.asModel().isFavorite)
+    }
+
     @Test
     fun favorite_changes_updated_time() = runTest {
         db.seed(entry("a"))
         clock.advance(1.hours)
 
-        entries.setFavorite("a", true)
+        entries.toggleFavorite("a")
 
         val saved = db.entryDao().get("a")!!.asModel()
         assertTrue(saved.isFavorite)

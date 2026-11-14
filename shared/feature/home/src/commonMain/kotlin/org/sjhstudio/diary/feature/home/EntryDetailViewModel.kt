@@ -69,8 +69,8 @@ class EntryDetailViewModel(
     val trashed: Flow<Unit> = _trashed.receiveAsFlow()
 
     fun toggleFavorite() {
-        val entry = (state.value as? EntryDetailState.Ready)?.detail?.entry ?: return
-        viewModelScope.launchWrite { entries.setFavorite(entryId, !entry.isFavorite) }
+        if (state.value !is EntryDetailState.Ready) return
+        viewModelScope.launchWrite { entries.toggleFavorite(entryId) }
     }
 
     fun toggleCheck(index: Int) {
