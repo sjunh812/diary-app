@@ -456,8 +456,11 @@ internal fun galleryRatio(photos: List<EntryPhoto>): Float {
 /** 폰 350×230, 태블릿 600×396과 같은 비율 */
 internal const val GALLERY_RATIO = 1.52f
 
-/** 사진 높이는 창 높이의 60%까지. 태블릿 가로에서 세로 사진이 본문을 화면 밖으로 밀지 않게 넘는 만큼만 자름 */
-private const val GALLERY_MAX_HEIGHT = 0.6f
+/**
+ * 사진 높이는 창 높이의 45%까지. 낮은 창(태블릿·폴드 가로)에서 첫 화면에 본문이 여러 줄 남게 넘는 만큼만 자름
+ * 폰 세로·태블릿 세로는 폭으로 정한 높이가 더 낮아 그대로
+ */
+private const val GALLERY_MAX_HEIGHT = 0.45f
 private const val TALLEST_RATIO = 1f
 private const val WIDEST_RATIO = 1.91f
 
