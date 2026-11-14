@@ -1,5 +1,13 @@
 package org.sjhstudio.diary.feature.search
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -60,6 +68,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiarySearchField
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -79,6 +88,7 @@ import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.search.resources.Res
@@ -248,6 +258,8 @@ internal fun SearchScreen(
     }
 }
 
+private fun <T> chipMotion() = tween<T>(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate)
+
 /** [SearchScreen]이 여는 시트 */
 internal enum class SheetRequest { Mood, Weather, Period }
 
@@ -260,16 +272,31 @@ private fun FilterChips(
     onFavorites: () -> Unit,
     onClear: () -> Unit
 ) {
+    val gutter = LocalScreenGutter.current
+    val reduceMotion = rememberReduceMotion()
     LazyRow(
         Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2),
+        // 초기화 칩 자리는 접혀 있어도 칩 사이 간격을 받음. 그만큼 앞 여백에서 뺌
+        contentPadding = PaddingValues(start = gutter - DiarySpacing.x2, end = gutter, top = DiarySpacing.x2, bottom = DiarySpacing.x2),
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        // 조건이 있을 때만 맨 앞에. 끝에 두면 칩이 많을 때 밀어야 보임(eBay Playbook 칩 가로 스크롤)
-        if (filter.hasConditions) {
-            item(key = "clear") { DiaryIconChip(DiaryIcons.Reset, stringResource(Res.string.search_clear_conditions), onClear) }
+        // 조건이 있을 때만 맨 앞에 펼침. 끝에 두면 칩이 많을 때 밀어야 보임(eBay Playbook 칩 가로 스크롤)
+        // 자리를 늘 두고 키로 잡아 줄이 보이는 첫 칩에 맞춰 섬. 맨 앞이면 펼쳐져 보이고, 밀어 둔 줄은 누른 칩이 그대로
+        item(key = "clear") {
+            AnimatedVisibility(
+                visible = filter.hasConditions,
+                enter = if (reduceMotion) EnterTransition.None else fadeIn(chipMotion()) + expandHorizontally(chipMotion()),
+                exit = if (reduceMotion) ExitTransition.None else fadeOut(chipMotion()) + shrinkHorizontally(chipMotion())
+            ) {
+                DiaryIconChip(
+                    DiaryIcons.Reset,
+                    stringResource(Res.string.search_clear_conditions),
+                    onClear,
+                    Modifier.padding(start = DiarySpacing.x2)
+                )
+            }
         }
-        item {
+        item(key = "mood") {
             DiaryChip(
                 // 고른 기분을 칩에 씀. 기간 칩처럼 무엇으로 걸렀는지 시트를 열지 않고 보이게
                 chosenLabel(Mood.ordered.filter { it in filter.moods }.map { moodName(it) }) ?: stringResource(Res.string.search_chip_mood),
@@ -279,7 +306,7 @@ private fun FilterChips(
                 trailingIcon = DiaryIcons.ChevronDown
             )
         }
-        item {
+        item(key = "weather") {
             DiaryChip(
                 chosenLabel(Weather.entries.filter { it in filter.weathers }.map { weatherName(it) })
                     ?: stringResource(Res.string.search_chip_weather),
@@ -289,7 +316,7 @@ private fun FilterChips(
                 trailingIcon = DiaryIcons.ChevronDown
             )
         }
-        item {
+        item(key = "period") {
             DiaryChip(
                 // 직접 선택했으면 "직접 선택" 대신 그 기간을 칩에 씀(돌아보기에서 넘어와도 무엇으로 걸렀는지 보이게)
                 filter.period?.takeIf { period == SearchPeriod.Custom }?.let { rangeLabel(it, rememberToday()) }
@@ -301,8 +328,10 @@ private fun FilterChips(
                 trailingIcon = DiaryIcons.ChevronDown
             )
         }
-        item { DiaryChip(stringResource(Res.string.search_chip_photo), filter.hasPhoto, onPhoto, leadingIcon = DiaryIcons.Image) }
-        item {
+        item(key = "photo") {
+            DiaryChip(stringResource(Res.string.search_chip_photo), filter.hasPhoto, onPhoto, leadingIcon = DiaryIcons.Image)
+        }
+        item(key = "favorite") {
             DiaryChip(
                 stringResource(Res.string.search_chip_favorite),
                 filter.favoritesOnly,
