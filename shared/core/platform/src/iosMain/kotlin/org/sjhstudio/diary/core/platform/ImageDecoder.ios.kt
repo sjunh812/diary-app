@@ -24,7 +24,21 @@ import platform.CoreFoundation.kCFStringEncodingUTF8
 import platform.CoreFoundation.kCFTypeDictionaryKeyCallBacks
 import platform.CoreFoundation.kCFTypeDictionaryValueCallBacks
 import platform.CoreFoundation.kCFURLPOSIXPathStyle
+import platform.CoreGraphics.CGBitmapContextCreate
+import platform.CoreGraphics.CGBitmapContextCreateImage
+import platform.CoreGraphics.CGColorSpaceCreateDeviceRGB
+import platform.CoreGraphics.CGColorSpaceRelease
+import platform.CoreGraphics.CGContextDrawImage
+import platform.CoreGraphics.CGContextFillRect
+import platform.CoreGraphics.CGContextRelease
+import platform.CoreGraphics.CGContextSetRGBFillColor
+import platform.CoreGraphics.CGImageAlphaInfo
+import platform.CoreGraphics.CGImageGetAlphaInfo
+import platform.CoreGraphics.CGImageGetHeight
+import platform.CoreGraphics.CGImageGetWidth
+import platform.CoreGraphics.CGImageRef
 import platform.CoreGraphics.CGImageRelease
+import platform.CoreGraphics.CGRectMake
 import platform.ImageIO.CGImageDestinationAddImage
 import platform.ImageIO.CGImageDestinationCreateWithURL
 import platform.ImageIO.CGImageDestinationFinalize
@@ -40,6 +54,9 @@ import platform.UIKit.UIImage
 // 방향(EXIF)은 WithTransform으로 반영
 @OptIn(ExperimentalForeignApi::class)
 actual object ImageDecoder {
+    private val OPAQUE =
+        setOf(CGImageAlphaInfo.kCGImageAlphaNone, CGImageAlphaInfo.kCGImageAlphaNoneSkipFirst, CGImageAlphaInfo.kCGImageAlphaNoneSkipLast)
+
     actual fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean = memScoped {
         val created = mutableListOf<CFTypeRef?>()
         fun <T : CFTypeRef?> keep(ref: T): T = ref.also { created += it }
@@ -51,7 +68,10 @@ actual object ImageDecoder {
             CFDictionaryAddValue(options, kCGImageSourceCreateThumbnailFromImageAlways, kCFBooleanTrue)
             CFDictionaryAddValue(options, kCGImageSourceCreateThumbnailWithTransform, kCFBooleanTrue)
             CFDictionaryAddValue(options, kCGImageSourceThumbnailMaxPixelSize, keep(CFNumberCreate(null, kCFNumberIntType, side.ptr)))
-            val image = CGImageSourceCreateThumbnailAtIndex(imageSource, 0u, options) ?: return@memScoped false
+            val thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0u, options) ?: return@memScoped false
+            // JPEG에는 투명이 없어 그대로 쓰면 투명한 곳이 검게 나와 흰 바탕에 올림(Android와 같음)
+            val image = onWhite(thumbnail) ?: thumbnail
+            if (image != thumbnail) CGImageRelease(thumbnail)
             try {
                 val targetUrl = keep(fileUrl(target)) ?: return@memScoped false
                 val jpeg = keep(cfString("public.jpeg"))
@@ -71,6 +91,30 @@ actual object ImageDecoder {
             }
         } finally {
             created.filterNotNull().forEach(::CFRelease)
+        }
+    }
+
+    /** 투명이 있으면 흰 바탕에 그린 불투명 그림. 없으면 null */
+    private fun onWhite(image: CGImageRef): CGImageRef? = image.takeIf { hasAlpha(it) }?.let { drawOnWhite(it) }
+
+    private fun hasAlpha(image: CGImageRef): Boolean = CGImageGetAlphaInfo(image) !in OPAQUE
+
+    private fun drawOnWhite(image: CGImageRef): CGImageRef? {
+        val width = CGImageGetWidth(image)
+        val height = CGImageGetHeight(image)
+        val space = CGColorSpaceCreateDeviceRGB()
+        val context = CGBitmapContextCreate(null, width, height, 8u, 0u, space, CGImageAlphaInfo.kCGImageAlphaNoneSkipLast.value)
+        CGColorSpaceRelease(space)
+        return context?.let {
+            try {
+                val bounds = CGRectMake(0.0, 0.0, width.toDouble(), height.toDouble())
+                CGContextSetRGBFillColor(it, 1.0, 1.0, 1.0, 1.0)
+                CGContextFillRect(it, bounds)
+                CGContextDrawImage(it, bounds, image)
+                CGBitmapContextCreateImage(it)
+            } finally {
+                CGContextRelease(it)
+            }
         }
     }
 
