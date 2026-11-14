@@ -25,7 +25,7 @@ import org.sjhstudio.diary.core.model.quietly
 
 /**
  * 광고 SDK. 공통 코드는 이것만 봄
- * 구현은 안드로이드만 있고 iOS는 R2에 붙임
+ * Android는 `AdMobPlayer`, iOS는 `IosAdPlayer`
  */
 interface AdPlayer {
     val available: Boolean

@@ -134,17 +134,16 @@ class InsightViewModel(
             .map { months -> months.minOfOrNull { it.year } }
             .stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
+    fun retry() {
+        attempt.value++
+    }
+
     /**
      * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 함
      * ×를 누르지 않아도 다시 띄우지 않음(Apple TipKit `actionPerformed`)
      * 화면이 찾기로 넘어가도 끝까지 쓰게 화면 모델에서 저장
      */
-    fun retry() {
-        attempt.value++
-    }
-
     fun tried() {
-        val tips = tips ?: return
         viewModelScope.launchSafely { tips.done(ContextTip.INSIGHT_OPEN) }
     }
 
