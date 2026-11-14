@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
@@ -39,8 +40,10 @@ class DevPlanRepository(context: Context) : PlanRepository {
 class FakePurchases(private val plans: DevPlanRepository) : PurchaseRepository {
     override val manageUrl: String = "https://play.google.com/store/account/subscriptions"
 
-    override suspend fun products(): List<StoreProduct> =
-        listOf(StoreProduct(ProductId.AD_FREE, "₩9,900"), StoreProduct(ProductId.PLUS_YEARLY, "₩14,900"))
+    override suspend fun products(): List<StoreProduct> = listOf(
+        StoreProduct(ProductId.AD_FREE, Price("₩9,900", 9_900_000_000, "KRW")),
+        StoreProduct(ProductId.PLUS_YEARLY, Price("₩14,900", 14_900_000_000, "KRW"))
+    )
 
     override suspend fun buy(id: ProductId): PurchaseResult {
         plans.choose(if (id == ProductId.PLUS_YEARLY) Plan.PLUS else Plan.AD_FREE)

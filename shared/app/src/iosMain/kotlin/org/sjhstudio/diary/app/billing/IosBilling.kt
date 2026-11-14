@@ -25,6 +25,7 @@ import org.sjhstudio.diary.core.data.StoreBilling
 import org.sjhstudio.diary.core.data.StoreClient
 import org.sjhstudio.diary.core.data.StoreFailure
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.Price
 import platform.Foundation.NSBundle
 import platform.Foundation.NSUserDefaults
 
@@ -76,8 +77,10 @@ private object RevenueCatClient : StoreClient {
 
     override suspend fun sync(): Set<String> = store { Purchases.sharedInstance.awaitSyncPurchases().active }
 
-    override suspend fun prices(storeIds: List<String>): Map<String, String> = store {
-        Purchases.sharedInstance.awaitGetProducts(storeIds).associate { it.id to it.price.formatted }
+    override suspend fun prices(storeIds: List<String>): Map<String, Price> = store {
+        Purchases.sharedInstance.awaitGetProducts(storeIds).associate { product ->
+            product.id to product.price.let { Price(it.formatted, it.amountMicros, it.currencyCode) }
+        }
     }
 
     override suspend fun purchase(storeId: String): Set<String> = store {

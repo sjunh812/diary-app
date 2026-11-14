@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.data
 
 import kotlinx.coroutines.flow.StateFlow
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
@@ -19,7 +20,7 @@ interface StoreClient {
     suspend fun sync(): Set<String>
 
     /** 스토어 상품 ID와 그 나라 돈으로 쓴 가격 */
-    suspend fun prices(storeIds: List<String>): Map<String, String>
+    suspend fun prices(storeIds: List<String>): Map<String, Price>
 
     suspend fun purchase(storeId: String): Set<String>
 

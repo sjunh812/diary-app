@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
@@ -30,7 +31,7 @@ data class PlusUiState(
     /** 방금 구매 복원의 결과. 찾지 못했거나 실패했을 때만 있고, 시트가 직접 보임 */
     val restoreNotice: PlusMessage? = null
 ) {
-    fun price(id: ProductId): String? = products.firstOrNull { it.id == id }?.price
+    fun price(id: ProductId): Price? = products.firstOrNull { it.id == id }?.price
 }
 
 enum class PlusMessage { Failed, Pending, Restored, RestoreNone, RestoreFailed }

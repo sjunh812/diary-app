@@ -6,6 +6,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
@@ -36,9 +37,12 @@ class StoreBillingTest {
             return owned
         }
 
-        override suspend fun prices(storeIds: List<String>): Map<String, String> {
+        override suspend fun prices(storeIds: List<String>): Map<String, Price> {
             check()
-            return mapOf(StoreIds.AD_FREE_PRODUCT to "₩3,300", StoreIds.PLUS_PRODUCT to "₩12,000").filterKeys { it in storeIds }
+            return mapOf(StoreIds.AD_FREE_PRODUCT to won("3,300", 3_300), StoreIds.PLUS_PRODUCT to won("12,000", 12_000)).filterKeys {
+                it in
+                    storeIds
+            }
         }
 
         override suspend fun purchase(storeId: String): Set<String> {
@@ -196,7 +200,7 @@ class StoreBillingTest {
     fun products_keep_store_prices_and_offline_shows_none() = runTest {
         val billing = billing()
         assertEquals(
-            listOf(StoreProduct(ProductId.AD_FREE, "₩3,300"), StoreProduct(ProductId.PLUS_YEARLY, "₩12,000")),
+            listOf(StoreProduct(ProductId.AD_FREE, won("3,300", 3_300)), StoreProduct(ProductId.PLUS_YEARLY, won("12,000", 12_000))),
             billing.products()
         )
         store.offline = true
@@ -209,3 +213,6 @@ class StoreBillingTest {
         assertEquals("ad_free", StoreIds.baseOf("ad_free"))
     }
 }
+
+/** 스토어가 주는 원화 가격 */
+private fun won(text: String, value: Long) = Price("₩$text", value * 1_000_000, "KRW")

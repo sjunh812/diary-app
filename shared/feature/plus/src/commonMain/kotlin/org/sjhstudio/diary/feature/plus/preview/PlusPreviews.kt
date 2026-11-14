@@ -3,20 +3,26 @@ package org.sjhstudio.diary.feature.plus.preview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.StoreProduct
 import org.sjhstudio.diary.feature.plus.AdFreeSheetContent
 import org.sjhstudio.diary.feature.plus.PaywallScreen
 import org.sjhstudio.diary.feature.plus.PlusManageScreen
 import org.sjhstudio.diary.feature.plus.PlusUiState
+import org.sjhstudio.diary.feature.plus.label
 
 @Preview(locale = "ko")
 @Composable
-private fun PaywallLight() = DiaryTheme(darkTheme = false) { PaywallScreen("₩14,900", false, false, false, {}, {}, {}, {}) }
+private fun PaywallLight() = DiaryTheme(darkTheme = false) {
+    PaywallScreen(won("14,900", 14_900).label(), false, false, false, {}, {}, {}, {})
+}
 
 @Preview(locale = "ko")
 @Composable
-private fun PaywallDark() = DiaryTheme(darkTheme = true) { PaywallScreen("₩14,900", false, false, false, {}, {}, {}, {}) }
+private fun PaywallDark() = DiaryTheme(darkTheme = true) {
+    PaywallScreen(won("14,900", 14_900).label(), false, false, false, {}, {}, {}, {})
+}
 
 @Preview(locale = "ko")
 @Composable
@@ -28,21 +34,23 @@ private fun PaywallLoadingLight() = DiaryTheme(darkTheme = false) { PaywallScree
 
 @Preview(locale = "ko")
 @Composable
-private fun ManageLight() = DiaryTheme(darkTheme = false) { PlusManageScreen("₩14,900", {}, {}) }
+private fun ManageLight() = DiaryTheme(darkTheme = false) { PlusManageScreen(won("14,900", 14_900).label(), {}, {}) }
 
 @Preview(locale = "ko")
 @Composable
-private fun ManageDark() = DiaryTheme(darkTheme = true) { PlusManageScreen("₩14,900", {}, {}) }
+private fun ManageDark() = DiaryTheme(darkTheme = true) { PlusManageScreen(won("14,900", 14_900).label(), {}, {}) }
 
 @Preview(name = "결제 화면 · 넓은 화면", locale = "ko", widthDp = 1194, heightDp = 834)
 @Composable
-private fun PaywallWide() = DiaryTheme(darkTheme = false) { PaywallScreen("₩14,900", false, false, false, {}, {}, {}, {}) }
+private fun PaywallWide() = DiaryTheme(darkTheme = false) {
+    PaywallScreen(won("14,900", 14_900).label(), false, false, false, {}, {}, {}, {})
+}
 
 @Preview(name = "구독 중 · 넓은 화면", locale = "ko", widthDp = 1194, heightDp = 834)
 @Composable
-private fun ManageWide() = DiaryTheme(darkTheme = false) { PlusManageScreen("₩14,900", {}, {}) }
+private fun ManageWide() = DiaryTheme(darkTheme = false) { PlusManageScreen(won("14,900", 14_900).label(), {}, {}) }
 
-private val AdFreePriced = PlusUiState(products = listOf(StoreProduct(ProductId.AD_FREE, "₩9,900")), loading = false)
+private val AdFreePriced = PlusUiState(products = listOf(StoreProduct(ProductId.AD_FREE, won("9,900", 9_900))), loading = false)
 
 @Preview(name = "광고 제거 시트", locale = "ko")
 @Composable
@@ -59,3 +67,6 @@ private fun AdFreeNoPrice() = DiaryTheme(darkTheme = false) { AdFreeSheetContent
 @Preview(name = "광고 제거 시트 · 결제 실패", locale = "ko")
 @Composable
 private fun AdFreeFailed() = DiaryTheme(darkTheme = false) { AdFreeSheetContent(AdFreePriced.copy(buyFailed = true), {}, {}, {}) }
+
+/** 스토어가 주는 원화 가격 */
+private fun won(text: String, value: Long) = Price("₩$text", value * 1_000_000, "KRW")

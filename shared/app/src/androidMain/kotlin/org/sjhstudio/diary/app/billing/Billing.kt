@@ -34,6 +34,7 @@ import org.sjhstudio.diary.core.data.StoreClient
 import org.sjhstudio.diary.core.data.StoreFailure
 import org.sjhstudio.diary.core.data.StoreIds
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.Price
 
 private const val MANAGE_URL = "https://play.google.com/store/account/subscriptions"
 private const val PREFS = "plan"
@@ -84,8 +85,10 @@ private class RevenueCatClient(app: Application, key: String, private val curren
         )
     }
 
-    override suspend fun prices(storeIds: List<String>): Map<String, String> = store {
-        Purchases.sharedInstance.awaitGetProducts(storeIds).associate { StoreIds.baseOf(it.id) to it.price.formatted }
+    override suspend fun prices(storeIds: List<String>): Map<String, Price> = store {
+        Purchases.sharedInstance.awaitGetProducts(storeIds).associate { product ->
+            StoreIds.baseOf(product.id) to product.price.let { Price(it.formatted, it.amountMicros, it.currencyCode) }
+        }
     }
 
     override suspend fun purchase(storeId: String): Set<String> = store {

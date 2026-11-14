@@ -148,10 +148,10 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     var adFreeSheet by rememberSaveable { mutableStateOf(false) }
     Box(modifier.fillMaxSize()) {
         if (plan == Plan.PLUS) {
-            PlusManageScreen(state.price(ProductId.PLUS_YEARLY), onClose, onStore = { openWeb(viewModel.manageUrl) })
+            PlusManageScreen(state.price(ProductId.PLUS_YEARLY)?.label(), onClose, onStore = { openWeb(viewModel.manageUrl) })
         } else {
             PaywallScreen(
-                price = state.price(ProductId.PLUS_YEARLY),
+                price = state.price(ProductId.PLUS_YEARLY)?.label(),
                 loading = state.loading,
                 busy = state.busy,
                 adFreeOwned = plan == Plan.AD_FREE,

@@ -10,8 +10,14 @@ enum class Plan(val showsAds: Boolean, val photoLimit: Int, val advancedStats: B
 /** 파는 상품. 첫 출시는 둘(D9) */
 enum class ProductId { AD_FREE, PLUS_YEARLY }
 
-/** 스토어에서 받은 상품. 가격은 스토어가 준 글자 그대로 보임(FR-004) */
-data class StoreProduct(val id: ProductId, val price: String)
+/** 스토어에서 받은 상품(FR-004) */
+data class StoreProduct(val id: ProductId, val price: Price)
+
+/**
+ * 스토어 가격. [formatted]는 스토어가 기기 지역에 맞춰 준 글자
+ * 금액은 스토어 값 그대로 쓰고, 원화만 화면에서 "14,900원" 꼴로 보임
+ */
+data class Price(val formatted: String, val amountMicros: Long, val currencyCode: String)
 
 /**
  * [NOTHING]은 복원할 구매가 없음. 스토어에 닿지 못한 [FAILED]와 다름

@@ -7,6 +7,7 @@
     <string name="plus_photos_title">한 편에 사진 30장</string>
     <string name="plus_stats_title">고급 통계</string>
     <string name="plus_coming">앞으로도 계속 업데이트할 예정이에요.</string>
+    <string name="price_krw">%1$s원</string>
     <string name="plus_price">연 %1$s</string>
     <string name="plus_start">Plus 시작하기</string>
     <string name="plus_start_price">연 %1$s에 시작하기</string>

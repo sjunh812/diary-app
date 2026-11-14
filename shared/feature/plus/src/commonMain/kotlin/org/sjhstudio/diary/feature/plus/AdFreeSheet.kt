@@ -68,7 +68,7 @@ internal fun AdFreeSheetContent(
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    val price = state.price(ProductId.AD_FREE)
+    val price = state.price(ProductId.AD_FREE)?.label()
     // 가격을 못 받으면 결제 버튼 자리가 곧 다시 시도
     val noPrice = price == null && !state.loading
     DiaryBottomSheet(onDismiss, title = stringResource(Res.string.adfree_title), description = stringResource(Res.string.adfree_body)) {

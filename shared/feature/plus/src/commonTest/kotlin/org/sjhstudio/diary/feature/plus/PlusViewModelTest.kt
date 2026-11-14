@@ -23,6 +23,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.PurchaseResult
 import org.sjhstudio.diary.core.model.StoreProduct
@@ -100,11 +101,11 @@ class PlusViewModelTest {
 
     @Test
     fun price_is_what_the_store_gave() = runTest(dispatcher) {
-        val store = Store(list = listOf(StoreProduct(ProductId.PLUS_YEARLY, "₩14,900")))
+        val store = Store(list = listOf(StoreProduct(ProductId.PLUS_YEARLY, won("14,900", 14_900))))
         val viewModel = PlusViewModel(plans, store)
         advanceUntilIdle()
 
-        assertEquals("₩14,900", viewModel.state.value.price(ProductId.PLUS_YEARLY))
+        assertEquals(won("14,900", 14_900), viewModel.state.value.price(ProductId.PLUS_YEARLY))
     }
 
     @Test
@@ -223,11 +224,11 @@ class PlusViewModelTest {
         assertNull(viewModel.state.value.price(ProductId.PLUS_YEARLY))
 
         store.crash = false
-        store.list = listOf(StoreProduct(ProductId.PLUS_YEARLY, "₩14,900"))
+        store.list = listOf(StoreProduct(ProductId.PLUS_YEARLY, won("14,900", 14_900)))
         viewModel.load()
         advanceUntilIdle()
 
-        assertEquals("₩14,900", viewModel.state.value.price(ProductId.PLUS_YEARLY))
+        assertEquals(won("14,900", 14_900), viewModel.state.value.price(ProductId.PLUS_YEARLY))
     }
 
     @Test
@@ -369,17 +370,17 @@ class PlusViewModelTest {
         assertNull(viewModel.state.value.price(ProductId.AD_FREE))
 
         store.crash = false
-        store.list = listOf(StoreProduct(ProductId.AD_FREE, "₩9,900"))
+        store.list = listOf(StoreProduct(ProductId.AD_FREE, won("9,900", 9_900)))
         viewModel.load()
         advanceUntilIdle()
 
-        assertEquals("₩9,900", viewModel.state.value.price(ProductId.AD_FREE))
+        assertEquals(won("9,900", 9_900), viewModel.state.value.price(ProductId.AD_FREE))
     }
 
     /** 받아 둔 가격이 있으면 다시 받기에 실패해도 사라지지 않음 */
     @Test
     fun a_failed_refresh_keeps_the_known_price() = runTest(dispatcher) {
-        val store = Store(list = listOf(StoreProduct(ProductId.AD_FREE, "₩9,900")))
+        val store = Store(list = listOf(StoreProduct(ProductId.AD_FREE, won("9,900", 9_900))))
         val viewModel = PlusViewModel(plans, store)
         advanceUntilIdle()
 
@@ -387,7 +388,7 @@ class PlusViewModelTest {
         viewModel.load()
         advanceUntilIdle()
 
-        assertEquals("₩9,900", viewModel.state.value.price(ProductId.AD_FREE))
+        assertEquals(won("9,900", 9_900), viewModel.state.value.price(ProductId.AD_FREE))
         assertEquals(false, viewModel.state.value.loading)
     }
 
@@ -492,3 +493,6 @@ class PlusViewModelTest {
         }
     }
 }
+
+/** 스토어가 주는 원화 가격 */
+private fun won(text: String, value: Long) = Price("₩$text", value * 1_000_000, "KRW")

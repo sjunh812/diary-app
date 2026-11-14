@@ -7,6 +7,7 @@
     <string name="plus_photos_title">1件に写真30枚</string>
     <string name="plus_stats_title">詳しい統計</string>
     <string name="plus_coming">今後もアップデートを続ける予定です。</string>
+    <string name="price_krw">₩%1$s</string>
     <string name="plus_price">年額%1$s</string>
     <string name="plus_start">Plusを始める</string>
     <string name="plus_start_price">年額%1$sで始める</string>
