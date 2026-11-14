@@ -390,7 +390,7 @@ private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScree
 private class ShellActions(
     val plan: StateFlow<Plan>,
     val onScreen: (NavKey, TabScreen, List<NavKey>) -> Unit,
-    val onSaved: (TabScreen, List<NavKey>) -> Unit,
+    val onSaved: (TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
     val onRestore: (String) -> Unit,
     val onAdClose: () -> Unit
 )
@@ -619,7 +619,7 @@ private fun Content(
                                     // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 감(FR-012)
                                     if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
                                     notify(Message.Saved)
-                                    shell.onSaved(nav.tab, nav.current.toList())
+                                    shell.onSaved(nav.tab, nav.current.toList(), splitWindow)
                                 },
                                 onClosed = { kept ->
                                     pop()

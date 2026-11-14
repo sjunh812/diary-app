@@ -12,6 +12,7 @@ import org.koin.dsl.module
 import org.sjhstudio.diary.app.AppRootViewModel
 import org.sjhstudio.diary.app.ads.AdRemovalViewModel
 import org.sjhstudio.diary.app.navigation.CalendarKey
+import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.TabScreen
 import org.sjhstudio.diary.core.data.AdRepository
@@ -69,14 +70,17 @@ class AppShellViewModel(
     /** 보는 화면이 바뀜. 통계에는 화면 키 이름만 */
     fun screenShown(top: NavKey, tab: TabScreen, backStack: List<NavKey>) {
         screen(top.toString())
-        takeAdTurn(tab, backStack)
+        takeAdTurn(tab, backStack, justSavedInTwoPane = false)
     }
 
-    /** 일기를 저장함. 광고를 미리 받고, 같은 탭 목록으로 돌아오면 띄움 */
-    fun saved(tab: TabScreen, backStack: List<NavKey>) {
+    /**
+     * 일기를 저장함. 광고를 미리 받고, 같은 탭 목록으로 돌아오면 띄움
+     * 두 칸인지는 저장한 순간의 화면으로만 정함. 폴더블을 나중에 펴거나 접어도 차례가 새로 생기지 않음
+     */
+    fun saved(tab: TabScreen, backStack: List<NavKey>, twoPane: Boolean) {
         adTurn.saved(tab)
         viewModelScope.launchSafely { ads.prepare() }
-        takeAdTurn(tab, backStack)
+        takeAdTurn(tab, backStack, justSavedInTwoPane = twoPane)
     }
 
     /** 휴지통으로 옮긴 일기 되돌리기 */
@@ -84,8 +88,8 @@ class AppShellViewModel(
         viewModelScope.launchWrite { entries.restore(id) }
     }
 
-    private fun takeAdTurn(tab: TabScreen, backStack: List<NavKey>) {
-        if (!adTurn.takeTurn(tab, backStack)) return
+    private fun takeAdTurn(tab: TabScreen, backStack: List<NavKey>, justSavedInTwoPane: Boolean) {
+        if (!adTurn.takeTurn(tab, backStack, justSavedInTwoPane)) return
         viewModelScope.launchSafely { if (ads.takeNotice()) _adNotice.value = AdNotice.Showing else ads.backToList() }
     }
 
@@ -134,10 +138,14 @@ val appShellModule =
 
 /**
  * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력 목록으로 돌아왔을 때만
+ * 두 칸에서 막 저장했으면 목록 옆에 그 일기 상세가 열려 목록이 보이는 그때가 목록으로 돌아온 때. 상세를 닫길 기다리면 거의 뜨지 않음
  * 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있는데 설정에는 광고가 없어(헌법 III) 다음 목록까지 미룸
  */
-internal fun interstitialMayShow(backStack: List<NavKey>): Boolean =
-    backStack.size == 1 && (backStack.last() == HomeKey || backStack.last() == CalendarKey)
+internal fun interstitialMayShow(backStack: List<NavKey>, justSavedInTwoPane: Boolean): Boolean {
+    val list = backStack.firstOrNull()
+    if (list != HomeKey && list != CalendarKey) return false
+    return backStack.size == 1 || (justSavedInTwoPane && backStack.size == 2 && backStack.last() is EntryDetailKey)
+}
 
 /**
  * 저장 뒤 전면 광고 차례. 저장한 탭을 기억했다가 같은 탭 목록으로 돌아오면 한 번
@@ -153,9 +161,9 @@ internal class AfterSaveAdTurn {
     }
 
     /** 화면이 바뀔 때마다 부름. 참이면 지금 띄우고 차례는 끝 */
-    fun takeTurn(tab: TabScreen, backStack: List<NavKey>): Boolean {
+    fun takeTurn(tab: TabScreen, backStack: List<NavKey>, justSavedInTwoPane: Boolean): Boolean {
         val pending = savedOn
-        val show = pending == tab && interstitialMayShow(backStack)
+        val show = pending == tab && interstitialMayShow(backStack, justSavedInTwoPane)
         if (pending != tab || show) savedOn = null
         return show
     }

@@ -81,7 +81,7 @@ class AppShellViewModelTest {
     fun saving_prepares_and_shows_once_back_on_the_list() = runTest(dispatcher) {
         val ads = Ads()
         val shell = shell(ads = ads)
-        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")))
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
         advanceUntilIdle()
         assertEquals(1, ads.prepared)
         assertEquals(0, ads.shown)
@@ -127,7 +127,7 @@ class AppShellViewModelTest {
 
     private fun TestScope.backOnTheListAfterSaving(ads: Ads): AppShellViewModel {
         val shell = shell(ads = ads)
-        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")))
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
         shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
         advanceUntilIdle()
         return shell
@@ -137,7 +137,7 @@ class AppShellViewModelTest {
     fun moving_to_another_tab_drops_the_turn() = runTest(dispatcher) {
         val ads = Ads()
         val shell = shell(ads = ads)
-        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")))
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
         shell.screenShown(CalendarKey, CalendarKey, listOf(CalendarKey))
         shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
         advanceUntilIdle()
