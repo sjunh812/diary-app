@@ -3,7 +3,9 @@ package org.sjhstudio.diary.app.scaffold
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -22,11 +24,23 @@ import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.launchWrite
 import org.sjhstudio.diary.core.ui.stateInSafely
 
+/** 첫 전면 광고 앞 안내 단계 */
+enum class AdNotice {
+    None,
+    Showing,
+
+    /** [광고 없애기]로 연 시트가 닫히길 기다림. 닫히면 광고 차례를 이음 */
+    AwaitingRemoval
+}
+
 /** 저장 뒤 전면 광고 준비·띄우기. 하루 한 번은 [org.sjhstudio.diary.core.data.AdRepository]가 봄 */
 interface AfterSaveAds {
     suspend fun prepare()
 
     suspend fun backToList()
+
+    /** 이번 광고 앞에 첫 안내를 띄울지. 참이면 보여 준 것으로 적음 */
+    suspend fun takeNotice(): Boolean = false
 }
 
 /**
@@ -47,6 +61,11 @@ class AppShellViewModel(
 
     val plan: StateFlow<Plan> = plans.plan
 
+    private val _adNotice = MutableStateFlow(AdNotice.None)
+
+    /** 첫 전면 광고 앞 안내(`docs/business.md` 광고 자리) */
+    val adNotice: StateFlow<AdNotice> = _adNotice.asStateFlow()
+
     /** 보는 화면이 바뀜. 통계에는 화면 키 이름만 */
     fun screenShown(top: NavKey, tab: TabScreen, backStack: List<NavKey>) {
         screen(top.toString())
@@ -66,7 +85,28 @@ class AppShellViewModel(
     }
 
     private fun takeAdTurn(tab: TabScreen, backStack: List<NavKey>) {
-        if (adTurn.takeTurn(tab, backStack)) viewModelScope.launchSafely { ads.backToList() }
+        if (!adTurn.takeTurn(tab, backStack)) return
+        viewModelScope.launchSafely { if (ads.takeNotice()) _adNotice.value = AdNotice.Showing else ads.backToList() }
+    }
+
+    /** 안내에서 [확인]이나 바깥. 광고를 띄움 */
+    fun confirmAdNotice() = continueAdTurn(from = AdNotice.Showing)
+
+    /** 안내에서 [광고 없애기]. 시트는 화면이 열고, 닫힐 때까지 광고를 미룸 */
+    fun removeAdsFirst() {
+        if (_adNotice.value == AdNotice.Showing) _adNotice.value = AdNotice.AwaitingRemoval
+    }
+
+    /**
+     * 광고 제거 시트가 닫힘. 광고 차례를 이음
+     * 사거나 영상을 봤으면 광고 차례가 없어 뜨지 않음
+     */
+    fun adRemovalClosed() = continueAdTurn(from = AdNotice.AwaitingRemoval)
+
+    private fun continueAdTurn(from: AdNotice) {
+        if (_adNotice.value != from) return
+        _adNotice.value = AdNotice.None
+        viewModelScope.launchSafely { ads.backToList() }
     }
 }
 
@@ -83,6 +123,8 @@ val appShellModule =
                     override suspend fun prepare() = ads.afterSave()
 
                     override suspend fun backToList() = ads.backToList()
+
+                    override suspend fun takeNotice() = ads.takeInterstitialNotice()
                 },
                 screen = get<Telemetry>()::screen
             )

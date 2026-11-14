@@ -152,6 +152,17 @@ class AdRepository(
         }
     }
 
+    /**
+     * 이번 전면 광고 앞에 첫 안내를 띄울지. 처음 뜰 차례에만이고, 참을 돌려주면 보여 준 것으로 적음
+     * 어느 버튼을 누르든 다시 띄우지 않음(`docs/business.md` 광고 자리)
+     * 기록을 읽지 못하면 안내 없이 지금처럼 광고만
+     */
+    suspend fun takeInterstitialNotice(): Boolean = quietly(false) {
+        val first = interstitialDue() && !store.current().interstitialNoticed
+        if (first) store.interstitialNoticed()
+        first
+    }
+
     private suspend fun interstitialDue(): Boolean {
         val prefs = store.current()
         val shown = listOfNotNull(prefs.lastInterstitialDay, shownDay).maxOrNull()

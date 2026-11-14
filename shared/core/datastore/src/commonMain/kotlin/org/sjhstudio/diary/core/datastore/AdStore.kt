@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -14,11 +15,13 @@ import kotlinx.coroutines.flow.map
  * `ads.preferences_pb`
  * 기기 것이라 백업에 넣지 않음
  */
-data class AdPrefs(val lastInterstitialDay: String? = null, val rewardUntil: Instant? = null)
+data class AdPrefs(val lastInterstitialDay: String? = null, val rewardUntil: Instant? = null, val interstitialNoticed: Boolean = false)
 
 class AdStore(private val dataStore: DataStore<Preferences>) {
     val prefs: Flow<AdPrefs> =
-        dataStore.data.map { AdPrefs(it[LAST_INTERSTITIAL], it[REWARD_UNTIL]?.let(Instant::fromEpochMilliseconds)) }
+        dataStore.data.map {
+            AdPrefs(it[LAST_INTERSTITIAL], it[REWARD_UNTIL]?.let(Instant::fromEpochMilliseconds), it[INTERSTITIAL_NOTICED] == true)
+        }
 
     suspend fun current(): AdPrefs = prefs.first()
 
@@ -29,8 +32,12 @@ class AdStore(private val dataStore: DataStore<Preferences>) {
 
     suspend fun rewardUntil(until: Instant) = dataStore.edit { it[REWARD_UNTIL] = until.toEpochMilliseconds() }
 
+    /** 첫 전면 광고 앞 안내를 보여 줌. 다시 띄우지 않음 */
+    suspend fun interstitialNoticed() = dataStore.edit { it[INTERSTITIAL_NOTICED] = true }
+
     private companion object {
         val LAST_INTERSTITIAL = stringPreferencesKey("last_interstitial_day")
         val REWARD_UNTIL = longPreferencesKey("reward_until")
+        val INTERSTITIAL_NOTICED = booleanPreferencesKey("interstitial_noticed")
     }
 }

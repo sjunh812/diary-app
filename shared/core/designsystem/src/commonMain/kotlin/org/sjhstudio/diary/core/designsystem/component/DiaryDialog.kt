@@ -23,7 +23,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 /**
  * 대화상자(`docs/design.md` 대화상자, M3 Dialog, 토스 UX 가이드)
  * 폭 280~560(M3 대화상자 최소 280, 폭 320 폰에서도 양옆이 남음) · 모서리 28 · 안쪽 24.
- * 왼쪽 버튼은 늘 "닫기", 오른쪽이 하려는 일
+ * 왼쪽 버튼은 기본 "닫기", 오른쪽이 하려는 일
+ * 왼쪽에 다른 일을 두면 [secondaryLabel]·[onSecondary]. 바깥을 누르거나 뒤로 가면 [onDismiss]
  * 큰 글자나 낮은 화면에서 넘치면 스크롤해 버튼에 닿음
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +36,9 @@ fun DiaryDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     message: String? = null,
-    destructive: Boolean = false
+    destructive: Boolean = false,
+    secondaryLabel: String? = null,
+    onSecondary: () -> Unit = onDismiss
 ) {
     val colors = DiaryTheme.colors
     BasicAlertDialog(onDismissRequest = onDismiss, modifier = modifier) {
@@ -52,8 +55,8 @@ fun DiaryDialog(
             PhraseText(text = title, style = DiaryTheme.typography.title2.copy(color = colors.textPrimary))
             if (message != null) PhraseText(text = message, style = DiaryTheme.typography.body.copy(color = colors.textSecondary))
             DiaryButtonPair(
-                secondary = stringResource(Res.string.ds_close),
-                onSecondary = onDismiss,
+                secondary = secondaryLabel ?: stringResource(Res.string.ds_close),
+                onSecondary = onSecondary,
                 primary = confirmLabel,
                 onPrimary = onConfirm,
                 modifier = Modifier.padding(top = DiarySpacing.x4),

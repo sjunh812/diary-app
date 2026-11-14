@@ -108,6 +108,10 @@ import org.sjhstudio.diary.app.navigation.rememberTabNavigation
 import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.app.navigation.uncoverTransition
 import org.sjhstudio.diary.app.resources.Res
+import org.sjhstudio.diary.app.resources.ad_close
+import org.sjhstudio.diary.app.resources.ad_notice_body
+import org.sjhstudio.diary.app.resources.ad_notice_ok
+import org.sjhstudio.diary.app.resources.ad_notice_title
 import org.sjhstudio.diary.app.resources.detail_pick_body
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.app.resources.detail_trashed
@@ -123,6 +127,7 @@ import org.sjhstudio.diary.app.resources.write_failed
 import org.sjhstudio.diary.app.resources.write_new
 import org.sjhstudio.diary.app.resources.write_saved
 import org.sjhstudio.diary.app.settings.settingsEntries
+import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryNavItem
@@ -207,6 +212,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed, adRemoval::open)
     }
     AdRemovalSheets(adRemoval)
+    FirstAdNotice(shell, adRemoval)
     // 홈 쓰기 버튼은 일기 유무를 읽은 뒤 표시. 미리 두면 빈 홈에서 보였다 사라짐
     val hasEntries by shell.hasEntries.collectAsStateWithLifecycle()
 
@@ -681,4 +687,44 @@ private fun PickHint(list: String?) {
             description = stringResource(if (settings) Res.string.settings_pick_body else Res.string.detail_pick_body)
         )
     }
+}
+
+/**
+ * 첫 전면 광고 앞 안내(Figma "P12 첫 전면 광고 안내", `docs/business.md` 광고 자리)
+ * [확인]이나 바깥을 누르면 광고, [광고 없애기]는 광고 제거 시트를 열고 시트가 닫히면 광고
+ */
+@Composable
+private fun FirstAdNotice(shell: AppShellViewModel, adRemoval: AdRemovalViewModel) {
+    val notice by shell.adNotice.collectAsStateWithLifecycle()
+    when (notice) {
+        AdNotice.None -> Unit
+
+        AdNotice.Showing ->
+            FirstAdNoticeDialog(
+                onConfirm = shell::confirmAdNotice,
+                onRemoveAds = {
+                    shell.removeAdsFirst()
+                    adRemoval.open()
+                }
+            )
+
+        AdNotice.AwaitingRemoval -> {
+            val removal by adRemoval.state.collectAsStateWithLifecycle()
+            val closed = removal.sheet == null && !removal.watching
+            LaunchedEffect(closed) { if (closed) shell.adRemovalClosed() }
+        }
+    }
+}
+
+@Composable
+internal fun FirstAdNoticeDialog(onConfirm: () -> Unit, onRemoveAds: () -> Unit) {
+    DiaryDialog(
+        title = stringResource(Res.string.ad_notice_title),
+        message = stringResource(Res.string.ad_notice_body),
+        confirmLabel = stringResource(Res.string.ad_notice_ok),
+        onConfirm = onConfirm,
+        onDismiss = onConfirm,
+        secondaryLabel = stringResource(Res.string.ad_close),
+        onSecondary = onRemoveAds
+    )
 }

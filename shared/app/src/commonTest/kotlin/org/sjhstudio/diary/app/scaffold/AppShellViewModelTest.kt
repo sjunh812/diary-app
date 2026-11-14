@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -34,9 +35,11 @@ class AppShellViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private class Ads : AfterSaveAds {
+    private class Ads(var notice: Boolean = false) : AfterSaveAds {
         var prepared = 0
         var shown = 0
+
+        override suspend fun takeNotice() = notice.also { notice = false }
 
         override suspend fun prepare() {
             prepared++
@@ -88,6 +91,46 @@ class AppShellViewModelTest {
         shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
         advanceUntilIdle()
         assertEquals(1, ads.shown)
+    }
+
+    @Test
+    fun the_first_ad_waits_for_the_notice_and_shows_on_confirm() = runTest(dispatcher) {
+        val ads = Ads(notice = true)
+        val shell = backOnTheListAfterSaving(ads)
+        assertEquals(AdNotice.Showing, shell.adNotice.value)
+        assertEquals(0, ads.shown)
+
+        shell.confirmAdNotice()
+        shell.confirmAdNotice()
+        advanceUntilIdle()
+        assertEquals(AdNotice.None, shell.adNotice.value)
+        assertEquals(1, ads.shown)
+    }
+
+    @Test
+    fun remove_ads_holds_the_ad_until_the_sheet_closes() = runTest(dispatcher) {
+        val ads = Ads(notice = true)
+        val shell = backOnTheListAfterSaving(ads)
+
+        shell.removeAdsFirst()
+        shell.confirmAdNotice()
+        advanceUntilIdle()
+        assertEquals(AdNotice.AwaitingRemoval, shell.adNotice.value)
+        assertEquals(0, ads.shown)
+
+        shell.adRemovalClosed()
+        shell.adRemovalClosed()
+        advanceUntilIdle()
+        assertEquals(AdNotice.None, shell.adNotice.value)
+        assertEquals(1, ads.shown)
+    }
+
+    private fun TestScope.backOnTheListAfterSaving(ads: Ads): AppShellViewModel {
+        val shell = shell(ads = ads)
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        advanceUntilIdle()
+        return shell
     }
 
     @Test

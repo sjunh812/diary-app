@@ -89,6 +89,31 @@ class AdRepositoryTest {
     }
 
     @Test
+    fun the_first_interstitial_gets_a_notice_only_once() = runTest {
+        val repo = repo()
+
+        assertTrue(repo.takeInterstitialNotice())
+        assertFalse(repo.takeInterstitialNotice())
+        repo.backToList()
+        assertEquals(1, player.shown)
+
+        now += 1.days
+        assertFalse(repo.takeInterstitialNotice())
+    }
+
+    @Test
+    fun no_notice_when_no_ad_is_due() = runTest {
+        plans.plan.value = Plan.AD_FREE
+        assertFalse(repo().takeInterstitialNotice())
+
+        plans.plan.value = Plan.FREE
+        val repo = repo()
+        repo.backToList()
+        assertFalse(repo.takeInterstitialNotice())
+        assertFalse(store.current().interstitialNoticed)
+    }
+
+    @Test
     fun clock_moved_back_never_shows_a_second_time() = runTest {
         val repo = repo()
         repo.backToList()
