@@ -31,7 +31,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -221,10 +220,11 @@ fun rememberDiaryCollapsingHeaderState(): DiaryCollapsingHeaderState =
  * [state]만큼 위로 밀려 접히는 머리
  * 머리 높이가 줄어드는 만큼 아래 목록이 따라 올라옴
  * 내용은 위로 밀리며 바 밑으로 사라지고, 접히는 동안 옅어지지 않음(큰 제목이 바 밑으로 들어가는 모습)
+ * 접히는 동안만 자름. 펼친 동안 자르면 큰 제목의 넓힌 누름 면이 위에서 잘림
  */
 @Composable
 fun DiaryCollapsingHeader(state: DiaryCollapsingHeaderState, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Layout(content = content, modifier = modifier.fillMaxWidth().clipToBounds()) { measurables, constraints ->
+    Layout(content = content, modifier = modifier.fillMaxWidth().graphicsLayer { clip = state.offset < 0f }) { measurables, constraints ->
         val placeables = measurables.map { it.measure(constraints.copy(minHeight = 0)) }
         val full = placeables.sumOf { it.height }
         state.measured(full.toFloat())

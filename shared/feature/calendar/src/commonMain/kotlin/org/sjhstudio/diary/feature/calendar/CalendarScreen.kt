@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -71,12 +72,13 @@ import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryCollapsingHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryTabTopBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBarTextButton
-import org.sjhstudio.diary.core.designsystem.component.SnapTitleOnRest
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
+import org.sjhstudio.diary.core.designsystem.component.rememberDiaryCollapsingHeaderState
 import org.sjhstudio.diary.core.designsystem.component.titleCollapse
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryCalendarSize
@@ -177,8 +179,7 @@ fun CalendarRoute(
             onSelect = pick,
             onToday = onToday,
             onPick = { picking = true },
-            onMove = onMove,
-            onTitleHeight = { titleHeight = it }
+            onMove = onMove
         )
     }
     val dayPanel: @Composable () -> Unit = {
@@ -204,8 +205,11 @@ fun CalendarRoute(
     }
     val canvas = Modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding()
     val scroll = rememberScrollState()
-    SnapTitleOnRest(scroll, titleHeight)
-    OnTabReselected { scroll.animateScrollTo(0) }
+    val header = rememberDiaryCollapsingHeaderState()
+    OnTabReselected {
+        scroll.animateScrollTo(0)
+        header.expand()
+    }
     if (twoPane) {
         Row(modifier.then(canvas)) {
             // 창이 넓어지면 왼쪽 칸만 늘고 달력은 그 칸 가운데. 왼쪽으로 치우치지 않게
@@ -232,14 +236,28 @@ fun CalendarRoute(
             // 오늘·달 넘기기 단추는 늘 바 오른쪽. 작은 제목은 남는 폭만 써 단추와 겹치지 않음
             DiaryTabTopBar(
                 title = dates.yearMonth(shown.onDay(1)),
-                collapsed = { titleCollapse(scroll.value, titleHeight) },
+                collapsed = { titleCollapse((-header.offset).toInt(), titleHeight) },
                 contentMaxWidth = DiaryCalendarSize.pane,
                 onTitleClick = { picking = true },
                 actions = { MonthNav(shown < last, awayFromToday, onToday, onMove) }
             )
+            // 큰 제목은 스크롤 밖 머리에 둠(홈과 같음). 스크롤 안에 두면 넓힌 누름 면이 위에서 잘림
+            DiaryCollapsingHeader(header, Modifier.widthIn(max = DiaryCalendarSize.pane)) {
+                Column(Modifier.padding(horizontal = LocalScreenGutter.current)) {
+                    DiaryTitleButton(dates.yearMonth(shown.onDay(1)), {
+                        picking = true
+                    }, Modifier.onSizeChanged { titleHeight = it.height })
+                    Spacer(Modifier.height(DiarySpacing.x4))
+                }
+            }
             // 그날 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
             Column(
-                Modifier.fillMaxWidth().weight(1f).verticalScroll(scroll).padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .nestedScroll(header.connection)
+                    .verticalScroll(scroll)
+                    .padding(bottom = DiarySpacing.x14 + DiarySpacing.x6),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Column(Modifier.widthIn(max = DiaryCalendarSize.pane).fillMaxWidth()) {
@@ -290,8 +308,7 @@ internal fun CalendarPanel(
     onSelect: (LocalDate) -> Unit,
     onToday: () -> Unit,
     onPick: () -> Unit,
-    onMove: (Int) -> Unit,
-    onTitleHeight: (Int) -> Unit = {}
+    onMove: (Int) -> Unit
 ) {
     val nav: @Composable () -> Unit = { MonthNav(shown < lastMonth, showToday, onToday, onMove) }
     Column(Modifier.padding(horizontal = LocalScreenGutter.current)) {
@@ -300,11 +317,9 @@ internal fun CalendarPanel(
                 Box(Modifier.weight(1f)) { DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick) }
                 nav()
             }
-        } else {
-            // 폰에서는 오늘·달 넘기기 단추가 위 바에 있음
-            DiaryTitleButton(dates.yearMonth(shown.onDay(1)), onPick, Modifier.onSizeChanged { onTitleHeight(it.height) })
+            Spacer(Modifier.height(DiarySpacing.x4))
         }
-        Spacer(Modifier.height(DiarySpacing.x4))
+        // 폰에서는 큰 제목이 머리에, 오늘·달 넘기기 단추가 위 바에 있음
         Weekdays(dates)
         Spacer(Modifier.height(DiarySpacing.x1_5))
         // 이웃 달을 미리 그려 그 달 기분과 일기를 먼저 읽음
