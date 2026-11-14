@@ -6,6 +6,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,18 +32,25 @@ class StoreBillingTest {
         var offline = false
         var syncs = 0
         var expiresAt: Instant? = null
+        var answeredAt: Instant? = null
+        var entitlementCalls = 0
+        var syncFails = false
         val bought = ArrayList<String>()
 
-        fun answer() = StoreAnswer(owned, expiresAt)
+        fun answer() = StoreAnswer(owned, expiresAt, answeredAt)
 
         private fun check() {
             if (offline) throw StoreFailure(StoreFailure.Reason.OTHER)
         }
 
-        override suspend fun entitlements(): StoreAnswer = answer().also { check() }
+        override suspend fun entitlements(): StoreAnswer = answer().also {
+            check()
+            entitlementCalls++
+        }
 
         override suspend fun sync(): StoreAnswer {
             check()
+            if (syncFails) throw StoreFailure(StoreFailure.Reason.OTHER)
             syncs++
             owned = owned + accountOwned
             return answer()
@@ -228,6 +236,52 @@ class StoreBillingTest {
         assertEquals(Plan.PLUS, billing.plan.value)
         advanceTimeBy(10.seconds)
         assertEquals(Plan.FREE, billing.plan.value)
+    }
+
+    /** 구매를 가져오지 못한 재설치 사용자는 무료로 정하지 않음. 광고가 산 사람에게 스치지 않게 */
+    @Test
+    fun a_reinstalled_buyer_whose_sync_fails_stays_unknown() = runTest {
+        val billing = billing(null)
+        store.syncFails = true
+        billing.refresh()
+        assertFalse(billing.known.value)
+        assertTrue(stored.isEmpty())
+
+        store.syncFails = false
+        store.accountOwned = setOf(StoreIds.PLUS_ENTITLEMENT)
+        billing.refresh()
+        assertEquals(Plan.PLUS, billing.plan.value)
+        assertTrue(billing.known.value)
+    }
+
+    /** 기기 시계가 빨라 만료 시각이 지난 것처럼 보여도 스토어를 거듭 부르지 않고 서버 시계로 잼 */
+    @Test
+    fun a_fast_device_clock_does_not_loop_and_waits_by_the_server_clock() = runTest {
+        val billing = billing(Plan.FREE)
+        val now = Instant.fromEpochMilliseconds(testScheduler.currentTime)
+        store.owned = setOf(StoreIds.PLUS_ENTITLEMENT)
+        store.answeredAt = now - 10.minutes
+        store.expiresAt = now - 5.minutes
+        billing.refresh()
+        advanceTimeBy(4.minutes)
+        assertEquals(1, store.entitlementCalls)
+        store.owned = emptySet()
+        advanceTimeBy(2.minutes)
+        assertEquals(2, store.entitlementCalls)
+        assertEquals(Plan.FREE, billing.plan.value)
+    }
+
+    /** 이미 지난 만료 시각을 서버가 아직 켜 두면 바로 다시 묻지 않고 앱이 앞으로 올 때 물음 */
+    @Test
+    fun an_expiry_already_past_waits_for_the_next_foreground() = runTest {
+        val billing = billing(Plan.FREE)
+        val now = Instant.fromEpochMilliseconds(testScheduler.currentTime)
+        store.owned = setOf(StoreIds.PLUS_ENTITLEMENT)
+        store.answeredAt = now
+        store.expiresAt = now - 1.seconds
+        billing.refresh()
+        advanceTimeBy(1.days)
+        assertEquals(1, store.entitlementCalls)
     }
 
     /** 평생 상품만 있으면 다시 물을 때가 없음 */

@@ -37,8 +37,9 @@ interface StoreClient {
 /**
  * 스토어 답. [active]는 지금 켜진 권한 이름
  * [expiresAt]은 켜진 권한 가운데 가장 먼저 끝나는 시각. 평생 상품뿐이면 null
+ * [answeredAt]은 서버가 답한 시각. 기기 시계와 달라도 남은 시간을 서버 시계로 잼
  */
-data class StoreAnswer(val active: Set<String>, val expiresAt: Instant? = null)
+data class StoreAnswer(val active: Set<String>, val expiresAt: Instant? = null, val answeredAt: Instant? = null)
 
 /** 스토어가 거절했거나 닿지 못함 */
 class StoreFailure(val reason: Reason, cause: Throwable? = null) : Exception(cause) {
@@ -75,8 +76,7 @@ class StoreBilling(
         try {
             onUpdate(client.entitlements())
         } catch (_: StoreFailure) {
-            // 오프라인이면 남긴 값을 씀
-            state.onUnreachable()
+            // 닿지 못하면 남긴 값을 그대로 씀. 남긴 값이 없으면 모르는 채로 둠
         }
     }
 
@@ -89,17 +89,20 @@ class StoreBilling(
             watchExpiry(synced)
             state.onSynced(StoreIds.planOf(synced.active))
         } catch (_: StoreFailure) {
-            state.onUnreachable()
+            // 구매를 가져오지 못하면 무료로 정하지 않음. 산 사람에게 광고가 스치면 안 됨
         }
     }
 
     private fun watchExpiry(answer: StoreAnswer) {
         expiryCheck?.cancel()
         val at = answer.expiresAt ?: return
+        val left = at - (answer.answeredAt ?: clock.now())
+        // 이미 지났는데 켜져 있으면 스토어가 처리 중. 바로 다시 묻지 않고 앱이 앞으로 올 때 물음
+        if (!left.isPositive()) return
         expiryCheck =
             scope.launch {
                 // 스토어가 만료를 처리할 틈을 두고 물음
-                delay(at - clock.now() + EXPIRY_GRACE)
+                delay(left + EXPIRY_GRACE)
                 refresh()
             }
     }

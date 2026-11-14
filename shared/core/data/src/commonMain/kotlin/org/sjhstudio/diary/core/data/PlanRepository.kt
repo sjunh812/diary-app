@@ -57,7 +57,9 @@ private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow
  * 스토어 답을 요금제로 옮기는 규칙
  * 재설치 직후 스토어의 첫 답은 구매를 가져오기 전이라 비어 있음
  * 이 답을 믿으면 산 사람에게 광고가 나가고, 무료가 저장돼 다시 가져오지도 않음
- * 그래서 남긴 값이 없으면 구매를 가져온 답만 믿고, 못 가져오면 저장하지 않아 다음 실행에 다시 시도
+ * 그래서 남긴 값이 없으면 구매를 가져온 답만 믿고, 못 가져오면 모르는 채로 두어 광고를 부르지 않음
+ * 저장하지 않으니 앱이 다시 앞으로 올 때나 다음 실행에 다시 시도
+ * 남긴 값이 있으면 스토어에 닿지 못해도 그 값을 씀
  */
 class StorePlanState(private val saved: Plan?, private val remember: (Plan) -> Unit) {
     private val _plan = MutableStateFlow(saved ?: Plan.FREE)
@@ -77,11 +79,6 @@ class StorePlanState(private val saved: Plan?, private val remember: (Plan) -> U
     fun onSynced(plan: Plan) {
         synced = true
         confirm(plan)
-    }
-
-    /** 스토어에 닿지 못함. 남긴 값이 있으면 그대로 씀 */
-    fun onUnreachable() {
-        _known.value = true
     }
 
     private fun confirm(plan: Plan) {

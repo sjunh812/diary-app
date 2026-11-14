@@ -76,7 +76,8 @@ private val CustomerInfo.answer: StoreAnswer
     get() =
         StoreAnswer(
             active = entitlements.active.keys,
-            expiresAt = entitlements.active.values.mapNotNull { it.expirationDateMillis }.minOrNull()?.let(Instant::fromEpochMilliseconds)
+            expiresAt = entitlements.active.values.mapNotNull { it.expirationDateMillis }.minOrNull()?.let(Instant::fromEpochMilliseconds),
+            answeredAt = Instant.fromEpochMilliseconds(requestDateMillis)
         )
 
 /**

@@ -31,11 +31,10 @@ class StorePlanStateTest {
     }
 
     @Test
-    fun a_failed_sync_saves_nothing_so_the_next_launch_tries_again() {
+    fun a_failed_sync_stays_unknown_and_saves_nothing_so_the_next_launch_tries_again() {
         val state = state(null)
         assertTrue(state.onAnswer(Plan.FREE))
-        state.onUnreachable()
-        assertTrue(state.known.value)
+        assertFalse(state.known.value)
         assertTrue(stored.isEmpty())
         assertTrue(state(null).onAnswer(Plan.FREE))
     }
@@ -59,7 +58,6 @@ class StorePlanStateTest {
     fun offline_keeps_the_saved_plan() {
         val state = state(Plan.PLUS)
         assertTrue(state.known.value)
-        state.onUnreachable()
         assertEquals(Plan.PLUS, state.plan.value)
         assertTrue(stored.isEmpty())
     }
