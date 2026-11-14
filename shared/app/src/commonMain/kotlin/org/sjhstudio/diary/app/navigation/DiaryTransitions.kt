@@ -11,10 +11,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
@@ -33,14 +29,6 @@ private val SlideEasing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 // 다크 바탕은 검은색에 가까워 더 어둡게
 private const val LIGHT_DIMMED_ALPHA = 0.9f
 private const val DARK_DIMMED_ALPHA = 0.6f
-
-/**
- * 화면 바탕. 돌아오는 화면이 1/[PARALLAX_DIVISOR]만큼 비켜 있는 동안 생기는 오른쪽 틈까지 칠함
- * 손가락으로 밀어 돌아가면 나가는 화면이 먼저 빠져 그 틈으로 뒤의 어두운 바탕이 비쳤음
- */
-fun Modifier.sceneBackdrop(color: Color): Modifier = drawBehind {
-    drawRect(color, size = Size(size.width * (1f + 1f / PARALLAX_DIVISOR), size.height))
-}
 
 internal fun dimmedAlpha(dark: Boolean): Float = if (dark) DARK_DIMMED_ALPHA else LIGHT_DIMMED_ALPHA
 
@@ -73,11 +61,9 @@ private fun slideBack(eased: Boolean, dimmedAlpha: Float): ContentTransform {
     val easing = if (eased) SlideEasing else LinearEasing
     val fade = tween<Float>(SLIDE_MILLIS, easing = easing)
     val slide = tween<IntOffset>(SLIDE_MILLIS, easing = easing)
-    // 나가는 화면을 위에 두고 걷어 아래 화면을 드러냄. 아래 화면의 넓힌 바탕이 나가는 화면을 덮지 않음
     return ContentTransform(
         targetContentEnter = slideInHorizontally(slide) { -it / PARALLAX_DIVISOR } + fadeIn(fade, initialAlpha = dimmedAlpha),
-        initialContentExit = slideOutHorizontally(slide) { it },
-        targetContentZIndex = -1f
+        initialContentExit = slideOutHorizontally(slide) { it }
     )
 }
 

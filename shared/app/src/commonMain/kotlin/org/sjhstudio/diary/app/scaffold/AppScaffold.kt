@@ -105,7 +105,6 @@ import org.sjhstudio.diary.app.navigation.popTransition
 import org.sjhstudio.diary.app.navigation.predictivePopTransition
 import org.sjhstudio.diary.app.navigation.pushTransition
 import org.sjhstudio.diary.app.navigation.rememberTabNavigation
-import org.sjhstudio.diary.app.navigation.sceneBackdrop
 import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.app.navigation.uncoverTransition
 import org.sjhstudio.diary.app.resources.Res
@@ -357,7 +356,7 @@ private fun tabBarSpace(covers: MutableSet<Any>) = NavEntryDecorator<NavKey>(dec
                     val edge = Dp.Hairline.toPx().coerceAtLeast(1f)
                     drawRect(colors.line, topLeft = Offset(-edge, 0f), size = Size(edge, size.height))
                     drawRect(colors.line, topLeft = Offset(size.width, 0f), size = Size(edge, size.height))
-                }.sceneBackdrop(colors.canvas)
+                }.background(colors.canvas)
         ) {
             Box(Modifier.fillMaxSize().padding(bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
                 entry.Content()
