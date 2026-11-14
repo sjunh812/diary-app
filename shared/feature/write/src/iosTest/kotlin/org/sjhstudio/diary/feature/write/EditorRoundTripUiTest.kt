@@ -60,6 +60,22 @@ class EditorRoundTripUiTest {
         }
     }
 
+    /** 1.7.4에서 옮긴 글(`legacyToHtml`이 특수문자를 바꾼 꼴)도 편집기를 지나 글이 그대로 남음 */
+    @Test
+    fun migrated_legacy_text_survives_the_editor() = runComposeUiTest {
+        lateinit var colors: DiaryColors
+        setContent { Capture(false) { colors = it } }
+        waitForIdle()
+        val editor = EditorColors(colors)
+        val migrated = "<p>a &lt;b&gt; &amp; &quot;c&quot; &#39;d&#39; 😀<br>둘째 줄</p><p></p><p>셋째 문단</p>"
+        val state = RichTextState()
+
+        state.setHtml(editor.toEditor(migrated))
+        val saved = RichTextSanitizer.sanitize(editor.fromEditor(state.toHtml()))
+
+        assertEquals(parseRichText(migrated).text.trim(), parseRichText(saved).text.trim(), saved)
+    }
+
     /** 사람이 치듯 한 글자씩 넣어야 `1. `을 목록으로 바꾸는 편집기 동작까지 지남 */
     private fun RichTextState.typeOut(text: String) {
         for (letter in text) {
