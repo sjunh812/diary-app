@@ -16,31 +16,39 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
@@ -306,59 +314,64 @@ private val LocalTabBarHeight = compositionLocalOf { Dp.Hairline }
  * 탭 바가 시스템 내비게이션 높이까지 맡으니 그만큼 다 쓴 것으로 알림
  * 안쪽 화면은 탭 바가 없는 넓은 화면에서만 시스템 내비게이션 높이를 비움
  */
-private val TabBarSpace =
-    NavEntryDecorator<NavKey>(decorate = { entry ->
-        val bottom = if (entry.metadata[TAB_ROOT] == true) LocalTabBarHeight.current else Dp.Hairline
-        val fullScreen = entry.metadata[FULL_SCREEN] == true
-        val start = if (fullScreen || LocalInListDetail.current) Dp.Hairline else LocalRailWidth.current
-        val chrome = LocalRootChrome.current
-        val root = entry.metadata[ROOT_OF] as? TabScreen
-        val colors = DiaryTheme.colors
-        // 사라지는 화면은 터치를 막음. 빠르게 누르면 사라지는 화면이 눌렸음
-        // 전환이 도는지가 아니라 이 화면이 나가는 쪽인지로 봄
-        // 뒤로 밀다 되돌리면 전환이 끝나지 않은 채로 남는 기기가 있어, 그 값으로 막으면 남은 화면 전체가 눌리지 않았음
-        val moving = LocalNavAnimatedContentScope.current.transition.targetState != EnterExitState.Visible
-        // 레일 자리는 비워 밑에 깐 레일이 보이게 함
-        // 전체 화면은 레일까지 덮으니 그 자리를 누르거나 읽어도 레일에 닿지 않게 받아 둠
+private fun tabBarSpace(covers: MutableSet<Any>) = NavEntryDecorator<NavKey>(decorate = { entry ->
+    val bottom = if (entry.metadata[TAB_ROOT] == true) LocalTabBarHeight.current else Dp.Hairline
+    val fullScreen = entry.metadata[FULL_SCREEN] == true
+    val start = if (fullScreen || LocalInListDetail.current) Dp.Hairline else LocalRailWidth.current
+    if (fullScreen) {
+        DisposableEffect(entry.contentKey) {
+            covers += entry.contentKey
+            onDispose { covers -= entry.contentKey }
+        }
+    }
+    val chrome = LocalRootChrome.current
+    val root = entry.metadata[ROOT_OF] as? TabScreen
+    val colors = DiaryTheme.colors
+    // 사라지는 화면은 터치를 막음. 빠르게 누르면 사라지는 화면이 눌렸음
+    // 전환이 도는지가 아니라 이 화면이 나가는 쪽인지로 봄
+    // 뒤로 밀다 되돌리면 전환이 끝나지 않은 채로 남는 기기가 있어, 그 값으로 막으면 남은 화면 전체가 눌리지 않았음
+    val moving = LocalNavAnimatedContentScope.current.transition.targetState != EnterExitState.Visible
+    // 레일 자리는 비워 밑에 깐 레일이 보이게 함
+    // 전체 화면은 레일까지 덮으니 그 자리를 누르거나 읽어도 레일에 닿지 않게 받아 둠
+    Box(
+        Modifier
+            .fillMaxSize()
+            .padding(start = start)
+            .then(
+                if (fullScreen) {
+                    Modifier.pointerInput(Unit) {
+                        awaitPointerEventScope { while (true) awaitPointerEvent() }
+                    }
+                } else {
+                    Modifier
+                }
+            )
+    ) {
+        // 바탕이 빈 화면은 전환 중 뒤의 검은 바탕이 비쳐 바탕을 깖
+        // 양옆 바깥 선은 전환 중에만 두 화면 사이에 보임(다크에서 두 화면 구분)
         Box(
             Modifier
                 .fillMaxSize()
-                .padding(start = start)
-                .then(
-                    if (fullScreen) {
-                        Modifier.pointerInput(Unit) {
-                            awaitPointerEventScope { while (true) awaitPointerEvent() }
-                        }
-                    } else {
-                        Modifier
+                .drawBehind {
+                    val edge = Dp.Hairline.toPx().coerceAtLeast(1f)
+                    drawRect(colors.line, topLeft = Offset(-edge, 0f), size = Size(edge, size.height))
+                    drawRect(colors.line, topLeft = Offset(size.width, 0f), size = Size(edge, size.height))
+                }.background(colors.canvas)
+        ) {
+            Box(Modifier.fillMaxSize().padding(bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
+                entry.Content()
+            }
+            if (root != null) chrome?.invoke(this, root)
+            if (moving) {
+                Box(
+                    Modifier.matchParentSize().pointerInput(Unit) {
+                        awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } }
                     }
                 )
-        ) {
-            // 바탕이 빈 화면은 전환 중 뒤의 검은 바탕이 비쳐 바탕을 깖
-            // 양옆 바깥 선은 전환 중에만 두 화면 사이에 보임(다크에서 두 화면 구분)
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        val edge = Dp.Hairline.toPx().coerceAtLeast(1f)
-                        drawRect(colors.line, topLeft = Offset(-edge, 0f), size = Size(edge, size.height))
-                        drawRect(colors.line, topLeft = Offset(size.width, 0f), size = Size(edge, size.height))
-                    }.background(colors.canvas)
-            ) {
-                Box(Modifier.fillMaxSize().padding(bottom = bottom).consumeWindowInsets(PaddingValues(bottom = bottom))) {
-                    entry.Content()
-                }
-                if (root != null) chrome?.invoke(this, root)
-                if (moving) {
-                    Box(
-                        Modifier.matchParentSize().pointerInput(Unit) {
-                            awaitPointerEventScope { while (true) awaitPointerEvent().changes.forEach { it.consume() } }
-                        }
-                    )
-                }
             }
         }
-    })
+    }
+})
 
 /**
  * 탭 첫 화면이 함께 그리는 탭 바와 쓰기 버튼(폰)
@@ -470,12 +483,19 @@ private fun Content(
     // 뒤 바탕(밀려나는 화면을 어둡게 하는 DiaryTransitions) → 레일 → 화면 순으로 쌓음
     // 레일 자리는 화면이 비워 두어 레일이 보이고, 전체 화면은 밀려 들어오며 레일까지 덮음
     // 레일을 위에 얹으면 전체 화면으로 갈 때 레일이 먼저 사라져 그 자리에 뒤 바탕이 비쳤음
+    // 전체 화면이 떠 있지 않으면 화면을 레일 자리 밖으로 자름
+    // 밀려나는 화면이 왼쪽으로 비키며 레일을 덮었다가 전환이 끝나면 레일이 다시 나타났음
+    // 떠 있는 전체 화면. 닫히는 연출이 끝나 내려갈 때까지 남음
+    val covers = remember { mutableStateSetOf<Any>() }
+    val tabBarSpace = remember(covers) { tabBarSpace(covers) }
+    val railCut = LocalRailWidth.current
+    val clipRail = wide && covers.isEmpty()
     Box(modifier.background(DiaryTheme.colors.scrim.copy(alpha = 1f))) {
         rail?.invoke()
         NavDisplay(
             entries =
                 nav.decoratedEntries(
-                    TabBarSpace,
+                    tabBarSpace,
                     entryProvider {
                         entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
                             val backupNudge by koinViewModel<BackupViewModel>().nudge.collectAsStateWithLifecycle()
@@ -603,7 +623,7 @@ private fun Content(
                         }
                     }
                 ),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().then(if (clipRail) Modifier.clip(StartCut(railCut)) else Modifier),
             sceneStrategies = listOf(listDetail),
             transitionSpec = {
                 when {
@@ -628,6 +648,18 @@ private fun Content(
             },
             onBack = pop
         )
+    }
+}
+
+/** 왼쪽 [start]만큼을 뺀 사각형. 레일 자리에 화면이 그려지지 않게 자름 */
+private class StartCut(private val start: Dp) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        val cut = with(density) { start.toPx() }
+        return if (layoutDirection == LayoutDirection.Ltr) {
+            Outline.Rectangle(Rect(cut, 0f, size.width, size.height))
+        } else {
+            Outline.Rectangle(Rect(0f, 0f, size.width - cut, size.height))
+        }
     }
 }
 
