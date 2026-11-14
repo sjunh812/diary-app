@@ -108,7 +108,7 @@ private class ListDetailScene(
     override val entries: List<NavEntry<NavKey>> = listOfNotNull(list, detail)
     override val content: @Composable () -> Unit = {
         // 장면 전체에 바탕을 깖. 두 칸 사이 틈(24)이 비면 밀려 들어오는 동안 뒤의 어두운 앞 화면이 세로 띠로 비침
-        Row(Modifier.fillMaxSize().padding(start = LocalRailWidth.current).background(DiaryTheme.colors.canvas)) {
+        Row(Modifier.fillMaxSize().padding(start = LocalRailWidth.current).sceneBackdrop(DiaryTheme.colors.canvas)) {
             CompositionLocalProvider(LocalInListDetail provides true) {
                 Box(Modifier.width(DiaryWriteSize.listPane).fillMaxHeight()) { list.Content() }
             }
