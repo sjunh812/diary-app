@@ -4,6 +4,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
@@ -13,6 +20,7 @@ import org.sjhstudio.diary.core.model.StoreProduct
 
 // 결제 뒤에 켜져야 할 것이 켜지는지, 실패·취소·대기·복원에서 돈과 요금제가 맞는지 봄
 // 스토어는 가짜로 두고 우리 판단만 시험
+@OptIn(ExperimentalCoroutinesApi::class)
 class StoreBillingTest {
     private val stored = ArrayList<Plan>()
 
@@ -22,19 +30,22 @@ class StoreBillingTest {
         var failNext: StoreFailure.Reason? = null
         var offline = false
         var syncs = 0
+        var expiresAt: Instant? = null
         val bought = ArrayList<String>()
+
+        fun answer() = StoreAnswer(owned, expiresAt)
 
         private fun check() {
             if (offline) throw StoreFailure(StoreFailure.Reason.OTHER)
         }
 
-        override suspend fun entitlements(): Set<String> = owned.also { check() }
+        override suspend fun entitlements(): StoreAnswer = answer().also { check() }
 
-        override suspend fun sync(): Set<String> {
+        override suspend fun sync(): StoreAnswer {
             check()
             syncs++
             owned = owned + accountOwned
-            return owned
+            return answer()
         }
 
         override suspend fun prices(storeIds: List<String>): Map<String, Price> {
@@ -45,7 +56,7 @@ class StoreBillingTest {
             }
         }
 
-        override suspend fun purchase(storeId: String): Set<String> {
+        override suspend fun purchase(storeId: String): StoreAnswer {
             check()
             failNext?.let {
                 failNext = null
@@ -53,10 +64,10 @@ class StoreBillingTest {
             }
             bought += storeId
             owned = owned + if (storeId == StoreIds.PLUS_PRODUCT) StoreIds.PLUS_ENTITLEMENT else StoreIds.AD_FREE_ENTITLEMENT
-            return owned
+            return answer()
         }
 
-        override suspend fun restore(): Set<String> {
+        override suspend fun restore(): StoreAnswer {
             failNext?.let {
                 failNext = null
                 throw StoreFailure(it)
@@ -67,7 +78,13 @@ class StoreBillingTest {
 
     private val store = FakeStore()
 
-    private fun billing(saved: Plan? = Plan.FREE) = StoreBilling(store, saved, "manage") { stored += it }
+    private fun TestScope.billing(saved: Plan? = Plan.FREE): StoreBilling {
+        val clock =
+            object : Clock {
+                override fun now() = Instant.fromEpochMilliseconds(testScheduler.currentTime)
+            }
+        return StoreBilling(store, saved, "manage", backgroundScope, clock) { stored += it }
+    }
 
     @Test
     fun buying_ad_free_turns_it_on_and_remembers_it() = runTest {
@@ -191,9 +208,37 @@ class StoreBillingTest {
     @Test
     fun a_refund_turns_the_plan_back_to_free() = runTest {
         val billing = billing(Plan.PLUS)
-        billing.onUpdate(emptySet())
+        billing.onUpdate(StoreAnswer(emptySet()))
         assertEquals(Plan.FREE, billing.plan.value)
         assertEquals(Plan.FREE, stored.last())
+    }
+
+    /** 앱을 켜 둔 채 구독이 끝나도 만료 시각에 다시 물어 무료로 돌아감 */
+    @Test
+    fun a_subscription_that_ends_while_the_app_is_open_turns_free() = runTest {
+        val billing = billing(Plan.FREE)
+        store.owned = setOf(StoreIds.PLUS_ENTITLEMENT)
+        store.expiresAt = Instant.fromEpochMilliseconds(testScheduler.currentTime) + 60.seconds
+        billing.refresh()
+        assertEquals(Plan.PLUS, billing.plan.value)
+
+        store.owned = emptySet()
+        store.expiresAt = null
+        advanceTimeBy(59.seconds)
+        assertEquals(Plan.PLUS, billing.plan.value)
+        advanceTimeBy(10.seconds)
+        assertEquals(Plan.FREE, billing.plan.value)
+    }
+
+    /** 평생 상품만 있으면 다시 물을 때가 없음 */
+    @Test
+    fun ad_free_alone_never_schedules_a_check() = runTest {
+        val billing = billing(Plan.FREE)
+        store.owned = setOf(StoreIds.AD_FREE_ENTITLEMENT)
+        billing.refresh()
+        store.owned = emptySet()
+        advanceTimeBy(365.days)
+        assertEquals(Plan.AD_FREE, billing.plan.value)
     }
 
     @Test

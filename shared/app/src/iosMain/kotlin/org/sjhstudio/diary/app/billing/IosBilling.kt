@@ -16,12 +16,14 @@ import com.revenuecat.purchases.kmp.models.PurchasesException
 import com.revenuecat.purchases.kmp.models.PurchasesTransactionException
 import com.revenuecat.purchases.kmp.models.StoreProduct
 import com.revenuecat.purchases.kmp.models.StoreTransaction
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.StoreAnswer
 import org.sjhstudio.diary.core.data.StoreBilling
 import org.sjhstudio.diary.core.data.StoreClient
 import org.sjhstudio.diary.core.data.StoreFailure
@@ -48,11 +50,11 @@ internal fun iosBilling(scope: CoroutineScope): IosBilling {
     val defaults = NSUserDefaults.standardUserDefaults
     val saved = defaults.stringForKey(PLAN_KEY)?.let { name -> Plan.entries.firstOrNull { it.name == name } }
     Purchases.configure(PurchasesConfiguration(apiKey = key))
-    val store = StoreBilling(RevenueCatClient, saved, MANAGE_URL) { plan -> defaults.setObject(plan.name, PLAN_KEY) }
+    val store = StoreBilling(RevenueCatClient, saved, MANAGE_URL, scope) { plan -> defaults.setObject(plan.name, PLAN_KEY) }
     Purchases.sharedInstance.delegate =
         object : PurchasesDelegate {
             override fun onCustomerInfoUpdated(customerInfo: CustomerInfo) {
-                scope.launch { store.onUpdate(customerInfo.active) }
+                scope.launch { store.onUpdate(customerInfo.answer) }
             }
 
             // 앱스토어 홍보 구매는 쓰지 않음
@@ -70,18 +72,23 @@ internal fun iosBilling(scope: CoroutineScope): IosBilling {
     return IosBilling(store, store)
 }
 
-private val CustomerInfo.active: Set<String> get() = entitlements.active.keys
+private val CustomerInfo.answer: StoreAnswer
+    get() =
+        StoreAnswer(
+            active = entitlements.active.keys,
+            expiresAt = entitlements.active.values.mapNotNull { it.expirationDateMillis }.minOrNull()?.let(Instant::fromEpochMilliseconds)
+        )
 
 /**
  * RevenueCat에 닿는 자리
  * 라이브러리 오류를 [StoreFailure]로 바꾸기만 하고, 판단은 [StoreBilling]이 함
  */
 private object RevenueCatClient : StoreClient {
-    override suspend fun entitlements(): Set<String> = store {
-        Purchases.sharedInstance.awaitCustomerInfo(CacheFetchPolicy.FETCH_CURRENT).active
+    override suspend fun entitlements(): StoreAnswer = store {
+        Purchases.sharedInstance.awaitCustomerInfo(CacheFetchPolicy.FETCH_CURRENT).answer
     }
 
-    override suspend fun sync(): Set<String> = store { Purchases.sharedInstance.awaitSyncPurchases().active }
+    override suspend fun sync(): StoreAnswer = store { Purchases.sharedInstance.awaitSyncPurchases().answer }
 
     override suspend fun prices(storeIds: List<String>): Map<String, Price> = store {
         Purchases.sharedInstance.awaitGetProducts(storeIds).associate { product ->
@@ -89,14 +96,14 @@ private object RevenueCatClient : StoreClient {
         }
     }
 
-    override suspend fun purchase(storeId: String): Set<String> = store {
+    override suspend fun purchase(storeId: String): StoreAnswer = store {
         val product =
             Purchases.sharedInstance.awaitGetProducts(listOf(storeId)).firstOrNull { it.id == storeId }
                 ?: throw StoreFailure(StoreFailure.Reason.OTHER)
-        Purchases.sharedInstance.awaitPurchase(product).customerInfo.active
+        Purchases.sharedInstance.awaitPurchase(product).customerInfo.answer
     }
 
-    override suspend fun restore(): Set<String> = store { Purchases.sharedInstance.awaitRestore().active }
+    override suspend fun restore(): StoreAnswer = store { Purchases.sharedInstance.awaitRestore().answer }
 
     private inline fun <T> store(block: () -> T): T = try {
         block()
