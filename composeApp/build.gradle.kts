@@ -228,3 +228,9 @@ androidComponents {
         }
     }
 }
+
+// 미리보기 도구는 개발 빌드에만. 공유 모듈이 미리보기용으로 넣은 도구가 출시 앱에 PreviewActivity를 남기지 않게
+configurations.matching { it.name == "releaseRuntimeClasspath" }.configureEach {
+    exclude(group = "androidx.compose.ui", module = "ui-tooling")
+    exclude(group = "org.jetbrains.compose.ui", module = "ui-tooling")
+}
