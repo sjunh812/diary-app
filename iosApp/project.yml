@@ -177,7 +177,7 @@ targets:
         PRODUCT_NAME: iosApp
         PRODUCT_BUNDLE_IDENTIFIER: org.sjhstudio.diary
         MARKETING_VERSION: "2.0.0"
-        CURRENT_PROJECT_VERSION: "40"
+        CURRENT_PROJECT_VERSION: "41"
         TARGETED_DEVICE_FAMILY: "1,2"
         # 공유 모듈은 Apple Silicon 시뮬레이터(iosSimulatorArm64)만 만든다(스펙 001 research R3).
         # 일반 시뮬레이터 대상으로 빌드할 때 Intel(x86_64)까지 묶지 않게 뺀다.

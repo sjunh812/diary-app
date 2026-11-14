@@ -64,7 +64,7 @@ android {
         applicationId = "org.sjhstudio.diary"
         // 36은 만들고 내지 않은 1.7.5가 씀
         // 2.0.0은 37부터. 37은 첫 내부 테스트에 올려 다시 못 씀
-        versionCode = 40
+        versionCode = 41
         versionName = "2.0.0"
         // 업그레이드 계측 시험(UpgradeVerificationTest)을 돌림
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
