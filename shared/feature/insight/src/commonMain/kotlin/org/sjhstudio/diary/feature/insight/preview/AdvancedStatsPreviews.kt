@@ -50,9 +50,10 @@ private val Sample =
     )
 
 @Composable
-private fun Stats(dark: Boolean, stats: AdvancedStats?, period: AdvancedPeriod = AdvancedPeriod.THIS_YEAR) = DiaryTheme(darkTheme = dark) {
-    AdvancedStatsScreen(period, stats, {}, {}, {})
-}
+private fun Stats(dark: Boolean, stats: AdvancedStats?, period: AdvancedPeriod = AdvancedPeriod.THIS_YEAR, failed: Boolean = false) =
+    DiaryTheme(darkTheme = dark) {
+        AdvancedStatsScreen(period, stats, {}, {}, {}, failed = failed)
+    }
 
 @Preview(name = "고급 통계 · 라이트", locale = "ko", widthDp = 390, heightDp = 1500)
 @Composable
@@ -85,3 +86,11 @@ private fun AdvancedLoading() = Stats(false, null)
 @Preview(name = "고급 통계 · 넓은 화면", locale = "ko", widthDp = 1194, heightDp = 834)
 @Composable
 private fun AdvancedWide() = Stats(false, Sample)
+
+@Preview(name = "고급 통계 · 읽지 못함", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun AdvancedFailedLight() = Stats(false, null, failed = true)
+
+@Preview(name = "고급 통계 · 읽지 못함 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun AdvancedFailedDark() = Stats(true, null, failed = true)

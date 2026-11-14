@@ -74,6 +74,7 @@ import org.sjhstudio.diary.core.model.RecentMood
 import org.sjhstudio.diary.core.model.RecordHabit
 import org.sjhstudio.diary.core.model.StatsChange
 import org.sjhstudio.diary.core.model.compactCount
+import org.sjhstudio.diary.core.ui.LoadFailedLine
 import org.sjhstudio.diary.core.ui.MoodFace
 import org.sjhstudio.diary.core.ui.emphasis
 import org.sjhstudio.diary.core.ui.grouped
@@ -127,13 +128,14 @@ import org.sjhstudio.diary.feature.insight.resources.insight_write
 @Composable
 fun AdvancedStatsRoute(onBack: () -> Unit, onMood: (Mood, DateRange?) -> Unit, modifier: Modifier = Modifier, onWrite: () -> Unit = {}) {
     val viewModel = koinViewModel<AdvancedStatsViewModel>()
-    val period by viewModel.period.collectAsStateWithLifecycle()
-    val data by viewModel.data.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     LifecycleResumeEffect(viewModel) {
         viewModel.refreshToday()
         onPauseOrDispose {}
     }
-    AdvancedStatsScreen(period, data, viewModel::select, onBack, { onMood(it, viewModel.range()) }, modifier, onWrite)
+    AdvancedStatsScreen(state.period, state.data, viewModel::select, onBack, {
+        onMood(it, viewModel.range())
+    }, modifier, onWrite, state.failed, viewModel::retry)
 }
 
 @Composable
@@ -144,7 +146,9 @@ internal fun AdvancedStatsScreen(
     onBack: () -> Unit,
     onMood: (Mood) -> Unit,
     modifier: Modifier = Modifier,
-    onWrite: () -> Unit = {}
+    onWrite: () -> Unit = {},
+    failed: Boolean = false,
+    onRetry: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -181,7 +185,11 @@ internal fun AdvancedStatsScreen(
                 }
             }
             Spacer(Modifier.height(DiarySpacing.x6))
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)) { Sections(stats, period, onMood) }
+            if (failed) {
+                LoadFailedLine(onRetry)
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)) { Sections(stats, period, onMood) }
+            }
         }
     }
 }
