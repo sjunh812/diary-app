@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.database
 import androidx.paging.PagingSource
 import androidx.room3.ColumnInfo
 import androidx.room3.Dao
+import androidx.room3.Embedded
 import androidx.room3.Insert
 import androidx.room3.Query
 import androidx.room3.Transaction
@@ -32,6 +33,9 @@ data class EntryListRow(
     @ColumnInfo(name = "place_name") val placeName: String?,
     @ColumnInfo(name = "is_favorite") val isFavorite: Boolean
 )
+
+/** 휴지통 줄. 목록 줄과 같은 값에 지운 시각만 더하고 본문 HTML은 읽지 않음 */
+data class TrashedListRow(@Embedded val row: EntryListRow, @ColumnInfo(name = "deleted_at") val deletedAt: Long)
 
 /**
  * 고급 통계에 쓰는 값
@@ -169,8 +173,11 @@ interface EntryDao {
     suspend fun setDeletedAt(id: String, deletedAt: Long?, now: Long)
 
     /** 휴지통: 지운 날짜순 */
-    @Query("SELECT * FROM entry WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
-    fun trashed(): Flow<List<EntryEntity>>
+    @Query(
+        "SELECT id, date, time, plain_text, mood, weather, place_name, is_favorite, deleted_at FROM entry " +
+            "WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC"
+    )
+    fun trashed(): Flow<List<TrashedListRow>>
 
     /** 휴지통 개수. 개수만 보이는 설정 줄이 일기를 통째로 읽지 않게 */
     @Query("SELECT COUNT(*) FROM entry WHERE deleted_at IS NOT NULL")

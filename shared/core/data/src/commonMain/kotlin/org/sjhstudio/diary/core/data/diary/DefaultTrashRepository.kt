@@ -35,11 +35,11 @@ class DefaultTrashRepository(
         entries.trashed(),
         db.mediaDao().photoStatusChanges(photoRefreshEvery).onStart { emit(Unit) }
     ) { rows, _ ->
-        val photos = db.mediaDao().forRows(rows.map { it.id })
+        val photos = db.mediaDao().forRows(rows.map { it.row.id })
         val now = clock.now()
-        rows.map { row ->
-            val deletedAt = Instant.fromEpochMilliseconds(requireNotNull(row.deletedAt))
-            TrashedEntry(row.toRow(photos[row.id].orEmpty(), mediaDir), deletedAt, daysLeft(deletedAt, now))
+        rows.map { trashed ->
+            val deletedAt = Instant.fromEpochMilliseconds(trashed.deletedAt)
+            TrashedEntry(trashed.row.toRow(photos[trashed.row.id].orEmpty(), mediaDir), deletedAt, daysLeft(deletedAt, now))
         }
     }
 
