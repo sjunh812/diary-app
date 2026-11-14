@@ -65,6 +65,8 @@
     <string name="write_place_off">デバイスの位置情報がオフになっています。</string>
     <string name="write_place_not_found">現在地を取得できませんでした。直接入力してください。</string>
     <string name="write_place_settings">設定を開く</string>
+    <string name="write_camera_off_title">カメラへのアクセスがオフです</string>
+    <string name="write_camera_off_message">設定でカメラを許可すると写真を撮れます。</string>
     <string name="write_mood_body">気分を残すと、ふりかえりで変化を確認できます。</string>
     <string name="write_weather_body">その日の天気を残すと、読み返すときに思い出しやすくなります。</string>
     <string name="write_checklist_plus_title">チェックリストはPlusで使えます</string>

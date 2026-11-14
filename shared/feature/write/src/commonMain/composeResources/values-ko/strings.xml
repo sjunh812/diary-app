@@ -65,6 +65,8 @@
     <string name="write_place_off">휴대폰의 위치가 꺼져 있어요.</string>
     <string name="write_place_not_found">위치를 찾지 못했어요. 직접 입력해 주세요.</string>
     <string name="write_place_settings">설정 열기</string>
+    <string name="write_camera_off_title">카메라 권한이 꺼져 있어요</string>
+    <string name="write_camera_off_message">설정에서 카메라를 허용하면 사진을 찍을 수 있어요.</string>
     <string name="write_mood_body">기분을 남겨 두면 돌아보기에서 흐름을 볼 수 있어요.</string>
     <string name="write_weather_body">그날 날씨를 남겨 두면 나중에 다시 읽을 때 더 생생해요.</string>
     <string name="write_checklist_plus_title">체크리스트는 Plus에서 쓸 수 있어요</string>

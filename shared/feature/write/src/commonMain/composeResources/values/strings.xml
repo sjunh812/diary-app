@@ -65,6 +65,8 @@
     <string name="write_place_off">Location is turned off on this device.</string>
     <string name="write_place_not_found">Couldn't find your location. Type it in instead.</string>
     <string name="write_place_settings">Open Settings</string>
+    <string name="write_camera_off_title">Camera access is off</string>
+    <string name="write_camera_off_message">Allow camera access in Settings to take photos.</string>
     <string name="write_mood_body">Save your mood to see how it changes in Insights.</string>
     <string name="write_weather_body">Add the weather to help you remember the day later.</string>
     <string name="write_checklist_plus_title">Checklists are part of Plus</string>

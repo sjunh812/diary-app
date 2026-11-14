@@ -123,6 +123,8 @@ import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.write.resources.Res
 import org.sjhstudio.diary.feature.write.resources.write_add_photo
 import org.sjhstudio.diary.feature.write.resources.write_adding_photos
+import org.sjhstudio.diary.feature.write.resources.write_camera_off_message
+import org.sjhstudio.diary.feature.write.resources.write_camera_off_title
 import org.sjhstudio.diary.feature.write.resources.write_close
 import org.sjhstudio.diary.feature.write.resources.write_discard
 import org.sjhstudio.diary.feature.write.resources.write_discard_confirm
@@ -140,6 +142,7 @@ import org.sjhstudio.diary.feature.write.resources.write_photo_removed
 import org.sjhstudio.diary.feature.write.resources.write_photo_undo
 import org.sjhstudio.diary.feature.write.resources.write_photo_unreadable
 import org.sjhstudio.diary.feature.write.resources.write_place
+import org.sjhstudio.diary.feature.write.resources.write_place_settings
 import org.sjhstudio.diary.feature.write.resources.write_save
 import org.sjhstudio.diary.feature.write.resources.write_save_failed
 import org.sjhstudio.diary.feature.write.resources.write_weather
@@ -168,6 +171,8 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     // 화면을 돌리거나 폴더블을 펴도 고르던 시트가 닫히지 않게
     var sheet by rememberSaveable { mutableStateOf<Sheet?>(null) }
     val locationAccess = rememberLocationAccess()
+    val cameraAccess = rememberCameraAccess()
+    var cameraOff by remember { mutableStateOf(false) }
     // 시트가 뜰 때 키보드는 시트 부품이 내림(DiaryBottomSheet)
     // 키보드가 다 내려가길 기다리지 않고 바로 띄움
     // 쓰던 중에 시트를 열면 닫은 뒤 커서와 키보드를 돌려줌
@@ -261,8 +266,12 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
         pick.launch()
     }
     val openCamera = {
-        ExpectedLeave.mark()
-        camera.launch()
+        if (cameraAccess.blocked()) {
+            cameraOff = true
+        } else {
+            ExpectedLeave.mark()
+            camera.launch()
+        }
     }
     val tools = remember(actions) {
         WriteTools(actions.rich, actions.colors, { vm.checklistOpen.value }, {
@@ -430,6 +439,18 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 vm.discard()
             },
             onDismiss = { askDiscardHere = false }
+        )
+    }
+    if (cameraOff) {
+        DiaryDialog(
+            title = stringResource(Res.string.write_camera_off_title),
+            message = stringResource(Res.string.write_camera_off_message),
+            confirmLabel = stringResource(Res.string.write_place_settings),
+            onConfirm = {
+                cameraOff = false
+                cameraAccess.openSettings()
+            },
+            onDismiss = { cameraOff = false }
         )
     }
     if (askDiscard) {
