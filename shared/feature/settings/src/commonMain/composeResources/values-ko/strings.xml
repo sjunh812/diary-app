@@ -27,7 +27,7 @@
     <string name="settings_version">앱 버전</string>
     <string name="settings_plus_badge">Plus 이용 중</string>
     <string name="settings_feedback_subject">1일 1일기 피드백</string>
-    <string name="settings_feedback_body">앱 버전: %1$s\nOS: %2$s\n기기: %3$s\n\n불편한 점이나 원하는 기능을 적어 주세요 😊\n</string>
+    <string name="settings_feedback_body">앱 버전: %1$s\nOS: %2$s\n기기: %3$s\n\n여러분의 소중한 의견 부탁드립니다 ☺️\n</string>
     <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s 주소로 보내 주세요.</string>
     <string name="settings_title">설정</string>
     <string name="settings_group_style">화면</string>
