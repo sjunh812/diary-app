@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,7 +15,8 @@ import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.resources.Res
 import org.sjhstudio.diary.core.designsystem.resources.changwon_round_regular
 import org.sjhstudio.diary.core.designsystem.resources.hakgyoansim_badasseugi_light
-import org.sjhstudio.diary.core.designsystem.resources.iropke_batang_medium
+import org.sjhstudio.diary.core.designsystem.resources.hallym_myungjo_bold
+import org.sjhstudio.diary.core.designsystem.resources.hallym_myungjo_regular
 import org.sjhstudio.diary.core.designsystem.resources.kyobo_2020_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
 import org.sjhstudio.diary.core.designsystem.resources.rix_watermelon_regular
@@ -35,7 +37,7 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
         DiaryFont.NANUM_CHEER,
         DiaryFont.CHANGWON_ROUND,
         DiaryFont.HAKGYOANSIM_BADASSEUGI,
-        DiaryFont.IROPKE_BATANG,
+        DiaryFont.HALLYM_MYUNGJO,
         DiaryFont.RIX_WATERMELON,
         DiaryFont.KYOBO_2020
     )
@@ -58,13 +60,22 @@ fun diaryBodyFontFamily(font: DiaryFont, installed: (DiaryFont) -> FontFamily?):
 @Composable
 private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?): FontFamily = when (font) {
     DiaryFont.SYSTEM -> FontFamily.Default
+
     DiaryFont.PRETENDARD -> pretendardFamily()
+
     DiaryFont.NANUM_CHEER -> FontFamily(Font(Res.font.nanum_cheer_regular))
+
     DiaryFont.CHANGWON_ROUND -> FontFamily(Font(Res.font.changwon_round_regular))
+
     DiaryFont.HAKGYOANSIM_BADASSEUGI -> FontFamily(Font(Res.font.hakgyoansim_badasseugi_light))
-    DiaryFont.IROPKE_BATANG -> FontFamily(Font(Res.font.iropke_batang_medium))
+
+    DiaryFont.HALLYM_MYUNGJO ->
+        FontFamily(Font(Res.font.hallym_myungjo_regular), Font(Res.font.hallym_myungjo_bold, FontWeight.Bold))
+
     DiaryFont.RIX_WATERMELON -> FontFamily(Font(Res.font.rix_watermelon_regular))
+
     DiaryFont.KYOBO_2020 -> FontFamily(Font(Res.font.kyobo_2020_regular))
+
     else -> installed(font) ?: pretendardFamily()
 }
 
@@ -78,7 +89,7 @@ val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
         DiaryFont.NANUM_CHEER to "nanum_cheer_regular.ttf",
         DiaryFont.CHANGWON_ROUND to "changwon_round_regular.otf",
         DiaryFont.HAKGYOANSIM_BADASSEUGI to "hakgyoansim_badasseugi_light.otf",
-        DiaryFont.IROPKE_BATANG to "iropke_batang_medium.otf",
+        DiaryFont.HALLYM_MYUNGJO to "hallym_myungjo_regular.otf",
         DiaryFont.RIX_WATERMELON to "rix_watermelon_regular.otf",
         DiaryFont.KYOBO_2020 to "kyobo_2020_regular.otf"
     )

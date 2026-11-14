@@ -9,7 +9,7 @@ import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_latin
 import org.sjhstudio.diary.feature.settings.resources.font_name_hakgyoansim_badasseugi
-import org.sjhstudio.diary.feature.settings.resources.font_name_iropke_batang
+import org.sjhstudio.diary.feature.settings.resources.font_name_hallym_myungjo
 import org.sjhstudio.diary.feature.settings.resources.font_name_kyobo_2020
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_cheer
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol
@@ -44,7 +44,7 @@ internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.PRETENDARD -> Res.string.font_name_pretendard
     DiaryFont.HAKGYOANSIM_BADASSEUGI -> Res.string.font_name_hakgyoansim_badasseugi
     DiaryFont.CHANGWON_ROUND -> Res.string.font_name_changwon_round
-    DiaryFont.IROPKE_BATANG -> Res.string.font_name_iropke_batang
+    DiaryFont.HALLYM_MYUNGJO -> Res.string.font_name_hallym_myungjo
     DiaryFont.GOWUN_BATANG -> Res.string.font_name_gowun_batang
     DiaryFont.KYOBO_2020 -> Res.string.font_name_kyobo_2020
     DiaryFont.NANUM_JEOMGGOL -> Res.string.font_name_nanum_jeomggol

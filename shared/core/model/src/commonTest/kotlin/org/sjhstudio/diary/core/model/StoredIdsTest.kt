@@ -45,8 +45,9 @@ class StoredIdsTest {
     fun a_replaced_font_moves_to_the_font_in_its_place() {
         assertEquals(DiaryFont.HAKGYOANSIM_BADASSEUGI, DiaryFont.fromId("gowun_dodum"))
         assertEquals(DiaryFont.HAKGYOANSIM_BADASSEUGI, DiaryFont.fromId("gmarket_sans"))
-        assertEquals(DiaryFont.IROPKE_BATANG, DiaryFont.fromId("maru_buri"))
-        assertEquals(DiaryFont.IROPKE_BATANG, DiaryFont.fromId("kimjungchul_myungjo"))
+        assertEquals(DiaryFont.HALLYM_MYUNGJO, DiaryFont.fromId("maru_buri"))
+        assertEquals(DiaryFont.HALLYM_MYUNGJO, DiaryFont.fromId("kimjungchul_myungjo"))
+        assertEquals(DiaryFont.HALLYM_MYUNGJO, DiaryFont.fromId("iropke_batang"))
         assertEquals(DiaryFont.KYOBO_2020, DiaryFont.fromId("nanum_pen"))
         assertEquals(DiaryFont.KYOBO_2020, DiaryFont.fromId("kcc_jeongbeom"))
         assertEquals(DiaryFont.RIX_WATERMELON, DiaryFont.fromId("gamja_flower"))
@@ -61,7 +62,7 @@ class StoredIdsTest {
                 "system",
                 "hakgyoansim_badasseugi",
                 "changwon_round",
-                "iropke_batang",
+                "hallym_myungjo",
                 "gowun_batang",
                 "kyobo_2020",
                 "nanum_jeomggol",
