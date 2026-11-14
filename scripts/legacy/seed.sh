@@ -8,6 +8,7 @@
 # ALARM=0: 매일 알림을 끈 설정
 # COUNT=1000: 일기를 그만큼 추가(T051 큰 견본)
 # PHOTO_EVERY=3: 세 편마다 사진 한 장. 기본은 한 편마다
+# FONT_KEY=2: 옛 글꼴 번호(기본 5). 2·7·11은 새 앱에 없는 글꼴이라 바뀐 글꼴 안내가 뜸
 # PHOTO_SOURCE=폴더: 그 폴더의 JPEG를 차례로 사용(성능 시험용 큰 사진). 없으면 fixtures의 작은 사진
 # 넣은 수는 계측 시험이 읽도록 files/debug/seed.json에 기록
 # 1.7.4는 알림이 켜져 있으면 Android 14 이상에서 정확한 알람 권한이 없어 종료
@@ -86,7 +87,7 @@ cp "$ROOT/scripts/legacy/fixtures/photo-portrait.png" "$WORK/1699000000002.png"
 cat > "$WORK/pref.xml" <<XML
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
 <map>
-    <int name="font_key" value="5" />
+    <int name="font_key" value="${FONT_KEY:-5}" />
     <int name="font_size" value="3" />
     <int name="mode_key" value="0" />
     <boolean name="ask_location" value="false" />
