@@ -141,8 +141,8 @@ fun CalendarRoute(
     val dates = rememberDiaryDateFormat()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 반 넘게 넘어가 달이 정해지는 순간 그 달 날을 고름
-    LaunchedEffect(pager) { snapshotFlow { pager.currentPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
+    // 넘김이 멈춘 달의 날을 고름. 지나가는 달마다 고르면 [오늘]로 여러 달을 건널 때 아래 목록이 여러 번 바뀜
+    LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
     val shown = monthOfPage(pager.currentPage)
     val today by viewModel.todayState.collectAsStateWithLifecycle()
     // 오늘이 아닌 날을 골랐거나 다른 달을 보면 오늘로 돌아가는 단추
