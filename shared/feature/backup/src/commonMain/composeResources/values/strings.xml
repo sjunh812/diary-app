@@ -188,7 +188,7 @@
     <string name="rollback_running_title">Undoing the replace</string>
     <string name="rollback_running_body">This will only take a moment.</string>
     <string name="rollback_failed_title">Couldn't undo the replace</string>
-    <string name="rollback_failed_body">Nothing on this phone changed. Please try again.</string>
+    <string name="rollback_failed_body">No entries were deleted. Please try again.</string>
     <string name="rollback_ask_title">Undo the replacement?</string>
     <string name="rollback_ask_body">Your earlier entries (%1$s) will come back.</string>
     <string name="rollback_ask_after">Your earlier entries (%1$s) will come back. Entries written since then (%2$s) will stay.</string>

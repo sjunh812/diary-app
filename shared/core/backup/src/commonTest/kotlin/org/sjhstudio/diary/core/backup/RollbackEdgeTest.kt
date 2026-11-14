@@ -305,6 +305,21 @@ class RollbackEdgeTest {
         assertEquals(setOf("before"), phone.ids())
     }
 
+    /** 일기를 되돌린 뒤 설정 쓰기가 실패해도 사본이 남아, 다시 누르면 같은 결과로 끝남 */
+    @Test
+    fun a_settings_failure_after_the_diaries_can_be_retried() = runTest {
+        replaced("new")
+        phone.settingsFail = true
+
+        assertFails { phone.manager().rollBack() }
+        assertEquals(setOf("before"), phone.ids())
+
+        phone.settingsFail = false
+        assertTrue(phone.manager().rollBack())
+        assertEquals(setOf("before"), phone.ids())
+        assertEquals("before", phone.appliedSettings.last().font)
+    }
+
     @Test
     fun replace_through_the_screen_then_undo_gives_back_everything() = runTest {
         val other = TestPhone(dir / "other", drive, name = "Other")

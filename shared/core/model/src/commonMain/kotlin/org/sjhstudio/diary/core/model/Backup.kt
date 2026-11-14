@@ -198,7 +198,7 @@ enum class RollbackRun {
     WAITING,
     RUNNING,
 
-    /** 되돌리지 못함. 기기의 일기는 그대로 */
+    /** 되돌리지 못함. 일기는 지워지지 않고, 다시 하면 같은 결과로 끝남 */
     FAILED
 }
 

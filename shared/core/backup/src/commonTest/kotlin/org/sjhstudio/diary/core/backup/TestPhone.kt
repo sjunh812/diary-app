@@ -64,6 +64,9 @@ internal class TestPhone(
     /** 복원한 설정 */
     val appliedSettings = mutableListOf<ManifestSettings>()
 
+    /** 참이면 설정 적용이 실패함(저장 공간 같은 이유) */
+    var settingsFail = false
+
     /** 설정을 쓰다 실패하게 할 때 값을 넣음 */
     var settingsFailure: Exception? = null
 
@@ -90,7 +93,10 @@ internal class TestPhone(
     fun fetcher(api: DriveApi = drive, files: FileSystem = fs) = PhotoFetcher(db, api, files, media, work, FreeSpace { freeBytes })
 
     fun manager(files: FileSystem = fs, applier: MergeApplier = applier()) = RollbackManager(
-        db, applier, store, FreeSpace { freeBytes }, files, work, { ManifestSettings(font = "before") }, { appliedSettings += it }, clock
+        db, applier, store, FreeSpace { freeBytes }, files, work, { ManifestSettings(font = "before") }, {
+            if (settingsFail) throw IOException("설정을 쓰지 못함")
+            appliedSettings += it
+        }, clock
     )
 
     fun exporter() = BundleExporter(

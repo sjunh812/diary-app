@@ -185,7 +185,7 @@
     <string name="rollback_running_title">置き換える前に戻しています</string>
     <string name="rollback_running_body">しばらくお待ちください。</string>
     <string name="rollback_failed_title">元に戻せませんでした</string>
-    <string name="rollback_failed_body">このスマートフォンの日記はそのままです。もう一度お試しください。</string>
+    <string name="rollback_failed_body">日記は1件も消えていません。もう一度お試しください。</string>
     <string name="rollback_ask_title">置き換える前に戻しますか？</string>
     <string name="rollback_ask_body">置き換える前の日記%1$s件が戻ります。</string>
     <string name="rollback_ask_after">置き換える前の日記%1$s件が戻ります。置き換えた後に書いた日記%2$s件はそのまま残ります。</string>
