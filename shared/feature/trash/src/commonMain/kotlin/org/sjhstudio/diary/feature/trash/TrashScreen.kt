@@ -65,6 +65,7 @@ import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.moodName
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
+import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.core.ui.weatherName
 import org.sjhstudio.diary.feature.trash.resources.Res
 import org.sjhstudio.diary.feature.trash.resources.trash_confirm_body_all
@@ -187,6 +188,7 @@ internal fun TrashScreen(
             else -> {
                 // 마지막 줄이 시스템 내비게이션에 가리지 않게 아래를 비움
                 val bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + DiarySpacing.x6
+                val thisYear = rememberToday().year
                 LazyColumn(Modifier.widthIn(max = DiaryWriteSize.bodyMax).fillMaxWidth(), contentPadding = PaddingValues(bottom = bottom)) {
                     item {
                         DiaryNotice(
@@ -197,7 +199,7 @@ internal fun TrashScreen(
                     }
                     itemsIndexed(items, key = { _, item ->
                         item.row.id
-                    }) { index, item -> TrashRow(item, dividerAbove = index > 0) { onPick(item.row.id) } }
+                    }) { index, item -> TrashRow(item, dividerAbove = index > 0, thisYear) { onPick(item.row.id) } }
                 }
             }
         }
@@ -205,11 +207,13 @@ internal fun TrashScreen(
 }
 
 @Composable
-private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> Unit) {
+private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, thisYear: Int, onClick: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     val dates = rememberDiaryDateFormat()
     val row = item.row
+    // 올해가 아니면 연도까지. 작년 일기가 올해 날짜처럼 보이지 않게
+    val day = if (row.date.year == thisYear) dates.monthDay(row.date) else dates.fullDate(row.date)
     val interaction = remember { MutableInteractionSource() }
     Column(
         Modifier
@@ -234,7 +238,7 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, onClick: () -> U
                 Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
                     row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }
                     BasicText(
-                        stringResource(Res.string.trash_row_when, dates.monthDay(row.date), dates.time(row.time)),
+                        stringResource(Res.string.trash_row_when, day, dates.time(row.time)),
                         style = typography.captionStrong.copy(color = colors.textSecondary),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
