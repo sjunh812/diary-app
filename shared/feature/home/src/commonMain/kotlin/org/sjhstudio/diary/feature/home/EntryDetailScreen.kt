@@ -115,13 +115,16 @@ fun EntryDetailRoute(
     onPhoto: (Int) -> Unit,
     onTrashed: () -> Unit,
     onOtherVersion: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onTrashOther: (String) -> Unit = {}
 ) {
     val viewModel = koinViewModel<EntryDetailViewModel>(key = entryId) { parametersOf(entryId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val look by viewModel.look.collectAsStateWithLifecycle()
     val trashed by rememberUpdatedState(onTrashed)
     LaunchedEffect(viewModel) { viewModel.trashed.collect { trashed() } }
+    val trashOther by rememberUpdatedState(onTrashOther)
+    LaunchedEffect(viewModel) { viewModel.otherTrashed.collect { trashOther(it) } }
     val share = rememberShareText()
     val shareText = rememberEntryShareText()
     var more by remember { mutableStateOf(false) }

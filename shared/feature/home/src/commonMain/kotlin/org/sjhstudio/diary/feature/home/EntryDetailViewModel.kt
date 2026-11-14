@@ -68,6 +68,10 @@ class EntryDetailViewModel(
     private val _trashed = Channel<Unit>(Channel.BUFFERED)
     val trashed: Flow<Unit> = _trashed.receiveAsFlow()
 
+    // 이쪽만 남겨 휴지통으로 간 다른 판. 다른 휴지통 옮기기처럼 되돌릴 수 있게 알림
+    private val _otherTrashed = Channel<String>(Channel.BUFFERED)
+    val otherTrashed: Flow<String> = _otherTrashed.receiveAsFlow()
+
     fun toggleFavorite() {
         if (state.value !is EntryDetailState.Ready) return
         viewModelScope.launchWrite { entries.toggleFavorite(entryId) }
@@ -84,7 +88,10 @@ class EntryDetailViewModel(
     /** 이쪽만 남김. 다른 쪽은 지우지 않고 휴지통으로 옮겨 복원할 수 있음. 두 표시는 함께 사라짐 */
     fun keepThisVersion() {
         val other = (state.value as? EntryDetailState.Ready)?.detail?.keptBothWith ?: return
-        viewModelScope.launchWrite { entries.moveToTrash(other) }
+        viewModelScope.launchWrite {
+            entries.moveToTrash(other)
+            _otherTrashed.send(other)
+        }
     }
 
     fun moveToTrash() {

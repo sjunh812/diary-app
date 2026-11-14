@@ -555,7 +555,8 @@ private fun Content(
                                 onTrashed = {
                                     nav.closeEntry(key.entryId)
                                     onTrashed(key.entryId)
-                                }
+                                },
+                                onTrashOther = onTrashed
                             )
                         }
                         entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
