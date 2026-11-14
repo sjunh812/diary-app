@@ -704,7 +704,7 @@ internal fun RichTextState.applyEdit(edit: ChecklistEdit) = when {
     else -> replaceTextRange(TextRange(edit.start, edit.end), edit.text)
 }
 
-/** 넓은 화면 옆 칸: 기분, 날씨, 사진, 장소(Figma "S2 · 태블릿") */
+/** 넓은 화면 옆 칸: 기분, 날씨, 장소, 사진. 폰 칩 줄과 같은 순서(Figma "S2 · 태블릿") */
 @Composable
 private fun SidePanel(state: WriteUiState, actions: WriteActions, onPick: () -> Unit, onPlace: () -> Unit) {
     val vm = actions.viewModel
@@ -718,10 +718,6 @@ private fun SidePanel(state: WriteUiState, actions: WriteActions, onPick: () -> 
     ) {
         Section(stringResource(Res.string.write_mood)) { MoodGrid(state.mood, vm::selectMood) }
         Section(stringResource(Res.string.write_weather)) { WeatherGrid(state.weather, vm::selectWeather) }
-        Section(stringResource(Res.string.write_add_photo)) {
-            PhotoRow(state, actions, onPick, inset = null)
-            PhotoReorderTip(state)
-        }
         Section(stringResource(Res.string.write_place)) {
             DiaryChip(
                 text = state.placeName.ifEmpty { stringResource(Res.string.write_place) },
@@ -729,6 +725,10 @@ private fun SidePanel(state: WriteUiState, actions: WriteActions, onPick: () -> 
                 onClick = onPlace,
                 leadingIcon = DiaryIcons.Pin
             )
+        }
+        Section(stringResource(Res.string.write_add_photo)) {
+            PhotoRow(state, actions, onPick, inset = null)
+            PhotoReorderTip(state)
         }
         Notices(state)
     }
