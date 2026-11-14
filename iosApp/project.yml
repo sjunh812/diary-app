@@ -54,6 +54,9 @@ targets:
       - path: ../fonts/nanum_jeomggol/src/main/assets/fonts/nanum_jeomggol.ttf
         buildPhase: resources
         resourceTags: [nanum_jeomggol]
+      - path: ../fonts/ownglyph_wiseelist/src/main/assets/fonts/ownglyph_wiseelist.ttf
+        buildPhase: resources
+        resourceTags: [ownglyph_wiseelist]
       - path: ../fonts/sejong_geulggot/src/main/assets/fonts/sejong_geulggot.ttf
         buildPhase: resources
         resourceTags: [sejong_geulggot]

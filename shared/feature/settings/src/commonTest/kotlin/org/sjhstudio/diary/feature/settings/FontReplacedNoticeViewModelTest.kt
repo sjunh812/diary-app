@@ -12,10 +12,10 @@ import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 class FontReplacedNoticeViewModelTest {
     @Test
     fun replaced_font_is_told_once() = runTest {
-        val settings = FakeSettingsRepository(AppSettings(font = DiaryFont.KYOBO_2020, fontReplacedFrom = "교보손글씨체"))
+        val settings = FakeSettingsRepository(AppSettings(font = DiaryFont.CHANGWON_ROUND, fontReplacedFrom = "교보손글씨체"))
         val viewModel = FontReplacedNoticeViewModel(settings)
 
-        assertEquals(DiaryFont.KYOBO_2020, viewModel.take())
+        assertEquals(DiaryFont.CHANGWON_ROUND, viewModel.take())
         assertNull(settings.settings.value.fontReplacedFrom)
         assertNull(viewModel.take())
     }

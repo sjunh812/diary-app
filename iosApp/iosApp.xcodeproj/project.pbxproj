@@ -26,6 +26,7 @@
 		A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = D653C9A304F35EF27606B403 /* GoogleMobileAds */; };
 		ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */; };
 		B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
+		E924E2D8C6238479BECB6373 /* ownglyph_wiseelist.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DAC30AE568A89DAAB66C81E0 /* ownglyph_wiseelist.ttf */; settings = {ASSET_TAGS = (ownglyph_wiseelist, ); }; };
 		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +52,7 @@
 		CBFF6F7B5E6378BAD9C2AD97 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D6111777718F5751E749AACD /* PrivacyCover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyCover.swift; sourceTree = "<group>"; };
+		DAC30AE568A89DAAB66C81E0 /* ownglyph_wiseelist.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ownglyph_wiseelist.ttf; sourceTree = "<group>"; };
 		F543015C899423D4B01CEB2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA0F3A778E3FD20C9033683F /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -71,6 +73,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		093F00878C0CCBB5226C9591 /* main */ = {
+			isa = PBXGroup;
+			children = (
+				BACD3913A655AE3DC341F4DC /* assets */,
+			);
+			path = main;
+			sourceTree = "<group>";
+		};
 		0AE5B04EE7BFB5205B82B79D /* nanum_jeomggol */ = {
 			isa = PBXGroup;
 			children = (
@@ -85,6 +95,14 @@
 				A4ABE2FF3546159CC9D18610 /* gowun_batang.ttf */,
 			);
 			path = fonts;
+			sourceTree = "<group>";
+		};
+		0CE94BD0A9D2705343791B37 /* ownglyph_wiseelist */ = {
+			isa = PBXGroup;
+			children = (
+				B2047EEE154D57EFB2E03A02 /* src */,
+			);
+			path = ownglyph_wiseelist;
 			sourceTree = "<group>";
 		};
 		120C43445237170CC6238342 /* assets */ = {
@@ -183,11 +201,20 @@
 			path = main;
 			sourceTree = "<group>";
 		};
+		79C7358897E8B9621AF044FF /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				DAC30AE568A89DAAB66C81E0 /* ownglyph_wiseelist.ttf */,
+			);
+			path = fonts;
+			sourceTree = "<group>";
+		};
 		86CF2B2C439663701868C662 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
 				B8B48948D6E08C787AF85340 /* gowun_batang */,
 				0AE5B04EE7BFB5205B82B79D /* nanum_jeomggol */,
+				0CE94BD0A9D2705343791B37 /* ownglyph_wiseelist */,
 				BED61B1C2CC373D38AE316CF /* sejong_geulggot */,
 			);
 			path = fonts;
@@ -225,12 +252,28 @@
 			path = fonts;
 			sourceTree = "<group>";
 		};
+		B2047EEE154D57EFB2E03A02 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				093F00878C0CCBB5226C9591 /* main */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		B8B48948D6E08C787AF85340 /* gowun_batang */ = {
 			isa = PBXGroup;
 			children = (
 				9D16F8F62884821FE6EC47C4 /* src */,
 			);
 			path = gowun_batang;
+			sourceTree = "<group>";
+		};
+		BACD3913A655AE3DC341F4DC /* assets */ = {
+			isa = PBXGroup;
+			children = (
+				79C7358897E8B9621AF044FF /* fonts */,
+			);
+			path = assets;
 			sourceTree = "<group>";
 		};
 		BB5D8A74DB2738DF0FE02341 /* src */ = {
@@ -303,6 +346,7 @@
 				knownAssetTags = (
 					gowun_batang,
 					nanum_jeomggol,
+					ownglyph_wiseelist,
 					sejong_geulggot,
 				);
 			};
@@ -344,6 +388,7 @@
 				09FED4B446BD58DF150C455A /* PrivacyInfo.xcprivacy in Resources */,
 				3728FA805BF026BD7EDB48B5 /* gowun_batang.ttf in Resources */,
 				47A150204EBF9E2799632D13 /* nanum_jeomggol.ttf in Resources */,
+				E924E2D8C6238479BECB6373 /* ownglyph_wiseelist.ttf in Resources */,
 				0BE538C381966DD42CD55526 /* sejong_geulggot.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

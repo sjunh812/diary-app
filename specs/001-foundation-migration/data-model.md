@@ -86,17 +86,17 @@ R1 출시 때 버전 1이다. 002는 `draft`, `draft_media`를, 003은 백업 �
 | `pretendard` | Pretendard | -1, 0, 그 밖의 값 |
 | `system` | 시스템 글꼴 | 100 |
 | `hakgyoansim_badasseugi` | 학교안심 받아쓰기 | 없음(새 글꼴) |
-| `changwon_round` | 창원단감둥근체 | 9, 12 |
+| `changwon_round` | 창원단감둥근체 | 2, 7, 9, 11, 12 |
 | `hallym_myungjo` | 한림명조체 | 없음(새 글꼴) |
 | `gowun_batang` | 고운바탕 | 8 |
-| `kyobo_2020` | 교보손글씨 2020 박도연 | 2, 7, 11 |
+| `ownglyph_wiseelist` | 온글잎 위씨리스트 | 없음(새 글꼴) |
 | `nanum_jeomggol` | 나눔손글씨 점꼴체 | 3 |
 | `nanum_cheer` | 나눔손글씨 힘내라는 말보단 | 1, 5 |
 | `rix_watermelon` | 수박양체 | 4, 10 |
 | `sejong_geulggot` | 세종글꽃체 | 6, 13 |
 
 옛 `font_key`가 1, 3, -1, 0, 100이 아니면(같은 글꼴이 없으면) `font_replaced_from`에 옛 이름을 남겨 처음 열 때 한 번 알린다.
-2026-11-13·14 바꾼 글꼴의 옛 ID(`gowun_dodum`, `maru_buri`, `nanum_pen`, `gamja_flower`, `hi_melody`, `gmarket_sans`, `kcc_jeongbeom`, `kimjungchul_myungjo`, `iropke_batang`)는 읽을 때 자리를 이은 글꼴로 옮긴다(`DiaryFont.fromId`).
+2026-11-13·14 바꾼 글꼴의 옛 ID(`gowun_dodum`, `maru_buri`, `nanum_pen`, `gamja_flower`, `hi_melody`, `gmarket_sans`, `kcc_jeongbeom`, `kimjungchul_myungjo`, `iropke_batang`, `kyobo_2020`)는 읽을 때 자리를 이은 글꼴로 옮긴다(`DiaryFont.fromId`).
 
 ### BodyTextSize
 

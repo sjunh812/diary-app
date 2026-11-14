@@ -28,7 +28,7 @@ class SettingsStoreTest {
             val store = SettingsStore(dataStore)
             val changed =
                 AppSettings(
-                    font = DiaryFont.KYOBO_2020,
+                    font = DiaryFont.OWNGLYPH_WISEELIST,
                     bodyTextSize = BodyTextSize.XLARGE,
                     themeMode = ThemeMode.DARK,
                     askLocationAgain = false,
@@ -58,7 +58,7 @@ class SettingsStoreTest {
                 ),
                 raw.keys
             )
-            assertEquals("kyobo_2020", raw["font"])
+            assertEquals("ownglyph_wiseelist", raw["font"])
         }
     }
 

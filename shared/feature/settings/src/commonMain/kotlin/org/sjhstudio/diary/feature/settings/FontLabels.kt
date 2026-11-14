@@ -10,11 +10,13 @@ import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_gowun_batang_latin
 import org.sjhstudio.diary.feature.settings.resources.font_name_hakgyoansim_badasseugi
 import org.sjhstudio.diary.feature.settings.resources.font_name_hallym_myungjo
-import org.sjhstudio.diary.feature.settings.resources.font_name_kyobo_2020
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_cheer
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_ko
 import org.sjhstudio.diary.feature.settings.resources.font_name_nanum_jeomggol_latin
+import org.sjhstudio.diary.feature.settings.resources.font_name_ownglyph_wiseelist
+import org.sjhstudio.diary.feature.settings.resources.font_name_ownglyph_wiseelist_ko
+import org.sjhstudio.diary.feature.settings.resources.font_name_ownglyph_wiseelist_latin
 import org.sjhstudio.diary.feature.settings.resources.font_name_pretendard
 import org.sjhstudio.diary.feature.settings.resources.font_name_rix_watermelon
 import org.sjhstudio.diary.feature.settings.resources.font_name_sejong_geulggot
@@ -35,6 +37,7 @@ internal val FONT_ORDER: List<DiaryFont> = listOf(DiaryFont.SYSTEM) + DiaryFont.
 internal val FONT_DOWNLOAD_MB: Map<DiaryFont, Double> =
     mapOf(
         DiaryFont.GOWUN_BATANG to 8.4,
+        DiaryFont.OWNGLYPH_WISEELIST to 7.2,
         DiaryFont.NANUM_JEOMGGOL to 6.7,
         DiaryFont.SEJONG_GEULGGOT to 7.8
     )
@@ -46,7 +49,7 @@ internal fun DiaryFont.label(): StringResource = when (this) {
     DiaryFont.CHANGWON_ROUND -> Res.string.font_name_changwon_round
     DiaryFont.HALLYM_MYUNGJO -> Res.string.font_name_hallym_myungjo
     DiaryFont.GOWUN_BATANG -> Res.string.font_name_gowun_batang
-    DiaryFont.KYOBO_2020 -> Res.string.font_name_kyobo_2020
+    DiaryFont.OWNGLYPH_WISEELIST -> Res.string.font_name_ownglyph_wiseelist
     DiaryFont.NANUM_JEOMGGOL -> Res.string.font_name_nanum_jeomggol
     DiaryFont.NANUM_CHEER -> Res.string.font_name_nanum_cheer
     DiaryFont.RIX_WATERMELON -> Res.string.font_name_rix_watermelon
@@ -60,7 +63,13 @@ internal fun DiaryFont.label(): StringResource = when (this) {
  */
 internal fun DiaryFont.namePreview(korean: Boolean): DrawableResource? = when (this) {
     DiaryFont.GOWUN_BATANG -> if (korean) Res.drawable.font_name_gowun_batang_ko else Res.drawable.font_name_gowun_batang_latin
+
+    DiaryFont.OWNGLYPH_WISEELIST ->
+        if (korean) Res.drawable.font_name_ownglyph_wiseelist_ko else Res.drawable.font_name_ownglyph_wiseelist_latin
+
     DiaryFont.NANUM_JEOMGGOL -> if (korean) Res.drawable.font_name_nanum_jeomggol_ko else Res.drawable.font_name_nanum_jeomggol_latin
+
     DiaryFont.SEJONG_GEULGGOT -> if (korean) Res.drawable.font_name_sejong_geulggot_ko else Res.drawable.font_name_sejong_geulggot_latin
+
     else -> null
 }

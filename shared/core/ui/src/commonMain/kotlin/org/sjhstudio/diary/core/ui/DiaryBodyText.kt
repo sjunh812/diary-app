@@ -17,7 +17,6 @@ import org.sjhstudio.diary.core.designsystem.resources.changwon_round_regular
 import org.sjhstudio.diary.core.designsystem.resources.hakgyoansim_badasseugi_light
 import org.sjhstudio.diary.core.designsystem.resources.hallym_myungjo_bold
 import org.sjhstudio.diary.core.designsystem.resources.hallym_myungjo_regular
-import org.sjhstudio.diary.core.designsystem.resources.kyobo_2020_regular
 import org.sjhstudio.diary.core.designsystem.resources.nanum_cheer_regular
 import org.sjhstudio.diary.core.designsystem.resources.rix_watermelon_regular
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -38,8 +37,7 @@ val BUNDLED_DIARY_FONTS: Set<DiaryFont> =
         DiaryFont.CHANGWON_ROUND,
         DiaryFont.HAKGYOANSIM_BADASSEUGI,
         DiaryFont.HALLYM_MYUNGJO,
-        DiaryFont.RIX_WATERMELON,
-        DiaryFont.KYOBO_2020
+        DiaryFont.RIX_WATERMELON
     )
 
 /**
@@ -74,8 +72,6 @@ private fun fontFamilyOf(font: DiaryFont, installed: (DiaryFont) -> FontFamily?)
 
     DiaryFont.RIX_WATERMELON -> FontFamily(Font(Res.font.rix_watermelon_regular))
 
-    DiaryFont.KYOBO_2020 -> FontFamily(Font(Res.font.kyobo_2020_regular))
-
     else -> installed(font) ?: pretendardFamily()
 }
 
@@ -90,8 +86,7 @@ val BUNDLED_FONT_FILES: Map<DiaryFont, String> =
         DiaryFont.CHANGWON_ROUND to "changwon_round_regular.otf",
         DiaryFont.HAKGYOANSIM_BADASSEUGI to "hakgyoansim_badasseugi_light.otf",
         DiaryFont.HALLYM_MYUNGJO to "hallym_myungjo_regular.otf",
-        DiaryFont.RIX_WATERMELON to "rix_watermelon_regular.otf",
-        DiaryFont.KYOBO_2020 to "kyobo_2020_regular.otf"
+        DiaryFont.RIX_WATERMELON to "rix_watermelon_regular.otf"
     )
 
 /**

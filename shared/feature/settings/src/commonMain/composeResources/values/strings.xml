@@ -48,7 +48,7 @@
     <string name="license_naver">NAVER font license</string>
     <string name="license_watermelon">Watermelon Yang License</string>
     <string name="license_sejong">Sejong Geulggot License</string>
-    <string name="license_kyobo">Kyobo Handwriting License</string>
+    <string name="license_ownglyph">Ownglyph Font License</string>
     <string name="settings_text_size">Diary text size</string>
     <string name="settings_theme">Appearance</string>
     <string name="settings_lock">Lock</string>
@@ -80,7 +80,7 @@
     <string name="font_name_changwon_round">Changwon Dangam Round</string>
     <string name="font_name_hallym_myungjo">Hallym Myungjo</string>
     <string name="font_name_gowun_batang">Gowun Batang</string>
-    <string name="font_name_kyobo_2020">Kyobo Handwriting 2020</string>
+    <string name="font_name_ownglyph_wiseelist">Ownglyph Wiseelist</string>
     <string name="font_name_nanum_jeomggol">Nanum Jeomggol</string>
     <string name="font_name_nanum_cheer">Nanum Himnaeraneun</string>
     <string name="font_name_rix_watermelon">Watermelon Yang</string>

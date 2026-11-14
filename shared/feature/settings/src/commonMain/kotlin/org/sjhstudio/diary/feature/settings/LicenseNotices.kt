@@ -5,9 +5,9 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.license_changwon_round
 import org.sjhstudio.diary.feature.settings.resources.license_hallym
-import org.sjhstudio.diary.feature.settings.resources.license_kyobo
 import org.sjhstudio.diary.feature.settings.resources.license_naver
 import org.sjhstudio.diary.feature.settings.resources.license_ofl
+import org.sjhstudio.diary.feature.settings.resources.license_ownglyph
 import org.sjhstudio.diary.feature.settings.resources.license_sejong
 import org.sjhstudio.diary.feature.settings.resources.license_watermelon
 
@@ -22,7 +22,7 @@ internal enum class FontLicense(val label: StringResource) {
     HALLYM(Res.string.license_hallym),
     WATERMELON(Res.string.license_watermelon),
     SEJONG(Res.string.license_sejong),
-    KYOBO(Res.string.license_kyobo)
+    OWNGLYPH(Res.string.license_ownglyph)
 }
 
 /**
@@ -42,7 +42,7 @@ internal val FONT_NOTICES: List<FontLicenseNotice> =
         FontLicenseNotice(DiaryFont.CHANGWON_ROUND, FontLicense.CHANGWON_ROUND, "changwon_round.txt"),
         FontLicenseNotice(DiaryFont.HALLYM_MYUNGJO, FontLicense.HALLYM, "hallym_myungjo.txt"),
         FontLicenseNotice(DiaryFont.GOWUN_BATANG, FontLicense.OFL, "gowun_batang.txt"),
-        FontLicenseNotice(DiaryFont.KYOBO_2020, FontLicense.KYOBO, "kyobo_2020.txt"),
+        FontLicenseNotice(DiaryFont.OWNGLYPH_WISEELIST, FontLicense.OWNGLYPH, "ownglyph_wiseelist.txt"),
         FontLicenseNotice(DiaryFont.NANUM_JEOMGGOL, FontLicense.NAVER, "nanum_jeomggol.txt"),
         FontLicenseNotice(DiaryFont.NANUM_CHEER, FontLicense.NAVER, "nanum_cheer.txt"),
         FontLicenseNotice(DiaryFont.RIX_WATERMELON, FontLicense.WATERMELON, "rix_watermelon.txt"),
