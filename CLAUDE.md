@@ -78,7 +78,7 @@ Day One 등), 일기 기능은 국내외 일기 앱이다. 공식 문서, 스토
 JDK는 Gradle이 고른다(`gradle/gradle-daemon-jvm.properties`가 JDK 17을 받아 쓴다). 설치는 에뮬레이터에만 한다(`ANDROID_SERIAL` 지정).
 
 ```bash
-./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck detekt :composeApp:lint allTests assembleDebug   # CI와 같은 검사·린트·시험·빌드(iOS 시뮬레이터 시험 포함)
+./gradlew spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck unusedImportCheck detekt :composeApp:lint allTests assembleDebug   # CI와 같은 검사·린트·시험·빌드(iOS 시뮬레이터 시험 포함)
 ./gradlew spotlessApply                                           # 코드 형식 맞추기(ktlint)
 ./gradlew detekt                                                  # 코드 냄새와 Compose 규칙(설정은 config/detekt)
 ./gradlew :composeApp:lint                                        # Android Lint. 공유 모듈까지 본다
@@ -100,6 +100,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - Compose 화면 시험(`runComposeUiTest`)은 모듈의 `src/iosTest`에 두고 iOS 시뮬레이터에서 돈다(`allTests`에 들어 있다). Android 호스트 JVM에서는
   Robolectric 없이 그릴 수 없어서다(오발있과 같다). 화면 상태·저장소 시험은 `commonTest`에 두어 두 플랫폼에서 돈다.
 - 앱 안에서 들어갈 길이 없는 화면을 띄우는 방법과 업그레이드 시험은 `/emulator-check`, Baseline Profile과 글꼴 모듈 시험은 `/release-prep`에 있다.
+- `unusedImportCheck`는 안 쓰는 import를 찾으면 실패한다. detekt `UnusedImport`는 타입 분석이 있어야 돌고, Spotless의 ktlint도 이 규칙을 잡지 못해 따로 둔다(2026-11-15).
 - `stringResourceCheck`는 `values`(영어)를 기준으로 `values-ko`·`values-ja`의 문자열 이름, 개수 문구 꼴, `%1$s` 자리가 같은지 본다.
 - 개발 빌드는 StrictMode로 화면 스레드의 디스크·네트워크 작업과 닫지 않은 자원을 로그에 남긴다. 화면이나 시작 순서를 바꾸면 `adb logcat -s StrictMode`로 새 위반이 없는지 본다(개발자 모드 요금제 도구의 읽기는 개발 빌드에만 있다).
 - 개발자 모드(`composeApp/src/debug`의 `DevModeActivity`)는 개발 빌드의 설정 맨 아래 줄로 들어가고 출시 빌드에는 없다. iOS에는 아직 없다. 화면과 기능은 `PlanRepository`만 본다.
