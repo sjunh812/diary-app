@@ -3,7 +3,7 @@ import Shared
 import UIKit
 
 /// 하루 한 번 자동 백업(research R15)
-/// 실행이 보장되지 않아 앱이 뒤로 갈 때와 열릴 때도 확인
+/// 실행이 보장되지 않아 앱이 뒤로 갈 때도 확인
 /// 언제 돌지는 시스템이, 돌 때가 됐는지는 공통 코드가 정함
 enum DailyBackupTask {
     private static let identifier = "org.sjhstudio.diary.backup.daily"
@@ -42,7 +42,7 @@ enum DailyBackupTask {
             let request = BGProcessingTaskRequest(identifier: identifier)
             request.requiresNetworkConnectivity = true
             request.earliestBeginDate = Date(timeIntervalSinceNow: day)
-            // 시뮬레이터는 미지원이라 실패하지만 앱을 열 때 다시 확인
+            // 시뮬레이터는 미지원이라 실패. 앱이 뒤로 갈 때 다시 확인
             try? BGTaskScheduler.shared.submit(request)
         }
     }
