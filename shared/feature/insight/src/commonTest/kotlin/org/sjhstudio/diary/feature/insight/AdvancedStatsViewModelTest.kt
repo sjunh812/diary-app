@@ -66,7 +66,7 @@ class AdvancedStatsViewModelTest {
 
         viewModel.state.first { it.data != null }
 
-        assertEquals(AdvancedPeriod.ALL, viewModel.period.value)
+        assertEquals(AdvancedPeriod.ALL, viewModel.state.value.period)
         assertNull(viewModel.range())
     }
 

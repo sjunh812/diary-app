@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -102,6 +103,8 @@ class InsightViewModel(
                     cache[period] = data
                     InsightState(period, data)
                 }
+                // 다시 시도하면 읽는 중으로 바꿔 누른 것이 보이게
+                .onStart { emit(InsightState(period, cache[period])) }
                 // 읽기 실패 시 읽는 중으로 남기지 않고 다시 시도를 보임
                 .catch { if (it is Exception) emit(InsightState(period, null, failed = true)) else throw it }
         }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.AdvancedPeriod
@@ -28,8 +29,7 @@ data class AdvancedState(val period: AdvancedPeriod, val data: AdvancedStats?, v
 
 /** 고급 통계. 차이를 찾으려면 일기가 많을수록 좋아 전체부터 보임 */
 class AdvancedStatsViewModel(private val stats: StatsRepository, private val today: () -> LocalDate = { currentDate() }) : ViewModel() {
-    private val _period = MutableStateFlow(AdvancedPeriod.ALL)
-    val period: StateFlow<AdvancedPeriod> = _period.asStateFlow()
+    private val selected = MutableStateFlow(AdvancedPeriod.ALL)
 
     private val day = MutableStateFlow(today())
 
@@ -41,12 +41,14 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val read: Flow<AdvancedState> =
-        combine(_period, day, attempt) { period, date, _ -> period to date }.flatMapLatest { (period, date) ->
+        combine(selected, day, attempt) { period, date, _ -> period to date }.flatMapLatest { (period, date) ->
             stats.advanced(period, date)
                 .map { data ->
                     cache[period] = data
                     AdvancedState(period, data)
                 }
+                // 다시 시도하면 읽는 중으로 바꿔 누른 것이 보이게
+                .onStart { emit(AdvancedState(period, cache[period])) }
                 // 읽기 실패 시 읽는 중으로 남기지 않고 다시 시도를 보임
                 .catch { if (it is Exception) emit(AdvancedState(period, null, failed = true)) else throw it }
         }
@@ -57,13 +59,13 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
      * 스켈레톤은 0.3초 뒤에 나타나 짧은 읽기에서는 비어 있음
      */
     val state: StateFlow<AdvancedState> =
-        combine(_period, read) { period, latest -> latest.takeIf { it.period == period } ?: AdvancedState(period, cache[period]) }
-            .stateInSafely(viewModelScope, WhileUiSubscribed, AdvancedState(_period.value, null))
+        combine(selected, read) { period, latest -> latest.takeIf { it.period == period } ?: AdvancedState(period, cache[period]) }
+            .stateInSafely(viewModelScope, WhileUiSubscribed, AdvancedState(selected.value, null))
 
     init {
         // 다른 기간도 미리 읽어 탭을 눌러도 바로 보이게
         viewModelScope.launchSafely {
-            AdvancedPeriod.entries.filter { it != _period.value }.forEach { period ->
+            AdvancedPeriod.entries.filter { it != selected.value }.forEach { period ->
                 quietly { cache.getOrPut(period) { stats.advanced(period, day.value).first() } }
             }
         }
@@ -77,8 +79,8 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
     }
 
     fun select(period: AdvancedPeriod) {
-        if (period == _period.value) return
-        _period.value = period
+        if (period == selected.value) return
+        selected.value = period
     }
 
     fun retry() {
@@ -86,5 +88,5 @@ class AdvancedStatsViewModel(private val stats: StatsRepository, private val tod
     }
 
     /** 기분을 눌러 그 일기들을 볼 때 쓰는 기간 */
-    fun range(): DateRange? = _period.value.range(today())
+    fun range(): DateRange? = selected.value.range(today())
 }
