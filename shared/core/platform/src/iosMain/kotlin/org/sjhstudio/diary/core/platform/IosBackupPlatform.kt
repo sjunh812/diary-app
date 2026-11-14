@@ -73,9 +73,13 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
                 continuation.resume(
                     when {
                         token != null && key != null && email != null -> TokenResult.Token(token, DriveAccount(key, email))
+
                         error == "offline" -> TokenResult.Failed(BackupFailure.OFFLINE)
+
                         error == "needsUser" -> TokenResult.NeedsUser
-                        else -> TokenResult.Failed(BackupFailure.AUTH)
+
+                        // 그 밖은 일시 실패. 다시 연결로 보면 자동 백업이 멈춤
+                        else -> TokenResult.Failed(BackupFailure.UNKNOWN)
                     }
                 )
             }

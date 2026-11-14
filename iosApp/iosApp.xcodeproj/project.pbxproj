@@ -27,6 +27,7 @@
 		A825AC5F0531A8569219D47A /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = D653C9A304F35EF27606B403 /* GoogleMobileAds */; };
 		ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */; };
 		B7C4F6137AC8345E71E92063 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 108F0D6F9A31550A5E7E3D81 /* FirebaseCrashlytics */; };
+		C116126A0D40FD6BA0083649 /* KeychainLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */; };
 		E924E2D8C6238479BECB6373 /* ownglyph_wiseelist.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DAC30AE568A89DAAB66C81E0 /* ownglyph_wiseelist.ttf */; settings = {ASSET_TAGS = (ownglyph_wiseelist, ); }; };
 		F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */; };
 /* End PBXBuildFile section */
@@ -42,6 +43,7 @@
 		66E4C56D921DA099DF763B28 /* sejong_geulggot.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = sejong_geulggot.ttf; sourceTree = "<group>"; };
 		7009FFABBC02111FC2C6BBEA /* Local.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig; sourceTree = "<group>"; };
 		7497B00B5F8A0AE75FFEA1E1 /* FirebaseReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseReporter.swift; sourceTree = "<group>"; };
+		7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainLock.swift; sourceTree = "<group>"; };
 		86038AE1032E284E79B32AD6 /* iosApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = nanum_jeomggol.ttf; sourceTree = "<group>"; };
 		A200F24526F2E89B50E53BA7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -157,6 +159,7 @@
 			children = (
 				61482D56A37EB21A053921AF /* DailyBackupTask.swift */,
 				AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */,
+				7D4F6CC1D1C60ECBAE99BCA1 /* KeychainLock.swift */,
 			);
 			path = Backup;
 			sourceTree = "<group>";
@@ -513,6 +516,7 @@
 				08511472D23A90B696221D80 /* FirebaseReporter.swift in Sources */,
 				ADFCDFCE784C8BDCCA73FA93 /* GoogleAdsBridge.swift in Sources */,
 				F8CD82E2961BDCC4877BF60B /* GoogleDriveBridge.swift in Sources */,
+				C116126A0D40FD6BA0083649 /* KeychainLock.swift in Sources */,
 				9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */,
 				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
 			);

@@ -254,8 +254,12 @@ class KtorDriveApi(
 
     private suspend fun token(): String = when (val result = authorizer.accessToken()) {
         is TokenResult.Token -> result.value
+
         TokenResult.NeedsUser -> throw DriveException(BackupFailure.AUTH)
-        is TokenResult.Failed -> throw DriveException(result.kind, retryable = result.kind == BackupFailure.DRIVE_ERROR)
+
+        // 일시 실패(UNKNOWN)도 다시 시도. 받던 사진이 받을 수 없는 사진으로 셈해지지 않게
+        is TokenResult.Failed ->
+            throw DriveException(result.kind, retryable = result.kind == BackupFailure.DRIVE_ERROR || result.kind == BackupFailure.UNKNOWN)
     }
 
     private suspend fun chunkResult(response: HttpResponse): ChunkResult = when (response.status.value) {

@@ -43,6 +43,7 @@ struct iOSApp: App {
             ads: GoogleAdsBridge()
         )
         DailyBackupTask.register()
+        KeychainLock.prepare()
         UNUserNotificationCenter.current().delegate = NotificationTapDelegate.shared
     }
 

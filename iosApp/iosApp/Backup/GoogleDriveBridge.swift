@@ -45,7 +45,7 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
         DispatchQueue.main.async {
             GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
                 guard let user else {
-                    done(nil, nil, nil, error.map { Self.isOffline($0) ? "offline" : "needsUser" } ?? "needsUser")
+                    done(nil, nil, nil, error.map { Self.restoreKind($0) } ?? "needsUser")
                     return
                 }
                 guard user.grantedScopes?.contains(self.driveScope) == true else {
@@ -74,6 +74,24 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
         let nsError = error as NSError
         if nsError.domain == kGIDSignInErrorDomain, nsError.code == GIDSignInError.canceled.rawValue { return "cancelled" }
         return isOffline(error) ? "offline" : "failed"
+    }
+
+    /// 다시 로그인해야 풀리는 것만 다시 연결: 키체인에 로그인이 없음, 키체인을 읽지 못함, 기업 관리(EMM) 거절
+    /// 서버의 일시 오류까지 다시 연결로 보면 자동 백업이 멈춤
+    private static let needsSignIn: Set<Int> = [
+        GIDSignInError.hasNoAuthInKeychain.rawValue,
+        GIDSignInError.keychain.rawValue,
+        GIDSignInError.EMM.rawValue
+    ]
+
+    /// 로그인 정보는 처음 잠금 해제 뒤에는 잠겨도 읽힘(GTMAppAuth AfterFirstUnlock)
+    /// 재부팅 뒤 아직 풀지 않아 못 읽은 것이면 다시 연결로 보지 않고 다음에 다시 시도
+    private static func restoreKind(_ error: Error) -> String {
+        let nsError = error as NSError
+        if nsError.domain == kGIDSignInErrorDomain, needsSignIn.contains(nsError.code) {
+            return KeychainLock.isLocked ? "failed" : "needsUser"
+        }
+        return refreshKind(error)
     }
 
     /// 토큰 재발급을 구글이 거절하면 다시 연결해야 함

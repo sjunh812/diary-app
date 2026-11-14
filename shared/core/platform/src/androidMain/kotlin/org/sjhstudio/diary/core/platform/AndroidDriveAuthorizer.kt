@@ -124,7 +124,12 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         }
     }
 
-    private fun ApiException.kind() = if (statusCode == CommonStatusCodes.NETWORK_ERROR) BackupFailure.OFFLINE else BackupFailure.AUTH
+    // 일시 오류까지 다시 연결로 보면 자동 백업이 멈춤
+    private fun ApiException.kind() = when (statusCode) {
+        CommonStatusCodes.NETWORK_ERROR -> BackupFailure.OFFLINE
+        in TRANSIENT -> BackupFailure.UNKNOWN
+        else -> BackupFailure.AUTH
+    }
 
     private suspend fun Task<AuthorizationResult>.await(): AuthorizationResult = suspendCancellableCoroutine { continuation ->
         addOnSuccessListener { continuation.resume(it) }
@@ -134,6 +139,16 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     }
 
     private companion object {
+        val TRANSIENT =
+            setOf(
+                CommonStatusCodes.TIMEOUT,
+                CommonStatusCodes.INTERNAL_ERROR,
+                CommonStatusCodes.INTERRUPTED,
+                CommonStatusCodes.API_NOT_CONNECTED,
+                CommonStatusCodes.CONNECTION_SUSPENDED_DURING_CALL,
+                CommonStatusCodes.RECONNECTION_TIMED_OUT,
+                CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE
+            )
         val SCOPES = listOf(Scope("https://www.googleapis.com/auth/drive.file"), Scope("openid"), Scope("email"))
         const val USER_INFO = "https://openidconnect.googleapis.com/v1/userinfo"
         const val KEY_EMAIL = "email"
