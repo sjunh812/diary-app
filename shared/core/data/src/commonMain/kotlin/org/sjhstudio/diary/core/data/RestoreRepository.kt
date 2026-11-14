@@ -31,8 +31,11 @@ interface BundleFiles {
     /** 파일로 만들면 담길 수와 어림 크기 */
     suspend fun bundleEstimate(): BundleEstimate
 
-    /** 일기와 사진을 zip 하나로 [sink]에 스트리밍으로 씀(FR-031) */
-    suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit)
+    /**
+     * 일기와 사진을 zip 하나로 [open]에 스트리밍으로 씀(FR-031)
+     * 닫기까지 끝나야 다 쓴 것으로 봄
+     */
+    suspend fun writeBundle(open: () -> Sink, onProgress: (done: Int, total: Int) -> Unit)
 
     /**
      * 앱이 꺼져 끝나지 못한 묶음 파일 만들기가 있으면 한 번 true
@@ -53,9 +56,9 @@ interface BundleFiles {
     suspend fun saveBundle(open: () -> Sink, discard: suspend () -> Unit, onProgress: (done: Int, total: Int) -> Unit): BundleSave =
         withContext(Dispatchers.IO) {
             try {
-                val counted = CountingSink(open())
-                counted.buffer().use { writeBundle(it, onProgress) }
-                BundleSave.Saved(counted.written)
+                var counted: CountingSink? = null
+                writeBundle({ CountingSink(open()).also { counted = it } }, onProgress)
+                BundleSave.Saved(checkNotNull(counted).written)
             } catch (error: CancellationException) {
                 withContext(NonCancellable) { removed(discard) }
                 throw error

@@ -169,7 +169,7 @@ internal class TestPhone(
 
     fun driveFiles(kind: String) = drive.visible.filter { it.props[DriveLayout.KEY_KIND] == kind }
 
-    suspend fun exportTo(zip: Path) = fs.sink(zip).buffer().use { exporter().write(it) }
+    suspend fun exportTo(zip: Path) = exporter().write({ fs.sink(zip) })
 
     companion object {
         fun entry(

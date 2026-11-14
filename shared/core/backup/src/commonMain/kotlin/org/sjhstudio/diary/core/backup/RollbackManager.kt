@@ -151,19 +151,20 @@ class RollbackManager(
         val saved = fileSystem.read(settingsIn(slot(until))) { readUtf8() }
         val replacedAt = (until - KEEP_FOR).toEpochMilliseconds()
         val dao = db.backupDao()
-        val media = dao.allMedia().groupBy { it.entryId }
         val used = before.mapNotNullTo(HashSet()) { it.entry.legacyId }
-        // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음
-        // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 봄
-        val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
         // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 구분
         val inserted = insertedIds(slot(until))
-        val newer =
-            dao.allEntries().filter { it.id !in inserted || it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
-                val legacyId = entry.legacyId?.takeUnless { it in used }
-                MergeEntry(entry.copy(legacyId = legacyId), media[entry.id].orEmpty())
-            }
+        // 남길 일기를 고르는 것부터 같은 쓰기 안에서. 사이에 들어온 일기가 지워지기만 하고 돌아오지 않는 일이 없게
         db.withWriteTransaction {
+            val media = dao.allMedia().groupBy { it.entryId }
+            // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음
+            // 시계가 뒤로 간 뒤에 쓰거나 고친 일기는 시각으로는 가를 수 없어 기준값으로도 봄
+            val synced = dao.bases().associate { it.entryId to it.baseUpdatedAt }
+            val newer =
+                dao.allEntries().filter { it.id !in inserted || it.updatedAt > replacedAt || synced[it.id] != it.updatedAt }.map { entry ->
+                    val legacyId = entry.legacyId?.takeUnless { it in used }
+                    MergeEntry(entry.copy(legacyId = legacyId), media[entry.id].orEmpty())
+                }
             clearAll()
             db.entryDao().insertAll(before.map { it.entry })
             db.mediaDao().insertAll(before.flatMap { it.media })

@@ -31,6 +31,7 @@ import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.Sink
 import okio.Source
 import okio.openZip
 import org.sjhstudio.diary.core.data.RestoreRepository
@@ -172,12 +173,12 @@ class RestoreController(
      * 쓰다 실패하면 화면이 알리니 표시를 지움
      * 멈추라고 해서 끝났으면 사용자가 멈춘 것인지 화면이 정함
      */
-    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) {
+    override suspend fun writeBundle(open: () -> Sink, onProgress: (done: Int, total: Int) -> Unit) {
         store.update { it.copy(bundleWriting = true) }
         bundleBeingWritten = true
         var stopped = false
         try {
-            exporter.value.write(sink, onProgress)
+            exporter.value.write(open, onProgress)
         } catch (error: CancellationException) {
             stopped = true
             throw error

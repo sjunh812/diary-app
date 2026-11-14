@@ -556,7 +556,7 @@ class RestorePhotosTest {
 
     // 파일로 백업하기
 
-    private fun nowhere() = blackholeSink().buffer()
+    private fun nowhere(): () -> Sink = { blackholeSink() }
 
     @Test
     fun a_finished_file_leaves_no_mark() = runTest {
@@ -595,7 +595,7 @@ class RestorePhotosTest {
     fun a_file_that_fails_while_writing_leaves_no_mark_because_the_screen_says_it() = runTest {
         a.write("one")
         val controller = a.controller(backgroundScope)
-        val failing = FailingSink().buffer()
+        val failing: () -> Sink = { FailingSink() }
 
         assertFailsWith<IOException> { controller.writeBundle(failing) { _, _ -> } }
 

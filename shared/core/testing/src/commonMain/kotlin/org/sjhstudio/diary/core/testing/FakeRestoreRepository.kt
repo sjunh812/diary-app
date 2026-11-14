@@ -5,7 +5,9 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import okio.BufferedSink
+import okio.Sink
 import okio.Source
+import okio.buffer
 import org.sjhstudio.diary.core.data.BundleFiles
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
@@ -33,8 +35,10 @@ class FakeBundleFiles : BundleFiles {
     /** 파일에 쓸 바이트 수 */
     var bundleBytes = 0
 
-    override suspend fun writeBundle(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit) {
+    override suspend fun writeBundle(open: () -> Sink, onProgress: (done: Int, total: Int) -> Unit) {
+        val sink = open().buffer()
         sink.write(ByteArray(bundleBytes))
+        sink.close()
         writeFailure?.let { throw it }
         if (holdWrite) {
             writing = true

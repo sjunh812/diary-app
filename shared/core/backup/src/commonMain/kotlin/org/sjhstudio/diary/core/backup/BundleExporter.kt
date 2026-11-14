@@ -10,6 +10,9 @@ import kotlinx.datetime.TimeZone
 import okio.BufferedSink
 import okio.FileSystem
 import okio.Path
+import okio.Sink
+import okio.buffer
+import okio.use
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.model.BundleEstimate
@@ -53,7 +56,7 @@ class BundleExporter(
      * 글을 먼저 담고 사진을 이음
      * 쓰다 멈추면 저장한 곳의 파일은 쓸 수 없고 기기의 기록은 그대로
      */
-    suspend fun write(sink: BufferedSink, onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }) = withContext(Dispatchers.IO) {
+    suspend fun write(open: () -> Sink, onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }) = withContext(Dispatchers.IO) {
         val dir = workDir / OUTGOING
         fileSystem.deleteRecursively(dir)
         fileSystem.createDirectories(dir)
@@ -82,12 +85,15 @@ class BundleExporter(
             val items =
                 listOf(BundleItem(README, dir / README), BundleItem(MANIFEST, dir / MANIFEST), BundleItem(SNAPSHOT, snapshot.path)) +
                     local.map { row -> row.fileName!!.let { BundleItem("$MEDIA/$it", mediaDir / it) } }
-            BundleWriter(fileSystem).write(sink, items) { done ->
-                // 멈추라고 하면 다음 항목을 쓰지 않음
-                ensureActive()
-                onProgress(done, items.size)
+            open().buffer().use { sink ->
+                BundleWriter(fileSystem).write(sink, items) { done ->
+                    // 멈추라고 하면 다음 항목을 쓰지 않음
+                    ensureActive()
+                    onProgress(done, items.size)
+                }
             }
             // 파일로만 주고받아도 다음 합치기가 한쪽만 고쳤는지 알 수 있게 드라이브 백업처럼 적어 둠
+            // 닫기까지 성공한 뒤에만. 저장하지 못한 파일을 내보냈다고 적으면 합치기가 이 기기 수정을 덮을 수 있음
             db.rememberBases(snapshot.path)
         } finally {
             fileSystem.deleteRecursively(dir)

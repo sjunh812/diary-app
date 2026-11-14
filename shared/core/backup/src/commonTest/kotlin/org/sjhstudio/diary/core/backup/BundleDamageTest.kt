@@ -389,7 +389,7 @@ class BundleDamageTest {
                 override fun close() = Unit
             }
 
-        assertFailsWith<IOException> { a.exporter().write(full.buffer()) }
+        assertFailsWith<IOException> { a.exporter().write({ full }) }
 
         assertEquals(emptyList(), fs.listOrNull(a.work / "bundle").orEmpty())
         assertEquals(setOf("one"), a.ids())

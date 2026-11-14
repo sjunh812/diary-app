@@ -24,6 +24,8 @@ import okio.ForwardingFileSystem
 import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.Sink
+import okio.blackholeSink
 import okio.buffer
 import okio.openZip
 import okio.use
@@ -117,7 +119,7 @@ class BundleTest {
         val exporter = exporterA()
         estimated = exporter.estimate().bytes
         val zip = dir / "exported.zip"
-        fs.sink(zip).buffer().use { exporter.write(it) }
+        exporter.write({ fs.sink(zip) })
         return zip
     }
 
@@ -136,6 +138,22 @@ class BundleTest {
         exportFromA()
 
         assertEquals(mapOf("one" to 7L, "two" to 7L), phoneA.backupDao().bases().associate { it.entryId to it.baseUpdatedAt })
+    }
+
+    /** 다 쓰고 닫다가 실패하면 저장하지 못한 파일이라 내보냈다고 적지 않음 */
+    @Test
+    fun a_file_that_fails_to_close_remembers_nothing() = runTest {
+        phoneA.entryDao().insertAll(
+            listOf(EntryEntity("one", "2026-10-31", "21:40", "<p>one</p>", "one", null, null, null, false, 1, 7, null, null, null, null))
+        )
+        val closeFails =
+            object : Sink by blackholeSink() {
+                override fun close() = throw IOException("닫지 못함")
+            }
+
+        assertFailsWith<IOException> { exporterA().write({ closeFails }) }
+
+        assertEquals(emptyList(), phoneA.backupDao().bases())
     }
 
     @Test
@@ -312,7 +330,7 @@ class BundleTest {
         fs.delete(dir / "a" / "media" / "${lost.sha256}.${lost.ext}")
 
         val again = dir / "again.zip"
-        fs.sink(again).buffer().use { exporterA().write(it) }
+        exporterA().write({ fs.sink(again) })
 
         val manifest = checkNotNull(ManifestCodec.decode(read(again, "manifest.json")))
         assertEquals(before.media.size, manifest.media.size)
@@ -341,7 +359,7 @@ class BundleTest {
             listOf(EntryEntity("odd", "2026-10-31", "21:40:30", "<p>글</p>", "글", null, null, null, false, 1, 7, null, null, null, null))
         )
         val zip = dir / "odd.zip"
-        fs.sink(zip).buffer().use { exporterA().write(it) }
+        exporterA().write({ fs.sink(zip) })
 
         assertFailsWith<RestoreMismatch> { planner().prepareBundle(zip) }
 
