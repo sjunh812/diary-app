@@ -86,7 +86,7 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
     fun buy(id: ProductId) {
         if (_state.value.busy) return
         // 이미 가진 혜택을 두 번 결제하지 않게 스토어로 보내지 않음
-        if (owns(id)) {
+        if (plan.value.includes(id)) {
             _purchased.trySend(id)
             return
         }
@@ -104,11 +104,6 @@ class PlusViewModel(plans: PlanRepository, private val purchases: PurchaseReposi
 
     /** 시트를 닫음. 다시 열 때 지난 안내가 남아 있지 않게 지움 */
     fun failureShown() = _state.update { it.copy(buyFailed = false, restoreNotice = null) }
-
-    private fun owns(id: ProductId): Boolean = when (id) {
-        ProductId.AD_FREE -> plan.value != Plan.FREE
-        ProductId.PLUS_YEARLY -> plan.value == Plan.PLUS
-    }
 
     /** 스토어가 예외를 던져도 실패로 돌려 버튼이 눌린 채로 멈추지 않게 함 */
     private suspend fun attempt(call: suspend () -> PurchaseResult): PurchaseResult {

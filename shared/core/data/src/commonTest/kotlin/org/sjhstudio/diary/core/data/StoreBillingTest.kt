@@ -37,6 +37,9 @@ class StoreBillingTest {
         var syncFails = false
         val bought = ArrayList<String>()
 
+        /** 참이면 결제는 끝나도 권한이 켜지지 않음(상품과 권한 연결이 빠진 경우) */
+        var grantsNothing = false
+
         fun answer() = StoreAnswer(owned, expiresAt, answeredAt)
 
         private fun check() {
@@ -71,6 +74,7 @@ class StoreBillingTest {
                 throw StoreFailure(it)
             }
             bought += storeId
+            if (grantsNothing) return answer()
             owned = owned + if (storeId == StoreIds.PLUS_PRODUCT) StoreIds.PLUS_ENTITLEMENT else StoreIds.AD_FREE_ENTITLEMENT
             return answer()
         }
@@ -109,6 +113,15 @@ class StoreBillingTest {
         billing.buy(ProductId.PLUS_YEARLY)
         assertEquals(listOf(StoreIds.PLUS_PRODUCT), store.bought)
         assertEquals(Plan.PLUS, billing.plan.value)
+    }
+
+    /** 결제가 끝나도 혜택이 켜지지 않으면 성공으로 닫지 않고 실패 안내로 [구매 복원]을 알림 */
+    @Test
+    fun a_purchase_that_turns_nothing_on_is_not_called_done() = runTest {
+        val billing = billing()
+        store.grantsNothing = true
+        assertEquals(PurchaseResult.FAILED, billing.buy(ProductId.AD_FREE))
+        assertEquals(Plan.FREE, billing.plan.value)
     }
 
     @Test

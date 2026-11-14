@@ -115,8 +115,10 @@ class StoreBilling(
     }
 
     override suspend fun buy(id: ProductId): PurchaseResult = try {
-        onUpdate(client.purchase(StoreIds.productOf(id)))
-        PurchaseResult.DONE
+        val answer = client.purchase(StoreIds.productOf(id))
+        onUpdate(answer)
+        // 결제가 끝나도 혜택이 켜지지 않았으면 성공으로 닫지 않음. 실패 안내가 [구매 복원]을 알려 줌
+        if (StoreIds.planOf(answer.active).includes(id)) PurchaseResult.DONE else PurchaseResult.FAILED
     } catch (e: StoreFailure) {
         when (e.reason) {
             StoreFailure.Reason.CANCELLED -> PurchaseResult.CANCELLED

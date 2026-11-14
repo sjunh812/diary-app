@@ -4,7 +4,13 @@ package org.sjhstudio.diary.core.model
 enum class Plan(val showsAds: Boolean, val photoLimit: Int, val advancedStats: Boolean, val checklist: Boolean) {
     FREE(showsAds = true, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false),
     AD_FREE(showsAds = false, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false),
-    PLUS(showsAds = false, photoLimit = PhotoLimit.PLUS, advancedStats = true, checklist = true)
+    PLUS(showsAds = false, photoLimit = PhotoLimit.PLUS, advancedStats = true, checklist = true);
+
+    /** 이 요금제에 [product]의 혜택이 들어 있음. Plus는 광고 제거도 포함 */
+    fun includes(product: ProductId): Boolean = when (product) {
+        ProductId.AD_FREE -> this != FREE
+        ProductId.PLUS_YEARLY -> this == PLUS
+    }
 }
 
 /** 파는 상품. 첫 출시는 둘(D9) */
