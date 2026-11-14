@@ -69,14 +69,15 @@ class StoreBilling(
     override val known: StateFlow<Boolean> = state.known
 
     /**
-     * 앱을 켜거나 다시 앞으로 올 때 호출. 기기에 남은 답이 아니라 서버 답을 받아 환불·만료를 바로 반영
-     * 처음 켠 기기는 구글 계정의 구매를 조용히 가져와 재설치한 사람이 다시 사지 않게 함
+     * 앱을 켜거나 앞으로 올 때 호출
+     * 기기에 남은 답이 아니라 서버 답으로 환불·만료 반영
+     * 첫 실행은 구매를 조용히 가져옴(재설치 뒤 다시 사지 않게)
      */
     suspend fun refresh() {
         try {
             onUpdate(client.entitlements())
         } catch (_: StoreFailure) {
-            // 닿지 못하면 남긴 값을 그대로 씀. 남긴 값이 없으면 모르는 채로 둠
+            // 닿지 못하면 남긴 값 그대로. 없으면 모르는 채로
         }
     }
 
@@ -89,7 +90,7 @@ class StoreBilling(
             watchExpiry(synced)
             state.onSynced(StoreIds.planOf(synced.active))
         } catch (_: StoreFailure) {
-            // 구매를 가져오지 못하면 무료로 정하지 않음. 산 사람에게 광고가 스치면 안 됨
+            // 구매를 못 가져오면 무료로 정하지 않음(구매자에게 광고 방지)
         }
     }
 

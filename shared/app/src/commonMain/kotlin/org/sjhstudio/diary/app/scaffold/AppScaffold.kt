@@ -327,9 +327,9 @@ private fun tabBarSpace(covers: MutableSet<Any>) = NavEntryDecorator<NavKey>(dec
     val chrome = LocalRootChrome.current
     val root = entry.metadata[ROOT_OF] as? TabScreen
     val colors = DiaryTheme.colors
-    // 사라지는 화면은 터치를 막음. 빠르게 누르면 사라지는 화면이 눌렸음
-    // 전환이 도는지가 아니라 이 화면이 나가는 쪽인지로 봄
-    // 뒤로 밀다 되돌리면 전환이 끝나지 않은 채로 남는 기기가 있어, 그 값으로 막으면 남은 화면 전체가 눌리지 않았음
+    // 사라지는 화면은 터치 막음
+    // 전환이 도는지가 아니라 이 화면이 나가는 쪽인지로 판단
+    // 뒤로 밀다 되돌리면 전환 값이 끝나지 않고 남는 기기가 있음
     val moving = LocalNavAnimatedContentScope.current.transition.targetState != EnterExitState.Visible
     // 레일 자리는 비워 밑에 깐 레일이 보이게 함
     // 전체 화면은 레일까지 덮으니 그 자리를 누르거나 읽어도 레일에 닿지 않게 받아 둠
@@ -482,9 +482,9 @@ private fun Content(
     val wide = rail != null
     // 뒤 바탕(밀려나는 화면을 어둡게 하는 DiaryTransitions) → 레일 → 화면 순으로 쌓음
     // 레일 자리는 화면이 비워 두어 레일이 보이고, 전체 화면은 밀려 들어오며 레일까지 덮음
-    // 레일을 위에 얹으면 전체 화면으로 갈 때 레일이 먼저 사라져 그 자리에 뒤 바탕이 비쳤음
+    // 레일은 위에 얹지 않음. 전체 화면으로 갈 때 레일이 먼저 사라져 뒤 바탕이 비침
     // 전체 화면이 떠 있지 않으면 화면을 레일 자리 밖으로 자름
-    // 밀려나는 화면이 왼쪽으로 비키며 레일을 덮었다가 전환이 끝나면 레일이 다시 나타났음
+    // 밀려나는 화면이 레일을 덮지 않게 자름
     // 떠 있는 전체 화면. 닫히는 연출이 끝나 내려갈 때까지 남음
     val covers = remember { mutableStateSetOf<Any>() }
     val tabBarSpace = remember(covers) { tabBarSpace(covers) }

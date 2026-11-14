@@ -154,7 +154,7 @@ class RollbackManager(
         val used = before.mapNotNullTo(HashSet()) { it.entry.legacyId }
         // 바꾼 뒤에 합쳐 온 일기는 시각도 기준값도 바꾸기가 넣은 일기와 같아 보임. 적어 둔 ID로 구분
         val inserted = insertedIds(slot(until))
-        // 남길 일기를 고르는 것부터 같은 쓰기 안에서. 사이에 들어온 일기가 지워지기만 하고 돌아오지 않는 일이 없게
+        // 남길 일기 고르기부터 같은 쓰기 안에서(사이에 들어온 일기 유실 방지)
         db.withWriteTransaction {
             val media = dao.allMedia().groupBy { it.entryId }
             // 바꾸기가 넣은 일기는 기준값이 `updated_at`과 같음

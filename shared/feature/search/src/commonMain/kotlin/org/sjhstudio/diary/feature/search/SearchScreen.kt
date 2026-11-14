@@ -281,7 +281,8 @@ private fun FilterChips(
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
         // 조건이 있을 때만 맨 앞에 펼침. 끝에 두면 칩이 많을 때 밀어야 보임(eBay Playbook 칩 가로 스크롤)
-        // 자리를 늘 두고 키로 잡아 줄이 보이는 첫 칩에 맞춰 섬. 맨 앞이면 펼쳐져 보이고, 밀어 둔 줄은 누른 칩이 그대로
+        // 자리를 늘 두고 키로 잡음. 줄은 보이는 첫 칩 기준으로 섬
+        // 맨 앞이면 펼쳐져 보이고, 밀어 둔 줄은 누른 칩이 제자리
         item(key = "clear") {
             AnimatedVisibility(
                 visible = filter.hasConditions,

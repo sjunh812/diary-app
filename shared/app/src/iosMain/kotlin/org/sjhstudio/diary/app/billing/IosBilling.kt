@@ -66,7 +66,8 @@ internal fun iosBilling(scope: CoroutineScope): IosBilling {
                 ) -> Unit
             ) = Unit
         }
-    // 켤 때와 다시 앞으로 올 때마다 서버 답을 새로 받음. 환불·만료가 구매 복원 없이 반영됨
+    // 켤 때와 앞으로 올 때마다 서버 답 받음
+    // 환불·만료를 구매 복원 없이 반영
     scope.launch { store.refresh() }
     AppForeground.observe(onBackground = {}, onForeground = { scope.launch { store.refresh() } })
     return IosBilling(store, store)

@@ -145,7 +145,7 @@ fun CalendarRoute(
     LaunchedEffect(pager) { snapshotFlow { pager.settledPage }.collect { viewModel.showMonth(monthOfPage(it)) } }
     val shown = monthOfPage(pager.currentPage)
     val today by viewModel.todayState.collectAsStateWithLifecycle()
-    // 오늘이 아닌 날을 골랐거나 다른 달을 보면 오늘로 돌아가는 단추
+    // 오늘이 아닌 날을 골랐거나 다른 달을 보면 오늘로 돌아가는 버튼
     val awayFromToday = selected != today || shown != today.yearMonth
     LifecycleResumeEffect(viewModel) {
         if (viewModel.refreshToday()) {
@@ -157,7 +157,7 @@ fun CalendarRoute(
         }
         onPauseOrDispose {}
     }
-    // 날을 고르고 다른 달이면 그 달로 넘김. 오늘 단추와 앞뒤 달 날짜가 같이 씀
+    // 날을 고르고 다른 달이면 그 달로 넘김. 오늘 버튼과 앞뒤 달 날짜가 같이 씀
     val pick: (LocalDate) -> Unit = { date ->
         viewModel.select(date)
         scope.launch { pager.animateScrollToPage(date.yearMonth.pageIndex()) }
@@ -420,7 +420,7 @@ private fun MonthGrid(
 }
 
 /**
- * 날짜 칸. [outside]는 앞뒤 달의 날이라 숫자는 `placeholder`(달력 시트와 같음), 얼굴은 흐리게 그림
+ * 날짜 칸. [outside]는 앞뒤 달의 날이라 숫자는 `placeholder`(달력 시트와 같음), 기분 아이콘은 흐리게
  * [onClick]이 null이면 누를 수 없음
  */
 @Composable

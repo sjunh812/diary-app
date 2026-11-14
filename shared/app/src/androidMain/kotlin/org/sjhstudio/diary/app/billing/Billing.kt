@@ -62,8 +62,9 @@ fun billing(context: Context, current: CurrentActivity): Billing {
     val store = StoreBilling(client, saved, MANAGE_URL, scope) { plan -> prefs.edit { putString(PLAN_KEY, plan.name) } }
     Purchases.sharedInstance.updatedCustomerInfoListener =
         UpdatedCustomerInfoListener { info -> scope.launch { store.onUpdate(info.answer) } }
-    // 켤 때와 다시 앞으로 올 때마다 서버 답을 새로 받음. 환불·만료가 구매 복원 없이 반영됨
-    // 이미 앞에 있으면 바로 한 번 불리고, 관찰자는 화면 스레드에서 붙여야 해 scope 안에서 붙임
+    // 켤 때와 앞으로 올 때마다 서버 답 받음
+    // 환불·만료를 구매 복원 없이 반영
+    // 관찰자는 화면 스레드에서 붙여야 해 scope 안에서. 이미 앞이면 바로 한 번 불림
     scope.launch { AppForeground.observe(onBackground = {}, onForeground = { scope.launch { store.refresh() } }) }
     return Billing(store, store)
 }

@@ -76,7 +76,8 @@ actual fun rememberMigrationActions(onMessage: MigrationMessage): MigrationActio
                         when {
                             written.isSuccess -> Res.string.migration_export_done
 
-                            // 쓰다 만 zip을 온전한 원본으로 알고 보관하지 않게 지움. 못 지우면 사용자가 지우게 알림
+                            // 쓰다 만 zip 삭제(온전한 원본으로 알고 보관하지 않게)
+                            // 삭제 실패하면 사용자에게 알림
                             runCatching { DocumentsContract.deleteDocument(context.contentResolver, uri) }.getOrDefault(false) ->
                                 Res.string.migration_export_failed
 
