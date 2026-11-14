@@ -11,7 +11,7 @@
     <string name="onboarding_backup_body">자동 백업을 켜면 하루 한 번 내 드라이브에 올려요.\n휴대폰을 바꿔도 일기와 사진이 그대로예요.</string>
     <string name="onboarding_write_title">하루 한 줄이면 충분해요</string>
     <string name="onboarding_write_body">기분을 선택하고 한 줄만 써 보세요.</string>
-    <string name="onboarding_own_title">일기는 내 드라이브에만</string>
+    <string name="onboarding_own_title">일기는 내 휴대폰과 내 드라이브에만</string>
     <string name="onboarding_own_body">회원가입 없이 내 구글 드라이브에\n사진까지 백업해요.</string>
     <string name="onboarding_next">다음</string>
     <string name="onboarding_start">시작하기</string>

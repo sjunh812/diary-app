@@ -50,7 +50,7 @@
 | --- | --- | --- | --- |
 | `normal` | 있음 | 상관없음 | `normal` |
 | `normal` | 없음 | 백업에 있음 | `pending` → 받고 확인값이 맞으면 `normal`, 다르면 `missing` |
-| `normal` | 없음 | 백업에 없음(공간 부족으로 못 올림) | `pending`으로 남고 "원래 기기에 있는 사진"으로 보인다 |
+| `normal` | 없음 | 백업에 없음(공간 부족, Wi-Fi에서만 올리기, 끊김 등으로 아직 못 올림) | `pending`으로 남고 "원래 기기에 있는 사진"으로 보인다 |
 | `pending` | 있음/없음 | 위와 같음 | 위와 같음 |
 | `missing` | - | - | `missing`, `legacy_path` 그대로 |
 

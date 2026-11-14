@@ -11,7 +11,7 @@
     <string name="onboarding_backup_body">自動バックアップをオンにすると、1日1回自分のGoogle ドライブに保存します。\nスマートフォンを替えても日記と写真はそのままです。</string>
     <string name="onboarding_write_title">一日一行で十分です</string>
     <string name="onboarding_write_body">気分を選んで、数行だけ残してみましょう。</string>
-    <string name="onboarding_own_title">日記は自分のドライブだけに</string>
+    <string name="onboarding_own_title">日記は自分のスマートフォンとドライブだけに</string>
     <string name="onboarding_own_body">会員登録なしで、自分のGoogle ドライブに\n写真までバックアップします。</string>
     <string name="onboarding_next">次へ</string>
     <string name="onboarding_start">はじめる</string>

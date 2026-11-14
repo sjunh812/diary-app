@@ -27,7 +27,7 @@
     <string name="backup_all_done">Everything is backed up, photos included.</string>
     <string name="backup_finding_title">Looking for backups</string>
     <string name="backup_finding_body">Checking your Google Drive for backups.</string>
-    <string name="backup_first_title">Ready for your first backup</string>
+    <string name="backup_first_title">No backup yet</string>
     <string name="backup_first_body">Tap Back up now to upload entries and photos.</string>
     <string name="backup_last">Last backup %1$s</string>
     <string name="backup_when_day_time">%1$s %2$s</string>
@@ -41,7 +41,7 @@
     <string name="backup_disconnect_body">Backups on Drive stay where they are.</string>
     <string name="backup_disconnect_title">Disconnect?</string>
     <string name="backup_disconnect_message">Automatic backup stops. Backups on Drive are not deleted.</string>
-    <string name="backup_readme_body">This folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.\n\n1일 1일기 앱의 백업 폴더예요. 이 폴더를 지우면 백업이 사라져요.</string>
+    <string name="backup_readme_body">This folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.\n\n1일 1일기 앱의 백업 폴더예요. 이 폴더를 삭제하면 백업이 사라져요.</string>
     <string name="backup_line_off">Backup off</string>
     <string name="backup_line_on">Turn on</string>
     <string name="backup_line_reconnect">Reconnect needed</string>
@@ -105,7 +105,7 @@
     <string name="restore_done_nothing">Backup merged</string>
     <string name="restore_done_body">Entries on this phone are kept.</string>
     <string name="restore_note_both_body">These were edited in two places. They're marked in your list.</string>
-    <string name="restore_note_original_body">There wasn't enough space when backing up. Back up again on the original phone to see them here.</string>
+    <string name="restore_note_original_body">These photos haven't been backed up yet. Back up again on the original phone to see them here.</string>
     <string name="restore_note_pending_body">They'll finish downloading next time you open the app.</string>
     <string name="restore_note_pending_file_body">These photos aren't in the file. If they're backed up to Drive, they'll download once you connect.</string>
     <string name="restore_note_pending_space_body">Your phone ran out of space. Free up space and open the app again to finish.</string>

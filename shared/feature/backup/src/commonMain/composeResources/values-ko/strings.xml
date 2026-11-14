@@ -27,7 +27,7 @@
     <string name="backup_all_done">사진까지 모두 백업했어요.</string>
     <string name="backup_finding_title">백업을 찾고 있어요</string>
     <string name="backup_finding_body">구글 드라이브에 있는 백업을 확인하는 중이에요.</string>
-    <string name="backup_first_title">첫 백업을 준비했어요</string>
+    <string name="backup_first_title">아직 백업하지 않았어요</string>
     <string name="backup_first_body">[지금 백업]을 누르면 일기와 사진을 올려요.</string>
     <string name="backup_last">마지막 백업 %1$s</string>
     <string name="backup_when_day_time">%1$s %2$s</string>
@@ -41,7 +41,7 @@
     <string name="backup_disconnect_body">끊어도 드라이브에 있는 백업은 삭제하지 않아요.</string>
     <string name="backup_disconnect_title">연결을 끊을까요?</string>
     <string name="backup_disconnect_message">자동 백업이 멈춰요. 드라이브에 있는 백업은 삭제하지 않아요.</string>
-    <string name="backup_readme_body">1일 1일기 앱의 백업 폴더예요. 이 폴더를 지우면 백업이 사라져요.\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
+    <string name="backup_readme_body">1일 1일기 앱의 백업 폴더예요. 이 폴더를 삭제하면 백업이 사라져요.\n\nThis folder holds backups from the 1 Day 1 Diary app. Deleting it removes your backups.</string>
     <string name="backup_line_off">백업 꺼짐</string>
     <string name="backup_line_on">켜기</string>
     <string name="backup_line_reconnect">다시 연결이 필요해요</string>
@@ -102,7 +102,7 @@
     <string name="restore_done_nothing">백업을 합쳤어요</string>
     <string name="restore_done_body">지금 휴대폰의 일기는 그대로 있어요.</string>
     <string name="restore_note_both_body">두 기기에서 따로 수정한 일기예요. 목록에 표시해 뒀어요.</string>
-    <string name="restore_note_original_body">백업할 때 공간이 부족했던 사진이에요. 백업한 휴대폰에서 다시 백업하면 여기서도 볼 수 있어요.</string>
+    <string name="restore_note_original_body">아직 백업에 올라가지 않은 사진이에요. 백업한 휴대폰에서 다시 백업하면 여기서도 볼 수 있어요.</string>
     <string name="restore_note_pending_body">앱을 다시 열면 이어서 받아요.</string>
     <string name="restore_note_pending_file_body">이 파일에는 없는 사진이에요. 드라이브에 백업해 두었다면 연결했을 때 받아요.</string>
     <string name="restore_note_pending_space_body">휴대폰 저장 공간이 부족해서 멈췄어요. 공간을 비운 뒤 앱을 다시 열면 이어서 받아요.</string>
@@ -118,7 +118,7 @@
     <string name="restore_lock_body">백업한 휴대폰에서 잠금을 쓰고 있었어요. 비밀번호는 백업하지 않아요.</string>
     <string name="restore_lock_action">설정하기</string>
     <string name="restore_start">확인</string>
-    <string name="restore_failed_busy_title">복원이 끝난 뒤에 해 주세요</string>
+    <string name="restore_failed_busy_title">복원이 끝난 뒤에 다시 시도해 주세요</string>
     <string name="restore_failed_busy_body">지금 복원하고 있어요. 끝나면 다른 백업을 선택할 수 있어요.</string>
     <string name="restore_failed_mismatch_title">백업을 확인하지 못했어요</string>
     <string name="restore_failed_mismatch_body">받은 파일이 백업할 때와 달라서 멈췄어요. 휴대폰의 기록은 그대로 있어요.</string>
@@ -185,7 +185,7 @@
     <string name="rollback_running_title">바꾸기 전으로 되돌리고 있어요</string>
     <string name="rollback_running_body">잠시만 기다려 주세요.</string>
     <string name="rollback_failed_title">되돌리지 못했어요</string>
-    <string name="rollback_failed_body">일기는 하나도 지워지지 않았어요. 다시 시도해 주세요.</string>
+    <string name="rollback_failed_body">일기는 하나도 삭제되지 않았어요. 다시 시도해 주세요.</string>
     <string name="rollback_ask_title">바꾸기 전으로 되돌릴까요?</string>
     <string name="rollback_ask_body">바꾸기 전 일기 %1$s편이 돌아와요.</string>
     <string name="rollback_ask_after">바꾸기 전 일기 %1$s편이 돌아와요. 바꾼 뒤에 쓴 일기 %2$s편은 그대로 남아요.</string>
