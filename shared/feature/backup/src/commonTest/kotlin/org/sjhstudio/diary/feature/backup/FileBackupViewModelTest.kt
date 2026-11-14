@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.backup
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlin.test.AfterTest
@@ -13,7 +14,9 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -56,6 +59,9 @@ class FileBackupViewModelTest {
         }
     }
 
+    /** 지운 뒤 메인으로 돌아와 끝나는 일까지 기다림. 덜 끝난 채 메인을 되돌리면 실제 메인으로 감 */
+    private suspend fun waitForWork(scope: Job) = waitUntil { scope.children.none() }
+
     private fun written() = Buffer()
 
     @Test
@@ -97,6 +103,7 @@ class FileBackupViewModelTest {
     fun stopping_removes_the_file_and_forgets_it() = runTest {
         restore.bundle.holdWrite = true
         val viewModel = viewModel()
+        val work = viewModel.viewModelScope.coroutineContext.job
         var discarded = false
         viewModel.write("a.zip", { written() }, { discarded = true })
         waitUntil { restore.bundle.writing }
@@ -104,6 +111,7 @@ class FileBackupViewModelTest {
         viewModel.stop()
 
         waitUntil { discarded }
+        waitForWork(work)
         assertEquals(FileBackupUi.Idle, viewModel.state.value)
         assertEquals(1, restore.bundle.bundleForgets)
     }
@@ -112,6 +120,7 @@ class FileBackupViewModelTest {
     fun leaving_by_another_way_removes_the_file_too() = runTest {
         restore.bundle.holdWrite = true
         val viewModel = viewModel()
+        val work = viewModel.viewModelScope.coroutineContext.job
         var discarded = false
         viewModel.write("a.zip", { written() }, { discarded = true })
         waitUntil { restore.bundle.writing }
@@ -119,6 +128,7 @@ class FileBackupViewModelTest {
         store.clear()
 
         waitUntil { discarded }
+        waitForWork(work)
         assertEquals(0, restore.bundle.bundleForgets)
     }
 
