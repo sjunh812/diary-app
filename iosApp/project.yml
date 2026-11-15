@@ -68,6 +68,8 @@ targets:
       properties:
         # 앱 이름은 언어별 InfoPlist.strings가 바꾼다(D12).
         CFBundleDisplayName: 1 Day 1 Diary
+        # 구글 로그인 확인 창 같은 시스템 창은 표시 이름이 아니라 이 이름을 쓴다. 빌드 이름(iosApp)이 보이지 않게 앱 이름과 같게 둔다.
+        CFBundleName: 1 Day 1 Diary
         CFBundleDevelopmentRegion: en
         # Face ID로 잠금을 열 때 처음 한 번 묻는 글. 언어별 InfoPlist.strings가 바꾼다.
         NSFaceIDUsageDescription: Use Face ID to unlock your diary.
