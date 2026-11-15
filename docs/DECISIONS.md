@@ -777,7 +777,7 @@ CD: `v*` 태그에서 서명된 AAB, Play 내부 트랙 업로드, iOS IPA를 �
 - Android Lint는 `checkDependencies`만으로는 KMP 모듈을 보지 않는다. 시험 위반을 넣어 확인했다. `com.android.lint`를 공유 모듈에 더해 함께 본다. 기존 지적 18건을 baseline에 묶었다.
 - detekt baseline의 ID에는 KDoc까지 들어간다. 주석만 고쳐도 지적이 새로 뜰 수 있어 CompositionLocal은 허용 목록으로 옮겼다. 다른 규칙에서 그렇게 뜨면 코드가 그대로인지 보고 baseline을 다시 만든다.
 - 린트가 Kotlin/Native 링크와 한 데몬에서 함께 돌면 힙 4g로 모자라 6g로 올렸다. 메모리 7GB인 macOS 러너는 워크플로에서 4g로 둔다([NIA도 CI 전용 Gradle 설정을 따로 둔다](https://github.com/android/nowinandroid/blob/main/.github/ci-gradle.properties)).
-- baseline에 묶인 것 중 살펴볼 것: `SpecifyForegroundServiceType` 2건, `InlinedApi` 2건, `ExifInterface` 4건.
+- baseline에 묶인 것 중 살펴볼 것: `SpecifyForegroundServiceType` 2건, `InlinedApi` 2건, `ExifInterface` 4건. `SpecifyForegroundServiceType`은 2026-11-15에 풀었다(아래 "포그라운드 서비스 선언을 쓰는 코드 옆으로 옮김").
 
 ## 2026-11-07 PR·이슈 템플릿의 근거 (사용자 요청)
 
@@ -1753,3 +1753,10 @@ AdMob 콘솔(iOS 앱과 광고 단위)이 계정 재활성화 심사 뒤에야 �
 - 시안 셋 가운데 바탕은 그대로 두고 고른 칸만 한 단계 밝게 올리는 안을 골랐다. iOS 구간 선택과 토스 다크 모드처럼 고른 칸이 바탕보다 밝다.
 - 모드마다 다른 값을 부품 안에서 나누지 않고 토큰 `raised`(라이트 `#FFFFFF`, 다크 `#393D46`)를 더했다. Figma 변수 두 컬렉션과 `DiaryColors`에 같은 이름으로 있다. 라이트 화면은 그대로다.
 
+
+## 2026-11-15 포그라운드 서비스 선언을 쓰는 코드 옆으로 옮김
+
+- `dataSync` 권한 두 줄과 작업 관리자 `SystemForegroundService` 선언이 `composeApp` 매니페스트에 있었다. 이 서비스를 앞으로 띄우는 코드(`AndroidBackupScheduler`)는 `shared/app`에 있다.
+- Lint는 모듈마다 매니페스트를 봐서 `shared/app` 코드에 "dataSync 선언이 없다"(`SpecifyForegroundServiceType` 2건)고, `composeApp` 매니페스트에 "작업 관리자 클래스가 없다"(`MissingClass` 1건)고 잘못 잡았다. 셋 다 baseline에 묶여 있었다.
+- 선언을 `shared/app/src/androidMain/AndroidManifest.xml`로 옮기고 baseline 3건을 지웠다. 합친 매니페스트는 개발·출시 빌드 모두 주석과 위치만 다르고 권한과 서비스 속성은 같다.
+- API 36 에뮬레이터에서 지금 백업을 누르고 홈으로 나가도 서비스가 `dataSync` 종류로 앞에서 돌고 백업이 끝나는 것을 확인했다. Play Console 신고(`docs/release.md`)는 그대로 맞다.
