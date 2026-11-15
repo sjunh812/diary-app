@@ -323,33 +323,82 @@ mood,daily,log,feelings,tracker,photo,private,lock,backup,calendar,gratitude,not
 ## 새로운 기능
 
 Play는 언어마다 500자까지 받는다. 기존 사용자가 업데이트 뒤 광고를 처음 보게 되므로 광고와 광고 제거를 함께 적는다(`docs/release.md` 출시 전 확인).
+Play 출시 노트 칸에 언어 태그째 붙여 넣는다. 태그(`<b>`)는 출시 노트에서 글자로 보일 수 있어 쓰지 않고, 묶음 제목은 줄로만 나눈다.
+새로워진 점, Plus, 광고 안내 순서로 쓴다. 1.7.4에 있던 기능(글꼴, 다크 모드, 잠금)은 새 기능으로 적지 않는다. 전면 광고(하루 한 번, 저장 뒤 목록으로 돌아갈 때)도 적는다. 처음 보는 전면 광고에 놀라 떠나지 않게 하려는 것이다(2026-11-15).
+영어·일본어는 원어민 검수 전이다.
 
-### 한국어
+```text
+<ko-KR>
+[버전 2.0.0]
+1일 1일기를 처음부터 새로 만들었어요 ✨
+쓰던 일기와 사진은 그대로 옮겨지고, 쓰던 기능은 계속 무료예요.
 
-앱을 처음부터 새롭게 만들었어요.
-쓰시던 기능은 계속 무료예요.
-기존 일기와 사진은 자동으로 옮겨져요.
-이제 사진까지 함께 백업할 수 있어요.
-목록과 돌아보기에 광고가 생겼어요. 일기 쓰기와 상세 화면에는 광고가 없어요.
-광고는 1회 구매로 없앨 수 있어요.
+새로워진 점
+• 에디터(볼드, 글자 색, 형광펜, 목록)로 글을 꾸며요
+• 쓰는 동안 자동으로 임시 저장돼요
+• 기분, 날씨, 기간으로 검색해요
+• 기분 흐름을 주·월·년으로 봐요
+• 삭제한 일기는 30일 동안 복원할 수 있어요
+• 목록을 피드, 카드, 사진 격자로 봐요
+• 사진까지 구글 드라이브에 백업해요
+• 태블릿에서는 목록과 일기를 나란히 봐요
 
-### 영어(원어민 검수 전)
+Plus가 새로 나왔어요
+• 광고 없이 한 편에 사진 30장, 체크리스트, 고급 통계까지 써요
 
-We rebuilt the app from the ground up.
-Everything you used before stays free.
-Your entries and photos move over automatically.
-Backups now include your photos.
-Ads now appear in the list and Insights. There are no ads while you write or read an entry.
-You can remove ads with a one-time purchase.
+광고 안내
+• 목록과 돌아보기에 광고가 들어가요
+• 전면 광고는 하루 한 번, 저장 뒤 목록으로 돌아갈 때만 나와요
+• 쓰고 읽는 화면에는 광고가 없어요
+• 광고만 없애는 1회 구매도 있어요
+</ko-KR>
+<en-US>
+[Version 2.0.0]
+Rebuilt from scratch ✨
+Entries and photos come along; old features stay free.
 
-### 일본어(원어민 검수 전)
+What's new
+• Text styles and auto-save
+• Search by mood, weather, or date
+• Mood trends by week, month, year
+• 30-day Trash and new list views
+• Photo backup to Google Drive
+• Side-by-side view on tablets
 
-アプリを一から作り直しました。
-これまで使っていた機能はずっと無料です。
-今までの日記と写真は自動で移行されます。
-写真もまとめてバックアップできるようになりました。
-一覧とふりかえりに広告が表示されるようになりました。日記を書く画面と読む画面には広告はありません。
-広告は1回の購入で消せます。
+New: Plus
+• No ads, 30 photos per entry, checklists, advanced stats
+
+Ads
+• In the list and Insights, plus one full-screen ad a day
+• None while you write or read
+• Remove ads with one purchase
+</en-US>
+<ja-JP>
+[バージョン 2.0.0]
+アプリを一から作り直しました ✨
+今までの日記と写真はそのまま引き継がれ、これまでの機能はずっと無料です。
+
+新しくなったこと
+• 太字、文字色、蛍光ペン、リストで文章を飾れます
+• 書いている間、自動で下書き保存されます
+• 気分・天気・期間で検索し、気分の流れを週・月・年で見られます
+• 削除した日記は30日間ゴミ箱から復元できます
+• 一覧をフィード、カード、写真グリッドで見られます
+• 日記と写真を自分のGoogleドライブにまとめてバックアップできます
+• タブレットでは一覧と日記を並べて見られます
+
+Plusが登場しました
+• 広告なしで使えます
+• 1つの日記に写真を30枚まで入れられます
+• チェックリストと詳しい統計が使えます
+
+広告について
+• 一覧とふりかえりに広告が表示されます
+• 全画面広告は1日1回、日記を保存して一覧に戻るときだけ表示されます
+• 日記を書く画面と読む画面には広告はありません
+• 広告だけを消す1回の購入もあります
+</ja-JP>
+```
 
 ## 스크린샷 머리말
 
