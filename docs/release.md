@@ -71,6 +71,7 @@ App Store용은 `docs/store/screens/ios/{ko,en,ja}/`에 iPhone 4장(1206×2622, 
 ## 소개 문구
 
 - 짧은 설명(Play 80자, App Store 부제 30자)과 긴 설명은 `docs/store/listing.md`에 있다. 사진 포함 백업과 회원가입 없음을 앞에 둔다.
+- 리뷰 답글 양식은 `docs/store/review-replies.md`에 있다(2026-11-15).
 - 긴 설명 구성: 한 줄 소개 → 이런 분께 → 주요 기능(무료) → Plus → 백업과 개인정보 → 문의.
 - 문구는 `korean-humanizer`로 번역투를 걷어 내고 `korean-spell-check`로 맞춤법을 본다.
 - 영어와 일본어 설명은 한국어를 옮기지 않고 그 언어로 새로 쓴 뒤 원어민 검수를 받는다. 앱 이름은 언어마다 따로 쓸 수 있다(열린 결정 D12).
