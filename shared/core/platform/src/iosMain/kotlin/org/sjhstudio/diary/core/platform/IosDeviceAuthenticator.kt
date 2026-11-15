@@ -10,6 +10,7 @@ import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSError
+import platform.LocalAuthentication.LABiometryTypeFaceID
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAErrorAppCancel
 import platform.LocalAuthentication.LAErrorBiometryNotEnrolled
@@ -32,6 +33,13 @@ class IosDeviceAuthenticator : DeviceAuthenticator {
             error.value?.code == LAErrorBiometryNotEnrolled -> BiometricStatus.NoneEnrolled
             else -> BiometricStatus.Unavailable
         }
+    }
+
+    /** 정책을 한 번 확인해야 기기의 생체 인증 종류를 알려 줌 */
+    override fun biometricKind(): BiometricKind {
+        val context = LAContext()
+        context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthenticationWithBiometrics, null)
+        return if (context.biometryType == LABiometryTypeFaceID) BiometricKind.Face else BiometricKind.Fingerprint
     }
 
     override fun isDeviceSecure(): Boolean = LAContext().canEvaluatePolicy(LAPolicyDeviceOwnerAuthentication, null)

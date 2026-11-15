@@ -61,6 +61,7 @@ fun LockFlow(
     val showBiometric = remember(authenticator, biometricEnabled, needsNewPin) {
         biometricEnabled && !needsNewPin && authenticator.biometricStatus() == BiometricStatus.Available
     }
+    val biometricKind = remember(authenticator) { authenticator.biometricKind() }
     val biometricPrompt =
         AuthPrompt(
             stringResource(Res.string.lock_biometric_prompt_title),
@@ -109,6 +110,7 @@ fun LockFlow(
             LockScreen(
                 state = lockState,
                 showBiometric = showBiometric,
+                biometricKind = biometricKind,
                 onDigit = lock::onDigit,
                 onDelete = lock::onDelete,
                 onBiometric = { scope.launch { unlockWithBiometric() } },
