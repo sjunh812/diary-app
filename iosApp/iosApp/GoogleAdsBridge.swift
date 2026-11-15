@@ -33,6 +33,8 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     private var presenting: FullScreenHandler?
     /// 추적 허용 답을 기다리는 광고 칸. nil이면 묻는 중이 아님
     private var trackingWaiters: [() -> Void]?
+    /// 추적 허용 창이 닫히길 기다리는 관찰자
+    private var activeObservers: [NSObjectProtocol] = []
 
     override init() {
         #if DEBUG
@@ -170,19 +172,20 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     }
 
     /// 추적 허용 답은 창이 닫혀 앱이 다시 활성이 되기 전에 옴. 그때 띄운 전면 광고는 실패함
+    /// 창이 닫히는 순간만 기다림. 배경으로 가면 바로 넘겨 전면 광고는 띄우지 못하고 끝남
     private func whenActive(_ work: @escaping () -> Void) {
-        guard UIApplication.shared.applicationState != .active else {
+        guard UIApplication.shared.applicationState == .inactive else {
             work()
             return
         }
-        var token: NSObjectProtocol?
-        token = NotificationCenter.default.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: .main
-        ) { _ in
-            if let token { NotificationCenter.default.removeObserver(token) }
-            work()
+        let names = [UIApplication.didBecomeActiveNotification, UIApplication.didEnterBackgroundNotification]
+        activeObservers = names.map { name in
+            NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                guard let self, !activeObservers.isEmpty else { return }
+                activeObservers.forEach(NotificationCenter.default.removeObserver)
+                activeObservers = []
+                work()
+            }
         }
     }
 
