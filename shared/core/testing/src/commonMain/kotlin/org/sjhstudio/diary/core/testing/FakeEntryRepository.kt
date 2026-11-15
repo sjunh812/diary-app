@@ -11,6 +11,7 @@ import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.MonthCount
 import org.sjhstudio.diary.core.model.SearchFilter
 
 private const val NOON = 12
@@ -42,6 +43,14 @@ class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(
     override fun entry(id: String): Flow<EntryDetail?> = flowOf(null)
 
     override fun months(): Flow<Set<YearMonth>> = flowOf(moods.keys.mapTo(HashSet()) { it.yearMonth })
+
+    override fun monthCounts(favoritesOnly: Boolean): Flow<List<MonthCount>> = flowOf(
+        rows.filter { !favoritesOnly || it.isFavorite }
+            .groupingBy { it.date.yearMonth }
+            .eachCount()
+            .map { (month, count) -> MonthCount(month, count) }
+            .sortedByDescending { it.month }
+    )
 
     override suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int = 0
 
