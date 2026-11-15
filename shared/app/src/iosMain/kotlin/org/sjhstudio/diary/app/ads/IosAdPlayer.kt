@@ -34,8 +34,25 @@ interface IosAdBridge {
     fun fittingHeight(view: UIView, width: Double): Double
 }
 
-/** 앱 토큰 색(ARGB)과 "광고" 표시. Swift가 같은 색과 모서리로 그림 */
-class IosAdStyle(val label: String, val title: Long, val body: Long, val surface: Long, val corner: Double)
+/**
+ * 앱 토큰 색(ARGB), 글꼴 파일, "광고" 표시. Swift가 Android 카드와 같은 꼴로 그림
+ * [page]는 카드 둥근 모서리 바깥. 뷰 뒤 시스템 바탕이 비치지 않게 화면 바탕으로 칠함
+ * 글꼴은 앱에 넣은 파일 이름이나 받은 파일 경로. null이면 시스템 글꼴
+ */
+class IosAdStyle(
+    val label: String,
+    val title: Long,
+    val body: Long,
+    val surface: Long,
+    val page: Long,
+    val corner: Double,
+    val action: Long,
+    val actionFill: Long,
+    val mediaFill: Long,
+    val regularFont: String?,
+    val mediumFont: String?,
+    val semiBoldFont: String?
+)
 
 /** iOS 광고. 전면·보상형은 콜백을 기다리고, 네이티브는 받은 자리를 상태로 알려 화면을 다시 그림 */
 class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {

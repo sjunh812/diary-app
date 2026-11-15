@@ -15,7 +15,7 @@
         <item quantity="other">%1$s枚</item>
     </plurals>
     <plurals name="migration_report_notice">
-        <item quantity="other">以前のアプリのファイルの一部が壊れていて、日記%1$s件を読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の日記はスマートフォンにそのまま残っています。</item>
+        <item quantity="other">以前のアプリのファイルの一部が壊れていて、日記%1$s件を読み込めませんでした。アプリをアップデートすると、もう一度読み込みます。元の日記はデバイスにそのまま残っています。</item>
     </plurals>
     <string name="migration_report_export">元のファイルを書き出す</string>
     <string name="migration_report_contact">お問い合わせ</string>
@@ -60,11 +60,12 @@
     <string name="settings_group_notification_security">通知とセキュリティ</string>
     <string name="settings_reminder">毎日のリマインダー</string>
     <string name="reminder_value_off">オフ</string>
+    <string name="reminder_value_blocked">通知オフ</string>
     <string name="reminder_body">毎日決まった時刻に、日記を書くタイミングをお知らせします。</string>
     <string name="reminder_time">リマインダーの時刻</string>
     <string name="reminder_save">保存</string>
     <string name="reminder_permission_title">通知がオフになっています</string>
-    <string name="reminder_permission_body">スマートフォンの設定で1日1日記の通知を許可すると、毎日リマインダーが届きます。</string>
+    <string name="reminder_permission_body">デバイスの設定で1日1日記の通知を許可すると、毎日リマインダーが届きます。</string>
     <string name="reminder_permission_allow">許可する</string>
 
     <!-- フォント(G1)。フォント名は固有名詞なのでローマ字のまま -->
@@ -97,13 +98,13 @@
     <string name="text_size_xxlarge">最大</string>
     <string name="text_size_sample_glyph">あ</string>
     <string name="text_size_sample_body">帰り道に川沿いまで歩いた。風が冷たくなっていて、それがかえって心地よかった。</string>
-    <string name="text_size_note">日記の本文にだけ適用されます。メニューやボタンの文字はスマートフォンの文字サイズに従います。</string>
+    <string name="text_size_note">日記の本文にだけ適用されます。メニューやボタンの文字はデバイスの文字サイズに従います。</string>
 
     <!-- 表示モード(G3) -->
     <string name="theme_system">システム設定</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
-    <string name="theme_note">システム設定にすると、スマートフォンがダークモードのときアプリも暗くなります。</string>
+    <string name="theme_note">システム設定にすると、デバイスがダークモードのときアプリも暗くなります。</string>
     <string name="migration_deferred_title">以前の日記をまだ移行できていません</string>
     <string name="migration_deferred_body">もう一度試すと、今の日記はそのままで以前の日記を追加します。</string>
     <string name="migration_deferred_failed">今回も移行できませんでした。アプリをアップデートすると、もう一度試します。</string>

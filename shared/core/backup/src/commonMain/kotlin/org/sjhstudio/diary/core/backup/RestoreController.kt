@@ -171,8 +171,9 @@ class RestoreController(
      * 앱이 꺼지면 지울 기회가 없어 다음에 멈췄음을 알 수 있음
      * 쓰다 실패하면 화면이 알리니 표시를 지움
      * 멈추라고 해서 끝났으면 사용자가 멈춘 것인지 화면이 정함
+     * 앱을 나가도 이어 쓰게 시간을 받아 둠
      */
-    override suspend fun writeBundle(open: () -> Sink, onProgress: (done: Int, total: Int) -> Unit) {
+    override suspend fun writeBundle(open: () -> Sink, onProgress: (done: Int, total: Int) -> Unit): Unit = gate.longWork.holding {
         store.update { it.copy(bundleWriting = true) }
         bundleBeingWritten = true
         var stopped = false
@@ -244,15 +245,18 @@ class RestoreController(
      * 준비는 한 번에 하나만, 메인 스레드 밖에서 실행
      * 지난번 사본을 지우고 시작하고, 멈추면 쓰던 사본을 남기지 않음
      * 받는 파일은 일기 사본이라 쓰지 않게 되면 바로 지움
+     * 앱을 나가도 이어 받게 시간을 받아 둠
      */
-    private suspend fun <T> preparingCopy(block: suspend () -> T): T = preparing.withLock {
-        withContext(Dispatchers.IO) {
-            try {
-                clearCopies()
-                block()
-            } catch (error: CancellationException) {
-                clearCopies()
-                throw error
+    private suspend fun <T> preparingCopy(block: suspend () -> T): T = gate.longWork.holding {
+        preparing.withLock {
+            withContext(Dispatchers.IO) {
+                try {
+                    clearCopies()
+                    block()
+                } catch (error: CancellationException) {
+                    clearCopies()
+                    throw error
+                }
             }
         }
     }

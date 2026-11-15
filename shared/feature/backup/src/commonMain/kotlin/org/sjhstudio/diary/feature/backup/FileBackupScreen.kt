@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,8 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.delete
@@ -40,18 +37,17 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
-import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryNote
 import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
+import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
@@ -174,7 +170,7 @@ fun FileBackupScreen(
 private fun ColumnScope.Start(estimate: BundleEstimate?, state: FileBackupUi, onMake: () -> Unit) {
     val busy = state is FileBackupUi.Writing || state == FileBackupUi.Reading
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
-        Heading(DiaryIcons.Package, stringResource(Res.string.file_title), estimate?.let { bodyOf(it) }.orEmpty())
+        DiaryResultHeader(DiaryIcons.Package, stringResource(Res.string.file_title), description = estimate?.let { bodyOf(it) }.orEmpty())
         Column(Modifier.padding(horizontal = LocalScreenGutter.current), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             DiaryNoteBox(
                 listOf(
@@ -208,7 +204,7 @@ private fun ColumnScope.Start(estimate: BundleEstimate?, state: FileBackupUi, on
     ) {
         if (state is FileBackupUi.Writing) {
             KeepScreenOn()
-            BasicText(
+            PhraseText(
                 stringResource(Res.string.file_writing),
                 style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary)
             )
@@ -229,7 +225,11 @@ private fun ColumnScope.Start(estimate: BundleEstimate?, state: FileBackupUi, on
 private fun ColumnScope.Saved(saved: FileBackupUi.Saved, onDone: () -> Unit) {
     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         Spacer(Modifier.height(DiarySpacing.x10))
-        Heading(DiaryIcons.CircleCheck, stringResource(Res.string.file_saved_title), stringResource(Res.string.file_saved_body))
+        DiaryResultHeader(
+            DiaryIcons.CircleCheck,
+            stringResource(Res.string.file_saved_title),
+            description = stringResource(Res.string.file_saved_body)
+        )
         // 파일 이름은 설명 글과 섞이지 않게 따로 둠
         // 파일 앱에서 찾을 때 이 줄을 봄
         DiaryNoteBox(
@@ -275,33 +275,4 @@ private fun bodyOf(estimate: BundleEstimate): String = if (estimate.entries == 0
         pluralStringResource(Res.plurals.restore_count_photos, estimate.photos, estimate.photos.grouped()),
         sizeText(estimate.bytes)
     )
-}
-
-@Composable
-internal fun Heading(icon: ImageVector, title: String, body: String) {
-    val colors = DiaryTheme.colors
-    Column(
-        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-    ) {
-        DiaryHeroBadge(icon, tone = DiaryBadgeTone.Accent)
-        Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(
-            title,
-            style = DiaryTheme.typography.title2.copy(
-                color = colors.textPrimary,
-                textAlign = TextAlign.Center,
-                lineBreak = CenteredLineBreak
-            )
-        )
-        BasicText(
-            body,
-            style = DiaryTheme.typography.body.copy(
-                color = colors.textSecondary,
-                textAlign = TextAlign.Center,
-                lineBreak = CenteredLineBreak
-            )
-        )
-    }
 }

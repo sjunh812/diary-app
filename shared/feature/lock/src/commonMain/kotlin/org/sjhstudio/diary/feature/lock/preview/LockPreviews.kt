@@ -5,6 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
+import org.sjhstudio.diary.core.platform.BiometricKind
 import org.sjhstudio.diary.feature.lock.LockMessage
 import org.sjhstudio.diary.feature.lock.LockScreen
 import org.sjhstudio.diary.feature.lock.LockSettingsScreen
@@ -25,6 +26,13 @@ private fun Lock(state: LockUiState, dark: Boolean = false, biometric: Boolean =
 @Preview(name = "L1 잠금 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun LockLight() = Lock(LockUiState())
+
+@Preview(name = "L1 잠금 · Face ID", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun LockFace() = DiaryTheme(darkTheme = false) {
+    LockScreen(LockUiState(), showBiometric = true, onDigit = {
+    }, onDelete = {}, onBiometric = {}, onForgot = {}, biometricKind = BiometricKind.Face)
+}
 
 @Preview(name = "L1 잠금 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

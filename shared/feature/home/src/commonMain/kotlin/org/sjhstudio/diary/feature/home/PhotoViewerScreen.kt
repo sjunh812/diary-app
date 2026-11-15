@@ -44,6 +44,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
@@ -124,7 +125,7 @@ private fun PhotoNotice(pending: Boolean, modifier: Modifier = Modifier) {
     val colors = DiaryTheme.colors
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         DiaryIcon(if (pending) DiaryIcons.Image else DiaryIcons.ImageOff, contentDescription = null, tint = colors.onAccent)
-        BasicText(
+        PhraseText(
             stringResource(if (pending) Res.string.detail_elsewhere_photo else Res.string.detail_missing_photo),
             style = DiaryTheme.typography.body.copy(color = colors.onAccent)
         )

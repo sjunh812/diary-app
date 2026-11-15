@@ -79,7 +79,8 @@ class FirstAdFlowTest {
                 override suspend fun backToList() = ads.backToList()
 
                 override suspend fun takeNotice() = ads.takeInterstitialNotice()
-            }
+            },
+            askReview = {}
         ) {}
     }
 
@@ -89,8 +90,8 @@ class FirstAdFlowTest {
     /** 폰: 저장하면 상세, 뒤로 가면 목록 */
     private fun TestScope.saveOnPhoneAndGoBack() {
         shell.saved(HomeKey, detail, twoPane = false)
-        shell.screenShown(EntryDetailKey("e1"), HomeKey, detail)
-        shell.screenShown(HomeKey, HomeKey, list)
+        shell.screenShown(EntryDetailKey("e1"), HomeKey, detail, twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, list, twoPane = false)
         advanceUntilIdle()
     }
 
@@ -187,15 +188,20 @@ class FirstAdFlowTest {
 
         shell.confirmAdNotice()
         // 그 뒤 상세를 닫거나 다른 일기를 열어도 다시 뜨지 않음
-        shell.screenShown(HomeKey, HomeKey, list)
-        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")))
+        shell.screenShown(HomeKey, HomeKey, list, twoPane = true)
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = true)
         advanceUntilIdle()
         assertEquals(1, player.shown)
     }
 
+    /** 달력에서 연 상세는 넓은 창에서도 한 칸. 달력으로 돌아갈 때 뜸(헌법 III) */
     @Test
-    fun tablet_calendar_takes_the_turn_too() = runTest(dispatcher) {
+    fun tablet_calendar_waits_for_the_calendar() = runTest(dispatcher) {
         shell.saved(CalendarKey, listOf(CalendarKey, EntryDetailKey("e1")), twoPane = true)
+        advanceUntilIdle()
+        assertEquals(AdNotice.None, shell.adNotice.value)
+
+        shell.screenShown(CalendarKey, CalendarKey, listOf(CalendarKey), twoPane = true)
         advanceUntilIdle()
         assertEquals(AdNotice.Showing, shell.adNotice.value)
     }
@@ -207,7 +213,7 @@ class FirstAdFlowTest {
         advanceUntilIdle()
         assertEquals(AdNotice.None, shell.adNotice.value)
 
-        shell.screenShown(HomeKey, HomeKey, list)
+        shell.screenShown(HomeKey, HomeKey, list, twoPane = false)
         advanceUntilIdle()
         assertEquals(AdNotice.Showing, shell.adNotice.value)
     }
@@ -216,13 +222,13 @@ class FirstAdFlowTest {
     @Test
     fun unfolding_after_saving_folded_waits_for_the_list() = runTest(dispatcher) {
         shell.saved(HomeKey, detail, twoPane = false)
-        shell.screenShown(EntryDetailKey("e1"), HomeKey, detail)
+        shell.screenShown(EntryDetailKey("e1"), HomeKey, detail, twoPane = false)
         // 펴고 목록에서 다른 일기를 누름
-        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")))
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = true)
         advanceUntilIdle()
         assertEquals(AdNotice.None, shell.adNotice.value)
 
-        shell.screenShown(HomeKey, HomeKey, list)
+        shell.screenShown(HomeKey, HomeKey, list, twoPane = true)
         advanceUntilIdle()
         assertEquals(AdNotice.Showing, shell.adNotice.value)
     }
@@ -234,7 +240,7 @@ class FirstAdFlowTest {
         advanceUntilIdle()
         shell.confirmAdNotice()
         // 접으면 상세가 한 칸으로, 뒤로 가면 목록
-        shell.screenShown(HomeKey, HomeKey, list)
+        shell.screenShown(HomeKey, HomeKey, list, twoPane = false)
         advanceUntilIdle()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(1, player.shown)

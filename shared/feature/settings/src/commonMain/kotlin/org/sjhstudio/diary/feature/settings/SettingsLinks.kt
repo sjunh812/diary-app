@@ -9,7 +9,9 @@ import org.sjhstudio.diary.feature.settings.resources.settings_feedback_subject
 
 private const val SUPPORT_EMAIL = "sjunh812@naver.com"
 private const val PLAY_LISTING = "https://play.google.com/store/apps/details?id=org.sjhstudio.diary"
+private const val APP_STORE_REVIEW = "https://apps.apple.com/app/id6835116731?action=write-review"
 private const val PLATFORM_ANDROID = "android"
+private const val PLATFORM_IOS = "ios"
 
 /**
  * 원하는 기능 설문(구글 폼). 한국어 폼 하나를 모든 언어가 같이 씀
@@ -23,9 +25,13 @@ data class FeedbackLink(val url: String, val noMail: String)
 /**
  * 스토어의 앱 페이지
  * 인앱 평가 창은 버튼으로 부르면 안 되고 뜨지 않을 수도 있어 버튼은 스토어로 보냄
- * App Store 번호는 출시 뒤에 정해져 그때까지 iOS에는 줄을 두지 않음
+ * App Store는 Apple이 안내하는 리뷰 쓰기 주소로 바로 보냄
  */
-fun storeReviewUrl(platform: String): String? = PLAY_LISTING.takeIf { platform == PLATFORM_ANDROID }
+fun storeReviewUrl(platform: String): String? = when (platform) {
+    PLATFORM_ANDROID -> PLAY_LISTING
+    PLATFORM_IOS -> APP_STORE_REVIEW
+    else -> null
+}
 
 /**
  * 의견 메일

@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.ReminderScheduler
@@ -40,7 +41,8 @@ class ReminderSettingsViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun viewModel() = ReminderSettingsViewModel(settings, ReminderRepository(settings, scheduler), permission)
+    private fun viewModel() =
+        ReminderSettingsViewModel(settings, ReminderRepository(settings, scheduler), NotificationAllowance(permission))
 
     @Test
     fun turning_on_and_off_saves_and_reschedules() = runTest(dispatcher) {

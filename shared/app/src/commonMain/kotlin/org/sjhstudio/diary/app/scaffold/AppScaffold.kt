@@ -389,7 +389,7 @@ private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScree
 @Immutable
 private class ShellActions(
     val plan: StateFlow<Plan>,
-    val onScreen: (NavKey, TabScreen, List<NavKey>) -> Unit,
+    val onScreen: (NavKey, TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
     val onSaved: (TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
     val onRestore: (String) -> Unit,
     val onAdClose: () -> Unit
@@ -426,6 +426,7 @@ private fun ContentWithToast(
             onWrite,
             rail = rail,
             notify = { message -> scope.launch { toast.show(if (message == Message.Saved) saved else draftKept) } },
+            showText = { text -> scope.launch { toast.show(text) } },
             modifier = Modifier.fillMaxSize(),
             onTrashed = { id ->
                 // 알림이 사라진 뒤에도 앱 틀은 그대로라 화면이 닫혀도 되돌릴 수 있음
@@ -461,6 +462,7 @@ private fun Content(
     onWrite: () -> Unit,
     rail: (@Composable () -> Unit)?,
     notify: (Message) -> Unit,
+    showText: (String) -> Unit,
     modifier: Modifier,
     onTrashed: (String) -> Unit
 ) {
@@ -475,7 +477,7 @@ private fun Content(
     val splitWindow by rememberUpdatedState(twoPane)
     // 화면이 바뀌면 통계(화면 키 이름만)와 저장 뒤 광고 차례(FR-010)를 화면 모델에 알림
     val top = nav.top
-    LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList()) }
+    LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList(), splitWindow) }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { list -> PickHint(list) } }
     val homeStack = nav.stacks.getValue(HomeKey)
     val dimmed = dimmedAlpha(DiaryTheme.colors.canvas.luminance() < HALF)
@@ -505,6 +507,7 @@ private fun Content(
                     entryProvider {
                         entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
                             val backupNudge by koinViewModel<BackupViewModel>().nudge.collectAsStateWithLifecycle()
+                            val feedbackCard by koinViewModel<FeedbackCardViewModel>().visible.collectAsStateWithLifecycle()
                             HomeRoute(
                                 backupLine = {
                                     BackupStatusLine(onOpen = {
@@ -519,12 +522,13 @@ private fun Content(
                                         nav.push(BackupSettingsKey)
                                     })
                                 },
-                                listTop = { BackupNudgeCard() },
-                                // 백업 안내가 떠 있는 동안은 목록 보기 팁을 미룸
+                                // 맨 위 카드는 한 장. 기록을 지키는 백업 안내가 먼저(스펙 007 FR-014)
+                                listTop = { if (backupNudge != null) BackupNudgeCard() else HomeFeedbackCard(showText) },
+                                // 위 카드가 떠 있는 동안은 목록 보기 팁을 미룸
                                 onListStyle = {
                                     nav.openTab(SettingsKey)
                                     nav.push(ListStyleSettingsKey)
-                                }.takeIf { backupNudge == null },
+                                }.takeIf { backupNudge == null && !feedbackCard },
                                 onOpen = nav::openEntry,
                                 onWrite = onWrite,
                                 onSearch = { nav.push(SearchKey()) },

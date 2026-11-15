@@ -25,5 +25,5 @@
     <string name="ad_notice_title">Full-screen ads appear once a day</string>
     <string name="ad_notice_body">They show briefly only when you save an entry and return to the list.</string>
     <string name="ad_notice_ok">OK</string>
-    <string name="write_failed">Couldn't save. Check your phone's storage.</string>
+    <string name="write_failed">Couldn't save. Check your device's storage.</string>
 </resources>

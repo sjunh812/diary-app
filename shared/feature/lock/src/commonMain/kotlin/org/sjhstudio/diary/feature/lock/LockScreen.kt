@@ -15,6 +15,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.platform.BiometricKind
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric
 import org.sjhstudio.diary.feature.lock.resources.lock_forgot
@@ -41,7 +42,8 @@ fun LockScreen(
     onForgot: (() -> Unit)?,
     modifier: Modifier = Modifier,
     title: String? = null,
-    onBack: (() -> Unit)? = null
+    onBack: (() -> Unit)? = null,
+    biometricKind: BiometricKind = BiometricKind.Fingerprint
 ) {
     val colors = DiaryTheme.colors
     val message = state.message
@@ -85,7 +87,7 @@ fun LockScreen(
             enabled = !waiting && !state.checking,
             bottomStart = if (showBiometric) {
                 DiaryPadKey(
-                    DiaryIcons.Fingerprint,
+                    if (biometricKind == BiometricKind.Face) DiaryIcons.ScanFace else DiaryIcons.Fingerprint,
                     stringResource(Res.string.lock_biometric),
                     onBiometric
                 )

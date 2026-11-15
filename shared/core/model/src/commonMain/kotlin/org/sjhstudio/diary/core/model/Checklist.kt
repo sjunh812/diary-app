@@ -64,9 +64,11 @@ object Checklist {
 
     /** 저장된 본문에서 [index]번째 항목을 뒤집음. 그런 항목이 없으면 null */
     fun toggleInHtml(html: String, index: Int): String? {
-        val mark = ITEM_IN_HTML.findAll(html).elementAtOrNull(index)?.groups?.get(1) ?: return null
-        val flipped = if (mark.value.single() == OPEN) DONE else OPEN
-        return html.replaceRange(mark.range, flipped.toString())
+        val match = ITEM_IN_HTML.findAll(html).elementAtOrNull(index) ?: return null
+        // 표시는 맞은 글 끝 공백 바로 앞. 그룹 자리(MatchGroup.range)는 공통 코드에 없음
+        val at = match.range.last - 1
+        val flipped = if (html[at] == OPEN) DONE else OPEN
+        return html.replaceRange(at, at + 1, flipped.toString())
     }
 
     /**

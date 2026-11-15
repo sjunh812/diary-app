@@ -57,4 +57,18 @@ class ChosenFontDownloadTest {
         assertTrue("sejong_geulggot" in kept && "gowun_batang" in kept)
         assertFalse("gamja_flower" in kept || "hi_melody" in kept || "gowun_dodum" in kept || "kimjungchul_myungjo" in kept)
     }
+
+    /** 앱을 켠 채 다른 기기의 백업을 복원해 받는 글꼴로 바뀌면 다시 열지 않아도 받음 */
+    @Test
+    fun downloads_when_a_restore_changes_the_font_while_open() = runTest {
+        val installer = RecordingInstaller()
+        val settings = FakeSettingsRepository(AppSettings())
+        ChosenFontDownload(settings, installer, backgroundScope).start()
+        testScheduler.runCurrent()
+        assertEquals(emptyList(), installer.requested)
+
+        settings.setFont(DiaryFont.SEJONG_GEULGGOT)
+        testScheduler.runCurrent()
+        assertEquals(listOf("sejong_geulggot"), installer.requested)
+    }
 }

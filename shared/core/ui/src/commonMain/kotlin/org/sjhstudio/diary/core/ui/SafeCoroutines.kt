@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.ui
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,10 +22,15 @@ import kotlinx.coroutines.launch
 /**
  * 실패해도 앱을 끄지 않는 `launch`
  * 실패하면 [onFailure]가 받고 코루틴 취소는 그대로 던짐
+ * [start]는 `launch`와 같음
  */
 // 마지막 안전망이라 일부러 모든 예외를 받음. 예상되는 실패는 저장소가 먼저 구체적으로 받음
 @Suppress("TooGenericExceptionCaught")
-fun CoroutineScope.launchSafely(onFailure: (Exception) -> Unit = {}, block: suspend CoroutineScope.() -> Unit): Job = launch {
+fun CoroutineScope.launchSafely(
+    onFailure: (Exception) -> Unit = {},
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+): Job = launch(start = start) {
     try {
         block()
     } catch (e: CancellationException) {

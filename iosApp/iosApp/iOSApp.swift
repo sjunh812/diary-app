@@ -40,7 +40,8 @@ struct iOSApp: App {
         IosStartupKt.startApp(
             driveBridge: GoogleDriveBridge(),
             firebase: FirebaseReporter.start(),
-            ads: GoogleAdsBridge()
+            ads: GoogleAdsBridge(),
+            review: StoreReviewBridge()
         )
         DailyBackupTask.register()
         KeychainLock.prepare()

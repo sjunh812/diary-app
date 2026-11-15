@@ -65,11 +65,12 @@
     <string name="settings_group_notification_security">Notifications and security</string>
     <string name="settings_reminder">Daily reminder</string>
     <string name="reminder_value_off">Off</string>
+    <string name="reminder_value_blocked">Notifications off</string>
     <string name="reminder_body">We'll remind you to write at the same time every day.</string>
     <string name="reminder_time">Reminder time</string>
     <string name="reminder_save">Save</string>
     <string name="reminder_permission_title">Notifications are off</string>
-    <string name="reminder_permission_body">Allow notifications for 1 Day 1 Diary in your phone settings to get daily reminders.</string>
+    <string name="reminder_permission_body">Allow notifications for 1 Day 1 Diary in your device settings to get daily reminders.</string>
     <string name="reminder_permission_allow">Allow</string>
 
     <!-- Font (G1). Font names are proper nouns and stay in Latin letters. %1$s in font_download is a size such as 7.2MB, in font_downloading a percent such as 42%. -->
@@ -102,13 +103,13 @@
     <string name="text_size_xxlarge">Largest</string>
     <string name="text_size_sample_glyph">Aa</string>
     <string name="text_size_sample_body">I walked to the river on my way home. The wind had turned cold, and I liked it even more.</string>
-    <string name="text_size_note">This applies only to your diary text. Menus and buttons follow your phone's text size.</string>
+    <string name="text_size_note">This applies only to your diary text. Menus and buttons follow your device's text size.</string>
 
     <!-- Appearance (G3) -->
     <string name="theme_system">System default</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-    <string name="theme_note">With System default, the app turns dark when your phone is in dark mode.</string>
+    <string name="theme_note">With System default, the app turns dark when your device is in dark mode.</string>
     <string name="migration_deferred_title">Your earlier entries haven't been transferred yet</string>
     <string name="migration_deferred_body">Try again to add them. Entries you've written since are kept.</string>
     <string name="migration_deferred_failed">Couldn't transfer them this time either. We'll try again after the next app update.</string>

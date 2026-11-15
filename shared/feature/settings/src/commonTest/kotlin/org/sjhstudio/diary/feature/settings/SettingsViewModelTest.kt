@@ -20,10 +20,12 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
+import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
 import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.testing.FakeFontInstaller
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
@@ -41,6 +43,14 @@ class SettingsViewModelTest {
             keyWork = Dispatchers.Unconfined
         )
 
+    private var granted = true
+    private val notifications =
+        NotificationAllowance(
+            object : NotificationPermission {
+                override suspend fun isGranted() = granted
+            }
+        )
+
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)
 
@@ -52,7 +62,8 @@ class SettingsViewModelTest {
     fun the_body_font_follows_a_download_that_finishes_later() = runTest(dispatcher) {
         val fonts = FakeFontInstaller()
         val settings = FakeSettingsRepository(AppSettings(font = DiaryFont.BUSAN_DANDI_MYEONGJO))
-        val viewModel = SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), { false }, fonts = fonts)
+        val viewModel =
+            SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), { false }, fonts = fonts, notifications = notifications)
         advanceUntilIdle()
         assertEquals(null, viewModel.look.value.fontPath)
 
@@ -65,7 +76,9 @@ class SettingsViewModelTest {
     @Test
     fun the_report_row_follows_the_migration_state() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), { true }, fonts = FakeFontInstaller())
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
+                true
+            }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -78,7 +91,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
                 error("읽을 수 없음")
-            }, fonts = FakeFontInstaller())
+            }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -92,7 +105,7 @@ class SettingsViewModelTest {
         val viewModel =
             SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
                 false
-            }, fonts = FakeFontInstaller(), lastBackupAt = flowOf(at))
+            }, fonts = FakeFontInstaller(), notifications = notifications, lastBackupAt = flowOf(at))
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -102,7 +115,9 @@ class SettingsViewModelTest {
     @Test
     fun the_trash_count_and_plan_come_with_the_state() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), flowOf(Plan.PLUS), { false }, fonts = FakeFontInstaller())
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), flowOf(Plan.PLUS), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
@@ -114,11 +129,33 @@ class SettingsViewModelTest {
     @Test
     fun an_unreadable_trash_count_leaves_settings_usable() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), flowOf(Plan.FREE), { false }, fonts = FakeFontInstaller())
+            SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), flowOf(Plan.FREE), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
 
         assertTrue(viewModel.state.value.loaded)
         assertEquals(0, viewModel.state.value.trashCount)
+    }
+
+    /** 쓰기 알림을 켰어도 휴대폰 설정에서 막으면 목록 줄이 시각 대신 꺼짐을 보임 */
+    @Test
+    fun the_reminder_row_says_off_when_notifications_are_blocked() = runTest(dispatcher) {
+        val settings = FakeSettingsRepository(AppSettings(reminderEnabled = true))
+        val viewModel =
+            SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        backgroundScope.launch { viewModel.state.collect {} }
+        granted = false
+        viewModel.refreshNotifications()
+        advanceUntilIdle()
+        assertTrue(viewModel.state.value.reminderBlocked)
+
+        granted = true
+        viewModel.refreshNotifications()
+        advanceUntilIdle()
+        assertFalse(viewModel.state.value.reminderBlocked)
     }
 }

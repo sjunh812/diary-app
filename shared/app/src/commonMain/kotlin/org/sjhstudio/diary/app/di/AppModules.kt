@@ -9,6 +9,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import okio.SYSTEM
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -29,6 +30,7 @@ import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.BundleExporter
 import org.sjhstudio.diary.core.backup.LegacyBackupImporter
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
+import org.sjhstudio.diary.core.backup.LongWork
 import org.sjhstudio.diary.core.backup.ManifestSettings
 import org.sjhstudio.diary.core.backup.MergeApplier
 import org.sjhstudio.diary.core.backup.PhotoFetcher
@@ -43,6 +45,7 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
@@ -61,6 +64,7 @@ import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
+import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.DiaryDatabase
@@ -68,6 +72,7 @@ import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.datastore.DataStoreFactory
 import org.sjhstudio.diary.core.datastore.LockStore
+import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.drive.DriveApi
@@ -158,6 +163,7 @@ private fun coreModule(isDebug: Boolean) = module {
     // 매일 알림(FR-022)
     // 앱을 열 때와 알림 수신기가 다시 예약
     single { ReminderRepository(get(), get()) }
+    single { NotificationAllowance(get()) }
     single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
     single { AppLaunch() }
     // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꿈(스펙 001 T028)
@@ -185,6 +191,8 @@ private fun coreModule(isDebug: Boolean) = module {
                 // 글꼴 설정 화면이 받아 둔 글꼴을 처음부터 맞게 그리게 파일 확인을 미리 해 둠
                 getOrNull<FontInstaller>()?.let { installer -> DiaryFont.entries.forEach { installer.installedPath(it.id) } }
                 get<AdRepository>().warmUp()
+                // 의견 카드·리뷰 창 기준일(스펙 007)
+                get<PromptRepository>().start()
             }
         )
     }
@@ -194,6 +202,14 @@ private fun coreModule(isDebug: Boolean) = module {
     single<ContextTips> { get<WelcomeRepository>() }
     single { AdStore(get<DataStoreFactory>().ads()) }
     single { AdRepository(get(), get(), get(), get()) }
+    // 의견 카드와 리뷰 창(스펙 007). 일기 DB는 편 수를 셀 때 처음 엶
+    single {
+        PromptRepository(
+            PromptStore(get<DataStoreFactory>().prompt()),
+            writtenSince = { get<DiaryDatabase>().entryDao().countWrittenSince(it.toEpochMilliseconds()) },
+            review = get()
+        )
+    }
 }
 
 /** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */
@@ -260,7 +276,8 @@ private val backupModule =
         // 드라이브와 일기 DB는 처음 쓸 때 열기
         single { BackupStore(get<DataStoreFactory>().backup()) }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
-        single { BackupGate() }
+        single { LongWork() }
+        single { BackupGate(get()) }
         single {
             val files = get<AppFiles>()
             BackupRunner(

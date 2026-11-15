@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -47,6 +48,7 @@ import org.sjhstudio.diary.app.navigation.TextSizeSettingsKey
 import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
 import org.sjhstudio.diary.app.navigation.tabRoot
+import org.sjhstudio.diary.app.scaffold.FeedbackCardViewModel
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
@@ -108,6 +110,10 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     entry<SettingsKey>(metadata = SettingsListPane + tabRoot(SettingsKey)) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        LifecycleResumeEffect(viewModel) {
+            viewModel.refreshNotifications()
+            onPauseOrDispose {}
+        }
         val app = koinInject<BackupAppInfo>()
         val toast = remember { DiaryToastState() }
         val openWeb = rememberOpenWebLink(toast)
@@ -184,6 +190,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
         val openLink = rememberOpenLink()
         val toast = remember { DiaryToastState() }
+        val feedbackCard = koinViewModel<FeedbackCardViewModel>()
         val scope = rememberCoroutineScope()
         Box(Modifier.fillMaxSize()) {
             // 읽는 동안은 바탕만 그림(편지는 개수 문단까지 한 번에 나옴)
@@ -193,6 +200,8 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                     onBack = pop,
                     // 설문을 열지 못하면 메일
                     onFeedback = {
+                        // 홈 의견 카드도 다시 띄우지 않음(스펙 007 FR-005)
+                        feedbackCard.surveyOpened()
                         val opened = openLink(FEATURE_SURVEY_URL) || openLink(feedback.url)
                         if (!opened) scope.launch { toast.show(feedback.noMail) }
                     }

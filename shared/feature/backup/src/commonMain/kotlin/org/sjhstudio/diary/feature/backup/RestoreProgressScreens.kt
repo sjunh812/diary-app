@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +43,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -211,7 +211,7 @@ internal fun ColumnScope.Running(photos: RestoreState.FetchingPhotos?, onSeeEntr
     // 화면이 꺼지면 iOS에서는 받기가 멈춤
     KeepScreenOn()
     Bottom {
-        BasicText(
+        PhraseText(
             stringResource(
                 when {
                     !workContinuesInBackground -> Res.string.restore_running_note_open
@@ -396,7 +396,7 @@ internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, on
             noMail = !openLink(SUPPORT_MAIL)
         }, leadingIcon = DiaryIcons.Mail)
         if (noMail) {
-            BasicText(
+            PhraseText(
                 stringResource(Res.string.restore_no_mail, SUPPORT_ADDRESS),
                 style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary),
                 modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)

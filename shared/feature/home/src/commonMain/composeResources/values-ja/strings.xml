@@ -23,9 +23,13 @@
     <string name="detail_kept_both_other">もう一方を見る</string>
     <string name="detail_kept_both_keep">こちらだけ残す</string>
     <string name="detail_kept_both_close">両方残す</string>
-    <string name="detail_elsewhere_photo">元のスマートフォンにある写真</string>
+    <string name="detail_elsewhere_photo">元のデバイスにある写真</string>
     <string name="detail_missing_title">日記が見つかりません</string>
     <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
     <string name="tip_home_list_style">日記の一覧はカードや写真グリッドでも見られます。</string>
     <string name="tip_home_list_style_action">変更する</string>
+    <string name="feedback_card_title">1日1日記、使ってみていかがですか？😊</string>
+    <string name="feedback_card_body">より良いアプリにするためにアンケートを行っています。不便だった点やご希望の機能を教えてください。</string>
+    <string name="feedback_card_action">アンケートに答える</string>
+    <string name="feedback_card_close">閉じる</string>
 </resources>

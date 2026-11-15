@@ -51,7 +51,7 @@
     <string name="migration_view_legacy">以前の日記を見る</string>
     <string name="migration_retry">もう一度試す</string>
     <string name="migration_no_space_title">ストレージの空き容量が足りません</string>
-    <string name="migration_no_space_body">移行するには、スマートフォンにあと%1$sの空き容量が必要です。使っていない写真やアプリを整理してから、もう一度確認してください。元の日記はそのまま残っています。</string>
+    <string name="migration_no_space_body">移行するには、デバイスにあと%1$sの空き容量が必要です。使っていない写真やアプリを整理してから、もう一度確認してください。元の日記はそのまま残っています。</string>
     <string name="migration_check_again">もう一度確認</string>
 
     <!-- ゲートを通ったあと一度だけ知らせる(FR-011) -->

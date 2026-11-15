@@ -11,10 +11,6 @@
     <!-- 장소 시트의 현재 위치 가져오기를 누를 때만 쓴다. 정확한 위치를 물어도 사용자가 대략 위치를 고를 수 있다. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- 지금 백업과 복원한 사진 받기를 앱을 떠나도 잇는다(스펙 003 research R14). -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
     <!-- 일기·사진·설정·잠금은 시스템 백업과 기기 간 이전으로 나가지 않는다(헌법 II, 스펙 001 research O5).
          Android 12부터는 allowBackup="false"여도 기기 간 이전이 돌아서 규칙 파일로도 모두 뺀다. -->
     <application
@@ -94,11 +90,6 @@
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
-        <!-- 지금 백업이 작업 관리자의 진행 알림 서비스로 돈다(research R14). -->
-        <service
-            android:name="androidx.work.impl.foreground.SystemForegroundService"
-            android:foregroundServiceType="dataSync"
-            tools:node="merge" />
         <!-- 복구 문의 묶음(files/migration/support)만 메일 앱에 읽기 권한으로 넘긴다(FR-010a). -->
         <provider
             android:name="androidx.core.content.FileProvider"

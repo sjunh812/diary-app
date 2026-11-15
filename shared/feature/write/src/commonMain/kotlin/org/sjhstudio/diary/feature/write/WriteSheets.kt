@@ -49,6 +49,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryChip
 import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryTimeWheel
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.rememberCalendarWheelRows
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -259,7 +260,7 @@ private fun PlaceNote(text: String, onOpenSettings: (() -> Unit)?) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
     ) {
-        BasicText(text, Modifier.weight(1f), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+        PhraseText(text, modifier = Modifier.weight(1f), style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
         if (onOpenSettings != null) {
             // 글자 끝을 입력 칸 끝에 맞추고 누르는 영역만 줄 높이로 넓힘
             // 누름 면이 글자에 붙지 않게 옆으로 8 내어 시트 안쪽 여백을 씀

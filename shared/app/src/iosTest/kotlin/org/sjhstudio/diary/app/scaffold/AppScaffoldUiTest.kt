@@ -38,6 +38,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -50,10 +51,12 @@ import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoAdPlayer
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.datastore.AdStore
+import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
@@ -97,6 +100,7 @@ class AppScaffoldUiTest {
                     single { AppLaunch() }
                     single<PlanRepository> { FreePlanRepository() }
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
+                    single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, {}) }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
                     single<WelcomeRepository> { DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences()))) { null } }

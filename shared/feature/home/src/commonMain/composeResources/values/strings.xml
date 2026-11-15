@@ -23,9 +23,13 @@
     <string name="detail_kept_both_other">See other version</string>
     <string name="detail_kept_both_keep">Keep this one</string>
     <string name="detail_kept_both_close">Keep both</string>
-    <string name="detail_elsewhere_photo">On the original phone</string>
+    <string name="detail_elsewhere_photo">On the original device</string>
     <string name="detail_missing_title">Entry not found</string>
     <string name="detail_missing_body">It may have been deleted or moved to Trash.</string>
     <string name="tip_home_list_style">View your diary list as cards or a photo grid.</string>
     <string name="tip_home_list_style_action">Change</string>
+    <string name="feedback_card_title">How are you finding 1 Day 1 Diary? 😊</string>
+    <string name="feedback_card_body">We’re running a survey to make the app better. Tell us what bothered you and what features you’d like.</string>
+    <string name="feedback_card_action">Take the survey</string>
+    <string name="feedback_card_close">Close</string>
 </resources>

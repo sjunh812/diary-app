@@ -1,5 +1,9 @@
 package org.sjhstudio.diary.core.designsystem.component
 
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -28,5 +32,18 @@ class KeepWordsTest {
     @Test
     fun leavesTextWithoutHangulAlone() {
         assertEquals("1,204 photos", keepWords("1,204 photos"))
+    }
+
+    // 강조가 붙임 글자만큼 밀리지 않으면 앞 낱말 끝 글자가 굵어짐
+    @Test
+    fun keepsEmphasisOnTheSameWord() {
+        val text = buildAnnotatedString {
+            append("오늘은 ")
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("좋음") }
+            append("이 많았어요")
+        }
+        val joined = keepWords(text)
+        val span = joined.spanStyles.single()
+        assertEquals("좋⁠음", joined.text.substring(span.start, span.end))
     }
 }

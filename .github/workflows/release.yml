@@ -154,6 +154,11 @@ jobs:
             exit 1
           fi
           echo "서명 키 확인됨"
+      # 고정한 NDK가 없으면 네이티브 기호 표를 조용히 빼고 만듦(2.0.0 Play 경고)
+      - name: NDK 설치
+        run: |
+          ndk=$(sed -n 's/^androidNdk = "\(.*\)"/\1/p' gradle/libs.versions.toml)
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$ndk" > /dev/null
       - name: AAB 만들기
         env:
           DIARY_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -162,6 +167,8 @@ jobs:
         run: ./gradlew :composeApp:bundleRelease
       - name: 서명 확인
         run: jarsigner -verify composeApp/build/outputs/bundle/release/composeApp-release.aab | grep "jar verified"
+      - name: 네이티브 기호 표 확인
+        run: unzip -l composeApp/build/outputs/bundle/release/composeApp-release.aab | grep -q "BUNDLE-METADATA/com.android.tools.build.debugsymbols/"
       # 공개 저장소의 산출물은 로그인한 누구나 받을 수 있다. 짧게 두고 난독화 매핑은 담지 않는다.
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

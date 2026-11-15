@@ -19,16 +19,16 @@
     <string name="pin_setup_title">新しい4桁のパスコードを決めてください</string>
     <string name="pin_setup_again">もう一度入力してください</string>
     <string name="pin_setup_mismatch">パスコードが一致しません。最初から入力し直してください。</string>
-    <string name="pin_setup_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば新しく決め直せます。スマートフォンの画面ロックを知っている人も、この方法で日記を開けます。</string>
+    <string name="pin_setup_note">パスコードを忘れても、デバイスの画面ロックで確認すれば新しく決め直せます。デバイスの画面ロックを知っている人も、この方法で日記を開けます。</string>
 
     <!-- パスコードを忘れたとき(L3) -->
-    <string name="forgot_title">スマートフォンの画面ロックで確認します</string>
-    <string name="forgot_body">スマートフォンの画面ロックで本人確認をすると、新しいパスコードを決められます。日記はそのまま残ります。</string>
+    <string name="forgot_title">デバイスの画面ロックで確認します</string>
+    <string name="forgot_body">デバイスの画面ロックで本人確認をすると、新しいパスコードを決められます。日記はそのまま残ります。</string>
     <string name="forgot_confirm">確認する</string>
     <string name="forgot_prompt_title">新しいパスコードを決める</string>
-    <string name="forgot_no_device_lock_title">スマートフォンに画面ロックがありません</string>
+    <string name="forgot_no_device_lock_title">デバイスに画面ロックがありません</string>
     <string name="forgot_no_device_lock_body">画面ロックがないとパスコードを決め直せません。バックアップがあれば、アプリを入れ直してバックアップから日記を復元できます。</string>
-    <string name="lock_turned_off">スマートフォンに画面ロックがないため、日記のロックをオフにしました。設定で新しいパスコードを決めてください。</string>
+    <string name="lock_turned_off">デバイスに画面ロックがないため、日記のロックをオフにしました。設定で新しいパスコードを決めてください。</string>
 
     <!-- ロック設定(L4) -->
     <string name="lock_settings_title">ロック</string>
@@ -41,8 +41,8 @@
     <string name="relock_one_minute">1分後</string>
     <string name="relock_five_minutes">5分後</string>
     <string name="relock_cold_start">アプリの起動時のみ</string>
-    <string name="lock_settings_note">パスコードを忘れても、スマートフォンの画面ロックで確認すれば決め直せます。</string>
-    <string name="lock_note_no_device_lock">スマートフォンに画面ロックがないため、パスコードを忘れると再設定できません。</string>
+    <string name="lock_settings_note">パスコードを忘れても、デバイスの画面ロックで確認すれば決め直せます。</string>
+    <string name="lock_note_no_device_lock">デバイスに画面ロックがないため、パスコードを忘れると再設定できません。</string>
     <string name="lock_confirm_title">現在のパスコードを入力してください</string>
     <string name="lock_settings_method">ロック方法</string>
     <string name="pin_setup_save_failed">パスワードを保存できませんでした。ストレージを確認して、もう一度入力してください。</string>

@@ -48,6 +48,25 @@ class LegacyPrefsReaderTest {
     }
 
     @Test
+    fun value_with_line_break_is_read_and_dropped_whole() {
+        val multiline =
+            """
+            <map>
+                <string name="memo">첫 줄
+            둘째 줄</string>
+                <string name="password">12
+            34</string>
+                <boolean name="use_pw" value="true" />
+            </map>
+            """.trimIndent()
+        assertEquals("첫 줄\n둘째 줄", LegacyPrefs.parse(multiline)["memo"])
+        val copy = LegacyPrefs.withoutPassword(multiline)
+        assertFalse("password" in copy)
+        assertFalse("34" in copy)
+        assertEquals(true, LegacyPrefs.parse(copy)["use_pw"])
+    }
+
+    @Test
     fun pref2_alarm_values() {
         val pref2 =
             """

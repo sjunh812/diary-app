@@ -8,8 +8,8 @@ disable-model-invocation: false
 
 # PR 올리기와 리뷰 지적 처리
 
-출시 이후 기능부터 쓴다. 출시 전에는 PR 없이 기능 브랜치를 `develop`에 머지하고 푸시한다. 머지는 사용자에게 묻는다(`docs/DECISIONS.md` 2026-11-07).
-푸시, PR 만들기, 머지는 저마다 사용자가 요청하거나 승인한 때만 한다.
+2.0.0 출시(2026-11-15) 뒤 기능과 수정은 모두 PR로 `develop`에 넣는다.
+`/diary-flow`에서 개발이 끝나면 묻지 않고 푸시하고 PR을 올린다(사용자 결정 2026-11-15). 그 밖에는 사용자가 요청한 때만 올린다. 머지는 언제나 묻는다.
 
 ## 1. 올리기 전
 
@@ -52,6 +52,8 @@ gh pr checks <번호> --watch
 ```bash
 gh pr comment <번호> --body "@coderabbitai review"
 ```
+
+몇 분이 지나도 답이 없으면 앱이 이 저장소에 설치됐는지 사용자에게 확인해 달라고 한다(github.com/apps/coderabbitai, 저장소 하나만 고름). 설치는 사용자가 한다.
 
 지적은 이렇게 읽는다.
 

@@ -91,12 +91,30 @@ fun DiaryStatusBox(
  * 숫자와 단위도 묶어 "5,002 / 장"처럼 끊기지 않음
  * 낱말 뒤 숫자 앞 띄어쓰기는 줄바꿈 없는 공백으로 바꿔 "사진 / 5,002장"처럼 끊기지 않음
  */
-internal fun keepWords(text: String): String = buildString(text.length * 2) {
-    text.forEachIndexed { index, char ->
-        val before = text.getOrNull(index - 1)
-        if (before != null && joins(before, char)) append(WORD_JOINER)
-        append(if (char == ' ' && countFollows(text, index)) NO_BREAK_SPACE else char)
+internal fun keepWords(text: String): String = keepWords(AnnotatedString(text)).text
+
+/** 꾸밈 범위는 붙임 글자만큼 밀어 같은 글자에 남김 */
+internal fun keepWords(text: AnnotatedString): AnnotatedString {
+    val source = text.text
+    // 원래 글자 자리 → 바꾼 글의 자리
+    val moved = IntArray(source.length)
+    val joined = buildString(source.length * 2) {
+        source.forEachIndexed { index, char ->
+            val before = source.getOrNull(index - 1)
+            if (before != null && joins(before, char)) append(WORD_JOINER)
+            moved[index] = length
+            append(if (char == ' ' && countFollows(source, index)) NO_BREAK_SPACE else char)
+        }
     }
+
+    // 끝은 마지막 글자 바로 뒤. 다음 글자 앞 붙임 글자는 넣지 않음
+    fun start(at: Int) = moved.getOrElse(at) { joined.length }
+    fun end(at: Int, from: Int) = if (at == from) start(from) else moved[at - 1] + 1
+    return AnnotatedString(
+        joined,
+        text.spanStyles.map { it.copy(start = start(it.start), end = end(it.end, it.start)) },
+        text.paragraphStyles.map { it.copy(start = start(it.start), end = end(it.end, it.start)) }
+    )
 }
 
 private fun countFollows(text: String, space: Int): Boolean {

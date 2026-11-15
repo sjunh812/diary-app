@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -38,6 +37,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -325,7 +325,7 @@ private fun Frame(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (footnote != null) {
-                BasicText(
+                PhraseText(
                     footnote,
                     style = DiaryTheme.typography.caption.copy(
                         color = colors.textSecondary,

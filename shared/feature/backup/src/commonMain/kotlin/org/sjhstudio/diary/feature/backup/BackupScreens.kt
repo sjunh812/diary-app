@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,7 +23,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -45,11 +43,11 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
-import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryNote
 import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
+import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
@@ -58,8 +56,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
@@ -307,7 +305,7 @@ fun BackupFoundSheet(entry: BackupEntry, onLater: () -> Unit, onRestore: () -> U
                     countsText(entry)
                 )
             }
-            BasicText(
+            PhraseText(
                 stringResource(Res.string.restore_found_body),
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
             )
@@ -466,36 +464,18 @@ private fun FileRestoreNotice(state: FileBackupUi) {
  */
 @Composable
 private fun NoSpace(status: BackupStatus, onRetry: () -> Unit, onFile: () -> Unit, onLink: (String) -> Unit) {
-    val colors = DiaryTheme.colors
     val size = sizeText(status.bytesShort)
-    Column(
-        Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)
-    ) {
-        DiaryHeroBadge(DiaryIcons.CircleAlert, tone = DiaryBadgeTone.Danger)
-        Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(
-            stringResource(Res.string.backup_no_space_title),
-            style = DiaryTheme.typography.title2.copy(
-                color = colors.textPrimary,
-                textAlign = TextAlign.Center,
-                lineBreak = CenteredLineBreak
-            )
-        )
-        BasicText(
+    DiaryResultHeader(
+        DiaryIcons.CircleAlert,
+        stringResource(Res.string.backup_no_space_title),
+        description =
             if (status.failingSince != null) {
                 stringResource(Res.string.backup_space_text, size)
             } else {
                 pluralStringResource(Res.plurals.backup_space_photos, status.photosNotBackedUp, status.photosNotBackedUp.grouped(), size)
             },
-            style = DiaryTheme.typography.body.copy(
-                color = colors.textSecondary,
-                textAlign = TextAlign.Center,
-                lineBreak = CenteredLineBreak
-            )
-        )
-    }
+        tone = DiaryBadgeTone.Danger
+    )
     DiarySettingsRow(stringResource(Res.string.backup_space_manage), onClick = { onLink(STORAGE_URL) })
     DiarySettingsRow(stringResource(Res.string.backup_space_trash), onClick = { onLink(TRASH_URL) })
     DiarySettingsRow(stringResource(Res.string.file_top), onClick = onFile)
@@ -558,7 +538,11 @@ private fun Rollback(info: RollbackInfo, onRollBack: () -> Unit) {
 @Composable
 private fun NotConnected(connecting: Boolean, onConnect: () -> Unit) {
     Column(Modifier.fillMaxWidth()) {
-        Heading(DiaryIcons.CloudUpload, stringResource(Res.string.backup_intro_title), stringResource(Res.string.backup_intro_body))
+        DiaryResultHeader(
+            DiaryIcons.CloudUpload,
+            stringResource(Res.string.backup_intro_title),
+            description = stringResource(Res.string.backup_intro_body)
+        )
         Column(
             Modifier.padding(horizontal = LocalScreenGutter.current),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)

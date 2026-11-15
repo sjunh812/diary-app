@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.migration
 import kotlin.random.Random
 import okio.FileSystem
 import okio.Path
+import okio.SYSTEM
 
 /**
  * 시험마다 새 임시 폴더

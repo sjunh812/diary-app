@@ -379,4 +379,29 @@ class AdRepositoryTest {
         repo().warmUp()
         assertEquals(1, player.warmed)
     }
+
+    @Test
+    fun back_to_list_tells_whether_an_interstitial_was_due() = runTest {
+        val repo = repo()
+        player.ready = false
+        // 차례였지만 광고를 받지 못함. 그 순간 리뷰 창도 띄우지 않게 참
+        assertTrue(repo.backToList())
+        player.ready = true
+        assertTrue(repo.backToList())
+        // 오늘 이미 봄
+        assertFalse(repo.backToList())
+
+        plans.plan.value = Plan.PLUS
+        now += 1.days
+        assertFalse(repo().backToList())
+    }
+
+    @Test
+    fun an_ad_sdk_crash_still_counts_as_the_ad_turn() = runTest {
+        val crashing = object : AdPlayer by player {
+            override suspend fun showInterstitial(onImpression: () -> Unit): Boolean = throw IllegalStateException("SDK")
+        }
+        val repo = AdRepository(plans, store, crashing, { enabled }, clock, { TimeZone.UTC })
+        assertTrue(repo.backToList())
+    }
 }

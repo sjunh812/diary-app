@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryPhoto
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.MonthCount
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.richtext.toPlainText
@@ -75,7 +76,7 @@ class DefaultEntryRepository(
             watchFromBaseline({ media.photoStatusChanges(photoRefreshEvery, it) }) { factory.invalidate() },
             watchFromBaseline({ marks.shownMarks().map { rows -> rows.toHashSet() }.changesSinceFirst(it) }) { factory.invalidate() }
         )
-        Pager(pageConfig, pagingSourceFactory = factory).flow.collect { send(it) }
+        Pager(pageConfig, pagingSourceFactory = factory::invoke).flow.collect { send(it) }
     }
 
     /**
@@ -112,8 +113,8 @@ class DefaultEntryRepository(
     // 쓰는 곳(홈 쓰기 버튼, 연·월 고르기, 달력 끝 달)에 다시 시도가 없어 처음부터 다시 붙음
     override fun months(): Flow<Set<YearMonth>> = entries.months().rejoining().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
 
-    override fun favoriteMonths(): Flow<Set<YearMonth>> =
-        entries.favoriteMonths().rejoining().map { rows -> rows.mapTo(HashSet()) { YearMonth.parse(it) } }
+    override fun monthCounts(favoritesOnly: Boolean): Flow<List<MonthCount>> =
+        entries.monthCounts(favoritesOnly).rejoining().map { rows -> rows.map { MonthCount(YearMonth.parse(it.month), it.count) } }
 
     override suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int =
         entries.countAfter(month.onDay(month.numberOfDays).toString(), favoritesOnly)

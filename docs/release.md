@@ -71,6 +71,7 @@ App Store용은 `docs/store/screens/ios/{ko,en,ja}/`에 iPhone 4장(1206×2622, 
 ## 소개 문구
 
 - 짧은 설명(Play 80자, App Store 부제 30자)과 긴 설명은 `docs/store/listing.md`에 있다. 사진 포함 백업과 회원가입 없음을 앞에 둔다.
+- 리뷰 답글 양식은 `docs/store/review-replies.md`에 있다(2026-11-15).
 - 긴 설명 구성: 한 줄 소개 → 이런 분께 → 주요 기능(무료) → Plus → 백업과 개인정보 → 문의.
 - 문구는 `korean-humanizer`로 번역투를 걷어 내고 `korean-spell-check`로 맞춤법을 본다.
 - 영어와 일본어 설명은 한국어를 옮기지 않고 그 언어로 새로 쓴 뒤 원어민 검수를 받는다. 앱 이름은 언어마다 따로 쓸 수 있다(열린 결정 D12).
@@ -99,7 +100,7 @@ App Store용은 `docs/store/screens/ios/{ko,en,ja}/`에 iPhone 4장(1206×2622, 
 | Crashlytics | 진단(크래시 로그, 기기 정보, 설치 ID) | 크래시 데이터 | [Firebase Android](https://firebase.google.com/docs/android/play-data-disclosure), [iOS](https://firebase.google.com/docs/ios/app-store-data-collection) |
 | Analytics | 앱 활동, 기기 ID | 사용 데이터 | 제출 전 Google Analytics 공개 문서로 확인 |
 | AdMob(광고를 넣을 때만) | 대략 위치(IP), 상호작용, 진단, 광고 ID | 기기 ID, 광고 데이터 등 + ATT, `SKAdNetworkItems` | [AdMob Android](https://developers.google.com/admob/android/privacy/play-data-disclosure), [iOS](https://developers.google.com/admob/ios/privacy/data-disclosure) |
-| 현재 위치 | 수집 아님으로 본다. 앱은 좌표를 저장하거나 밖으로 보내지 않고 운영체제의 주소 변환만 부른다. 제출 전에 다시 확인한다 | 같음 | 아래 위치정보법 |
+| 현재 위치 | 정확한 위치: 수집, 공유 아님, 임시 처리, 선택, 앱 기능(2026-11-15). 앱은 좌표를 저장하거나 우리 쪽으로 보내지 않지만 운영체제 주소 변환이 구글 서버로 보낼 수 있고 정확한 위치 권한을 요청해서 신고한다 | 같은 기준으로 다시 본다 | 아래 위치정보법 |
 
 - iOS `PrivacyInfo.xcprivacy`에 추적 여부, 수집 데이터, Required Reason API(UserDefaults, 파일 시각 등)를 적는다. Firebase Core·Crashlytics·GoogleSignIn은 서명된 매니페스트가 필요한 SDK 목록에 있다([Apple](https://developer.apple.com/support/third-party-SDK-requirements/)).
 - Sign in with Apple(4.8): 구글 로그인으로 사용자 계정을 만들지 않고 드라이브 권한만 받으면 문언상 해당하지 않는다(해석). 심사 메모에 "계정 없음, 백업 권한용"이라고 적는다.
@@ -228,6 +229,7 @@ REVENUECAT_IOS = appl_...
       로고는 옛 회색 연필에서 지금 스토어 아이콘(`docs/store/play-512.png`)으로 바꿨다(사용자, 2026-11-13). 아이콘을 바꾸면 이 로고도 함께 바꾼다.
       같은 날 [브랜딩 확인]을 냈지만 자동 검사가 "홈페이지 웹사이트가 나에게 등록되어 있지 않다"로 막았다. 소유 확인이 시스템에 반영되기까지 24시간을 기다린 뒤
       브랜딩 페이지 [문제 보기] > "문제를 해결함"으로 다시 낸다(2026-11-14 이후). 범위는 민감하지 않은 것만 쓰고 게시 상태는 프로덕션이라, 검증 전에도 로그인 사용자 수 제한은 없다.
+      2026-11-15 "문제를 해결함"으로 다시 냈지만 자동 검사가 같은 이유로 막았다. 검색 콘솔에서 `https://sjunh812.github.io/`는 2026-02-24부터 같은 계정의 인증된 소유자다. `github.io`는 공개 접미사라 DNS 도메인 속성을 만들 수 없어 자동 검사가 URL 접두어 인증을 소유로 보지 않는 것으로 짐작한다. 같은 날 "발견된 문제가 잘못되었다고 생각됨"으로 사람 검토를 요청했다(사유와 설명 입력, 인증 설문 모두 "아니요"). 승인된 도메인에 소유를 인증하지 않은 `sjhstudio.org`가 남아 있어 검토에서 걸리면 뺀다.
 - [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 구글 브랜딩이 거는 GitHub Pages(`sjunh812.github.io` 저장소 `1day1diary/`). 고치면 세 곳을 함께 고친다.
 - [x] 기분·날씨 아이콘: 기분 얼굴은 우리가 Figma에서 그린 것을 코드로 옮겼다(`DiaryMoodFace`). 날씨와 화면 아이콘은 Lucide(ISC) 경로를 옮겼고, 빠져 있던 Lucide 고지를 오픈소스 라이선스 목록에 더했다. 같은 때 iOS에만 들어가는 SDK(GoogleSignIn, Firebase, Google Mobile Ads, RevenueCat KMP)도 목록에 더했다(`config/aboutlibraries/`, 2026-11-13)
 - [x] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(2026-11-01 해제, 시험 호출이 401 "Authentication Failed"). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
@@ -236,7 +238,7 @@ REVENUECAT_IOS = appl_...
 - [x] 처리방침과 약관을 공개하고 앱에 걸기(`LegalLinks`, 원문은 `docs/legal/`, 2026-11-07)
 - [ ] 처리방침 URL을 Play Console, App Store Connect에 넣기 Play는 2026-11-13 검토 승인(노션 주소). App Store는 앱을 만든 뒤.
 - [ ] Play 데이터 보안, App Store 개인정보 라벨(Privacy Manifest는 넣음, 위 "App Store 제출") Play 데이터 보안은 2026-11-13 검토 승인.
-- [ ] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언. iOS ATT 문구와 창은 넣음(2026-11-12, `SKAdNetworkItems` Google 목록 50개). 처리방침 3번에 iOS의 추적 끄는 곳을 더함(원문과 Notion, 2026-11-12), UMP 동의
+- [x] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언(2026-11-12 선언, 2026-11-15 콘솔에서 확인: "앱에 광고가 있음", "광고 ID 사용"). iOS ATT 문구와 창은 넣음(2026-11-12, `SKAdNetworkItems` Google 목록 50개). 처리방침 3번에 iOS의 추적 끄는 곳을 더함(원문과 Notion, 2026-11-12), UMP 동의
 - [x] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(2026-11-11, 계정 승인 뒤)
 - [x] `app-ads.txt`를 `https://sjunh812.github.io/app-ads.txt`에 올리기(개발자 블로그 저장소 맨 앞, 2026-11-11)
 - [x] Play Console 스토어 설정의 개발자 웹사이트를 `https://sjunh812.github.io`로 바꿈(2026-11-11). AdMob 앱 인증은 크롤러가 새 주소를 읽을 때까지(최대 7일) 기다린 뒤 "업데이트 확인"
@@ -247,28 +249,57 @@ REVENUECAT_IOS = appl_...
 - [ ] 세 언어로 화면 확인: 가장 긴 영어에서 잘리거나 겹치는 곳이 없는지, 날짜·시각이 그 언어 형식인지 2026-11-14 폰(API 36)에서 홈·달력·돌아보기·설정·쓰기·Plus·백업을 세 언어, 기본·1.3배 글자로 봤다. 겹침은 없고 날짜·시각은 각 언어 형식. 1.3배에서 홈의 백업 상태 줄이 영어·일본어로 말줄임되고, 일본어 백업 화면 설명이 "変わった/分だけ"처럼 어절 중간에서 줄이 나뉜다(다듬을 거리). 태블릿은 보지 못했다.
 - [x] Play Console 판매자(trader) 상태 선언: 모든 계정이 2027-02-01까지 한다(위 "출시 국가") 2026-11-13 검토 승인.
 - [x] 출시 국가(D11): 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(2026-11-11 사용자 결정). 일본에 유료 기능을 팔기 전에 특정상거래법 표시와 결제 프로필 동의를 마친다
-- [x] 이전 업그레이드 계측 테스트 통과(`docs/migration.md` 시험) 2026-11-14 별도 에뮬레이터(API 29)에서 통과: 기본, 1004편·사진 336장, 복사 중·바꿔 넣기 중 강제 종료, 잠금(0427) 다섯 가지 모두 원본 해시 그대로, 일기·사진 수 일치, 계측 시험 통과.
+- [x] 이전 업그레이드 계측 테스트 통과(`docs/migration.md` 시험) 2026-11-14 별도 에뮬레이터(API 29)에서 통과: 기본, 1004편·사진 336장, 복사 중·바꿔 넣기 중 강제 종료, 잠금(0427) 다섯 가지 모두 원본 해시 그대로, 일기·사진 수 일치, 계측 시험 통과. 2026-11-15 2.0.0 (43)과 같은 코드(`c05d03ab`)로 다시 돌려 통과: 일기 204편·사진 69장(없는 파일 1개는 줄만), 원본 해시 그대로, 계측 시험 통과.
+
+## 다음 Android 출시 때 할 일
+
+- [x] 네이티브 디버그 기호를 AAB에 넣는다. 2.0.0 (43)에 Play 경고가 떴다("네이티브 코드를 포함하며 아직 디버그 기호가 업로드되지 않았습니다"). `debugSymbolLevel = "SYMBOL_TABLE"`은 이미 있었지만 AGP가 기본으로 찾는 NDK(28.2.13676358)가 CI에 없어 기호 추출을 조용히 건너뛰었다. NDK 판을 `androidNdk`(28.1.13356709)로 고정하고, 출시 워크플로가 그 판을 설치한 뒤 AAB 안 `BUNDLE-METADATA/com.android.tools.build.debugsymbols/`가 없으면 실패하게 했다(2026-11-15, 로컬 출시 AAB에서 `libsqliteJni`·`libdatastore_shared_counter` 기호 확인).
+- [x] 데이터 보안에서 1.7.4에만 있던 사진, 연락처를 뺐다(2026-11-15 저장). 2.0.0을 100%로 내서 1.7.4가 더 배포되지 않기 때문이다. 정확한 위치는 "수집, 공유 아님, 임시 처리, 선택, 앱 기능"으로 남겼다. 운영체제 주소 변환이 좌표를 구글 서버로 보낼 수 있고 앱이 정확한 위치 권한을 요청해서다.
+- [x] 데이터 보안 변경과 출시 국가 변경을 검토에 보냈고 승인됐다(2026-11-15). 43 (2.0.0)도 승인됐다.
+- [x] 기본·맞춤 스토어 등록정보의 새 아이콘, 스크린샷, 그래픽 이미지, 설명을 검토에 보냈다(2026-11-15, AI 애셋 선언: 라벨 지정 안 함).
+- [x] 2026-11-15 게시 개요에서 변경사항 26개를 게시했다. 2.0.0 (43)이 8개 나라(한국, 일본, 미국, 캐나다, 오스트레일리아, 뉴질랜드, 아르헨티나, 인도)에 100% 출시됐고, 새 아이콘·스크린샷·설명·데이터 보안도 함께 나갔다. Play 안내로는 보통 1시간 안에 스토어에 보인다.
+- [ ] 출시 뒤 며칠 동안 Crashlytics 비정상 종료, 기록 이전 실패 수, Play 비정상 종료·ANR을 본다. 이전 실패가 하나라도 있으면 원인을 고쳐 다음 빌드로 낸다.
+- [x] 출시 국가에 미국, 캐나다, 오스트레일리아, 뉴질랜드를 더했다(2026-11-15 저장, D11). 원래 있던 아르헨티나, 인도는 1.7.4 사용자가 업데이트를 받도록 남겼다.
+- 일본 판매: 특정상거래법 표시는 Play가 결제 프로필 정보로 보여 주고, 자금결제법·할부판매법 확인은 Google 결제 센터가 요청할 때 답한다. 개발자가 따로 켜는 설정은 없다([Play](https://support.google.com/googleplay/android-developer/answer/6223646), [결제 센터](https://support.google.com/paymentscenter/answer/17595997)).
+- [x] Play "비트맵 다운샘플링으로 앱 성능을 개선하세요"(43): 2.0.0 CI 빌드 AAB의 매핑으로 풀면 `mzb`는 `com.google.android.gms.internal.ads.zzemc`(Google 광고 SDK 내부), `n2c`는 `com.android.billingclient.api.zzet`(Play 결제 라이브러리 내부)다. 우리 코드가 아니라 고칠 것이 없다. 두 SDK를 올릴 때 경고가 사라지는지만 본다(2026-11-15 확인).
+- [x] Play "일부 사용자에게는 더 넓은 화면이 표시되지 않을 수 있습니다"와 "앱에서 더 넓은 화면용으로 지원 중단된 API 또는 파라미터를 사용합니다"(43): 우리 코드 문제가 아니라 고칠 것이 없다(2026-11-15 확인).
+  - 앱의 모든 화면(`MainActivity`, 개발 빌드의 `DevModeActivity`·`ScreenCatalogActivity`)은 이미 `enableEdgeToEdge()`를 부르고, 테마 XML에 `statusBarColor`·`windowLayoutInDisplayCutoutMode`가 없으며, 우리 코드는 지원 중단 창 API를 부르지 않는다.
+  - 로컬 출시 APK의 dex를 훑어 R8 매핑으로 풀면, `Window.setStatusBarColor`·`setNavigationBarColor`·`setDecorFitsSystemWindows`와 `layoutInDisplayCutoutMode`를 쓰는 곳은 모두 androidx다. `androidx.activity` 1.13.0의 `EdgeToEdgeApi23/26/28/29/30/35`(곧 `enableEdgeToEdge()` 자체), `androidx.core`의 `WindowCompat`, `androidx.core:core-splashscreen` 1.2.0의 `SplashScreen$Impl31`이다. 광고 SDK와 결제 SDK에서는 나오지 않았다.
+  - 이 호출은 Android 14 이하에서 넓은 화면을 켜려고 SDK 판을 보고 부르는 하위 호환 코드라 지울 수 없다. 최신 `androidx.activity` 1.14.0-alpha03에도 그대로 있고, `core-splashscreen`은 1.2.0이 최신이라 올려서 없앨 판도 없다. Play는 이 호출을 정적으로 찾아 경고하므로 이 라이브러리를 쓰는 동안은 경고가 남는다.
+  - Android 16 폰(Medium_Phone)과 Android 15 태블릿(Pixel_Tablet)에서 한국어, 라이트·다크, 폰 가로로 봤다. 상태 표시줄과 내비게이션 바는 투명하고 앱 화면이 그 아래까지 그려지며, 글자·버튼이 막대에 겹치지 않았다. 쓰기 화면은 에뮬레이터가 화면 키보드 대신 펜 도구막대만 띄워 전체 키보드 인셋은 보지 못했다. 노치(잘린 화면) 기기도 보지 못했다.
+  - 다음 출시 때 Play의 [더보기]에서 짚은 API 목록이 위와 같은지만 본다. 다른 라이브러리가 나오면 그 판의 릴리스 노트를 확인한다.
+- 관리형 게시가 켜져 있다. 검토를 통과해도 게시 개요에서 [게시]를 눌러야 사용자에게 나간다.
+- [ ] 스토어 리뷰 창(스펙 007)은 내부 테스트 트랙에서 시험한다. 테스터 목록에 있는 Gmail 계정이 기기 기본 계정이고, 그 계정으로 Play에서 앱을 받은 적이 있고, 이 앱에 리뷰를 남긴 적이 없어야 창이 뜬다. 내부 앱 공유로 받으면 제출 버튼이 꺼져 있다([Play](https://developer.android.com/guide/playcore/in-app-review/test)). iOS는 개발 빌드에서 늘 뜨고 TestFlight에서는 뜨지 않는다.
 
 ## App Store 제출
 
 App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서 사람이 할 일을 나눠 적는다. 규격과 정책은 제출 직전에 다시 본다.
 
-### 출시 순서 (2026-11-14 정리)
+### 출시 순서 (2026-11-15 정리)
 
-앞 단계가 뒤 단계의 전제다. 자세한 값은 아래 "콘솔에서 할 일"과 "결제 콘솔 설정"에 있다. [사용자]는 로그인·계약·키 입력이라 직접, [같이]는 화면을 보며 함께, [코드]는 저장소에서 한다.
+앞 단계가 뒤 단계의 전제다. 자세한 값은 아래 "콘솔에서 할 일"과 "결제 콘솔 설정"에 있다. [사용자]는 로그인·계약·결제·키 입력이라 직접, [같이]는 화면을 보며 함께, [코드]는 저장소에서 한다.
 
-1. [사용자] Apple Developer Program 가입·갱신 상태를 확인한다. 팀 ID를 적어 둔다(`project.yml`에 아직 서명 팀이 없다).
-2. [사용자] App Store Connect > Business: 유료 앱 계약, 세금, 은행, Korean Law(사업자등록번호). 승인에 시간이 걸릴 수 있어 가장 먼저 낸다.
-3. [사용자] Apple Developer: 앱 ID `org.sjhstudio.diary`(인앱 결제만), Apple Distribution 인증서, App Store 배포 프로필.
-4. [같이] App Store Connect 앱 만들기(기본 한국어, 영어·일본어 더함). 인앱 구입 `ad_free`, 구독 그룹과 `plus_yearly`를 세 언어로 만든다.
-5. [사용자] RevenueCat: 계정 권한 문제("앱 구성을 추가할 권한이 없다")를 먼저 푼다 → App Store 앱 추가 → 인앱 구입 키 올리기 → 두 상품을 권한 `ad_free`·`plus`에 잇기 → Apple 공개 키 받기.
-6. [사용자] 키 넣기: `iosApp/iosApp/Local.xcconfig`에 `REVENUECAT_IOS` 줄이 아직 없다(구글·광고 값 6개는 있음). CD 비밀값 `IOS_*` 4개, `GOOGLE_SERVICE_INFO_PLIST_BASE64`, `IOS_LOCAL_XCCONFIG_BASE64`.
-7. [코드] 출시 전 앱 손볼 것: iOS 네이티브 광고 카드를 Android와 같은 모양(앱 글꼴, 목록 줄·작은 연보라 버튼)으로 맞춘다(Android만 2026-11-13에 바뀜). iOS 세 언어·큰 글자 화면을 시뮬레이터에서 본다(Android만 봄).
-8. [같이] Xcode Archive → Privacy Report 확인 → TestFlight 업로드. CD는 IPA만 만들고 올리지 않는다.
-9. [사용자] TestFlight 실기기: 샌드박스 구매·취소·승인 대기·복원·재설치 뒤 복원·구독 만료, 구글 드라이브 백업·복원, 첫 광고 앞 추적 허용(ATT) 창, Face ID 잠금.
-10. [같이] 등록 정보: 이름·부제·홍보 문구·키워드·설명(끝에 약관·처리방침), 스크린샷(iPhone 6.3"·iPad 13"), 연령 등급, 카테고리, 개인정보 라벨, URL(처리방침 노션·지원·마케팅), 심사 메모, 출시 국가.
-11. [사용자] 심사 제출.
-12. 출시 뒤: [코드] 설정 "리뷰 남기기"에 App Store 앱 번호, [사용자] AdMob iOS 앱에 스토어 연결, Google Cloud iOS OAuth 클라이언트에 App Store ID·팀 ID.
+1. [사용자] Apple Developer Program 개인 가입: 2026-11-15 신청했고 같은 날 승인됐다(연 99달러, 2단계 인증을 켠 Apple 계정, 계정 이름은 법적 실명, 스토어 판매자 이름에 실명이 나온다). 같은 계정이 회사 팀에 '사용자 지원' 역할로 들어가 있지만 그 팀은 쓰지 않는다(2026-11-15 사용자 결정). 개인 팀 ID는 Apple Developer 계정의 멤버십 세부 사항에 있다.
+2. [코드] 개인 팀 ID를 `iosApp/project.yml`의 `DEVELOPMENT_TEAM`에 넣고 `xcodegen generate`로 프로젝트를 다시 만들었다(PR #16). 팀 ID는 서명된 앱에 그대로 드러나는 값이라 비밀값이 아니다. CD 비밀값 `IOS_TEAM_ID`에도 같은 값을 넣었다(2026-11-15).
+3. [사용자] App Store Connect > 비즈니스: 유료 앱 계약, 세금, 은행, 규정 준수 > Korean Law(사업자등록번호). 계약이 끝나야 상품 가격을 정할 수 있고 승인에 시간이 걸려 가입 직후 가장 먼저 낸다.
+4. [사용자] Apple Developer: 앱 ID `org.sjhstudio.diary`(켤 기능은 인앱 결제뿐), Apple Distribution 인증서, App Store 배포 프로필. Xcode 자동 서명으로 Archive하면 인증서와 프로필을 Xcode가 만들 수 있다. CD에 넣을 .p12와 프로필은 따로 내려받는다.
+5. [같이] App Store Connect 앱 만들기(기본 한국어, 영어·일본어 더함). 인앱 구입 `ad_free`, 구독 그룹과 `plus_yearly`를 세 언어로 만든다.
+6. [같이] 추천 노미네이션: 앱 > 추천 > 노미네이션 > 만들기에서 유형 '앱 출시'로 낸다. 희망 게시일보다 최소 3주 앞서 내야 해서(공식 페이지는 2주, 도움말은 3주) 앱을 만든 뒤 바로 내고, 출시는 '수동 출시'로 두어 날짜를 맞춘다. 비용이 없고 선정은 보장되지 않는다. 낼 문구는 이때 함께 정한다. Play 추천 후보 양식은 2022년부터 있던 기존 앱이라 대상이 아니어서 내지 않는다(2026-11-15 결정).
+7. [사용자] 인앱 구입 키: App Store Connect > 사용자 및 액세스 > 통합 > 인앱 구입에서 키(.p8)를 만들어 받는다. 잃어버리면 새로 만든다.
+8. [사용자] RevenueCat: 계정 권한 문제는 풀렸다(Owner, App Store 앱 추가 양식이 열림, 2026-11-15 확인). 같은 프로젝트에 App Store 앱 추가(번들 ID `org.sjhstudio.diary`, 7의 키 올리기) → 두 상품을 권한 `ad_free`·`plus`에 잇기 → Apple 공개 키(`appl_`로 시작) 받기.
+9. [사용자] 키 넣기: `iosApp/iosApp/Local.xcconfig`에 `REVENUECAT_IOS` 줄을 더한다(구글·광고 값 6개는 있음). CD 비밀값 `IOS_*` 4개, `GOOGLE_SERVICE_INFO_PLIST_BASE64`, `IOS_LOCAL_XCCONFIG_BASE64`(키를 넣은 뒤의 파일).
+10. [같이] Xcode Archive → Generate Privacy Report 확인 → TestFlight 업로드. CD는 IPA만 만들고 올리지 않는다.
+11. [사용자] TestFlight 실기기 확인(시뮬레이터에서 볼 수 없던 것): 샌드박스 구매·취소·승인 대기(구입 요청)·복원·재설치 뒤 복원·구독 만료, 구글 드라이브 백업·복원, 카메라 촬영, 약관·처리방침 링크, 잠금 가림 화면, 기기 글자 크기를 바꾼 뒤 반영, 첫 광고 앞 추적 허용(ATT) 창, Face ID 잠금. App Store 리뷰 창은 TestFlight에서 뜨지 않는다(시뮬레이터 개발 빌드에서 뜨는 것은 확인함). 문제가 나오면 [코드]로 고치고 10부터 다시 한다.
+12. [같이] 등록 정보: 이름·부제·홍보 문구·키워드·설명(끝에 약관·처리방침), 스크린샷(iPhone 6.3"·iPad 13"), 연령 등급, 카테고리, 개인정보 라벨, URL(처리방침·지원·마케팅), 심사 메모, 출시 국가, 출시 방식 '수동 출시'.
+13. [사용자] 심사 제출. 앱 빌드와 첫 인앱 상품 두 개를 함께 낸다.
+14. [사용자] 심사를 통과하면 6에서 정한 날에 App Store Connect에서 직접 출시한다.
+15. 출시 뒤:
+    - [사용자] AdMob iOS 앱에 App Store를 연결한다.
+    - [사용자] Google Cloud iOS OAuth 클라이언트에 App Store ID(6835116731)와 팀 ID를 넣는다. 앱을 만들어 번호가 나왔으니 출시 전에 넣어도 된다.
+    - [사용자] 디시 일기장 갤러리에 소개 글을 올린다.
+
+앱 쪽 점검은 끝났다(2026-11-15, 5차까지, 앱 문제 없음). 남은 확인은 위 11의 실기기 항목뿐이다. 점검 기록:
+iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-11-15). 같은 날 iOS 점검(iPhone 17, iPad Pro 13, 한국어, 라이트·다크, 접근성 큰 글자, 가로)으로 추적 허용 순서, 복원·파일 백업 중 백그라운드 시간, 잠금 가림 화면 번쩍임, 출시 빌드 키 검사, 알림 막힘 표시, 낱말 끊김, "휴대폰" → "기기"를 고쳤다. 이어서 영어·일본어 화면, Face ID 잠금(맞음·틀림·비밀번호로 열기), 위치 권한 거절, 카메라 취소를 봤고, Face ID 기기에서 숫자판 아이콘을 얼굴로 바꿨다. iPhone 16e(접근성 큰 글자로 온보딩·홈·설정·Plus)와 iPad mini(세로 레일 한 칸)도 봤다. 3차로 달력·돌아보기·찾기·휴지통 복원·받는 글꼴·광고 없는 하루를 보고 iOS 광고 카드 세 가지(카드형 버튼이 세로로 늘어남, 글꼴·화면 모드를 바꿔도 카드가 그대로, 다크 모드 모서리 검정)를 고쳤다. 4차로 홈 탭 다시 누르기(PR #4)·수정 임시 저장과 버리기·잠금 끄기·백업·Plus 다크를 보고 구글 로그인 확인 창에 'iosApp'이 나오던 것을 앱 이름으로 고쳤다. 5차(편지·의견 보내기 설문·라이선스·약관·고급 통계 안내·달력 넘김)에서는 앱 문제가 나오지 않았다. 약관 노션 페이지는 시뮬레이터 Safari가 GitHub Pages까지 그리지 못했다. 에디터 서식과 사진 한도는 시뮬레이터에서 글을 입력할 수 없어 iOS 화면 시험(EditorRoundTripUiTest 등)으로 갈음했다.
 
 ### 앱에 들어 있는 것
 
@@ -286,16 +317,19 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 | 구매 | RevenueCat KMP SDK. 광고 제거, Plus 연 구독, 구매 복원, 구독 관리 링크. 복원은 Apple 계정 로그인 창을 띄울 수 있다 | `IosBilling.kt` |
 | 전면 광고 원격 스위치 | Firebase Remote Config `interstitial_enabled`. Android와 같은 값을 본다 | `FirebaseReporter` |
 
-아직 없는 것: 설정의 "리뷰 남기기" 줄(App Store 앱 번호가 정해진 뒤 `storeReviewUrl`에 넣는다), 개발자 모드(실행 인자 `-diaryPlan PLUS`로 요금제만 바꾼다).
+설정의 "리뷰 남기기"는 App Store 리뷰 쓰기 주소(앱 Apple ID 6835116731, 2026-11-16)로 보낸다. 아직 없는 것: 개발자 모드(실행 인자 `-diaryPlan PLUS`로 요금제만 바꾼다).
 
 ### 콘솔에서 할 일
 
+- [x] Apple Developer Program 개인 가입: 2026-11-15 승인. 개인 팀 ID를 `project.yml`(PR #16)과 CD 비밀값 `IOS_TEAM_ID`에 넣었다. 회사 팀은 쓰지 않는다.
 - [ ] Apple Developer: 앱 ID `org.sjhstudio.diary`를 만든다. 켤 기능은 인앱 결제뿐이다(푸시, iCloud, App Group은 쓰지 않는다). Apple Distribution 인증서와 App Store 배포 프로필을 만들어 CD 비밀값에 넣는다.
-- [ ] App Store Connect > Business: 유료 앱 계약, 세금, 은행 정보. 계약이 끝나야 상품 가격이 내려온다. Compliance > Korean Law에 사업자등록번호를 넣는다(위 "사업자 준비" 4).
+- [ ] App Store Connect > 비즈니스: 유료 앱 계약, 세금, 은행 정보. 계약이 끝나야 상품 가격이 내려온다. 규정 준수 > Korean Law에 사업자등록번호를 넣는다(위 "사업자 준비" 4).
 - [ ] 앱 만들기: 번들 ID `org.sjhstudio.diary`, 기본 언어 한국어, 영어와 일본어 현지화를 더한다. 앱 이름은 영어 "1 Day 1 Diary", 일본어 「1日1日記」로 정했다(D12, 2026-11-13).
+- [ ] 추천 노미네이션: 유형 '앱 출시', 희망 게시일보다 최소 3주 앞서 낸다. 출시 방식은 '수동 출시'. Play 추천 후보 양식은 기존 앱이라 내지 않는다(2026-11-15).
 - [ ] 인앱 구입: 비소모품 `ad_free`(₩9,900), 구독 그룹 하나에 `plus_yearly`(1년, ₩14,900, 체험 없음). 상품마다 세 언어 표시 이름과 설명, 심사용 화면 캡처를 넣는다. 첫 상품은 앱 빌드와 함께 심사에 낸다.
-- [ ] RevenueCat: 계정에 "앱 구성을 추가할 권한이 없다"고 나와 먼저 계정 조건(이메일 인증 등)을 푼다(2026-11-13 확인). 같은 프로젝트에 App Store 앱을 더하고 인앱 구입 키(App Store Connect > 사용자 및 액세스 > 통합)를 올린다. 두 상품을 권한에 잇고 Apple 공개 키를 `Local.xcconfig`에 넣는다.
-- [x] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인 것을 확인했다(2026-11-13). App Store ID와 팀 ID 칸은 앱이 생긴 뒤 넣는다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
+- [ ] 인앱 구입 키: 사용자 및 액세스 > 통합 > 인앱 구입에서 .p8 키를 만든다. 저장소에 두지 않는다.
+- [ ] RevenueCat: 권한 문제는 풀렸다(Owner, 2026-11-15 확인). 같은 프로젝트에 App Store 앱을 더하고 인앱 구입 키를 올린다. 두 상품을 권한에 잇고 Apple 공개 키를 `Local.xcconfig`의 `REVENUECAT_IOS`에 넣는다.
+- [x] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인 것을 확인했다(2026-11-13). App Store ID와 팀 ID 칸은 출시 뒤 넣는다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
 - [x] Firebase(`diary-app`): iOS 앱은 이미 있었고 `GoogleService-Info.plist`를 받아 `iosApp/iosApp/`에 두었다(2026-11-13). CD 비밀값 `GOOGLE_SERVICE_INFO_PLIST_BASE64`는 직접 넣는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
 - [ ] 개인정보 라벨: 위 "스토어 신고" 표대로 답한다. 광고에 쓰는 기기 ID와 광고 데이터는 "추적에 사용"으로 답한다(ATT를 띄운다). 일기, 사진, 기분, 주소는 수집하지 않는다.
 - [ ] 연령 등급 설문, 카테고리(라이프스타일), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
@@ -305,7 +339,8 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 - [ ] 스크린샷 올리기: `docs/store/screens/ios/{ko,en,ja}/`의 iPhone 4장은 위 표의 medium(1206×2622) 칸, iPad 4장은 13" 칸에 올린다. App Store Connect가 6.9"(large) 칸을 따로 요구하면 1320×2868로 다시 만든다(확인 못 함).
 - [ ] 심사 메모: 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
 - [ ] 출시 국가: 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(D11). 미국 일부 주의 연령 확인 요구(위 "나라마다 걸리는 일")가 이 앱에 걸리는지 제출 직전에 다시 본다.
-- [ ] TestFlight에서 샌드박스 계정으로 구매, 취소, 승인 대기(구입 요청), 복원, 재설치 뒤 자동 복원, 구독 만료를 확인한다. 시뮬레이터에서는 RevenueCat 키가 없어 확인하지 못했다(2026-11-13).
+- [ ] TestFlight 실기기: 샌드박스 계정으로 구매, 취소, 승인 대기(구입 요청), 복원, 재설치 뒤 자동 복원, 구독 만료. 함께 구글 드라이브 백업·복원, 카메라 촬영, 약관 링크, 잠금 가림 화면, 기기 글자 크기 반영을 본다. 시뮬레이터에서는 RevenueCat 키가 없거나 시뮬레이터가 못 해서 보지 못했다(2026-11-13, 2026-11-15).
+- [ ] 출시 뒤: AdMob iOS 앱에 스토어 연결, Google Cloud iOS OAuth 클라이언트에 App Store ID·팀 ID.
 
 ## Firebase
 

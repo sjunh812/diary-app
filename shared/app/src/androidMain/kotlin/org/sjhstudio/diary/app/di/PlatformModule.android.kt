@@ -22,6 +22,7 @@ import org.sjhstudio.diary.app.backup.AndroidBackupNotifier
 import org.sjhstudio.diary.app.backup.AndroidBackupScheduler
 import org.sjhstudio.diary.app.billing.Billing
 import org.sjhstudio.diary.app.billing.billing
+import org.sjhstudio.diary.app.review.PlayStoreReview
 import org.sjhstudio.diary.app.telemetry.telemetrySink
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
@@ -29,6 +30,7 @@ import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.StoreReview
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
@@ -83,6 +85,7 @@ internal actual val platformModule: Module =
         // 광고 SDK는 처음 부를 때 켜짐
         single<AdPlayer> { AdMobPlayer(androidContext(), AdUnits(androidContext()), get()) }
         single<AdSwitch> { adSwitch(androidContext()) }
+        single<StoreReview> { PlayStoreReview(androidContext(), get()) }
         // 재설치 뒤 구매를 바로 복원하게 앱 시작 때 만듦. 디스크를 읽어 화면 스레드가 아니라 시작 단계에서
         single { billing(androidContext(), get()) }
         single<StartupWork> { StartupWork { get<Billing>() } }

@@ -68,6 +68,8 @@ targets:
       properties:
         # 앱 이름은 언어별 InfoPlist.strings가 바꾼다(D12).
         CFBundleDisplayName: 1 Day 1 Diary
+        # 구글 로그인 확인 창 같은 시스템 창이 표시 이름 대신 쓰는 이름. 빌드 이름(iosApp)이 보이지 않게 앱 이름과 같음
+        CFBundleName: 1 Day 1 Diary
         CFBundleDevelopmentRegion: en
         # Face ID로 잠금을 열 때 처음 한 번 묻는 글. 언어별 InfoPlist.strings가 바꾼다.
         NSFaceIDUsageDescription: Use Face ID to unlock your diary.
@@ -186,6 +188,8 @@ targets:
         # 일반 시뮬레이터 대상으로 빌드할 때 Intel(x86_64)까지 묶지 않게 뺀다.
         "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
         CODE_SIGN_STYLE: Automatic
+        # 개인 개발자 팀. 회사 팀은 쓰지 않음
+        DEVELOPMENT_TEAM: C5XA3NN9J6
         # Gradle이 만든 static framework Shared를 찾는 자리와 링크 옵션.
         FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
         OTHER_LDFLAGS: -framework Shared
@@ -196,6 +200,18 @@ targets:
         Debug:
           EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE: YES
     preBuildScripts:
+      # 출시 빌드는 드라이브·광고·구매 키와 Firebase 설정이 다 있어야 만든다. Xcode에서 손으로 아카이브해도 같다.
+      - name: Check Release Config
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "$CONFIGURATION" != "Release" ]; then
+            exit 0
+          fi
+          sh "$SRCROOT/../scripts/release/check-ios-config.sh" "$SRCROOT/iosApp/Local.xcconfig" || exit 1
+          if [ ! -f "$SRCROOT/iosApp/GoogleService-Info.plist" ]; then
+            echo "error: GoogleService-Info.plist가 없어요" >&2
+            exit 1
+          fi
       - name: Compile Kotlin Framework
         basedOnDependencyAnalysis: false
         script: |

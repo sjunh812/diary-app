@@ -105,6 +105,11 @@ object DiaryIcons {
         )
     }
 
+    /** 의견 보내기(스펙 007). 동그란 말풍선만으로는 16에서 꼬리 쪽으로 쏠려 점 셋을 둠 */
+    val MessageCircleMore: ImageVector by lazy {
+        lucide("message-circle-more", "M7.9 20A9 9 0 1 0 4 16.1L2 22Z", "M8 12h.01", "M12 12h.01", "M16 12h.01")
+    }
+
     val Lock: ImageVector by lazy {
         lucide("lock", "M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z", "M7 11V7a5 5 0 0 1 10 0v4")
     }
@@ -120,6 +125,18 @@ object DiaryIcons {
             "M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2",
             "M8.65 22c.21-.66.45-1.32.57-2",
             "M9 6.8a6 6 0 0 1 9 5.2v2"
+        )
+    }
+    val ScanFace: ImageVector by lazy {
+        lucide(
+            "scan-face",
+            "M3 7V5a2 2 0 0 1 2-2h2",
+            "M17 3h2a2 2 0 0 1 2 2v2",
+            "M21 17v2a2 2 0 0 1-2 2h-2",
+            "M7 21H5a2 2 0 0 1-2-2v-2",
+            "M8 14s1.5 2 4 2 4-2 4-2",
+            "M9 9h.01",
+            "M15 9h.01"
         )
     }
     val Delete: ImageVector by lazy {

@@ -321,7 +321,7 @@ private fun Recent(recent: RecentMood) {
         }
     Card(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}) {
         BasicText(stringResource(title), style = typography.headline.copy(color = colors.textPrimary))
-        BasicText(
+        PhraseText(
             body.withEmphasis(SpanStyle(color = colors.textPrimary, fontWeight = typography.bodyStrong.fontWeight)),
             style = typography.body.copy(color = colors.textSecondary)
         )

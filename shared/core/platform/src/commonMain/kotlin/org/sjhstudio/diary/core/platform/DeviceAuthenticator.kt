@@ -7,6 +7,9 @@ package org.sjhstudio.diary.core.platform
 interface DeviceAuthenticator {
     fun biometricStatus(): BiometricStatus
 
+    /** 숫자판 생체 인증 버튼 아이콘. Android는 지문과 얼굴을 미리 알 수 없어 지문 */
+    fun biometricKind(): BiometricKind = BiometricKind.Fingerprint
+
     /** 휴대폰에 화면 잠금(PIN·패턴·암호)이 있는지 */
     fun isDeviceSecure(): Boolean
 
@@ -18,6 +21,8 @@ interface DeviceAuthenticator {
 }
 
 enum class BiometricStatus { Available, NoneEnrolled, Unavailable }
+
+enum class BiometricKind { Fingerprint, Face }
 
 enum class AuthResult { Success, Canceled, Failed }
 

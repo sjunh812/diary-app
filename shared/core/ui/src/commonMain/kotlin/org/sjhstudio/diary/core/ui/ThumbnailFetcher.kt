@@ -12,6 +12,7 @@ import coil3.key.Keyer
 import coil3.request.Options
 import okio.FileSystem
 import okio.Path.Companion.toPath
+import okio.SYSTEM
 
 /**
  * 사진 칸이 Coil에 넘기는 모델

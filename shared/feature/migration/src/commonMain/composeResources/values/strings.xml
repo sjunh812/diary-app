@@ -56,8 +56,8 @@
     <string name="migration_failed_body_unknown">The transfer stopped because something went wrong. Your original diary is untouched.</string>
     <string name="migration_view_legacy">View old entries</string>
     <string name="migration_retry">Try again</string>
-    <string name="migration_no_space_title">Your phone is low on storage</string>
-    <string name="migration_no_space_body">You need %1$s more space on your phone for the transfer. Delete photos or apps you don't use, then check again. Your original diary is untouched.</string>
+    <string name="migration_no_space_title">Your device is low on storage</string>
+    <string name="migration_no_space_body">You need %1$s more space on your device for the transfer. Delete photos or apps you don't use, then check again. Your original diary is untouched.</string>
     <string name="migration_check_again">Check again</string>
 
     <!-- 관문을 지난 뒤 한 번 알림(FR-011) -->

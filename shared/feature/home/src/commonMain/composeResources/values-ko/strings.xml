@@ -23,9 +23,13 @@
     <string name="detail_kept_both_other">다른 버전 보기</string>
     <string name="detail_kept_both_keep">이 버전만 남기기</string>
     <string name="detail_kept_both_close">둘 다 남기기</string>
-    <string name="detail_elsewhere_photo">백업한 휴대폰에 있는 사진</string>
+    <string name="detail_elsewhere_photo">백업한 기기에 있는 사진</string>
     <string name="detail_missing_title">일기를 찾을 수 없어요</string>
     <string name="detail_missing_body">삭제했거나 휴지통으로 옮긴 일기일 수 있어요.</string>
     <string name="tip_home_list_style">일기 목록을 카드나 사진 격자로도 볼 수 있어요.</string>
     <string name="tip_home_list_style_action">변경하기</string>
+    <string name="feedback_card_title">1일 1일기, 사용해 보니 어떠세요? 😊</string>
+    <string name="feedback_card_body">더 나은 앱을 만들기 위해 설문을 받고 있어요. 불편했던 점과 원하시는 기능을 알려주세요.</string>
+    <string name="feedback_card_action">설문 참여하기</string>
+    <string name="feedback_card_close">닫기</string>
 </resources>

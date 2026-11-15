@@ -25,5 +25,5 @@
     <string name="ad_notice_title">전면 광고는 하루 한 번이에요</string>
     <string name="ad_notice_body">일기를 저장하고 목록으로 돌아갈 때만 잠깐 나와요.</string>
     <string name="ad_notice_ok">확인</string>
-    <string name="write_failed">저장하지 못했어요. 휴대폰 저장 공간을 확인해 주세요.</string>
+    <string name="write_failed">저장하지 못했어요. 기기 저장 공간을 확인해 주세요.</string>
 </resources>

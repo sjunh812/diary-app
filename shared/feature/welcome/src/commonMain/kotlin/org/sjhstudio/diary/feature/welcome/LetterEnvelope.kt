@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,6 +52,7 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.PI
 import kotlin.math.cos
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
@@ -205,13 +205,13 @@ internal fun LetterStage(progress: () -> Float, onOpen: () -> Unit, modifier: Mo
                 Modifier.graphicsLayer { alpha = 1f - progress().between(0f, HEAD_FADE_END) },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                BasicText(
+                PhraseText(
                     stringResource(Res.string.letter_arrived),
-                    Modifier.semantics { heading() },
-                    style = typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
+                    style = typography.title1.copy(color = colors.textPrimary, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak),
+                    semantics = { heading() }
                 )
                 Spacer(Modifier.height(DiarySpacing.x2))
-                BasicText(
+                PhraseText(
                     stringResource(Res.string.letter_to),
                     style = typography.label.copy(color = colors.accentText, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
                 )

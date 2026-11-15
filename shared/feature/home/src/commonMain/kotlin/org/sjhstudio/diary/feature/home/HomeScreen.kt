@@ -46,7 +46,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.number
+import kotlinx.datetime.yearMonth
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
@@ -70,6 +70,8 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.MonthCount
+import org.sjhstudio.diary.core.model.monthAt
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
@@ -128,7 +130,9 @@ fun HomeRoute(
     val rows = if (favoritesOnly) favoriteRows else allRows
     // 첫 목록을 읽어야 다 그려진 것(시작 시간 측정 기준)
     ReportDrawnWhen { allRows.loadState.refresh !is LoadState.Loading }
-    val months by viewModel.months.collectAsStateWithLifecycle()
+    val allMonths by viewModel.allMonths.collectAsStateWithLifecycle()
+    val favoriteMonths by viewModel.favoriteMonths.collectAsStateWithLifecycle()
+    val monthCounts = if (favoritesOnly) favoriteMonths else allMonths
     val look by viewModel.look.collectAsStateWithLifecycle()
     val style by viewModel.style.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
@@ -137,7 +141,8 @@ fun HomeRoute(
     val header = rememberDiaryCollapsingHeaderState()
     OnTabReselected {
         // 코드로 올리면 중첩 스크롤을 안 거쳐 머리가 접힌 채 남아 머리도 함께 펼침
-        // 멀리서 부드럽게 올리면 수백 줄을 지나며 느리고 번쩍여, 몇 줄 앞으로 바로 옮긴 뒤 짧게만 올림(Google 앱 방식)
+        // 멀리서 부드럽게 올리면 수백 줄을 지나며 느리고 번쩍여, 첫 일기 줄로 바로 옮긴 뒤 짧게만 올림(Google 앱 방식)
+        // 첫 줄은 늘 맨 위 달이라 올라가는 동안 제목에 다른 달이 끼지 않음
         coroutineScope {
             launch { header.expand() }
             if (style == ListStyle.PHOTO_GRID) {
@@ -153,18 +158,17 @@ fun HomeRoute(
     val today = rememberToday()
     var picking by remember { mutableStateOf(false) }
     var menuFor by rememberSaveable { mutableStateOf<String?>(null) }
-    // 스크롤마다 다시 그리지 않게 맨 위 일기가 바뀔 때만 값이 바뀜
-    val visible by remember(rows, list, grid) {
+    // 스크롤마다 다시 그리지 않게 맨 위 줄의 달이 바뀔 때만 값이 바뀜
+    val shown by remember(rows, list, grid, monthCounts, today) {
         derivedStateOf {
             val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
-            rows.itemCount.takeIf { it > 0 }?.let { rows.peek((first - LIST_TOP_ITEMS).coerceIn(0, it - 1))?.date }
+            val position = (first - LIST_TOP_ITEMS).coerceAtLeast(0)
+            val loaded = if (position < rows.itemCount) rows.peek(position)?.date else null
+            shownMonth(loaded, monthCounts, position, today)
         }
     }
-    var held by remember { mutableStateOf<LocalDate?>(null) }
-    SideEffect { visible?.let { held = it } }
-    val shown = shownDate(visible, held, rows.itemCount > 0, today)
     HomeScreen(
-        title = dates.yearMonth(shown),
+        title = dates.yearMonth(shown.firstDay),
         rows = rows,
         list = list,
         grid = grid,
@@ -216,10 +220,11 @@ fun HomeRoute(
         }
     }
     if (picking) {
+        val months = remember(monthCounts) { monthCounts.mapTo(HashSet()) { it.month } }
         DiaryMonthSheet(
             title = stringResource(Res.string.home_month_sheet_title),
             initialYear = shown.year,
-            shown = YearMonth(shown.year, shown.month.number),
+            shown = shown,
             years = remember(months) { months.map { it.year }.distinct().sorted() },
             enabled = { it in months },
             onPick = { month ->
@@ -232,12 +237,12 @@ fun HomeRoute(
 }
 
 /**
- * 제목에 보일 날짜
- * 건너뛴 곳을 읽는 동안 맨 위가 자리 표시 줄이면 앞서 보던 날짜 유지. 오늘로 튀었다 돌아오면 반짝임
- * 목록이 비면 오늘이 든 달
+ * 제목에 보일 달
+ * 맨 위 줄을 읽었으면 그 줄의 달, 아직 자리 표시 줄이면 달별 편수로 센 달
+ * 건너뛰거나 맨 위로 갈 때 앞서 보던 달이 남지 않음. 일기가 없으면 오늘이 든 달
  */
-internal fun shownDate(visible: LocalDate?, held: LocalDate?, hasRows: Boolean, today: LocalDate): LocalDate =
-    visible ?: held?.takeIf { hasRows } ?: today
+internal fun shownMonth(loaded: LocalDate?, counts: List<MonthCount>, position: Int, today: LocalDate): YearMonth =
+    loaded?.yearMonth ?: counts.monthAt(position) ?: today.yearMonth
 
 @Composable
 internal fun HomeScreen(
@@ -468,5 +473,5 @@ internal const val LIST_TOP_KEY = "list-top"
 private const val FIRST_AD = 4
 private const val AD_EVERY = 10
 
-/** 탭을 다시 눌렀을 때 이보다 아래면 이 줄까지 바로 옮긴 뒤 부드럽게 올림 */
-private const val RESELECT_JUMP = 6
+/** 탭을 다시 눌렀을 때 이보다 아래면 이 줄(첫 일기)까지 바로 옮긴 뒤 부드럽게 올림 */
+private const val RESELECT_JUMP = LIST_TOP_ITEMS

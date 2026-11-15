@@ -22,7 +22,7 @@
     <string name="search_range_end">종료일</string>
     <string name="search_range_pick">날짜 선택</string>
     <string name="search_empty_title">검색 결과가 없어요</string>
-    <string name="search_empty_body">다른 키워드로 검색하거나 조건을 바꿔 보세요.</string>
+    <string name="search_empty_body">다른 키워드로 검색하거나 조건을 바꿔보세요.</string>
     <plurals name="search_result_count">
         <item quantity="other">%1$s편</item>
     </plurals>
