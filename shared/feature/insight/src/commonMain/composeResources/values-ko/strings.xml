@@ -49,7 +49,7 @@
     <string name="insight_adv_range_year">올해</string>
     <string name="insight_adv_range_all">전체</string>
     <plurals name="insight_adv_not_enough">
-        <item quantity="other">일기를 %1$s편 더 쓰면 보여 드려요.</item>
+        <item quantity="other">일기를 %1$s편 더 쓰면 보여드려요.</item>
     </plurals>
     <string name="insight_adv_change_recent">이전 30일과 비교</string>
     <string name="insight_adv_change_year">작년 이맘때와 비교</string>
@@ -60,7 +60,7 @@
     <string name="insight_adv_tab_weather">날씨</string>
     <string name="insight_adv_tab_place">장소</string>
     <string name="insight_adv_share">%1$d%</string>
-    <string name="insight_adv_when_empty">일기가 더 쌓이면 보여 드려요.</string>
+    <string name="insight_adv_when_empty">일기가 더 쌓이면 보여드려요.</string>
     <string name="insight_adv_company">기분별 날씨·요일·장소</string>
     <string name="insight_adv_habit">내 기록</string>
     <string name="insight_adv_habit_entries">일기</string>
@@ -86,11 +86,11 @@
     </plurals>
     <string name="insight_section_days">날짜별 기분</string>
     <string name="insight_map_hint">한 칸이 하루예요. 색은 그날 선택한 기분이에요.</string>
-    <string name="tip_insight_open">기분을 누르면 그 기분의 일기를 모아 볼 수 있어요.</string>
+    <string name="tip_insight_open">기분을 누르면 그 기분의 일기를 모아볼 수 있어요.</string>
     <string name="insight_section_moods">자주 선택한 기분</string>
     <string name="insight_adv_no_moods">기분을 선택한 일기가 적어요</string>
     <plurals name="insight_adv_no_moods_body">
-        <item quantity="other">기분을 선택한 일기가 %1$s편 더 있으면 보여 드려요.</item>
+        <item quantity="other">기분을 선택한 일기가 %1$s편 더 있으면 보여드려요.</item>
     </plurals>
     <string name="insight_adv_recent_better">요즘 좋은 날이 많아졌어요 ☀️</string>
     <string name="insight_adv_recent_harder">요즘 힘든 날이 많았네요 ☁️</string>
@@ -109,7 +109,7 @@
     <string name="insight_adv_characters_big">%1$s억 자</string>
     <string name="insight_adv_tone_info">기분을 나눈 기준</string>
     <string name="insight_adv_tone_sheet_title">긍정적인 기분과 부정적인 기분</string>
-    <string name="insight_adv_tone_sheet_body">기분을 선택한 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여 줘요.</string>
+    <string name="insight_adv_tone_sheet_body">기분을 선택한 일기 가운데 긍정적인 기분과 부정적인 기분이 각각 몇 %인지 보여줘요.</string>
     <string name="insight_adv_tone_neutral">포함하지 않는 기분</string>
     <string name="insight_adv_tone_ok">확인</string>
 </resources>
