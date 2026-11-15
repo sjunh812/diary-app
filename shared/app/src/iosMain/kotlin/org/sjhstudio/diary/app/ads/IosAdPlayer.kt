@@ -36,6 +36,7 @@ interface IosAdBridge {
 
 /**
  * 앱 토큰 색(ARGB), 글꼴 파일, "광고" 표시. Swift가 Android 카드와 같은 꼴로 그림
+ * [page]는 카드 둥근 모서리 바깥. 뷰 뒤 시스템 바탕이 비치지 않게 화면 바탕으로 칠함
  * 글꼴은 앱에 넣은 파일 이름이나 받은 파일 경로. null이면 시스템 글꼴
  */
 class IosAdStyle(
@@ -43,6 +44,7 @@ class IosAdStyle(
     val title: Long,
     val body: Long,
     val surface: Long,
+    val page: Long,
     val corner: Double,
     val action: Long,
     val actionFill: Long,

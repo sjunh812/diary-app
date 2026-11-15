@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -64,6 +65,7 @@ private fun rememberAdStyle(): IosAdStyle {
             colors.textPrimary.toArgb().toLong(),
             colors.textSecondary.toArgb().toLong(),
             colors.sunken.toArgb().toLong(),
+            colors.canvas.toArgb().toLong(),
             DiaryRadius.r16.value.toDouble(),
             colors.accentText.toArgb().toLong(),
             colors.selected.toArgb().toLong(),
@@ -103,12 +105,15 @@ private fun rememberAdFonts(): AdFonts? {
     }
 }
 
-/** 폭에 맞춰 Swift가 잰 높이로 둠 */
+/**
+ * 폭에 맞춰 Swift가 잰 높이로 둠
+ * UIKitView는 처음 만든 뷰만 들고 있어 글꼴·색이 바뀌어 새로 만든 뷰를 붙이려면 자리를 나눔
+ */
 @Composable
 private fun AdView(player: IosAdPlayer, view: UIView) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val width = maxWidth.value.toDouble()
         val height = remember(view, width) { player.fittingHeight(view, width) }
-        UIKitView(factory = { view }, modifier = Modifier.fillMaxWidth().height(height.dp))
+        key(view) { UIKitView(factory = { view }, modifier = Modifier.fillMaxWidth().height(height.dp)) }
     }
 }

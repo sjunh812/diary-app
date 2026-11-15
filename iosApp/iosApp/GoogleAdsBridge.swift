@@ -182,7 +182,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
 
     func nativeView(key: String, card: Bool, style: IosAdStyle) -> UIView? {
         guard let ad = natives[key] else { return nil }
-        return NativeAdFrame(ad: NativeAdCardView(ad: ad, card: card, style: style), style: style)
+        return NativeAdPage(NativeAdFrame(ad: NativeAdCardView(ad: ad, card: card, style: style), style: style), style: style)
     }
 
     func fittingHeight(view: UIView, width: Double) -> Double {
@@ -247,6 +247,25 @@ private final class NativeLoader: NSObject, NativeAdLoaderDelegate {
     func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) { done(nativeAd) }
 
     func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) { done(nil) }
+}
+
+/// 둥근 면 바깥을 화면 바탕으로 칠함. 그대로 두면 뷰 뒤 시스템 바탕(다크는 검정)이 모서리에 비침
+private final class NativeAdPage: UIView {
+    init(_ frame: NativeAdFrame, style: IosAdStyle) {
+        super.init(frame: .zero)
+        backgroundColor = UIColor(argb: style.page)
+        frame.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(frame)
+        NSLayoutConstraint.activate([
+            frame.topAnchor.constraint(equalTo: topAnchor),
+            frame.leadingAnchor.constraint(equalTo: leadingAnchor),
+            frame.trailingAnchor.constraint(equalTo: trailingAnchor),
+            frame.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { nil }
 }
 
 /// 둥근 면. 광고 뷰를 안쪽 8에 두고 오른쪽은 앱의 × 자리(48)만큼 비움
