@@ -1709,3 +1709,17 @@ AdMob 콘솔(iOS 앱과 광고 단위)이 계정 재활성화 심사 뒤에야 �
 - 두 칸에서는 저장 뒤 목록이 보이는 그때를 "목록으로 돌아갈 때"로 본다. 화면 쌓임이 홈·달력 목록과 상세 하나일 때만이고, 찾기를 거친 상세나 사진 보기 위에서는 뜨지 않는다. 폰과 좁은 화면(세운 태블릿, 접은 폴더블)은 그대로다.
 - 두 칸인지는 저장한 순간의 화면으로만 정한다. 화면이 바뀔 때마다 보면 폴더블을 접은 채 저장하고 편 뒤 다른 일기를 열 때 광고가 뜬다. 상세가 열리는 순간이라 "목록으로 돌아갈 때"가 아니다. 그래서 그 뒤의 화면 바뀜은 폰 규칙(목록만 남을 때)만 따른다.
 - 저장이 끝난 뒤라 저장과 광고는 묶이지 않는다. "두 칸에서 상세가 열려 있으면 옆 목록에도 광고 없음"(2026-11-07)은 목록 안 광고 규칙이라 그대로 둔다. 헌법과 `CLAUDE.md`에 이 구분을 적었다.
+
+## 2026-11-15 /diary-flow 개발이 끝나면 PR을 묻지 않고 올림 (사용자 결정)
+
+- 2.0.0을 출시해서 이제 기능은 PR로 `develop`에 넣는다. `/diary-flow` 개발이 끝나면 커밋, 기능 브랜치 푸시, PR 만들기, CodeRabbit 리뷰 부르기까지 묻지 않고 한다. 머지는 그대로 묻는다.
+- 리뷰봇은 CodeRabbit을 그대로 쓴다. 2026-11-15에 공식 문서를 다시 봤다.
+
+| 봇 | 2026-11-15 공식 문서 | 판단 |
+| --- | --- | --- |
+| CodeRabbit | 공개 저장소 무료, 카드 없음, Team 기능. PR 리뷰는 시간당 1~10회(별 수에 따라 다름). 별 10개 미만은 직접 불러야 한다 | 그대로 쓴다. 별이 5개라 `@coderabbitai review`로 부른다 |
+| GitHub Copilot 코드 리뷰 | Free 요금제에는 "Pull request reviews in GitHub"가 없다. Pro부터 되고 리뷰마다 AI 크레딧과 Actions 분을 쓴다 | 고르지 않는다. 유료 구독이 필요하다 |
+
+출처: [CodeRabbit 요금](https://docs.coderabbit.ai/management/plans), [CodeRabbit 한도](https://docs.coderabbit.ai/management/rate-limits), [Copilot 요금제](https://github.com/features/copilot/plans), [Copilot 코드 리뷰](https://docs.github.com/en/copilot/concepts/agents/code-review), [Copilot 비용](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing).
+
+- PR #3에는 CodeRabbit 답이 없다. 첫 PR에서 답이 없으면 사용자가 앱 설치를 확인한다.

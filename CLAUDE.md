@@ -33,7 +33,7 @@ Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store�
 
 ## 만드는 순서
 
-기능은 `/diary-flow`(기획 → Figma 프로토타입 → Figma 디자인 → 디자인 점검 → 개발 → 마무리)로 만든다. 마무리는 커밋과 푸시까지다. PR은 출시 이후 기능부터 쓴다(2026-11-07). Spec Kit 스킬(`/speckit-*`)은 이 흐름 안에서 부른다.
+기능은 `/diary-flow`(기획 → Figma 프로토타입 → Figma 디자인 → 디자인 점검 → 개발 → 마무리)로 만든다. 마무리는 커밋, 푸시, PR까지다. 출시 뒤로는 개발이 끝나면 묻지 않고 PR을 올리고, 머지는 묻는다(2026-11-15). Spec Kit 스킬(`/speckit-*`)은 이 흐름 안에서 부른다.
 
 디자인 점검은 화면을 개발로 넘기기 전에 Figma 디자인을 토스 TDS, 당근 SEED, Apple HIG, Material 3와 유명 앱에 대어 보는 단계다(UI/UX, 여백,
 글자 크기·굵기 같은 것). 고칠 것이 나오면 `docs/design.md`와 Figma를 먼저 고치고 개발한다. 결과는 `specs/<번호>/design-review.md`에 남긴다
@@ -118,7 +118,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
   날짜·시각은 문자열로 조립하지 않고 플랫폼 형식을 쓴다.
 - 주석은 짧고 깔끔하게, 한 줄에 한 가지. 예: "액티비티 생명주기 문제가 있어 해당 화면 제거". 늘어지는 서술형과 경위·날짜는 문서와 커밋으로 보낸다(사용자 요청 2026-11-10, `~/.claude/CLAUDE.md` "주석").
 - Composable 화면과 컴포넌트를 만들면 같은 모듈 `preview/`에 프리뷰를 함께 둔다. 한국어(`locale = "ko"`)를 먼저, 라이트·다크와 상태마다 하나씩(사용자 요청 2026-11-02).
-- 커밋과 푸시는 사용자가 요청할 때만. 형식은 아래 "커밋 규칙".
+- 커밋과 푸시는 사용자가 요청할 때만. 예외로 `/diary-flow` 개발이 끝나면 커밋, 푸시, PR까지 묻지 않고 한다. 형식은 아래 "커밋 규칙".
 
 ## 커밋 규칙
 
@@ -145,7 +145,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
 - 커밋 하나에 논리적 변경 하나, 빌드와 시험이 통과하는 상태로 남긴다. 포맷 정리와 기능 변경을 섞지 않는다.
 - 브랜치(사용자 결정 2026-11-07): `main`은 배포·운영, `develop`은 개발이다. `master`는 옛 소스 보관용이라 건드리지 않고, PR #2도 머지하지 않는다.
 - 기능은 개발할 때만 `develop`에서 `<type>/<영문-슬러그>`(예: `feat/photo-multi-pick`) 브랜치를 만들고, 끝나면 `develop`에 머지한다.
-- 출시 전에는 PR 없이 머지하고 푸시한다. 출시 이후 기능은 PR을 올리고, 머지는 사용자에게 묻는다(순서는 `/pr-review`).
+- 출시 전에는 PR 없이 머지하고 푸시했다. 2.0.0 출시(2026-11-15) 뒤로는 기능 브랜치를 PR로 올리고, 머지는 사용자에게 묻는다(순서는 `/pr-review`).
 - 버전·빌드 번호 올림은 다른 변경과 섞지 않고 그 커밋 하나로 둔다(`chore(release): 2.0.0 (43)`). 특정 빌드를 깃에서 바로 찾게 하려는 것이다(사용자 요청 2026-11-14).
 - 릴리스는 `develop`을 `main`에 머지한 뒤 `main`에서 `chore(release): 2.0.0 (<빌드 번호>)` 커밋과 `v2.0.0` 태그를 만든다. 변경 기록은 `feat`·`fix` 커밋에서 뽑는다(`/release-prep`, `docs/release.md` "CD 비밀값").
 - 스펙 001에서 commit-msg 훅(저장소의 `.githooks/`, `git config core.hooksPath .githooks`)으로 형식을 검사한다.
