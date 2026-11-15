@@ -18,6 +18,8 @@ jvmTarget = "17"
 # 타깃은 Play 요구(2026-08-31부터 36)에 맞춰 36으로 둔다. 37 동작 변경은 따로 확인한 뒤 올린다.
 androidCompileSdk = "37"
 androidTargetSdk = "36"
+# 출시 AAB에 네이티브 기호 표를 넣을 때 쓰는 NDK. 고정하지 않으면 AGP 기본 판을 찾다 없으면 조용히 건너뜀. CI 출시 빌드가 이 판을 설치함
+androidNdk = "28.1.13356709"
 # 1.7.4와 같다(D4). 안드로이드 7.0 사용자도 업데이트를 받는다.
 androidMinSdk = "24"
 
