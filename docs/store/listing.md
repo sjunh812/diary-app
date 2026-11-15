@@ -320,6 +320,13 @@ mood,daily,log,feelings,tracker,photo,private,lock,backup,calendar,gratitude,not
 | `plus_yearly` 이름 | 1일 1일기 Plus | 1 Day 1 Diary Plus | 1日1日記 Plus |
 | `plus_yearly` 혜택 | 광고 없이 쓰기 · 한 편에 사진 30장 · 체크리스트 · 고급 통계 | Write without ads · 30 photos per entry · Checklists · Advanced stats | 広告なしで書く · 1件に写真30枚 · チェックリスト · 詳しい統計 |
 
+App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎) 아래처럼 줄여 넣었다(2026-11-16). 이름은 위와 같다. 구독 그룹 표시 이름은 세 언어 모두 "Plus"이고, 앱 이름은 한국어 1일 1일기, 영어 1 Day 1 Diary, 일본어 1日1日記로 직접 적었다.
+
+| 상품 | 한국어 | 영어 | 일본어 |
+| --- | --- | --- | --- |
+| `ad_free` 설명 | 구독이 아니에요. 한 번 결제로 계속 광고 없이 써요. | Not a subscription. Pay once, no more ads. | サブスクリプションではありません。1回のお支払いで、ずっと広告なしで使えます。 |
+| `plus_yearly` 설명 | 광고 없이 쓰기 · 한 편에 사진 30장 · 체크리스트 · 고급 통계 | No ads · 30 photos/entry · Checklists · Advanced stats | 広告なしで書く · 1件に写真30枚 · チェックリスト · 詳しい統計 |
+
 ## 새로운 기능
 
 ### 2.0.1 (44)
