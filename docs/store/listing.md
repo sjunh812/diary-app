@@ -265,36 +265,47 @@ Plusについて
 プライバシーポリシー: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
 ```
 
-## App Store 부제·홍보 문구·키워드
+## App Store 이름·부제·홍보 문구·키워드
 
-App Store에만 있는 칸이다. 이름과 부제의 낱말은 이미 검색에 잡혀 키워드에 다시 넣지 않고, 키워드는 쉼표로만 나눈다(Apple 안내). 앱 이름은 위 "앱 이름"과 같다(세 언어 모두 30자 안). 홍보 문구는 심사 없이 바꿀 수 있다.
+App Store에만 있는 칸이다. 2026-11-16 App Store Connect에 넣은 값이다. 이름과 부제의 낱말은 이미 검색에 잡히고, 키워드는 띄어쓰기 없이 쉼표로만 나눈다([Apple 검색 안내](https://developer.apple.com/app-store/search/)). 홍보 문구는 심사 없이 바꿀 수 있다.
 
 | 칸 | 한국어 | 영어 | 일본어 |
 | --- | --- | --- | --- |
-| 부제(30자) | 기분 고르고 몇 줄이면 오늘 일기 끝 | Pick a mood, write a few lines | 気分を選んで、数行書くだけ |
+| 이름(30자) | 1일 1일기 | 1Day1Diary - Everyday Diary | 1日1日記 - 毎日つける日記 |
+| 부제(30자) | 바쁜 현대인을 위한 간편한 일기장 | A simple diary for busy people | 忙しい人のためのかんたん日記 |
+
+App Store 이름은 Play와 다르다. 한국어 부제는 1.7.4부터 쓰던 한 줄 소개다(사용자 결정). 영어 "1 Day 1 Diary"와 일본어 「1日1日記」는 다른 앱이 이미 써서 넣을 수 없었다. 그래서 "브랜드 - 한 줄 소개" 꼴로 이름을 늘렸다(`docs/DECISIONS.md` 2026-11-16).
 
 홍보 문구(170자)
 
 ```text
-회원가입 없이 바로 써요. 기분을 고르고 몇 줄만 남기면 오늘 일기 끝. 일기는 휴대폰에 저장되고, 원하면 사진까지 내 구글 드라이브에 백업할 수 있어요.
+하루 한 줄이면 충분해요.
+기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
 ```
 
 ```text
-No sign-up. Pick a mood, write a few lines, and today's entry is done. Entries stay on your phone, and you can back them up, photos included, to your own Google Drive.
+One line a day is enough.
+Pick a mood, write a few lines, and you're done.
+Your entries and photos stay on your device and your own Google Drive.
 ```
 
 ```text
-会員登録なしですぐ使えます。気分を選んで数行書けば今日の日記は完了。日記はスマートフォンに保存され、写真も含めて自分のGoogleドライブにバックアップできます。
+1日1行で十分です。
+気分を選んで数行書けば、今日の日記は完了。
+日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
 ```
+
+"회원가입 없이"는 설명 첫머리에 있어 홍보 문구에서 뺐다. 홍보 문구와 설명 첫 줄이 화면에 이어 보여 같은 말이 두 번 나오지 않게 했다.
 
 키워드(100자)
 
 ```text
-다이어리,감정,기분,무드,하루,기록,사진,한줄,메모,잠금,비밀,백업,캘린더,감사,습관,회고,일상,마음,데일리
+다이어리,감정,기분,무드,하루,기록,사진,한줄,메모,잠금,비밀,백업,캘린더,감사,습관,회고,일상,마음,데일리,일기,일기장,기분일기,감정일기,하루일기,비밀일기,사진일기
 ```
 
 ```text
-mood,daily,log,feelings,tracker,photo,private,lock,backup,calendar,gratitude,notes,memories,reflect
+mood,daily,log,feelings,journal,photo,private,lock,backup,calendar,gratitude,notes,memories,reflect
 ```
 
 ```text
