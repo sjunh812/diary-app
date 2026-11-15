@@ -16,7 +16,6 @@ import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.TabScreen
-import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PromptRepository
@@ -78,8 +77,8 @@ class AppShellViewModel(
     /** 보는 화면이 바뀜. 통계에는 화면 키 이름만 */
     fun screenShown(top: NavKey, tab: TabScreen, backStack: List<NavKey>) {
         screen(top.toString())
-        // 리뷰 정보를 받는 사이 쓰기로 가면 거둠. 쓰는 중에는 묻지 않음(Apple HIG)
-        if (top is WriteKey) afterSaveTurn?.cancel()
+        // 리뷰 정보를 받는 사이 목록을 떠나면 거둠. 쓰기·상세·설정 위에는 띄우지 않음(스펙 007 SC-003)
+        if (!interstitialMayShow(backStack, justSavedInTwoPane = true)) afterSaveTurn?.cancel()
         takeAdTurn(tab, backStack, justSavedInTwoPane = false)
     }
 

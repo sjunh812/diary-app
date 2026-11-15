@@ -18,6 +18,7 @@ import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.HomeKey
+import org.sjhstudio.diary.app.navigation.SettingsKey
 import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
@@ -95,6 +96,22 @@ class AppShellViewModelTest {
         shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
         advanceUntilIdle()
         shell.screenShown(WriteKey(), HomeKey, listOf(HomeKey, WriteKey()))
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(0, reviews)
+    }
+
+    @Test
+    fun leaving_for_another_tab_withdraws_a_pending_review() = runTest(dispatcher) {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), askReview = {
+            gate.await()
+            reviews++
+        }) {}
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        advanceUntilIdle()
+        shell.screenShown(SettingsKey, SettingsKey, listOf(SettingsKey))
         gate.complete(Unit)
         advanceUntilIdle()
         assertEquals(0, reviews)

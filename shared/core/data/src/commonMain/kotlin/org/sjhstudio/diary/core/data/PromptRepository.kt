@@ -84,6 +84,7 @@ class PromptRepository(
 
     /**
      * 저장하고 목록으로 돌아왔는데 전면 광고 차례가 아니었을 때 부름
+     * 의견 카드를 닫거나 설문을 연 뒤, 그날이 아닐 때만
      * 한 번만 요청. 요청한 날을 먼저 적어 앱이 꺼져도 다시 묻지 않음
      */
     suspend fun askReviewIfDue() = quietly(Unit) {
@@ -94,7 +95,9 @@ class PromptRepository(
     private suspend fun takeReviewTurn(): Boolean = turn.withLock {
         val prefs = store.current()
         val first = prefs.firstUseAt ?: return@withLock false
-        if (prefs.reviewAskedDay != null || writtenSince(first).first() < REVIEW_ENTRIES) return@withLock false
+        // 의견 카드가 남아 있는 동안은 묻지 않음. 카드 조건(3일·3편)이 리뷰 조건 안에 들어 있어 카드가 먼저
+        val cardOpen = !prefs.feedbackDone && !doneInProcess.value
+        if (cardOpen || prefs.reviewAskedDay != null || writtenSince(first).first() < REVIEW_ENTRIES) return@withLock false
         // 편 수를 기다리는 사이 자정이 지날 수 있어 날짜는 그 뒤에 읽음
         val today = today()
         if (prefs.feedbackShownDay == today || !passed(first, REVIEW_DAYS)) return@withLock false

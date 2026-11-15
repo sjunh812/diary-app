@@ -329,8 +329,8 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 ```text
 <ko-KR>
 [버전 2.0.1]
-• 더 나은 앱을 만들기 위한 설문 안내를 홈에 더했어요
-• 알림을 꺼두면 설정의 매일 알림도 꺼짐으로 보여요
+• 더 나은 앱을 만들기 위한 설문 안내를 홈에 추가했어요
+• 알림을 꺼두면 설정의 쓰기 알림도 알림 꺼짐으로 보여요
 • 다크 모드에서 기간 탭이 잘 보이게 했어요
 • 홈 탭을 다시 누르면 맨 위로 바로 올라가요
 • 화면 문구를 읽기 쉽게 다듬었어요
@@ -338,7 +338,7 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 <en-US>
 [Version 2.0.1]
 • Added a survey invite on Home to help us improve the app
-• Daily reminders now show as off when notifications are blocked
+• Daily reminder shows as off when notifications are blocked
 • Period tabs are easier to see in dark mode
 • Tap Home again to jump straight to the top
 • Clearer wording across the app
@@ -346,7 +346,7 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 <ja-JP>
 [バージョン 2.0.1]
 • より良いアプリにするためのアンケート案内をホームに追加しました
-• 通知をオフにすると、設定の毎日の通知もオフと表示されます
+• 通知をオフにすると、設定の毎日のリマインダーもオフと表示されます
 • ダークモードで期間タブが見やすくなりました
 • ホームタブをもう一度押すと一番上に戻ります
 • 画面の文言を読みやすく整えました
