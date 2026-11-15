@@ -76,7 +76,7 @@ class DefaultEntryRepository(
             watchFromBaseline({ media.photoStatusChanges(photoRefreshEvery, it) }) { factory.invalidate() },
             watchFromBaseline({ marks.shownMarks().map { rows -> rows.toHashSet() }.changesSinceFirst(it) }) { factory.invalidate() }
         )
-        Pager(pageConfig, pagingSourceFactory = factory).flow.collect { send(it) }
+        Pager(pageConfig, pagingSourceFactory = factory::invoke).flow.collect { send(it) }
     }
 
     /**

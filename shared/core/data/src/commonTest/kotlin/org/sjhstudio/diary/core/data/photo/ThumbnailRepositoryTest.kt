@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.SYSTEM
 
 class ThumbnailRepositoryTest {
     private val fs = FileSystem.SYSTEM

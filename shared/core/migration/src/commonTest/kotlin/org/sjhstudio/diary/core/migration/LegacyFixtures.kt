@@ -5,6 +5,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 import okio.FileSystem
 import okio.Path
+import okio.SYSTEM
 
 /**
  * 시험용 옛 앱 `note.db` 생성(스펙 001 T031, docs/migration.md "시험")
