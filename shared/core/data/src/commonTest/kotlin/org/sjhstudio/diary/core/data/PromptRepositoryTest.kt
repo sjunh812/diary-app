@@ -114,6 +114,7 @@ class PromptRepositoryTest {
     fun review_after_seven_days_and_five_entries_once() = runTest {
         val repo = repo()
         repo.start()
+        repo.feedbackClosed()
         written.value = 5
         now = start + 6.days
         repo.askReviewIfDue()
@@ -143,6 +144,7 @@ class PromptRepositoryTest {
         written.value = 5
         now = start + 7.days
         repo.feedbackShown()
+        repo.feedbackClosed()
         repo.askReviewIfDue()
         assertEquals(0, requests)
         now = start + 8.days
@@ -151,16 +153,18 @@ class PromptRepositoryTest {
     }
 
     @Test
-    fun no_card_on_the_day_review_was_asked() = runTest {
+    fun no_review_while_the_card_is_open() = runTest {
         val repo = repo()
         repo.start()
         written.value = 5
         now = start + 7.days
         repo.askReviewIfDue()
-        assertEquals(1, requests)
-        assertFalse(repo.feedbackCard.first())
-        now = start + 8.days + 1.hours
+        assertEquals(0, requests)
         assertTrue(repo.feedbackCard.first())
+        repo.surveyOpened()
+        now = start + 8.days
+        repo.askReviewIfDue()
+        assertEquals(1, requests)
     }
 
     @Test
@@ -168,6 +172,7 @@ class PromptRepositoryTest {
         var dayWhileAsking: String? = null
         val repo = PromptRepository(store, { written }, { dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
         repo.start()
+        repo.feedbackClosed()
         written.value = 5
         now = start + 7.days
         repo.askReviewIfDue()
@@ -219,6 +224,7 @@ class PromptRepositoryTest {
                     emit(5)
                 }
             }, { requests++ }, clock, { TimeZone.UTC })
+        slow.feedbackClosed()
         val asking = backgroundScope.launch { slow.askReviewIfDue() }
         testScheduler.advanceUntilIdle()
         val showing = backgroundScope.launch { slow.feedbackShown() }
@@ -227,9 +233,8 @@ class PromptRepositoryTest {
         testScheduler.advanceUntilIdle()
         asking.join()
         showing.join()
-        // 리뷰를 먼저 적었으니 카드는 같은 날 숨음
+        // 잠금 안에서 리뷰를 먼저 적어 한 번만 요청
         assertEquals(1, requests)
-        assertFalse(slow.feedbackCard.first())
     }
 
     @Test
@@ -257,6 +262,7 @@ class PromptRepositoryTest {
             }
         }, { dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
         repo.start()
+        repo.feedbackClosed()
         now = start + 7.days + 23.hours
         repo.askReviewIfDue()
         assertEquals("2026-11-23", dayWhileAsking)
