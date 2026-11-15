@@ -92,12 +92,9 @@ class PhotoStore(
         }
     }
 
-    // 아주 큰 그림을 줄이다 메모리가 모자라면 앱을 끄지 않고 읽을 수 없는 그림으로 봄
-    private fun shrink(incoming: Path, outgoing: Path): Boolean = try {
+    // 메모리 부족은 플랫폼 인코더(ImageDecoder.writeThumbnail)가 받아 false로 돌려줌
+    private fun shrink(incoming: Path, outgoing: Path): Boolean =
         encoder.encode(incoming.toString(), outgoing.toString(), MAX_SIDE, QUALITY) && fileSystem.exists(outgoing)
-    } catch (_: OutOfMemoryError) {
-        false
-    }
 
     companion object {
         /** 일기 사진을 보관하는 긴 변. 옛 앱에서 옮긴 사진도 같음 */

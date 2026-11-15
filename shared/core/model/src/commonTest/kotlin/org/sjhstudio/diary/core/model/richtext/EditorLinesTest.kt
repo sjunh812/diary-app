@@ -37,6 +37,11 @@ class EditorLinesTest {
     }
 
     @Test
+    fun paragraph_with_raw_line_break_stays_one_paragraph() {
+        assertEquals("<p>a<br>b<br>c</p>", editorToBody("<p>a\nb</p><p>c</p>"))
+    }
+
+    @Test
     fun plain_text_matches_what_was_typed() {
         assertEquals("a\nb", toPlainText(editorToBody("<p>a</p><p>b</p>")))
         assertEquals("a\n\nb", toPlainText(editorToBody("<p>a</p><p></p><p>b</p>")))

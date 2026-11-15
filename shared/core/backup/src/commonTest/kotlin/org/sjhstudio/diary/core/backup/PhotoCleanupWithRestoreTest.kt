@@ -14,6 +14,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path
+import okio.SYSTEM
 import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.database.DraftEntity
 import org.sjhstudio.diary.core.database.DraftMediaEntity

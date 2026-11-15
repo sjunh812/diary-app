@@ -4,8 +4,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.SYSTEM
 import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.model.MediaStatus
@@ -36,7 +38,7 @@ class MediaImporterShrinkTest {
             lastQuality = quality
             if (throws) throw IllegalArgumentException("bitmap")
             if (!works) return false
-            okio.FileSystem.SYSTEM.write(target.toPath()) { writeUtf8("$writes of ${source.toPath().name}") }
+            FileSystem.SYSTEM.write(target.toPath()) { writeUtf8("$writes of ${source.toPath().name}") }
             return true
         }
     }

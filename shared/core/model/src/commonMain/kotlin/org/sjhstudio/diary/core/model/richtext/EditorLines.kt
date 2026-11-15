@@ -7,8 +7,8 @@ package org.sjhstudio.diary.core.model.richtext
 // 에디터가 낸 것은 아는 꼴이 아니어도 버리지 않음
 // 줄 맨 앞에 `1. `을 치면 에디터가 스스로 번호 목록을 만들고, 붙여넣기도 다른 태그를 들여옴
 
-private val OPTIONS = setOf(RegexOption.IGNORE_CASE, RegexOption.DOT_MATCHES_ALL)
-private val BLOCK = Regex("""<p\b[^>]*>(.*?)</p>|<(?:ul|ol)\b[^>]*>|<br\s*/?>""", OPTIONS)
+// 줄바꿈까지 넘는 `[\s\S]`. DOT_MATCHES_ALL은 공통 코드에 없음
+private val BLOCK = Regex("""<p\b[^>]*>([\s\S]*?)</p>|<(?:ul|ol)\b[^>]*>|<br\s*/?>""", RegexOption.IGNORE_CASE)
 private val BREAK = Regex("""<br\s*/?>""", RegexOption.IGNORE_CASE)
 private val LIST_EDGE = Regex("""<(/?)(?:ul|ol)\b[^>]*>""", RegexOption.IGNORE_CASE)
 private val LIST_ITEM = Regex("""<li\b[^>]*>""", RegexOption.IGNORE_CASE)

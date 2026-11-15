@@ -55,11 +55,12 @@ object LegacyPrefs {
         }
     }
 
-    private val STRING = Regex("""<string\s+name="([^"]*)"\s*>(.*?)</string>""", RegexOption.DOT_MATCHES_ALL)
+    // 값 안 줄바꿈까지 넘는 `[\s\S]`. DOT_MATCHES_ALL은 공통 코드에 없음
+    private val STRING = Regex("""<string\s+name="([^"]*)"\s*>([\s\S]*?)</string>""")
     private val EMPTY_STRING = Regex("""<string\s+name="([^"]*)"\s*/>""")
     private val SCALAR = Regex("""<(boolean|int|long|float)\s+name="([^"]*)"\s+value="([^"]*)"\s*/>""")
-    private val SET = Regex("""<set\s+name="([^"]*)"\s*>(.*?)</set>""", RegexOption.DOT_MATCHES_ALL)
-    private val SET_ITEM = Regex("""<string>(.*?)</string>""", RegexOption.DOT_MATCHES_ALL)
+    private val SET = Regex("""<set\s+name="([^"]*)"\s*>([\s\S]*?)</set>""")
+    private val SET_ITEM = Regex("""<string>([\s\S]*?)</string>""")
     private val ENTITY = Regex("""&(#x[0-9a-fA-F]+|#[0-9]+|amp|lt|gt|quot|apos);""")
 
     /**
@@ -67,5 +68,5 @@ object LegacyPrefs {
      * 앞 들여쓰기와 뒤 줄바꿈까지 함께 뺌
      */
     private val PASSWORD_LINE =
-        Regex("""[ \t]*<string\s+name="password"\s*(?:/>|>.*?</string>)[ \t]*\r?\n?""", RegexOption.DOT_MATCHES_ALL)
+        Regex("""[ \t]*<string\s+name="password"\s*(?:/>|>[\s\S]*?</string>)[ \t]*\r?\n?""")
 }
