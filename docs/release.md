@@ -294,9 +294,8 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 13. [사용자] 심사 제출. 앱 빌드와 첫 인앱 상품 두 개를 함께 낸다.
 14. [사용자] 심사를 통과하면 6에서 정한 날에 App Store Connect에서 직접 출시한다.
 15. 출시 뒤:
-    - [코드] 설정 "리뷰 남기기"에 App Store 앱 번호를 넣는다(`SettingsLinks.kt`의 `storeReviewUrl`이 지금은 Android만 돌려준다).
     - [사용자] AdMob iOS 앱에 App Store를 연결한다.
-    - [사용자] Google Cloud iOS OAuth 클라이언트에 App Store ID와 팀 ID를 넣는다.
+    - [사용자] Google Cloud iOS OAuth 클라이언트에 App Store ID(6835116731)와 팀 ID를 넣는다. 앱을 만들어 번호가 나왔으니 출시 전에 넣어도 된다.
     - [사용자] 디시 일기장 갤러리에 소개 글을 올린다.
 
 앱 쪽 점검은 끝났다(2026-11-15, 5차까지, 앱 문제 없음). 남은 확인은 위 11의 실기기 항목뿐이다. 점검 기록:
@@ -318,7 +317,7 @@ iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-
 | 구매 | RevenueCat KMP SDK. 광고 제거, Plus 연 구독, 구매 복원, 구독 관리 링크. 복원은 Apple 계정 로그인 창을 띄울 수 있다 | `IosBilling.kt` |
 | 전면 광고 원격 스위치 | Firebase Remote Config `interstitial_enabled`. Android와 같은 값을 본다 | `FirebaseReporter` |
 
-아직 없는 것: 설정의 "리뷰 남기기" 줄(App Store 앱 번호가 정해진 뒤 `storeReviewUrl`에 넣는다), 개발자 모드(실행 인자 `-diaryPlan PLUS`로 요금제만 바꾼다).
+설정의 "리뷰 남기기"는 App Store 리뷰 쓰기 주소(앱 Apple ID 6835116731, 2026-11-16)로 보낸다. 아직 없는 것: 개발자 모드(실행 인자 `-diaryPlan PLUS`로 요금제만 바꾼다).
 
 ### 콘솔에서 할 일
 
