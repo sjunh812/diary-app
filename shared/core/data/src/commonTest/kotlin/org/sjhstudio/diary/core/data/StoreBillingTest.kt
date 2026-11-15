@@ -9,9 +9,13 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
@@ -35,6 +39,12 @@ class StoreBillingTest {
         var answeredAt: Instant? = null
         var entitlementCalls = 0
         var syncFailure: StoreFailure.Reason? = null
+
+        /** 실패까지 센 구매 가져오기 요청. iOS는 요청마다 로그인 창을 띄움 */
+        var syncAsks = 0
+
+        /** 열리기 전까지 구매 가져오기가 답하지 않음(로그인 창이 떠 있는 동안) */
+        var syncGate: CompletableDeferred<Unit>? = null
         val bought = ArrayList<String>()
 
         /** 참이면 결제는 끝나도 권한이 켜지지 않음(상품과 권한 연결이 빠진 경우) */
@@ -53,6 +63,8 @@ class StoreBillingTest {
 
         override suspend fun sync(): StoreAnswer {
             check()
+            syncAsks++
+            syncGate?.await()
             syncFailure?.let { throw StoreFailure(it) }
             syncs++
             owned = owned + accountOwned
@@ -281,6 +293,38 @@ class StoreBillingTest {
         billing.refresh()
         billing.refresh()
         assertEquals(0, store.syncs)
+    }
+
+    /** 켤 때 시작·앞으로 옴·스토어 알림이 함께 와도 로그인 창은 한 번 */
+    @Test
+    fun launch_triggers_arriving_together_ask_the_store_account_once() = runTest {
+        val billing = billing(null)
+        val gate = CompletableDeferred<Unit>()
+        store.syncGate = gate
+        store.syncFailure = StoreFailure.Reason.CANCELLED
+        val calls = List(3) { launch { billing.refresh() } }
+        runCurrent()
+        gate.complete(Unit)
+        calls.joinAll()
+        assertEquals(1, store.syncAsks)
+        assertTrue(billing.known.value)
+        assertEquals(Plan.FREE, billing.plan.value)
+    }
+
+    /** 함께 온 답 가운데 늦게 차례가 온 것은 가져오기 전 답이라 가져온 Plus를 덮지 않음 */
+    @Test
+    fun a_reinstalled_buyer_keeps_plus_when_launch_triggers_arrive_together() = runTest {
+        val billing = billing(null)
+        store.accountOwned = setOf(StoreIds.PLUS_ENTITLEMENT)
+        val gate = CompletableDeferred<Unit>()
+        store.syncGate = gate
+        val calls = List(3) { launch { billing.refresh() } }
+        runCurrent()
+        gate.complete(Unit)
+        calls.joinAll()
+        assertEquals(1, store.syncAsks)
+        assertEquals(Plan.PLUS, billing.plan.value)
+        assertEquals(Plan.PLUS, stored.last())
     }
 
     /** 기기 시계가 빨라 만료 시각이 지난 것처럼 보여도 스토어를 거듭 부르지 않고 서버 시계로 잼 */
