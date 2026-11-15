@@ -3,11 +3,15 @@ package org.sjhstudio.diary.app.scaffold
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.AppRootViewModel
@@ -43,7 +47,7 @@ interface AfterSaveAds {
     /** 전면 광고 차례였으면 참 */
     suspend fun backToList(): Boolean
 
-    /** 이번 광고 앞에 첫 안내를 띄울지. 참이면 보여 준 것으로 적음 */
+    /** 이번 광고 앞에 첫 안내를 띄울지. 참이면 보여준 것으로 적음 */
     suspend fun takeNotice(): Boolean = false
 }
 
@@ -60,7 +64,7 @@ class AppShellViewModel(
 ) : ViewModel() {
     private val adTurn = AfterSaveAdTurn()
 
-    /** 저장 뒤 목록에서 시작한 광고·리뷰 차례. 광고는 끝까지 가고(AdRepository) 리뷰만 거둘 수 있음 */
+    /** 저장 뒤 목록에서 시작한 차례. 거두면 광고 차례는 끝까지 가고 리뷰 요청만 멈춤 */
     private var afterSaveTurn: Job? = null
 
     /** 일기가 있는지. 읽기 전에는 null(그동안 홈 쓰기 버튼을 숨김) */
@@ -74,11 +78,11 @@ class AppShellViewModel(
     /** 첫 전면 광고 앞 안내(`docs/business.md` 광고 자리) */
     val adNotice: StateFlow<AdNotice> = _adNotice.asStateFlow()
 
-    /** 보는 화면이 바뀜. 통계에는 화면 키 이름만 */
-    fun screenShown(top: NavKey, tab: TabScreen, backStack: List<NavKey>) {
+    /** 보는 화면이 바뀜. [twoPane]은 지금 창이 두 칸인지. 통계에는 화면 키 이름만 */
+    fun screenShown(top: NavKey, tab: TabScreen, backStack: List<NavKey>, twoPane: Boolean) {
         screen(top.toString())
         // 리뷰 정보를 받는 사이 목록을 떠나면 거둠. 쓰기·상세·설정 위에는 띄우지 않음(스펙 007 SC-003)
-        if (!interstitialMayShow(backStack, justSavedInTwoPane = true)) afterSaveTurn?.cancel()
+        if (!interstitialMayShow(backStack, listBeside = twoPane)) afterSaveTurn?.cancel()
         takeAdTurn(tab, backStack, justSavedInTwoPane = false)
     }
 
@@ -99,12 +103,20 @@ class AppShellViewModel(
 
     private fun takeAdTurn(tab: TabScreen, backStack: List<NavKey>, justSavedInTwoPane: Boolean) {
         if (!adTurn.takeTurn(tab, backStack, justSavedInTwoPane)) return
-        afterSaveTurn = viewModelScope.launchSafely {
-            when {
-                ads.takeNotice() -> _adNotice.value = AdNotice.Showing
-
-                // 전면 광고와 겹치지 않을 때만 리뷰 창(스펙 007 FR-007)
-                !ads.backToList() -> askReview()
+        // 바로 광고 차례에 들어감. 곧이어 화면을 옮겨 거둬져도 하루 한 번 기록은 끝까지 감
+        afterSaveTurn = viewModelScope.launchSafely(start = CoroutineStart.UNDISPATCHED) {
+            val adTurn = withContext(NonCancellable) {
+                if (ads.takeNotice()) {
+                    _adNotice.value = AdNotice.Showing
+                    true
+                } else {
+                    ads.backToList()
+                }
+            }
+            // 전면 광고와 겹치지 않을 때만 리뷰 창(스펙 007 FR-007). 그사이 목록을 떠났으면 묻지 않음
+            if (!adTurn) {
+                ensureActive()
+                askReview()
             }
         }
     }
@@ -156,13 +168,17 @@ val appShellModule =
 
 /**
  * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력 목록으로 돌아왔을 때만
- * 두 칸에서 막 저장했으면 목록 옆에 그 일기 상세가 열려 목록이 보이는 그때가 목록으로 돌아온 때. 상세를 닫길 기다리면 거의 뜨지 않음
- * 넓은 화면은 상세를 보다 레일로 설정에 갈 수 있는데 설정에는 광고가 없어(헌법 III) 다음 목록까지 미룸
+ * 두 칸([listBeside])에서 홈 목록 옆에 상세가 열려 있으면 목록이 보이는 그때가 목록으로 돌아온 때. 상세를 닫길 기다리면 거의 뜨지 않음
+ * 달력에서 연 상세는 창이 넓어도 한 칸이라 그 위에는 띄우지 않음(헌법 III)
+ * 넓은 화면에서 상세를 보다 레일로 설정에 가면 설정에는 광고가 없어(헌법 III) 띄우지 않음
  */
-internal fun interstitialMayShow(backStack: List<NavKey>, justSavedInTwoPane: Boolean): Boolean {
+internal fun interstitialMayShow(backStack: List<NavKey>, listBeside: Boolean): Boolean {
     val list = backStack.firstOrNull()
-    if (list != HomeKey && list != CalendarKey) return false
-    return backStack.size == 1 || (justSavedInTwoPane && backStack.size == 2 && backStack.last() is EntryDetailKey)
+    return when {
+        list != HomeKey && list != CalendarKey -> false
+        backStack.size == 1 -> true
+        else -> listBeside && list == HomeKey && backStack.size == 2 && backStack.last() is EntryDetailKey
+    }
 }
 
 /**
@@ -181,7 +197,7 @@ internal class AfterSaveAdTurn {
     /** 화면이 바뀔 때마다 부름. 참이면 지금 띄우고 차례는 끝 */
     fun takeTurn(tab: TabScreen, backStack: List<NavKey>, justSavedInTwoPane: Boolean): Boolean {
         val pending = savedOn
-        val show = pending == tab && interstitialMayShow(backStack, justSavedInTwoPane)
+        val show = pending == tab && interstitialMayShow(backStack, listBeside = justSavedInTwoPane)
         if (pending != tab || show) savedOn = null
         return show
     }

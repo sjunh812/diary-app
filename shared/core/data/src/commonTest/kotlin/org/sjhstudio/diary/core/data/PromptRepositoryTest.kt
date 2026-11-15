@@ -31,6 +31,9 @@ class PromptRepositoryTest {
     private val written = MutableStateFlow(0)
     private var since: Instant? = null
     private var requests = 0
+
+    /** 스토어가 정보를 줬는지. 거짓이면 받다 거둬진 것과 같음 */
+    private var fetched = true
     private var dataStore: DataStore<Preferences> = InMemoryDataStore(emptyPreferences())
     private val store get() = PromptStore(dataStore)
 
@@ -40,7 +43,7 @@ class PromptRepositoryTest {
             since = it
             written
         },
-        review = { requests++ },
+        review = { claim -> if (fetched && claim()) requests++ },
         clock = clock,
         timeZone = { TimeZone.UTC }
     )
@@ -158,11 +161,42 @@ class PromptRepositoryTest {
         repo.start()
         written.value = 5
         now = start + 7.days
+        repo.feedbackShown()
+        now = start + 8.days
         repo.askReviewIfDue()
         assertEquals(0, requests)
-        assertTrue(repo.feedbackCard.first())
         repo.surveyOpened()
+        repo.askReviewIfDue()
+        assertEquals(1, requests)
+    }
+
+    @Test
+    fun card_never_shown_does_not_block_the_review() = runTest {
+        // 백업 카드가 맨 위를 차지해 의견 카드가 한 번도 안 보임
+        val repo = repo()
+        repo.start()
+        written.value = 5
+        now = start + 7.days
+        repo.askReviewIfDue()
+        assertEquals(1, requests)
+        // 리뷰를 물은 날은 카드를 미루고 다음 날 보임
+        assertFalse(repo.feedbackCard.first())
         now = start + 8.days
+        assertTrue(repo.feedbackCard.first())
+    }
+
+    @Test
+    fun review_withdrawn_while_fetching_is_asked_again_later() = runTest {
+        val repo = repo()
+        repo.start()
+        repo.feedbackClosed()
+        written.value = 5
+        now = start + 7.days
+        fetched = false
+        repo.askReviewIfDue()
+        assertEquals(0, requests)
+        assertEquals(null, store.current().reviewAskedDay)
+        fetched = true
         repo.askReviewIfDue()
         assertEquals(1, requests)
     }
@@ -170,7 +204,10 @@ class PromptRepositoryTest {
     @Test
     fun review_day_is_written_before_asking() = runTest {
         var dayWhileAsking: String? = null
-        val repo = PromptRepository(store, { written }, { dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
+        val repo =
+            PromptRepository(store, {
+                written
+            }, { claim -> if (claim()) dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
         repo.start()
         repo.feedbackClosed()
         written.value = 5
@@ -211,30 +248,41 @@ class PromptRepositoryTest {
     }
 
     @Test
-    fun card_shown_while_review_is_checking_still_blocks_the_review() = runTest {
+    fun card_shown_while_review_is_fetching_blocks_the_review() = runTest {
         val repo = repo()
         repo.start()
+        written.value = 5
         now = start + 7.days
-        // 리뷰 판단이 편 수를 기다리는 사이 카드가 나옴
+        // 스토어 정보를 받는 사이 카드가 나옴
         val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
         val slow =
-            PromptRepository(store, {
-                kotlinx.coroutines.flow.flow {
-                    gate.await()
-                    emit(5)
-                }
-            }, { requests++ }, clock, { TimeZone.UTC })
-        slow.feedbackClosed()
+            PromptRepository(store, { written }, { claim ->
+                gate.await()
+                if (claim()) requests++
+            }, clock, { TimeZone.UTC })
         val asking = backgroundScope.launch { slow.askReviewIfDue() }
         testScheduler.advanceUntilIdle()
-        val showing = backgroundScope.launch { slow.feedbackShown() }
-        testScheduler.advanceUntilIdle()
+        repo.feedbackShown()
         gate.complete(Unit)
-        testScheduler.advanceUntilIdle()
         asking.join()
-        showing.join()
-        // 잠금 안에서 리뷰를 먼저 적어 한 번만 요청
-        assertEquals(1, requests)
+        // 띄우기 직전 다시 보아 카드가 보인 날은 묻지 않고 기록도 남기지 않음
+        assertEquals(0, requests)
+        assertEquals(null, store.current().reviewAskedDay)
+    }
+
+    @Test
+    fun failing_to_write_the_review_day_asks_nothing() = runTest {
+        val full = InMemoryDataStore(emptyPreferences())
+        dataStore = full
+        val repo = repo()
+        repo.start()
+        repo.feedbackClosed()
+        written.value = 5
+        now = start + 7.days
+        // 읽기는 되고 요청일 쓰기만 실패. 적지 못하면 다시 물을 수 있어 띄우지 않음
+        full.failWrites = true
+        repo.askReviewIfDue()
+        assertEquals(0, requests)
     }
 
     @Test
@@ -260,7 +308,7 @@ class PromptRepositoryTest {
                 now = start + 8.days
                 emit(5)
             }
-        }, { dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
+        }, { claim -> if (claim()) dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
         repo.start()
         repo.feedbackClosed()
         now = start + 7.days + 23.hours

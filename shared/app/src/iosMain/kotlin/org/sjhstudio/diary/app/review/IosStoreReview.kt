@@ -8,5 +8,7 @@ interface IosStoreReviewBridge {
 }
 
 class IosStoreReview(private val bridge: IosStoreReviewBridge) : StoreReview {
-    override suspend fun request() = bridge.request()
+    override suspend fun request(claim: suspend () -> Boolean) {
+        if (claim()) bridge.request()
+    }
 }

@@ -63,7 +63,7 @@ shared/feature/home/.../FeedbackCard.kt           카드 화면(+ preview/)
 1. 시작 단계(`Startup.afterReady`)에서 `PromptRepository.start()`가 첫 사용일을 적는다.
 2. 홈 `listTop`: 백업 카드가 있으면 그것만, 없으면 `PromptRepository.feedbackCard`가 참일 때 의견 카드. 카드가 그려지면 그날을 `feedbackShownDay`로 적는다.
 3. 저장 뒤 목록으로 돌아옴(`AppShellViewModel.takeAdTurn`): 첫 광고 안내 차례면 안내, 아니면 `ads.backToList()`. 전면 광고 차례가 아니었으면(`false`) `PromptRepository.askReviewIfDue()`.
-4. `askReviewIfDue()`: 7일·5편·오늘 카드 안 보임·요청한 적 없음이면 그날을 먼저 적고 `StoreReview.request()`. 적은 뒤 부르므로 앱이 꺼져도 두 번 묻지 않는다.
+4. `askReviewIfDue()`: 7일·5편·오늘 카드 안 보임·보인 카드가 남아 있지 않음·요청한 적 없음이면 `StoreReview.request(claim)`. 스토어 정보를 받은 뒤 띄우기 바로 앞에 `claim`이 잠금 안에서 조건을 다시 보고 그날을 적는다. 적은 뒤 띄우므로 앱이 꺼져도 두 번 묻지 않고, 받다 거둬지면 다음에 다시 묻는다.
 5. 기록을 읽거나 쓰지 못하면 카드와 리뷰 모두 거짓(덜 묻는 쪽). 광고와 같은 `orElseOnFailure`.
 
 ## 열린 결정

@@ -29,7 +29,8 @@ import org.sjhstudio.diary.core.model.orElseOnFailure
  * 창을 띄울지와 별점 결과는 스토어가 정하고 앱은 모름
  */
 fun interface StoreReview {
-    suspend fun request()
+    /** 띄우기 바로 앞에 [claim]을 부르고 참일 때만 띄움. 정보를 받다 거둬지면 묻지 않은 것으로 남음 */
+    suspend fun request(claim: suspend () -> Boolean)
 }
 
 /**
@@ -62,6 +63,7 @@ class PromptRepository(
             .catch { if (it is IOException) emit(false) else throw it }
             .distinctUntilChanged()
 
+    // 리뷰를 먼저 물은 날(백업 카드가 맨 위를 차지한 동안)은 카드를 다음 날로 미룸
     private fun feedbackMayShow(prefs: PromptPrefs, first: Instant) =
         !prefs.feedbackDone && prefs.reviewAskedDay != today() && passed(first, FEEDBACK_DAYS)
 
@@ -84,25 +86,34 @@ class PromptRepository(
 
     /**
      * 저장하고 목록으로 돌아왔는데 전면 광고 차례가 아니었을 때 부름
-     * 의견 카드를 닫거나 설문을 연 뒤, 그날이 아닐 때만
-     * 한 번만 요청. 요청한 날을 먼저 적어 앱이 꺼져도 다시 묻지 않음
+     * 보인 의견 카드가 남아 있지 않고, 카드가 보인 날이 아닐 때만
+     * 한 번만 요청. 띄우기 직전 요청한 날을 적어 앱이 꺼져도 다시 묻지 않음
      */
     suspend fun askReviewIfDue() = quietly(Unit) {
-        if (takeReviewTurn()) review.request()
+        // 차례가 아니면 스토어에 정보를 묻지 않음
+        if (turn.withLock { reviewDueDay() } == null) return@quietly
+        review.request(claim = {
+            // 정보를 받는 사이 카드가 나왔을 수 있어 잠금 안에서 다시 보고 적음
+            quietly(false) {
+                turn.withLock {
+                    val today = reviewDueDay() ?: return@withLock false
+                    store.reviewAsked(today)
+                    true
+                }
+            }
+        })
     }
 
-    /** 요청할 차례면 그날을 적고 참. 리뷰 창은 잠금 밖에서 띄움 */
-    private suspend fun takeReviewTurn(): Boolean = turn.withLock {
+    /** 요청할 차례면 그날. 잠금 안에서 부름 */
+    private suspend fun reviewDueDay(): String? {
         val prefs = store.current()
-        val first = prefs.firstUseAt ?: return@withLock false
-        // 의견 카드가 남아 있는 동안은 묻지 않음. 카드 조건(3일·3편)이 리뷰 조건 안에 들어 있어 카드가 먼저
-        val cardOpen = !prefs.feedbackDone && !doneInProcess.value
-        if (cardOpen || prefs.reviewAskedDay != null || writtenSince(first).first() < REVIEW_ENTRIES) return@withLock false
+        val first = prefs.firstUseAt
+        // 보인 의견 카드가 남아 있는 동안은 묻지 않음. 한 번도 못 본 카드(백업 카드가 맨 위)로는 막지 않음
+        val cardOpen = prefs.feedbackShownDay != null && !prefs.feedbackDone && !doneInProcess.value
+        val blocked = cardOpen || prefs.reviewAskedDay != null
+        if (first == null || blocked || writtenSince(first).first() < REVIEW_ENTRIES) return null
         // 편 수를 기다리는 사이 자정이 지날 수 있어 날짜는 그 뒤에 읽음
-        val today = today()
-        if (prefs.feedbackShownDay == today || !passed(first, REVIEW_DAYS)) return@withLock false
-        store.reviewAsked(today)
-        true
+        return today().takeUnless { prefs.feedbackShownDay == it || !passed(first, REVIEW_DAYS) }
     }
 
     /** 첫 사용일부터 [days]일이 지났는지. 시각이 뒤로 가면 지나지 않은 것으로 봄 */

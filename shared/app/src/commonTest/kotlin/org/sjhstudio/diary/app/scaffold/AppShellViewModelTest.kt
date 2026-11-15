@@ -93,9 +93,9 @@ class AppShellViewModelTest {
             reviews++
         }) {}
         shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
         advanceUntilIdle()
-        shell.screenShown(WriteKey(), HomeKey, listOf(HomeKey, WriteKey()))
+        shell.screenShown(WriteKey(), HomeKey, listOf(HomeKey, WriteKey()), twoPane = false)
         gate.complete(Unit)
         advanceUntilIdle()
         assertEquals(0, reviews)
@@ -109,18 +109,123 @@ class AppShellViewModelTest {
             reviews++
         }) {}
         shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
         advanceUntilIdle()
-        shell.screenShown(SettingsKey, SettingsKey, listOf(SettingsKey))
+        shell.screenShown(SettingsKey, SettingsKey, listOf(SettingsKey), twoPane = false)
         gate.complete(Unit)
         advanceUntilIdle()
         assertEquals(0, reviews)
     }
 
     @Test
+    fun opening_a_detail_on_a_phone_withdraws_a_pending_review() = runTest(dispatcher) {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), askReview = {
+            gate.await()
+            reviews++
+        }) {}
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
+        advanceUntilIdle()
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = false)
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(0, reviews)
+    }
+
+    @Test
+    fun opening_another_entry_beside_the_list_keeps_the_review() = runTest(dispatcher) {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), askReview = {
+            gate.await()
+            reviews++
+        }) {}
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = true)
+        advanceUntilIdle()
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = true)
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(1, reviews)
+    }
+
+    @Test
+    fun saving_from_the_calendar_on_a_tablet_waits_for_the_calendar() = runTest(dispatcher) {
+        val ads = Ads(due = true)
+        val shell = shell(ads = ads)
+        shell.saved(CalendarKey, listOf(CalendarKey, EntryDetailKey("e1")), twoPane = true)
+        advanceUntilIdle()
+        assertEquals(0, ads.shown)
+        shell.screenShown(CalendarKey, CalendarKey, listOf(CalendarKey), twoPane = true)
+        advanceUntilIdle()
+        assertEquals(1, ads.shown)
+    }
+
+    @Test
+    fun leaving_while_the_ad_turn_is_checked_keeps_the_ad_and_drops_the_review() = runTest(dispatcher) {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        var checked = 0
+        val slowAds =
+            object : AfterSaveAds {
+                override suspend fun prepare() = Unit
+
+                override suspend fun backToList(): Boolean {
+                    gate.await()
+                    checked++
+                    return false
+                }
+            }
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), slowAds, askReview = { reviews++ }) {}
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
+        advanceUntilIdle()
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = false)
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(1, checked)
+        assertEquals(0, reviews)
+    }
+
+    @Test
+    fun leaving_while_the_first_ad_notice_is_checked_keeps_the_notice_turn() = runTest(dispatcher) {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val slowNotice =
+            object : AfterSaveAds {
+                override suspend fun prepare() = Unit
+
+                override suspend fun backToList() = false
+
+                override suspend fun takeNotice(): Boolean {
+                    gate.await()
+                    return true
+                }
+            }
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), slowNotice, askReview = { reviews++ }) {}
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
+        advanceUntilIdle()
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = false)
+        gate.complete(Unit)
+        advanceUntilIdle()
+        // 안내를 보여준 것으로 적었으니 안내 차례는 잃지 않고 리뷰는 묻지 않음
+        assertEquals(AdNotice.Showing, shell.adNotice.value)
+        assertEquals(0, reviews)
+    }
+
+    @Test
+    fun tapping_an_entry_right_after_returning_still_shows_the_ad() = runTest(dispatcher) {
+        val ads = Ads(due = true)
+        val shell = shell(ads = ads)
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = false)
+        advanceUntilIdle()
+        assertEquals(1, ads.shown)
+    }
+
+    @Test
     fun no_review_without_saving() = runTest(dispatcher) {
         val shell = shell(ads = Ads(due = false))
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
         advanceUntilIdle()
         assertEquals(0, reviews)
     }
@@ -148,9 +253,9 @@ class AppShellViewModelTest {
         assertEquals(1, ads.prepared)
         assertEquals(0, ads.shown)
 
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
-        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")))
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
+        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
         advanceUntilIdle()
         assertEquals(1, ads.shown)
     }
@@ -190,7 +295,7 @@ class AppShellViewModelTest {
     private fun TestScope.backOnTheListAfterSaving(ads: Ads): AppShellViewModel {
         val shell = shell(ads = ads)
         shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
         advanceUntilIdle()
         return shell
     }
@@ -200,8 +305,8 @@ class AppShellViewModelTest {
         val ads = Ads()
         val shell = shell(ads = ads)
         shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
-        shell.screenShown(CalendarKey, CalendarKey, listOf(CalendarKey))
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        shell.screenShown(CalendarKey, CalendarKey, listOf(CalendarKey), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
         advanceUntilIdle()
         assertEquals(0, ads.shown)
     }
@@ -210,7 +315,7 @@ class AppShellViewModelTest {
     fun screens_report_only_the_key_name() = runTest(dispatcher) {
         val screens = mutableListOf<String>()
         val shell = shell(screens = screens)
-        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey), twoPane = false)
         assertEquals(listOf(HomeKey.toString()), screens)
     }
 

@@ -389,7 +389,7 @@ private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScree
 @Immutable
 private class ShellActions(
     val plan: StateFlow<Plan>,
-    val onScreen: (NavKey, TabScreen, List<NavKey>) -> Unit,
+    val onScreen: (NavKey, TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
     val onSaved: (TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
     val onRestore: (String) -> Unit,
     val onAdClose: () -> Unit
@@ -477,7 +477,7 @@ private fun Content(
     val splitWindow by rememberUpdatedState(twoPane)
     // 화면이 바뀌면 통계(화면 키 이름만)와 저장 뒤 광고 차례(FR-010)를 화면 모델에 알림
     val top = nav.top
-    LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList()) }
+    LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList(), splitWindow) }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { list -> PickHint(list) } }
     val homeStack = nav.stacks.getValue(HomeKey)
     val dimmed = dimmedAlpha(DiaryTheme.colors.canvas.luminance() < HALF)
