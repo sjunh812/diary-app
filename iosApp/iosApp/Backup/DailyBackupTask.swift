@@ -31,7 +31,7 @@ enum DailyBackupTask {
             handle?.cancel()
             finish()
         }
-        handle = IosStartupKt.runDailyBackup { DispatchQueue.main.async(execute: finish) }
+        handle = IosStartupKt.runDailyBackup { _ in DispatchQueue.main.async(execute: finish) }
     }
 
     /// 이미 맡긴 작업이 있으면 그대로 둠
@@ -58,7 +58,7 @@ enum DailyBackupTask {
                 task.setTaskCompleted(success: success)
             }
         }
-        let handle = IosStartupKt.runDailyBackup { complete(true) }
+        let handle = IosStartupKt.runDailyBackup { ok in complete(ok.boolValue) }
         // 실패를 먼저 큐에 넣음. 취소가 먼저 끝나 성공으로 알리지 않게
         task.expirationHandler = {
             complete(false)

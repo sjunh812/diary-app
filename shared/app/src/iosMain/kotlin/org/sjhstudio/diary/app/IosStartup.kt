@@ -127,15 +127,15 @@ class BackupTaskHandle internal constructor(private val job: Job) {
 }
 
 /**
- * 백그라운드 작업용. 때가 됐으면 백업하고, 끝나거나 멈추면 [done]을 부름(research R15)
+ * 백그라운드 작업용. 때가 됐으면 백업하고, 끝나거나 멈추면 [done]에 성공 여부를 알림(research R15)
  * 사용자가 누른 백업·복원의 시간은 [BackgroundTime]이 받아 둠
  */
-fun runDailyBackup(done: () -> Unit): BackupTaskHandle {
+fun runDailyBackup(done: (Boolean) -> Unit): BackupTaskHandle {
     val koin = KoinPlatform.getKoin()
     val job =
         koin.get<CoroutineScope>(APP_SCOPE).launch {
             koin.get<BackupRepository>().runIfDue()
         }
-    job.invokeOnCompletion { done() }
+    job.invokeOnCompletion { cause -> done(cause == null) }
     return BackupTaskHandle(job)
 }
