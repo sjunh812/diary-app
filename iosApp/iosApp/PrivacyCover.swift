@@ -32,9 +32,11 @@ private final class CoverWindow {
         else { return }
         let cover = UIWindow(windowScene: scene)
         cover.windowLevel = .alert + 1
+        // 따로 띄운 창이라 앱이 고른 화면 모드를 물려받지 못함. 시스템과 다르면 다른 색이 번쩍임
+        cover.overrideUserInterfaceStyle = scene.windows.first { $0.windowLevel == .normal }?.overrideUserInterfaceStyle ?? .unspecified
         let screen = UIViewController()
-        // 시작 화면 색 에셋(LaunchBackground)이 생기면 그 색으로 교체(스펙 001 US4)
-        screen.view.backgroundColor = .systemBackground
+        // 시작 화면과 같은 바탕(라이트·다크)
+        screen.view.backgroundColor = UIColor(named: "LaunchBackground")
         cover.rootViewController = screen
         cover.isHidden = false
         window = cover
