@@ -21,7 +21,7 @@
     <string name="letter_promise_ads">쓰기와 상세 화면에는 광고가 없습니다</string>
     <string name="letter_close">앞으로도 잘 부탁드립니다 🙇‍♂️</string>
     <string name="onboarding_style_title">글자를 꾸밀 수 있어요</string>
-    <string name="onboarding_style_body">굵게, 글자색, 형광펜, 목록을 써 보세요.\n쓰는 동안 자동으로 임시 저장돼요.</string>
+    <string name="onboarding_style_body">굵게, 글자 색, 형광펜, 목록을 써 보세요.\n쓰는 동안 자동으로 임시 저장돼요.</string>
     <string name="onboarding_trash_title">실수로 삭제해도 괜찮아요</string>
     <string name="onboarding_trash_body">휴지통에서 30일 동안 복원할 수 있어요.</string>
     <string name="letter_to">To. 1일 1일기 사용자분들께</string>

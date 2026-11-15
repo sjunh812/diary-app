@@ -24,11 +24,11 @@
     <string name="write_open_failed">일기를 불러오지 못했어요. 닫고 다시 열어 주세요.</string>
     <string name="write_format_bold">굵게</string>
     <string name="write_format_underline">밑줄</string>
-    <string name="write_format_color">글자색</string>
+    <string name="write_format_color">글자 색</string>
     <string name="write_format_mark">형광펜</string>
     <string name="write_format_list">목록</string>
     <string name="write_format_check">체크리스트</string>
-    <string name="write_ink_default">기본 글자색</string>
+    <string name="write_ink_default">기본 글자 색</string>
     <string name="write_mark_none">형광펜 없음</string>
     <string name="write_color_gray">회색</string>
     <string name="write_color_red">빨강</string>
