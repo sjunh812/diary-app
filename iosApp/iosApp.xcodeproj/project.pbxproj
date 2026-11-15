@@ -353,6 +353,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 29DCA9F0B3A40325067EB163 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
+				890A20F78ABD07B8644F5AAA /* Check Release Config */,
 				4B44A75E2FD10EFE3C97FCF5 /* Compile Kotlin Framework */,
 				297B59D9CE634556D6007C40 /* Sources */,
 				44EBA15582DFA72803EC87BB /* Copy Firebase Config */,
@@ -503,6 +504,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# 출시 빌드만 올린다. 설정 파일이 없는 빌드는 건너뛴다.\nif [ \"$CONFIGURATION\" != \"Release\" ] || [ ! -f \"$SRCROOT/iosApp/GoogleService-Info.plist\" ]; then\n  exit 0\nfi\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
+		890A20F78ABD07B8644F5AAA /* Check Release Config */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Check Release Config";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"$CONFIGURATION\" != \"Release\" ]; then\n  exit 0\nfi\nsh \"$SRCROOT/../scripts/release/check-ios-config.sh\" \"$SRCROOT/iosApp/Local.xcconfig\" || exit 1\nif [ ! -f \"$SRCROOT/iosApp/GoogleService-Info.plist\" ]; then\n  echo \"error: GoogleService-Info.plist가 없어요\" >&2\n  exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

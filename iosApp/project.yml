@@ -196,6 +196,18 @@ targets:
         Debug:
           EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE: YES
     preBuildScripts:
+      # 출시 빌드는 드라이브·광고·구매 키와 Firebase 설정이 다 있어야 만든다. Xcode에서 손으로 아카이브해도 같다.
+      - name: Check Release Config
+        basedOnDependencyAnalysis: false
+        script: |
+          if [ "$CONFIGURATION" != "Release" ]; then
+            exit 0
+          fi
+          sh "$SRCROOT/../scripts/release/check-ios-config.sh" "$SRCROOT/iosApp/Local.xcconfig" || exit 1
+          if [ ! -f "$SRCROOT/iosApp/GoogleService-Info.plist" ]; then
+            echo "error: GoogleService-Info.plist가 없어요" >&2
+            exit 1
+          fi
       - name: Compile Kotlin Framework
         basedOnDependencyAnalysis: false
         script: |
