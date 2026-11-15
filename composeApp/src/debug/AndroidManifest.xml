@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 개발 빌드는 강제 종료 훅을 끼우는 앱 클래스를 쓴다(T049). -->
+    <!-- 아이콘은 main 매니페스트에서 합쳐져 들어옴. IDE는 이 조각만 보고 경고해 숨김 -->
     <application
         android:name=".debug.DebugApplication"
+        tools:ignore="MissingApplicationIcon"
         tools:replace="android:name">
         <!-- 개발 빌드에만 있다. 아직 들어갈 길이 없는 화면을 에뮬레이터에서 띄워 본다(ScreenCatalogActivity). -->
         <activity
