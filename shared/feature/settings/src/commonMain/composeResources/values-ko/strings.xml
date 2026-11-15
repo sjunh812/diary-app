@@ -15,7 +15,7 @@
         <item quantity="other">%1$s장</item>
     </plurals>
     <plurals name="migration_report_notice">
-        <item quantity="other">예전 앱 파일 일부가 깨져 일기 %1$s편을 읽지 못했어요. 앱을 업데이트하면 다시 읽어 볼게요. 원래 기록은 기기 안에 그대로 있어요.</item>
+        <item quantity="other">예전 앱 파일 일부가 깨져 일기 %1$s편을 읽지 못했어요. 앱을 업데이트하면 다시 읽어볼게요. 원래 기록은 기기 안에 그대로 있어요.</item>
     </plurals>
     <string name="migration_report_export">원본 파일 내보내기</string>
     <string name="migration_report_contact">문의하기</string>
@@ -28,7 +28,7 @@
     <string name="settings_plus_badge">Plus 이용 중</string>
     <string name="settings_feedback_subject">1일 1일기 피드백</string>
     <string name="settings_feedback_body">앱 버전: %1$s\nOS: %2$s\n기기: %3$s\n\n여러분의 소중한 의견 부탁드립니다 ☺️\n</string>
-    <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s 주소로 보내 주세요.</string>
+    <string name="settings_feedback_no_mail">메일 앱을 찾지 못했어요. %1$s 주소로 보내주세요.</string>
     <string name="settings_title">설정</string>
     <string name="settings_group_style">화면</string>
     <string name="settings_group_info">앱 정보</string>
@@ -61,7 +61,7 @@
     <string name="settings_reminder">쓰기 알림</string>
     <string name="reminder_value_off">꺼짐</string>
     <string name="reminder_value_blocked">알림 꺼짐</string>
-    <string name="reminder_body">매일 정한 시각에 일기 쓸 시간을 알려 드려요.</string>
+    <string name="reminder_body">매일 정한 시각에 일기 쓸 시간을 알려드려요.</string>
     <string name="reminder_time">알림 시각</string>
     <string name="reminder_save">저장</string>
     <string name="reminder_permission_title">알림이 꺼져 있어요</string>
@@ -87,7 +87,7 @@
     <string name="font_downloading">받는 중 %1$s</string>
     <string name="font_offline">인터넷에 연결되면 받을 수 있어요</string>
     <string name="font_failed">글꼴을 받지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
-    <string name="font_replaced_notice">쓰던 글꼴 대신 '%1$s' 글꼴로 보여 드려요</string>
+    <string name="font_replaced_notice">쓰던 글꼴 대신 '%1$s' 글꼴로 보여드려요</string>
     <string name="font_replaced_change">바꾸기</string>
 
     <!-- 본문 글자 크기(G2) -->
@@ -107,7 +107,7 @@
     <string name="theme_note">시스템 설정을 따르면 기기가 다크 모드일 때 앱도 함께 어두워져요.</string>
     <string name="migration_deferred_title">예전 일기를 아직 옮기지 못했어요</string>
     <string name="migration_deferred_body">다시 시도하면 지금 쓴 일기는 그대로 두고 예전 일기를 추가해요.</string>
-    <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨 볼게요.</string>
+    <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨볼게요.</string>
     <string name="migration_deferred_retry">다시 시도</string>
     <string name="migration_deferred_running">옮기는 중이에요</string>
     <string name="settings_backup">백업과 복원</string>
