@@ -407,13 +407,18 @@ private final class NativeAdCardView: NativeAdView {
         box.isUserInteractionEnabled = false
         label.translatesAutoresizingMaskIntoConstraints = false
         box.addSubview(label)
+        // 높이 32. 큰 글자로 글이 넘칠 때만 늘어남. 카드에서 남는 높이를 받아 늘어나지 않게 함
+        let preferred = box.heightAnchor.constraint(equalToConstant: Size.actionHeight)
+        preferred.priority = .defaultHigh
         NSLayoutConstraint.activate([
             label.leadingAnchor.constraint(equalTo: box.leadingAnchor, constant: Size.actionPadding),
             label.trailingAnchor.constraint(equalTo: box.trailingAnchor, constant: -Size.actionPadding),
             label.centerYAnchor.constraint(equalTo: box.centerYAnchor),
             label.topAnchor.constraint(greaterThanOrEqualTo: box.topAnchor),
-            box.heightAnchor.constraint(greaterThanOrEqualToConstant: Size.actionHeight)
+            box.heightAnchor.constraint(greaterThanOrEqualToConstant: Size.actionHeight),
+            preferred
         ])
+        box.setContentHuggingPriority(.required, for: .vertical)
         box.setContentHuggingPriority(.required, for: .horizontal)
         box.setContentCompressionResistancePriority(.required, for: .horizontal)
         return box
