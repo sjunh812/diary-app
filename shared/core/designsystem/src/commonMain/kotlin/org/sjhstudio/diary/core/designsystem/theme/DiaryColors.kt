@@ -19,6 +19,8 @@ data class DiaryColors(
     val paper: Color,
     /** 입력칸, 보조 버튼, 칩, 진행 막대 트랙 */
     val sunken: Color,
+    /** [sunken] 위에 떠오른 고른 칸(탭 한 줄). 다크도 바탕보다 밝게 */
+    val raised: Color,
     /** 고른 칸 바탕 */
     val selected: Color,
     /** 구분선 */
@@ -115,6 +117,7 @@ internal val LightDiaryColors =
         surface = Color(0xFFFFFFFF),
         paper = Color(0xFFFFFFFF),
         sunken = Color(0xFFF3F4F5),
+        raised = Color(0xFFFFFFFF),
         selected = Color(0xFFEBE4FF),
         line = Color(0xFFEEEFF1),
         lineStrong = Color(0xFFDCDEE3),
@@ -176,6 +179,7 @@ internal val DarkDiaryColors =
         surface = Color(0xFF1D2025),
         paper = Color(0xFF2B2640),
         sunken = Color(0xFF2B2E35),
+        raised = Color(0xFF393D46),
         selected = Color(0xFF291F43),
         line = Color(0xFF2B2E35),
         lineStrong = Color(0xFF393D46),

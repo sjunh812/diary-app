@@ -116,6 +116,7 @@ internal fun CatalogColors() {
             "surface" to c.surface,
             "paper" to c.paper,
             "sunken" to c.sunken,
+            "raised" to c.raised,
             "selected" to c.selected,
             "line" to c.line,
             "lineStrong" to c.lineStrong,
