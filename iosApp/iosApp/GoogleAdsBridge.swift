@@ -1,4 +1,5 @@
 import AppTrackingTransparency
+import CoreText
 import GoogleMobileAds
 import Shared
 import UIKit
@@ -264,72 +265,118 @@ private final class NativeAdFrame: UIView {
     required init?(coder: NSCoder) { nil }
 }
 
-/// Android NativeAdCard와 같은 꼴: 면 안쪽 16(면 8 + 광고 뷰 8), 오른쪽 여백은 광고 뷰 밖의 × 자리, 그림 120, 아이콘 40, 사이 12
+/// Android NativeAdCard와 같은 꼴: 면 안쪽 16(면 8 + 광고 뷰 8), 오른쪽 여백은 광고 뷰 밖의 × 자리
+/// 글자는 앱 글꼴과 글자 단계, 행동 버튼은 앱의 작은 연보라 버튼 모양
 private final class NativeAdCardView: NativeAdView {
     private enum Size {
         static let padding: CGFloat = 8
         static let gap: CGFloat = 12
         // 영상 광고는 그림 자리가 가로세로 120 이상이어야 들어옴(AdMob 네이티브 정책)
         static let media: CGFloat = 120
+        static let mediaCorner: CGFloat = 12
         // 얇은 줄의 광고 아이콘(1:1). 없는 광고는 글만
         static let icon: CGFloat = 40
         static let iconCorner: CGFloat = 8
-        static let title: CGFloat = 15
-        static let small: CGFloat = 13
+        // SDK가 오른쪽 아래에 얹는 AdChoices 자리. 행동 버튼이 그 밑에 깔리지 않음
+        static let adChoices: CGFloat = 20
+        static let actionHeight: CGFloat = 32
+        static let actionPadding: CGFloat = 12
+        static let actionCorner: CGFloat = 8
     }
 
     init(ad: NativeAd, card: Bool, style: IosAdStyle) {
         super.init(frame: .zero)
 
-        // AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
-        let headline = Self.label(Size.title, .bold, UIColor(argb: style.title))
+        // bodyStrong 15/22 SemiBold. AdMob이 제목 앞부분을 자르지 말라고 해 두 줄까지 둠
+        let headline = Self.label(AdFont.make(style.semiBoldFont, 15, .semibold), lineHeight: 22, color: UIColor(argb: style.title))
         headline.numberOfLines = 2
+        headline.lineBreakMode = .byTruncatingTail
         headline.text = ad.headline
-        let mark = Self.label(Size.small, .regular, UIColor(argb: style.body))
+        // caption 13/18. 일기 줄의 시각·날씨처럼 보조 글자
+        let mark = Self.label(AdFont.make(style.regularFont, 13, .regular), lineHeight: 18, color: UIColor(argb: style.body))
         mark.text = style.label
-        let action = Self.label(Size.small, .bold, UIColor(argb: style.title))
-        action.text = ad.callToAction
-        // 누름은 광고 뷰가 받음(구글 안내)
-        action.isUserInteractionEnabled = false
+        let titles = UIStackView(arrangedSubviews: [headline, mark])
+        titles.axis = .vertical
+        titles.alignment = .leading
 
-        let column = UIStackView(arrangedSubviews: [headline, mark, action])
-        column.axis = .vertical
-        column.alignment = .leading
-        let row = UIStackView(arrangedSubviews: [column])
-        row.axis = .horizontal
-        row.alignment = .top
-        row.spacing = Size.gap
+        let action = ad.callToAction.map { Self.actionButton($0, style: style) }
+
+        let content: UIView
         if card {
             let media = MediaView()
             media.contentMode = .scaleAspectFit
             media.mediaContent = ad.mediaContent
+            media.backgroundColor = UIColor(argb: style.mediaFill)
+            media.layer.cornerRadius = Size.mediaCorner
+            media.clipsToBounds = true
             media.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
                 media.widthAnchor.constraint(equalToConstant: Size.media),
                 media.heightAnchor.constraint(equalToConstant: Size.media)
             ])
-            row.insertArrangedSubview(media, at: 0)
             mediaView = media
-        } else if let image = ad.icon?.image {
-            let icon = UIImageView(image: image)
-            icon.contentMode = .scaleAspectFill
-            icon.layer.cornerRadius = Size.iconCorner
-            icon.clipsToBounds = true
-            icon.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                icon.widthAnchor.constraint(equalToConstant: Size.icon),
-                icon.heightAnchor.constraint(equalToConstant: Size.icon)
-            ])
-            row.insertArrangedSubview(icon, at: 0)
-            iconView = icon
+            // 제목과 "광고"는 위에, 행동 버튼은 그림 아래 끝선에 맞춤
+            let column = UIView()
+            titles.translatesAutoresizingMaskIntoConstraints = false
+            column.addSubview(titles)
+            var constraints = [
+                titles.topAnchor.constraint(equalTo: column.topAnchor),
+                titles.leadingAnchor.constraint(equalTo: column.leadingAnchor),
+                titles.trailingAnchor.constraint(lessThanOrEqualTo: column.trailingAnchor),
+                column.heightAnchor.constraint(greaterThanOrEqualToConstant: Size.media)
+            ]
+            if let action {
+                action.translatesAutoresizingMaskIntoConstraints = false
+                column.addSubview(action)
+                constraints += [
+                    action.topAnchor.constraint(greaterThanOrEqualTo: titles.bottomAnchor, constant: Size.padding),
+                    action.leadingAnchor.constraint(equalTo: column.leadingAnchor),
+                    action.bottomAnchor.constraint(equalTo: column.bottomAnchor)
+                ]
+            } else {
+                constraints.append(titles.bottomAnchor.constraint(lessThanOrEqualTo: column.bottomAnchor))
+            }
+            NSLayoutConstraint.activate(constraints)
+            let row = UIStackView(arrangedSubviews: [media, column])
+            row.axis = .horizontal
+            row.alignment = .top
+            row.spacing = Size.gap
+            content = row
+        } else {
+            // 얇은 줄: 아이콘, 제목과 "광고", 행동 버튼을 세로 가운데로
+            var items: [UIView] = []
+            if let image = ad.icon?.image {
+                let icon = UIImageView(image: image)
+                icon.contentMode = .scaleAspectFill
+                icon.layer.cornerRadius = Size.iconCorner
+                icon.clipsToBounds = true
+                icon.translatesAutoresizingMaskIntoConstraints = false
+                NSLayoutConstraint.activate([
+                    icon.widthAnchor.constraint(equalToConstant: Size.icon),
+                    icon.heightAnchor.constraint(equalToConstant: Size.icon)
+                ])
+                iconView = icon
+                items.append(icon)
+            }
+            items.append(titles)
+            titles.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            titles.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+            if let action { items.append(action) }
+            let row = UIStackView(arrangedSubviews: items)
+            row.axis = .horizontal
+            row.alignment = .center
+            row.spacing = Size.gap
+            row.isLayoutMarginsRelativeArrangement = true
+            row.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: Size.adChoices)
+            content = row
         }
-        row.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(row)
+        content.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(content)
         NSLayoutConstraint.activate([
-            row.topAnchor.constraint(equalTo: topAnchor, constant: Size.padding),
-            row.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Size.padding),
-            row.trailingAnchor.constraint(equalTo: trailingAnchor),
-            row.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Size.padding)
+            content.topAnchor.constraint(equalTo: topAnchor, constant: Size.padding),
+            content.leadingAnchor.constraint(equalTo: leadingAnchor, constant: Size.padding),
+            content.trailingAnchor.constraint(equalTo: trailingAnchor),
+            content.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Size.padding)
         ])
         headlineView = headline
         callToActionView = action
@@ -339,13 +386,76 @@ private final class NativeAdCardView: NativeAdView {
     @available(*, unavailable)
     required init?(coder: NSCoder) { nil }
 
-    /// 기기 글자 크기를 따름(Android sp와 같음)
-    private static func label(_ size: CGFloat, _ weight: UIFont.Weight, _ color: UIColor) -> UILabel {
+    /// captionStrong 13/18 Medium, `accentText` 글자에 `selected` 면
+    /// 눌림은 AdMob이 세야 해서 버튼 부품이 아니라 모양만 맞춘 뷰(구글 안내: 행동 뷰는 사용자 입력을 받지 않음)
+    private static func actionButton(_ text: String, style: IosAdStyle) -> UIView {
+        let label = Self.label(AdFont.make(style.mediumFont, 13, .medium), lineHeight: 18, color: UIColor(argb: style.action))
+        label.text = text
+        let box = UIView()
+        box.backgroundColor = UIColor(argb: style.actionFill)
+        box.layer.cornerRadius = Size.actionCorner
+        box.isUserInteractionEnabled = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+        box.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: box.leadingAnchor, constant: Size.actionPadding),
+            label.trailingAnchor.constraint(equalTo: box.trailingAnchor, constant: -Size.actionPadding),
+            label.centerYAnchor.constraint(equalTo: box.centerYAnchor),
+            label.topAnchor.constraint(greaterThanOrEqualTo: box.topAnchor),
+            box.heightAnchor.constraint(greaterThanOrEqualToConstant: Size.actionHeight)
+        ])
+        box.setContentHuggingPriority(.required, for: .horizontal)
+        box.setContentCompressionResistancePriority(.required, for: .horizontal)
+        return box
+    }
+
+    /// 기기 글자 크기를 따름(Android sp와 같음). 줄 높이도 같은 비율로 늘림
+    private static func label(_ font: UIFont, lineHeight: CGFloat, color: UIColor) -> UILabel {
         let label = UILabel()
-        label.font = UIFontMetrics.default.scaledFont(for: .systemFont(ofSize: size, weight: weight))
+        let metrics = UIFontMetrics(forTextStyle: .body)
+        label.font = metrics.scaledFont(for: font)
         label.adjustsFontForContentSizeCategory = true
         label.textColor = color
+        let height = metrics.scaledValue(for: lineHeight)
+        label.heightAnchor.constraint(greaterThanOrEqualToConstant: height).isActive = true
         return label
+    }
+}
+
+/// 앱과 같은 글꼴. 앱에 넣은 글꼴은 번들의 Compose 리소스에서, 받은 글꼴은 그 경로에서 읽음
+/// 굵기가 하나뿐인 글꼴은 그 글꼴 그대로. 파일을 읽지 못하면 시스템 글꼴
+private enum AdFont {
+    private static var names: [String: String] = [:]
+    private static let bundled: [String: URL] = {
+        guard let root = Bundle.main.resourceURL?.appendingPathComponent("compose-resources"),
+              let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)
+        else { return [:] }
+        var found: [String: URL] = [:]
+        for case let url as URL in files where url.path.contains("/font/") {
+            found[url.lastPathComponent] = url
+        }
+        return found
+    }()
+
+    static func make(_ file: String?, _ size: CGFloat, _ weight: UIFont.Weight) -> UIFont {
+        guard let file, let name = name(of: file), let font = UIFont(name: name, size: size) else {
+            return .systemFont(ofSize: size, weight: weight)
+        }
+        return font
+    }
+
+    private static func name(of file: String) -> String? {
+        if let known = names[file] { return known }
+        let url = file.hasPrefix("/") ? URL(fileURLWithPath: file) : bundled[file]
+        guard let url,
+              let descriptors = CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [CTFontDescriptor],
+              let first = descriptors.first,
+              let name = CTFontDescriptorCopyAttribute(first, kCTFontNameAttribute) as? String
+        else { return nil }
+        // 이미 등록된 파일이면 실패를 돌려주지만 이름으로 쓸 수 있음
+        CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+        names[file] = name
+        return name
     }
 }
 
