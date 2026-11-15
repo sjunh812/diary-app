@@ -253,7 +253,7 @@ REVENUECAT_IOS = appl_...
 
 ## 다음 Android 출시 때 할 일
 
-- [ ] 네이티브 디버그 기호를 AAB에 넣는다. 2.0.0 (43)에 Play 경고가 떴다("네이티브 코드를 포함하며 아직 디버그 기호가 업로드되지 않았습니다"). 기호가 없으면 Play의 비정상 종료·ANR 보고에서 네이티브 스택을 읽을 수 없다. `composeApp` 출시 빌드에 `ndk { debugSymbolLevel = "SYMBOL_TABLE" }`를 넣고 AAB 안의 `BUNDLE-METADATA/com.android.tools.build.debugsymbols`를 확인한다([Android](https://developer.android.com/build/shrink-code#native-crash-support)) (2026-11-15 사용자 요청).
+- [x] 네이티브 디버그 기호를 AAB에 넣는다. 2.0.0 (43)에 Play 경고가 떴다("네이티브 코드를 포함하며 아직 디버그 기호가 업로드되지 않았습니다"). `debugSymbolLevel = "SYMBOL_TABLE"`은 이미 있었지만 AGP가 기본으로 찾는 NDK(28.2.13676358)가 CI에 없어 기호 추출을 조용히 건너뛰었다. NDK 판을 `androidNdk`(28.1.13356709)로 고정하고, 출시 워크플로가 그 판을 설치한 뒤 AAB 안 `BUNDLE-METADATA/com.android.tools.build.debugsymbols/`가 없으면 실패하게 했다(2026-11-15, 로컬 출시 AAB에서 `libsqliteJni`·`libdatastore_shared_counter` 기호 확인).
 - [x] 데이터 보안에서 1.7.4에만 있던 사진, 연락처를 뺐다(2026-11-15 저장). 2.0.0을 100%로 내서 1.7.4가 더 배포되지 않기 때문이다. 정확한 위치는 "수집, 공유 아님, 임시 처리, 선택, 앱 기능"으로 남겼다. 운영체제 주소 변환이 좌표를 구글 서버로 보낼 수 있고 앱이 정확한 위치 권한을 요청해서다.
 - [x] 데이터 보안 변경과 출시 국가 변경을 검토에 보냈고 승인됐다(2026-11-15). 43 (2.0.0)도 승인됐다.
 - [x] 기본·맞춤 스토어 등록정보의 새 아이콘, 스크린샷, 그래픽 이미지, 설명을 검토에 보냈다(2026-11-15, AI 애셋 선언: 라벨 지정 안 함).
@@ -261,7 +261,7 @@ REVENUECAT_IOS = appl_...
 - [ ] 출시 뒤 며칠 동안 Crashlytics 비정상 종료, 기록 이전 실패 수, Play 비정상 종료·ANR을 본다. 이전 실패가 하나라도 있으면 원인을 고쳐 다음 빌드로 낸다.
 - [x] 출시 국가에 미국, 캐나다, 오스트레일리아, 뉴질랜드를 더했다(2026-11-15 저장, D11). 원래 있던 아르헨티나, 인도는 1.7.4 사용자가 업데이트를 받도록 남겼다.
 - 일본 판매: 특정상거래법 표시는 Play가 결제 프로필 정보로 보여 주고, 자금결제법·할부판매법 확인은 Google 결제 센터가 요청할 때 답한다. 개발자가 따로 켜는 설정은 없다([Play](https://support.google.com/googleplay/android-developer/answer/6223646), [결제 센터](https://support.google.com/paymentscenter/answer/17595997)).
-- [ ] Play "비트맵 다운샘플링으로 앱 성능을 개선하세요"(43, 메모리 사용량): `mzb.t0`, `n2c.f0`가 `BitmapFactory.Options` 없이 디코딩한다고 나온다. 2026-11-14 로컬 출시 빌드의 R8 매핑으로 풀면 둘 다 `com.google.android.gms.internal.ads.*`(Google Mobile Ads SDK 내부)라 우리 코드가 아닐 가능성이 높다. 우리 코드(`ImageDecoder.android.kt`, `AndroidLegacy.kt`)는 크기만 먼저 읽고(`inJustDecodeBounds`) `inSampleSize`로 줄여 읽는다. 다음 출시 때 CI 빌드의 매핑으로 다시 확인하고, 광고 SDK면 최신 판에서 고쳐졌는지 본다(2026-11-15 사용자 요청).
+- [x] Play "비트맵 다운샘플링으로 앱 성능을 개선하세요"(43): 2.0.0 CI 빌드 AAB의 매핑으로 풀면 `mzb`는 `com.google.android.gms.internal.ads.zzemc`(Google 광고 SDK 내부), `n2c`는 `com.android.billingclient.api.zzet`(Play 결제 라이브러리 내부)다. 우리 코드가 아니라 고칠 것이 없다. 두 SDK를 올릴 때 경고가 사라지는지만 본다(2026-11-15 확인).
 - [x] Play "일부 사용자에게는 더 넓은 화면이 표시되지 않을 수 있습니다"와 "앱에서 더 넓은 화면용으로 지원 중단된 API 또는 파라미터를 사용합니다"(43): 우리 코드 문제가 아니라 고칠 것이 없다(2026-11-15 확인).
   - 앱의 모든 화면(`MainActivity`, 개발 빌드의 `DevModeActivity`·`ScreenCatalogActivity`)은 이미 `enableEdgeToEdge()`를 부르고, 테마 XML에 `statusBarColor`·`windowLayoutInDisplayCutoutMode`가 없으며, 우리 코드는 지원 중단 창 API를 부르지 않는다.
   - 로컬 출시 APK의 dex를 훑어 R8 매핑으로 풀면, `Window.setStatusBarColor`·`setNavigationBarColor`·`setDecorFitsSystemWindows`와 `layoutInDisplayCutoutMode`를 쓰는 곳은 모두 androidx다. `androidx.activity` 1.13.0의 `EdgeToEdgeApi23/26/28/29/30/35`(곧 `enableEdgeToEdge()` 자체), `androidx.core`의 `WindowCompat`, `androidx.core:core-splashscreen` 1.2.0의 `SplashScreen$Impl31`이다. 광고 SDK와 결제 SDK에서는 나오지 않았다.

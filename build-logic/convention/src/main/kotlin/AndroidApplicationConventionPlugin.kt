@@ -7,6 +7,7 @@ import org.sjhstudio.diary.buildlogic.int
 import org.sjhstudio.diary.buildlogic.javaVersion
 import org.sjhstudio.diary.buildlogic.jvmTarget
 import org.sjhstudio.diary.buildlogic.libs
+import org.sjhstudio.diary.buildlogic.string
 
 // composeApp용
 // AGP 9부터 코틀린 지원이 플러그인에 들어 있어 kotlin-android를 따로 적용하지 않음
@@ -16,6 +17,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
         extensions.configure<ApplicationExtension> {
             compileSdk = libs.int("androidCompileSdk")
+            ndkVersion = libs.string("androidNdk")
 
             defaultConfig {
                 minSdk = libs.int("androidMinSdk")
