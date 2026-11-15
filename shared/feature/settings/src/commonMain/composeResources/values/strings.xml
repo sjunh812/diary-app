@@ -65,6 +65,7 @@
     <string name="settings_group_notification_security">Notifications and security</string>
     <string name="settings_reminder">Daily reminder</string>
     <string name="reminder_value_off">Off</string>
+    <string name="reminder_value_blocked">Notifications off</string>
     <string name="reminder_body">We'll remind you to write at the same time every day.</string>
     <string name="reminder_time">Reminder time</string>
     <string name="reminder_save">Save</string>

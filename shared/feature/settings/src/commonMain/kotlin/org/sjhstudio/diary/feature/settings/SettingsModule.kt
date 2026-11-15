@@ -25,6 +25,7 @@ val settingsFeatureModule =
                 plan = get<PlanRepository>().plan,
                 showsMigrationReport = { showsMigrationReport(get()) },
                 fonts = get(),
+                notifications = get(),
                 lastBackupAt = get<BackupRepository>().status.map { it.lastSuccessAt }.distinctUntilChanged(),
                 telemetry = get()
             )

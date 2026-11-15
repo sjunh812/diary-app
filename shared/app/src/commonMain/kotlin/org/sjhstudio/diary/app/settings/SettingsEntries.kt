@@ -15,6 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -108,6 +109,10 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     entry<SettingsKey>(metadata = SettingsListPane + tabRoot(SettingsKey)) {
         val viewModel = koinViewModel<SettingsViewModel>()
         val state by viewModel.state.collectAsStateWithLifecycle()
+        LifecycleResumeEffect(viewModel) {
+            viewModel.refreshNotifications()
+            onPauseOrDispose {}
+        }
         val app = koinInject<BackupAppInfo>()
         val toast = remember { DiaryToastState() }
         val openWeb = rememberOpenWebLink(toast)

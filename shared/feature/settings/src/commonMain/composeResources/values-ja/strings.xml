@@ -60,6 +60,7 @@
     <string name="settings_group_notification_security">通知とセキュリティ</string>
     <string name="settings_reminder">毎日のリマインダー</string>
     <string name="reminder_value_off">オフ</string>
+    <string name="reminder_value_blocked">通知オフ</string>
     <string name="reminder_body">毎日決まった時刻に、日記を書くタイミングをお知らせします。</string>
     <string name="reminder_time">リマインダーの時刻</string>
     <string name="reminder_save">保存</string>

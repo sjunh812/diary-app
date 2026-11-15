@@ -60,6 +60,7 @@
     <string name="settings_group_notification_security">알림과 보안</string>
     <string name="settings_reminder">쓰기 알림</string>
     <string name="reminder_value_off">꺼짐</string>
+    <string name="reminder_value_blocked">알림 꺼짐</string>
     <string name="reminder_body">매일 정한 시각에 일기 쓸 시간을 알려 드려요.</string>
     <string name="reminder_time">알림 시각</string>
     <string name="reminder_save">저장</string>

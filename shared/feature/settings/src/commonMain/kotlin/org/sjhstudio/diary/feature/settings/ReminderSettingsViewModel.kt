@@ -2,15 +2,14 @@ package org.sjhstudio.diary.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
-import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
 import org.sjhstudio.diary.core.ui.launchSafely
@@ -38,18 +37,18 @@ data class ReminderUiState(
 class ReminderSettingsViewModel(
     private val settings: SettingsRepository,
     private val reminder: ReminderRepository,
-    private val permission: NotificationPermission,
+    private val notifications: NotificationAllowance,
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
-    private val allowed = MutableStateFlow<Boolean?>(null)
-
     val state: StateFlow<ReminderUiState> =
-        combine(settings.settings, allowed) { app, granted -> ReminderUiState(app.reminderEnabled, app.reminderMinuteOfDay, granted) }
+        combine(settings.settings, notifications.allowed) { app, granted ->
+            ReminderUiState(app.reminderEnabled, app.reminderMinuteOfDay, granted)
+        }
             .stateInSafely(viewModelScope, WhileUiSubscribed, ReminderUiState())
 
     /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽음 */
     fun refreshPermission() {
-        viewModelScope.launchSafely { allowed.value = permission.isGranted() }
+        viewModelScope.launchSafely { notifications.refresh() }
     }
 
     fun setEnabled(enabled: Boolean) {

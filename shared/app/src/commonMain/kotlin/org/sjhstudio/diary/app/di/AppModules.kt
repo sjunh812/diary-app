@@ -62,6 +62,7 @@ import org.sjhstudio.diary.core.data.photo.DefaultMediaRepository
 import org.sjhstudio.diary.core.data.photo.PhotoStore
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
+import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
 import org.sjhstudio.diary.core.data.reminder.ReminderRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.DiaryDatabase
@@ -159,6 +160,7 @@ private fun coreModule(isDebug: Boolean) = module {
     // 매일 알림(FR-022)
     // 앱을 열 때와 알림 수신기가 다시 예약
     single { ReminderRepository(get(), get()) }
+    single { NotificationAllowance(get()) }
     single { ChosenFontDownload(get(), get(), get(APP_SCOPE)) }
     single { AppLaunch() }
     // Firebase 설정 파일이 생기면 플랫폼 구현으로 바꿈(스펙 001 T028)

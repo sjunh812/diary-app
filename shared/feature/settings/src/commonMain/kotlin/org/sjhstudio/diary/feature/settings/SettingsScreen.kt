@@ -45,6 +45,7 @@ import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
+import org.sjhstudio.diary.feature.settings.resources.reminder_value_blocked
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
 import org.sjhstudio.diary.feature.settings.resources.settings_backup
 import org.sjhstudio.diary.feature.settings.resources.settings_dev_mode
@@ -210,7 +211,9 @@ fun SettingsScreen(
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_notification_security), gapAbove = true)
             val reminderValue =
-                if (state.settings.reminderEnabled) {
+                if (state.reminderBlocked) {
+                    stringResource(Res.string.reminder_value_blocked)
+                } else if (state.settings.reminderEnabled) {
                     val minute = state.settings.reminderMinuteOfDay
                     rememberDiaryDateFormat().time(LocalTime(minute / 60, minute % 60))
                 } else {
