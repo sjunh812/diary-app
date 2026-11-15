@@ -159,11 +159,30 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         }
         trackingWaiters = [then]
         ATTrackingManager.requestTrackingAuthorization { [weak self] _ in
-            DispatchQueue.main.async {
-                let waiters = self?.trackingWaiters ?? []
-                self?.trackingWaiters = nil
-                waiters.forEach { $0() }
-            }
+            DispatchQueue.main.async { self?.whenActive { self?.releaseTrackingWaiters() } }
+        }
+    }
+
+    private func releaseTrackingWaiters() {
+        let waiters = trackingWaiters ?? []
+        trackingWaiters = nil
+        waiters.forEach { $0() }
+    }
+
+    /// 추적 허용 답은 창이 닫혀 앱이 다시 활성이 되기 전에 옴. 그때 띄운 전면 광고는 실패함
+    private func whenActive(_ work: @escaping () -> Void) {
+        guard UIApplication.shared.applicationState != .active else {
+            work()
+            return
+        }
+        var token: NSObjectProtocol?
+        token = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            if let token { NotificationCenter.default.removeObserver(token) }
+            work()
         }
     }
 
