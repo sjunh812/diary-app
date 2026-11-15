@@ -31,15 +31,15 @@
 ```text
 shared/core/datastore/.../PromptStore.kt          새 파일 prompt.preferences_pb. 기기 것, 백업 제외
 shared/core/database/.../EntryDao.kt              새로 쓴 일기 수 세기 쿼리(스키마 그대로)
-shared/core/data/.../PromptRepository.kt          카드·리뷰 판단과 기록
+shared/core/data/.../PromptRepository.kt          카드·리뷰 판단과 기록, StoreReview 인터페이스
 shared/core/data/.../AdRepository.kt              backToList()가 전면 광고 차례였는지 돌려줌
-shared/core/platform/.../StoreReview.kt           리뷰 창 요청 인터페이스
 shared/app/src/androidMain/.../review/PlayStoreReview.kt
 shared/app/src/iosMain/.../review/IosStoreReview.kt  Swift 다리를 감쌈
 iosApp/iosApp/ReviewBridge.swift
 shared/app/.../scaffold/AppShellViewModel.kt       저장 뒤 차례: 광고 차례가 아니면 리뷰
 shared/app/.../scaffold/AppScaffold.kt            listTop: 백업 카드가 없으면 의견 카드
 shared/app/.../settings/SettingsEntries.kt        편지의 설문 열기도 기록
+shared/app/.../scaffold/FeedbackCardViewModel.kt  카드 상태와 홈 카드 연결
 shared/feature/home/.../FeedbackCard.kt           카드 화면(+ preview/)
 ```
 
@@ -54,12 +54,13 @@ shared/feature/home/.../FeedbackCard.kt           카드 화면(+ preview/)
 | `feedbackShownDay: String?` | 카드가 마지막으로 보인 날(같은 날 리뷰 막기) |
 | `reviewAskedDay: String?` | 리뷰 창을 요청한 날. 있으면 다시 요청하지 않음 |
 
-새로 쓴 편 수는 따로 세지 않고 일기 DB에서 센다: `created_at >= firstUseAt`이고 `legacy_id`·`legacy_create_date`가 비어 있는 줄. 휴지통 줄도 센다("저장한 적"이 기준).
-복원한 일기는 원래 `created_at`을 지녀 대개 첫 사용일보다 앞이라 빠진다. 첫 사용일 뒤 다른 기기에서 쓴 일기를 복원하면 들어갈 수 있는데, 그 사람도 새 앱을 쓴 사람이라 그대로 둔다.
+새로 쓴 편 수는 따로 세지 않고 일기 DB에서 센다: `created_at >= firstUseAt`이고 `legacy_id`·`legacy_create_date`가 비어 있는 줄. 휴지통 줄도 센다.
+- 영구 삭제하거나 휴지통에서 30일이 지나 지워진 줄은 빠진다. 새로 쓴 일기를 굳이 영구 삭제한 경우뿐이라 따로 세는 칸을 두지 않는다. 이미 보인 카드나 요청한 리뷰는 되돌리지 않는다.
+- 복원한 일기는 원래 `created_at`을 지녀 대개 첫 사용일보다 앞이라 빠진다. 첫 사용일 뒤 다른 기기에서 이 앱으로 쓴 일기를 복원하면 들어갈 수 있다. 그 사람도 새 앱으로 일기를 쓴 사람이라 그대로 둔다(CodeRabbit 지적 검토, 2026-11-15).
 
 ## 흐름
 
-1. `AppRootViewModel` 시작 때 `PromptRepository.start()`가 첫 사용일을 적는다.
+1. 시작 단계(`Startup.afterReady`)에서 `PromptRepository.start()`가 첫 사용일을 적는다.
 2. 홈 `listTop`: 백업 카드가 있으면 그것만, 없으면 `PromptRepository.feedbackCard`가 참일 때 의견 카드. 카드가 그려지면 그날을 `feedbackShownDay`로 적는다.
 3. 저장 뒤 목록으로 돌아옴(`AppShellViewModel.takeAdTurn`): 첫 광고 안내 차례면 안내, 아니면 `ads.backToList()`. 전면 광고 차례가 아니었으면(`false`) `PromptRepository.askReviewIfDue()`.
 4. `askReviewIfDue()`: 7일·5편·오늘 카드 안 보임·요청한 적 없음이면 그날을 먼저 적고 `StoreReview.request()`. 적은 뒤 부르므로 앱이 꺼져도 두 번 묻지 않는다.

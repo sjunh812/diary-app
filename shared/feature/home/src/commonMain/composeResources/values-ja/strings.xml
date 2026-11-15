@@ -28,4 +28,8 @@
     <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
     <string name="tip_home_list_style">日記の一覧はカードや写真グリッドでも見られます。</string>
     <string name="tip_home_list_style_action">変更する</string>
+    <string name="feedback_card_title">1日1日記、使ってみていかがですか？😊</string>
+    <string name="feedback_card_body">不便なところや欲しい機能を気軽に教えてください。一つひとつ丁寧に読みます。</string>
+    <string name="feedback_card_action">ご意見を送る</string>
+    <string name="feedback_card_close">閉じる</string>
 </resources>

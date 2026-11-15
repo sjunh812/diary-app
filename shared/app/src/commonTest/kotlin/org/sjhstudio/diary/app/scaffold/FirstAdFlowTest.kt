@@ -79,7 +79,8 @@ class FirstAdFlowTest {
                 override suspend fun backToList() = ads.backToList()
 
                 override suspend fun takeNotice() = ads.takeInterstitialNotice()
-            }
+            },
+            askReview = {}
         ) {}
     }
 

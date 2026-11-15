@@ -28,4 +28,8 @@
     <string name="detail_missing_body">It may have been deleted or moved to Trash.</string>
     <string name="tip_home_list_style">View your diary list as cards or a photo grid.</string>
     <string name="tip_home_list_style_action">Change</string>
+    <string name="feedback_card_title">How are you finding 1 Day 1 Diary? 😊</string>
+    <string name="feedback_card_body">Tell us what bothers you or what you’d like to see. We read every message.</string>
+    <string name="feedback_card_action">Send feedback</string>
+    <string name="feedback_card_close">Close</string>
 </resources>

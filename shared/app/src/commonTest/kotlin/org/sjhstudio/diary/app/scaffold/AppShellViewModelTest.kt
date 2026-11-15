@@ -18,6 +18,7 @@ import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.HomeKey
+import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -35,7 +36,7 @@ class AppShellViewModelTest {
     @AfterTest
     fun tearDown() = Dispatchers.resetMain()
 
-    private class Ads(var notice: Boolean = false) : AfterSaveAds {
+    private class Ads(var notice: Boolean = false, var due: Boolean = true) : AfterSaveAds {
         var prepared = 0
         var shown = 0
 
@@ -45,8 +46,9 @@ class AppShellViewModelTest {
             prepared++
         }
 
-        override suspend fun backToList() {
-            shown++
+        override suspend fun backToList(): Boolean {
+            if (due) shown++
+            return due
         }
     }
 
@@ -60,8 +62,51 @@ class AppShellViewModelTest {
 
     private val oneEntry = mapOf(LocalDate(2026, 11, 10) to DayMood(LocalDate(2026, 11, 10), Mood.GOOD, 1))
 
+    private var reviews = 0
+
     private fun shell(entries: EntryRepository = FakeEntryRepository(), ads: Ads = Ads(), screens: MutableList<String> = mutableListOf()) =
-        AppShellViewModel(entries, FakePlanRepository(), ads) { screens += it }
+        AppShellViewModel(entries, FakePlanRepository(), ads, askReview = { reviews++ }) { screens += it }
+
+    @Test
+    fun review_is_asked_only_when_no_interstitial_was_due() = runTest(dispatcher) {
+        backOnTheListAfterSaving(Ads(due = true))
+        assertEquals(0, reviews)
+
+        backOnTheListAfterSaving(Ads(due = false))
+        assertEquals(1, reviews)
+    }
+
+    @Test
+    fun no_review_while_the_first_ad_notice_shows() = runTest(dispatcher) {
+        val shell = backOnTheListAfterSaving(Ads(notice = true, due = true))
+        shell.confirmAdNotice()
+        advanceUntilIdle()
+        assertEquals(0, reviews)
+    }
+
+    @Test
+    fun going_to_write_withdraws_a_pending_review() = runTest(dispatcher) {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), askReview = {
+            gate.await()
+            reviews++
+        }) {}
+        shell.saved(HomeKey, listOf(HomeKey, EntryDetailKey("e1")), twoPane = false)
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        advanceUntilIdle()
+        shell.screenShown(WriteKey(), HomeKey, listOf(HomeKey, WriteKey()))
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(0, reviews)
+    }
+
+    @Test
+    fun no_review_without_saving() = runTest(dispatcher) {
+        val shell = shell(ads = Ads(due = false))
+        shell.screenShown(HomeKey, HomeKey, listOf(HomeKey))
+        advanceUntilIdle()
+        assertEquals(0, reviews)
+    }
 
     @Test
     fun the_home_button_waits_until_entries_are_read() = runTest(dispatcher) {
