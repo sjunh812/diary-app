@@ -27,10 +27,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.ContextTip
-import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -64,9 +64,11 @@ class InsightViewModelTest {
         val done = mutableListOf<ContextTip>()
         val tips =
             object : ContextTips {
-                override suspend fun claim(tip: ContextTip) = true
+                override fun isOpen(tip: ContextTip): Boolean = true
 
-                override suspend fun done(tip: ContextTip) {
+                override suspend fun load() = Unit
+
+                override fun done(tip: ContextTip) {
                     done += tip
                 }
             }

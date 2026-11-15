@@ -24,11 +24,11 @@ import kotlinx.datetime.number
 import kotlinx.datetime.onDay
 import kotlinx.datetime.plus
 import kotlinx.datetime.yearMonth
+import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.ContextTip
-import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.Mood
@@ -150,10 +150,11 @@ class InsightViewModel(
     /**
      * 칸이나 기분 막대를 눌러 보면 누를 수 있다는 안내는 할 일을 다 함
      * ×를 누르지 않아도 다시 띄우지 않음(Apple TipKit `actionPerformed`)
-     * 화면이 찾기로 넘어가도 끝까지 쓰게 화면 모델에서 저장
+     * 보이던 팁은 찾기로 넘어가는 동안 그대로 둠
+     * 돌아오면 없음
      */
     fun tried() {
-        viewModelScope.launchSafely { tips.done(ContextTip.INSIGHT_OPEN) }
+        tips.done(ContextTip.INSIGHT_OPEN)
     }
 
     fun select(kind: InsightKind) {

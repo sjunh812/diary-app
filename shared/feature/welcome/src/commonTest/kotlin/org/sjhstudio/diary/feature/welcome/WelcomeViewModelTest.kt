@@ -8,6 +8,7 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -24,7 +25,11 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 class WelcomeViewModelTest {
     private val dispatcher = StandardTestDispatcher()
 
-    private fun viewModel() = WelcomeViewModel(DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences()))) { null })
+    private fun TestScope.viewModel() = WelcomeViewModel(
+        DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences())), this) {
+            null
+        }
+    )
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)
@@ -56,9 +61,11 @@ class WelcomeViewModelTest {
 
                 override suspend fun onboardingFinished() = Unit
 
-                override suspend fun claim(tip: ContextTip): Boolean = false
+                override fun isOpen(tip: ContextTip): Boolean = false
 
-                override suspend fun done(tip: ContextTip) = Unit
+                override suspend fun load() = Unit
+
+                override fun done(tip: ContextTip) = Unit
             }
         val viewModel = WelcomeViewModel(broken)
         advanceUntilIdle()
