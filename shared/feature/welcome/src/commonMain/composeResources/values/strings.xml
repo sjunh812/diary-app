@@ -8,10 +8,10 @@
     <string name="letter_sign">From SeoJuNyang</string>
     <string name="letter_start">Continue</string>
     <string name="onboarding_backup_title">Your photos are backed up too</string>
-    <string name="onboarding_backup_body">With automatic backup on, entries go to your Google Drive once a day.\nChange phones and your diary and photos are still there.</string>
+    <string name="onboarding_backup_body">With automatic backup on, entries go to your Google Drive once a day.\nChange devices and your diary and photos are still there.</string>
     <string name="onboarding_write_title">One line a day is enough</string>
     <string name="onboarding_write_body">Pick a mood and jot down a few lines.</string>
-    <string name="onboarding_own_title">Only on your phone and your Drive</string>
+    <string name="onboarding_own_title">Only on your device and your Drive</string>
     <string name="onboarding_own_body">No sign-up. Back up to your own Google Drive,\nphotos included.</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_start">Get started</string>

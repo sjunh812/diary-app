@@ -280,7 +280,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
     [기호](https://smarthr.design/products/contents/idiomatic-usage/symbol/), [오류 메시지](https://smarthr.design/products/contents/error-messages/overview/)).
   - 낱말은 플랫폼과 맞춘다. 권한 허용·Allow·許可, 설정·Settings·設定, 저장 공간·storage·ストレージ, 기록 이전·transfer·移行.
   - 같은 뜻은 한 낱말로 쓴다(2026-11-07). 일기 한 편·entry·1件, 일기 전체·diary·日記, 기록 이전·transfer·移行, 예전 앱·previous version·以前のアプリ,
-    복원·Restore·復元, 되돌리기·Undo·元に戻す, 휴대폰·phone·スマートフォン, 기기·device·デバイス, 비밀번호·passcode·パスコード, 돌아보기·Insights·ふりかえり.
+    복원·Restore·復元, 되돌리기·Undo·元に戻す, 기기·device·デバイス(휴대폰·태블릿 구분 없이 이 낱말만 씀, 2026-11-15), 비밀번호·passcode·パスコード, 돌아보기·Insights·ふりかえり.
 - **따옴표**: Compose 리소스는 `\'`와 `\"`를 풀지 않아 역슬래시가 화면에 그대로 나온다. 그냥 따옴표로 쓰고, `stringResourceCheck`가 막는다.
 - **글꼴**: 기본 글꼴일 때 한국어·영어 화면은 Pretendard다. 일본어 화면은 시스템 글꼴이다(iOS 히라기노 산스, Android Noto Sans CJK JP, 열린 결정 D13 추천으로 임시). 글꼴을 고르면 언어와 상관없이 그 글꼴이고, 없는 글자는 시스템 글꼴로 채워진다.
   Pretendard는 가나 184자는 있지만 한자가 없어 섞으면 한 낱말 안에서 글꼴이 바뀐다.

@@ -15,7 +15,7 @@
         <item quantity="other">%1$s장</item>
     </plurals>
     <plurals name="migration_report_notice">
-        <item quantity="other">예전 앱 파일 일부가 깨져 일기 %1$s편을 읽지 못했어요. 앱을 업데이트하면 다시 읽어 볼게요. 원래 기록은 휴대폰 안에 그대로 있어요.</item>
+        <item quantity="other">예전 앱 파일 일부가 깨져 일기 %1$s편을 읽지 못했어요. 앱을 업데이트하면 다시 읽어 볼게요. 원래 기록은 기기 안에 그대로 있어요.</item>
     </plurals>
     <string name="migration_report_export">원본 파일 내보내기</string>
     <string name="migration_report_contact">문의하기</string>
@@ -65,7 +65,7 @@
     <string name="reminder_time">알림 시각</string>
     <string name="reminder_save">저장</string>
     <string name="reminder_permission_title">알림이 꺼져 있어요</string>
-    <string name="reminder_permission_body">휴대폰 설정에서 1일 1일기 알림을 허용해야 쓰기 알림이 와요.</string>
+    <string name="reminder_permission_body">기기 설정에서 1일 1일기 알림을 허용해야 쓰기 알림이 와요.</string>
     <string name="reminder_permission_allow">허용하기</string>
 
     <!-- 글꼴(G1) -->
@@ -98,13 +98,13 @@
     <string name="text_size_xxlarge">가장 크게</string>
     <string name="text_size_sample_glyph">가</string>
     <string name="text_size_sample_body">퇴근길에 한강까지 걸었다. 바람이 차가워졌는데 그래서 더 좋았다.</string>
-    <string name="text_size_note">일기 본문에만 적용돼요. 메뉴와 버튼 글자는 휴대폰 글자 크기를 따라요.</string>
+    <string name="text_size_note">일기 본문에만 적용돼요. 메뉴와 버튼 글자는 기기 글자 크기를 따라요.</string>
 
     <!-- 화면 모드(G3) -->
     <string name="theme_system">시스템 설정</string>
     <string name="theme_light">라이트</string>
     <string name="theme_dark">다크</string>
-    <string name="theme_note">시스템 설정을 따르면 휴대폰이 다크 모드일 때 앱도 함께 어두워져요.</string>
+    <string name="theme_note">시스템 설정을 따르면 기기가 다크 모드일 때 앱도 함께 어두워져요.</string>
     <string name="migration_deferred_title">예전 일기를 아직 옮기지 못했어요</string>
     <string name="migration_deferred_body">다시 시도하면 지금 쓴 일기는 그대로 두고 예전 일기를 추가해요.</string>
     <string name="migration_deferred_failed">이번에도 옮기지 못했어요. 앱을 업데이트하면 다시 옮겨 볼게요.</string>

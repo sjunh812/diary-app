@@ -105,7 +105,7 @@ class BackupNudgeTest {
         assertEquals("old@gmail.com", controller(migrated = true, account = "old@gmail.com").nudge.first()?.suggestedAccount)
     }
 
-    // 옮긴 일기를 모두 지우면 "일기 0편이 이 휴대폰에만 있어요"가 뜨면 안 됨
+    // 옮긴 일기를 모두 지우면 "일기 0편이 이 기기에만 있어요"가 뜨면 안 됨
     // 지킬 것이 없으면 권하지 않음
     @Test
     fun migrated_user_with_nothing_left_does_not_see_it() = runTest {
