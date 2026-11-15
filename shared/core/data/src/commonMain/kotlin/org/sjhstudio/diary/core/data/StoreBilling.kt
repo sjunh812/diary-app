@@ -8,6 +8,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
@@ -65,6 +67,9 @@ class StoreBilling(
     /** 구독이 끝나는 시각에 다시 묻는 일. 앱을 켜 둔 채 만료돼도 혜택이 남지 않음 */
     private var expiryCheck: Job? = null
 
+    /** 구매 가져오기는 한 번에 하나. 켤 때 시작·앞으로 옴·스토어 알림이 함께 오고, iOS는 요청마다 로그인 창을 띄움 */
+    private val syncing = Mutex()
+
     override val plan: StateFlow<Plan> = state.plan
     override val known: StateFlow<Boolean> = state.known
 
@@ -85,14 +90,18 @@ class StoreBilling(
     suspend fun onUpdate(answer: StoreAnswer) {
         watchExpiry(answer)
         if (!state.onAnswer(StoreIds.planOf(answer.active))) return
-        try {
-            val synced = client.sync()
-            watchExpiry(synced)
-            state.onSynced(StoreIds.planOf(synced.active))
-        } catch (e: StoreFailure) {
-            // 로그인 창을 닫은 것은 계정이 없다는 답. 다시 물으면 창이 되풀이됨
-            if (e.reason == StoreFailure.Reason.CANCELLED) state.onSynced(StoreIds.planOf(answer.active))
-            // 그 밖은 무료로 정하지 않음(구매자에게 광고 방지)
+        syncing.withLock {
+            // 기다리는 사이 앞선 가져오기가 정했으면 이 답은 그보다 앞선 답
+            if (state.synced) return
+            try {
+                val synced = client.sync()
+                watchExpiry(synced)
+                state.onSynced(StoreIds.planOf(synced.active))
+            } catch (e: StoreFailure) {
+                // 로그인 창을 닫은 것은 계정이 없다는 답. 다시 물으면 창이 되풀이됨
+                if (e.reason == StoreFailure.Reason.CANCELLED) state.onSynced(StoreIds.planOf(answer.active))
+                // 그 밖은 무료로 정하지 않음(구매자에게 광고 방지)
+            }
         }
     }
 

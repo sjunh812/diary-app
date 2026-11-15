@@ -64,7 +64,10 @@ private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow
 class StorePlanState(private val saved: Plan?, private val remember: (Plan) -> Unit) {
     private val _plan = MutableStateFlow(saved ?: Plan.FREE)
     private val _known = MutableStateFlow(saved != null)
-    private var synced = false
+
+    /** 구매를 가져와 요금제를 정했는지 */
+    var synced = false
+        private set
 
     val plan: StateFlow<Plan> = _plan.asStateFlow()
     val known: StateFlow<Boolean> = _known.asStateFlow()
