@@ -34,7 +34,7 @@ class StoreBillingTest {
         var expiresAt: Instant? = null
         var answeredAt: Instant? = null
         var entitlementCalls = 0
-        var syncFails = false
+        var syncFailure: StoreFailure.Reason? = null
         val bought = ArrayList<String>()
 
         /** 참이면 결제는 끝나도 권한이 켜지지 않음(상품과 권한 연결이 빠진 경우) */
@@ -53,7 +53,7 @@ class StoreBillingTest {
 
         override suspend fun sync(): StoreAnswer {
             check()
-            if (syncFails) throw StoreFailure(StoreFailure.Reason.OTHER)
+            syncFailure?.let { throw StoreFailure(it) }
             syncs++
             owned = owned + accountOwned
             return answer()
@@ -255,16 +255,32 @@ class StoreBillingTest {
     @Test
     fun a_reinstalled_buyer_whose_sync_fails_stays_unknown() = runTest {
         val billing = billing(null)
-        store.syncFails = true
+        store.syncFailure = StoreFailure.Reason.OTHER
         billing.refresh()
         assertFalse(billing.known.value)
         assertTrue(stored.isEmpty())
 
-        store.syncFails = false
+        store.syncFailure = null
         store.accountOwned = setOf(StoreIds.PLUS_ENTITLEMENT)
         billing.refresh()
         assertEquals(Plan.PLUS, billing.plan.value)
         assertTrue(billing.known.value)
+    }
+
+    /** iOS는 영수증이 없으면 로그인 창을 띄움. 닫으면 계정이 없다는 답이라 다시 묻지 않음 */
+    @Test
+    fun closing_the_sign_in_on_first_launch_settles_free_and_does_not_ask_again() = runTest {
+        val billing = billing(null)
+        store.syncFailure = StoreFailure.Reason.CANCELLED
+        billing.refresh()
+        assertTrue(billing.known.value)
+        assertEquals(Plan.FREE, billing.plan.value)
+        assertEquals(Plan.FREE, stored.last())
+
+        store.syncFailure = null
+        billing.refresh()
+        billing.refresh()
+        assertEquals(0, store.syncs)
     }
 
     /** 기기 시계가 빨라 만료 시각이 지난 것처럼 보여도 스토어를 거듭 부르지 않고 서버 시계로 잼 */

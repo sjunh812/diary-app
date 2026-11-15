@@ -23,7 +23,7 @@ import org.sjhstudio.diary.core.model.StoreProduct
 interface StoreClient {
     suspend fun entitlements(): StoreAnswer
 
-    /** 구글 계정에 남은 구매를 가져옴 */
+    /** 스토어 계정에 남은 구매를 가져옴. iOS는 영수증이 없으면 로그인 창을 띄울 수 있음 */
     suspend fun sync(): StoreAnswer
 
     /** 스토어 상품 ID와 그 나라 돈으로 쓴 가격 */
@@ -89,8 +89,10 @@ class StoreBilling(
             val synced = client.sync()
             watchExpiry(synced)
             state.onSynced(StoreIds.planOf(synced.active))
-        } catch (_: StoreFailure) {
-            // 구매를 못 가져오면 무료로 정하지 않음(구매자에게 광고 방지)
+        } catch (e: StoreFailure) {
+            // 로그인 창을 닫은 것은 계정이 없다는 답. 다시 물으면 창이 되풀이됨
+            if (e.reason == StoreFailure.Reason.CANCELLED) state.onSynced(StoreIds.planOf(answer.active))
+            // 그 밖은 무료로 정하지 않음(구매자에게 광고 방지)
         }
     }
 
