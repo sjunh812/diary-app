@@ -3,7 +3,6 @@ package org.sjhstudio.diary.app
 import kotlin.experimental.ExperimentalNativeApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform
 import org.sjhstudio.diary.app.ads.IosAdBridge
@@ -28,7 +27,9 @@ fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?, ads: IosAdB
     IosTelemetry.sink = firebase?.asSink() ?: NoTelemetrySink
     initKoin(isDebug = Platform.isDebugBinary)
     if (Platform.isDebugBinary) applyDebugPlan()
-    KoinPlatform.getKoin().get<Startup>().start()
+    val koin = KoinPlatform.getKoin()
+    koin.get<Startup>().start()
+    BackgroundTime(koin.get()).start(koin.get(APP_SCOPE))
 }
 
 /** Swift의 Firebase 구현이 맞추는 모양. 설정 파일이 없는 빌드는 null을 넘김 */
@@ -118,15 +119,15 @@ class BackupTaskHandle internal constructor(private val job: Job) {
     fun cancel() = job.cancel()
 }
 
-/** 백그라운드 작업용. 때가 됐으면 백업하고, 끝나거나 멈추면 [done]을 부름(research R15) */
+/**
+ * 백그라운드 작업용. 때가 됐으면 백업하고, 끝나거나 멈추면 [done]을 부름(research R15)
+ * 사용자가 누른 백업·복원의 시간은 [BackgroundTime]이 받아 둠
+ */
 fun runDailyBackup(done: () -> Unit): BackupTaskHandle {
     val koin = KoinPlatform.getKoin()
     val job =
         koin.get<CoroutineScope>(APP_SCOPE).launch {
-            val backup = koin.get<BackupRepository>()
-            backup.runIfDue()
-            // 사용자가 누른 백업이 도는 중이면 시스템이 준 시간을 끝까지 씀
-            backup.status.first { it.running == null }
+            koin.get<BackupRepository>().runIfDue()
         }
     job.invokeOnCompletion { done() }
     return BackupTaskHandle(job)

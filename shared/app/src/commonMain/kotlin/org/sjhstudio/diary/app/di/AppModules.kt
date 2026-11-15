@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.BundleExporter
 import org.sjhstudio.diary.core.backup.LegacyBackupImporter
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
+import org.sjhstudio.diary.core.backup.LongWork
 import org.sjhstudio.diary.core.backup.ManifestSettings
 import org.sjhstudio.diary.core.backup.MergeApplier
 import org.sjhstudio.diary.core.backup.PhotoFetcher
@@ -260,7 +261,8 @@ private val backupModule =
         // 드라이브와 일기 DB는 처음 쓸 때 열기
         single { BackupStore(get<DataStoreFactory>().backup()) }
         single<DriveApi> { createDriveApi(get(), FileSystem.SYSTEM) }
-        single { BackupGate() }
+        single { LongWork() }
+        single { BackupGate(get()) }
         single {
             val files = get<AppFiles>()
             BackupRunner(
