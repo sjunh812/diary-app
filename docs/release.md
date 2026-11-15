@@ -99,7 +99,7 @@ App Store용은 `docs/store/screens/ios/{ko,en,ja}/`에 iPhone 4장(1206×2622, 
 | Crashlytics | 진단(크래시 로그, 기기 정보, 설치 ID) | 크래시 데이터 | [Firebase Android](https://firebase.google.com/docs/android/play-data-disclosure), [iOS](https://firebase.google.com/docs/ios/app-store-data-collection) |
 | Analytics | 앱 활동, 기기 ID | 사용 데이터 | 제출 전 Google Analytics 공개 문서로 확인 |
 | AdMob(광고를 넣을 때만) | 대략 위치(IP), 상호작용, 진단, 광고 ID | 기기 ID, 광고 데이터 등 + ATT, `SKAdNetworkItems` | [AdMob Android](https://developers.google.com/admob/android/privacy/play-data-disclosure), [iOS](https://developers.google.com/admob/ios/privacy/data-disclosure) |
-| 현재 위치 | 수집 아님으로 본다. 앱은 좌표를 저장하거나 밖으로 보내지 않고 운영체제의 주소 변환만 부른다. 제출 전에 다시 확인한다 | 같음 | 아래 위치정보법 |
+| 현재 위치 | 정확한 위치: 수집, 공유 아님, 임시 처리, 선택, 앱 기능(2026-11-15). 앱은 좌표를 저장하거나 우리 쪽으로 보내지 않지만 운영체제 주소 변환이 구글 서버로 보낼 수 있고 정확한 위치 권한을 요청해서 신고한다 | 같은 기준으로 다시 본다 | 아래 위치정보법 |
 
 - iOS `PrivacyInfo.xcprivacy`에 추적 여부, 수집 데이터, Required Reason API(UserDefaults, 파일 시각 등)를 적는다. Firebase Core·Crashlytics·GoogleSignIn은 서명된 매니페스트가 필요한 SDK 목록에 있다([Apple](https://developer.apple.com/support/third-party-SDK-requirements/)).
 - Sign in with Apple(4.8): 구글 로그인으로 사용자 계정을 만들지 않고 드라이브 권한만 받으면 문언상 해당하지 않는다(해석). 심사 메모에 "계정 없음, 백업 권한용"이라고 적는다.
@@ -252,7 +252,8 @@ REVENUECAT_IOS = appl_...
 ## 다음 Android 출시 때 할 일
 
 - [ ] 네이티브 디버그 기호를 AAB에 넣는다. 2.0.0 (43)에 Play 경고가 떴다("네이티브 코드를 포함하며 아직 디버그 기호가 업로드되지 않았습니다"). 기호가 없으면 Play의 비정상 종료·ANR 보고에서 네이티브 스택을 읽을 수 없다. `composeApp` 출시 빌드에 `ndk { debugSymbolLevel = "SYMBOL_TABLE" }`를 넣고 AAB 안의 `BUNDLE-METADATA/com.android.tools.build.debugsymbols`를 확인한다([Android](https://developer.android.com/build/shrink-code#native-crash-support)) (2026-11-15 사용자 요청).
-- [x] 데이터 보안에서 1.7.4에만 있던 항목(정확한 위치, 사진, 연락처)을 뺐다(2026-11-15 저장). 2.0.0을 100%로 내서 1.7.4가 더 배포되지 않기 때문이다. 43 검토 중에 보내면 검토가 처음부터 다시 시작되어, 검토 제출 시점은 사용자가 정한다.
+- [x] 데이터 보안에서 1.7.4에만 있던 사진, 연락처를 뺐다(2026-11-15 저장). 2.0.0을 100%로 내서 1.7.4가 더 배포되지 않기 때문이다. 정확한 위치는 "수집, 공유 아님, 임시 처리, 선택, 앱 기능"으로 남겼다. 운영체제 주소 변환이 좌표를 구글 서버로 보낼 수 있고 앱이 정확한 위치 권한을 요청해서다.
+- [ ] 위 데이터 보안 변경을 검토에 보낸다. 43 검토 중에 보내면 43 검토가 처음부터 다시 시작되어, 43 승인 뒤에 보낸다.
 - 관리형 게시가 켜져 있다. 검토를 통과해도 게시 개요에서 [게시]를 눌러야 사용자에게 나간다.
 
 ## App Store 제출
