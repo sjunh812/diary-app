@@ -58,6 +58,9 @@ data class StatsRow(
  */
 data class MoodCountRow(val mood: String?, val count: Int)
 
+/** 달(`yyyy-MM`)별 일기 수 */
+data class MonthCountRow(val month: String, val count: Int)
+
 @Dao
 interface EntryDao {
     /**
@@ -85,9 +88,13 @@ interface EntryDao {
     @Query("SELECT DISTINCT substr(date, 1, 7) FROM entry WHERE deleted_at IS NULL")
     fun months(): Flow<List<String>>
 
-    /** 즐겨찾기가 있는 달. 즐겨찾기만 볼 때 고를 수 있는 달 */
-    @Query("SELECT DISTINCT substr(date, 1, 7) FROM entry WHERE deleted_at IS NULL AND is_favorite = 1")
-    fun favoriteMonths(): Flow<List<String>>
+    /** 목록과 같은 순서(최근 달부터)의 달별 일기 수 */
+    @Query(
+        "SELECT substr(date, 1, 7) AS month, COUNT(*) AS count FROM entry " +
+            "WHERE deleted_at IS NULL AND (:favoritesOnly = 0 OR is_favorite = 1) " +
+            "GROUP BY month ORDER BY month DESC"
+    )
+    fun monthCounts(favoritesOnly: Boolean): Flow<List<MonthCountRow>>
 
     /**
      * [date]보다 나중 날짜의 일기 수

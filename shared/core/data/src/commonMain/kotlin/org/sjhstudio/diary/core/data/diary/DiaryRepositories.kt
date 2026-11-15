@@ -15,6 +15,7 @@ import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryRow
+import org.sjhstudio.diary.core.model.MonthCount
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.PickedImage
@@ -34,8 +35,8 @@ interface EntryRepository {
     /** 일기가 있는 달 */
     fun months(): Flow<Set<YearMonth>>
 
-    /** 즐겨찾기가 있는 달 */
-    fun favoriteMonths(): Flow<Set<YearMonth>> = months()
+    /** 목록과 같은 순서(최근 달부터)의 달별 일기 수 */
+    fun monthCounts(favoritesOnly: Boolean): Flow<List<MonthCount>>
 
     /** 그 달 첫 일기의 목록 위치(최신순이라 그 달의 마지막 날 쪽) */
     suspend fun positionOf(month: YearMonth, favoritesOnly: Boolean): Int

@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.model
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.YearMonth
 
 /**
  * 목록 한 줄에 필요한 것만 담음. 일기 내용이 있어 로그나 사용 통계로 넘기지 않음(헌법 II)
@@ -49,6 +50,22 @@ data class DayMood(
     val previousMood: Mood? = null,
     val moods: List<Mood> = listOfNotNull(mood)
 )
+
+/** 한 달의 일기 수 */
+data class MonthCount(val month: YearMonth, val count: Int)
+
+/**
+ * 최근 달부터 놓인 목록에서 [position]번째 줄의 달
+ * 아직 읽지 않은 줄도 셀 수 있음. 목록보다 길면 마지막 달
+ */
+fun List<MonthCount>.monthAt(position: Int): YearMonth? {
+    var end = 0
+    for (it in this) {
+        end += it.count
+        if (position < end) return it.month
+    }
+    return lastOrNull()?.month
+}
 
 /** 가장 많은 기분. 수가 같으면 뒤에 있는 기분, 기분이 없으면 null */
 fun List<Mood>.mostFrequent(): Mood? {

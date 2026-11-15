@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
+import org.sjhstudio.diary.core.model.MonthCount
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.StatsPeriod
@@ -219,11 +220,16 @@ class DiaryReadRepositoryTest {
         )
 
         assertEquals(setOf(YearMonth(2026, 10), YearMonth(2026, 9)), entries.months().first())
-        // 즐겨찾기만 볼 때는 즐겨찾기가 있는 달만 고를 수 있음. 다른 달을 고르면 엉뚱한 달로 감
-        assertEquals(setOf(YearMonth(2026, 9)), entries.favoriteMonths().first())
         assertEquals(0, entries.positionOf(YearMonth(2026, 10), favoritesOnly = false))
         assertEquals(2, entries.positionOf(YearMonth(2026, 9), favoritesOnly = false))
         assertEquals(0, entries.positionOf(YearMonth(2026, 9), favoritesOnly = true))
+        // 목록 순서와 같아야 큰 제목이 읽지 않은 줄의 달을 맞게 셈
+        assertEquals(
+            listOf(MonthCount(YearMonth(2026, 10), 2), MonthCount(YearMonth(2026, 9), 1)),
+            entries.monthCounts(favoritesOnly = false).first()
+        )
+        // 즐겨찾기만 볼 때는 즐겨찾기가 있는 달만 고를 수 있음. 다른 달을 고르면 엉뚱한 달로 감
+        assertEquals(listOf(MonthCount(YearMonth(2026, 9), 1)), entries.monthCounts(favoritesOnly = true).first())
     }
 
     /** 빠르게 두 번 누르면 처음대로. 화면 값을 읽어 쓰면 두 번째가 묻힘 */

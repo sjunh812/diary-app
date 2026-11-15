@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +11,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -21,6 +19,7 @@ import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.MonthCount
 import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.BodyLook
 import org.sjhstudio.diary.core.ui.EntryMenuWork
@@ -56,11 +55,14 @@ class HomeViewModel(private val entries: EntryRepository, private val settings: 
     val look: StateFlow<BodyLook> =
         settings.bodyLookIn(viewModelScope, fonts)
 
-    /** 일기가 있는 달. 연·월 고르기 시트가 이 달만 고르게 함 */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val months: StateFlow<Set<YearMonth>> =
-        favoritesOnly.flatMapLatest { only -> if (only) entries.favoriteMonths() else entries.months() }
-            .stateInSafely(viewModelScope, SharingStarted.Eagerly, emptySet())
+    /**
+     * 달별 일기 수. 큰 제목이 아직 읽지 않은 줄의 달을 세고, 연·월 고르기 시트가 이 달만 고르게 함
+     * 목록처럼 전체와 즐겨찾기를 따로 둠. 바꿔 끼우면 한 순간 옛 필터의 달이 제목에 보임
+     */
+    val allMonths: StateFlow<List<MonthCount>> =
+        entries.monthCounts(false).stateInSafely(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val favoriteMonths: StateFlow<List<MonthCount>> =
+        entries.monthCounts(true).stateInSafely(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun toggleFavoritesOnly() {
         favorites.update { !it }
