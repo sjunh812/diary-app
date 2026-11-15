@@ -262,6 +262,12 @@ REVENUECAT_IOS = appl_...
 - [x] 출시 국가에 미국, 캐나다, 오스트레일리아, 뉴질랜드를 더했다(2026-11-15 저장, D11). 원래 있던 아르헨티나, 인도는 1.7.4 사용자가 업데이트를 받도록 남겼다.
 - 일본 판매: 특정상거래법 표시는 Play가 결제 프로필 정보로 보여 주고, 자금결제법·할부판매법 확인은 Google 결제 센터가 요청할 때 답한다. 개발자가 따로 켜는 설정은 없다([Play](https://support.google.com/googleplay/android-developer/answer/6223646), [결제 센터](https://support.google.com/paymentscenter/answer/17595997)).
 - [ ] Play "비트맵 다운샘플링으로 앱 성능을 개선하세요"(43, 메모리 사용량): `mzb.t0`, `n2c.f0`가 `BitmapFactory.Options` 없이 디코딩한다고 나온다. 2026-11-14 로컬 출시 빌드의 R8 매핑으로 풀면 둘 다 `com.google.android.gms.internal.ads.*`(Google Mobile Ads SDK 내부)라 우리 코드가 아닐 가능성이 높다. 우리 코드(`ImageDecoder.android.kt`, `AndroidLegacy.kt`)는 크기만 먼저 읽고(`inJustDecodeBounds`) `inSampleSize`로 줄여 읽는다. 다음 출시 때 CI 빌드의 매핑으로 다시 확인하고, 광고 SDK면 최신 판에서 고쳐졌는지 본다(2026-11-15 사용자 요청).
+- [x] Play "일부 사용자에게는 더 넓은 화면이 표시되지 않을 수 있습니다"와 "앱에서 더 넓은 화면용으로 지원 중단된 API 또는 파라미터를 사용합니다"(43): 우리 코드 문제가 아니라 고칠 것이 없다(2026-11-15 확인).
+  - 앱의 모든 화면(`MainActivity`, 개발 빌드의 `DevModeActivity`·`ScreenCatalogActivity`)은 이미 `enableEdgeToEdge()`를 부르고, 테마 XML에 `statusBarColor`·`windowLayoutInDisplayCutoutMode`가 없으며, 우리 코드는 지원 중단 창 API를 부르지 않는다.
+  - 로컬 출시 APK의 dex를 훑어 R8 매핑으로 풀면, `Window.setStatusBarColor`·`setNavigationBarColor`·`setDecorFitsSystemWindows`와 `layoutInDisplayCutoutMode`를 쓰는 곳은 모두 androidx다. `androidx.activity` 1.13.0의 `EdgeToEdgeApi23/26/28/29/30/35`(곧 `enableEdgeToEdge()` 자체), `androidx.core`의 `WindowCompat`, `androidx.core:core-splashscreen` 1.2.0의 `SplashScreen$Impl31`이다. 광고 SDK와 결제 SDK에서는 나오지 않았다.
+  - 이 호출은 Android 14 이하에서 넓은 화면을 켜려고 SDK 판을 보고 부르는 하위 호환 코드라 지울 수 없다. 최신 `androidx.activity` 1.14.0-alpha03에도 그대로 있고, `core-splashscreen`은 1.2.0이 최신이라 올려서 없앨 판도 없다. Play는 이 호출을 정적으로 찾아 경고하므로 이 라이브러리를 쓰는 동안은 경고가 남는다.
+  - Android 16 폰(Medium_Phone)과 Android 15 태블릿(Pixel_Tablet)에서 한국어, 라이트·다크, 폰 가로로 봤다. 상태 표시줄과 내비게이션 바는 투명하고 앱 화면이 그 아래까지 그려지며, 글자·버튼이 막대에 겹치지 않았다. 쓰기 화면은 에뮬레이터가 화면 키보드 대신 펜 도구막대만 띄워 전체 키보드 인셋은 보지 못했다. 노치(잘린 화면) 기기도 보지 못했다.
+  - 다음 출시 때 Play의 [더보기]에서 짚은 API 목록이 위와 같은지만 본다. 다른 라이브러리가 나오면 그 판의 릴리스 노트를 확인한다.
 - 관리형 게시가 켜져 있다. 검토를 통과해도 게시 개요에서 [게시]를 눌러야 사용자에게 나간다.
 
 ## App Store 제출
