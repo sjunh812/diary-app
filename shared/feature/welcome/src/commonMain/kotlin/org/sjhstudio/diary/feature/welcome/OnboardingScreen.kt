@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,6 +35,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryArtSize
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
@@ -169,7 +169,7 @@ private fun ArtPage(title: StringResource, body: StringResource, art: @Composabl
     PageColumn {
         Box(Modifier.height(DiaryArtSize.height), contentAlignment = Alignment.Center) { art() }
         Spacer(Modifier.height(DiarySpacing.x10))
-        BasicText(
+        PhraseText(
             stringResource(title),
             style = DiaryTheme.typography.title1.copy(
                 color = colors.textPrimary,
@@ -178,7 +178,7 @@ private fun ArtPage(title: StringResource, body: StringResource, art: @Composabl
             )
         )
         Spacer(Modifier.height(DiarySpacing.x2))
-        BasicText(
+        PhraseText(
             stringResource(body),
             style = DiaryTheme.typography.body.copy(
                 color = colors.textSecondary,

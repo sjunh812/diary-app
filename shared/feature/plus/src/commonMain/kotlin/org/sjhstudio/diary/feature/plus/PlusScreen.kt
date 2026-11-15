@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -310,12 +309,12 @@ private fun PaywallBenefits(adFreeOwned: Boolean) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-        BasicText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
+        PhraseText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
         PlusBenefits()
         // 지금 혜택과 구분해 작은 글씨로. 사용자 결정 문구라 빼지 않음
         PhraseText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
         if (adFreeOwned) {
-            BasicText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.textSecondary))
+            PhraseText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.textSecondary))
         }
     }
 }
@@ -379,9 +378,9 @@ private fun PaywallBuy(
                     kind = DiaryButtonKind.Text
                 )
             }
-            BasicText(
+            PhraseText(
                 stringResource(Res.string.plus_notice),
-                Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 style = typography.micro.copy(color = colors.textSecondary, textAlign = TextAlign.Center, lineBreak = CenteredLineBreak)
             )
             onLink?.let { PaywallLegal(it) }
@@ -427,7 +426,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
             Column(gutter) {
                 PlusArt(DiaryArtSize.card)
                 Spacer(Modifier.height(DiarySpacing.x4))
-                BasicText(stringResource(Res.string.plus_manage_title), style = typography.title1.copy(color = colors.textPrimary))
+                PhraseText(stringResource(Res.string.plus_manage_title), style = typography.title1.copy(color = colors.textPrimary))
                 Spacer(Modifier.height(DiarySpacing.x1))
                 PhraseText(stringResource(Res.string.plus_manage_thanks), style = typography.body.copy(color = colors.textSecondary))
                 Spacer(Modifier.height(DiarySpacing.x6))
@@ -446,9 +445,9 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 onClick = onStore,
                 description = stringResource(Res.string.plus_manage_store_body)
             )
-            BasicText(
+            PhraseText(
                 stringResource(Res.string.plus_manage_note),
-                gutter.padding(top = DiarySpacing.x2),
+                modifier = gutter.padding(top = DiarySpacing.x2),
                 style = typography.caption.copy(color = colors.textSecondary)
             )
         }

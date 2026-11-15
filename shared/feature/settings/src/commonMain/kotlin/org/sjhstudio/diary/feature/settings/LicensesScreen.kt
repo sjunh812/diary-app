@@ -30,6 +30,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
@@ -129,7 +130,7 @@ fun LicenseTextScreen(
             // 읽는 중으로 남겨 두지 않음
             // 앱에 든 파일이라 다시 읽어도 같아 다시 시도는 두지 않음
             if (failed) {
-                BasicText(
+                PhraseText(
                     stringResource(Res.string.licenses_text_failed),
                     style = DiaryTheme.typography.body.copy(color = colors.textSecondary)
                 )

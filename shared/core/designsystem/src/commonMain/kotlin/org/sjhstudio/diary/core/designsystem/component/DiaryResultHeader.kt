@@ -6,13 +6,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
@@ -51,17 +49,17 @@ fun DiaryResultHeader(
     ) {
         DiaryHeroBadge(icon, tone = tone)
         Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(
+        PhraseText(
             title,
             style = DiaryTheme.typography.title2.copy(
                 color = colors.textPrimary,
                 textAlign = TextAlign.Center,
                 lineBreak = CenteredLineBreak
             ),
-            modifier = Modifier.semantics { heading() }
+            semantics = { heading() }
         )
         if (description != null) {
-            BasicText(
+            PhraseText(
                 description,
                 style = DiaryTheme.typography.body.copy(
                     color = colors.textSecondary,

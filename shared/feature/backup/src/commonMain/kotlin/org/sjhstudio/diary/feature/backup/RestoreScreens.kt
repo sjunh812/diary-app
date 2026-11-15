@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.pluralStringResource
@@ -40,16 +39,16 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
-import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryNote
 import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
+import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryValueRow
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
-import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -151,7 +150,7 @@ fun RestoreListScreen(
 private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
     val colors = DiaryTheme.colors
     Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-        BasicText(
+        PhraseText(
             stringResource(Res.string.restore_keep_note),
             style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
             modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
@@ -215,7 +214,7 @@ private fun Unavailable(title: String, reason: String) {
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)
     ) {
         BasicText(title, style = DiaryTheme.typography.reading.copy(color = colors.textSecondary))
-        BasicText(reason, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
+        PhraseText(reason, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
     }
 }
 
@@ -492,37 +491,7 @@ internal fun ColumnScope.Hero(
     body: String? = null,
     tone: DiaryBadgeTone = DiaryBadgeTone.Accent,
     fill: Boolean = true
-) {
-    val colors = DiaryTheme.colors
-    Column(
-        (if (fill) Modifier.weight(1f) else Modifier)
-            .fillMaxWidth()
-            .padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x6),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2, Alignment.CenterVertically)
-    ) {
-        DiaryHeroBadge(icon, tone = tone)
-        Spacer(Modifier.height(DiarySpacing.x1))
-        BasicText(
-            title,
-            style = DiaryTheme.typography.title2.copy(
-                color = colors.textPrimary,
-                textAlign = TextAlign.Center,
-                lineBreak = CenteredLineBreak
-            )
-        )
-        body?.let {
-            BasicText(
-                it,
-                style = DiaryTheme.typography.body.copy(
-                    color = colors.textSecondary,
-                    textAlign = TextAlign.Center,
-                    lineBreak = CenteredLineBreak
-                )
-            )
-        }
-    }
-}
+) = DiaryResultHeader(icon, title, if (fill) Modifier.weight(1f) else Modifier, body, tone)
 
 @Composable
 internal fun Bottom(content: @Composable ColumnScope.() -> Unit) {

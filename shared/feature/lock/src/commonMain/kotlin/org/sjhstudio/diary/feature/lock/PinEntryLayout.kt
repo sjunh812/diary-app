@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +24,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import org.sjhstudio.diary.core.designsystem.component.DiaryHeroBadge
 import org.sjhstudio.diary.core.designsystem.component.DiaryPinDots
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -65,14 +65,15 @@ internal fun PinEntryLayout(
             top()
             DiaryHeroBadge(DiaryIcons.Lock)
             Spacer(Modifier.height(DiarySpacing.x5))
-            BasicText(
+            PhraseText(
                 title,
                 style = DiaryTheme.typography.title2.copy(
                     color = colors.textPrimary,
                     textAlign = TextAlign.Center,
                     lineBreak = CenteredLineBreak
                 ),
-                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { heading() }
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current),
+                semantics = { heading() }
             )
             Spacer(Modifier.height(DiarySpacing.x10))
             DiaryPinDots(filled = entered, wrongCount = wrongCount)
@@ -81,14 +82,15 @@ internal fun PinEntryLayout(
             // 제목과 점 사이는 벌리지 않음
             // 문구가 없어도 한 줄을 비워 두어 아래 안내 상자가 들썩이지 않음
             Spacer(Modifier.height(DiarySpacing.x4))
-            BasicText(
+            PhraseText(
                 line?.text.orEmpty(),
                 style = DiaryTheme.typography.body.copy(
                     color = line?.color ?: colors.textPrimary,
                     textAlign = TextAlign.Center,
                     lineBreak = CenteredLineBreak
                 ),
-                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).semantics { liveRegion = LiveRegionMode.Polite }
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current),
+                semantics = { liveRegion = LiveRegionMode.Polite }
             )
             middle()
             Spacer(Modifier.weight(1f))

@@ -50,6 +50,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.diaryScrollFade
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.CenteredLineBreak
@@ -185,7 +186,7 @@ private fun FeedbackInvite(onFeedback: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
     ) {
-        BasicText(
+        PhraseText(
             stringResource(Res.string.letter_feedback_invite),
             style = DiaryTheme.typography.body.copy(
                 color = colors.textSecondary,
@@ -309,8 +310,8 @@ private fun LetterCard(
             },
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
         ) {
-            BasicText(stringResource(Res.string.letter_to), style = typography.label.copy(color = colors.accentText))
-            BasicText(stringResource(Res.string.letter_hello), style = typography.title2.copy(color = colors.textPrimary))
+            PhraseText(stringResource(Res.string.letter_to), style = typography.label.copy(color = colors.accentText))
+            PhraseText(stringResource(Res.string.letter_hello), style = typography.title2.copy(color = colors.textPrimary))
             content()
             BasicText(
                 stringResource(Res.string.letter_sign),
@@ -332,7 +333,7 @@ private fun Promise(text: String) {
     val body = DiaryTheme.typography.body
     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
         FirstLineIcon(DiaryIcons.CircleCheck, body, colors.textSecondary)
-        BasicText(text, Modifier.weight(1f), style = body.copy(color = colors.textPrimary))
+        PhraseText(text, modifier = Modifier.weight(1f), style = body.copy(color = colors.textPrimary))
     }
 }
 
@@ -345,7 +346,7 @@ private fun LetterParagraphs(text: String) {
     val colors = DiaryTheme.colors
     val style = DiaryTheme.typography.reading.copy(color = colors.textPrimary)
     val weight = DiaryTheme.typography.bodyStrong.fontWeight ?: FontWeight.SemiBold
-    text.split("\n\n").forEach { BasicText(emphasized(it, weight), style = style) }
+    text.split("\n\n").forEach { PhraseText(emphasized(it, weight), style = style) }
 }
 
 /**

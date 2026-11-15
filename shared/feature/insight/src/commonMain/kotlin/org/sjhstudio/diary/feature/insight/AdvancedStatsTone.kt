@@ -143,7 +143,7 @@ internal fun MoodTimes(stats: AdvancedStats) {
             Spacer(Modifier.height(DiarySpacing.x3))
         }
         if (rows.isEmpty()) {
-            BasicText(
+            PhraseText(
                 stringResource(Res.string.insight_adv_when_empty),
                 style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary)
             )

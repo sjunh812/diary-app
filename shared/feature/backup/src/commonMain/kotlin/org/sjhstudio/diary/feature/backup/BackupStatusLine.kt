@@ -33,6 +33,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.FirstLineIcon
+import org.sjhstudio.diary.core.designsystem.component.PhraseText
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.component.diaryTouchOutset
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
@@ -130,7 +131,7 @@ private fun StatusLineRow(line: Line, onClick: () -> Unit, modifier: Modifier = 
         FirstLineIcon(line.icon, caption, colors.textSecondary)
         // 큰 글자에서 "사진까지 모두"가 잘리지 않게 두 줄까지, 넘으면 말줄임
         // 글만 줄여 뒤 동작과 빨간 점은 남김
-        BasicText(
+        PhraseText(
             line.text,
             modifier = Modifier.weight(1f, fill = false),
             style = caption.copy(color = colors.textSecondary),
