@@ -284,18 +284,17 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 3. [사용자] App Store Connect > 비즈니스: 유료 앱 계약, 세금, 은행, 규정 준수 > Korean Law(사업자등록번호). 계약이 끝나야 상품 가격을 정할 수 있고 승인에 시간이 걸려 가입 직후 가장 먼저 낸다.
 4. [사용자] Apple Developer: 앱 ID `org.sjhstudio.diary`(켤 기능은 인앱 결제뿐), Apple Distribution 인증서, App Store 배포 프로필. Xcode 자동 서명으로 Archive하면 인증서와 프로필을 Xcode가 만들 수 있다. CD에 넣을 .p12와 프로필은 따로 내려받는다.
 5. [같이] App Store Connect 앱 만들기(기본 한국어, 영어·일본어 더함). 인앱 구입 `ad_free`, 구독 그룹과 `plus_yearly`를 세 언어로 만든다.
-6. [같이] 추천 노미네이션: 앱 > 추천 > 노미네이션 > 만들기에서 유형 '앱 출시'로 낸다. 희망 게시일보다 최소 3주 앞서 내야 해서(공식 페이지는 2주, 도움말은 3주) 앱을 만든 뒤 바로 내고, 출시는 '수동 출시'로 두어 날짜를 맞춘다. 비용이 없고 선정은 보장되지 않는다. 낼 문구는 이때 함께 정한다. Play 추천 후보 양식은 2022년부터 있던 기존 앱이라 대상이 아니어서 내지 않는다(2026-11-15 결정).
-7. [사용자] 인앱 구입 키: App Store Connect > 사용자 및 액세스 > 통합 > 인앱 구입에서 키(.p8)를 만들어 받는다. 잃어버리면 새로 만든다.
+6. [같이] 추천 노미네이션: 앱 > 피처링 > 피처링 요청 > 시작하기에서 유형 '앱 출시'로 낸다. 희망 게시일은 최소 3주 뒤로 적되 출시는 미루지 않는다(2026-11-16 사용자 결정). 뽑힐지 알 수 없는데 기다리는 시간은 확실히 잃고, 노미네이션은 업데이트용으로 출시 뒤에도 낼 수 있어서다. 비용이 없고 선정은 보장되지 않는다. 이름은 우리만 보는 이름표, 설명(1,000자)은 Apple 에디터만 본다. 2026-11-16 이름·유형·설명(영어)까지 넣고 게시일을 정하는 중이다. Play 추천 후보 양식은 2022년부터 있던 기존 앱이라 대상이 아니어서 내지 않는다(2026-11-15 결정).
+7. [사용자] 인앱 구입 키: App Store Connect > 사용자 및 액세스 > 통합 > 인앱 구입에서 키(.p8)를 만들어 받는다. 앱 하나가 아니라 팀 전체가 쓰는 키다. 2026-11-16 받았다.
 8. [사용자] RevenueCat: 계정 권한 문제는 풀렸다(Owner, App Store 앱 추가 양식이 열림, 2026-11-15 확인). 같은 프로젝트에 App Store 앱 추가(번들 ID `org.sjhstudio.diary`, 7의 키 올리기) → 두 상품을 권한 `ad_free`·`plus`에 잇기 → Apple 공개 키(`appl_`로 시작) 받기.
 9. [사용자] 키 넣기: `iosApp/iosApp/Local.xcconfig`에 `REVENUECAT_IOS` 줄을 더한다(구글·광고 값 6개는 있음). CD 비밀값 `IOS_*` 4개, `GOOGLE_SERVICE_INFO_PLIST_BASE64`, `IOS_LOCAL_XCCONFIG_BASE64`(키를 넣은 뒤의 파일).
 10. [같이] Xcode Archive → Generate Privacy Report 확인 → TestFlight 업로드. CD는 IPA만 만들고 올리지 않는다.
 11. [사용자] TestFlight 실기기 확인(시뮬레이터에서 볼 수 없던 것): 샌드박스 구매·취소·승인 대기(구입 요청)·복원·재설치 뒤 복원·구독 만료, 구글 드라이브 백업·복원, 카메라 촬영, 약관·처리방침 링크, 잠금 가림 화면, 기기 글자 크기를 바꾼 뒤 반영, 첫 광고 앞 추적 허용(ATT) 창, Face ID 잠금. App Store 리뷰 창은 TestFlight에서 뜨지 않는다(시뮬레이터 개발 빌드에서 뜨는 것은 확인함). 문제가 나오면 [코드]로 고치고 10부터 다시 한다.
-12. [같이] 등록 정보: 이름·부제·홍보 문구·키워드·설명(끝에 약관·처리방침), 스크린샷(iPhone 6.3"·iPad 13"), 연령 등급, 카테고리, 개인정보 라벨, URL(처리방침·지원·마케팅), 심사 메모, 출시 국가, 출시 방식 '수동 출시'.
+12. [같이] 등록 정보: 이름·부제·홍보 문구·키워드·설명(끝에 약관·처리방침), 스크린샷(iPhone 6.3"·iPad 13"), 연령 등급, 카테고리, 개인정보 라벨, URL(처리방침·지원·마케팅), 심사 메모, 출시 국가, 출시 방식(자동 출시).
 13. [사용자] 심사 제출. 앱 빌드와 첫 인앱 상품 두 개를 함께 낸다.
-14. [사용자] 심사를 통과하면 6에서 정한 날에 App Store Connect에서 직접 출시한다.
+14. [사용자] 심사를 통과하면 바로 나간다(자동 출시). 날짜를 맞춰야 하면 '수동 출시'로 바꾼다.
 15. 출시 뒤:
     - [사용자] AdMob iOS 앱에 App Store를 연결한다.
-    - [사용자] Google Cloud iOS OAuth 클라이언트에 App Store ID(6835116731)와 팀 ID를 넣는다. 앱을 만들어 번호가 나왔으니 출시 전에 넣어도 된다.
     - [사용자] 디시 일기장 갤러리에 소개 글을 올린다.
 
 앱 쪽 점검은 끝났다(2026-11-15, 5차까지, 앱 문제 없음). 남은 확인은 위 11의 실기기 항목뿐이다. 점검 기록:
@@ -325,11 +324,12 @@ iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-
 - [ ] Apple Developer: 앱 ID `org.sjhstudio.diary`를 만든다. 켤 기능은 인앱 결제뿐이다(푸시, iCloud, App Group은 쓰지 않는다). Apple Distribution 인증서와 App Store 배포 프로필을 만들어 CD 비밀값에 넣는다.
 - [ ] App Store Connect > 비즈니스: 유료 앱 계약, 세금, 은행 정보. 계약이 끝나야 상품 가격이 내려온다. 규정 준수 > Korean Law에 사업자등록번호를 넣는다(위 "사업자 준비" 4).
 - [ ] 앱 만들기: 번들 ID `org.sjhstudio.diary`, 기본 언어 한국어, 영어와 일본어 현지화를 더한다. 앱 이름은 영어 "1 Day 1 Diary", 일본어 「1日1日記」로 정했다(D12, 2026-11-13).
-- [ ] 추천 노미네이션: 유형 '앱 출시', 희망 게시일보다 최소 3주 앞서 낸다. 출시 방식은 '수동 출시'. Play 추천 후보 양식은 기존 앱이라 내지 않는다(2026-11-15).
+- [ ] 추천 노미네이션: 유형 '앱 출시', 희망 게시일은 최소 3주 뒤로 적고 출시는 미루지 않는다(2026-11-16). Play 추천 후보 양식은 기존 앱이라 내지 않는다(2026-11-15).
 - [ ] 인앱 구입: 비소모품 `ad_free`(₩9,900), 구독 그룹 하나에 `plus_yearly`(1년, ₩14,900, 체험 없음). 상품마다 세 언어 표시 이름과 설명, 심사용 화면 캡처를 넣는다. 첫 상품은 앱 빌드와 함께 심사에 낸다.
-- [ ] 인앱 구입 키: 사용자 및 액세스 > 통합 > 인앱 구입에서 .p8 키를 만든다. 저장소에 두지 않는다.
+- [x] 인앱 구입 키: 사용자 및 액세스 > 통합 > 인앱 구입에서 .p8 키를 만들었다(2026-11-16). 저장소에 두지 않는다.
+- [ ] App Store 소규모 사업자 프로그램(Small Business Program, 수수료 15%): 2026-11-16 신청했고 Apple 메일로 결과가 온다. 승인되면 RevenueCat App Store 앱 설정의 "Apple Small Business Program"을 켠다. 켜야 RevenueCat 매출이 15% 수수료로 계산된다. 그 전까지는 끈다.
 - [ ] RevenueCat: 권한 문제는 풀렸다(Owner, 2026-11-15 확인). 같은 프로젝트에 App Store 앱을 더하고 인앱 구입 키를 올린다. 두 상품을 권한에 잇고 Apple 공개 키를 `Local.xcconfig`의 `REVENUECAT_IOS`에 넣는다.
-- [x] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인 것을 확인했다(2026-11-13). App Store ID와 팀 ID 칸은 출시 뒤 넣는다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
+- [x] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인 것을 확인했다(2026-11-13). App Store ID(6835116731)와 팀 ID(C5XA3NN9J6)를 넣은 것을 2026-11-16 확인했다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
 - [x] Firebase(`diary-app`): iOS 앱은 이미 있었고 `GoogleService-Info.plist`를 받아 `iosApp/iosApp/`에 두었다(2026-11-13). CD 비밀값 `GOOGLE_SERVICE_INFO_PLIST_BASE64`는 직접 넣는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
 - [ ] 개인정보 라벨: 위 "스토어 신고" 표대로 답한다. 광고에 쓰는 기기 ID와 광고 데이터는 "추적에 사용"으로 답한다(ATT를 띄운다). 일기, 사진, 기분, 주소는 수집하지 않는다.
 - [ ] 연령 등급 설문, 카테고리(라이프스타일), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
@@ -364,5 +364,6 @@ Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
 - RevenueCat Google 공개 키를 `local.properties`의 `revenuecat.android`와 CD 비밀값 `REVENUECAT_ANDROID`에 넣는다. 이 값이나 광고 ID가 없으면 CD가 멈춘다.
 - App Store 상품도 같은 ID로 만든다: 비소모품 `ad_free`, 자동 갱신 구독 `plus_yearly`(구독 그룹 하나, 1년). RevenueCat 같은 프로젝트에 App Store 앱을 더하고 두 상품을 같은 권한(`ad_free`, `plus`)에 잇는다. 구매는 스토어마다 따로다(`docs/business.md` 결제 구현 원칙).
 - RevenueCat Apple 공개 키를 `iosApp/iosApp/Local.xcconfig`의 `REVENUECAT_IOS`에 넣는다.
+- App Store 소규모 사업자 프로그램 승인 메일이 오면 RevenueCat App Store 앱의 "Apple Small Business Program"을 켠다(2026-11-16 신청).
 
 현황(2026-11-07): AdMob 앱과 광고 단위 3개(전면, 네이티브, 보상형)를 만들었고 계정은 재활성화 심사 중이다. RevenueCat 프로젝트, Play 앱, 권한 `plus`와 `ad_free`를 만들었다. 서비스 계정 JSON과 Play 상품 연결이 남았다. RevenueCat 이메일 인증도 남았다.
