@@ -31,7 +31,7 @@ disable-model-invocation: false
 gh pr create --base develop --title "<커밋 규칙 형식의 제목>" --body-file <채운 템플릿>
 ```
 
-- 본문은 `.github/pull_request_template.md`의 다섯 절을 채운다. 해당 없는 절은 지우지 않고 "없음"이라고 쓴다.
+- 본문은 `.github/pull_request_template.md`의 여섯 절을 채운다. 해당 없는 절은 지우지 않고 "없음"이라고 쓴다.
 - CI가 돌리는 시험은 적지 않는다. 손으로 본 것과 시험하지 못한 것을 적는다.
 - 공개 저장소다. 일기 내용, 실제 사진, 주소, 계정, 비밀값을 본문과 캡처에 넣지 않는다. 캡처는 견본 일기로 찍는다.
 
