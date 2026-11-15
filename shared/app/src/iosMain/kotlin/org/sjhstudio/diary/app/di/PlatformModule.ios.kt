@@ -56,7 +56,7 @@ internal actual val platformModule: Module =
         single<AdPlayer>(createdAtStart = true) { IosAds.bridge?.let(::IosAdPlayer) ?: NoAdPlayer }
         single<AdSwitch> { IosAds.switch }
         // 리뷰 창은 Swift 다리로(StoreReviewBridge.swift). 다리 없이 켠 시험 앱은 요청하지 않음
-        single<StoreReview> { IosReview.bridge?.let(::IosStoreReview) ?: StoreReview {} }
+        single<StoreReview> { IosReview.bridge?.let(::IosStoreReview) ?: StoreReview { false } }
         // 재설치 뒤 구매를 바로 가져오게 앱 시작 때 만듦
         single { iosBilling(appCoroutineScope(Dispatchers.Main.immediate)) }
         single<StartupWork> { StartupWork { get<IosBilling>() } }

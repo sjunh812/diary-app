@@ -37,6 +37,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
@@ -100,10 +101,14 @@ class AppScaffoldUiTest {
                     single { AppLaunch() }
                     single<PlanRepository> { FreePlanRepository() }
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
-                    single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, {}) }
+                    single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, { false }) }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
-                    single<WelcomeRepository> { DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences()))) { null } }
+                    single<WelcomeRepository> {
+                        DefaultWelcomeRepository(WelcomeStore(InMemoryDataStore(emptyPreferences())), MainScope()) {
+                            null
+                        }
+                    }
                     single { Telemetry(sink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(rows = rows) }

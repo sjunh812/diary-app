@@ -18,11 +18,3 @@ enum class ContextTip(val id: String) {
     /** 사진을 길게 눌러 끌면 순서를 바꿀 수 있다는 안내. 사진이 둘 이상일 때 */
     PHOTO_REORDER("photo_reorder")
 }
-
-/** 안내마다 따로, 닫거나 할 일을 누를 때까지 보임(FR-011) */
-interface ContextTips {
-    /** 아직 닫지 않은 안내면 true */
-    suspend fun claim(tip: ContextTip): Boolean
-
-    suspend fun done(tip: ContextTip)
-}

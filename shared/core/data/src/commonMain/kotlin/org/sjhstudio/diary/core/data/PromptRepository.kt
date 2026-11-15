@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.data
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
@@ -26,17 +28,17 @@ import org.sjhstudio.diary.core.model.orElseOnFailure
 
 /**
  * 스토어 리뷰 창. Android는 Play 앱 안 리뷰, iOS는 StoreKit
- * 창을 띄울지와 별점 결과는 스토어가 정하고 앱은 모름
+ * 창을 실제로 보일지와 별점 결과는 스토어가 정하고 앱은 모름. 횟수 한도도 스토어가 둠
  */
 fun interface StoreReview {
-    /** 띄우기 바로 앞에 [claim]을 부르고 참일 때만 띄움. 정보를 받다 거둬지면 묻지 않은 것으로 남음 */
-    suspend fun request(claim: suspend () -> Boolean)
+    /** 띄우기 바로 앞에 [stillDue]로 다시 보고 참일 때만 띄움. 띄우기를 시작했으면 참 */
+    suspend fun request(stillDue: suspend () -> Boolean): Boolean
 }
 
 /**
  * 의견 카드와 리뷰 창을 언제 보일지 정하는 곳(스펙 007)
  * 일기 내용은 읽지 않고 새로 쓴 편 수만 봄
- * 기록을 읽거나 쓰지 못하면 덜 묻는 쪽으로 판단
+ * 기록을 읽지 못하면 묻지 않음. 리뷰 요청일을 못 적으면 그 프로세스 안에서만 다시 묻지 않음
  */
 class PromptRepository(
     private val store: PromptStore,
@@ -51,21 +53,31 @@ class PromptRepository(
     /** 공간이 차 닫음을 못 적어도 이 프로세스 안에서는 카드가 다시 보이지 않게 함(광고의 하루 한 번과 같은 방식) */
     private val doneInProcess = MutableStateFlow(false)
 
+    /**
+     * 이 프로세스에서 리뷰를 물은 날. 띄우기 직전 Mutex 안에서 잡음
+     * 기기 기록 전(창이 떠 있는 동안, 공간이 차 못 적은 때)에도 다시 묻지 않음
+     * 같은 날 의견 카드도 이 값으로 미룸
+     */
+    private val askedDayInProcess = MutableStateFlow<String?>(null)
+
     /** 홈 맨 위 의견 카드. 백업 카드와의 순서는 화면이 정함(FR-014) */
     @OptIn(ExperimentalCoroutinesApi::class)
     val feedbackCard: Flow<Boolean> =
-        combine(store.prefs, doneInProcess) { prefs, done -> prefs.takeUnless { done } }
-            .flatMapLatest { prefs ->
-                val first = prefs?.firstUseAt ?: return@flatMapLatest flowOf(false)
+        combine(store.prefs, doneInProcess, askedDayInProcess) { prefs, done, askedDay ->
+            prefs.takeUnless { done }?.let { it to askedDay }
+        }
+            .flatMapLatest { state ->
+                val (prefs, askedDay) = state ?: return@flatMapLatest flowOf(false)
+                val first = prefs.firstUseAt ?: return@flatMapLatest flowOf(false)
                 // 날짜 조건도 새 일기를 쓸 때마다 다시 봄. 3일 전에 구독해도 그 뒤 쓴 일기로 카드가 뜸
-                writtenSince(first).map { feedbackMayShow(prefs, first) && it >= FEEDBACK_ENTRIES }
+                writtenSince(first).map { feedbackMayShow(prefs, askedDay, first) && it >= FEEDBACK_ENTRIES }
             }
             .catch { if (it is IOException) emit(false) else throw it }
             .distinctUntilChanged()
 
     // 리뷰를 먼저 물은 날(백업 카드가 맨 위를 차지한 동안)은 카드를 다음 날로 미룸
-    private fun feedbackMayShow(prefs: PromptPrefs, first: Instant) =
-        !prefs.feedbackDone && prefs.reviewAskedDay != today() && passed(first, FEEDBACK_DAYS)
+    private fun feedbackMayShow(prefs: PromptPrefs, askedDay: String?, first: Instant) =
+        !prefs.feedbackDone && today() !in setOf(prefs.reviewAskedDay, askedDay) && passed(first, FEEDBACK_DAYS)
 
     /** 카드 기록과 리뷰 요청 판단이 엇갈리지 않게 한 번에 하나 */
     private val turn = Mutex()
@@ -87,21 +99,31 @@ class PromptRepository(
     /**
      * 저장하고 목록으로 돌아왔는데 전면 광고 차례가 아니었을 때 부름
      * 보인 의견 카드가 남아 있지 않고, 카드가 보인 날이 아닐 때만
-     * 한 번만 요청. 띄우기 직전 요청한 날을 적어 앱이 꺼져도 다시 묻지 않음
+     * 기기 기록은 창을 띄운 뒤. 그사이 앱이 꺼져 한 번 더 물어도 스토어 횟수 한도가 거름(Apple 샘플·Play 지침)
      */
     suspend fun askReviewIfDue() = quietly(Unit) {
         // 차례가 아니면 스토어에 정보를 묻지 않음
         if (turn.withLock { reviewDueDay() } == null) return@quietly
-        review.request(claim = {
-            // 정보를 받는 사이 카드가 나왔을 수 있어 잠금 안에서 다시 보고 적음
-            quietly(false) {
-                turn.withLock {
-                    val today = reviewDueDay() ?: return@withLock false
-                    store.reviewAsked(today)
-                    true
+        // 겹쳐 부른 다른 요청이 잡은 날을 풀지 않게, 이 요청이 잡은 날만 다룸
+        var claimed: String? = null
+        val shown =
+            review.request(stillDue = {
+                // 정보를 받는 사이 카드가 나왔을 수 있어 띄우기 직전 다시 보고 그날을 잡음
+                quietly(false) {
+                    turn.withLock {
+                        claimed = reviewDueDay()?.also { askedDayInProcess.value = it }
+                        claimed != null
+                    }
                 }
-            }
-        })
+            })
+        val day = claimed ?: return@quietly
+        if (shown) {
+            // 띄운 뒤 화면을 옮겨 거둬져도 기록은 끝까지
+            withContext(NonCancellable) { store.reviewAsked(day) }
+        } else {
+            // 판단 뒤 화면이 없어 못 띄움. 다음에 다시 물음
+            askedDayInProcess.value = null
+        }
     }
 
     /** 요청할 차례면 그날. 잠금 안에서 부름 */
@@ -110,7 +132,7 @@ class PromptRepository(
         val first = prefs.firstUseAt
         // 보인 의견 카드가 남아 있는 동안은 묻지 않음. 한 번도 못 본 카드(백업 카드가 맨 위)로는 막지 않음
         val cardOpen = prefs.feedbackShownDay != null && !prefs.feedbackDone && !doneInProcess.value
-        val blocked = cardOpen || prefs.reviewAskedDay != null
+        val blocked = cardOpen || prefs.reviewAskedDay != null || askedDayInProcess.value != null
         if (first == null || blocked || writtenSince(first).first() < REVIEW_ENTRIES) return null
         // 편 수를 기다리는 사이 자정이 지날 수 있어 날짜는 그 뒤에 읽음
         return today().takeUnless { prefs.feedbackShownDay == it || !passed(first, REVIEW_DAYS) }

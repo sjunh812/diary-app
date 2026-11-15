@@ -42,6 +42,7 @@ import org.sjhstudio.diary.core.backup.backupToOffer
 import org.sjhstudio.diary.core.backup.offerIfNew
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.PlanRepository
@@ -81,7 +82,6 @@ import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
-import org.sjhstudio.diary.core.model.ContextTips
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.DeviceName
@@ -184,6 +184,8 @@ private fun coreModule(isDebug: Boolean) = module {
             knowFont = { getOrNull<FontInstaller>()?.installedPath(it.font.id) },
             warmFont = { getOrNull<FontWarmup>()?.warm(it.font) },
             afterReady = {
+                // 탭을 처음 열 때 팁 자리가 늦게 생기지 않게 맨 먼저 읽음
+                get<ContextTips>().load()
                 get<ReminderRepository>().reschedule()
                 // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작(이전 직후 포함)
                 // 따로 돌아 다른 일을 막지 않음
@@ -197,7 +199,9 @@ private fun coreModule(isDebug: Boolean) = module {
         )
     }
     single<WelcomeRepository> {
-        DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome())) { get<LegacyMigration>().report()?.entriesMigrated }
+        DefaultWelcomeRepository(WelcomeStore(get<DataStoreFactory>().welcome()), get(APP_SCOPE)) {
+            get<LegacyMigration>().report()?.entriesMigrated
+        }
     }
     single<ContextTips> { get<WelcomeRepository>() }
     single { AdStore(get<DataStoreFactory>().ads()) }

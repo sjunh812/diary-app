@@ -11,6 +11,8 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -43,7 +45,9 @@ class PromptRepositoryTest {
             since = it
             written
         },
-        review = { claim -> if (fetched && claim()) requests++ },
+        review = { stillDue ->
+            (fetched && stillDue()).also { if (it) requests++ }
+        },
         clock = clock,
         timeZone = { TimeZone.UTC }
     )
@@ -202,18 +206,34 @@ class PromptRepositoryTest {
     }
 
     @Test
-    fun review_day_is_written_before_asking() = runTest {
-        var dayWhileAsking: String? = null
+    fun review_day_is_written_after_showing() = runTest {
+        var dayWhileShowing: String? = "아직"
         val repo =
-            PromptRepository(store, {
-                written
-            }, { claim -> if (claim()) dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
+            PromptRepository(store, { written }, { stillDue ->
+                stillDue().also { if (it) dayWhileShowing = store.current().reviewAskedDay }
+            }, clock, { TimeZone.UTC })
         repo.start()
         repo.feedbackClosed()
         written.value = 5
         now = start + 7.days
         repo.askReviewIfDue()
-        assertEquals("2026-11-22", dayWhileAsking)
+        assertEquals(null, dayWhileShowing)
+        assertEquals("2026-11-22", store.current().reviewAskedDay)
+    }
+
+    @Test
+    fun withdrawn_right_after_showing_still_records_the_day() = runTest {
+        val repo =
+            PromptRepository(store, { written }, { stillDue ->
+                stillDue().also { if (it) currentCoroutineContext().cancel() }
+            }, clock, { TimeZone.UTC })
+        repo.start()
+        repo.feedbackClosed()
+        written.value = 5
+        now = start + 7.days
+        val asking = backgroundScope.launch { repo.askReviewIfDue() }
+        asking.join()
+        assertEquals("2026-11-22", store.current().reviewAskedDay)
     }
 
     @Test
@@ -256,9 +276,9 @@ class PromptRepositoryTest {
         // 스토어 정보를 받는 사이 카드가 나옴
         val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
         val slow =
-            PromptRepository(store, { written }, { claim ->
+            PromptRepository(store, { written }, { stillDue ->
                 gate.await()
-                if (claim()) requests++
+                stillDue().also { if (it) requests++ }
             }, clock, { TimeZone.UTC })
         val asking = backgroundScope.launch { slow.askReviewIfDue() }
         testScheduler.advanceUntilIdle()
@@ -271,7 +291,7 @@ class PromptRepositoryTest {
     }
 
     @Test
-    fun failing_to_write_the_review_day_asks_nothing() = runTest {
+    fun failing_to_write_the_review_day_asks_once_in_the_process() = runTest {
         val full = InMemoryDataStore(emptyPreferences())
         dataStore = full
         val repo = repo()
@@ -279,10 +299,88 @@ class PromptRepositoryTest {
         repo.feedbackClosed()
         written.value = 5
         now = start + 7.days
-        // 읽기는 되고 요청일 쓰기만 실패. 적지 못하면 다시 물을 수 있어 띄우지 않음
+        // 읽기는 되고 요청일 쓰기만 실패. 이 프로세스 안에서는 다시 묻지 않음
         full.failWrites = true
         repo.askReviewIfDue()
+        repo.askReviewIfDue()
+        assertEquals(1, requests)
+    }
+
+    @Test
+    fun no_card_on_the_day_the_review_shows_even_when_the_day_is_not_written() = runTest {
+        // 백업 카드가 맨 위라 의견 카드를 못 본 채 리뷰가 뜨고, 공간이 차 요청일을 못 적음
+        val full = InMemoryDataStore(emptyPreferences())
+        dataStore = full
+        val repo = repo()
+        repo.start()
+        written.value = 5
+        now = start + 7.days
+        full.failWrites = true
+        repo.askReviewIfDue()
+        assertEquals(1, requests)
+        assertFalse(repo.feedbackCard.first())
+    }
+
+    @Test
+    fun no_card_while_the_review_is_showing() = runTest {
+        val showing = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val closed = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val repo =
+            PromptRepository(store, { written }, { stillDue ->
+                stillDue().also {
+                    showing.complete(Unit)
+                    closed.await()
+                }
+            }, clock, { TimeZone.UTC })
+        repo.start()
+        written.value = 5
+        now = start + 7.days
+        val asking = backgroundScope.launch { repo.askReviewIfDue() }
+        showing.await()
+        assertFalse(repo.feedbackCard.first())
+        closed.complete(Unit)
+        asking.join()
+    }
+
+    @Test
+    fun not_shown_after_claiming_is_asked_again_and_keeps_the_card() = runTest {
+        // 판단 뒤 화면이 없어 못 띄움(Android 화면이 뒤로 감, iOS 앞 창 없음)
+        var showable = false
+        val repo =
+            PromptRepository(store, { written }, { stillDue ->
+                (stillDue() && showable).also { if (it) requests++ }
+            }, clock, { TimeZone.UTC })
+        repo.start()
+        written.value = 5
+        now = start + 7.days
+        repo.askReviewIfDue()
         assertEquals(0, requests)
+        assertEquals(null, store.current().reviewAskedDay)
+        assertTrue(repo.feedbackCard.first())
+        showable = true
+        repo.askReviewIfDue()
+        assertEquals(1, requests)
+    }
+
+    @Test
+    fun overlapping_asks_show_once() = runTest {
+        val gate = kotlinx.coroutines.CompletableDeferred<Unit>()
+        val repo =
+            PromptRepository(store, { written }, { stillDue ->
+                gate.await()
+                stillDue().also { if (it) requests++ }
+            }, clock, { TimeZone.UTC })
+        repo.start()
+        repo.feedbackClosed()
+        written.value = 5
+        now = start + 7.days
+        val first = backgroundScope.launch { repo.askReviewIfDue() }
+        val second = backgroundScope.launch { repo.askReviewIfDue() }
+        testScheduler.advanceUntilIdle()
+        gate.complete(Unit)
+        first.join()
+        second.join()
+        assertEquals(1, requests)
     }
 
     @Test
@@ -301,18 +399,17 @@ class PromptRepositoryTest {
 
     @Test
     fun review_day_is_read_after_counting_entries() = runTest {
-        var dayWhileAsking: String? = null
         val repo = PromptRepository(store, {
             kotlinx.coroutines.flow.flow {
                 // 편 수를 세는 사이 자정이 지남
                 now = start + 8.days
                 emit(5)
             }
-        }, { claim -> if (claim()) dayWhileAsking = store.current().reviewAskedDay }, clock, { TimeZone.UTC })
+        }, { stillDue -> stillDue() }, clock, { TimeZone.UTC })
         repo.start()
         repo.feedbackClosed()
         now = start + 7.days + 23.hours
         repo.askReviewIfDue()
-        assertEquals("2026-11-23", dayWhileAsking)
+        assertEquals("2026-11-23", store.current().reviewAskedDay)
     }
 }
