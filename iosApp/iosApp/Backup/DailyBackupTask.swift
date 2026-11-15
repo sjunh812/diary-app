@@ -49,7 +49,20 @@ enum DailyBackupTask {
 
     private static func run(_ task: BGProcessingTask) {
         schedule()
-        let handle = IosStartupKt.runDailyBackup { task.setTaskCompleted(success: true) }
-        task.expirationHandler = { handle.cancel() }
+        // 시간이 다 되면 바로 끝났다고 알림. 늦으면 시스템이 앱을 끝내고 다음 예약에도 불리함
+        var completed = false
+        let complete = { (success: Bool) in
+            DispatchQueue.main.async {
+                guard !completed else { return }
+                completed = true
+                task.setTaskCompleted(success: success)
+            }
+        }
+        let handle = IosStartupKt.runDailyBackup { complete(true) }
+        // 실패를 먼저 큐에 넣음. 취소가 먼저 끝나 성공으로 알리지 않게
+        task.expirationHandler = {
+            complete(false)
+            handle.cancel()
+        }
     }
 }

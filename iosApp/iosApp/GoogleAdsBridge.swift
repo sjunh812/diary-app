@@ -92,12 +92,10 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                     return
                 }
                 interstitial = nil
-                let handler = FullScreenHandler(onImpression: onImpression) { [weak self] shown in
+                presenting = FullScreenHandler(ad: ad, onImpression: onImpression) { [weak self] shown in
                     self?.presenting = nil
                     onDone(KotlinBoolean(bool: shown))
                 }
-                presenting = handler
-                ad.fullScreenContentDelegate = handler
                 ad.present(from: screen)
             }
         }
@@ -117,12 +115,10 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                         return
                     }
                     var earned = false
-                    let handler = FullScreenHandler(onImpression: {}) { [weak self] _ in
+                    presenting = FullScreenHandler(ad: ad, onImpression: {}) { [weak self] _ in
                         self?.presenting = nil
                         onDone(KotlinBoolean(bool: earned))
                     }
-                    presenting = handler
-                    ad.fullScreenContentDelegate = handler
                     ad.present(from: screen) { earned = true }
                 }
             }
@@ -208,13 +204,18 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
 }
 
 /// 전면·보상형 광고의 열림과 닫힘
+/// 닫힐 때까지 광고를 붙잡아 둠. 놓치면 닫힘 알림이 오지 않아 화면이 기다리기만 함
 private final class FullScreenHandler: NSObject, FullScreenContentDelegate {
+    private let ad: FullScreenPresentingAd
     private let onImpression: () -> Void
     private let onClose: (Bool) -> Void
 
-    init(onImpression: @escaping () -> Void, onClose: @escaping (Bool) -> Void) {
+    init(ad: FullScreenPresentingAd, onImpression: @escaping () -> Void, onClose: @escaping (Bool) -> Void) {
+        self.ad = ad
         self.onImpression = onImpression
         self.onClose = onClose
+        super.init()
+        ad.fullScreenContentDelegate = self
     }
 
     func adDidRecordImpression(_ ad: FullScreenPresentingAd) { onImpression() }
