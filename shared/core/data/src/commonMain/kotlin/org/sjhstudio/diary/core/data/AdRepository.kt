@@ -120,15 +120,17 @@ class AdRepository(
      * 저장 뒤 목록으로 돌아왔을 때 호출
      * 하루 한 번만 띄움
      * 시각이 뒤로 가면 덜 보이는 쪽으로 판단
+     * 전면 광고 차례였으면 참. 못 띄웠어도 차례였으면 참이라 그 순간에는 리뷰 창을 요청하지 않음(스펙 007 FR-007)
      */
-    suspend fun backToList() {
-        onceStarted(Unit) {
-            if (!interstitialDue()) return@onceStarted
-            // 광고가 화면에 나와 노출이 잡힌 순간 기록
-            // 전면 광고 수익은 끝까지 보기가 아니라 노출로 잡혀, 그 뒤 앱이 꺼져도 같은 날 다시 띄우지 않음
-            // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음에 목록으로 돌아올 때 다시 띄움
-            // 공간이 차 못 적어도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킴
-            val day = today()
+    suspend fun backToList(): Boolean = onceStarted(false) {
+        if (!interstitialDue()) return@onceStarted false
+        // 광고가 화면에 나와 노출이 잡힌 순간 기록
+        // 전면 광고 수익은 끝까지 보기가 아니라 노출로 잡혀, 그 뒤 앱이 꺼져도 같은 날 다시 띄우지 않음
+        // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음에 목록으로 돌아올 때 다시 띄움
+        // 공간이 차 못 적어도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킴
+        // 광고 SDK가 실패해도 차례였던 사실은 그대로
+        val day = today()
+        quietly(Unit) {
             coroutineScope {
                 val seen = CompletableDeferred<Unit>()
                 val record = launch {
@@ -150,6 +152,7 @@ class AdRepository(
                 }
             }
         }
+        true
     }
 
     /**

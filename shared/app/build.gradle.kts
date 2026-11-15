@@ -83,6 +83,8 @@ kotlin {
             implementation(libs.androidx.work.runtime)
             // 광고(AdMobPlayer, NativeAdCard). R1은 안드로이드만 냄
             implementation(libs.play.services.ads)
+            // 스토어 리뷰 창(PlayStoreReview, 스펙 007)
+            implementation(libs.play.review.ktx)
             // 사용 통계와 비정상 종료 보고(FirebaseTelemetrySink, research R21)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.analytics)

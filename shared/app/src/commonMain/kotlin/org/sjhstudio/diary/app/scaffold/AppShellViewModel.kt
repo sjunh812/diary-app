@@ -3,6 +3,7 @@ package org.sjhstudio.diary.app.scaffold
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,8 +16,10 @@ import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.TabScreen
+import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.PlanRepository
+import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.platform.Telemetry
@@ -38,23 +41,28 @@ enum class AdNotice {
 interface AfterSaveAds {
     suspend fun prepare()
 
-    suspend fun backToList()
+    /** 전면 광고 차례였으면 참 */
+    suspend fun backToList(): Boolean
 
     /** 이번 광고 앞에 첫 안내를 띄울지. 참이면 보여 준 것으로 적음 */
     suspend fun takeNotice(): Boolean = false
 }
 
 /**
- * 앱 틀이 하던 업무 규칙(광고 차례, 화면 통계, 휴지통 되돌리기, 홈 쓰기 버튼)을 맡는 화면 모델
+ * 앱 틀이 하던 업무 규칙(광고 차례, 리뷰 창, 화면 통계, 휴지통 되돌리기, 홈 쓰기 버튼)을 맡는 화면 모델
  * 돈과 관련된 규칙이라 화면 밖에서 시험
  */
 class AppShellViewModel(
     private val entries: EntryRepository,
     plans: PlanRepository,
     private val ads: AfterSaveAds,
+    private val askReview: suspend () -> Unit,
     private val screen: (String) -> Unit
 ) : ViewModel() {
     private val adTurn = AfterSaveAdTurn()
+
+    /** 저장 뒤 목록에서 시작한 광고·리뷰 차례. 광고는 끝까지 가고(AdRepository) 리뷰만 거둘 수 있음 */
+    private var afterSaveTurn: Job? = null
 
     /** 일기가 있는지. 읽기 전에는 null(그동안 홈 쓰기 버튼을 숨김) */
     val hasEntries: StateFlow<Boolean?> =
@@ -70,6 +78,8 @@ class AppShellViewModel(
     /** 보는 화면이 바뀜. 통계에는 화면 키 이름만 */
     fun screenShown(top: NavKey, tab: TabScreen, backStack: List<NavKey>) {
         screen(top.toString())
+        // 리뷰 정보를 받는 사이 쓰기로 가면 거둠. 쓰는 중에는 묻지 않음(Apple HIG)
+        if (top is WriteKey) afterSaveTurn?.cancel()
         takeAdTurn(tab, backStack, justSavedInTwoPane = false)
     }
 
@@ -90,7 +100,14 @@ class AppShellViewModel(
 
     private fun takeAdTurn(tab: TabScreen, backStack: List<NavKey>, justSavedInTwoPane: Boolean) {
         if (!adTurn.takeTurn(tab, backStack, justSavedInTwoPane)) return
-        viewModelScope.launchSafely { if (ads.takeNotice()) _adNotice.value = AdNotice.Showing else ads.backToList() }
+        afterSaveTurn = viewModelScope.launchSafely {
+            when {
+                ads.takeNotice() -> _adNotice.value = AdNotice.Showing
+
+                // 전면 광고와 겹치지 않을 때만 리뷰 창(스펙 007 FR-007)
+                !ads.backToList() -> askReview()
+            }
+        }
     }
 
     /** 안내에서 [확인]이나 바깥. 광고를 띄움 */
@@ -130,10 +147,12 @@ val appShellModule =
 
                     override suspend fun takeNotice() = ads.takeInterstitialNotice()
                 },
+                askReview = get<PromptRepository>()::askReviewIfDue,
                 screen = get<Telemetry>()::screen
             )
         }
         viewModel { AdRemovalViewModel(get<AdRepository>()::watchReward) }
+        viewModel { FeedbackCardViewModel(get()) }
     }
 
 /**

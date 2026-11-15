@@ -106,6 +106,16 @@ interface EntryDao {
     )
     suspend fun countAfter(date: String, favoritesOnly: Boolean): Int
 
+    /**
+     * [since] 뒤 이 앱에서 새로 쓴 일기 수(스펙 007 FR-002)
+     * 옮겨 온 일기는 빼고, 휴지통 일기는 셈. 복원한 일기는 원래 쓴 시각을 지녀 대개 빠짐
+     */
+    @Query(
+        "SELECT COUNT(*) FROM entry WHERE created_at >= :since " +
+            "AND legacy_id IS NULL AND legacy_create_date IS NULL"
+    )
+    fun countWrittenSince(since: Long): Flow<Int>
+
     @Query("SELECT * FROM entry WHERE id = :id")
     suspend fun get(id: String): EntryEntity?
 
