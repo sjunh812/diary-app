@@ -188,6 +188,8 @@ targets:
         # 일반 시뮬레이터 대상으로 빌드할 때 Intel(x86_64)까지 묶지 않게 뺀다.
         "EXCLUDED_ARCHS[sdk=iphonesimulator*]": x86_64
         CODE_SIGN_STYLE: Automatic
+        # 개인 개발자 팀. 회사 팀은 쓰지 않음
+        DEVELOPMENT_TEAM: C5XA3NN9J6
         # Gradle이 만든 static framework Shared를 찾는 자리와 링크 옵션.
         FRAMEWORK_SEARCH_PATHS: $(SRCROOT)/../shared/app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
         OTHER_LDFLAGS: -framework Shared
