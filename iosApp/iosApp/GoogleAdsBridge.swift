@@ -79,20 +79,27 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         interstitial != nil && Date().timeIntervalSince(interstitialAt) < Self.interstitialFresh
     }
 
+    /// 앱 시작 때 미리 받아 둔 광고라 추적 허용은 띄우기 직전에 물음. 다음 광고부터 답이 반영됨
     func showInterstitial(onImpression: @escaping () -> Void, onDone: @escaping (KotlinBoolean) -> Void) {
         onMain { [self] in
-            guard let ad = interstitial, interstitialIsFresh, let screen = topScreen() else {
+            guard interstitial != nil, interstitialIsFresh else {
                 onDone(false)
                 return
             }
-            interstitial = nil
-            let handler = FullScreenHandler(onImpression: onImpression) { [weak self] shown in
-                self?.presenting = nil
-                onDone(KotlinBoolean(bool: shown))
+            askTrackingOnce { [self] in
+                guard let ad = interstitial, let screen = topScreen() else {
+                    onDone(false)
+                    return
+                }
+                interstitial = nil
+                let handler = FullScreenHandler(onImpression: onImpression) { [weak self] shown in
+                    self?.presenting = nil
+                    onDone(KotlinBoolean(bool: shown))
+                }
+                presenting = handler
+                ad.fullScreenContentDelegate = handler
+                ad.present(from: screen)
             }
-            presenting = handler
-            ad.fullScreenContentDelegate = handler
-            ad.present(from: screen)
         }
     }
 
@@ -103,19 +110,21 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                 return
             }
             warmUp()
-            RewardedAd.load(with: rewardedUnit, request: Request()) { [weak self] ad, _ in
-                guard let self, let ad, let screen = topScreen() else {
-                    onDone(false)
-                    return
+            askTrackingOnce { [self] in
+                RewardedAd.load(with: rewardedUnit, request: Request()) { [weak self] ad, _ in
+                    guard let self, let ad, let screen = topScreen() else {
+                        onDone(false)
+                        return
+                    }
+                    var earned = false
+                    let handler = FullScreenHandler(onImpression: {}) { [weak self] _ in
+                        self?.presenting = nil
+                        onDone(KotlinBoolean(bool: earned))
+                    }
+                    presenting = handler
+                    ad.fullScreenContentDelegate = handler
+                    ad.present(from: screen) { earned = true }
                 }
-                var earned = false
-                let handler = FullScreenHandler(onImpression: {}) { [weak self] _ in
-                    self?.presenting = nil
-                    onDone(KotlinBoolean(bool: earned))
-                }
-                presenting = handler
-                ad.fullScreenContentDelegate = handler
-                ad.present(from: screen) { earned = true }
             }
         }
     }
@@ -132,12 +141,13 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                 onLoaded()
             }
             loaders[key] = loader
-            // 홈 목록의 광고 칸이 첫 광고 자리. 잠금·온보딩이 끝나고 광고를 볼 사람에게만 옴
+            // 잠금·온보딩이 끝나고 광고를 볼 사람에게만 옴
             askTrackingOnce { loader.load() }
         }
     }
 
     /// 앱 추적 허용(ATT)을 아직 묻지 않았으면 묻고 답을 받은 뒤 [then]. 거절해도 광고는 광고 ID 없이 받음
+    /// 목록 광고, 전면 광고, 보상형 광고 중 먼저 보이는 광고 앞에서 한 번
     /// 앱이 앞에 있어야 창이 뜸. 아니면 묻지 않고 넘어가 다음 광고 칸에서 다시 봄
     private func askTrackingOnce(then: @escaping () -> Void) {
         guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined,
