@@ -311,7 +311,27 @@ class StoreBillingTest {
         assertEquals(Plan.FREE, billing.plan.value)
     }
 
-    /** 함께 온 답 가운데 늦게 차례가 온 것은 가져오기 전 답이라 가져온 Plus를 덮지 않음 */
+    /** 함께 온 요청은 가져오기가 실패해도 다시 묻지 않음. 요금제는 모르는 채로 다음 실행에 다시 시도 */
+    @Test
+    fun launch_triggers_arriving_together_ask_once_even_when_the_store_fails() = runTest {
+        val billing = billing(null)
+        val gate = CompletableDeferred<Unit>()
+        store.syncGate = gate
+        store.syncFailure = StoreFailure.Reason.OTHER
+        val calls = List(3) { launch { billing.refresh() } }
+        runCurrent()
+        gate.complete(Unit)
+        calls.joinAll()
+        assertEquals(1, store.syncAsks)
+        assertFalse(billing.known.value)
+
+        store.syncFailure = null
+        billing.refresh()
+        assertEquals(2, store.syncAsks)
+        assertTrue(billing.known.value)
+    }
+
+    /** 함께 온 답은 가져오기 하나를 같이 기다려 가져온 Plus를 덮지 않음 */
     @Test
     fun a_reinstalled_buyer_keeps_plus_when_launch_triggers_arrive_together() = runTest {
         val billing = billing(null)
