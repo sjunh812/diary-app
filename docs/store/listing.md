@@ -322,6 +322,39 @@ mood,daily,log,feelings,tracker,photo,private,lock,backup,calendar,gratitude,not
 
 ## 새로운 기능
 
+### 2.0.1 (44)
+
+Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않는다(스토어가 띄울지 정해서 약속이 될 수 있다).
+
+```text
+<ko-KR>
+[버전 2.0.1]
+• 더 나은 앱을 만들기 위한 설문 안내를 홈에 더했어요
+• 알림을 꺼두면 설정의 매일 알림도 꺼짐으로 보여요
+• 다크 모드에서 기간 탭이 잘 보이게 했어요
+• 홈 탭을 다시 누르면 맨 위로 바로 올라가요
+• 화면 문구를 읽기 쉽게 다듬었어요
+</ko-KR>
+<en-US>
+[Version 2.0.1]
+• Added a survey invite on Home to help us improve the app
+• Daily reminders now show as off when notifications are blocked
+• Period tabs are easier to see in dark mode
+• Tap Home again to jump straight to the top
+• Clearer wording across the app
+</en-US>
+<ja-JP>
+[バージョン 2.0.1]
+• より良いアプリにするためのアンケート案内をホームに追加しました
+• 通知をオフにすると、設定の毎日の通知もオフと表示されます
+• ダークモードで期間タブが見やすくなりました
+• ホームタブをもう一度押すと一番上に戻ります
+• 画面の文言を読みやすく整えました
+</ja-JP>
+```
+
+### 2.0.0 (43)
+
 Play는 언어마다 500자까지 받는다. 기존 사용자가 업데이트 뒤 광고를 처음 보게 되므로 광고와 광고 제거를 함께 적는다(`docs/release.md` 출시 전 확인).
 Play 출시 노트 칸에 언어 태그째 붙여 넣는다. 태그(`<b>`)는 출시 노트에서 글자로 보일 수 있어 쓰지 않고, 묶음 제목은 줄로만 나눈다.
 새로워진 점, Plus, 광고 안내 순서로 쓴다. 1.7.4에 있던 기능(글꼴, 다크 모드, 잠금)은 새 기능으로 적지 않는다. 전면 광고(하루 한 번, 저장 뒤 목록으로 돌아갈 때)도 적는다. 처음 보는 전면 광고에 놀라 떠나지 않게 하려는 것이다(2026-11-15).
