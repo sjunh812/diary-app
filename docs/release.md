@@ -260,6 +260,7 @@ REVENUECAT_IOS = appl_...
 - [ ] 출시 뒤 며칠 동안 Crashlytics 비정상 종료, 기록 이전 실패 수, Play 비정상 종료·ANR을 본다. 이전 실패가 하나라도 있으면 원인을 고쳐 다음 빌드로 낸다.
 - [x] 출시 국가에 미국, 캐나다, 오스트레일리아, 뉴질랜드를 더했다(2026-11-15 저장, D11). 원래 있던 아르헨티나, 인도는 1.7.4 사용자가 업데이트를 받도록 남겼다.
 - 일본 판매: 특정상거래법 표시는 Play가 결제 프로필 정보로 보여 주고, 자금결제법·할부판매법 확인은 Google 결제 센터가 요청할 때 답한다. 개발자가 따로 켜는 설정은 없다([Play](https://support.google.com/googleplay/android-developer/answer/6223646), [결제 센터](https://support.google.com/paymentscenter/answer/17595997)).
+- [ ] Play "비트맵 다운샘플링으로 앱 성능을 개선하세요"(43, 메모리 사용량): `mzb.t0`, `n2c.f0`가 `BitmapFactory.Options` 없이 디코딩한다고 나온다. 2026-11-14 로컬 출시 빌드의 R8 매핑으로 풀면 둘 다 `com.google.android.gms.internal.ads.*`(Google Mobile Ads SDK 내부)라 우리 코드가 아닐 가능성이 높다. 우리 코드(`ImageDecoder.android.kt`, `AndroidLegacy.kt`)는 크기만 먼저 읽고(`inJustDecodeBounds`) `inSampleSize`로 줄여 읽는다. 다음 출시 때 CI 빌드의 매핑으로 다시 확인하고, 광고 SDK면 최신 판에서 고쳐졌는지 본다(2026-11-15 사용자 요청).
 - 관리형 게시가 켜져 있다. 검토를 통과해도 게시 개요에서 [게시]를 눌러야 사용자에게 나간다.
 
 ## App Store 제출
