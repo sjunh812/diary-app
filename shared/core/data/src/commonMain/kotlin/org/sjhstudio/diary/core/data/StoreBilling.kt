@@ -10,8 +10,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
@@ -54,6 +52,7 @@ class StoreFailure(val reason: Reason, cause: Throwable? = null) : Exception(cau
  * 요금제와 구매를 한곳에서 맡음
  * 마지막 요금제를 기기에 남겨 산 사람이 앱을 켤 때나 오프라인에서도 광고를 보지 않음
  * 재설치로 남긴 값이 없으면 스토어 답을 들을 때까지 요금제를 모른다고 알림
+ * 화면 스레드에서만 부름. 상태를 잠금 없이 다룸
  */
 class StoreBilling(
     private val client: StoreClient,
@@ -74,7 +73,6 @@ class StoreBilling(
      * 켤 때 시작·앞으로 옴·스토어 알림이 함께 오고, iOS는 요청마다 로그인 창을 띄움
      */
     private var syncing: Deferred<Unit>? = null
-    private val syncLock = Mutex()
 
     override val plan: StateFlow<Plan> = state.plan
     override val known: StateFlow<Boolean> = state.known
@@ -96,9 +94,8 @@ class StoreBilling(
     suspend fun onUpdate(answer: StoreAnswer) {
         watchExpiry(answer)
         if (!state.onAnswer(StoreIds.planOf(answer.active))) return
-        syncLock.withLock {
-            syncing?.takeIf { it.isActive } ?: scope.async { syncFromStore(answer) }.also { syncing = it }
-        }.await()
+        val sync = syncing?.takeIf { it.isActive } ?: scope.async { syncFromStore(answer) }.also { syncing = it }
+        sync.await()
     }
 
     private suspend fun syncFromStore(answer: StoreAnswer) {
