@@ -90,6 +90,17 @@
                 <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
+        <!-- 작업 관리자는 DiaryApplication의 설정으로 처음 쓸 때 연다(공간이 차도 앱이 꺼지지 않게). -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
         <!-- 복구 문의 묶음(files/migration/support)만 메일 앱에 읽기 권한으로 넘긴다(FR-010a). -->
         <provider
             android:name="androidx.core.content.FileProvider"
