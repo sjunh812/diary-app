@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.app.ads
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
@@ -27,7 +28,9 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.coroutines.resume
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import org.sjhstudio.diary.app.CurrentActivity
 import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.ReadyReward
@@ -209,11 +212,12 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         }
     }
 
-    override suspend fun showInterstitial(onImpression: () -> Unit): Boolean {
-        val ad = interstitial?.takeIf { interstitialFresh() } ?: return false
-        val screen = current.value ?: return false
+    // 광고 SDK와 광고 상태는 화면 스레드에서만. 부르는 쪽 스레드와 상관없이 여기서 옮김
+    override suspend fun showInterstitial(onImpression: () -> Unit): Boolean = withContext(Dispatchers.Main.immediate) {
+        val ad = interstitial?.takeIf { interstitialFresh() } ?: return@withContext false
+        val screen = current.value ?: return@withContext false
         interstitial = null
-        return suspendCancellableCoroutine { result ->
+        suspendCancellableCoroutine { result ->
             ad.fullScreenContentCallback =
                 object : FullScreenContentCallback() {
                     override fun onAdImpression() = onImpression()
@@ -230,27 +234,13 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         }
     }
 
-    override suspend fun loadRewarded(): ReadyReward? {
-        if (!available) return null
+    override suspend fun loadRewarded(): ReadyReward? = withContext(Dispatchers.Main.immediate) {
+        if (!available) return@withContext null
         // 받는 동안 취소되면 늦게 온 광고는 버려짐(아래 isActive)
         val ad = requestRewardedAd()
-        return ad?.let {
+        ad?.let {
             ReadyReward { onEarned ->
-                val screen = current.value ?: return@ReadyReward
-                suspendCancellableCoroutine { result ->
-                    ad.fullScreenContentCallback =
-                        object : FullScreenContentCallback() {
-                            override fun onAdDismissedFullScreenContent() {
-                                if (result.isActive) result.resume(Unit)
-                            }
-
-                            override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                                if (result.isActive) result.resume(Unit)
-                            }
-                        }
-                    // 끝까지 본 순간 알림. 닫기 전에 앱이 꺼져도 보상이 남게
-                    ad.show(screen) { onEarned() }
-                }
+                withContext(Dispatchers.Main.immediate) { current.value?.let { ad.showUntilClosed(it, onEarned) } }
             }
         }
     }
@@ -274,4 +264,19 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
             }
         )
     }
+}
+
+/** 띄우고 닫힐 때까지 기다림. 끝까지 본 순간 [onEarned]라 닫기 전에 앱이 꺼져도 보상이 남음 */
+private suspend fun RewardedAd.showUntilClosed(screen: Activity, onEarned: () -> Unit) = suspendCancellableCoroutine { result ->
+    fullScreenContentCallback =
+        object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                if (result.isActive) result.resume(Unit)
+            }
+
+            override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                if (result.isActive) result.resume(Unit)
+            }
+        }
+    show(screen) { onEarned() }
 }
