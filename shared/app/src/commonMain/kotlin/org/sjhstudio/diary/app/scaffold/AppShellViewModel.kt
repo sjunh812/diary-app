@@ -134,7 +134,8 @@ class AppShellViewModel(
                         // 띄우기 시작한 광고는 저장소가 끝까지 감(AdRepository.showAfterSave)
                         ads.show()
                     }
-                if (!due && savedEntry != null) review = viewModelScope.launchSafely { askReview() }
+                // 광고 차례의 자식이라 잠기면 함께 거둠. 저장한 일기를 떠나면 이것만 거둠
+                if (!due && savedEntry != null) review = launchSafely { askReview() }
             }
     }
 
