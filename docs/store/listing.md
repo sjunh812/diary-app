@@ -421,7 +421,7 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • 더 나은 앱을 만들기 위한 설문 안내를 홈에 추가했어요
 • 알림을 꺼두면 설정의 쓰기 알림도 알림 꺼짐으로 보여요
 • 다크 모드에서 기간 탭이 잘 보이게 했어요
-• 홈 탭을 다시 누르면 맨 위로 바로 올라가요
+• 홈 탭을 다시 누르면 맨 위로 더 빨리 올라가고 달 제목도 바로 바뀌어요
 • 하루 한 번 나오는 전면 광고는 이제 일기를 저장한 직후에 나와요
 • 화면 문구를 읽기 쉽게 다듬었어요
 </ko-KR>
@@ -430,7 +430,7 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • Added a survey invite on Home to help us improve the app
 • Daily reminder shows as off when notifications are blocked
 • Period tabs are easier to see in dark mode
-• Tap Home again to jump straight to the top
+• Tapping Home again jumps to the top faster and shows the right month right away
 • The once-a-day full-screen ad now shows right after you save an entry
 • Clearer wording across the app
 </en-US>
@@ -439,7 +439,7 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • より良いアプリにするためのアンケート案内をホームに追加しました
 • 通知をオフにすると、設定の毎日のリマインダーもオフと表示されます
 • ダークモードで期間タブが見やすくなりました
-• ホームタブをもう一度押すと一番上に戻ります
+• ホームタブをもう一度押すと、より速く一番上に戻り、月の表示もすぐ切り替わります
 • 1日1回の全画面広告は、日記を保存した直後に表示されるようになりました
 • 画面の文言を読みやすく整えました
 </ja-JP>

@@ -1,6 +1,6 @@
 // App Store 상품 페이지 헤더(21:9, 3840×1646) 생성
-// 옅은 바탕에 앱 아이콘의 연필과 기분 얼굴 아홉만 둠. 무늬 없이 여백을 넉넉히
-// 글자가 없어 언어마다 따로 만들지 않음
+// 옅은 바탕에 그림 하나. 무늬 없이 여백을 넉넉히(그림 종류는 다섯째 인자)
+// 지금 올린 헤더는 연필 심볼과 앱 이름(wordmark-언어)이라 언어마다 따로 만듦
 // 얼굴 모양과 색은 DiaryMoodFace.kt·DiaryColors.kt 라이트 값, 연필은 LaunchPencil.imageset 그대로
 // 쓰는 법: swift scripts/store/make_header.swift <결과 PNG> <연필 SVG> [guide|-] [ring|arc]
 // guide를 주면 Apple 안전 영역(1646×661, x 1097, y 493)을 빨간 선으로 겹쳐 그림(확인용)
