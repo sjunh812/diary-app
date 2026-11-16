@@ -75,18 +75,6 @@ class AdRemovalTest {
         assertEquals(AdRemovalState(AdRemovalSheet.RewardFailed), viewModel.state.value)
     }
 
-    /** 끝까지 봤지만 기록하지 못하면 영상 탓이 아니라 저장 공간 안내 */
-    @Test
-    fun a_reward_that_was_not_saved_points_to_storage() = runTest(dispatcher) {
-        val viewModel = AdRemoval(scope) { RewardResult.NotSaved }
-        viewModel.offerReward()
-
-        viewModel.watch()
-        advanceUntilIdle()
-
-        assertEquals(AdRemovalState(AdRemovalSheet.RewardNotSaved), viewModel.state.value)
-    }
-
     /** 영상을 받는 동안 시트를 닫으면 받기를 멈추고 시트도 다시 열리지 않음. 다른 화면 위에 광고나 실패 시트가 뜨지 않게 */
     @Test
     fun closing_the_sheet_while_loading_stops_the_video_and_stays_closed() = runTest(dispatcher) {

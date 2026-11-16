@@ -121,14 +121,14 @@ class AdRepositoryFailureTest {
         assertEquals(1, player.shown)
     }
 
+    /** 끝까지 본 보상은 공간이 차 못 적어도 바로 받음(AdMob 보상 지침). 이번 실행 동안 광고 없음 */
     @Test
-    fun a_reward_that_cannot_be_written_says_so_and_keeps_the_ads() = runTest {
+    fun a_reward_that_cannot_be_written_still_applies_now() = runTest {
         val player = HeldPlayer().apply { closed.complete(true) }
         val repository = repo(player, FullDisk())
 
-        // 끝까지 봤어도 기록하지 못하면 받지 못한 것. 화면은 영상 탓이 아니라 공간 부족이라고 알림
-        assertEquals(RewardResult.NotSaved, repository.watchReward())
-        assertTrue(repository.showAds.first())
+        assertEquals(RewardResult.Earned, repository.watchReward())
+        assertFalse(repository.showAds.first())
     }
 
     @Test

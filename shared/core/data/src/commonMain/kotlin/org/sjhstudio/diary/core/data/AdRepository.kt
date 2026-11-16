@@ -5,7 +5,6 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -212,36 +211,23 @@ class AdRepository(
 private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T =
     orElseOnFailure(failed) { withContext(NonCancellable) { block() } }
 
-/** 보상 영상 결과. 끝까지 봤어도 기록하지 못하면(공간 부족) 받지 못한 것 */
-enum class RewardResult {
-    Earned,
-    NotEarned,
-
-    /** 끝까지 봤지만 기록하지 못함 */
-    NotSaved
-}
+/** 보상 영상 결과 */
+enum class RewardResult { Earned, NotEarned }
 
 /**
  * 띄우고 끝까지 본 순간 [record]로 보상을 적음. 닫기 전에 앱이 꺼져도 하루 광고 없음이 남음
  */
 private suspend fun ReadyReward.watch(record: suspend () -> Unit): RewardResult = coroutineScope {
     val earned = CompletableDeferred<Unit>()
-    val written = async {
+    val written = launch {
         earned.await()
-        orElseOnFailure(false) {
-            record()
-            true
-        }
+        orElseOnFailure(Unit) { record() }
     }
     show { earned.complete(Unit) }
-    when {
-        !earned.isCompleted -> {
-            written.cancel()
-            RewardResult.NotEarned
-        }
-
-        written.await() -> RewardResult.Earned
-
-        else -> RewardResult.NotSaved
+    if (earned.isCompleted) {
+        RewardResult.Earned
+    } else {
+        written.cancel()
+        RewardResult.NotEarned
     }
 }

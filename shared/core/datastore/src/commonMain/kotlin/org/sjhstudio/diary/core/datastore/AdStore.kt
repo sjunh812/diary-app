@@ -3,7 +3,6 @@ package org.sjhstudio.diary.core.datastore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlin.time.Instant
@@ -33,8 +32,8 @@ class AdStore(private val dataStore: DataStore<Preferences>) {
         if (day == null) prefs.remove(LAST_INTERSTITIAL) else prefs[LAST_INTERSTITIAL] = day
     }
 
-    /** 보상은 기록에 남아야 받은 것이라 덮개 없이 씀 */
-    suspend fun rewardUntil(until: Instant) = dataStore.edit { it[REWARD_UNTIL] = until.toEpochMilliseconds() }
+    /** 끝까지 본 보상은 바로 줌(AdMob 보상 지침). 못 적으면 이번 실행 동안 두고 다음 쓰기 때 다시 적음 */
+    suspend fun rewardUntil(until: Instant) = store.edit { it[REWARD_UNTIL] = until.toEpochMilliseconds() }
 
     /** 첫 전면 광고 앞 안내를 보여 줌. 다시 띄우지 않음 */
     suspend fun interstitialNoticed() = store.edit { it[INTERSTITIAL_NOTICED] = true }

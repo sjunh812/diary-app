@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.resources.Res
@@ -17,7 +16,6 @@ import org.sjhstudio.diary.app.resources.reward_body
 import org.sjhstudio.diary.app.resources.reward_close
 import org.sjhstudio.diary.app.resources.reward_failed_body
 import org.sjhstudio.diary.app.resources.reward_failed_title
-import org.sjhstudio.diary.app.resources.reward_not_saved_body
 import org.sjhstudio.diary.app.resources.reward_title
 import org.sjhstudio.diary.app.resources.reward_watch
 import org.sjhstudio.diary.core.data.AdRepository
@@ -98,27 +96,20 @@ internal fun AdRemovalSheets(viewModel: AdRemovalViewModel) {
                 )
             }
 
-        AdRemovalSheet.RewardFailed -> RewardResultSheet(Res.string.reward_failed_body, viewModel::dismiss)
-
-        AdRemovalSheet.RewardNotSaved -> RewardResultSheet(Res.string.reward_not_saved_body, viewModel::dismiss)
+        AdRemovalSheet.RewardFailed ->
+            DiaryBottomSheet(
+                viewModel::dismiss,
+                title = stringResource(Res.string.reward_failed_title),
+                description = stringResource(Res.string.reward_failed_body)
+            ) {
+                DiaryButton(
+                    stringResource(Res.string.reward_close),
+                    onClick = viewModel::dismiss,
+                    modifier = Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
+                    size = DiaryButtonSize.XLarge
+                )
+            }
 
         null -> Unit
-    }
-}
-
-/** 광고 없는 하루를 받지 못한 까닭과 닫기 */
-@Composable
-private fun RewardResultSheet(body: StringResource, onDismiss: () -> Unit) {
-    DiaryBottomSheet(
-        onDismiss,
-        title = stringResource(Res.string.reward_failed_title),
-        description = stringResource(body)
-    ) {
-        DiaryButton(
-            stringResource(Res.string.reward_close),
-            onClick = onDismiss,
-            modifier = Modifier.fillMaxWidth().padding(top = DiarySpacing.x3),
-            size = DiaryButtonSize.XLarge
-        )
     }
 }

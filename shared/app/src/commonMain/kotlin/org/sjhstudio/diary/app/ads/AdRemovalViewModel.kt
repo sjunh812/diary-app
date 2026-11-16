@@ -14,7 +14,7 @@ import org.sjhstudio.diary.core.data.RewardResult
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 광고의 ×를 누른 뒤 차례로 뜨는 시트 */
-enum class AdRemovalSheet { Remove, Reward, RewardFailed, RewardNotSaved }
+enum class AdRemovalSheet { Remove, Reward, RewardFailed }
 
 /** [watching]은 보상 영상을 받거나 보는 중 */
 data class AdRemovalState(val sheet: AdRemovalSheet? = null, val watching: Boolean = false) {
@@ -68,13 +68,8 @@ class AdRemoval(
         _state.update { it.copy(watching = true) }
         watching =
             scope.launchSafely(onFailure = { _state.update { it.copy(sheet = AdRemovalSheet.RewardFailed) } }) {
-                val sheet =
-                    when (watchReward()) {
-                        RewardResult.Earned -> null
-                        RewardResult.NotEarned -> AdRemovalSheet.RewardFailed
-                        RewardResult.NotSaved -> AdRemovalSheet.RewardNotSaved
-                    }
-                _state.update { it.copy(sheet = sheet) }
+                val earned = watchReward() == RewardResult.Earned
+                _state.update { it.copy(sheet = if (earned) null else AdRemovalSheet.RewardFailed) }
             }.also { job -> job.invokeOnCompletion { _state.update { it.copy(watching = false) } } }
     }
 }
