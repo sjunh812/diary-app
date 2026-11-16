@@ -68,6 +68,7 @@ import org.sjhstudio.diary.app.ads.AdRemovalSheets
 import org.sjhstudio.diary.app.ads.AdRemovalViewModel
 import org.sjhstudio.diary.app.ads.AdShape
 import org.sjhstudio.diary.app.ads.AdSlot
+import org.sjhstudio.diary.app.ads.RewardNotSavedNotice
 import org.sjhstudio.diary.app.navigation.AdvancedStatsKey
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.CalendarKey
@@ -210,6 +211,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     }
     val shell = koinViewModel<AppShellViewModel>()
     val adRemoval = koinViewModel<AdRemovalViewModel>()
+    RewardNotSavedNotice(adRemoval, toast)
     val actions = remember(shell, adRemoval) {
         ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed, adRemoval::open)
     }

@@ -21,6 +21,7 @@
     <string name="reward_close">閉じる</string>
     <string name="reward_failed_title">広告なしの1日を受け取れませんでした</string>
     <string name="reward_failed_body">広告を読み込めなかったか、最後まで再生されませんでした。しばらくしてからもう一度お試しください。</string>
+    <string name="reward_not_saved">デバイスの空き容量が足りません。アプリを開き直すと広告が表示されることがあります。</string>
     <string name="ad_close">広告を削除</string>
     <string name="ad_notice_title">全画面広告は1日1回です</string>
     <string name="ad_notice_body">日記を保存した後にだけ、少しの間表示されます。</string>

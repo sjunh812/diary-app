@@ -16,8 +16,11 @@ import org.sjhstudio.diary.core.ui.launchSafely
 /** 광고의 ×를 누른 뒤 차례로 뜨는 시트 */
 enum class AdRemovalSheet { Remove, Reward, RewardFailed }
 
-/** [watching]은 보상 영상을 받거나 보는 중 */
-data class AdRemovalState(val sheet: AdRemovalSheet? = null, val watching: Boolean = false) {
+/**
+ * [watching]은 보상 영상을 받거나 보는 중
+ * [notSaved]는 받은 보상을 기기에 못 적어 앱 틀이 한 번 알릴 차례
+ */
+data class AdRemovalState(val sheet: AdRemovalSheet? = null, val watching: Boolean = false, val notSaved: Boolean = false) {
     /** 시트도 영상도 없음 */
     val idle: Boolean get() = sheet == null && !watching
 }
@@ -62,14 +65,22 @@ class AdRemoval(
         _state.update { it.copy(sheet = null) }
     }
 
+    /** 앱 틀이 못 적은 보상을 알림 */
+    fun notSavedShown() = _state.update { it.copy(notSaved = false) }
+
     /** 못 받았거나 끝까지 보지 않으면 그렇다고 알림. 말없이 닫으면 받은 줄 오해함 */
     fun watch() {
         if (watching?.isActive == true) return
         _state.update { it.copy(watching = true) }
         watching =
             scope.launchSafely(onFailure = { _state.update { it.copy(sheet = AdRemovalSheet.RewardFailed) } }) {
-                val earned = watchReward() == RewardResult.Earned
-                _state.update { it.copy(sheet = if (earned) null else AdRemovalSheet.RewardFailed) }
+                val result = watchReward()
+                _state.update {
+                    it.copy(
+                        sheet = if (result == RewardResult.NotEarned) AdRemovalSheet.RewardFailed else null,
+                        notSaved = result == RewardResult.EarnedNotSaved
+                    )
+                }
             }.also { job -> job.invokeOnCompletion { _state.update { it.copy(watching = false) } } }
     }
 }
@@ -85,4 +96,6 @@ class AdRemovalViewModel(private val removal: AdRemoval) : ViewModel() {
     fun dismiss() = removal.dismiss()
 
     fun watch() = removal.watch()
+
+    fun notSavedShown() = removal.notSavedShown()
 }

@@ -75,6 +75,20 @@ class AdRemovalTest {
         assertEquals(AdRemovalState(AdRemovalSheet.RewardFailed), viewModel.state.value)
     }
 
+    /** 받았지만 기기에 못 적으면 시트는 닫고 앱 틀이 한 번 알림 */
+    @Test
+    fun a_reward_that_was_not_saved_closes_the_sheet_and_asks_for_one_notice() = runTest(dispatcher) {
+        val viewModel = AdRemoval(scope) { RewardResult.EarnedNotSaved }
+        viewModel.offerReward()
+
+        viewModel.watch()
+        advanceUntilIdle()
+        assertEquals(AdRemovalState(notSaved = true), viewModel.state.value)
+
+        viewModel.notSavedShown()
+        assertEquals(AdRemovalState(), viewModel.state.value)
+    }
+
     /** 영상을 받는 동안 시트를 닫으면 받기를 멈추고 시트도 다시 열리지 않음. 다른 화면 위에 광고나 실패 시트가 뜨지 않게 */
     @Test
     fun closing_the_sheet_while_loading_stops_the_video_and_stays_closed() = runTest(dispatcher) {

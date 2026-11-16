@@ -4,10 +4,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.filter
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.sjhstudio.diary.app.resources.Res
@@ -16,6 +19,7 @@ import org.sjhstudio.diary.app.resources.reward_body
 import org.sjhstudio.diary.app.resources.reward_close
 import org.sjhstudio.diary.app.resources.reward_failed_body
 import org.sjhstudio.diary.app.resources.reward_failed_title
+import org.sjhstudio.diary.app.resources.reward_not_saved
 import org.sjhstudio.diary.app.resources.reward_title
 import org.sjhstudio.diary.app.resources.reward_watch
 import org.sjhstudio.diary.core.data.AdRepository
@@ -24,6 +28,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
+import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
@@ -111,5 +116,17 @@ internal fun AdRemovalSheets(viewModel: AdRemovalViewModel) {
             }
 
         null -> Unit
+    }
+}
+
+/** 받은 보상을 기기에 못 적었으면 한 번 알림. 이번 실행은 광고가 없지만 다시 열면 보일 수 있음 */
+@Composable
+internal fun RewardNotSavedNotice(viewModel: AdRemovalViewModel, toast: DiaryToastState) {
+    // 값을 열쇠로 두면 알린 뒤 값이 바뀌며 띄우던 토스트가 취소됨
+    LaunchedEffect(viewModel) {
+        viewModel.state.filter { it.notSaved }.collect {
+            viewModel.notSavedShown()
+            toast.show(getString(Res.string.reward_not_saved))
+        }
     }
 }
