@@ -191,6 +191,8 @@ REVENUECAT_IOS = appl_...
 - **처음(2.0.0)**: 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드. 세 언어가 바로 맞고, 맞춤 광고 동의 창(Google 인증 CMP)을 두지 않아도 된다.
 - **나중에**: EEA·영국·스위스. 동의 창을 넣어야 하고, 광고나 결제가 있으면 판매자(trader)로 선언해 주소와 전화번호가 공개된다.
   공개할 연락처(사업장 주소 같은 것)를 마련한 뒤 더한다.
+- **더하기로 한 곳(2026-11-16)**: 싱가포르, 홍콩. 영어를 널리 써서 영어 화면이 그대로 맞고 동의 창이 필요 없다. iOS는 첫 출시 때, Android는 다음 업데이트 때 더한다.
+- **보류**: 대만. iOS 비율은 높지만 번체 중국어가 없어 화면이 영어로 보인다. 번체 중국어를 넣을 때 다시 본다.
 - **그 밖의 나라**: 영어로 보이니 국가만 더하면 된다. 두 스토어 모두 새 빌드 없이 국가를 더하고 뺄 수 있다.
 - 유료 기능(Plus)을 팔려면 나라와 상관없이 사업자등록번호가 필요하고, Play는 통신판매업 신고번호도 받는다(한국 개발자). D9(Plus 시기)와 함께 정한다.
 
@@ -202,12 +204,15 @@ REVENUECAT_IOS = appl_...
 | 일본 | 유료 기능: 특정상거래법 표시(이름·전화·주소, 청구하면 바로 알린다고 적으면 생략할 수 있는 경우가 있음), 정기 결제 최종 확인 화면 항목(가격, 기간, 자동 갱신, 해지 방법), Google 결제 프로필의 자금결제법 동의(2026-12-01까지)와 할부판매법 공시 | [Play 개발자 정보](https://support.google.com/googleplay/android-developer/answer/6223646), [소비자청 Q&A](https://www.no-trouble.caa.go.jp/qa/advertising.html), [최종 확인 화면 지침](https://www.no-trouble.caa.go.jp/pdf/20241119la02_09.pdf), [Google 결제](https://support.google.com/paymentscenter/answer/17595997) |
 | 미국 | 텍사스(2026-06-04)·유타(2026-05-06)·루이지애나(2026-07-01)의 새 Apple 계정에 연령 확인과 보호자 동의가 걸린다. 앱은 Declared Age Range API와 중대한 변경 동의를 다룰 수 있어야 한다. Play는 주 단위로 빼 주지 않는다 | [Apple](https://developer.apple.com/news/?id=sg176nne), [Apple 연령 확인](https://developer.apple.com/support/age-assurance/), [Play](https://support.google.com/googleplay/android-developer/answer/16569691) |
 | 캐나다·뉴질랜드 | 스토어 쪽에서 따로 찾은 요구가 없다(확인 못 함) | - |
+| 싱가포르·홍콩 | 스토어 쪽에서 따로 찾은 요구가 없다(확인 못 함) | - |
+| 중국 본토 | 사업자 식별번호(USCI) 등 추가 정보를 낸다. 구글 드라이브 백업을 쓸 수 없어 내지 않는다 | [Apple](https://developer.apple.com/cn/help/app-store-connect/manage-compliance-information/manage-information-for-state-council-decree-no-810) |
 | 호주 | Apple이 성인 확인이 안 된 사용자에게 18+ 앱만 막는다. 우리 앱은 해당하지 않는다 | [Apple](https://developer.apple.com/news/?id=f5zj08ey) |
 | 영국 | 맞춤 광고에 인증 CMP(2024-01-16부터). Play 판매자 선언 대상이고, 개인 판매자는 전화·주소가 모든 나라에 보인다(2027-03-01부터) | [Google CMP](https://support.google.com/adsense/answer/13554116), [Play 판매자 선언](https://support.google.com/googleplay/android-developer/answer/17594752) |
 | EEA·스위스 | 인증 CMP(EEA 2024-01-16, 스위스 2024-07-31). Apple 판매자 정보(주소·전화·이메일, 주소 증빙)가 없으면 EU에서 내려간다(2025-02-17부터). Play 판매자 선언 | [Apple DSA](https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements/), [Apple 공지](https://developer.apple.com/news/?id=einwn76m), [Google CMP](https://support.google.com/adsense/answer/13554116) |
 
 - 시장: 모바일 OS 중 iOS 비율은 일본 53.8%, 미국 52.0%, 영국 50.1%, 한국 39.3%다(StatCounter 2026년 10월,
   [일본](https://gs.statcounter.com/os-market-share/mobile/japan/)). 일본과 영어권은 iOS가 절반을 넘는다.
+  대만 60.2%, 홍콩 47.6%다(2026년 8월, [대만](https://gs.statcounter.com/os-market-share/mobile/taiwan), [홍콩](https://gs.statcounter.com/os-market-share/mobile/hong-kong)).
 - 국가 바꾸기: App Store는 언제든 바꾸고 24시간 안에 반영되며, 뺀 나라의 기존 사용자도 업데이트를 받는다
   ([Apple](https://developer.apple.com/help/app-store-connect/manage-your-apps-availability/manage-availability-for-your-app-on-the-app-store/)).
   Play는 Production의 국가 목록에서 더하고 빼고, 구독은 새 나라의 가격을 정해야 한다([Play](https://support.google.com/googleplay/android-developer/answer/7550024)).
@@ -261,6 +266,7 @@ REVENUECAT_IOS = appl_...
 - [x] 2026-11-15 게시 개요에서 변경사항 26개를 게시했다. 2.0.0 (43)이 8개 나라(한국, 일본, 미국, 캐나다, 오스트레일리아, 뉴질랜드, 아르헨티나, 인도)에 100% 출시됐고, 새 아이콘·스크린샷·설명·데이터 보안도 함께 나갔다. Play 안내로는 보통 1시간 안에 스토어에 보인다.
 - [ ] 출시 뒤 며칠 동안 Crashlytics 비정상 종료, 기록 이전 실패 수, Play 비정상 종료·ANR을 본다. 이전 실패가 하나라도 있으면 원인을 고쳐 다음 빌드로 낸다.
 - [x] 출시 국가에 미국, 캐나다, 오스트레일리아, 뉴질랜드를 더했다(2026-11-15 저장, D11). 원래 있던 아르헨티나, 인도는 1.7.4 사용자가 업데이트를 받도록 남겼다.
+- [ ] 출시 국가에 싱가포르, 홍콩을 더한다(2026-11-16 결정, D11). 광고 제거와 Plus 구독의 두 나라 가격을 정한다(자동 환산).
 - 일본 판매: 특정상거래법 표시는 Play가 결제 프로필 정보로 보여 주고, 자금결제법·할부판매법 확인은 Google 결제 센터가 요청할 때 답한다. 개발자가 따로 켜는 설정은 없다([Play](https://support.google.com/googleplay/android-developer/answer/6223646), [결제 센터](https://support.google.com/paymentscenter/answer/17595997)).
 - [x] Play "비트맵 다운샘플링으로 앱 성능을 개선하세요"(43): 2.0.0 CI 빌드 AAB의 매핑으로 풀면 `mzb`는 `com.google.android.gms.internal.ads.zzemc`(Google 광고 SDK 내부), `n2c`는 `com.android.billingclient.api.zzet`(Play 결제 라이브러리 내부)다. 우리 코드가 아니라 고칠 것이 없다. 두 SDK를 올릴 때 경고가 사라지는지만 본다(2026-11-15 확인).
 - [x] Play "일부 사용자에게는 더 넓은 화면이 표시되지 않을 수 있습니다"와 "앱에서 더 넓은 화면용으로 지원 중단된 API 또는 파라미터를 사용합니다"(43): 우리 코드 문제가 아니라 고칠 것이 없다(2026-11-15 확인).
@@ -341,6 +347,7 @@ iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-
 - [x] 심사 메모(2026-11-16, 영어로 넣음, 연락처 포함): 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
 - [ ] 심사 메모에 추적 허용 창 띄우는 순서를 더한다(사용자, App Store Connect): "The App Tracking Transparency prompt appears right before the first full-screen ad: write and save one entry, then tap OK on the ad notice." 2.0.1 (45)부터 광고를 받지 못했어도 이 순간에 뜬다(`docs/DECISIONS.md` 2026-11-16).
 - [x] 출시 국가(2026-11-16): 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(D11). 미국 일부 주의 연령 확인 요구(위 "나라마다 걸리는 일")가 이 앱에 걸리는지 제출 직전에 다시 본다.
+- [ ] 출시 국가에 싱가포르, 홍콩을 더한다(2026-11-16 결정, D11). 앱과 인앱 구입 두 상품의 판매 국가에 모두 넣는다.
 - [ ] TestFlight 실기기: 샌드박스 계정으로 구매, 취소, 승인 대기(구입 요청), 복원, 재설치 뒤 자동 복원, 구독 만료. 함께 구글 드라이브 백업·복원, 카메라 촬영, 약관 링크, 잠금 가림 화면, 기기 글자 크기 반영을 본다. 시뮬레이터에서는 RevenueCat 키가 없거나 시뮬레이터가 못 해서 보지 못했다(2026-11-13, 2026-11-15).
 - [ ] 출시 뒤: AdMob iOS 앱에 스토어 연결.
 
