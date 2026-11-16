@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LockSettings
+import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.ui.BodyLook
@@ -33,7 +34,7 @@ private val sample =
 
 @Composable
 private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    SettingsScreen(sample, onFont = {
+    SettingsScreen(sample, plan = Plan.FREE, onFont = {
     }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {})
 }
 
@@ -41,7 +42,7 @@ private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
 @Preview(name = "S6 설정 · 태블릿 목록 · 글꼴 고름", locale = "ko", widthDp = 360, heightDp = 834)
 @Composable
 private fun ListPicked() = DiaryTheme(darkTheme = false) {
-    SettingsScreen(sample, onFont = {
+    SettingsScreen(sample, plan = Plan.FREE, onFont = {
     }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {}, selected = SettingsPane.FONT)
 }
 

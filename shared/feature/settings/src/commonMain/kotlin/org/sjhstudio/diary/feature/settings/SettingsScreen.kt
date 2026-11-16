@@ -101,7 +101,7 @@ fun SettingsScreen(
     onTerms: () -> Unit = {},
     onPrivacy: () -> Unit = {},
     onPlus: () -> Unit = {},
-    plan: Plan? = Plan.FREE,
+    plan: Plan? = null,
     onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
     appVersion: String = "",
