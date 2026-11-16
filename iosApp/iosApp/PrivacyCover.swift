@@ -11,10 +11,11 @@ struct PrivacyCover: ViewModifier {
 
     func body(content: Content) -> some View {
         content.onChange(of: scenePhase) { _, phase in
-            if phase != .active && IosStartupKt.isPrivacyCoverNeeded() {
-                CoverWindow.shared.show()
-            } else {
+            if phase == .active {
+                // 완전히 돌아온 뒤에 걷음. 돌아오는 중(비활성)에 걷으면 잠금 화면을 그리기 전 일기가 한 프레임 비침
                 CoverWindow.shared.hide()
+            } else if IosStartupKt.isPrivacyCoverNeeded() {
+                CoverWindow.shared.show()
             }
         }
     }
