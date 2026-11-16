@@ -1,18 +1,21 @@
 """스토어 스크린샷용 견본 일기를 iOS 시뮬레이터 앱 DB에 넣는다.
 
 쓰는 법(앱을 끈 뒤):
-  python3 -I scripts/store/seed_ios.py <기기 UDID> <ko|en|ja> <그림 폴더>
+  python3 -I scripts/store/seed_ios.py <기기 UDID> <ko|en|ja> <그림 폴더> [photo]
+넷째 인자로 photo를 주면 사진 일기 페이지용으로 사진 붙은 일기를 늘린다.
+mood를 주면 기분 일기 페이지용으로 1월부터 하루 한 편 가까이 채워 한 해 기분이 보이게 한다.
 그림 폴더는 scripts/store/make_photos.swift가 만든 곳이다.
 견본만 쓰는 새 시뮬레이터에서만 돌린다. 그 기기의 일기와 사진을 모두 지우고 다시 넣는다.
 """
 
 import hashlib
+import random
 import shutil
 import sqlite3
 import subprocess
 import sys
 import uuid
-from datetime import datetime
+from datetime import date as day, datetime, timedelta
 from pathlib import Path
 
 # (날짜, 시각, 기분, 날씨, 장소 번호, 즐겨찾기, 그림들)
@@ -48,6 +51,35 @@ PLAN = [
     ("2026-10-03", "11:30", "good", "partly_cloudy", 1, False, []),
     ("2026-10-07", "22:50", "sick", "cloudy", None, False, []),
 ]
+
+# 사진 일기 페이지용으로 더 붙일 그림. 사진 격자 첫 화면에서 같은 그림이 이웃하지 않게 고름
+PHOTO_EXTRA = {
+    "2026-11-13": ["clouds"],
+    "2026-11-11": ["night"],
+    "2026-11-04": ["dunes"],
+    "2026-11-08": ["hills", "lavender"],
+    "2026-11-01": ["clouds"],
+    "2026-10-31": ["night"],
+}
+
+# 기분 일기 페이지용 한 해 채우기. 좋음이 가장 많고 힘든 기분은 드물게
+YEAR_MOODS = ["good"] * 10 + ["laugh"] * 5 + ["cool"] * 4 + ["meh"] * 4 + ["tired"] * 3 + ["sad"] * 2 + ["bad", "sick", "angry"]
+YEAR_WEATHER = ["sunny", "sunny", "partly_cloudy", "mostly_cloudy", "cloudy", "rain"]
+
+
+def year_plan():
+    """1월 1일부터 견본 마지막 일기까지 견본이 없는 날의 열에 여덟쯤 채운 일기"""
+    pick = random.Random(7)
+    taken = {row[0] for row in PLAN}
+    last = max(datetime.strptime(row[0], "%Y-%m-%d").date() for row in PLAN)
+    current, plan = day(last.year, 1, 1), []
+    while current <= last:
+        if current.isoformat() not in taken and pick.random() < 0.8:
+            plan.append((current.isoformat(), f"{pick.randint(19, 23):02d}:{pick.randint(0, 59):02d}",
+                         pick.choice(YEAR_MOODS), pick.choice(YEAR_WEATHER)))
+        current += timedelta(days=1)
+    return plan
+
 
 PLACES = {
     "ko": ["바닷가 산책길", "동네 작은 카페", "한강공원"],
@@ -168,6 +200,8 @@ def millis(date, time):
 
 def main():
     udid, lang, art = sys.argv[1], sys.argv[2], Path(sys.argv[3])
+    mode = sys.argv[4] if len(sys.argv) > 4 else ""
+    extra = PHOTO_EXTRA if mode == "photo" else {}
     container = subprocess.run(
         ["xcrun", "simctl", "get_app_container", udid, "org.sjhstudio.diary", "data"],
         check=True, capture_output=True, text=True,
@@ -198,12 +232,20 @@ def main():
             (entry_id, date, time, html(paragraphs), "\n".join(paragraphs), mood, weather,
              PLACES[lang][place] if place is not None else None, int(favorite), stamp, stamp),
         )
-        for order, name in enumerate(pics):
+        for order, name in enumerate(pics + extra.get(date, [])):
             sha, size = photos[name]
             db.execute(
                 "INSERT INTO media (id, entry_id, sort_order, status, file_name, sha256, width, height, byte_size, created_at)"
                 " VALUES (?, ?, ?, 'normal', ?, ?, 1600, 1200, ?, ?)",
                 (str(uuid.uuid4()), entry_id, order, f"{sha}.jpg", sha, size, stamp),
+            )
+    if mode == "mood":
+        for index, (date, time, mood, weather) in enumerate(year_plan()):
+            paragraphs, stamp = TEXT[lang][index % len(TEXT[lang])], millis(date, time)
+            db.execute(
+                "INSERT INTO entry (id, date, time, body_html, plain_text, mood, weather, place_name, is_favorite, created_at, updated_at)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 0, ?, ?)",
+                (str(uuid.uuid4()), date, time, html(paragraphs), "\n".join(paragraphs), mood, weather, stamp, stamp),
             )
     db.commit()
     count = db.execute("SELECT count(*) FROM entry").fetchone()[0]

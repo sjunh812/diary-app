@@ -324,7 +324,12 @@ App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카
 
 검색어에 맞는 화면을 먼저 보여 주는 페이지다. 키워드 칸의 낱말을 페이지에 이어 두면 그 낱말로 검색한 사람에게 이 페이지가 뜬다(앱마다 70개, 이름·부제 낱말은 못 씀, [Apple](https://developer.apple.com/app-store/custom-product-pages/), [Phiture](https://phiture.com/blog/keyword-based-custom-product-pages-cpps-arrive-in-app-store-connect/)). 바꿀 수 있는 것은 스크린샷, 앱 미리보기, 홍보 문구다. 설명은 기본 페이지를 그대로 쓴다.
 
-"기분 일기"(2026-11-16 초안, 심사 전). 기본 페이지를 복사하고 스크린샷 순서를 돌아보기 → 달력 → 기분 고르기 → 목록으로 바꿨다. 헤더와 검색 결과 그림은 언어별 기본 그림이다.
+두 페이지 모두 기본 페이지를 복사한 뒤 스크린샷을 새로 찍어 바꿨다(2026-11-16 초안, 심사 전). 헤더와 검색 결과 그림은 언어별 기본 그림이다. 스크린샷은 `docs/store/screens/ios/<언어>/{mood,photo}`, 원본 캡처는 `docs/store/source/ios/<언어>/{mood,photo}`와 `tablet/{mood,photo}`다.
+
+- 만드는 법: `seed_ios.py <UDID> <언어> <그림 폴더> mood`는 1월부터 일기를 채워 한 해 기분이 보이게 하고, `photo`는 사진 붙은 일기를 늘린다. 홈 목록은 사진 격자로 찍는다. 합성은 `make_screens.swift <캡처> <결과> <글꼴> <태블릿 캡처> <언어> mood|photo`.
+- iPad는 쓰기 화면을 뺀다. 기분이 옆 칸에 작게 놓여 빈 화면처럼 보인다.
+
+"기분 일기" 머리말: 한 해 기분이 한눈에 보여요 / 그날 기분이 달력에 남아요 / 자주 고른 기분을 돌아봐요 / 아홉 가지 기분 중 하나를 골라요(iPhone만). 영어 A year of moods at a glance / Every day's mood on your calendar / See which moods came up most / Pick one of nine moods, 일본어 1年の気分がひと目でわかる / その日の気分がカレンダーに残る / よく選んだ気分をふりかえる / 9つの気分からひとつ選ぶ(원어민 검수 전).
 
 ```text
 기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
@@ -348,7 +353,28 @@ Your entries and photos stay on your device and Google Drive.
 
 - 키워드 잇기 칸은 아직 화면에 없다. 앱이 출시되기 전이라 그런 것으로 보이며 Apple 문서로 확인하지 못했다. 칸이 생기면 이을 낱말: 한국어 기분일기·감정일기·기분·감정·무드, 영어 mood·feelings, 일본어 気分·感情.
 - 심사는 키워드를 이은 다음 넣는다. 맞춤형 제품 페이지는 앱 업데이트와 따로 심사받는다.
-- 다음 후보는 "사진 일기"(사진일기·사진·백업). 사진이 든 일기 화면과 백업 화면 스크린샷을 새로 찍어야 한다.
+
+"사진 일기" 머리말: 사진으로 지난 일기를 봐요 / 한 편에 사진을 여러 장 담아요 / 사진까지 드라이브에 백업해요. 영어 Look back through photos / Add several photos to one entry / Back up photos to your Drive, 일본어 写真で日記をふりかえる / 1つの日記に写真を何枚も / 写真までドライブにバックアップ(원어민 검수 전).
+
+```text
+한 편에 사진을 여러 장 담아요.
+사진으로 지난 일기를 봐요.
+일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
+```
+
+```text
+Add several photos to one entry.
+Look back through your entries by photo.
+Your entries and photos stay on your device and Google Drive.
+```
+
+```text
+1つの日記に写真を何枚も残せます。
+写真で日記をふりかえれます。
+日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
+```
+
+- 이을 낱말: 한국어 사진일기·사진·백업, 영어 photo·backup, 일본어 写真·バックアップ.
 
 ## App Store 앱 내 이벤트
 

@@ -5,6 +5,7 @@
 // 영어·일본어는 백업 화면(드라이브 연결 필요)과 피처 그래픽 없이 4장씩 생성
 // 여섯째 인자로 ios를 주면 App Store용 iPhone 1206×2622 세로와 iPad 2752×2064 가로를 4장씩 생성
 // 여섯째 인자로 search를 주면 App Store 검색 결과 그림(3:2, 3840×2560) 한 장 생성
+// 여섯째 인자로 mood·photo를 주면 맞춤형 제품 페이지 그림 생성. 캡처는 <캡처 폴더>/<mood|photo>
 import AppKit
 import CoreText
 
@@ -15,7 +16,9 @@ let language = args.count > 5 ? args[5] : "ko"
 let ios = args.count > 6 && args[6] == "ios"
 let search = args.count > 6 && args[6] == "search"
 /** Play 스크린샷·피처 그래픽·태블릿 */
-let play = !ios && !search
+/** 맞춤형 제품 페이지(기분 일기, 사진 일기) */
+let page = args.count > 6 && ["mood", "photo"].contains(args[6]) ? args[6] : nil
+let play = !ios && !search && page == nil
 for name in ["changwon_round_regular.otf"] {
     CTFontManagerRegisterFontsForURL(URL(fileURLWithPath: "\(fonts)/\(name)") as CFURL, .process, nil)
 }
@@ -236,6 +239,74 @@ if ios {
             let rep = canvas(2752, 2064) {
                 text(words, language == "ja" ? 96 : 104, ink, NSRect(x: 80, y: 1700, width: 2592, height: 180), .center, accented: word)
                 // 아래 가장자리는 화면 밖으로 내려 잘리게 둠
+                phone(name, NSRect(x: 276, y: -90, width: 2200, height: 1700), 56)
+            }
+            save(rep, "ipad-\(index + 1)")
+        }
+    }
+}
+
+// 맞춤형 제품 페이지: 검색어에 맞는 화면만 골라 머리말을 새로 씀
+// 검색 결과에 처음 세 장이 보여 가장 잘 보여 주는 화면을 앞에 둠
+let pageSlides: [String: [String: [(String, String, String)]]] = [
+    "mood": [
+        "ko": [
+            ("year", "한 해 기분이\n한눈에 보여요", "한 해"),
+            ("calendar", "그날 기분이\n달력에 남아요", "달력"),
+            ("month", "자주 고른 기분을\n돌아봐요", "돌아봐요"),
+            ("write", "아홉 가지 기분 중\n하나를 골라요", "아홉 가지")
+        ],
+        "en": [
+            ("year", "A year of moods\nat a glance", "A year"),
+            ("calendar", "Every day's mood\non your calendar", "calendar"),
+            ("month", "See which moods\ncame up most", "most"),
+            ("write", "Pick one of\nnine moods", "nine moods")
+        ],
+        "ja": [
+            ("year", "1年の気分が\nひと目でわかる", "1年"),
+            ("calendar", "その日の気分が\nカレンダーに残る", "カレンダー"),
+            ("month", "よく選んだ気分を\nふりかえる", "ふりかえる"),
+            ("write", "9つの気分から\nひとつ選ぶ", "9つ")
+        ]
+    ],
+    "photo": [
+        "ko": [
+            ("grid", "사진으로\n지난 일기를 봐요", "사진"),
+            ("detail", "한 편에 사진을\n여러 장 담아요", "여러 장"),
+            ("backup", "사진까지\n드라이브에 백업해요", "백업")
+        ],
+        "en": [
+            ("grid", "Look back\nthrough photos", "photos"),
+            ("detail", "Add several photos\nto one entry", "several photos"),
+            ("backup", "Back up photos\nto your Drive", "Back up")
+        ],
+        "ja": [
+            ("grid", "写真で\n日記をふりかえる", "写真"),
+            ("detail", "1つの日記に\n写真を何枚も", "何枚も"),
+            ("backup", "写真まで\nドライブにバックアップ", "バックアップ")
+        ]
+    ]
+]
+if let page {
+    let slides = pageSlides[page]![language]!
+    shotFolder = "\(source)/\(page)"
+    statusBar = 150
+    for (index, (name, words, word)) in slides.enumerated() {
+        let rep = canvas(1206, 2622) {
+            text(words, language == "ja" ? 92 : 100, ink, NSRect(x: 40, y: 2080, width: 1126, height: 360), .center, accented: word)
+            phone(name, NSRect(x: 113, y: 24, width: 980, height: 2008), 80)
+        }
+        save(rep, "iphone-\(index + 1)")
+    }
+    // 태블릿은 머리말을 한 줄로
+    // 태블릿 쓰기 화면은 기분이 옆 칸에 작게 놓여 빈 화면처럼 보여 뺌
+    if args.count > 4, args[4] != "-" {
+        shotFolder = "\(args[4])/\(page)"
+        statusBar = 48
+        for (index, (name, words, word)) in slides.filter({ $0.0 != "write" }).enumerated() {
+            let line = words.replacingOccurrences(of: "\n", with: language == "ja" ? "" : " ")
+            let rep = canvas(2752, 2064) {
+                text(line, language == "ja" ? 96 : 104, ink, NSRect(x: 80, y: 1700, width: 2592, height: 180), .center, accented: word)
                 phone(name, NSRect(x: 276, y: -90, width: 2200, height: 1700), 56)
             }
             save(rep, "ipad-\(index + 1)")
