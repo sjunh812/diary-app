@@ -93,7 +93,7 @@
     <string name="font_offline">You can get it when you're online</string>
     <string name="font_failed">Couldn't get the font. Try again in a moment.</string>
     <string name="font_no_space">Your device is out of storage, so the font wasn't downloaded</string>
-    <string name="font_not_from_store">Install the app from Google Play to download fonts</string>
+    <string name="font_not_from_store">You can download fonts when the app is installed from Google Play</string>
     <string name="font_replaced_notice">Your old font isn't available, so we're using %1$s</string>
     <string name="font_replaced_change">Change</string>
 
