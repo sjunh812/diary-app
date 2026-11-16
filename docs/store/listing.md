@@ -413,27 +413,30 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 
 ### 2.0.1 (45)
 
-Android 사용자에게 보이는 변화 가운데 중요한 다섯 줄만 적는다. 길면 헷갈린다(사용자 요청 2026-11-17). 리뷰 창은 적지 않는다(스토어가 띄울지 정해서 약속이 될 수 있다).
+Android 사용자에게 보이는 변화 가운데 중요한 다섯 줄만 적고, 맨 위에 버전을 쓴다. 길면 헷갈린다(사용자 요청 2026-11-17). 버전 표기와 한 줄에 한 가지는 카카오톡 Play "새로운 기능"([v26.9.2] ● …)을, 버전을 먼저 쓰는 것은 Day One(2026.23:)을 따랐다. 세부 동작 대신 "스크롤 성능을 개선했어요"처럼 체감 위주로 쓴다. 리뷰 창은 적지 않는다(스토어가 띄울지 정해서 약속이 될 수 있다).
 
 ```text
 <ko-KR>
+[버전 2.0.1]
 • 하루 한 번 나오는 전면 광고는 이제 일기를 저장한 직후에 나와요
 • 기기 저장 공간이 꽉 찼을 때 앱이 꺼지던 문제를 고쳤어요
-• 홈 탭을 다시 누르면 맨 위로 더 빨리 올라가고 달 제목도 바로 바뀌어요
+• 스크롤 성능을 개선했어요
 • 알림을 꺼두면 설정의 쓰기 알림도 알림 꺼짐으로 보여요
-• 생체 인증을 쓸 수 없으면 잠금 설정에서 까닭을 알려줘요
+• 생체 인증을 쓸 수 없으면 잠금 설정에서 이유를 알려줘요
 </ko-KR>
 <en-US>
+[Version 2.0.1]
 • The once-a-day full-screen ad now shows right after you save an entry
 • Fixed the app closing when your device storage is full
-• Tapping Home again jumps to the top faster and shows the right month right away
+• Improved scrolling performance
 • Daily reminder shows as off when notifications are blocked
 • Lock settings now explain why biometrics aren't available
 </en-US>
 <ja-JP>
+[バージョン 2.0.1]
 • 1日1回の全画面広告は、日記を保存した直後に表示されるようになりました
 • 端末の空き容量がないときにアプリが終了する問題を修正しました
-• ホームタブをもう一度押すと、より速く一番上に戻り、月の表示もすぐ切り替わります
+• スクロールのパフォーマンスを改善しました
 • 通知をオフにすると、設定の毎日のリマインダーもオフと表示されます
 • 生体認証を使えないとき、ロック設定で理由を表示するようにしました
 </ja-JP>
