@@ -70,7 +70,8 @@ internal actual val platformModule: Module =
         single<FontInstaller> { IosFontInstaller(get()) }
         single { DatabaseFactory(get()) }
         single<DriveAuthorizer> { IosDriveAuthorizer { IosDrive.bridge } }
-        single<NetworkState> { IosNetworkState() }
+        // 시작 때 감시를 켬. 백업·복원이 처음 읽을 때는 실제 연결 값이 들어와 있게
+        single<NetworkState>(createdAtStart = true) { IosNetworkState() }
         single<DeviceName> { IosDeviceName() }
         single<BackupScheduler> { NoBackupScheduler }
         single<BackupNotifier> { IosBackupNotifier() }

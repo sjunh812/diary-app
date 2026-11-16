@@ -9,10 +9,13 @@ import platform.Foundation.NSCalendarIdentifierGregorian
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSLocale
+import platform.Foundation.NSLocaleCalendar
 import platform.Foundation.NSTimeZone
+import platform.Foundation.componentsFromLocaleIdentifier
 import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.localeIdentifier
+import platform.Foundation.localeIdentifierFromComponents
 import platform.Foundation.timeZoneForSecondsFromGMT
 
 @Composable
@@ -21,8 +24,11 @@ internal actual fun rememberPlatformDateFormat(language: String): DiaryDateForma
     val device = current.localeIdentifier
     return remember(language, device) {
         val tag = formatLocaleTag(language, device)
-        // 기기 언어와 같으면 기기 설정이 담긴 지금 로캘을 그대로 씀
-        val locale = if (tag == languageTag(device)) current else NSLocale(localeIdentifier = tag)
+        // 기기 언어와 같으면 기기 지역 설정까지 따름
+        // 달력만 그레고리력으로. 기기 달력이 일본 연호·불기면 틀에 연호(G)가 끼어 "西暦", "AD"가 붙음
+        val base = if (tag == languageTag(device)) device else tag
+        val parts = NSLocale.componentsFromLocaleIdentifier(base) + (NSLocaleCalendar to NSCalendarIdentifierGregorian)
+        val locale = NSLocale(localeIdentifier = NSLocale.localeIdentifierFromComponents(parts))
         IosDateFormat(locale, is24Hour = usesTwentyFourHour(current))
     }
 }

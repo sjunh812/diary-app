@@ -3,18 +3,21 @@ package org.sjhstudio.diary.core.platform
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import platform.Foundation.NSBundleResourceRequest
 import platform.Foundation.NSBundleResourceRequestLoadingPriorityUrgent
+import platform.Foundation.NSError
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURLErrorDomain
 
@@ -47,34 +50,40 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         }
     }
 
-    override fun install(id: String): Flow<FontInstallState> = callbackFlow {
+    /**
+     * 진행률과 결과를 한 코루틴에서 차례로 내보냄
+     * 완료 알림은 다른 스레드에서 와서 그대로 보내면 "받는 중"이 "받았어요" 뒤에 끼어 받는 중으로 남음
+     */
+    override fun install(id: String): Flow<FontInstallState> = flow {
         installedPath(id)?.let {
-            send(FontInstallState.Installed(it))
-            close()
-            return@callbackFlow
+            emit(FontInstallState.Installed(it))
+            return@flow
         }
         val request = NSBundleResourceRequest(tags = setOf(id))
         request.loadingPriority = NSBundleResourceRequestLoadingPriorityUrgent
-        // 진행을 따로 알려 주지 않아 잠깐마다 읽음
-        val progress = launch {
-            while (isActive) {
-                send(FontInstallState.Downloading(request.progress.fractionCompleted.toFloat()))
-                delay(PROGRESS_MILLIS)
+        val done = CompletableDeferred<NSError?>()
+        request.beginAccessingResourcesWithCompletionHandler { error -> done.complete(error) }
+        try {
+            // 진행을 따로 알려 주지 않아 잠깐마다 읽음
+            while (!done.isCompleted) {
+                emit(FontInstallState.Downloading(request.progress.fractionCompleted.toFloat()))
+                withTimeoutOrNull(PROGRESS_MILLIS) { done.await() }
             }
+        } catch (cancelled: CancellationException) {
+            // 화면을 떠나면 받기도 멈춤
+            request.progress.cancel()
+            throw cancelled
         }
-        request.beginAccessingResourcesWithCompletionHandler { error ->
-            progress.cancel()
-            if (error != null) {
-                trySend(FontInstallState.Failed(offline = error.domain == NSURLErrorDomain))
-            } else {
-                val source = request.bundle.pathForResource(id, ofType = "ttf")
-                trySend(source?.let { copy(it, id) }?.let { FontInstallState.Installed(it) } ?: FontInstallState.Failed(offline = false))
-                request.endAccessingResources()
-            }
-            close()
+        val error = done.await()
+        if (error != null) {
+            emit(FontInstallState.Failed(offline = error.domain == NSURLErrorDomain))
+            return@flow
         }
-        awaitClose { progress.cancel() }
-    }
+        val source = request.bundle.pathForResource(id, ofType = "ttf")
+        val installed = source?.let { copy(it, id) }
+        request.endAccessingResources()
+        emit(installed?.let { FontInstallState.Installed(it) } ?: FontInstallState.Failed(offline = false))
+    }.flowOn(Dispatchers.IO)
 
     /** 반쯤 쓴 파일이 남지 않게 임시 이름으로 복사한 뒤 옮김 */
     private fun copy(source: String, id: String): String? {
