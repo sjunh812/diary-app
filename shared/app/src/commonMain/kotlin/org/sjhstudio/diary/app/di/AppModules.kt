@@ -15,12 +15,14 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.Startup
 import org.sjhstudio.diary.app.StartupWork
+import org.sjhstudio.diary.app.ads.AdRemoval
 import org.sjhstudio.diary.app.backup.BackupSettingsBridge
 import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.app.scaffold.HomeTopState
+import org.sjhstudio.diary.app.scaffold.appLocked
 import org.sjhstudio.diary.app.scaffold.appShellModule
 import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
@@ -216,6 +218,7 @@ private fun coreModule(isDebug: Boolean) = module {
         )
     }
     single { HomeTopState(get(), get(), get(APP_SCOPE)) }
+    single { AdRemoval(get(APP_SCOPE), get<LockController>().appLocked, get<AdRepository>()::watchReward) }
 }
 
 /** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */

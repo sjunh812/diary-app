@@ -4,19 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.AppRootViewModel
+import org.sjhstudio.diary.app.ads.AdRemoval
+import org.sjhstudio.diary.app.ads.AdRemovalFlow
 import org.sjhstudio.diary.app.ads.AdRemovalViewModel
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.lock.LockState
@@ -64,6 +64,7 @@ class AppShellViewModel(
     private val entries: EntryRepository,
     plans: PlanRepository,
     private val ads: AfterSaveAds,
+    private val removal: AdRemovalFlow,
     locked: Flow<Boolean>,
     private val askReview: suspend () -> Unit,
     private val screen: (String) -> Unit
@@ -81,14 +82,24 @@ class AppShellViewModel(
         // 잠기면 저장 뒤 차례를 끝냄. 잠금을 풀자마자 안내나 광고가 뜨지 않게 함
         viewModelScope.launchSafely {
             locked.filter { it }.collect {
-                afterSave?.cancel()
+                adTurn?.cancel()
+                removalWait?.cancel()
+                review?.cancel()
                 _adNotice.value = AdNotice.None
             }
         }
     }
 
-    /** 저장 뒤 차례. 저장한 일기 상세를 떠나거나 잠기면 거둠 */
-    private var afterSave: Job? = null
+    /** 저장 뒤 광고 차례. 화면을 옮겨도 이어지고 잠기면 거둠 */
+    private var adTurn: Job? = null
+
+    /** [광고 없애기]로 연 시트가 끝나길 기다리는 광고 차례. 화면을 옮겨도 이어지고 잠기면 거둠 */
+    private var removalWait: Job? = null
+
+    /** 광고 차례가 아니었을 때의 리뷰 요청. 저장한 일기 상세를 떠나거나 잠기면 거둠 */
+    private var review: Job? = null
+
+    /** 방금 저장한 일기 상세. 그 화면을 떠나면 null */
     private var savedEntry: NavKey? = null
 
     /** 첫 전면 광고 앞 안내(`docs/business.md` 광고 자리) */
@@ -100,7 +111,10 @@ class AppShellViewModel(
         // 쓰는 동안 받아 둠. 저장한 순간 바로 띄워야 하고, 받아 둔 광고는 1시간이 지나면 버려짐
         if (top is WriteKey) viewModelScope.launchSafely { ads.prepare() }
         // 저장한 일기 상세를 떠나면 리뷰를 묻지 않음(스펙 007 SC-003, FR-009)
-        if (top != savedEntry) afterSave?.cancel()
+        if (top != savedEntry) {
+            savedEntry = null
+            review?.cancel()
+        }
     }
 
     /**
@@ -109,21 +123,18 @@ class AppShellViewModel(
      */
     fun saved(entryId: String) {
         savedEntry = EntryDetailKey(entryId)
-        afterSave =
+        adTurn =
             viewModelScope.launchSafely {
-                // 안내를 띄울지 읽는 동안 거두면 띄우지 않음. 답하지 않았으니 다음 저장에 다시 뜸
-                val adTurn =
+                // 안내를 띄울지 읽는 동안 잠기면 띄우지 않음. 답하지 않았으니 다음 저장에 다시 뜸
+                val due =
                     if (ads.noticeDue()) {
                         _adNotice.value = AdNotice.Showing
                         true
                     } else {
-                        // 광고는 띄우기 시작하면 화면을 옮겨도 끝까지 감. 하루 한 번 기록이 걸림
-                        withContext(NonCancellable) { ads.show() }
+                        // 띄우기 시작한 광고는 저장소가 끝까지 감(AdRepository.showAfterSave)
+                        ads.show()
                     }
-                if (!adTurn) {
-                    ensureActive()
-                    askReview()
-                }
+                if (!due && savedEntry != null) review = viewModelScope.launchSafely { askReview() }
             }
     }
 
@@ -138,19 +149,19 @@ class AppShellViewModel(
         viewModelScope.launchSafely { ads.show() }
     }
 
-    /** 안내에서 [광고 없애기]. 시트는 화면이 열고, 닫힐 때까지 광고를 미룸 */
-    fun removeAdsFirst() {
-        answerNotice(next = AdNotice.AwaitingRemoval)
-    }
-
     /**
-     * 광고 제거 시트가 닫힘. 광고 차례를 이음
+     * 안내에서 [광고 없애기]. 시트를 열고 시트와 보상 영상이 끝나면 광고 차례를 이음
      * 사거나 영상을 봤으면 광고 차례가 없어 뜨지 않음
      */
-    fun adRemovalClosed() {
-        if (_adNotice.value != AdNotice.AwaitingRemoval) return
-        _adNotice.value = AdNotice.None
-        viewModelScope.launchSafely { ads.show() }
+    fun removeAdsFirst() {
+        if (!answerNotice(next = AdNotice.AwaitingRemoval)) return
+        removal.open()
+        removalWait =
+            viewModelScope.launchSafely {
+                removal.state.first { it.idle }
+                _adNotice.value = AdNotice.None
+                ads.show()
+            }
     }
 
     // 버튼을 눌렀을 때만 안내를 본 것으로 적음
@@ -172,6 +183,7 @@ val appShellModule =
             AppShellViewModel(
                 entries = get(),
                 plans = get(),
+                removal = get<AdRemoval>(),
                 locked = get<LockController>().appLocked,
                 ads = object : AfterSaveAds {
                     override suspend fun prepare() = ads.prepareAfterSave()
@@ -186,12 +198,10 @@ val appShellModule =
                 screen = get<Telemetry>()::screen
             )
         }
-        viewModel {
-            AdRemovalViewModel(get<LockController>().appLocked, get<AdRepository>()::watchReward)
-        }
+        viewModel { AdRemovalViewModel(get()) }
         viewModel { FeedbackCardViewModel(get()) }
     }
 
 /** 잠금 화면이 앱을 덮은 동안 참 */
-private val LockController.appLocked: Flow<Boolean>
+internal val LockController.appLocked: Flow<Boolean>
     get() = state.map { it == LockState.Locked || it == LockState.NeedsNewPin }

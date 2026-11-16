@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
+import org.sjhstudio.diary.app.ads.AdRemovalState
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.SettingsKey
@@ -72,12 +73,13 @@ class AppShellViewModelTest {
 
     private var reviews = 0
     private val locked = MutableStateFlow(false)
+    private val removal = FakeAdRemoval()
 
     private fun shell(
         entries: EntryRepository = FakeEntryRepository(),
         ads: AfterSaveAds = Ads(),
         screens: MutableList<String> = mutableListOf()
-    ) = AppShellViewModel(entries, FakePlanRepository(), ads, locked, askReview = { reviews++ }) { screens += it }
+    ) = AppShellViewModel(entries, FakePlanRepository(), ads, removal, locked, askReview = { reviews++ }) { screens += it }
 
     private fun TestScope.savedWith(ads: AfterSaveAds): AppShellViewModel {
         val shell = shell(ads = ads)
@@ -149,7 +151,7 @@ class AppShellViewModelTest {
     @Test
     fun leaving_the_saved_entry_withdraws_a_pending_review() = runTest(dispatcher) {
         val gate = CompletableDeferred<Unit>()
-        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), locked, askReview = {
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), removal, locked, askReview = {
             gate.await()
             reviews++
         }) {}
@@ -166,7 +168,7 @@ class AppShellViewModelTest {
     @Test
     fun staying_on_the_saved_entry_keeps_the_review() = runTest(dispatcher) {
         val gate = CompletableDeferred<Unit>()
-        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), locked, askReview = {
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), removal, locked, askReview = {
             gate.await()
             reviews++
         }) {}
@@ -218,8 +220,8 @@ class AppShellViewModelTest {
         assertEquals(AdNotice.AwaitingRemoval, shell.adNotice.value)
         assertEquals(0, ads.shown)
 
-        shell.adRemovalClosed()
-        shell.adRemovalClosed()
+        removal.close()
+        removal.close()
         advanceUntilIdle()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(1, ads.shown)
@@ -234,7 +236,7 @@ class AppShellViewModelTest {
         locked.value = true
         advanceUntilIdle()
         // 잠금이 시트를 닫음
-        shell.adRemovalClosed()
+        removal.close()
         advanceUntilIdle()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(0, ads.shown)
@@ -256,6 +258,38 @@ class AppShellViewModelTest {
         shell.saved("e2")
         advanceUntilIdle()
         assertEquals(AdNotice.Showing, shell.adNotice.value)
+    }
+
+    /** [광고 없애기]로 연 시트를 기다리는 동안 잠기면 시트가 닫혀도 광고가 뜨지 않음 */
+    @Test
+    fun locking_while_the_removal_sheet_is_open_ends_the_ad_turn() = runTest(dispatcher) {
+        val ads = Ads(notice = true)
+        val shell = savedWith(ads)
+        shell.removeAdsFirst()
+        advanceUntilIdle()
+        assertEquals(1, removal.opened)
+
+        locked.value = true
+        advanceUntilIdle()
+        removal.close()
+        advanceUntilIdle()
+        assertEquals(0, ads.shown)
+        assertEquals(AdNotice.None, shell.adNotice.value)
+    }
+
+    /** 보상 영상을 보는 동안은 시트를 닫아도 전면 광고를 미룸 */
+    @Test
+    fun the_ad_waits_until_the_reward_video_ends() = runTest(dispatcher) {
+        val ads = Ads(notice = true)
+        val shell = savedWith(ads)
+        shell.removeAdsFirst()
+        removal.state.value = AdRemovalState(watching = true)
+        advanceUntilIdle()
+        assertEquals(0, ads.shown)
+
+        removal.close()
+        advanceUntilIdle()
+        assertEquals(1, ads.shown)
     }
 
     /** 안내를 띄울지 읽는 사이 잠기면 잠금을 풀어도 안내가 뜨지 않음 */

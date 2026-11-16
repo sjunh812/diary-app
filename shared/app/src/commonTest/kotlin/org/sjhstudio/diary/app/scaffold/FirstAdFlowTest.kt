@@ -32,6 +32,7 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 @OptIn(ExperimentalCoroutinesApi::class)
 class FirstAdFlowTest {
     private val dispatcher = StandardTestDispatcher()
+    private val removal = FakeAdRemoval()
 
     @BeforeTest
     fun setUp() = Dispatchers.setMain(dispatcher)
@@ -80,6 +81,7 @@ class FirstAdFlowTest {
 
                 override suspend fun noticeAnswered() = ads.interstitialNoticeAnswered()
             },
+            removal = removal,
             locked = flowOf(false),
             askReview = {}
         ) {}
@@ -114,7 +116,7 @@ class FirstAdFlowTest {
         shell.removeAdsFirst()
         // 결제가 끝나면 시트가 닫히기 전에 요금제가 바뀜(StoreBilling.buy)
         plans.plan.value = Plan.AD_FREE
-        shell.adRemovalClosed()
+        removal.close()
         advanceUntilIdle()
         assertEquals(0, player.shown)
 
@@ -130,7 +132,7 @@ class FirstAdFlowTest {
         save()
         shell.removeAdsFirst()
         plans.plan.value = Plan.PLUS
-        shell.adRemovalClosed()
+        removal.close()
         advanceUntilIdle()
         assertEquals(0, player.shown)
     }
@@ -140,7 +142,7 @@ class FirstAdFlowTest {
         save()
         shell.removeAdsFirst()
         ads.watchReward()
-        shell.adRemovalClosed()
+        removal.close()
         advanceUntilIdle()
         assertEquals(0, player.shown)
     }
@@ -150,7 +152,7 @@ class FirstAdFlowTest {
     fun closing_the_sheet_without_buying_shows_the_ad() = runTest(dispatcher) {
         save()
         shell.removeAdsFirst()
-        shell.adRemovalClosed()
+        removal.close()
         advanceUntilIdle()
         assertEquals(1, player.shown)
     }
@@ -161,7 +163,7 @@ class FirstAdFlowTest {
         save()
         shell.removeAdsFirst()
         ads.watchReward()
-        shell.adRemovalClosed()
+        removal.close()
         advanceUntilIdle()
         assertEquals(1, player.shown)
     }
@@ -193,8 +195,8 @@ class FirstAdFlowTest {
         shell.removeAdsFirst()
         shell.removeAdsFirst()
         shell.confirmAdNotice()
-        shell.adRemovalClosed()
-        shell.adRemovalClosed()
+        removal.close()
+        removal.close()
         advanceUntilIdle()
         assertEquals(1, player.shown)
     }

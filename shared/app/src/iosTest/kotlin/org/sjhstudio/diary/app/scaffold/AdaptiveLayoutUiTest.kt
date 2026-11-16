@@ -41,6 +41,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.ads.AdRemoval
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.app.resources.Res
@@ -114,6 +115,7 @@ class AdaptiveLayoutUiTest {
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
                     single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, { false }) }
                     single { HomeTopState(get(), get(), MainScope()) }
+                    single { AdRemoval(MainScope()) { false } }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
                     single<WelcomeRepository> {

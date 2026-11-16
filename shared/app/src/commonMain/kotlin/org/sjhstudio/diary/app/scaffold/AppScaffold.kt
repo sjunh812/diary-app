@@ -211,7 +211,7 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed, adRemoval::open)
     }
     AdRemovalSheets(adRemoval)
-    FirstAdNotice(shell, adRemoval)
+    FirstAdNotice(shell)
     // 홈 쓰기 버튼은 일기 유무를 읽은 뒤 표시. 미리 두면 빈 홈에서 보였다 사라짐
     val hasEntries by shell.hasEntries.collectAsStateWithLifecycle()
 
@@ -703,7 +703,7 @@ private fun PickHint(list: String?) {
  * [확인]이나 바깥을 누르면 광고, [광고 없애기]는 광고 제거 시트를 열고 시트가 닫히면 광고
  */
 @Composable
-private fun FirstAdNotice(shell: AppShellViewModel, adRemoval: AdRemovalViewModel) {
+private fun FirstAdNotice(shell: AppShellViewModel) {
     val notice by shell.adNotice.collectAsStateWithLifecycle()
     when (notice) {
         AdNotice.None -> Unit
@@ -711,17 +711,11 @@ private fun FirstAdNotice(shell: AppShellViewModel, adRemoval: AdRemovalViewMode
         AdNotice.Showing ->
             FirstAdNoticeDialog(
                 onConfirm = shell::confirmAdNotice,
-                onRemoveAds = {
-                    shell.removeAdsFirst()
-                    adRemoval.open()
-                }
+                onRemoveAds = shell::removeAdsFirst
             )
 
-        AdNotice.AwaitingRemoval -> {
-            val removal by adRemoval.state.collectAsStateWithLifecycle()
-            val closed = removal.sheet == null && !removal.watching
-            LaunchedEffect(closed) { if (closed) shell.adRemovalClosed() }
-        }
+        // 시트는 앱 틀이 열고 끝나길 기다림
+        AdNotice.AwaitingRemoval -> Unit
     }
 }
 
