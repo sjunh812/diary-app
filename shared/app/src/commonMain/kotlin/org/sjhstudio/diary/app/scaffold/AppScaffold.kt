@@ -528,7 +528,7 @@ private fun Content(
                                 onListStyle = {
                                     nav.openTab(SettingsKey)
                                     nav.push(ListStyleSettingsKey)
-                                }.takeIf { backupNudge == null && !feedbackCard },
+                                }.takeIf { backupNudge == null && feedbackCard == false },
                                 onOpen = nav::openEntry,
                                 onWrite = onWrite,
                                 onSearch = { nav.push(SearchKey()) },

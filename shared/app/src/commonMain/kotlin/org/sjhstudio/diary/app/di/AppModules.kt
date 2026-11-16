@@ -20,6 +20,7 @@ import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.navigation.AppLaunch
+import org.sjhstudio.diary.app.scaffold.FeedbackCardState
 import org.sjhstudio.diary.app.scaffold.appShellModule
 import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
@@ -186,6 +187,8 @@ private fun coreModule(isDebug: Boolean) = module {
             afterReady = {
                 // 탭을 처음 열 때 팁 자리가 늦게 생기지 않게 맨 먼저 읽음
                 get<ContextTips>().load()
+                // 홈 맨 위 의견 카드도 미리 읽어 첫 프레임에 맞춤
+                get<FeedbackCardState>()
                 get<ReminderRepository>().reschedule()
                 // 고른 글꼴이 받는 글꼴인데 없으면 받기 시작(이전 직후 포함)
                 // 따로 돌아 다른 일을 막지 않음
@@ -214,6 +217,7 @@ private fun coreModule(isDebug: Boolean) = module {
             review = get()
         )
     }
+    single { FeedbackCardState(get(), get(APP_SCOPE)) }
 }
 
 /** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */
