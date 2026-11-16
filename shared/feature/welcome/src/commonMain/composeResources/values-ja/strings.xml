@@ -18,7 +18,7 @@
     <string name="onboarding_skip">スキップ</string>
     <plurals name="letter_moved"><item quantity="other">これまで日記を**%1$s件**残してくださいました。\n至らない点の多いアプリを使い続けてくださり、心より感謝いたします。</item></plurals>
     <string name="letter_promise_free">お使いの機能はこれからも無料です</string>
-    <string name="letter_promise_ads">日記を書く画面と読む画面に広告はありません</string>
+    <string name="letter_promise_ads">日記を読み書きしている間は、広告は表示されません</string>
     <string name="letter_close">これからもよろしくお願いします 🙇‍♂️</string>
     <string name="onboarding_style_title">文字を飾れます</string>
     <string name="onboarding_style_body">太字、文字色、マーカー、箇条書きを使ってみましょう。\n書いている間は自動で下書き保存されます。</string>
