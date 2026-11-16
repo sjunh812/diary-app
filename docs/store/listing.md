@@ -320,6 +320,43 @@ App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카
 - 검색 결과: 홍보 문구 첫 줄과 실제 목록 화면이다. 문구와 화면 묶음을 Apple 안전 영역(2168×1030) 안 가운데에 두고, 넘치는 언어만 글자를 줄인다. `docs/store/screens/ios/{ko,en,ja}/search.png`, `make_screens.swift`의 `search` 모드.
 - iPhone은 헤더를 화면 폭에 맞춰 줄여 보여 준다. 작은 그림은 쌀알처럼 보여 크게 둔다. 바꾼 뒤에는 App Store Connect [미리보기]로 iPhone·iPad를 본다.
 
+## App Store 맞춤형 제품 페이지
+
+검색어에 맞는 화면을 먼저 보여 주는 페이지다. 키워드 칸의 낱말을 페이지에 이어 두면 그 낱말로 검색한 사람에게 이 페이지가 뜬다(앱마다 70개, 이름·부제 낱말은 못 씀, [Apple](https://developer.apple.com/app-store/custom-product-pages/), [Phiture](https://phiture.com/blog/keyword-based-custom-product-pages-cpps-arrive-in-app-store-connect/)). 바꿀 수 있는 것은 스크린샷, 앱 미리보기, 홍보 문구다. 설명은 기본 페이지를 그대로 쓴다.
+
+"기분 일기"(2026-11-16 초안, 심사 전). 기본 페이지를 복사하고 스크린샷 순서를 돌아보기 → 달력 → 기분 고르기 → 목록으로 바꿨다. 헤더와 검색 결과 그림은 언어별 기본 그림이다.
+
+```text
+기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+한 달 기분을 달력으로 봐요.
+내 기분 흐름을 돌아봐요.
+일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
+```
+
+```text
+Pick a mood, write a few lines, done.
+See your moods on a calendar and look back on how they change.
+Your entries and photos stay on your device and Google Drive.
+```
+
+```text
+気分を選んで数行書けば、今日の日記は完了。
+1か月の気分をカレンダーで見られます。
+気分の流れをふりかえれます。
+日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
+```
+
+- 키워드 잇기 칸은 아직 화면에 없다. 앱이 출시되기 전이라 그런 것으로 보이며 Apple 문서로 확인하지 못했다. 칸이 생기면 이을 낱말: 한국어 기분일기·감정일기·기분·감정·무드, 영어 mood·feelings, 일본어 気分·感情.
+- 심사는 키워드를 이은 다음 넣는다. 맞춤형 제품 페이지는 앱 업데이트와 따로 심사받는다.
+- 다음 후보는 "사진 일기"(사진일기·사진·백업). 사진이 든 일기 화면과 백업 화면 스크린샷을 새로 찍어야 한다.
+
+## App Store 앱 내 이벤트
+
+정말 기간이 정해진 일만 올린다. 늘 있는 기능을 이벤트로 포장하면 반려된다([Apple 배지](https://developer.apple.com/help/app-store-connect/reference/in-app-events/in-app-event-badges), [Phiture](https://phiture.com/mobilegrowthstack/in-app-events-how-to-get-approved/)). 기간은 31일까지, 공개는 시작 14일 전부터다. 카드 그림은 16:9(1920×1080 이상), 상세 그림은 9:16(1080×1920 이상)이다.
+
+- 후보: 12월 "올해 기분 돌아보기"(돌아보기 년 탭). 이벤트에서 그 화면으로 바로 여는 딥 링크가 없어 `/diary-flow`로 먼저 만든다.
+- 리텐션 메시지(구독 해지 화면 안내)는 구독자가 생긴 뒤에 본다. 할인 없이 파는 지금 판매안과 겹친다.
+
 ## 맞춤 스토어 등록정보
 
 "1일 1일기"(검색 키워드 대상). 문구와 그래픽은 기본 등록정보를 그대로 물려받는다(그룹 애셋 상속). 검색 키워드는 일기, 일기장, 다이어리, 일기 앱, 감정 일기, 기분 일기, 하루 일기, 사진 일기, 비밀 일기다(2026-11-12).
