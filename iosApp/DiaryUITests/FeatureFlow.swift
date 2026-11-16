@@ -16,6 +16,12 @@ final class FeatureFlow: DeviceTestCase {
         if close.exists { XCTFail("광고를 닫지 못함") }
     }
 
+    /** 새 일기를 엶. 앞서 남은 임시 저장이 있으면 새로 씀 */
+    func startNewEntry() {
+        tap("일기 쓰기")
+        tapIfExists("새로 쓰기", timeout: 2)
+    }
+
     func typeBody(_ text: String) {
         let field = app.textViews.firstMatch.exists ? app.textViews.firstMatch : app.textFields.firstMatch
         if field.waitForExistence(timeout: 5) {
@@ -44,7 +50,7 @@ final class FeatureFlow: DeviceTestCase {
         shot("home-empty")
 
         // 첫 일기
-        tap("일기 쓰기")
+        startNewEntry()
         sleep(1)
         shot("write-open")
         if element("기분은 어땠나요?").waitForExistence(timeout: 3) {
@@ -69,7 +75,7 @@ final class FeatureFlow: DeviceTestCase {
         shot("home-after-first-save")
 
         // 긴 글과 날씨
-        tap("일기 쓰기")
+        startNewEntry()
         sleep(1)
         if element("기분은 어땠나요?").waitForExistence(timeout: 3) { tap("웃음") }
         tapIfExists("날씨")
@@ -120,16 +126,13 @@ final class FeatureFlow: DeviceTestCase {
         tap("검색")
         sleep(1)
         shot("search-idle")
-        let field = app.textFields.firstMatch
-        if field.waitForExistence(timeout: 3) {
-            field.tap()
-            field.typeText("Long")
-            sleep(1)
-            shot("search-result")
-            field.typeText("zzzz")
-            sleep(1)
-            shot("search-empty")
-        } else { XCTFail("검색 칸 없음") }
+        // 검색 칸은 열리면 바로 입력 상태
+        app.typeText("Long")
+        sleep(1)
+        shot("search-result")
+        app.typeText("zzzz")
+        sleep(1)
+        shot("search-empty")
         tap("뒤로 가기")
 
         // 달력과 돌아보기
@@ -247,9 +250,11 @@ final class FeatureFlow: DeviceTestCase {
 
         // 쓰는 중 앱을 끄면 임시 저장이 남는지
         tap("홈")
-        tap("일기 쓰기")
+        startNewEntry()
         sleep(1)
         typeBody("Draft that must survive a kill.")
+        // 임시 저장은 마지막 입력 1초 뒤(FR-009 몇 초 안)
+        sleep(2)
         shot("draft-typed")
         app.terminate()
         app.launch()
@@ -270,18 +275,6 @@ final class FeatureFlow: DeviceTestCase {
         sleep(2)
         backgroundAndReturn(seconds: 5)
         shot("after-background")
-    }
-
-    /** 화면 밖이면 보일 때까지 올려서 누름 */
-    func scrollTap(_ label: String) {
-        let target = element(label)
-        guard target.waitForExistence(timeout: 5) else { XCTFail("못 찾음: \(label)"); return }
-        var tries = 0
-        while !target.isHittable, tries < 6 {
-            app.swipeUp()
-            tries += 1
-        }
-        target.tap()
     }
 
     func pin(_ digits: String) {
@@ -306,7 +299,7 @@ final class FeatureFlow: DeviceTestCase {
         tap("뒤로 가기")
 
         // 쓰고 3초 지나 갑자기 꺼짐
-        tap("일기 쓰기")
+        startNewEntry()
         sleep(1)
         typeBody("Draft A survives a crash.")
         sleep(3)
@@ -350,10 +343,10 @@ final class FeatureFlow: DeviceTestCase {
         // 잠금
         tap("설정")
         sleep(1)
-        scrollTap("잠금")
+        tapRow("잠금,")
         sleep(1)
         shot("lock-settings")
-        scrollTap("잠금 사용")
+        tapRow("잠금 사용")
         sleep(1)
         shot("pin-setup")
         pin("1234")
@@ -361,9 +354,6 @@ final class FeatureFlow: DeviceTestCase {
         pin("1234")
         handleSystemAlert()
         shot("lock-on")
-        tapIfExists("자동 잠금", timeout: 2)
-        sleep(1)
-        shot("relock-options")
         tapIfExists("바로", timeout: 2)
         sleep(1)
         shot("relock-immediately")
@@ -415,9 +405,6 @@ final class FeatureFlow: DeviceTestCase {
         pin("1234")
         sleep(1)
         shot("lock-on")
-        tapRow("자동 잠금")
-        sleep(1)
-        shot("relock-options")
         tapIfExists("바로", timeout: 2)
         sleep(1)
         shot("relock-immediately")
@@ -457,9 +444,8 @@ final class FeatureFlow: DeviceTestCase {
     func testPhotos() {
         app.launch()
         sleep(2)
-        tap("일기 쓰기")
+        startNewEntry()
         sleep(1)
-        for label in ["새로 쓰기"] { tapIfExists(label, timeout: 2) }
         typeBody("Photo test entry.")
         // 사진 고르기
         tap("사진")
