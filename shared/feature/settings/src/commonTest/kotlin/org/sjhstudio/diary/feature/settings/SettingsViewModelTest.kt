@@ -7,6 +7,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
@@ -151,11 +152,24 @@ class SettingsViewModelTest {
         granted = false
         viewModel.refreshNotifications()
         advanceUntilIdle()
-        assertTrue(viewModel.state.value.reminderBlocked)
+        assertEquals(true, viewModel.state.value.reminderBlocked)
 
         granted = true
         viewModel.refreshNotifications()
         advanceUntilIdle()
-        assertFalse(viewModel.state.value.reminderBlocked)
+        assertEquals(false, viewModel.state.value.reminderBlocked)
+    }
+
+    /** 허용을 읽기 전에는 시각을 그리지 않음. 막아 둔 사람에게 시각이 보였다가 꺼짐으로 바뀌지 않게 */
+    @Test
+    fun the_reminder_row_waits_for_the_notification_setting() = runTest(dispatcher) {
+        val settings = FakeSettingsRepository(AppSettings(reminderEnabled = true))
+        val viewModel =
+            SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+        assertNull(viewModel.state.value.reminderBlocked)
     }
 }

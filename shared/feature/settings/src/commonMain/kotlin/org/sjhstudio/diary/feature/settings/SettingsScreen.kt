@@ -211,7 +211,7 @@ fun SettingsScreen(
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_notification_security), gapAbove = true)
             val reminderValue =
-                if (state.reminderBlocked) {
+                if (state.reminderBlocked == true) {
                     stringResource(Res.string.reminder_value_blocked)
                 } else if (state.settings.reminderEnabled) {
                     val minute = state.settings.reminderMinuteOfDay
@@ -223,9 +223,7 @@ fun SettingsScreen(
                 stringResource(Res.string.settings_reminder),
                 onClick = onReminder,
                 selected = selected == SettingsPane.REMINDER,
-                value = reminderValue.takeIf {
-                    state.loaded
-                }
+                value = reminderValue.takeIf { state.loaded && state.reminderBlocked != null }
             )
             DiarySettingsRow(
                 stringResource(Res.string.settings_lock),

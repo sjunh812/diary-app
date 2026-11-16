@@ -40,8 +40,11 @@ data class SettingsUiState(
     val plan: Plan = Plan.FREE,
     /** 마지막으로 끝까지 올린 백업 시각. 한 번도 없으면 null */
     val lastBackupAt: Instant? = null,
-    /** 쓰기 알림은 켰지만 휴대폰 설정에서 알림을 막아 오지 않음 */
-    val reminderBlocked: Boolean = false,
+    /**
+     * 쓰기 알림은 켰지만 기기 설정에서 알림을 막아 오지 않음
+     * 알림을 켰는데 허용을 아직 읽지 않았으면 null. 시각을 먼저 그리면 곧 꺼짐으로 바뀜
+     */
+    val reminderBlocked: Boolean? = false,
     /**
      * 설정을 읽었음
      * 읽기 전 기본값(잠금 꺼짐 등)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보임
@@ -83,7 +86,7 @@ class SettingsViewModel(
             // 백업 상태를 읽지 못해도 설정은 그대로 그림
             .combine(lastBackupAt.onEmpty { emit(null) }) { state, backedUp -> state.copy(lastBackupAt = backedUp) }
             .combine(notifications.allowed) { state, allowed ->
-                state.copy(reminderBlocked = state.settings.reminderEnabled && allowed == false)
+                state.copy(reminderBlocked = if (state.settings.reminderEnabled) allowed?.not() else false)
             }
             .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState())
 
