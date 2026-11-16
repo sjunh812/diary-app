@@ -39,6 +39,9 @@ class StoreBillingTest {
         var expiresAt: Instant? = null
         var answeredAt: Instant? = null
         var entitlementCalls = 0
+
+        /** 있으면 확인 답이 이것이 열릴 때까지 오지 않음(느린 망) */
+        var entitlementGate: CompletableDeferred<Unit>? = null
         var syncFailure: StoreFailure.Reason? = null
 
         /** 실패까지 센 구매 가져오기 요청. iOS는 요청마다 로그인 창을 띄움 */
@@ -57,9 +60,13 @@ class StoreBillingTest {
             if (offline) throw StoreFailure(StoreFailure.Reason.OTHER)
         }
 
-        override suspend fun entitlements(): StoreAnswer = answer().also {
+        override suspend fun entitlements(): StoreAnswer {
             check()
             entitlementCalls++
+            // 보낸 순간의 답. 늦게 와도 그때 상태
+            val answer = answer()
+            entitlementGate?.await()
+            return answer
         }
 
         override suspend fun sync(): StoreAnswer {
@@ -353,6 +360,22 @@ class StoreBillingTest {
         billing.onUpdate(StoreAnswer(emptySet()))
         assertEquals(0, store.syncAsks)
         assertFalse(billing.known.value)
+    }
+
+    /** 켤 때 보낸 확인이 늦게 와도 그사이 산 광고 제거를 덮지 않음. 기기 시계와 상관없이 */
+    @Test
+    fun a_late_answer_sent_before_a_purchase_does_not_undo_it() = runTest {
+        val billing = billing(Plan.FREE)
+        val gate = CompletableDeferred<Unit>()
+        store.entitlementGate = gate
+        val slow = launch { billing.refresh() }
+        runCurrent()
+        store.entitlementGate = null
+        assertEquals(PurchaseResult.DONE, billing.buy(ProductId.AD_FREE))
+        gate.complete(Unit)
+        slow.join()
+        assertEquals(Plan.AD_FREE, billing.plan.value)
+        assertEquals(Plan.AD_FREE, stored.last())
     }
 
     /** 기기 시계가 빨라 만료 시각이 지난 것처럼 보여도 스토어를 거듭 부르지 않고 서버 시계로 잼 */

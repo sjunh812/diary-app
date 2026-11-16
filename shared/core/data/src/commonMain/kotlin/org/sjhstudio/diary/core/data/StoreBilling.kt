@@ -68,6 +68,13 @@ class StoreBilling(
     /** 구독이 끝나는 시각에 다시 묻는 일. 앱을 켜 둔 채 만료돼도 혜택이 남지 않음 */
     private var expiryCheck: Job? = null
 
+    /**
+     * 구매·복원이 끝날 때마다 늘림
+     * 그 전에 보낸 확인이 늦게 오면 버림. 옛 답이 방금 산 요금제를 무료로 덮어 광고가 다시 나오지 않게
+     * 시계로 앞뒤를 재면 기기 시계가 틀릴 때 결제 답을 버릴 수 있어 차례 번호로 가림
+     */
+    private var purchases = 0
+
     override val plan: StateFlow<Plan> = state.plan
     override val known: StateFlow<Boolean> = state.known
 
@@ -90,8 +97,10 @@ class StoreBilling(
     }
 
     internal suspend fun refresh() {
+        val asked = purchases
         try {
-            onUpdate(client.entitlements())
+            val answer = client.entitlements()
+            if (asked == purchases) onUpdate(answer)
         } catch (_: StoreFailure) {
             // 닿지 못하면 남긴 값 그대로. 없으면 모르는 채로
         }
@@ -99,8 +108,10 @@ class StoreBilling(
 
     /** 계정에 남은 구매를 가져옴(재설치 뒤 다시 사지 않게) */
     private suspend fun recover() {
+        val asked = purchases
         try {
             val answer = client.sync()
+            if (asked != purchases) return
             watchExpiry(answer)
             state.onRecovered(StoreIds.planOf(answer.active))
         } catch (e: StoreFailure) {
@@ -133,6 +144,7 @@ class StoreBilling(
 
     override suspend fun buy(id: ProductId): PurchaseResult = try {
         val answer = client.purchase(StoreIds.productOf(id))
+        purchases++
         onUpdate(answer)
         // 결제가 끝나도 혜택이 켜지지 않았으면 성공으로 닫지 않음. 실패 안내가 [구매 복원]을 알려 줌
         if (StoreIds.planOf(answer.active).includes(id)) PurchaseResult.DONE else PurchaseResult.FAILED
@@ -152,6 +164,7 @@ class StoreBilling(
     override suspend fun restore(): PurchaseResult = try {
         val answer = client.restore()
         watchExpiry(answer)
+        purchases++
         state.onRecovered(StoreIds.planOf(answer.active))
         if (StoreIds.planOf(answer.active) == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
     } catch (e: StoreFailure) {
