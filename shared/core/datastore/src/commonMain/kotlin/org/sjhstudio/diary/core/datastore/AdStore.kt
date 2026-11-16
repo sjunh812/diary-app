@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 data class AdPrefs(val lastInterstitialDay: String? = null, val rewardUntil: Instant? = null, val interstitialNoticed: Boolean = false)
 
 class AdStore(private val dataStore: DataStore<Preferences>) {
-    // 공간이 차 못 적어도 이 프로세스 안에서는 하루 한 번과 안내에 답함을 지킴
+    // 공간이 차 못 적어도 이 프로세스 안에서는 하루 한 번, 안내에 답함, 보상을 지킴
     private val store = OverlaidPreferences(dataStore)
 
     val prefs: Flow<AdPrefs> =

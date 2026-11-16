@@ -14,7 +14,7 @@ import kotlinx.coroutines.sync.withLock
 /**
  * 쓴 값을 기기 기록보다 먼저 이 프로세스에 반영하는 설정 기록
  * 공간이 차 기록을 못 써도 이 프로세스 안에서는 쓴 값을 읽음. 다음 실행은 기록에 남은 값부터
- * 하루 한 번 광고, 안내에 답함처럼 다시 뜨면 안 되는 기록용
+ * 하루 한 번 광고, 안내에 답함, 끝까지 본 보상처럼 이번 실행에서 잃으면 안 되는 기록용
  * 같은 값을 다시 써도 결과가 같은 쓰기만 넘김(덧셈처럼 쌓이는 쓰기는 두 번 반영될 수 있음)
  */
 internal class OverlaidPreferences(private val dataStore: DataStore<Preferences>) {
