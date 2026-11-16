@@ -2,8 +2,10 @@ package org.sjhstudio.diary.app
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,20 +68,25 @@ fun DiaryApp() {
         }
     DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font)) {
         ApplyPlatformTheme(settings.themeMode, darkTheme)
-        ProvideScreenGutter {
-            ProvideTabViewModelStores {
-                LockGate {
-                    MigrationGate {
-                        // 일기 DB는 이전 관문을 지난 뒤에만 열어 정리와 백업 확인도 여기서 시작
-                        val root = koinViewModel<AppRootViewModel>()
-                        LifecycleResumeEffect(root) {
-                            root.resumed()
-                            onPauseOrDispose {}
+        CompositionLocalProvider(LocalChosenFont provides settings.font) {
+            ProvideScreenGutter {
+                ProvideTabViewModelStores {
+                    LockGate {
+                        MigrationGate {
+                            // 일기 DB는 이전 관문을 지난 뒤에만 열어 정리와 백업 확인도 여기서 시작
+                            val root = koinViewModel<AppRootViewModel>()
+                            LifecycleResumeEffect(root) {
+                                root.resumed()
+                                onPauseOrDispose {}
+                            }
+                            WelcomeGate { AppScaffold() }
                         }
-                        WelcomeGate { AppScaffold() }
                     }
                 }
             }
         }
     }
 }
+
+/** 사용자가 고른 글꼴. 앱 글자 밖(iOS 광고 카드)도 같은 값을 씀 */
+internal val LocalChosenFont = staticCompositionLocalOf { DiaryFont.DEFAULT }

@@ -16,17 +16,13 @@ import androidx.compose.ui.viewinterop.UIKitView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import org.sjhstudio.diary.app.Startup
-import org.sjhstudio.diary.app.StartupState
+import org.sjhstudio.diary.app.LocalChosenFont
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.ad_label
 import org.sjhstudio.diary.core.data.AdPlayer
-import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.designsystem.theme.DiaryRadius
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.diaryLanguage
@@ -86,13 +82,9 @@ private val PRETENDARD_FILES = AdFonts("pretendard_regular.otf", "pretendard_med
  */
 @Composable
 private fun rememberAdFonts(): AdFonts? {
-    val repository = koinInject<SettingsRepository>()
     val installer = koinInject<FontInstaller>()
-    val startup = koinInject<Startup>()
-    val fontFlow = remember(repository) { repository.settings.map { it.font }.distinctUntilChanged() }
-    // 시작 단계에서 읽은 글꼴로 첫 프레임을 맞춤. 기본 글꼴로 먼저 그리면 카드가 다시 만들어지며 깜빡임
-    val initial = (startup.state.value as? StartupState.Ready)?.settings?.font ?: DiaryFont.DEFAULT
-    val font by fontFlow.collectAsStateWithLifecycle(initial)
+    // 앱 글자와 같은 값을 읽어 카드가 옛 글꼴로 먼저 만들어지지 않게 함
+    val font = LocalChosenFont.current
     val changes by installer.changes.collectAsStateWithLifecycle()
     // 화면 스레드에서 파일을 보지 않음
     val path by produceState(installer.knownPath(font.id), font, changes) {
