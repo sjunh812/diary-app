@@ -31,7 +31,7 @@ interface PinKeyStore {                                // Android Keystore HMAC,
 }
 
 interface DeviceAuthenticator {
-    suspend fun biometricStatus(): BiometricStatus     // Available, NoneEnrolled, Unavailable
+    suspend fun biometricStatus(): BiometricStatus     // Available, NoneEnrolled, NotAllowed, LockedOut, Unavailable
     suspend fun authenticateBiometric(): AuthResult    // 열기용: 생체만
     suspend fun isDeviceSecure(): Boolean              // 폰에 화면 잠금이 있는가
     suspend fun authenticateDeviceOwner(): AuthResult  // 분실용: 생체 또는 폰 PIN·패턴·암호
@@ -57,7 +57,11 @@ class LockController(/* LockRepository, 앱 범위, 단조 시계 */) {
   기다림을 시작할 때 횟수를 0으로 돌려, 기다림이 끝나면 다시 다섯 번을 준다. 기기 시각을 뒤로 돌려도 기다림은 30초를 넘지 않는다(2026-11-02).
 - 잠금 화면: 4칸 점, 숫자판, 생체 버튼(켜져 있고 쓸 수 있을 때), "비밀번호를 잊어버렸어요". 열 때 생체 인증이 켜져 있으면 바로 띄운다.
   취소·실패·생체 잠김이면 숫자판이 그대로 남는다.
-- 생체 인증을 켰는데 지금 쓸 수 없으면(`NoneEnrolled`, `Unavailable`) 생체 설정을 끄지 않고 잠금 설정에 "지금 기기에서 생체 인증을 쓸 수 없어요"를 보인다.
+- 생체 인증을 켰는데 지금 쓸 수 없으면 생체 설정을 끄지 않고 잠금 설정에 까닭과 할 일을 보인다. 설정 앱에 다녀오면 다시 확인한다(2026-11-16).
+  - `NoneEnrolled`(생체 정보나 기기 화면 잠금이 없음): "설정 앱에서 생체 인증을 등록하면 쓸 수 있어요."
+  - `NotAllowed`(iOS에서 이 앱의 Face ID를 끔): "설정 앱에서 이 앱의 Face ID 사용을 허용해 주세요."
+  - `LockedOut`(여러 번 틀려 잠김): "여러 번 틀려 생체 인증이 잠겼어요. 기기 암호로 잠금을 풀면 다시 쓸 수 있어요."
+  - `Unavailable`(센서가 없거나 잠시 못 씀): "지금은 이 기기에서 생체 인증을 쓸 수 없어요."
 - 다시 잠그기는 앱 전체가 뒤로 갈 때만 잰다(Android `ProcessLifecycleOwner`, iOS 백그라운드 알림). 화면 돌리기로 화면이 다시 만들어지거나
   생체 인증 창이 뜰 때는 재지 않는다. 폰 잠금 확인처럼 다른 화면을 다녀오는 동안은 `withoutRelock`으로 재지 않는다(2026-11-02).
 - 앱이 뒤로 가는 알림은 프로세스와 함께 듣는다. Android 11까지는 맨 앞 화면에서 뒤로 가면 화면이 먼저 사라지고 프로세스는 남아서, 화면이 살아 있는 동안만 들으면 다시 잠기지 않는다(2026-11-07).

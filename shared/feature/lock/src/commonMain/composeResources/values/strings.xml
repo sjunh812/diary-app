@@ -38,7 +38,7 @@
     <string name="lock_settings_enable">Lock diary</string>
     <string name="lock_settings_change">Change passcode</string>
     <string name="lock_settings_biometric_unavailable">Biometrics aren't available on this device right now.</string>
-    <string name="lock_settings_biometric_none_enrolled">Set up biometrics in your device settings to use this.</string>
+    <string name="lock_settings_biometric_none_enrolled">Set up biometrics in the Settings app to use this.</string>
     <string name="lock_settings_biometric_not_allowed">Allow Face ID for this app in the Settings app.</string>
     <string name="lock_settings_biometric_locked_out">Biometrics are locked after too many tries. Unlock your device with its passcode to use them again.</string>
     <string name="lock_settings_relock">Auto-lock</string>

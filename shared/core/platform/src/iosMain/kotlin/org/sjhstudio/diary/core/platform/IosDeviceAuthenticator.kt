@@ -11,12 +11,12 @@ import kotlinx.cinterop.value
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSError
 import platform.LocalAuthentication.LABiometryTypeFaceID
-import platform.LocalAuthentication.LABiometryTypeNone
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAErrorAppCancel
 import platform.LocalAuthentication.LAErrorBiometryLockout
 import platform.LocalAuthentication.LAErrorBiometryNotAvailable
 import platform.LocalAuthentication.LAErrorBiometryNotEnrolled
+import platform.LocalAuthentication.LAErrorPasscodeNotSet
 import platform.LocalAuthentication.LAErrorSystemCancel
 import platform.LocalAuthentication.LAErrorUserCancel
 import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication
@@ -34,12 +34,13 @@ class IosDeviceAuthenticator : DeviceAuthenticator {
         val error = alloc<ObjCObjectVar<NSError?>>()
         if (context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthenticationWithBiometrics, error.ptr)) return BiometricStatus.Available
         when (error.value?.code) {
-            LAErrorBiometryNotEnrolled -> BiometricStatus.NoneEnrolled
+            // 기기 암호가 없으면 Face ID도 등록할 수 없음. Android도 화면 잠금이 없으면 미등록
+            LAErrorBiometryNotEnrolled, LAErrorPasscodeNotSet -> BiometricStatus.NoneEnrolled
 
             LAErrorBiometryLockout -> BiometricStatus.LockedOut
 
-            // 장치는 있는데 쓸 수 없음 = 사용자가 이 앱의 Face ID를 끔
-            LAErrorBiometryNotAvailable if context.biometryType != LABiometryTypeNone -> BiometricStatus.NotAllowed
+            // 앱마다 끄는 권한은 Face ID에만 있음. Touch ID 센서 고장은 Unavailable
+            LAErrorBiometryNotAvailable if context.biometryType == LABiometryTypeFaceID -> BiometricStatus.NotAllowed
 
             else -> BiometricStatus.Unavailable
         }

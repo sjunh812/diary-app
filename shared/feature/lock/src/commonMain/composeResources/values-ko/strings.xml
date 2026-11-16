@@ -35,8 +35,8 @@
     <string name="lock_settings_title">잠금</string>
     <string name="lock_settings_enable">잠금 사용</string>
     <string name="lock_settings_change">비밀번호 변경</string>
-    <string name="lock_settings_biometric_unavailable">이 기기에서는 생체 인증을 쓸 수 없어요.</string>
-    <string name="lock_settings_biometric_none_enrolled">기기 설정에서 생체 인증을 등록하면 쓸 수 있어요.</string>
+    <string name="lock_settings_biometric_unavailable">지금은 이 기기에서 생체 인증을 쓸 수 없어요.</string>
+    <string name="lock_settings_biometric_none_enrolled">설정 앱에서 생체 인증을 등록하면 쓸 수 있어요.</string>
     <string name="lock_settings_biometric_not_allowed">설정 앱에서 이 앱의 Face ID 사용을 허용해 주세요.</string>
     <string name="lock_settings_biometric_locked_out">여러 번 틀려 생체 인증이 잠겼어요. 기기 암호로 잠금을 풀면 다시 쓸 수 있어요.</string>
     <string name="lock_settings_relock">자동 잠금</string>
