@@ -10,10 +10,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
+import org.sjhstudio.diary.core.data.RewardResult
 import org.sjhstudio.diary.core.ui.launchSafely
 
 /** 광고의 ×를 누른 뒤 차례로 뜨는 시트 */
-enum class AdRemovalSheet { Remove, Reward, RewardFailed }
+enum class AdRemovalSheet { Remove, Reward, RewardFailed, RewardNotSaved }
 
 /** [watching]은 보상 영상을 받거나 보는 중 */
 data class AdRemovalState(val sheet: AdRemovalSheet? = null, val watching: Boolean = false) {
@@ -33,8 +34,11 @@ interface AdRemovalFlow {
  * 가로 영상에서 돌아와 화면이 다시 만들어져도 결과 안내가 남음
  * [locked]가 참이 되면(앱이 잠김) 시트를 닫고 받던 영상을 멈춤
  */
-class AdRemoval(private val scope: CoroutineScope, locked: Flow<Boolean> = flowOf(false), private val watchReward: suspend () -> Boolean) :
-    AdRemovalFlow {
+class AdRemoval(
+    private val scope: CoroutineScope,
+    locked: Flow<Boolean> = flowOf(false),
+    private val watchReward: suspend () -> RewardResult
+) : AdRemovalFlow {
     private val _state = MutableStateFlow(AdRemovalState())
     override val state: StateFlow<AdRemovalState> = _state.asStateFlow()
 
@@ -64,8 +68,13 @@ class AdRemoval(private val scope: CoroutineScope, locked: Flow<Boolean> = flowO
         _state.update { it.copy(watching = true) }
         watching =
             scope.launchSafely(onFailure = { _state.update { it.copy(sheet = AdRemovalSheet.RewardFailed) } }) {
-                val earned = watchReward()
-                _state.update { it.copy(sheet = if (earned) null else AdRemovalSheet.RewardFailed) }
+                val sheet =
+                    when (watchReward()) {
+                        RewardResult.Earned -> null
+                        RewardResult.NotEarned -> AdRemovalSheet.RewardFailed
+                        RewardResult.NotSaved -> AdRemovalSheet.RewardNotSaved
+                    }
+                _state.update { it.copy(sheet = sheet) }
             }.also { job -> job.invokeOnCompletion { _state.update { it.copy(watching = false) } } }
     }
 }

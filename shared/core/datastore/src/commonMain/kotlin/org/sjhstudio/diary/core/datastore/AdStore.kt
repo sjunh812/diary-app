@@ -33,7 +33,7 @@ class AdStore(private val dataStore: DataStore<Preferences>) {
         if (day == null) prefs.remove(LAST_INTERSTITIAL) else prefs[LAST_INTERSTITIAL] = day
     }
 
-    /** 보상은 기록에 남아야 받은 것. 못 적으면 받지 못했다고 알려서 이 프로세스에만 남기지 않음 */
+    /** 보상은 기록에 남아야 받은 것이라 덮개 없이 씀 */
     suspend fun rewardUntil(until: Instant) = dataStore.edit { it[REWARD_UNTIL] = until.toEpochMilliseconds() }
 
     /** 첫 전면 광고 앞 안내를 보여 줌. 다시 띄우지 않음 */

@@ -185,16 +185,16 @@ class AdRepository(
     private val rewardTurn = Mutex()
 
     /**
-     * 끝까지 봐서 보상을 받았으면 true
+     * 보상 영상 보기 결과
      * 받는 동안 취소되면(시트를 닫음) 띄우지 않고 CancellationException
      * 띄운 뒤로는 화면이 다시 만들어져도 끝까지 감
      */
-    suspend fun watchReward(): Boolean = orElseOnFailure(false) {
+    suspend fun watchReward(): RewardResult = orElseOnFailure(RewardResult.NotEarned) {
         rewardTurn.withLock {
             // 앞서 누른 보기가 이미 보상을 받았으면 또 띄우지 않고 그 결과를 알림
-            if (rewarded(store.prefs.first().rewardUntil)) return@withLock true
-            if (!showAds.first()) return@withLock false
-            val reward = player.loadRewarded() ?: return@withLock false
+            if (rewarded(store.prefs.first().rewardUntil)) return@withLock RewardResult.Earned
+            if (!showAds.first()) return@withLock RewardResult.NotEarned
+            val reward = player.loadRewarded() ?: return@withLock RewardResult.NotEarned
             withContext(NonCancellable) { reward.watch { store.rewardUntil(clock.now() + REWARD) } }
         }
     }
@@ -212,11 +212,21 @@ class AdRepository(
 private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T =
     orElseOnFailure(failed) { withContext(NonCancellable) { block() } }
 
+/** 보상 영상 결과. 끝까지 봤어도 기록하지 못하면(공간 부족) 받지 못한 것 */
+enum class RewardResult {
+    Earned,
+    NotEarned,
+
+    /** 끝까지 봤지만 공간이 차 기록하지 못함 */
+    NotSaved;
+
+    val earned: Boolean get() = this == Earned
+}
+
 /**
  * 띄우고 끝까지 본 순간 [record]로 보상을 적음. 닫기 전에 앱이 꺼져도 하루 광고 없음이 남음
- * 적지 못했으면(공간 부족) 받지 못한 것으로 알림
  */
-private suspend fun ReadyReward.watch(record: suspend () -> Unit): Boolean = coroutineScope {
+private suspend fun ReadyReward.watch(record: suspend () -> Unit): RewardResult = coroutineScope {
     val earned = CompletableDeferred<Unit>()
     val written = async {
         earned.await()
@@ -226,6 +236,14 @@ private suspend fun ReadyReward.watch(record: suspend () -> Unit): Boolean = cor
         }
     }
     show { earned.complete(Unit) }
-    if (!earned.isCompleted) written.cancel()
-    earned.isCompleted && written.await()
+    when {
+        !earned.isCompleted -> {
+            written.cancel()
+            RewardResult.NotEarned
+        }
+
+        written.await() -> RewardResult.Earned
+
+        else -> RewardResult.NotSaved
+    }
 }

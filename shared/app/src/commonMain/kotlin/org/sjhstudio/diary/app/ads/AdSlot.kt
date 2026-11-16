@@ -16,6 +16,7 @@ import org.sjhstudio.diary.app.resources.reward_body
 import org.sjhstudio.diary.app.resources.reward_close
 import org.sjhstudio.diary.app.resources.reward_failed_body
 import org.sjhstudio.diary.app.resources.reward_failed_title
+import org.sjhstudio.diary.app.resources.reward_not_saved_body
 import org.sjhstudio.diary.app.resources.reward_title
 import org.sjhstudio.diary.app.resources.reward_watch
 import org.sjhstudio.diary.core.data.AdRepository
@@ -96,11 +97,20 @@ internal fun AdRemovalSheets(viewModel: AdRemovalViewModel) {
                 )
             }
 
-        AdRemovalSheet.RewardFailed ->
+        AdRemovalSheet.RewardFailed, AdRemovalSheet.RewardNotSaved ->
             DiaryBottomSheet(
                 viewModel::dismiss,
                 title = stringResource(Res.string.reward_failed_title),
-                description = stringResource(Res.string.reward_failed_body)
+                description =
+                    stringResource(
+                        if (state.sheet ==
+                            AdRemovalSheet.RewardNotSaved
+                        ) {
+                            Res.string.reward_not_saved_body
+                        } else {
+                            Res.string.reward_failed_body
+                        }
+                    )
             ) {
                 DiaryButton(
                     stringResource(Res.string.reward_close),

@@ -100,7 +100,7 @@ class AdRepositoryFailureTest {
         val store = InMemoryDataStore<Preferences>(emptyPreferences())
         val player = HeldPlayer()
         val repository = repo(player, store)
-        val job = launch { repository.watchReward() }
+        val job = launch { repository.watchReward().earned }
         runCurrent()
 
         job.cancel()
@@ -122,10 +122,13 @@ class AdRepositoryFailureTest {
     }
 
     @Test
-    fun a_reward_that_cannot_be_written_says_it_failed() = runTest {
+    fun a_reward_that_cannot_be_written_says_so_and_keeps_the_ads() = runTest {
         val player = HeldPlayer().apply { closed.complete(true) }
+        val repository = repo(player, FullDisk())
 
-        assertFalse(repo(player, FullDisk()).watchReward())
+        // 끝까지 봤어도 기록하지 못하면 받지 못한 것. 화면은 영상 탓이 아니라 공간 부족이라고 알림
+        assertEquals(RewardResult.NotSaved, repository.watchReward())
+        assertTrue(repository.showAds.first())
     }
 
     @Test
@@ -136,7 +139,7 @@ class AdRepositoryFailureTest {
         assertFalse(repository.showAds.first())
         repository.prepareAfterSave()
         repository.showAfterSave()
-        assertFalse(repository.watchReward())
+        assertFalse(repository.watchReward().earned)
         assertEquals(0, player.shown)
     }
 
@@ -148,7 +151,7 @@ class AdRepositoryFailureTest {
         repository.prepareAfterSave()
         repository.showAfterSave()
 
-        assertFalse(repository.watchReward())
+        assertFalse(repository.watchReward().earned)
         assertTrue(repository.showAds.first(), "다음 기회에 다시 해 본다")
     }
 }

@@ -21,6 +21,7 @@
     <string name="reward_close">Close</string>
     <string name="reward_failed_title">Couldn't get your ad-free day</string>
     <string name="reward_failed_body">The video didn't load or wasn't watched to the end. Please try again in a little while.</string>
+    <string name="reward_not_saved_body">You watched to the end, but there wasn't enough storage to save it. Free up some space and try again.</string>
     <string name="ad_close">Remove ads</string>
     <string name="ad_notice_title">Full-screen ads appear once a day</string>
     <string name="ad_notice_body">They show briefly only after you save an entry.</string>

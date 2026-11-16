@@ -58,6 +58,7 @@ import org.sjhstudio.diary.core.data.NoAdPlayer
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
+import org.sjhstudio.diary.core.data.RewardResult
 import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
@@ -117,7 +118,7 @@ class AppScaffoldUiTest {
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
                     single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, { false }) }
                     single { HomeTopState(get(), get(), MainScope()) }
-                    single { AdRemoval(MainScope()) { false } }
+                    single { AdRemoval(MainScope()) { RewardResult.NotEarned } }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
                     single<WelcomeRepository> {

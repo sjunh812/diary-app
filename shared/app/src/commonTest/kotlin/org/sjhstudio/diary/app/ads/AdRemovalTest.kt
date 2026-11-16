@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
+import org.sjhstudio.diary.core.data.RewardResult
 
 // 광고 없애기 시트 차례와 보상 광고 결과
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -35,7 +36,7 @@ class AdRemovalTest {
 
     @Test
     fun the_close_button_opens_the_sheet_and_the_day_off_choice_follows() = runTest(dispatcher) {
-        val viewModel = AdRemoval(scope) { true }
+        val viewModel = AdRemoval(scope) { RewardResult.Earned }
 
         viewModel.open()
         assertEquals(AdRemovalSheet.Remove, viewModel.state.value.sheet)
@@ -49,7 +50,7 @@ class AdRemovalTest {
 
     @Test
     fun the_sheet_waits_while_the_video_plays_and_closes_when_earned() = runTest(dispatcher) {
-        val result = CompletableDeferred<Boolean>()
+        val result = CompletableDeferred<RewardResult>()
         val viewModel = AdRemoval(scope) { result.await() }
         viewModel.open()
         viewModel.offerReward()
@@ -58,14 +59,14 @@ class AdRemovalTest {
         advanceUntilIdle()
         assertEquals(AdRemovalState(AdRemovalSheet.Reward, watching = true), viewModel.state.value)
 
-        result.complete(true)
+        result.complete(RewardResult.Earned)
         advanceUntilIdle()
         assertEquals(AdRemovalState(), viewModel.state.value)
     }
 
     @Test
     fun an_unearned_reward_says_so() = runTest(dispatcher) {
-        val viewModel = AdRemoval(scope) { false }
+        val viewModel = AdRemoval(scope) { RewardResult.NotEarned }
         viewModel.offerReward()
 
         viewModel.watch()
@@ -77,7 +78,7 @@ class AdRemovalTest {
     /** 영상을 받는 동안 시트를 닫으면 받기를 멈추고 시트도 다시 열리지 않음. 다른 화면 위에 광고나 실패 시트가 뜨지 않게 */
     @Test
     fun closing_the_sheet_while_loading_stops_the_video_and_stays_closed() = runTest(dispatcher) {
-        val loading = CompletableDeferred<Boolean>()
+        val loading = CompletableDeferred<RewardResult>()
         var cancelled = false
         val viewModel =
             AdRemoval(scope) {
@@ -102,7 +103,7 @@ class AdRemovalTest {
     @Test
     fun locking_closes_the_sheet_and_stops_loading() = runTest(dispatcher) {
         val locked = MutableStateFlow(false)
-        val loading = CompletableDeferred<Boolean>()
+        val loading = CompletableDeferred<RewardResult>()
         val viewModel = AdRemoval(scope, locked) { loading.await() }
         viewModel.offerReward()
         viewModel.watch()
@@ -128,7 +129,7 @@ class AdRemovalTest {
     @Test
     fun a_second_tap_while_watching_does_not_start_another_video() = runTest(dispatcher) {
         var started = 0
-        val result = CompletableDeferred<Boolean>()
+        val result = CompletableDeferred<RewardResult>()
         val viewModel = AdRemoval(scope) {
             started++
             result.await()
@@ -144,7 +145,7 @@ class AdRemovalTest {
     /** 이미 띄운 영상은 시트를 닫아도 끝까지 감. 그동안 보는 중으로 남아 앱 틀이 전면 광고를 미룸 */
     @Test
     fun closing_the_sheet_while_the_video_plays_keeps_watching_until_it_ends() = runTest(dispatcher) {
-        val playing = CompletableDeferred<Boolean>()
+        val playing = CompletableDeferred<RewardResult>()
         val viewModel = AdRemoval(scope) { withContext(NonCancellable) { playing.await() } }
         viewModel.offerReward()
         viewModel.watch()
@@ -154,7 +155,7 @@ class AdRemovalTest {
         advanceUntilIdle()
         assertEquals(AdRemovalState(watching = true), viewModel.state.value)
 
-        playing.complete(true)
+        playing.complete(RewardResult.Earned)
         advanceUntilIdle()
         assertEquals(AdRemovalState(), viewModel.state.value)
     }

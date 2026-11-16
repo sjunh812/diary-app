@@ -145,7 +145,7 @@ class PlanTableTest {
         for (row in table) {
             val ads = Ads(row.plan, clock)
 
-            assertEquals(row.ads, ads.repository().watchReward(), "${row.plan}")
+            assertEquals(row.ads, ads.repository().watchReward().earned, "${row.plan}")
             assertEquals(if (row.ads) 1 else 0, ads.player.rewards, "${row.plan}")
         }
     }
@@ -293,7 +293,7 @@ class PlanTableTest {
     @Test
     fun a_reward_is_remembered_after_a_restart_and_ends_on_time() = runTest {
         val ads = Ads(Plan.FREE, clock)
-        assertTrue(ads.repository().watchReward())
+        assertTrue(ads.repository().watchReward().earned)
 
         now += 23.hours
         assertFalse(ads.repository().showAds.first(), "다시 켜도 24시간은 광고가 없다")
@@ -309,7 +309,7 @@ class PlanTableTest {
     fun a_reward_outlives_the_plan_change_only_for_its_day() = runTest {
         val ads = Ads(Plan.FREE, clock)
         val repository = ads.repository()
-        repository.watchReward()
+        repository.watchReward().earned
 
         ads.plans.plan.value = Plan.PLUS
         now += 1.hours
