@@ -95,13 +95,11 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     onListStyle: () -> Unit = {},
     onTrash: () -> Unit = {},
-    trashCount: Int = 0,
     onBackup: () -> Unit = {},
     onLetter: () -> Unit = {},
     onTerms: () -> Unit = {},
     onPrivacy: () -> Unit = {},
     onPlus: () -> Unit = {},
-    plan: Plan? = null,
     onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
     appVersion: String = "",
@@ -124,7 +122,7 @@ fun SettingsScreen(
             collapsed = { titleCollapse(scroll.value, titleHeight) },
             contentMaxWidth = DiaryWriteSize.settingsMax,
             actions = {
-                if (plan == Plan.PLUS) {
+                if (state.plan == Plan.PLUS) {
                     DiaryButton(
                         stringResource(Res.string.settings_plus_badge),
                         onPlus,
@@ -156,9 +154,17 @@ fun SettingsScreen(
             )
             // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드
             // 요금제를 안 뒤에만 그림. 재설치 직후 무료 문구가 먼저 보였다가 바뀌지 않게
-            if (plan != null && plan != Plan.PLUS) {
+            if (state.plan != null && state.plan != Plan.PLUS) {
                 DiaryInviteCard(
-                    stringResource(if (plan == Plan.AD_FREE) Res.string.settings_plus_title_ad_free else Res.string.settings_plus_title),
+                    stringResource(
+                        if (state.plan ==
+                            Plan.AD_FREE
+                        ) {
+                            Res.string.settings_plus_title_ad_free
+                        } else {
+                            Res.string.settings_plus_title
+                        }
+                    ),
                     stringResource(Res.string.settings_plus_body),
                     stringResource(Res.string.settings_plus_action),
                     onPlus,
@@ -177,10 +183,10 @@ fun SettingsScreen(
                 stringResource(Res.string.settings_trash),
                 onClick = onTrash,
                 selected = selected == SettingsPane.TRASH,
-                value = if (trashCount >
+                value = if (state.trashCount >
                     0
                 ) {
-                    pluralStringResource(Res.plurals.settings_trash_count, trashCount, trashCount.grouped())
+                    pluralStringResource(Res.plurals.settings_trash_count, state.trashCount, state.trashCount.grouped())
                 } else {
                     null
                 }

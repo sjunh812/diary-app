@@ -129,7 +129,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
                 onRate = storeReviewUrl(app.platform)?.let { url -> { openWeb(url) } },
-                plan = state.plan,
                 onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
                 onFont = { open(FontSettingsKey) },
                 onTextSize = { open(TextSizeSettingsKey) },
@@ -140,7 +139,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onLicenses = { open(LicensesKey) },
                 onListStyle = { open(ListStyleSettingsKey) },
                 onTrash = { open(TrashKey) },
-                trashCount = state.trashCount,
                 onBackup = { open(BackupSettingsKey) },
                 backupValue = state.lastBackupAt?.let { settingsBackupValue(it) },
                 onLetter = { push(LetterKey) },

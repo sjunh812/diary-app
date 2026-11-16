@@ -29,12 +29,13 @@ private val sample =
     SettingsUiState(
         settings = AppSettings(font = DiaryFont.NANUM_CHEER, bodyTextSize = BodyTextSize.LARGE, reminderEnabled = true),
         lock = LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", relockAfter = RelockAfter.ONE_MINUTE),
-        showsMigrationReport = true
+        showsMigrationReport = true,
+        plan = Plan.FREE
     )
 
 @Composable
 private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
-    SettingsScreen(sample, plan = Plan.FREE, onFont = {
+    SettingsScreen(sample, onFont = {
     }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {})
 }
 
@@ -42,7 +43,7 @@ private fun SettingsList(dark: Boolean) = DiaryTheme(darkTheme = dark) {
 @Preview(name = "S6 설정 · 태블릿 목록 · 글꼴 고름", locale = "ko", widthDp = 360, heightDp = 834)
 @Composable
 private fun ListPicked() = DiaryTheme(darkTheme = false) {
-    SettingsScreen(sample, plan = Plan.FREE, onFont = {
+    SettingsScreen(sample, onFont = {
     }, onTextSize = {}, onTheme = {}, onReminder = {}, onLock = {}, onMigrationReport = {}, onLicenses = {}, selected = SettingsPane.FONT)
 }
 
