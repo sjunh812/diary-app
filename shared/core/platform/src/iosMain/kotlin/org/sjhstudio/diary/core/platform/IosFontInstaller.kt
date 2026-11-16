@@ -15,8 +15,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withTimeoutOrNull
+import platform.Foundation.NSBundleOnDemandResourceOutOfSpaceError
 import platform.Foundation.NSBundleResourceRequest
 import platform.Foundation.NSBundleResourceRequestLoadingPriorityUrgent
+import platform.Foundation.NSCocoaErrorDomain
 import platform.Foundation.NSError
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURLErrorDomain
@@ -76,14 +78,21 @@ class IosFontInstaller(private val files: AppFiles) : FontInstaller {
         }
         val error = done.await()
         if (error != null) {
-            emit(FontInstallState.Failed(offline = error.domain == NSURLErrorDomain))
+            emit(FontInstallState.Failed(error.reason()))
             return@flow
         }
         val source = request.bundle.pathForResource(id, ofType = "ttf")
         val installed = source?.let { copy(it, id) }
         request.endAccessingResources()
-        emit(installed?.let { FontInstallState.Installed(it) } ?: FontInstallState.Failed(offline = false))
+        emit(installed?.let { FontInstallState.Installed(it) } ?: FontInstallState.Failed(FontInstallState.Reason.Other))
     }.flowOn(Dispatchers.IO)
+
+    /** 공간 부족은 On-Demand Resources 오류(Cocoa), 연결 문제는 URL 오류로 옴 */
+    private fun NSError.reason(): FontInstallState.Reason = when {
+        domain == NSURLErrorDomain -> FontInstallState.Reason.Offline
+        domain == NSCocoaErrorDomain && code == NSBundleOnDemandResourceOutOfSpaceError -> FontInstallState.Reason.NoSpace
+        else -> FontInstallState.Reason.Other
+    }
 
     /** 반쯤 쓴 파일이 남지 않게 임시 이름으로 복사한 뒤 옮김 */
     private fun copy(source: String, id: String): String? {

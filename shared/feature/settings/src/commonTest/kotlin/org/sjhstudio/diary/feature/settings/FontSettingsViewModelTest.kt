@@ -105,10 +105,27 @@ class FontSettingsViewModelTest {
 
         vm.select(DiaryFont.GOWUN_BATANG)
         advanceUntilIdle()
-        installer.emit(FontInstallState.Failed(offline = true))
+        installer.emit(FontInstallState.Failed(FontInstallState.Reason.Offline))
         advanceUntilIdle()
         assertEquals(DiaryFont.PRETENDARD, settings.settings.first().font)
         assertEquals(listOf(FontNotice.Offline), notices)
+        assertTrue(DiaryFont.GOWUN_BATANG !in vm.state.value.downloading)
+    }
+
+    /** 공간이 차 받지 못하면 그렇다고 알림. 다시 시도해도 같아서 일반 실패와 나눔 */
+    @Test
+    fun a_full_device_says_storage_is_short() = runTest(dispatcher) {
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
+        val notices = mutableListOf<FontNotice>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.notice.collect { notices += it } }
+
+        vm.select(DiaryFont.GOWUN_BATANG)
+        advanceUntilIdle()
+        installer.emit(FontInstallState.Failed(FontInstallState.Reason.NoSpace))
+        advanceUntilIdle()
+        assertEquals(DiaryFont.PRETENDARD, settings.settings.first().font)
+        assertEquals(listOf(FontNotice.NoSpace), notices)
         assertTrue(DiaryFont.GOWUN_BATANG !in vm.state.value.downloading)
     }
 
