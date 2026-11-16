@@ -104,24 +104,27 @@ class AdRepositoryTest {
     fun the_first_interstitial_gets_a_notice_only_once() = runTest {
         val repo = repo()
 
-        assertTrue(repo.takeInterstitialNotice())
-        assertFalse(repo.takeInterstitialNotice())
+        // 답하기 전까지는 차례마다 다시 띄움
+        assertTrue(repo.interstitialNoticeDue())
+        assertTrue(repo.interstitialNoticeDue())
+        repo.interstitialNoticeAnswered()
+        assertFalse(repo.interstitialNoticeDue())
         repo.showAfterSave()
         assertEquals(1, player.shown)
 
         now += 1.days
-        assertFalse(repo.takeInterstitialNotice())
+        assertFalse(repo.interstitialNoticeDue())
     }
 
     @Test
     fun no_notice_when_no_ad_is_due() = runTest {
         plans.plan.value = Plan.AD_FREE
-        assertFalse(repo().takeInterstitialNotice())
+        assertFalse(repo().interstitialNoticeDue())
 
         plans.plan.value = Plan.FREE
         val repo = repo()
         repo.showAfterSave()
-        assertFalse(repo.takeInterstitialNotice())
+        assertFalse(repo.interstitialNoticeDue())
         assertFalse(store.current().interstitialNoticed)
     }
 

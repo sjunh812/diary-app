@@ -4,7 +4,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +44,11 @@ class AppShellViewModelTest {
         val calls = mutableListOf<String>()
         val shown get() = calls.count { it == "shown" }
 
-        override suspend fun takeNotice() = notice.also { notice = false }
+        override suspend fun noticeDue() = notice
+
+        override suspend fun noticeAnswered() {
+            notice = false
+        }
 
         override suspend fun prepare() {
             calls += "prepared"
@@ -234,8 +240,9 @@ class AppShellViewModelTest {
         assertEquals(0, ads.shown)
     }
 
+    /** 안내에 답하기 전에 잠기면 광고 없이 끝나고, 다음 저장에 안내부터 다시 뜸 */
     @Test
-    fun locking_while_the_notice_shows_drops_the_ad_turn() = runTest(dispatcher) {
+    fun locking_while_the_notice_shows_brings_it_back_on_the_next_save() = runTest(dispatcher) {
         val ads = Ads(notice = true)
         val shell = savedWith(ads)
         locked.value = true
@@ -243,6 +250,26 @@ class AppShellViewModelTest {
         shell.confirmAdNotice()
         advanceUntilIdle()
         assertEquals(0, ads.shown)
+        assertTrue(ads.notice)
+
+        locked.value = false
+        shell.saved("e2")
+        advanceUntilIdle()
+        assertEquals(AdNotice.Showing, shell.adNotice.value)
+    }
+
+    @Test
+    fun either_button_on_the_notice_counts_as_answered() = runTest(dispatcher) {
+        val confirmed = Ads(notice = true)
+        savedWith(confirmed).confirmAdNotice()
+        advanceUntilIdle()
+        assertFalse(confirmed.notice)
+
+        val removing = Ads(notice = true)
+        savedWith(removing).removeAdsFirst()
+        advanceUntilIdle()
+        assertFalse(removing.notice)
+        assertEquals(0, removing.shown)
     }
 
     @Test

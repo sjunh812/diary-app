@@ -76,7 +76,9 @@ class FirstAdFlowTest {
 
                 override suspend fun show() = ads.showAfterSave()
 
-                override suspend fun takeNotice() = ads.takeInterstitialNotice()
+                override suspend fun noticeDue() = ads.interstitialNoticeDue()
+
+                override suspend fun noticeAnswered() = ads.interstitialNoticeAnswered()
             },
             locked = flowOf(false),
             askReview = {}

@@ -168,14 +168,17 @@ class AdRepository(
     }
 
     /**
-     * 이번 전면 광고 앞에 첫 안내를 띄울지. 처음 뜰 차례에만이고, 참을 돌려주면 보여 준 것으로 적음
-     * 어느 버튼을 누르든 다시 띄우지 않음(`docs/business.md` 광고 자리)
+     * 이번 전면 광고 앞에 첫 안내를 띄울지. 안내에 답하기 전까지 광고 차례마다 참
      * 기록을 읽지 못하면 안내 없이 지금처럼 광고만
      */
-    suspend fun takeInterstitialNotice(): Boolean = quietly(false) {
-        val first = interstitialDue() && !store.current().interstitialNoticed
-        if (first) store.interstitialNoticed()
-        first
+    suspend fun interstitialNoticeDue(): Boolean = quietly(false) { interstitialDue() && !store.current().interstitialNoticed }
+
+    /**
+     * 안내에서 버튼을 누름. 어느 버튼이든 다시 띄우지 않음(`docs/business.md` 광고 자리)
+     * 답하기 전에 잠기거나 앱이 꺼졌으면 다음 차례에 다시 띄움
+     */
+    suspend fun interstitialNoticeAnswered() {
+        quietly(Unit) { store.interstitialNoticed() }
     }
 
     private suspend fun interstitialDue(): Boolean {

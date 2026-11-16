@@ -48,8 +48,11 @@ interface AfterSaveAds {
     /** 전면 광고 차례였으면 참 */
     suspend fun show(): Boolean
 
-    /** 이번 광고 앞에 첫 안내를 띄울지. 참이면 보여준 것으로 적음 */
-    suspend fun takeNotice(): Boolean = false
+    /** 이번 광고 앞에 첫 안내를 띄울지 */
+    suspend fun noticeDue(): Boolean = false
+
+    /** 안내에 답함. 그 뒤로 안내를 띄우지 않음 */
+    suspend fun noticeAnswered() = Unit
 }
 
 /**
@@ -104,7 +107,7 @@ class AppShellViewModel(
                 // 광고 차례는 화면을 옮겨도 끝까지 감. 하루 한 번 기록이 걸림
                 val adTurn =
                     withContext(NonCancellable) {
-                        if (ads.takeNotice()) {
+                        if (ads.noticeDue()) {
                             _adNotice.value = AdNotice.Showing
                             true
                         } else {
@@ -124,23 +127,32 @@ class AppShellViewModel(
     }
 
     /** 안내에서 [확인]이나 바깥. 광고를 띄움 */
-    fun confirmAdNotice() = continueAdTurn(from = AdNotice.Showing)
+    fun confirmAdNotice() {
+        if (!answerNotice(next = AdNotice.None)) return
+        viewModelScope.launchSafely { ads.show() }
+    }
 
     /** 안내에서 [광고 없애기]. 시트는 화면이 열고, 닫힐 때까지 광고를 미룸 */
     fun removeAdsFirst() {
-        if (_adNotice.value == AdNotice.Showing) _adNotice.value = AdNotice.AwaitingRemoval
+        answerNotice(next = AdNotice.AwaitingRemoval)
     }
 
     /**
      * 광고 제거 시트가 닫힘. 광고 차례를 이음
      * 사거나 영상을 봤으면 광고 차례가 없어 뜨지 않음
      */
-    fun adRemovalClosed() = continueAdTurn(from = AdNotice.AwaitingRemoval)
-
-    private fun continueAdTurn(from: AdNotice) {
-        if (_adNotice.value != from) return
+    fun adRemovalClosed() {
+        if (_adNotice.value != AdNotice.AwaitingRemoval) return
         _adNotice.value = AdNotice.None
         viewModelScope.launchSafely { ads.show() }
+    }
+
+    // 버튼을 눌렀을 때만 안내를 본 것으로 적음. 답하기 전에 잠기면 다음 저장에 다시 띄움
+    private fun answerNotice(next: AdNotice): Boolean {
+        if (_adNotice.value != AdNotice.Showing) return false
+        _adNotice.value = next
+        viewModelScope.launchSafely { ads.noticeAnswered() }
+        return true
     }
 }
 
@@ -159,7 +171,9 @@ val appShellModule =
 
                     override suspend fun show() = ads.showAfterSave()
 
-                    override suspend fun takeNotice() = ads.takeInterstitialNotice()
+                    override suspend fun noticeDue() = ads.interstitialNoticeDue()
+
+                    override suspend fun noticeAnswered() = ads.interstitialNoticeAnswered()
                 },
                 askReview = get<PromptRepository>()::askReviewIfDue,
                 screen = get<Telemetry>()::screen
