@@ -30,6 +30,7 @@ import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.sjhstudio.diary.app.CurrentActivity
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.ReadyReward
 
 private const val TAG = "DiaryAds"
 
@@ -229,27 +230,32 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
         }
     }
 
-    override suspend fun showRewarded(): Boolean {
-        if (!available) return false
-        val ad = loadRewarded() ?: return false
-        val screen = current.value ?: return false
-        return suspendCancellableCoroutine { result ->
-            var earned = false
-            ad.fullScreenContentCallback =
-                object : FullScreenContentCallback() {
-                    override fun onAdDismissedFullScreenContent() {
-                        if (result.isActive) result.resume(earned)
-                    }
+    override suspend fun loadRewarded(): ReadyReward? {
+        if (!available) return null
+        // 받는 동안 취소되면 늦게 온 광고는 버려짐(아래 isActive)
+        val ad = requestRewardedAd()
+        return ad?.let {
+            ReadyReward { onEarned ->
+                val screen = current.value ?: return@ReadyReward
+                suspendCancellableCoroutine { result ->
+                    ad.fullScreenContentCallback =
+                        object : FullScreenContentCallback() {
+                            override fun onAdDismissedFullScreenContent() {
+                                if (result.isActive) result.resume(Unit)
+                            }
 
-                    override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                        if (result.isActive) result.resume(false)
-                    }
+                            override fun onAdFailedToShowFullScreenContent(error: AdError) {
+                                if (result.isActive) result.resume(Unit)
+                            }
+                        }
+                    // 끝까지 본 순간 알림. 닫기 전에 앱이 꺼져도 보상이 남게
+                    ad.show(screen) { onEarned() }
                 }
-            ad.show(screen) { earned = true }
+            }
         }
     }
 
-    private suspend fun loadRewarded(): RewardedAd? = suspendCancellableCoroutine { result ->
+    private suspend fun requestRewardedAd(): RewardedAd? = suspendCancellableCoroutine { result ->
         // 초기화를 못 하면 기다리지 않고 없음으로
         whenReady(onFailed = { if (result.isActive) result.resume(null) }) {
             requestRewarded { ad -> if (result.isActive) result.resume(ad) }

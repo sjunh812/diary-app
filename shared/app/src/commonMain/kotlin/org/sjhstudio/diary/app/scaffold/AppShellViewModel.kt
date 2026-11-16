@@ -16,6 +16,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.AppRootViewModel
 import org.sjhstudio.diary.app.ads.AdRemovalViewModel
+import org.sjhstudio.diary.app.lock.LockController
+import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.CalendarKey
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
 import org.sjhstudio.diary.app.navigation.HomeKey
@@ -162,7 +164,10 @@ val appShellModule =
                 screen = get<Telemetry>()::screen
             )
         }
-        viewModel { AdRemovalViewModel(get<AdRepository>()::watchReward) }
+        viewModel {
+            val lock = get<LockController>()
+            AdRemovalViewModel(lock.state.map { it == LockState.Locked || it == LockState.NeedsNewPin }, get<AdRepository>()::watchReward)
+        }
         viewModel { FeedbackCardViewModel(get()) }
     }
 

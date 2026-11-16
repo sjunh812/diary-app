@@ -16,6 +16,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
 
     /// 들고 있는 네이티브 광고 수의 끝. 메모리를 많이 써 오래된 것부터 치움
     private static let maxNatives = 5
+    private static let nativeLifetime: TimeInterval = 60 * 60
     /// 받은 전면 광고는 1시간이 지나면 띄우지 않음(구글 안내). 조금 앞서 버림
     private static let interstitialFresh: TimeInterval = 55 * 60
 
@@ -29,12 +30,15 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     private var loadingInterstitial = false
     private var natives: [String: NativeAd] = [:]
     private var nativeOrder: [String] = []
+    /// 받은 시각. 구글은 한 시간 넘은 네이티브 광고를 다시 받으라고 함
+    private var nativeLoadedAt: [String: Date] = [:]
     private var loaders: [String: NativeLoader] = [:]
     private var presenting: FullScreenHandler?
     /// 추적 허용 답을 기다리는 광고 칸. nil이면 묻는 중이 아님
     private var trackingWaiters: [() -> Void]?
     /// 추적 허용 창이 닫히길 기다리는 관찰자
     private var activeObservers: [NSObjectProtocol] = []
+    private var activeWaiters: [() -> Void] = []
 
     override init() {
         #if DEBUG
@@ -103,27 +107,50 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         }
     }
 
-    func showRewarded(onDone: @escaping (KotlinBoolean) -> Void) {
+    /// 받는 중인 보상 광고 요청. 취소하면 바뀌어 늦게 온 광고를 버림
+    private var rewardedRequest = 0
+    private var rewarded: RewardedAd?
+
+    func loadRewarded(onLoaded: @escaping (KotlinBoolean) -> Void) {
         onMain { [self] in
             guard available else {
-                onDone(false)
+                onLoaded(false)
                 return
             }
             warmUp()
+            rewardedRequest += 1
+            let request = rewardedRequest
             askTrackingOnce { [self] in
+                guard request == rewardedRequest else { return }
                 RewardedAd.load(with: rewardedUnit, request: Request()) { [weak self] ad, _ in
-                    guard let self, let ad, let screen = topScreen() else {
-                        onDone(false)
-                        return
-                    }
-                    var earned = false
-                    presenting = FullScreenHandler(ad: ad, onImpression: {}) { [weak self] _ in
-                        self?.presenting = nil
-                        onDone(KotlinBoolean(bool: earned))
-                    }
-                    ad.present(from: screen) { earned = true }
+                    // 받는 사이 시트를 닫았으면 버림. 다른 화면 위에 뜨지 않게
+                    guard let self, request == rewardedRequest else { return }
+                    rewarded = ad
+                    onLoaded(KotlinBoolean(bool: ad != nil))
                 }
             }
+        }
+    }
+
+    func cancelRewarded() {
+        onMain { [self] in
+            rewardedRequest += 1
+            rewarded = nil
+        }
+    }
+
+    func showRewarded(onEarned: @escaping () -> Void, onDone: @escaping () -> Void) {
+        onMain { [self] in
+            guard let ad = rewarded, let screen = topScreen() else {
+                onDone()
+                return
+            }
+            rewarded = nil
+            presenting = FullScreenHandler(ad: ad, onImpression: {}) { [weak self] _ in
+                self?.presenting = nil
+                onDone()
+            }
+            ad.present(from: screen) { onEarned() }
         }
     }
 
@@ -146,11 +173,18 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
 
     /// 앱 추적 허용(ATT)을 아직 묻지 않았으면 묻고 답을 받은 뒤 [then]. 거절해도 광고는 광고 ID 없이 받음
     /// 목록 광고, 전면 광고, 보상형 광고 중 먼저 보이는 광고 앞에서 한 번
-    /// 앱이 앞에 있어야 창이 뜸. 아니면 묻지 않고 넘어가 다음 광고 칸에서 다시 봄
+    /// 앱이 앞에 있어야 창이 뜸. Face ID 창이 막 닫히는 중처럼 잠깐 비활성이면 돌아온 뒤 물음
+    /// 배경이면 묻지 않고 넘어가 다음 광고 칸에서 다시 봄
     private func askTrackingOnce(then: @escaping () -> Void) {
-        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined,
-              UIApplication.shared.applicationState == .active
-        else {
+        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else {
+            then()
+            return
+        }
+        if UIApplication.shared.applicationState == .inactive {
+            whenActive { [weak self] in self?.askTrackingOnce(then: then) }
+            return
+        }
+        guard UIApplication.shared.applicationState == .active else {
             then()
             return
         }
@@ -173,32 +207,51 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
 
     /// 추적 허용 답은 창이 닫혀 앱이 다시 활성이 되기 전에 옴. 그때 띄운 전면 광고는 실패함
     /// 창이 닫히는 순간만 기다림. 배경으로 가면 바로 넘겨 전면 광고는 띄우지 못하고 끝남
+    /// 함께 기다리는 일은 모아 두었다가 한꺼번에 함. 관찰자는 한 벌만
     private func whenActive(_ work: @escaping () -> Void) {
         guard UIApplication.shared.applicationState == .inactive else {
             work()
             return
         }
+        activeWaiters.append(work)
+        guard activeObservers.isEmpty else { return }
         let names = [UIApplication.didBecomeActiveNotification, UIApplication.didEnterBackgroundNotification]
         activeObservers = names.map { name in
             NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                guard let self, !activeObservers.isEmpty else { return }
-                activeObservers.forEach(NotificationCenter.default.removeObserver)
-                activeObservers = []
-                work()
+                self?.releaseActiveWaiters()
             }
         }
+    }
+
+    private func releaseActiveWaiters() {
+        activeObservers.forEach(NotificationCenter.default.removeObserver)
+        activeObservers = []
+        let works = activeWaiters
+        activeWaiters = []
+        works.forEach { $0() }
     }
 
     /// 새 광고를 두고 끝을 넘으면 가장 오래된 광고를 치움. 치운 자리가 다시 보이면 새로 받음
     private func keep(_ key: String, _ ad: NativeAd) {
         natives[key] = ad
+        nativeLoadedAt[key] = Date()
         nativeOrder.append(key)
         while nativeOrder.count > Self.maxNatives {
-            natives[nativeOrder.removeFirst()] = nil
+            drop(nativeOrder.removeFirst())
         }
     }
 
+    private func drop(_ key: String) {
+        natives[key] = nil
+        nativeLoadedAt[key] = nil
+        nativeOrder.removeAll { $0 == key }
+    }
+
+    /// 없거나 오래돼 치웠으면 nil. Kotlin이 자리를 비우고 다시 받음
     func nativeView(key: String, card: Bool, style: IosAdStyle) -> UIView? {
+        if let loadedAt = nativeLoadedAt[key], Date().timeIntervalSince(loadedAt) > Self.nativeLifetime {
+            drop(key)
+        }
         guard let ad = natives[key] else { return nil }
         return NativeAdPage(NativeAdFrame(ad: NativeAdCardView(ad: ad, card: card, style: style), style: style), style: style)
     }

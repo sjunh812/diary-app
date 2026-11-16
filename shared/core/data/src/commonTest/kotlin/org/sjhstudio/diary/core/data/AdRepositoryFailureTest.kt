@@ -55,9 +55,9 @@ class AdRepositoryFailureTest {
             return closed.await()
         }
 
-        override suspend fun showRewarded(): Boolean {
+        override suspend fun loadRewarded(): ReadyReward {
             if (crash) error("광고 SDK 실패")
-            return closed.await()
+            return ReadyReward { if (closed.await()) it() }
         }
     }
 

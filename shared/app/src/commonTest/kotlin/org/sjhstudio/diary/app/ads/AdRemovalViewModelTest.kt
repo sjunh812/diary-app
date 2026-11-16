@@ -4,9 +4,11 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -63,6 +65,45 @@ class AdRemovalViewModelTest {
         advanceUntilIdle()
 
         assertEquals(AdRemovalState(AdRemovalSheet.RewardFailed), viewModel.state.value)
+    }
+
+    /** 영상을 받는 동안 시트를 닫으면 받기를 멈추고 시트도 다시 열리지 않음. 다른 화면 위에 광고나 실패 시트가 뜨지 않게 */
+    @Test
+    fun closing_the_sheet_while_loading_stops_the_video_and_stays_closed() = runTest(dispatcher) {
+        val loading = CompletableDeferred<Boolean>()
+        var cancelled = false
+        val viewModel =
+            AdRemovalViewModel {
+                try {
+                    loading.await()
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    cancelled = true
+                    throw e
+                }
+            }
+        viewModel.offerReward()
+        viewModel.watch()
+        advanceUntilIdle()
+
+        viewModel.dismiss()
+        advanceUntilIdle()
+        assertTrue(cancelled)
+        assertEquals(AdRemovalState(), viewModel.state.value)
+    }
+
+    /** 앱이 잠기면 시트를 닫고 받던 영상도 멈춤. 잠금 화면 위에 광고가 뜨지 않게 */
+    @Test
+    fun locking_closes_the_sheet_and_stops_loading() = runTest(dispatcher) {
+        val locked = MutableStateFlow(false)
+        val loading = CompletableDeferred<Boolean>()
+        val viewModel = AdRemovalViewModel(locked) { loading.await() }
+        viewModel.offerReward()
+        viewModel.watch()
+        advanceUntilIdle()
+
+        locked.value = true
+        advanceUntilIdle()
+        assertEquals(AdRemovalState(), viewModel.state.value)
     }
 
     /** 광고 쪽이 예외를 던져도 진행 표시가 남지 않음 */

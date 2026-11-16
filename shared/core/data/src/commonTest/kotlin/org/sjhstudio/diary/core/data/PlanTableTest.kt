@@ -84,9 +84,9 @@ class PlanTableTest {
             return true
         }
 
-        override suspend fun showRewarded(): Boolean {
+        override suspend fun loadRewarded() = ReadyReward {
             rewards++
-            return true
+            it()
         }
     }
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.sjhstudio.diary.core.data.AdPlayer
+import org.sjhstudio.diary.core.data.ReadyReward
 import platform.UIKit.UIView
 
 /**
@@ -22,8 +23,13 @@ interface IosAdBridge {
     /** 띄웠다 닫히면 true, 받아 둔 광고가 없거나 못 띄우면 false */
     fun showInterstitial(onImpression: () -> Unit, onDone: (Boolean) -> Unit)
 
-    /** 끝까지 봐서 보상을 받았으면 true */
-    fun showRewarded(onDone: (Boolean) -> Unit)
+    /** 보상 광고를 받음. 받았으면 true. 받는 동안 [cancelRewarded]를 부르면 false로 끝나고 받은 광고는 버림 */
+    fun loadRewarded(onLoaded: (Boolean) -> Unit)
+
+    fun cancelRewarded()
+
+    /** 받아 둔 보상 광고를 띄움. 끝까지 보면 바로 [onEarned], 닫히면 [onDone] */
+    fun showRewarded(onEarned: () -> Unit, onDone: () -> Unit)
 
     fun loadNative(key: String, onLoaded: () -> Unit)
 
@@ -76,10 +82,20 @@ class IosAdPlayer(private val bridge: IosAdBridge) : AdPlayer {
         }
     }
 
-    override suspend fun showRewarded(): Boolean {
-        if (!available) return false
-        return suspendCancellableCoroutine { result ->
-            bridge.showRewarded { earned -> if (result.isActive) result.resume(earned) }
+    override suspend fun loadRewarded(): ReadyReward? {
+        if (!available) return null
+        val loaded = suspendCancellableCoroutine { result ->
+            result.invokeOnCancellation { bridge.cancelRewarded() }
+            bridge.loadRewarded { ok -> if (result.isActive) result.resume(ok) }
+        }
+        return if (loaded) {
+            ReadyReward { onEarned ->
+                suspendCancellableCoroutine { result ->
+                    bridge.showRewarded(onEarned = onEarned) { if (result.isActive) result.resume(Unit) }
+                }
+            }
+        } else {
+            null
         }
     }
 

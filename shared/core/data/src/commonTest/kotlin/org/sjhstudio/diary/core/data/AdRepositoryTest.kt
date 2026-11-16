@@ -9,9 +9,12 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
@@ -62,11 +65,20 @@ class AdRepositoryTest {
 
         var rewardedShown = 0
 
-        override suspend fun showRewarded(): Boolean {
-            rewardedShown++
+        /** 있으면 영상을 받는 동안 이것이 열릴 때까지 기다림 */
+        var loading: CompletableDeferred<Unit>? = null
+
+        /** 있으면 끝까지 본 뒤 이것이 열릴 때까지 닫히지 않음(닫기 전에 앱이 꺼짐) */
+        var closing: CompletableDeferred<Unit>? = null
+
+        override suspend fun loadRewarded(): ReadyReward {
             // 영상을 받는 몇 초 동안
-            yield()
-            return reward
+            loading?.await() ?: yield()
+            return ReadyReward { onEarned ->
+                rewardedShown++
+                if (reward) onEarned()
+                closing?.await()
+            }
         }
     }
 
@@ -187,6 +199,30 @@ class AdRepositoryTest {
         assertTrue(first.await())
         assertTrue(second.await())
         assertEquals(1, player.rewardedShown)
+    }
+
+    /** 끝까지 본 순간 보상이 남음. 닫기 전에 앱이 꺼져도 하루 광고 없음을 잃지 않음 */
+    @Test
+    fun a_reward_is_kept_as_soon_as_it_is_earned_before_the_ad_closes() = runTest {
+        player.closing = CompletableDeferred()
+        val repo = repo()
+        backgroundScope.launch { repo.watchReward() }
+        runCurrent()
+        assertFalse(repo.showAds.first())
+    }
+
+    /** 영상을 받는 동안 시트를 닫으면 띄우지 않음. 다른 화면 위에 광고가 뜨지 않게 */
+    @Test
+    fun closing_the_sheet_while_loading_never_shows_the_reward() = runTest {
+        player.loading = CompletableDeferred()
+        val repo = repo()
+        val watch = launch { repo.watchReward() }
+        runCurrent()
+        watch.cancel()
+        player.loading?.complete(Unit)
+        runCurrent()
+        assertEquals(0, player.rewardedShown)
+        assertTrue(repo.showAds.first())
     }
 
     @Test

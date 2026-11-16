@@ -23,6 +23,7 @@ import org.sjhstudio.diary.app.navigation.HomeKey
 import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.ReadyReward
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
@@ -62,7 +63,7 @@ class FirstAdFlowTest {
             return true
         }
 
-        override suspend fun showRewarded() = reward
+        override suspend fun loadRewarded() = ReadyReward { if (reward) it() }
     }
 
     private val player = Player()

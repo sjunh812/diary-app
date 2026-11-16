@@ -5,6 +5,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -45,8 +46,20 @@ interface AdPlayer {
      */
     suspend fun showInterstitial(onImpression: () -> Unit): Boolean
 
-    /** 끝까지 봐서 보상을 받았으면 true */
-    suspend fun showRewarded(): Boolean
+    /**
+     * 보상 광고를 받음. 받지 못하면 null
+     * 받는 동안은 취소할 수 있고, 취소하면 띄우지 않음(시트를 닫거나 앱이 잠김)
+     */
+    suspend fun loadRewarded(): ReadyReward?
+}
+
+/** 받아 둔 보상 광고 */
+fun interface ReadyReward {
+    /**
+     * 띄우고 닫힐 때까지 기다림
+     * 끝까지 보면 닫히기 전이라도 바로 [onEarned]. 닫기 전에 앱이 꺼져도 보상이 남게
+     */
+    suspend fun show(onEarned: () -> Unit)
 }
 
 object NoAdPlayer : AdPlayer {
@@ -56,7 +69,7 @@ object NoAdPlayer : AdPlayer {
 
     override suspend fun showInterstitial(onImpression: () -> Unit) = false
 
-    override suspend fun showRewarded() = false
+    override suspend fun loadRewarded(): ReadyReward? = null
 }
 
 /**
@@ -176,13 +189,18 @@ class AdRepository(
     /** 보상 광고는 한 번에 하나. 앞서 부른 보기가 끝날 때까지 기다림 */
     private val rewardTurn = Mutex()
 
-    suspend fun watchReward(): Boolean = onceStarted(false) {
+    /**
+     * 끝까지 봐서 보상을 받았으면 true
+     * 받는 동안 취소되면(시트를 닫음) 띄우지 않고 CancellationException
+     * 띄운 뒤로는 화면이 다시 만들어져도 끝까지 감
+     */
+    suspend fun watchReward(): Boolean = quietly(false) {
         rewardTurn.withLock {
             // 앞서 누른 보기가 이미 보상을 받았으면 또 띄우지 않고 그 결과를 알림
             if (rewarded(store.prefs.first().rewardUntil)) return@withLock true
-            if (!showAds.first() || !player.showRewarded()) return@withLock false
-            store.rewardUntil(clock.now() + REWARD)
-            true
+            if (!showAds.first()) return@withLock false
+            val reward = player.loadRewarded() ?: return@withLock false
+            withContext(NonCancellable) { reward.watch { store.rewardUntil(clock.now() + REWARD) } }
         }
     }
 
@@ -199,4 +217,22 @@ class AdRepository(
     private companion object {
         val REWARD = 24.hours
     }
+}
+
+/**
+ * 띄우고 끝까지 본 순간 [record]로 보상을 적음. 닫기 전에 앱이 꺼져도 하루 광고 없음이 남음
+ * 적지 못했으면(공간 부족) 받지 못한 것으로 알림
+ */
+private suspend fun ReadyReward.watch(record: suspend () -> Unit): Boolean = coroutineScope {
+    val earned = CompletableDeferred<Unit>()
+    val written = async {
+        earned.await()
+        orElseOnFailure(false) {
+            record()
+            true
+        }
+    }
+    show { earned.complete(Unit) }
+    if (!earned.isCompleted) written.cancel()
+    earned.isCompleted && written.await()
 }

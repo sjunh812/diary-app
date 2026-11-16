@@ -42,15 +42,11 @@ import platform.UIKit.UIView
 @Composable
 internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable (ad: @Composable () -> Unit) -> Unit) {
     val player = koinInject<AdPlayer>() as? IosAdPlayer ?: return
-    LaunchedEffect(key) { player.loadNative(key) }
+    val loaded = player.loaded[key] == true
+    // 치워진 자리는 받음 표시가 지워져 다시 받음
+    LaunchedEffect(key, loaded) { if (!loaded) player.loadNative(key) }
     val style = rememberAdStyle()
-    val view = if (player.loaded[key] ==
-        true
-    ) {
-        remember(key, shape, style) { player.nativeView(key, shape == AdShape.Card, style) }
-    } else {
-        null
-    }
+    val view = if (loaded) remember(key, shape, style) { player.nativeView(key, shape == AdShape.Card, style) } else null
     if (view != null) frame { AdView(player, view) }
 }
 
