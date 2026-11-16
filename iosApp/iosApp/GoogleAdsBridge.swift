@@ -86,14 +86,15 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     }
 
     /// 앱 시작 때 미리 받아 둔 광고라 추적 허용은 띄우기 직전에 물음. 다음 광고부터 답이 반영됨
+    /// 광고를 받아 두지 못했어도 첫 전면 광고 차례에 물음. 창이 늘 같은 때 뜸
     func showInterstitial(onImpression: @escaping () -> Void, onDone: @escaping (KotlinBoolean) -> Void) {
         onMain { [self] in
-            guard interstitial != nil, interstitialIsFresh else {
+            guard available else {
                 onDone(false)
                 return
             }
             askTrackingOnce { [self] in
-                guard let ad = interstitial, let screen = topScreen() else {
+                guard interstitialIsFresh, let ad = interstitial, let screen = topScreen() else {
                     onDone(false)
                     return
                 }

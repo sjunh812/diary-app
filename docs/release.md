@@ -100,6 +100,7 @@ App Store용은 `docs/store/screens/ios/{ko,en,ja}/`에 iPhone 4장(1206×2622, 
 | Crashlytics | 진단(크래시 로그, 기기 정보, 설치 ID) | 크래시 데이터 | [Firebase Android](https://firebase.google.com/docs/android/play-data-disclosure), [iOS](https://firebase.google.com/docs/ios/app-store-data-collection) |
 | Analytics | 앱 활동, 기기 ID | 사용 데이터 | 제출 전 Google Analytics 공개 문서로 확인 |
 | AdMob(광고를 넣을 때만) | 대략 위치(IP), 상호작용, 진단, 광고 ID | 기기 ID, 광고 데이터 등 + ATT, `SKAdNetworkItems` | [AdMob Android](https://developers.google.com/admob/android/privacy/play-data-disclosure), [iOS](https://developers.google.com/admob/ios/privacy/data-disclosure) |
+| 구매 기록(RevenueCat) | 금융 정보 > 구매 기록, 앱 기능 | 구매 > 구매 기록, 앱 기능 | `PrivacyInfo.xcprivacy`와 처리방침에 있다. 콘솔 신고 값은 제출 전 다시 본다 |
 | 현재 위치 | 정확한 위치: 수집, 공유 아님, 임시 처리, 선택, 앱 기능(2026-11-15). 앱은 좌표를 저장하거나 우리 쪽으로 보내지 않지만 운영체제 주소 변환이 구글 서버로 보낼 수 있고 정확한 위치 권한을 요청해서 신고한다 | 같은 기준으로 다시 본다 | 아래 위치정보법 |
 
 - iOS `PrivacyInfo.xcprivacy`에 추적 여부, 수집 데이터, Required Reason API(UserDefaults, 파일 시각 등)를 적는다. Firebase Core·Crashlytics·GoogleSignIn은 서명된 매니페스트가 필요한 SDK 목록에 있다([Apple](https://developer.apple.com/support/third-party-SDK-requirements/)).
@@ -283,7 +284,7 @@ App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서
 2. [코드] 개인 팀 ID를 `iosApp/project.yml`의 `DEVELOPMENT_TEAM`에 넣고 `xcodegen generate`로 프로젝트를 다시 만들었다(PR #16). 팀 ID는 서명된 앱에 그대로 드러나는 값이라 비밀값이 아니다. CD 비밀값 `IOS_TEAM_ID`에도 같은 값을 넣었다(2026-11-15).
 3. [사용자] App Store Connect > 비즈니스: 유료 앱 계약, 세금, 은행, 규정 준수 > Korean Law(사업자등록번호). 2026-11-16 유료 앱 계약·은행·W-8BEN·Korean Law가 활성화됐다. 미국 세금 양식은 W-8BEN과 "Certificate of Foreign Status of Beneficial Owner"가 따로라 둘 다 낸다. 한국 세금 양식은 대기 중이다.
 4. [사용자] Apple Developer: 앱 ID `org.sjhstudio.diary`는 Xcode 자동 서명이 만들어 두었다(설명 "XC org sjhstudio diary", 인앱 결제는 모든 앱 ID에 기본으로 켜져 끌 수 없다). Apple Distribution 인증서와 App Store 배포 프로필은 Archive 때 Xcode가 만들 수 있다. CD에 넣을 .p12와 프로필은 따로 내려받는다.
-5. [같이] App Store Connect 앱 만들기: 2026-11-16 만들었다(앱 Apple ID 6835116731, 버전 2.0.0). 같은 날 비소모품 `ad_free`(₩9,900)와 구독 그룹 "Plus"의 `plus_yearly`(1년, ₩14,900)를 세 언어 이름·설명과 함께 만들었다. 가격은 기준 국가 한국으로 정하고 다른 나라는 Apple 자동 환산을 쓴다. 한국 가격 목록은 처음에 몇 단계만 보이고 맨 아래 "추가 가격 보기"를 눌러야 ₩100 단위가 다 나온다. 상품 설명 칸은 비소모품 45자, 구독 55자 안팎이라 Play 문구를 줄였다(`docs/store/listing.md` "인앱 상품 이름"). 심사용 스크린샷은 두 상품 모두 시뮬레이터 Plus 화면 캡처를 올렸다. 영어·일본어 앱 정보 현지화는 아직이다.
+5. [같이] App Store Connect 앱 만들기: 2026-11-16 만들었다(앱 Apple ID 6835116731, 버전 2.0.0). 같은 날 비소모품 `ad_free`(₩9,900)와 구독 그룹 "Plus"의 `plus_yearly`(1년, ₩14,900)를 세 언어 이름·설명과 함께 만들었다. 가격은 기준 국가 한국으로 정하고 다른 나라는 Apple 자동 환산을 쓴다. 한국 가격 목록은 처음에 몇 단계만 보이고 맨 아래 "추가 가격 보기"를 눌러야 ₩100 단위가 다 나온다. 상품 설명 칸은 비소모품 45자, 구독 55자 안팎이라 Play 문구를 줄였다(`docs/store/listing.md` "인앱 상품 이름"). 심사용 스크린샷은 두 상품 모두 시뮬레이터 Plus 화면 캡처를 올렸다. 영어·일본어 앱 정보 현지화는 아래 12단계에서 넣었다.
 6. [같이] 추천 노미네이션: 앱 > 피처링 > 피처링 요청 > 시작하기에서 유형 '앱 출시'로 낸다. 희망 게시일은 최소 3주 뒤로 적되 출시는 미루지 않는다(2026-11-16 사용자 결정). 뽑힐지 알 수 없는데 기다리는 시간은 확실히 잃고, 노미네이션은 업데이트용으로 출시 뒤에도 낼 수 있어서다. 비용이 없고 선정은 보장되지 않는다. 이름은 우리만 보는 이름표, 설명(1,000자)은 Apple 에디터만 본다. 2026-11-16 게시일 2026-12-07, iPhone·iPad, 출시 6개국, 세 언어로 제출했다. 뽑힌 경우에만 Apple이 연락한다. Play 추천 후보 양식은 2022년부터 있던 기존 앱이라 대상이 아니어서 내지 않는다(2026-11-15 결정).
 7. [사용자] 인앱 구입 키: App Store Connect > 사용자 및 액세스 > 통합 > 인앱 구입에서 키(.p8)를 만들어 받는다. 앱 하나가 아니라 팀 전체가 쓰는 키다. 2026-11-16 받았다.
 8. [같이] RevenueCat: 2026-11-16 같은 프로젝트에 App Store 앱을 더하고 7의 키를 올렸다("Valid credentials"). App Store 상품 `ad_free`(비소모품)·`plus_yearly`(구독)를 만들어 권한 `ad_free`·`plus`에 이었다. 앱은 오퍼링 없이 상품 ID로 부르므로 오퍼링은 쓰지 않는다. 상품 상태가 "Could not check"인 것은 선택 기능인 App Store Connect API 키를 넣지 않아서이고 구매와는 상관없다. Apple 서버 알림 URL(운영·샌드박스)은 App Store Connect 앱 정보에 RevenueCat 주소로 들어가 있다.
@@ -338,6 +339,7 @@ iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-
 - [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 같은 날 읽기 쉬운 말로 다시 쓴 글로 노션과 GitHub Pages를 함께 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인).
 - [x] 스크린샷 올리기(2026-11-16): `docs/store/screens/ios/{ko,en,ja}/`의 iPhone 4장은 위 표의 medium(1206×2622) 칸, iPad 4장은 13" 칸에 올린다. App Store Connect가 6.9"(large) 칸을 따로 요구하면 1320×2868로 다시 만든다(확인 못 함).
 - [x] 심사 메모(2026-11-16, 영어로 넣음, 연락처 포함): 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
+- [ ] 심사 메모에 추적 허용 창 띄우는 순서를 더한다(사용자, App Store Connect): "The App Tracking Transparency prompt appears right before the first full-screen ad: write and save one entry, then tap OK on the ad notice." 2.0.1 (45)부터 광고를 받지 못했어도 이 순간에 뜬다(`docs/DECISIONS.md` 2026-11-16).
 - [x] 출시 국가(2026-11-16): 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(D11). 미국 일부 주의 연령 확인 요구(위 "나라마다 걸리는 일")가 이 앱에 걸리는지 제출 직전에 다시 본다.
 - [ ] TestFlight 실기기: 샌드박스 계정으로 구매, 취소, 승인 대기(구입 요청), 복원, 재설치 뒤 자동 복원, 구독 만료. 함께 구글 드라이브 백업·복원, 카메라 촬영, 약관 링크, 잠금 가림 화면, 기기 글자 크기 반영을 본다. 시뮬레이터에서는 RevenueCat 키가 없거나 시뮬레이터가 못 해서 보지 못했다(2026-11-13, 2026-11-15).
 - [ ] 출시 뒤: AdMob iOS 앱에 스토어 연결.
