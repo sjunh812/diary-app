@@ -15,7 +15,7 @@ class StorePlanStateTest {
     @Test
     fun a_reinstall_stays_unknown_until_the_store_answers() {
         val state = state(null)
-        assertTrue(state.onAnswer(Plan.FREE))
+        state.onAnswer(Plan.FREE)
         assertFalse(state.known.value)
         assertTrue(stored.isEmpty())
     }
@@ -24,34 +24,28 @@ class StorePlanStateTest {
     fun a_reinstalled_buyer_gets_the_plan_after_the_sync() {
         val state = state(null)
         state.onAnswer(Plan.FREE)
-        state.onSynced(Plan.PLUS)
+        state.onRecovered(Plan.PLUS)
         assertEquals(Plan.PLUS, state.plan.value)
         assertTrue(state.known.value)
         assertEquals(listOf(Plan.PLUS), stored)
     }
 
     @Test
-    fun a_failed_sync_stays_unknown_and_saves_nothing_so_the_next_launch_tries_again() {
+    fun a_free_user_after_the_sync_is_remembered_and_later_answers_count() {
         val state = state(null)
-        assertTrue(state.onAnswer(Plan.FREE))
-        assertFalse(state.known.value)
-        assertTrue(stored.isEmpty())
-        assertTrue(state(null).onAnswer(Plan.FREE))
-    }
-
-    @Test
-    fun a_free_user_after_the_sync_is_remembered() {
-        val state = state(null)
-        state.onSynced(Plan.FREE)
+        state.onRecovered(Plan.FREE)
         assertEquals(listOf(Plan.FREE), stored)
-        assertFalse(state.onAnswer(Plan.FREE))
+        state.onAnswer(Plan.AD_FREE)
+        state.onAnswer(Plan.FREE)
+        assertEquals(listOf(Plan.FREE, Plan.AD_FREE, Plan.FREE), stored)
     }
 
     @Test
-    fun a_store_that_knows_the_buyer_skips_the_sync() {
+    fun a_store_that_knows_the_buyer_needs_no_sync() {
         val state = state(null)
-        assertFalse(state.onAnswer(Plan.PLUS))
+        state.onAnswer(Plan.PLUS)
         assertEquals(Plan.PLUS, state.plan.value)
+        assertTrue(state.known.value)
     }
 
     @Test
@@ -65,7 +59,7 @@ class StorePlanStateTest {
     @Test
     fun a_refund_drops_the_plan_and_the_saved_value() {
         val state = state(Plan.PLUS)
-        assertFalse(state.onAnswer(Plan.FREE))
+        state.onAnswer(Plan.FREE)
         assertEquals(Plan.FREE, state.plan.value)
         assertEquals(listOf(Plan.FREE), stored)
     }

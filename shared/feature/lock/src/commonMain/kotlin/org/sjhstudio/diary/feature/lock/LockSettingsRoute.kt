@@ -15,7 +15,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.designsystem.component.LocalTopBarBackHidden
-import org.sjhstudio.diary.core.platform.BiometricStatus
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.lock_confirm_title
 
@@ -40,10 +39,11 @@ fun LockSettingsRoute(onBack: () -> Unit) {
     val confirmState by confirm.state.collectAsStateWithLifecycle()
     val setupState by setup.state.collectAsStateWithLifecycle()
     var step by rememberSaveable { mutableStateOf(SettingsStep.Main) }
-    val biometricAvailable = remember(authenticator) { authenticator.biometricStatus() == BiometricStatus.Available }
-    // 설정 앱에서 화면 잠금을 바꾸고 돌아올 수 있어 돌아올 때마다 다시 봄
+    // 설정 앱에서 화면 잠금·생체 인증을 바꾸고 돌아올 수 있어 돌아올 때마다 다시 봄
+    var biometricStatus by remember(authenticator) { mutableStateOf(authenticator.biometricStatus()) }
     var deviceSecure by remember(authenticator) { mutableStateOf(authenticator.isDeviceSecure()) }
     LifecycleResumeEffect(authenticator) {
+        biometricStatus = authenticator.biometricStatus()
         deviceSecure = authenticator.isDeviceSecure()
         onPauseOrDispose {}
     }
@@ -74,7 +74,7 @@ fun LockSettingsRoute(onBack: () -> Unit) {
             SettingsStep.Main ->
                 LockSettingsScreen(
                     settings = settings,
-                    biometricAvailable = biometricAvailable,
+                    biometricStatus = biometricStatus,
                     deviceSecure = deviceSecure,
                     onBack = onBack,
                     onEnabledChange = { on ->

@@ -37,6 +37,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -45,6 +47,8 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import org.sjhstudio.diary.app.ads.AdRemoval
+import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.BackupRepository
@@ -54,9 +58,12 @@ import org.sjhstudio.diary.core.data.NoAdPlayer
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
+import org.sjhstudio.diary.core.data.RewardResult
 import org.sjhstudio.diary.core.data.WelcomeRepository
 import org.sjhstudio.diary.core.data.diary.EntryRepository
+import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
 import org.sjhstudio.diary.core.datastore.AdStore
+import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -68,6 +75,7 @@ import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
+import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
@@ -99,9 +107,18 @@ class AppScaffoldUiTest {
                 appShellModule,
                 module {
                     single { AppLaunch() }
+                    // 광고 없애기 시트가 잠금을 봄. 시험은 잠그지 않음
+                    single {
+                        LockController(
+                            DefaultLockRepository(LockStore(InMemoryDataStore(emptyPreferences())), FakePinKeyStore()),
+                            CoroutineScope(Dispatchers.Unconfined)
+                        )
+                    }
                     single<PlanRepository> { FreePlanRepository() }
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
                     single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, { false }) }
+                    single { HomeTopState(get(), get(), MainScope()) }
+                    single { AdRemoval(MainScope()) { RewardResult.NotEarned } }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
                     single<WelcomeRepository> {

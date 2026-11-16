@@ -20,10 +20,11 @@
     <string name="reward_watch">영상 보기</string>
     <string name="reward_close">닫기</string>
     <string name="reward_failed_title">광고 없는 하루를 받지 못했어요</string>
-    <string name="reward_failed_body">영상을 불러오지 못했거나 끝까지 보지 않았어요. 잠시 뒤 다시 시도해 주세요.</string>
+    <string name="reward_failed_body">광고를 불러오지 못했거나 끝까지 보지 않았어요. 잠시 뒤 다시 시도해 주세요.</string>
+    <string name="reward_not_saved">기기 저장 공간이 부족해요. 앱을 다시 열면 광고가 보일 수 있어요.</string>
     <string name="ad_close">광고 없애기</string>
     <string name="ad_notice_title">전면 광고는 하루 한 번이에요</string>
-    <string name="ad_notice_body">일기를 저장하고 목록으로 돌아갈 때만 잠깐 나와요.</string>
+    <string name="ad_notice_body">일기를 저장한 뒤에만 잠깐 나와요.</string>
     <string name="ad_notice_ok">확인</string>
     <string name="write_failed">저장하지 못했어요. 기기 저장 공간을 확인해 주세요.</string>
 </resources>

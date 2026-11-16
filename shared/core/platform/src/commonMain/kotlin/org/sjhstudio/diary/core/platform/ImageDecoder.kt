@@ -8,6 +8,7 @@ expect object ImageDecoder {
     /**
      * [source]를 긴 변이 [maxSide]px 이하가 되게 줄여 [target]에 JPEG 품질 [quality]로 씀
      * 원본이 더 작으면 키우지 않음. 읽을 수 없는 그림이면 false.
+     * 쓰지 못하면(공간 부족 등) IOException
      */
     fun writeThumbnail(source: String, target: String, maxSide: Int, quality: Int): Boolean
 

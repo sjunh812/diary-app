@@ -41,7 +41,7 @@ data class FontUiState(
 }
 
 /** 받지 못했을 때 한 번 알림 */
-enum class FontNotice { Offline, Failed }
+enum class FontNotice { Offline, NoSpace, NotFromStore, Failed }
 
 /**
  * 글꼴 고르기
@@ -97,7 +97,14 @@ class FontSettingsViewModel(
 
                     is FontInstallState.Failed -> {
                         downloading.update { it - font }
-                        notices.send(if (result.offline) FontNotice.Offline else FontNotice.Failed)
+                        notices.send(
+                            when (result.reason) {
+                                FontInstallState.Reason.Offline -> FontNotice.Offline
+                                FontInstallState.Reason.NoSpace -> FontNotice.NoSpace
+                                FontInstallState.Reason.NotFromStore -> FontNotice.NotFromStore
+                                FontInstallState.Reason.Other -> FontNotice.Failed
+                            }
+                        )
                     }
                 }
             }

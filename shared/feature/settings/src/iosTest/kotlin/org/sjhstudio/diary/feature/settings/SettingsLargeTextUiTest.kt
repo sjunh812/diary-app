@@ -19,6 +19,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AppSettings
+import org.sjhstudio.diary.core.model.Plan
 
 // 글자 크기를 200%로 키운 작은 폰에서도 설정 줄 글자가 잘리거나 화면 밖으로 나가지 않음
 @OptIn(ExperimentalTestApi::class)
@@ -35,7 +36,12 @@ class SettingsLargeTextUiTest {
                         DiaryTheme(darkTheme = dark) {
                             Box(Modifier.size(width, 4000.dp)) {
                                 SettingsScreen(
-                                    SettingsUiState(settings = AppSettings(reminderEnabled = true), loaded = true),
+                                    SettingsUiState(
+                                        settings = AppSettings(reminderEnabled = true),
+                                        trashCount = 128,
+                                        plan = Plan.FREE,
+                                        loaded = true
+                                    ),
                                     onFont = {},
                                     onTextSize = {},
                                     onTheme = {},
@@ -43,7 +49,6 @@ class SettingsLargeTextUiTest {
                                     onLock = {},
                                     onMigrationReport = {},
                                     onLicenses = {},
-                                    trashCount = 128,
                                     backupValue = "오늘 오전 12:52",
                                     appVersion = "2.0.0"
                                 )

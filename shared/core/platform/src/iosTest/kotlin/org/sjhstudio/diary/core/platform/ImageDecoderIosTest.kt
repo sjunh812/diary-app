@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.platform
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -104,5 +105,14 @@ class ImageDecoderIosTest {
         val broken = path("broken.jpg")
         NSFileManager.defaultManager.createFileAtPath(broken, contents = null, attributes = null)
         assertFalse(ImageDecoder.writeThumbnail(broken, path("thumb.jpg"), 480, 80))
+    }
+
+    /** 쓰지 못한 것은 읽을 수 없는 그림이 아니라 공간 같은 쓰기 문제. 사용자에게 다른 안내가 나감 */
+    @Test
+    fun a_failed_write_throws_instead_of_calling_the_picture_unreadable() {
+        val target = path("missing-folder/thumb.jpg")
+        assertFailsWith<okio.IOException> {
+            ImageDecoder.writeThumbnail(photo(UIImageOrientation.UIImageOrientationUp), target, 480, 80)
+        }
     }
 }

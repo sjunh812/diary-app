@@ -54,7 +54,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
-import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
@@ -130,8 +129,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }
                 },
                 onRate = storeReviewUrl(app.platform)?.let { url -> { openWeb(url) } },
-                plusActive = state.plan == Plan.PLUS,
-                adsRemoved = state.plan == Plan.AD_FREE,
                 onDevMode = getKoin().getOrNull<DevMenu>()?.let { menu -> menu::open },
                 onFont = { open(FontSettingsKey) },
                 onTextSize = { open(TextSizeSettingsKey) },
@@ -142,7 +139,6 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onLicenses = { open(LicensesKey) },
                 onListStyle = { open(ListStyleSettingsKey) },
                 onTrash = { open(TrashKey) },
-                trashCount = state.trashCount,
                 onBackup = { open(BackupSettingsKey) },
                 backupValue = state.lastBackupAt?.let { settingsBackupValue(it) },
                 onLetter = { push(LetterKey) },

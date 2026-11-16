@@ -37,7 +37,7 @@ private val BackStackConfiguration =
     }
 
 /**
- * 탭마다 화면을 따로 쌓음(공식 nav3-recipes `multiplestacks`)
+ * 탭마다 화면을 따로 쌓고, 탭을 바꾸면 그 탭의 쌓임만 그림(iOS 탭 바처럼 갈아 끼움)
  * 탭의 화면 키가 쌓임에 남아 있으면 화면 모델과 저장 상태가 살아 있음
  * 그래서 탭을 옮겼다 와도 스크롤, 고른 날, 기간, 필터가 그대로
  * 앱은 늘 홈을 지나서 닫힘(`contracts/navigation.md` 뒤로 가기)
@@ -53,12 +53,8 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     /** 지금 보이는 화면 */
     val top: NavKey? get() = current.lastOrNull()
 
-    /** 뒤로 가면 지나는 탭. 다른 탭은 쓰지 않아도 상태가 그대로 남음 */
-    val visibleTabs: List<TabScreen> get() = if (tab == START_TAB) listOf(START_TAB) else listOf(START_TAB, tab)
-
-    /** 방금 움직임이 탭 사이를 옮긴 것인지. 탭을 옮길 때는 두 화면을 겹치지 않고 바로 바꿈 */
-    var movedBetweenTabs: Boolean = false
-        private set
+    /** 다른 탭 첫 화면이라 뒤로 가면 홈으로 감. 홈 첫 화면이면 시스템이 앱을 닫음 */
+    val backGoesHome: Boolean get() = tab != START_TAB && current.size <= 1
 
     /** 첫 화면에서 지금 탭을 다시 누른 횟수. 화면이 듣고 맨 위로 감 */
     var reselected: Int by mutableIntStateOf(0)
@@ -70,7 +66,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
      * 이미 첫 화면이면 맨 위로 감
      */
     fun selectTab(target: TabScreen) {
-        movedBetweenTabs = target != tab
         if (target == tab) {
             if (current.size <= 1) reselected++
             current.keepFirst()
@@ -81,7 +76,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
 
     /** 다른 곳에서 탭을 열 때는 그 탭 첫 화면에서 시작 */
     fun openTab(target: TabScreen) {
-        movedBetweenTabs = target != tab
         tab = target
         current.keepFirst()
     }
@@ -100,7 +94,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
      * 복원이 일기를 바꾼 뒤에는 쌓인 상세가 없는 일기를 볼 수 있음
      */
     fun startOver(target: TabScreen) {
-        movedBetweenTabs = target != tab
         tab = target
         stacks.values.forEach { it.keepFirst() }
     }
@@ -110,7 +103,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
      * 앱에 하나만 있어야 하는 화면은 어느 탭에 있든 그 화면으로 돌아감
      */
     fun push(key: NavKey) {
-        movedBetweenTabs = false
         val single = key.singleScreen()
         if (single != null && bringBack(single)) return
         if (top == key) return
@@ -120,7 +112,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
     /** [match]에 맞는 화면이 쌓여 있으면 그 탭으로 가서 그 위 화면을 걷음 */
     private fun bringBack(match: (NavKey) -> Boolean): Boolean {
         val (owner, stack) = stacks.entries.firstOrNull { (_, stack) -> stack.any(match) } ?: return false
-        movedBetweenTabs = owner != tab
         tab = owner
         while (!match(stack.last())) stack.removeAt(stack.lastIndex)
         return true
@@ -128,7 +119,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
 
     /** 뒤로 가기. 탭 첫 화면이면 홈으로, 홈 첫 화면이면 시스템이 앱을 닫음 */
     fun back() {
-        movedBetweenTabs = current.size <= 1 && tab != START_TAB
         when {
             current.size > 1 -> current.removeAt(current.lastIndex)
             tab != START_TAB -> tab = START_TAB
@@ -137,7 +127,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
 
     /** 상세 열기. 넓은 화면에서 다른 줄을 고르면 상세가 쌓이지 않고 바뀜 */
     fun openEntry(entryId: String) {
-        movedBetweenTabs = false
         if (top is EntryDetailKey) current.removeAt(current.lastIndex)
         // 한 쌓임에 같은 일기는 하나. 아래에 열려 있으면 걷고 위에 열기
         current.removeAll { it is EntryDetailKey && it.entryId == entryId }
@@ -146,7 +135,6 @@ class TabNavigation(selected: MutableState<TabScreen>, val stacks: Map<TabScreen
 
     /** 휴지통으로 옮긴 일기를 모든 탭에서 닫음 */
     fun closeEntry(entryId: String) {
-        movedBetweenTabs = false
         stacks.values.forEach { stack ->
             stack.removeAll { (it is EntryDetailKey && it.entryId == entryId) || (it is PhotoViewerKey && it.entryId == entryId) }
         }
@@ -179,7 +167,10 @@ fun rememberTabNavigation(startTab: TabScreen): TabNavigation {
     return remember { TabNavigation(selected, stacks) }
 }
 
-/** 탭 쌓임마다 화면 상태를 묶음. 저장 상태와 화면 모델은 탭마다 따로 */
+/**
+ * 탭 쌓임마다 화면 상태를 묶고 지금 탭의 화면들을 돌려줌. 저장 상태와 화면 모델은 탭마다 따로
+ * 다른 탭의 묶음도 여기서 기억해 탭을 옮겼다 와도 스크롤과 화면 모델이 그대로
+ */
 @Composable
 fun TabNavigation.decoratedEntries(
     decorator: NavEntryDecorator<NavKey>,
@@ -201,7 +192,7 @@ fun TabNavigation.decoratedEntries(
                 )
             }
         }
-    return visibleTabs.flatMap { entries.getValue(it) }
+    return entries.getValue(tab)
 }
 
 /**

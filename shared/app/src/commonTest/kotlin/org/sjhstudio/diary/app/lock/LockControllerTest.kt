@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -29,10 +30,10 @@ class LockControllerTest {
     private val repository =
         DefaultLockRepository(LockStore(InMemoryDataStore<Preferences>(emptyPreferences())), keys, keyWork = Dispatchers.Unconfined)
 
-    private suspend fun TestScope.started(relockAfter: RelockAfter): LockController {
+    private suspend fun TestScope.started(relockAfter: RelockAfter, grace: Duration = PICKER_GRACE): LockController {
         repository.setPin(checkNotNull(Pin.of("2580")))
         repository.setRelockAfter(relockAfter)
-        val controller = LockController(repository, backgroundScope, clock)
+        val controller = LockController(repository, backgroundScope, clock, grace)
         controller.onColdStart(repository.settings.first())
         testScheduler.runCurrent()
         assertEquals(LockState.Locked, controller.state.value)
@@ -75,7 +76,7 @@ class LockControllerTest {
         controller.awayFor(3600)
         assertEquals(LockState.Unlocked, controller.state.value)
 
-        val newProcess = LockController(repository, backgroundScope, clock)
+        val newProcess = LockController(repository, backgroundScope, clock, PICKER_GRACE)
         newProcess.onColdStart(repository.settings.first())
         assertEquals(LockState.Locked, newProcess.state.value)
     }
@@ -123,6 +124,15 @@ class LockControllerTest {
         assertFalse(ExpectedLeave.marked)
     }
 
+    /** iOS는 고르기가 앱 안이라 유예가 없음. 고른 뒤 홈으로 나갔다 오면 바로 잠김 */
+    @Test
+    fun without_grace_a_marked_leave_locks_as_usual() = runTest {
+        val controller = started(RelockAfter.IMMEDIATELY, grace = Duration.ZERO)
+        ExpectedLeave.mark()
+        controller.awayFor(10)
+        assertEquals(LockState.Locked, controller.state.value)
+    }
+
     /** 표시는 한 번만 씀. 다음에 나갔다 오면 평소대로 잠김 */
     @Test
     fun the_picker_mark_is_used_once() = runTest {
@@ -135,7 +145,7 @@ class LockControllerTest {
 
     @Test
     fun lock_off_never_locks() = runTest {
-        val controller = LockController(repository, backgroundScope, clock)
+        val controller = LockController(repository, backgroundScope, clock, PICKER_GRACE)
         controller.onColdStart(LockSettings())
         controller.awayFor(600)
         assertEquals(LockState.Unlocked, controller.state.value)
@@ -144,13 +154,13 @@ class LockControllerTest {
     /** 확인값이 없거나 기기 키를 잃었으면 숫자판 대신 새 비밀번호 정하기로 감 */
     @Test
     fun missing_pin_or_key_needs_a_new_pin() = runTest {
-        val withoutPin = LockController(repository, backgroundScope, clock)
+        val withoutPin = LockController(repository, backgroundScope, clock, PICKER_GRACE)
         withoutPin.onColdStart(LockSettings(enabled = true))
         assertEquals(LockState.NeedsNewPin, withoutPin.state.value)
 
         repository.setPin(checkNotNull(Pin.of("2580")))
         keys.lose(LockSettings.DEFAULT_KEY_ALIAS)
-        val keyLost = LockController(repository, backgroundScope, clock)
+        val keyLost = LockController(repository, backgroundScope, clock, PICKER_GRACE)
         keyLost.onColdStart(repository.settings.first())
         testScheduler.runCurrent()
         assertEquals(LockState.NeedsNewPin, keyLost.state.value)
@@ -160,7 +170,7 @@ class LockControllerTest {
     @Test
     fun watching_starts_once_however_often_the_gate_appears() = runTest {
         var watchers = 0
-        val controller = LockController(repository, backgroundScope, clock) { _, _ -> watchers++ }
+        val controller = LockController(repository, backgroundScope, clock, PICKER_GRACE) { _, _ -> watchers++ }
 
         repeat(3) { controller.watchForeground() }
 
@@ -175,7 +185,7 @@ class LockControllerTest {
         repository.setPin(checkNotNull(Pin.of("2580")))
         repository.setRelockAfter(RelockAfter.ONE_MINUTE)
         val controller =
-            LockController(repository, backgroundScope, clock) { onBackground, onForeground ->
+            LockController(repository, backgroundScope, clock, PICKER_GRACE) { onBackground, onForeground ->
                 away = onBackground
                 back = onForeground
             }
@@ -203,7 +213,7 @@ class LockControllerTest {
     @Test
     fun keeping_locked_never_unlocks() = runTest {
         repository.setPin(checkNotNull(Pin.of("2580")))
-        val controller = LockController(repository, backgroundScope, clock)
+        val controller = LockController(repository, backgroundScope, clock, PICKER_GRACE)
         controller.onColdStart(repository.settings.first())
         testScheduler.runCurrent()
         controller.onKeyMissing()
@@ -214,3 +224,6 @@ class LockControllerTest {
         assertEquals(LockState.Locked, controller.state.value)
     }
 }
+
+/** Android 고르기 유예 */
+private val PICKER_GRACE = 5.minutes

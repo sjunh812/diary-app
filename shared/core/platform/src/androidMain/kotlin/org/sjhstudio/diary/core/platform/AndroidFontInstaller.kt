@@ -12,6 +12,7 @@ import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListene
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CancellationException
@@ -112,7 +113,7 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
                     }
 
                     SplitInstallSessionStatus.FAILED, SplitInstallSessionStatus.CANCELED -> {
-                        trySend(FontInstallState.Failed(offline = state.errorCode() == SplitInstallErrorCode.NETWORK_ERROR))
+                        trySend(FontInstallState.Failed(reasonOf(state.errorCode())))
                         close()
                     }
 
@@ -120,7 +121,7 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
                     SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> {
                         val screen = activity
                         if (screen == null) {
-                            trySend(FontInstallState.Failed(offline = false))
+                            trySend(FontInstallState.Failed(FontInstallState.Reason.Other))
                             close()
                         } else {
                             manager.startConfirmationDialogForResult(state, screen, CONFIRM_REQUEST)
@@ -134,20 +135,32 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
         trySend(FontInstallState.Downloading(null))
         manager.startInstall(SplitInstallRequest.newBuilder().addModule(id).build())
             .addOnFailureListener { error ->
-                val code = (error as? SplitInstallException)?.errorCode
-                trySend(FontInstallState.Failed(offline = code == SplitInstallErrorCode.NETWORK_ERROR))
+                trySend(FontInstallState.Failed(reasonOf((error as? SplitInstallException)?.errorCode)))
                 close()
             }
         awaitClose { manager.unregisterListener(listener) }
     }.flowOn(Dispatchers.Main)
 
-    /** 저장 공간이 없으면 복사가 실패함. 받기 실패로 알리고 다음에 앱을 열 때 다시 함 */
+    /** 복사가 쓰다 실패하면 저장 공간 부족. 다음에 앱을 열 때 다시 함 */
     private suspend fun copied(id: String): FontInstallState = try {
         FontInstallState.Installed(copy(id))
     } catch (error: CancellationException) {
         throw error
+    } catch (_: IOException) {
+        FontInstallState.Failed(FontInstallState.Reason.NoSpace)
     } catch (_: Exception) {
-        FontInstallState.Failed(offline = false)
+        FontInstallState.Failed(FontInstallState.Reason.Other)
+    }
+
+    private fun reasonOf(code: Int?): FontInstallState.Reason = when (code) {
+        SplitInstallErrorCode.NETWORK_ERROR -> FontInstallState.Reason.Offline
+
+        SplitInstallErrorCode.INSUFFICIENT_STORAGE -> FontInstallState.Reason.NoSpace
+
+        // Play에서 받지 않은 앱은 다시 해도 받지 못함
+        SplitInstallErrorCode.APP_NOT_OWNED -> FontInstallState.Reason.NotFromStore
+
+        else -> FontInstallState.Reason.Other
     }
 
     private fun hasAsset(id: String): Boolean = runCatching { context.assets.open("fonts/$id.ttf").close() }.isSuccess

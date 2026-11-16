@@ -22,10 +22,16 @@ import platform.darwin.NSObject
  * CLGeocoder는 iOS 26에서 지원 중단 표시가 됐지만 대체 API가 iOS 26부터라 최소 버전 17에서는 이것을 씀
  */
 class IosPlaceFinder : PlaceFinder {
-    override suspend fun find(): PlaceLookup = withContext(Dispatchers.Main) {
+    override suspend fun find(): PlaceLookup {
+        // 화면 스레드에서 부르면 화면이 멈출 수 있다고 Apple이 경고함
+        val servicesOn = withContext(Dispatchers.Default) { CLLocationManager.locationServicesEnabled() }
+        return withContext(Dispatchers.Main) { lookup(servicesOn) }
+    }
+
+    private suspend fun lookup(servicesOn: Boolean): PlaceLookup {
         val status = CLLocationManager().authorizationStatus
-        when {
-            !CLLocationManager.locationServicesEnabled() -> PlaceLookup.LocationOff
+        return when {
+            !servicesOn -> PlaceLookup.LocationOff
 
             status != kCLAuthorizationStatusAuthorizedWhenInUse && status != kCLAuthorizationStatusAuthorizedAlways -> PlaceLookup.Denied
 

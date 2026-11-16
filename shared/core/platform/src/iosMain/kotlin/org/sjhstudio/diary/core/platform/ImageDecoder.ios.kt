@@ -8,6 +8,7 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.value
+import okio.IOException
 import platform.CoreFoundation.CFDictionaryAddValue
 import platform.CoreFoundation.CFDictionaryCreateMutable
 import platform.CoreFoundation.CFNumberCreate
@@ -73,9 +74,10 @@ actual object ImageDecoder {
             val image = onWhite(thumbnail) ?: thumbnail
             if (image != thumbnail) CGImageRelease(thumbnail)
             try {
-                val targetUrl = keep(fileUrl(target)) ?: return@memScoped false
+                // 여기부터는 쓰기 실패라 읽을 수 없는 그림이 아니라 IOException(공간 부족 등, Android와 같음)
+                val targetUrl = keep(fileUrl(target)) ?: throw IOException("파일 주소를 만들지 못함")
                 val jpeg = keep(cfString("public.jpeg"))
-                val destination = keep(CGImageDestinationCreateWithURL(targetUrl, jpeg, 1u, null)) ?: return@memScoped false
+                val destination = keep(CGImageDestinationCreateWithURL(targetUrl, jpeg, 1u, null)) ?: throw IOException("파일을 열지 못함")
                 val properties =
                     keep(CFDictionaryCreateMutable(null, 1, kCFTypeDictionaryKeyCallBacks.ptr, kCFTypeDictionaryValueCallBacks.ptr))
                 val level = alloc<FloatVar>().apply { value = quality / 100f }
@@ -85,7 +87,8 @@ actual object ImageDecoder {
                     keep(CFNumberCreate(null, kCFNumberFloatType, level.ptr))
                 )
                 CGImageDestinationAddImage(destination, image, properties)
-                CGImageDestinationFinalize(destination)
+                if (!CGImageDestinationFinalize(destination)) throw IOException("파일을 쓰지 못함")
+                true
             } finally {
                 CGImageRelease(image)
             }

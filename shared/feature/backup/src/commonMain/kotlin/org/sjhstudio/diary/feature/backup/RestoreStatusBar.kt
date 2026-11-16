@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
@@ -93,13 +94,14 @@ fun RestoreResultNotice(toast: DiaryToastState, onResultScreen: Boolean, quiet: 
 @Composable
 fun BundleStoppedNotice(toast: DiaryToastState, onOpen: () -> Unit) {
     val viewModel = koinViewModel<BundleNoticeViewModel>()
-    val pending by viewModel.pending.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
-    LaunchedEffect(pending) {
-        if (!pending) return@LaunchedEffect
-        viewModel.shown()
-        val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
-        if (shown == DiaryToastResult.ActionPerformed) open()
+    // 값을 열쇠로 두면 알린 뒤 값이 바뀌며 띄우던 토스트가 취소됨
+    LaunchedEffect(viewModel) {
+        viewModel.pending.filter { it }.collect {
+            viewModel.shown()
+            val shown = toast.show(getString(Res.string.file_stopped_notice), getString(Res.string.restore_see_result))
+            if (shown == DiaryToastResult.ActionPerformed) open()
+        }
     }
 }
 

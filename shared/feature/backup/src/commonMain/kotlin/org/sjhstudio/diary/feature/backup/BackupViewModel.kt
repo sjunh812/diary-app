@@ -16,7 +16,6 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
-import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.RollbackInfo
@@ -59,8 +58,6 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
 
     /** 지금 백업이 올리지 않고 끝났을 때 한 번 옴 */
     val skipped: Flow<BackupSkip> = controller.skipped
-
-    val nudge: StateFlow<BackupNudge?> = controller.nudge.stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
     private val _connecting = MutableStateFlow(false)
     val connecting: StateFlow<Boolean> = _connecting.asStateFlow()

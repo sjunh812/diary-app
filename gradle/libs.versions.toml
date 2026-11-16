@@ -33,7 +33,7 @@ androidxLifecycle = "2.11.0"
 androidxFragment = "1.8.9"
 # 고를 때 받는 일기 글꼴 다섯 종(fonts/*)을 Play에서 받는다(research R17).
 playFeatureDelivery = "2.1.0"
-# 저장하고 목록으로 돌아올 때 한 번 띄우는 스토어 리뷰 창(스펙 007)
+# 저장해 작성 화면이 닫힐 때 한 번 띄우는 스토어 리뷰 창(스펙 007)
 playReview = "2.0.2"
 # 오픈소스 고지 목록(KotlinConf 앱과 같은 방식, 2026-11-04)
 aboutlibraries = "15.3.0"

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -41,7 +42,7 @@ import org.sjhstudio.diary.core.platform.DriveAuthorizer
  * 연결한 드라이브에서 권할 백업
  * 새 백업을 먼저 고르고, 없으면 예전 앱이 올린 백업을 고름
  * 예전 백업은 편수를 몰라 0편으로 옴
- * [migrated]면 이 휴대폰에서 이미 옮겨 온 일기와 같은 백업이라 권하지 않음
+ * [migrated]면 이 기기에서 이미 옮겨 온 일기와 같은 백업이라 권하지 않음
  */
 fun backupToOffer(backups: List<BackupEntry>?, migrated: Boolean): BackupEntry? {
     val ready = backups.orEmpty().filter { it.state == BackupEntryState.Ready }
@@ -150,6 +151,8 @@ class BackupController(
                 }
             }
         }
+            // 기록을 읽지 못하면 권하지 않음. 흐름이 끝나 홈 맨 위 칸이 멈추지 않게 함
+            .catch { if (it is Exception) emit(null) else throw it }
 
     private fun mayNudge(prefs: BackupPrefs): Boolean {
         val hidden = prefs.nudgeHiddenUntil?.let { it > clock.now() } == true
@@ -275,9 +278,7 @@ class BackupController(
         if (found != null) _foundBackup.value = found else store.update { it.copy(foundBackupWaiting = false) }
     }
 
-    override suspend fun runIfDue() {
-        if (isDue()) runAutomatic()
-    }
+    override suspend fun runIfDue(): Boolean = !isDue() || runAutomatic() !is BackupOutcome.Failed
 
     /**
      * 자동 백업 한 번

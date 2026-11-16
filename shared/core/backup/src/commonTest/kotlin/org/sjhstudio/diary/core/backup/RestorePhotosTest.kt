@@ -14,9 +14,13 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
@@ -115,14 +119,19 @@ class RestorePhotosTest {
 
     private val held get() = b.work / "unpacking" / "bundle.zip"
 
-    /** 사진을 꺼내다 실패하는 기기로 복원 */
-    private suspend fun cutFileRestore(zip: Path, scope: CoroutineScope): RestoreResult {
-        val cut = b.controller(scope, files = JammedFiles(fs) { it.name.endsWith(".part") })
+    /**
+     * 사진을 꺼내다 실패하는 기기로 복원한 뒤 그 앱을 닫음
+     * 닫지 않으면 남은 정리가 다음 앱의 같은 폴더 작업과 겹침
+     */
+    private suspend fun cutFileRestore(zip: Path): RestoreResult {
+        val app = CoroutineScope(currentCoroutineContext().minusKey(Job) + Job())
+        val cut = b.controller(app, files = JammedFiles(fs) { it.name.endsWith(".part") })
         assertIs<RestorePreparation.Ready>(cut.pick(zip))
         cut.merge()
         val result = assertIs<RestoreState.Done>(cut.finished()).result
         cut.dismiss()
         gateFree()
+        app.coroutineContext.job.cancelAndJoin()
         return result
     }
 
@@ -131,7 +140,7 @@ class RestorePhotosTest {
     @Test
     fun a_file_restore_cut_midway_keeps_the_file_and_finishes_when_the_app_opens_again() = runTest {
         val zip = export()
-        val result = cutFileRestore(zip, backgroundScope)
+        val result = cutFileRestore(zip)
         assertEquals(2, result.photosPending)
         assertTrue(fs.exists(held), "남은 사진이 든 파일을 지웠다")
 
@@ -146,7 +155,7 @@ class RestorePhotosTest {
     @Test
     fun picking_a_new_file_does_not_touch_the_file_being_unpacked() = runTest {
         val zip = export()
-        cutFileRestore(zip, backgroundScope)
+        cutFileRestore(zip)
 
         val second = b.controller(backgroundScope)
         assertIs<RestorePreparation.Failed>(second.pick(other("second.zip", "다른 파일")))
@@ -160,7 +169,7 @@ class RestorePhotosTest {
     @Test
     fun a_kept_file_goes_away_after_a_week_and_the_entries_stay() = runTest {
         val zip = export()
-        cutFileRestore(zip, backgroundScope)
+        cutFileRestore(zip)
 
         b.clock.advance(8.days)
         b.controller(backgroundScope).resumePhotos()
@@ -409,7 +418,7 @@ class RestorePhotosTest {
     @Test
     fun someone_without_a_drive_is_asked_to_pick_the_file_again() = runTest {
         val zip = export()
-        cutFileRestore(zip, backgroundScope)
+        cutFileRestore(zip)
         b.clock.advance(8.days)
         val controller = b.controller(backgroundScope)
 

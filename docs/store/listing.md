@@ -265,41 +265,123 @@ Plusについて
 プライバシーポリシー: https://sjunh812.notion.site/411ec02c164a805b9bfec5bb88d766a9
 ```
 
-## App Store 부제·홍보 문구·키워드
+## App Store 이름·부제·홍보 문구·키워드
 
-App Store에만 있는 칸이다. 이름과 부제의 낱말은 이미 검색에 잡혀 키워드에 다시 넣지 않고, 키워드는 쉼표로만 나눈다(Apple 안내). 앱 이름은 위 "앱 이름"과 같다(세 언어 모두 30자 안). 홍보 문구는 심사 없이 바꿀 수 있다.
+App Store에만 있는 칸이다. 2026-11-16 App Store Connect에 넣은 값이다. 이름과 부제의 낱말은 이미 검색에 잡히고, 키워드는 띄어쓰기 없이 쉼표로만 나눈다([Apple 검색 안내](https://developer.apple.com/app-store/search/)). 홍보 문구는 심사 없이 바꿀 수 있다.
 
 | 칸 | 한국어 | 영어 | 일본어 |
 | --- | --- | --- | --- |
-| 부제(30자) | 기분 고르고 몇 줄이면 오늘 일기 끝 | Pick a mood, write a few lines | 気分を選んで、数行書くだけ |
+| 이름(30자) | 1일 1일기 | 1Day1Diary - Everyday Diary | 1日1日記 - 毎日つける日記 |
+| 부제(30자) | 바쁜 현대인을 위한 간편한 일기장 | A simple diary for busy people | 忙しい人のためのかんたん日記 |
+
+App Store 이름은 Play와 다르다. 한국어 부제는 1.7.4부터 쓰던 한 줄 소개다(사용자 결정). 영어 "1 Day 1 Diary"와 일본어 「1日1日記」는 다른 앱이 이미 써서 넣을 수 없었다. 그래서 "브랜드 - 한 줄 소개" 꼴로 이름을 늘렸다(`docs/DECISIONS.md` 2026-11-16).
 
 홍보 문구(170자)
 
 ```text
-회원가입 없이 바로 써요. 기분을 고르고 몇 줄만 남기면 오늘 일기 끝. 일기는 휴대폰에 저장되고, 원하면 사진까지 내 구글 드라이브에 백업할 수 있어요.
+하루 한 줄이면 충분해요.
+기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
 ```
 
 ```text
-No sign-up. Pick a mood, write a few lines, and today's entry is done. Entries stay on your phone, and you can back them up, photos included, to your own Google Drive.
+One line a day is enough.
+Pick a mood, write a few lines, and you're done.
+Your entries and photos stay on your device and your own Google Drive.
 ```
 
 ```text
-会員登録なしですぐ使えます。気分を選んで数行書けば今日の日記は完了。日記はスマートフォンに保存され、写真も含めて自分のGoogleドライブにバックアップできます。
+1日1行で十分です。
+気分を選んで数行書けば、今日の日記は完了。
+日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
 ```
 
-키워드(100자)
+"회원가입 없이"는 설명 첫머리에 있어 홍보 문구에서 뺐다. 홍보 문구와 설명 첫 줄이 화면에 이어 보여 같은 말이 두 번 나오지 않게 했다.
+
+키워드(100자). 한국어는 이름의 "일기"와 부제의 "일기장"을 되풀이하지 않는다. 붙여 쓴 검색어(기분일기 등)는 남긴다(2026-11-16)
 
 ```text
-다이어리,감정,기분,무드,하루,기록,사진,한줄,메모,잠금,비밀,백업,캘린더,감사,습관,회고,일상,마음,데일리
+다이어리,감정,기분,무드,하루,기록,사진,한줄,메모,잠금,비밀,백업,캘린더,감사,습관,회고,일상,마음,데일리,기분일기,감정일기,하루일기,비밀일기,사진일기
 ```
 
 ```text
-mood,daily,log,feelings,tracker,photo,private,lock,backup,calendar,gratitude,notes,memories,reflect
+mood,daily,log,feelings,journal,photo,private,lock,backup,calendar,gratitude,notes,memories,reflect
 ```
 
 ```text
 ダイアリー,気分,感情,記録,写真,一行,メモ,ロック,バックアップ,カレンダー,感謝,習慣,ライフログ,振り返り,日常,デイリー
 ```
+
+## App Store 헤더·검색 결과 그림
+
+App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카드(3:2, 3840×2560)다. 2026-11-16 App Store Connect 2.0.1에 세 언어로 넣었다.
+
+- 헤더: 앱 아이콘의 연필과 앱 이름을 한 덩어리로 가운데에 두고, 사이는 100px(글자 높이의 절반쯤. 기울어진 연필의 지우개 끝이 글자에 가장 가까워 70px은 붙어 보였다, 2026-11-16)이고, 바탕은 가운데가 밝은 라벤더 그라데이션이다. 유명 앱(Structured, Goodnotes, Apple 예시)이 쓰는 "심볼 + 이름" 꼴이다. 기분 얼굴을 무늬나 줄로 넣은 안은 어수선해 뺐다. 눈에 보이는 연필과 글자 테두리로 가로세로 가운데를 맞춘다. `docs/store/screens/ios/{ko,en,ja}/header.png`, `swift scripts/store/make_header.swift <결과> <연필 SVG> - wordmark-<언어> <창원단감둥근체 파일>`.
+- 검색 결과: 홍보 문구 첫 줄과 실제 목록 화면이다. 화면이 문구보다 무거워 테두리 기준 가운데는 오른쪽으로 쏠려 보여, 그림을 한 번 그려 무게 중심을 재고 그만큼 왼쪽으로 옮긴다(2026-11-16). Apple 안전 영역(가로 836~3004)은 넘지 않아, 문구가 긴 영어는 왼쪽 끝까지만 옮긴다. 넘치는 언어만 글자를 줄인다. `docs/store/screens/ios/{ko,en,ja}/search.png`, `make_screens.swift`의 `search` 모드.
+- iPhone은 헤더를 화면 폭에 맞춰 줄여 보여 준다. 작은 그림은 쌀알처럼 보여 크게 둔다. 바꾼 뒤에는 App Store Connect [미리보기]로 iPhone·iPad를 본다.
+
+## App Store 맞춤형 제품 페이지
+
+검색어에 맞는 화면을 먼저 보여 주는 페이지다. 키워드 칸의 낱말을 페이지에 이어 두면 그 낱말로 검색한 사람에게 이 페이지가 뜬다(앱마다 70개, 이름·부제 낱말은 못 씀, [Apple](https://developer.apple.com/app-store/custom-product-pages/), [Phiture](https://phiture.com/blog/keyword-based-custom-product-pages-cpps-arrive-in-app-store-connect/)). 바꿀 수 있는 것은 스크린샷, 앱 미리보기, 홍보 문구다. 설명은 기본 페이지를 그대로 쓴다.
+
+두 페이지 모두 기본 페이지를 복사한 뒤 스크린샷을 새로 찍어 바꿨다(2026-11-16 초안, 심사 전). 헤더와 검색 결과 그림은 언어별 기본 그림이다. 스크린샷은 `docs/store/screens/ios/<언어>/{mood,photo}`, 원본 캡처는 `docs/store/source/ios/<언어>/{mood,photo}`와 `tablet/{mood,photo}`다.
+
+- 만드는 법: `seed_ios.py <UDID> <언어> <그림 폴더> mood`는 1월부터 일기를 채워 한 해 기분이 보이게 하고, `photo`는 사진 붙은 일기를 늘린다. 홈 목록은 사진 격자로 찍는다. 합성은 `make_screens.swift <캡처> <결과> <글꼴> <태블릿 캡처> <언어> mood|photo`.
+- iPad는 쓰기 화면을 뺀다. 기분이 옆 칸에 작게 놓여 빈 화면처럼 보인다.
+
+"기분 일기" 머리말: 한 해 기분이 한눈에 보여요 / 그날 기분이 달력에 남아요 / 자주 고른 기분을 돌아봐요 / 아홉 가지 기분 중 하나를 골라요(iPhone만). 영어 A year of moods at a glance / Every day's mood on your calendar / See which moods came up most / Pick one of nine moods, 일본어 1年の気分がひと目でわかる / その日の気分がカレンダーに残る / よく選んだ気分をふりかえる / 9つの気分からひとつ選ぶ(원어민 검수 전).
+
+```text
+기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.
+한 달 기분을 달력으로 봐요.
+내 기분 흐름을 돌아봐요.
+일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
+```
+
+```text
+Pick a mood, write a few lines, done.
+See your moods on a calendar and look back on how they change.
+Your entries and photos stay on your device and Google Drive.
+```
+
+```text
+気分を選んで数行書けば、今日の日記は完了。
+1か月の気分をカレンダーで見られます。
+気分の流れをふりかえれます。
+日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
+```
+
+- 키워드 잇기 칸은 아직 화면에 없다. 앱이 출시되기 전이라 그런 것으로 보이며 Apple 문서로 확인하지 못했다. 칸이 생기면 이을 낱말: 한국어 기분일기·감정일기·기분·감정·무드, 영어 mood·feelings, 일본어 気分·感情.
+- 심사는 키워드를 이은 다음 넣는다. 맞춤형 제품 페이지는 앱 업데이트와 따로 심사받는다.
+
+"사진 일기" 머리말: 사진으로 지난 일기를 봐요 / 한 편에 사진을 여러 장 담아요 / 사진까지 드라이브에 백업해요. 영어 Look back through photos / Add several photos to one entry / Back up photos to your Drive, 일본어 写真で日記をふりかえる / 1つの日記に写真を何枚も / 写真までドライブにバックアップ(원어민 검수 전).
+
+```text
+한 편에 사진을 여러 장 담아요.
+사진으로 지난 일기를 봐요.
+일기와 사진은 내 기기와 내 구글 드라이브에만 남아요.
+```
+
+```text
+Add several photos to one entry.
+Look back through your entries by photo.
+Your entries and photos stay on your device and Google Drive.
+```
+
+```text
+1つの日記に写真を何枚も残せます。
+写真で日記をふりかえれます。
+日記と写真は、自分の端末と自分のGoogleドライブだけに残ります。
+```
+
+- 이을 낱말: 한국어 사진일기·사진·백업, 영어 photo·backup, 일본어 写真·バックアップ.
+
+## App Store 앱 내 이벤트
+
+정말 기간이 정해진 일만 올린다. 늘 있는 기능을 이벤트로 포장하면 반려된다([Apple 배지](https://developer.apple.com/help/app-store-connect/reference/in-app-events/in-app-event-badges), [Phiture](https://phiture.com/mobilegrowthstack/in-app-events-how-to-get-approved/)). 기간은 31일까지, 공개는 시작 14일 전부터다. 카드 그림은 16:9(1920×1080 이상), 상세 그림은 9:16(1080×1920 이상)이다.
+
+- 후보: 12월 "올해 기분 돌아보기"(돌아보기 년 탭). 이벤트에서 그 화면으로 바로 여는 딥 링크가 없어 `/diary-flow`로 먼저 만든다.
+- 리텐션 메시지(구독 해지 화면 안내)는 구독자가 생긴 뒤에 본다. 할인 없이 파는 지금 판매안과 겹친다.
 
 ## 맞춤 스토어 등록정보
 
@@ -339,7 +421,8 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • 더 나은 앱을 만들기 위한 설문 안내를 홈에 추가했어요
 • 알림을 꺼두면 설정의 쓰기 알림도 알림 꺼짐으로 보여요
 • 다크 모드에서 기간 탭이 잘 보이게 했어요
-• 홈 탭을 다시 누르면 맨 위로 바로 올라가요
+• 홈 탭을 다시 누르면 맨 위로 더 빨리 올라가고 달 제목도 바로 바뀌어요
+• 하루 한 번 나오는 전면 광고는 이제 일기를 저장한 직후에 나와요
 • 화면 문구를 읽기 쉽게 다듬었어요
 </ko-KR>
 <en-US>
@@ -347,7 +430,8 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • Added a survey invite on Home to help us improve the app
 • Daily reminder shows as off when notifications are blocked
 • Period tabs are easier to see in dark mode
-• Tap Home again to jump straight to the top
+• Tapping Home again jumps to the top faster and shows the right month right away
+• The once-a-day full-screen ad now shows right after you save an entry
 • Clearer wording across the app
 </en-US>
 <ja-JP>
@@ -355,12 +439,15 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • より良いアプリにするためのアンケート案内をホームに追加しました
 • 通知をオフにすると、設定の毎日のリマインダーもオフと表示されます
 • ダークモードで期間タブが見やすくなりました
-• ホームタブをもう一度押すと一番上に戻ります
+• ホームタブをもう一度押すと、より速く一番上に戻り、月の表示もすぐ切り替わります
+• 1日1回の全画面広告は、日記を保存した直後に表示されるようになりました
 • 画面の文言を読みやすく整えました
 </ja-JP>
 ```
 
 ### 2.0.0 (43)
+
+출시한 그대로 남긴 기록이다. 전면 광고 자리는 2.0.1에서 "저장해 작성 화면이 닫힐 때"로 바뀌었다(위 2.0.1 노트, `docs/DECISIONS.md` 2026-11-16).
 
 Play는 언어마다 500자까지 받는다. 기존 사용자가 업데이트 뒤 광고를 처음 보게 되므로 광고와 광고 제거를 함께 적는다(`docs/release.md` 출시 전 확인).
 Play 출시 노트 칸에 언어 태그째 붙여 넣는다. 태그(`<b>`)는 출시 노트에서 글자로 보일 수 있어 쓰지 않고, 묶음 제목은 줄로만 나눈다.

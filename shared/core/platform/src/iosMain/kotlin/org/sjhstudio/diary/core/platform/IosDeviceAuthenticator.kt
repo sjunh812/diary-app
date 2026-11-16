@@ -13,7 +13,10 @@ import platform.Foundation.NSError
 import platform.LocalAuthentication.LABiometryTypeFaceID
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAErrorAppCancel
+import platform.LocalAuthentication.LAErrorBiometryLockout
+import platform.LocalAuthentication.LAErrorBiometryNotAvailable
 import platform.LocalAuthentication.LAErrorBiometryNotEnrolled
+import platform.LocalAuthentication.LAErrorPasscodeNotSet
 import platform.LocalAuthentication.LAErrorSystemCancel
 import platform.LocalAuthentication.LAErrorUserCancel
 import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication
@@ -27,10 +30,18 @@ import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometr
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 class IosDeviceAuthenticator : DeviceAuthenticator {
     override fun biometricStatus(): BiometricStatus = memScoped {
+        val context = LAContext()
         val error = alloc<ObjCObjectVar<NSError?>>()
-        when {
-            LAContext().canEvaluatePolicy(LAPolicyDeviceOwnerAuthenticationWithBiometrics, error.ptr) -> BiometricStatus.Available
-            error.value?.code == LAErrorBiometryNotEnrolled -> BiometricStatus.NoneEnrolled
+        if (context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthenticationWithBiometrics, error.ptr)) return BiometricStatus.Available
+        when (error.value?.code) {
+            // 기기 암호가 없으면 Face ID도 등록할 수 없음. Android도 화면 잠금이 없으면 미등록
+            LAErrorBiometryNotEnrolled, LAErrorPasscodeNotSet -> BiometricStatus.NoneEnrolled
+
+            LAErrorBiometryLockout -> BiometricStatus.LockedOut
+
+            // 앱마다 끄는 권한은 Face ID에만 있음. Touch ID 센서 고장은 Unavailable
+            LAErrorBiometryNotAvailable if context.biometryType == LABiometryTypeFaceID -> BiometricStatus.NotAllowed
+
             else -> BiometricStatus.Unavailable
         }
     }
@@ -61,6 +72,7 @@ class IosDeviceAuthenticator : DeviceAuthenticator {
                 when {
                     success -> AuthResult.Success
                     code == LAErrorUserCancel || code == LAErrorSystemCancel || code == LAErrorAppCancel -> AuthResult.Canceled
+                    code == LAErrorBiometryLockout -> AuthResult.LockedOut
                     else -> AuthResult.Failed
                 }
             continuation.resume(result)

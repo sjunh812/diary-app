@@ -185,6 +185,8 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     // 받은 글꼴 모듈의 자산을 앱이 바로 읽게 함(SplitCompat)
     implementation(libs.play.feature.delivery)
+    // 작업 관리자 설정(공간이 차도 앱이 꺼지지 않게). 판은 자동 백업 쪽과 같음
+    implementation(libs.androidx.work.runtime)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)

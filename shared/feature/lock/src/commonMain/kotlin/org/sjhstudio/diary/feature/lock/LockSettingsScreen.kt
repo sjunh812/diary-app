@@ -27,9 +27,13 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
+import org.sjhstudio.diary.core.platform.BiometricStatus
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric
 import org.sjhstudio.diary.feature.lock.resources.lock_note_no_device_lock
+import org.sjhstudio.diary.feature.lock.resources.lock_settings_biometric_locked_out
+import org.sjhstudio.diary.feature.lock.resources.lock_settings_biometric_none_enrolled
+import org.sjhstudio.diary.feature.lock.resources.lock_settings_biometric_not_allowed
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_biometric_unavailable
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_change
 import org.sjhstudio.diary.feature.lock.resources.lock_settings_enable
@@ -53,7 +57,7 @@ import org.sjhstudio.diary.feature.lock.resources.relock_one_minute
 @Composable
 fun LockSettingsScreen(
     settings: LockSettings,
-    biometricAvailable: Boolean,
+    biometricStatus: BiometricStatus,
     deviceSecure: Boolean,
     onBack: () -> Unit,
     onEnabledChange: (Boolean) -> Unit,
@@ -79,8 +83,8 @@ fun LockSettingsScreen(
                     stringResource(Res.string.lock_biometric),
                     checked = settings.biometricEnabled,
                     onCheckedChange = onBiometricChange,
-                    description = if (biometricAvailable) null else stringResource(Res.string.lock_settings_biometric_unavailable),
-                    enabled = biometricAvailable || settings.biometricEnabled
+                    description = biometricStatus.reason()?.let { stringResource(it) },
+                    enabled = biometricStatus == BiometricStatus.Available || settings.biometricEnabled
                 )
                 DiarySettingsHeader(stringResource(Res.string.lock_settings_relock), gapAbove = true)
                 PhraseText(
@@ -112,4 +116,13 @@ private fun RelockAfter.label(): StringResource = when (this) {
     RelockAfter.ONE_MINUTE -> Res.string.relock_one_minute
     RelockAfter.FIVE_MINUTES -> Res.string.relock_five_minutes
     RelockAfter.COLD_START -> Res.string.relock_cold_start
+}
+
+/** 생체 인증을 못 쓰는 까닭과 할 일 */
+private fun BiometricStatus.reason(): StringResource? = when (this) {
+    BiometricStatus.Available -> null
+    BiometricStatus.NoneEnrolled -> Res.string.lock_settings_biometric_none_enrolled
+    BiometricStatus.NotAllowed -> Res.string.lock_settings_biometric_not_allowed
+    BiometricStatus.LockedOut -> Res.string.lock_settings_biometric_locked_out
+    BiometricStatus.Unavailable -> Res.string.lock_settings_biometric_unavailable
 }

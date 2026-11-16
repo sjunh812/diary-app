@@ -1,7 +1,7 @@
 package org.sjhstudio.diary.app.lock
 
 import kotlin.time.ComparableTimeMark
-import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +23,7 @@ class LockController(
     private val repository: LockRepository,
     private val scope: CoroutineScope,
     private val timeSource: TimeSource.WithComparableMarks = TimeSource.Monotonic,
+    private val pickerGrace: Duration = systemScreenGrace,
     private val observeForeground: (onBackground: () -> Unit, onForeground: () -> Unit) -> Unit = { background, foreground ->
         AppForeground.observe(background, foreground)
     }
@@ -84,7 +85,7 @@ class LockController(
         leftAt = null
         val after = lock.relockAfter.duration ?: return
         // 사진을 고르고 돌아온 길이면 결과를 받을 시간을 줌
-        val waited = if (ExpectedLeave.marked) maxOf(after, PICKER_GRACE) else after
+        val waited = if (ExpectedLeave.marked) maxOf(after, pickerGrace) else after
         ExpectedLeave.clear()
         if (lock.enabled && _state.value == LockState.Unlocked && left.elapsedNow() >= waited) _state.value = LockState.Locked
     }
@@ -125,8 +126,12 @@ class LockController(
     }
 }
 
-/** 사진 고르기에 머물 수 있는 시간. 이보다 오래 비우면 평소대로 잠금 */
-private val PICKER_GRACE = 5.minutes
+/**
+ * 사진 고르기·카메라에 머물 수 있는 시간. 이보다 오래 비우면 평소대로 잠금
+ * Android는 고르기가 다른 앱 화면이라 앱이 뒤로 감
+ * iOS는 앱 안에 떠서 뒤로 가지 않아 유예가 없음. 있으면 고른 뒤 홈으로 나간 것까지 덜 잠김
+ */
+internal expect val systemScreenGrace: Duration
 
 sealed interface LockState {
     /**

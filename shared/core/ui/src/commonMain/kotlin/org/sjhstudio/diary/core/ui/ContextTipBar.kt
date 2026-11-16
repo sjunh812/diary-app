@@ -35,11 +35,11 @@ fun ContextTipBar(tip: ContextTip, text: String, modifier: Modifier = Modifier, 
             showing = tips.isOpen(tip) == true
         }
     }
+    val finish = {
+        showing = false
+        tips.done(tip)
+    }
     if (showing == true) {
-        val finish = {
-            showing = false
-            tips.done(tip)
-        }
         DiaryTip(
             text,
             stringResource(Res.string.tip_close),

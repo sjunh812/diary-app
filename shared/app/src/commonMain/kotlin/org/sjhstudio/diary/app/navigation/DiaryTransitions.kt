@@ -13,7 +13,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation3.scene.Scene
-import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.NavigationEvent
 
 // 두 플랫폼 모두 iOS식 밀기(docs/design.md "화면 전환")
@@ -89,12 +88,5 @@ internal fun AnimatedContentTransitionScope<out Scene<*>>.coversAll(fullScreenKe
     initialState.entries.lastOrNull()?.metadata?.get(fullScreenKey) == true ||
         targetState.entries.lastOrNull()?.metadata?.get(fullScreenKey) == true
 
-/** 탭 이동. 쌓는 화면이 아니라 바로 바꿈 */
-internal val TabSwap: ContentTransform get() = ContentTransform(EnterTransition.None, ExitTransition.None)
-
-/**
- * 탭 첫 화면용 전환. 다른 탭 첫 화면에서 홈으로 돌아갈 때는 스와이프 중에도 밀지 않고 바로 바꿈
- * 밀면 홈이 그 아래 쌓여 있던 것처럼 보임
- */
-internal val TabTransitions: Map<String, Any> =
-    NavDisplay.transitionSpec { TabSwap } + NavDisplay.popTransitionSpec { TabSwap } + NavDisplay.predictivePopTransitionSpec { TabSwap }
+/** 동작 줄이기. 밀지 않고 바로 바꿈 */
+internal val NoMotion: ContentTransform get() = ContentTransform(EnterTransition.None, ExitTransition.None)

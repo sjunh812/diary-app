@@ -184,7 +184,7 @@
 
 - 근거: 구글 포토는 백업이 꺼져 있으면 상태와 함께 켜기 버튼을 두고([구글 포토](https://support.google.com/photos/answer/6174018)), Day One은 동기화를 꺼도
   상태 줄을 없애지 않는다([Day One](https://dayoneapp.com/releases/easily-check-sync-status-in-settings/)). 화면을 막는 창이나 푸시로 조르는 예는 공식 자료에서 찾지 못했다.
-- 규칙은 `contracts/backup-flow.md` "권하기 카드". 쓰기·읽기 화면과 전면 광고 자리(저장 뒤 목록으로 돌아갈 때)에는 띄우지 않는다. 카드는 홈 목록 안의 줄이다.
+- 규칙은 `contracts/backup-flow.md` "권하기 카드". 쓰기·읽기 화면과 전면 광고 자리(저장해 작성 화면이 닫힐 때, 2026-11-16 전에는 저장 뒤 목록으로 돌아갈 때)에는 띄우지 않는다. 카드는 홈 목록 안의 줄이다.
 
 ### R18. 묶음 파일은 직접 만든 압축 없는 ZIP64 쓰기, 읽기는 Okio
 

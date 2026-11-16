@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LockSettings
+import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.ui.BodyLook
@@ -28,7 +29,8 @@ private val sample =
     SettingsUiState(
         settings = AppSettings(font = DiaryFont.NANUM_CHEER, bodyTextSize = BodyTextSize.LARGE, reminderEnabled = true),
         lock = LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", relockAfter = RelockAfter.ONE_MINUTE),
-        showsMigrationReport = true
+        showsMigrationReport = true,
+        plan = Plan.FREE
     )
 
 @Composable

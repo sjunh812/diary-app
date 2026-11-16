@@ -48,6 +48,11 @@ internal actual fun NativeAdCard(key: String, shape: AdShape, frame: @Composable
     val player = koinInject<AdPlayer>() as? AdMobPlayer ?: return
     LaunchedEffect(key) { player.loadNative(key) }
     val ad = player.natives[key] ?: return
+    // 그려진 동안은 치우지 않게 알림
+    DisposableEffect(key) {
+        player.onScreen += key
+        onDispose { player.onScreen -= key }
+    }
     frame {
         Box(
             // 오른쪽은 앱의 × 자리. 광고 뷰가 그 밑까지 오면 ×가 광고를 덮음(AdMob: 앱 콘텐츠가 네이티브 광고와 겹치면 안 됨)

@@ -4,6 +4,8 @@
 // 태블릿 폴더를 주면 2560×1600 가로 캡처(write, list, calendar, insight)로 태블릿 4장도 생성. "-"를 주면 건너뜀
 // 영어·일본어는 백업 화면(드라이브 연결 필요)과 피처 그래픽 없이 4장씩 생성
 // 여섯째 인자로 ios를 주면 App Store용 iPhone 1206×2622 세로와 iPad 2752×2064 가로를 4장씩 생성
+// 여섯째 인자로 search를 주면 App Store 검색 결과 그림(3:2, 3840×2560) 한 장 생성
+// 여섯째 인자로 mood·photo를 주면 맞춤형 제품 페이지 그림 생성. 캡처는 <캡처 폴더>/<mood|photo>
 import AppKit
 import CoreText
 
@@ -12,6 +14,11 @@ _ = NSApplication.shared
 let source = args[1], output = args[2], fonts = args[3]
 let language = args.count > 5 ? args[5] : "ko"
 let ios = args.count > 6 && args[6] == "ios"
+let search = args.count > 6 && args[6] == "search"
+/** Play 스크린샷·피처 그래픽·태블릿 */
+/** 맞춤형 제품 페이지(기분 일기, 사진 일기) */
+let page = args.count > 6 && ["mood", "photo"].contains(args[6]) ? args[6] : nil
+let play = !ios && !search && page == nil
 for name in ["changwon_round_regular.otf"] {
     CTFontManagerRegisterFontsForURL(URL(fileURLWithPath: "\(fonts)/\(name)") as CFURL, .process, nil)
 }
@@ -41,7 +48,7 @@ func canvas(_ width: Int, _ height: Int, _ draw: () -> Void) -> NSBitmapImageRep
     return NSBitmapImageRep(cgImage: context.makeImage()!)
 }
 
-func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ align: NSTextAlignment, accented: String? = nil) {
+func styled(_ string: String, _ size: CGFloat, _ tint: NSColor, _ align: NSTextAlignment, accented: String? = nil) -> NSAttributedString {
     let style = NSMutableParagraphStyle()
     style.alignment = align
     style.lineHeightMultiple = 1.16
@@ -59,7 +66,16 @@ func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ 
         let span = NSRange(range, in: string)
         label.addAttributes([.foregroundColor: accent, .strokeColor: accent], range: span)
     }
-    label.draw(in: rect)
+    return label
+}
+
+func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ align: NSTextAlignment, accented: String? = nil) {
+    styled(string, size, tint, align, accented: accented).draw(in: rect)
+}
+
+/** 여러 줄 문구 중 가장 긴 줄의 너비 */
+func textWidth(_ string: String, _ size: CGFloat) -> CGFloat {
+    styled(string, size, ink, .left).boundingRect(with: NSSize(width: 10000, height: 10000), options: .usesLineFragmentOrigin).width.rounded(.up)
 }
 
 /** 캡처 위쪽 상태 표시줄 높이. 폰 56, 태블릿 48 */
@@ -97,6 +113,20 @@ func phone(_ name: String, _ rect: NSRect, _ radius: CGFloat, bezel: Bool = true
     NSGraphicsContext.restoreGraphicsState()
 }
 
+/** 바탕과 다른 픽셀의 가로 무게 중심. 눈에 보이는 쏠림을 잼 */
+func massCenterX(_ rep: NSBitmapImageRep) -> CGFloat {
+    let corner = rep.colorAt(x: 4, y: 4)!.usingColorSpace(.sRGB)!
+    var total = 0.0, moment = 0.0
+    for y in stride(from: 0, to: rep.pixelsHigh, by: 3) {
+        for x in stride(from: 0, to: rep.pixelsWide, by: 3) {
+            let c = rep.colorAt(x: x, y: y)!.usingColorSpace(.sRGB)!
+            let d = abs(c.redComponent - corner.redComponent) + abs(c.greenComponent - corner.greenComponent) + abs(c.blueComponent - corner.blueComponent)
+            if d > 0.15 { total += d; moment += d * Double(x) }
+        }
+    }
+    return total > 0 ? CGFloat(moment / total) : CGFloat(rep.pixelsWide) / 2
+}
+
 func save(_ rep: NSBitmapImageRep, _ name: String) {
     try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "\(output)/\(name).png"))
 }
@@ -126,7 +156,7 @@ let phoneSlides: [String: [(String, String, String)]] = [
         ("insight", "気分の流れを\nふりかえる", "ふりかえる")
     ]
 ]
-for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where !ios {
+for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where play {
     let rep = canvas(1080, 1920) {
         text(words, language == "ja" ? 80 : 88, ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
         // 첫 장은 아래쪽 기분 시트까지 보이게 화면 전체 사용
@@ -139,7 +169,7 @@ for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where !i
     save(rep, "phone-\(index + 1)")
 }
 
-if language == "ko", !ios {
+if language == "ko", play {
 let feature = canvas(1024, 500) {
     text("바쁜 날에도\n일기를 남겨 봐요", 60, ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
     text("회원가입 없이, 사진까지 내 드라이브에", 25, weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
@@ -151,7 +181,7 @@ save(feature, "feature")
 
 // 태블릿: 가로 2560×1600, 머리말은 위에 한 줄, 화면은 아래쪽이 잘림
 // Play 7"·10" 태블릿 칸에 같은 이미지 사용. 백업 화면은 드라이브 연결이 필요해 제외
-if !ios, args.count > 4, args[4] != "-" {
+if play, args.count > 4, args[4] != "-" {
     shotFolder = args[4]
     statusBar = 48
     let tabletSlides: [String: [(String, String, String)]] = [
@@ -228,4 +258,104 @@ if ios {
             save(rep, "ipad-\(index + 1)")
         }
     }
+}
+
+// 맞춤형 제품 페이지: 검색어에 맞는 화면만 골라 머리말을 새로 씀
+// 검색 결과에 처음 세 장이 보여 가장 잘 보여 주는 화면을 앞에 둠
+let pageSlides: [String: [String: [(String, String, String)]]] = [
+    "mood": [
+        "ko": [
+            ("year", "한 해 기분이\n한눈에 보여요", "한 해"),
+            ("calendar", "그날 기분이\n달력에 남아요", "달력"),
+            ("month", "자주 고른 기분을\n돌아봐요", "돌아봐요"),
+            ("write", "아홉 가지 기분 중\n하나를 골라요", "아홉 가지")
+        ],
+        "en": [
+            ("year", "A year of moods\nat a glance", "A year"),
+            ("calendar", "Every day's mood\non your calendar", "calendar"),
+            ("month", "See which moods\ncame up most", "most"),
+            ("write", "Pick one of\nnine moods", "nine moods")
+        ],
+        "ja": [
+            ("year", "1年の気分が\nひと目でわかる", "1年"),
+            ("calendar", "その日の気分が\nカレンダーに残る", "カレンダー"),
+            ("month", "よく選んだ気分を\nふりかえる", "ふりかえる"),
+            ("write", "9つの気分から\nひとつ選ぶ", "9つ")
+        ]
+    ],
+    "photo": [
+        "ko": [
+            ("grid", "사진으로\n지난 일기를 봐요", "사진"),
+            ("detail", "한 편에 사진을\n여러 장 담아요", "여러 장"),
+            ("backup", "사진까지\n드라이브에 백업해요", "백업")
+        ],
+        "en": [
+            ("grid", "Look back\nthrough photos", "photos"),
+            ("detail", "Add several photos\nto one entry", "several photos"),
+            ("backup", "Back up photos\nto your Drive", "Back up")
+        ],
+        "ja": [
+            ("grid", "写真で\n日記をふりかえる", "写真"),
+            ("detail", "1つの日記に\n写真を何枚も", "何枚も"),
+            ("backup", "写真まで\nドライブにバックアップ", "バックアップ")
+        ]
+    ]
+]
+if let page {
+    let slides = pageSlides[page]![language]!
+    shotFolder = "\(source)/\(page)"
+    statusBar = 150
+    for (index, (name, words, word)) in slides.enumerated() {
+        let rep = canvas(1206, 2622) {
+            text(words, language == "ja" ? 92 : 100, ink, NSRect(x: 40, y: 2080, width: 1126, height: 360), .center, accented: word)
+            phone(name, NSRect(x: 113, y: 24, width: 980, height: 2008), 80)
+        }
+        save(rep, "iphone-\(index + 1)")
+    }
+    // 태블릿은 머리말을 한 줄로
+    // 태블릿 쓰기 화면은 기분이 옆 칸에 작게 놓여 빈 화면처럼 보여 뺌
+    if args.count > 4, args[4] != "-" {
+        shotFolder = "\(args[4])/\(page)"
+        statusBar = 48
+        for (index, (name, words, word)) in slides.filter({ $0.0 != "write" }).enumerated() {
+            let line = words.replacingOccurrences(of: "\n", with: language == "ja" ? "" : " ")
+            let rep = canvas(2752, 2064) {
+                text(line, language == "ja" ? 96 : 104, ink, NSRect(x: 80, y: 1700, width: 2592, height: 180), .center, accented: word)
+                phone(name, NSRect(x: 276, y: -90, width: 2200, height: 1700), 56)
+            }
+            save(rep, "ipad-\(index + 1)")
+        }
+    }
+}
+
+// App Store 검색 결과: 3:2 3840×2560, 짧은 문구와 실제 목록 화면(Apple 예시와 같은 배치)
+// 문구와 화면 위쪽은 안전 영역(2168×1030, x 836, y 765) 안, 기기 아래쪽은 그림 밖으로 잘림
+// 문구는 홍보 문구 첫 줄(docs/store/listing.md)
+if search {
+    statusBar = 150
+    let lines: [String: (String, String)] = [
+        "ko": ("하루 한 줄이면\n충분해요", "한 줄"),
+        "en": ("One line a day\nis enough", "One line"),
+        "ja": ("1日1行で\n十分です", "1行")
+    ]
+    let (words, word) = lines[language]!
+    // 검색 카드는 작게 보여 문구를 크게
+    let gap: CGFloat = 160, phoneWidth: CGFloat = 840, bezel: CGFloat = 14
+    let outer = phoneWidth + bezel * 2
+    // 안전 영역(가로 836~3004)을 넘는 언어만 문구를 줄임
+    let base: CGFloat = language == "ja" ? 176 : 184
+    let size = min(base, (base * (2168 - gap - outer) / textWidth(words, base)).rounded(.down))
+    let wordsWidth = textWidth(words, size)
+    func draw(_ start: CGFloat) -> NSBitmapImageRep {
+        canvas(3840, 2560) {
+            text(words, size, ink, NSRect(x: start, y: 1090, width: wordsWidth + 10, height: 520), .left, accented: word)
+            phone("list", NSRect(x: start + wordsWidth + gap + bezel, y: -20, width: phoneWidth, height: 1740), 88)
+        }
+    }
+    // 화면이 문구보다 무거워 테두리로 가운데를 잡으면 오른쪽으로 쏠려 보임
+    // 한 번 그려 무게 중심을 재고 그만큼 왼쪽으로 옮김. 문구가 긴 언어는 안전 영역 왼쪽 끝(836)까지만
+    let centered = ((3840 - (wordsWidth + gap + outer)) / 2).rounded()
+    let start = max(centered + 1920 - massCenterX(draw(centered)), 836).rounded()
+    let rep = draw(start)
+    save(rep, "search")
 }

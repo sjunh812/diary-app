@@ -46,7 +46,7 @@ class ReminderSettingsViewModel(
         }
             .stateInSafely(viewModelScope, WhileUiSubscribed, ReminderUiState())
 
-    /** 화면에 돌아올 때마다 휴대폰 설정의 알림 허용을 다시 읽음 */
+    /** 화면에 돌아올 때마다 기기 설정의 알림 허용을 다시 읽음 */
     fun refreshPermission() {
         viewModelScope.launchSafely { notifications.refresh() }
     }

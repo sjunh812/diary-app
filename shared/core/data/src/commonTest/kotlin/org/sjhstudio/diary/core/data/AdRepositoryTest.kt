@@ -9,9 +9,12 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
@@ -27,7 +30,8 @@ class AdRepositoryTest {
     private val plans = object : PlanRepository {
         override val plan = MutableStateFlow(Plan.FREE)
     }
-    private val store = AdStore(InMemoryDataStore(emptyPreferences()))
+    private val dataStore = InMemoryDataStore(emptyPreferences())
+    private val store = AdStore(dataStore)
 
     private inner class Player : AdPlayer {
         var shown = 0
@@ -62,11 +66,20 @@ class AdRepositoryTest {
 
         var rewardedShown = 0
 
-        override suspend fun showRewarded(): Boolean {
-            rewardedShown++
+        /** 있으면 영상을 받는 동안 이것이 열릴 때까지 기다림 */
+        var loading: CompletableDeferred<Unit>? = null
+
+        /** 있으면 끝까지 본 뒤 이것이 열릴 때까지 닫히지 않음(닫기 전에 앱이 꺼짐) */
+        var closing: CompletableDeferred<Unit>? = null
+
+        override suspend fun loadRewarded(): ReadyReward {
             // 영상을 받는 몇 초 동안
-            yield()
-            return reward
+            loading?.await() ?: yield()
+            return ReadyReward { onEarned ->
+                rewardedShown++
+                if (reward) onEarned()
+                closing?.await()
+            }
         }
     }
 
@@ -79,12 +92,12 @@ class AdRepositoryTest {
     fun interstitial_shows_once_a_day() = runTest {
         val repo = repo()
 
-        repo.backToList()
-        repo.backToList()
+        repo.showAfterSave()
+        repo.showAfterSave()
         assertEquals(1, player.shown)
 
         now += 1.days
-        repo.backToList()
+        repo.showAfterSave()
         assertEquals(2, player.shown)
     }
 
@@ -92,34 +105,48 @@ class AdRepositoryTest {
     fun the_first_interstitial_gets_a_notice_only_once() = runTest {
         val repo = repo()
 
-        assertTrue(repo.takeInterstitialNotice())
-        assertFalse(repo.takeInterstitialNotice())
-        repo.backToList()
+        // 답하기 전까지는 차례마다 다시 띄움
+        assertTrue(repo.interstitialNoticeDue())
+        assertTrue(repo.interstitialNoticeDue())
+        repo.interstitialNoticeAnswered()
+        assertFalse(repo.interstitialNoticeDue())
+        repo.showAfterSave()
         assertEquals(1, player.shown)
 
         now += 1.days
-        assertFalse(repo.takeInterstitialNotice())
+        assertFalse(repo.interstitialNoticeDue())
+    }
+
+    /** 공간이 차 기록을 못 써도 같은 프로세스에서는 안내를 다시 띄우지 않음 */
+    @Test
+    fun an_answer_that_could_not_be_written_is_kept_for_this_run() = runTest {
+        val repo = repo()
+        dataStore.failWrites = true
+        repo.interstitialNoticeAnswered()
+
+        now += 1.days
+        assertFalse(repo.interstitialNoticeDue())
     }
 
     @Test
     fun no_notice_when_no_ad_is_due() = runTest {
         plans.plan.value = Plan.AD_FREE
-        assertFalse(repo().takeInterstitialNotice())
+        assertFalse(repo().interstitialNoticeDue())
 
         plans.plan.value = Plan.FREE
         val repo = repo()
-        repo.backToList()
-        assertFalse(repo.takeInterstitialNotice())
+        repo.showAfterSave()
+        assertFalse(repo.interstitialNoticeDue())
         assertFalse(store.current().interstitialNoticed)
     }
 
     @Test
     fun clock_moved_back_never_shows_a_second_time() = runTest {
         val repo = repo()
-        repo.backToList()
+        repo.showAfterSave()
 
         now -= 2.days
-        repo.backToList()
+        repo.showAfterSave()
 
         assertEquals(1, player.shown)
     }
@@ -130,7 +157,7 @@ class AdRepositoryTest {
         val repo = repo()
 
         assertFalse(repo.showAds.first())
-        repo.backToList()
+        repo.showAfterSave()
         assertEquals(0, player.shown)
     }
 
@@ -140,8 +167,8 @@ class AdRepositoryTest {
         val repo = repo()
 
         assertTrue(repo.showAds.first())
-        repo.afterSave()
-        repo.backToList()
+        repo.prepareAfterSave()
+        repo.showAfterSave()
         assertEquals(0, player.prepared)
         assertEquals(0, player.shown)
     }
@@ -157,7 +184,7 @@ class AdRepositoryTest {
         val repository = AdRepository(unknown, store, player, clock = clock, timeZone = { TimeZone.UTC })
 
         assertFalse(repository.showAds.first())
-        repository.backToList()
+        repository.showAfterSave()
         assertEquals(0, player.shown)
 
         unknown.known.value = true
@@ -169,7 +196,7 @@ class AdRepositoryTest {
         val repo = repo()
         assertTrue(repo.showAds.first())
 
-        assertTrue(repo.watchReward())
+        assertEquals(RewardResult.Earned, repo.watchReward())
         assertFalse(repo.showAds.first())
 
         now += 25.hours
@@ -184,9 +211,33 @@ class AdRepositoryTest {
         val first = async { repo.watchReward() }
         val second = async { repo.watchReward() }
 
-        assertTrue(first.await())
-        assertTrue(second.await())
+        assertEquals(RewardResult.Earned, first.await())
+        assertEquals(RewardResult.Earned, second.await())
         assertEquals(1, player.rewardedShown)
+    }
+
+    /** 끝까지 본 순간 보상이 남음. 닫기 전에 앱이 꺼져도 하루 광고 없음을 잃지 않음 */
+    @Test
+    fun a_reward_is_kept_as_soon_as_it_is_earned_before_the_ad_closes() = runTest {
+        player.closing = CompletableDeferred()
+        val repo = repo()
+        backgroundScope.launch { repo.watchReward() }
+        runCurrent()
+        assertFalse(repo.showAds.first())
+    }
+
+    /** 영상을 받는 동안 시트를 닫으면 띄우지 않음. 다른 화면 위에 광고가 뜨지 않게 */
+    @Test
+    fun closing_the_sheet_while_loading_never_shows_the_reward() = runTest {
+        player.loading = CompletableDeferred()
+        val repo = repo()
+        val watch = launch { repo.watchReward() }
+        runCurrent()
+        watch.cancel()
+        player.loading?.complete(Unit)
+        runCurrent()
+        assertEquals(0, player.rewardedShown)
+        assertTrue(repo.showAds.first())
     }
 
     @Test
@@ -194,7 +245,7 @@ class AdRepositoryTest {
         player.reward = false
         val repo = repo()
 
-        assertFalse(repo.watchReward())
+        assertEquals(RewardResult.NotEarned, repo.watchReward())
         assertTrue(repo.showAds.first())
     }
 
@@ -202,11 +253,11 @@ class AdRepositoryTest {
     fun declined_interstitial_stays_due_for_the_next_return() = runTest {
         val repository = repo()
         player.ready = false
-        repository.backToList()
+        repository.showAfterSave()
         assertEquals(0, player.shown)
 
         player.ready = true
-        repository.backToList()
+        repository.showAfterSave()
         assertEquals(1, player.shown)
     }
 
@@ -216,22 +267,22 @@ class AdRepositoryTest {
      */
     @Test
     fun the_day_is_written_when_the_ad_appears() = runTest {
-        repo().backToList()
+        repo().showAfterSave()
 
         assertEquals(null, player.dayBeforeImpression)
         assertEquals("2026-11-05", player.dayWhileShowing)
     }
 
-    /** 광고가 나오기 전에 꺼졌으면 본 것이 아님. 다음에 목록으로 돌아오면 다시 띄움 */
+    /** 광고가 나오기 전에 꺼졌으면 본 것이 아님. 다음 저장에 다시 띄움 */
     @Test
     fun an_ad_closed_before_it_appeared_shows_again_next_time() = runTest {
         val repository = repo()
         player.impression = false
-        repository.backToList()
+        repository.showAfterSave()
         assertEquals(null, store.current().lastInterstitialDay)
 
         player.impression = true
-        repository.backToList()
+        repository.showAfterSave()
         assertEquals(1, player.shown)
         assertEquals("2026-11-05", store.current().lastInterstitialDay)
     }
@@ -239,7 +290,7 @@ class AdRepositoryTest {
     @Test
     fun an_ad_that_could_not_show_leaves_no_record() = runTest {
         player.ready = false
-        repo().backToList()
+        repo().showAfterSave()
 
         assertEquals(null, store.current().lastInterstitialDay)
     }
@@ -248,18 +299,34 @@ class AdRepositoryTest {
     fun a_new_day_shows_one_again_even_across_a_year() = runTest {
         now = Instant.parse("2026-12-31T12:00:00Z")
         val repository = repo()
-        repository.backToList()
+        repository.showAfterSave()
         now = Instant.parse("2027-01-01T01:00:00Z")
-        repository.backToList()
-        repository.backToList()
+        repository.showAfterSave()
+        repository.showAfterSave()
         assertEquals(2, player.shown)
+    }
+
+    /** 보상 시간에는 하루 한 번 전면 광고도 없음. 끝난 뒤 저장하면 그날 차례로 띄움 */
+    @Test
+    fun a_reward_also_skips_the_daily_interstitial() = runTest {
+        val repository = repo()
+        assertEquals(RewardResult.Earned, repository.watchReward())
+
+        repository.prepareAfterSave()
+        assertFalse(repository.showAfterSave())
+        assertEquals(0, player.prepared)
+        assertEquals(0, player.shown)
+
+        now += 25.hours
+        assertTrue(repository.showAfterSave())
+        assertEquals(1, player.shown)
     }
 
     @Test
     fun reward_ends_after_a_day() = runTest {
         val repository = repo()
         player.reward = true
-        assertTrue(repository.watchReward())
+        assertEquals(RewardResult.Earned, repository.watchReward())
         assertFalse(repository.showAds.first())
 
         now += 25.hours
@@ -271,7 +338,7 @@ class AdRepositoryTest {
         val repository = repo()
         now += 1000.hours
         player.reward = true
-        assertTrue(repository.watchReward())
+        assertEquals(RewardResult.Earned, repository.watchReward())
         now -= 1000.hours
         assertTrue(repository.showAds.first())
     }
@@ -291,10 +358,10 @@ class AdRepositoryTest {
     fun the_day_changes_at_local_midnight() = runTest {
         val repository = AdRepository(plans, store, player, { true }, clock, { TimeZone.of("Asia/Seoul") })
         now = Instant.parse("2026-11-05T14:59:00Z")
-        repository.backToList()
+        repository.showAfterSave()
 
         now = Instant.parse("2026-11-05T15:00:00Z")
-        repository.backToList()
+        repository.showAfterSave()
 
         assertEquals(2, player.shown, "서울은 자정이 지났다")
     }
@@ -305,10 +372,10 @@ class AdRepositoryTest {
         var zone = TimeZone.of("Asia/Seoul")
         val repository = AdRepository(plans, store, player, { true }, clock, { zone })
         now = Instant.parse("2026-11-05T15:30:00Z")
-        repository.backToList()
+        repository.showAfterSave()
 
         zone = TimeZone.of("America/Los_Angeles")
-        repository.backToList()
+        repository.showAfterSave()
 
         assertEquals(1, player.shown)
     }
@@ -316,16 +383,16 @@ class AdRepositoryTest {
     @Test
     fun a_day_already_shown_does_not_load_another_ad() = runTest {
         val repository = repo()
-        repository.backToList()
+        repository.showAfterSave()
 
-        repository.afterSave()
+        repository.prepareAfterSave()
 
         assertEquals(0, player.prepared)
     }
 
     @Test
     fun saving_loads_an_ad_when_one_is_due() = runTest {
-        repo().afterSave()
+        repo().prepareAfterSave()
 
         assertEquals(1, player.prepared)
     }
@@ -346,15 +413,15 @@ class AdRepositoryTest {
         val repository = AdRepository(plans, store, NoAdPlayer, { true }, clock, { TimeZone.UTC })
 
         assertFalse(repository.showAds.first())
-        assertFalse(repository.watchReward())
-        repository.backToList()
+        assertEquals(RewardResult.NotEarned, repository.watchReward())
+        repository.showAfterSave()
     }
 
     /** 광고를 받지 못한 날은 기록하지 않음. 다음 저장 때 다시 뜰 수 있음 */
     @Test
     fun a_day_without_an_ad_records_nothing() = runTest {
         player.ready = false
-        repo().backToList()
+        repo().showAfterSave()
 
         assertEquals(null, store.current().lastInterstitialDay)
     }
@@ -381,19 +448,19 @@ class AdRepositoryTest {
     }
 
     @Test
-    fun back_to_list_tells_whether_an_interstitial_was_due() = runTest {
+    fun showing_after_save_tells_whether_an_interstitial_was_due() = runTest {
         val repo = repo()
         player.ready = false
         // 차례였지만 광고를 받지 못함. 그 순간 리뷰 창도 띄우지 않게 참
-        assertTrue(repo.backToList())
+        assertTrue(repo.showAfterSave())
         player.ready = true
-        assertTrue(repo.backToList())
+        assertTrue(repo.showAfterSave())
         // 오늘 이미 봄
-        assertFalse(repo.backToList())
+        assertFalse(repo.showAfterSave())
 
         plans.plan.value = Plan.PLUS
         now += 1.days
-        assertFalse(repo().backToList())
+        assertFalse(repo().showAfterSave())
     }
 
     @Test
@@ -402,6 +469,6 @@ class AdRepositoryTest {
             override suspend fun showInterstitial(onImpression: () -> Unit): Boolean = throw IllegalStateException("SDK")
         }
         val repo = AdRepository(plans, store, crashing, { enabled }, clock, { TimeZone.UTC })
-        assertTrue(repo.backToList())
+        assertTrue(repo.showAfterSave())
     }
 }

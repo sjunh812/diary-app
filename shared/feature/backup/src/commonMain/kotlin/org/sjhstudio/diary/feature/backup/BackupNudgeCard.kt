@@ -25,15 +25,12 @@ import org.sjhstudio.diary.feature.backup.resources.restore_count_photos
 
 /**
  * 홈 목록 맨 위의 권하기 카드(Figma B11, FR-036)
- * 창으로 막지 않음. 조건이 맞을 때만 보이고 목록과 함께 스크롤됨
+ * 창으로 막지 않음. 보일지는 앱 틀이 정하고 목록과 함께 스크롤됨
  */
 @Composable
-fun BackupNudgeCard(modifier: Modifier = Modifier) {
+fun BackupNudgeCard(nudge: BackupNudge, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
-    val nudge by viewModel.nudge.collectAsStateWithLifecycle()
-    nudge?.let { current ->
-        BackupNudgeContent(current, { viewModel.connect(current.suggestedAccount) }, viewModel::dismissNudge, modifier)
-    }
+    BackupNudgeContent(nudge, { viewModel.connect(nudge.suggestedAccount) }, viewModel::dismissNudge, modifier)
 }
 
 /**

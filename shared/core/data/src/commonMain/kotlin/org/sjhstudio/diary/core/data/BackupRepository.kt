@@ -81,8 +81,9 @@ interface BackupRepository {
     /**
      * 시스템이 준 시간 안에서 호출
      * 때가 됐으면 백업이 끝날 때까지 기다림(iOS 백그라운드 작업)
+     * 백업이 실패로 끝나면 거짓. 시스템 작업에 결과를 알림
      */
-    suspend fun runIfDue()
+    suspend fun runIfDue(): Boolean
 
     suspend fun setAuto(enabled: Boolean)
 

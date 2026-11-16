@@ -7,6 +7,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
@@ -125,6 +126,20 @@ class SettingsViewModelTest {
         assertEquals(Plan.PLUS, viewModel.state.value.plan)
     }
 
+    /** 재설치 직후 요금제를 모르면 null. 그동안 무료 문구를 먼저 그리지 않음 */
+    @Test
+    fun an_unconfirmed_plan_stays_unknown() = runTest(dispatcher) {
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(null), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+
+        assertTrue(viewModel.state.value.loaded)
+        assertNull(viewModel.state.value.plan)
+    }
+
     /** 저장소는 개수를 읽지 못하면 값 없이 끝남. 그래도 설정은 열려야 함 */
     @Test
     fun an_unreadable_trash_count_leaves_settings_usable() = runTest(dispatcher) {
@@ -139,7 +154,7 @@ class SettingsViewModelTest {
         assertEquals(0, viewModel.state.value.trashCount)
     }
 
-    /** 쓰기 알림을 켰어도 휴대폰 설정에서 막으면 목록 줄이 시각 대신 꺼짐을 보임 */
+    /** 쓰기 알림을 켰어도 기기 설정에서 막으면 목록 줄이 시각 대신 꺼짐을 보임 */
     @Test
     fun the_reminder_row_says_off_when_notifications_are_blocked() = runTest(dispatcher) {
         val settings = FakeSettingsRepository(AppSettings(reminderEnabled = true))
@@ -151,11 +166,24 @@ class SettingsViewModelTest {
         granted = false
         viewModel.refreshNotifications()
         advanceUntilIdle()
-        assertTrue(viewModel.state.value.reminderBlocked)
+        assertEquals(true, viewModel.state.value.reminderBlocked)
 
         granted = true
         viewModel.refreshNotifications()
         advanceUntilIdle()
-        assertFalse(viewModel.state.value.reminderBlocked)
+        assertEquals(false, viewModel.state.value.reminderBlocked)
+    }
+
+    /** 허용을 읽기 전에는 시각을 그리지 않음. 막아 둔 사람에게 시각이 보였다가 꺼짐으로 바뀌지 않게 */
+    @Test
+    fun the_reminder_row_waits_for_the_notification_setting() = runTest(dispatcher) {
+        val settings = FakeSettingsRepository(AppSettings(reminderEnabled = true))
+        val viewModel =
+            SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+        assertNull(viewModel.state.value.reminderBlocked)
     }
 }

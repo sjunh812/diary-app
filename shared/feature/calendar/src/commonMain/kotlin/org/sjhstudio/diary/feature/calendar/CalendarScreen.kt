@@ -58,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -207,8 +208,11 @@ fun CalendarRoute(
     val scroll = rememberScrollState()
     val header = rememberDiaryCollapsingHeaderState()
     OnTabReselected {
-        scroll.animateScrollTo(0)
-        header.expand()
+        // 올리기와 머리 펼치기를 함께. 차례로 하면 올라간 뒤 머리가 펼쳐지며 한 번 멈칫함(홈과 같은 방식)
+        coroutineScope {
+            launch { header.expand() }
+            scroll.animateScrollTo(0)
+        }
     }
     if (twoPane) {
         Row(modifier.then(canvas)) {

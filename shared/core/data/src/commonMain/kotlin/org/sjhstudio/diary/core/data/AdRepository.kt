@@ -5,6 +5,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -16,7 +17,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
-import okio.IOException
 import org.sjhstudio.diary.core.datastore.AdPrefs
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.currentDate
@@ -35,7 +35,7 @@ interface AdPlayer {
 
     /**
      * 전면 광고를 미리 받음
-     * 돌아갈 때 기다리지 않게 저장 시점에 호출
+     * 저장한 순간 기다리지 않게 작성 화면을 열 때 호출
      */
     fun prepareInterstitial()
 
@@ -45,8 +45,20 @@ interface AdPlayer {
      */
     suspend fun showInterstitial(onImpression: () -> Unit): Boolean
 
-    /** 끝까지 봐서 보상을 받았으면 true */
-    suspend fun showRewarded(): Boolean
+    /**
+     * 보상 광고를 받음. 받지 못하면 null
+     * 받는 동안은 취소할 수 있고, 취소하면 띄우지 않음(시트를 닫거나 앱이 잠김)
+     */
+    suspend fun loadRewarded(): ReadyReward?
+}
+
+/** 받아 둔 보상 광고 */
+fun interface ReadyReward {
+    /**
+     * 띄우고 닫힐 때까지 기다림
+     * 끝까지 보면 닫히기 전이라도 바로 [onEarned]. 닫기 전에 앱이 꺼져도 보상이 남게
+     */
+    suspend fun show(onEarned: () -> Unit)
 }
 
 object NoAdPlayer : AdPlayer {
@@ -56,12 +68,12 @@ object NoAdPlayer : AdPlayer {
 
     override suspend fun showInterstitial(onImpression: () -> Unit) = false
 
-    override suspend fun showRewarded() = false
+    override suspend fun loadRewarded(): ReadyReward? = null
 }
 
 /**
  * 전면 광고의 원격 스위치(FR-007, 헌법 III)
- * 안드로이드는 Firebase Remote Config의 `interstitial_enabled`를 따름
+ * 두 플랫폼 모두 Firebase Remote Config의 `interstitial_enabled`를 따름
  * 값을 받지 못하면 마지막 값, 처음이면 켜짐
  */
 fun interface AdSwitch {
@@ -80,22 +92,19 @@ class AdRepository(
     private val clock: Clock = Clock.System,
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() }
 ) {
-    /** 저장 공간이 차 파일에 못 적어도 이 프로세스 안에서는 하루 한 번을 지킴 */
-    private var shownDay: String? = null
-
     val showAds: Flow<Boolean> =
         combine(plans.confirmed, store.prefs) { plan, prefs -> plan?.showsAds == true && adsAllowed(prefs) }
             // 기록을 읽지 못하면 덜 보이는 쪽으로 판단
-            .catch { if (it is IOException) emit(false) else throw it }
+            .catch { if (it is Exception) emit(false) else throw it }
             .distinctUntilChanged()
 
     /**
      * 광고를 볼 사용자만 앱 시작 뒤 SDK를 미리 켬. Plus 사용자는 켜지 않음
-     * 오늘 전면 광고 차례가 남았으면 미리 받아 둠. 저장할 때 받으면 첫 저장 뒤 목록으로 돌아올 때 늦음
+     * 오늘 전면 광고 차례가 남았으면 미리 받아 둠. 저장한 순간 바로 띄워야 해서
      */
     suspend fun warmUp() {
-        quietly(Unit) {
-            if (!showAds.first()) return@quietly
+        orElseOnFailure(Unit) {
+            if (!showAds.first()) return@orElseOnFailure
             player.warmUp()
             if (interstitialDue()) player.prepareInterstitial()
         }
@@ -111,42 +120,36 @@ class AdRepository(
 
     private fun today(): String = currentDate(clock, timeZone()).toString()
 
-    /** 오늘 아직 안 봤으면 미리 받음 */
-    suspend fun afterSave() {
-        quietly(Unit) { if (interstitialDue()) player.prepareInterstitial() }
+    /** 작성 화면을 열 때 호출. 오늘 아직 안 봤으면 저장한 순간 띄울 광고를 미리 받음 */
+    suspend fun prepareAfterSave() {
+        orElseOnFailure(Unit) { if (interstitialDue()) player.prepareInterstitial() }
     }
 
     /**
-     * 저장 뒤 목록으로 돌아왔을 때 호출
+     * 일기를 저장해 작성 화면이 닫힐 때 호출
      * 하루 한 번만 띄움
      * 시각이 뒤로 가면 덜 보이는 쪽으로 판단
      * 전면 광고 차례였으면 참. 못 띄웠어도 차례였으면 참이라 그 순간에는 리뷰 창을 요청하지 않음(스펙 007 FR-007)
      */
-    suspend fun backToList(): Boolean = onceStarted(false) {
+    suspend fun showAfterSave(): Boolean = onceStarted(false) {
         if (!interstitialDue()) return@onceStarted false
         // 광고가 화면에 나와 노출이 잡힌 순간 기록
         // 전면 광고 수익은 끝까지 보기가 아니라 노출로 잡혀, 그 뒤 앱이 꺼져도 같은 날 다시 띄우지 않음
-        // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음에 목록으로 돌아올 때 다시 띄움
-        // 공간이 차 못 적어도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킴
+        // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음 저장에 다시 띄움
+        // 공간이 차 못 적어도 이 프로세스 안에서는 [AdStore]가 하루 한 번을 지킴
         // 광고 SDK가 실패해도 차례였던 사실은 그대로
         val day = today()
-        quietly(Unit) {
+        orElseOnFailure(Unit) {
             coroutineScope {
                 val seen = CompletableDeferred<Unit>()
                 val record = launch {
                     seen.await()
                     quietly { store.interstitialShown(day) }
                 }
-                val shown = player.showInterstitial {
-                    shownDay = day
-                    seen.complete(Unit)
-                }
+                val shown = player.showInterstitial { seen.complete(Unit) }
                 when {
                     // 노출 알림 없이 닫혀도 화면에는 나왔으니 본 것으로 기록
-                    shown -> {
-                        shownDay = day
-                        seen.complete(Unit)
-                    }
+                    shown -> seen.complete(Unit)
 
                     !seen.isCompleted -> record.cancel()
                 }
@@ -156,19 +159,24 @@ class AdRepository(
     }
 
     /**
-     * 이번 전면 광고 앞에 첫 안내를 띄울지. 처음 뜰 차례에만이고, 참을 돌려주면 보여 준 것으로 적음
-     * 어느 버튼을 누르든 다시 띄우지 않음(`docs/business.md` 광고 자리)
+     * 이번 전면 광고 앞에 첫 안내를 띄울지. 안내에 답하기 전까지 광고 차례마다 참
      * 기록을 읽지 못하면 안내 없이 지금처럼 광고만
      */
-    suspend fun takeInterstitialNotice(): Boolean = quietly(false) {
-        val first = interstitialDue() && !store.current().interstitialNoticed
-        if (first) store.interstitialNoticed()
-        first
+    suspend fun interstitialNoticeDue(): Boolean = orElseOnFailure(false) {
+        interstitialDue() && !store.current().interstitialNoticed
+    }
+
+    /**
+     * 안내에서 버튼을 누름. 어느 버튼이든 다시 띄우지 않음(`docs/business.md` 광고 자리)
+     * 답하기 전에 잠기거나 앱이 꺼졌으면 다음 차례에 다시 띄움
+     */
+    suspend fun interstitialNoticeAnswered() {
+        orElseOnFailure(Unit) { store.interstitialNoticed() }
     }
 
     private suspend fun interstitialDue(): Boolean {
         val prefs = store.current()
-        val shown = listOfNotNull(prefs.lastInterstitialDay, shownDay).maxOrNull()
+        val shown = prefs.lastInterstitialDay
         val allowed = plans.confirmedNow?.showsAds == true && switch.enabled() && adsAllowed(prefs)
         return allowed && (shown == null || shown < today())
     }
@@ -176,27 +184,61 @@ class AdRepository(
     /** 보상 광고는 한 번에 하나. 앞서 부른 보기가 끝날 때까지 기다림 */
     private val rewardTurn = Mutex()
 
-    suspend fun watchReward(): Boolean = onceStarted(false) {
+    /**
+     * 보상 영상 보기 결과
+     * 받는 동안 취소되면(시트를 닫음) 띄우지 않고 CancellationException
+     * 띄운 뒤로는 화면이 다시 만들어져도 끝까지 감
+     */
+    suspend fun watchReward(): RewardResult = orElseOnFailure(RewardResult.NotEarned) {
         rewardTurn.withLock {
             // 앞서 누른 보기가 이미 보상을 받았으면 또 띄우지 않고 그 결과를 알림
-            if (rewarded(store.prefs.first().rewardUntil)) return@withLock true
-            if (!showAds.first() || !player.showRewarded()) return@withLock false
-            store.rewardUntil(clock.now() + REWARD)
-            true
+            if (rewarded(store.prefs.first().rewardUntil)) return@withLock RewardResult.Earned
+            if (!showAds.first()) return@withLock RewardResult.NotEarned
+            val reward = player.loadRewarded() ?: return@withLock RewardResult.NotEarned
+            withContext(NonCancellable) { reward.watch { store.rewardUntil(clock.now() + REWARD) } }
         }
     }
 
-    /**
-     * 광고가 뜨면 끝까지 기다림
-     * 영상을 가로로 보고 돌아오면 화면이 다시 만들어져 부른 쪽이 먼저 끝남
-     * 그때 멈추면 본 광고가 기록되지 않아 같은 날 또 뜨고, 끝까지 본 보상도 잃음
-     */
-    private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T = quietly(failed) { withContext(NonCancellable) { block() } }
-
-    /** 광고는 곁일. 광고 쪽 실패로 앱이 꺼지면 안 됨. 다음 기회에 다시 시도 */
-    private suspend fun <T> quietly(failed: T, block: suspend () -> T): T = orElseOnFailure(failed) { block() }
-
     private companion object {
         val REWARD = 24.hours
+    }
+}
+
+/**
+ * 광고가 뜨면 끝까지 기다림
+ * 영상을 가로로 보고 돌아오면 화면이 다시 만들어져 부른 쪽이 먼저 끝남
+ * 그때 멈추면 본 광고가 기록되지 않아 같은 날 또 뜨고, 끝까지 본 보상도 잃음
+ */
+private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T =
+    orElseOnFailure(failed) { withContext(NonCancellable) { block() } }
+
+/**
+ * 보상 영상 결과
+ * [EarnedNotSaved]는 받았지만 공간이 차 기기에 못 적음. 이번 실행 동안은 광고 없음
+ */
+enum class RewardResult { Earned, EarnedNotSaved, NotEarned }
+
+/**
+ * 띄우고 끝까지 본 순간 [record]로 보상을 적음. 닫기 전에 앱이 꺼져도 하루 광고 없음이 남음
+ */
+private suspend fun ReadyReward.watch(record: suspend () -> Unit): RewardResult = coroutineScope {
+    val earned = CompletableDeferred<Unit>()
+    val written = async {
+        earned.await()
+        orElseOnFailure(false) {
+            record()
+            true
+        }
+    }
+    show { earned.complete(Unit) }
+    when {
+        !earned.isCompleted -> {
+            written.cancel()
+            RewardResult.NotEarned
+        }
+
+        written.await() -> RewardResult.Earned
+
+        else -> RewardResult.EarnedNotSaved
     }
 }

@@ -7,6 +7,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
@@ -70,6 +72,54 @@ class LockViewModelTest {
         advanceUntilIdle()
         assertEquals(listOf<LockEvent>(LockEvent.Unlocked), events)
         assertEquals(LockUiState(), vm.state.value)
+    }
+
+    /** 생체 인증이 잠기면 알리고 버튼을 숨김. 틀려도 알림은 남고, 비밀번호로 열면 지움 */
+    @Test
+    fun a_locked_biometric_stays_noted_until_the_pin_opens() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        val vm = LockViewModel(repository, clock())
+
+        vm.onBiometricLockedOut()
+        assertTrue(vm.state.value.biometricLocked)
+
+        vm.type("1111")
+        advanceUntilIdle()
+        assertTrue(vm.state.value.biometricLocked)
+
+        vm.type("0427")
+        advanceUntilIdle()
+        assertEquals(LockUiState(), vm.state.value)
+    }
+
+    /** 생체 인증 잠김은 기기 상태라 입력을 새로 시작하는 다른 길(키 없음, 다시 시작, 기다림)에서도 남음 */
+    @Test
+    fun a_locked_biometric_survives_every_fresh_entry() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        keys.failMac = true
+        val vm = LockViewModel(repository, clock())
+        vm.onBiometricLockedOut()
+
+        vm.type("0427")
+        advanceUntilIdle()
+        assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)
+        assertTrue(vm.state.value.biometricLocked)
+
+        vm.start(PinCheck.Verify)
+        assertTrue(vm.state.value.biometricLocked)
+
+        keys.failMac = false
+        repeat(5) {
+            vm.type("1111")
+            runCurrent()
+        }
+        assertTrue(vm.state.value.message is LockMessage.Waiting)
+        assertTrue(vm.state.value.biometricLocked)
+
+        // 기다림이 끝나도 남음
+        advanceUntilIdle()
+        assertEquals(LockMessage.None, vm.state.value.message)
+        assertTrue(vm.state.value.biometricLocked)
     }
 
     /** 5번 틀리면 30초 동안 숫자를 받지 않고, 남은 초를 세다가 다시 받음 */

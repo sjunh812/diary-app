@@ -243,7 +243,7 @@ class BackupConnectTest {
         assertEquals(legacy, backupToOffer(listOf(legacy), migrated = false))
     }
 
-    /** 이 휴대폰에서 이미 옮겨 온 일기와 같은 백업이라 다시 권하지 않음 */
+    /** 이 기기에서 이미 옮겨 온 일기와 같은 백업이라 다시 권하지 않음 */
     @Test
     fun an_old_backup_is_not_offered_after_migrating_here() {
         assertNull(backupToOffer(listOf(legacy), migrated = true))

@@ -18,7 +18,7 @@
     <string name="onboarding_skip">Skip</string>
     <plurals name="letter_moved"><item quantity="one">You've written **%1$s entry** so far.\nThank you so much for sticking with an app that's far from perfect.</item><item quantity="other">You've written **%1$s entries** so far.\nThank you so much for sticking with an app that's far from perfect.</item></plurals>
     <string name="letter_promise_free">Features you've been using stay free</string>
-    <string name="letter_promise_ads">No ads while you write or read an entry</string>
+    <string name="letter_promise_ads">No ads while you read or write an entry</string>
     <string name="letter_close">I hope you'll stay with me 🙇‍♂️</string>
     <string name="onboarding_style_title">Style your words</string>
     <string name="onboarding_style_body">Try bold, text color, highlight, and lists.\nDrafts save automatically as you write.</string>

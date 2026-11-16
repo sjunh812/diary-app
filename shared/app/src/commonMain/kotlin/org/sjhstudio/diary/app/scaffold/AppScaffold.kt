@@ -21,6 +21,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
@@ -28,7 +29,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusRequester
@@ -65,6 +68,7 @@ import org.sjhstudio.diary.app.ads.AdRemovalSheets
 import org.sjhstudio.diary.app.ads.AdRemovalViewModel
 import org.sjhstudio.diary.app.ads.AdShape
 import org.sjhstudio.diary.app.ads.AdSlot
+import org.sjhstudio.diary.app.ads.RewardNotSavedNotice
 import org.sjhstudio.diary.app.navigation.AdvancedStatsKey
 import org.sjhstudio.diary.app.navigation.BackupSettingsKey
 import org.sjhstudio.diary.app.navigation.CalendarKey
@@ -81,6 +85,7 @@ import org.sjhstudio.diary.app.navigation.ListPane
 import org.sjhstudio.diary.app.navigation.ListStyleSettingsKey
 import org.sjhstudio.diary.app.navigation.LocalInListDetail
 import org.sjhstudio.diary.app.navigation.LocalRailWidth
+import org.sjhstudio.diary.app.navigation.NoMotion
 import org.sjhstudio.diary.app.navigation.OpenRequestedScreens
 import org.sjhstudio.diary.app.navigation.PhotoViewerKey
 import org.sjhstudio.diary.app.navigation.PlusKey
@@ -94,7 +99,6 @@ import org.sjhstudio.diary.app.navigation.TABS
 import org.sjhstudio.diary.app.navigation.TAB_ROOT
 import org.sjhstudio.diary.app.navigation.TabNavigation
 import org.sjhstudio.diary.app.navigation.TabScreen
-import org.sjhstudio.diary.app.navigation.TabSwap
 import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.app.navigation.coverTransition
 import org.sjhstudio.diary.app.navigation.coversAll
@@ -156,7 +160,6 @@ import org.sjhstudio.diary.feature.backup.BackupAlertButton
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
-import org.sjhstudio.diary.feature.backup.BackupViewModel
 import org.sjhstudio.diary.feature.backup.BundleStoppedNotice
 import org.sjhstudio.diary.feature.backup.RestoreResultNotice
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
@@ -208,11 +211,12 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
     }
     val shell = koinViewModel<AppShellViewModel>()
     val adRemoval = koinViewModel<AdRemovalViewModel>()
+    RewardNotSavedNotice(adRemoval, toast)
     val actions = remember(shell, adRemoval) {
         ShellActions(shell.plan, shell::screenShown, shell::saved, shell::restoreTrashed, adRemoval::open)
     }
     AdRemovalSheets(adRemoval)
-    FirstAdNotice(shell, adRemoval)
+    FirstAdNotice(shell)
     // 홈 쓰기 버튼은 일기 유무를 읽은 뒤 표시. 미리 두면 빈 홈에서 보였다 사라짐
     val hasEntries by shell.hasEntries.collectAsStateWithLifecycle()
 
@@ -388,9 +392,9 @@ private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScree
 /** 앱 틀 화면 모델([AppShellViewModel], [AdRemovalViewModel])에서 화면에 넘기는 상태와 동작 */
 @Immutable
 private class ShellActions(
-    val plan: StateFlow<Plan>,
-    val onScreen: (NavKey, TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
-    val onSaved: (TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
+    val plan: StateFlow<Plan?>,
+    val onScreen: (NavKey) -> Unit,
+    val onSaved: (entryId: String) -> Unit,
     val onRestore: (String) -> Unit,
     val onAdClose: () -> Unit
 )
@@ -454,6 +458,7 @@ private fun SearchKey.toFilter() = SearchFilter(
     period = if (from != null && to != null) DateRange(LocalDate.parse(from), LocalDate.parse(to)) else null
 )
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Content(
     shell: ShellActions,
@@ -475,9 +480,9 @@ private fun Content(
     // 화면 목록은 쌓임이 바뀔 때만 다시 만들어짐
     // 창 폭은 그 사이에도 바뀌니 값을 잡아 두지 않고 읽음
     val splitWindow by rememberUpdatedState(twoPane)
-    // 화면이 바뀌면 통계(화면 키 이름만)와 저장 뒤 광고 차례(FR-010)를 화면 모델에 알림
+    // 화면이 바뀌면 통계(화면 키 이름만)를 화면 모델에 알림
     val top = nav.top
-    LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList(), splitWindow) }
+    LaunchedEffect(top) { if (top != null) shell.onScreen(top) }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { list -> PickHint(list) } }
     val homeStack = nav.stacks.getValue(HomeKey)
     val dimmed = dimmedAlpha(DiaryTheme.colors.canvas.luminance() < HALF)
@@ -498,167 +503,181 @@ private fun Content(
     val tabBarSpace = remember(covers) { tabBarSpace(covers) }
     val railCut = LocalRailWidth.current
     val clipRail = wide && covers.isEmpty()
+    // 탭을 바꿔도 화면 상태가 남게 갈아 끼우는 화면 바깥에서 기억
+    val entries =
+        nav.decoratedEntries(
+            tabBarSpace,
+            entryProvider {
+                entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
+                    val top by koinInject<HomeTopState>().top.collectAsStateWithLifecycle()
+                    HomeRoute(
+                        backupLine = {
+                            BackupStatusLine(onOpen = {
+                                nav.openTab(SettingsKey)
+                                nav.push(BackupSettingsKey)
+                            })
+                            BackupFoundPrompt(onRestoreEntry = { nav.push(RestorePreviewKey(it)) })
+                        },
+                        backupAlert = {
+                            BackupAlertButton(onOpen = {
+                                nav.openTab(SettingsKey)
+                                nav.push(BackupSettingsKey)
+                            })
+                        },
+                        // 맨 위 카드는 한 장. 어느 카드인지는 [HomeTopState]가 정함
+                        listTop = {
+                            when (val current = top) {
+                                is HomeTop.Backup -> BackupNudgeCard(current.nudge)
+                                HomeTop.Feedback -> HomeFeedbackCard(showText)
+                                HomeTop.Reading, HomeTop.Empty -> Unit
+                            }
+                        },
+                        // 카드가 없을 때만 목록 보기 팁이 그 자리를 씀
+                        onListStyle = {
+                            nav.openTab(SettingsKey)
+                            nav.push(ListStyleSettingsKey)
+                        }.takeIf { top == HomeTop.Empty },
+                        onOpen = nav::openEntry,
+                        onWrite = onWrite,
+                        onSearch = { nav.push(SearchKey()) },
+                        onEdit = { nav.push(WriteKey(entryId = it)) },
+                        onTrashed = closeTrashed,
+                        selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
+                        // 첫 광고는 얇은 줄, 그 뒤는 그림 카드. 홈을 처음 열 때 큰 광고가 바로 보이지 않게 함
+                        // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않음
+                        // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
+                        adSlot = { order, slot ->
+                            if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
+                                AdSlot("home-$order", if (order == 0) AdShape.Row else AdShape.Card, shell.onAdClose, slot)
+                            }
+                        }
+                    )
+                }
+                entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
+                    SearchRoute(
+                        initial = key.toFilter(),
+                        selectedId =
+                            nav.current.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
+                        onBack = pop,
+                        onOpen = nav::openEntry
+                    )
+                }
+                // 화면 키의 문자열에는 일기 ID를 담지 않아 저장 자리 구분은 ID로 따로 줌
+                entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
+                    EntryDetailRoute(
+                        entryId = key.entryId,
+                        // 창이 넓어도 달력에서 연 상세는 한 칸. 목록 바로 옆 첫 화면일 때만 뒤로 버튼을 뺌
+                        onBack = pop.takeUnless { LocalTopBarBackHidden.current },
+                        onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
+                        onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
+                        onOtherVersion = nav::openEntry,
+                        onTrashed = {
+                            nav.closeEntry(key.entryId)
+                            onTrashed(key.entryId)
+                        },
+                        onTrashOther = closeTrashed
+                    )
+                }
+                entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
+                    PhotoViewerRoute(key.entryId, key.index, onClose = pop)
+                }
+                entry<CalendarKey>(metadata = tabRoot(CalendarKey)) {
+                    CalendarRoute(
+                        twoPane = splitWindow,
+                        onOpen = nav::openEntry,
+                        onWriteOn = { nav.push(WriteKey(date = it.toString())) },
+                        onEdit = { nav.push(WriteKey(entryId = it)) },
+                        onTrash = closeTrashed
+                    )
+                }
+                entry<InsightKey>(metadata = tabRoot(InsightKey)) {
+                    InsightRoute(
+                        onMood = { mood, range ->
+                            nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                        },
+                        onPeriod = { range -> nav.push(SearchKey(from = range.start.toString(), to = range.end.toString())) },
+                        onPlus = { nav.push(PlusKey) },
+                        onAdvanced = { nav.push(AdvancedStatsKey) },
+                        onWrite = onWrite,
+                        adSlot = { AdSlot("insight", AdShape.Card, shell.onAdClose) }
+                    )
+                }
+                entry<AdvancedStatsKey> {
+                    // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아감
+                    // 재설치 직후 요금제를 모르는 동안은 기다림. 무료로 보고 Plus 사용자를 내보내지 않게
+                    val plan by shell.plan.collectAsStateWithLifecycle()
+                    LaunchedEffect(plan) { if (plan?.advancedStats == false) pop() }
+                    AdvancedStatsRoute(
+                        onBack = pop,
+                        onMood = { mood, range ->
+                            nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
+                        },
+                        onWrite = onWrite
+                    )
+                }
+                settingsEntries(
+                    push = nav::push,
+                    pop = pop,
+                    home = { nav.startOver(HomeKey) },
+                    // 설정 목록 바로 위에 엶. 두 칸에서 다른 줄을 고르면 오른쪽 화면이 쌓이지 않고 바뀜
+                    open = { nav.openInTab(SettingsKey, it) },
+                    // 두 칸일 때만 왼쪽 목록에서 열린 줄을 칠함
+                    opened = { nav.stacks.getValue(SettingsKey).getOrNull(1)?.takeIf { splitWindow } }
+                )
+                entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
+                    val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
+                    WriteRoute(
+                        target = target,
+                        onSaved = { id ->
+                            pop()
+                            // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 감(FR-012)
+                            if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
+                            notify(Message.Saved)
+                            shell.onSaved(id)
+                        },
+                        onClosed = { kept ->
+                            pop()
+                            if (kept) notify(Message.DraftKept)
+                        },
+                        onPlus = { nav.push(PlusKey) }
+                    )
+                }
+            }
+        )
+    // 다른 탭 첫 화면에서 뒤로 가면 홈으로
+    BackHandler(enabled = nav.backGoesHome, onBack = pop)
     Box(modifier.background(DiaryTheme.colors.scrim.copy(alpha = 1f))) {
         rail?.invoke()
-        NavDisplay(
-            entries =
-                nav.decoratedEntries(
-                    tabBarSpace,
-                    entryProvider {
-                        entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
-                            val backupNudge by koinViewModel<BackupViewModel>().nudge.collectAsStateWithLifecycle()
-                            val feedbackCard by koinViewModel<FeedbackCardViewModel>().visible.collectAsStateWithLifecycle()
-                            HomeRoute(
-                                backupLine = {
-                                    BackupStatusLine(onOpen = {
-                                        nav.openTab(SettingsKey)
-                                        nav.push(BackupSettingsKey)
-                                    })
-                                    BackupFoundPrompt(onRestoreEntry = { nav.push(RestorePreviewKey(it)) })
-                                },
-                                backupAlert = {
-                                    BackupAlertButton(onOpen = {
-                                        nav.openTab(SettingsKey)
-                                        nav.push(BackupSettingsKey)
-                                    })
-                                },
-                                // 맨 위 카드는 한 장. 기록을 지키는 백업 안내가 먼저(스펙 007 FR-014)
-                                listTop = { if (backupNudge != null) BackupNudgeCard() else HomeFeedbackCard(showText) },
-                                // 위 카드가 떠 있는 동안은 목록 보기 팁을 미룸
-                                onListStyle = {
-                                    nav.openTab(SettingsKey)
-                                    nav.push(ListStyleSettingsKey)
-                                }.takeIf { backupNudge == null && !feedbackCard },
-                                onOpen = nav::openEntry,
-                                onWrite = onWrite,
-                                onSearch = { nav.push(SearchKey()) },
-                                onEdit = { nav.push(WriteKey(entryId = it)) },
-                                onTrashed = closeTrashed,
-                                selectedId = homeStack.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
-                                // 첫 광고는 얇은 줄, 그 뒤는 그림 카드. 홈을 처음 열 때 큰 광고가 바로 보이지 않게 함
-                                // 두 칸에서 상세가 열려 있는 동안은 옆 목록에도 광고를 두지 않음
-                                // 한 칸은 상세가 목록을 덮어 따지지 않음. 따지면 일기를 누르는 순간 광고가 빠져 넘어가는 동안 목록이 들썩임
-                                adSlot = { order, slot ->
-                                    if (!splitWindow || homeStack.none { it is EntryDetailKey }) {
-                                        AdSlot("home-$order", if (order == 0) AdShape.Row else AdShape.Card, shell.onAdClose, slot)
-                                    }
-                                }
-                            )
-                        }
-                        entry<SearchKey>(clazzContentKey = { "search:${it.moods}:${it.from}:${it.to}" }, metadata = ListPane) { key ->
-                            SearchRoute(
-                                initial = key.toFilter(),
-                                selectedId = nav.current.filterIsInstance<EntryDetailKey>().lastOrNull()?.entryId?.takeIf { splitWindow },
-                                onBack = pop,
-                                onOpen = nav::openEntry
-                            )
-                        }
-                        // 화면 키의 문자열에는 일기 ID를 담지 않아 저장 자리 구분은 ID로 따로 줌
-                        entry<EntryDetailKey>(clazzContentKey = { it.entryId }, metadata = DetailPane) { key ->
-                            EntryDetailRoute(
-                                entryId = key.entryId,
-                                // 창이 넓어도 달력에서 연 상세는 한 칸. 목록 바로 옆 첫 화면일 때만 뒤로 버튼을 뺌
-                                onBack = pop.takeUnless { LocalTopBarBackHidden.current },
-                                onEdit = { nav.push(WriteKey(entryId = key.entryId)) },
-                                onPhoto = { nav.push(PhotoViewerKey(key.entryId, it)) },
-                                onOtherVersion = nav::openEntry,
-                                onTrashed = {
-                                    nav.closeEntry(key.entryId)
-                                    onTrashed(key.entryId)
-                                },
-                                onTrashOther = closeTrashed
-                            )
-                        }
-                        entry<PhotoViewerKey>(clazzContentKey = { "${it.entryId}/${it.index}" }, metadata = FullScreenEntry) { key ->
-                            PhotoViewerRoute(key.entryId, key.index, onClose = pop)
-                        }
-                        entry<CalendarKey>(metadata = tabRoot(CalendarKey)) {
-                            CalendarRoute(
-                                twoPane = splitWindow,
-                                onOpen = nav::openEntry,
-                                onWriteOn = { nav.push(WriteKey(date = it.toString())) },
-                                onEdit = { nav.push(WriteKey(entryId = it)) },
-                                onTrash = closeTrashed
-                            )
-                        }
-                        entry<InsightKey>(metadata = tabRoot(InsightKey)) {
-                            InsightRoute(
-                                onMood = { mood, range ->
-                                    nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                                },
-                                onPeriod = { range -> nav.push(SearchKey(from = range.start.toString(), to = range.end.toString())) },
-                                onPlus = { nav.push(PlusKey) },
-                                onAdvanced = { nav.push(AdvancedStatsKey) },
-                                onWrite = onWrite,
-                                adSlot = { AdSlot("insight", AdShape.Card, shell.onAdClose) }
-                            )
-                        }
-                        entry<AdvancedStatsKey> {
-                            // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아감
-                            val plan by shell.plan.collectAsStateWithLifecycle()
-                            LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
-                            AdvancedStatsRoute(
-                                onBack = pop,
-                                onMood = { mood, range ->
-                                    nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
-                                },
-                                onWrite = onWrite
-                            )
-                        }
-                        settingsEntries(
-                            push = nav::push,
-                            pop = pop,
-                            home = { nav.startOver(HomeKey) },
-                            // 설정 목록 바로 위에 엶. 두 칸에서 다른 줄을 고르면 오른쪽 화면이 쌓이지 않고 바뀜
-                            open = { nav.openInTab(SettingsKey, it) },
-                            // 두 칸일 때만 왼쪽 목록에서 열린 줄을 칠함
-                            opened = { nav.stacks.getValue(SettingsKey).getOrNull(1)?.takeIf { splitWindow } }
-                        )
-                        entry<WriteKey>(clazzContentKey = { it.contentKey }, metadata = FullScreenEntry) { key ->
-                            val target = key.entryId?.let { WriteTarget.Edit(it) } ?: WriteTarget.New(key.date?.let(LocalDate::parse))
-                            WriteRoute(
-                                target = target,
-                                onSaved = { id ->
-                                    pop()
-                                    // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 감(FR-012)
-                                    if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
-                                    notify(Message.Saved)
-                                    shell.onSaved(nav.tab, nav.current.toList(), splitWindow)
-                                },
-                                onClosed = { kept ->
-                                    pop()
-                                    if (kept) notify(Message.DraftKept)
-                                },
-                                onPlus = { nav.push(PlusKey) }
-                            )
-                        }
+        // 탭마다 따로 그림. 홈으로 돌아갈 때 뒤로 가기 전환을 타지 않게
+        key(nav.tab) {
+            NavDisplay(
+                entries = entries,
+                modifier = Modifier.fillMaxSize().then(if (clipRail) Modifier.clip(StartCut(railCut)) else Modifier),
+                sceneStrategies = listOf(listDetail),
+                transitionSpec = {
+                    when {
+                        reduceMotion -> NoMotion
+                        wide && coversAll(FULL_SCREEN) -> coverTransition()
+                        else -> pushMotion()
                     }
-                ),
-            modifier = Modifier.fillMaxSize().then(if (clipRail) Modifier.clip(StartCut(railCut)) else Modifier),
-            sceneStrategies = listOf(listDetail),
-            transitionSpec = {
-                when {
-                    nav.movedBetweenTabs || reduceMotion -> TabSwap
-                    wide && coversAll(FULL_SCREEN) -> coverTransition()
-                    else -> pushMotion()
-                }
-            },
-            popTransitionSpec = {
-                when {
-                    nav.movedBetweenTabs || reduceMotion -> TabSwap
-                    wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = true)
-                    else -> popMotion()
-                }
-            },
-            predictivePopTransitionSpec = {
-                when {
-                    reduceMotion -> TabSwap
-                    wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = !isSwipe(it))
-                    else -> predictivePopMotion(it)
-                }
-            },
-            onBack = pop
-        )
+                },
+                popTransitionSpec = {
+                    when {
+                        reduceMotion -> NoMotion
+                        wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = true)
+                        else -> popMotion()
+                    }
+                },
+                predictivePopTransitionSpec = {
+                    when {
+                        reduceMotion -> NoMotion
+                        wide && coversAll(FULL_SCREEN) -> uncoverTransition(eased = !isSwipe(it))
+                        else -> predictivePopMotion(it)
+                    }
+                },
+                onBack = pop
+            )
+        }
     }
 }
 
@@ -698,7 +717,7 @@ private fun PickHint(list: String?) {
  * [확인]이나 바깥을 누르면 광고, [광고 없애기]는 광고 제거 시트를 열고 시트가 닫히면 광고
  */
 @Composable
-private fun FirstAdNotice(shell: AppShellViewModel, adRemoval: AdRemovalViewModel) {
+private fun FirstAdNotice(shell: AppShellViewModel) {
     val notice by shell.adNotice.collectAsStateWithLifecycle()
     when (notice) {
         AdNotice.None -> Unit
@@ -706,17 +725,11 @@ private fun FirstAdNotice(shell: AppShellViewModel, adRemoval: AdRemovalViewMode
         AdNotice.Showing ->
             FirstAdNoticeDialog(
                 onConfirm = shell::confirmAdNotice,
-                onRemoveAds = {
-                    shell.removeAdsFirst()
-                    adRemoval.open()
-                }
+                onRemoveAds = shell::removeAdsFirst
             )
 
-        AdNotice.AwaitingRemoval -> {
-            val removal by adRemoval.state.collectAsStateWithLifecycle()
-            val closed = removal.sheet == null && !removal.watching
-            LaunchedEffect(closed) { if (closed) shell.adRemovalClosed() }
-        }
+        // 시트는 앱 틀이 열고 끝나길 기다림
+        AdNotice.AwaitingRemoval -> Unit
     }
 }
 

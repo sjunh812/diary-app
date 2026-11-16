@@ -3,23 +3,25 @@ package org.sjhstudio.diary.app.scaffold
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.app.AppRootViewModel
+import org.sjhstudio.diary.app.ads.AdRemoval
+import org.sjhstudio.diary.app.ads.AdRemovalFlow
 import org.sjhstudio.diary.app.ads.AdRemovalViewModel
-import org.sjhstudio.diary.app.navigation.CalendarKey
+import org.sjhstudio.diary.app.lock.LockController
+import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.EntryDetailKey
-import org.sjhstudio.diary.app.navigation.HomeKey
-import org.sjhstudio.diary.app.navigation.TabScreen
+import org.sjhstudio.diary.app.navigation.WriteKey
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PromptRepository
@@ -45,10 +47,13 @@ interface AfterSaveAds {
     suspend fun prepare()
 
     /** 전면 광고 차례였으면 참 */
-    suspend fun backToList(): Boolean
+    suspend fun show(): Boolean
 
-    /** 이번 광고 앞에 첫 안내를 띄울지. 참이면 보여준 것으로 적음 */
-    suspend fun takeNotice(): Boolean = false
+    /** 이번 광고 앞에 첫 안내를 띄울지 */
+    suspend fun noticeDue(): Boolean = false
+
+    /** 안내에 답함. 그 뒤로 안내를 띄우지 않음 */
+    suspend fun noticeAnswered() = Unit
 }
 
 /**
@@ -59,41 +64,79 @@ class AppShellViewModel(
     private val entries: EntryRepository,
     plans: PlanRepository,
     private val ads: AfterSaveAds,
+    private val removal: AdRemovalFlow,
+    locked: Flow<Boolean>,
     private val askReview: suspend () -> Unit,
     private val screen: (String) -> Unit
 ) : ViewModel() {
-    private val adTurn = AfterSaveAdTurn()
-
-    /** 저장 뒤 목록에서 시작한 차례. 거두면 광고 차례는 끝까지 가고 리뷰 요청만 멈춤 */
-    private var afterSaveTurn: Job? = null
-
     /** 일기가 있는지. 읽기 전에는 null(그동안 홈 쓰기 버튼을 숨김) */
     val hasEntries: StateFlow<Boolean?> =
         entries.months().map { it.isNotEmpty() }.stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
-    val plan: StateFlow<Plan> = plans.plan
+    /** 확정된 요금제. 재설치 직후 스토어 답이 오기 전에는 null */
+    val plan: StateFlow<Plan?> = plans.confirmed.stateInSafely(viewModelScope, SharingStarted.Eagerly, plans.confirmedNow)
 
     private val _adNotice = MutableStateFlow(AdNotice.None)
+
+    init {
+        // 잠기면 저장 뒤 차례를 끝냄. 잠금을 풀자마자 안내나 광고가 뜨지 않게 함
+        viewModelScope.launchSafely {
+            locked.filter { it }.collect {
+                adTurn?.cancel()
+                removalWait?.cancel()
+                review?.cancel()
+                _adNotice.value = AdNotice.None
+            }
+        }
+    }
+
+    /** 저장 뒤 광고 차례. 화면을 옮겨도 이어지고 잠기면 거둠 */
+    private var adTurn: Job? = null
+
+    /** [광고 없애기]로 연 시트가 끝나길 기다리는 광고 차례. 화면을 옮겨도 이어지고 잠기면 거둠 */
+    private var removalWait: Job? = null
+
+    /** 광고 차례가 아니었을 때의 리뷰 요청. 저장한 일기 상세를 떠나거나 잠기면 거둠 */
+    private var review: Job? = null
+
+    /** 방금 저장한 일기 상세. 그 화면을 떠나면 null */
+    private var savedEntry: NavKey? = null
 
     /** 첫 전면 광고 앞 안내(`docs/business.md` 광고 자리) */
     val adNotice: StateFlow<AdNotice> = _adNotice.asStateFlow()
 
-    /** 보는 화면이 바뀜. [twoPane]은 지금 창이 두 칸인지. 통계에는 화면 키 이름만 */
-    fun screenShown(top: NavKey, tab: TabScreen, backStack: List<NavKey>, twoPane: Boolean) {
+    /** 보는 화면이 바뀜. 통계에는 화면 키 이름만 */
+    fun screenShown(top: NavKey) {
         screen(top.toString())
-        // 리뷰 정보를 받는 사이 목록을 떠나면 거둠. 쓰기·상세·설정 위에는 띄우지 않음(스펙 007 SC-003)
-        if (!interstitialMayShow(backStack, listBeside = twoPane)) afterSaveTurn?.cancel()
-        takeAdTurn(tab, backStack, justSavedInTwoPane = false)
+        // 쓰는 동안 받아 둠. 저장한 순간 바로 띄워야 하고, 받아 둔 광고는 1시간이 지나면 버려짐
+        if (top is WriteKey) viewModelScope.launchSafely { ads.prepare() }
+        // 저장한 일기 상세를 떠나면 리뷰를 묻지 않음(스펙 007 SC-003, FR-009)
+        if (top != savedEntry) {
+            savedEntry = null
+            review?.cancel()
+        }
     }
 
     /**
-     * 일기를 저장함. 광고를 미리 받고, 같은 탭 목록으로 돌아오면 띄움
-     * 두 칸인지는 저장한 순간의 화면으로만 정함. 폴더블을 나중에 펴거나 접어도 차례가 새로 생기지 않음
+     * 일기를 저장해 작성 화면이 닫히고 [entryId] 상세가 열림. 새 일기와 수정 모두
+     * 오늘 차례면 전면 광고, 아니면 리뷰 창(스펙 007 FR-007)
      */
-    fun saved(tab: TabScreen, backStack: List<NavKey>, twoPane: Boolean) {
-        adTurn.saved(tab)
-        viewModelScope.launchSafely { ads.prepare() }
-        takeAdTurn(tab, backStack, justSavedInTwoPane = twoPane)
+    fun saved(entryId: String) {
+        savedEntry = EntryDetailKey(entryId)
+        adTurn =
+            viewModelScope.launchSafely {
+                // 안내를 띄울지 읽는 동안 잠기면 띄우지 않음. 답하지 않았으니 다음 저장에 다시 뜸
+                val due =
+                    if (ads.noticeDue()) {
+                        _adNotice.value = AdNotice.Showing
+                        true
+                    } else {
+                        // 띄우기 시작한 광고는 저장소가 끝까지 감(AdRepository.showAfterSave)
+                        ads.show()
+                    }
+                // 광고 차례의 자식이라 잠기면 함께 거둠. 저장한 일기를 떠나면 이것만 거둠
+                if (!due && savedEntry != null) review = launchSafely { askReview() }
+            }
     }
 
     /** 휴지통으로 옮긴 일기 되돌리기 */
@@ -101,104 +144,65 @@ class AppShellViewModel(
         viewModelScope.launchWrite { entries.restore(id) }
     }
 
-    private fun takeAdTurn(tab: TabScreen, backStack: List<NavKey>, justSavedInTwoPane: Boolean) {
-        if (!adTurn.takeTurn(tab, backStack, justSavedInTwoPane)) return
-        // 바로 광고 차례에 들어감. 곧이어 화면을 옮겨 거둬져도 하루 한 번 기록은 끝까지 감
-        afterSaveTurn = viewModelScope.launchSafely(start = CoroutineStart.UNDISPATCHED) {
-            val adTurn = withContext(NonCancellable) {
-                if (ads.takeNotice()) {
-                    _adNotice.value = AdNotice.Showing
-                    true
-                } else {
-                    ads.backToList()
-                }
-            }
-            // 전면 광고와 겹치지 않을 때만 리뷰 창(스펙 007 FR-007). 그사이 목록을 떠났으면 묻지 않음
-            if (!adTurn) {
-                ensureActive()
-                askReview()
-            }
-        }
-    }
-
     /** 안내에서 [확인]이나 바깥. 광고를 띄움 */
-    fun confirmAdNotice() = continueAdTurn(from = AdNotice.Showing)
-
-    /** 안내에서 [광고 없애기]. 시트는 화면이 열고, 닫힐 때까지 광고를 미룸 */
-    fun removeAdsFirst() {
-        if (_adNotice.value == AdNotice.Showing) _adNotice.value = AdNotice.AwaitingRemoval
+    fun confirmAdNotice() {
+        if (!answerNotice(next = AdNotice.None)) return
+        viewModelScope.launchSafely { ads.show() }
     }
 
     /**
-     * 광고 제거 시트가 닫힘. 광고 차례를 이음
+     * 안내에서 [광고 없애기]. 시트를 열고 시트와 보상 영상이 끝나면 광고 차례를 이음
      * 사거나 영상을 봤으면 광고 차례가 없어 뜨지 않음
      */
-    fun adRemovalClosed() = continueAdTurn(from = AdNotice.AwaitingRemoval)
+    fun removeAdsFirst() {
+        if (!answerNotice(next = AdNotice.AwaitingRemoval)) return
+        removal.open()
+        removalWait =
+            viewModelScope.launchSafely {
+                removal.state.first { it.idle }
+                _adNotice.value = AdNotice.None
+                ads.show()
+            }
+    }
 
-    private fun continueAdTurn(from: AdNotice) {
-        if (_adNotice.value != from) return
-        _adNotice.value = AdNotice.None
-        viewModelScope.launchSafely { ads.backToList() }
+    // 버튼을 눌렀을 때만 안내를 본 것으로 적음
+    // 답하기 전에 잠기면 다음 저장에 다시 띄움
+    private fun answerNotice(next: AdNotice): Boolean {
+        if (_adNotice.value != AdNotice.Showing) return false
+        _adNotice.value = next
+        viewModelScope.launchSafely { ads.noticeAnswered() }
+        return true
     }
 }
 
 /** 앱 틀 화면 모델 등록. 앱과 화면 시험이 함께 씀 */
 val appShellModule =
     module {
-        viewModel { AppRootViewModel(get(), get(), get()) }
+        viewModel { AppRootViewModel(get(), get(), get(), get()) }
         viewModel {
             val ads = get<AdRepository>()
             AppShellViewModel(
                 entries = get(),
                 plans = get(),
+                removal = get<AdRemoval>(),
+                locked = get<LockController>().appLocked,
                 ads = object : AfterSaveAds {
-                    override suspend fun prepare() = ads.afterSave()
+                    override suspend fun prepare() = ads.prepareAfterSave()
 
-                    override suspend fun backToList() = ads.backToList()
+                    override suspend fun show() = ads.showAfterSave()
 
-                    override suspend fun takeNotice() = ads.takeInterstitialNotice()
+                    override suspend fun noticeDue() = ads.interstitialNoticeDue()
+
+                    override suspend fun noticeAnswered() = ads.interstitialNoticeAnswered()
                 },
                 askReview = get<PromptRepository>()::askReviewIfDue,
                 screen = get<Telemetry>()::screen
             )
         }
-        viewModel { AdRemovalViewModel(get<AdRepository>()::watchReward) }
+        viewModel { AdRemovalViewModel(get()) }
         viewModel { FeedbackCardViewModel(get()) }
     }
 
-/**
- * 저장 뒤 전면 광고를 띄워도 되는 자리. 홈과 달력 목록으로 돌아왔을 때만
- * 두 칸([listBeside])에서 홈 목록 옆에 상세가 열려 있으면 목록이 보이는 그때가 목록으로 돌아온 때. 상세를 닫길 기다리면 거의 뜨지 않음
- * 달력에서 연 상세는 창이 넓어도 한 칸이라 그 위에는 띄우지 않음(헌법 III)
- * 넓은 화면에서 상세를 보다 레일로 설정에 가면 설정에는 광고가 없어(헌법 III) 띄우지 않음
- */
-internal fun interstitialMayShow(backStack: List<NavKey>, listBeside: Boolean): Boolean {
-    val list = backStack.firstOrNull()
-    return when {
-        list != HomeKey && list != CalendarKey -> false
-        backStack.size == 1 -> true
-        else -> listBeside && list == HomeKey && backStack.size == 2 && backStack.last() is EntryDetailKey
-    }
-}
-
-/**
- * 저장 뒤 전면 광고 차례. 저장한 탭을 기억했다가 같은 탭 목록으로 돌아오면 한 번
- * 다른 탭으로 가면 기회를 버림. 몇 시간 뒤 탭을 누를 때 뜨면 "저장하고 목록으로 돌아갈 때"가 아님
- */
-internal class AfterSaveAdTurn {
-    /** 기다리는 탭 */
-    var savedOn: TabScreen? = null
-        private set
-
-    fun saved(tab: TabScreen) {
-        savedOn = tab
-    }
-
-    /** 화면이 바뀔 때마다 부름. 참이면 지금 띄우고 차례는 끝 */
-    fun takeTurn(tab: TabScreen, backStack: List<NavKey>, justSavedInTwoPane: Boolean): Boolean {
-        val pending = savedOn
-        val show = pending == tab && interstitialMayShow(backStack, listBeside = justSavedInTwoPane)
-        if (pending != tab || show) savedOn = null
-        return show
-    }
-}
+/** 잠금 화면이 앱을 덮은 동안 참 */
+internal val LockController.appLocked: Flow<Boolean>
+    get() = state.map { it == LockState.Locked || it == LockState.NeedsNewPin }

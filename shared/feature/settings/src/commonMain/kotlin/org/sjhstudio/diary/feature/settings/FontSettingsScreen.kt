@@ -49,6 +49,8 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.font_download
 import org.sjhstudio.diary.feature.settings.resources.font_downloading
 import org.sjhstudio.diary.feature.settings.resources.font_failed
+import org.sjhstudio.diary.feature.settings.resources.font_no_space
+import org.sjhstudio.diary.feature.settings.resources.font_not_from_store
 import org.sjhstudio.diary.feature.settings.resources.font_offline
 import org.sjhstudio.diary.feature.settings.resources.font_preview_label
 import org.sjhstudio.diary.feature.settings.resources.font_preview_sample
@@ -161,7 +163,14 @@ fun FontSettingsRoute(onBack: () -> Unit) {
     val toast = remember { DiaryToastState() }
     LaunchedEffect(viewModel) {
         viewModel.notice.collect { notice ->
-            toast.show(getString(if (notice == FontNotice.Offline) Res.string.font_offline else Res.string.font_failed))
+            val message =
+                when (notice) {
+                    FontNotice.Offline -> Res.string.font_offline
+                    FontNotice.NoSpace -> Res.string.font_no_space
+                    FontNotice.NotFromStore -> Res.string.font_not_from_store
+                    FontNotice.Failed -> Res.string.font_failed
+                }
+            toast.show(getString(message))
         }
     }
     Box(Modifier.fillMaxSize()) {

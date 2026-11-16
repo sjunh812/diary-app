@@ -11,7 +11,7 @@ import org.sjhstudio.diary.core.platform.NotificationPermission
 
 /**
  * 끝나면 알림으로 알릴 수 있는지
- * 허용 창이나 휴대폰 설정에서 바꾸고 돌아오면 다시 읽음
+ * 허용 창이나 기기 설정에서 바꾸고 돌아오면 다시 읽음
  * 모르는 동안은 알린다고 말하지 않음
  */
 @Composable

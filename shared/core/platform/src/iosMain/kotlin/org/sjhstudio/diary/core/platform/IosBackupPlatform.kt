@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.platform
 
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 import kotlin.coroutines.resume
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -95,19 +97,26 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
     }
 }
 
-/** 경로 감시로 지금 연결 확인. 데이터 요금이 있으면 `expensive` */
+/**
+ * 경로 감시로 지금 연결 확인. 데이터 요금이 있으면(`expensive`) 사진을 올리지 않는 연결
+ * 앱 시작 때 만들어(PlatformModule) 처음 읽기 전에 실제 값이 들어옴
+ * 첫 알림 전에는 연결된 Wi-Fi로 봄. 백그라운드로 깬 직후에도 백업이 사진을 건너뛰지 않게
+ * 알림은 다른 스레드에서 와서 원자 값으로 둠
+ */
+@OptIn(ExperimentalAtomicApi::class)
 class IosNetworkState : NetworkState {
-    override var isConnected: Boolean = true
-        private set
-    override var isUnmetered: Boolean = true
-        private set
+    private val connected = AtomicInt(1)
+    private val unmetered = AtomicInt(1)
+
+    override val isConnected: Boolean get() = connected.load() == 1
+    override val isUnmetered: Boolean get() = unmetered.load() == 1
 
     private val monitor = nw_path_monitor_create()
 
     init {
         nw_path_monitor_set_update_handler(monitor) { path ->
-            isConnected = nw_path_get_status(path) == nw_path_status_satisfied
-            isUnmetered = !nw_path_is_expensive(path)
+            connected.store(if (nw_path_get_status(path) == nw_path_status_satisfied) 1 else 0)
+            unmetered.store(if (nw_path_is_expensive(path)) 0 else 1)
         }
         nw_path_monitor_set_queue(monitor, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT.toLong(), 0u))
         nw_path_monitor_start(monitor)

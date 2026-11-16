@@ -6,7 +6,9 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
@@ -23,7 +25,7 @@ import org.sjhstudio.diary.core.model.StoreProduct
 interface StoreClient {
     suspend fun entitlements(): StoreAnswer
 
-    /** 스토어 계정에 남은 구매를 가져옴. iOS는 영수증이 없으면 로그인 창을 띄울 수 있음 */
+    /** 스토어 계정에 남은 구매를 가져옴. iOS는 로그인 창을 띄울 수 있어 설치마다 한 번만 부름 */
     suspend fun sync(): StoreAnswer
 
     /** 스토어 상품 ID와 그 나라 돈으로 쓴 가격 */
@@ -50,6 +52,7 @@ class StoreFailure(val reason: Reason, cause: Throwable? = null) : Exception(cau
  * 요금제와 구매를 한곳에서 맡음
  * 마지막 요금제를 기기에 남겨 산 사람이 앱을 켤 때나 오프라인에서도 광고를 보지 않음
  * 재설치로 남긴 값이 없으면 스토어 답을 들을 때까지 요금제를 모른다고 알림
+ * 화면 스레드에서만 부름. 상태를 잠금 없이 다룸
  */
 class StoreBilling(
     private val client: StoreClient,
@@ -65,34 +68,56 @@ class StoreBilling(
     /** 구독이 끝나는 시각에 다시 묻는 일. 앱을 켜 둔 채 만료돼도 혜택이 남지 않음 */
     private var expiryCheck: Job? = null
 
+    /**
+     * 구매·복원이 끝날 때마다 늘림
+     * 그 전에 보낸 확인이 늦게 오면 버림. 옛 답이 방금 산 요금제를 무료로 덮어 광고가 다시 나오지 않게
+     * 시계로 앞뒤를 재면 기기 시계가 틀릴 때 결제 답을 버릴 수 있어 차례 번호로 가림
+     */
+    private var purchases = 0
+
     override val plan: StateFlow<Plan> = state.plan
     override val known: StateFlow<Boolean> = state.known
 
     /**
-     * 앱을 켜거나 앞으로 올 때 호출
-     * 기기에 남은 답이 아니라 서버 답으로 환불·만료 반영
-     * 첫 실행은 구매를 조용히 가져옴(재설치 뒤 다시 사지 않게)
+     * 앱이 앞으로 올 때마다(켤 때 포함) 서버 답을 받음. 그만 들을 때까지 돌아오지 않음
+     * 서버 답으로 환불·만료를 반영하고, 처음 설치라 요금제를 모르면 계정의 구매를 가져옴
+     * 하나씩 차례로 처리해 구매 가져오기가 겹치지 않음
      */
-    suspend fun refresh() {
+    suspend fun follow(foregrounds: Flow<Unit>) {
+        foregrounds.conflate().collect {
+            refresh()
+            if (!state.known.value) recover()
+        }
+    }
+
+    /** 스토어가 권한이 바뀌었다고 알려 올 때 호출. 요금제만 바꿈 */
+    fun onUpdate(answer: StoreAnswer) {
+        watchExpiry(answer)
+        state.onAnswer(StoreIds.planOf(answer.active))
+    }
+
+    internal suspend fun refresh() {
+        val asked = purchases
         try {
-            onUpdate(client.entitlements())
+            val answer = client.entitlements()
+            if (asked == purchases) onUpdate(answer)
         } catch (_: StoreFailure) {
             // 닿지 못하면 남긴 값 그대로. 없으면 모르는 채로
         }
     }
 
-    /** 스토어가 권한이 바뀌었다고 알려 올 때도 호출 */
-    suspend fun onUpdate(answer: StoreAnswer) {
-        watchExpiry(answer)
-        if (!state.onAnswer(StoreIds.planOf(answer.active))) return
+    /** 계정에 남은 구매를 가져옴(재설치 뒤 다시 사지 않게) */
+    private suspend fun recover() {
+        val asked = purchases
         try {
-            val synced = client.sync()
-            watchExpiry(synced)
-            state.onSynced(StoreIds.planOf(synced.active))
+            val answer = client.sync()
+            if (asked != purchases) return
+            watchExpiry(answer)
+            state.onRecovered(StoreIds.planOf(answer.active))
         } catch (e: StoreFailure) {
-            // 로그인 창을 닫은 것은 계정이 없다는 답. 다시 물으면 창이 되풀이됨
-            if (e.reason == StoreFailure.Reason.CANCELLED) state.onSynced(StoreIds.planOf(answer.active))
-            // 그 밖은 무료로 정하지 않음(구매자에게 광고 방지)
+            // 로그인 창을 닫은 것은 가져올 구매가 없다는 답
+            if (e.reason == StoreFailure.Reason.CANCELLED) state.onRecovered(Plan.FREE)
+            // 그 밖은 무료로 정하지 않고 다음에 앞으로 올 때 다시(구매자에게 광고 방지)
         }
     }
 
@@ -119,6 +144,7 @@ class StoreBilling(
 
     override suspend fun buy(id: ProductId): PurchaseResult = try {
         val answer = client.purchase(StoreIds.productOf(id))
+        purchases++
         onUpdate(answer)
         // 결제가 끝나도 혜택이 켜지지 않았으면 성공으로 닫지 않음. 실패 안내가 [구매 복원]을 알려 줌
         if (StoreIds.planOf(answer.active).includes(id)) PurchaseResult.DONE else PurchaseResult.FAILED
@@ -138,7 +164,8 @@ class StoreBilling(
     override suspend fun restore(): PurchaseResult = try {
         val answer = client.restore()
         watchExpiry(answer)
-        state.onSynced(StoreIds.planOf(answer.active))
+        purchases++
+        state.onRecovered(StoreIds.planOf(answer.active))
         if (StoreIds.planOf(answer.active) == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
     } catch (e: StoreFailure) {
         // iOS는 복원 때 Apple 계정 로그인 창을 띄울 수 있음. 닫은 것은 실패가 아님

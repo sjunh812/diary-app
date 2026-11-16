@@ -55,9 +55,9 @@ class AdRepositoryFailureTest {
             return closed.await()
         }
 
-        override suspend fun showRewarded(): Boolean {
+        override suspend fun loadRewarded(): ReadyReward {
             if (crash) error("광고 SDK 실패")
-            return closed.await()
+            return ReadyReward { if (closed.await()) it() }
         }
     }
 
@@ -84,7 +84,7 @@ class AdRepositoryFailureTest {
         val store = InMemoryDataStore<Preferences>(emptyPreferences())
         val player = HeldPlayer()
         val repository = repo(player, store)
-        val job = launch { repository.backToList() }
+        val job = launch { repository.showAfterSave() }
         runCurrent()
         assertEquals(1, player.shown)
 
@@ -115,17 +115,20 @@ class AdRepositoryFailureTest {
         val player = HeldPlayer().apply { closed.complete(true) }
         val repository = repo(player, FullDisk())
 
-        repository.backToList()
-        repository.backToList()
+        repository.showAfterSave()
+        repository.showAfterSave()
 
         assertEquals(1, player.shown)
     }
 
+    /** 끝까지 본 보상은 공간이 차 못 적어도 바로 받음(AdMob 보상 지침). 이번 실행 동안 광고 없고, 못 적었다고 알림 */
     @Test
-    fun a_reward_that_cannot_be_written_says_it_failed() = runTest {
+    fun a_reward_that_cannot_be_written_still_applies_now() = runTest {
         val player = HeldPlayer().apply { closed.complete(true) }
+        val repository = repo(player, FullDisk())
 
-        assertFalse(repo(player, FullDisk()).watchReward())
+        assertEquals(RewardResult.EarnedNotSaved, repository.watchReward())
+        assertFalse(repository.showAds.first())
     }
 
     @Test
@@ -134,9 +137,9 @@ class AdRepositoryFailureTest {
         val repository = repo(player, Unreadable())
 
         assertFalse(repository.showAds.first())
-        repository.afterSave()
-        repository.backToList()
-        assertFalse(repository.watchReward())
+        repository.prepareAfterSave()
+        repository.showAfterSave()
+        assertEquals(RewardResult.NotEarned, repository.watchReward())
         assertEquals(0, player.shown)
     }
 
@@ -145,10 +148,10 @@ class AdRepositoryFailureTest {
         val player = HeldPlayer().apply { crash = true }
         val repository = repo(player)
 
-        repository.afterSave()
-        repository.backToList()
+        repository.prepareAfterSave()
+        repository.showAfterSave()
 
-        assertFalse(repository.watchReward())
+        assertEquals(RewardResult.NotEarned, repository.watchReward())
         assertTrue(repository.showAds.first(), "다음 기회에 다시 해 본다")
     }
 }
