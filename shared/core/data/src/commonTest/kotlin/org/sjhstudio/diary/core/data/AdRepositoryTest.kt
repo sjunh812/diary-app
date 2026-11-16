@@ -196,7 +196,7 @@ class AdRepositoryTest {
         val repo = repo()
         assertTrue(repo.showAds.first())
 
-        assertTrue(repo.watchReward().earned)
+        assertEquals(RewardResult.Earned, repo.watchReward())
         assertFalse(repo.showAds.first())
 
         now += 25.hours
@@ -208,11 +208,11 @@ class AdRepositoryTest {
     fun watching_twice_at_once_shows_one_video() = runTest {
         val repo = repo()
 
-        val first = async { repo.watchReward().earned }
-        val second = async { repo.watchReward().earned }
+        val first = async { repo.watchReward() }
+        val second = async { repo.watchReward() }
 
-        assertTrue(first.await())
-        assertTrue(second.await())
+        assertEquals(RewardResult.Earned, first.await())
+        assertEquals(RewardResult.Earned, second.await())
         assertEquals(1, player.rewardedShown)
     }
 
@@ -221,7 +221,7 @@ class AdRepositoryTest {
     fun a_reward_is_kept_as_soon_as_it_is_earned_before_the_ad_closes() = runTest {
         player.closing = CompletableDeferred()
         val repo = repo()
-        backgroundScope.launch { repo.watchReward().earned }
+        backgroundScope.launch { repo.watchReward() }
         runCurrent()
         assertFalse(repo.showAds.first())
     }
@@ -231,7 +231,7 @@ class AdRepositoryTest {
     fun closing_the_sheet_while_loading_never_shows_the_reward() = runTest {
         player.loading = CompletableDeferred()
         val repo = repo()
-        val watch = launch { repo.watchReward().earned }
+        val watch = launch { repo.watchReward() }
         runCurrent()
         watch.cancel()
         player.loading?.complete(Unit)
@@ -245,7 +245,7 @@ class AdRepositoryTest {
         player.reward = false
         val repo = repo()
 
-        assertFalse(repo.watchReward().earned)
+        assertEquals(RewardResult.NotEarned, repo.watchReward())
         assertTrue(repo.showAds.first())
     }
 
@@ -310,7 +310,7 @@ class AdRepositoryTest {
     fun reward_ends_after_a_day() = runTest {
         val repository = repo()
         player.reward = true
-        assertTrue(repository.watchReward().earned)
+        assertEquals(RewardResult.Earned, repository.watchReward())
         assertFalse(repository.showAds.first())
 
         now += 25.hours
@@ -322,7 +322,7 @@ class AdRepositoryTest {
         val repository = repo()
         now += 1000.hours
         player.reward = true
-        assertTrue(repository.watchReward().earned)
+        assertEquals(RewardResult.Earned, repository.watchReward())
         now -= 1000.hours
         assertTrue(repository.showAds.first())
     }
@@ -331,7 +331,7 @@ class AdRepositoryTest {
     fun buying_while_a_reward_runs_keeps_ads_off_after_it_ends() = runTest {
         val repository = repo()
         player.reward = true
-        repository.watchReward().earned
+        repository.watchReward()
         plans.plan.value = Plan.AD_FREE
         now += 25.hours
         assertFalse(repository.showAds.first())
@@ -384,7 +384,7 @@ class AdRepositoryTest {
     @Test
     fun a_reward_ends_on_the_exact_moment() = runTest {
         val repository = repo()
-        repository.watchReward().earned
+        repository.watchReward()
 
         now += 24.hours
 
@@ -397,7 +397,7 @@ class AdRepositoryTest {
         val repository = AdRepository(plans, store, NoAdPlayer, { true }, clock, { TimeZone.UTC })
 
         assertFalse(repository.showAds.first())
-        assertFalse(repository.watchReward().earned)
+        assertEquals(RewardResult.NotEarned, repository.watchReward())
         repository.showAfterSave()
     }
 

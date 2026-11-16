@@ -100,7 +100,7 @@ class AdRepositoryFailureTest {
         val store = InMemoryDataStore<Preferences>(emptyPreferences())
         val player = HeldPlayer()
         val repository = repo(player, store)
-        val job = launch { repository.watchReward().earned }
+        val job = launch { repository.watchReward() }
         runCurrent()
 
         job.cancel()
@@ -139,7 +139,7 @@ class AdRepositoryFailureTest {
         assertFalse(repository.showAds.first())
         repository.prepareAfterSave()
         repository.showAfterSave()
-        assertFalse(repository.watchReward().earned)
+        assertEquals(RewardResult.NotEarned, repository.watchReward())
         assertEquals(0, player.shown)
     }
 
@@ -151,7 +151,7 @@ class AdRepositoryFailureTest {
         repository.prepareAfterSave()
         repository.showAfterSave()
 
-        assertFalse(repository.watchReward().earned)
+        assertEquals(RewardResult.NotEarned, repository.watchReward())
         assertTrue(repository.showAds.first(), "다음 기회에 다시 해 본다")
     }
 }

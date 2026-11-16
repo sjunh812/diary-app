@@ -129,7 +129,7 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
             .loadAd(AdRequest.Builder().build())
     }
 
-    /** 지금 화면에 그려진 목록 광고 자리. 카드가 붙고 떨어질 때 바뀜 */
+    /** 그려진 목록 광고 자리(지연 목록이 미리 그린 것 포함). 카드가 붙고 떨어질 때 바뀜 */
     internal val onScreen = mutableSetOf<String>()
 
     /**

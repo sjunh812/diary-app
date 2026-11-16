@@ -21,6 +21,9 @@ internal class OverlaidPreferences(private val dataStore: DataStore<Preferences>
     /** 아직 기록에 닿지 않은 쓰기. 닿으면 빠지고, 실패하면 다음 쓰기가 성공할 때까지 남음 */
     private val unsaved = MutableStateFlow<List<(MutablePreferences) -> Unit>>(emptyList())
 
+    /** 겹친 쓰기가 남은 쓰기를 서로 지우지 않게 한 줄로 */
+    private val writing = Mutex()
+
     val data: Flow<Preferences> =
         combine(dataStore.data, unsaved) { saved, pending ->
             if (pending.isEmpty()) saved else saved.toMutablePreferences().apply { pending.forEach { it(this) } }
@@ -32,13 +35,10 @@ internal class OverlaidPreferences(private val dataStore: DataStore<Preferences>
      */
     suspend fun edit(change: (MutablePreferences) -> Unit) {
         unsaved.update { it + change }
-        // 겹친 쓰기가 남은 쓰기를 서로 지우지 않게 한 줄로
         writing.withLock {
             val pending = unsaved.value
             dataStore.edit { prefs -> pending.forEach { it(prefs) } }
             unsaved.update { it.drop(pending.size) }
         }
     }
-
-    private val writing = Mutex()
 }

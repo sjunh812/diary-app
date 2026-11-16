@@ -155,16 +155,9 @@ fun SettingsScreen(
             // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드
             // 요금제를 안 뒤에만 그림. 재설치 직후 무료 문구가 먼저 보였다가 바뀌지 않게
             if (state.plan != null && state.plan != Plan.PLUS) {
+                val inviteTitle = if (state.plan == Plan.AD_FREE) Res.string.settings_plus_title_ad_free else Res.string.settings_plus_title
                 DiaryInviteCard(
-                    stringResource(
-                        if (state.plan ==
-                            Plan.AD_FREE
-                        ) {
-                            Res.string.settings_plus_title_ad_free
-                        } else {
-                            Res.string.settings_plus_title
-                        }
-                    ),
+                    stringResource(inviteTitle),
                     stringResource(Res.string.settings_plus_body),
                     stringResource(Res.string.settings_plus_action),
                     onPlus,

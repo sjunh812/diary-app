@@ -217,10 +217,8 @@ enum class RewardResult {
     Earned,
     NotEarned,
 
-    /** 끝까지 봤지만 공간이 차 기록하지 못함 */
-    NotSaved;
-
-    val earned: Boolean get() = this == Earned
+    /** 끝까지 봤지만 기록하지 못함 */
+    NotSaved
 }
 
 /**
