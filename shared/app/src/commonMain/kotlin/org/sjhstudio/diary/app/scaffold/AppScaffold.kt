@@ -501,7 +501,7 @@ private fun Content(
     val tabBarSpace = remember(covers) { tabBarSpace(covers) }
     val railCut = LocalRailWidth.current
     val clipRail = wide && covers.isEmpty()
-    // 탭마다 화면 상태 묶음은 탭을 바꿔도 남아야 해서 탭별로 갈아 끼우는 화면 바깥에서 기억함
+    // 탭을 바꿔도 화면 상태가 남게 갈아 끼우는 화면 바깥에서 기억
     val entries =
         nav.decoratedEntries(
             tabBarSpace,
@@ -642,13 +642,11 @@ private fun Content(
                 }
             }
         )
-    // 다른 탭 첫 화면에서 뒤로 가면 홈으로. 탭마다 화면을 따로 그려 내비게이션이 이 일을 모름
+    // 다른 탭 첫 화면에서 뒤로 가면 홈으로
     BackHandler(enabled = nav.backGoesHome, onBack = pop)
     Box(modifier.background(DiaryTheme.colors.scrim.copy(alpha = 1f))) {
         rail?.invoke()
-        // 탭은 쌓는 화면이 아니라 갈아 끼우는 화면이라 탭마다 따로 그림
-        // 한 화면에 모든 탭을 쌓으면 홈으로 돌아갈 때 내비게이션이 뒤로 가기로 봄
-        // 그때 두 화면을 잠깐 겹쳐 그려 달력이 홈 위로 다시 비침
+        // 탭마다 따로 그림. 홈으로 돌아갈 때 뒤로 가기 전환을 타지 않게
         key(nav.tab) {
             NavDisplay(
                 entries = entries,

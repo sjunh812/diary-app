@@ -38,7 +38,6 @@ private val BackStackConfiguration =
 
 /**
  * 탭마다 화면을 따로 쌓고, 탭을 바꾸면 그 탭의 쌓임만 그림(iOS 탭 바처럼 갈아 끼움)
- * 모든 탭을 한 쌓임으로 이으면(nav3-recipes `multiplestacks`) 홈으로 돌아갈 때 뒤로 가기 전환을 거쳐 두 화면이 잠깐 겹침
  * 탭의 화면 키가 쌓임에 남아 있으면 화면 모델과 저장 상태가 살아 있음
  * 그래서 탭을 옮겼다 와도 스크롤, 고른 날, 기간, 필터가 그대로
  * 앱은 늘 홈을 지나서 닫힘(`contracts/navigation.md` 뒤로 가기)
