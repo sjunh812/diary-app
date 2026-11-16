@@ -30,7 +30,8 @@ class AdRepositoryTest {
     private val plans = object : PlanRepository {
         override val plan = MutableStateFlow(Plan.FREE)
     }
-    private val store = AdStore(InMemoryDataStore(emptyPreferences()))
+    private val dataStore = InMemoryDataStore(emptyPreferences())
+    private val store = AdStore(dataStore)
 
     private inner class Player : AdPlayer {
         var shown = 0
@@ -111,6 +112,17 @@ class AdRepositoryTest {
         assertFalse(repo.interstitialNoticeDue())
         repo.showAfterSave()
         assertEquals(1, player.shown)
+
+        now += 1.days
+        assertFalse(repo.interstitialNoticeDue())
+    }
+
+    /** 공간이 차 기록을 못 써도 같은 프로세스에서는 안내를 다시 띄우지 않음 */
+    @Test
+    fun an_answer_that_could_not_be_written_is_kept_for_this_run() = runTest {
+        val repo = repo()
+        dataStore.failWrites = true
+        repo.interstitialNoticeAnswered()
 
         now += 1.days
         assertFalse(repo.interstitialNoticeDue())

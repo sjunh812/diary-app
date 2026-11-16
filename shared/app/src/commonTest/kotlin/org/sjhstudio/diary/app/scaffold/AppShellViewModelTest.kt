@@ -258,6 +258,30 @@ class AppShellViewModelTest {
         assertEquals(AdNotice.Showing, shell.adNotice.value)
     }
 
+    /** 안내를 띄울지 읽는 사이 잠기면 잠금을 풀어도 안내가 뜨지 않음 */
+    @Test
+    fun locking_while_the_notice_is_checked_shows_nothing() = runTest(dispatcher) {
+        val checking = CompletableDeferred<Boolean>()
+        val ads =
+            object : AfterSaveAds {
+                override suspend fun prepare() = Unit
+
+                override suspend fun show() = true
+
+                override suspend fun noticeDue() = checking.await()
+            }
+        val shell = shell(ads = ads)
+        shell.saved("e1")
+        advanceUntilIdle()
+        locked.value = true
+        advanceUntilIdle()
+        checking.complete(true)
+        advanceUntilIdle()
+        locked.value = false
+        advanceUntilIdle()
+        assertEquals(AdNotice.None, shell.adNotice.value)
+    }
+
     @Test
     fun either_button_on_the_notice_counts_as_answered() = runTest(dispatcher) {
         val confirmed = Ads(notice = true)

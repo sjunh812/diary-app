@@ -95,10 +95,13 @@ class AdRepository(
     /** 저장 공간이 차 파일에 못 적어도 이 프로세스 안에서는 하루 한 번을 지킴 */
     private var shownDay: String? = null
 
+    /** 공간이 차 파일에 못 적어도 이 프로세스 안에서는 안내를 다시 띄우지 않음 */
+    private var noticeAnswered = false
+
     val showAds: Flow<Boolean> =
         combine(plans.confirmed, store.prefs) { plan, prefs -> plan?.showsAds == true && adsAllowed(prefs) }
             // 기록을 읽지 못하면 덜 보이는 쪽으로 판단
-            .catch { emit(false) }
+            .catch { if (it is Exception) emit(false) else throw it }
             .distinctUntilChanged()
 
     /**
@@ -106,8 +109,8 @@ class AdRepository(
      * 오늘 전면 광고 차례가 남았으면 미리 받아 둠. 저장한 순간 바로 띄워야 해서
      */
     suspend fun warmUp() {
-        quietly(Unit) {
-            if (!showAds.first()) return@quietly
+        orElseOnFailure(Unit) {
+            if (!showAds.first()) return@orElseOnFailure
             player.warmUp()
             if (interstitialDue()) player.prepareInterstitial()
         }
@@ -125,7 +128,7 @@ class AdRepository(
 
     /** 작성 화면을 열 때 호출. 오늘 아직 안 봤으면 저장한 순간 띄울 광고를 미리 받음 */
     suspend fun prepareAfterSave() {
-        quietly(Unit) { if (interstitialDue()) player.prepareInterstitial() }
+        orElseOnFailure(Unit) { if (interstitialDue()) player.prepareInterstitial() }
     }
 
     /**
@@ -142,7 +145,7 @@ class AdRepository(
         // 공간이 차 못 적어도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킴
         // 광고 SDK가 실패해도 차례였던 사실은 그대로
         val day = today()
-        quietly(Unit) {
+        orElseOnFailure(Unit) {
             coroutineScope {
                 val seen = CompletableDeferred<Unit>()
                 val record = launch {
@@ -171,14 +174,17 @@ class AdRepository(
      * 이번 전면 광고 앞에 첫 안내를 띄울지. 안내에 답하기 전까지 광고 차례마다 참
      * 기록을 읽지 못하면 안내 없이 지금처럼 광고만
      */
-    suspend fun interstitialNoticeDue(): Boolean = quietly(false) { interstitialDue() && !store.current().interstitialNoticed }
+    suspend fun interstitialNoticeDue(): Boolean = orElseOnFailure(false) {
+        !noticeAnswered && interstitialDue() && !store.current().interstitialNoticed
+    }
 
     /**
      * 안내에서 버튼을 누름. 어느 버튼이든 다시 띄우지 않음(`docs/business.md` 광고 자리)
      * 답하기 전에 잠기거나 앱이 꺼졌으면 다음 차례에 다시 띄움
      */
     suspend fun interstitialNoticeAnswered() {
-        quietly(Unit) { store.interstitialNoticed() }
+        noticeAnswered = true
+        orElseOnFailure(Unit) { store.interstitialNoticed() }
     }
 
     private suspend fun interstitialDue(): Boolean {
@@ -196,7 +202,7 @@ class AdRepository(
      * 받는 동안 취소되면(시트를 닫음) 띄우지 않고 CancellationException
      * 띄운 뒤로는 화면이 다시 만들어져도 끝까지 감
      */
-    suspend fun watchReward(): Boolean = quietly(false) {
+    suspend fun watchReward(): Boolean = orElseOnFailure(false) {
         rewardTurn.withLock {
             // 앞서 누른 보기가 이미 보상을 받았으면 또 띄우지 않고 그 결과를 알림
             if (rewarded(store.prefs.first().rewardUntil)) return@withLock true
@@ -216,10 +222,8 @@ class AdRepository(
  * 영상을 가로로 보고 돌아오면 화면이 다시 만들어져 부른 쪽이 먼저 끝남
  * 그때 멈추면 본 광고가 기록되지 않아 같은 날 또 뜨고, 끝까지 본 보상도 잃음
  */
-private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T = quietly(failed) { withContext(NonCancellable) { block() } }
-
-/** 광고는 곁일. 광고 쪽 실패로 앱이 꺼지면 안 됨. 다음 기회에 다시 시도 */
-private suspend fun <T> quietly(failed: T, block: suspend () -> T): T = orElseOnFailure(failed) { block() }
+private suspend fun <T> onceStarted(failed: T, block: suspend () -> T): T =
+    orElseOnFailure(failed) { withContext(NonCancellable) { block() } }
 
 /**
  * 띄우고 끝까지 본 순간 [record]로 보상을 적음. 닫기 전에 앱이 꺼져도 하루 광고 없음이 남음

@@ -78,11 +78,16 @@ class AppShellViewModel(
     private val _adNotice = MutableStateFlow(AdNotice.None)
 
     init {
-        // 안내나 광고 제거 시트를 둔 채 잠기면 그 차례는 광고 없이 끝냄. 잠금을 풀자마자 광고가 뜨지 않게
-        viewModelScope.launchSafely { locked.filter { it }.collect { _adNotice.value = AdNotice.None } }
+        // 잠기면 저장 뒤 차례를 끝냄. 잠금을 풀자마자 안내나 광고가 뜨지 않게 함
+        viewModelScope.launchSafely {
+            locked.filter { it }.collect {
+                afterSave?.cancel()
+                _adNotice.value = AdNotice.None
+            }
+        }
     }
 
-    /** 저장 뒤 차례. 저장한 일기 상세를 떠나면 리뷰 요청만 거둠 */
+    /** 저장 뒤 차례. 저장한 일기 상세를 떠나거나 잠기면 거둠 */
     private var afterSave: Job? = null
     private var savedEntry: NavKey? = null
 
@@ -106,15 +111,14 @@ class AppShellViewModel(
         savedEntry = EntryDetailKey(entryId)
         afterSave =
             viewModelScope.launchSafely {
-                // 광고 차례는 화면을 옮겨도 끝까지 감. 하루 한 번 기록이 걸림
+                // 안내를 띄울지 읽는 동안 거두면 띄우지 않음. 답하지 않았으니 다음 저장에 다시 뜸
                 val adTurn =
-                    withContext(NonCancellable) {
-                        if (ads.noticeDue()) {
-                            _adNotice.value = AdNotice.Showing
-                            true
-                        } else {
-                            ads.show()
-                        }
+                    if (ads.noticeDue()) {
+                        _adNotice.value = AdNotice.Showing
+                        true
+                    } else {
+                        // 광고는 띄우기 시작하면 화면을 옮겨도 끝까지 감. 하루 한 번 기록이 걸림
+                        withContext(NonCancellable) { ads.show() }
                     }
                 if (!adTurn) {
                     ensureActive()
@@ -149,7 +153,8 @@ class AppShellViewModel(
         viewModelScope.launchSafely { ads.show() }
     }
 
-    // 버튼을 눌렀을 때만 안내를 본 것으로 적음. 답하기 전에 잠기면 다음 저장에 다시 띄움
+    // 버튼을 눌렀을 때만 안내를 본 것으로 적음
+    // 답하기 전에 잠기면 다음 저장에 다시 띄움
     private fun answerNotice(next: AdNotice): Boolean {
         if (_adNotice.value != AdNotice.Showing) return false
         _adNotice.value = next
