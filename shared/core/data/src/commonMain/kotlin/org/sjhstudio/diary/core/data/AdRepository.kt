@@ -17,7 +17,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
-import okio.IOException
 import org.sjhstudio.diary.core.datastore.AdPrefs
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.model.currentDate
@@ -99,7 +98,7 @@ class AdRepository(
     val showAds: Flow<Boolean> =
         combine(plans.confirmed, store.prefs) { plan, prefs -> plan?.showsAds == true && adsAllowed(prefs) }
             // 기록을 읽지 못하면 덜 보이는 쪽으로 판단
-            .catch { if (it is IOException) emit(false) else throw it }
+            .catch { emit(false) }
             .distinctUntilChanged()
 
     /**

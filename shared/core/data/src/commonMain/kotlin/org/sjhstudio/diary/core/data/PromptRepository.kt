@@ -20,7 +20,6 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import okio.IOException
 import org.sjhstudio.diary.core.datastore.PromptPrefs
 import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.model.currentDate
@@ -68,11 +67,14 @@ class PromptRepository(
         }
             .flatMapLatest { state ->
                 val (prefs, askedDay) = state ?: return@flatMapLatest flowOf(false)
+                // 설문을 마쳤으면 일기 수를 더 세지 않음
+                if (prefs.feedbackDone) return@flatMapLatest flowOf(false)
                 val first = prefs.firstUseAt ?: return@flatMapLatest flowOf(false)
                 // 날짜 조건도 새 일기를 쓸 때마다 다시 봄. 3일 전에 구독해도 그 뒤 쓴 일기로 카드가 뜸
                 writtenSince(first).map { feedbackMayShow(prefs, askedDay, first) && it >= FEEDBACK_ENTRIES }
             }
-            .catch { if (it is IOException) emit(false) else throw it }
+            // 기록이나 일기 수를 읽지 못하면 카드 없음. 흐름이 끝나 팁까지 막히지 않게 함
+            .catch { emit(false) }
             .distinctUntilChanged()
 
     // 리뷰를 먼저 물은 날(백업 카드가 맨 위를 차지한 동안)은 카드를 다음 날로 미룸
