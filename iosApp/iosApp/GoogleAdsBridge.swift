@@ -34,6 +34,8 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     private var nativeLoadedAt: [String: Date] = [:]
     /// 치울 때 Kotlin에 알리는 일. 받은 자리마다 하나
     private var nativeDropped: [String: () -> Void] = [:]
+    /// 자리마다 마지막으로 그린 뷰. 화면에 붙어 있으면 치우지 않음
+    private var nativeViews: [String: WeakView] = [:]
     private var loaders: [String: NativeLoader] = [:]
     private var presenting: FullScreenHandler?
     /// 추적 허용 답을 기다리는 광고 칸. nil이면 묻는 중이 아님
@@ -241,8 +243,10 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         nativeLoadedAt[key] = Date()
         nativeDropped[key] = onDropped
         nativeOrder.append(key)
-        while nativeOrder.count > Self.maxNatives {
-            drop(nativeOrder.removeFirst())
+        // 끝을 넘으면 오래된 것부터 치우되 보이는 카드는 건너뜀. 치우면 카드가 사라졌다 생겨 목록이 튐
+        while nativeOrder.count > Self.maxNatives,
+              let oldest = nativeOrder.first(where: { nativeViews[$0]?.view?.window == nil && $0 != key }) {
+            drop(oldest)
         }
     }
 
@@ -250,6 +254,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         natives[key] = nil
         nativeLoadedAt[key] = nil
         nativeOrder.removeAll { $0 == key }
+        nativeViews[key] = nil
         nativeDropped.removeValue(forKey: key)?()
     }
 
@@ -262,7 +267,9 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
             return nil
         }
         guard let ad = natives[key] else { return nil }
-        return NativeAdPage(NativeAdFrame(ad: NativeAdCardView(ad: ad, card: card, style: style), style: style), style: style)
+        let view = NativeAdPage(NativeAdFrame(ad: NativeAdCardView(ad: ad, card: card, style: style), style: style), style: style)
+        nativeViews[key] = WeakView(view)
+        return view
     }
 
     func fittingHeight(view: UIView, width: Double) -> Double {
@@ -588,4 +595,10 @@ private extension UIColor {
             alpha: CGFloat((value >> 24) & 0xFF) / 255
         )
     }
+}
+
+/// 그린 광고 뷰를 붙잡지 않고 가리킴
+private final class WeakView {
+    weak var view: UIView?
+    init(_ view: UIView) { self.view = view }
 }
