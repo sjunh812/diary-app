@@ -47,7 +47,7 @@ class PromptRepository(
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() }
 ) {
     /** 첫 사용일. 이 기능이 든 버전을 처음 연 때 한 번만 적음 */
-    suspend fun start() = quietly(Unit) { store.firstUse(clock.now()) }
+    suspend fun start() = orElseOnFailure(Unit) { store.firstUse(clock.now()) }
 
     /** 공간이 차 닫음을 못 적어도 이 프로세스 안에서는 카드가 다시 보이지 않게 함(광고의 하루 한 번과 같은 방식) */
     private val doneInProcess = MutableStateFlow(false)
@@ -74,18 +74,18 @@ class PromptRepository(
                 writtenSince(first).map { feedbackMayShow(prefs, askedDay, first) && it >= FEEDBACK_ENTRIES }
             }
             // 기록이나 일기 수를 읽지 못하면 카드 없음. 흐름이 끝나 팁까지 막히지 않게 함
-            .catch { emit(false) }
+            .catch { if (it is Exception) emit(false) else throw it }
             .distinctUntilChanged()
 
     // 리뷰를 먼저 물은 날(백업 카드가 맨 위를 차지한 동안)은 카드를 다음 날로 미룸
     private fun feedbackMayShow(prefs: PromptPrefs, askedDay: String?, first: Instant) =
-        !prefs.feedbackDone && today() !in setOf(prefs.reviewAskedDay, askedDay) && passed(first, FEEDBACK_DAYS)
+        today() !in setOf(prefs.reviewAskedDay, askedDay) && passed(first, FEEDBACK_DAYS)
 
     /** 카드 기록과 리뷰 요청 판단이 엇갈리지 않게 한 번에 하나 */
     private val turn = Mutex()
 
     /** 카드가 화면에 나옴. 같은 날 리뷰 창을 막음 */
-    suspend fun feedbackShown() = quietly(Unit) { turn.withLock { store.feedbackShown(today()) } }
+    suspend fun feedbackShown() = orElseOnFailure(Unit) { turn.withLock { store.feedbackShown(today()) } }
 
     /** 카드 닫기. 다시 보이지 않음 */
     suspend fun feedbackClosed() = feedbackDone()
@@ -95,7 +95,7 @@ class PromptRepository(
 
     private suspend fun feedbackDone() {
         doneInProcess.value = true
-        quietly(Unit) { store.feedbackDone() }
+        orElseOnFailure(Unit) { store.feedbackDone() }
     }
 
     /**
@@ -103,22 +103,22 @@ class PromptRepository(
      * 보인 의견 카드가 남아 있지 않고, 카드가 보인 날이 아닐 때만
      * 기기 기록은 창을 띄운 뒤. 그사이 앱이 꺼져 한 번 더 물어도 스토어 횟수 한도가 거름(Apple 샘플·Play 지침)
      */
-    suspend fun askReviewIfDue() = quietly(Unit) {
+    suspend fun askReviewIfDue() = orElseOnFailure(Unit) {
         // 차례가 아니면 스토어에 정보를 묻지 않음
-        if (turn.withLock { reviewDueDay() } == null) return@quietly
+        if (turn.withLock { reviewDueDay() } == null) return@orElseOnFailure
         // 겹쳐 부른 다른 요청이 잡은 날을 풀지 않게, 이 요청이 잡은 날만 다룸
         var claimed: String? = null
         val shown =
             review.request(stillDue = {
                 // 정보를 받는 사이 카드가 나왔을 수 있어 띄우기 직전 다시 보고 그날을 잡음
-                quietly(false) {
+                orElseOnFailure(false) {
                     turn.withLock {
                         claimed = reviewDueDay()?.also { askedDayInProcess.value = it }
                         claimed != null
                     }
                 }
             })
-        val day = claimed ?: return@quietly
+        val day = claimed ?: return@orElseOnFailure
         if (shown) {
             // 띄운 뒤 화면을 옮겨 거둬져도 기록은 끝까지
             withContext(NonCancellable) { store.reviewAsked(day) }
@@ -147,9 +147,6 @@ class PromptRepository(
     }
 
     private fun today(): String = currentDate(clock, timeZone()).toString()
-
-    /** 곁일. 실패로 앱이 꺼지거나 저장 흐름이 막히면 안 됨 */
-    private suspend fun <T> quietly(failed: T, block: suspend () -> T): T = orElseOnFailure(failed) { block() }
 
     private companion object {
         const val FEEDBACK_DAYS = 3
