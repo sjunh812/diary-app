@@ -122,7 +122,7 @@ class LockViewModel(
     fun start(check: PinCheck) {
         this.check = check
         clearDigits()
-        if (_state.value.message !is LockMessage.Waiting) _state.value = LockUiState()
+        if (_state.value.message !is LockMessage.Waiting) _state.value = _state.value.freshEntry()
     }
 
     /**
@@ -167,22 +167,16 @@ class LockViewModel(
                 // 점은 흔들린 뒤 바로 비어 다시 누르면 됨
                 // 남은 횟수 안내는 다음 숫자를 누를 때까지 남음
                 is VerifyResult.Wrong ->
-                    _state.update {
-                        LockUiState(
-                            message = LockMessage.Wrong(result.remainingBeforeWait),
-                            wrongCount = it.wrongCount + 1,
-                            biometricLocked = it.biometricLocked
-                        )
-                    }
+                    _state.update { it.freshEntry(LockMessage.Wrong(result.remainingBeforeWait), wrongCount = it.wrongCount + 1) }
 
                 is VerifyResult.Waiting -> waitUntil(result.until)
 
                 VerifyResult.KeyMissing -> {
-                    _state.value = LockUiState(message = LockMessage.KeyUnavailable)
+                    _state.value = _state.value.freshEntry(LockMessage.KeyUnavailable)
                     _events.send(LockEvent.KeyMissing)
                 }
 
-                VerifyResult.NotSaved -> _state.value = LockUiState(message = LockMessage.NotSaved)
+                VerifyResult.NotSaved -> _state.value = _state.value.freshEntry(LockMessage.NotSaved)
             }
         }
     }
@@ -209,10 +203,10 @@ class LockViewModel(
                     val left = waitLeft(until, clock.now())
                     if (!left.isPositive()) break
                     val seconds = left.inWholeSeconds.toInt() + if (left.inWholeMilliseconds % 1000 > 0) 1 else 0
-                    _state.update { LockUiState(message = LockMessage.Waiting(seconds), biometricLocked = it.biometricLocked) }
+                    _state.value = _state.value.freshEntry(LockMessage.Waiting(seconds))
                     delay(minOf(left, 1.seconds))
                 }
-                _state.update { LockUiState(biometricLocked = it.biometricLocked) }
+                _state.value = _state.value.freshEntry()
             }
     }
 
@@ -232,3 +226,10 @@ class LockViewModel(
  * 기기 시계를 뒤로 돌리면 저장된 시각이 먼 미래가 되어 한 번의 기다림보다 길어지지 않게 자름
  */
 internal fun waitLeft(until: Instant, now: Instant): Duration = (until - now).coerceAtMost(LockRepository.WAIT)
+
+/**
+ * 비밀번호 입력을 새로 시작한 상태
+ * 생체 인증 잠김은 입력이 아니라 기기 상태라 비밀번호로 열 때까지 남음
+ */
+private fun LockUiState.freshEntry(message: LockMessage = LockMessage.None, wrongCount: Int = 0) =
+    LockUiState(message = message, wrongCount = wrongCount, biometricLocked = biometricLocked)

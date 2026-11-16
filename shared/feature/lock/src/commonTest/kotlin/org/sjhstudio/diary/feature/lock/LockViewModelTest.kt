@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.data.lock.DefaultLockRepository
@@ -89,6 +90,36 @@ class LockViewModelTest {
         vm.type("0427")
         advanceUntilIdle()
         assertEquals(LockUiState(), vm.state.value)
+    }
+
+    /** 생체 인증 잠김은 기기 상태라 입력을 새로 시작하는 다른 길(키 없음, 다시 시작, 기다림)에서도 남음 */
+    @Test
+    fun a_locked_biometric_survives_every_fresh_entry() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        keys.failMac = true
+        val vm = LockViewModel(repository, clock())
+        vm.onBiometricLockedOut()
+
+        vm.type("0427")
+        advanceUntilIdle()
+        assertEquals(LockMessage.KeyUnavailable, vm.state.value.message)
+        assertTrue(vm.state.value.biometricLocked)
+
+        vm.start(PinCheck.Verify)
+        assertTrue(vm.state.value.biometricLocked)
+
+        keys.failMac = false
+        repeat(5) {
+            vm.type("1111")
+            runCurrent()
+        }
+        assertTrue(vm.state.value.message is LockMessage.Waiting)
+        assertTrue(vm.state.value.biometricLocked)
+
+        // 기다림이 끝나도 남음
+        advanceUntilIdle()
+        assertEquals(LockMessage.None, vm.state.value.message)
+        assertTrue(vm.state.value.biometricLocked)
     }
 
     /** 5번 틀리면 30초 동안 숫자를 받지 않고, 남은 초를 세다가 다시 받음 */
