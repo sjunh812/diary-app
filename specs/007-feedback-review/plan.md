@@ -4,7 +4,7 @@
 
 ## 요약
 
-홈 목록 맨 위에 의견 카드를 한 번 띄우고, 저장 뒤 목록으로 돌아온 순간 전면 광고 차례가 아니면 스토어 리뷰 창을 한 번 요청한다.
+홈 목록 맨 위에 의견 카드를 한 번 띄우고, 저장해 작성 화면이 닫힌 순간 전면 광고 차례가 아니면 스토어 리뷰 창을 한 번 요청한다.
 판단은 공통 코드의 `PromptRepository` 하나가 맡고, 기록은 기기에만 두는 새 DataStore 파일에 둔다. 일기 DB 스키마와 백업 형식은 바꾸지 않는다.
 
 ## 기술 배경
@@ -32,7 +32,7 @@
 shared/core/datastore/.../PromptStore.kt          새 파일 prompt.preferences_pb. 기기 것, 백업 제외
 shared/core/database/.../EntryDao.kt              새로 쓴 일기 수 세기 쿼리(스키마 그대로)
 shared/core/data/.../PromptRepository.kt          카드·리뷰 판단과 기록, StoreReview 인터페이스
-shared/core/data/.../AdRepository.kt              backToList()가 전면 광고 차례였는지 돌려줌
+shared/core/data/.../AdRepository.kt              showAfterSave()가 전면 광고 차례였는지 돌려줌
 shared/app/src/androidMain/.../review/PlayStoreReview.kt
 shared/app/src/iosMain/.../review/IosStoreReview.kt  Swift 다리를 감쌈
 iosApp/iosApp/ReviewBridge.swift
@@ -62,7 +62,7 @@ shared/feature/home/.../FeedbackCard.kt           카드 화면(+ preview/)
 
 1. 시작 단계(`Startup.afterReady`)에서 `PromptRepository.start()`가 첫 사용일을 적는다.
 2. 홈 `listTop`: 백업 카드가 있으면 그것만, 없으면 `PromptRepository.feedbackCard`가 참일 때 의견 카드. 카드가 그려지면 그날을 `feedbackShownDay`로 적는다.
-3. 저장 뒤 목록으로 돌아옴(`AppShellViewModel.takeAdTurn`): 첫 광고 안내 차례면 안내, 아니면 `ads.backToList()`. 전면 광고 차례가 아니었으면(`false`) `PromptRepository.askReviewIfDue()`.
+3. 저장해 작성 화면이 닫힘(`AppShellViewModel.saved`): 첫 광고 안내 차례면 안내, 아니면 `ads.showAfterSave()`. 전면 광고 차례가 아니었으면(`false`) `PromptRepository.askReviewIfDue()`.
 4. `askReviewIfDue()`: 7일·5편·오늘 카드 안 보임·보인 카드가 남아 있지 않음·요청한 적 없음이면 `StoreReview.request(stillDue)`. 스토어 정보를 받은 뒤 띄우기 바로 앞에 `stillDue`가 Mutex 안에서 조건을 다시 보고, 창을 띄운 뒤 그날을 적는다. 받다 거둬지면 다음에 다시 묻고, 띄운 뒤 앱이 꺼져 한 번 더 물어도 스토어 횟수 한도가 거른다.
 5. 기록을 읽지 못하면 카드와 리뷰 모두 거짓(덜 묻는 쪽). 쓰지 못하면 그 프로세스 안에서만 다시 보이지 않거나 묻지 않음. 광고와 같은 `orElseOnFailure`.
 

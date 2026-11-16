@@ -130,8 +130,8 @@ class PlanTableTest {
             val repository = ads.repository()
 
             repeat(3) {
-                repository.afterSave()
-                repository.backToList()
+                repository.prepareAfterSave()
+                repository.showAfterSave()
             }
 
             val expected = if (row.ads) 1 else 0
@@ -237,13 +237,13 @@ class PlanTableTest {
         for (paid in listOf(Plan.AD_FREE, Plan.PLUS)) {
             val ads = Ads(paid, clock)
             val repository = ads.repository()
-            repository.backToList()
+            repository.showAfterSave()
             assertEquals(0, ads.player.interstitials)
 
             ads.plans.plan.value = Plan.FREE
 
             assertTrue(repository.showAds.first(), "$paid 환불이나 만료 뒤")
-            repository.backToList()
+            repository.showAfterSave()
             assertEquals(1, ads.player.interstitials, "$paid 만료 뒤")
         }
     }
@@ -253,13 +253,13 @@ class PlanTableTest {
         for (paid in listOf(Plan.AD_FREE, Plan.PLUS)) {
             val ads = Ads(Plan.FREE, clock)
             val repository = ads.repository()
-            repository.afterSave()
+            repository.prepareAfterSave()
             assertEquals(1, ads.player.prepared)
 
             ads.plans.plan.value = paid
 
             assertFalse(repository.showAds.first(), "$paid")
-            repository.backToList()
+            repository.showAfterSave()
             assertEquals(0, ads.player.interstitials, "$paid")
         }
     }
@@ -273,20 +273,20 @@ class PlanTableTest {
         ads.plans.plan.value = Plan.AD_FREE
 
         assertFalse(repository.showAds.first())
-        repository.backToList()
+        repository.showAfterSave()
         assertEquals(0, ads.player.interstitials)
     }
 
     @Test
     fun todays_interstitial_is_remembered_after_a_restart() = runTest {
         val ads = Ads(Plan.FREE, clock)
-        ads.repository().backToList()
+        ads.repository().showAfterSave()
 
-        ads.repository().backToList()
+        ads.repository().showAfterSave()
         assertEquals(1, ads.player.interstitials)
 
         now += 1.days
-        ads.repository().backToList()
+        ads.repository().showAfterSave()
         assertEquals(2, ads.player.interstitials)
     }
 
@@ -297,7 +297,7 @@ class PlanTableTest {
 
         now += 23.hours
         assertFalse(ads.repository().showAds.first(), "다시 켜도 24시간은 광고가 없다")
-        ads.repository().backToList()
+        ads.repository().showAfterSave()
         assertEquals(0, ads.player.interstitials)
 
         now += 2.hours
