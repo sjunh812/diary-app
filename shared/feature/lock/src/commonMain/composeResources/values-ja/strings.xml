@@ -36,6 +36,9 @@
     <string name="lock_settings_enable">日記をロック</string>
     <string name="lock_settings_change">パスコードを変更</string>
     <string name="lock_settings_biometric_unavailable">現在このデバイスでは生体認証を使えません。</string>
+    <string name="lock_settings_biometric_none_enrolled">デバイスの設定で生体認証を登録すると使えます。</string>
+    <string name="lock_settings_biometric_not_allowed">設定アプリで、このアプリのFace IDの使用を許可してください。</string>
+    <string name="lock_settings_biometric_locked_out">何度も失敗したため生体認証がロックされました。デバイスのパスコードでロックを解除すると、また使えます。</string>
     <string name="lock_settings_relock">自動ロック</string>
     <string name="lock_settings_relock_body">他のアプリから戻ったとき、選んだ時間が過ぎていれば再びロックします。</string>
     <string name="relock_immediately">すぐに</string>

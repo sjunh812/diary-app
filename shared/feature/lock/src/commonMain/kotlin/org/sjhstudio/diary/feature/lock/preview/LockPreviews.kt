@@ -6,6 +6,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.platform.BiometricKind
+import org.sjhstudio.diary.core.platform.BiometricStatus
 import org.sjhstudio.diary.feature.lock.LockMessage
 import org.sjhstudio.diary.feature.lock.LockScreen
 import org.sjhstudio.diary.feature.lock.LockSettingsScreen
@@ -80,19 +81,23 @@ private fun SetupAgain() = Setup(PinSetupUiState(entered = 1, again = true))
 private fun SetupMismatch() = Setup(PinSetupUiState(mismatch = true))
 
 @Composable
-private fun Settings(settings: LockSettings, dark: Boolean = false, biometricAvailable: Boolean = true, deviceSecure: Boolean = true) =
-    DiaryTheme(darkTheme = dark) {
-        LockSettingsScreen(
-            settings,
-            biometricAvailable = biometricAvailable,
-            deviceSecure = deviceSecure,
-            onBack = {},
-            onEnabledChange = {},
-            onChangePin = {},
-            onBiometricChange = {},
-            onRelockChange = {}
-        )
-    }
+private fun Settings(
+    settings: LockSettings,
+    dark: Boolean = false,
+    biometric: BiometricStatus = BiometricStatus.Available,
+    deviceSecure: Boolean = true
+) = DiaryTheme(darkTheme = dark) {
+    LockSettingsScreen(
+        settings,
+        biometricStatus = biometric,
+        deviceSecure = deviceSecure,
+        onBack = {},
+        onEnabledChange = {},
+        onChangePin = {},
+        onBiometricChange = {},
+        onRelockChange = {}
+    )
+}
 
 private val lockOn =
     LockSettings(enabled = true, pinMac = "bWFj", pinSalt = "c2FsdA==", biometricEnabled = true, relockAfter = RelockAfter.ONE_MINUTE)
@@ -107,7 +112,19 @@ private fun SettingsDark() = Settings(lockOn, dark = true)
 
 @Preview(name = "L4 생체 인증을 쓸 수 없어요", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
-private fun SettingsNoBiometric() = Settings(lockOn, biometricAvailable = false)
+private fun SettingsNoBiometric() = Settings(lockOn, biometric = BiometricStatus.Unavailable)
+
+@Preview(name = "L4 생체 인증 미등록", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsBiometricNotEnrolled() = Settings(lockOn, biometric = BiometricStatus.NoneEnrolled)
+
+@Preview(name = "L4 Face ID 허용 안 함", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsBiometricNotAllowed() = Settings(lockOn, biometric = BiometricStatus.NotAllowed)
+
+@Preview(name = "L4 생체 인증 잠김", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun SettingsBiometricLockedOut() = Settings(lockOn, dark = true, biometric = BiometricStatus.LockedOut)
 
 @Preview(name = "L4 잠금 꺼짐", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

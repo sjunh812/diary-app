@@ -20,7 +20,11 @@ interface DeviceAuthenticator {
     suspend fun authenticateDeviceOwner(prompt: AuthPrompt): AuthResult
 }
 
-enum class BiometricStatus { Available, NoneEnrolled, Unavailable }
+/**
+ * 생체 인증을 지금 쓸 수 있는지와 못 쓰는 까닭. 잠금 설정이 까닭마다 할 일을 알림
+ * [NotAllowed]는 iOS에서 이 앱의 Face ID를 끈 경우, [LockedOut]은 여러 번 틀려 기기 암호를 기다리는 경우
+ */
+enum class BiometricStatus { Available, NoneEnrolled, NotAllowed, LockedOut, Unavailable }
 
 enum class BiometricKind { Fingerprint, Face }
 

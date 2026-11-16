@@ -11,9 +11,11 @@ import kotlinx.cinterop.value
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.Foundation.NSError
 import platform.LocalAuthentication.LABiometryTypeFaceID
+import platform.LocalAuthentication.LABiometryTypeNone
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAErrorAppCancel
 import platform.LocalAuthentication.LAErrorBiometryLockout
+import platform.LocalAuthentication.LAErrorBiometryNotAvailable
 import platform.LocalAuthentication.LAErrorBiometryNotEnrolled
 import platform.LocalAuthentication.LAErrorSystemCancel
 import platform.LocalAuthentication.LAErrorUserCancel
@@ -28,10 +30,17 @@ import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometr
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 class IosDeviceAuthenticator : DeviceAuthenticator {
     override fun biometricStatus(): BiometricStatus = memScoped {
+        val context = LAContext()
         val error = alloc<ObjCObjectVar<NSError?>>()
-        when {
-            LAContext().canEvaluatePolicy(LAPolicyDeviceOwnerAuthenticationWithBiometrics, error.ptr) -> BiometricStatus.Available
-            error.value?.code == LAErrorBiometryNotEnrolled -> BiometricStatus.NoneEnrolled
+        if (context.canEvaluatePolicy(LAPolicyDeviceOwnerAuthenticationWithBiometrics, error.ptr)) return BiometricStatus.Available
+        when (error.value?.code) {
+            LAErrorBiometryNotEnrolled -> BiometricStatus.NoneEnrolled
+
+            LAErrorBiometryLockout -> BiometricStatus.LockedOut
+
+            // 장치는 있는데 쓸 수 없음 = 사용자가 이 앱의 Face ID를 끔
+            LAErrorBiometryNotAvailable if context.biometryType != LABiometryTypeNone -> BiometricStatus.NotAllowed
+
             else -> BiometricStatus.Unavailable
         }
     }
