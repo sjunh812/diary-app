@@ -32,6 +32,8 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
     private var nativeOrder: [String] = []
     /// 받은 시각. 구글은 한 시간 넘은 네이티브 광고를 다시 받으라고 함
     private var nativeLoadedAt: [String: Date] = [:]
+    /// 치울 때 Kotlin에 알리는 일. 받은 자리마다 하나
+    private var nativeDropped: [String: () -> Void] = [:]
     private var loaders: [String: NativeLoader] = [:]
     private var presenting: FullScreenHandler?
     /// 추적 허용 답을 기다리는 광고 칸. nil이면 묻는 중이 아님
@@ -155,7 +157,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         }
     }
 
-    func loadNative(key: String, onLoaded: @escaping () -> Void) {
+    func loadNative(key: String, onLoaded: @escaping () -> Void, onDropped: @escaping () -> Void) {
         onMain { [self] in
             guard available, natives[key] == nil, loaders[key] == nil else { return }
             warmUp()
@@ -163,7 +165,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
                 guard let self else { return }
                 loaders[key] = nil
                 guard let ad else { return }
-                keep(key, ad)
+                keep(key, ad, onDropped: onDropped)
                 onLoaded()
             }
             loaders[key] = loader
@@ -232,10 +234,12 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         works.forEach { $0() }
     }
 
-    /// 새 광고를 두고 끝을 넘으면 가장 오래된 광고를 치움. 치운 자리가 다시 보이면 새로 받음
-    private func keep(_ key: String, _ ad: NativeAd) {
+    /// 새 광고를 두고 끝을 넘으면 가장 오래된 광고를 치움
+    /// 치우면 Kotlin에 알려 그 자리가 다시 보일 때 새로 받음
+    private func keep(_ key: String, _ ad: NativeAd, onDropped: @escaping () -> Void) {
         natives[key] = ad
         nativeLoadedAt[key] = Date()
+        nativeDropped[key] = onDropped
         nativeOrder.append(key)
         while nativeOrder.count > Self.maxNatives {
             drop(nativeOrder.removeFirst())
@@ -246,12 +250,16 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         natives[key] = nil
         nativeLoadedAt[key] = nil
         nativeOrder.removeAll { $0 == key }
+        nativeDropped.removeValue(forKey: key)?()
     }
 
-    /// 없거나 오래돼 치웠으면 nil. Kotlin이 자리를 비우고 다시 받음
+    /// 받기 전이거나 치웠으면 nil
+    /// 받은 지 한 시간이 지난 광고는 새로 그릴 때 치움. 보이는 카드는 그대로 두어 목록이 튀지 않게 함
+    /// 치운 일은 그리기가 끝난 뒤 알려 Kotlin이 그리는 도중 상태를 바꾸지 않게 함
     func nativeView(key: String, card: Bool, style: IosAdStyle) -> UIView? {
         if let loadedAt = nativeLoadedAt[key], Date().timeIntervalSince(loadedAt) > Self.nativeLifetime {
-            drop(key)
+            DispatchQueue.main.async { [weak self] in self?.drop(key) }
+            return nil
         }
         guard let ad = natives[key] else { return nil }
         return NativeAdPage(NativeAdFrame(ad: NativeAdCardView(ad: ad, card: card, style: style), style: style), style: style)
