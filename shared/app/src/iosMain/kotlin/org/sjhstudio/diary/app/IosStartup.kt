@@ -132,10 +132,12 @@ class BackupTaskHandle internal constructor(private val job: Job) {
  */
 fun runDailyBackup(done: (Boolean) -> Unit): BackupTaskHandle {
     val koin = KoinPlatform.getKoin()
+    var succeeded = false
     val job =
         koin.get<CoroutineScope>(APP_SCOPE).launch {
-            koin.get<BackupRepository>().runIfDue()
+            succeeded = koin.get<BackupRepository>().runIfDue()
         }
-    job.invokeOnCompletion { cause -> done(cause == null) }
+    // 취소·예외도 실패
+    job.invokeOnCompletion { cause -> done(cause == null && succeeded) }
     return BackupTaskHandle(job)
 }

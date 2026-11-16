@@ -275,9 +275,7 @@ class BackupController(
         if (found != null) _foundBackup.value = found else store.update { it.copy(foundBackupWaiting = false) }
     }
 
-    override suspend fun runIfDue() {
-        if (isDue()) runAutomatic()
-    }
+    override suspend fun runIfDue(): Boolean = !isDue() || runAutomatic() !is BackupOutcome.Failed
 
     /**
      * 자동 백업 한 번

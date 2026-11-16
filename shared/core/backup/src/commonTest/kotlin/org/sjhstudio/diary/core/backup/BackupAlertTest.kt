@@ -4,8 +4,10 @@ import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.SYSTEM
 import org.sjhstudio.diary.core.model.BackupFailure
+import org.sjhstudio.diary.core.testing.DriveFault
 import org.sjhstudio.diary.core.testing.FakeBackupNotifier
 import org.sjhstudio.diary.core.testing.FakeBackupScheduler
 import org.sjhstudio.diary.core.testing.FakeDrive
@@ -79,6 +82,17 @@ class BackupAlertTest {
         controller.runIfDue()
 
         assertEquals(first + 9.days, notifier.at)
+    }
+
+    /** 시스템 작업이 결과를 알도록 실패하면 거짓 */
+    @Test
+    fun a_due_backup_that_fails_reports_failure() = runTest {
+        connected()
+        repeat(FAULTS) { phone.drive.faults.addLast(DriveFault.OFFLINE) }
+        assertFalse(controller.runIfDue())
+
+        phone.drive.faults.clear()
+        assertTrue(controller.runIfDue())
     }
 
     /** 바뀐 것이 없으면 지난 실패는 지나간 일. 백업은 이미 드라이브에 있음 */
@@ -160,3 +174,6 @@ class BackupAlertTest {
         assertEquals(phone.clock.now() + 7.days, notifier.at)
     }
 }
+
+/** 다시 시도까지 모두 막을 만큼의 끊김 */
+private const val FAULTS = 10
