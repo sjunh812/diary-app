@@ -4,12 +4,11 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
@@ -26,7 +25,7 @@ import org.sjhstudio.diary.core.model.StoreProduct
 interface StoreClient {
     suspend fun entitlements(): StoreAnswer
 
-    /** 스토어 계정에 남은 구매를 가져옴. iOS는 영수증이 없으면 로그인 창을 띄울 수 있음 */
+    /** 스토어 계정에 남은 구매를 가져옴. iOS는 로그인 창을 띄울 수 있어 설치마다 한 번만 부름 */
     suspend fun sync(): StoreAnswer
 
     /** 스토어 상품 ID와 그 나라 돈으로 쓴 가격 */
@@ -69,21 +68,28 @@ class StoreBilling(
     /** 구독이 끝나는 시각에 다시 묻는 일. 앱을 켜 둔 채 만료돼도 혜택이 남지 않음 */
     private var expiryCheck: Job? = null
 
-    /**
-     * 진행 중인 구매 가져오기. 함께 온 요청은 이것 하나의 결과를 같이 받음
-     * 켤 때 시작·앞으로 옴·스토어 알림이 함께 오고, iOS는 요청마다 로그인 창을 띄움
-     */
-    private var syncing: Deferred<Unit>? = null
-
     override val plan: StateFlow<Plan> = state.plan
     override val known: StateFlow<Boolean> = state.known
 
     /**
-     * 앱을 켜거나 앞으로 올 때 호출
-     * 기기에 남은 답이 아니라 서버 답으로 환불·만료 반영
-     * 첫 실행은 구매를 조용히 가져옴(재설치 뒤 다시 사지 않게)
+     * 앱이 앞으로 올 때마다(켤 때 포함) 서버 답을 받음. 그만 들을 때까지 돌아오지 않음
+     * 서버 답으로 환불·만료를 반영하고, 처음 설치라 요금제를 모르면 계정의 구매를 가져옴
+     * 하나씩 차례로 처리해 구매 가져오기가 겹치지 않음
      */
-    suspend fun refresh() {
+    suspend fun follow(foregrounds: Flow<Unit>) {
+        foregrounds.conflate().collect {
+            refresh()
+            if (!state.known.value) recover()
+        }
+    }
+
+    /** 스토어가 권한이 바뀌었다고 알려 올 때 호출. 요금제만 바꿈 */
+    fun onUpdate(answer: StoreAnswer) {
+        watchExpiry(answer)
+        state.onAnswer(StoreIds.planOf(answer.active))
+    }
+
+    internal suspend fun refresh() {
         try {
             onUpdate(client.entitlements())
         } catch (_: StoreFailure) {
@@ -91,26 +97,16 @@ class StoreBilling(
         }
     }
 
-    /** 스토어가 권한이 바뀌었다고 알려 올 때도 호출 */
-    suspend fun onUpdate(answer: StoreAnswer) {
-        watchExpiry(answer)
-        if (!state.onAnswer(StoreIds.planOf(answer.active))) return
-        // 적어 둔 뒤에 시작. 화면 스레드에서 바로 돌기 시작해 그사이 온 요청이 하나 더 만들지 않게
-        val sync =
-            syncing?.takeIf { it.isActive }
-                ?: scope.async(start = CoroutineStart.LAZY) { syncFromStore(answer) }.also { syncing = it }
-        sync.await()
-    }
-
-    private suspend fun syncFromStore(answer: StoreAnswer) {
+    /** 계정에 남은 구매를 가져옴(재설치 뒤 다시 사지 않게) */
+    private suspend fun recover() {
         try {
-            val synced = client.sync()
-            watchExpiry(synced)
-            state.onSynced(StoreIds.planOf(synced.active))
+            val answer = client.sync()
+            watchExpiry(answer)
+            state.onRecovered(StoreIds.planOf(answer.active))
         } catch (e: StoreFailure) {
-            // 로그인 창을 닫은 것은 계정이 없다는 답. 다시 물으면 창이 되풀이됨
-            if (e.reason == StoreFailure.Reason.CANCELLED) state.onSynced(StoreIds.planOf(answer.active))
-            // 그 밖은 무료로 정하지 않음(구매자에게 광고 방지)
+            // 로그인 창을 닫은 것은 가져올 구매가 없다는 답
+            if (e.reason == StoreFailure.Reason.CANCELLED) state.onRecovered(Plan.FREE)
+            // 그 밖은 무료로 정하지 않고 다음에 앞으로 올 때 다시(구매자에게 광고 방지)
         }
     }
 
@@ -156,7 +152,7 @@ class StoreBilling(
     override suspend fun restore(): PurchaseResult = try {
         val answer = client.restore()
         watchExpiry(answer)
-        state.onSynced(StoreIds.planOf(answer.active))
+        state.onRecovered(StoreIds.planOf(answer.active))
         if (StoreIds.planOf(answer.active) == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
     } catch (e: StoreFailure) {
         // iOS는 복원 때 Apple 계정 로그인 창을 띄울 수 있음. 닫은 것은 실패가 아님

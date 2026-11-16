@@ -18,6 +18,7 @@ import com.revenuecat.purchases.kmp.models.StoreProduct
 import com.revenuecat.purchases.kmp.models.StoreTransaction
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
@@ -29,7 +30,6 @@ import org.sjhstudio.diary.core.data.StoreClient
 import org.sjhstudio.diary.core.data.StoreFailure
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Price
-import org.sjhstudio.diary.core.platform.AppForeground
 import platform.Foundation.NSBundle
 import platform.Foundation.NSUserDefaults
 
@@ -66,10 +66,8 @@ internal fun iosBilling(scope: CoroutineScope): IosBilling {
                 ) -> Unit
             ) = Unit
         }
-    // 켤 때와 앞으로 올 때마다 서버 답 받음
-    // 환불·만료를 구매 복원 없이 반영
-    scope.launch { store.refresh() }
-    AppForeground.observe(onBackground = {}, onForeground = { scope.launch { store.refresh() } })
+    // iOS 앞으로 옴 알림은 켤 때 오지 않아 한 번 더함
+    scope.launch { store.follow(appForegrounds().onStart { emit(Unit) }) }
     return IosBilling(store, store)
 }
 

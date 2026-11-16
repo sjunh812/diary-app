@@ -11,7 +11,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -102,12 +103,25 @@ class StoreBillingTest {
 
     private val store = FakeStore()
 
+    /** 앱이 앞으로 옴(켤 때 포함) */
+    private val foregrounds = Channel<Unit>(Channel.UNLIMITED)
+
     private fun TestScope.billing(saved: Plan? = Plan.FREE): StoreBilling {
         val clock =
             object : Clock {
                 override fun now() = Instant.fromEpochMilliseconds(testScheduler.currentTime)
             }
         return StoreBilling(store, saved, "manage", backgroundScope, clock) { stored += it }
+    }
+
+    /** 앱처럼 앞으로 옴을 듣는 결제 */
+    private fun TestScope.following(saved: Plan? = Plan.FREE): StoreBilling = billing(saved).also { billing ->
+        backgroundScope.launch { billing.follow(foregrounds.receiveAsFlow()) }
+    }
+
+    private fun TestScope.cameForward() {
+        foregrounds.trySend(Unit)
+        runCurrent()
     }
 
     @Test
@@ -213,10 +227,10 @@ class StoreBillingTest {
 
     @Test
     fun a_reinstalled_buyer_is_unknown_until_the_sync_then_gets_plus() = runTest {
-        val billing = billing(null)
+        val billing = following(null)
         assertFalse(billing.known.value)
         store.accountOwned = setOf(StoreIds.PLUS_ENTITLEMENT)
-        billing.refresh()
+        cameForward()
         assertEquals(1, store.syncs)
         assertTrue(billing.known.value)
         assertEquals(Plan.PLUS, billing.plan.value)
@@ -233,9 +247,11 @@ class StoreBillingTest {
 
     @Test
     fun a_known_user_does_not_sync_on_every_launch() = runTest {
-        val billing = billing(Plan.FREE)
-        billing.refresh()
-        assertEquals(0, store.syncs)
+        following(Plan.FREE)
+        cameForward()
+        cameForward()
+        assertEquals(0, store.syncAsks)
+        assertEquals(2, store.entitlementCalls)
     }
 
     @Test
@@ -265,16 +281,16 @@ class StoreBillingTest {
 
     /** 구매를 가져오지 못한 재설치 사용자는 무료로 정하지 않음. 광고가 산 사람에게 스치지 않게 */
     @Test
-    fun a_reinstalled_buyer_whose_sync_fails_stays_unknown() = runTest {
-        val billing = billing(null)
+    fun a_reinstalled_buyer_whose_sync_fails_stays_unknown_and_tries_again_on_the_next_foreground() = runTest {
+        val billing = following(null)
         store.syncFailure = StoreFailure.Reason.OTHER
-        billing.refresh()
+        cameForward()
         assertFalse(billing.known.value)
         assertTrue(stored.isEmpty())
 
         store.syncFailure = null
         store.accountOwned = setOf(StoreIds.PLUS_ENTITLEMENT)
-        billing.refresh()
+        cameForward()
         assertEquals(Plan.PLUS, billing.plan.value)
         assertTrue(billing.known.value)
     }
@@ -282,69 +298,61 @@ class StoreBillingTest {
     /** iOS는 영수증이 없으면 로그인 창을 띄움. 닫으면 계정이 없다는 답이라 다시 묻지 않음 */
     @Test
     fun closing_the_sign_in_on_first_launch_settles_free_and_does_not_ask_again() = runTest {
-        val billing = billing(null)
+        val billing = following(null)
         store.syncFailure = StoreFailure.Reason.CANCELLED
-        billing.refresh()
+        cameForward()
         assertTrue(billing.known.value)
         assertEquals(Plan.FREE, billing.plan.value)
         assertEquals(Plan.FREE, stored.last())
 
         store.syncFailure = null
-        billing.refresh()
-        billing.refresh()
-        assertEquals(0, store.syncs)
+        cameForward()
+        cameForward()
+        assertEquals(1, store.syncAsks)
     }
 
-    /** 켤 때 시작·앞으로 옴·스토어 알림이 함께 와도 로그인 창은 한 번 */
+    /** 로그인 창이 떠 있는 동안 앞으로 옴과 스토어 알림이 더 와도 창은 한 번 */
     @Test
-    fun launch_triggers_arriving_together_ask_the_store_account_once() = runTest {
-        val billing = billing(null)
+    fun foregrounds_and_store_updates_while_signing_in_ask_the_store_account_once() = runTest {
+        val billing = following(null)
         val gate = CompletableDeferred<Unit>()
         store.syncGate = gate
         store.syncFailure = StoreFailure.Reason.CANCELLED
-        val calls = List(3) { launch { billing.refresh() } }
-        runCurrent()
+        cameForward()
+        cameForward()
+        cameForward()
+        billing.onUpdate(StoreAnswer(emptySet()))
         gate.complete(Unit)
-        calls.joinAll()
+        runCurrent()
         assertEquals(1, store.syncAsks)
         assertTrue(billing.known.value)
         assertEquals(Plan.FREE, billing.plan.value)
     }
 
-    /** 함께 온 요청은 가져오기가 실패해도 다시 묻지 않음. 요금제는 모르는 채로 다음 실행에 다시 시도 */
+    /** 가져오는 동안 온 빈 답은 가져오기 전 답이라 가져온 Plus를 덮지 않음 */
     @Test
-    fun launch_triggers_arriving_together_ask_once_even_when_the_store_fails() = runTest {
-        val billing = billing(null)
-        val gate = CompletableDeferred<Unit>()
-        store.syncGate = gate
-        store.syncFailure = StoreFailure.Reason.OTHER
-        val calls = List(3) { launch { billing.refresh() } }
-        runCurrent()
-        gate.complete(Unit)
-        calls.joinAll()
-        assertEquals(1, store.syncAsks)
-        assertFalse(billing.known.value)
-
-        store.syncFailure = null
-        billing.refresh()
-        assertEquals(2, store.syncAsks)
-        assertTrue(billing.known.value)
-    }
-
-    /** 함께 온 답은 가져오기 하나를 같이 기다려 가져온 Plus를 덮지 않음 */
-    @Test
-    fun a_reinstalled_buyer_keeps_plus_when_launch_triggers_arrive_together() = runTest {
-        val billing = billing(null)
+    fun a_reinstalled_buyer_keeps_plus_when_empty_answers_arrive_while_signing_in() = runTest {
+        val billing = following(null)
         store.accountOwned = setOf(StoreIds.PLUS_ENTITLEMENT)
         val gate = CompletableDeferred<Unit>()
         store.syncGate = gate
-        val calls = List(3) { launch { billing.refresh() } }
-        runCurrent()
+        cameForward()
+        billing.onUpdate(StoreAnswer(emptySet()))
+        cameForward()
         gate.complete(Unit)
-        calls.joinAll()
+        runCurrent()
         assertEquals(1, store.syncAsks)
         assertEquals(Plan.PLUS, billing.plan.value)
         assertEquals(Plan.PLUS, stored.last())
+    }
+
+    /** 스토어 알림은 요금제만 바꿈. 계정의 구매를 가져오지 않아 로그인 창을 띄우지 않음 */
+    @Test
+    fun a_store_update_alone_never_asks_the_store_account() = runTest {
+        val billing = billing(null)
+        billing.onUpdate(StoreAnswer(emptySet()))
+        assertEquals(0, store.syncAsks)
+        assertFalse(billing.known.value)
     }
 
     /** 기기 시계가 빨라 만료 시각이 지난 것처럼 보여도 스토어를 거듭 부르지 않고 서버 시계로 잼 */
