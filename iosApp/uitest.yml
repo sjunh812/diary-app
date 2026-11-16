@@ -1,0 +1,25 @@
+# 실기기 화면 시험(DiaryUITests). 앱 프로젝트(project.yml)는 그대로 두고 시험 대상만 더한 프로젝트를 만든다
+# 만들기: cd iosApp && xcodegen generate --spec uitest.yml   (iosAppUITest.xcodeproj, 저장소에 올리지 않음)
+# 돌리기: xcodebuild test -project iosApp/iosAppUITest.xcodeproj -scheme DiaryUITests -destination 'id=<기기 UDID>' \
+#   -derivedDataPath iosApp/build -allowProvisioningUpdates -allowProvisioningDeviceRegistration \
+#   -only-testing:DiaryUITests/<시험>/<함수> -resultBundlePath <결과.xcresult>
+# 캡처 보기: scripts/ios/device-test-shots.sh <결과.xcresult> <폴더>
+# 기기 언어는 한국어. 처음 한 번 기기 설정 > 개발자에서 UI 자동화를 켠다
+include: [project.yml]
+name: iosAppUITest
+targets:
+  DiaryUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [DiaryUITests]
+    dependencies:
+      - target: iosApp
+    settings:
+      base:
+        TEST_TARGET_NAME: iosApp
+        GENERATE_INFOPLIST_FILE: YES
+        DEVELOPMENT_TEAM: C5XA3NN9J6
+        CODE_SIGN_STYLE: Automatic
+        PRODUCT_BUNDLE_IDENTIFIER: org.sjhstudio.diary.uitests
+    scheme:
+      testTargets: [DiaryUITests]

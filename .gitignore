@@ -28,6 +28,7 @@ scripts/drive-probe/ios/build/
 .kotlin/
 **/build/
 iosApp/build/
+iosApp/iosAppUITest.xcodeproj/
 # 구글 클라이언트 ID(저장소에 올리지 않는다)
 iosApp/iosApp/Local.xcconfig
 xcuserdata/

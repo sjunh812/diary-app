@@ -90,6 +90,7 @@ xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -sdk iphonesimulator 
   -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath iosApp/build build
 ```
 
+- iOS 실기기 화면 시험은 `iosApp/DiaryUITests`(기능 `FeatureFlow`, 샌드박스 구매 `PurchaseFlow`, 드라이브 왕복 `DriveFlow`)에 있다. 만들고 돌리는 법은 `iosApp/uitest.yml` 머리에 있다. 로그인·결제 확인은 사람이 누르고, 시험은 기다린다.
 - 실기기 빌드도 `-derivedDataPath iosApp/build`를 쓴다. 다른 폴더를 쓰면 Xcode가 받은 라이브러리의 git 저장소를 안드로이드 스튜디오가 이 프로젝트의 저장소로 잡는다(2026-11-14).
 
 - 첫 안드로이드 빌드가 `installGitHooks`로 `.githooks`를 켠다. 그 뒤로는 제목이 커밋 규칙에 맞지 않으면 커밋이 막힌다.
