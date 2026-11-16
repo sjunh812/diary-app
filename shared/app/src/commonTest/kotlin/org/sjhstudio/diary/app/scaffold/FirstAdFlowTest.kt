@@ -10,6 +10,7 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -77,6 +78,7 @@ class FirstAdFlowTest {
 
                 override suspend fun takeNotice() = ads.takeInterstitialNotice()
             },
+            locked = flowOf(false),
             askReview = {}
         ) {}
     }

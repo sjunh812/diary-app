@@ -8,6 +8,7 @@ import kotlin.test.assertNull
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -64,12 +65,13 @@ class AppShellViewModelTest {
     private val oneEntry = mapOf(LocalDate(2026, 11, 10) to DayMood(LocalDate(2026, 11, 10), Mood.GOOD, 1))
 
     private var reviews = 0
+    private val locked = MutableStateFlow(false)
 
     private fun shell(
         entries: EntryRepository = FakeEntryRepository(),
         ads: AfterSaveAds = Ads(),
         screens: MutableList<String> = mutableListOf()
-    ) = AppShellViewModel(entries, FakePlanRepository(), ads, askReview = { reviews++ }) { screens += it }
+    ) = AppShellViewModel(entries, FakePlanRepository(), ads, locked, askReview = { reviews++ }) { screens += it }
 
     private fun TestScope.savedWith(ads: AfterSaveAds): AppShellViewModel {
         val shell = shell(ads = ads)
@@ -141,7 +143,7 @@ class AppShellViewModelTest {
     @Test
     fun leaving_the_saved_entry_withdraws_a_pending_review() = runTest(dispatcher) {
         val gate = CompletableDeferred<Unit>()
-        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), askReview = {
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), locked, askReview = {
             gate.await()
             reviews++
         }) {}
@@ -158,7 +160,7 @@ class AppShellViewModelTest {
     @Test
     fun staying_on_the_saved_entry_keeps_the_review() = runTest(dispatcher) {
         val gate = CompletableDeferred<Unit>()
-        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), askReview = {
+        val shell = AppShellViewModel(FakeEntryRepository(), FakePlanRepository(), Ads(due = false), locked, askReview = {
             gate.await()
             reviews++
         }) {}
@@ -215,6 +217,32 @@ class AppShellViewModelTest {
         advanceUntilIdle()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(1, ads.shown)
+    }
+
+    /** 시트를 연 채 잠기면 잠금을 풀어도 광고가 뜨지 않음 */
+    @Test
+    fun locking_with_the_removal_sheet_open_drops_the_ad_turn() = runTest(dispatcher) {
+        val ads = Ads(notice = true)
+        val shell = savedWith(ads)
+        shell.removeAdsFirst()
+        locked.value = true
+        advanceUntilIdle()
+        // 잠금이 시트를 닫음
+        shell.adRemovalClosed()
+        advanceUntilIdle()
+        assertEquals(AdNotice.None, shell.adNotice.value)
+        assertEquals(0, ads.shown)
+    }
+
+    @Test
+    fun locking_while_the_notice_shows_drops_the_ad_turn() = runTest(dispatcher) {
+        val ads = Ads(notice = true)
+        val shell = savedWith(ads)
+        locked.value = true
+        advanceUntilIdle()
+        shell.confirmAdNotice()
+        advanceUntilIdle()
+        assertEquals(0, ads.shown)
     }
 
     @Test

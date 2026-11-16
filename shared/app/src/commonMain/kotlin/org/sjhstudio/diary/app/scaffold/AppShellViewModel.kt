@@ -6,9 +6,11 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.koin.core.module.dsl.viewModel
@@ -58,6 +60,7 @@ class AppShellViewModel(
     private val entries: EntryRepository,
     plans: PlanRepository,
     private val ads: AfterSaveAds,
+    locked: Flow<Boolean>,
     private val askReview: suspend () -> Unit,
     private val screen: (String) -> Unit
 ) : ViewModel() {
@@ -68,6 +71,11 @@ class AppShellViewModel(
     val plan: StateFlow<Plan> = plans.plan
 
     private val _adNotice = MutableStateFlow(AdNotice.None)
+
+    init {
+        // 안내나 광고 제거 시트를 둔 채 잠기면 그 차례는 광고 없이 끝냄. 잠금을 풀자마자 광고가 뜨지 않게
+        viewModelScope.launchSafely { locked.filter { it }.collect { _adNotice.value = AdNotice.None } }
+    }
 
     /** 저장 뒤 차례. 저장한 일기 상세를 떠나면 리뷰 요청만 거둠 */
     private var afterSave: Job? = null
@@ -145,6 +153,7 @@ val appShellModule =
             AppShellViewModel(
                 entries = get(),
                 plans = get(),
+                locked = get<LockController>().appLocked,
                 ads = object : AfterSaveAds {
                     override suspend fun prepare() = ads.prepareAfterSave()
 
@@ -157,8 +166,11 @@ val appShellModule =
             )
         }
         viewModel {
-            val lock = get<LockController>()
-            AdRemovalViewModel(lock.state.map { it == LockState.Locked || it == LockState.NeedsNewPin }, get<AdRepository>()::watchReward)
+            AdRemovalViewModel(get<LockController>().appLocked, get<AdRepository>()::watchReward)
         }
         viewModel { FeedbackCardViewModel(get()) }
     }
+
+/** 잠금 화면이 앱을 덮은 동안 참 */
+private val LockController.appLocked: Flow<Boolean>
+    get() = state.map { it == LockState.Locked || it == LockState.NeedsNewPin }
