@@ -204,7 +204,8 @@ if layout.hasPrefix("wordmark") {
     // 연필 그림 상자 안에서 실제로 칠해진 곳(launch-pencil.svg 208 칸 기준)
     let mark: CGFloat = 440
     let pencilVisual = CGRect(x: 56.0 / 208, y: 48.2 / 208, width: 104.7 / 208, height: 109.4 / 208)
-    let gap: CGFloat = 70
+    // 기울어진 연필은 지우개 끝이 글자에 가장 가까워 보여 글자 높이의 절반쯤 띄움
+    let gap: CGFloat = 100
     let groupWidth = pencilVisual.width * mark + gap + glyphs.width
     let visualLeft = center.x - groupWidth / 2
 

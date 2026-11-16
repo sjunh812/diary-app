@@ -113,6 +113,20 @@ func phone(_ name: String, _ rect: NSRect, _ radius: CGFloat, bezel: Bool = true
     NSGraphicsContext.restoreGraphicsState()
 }
 
+/** 바탕과 다른 픽셀의 가로 무게 중심. 눈에 보이는 쏠림을 잼 */
+func massCenterX(_ rep: NSBitmapImageRep) -> CGFloat {
+    let corner = rep.colorAt(x: 4, y: 4)!.usingColorSpace(.sRGB)!
+    var total = 0.0, moment = 0.0
+    for y in stride(from: 0, to: rep.pixelsHigh, by: 3) {
+        for x in stride(from: 0, to: rep.pixelsWide, by: 3) {
+            let c = rep.colorAt(x: x, y: y)!.usingColorSpace(.sRGB)!
+            let d = abs(c.redComponent - corner.redComponent) + abs(c.greenComponent - corner.greenComponent) + abs(c.blueComponent - corner.blueComponent)
+            if d > 0.15 { total += d; moment += d * Double(x) }
+        }
+    }
+    return total > 0 ? CGFloat(moment / total) : CGFloat(rep.pixelsWide) / 2
+}
+
 func save(_ rep: NSBitmapImageRep, _ name: String) {
     try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "\(output)/\(name).png"))
 }
@@ -325,18 +339,23 @@ if search {
         "ja": ("1日1行で\n十分です", "1行")
     ]
     let (words, word) = lines[language]!
-    let rep = canvas(3840, 2560) {
-        // 검색 카드는 작게 보여 문구를 크게
-        // 문구와 화면 사이를 언어와 상관없이 같게 두고, 둘을 한 덩어리로 가운데에
-        let gap: CGFloat = 200, phoneWidth: CGFloat = 840
-        // 안전 영역 너비(2168)를 넘는 언어만 문구를 줄임
-        let base: CGFloat = language == "ja" ? 176 : 184
-        let room = 2168 - gap - phoneWidth
-        let size = min(base, (base * room / textWidth(words, base)).rounded(.down))
-        let wordsWidth = textWidth(words, size)
-        let start = ((3840 - (wordsWidth + gap + phoneWidth)) / 2).rounded()
-        text(words, size, ink, NSRect(x: start, y: 1090, width: wordsWidth + 10, height: 520), .left, accented: word)
-        phone("list", NSRect(x: start + wordsWidth + gap, y: -20, width: phoneWidth, height: 1740), 88)
+    // 검색 카드는 작게 보여 문구를 크게
+    let gap: CGFloat = 160, phoneWidth: CGFloat = 840, bezel: CGFloat = 14
+    let outer = phoneWidth + bezel * 2
+    // 안전 영역(가로 836~3004)을 넘는 언어만 문구를 줄임
+    let base: CGFloat = language == "ja" ? 176 : 184
+    let size = min(base, (base * (2168 - gap - outer) / textWidth(words, base)).rounded(.down))
+    let wordsWidth = textWidth(words, size)
+    func draw(_ start: CGFloat) -> NSBitmapImageRep {
+        canvas(3840, 2560) {
+            text(words, size, ink, NSRect(x: start, y: 1090, width: wordsWidth + 10, height: 520), .left, accented: word)
+            phone("list", NSRect(x: start + wordsWidth + gap + bezel, y: -20, width: phoneWidth, height: 1740), 88)
+        }
     }
+    // 화면이 문구보다 무거워 테두리로 가운데를 잡으면 오른쪽으로 쏠려 보임
+    // 한 번 그려 무게 중심을 재고 그만큼 왼쪽으로 옮김. 문구가 긴 언어는 안전 영역 왼쪽 끝(836)까지만
+    let centered = ((3840 - (wordsWidth + gap + outer)) / 2).rounded()
+    let start = max(centered + 1920 - massCenterX(draw(centered)), 836).rounded()
+    let rep = draw(start)
     save(rep, "search")
 }
