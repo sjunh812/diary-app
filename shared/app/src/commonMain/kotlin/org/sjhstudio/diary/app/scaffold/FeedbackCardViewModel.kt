@@ -23,11 +23,12 @@ import org.sjhstudio.diary.feature.settings.FEATURE_SURVEY_URL
 import org.sjhstudio.diary.feature.settings.rememberFeedbackLink
 
 /**
- * 홈 맨 위 의견 카드를 보일지. 시작 단계부터 앱 범위에서 읽어 홈 첫 프레임에 맞춤. 읽기 전 null
- * 화면마다 새로 읽으면 처음엔 없음으로 그려져 목록 보기 팁이 먼저 보였다가 카드로 바뀜
+ * 홈 맨 위 의견 카드를 보일지. 읽기 전 null
+ * 앱 범위에 두어 탭을 오가도 다시 null이 되지 않음. 화면마다 새로 읽으면 목록 보기 팁이 먼저 보였다가 카드로 바뀜
+ * 홈이 처음 읽을 때 시작. 일기 DB를 세므로 기록 이전 관문 전에 열면 이전이 실패함
  */
 class FeedbackCardState(prompts: PromptRepository, scope: CoroutineScope) {
-    val visible: StateFlow<Boolean?> = prompts.feedbackCard.stateIn(scope, SharingStarted.Eagerly, null)
+    val visible: StateFlow<Boolean?> = prompts.feedbackCard.stateIn(scope, SharingStarted.Lazily, null)
 }
 
 /** 홈 의견 카드 상태(스펙 007). 언제 보일지는 [PromptRepository]가 정함 */
