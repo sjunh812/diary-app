@@ -84,7 +84,7 @@ class AdRepositoryFailureTest {
         val store = InMemoryDataStore<Preferences>(emptyPreferences())
         val player = HeldPlayer()
         val repository = repo(player, store)
-        val job = launch { repository.backToList() }
+        val job = launch { repository.showAfterSave() }
         runCurrent()
         assertEquals(1, player.shown)
 
@@ -115,8 +115,8 @@ class AdRepositoryFailureTest {
         val player = HeldPlayer().apply { closed.complete(true) }
         val repository = repo(player, FullDisk())
 
-        repository.backToList()
-        repository.backToList()
+        repository.showAfterSave()
+        repository.showAfterSave()
 
         assertEquals(1, player.shown)
     }
@@ -134,8 +134,8 @@ class AdRepositoryFailureTest {
         val repository = repo(player, Unreadable())
 
         assertFalse(repository.showAds.first())
-        repository.afterSave()
-        repository.backToList()
+        repository.prepareAfterSave()
+        repository.showAfterSave()
         assertFalse(repository.watchReward())
         assertEquals(0, player.shown)
     }
@@ -145,8 +145,8 @@ class AdRepositoryFailureTest {
         val player = HeldPlayer().apply { crash = true }
         val repository = repo(player)
 
-        repository.afterSave()
-        repository.backToList()
+        repository.prepareAfterSave()
+        repository.showAfterSave()
 
         assertFalse(repository.watchReward())
         assertTrue(repository.showAds.first(), "다음 기회에 다시 해 본다")

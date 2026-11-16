@@ -422,6 +422,7 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • 알림을 꺼두면 설정의 쓰기 알림도 알림 꺼짐으로 보여요
 • 다크 모드에서 기간 탭이 잘 보이게 했어요
 • 홈 탭을 다시 누르면 맨 위로 바로 올라가요
+• 하루 한 번 나오는 전면 광고는 이제 일기를 저장한 직후에 나와요
 • 화면 문구를 읽기 쉽게 다듬었어요
 </ko-KR>
 <en-US>
@@ -430,6 +431,7 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • Daily reminder shows as off when notifications are blocked
 • Period tabs are easier to see in dark mode
 • Tap Home again to jump straight to the top
+• The once-a-day full-screen ad now shows right after you save an entry
 • Clearer wording across the app
 </en-US>
 <ja-JP>
@@ -438,11 +440,14 @@ Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않�
 • 通知をオフにすると、設定の毎日のリマインダーもオフと表示されます
 • ダークモードで期間タブが見やすくなりました
 • ホームタブをもう一度押すと一番上に戻ります
+• 1日1回の全画面広告は、日記を保存した直後に表示されるようになりました
 • 画面の文言を読みやすく整えました
 </ja-JP>
 ```
 
 ### 2.0.0 (43)
+
+출시한 그대로 남긴 기록이다. 전면 광고 자리는 2.0.1에서 "저장해 작성 화면이 닫힐 때"로 바뀌었다(위 2.0.1 노트, `docs/DECISIONS.md` 2026-11-16).
 
 Play는 언어마다 500자까지 받는다. 기존 사용자가 업데이트 뒤 광고를 처음 보게 되므로 광고와 광고 제거를 함께 적는다(`docs/release.md` 출시 전 확인).
 Play 출시 노트 칸에 언어 태그째 붙여 넣는다. 태그(`<b>`)는 출시 노트에서 글자로 보일 수 있어 쓰지 않고, 묶음 제목은 줄로만 나눈다.

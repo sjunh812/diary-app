@@ -389,8 +389,8 @@ private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScree
 @Immutable
 private class ShellActions(
     val plan: StateFlow<Plan>,
-    val onScreen: (NavKey, TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
-    val onSaved: (TabScreen, List<NavKey>, twoPane: Boolean) -> Unit,
+    val onScreen: (NavKey) -> Unit,
+    val onSaved: (entryId: String) -> Unit,
     val onRestore: (String) -> Unit,
     val onAdClose: () -> Unit
 )
@@ -475,9 +475,9 @@ private fun Content(
     // 화면 목록은 쌓임이 바뀔 때만 다시 만들어짐
     // 창 폭은 그 사이에도 바뀌니 값을 잡아 두지 않고 읽음
     val splitWindow by rememberUpdatedState(twoPane)
-    // 화면이 바뀌면 통계(화면 키 이름만)와 저장 뒤 광고 차례(FR-010)를 화면 모델에 알림
+    // 화면이 바뀌면 통계(화면 키 이름만)를 화면 모델에 알림
     val top = nav.top
-    LaunchedEffect(top) { if (top != null) shell.onScreen(top, nav.tab, nav.current.toList(), splitWindow) }
+    LaunchedEffect(top) { if (top != null) shell.onScreen(top) }
     val listDetail = remember(twoPane) { ListDetailSceneStrategy(twoPane) { list -> PickHint(list) } }
     val homeStack = nav.stacks.getValue(HomeKey)
     val dimmed = dimmedAlpha(DiaryTheme.colors.canvas.luminance() < HALF)
@@ -623,7 +623,7 @@ private fun Content(
                                     // 수정은 보던 상세로 돌아가고, 새 일기는 그 일기의 상세로 감(FR-012)
                                     if ((nav.top as? EntryDetailKey)?.entryId != id) nav.openEntry(id)
                                     notify(Message.Saved)
-                                    shell.onSaved(nav.tab, nav.current.toList(), splitWindow)
+                                    shell.onSaved(id)
                                 },
                                 onClosed = { kept ->
                                     pop()

@@ -25,7 +25,7 @@
 
 - [x] T013 [US2] 시험 먼저: 7일·5편, 한 번만, 카드 보인 날 제외, 요청일을 먼저 적음 `PromptRepositoryTest.kt`
 - [x] T014 [US2] 시험 먼저: 광고 차례면 리뷰 없음, 첫 광고 안내면 없음, 광고 없는 사용자는 리뷰 `shared/app/src/commonTest/kotlin/org/sjhstudio/diary/app/scaffold/AppShellViewModelTest.kt`
-- [x] T015 [US2] `AdRepository.backToList()`가 전면 광고 차례였는지 돌려줌. 기존 시험 맞춤 `AdRepository.kt`, `AdRepositoryTest.kt`
+- [x] T015 [US2] `AdRepository.showAfterSave()`(전에는 `backToList()`)가 전면 광고 차례였는지 돌려줌. 기존 시험 맞춤 `AdRepository.kt`, `AdRepositoryTest.kt`
 - [x] T016 [US2] `PromptRepository.askReviewIfDue()` `PromptRepository.kt`
 - [x] T017 [US2] 저장 뒤 차례에 리뷰 잇기 `AppShellViewModel.kt`
 - [x] T018 [P] [US2] Android `PlayStoreReview`(`CurrentActivity`), 의존성 `gradle/libs.versions.toml`, `shared/app/build.gradle.kts`, 라이선스 목록 다시 만들기

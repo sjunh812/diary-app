@@ -17,10 +17,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.TimeZone
-import org.sjhstudio.diary.app.navigation.CalendarKey
-import org.sjhstudio.diary.app.navigation.EntryDetailKey
-import org.sjhstudio.diary.app.navigation.HomeKey
-import org.sjhstudio.diary.app.navigation.SearchKey
 import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdRepository
 import org.sjhstudio.diary.core.data.ReadyReward
@@ -31,7 +27,7 @@ import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
 // 첫 전면 광고 안내부터 광고까지 실제 광고 규칙(AdRepository)으로 따라감
-// 결제·보상·폴더블·태블릿에서 광고가 잘못 뜨거나 빠지면 안 됨(docs/business.md 광고 자리)
+// 결제·보상에서 광고가 잘못 뜨거나 빠지면 안 됨(docs/business.md 광고 자리)
 @OptIn(ExperimentalCoroutinesApi::class)
 class FirstAdFlowTest {
     private val dispatcher = StandardTestDispatcher()
@@ -75,9 +71,9 @@ class FirstAdFlowTest {
             FakeEntryRepository(),
             plans,
             object : AfterSaveAds {
-                override suspend fun prepare() = ads.afterSave()
+                override suspend fun prepare() = ads.prepareAfterSave()
 
-                override suspend fun backToList() = ads.backToList()
+                override suspend fun show() = ads.showAfterSave()
 
                 override suspend fun takeNotice() = ads.takeInterstitialNotice()
             },
@@ -85,20 +81,15 @@ class FirstAdFlowTest {
         ) {}
     }
 
-    private val detail = listOf(HomeKey, EntryDetailKey("e1"))
-    private val list = listOf(HomeKey)
-
-    /** 폰: 저장하면 상세, 뒤로 가면 목록 */
-    private fun TestScope.saveOnPhoneAndGoBack() {
-        shell.saved(HomeKey, detail, twoPane = false)
-        shell.screenShown(EntryDetailKey("e1"), HomeKey, detail, twoPane = false)
-        shell.screenShown(HomeKey, HomeKey, list, twoPane = false)
+    /** 저장해 작성 화면이 닫힘. 폰·태블릿, 새 일기·수정 모두 같은 신호 */
+    private fun TestScope.save() {
+        shell.saved("e1")
         advanceUntilIdle()
     }
 
     @Test
     fun the_notice_comes_once_then_the_ad_on_confirm() = runTest(dispatcher) {
-        saveOnPhoneAndGoBack()
+        save()
         assertEquals(AdNotice.Showing, shell.adNotice.value)
         assertEquals(0, player.shown)
 
@@ -108,14 +99,14 @@ class FirstAdFlowTest {
 
         // 다음 날은 안내 없이 광고만
         now += 1.days
-        saveOnPhoneAndGoBack()
+        save()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(2, player.shown)
     }
 
     @Test
     fun buying_ad_removal_from_the_notice_shows_no_ad() = runTest(dispatcher) {
-        saveOnPhoneAndGoBack()
+        save()
         shell.removeAdsFirst()
         // 결제가 끝나면 시트가 닫히기 전에 요금제가 바뀜(StoreBilling.buy)
         plans.plan.value = Plan.AD_FREE
@@ -125,14 +116,14 @@ class FirstAdFlowTest {
 
         // 산 뒤로는 저장해도 안내도 광고도 없음
         now += 1.days
-        saveOnPhoneAndGoBack()
+        save()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(0, player.shown)
     }
 
     @Test
     fun buying_plus_from_the_notice_shows_no_ad() = runTest(dispatcher) {
-        saveOnPhoneAndGoBack()
+        save()
         shell.removeAdsFirst()
         plans.plan.value = Plan.PLUS
         shell.adRemovalClosed()
@@ -142,7 +133,7 @@ class FirstAdFlowTest {
 
     @Test
     fun watching_the_reward_video_shows_no_interstitial() = runTest(dispatcher) {
-        saveOnPhoneAndGoBack()
+        save()
         shell.removeAdsFirst()
         ads.watchReward()
         shell.adRemovalClosed()
@@ -153,7 +144,7 @@ class FirstAdFlowTest {
     /** 취소·실패·결제 대기도 요금제가 그대로라 같음 */
     @Test
     fun closing_the_sheet_without_buying_shows_the_ad() = runTest(dispatcher) {
-        saveOnPhoneAndGoBack()
+        save()
         shell.removeAdsFirst()
         shell.adRemovalClosed()
         advanceUntilIdle()
@@ -163,7 +154,7 @@ class FirstAdFlowTest {
     @Test
     fun a_failed_reward_video_still_shows_the_ad() = runTest(dispatcher) {
         player.reward = false
-        saveOnPhoneAndGoBack()
+        save()
         shell.removeAdsFirst()
         ads.watchReward()
         shell.adRemovalClosed()
@@ -175,81 +166,26 @@ class FirstAdFlowTest {
     @Test
     fun an_unknown_plan_shows_nothing() = runTest(dispatcher) {
         plans.known.value = false
-        saveOnPhoneAndGoBack()
+        save()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(0, player.shown)
         assertEquals(false, store.current().interstitialNoticed)
     }
 
+    /** 같은 날 다시 저장해도 안내도 광고도 다시 없음 */
     @Test
-    fun tablet_two_panes_take_the_turn_right_after_saving() = runTest(dispatcher) {
-        shell.saved(HomeKey, detail, twoPane = true)
-        advanceUntilIdle()
-        assertEquals(AdNotice.Showing, shell.adNotice.value)
-
+    fun a_second_save_on_the_same_day_shows_nothing() = runTest(dispatcher) {
+        save()
         shell.confirmAdNotice()
-        // 그 뒤 상세를 닫거나 다른 일기를 열어도 다시 뜨지 않음
-        shell.screenShown(HomeKey, HomeKey, list, twoPane = true)
-        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = true)
         advanceUntilIdle()
-        assertEquals(1, player.shown)
-    }
-
-    /** 달력에서 연 상세는 넓은 창에서도 한 칸. 달력으로 돌아갈 때 뜸(헌법 III) */
-    @Test
-    fun tablet_calendar_waits_for_the_calendar() = runTest(dispatcher) {
-        shell.saved(CalendarKey, listOf(CalendarKey, EntryDetailKey("e1")), twoPane = true)
-        advanceUntilIdle()
-        assertEquals(AdNotice.None, shell.adNotice.value)
-
-        shell.screenShown(CalendarKey, CalendarKey, listOf(CalendarKey), twoPane = true)
-        advanceUntilIdle()
-        assertEquals(AdNotice.Showing, shell.adNotice.value)
-    }
-
-    /** 찾기에서 연 일기를 고쳐 저장하면 목록이 아니라 찾기 위라 뜨지 않음 */
-    @Test
-    fun saving_from_search_waits_for_the_list() = runTest(dispatcher) {
-        shell.saved(HomeKey, listOf(HomeKey, SearchKey(), EntryDetailKey("e1")), twoPane = true)
-        advanceUntilIdle()
-        assertEquals(AdNotice.None, shell.adNotice.value)
-
-        shell.screenShown(HomeKey, HomeKey, list, twoPane = false)
-        advanceUntilIdle()
-        assertEquals(AdNotice.Showing, shell.adNotice.value)
-    }
-
-    /** 접은 채 저장하고 편 뒤 다른 일기를 열어도 뜨지 않음. 목록으로 돌아갈 때 뜸 */
-    @Test
-    fun unfolding_after_saving_folded_waits_for_the_list() = runTest(dispatcher) {
-        shell.saved(HomeKey, detail, twoPane = false)
-        shell.screenShown(EntryDetailKey("e1"), HomeKey, detail, twoPane = false)
-        // 펴고 목록에서 다른 일기를 누름
-        shell.screenShown(EntryDetailKey("e2"), HomeKey, listOf(HomeKey, EntryDetailKey("e2")), twoPane = true)
-        advanceUntilIdle()
-        assertEquals(AdNotice.None, shell.adNotice.value)
-
-        shell.screenShown(HomeKey, HomeKey, list, twoPane = true)
-        advanceUntilIdle()
-        assertEquals(AdNotice.Showing, shell.adNotice.value)
-    }
-
-    /** 편 채 저장하면 그 자리에서 차례를 씀. 접어도 다시 생기지 않음 */
-    @Test
-    fun folding_after_saving_unfolded_does_not_bring_a_second_turn() = runTest(dispatcher) {
-        shell.saved(HomeKey, detail, twoPane = true)
-        advanceUntilIdle()
-        shell.confirmAdNotice()
-        // 접으면 상세가 한 칸으로, 뒤로 가면 목록
-        shell.screenShown(HomeKey, HomeKey, list, twoPane = false)
-        advanceUntilIdle()
+        save()
         assertEquals(AdNotice.None, shell.adNotice.value)
         assertEquals(1, player.shown)
     }
 
     @Test
     fun tapping_twice_shows_one_ad() = runTest(dispatcher) {
-        saveOnPhoneAndGoBack()
+        save()
         shell.removeAdsFirst()
         shell.removeAdsFirst()
         shell.confirmAdNotice()

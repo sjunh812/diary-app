@@ -104,7 +104,7 @@ class AdRepository(
 
     /**
      * 광고를 볼 사용자만 앱 시작 뒤 SDK를 미리 켬. Plus 사용자는 켜지 않음
-     * 오늘 전면 광고 차례가 남았으면 미리 받아 둠. 저장할 때 받으면 첫 저장 뒤 목록으로 돌아올 때 늦음
+     * 오늘 전면 광고 차례가 남았으면 미리 받아 둠. 저장한 순간 바로 띄워야 해서
      */
     suspend fun warmUp() {
         quietly(Unit) {
@@ -124,22 +124,22 @@ class AdRepository(
 
     private fun today(): String = currentDate(clock, timeZone()).toString()
 
-    /** 오늘 아직 안 봤으면 미리 받음 */
-    suspend fun afterSave() {
+    /** 작성 화면을 열 때 호출. 오늘 아직 안 봤으면 저장한 순간 띄울 광고를 미리 받음 */
+    suspend fun prepareAfterSave() {
         quietly(Unit) { if (interstitialDue()) player.prepareInterstitial() }
     }
 
     /**
-     * 저장 뒤 목록으로 돌아왔을 때 호출
+     * 일기를 저장해 작성 화면이 닫힐 때 호출
      * 하루 한 번만 띄움
      * 시각이 뒤로 가면 덜 보이는 쪽으로 판단
      * 전면 광고 차례였으면 참. 못 띄웠어도 차례였으면 참이라 그 순간에는 리뷰 창을 요청하지 않음(스펙 007 FR-007)
      */
-    suspend fun backToList(): Boolean = onceStarted(false) {
+    suspend fun showAfterSave(): Boolean = onceStarted(false) {
         if (!interstitialDue()) return@onceStarted false
         // 광고가 화면에 나와 노출이 잡힌 순간 기록
         // 전면 광고 수익은 끝까지 보기가 아니라 노출로 잡혀, 그 뒤 앱이 꺼져도 같은 날 다시 띄우지 않음
-        // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음에 목록으로 돌아올 때 다시 띄움
+        // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음 저장에 다시 띄움
         // 공간이 차 못 적어도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킴
         // 광고 SDK가 실패해도 차례였던 사실은 그대로
         val day = today()
