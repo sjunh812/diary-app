@@ -92,12 +92,6 @@ class AdRepository(
     private val clock: Clock = Clock.System,
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() }
 ) {
-    /** 저장 공간이 차 파일에 못 적어도 이 프로세스 안에서는 하루 한 번을 지킴 */
-    private var shownDay: String? = null
-
-    /** 공간이 차 파일에 못 적어도 이 프로세스 안에서는 안내를 다시 띄우지 않음 */
-    private var noticeAnswered = false
-
     val showAds: Flow<Boolean> =
         combine(plans.confirmed, store.prefs) { plan, prefs -> plan?.showsAds == true && adsAllowed(prefs) }
             // 기록을 읽지 못하면 덜 보이는 쪽으로 판단
@@ -142,7 +136,7 @@ class AdRepository(
         // 광고가 화면에 나와 노출이 잡힌 순간 기록
         // 전면 광고 수익은 끝까지 보기가 아니라 노출로 잡혀, 그 뒤 앱이 꺼져도 같은 날 다시 띄우지 않음
         // 나오기 전에 꺼지거나 못 띄웠으면 기록하지 않아 다음 저장에 다시 띄움
-        // 공간이 차 못 적어도 이 프로세스 안에서는 [shownDay]가 하루 한 번을 지킴
+        // 공간이 차 못 적어도 이 프로세스 안에서는 [AdStore]가 하루 한 번을 지킴
         // 광고 SDK가 실패해도 차례였던 사실은 그대로
         val day = today()
         orElseOnFailure(Unit) {
@@ -152,16 +146,10 @@ class AdRepository(
                     seen.await()
                     quietly { store.interstitialShown(day) }
                 }
-                val shown = player.showInterstitial {
-                    shownDay = day
-                    seen.complete(Unit)
-                }
+                val shown = player.showInterstitial { seen.complete(Unit) }
                 when {
                     // 노출 알림 없이 닫혀도 화면에는 나왔으니 본 것으로 기록
-                    shown -> {
-                        shownDay = day
-                        seen.complete(Unit)
-                    }
+                    shown -> seen.complete(Unit)
 
                     !seen.isCompleted -> record.cancel()
                 }
@@ -175,7 +163,7 @@ class AdRepository(
      * 기록을 읽지 못하면 안내 없이 지금처럼 광고만
      */
     suspend fun interstitialNoticeDue(): Boolean = orElseOnFailure(false) {
-        !noticeAnswered && interstitialDue() && !store.current().interstitialNoticed
+        interstitialDue() && !store.current().interstitialNoticed
     }
 
     /**
@@ -183,13 +171,12 @@ class AdRepository(
      * 답하기 전에 잠기거나 앱이 꺼졌으면 다음 차례에 다시 띄움
      */
     suspend fun interstitialNoticeAnswered() {
-        noticeAnswered = true
         orElseOnFailure(Unit) { store.interstitialNoticed() }
     }
 
     private suspend fun interstitialDue(): Boolean {
         val prefs = store.current()
-        val shown = listOfNotNull(prefs.lastInterstitialDay, shownDay).maxOrNull()
+        val shown = prefs.lastInterstitialDay
         val allowed = plans.confirmedNow?.showsAds == true && switch.enabled() && adsAllowed(prefs)
         return allowed && (shown == null || shown < today())
     }

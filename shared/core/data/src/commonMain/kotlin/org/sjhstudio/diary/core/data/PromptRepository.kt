@@ -49,12 +49,9 @@ class PromptRepository(
     /** 첫 사용일. 이 기능이 든 버전을 처음 연 때 한 번만 적음 */
     suspend fun start() = orElseOnFailure(Unit) { store.firstUse(clock.now()) }
 
-    /** 공간이 차 닫음을 못 적어도 이 프로세스 안에서는 카드가 다시 보이지 않게 함(광고의 하루 한 번과 같은 방식) */
-    private val doneInProcess = MutableStateFlow(false)
-
     /**
-     * 이 프로세스에서 리뷰를 물은 날. 띄우기 직전 Mutex 안에서 잡음
-     * 기기 기록 전(창이 떠 있는 동안, 공간이 차 못 적은 때)에도 다시 묻지 않음
+     * 리뷰 창을 띄우려고 잡은 날. 띄우기 직전 Mutex 안에서 잡고, 띄우면 기록으로 옮김
+     * 창이 떠 있는 동안 겹쳐 부른 요청이 다시 묻지 않게 함
      * 같은 날 의견 카드도 이 값으로 미룸
      */
     private val askedDayInProcess = MutableStateFlow<String?>(null)
@@ -62,11 +59,8 @@ class PromptRepository(
     /** 홈 맨 위 의견 카드. 백업 카드와의 순서는 화면이 정함(FR-014) */
     @OptIn(ExperimentalCoroutinesApi::class)
     val feedbackCard: Flow<Boolean> =
-        combine(store.prefs, doneInProcess, askedDayInProcess) { prefs, done, askedDay ->
-            prefs.takeUnless { done }?.let { it to askedDay }
-        }
-            .flatMapLatest { state ->
-                val (prefs, askedDay) = state ?: return@flatMapLatest flowOf(false)
+        combine(store.prefs, askedDayInProcess) { prefs, askedDay -> prefs to askedDay }
+            .flatMapLatest { (prefs, askedDay) ->
                 // 설문을 마쳤으면 일기 수를 더 세지 않음
                 if (prefs.feedbackDone) return@flatMapLatest flowOf(false)
                 val first = prefs.firstUseAt ?: return@flatMapLatest flowOf(false)
@@ -94,7 +88,6 @@ class PromptRepository(
     suspend fun surveyOpened() = feedbackDone()
 
     private suspend fun feedbackDone() {
-        doneInProcess.value = true
         orElseOnFailure(Unit) { store.feedbackDone() }
     }
 
@@ -133,7 +126,7 @@ class PromptRepository(
         val prefs = store.current()
         val first = prefs.firstUseAt
         // 보인 의견 카드가 남아 있는 동안은 묻지 않음. 한 번도 못 본 카드(백업 카드가 맨 위)로는 막지 않음
-        val cardOpen = prefs.feedbackShownDay != null && !prefs.feedbackDone && !doneInProcess.value
+        val cardOpen = prefs.feedbackShownDay != null && !prefs.feedbackDone
         val blocked = cardOpen || prefs.reviewAskedDay != null || askedDayInProcess.value != null
         if (first == null || blocked || writtenSince(first).first() < REVIEW_ENTRIES) return null
         // 편 수를 기다리는 사이 자정이 지날 수 있어 날짜는 그 뒤에 읽음

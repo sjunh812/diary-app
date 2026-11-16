@@ -306,6 +306,21 @@ class PromptRepositoryTest {
         assertEquals(1, requests)
     }
 
+    /** 공간이 차 카드를 보인 날을 못 적어도 이 프로세스 안에서는 그날 리뷰를 묻지 않음 */
+    @Test
+    fun a_shown_card_that_could_not_be_written_still_blocks_the_review() = runTest {
+        val full = InMemoryDataStore(emptyPreferences())
+        dataStore = full
+        val repo = repo()
+        repo.start()
+        written.value = 5
+        now = start + 7.days
+        full.failWrites = true
+        repo.feedbackShown()
+        repo.askReviewIfDue()
+        assertEquals(0, requests)
+    }
+
     @Test
     fun no_card_on_the_day_the_review_shows_even_when_the_day_is_not_written() = runTest {
         // 백업 카드가 맨 위라 의견 카드를 못 본 채 리뷰가 뜨고, 공간이 차 요청일을 못 적음
