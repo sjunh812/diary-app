@@ -236,7 +236,7 @@ final class GoogleAdsBridge: NSObject, IosAdBridge {
         works.forEach { $0() }
     }
 
-    /// 새 광고를 두고 끝을 넘으면 가장 오래된 광고를 치움
+    /// 새 광고를 두고 끝을 넘으면 화면에 없는 것 중 가장 오래된 광고를 치움
     /// 치우면 Kotlin에 알려 그 자리가 다시 보일 때 새로 받음
     private func keep(_ key: String, _ ad: NativeAd, onDropped: @escaping () -> Void) {
         natives[key] = ad

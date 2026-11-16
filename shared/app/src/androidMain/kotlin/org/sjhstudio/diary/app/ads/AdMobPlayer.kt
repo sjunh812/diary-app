@@ -129,14 +129,21 @@ class AdMobPlayer(context: Context, val units: AdUnits, private val current: Cur
             .loadAd(AdRequest.Builder().build())
     }
 
+    /** 지금 화면에 그려진 목록 광고 자리. 카드가 붙고 떨어질 때 바뀜 */
+    internal val onScreen = mutableSetOf<String>()
+
     /**
-     * 새 광고를 두고, 끝을 넘으면 가장 오래된 광고를 치움
-     * 치운 자리가 다시 보이면 새로 받음
+     * 새 광고를 두고, 끝을 넘으면 화면에 없는 것 중 가장 오래된 광고를 치움
+     * 보이는 카드를 치우면 그 자리가 비어 목록이 튐. 치운 자리가 다시 보이면 새로 받음
      */
     private fun keepNative(key: String, ad: NativeAd) {
         natives[key] = ad
         nativeOrder.addLast(key)
-        while (nativeOrder.size > MAX_NATIVES) natives.remove(nativeOrder.removeFirst())?.destroy()
+        while (nativeOrder.size > MAX_NATIVES) {
+            val oldest = nativeOrder.firstOrNull { it != key && it !in onScreen } ?: break
+            nativeOrder.remove(oldest)
+            natives.remove(oldest)?.destroy()
+        }
     }
 
     /**
