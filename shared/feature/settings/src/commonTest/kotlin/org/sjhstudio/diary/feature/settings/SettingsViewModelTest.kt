@@ -140,7 +140,7 @@ class SettingsViewModelTest {
         assertEquals(0, viewModel.state.value.trashCount)
     }
 
-    /** 쓰기 알림을 켰어도 휴대폰 설정에서 막으면 목록 줄이 시각 대신 꺼짐을 보임 */
+    /** 쓰기 알림을 켰어도 기기 설정에서 막으면 목록 줄이 시각 대신 꺼짐을 보임 */
     @Test
     fun the_reminder_row_says_off_when_notifications_are_blocked() = runTest(dispatcher) {
         val settings = FakeSettingsRepository(AppSettings(reminderEnabled = true))

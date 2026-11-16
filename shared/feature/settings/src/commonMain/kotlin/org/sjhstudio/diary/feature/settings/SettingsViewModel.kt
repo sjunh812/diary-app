@@ -90,7 +90,7 @@ class SettingsViewModel(
             }
             .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState())
 
-    /** 휴대폰 설정에서 바꾸고 돌아올 수 있어 화면에 돌아올 때마다 다시 읽음 */
+    /** 기기 설정에서 바꾸고 돌아올 수 있어 화면에 돌아올 때마다 다시 읽음 */
     fun refreshNotifications() {
         viewModelScope.launchSafely { notifications.refresh() }
     }

@@ -53,7 +53,7 @@ import org.sjhstudio.diary.feature.settings.resources.settings_reminder
  * 설정 > 매일 알림
  * 켜면 알림 시각 줄이 생기고, 그 줄을 누르면 바텀 시트의 휠로 고름
  * 알림을 끄면 시각 줄을 숨김
- * 켜 두었는데 휴대폰에서 알림이 허용되지 않았으면 허용 안내를 보임
+ * 켜 두었는데 기기에서 알림이 허용되지 않았으면 허용 안내를 보임
  */
 @Composable
 fun ReminderSettingsScreen(
@@ -120,7 +120,7 @@ fun ReminderSettingsRoute(onBack: () -> Unit) {
     val access = rememberNotificationAccess()
     val format = rememberDiaryDateFormat()
     var picking by rememberSaveable { mutableStateOf(false) }
-    // 휴대폰 설정에서 허용하고 돌아오면 안내가 사라짐
+    // 기기 설정에서 허용하고 돌아오면 안내가 사라짐
     LifecycleResumeEffect(viewModel) {
         viewModel.refreshPermission()
         onPauseOrDispose {}

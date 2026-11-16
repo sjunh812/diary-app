@@ -36,7 +36,7 @@ interface AdPlayer {
 
     /**
      * 전면 광고를 미리 받음
-     * 돌아갈 때 기다리지 않게 저장 시점에 호출
+     * 저장한 순간 기다리지 않게 작성 화면을 열 때 호출
      */
     fun prepareInterstitial()
 
@@ -74,7 +74,7 @@ object NoAdPlayer : AdPlayer {
 
 /**
  * 전면 광고의 원격 스위치(FR-007, 헌법 III)
- * 안드로이드는 Firebase Remote Config의 `interstitial_enabled`를 따름
+ * 두 플랫폼 모두 Firebase Remote Config의 `interstitial_enabled`를 따름
  * 값을 받지 못하면 마지막 값, 처음이면 켜짐
  */
 fun interface AdSwitch {

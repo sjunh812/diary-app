@@ -41,7 +41,7 @@ import org.sjhstudio.diary.core.platform.DriveAuthorizer
  * 연결한 드라이브에서 권할 백업
  * 새 백업을 먼저 고르고, 없으면 예전 앱이 올린 백업을 고름
  * 예전 백업은 편수를 몰라 0편으로 옴
- * [migrated]면 이 휴대폰에서 이미 옮겨 온 일기와 같은 백업이라 권하지 않음
+ * [migrated]면 이 기기에서 이미 옮겨 온 일기와 같은 백업이라 권하지 않음
  */
 fun backupToOffer(backups: List<BackupEntry>?, migrated: Boolean): BackupEntry? {
     val ready = backups.orEmpty().filter { it.state == BackupEntryState.Ready }
