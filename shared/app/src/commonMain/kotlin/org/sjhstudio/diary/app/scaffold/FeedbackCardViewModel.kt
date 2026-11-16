@@ -8,9 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.backup.BackupAppInfo
@@ -24,11 +26,21 @@ import org.sjhstudio.diary.feature.settings.rememberFeedbackLink
 
 /**
  * 홈 맨 위 의견 카드를 보일지. 읽기 전 null
- * 앱 범위에 두어 탭을 오가도 다시 null이 되지 않음. 화면마다 새로 읽으면 목록 보기 팁이 먼저 보였다가 카드로 바뀜
- * 홈이 처음 읽을 때 시작. 일기 DB를 세므로 기록 이전 관문 전에 열면 이전이 실패함
+ * 앱 범위에 두어 탭을 오가도 다시 null이 되지 않음
+ * 화면마다 새로 읽으면 목록 보기 팁이 먼저 보였다가 카드로 바뀜
  */
-class FeedbackCardState(prompts: PromptRepository, scope: CoroutineScope) {
-    val visible: StateFlow<Boolean?> = prompts.feedbackCard.stateIn(scope, SharingStarted.Lazily, null)
+class FeedbackCardState(private val prompts: PromptRepository, private val scope: CoroutineScope) {
+    private val read = MutableStateFlow<Boolean?>(null)
+    val visible: StateFlow<Boolean?> = read.asStateFlow()
+    private var reading: Job? = null
+
+    /**
+     * 기록 이전 관문을 지난 뒤 한 번 읽기 시작. 홈보다 먼저라 첫 화면에 맞음
+     * 일기 DB를 세므로 관문 전에 부르면 이전이 실패함
+     */
+    fun start() {
+        if (reading == null) reading = scope.launch { prompts.feedbackCard.collect { read.value = it } }
+    }
 }
 
 /** 홈 의견 카드 상태(스펙 007). 언제 보일지는 [PromptRepository]가 정함 */
