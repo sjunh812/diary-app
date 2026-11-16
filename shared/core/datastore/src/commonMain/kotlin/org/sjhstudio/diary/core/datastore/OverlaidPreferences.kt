@@ -24,10 +24,14 @@ internal class OverlaidPreferences(private val dataStore: DataStore<Preferences>
             if (pending.isEmpty()) saved else saved.toMutablePreferences().apply { pending.forEach { it(this) } }
         }
 
-    /** 먼저 이 프로세스에 반영하고 기록에 씀. 기록 실패는 그대로 던짐 */
+    /**
+     * 먼저 이 프로세스에 반영하고 기록에 씀. 기록 실패는 그대로 던짐
+     * 앞서 못 쓴 쓰기도 순서대로 함께 다시 써, 나중 쓰기가 옛 값에 덮이지 않음
+     */
     suspend fun edit(change: (MutablePreferences) -> Unit) {
         unsaved.update { it + change }
-        dataStore.edit(change)
-        unsaved.update { pending -> pending.filterNot { it === change } }
+        val pending = unsaved.value
+        dataStore.edit { prefs -> pending.forEach { it(prefs) } }
+        unsaved.update { it.drop(pending.size) }
     }
 }

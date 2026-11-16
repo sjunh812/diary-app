@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -37,10 +38,25 @@ class OverlaidPreferencesTest {
         assertEquals(true, store.data.first()[key])
         assertNull(OverlaidPreferences(disk).data.first()[key])
     }
+
+    /** 못 쓴 옛 값이 나중에 쓴 값을 덮지 않음. 다음 쓰기 때 함께 기록에 남음 */
+    @Test
+    fun a_later_write_wins_over_an_earlier_one_that_failed() = runTest {
+        val day = stringPreferencesKey("day")
+        val disk = Disk(failWrites = true)
+        val store = OverlaidPreferences(disk)
+        assertFailsWith<IOException> { store.edit { it[day] = "day1" } }
+
+        disk.failWrites = false
+        store.edit { it[day] = "day2" }
+
+        assertEquals("day2", store.data.first()[day])
+        assertEquals("day2", disk.data.first()[day])
+    }
 }
 
 /** 쓰기를 실패하게 할 수 있는 기록 */
-private class Disk(private val failWrites: Boolean = false) : DataStore<Preferences> {
+private class Disk(var failWrites: Boolean = false) : DataStore<Preferences> {
     private val state = MutableStateFlow(emptyPreferences())
     override val data: Flow<Preferences> = state
 

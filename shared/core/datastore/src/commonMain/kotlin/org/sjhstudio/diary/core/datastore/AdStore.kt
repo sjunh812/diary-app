@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.datastore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlin.time.Instant
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.map
  */
 data class AdPrefs(val lastInterstitialDay: String? = null, val rewardUntil: Instant? = null, val interstitialNoticed: Boolean = false)
 
-class AdStore(dataStore: DataStore<Preferences>) {
+class AdStore(private val dataStore: DataStore<Preferences>) {
     // 공간이 차 못 적어도 이 프로세스 안에서는 하루 한 번과 안내에 답함을 지킴
     private val store = OverlaidPreferences(dataStore)
 
@@ -32,7 +33,8 @@ class AdStore(dataStore: DataStore<Preferences>) {
         if (day == null) prefs.remove(LAST_INTERSTITIAL) else prefs[LAST_INTERSTITIAL] = day
     }
 
-    suspend fun rewardUntil(until: Instant) = store.edit { it[REWARD_UNTIL] = until.toEpochMilliseconds() }
+    /** 보상은 기록에 남아야 받은 것. 못 적으면 받지 못했다고 알려서 이 프로세스에만 남기지 않음 */
+    suspend fun rewardUntil(until: Instant) = dataStore.edit { it[REWARD_UNTIL] = until.toEpochMilliseconds() }
 
     /** 첫 전면 광고 앞 안내를 보여 줌. 다시 띄우지 않음 */
     suspend fun interstitialNoticed() = store.edit { it[INTERSTITIAL_NOTICED] = true }
