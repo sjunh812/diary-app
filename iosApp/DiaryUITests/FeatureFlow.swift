@@ -54,19 +54,18 @@ final class FeatureFlow: DeviceTestCase {
         typeBody("First entry on a real device. Today was calm.")
         shot("write-typed")
         tap("저장")
-        // 저장하면 그 일기 상세로 감(FR-012)
+        // 저장해 작성 화면이 닫히면 상세 위에 첫 전면 광고 안내, 이어서 추적 허용 창과 광고(2026-11-16 결정)
         sleep(1)
-        shot("detail-after-save")
-        tapIfExists("즐겨찾기 추가")
-        shot("detail-favorited")
-        // 목록으로 돌아갈 때 하루 첫 전면 광고(추적 허용 창이 먼저 뜰 수 있음)
-        tap("뒤로 가기")
-        sleep(1)
-        shot("before-first-ad")
-        // 첫 전면 광고 앞 안내(2026-11-15 결정)
+        shot("notice-after-save")
         if element("전면 광고는 하루 한 번이에요").waitForExistence(timeout: 4) { tap("확인") }
         handleSystemAlert()
         closeAdIfShown()
+        // 광고를 닫으면 그 일기 상세(FR-012)
+        shot("detail-after-save")
+        tapIfExists("즐겨찾기 추가")
+        shot("detail-favorited")
+        tap("뒤로 가기")
+        sleep(1)
         shot("home-after-first-save")
 
         // 긴 글과 날씨
@@ -97,7 +96,7 @@ final class FeatureFlow: DeviceTestCase {
             sleep(1)
             shot("after-discard")
             tap("뒤로 가기")
-            // 오늘 광고는 이미 봐서 다시 뜨지 않아야 함
+            // 오늘 광고는 이미 봐서 두 번째 저장에도 뜨지 않았어야 함
             sleep(3)
             shot("home-two-entries-no-second-ad")
         }
