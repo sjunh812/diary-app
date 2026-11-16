@@ -42,6 +42,6 @@ sealed interface FontInstallState {
     /** 받지 못함. 쓰던 글꼴은 그대로 둠 */
     data class Failed(val reason: Reason) : FontInstallState
 
-    /** 인터넷 연결 없음, 기기 저장 공간 부족, 그 밖 */
-    enum class Reason { Offline, NoSpace, Other }
+    /** 인터넷 연결 없음, 기기 저장 공간 부족, 스토어에서 설치하지 않은 앱(Android Play만), 그 밖 */
+    enum class Reason { Offline, NoSpace, NotFromStore, Other }
 }

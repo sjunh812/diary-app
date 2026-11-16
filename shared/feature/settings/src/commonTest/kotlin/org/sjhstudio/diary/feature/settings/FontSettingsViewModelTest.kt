@@ -129,6 +129,22 @@ class FontSettingsViewModelTest {
         assertTrue(DiaryFont.GOWUN_BATANG !in vm.state.value.downloading)
     }
 
+    /** Play에서 설치하지 않은 앱은 다시 해도 못 받아 일반 실패와 나눔 */
+    @Test
+    fun an_app_not_from_the_store_says_where_to_install() = runTest(dispatcher) {
+        val vm = FontSettingsViewModel(settings, installer, io = dispatcher)
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect {} }
+        val notices = mutableListOf<FontNotice>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.notice.collect { notices += it } }
+
+        vm.select(DiaryFont.GOWUN_BATANG)
+        advanceUntilIdle()
+        installer.emit(FontInstallState.Failed(FontInstallState.Reason.NotFromStore))
+        advanceUntilIdle()
+        assertEquals(DiaryFont.PRETENDARD, settings.settings.first().font)
+        assertEquals(listOf(FontNotice.NotFromStore), notices)
+    }
+
     private class FakeInstaller : FontInstaller {
         val requested = mutableListOf<String>()
         private val results = MutableSharedFlow<FontInstallState>(extraBufferCapacity = 8)

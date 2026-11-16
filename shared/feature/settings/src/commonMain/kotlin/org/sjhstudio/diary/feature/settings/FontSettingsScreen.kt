@@ -50,6 +50,7 @@ import org.sjhstudio.diary.feature.settings.resources.font_download
 import org.sjhstudio.diary.feature.settings.resources.font_downloading
 import org.sjhstudio.diary.feature.settings.resources.font_failed
 import org.sjhstudio.diary.feature.settings.resources.font_no_space
+import org.sjhstudio.diary.feature.settings.resources.font_not_from_store
 import org.sjhstudio.diary.feature.settings.resources.font_offline
 import org.sjhstudio.diary.feature.settings.resources.font_preview_label
 import org.sjhstudio.diary.feature.settings.resources.font_preview_sample
@@ -166,6 +167,7 @@ fun FontSettingsRoute(onBack: () -> Unit) {
                 when (notice) {
                     FontNotice.Offline -> Res.string.font_offline
                     FontNotice.NoSpace -> Res.string.font_no_space
+                    FontNotice.NotFromStore -> Res.string.font_not_from_store
                     FontNotice.Failed -> Res.string.font_failed
                 }
             toast.show(getString(message))

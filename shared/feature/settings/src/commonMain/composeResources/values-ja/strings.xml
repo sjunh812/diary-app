@@ -88,6 +88,7 @@
     <string name="font_offline">インターネットに接続すると入手できます</string>
     <string name="font_failed">フォントを入手できませんでした。少し時間をおいて、もう一度お試しください。</string>
     <string name="font_no_space">空き容量が足りず、フォントを入手できませんでした</string>
+    <string name="font_not_from_store">Google Playからインストールするとフォントを入手できます</string>
     <string name="font_replaced_notice">以前のフォントの代わりに%1$sで表示しています</string>
     <string name="font_replaced_change">変更</string>
 

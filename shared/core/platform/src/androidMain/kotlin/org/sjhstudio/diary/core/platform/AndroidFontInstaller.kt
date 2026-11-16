@@ -154,7 +154,12 @@ class AndroidFontInstaller(context: Context, private val files: AppFiles) : Font
 
     private fun reasonOf(code: Int?): FontInstallState.Reason = when (code) {
         SplitInstallErrorCode.NETWORK_ERROR -> FontInstallState.Reason.Offline
+
         SplitInstallErrorCode.INSUFFICIENT_STORAGE -> FontInstallState.Reason.NoSpace
+
+        // Play에서 받지 않은 앱은 다시 해도 받지 못함
+        SplitInstallErrorCode.APP_NOT_OWNED -> FontInstallState.Reason.NotFromStore
+
         else -> FontInstallState.Reason.Other
     }
 
