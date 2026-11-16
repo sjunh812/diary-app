@@ -4,6 +4,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -94,7 +95,10 @@ class StoreBilling(
     suspend fun onUpdate(answer: StoreAnswer) {
         watchExpiry(answer)
         if (!state.onAnswer(StoreIds.planOf(answer.active))) return
-        val sync = syncing?.takeIf { it.isActive } ?: scope.async { syncFromStore(answer) }.also { syncing = it }
+        // 적어 둔 뒤에 시작. 화면 스레드에서 바로 돌기 시작해 그사이 온 요청이 하나 더 만들지 않게
+        val sync =
+            syncing?.takeIf { it.isActive }
+                ?: scope.async(start = CoroutineStart.LAZY) { syncFromStore(answer) }.also { syncing = it }
         sync.await()
     }
 
