@@ -9,9 +9,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import okio.IOException
 
@@ -53,15 +57,38 @@ class OverlaidPreferencesTest {
         assertEquals("day2", store.data.first()[day])
         assertEquals("day2", disk.data.first()[day])
     }
+
+    /** 앞 쓰기가 기록하는 동안 들어온 쓰기 둘이 모두 남음 */
+    @Test
+    fun writes_that_arrive_during_another_write_are_all_kept() = runTest {
+        val a = stringPreferencesKey("a")
+        val b = stringPreferencesKey("b")
+        val c = stringPreferencesKey("c")
+        val disk = Disk(hold = CompletableDeferred())
+        val store = OverlaidPreferences(disk)
+        launch { store.edit { it[a] = "A" } }
+        runCurrent()
+        launch { store.edit { it[b] = "B" } }
+        launch { store.edit { it[c] = "C" } }
+        runCurrent()
+
+        disk.hold?.complete(Unit)
+        advanceUntilIdle()
+
+        val saved = disk.data.first()
+        assertEquals(listOf("A", "B", "C"), listOf(saved[a], saved[b], saved[c]))
+        assertEquals(saved, store.data.first())
+    }
 }
 
-/** 쓰기를 실패하게 할 수 있는 기록 */
-private class Disk(var failWrites: Boolean = false) : DataStore<Preferences> {
+/** 쓰기를 실패하게 하거나 첫 쓰기를 붙잡아 둘 수 있는 기록 */
+private class Disk(var failWrites: Boolean = false, val hold: CompletableDeferred<Unit>? = null) : DataStore<Preferences> {
     private val state = MutableStateFlow(emptyPreferences())
     override val data: Flow<Preferences> = state
 
     override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
         if (failWrites) throw IOException("저장 공간이 없다")
+        hold?.await()
         return transform(state.value).also { state.value = it }
     }
 }
