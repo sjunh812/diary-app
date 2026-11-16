@@ -306,6 +306,22 @@ class AdRepositoryTest {
         assertEquals(2, player.shown)
     }
 
+    /** 보상 시간에는 하루 한 번 전면 광고도 없음. 끝난 뒤 저장하면 그날 차례로 띄움 */
+    @Test
+    fun a_reward_also_skips_the_daily_interstitial() = runTest {
+        val repository = repo()
+        assertEquals(RewardResult.Earned, repository.watchReward())
+
+        repository.prepareAfterSave()
+        assertFalse(repository.showAfterSave())
+        assertEquals(0, player.prepared)
+        assertEquals(0, player.shown)
+
+        now += 25.hours
+        assertTrue(repository.showAfterSave())
+        assertEquals(1, player.shown)
+    }
+
     @Test
     fun reward_ends_after_a_day() = runTest {
         val repository = repo()
