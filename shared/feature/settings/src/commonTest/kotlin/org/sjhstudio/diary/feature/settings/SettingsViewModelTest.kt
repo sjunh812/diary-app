@@ -126,6 +126,20 @@ class SettingsViewModelTest {
         assertEquals(Plan.PLUS, viewModel.state.value.plan)
     }
 
+    /** 재설치 직후 요금제를 모르면 null. 그동안 무료 문구를 먼저 그리지 않음 */
+    @Test
+    fun an_unconfirmed_plan_stays_unknown() = runTest(dispatcher) {
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(null), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+
+        assertTrue(viewModel.state.value.loaded)
+        assertNull(viewModel.state.value.plan)
+    }
+
     /** 저장소는 개수를 읽지 못하면 값 없이 끝남. 그래도 설정은 열려야 함 */
     @Test
     fun an_unreadable_trash_count_leaves_settings_usable() = runTest(dispatcher) {

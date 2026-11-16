@@ -388,7 +388,7 @@ private val LocalRootChrome = compositionLocalOf<(@Composable BoxScope.(TabScree
 /** 앱 틀 화면 모델([AppShellViewModel], [AdRemovalViewModel])에서 화면에 넘기는 상태와 동작 */
 @Immutable
 private class ShellActions(
-    val plan: StateFlow<Plan>,
+    val plan: StateFlow<Plan?>,
     val onScreen: (NavKey) -> Unit,
     val onSaved: (entryId: String) -> Unit,
     val onRestore: (String) -> Unit,
@@ -595,8 +595,9 @@ private fun Content(
                         }
                         entry<AdvancedStatsKey> {
                             // 구독이 끝난 채 앱이 이 화면을 복원해도 머물지 않고 돌아보기로 돌아감
+                            // 재설치 직후 요금제를 모르는 동안은 기다림. 무료로 보고 Plus 사용자를 내보내지 않게
                             val plan by shell.plan.collectAsStateWithLifecycle()
-                            LaunchedEffect(plan) { if (!plan.advancedStats) pop() }
+                            LaunchedEffect(plan) { if (plan?.advancedStats == false) pop() }
                             AdvancedStatsRoute(
                                 onBack = pop,
                                 onMood = { mood, range ->

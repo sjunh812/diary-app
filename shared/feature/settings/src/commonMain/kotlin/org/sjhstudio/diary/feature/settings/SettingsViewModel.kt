@@ -37,7 +37,8 @@ data class SettingsUiState(
     /** 일부만 옮겨진 기기에만 "기록 이전 결과" 줄이 있음(FR-011) */
     val showsMigrationReport: Boolean = false,
     val trashCount: Int = 0,
-    val plan: Plan = Plan.FREE,
+    /** 확정된 요금제. 재설치 직후 스토어 답이 오기 전에는 null이고 그동안 Plus 카드를 그리지 않음 */
+    val plan: Plan? = null,
     /** 마지막으로 끝까지 올린 백업 시각. 한 번도 없으면 null */
     val lastBackupAt: Instant? = null,
     /**
@@ -56,7 +57,7 @@ class SettingsViewModel(
     private val settings: SettingsRepository,
     lock: LockRepository,
     trashCount: Flow<Int>,
-    plan: Flow<Plan>,
+    plan: Flow<Plan?>,
     showsMigrationReport: suspend () -> Boolean,
     fonts: FontInstaller,
     private val notifications: NotificationAllowance,

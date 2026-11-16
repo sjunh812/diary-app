@@ -22,7 +22,7 @@ val settingsFeatureModule =
                 get(),
                 get(),
                 trashCount = get<TrashRepository>().count(),
-                plan = get<PlanRepository>().plan,
+                plan = get<PlanRepository>().confirmed,
                 showsMigrationReport = { showsMigrationReport(get()) },
                 fonts = get(),
                 notifications = get(),

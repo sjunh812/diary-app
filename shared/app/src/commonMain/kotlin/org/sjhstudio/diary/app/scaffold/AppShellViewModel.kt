@@ -8,6 +8,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
@@ -71,7 +72,8 @@ class AppShellViewModel(
     val hasEntries: StateFlow<Boolean?> =
         entries.months().map { it.isNotEmpty() }.stateInSafely(viewModelScope, WhileUiSubscribed, null)
 
-    val plan: StateFlow<Plan> = plans.plan
+    /** 확정된 요금제. 재설치 직후 스토어 답이 오기 전에는 null */
+    val plan: StateFlow<Plan?> = plans.confirmed.stateInSafely(viewModelScope, SharingStarted.Eagerly, plans.confirmedNow)
 
     private val _adNotice = MutableStateFlow(AdNotice.None)
 
