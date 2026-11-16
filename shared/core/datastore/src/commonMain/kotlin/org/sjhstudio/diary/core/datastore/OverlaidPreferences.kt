@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * 쓴 값을 기기 기록보다 먼저 이 프로세스에 반영하는 설정 기록
@@ -16,7 +18,7 @@ import kotlinx.coroutines.flow.update
  * 같은 값을 다시 써도 결과가 같은 쓰기만 넘김(덧셈처럼 쌓이는 쓰기는 두 번 반영될 수 있음)
  */
 internal class OverlaidPreferences(private val dataStore: DataStore<Preferences>) {
-    /** 아직 기록에 닿지 않은 쓰기. 닿으면 빠지고, 실패하면 이 프로세스가 끝날 때까지 남음 */
+    /** 아직 기록에 닿지 않은 쓰기. 닿으면 빠지고, 실패하면 다음 쓰기가 성공할 때까지 남음 */
     private val unsaved = MutableStateFlow<List<(MutablePreferences) -> Unit>>(emptyList())
 
     val data: Flow<Preferences> =
@@ -30,8 +32,13 @@ internal class OverlaidPreferences(private val dataStore: DataStore<Preferences>
      */
     suspend fun edit(change: (MutablePreferences) -> Unit) {
         unsaved.update { it + change }
-        val pending = unsaved.value
-        dataStore.edit { prefs -> pending.forEach { it(prefs) } }
-        unsaved.update { it.drop(pending.size) }
+        // 겹친 쓰기가 남은 쓰기를 서로 지우지 않게 한 줄로
+        writing.withLock {
+            val pending = unsaved.value
+            dataStore.edit { prefs -> pending.forEach { it(prefs) } }
+            unsaved.update { it.drop(pending.size) }
+        }
     }
+
+    private val writing = Mutex()
 }
