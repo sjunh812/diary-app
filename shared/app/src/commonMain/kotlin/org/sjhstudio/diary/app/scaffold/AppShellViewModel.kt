@@ -189,7 +189,7 @@ val appShellModule =
         viewModel {
             AdRemovalViewModel(get<LockController>().appLocked, get<AdRepository>()::watchReward)
         }
-        viewModel { FeedbackCardViewModel(get(), get()) }
+        viewModel { FeedbackCardViewModel(get()) }
     }
 
 /** 잠금 화면이 앱을 덮은 동안 참 */

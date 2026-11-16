@@ -3,7 +3,7 @@ package org.sjhstudio.diary.app
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
-import org.sjhstudio.diary.app.scaffold.FeedbackCardState
+import org.sjhstudio.diary.app.scaffold.HomeTopState
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.ui.launchSafely
@@ -12,14 +12,10 @@ import org.sjhstudio.diary.core.ui.launchSafely
  * 이전 관문을 지난 뒤(일기 DB를 연 뒤) 한 번 하는 일
  * 화면 효과에 두면 화면을 돌릴 때마다 다시 돌아 화면 모델로 옮김
  */
-class AppRootViewModel(
-    cleanup: DiaryCleanup,
-    backup: BackupRepository,
-    private val restore: RestoreRepository,
-    feedbackCard: FeedbackCardState
-) : ViewModel() {
+class AppRootViewModel(cleanup: DiaryCleanup, backup: BackupRepository, private val restore: RestoreRepository, homeTop: HomeTopState) :
+    ViewModel() {
     init {
-        feedbackCard.start()
+        homeTop.start()
         viewModelScope.launchSafely { cleanup.run() }
         // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 봄(FR-015). iOS에서는 이게 주된 길
         viewModelScope.launchSafely { backup.backUpIfDue() }

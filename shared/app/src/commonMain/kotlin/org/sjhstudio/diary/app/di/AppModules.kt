@@ -20,7 +20,7 @@ import org.sjhstudio.diary.app.font.ChosenFontDownload
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.maintenance.DiaryCleanup
 import org.sjhstudio.diary.app.navigation.AppLaunch
-import org.sjhstudio.diary.app.scaffold.FeedbackCardState
+import org.sjhstudio.diary.app.scaffold.HomeTopState
 import org.sjhstudio.diary.app.scaffold.appShellModule
 import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
@@ -215,7 +215,7 @@ private fun coreModule(isDebug: Boolean) = module {
             review = get()
         )
     }
-    single { FeedbackCardState(get(), get(APP_SCOPE)) }
+    single { HomeTopState(get(), get(), get(APP_SCOPE)) }
 }
 
 /** 일기 DB와 일기·사진·임시 저장·휴지통 저장소. DB는 이전 관문을 지난 뒤 처음 쓸 때 열림 */

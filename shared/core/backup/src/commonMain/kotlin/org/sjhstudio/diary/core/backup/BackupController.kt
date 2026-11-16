@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -150,6 +151,8 @@ class BackupController(
                 }
             }
         }
+            // 기록을 읽지 못하면 권하지 않음. 흐름이 끝나 홈 맨 위 칸이 멈추지 않게 함
+            .catch { if (it is Exception) emit(null) else throw it }
 
     private fun mayNudge(prefs: BackupPrefs): Boolean {
         val hidden = prefs.nudgeHiddenUntil?.let { it > clock.now() } == true

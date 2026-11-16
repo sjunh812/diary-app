@@ -156,7 +156,6 @@ import org.sjhstudio.diary.feature.backup.BackupAlertButton
 import org.sjhstudio.diary.feature.backup.BackupFoundPrompt
 import org.sjhstudio.diary.feature.backup.BackupNudgeCard
 import org.sjhstudio.diary.feature.backup.BackupStatusLine
-import org.sjhstudio.diary.feature.backup.BackupViewModel
 import org.sjhstudio.diary.feature.backup.BundleStoppedNotice
 import org.sjhstudio.diary.feature.backup.RestoreResultNotice
 import org.sjhstudio.diary.feature.calendar.CalendarRoute
@@ -506,8 +505,7 @@ private fun Content(
                     tabBarSpace,
                     entryProvider {
                         entry<HomeKey>(metadata = ListPane + tabRoot(HomeKey)) {
-                            val backupNudge by koinViewModel<BackupViewModel>().nudge.collectAsStateWithLifecycle()
-                            val feedbackCard by koinViewModel<FeedbackCardViewModel>().visible.collectAsStateWithLifecycle()
+                            val top by koinInject<HomeTopState>().top.collectAsStateWithLifecycle()
                             HomeRoute(
                                 backupLine = {
                                     BackupStatusLine(onOpen = {
@@ -522,13 +520,19 @@ private fun Content(
                                         nav.push(BackupSettingsKey)
                                     })
                                 },
-                                // 맨 위 카드는 한 장. 기록을 지키는 백업 안내가 먼저(스펙 007 FR-014)
-                                listTop = { if (backupNudge != null) BackupNudgeCard() else HomeFeedbackCard(showText) },
-                                // 위 카드가 떠 있는 동안은 목록 보기 팁을 미룸
+                                // 맨 위 카드는 한 장. 어느 카드인지는 [HomeTopState]가 정함
+                                listTop = {
+                                    when (val current = top) {
+                                        is HomeTop.Backup -> BackupNudgeCard(current.nudge)
+                                        HomeTop.Feedback -> HomeFeedbackCard(showText)
+                                        HomeTop.Reading, HomeTop.Empty -> Unit
+                                    }
+                                },
+                                // 카드가 없을 때만 목록 보기 팁이 그 자리를 씀
                                 onListStyle = {
                                     nav.openTab(SettingsKey)
                                     nav.push(ListStyleSettingsKey)
-                                }.takeIf { backupNudge == null && feedbackCard == false },
+                                }.takeIf { top == HomeTop.Empty },
                                 onOpen = nav::openEntry,
                                 onWrite = onWrite,
                                 onSearch = { nav.push(SearchKey()) },
