@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.media.ExifInterface
 import java.io.File
+import java.io.IOException
 import kotlin.math.max
 
 actual object ImageDecoder {
@@ -39,7 +40,10 @@ actual object ImageDecoder {
         // JPEG에는 투명이 없어 그대로 쓰면 투명한 곳이 검게 나와 흰 바탕에 올림
         val opaque = if (result.hasAlpha()) onWhite(result) else result
         return try {
-            File(target).outputStream().use { opaque.compress(Bitmap.CompressFormat.JPEG, quality, it) }
+            // 쓰지 못한 것은 공간 같은 쓰기 문제라 읽을 수 없는 그림과 다르게 알림
+            File(target).outputStream().use { opaque.compress(Bitmap.CompressFormat.JPEG, quality, it) }.also {
+                if (!it) throw IOException("JPEG를 쓰지 못함")
+            }
         } finally {
             if (opaque !== result) opaque.recycle()
             if (result !== decoded) result.recycle()
