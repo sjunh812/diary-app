@@ -83,10 +83,11 @@ fun LockFlow(
     LaunchedEffect(setup) { setup.done.collect { onUnlocked() } }
     // 열자마자 생체 인증 띄움
     // 취소·실패하면 숫자판이 그대로 남음
-    // 실패 까닭(지문 불일치, 잠시 잠김)은 시스템 창이 직접 알림
+    // 지문 불일치는 시스템 창이 알림. 여러 번 틀려 잠긴 것은 iOS가 창 없이 돌아와 잠금 화면이 알림
     val unlockWithBiometric: suspend () -> Unit = {
         val result = authenticator.authenticateBiometric(biometricPrompt)
-        if (result != AuthResult.Failed) lock.logBiometric(opened = result == AuthResult.Success)
+        if (result == AuthResult.LockedOut) lock.onBiometricLockedOut()
+        if (result == AuthResult.Success || result == AuthResult.Canceled) lock.logBiometric(opened = result == AuthResult.Success)
         if (result == AuthResult.Success) {
             // 누르다 만 숫자가 다음 잠금에 남으면 틀린 번호로 처리
             lock.start(PinCheck.Verify)

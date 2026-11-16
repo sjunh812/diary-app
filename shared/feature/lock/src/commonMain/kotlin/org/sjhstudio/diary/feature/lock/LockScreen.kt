@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.platform.BiometricKind
 import org.sjhstudio.diary.feature.lock.resources.Res
 import org.sjhstudio.diary.feature.lock.resources.lock_biometric
+import org.sjhstudio.diary.feature.lock.resources.lock_biometric_locked
 import org.sjhstudio.diary.feature.lock.resources.lock_forgot
 import org.sjhstudio.diary.feature.lock.resources.lock_key_unavailable
 import org.sjhstudio.diary.feature.lock.resources.lock_off_failed
@@ -65,7 +66,7 @@ fun LockScreen(
             LockMessage.KeyUnavailable -> PinLine(stringResource(Res.string.lock_key_unavailable), colors.danger)
 
             LockMessage.NotSaved -> PinLine(stringResource(Res.string.lock_off_failed), colors.danger)
-        }
+        } ?: if (state.biometricLocked) PinLine(stringResource(Res.string.lock_biometric_locked), colors.textSecondary) else null
     PinEntryLayout(
         title = if (waiting) stringResource(Res.string.lock_wait_title) else title ?: stringResource(Res.string.lock_title),
         line = line,
@@ -85,7 +86,7 @@ fun LockScreen(
             onDigit = onDigit,
             onDelete = onDelete,
             enabled = !waiting && !state.checking,
-            bottomStart = if (showBiometric) {
+            bottomStart = if (showBiometric && !state.biometricLocked) {
                 DiaryPadKey(
                     if (biometricKind == BiometricKind.Face) DiaryIcons.ScanFace else DiaryIcons.Fingerprint,
                     stringResource(Res.string.lock_biometric),

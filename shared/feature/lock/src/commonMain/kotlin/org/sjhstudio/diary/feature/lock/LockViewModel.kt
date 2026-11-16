@@ -35,7 +35,9 @@ data class LockUiState(
     val entered: Int = 0,
     val message: LockMessage = LockMessage.None,
     val checking: Boolean = false,
-    val wrongCount: Int = 0
+    val wrongCount: Int = 0,
+    /** 여러 번 틀려 생체 인증이 잠김. 비밀번호로 열 때까지 버튼을 숨기고 알림 */
+    val biometricLocked: Boolean = false
 )
 
 sealed interface LockMessage {
@@ -166,7 +168,11 @@ class LockViewModel(
                 // 남은 횟수 안내는 다음 숫자를 누를 때까지 남음
                 is VerifyResult.Wrong ->
                     _state.update {
-                        LockUiState(message = LockMessage.Wrong(result.remainingBeforeWait), wrongCount = it.wrongCount + 1)
+                        LockUiState(
+                            message = LockMessage.Wrong(result.remainingBeforeWait),
+                            wrongCount = it.wrongCount + 1,
+                            biometricLocked = it.biometricLocked
+                        )
                     }
 
                 is VerifyResult.Waiting -> waitUntil(result.until)
@@ -202,15 +208,16 @@ class LockViewModel(
                 while (true) {
                     val left = waitLeft(until, clock.now())
                     if (!left.isPositive()) break
-                    _state.value =
-                        LockUiState(
-                            message = LockMessage.Waiting(left.inWholeSeconds.toInt() + if (left.inWholeMilliseconds % 1000 > 0) 1 else 0)
-                        )
+                    val seconds = left.inWholeSeconds.toInt() + if (left.inWholeMilliseconds % 1000 > 0) 1 else 0
+                    _state.update { LockUiState(message = LockMessage.Waiting(seconds), biometricLocked = it.biometricLocked) }
                     delay(minOf(left, 1.seconds))
                 }
-                _state.value = LockUiState()
+                _state.update { LockUiState(biometricLocked = it.biometricLocked) }
             }
     }
+
+    /** 생체 인증이 잠김. iOS는 시스템 창 없이 돌아와 여기서 알림 */
+    fun onBiometricLockedOut() = _state.update { it.copy(biometricLocked = true) }
 
     private fun clearDigits() {
         digits.fill('\u0000')

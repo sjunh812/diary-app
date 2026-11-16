@@ -46,6 +46,14 @@ private fun LockWrong() = Lock(LockUiState(message = LockMessage.Wrong(3), wrong
 @Composable
 private fun LockWaiting() = Lock(LockUiState(message = LockMessage.Waiting(27)))
 
+@Preview(name = "L1 생체 인증 잠김 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun LockBiometricLocked() = Lock(LockUiState(biometricLocked = true))
+
+@Preview(name = "L1 생체 인증 잠김 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun LockBiometricLockedDark() = Lock(LockUiState(biometricLocked = true), dark = true)
+
 @Preview(name = "L1 태블릿", locale = "ko", widthDp = 1194, heightDp = 834)
 @Composable
 private fun LockTablet() = Lock(LockUiState(), biometric = false)

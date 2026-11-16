@@ -7,6 +7,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +70,24 @@ class LockViewModelTest {
         vm.type("427")
         advanceUntilIdle()
         assertEquals(listOf<LockEvent>(LockEvent.Unlocked), events)
+        assertEquals(LockUiState(), vm.state.value)
+    }
+
+    /** 생체 인증이 잠기면 알리고 버튼을 숨김. 틀려도 알림은 남고, 비밀번호로 열면 지움 */
+    @Test
+    fun a_locked_biometric_stays_noted_until_the_pin_opens() = runTest(dispatcher) {
+        repository.setPin(checkNotNull(Pin.of("0427")))
+        val vm = LockViewModel(repository, clock())
+
+        vm.onBiometricLockedOut()
+        assertTrue(vm.state.value.biometricLocked)
+
+        vm.type("1111")
+        advanceUntilIdle()
+        assertTrue(vm.state.value.biometricLocked)
+
+        vm.type("0427")
+        advanceUntilIdle()
         assertEquals(LockUiState(), vm.state.value)
     }
 

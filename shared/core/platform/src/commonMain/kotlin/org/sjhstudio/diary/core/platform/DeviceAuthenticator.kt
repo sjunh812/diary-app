@@ -24,7 +24,8 @@ enum class BiometricStatus { Available, NoneEnrolled, Unavailable }
 
 enum class BiometricKind { Fingerprint, Face }
 
-enum class AuthResult { Success, Canceled, Failed }
+/** [LockedOut]은 여러 번 틀려 생체 인증이 잠김. iOS는 창 없이 바로 돌아와 앱이 알려야 함 */
+enum class AuthResult { Success, Canceled, Failed, LockedOut }
 
 /**
  * 시스템 인증 창에 보일 글. 화면 문구라 부르는 쪽이 문자열 리소스에서 넘김

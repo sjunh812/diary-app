@@ -13,6 +13,7 @@ import platform.Foundation.NSError
 import platform.LocalAuthentication.LABiometryTypeFaceID
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAErrorAppCancel
+import platform.LocalAuthentication.LAErrorBiometryLockout
 import platform.LocalAuthentication.LAErrorBiometryNotEnrolled
 import platform.LocalAuthentication.LAErrorSystemCancel
 import platform.LocalAuthentication.LAErrorUserCancel
@@ -61,6 +62,7 @@ class IosDeviceAuthenticator : DeviceAuthenticator {
                 when {
                     success -> AuthResult.Success
                     code == LAErrorUserCancel || code == LAErrorSystemCancel || code == LAErrorAppCancel -> AuthResult.Canceled
+                    code == LAErrorBiometryLockout -> AuthResult.LockedOut
                     else -> AuthResult.Failed
                 }
             continuation.resume(result)

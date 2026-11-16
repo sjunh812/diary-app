@@ -54,7 +54,14 @@ class AndroidDeviceAuthenticator(private val activity: FragmentActivity) : Devic
                         errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
                             errorCode == BiometricPrompt.ERROR_USER_CANCELED ||
                             errorCode == BiometricPrompt.ERROR_CANCELED
-                    continuation.resume(if (canceled) AuthResult.Canceled else AuthResult.Failed)
+                    val lockedOut = errorCode == BiometricPrompt.ERROR_LOCKOUT || errorCode == BiometricPrompt.ERROR_LOCKOUT_PERMANENT
+                    continuation.resume(
+                        when {
+                            canceled -> AuthResult.Canceled
+                            lockedOut -> AuthResult.LockedOut
+                            else -> AuthResult.Failed
+                        }
+                    )
                 }
             }
         val biometricPrompt = BiometricPrompt(activity, ContextCompat.getMainExecutor(activity), callback)
