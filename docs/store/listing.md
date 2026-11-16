@@ -312,6 +312,14 @@ mood,daily,log,feelings,journal,photo,private,lock,backup,calendar,gratitude,not
 ダイアリー,気分,感情,記録,写真,一行,メモ,ロック,バックアップ,カレンダー,感謝,習慣,ライフログ,振り返り,日常,デイリー
 ```
 
+## App Store 헤더·검색 결과 그림
+
+App Store 상품 페이지 맨 위 헤더(21:9, 3840×1646)와 검색 결과 카드(3:2, 3840×2560)다. 2026-11-16 App Store Connect 2.0.1에 세 언어로 넣었다.
+
+- 헤더: 앱 아이콘의 연필과 앱 이름을 한 덩어리로 가운데에 두고, 바탕은 가운데가 밝은 라벤더 그라데이션이다. 유명 앱(Structured, Goodnotes, Apple 예시)이 쓰는 "심볼 + 이름" 꼴이다. 기분 얼굴을 무늬나 줄로 넣은 안은 어수선해 뺐다. 눈에 보이는 연필과 글자 테두리로 가로세로 가운데를 맞춘다. `docs/store/screens/ios/{ko,en,ja}/header.png`, `swift scripts/store/make_header.swift <결과> <연필 SVG> - wordmark-<언어> <창원단감둥근체 파일>`.
+- 검색 결과: 홍보 문구 첫 줄과 실제 목록 화면이다. 문구와 화면 묶음을 Apple 안전 영역(2168×1030) 안 가운데에 두고, 넘치는 언어만 글자를 줄인다. `docs/store/screens/ios/{ko,en,ja}/search.png`, `make_screens.swift`의 `search` 모드.
+- iPhone은 헤더를 화면 폭에 맞춰 줄여 보여 준다. 작은 그림은 쌀알처럼 보여 크게 둔다. 바꾼 뒤에는 App Store Connect [미리보기]로 iPhone·iPad를 본다.
+
 ## 맞춤 스토어 등록정보
 
 "1일 1일기"(검색 키워드 대상). 문구와 그래픽은 기본 등록정보를 그대로 물려받는다(그룹 애셋 상속). 검색 키워드는 일기, 일기장, 다이어리, 일기 앱, 감정 일기, 기분 일기, 하루 일기, 사진 일기, 비밀 일기다(2026-11-12).

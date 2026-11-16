@@ -4,6 +4,7 @@
 // 태블릿 폴더를 주면 2560×1600 가로 캡처(write, list, calendar, insight)로 태블릿 4장도 생성. "-"를 주면 건너뜀
 // 영어·일본어는 백업 화면(드라이브 연결 필요)과 피처 그래픽 없이 4장씩 생성
 // 여섯째 인자로 ios를 주면 App Store용 iPhone 1206×2622 세로와 iPad 2752×2064 가로를 4장씩 생성
+// 여섯째 인자로 search를 주면 App Store 검색 결과 그림(3:2, 3840×2560) 한 장 생성
 import AppKit
 import CoreText
 
@@ -12,6 +13,9 @@ _ = NSApplication.shared
 let source = args[1], output = args[2], fonts = args[3]
 let language = args.count > 5 ? args[5] : "ko"
 let ios = args.count > 6 && args[6] == "ios"
+let search = args.count > 6 && args[6] == "search"
+/** Play 스크린샷·피처 그래픽·태블릿 */
+let play = !ios && !search
 for name in ["changwon_round_regular.otf"] {
     CTFontManagerRegisterFontsForURL(URL(fileURLWithPath: "\(fonts)/\(name)") as CFURL, .process, nil)
 }
@@ -41,7 +45,7 @@ func canvas(_ width: Int, _ height: Int, _ draw: () -> Void) -> NSBitmapImageRep
     return NSBitmapImageRep(cgImage: context.makeImage()!)
 }
 
-func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ align: NSTextAlignment, accented: String? = nil) {
+func styled(_ string: String, _ size: CGFloat, _ tint: NSColor, _ align: NSTextAlignment, accented: String? = nil) -> NSAttributedString {
     let style = NSMutableParagraphStyle()
     style.alignment = align
     style.lineHeightMultiple = 1.16
@@ -59,7 +63,16 @@ func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ 
         let span = NSRange(range, in: string)
         label.addAttributes([.foregroundColor: accent, .strokeColor: accent], range: span)
     }
-    label.draw(in: rect)
+    return label
+}
+
+func text(_ string: String, _ size: CGFloat, _ tint: NSColor, _ rect: NSRect, _ align: NSTextAlignment, accented: String? = nil) {
+    styled(string, size, tint, align, accented: accented).draw(in: rect)
+}
+
+/** 여러 줄 문구 중 가장 긴 줄의 너비 */
+func textWidth(_ string: String, _ size: CGFloat) -> CGFloat {
+    styled(string, size, ink, .left).boundingRect(with: NSSize(width: 10000, height: 10000), options: .usesLineFragmentOrigin).width.rounded(.up)
 }
 
 /** 캡처 위쪽 상태 표시줄 높이. 폰 56, 태블릿 48 */
@@ -126,7 +139,7 @@ let phoneSlides: [String: [(String, String, String)]] = [
         ("insight", "気分の流れを\nふりかえる", "ふりかえる")
     ]
 ]
-for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where !ios {
+for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where play {
     let rep = canvas(1080, 1920) {
         text(words, language == "ja" ? 80 : 88, ink, NSRect(x: 40, y: 1500, width: 1000, height: 300), .center, accented: word)
         // 첫 장은 아래쪽 기분 시트까지 보이게 화면 전체 사용
@@ -139,7 +152,7 @@ for (index, (name, words, word)) in phoneSlides[language]!.enumerated() where !i
     save(rep, "phone-\(index + 1)")
 }
 
-if language == "ko", !ios {
+if language == "ko", play {
 let feature = canvas(1024, 500) {
     text("바쁜 날에도\n일기를 남겨 봐요", 60, ink, NSRect(x: 76, y: 176, width: 500, height: 170), .left, accented: "일기")
     text("회원가입 없이, 사진까지 내 드라이브에", 25, weak, NSRect(x: 76, y: 118, width: 500, height: 44), .left)
@@ -151,7 +164,7 @@ save(feature, "feature")
 
 // 태블릿: 가로 2560×1600, 머리말은 위에 한 줄, 화면은 아래쪽이 잘림
 // Play 7"·10" 태블릿 칸에 같은 이미지 사용. 백업 화면은 드라이브 연결이 필요해 제외
-if !ios, args.count > 4, args[4] != "-" {
+if play, args.count > 4, args[4] != "-" {
     shotFolder = args[4]
     statusBar = 48
     let tabletSlides: [String: [(String, String, String)]] = [
@@ -228,4 +241,31 @@ if ios {
             save(rep, "ipad-\(index + 1)")
         }
     }
+}
+
+// App Store 검색 결과: 3:2 3840×2560, 짧은 문구와 실제 목록 화면(Apple 예시와 같은 배치)
+// 문구와 화면 위쪽은 안전 영역(2168×1030, x 836, y 765) 안, 기기 아래쪽은 그림 밖으로 잘림
+// 문구는 홍보 문구 첫 줄(docs/store/listing.md)
+if search {
+    statusBar = 150
+    let lines: [String: (String, String)] = [
+        "ko": ("하루 한 줄이면\n충분해요", "한 줄"),
+        "en": ("One line a day\nis enough", "One line"),
+        "ja": ("1日1行で\n十分です", "1行")
+    ]
+    let (words, word) = lines[language]!
+    let rep = canvas(3840, 2560) {
+        // 검색 카드는 작게 보여 문구를 크게
+        // 문구와 화면 사이를 언어와 상관없이 같게 두고, 둘을 한 덩어리로 가운데에
+        let gap: CGFloat = 200, phoneWidth: CGFloat = 840
+        // 안전 영역 너비(2168)를 넘는 언어만 문구를 줄임
+        let base: CGFloat = language == "ja" ? 176 : 184
+        let room = 2168 - gap - phoneWidth
+        let size = min(base, (base * room / textWidth(words, base)).rounded(.down))
+        let wordsWidth = textWidth(words, size)
+        let start = ((3840 - (wordsWidth + gap + phoneWidth)) / 2).rounded()
+        text(words, size, ink, NSRect(x: start, y: 1090, width: wordsWidth + 10, height: 520), .left, accented: word)
+        phone("list", NSRect(x: start + wordsWidth + gap, y: -20, width: phoneWidth, height: 1740), 88)
+    }
+    save(rep, "search")
 }
