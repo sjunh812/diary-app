@@ -80,19 +80,27 @@ class TabNavigationTest {
         assertEquals(listOf<NavKey>(HomeKey), nav.current)
     }
 
+    /** 다른 탭 첫 화면에서 뒤로 가면 홈. 홈 첫 화면이면 앱이 닫힘 */
     @Test
-    fun home_stays_under_every_other_tab() {
+    fun back_from_another_tab_first_screen_goes_home() {
         val nav = navigation()
-        assertEquals(listOf<TabScreen>(HomeKey), nav.visibleTabs)
+        assertFalse(nav.backGoesHome)
 
         nav.selectTab(SettingsKey)
+        assertTrue(nav.backGoesHome)
 
-        assertEquals(listOf(HomeKey, SettingsKey), nav.visibleTabs)
+        nav.push(LicensesKey)
+        assertFalse(nav.backGoesHome)
+
+        nav.back()
+        nav.back()
+        assertEquals(HomeKey, nav.tab)
+        assertFalse(nav.backGoesHome)
     }
 
     @Test
     fun an_app_opened_on_another_tab_still_leaves_through_home() {
-        assertEquals(listOf(HomeKey, SettingsKey), navigation(start = SettingsKey).visibleTabs)
+        assertTrue(navigation(start = SettingsKey).backGoesHome)
     }
 
     @Test
@@ -221,23 +229,6 @@ class TabNavigationTest {
 
         assertEquals(listOf<NavKey>(CalendarKey), nav.current)
         assertEquals(listOf<NavKey>(HomeKey), nav.stacks.getValue(HomeKey))
-    }
-
-    @Test
-    fun only_a_change_of_tab_is_marked_as_one() {
-        val nav = navigation()
-
-        nav.selectTab(CalendarKey)
-        assertTrue(nav.movedBetweenTabs)
-
-        nav.push(SearchKey())
-        assertFalse(nav.movedBetweenTabs)
-
-        nav.back()
-        assertFalse(nav.movedBetweenTabs)
-
-        nav.back()
-        assertTrue(nav.movedBetweenTabs)
     }
 
     @Test
