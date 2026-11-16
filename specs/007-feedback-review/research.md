@@ -19,7 +19,7 @@
 | 카드 위·둘레에 아무것도 덮지 않음, 맨 위 층 | Play 지침 | 전면 광고 차례에는 요청하지 않음(FR-007) |
 | 쿼터 비공개, 짧은 기간 여러 번 부르면 안 뜰 수 있음 | Play 지침 | 한 번만 요청 |
 | 365일에 최대 3번, 표시 여부는 App Store가 정함. 개발 빌드는 늘 뜨고 TestFlight는 안 뜸 | <https://developer.apple.com/documentation/storekit/requestreviewaction> | iOS 확인은 개발 빌드로 |
-| 몰입한 뒤, 중요한 일을 마친 자연스러운 쉼에서. 첫 실행·온보딩·일하는 중 금지 | HIG <https://developer.apple.com/design/human-interface-guidelines/ratings-and-reviews> | 저장하고 목록으로 돌아온 순간 |
+| 몰입한 뒤, 중요한 일을 마친 자연스러운 쉼에서. 첫 실행·온보딩·일하는 중 금지 | HIG <https://developer.apple.com/design/human-interface-guidelines/ratings-and-reviews> | 저장해 작성 화면이 닫힌 순간(전면 광고 차례가 아닐 때) |
 | 앱을 켜자마자 묻지 말 것. 예제는 같은 버전에서 한 번, 과정 4번 완료 뒤(4는 임의 숫자) | <https://developer.apple.com/documentation/storekit/requesting-app-store-reviews> | 5편·7일은 우리가 정한 기준 |
 | 직접 만든 리뷰 창 금지, 리뷰 조건부 기능·보상·걸러 받기 금지 | App Store 심사 지침 5.6.1, 3.2.2(x), 3장 머리말 <https://developer.apple.com/app-store/review/guidelines/> | 보상·조건 없음 |
 | 평점·리뷰에 보상 금지, 속이는 팝업 금지 | Play 정책 <https://support.google.com/googleplay/android-developer/answer/9898684> | 같음 |
