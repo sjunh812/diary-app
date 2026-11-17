@@ -10,6 +10,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 
 // 켜 둔 채 자정을 넘겨도 앱이 돌아오면 오늘이 바뀜
@@ -39,5 +41,25 @@ class RememberTodayUiTest {
         waitForIdle()
 
         assertEquals(LocalDate(2026, 11, 8), shown)
+    }
+
+    @Test
+    fun staying_open_past_midnight_reads_the_new_day() = runComposeUiTest {
+        val owner = Owner()
+        owner.registry.currentState = Lifecycle.State.RESUMED
+        var clock = LocalDate(2026, 11, 17)
+        val midnight = Channel<Unit>()
+        var shown: LocalDate? = null
+        setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides owner) { shown = rememberToday({ midnight.receive() }) { clock } }
+        }
+        waitForIdle()
+        assertEquals(LocalDate(2026, 11, 17), shown)
+
+        clock = LocalDate(2026, 11, 18)
+        runBlocking { midnight.send(Unit) }
+        waitForIdle()
+
+        assertEquals(LocalDate(2026, 11, 18), shown)
     }
 }

@@ -17,12 +17,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import java.io.File
 import kotlin.time.Clock
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
+import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.AdStore
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
@@ -32,6 +36,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.ThemeMode
+import org.sjhstudio.diary.core.platform.AppFiles
 import org.sjhstudio.diary.core.platform.BackupAlertPoster
 import org.sjhstudio.diary.helper.AlarmReceiver
 
@@ -83,6 +88,15 @@ class DevModeActivity : ComponentActivity() {
                         DiarySettingsHeader("화면 견본", gapAbove = true)
                         SCREENS.forEach { (name, screen) -> DiarySettingsRow(name, onClick = { open(screen) }) }
                         DiarySettingsHeader("시험", gapAbove = true)
+                        DiarySettingsRow(
+                            "목록 견본 1만 편을 일기에 넣기",
+                            onClick = {
+                                reset {
+                                    withContext(Dispatchers.IO) { writeSample(get<DiaryDatabase>(), File(get<AppFiles>().mediaDirectory)) }
+                                }
+                            },
+                            description = "서식 20%, 긴 일기 5%, 사진 5천 장. 파일로 백업해 실기기 측정에 옮겨요."
+                        )
                         DiarySettingsRow(
                             "비정상 종료 보내기",
                             onClick = ::crash,

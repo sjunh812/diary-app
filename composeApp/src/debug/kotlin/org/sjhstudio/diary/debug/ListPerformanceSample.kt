@@ -8,13 +8,19 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Shader
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -25,33 +31,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
+import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import androidx.paging.map
 import java.io.File
 import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.minus
+import okio.FileSystem
+import okio.Path.Companion.toPath
 import org.koin.core.context.GlobalContext
+import org.sjhstudio.diary.core.data.diary.DefaultEntryRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.MediaEntity
-import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
+import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.MediaStatus
-import org.sjhstudio.diary.core.ui.DiaryPhotoCell
+import org.sjhstudio.diary.core.model.PreviewLength
+import org.sjhstudio.diary.core.model.PreviewMode
+import org.sjhstudio.diary.core.model.richtext.RichTextSanitizer
+import org.sjhstudio.diary.core.model.richtext.toPlainText
+import org.sjhstudio.diary.core.platform.sha256Hex
+import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 
-// 목록 성능 견본(스펙 001 T083, SC-010·SC-011)
-// 스펙 002 홈과 같은 방식
-// 일기 1만 편·사진 5천 장을 따로 둔 견본 DB(`no_backup/perf-sample/`)에 한 번 만들고, 실제 일기 DB는 건드리지 않음
+// 목록 성능 견본(스펙 001 T083, SC-010·SC-011, 스펙 008 SC-003)
+// 홈과 같은 저장소(`DefaultEntryRepository.timeline`)와 일기 줄로 그리고, 위에서 미리보기 방식을 바꿈
+// 일기의 20%는 에디터 서식을 모두 쓰고(굵게·밑줄·글자색·형광펜·체크리스트·목록), 5%는 5천 자 넘는 긴 일기
+// 일기 1만 편·사진 5천 장을 따로 둔 견본 DB(`no_backup/perf-sample-v3/`)에 한 번 만들고, 실제 일기 DB는 건드리지 않음
 // 60편씩 읽고(Paging 3), 줄 키는 일기 ID, 줄 모델은 불변, 사진 칸은 썸네일 크기 JPEG만 읽음
 
 private const val ENTRIES = 10_000
@@ -60,13 +74,6 @@ private const val PAGE = 60
 
 /** 견본 DB와 사진 폴더 */
 private class Sample(val db: DiaryDatabase, val photoDir: File)
-
-/**
- * 목록 한 줄
- * 바뀌지 않는 값만 들어 있어 Compose가 같은 줄을 다시 그리지 않음
- */
-@Immutable
-private data class SampleRow(val id: String, val weekday: String, val day: String, val preview: String, val photos: List<String?>)
 
 @Composable
 internal fun ListPerformanceSample() {
@@ -93,39 +100,45 @@ internal fun ListPerformanceSample() {
 
 @Composable
 private fun SampleList(sample: Sample) {
-    val db = sample.db
+    var mode by remember { mutableStateOf(MODES.first()) }
+    val modes = remember { MutableStateFlow(mode) }
     val rows =
         remember(sample) {
-            Pager(PagingConfig(pageSize = PAGE, initialLoadSize = PAGE, prefetchDistance = PAGE / 2)) { db.entryDao().visibleEntries() }
-                .flow
-                .map { page ->
-                    page.map { entry ->
-                        val media = db.mediaDao().forEntry(entry.id)
-                        val date = LocalDate.parse(entry.date)
-                        SampleRow(
-                            id = entry.id,
-                            weekday = WEEKDAYS[date.dayOfWeek.ordinal],
-                            day = date.day.toString(),
-                            preview = entry.plainText,
-                            photos = media.map { m -> m.fileName?.let { sample.photoDir.resolve(it).path } }
-                        )
-                    }
-                }
+            DefaultEntryRepository(sample.db, sample.photoDir.path.toPath()).timeline(false, modes.map { it.second })
         }.collectAsLazyPagingItems()
-    LazyColumn(Modifier.fillMaxSize().testTag("perf-list")) {
-        items(count = rows.itemCount, key = rows.itemKey { it.id }) { index ->
-            val row = rows[index] ?: return@items
-            DiaryEntryRow(
-                weekday = row.weekday,
-                day = row.day,
-                preview = row.preview,
-                dividerAbove = index > 0,
-                photo = if (row.photos.isEmpty()) null else ({ DiaryPhotoCell(row.photos) }),
-                meta = {}
-            )
+    val colors = DiaryTheme.colors
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            for ((name, value) in MODES) {
+                BasicText(
+                    name,
+                    Modifier
+                        .background(if (mode.second == value) colors.selected else colors.sunken, RoundedCornerShape(8.dp))
+                        .clickable {
+                            mode = name to value
+                            modes.value = name to value
+                        }.padding(horizontal = 12.dp, vertical = 8.dp)
+                        .testTag("mode-$name"),
+                    style = DiaryTheme.typography.caption.copy(color = colors.textPrimary)
+                )
+            }
+        }
+        LazyColumn(Modifier.fillMaxSize().testTag("perf-list")) {
+            items(count = rows.itemCount, key = rows.itemKey { it.id }) { index ->
+                val row = rows[index] ?: return@items
+                DiaryEntryLine(row, showDate = true, dividerAbove = index > 0)
+            }
         }
     }
 }
+
+/** 3줄 / 전체 / 전체+서식 */
+private val MODES =
+    listOf(
+        "3줄" to PreviewMode(),
+        "전체" to PreviewMode(PreviewLength.FULL),
+        "전체+서식" to PreviewMode(PreviewLength.FULL, formatting = true)
+    )
 
 // 견본 자료라 한국어 요일만 둠
 // 실제 홈은 플랫폼 날짜 형식을 씀
@@ -133,10 +146,18 @@ private val WEEKDAYS = listOf("월", "화", "수", "목", "금", "토", "일")
 
 /** 견본 DB를 열고, 비었으면 일기 1만 편과 사진 5천 장(480px JPEG 80)을 만듦 */
 private suspend fun openSample(context: Context, progress: (Int) -> Unit): Sample {
-    val dir = context.noBackupFilesDir.resolve("perf-sample").apply { mkdirs() }
+    val dir = context.noBackupFilesDir.resolve("perf-sample-v3").apply { mkdirs() }
     val photos = dir.resolve("photos").apply { mkdirs() }
     val db = GlobalContext.get().get<DatabaseFactory>().createAt(dir.resolve("sample.db").path)
-    if (db.entryDao().countAll() >= ENTRIES) return Sample(db, photos)
+    if (db.entryDao().countAll() < ENTRIES) writeSample(db, photos, progress)
+    return Sample(db, photos)
+}
+
+/**
+ * 일기 1만 편과 사진 5천 장을 [db]와 [photos]에 넣음
+ * 개발자 모드가 실제 일기 DB에도 넣어 백업 파일로 실기기 측정에 옮김
+ */
+internal suspend fun writeSample(db: DiaryDatabase, photos: File, progress: (Int) -> Unit = {}) {
     val random = Random(7)
     val today = LocalDate(2026, 11, 4)
     val now = System.currentTimeMillis()
@@ -144,12 +165,13 @@ private suspend fun openSample(context: Context, progress: (Int) -> Unit): Sampl
     for (start in 0 until ENTRIES step chunk) {
         val entries = (start until start + chunk).map { i ->
             val date = today.minus(DatePeriod(days = i))
+            val body = sampleBody(i, random)
             EntryEntity(
                 id = "sample-$i",
                 date = date.toString(),
                 time = "%02d:%02d".format(random.nextInt(24), random.nextInt(60)),
-                bodyHtml = "",
-                plainText = SENTENCES.shuffled(random).take(2 + random.nextInt(4)).joinToString(" "),
+                bodyHtml = body.html,
+                plainText = body.plain,
                 mood = null,
                 weather = null,
                 placeName = null,
@@ -167,16 +189,19 @@ private suspend fun openSample(context: Context, progress: (Int) -> Unit): Sampl
         // 사진마다 다른 파일이라 메모리 캐시에 기대지 않음
         val media = entries.filterIndexed { k, _ -> (start + k) % 2 == 0 }.map { entry ->
             val n = entry.id.removePrefix("sample-").toInt() / 2
-            val name = "p$n.jpg"
-            val file = photos.resolve(name)
-            if (!file.exists()) writePhoto(file, random)
+            // 복원은 사진 이름이 지문과 같은지 봄. 실제 앱처럼 지문으로 이름 붙임
+            val drawn = photos.resolve("p$n.jpg").also { if (!it.exists()) writePhoto(it, random) }
+            val sha256 = FileSystem.SYSTEM.sha256Hex(drawn.path.toPath())
+            val file = photos.resolve("$sha256.jpg")
+            if (file.exists()) drawn.delete() else drawn.renameTo(file)
+            val name = file.name
             MediaEntity(
                 id = "m-$n",
                 entryId = entry.id,
                 sortOrder = 0,
                 status = MediaStatus.NORMAL.id,
                 fileName = name,
-                sha256 = null,
+                sha256 = sha256,
                 width = 480,
                 height = 360,
                 byteSize = file.length(),
@@ -187,9 +212,42 @@ private suspend fun openSample(context: Context, progress: (Int) -> Unit): Sampl
         db.mediaDao().insertAll(media)
         progress(start + chunk)
     }
-    check(db.mediaDao().count() == PHOTOS) { "견본 사진 수가 맞지 않음" }
-    return Sample(db, photos)
+    check(db.mediaDao().count() >= PHOTOS) { "견본 사진 수가 맞지 않음" }
 }
+
+private class SampleBody(val html: String, val plain: String)
+
+/**
+ * 줄마다 쓴 글. 20번째마다 5천 자 넘는 긴 일기
+ * 다섯 편 가운데 하나는 에디터 서식을 모두 씀: 굵게, 밑줄, 글자색, 형광펜, 체크리스트, 글머리표 목록
+ * 저장 형식처럼 빈 줄로 나뉜 덩어리는 `p`, 덩어리 안 줄은 `br`, 목록은 `ul`·`li`
+ */
+private fun sampleBody(index: Int, random: Random): SampleBody {
+    val count = if (index % LONG_EVERY == 0) LONG_SENTENCES else 2 + random.nextInt(5)
+    val lines = List(count) { SENTENCES[random.nextInt(SENTENCES.size)] }
+    val blocks = lines.chunked(3).map { block -> block.joinToString("<br>", "<p>", "</p>") }
+    if (index % FORMATTED_EVERY != 1) {
+        val html = blocks.joinToString("")
+        return SampleBody(html, toPlainText(html))
+    }
+    val pick = { SENTENCES[random.nextInt(SENTENCES.size)] }
+    val ink = INK[index % INK.size]
+    val mark = MARK[index % MARK.size]
+    val styled =
+        "<p><b>${pick()}</b><br><u>${pick()}</u><br><span style=\"color:$ink\">${pick()}</span>" +
+            "<br><span style=\"background-color:$mark\">${pick()}</span></p>"
+    val checklist = "<p>${Checklist.DONE} ${pick()}<br>${Checklist.OPEN} ${pick()}<br>${Checklist.OPEN} ${pick()}</p>"
+    val bullets = "<ul><li>${pick()}</li><li><b>${pick()}</b></li><li>${pick()}</li></ul>"
+    val html = (listOf(styled, checklist, bullets) + blocks).joinToString("")
+    return SampleBody(html, toPlainText(html))
+}
+
+private val INK = RichTextSanitizer.INK.toList()
+private val MARK = RichTextSanitizer.MARK.toList()
+
+private const val LONG_EVERY = 20
+private const val LONG_SENTENCES = 300
+private const val FORMATTED_EVERY = 5
 
 private fun writePhoto(file: File, random: Random) {
     val bitmap = Bitmap.createBitmap(480, 360, Bitmap.Config.ARGB_8888)
