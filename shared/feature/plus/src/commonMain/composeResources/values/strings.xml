@@ -38,8 +38,13 @@
     <string name="plus_manage_benefits">Your benefits</string>
     <string name="plus_manage_price">Price</string>
     <string name="plus_manage_store_body">See your next billing date or cancel.</string>
-    <string name="plus_checklist_title">Checklists</string>
+    <string name="plus_checklist_title">Add checklists to entries</string>
     <string name="plus_checklist_body">Add to-dos to your entries and check them off.</string>
     <string name="plus_terms">Terms of Use</string>
     <string name="plus_privacy">Privacy Policy</string>
+    <string name="plus_other_title">Other benefits</string>
+    <string name="plus_see_all">See all</string>
+    <string name="plus_all_title">Plus benefits</string>
+    <string name="plus_format_title">Keep formatting in the list</string>
+    <string name="plus_format_body">Bold, underline, text color, and highlights show too.</string>
 </resources>

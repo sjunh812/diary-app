@@ -60,7 +60,7 @@ class WriteKeyNavUiTest {
     fun another_write_on_the_stack_gets_its_own_screen_model() {
         val backStack = mutableStateListOf<NavKey>(HomeKey, WriteKey(entryId = "a"))
         write(backStack) {
-            backStack.add(PlusKey)
+            backStack.add(PlusKey())
             backStack.add(WriteKey(entryId = "b"))
         }
 
