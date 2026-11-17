@@ -65,6 +65,9 @@ data class ManifestSettings(
     val reminderMinuteOfDay: Int? = null,
     val listStyle: String? = null,
     val favoritesOnly: Boolean? = null,
+    /** 있어도 그만인 칸(스펙 008). 옛 앱은 무시하고, 없으면 복원 기기 값을 둠 */
+    val previewLength: String? = null,
+    val showListFormatting: Boolean? = null,
     val askLocationAgain: Boolean? = null,
     @SerialName("lockEnabled") val lockEnabled: Boolean = false
 )

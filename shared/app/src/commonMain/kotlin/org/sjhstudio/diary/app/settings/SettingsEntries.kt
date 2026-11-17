@@ -58,6 +58,8 @@ import org.sjhstudio.diary.core.model.RESTORE_FROM_FILE
 import org.sjhstudio.diary.core.platform.DevMenu
 import org.sjhstudio.diary.core.platform.deviceInfo
 import org.sjhstudio.diary.core.ui.LegalLinks
+import org.sjhstudio.diary.core.ui.diaryPreviewTextStyle
+import org.sjhstudio.diary.core.ui.rememberFileFontFamily
 import org.sjhstudio.diary.core.ui.rememberOpenLink
 import org.sjhstudio.diary.core.ui.rememberOpenWebLink
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
@@ -215,7 +217,19 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val state by viewModel.state.collectAsStateWithLifecycle()
         // 읽기 전의 기본값을 고른 것으로 보이지 않게 기다림
         if (!state.loaded) return@entry
-        ListStyleSettingsScreen(state.settings.list.listStyle, onSelect = viewModel::setListStyle, onBack = pop)
+        val look by viewModel.look.collectAsStateWithLifecycle()
+        val family = rememberFileFontFamily(look.fontPath)
+        ListStyleSettingsScreen(
+            list = state.settings.list,
+            canFormat = state.plan?.listFormatting == true,
+            previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
+            today = rememberToday(),
+            onStyle = viewModel::setListStyle,
+            onLength = viewModel::setPreviewLength,
+            onFormatting = viewModel::setShowListFormatting,
+            onPlus = { push(PlusKey) },
+            onBack = pop
+        )
     }
     entry<TextSizeSettingsKey>(metadata = SettingsDetailPane) {
         val viewModel = koinViewModel<SettingsViewModel>()

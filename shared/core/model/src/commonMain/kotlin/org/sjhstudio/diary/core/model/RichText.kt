@@ -120,6 +120,8 @@ fun parseRichText(html: String): RichText {
             i++
         }
     }
+    // 앞부분만 읽은 본문(목록 미리보기)은 닫는 태그가 없을 수 있어 열린 서식을 글 끝까지 이음
+    for (tag in open) for (style in tag.styles) if (out.length > tag.start) spans += RichSpan(tag.start, out.length, style)
     return RichText(out.toString(), spans.sortedBy { it.start })
 }
 

@@ -2,11 +2,13 @@ package org.sjhstudio.diary.core.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import org.koin.mp.KoinPlatform
 import org.sjhstudio.diary.core.data.ContextTips
@@ -40,6 +42,8 @@ fun ContextTipBar(tip: ContextTip, text: String, modifier: Modifier = Modifier, 
         tips.done(tip)
     }
     if (showing == true) {
+        // 보인 날에는 다른 팁을 띄우지 않음
+        LaunchedEffect(tip) { tips.shown(tip) }
         DiaryTip(
             text,
             stringResource(Res.string.tip_close),
@@ -52,4 +56,16 @@ fun ContextTipBar(tip: ContextTip, text: String, modifier: Modifier = Modifier, 
             }
         )
     }
+}
+
+/**
+ * 같은 자리 후보 가운데 지금 열린 첫 팁(스펙 008 FR-011)
+ * 한 자리에 팁을 여럿 두면 모두 그날 첫 팁으로 보여, 하나만 고른 뒤 그림
+ */
+@Composable
+fun rememberFirstOpenTip(candidates: List<ContextTip>, today: LocalDate = rememberToday()): ContextTip? {
+    val tips = remember { KoinPlatform.getKoinOrNull()?.getOrNull<ContextTips>() } ?: return null
+    // 팁이 열리거나(잘린 일기 세 번) 닫히면, 날이 바뀌면 다시 고름
+    val revision by tips.revision.collectAsState()
+    return remember(candidates, revision, today) { candidates.firstOrNull { tips.isOpen(it) == true } }
 }

@@ -9,11 +9,14 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.onDay
@@ -30,7 +33,10 @@ import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.MonthCount
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.PreviewLength
+import org.sjhstudio.diary.core.model.PreviewMode
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.model.richtext.PreviewText
 import org.sjhstudio.diary.core.model.richtext.toPlainText
 
 private const val PAGE = 60
@@ -61,10 +67,29 @@ class DefaultEntryRepository(
             jumpThreshold = JUMP_ROWS
         )
 
-    private val allPages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.visibleEntries()) { pageRows(it) } }
-    private val favoritePages = InvalidatingPagingSourceFactory { EntryRowPagingSource(entries.favoriteEntries()) { pageRows(it) } }
-
-    override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> = pages(if (favoritesOnly) favoritePages else allPages)
+    /**
+     * 미리보기 방식이 바뀌면 같은 Pager를 무효화해 보던 자리 근처에서 다시 읽음
+     * 새 Pager를 만들면 맨 위로 돌아감
+     */
+    override fun timeline(favoritesOnly: Boolean, modes: Flow<PreviewMode>): Flow<PagingData<EntryRow>> = channelFlow {
+        val mode = MutableStateFlow(modes.first())
+        val factory =
+            InvalidatingPagingSourceFactory {
+                EntryRowPagingSource(if (favoritesOnly) entries.favoriteEntries() else entries.visibleEntries()) {
+                    pageRows(it, mode = mode.value)
+                }
+            }
+        launch {
+            // 첫 값을 버리지 않고 지금 쓰는 값과 견줌. 첫 값을 읽은 뒤 다시 모으기 전에 바뀐 값도 놓치지 않음
+            modes.collect {
+                if (it != mode.value) {
+                    mode.value = it
+                    factory.invalidate()
+                }
+            }
+        }
+        pages(factory).collect { send(it) }
+    }
 
     /**
      * 자리 표시를 켜 다른 달로 바로 건너뛸 수 있게 함
@@ -83,10 +108,30 @@ class DefaultEntryRepository(
      * 쪽 하나를 한 번에 읽음
      * 줄마다 사진을 따로 읽으면 첫 화면이 일기 수만큼 늦어짐
      */
-    private suspend fun pageRows(page: List<EntryListRow>, query: String = ""): List<EntryRow> {
+    private suspend fun pageRows(page: List<EntryListRow>, query: String = "", mode: PreviewMode = PreviewMode.DEFAULT): List<EntryRow> {
         val marked = marks.markedIds().toSet()
-        val photos = media.forRows(page.map { it.id })
-        return page.map { it.toRow(photos[it.id].orEmpty(), mediaDir, query).copy(keptBoth = it.id in marked) }
+        val ids = page.map { it.id }
+        val photos = media.forRows(ids)
+        // 목록 쿼리가 읽지 않은 글은 쪽마다 한 번에 더 읽음. 3줄 서식 없음이면 읽지 않음
+        val htmls = if (mode.formatting) {
+            entries.previewTextsOf(ids) { chunk ->
+                previewHtmls(chunk, previewHtmlChars(mode.length))
+            }
+        } else {
+            emptyMap()
+        }
+        val texts =
+            if (!mode.formatting && mode.length == PreviewLength.FULL) {
+                entries.previewTextsOf(ids) { chunk -> previewTexts(chunk, PreviewText.FULL_CHARS) }
+            } else {
+                emptyMap()
+            }
+        return page.map {
+            it.toRow(photos[it.id].orEmpty(), mediaDir, query, mode, text = texts[it.id], html = htmls[it.id]).copy(
+                keptBoth =
+                    it.id in marked
+            )
+        }
     }
 
     override fun entry(id: String): Flow<EntryDetail?> = combine(

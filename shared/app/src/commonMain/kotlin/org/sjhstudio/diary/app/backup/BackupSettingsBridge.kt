@@ -6,6 +6,7 @@ import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -27,6 +28,8 @@ class BackupSettingsBridge(
             reminderMinuteOfDay = now.reminderMinuteOfDay,
             listStyle = now.list.listStyle.id,
             favoritesOnly = now.list.favoritesOnly,
+            previewLength = now.list.previewLength.id,
+            showListFormatting = now.list.showFormatting,
             askLocationAgain = now.askLocationAgain,
             lockEnabled = lockEnabled()
         )
@@ -37,7 +40,9 @@ class BackupSettingsBridge(
         DiaryFont.fromId(backup.font)?.let { settings.setFont(it) }
         BodyTextSize.fromId(backup.bodyTextSize)?.let { settings.setBodyTextSize(it) }
         ThemeMode.fromId(backup.themeMode)?.let { settings.setThemeMode(it) }
-        backup.listStyle?.let { settings.setListStyle(ListStyle.fromId(it)) }
+        ListStyle.idOrNull(backup.listStyle)?.let { settings.setListStyle(it) }
+        PreviewLength.idOrNull(backup.previewLength)?.let { settings.setPreviewLength(it) }
+        backup.showListFormatting?.let { settings.setShowListFormatting(it) }
         backup.askLocationAgain?.let { settings.setAskLocationAgain(it) }
         val minute = backup.reminderMinuteOfDay
         val enabled = backup.reminderEnabled

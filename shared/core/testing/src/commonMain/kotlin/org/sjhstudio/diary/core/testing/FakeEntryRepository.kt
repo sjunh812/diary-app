@@ -12,6 +12,7 @@ import org.sjhstudio.diary.core.model.DayMood
 import org.sjhstudio.diary.core.model.EntryDetail
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MonthCount
+import org.sjhstudio.diary.core.model.PreviewMode
 import org.sjhstudio.diary.core.model.SearchFilter
 
 private const val NOON = 12
@@ -37,7 +38,7 @@ fun fakeEntryRow(id: String, date: LocalDate, preview: String = "글 $id", isFav
  */
 class FakeEntryRepository(private val moods: Map<LocalDate, DayMood> = emptyMap(), private val rows: List<EntryRow> = emptyList()) :
     EntryRepository {
-    override fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>> =
+    override fun timeline(favoritesOnly: Boolean, modes: Flow<PreviewMode>): Flow<PagingData<EntryRow>> =
         flowOf(if (favoritesOnly || rows.isEmpty()) PagingData.empty() else PagingData.from(rows))
 
     override fun entry(id: String): Flow<EntryDetail?> = flowOf(null)

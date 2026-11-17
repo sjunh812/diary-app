@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.data.diary
 import androidx.paging.PagingData
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
@@ -19,6 +20,7 @@ import org.sjhstudio.diary.core.model.MonthCount
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodCounts
 import org.sjhstudio.diary.core.model.PickedImage
+import org.sjhstudio.diary.core.model.PreviewMode
 import org.sjhstudio.diary.core.model.SearchFilter
 import org.sjhstudio.diary.core.model.StatsPeriod
 import org.sjhstudio.diary.core.model.TrashedEntry
@@ -28,7 +30,8 @@ import org.sjhstudio.diary.core.model.TrashedEntry
 // 휴지통 일기는 TrashRepository 말고는 어디서도 돌려주지 않음
 
 interface EntryRepository {
-    fun timeline(favoritesOnly: Boolean): Flow<PagingData<EntryRow>>
+    /** [modes]는 미리보기 방식. 바뀌면 보던 자리 근처에서 다시 읽음(스펙 008) */
+    fun timeline(favoritesOnly: Boolean, modes: Flow<PreviewMode> = flowOf(PreviewMode.DEFAULT)): Flow<PagingData<EntryRow>>
 
     fun entry(id: String): Flow<EntryDetail?>
 

@@ -40,11 +40,14 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.model.ListPreferences
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.list_value
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_blocked
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
@@ -207,7 +210,7 @@ fun SettingsScreen(
                 stringResource(Res.string.settings_list_style),
                 onClick = onListStyle,
                 selected = selected == SettingsPane.LIST_STYLE,
-                value = if (state.loaded) stringResource(state.settings.list.listStyle.label()) else null
+                value = if (state.loaded) listValue(state.settings.list) else null
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_notification_security), gapAbove = true)
             val reminderValue =
@@ -255,5 +258,18 @@ fun SettingsScreen(
             }
             onDevMode?.let { DiarySettingsRow(stringResource(Res.string.settings_dev_mode), onClick = it) }
         }
+    }
+}
+
+/** "피드 · 전체". 사진 격자는 길이와 상관없어 모양만(스펙 008 FR-006) */
+@Composable
+private fun listValue(list: ListPreferences): String {
+    val style = stringResource(list.listStyle.label())
+    return if (list.listStyle ==
+        ListStyle.PHOTO_GRID
+    ) {
+        style
+    } else {
+        stringResource(Res.string.list_value, style, stringResource(list.previewLength.label()))
     }
 }

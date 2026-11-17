@@ -17,6 +17,7 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.platform.AnalyticsEvents
@@ -99,6 +100,14 @@ class SettingsViewModel(
     fun setBodyTextSize(size: BodyTextSize) {
         viewModelScope.launchWrite { settings.setBodyTextSize(size) }
         changed("text_size", size.id)
+    }
+
+    fun setPreviewLength(length: PreviewLength) {
+        viewModelScope.launchWrite { settings.setPreviewLength(length) }
+    }
+
+    fun setShowListFormatting(show: Boolean) {
+        viewModelScope.launchWrite { settings.setShowListFormatting(show) }
     }
 
     fun setListStyle(style: ListStyle) {

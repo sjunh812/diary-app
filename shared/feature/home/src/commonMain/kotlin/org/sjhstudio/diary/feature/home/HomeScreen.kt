@@ -71,6 +71,7 @@ import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.MonthCount
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.monthAt
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
@@ -91,6 +92,7 @@ import org.sjhstudio.diary.core.ui.loadMoreFailed
 import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberFirstOpenTip
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
@@ -101,6 +103,10 @@ import org.sjhstudio.diary.feature.home.resources.home_favorites_only
 import org.sjhstudio.diary.feature.home.resources.home_favorites_show_all
 import org.sjhstudio.diary.feature.home.resources.home_month_sheet_title
 import org.sjhstudio.diary.feature.home.resources.home_search
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview_action
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview_kept
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview_kept_action
 import org.sjhstudio.diary.feature.home.resources.tip_home_list_style
 import org.sjhstudio.diary.feature.home.resources.tip_home_list_style_action
 
@@ -135,6 +141,7 @@ fun HomeRoute(
     val monthCounts = if (favoritesOnly) favoriteMonths else allMonths
     val look by viewModel.look.collectAsStateWithLifecycle()
     val style by viewModel.style.collectAsStateWithLifecycle()
+    val previewLength by viewModel.previewLength.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
     val grid = rememberLazyGridState()
@@ -180,6 +187,7 @@ fun HomeRoute(
         onToggleFavorites = viewModel::toggleFavoritesOnly,
         onPickMonth = { picking = true },
         onOpen = onOpen,
+        onOpenClippedRow = viewModel::clippedOpened,
         onMenu = { menuFor = it },
         onWrite = onWrite,
         onSearch = onSearch,
@@ -189,15 +197,18 @@ fun HomeRoute(
         header = header,
         listTop = {
             listTop()
-            // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
-            // 백업 안내가 떠 있으면 앱이 null을 넘겨 목록 위 안내가 겹치지 않음
-            if (onListStyle != null && style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) {
-                ContextTipBar(
-                    ContextTip.HOME_LIST_STYLE,
-                    stringResource(Res.string.tip_home_list_style),
-                    Modifier.padding(top = DiarySpacing.x2, bottom = DiarySpacing.x3),
-                    action = stringResource(Res.string.tip_home_list_style_action),
-                    onAction = onListStyle
+            // 백업 안내가 떠 있으면 앱이 onListStyle에 null을 넘겨 목록 위 안내가 겹치지 않음
+            if (onListStyle != null) {
+                HomeTip(
+                    candidates =
+                        buildList {
+                            add(ContextTip.HOME_FULL_PREVIEW_KEPT)
+                            if (previewLength == PreviewLength.THREE_LINES) add(ContextTip.HOME_FULL_PREVIEW)
+                            // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
+                            if (style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) add(ContextTip.HOME_LIST_STYLE)
+                        },
+                    onListStyle = onListStyle,
+                    onLength = viewModel::setPreviewLength
                 )
             }
         },
@@ -262,6 +273,7 @@ internal fun HomeScreen(
     onWrite: () -> Unit,
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenClippedRow: () -> Unit = {},
     backupLine: @Composable () -> Unit = {},
     backupAlert: @Composable () -> Unit = {},
     header: DiaryCollapsingHeaderState = rememberDiaryCollapsingHeaderState(),
@@ -307,8 +319,24 @@ internal fun HomeScreen(
                     rows.itemCount > 0 -> {
                         val dates = rememberDiaryDateFormat()
                         when (style) {
-                            ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                            ListStyle.CARD -> CardList(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                            ListStyle.FEED ->
+                                Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot, onOpenClippedRow)
+
+                            ListStyle.CARD ->
+                                CardList(
+                                    rows,
+                                    list,
+                                    selectedId,
+                                    today,
+                                    previewStyle,
+                                    dates,
+                                    onOpen,
+                                    onMenu,
+                                    listTop,
+                                    adSlot,
+                                    onOpenClippedRow
+                                )
+
                             ListStyle.PHOTO_GRID -> PhotoGrid(rows, grid, selectedId, today, dates, onOpen, onMenu, listTop)
                         }
                     }
@@ -395,7 +423,8 @@ private fun Feed(
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
     listTop: @Composable () -> Unit,
-    adSlot: @Composable (Int, Modifier) -> Unit
+    adSlot: @Composable (Int, Modifier) -> Unit,
+    onOpenClippedRow: () -> Unit
 ) {
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
@@ -415,11 +444,14 @@ private fun Feed(
                     DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                 }
                 val interaction = remember { MutableInteractionSource() }
+                // 글을 그려 봐야 잘렸는지 앎. 그리는 데만 쓰여 다시 그리지 않음
+                val clipped = remember(row.id) { ClippedFlag() }
                 DiaryEntryLine(
                     row = row,
                     showDate = newDay,
                     dividerAbove = index > 0 && !newMonth,
                     previewStyle = previewStyle,
+                    onPreviewLayout = { clipped.value = it.hasVisualOverflow },
                     modifier =
                         Modifier
                             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
@@ -429,7 +461,10 @@ private fun Feed(
                                 indication = null,
                                 role = Role.Button,
                                 onLongClick = { onMenu(row.id) },
-                                onClick = { onOpen(row.id) }
+                                onClick = {
+                                    if (row.previewCut || clipped.value) onOpenClippedRow()
+                                    onOpen(row.id)
+                                }
                             )
                 )
                 // 광고 없는 사람에게 빈 틈이 남지 않게 여백은 광고에만
@@ -475,3 +510,45 @@ private const val AD_EVERY = 10
 
 /** 탭을 다시 눌렀을 때 이보다 아래면 이 줄(첫 일기)까지 바로 옮긴 뒤 부드럽게 올림 */
 private const val RESELECT_JUMP = LIST_TOP_ITEMS
+
+/** 줄의 미리보기가 잘렸는지. 누를 때만 읽어 상태로 두지 않음 */
+internal class ClippedFlag(var value: Boolean = false)
+
+/**
+ * 목록 위 팁 자리. 열린 첫 팁 하나만(스펙 008 FR-011)
+ * 옛 설정 이음 > 전체 보기 > 목록 보기 순서
+ */
+@Composable
+private fun HomeTip(candidates: List<ContextTip>, onListStyle: () -> Unit, onLength: (PreviewLength) -> Unit) {
+    val modifier = Modifier.padding(top = DiarySpacing.x2, bottom = DiarySpacing.x3)
+    when (val tip = rememberFirstOpenTip(candidates)) {
+        ContextTip.HOME_FULL_PREVIEW_KEPT ->
+            ContextTipBar(
+                tip,
+                stringResource(Res.string.tip_home_full_preview_kept),
+                modifier,
+                action = stringResource(Res.string.tip_home_full_preview_kept_action),
+                onAction = { onLength(PreviewLength.THREE_LINES) }
+            )
+
+        ContextTip.HOME_FULL_PREVIEW ->
+            ContextTipBar(
+                tip,
+                stringResource(Res.string.tip_home_full_preview),
+                modifier,
+                action = stringResource(Res.string.tip_home_full_preview_action),
+                onAction = { onLength(PreviewLength.FULL) }
+            )
+
+        ContextTip.HOME_LIST_STYLE ->
+            ContextTipBar(
+                tip,
+                stringResource(Res.string.tip_home_list_style),
+                modifier,
+                action = stringResource(Res.string.tip_home_list_style_action),
+                onAction = onListStyle
+            )
+
+        else -> Unit
+    }
+}
