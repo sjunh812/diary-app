@@ -57,13 +57,15 @@ class EntryPreviewModeTest {
         val long = (1..60).joinToString("\n") { "줄 $it 은 꽤 길게 쓴 일정입니다" }
         db.seed(entry("a", text = long))
         val listed = listRow("a")
-        val more = db.entryDao().previewTextsOf(listOf("a")) { previewTexts(it, PreviewText.FULL_CHARS) }
+        val more = db.entryDao().previewTextsOf(listOf("a")) { previewTexts(it, PreviewText.UNLIMITED) }
 
         val row = listed.toRow(emptyList(), MEDIA_DIR, mode = PreviewMode(PreviewLength.FULL), text = more["a"])
 
         assertTrue(listed.plainText.length < more.getValue("a").length)
-        assertEquals(PreviewText.FULL_LINES, row.previewLines)
-        assertTrue(row.preview.length > listed.plainText.length)
+        assertEquals(PreviewText.UNLIMITED, row.previewLines)
+        // 전체는 끝까지 읽고 줄임표 없이 보임
+        assertEquals(long.length, row.preview.length)
+        assertTrue(!row.previewCut)
     }
 
     @Test

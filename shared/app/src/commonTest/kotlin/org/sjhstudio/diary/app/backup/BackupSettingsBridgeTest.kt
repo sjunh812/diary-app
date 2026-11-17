@@ -82,4 +82,16 @@ class BackupSettingsBridgeTest {
         assertEquals(PreviewLength.FULL, to.settings.value.list.previewLength)
         assertEquals(true, to.settings.value.list.showFormatting)
     }
+
+    @Test
+    fun five_lines_round_trip() = runTest {
+        val from = FakeSettingsRepository(AppSettings(list = ListPreferences(previewLength = PreviewLength.FIVE_LINES)))
+        val to = FakeSettingsRepository()
+
+        BackupSettingsBridge(to, lockEnabled = {
+            false
+        }, reschedule = {}).apply(BackupSettingsBridge(from, lockEnabled = { false }, reschedule = {}).current())
+
+        assertEquals(PreviewLength.FIVE_LINES, to.settings.value.list.previewLength)
+    }
 }

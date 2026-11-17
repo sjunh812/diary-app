@@ -78,7 +78,7 @@ class HomeViewModel(
 
     /** 3줄에서 잘린 일기를 상세로 엶. 전체 보기면 셀 까닭이 없음 */
     fun clippedOpened() {
-        if (previewLength.value == PreviewLength.THREE_LINES) tips.clippedOpened()
+        if (previewLength.value != PreviewLength.FULL) tips.clippedOpened()
     }
 
     /**

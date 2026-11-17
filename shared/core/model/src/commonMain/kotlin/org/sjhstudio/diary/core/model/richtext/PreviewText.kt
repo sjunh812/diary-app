@@ -6,24 +6,34 @@ import org.sjhstudio.diary.core.model.RichText
 
 /**
  * 목록 미리보기 글 만들기(스펙 008 contracts/preview-text.md)
- * 쓴 줄바꿈은 지키고, 빈 줄은 3줄에서 없애고 전체에서는 연달아 있으면 하나로 줄임
+ * 쓴 줄바꿈은 지키고, 빈 줄은 3줄·5줄에서 없애고 전체에서는 연달아 있으면 하나로 줄임
+ * 전체는 끝까지 보임. 줄도 글자도 자르지 않음
  * 서식 구간은 지운 글자만큼 옮김
  */
 object PreviewText {
     const val THREE_LINES = 3
-
-    /** 전체 보기 상한. 측정으로 정하기 전 출발점(research R4) */
-    const val FULL_LINES = 8
+    const val FIVE_LINES = 5
 
     /** 3줄 미리보기 글자 수. 넓은 화면 세 줄을 채우는 양 */
     const val THREE_LINES_CHARS = 240
 
-    /** 전체 보기에서 읽는 글자 수. 넓은 화면에서 상한 줄을 채우는 양 */
-    const val FULL_CHARS = 1600
+    /** 5줄 미리보기 글자 수. 넓은 화면 다섯 줄을 채우는 양 */
+    const val FIVE_LINES_CHARS = 400
 
-    fun lines(length: PreviewLength): Int = if (length == PreviewLength.FULL) FULL_LINES else THREE_LINES
+    /** 전체는 자르지 않음 */
+    const val UNLIMITED = Int.MAX_VALUE
 
-    fun chars(length: PreviewLength): Int = if (length == PreviewLength.FULL) FULL_CHARS else THREE_LINES_CHARS
+    fun lines(length: PreviewLength): Int = when (length) {
+        PreviewLength.THREE_LINES -> THREE_LINES
+        PreviewLength.FIVE_LINES -> FIVE_LINES
+        PreviewLength.FULL -> UNLIMITED
+    }
+
+    fun chars(length: PreviewLength): Int = when (length) {
+        PreviewLength.THREE_LINES -> THREE_LINES_CHARS
+        PreviewLength.FIVE_LINES -> FIVE_LINES_CHARS
+        PreviewLength.FULL -> UNLIMITED
+    }
 
     /** 잘렸을 때 글 끝에 붙임. 줄 상한 안에 다 들어가는 넓은 화면에서도 더 있다는 것이 보이게 */
     const val ELLIPSIS = "\u2026"
@@ -68,7 +78,7 @@ object PreviewText {
         val kept = ArrayList<List<Int>>()
         var lastBlank = true
         for ((indices, blank) in lines) {
-            // 3줄은 빈 줄을 모두 빼고, 전체는 연달은 빈 줄 가운데 첫 줄만 남김
+            // 3줄·5줄은 빈 줄을 모두 빼고, 전체는 연달은 빈 줄 가운데 첫 줄만 남김
             if (!blank || (length == PreviewLength.FULL && !lastBlank)) {
                 kept += indices
                 lastBlank = blank

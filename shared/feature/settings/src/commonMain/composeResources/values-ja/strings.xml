@@ -125,6 +125,7 @@
     <string name="list_group_style">種類</string>
     <string name="list_group_length">本文の長さ</string>
     <string name="list_length_three">3行</string>
+    <string name="list_length_five">5行</string>
     <string name="list_length_full">全文</string>
     <string name="list_formatting">書式をそのまま表示</string>
     <string name="list_formatting_body">太字、下線、文字色、マーカーが一覧にも表示されます。</string>
@@ -136,8 +137,6 @@
     <string name="list_value">%1$s · %2$s</string>
     <string name="list_sample_body">09:00 病院の予約\n11:00 銀行に寄る\n14:00 チーム会議\n16:30 荷物を送る\n18:00 買い物</string>
     <string name="list_sample_place">自宅</string>
-    <string name="list_sample_grid_second">久しぶりに川沿いを歩いた。</string>
-    <string name="list_sample_grid_third">雨だったので家で本を読んだ。</string>
     <string name="settings_letter">開発者からの手紙</string>
     <string name="settings_plus_title">広告なしで、もっと快適に使えます</string>
     <string name="settings_plus_title_ad_free">Plusでもっと便利に</string>

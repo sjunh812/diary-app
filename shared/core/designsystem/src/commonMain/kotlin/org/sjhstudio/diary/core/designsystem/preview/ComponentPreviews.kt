@@ -30,6 +30,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryIconButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryInviteCard
 import org.sjhstudio.diary.core.designsystem.component.DiaryLoadingDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
+import org.sjhstudio.diary.core.designsystem.component.DiarySheetChoiceRow
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -229,3 +230,18 @@ private fun DateSlotsLight() = PreviewCanvas(dark = false) { DateSlotStates() }
 @Preview(name = "기간 두 칸 · 다크", locale = "ko", widthDp = 360)
 @Composable
 private fun DateSlotsDark() = PreviewCanvas(dark = true) { DateSlotStates() }
+
+@Composable
+private fun SheetChoiceRows() = Column {
+    DiarySheetChoiceRow("3줄", selected = false, onClick = {})
+    DiarySheetChoiceRow("5줄", selected = true, onClick = {})
+    DiarySheetChoiceRow("직접 선택", selected = false, onClick = {}, description = "11월 3일 ~ 11월 9일")
+}
+
+@Preview(name = "시트 고르기 줄 · 라이트", locale = "ko", widthDp = 360)
+@Composable
+private fun SheetChoiceRowsLight() = PreviewCanvas(dark = false) { SheetChoiceRows() }
+
+@Preview(name = "시트 고르기 줄 · 다크", locale = "ko", widthDp = 360)
+@Composable
+private fun SheetChoiceRowsDark() = PreviewCanvas(dark = true) { SheetChoiceRows() }

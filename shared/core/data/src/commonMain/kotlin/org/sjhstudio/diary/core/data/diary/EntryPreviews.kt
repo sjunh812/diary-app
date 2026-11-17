@@ -15,20 +15,24 @@ private const val PREVIEW_CHARS = PreviewText.THREE_LINES_CHARS
  * 태그가 글보다 길어 미리보기 글자 수보다 넉넉히 읽음
  */
 internal const val THREE_LINES_HTML_CHARS = 4000
-internal const val FULL_HTML_CHARS = 12000
+internal const val FIVE_LINES_HTML_CHARS = 6000
 
 /** 찾은 글자가 뒤에 있을 때 앞에 남기는 글자 */
 private const val PREVIEW_LEAD = 12
 
-/** 미리보기를 만들 때 다듬는 앞부분 길이. 3줄은 목록 쿼리와 같음 */
+/** 미리보기를 만들 때 다듬는 앞부분 길이. 3줄·5줄은 목록 쿼리와 같고 전체는 끝까지 */
 internal fun previewInputChars(length: PreviewLength): Int =
-    if (length == PreviewLength.FULL) PreviewText.FULL_CHARS else EntryDao.LIST_TEXT_CHARS
+    if (length == PreviewLength.FULL) PreviewText.UNLIMITED else EntryDao.LIST_TEXT_CHARS
 
 /** 이모지를 반으로 자르지 않는 앞부분 */
 internal fun String.safePrefix(count: Int): String = if (length <= count) this else safeTake(count)
 
 /** 서식 보기에서 읽는 본문 HTML 길이 */
-internal fun previewHtmlChars(length: PreviewLength): Int = if (length == PreviewLength.FULL) FULL_HTML_CHARS else THREE_LINES_HTML_CHARS
+internal fun previewHtmlChars(length: PreviewLength): Int = when (length) {
+    PreviewLength.THREE_LINES -> THREE_LINES_HTML_CHARS
+    PreviewLength.FIVE_LINES -> FIVE_LINES_HTML_CHARS
+    PreviewLength.FULL -> PreviewText.UNLIMITED
+}
 
 /** 앞부분만 읽어 끝에 잘린 태그(`<…`)나 문자 참조(`&am`)가 남으면 버림 */
 internal fun String.withoutCutTag(): String {

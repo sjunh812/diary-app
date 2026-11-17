@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.ListPreferences
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
@@ -57,8 +58,12 @@ class HomeTipsUiTest {
     @AfterTest
     fun tearDown() = stopKoin()
 
-    private fun ComposeUiTest.home(open: Set<ContextTip>, length: PreviewLength): FakeSettingsRepository {
-        val settings = FakeSettingsRepository(AppSettings(list = ListPreferences(previewLength = length)))
+    private fun ComposeUiTest.home(
+        open: Set<ContextTip>,
+        length: PreviewLength,
+        style: ListStyle = ListStyle.FEED
+    ): FakeSettingsRepository {
+        val settings = FakeSettingsRepository(AppSettings(list = ListPreferences(listStyle = style, previewLength = length)))
         val tips = FakeContextTips(open)
         val rows = List(6) { fakeEntryRow("e$it", LocalDate(2026, 11, 10 - it), "일기 $it", false) }
         startKoin {
@@ -103,5 +108,13 @@ class HomeTipsUiTest {
         home(setOf(ContextTip.HOME_FULL_PREVIEW), PreviewLength.FULL)
 
         onAllNodes(hasText(text(Res.string.tip_home_full_preview))).assertCountEquals(0)
+    }
+
+    @Test
+    fun photo_grid_shows_no_length_tip() = runComposeUiTest {
+        home(setOf(ContextTip.HOME_FULL_PREVIEW, ContextTip.HOME_FULL_PREVIEW_KEPT), PreviewLength.THREE_LINES, ListStyle.PHOTO_GRID)
+
+        onAllNodes(hasText(text(Res.string.tip_home_full_preview))).assertCountEquals(0)
+        onAllNodes(hasText(text(Res.string.tip_home_full_preview_kept))).assertCountEquals(0)
     }
 }

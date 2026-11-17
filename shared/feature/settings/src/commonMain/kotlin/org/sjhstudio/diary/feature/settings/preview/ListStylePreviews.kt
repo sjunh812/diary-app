@@ -9,7 +9,7 @@ import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.feature.settings.ListStyleSettingsScreen
 
-// 목록 보기(스펙 008) 프리뷰. 피드 3줄, 카드 전체, Plus 서식, 사진 격자
+// 목록 보기(스펙 008) 프리뷰. 피드 3줄·5줄, 카드 전체, Plus 서식, 사진 격자
 
 @Composable
 private fun ListStyleSample(list: ListPreferences, canFormat: Boolean = false, dark: Boolean = false) = DiaryTheme(darkTheme = dark) {
@@ -34,6 +34,10 @@ private fun FeedThreeLight() = ListStyleSample(ListPreferences())
 @Composable
 private fun FeedThreeDark() = ListStyleSample(ListPreferences(), dark = true)
 
+@Preview(name = "목록 보기 · 피드 5줄 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun FeedFiveLight() = ListStyleSample(ListPreferences(previewLength = PreviewLength.FIVE_LINES))
+
 @Preview(name = "목록 보기 · 카드 전체 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun CardFullLight() = ListStyleSample(ListPreferences(listStyle = ListStyle.CARD, previewLength = PreviewLength.FULL))
@@ -49,3 +53,7 @@ private fun FormattingDark() = ListStyleSample(ListPreferences(showFormatting = 
 @Preview(name = "목록 보기 · 사진 격자 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable
 private fun GridLight() = ListStyleSample(ListPreferences(listStyle = ListStyle.PHOTO_GRID))
+
+@Preview(name = "목록 보기 · 사진 격자 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun GridDark() = ListStyleSample(ListPreferences(listStyle = ListStyle.PHOTO_GRID), dark = true)

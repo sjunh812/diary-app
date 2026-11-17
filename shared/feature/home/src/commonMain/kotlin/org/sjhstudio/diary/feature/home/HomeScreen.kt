@@ -202,8 +202,11 @@ fun HomeRoute(
                 HomeTip(
                     candidates =
                         buildList {
-                            add(ContextTip.HOME_FULL_PREVIEW_KEPT)
-                            if (previewLength == PreviewLength.THREE_LINES) add(ContextTip.HOME_FULL_PREVIEW)
+                            // 사진 격자는 본문 길이를 따르지 않음
+                            if (style != ListStyle.PHOTO_GRID) {
+                                add(ContextTip.HOME_FULL_PREVIEW_KEPT)
+                                if (previewLength != null && previewLength != PreviewLength.FULL) add(ContextTip.HOME_FULL_PREVIEW)
+                            }
                             // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
                             if (style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) add(ContextTip.HOME_LIST_STYLE)
                         },

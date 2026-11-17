@@ -18,6 +18,7 @@ enum class ListStyle(val id: String) {
 /** 목록 미리보기 길이(스펙 008). 저장 값은 [id] */
 enum class PreviewLength(val id: String) {
     THREE_LINES("three"),
+    FIVE_LINES("five"),
     FULL("full")
     ;
 

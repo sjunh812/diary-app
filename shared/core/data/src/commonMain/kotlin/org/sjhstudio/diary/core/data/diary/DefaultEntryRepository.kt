@@ -122,7 +122,7 @@ class DefaultEntryRepository(
         }
         val texts =
             if (!mode.formatting && mode.length == PreviewLength.FULL) {
-                entries.previewTextsOf(ids) { chunk -> previewTexts(chunk, PreviewText.FULL_CHARS) }
+                entries.previewTextsOf(ids) { chunk -> previewTexts(chunk, PreviewText.UNLIMITED) }
             } else {
                 emptyMap()
             }

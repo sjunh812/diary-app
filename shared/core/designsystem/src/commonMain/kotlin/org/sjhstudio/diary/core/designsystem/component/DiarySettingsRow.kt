@@ -17,6 +17,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -267,5 +268,28 @@ private fun RowFrame(
             }
         }
         trailing()
+    }
+}
+
+/**
+ * 시트 안 고르기 목록 줄(`docs/design.md` 고르기 목록)
+ * 글은 시트 안쪽 선에 맞추고 누름 면만 양옆으로 12 나옴
+ */
+@Composable
+fun DiarySheetChoiceRow(title: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, description: String? = null) {
+    CompositionLocalProvider(LocalScreenGutter provides DiarySpacing.x3) {
+        DiarySettingsChoiceRow(
+            title = title,
+            selected = selected,
+            onClick = onClick,
+            description = description,
+            modifier =
+                modifier.layout { measurable, constraints ->
+                    val outset = DiarySpacing.x3.roundToPx()
+                    val width = constraints.maxWidth + outset * 2
+                    val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+                    layout(constraints.maxWidth, placeable.height) { placeable.place(-outset, 0) }
+                }
+        )
     }
 }

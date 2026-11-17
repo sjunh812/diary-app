@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.model.richtext
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import org.sjhstudio.diary.core.model.PreviewLength.FIVE_LINES
 import org.sjhstudio.diary.core.model.PreviewLength.FULL
 import org.sjhstudio.diary.core.model.PreviewLength.THREE_LINES
 import org.sjhstudio.diary.core.model.RichSpan
@@ -52,7 +53,24 @@ class PreviewTextTest {
         val long = "가".repeat(PreviewText.THREE_LINES_CHARS - 1) + "😀"
         val shaped = PreviewText.shape(long, THREE_LINES)
         assertEquals("가".repeat(PreviewText.THREE_LINES_CHARS - 1) + PreviewText.ELLIPSIS, shaped)
-        assertEquals(PreviewText.FULL_CHARS + 1, PreviewText.shape("가".repeat(PreviewText.FULL_CHARS + 10), FULL).length)
+        assertEquals(PreviewText.FIVE_LINES_CHARS + 1, PreviewText.shape("가".repeat(PreviewText.FIVE_LINES_CHARS + 10), FIVE_LINES).length)
+    }
+
+    /** 전체는 끝까지. 아주 긴 일기도 자르지 않고 줄임표도 없음 */
+    @Test
+    fun fullShowsEverything() {
+        val long = (1..400).joinToString("\n") { "줄 $it 일정" } + "가".repeat(20_000)
+        val shaped = PreviewText.shape(RichText(long, emptyList()), FULL)
+        assertEquals(long, shaped.text)
+        kotlin.test.assertFalse(shaped.cut)
+        assertEquals(PreviewText.UNLIMITED, PreviewText.lines(FULL))
+    }
+
+    /** 5줄은 3줄처럼 빈 줄을 없앰 */
+    @Test
+    fun fiveLinesDropsBlankLines() {
+        assertEquals("a\nb", PreviewText.shape("a\n\n\nb", FIVE_LINES))
+        assertEquals(5, PreviewText.lines(FIVE_LINES))
     }
 
     /** 앞부분만 읽은 원문은 다 보여도 더 있다고 알림 */

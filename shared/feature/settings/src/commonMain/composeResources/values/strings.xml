@@ -131,6 +131,7 @@
     <string name="list_group_style">Layout</string>
     <string name="list_group_length">Text length</string>
     <string name="list_length_three">3 lines</string>
+    <string name="list_length_five">5 lines</string>
     <string name="list_length_full">Full</string>
     <string name="list_formatting">Keep formatting</string>
     <string name="list_formatting_body">Bold, underline, text color, and highlights show in the list too.</string>
@@ -142,8 +143,6 @@
     <string name="list_value">%1$s · %2$s</string>
     <string name="list_sample_body">09:00 Hospital visit\n11:00 Stop by the bank\n14:00 Team meeting\n16:30 Send a parcel\n18:00 Groceries</string>
     <string name="list_sample_place">Home</string>
-    <string name="list_sample_grid_second">Took a long walk along the river.</string>
-    <string name="list_sample_grid_third">Read a book at home on a rainy day.</string>
     <string name="settings_letter">A letter from the developer</string>
     <string name="settings_plus_title">Easier, no ads</string>
     <string name="settings_plus_title_ad_free">Make it easier with Plus</string>

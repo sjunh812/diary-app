@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.feature.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,10 +23,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
@@ -33,7 +37,9 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
+import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
+import org.sjhstudio.diary.core.designsystem.component.DiarySheetChoiceRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryTopBar
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
@@ -65,8 +71,8 @@ import org.sjhstudio.diary.feature.settings.resources.list_group_style
 import org.sjhstudio.diary.feature.settings.resources.list_plus_action
 import org.sjhstudio.diary.feature.settings.resources.list_plus_later
 import org.sjhstudio.diary.feature.settings.resources.list_sample_body
-import org.sjhstudio.diary.feature.settings.resources.list_sample_grid_second
-import org.sjhstudio.diary.feature.settings.resources.list_sample_grid_third
+import org.sjhstudio.diary.feature.settings.resources.list_sample_photo_mountain
+import org.sjhstudio.diary.feature.settings.resources.list_sample_photo_sea
 import org.sjhstudio.diary.feature.settings.resources.list_sample_place
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 
@@ -89,6 +95,7 @@ fun ListStyleSettingsScreen(
     modifier: Modifier = Modifier
 ) {
     var askPlus by rememberSaveable { mutableStateOf(false) }
+    var lengthSheet by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier.fillMaxSize().background(DiaryTheme.colors.canvas).systemBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -109,12 +116,13 @@ fun ListStyleSettingsScreen(
             }
             // 사진 격자는 글을 칸 크기만큼만 보여 길이와 서식이 상관없음
             if (list.listStyle != ListStyle.PHOTO_GRID) {
-                DiarySettingsHeader(stringResource(Res.string.list_group_length), gapAbove = true)
-                for (length in PreviewLength.entries) {
-                    DiarySettingsChoiceRow(stringResource(length.label()), selected = list.previewLength == length, onClick = {
-                        onLength(length)
-                    })
-                }
+                // 종류(고르기 줄)와 꼴을 달리해 묶음을 나눔. 고르는 꼴은 시트에서도 체크
+                DiarySettingsRow(
+                    stringResource(Res.string.list_group_length),
+                    onClick = { lengthSheet = true },
+                    modifier = Modifier.padding(top = DiarySpacing.x4),
+                    value = stringResource(list.previewLength.label())
+                )
                 DiarySettingsSwitchRow(
                     stringResource(Res.string.list_formatting),
                     checked = list.showFormatting && canFormat,
@@ -126,6 +134,12 @@ fun ListStyleSettingsScreen(
         }
     }
     if (askPlus) FormattingPlusSheet(onPlus = onPlus, onDismiss = { askPlus = false })
+    if (lengthSheet) {
+        LengthSheet(list.previewLength, onDismiss = { lengthSheet = false }) {
+            onLength(it)
+            lengthSheet = false
+        }
+    }
 }
 
 /** 홈과 같은 부품으로 견본 일기 한 편(사진 격자는 세 칸) */
@@ -156,18 +170,15 @@ private fun ListPreview(
 
             ListStyle.CARD -> DiaryEntryCard(sample, previewStyle, dates, Modifier.padding(top = DiarySpacing.x2))
 
-            ListStyle.PHOTO_GRID -> {
-                val others =
-                    listOf(stringResource(Res.string.list_sample_grid_second), stringResource(Res.string.list_sample_grid_third))
+            // 사진 칸 둘 사이에 글 칸 하나. 홈 사진 격자처럼 사진이 먼저 보임
+            ListStyle.PHOTO_GRID ->
                 Row(Modifier.padding(top = DiarySpacing.x2), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-                    val cells = listOf(sample) + others.mapIndexed { index, text -> sample.copy(id = "sample$index", preview = text) }
-                    for (cell in cells) {
-                        Box(Modifier.weight(1f).aspectRatio(1f).background(DiaryTheme.colors.canvas)) {
-                            DiaryGridCellContent(cell, today, dates)
-                        }
+                    SamplePhoto(Res.drawable.list_sample_photo_mountain, Modifier.weight(1f))
+                    Box(Modifier.weight(1f).aspectRatio(1f).background(DiaryTheme.colors.canvas)) {
+                        DiaryGridCellContent(sample, today, dates)
                     }
+                    SamplePhoto(Res.drawable.list_sample_photo_sea, Modifier.weight(1f))
                 }
-            }
         }
     }
 }
@@ -233,3 +244,21 @@ private fun FormattingPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
 }
 
 private val SAMPLE_TIME = LocalTime(9, 0)
+
+/** 본문 길이 고르기. 고르면 닫히고 위 미리보기가 바뀜 */
+@Composable
+private fun LengthSheet(selected: PreviewLength, onDismiss: () -> Unit, onSelect: (PreviewLength) -> Unit) {
+    DiaryBottomSheet(onDismiss = onDismiss, title = stringResource(Res.string.list_group_length)) {
+        Column(Modifier.fillMaxWidth()) {
+            for (length in PreviewLength.entries) {
+                DiarySheetChoiceRow(stringResource(length.label()), selected = length == selected, onClick = { onSelect(length) })
+            }
+        }
+    }
+}
+
+/** 견본 사진 칸. 앱이 그린 그림이라 사용자 사진이 아님 */
+@Composable
+private fun SamplePhoto(photo: DrawableResource, modifier: Modifier = Modifier) {
+    Image(painterResource(photo), contentDescription = null, modifier = modifier.aspectRatio(1f), contentScale = ContentScale.Crop)
+}

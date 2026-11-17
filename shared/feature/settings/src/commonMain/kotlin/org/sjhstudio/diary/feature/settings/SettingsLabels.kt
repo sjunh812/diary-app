@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.list_length_five
 import org.sjhstudio.diary.feature.settings.resources.list_length_full
 import org.sjhstudio.diary.feature.settings.resources.list_length_three
 import org.sjhstudio.diary.feature.settings.resources.list_style_card
@@ -43,6 +44,7 @@ internal fun ListStyle.label(): StringResource = when (this) {
 
 internal fun PreviewLength.label(): StringResource = when (this) {
     PreviewLength.THREE_LINES -> Res.string.list_length_three
+    PreviewLength.FIVE_LINES -> Res.string.list_length_five
     PreviewLength.FULL -> Res.string.list_length_full
 }
 

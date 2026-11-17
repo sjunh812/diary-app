@@ -125,6 +125,7 @@
     <string name="list_group_style">종류</string>
     <string name="list_group_length">본문 길이</string>
     <string name="list_length_three">3줄</string>
+    <string name="list_length_five">5줄</string>
     <string name="list_length_full">전체</string>
     <string name="list_formatting">서식 그대로 보기</string>
     <string name="list_formatting_body">굵게, 밑줄, 글자 색, 형광펜이 목록에도 보여요.</string>
@@ -136,8 +137,6 @@
     <string name="list_value">%1$s · %2$s</string>
     <string name="list_sample_body">09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의\n16:30 택배 보내기\n18:00 장보기</string>
     <string name="list_sample_place">우리 집</string>
-    <string name="list_sample_grid_second">오랜만에 한강을 걸었다.</string>
-    <string name="list_sample_grid_third">비가 와서 집에서 책을 읽었다.</string>
     <string name="settings_letter">개발자의 편지</string>
     <string name="settings_plus_title">광고 없이, 더 편하게 써요</string>
     <string name="settings_plus_title_ad_free">Plus로 더 편하게</string>

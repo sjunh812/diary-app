@@ -45,7 +45,7 @@ private val ScheduleRows =
                 9,
                 0
             ),
-            SCHEDULE, Mood.GOOD, Weather.SUNNY, "우리 집", false, emptyList(), previewLines = PreviewText.FULL_LINES
+            SCHEDULE, Mood.GOOD, Weather.SUNNY, "우리 집", false, emptyList(), previewLines = PreviewText.UNLIMITED
         )
     )
 
