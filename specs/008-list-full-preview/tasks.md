@@ -82,8 +82,8 @@
 
 - [x] T043 견본 DB에 서식 일기 20%, 5천 자 이상 긴 일기 5%를 섞고 세 모드를 바꾸게 한다 in `composeApp/src/debug/kotlin/org/sjhstudio/diary/debug/ListPerformanceSample.kt`
 - [x] T044 [P] 줄 하나 해석 시간 측정 시험 in `shared/core/model/src/commonTest/kotlin/org/sjhstudio/diary/core/model/richtext/PreviewTextTimingTest.kt` (Mac JVM 쪽 하나 3.7ms)
-- [ ] T045 세 모드로 재도록 한다 in `benchmarks/src/main/kotlin/org/sjhstudio/diary/benchmarks/ScrollBenchmark.kt`, `StartupBenchmark.kt` (남음: 에뮬레이터가 과부하라 값이 무의미. 실기기 출시형 빌드로)
-- [ ] T046 에뮬레이터와 실기기에서 재고 상한 줄 수를 정해 `docs/design.md` "일기 줄(피드)"·`contracts/preview-text.md`·`design-review.md`에 적는다
+- [x] T045 세 모드로 재도록 한다 in `benchmarks/src/main/kotlin/org/sjhstudio/diary/benchmarks/ScrollBenchmark.kt`, `StartupBenchmark.kt` (S931N 출시형 빌드로 방식마다 3회, SC-003 통과. 첫 화면 측정은 건너뜀)
+- [x] T046 에뮬레이터와 실기기에서 재고 상한 줄 수를 정해 `docs/design.md` "일기 줄(피드)"·`contracts/preview-text.md`·`design-review.md`에 적는다 (상한 없음으로 정함, research R4)
 
 ## 9단계: 마무리
 
@@ -109,7 +109,7 @@
 
 - 1단계(프로토타입 확정)가 끝나야 화면 작업(T014, T020~T023, T029, T035, T041, T042)을 한다. 화면 없는 T007~T013, T017~T019, T024~T027, T031~T033, T037~T040은 먼저 해도 된다.
 - US1 → US2(같은 줄 규칙 위) → US3·US4(US2의 설정 위) → US5. US3과 US4는 서로 기다리지 않는다.
-- 측정(8단계)은 US2 뒤부터, 상한은 T046 전까지 출발점 8줄로 둔다.
+- 측정(8단계)은 US2 뒤부터. 전체는 상한 없음(T046).
 
 ## 함께 할 수 있는 것
 
