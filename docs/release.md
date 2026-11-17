@@ -237,7 +237,7 @@ REVENUECAT_IOS = appl_...
       같은 날 [브랜딩 확인]을 냈지만 자동 검사가 "홈페이지 웹사이트가 나에게 등록되어 있지 않다"로 막았다. 소유 확인이 시스템에 반영되기까지 24시간을 기다린 뒤
       브랜딩 페이지 [문제 보기] > "문제를 해결함"으로 다시 낸다(2026-11-14 이후). 범위는 민감하지 않은 것만 쓰고 게시 상태는 프로덕션이라, 검증 전에도 로그인 사용자 수 제한은 없다.
       2026-11-15 "문제를 해결함"으로 다시 냈지만 자동 검사가 같은 이유로 막았다. 검색 콘솔에서 `https://sjunh812.github.io/`는 2026-02-24부터 같은 계정의 인증된 소유자다. `github.io`는 공개 접미사라 DNS 도메인 속성을 만들 수 없어 자동 검사가 URL 접두어 인증을 소유로 보지 않는 것으로 짐작한다. 같은 날 "발견된 문제가 잘못되었다고 생각됨"으로 사람 검토를 요청했다(사유와 설명 입력, 인증 설문 모두 "아니요"). 승인된 도메인에 소유를 인증하지 않은 `sjhstudio.org`가 남아 있어 검토에서 걸리면 뺀다.
-- [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 스토어 웹사이트가 거는 Cloudflare Pages(`https://sjunh812.pages.dev/1day1diary/`). 고치면 세 곳을 함께 고친다. GitHub 계정 정지로 `sjunh812.github.io`가 404가 되어 2026-11-17에 옮겼다.
+- [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 스토어 웹사이트가 거는 Cloudflare Pages(`https://sjunh812.pages.dev/1day1diary/`, 원본 `site/`, `site/build.sh deploy`로 `docs/legal/`에서 다시 만들어 올린다). 고치면 세 곳을 함께 고친다. GitHub 계정 정지로 `sjunh812.github.io`가 404가 되어 2026-11-17에 옮겼다.
 - [x] 기분·날씨 아이콘: 기분 얼굴은 우리가 Figma에서 그린 것을 코드로 옮겼다(`DiaryMoodFace`). 날씨와 화면 아이콘은 Lucide(ISC) 경로를 옮겼고, 빠져 있던 Lucide 고지를 오픈소스 라이선스 목록에 더했다. 같은 때 iOS에만 들어가는 SDK(GoogleSignIn, Firebase, Google Mobile Ads, RevenueCat KMP)도 목록에 더했다(`config/aboutlibraries/`, 2026-11-13)
 - [x] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(2026-11-01 해제, 시험 호출이 401 "Authentication Failed"). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
 - [x] 위치정보지원센터 문의: 하지 않기로 함(2026-11-11 사용자 결정, `docs/DECISIONS.md`)

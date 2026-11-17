@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title and page.title != site.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
+<meta name="description" content="바쁜 사람을 위한 간편한 일기장, 1일 1일기">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--canvas:#fff;--card:#F8F8FF;--sunken:#F3F4F5;--line:#EEEFF1;--text:#1A1C20;--text2:#555D6D;--accent:#6E56CF;--accentText:#6550B9;--selected:#EBE4FF}
+@media (prefers-color-scheme:dark){:root{--canvas:#16171B;--card:#1D2025;--sunken:#2B2E35;--line:#2B2E35;--text:#F3F4F5;--text2:#DCDEE3;--accentText:#BAA7FF;--selected:#291F43}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:hidden;background:var(--canvas);color:var(--text);font:16px/1.7 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;word-break:keep-all;overflow-wrap:break-word}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:12px;height:64px}
+header a.brand{display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-weight:700;font-size:17px}
+header img{width:32px;height:32px;border-radius:8px}
+nav{margin-left:auto;display:flex;gap:16px;font-size:14px}
+nav a{color:var(--text2);text-decoration:none}
+nav a:hover{color:var(--text)}
+main{padding:32px 0 48px}
+h1{font-size:26px;line-height:1.35;margin:0 0 16px}
+h2{font-size:19px;line-height:1.4;margin:40px 0 12px}
+h3{font-size:17px;margin:28px 0 8px}
+p,li{color:var(--text)}
+a{color:var(--accentText)}
+blockquote{margin:20px 0;padding:16px 20px;background:var(--card);border-radius:16px}
+blockquote p{margin:0}
+hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0;display:block;overflow-x:auto}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{background:var(--sunken);font-weight:600}
+.hero{text-align:center;padding:56px 20px 64px;margin:-32px calc(50% - 50vw) 0;background:linear-gradient(180deg,var(--selected) 0%,var(--canvas) 100%)}
+.app-icon{width:112px;height:112px;border-radius:26px;box-shadow:0 8px 24px rgba(101,80,185,.18)}
+.hero h1{font-size:36px;line-height:1.25;margin:24px 0 12px}
+.lead{font-size:19px;line-height:1.6;color:var(--text2);margin:0}
+.badges{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;margin-top:32px}
+.badges a{display:block;line-height:0}
+.badge-apple{height:48px;width:auto}
+.badge-google{height:62px;width:auto;margin:-7px -7px -7px 0}
+.platforms{margin:16px 0 0;font-size:14px;color:var(--text2)}
+.feature{display:flex;align-items:center;gap:56px;padding:56px 0}
+.feature.flip{flex-direction:row-reverse}
+.feature .copy{flex:1}
+.feature h2{font-size:24px;line-height:1.4;margin:0 0 12px}
+.feature p{margin:0;font-size:17px;color:var(--text2)}
+.phone{flex:none;width:240px;padding:7px;border-radius:39px;background:#E9EAEE;box-shadow:0 1px 2px rgba(26,28,32,.06),0 20px 48px rgba(26,28,32,.12)}
+.phone img{display:block;width:100%;height:auto;border-radius:32px}
+.cta{text-align:center;padding:56px 0 24px;border-top:1px solid var(--line)}
+.cta h2{font-size:24px;margin:0}
+@media (prefers-color-scheme:dark){.phone{background:#2B2E35;box-shadow:0 20px 48px rgba(0,0,0,.35)}.app-icon{box-shadow:none}}
+@media (max-width:640px){.hero{padding:40px 16px 48px}.hero h1{font-size:30px}.lead{font-size:17px}.feature,.feature.flip{flex-direction:column;gap:28px;text-align:center;padding:48px 0}.phone{width:220px}.feature h2,.cta h2{font-size:21px}}
+footer{border-top:1px solid var(--line);color:var(--text2);font-size:13px}
+footer .wrap{padding:24px 20px 40px}
+footer a{color:var(--text2)}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="/1day1diary/"><img src="/assets/icon.png" alt="">1일 1일기</a>
+<nav><a href="/1day1diary/privacy/">개인정보처리방침</a><a href="/1day1diary/terms/">이용약관</a></nav></div></header>
+<main><div class="wrap">
+{% if page.heading %}<h1>{{ page.heading }}</h1>{% endif %}
+{{ content }}
+</div></main>
+<footer><div class="wrap">© 서주냥 · 문의 <a href="mailto:sjunh812@naver.com">sjunh812@naver.com</a></div></footer>
+</body>
+</html>

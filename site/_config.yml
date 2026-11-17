@@ -1,0 +1,8 @@
+title: 1일 1일기
+url: "https://sjunh812.pages.dev"
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+exclude: [README.md, build.sh]
+include: [sw.min.js]
