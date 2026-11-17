@@ -39,7 +39,7 @@
 - [x] T017 [US2] 전체 보기용 목록 쿼리(글 길이 상한까지 `substr`)를 더한다. 3줄 쿼리(`LIST_TEXT_CHARS = 520`)는 그대로 in `db/EntryDao.kt` (실제: 목록 쿼리는 그대로, 쪽마다 `previewTexts`·`previewHtmls`로 더 읽음)
 - [x] T018 [US2] `ListPreferences`를 보고 모드별 `PagingSource`를 고르고, 설정이 바뀌면 새 페이지를 만든다. 보던 자리를 지킨다 in `data/diary/DefaultEntryRepository.kt`
 - [x] T019 [P] [US2] 모드가 바뀌면 줄 글·`maxLines`가 바뀌는 저장소 시험 in `shared/core/data/src/commonTest/kotlin/org/sjhstudio/diary/core/data/diary/EntryPreviewModeTest.kt`
-- [x] T020 [US2] 목록 보기 화면에 맨 위 미리보기 상자(견본 일기 문자열 리소스), 모양, 미리보기 길이(3줄·전체)를 둔다. 사진 격자면 길이를 숨긴다. 길이를 고르면 `previewChosen = true` in `settings/ListStyleSettingsScreen.kt`
+- [x] T020 [US2] 목록 보기 화면에 맨 위 미리보기 상자(견본 일기 문자열 리소스), 모양, 본문 길이(3줄·전체)를 둔다. 사진 격자면 길이를 숨긴다. 길이를 고르면 `previewChosen = true` in `settings/ListStyleSettingsScreen.kt`
 - [x] T021 [US2] 설정 첫 화면 "목록 보기" 값을 "피드 · 전체"(사진 격자면 모양만)로 in `settings/SettingsScreen.kt`
 - [x] T022 [P] [US2] 문자열(값 문구, 길이 이름, 미리보기 상자 견본 글)을 `values`·`values-ko`·`values-ja`에 in `shared/feature/settings/src/commonMain/composeResources/values*/strings.xml`
 - [x] T023 [P] [US2] 목록 보기 화면 프리뷰(라이트·다크·사진 격자) in `settings/preview/` 와 화면 시험 in `shared/feature/settings/src/iosTest/kotlin/org/sjhstudio/diary/feature/settings/ListStyleSettingsScreenTest.kt` (프리뷰만 함 `settings/preview/ListStylePreviews.kt`. iOS 화면 시험은 남음) (iOS 화면 시험 `ListStyleSettingsUiTest` 더함)
@@ -76,7 +76,7 @@
 - [x] T039 [US5] 서식 쿼리(`body_html` 앞부분)와 `showFormatting && Plus`일 때만 그 모드 in `db/EntryDao.kt`, `data/diary/DefaultEntryRepository.kt`, `data/diary/EntryRows.kt`
 - [x] T040 [P] [US5] 결제 경계 시험: 무료면 구간 없음, Plus 끝나면 구간 없음·값 유지 in `shared/core/data/src/commonTest/kotlin/org/sjhstudio/diary/core/data/diary/EntryPreviewModeTest.kt`
 - [x] T041 [US5] `PreviewText`를 토큰 색으로 그리는 부품 in `shared/core/ui/src/commonMain/kotlin/org/sjhstudio/diary/core/ui/DiaryPreviewText.kt`, 홈 줄에서 쓰기 in `home/HomeStyles.kt` (실제: 새 부품 대신 `rememberPreview`가 서식을 토큰 색으로 입히고 피드·카드가 씀)
-- [x] T042 [US5] 목록 보기 화면 "서식도 보이기" 줄(무료는 Plus 표시, 누르면 Plus 화면), 미리보기 상자에 서식 in `settings/ListStyleSettingsScreen.kt`, 문자열 리소스
+- [x] T042 [US5] 목록 보기 화면 "서식 그대로 보기" 줄(무료는 Plus 표시, 누르면 Plus 화면), 미리보기 상자에 서식 in `settings/ListStyleSettingsScreen.kt`, 문자열 리소스
 
 ## 8단계: 측정과 상한 (SC-003, SC-004)
 
@@ -94,14 +94,14 @@
 
 ## 10단계: US6 Plus 화면 혜택 (P3)
 
-**독립 시험**: 무료로 결제 화면·시트·"서식도 보이기" 진입, 개발자 모드 Plus로 관리 화면.
+**독립 시험**: 무료로 결제 화면·시트·"서식 그대로 보기" 진입, 개발자 모드 Plus로 관리 화면.
 
 - [x] T051 [US6] Figma 프로토타입과 디자인(라이트·다크·태블릿) in Figma "표지 · 흐름" 섹션 "프로토타입 · Plus 혜택"
 - [ ] T052 [US6] 결제 화면 규칙(핵심·다른 혜택, [모두 보기], 약관 자리, 간격)을 `docs/design.md` "결제 화면"·"구독 관리"와 `docs/DECISIONS.md`에 적는다
 - [ ] T053 [P] [US6] 새 문구(다른 혜택, 모두 보기, Plus 혜택, 일기에 체크리스트 넣기, 목록에서도 서식 그대로 보기와 설명) 3개 언어 in `shared/feature/plus/src/commonMain/composeResources/values*/strings.xml`
 - [ ] T054 [US6] 혜택 목록 모델(핵심·다른 혜택, 들어온 혜택 먼저, 3줄 상한) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/PlusBenefits.kt`, 시험 in `src/commonTest`
 - [ ] T055 [US6] 결제 화면·관리 화면을 새 묶음으로, [모두 보기] 시트, 약관 자리 in `PlusScreen.kt`
-- [ ] T056 [US6] 들어온 곳을 `PlusKey`에 싣고 "서식도 보이기"에서 넘기기 in `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/navigation/ScreenKeys.kt`, `SettingsEntries.kt`
+- [ ] T056 [US6] 들어온 곳을 `PlusKey`에 싣고 "서식 그대로 보기"에서 넘기기 in `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/navigation/ScreenKeys.kt`, `SettingsEntries.kt`
 - [ ] T057 [P] [US6] 프리뷰(한국어 먼저, 라이트·다크, 시트) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/preview/PlusPreviews.kt`, iOS 화면 시험 in `src/iosTest`
 - [ ] T058 [US6] 아이폰 15 시뮬레이터와 411×914 에뮬레이터에서 스크롤이 없는지 재고(SC-007) 다크·태블릿·큰 글자·영어·일본어를 본다
 
