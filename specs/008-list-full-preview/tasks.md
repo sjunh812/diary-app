@@ -29,7 +29,7 @@
 - [x] T012 [US1] 줄 규칙(정규화, 3줄은 빈 줄 없앰, 전체는 빈 줄 하나, 이모지 안 자름)을 만든다 in `model/richtext/PreviewText.kt`
 - [x] T013 [US1] `preview()`가 줄 규칙을 쓰게 바꾸고, 검색일 때는 지금 방식(찾은 글자 앞 12자, 240자)에 줄바꿈 정규화만 더한다 in `data/diary/EntryRows.kt`
 - [x] T014 [US1] 피드·카드 미리보기가 `PreviewText.maxLines`를 쓰게 하고 `PREVIEW_LINES` 상수를 정리한다 in `home/HomeStyles.kt`
-- [ ] T015 [P] [US1] 한국어 3줄·줄바꿈 미리보기(라이트·다크)를 더한다 in `home/preview/HomePreviews.kt`
+- [x] T015 [P] [US1] 한국어 3줄·줄바꿈 미리보기(라이트·다크)를 더한다 in `home/preview/HomePreviews.kt`
 - [ ] T016 [US1] 실기기 Android 17 일찍 줄바뀐 일기의 원문을 읽어 원인을 `research.md` R5에 적는다(특수 글자면 T011에 그 글자 시험을 더한다)
 
 ## 4단계: US2 목록에서 일기 전체 보기 (P1)
@@ -42,9 +42,9 @@
 - [x] T020 [US2] 목록 보기 화면에 맨 위 미리보기 상자(견본 일기 문자열 리소스), 모양, 미리보기 길이(3줄·전체)를 둔다. 사진 격자면 길이를 숨긴다. 길이를 고르면 `previewChosen = true` in `settings/ListStyleSettingsScreen.kt`
 - [x] T021 [US2] 설정 첫 화면 "목록 보기" 값을 "피드 · 전체"(사진 격자면 모양만)로 in `settings/SettingsScreen.kt`
 - [x] T022 [P] [US2] 문자열(값 문구, 길이 이름, 미리보기 상자 견본 글)을 `values`·`values-ko`·`values-ja`에 in `shared/feature/settings/src/commonMain/composeResources/values*/strings.xml`
-- [ ] T023 [P] [US2] 목록 보기 화면 프리뷰(라이트·다크·사진 격자) in `settings/preview/` 와 화면 시험 in `shared/feature/settings/src/iosTest/kotlin/org/sjhstudio/diary/feature/settings/ListStyleSettingsScreenTest.kt` (프리뷰만 함 `settings/preview/ListStylePreviews.kt`. iOS 화면 시험은 남음)
+- [x] T023 [P] [US2] 목록 보기 화면 프리뷰(라이트·다크·사진 격자) in `settings/preview/` 와 화면 시험 in `shared/feature/settings/src/iosTest/kotlin/org/sjhstudio/diary/feature/settings/ListStyleSettingsScreenTest.kt` (프리뷰만 함 `settings/preview/ListStylePreviews.kt`. iOS 화면 시험은 남음) (iOS 화면 시험 `ListStyleSettingsUiTest` 더함)
 - [x] T024 [US2] 백업 `ManifestSettings`에 `previewLength: String?`, `showListFormatting: Boolean?`을 더하고 백업·복원에 잇는다. null이면 기기 값 유지 in `shared/core/backup/src/commonMain/kotlin/org/sjhstudio/diary/core/backup/ManifestCodec.kt`, `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/backup/BackupSettingsBridge.kt`
-- [x] T025 [P] [US2] 옛 백업(칸 없음) 복원, 새 백업을 옛 형식으로 읽기 시험 in `shared/core/backup/src/commonTest/kotlin/org/sjhstudio/diary/core/backup/ManifestCodecTest.kt` (실제: 칸은 있어도 그만이고 `ignoreUnknownKeys`라 기존 시험이 통과. 전용 시험은 남음)
+- [x] T025 [P] [US2] 옛 백업(칸 없음) 복원, 새 백업을 옛 형식으로 읽기 시험 in `shared/core/backup/src/commonTest/kotlin/org/sjhstudio/diary/core/backup/ManifestCodecTest.kt` (옛 백업 읽기·새 백업 왕복·형식 버전 그대로를 `list_preview_settings_are_optional`이 봄)
 
 ## 5단계: US3 옛 설정 이어받기 (P2, Android)
 
@@ -65,7 +65,7 @@
 - [x] T033 [US4] `ContextTips.isOpen`이 하루 하나 규칙과 순서를 지키게 한다. 보이기 시작할 때 날짜를 적는다 in `data/WelcomeRepository.kt`, `shared/core/ui/src/commonMain/kotlin/org/sjhstudio/diary/core/ui/ContextTipBar.kt`
 - [x] T034 [US4] 홈 줄이 글 배치 결과로 잘렸는지 알아 상세 열기에 넘기고, 상세가 잘린 일기를 열면 횟수를 올린다 in `home/HomeStyles.kt`, `home/EntryDetailViewModel.kt`
 - [x] T035 [US4] 팁 `HOME_FULL_PREVIEW`("목록에서도 일기 전체를 볼 수 있어요." [켜기]→바로 전체) in `model/Welcome.kt`, `home/HomeScreen.kt`, 문자열 리소스
-- [ ] T036 [P] [US4] 홈 팁 화면 시험 in `shared/feature/home/src/iosTest/kotlin/org/sjhstudio/diary/feature/home/HomeTipsTest.kt` (남음: 홈 팁 iOS 화면 시험)
+- [x] T036 [P] [US4] 홈 팁 화면 시험 in `shared/feature/home/src/iosTest/kotlin/org/sjhstudio/diary/feature/home/HomeTipsTest.kt` (남음: 홈 팁 iOS 화면 시험) (`HomeTipsUiTest` 더함)
 
 ## 7단계: US5 Plus는 목록에서 서식까지 (P3)
 
@@ -80,14 +80,14 @@
 
 ## 8단계: 측정과 상한 (SC-003, SC-004)
 
-- [ ] T043 견본 DB에 서식 일기 20%, 5천 자 이상 긴 일기 5%를 섞고 세 모드를 바꾸게 한다 in `composeApp/src/debug/kotlin/org/sjhstudio/diary/debug/ListPerformanceSample.kt`
-- [ ] T044 [P] 줄 하나 해석 시간 측정 시험 in `shared/core/model/src/commonTest/kotlin/org/sjhstudio/diary/core/model/richtext/PreviewTextTimingTest.kt`
-- [ ] T045 세 모드로 재도록 한다 in `benchmarks/src/main/kotlin/org/sjhstudio/diary/benchmarks/ScrollBenchmark.kt`, `StartupBenchmark.kt`
+- [x] T043 견본 DB에 서식 일기 20%, 5천 자 이상 긴 일기 5%를 섞고 세 모드를 바꾸게 한다 in `composeApp/src/debug/kotlin/org/sjhstudio/diary/debug/ListPerformanceSample.kt`
+- [x] T044 [P] 줄 하나 해석 시간 측정 시험 in `shared/core/model/src/commonTest/kotlin/org/sjhstudio/diary/core/model/richtext/PreviewTextTimingTest.kt` (Mac JVM 쪽 하나 3.7ms)
+- [ ] T045 세 모드로 재도록 한다 in `benchmarks/src/main/kotlin/org/sjhstudio/diary/benchmarks/ScrollBenchmark.kt`, `StartupBenchmark.kt` (남음: 에뮬레이터가 과부하라 값이 무의미. 실기기 출시형 빌드로)
 - [ ] T046 에뮬레이터와 실기기에서 재고 상한 줄 수를 정해 `docs/design.md` "일기 줄(피드)"·`contracts/preview-text.md`·`design-review.md`에 적는다
 
 ## 9단계: 마무리
 
-- [ ] T047 `/emulator-check`: 한국어 먼저, 다크, 글자 최대, 태블릿 두 칸, 영어·일본어, 1.7.4 업그레이드(quickstart 3)
+- [ ] T047 `/emulator-check`: 한국어 먼저, 다크, 글자 최대, 태블릿 두 칸, 영어·일본어, 1.7.4 업그레이드(quickstart 3) (한국어·다크·라이트·글자 2배·영어·일본어 확인. 태블릿 남음)
 - [ ] T048 `/backup-roundtrip`(quickstart 4)
 - [x] T049 CI와 같은 검사 전부(quickstart 1), 새 문구 `korean-humanizer`·맞춤법
 - [ ] T050 Baseline Profile에 새 경로가 필요한지 `/release-prep` 기준으로 본다

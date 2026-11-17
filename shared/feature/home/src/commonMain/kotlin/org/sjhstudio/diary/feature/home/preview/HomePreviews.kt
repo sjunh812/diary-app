@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
+import org.sjhstudio.diary.core.model.richtext.PreviewText
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.feature.home.HomeScreen
 
@@ -30,6 +31,22 @@ private val Rows =
         EntryRow("1", Today, LocalTime(21, 40), "퇴근길에 한강까지 걸었다. 바람이 차가웠는데 그래서 더 좋았다.", Mood.GOOD, Weather.SUNNY, "망원동", true, listOf(null)),
         EntryRow("2", Today, LocalTime(8, 10), "아침 회의가 길었다. 커피 두 잔째인데도 눈이 감긴다.", Mood.TIRED, Weather.CLOUDY, null, false, emptyList()),
         EntryRow("3", LocalDate(2026, 9, 30), LocalTime(20, 30), "제주 마지막 날.", Mood.COOL, Weather.SUNNY, "제주 애월", false, emptyList())
+    )
+
+/** 줄마다 쓴 일정(스펙 008). 3줄과 전체 */
+private const val SCHEDULE = "09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의\n16:30 택배 보내기\n18:00 장보기"
+
+private val ScheduleRows =
+    listOf(
+        EntryRow("s1", Today, LocalTime(9, 0), SCHEDULE, Mood.GOOD, Weather.SUNNY, "우리 집", false, emptyList()),
+        EntryRow(
+            "s2", Today,
+            LocalTime(
+                9,
+                0
+            ),
+            SCHEDULE, Mood.GOOD, Weather.SUNNY, "우리 집", false, emptyList(), previewLines = PreviewText.FULL_LINES
+        )
     )
 
 @Composable
@@ -107,3 +124,11 @@ private fun MonthPicker() = DiaryTheme(darkTheme = false) {
         )
     }
 }
+
+@Preview(name = "홈 · 줄마다 쓴 일정 3줄·전체 · 라이트", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeScheduleLight() = Home(dark = false, rows = ScheduleRows)
+
+@Preview(name = "홈 · 줄마다 쓴 일정 3줄·전체 · 다크", locale = "ko", widthDp = 390, heightDp = 844)
+@Composable
+private fun HomeScheduleDark() = Home(dark = true, rows = ScheduleRows)

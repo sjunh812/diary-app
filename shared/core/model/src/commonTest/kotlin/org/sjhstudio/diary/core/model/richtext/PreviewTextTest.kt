@@ -7,6 +7,7 @@ import org.sjhstudio.diary.core.model.PreviewLength.THREE_LINES
 import org.sjhstudio.diary.core.model.RichSpan
 import org.sjhstudio.diary.core.model.RichStyle
 import org.sjhstudio.diary.core.model.RichText
+import org.sjhstudio.diary.core.model.parseRichText
 
 class PreviewTextTest {
     @Test
@@ -32,6 +33,9 @@ class PreviewTextTest {
     @Test
     fun tidiesSpacesAndEdges() {
         assertEquals("a b", PreviewText.shape("  a  b \n\n", THREE_LINES))
+        // 전각·줄 바꾸지 않는 띄어쓰기만 있는 줄도 빈 줄
+        assertEquals("첫째\n둘째\n셋째", PreviewText.shape("첫째\n\u3000\n둘째\n\u00A0\n셋째", THREE_LINES))
+        assertEquals("a b", PreviewText.shape("a\u3000\u3000b", THREE_LINES))
         assertEquals("a b", PreviewText.shape("\n\n  a \t b", FULL))
         assertEquals("", PreviewText.shape("\n\n", FULL))
         assertEquals("", PreviewText.shape("", THREE_LINES))
@@ -49,6 +53,15 @@ class PreviewTextTest {
         val shaped = PreviewText.shape(long, THREE_LINES)
         assertEquals("가".repeat(PreviewText.THREE_LINES_CHARS - 1) + PreviewText.ELLIPSIS, shaped)
         assertEquals(PreviewText.FULL_CHARS + 1, PreviewText.shape("가".repeat(PreviewText.FULL_CHARS + 10), FULL).length)
+    }
+
+    /** 앞부분만 읽은 원문은 다 보여도 더 있다고 알림 */
+    @Test
+    fun truncatedSourceIsCut() {
+        val shaped = PreviewText.shape(RichText("짧은 앞부분", emptyList()), THREE_LINES, truncated = true)
+        assertEquals("짧은 앞부분" + PreviewText.ELLIPSIS, shaped.text)
+        kotlin.test.assertTrue(shaped.cut)
+        kotlin.test.assertFalse(PreviewText.shape(RichText("짧은 글", emptyList()), THREE_LINES).cut)
     }
 
     @Test
@@ -73,5 +86,12 @@ class PreviewTextTest {
         val span = PreviewText.shape(source, THREE_LINES).spans.single()
         assertEquals(PreviewText.THREE_LINES_CHARS - 5, span.start)
         assertEquals(PreviewText.THREE_LINES_CHARS, span.end)
+    }
+
+    /** 앞부분만 읽은 HTML은 닫는 태그가 없어도 서식이 글 끝까지 이어짐 */
+    @Test
+    fun cut_html_keeps_open_spans() {
+        val parsed = parseRichText("<p><b>" + "가".repeat(10))
+        assertEquals(listOf(RichSpan(0, 10, RichStyle.Bold)), parsed.spans)
     }
 }

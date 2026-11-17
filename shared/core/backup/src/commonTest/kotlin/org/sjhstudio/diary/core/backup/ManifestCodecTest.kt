@@ -48,4 +48,19 @@ class ManifestCodecTest {
         val text = ManifestCodec.encode(manifest)
         for (key in listOf("body", "plainText", "place", "mood", "path", "pin")) assertFalse("\"$key" in text, key)
     }
+
+    /** 스펙 008의 목록 설정 칸은 있어도 그만. 옛 백업은 null, 새 백업은 그대로 읽힘 */
+    @Test
+    fun list_preview_settings_are_optional() {
+        val old =
+            assertNotNull(
+                ManifestCodec.decode("""{"format":"org.sjhstudio.diary.backup","formatVersion":2,"settings":{"listStyle":"card"}}""")
+            )
+        assertNull(old.settings.previewLength)
+        assertNull(old.settings.showListFormatting)
+        val withList = manifest.copy(settings = manifest.settings.copy(previewLength = "full", showListFormatting = true))
+        assertEquals(withList, ManifestCodec.decode(ManifestCodec.encode(withList)))
+        // 형식 버전은 그대로라 옛 앱도 읽음
+        assertEquals(ManifestCheck.OK, ManifestCodec.check(withList))
+    }
 }
