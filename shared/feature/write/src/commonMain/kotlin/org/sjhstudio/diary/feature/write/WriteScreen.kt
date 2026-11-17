@@ -240,11 +240,11 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             onDismiss = { checklistLocked = false }
         )
     }
-    val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
+    val pickerLimitsCount = rememberPickerLimitsCount()
     val pick =
         rememberFilePickerLauncher(
             type = FileKitType.Image,
-            mode = FileKitMode.Multiple(maxItems = remaining),
+            mode = FileKitMode.Multiple(maxItems = pickMaxItems(photoLimit, state.photos.size, pickerLimitsCount)),
             onError = {
                 ExpectedLeave.clear()
                 vm.photoPickFailed()
