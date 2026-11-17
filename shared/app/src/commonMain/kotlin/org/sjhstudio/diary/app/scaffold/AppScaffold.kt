@@ -596,7 +596,7 @@ private fun Content(
                             nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                         },
                         onPeriod = { range -> nav.push(SearchKey(from = range.start.toString(), to = range.end.toString())) },
-                        onPlus = { nav.push(PlusKey) },
+                        onPlus = { nav.push(PlusKey()) },
                         onAdvanced = { nav.push(AdvancedStatsKey) },
                         onWrite = onWrite,
                         adSlot = { AdSlot("insight", AdShape.Card, shell.onAdClose) }
@@ -639,7 +639,7 @@ private fun Content(
                             pop()
                             if (kept) notify(Message.DraftKept)
                         },
-                        onPlus = { nav.push(PlusKey) }
+                        onPlus = { nav.push(PlusKey()) }
                     )
                 }
             }

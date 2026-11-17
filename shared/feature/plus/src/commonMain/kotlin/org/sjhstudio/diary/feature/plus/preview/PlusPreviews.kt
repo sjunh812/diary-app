@@ -7,7 +7,9 @@ import org.sjhstudio.diary.core.model.Price
 import org.sjhstudio.diary.core.model.ProductId
 import org.sjhstudio.diary.core.model.StoreProduct
 import org.sjhstudio.diary.feature.plus.AdFreeSheetContent
+import org.sjhstudio.diary.feature.plus.AllBenefitsSheet
 import org.sjhstudio.diary.feature.plus.PaywallScreen
+import org.sjhstudio.diary.feature.plus.PlusBenefit
 import org.sjhstudio.diary.feature.plus.PlusManageScreen
 import org.sjhstudio.diary.feature.plus.PlusUiState
 import org.sjhstudio.diary.feature.plus.label
@@ -51,6 +53,20 @@ private fun PaywallWide() = DiaryTheme(darkTheme = false) {
 private fun ManageWide() = DiaryTheme(darkTheme = false) { PlusManageScreen(won("14,900", 14_900).label(), {}, {}) }
 
 private val AdFreePriced = PlusUiState(products = listOf(StoreProduct(ProductId.AD_FREE, won("9,900", 9_900))), loading = false)
+
+@Preview(name = "결제 화면 · 서식도 보이기에서 옴", locale = "ko")
+@Composable
+private fun PaywallFromFormatting() = DiaryTheme(darkTheme = false) {
+    PaywallScreen(won("14,900", 14_900).label(), false, false, false, {}, {}, {}, {}, from = PlusBenefit.LIST_FORMATTING)
+}
+
+@Preview(name = "모든 혜택 시트", locale = "ko")
+@Composable
+private fun AllBenefitsLight() = DiaryTheme(darkTheme = false) { AllBenefitsSheet {} }
+
+@Preview(name = "모든 혜택 시트 · 다크", locale = "ko")
+@Composable
+private fun AllBenefitsDark() = DiaryTheme(darkTheme = true) { AllBenefitsSheet {} }
 
 @Preview(name = "광고 제거 시트", locale = "ko")
 @Composable

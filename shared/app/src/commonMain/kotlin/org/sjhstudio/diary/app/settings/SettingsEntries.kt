@@ -76,6 +76,7 @@ import org.sjhstudio.diary.feature.lock.LockSettingsRoute
 import org.sjhstudio.diary.feature.migration.MigrationMessage
 import org.sjhstudio.diary.feature.migration.SupportAttachSheet
 import org.sjhstudio.diary.feature.migration.rememberMigrationActions
+import org.sjhstudio.diary.feature.plus.PlusBenefit
 import org.sjhstudio.diary.feature.plus.PlusRoute
 import org.sjhstudio.diary.feature.settings.FEATURE_SURVEY_URL
 import org.sjhstudio.diary.feature.settings.FontLicenseRoute
@@ -146,7 +147,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
                 onLetter = { push(LetterKey) },
                 onTerms = { openWeb(LegalLinks.TERMS) },
                 onPrivacy = { openWeb(LegalLinks.PRIVACY) },
-                onPlus = { push(PlusKey) },
+                onPlus = { push(PlusKey()) },
                 selected = opened()?.let(::settingsPane)
             )
             DiaryToastHost(
@@ -180,7 +181,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
     }
     entry<RestoreProgressKey> { RestoreProgressRoute(onHome = home, onLock = { push(LockSettingsKey) }, onPickOther = pop) }
     entry<TrashKey>(metadata = SettingsDetailPane) { TrashRoute(onBack = pop) }
-    entry<PlusKey>(metadata = FullScreenEntry) { PlusRoute(onClose = pop) }
+    entry<PlusKey>(metadata = FullScreenEntry) { key -> PlusRoute(onClose = pop, from = key.from) }
     entry<LetterKey> {
         val letter by koinViewModel<LetterViewModel>().letter.collectAsStateWithLifecycle()
         val app = koinInject<BackupAppInfo>()
@@ -227,7 +228,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
             onStyle = viewModel::setListStyle,
             onLength = viewModel::setPreviewLength,
             onFormatting = viewModel::setShowListFormatting,
-            onPlus = { push(PlusKey) },
+            onPlus = { push(PlusKey(PlusBenefit.LIST_FORMATTING)) },
             onBack = pop
         )
     }

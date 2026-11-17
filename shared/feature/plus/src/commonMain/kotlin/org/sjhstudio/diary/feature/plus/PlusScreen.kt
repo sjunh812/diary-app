@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.designsystem.component.DiaryBottomSheet
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
@@ -73,11 +75,14 @@ import org.sjhstudio.diary.feature.plus.resources.plus_ad_free_owned
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_body
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_only
 import org.sjhstudio.diary.feature.plus.resources.plus_ads_title
+import org.sjhstudio.diary.feature.plus.resources.plus_all_title
 import org.sjhstudio.diary.feature.plus.resources.plus_checklist_body
 import org.sjhstudio.diary.feature.plus.resources.plus_checklist_title
 import org.sjhstudio.diary.feature.plus.resources.plus_close
 import org.sjhstudio.diary.feature.plus.resources.plus_coming
 import org.sjhstudio.diary.feature.plus.resources.plus_failed
+import org.sjhstudio.diary.feature.plus.resources.plus_format_body
+import org.sjhstudio.diary.feature.plus.resources.plus_format_title
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_benefits
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_note
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_price
@@ -88,6 +93,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_manage_title
 import org.sjhstudio.diary.feature.plus.resources.plus_manage_top
 import org.sjhstudio.diary.feature.plus.resources.plus_no_store
 import org.sjhstudio.diary.feature.plus.resources.plus_notice
+import org.sjhstudio.diary.feature.plus.resources.plus_other_title
 import org.sjhstudio.diary.feature.plus.resources.plus_pending
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_body
 import org.sjhstudio.diary.feature.plus.resources.plus_photos_title
@@ -98,6 +104,7 @@ import org.sjhstudio.diary.feature.plus.resources.plus_restore_failed
 import org.sjhstudio.diary.feature.plus.resources.plus_restore_none
 import org.sjhstudio.diary.feature.plus.resources.plus_restored
 import org.sjhstudio.diary.feature.plus.resources.plus_retry
+import org.sjhstudio.diary.feature.plus.resources.plus_see_all
 import org.sjhstudio.diary.feature.plus.resources.plus_start
 import org.sjhstudio.diary.feature.plus.resources.plus_start_price
 import org.sjhstudio.diary.feature.plus.resources.plus_stats_body
@@ -114,7 +121,7 @@ private const val ART_TINT = 0.4f
  * 이미 Plus면 관리 화면(US3)
  */
 @Composable
-fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
+fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier, from: PlusBenefit? = null) {
     val viewModel = koinViewModel<PlusViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val plan by viewModel.plan.collectAsStateWithLifecycle()
@@ -145,9 +152,15 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
     // 토스트가 버튼과 결제액을 가리지 않게 그 위에 띄움
     var buyHeight by remember { mutableIntStateOf(0) }
     var adFreeSheet by rememberSaveable { mutableStateOf(false) }
+    var allBenefits by rememberSaveable { mutableStateOf(false) }
     Box(modifier.fillMaxSize()) {
         if (plan == Plan.PLUS) {
-            PlusManageScreen(state.price(ProductId.PLUS_YEARLY)?.label(), onClose, onStore = { openWeb(viewModel.manageUrl) })
+            PlusManageScreen(
+                state.price(ProductId.PLUS_YEARLY)?.label(),
+                onClose,
+                onStore = { openWeb(viewModel.manageUrl) },
+                onSeeAll = { allBenefits = true }
+            )
         } else {
             PaywallScreen(
                 price = state.price(ProductId.PLUS_YEARLY)?.label(),
@@ -160,7 +173,9 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
                 onBuy = { viewModel.buy(ProductId.PLUS_YEARLY) },
                 onBuyHeight = { buyHeight = it },
                 onAdFree = { adFreeSheet = true },
-                onLink = openWeb
+                onLink = openWeb,
+                from = from,
+                onSeeAll = { allBenefits = true }
             )
         }
         val fixedBottom = if (plan == Plan.PLUS) Dp.Hairline else with(LocalDensity.current) { buyHeight.toDp() }
@@ -170,6 +185,7 @@ fun PlusRoute(onClose: () -> Unit, modifier: Modifier = Modifier) {
         )
     }
     if (adFreeSheet) AdFreeSheet(onDismiss = { adFreeSheet = false })
+    if (allBenefits) AllBenefitsSheet(onDismiss = { allBenefits = false })
 }
 
 /**
@@ -194,7 +210,9 @@ internal fun PaywallScreen(
     modifier: Modifier = Modifier,
     onBuyHeight: (Int) -> Unit = {},
     onAdFree: () -> Unit = {},
-    onLink: (String) -> Unit = {}
+    onLink: (String) -> Unit = {},
+    from: PlusBenefit? = null,
+    onSeeAll: () -> Unit = {}
 ) {
     val colors = DiaryTheme.colors
     BoxWithConstraints(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding().navigationBarsPadding()) {
@@ -224,13 +242,13 @@ internal fun PaywallScreen(
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8, Alignment.CenterVertically)
                     ) {
                         PlusArt(DiaryArtSize.banner)
-                        PaywallBenefits(adFreeOwned)
+                        PaywallBenefits(adFreeOwned, from, onSeeAll)
                         PaywallBuy(price, loading, busy, onRetry, onBuy, adFreeOwned, onAdFree, onLink, Modifier.fillMaxWidth())
                     }
                 }
             } else {
-                PaywallTop(adFreeOwned, onLink, column.weight(1f))
-                // 약관 링크는 스크롤되는 내용 끝에 둠. 아래 고정 칸은 버튼과 갱신 안내만
+                PaywallTop(adFreeOwned, from, onSeeAll, column.weight(1f))
+                // 약관 링크는 자동 갱신 고지 바로 아래(스펙 008 FR-021)
                 PaywallBuy(
                     price,
                     loading,
@@ -239,8 +257,7 @@ internal fun PaywallScreen(
                     onBuy,
                     adFreeOwned,
                     onAdFree,
-                    onLink = null,
-                    // 약관 글자 아래 12: 작은 버튼의 안쪽 여백만큼 위를 줄임(Figma P1)
+                    onLink = onLink,
                     column.onSizeChanged { onBuyHeight(it.height) }.padding(top = DiarySpacing.x1_5, bottom = DiarySpacing.x3)
                 )
             }
@@ -270,50 +287,57 @@ private fun PlusArt(height: Dp, modifier: Modifier = Modifier) {
 }
 
 /**
- * 그림, 혜택, 약관 링크
+ * 그림과 혜택
  * 그림은 늘 보임. 글을 놓고 남는 높이만큼 키우고, 자리가 모자라면 최소 높이로 두고 내용이 스크롤됨
  */
 @Composable
-private fun PaywallTop(adFreeOwned: Boolean, onLink: (String) -> Unit, modifier: Modifier) {
+private fun PaywallTop(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: () -> Unit, modifier: Modifier) {
     BoxWithConstraints(modifier) {
         val room = maxHeight
         val scroll = rememberScrollState()
         // 짧은 화면에서는 혜택 아래가 가려짐. 끝을 흐려 더 있다는 것을 보임
         SubcomposeLayout(Modifier.fillMaxWidth().diaryScrollFade(scroll, DiaryTheme.colors.canvas).verticalScroll(scroll)) { constraints ->
             val width = constraints.copy(minHeight = 0)
-            val text = subcompose("text") { PaywallBenefits(adFreeOwned) }.map { it.measure(width) }
-            val legal = subcompose("legal") { PaywallLegal(onLink) }.map { it.measure(width) }
+            val text = subcompose("text") { PaywallBenefits(adFreeOwned, from, onSeeAll) }.map { it.measure(width) }
             val textHeight = text.sumOf { it.height }
-            val legalHeight = legal.sumOf { it.height }
             val gap = DiarySpacing.x6.roundToPx()
             val top = DiarySpacing.x2.roundToPx()
-            val legalGap = DiarySpacing.x4.roundToPx()
-            val left = room.roundToPx() - top - gap - textHeight - legalGap - legalHeight
+            val left = room.roundToPx() - top - gap - textHeight
             val height = left.coerceIn(DiaryArtSize.paywallArtMin.roundToPx(), DiaryArtSize.banner.roundToPx()).toDp()
             val art = subcompose("art") { PlusArt(height) }.map { it.measure(width) }
             val artHeight = art.sumOf { it.height } + gap
-            // 남는 자리가 있으면 약관 링크를 결제 버튼 바로 위에 붙임
-            val total = maxOf(artHeight + textHeight + legalGap + legalHeight, room.roundToPx())
-            layout(constraints.maxWidth, total) {
+            layout(constraints.maxWidth, maxOf(artHeight + textHeight, room.roundToPx())) {
                 art.forEach { it.placeRelative(0, 0) }
                 text.forEach { it.placeRelative(0, artHeight) }
-                legal.forEach { it.placeRelative(0, total - legalHeight) }
             }
         }
     }
 }
 
-/** 제목과 혜택 */
+/**
+ * 제목과 혜택
+ * 핵심은 설명까지, 다른 혜택은 이름만 3줄까지(스펙 008 FR-018)
+ * [모두 보기]는 모든 혜택을 설명과 함께 시트로 보임
+ */
 @Composable
-private fun PaywallBenefits(adFreeOwned: Boolean) {
+private fun PaywallBenefits(adFreeOwned: Boolean, from: PlusBenefit?, onSeeAll: () -> Unit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
-        PhraseText(stringResource(Res.string.plus_title), style = typography.title1.copy(color = colors.textPrimary))
-        PlusBenefits()
+    Column(Modifier.fillMaxWidth()) {
+        BenefitsHeader(stringResource(Res.string.plus_title), typography.title1.copy(color = colors.textPrimary), onSeeAll)
+        Spacer(Modifier.height(DiarySpacing.x6))
+        CoreBenefits()
+        Spacer(Modifier.height(DiarySpacing.x6))
+        PhraseText(stringResource(Res.string.plus_other_title), style = typography.caption.copy(color = colors.textSecondary))
+        Spacer(Modifier.height(DiarySpacing.x2))
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
+            otherBenefits(from).forEach { OtherBenefit(it) }
+        }
+        Spacer(Modifier.height(DiarySpacing.x3))
         // 지금 혜택과 구분해 작은 글씨로. 사용자 결정 문구라 빼지 않음
         PhraseText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
         if (adFreeOwned) {
+            Spacer(Modifier.height(DiarySpacing.x3))
             PhraseText(stringResource(Res.string.plus_ad_free_owned), style = typography.caption.copy(color = colors.textSecondary))
         }
     }
@@ -334,6 +358,29 @@ private fun PaywallLegal(onLink: (String) -> Unit) {
             kind = DiaryButtonKind.QuietText,
             size = DiaryButtonSize.Small
         )
+    }
+}
+
+/** 묶음 머리와 오른쪽 [모두 보기] */
+@Composable
+private fun BenefitsHeader(title: String, style: TextStyle, onSeeAll: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        PhraseText(title, modifier = Modifier.weight(1f), style = style)
+        DiaryButton(stringResource(Res.string.plus_see_all), onSeeAll, kind = DiaryButtonKind.Text, size = DiaryButtonSize.Header)
+    }
+}
+
+/** 다른 혜택 한 줄. 핵심보다 가볍게 체크와 이름만 */
+@Composable
+private fun OtherBenefit(benefit: PlusBenefit) {
+    val colors = DiaryTheme.colors
+    Row(
+        Modifier.padding(start = DiarySpacing.x2),
+        horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        DiaryIcon(DiaryIcons.Check, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
+        PhraseText(stringResource(benefit.title), style = DiaryTheme.typography.body.copy(color = colors.textPrimary))
     }
 }
 
@@ -391,14 +438,21 @@ private fun PaywallBuy(
     }
 }
 
-/** 혜택 네 가지. 결제 화면과 구독 중 화면이 같은 말로 보임 */
+/** 핵심 혜택. 결제 화면과 구독 중 화면이 같은 말로 보임 */
 @Composable
-private fun PlusBenefits(gap: Dp = DiarySpacing.x5) {
-    Column(verticalArrangement = Arrangement.spacedBy(gap)) {
-        OwnedBenefit(DiaryIcons.ShieldCheck, Res.string.plus_ads_title, Res.string.plus_ads_body)
-        OwnedBenefit(DiaryIcons.Image, Res.string.plus_photos_title, Res.string.plus_photos_body)
-        OwnedBenefit(DiaryIcons.Checklist, Res.string.plus_checklist_title, Res.string.plus_checklist_body)
-        OwnedBenefit(DiaryIcons.TabInsight, Res.string.plus_stats_title, Res.string.plus_stats_body)
+private fun CoreBenefits() {
+    Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
+        coreBenefits.forEach { OwnedBenefit(it) }
+    }
+}
+
+/** 모든 혜택. 묶음 머리 없이 핵심 → 다른 혜택(스펙 008 FR-019) */
+@Composable
+internal fun AllBenefitsSheet(onDismiss: () -> Unit) {
+    DiaryBottomSheet(onDismiss, title = stringResource(Res.string.plus_all_title)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x5)) {
+            PlusBenefit.entries.forEach { OwnedBenefit(it) }
+        }
     }
 }
 
@@ -409,7 +463,13 @@ private fun PlusBenefits(gap: Dp = DiarySpacing.x5) {
  * 다음 결제일과 해지는 스토어가 맡음(HIG 인앱 구매)
  */
 @Composable
-internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () -> Unit, modifier: Modifier = Modifier) {
+internal fun PlusManageScreen(
+    price: String?,
+    onBack: () -> Unit,
+    onStore: () -> Unit,
+    modifier: Modifier = Modifier,
+    onSeeAll: () -> Unit = {}
+) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Column(modifier.fillMaxSize().background(colors.canvas).statusBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -430,9 +490,13 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
                 Spacer(Modifier.height(DiarySpacing.x1))
                 PhraseText(stringResource(Res.string.plus_manage_thanks), style = typography.body.copy(color = colors.textSecondary))
                 Spacer(Modifier.height(DiarySpacing.x6))
-                PhraseText(stringResource(Res.string.plus_manage_benefits), style = typography.label.copy(color = colors.textSecondary))
-                Spacer(Modifier.height(DiarySpacing.x3))
-                PlusBenefits()
+                BenefitsHeader(
+                    stringResource(Res.string.plus_manage_benefits),
+                    typography.label.copy(color = colors.textSecondary),
+                    onSeeAll
+                )
+                Spacer(Modifier.height(DiarySpacing.x2))
+                CoreBenefits()
                 Spacer(Modifier.height(DiarySpacing.x4))
                 PhraseText(stringResource(Res.string.plus_coming), style = typography.caption.copy(color = colors.textSecondary))
             }
@@ -459,7 +523,7 @@ internal fun PlusManageScreen(price: String?, onBack: () -> Unit, onStore: () ->
  * 무엇을 받는지 한 문장으로 덧붙임
  */
 @Composable
-private fun OwnedBenefit(icon: ImageVector, title: StringResource, body: StringResource) {
+private fun OwnedBenefit(benefit: PlusBenefit) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3), verticalAlignment = Alignment.CenterVertically) {
@@ -467,11 +531,38 @@ private fun OwnedBenefit(icon: ImageVector, title: StringResource, body: StringR
             Modifier.size(DiarySpacing.x10).clip(DiaryShapes.full).background(colors.selected),
             contentAlignment = Alignment.Center
         ) {
-            DiaryIcon(icon, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
+            DiaryIcon(benefit.icon, contentDescription = null, tint = colors.accentText, size = DiaryIconSize.i20)
         }
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            PhraseText(stringResource(title), style = typography.bodyStrong.copy(color = colors.textPrimary))
-            PhraseText(stringResource(body), style = typography.caption.copy(color = colors.textSecondary))
+            PhraseText(stringResource(benefit.title), style = typography.bodyStrong.copy(color = colors.textPrimary))
+            PhraseText(stringResource(benefit.body), style = typography.caption.copy(color = colors.textSecondary))
         }
     }
 }
+
+private val PlusBenefit.icon: ImageVector
+    get() = when (this) {
+        PlusBenefit.AD_FREE -> DiaryIcons.ShieldCheck
+        PlusBenefit.PHOTOS -> DiaryIcons.Image
+        PlusBenefit.STATS -> DiaryIcons.TabInsight
+        PlusBenefit.CHECKLIST -> DiaryIcons.Checklist
+        PlusBenefit.LIST_FORMATTING -> DiaryIcons.TextColor
+    }
+
+private val PlusBenefit.title: StringResource
+    get() = when (this) {
+        PlusBenefit.AD_FREE -> Res.string.plus_ads_title
+        PlusBenefit.PHOTOS -> Res.string.plus_photos_title
+        PlusBenefit.STATS -> Res.string.plus_stats_title
+        PlusBenefit.CHECKLIST -> Res.string.plus_checklist_title
+        PlusBenefit.LIST_FORMATTING -> Res.string.plus_format_title
+    }
+
+private val PlusBenefit.body: StringResource
+    get() = when (this) {
+        PlusBenefit.AD_FREE -> Res.string.plus_ads_body
+        PlusBenefit.PHOTOS -> Res.string.plus_photos_body
+        PlusBenefit.STATS -> Res.string.plus_stats_body
+        PlusBenefit.CHECKLIST -> Res.string.plus_checklist_body
+        PlusBenefit.LIST_FORMATTING -> Res.string.plus_format_body
+    }

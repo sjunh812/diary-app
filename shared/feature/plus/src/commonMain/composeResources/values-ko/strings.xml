@@ -38,8 +38,13 @@
     <string name="plus_manage_benefits">이용 중인 혜택</string>
     <string name="plus_manage_price">요금</string>
     <string name="plus_manage_store_body">다음 결제일을 확인하거나 해지할 수 있어요.</string>
-    <string name="plus_checklist_title">체크리스트</string>
+    <string name="plus_checklist_title">일기에 체크리스트 넣기</string>
     <string name="plus_checklist_body">일기에 할 일을 적고 체크할 수 있어요.</string>
     <string name="plus_terms">이용약관</string>
     <string name="plus_privacy">개인정보처리방침</string>
+    <string name="plus_other_title">다른 혜택</string>
+    <string name="plus_see_all">모두 보기</string>
+    <string name="plus_all_title">Plus 혜택</string>
+    <string name="plus_format_title">목록에서도 서식 그대로 보기</string>
+    <string name="plus_format_body">굵게, 밑줄, 글자 색, 형광펜까지 보여요.</string>
 </resources>

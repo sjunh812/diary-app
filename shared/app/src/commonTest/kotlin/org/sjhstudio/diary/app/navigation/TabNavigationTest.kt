@@ -158,7 +158,7 @@ class TabNavigationTest {
         val nav = navigation()
         val writing = WriteKey()
         nav.push(writing)
-        nav.push(PlusKey)
+        nav.push(PlusKey())
 
         nav.push(WriteKey())
 
