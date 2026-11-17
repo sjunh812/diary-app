@@ -261,12 +261,19 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             ExpectedLeave.clear()
             if (file != null) vm.addPhotos(listOf(file.picked()))
         }
+    val photosFull = state.photos.size >= photoLimit
     val openPicker = {
-        ExpectedLeave.mark()
-        pick.launch()
+        if (photosFull) {
+            vm.photosFull()
+        } else {
+            ExpectedLeave.mark()
+            pick.launch()
+        }
     }
     val openCamera = {
-        if (cameraAccess.blocked()) {
+        if (photosFull) {
+            vm.photosFull()
+        } else if (cameraAccess.blocked()) {
             cameraOff = true
         } else {
             ExpectedLeave.mark()

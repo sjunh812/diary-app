@@ -105,6 +105,24 @@ class WriteViewModelTest {
     }
 
     @Test
+    fun full_photos_notice_the_limit_by_plan() = runTest(dispatcher) {
+        val plans = object : PlanRepository {
+            override val plan = MutableStateFlow(Plan.FREE)
+        }
+        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
+        advanceUntilIdle()
+
+        viewModel.photosFull()
+        assertEquals(PhotoNotice.Limit(10, canUpgrade = true), viewModel.state.value.photoNotice)
+
+        viewModel.photoNoticeShown()
+        plans.plan.value = Plan.PLUS
+        advanceUntilIdle()
+        viewModel.photosFull()
+        assertEquals(PhotoNotice.Limit(30, canUpgrade = false), viewModel.state.value.photoNotice)
+    }
+
+    @Test
     fun new_entry_starts_today_and_cannot_be_saved_empty() = runTest(dispatcher) {
         val vm = vm(FakeDraftRepository())
         advanceUntilIdle()

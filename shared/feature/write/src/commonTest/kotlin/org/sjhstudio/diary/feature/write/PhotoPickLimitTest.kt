@@ -11,7 +11,7 @@ class PhotoPickLimitTest {
     }
 
     @Test
-    fun full_draft_still_opens_the_picker_for_one() {
+    fun never_asks_the_picker_for_zero() {
         assertEquals(1, pickMaxItems(limit = 10, attached = 10, pickerLimitsCount = true))
     }
 

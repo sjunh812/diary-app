@@ -39,6 +39,7 @@ import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
@@ -544,6 +545,12 @@ class WriteViewModel(
     }
 
     fun photoNoticeShown() = _state.update { it.copy(photoNotice = null) }
+
+    /** 칸이 다 찬 채 사진 추가를 누름. 고르기 화면을 띄우지 않고 한도부터 알림 */
+    fun photosFull() {
+        val limit = photoLimit.value
+        _state.update { it.copy(photoNotice = PhotoNotice.Limit(limit, canUpgrade = limit < PhotoLimit.PLUS)) }
+    }
 
     /** iCloud에서 받지 못했거나 카메라를 열지 못함. 말없이 넘어가면 왜 사진이 없는지 모름 */
     fun photoPickFailed() = _state.update { it.copy(photoNotice = PhotoNotice.Unreadable) }
