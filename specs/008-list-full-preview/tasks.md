@@ -92,6 +92,19 @@
 - [x] T049 CI와 같은 검사 전부(quickstart 1), 새 문구 `korean-humanizer`·맞춤법
 - [ ] T050 Baseline Profile에 새 경로가 필요한지 `/release-prep` 기준으로 본다
 
+## 10단계: US6 Plus 화면 혜택 (P3)
+
+**독립 시험**: 무료로 결제 화면·시트·"서식도 보이기" 진입, 개발자 모드 Plus로 관리 화면.
+
+- [x] T051 [US6] Figma 프로토타입과 디자인(라이트·다크·태블릿) in Figma "표지 · 흐름" 섹션 "프로토타입 · Plus 혜택"
+- [ ] T052 [US6] 결제 화면 규칙(핵심·다른 혜택, [모두 보기], 약관 자리, 간격)을 `docs/design.md` "결제 화면"·"구독 관리"와 `docs/DECISIONS.md`에 적는다
+- [ ] T053 [P] [US6] 새 문구(다른 혜택, 모두 보기, Plus 혜택, 일기에 체크리스트 넣기, 목록에서도 서식 그대로 보기와 설명) 3개 언어 in `shared/feature/plus/src/commonMain/composeResources/values*/strings.xml`
+- [ ] T054 [US6] 혜택 목록 모델(핵심·다른 혜택, 들어온 혜택 먼저, 3줄 상한) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/PlusBenefits.kt`, 시험 in `src/commonTest`
+- [ ] T055 [US6] 결제 화면·관리 화면을 새 묶음으로, [모두 보기] 시트, 약관 자리 in `PlusScreen.kt`
+- [ ] T056 [US6] 들어온 곳을 `PlusKey`에 싣고 "서식도 보이기"에서 넘기기 in `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/navigation/ScreenKeys.kt`, `SettingsEntries.kt`
+- [ ] T057 [P] [US6] 프리뷰(한국어 먼저, 라이트·다크, 시트) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/preview/PlusPreviews.kt`, iOS 화면 시험 in `src/iosTest`
+- [ ] T058 [US6] 아이폰 15 시뮬레이터와 411×914 에뮬레이터에서 스크롤이 없는지 재고(SC-007) 다크·태블릿·큰 글자·영어·일본어를 본다
+
 ## 순서
 
 - 1단계(프로토타입 확정)가 끝나야 화면 작업(T014, T020~T023, T029, T035, T041, T042)을 한다. 화면 없는 T007~T013, T017~T019, T024~T027, T031~T033, T037~T040은 먼저 해도 된다.
