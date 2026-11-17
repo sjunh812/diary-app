@@ -39,6 +39,6 @@
 ./gradlew :benchmarks:connectedBenchmarkAndroidTest -P android.testInstrumentationRunnerArguments.class=org.sjhstudio.diary.benchmarks.ScrollBenchmark
 ```
 
-- 3줄 / 전체 / 전체+서식 각각 버벅인 프레임 2.5% 이하, 상위 1% 19ms 안팎.
+- 3줄 / 전체 / 전체+서식 각각 버벅인 프레임 2.5% 이하, 상위 1% 20ms 이하(3회 중간값).
 - StartupBenchmark 세 경우가 지금보다 늘지 않는다.
 - 결과와 정한 상한 줄 수를 `design-review.md`와 `docs/design.md`에 적는다.

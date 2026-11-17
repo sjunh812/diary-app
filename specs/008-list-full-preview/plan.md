@@ -31,7 +31,7 @@
 
 ```text
 shared/core/model/.../ListPreferences.kt       PreviewLength, ListPreferences에 previewLength·showFormatting·previewChosen
-shared/core/model/.../EntryViews.kt            EntryRow.preview를 PreviewText(글 + 서식 구간)로
+shared/core/model/.../EntryViews.kt            EntryRow에 previewLines·previewSpans
 shared/core/model/.../Welcome.kt               ContextTip.HOME_FULL_PREVIEW, HOME_FULL_PREVIEW_KEPT
 shared/core/model/.../richtext/PreviewText.kt  줄 규칙(contracts/preview-text.md), 특수 줄바꿈 글자 정규화
 shared/core/datastore/.../SettingsStore.kt     새 키 셋
@@ -42,7 +42,8 @@ shared/core/data/.../diary/DefaultEntryRepository.kt  설정·요금제를 보�
 shared/core/data/.../WelcomeRepository.kt      팁 규칙(한 번에 하나, 하루 하나), 잘린 일기 연 횟수
 shared/core/migration/.../LegacyListPreview.kt 옛 skip_note를 한 번 읽어 판단(이미 이전한 기기 포함)
 shared/core/backup/.../ManifestCodec.kt        ManifestSettings에 previewLength, showListFormatting(있어도 그만)
-shared/core/ui/.../DiaryPreviewText.kt         PreviewText를 그리는 부품(서식 색은 토큰)
+shared/core/ui/.../DiaryEntryLine.kt           rememberPreview: 서식 구간을 토큰 색으로(카드도 같이)
+shared/core/ui/.../DiaryEntryCard.kt           홈 카드·격자 칸을 옮겨 목록 보기 미리보기와 함께 씀
 shared/feature/home/.../HomeStyles.kt          maxLines를 줄의 PreviewText에서
 shared/feature/home/.../HomeScreen.kt          팁 둘(옛 설정 이음, 전체 보기 알림)
 shared/feature/home/.../EntryDetailViewModel.kt 잘린 일기를 열면 횟수 올림
@@ -58,8 +59,9 @@ benchmarks/.../ScrollBenchmark.kt              세 경우 재기
 
 - `ListPreferences`: `listStyle`(있음), `previewLength: PreviewLength = THREE_LINES`, `showFormatting: Boolean = false`, `previewChosen: Boolean = false`.
 - 설정 저장 키: `preview_length`, `show_list_formatting`, `preview_chosen`, `legacy_preview_checked`.
+- 목록 쿼리는 그대로 두고, 전체 보기·서식 보기면 쪽(60편)마다 `previewTexts`·`previewHtmls`로 한 번 더 읽는다(사진을 쪽마다 한 번에 읽는 방식과 같음).
 - 팁 기록(`WelcomeStore`): `last_tip_day`(팁이 마지막으로 보인 날), `clipped_opens`(3줄에서 잘린 일기를 상세로 연 횟수).
-- `EntryRow.preview: PreviewText`: `text`(줄 규칙을 거친 글), `spans`(서식 보기일 때만, 아니면 빈 목록), `maxLines`(3 또는 상한).
+- `EntryRow`: `preview`(줄 규칙을 거친 글, 타입 그대로), `previewLines`(3 또는 상한), `previewSpans`(서식 보기일 때만).
 - 백업 `ManifestSettings`: `previewLength: String?`, `showListFormatting: Boolean?`. 없으면 복원 기기 값을 그대로 둔다.
 
 ## 흐름
