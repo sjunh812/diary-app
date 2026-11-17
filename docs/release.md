@@ -237,7 +237,7 @@ REVENUECAT_IOS = appl_...
       같은 날 [브랜딩 확인]을 냈지만 자동 검사가 "홈페이지 웹사이트가 나에게 등록되어 있지 않다"로 막았다. 소유 확인이 시스템에 반영되기까지 24시간을 기다린 뒤
       브랜딩 페이지 [문제 보기] > "문제를 해결함"으로 다시 낸다(2026-11-14 이후). 범위는 민감하지 않은 것만 쓰고 게시 상태는 프로덕션이라, 검증 전에도 로그인 사용자 수 제한은 없다.
       2026-11-15 "문제를 해결함"으로 다시 냈지만 자동 검사가 같은 이유로 막았다. 검색 콘솔에서 `https://sjunh812.github.io/`는 2026-02-24부터 같은 계정의 인증된 소유자다. `github.io`는 공개 접미사라 DNS 도메인 속성을 만들 수 없어 자동 검사가 URL 접두어 인증을 소유로 보지 않는 것으로 짐작한다. 같은 날 "발견된 문제가 잘못되었다고 생각됨"으로 사람 검토를 요청했다(사유와 설명 입력, 인증 설문 모두 "아니요"). 승인된 도메인에 소유를 인증하지 않은 `sjhstudio.org`가 남아 있어 검토에서 걸리면 뺀다.
-- [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 구글 브랜딩이 거는 GitHub Pages(`sjunh812.github.io` 저장소 `1day1diary/`). 고치면 세 곳을 함께 고친다.
+- [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 스토어 웹사이트가 거는 Cloudflare Pages(`https://sjunh812.pages.dev/1day1diary/`). 고치면 세 곳을 함께 고친다. GitHub 계정 정지로 `sjunh812.github.io`가 404가 되어 2026-11-17에 옮겼다.
 - [x] 기분·날씨 아이콘: 기분 얼굴은 우리가 Figma에서 그린 것을 코드로 옮겼다(`DiaryMoodFace`). 날씨와 화면 아이콘은 Lucide(ISC) 경로를 옮겼고, 빠져 있던 Lucide 고지를 오픈소스 라이선스 목록에 더했다. 같은 때 iOS에만 들어가는 SDK(GoogleSignIn, Firebase, Google Mobile Ads, RevenueCat KMP)도 목록에 더했다(`config/aboutlibraries/`, 2026-11-13)
 - [x] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(2026-11-01 해제, 시험 호출이 401 "Authentication Failed"). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
 - [x] 위치정보지원센터 문의: 하지 않기로 함(2026-11-11 사용자 결정, `docs/DECISIONS.md`)
@@ -247,8 +247,8 @@ REVENUECAT_IOS = appl_...
 - [ ] Play 데이터 보안, App Store 개인정보 라벨(Privacy Manifest는 넣음, 위 "App Store 제출") Play 데이터 보안은 2026-11-13 검토 승인.
 - [x] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언(2026-11-12 선언, 2026-11-15 콘솔에서 확인: "앱에 광고가 있음", "광고 ID 사용"). iOS ATT 문구와 창은 넣음(2026-11-12, `SKAdNetworkItems` Google 목록 50개). 처리방침 3번에 iOS의 추적 끄는 곳을 더함(원문과 Notion, 2026-11-12), UMP 동의
 - [x] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(2026-11-11, 계정 승인 뒤)
-- [x] `app-ads.txt`를 `https://sjunh812.github.io/app-ads.txt`에 올리기(개발자 블로그 저장소 맨 앞, 2026-11-11)
-- [x] Play Console 스토어 설정의 개발자 웹사이트를 `https://sjunh812.github.io`로 바꿈(2026-11-11). AdMob 앱 인증은 크롤러가 새 주소를 읽을 때까지(최대 7일) 기다린 뒤 "업데이트 확인"
+- [x] `app-ads.txt`를 `https://sjunh812.pages.dev/app-ads.txt`에 올리기(처음엔 `sjunh812.github.io`, GitHub 계정 정지로 2026-11-17 Cloudflare Pages로 옮김)
+- [x] Play Console 스토어 설정의 개발자 웹사이트를 `https://sjunh812.pages.dev`로 바꿈(2026-11-17, 그 전엔 `sjunh812.github.io`). AdMob 앱 인증은 크롤러가 새 주소를 읽을 때까지(최대 7일) 기다린 뒤 "업데이트 확인"
 - [ ] App Store 출시 뒤 AdMob iOS 앱에 스토어를 연결하고, App Store의 마케팅 URL도 같은 주소로 둔다
 - [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기(Play 문구와 App Store 설명 끝 약관 줄은 `docs/store/listing.md`에 씀)
 - [ ] 스크린샷(폰 ✓, 7"·10" 태블릿 ✓, iPhone 6.3" ✓, iPad 13" ✓ 세 언어, 2026-11-13), 피처 그래픽 ✓, 아이콘 ✓. 영어·일본어 Play 스크린샷 ✓(원어민 검수 전)
@@ -342,7 +342,7 @@ iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-
 - [x] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인 것을 확인했다(2026-11-13). App Store ID(6835116731)와 팀 ID(C5XA3NN9J6)를 넣은 것을 2026-11-16 확인했다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
 - [x] Firebase(`diary-app`): iOS 앱은 이미 있었고 `GoogleService-Info.plist`를 받아 `iosApp/iosApp/`에 두었다(2026-11-13). CD 비밀값 `GOOGLE_SERVICE_INFO_PLIST_BASE64`는 직접 넣는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
 - [x] 개인정보 라벨(2026-11-16 게시): 위 "스토어 신고" 표대로 답한다. 광고에 쓰는 기기 ID와 광고 데이터는 "추적에 사용"으로 답한다(ATT를 띄운다). 일기, 사진, 기분, 주소는 수집하지 않는다.
-- [x] 연령 등급 설문(4+), 카테고리(라이프스타일, 보조 생산성), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
+- [x] 연령 등급 설문(4+), 카테고리(라이프스타일, 보조 생산성), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`). 출시된 버전의 두 URL은 바꿀 수 없어, iOS 2.0.2를 낼 때 `https://sjunh812.pages.dev`로 바꾼다(2026-11-17).
 - [x] 이름·부제·홍보 문구·키워드·설명 넣기(2026-11-16): 문구는 `docs/store/listing.md`의 "App Store 이름·부제·홍보 문구·키워드"와 "App Store 설명"에 세 언어로 있다.
 - [x] 구독 앱은 설명에 이용약관 링크가 있어야 한다(3.1.2). 레퍼런스 앱 대부분처럼 설명 끝에 우리 약관과 처리방침 주소를 적고 EULA 칸은 비워 Apple 표준을 쓴다(2026-11-13 사용자 결정, 문구는 `docs/store/listing.md` "App Store 설명").
 - [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 같은 날 읽기 쉬운 말로 다시 쓴 글로 노션과 GitHub Pages를 함께 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인). 앱 원문의 '휴대폰'→'기기'와 보조 용언 붙여 쓰기를 노션과 GitHub Pages에도 맞췄다(2026-11-17, 공개 페이지에서 확인).
