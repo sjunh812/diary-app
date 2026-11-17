@@ -345,7 +345,7 @@ iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-
 - [x] 연령 등급 설문(4+), 카테고리(라이프스타일, 보조 생산성), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
 - [x] 이름·부제·홍보 문구·키워드·설명 넣기(2026-11-16): 문구는 `docs/store/listing.md`의 "App Store 이름·부제·홍보 문구·키워드"와 "App Store 설명"에 세 언어로 있다.
 - [x] 구독 앱은 설명에 이용약관 링크가 있어야 한다(3.1.2). 레퍼런스 앱 대부분처럼 설명 끝에 우리 약관과 처리방침 주소를 적고 EULA 칸은 비워 Apple 표준을 쓴다(2026-11-13 사용자 결정, 문구는 `docs/store/listing.md` "App Store 설명").
-- [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 같은 날 읽기 쉬운 말로 다시 쓴 글로 노션과 GitHub Pages를 함께 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인).
+- [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 같은 날 읽기 쉬운 말로 다시 쓴 글로 노션과 GitHub Pages를 함께 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인). 앱 원문의 '휴대폰'→'기기'와 보조 용언 붙여 쓰기를 노션과 GitHub Pages에도 맞췄다(2026-11-17, 공개 페이지에서 확인).
 - [x] 스크린샷 올리기(2026-11-16): `docs/store/screens/ios/{ko,en,ja}/`의 iPhone 4장은 위 표의 medium(1206×2622) 칸, iPad 4장은 13" 칸에 올린다. App Store Connect가 6.9"(large) 칸을 따로 요구하면 1320×2868로 다시 만든다(확인 못 함).
 - [x] 심사 메모(2026-11-16, 영어로 넣음, 연락처 포함): 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
 - [x] 심사 메모에 추적 허용 창 띄우는 순서를 더했다(2026-11-17): "The App Tracking Transparency prompt appears right before the first full-screen ad: write and save one entry, then tap OK on the ad notice." 2.0.1 (45)부터 광고를 받지 못했어도 이 순간에 뜬다(`docs/DECISIONS.md` 2026-11-16).
