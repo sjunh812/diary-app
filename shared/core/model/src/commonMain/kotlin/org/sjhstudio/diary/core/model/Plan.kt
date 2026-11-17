@@ -1,10 +1,17 @@
 package org.sjhstudio.diary.core.model
 
 /** 요금제에 따라 달라지는 것(`docs/business.md`). 쓰던 기능은 어느 요금제든 그대로(헌법 III) */
-enum class Plan(val showsAds: Boolean, val photoLimit: Int, val advancedStats: Boolean, val checklist: Boolean) {
-    FREE(showsAds = true, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false),
-    AD_FREE(showsAds = false, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false),
-    PLUS(showsAds = false, photoLimit = PhotoLimit.PLUS, advancedStats = true, checklist = true);
+enum class Plan(
+    val showsAds: Boolean,
+    val photoLimit: Int,
+    val advancedStats: Boolean,
+    val checklist: Boolean,
+    /** 홈 목록 미리보기에 서식까지 그림(스펙 008 FR-012) */
+    val listFormatting: Boolean
+) {
+    FREE(showsAds = true, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false, listFormatting = false),
+    AD_FREE(showsAds = false, photoLimit = PhotoLimit.FREE, advancedStats = false, checklist = false, listFormatting = false),
+    PLUS(showsAds = false, photoLimit = PhotoLimit.PLUS, advancedStats = true, checklist = true, listFormatting = true);
 
     /** 이 요금제에 [product]의 혜택이 들어 있음. Plus는 광고 제거도 포함 */
     fun includes(product: ProductId): Boolean = when (product) {

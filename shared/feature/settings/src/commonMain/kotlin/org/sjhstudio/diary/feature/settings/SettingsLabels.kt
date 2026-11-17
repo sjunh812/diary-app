@@ -4,9 +4,12 @@ import org.jetbrains.compose.resources.StringResource
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.LockSettings
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.RelockAfter
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.list_length_full
+import org.sjhstudio.diary.feature.settings.resources.list_length_three
 import org.sjhstudio.diary.feature.settings.resources.list_style_card
 import org.sjhstudio.diary.feature.settings.resources.list_style_feed
 import org.sjhstudio.diary.feature.settings.resources.list_style_photo
@@ -36,6 +39,11 @@ internal fun ListStyle.label(): StringResource = when (this) {
     ListStyle.FEED -> Res.string.list_style_feed
     ListStyle.CARD -> Res.string.list_style_card
     ListStyle.PHOTO_GRID -> Res.string.list_style_photo
+}
+
+internal fun PreviewLength.label(): StringResource = when (this) {
+    PreviewLength.THREE_LINES -> Res.string.list_length_three
+    PreviewLength.FULL -> Res.string.list_length_full
 }
 
 internal fun ThemeMode.label(): StringResource = when (this) {

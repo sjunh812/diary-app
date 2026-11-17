@@ -4,6 +4,7 @@ import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.YearMonth
+import org.sjhstudio.diary.core.model.richtext.PreviewText
 
 /**
  * 목록 한 줄에 필요한 것만 담음. 일기 내용이 있어 로그나 사용 통계로 넘기지 않음(헌법 II)
@@ -20,7 +21,13 @@ data class EntryRow(
     val isFavorite: Boolean,
     val photos: List<String?>,
     /** 합치기에서 양쪽 다 수정해 둘 다 남긴 일기 */
-    val keptBoth: Boolean = false
+    val keptBoth: Boolean = false,
+    /** [preview]를 보일 최대 줄 수(스펙 008) */
+    val previewLines: Int = PreviewText.THREE_LINES,
+    /** Plus 서식 보기일 때 [preview] 기준 서식. 아니면 빈 목록 */
+    val previewSpans: List<RichSpan> = emptyList(),
+    /** 원문이 [preview]보다 길어 잘림 */
+    val previewCut: Boolean = false
 ) {
     override fun toString(): String = "EntryRow"
 

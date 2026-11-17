@@ -26,7 +26,9 @@ import org.koin.dsl.module
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.platform.FontInstallState
 import org.sjhstudio.diary.core.platform.FontInstaller
+import org.sjhstudio.diary.core.testing.FakeContextTips
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
+import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.home.resources.Res
@@ -53,7 +55,19 @@ class EntryMenuUiTest {
     private fun ComposeUiTest.openMenu(favorite: Boolean) {
         val rows = listOf(fakeEntryRow("a", LocalDate(2026, 11, 1), row, favorite))
         startKoin {
-            modules(module { viewModel { HomeViewModel(FakeEntryRepository(rows = rows), FakeSettingsRepository(), NoFonts) } })
+            modules(
+                module {
+                    viewModel {
+                        HomeViewModel(
+                            FakeEntryRepository(rows = rows),
+                            FakeSettingsRepository(),
+                            NoFonts,
+                            FakePlanRepository(),
+                            FakeContextTips()
+                        )
+                    }
+                }
+            )
         }
         setContent {
             CompositionLocalProvider(LocalUIViewController provides UIViewController(null, null)) {

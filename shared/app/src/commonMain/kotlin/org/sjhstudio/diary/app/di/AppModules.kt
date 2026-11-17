@@ -81,6 +81,7 @@ import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.createDriveApi
+import org.sjhstudio.diary.core.migration.LegacyListPreview
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
@@ -176,6 +177,7 @@ private fun coreModule(isDebug: Boolean) = module {
         // 옛 앱이 없는 iOS에는 잠금·설정 잇기 없음
         val legacyLock = getOrNull<LegacyLockBootstrap>()
         val legacySettings = getOrNull<LegacySettingsBootstrap>()
+        val legacyPreview = getOrNull<LegacyListPreview>()
         Startup(
             get<AppFiles>()::ensureDirectories,
             get(),
@@ -183,6 +185,7 @@ private fun coreModule(isDebug: Boolean) = module {
             get(APP_SCOPE),
             bootstrapLegacyLock = { legacyLock?.run() },
             bootstrapLegacySettings = { legacySettings?.run() },
+            bootstrapLegacyPreview = { legacyPreview?.run() },
             platformWork = { getOrNull<StartupWork>()?.run() },
             knowFont = { getOrNull<FontInstaller>()?.installedPath(it.font.id) },
             warmFont = { getOrNull<FontWarmup>()?.warm(it.font) },

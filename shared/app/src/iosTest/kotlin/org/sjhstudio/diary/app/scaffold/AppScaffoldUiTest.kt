@@ -74,8 +74,10 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
+import org.sjhstudio.diary.core.testing.FakeContextTips
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
+import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
@@ -129,7 +131,12 @@ class AppScaffoldUiTest {
                     single { Telemetry(sink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(rows = rows) }
-                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts).also { homeModels += it } }
+                    viewModel {
+                        HomeViewModel(get(), FakeSettingsRepository(), NoFonts, FakePlanRepository(), FakeContextTips()).also {
+                            homeModels +=
+                                it
+                        }
+                    }
                     viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts, saved = SavedStateHandle()) }
                 }
             )

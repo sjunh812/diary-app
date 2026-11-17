@@ -71,8 +71,10 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
+import org.sjhstudio.diary.core.testing.FakeContextTips
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
+import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
@@ -127,8 +129,15 @@ class AdaptiveLayoutUiTest {
                     single { Telemetry(NoTelemetrySink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(moods, rows) }
-                    viewModel { (entryId: String) -> EntryDetailViewModel(entryId, get(), FakeSettingsRepository(), NoAdaptiveFonts) }
-                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
+                    viewModel { (entryId: String) ->
+                        EntryDetailViewModel(
+                            entryId,
+                            get(),
+                            FakeSettingsRepository(),
+                            NoAdaptiveFonts
+                        )
+                    }
+                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts, FakePlanRepository(), FakeContextTips()) }
                     viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts, saved = SavedStateHandle()) }
                 }
             )

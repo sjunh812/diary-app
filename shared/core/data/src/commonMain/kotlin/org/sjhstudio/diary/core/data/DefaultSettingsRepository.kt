@@ -6,6 +6,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeMode
 
 class DefaultSettingsRepository(private val store: SettingsStore) : SettingsRepository {
@@ -14,6 +15,11 @@ class DefaultSettingsRepository(private val store: SettingsStore) : SettingsRepo
     override suspend fun setFont(font: DiaryFont) = store.update { it.copy(font = font) }
 
     override suspend fun setListStyle(style: ListStyle) = store.update { it.copy(list = it.list.copy(listStyle = style)) }
+
+    override suspend fun setPreviewLength(length: PreviewLength, chosen: Boolean) =
+        store.update { it.copy(list = it.list.copy(previewLength = length, previewChosen = it.list.previewChosen || chosen)) }
+
+    override suspend fun setShowListFormatting(show: Boolean) = store.update { it.copy(list = it.list.copy(showFormatting = show)) }
 
     override suspend fun setBodyTextSize(size: BodyTextSize) = store.update { it.copy(bodyTextSize = size) }
 

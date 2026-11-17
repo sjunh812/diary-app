@@ -26,6 +26,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
+import org.sjhstudio.diary.core.model.RichSpan
 import org.sjhstudio.diary.core.model.RichStyle
 import org.sjhstudio.diary.core.model.parseRichText
 
@@ -67,8 +68,13 @@ fun DiaryRichText(html: String, style: TextStyle, modifier: Modifier = Modifier,
 
 internal fun richAnnotated(html: String, colors: DiaryColors): AnnotatedString {
     val parsed = parseRichText(html)
-    val builder = AnnotatedString.Builder(parsed.text)
-    for (span in parsed.spans) builder.addStyle(span.style.toSpan(colors), span.start, span.end)
+    return richAnnotated(parsed.text, parsed.spans, colors)
+}
+
+/** 글과 서식 구간을 토큰 색으로 그릴 글로. 목록 미리보기도 씀(스펙 008) */
+fun richAnnotated(text: String, spans: List<RichSpan>, colors: DiaryColors): AnnotatedString {
+    val builder = AnnotatedString.Builder(text)
+    for (span in spans) builder.addStyle(span.style.toSpan(colors), span.start, span.end)
     return builder.toAnnotatedString()
 }
 

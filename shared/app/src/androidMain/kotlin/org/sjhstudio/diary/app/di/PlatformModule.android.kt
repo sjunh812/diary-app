@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdSwitch
+import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
 import org.sjhstudio.diary.core.data.StoreReview
@@ -37,6 +38,7 @@ import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.migration.AndroidImageSizeReader
 import org.sjhstudio.diary.core.migration.LegacyArchive
+import org.sjhstudio.diary.core.migration.LegacyListPreview
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
@@ -52,6 +54,7 @@ import org.sjhstudio.diary.core.migration.SupportBundle
 import org.sjhstudio.diary.core.migration.SupportFiles
 import org.sjhstudio.diary.core.migration.freeBytes
 import org.sjhstudio.diary.core.migration.legacyFiles
+import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.platform.AndroidDeviceName
 import org.sjhstudio.diary.core.platform.AndroidDriveAuthorizer
 import org.sjhstudio.diary.core.platform.AndroidFontInstaller
@@ -151,6 +154,11 @@ internal actual val platformModule: Module =
             LegacyLockBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get(), get())
         }
         single { LegacySettingsBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get()) }
+        single {
+            LegacyListPreview(FileSystem.SYSTEM, get<MigrationPaths>().legacy, get()) {
+                get<ContextTips>().open(ContextTip.HOME_FULL_PREVIEW_KEPT)
+            }
+        }
         // 1.7.x 원본이 같은 패키지에 남아 있으면 옮김(docs/migration.md)
         single<LegacyMigration> {
             val files = get<AppFiles>()

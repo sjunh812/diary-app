@@ -28,6 +28,10 @@
     <string name="detail_missing_body">It may have been deleted or moved to Trash.</string>
     <string name="tip_home_list_style">View your diary list as cards or a photo grid.</string>
     <string name="tip_home_list_style_action">Change</string>
+    <string name="tip_home_full_preview">You can see whole diaries in the list too.</string>
+    <string name="tip_home_full_preview_action">Turn on</string>
+    <string name="tip_home_full_preview_kept">The list shows whole diaries, just like before.</string>
+    <string name="tip_home_full_preview_kept_action">Show 3 lines</string>
     <string name="feedback_card_title">How are you finding 1 Day 1 Diary? 😊</string>
     <string name="feedback_card_body">We're running a survey to make the app better. Tell us what bothered you and what features you'd like.</string>
     <string name="feedback_card_action">Take the survey</string>
