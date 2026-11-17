@@ -49,6 +49,7 @@ Compose Multiplatform으로 다시 만들어 Play에는 업데이트, App Store�
 | `/backup-roundtrip` | 백업·복원·드라이브·저장 형식을 건드린 뒤 왕복 확인 |
 | `/pr-review` | 출시 이후 PR 올리기, CI, 리뷰봇 지적 처리, 머지 묻기 |
 | `/release-prep` | 버전 올리기, Baseline Profile, 글꼴 모듈 시험, 태그 |
+| `/cmp-architecture` | 코드를 쓰거나 리뷰할 때 구조·기술 기준(모듈 자리, 주입, 화면 모델, 시험, 성능, iOS) |
 
 ## 레퍼런스
 
