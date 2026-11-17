@@ -34,7 +34,7 @@ interface SettingsRepository {
      */
     suspend fun setPreviewLength(length: PreviewLength, chosen: Boolean = true)
 
-    /** 목록에서 서식도 보이기. 그리는지는 요금제와 함께 봄 */
+    /** 목록에서 서식 그대로 보기. 그리는지는 요금제와 함께 봄 */
     suspend fun setShowListFormatting(show: Boolean)
 
     /** "글꼴이 바뀌었어요"를 한 번 알린 뒤 지움 */

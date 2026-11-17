@@ -54,7 +54,7 @@ private fun ManageWide() = DiaryTheme(darkTheme = false) { PlusManageScreen(won(
 
 private val AdFreePriced = PlusUiState(products = listOf(StoreProduct(ProductId.AD_FREE, won("9,900", 9_900))), loading = false)
 
-@Preview(name = "결제 화면 · 서식도 보이기에서 옴", locale = "ko")
+@Preview(name = "결제 화면 · 서식 그대로 보기에서 옴", locale = "ko")
 @Composable
 private fun PaywallFromFormatting() = DiaryTheme(darkTheme = false) {
     PaywallScreen(won("14,900", 14_900).label(), false, false, false, {}, {}, {}, {}, from = PlusBenefit.LIST_FORMATTING)
