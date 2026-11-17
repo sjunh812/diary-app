@@ -128,7 +128,8 @@
     <string name="list_style_feed">Feed</string>
     <string name="list_style_card">Cards</string>
     <string name="list_style_photo">Photo grid</string>
-    <string name="list_group_style">Layout</string>
+    <string name="list_group_style">List layout</string>
+    <string name="list_group_body">Text</string>
     <string name="list_group_length">Text length</string>
     <string name="list_length_three">3 lines</string>
     <string name="list_length_five">5 lines</string>

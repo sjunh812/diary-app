@@ -53,7 +53,7 @@ class ListStyleSettingsUiTest {
 
     @Test
     fun feed_shows_style_choices_length_row_and_the_formatting_switch() = run(ListPreferences(), canFormat = true) {
-        // 종류는 고르기 줄 셋, 본문 길이는 값 줄 하나
+        // 목록 모양은 고르기 줄 셋, 본문 길이는 값 줄 하나
         assertEquals(3, onAllNodes(radio).fetchSemanticsNodes().size)
         assertEquals(1, onAllNodes(switch).fetchSemanticsNodes().size)
     }

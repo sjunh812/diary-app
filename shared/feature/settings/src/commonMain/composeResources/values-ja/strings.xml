@@ -122,7 +122,8 @@
     <string name="list_style_feed">フィード</string>
     <string name="list_style_card">カード</string>
     <string name="list_style_photo">写真グリッド</string>
-    <string name="list_group_style">種類</string>
+    <string name="list_group_style">一覧のレイアウト</string>
+    <string name="list_group_body">本文</string>
     <string name="list_group_length">本文の長さ</string>
     <string name="list_length_three">3行</string>
     <string name="list_length_five">5行</string>

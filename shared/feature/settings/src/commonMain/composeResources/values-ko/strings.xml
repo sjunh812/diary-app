@@ -122,7 +122,8 @@
     <string name="list_style_feed">피드</string>
     <string name="list_style_card">카드</string>
     <string name="list_style_photo">사진 격자</string>
-    <string name="list_group_style">종류</string>
+    <string name="list_group_style">목록 모양</string>
+    <string name="list_group_body">본문</string>
     <string name="list_group_length">본문 길이</string>
     <string name="list_length_three">3줄</string>
     <string name="list_length_five">5줄</string>

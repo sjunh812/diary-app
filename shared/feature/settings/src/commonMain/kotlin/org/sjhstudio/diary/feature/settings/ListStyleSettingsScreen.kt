@@ -66,6 +66,7 @@ import org.sjhstudio.diary.feature.settings.resources.list_formatting_body
 import org.sjhstudio.diary.feature.settings.resources.list_formatting_body_free
 import org.sjhstudio.diary.feature.settings.resources.list_formatting_plus_body
 import org.sjhstudio.diary.feature.settings.resources.list_formatting_plus_title
+import org.sjhstudio.diary.feature.settings.resources.list_group_body
 import org.sjhstudio.diary.feature.settings.resources.list_group_length
 import org.sjhstudio.diary.feature.settings.resources.list_group_style
 import org.sjhstudio.diary.feature.settings.resources.list_plus_action
@@ -116,11 +117,10 @@ fun ListStyleSettingsScreen(
             }
             // 사진 격자는 글을 칸 크기만큼만 보여 길이와 서식이 상관없음
             if (list.listStyle != ListStyle.PHOTO_GRID) {
-                // 종류(고르기 줄)와 꼴을 달리해 묶음을 나눔. 고르는 꼴은 시트에서도 체크
+                DiarySettingsHeader(stringResource(Res.string.list_group_body), gapAbove = true)
                 DiarySettingsRow(
                     stringResource(Res.string.list_group_length),
                     onClick = { lengthSheet = true },
-                    modifier = Modifier.padding(top = DiarySpacing.x4),
                     value = stringResource(list.previewLength.label())
                 )
                 DiarySettingsSwitchRow(
