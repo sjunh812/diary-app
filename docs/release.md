@@ -164,7 +164,8 @@ REVENUECAT_IOS = appl_...
 
 - [ ] 개발자 계정 > 내 정보에 사업자등록번호, 전자상거래 라이선스 번호, 발급 기관을 넣는다. 한국 사용자에게 보인다([요구사항](https://support.google.com/googleplay/android-developer/answer/6223646?hl=ko)).
 - [x] 판매 계정은 결제 프로필 주소가 공개된다. 집 주소가 공개되어도 그대로 간다(2026-11-06 사용자 결정).
-- [ ] 결제 프로필 > 대한민국 세금 정보에 사업자등록번호를 넣는다. 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)). 2026-11-13 Google에 문의 중(사용자). 진행 상태는 콘솔에서 보이지 않는다.
+- [x] 결제 프로필 > 대한민국 세금 정보는 "개인" 그대로 둔다. 사업자등록번호가 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)). 2026-11-18 Play Console 지원팀 답: 법인이 아닌 개인사업자는 개인 개발자 계정과 개인 결제 프로필을 쓰고, 연결된 결제 프로필은 바꿀 수 없다. 그래서 부가세 10%는 그대로 붙는다. 대한민국 양식에서 "세금 정보 업데이트"를 누르면 기존 양식이 지워지니 누르지 않는다.
+- [x] 결제 프로필 > 미국 세금 정보에 W-8BEN을 낸다. 2026-11-18 승인(기타 저작권 10%, 서비스 0% 조약 세율, 만료 2029-12-31). 만료 전에 새로 낸다.
 - [x] 수수료 프로그램에 등록한다. 첫 100만 달러 15%, 초과분 30%, 구독 갱신 15%다([수수료](https://support.google.com/googleplay/android-developer/answer/112622?hl=ko), [등록](https://support.google.com/googleplay/android-developer/answer/10632485?hl=ko)). 2026-11-12 Play 알림 "계정 그룹이 15% 서비스 수수료 프로그램에 등록됨"으로 확인.
 - [x] 정산 계좌를 시험 입금으로 인증한다([인증](https://support.google.com/googleplay/android-developer/answer/7161378?hl=ko)). 지급은 다음 달 15일쯤이다. 사용자 인증 완료(2026-11-13 확인).
 
@@ -180,6 +181,7 @@ REVENUECAT_IOS = appl_...
 **6. 해마다**
 
 - [ ] 부가세 신고: 일반과세자 1월·7월 25일, 간이과세자 1월 25일([기한](https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?mi=2273&cntntsId=7694)).
+- [ ] Play 수수료 인보이스를 매달 초 받아 모은다. 결제 센터 > 구독 및 서비스 > 관리 > 거래 보기에서 해당 달 오른쪽 다운로드. 이 인보이스로 수수료 부가세를 매입세액 공제받을 수 있는지는 부가세 신고 전에 세무사에게 묻는다 `[세무]`.
 - [ ] 한국 고객 부가세, 해외 매출 영세율, AdMob 수익 처리, 현금영수증 의무는 공식 답을 다 찾지 못했다 `[세무]`. AdMob 계정 유형은 바꿀 수 없으니 사업자로 만든다([AdMob](https://support.google.com/admob/answer/12835021?hl=ko)).
 
 ## 출시 국가
