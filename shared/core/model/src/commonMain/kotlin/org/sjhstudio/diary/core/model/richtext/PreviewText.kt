@@ -7,7 +7,7 @@ import org.sjhstudio.diary.core.model.RichText
 /**
  * 목록 미리보기 글 만들기(스펙 008 contracts/preview-text.md)
  * 쓴 줄바꿈은 지키고, 빈 줄은 3줄·5줄에서 없애고 전체에서는 연달아 있으면 하나로 줄임
- * 전체는 끝까지 보임. 줄도 글자도 자르지 않음
+ * 전체는 끝까지 보임. 줄도 글자도 자르지 않고 띄어쓰기도 쓴 그대로
  * 서식 구간은 지운 글자만큼 옮김
  */
 object PreviewText {
@@ -48,7 +48,9 @@ object PreviewText {
         val text = source.text
         val limit = chars(length)
         val (lines, stopped) = splitLines(text, limit)
-        val tidied = lines.map { tidy(text, it) }
+        // 전체는 상세 화면처럼 쓴 띄어쓰기를 그대로
+        val full = length == PreviewLength.FULL
+        val tidied = lines.map { tidy(text, it, keepSpaces = full) }
         val kept = keepLines(tidied.map { it to it.isEmpty() }, length)
 
         val out = StringBuilder()
@@ -60,7 +62,7 @@ object PreviewText {
                 origin += (origin.lastOrNull() ?: -1) + 1
             }
             for (at in indices) {
-                out.append(if (isSpace(text[at])) ' ' else text[at])
+                out.append(if (!full && isSpace(text[at])) ' ' else text[at])
                 origin += at
             }
         }
@@ -78,7 +80,7 @@ object PreviewText {
         val kept = ArrayList<List<Int>>()
         var lastBlank = true
         for ((indices, blank) in lines) {
-            // 3줄·5줄은 빈 줄을 모두 빼고, 전체는 연달은 빈 줄 가운데 첫 줄만 남김
+            // 3줄·5줄은 빈 줄을 모두 빼고, 전체는 연이은 빈 줄 가운데 첫 줄만 남김
             if (!blank || (length == PreviewLength.FULL && !lastBlank)) {
                 kept += indices
                 lastBlank = blank

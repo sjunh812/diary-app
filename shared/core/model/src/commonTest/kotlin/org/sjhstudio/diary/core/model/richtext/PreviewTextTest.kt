@@ -37,9 +37,23 @@ class PreviewTextTest {
         // 전각·줄 바꾸지 않는 띄어쓰기만 있는 줄도 빈 줄
         assertEquals("첫째\n둘째\n셋째", PreviewText.shape("첫째\n\u3000\n둘째\n\u00A0\n셋째", THREE_LINES))
         assertEquals("a b", PreviewText.shape("a\u3000\u3000b", THREE_LINES))
-        assertEquals("a b", PreviewText.shape("\n\n  a \t b", FULL))
         assertEquals("", PreviewText.shape("\n\n", FULL))
         assertEquals("", PreviewText.shape("", THREE_LINES))
+    }
+
+    @Test
+    fun fullKeepsSpacesAsWritten() {
+        // 전체는 상세 화면처럼 쓴 띄어쓰기와 들여쓰기를 그대로. 줄 끝 띄어쓰기만 지움
+        assertEquals("  a \t b", PreviewText.shape("\n\n  a \t b", FULL))
+        assertEquals("a   b\n\u3000c", PreviewText.shape("a   b  \n\u3000c", FULL))
+        assertEquals("a\n\nb", PreviewText.shape("a\n   \n\t\nb", FULL))
+        assertEquals("a b", PreviewText.shape("a   b", FIVE_LINES))
+    }
+
+    @Test
+    fun fullMovesSpansOverKeptSpaces() {
+        val source = RichText("a   b", listOf(RichSpan(4, 5, RichStyle.Bold)))
+        assertEquals(RichSpan(4, 5, RichStyle.Bold), PreviewText.shape(source, FULL).spans.single())
     }
 
     @Test

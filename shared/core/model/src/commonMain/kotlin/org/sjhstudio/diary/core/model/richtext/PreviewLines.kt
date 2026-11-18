@@ -33,12 +33,15 @@ internal fun splitLines(text: String, limit: Int): Pair<List<List<Int>>, Boolean
     return lines to false
 }
 
-/** 줄 앞뒤 띄어쓰기를 지우고 연달은 띄어쓰기는 하나로 */
-internal fun tidy(text: String, indices: List<Int>): List<Int> {
+/**
+ * 줄 끝 띄어쓰기를 지움. 띄어쓰기만 있는 줄은 빈 줄이 됨
+ * [keepSpaces]가 아니면 줄 앞 띄어쓰기도 지우고 연이은 띄어쓰기는 하나로
+ */
+internal fun tidy(text: String, indices: List<Int>, keepSpaces: Boolean): List<Int> {
     val out = ArrayList<Int>(indices.size)
     for (at in indices) {
-        val space = isSpace(text[at])
-        if (space && (out.isEmpty() || isSpace(text[out.last()]))) continue
+        val squeeze = !keepSpaces && isSpace(text[at])
+        if (squeeze && (out.isEmpty() || isSpace(text[out.last()]))) continue
         out += at
     }
     while (out.isNotEmpty() && isSpace(text[out.last()])) out.removeAt(out.lastIndex)
