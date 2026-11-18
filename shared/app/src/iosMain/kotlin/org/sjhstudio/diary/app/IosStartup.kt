@@ -46,6 +46,9 @@ interface FirebaseReporting {
      */
     fun recordCaught(kind: String, addresses: List<Long>)
 
+    /** 받아 넘긴 오류를 Crashlytics "처리된 오류"로 남김. 오류 종류 이름과 번호만 */
+    fun recordError(domain: String, code: Long)
+
     /** 전면 광고 원격 스위치(Remote Config `interstitial_enabled`). 받지 못하면 마지막 값, 처음이면 켜짐 */
     fun interstitialEnabled(): Boolean
 }
@@ -76,14 +79,16 @@ private fun FirebaseReporting.asSink(): TelemetrySink {
         @OptIn(ExperimentalNativeApi::class)
         override fun recordCaught(error: Throwable) =
             firebase.recordCaught(error::class.qualifiedName ?: "Exception", error.getStackTraceAddresses())
+
+        override fun recordError(domain: String, code: Long) = firebase.recordError(domain, code)
     }
 }
 
 /** Swift의 GoogleSignIn 구현이 맞추는 모양. 공유 프레임워크에 그대로 나감(스펙 003 research R2) */
 interface GoogleDrive {
-    fun connect(hint: String?, done: (key: String?, email: String?, error: String?) -> Unit)
+    fun connect(hint: String?, done: (key: String?, email: String?, error: String?, errorDomain: String?, errorCode: Long) -> Unit)
 
-    fun accessToken(done: (token: String?, key: String?, email: String?, error: String?) -> Unit)
+    fun accessToken(done: (token: String?, key: String?, email: String?, error: String?, errorDomain: String?, errorCode: Long) -> Unit)
 
     fun disconnect(done: () -> Unit)
 }
@@ -91,9 +96,9 @@ interface GoogleDrive {
 private fun GoogleDrive.asBridge(): IosDriveBridge {
     val drive = this
     return object : IosDriveBridge {
-        override fun connect(hint: String?, done: (String?, String?, String?) -> Unit) = drive.connect(hint, done)
+        override fun connect(hint: String?, done: (String?, String?, String?, String?, Long) -> Unit) = drive.connect(hint, done)
 
-        override fun accessToken(done: (String?, String?, String?, String?) -> Unit) = drive.accessToken(done)
+        override fun accessToken(done: (String?, String?, String?, String?, String?, Long) -> Unit) = drive.accessToken(done)
 
         override fun disconnect(done: () -> Unit) = drive.disconnect(done)
     }

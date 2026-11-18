@@ -103,3 +103,5 @@
 | `backup_export` | `kind`(`export`·`import`), `result`, `photos`(구간) |
 
 오류 보고(Crashlytics)에는 `BackupError(kind, step)`로 바꾼 뒤 보낸다. 드라이브 응답 본문, 파일 이름, 경로가 든 예외 메시지는 보내지 않는다.
+
+드라이브 로그인·토큰 실패는 `drive.<connect|token>.<오류 종류>` 이름과 오류 번호만 처리된 오류로 남긴다. 사용자 취소와 인터넷 끊김은 남기지 않고, 오류 메시지와 덧붙은 정보(userInfo)는 보내지 않는다(2026-11-18).

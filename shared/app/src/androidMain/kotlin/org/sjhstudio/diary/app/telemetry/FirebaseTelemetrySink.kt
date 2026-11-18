@@ -40,7 +40,12 @@ private class FirebaseTelemetrySink(context: Context) : TelemetrySink {
     override fun recordCaught(error: Throwable) {
         crashlytics.recordException(CaughtException(error.javaClass.name).apply { stackTrace = error.stackTrace })
     }
+
+    override fun recordError(domain: String, code: Long) = crashlytics.recordException(ReportedError(domain, code))
 }
+
+/** 받아 넘긴 오류. 종류 이름과 번호만 담음 */
+private class ReportedError(domain: String, code: Long) : Exception("$domain $code")
 
 /** 처리된 예외를 보고할 때 쓰는 껍데기. 이름에 원래 예외 종류만 담음 */
 private class CaughtException(kind: String) : Exception(kind)

@@ -72,6 +72,7 @@ import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
+import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.ui.AndroidFontWarmup
 import org.sjhstudio.diary.core.ui.FontWarmup
@@ -98,7 +99,7 @@ internal actual val platformModule: Module =
         single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }
         single<FontWarmup> { AndroidFontWarmup(androidContext()) { font -> get<FontInstaller>().installedPath(font.id) } }
         single { DatabaseFactory(androidContext(), get()) }
-        single { AndroidDriveAuthorizer(androidContext()) }
+        single { AndroidDriveAuthorizer(androidContext(), get<Telemetry>()) }
         single<DriveAuthorizer> { get<AndroidDriveAuthorizer>() }
         single<NetworkState> { AndroidNetworkState(androidContext()) }
         single<DeviceName> { AndroidDeviceName(androidContext()) }

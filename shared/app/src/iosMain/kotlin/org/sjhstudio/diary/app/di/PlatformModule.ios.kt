@@ -46,6 +46,7 @@ import org.sjhstudio.diary.core.platform.NoBackupScheduler
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
+import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import platform.Foundation.NSBundle
 
@@ -69,7 +70,7 @@ internal actual val platformModule: Module =
         single<PlaceFinder> { IosPlaceFinder() }
         single<FontInstaller> { IosFontInstaller(get()) }
         single { DatabaseFactory(get()) }
-        single<DriveAuthorizer> { IosDriveAuthorizer { IosDrive.bridge } }
+        single<DriveAuthorizer> { IosDriveAuthorizer(get<Telemetry>()) { IosDrive.bridge } }
         // 시작 때 감시를 켬. 백업·복원이 처음 읽을 때는 실제 연결 값이 들어와 있게
         single<NetworkState>(createdAtStart = true) { IosNetworkState() }
         single<DeviceName> { IosDeviceName() }

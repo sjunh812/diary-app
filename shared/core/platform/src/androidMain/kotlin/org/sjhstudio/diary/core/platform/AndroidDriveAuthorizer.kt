@@ -36,7 +36,7 @@ fun interface DriveConsentLauncher {
  * 토큰은 기기에 두지 않고 1시간짜리를 그때그때 받음
  * 응답에 계정이 없어 받은 토큰으로 userinfo를 불러 확인. 계정 이메일은 로그에 남기지 않음
  */
-class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
+class AndroidDriveAuthorizer(context: Context, private val errors: ErrorReporter = ErrorReporter.None) : DriveAuthorizer {
     private val context = context.applicationContext
     private val client = Identity.getAuthorizationClient(this.context)
 
@@ -60,7 +60,10 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
             } else {
                 first
             }
-        val account = account(result.accessToken ?: return ConnectResult.Failed(BackupFailure.AUTH))
+        val token =
+            result.accessToken
+                ?: return ConnectResult.Failed(BackupFailure.AUTH).also { errors.report(ErrorArea.DRIVE_CONNECT, NO_TOKEN, 0) }
+        val account = account(token)
         withContext(Dispatchers.IO) { prefs.edit { putString(KEY_EMAIL, account.email) } }
         // 연결하는 사이에 옛 계정으로 받은 토큰이 남아 있을 수 있음
         tokens.clear()
@@ -68,11 +71,17 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
     } catch (error: CancellationException) {
         throw error
     } catch (error: ApiException) {
-        if (error.statusCode == CommonStatusCodes.CANCELED) ConnectResult.Cancelled else ConnectResult.Failed(error.kind())
+        if (error.statusCode == CommonStatusCodes.CANCELED) {
+            ConnectResult.Cancelled
+        } else {
+            error.report(ErrorArea.DRIVE_CONNECT)
+            ConnectResult.Failed(error.kind())
+        }
     } catch (_: IOException) {
         ConnectResult.Failed(BackupFailure.OFFLINE)
     } catch (_: Exception) {
         // 동의 창을 띄우지 못한 경우 등. 결과로 돌려줘야 화면의 연결 중 표시가 끝나고 실패 안내가 뜸
+        errors.report(ErrorArea.DRIVE_CONNECT, UNEXPECTED, 0)
         ConnectResult.Failed(BackupFailure.UNKNOWN)
     }
 
@@ -82,10 +91,16 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         val email = withContext(Dispatchers.IO) { prefs.getString(KEY_EMAIL, null) } ?: return TokenResult.NeedsUser
         val result = client.authorize(request(email)).await()
         val token = result.accessToken
-        if (result.hasResolution() || token == null) TokenResult.NeedsUser else TokenResult.Token(token, account(token))
+        if (result.hasResolution() || token == null) {
+            errors.report(ErrorArea.DRIVE_TOKEN, if (token == null) NO_TOKEN else NEEDS_CONSENT, 0)
+            TokenResult.NeedsUser
+        } else {
+            TokenResult.Token(token, account(token))
+        }
     } catch (error: CancellationException) {
         throw error
     } catch (error: ApiException) {
+        error.report(ErrorArea.DRIVE_TOKEN)
         TokenResult.Failed(error.kind())
     } catch (_: IOException) {
         TokenResult.Failed(BackupFailure.OFFLINE)
@@ -124,6 +139,11 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
         }
     }
 
+    // 인터넷 끊김은 고칠 것이 없어 남기지 않음
+    private fun ApiException.report(area: ErrorArea) {
+        if (statusCode != CommonStatusCodes.NETWORK_ERROR) errors.report(area, API_ERROR, statusCode.toLong())
+    }
+
     // 일시 오류까지 다시 연결로 보면 자동 백업이 멈춤
     private fun ApiException.kind() = when (statusCode) {
         CommonStatusCodes.NETWORK_ERROR -> BackupFailure.OFFLINE
@@ -149,6 +169,10 @@ class AndroidDriveAuthorizer(context: Context) : DriveAuthorizer {
                 CommonStatusCodes.RECONNECTION_TIMED_OUT,
                 CommonStatusCodes.RECONNECTION_TIMED_OUT_DURING_UPDATE
             )
+        const val API_ERROR = "ApiException"
+        const val NO_TOKEN = "app.noToken"
+        const val NEEDS_CONSENT = "app.needsConsent"
+        const val UNEXPECTED = "app.unexpected"
         val SCOPES = listOf(Scope("https://www.googleapis.com/auth/drive.file"), Scope("openid"), Scope("email"))
         const val USER_INFO = "https://openidconnect.googleapis.com/v1/userinfo"
         const val KEY_EMAIL = "email"

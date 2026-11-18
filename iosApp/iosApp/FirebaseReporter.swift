@@ -54,4 +54,9 @@ final class FirebaseReporter: FirebaseReporting {
         model.stackTrace = addresses.map { StackFrame(address: UInt(truncatingIfNeeded: $0.int64Value)) }
         Crashlytics.crashlytics().record(exceptionModel: model)
     }
+
+    /// 종류 이름과 번호만으로 만든 오류. 같은 종류·번호끼리 묶이고 건마다 기기와 시각이 붙음
+    func recordError(domain: String, code: Int64) {
+        Crashlytics.crashlytics().record(error: NSError(domain: domain, code: Int(code), userInfo: nil))
+    }
 }
