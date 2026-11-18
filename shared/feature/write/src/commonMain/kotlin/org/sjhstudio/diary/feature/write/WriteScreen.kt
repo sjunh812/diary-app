@@ -674,8 +674,9 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
             state = state,
             modifier =
                 Modifier
+                    // 최소 높이를 두지 않음. 키보드가 화면을 줄일 때 스크롤 칸이 초점 칸 전체를 보이려고 화면을 밀어 올림
+                    // 빈 곳 누르기는 바깥 스크롤 칸(tapToWrite)이 받음
                     .fillMaxWidth()
-                    .heightIn(min = DiaryWriteSize.editorMin)
                     .onGloballyPositioned { geometry.field = it }
                     .bringIntoViewRequester(reveal)
                     .focusRequester(focus)
