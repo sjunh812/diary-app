@@ -109,9 +109,10 @@ fun ListStyleSettingsScreen(
                 formatting = list.showFormatting && canFormat,
                 previewStyle = previewStyle,
                 today = today,
-                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).padding(top = DiarySpacing.x4)
+                // 상자 아래 8과 첫 묶음 머리 위 20(Figma G4)
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current).padding(top = DiarySpacing.x4, bottom = DiarySpacing.x2)
             )
-            DiarySettingsHeader(stringResource(Res.string.list_group_style), gapAbove = true)
+            DiarySettingsHeader(stringResource(Res.string.list_group_style))
             for (style in ListStyle.entries) {
                 DiarySettingsChoiceRow(stringResource(style.label()), selected = list.listStyle == style, onClick = { onStyle(style) })
             }
@@ -127,7 +128,6 @@ fun ListStyleSettingsScreen(
                     stringResource(Res.string.list_formatting),
                     checked = list.showFormatting && canFormat,
                     onCheckedChange = { checked -> if (canFormat) onFormatting(checked) else askPlus = true },
-                    modifier = Modifier.padding(top = DiarySpacing.x2),
                     description = stringResource(if (canFormat) Res.string.list_formatting_body else Res.string.list_formatting_body_free)
                 )
             }
