@@ -46,5 +46,5 @@
     <string name="plus_see_all">모두 보기</string>
     <string name="plus_all_title">Plus 혜택</string>
     <string name="plus_format_title">목록에서도 서식 그대로 보기</string>
-    <string name="plus_format_body">굵게, 밑줄, 글자 색, 형광펜까지 보여요.</string>
+    <string name="plus_format_body">굵은 글씨, 밑줄, 글자 색, 형광펜까지 보여요.</string>
 </resources>
