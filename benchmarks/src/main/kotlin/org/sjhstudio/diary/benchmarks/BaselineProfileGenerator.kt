@@ -60,6 +60,33 @@ class BaselineProfileGenerator {
         repeat(FLINGS) { list.fling(Direction.UP) }
     }
 
+    /**
+     * 가장 자주 쓰는 일인데 처음 열 때 편집기 코드가 해석 실행되어 버벅였다(2026-11-18 실기기)
+     * 쓰기 화면을 열고 글을 넣고 기분 시트를 연 뒤 글을 비우고 닫는다
+     * 글이 남은 채 닫으면 임시 저장본이 회차마다 쌓여 다음 측정(WriteOpenBenchmark)이 쓰던 글 시트에 막힘
+     */
+    @Test
+    fun writeEntry() = rule.collect(packageName = PACKAGE_NAME) {
+        pressHome()
+        startActivityAndWait()
+        waitForTabs()
+        checkNotNull(device.wait(Until.findObject(By.desc(WRITE_BUTTON)), TIMEOUT)) { "쓰기 버튼을 찾지 못했다" }.click()
+        device.wait(Until.findObject(By.text(NEW_ENTRY)), SHEET_TIMEOUT)?.click()
+        val editor = checkNotNull(device.wait(Until.findObject(By.clazz(EDIT_TEXT)), TIMEOUT)) { "편집기를 찾지 못했다" }
+        editor.click()
+        editor.text = SAMPLE_TEXT
+        device.waitForIdle()
+        open(MOOD_CHIP)
+        // 시트가 뜨기 전에 뒤로 가기를 누르면 쓰기 화면이 닫힘
+        check(device.wait(Until.hasObject(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 뜨지 않았다" }
+        device.pressBack()
+        check(device.wait(Until.gone(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 닫히지 않았다" }
+        checkNotNull(device.wait(Until.findObject(By.clazz(EDIT_TEXT)), TIMEOUT)) { "편집기를 찾지 못했다" }.text = ""
+        device.waitForIdle()
+        checkNotNull(device.wait(Until.findObject(By.desc(CLOSE)), TIMEOUT)) { "닫기를 찾지 못했다" }.click()
+        waitForTabs()
+    }
+
     private fun MacrobenchmarkScope.waitForTabs() {
         check(device.wait(Until.hasObject(By.text(CALENDAR_TAB)), TIMEOUT)) { "탭이 뜨지 않았다" }
     }
@@ -88,6 +115,11 @@ class BaselineProfileGenerator {
         const val FLINGS = 10
         const val GESTURE_MARGIN_DIVISOR = 5
 
+        // 쓰던 글 시트는 없을 수도 있어 짧게 기다림
+        const val SHEET_TIMEOUT = 2_000L
+        const val EDIT_TEXT = "android.widget.EditText"
+        const val SAMPLE_TEXT = "오늘은 한강까지 걸었다.\n바람이 차가워졌는데 그래서 더 좋았다."
+
         // 기기 언어가 무엇이든 찾도록 세 언어 이름을 다 둔다(shared/app·feature/settings 문자열 리소스와 같다).
         val HOME_TAB: Pattern = Pattern.compile("홈|Home|ホーム")
         val CALENDAR_TAB: Pattern = Pattern.compile("달력|Calendar|カレンダー")
@@ -97,5 +129,12 @@ class BaselineProfileGenerator {
         // 줄 화면들에는 없는 설정 목록 줄
         val SETTINGS_LIST_ANCHOR: Pattern = Pattern.compile("글꼴|Font|フォント")
         val THEME_ROW: Pattern = Pattern.compile("화면 모드|Appearance|表示モード")
+
+        // shared/app write_new, feature/write write_new_entry·write_mood·write_close와 같다
+        val WRITE_BUTTON: Pattern = Pattern.compile("일기 쓰기|New entry|日記を書く")
+        val NEW_ENTRY: Pattern = Pattern.compile("새로 쓰기|New entry|新しく書く")
+        val MOOD_CHIP: Pattern = Pattern.compile("기분|Mood|気分")
+        val GOOD_MOOD: Pattern = Pattern.compile("좋음|Good|良い")
+        val CLOSE: Pattern = Pattern.compile("닫기|Close|閉じる")
     }
 }
