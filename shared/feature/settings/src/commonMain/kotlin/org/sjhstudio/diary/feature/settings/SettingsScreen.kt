@@ -154,17 +154,24 @@ fun SettingsScreen(
             )
             // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드
             // 요금제를 안 뒤에만 그림. 재설치 직후 무료 문구가 먼저 보였다가 바뀌지 않게
-            if (state.plan != null && state.plan != Plan.PLUS) {
+            val inviting = state.plan != null && state.plan != Plan.PLUS
+            if (inviting) {
                 val inviteTitle = if (state.plan == Plan.AD_FREE) Res.string.settings_plus_title_ad_free else Res.string.settings_plus_title
                 DiaryInviteCard(
                     stringResource(inviteTitle),
                     stringResource(Res.string.settings_plus_body),
                     stringResource(Res.string.settings_plus_action),
                     onPlus,
-                    Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x5)
+                    // 카드 아래를 띄워 첫 머리가 카드가 아니라 아래 줄에 붙어 보이게
+                    Modifier.padding(
+                        start = LocalScreenGutter.current,
+                        end = LocalScreenGutter.current,
+                        top = DiarySpacing.x4,
+                        bottom = DiarySpacing.x4
+                    )
                 )
             }
-            DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
+            DiarySettingsHeader(stringResource(Res.string.settings_group_diary), gapAbove = inviting)
             DiarySettingsRow(
                 stringResource(Res.string.settings_backup),
                 onClick = onBackup,

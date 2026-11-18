@@ -215,7 +215,7 @@ UI 서체는 Pretendard 한 벌(SIL OFL)이고 굵기는 400·500·600·700이�
 | 상태 상자 | 안내 상자와 같은 바탕·모서리·안쪽 · 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong` · 아래 설명 `body`(머리와 사이 6, 한 묶음. 머리가 두 줄이면 4는 붙어 보였다, 2026-11-08) · 머리는 줄을 고르게 나눠 마지막 줄에 한 글자만 남지 않게, 띄어쓰기에서만 줄이 바뀌고 숫자와 단위("5,002장")는 붙여 둔다 · 버튼은 설명과 사이 16. 아이콘 + 문장 줄을 늘어놓는 목록은 아이콘 16, 사이 12, 줄 사이 16 | 안내 상자와 한 집안(2026-11-01 점검, 사용자가 사이 8이 좁다고 짚음) |
 | 한 줄 안내 | 바탕 `sunken` · 모서리 12 · 안쪽 16(글이 여러 줄이 되어도 답답하지 않게) · 아이콘 16 · 사이 8 · `caption` | SEED PageBanner(아이콘 16, 사이 6) |
 | 값 줄 | 최소 48 · 좌우 화면 여백 · 이름 `body`(`textSecondary`) 왼쪽 · 값 `bodyStrong` 오른쪽 · 누르지 않는 줄 | Figma M5 기록 이전 결과, TDS ListRow 오른쪽 값 |
-| 설정 묶음 머리 | `label` · `textSecondary` · 위 20(둘째 묶음부터 24, 위 "설정 묶음") · 아래 8 · 좌우 화면 여백 | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
+| 설정 묶음 머리 | `label` · `textSecondary` · 위 20(둘째 묶음부터 24, 위 "설정 묶음") · 아래 8 · 좌우 화면 여백 · 카드처럼 안쪽 여백이 없는 덩어리 바로 뒤에 오면 덩어리 아래 16 + 위 24(위 20이면 머리가 아래 줄보다 카드에 붙어 보였다. 설정 첫 머리 위 25·아래 32, 2026-11-18 전체 점검) | SEED ListHeader 14 Medium·위아래 8, TDS ListHeader small 15 Medium·위 16 |
 | 스위치 | 트랙 52×32 · full · 안쪽 3 · 손잡이 26 · 누르는 곳은 줄 전체 | SEED switchmark 32(52×32, 안쪽 3, 손잡이 26), M3 Switch 52×32 |
 | 진행 막대 | 높이 8 · full · 트랙 `sunken`(`sunken` 상자 안에서는 `lineStrong`, 2026-11-06) · 채움 `accentText` | TDS ProgressBar bold 8(모서리 4) |
 | 글자 탭 (`DiaryTextTabs`) | 묶음 안쪽을 거르는 탭 · 고른 칸 `bodyStrong` `textPrimary` + 밑줄 2(글자 폭) · 나머지 `body` `textSecondary` · 칸 사이 20 · 누르는 곳 48 · 아래 `line` 1 · 글자가 커지면 옆으로 민다 · 화면 전체를 거르는 상자 탭(`DiarySegmentedTabs`)과 모양을 나눠 위계를 보인다(2026-11-08 사용자 결정 "탭 2") | Material 3 Secondary tabs(콘텐츠 안에서 관련 내용을 나눈다) |
