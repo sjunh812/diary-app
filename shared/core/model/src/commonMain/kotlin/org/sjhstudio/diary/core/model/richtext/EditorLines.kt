@@ -106,6 +106,25 @@ fun editorToBody(html: String): String {
     return out.toString()
 }
 
+/** 글머리 목록을 `• `가 붙은 줄로. 서식 없는 글(`toPlainText`)과 같은 표시 */
+private fun bulletLines(list: String): List<String> =
+    list.split(LIST_ITEM).drop(1).map { it.replace(LIST_TAGS, "").trim() }.filter { it.isNotEmpty() }.map { "• $it" }
+
+/**
+ * 에디터 HTML을 복사용으로 바꿈. 줄은 `br`로만 잇고 문단·목록 태그는 남기지 않음
+ * 다른 앱은 HTML을 붙여넣을 때 문단·목록 사이를 빈 줄로 바꿔 줄바꿈이 두 번씩 들어감
+ * 에디터는 `br`로 이은 줄을 다시 문단으로 읽음
+ */
+fun editorToClipboard(html: String): String = blocksOf(html)
+    .flatMap { block ->
+        when (block) {
+            is Block.Bullets -> bulletLines(block.html)
+            is Block.Numbers -> numberedLines(block.html)
+            Block.Blank -> listOf("")
+            is Block.Line -> listOf(block.html.takeUnless { BREAK.matches(it.trim()) }.orEmpty())
+        }
+    }.joinToString("<br>")
+
 /** 저장 형식을 에디터에 넣을 HTML로 바꿈. 문단 안의 `br`은 줄로, 문단 사이는 빈 줄로 폄 */
 fun bodyToEditor(html: String): String {
     val out = StringBuilder()

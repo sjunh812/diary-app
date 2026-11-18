@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import com.mohamedrejeb.richeditor.clipboard.ClipboardEventEffect
-import com.mohamedrejeb.richeditor.clipboard.createRichTextClipboardManager
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.adjustTextIndicatorOffset
 import com.mohamedrejeb.richeditor.ui.drawRichSpanStyle
@@ -35,7 +34,7 @@ import kotlinx.coroutines.delay
 
 /**
  * 일기 본문 편집기
- * 라이브러리의 `BasicRichTextEditor`와 같고, 키보드 입력만 [EditorInput]을 거침
+ * 라이브러리의 `BasicRichTextEditor`와 같고, 키보드 입력은 [EditorInput], 복사는 [diaryClipboard]를 거침
  * 라이브러리를 올릴 때 이 파일을 원본과 견줌(compose-rich-editor 1.2.1)
  */
 @Composable
@@ -49,7 +48,7 @@ internal fun DiaryRichEditor(
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val clipboard = LocalClipboard.current
-    val richClipboard = remember(state, clipboard) { createRichTextClipboardManager(richTextState = state, clipboard = clipboard) }
+    val richClipboard = remember(state, clipboard) { diaryClipboard(state, clipboard) }
     val interactionSource = remember { MutableInteractionSource() }
     val noPadding = remember { PaddingValues() }
     val input = remember(state) { EditorInput(state) }
