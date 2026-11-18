@@ -56,6 +56,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
@@ -64,6 +65,7 @@ import org.sjhstudio.diary.core.ui.SkeletonBlock
 import org.sjhstudio.diary.core.ui.SkeletonLine
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.feature.backup.resources.Res
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_other
 import org.sjhstudio.diary.feature.backup.resources.restore_damaged
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_body
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_title
@@ -77,6 +79,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_legacy_recent_body
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_title
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed
+import org.sjhstudio.diary.feature.backup.resources.restore_list_failed_auth
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed_body
 import org.sjhstudio.diary.feature.backup.resources.restore_merge
 import org.sjhstudio.diary.feature.backup.resources.restore_more_backups
@@ -125,14 +128,23 @@ fun RestoreListScreen(
         when (state) {
             RestoreListUi.Loading -> LoadingList()
 
-            RestoreListUi.Failed -> {
-                Hero(
-                    DiaryIcons.CircleAlert,
-                    stringResource(Res.string.restore_list_failed),
-                    stringResource(Res.string.restore_list_failed_body)
-                )
+            is RestoreListUi.Failed -> {
+                // 까닭을 아는 때만 할 일을 말함. 모르면 인터넷 탓이라 하지 않음
+                val body =
+                    when (state.kind) {
+                        BackupFailure.OFFLINE -> Res.string.restore_list_failed_body
+                        BackupFailure.AUTH -> Res.string.restore_list_failed_auth
+                        else -> Res.string.backup_connect_failed_other
+                    }
+                Hero(DiaryIcons.CircleAlert, stringResource(Res.string.restore_list_failed), stringResource(body))
                 Bottom {
-                    DiaryButton(stringResource(Res.string.restore_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+                    DiaryButton(
+                        stringResource(Res.string.restore_retry),
+                        onRetry,
+                        Modifier.fillMaxWidth(),
+                        size = DiaryButtonSize.XLarge,
+                        loading = state.retrying
+                    )
                 }
             }
 

@@ -230,7 +230,7 @@ class RestorePhotosTest {
         a.clock.advance(1.days)
         assertIs<BackupOutcome.Done>(a.runner().run())
         val controller = b.controller(backgroundScope)
-        controller.prepare(controller.backups()!!.first().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.first().snapshotName)
         b.freeBytes = 0
         controller.merge()
 
@@ -253,7 +253,7 @@ class RestorePhotosTest {
     }
 
     private suspend fun RestoreController.restoreLatest(): RestoreResult {
-        prepare(backups()!!.first().snapshotName)
+        prepare(backups().entriesOrNull!!.first().snapshotName)
         merge()
         return assertIs<RestoreState.Done>(finished()).result
     }
@@ -670,7 +670,7 @@ class RestorePhotosTest {
         a.clock.advance(1.days)
         assertIs<BackupOutcome.Done>(a.runner().run())
         val first = b.controller(backgroundScope)
-        first.prepare(first.backups()!!.first().snapshotName)
+        first.prepare(first.backups().entriesOrNull!!.first().snapshotName)
         first.merge()
         assertIs<RestoreState.Done>(first.finished())
         first.dismiss()
@@ -679,7 +679,7 @@ class RestorePhotosTest {
         b.db.mediaDao().update(row.copy(status = MediaStatus.MISSING.id))
 
         val again = b.controller(backgroundScope)
-        val ready = assertIs<RestorePreparation.Ready>(again.prepare(again.backups()!!.first().snapshotName))
+        val ready = assertIs<RestorePreparation.Ready>(again.prepare(again.backups().entriesOrNull!!.first().snapshotName))
         assertEquals(1, ready.preview.photosToDownload)
         again.merge()
 

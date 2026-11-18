@@ -30,6 +30,7 @@ import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.ErrorReporter
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.testing.FakeBackupScheduler
 import org.sjhstudio.diary.core.testing.FakeDrive
@@ -111,7 +112,8 @@ internal class TestPhone(
         photos: DriveApi = drive,
         files: FileSystem = fs,
         api: DriveApi = drive,
-        rollback: RollbackManager = manager(files)
+        rollback: RollbackManager = manager(files),
+        errors: ErrorReporter = ErrorReporter.None
     ): RestoreController {
         val applier = lazy { applier() }
         return RestoreController(
@@ -125,7 +127,8 @@ internal class TestPhone(
                 settingsFailure?.let { throw it }
                 appliedSettings += settings
             },
-            scope, gate, scheduler, FreeSpace { freeBytes }, clock
+            scope, gate, scheduler, FreeSpace { freeBytes }, clock,
+            errors = errors
         )
     }
 

@@ -63,6 +63,12 @@ class AndroidDriveAuthorizer(context: Context, private val errors: ErrorReporter
         val token =
             result.accessToken
                 ?: return ConnectResult.Failed(BackupFailure.AUTH).also { errors.report(ErrorArea.DRIVE_CONNECT, NO_TOKEN, 0) }
+        // 동의 화면에서 드라이브 항목을 빼도 로그인 토큰은 옴
+        // 연결됐다고 하면 드라이브를 부를 때마다 거절당함(iOS와 같은 확인)
+        if (DRIVE_FILE !in result.grantedScopes) {
+            errors.report(ErrorArea.DRIVE_CONNECT, NO_DRIVE_SCOPE, 0)
+            return ConnectResult.Failed(BackupFailure.AUTH)
+        }
         val account = account(token)
         withContext(Dispatchers.IO) { prefs.edit { putString(KEY_EMAIL, account.email) } }
         // 연결하는 사이에 옛 계정으로 받은 토큰이 남아 있을 수 있음
@@ -91,8 +97,15 @@ class AndroidDriveAuthorizer(context: Context, private val errors: ErrorReporter
         val email = withContext(Dispatchers.IO) { prefs.getString(KEY_EMAIL, null) } ?: return TokenResult.NeedsUser
         val result = client.authorize(request(email)).await()
         val token = result.accessToken
-        if (result.hasResolution() || token == null) {
-            errors.report(ErrorArea.DRIVE_TOKEN, if (token == null) NO_TOKEN else NEEDS_CONSENT, 0)
+        val missing =
+            when {
+                token == null -> NO_TOKEN
+                result.hasResolution() -> NEEDS_CONSENT
+                DRIVE_FILE !in result.grantedScopes -> NO_DRIVE_SCOPE
+                else -> null
+            }
+        if (missing != null || token == null) {
+            errors.report(ErrorArea.DRIVE_TOKEN, missing ?: NO_TOKEN, 0)
             TokenResult.NeedsUser
         } else {
             TokenResult.Token(token, account(token))
@@ -172,8 +185,10 @@ class AndroidDriveAuthorizer(context: Context, private val errors: ErrorReporter
         const val API_ERROR = "ApiException"
         const val NO_TOKEN = "app.noToken"
         const val NEEDS_CONSENT = "app.needsConsent"
+        const val NO_DRIVE_SCOPE = "app.noDriveScope"
+        const val DRIVE_FILE = "https://www.googleapis.com/auth/drive.file"
         const val UNEXPECTED = "app.unexpected"
-        val SCOPES = listOf(Scope("https://www.googleapis.com/auth/drive.file"), Scope("openid"), Scope("email"))
+        val SCOPES = listOf(Scope(DRIVE_FILE), Scope("openid"), Scope("email"))
         const val USER_INFO = "https://openidconnect.googleapis.com/v1/userinfo"
         const val KEY_EMAIL = "email"
         const val ACCOUNT_TYPE = "com.google"

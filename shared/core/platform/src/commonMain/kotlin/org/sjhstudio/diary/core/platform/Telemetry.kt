@@ -31,7 +31,8 @@ interface TelemetrySink {
 /** 오류를 묶어 볼 곳. [id]가 보고 이름 맨 앞에 붙음. 새 기능은 여기에 한 줄 더함 */
 enum class ErrorArea(val id: String) {
     DRIVE_CONNECT("drive.connect"),
-    DRIVE_TOKEN("drive.token")
+    DRIVE_TOKEN("drive.token"),
+    RESTORE_LIST("restore.list")
 }
 
 /**

@@ -237,7 +237,7 @@ class RestoreRoundTripTest {
         backUp()
         val settings = mutableListOf<ManifestSettings>()
         val controller = controller(settings, backgroundScope)
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
         assertIs<RestorePreparation.Ready>(controller.prepare(name))
 
         controller.merge()
@@ -255,7 +255,7 @@ class RestoreRoundTripTest {
         backUp()
         val store = BackupStore(InMemoryDataStore(emptyPreferences()))
         val controller = controller(mutableListOf(), backgroundScope, store = store)
-        val entry = controller.backups()!!.single()
+        val entry = controller.backups().entriesOrNull!!.single()
         assertIs<RestorePreparation.Ready>(controller.prepare(entry.snapshotName))
 
         controller.merge()
@@ -270,7 +270,7 @@ class RestoreRoundTripTest {
         backUp()
         val scheduler = FakeBackupScheduler()
         val controller = controller(mutableListOf(), backgroundScope, scheduler = scheduler)
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
         assertIs<RestorePreparation.Ready>(controller.prepare(name))
 
         controller.merge()
@@ -285,7 +285,7 @@ class RestoreRoundTripTest {
         backUp()
         val gate = BackupGate()
         val controller = controller(mutableListOf(), backgroundScope, gate)
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
         assertIs<RestorePreparation.Ready>(controller.prepare(name))
         assertTrue(gate.tryEnter())
 
@@ -441,7 +441,7 @@ class RestoreRoundTripTest {
         backUp()
         val settings = mutableListOf<ManifestSettings>()
         val controller = controller(settings, backgroundScope)
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
 
         controller.merge()
         val done = withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
@@ -505,7 +505,7 @@ class RestoreRoundTripTest {
         backUp(listOf(MediaEntity("evil", "two", 0, "pending", "../../evil.jpg", "0".repeat(64), 1, 1, null, null, 1)))
         val controller = controller(mutableListOf(), backgroundScope)
 
-        val failed = assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups()!!.single().snapshotName))
+        val failed = assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName))
 
         assertEquals(RestoreFailure.MISMATCH, failed.reason)
         assertTrue(copiesLeft().isEmpty())
@@ -517,7 +517,7 @@ class RestoreRoundTripTest {
         val watching = WatchingDrive(drive)
         val controller = controller(mutableListOf(), backgroundScope, api = watching)
 
-        assertIs<RestorePreparation.Ready>(controller.prepare(controller.backups()!!.single().snapshotName))
+        assertIs<RestorePreparation.Ready>(controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName))
 
         assertEquals(Dispatchers.IO, watching.seen)
     }
@@ -559,7 +559,7 @@ class RestoreRoundTripTest {
     fun closing_the_preview_leaves_no_copy_of_the_diary() = runTest {
         backUp()
         val controller = controller(mutableListOf(), backgroundScope)
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
         assertTrue(copiesLeft().isNotEmpty())
 
         controller.dismiss()
@@ -574,7 +574,7 @@ class RestoreRoundTripTest {
         fs.write(incoming / "picked") { writeUtf8("지난번에 고른 파일") }
         val controller = controller(mutableListOf(), backgroundScope)
 
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
 
         assertFalse(fs.exists(incoming / "picked"))
     }
@@ -594,7 +594,7 @@ class RestoreRoundTripTest {
         backUp()
         val gate = BackupGate()
         val controller = controller(mutableListOf(), backgroundScope, gate)
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
         assertTrue(gate.tryEnter())
         controller.merge()
 

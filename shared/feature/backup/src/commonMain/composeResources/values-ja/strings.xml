@@ -71,6 +71,7 @@
     <string name="restore_empty_title">ドライブにバックアップはまだありません</string>
     <string name="restore_empty_body">このデバイスでバックアップするとここに表示されます。</string>
     <string name="restore_list_failed">バックアップ一覧を読み込めませんでした</string>
+    <string name="restore_list_failed_auth">Googleアカウントの接続が切れました。バックアップ画面でもう一度接続してください。</string>
     <string name="restore_list_failed_body">接続を確認して、もう一度お試しください。</string>
     <string name="restore_retry">もう一度試す</string>
     <string name="restore_preview_top">復元</string>

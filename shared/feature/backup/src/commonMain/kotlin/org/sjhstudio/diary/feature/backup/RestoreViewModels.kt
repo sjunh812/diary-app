@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.sjhstudio.diary.core.data.BackupList
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.RestoreFailure
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RollbackRun
@@ -19,7 +21,8 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 sealed interface RestoreListUi {
     data object Loading : RestoreListUi
 
-    data object Failed : RestoreListUi
+    /** [retrying]이면 실패 화면을 둔 채 버튼에서 기다림. 화면 전체를 로딩으로 바꾸면 빨리 실패할 때 깜빡임 */
+    data class Failed(val kind: BackupFailure, val retrying: Boolean = false) : RestoreListUi
 
     data class Loaded(val entries: List<BackupEntry>) : RestoreListUi
 }
@@ -33,11 +36,17 @@ class RestoreListViewModel(private val restore: RestoreRepository) : ViewModel()
     }
 
     fun load() {
-        _state.value = RestoreListUi.Loading
-        viewModelScope.launchSafely {
+        val failed = _state.value as? RestoreListUi.Failed
+        _state.value = failed?.copy(retrying = true) ?: RestoreListUi.Loading
+        viewModelScope.launchSafely(onFailure = { _state.value = RestoreListUi.Failed(BackupFailure.UNKNOWN) }) {
             // 드라이브에 묻는 데 몇 초가 걸려 지난번 목록을 먼저 보여 줌
-            restore.savedBackups().takeIf { it.isNotEmpty() }?.let { _state.value = RestoreListUi.Loaded(it) }
-            _state.value = restore.backups()?.let { RestoreListUi.Loaded(it) } ?: RestoreListUi.Failed
+            // 다시 시도할 때는 실패 화면에서 목록으로 잠깐 바뀌었다 돌아오지 않게 보이지 않음
+            if (failed == null) restore.savedBackups().takeIf { it.isNotEmpty() }?.let { _state.value = RestoreListUi.Loaded(it) }
+            _state.value =
+                when (val listed = restore.backups()) {
+                    is BackupList.Loaded -> RestoreListUi.Loaded(listed.entries)
+                    is BackupList.Failed -> RestoreListUi.Failed(listed.kind)
+                }
         }
     }
 }

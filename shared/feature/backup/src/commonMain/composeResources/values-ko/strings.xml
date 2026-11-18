@@ -71,6 +71,7 @@
     <string name="restore_empty_title">드라이브에 백업이 아직 없어요</string>
     <string name="restore_empty_body">이 기기에서 백업하면 여기에 보여요.</string>
     <string name="restore_list_failed">백업 목록을 읽지 못했어요</string>
+    <string name="restore_list_failed_auth">구글 계정 연결이 끊겼어요. 백업 화면에서 다시 연결해 주세요.</string>
     <string name="restore_list_failed_body">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="restore_retry">다시 시도</string>
     <string name="restore_preview_top">복원하기</string>

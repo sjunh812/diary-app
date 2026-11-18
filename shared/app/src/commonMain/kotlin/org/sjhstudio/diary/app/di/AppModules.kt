@@ -322,7 +322,7 @@ private val backupModule =
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
                 findBackup = {
                     val restore = get<RestoreRepository>()
-                    val latest = backupToOffer(restore.backups(), get<LegacyMigration>().report() != null)
+                    val latest = backupToOffer(restore.backups().entriesOrNull, get<LegacyMigration>().report() != null)
                     // 권하지 않으면 확인하려고 받은 사본을 지움
                     offerIfNew(latest) { restore.prepare(it) }.also { if (it == null && latest != null) restore.dismiss() }
                 },
@@ -388,6 +388,7 @@ private val backupModule =
                     },
                 scheduler = get(),
                 freeSpace = freeSpace,
+                errors = get<Telemetry>(),
                 db = database,
                 store = store,
                 network = get(),

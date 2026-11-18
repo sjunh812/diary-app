@@ -154,7 +154,7 @@ class ManifestDamageTest {
         phone.plant("half.json", "{".encodeToByteArray(), props)
         val controller = phone.controller(backgroundScope)
 
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
 
         assertIs<RestorePreparation.Failed>(controller.prepare(name))
     }
