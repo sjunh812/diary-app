@@ -29,13 +29,13 @@ private val Sample =
         recent = RecentMood(MoodTrend.BETTER, ToneShare(12, 27, 8), ToneShare(18, 29, 5)),
         weekdays =
             mapOf(
-                DayOfWeek.SUNDAY to ToneShare(18, 25),
-                DayOfWeek.MONDAY to ToneShare(9, 24),
-                DayOfWeek.TUESDAY to ToneShare(11, 23),
-                DayOfWeek.WEDNESDAY to ToneShare(12, 26),
-                DayOfWeek.THURSDAY to ToneShare(10, 22),
-                DayOfWeek.FRIDAY to ToneShare(14, 24),
-                DayOfWeek.SATURDAY to ToneShare(17, 23)
+                DayOfWeek.SUNDAY to ToneShare(3, 27, 12),
+                DayOfWeek.MONDAY to ToneShare(6, 20, 8),
+                DayOfWeek.TUESDAY to ToneShare(8, 22, 10),
+                DayOfWeek.WEDNESDAY to ToneShare(4, 20, 12),
+                DayOfWeek.THURSDAY to ToneShare(12, 24, 8),
+                DayOfWeek.FRIDAY to ToneShare(12, 21, 6),
+                DayOfWeek.SATURDAY to ToneShare(9, 21, 12)
             ),
         dayParts = mapOf(DayPart.EVENING to ToneShare(60, 110), DayPart.MORNING to ToneShare(20, 40)),
         weather = mapOf(Weather.SUNNY to ToneShare(50, 80), Weather.RAIN to ToneShare(9, 40)),
@@ -70,6 +70,11 @@ private fun AdvancedHarder() = Stats(false, Sample.copy(recent = RecentMood(Mood
 @Preview(name = "고급 통계 · 요즘 기분이 비슷함", locale = "ko", widthDp = 390, heightDp = 1500)
 @Composable
 private fun AdvancedSteady() = Stats(false, Sample.copy(recent = RecentMood(MoodTrend.STEADY, ToneShare(12, 27, 8), ToneShare(13, 28, 8))))
+
+// 1등이 같은 %로 둘 이상이면 결론 줄이 없음
+@Preview(name = "고급 통계 · 상황별 결론 없음", locale = "ko", widthDp = 390, heightDp = 1500)
+@Composable
+private fun AdvancedNoLeader() = Stats(false, Sample.copy(weekdays = DayOfWeek.entries.associateWith { ToneShare(10, 20, 5) }))
 
 @Preview(name = "고급 통계 · 일기가 적음", locale = "ko", widthDp = 390, heightDp = 844)
 @Composable

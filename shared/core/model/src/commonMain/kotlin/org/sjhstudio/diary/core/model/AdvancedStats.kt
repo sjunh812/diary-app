@@ -63,6 +63,27 @@ data class ToneShare(val good: Int, val total: Int, val hard: Int = 0) {
     private fun rateOf(count: Int) = if (total == 0) 0.0 else count.toDouble() / total
 }
 
+/**
+ * 상황별 기분 결론 줄에 쓸 칸 차례. 보이는 %로 견주고 1등이 하나일 때만
+ * 칸이 하나면 견줄 것이 없어 말하지 않음
+ */
+data class ToneLeaders(val good: Int?, val hard: Int?) {
+    companion object {
+        fun of(shares: List<ToneShare>): ToneLeaders = if (shares.size <
+            2
+        ) {
+            ToneLeaders(null, null)
+        } else {
+            ToneLeaders(leader(shares.map { it.percent }), leader(shares.map { it.hardPercent }))
+        }
+
+        private fun leader(values: List<Int>): Int? {
+            val top = values.max().takeIf { it > 0 } ?: return null
+            return values.indexOf(top).takeIf { values.count { it == top } == 1 }
+        }
+    }
+}
+
 /** 한 기간의 값. 기분을 고른 일기가 부족하면 [moods]와 [topMood]는 null */
 data class StatsSnapshot(val moods: ToneShare?, val topMood: Mood?, val days: Int, val entries: Int, val characters: Long, val photos: Int)
 
