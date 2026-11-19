@@ -27,6 +27,7 @@ val settingsFeatureModule =
                 fonts = get(),
                 notifications = get(),
                 lastBackupAt = get<BackupRepository>().status.map { it.lastSuccessAt }.distinctUntilChanged(),
+                settledPlan = { get<PlanRepository>().awaitConfirmed() },
                 telemetry = get()
             )
         }

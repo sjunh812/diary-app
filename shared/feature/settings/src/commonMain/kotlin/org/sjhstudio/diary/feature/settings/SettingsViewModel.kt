@@ -6,9 +6,13 @@ import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEmpty
+import kotlinx.coroutines.flow.onStart
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
@@ -48,6 +52,11 @@ data class SettingsUiState(
      */
     val reminderBlocked: Boolean? = false,
     /**
+     * 목록에서 서식 그대로 보기를 켤 수 있음
+     * 요금제를 아직 모르면 null. 끝내 모르면 잠시 뒤 지금 값으로 정함(사진 한도와 같음)
+     */
+    val canFormat: Boolean? = null,
+    /**
      * 설정을 읽었음
      * 읽기 전 기본값(잠금 꺼짐 등)을 그리면 켜 둔 것이 잠깐 꺼진 것으로 보임
      */
@@ -63,6 +72,7 @@ class SettingsViewModel(
     fonts: FontInstaller,
     private val notifications: NotificationAllowance,
     lastBackupAt: Flow<Instant?> = flowOf(null),
+    settledPlan: suspend () -> Plan? = { null },
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
     /** 본문 글자 크기 견본이 고른 글꼴(받은 글꼴 포함)로 그림 */
@@ -73,6 +83,9 @@ class SettingsViewModel(
      * 줄 하나 때문에 설정 전체를 못 쓰게 하지 않음
      */
     private val migrationReport = flow { emit(orElseOnFailure(false) { showsMigrationReport() }) }
+
+    private val formatting: Flow<Boolean?> =
+        merge(plan.filterNotNull().map { it.listFormatting }, flow { settledPlan()?.let { emit(it.listFormatting) } })
 
     val state: StateFlow<SettingsUiState> =
         combine(
@@ -90,6 +103,7 @@ class SettingsViewModel(
             .combine(notifications.allowed) { state, allowed ->
                 state.copy(reminderBlocked = if (state.settings.reminderEnabled) allowed?.not() else false)
             }
+            .combine(formatting.onStart { emit(null) }) { state, can -> state.copy(canFormat = can) }
             .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState())
 
     /** 기기 설정에서 바꾸고 돌아올 수 있어 화면에 돌아올 때마다 다시 읽음 */

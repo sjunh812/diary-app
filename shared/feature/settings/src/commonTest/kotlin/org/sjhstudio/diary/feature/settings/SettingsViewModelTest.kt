@@ -12,6 +12,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -185,5 +186,29 @@ class SettingsViewModelTest {
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
         assertNull(viewModel.state.value.reminderBlocked)
+    }
+
+    @Test
+    fun formatting_waits_for_the_plan_then_settles() = runTest {
+        val plan = MutableStateFlow<Plan?>(null)
+        val viewModel =
+            SettingsViewModel(
+                FakeSettingsRepository(),
+                lock,
+                flowOf(0),
+                plan,
+                { false },
+                fonts = FakeFontInstaller(),
+                notifications = notifications,
+                settledPlan = { plan.value ?: Plan.FREE }
+            )
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+        // 끝내 모르면 지금 값(무료)으로 정해 Plus 안내를 볼 수 있음
+        assertEquals(false, viewModel.state.value.canFormat)
+
+        plan.value = Plan.PLUS
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.value.canFormat)
     }
 }
