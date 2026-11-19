@@ -2,10 +2,6 @@
 
 package org.sjhstudio.diary.feature.write
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.mohamedrejeb.richeditor.model.RichTextState
@@ -28,27 +24,14 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
     /** 키보드가 다시 넣을 공백의 위치 */
     private var echoed: Int? = null
 
-    /**
-     * 선택 핸들을 끄는 중이면 늘어나는 수
-     * 편집기는 이 값이 멈춘 뒤에야 꾸밈을 바꿔 그림([DiaryRichEditor])
-     */
-    var dragTick by mutableIntStateOf(0)
-        private set
-
-    /** 선택 핸들을 끄는 중인지. 다른 입력이 오면 바로 풀림 */
-    var dragging by mutableStateOf(false)
-
     fun apply(new: TextFieldValue) {
         if (isHandleDrag(state.textFieldValue, new)) {
             // 선택 핸들을 끄는 중이면 일반 입력칸처럼 선택만 바꿈
             // 라이브러리는 선택마다 끌기 끝을 손가락 줄과 문단 시작에 맞춰 고치는데,
             // 그 보정이 끌던 끝을 붙잡아 핸들이 가다가 멈춤
             // 커서를 놓거나 새로 고를 때(길게 누르기)는 라이브러리 보정을 그대로 거침
-            dragging = true
-            dragTick++
             state.selection = new.selection
         } else {
-            dragging = false
             type(new)
         }
     }

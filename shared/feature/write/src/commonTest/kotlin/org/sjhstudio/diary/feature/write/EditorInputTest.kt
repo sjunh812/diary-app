@@ -134,17 +134,5 @@ class EditorInputTest {
         state.selection = TextRange(17, 22)
         input.apply(state.textFieldValue.copy(selection = TextRange(17, 35)))
         assertEquals(TextRange(17, 35), state.selection)
-        assertEquals(true, input.dragging)
-    }
-
-    @Test
-    fun typingEndsTheDrag() {
-        val state = RichTextState()
-        state.setText("alpha beta")
-        val input = EditorInput(state, fixKeyboard = false)
-        state.selection = TextRange(0, 5)
-        input.apply(state.textFieldValue.copy(selection = TextRange(0, 10)))
-        input.apply(TextFieldValue("alpha beta!", TextRange(11)))
-        assertEquals(false, input.dragging)
     }
 }

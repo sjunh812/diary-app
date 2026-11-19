@@ -9,8 +9,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.TextUnit
@@ -104,26 +102,4 @@ private fun AnnotatedString.alignDoneMarks(indent: ChecklistIndent): AnnotatedSt
     val builder = AnnotatedString.Builder(this)
     for (at in marks) builder.addStyle(SpanStyle(letterSpacing = indent.doneSpacing), at, at + 1)
     return builder.toAnnotatedString()
-}
-
-/**
- * 편집기 화면 변환 위에 체크리스트 들여쓰기를 얹음
- * 커서만 움직여도 다시 불려, 라이브러리가 같은 글을 주면 지난 결과를 그대로 씀
- */
-class ChecklistIndentTransformation(private val base: VisualTransformation, private val indent: ChecklistIndent) : VisualTransformation {
-    private var lastBase: AnnotatedString? = null
-    private var lastShown: AnnotatedString = AnnotatedString("")
-
-    override fun filter(text: AnnotatedString): TransformedText {
-        val shown = base.filter(text)
-        if (shown.text !== lastBase) {
-            lastShown = shown.text.withChecklistIndent(indent)
-            lastBase = shown.text
-        }
-        return TransformedText(lastShown, shown.offsetMapping)
-    }
-
-    override fun equals(other: Any?): Boolean = other is ChecklistIndentTransformation && other.base == base && other.indent == indent
-
-    override fun hashCode(): Int = 31 * base.hashCode() + indent.hashCode()
 }
