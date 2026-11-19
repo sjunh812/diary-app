@@ -30,7 +30,10 @@ object Checklist {
 
     private val ITEM_IN_HTML = Regex("""(?:<p\b[^>]*>|<br\s*/?>)(?:<[a-z][^>]*>)*([$OPEN$DONE]) """, RegexOption.IGNORE_CASE)
 
-    fun isItem(line: String): Boolean = line.length >= PREFIX_LENGTH && isMark(line[0]) && line[1] == ' '
+    fun isItem(line: String): Boolean = startsItem(line, 0)
+
+    /** [at]에서 항목 표시가 시작하는지. 줄을 잘라 만들지 않고 봄 */
+    fun startsItem(text: CharSequence, at: Int): Boolean = at + 1 < text.length && isMark(text[at]) && text[at + 1] == ' '
 
     private fun isMark(char: Char) = char == OPEN || char == DONE
 

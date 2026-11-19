@@ -31,6 +31,8 @@ import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.ui.adjustTextIndicatorOffset
 import com.mohamedrejeb.richeditor.ui.drawRichSpanStyle
 import kotlinx.coroutines.delay
+import org.sjhstudio.diary.core.ui.ChecklistIndentTransformation
+import org.sjhstudio.diary.core.ui.rememberChecklistIndent
 
 /**
  * 일기 본문 편집기
@@ -78,6 +80,9 @@ internal fun DiaryRichEditor(
             input.dragging = false
         }
     }
+    val shown = if (input.dragging) held else live
+    val indent = rememberChecklistIndent(textStyle)
+    val transformation = remember(shown, indent) { ChecklistIndentTransformation(shown, indent) }
     CompositionLocalProvider(LocalClipboard provides richClipboard) {
         BasicTextField(
             value = state.textFieldValue,
@@ -102,7 +107,7 @@ internal fun DiaryRichEditor(
                     scope = rememberCoroutineScope()
                 ),
             textStyle = textStyle,
-            visualTransformation = if (input.dragging) held else live,
+            visualTransformation = transformation,
             onTextLayout = {
                 state.onTextLayout(textLayoutResult = it, density = density)
                 onTextLayout(it)

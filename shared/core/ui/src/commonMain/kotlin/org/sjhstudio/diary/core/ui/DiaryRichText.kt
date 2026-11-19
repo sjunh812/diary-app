@@ -38,7 +38,9 @@ import org.sjhstudio.diary.core.model.parseRichText
 @Composable
 fun DiaryRichText(html: String, style: TextStyle, modifier: Modifier = Modifier, onCheck: ((Int) -> Unit)? = null) {
     val colors = DiaryTheme.colors
+    val indent = rememberChecklistIndent(style)
     val text = remember(html, colors) { richAnnotated(html, colors) }
+    val shown = remember(text, indent) { text.withChecklistIndent(indent) }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     val touch = with(LocalDensity.current) { DiarySpacing.minTouchTarget.toPx() }
     val check by rememberUpdatedState(onCheck)
@@ -52,14 +54,14 @@ fun DiaryRichText(html: String, style: TextStyle, modifier: Modifier = Modifier,
                 .semantics { customActions = actions }
                 .pointerInput(text) {
                     detectTapGestures { position ->
-                        val start = layout?.checkLineAt(position, touch) ?: return@detectTapGestures
+                        val start = layout?.checkLineAt(position, touch, text.text) ?: return@detectTapGestures
                         val index = Checklist.indexOfItem(text.text, start) ?: return@detectTapGestures
                         check?.invoke(index)
                     }
                 }
         }
     BasicText(
-        text,
+        shown,
         tappable.checklistMarks({ text.text }, { layout }),
         style = style.copy(color = colors.textPrimary),
         onTextLayout = { layout = it }
