@@ -86,6 +86,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_auto_body
 import org.sjhstudio.diary.feature.backup.resources.backup_connect
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_auth
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_close
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_no_drive
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_other
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_title
@@ -266,6 +267,7 @@ fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modi
         when (failure) {
             BackupFailure.OFFLINE -> Res.string.backup_connect_failed_offline
             BackupFailure.AUTH -> Res.string.backup_connect_failed_auth
+            BackupFailure.NO_DRIVE_ACCESS -> Res.string.backup_connect_failed_no_drive
             else -> Res.string.backup_connect_failed_other
         }
     DiaryBottomSheet(

@@ -38,6 +38,14 @@ class IosDriveAuthorizerTest {
     }
 
     @Test
+    fun unchecking_drive_says_so_instead_of_retry_later() = runTest {
+        val bridge = Bridge().apply { connectResult = listOf(null, null, "noDriveAccess", "app.noDriveScope", 0L) }
+
+        assertEquals(ConnectResult.Failed(BackupFailure.NO_DRIVE_ACCESS), authorizer(bridge).connect(null))
+        assertEquals(listOf(Triple(ErrorArea.DRIVE_CONNECT, "app.noDriveScope", 0L)), recorded)
+    }
+
+    @Test
     fun cancel_offline_and_success_leave_no_report() = runTest {
         val cases =
             listOf(

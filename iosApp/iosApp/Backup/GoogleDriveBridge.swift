@@ -35,7 +35,7 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
                 // 연결됐다고 하면 곧바로 다시 연결하라는 안내가 뜸
                 guard user.grantedScopes?.contains(self.driveScope) == true else {
                     GIDSignIn.sharedInstance.signOut()
-                    fail("failed", Report(domain: "app.noDriveScope"))
+                    fail("noDriveAccess", Report(domain: "app.noDriveScope"))
                     return
                 }
                 done(key, email, nil, nil, KotlinLong(value: 0))

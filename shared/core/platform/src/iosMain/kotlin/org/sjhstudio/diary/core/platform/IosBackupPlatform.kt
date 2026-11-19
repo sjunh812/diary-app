@@ -35,7 +35,7 @@ import platform.darwin.dispatch_get_global_queue
  */
 interface IosDriveBridge {
     /**
-     * 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘김. 실패는 "cancelled", "offline", "failed"
+     * 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘김. 실패는 "cancelled", "offline", "noDriveAccess", "failed"
      * 보고할 실패면 오류 종류 이름과 번호도 넘김. 취소와 인터넷 끊김은 넘기지 않음
      */
     fun connect(hint: String?, done: (key: String?, email: String?, error: String?, errorDomain: String?, errorCode: Long) -> Unit)
@@ -61,6 +61,7 @@ class IosDriveAuthorizer(private val errors: ErrorReporter = ErrorReporter.None,
                         key != null && email != null -> ConnectResult.Connected(DriveAccount(key, email))
                         error == "cancelled" -> ConnectResult.Cancelled
                         error == "offline" -> ConnectResult.Failed(BackupFailure.OFFLINE)
+                        error == "noDriveAccess" -> ConnectResult.Failed(BackupFailure.NO_DRIVE_ACCESS)
                         else -> ConnectResult.Failed(BackupFailure.AUTH)
                     }
                 )

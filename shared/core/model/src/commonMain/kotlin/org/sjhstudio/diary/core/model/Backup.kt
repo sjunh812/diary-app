@@ -5,6 +5,9 @@ import kotlin.time.Instant
 /** 백업 실패 까닭(contracts/backup-flow.md "실패의 종류"). 이름이 `last_failure`에 그대로 저장됨 */
 enum class BackupFailure {
     AUTH,
+
+    /** 연결할 때 구글 동의 화면에서 드라이브 항목을 뺌 */
+    NO_DRIVE_ACCESS,
     NO_SPACE,
     OFFLINE,
     DRIVE_ERROR,

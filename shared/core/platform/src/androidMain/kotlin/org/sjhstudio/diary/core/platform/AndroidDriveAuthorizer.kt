@@ -67,7 +67,7 @@ class AndroidDriveAuthorizer(context: Context, private val errors: ErrorReporter
         // 연결됐다고 하면 드라이브를 부를 때마다 거절당함(iOS와 같은 확인)
         if (DRIVE_FILE !in result.grantedScopes) {
             errors.report(ErrorArea.DRIVE_CONNECT, NO_DRIVE_SCOPE, 0)
-            return ConnectResult.Failed(BackupFailure.AUTH)
+            return ConnectResult.Failed(BackupFailure.NO_DRIVE_ACCESS)
         }
         val account = account(token)
         withContext(Dispatchers.IO) { prefs.edit { putString(KEY_EMAIL, account.email) } }
