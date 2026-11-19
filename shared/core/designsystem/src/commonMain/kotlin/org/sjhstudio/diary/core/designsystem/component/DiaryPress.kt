@@ -102,15 +102,21 @@ private class DiaryPressNode(private var interactionSource: InteractionSource, p
         invalidateDraw()
     }
 
-    override fun onAttach() = collect()
+    // 화면을 바꿔 옮겨 붙으면(탭 바) 도중에 멈춘 효과를 마저 끝냄
+    override fun onAttach() {
+        collect()
+        if (pressed.value != 0f || shrink.value != 0f) release()
+    }
 
-    // 목록에서 줄이 화면 밖으로 나가면 애니메이션이 도중에 끊김
-    // 다시 쓰일 때 줄어든 채로 나오지 않게 되돌림
     override fun onDetach() {
-        pressed = Animatable(0f)
-        shrink = Animatable(0f)
         hovered = false
         focused = false
+    }
+
+    // 목록에서 다른 줄로 다시 쓰일 때 줄어든 채로 나오지 않게 되돌림
+    override fun onReset() {
+        pressed = Animatable(0f)
+        shrink = Animatable(0f)
     }
 
     private fun collect() {
