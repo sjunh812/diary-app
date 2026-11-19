@@ -115,6 +115,7 @@ internal fun CatalogColors() {
             "surfaceCard" to c.surfaceCard,
             "surface" to c.surface,
             "paper" to c.paper,
+            "envelopeFlap" to c.envelopeFlap,
             "sunken" to c.sunken,
             "raised" to c.raised,
             "selected" to c.selected,

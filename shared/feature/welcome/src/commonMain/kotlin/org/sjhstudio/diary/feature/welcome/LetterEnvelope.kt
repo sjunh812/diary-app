@@ -254,7 +254,7 @@ private fun DrawScope.drawBack(area: Size, progress: Float, colors: DiaryColors)
     val tip = flapTip(area.height, progress)
     if (tip < 0) {
         val flap = flapPath(area.width, tip)
-        drawPath(flap, colors.selected)
+        drawPath(flap, colors.envelopeFlap)
         drawPath(flap, colors.line, style = outline())
     }
 }
@@ -314,7 +314,7 @@ private fun DrawScope.drawFront(area: Size, progress: Float, colors: DiaryColors
         val flap = flapPath(width, tip)
         clipPath(body) {
             softShadow(flap, colors, direction = 1f)
-            drawPath(flap, colors.selected)
+            drawPath(flap, colors.envelopeFlap)
         }
         drawSeal(Offset(width / 2, softTip(tip)), tip / (FLAP_DEPTH * height), colors, pen)
     } else {
