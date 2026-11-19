@@ -64,6 +64,8 @@ class DefaultEntryRepository(
             initialLoadSize = PAGE,
             prefetchDistance = PAGE / 2,
             enablePlaceholders = true,
+            // 전체 보기는 본문을 다 읽어서 지나간 쪽을 버림. 다시 오면 DB에서 읽음
+            maxSize = PAGE * 4,
             jumpThreshold = JUMP_ROWS
         )
 
