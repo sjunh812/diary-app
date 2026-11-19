@@ -63,7 +63,7 @@ class BaselineProfileGenerator {
 
     /**
      * 가장 자주 쓰는 일인데 처음 열 때 편집기 코드가 해석 실행되어 버벅였다(2026-11-18 실기기)
-     * 쓰기 화면을 열고 글을 넣고 기분 시트를 연 뒤 글을 비우고 닫는다
+     * 쓰기 화면을 열고 글을 넣고 기분 시트(폰)를 연 뒤 글을 비우고 닫는다
      * 글이 남은 채 닫으면 임시 저장본이 회차마다 쌓여 다음 측정(WriteOpenBenchmark)이 쓰던 글 시트에 막힘
      */
     @Test
@@ -74,16 +74,17 @@ class BaselineProfileGenerator {
         checkNotNull(device.wait(Until.findObject(By.desc(WRITE_BUTTON)), TIMEOUT)) { "쓰기 버튼을 찾지 못했다" }.click()
         device.wait(Until.findObject(By.text(NEW_ENTRY)), SHEET_TIMEOUT)?.click()
         val editor = checkNotNull(device.wait(Until.findObject(By.clazz(EDIT_TEXT)), TIMEOUT)) { "편집기를 찾지 못했다" }
-        editor.click()
+        // 누르지 않고 글만 넣어 키보드를 띄우지 않음. 떠 있으면 뒤로 가기가 키보드만 닫아 시트가 남음
         editor.text = SAMPLE_TEXT
         device.waitForIdle()
-        open(MOOD_CHIP)
-        // 시트가 뜨기 전에 뒤로 가기를 누르면 쓰기 화면이 닫힘
-        check(device.wait(Until.hasObject(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 뜨지 않았다" }
-        // 키보드가 떠 있으면 첫 뒤로 가기가 키보드만 닫아 시트가 남음
-        device.pressBack()
-        if (!device.wait(Until.gone(By.text(GOOD_MOOD)), SHEET_TIMEOUT)) device.pressBack()
-        check(device.wait(Until.gone(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 닫히지 않았다" }
+        // 넓은 화면은 기분이 오른쪽 칸에 늘 보여 시트가 없음
+        if (!device.hasObject(By.text(GOOD_MOOD))) {
+            open(MOOD_CHIP)
+            // 시트가 뜨기 전에 뒤로 가기를 누르면 쓰기 화면이 닫힘
+            check(device.wait(Until.hasObject(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 뜨지 않았다" }
+            device.pressBack()
+            check(device.wait(Until.gone(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 닫히지 않았다" }
+        }
         checkNotNull(device.wait(Until.findObject(By.clazz(EDIT_TEXT)), TIMEOUT)) { "편집기를 찾지 못했다" }.text = ""
         device.waitForIdle()
         checkNotNull(device.wait(Until.findObject(By.desc(CLOSE)), TIMEOUT)) { "닫기를 찾지 못했다" }.click()
