@@ -86,7 +86,7 @@
     <string name="restore_value_updated">Entries updated to the newer version</string>
     <string name="restore_value_both">Entries kept in both versions</string>
     <string name="restore_value_photos">Photos to download</string>
-    <string name="restore_settings_note">Your font, diary text size, appearance, and reminder settings also change to those in the backup.</string>
+    <string name="restore_settings_note">Your font, diary text size, appearance, list view, and reminder settings also change to those in the backup.</string>
     <string name="restore_no_space">You need %1$s more space for the photos. Free up space on this device and try again.</string>
     <string name="restore_merge">Merge</string>
     <string name="restore_size_gb">%1$s GB</string>

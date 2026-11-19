@@ -83,7 +83,7 @@
     <string name="restore_value_updated">新しい方に更新される日記</string>
     <string name="restore_value_both">両方残す日記</string>
     <string name="restore_value_photos">ダウンロードする写真</string>
-    <string name="restore_settings_note">フォント、本文の文字サイズ、表示モード、リマインダーの設定もバックアップ時に戻ります。</string>
+    <string name="restore_settings_note">フォント、本文の文字サイズ、表示モード、一覧の表示、リマインダーの設定もバックアップ時に戻ります。</string>
     <string name="restore_no_space">写真をダウンロードする空き容量があと%1$s足りません。空き容量を増やしてもう一度お試しください。</string>
     <string name="restore_merge">統合する</string>
     <string name="restore_size_gb">%1$sGB</string>
