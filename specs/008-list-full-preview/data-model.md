@@ -7,7 +7,8 @@
 | 값 | 저장 id | 뜻 |
 | --- | --- | --- |
 | `THREE_LINES` | `three` | 기본. 줄바꿈은 지키고 빈 줄은 없앤 글을 3줄까지 |
-| `FULL` | `full` | 줄바꿈 그대로, 연달아 빈 줄은 하나, 상한 줄 수까지 |
+| `FIVE_LINES` | `five` | 3줄과 같은 규칙으로 5줄까지 |
+| `FULL` | `full` | 줄바꿈과 띄어쓰기는 쓴 그대로, 연달아 빈 줄은 하나, 상한 없이 끝까지 |
 
 모르는 id는 `THREE_LINES`로 읽는다.
 
@@ -50,7 +51,7 @@
 | 칸 | 뜻 |
 | --- | --- |
 | `preview: String` | [줄 규칙](contracts/preview-text.md)을 거친 글. 피드·카드·격자·휴지통·검색이 함께 써서 타입은 그대로 둔다 |
-| `previewLines: Int` | 3 또는 전체 상한(`PreviewText.FULL_LINES`) |
+| `previewLines: Int` | 3, 5 또는 끝까지(`PreviewText.UNLIMITED`). 검색 결과는 3 |
 | `previewSpans: List<RichSpan>` | Plus 서식 보기일 때 `preview` 기준 서식. 아니면 빈 목록 |
 
 잘렸는지는 화면이 글을 배치한 결과(`hasVisualOverflow`)로 알고 누를 때만 읽는다. 일기 내용이라 `toString`에 담지 않는다(헌법 II).

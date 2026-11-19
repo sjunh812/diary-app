@@ -107,4 +107,4 @@ DB와 백업에는 소문자 ID(`angry`, `cool`, `sad`, `sick`, `laugh`, `meh`, 
 
 ## ListPreferences (DataStore)
 
-`listStyle: FEED | CARD | PHOTO_GRID`(기본 FEED, 설정 키 `list_style`), `favoritesOnly: Boolean`. 목록 미리보기는 늘 3줄이고 레거시 `skip_note`는 잇지 않는다(2026-11-01).
+`listStyle: FEED | CARD | PHOTO_GRID`(기본 FEED, 설정 키 `list_style`), `favoritesOnly: Boolean`. 목록 미리보기 길이는 스펙 008 `previewLength`(3줄·5줄·전체)가 정한다. 레거시 `skip_note`는 처음에 잇지 않기로 했다가(2026-11-01), false면 한 번 "전체"로 잇는다(스펙 008 US3, 2026-11-17).

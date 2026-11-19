@@ -51,8 +51,8 @@
   "settings": {
     "font": "pretendard", "bodyTextSize": "medium", "themeMode": "system",
     "reminderEnabled": true, "reminderMinuteOfDay": 1320,
-    "listStyle": "feed", "favoritesOnly": false, "askLocationAgain": true,
-    "lockEnabled": true
+    "listStyle": "feed", "favoritesOnly": false, "previewLength": "three", "showListFormatting": false,
+    "askLocationAgain": true, "lockEnabled": true
   }
 }
 ```
@@ -61,6 +61,7 @@
   기기에 파일이 없어(`pending`) 올릴 수 없었던 사진이다. `missing` 줄은 적지 않는다(FR-011).
 - 일기 내용, 장소, 기분, 사진 경로, 잠금 확인값은 목록 파일에 넣지 않는다. `lockEnabled`는 켜져 있었는지만 알린다(FR-026).
 - 읽는 쪽은 모르는 키를 무시한다. 없는 키는 기본값으로 본다.
+- `settings.previewLength`(`"three"`·`"five"`·`"full"`)와 `settings.showListFormatting`(참·거짓)은 목록 본문 길이와 서식 그대로 보기다(스펙 008). 둘 다 없어도 되는 키다. 예전 앱은 모르는 키라 무시하고(`ignoreUnknownKeys = true`), 이 키가 없는 백업을 복원하면 기기 값을 그대로 둔다. 모르는 값도 건너뛴다.
 
 ### 끝까지 된 백업인지 보는 법
 

@@ -11,7 +11,7 @@
 - [ ] T002 (임시 HTML `prototype.html`로 대신해 확정, Figma 옮기기는 사용자가 맡음 2026-11-17) Figma "프로토타입 · 시안" 페이지 섹션 "프로토타입 · 목록 전체 보기"에 폰 390×844·태블릿 1024×720 프레임과 프로토타입 연결을 만든다. 같은 목록 위 자리에 백업 카드·팁이 겹칠 때 순서를 흐름으로 그린다.
 - [x] T003 프로토타입 확정을 받고 `prototype.md`에 날짜와 바뀐 점을 적는다(확정 전 T004 이후 금지).
 - [ ] T004 Figma "화면" 페이지 "6 설정" 묶음에 "목록 보기 (S?)" 줄(라이트·설명·다크·태블릿)과 상태(3줄, 전체, 사진 격자, 무료 서식 잠김, Plus 서식 켬)를 그린다.
-- [ ] T005 Figma "화면" 페이지 "2 일기" 묶음 홈 줄 상태에 3줄 줄바꿈, 전체(상한 "…"), 서식 보기, 두 팁을 더한다.
+- [ ] T005 Figma "화면" 페이지 "2 일기" 묶음 홈 줄 상태에 3줄·5줄 줄바꿈, 전체(끝까지), 서식 보기, 두 팁을 더한다.
 - [x] T006 `/figma-audit`로 규격을 잰다. `specs/008-list-full-preview/design-review.md`에 TDS·SEED·HIG·M3·레퍼런스 앱과 견준 표, 프로토타입과 견준 날짜를 적는다. 고칠 값은 `docs/design.md`부터.
 
 ## 2단계: 바탕 (모든 이야기 전에)
@@ -39,7 +39,7 @@
 - [x] T017 [US2] 전체 보기용 목록 쿼리(글 길이 상한까지 `substr`)를 더한다. 3줄 쿼리(`LIST_TEXT_CHARS = 520`)는 그대로 in `db/EntryDao.kt` (실제: 목록 쿼리는 그대로, 쪽마다 `previewTexts`·`previewHtmls`로 더 읽음)
 - [x] T018 [US2] `ListPreferences`를 보고 모드별 `PagingSource`를 고르고, 설정이 바뀌면 새 페이지를 만든다. 보던 자리를 지킨다 in `data/diary/DefaultEntryRepository.kt`
 - [x] T019 [P] [US2] 모드가 바뀌면 줄 글·`maxLines`가 바뀌는 저장소 시험 in `shared/core/data/src/commonTest/kotlin/org/sjhstudio/diary/core/data/diary/EntryPreviewModeTest.kt`
-- [x] T020 [US2] 목록 보기 화면에 맨 위 미리보기 상자(견본 일기 문자열 리소스), 모양, 본문 길이(3줄·전체)를 둔다. 사진 격자면 길이를 숨긴다. 길이를 고르면 `previewChosen = true` in `settings/ListStyleSettingsScreen.kt`
+- [x] T020 [US2] 목록 보기 화면에 맨 위 미리보기 상자(견본 일기 문자열 리소스), 모양, 본문 길이(3줄·5줄·전체)를 둔다. 사진 격자면 길이를 숨긴다. 길이를 고르면 `previewChosen = true` in `settings/ListStyleSettingsScreen.kt`
 - [x] T021 [US2] 설정 첫 화면 "목록 보기" 값을 "피드 · 전체"(사진 격자면 모양만)로 in `settings/SettingsScreen.kt`
 - [x] T022 [P] [US2] 문자열(값 문구, 길이 이름, 미리보기 상자 견본 글)을 `values`·`values-ko`·`values-ja`에 in `shared/feature/settings/src/commonMain/composeResources/values*/strings.xml`
 - [x] T023 [P] [US2] 목록 보기 화면 프리뷰(라이트·다크·사진 격자) in `settings/preview/` 와 화면 시험 in `shared/feature/settings/src/iosTest/kotlin/org/sjhstudio/diary/feature/settings/ListStyleSettingsScreenTest.kt` (프리뷰만 함 `settings/preview/ListStylePreviews.kt`. iOS 화면 시험은 남음) (iOS 화면 시험 `ListStyleSettingsUiTest` 더함)
@@ -87,7 +87,7 @@
 
 ## 9단계: 마무리
 
-- [ ] T047 `/emulator-check`: 한국어 먼저, 다크, 글자 최대, 태블릿 두 칸, 영어·일본어, 1.7.4 업그레이드(quickstart 3) (한국어·다크·라이트·글자 2배·영어·일본어 확인. 태블릿 남음)
+- [x] T047 `/emulator-check`: 한국어 먼저, 다크, 글자 최대, 태블릿 두 칸, 영어·일본어, 1.7.4 업그레이드(quickstart 3) (한국어·다크·라이트·글자 2배·영어·일본어 확인. 태블릿 남음. 1.7.4 업그레이드는 2026-11-19 Android 10 에뮬레이터에서 통과: 일기 1,004편 모두 이전, 사진 336장, 원본 파일 그대로, `skip_note=false` → `previewLength=full`)
 - [ ] T048 `/backup-roundtrip`(quickstart 4)
 - [x] T049 CI와 같은 검사 전부(quickstart 1), 새 문구 `korean-humanizer`·맞춤법
 - [ ] T050 Baseline Profile에 새 경로가 필요한지 `/release-prep` 기준으로 본다
@@ -97,12 +97,12 @@
 **독립 시험**: 무료로 결제 화면·시트·"서식 그대로 보기" 진입, 개발자 모드 Plus로 관리 화면.
 
 - [x] T051 [US6] Figma 프로토타입과 디자인(라이트·다크·태블릿) in Figma "프로토타입 · 시안" 섹션 "프로토타입 · Plus 혜택"
-- [ ] T052 [US6] 결제 화면 규칙(핵심·다른 혜택, [모두 보기], 약관 자리, 간격)을 `docs/design.md` "결제 화면"·"구독 관리"와 `docs/DECISIONS.md`에 적는다
-- [ ] T053 [P] [US6] 새 문구(다른 혜택, 모두 보기, Plus 혜택, 일기에 체크리스트 넣기, 목록에서도 서식 그대로 보기와 설명) 3개 언어 in `shared/feature/plus/src/commonMain/composeResources/values*/strings.xml`
-- [ ] T054 [US6] 혜택 목록 모델(핵심·다른 혜택, 들어온 혜택 먼저, 3줄 상한) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/PlusBenefits.kt`, 시험 in `src/commonTest`
-- [ ] T055 [US6] 결제 화면·관리 화면을 새 묶음으로, [모두 보기] 시트, 약관 자리 in `PlusScreen.kt`
-- [ ] T056 [US6] 들어온 곳을 `PlusKey`에 싣고 "서식 그대로 보기"에서 넘기기 in `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/navigation/ScreenKeys.kt`, `SettingsEntries.kt`
-- [ ] T057 [P] [US6] 프리뷰(한국어 먼저, 라이트·다크, 시트) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/preview/PlusPreviews.kt`, iOS 화면 시험 in `src/iosTest`
+- [x] T052 [US6] 결제 화면 규칙(핵심·다른 혜택, [모두 보기], 약관 자리, 간격)을 `docs/design.md` "결제 화면"·"구독 관리"와 `docs/DECISIONS.md`에 적는다
+- [x] T053 [P] [US6] 새 문구(다른 혜택, 모두 보기, Plus 혜택, 일기에 체크리스트 넣기, 목록에서도 서식 그대로 보기와 설명) 3개 언어 in `shared/feature/plus/src/commonMain/composeResources/values*/strings.xml`
+- [x] T054 [US6] 혜택 목록 모델(핵심·다른 혜택, 들어온 혜택 먼저, 3줄 상한) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/PlusBenefit.kt`, 시험 in `src/commonTest`
+- [x] T055 [US6] 결제 화면·관리 화면을 새 묶음으로, [모두 보기] 시트, 약관 자리 in `PlusScreen.kt`
+- [x] T056 [US6] 들어온 곳을 `PlusKey`에 싣고 "서식 그대로 보기"에서 넘기기 in `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/navigation/ScreenKeys.kt`, `SettingsEntries.kt`
+- [x] T057 [P] [US6] 프리뷰(한국어 먼저, 라이트·다크, 시트) in `shared/feature/plus/src/commonMain/kotlin/org/sjhstudio/diary/feature/plus/preview/PlusPreviews.kt`, iOS 화면 시험 in `src/iosTest`
 - [ ] T058 [US6] 아이폰 15 시뮬레이터와 411×914 에뮬레이터에서 스크롤이 없는지 재고(SC-007) 다크·태블릿·큰 글자·영어·일본어를 본다
 
 ## 순서
