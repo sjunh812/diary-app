@@ -269,7 +269,6 @@ class BackupRunner(
                 bytesShort = photos.bytesShort,
                 failingSince = null,
                 lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 },
-                failureNotifiedAt = null,
                 photosNotBackedUp = photos.left,
                 unusablePhotos = photos.unusable
             )
@@ -279,7 +278,7 @@ class BackupRunner(
         // 성공은 이미 적었음
         // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 함
         quietly {
-            alerts?.schedule(now + ALERT_AFTER, null)
+            failures.stillFine(now)
             prune(folders, deviceId, now)
         }
         return BackupOutcome.Done(photos.uploaded.size, photos.left, photos.unusable.size)
@@ -542,5 +541,3 @@ class BackupRunner(
         const val MAX_STALLS = 3
     }
 }
-
-private val ALERT_AFTER = BackupFailureLog.ALERT_AFTER

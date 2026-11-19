@@ -98,6 +98,7 @@ class BackupController(
     /** 연결한 뒤 드라이브를 찾는 동안 켜짐. 몇 초 걸려 화면이 알림 */
     private val finding = MutableStateFlow(false)
 
+    private val failures = BackupFailureLog(store, clock, alerts)
     private val _connectFailure = MutableStateFlow<BackupFailure?>(null)
     override val connectFailure: StateFlow<BackupFailure?> = _connectFailure.asStateFlow()
 
@@ -195,10 +196,13 @@ class BackupController(
                 accountLabel = result.account.email,
                 autoEnabled = it.accountKey == null || it.autoEnabled,
                 userDisconnected = false,
-                lastFailure = null
+                // 다시 이었으면 끊긴 동안의 실패는 끝난 일. 7일 알림도 새로 셈
+                lastFailure = null,
+                failingSince = null
             )
         }
         if (store.current().autoEnabled) scheduler.scheduleDaily()
+        failures.stillFine(clock.now())
         // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않음(US2 시나리오 7)
         finding.value = true
         val found =
@@ -291,19 +295,14 @@ class BackupController(
 
     /**
      * 일기가 마지막 백업 그대로라 지난 실패는 더 이을 것이 없음
-     * 연결이 끊긴 것만은 사용자가 풀어야 해서 남김
+     * 연결이 끊긴 것만은 사용자가 풀어야 해서 기록도 알림도 그대로 둠
      * 공간이 차서 적지 못해도 다음 자동 백업이 다시 함
      */
     private suspend fun stillBackedUp() {
         try {
-            store.update { prefs ->
-                if (prefs.lastFailure == BackupFailure.AUTH) {
-                    prefs
-                } else {
-                    prefs.copy(lastFailure = null, failingSince = null, failureNotifiedAt = null, bytesShort = 0)
-                }
-            }
-            alerts?.schedule(clock.now() + ALERT_AFTER, null)
+            if (store.current().lastFailure == BackupFailure.AUTH) return
+            store.update { it.copy(lastFailure = null, failingSince = null, bytesShort = 0) }
+            failures.stillFine(clock.now())
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
@@ -325,7 +324,7 @@ class BackupController(
             scheduler.scheduleDaily()
             // 끌 때 지운 알림 다시 예약
             // 없으면 자동 백업이 멈춰도 아무도 모름
-            alerts?.schedule(clock.now() + ALERT_AFTER, null)
+            failures.stillFine(clock.now())
         } else {
             scheduler.cancelDaily()
             notifier.cancel()
@@ -362,15 +361,12 @@ class BackupController(
         lastAttemptAt = null,
         failingSince = null,
         lastFailure = null,
-        failureNotifiedAt = null,
+        alertAt = null,
         photosNotBackedUp = 0,
         bytesShort = 0,
         restoredBackupAt = null
     )
 }
-
-/** 실패 알림까지의 시간(FR-016). 백업이 성공할 때 거는 값과 같음 */
-private val ALERT_AFTER = 7.days
 
 private const val NUDGE_ENTRIES = 3
 private const val NUDGE_LIMIT = 3

@@ -71,6 +71,65 @@ class BackupAlertTest {
         assertEquals("까닭 없음", notifier.body)
     }
 
+    /** 바뀐 것이 없어 미룬 알림은 뒤이은 실패가 앞당기지 않고 까닭만 바꿈 */
+    @Test
+    fun a_failure_after_a_quiet_day_keeps_the_pushed_alert() = runTest {
+        connected()
+        controller.runAutomatic()
+        val first = phone.clock.now()
+        phone.clock.advance(3.days)
+        controller.runAutomatic()
+
+        phone.clock.advance(1.days)
+        repeat(FAULTS) { phone.drive.faults.addLast(DriveFault.OFFLINE) }
+        phone.write("e2")
+        controller.runAutomatic()
+
+        assertEquals(first + 10.days, notifier.at)
+        assertEquals(BackupFailure.OFFLINE.name, notifier.body)
+    }
+
+    /** 오래 끊겼다 다시 이으면 그때부터 7일. 그 뒤 실패도 같은 시각에 까닭을 담음 */
+    @Test
+    fun a_failure_after_reconnecting_keeps_the_reconnect_alert() = runTest {
+        connected()
+        controller.runAutomatic()
+        phone.clock.advance(30.days)
+        phone.store.update { it.copy(lastFailure = BackupFailure.AUTH, failingSince = phone.clock.now()) }
+        val reconnected = phone.clock.now()
+        // 연결 직후 지금 백업은 시스템 작업이 맡아 아래 자동 백업과 겹치지 않음
+        scheduler.takesNow = true
+        controller.connect()
+        assertEquals(reconnected + 7.days, notifier.at)
+
+        phone.clock.advance(1.days)
+        repeat(FAULTS) { phone.drive.faults.addLast(DriveFault.OFFLINE) }
+        phone.write("e2")
+        controller.runAutomatic()
+
+        assertEquals(reconnected + 7.days, notifier.at)
+        assertEquals(BackupFailure.OFFLINE.name, notifier.body)
+    }
+
+    /** 최근에 성공했으면 다시 이어도 알림이 그 성공 기준보다 앞당겨지지 않음 */
+    @Test
+    fun a_failure_soon_after_reconnecting_does_not_ring_early() = runTest {
+        connected()
+        controller.runAutomatic()
+        phone.clock.advance(2.days)
+        val reconnected = phone.clock.now()
+        // 연결 직후 지금 백업은 시스템 작업이 맡아 아래 자동 백업과 겹치지 않음
+        scheduler.takesNow = true
+        controller.connect()
+
+        phone.clock.advance(1.days)
+        repeat(FAULTS) { phone.drive.faults.addLast(DriveFault.OFFLINE) }
+        phone.write("e2")
+        controller.runAutomatic()
+
+        assertEquals(reconnected + 7.days, notifier.at)
+    }
+
     /** 앱을 열 때 도는 자동 백업도 같은 길 */
     @Test
     fun opening_the_app_with_nothing_new_pushes_the_alert_back() = runTest {
@@ -113,11 +172,15 @@ class BackupAlertTest {
     fun nothing_new_keeps_a_broken_connection() = runTest {
         connected()
         controller.runAutomatic()
+        val first = phone.clock.now()
         phone.store.update { it.copy(lastFailure = BackupFailure.AUTH) }
 
+        phone.clock.advance(3.days)
         controller.runAutomatic()
 
         assertEquals(BackupFailure.AUTH, phone.store.current().lastFailure)
+        // 다시 연결하라는 알림을 미루지 않음
+        assertEquals(first + 7.days, notifier.at)
     }
 
     /** 자동 백업을 끈 사람이 직접 눌러 성공해도 7일 뒤 알림을 걸지 않음 */
