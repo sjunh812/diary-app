@@ -79,15 +79,7 @@ object Checklist {
      * 앞 편집이 뒤 자리를 밀지 않게 뒤에서부터 돌려줌
      */
     fun toggleLines(text: String, selectionStart: Int, selectionEnd: Int): List<ChecklistEdit> {
-        val starts = ArrayList<Int>()
-        var start = lineStart(text, selectionStart)
-        while (true) {
-            starts += start
-            val end = lineEnd(text, start)
-            if (end >= selectionEnd || end >= text.length) break
-            start = end + 1
-        }
-        val lines = starts.map { it to text.substring(it, lineEnd(text, it)) }
+        val lines = pickedLines(text, selectionStart, selectionEnd)
         val allItems = lines.all { (_, line) -> isItem(line) }
         return lines.asReversed().mapNotNull { (at, line) ->
             when {
@@ -96,6 +88,29 @@ object Checklist {
                 else -> ChecklistEdit(at, at, PREFIX)
             }
         }
+    }
+
+    /** 고른 줄의 표시만 뺌. 글머리 목록으로 바꿀 때 일반 줄에 표시가 생기지 않게 */
+    fun removeLines(text: String, selectionStart: Int, selectionEnd: Int): List<ChecklistEdit> =
+        pickedLines(text, selectionStart, selectionEnd).asReversed().mapNotNull { (at, line) ->
+            ChecklistEdit(at, at + PREFIX_LENGTH, "").takeIf { isItem(line) }
+        }
+
+    /**
+     * 고른 범위가 걸친 줄의 시작과 글
+     * 끝이 다음 줄 맨 앞이면 그 줄은 고르지 않은 것으로 봄(메모 앱과 같게)
+     */
+    private fun pickedLines(text: String, selectionStart: Int, selectionEnd: Int): List<Pair<Int, String>> {
+        val last = if (selectionEnd > selectionStart && text.getOrNull(selectionEnd - 1) == '\n') selectionEnd - 1 else selectionEnd
+        val lines = ArrayList<Pair<Int, String>>()
+        var start = lineStart(text, selectionStart)
+        while (true) {
+            val end = lineEnd(text, start)
+            lines += start to text.substring(start, end)
+            if (end >= last || end >= text.length) break
+            start = end + 1
+        }
+        return lines
     }
 
     /**

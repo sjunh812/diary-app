@@ -92,6 +92,24 @@ class ChecklistTest {
         assertEquals(removed.indexOf("우유"), Checklist.shifted(added.indexOf("우유") - 1, remove))
     }
 
+    /** 글머리 목록으로 바꿀 때는 표시만 빼고 일반 줄은 그대로 */
+    @Test
+    fun removing_takes_marks_off_only_the_items() {
+        val text = "$open 우유\n달걀\n$done 빵"
+
+        assertEquals("우유\n달걀\n빵", text.apply(Checklist.removeLines(text, 0, text.length)))
+    }
+
+    /** 고른 끝이 다음 줄 맨 앞이면 그 줄은 바꾸지 않음 */
+    @Test
+    fun a_selection_ending_at_the_next_line_start_leaves_that_line() {
+        val text = "우유\n달걀"
+
+        assertEquals("$open 우유\n달걀", text.apply(Checklist.toggleLines(text, 0, text.indexOf("달걀"))))
+        // 커서만 있으면 그 줄
+        assertEquals("우유\n$open 달걀", text.apply(Checklist.toggleLines(text, text.indexOf("달걀"), text.indexOf("달걀"))))
+    }
+
     @Test
     fun button_works_on_an_empty_note() {
         assertEquals("$open ", "".apply(Checklist.toggleLines("", 0, 0)))

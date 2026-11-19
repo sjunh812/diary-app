@@ -54,6 +54,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.Checklist
+import org.sjhstudio.diary.core.model.ChecklistEdit
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
 import org.sjhstudio.diary.core.ui.icon
@@ -187,9 +188,8 @@ internal class WriteTools(
             modifier = slot,
             active = rich.isUnorderedList,
             onClick = {
-                if (checked) toggleChecklist()
                 rich.commitComposition()
-                rich.toggleUnorderedList()
+                rich.toggleList()
             }
         )
         ToolButton(
@@ -228,7 +228,7 @@ internal class WriteTools(
 
     private fun toggleChecklist() {
         rich.commitComposition()
-        rich.toggleChecklistLines()
+        rich.changeChecklistLines(Checklist::toggleLines)
     }
 
     @Composable
@@ -289,14 +289,24 @@ internal class WriteTools(
 }
 
 /**
- * 고른 줄을 체크리스트로 바꾸거나 풂
+ * 고른 줄의 체크리스트 표시를 [change]대로 넣거나 뺌. 바꾼 줄이 있으면 참
  * 편집기는 끼워 넣을 때 고른 범위를 풀어서, 표시를 넣고 뺀 만큼 옮겨 다시 고름
  */
-internal fun RichTextState.toggleChecklistLines() {
+internal fun RichTextState.changeChecklistLines(change: (text: String, start: Int, end: Int) -> List<ChecklistEdit>): Boolean {
     val picked = selection
-    val edits = Checklist.toggleLines(toText(), picked.min, picked.max)
+    val edits = change(toText(), picked.min, picked.max)
+    if (edits.isEmpty()) return false
     edits.forEach { applyEdit(it) }
     selection = TextRange(Checklist.shifted(picked.start, edits), Checklist.shifted(picked.end, edits))
+    return true
+}
+
+/**
+ * 글머리 목록 도구. 고른 줄의 체크리스트 표시를 빼고 목록으로 바꾸거나 목록을 풂
+ * 체크리스트를 풀었으면 목록으로 바꾸려는 것이라 앞 줄이 이미 목록이어도 풀지 않음
+ */
+internal fun RichTextState.toggleList() {
+    if (changeChecklistLines(Checklist::removeLines)) addUnorderedList() else toggleUnorderedList()
 }
 
 internal fun InkColor.label(): StringResource = when (this) {
