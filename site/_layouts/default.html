@@ -21,7 +21,15 @@ location.replace('/'+s+'/1day1diary/'+location.hash)})();
 {% if page.home %}<link rel="canonical" href="{{ site.url }}{{ t.home }}">
 {% for l in site.data.i18n %}<link rel="alternate" hreflang="{{ l[0] }}" href="{{ site.url }}{{ l[1].home }}">
 {% endfor %}<link rel="alternate" hreflang="x-default" href="{{ site.url }}/1day1diary/">{% endif %}
-<meta property="og:image" content="{{ site.url }}/assets/icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ t.name }}">
+<meta property="og:url" content="{{ site.url }}{{ page.url }}">
+<!-- 링크 미리보기 카드(1200×630). 언어별 화면 -->
+<meta property="og:image" content="{{ site.url }}/assets/og-{{ lang }}.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ t.name }}">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/assets/favicon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
