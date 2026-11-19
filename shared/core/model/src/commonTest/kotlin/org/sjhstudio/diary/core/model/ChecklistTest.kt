@@ -2,7 +2,9 @@ package org.sjhstudio.diary.core.model
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class ChecklistTest {
     private val open = Checklist.OPEN
@@ -90,6 +92,16 @@ class ChecklistTest {
         assertEquals("우유\n달걀", removed.substring(Checklist.shifted(added.indexOf("우유"), remove), Checklist.shifted(added.length, remove)))
         // 표시 안에 있던 자리는 줄 맨 앞으로
         assertEquals(removed.indexOf("우유"), Checklist.shifted(added.indexOf("우유") - 1, remove))
+    }
+
+    /** 첫 줄만 항목이면 켜짐이 아님. 누르면 표시가 생겨 Plus 확인을 거쳐야 함 */
+    @Test
+    fun only_items_means_every_picked_line() {
+        val text = "$open 우유\n달걀"
+
+        assertTrue(Checklist.picksOnlyItems(text, 0, 1))
+        assertFalse(Checklist.picksOnlyItems(text, 0, text.length))
+        assertTrue(Checklist.toggleLines(text, 0, text.length).any { it.start == it.end })
     }
 
     /** 글머리 목록으로 바꿀 때는 표시만 빼고 일반 줄은 그대로 */

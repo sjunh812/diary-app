@@ -124,7 +124,8 @@ internal class WriteTools(
         val style = rich.currentSpanStyle
         // 좁은 폰에서는 칸을 고르게 줄여 도구가 모두 보이게
         val slot = Modifier.weight(1f, fill = false)
-        val checked = Checklist.isItemAt(plain.value, rich.selection.min)
+        // 고른 줄이 모두 항목이어야 켜짐. 하나라도 일반 줄이면 누르면 표시가 생겨 Plus 확인을 거침
+        val checked = Checklist.picksOnlyItems(plain.value, rich.selection.min, rich.selection.max)
         val scope = rememberCoroutineScope()
         // 요금제를 기다리는 동안 다시 눌러도 쌓이지 않게
         var deciding by remember { mutableStateOf(false) }

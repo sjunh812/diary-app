@@ -52,8 +52,9 @@ object Checklist {
         return items
     }
 
-    /** 커서가 있는 줄이 항목인지 */
-    fun isItemAt(text: String, cursor: Int): Boolean = isItem(text.substring(lineStart(text, cursor), lineEnd(text, cursor)))
+    /** 고른 줄이 모두 항목인지. 도구 버튼의 켜짐과 체크리스트 도구가 표시를 뺄지 넣을지가 같은 판단 */
+    fun picksOnlyItems(text: String, selectionStart: Int, selectionEnd: Int): Boolean =
+        pickedLines(text, selectionStart, selectionEnd).all { (_, line) -> isItem(line) }
 
     /** 표시 글자 하나를 뒤집는 편집. [start]는 항목 줄의 시작 */
     fun toggle(text: String, start: Int): ChecklistEdit =
@@ -79,9 +80,8 @@ object Checklist {
      * 앞 편집이 뒤 자리를 밀지 않게 뒤에서부터 돌려줌
      */
     fun toggleLines(text: String, selectionStart: Int, selectionEnd: Int): List<ChecklistEdit> {
-        val lines = pickedLines(text, selectionStart, selectionEnd)
-        val allItems = lines.all { (_, line) -> isItem(line) }
-        return lines.asReversed().mapNotNull { (at, line) ->
+        val allItems = picksOnlyItems(text, selectionStart, selectionEnd)
+        return pickedLines(text, selectionStart, selectionEnd).asReversed().mapNotNull { (at, line) ->
             when {
                 allItems -> ChecklistEdit(at, at + PREFIX_LENGTH, "")
                 isItem(line) -> null
