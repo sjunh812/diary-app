@@ -168,7 +168,7 @@ class RestoreController(
         if (kind == BackupFailure.AUTH) failures.record(BackupFailure.AUTH)
         // 인터넷 끊김은 고칠 것이 없어 남기지 않음. 메시지는 버리고 종류와 응답 코드만
         if (kind != BackupFailure.OFFLINE) {
-            // 앱 예외 이름은 출시 빌드에서 난독화되어 정한 이름으로
+            // 드라이브·입출력 예외만 정한 이름. 나머지는 클래스 이름 그대로(출시 빌드의 앱 예외는 난독화된 이름)
             val source =
                 when (error) {
                     is DriveException -> "drive"

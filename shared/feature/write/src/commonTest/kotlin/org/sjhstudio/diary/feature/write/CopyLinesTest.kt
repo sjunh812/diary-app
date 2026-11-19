@@ -11,7 +11,7 @@ import org.sjhstudio.diary.core.model.richtext.editorToClipboard
 import org.sjhstudio.diary.core.model.richtext.toPlainText
 
 /**
- * 복사한 일기를 다른 앱에 붙여넣으면 줄마다 빈 줄이 하나씩 더 생기던 문제(2.0.1 리뷰)
+ * 복사한 일기를 다른 앱에 붙여넣어도 줄마다 빈 줄이 더 생기지 않음
  * 다른 앱은 `br`만 줄바꿈 하나로 읽으니, 복사용 HTML을 서식 없이 읽으면 에디터 글과 같아야 함
  */
 class CopyLinesTest {
