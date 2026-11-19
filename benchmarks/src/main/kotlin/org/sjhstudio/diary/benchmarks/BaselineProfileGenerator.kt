@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.benchmarks
 
+import android.os.SystemClock
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -79,7 +80,9 @@ class BaselineProfileGenerator {
         open(MOOD_CHIP)
         // 시트가 뜨기 전에 뒤로 가기를 누르면 쓰기 화면이 닫힘
         check(device.wait(Until.hasObject(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 뜨지 않았다" }
+        // 키보드가 떠 있으면 첫 뒤로 가기가 키보드만 닫아 시트가 남음
         device.pressBack()
+        if (!device.wait(Until.gone(By.text(GOOD_MOOD)), SHEET_TIMEOUT)) device.pressBack()
         check(device.wait(Until.gone(By.text(GOOD_MOOD)), TIMEOUT)) { "기분 시트가 닫히지 않았다" }
         checkNotNull(device.wait(Until.findObject(By.clazz(EDIT_TEXT)), TIMEOUT)) { "편집기를 찾지 못했다" }.text = ""
         device.waitForIdle()
@@ -98,9 +101,22 @@ class BaselineProfileGenerator {
      */
     private fun MacrobenchmarkScope.visit(row: Pattern) {
         open(row)
-        check(device.wait(Until.gone(By.text(SETTINGS_LIST_ANCHOR)), TIMEOUT)) { "$row 화면으로 넘어가지 않았다" }
+        check(waitUntil { opened(row) }) { "$row 화면으로 넘어가지 않았다" }
         device.pressBack()
-        check(device.wait(Until.hasObject(By.text(SETTINGS_LIST_ANCHOR)), TIMEOUT)) { "$row 에서 설정으로 돌아오지 않았다" }
+        check(waitUntil { !opened(row) && device.hasObject(By.text(SETTINGS_LIST_ANCHOR)) }) { "$row 에서 설정으로 돌아오지 않았다" }
+    }
+
+    // 폰은 목록이 사라지고, 넓은 화면은 목록 옆 칸에 그 줄 이름이 제목으로 하나 더 뜸
+    private fun MacrobenchmarkScope.opened(row: Pattern): Boolean =
+        !device.hasObject(By.text(SETTINGS_LIST_ANCHOR)) || device.findObjects(By.text(row)).size > 1
+
+    private fun waitUntil(condition: () -> Boolean): Boolean {
+        val end = SystemClock.uptimeMillis() + TIMEOUT
+        while (SystemClock.uptimeMillis() < end) {
+            if (condition()) return true
+            SystemClock.sleep(POLL_MILLIS)
+        }
+        return condition()
     }
 
     private fun MacrobenchmarkScope.open(text: Pattern) {
@@ -112,6 +128,7 @@ class BaselineProfileGenerator {
     private companion object {
         const val PACKAGE_NAME = "org.sjhstudio.diary"
         const val TIMEOUT = 10_000L
+        const val POLL_MILLIS = 100L
         const val FLINGS = 10
         const val GESTURE_MARGIN_DIVISOR = 5
 
