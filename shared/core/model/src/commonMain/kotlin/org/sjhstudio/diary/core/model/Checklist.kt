@@ -96,6 +96,18 @@ object Checklist {
     }
 
     /**
+     * [edits]를 차례로 고친 뒤의 [index] 자리. 고르던 범위가 표시를 넣고 빼도 같은 글을 가리키게 함
+     * 줄 맨 앞에 표시를 넣으면 그 뒤로 밀고, 빼는 표시 안에 있던 자리는 줄 맨 앞으로 옮김
+     */
+    fun shifted(index: Int, edits: List<ChecklistEdit>): Int = edits.fold(index) { at, edit ->
+        when {
+            at >= edit.end -> at + edit.text.length - (edit.end - edit.start)
+            at > edit.start -> edit.start
+            else -> at
+        }
+    }
+
+    /**
      * 글이 바뀐 뒤 목록을 이어 갈 편집. [cursor]는 바뀐 뒤 커서 자리
      * 줄바꿈하면 다음 항목을 잇고, 빈 항목에서 줄바꿈하거나 표시 뒤 칸을 지우면 항목을 끝냄
      */

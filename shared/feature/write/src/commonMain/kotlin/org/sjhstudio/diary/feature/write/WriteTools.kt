@@ -38,6 +38,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.mohamedrejeb.richeditor.model.RichTextState
@@ -227,7 +228,7 @@ internal class WriteTools(
 
     private fun toggleChecklist() {
         rich.commitComposition()
-        Checklist.toggleLines(rich.toText(), rich.selection.min, rich.selection.max).forEach { rich.applyEdit(it) }
+        rich.toggleChecklistLines()
     }
 
     @Composable
@@ -285,6 +286,17 @@ internal class WriteTools(
             }
         }
     }
+}
+
+/**
+ * 고른 줄을 체크리스트로 바꾸거나 풂
+ * 편집기는 끼워 넣을 때 고른 범위를 풀어서, 표시를 넣고 뺀 만큼 옮겨 다시 고름
+ */
+internal fun RichTextState.toggleChecklistLines() {
+    val picked = selection
+    val edits = Checklist.toggleLines(toText(), picked.min, picked.max)
+    edits.forEach { applyEdit(it) }
+    selection = TextRange(Checklist.shifted(picked.start, edits), Checklist.shifted(picked.end, edits))
 }
 
 internal fun InkColor.label(): StringResource = when (this) {

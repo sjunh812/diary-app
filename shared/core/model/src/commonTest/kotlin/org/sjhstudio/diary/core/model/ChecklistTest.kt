@@ -74,6 +74,24 @@ class ChecklistTest {
         assertEquals("$done 우유\n$open 달걀", text.apply(Checklist.toggleLines(text, 0, text.length)))
     }
 
+    /** 여러 줄을 고른 채 바꿔도 고른 글이 그대로 골라져 있음 */
+    @Test
+    fun the_selection_follows_the_marks() {
+        val text = "오늘\n우유\n달걀"
+        val start = text.indexOf("우유") + 1
+        val end = text.length
+
+        val add = Checklist.toggleLines(text, start, end)
+        val added = text.apply(add)
+        assertEquals("유\n$open 달걀", added.substring(Checklist.shifted(start, add), Checklist.shifted(end, add)))
+
+        val remove = Checklist.toggleLines(added, added.indexOf("우유"), added.length)
+        val removed = added.apply(remove)
+        assertEquals("우유\n달걀", removed.substring(Checklist.shifted(added.indexOf("우유"), remove), Checklist.shifted(added.length, remove)))
+        // 표시 안에 있던 자리는 줄 맨 앞으로
+        assertEquals(removed.indexOf("우유"), Checklist.shifted(added.indexOf("우유") - 1, remove))
+    }
+
     @Test
     fun button_works_on_an_empty_note() {
         assertEquals("$open ", "".apply(Checklist.toggleLines("", 0, 0)))
