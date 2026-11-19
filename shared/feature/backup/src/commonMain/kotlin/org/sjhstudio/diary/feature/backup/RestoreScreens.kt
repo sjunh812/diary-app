@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.backup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
@@ -172,49 +175,66 @@ fun RestoreListScreen(
 @Composable
 private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
     val colors = DiaryTheme.colors
-    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-        PhraseText(
-            stringResource(Res.string.restore_keep_note),
-            style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
-            modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
-        )
-        val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
-        // 보통 가장 최근 백업을 복원해 휴대폰마다 최근 것만 먼저 보임. 예전 앱 백업은 몇 개뿐이라 다 보임
-        // 펼친 휴대폰은 화면을 돌려도 펼친 채로. 같은 모델 두 대가 섞이지 않게 기기 ID로 묶음
-        var opened by rememberSaveable { mutableStateOf(listOf<String>()) }
-        ordered.groupBy { "${it.platform}/${it.deviceId}" }.entries.forEachIndexed { index, (device, group) ->
-            DiarySettingsHeader(deviceLabel(group.first()), gapAbove = index > 0)
+    val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
+    // 보통 가장 최근 백업을 복원해 휴대폰마다 최근 것만 먼저 보임. 예전 앱 백업은 몇 개뿐이라 다 보임
+    // 펼친 휴대폰은 화면을 돌려도 펼친 채로. 같은 모델 두 대가 섞이지 않게 기기 ID로 묶음
+    var opened by rememberSaveable { mutableStateOf(listOf<String>()) }
+    val groups = ordered.groupBy { "${it.platform}/${it.deviceId}" }.entries.toList()
+    // 기기에 둔 목록을 먼저 보이고 드라이브 답으로 바꿈. 새 백업이 끼어들면 줄이 뚝 밀리지 않고 옮겨 감
+    LazyColumn(Modifier.fillMaxWidth()) {
+        item(key = KEEP_NOTE_KEY) {
+            PhraseText(
+                stringResource(Res.string.restore_keep_note),
+                style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
+            )
+        }
+        groups.forEachIndexed { index, (device, group) ->
+            item(key = "head/$device") {
+                DiarySettingsHeader(deviceLabel(group.first()), Modifier.animateItem(), gapAbove = index > 0)
+            }
             val all = group.first().platform == PLATFORM_LEGACY || device in opened
             val shown = if (all) group else group.take(RECENT_PER_DEVICE)
-            shown.forEach { entry ->
-                val problem = problemText(entry.state)
-                if (entry.platform == PLATFORM_LEGACY) {
-                    DiarySettingsRow(
-                        legacyDate(entry),
-                        onClick = { onPick(entry.snapshotName) },
-                        description = stringResource(Res.string.restore_legacy_row)
-                    )
-                } else if (problem == null) {
-                    DiarySettingsRow(whenText(entry), onClick = { onPick(entry.snapshotName) }, description = countsText(entry))
-                } else {
-                    Unavailable(whenText(entry), problem)
-                }
+            items(shown, key = { it.snapshotName }) { entry ->
+                Box(Modifier.animateItem()) { EntryRow(entry, onPick) }
             }
             val hidden = group.size - shown.size
             if (hidden > 0) {
-                DiaryButton(
-                    pluralStringResource(Res.plurals.restore_more_backups, hidden, hidden.grouped()),
-                    { opened = opened + device },
-                    // 버튼 안쪽 여백만큼 덜 띄워 글자를 위 줄과 맞춤
-                    Modifier.padding(start = LocalScreenGutter.current - DiarySpacing.x4),
-                    size = DiaryButtonSize.Medium,
-                    kind = DiaryButtonKind.Text
-                )
+                item(key = "more/$device") {
+                    DiaryButton(
+                        pluralStringResource(Res.plurals.restore_more_backups, hidden, hidden.grouped()),
+                        { opened = opened + device },
+                        // 버튼 안쪽 여백만큼 덜 띄워 글자를 위 줄과 맞춤
+                        Modifier.animateItem().padding(start = LocalScreenGutter.current - DiarySpacing.x4),
+                        size = DiaryButtonSize.Medium,
+                        kind = DiaryButtonKind.Text
+                    )
+                }
             }
         }
-        Spacer(Modifier.height(DiarySpacing.x8))
+        item(key = END_KEY) { Spacer(Modifier.height(DiarySpacing.x8)) }
     }
 }
+
+@Composable
+private fun EntryRow(entry: BackupEntry, onPick: (String) -> Unit) {
+    val problem = problemText(entry.state)
+    when {
+        entry.platform == PLATFORM_LEGACY ->
+            DiarySettingsRow(
+                legacyDate(entry),
+                onClick = { onPick(entry.snapshotName) },
+                description = stringResource(Res.string.restore_legacy_row)
+            )
+
+        problem == null -> DiarySettingsRow(whenText(entry), onClick = { onPick(entry.snapshotName) }, description = countsText(entry))
+
+        else -> Unavailable(whenText(entry), problem)
+    }
+}
+
+private const val KEEP_NOTE_KEY = "keep-note"
+private const val END_KEY = "end"
 
 /**
  * 값 줄 묶음

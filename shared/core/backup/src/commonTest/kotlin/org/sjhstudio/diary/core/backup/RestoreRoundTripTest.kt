@@ -37,6 +37,7 @@ import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveException
+import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.DamageReason
@@ -147,6 +148,19 @@ class RestoreRoundTripTest {
             downloads++
             return drive.download(fileId, to, fromByte)
         }
+    }
+
+    // 올리다 끊겨 다시 보내 목록 파일이 둘이어도 백업은 한 줄. 같은 줄이 둘이면 목록 화면이 꺼짐
+    @Test
+    fun a_manifest_uploaded_twice_is_one_backup() = runTest {
+        backUp()
+        val manifest = drive.visible.single { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST }
+        val copy = dir / "manifest-copy.json"
+        fs.write(copy) { write(drive.bytes(manifest.id)) }
+        drive.uploadSmall(NewFile(manifest.name, manifest.parents.firstOrNull(), "application/json", manifest.props), copy)
+
+        assertEquals(1, catalog().list().size)
+        assertEquals(1, catalog().saved().size)
     }
 
     /** 앱을 다시 열어도 받아 둔 목록 파일은 다시 받지 않음. 백업이 늘어도 목록이 느려지지 않음 */

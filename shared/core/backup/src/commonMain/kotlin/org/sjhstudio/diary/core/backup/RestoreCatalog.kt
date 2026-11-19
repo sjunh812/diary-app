@@ -60,8 +60,11 @@ class RestoreCatalog(
                 manifests.map { file -> async { file to slots.withPermit { manifestOf(file) } } }.awaitAll()
             }
         forgetExcept(manifests)
+        // 올리다 끊겨 다시 보내면 같은 백업의 목록 파일이 둘 생길 수 있음. 백업 하나는 한 줄로
         val backups =
             read.map { (file, manifest) -> candidate(file, manifest, manifest?.let { snapshots[it.snapshot.fileName] }) }
+                .sortedBy { it.entry.state != BackupEntryState.Ready }
+                .distinctBy { it.entry.snapshotName }
                 .sortedByDescending { it.entry.createdAt }
         return backups + oldBackups.map(::legacyCandidate)
     }
@@ -113,6 +116,7 @@ class RestoreCatalog(
         .mapNotNull { fromDisk(it) }
         .filter { ManifestCodec.check(it) != ManifestCheck.BROKEN && ManifestCodec.check(it) != ManifestCheck.NEEDS_NEWER_APP }
         .map { entryOf(it, it.snapshot.fileName, it.createdAt, BackupEntryState.Ready) }
+        .distinctBy { it.snapshotName }
         .sortedByDescending { it.createdAt }
 
     private fun legacyCandidate(file: DriveFile) = RestoreCandidate(
