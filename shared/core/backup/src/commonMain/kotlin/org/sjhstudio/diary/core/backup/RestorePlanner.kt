@@ -145,6 +145,7 @@ class RestorePlanner(
                 entriesUpdated = plan.count(MergeAction.REPLACE),
                 entriesKeptBoth = plan.count(MergeAction.KEEP_BOTH),
                 entriesUnchanged = plan.count(MergeAction.KEEP),
+                entriesToTrash = plan.toTrash(),
                 photosToDownload = needed.size,
                 bytesToDownload = needed.sumOf { it.byteSize },
                 photosNotInBackup = manifest.media.count { !it.inBackup },

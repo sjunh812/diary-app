@@ -163,6 +163,20 @@ class RestoreRoundTripTest {
         assertEquals(1, catalog().saved().size)
     }
 
+    // 미리보기의 "추가할 일기"는 백업 목록의 편수와 같음. 휴지통 일기는 휴지통으로만 들어감
+    @Test
+    fun the_preview_counts_match_the_list_without_trash() = runTest {
+        phoneA.entryDao().insertAll(listOf(entry("gone").copy(deletedAt = (Clock.System.now() - 1.days).toEpochMilliseconds())))
+        backUp()
+
+        val candidate = catalog().list().single()
+        val prepared = planner().prepare(candidate)
+
+        assertEquals(candidate.entry.entryCount, prepared.preview.entriesAdded)
+        assertEquals(2, prepared.preview.entriesAdded)
+        assertEquals(1, prepared.preview.entriesToTrash)
+    }
+
     /** 앱을 다시 열어도 받아 둔 목록 파일은 다시 받지 않음. 백업이 늘어도 목록이 느려지지 않음 */
     @Test
     fun the_list_is_not_downloaded_again_after_reopening() = runTest {

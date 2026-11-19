@@ -65,6 +65,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_done_added
 import org.sjhstudio.diary.feature.backup.resources.restore_done_body
 import org.sjhstudio.diary.feature.backup.resources.restore_done_nothing
 import org.sjhstudio.diary.feature.backup.resources.restore_done_photos
+import org.sjhstudio.diary.feature.backup.resources.restore_done_trash
 import org.sjhstudio.diary.feature.backup.resources.restore_done_updated
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_body
 import org.sjhstudio.diary.feature.backup.resources.restore_failed_busy_title
@@ -281,6 +282,12 @@ internal fun resultTitle(result: RestoreResult): String = when {
         Res.plurals.restore_done_updated,
         result.entriesUpdated,
         result.entriesUpdated.grouped()
+    )
+
+    result.entriesToTrash > 0 -> pluralStringResource(
+        Res.plurals.restore_done_trash,
+        result.entriesToTrash,
+        result.entriesToTrash.grouped()
     )
 
     else -> stringResource(Res.string.restore_done_nothing)

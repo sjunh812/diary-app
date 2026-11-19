@@ -140,6 +140,8 @@
     <plurals name="restore_unit_entries"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
     <plurals name="restore_unit_photos"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
     <plurals name="restore_done_added"><item quantity="one">Added %1$s entry</item><item quantity="other">Added %1$s entries</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="one">Restored %1$s entry to Trash</item><item quantity="other">Restored %1$s entries to Trash</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="one">%1$s entry will be restored to Trash.</item><item quantity="other">%1$s entries will be restored to Trash.</item></plurals>
     <plurals name="restore_done_updated"><item quantity="one">Updated %1$s entry</item><item quantity="other">Updated %1$s entries</item></plurals>
     <plurals name="restore_done_photos"><item quantity="one">The photo is back too.</item><item quantity="other">All %1$s photos are back too.</item></plurals>
     <plurals name="restore_note_both"><item quantity="one">%1$s entry kept in both versions</item><item quantity="other">%1$s entries kept in both versions</item></plurals>

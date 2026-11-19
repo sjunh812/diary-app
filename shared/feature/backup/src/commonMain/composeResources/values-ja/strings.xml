@@ -137,6 +137,8 @@
     <plurals name="restore_unit_entries"><item quantity="other">%1$s件</item></plurals>
     <plurals name="restore_unit_photos"><item quantity="other">%1$s枚</item></plurals>
     <plurals name="restore_done_added"><item quantity="other">日記を%1$s件追加しました</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="other">日記%1$s件をゴミ箱に復元しました</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="other">日記%1$s件はゴミ箱に復元されます。</item></plurals>
     <plurals name="restore_done_updated"><item quantity="other">日記を%1$s件更新しました</item></plurals>
     <plurals name="restore_done_photos"><item quantity="other">写真%1$s枚もすべてダウンロードしました。</item></plurals>
     <plurals name="restore_note_both"><item quantity="other">両方残した日記%1$s件</item></plurals>

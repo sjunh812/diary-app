@@ -514,6 +514,7 @@ class RestoreController(
             entriesAdded = counts.added,
             entriesUpdated = counts.updated,
             entriesKeptBoth = counts.keptBoth,
+            entriesToTrash = counts.toTrash,
             photosRestored = tally.fetched,
             photosMissing = tally.broken,
             photosPending = left - onOriginal,

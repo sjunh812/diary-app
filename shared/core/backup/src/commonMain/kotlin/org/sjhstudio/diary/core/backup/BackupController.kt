@@ -32,7 +32,6 @@ import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RestorePreparation
-import org.sjhstudio.diary.core.model.RestorePreview
 import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.ConnectResult
@@ -67,9 +66,6 @@ suspend fun offerIfNew(entry: BackupEntry?, prepare: suspend (String) -> Restore
         }
     return entry.takeIf { ready == null || ready.preview.bringsSomething() }
 }
-
-/** 합치면 이 기기에 무언가 더해지거나 바뀜 */
-fun RestorePreview.bringsSomething(): Boolean = entriesAdded + entriesUpdated + entriesKeptBoth + photosToDownload > 0
 
 /**
  * [BackupRepository]의 구현

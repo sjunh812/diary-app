@@ -137,6 +137,8 @@
     <plurals name="restore_unit_entries"><item quantity="other">%1$s편</item></plurals>
     <plurals name="restore_unit_photos"><item quantity="other">%1$s장</item></plurals>
     <plurals name="restore_done_added"><item quantity="other">일기 %1$s편을 추가했어요</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="other">일기 %1$s편을 휴지통에 복원했어요</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="other">일기 %1$s편은 휴지통에 복원돼요.</item></plurals>
     <plurals name="restore_done_updated"><item quantity="other">일기 %1$s편을 최신으로 바꿨어요</item></plurals>
     <plurals name="restore_done_photos"><item quantity="other">사진 %1$s장도 모두 받았어요.</item></plurals>
     <plurals name="restore_note_both"><item quantity="other">둘 다 남긴 일기 %1$s편</item></plurals>

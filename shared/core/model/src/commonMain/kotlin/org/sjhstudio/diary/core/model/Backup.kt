@@ -121,8 +121,13 @@ data class RestorePreview(
     /** 지금 이 기기에 보이는 일기 수. 바꾸기 확인에 씀 */
     val entriesHere: Int = 0,
     /** 예전 앱 백업 파일이 깨져 읽지 못한 일기 수(추정) */
-    val entriesUnreadable: Int = 0
-)
+    val entriesUnreadable: Int = 0,
+    /** 휴지통 안에서만 더해지거나 바뀌는 일기. 위 숫자는 홈에 보이는 변화만 셈 */
+    val entriesToTrash: Int = 0
+) {
+    /** 합치면 이 기기에 무언가 더해지거나 바뀜 */
+    fun bringsSomething(): Boolean = entriesAdded + entriesUpdated + entriesKeptBoth + entriesToTrash + photosToDownload > 0
+}
 
 data class RestoreResult(
     val entriesAdded: Int,
@@ -143,7 +148,9 @@ data class RestoreResult(
     /** 파일에서 복원함. 파일에 없는 사진은 앱을 다시 열어도 저절로 오지 않음 */
     val fromFile: Boolean = false,
     /** 사진을 다 받기 전에 멈춘 까닭. 끝까지 돌았으면 null */
-    val photosStop: PhotoStop? = null
+    val photosStop: PhotoStop? = null,
+    /** 휴지통으로 복원한 일기 */
+    val entriesToTrash: Int = 0
 )
 
 /** 사진을 더 받지 못하고 멈춘 까닭. 까닭마다 사용자가 할 일이 다름 */
