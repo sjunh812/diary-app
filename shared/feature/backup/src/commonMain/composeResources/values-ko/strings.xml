@@ -125,7 +125,8 @@
     <string name="restore_failed_mismatch_title">백업을 확인하지 못했어요</string>
     <string name="restore_failed_mismatch_body">받은 파일이 백업할 때와 달라서 멈췄어요. 이 기기의 기록은 그대로 있어요.</string>
     <string name="restore_failed_other_title">복원하지 못했어요</string>
-    <string name="restore_failed_other_body">인터넷 연결을 확인하고 다시 시도해 주세요. 이 기기의 기록은 그대로 있어요.</string>
+    <string name="restore_failed_other_body">잠시 뒤 다시 시도해 주세요. 이 기기의 기록은 그대로 있어요.</string>
+    <string name="restore_needs_update_body">스토어에서 앱을 업데이트한 뒤 다시 시도해 주세요. 이 기기의 기록은 그대로 있어요.</string>
     <string name="restore_pick_other">다른 백업 선택</string>
     <string name="restore_found_title">구글 드라이브에 백업이 있어요</string>
     <string name="restore_found_body">이 기기의 일기는 그대로 두고 합쳐요.</string>

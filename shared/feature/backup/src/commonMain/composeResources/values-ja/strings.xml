@@ -125,7 +125,8 @@
     <string name="restore_failed_mismatch_title">バックアップを確認できませんでした</string>
     <string name="restore_failed_mismatch_body">ダウンロードしたファイルがバックアップ時と異なるため中止しました。このデバイスの日記はそのままです。</string>
     <string name="restore_failed_other_title">復元できませんでした</string>
-    <string name="restore_failed_other_body">接続を確認して、もう一度お試しください。このデバイスの日記はそのままです。</string>
+    <string name="restore_failed_other_body">しばらくしてからもう一度お試しください。このデバイスの日記はそのままです。</string>
+    <string name="restore_needs_update_body">ストアでアプリをアップデートしてから、もう一度お試しください。このデバイスの日記はそのままです。</string>
     <string name="restore_pick_other">別のバックアップを選ぶ</string>
     <string name="restore_found_title">Google ドライブにバックアップがあります</string>
     <string name="restore_found_body">このデバイスの日記はそのまま残して統合します。</string>

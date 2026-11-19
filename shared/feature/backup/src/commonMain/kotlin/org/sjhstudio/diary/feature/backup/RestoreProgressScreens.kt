@@ -84,6 +84,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_lock_body
 import org.sjhstudio.diary.feature.backup.resources.restore_lock_title
 import org.sjhstudio.diary.feature.backup.resources.restore_merging_body
 import org.sjhstudio.diary.feature.backup.resources.restore_needs_update
+import org.sjhstudio.diary.feature.backup.resources.restore_needs_update_body
 import org.sjhstudio.diary.feature.backup.resources.restore_no_mail
 import org.sjhstudio.diary.feature.backup.resources.restore_note_both
 import org.sjhstudio.diary.feature.backup.resources.restore_note_both_body
@@ -375,7 +376,7 @@ internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, on
         when (reason) {
             RestoreFailure.MISMATCH -> Res.string.restore_failed_mismatch_title to Res.string.restore_failed_mismatch_body
             RestoreFailure.NO_SPACE -> Res.string.restore_failed_space_title to Res.string.restore_failed_space_body
-            RestoreFailure.NEEDS_UPDATE -> Res.string.restore_needs_update to Res.string.restore_failed_other_body
+            RestoreFailure.NEEDS_UPDATE -> Res.string.restore_needs_update to Res.string.restore_needs_update_body
             RestoreFailure.BUSY -> Res.string.restore_failed_busy_title to Res.string.restore_failed_busy_body
             RestoreFailure.OTHER -> Res.string.restore_failed_other_title to Res.string.restore_failed_other_body
         }

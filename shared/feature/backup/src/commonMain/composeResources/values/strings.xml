@@ -128,7 +128,8 @@
     <string name="restore_failed_mismatch_title">Couldn't verify the backup</string>
     <string name="restore_failed_mismatch_body">The downloaded file differs from the backup, so we stopped. Nothing on this device changed.</string>
     <string name="restore_failed_other_title">Couldn't restore</string>
-    <string name="restore_failed_other_body">Check your connection and try again. Nothing on this device changed.</string>
+    <string name="restore_failed_other_body">Try again in a moment. Nothing on this device changed.</string>
+    <string name="restore_needs_update_body">Update the app from the store, then try again. Nothing on this device changed.</string>
     <string name="restore_pick_other">Choose another backup</string>
     <string name="restore_found_title">You have a backup on Google Drive</string>
     <string name="restore_found_body">Entries on this device are kept and the backup is merged in.</string>
