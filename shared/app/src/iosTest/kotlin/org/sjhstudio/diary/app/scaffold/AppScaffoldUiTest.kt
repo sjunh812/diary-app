@@ -224,6 +224,18 @@ class AppScaffoldUiTest {
         assertTrue(homeModels.single().favoritesOnly.value)
     }
 
+    /** 탭을 옮겨도 탭 바는 그대로라 누른 칸의 효과가 도중에 끊기지 않음 */
+    @Test
+    fun changing_tabs_keeps_the_same_tab_bar() = shell(width = 400.dp) {
+        val tabs = isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+        val before = onAllNodes(tabs).fetchSemanticsNodes().map { it.id }
+
+        tab(1)
+        waitForIdle()
+
+        assertEquals(before, onAllNodes(tabs).fetchSemanticsNodes().map { it.id })
+    }
+
     /** 탭을 옮길 때 두 화면이 겹쳐 보이지 않음 */
     @Test
     fun changing_tabs_swaps_screens_at_once() = shell(width = 400.dp) {

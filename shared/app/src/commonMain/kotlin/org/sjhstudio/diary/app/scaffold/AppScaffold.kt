@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
@@ -244,6 +245,17 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올림. 토스트는 제자리에 뜨고 버튼은 가리지 않음
         var toastHeight by remember { mutableStateOf(Dp.Hairline) }
         val reduceMotion = rememberReduceMotion()
+        // 탭을 바꾸면 화면을 새로 그려 탭 바도 새로 생김. 옮겨 그려 누름 효과가 도중에 끊기지 않게 함
+        val barItems by rememberUpdatedState(items)
+        val barSelect by rememberUpdatedState(onSelect)
+        val bar = remember {
+            movableContentOf { selected: Int ->
+                val barDensity = LocalDensity.current
+                Box(Modifier.onSizeChanged { barHeight = with(barDensity) { it.height.toDp() } }) {
+                    DiaryNavigationBar(barItems, selected, barSelect)
+                }
+            }
+        }
         // 토스트와 같은 때, 같은 곡선으로 움직임. 토스트가 사라질 때는 같이 짧게 내려옴
         val toastShown = toast.current != null
         val writeLift by animateDpAsState(
@@ -275,8 +287,8 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                                         .offset { IntOffset(0, -writeLift.roundToPx()) }
                                 )
                             }
-                            Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = with(density) { it.height.toDp() } }) {
-                                DiaryNavigationBar(items, TABS.indexOf(root), onSelect)
+                            Box(Modifier.align(Alignment.BottomCenter)) {
+                                bar(TABS.indexOf(root))
                             }
                         }
                     }
