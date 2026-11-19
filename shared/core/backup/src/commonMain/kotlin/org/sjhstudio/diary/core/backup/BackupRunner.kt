@@ -146,6 +146,7 @@ class BackupRunner(
         val prefs = store.current()
         val nothingToUpload = prefs.photosNotBackedUp == 0 || !mayUploadPhotos(prefs.photosOnCellular)
         if (nothingToUpload && !repaired(prefs.unusablePhotos) && sameAsLastBackup(prefs, fingerprint())) {
+            failures.unchanged()
             BackupOutcome.Unchanged
         } else {
             running(cellularOnce = false, automatic = true)
@@ -244,14 +245,8 @@ class BackupRunner(
         val photos = sendPhotos(snapshot, folders, account, now, cellularOnce)
         // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업
         if (automatic && photos.uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
-            store.update {
-                it.copy(
-                    bytesShort = photos.bytesShort,
-                    lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 } ?: it.lastFailure,
-                    photosNotBackedUp = photos.left,
-                    unusablePhotos = photos.unusable
-                )
-            }
+            store.update { it.copy(photosNotBackedUp = photos.left, unusablePhotos = photos.unusable) }
+            failures.unchanged(photos.bytesShort)
             return BackupOutcome.Unchanged
         }
 

@@ -167,6 +167,23 @@ class BackupAlertTest {
         assertNull(phone.store.current().failingSince)
     }
 
+    /** 드라이브가 차 사진을 못 올린 날은 글이 그대로여도 공간 부족을 남김. 백업 화면이 무엇이 모자란지 알림 */
+    @Test
+    fun nothing_new_keeps_a_full_drive() = runTest {
+        connected()
+        controller.runAutomatic()
+        phone.drive.limit = phone.drive.visible.sumOf { it.size ?: 0 } + 2 * 1024 * 1024
+        phone.photo("e1", 0, "큰 사진".repeat(1_000_000))
+        phone.db.entryDao().update(TestPhone.entry("e1", updated = 11))
+        assertIs<BackupOutcome.Done>(controller.runAutomatic())
+        phone.clock.advance(1.days)
+
+        assertEquals(BackupOutcome.Unchanged, controller.runAutomatic())
+
+        assertEquals(BackupFailure.NO_SPACE, phone.store.current().lastFailure)
+        assertTrue(phone.store.current().bytesShort > 0)
+    }
+
     /** 다시 연결이 필요한 상태는 바뀐 것이 없어도 그대로. 이어서 올릴 길이 막혀 있음 */
     @Test
     fun nothing_new_keeps_a_broken_connection() = runTest {

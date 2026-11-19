@@ -288,26 +288,7 @@ class BackupController(
         // 끄거나 끊은 뒤에 남아 있던 시스템 작업이 깨워도 올리지 않음
         val prefs = store.current()
         if (prefs.accountKey == null || !prefs.autoEnabled || prefs.foundBackupWaiting) return BackupOutcome.Unchanged
-        val outcome = runner.value.runIfChanged()
-        if (outcome == BackupOutcome.Unchanged) stillBackedUp()
-        return outcome
-    }
-
-    /**
-     * 일기가 마지막 백업 그대로라 지난 실패는 더 이을 것이 없음
-     * 연결이 끊긴 것만은 사용자가 풀어야 해서 기록도 알림도 그대로 둠
-     * 공간이 차서 적지 못해도 다음 자동 백업이 다시 함
-     */
-    private suspend fun stillBackedUp() {
-        try {
-            if (store.current().lastFailure == BackupFailure.AUTH) return
-            store.update { it.copy(lastFailure = null, failingSince = null, bytesShort = 0) }
-            failures.stillFine(clock.now())
-        } catch (error: CancellationException) {
-            throw error
-        } catch (_: Exception) {
-            return
-        }
+        return runner.value.runIfChanged()
     }
 
     private suspend fun isDue(): Boolean {

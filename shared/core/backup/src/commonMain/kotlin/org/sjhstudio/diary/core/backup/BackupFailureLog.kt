@@ -39,6 +39,29 @@ class BackupFailureLog(private val store: BackupStore, private val clock: Clock 
         }
     }
 
+    /**
+     * 바뀐 것이 없어 올리지 않음. 마지막 백업이 드라이브에 있어 지난 실패는 끝난 일이고 7일 알림을 미룸
+     * 드라이브가 차 사진을 못 올렸으면 공간 부족은 남김. [bytesShort]가 null이면 이번에 사진을 보지 않아 지난 값 그대로
+     * 연결이 끊긴 것은 사용자가 풀어야 해서 기록도 알림도 그대로 둠
+     */
+    suspend fun unchanged(bytesShort: Long? = null) {
+        try {
+            store.update { prefs ->
+                if (prefs.lastFailure == BackupFailure.AUTH) {
+                    prefs
+                } else {
+                    val short = bytesShort ?: prefs.bytesShort
+                    prefs.copy(lastFailure = BackupFailure.NO_SPACE.takeIf { short > 0 }, failingSince = null, bytesShort = short)
+                }
+            }
+            if (store.current().lastFailure != BackupFailure.AUTH) remind(clock.now() + ALERT_AFTER, null)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            // 공간이 차서 적지 못해도 다음 자동 백업이 다시 함
+        }
+    }
+
     private suspend fun remind(at: Instant, kind: BackupFailure?) {
         store.update { it.copy(alertAt = at) }
         alerts?.schedule(at, kind)
