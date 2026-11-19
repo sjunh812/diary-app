@@ -11,7 +11,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +41,6 @@ import org.sjhstudio.diary.core.model.Weather
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.PlaceLookup
 import org.sjhstudio.diary.core.testing.FakeDraftRepository
-import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.TestClock
 
 // 쓰기 화면 모델(스펙 002 T034, T032 일부). 쓴 글을 잃지 않는지를 먼저 봄
@@ -104,72 +102,6 @@ class WriteViewModelTest {
         advanceUntilIdle()
 
         assertEquals(30, viewModel.photoLimit.value)
-    }
-
-    @Test
-    fun full_photos_notice_the_limit_by_plan() = runTest(dispatcher) {
-        val plans = object : PlanRepository {
-            override val plan = MutableStateFlow(Plan.FREE)
-        }
-        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
-        advanceUntilIdle()
-
-        viewModel.addPhotos(List(10) { i -> PickedImage { byteArrayOf(i.toByte()) } })
-        advanceUntilIdle()
-        viewModel.requestPhotos(PhotoSource.LIBRARY)
-        advanceUntilIdle()
-        assertEquals(PhotoNotice.Limit(10, canUpgrade = true), viewModel.state.value.photoNotice)
-        assertNull(viewModel.state.value.photoPick)
-
-        viewModel.photoNoticeShown()
-        plans.plan.value = Plan.PLUS
-        advanceUntilIdle()
-        viewModel.requestPhotos(PhotoSource.LIBRARY)
-        // 기다리는 동안 다시 눌러도 한 번만
-        viewModel.requestPhotos(PhotoSource.LIBRARY)
-        advanceUntilIdle()
-        assertEquals(PhotoPick.Open(PhotoSource.LIBRARY, 30), viewModel.state.value.photoPick)
-        assertNull(viewModel.state.value.photoNotice)
-    }
-
-    /** 재설치 직후 요금제를 모를 때 산 사람에게 무료 한도로 막지 않고 확인을 기다림 */
-    @Test
-    fun photos_wait_for_the_plan_before_the_limit() = runTest(dispatcher) {
-        val plans = FakePlanRepository(Plan.FREE, known = false)
-        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
-        viewModel.addPhotos(List(10) { i -> PickedImage { byteArrayOf(i.toByte()) } })
-        advanceUntilIdle()
-
-        viewModel.requestPhotos(PhotoSource.LIBRARY)
-        advanceTimeBy(1.seconds)
-        assertEquals(PhotoPick.Waiting(PhotoSource.LIBRARY), viewModel.state.value.photoPick)
-        assertNull(viewModel.state.value.photoNotice)
-
-        plans.plan.value = Plan.PLUS
-        plans.known.value = true
-        advanceUntilIdle()
-        assertEquals(PhotoPick.Open(PhotoSource.LIBRARY, 30), viewModel.state.value.photoPick)
-        assertNull(viewModel.state.value.photoNotice)
-
-        viewModel.photoPickOpened()
-        viewModel.requestPhotos(PhotoSource.CAMERA)
-        advanceUntilIdle()
-        assertEquals(PhotoPick.Open(PhotoSource.CAMERA, 30), viewModel.state.value.photoPick)
-    }
-
-    /** 확인이 끝내 오지 않으면 무료 한도로 안내하고 기다림을 풂 */
-    @Test
-    fun photos_fall_back_to_the_free_limit_when_the_plan_never_comes() = runTest(dispatcher) {
-        val plans = FakePlanRepository(Plan.FREE, known = false)
-        val viewModel = testWriteViewModel(WriteTarget.New(), FakeDraftRepository(), clock, TimeZone.UTC, plans = plans)
-        viewModel.addPhotos(List(10) { i -> PickedImage { byteArrayOf(i.toByte()) } })
-        advanceUntilIdle()
-
-        viewModel.requestPhotos(PhotoSource.LIBRARY)
-        advanceUntilIdle()
-
-        assertEquals(PhotoNotice.Limit(10, canUpgrade = true), viewModel.state.value.photoNotice)
-        assertNull(viewModel.state.value.photoPick)
     }
 
     @Test

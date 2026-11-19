@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -69,14 +68,16 @@ class WritePlanTableTest {
         val plans = FakePlanRepository(Plan.FREE, known = false)
         val viewModel = vm(plans)
         advanceUntilIdle()
-        val allowed = async { viewModel.checklistAllowed() }
+        val target = ChecklistTarget("장보기", 0, 0)
+        viewModel.requestChecklist(target)
         advanceTimeBy(1_000)
+        assertEquals(ChecklistPick.Waiting(target), viewModel.state.value.checklistPick)
 
         plans.plan.value = Plan.PLUS
         plans.known.value = true
         advanceUntilIdle()
 
-        assertEquals(true, allowed.await())
+        assertEquals(ChecklistPick.Allowed(target), viewModel.state.value.checklistPick)
     }
 
     /** 쓰는 도중에 구독이 끝나면 화면이 바로 따르고 쓰던 글은 그대로 */

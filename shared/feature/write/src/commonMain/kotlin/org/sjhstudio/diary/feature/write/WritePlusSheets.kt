@@ -19,6 +19,7 @@ import org.sjhstudio.diary.feature.write.resources.write_limit_plus
 import org.sjhstudio.diary.feature.write.resources.write_limit_title
 
 // 쓰기 화면의 Plus 안내 시트
+// [Plus]와 닫기는 부르는 쪽이 따로 받음. [Plus]에서 닫기를 부르면 Plus 화면 위로 키보드가 돌아옴
 
 /** 체크리스트는 Plus 기능(Figma P9). 쓰던 글은 그대로라고 말하고 막지 않음 */
 @Composable
@@ -32,10 +33,7 @@ internal fun ChecklistPlusSheet(onPlus: () -> Unit, onDismiss: () -> Unit) {
             secondary = stringResource(Res.string.write_limit_later),
             onSecondary = onDismiss,
             primary = stringResource(Res.string.write_limit_plus),
-            onPrimary = {
-                onDismiss()
-                onPlus()
-            },
+            onPrimary = onPlus,
             size = DiaryButtonSize.XLarge,
             secondaryKind = DiaryButtonKind.Weak
         )
@@ -57,10 +55,7 @@ internal fun PhotoLimitSheet(limit: Int, onPlus: () -> Unit, onDismiss: () -> Un
             secondary = stringResource(Res.string.write_limit_later),
             onSecondary = onDismiss,
             primary = stringResource(Res.string.write_limit_plus),
-            onPrimary = {
-                onDismiss()
-                onPlus()
-            },
+            onPrimary = onPlus,
             size = DiaryButtonSize.XLarge,
             secondaryKind = DiaryButtonKind.Weak
         )
