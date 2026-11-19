@@ -46,5 +46,5 @@
     <string name="plus_see_all">すべて見る</string>
     <string name="plus_all_title">Plusの特典</string>
     <string name="plus_format_title">一覧でも書式をそのまま表示</string>
-    <string name="plus_format_body">太字、下線、文字色、蛍光ペンまで表示されます。</string>
+    <string name="plus_format_body">太字、下線、文字色、マーカーまで表示されます。</string>
 </resources>
