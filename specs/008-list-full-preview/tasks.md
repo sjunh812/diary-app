@@ -53,7 +53,7 @@
 - [x] T026 [P] [US3] 판단 시험을 먼저 쓴다: `skip_note=false`→전체+팁, true·없음·깨짐→그대로, checked면 다시 안 읽음, `previewChosen`이면 안 읽음 in `shared/core/migration/src/commonTest/kotlin/org/sjhstudio/diary/core/migration/LegacyListPreviewTest.kt`
 - [x] T027 [US3] `pref.xml`을 `LegacyPrefs.parse`로 읽기만 하는 판단을 만든다 in `mig/LegacyListPreview.kt`
 - [x] T028 [US3] 시작 때 이전이 끝난 뒤 한 번 부른다(이전한 기기 포함, iOS는 checked) in `shared/app/src/commonMain/kotlin/org/sjhstudio/diary/app/Startup.kt`, `shared/app/src/androidMain/kotlin/org/sjhstudio/diary/app/di/PlatformModule.android.kt`
-- [x] T029 [US3] 팁 `HOME_FULL_PREVIEW_KEPT`("예전처럼 목록에서 일기 전체를 보여 드려요." [3줄로 보기])를 목록 위에 in `model/Welcome.kt`, `home/HomeScreen.kt`, `shared/feature/home/src/commonMain/composeResources/values*/strings.xml`
+- [x] T029 [US3] 팁 `HOME_FULL_PREVIEW_KEPT`("예전처럼 목록에서 일기 전체를 보여드려요." [3줄로 보기])를 목록 위에 in `model/Welcome.kt`, `home/HomeScreen.kt`, `shared/feature/home/src/commonMain/composeResources/values*/strings.xml`
 - [x] T030 [US3] `docs/migration.md` 설정 표와 시험 결과를 맞춘다(T026 결과) (문서 반영은 기획 커밋에서 함)
 
 ## 6단계: US4 잘린 일기를 자주 여는 사람에게 알리기 (P2)
@@ -64,7 +64,7 @@
 - [x] T032 [US4] `last_tip_day`, `clipped_opens`, `opened_tips`를 저장한다 in `store/WelcomeStore.kt`
 - [x] T033 [US4] `ContextTips.isOpen`이 하루 하나 규칙과 순서를 지키게 한다. 보이기 시작할 때 날짜를 적는다 in `data/WelcomeRepository.kt`, `shared/core/ui/src/commonMain/kotlin/org/sjhstudio/diary/core/ui/ContextTipBar.kt`
 - [x] T034 [US4] 홈 줄이 글 배치 결과로 잘렸는지 알아 상세 열기에 넘기고, 상세가 잘린 일기를 열면 횟수를 올린다 in `home/HomeStyles.kt`, `home/EntryDetailViewModel.kt`
-- [x] T035 [US4] 팁 `HOME_FULL_PREVIEW`("목록에서도 일기 전체를 볼 수 있어요." [켜기]→바로 전체) in `model/Welcome.kt`, `home/HomeScreen.kt`, 문자열 리소스
+- [x] T035 [US4] 팁 `HOME_FULL_PREVIEW`("목록에서도 일기 전체를 볼 수 있어요." [전체로 보기]→바로 전체) in `model/Welcome.kt`, `home/HomeScreen.kt`, 문자열 리소스
 - [x] T036 [P] [US4] 홈 팁 화면 시험 in `shared/feature/home/src/iosTest/kotlin/org/sjhstudio/diary/feature/home/HomeTipsTest.kt` (남음: 홈 팁 iOS 화면 시험) (`HomeTipsUiTest` 더함)
 
 ## 7단계: US5 Plus는 목록에서 서식까지 (P3)

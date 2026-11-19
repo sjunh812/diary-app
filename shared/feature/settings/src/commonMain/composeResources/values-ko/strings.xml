@@ -132,7 +132,7 @@
     <string name="list_formatting_body">굵은 글씨, 밑줄, 글자 색, 형광펜이 목록에도 보여요.</string>
     <string name="list_formatting_body_free">Plus에서는 굵은 글씨, 밑줄, 글자 색, 형광펜이 목록에도 보여요.</string>
     <string name="list_formatting_plus_title">서식 그대로 보기는 Plus에서 쓸 수 있어요</string>
-    <string name="list_formatting_plus_body">일기의 서식은 상세 화면에서 그대로 보여요.</string>
+    <string name="list_formatting_plus_body">일기를 열면 서식이 그대로 보여요.</string>
     <string name="list_plus_later">괜찮아요</string>
     <string name="list_plus_action">Plus 알아보기</string>
     <string name="list_value">%1$s · %2$s</string>

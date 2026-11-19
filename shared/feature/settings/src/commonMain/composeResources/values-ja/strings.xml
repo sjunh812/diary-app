@@ -132,7 +132,7 @@
     <string name="list_formatting_body">太字、下線、文字色、マーカーが一覧にも表示されます。</string>
     <string name="list_formatting_body_free">Plusなら太字、下線、文字色、マーカーが一覧にも表示されます。</string>
     <string name="list_formatting_plus_title">書式の表示はPlusで使えます</string>
-    <string name="list_formatting_plus_body">日記の書式は詳細画面でそのまま表示されます。</string>
+    <string name="list_formatting_plus_body">日記を開くと書式がそのまま表示されます。</string>
     <string name="list_plus_later">今はしない</string>
     <string name="list_plus_action">Plusを見る</string>
     <string name="list_value">%1$s · %2$s</string>

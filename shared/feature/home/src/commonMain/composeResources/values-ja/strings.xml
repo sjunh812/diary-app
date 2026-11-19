@@ -29,7 +29,7 @@
     <string name="tip_home_list_style">日記の一覧はカードや写真グリッドでも見られます。</string>
     <string name="tip_home_list_style_action">変更する</string>
     <string name="tip_home_full_preview">一覧でも日記の全文を表示できます。</string>
-    <string name="tip_home_full_preview_action">オンにする</string>
+    <string name="tip_home_full_preview_action">全文で表示</string>
     <string name="tip_home_full_preview_kept">以前と同じく一覧で日記の全文を表示します。</string>
     <string name="tip_home_full_preview_kept_action">3行で表示</string>
     <string name="feedback_card_title">1日1日記、使ってみていかがですか？😊</string>
