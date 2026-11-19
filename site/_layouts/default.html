@@ -1,15 +1,26 @@
-<!doctype html>
-<html lang="ko">
+{% assign lang = page.lang | default: 'ko' %}{% assign t = site.data.i18n[lang] %}<!doctype html>
+<html lang="{{ t.html }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{% if page.home and lang == 'ko' %}<script>
+// 처음 온 사람은 기기 언어로. 고른 언어가 있으면 그대로, 검색 로봇은 넘기지 않음
+(function(){var s;try{s=localStorage.getItem('lang')}catch(e){}if(s==='ko'||/bot|crawl|spider|slurp|lighthouse/i.test(navigator.userAgent))return;
+if(s!=='en'&&s!=='ja'){s='en';var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];
+for(var i=0;i<l.length;i++){var c=String(l[i]).toLowerCase().slice(0,2);if(c==='ko')return;if(c==='ja'||c==='en'){s=c;break}}}
+location.replace('/'+s+'/1day1diary/'+location.hash)})();
+</script>{% endif %}
 <script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('motion')</script>
-<title>{% if page.title and page.title != site.title %}{{ page.title }} · {% endif %}{{ site.title }}</title>
-<meta name="description" content="바쁜 사람을 위한 간편한 일기장, 1일 1일기">
+<title>{% if page.title and page.title != site.title and page.title != t.name %}{{ page.title }} · {% endif %}{{ t.name }}</title>
+<meta name="description" content="{{ t.description }}">
 <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16171B" media="(prefers-color-scheme: dark)">
-<meta property="og:title" content="1일 1일기">
-<meta property="og:description" content="하루 한 줄이면 충분해요. 기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.">
+<meta property="og:title" content="{{ t.name }}">
+<meta property="og:description" content="{{ t.og }}">
+<meta property="og:locale" content="{{ t.locale }}">
+{% if page.home %}<link rel="canonical" href="{{ site.url }}{{ t.home }}">
+{% for l in site.data.i18n %}<link rel="alternate" hreflang="{{ l[0] }}" href="{{ site.url }}{{ l[1].home }}">
+{% endfor %}<link rel="alternate" hreflang="x-default" href="{{ site.url }}/1day1diary/">{% endif %}
 <meta property="og:image" content="{{ site.url }}/assets/icon.png">
 <link rel="icon" href="/assets/favicon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -19,8 +30,11 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scroll-behavior:smooth;scroll-padding-top:72px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
-body{margin:0;overflow-x:hidden;background:var(--canvas);color:var(--text);font:16px/1.7 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+body{margin:0;overflow-x:hidden;background:var(--canvas);color:var(--text);font:16px/1.7 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","Noto Sans JP",sans-serif;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
 a{color:var(--accentText)}
+/* 일본어는 띄어쓰기가 없어 keep-all이면 줄이 넘침. 구절 단위로 줄바꿈 */
+html[lang=ja] body{word-break:normal;line-break:strict}
+@supports (word-break:auto-phrase){html[lang=ja] body{word-break:auto-phrase}}
 /* 제목은 줄 길이를 고르게, 설명은 마지막 줄에 한 단어만 남지 않게 */
 h1,h2,h3{text-wrap:balance}
 p{text-wrap:pretty}
@@ -159,6 +173,9 @@ footer .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;padding
 footer nav{display:flex;flex-wrap:wrap;gap:4px;margin-left:-10px}
 footer nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;border-radius:10px;color:var(--text2);text-decoration:none}
 footer .copy{margin-left:auto}
+footer .langs{width:100%;order:3;margin-top:-4px}
+footer .copy{order:4}
+footer .langs a[aria-current]{color:var(--text);font-weight:600}
 
 @media (prefers-color-scheme:dark){.phone,.tablet{box-shadow:0 24px 56px rgba(0,0,0,.4)}}
 /* 태블릿 폭: 글과 화면은 나란히 두되 줄임 */
@@ -208,7 +225,8 @@ footer .copy{margin-left:auto}
   .faq .answer{padding:0 8px 20px;font-size:16px}
   .cta{margin-top:96px;padding:56px 16px;border-radius:28px}
   .ring .face{width:44px;height:44px}.ring .f0{left:6%}.ring .f2{left:2%}.ring .f3{right:2%}
-  .face-row{gap:6px}.face-row .face{width:30px;height:30px}
+  /* 아홉 개가 한 줄에 들어가게(375 폭 카드 안쪽 311) */
+  .face-row{gap:4px}.face-row .face{width:30px;height:30px}
   .cta p{font-size:16px}
   .cta .badges{gap:8px}
   .cta .badge-apple{height:40px}
@@ -219,15 +237,16 @@ footer .copy{margin-left:auto}
 </style>
 </head>
 <body{% if page.home %} class="home"{% endif %}>
-<header><div class="wrap{% if page.home %} wide{% endif %}"><a class="brand" href="/">
-<img src="/assets/icon.png" alt="">1일 1일기</a>
-<a class="button small get" href="/#download">앱 다운로드</a></div></header>
+{% if lang == 'ko' %}{% assign home = '/' %}{% else %}{% assign home = t.home %}{% endif %}<header><div class="wrap{% if page.home %} wide{% endif %}"><a class="brand" href="{{ home }}">
+<img src="/assets/icon.png" alt="">{{ t.name }}</a>
+<a class="button small get" href="{{ home }}#download">{{ t.get }}</a></div></header>
 <main>{% if page.home %}{{ content }}{% else %}<div class="wrap">
 {% if page.heading %}<h1>{{ page.heading }}</h1>{% endif %}
 {{ content }}
 </div>{% endif %}</main>
 <footer><div class="wrap{% if page.home %} wide{% endif %}">
-<nav><a href="/1day1diary/privacy/">개인정보처리방침</a><a href="/1day1diary/terms/">이용약관</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com">문의하기</a></nav>
+<nav><a href="/1day1diary/privacy/">{{ t.privacy }}</a><a href="/1day1diary/terms/">{{ t.terms }}</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com" data-done="{{ t.copied }}" data-fail="{{ t.mail }}">{{ t.contact }}</a></nav>
+{% if page.home %}<nav class="langs" aria-label="{{ t.language }}">{% for l in site.data.i18n %}<a href="{{ l[1].home }}" hreflang="{{ l[0] }}" lang="{{ l[0] }}" data-lang="{{ l[0] }}"{% if l[0] == lang %} aria-current="page"{% endif %}>{% case l[0] %}{% when 'ko' %}한국어{% when 'en' %}English{% when 'ja' %}日本語{% endcase %}</a>{% endfor %}</nav>{% endif %}
 <span class="copy">© 서주냥</span>
 </div></footer>
 <script>
@@ -291,12 +310,16 @@ footer .copy{margin-left:auto}
   document.querySelectorAll('[data-copy]').forEach(function (a) {
     a.addEventListener('click', function () {
       var mail = a.getAttribute('data-copy');
-      var done = function () { show(mail + ' 주소를 복사했어요'); };
-      var fail = function () { show('메일 주소: ' + mail); };
+      var done = function () { show(mail + (/^[a-z]/i.test(a.dataset.done) ? ' ' : '') + a.dataset.done); };
+      var fail = function () { show(a.dataset.fail + ' ' + mail); };
       if (navigator.clipboard) navigator.clipboard.writeText(mail).then(done, fail); else fail();
     });
   });
 })();
+// 언어를 고르면 기억해 다음 방문에도 그 언어로
+document.querySelectorAll('[data-lang]').forEach(function (a) {
+  a.addEventListener('click', function () { try { localStorage.setItem('lang', a.dataset.lang); } catch (e) {} });
+});
 // 누름: 누르는 동안 is-pressed. 짧게 쳐도 다 눌린 뒤(80ms) 돌아오고, 스크롤로 취소되면 바로 돌아옴
 (function () {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;

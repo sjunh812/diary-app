@@ -1,5 +1,5 @@
 <div class="badges">
   <!-- 배지는 사이트에 둠. 외부 서버에서 받으면 첫 화면에 늦게 뜸 -->
-  <a href="https://apps.apple.com/app/id6835116731" aria-label="App Store에서 다운로드"><img class="badge-apple" src="/assets/badges/app-store-ko.svg" alt="App Store에서 다운로드" width="130" height="40"></a>
-  <a href="https://play.google.com/store/apps/details?id=org.sjhstudio.diary" aria-label="Google Play에서 다운로드"><img class="badge-google" src="/assets/badges/google-play-ko.png" alt="Google Play에서 다운로드" width="646" height="250"></a>
+  <a href="https://apps.apple.com/app/id6835116731" aria-label="{{ t.badge_apple }}"><img class="badge-apple" src="/assets/badges/app-store-{{ page.lang | default: 'ko' }}.svg" alt="{{ t.badge_apple }}" width="{{ t.apple_width }}" height="40"></a>
+  <a href="https://play.google.com/store/apps/details?id=org.sjhstudio.diary{% if page.lang and page.lang != 'ko' %}&amp;hl={{ page.lang }}{% endif %}" aria-label="{{ t.badge_google }}"><img class="badge-google" src="/assets/badges/google-play-{{ page.lang | default: 'ko' }}.png" alt="{{ t.badge_google }}" width="646" height="250"></a>
 </div>

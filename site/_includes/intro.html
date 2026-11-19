@@ -1,97 +1,87 @@
+{% assign lang = page.lang | default: 'ko' %}{% assign t = site.data.i18n[lang] %}
 <section class="hero">
   <div class="wrap wide hero-grid">
     <div class="hero-text">
-      <h1>하루 <em class="hl">한 줄</em>이면<br>충분해요</h1>
-      <p class="lead">기분 하나 고르고 몇 줄 쓰면 오늘 일기 끝.</p>
+      <h1>{{ t.hero }}</h1>
+      <p class="lead">{{ t.lead }}</p>
       {% include badges.html %}
     </div>
     <div class="hero-visual">
       {% include faces-ring.html %}
-      <div class="phone hero-shot">{% include statusbar.html %}<img src="/assets/screens/list.jpg" srcset="/assets/screens/list-432.jpg 432w, /assets/screens/list.jpg 864w" sizes="(max-width:760px) 240px, 320px" alt="지난 일기 목록 화면" width="864" height="1920"></div>
+      <div class="phone hero-shot">{% include statusbar.html %}<img src="{{ t.screens }}list.jpg" srcset="{{ t.screens }}list-432.jpg 432w, {{ t.screens }}list.jpg 864w" sizes="(max-width:760px) 240px, 320px" alt="{{ t.alt_list }}" width="864" height="1920"></div>
     </div>
   </div>
 </section>
 
 <div class="wrap wide">
-  <div class="features" role="region" aria-label="주요 기능" tabindex="0">
+  <div class="features" role="region" aria-label="{{ t.features }}" tabindex="0">
     <section class="feature reveal">
       <div class="feature-text">
-        <p class="label">쓰기</p>
-        <h2>기분 하나 고르면<br>시작이에요</h2>
-        <p>아홉 가지 기분 가운데 하나를 고르고 몇 줄만 남겨요. 날씨, 장소, 사진도 담아요.</p>
+        <p class="label">{{ t.write_label }}</p>
+        <h2>{{ t.write_title }}</h2>
+        <p>{{ t.write_body }}</p>
       </div>
-      <div class="feature-visual"><div class="phone dim">{% include statusbar.html %}<img src="/assets/screens/write.jpg" srcset="/assets/screens/write-432.jpg 432w, /assets/screens/write.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="기분을 고르고 일기를 쓰는 화면" width="864" height="1920" loading="lazy"></div></div>
+      <div class="feature-visual"><div class="phone dim">{% include statusbar.html %}<img src="{{ t.screens }}write.jpg" srcset="{{ t.screens }}write-432.jpg 432w, {{ t.screens }}write.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_write }}" width="864" height="1920" loading="lazy"></div></div>
     </section>
     <section class="feature reveal">
       <div class="feature-text">
-        <p class="label">돌아보기</p>
-        <h2>내 기분 흐름을<br>한눈에 봐요</h2>
-        <p>주·월·년마다 많았던 기분을 보여줘요. 달력과 검색으로 지난 일기도 바로 찾아요.</p>
+        <p class="label">{{ t.insight_label }}</p>
+        <h2>{{ t.insight_title }}</h2>
+        <p>{{ t.insight_body }}</p>
       </div>
-      <div class="feature-visual"><div class="phone">{% include statusbar.html %}<img src="/assets/screens/insight.jpg" srcset="/assets/screens/insight-432.jpg 432w, /assets/screens/insight.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="기분 흐름을 돌아보는 화면" width="864" height="1920" loading="lazy"></div></div>
+      <div class="feature-visual"><div class="phone">{% include statusbar.html %}<img src="{{ t.screens }}insight.jpg" srcset="{{ t.screens }}insight-432.jpg 432w, {{ t.screens }}insight.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_insight }}" width="864" height="1920" loading="lazy"></div></div>
     </section>
     <section class="feature reveal">
       <div class="feature-text">
-        <p class="label">백업</p>
-        <h2>사진까지<br>내 드라이브에 둬요</h2>
-        <p>일기와 사진을 내 구글 드라이브에 올려둬요. 휴대폰을 바꿔도 그대로 복원해요.</p>
+        <p class="label">{{ t.backup_label }}</p>
+        <h2>{{ t.backup_title }}</h2>
+        <p>{{ t.backup_body }}</p>
       </div>
-      <div class="feature-visual"><div class="phone">{% include statusbar.html %}<img src="/assets/screens/backup.jpg" srcset="/assets/screens/backup-432.jpg 432w, /assets/screens/backup.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="사진까지 드라이브에 백업하는 화면" width="864" height="1920" loading="lazy"></div></div>
+      <div class="feature-visual"><div class="phone">{% include statusbar.html %}<img src="{{ t.screens }}backup.jpg" srcset="{{ t.screens }}backup-432.jpg 432w, {{ t.screens }}backup.jpg 864w" sizes="(max-width:760px) 196px, (max-width:1024px) 240px, 280px" alt="{{ t.alt_backup }}" width="864" height="1920" loading="lazy"></div></div>
     </section>
   </div>
 
   <section class="wide-card reveal">
-    <p class="label">태블릿</p>
-    <h2>넓은 화면에서는<br>두 칸으로 봐요</h2>
-    <p>목록과 일기를 나란히 띄워요. iPad, 안드로이드 태블릿, 폴더블에서도 편하게 써요.</p>
-    <div class="tablet"><img src="/assets/screens/tablet.jpg" alt="태블릿에서 목록과 일기를 나란히 보는 화면" width="1400" height="799" loading="lazy"></div>
+    <p class="label">{{ t.tablet_label }}</p>
+    <h2>{{ t.tablet_title }}</h2>
+    <p>{{ t.tablet_body }}</p>
+    <div class="tablet"><img src="{{ t.screens }}tablet.jpg" alt="{{ t.alt_tablet }}" width="1400" height="799" loading="lazy"></div>
   </section>
 
   <section class="trust reveal">
-    <h2 class="section-title">안심하고 써요</h2>
+    <h2 class="section-title">{{ t.trust_title }}</h2>
     <ul class="trust-list">
       <li>
         <!-- Lucide 아이콘(ISC) --><span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></span>
-        <h3>기기와 내 드라이브에만</h3>
-        <p>일기와 사진은 이 기기와 내 구글 드라이브에만 저장돼요.</p>
+        <h3>{{ t.trust1_title }}</h3>
+        <p>{{ t.trust1_body }}</p>
       </li>
       <li>
         <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></span>
-        <h3>개발자도 볼 수 없어요</h3>
-        <p>회원가입이 없고, 일기를 모아두는 서버도 없어요.</p>
+        <h3>{{ t.trust2_title }}</h3>
+        <p>{{ t.trust2_body }}</p>
       </li>
       <li>
         <span class="trust-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-        <h3>잠금으로 지켜요</h3>
-        <p>비밀번호와 생체인증으로 일기를 잠글 수 있어요.</p>
+        <h3>{{ t.trust3_title }}</h3>
+        <p>{{ t.trust3_body }}</p>
       </li>
     </ul>
   </section>
 
   <section class="faq reveal">
-    <h2 class="section-title">자주 묻는 질문</h2>
-    <details>
-      <summary>무료인가요?</summary>
-      <p class="answer">네, 일기 쓰기와 사진까지 담는 백업은 모두 무료예요. 광고 없이 쓰고 싶으면 광고 제거나 Plus를 고를 수 있어요.</p>
+    <h2 class="section-title">{{ t.faq_title }}</h2>
+    {% for f in t.faq %}<details>
+      <summary>{{ f.q }}</summary>
+      <p class="answer">{{ f.a }}</p>
     </details>
-    <details>
-      <summary>휴대폰을 바꾸면 일기는 어떻게 되나요?</summary>
-      <p class="answer">새 휴대폰에서 같은 구글 계정으로 복원하면 돼요. 아이폰과 안드로이드 사이에서도 옮길 수 있어요.</p>
-    </details>
-    <details>
-      <summary>예전 버전에서 쓴 일기도 남아 있나요?</summary>
-      <p class="answer">네, 안드로이드에서 쓰던 일기는 업데이트하면 사진까지 그대로 옮겨져요. 아이폰 앱은 이번에 처음 나와서 예전 버전이 없어요.</p>
-    </details>
-    <details>
-      <summary>일기 내용을 다른 곳에 보내나요?</summary>
-      <p class="answer">아니요. 일기 내용과 사진은 내가 고른 저장소에만 둬요. 광고나 사용 통계에도 쓰지 않아요.</p>
-    </details>
+    {% endfor %}
   </section>
 
   <section class="cta reveal" id="download">
     {% include faces-row.html %}
-    <h2>오늘부터 <em class="hl">1일 1일기</em><br>실천해 보세요</h2>
-    <p>iPhone · iPad · Android에서 쓸 수 있어요.</p>
+    <h2>{{ t.cta_title }}</h2>
+    <p>{{ t.cta_body }}</p>
     {% include badges.html %}
   </section>
 </div>
