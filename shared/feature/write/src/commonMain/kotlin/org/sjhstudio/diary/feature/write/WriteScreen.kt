@@ -244,7 +244,10 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val pick =
         rememberFilePickerLauncher(
             type = FileKitType.Image,
-            mode = FileKitMode.Multiple(maxItems = pickMaxItems(photoLimit, state.photos.size, pickerLimitsCount)),
+            // 여는 순간의 장수. 요금제를 기다렸다 열면 확정된 한도로
+            mode = FileKitMode.Multiple(
+                maxItems = pickMaxItems((state.photoPick as? PhotoPick.Open)?.limit ?: photoLimit, state.photos.size, pickerLimitsCount)
+            ),
             onError = {
                 ExpectedLeave.clear()
                 vm.photoPickFailed()
@@ -261,25 +264,27 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             ExpectedLeave.clear()
             if (file != null) vm.addPhotos(listOf(file.picked()))
         }
-    val photosFull = state.photos.size >= photoLimit
-    val openPicker = {
-        if (photosFull) {
-            vm.photosFull()
-        } else {
-            ExpectedLeave.mark()
-            pick.launch()
+    // 화면 모델이 칸과 요금제를 확인한 뒤 연다고 정하면 한 번 엶
+    val pickToOpen = state.photoPick as? PhotoPick.Open
+    LaunchedEffect(pickToOpen) {
+        val open = pickToOpen ?: return@LaunchedEffect
+        vm.photoPickOpened()
+        when {
+            open.source == PhotoSource.CAMERA && cameraAccess.blocked() -> cameraOff = true
+
+            open.source == PhotoSource.CAMERA -> {
+                ExpectedLeave.mark()
+                camera.launch()
+            }
+
+            else -> {
+                ExpectedLeave.mark()
+                pick.launch()
+            }
         }
     }
-    val openCamera = {
-        if (photosFull) {
-            vm.photosFull()
-        } else if (cameraAccess.blocked()) {
-            cameraOff = true
-        } else {
-            ExpectedLeave.mark()
-            camera.launch()
-        }
-    }
+    val openPicker: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.LIBRARY) } }
+    val openCamera: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.CAMERA) } }
     val tools = remember(actions) {
         WriteTools(actions.rich, actions.colors, vm::checklistAllowed, {
             refocus = editorFocused
@@ -335,10 +340,10 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                         }
                         SaveFailedNotice(state)
                         discardRow()
-                        tools.Toolbar(onPhoto = { openPicker() }, onCamera = { openCamera() })
+                        tools.Toolbar(onPhoto = openPicker, onCamera = openCamera, photoWaiting = state.photoPick is PhotoPick.Waiting)
                     }
                     Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
-                    SidePanel(state, actions, onPick = { openPicker() }, onPlace = { openSheet(Sheet.Place) })
+                    SidePanel(state, actions, onPick = openPicker, onPlace = { openSheet(Sheet.Place) })
                 }
             } else {
                 EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
@@ -351,7 +356,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                             Chips(state, onMood = {
                                 openSheet(Sheet.Mood)
                             }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
-                            if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { openPicker() })
+                            if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = openPicker)
                             PhotoReorderTip(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                             Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                             Editor(
@@ -366,7 +371,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 }
                 SaveFailedNotice(state)
                 discardRow()
-                tools.Toolbar(onPhoto = { openPicker() }, onCamera = { openCamera() })
+                tools.Toolbar(onPhoto = openPicker, onCamera = openCamera, photoWaiting = state.photoPick is PhotoPick.Waiting)
             }
         }
         // 서식 도구 줄 위에 띄움

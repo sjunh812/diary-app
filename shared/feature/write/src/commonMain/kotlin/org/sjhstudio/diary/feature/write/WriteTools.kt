@@ -96,7 +96,7 @@ internal class WriteTools(
     private val plain = derivedStateOf { rich.annotatedString.let { rich.toText() } }
 
     @Composable
-    fun Toolbar(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, modifier: Modifier = Modifier) {
+    fun Toolbar(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, modifier: Modifier = Modifier, photoWaiting: Boolean = false) {
         var palette by remember { mutableStateOf<PaletteKind?>(null) }
         val theme = DiaryTheme.colors
         Column(modifier.fillMaxWidth().background(theme.canvas), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -111,13 +111,13 @@ internal class WriteTools(
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
             ) {
                 val open = palette
-                if (open != null) Palette(open) { palette = null } else Tools(onPhoto, onCamera) { palette = it }
+                if (open != null) Palette(open) { palette = null } else Tools(onPhoto, onCamera, photoWaiting) { palette = it }
             }
         }
     }
 
     @Composable
-    private fun RowScope.Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, openPalette: (PaletteKind) -> Unit) {
+    private fun RowScope.Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, photoWaiting: Boolean, openPalette: (PaletteKind) -> Unit) {
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
         // 좁은 폰에서는 칸을 고르게 줄여 도구가 모두 보이게
@@ -127,11 +127,13 @@ internal class WriteTools(
         // 요금제를 기다리는 동안 다시 눌러도 쌓이지 않게
         var deciding by remember { mutableStateOf(false) }
         fun tint(active: Boolean) = if (active) theme.accentText else theme.textPrimary
+        // 요금제를 기다려 사진 칸을 정하는 동안은 체크리스트 도구처럼 흐리게
+        val photoTint = if (photoWaiting) theme.textSecondary else theme.textPrimary
         onPhoto?.let {
-            ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), theme.textPrimary, modifier = slot, onClick = it)
+            ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), photoTint, modifier = slot, onClick = it)
         }
         onCamera?.let {
-            ToolButton(DiaryIcons.Camera, stringResource(Res.string.write_camera), theme.textPrimary, modifier = slot, onClick = it)
+            ToolButton(DiaryIcons.Camera, stringResource(Res.string.write_camera), photoTint, modifier = slot, onClick = it)
         }
         val bold = style.fontWeight == FontWeight.Bold
         ToolButton(DiaryIcons.Bold, stringResource(Res.string.write_format_bold), tint(bold), modifier = slot, active = bold, onClick = {

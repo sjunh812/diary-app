@@ -77,6 +77,19 @@ sealed interface PhotoNotice {
     data object Unreadable : PhotoNotice
 }
 
+/** 사진을 어디서 고르는지 */
+enum class PhotoSource { LIBRARY, CAMERA }
+
+/**
+ * 사진 추가를 누른 뒤의 단계
+ * 재설치 직후 요금제를 모르면 [Waiting]으로 잠깐 기다리고, 칸이 남으면 [Open]의 장수로 고르기 화면을 한 번 엶
+ */
+sealed interface PhotoPick {
+    data class Waiting(val source: PhotoSource) : PhotoPick
+
+    data class Open(val source: PhotoSource, val limit: Int) : PhotoPick
+}
+
 /** 장소 이름 길이(FR-002) */
 internal const val MAX_PLACE = 30
 
@@ -96,6 +109,7 @@ data class WriteUiState(
     val locating: PlaceLocating = PlaceLocating.Idle,
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
+    val photoPick: PhotoPick? = null,
     val saveFailed: Boolean = false,
     /** 수정할 일기를 불러오지 못함. 빈 글로 덮어쓰지 않게 저장도 막음 */
     val openFailed: Boolean = false,
@@ -546,11 +560,28 @@ class WriteViewModel(
 
     fun photoNoticeShown() = _state.update { it.copy(photoNotice = null) }
 
-    /** 칸이 다 찬 채 사진 추가를 누름. 고르기 화면을 띄우지 않고 한도부터 알림 */
-    fun photosFull() {
-        val limit = photoLimit.value
-        _state.update { it.copy(photoNotice = PhotoNotice.Limit(limit, canUpgrade = limit < PhotoLimit.PLUS)) }
+    /**
+     * 사진 추가를 누름. 칸이 남으면 고르기 화면을 열 단계로, 다 찼으면 한도부터 알림
+     * 재설치 직후 요금제를 모르면 확정될 때까지 잠깐 기다림. Plus 사용자에게 Plus 권유가 스치지 않게
+     * 기다리는 동안 다시 눌러도 한 번만 엶
+     */
+    fun requestPhotos(source: PhotoSource) {
+        if (_state.value.photoPick != null) return
+        _state.update { it.copy(photoPick = PhotoPick.Waiting(source)) }
+        viewModelScope.launchSafely(onFailure = { _state.update { it.copy(photoPick = null) } }) {
+            val limit = plans.awaitConfirmed().photoLimit
+            _state.update {
+                if (it.photos.size >= limit) {
+                    it.copy(photoPick = null, photoNotice = PhotoNotice.Limit(limit, canUpgrade = limit < PhotoLimit.PLUS))
+                } else {
+                    it.copy(photoPick = PhotoPick.Open(source, limit))
+                }
+            }
+        }
     }
+
+    /** 고르기 화면을 열었음 */
+    fun photoPickOpened() = _state.update { it.copy(photoPick = null) }
 
     /** iCloud에서 받지 못했거나 카메라를 열지 못함. 말없이 넘어가면 왜 사진이 없는지 모름 */
     fun photoPickFailed() = _state.update { it.copy(photoNotice = PhotoNotice.Unreadable) }
