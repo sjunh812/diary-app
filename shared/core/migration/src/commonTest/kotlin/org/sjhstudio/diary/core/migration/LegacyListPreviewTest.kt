@@ -125,6 +125,17 @@ class LegacyListPreviewTest {
         }
     }
 
+    @Test
+    fun an_unreadable_old_file_is_checked_again_next_time() = runTest {
+        TempDir().use { dir ->
+            // 같은 자리에 폴더가 있어 읽으면 실패
+            dir.fs.createDirectories(dir.root / "shared_prefs/pref.xml")
+
+            assertFalse(dir.run(null))
+            assertFalse(list().legacyChecked)
+        }
+    }
+
     private class FirstReadFails(private val inner: DataStore<Preferences>) : DataStore<Preferences> {
         private var failed = false
         override val data: Flow<Preferences> = flow {

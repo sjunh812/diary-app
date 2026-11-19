@@ -20,8 +20,8 @@ class LegacyListPreview(
 ) {
     /** 전체 보기로 이었으면 true */
     suspend fun run(): Boolean {
-        if (store.settings.first().list.legacyChecked) return false
-        val off = skipNoteOff()
+        // 이미 판단했으면 null. 있는데 읽지 못했어도 null이라 다음 실행에 다시 봄
+        val off = (if (store.settings.first().list.legacyChecked) null else skipNoteOff()) ?: return false
         var kept = false
         // 읽기가 한 번 실패해 기본값을 받았어도 쓰는 순간의 값으로 판단
         store.update {
@@ -34,13 +34,13 @@ class LegacyListPreview(
         return kept
     }
 
-    // 읽지 못하면 3줄 그대로(옛 기본값)
-    private fun skipNoteOff(): Boolean {
+    // 파일이 없으면 3줄 그대로(옛 기본값), 읽지 못하면 null
+    private fun skipNoteOff(): Boolean? {
         if (!fileSystem.exists(files.prefXml)) return false
         return try {
             LegacyPrefs.parse(fileSystem.read(files.prefXml) { readUtf8() })[SKIP_NOTE] == false
         } catch (_: IOException) {
-            false
+            null
         }
     }
 
