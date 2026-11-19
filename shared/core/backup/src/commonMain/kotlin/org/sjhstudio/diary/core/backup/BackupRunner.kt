@@ -109,6 +109,7 @@ class BackupRunner(
     private val gate: BackupGate = BackupGate(),
     private val dataReady: suspend () -> Boolean = { true }
 ) {
+    private val failures = BackupFailureLog(store, clock, alerts)
     private val _progress = MutableStateFlow<BackupProgress?>(null)
 
     /**
@@ -219,20 +220,7 @@ class BackupRunner(
     }
 
     private suspend fun fail(kind: BackupFailure): BackupOutcome {
-        try {
-            val now = clock.now()
-            store.update { it.copy(lastFailure = kind, failingSince = it.failingSince ?: now) }
-            val prefs = store.current()
-            val since = prefs.lastSuccessAt ?: prefs.failingSince ?: now
-            // 까닭이 바뀌면 문구만 바꿈
-            // 때가 지났으면 이미 한 번 알렸음
-            if (since + ALERT_AFTER > now) alerts?.schedule(since + ALERT_AFTER, kind)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (_: Exception) {
-            // 공간이 차면 실패 기록도 못 쓸 수 있음
-            // 그래도 실패는 실패로 돌려줌
-        }
+        failures.record(kind)
         return BackupOutcome.Failed(kind)
     }
 
@@ -555,4 +543,4 @@ class BackupRunner(
     }
 }
 
-private val ALERT_AFTER = 7.days
+private val ALERT_AFTER = BackupFailureLog.ALERT_AFTER

@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.BackupController
+import org.sjhstudio.diary.core.backup.BackupFailureLog
 import org.sjhstudio.diary.core.backup.BackupGate
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.BundleExporter
@@ -400,7 +401,8 @@ private val backupModule =
                 applySettings = applyBackup,
                 scope = get(APP_SCOPE),
                 gate = get(),
-                lockOnHere = { get<LockRepository>().settings.first().enabled }
+                lockOnHere = { get<LockRepository>().settings.first().enabled },
+                failures = BackupFailureLog(store, alerts = get())
             )
         }
     }

@@ -37,6 +37,7 @@ import okio.openZip
 import okio.use
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveUnauthorized
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.PhotoRun
 import org.sjhstudio.diary.core.model.PhotoStop
@@ -413,6 +414,16 @@ class RestorePhotosTest {
         assertFalse(controller.resumePhotos())
 
         assertEquals(WaitingPhotos(2, PhotoStop.ACCOUNT), controller.waiting())
+    }
+
+    @Test
+    fun a_lost_account_asks_to_reconnect_on_the_backup_screen() = runTest {
+        cutDriveRestore(backgroundScope)
+        val controller = b.controller(backgroundScope, photos = DeniedDrive(drive))
+
+        controller.resumePhotos()
+
+        assertEquals(BackupFailure.AUTH, b.store.current().lastFailure)
     }
 
     @Test

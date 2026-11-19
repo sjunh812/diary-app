@@ -89,7 +89,8 @@ class RestoreController(
     private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE },
     private val clock: Clock = Clock.System,
     private val lockOnHere: suspend () -> Boolean = { false },
-    private val errors: ErrorReporter = ErrorReporter.None
+    private val errors: ErrorReporter = ErrorReporter.None,
+    private val failures: BackupFailureLog = BackupFailureLog(store, clock)
 ) : RestoreRepository {
     private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
     override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
@@ -164,7 +165,7 @@ class RestoreController(
                 else -> BackupFailure.UNKNOWN
             }
         // 백업 화면이 [다시 연결]을 보이도록 백업 실패와 같은 자리에 기록
-        if (kind == BackupFailure.AUTH) store.update { it.copy(lastFailure = BackupFailure.AUTH) }
+        if (kind == BackupFailure.AUTH) failures.record(BackupFailure.AUTH)
         // 인터넷 끊김은 고칠 것이 없어 남기지 않음. 메시지는 버리고 종류와 응답 코드만
         if (kind != BackupFailure.OFFLINE) {
             // 앱 예외 이름은 출시 빌드에서 난독화되어 정한 이름으로
@@ -544,6 +545,8 @@ class RestoreController(
     /** 멈춘 까닭을 남겨 앱을 다시 열어도 화면이 사실을 말하게 함 */
     private suspend fun rememberStop(stop: PhotoStop?, notThere: Int) {
         store.update { it.copy(photoStop = stop, photosUnreachable = notThere) }
+        // 연결이 끊겨 멈췄으면 백업 화면에 [다시 연결]이 뜨게 함
+        if (stop == PhotoStop.ACCOUNT) failures.record(BackupFailure.AUTH)
         if (stop == PhotoStop.NETWORK) scheduler.waitForPhotoNetwork(wifiOnly = !store.current().photosOnCellular)
     }
 
