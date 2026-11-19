@@ -69,6 +69,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_other
 import org.sjhstudio.diary.feature.backup.resources.restore_damaged
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_body
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_title
+import org.sjhstudio.diary.feature.backup.resources.restore_go_backup
 import org.sjhstudio.diary.feature.backup.resources.restore_keep_note
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_action
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_body
@@ -138,13 +139,23 @@ fun RestoreListScreen(
                     }
                 Hero(DiaryIcons.CircleAlert, stringResource(Res.string.restore_list_failed), stringResource(body))
                 Bottom {
-                    DiaryButton(
-                        stringResource(Res.string.restore_retry),
-                        onRetry,
-                        Modifier.fillMaxWidth(),
-                        size = DiaryButtonSize.XLarge,
-                        loading = state.retrying
-                    )
+                    // 연결이 끊기면 다시 시도해도 같아서 [다시 연결]이 있는 백업 화면으로
+                    if (state.kind == BackupFailure.AUTH) {
+                        DiaryButton(
+                            stringResource(Res.string.restore_go_backup),
+                            onBack,
+                            Modifier.fillMaxWidth(),
+                            size = DiaryButtonSize.XLarge
+                        )
+                    } else {
+                        DiaryButton(
+                            stringResource(Res.string.restore_retry),
+                            onRetry,
+                            Modifier.fillMaxWidth(),
+                            size = DiaryButtonSize.XLarge,
+                            loading = state.retrying
+                        )
+                    }
                 }
             }
 

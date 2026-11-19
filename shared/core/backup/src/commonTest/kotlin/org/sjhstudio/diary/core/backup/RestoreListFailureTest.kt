@@ -55,7 +55,20 @@ class RestoreListFailureTest {
         )
 
         assertEquals(BackupList.Failed(BackupFailure.AUTH), controller.backups())
-        assertEquals(listOf(Triple(ErrorArea.RESTORE_LIST, "DriveException.AUTH", 403L)), reported)
+        assertEquals(listOf(Triple(ErrorArea.RESTORE_LIST, "drive.AUTH", 403L)), reported)
+    }
+
+    @Test
+    fun a_refused_permission_asks_to_reconnect_on_the_backup_screen() = runTest {
+        val controller = phone.controller(
+            backgroundScope,
+            api = failingWith(DriveErrorMapper.map(403, "insufficientPermissions")),
+            errors = errors
+        )
+
+        controller.backups()
+
+        assertEquals(BackupFailure.AUTH, phone.store.current().lastFailure)
     }
 
     @Test

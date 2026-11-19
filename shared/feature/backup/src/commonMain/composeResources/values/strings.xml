@@ -75,6 +75,7 @@
     <string name="restore_empty_body">Backups from this device will show up here.</string>
     <string name="restore_list_failed">Couldn't read your backups</string>
     <string name="restore_list_failed_auth">Your Google account was disconnected. Reconnect it on the Backup screen.</string>
+    <string name="restore_go_backup">Go to Backup</string>
     <string name="restore_list_failed_body">Check your connection and try again.</string>
     <string name="restore_retry">Try again</string>
     <string name="restore_preview_top">Restore</string>

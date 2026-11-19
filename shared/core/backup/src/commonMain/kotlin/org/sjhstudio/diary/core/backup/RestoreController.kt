@@ -163,11 +163,20 @@ class RestoreController(
                 is IOException -> BackupFailure.LOCAL_IO
                 else -> BackupFailure.UNKNOWN
             }
+        // 백업 화면이 [다시 연결]을 보이도록 백업 실패와 같은 자리에 기록
+        if (kind == BackupFailure.AUTH) store.update { it.copy(lastFailure = BackupFailure.AUTH) }
         // 인터넷 끊김은 고칠 것이 없어 남기지 않음. 메시지는 버리고 종류와 응답 코드만
         if (kind != BackupFailure.OFFLINE) {
+            // 앱 예외 이름은 출시 빌드에서 난독화되어 정한 이름으로
+            val source =
+                when (error) {
+                    is DriveException -> "drive"
+                    is IOException -> "io"
+                    else -> error::class.simpleName
+                }
             errors.report(
                 ErrorArea.RESTORE_LIST,
-                "${error::class.simpleName}.${kind.name}",
+                "$source.${kind.name}",
                 (error as? DriveException)?.status?.toLong() ?: 0
             )
         }
