@@ -222,7 +222,7 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val family = rememberFileFontFamily(look.fontPath)
         ListStyleSettingsScreen(
             list = state.settings.list,
-            canFormat = state.plan?.listFormatting == true,
+            canFormat = state.plan?.listFormatting,
             previewStyle = diaryPreviewTextStyle(look.font, look.size) { family },
             today = rememberToday(),
             onStyle = viewModel::setListStyle,

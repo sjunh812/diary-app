@@ -6,6 +6,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
@@ -30,7 +31,7 @@ class ListStyleSettingsUiTest {
 
     private val lengths = mutableListOf<PreviewLength>()
 
-    private fun run(list: ListPreferences, canFormat: Boolean, check: ComposeUiTest.(MutableList<Boolean>) -> Unit) = runComposeUiTest {
+    private fun run(list: ListPreferences, canFormat: Boolean?, check: ComposeUiTest.(MutableList<Boolean>) -> Unit) = runComposeUiTest {
         val formatting = mutableListOf<Boolean>()
         setContent {
             DiaryTheme(darkTheme = false) {
@@ -90,4 +91,12 @@ class ListStyleSettingsUiTest {
         assertEquals(listOf(PreviewLength.FIVE_LINES), lengths)
         assertEquals(3, onAllNodes(radio).fetchSemanticsNodes().size)
     }
+
+    @Test
+    fun unknown_plan_keeps_the_saved_switch_without_plus_sheet() =
+        run(ListPreferences(showFormatting = true), canFormat = null) { formatting ->
+            // 요금제를 모르는 동안 산 사람에게 꺼짐이나 Plus 안내를 보이지 않음
+            onNode(switch and SemanticsMatcher.expectValue(SemanticsProperties.ToggleableState, ToggleableState.On)).assertIsNotEnabled()
+            assertEquals(emptyList(), formatting)
+        }
 }

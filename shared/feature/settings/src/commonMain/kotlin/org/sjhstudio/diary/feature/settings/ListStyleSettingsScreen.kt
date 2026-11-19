@@ -81,11 +81,12 @@ import org.sjhstudio.diary.feature.settings.resources.settings_list_style
  * 목록 보기(FR-018, 스펙 008)
  * 맨 위 견본은 홈과 같은 일기 줄·카드·격자 칸으로 고른 대로 그림
  * 고르면 바로 바뀌고 기억함. 서식 보기는 Plus만 켤 수 있고, 아니면 Plus 안내 시트
+ * [canFormat]이 null이면 요금제를 아직 모름. 산 사람에게 꺼짐이나 Plus 안내를 보이지 않게 저장한 값을 누를 수 없게 보임
  */
 @Composable
 fun ListStyleSettingsScreen(
     list: ListPreferences,
-    canFormat: Boolean,
+    canFormat: Boolean?,
     previewStyle: TextStyle,
     today: LocalDate,
     onStyle: (ListStyle) -> Unit,
@@ -97,6 +98,7 @@ fun ListStyleSettingsScreen(
 ) {
     var askPlus by rememberSaveable { mutableStateOf(false) }
     var lengthSheet by rememberSaveable { mutableStateOf(false) }
+    val formatting = list.showFormatting && canFormat != false
     Column(
         modifier.fillMaxSize().background(DiaryTheme.colors.canvas).systemBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -106,7 +108,7 @@ fun ListStyleSettingsScreen(
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             ListPreview(
                 list,
-                formatting = list.showFormatting && canFormat,
+                formatting = formatting,
                 previewStyle = previewStyle,
                 today = today,
                 // 상자 아래 8과 첫 묶음 머리 위 20(Figma G4)
@@ -126,9 +128,18 @@ fun ListStyleSettingsScreen(
                 )
                 DiarySettingsSwitchRow(
                     stringResource(Res.string.list_formatting),
-                    checked = list.showFormatting && canFormat,
-                    onCheckedChange = { checked -> if (canFormat) onFormatting(checked) else askPlus = true },
-                    description = stringResource(if (canFormat) Res.string.list_formatting_body else Res.string.list_formatting_body_free)
+                    checked = formatting,
+                    onCheckedChange = { checked -> if (canFormat == true) onFormatting(checked) else askPlus = true },
+                    description = stringResource(
+                        if (canFormat ==
+                            false
+                        ) {
+                            Res.string.list_formatting_body_free
+                        } else {
+                            Res.string.list_formatting_body
+                        }
+                    ),
+                    enabled = canFormat != null
                 )
             }
         }
