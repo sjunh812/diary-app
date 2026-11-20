@@ -40,7 +40,8 @@ private fun InsightKind.flowSlots(): Int = when (this) {
 /** 돌아보기 탭의 자리: 요약, 기분 흐름, 연간 지도(년만), 기분 막대 */
 @Composable
 internal fun InsightSkeleton(kind: InsightKind, modifier: Modifier = Modifier) {
-    DiarySkeleton(modifier) {
+    // 탭을 처음 열 때만 보임. 기간을 바꾸는 다시 읽기는 비워 둠(`docs/design.md` 스켈레톤)
+    DiarySkeleton(modifier, delayed = false) {
         Column(Modifier.fillMaxWidth()) {
             SkeletonLine(Modifier.fillMaxWidth(SUMMARY_WIDTH), DiarySpacing.x6)
             Box(Modifier.height(DiarySpacing.x2))
@@ -103,7 +104,7 @@ private fun MoodRow() {
 /** 고급 통계의 자리: 요즘 기분 카드와 값 줄 묶음 */
 @Composable
 internal fun AdvancedSkeleton(modifier: Modifier = Modifier) {
-    DiarySkeleton(modifier) {
+    DiarySkeleton(modifier, delayed = false) {
         Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x6)) {
             SkeletonBlock(Modifier.fillMaxWidth().height(DiarySpacing.x14 + DiarySpacing.x10), DiaryShapes.r16)
             repeat(VALUE_SECTIONS) {

@@ -1,8 +1,13 @@
 package org.sjhstudio.diary.app.scaffold
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -276,16 +281,20 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                         null
                     } else {
                         { root ->
-                            val hideOnHome = root == HomeKey && hasEntries != true
-                            if (root != SettingsKey && !hideOnHome) {
-                                DiaryWriteButton(
-                                    writeLabel,
-                                    onWrite,
+                            if (root != SettingsKey) {
+                                // 홈은 일기가 있을 때만. 빈 홈은 가운데 [쓰기]가 맡음
+                                // 앱을 켠 뒤 읽는 사이 생기면 튀어나오지 않고 커지며 나타남. 처음부터 알면 움직이지 않음
+                                AnimatedVisibility(
+                                    root != HomeKey || hasEntries == true,
                                     Modifier
                                         .align(Alignment.BottomEnd)
                                         .padding(end = LocalScreenGutter.current, bottom = DiarySpacing.x4 + barHeight)
-                                        .offset { IntOffset(0, -writeLift.roundToPx()) }
-                                )
+                                        .offset { IntOffset(0, -writeLift.roundToPx()) },
+                                    enter = writeButtonEnter,
+                                    exit = writeButtonExit
+                                ) {
+                                    DiaryWriteButton(writeLabel, onWrite)
+                                }
                             }
                             Box(Modifier.align(Alignment.BottomCenter)) {
                                 bar(TABS.indexOf(root))
@@ -757,3 +766,10 @@ internal fun FirstAdNoticeDialog(onConfirm: () -> Unit, onRemoveAds: () -> Unit)
         onSecondary = onRemoveAds
     )
 }
+
+/** 쓰기 단추가 생기고 사라질 때. M3 FAB처럼 커지며 나타나고 나갈 때는 짧게 */
+private val writeButtonEnter =
+    fadeIn(tween(DiaryMotion.QUICK_MILLIS)) + scaleIn(tween(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate), WRITE_BUTTON_FROM)
+private val writeButtonExit = fadeOut(tween(DiaryMotion.EXIT_MILLIS)) + scaleOut(tween(DiaryMotion.EXIT_MILLIS), WRITE_BUTTON_FROM)
+
+private const val WRITE_BUTTON_FROM = 0.8f

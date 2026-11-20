@@ -353,11 +353,11 @@ internal fun HomeScreen(
 
                     else -> {
                         ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                        // 곧 나올 목록과 같은 꼴
+                        // 곧 나올 목록과 같은 꼴. 첫 목록 읽기라 기다리지 않고 바로
                         when (style) {
-                            ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
-                            ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
-                            ListStyle.PHOTO_GRID -> SkeletonPhotoGrid()
+                            ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4), delayed = false)
+                            ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4), delayed = false)
+                            ListStyle.PHOTO_GRID -> SkeletonPhotoGrid(delayed = false)
                         }
                     }
                 }
