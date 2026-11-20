@@ -8,7 +8,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import kotlin.test.Test
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
