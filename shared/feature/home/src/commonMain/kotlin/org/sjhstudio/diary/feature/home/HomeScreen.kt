@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -172,11 +173,14 @@ fun HomeRoute(
             val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
             val position = (first - LIST_TOP_ITEMS).coerceAtLeast(0)
             val loaded = if (position < rows.itemCount) rows.peek(position)?.date else null
-            shownMonth(loaded, monthCounts, position, today)
+            // 달별 편수를 끝내 못 읽어도 목록 읽기가 끝나면 오늘 달로. 제목이 빈 채로 남지 않게
+            val counts = monthCounts ?: emptyList<MonthCount>().takeIf { rows.loadState.refresh !is LoadState.Loading }
+            shownMonth(loaded, counts, position, today)
         }
     }
     HomeScreen(
-        title = dates.yearMonth(shown.firstDay),
+        // 맨 위 달을 알기 전에는 자리만 둠. 오늘 달을 먼저 보였다가 바꾸지 않게
+        title = shown?.let { dates.yearMonth(it.firstDay) }.orEmpty(),
         rows = rows,
         list = list,
         grid = grid,
@@ -235,12 +239,14 @@ fun HomeRoute(
             if (style == ListStyle.PHOTO_GRID) grid.scrollToItem(index) else list.scrollToItem(index)
         }
     }
-    if (picking) {
-        val months = remember(monthCounts) { monthCounts.mapTo(HashSet()) { it.month } }
+    // 고를 달이 있어야 제목을 누를 수 있어 열렸으면 맨 위 달도 앎
+    val current = shown
+    if (picking && current != null) {
+        val months = remember(monthCounts) { monthCounts.orEmpty().mapTo(HashSet()) { it.month } }
         DiaryMonthSheet(
             title = stringResource(Res.string.home_month_sheet_title),
-            initialYear = shown.year,
-            shown = shown,
+            initialYear = current.year,
+            shown = current,
             years = remember(months) { months.map { it.year }.distinct().sorted() },
             enabled = { it in months },
             onPick = { month ->
@@ -256,9 +262,10 @@ fun HomeRoute(
  * 제목에 보일 달
  * 맨 위 줄을 읽었으면 그 줄의 달, 아직 자리 표시 줄이면 달별 편수로 센 달
  * 건너뛰거나 맨 위로 갈 때 앞서 보던 달이 남지 않음. 일기가 없으면 오늘이 든 달
+ * 줄도 달별 편수도 아직 읽지 않았으면 null
  */
-internal fun shownMonth(loaded: LocalDate?, counts: List<MonthCount>, position: Int, today: LocalDate): YearMonth =
-    loaded?.yearMonth ?: counts.monthAt(position) ?: today.yearMonth
+internal fun shownMonth(loaded: LocalDate?, counts: List<MonthCount>?, position: Int, today: LocalDate): YearMonth? =
+    loaded?.yearMonth ?: counts?.let { it.monthAt(position) ?: today.yearMonth }
 
 @Composable
 internal fun HomeScreen(
@@ -350,7 +357,7 @@ internal fun HomeScreen(
                     refresh is LoadState.NotLoading ->
                         Column {
                             ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                            Empty(favoritesOnly, onWrite, onToggleFavorites)
+                            Box(Modifier.testTag(HOME_EMPTY_TAG)) { Empty(favoritesOnly, onWrite, onToggleFavorites) }
                         }
 
                     refresh is LoadState.Error -> LoadFailed(rows::retry)
@@ -359,10 +366,13 @@ internal fun HomeScreen(
                         Column {
                             ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
                             // 곧 나올 목록과 같은 꼴. 첫 목록 읽기라 기다리지 않고 바로
-                            when (style) {
-                                ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4), delayed = false)
-                                ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4), delayed = false)
-                                ListStyle.PHOTO_GRID -> SkeletonPhotoGrid(delayed = false)
+                            val delayed = false
+                            Box(Modifier.testTag(HOME_SKELETON_TAG)) {
+                                when (style) {
+                                    ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4), delayed = delayed)
+                                    ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4), delayed = delayed)
+                                    ListStyle.PHOTO_GRID -> SkeletonPhotoGrid(delayed = delayed)
+                                }
                             }
                         }
                 }
@@ -512,6 +522,10 @@ internal const val LIST_TOP_ITEMS = 1
 /** 목록 보기 팁을 띄우는 일기 수. 이보다 적으면 모양을 바꿔도 차이가 잘 안 보임 */
 private const val LIST_STYLE_TIP_AFTER = 1
 internal const val LIST_TOP_KEY = "list-top"
+
+/** 화면 시험이 뼈대와 빈 안내 자리를 찾는 이름표 */
+internal const val HOME_SKELETON_TAG = "home-skeleton"
+internal const val HOME_EMPTY_TAG = "home-empty"
 
 private const val FIRST_AD = 4
 private const val AD_EVERY = 10

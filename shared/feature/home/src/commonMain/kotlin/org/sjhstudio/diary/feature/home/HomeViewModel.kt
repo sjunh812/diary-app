@@ -94,11 +94,12 @@ class HomeViewModel(
     /**
      * 달별 일기 수. 큰 제목이 아직 읽지 않은 줄의 달을 세고, 연·월 고르기 시트가 이 달만 고르게 함
      * 목록처럼 전체와 즐겨찾기를 따로 둠. 바꿔 끼우면 한 순간 옛 필터의 달이 제목에 보임
+     * 읽기 전에는 null. 빈 목록이면 일기가 없다는 뜻이라, 읽기 전에 오늘 달을 제목으로 보였다가 바꾸지 않게 나눔
      */
-    val allMonths: StateFlow<List<MonthCount>> =
-        entries.monthCounts(false).stateInSafely(viewModelScope, SharingStarted.Eagerly, emptyList())
-    val favoriteMonths: StateFlow<List<MonthCount>> =
-        entries.monthCounts(true).stateInSafely(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val allMonths: StateFlow<List<MonthCount>?> =
+        entries.monthCounts(false).stateInSafely(viewModelScope, SharingStarted.Eagerly, null)
+    val favoriteMonths: StateFlow<List<MonthCount>?> =
+        entries.monthCounts(true).stateInSafely(viewModelScope, SharingStarted.Eagerly, null)
 
     fun toggleFavoritesOnly() {
         favorites.update { !it }
