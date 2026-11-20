@@ -13,6 +13,7 @@ import com.revenuecat.purchases.PurchasesError
 import com.revenuecat.purchases.PurchasesErrorCode
 import com.revenuecat.purchases.PurchasesException
 import com.revenuecat.purchases.PurchasesTransactionException
+import com.revenuecat.purchases.VerificationResult
 import com.revenuecat.purchases.awaitCustomerInfo
 import com.revenuecat.purchases.awaitGetProducts
 import com.revenuecat.purchases.awaitPurchase
@@ -31,6 +32,7 @@ import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.SavedPlan
 import org.sjhstudio.diary.core.data.StoreAnswer
 import org.sjhstudio.diary.core.data.StoreBilling
 import org.sjhstudio.diary.core.data.StoreClient
@@ -42,6 +44,7 @@ import org.sjhstudio.diary.core.model.Price
 private const val MANAGE_URL = "https://play.google.com/store/account/subscriptions"
 private const val PREFS = "plan"
 private const val PLAN_KEY = "last_plan"
+private const val ANSWERED_KEY = "last_answered_at"
 
 /** 요금제와 구매. 화면은 나뉜 두 인터페이스만 봄 */
 class Billing(val plans: PlanRepository, val purchases: PurchaseRepository)
@@ -54,11 +57,20 @@ fun billing(context: Context, current: CurrentActivity): Billing {
             .metaData?.getString("org.sjhstudio.diary.revenuecat_key").orEmpty()
     if (key.isEmpty()) return Billing(FreePlanRepository(), NoPurchases())
     val prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-    val saved = prefs.getString(PLAN_KEY, null)?.let { name -> Plan.entries.firstOrNull { it.name == name } }
+    val saved =
+        prefs.getString(PLAN_KEY, null)
+            ?.let { name -> Plan.entries.firstOrNull { it.name == name } }
+            ?.let { plan -> SavedPlan(plan, prefs.getLong(ANSWERED_KEY, 0L).takeIf { it > 0 }?.let(Instant::fromEpochMilliseconds)) }
     val client = RevenueCatClient(app, key, current)
     // 결제 라이브러리가 뜻밖의 예외를 던져도 앱이 꺼지지 않게 처리기가 있는 범위를 씀
     val scope = appCoroutineScope(Dispatchers.Main.immediate)
-    val store = StoreBilling(client, saved, MANAGE_URL, scope) { plan -> prefs.edit { putString(PLAN_KEY, plan.name) } }
+    val store =
+        StoreBilling(client, saved, MANAGE_URL, scope) { saving ->
+            prefs.edit {
+                putString(PLAN_KEY, saving.plan.name)
+                saving.answeredAt?.let { putLong(ANSWERED_KEY, it.toEpochMilliseconds()) } ?: remove(ANSWERED_KEY)
+            }
+        }
     Purchases.sharedInstance.updatedCustomerInfoListener =
         UpdatedCustomerInfoListener { info -> scope.launch { store.onUpdate(info.answer) } }
     // 관찰자는 화면 스레드에서 붙여야 해 scope 안에서. 켤 때도 앞으로 옴으로 한 번 불림
@@ -66,12 +78,16 @@ fun billing(context: Context, current: CurrentActivity): Billing {
     return Billing(store, store)
 }
 
+/** 서버가 매긴 시각. 서버 장애 때 기기에서 계산한 답은 기기 시계라 없음 */
+private val CustomerInfo.serverTime: Instant?
+    get() = Instant.fromEpochMilliseconds(requestDate.time).takeIf { entitlements.verification != VerificationResult.VERIFIED_ON_DEVICE }
+
 private val CustomerInfo.answer: StoreAnswer
     get() =
         StoreAnswer(
             active = entitlements.active.keys,
             expiresAt = entitlements.active.values.mapNotNull { it.expirationDate?.time }.minOrNull()?.let(Instant::fromEpochMilliseconds),
-            answeredAt = Instant.fromEpochMilliseconds(requestDate.time),
+            answeredAt = serverTime,
             // 기간이 끝났어도 자동 갱신이 켜져 있으면 갱신 대기(StoreBilling이 잠깐 켬)
             renewing =
                 entitlements.all.filterValues { !it.isActive && it.willRenew }

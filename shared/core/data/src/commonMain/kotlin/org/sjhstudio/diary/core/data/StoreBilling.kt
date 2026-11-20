@@ -40,7 +40,8 @@ interface StoreClient {
 /**
  * 스토어 답. [active]는 지금 켜진 권한 이름
  * [expiresAt]은 켜진 권한 가운데 가장 먼저 끝나는 시각. 평생 상품뿐이면 null
- * [answeredAt]은 서버가 답한 시각. 늦게 온 옛 답을 가리고, 기기 시계와 달라도 남은 시간을 서버 시계로 잼
+ * [answeredAt]은 서버가 매긴 시각. 늦게 온 옛 답을 가리고, 기기 시계와 달라도 남은 시간을 서버 시계로 잼
+ * 서버 장애 때 결제 SDK가 기기에서 계산한 답은 null. 기기 시계라 앞뒤 기준이 될 수 없음
  * [renewing]은 기간이 끝났지만 자동 갱신이 켜진 권한과 끝난 시각. Play가 갱신을 늦게 알려 잠깐 꺼져 보이는 때
  */
 data class StoreAnswer(
@@ -63,11 +64,11 @@ class StoreFailure(val reason: Reason, cause: Throwable? = null) : Exception(cau
  */
 class StoreBilling(
     private val client: StoreClient,
-    saved: Plan?,
+    saved: SavedPlan?,
     override val manageUrl: String,
     private val scope: CoroutineScope,
     private val clock: Clock = Clock.System,
-    remember: (Plan) -> Unit
+    remember: (SavedPlan) -> Unit
 ) : PlanRepository,
     PurchaseRepository {
     private val state = StorePlanState(saved, remember)
@@ -115,8 +116,7 @@ class StoreBilling(
     }
 
     private fun recovered(answer: StoreAnswer) {
-        state.onRecovered(planOf(answer), answer.answeredAt)
-        watchExpiry(answer)
+        if (state.onRecovered(planOf(answer), answer.answeredAt)) watchExpiry(answer)
     }
 
     /**
@@ -151,11 +151,9 @@ class StoreBilling(
     }
 
     override suspend fun buy(id: ProductId): PurchaseResult = try {
-        val answer = client.purchase(StoreIds.productOf(id))
-        state.onPurchased(planOf(answer), answer.answeredAt)
-        watchExpiry(answer)
+        onUpdate(client.purchase(StoreIds.productOf(id)))
         // 결제가 끝나도 혜택이 켜지지 않았으면 성공으로 닫지 않음. 실패 안내가 [구매 복원]을 알려 줌
-        if (planOf(answer).includes(id)) PurchaseResult.DONE else PurchaseResult.FAILED
+        if (state.plan.value.includes(id)) PurchaseResult.DONE else PurchaseResult.FAILED
     } catch (e: StoreFailure) {
         when (e.reason) {
             StoreFailure.Reason.CANCELLED -> PurchaseResult.CANCELLED
@@ -170,9 +168,8 @@ class StoreBilling(
     }
 
     override suspend fun restore(): PurchaseResult = try {
-        val answer = client.restore()
-        recovered(answer)
-        if (planOf(answer) == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
+        recovered(client.restore())
+        if (state.plan.value == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
     } catch (e: StoreFailure) {
         // iOS는 복원 때 Apple 계정 로그인 창을 띄울 수 있음. 닫은 것은 실패가 아님
         if (e.reason == StoreFailure.Reason.CANCELLED) PurchaseResult.CANCELLED else PurchaseResult.FAILED

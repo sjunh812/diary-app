@@ -54,51 +54,44 @@ private val CONFIRM_WAIT = 3.seconds
 
 private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow()
 
+/** 기기에 남기는 요금제와 그 답을 서버가 매긴 시각. 시각이 없으면 예전 버전이 남긴 값 */
+data class SavedPlan(val plan: Plan, val answeredAt: Instant? = null)
+
 /**
  * 스토어 답을 요금제로 옮기는 규칙
- * 재설치 직후 스토어의 첫 답은 구매를 가져오기 전이라 비어 있음
- * 이 답을 믿으면 산 사람에게 광고가 나가고, 무료가 저장돼 다시 가져오지도 않음
- * 그래서 요금제를 모를 때의 무료 답은 믿지 않고, 계정의 구매를 가져온 답([onRecovered])을 기다림
- * 못 가져오면 모르는 채로 두어 광고를 부르지 않고, 저장하지 않으니 다음에 다시 시도
+ * 재설치 직후 첫 답은 구매를 가져오기 전이라 비어 있음. 그 무료 답을 믿으면 산 사람에게 광고가 나감
+ * 그래서 요금제를 모를 때의 무료 답은 버리고, 계정의 구매를 가져온 답([onRecovered])을 기다림
+ * 못 가져오면 모르는 채로 두고 저장하지 않음. 다음에 다시 시도
  * 남긴 값이 있으면 스토어에 닿지 못해도 그 값을 씀
  *
- * 답은 늦게 올 수 있음. 결제 전에 보낸 조회의 답이 결제 뒤에 오면 방금 산 요금제를 무료로 덮음
- * 결제 라이브러리도 늦은 답을 그대로 알려 옴(RevenueCat 리스너·delegate)
- * 그래서 서버가 답한 시각([StoreAnswer.answeredAt])이 마지막 답보다 이른 답은 버림
- * 결제·복원의 답은 사용자가 방금 한 일의 결과라 늘 믿고 기준 시각이 됨. 기기 시계로 매긴 오프라인 답이 앞서 있어도 결제를 잃지 않게
+ * 결제 전에 보낸 조회의 답이 결제 뒤에 올 수 있고, 결제 SDK는 그 답을 기기에 남겨 다음 실행에도 다시 보냄
+ * 그래서 서버가 매긴 시각([StoreAnswer.answeredAt])이 마지막 답보다 이른 답은 버리고, 그 시각을 요금제와 함께 남김
+ * 서버 시각이 없는 답(서버 장애 때 기기에서 계산한 답)은 앞뒤를 가리지 않고 받되 기준으로 삼지 않음
  */
-class StorePlanState(saved: Plan?, private val remember: (Plan) -> Unit) {
-    private val _plan = MutableStateFlow(saved ?: Plan.FREE)
+class StorePlanState(saved: SavedPlan?, private val remember: (SavedPlan) -> Unit) {
+    private val _plan = MutableStateFlow(saved?.plan ?: Plan.FREE)
     private val _known = MutableStateFlow(saved != null)
 
-    /** 받아들인 답 가운데 서버가 가장 늦게 답한 시각 */
-    private var latest: Instant? = null
+    /** 받아들인 답 가운데 서버가 가장 늦게 매긴 시각 */
+    private var latest: Instant? = saved?.answeredAt
 
     val plan: StateFlow<Plan> = _plan.asStateFlow()
     val known: StateFlow<Boolean> = _known.asStateFlow()
 
-    /** 조회나 스토어 알림의 답. 받아들였으면 참 */
-    fun onAnswer(plan: Plan, answeredAt: Instant? = null): Boolean {
-        val stale = answeredAt != null && latest?.let { answeredAt < it } == true
-        if (stale || (!_known.value && plan == Plan.FREE)) return false
-        confirm(plan, answeredAt)
-        return true
-    }
-
-    /** 결제의 답. 요금제를 모를 때의 무료 답은 조회처럼 믿지 않음 */
-    fun onPurchased(plan: Plan, answeredAt: Instant? = null) {
-        if (!_known.value && plan == Plan.FREE) return
-        confirm(plan, answeredAt)
-    }
+    /** 조회·스토어 알림·결제의 답. 받아들였으면 참 */
+    fun onAnswer(plan: Plan, answeredAt: Instant? = null): Boolean = settle(plan, answeredAt, proven = _known.value || plan != Plan.FREE)
 
     /** 계정의 구매를 가져온 답(복원 포함). 무료여도 믿음 */
-    fun onRecovered(plan: Plan, answeredAt: Instant? = null) = confirm(plan, answeredAt)
+    fun onRecovered(plan: Plan, answeredAt: Instant? = null): Boolean = settle(plan, answeredAt, proven = true)
 
-    private fun confirm(plan: Plan, answeredAt: Instant?) {
+    private fun settle(plan: Plan, answeredAt: Instant?, proven: Boolean): Boolean {
+        val stale = answeredAt != null && latest?.let { answeredAt < it } == true
+        if (stale || !proven) return false
         if (answeredAt != null) latest = answeredAt
         _plan.value = plan
         _known.value = true
-        remember(plan)
+        remember(SavedPlan(plan, latest))
+        return true
     }
 }
 

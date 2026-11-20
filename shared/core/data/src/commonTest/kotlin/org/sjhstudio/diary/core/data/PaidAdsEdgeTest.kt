@@ -34,9 +34,23 @@ class PaidAdsEdgeTest {
         /** 기간이 끝났지만 자동 갱신이 켜진 권한 */
         var renewing: Map<String, Instant> = emptyMap()
 
+        /** 결제 SDK가 기기에 남긴 마지막 답. 늦게 온 옛 답도 남음 */
+        var cached: StoreAnswer? = null
+
         fun answer() = StoreAnswer(owned, expiresAt, now(), renewing)
 
-        override suspend fun entitlements() = answer()
+        /** 리스너를 붙이는 순간 남긴 답을 보냄(RevenueCat 리스너·delegate) */
+        fun attach(billing: StoreBilling) {
+            cached?.let(billing::onUpdate)
+        }
+
+        /** 늦게 온 답. SDK가 남기고 리스너로 알림 */
+        fun arriveLate(answer: StoreAnswer, billing: StoreBilling) {
+            cached = answer
+            billing.onUpdate(answer)
+        }
+
+        override suspend fun entitlements() = answer().also { cached = it }
 
         override suspend fun sync() = answer()
 
@@ -44,7 +58,7 @@ class PaidAdsEdgeTest {
 
         override suspend fun purchase(storeId: String): StoreAnswer {
             owned = owned + if (storeId == StoreIds.PLUS_PRODUCT) StoreIds.PLUS_ENTITLEMENT else StoreIds.AD_FREE_ENTITLEMENT
-            return answer()
+            return answer().also { cached = it }
         }
 
         override suspend fun restore() = answer()
@@ -72,7 +86,7 @@ class PaidAdsEdgeTest {
     private fun TestScope.store() = clock().let { c -> Store(c::now) }
 
     private fun TestScope.billing(store: Store, saved: Plan? = Plan.FREE) =
-        StoreBilling(store, saved, "manage", backgroundScope, clock()) { stored += it }
+        StoreBilling(store, saved?.let(::SavedPlan), "manage", backgroundScope, clock()) { stored += it.plan }
 
     private fun TestScope.ads(plans: PlanRepository, player: Player) =
         AdRepository(plans, AdStore(InMemoryDataStore(emptyPreferences())), player, clock = clock(), timeZone = { TimeZone.UTC })
@@ -95,6 +109,28 @@ class PaidAdsEdgeTest {
         assertEquals(Plan.PLUS, stored.last())
         val player = Player()
         ads(billing, player).showAfterSave()
+        assertEquals(0, player.shown)
+    }
+
+    /** 결제 전에 보낸 조회의 답이 결제 뒤 도착해 SDK 캐시에 남아도, 다시 켰을 때 결제를 덮지 않음 */
+    @Test
+    fun an_old_answer_left_in_the_sdk_cache_does_not_undo_a_purchase_after_restart() = runTest {
+        val store = store()
+        var saved: SavedPlan? = SavedPlan(Plan.FREE)
+        fun start() = StoreBilling(store, saved, "manage", backgroundScope, clock()) { saved = it }.also(store::attach)
+
+        val first = start()
+        val oldAnswer = store.answer()
+        advanceTimeBy(1.seconds)
+        assertEquals(PurchaseResult.DONE, first.buy(ProductId.PLUS_YEARLY))
+        store.arriveLate(oldAnswer, first)
+        assertEquals(Plan.PLUS, first.plan.value)
+
+        // 앱을 다시 켬. 오프라인이라 남긴 답만 옴
+        val second = start()
+        assertEquals(Plan.PLUS, second.plan.value)
+        val player = Player()
+        ads(second, player).showAfterSave()
         assertEquals(0, player.shown)
     }
 

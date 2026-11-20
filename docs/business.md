@@ -200,6 +200,7 @@ App Store 한국 페이지의 앱 내 구입 칸과 설명에서 직접 본 값�
 - 구매 복원 버튼, 약관·개인정보처리방침 링크를 결제 화면에 둔다(App Store 3.1.1·3.1.2, `docs/release.md`). 복원은 구독 화면에만 두고 광고 없애기 시트에는 두지 않는다(2026-11-07 사용자 지적).
 - 구현은 RevenueCat이다(사용자 결정 2026-10-31). iOS는 계획대로 KMP SDK를 Kotlin에서 바로 쓰고, Android는 이미 붙인 Android SDK를 2.0.0 출시까지 그대로 둔다. 무엇을 언제 믿을지는 두 플랫폼 모두 공통 코드(`StoreBilling`)가 정한다(2026-11-13, `docs/DECISIONS.md`). 월 추적 매출 $2,500까지 무료이고 그 위는 1%다. 서버 없이 두 스토어 결제와 구매 상태를 다루고, StoreKit 2(Swift 전용)를 위한 Swift 브리지를 직접 만들지 않아도 된다([요금](https://www.revenuecat.com/pricing/), [purchases-kmp 4.0.0](https://github.com/RevenueCat/purchases-kmp/releases/tag/4.0.0)).
 - 직접 구현하면 Google은 구매 검증과 승인을 백엔드에서 하라고 하고 기기 로직은 변조되기 쉽다고 한다([보안](https://developer.android.com/google/play/billing/security)). Plus 같은 저가 비소모품은 기기 검증으로 감수할 수 있는 수준이지만, 3일 안에 승인하지 않으면 자동 환불된다는 점은 꼭 지킨다.
+- 구독 기간이 끝났어도 자동 갱신이 켜져 있으면 끝난 뒤 최대 6시간 Plus 혜택을 둔다. Play가 갱신을 늦게 알리는 동안 구독자에게 광고가 나오지 않게 하려는 것이고, 결제 수단 문제로 보류된 구독도 이 6시간 동안은 Plus로 보인다(2026-11-21, `docs/DECISIONS.md`).
 - Play 결제 라이브러리는 8 이상이어야 한다(2026-08-31부터 신규·업데이트 앱).
 - 팔기 전에: 한국 개발자가 유료 앱이나 인앱 상품을 내려면 Play는 사업자등록번호와 통신판매업 신고번호를, Apple은 사업자등록번호를 받는다.
   일본에 팔면 특정상거래법 표시와 정기 결제 최종 확인 화면 항목을 지킨다(`docs/release.md` 출시 국가, D9와 같이 본다).

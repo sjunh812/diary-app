@@ -118,7 +118,7 @@ class StoreBillingTest {
             object : Clock {
                 override fun now() = Instant.fromEpochMilliseconds(testScheduler.currentTime)
             }
-        return StoreBilling(store, saved, "manage", backgroundScope, clock) { stored += it }
+        return StoreBilling(store, saved?.let(::SavedPlan), "manage", backgroundScope, clock) { stored += it.plan }
     }
 
     /** 앱처럼 앞으로 옴을 듣는 결제 */

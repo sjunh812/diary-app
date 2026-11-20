@@ -16,6 +16,7 @@ import com.revenuecat.purchases.kmp.models.PurchasesException
 import com.revenuecat.purchases.kmp.models.PurchasesTransactionException
 import com.revenuecat.purchases.kmp.models.StoreProduct
 import com.revenuecat.purchases.kmp.models.StoreTransaction
+import com.revenuecat.purchases.kmp.models.VerificationResult
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.onStart
@@ -24,6 +25,7 @@ import org.sjhstudio.diary.core.data.FreePlanRepository
 import org.sjhstudio.diary.core.data.NoPurchases
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.SavedPlan
 import org.sjhstudio.diary.core.data.StoreAnswer
 import org.sjhstudio.diary.core.data.StoreBilling
 import org.sjhstudio.diary.core.data.StoreClient
@@ -35,6 +37,7 @@ import platform.Foundation.NSUserDefaults
 
 private const val MANAGE_URL = "https://apps.apple.com/account/subscriptions"
 private const val PLAN_KEY = "last_plan"
+private const val ANSWERED_KEY = "last_answered_at"
 private const val KEY_INFO = "RevenueCatKey"
 
 /** 요금제와 구매. 화면은 나뉜 두 인터페이스만 봄 */
@@ -48,9 +51,20 @@ internal fun iosBilling(scope: CoroutineScope): IosBilling {
     val key = NSBundle.mainBundle.objectForInfoDictionaryKey(KEY_INFO) as? String
     if (key.isNullOrEmpty()) return IosBilling(FreePlanRepository(), NoPurchases())
     val defaults = NSUserDefaults.standardUserDefaults
-    val saved = defaults.stringForKey(PLAN_KEY)?.let { name -> Plan.entries.firstOrNull { it.name == name } }
+    val saved =
+        defaults.stringForKey(PLAN_KEY)
+            ?.let { name -> Plan.entries.firstOrNull { it.name == name } }
+            ?.let { plan ->
+                SavedPlan(plan, defaults.doubleForKey(ANSWERED_KEY).toLong().takeIf { it > 0 }?.let(Instant::fromEpochMilliseconds))
+            }
     Purchases.configure(PurchasesConfiguration(apiKey = key))
-    val store = StoreBilling(RevenueCatClient, saved, MANAGE_URL, scope) { plan -> defaults.setObject(plan.name, PLAN_KEY) }
+    val store =
+        StoreBilling(RevenueCatClient, saved, MANAGE_URL, scope) { saving ->
+            defaults.setObject(saving.plan.name, PLAN_KEY)
+            // 밀리초는 Double로도 정확히 남음
+            saving.answeredAt?.let { defaults.setDouble(it.toEpochMilliseconds().toDouble(), ANSWERED_KEY) }
+                ?: defaults.removeObjectForKey(ANSWERED_KEY)
+        }
     Purchases.sharedInstance.delegate =
         object : PurchasesDelegate {
             override fun onCustomerInfoUpdated(customerInfo: CustomerInfo) {
@@ -71,12 +85,16 @@ internal fun iosBilling(scope: CoroutineScope): IosBilling {
     return IosBilling(store, store)
 }
 
+/** 서버가 매긴 시각. 서버 장애 때 기기에서 계산한 답은 기기 시계라 없음 */
+private val CustomerInfo.serverTime: Instant?
+    get() = Instant.fromEpochMilliseconds(requestDateMillis).takeIf { entitlements.verification != VerificationResult.VERIFIED_ON_DEVICE }
+
 private val CustomerInfo.answer: StoreAnswer
     get() =
         StoreAnswer(
             active = entitlements.active.keys,
             expiresAt = entitlements.active.values.mapNotNull { it.expirationDateMillis }.minOrNull()?.let(Instant::fromEpochMilliseconds),
-            answeredAt = Instant.fromEpochMilliseconds(requestDateMillis),
+            answeredAt = serverTime,
             // 기간이 끝났어도 자동 갱신이 켜져 있으면 갱신 대기(StoreBilling이 잠깐 켬)
             renewing =
                 entitlements.all.filterValues { !it.isActive && it.willRenew }
