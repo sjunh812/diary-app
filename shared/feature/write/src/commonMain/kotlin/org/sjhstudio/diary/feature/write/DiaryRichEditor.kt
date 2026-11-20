@@ -15,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -149,24 +149,32 @@ internal fun AnnotatedString.withoutBackgrounds(): AnnotatedString = if (spanSty
 }
 
 /**
- * 형광펜을 글 뒤에 그림. 고른 구간은 비워 입력칸의 선택 색이 다른 글과 똑같이 보이게 함
+ * 형광펜을 글 뒤에 그림. 고른 구간은 비워 입력란의 선택 색이 다른 글과 똑같이 보이게 함
  * 안드로이드 `Layout.draw`처럼 바탕, 선택, 글자 순서. 줄 끝 공백은 칠하지 않음(글자 바탕색과 같게)
  */
 private fun Modifier.drawMarks(marks: List<Mark>, selection: () -> TextRange, layout: () -> TextLayoutResult?): Modifier =
     if (marks.isEmpty()) {
         this
     } else {
-        drawBehind {
-            val result = layout() ?: return@drawBehind
+        // 고른 범위나 배치가 바뀔 때만 경로를 다시 만듦. 커서가 깜빡여 다시 그릴 때는 만든 경로를 씀
+        drawWithCache {
+            val result = layout()
             val picked = selection()
-            val length = result.layoutInput.text.length
-            for (mark in marks) {
-                for ((from, to) in mark.outside(picked)) {
-                    result.paintLines(from.coerceAtMost(length), to.coerceAtMost(length)) { path -> drawPath(path, mark.color) }
-                }
-            }
+            val paths = if (result == null) emptyList() else marks.paths(result, picked)
+            onDrawBehind { paths.forEach { (path, color) -> drawPath(path, color) } }
         }
     }
+
+private fun List<Mark>.paths(result: TextLayoutResult, picked: TextRange): List<Pair<Path, Color>> {
+    val length = result.layoutInput.text.length
+    val paths = ArrayList<Pair<Path, Color>>()
+    for (mark in this) {
+        for ((from, to) in mark.outside(picked)) {
+            result.paintLines(from.coerceAtMost(length), to.coerceAtMost(length)) { paths += it to mark.color }
+        }
+    }
+    return paths
+}
 
 /** 고른 범위 밖 조각. 고르지 않았으면 구간 그대로 */
 internal fun Mark.outside(picked: TextRange): List<Pair<Int, Int>> {
