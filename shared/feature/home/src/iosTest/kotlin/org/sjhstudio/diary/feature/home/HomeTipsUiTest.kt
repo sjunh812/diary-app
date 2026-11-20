@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
@@ -70,7 +71,10 @@ class HomeTipsUiTest {
             modules(
                 module {
                     single<ContextTips> { tips }
-                    viewModel { HomeViewModel(FakeEntryRepository(rows = rows), settings, NoTipFonts, FakePlanRepository(), tips) }
+                    viewModel {
+                        val entries = FakeEntryRepository(rows = rows)
+                        HomeViewModel(entries, settings, NoTipFonts, FakePlanRepository(), tips, HomeMonths(entries, MainScope()))
+                    }
                 }
             )
         }

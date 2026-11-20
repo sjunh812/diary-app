@@ -42,7 +42,8 @@ class HomeViewModel(
     private val settings: SettingsRepository,
     fonts: FontInstaller,
     plans: PlanRepository,
-    private val tips: ContextTips
+    private val tips: ContextTips,
+    months: HomeMonths
 ) : ViewModel() {
     /** 일기 줄 길게 누르기 메뉴(달력과 같음) */
     val menu = EntryMenuWork(viewModelScope, entries)
@@ -91,15 +92,13 @@ class HomeViewModel(
     val look: StateFlow<BodyLook> =
         settings.bodyLookIn(viewModelScope, fonts)
 
-    /**
-     * 달별 일기 수. 큰 제목이 아직 읽지 않은 줄의 달을 세고, 연·월 고르기 시트가 이 달만 고르게 함
-     * 목록처럼 전체와 즐겨찾기를 따로 둠. 바꿔 끼우면 한 순간 옛 필터의 달이 제목에 보임
-     * 읽기 전에는 null. 빈 목록이면 일기가 없다는 뜻이라, 읽기 전에 오늘 달을 제목으로 보였다가 바꾸지 않게 나눔
-     */
-    val allMonths: StateFlow<List<MonthCount>?> =
-        entries.monthCounts(false).stateInSafely(viewModelScope, SharingStarted.Eagerly, null)
-    val favoriteMonths: StateFlow<List<MonthCount>?> =
-        entries.monthCounts(true).stateInSafely(viewModelScope, SharingStarted.Eagerly, null)
+    /** 달별 일기 수([HomeMonths]). 앱이 미리 읽어 두어 홈을 처음 그릴 때 이미 앎 */
+    val allMonths: StateFlow<List<MonthCount>?> = months.all
+    val favoriteMonths: StateFlow<List<MonthCount>?> = months.favorites
+
+    init {
+        months.start()
+    }
 
     fun toggleFavoritesOnly() {
         favorites.update { !it }

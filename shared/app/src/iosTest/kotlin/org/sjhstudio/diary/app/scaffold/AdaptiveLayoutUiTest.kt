@@ -82,6 +82,7 @@ import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.EntryDetailViewModel
+import org.sjhstudio.diary.feature.home.HomeMonths
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
 import platform.UIKit.UIViewController
@@ -137,7 +138,16 @@ class AdaptiveLayoutUiTest {
                             NoAdaptiveFonts
                         )
                     }
-                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts, FakePlanRepository(), FakeContextTips()) }
+                    viewModel {
+                        HomeViewModel(
+                            get(),
+                            FakeSettingsRepository(),
+                            NoAdaptiveFonts,
+                            FakePlanRepository(),
+                            FakeContextTips(),
+                            HomeMonths(get(), MainScope())
+                        )
+                    }
                     viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts, saved = SavedStateHandle()) }
                 }
             )

@@ -84,6 +84,7 @@ import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
+import org.sjhstudio.diary.feature.home.HomeMonths
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
 
@@ -132,7 +133,14 @@ class AppScaffoldUiTest {
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(rows = rows) }
                     viewModel {
-                        HomeViewModel(get(), FakeSettingsRepository(), NoFonts, FakePlanRepository(), FakeContextTips()).also {
+                        HomeViewModel(
+                            get(),
+                            FakeSettingsRepository(),
+                            NoFonts,
+                            FakePlanRepository(),
+                            FakeContextTips(),
+                            HomeMonths(get(), MainScope())
+                        ).also {
                             homeModels +=
                                 it
                         }

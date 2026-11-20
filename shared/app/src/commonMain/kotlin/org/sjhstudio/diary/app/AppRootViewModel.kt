@@ -7,15 +7,23 @@ import org.sjhstudio.diary.app.scaffold.HomeTopState
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.ui.launchSafely
+import org.sjhstudio.diary.feature.home.HomeMonths
 
 /**
  * 이전 관문을 지난 뒤(일기 DB를 연 뒤) 한 번 하는 일
  * 화면 효과에 두면 화면을 돌릴 때마다 다시 돌아 화면 모델로 옮김
  */
-class AppRootViewModel(cleanup: DiaryCleanup, backup: BackupRepository, private val restore: RestoreRepository, homeTop: HomeTopState) :
-    ViewModel() {
+class AppRootViewModel(
+    cleanup: DiaryCleanup,
+    backup: BackupRepository,
+    private val restore: RestoreRepository,
+    homeTop: HomeTopState,
+    homeMonths: HomeMonths
+) : ViewModel() {
     init {
         homeTop.start()
+        // 홈 큰 제목이 첫 장면부터 맞는 달이게 홈보다 먼저 읽기 시작
+        homeMonths.start()
         viewModelScope.launchSafely { cleanup.run() }
         // 시스템이 자동 백업을 못 돌렸을 수 있어 앱을 열 때도 봄(FR-015). iOS에서는 이게 주된 길
         viewModelScope.launchSafely { backup.backUpIfDue() }

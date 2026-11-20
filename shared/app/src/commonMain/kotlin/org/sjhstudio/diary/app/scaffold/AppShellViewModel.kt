@@ -178,7 +178,7 @@ class AppShellViewModel(
 /** 앱 틀 화면 모델 등록. 앱과 화면 시험이 함께 씀 */
 val appShellModule =
     module {
-        viewModel { AppRootViewModel(get(), get(), get(), get()) }
+        viewModel { AppRootViewModel(get(), get(), get(), get(), get()) }
         viewModel {
             val ads = get<AdRepository>()
             AppShellViewModel(

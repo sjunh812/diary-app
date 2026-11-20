@@ -5,6 +5,6 @@ import org.koin.dsl.module
 
 val homeFeatureModule =
     module {
-        viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
+        viewModel { HomeViewModel(get(), get(), get(), get(), get(), get()) }
         viewModel { (entryId: String) -> EntryDetailViewModel(entryId, get(), get(), get()) }
     }

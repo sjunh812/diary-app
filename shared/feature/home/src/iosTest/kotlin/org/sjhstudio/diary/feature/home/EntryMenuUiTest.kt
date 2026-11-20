@@ -15,6 +15,7 @@ import androidx.compose.ui.uikit.LocalUIViewController
 import androidx.compose.ui.unit.dp
 import kotlin.test.AfterTest
 import kotlin.test.Test
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
@@ -58,12 +59,14 @@ class EntryMenuUiTest {
             modules(
                 module {
                     viewModel {
+                        val entries = FakeEntryRepository(rows = rows)
                         HomeViewModel(
-                            FakeEntryRepository(rows = rows),
+                            entries,
                             FakeSettingsRepository(),
                             NoFonts,
                             FakePlanRepository(),
-                            FakeContextTips()
+                            FakeContextTips(),
+                            HomeMonths(entries, MainScope())
                         )
                     }
                 }

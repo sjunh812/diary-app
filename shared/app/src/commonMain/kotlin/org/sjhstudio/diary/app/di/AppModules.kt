@@ -102,6 +102,7 @@ import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.backup.backupFolderText
 import org.sjhstudio.diary.feature.backup.backupReadme
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
+import org.sjhstudio.diary.feature.home.HomeMonths
 import org.sjhstudio.diary.feature.home.homeFeatureModule
 import org.sjhstudio.diary.feature.insight.insightFeatureModule
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
@@ -222,6 +223,7 @@ private fun coreModule(isDebug: Boolean) = module {
         )
     }
     single { HomeTopState(get(), get(), get(APP_SCOPE)) }
+    single { HomeMonths(get(), get(APP_SCOPE)) }
     single { AdRemoval(get(APP_SCOPE), get<LockController>().appLocked, get<AdRepository>()::watchReward) }
 }
 
