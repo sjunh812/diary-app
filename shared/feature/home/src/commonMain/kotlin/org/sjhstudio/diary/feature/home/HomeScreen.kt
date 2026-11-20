@@ -75,6 +75,7 @@ import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.monthAt
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
+import org.sjhstudio.diary.core.ui.DiaryDismissSlot
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
@@ -524,34 +525,36 @@ internal class ClippedFlag(var value: Boolean = false)
 @Composable
 private fun HomeTip(candidates: List<ContextTip>, onListStyle: () -> Unit, onLength: (PreviewLength) -> Unit) {
     val modifier = Modifier.padding(top = DiarySpacing.x2, bottom = DiarySpacing.x3)
-    when (val tip = rememberFirstOpenTip(candidates)) {
-        ContextTip.HOME_FULL_PREVIEW_KEPT ->
-            ContextTipBar(
-                tip,
-                stringResource(Res.string.tip_home_full_preview_kept),
-                modifier,
-                action = stringResource(Res.string.tip_home_full_preview_kept_action),
-                onAction = { onLength(PreviewLength.THREE_LINES) }
-            )
+    DiaryDismissSlot(rememberFirstOpenTip(candidates)) { tip ->
+        when (tip) {
+            ContextTip.HOME_FULL_PREVIEW_KEPT ->
+                ContextTipBar(
+                    tip,
+                    stringResource(Res.string.tip_home_full_preview_kept),
+                    modifier,
+                    action = stringResource(Res.string.tip_home_full_preview_kept_action),
+                    onAction = { onLength(PreviewLength.THREE_LINES) }
+                )
 
-        ContextTip.HOME_FULL_PREVIEW ->
-            ContextTipBar(
-                tip,
-                stringResource(Res.string.tip_home_full_preview),
-                modifier,
-                action = stringResource(Res.string.tip_home_full_preview_action),
-                onAction = { onLength(PreviewLength.FULL) }
-            )
+            ContextTip.HOME_FULL_PREVIEW ->
+                ContextTipBar(
+                    tip,
+                    stringResource(Res.string.tip_home_full_preview),
+                    modifier,
+                    action = stringResource(Res.string.tip_home_full_preview_action),
+                    onAction = { onLength(PreviewLength.FULL) }
+                )
 
-        ContextTip.HOME_LIST_STYLE ->
-            ContextTipBar(
-                tip,
-                stringResource(Res.string.tip_home_list_style),
-                modifier,
-                action = stringResource(Res.string.tip_home_list_style_action),
-                onAction = onListStyle
-            )
+            ContextTip.HOME_LIST_STYLE ->
+                ContextTipBar(
+                    tip,
+                    stringResource(Res.string.tip_home_list_style),
+                    modifier,
+                    action = stringResource(Res.string.tip_home_list_style_action),
+                    onAction = onListStyle
+                )
 
-        else -> Unit
+            else -> Unit
+        }
     }
 }

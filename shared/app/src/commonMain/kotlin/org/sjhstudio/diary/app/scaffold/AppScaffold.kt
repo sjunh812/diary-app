@@ -159,6 +159,7 @@ import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.ui.DiaryDismissSlot
 import org.sjhstudio.diary.core.ui.LocalTabReselect
 import org.sjhstudio.diary.core.ui.WriteFailures
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
@@ -547,10 +548,13 @@ private fun Content(
                         },
                         // 맨 위 카드는 한 장. 어느 카드인지는 [HomeTopState]가 정함
                         listTop = {
-                            when (val current = top) {
-                                is HomeTop.Backup -> BackupNudgeCard(current.nudge)
-                                HomeTop.Feedback -> HomeFeedbackCard(showText)
-                                HomeTop.Reading, HomeTop.Empty -> Unit
+                            // 백업 안내는 숫자가 바뀌어도 같은 카드
+                            DiaryDismissSlot(top, key = { it::class }) { current ->
+                                when (current) {
+                                    is HomeTop.Backup -> BackupNudgeCard(current.nudge)
+                                    HomeTop.Feedback -> HomeFeedbackCard(showText)
+                                    HomeTop.Reading, HomeTop.Empty -> Unit
+                                }
                             }
                         },
                         // 카드가 없을 때만 목록 보기 팁이 그 자리를 씀
