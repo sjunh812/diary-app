@@ -4,7 +4,11 @@ package org.sjhstudio.diary.feature.write
 
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.mohamedrejeb.richeditor.model.RichSpan
 import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.paragraph.type.DefaultParagraph
+import com.mohamedrejeb.richeditor.paragraph.type.OrderedList
+import com.mohamedrejeb.richeditor.paragraph.type.ParagraphType.Companion.startText
 import com.mohamedrejeb.richeditor.platform.currentPlatform
 
 private const val HANGUL_START = 'ㄱ'
@@ -25,6 +29,11 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
     private var echoed: Int? = null
 
     fun apply(new: TextFieldValue) {
+        applyInput(new)
+        state.flattenOrderedLists()
+    }
+
+    private fun applyInput(new: TextFieldValue) {
         if (isHandleDrag(state.textFieldValue, new)) {
             // 선택 핸들을 끄는 중이면 일반 입력칸처럼 선택만 바꿈
             // 라이브러리는 선택마다 끌기 끝을 손가락 줄과 문단 시작에 맞춰 고치는데,
@@ -107,4 +116,26 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
  */
 internal fun RichTextState.commitComposition() {
     if (composition != null) onTextFieldValueChange(textFieldValue.copy(composition = null))
+}
+
+/**
+ * 번호 목록을 글자 줄로 풂. 줄 맨 앞에 `1. `을 치거나 번호 목록을 붙여넣으면 라이브러리가 번호 목록을 만듦
+ * 이 앱의 형식에는 번호 목록이 없어(contracts/rich-text-html.md) 그 자리에서 `1. 글`로 두고, 줄을 바꿔도 다음 번호가 붙지 않음
+ * 앞 글자가 문단의 글로 옮겨질 뿐 보이는 글과 길이는 같아 커서가 그대로임
+ */
+internal fun RichTextState.flattenOrderedLists() {
+    val numbered = richParagraphList.filter { it.type is OrderedList }
+    if (numbered.isEmpty()) return
+    for (paragraph in numbered) {
+        val marker = paragraph.type.startText
+        paragraph.type = DefaultParagraph()
+        val first = paragraph.children.firstOrNull()
+        if (first == null) {
+            paragraph.children.add(RichSpan(paragraph = paragraph, text = marker))
+        } else {
+            first.text = marker + first.text
+        }
+    }
+    // 글은 같고 문단 모양만 바뀌어 같은 선택을 다시 넣어 다시 그림
+    selection = selection
 }

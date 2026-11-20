@@ -95,14 +95,15 @@ class EditorInputTest {
     }
 
     @Test
-    fun anOrderedListKeepsItsNumbers() {
+    fun aNumberedLineIsPlainTextAndTheNextLineHasNoNumber() {
         val state = RichTextState()
         state.toggleOrderedList()
         val keyboard = Keyboard(state)
         keyboard.compose("ㄱ", "가")
         keyboard.type("\n")
         keyboard.compose("ㄴ", "나")
-        assertEquals("<ol><li>가</li><li>나</li></ol>", state.toHtml().replace("\n", ""))
+        // 번호 목록은 이 앱 형식에 없어 글자 줄로 풀리고, 줄을 바꿔도 다음 번호가 붙지 않음
+        assertEquals("<p>1. 가</p><p>나</p>", state.toHtml().replace("\n", ""))
     }
 
     @Test
@@ -134,5 +135,29 @@ class EditorInputTest {
         state.selection = TextRange(17, 22)
         input.apply(state.textFieldValue.copy(selection = TextRange(17, 35)))
         assertEquals(TextRange(17, 35), state.selection)
+    }
+
+    // 줄 맨 앞에 "1. "을 쳐도 번호 목록이 되지 않고 글자로 남음. 줄을 바꿔도 "2. "가 붙지 않음(사용자 피드백)
+    @Test
+    fun typedNumberStaysText() {
+        val state = RichTextState()
+        val input = EditorInput(state, fixKeyboard = false)
+        for (typed in listOf("1", "1.", "1. ", "1. a", "1. a\n")) input.apply(TextFieldValue(typed, TextRange(typed.length)))
+
+        assertEquals(false, state.isOrderedList)
+        assertEquals("1. a\n", state.toText())
+    }
+
+    // 글 중간 줄에서 쳐도 같음. 다른 줄의 글과 커서는 그대로
+    @Test
+    fun typedNumberInTheMiddleStaysText() {
+        val state = RichTextState()
+        state.setText("첫 줄\n")
+        val input = EditorInput(state, fixKeyboard = false)
+        for (typed in listOf("첫 줄\n3", "첫 줄\n3.", "첫 줄\n3. ")) input.apply(TextFieldValue(typed, TextRange(typed.length)))
+
+        assertEquals(false, state.isOrderedList)
+        assertEquals("첫 줄\n3. ", state.toText())
+        assertEquals(TextRange(7), state.selection)
     }
 }

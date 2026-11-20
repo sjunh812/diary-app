@@ -5,7 +5,7 @@ package org.sjhstudio.diary.core.model.richtext
 // 그래야 줄바꿈 한 번이 읽기 화면에서 빈 줄로 보이지 않음
 //
 // 에디터가 낸 것은 아는 꼴이 아니어도 버리지 않음
-// 줄 맨 앞에 `1. `을 치면 에디터가 스스로 번호 목록을 만들고, 붙여넣기도 다른 태그를 들여옴
+// 번호 목록은 입력할 때 글자 줄로 풀지만, 붙여넣기는 다른 태그를 들여옴
 
 // 줄바꿈까지 넘는 `[\s\S]`. DOT_MATCHES_ALL은 공통 코드에 없음
 private val BLOCK = Regex("""<p\b[^>]*>([\s\S]*?)</p>|<(?:ul|ol)\b[^>]*>|<br\s*/?>""", RegexOption.IGNORE_CASE)
