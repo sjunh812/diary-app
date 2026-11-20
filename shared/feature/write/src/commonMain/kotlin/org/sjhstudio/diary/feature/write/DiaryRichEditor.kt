@@ -88,7 +88,7 @@ internal fun DiaryRichEditor(
             onValueChange = input::apply,
             modifier = modifier
                 .onFocusChanged { state.isFocused = it.isFocused }
-                .onPreviewKeyEvent { event -> state.onPreviewKeyEvent(event) }
+                .onPreviewKeyEvent(input::key)
                 .drawRichSpanStyle(richTextState = state, topPadding = 0f, startPadding = 0f)
                 .drawMarks(marks, { state.selection }, { layout })
                 .pointerInput(state) {

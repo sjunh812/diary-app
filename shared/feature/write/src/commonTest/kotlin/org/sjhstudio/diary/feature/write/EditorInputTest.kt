@@ -160,4 +160,21 @@ class EditorInputTest {
         assertEquals("첫 줄\n3. ", state.toText())
         assertEquals(TextRange(7), state.selection)
     }
+
+    // 라이브러리 기록은 풀기 전 번호 목록을 남겨, 다시 하기(키보드 Ctrl+Shift+Z)가 되살림
+    // 그래서 키 입력 뒤에도 풂([EditorInput.key])
+    @Test
+    fun redoWouldBringTheListBackSoKeysFlattenToo() {
+        val state = RichTextState()
+        val input = EditorInput(state, fixKeyboard = false)
+        for (typed in listOf("1", "1.", "1. ")) input.apply(TextFieldValue(typed, TextRange(typed.length)))
+        state.history.undo()
+        state.history.redo()
+        assertEquals(true, state.isOrderedList)
+
+        input.afterKey()
+
+        assertEquals(false, state.isOrderedList)
+        assertEquals("1. ", state.toText())
+    }
 }

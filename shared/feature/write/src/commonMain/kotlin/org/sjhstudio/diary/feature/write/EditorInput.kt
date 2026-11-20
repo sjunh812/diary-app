@@ -2,6 +2,7 @@
 
 package org.sjhstudio.diary.feature.write
 
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.mohamedrejeb.richeditor.model.RichSpan
@@ -32,6 +33,11 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
         applyInput(new)
         state.flattenOrderedLists()
     }
+
+    /** 하드웨어 키 입력(되돌리기·다시 하기 포함)을 편집기에 넘김. 기록이 되살린 번호 목록도 풂 */
+    fun key(event: KeyEvent): Boolean = state.onPreviewKeyEvent(event).also { afterKey() }
+
+    internal fun afterKey() = state.flattenOrderedLists()
 
     private fun applyInput(new: TextFieldValue) {
         if (isHandleDrag(state.textFieldValue, new)) {
