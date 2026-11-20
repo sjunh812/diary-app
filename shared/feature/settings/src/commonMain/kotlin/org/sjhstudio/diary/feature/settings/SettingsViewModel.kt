@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.data.reminder.NotificationAllowance
@@ -67,12 +68,11 @@ class SettingsViewModel(
     private val settings: SettingsRepository,
     lock: LockRepository,
     trashCount: Flow<Int>,
-    plan: Flow<Plan?>,
+    private val plans: PlanRepository,
     showsMigrationReport: suspend () -> Boolean,
     fonts: FontInstaller,
     private val notifications: NotificationAllowance,
     lastBackupAt: Flow<Instant?> = flowOf(null),
-    settledPlan: suspend () -> Plan? = { null },
     private val telemetry: Telemetry = Telemetry(NoTelemetrySink, strict = true)
 ) : ViewModel() {
     /** 본문 글자 크기 견본이 고른 글꼴(받은 글꼴 포함)로 그림 */
@@ -85,7 +85,7 @@ class SettingsViewModel(
     private val migrationReport = flow { emit(orElseOnFailure(false) { showsMigrationReport() }) }
 
     private val formatting: Flow<Boolean?> =
-        merge(plan.filterNotNull().map { it.listFormatting }, flow { settledPlan()?.let { emit(it.listFormatting) } })
+        merge(plans.confirmed.filterNotNull().map { it.listFormatting }, flow { emit(plans.awaitConfirmed().listFormatting) })
 
     val state: StateFlow<SettingsUiState> =
         combine(
@@ -94,7 +94,7 @@ class SettingsViewModel(
             migrationReport,
             // 개수를 읽지 못해 빈 흐름이면 0. 줄 하나 때문에 설정 전체가 멈추지 않게
             trashCount.onEmpty { emit(0) },
-            plan
+            plans.confirmed
         ) { app, lockSettings, report, trashed, currentPlan ->
             SettingsUiState(app, lockSettings, report, trashed, currentPlan, loaded = true)
         }
@@ -104,7 +104,8 @@ class SettingsViewModel(
                 state.copy(reminderBlocked = if (state.settings.reminderEnabled) allowed?.not() else false)
             }
             .combine(formatting.onStart { emit(null) }) { state, can -> state.copy(canFormat = can) }
-            .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState())
+            // 요금제는 기기에 남긴 값이라 바로 앎. 첫 화면부터 Plus 카드를 그려 늦게 끼어들지 않게
+            .stateInSafely(viewModelScope, WhileUiSubscribed, SettingsUiState(plan = plans.confirmedNow))
 
     /** 기기 설정에서 바꾸고 돌아올 수 있어 화면에 돌아올 때마다 다시 읽음 */
     fun refreshNotifications() {
