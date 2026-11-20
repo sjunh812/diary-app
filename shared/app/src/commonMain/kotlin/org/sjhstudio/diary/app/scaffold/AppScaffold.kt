@@ -548,8 +548,8 @@ private fun Content(
                         },
                         // 맨 위 카드는 한 장. 어느 카드인지는 [HomeTopState]가 정함
                         listTop = {
-                            // 백업 안내는 숫자가 바뀌어도 같은 카드
-                            DiaryDismissSlot(top, key = { it::class }) { current ->
+                            // 백업 안내는 숫자가 바뀌어도 같은 카드. 앱을 켜고 처음 정해진 카드는 바로 보임
+                            DiaryDismissSlot(top, key = { it::class }, known = { it != HomeTop.Reading }) { current ->
                                 when (current) {
                                     is HomeTop.Backup -> BackupNudgeCard(current.nudge)
                                     HomeTop.Feedback -> HomeFeedbackCard(showText)

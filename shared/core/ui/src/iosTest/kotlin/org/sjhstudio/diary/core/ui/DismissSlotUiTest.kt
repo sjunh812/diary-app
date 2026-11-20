@@ -72,6 +72,27 @@ class DismissSlotUiTest {
         assertEquals(60.dp, onNodeWithTag(BELOW).getBoundsInRoot().top)
     }
 
+    /** 읽는 중에서 처음 정해진 카드는 화면과 함께 바로 보임 */
+    @Test
+    fun the_first_card_after_reading_shows_at_once() = runComposeUiTest {
+        var reading by mutableStateOf(true)
+        setContent {
+            DiaryTheme(darkTheme = false) {
+                Column {
+                    DiaryDismissSlot(reading, known = { !it }) { if (!it) Box(Modifier.size(100.dp)) }
+                    Box(Modifier.size(10.dp).testTag(BELOW))
+                }
+            }
+        }
+        waitForIdle()
+        mainClock.autoAdvance = false
+
+        reading = false
+        mainClock.advanceTimeBy(50)
+
+        assertEquals(100.dp, onNodeWithTag(BELOW).getBoundsInRoot().top)
+    }
+
     private companion object {
         const val CARD = "card"
         const val BELOW = "below"

@@ -201,6 +201,7 @@ fun HomeRoute(
             // 백업 안내가 떠 있으면 앱이 onListStyle에 null을 넘겨 목록 위 안내가 겹치지 않음
             if (onListStyle != null) {
                 HomeTip(
+                    listRead = rows.loadState.refresh !is LoadState.Loading,
                     candidates =
                         buildList {
                             // 사진 격자는 본문 길이를 따르지 않음
@@ -345,22 +346,25 @@ internal fun HomeScreen(
                         }
                     }
 
-                    refresh is LoadState.NotLoading -> {
-                        ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                        Empty(favoritesOnly, onWrite, onToggleFavorites)
-                    }
+                    // 목록 위 카드 아래로 차례로 쌓음. 겹쳐 두면 빈 안내나 뼈대가 카드를 덮음
+                    refresh is LoadState.NotLoading ->
+                        Column {
+                            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                            Empty(favoritesOnly, onWrite, onToggleFavorites)
+                        }
 
                     refresh is LoadState.Error -> LoadFailed(rows::retry)
 
-                    else -> {
-                        ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                        // 곧 나올 목록과 같은 꼴. 첫 목록 읽기라 기다리지 않고 바로
-                        when (style) {
-                            ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4), delayed = false)
-                            ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4), delayed = false)
-                            ListStyle.PHOTO_GRID -> SkeletonPhotoGrid(delayed = false)
+                    else ->
+                        Column {
+                            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                            // 곧 나올 목록과 같은 꼴. 첫 목록 읽기라 기다리지 않고 바로
+                            when (style) {
+                                ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4), delayed = false)
+                                ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4), delayed = false)
+                                ListStyle.PHOTO_GRID -> SkeletonPhotoGrid(delayed = false)
+                            }
                         }
-                    }
                 }
             }
         }
@@ -523,10 +527,11 @@ internal class ClippedFlag(var value: Boolean = false)
  * 옛 설정 이음 > 전체 보기 > 목록 보기 순서
  */
 @Composable
-private fun HomeTip(candidates: List<ContextTip>, onListStyle: () -> Unit, onLength: (PreviewLength) -> Unit) {
+private fun HomeTip(candidates: List<ContextTip>, listRead: Boolean, onListStyle: () -> Unit, onLength: (PreviewLength) -> Unit) {
     val modifier = Modifier.padding(top = DiarySpacing.x2, bottom = DiarySpacing.x3)
-    DiaryDismissSlot(rememberFirstOpenTip(candidates)) { tip ->
-        when (tip) {
+    // 목록을 읽기 전에 고른 팁은 목록과 함께 처음 정해지는 것이라 움직이지 않음
+    DiaryDismissSlot(TipSlot(rememberFirstOpenTip(candidates), listRead), key = { it.tip }, known = { it.listRead }) { slot ->
+        when (val tip = slot.tip) {
             ContextTip.HOME_FULL_PREVIEW_KEPT ->
                 ContextTipBar(
                     tip,
@@ -558,3 +563,6 @@ private fun HomeTip(candidates: List<ContextTip>, onListStyle: () -> Unit, onLen
         }
     }
 }
+
+/** 팁 자리의 상태. 목록을 다 읽었는지까지 알아야 처음 정해지는 팁을 움직이지 않음 */
+private data class TipSlot(val tip: ContextTip?, val listRead: Boolean)
