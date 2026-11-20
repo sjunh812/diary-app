@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.data
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -60,24 +61,41 @@ private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow
  * 그래서 요금제를 모를 때의 무료 답은 믿지 않고, 계정의 구매를 가져온 답([onRecovered])을 기다림
  * 못 가져오면 모르는 채로 두어 광고를 부르지 않고, 저장하지 않으니 다음에 다시 시도
  * 남긴 값이 있으면 스토어에 닿지 못해도 그 값을 씀
+ *
+ * 답은 늦게 올 수 있음. 결제 전에 보낸 조회의 답이 결제 뒤에 오면 방금 산 요금제를 무료로 덮음
+ * 결제 라이브러리도 늦은 답을 그대로 알려 옴(RevenueCat 리스너·delegate)
+ * 그래서 서버가 답한 시각([StoreAnswer.answeredAt])이 마지막 답보다 이른 답은 버림
+ * 결제·복원의 답은 사용자가 방금 한 일의 결과라 늘 믿고 기준 시각이 됨. 기기 시계로 매긴 오프라인 답이 앞서 있어도 결제를 잃지 않게
  */
 class StorePlanState(saved: Plan?, private val remember: (Plan) -> Unit) {
     private val _plan = MutableStateFlow(saved ?: Plan.FREE)
     private val _known = MutableStateFlow(saved != null)
 
+    /** 받아들인 답 가운데 서버가 가장 늦게 답한 시각 */
+    private var latest: Instant? = null
+
     val plan: StateFlow<Plan> = _plan.asStateFlow()
     val known: StateFlow<Boolean> = _known.asStateFlow()
 
-    /** 스토어 답 */
-    fun onAnswer(plan: Plan) {
-        if (!_known.value && plan == Plan.FREE) return
-        confirm(plan)
+    /** 조회나 스토어 알림의 답. 받아들였으면 참 */
+    fun onAnswer(plan: Plan, answeredAt: Instant? = null): Boolean {
+        val stale = answeredAt != null && latest?.let { answeredAt < it } == true
+        if (stale || (!_known.value && plan == Plan.FREE)) return false
+        confirm(plan, answeredAt)
+        return true
     }
 
-    /** 계정의 구매를 가져온 답. 무료여도 믿음 */
-    fun onRecovered(plan: Plan) = confirm(plan)
+    /** 결제의 답. 요금제를 모를 때의 무료 답은 조회처럼 믿지 않음 */
+    fun onPurchased(plan: Plan, answeredAt: Instant? = null) {
+        if (!_known.value && plan == Plan.FREE) return
+        confirm(plan, answeredAt)
+    }
 
-    private fun confirm(plan: Plan) {
+    /** 계정의 구매를 가져온 답(복원 포함). 무료여도 믿음 */
+    fun onRecovered(plan: Plan, answeredAt: Instant? = null) = confirm(plan, answeredAt)
+
+    private fun confirm(plan: Plan, answeredAt: Instant?) {
+        if (answeredAt != null) latest = answeredAt
         _plan.value = plan
         _known.value = true
         remember(plan)

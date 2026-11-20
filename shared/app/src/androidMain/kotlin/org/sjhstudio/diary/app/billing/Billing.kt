@@ -71,7 +71,12 @@ private val CustomerInfo.answer: StoreAnswer
         StoreAnswer(
             active = entitlements.active.keys,
             expiresAt = entitlements.active.values.mapNotNull { it.expirationDate?.time }.minOrNull()?.let(Instant::fromEpochMilliseconds),
-            answeredAt = Instant.fromEpochMilliseconds(requestDate.time)
+            answeredAt = Instant.fromEpochMilliseconds(requestDate.time),
+            // 기간이 끝났어도 자동 갱신이 켜져 있으면 갱신 대기(StoreBilling이 잠깐 켬)
+            renewing =
+                entitlements.all.filterValues { !it.isActive && it.willRenew }
+                    .mapNotNull { (name, info) -> info.expirationDate?.time?.let { name to Instant.fromEpochMilliseconds(it) } }
+                    .toMap()
         )
 
 /**
