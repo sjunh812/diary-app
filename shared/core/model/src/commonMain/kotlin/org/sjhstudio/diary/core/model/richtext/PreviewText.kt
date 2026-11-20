@@ -7,6 +7,7 @@ import org.sjhstudio.diary.core.model.RichText
 /**
  * 목록 미리보기 글 만들기(스펙 008 contracts/preview-text.md)
  * 쓴 줄바꿈은 지키고, 빈 줄은 3줄·5줄에서 없애고 전체에서는 연달아 있으면 하나로 줄임
+ * 3줄·5줄은 쓴 줄이 상한을 넘으면 그 줄에서 끊고 "…"를 붙임
  * 전체는 끝까지 보임. 줄도 글자도 자르지 않고 띄어쓰기도 쓴 그대로
  * 서식 구간은 지운 글자만큼 옮김
  */
@@ -51,7 +52,10 @@ object PreviewText {
         // 전체는 상세 화면처럼 쓴 띄어쓰기를 그대로
         val full = length == PreviewLength.FULL
         val tidied = lines.map { tidy(text, it, keepSpaces = full) }
-        val kept = keepLines(tidied.map { it to it.isEmpty() }, length)
+        val written = keepLines(tidied.map { it to it.isEmpty() }, length)
+        // 쓴 줄이 상한보다 많으면 여기서 끊음. iOS 글자 엔진은 쓴 줄바꿈에서 넘쳐도 "…"를 그리지 않음
+        val kept = written.take(lines(length))
+        val overLines = kept.size < written.size
 
         val out = StringBuilder()
         val origin = ArrayList<Int>()
@@ -69,7 +73,7 @@ object PreviewText {
         val end = cut(out, limit)
         val shaped = out.substring(0, end)
         val spans = moveSpans(source.spans, origin.subList(0, end), shaped)
-        val cut = shaped.isNotEmpty() && (stopped || truncated || end < out.length)
+        val cut = shaped.isNotEmpty() && (stopped || truncated || overLines || end < out.length)
         return Shaped(if (cut) shaped + ELLIPSIS else shaped, spans, cut)
     }
 

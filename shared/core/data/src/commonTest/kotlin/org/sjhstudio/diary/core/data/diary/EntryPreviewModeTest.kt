@@ -32,7 +32,9 @@ class EntryPreviewModeTest {
 
         val row = listRow("a").toRow(emptyList(), MEDIA_DIR)
 
-        assertEquals("09:00 병원\n11:00 은행\n14:00 회의\n16:30 택배", row.preview)
+        // 빈 줄을 뺀 넷째 줄부터는 끊고 "…". 화면에 맡기면 iOS에서 "…"가 빠짐
+        assertEquals("09:00 병원\n11:00 은행\n14:00 회의" + PreviewText.ELLIPSIS, row.preview)
+        assertTrue(row.previewCut)
         assertEquals(PreviewText.THREE_LINES, row.previewLines)
         assertTrue(row.previewSpans.isEmpty())
     }

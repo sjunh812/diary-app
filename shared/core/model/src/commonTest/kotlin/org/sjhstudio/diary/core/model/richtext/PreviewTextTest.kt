@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.model.richtext
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.sjhstudio.diary.core.model.PreviewLength.FIVE_LINES
 import org.sjhstudio.diary.core.model.PreviewLength.FULL
 import org.sjhstudio.diary.core.model.PreviewLength.THREE_LINES
@@ -13,7 +14,7 @@ import org.sjhstudio.diary.core.model.parseRichText
 class PreviewTextTest {
     @Test
     fun keepsLineBreaks() {
-        assertEquals("a\nb\nc\nd", PreviewText.shape("a\nb\nc\nd", THREE_LINES))
+        assertEquals("a\nb\nc\nd", PreviewText.shape("a\nb\nc\nd", FIVE_LINES))
         assertEquals("a\nb\nc\nd", PreviewText.shape("a\nb\nc\nd", FULL))
     }
 
@@ -57,9 +58,33 @@ class PreviewTextTest {
     }
 
     @Test
-    fun scheduleKeepsEveryLine() {
-        val schedule = "09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의\n16:30 택배 보내기"
+    fun scheduleKeepsEveryLineThatFits() {
+        val schedule = "09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의"
         assertEquals(schedule, PreviewText.shape(schedule, THREE_LINES))
+    }
+
+    /**
+     * 쓴 줄이 줄 상한보다 많으면 상한에서 끊고 "…"를 붙임
+     * iOS 글자 엔진은 쓴 줄바꿈에서 줄 수가 넘쳐도 "…"를 그리지 않아 화면에 맡기지 않음
+     */
+    @Test
+    fun moreWrittenLinesThanTheLimitAreCut() {
+        val schedule = "09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의\n16:30 택배 보내기"
+        val three = PreviewText.shape(RichText(schedule, emptyList()), THREE_LINES)
+        assertEquals("09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의" + PreviewText.ELLIPSIS, three.text)
+        assertTrue(three.cut)
+        assertEquals(schedule, PreviewText.shape(schedule, FIVE_LINES))
+        // 빈 줄은 먼저 빼고 셈
+        assertEquals("a\nb\nc" + PreviewText.ELLIPSIS, PreviewText.shape("a\n\nb\n\nc\nd", THREE_LINES))
+        assertEquals("a\nb\nc", PreviewText.shape("a\n\nb\n\nc\n\n", THREE_LINES))
+    }
+
+    /** 끊은 줄 너머에 걸친 서식은 남은 글 안에서만 */
+    @Test
+    fun spansStopAtTheCutLine() {
+        val source = RichText("a\nb\nc\nd", listOf(RichSpan(4, 7, RichStyle.Bold)))
+        val shaped = PreviewText.shape(source, THREE_LINES)
+        assertEquals(listOf(RichSpan(4, 5, RichStyle.Bold)), shaped.spans)
     }
 
     @Test
