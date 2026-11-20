@@ -62,7 +62,8 @@ fun LockGate(authenticator: DeviceAuthenticator = rememberDeviceAuthenticator(),
 
             LockState.Unlocked -> holder.SaveableStateProvider(APP_CONTENT) { content() }
 
-            LockState.Locked, LockState.NeedsNewPin ->
+            LockState.Locked, LockState.NeedsNewPin -> {
+                FirstScreenShown()
                 LockFlow(
                     needsNewPin = state == LockState.NeedsNewPin,
                     biometricEnabled = lock.biometricEnabled,
@@ -76,6 +77,7 @@ fun LockGate(authenticator: DeviceAuthenticator = rememberDeviceAuthenticator(),
                     withoutRelock = { block -> controller.withoutRelock(block) },
                     authenticator = authenticator
                 )
+            }
         }
         // 잠금을 끈 알림은 잠금이 풀린 뒤 앱 틀 위에 뜸
         DiaryToastHost(

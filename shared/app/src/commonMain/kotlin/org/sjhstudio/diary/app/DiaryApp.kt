@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.app.gate.FirstScreenShown
 import org.sjhstudio.diary.app.gate.LockGate
 import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.app.gate.WelcomeGate
@@ -79,7 +80,10 @@ fun DiaryApp() {
                                 root.resumed()
                                 onPauseOrDispose {}
                             }
-                            WelcomeGate { AppScaffold() }
+                            WelcomeGate {
+                                FirstScreenShown()
+                                AppScaffold()
+                            }
                         }
                     }
                 }

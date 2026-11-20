@@ -30,6 +30,10 @@ class StartupTest {
 
         assertTrue(startup.ready)
         assertTrue(prepared)
+        // 준비가 끝나도 첫 화면이 그려지기 전까지 시작 화면을 둠
+        assertFalse(startup.screenShown)
+        startup.screenShown()
+        assertTrue(startup.screenShown)
         val ready = startup.state.value as StartupState.Ready
         assertEquals(ThemeMode.DARK, ready.settings.themeMode)
         assertTrue(ready.lock.enabled)

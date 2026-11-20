@@ -46,6 +46,17 @@ class Startup(
     val ready: Boolean
         get() = _state.value is StartupState.Ready
 
+    /**
+     * 첫 화면(앱 틀, 잠금, 이전, 편지·온보딩)이 그려졌는지
+     * 그 전 관문은 바탕뿐이라 Android 시작 화면이 이때까지 덮어 빈 화면이 스치지 않음
+     */
+    var screenShown: Boolean = false
+        private set
+
+    fun screenShown() {
+        screenShown = true
+    }
+
     // 시작했는지는 끝나야 바뀌는 상태로 알 수 없음. 앱과 알림 수신기가 다른 스레드에서 거의 함께 불러도 한 번만 들어오게 따로 둠
     private val started = MutableStateFlow(false)
 

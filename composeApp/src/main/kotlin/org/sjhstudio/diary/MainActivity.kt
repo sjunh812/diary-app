@@ -20,11 +20,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.sjhstudio.diary.app.DiaryApp
 import org.sjhstudio.diary.app.Startup
+import org.sjhstudio.diary.app.StartupState
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.lock.LockRepository
 import org.sjhstudio.diary.core.platform.AndroidDriveAuthorizer
@@ -44,18 +46,26 @@ class MainActivity : FragmentActivity() {
 
     @Volatile private var insetsKnown = false
 
+    @Volatile private var firstScreenWaited = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 설정과 잠금을 읽을 때까지만 시작 화면을 붙잡음(contracts/app-shell.md 시작 순서 2)
-        // 일부러 기다리지 않음
+        // 시작 화면은 설정과 잠금을 읽고 첫 화면(앱 틀, 잠금, 이전, 편지)이 그려질 때까지 둠(contracts/app-shell.md 시작 순서 2)
+        // 그 사이 관문은 바탕뿐이라 빈 화면이 스침. 일기 목록은 기다리지 않음(첫 목록은 뼈대가 맡음)
+        // 막대 높이를 받기 전 첫 그림은 화면이 위로 붙었다가 내려앉아 큰 제목이 위에서 떨어지는 것처럼 보여 그것도 기다림
         val startup = get<Startup>()
-        // 시작 화면은 설정과 잠금을 읽고, 앱 화면이 시스템 막대 높이를 받을 때까지 둠
-        // 막대 높이를 받기 전 첫 그림은 화면이 위로 붙었다가 내려앉아 큰 제목이 위에서 떨어지는 것처럼 보임
-        // 그동안 앱 화면은 뒤에서 미리 구성되어 따로 기다리는 비용 없음
-        installSplashScreen().setKeepOnScreenCondition { !startup.ready || !insetsKnown }
+        installSplashScreen().setKeepOnScreenCondition {
+            !startup.ready || !insetsKnown || !(startup.screenShown || firstScreenWaited)
+        }
         lifecycleScope.launch {
             // 막대가 없는 창에서도 시작 화면에 갇히지 않게 짧게만 기다림
             delay(INSETS_WAIT_MILLIS)
             insetsKnown = true
+        }
+        lifecycleScope.launch {
+            // 첫 화면을 알리지 않는 길(알림으로 바로 쓰기 등)에서 시작 화면에 갇히지 않게
+            startup.state.first { it is StartupState.Ready }
+            delay(FIRST_SCREEN_WAIT_MILLIS)
+            firstScreenWaited = true
         }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -127,3 +137,4 @@ private fun InsetsProbe(onKnow: () -> Unit) {
 }
 
 private const val INSETS_WAIT_MILLIS = 300L
+private const val FIRST_SCREEN_WAIT_MILLIS = 500L
