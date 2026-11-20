@@ -93,7 +93,7 @@ internal fun CardList(
                                 onOpen(row.id)
                             },
                             onLongClick = { onMenu(row.id) },
-                            onPreviewLayout = { clipped.value = it.hasVisualOverflow }
+                            onPreviewClip = { clipped.value = it }
                         )
                         if (isAdSlot(index)) adSlot(adOrder(index), Modifier)
                     }

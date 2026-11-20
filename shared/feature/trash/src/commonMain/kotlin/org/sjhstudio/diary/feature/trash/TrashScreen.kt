@@ -32,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
@@ -43,6 +44,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryDialog
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyArea
 import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyState
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
+import org.sjhstudio.diary.core.designsystem.component.DiaryPreviewText
 import org.sjhstudio.diary.core.designsystem.component.DiarySheetAction
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
@@ -256,11 +258,10 @@ private fun TrashRow(item: TrashedEntry, dividerAbove: Boolean, thisYear: Int, o
                     }
                 }
                 if (row.preview.isNotEmpty()) {
-                    BasicText(
-                        row.preview,
+                    DiaryPreviewText(
+                        AnnotatedString(row.preview),
                         style = typography.body.copy(color = colors.textPrimary),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        maxLines = 2
                     )
                 }
             }

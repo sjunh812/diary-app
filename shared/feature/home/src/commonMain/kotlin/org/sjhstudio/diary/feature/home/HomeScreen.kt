@@ -480,7 +480,7 @@ private fun Feed(
                     showDate = newDay,
                     dividerAbove = index > 0 && !newMonth,
                     previewStyle = previewStyle,
-                    onPreviewLayout = { clipped.value = it.hasVisualOverflow },
+                    onPreviewClip = { clipped.value = it },
                     modifier =
                         Modifier
                             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)

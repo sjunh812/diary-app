@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,7 +37,7 @@ fun DiaryEntryLine(
     previewStyle: TextStyle = DiaryTheme.typography.body,
     dateColumn: Boolean = true,
     highlight: String = "",
-    onPreviewLayout: ((TextLayoutResult) -> Unit)? = null,
+    onPreviewClip: ((Boolean) -> Unit)? = null,
     verticalPadding: Dp = DiarySpacing.x4
 ) {
     val dates = rememberDiaryDateFormat()
@@ -55,7 +54,7 @@ fun DiaryEntryLine(
         previewStyle = previewStyle,
         dateColumn = dateColumn,
         maxLines = row.previewLines,
-        onPreviewLayout = onPreviewLayout,
+        onPreviewClip = onPreviewClip,
         verticalPadding = verticalPadding,
         meta = {
             row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }

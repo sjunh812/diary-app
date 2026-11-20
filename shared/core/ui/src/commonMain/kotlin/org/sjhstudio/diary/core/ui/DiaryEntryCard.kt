@@ -17,12 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import kotlinx.datetime.LocalDate
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
+import org.sjhstudio.diary.core.designsystem.component.DiaryPreviewText
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryHomeSize
@@ -44,7 +44,7 @@ fun DiaryEntryCard(
     selected: Boolean = false,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
-    onPreviewLayout: ((TextLayoutResult) -> Unit)? = null
+    onPreviewClip: ((Boolean) -> Unit)? = null
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
@@ -122,13 +122,12 @@ fun DiaryEntryCard(
             row.mood?.let { MoodFace(it, DiaryHomeSize.cardFace, contentDescription = moodName(it)) }
         }
         if (row.preview.isNotEmpty()) {
-            BasicText(
+            DiaryPreviewText(
                 rememberPreview(row),
                 modifier = Modifier.padding(top = DiarySpacing.x2),
                 style = previewStyle.copy(color = colors.textPrimary),
                 maxLines = row.previewLines,
-                overflow = TextOverflow.Ellipsis,
-                onTextLayout = onPreviewLayout
+                onClip = onPreviewClip
             )
         }
         if (row.photos.isNotEmpty()) {
