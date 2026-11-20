@@ -30,6 +30,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDate
@@ -114,6 +115,20 @@ class HomeListTopUiTest {
 
     @Test
     fun empty_favorites_sit_below_the_top() = runComposeUiTest { check(empty, HOME_EMPTY_TAG, ListStyle.FEED, favoritesOnly = true) }
+
+    /** 빈 홈에서 첫 일기를 쓰고 돌아와 다시 읽는 동안 빈 안내가 남고 뼈대가 스치지 않음 */
+    @Test
+    fun rereading_an_empty_home_keeps_the_empty_notice() = runComposeUiTest {
+        val data = MutableStateFlow(PagingData.empty<EntryRow>(LoadStates(refresh = done, prepend = done, append = done)))
+        home(data, ListStyle.FEED, { 0.dp }, favoritesOnly = false)
+        onNodeWithTag(HOME_EMPTY_TAG).assertExists()
+
+        data.value = PagingData.empty(LoadStates(refresh = LoadState.Loading, prepend = done, append = done))
+        waitForIdle()
+
+        onNodeWithTag(HOME_EMPTY_TAG).assertExists()
+        onNodeWithTag(HOME_SKELETON_TAG).assertDoesNotExist()
+    }
 
     private companion object {
         const val TOP = "list-top-slot"

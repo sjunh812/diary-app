@@ -297,10 +297,10 @@ internal fun HomeScreen(
             // 일기가 없으면 고를 달도 없음
             // 불러오는 동안은 마지막으로 다 불러왔을 때의 답 유지. 즐겨찾기를 켜고 끌 때 화살표가 반짝이지 않게
             val loadedEmpty = if (rows.loadState.refresh is LoadState.NotLoading) rows.itemCount == 0 else null
-            // 처음 다 읽기 전에는 숨김. 보였다 숨기면 일기 없는 첫 실행에서 반짝이고, 숨겼다 보이면 목록과 같이 나옴
-            var lastEmpty by remember { mutableStateOf(true) }
+            // 처음 다 읽기 전에는 null이고 숨김. 보였다 숨기면 일기 없는 첫 실행에서 반짝이고, 숨겼다 보이면 목록과 같이 나옴
+            var lastEmpty by remember { mutableStateOf<Boolean?>(null) }
             SideEffect { loadedEmpty?.let { lastEmpty = it } }
-            val noMonths = loadedEmpty ?: lastEmpty
+            val noMonths = loadedEmpty ?: lastEmpty ?: true
             val pickMonth = onPickMonth.takeUnless { noMonths }
             // 스크롤하면 큰 제목과 백업 줄이 접히고 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
             // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추
@@ -362,11 +362,18 @@ internal fun HomeScreen(
 
                     refresh is LoadState.Error -> LoadFailed(rows::retry)
 
+                    // 빈 홈에서 첫 일기를 쓰고 돌아와 다시 읽는 동안은 빈 안내를 그대로 둠. 뼈대가 스쳤다 목록이 되지 않게
+                    lastEmpty == true ->
+                        Column {
+                            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                            Box(Modifier.testTag(HOME_EMPTY_TAG)) { Empty(favoritesOnly, onWrite, onToggleFavorites) }
+                        }
+
                     else ->
                         Column {
                             ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                            // 곧 나올 목록과 같은 꼴. 첫 목록 읽기라 기다리지 않고 바로
-                            val delayed = false
+                            // 곧 나올 목록과 같은 꼴. 처음 읽기는 늘 늦어 기다리지 않고 바로, 다시 읽기는 0.3초 뒤
+                            val delayed = lastEmpty != null
                             Box(Modifier.testTag(HOME_SKELETON_TAG)) {
                                 when (style) {
                                     ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4), delayed = delayed)
