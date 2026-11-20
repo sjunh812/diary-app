@@ -136,7 +136,7 @@
     <string name="list_plus_later">괜찮아요</string>
     <string name="list_plus_action">Plus 알아보기</string>
     <string name="list_value">%1$s · %2$s</string>
-    <string name="list_sample_body">09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의\n16:30 택배 보내기\n18:00 장보기</string>
+    <string name="list_sample_body">오늘 할 일\n09:00 병원 예약\n11:00 은행 들르기\n14:00 팀 회의\n\n저녁엔 오랜만에 친구를 만났다.\n강가를 걸으며 이런저런 이야기를 나눴다.</string>
     <string name="list_sample_place">우리 집</string>
     <string name="settings_letter">개발자의 편지</string>
     <string name="settings_plus_title">광고 없이, 더 편하게 써요</string>

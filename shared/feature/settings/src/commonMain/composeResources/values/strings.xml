@@ -142,7 +142,7 @@
     <string name="list_plus_later">Not now</string>
     <string name="list_plus_action">See Plus</string>
     <string name="list_value">%1$s · %2$s</string>
-    <string name="list_sample_body">09:00 Hospital visit\n11:00 Stop by the bank\n14:00 Team meeting\n16:30 Send a parcel\n18:00 Groceries</string>
+    <string name="list_sample_body">To do today\n09:00 Hospital visit\n11:00 Stop by the bank\n14:00 Team meeting\n\nIn the evening I met an old friend.\nWe walked by the river and talked for hours.</string>
     <string name="list_sample_place">Home</string>
     <string name="settings_letter">A letter from the developer</string>
     <string name="settings_plus_title">Easier, no ads</string>

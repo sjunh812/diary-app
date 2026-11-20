@@ -136,7 +136,7 @@
     <string name="list_plus_later">今はしない</string>
     <string name="list_plus_action">Plusを見る</string>
     <string name="list_value">%1$s · %2$s</string>
-    <string name="list_sample_body">09:00 病院の予約\n11:00 銀行に寄る\n14:00 チーム会議\n16:30 荷物を送る\n18:00 買い物</string>
+    <string name="list_sample_body">今日のやること\n09:00 病院の予約\n11:00 銀行に寄る\n14:00 チーム会議\n\n夜は久しぶりに友だちに会った。\n川沿いを歩きながら、いろいろな話をした。</string>
     <string name="list_sample_place">自宅</string>
     <string name="settings_letter">開発者からの手紙</string>
     <string name="settings_plus_title">広告なしで、もっと快適に使えます</string>

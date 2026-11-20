@@ -194,7 +194,10 @@ private fun ListPreview(
     }
 }
 
-/** 견본 일기. 기분·날씨·장소가 다 있고 줄마다 쓴 일정 */
+/**
+ * 견본 일기. 기분·날씨·장소가 다 있음
+ * 다섯 줄이 넘고 가운데 빈 줄이 있어 3줄·5줄(빈 줄을 빼고 이음)과 전체(쓴 그대로)가 다르게 보임
+ */
 @Composable
 private fun sampleRow(today: LocalDate, length: PreviewLength, formatting: Boolean): EntryRow {
     val body = stringResource(Res.string.list_sample_body)
