@@ -34,6 +34,9 @@ class StartupTest {
         assertFalse(startup.screenShown)
         startup.screenShown()
         assertTrue(startup.screenShown)
+        // 뒤로 가기로 나갔다 다시 켜면 새 화면도 첫 화면을 기다림
+        startup.screenGone()
+        assertFalse(startup.screenShown)
         val ready = startup.state.value as StartupState.Ready
         assertEquals(ThemeMode.DARK, ready.settings.themeMode)
         assertTrue(ready.lock.enabled)

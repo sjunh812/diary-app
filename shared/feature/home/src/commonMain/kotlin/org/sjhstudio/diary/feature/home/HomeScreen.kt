@@ -203,10 +203,13 @@ fun HomeRoute(
         listTop = {
             listTop()
             // 백업 안내가 떠 있으면 앱이 onListStyle에 null을 넘겨 목록 위 안내가 겹치지 않음
-            if (onListStyle != null) {
-                HomeTip(
-                    listRead = rows.loadState.refresh !is LoadState.Loading,
-                    candidates =
+            // 자리는 늘 두어 카드가 닫히고 팁이 생길 때도 처음 그리기로 보지 않고 같은 움직임을 씀
+            HomeTip(
+                listRead = rows.loadState.refresh !is LoadState.Loading,
+                candidates =
+                    if (onListStyle == null) {
+                        emptyList()
+                    } else {
                         buildList {
                             // 사진 격자는 본문 길이를 따르지 않음
                             if (style != ListStyle.PHOTO_GRID) {
@@ -215,11 +218,11 @@ fun HomeRoute(
                             }
                             // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
                             if (style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) add(ContextTip.HOME_LIST_STYLE)
-                        },
-                    onListStyle = onListStyle,
-                    onLength = viewModel::setPreviewLength
-                )
-            }
+                        }
+                    },
+                onListStyle = onListStyle ?: {},
+                onLength = viewModel::setPreviewLength
+            )
         },
         adSlot = adSlot
     )
@@ -298,7 +301,8 @@ internal fun HomeScreen(
             // 불러오는 동안은 마지막으로 다 불러왔을 때의 답 유지. 즐겨찾기를 켜고 끌 때 화살표가 반짝이지 않게
             val loadedEmpty = if (rows.loadState.refresh is LoadState.NotLoading) rows.itemCount == 0 else null
             // 처음 다 읽기 전에는 null이고 숨김. 보였다 숨기면 일기 없는 첫 실행에서 반짝이고, 숨겼다 보이면 목록과 같이 나옴
-            var lastEmpty by remember { mutableStateOf<Boolean?>(null) }
+            // 전체와 즐겨찾기 목록마다 따로. 즐겨찾기를 끄는 순간 즐겨찾기의 빈 안내가 전체 목록에 남지 않게
+            var lastEmpty by remember(rows) { mutableStateOf<Boolean?>(null) }
             SideEffect { loadedEmpty?.let { lastEmpty = it } }
             val noMonths = loadedEmpty ?: lastEmpty ?: true
             val pickMonth = onPickMonth.takeUnless { noMonths }

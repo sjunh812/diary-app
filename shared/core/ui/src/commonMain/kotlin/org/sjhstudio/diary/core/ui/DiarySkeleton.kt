@@ -47,14 +47,16 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 private const val SHOW_AFTER_MILLIS = 300L
 private const val FADE_IN_MILLIS = 250
+private const val FIRST_FADE_IN_MILLIS = 150
 private const val PULSE_MILLIS = 650
 private const val PULSE_LOW = 0.35f
 
 /**
  * 스켈레톤(`docs/design.md` 스켈레톤)
  * 자리 모양을 아는 목록이 네트워크나 많은 기록 때문에 늦을 때만 씀
- * 화면을 처음 열 때의 읽기([delayed] 거짓)는 늘 늦어 바로 보임. 빈 자리로 기다리지 않게
- * 다시 읽기처럼 짧을 수 있는 곳은 0.3초 뒤부터 서서히 나타남. 바로 뒤 내용이 오면 거의 보이지 않아 한 장면만 번쩍이지 않음
+ * 화면을 처음 열 때의 읽기([delayed] 거짓)는 기다리지 않고 0.15초에 걸쳐 나타남
+ * 늦으면 빈 자리로 기다리지 않고, 일기가 적어 바로 읽히면 거의 투명한 채 지나가 번쩍이지 않음
+ * 다시 읽기처럼 짧을 수 있는 곳은 0.3초 뒤부터 서서히 나타남
  * 끝없는 움직임을 줄이려 빛이 지나가는 대신 천천히 숨 쉼
  * 동작 줄이기를 켜면 멈춘 칸으로 보임
  * 그림일 뿐이라 화면 낭독기가 읽지 않음
@@ -64,11 +66,15 @@ fun DiarySkeleton(modifier: Modifier = Modifier, delayed: Boolean = true, conten
     // 미리보기에는 시간이 흐르지 않아서 바로 보임
     val inspecting = LocalInspectionMode.current
     val reduceMotion = rememberReduceMotion()
-    val shown = remember { Animatable(if (inspecting || !delayed) 1f else 0f) }
+    val shown = remember { Animatable(if (inspecting) 1f else 0f) }
     LaunchedEffect(Unit) {
         if (shown.value == 1f) return@LaunchedEffect
-        delay(SHOW_AFTER_MILLIS)
-        if (reduceMotion) shown.snapTo(1f) else shown.animateTo(1f, tween(FADE_IN_MILLIS))
+        if (delayed) delay(SHOW_AFTER_MILLIS)
+        when {
+            reduceMotion -> shown.snapTo(1f)
+            delayed -> shown.animateTo(1f, tween(FADE_IN_MILLIS))
+            else -> shown.animateTo(1f, tween(FIRST_FADE_IN_MILLIS))
+        }
     }
     val pulse: () -> Float =
         if (reduceMotion) {

@@ -49,12 +49,17 @@ class Startup(
     /**
      * 첫 화면(앱 틀, 잠금, 이전, 편지·온보딩)이 그려졌는지
      * 그 전 관문은 바탕뿐이라 Android 시작 화면이 이때까지 덮어 빈 화면이 스치지 않음
+     * 앱 화면을 새로 만들면(뒤로 가기로 나갔다 다시 켬) 다시 거짓. 앱 프로세스는 살아 있어도 새 화면은 관문부터 그림
      */
     var screenShown: Boolean = false
         private set
 
     fun screenShown() {
         screenShown = true
+    }
+
+    fun screenGone() {
+        screenShown = false
     }
 
     // 시작했는지는 끝나야 바뀌는 상태로 알 수 없음. 앱과 알림 수신기가 다른 스레드에서 거의 함께 불러도 한 번만 들어오게 따로 둠
