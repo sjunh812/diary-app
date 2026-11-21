@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.backup
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room3.Room
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -102,7 +103,9 @@ class RestoreRoundTripTest {
                     "A"
                 },
                 fs,
-                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), {
+                    "README"
+                }, { ManifestSettings() }, io = EmptyCoroutineContext
             )
         assertIs<BackupOutcome.Done>(runner.run())
         return hash
@@ -383,7 +386,9 @@ class RestoreRoundTripTest {
                     "A"
                 },
                 fs,
-                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), {
+                    "README"
+                }, { ManifestSettings() }, io = EmptyCoroutineContext
             )
         assertIs<BackupOutcome.Done>(runner.run())
 

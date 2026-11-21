@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room3.Room
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -119,7 +120,8 @@ class LargeBackupTest {
         val runner =
             BackupRunner(
                 db, drive, FakeDriveAuthorizer(), store, FakeNetworkState(), DeviceName { "시험" }, fs, dir / "media", dir / "backup",
-                BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }
+                BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") },
+                io = EmptyCoroutineContext
             )
         drive.onFile = { count ->
             runner.progress.value?.takeIf { it.step == BackupStep.UploadingPhotos }?.let {

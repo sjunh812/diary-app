@@ -299,7 +299,7 @@ class BackupFailureTest {
 
         val outcome = done()
 
-        assertTrue(tries <= BackupRunner.PARALLEL_UPLOADS, "공간이 찬 뒤에도 $tries 장을 보냄")
+        assertTrue(tries <= BackupRunner.PARALLEL_UPLOADS, "공간이 찬 뒤에도 ${tries}장을 보냄")
         assertEquals(0, outcome.photosUploaded)
         assertEquals(10, outcome.photosLeft)
         assertEquals(1, manifests().size)

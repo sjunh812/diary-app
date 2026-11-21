@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
@@ -114,7 +115,9 @@ class BackupRunner(
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
     private val alerts: BackupAlerts? = null,
     private val gate: BackupGate = BackupGate(),
-    private val dataReady: suspend () -> Boolean = { true }
+    private val dataReady: suspend () -> Boolean = { true },
+    // 사진을 올리는 작업자 자리. 시험은 비워 두어 부르는 쪽 디스패처(가상 시간)에서 돎
+    private val io: CoroutineContext = Dispatchers.IO
 ) {
     private val failures = BackupFailureLog(store, clock, alerts)
     private val _progress = MutableStateFlow<BackupProgress?>(null)
@@ -429,7 +432,7 @@ class BackupRunner(
             launch {
                 coroutineScope {
                     repeat(PARALLEL_UPLOADS) {
-                        launch(Dispatchers.IO) {
+                        launch(io) {
                             for (photo in queue) {
                                 if (full.value) break
                                 val sent =

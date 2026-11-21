@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room3.Room
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -81,7 +82,8 @@ internal class TestPhone(
 
     fun runner(api: DriveApi = drive, deviceName: String = name, alerts: BackupAlerts? = null) = BackupRunner(
         db, api, auth, store, network, DeviceName { deviceName }, fs, media, work,
-        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate
+        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate,
+        io = EmptyCoroutineContext
     )
 
     fun applier() = MergeApplier(db, { fs.exists(media / it) }, clock)
