@@ -324,7 +324,10 @@ class BackupRunner(
         now: Instant,
         cellularOnce: Boolean
     ): PhotoRound {
-        val onDrive = drive.listAll(DriveQuery(parentId = folders.media, props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
+        val listed = drive.listAll(DriveQuery(parentId = folders.media, props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
+        // 깨진 사본은 휴지통에 넣고 없는 사진으로 보아 다시 올림
+        val (damaged, onDrive) = listed.partition(RestoreNames::isDamaged)
+        damaged.forEach { drive.trash(it.id) }
         val driveHashes = onDrive.associateBy { it.name.substringBefore('.') }
         val dao = db.backupDao()
         // 드라이브가 원본
@@ -433,14 +436,16 @@ class BackupRunner(
                 coroutineScope {
                     repeat(PARALLEL_UPLOADS) {
                         launch(io) {
+                            // 큰 사진은 차례를 기다리는 사이 드라이브가 찰 수 있어 차례를 받은 뒤에 봄
+                            suspend fun sendUnlessFull(photo: LocalPhotoRow) =
+                                if (full.value) null else sendPhoto(photo, folders, accountKey)
                             for (photo in queue) {
-                                if (full.value) break
                                 val sent =
                                     if ((photo.byteSize ?: 0L) > SMALL_UPLOAD_LIMIT) {
-                                        large.withLock { sendPhoto(photo, folders, accountKey) }
+                                        large.withLock { sendUnlessFull(photo) }
                                     } else {
-                                        sendPhoto(photo, folders, accountKey)
-                                    }
+                                        sendUnlessFull(photo)
+                                    } ?: break
                                 if (sent == Sent.NoSpace) full.value = true
                                 results.send(sent)
                             }

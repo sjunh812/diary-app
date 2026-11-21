@@ -12,6 +12,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.yield
 import okio.FileSystem
 import okio.Path
 import okio.SYSTEM
@@ -21,6 +22,7 @@ import org.sjhstudio.diary.core.drive.DriveErrorMapper
 import org.sjhstudio.diary.core.drive.DriveFile
 import org.sjhstudio.diary.core.drive.DriveNotFound
 import org.sjhstudio.diary.core.drive.NewFile
+import org.sjhstudio.diary.core.drive.UploadSession
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.platform.TokenResult
@@ -304,6 +306,40 @@ class BackupFailureTest {
         assertEquals(10, outcome.photosLeft)
         assertEquals(1, manifests().size)
         assertEquals(BackupFailure.NO_SPACE, phone.store.current().lastFailure)
+    }
+
+    @Test
+    fun a_large_photo_waiting_its_turn_does_not_start_after_the_drive_fills() = runTest {
+        phone.write("diary")
+        phone.photo("diary", 0, "가".repeat(1_800_000))
+        phone.photo("diary", 1, "나".repeat(1_800_000))
+        val full = FullForLargePhotos(drive)
+
+        val outcome = assertIs<BackupOutcome.Done>(phone.runner(full).run())
+
+        assertEquals(1, full.photoStarts)
+        assertEquals(2, outcome.photosLeft)
+        assertEquals(BackupFailure.NO_SPACE, phone.store.current().lastFailure)
+    }
+
+    @Test
+    fun a_damaged_copy_on_the_drive_is_trashed_and_sent_again() = runTest {
+        phone.write("diary")
+        val hash = phone.photo("diary", 0, "사진")
+        done()
+        // 올린 뒤 확인값이 달라 지우기 전에 끊긴 사본
+        val good = photos().single()
+        drive.deleteByUser(good.id)
+        val wrong = dir / "wrong.jpg"
+        fs.write(wrong) { writeUtf8("깨진 내용") }
+        val damaged = drive.uploadSmall(NewFile(good.name, good.parents.single(), "image/jpeg", good.props), wrong)
+        phone.clock.advance(1.days)
+
+        val outcome = done()
+
+        assertEquals(1, outcome.photosUploaded)
+        assertTrue(damaged.id !in photos().map { it.id })
+        assertEquals(hash, photos().single().sha256)
     }
 
     @Test
@@ -688,6 +724,21 @@ class BackupFailureTest {
         drive.omitSha256 = true
 
         assertEquals(1, done().photosUploaded)
+    }
+
+    /** 큰 사진을 올리기 시작하면 공간이 찼다고 답하는 드라이브. 답하기 전에 다른 작업자가 돌 틈을 줌 */
+    private class FullForLargePhotos(private val real: DriveApi) : DriveApi by real {
+        var photoStarts = 0
+            private set
+
+        override suspend fun about() = real.about().copy(limit = null)
+
+        override suspend fun startResumable(meta: NewFile, size: Long): UploadSession {
+            if (meta.props[DriveLayout.KEY_KIND] != DriveLayout.KIND_PHOTO) return real.startResumable(meta, size)
+            photoStarts++
+            yield()
+            throw DriveErrorMapper.map(403, "storageQuotaExceeded")
+        }
     }
 
     private class FullDrive(private val real: DriveApi) : DriveApi by real {

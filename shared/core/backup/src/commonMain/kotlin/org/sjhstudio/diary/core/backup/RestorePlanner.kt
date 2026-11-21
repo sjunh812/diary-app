@@ -50,6 +50,12 @@ internal object RestoreNames {
     fun isPhoto(name: String, sha256: String?): Boolean = PHOTO.matches(name) && (sha256 == null || name.substringBefore('.') == sha256)
 
     /**
+     * 드라이브 확인값이 이름(내용 확인값)과 다른 사진 사본
+     * 올린 뒤 확인값이 달라 지우기 전에 끊기면 남음. 이름만 믿으면 백업됐다고 보고 복원에서 깨진 사진을 받음
+     */
+    fun isDamaged(file: DriveFile): Boolean = file.sha256 != null && file.sha256 != file.name.substringBefore('.')
+
+    /**
      * 스냅샷 이름에는 기기 이름이 들어가 글자를 좁힐 수 없음
      * 폴더를 넘나들지만 못하게 함
      */
@@ -207,9 +213,9 @@ class PhotoFetcher(
         val pending = db.backupDao().pendingFiles()
         if (pending.isEmpty()) return DrivePhotos(emptyMap(), 0, 0)
         val onDrive: Map<String, DriveFile> =
-            drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO))).associateBy {
-                it.name.substringBefore('.')
-            }
+            drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
+                .filterNot(RestoreNames::isDamaged)
+                .associateBy { it.name.substringBefore('.') }
         val reachable = pending.count { it.sha256 in onDrive }
         return DrivePhotos(onDrive, reachable, pending.size - reachable)
     }
