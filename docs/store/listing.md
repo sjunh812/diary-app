@@ -411,6 +411,37 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 
 ## 새로운 기능
 
+### 2.1.0 (47)
+
+Android(2.0.1에서)와 iOS(2.0.2에서) 모두 이 노트를 쓴다. 이번 버전부터 두 스토어의 버전과 빌드 번호를 맞춘다(`docs/DECISIONS.md` 2026-11-21). 쓰는 법은 아래 2.0.1과 같다.
+
+```text
+<ko-KR>
+[버전 2.1.0]
+• 결제한 뒤에도 광고가 보이던 문제를 수정했어요
+• 목록에서 일기를 3줄, 5줄, 전체로 골라 볼 수 있어요
+• 새 버전이 나오면 홈과 설정에서 알려드려요
+• 앱을 켤 때 화면이 깜빡이지 않아요
+• 쓰기 화면과 백업·복원의 여러 문제를 수정했어요
+</ko-KR>
+<en-US>
+[Version 2.1.0]
+• Fixed ads still showing after purchase
+• Show 3 lines, 5 lines, or the full entry in your list
+• Home and Settings now tell you when a new version is out
+• No more screen flicker when opening the app
+• Fixed several issues in writing, backup, and restore
+</en-US>
+<ja-JP>
+[バージョン 2.1.0]
+• 購入後も広告が表示される問題を修正しました
+• 一覧で日記を3行・5行・全文から選んで表示できます
+• 新しいバージョンが出ると、ホームと設定でお知らせします
+• アプリを開くときに画面がちらつかなくなりました
+• 書く画面とバックアップ・復元の不具合を修正しました
+</ja-JP>
+```
+
 ### 2.0.1 (45)
 
 Android 사용자에게 보이는 변화 가운데 중요한 다섯 줄만 적고, 맨 위에 버전을 쓴다. 길면 헷갈린다(사용자 요청 2026-11-17). 버전 표기와 한 줄에 한 가지는 카카오톡 Play "새로운 기능"([v26.9.2] ● …)을, 버전을 먼저 쓰는 것은 Day One(2026.23:)을 따랐다. 세부 동작 대신 "스크롤 성능을 개선했어요"처럼 체감 위주로 쓴다. 리뷰 창은 적지 않는다(스토어가 띄울지 정해서 약속이 될 수 있다).

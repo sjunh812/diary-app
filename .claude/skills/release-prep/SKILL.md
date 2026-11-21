@@ -12,7 +12,7 @@ disable-model-invocation: false
 
 ## 1. 버전
 
-`versionCode`는 37부터다. 36은 만들고 내지 않은 1.7.5가 썼다.
+`versionCode`는 37부터다. 36은 만들고 내지 않은 1.7.5가 썼다. 2.1.0 (47)부터 Android와 iOS는 같은 버전과 빌드 번호로 낸다. 한 플랫폼만 고칠 때도 두 곳을 함께 올리고, 내지 않는 스토어는 그 번호를 건너뛴다(`docs/DECISIONS.md` 2026-11-21).
 
 1. `composeApp/build.gradle.kts`의 `versionCode`, `versionName`
 2. `iosApp/project.yml`의 `MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`. 고친 뒤 `cd iosApp && xcodegen generate`로 다시 만든다.
