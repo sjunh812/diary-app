@@ -211,7 +211,7 @@ final class FeatureFlow: DeviceTestCase {
         tap("화면 모드"); tapIfExists("시스템 설정"); tapIfExists("뒤로 가기", timeout: 2)
 
         // 잠금: 4자리 두 번, 뒤로 갔다 오면 잠김, 풀기, 끄기
-        tap("잠금")
+        tapRow("잠금,")
         sleep(1)
         shot("lock-settings")
         tapIfExists("잠금 사용")
@@ -382,9 +382,13 @@ final class FeatureFlow: DeviceTestCase {
 
     func tapRow(_ prefix: String) {
         let target = row(prefix)
-        guard target.waitForExistence(timeout: 5) else { XCTFail("못 찾음: \(prefix)"); shot("missing-\(prefix)"); return }
+        // 목록은 보이는 줄만 만들어 작은 화면에서는 내려야 생김
         var tries = 0
-        while !target.isHittable, tries < 6 { app.swipeUp(); tries += 1 }
+        while !target.waitForExistence(timeout: tries == 0 ? 5 : 1), tries < 6 { app.swipeUp(); tries += 1 }
+        guard target.exists else { XCTFail("못 찾음: \(prefix)"); shot("missing-\(prefix)"); return }
+        while !target.isHittable, tries < 12 { app.swipeUp(); tries += 1 }
+        // 내린 직후 누르면 스크롤만 멈춰 줄이 눌리지 않음
+        if tries > 0 { sleep(1) }
         target.tap()
     }
 
