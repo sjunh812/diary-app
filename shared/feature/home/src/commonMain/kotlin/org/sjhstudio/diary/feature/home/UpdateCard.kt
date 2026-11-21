@@ -74,7 +74,7 @@ fun UpdateCard(notice: UpdateNotice, onUpdate: () -> Unit, onLater: () -> Unit, 
 
         UpdateNotice.Downloaded ->
             DiaryStatusBox(
-                DiaryIcons.Download,
+                DiaryIcons.RotateCw,
                 stringResource(Res.string.update_card_downloaded_title),
                 "${stringResource(Res.string.update_card_downloaded_body)}\n${stringResource(Res.string.update_card_kept)}",
                 place,
