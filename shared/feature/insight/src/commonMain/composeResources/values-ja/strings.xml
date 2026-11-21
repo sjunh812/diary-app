@@ -61,6 +61,13 @@
     <string name="insight_adv_tab_place">場所</string>
     <string name="insight_adv_share">%1$d%</string>
     <string name="insight_adv_when_empty">まだ日記が少なめです。</string>
+    <string name="insight_adv_when_good_time">ポジティブな気分が最も多かったのは%1$sです</string>
+    <string name="insight_adv_when_hard_time">ネガティブな気分が最も多かったのは%1$sです</string>
+    <string name="insight_adv_when_good_weather">ポジティブな気分が最も多かったのは%1$sです</string>
+    <string name="insight_adv_when_hard_weather">ネガティブな気分が最も多かったのは%1$sです</string>
+    <string name="insight_adv_when_good_place">ポジティブな気分が最も多かったのは%1$sです</string>
+    <string name="insight_adv_when_hard_place">ネガティブな気分が最も多かったのは%1$sです</string>
+    <string name="insight_adv_legend_neutral">%1$s・%2$s</string>
     <string name="insight_adv_company">気分ごとに多い天気・曜日・場所</string>
     <string name="insight_adv_habit">わたしの記録</string>
     <string name="insight_adv_habit_entries">日記</string>

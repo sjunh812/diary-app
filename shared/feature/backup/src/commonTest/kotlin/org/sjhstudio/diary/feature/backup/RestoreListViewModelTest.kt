@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 
 // 복원 목록은 지난번 것을 먼저 보이고 드라이브 답으로 바꿈
@@ -68,7 +69,7 @@ class RestoreListViewModelTest {
         val vm = RestoreListViewModel(repository)
         advanceUntilIdle()
 
-        assertEquals(RestoreListUi.Failed, vm.state.value)
+        assertEquals(RestoreListUi.Failed(BackupFailure.OFFLINE), vm.state.value)
     }
 
     @Test
@@ -80,5 +81,40 @@ class RestoreListViewModelTest {
         advanceUntilIdle()
 
         assertEquals(RestoreListUi.Loading, vm.state.value)
+    }
+
+    /** 계정 때문에 실패하면 인터넷 탓이 아니라 그 까닭을 화면에 넘김 */
+    @Test
+    fun the_failure_kind_reaches_the_screen() = runTest(dispatcher) {
+        val repository = FakeRestoreRepository()
+        repository.entries = null
+        repository.failure = BackupFailure.AUTH
+
+        val vm = RestoreListViewModel(repository)
+        advanceUntilIdle()
+
+        assertEquals(RestoreListUi.Failed(BackupFailure.AUTH), vm.state.value)
+    }
+
+    /** 다시 시도하는 동안 실패 화면을 둔 채 버튼만 기다림. 로딩 화면으로 바뀌면 빨리 실패할 때 깜빡임 */
+    @Test
+    fun retrying_keeps_the_failed_screen_until_the_answer() = runTest(dispatcher) {
+        val repository = FakeRestoreRepository()
+        repository.saved = listOf(entry("지난번"))
+        repository.entries = null
+        val vm = RestoreListViewModel(repository)
+        advanceUntilIdle()
+
+        val gate = CompletableDeferred<Unit>()
+        repository.backupsGate = gate
+        vm.load()
+        advanceUntilIdle()
+        // 지난 목록으로 잠깐 바뀌지도 않음
+        assertEquals(RestoreListUi.Failed(BackupFailure.OFFLINE, retrying = true), vm.state.value)
+
+        repository.entries = listOf(entry("지금"))
+        gate.complete(Unit)
+        advanceUntilIdle()
+        assertEquals(RestoreListUi.Loaded(listOf(entry("지금"))), vm.state.value)
     }
 }

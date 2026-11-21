@@ -84,7 +84,7 @@ class RestoreEdgeTest {
     }
 
     private suspend fun RestoreController.ready(name: String? = null): RestorePreparation.Ready {
-        val picked = name ?: backups()!!.first().snapshotName
+        val picked = name ?: backups().entriesOrNull!!.first().snapshotName
         return assertIs<RestorePreparation.Ready>(prepare(picked))
     }
 
@@ -145,7 +145,7 @@ class RestoreEdgeTest {
         b.write("mine")
         val cut = b.controller(backgroundScope, api = CutOnlySnapshot(drive))
 
-        assertIs<RestorePreparation.Failed>(cut.prepare(cut.backups()!!.first().snapshotName))
+        assertIs<RestorePreparation.Failed>(cut.prepare(cut.backups().entriesOrNull!!.first().snapshotName))
 
         assertEquals(setOf("mine"), b.ids())
         assertTrue(fs.listOrNull(b.work / "incoming").orEmpty().isEmpty())
@@ -478,7 +478,7 @@ class RestoreEdgeTest {
         }
         val controller = b.controller(backgroundScope, api = full)
 
-        assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups()!!.first().snapshotName))
+        assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups().entriesOrNull!!.first().snapshotName))
 
         assertEquals(setOf("mine"), b.ids())
     }
@@ -653,7 +653,7 @@ class RestoreEdgeTest {
         a.plant(file.name, ManifestCodec.encode(manifest.copy(formatVersion = 99)).encodeToByteArray(), file.props)
         val controller = b.controller(backgroundScope)
 
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
         val failed = assertIs<RestorePreparation.Failed>(controller.prepare(name))
 
         assertEquals(RestoreFailure.NEEDS_UPDATE, failed.reason)
@@ -694,7 +694,7 @@ class RestoreEdgeTest {
         )
         val controller = b.controller(backgroundScope)
 
-        assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups()!!.single().snapshotName))
+        assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName))
 
         assertEquals(setOf("mine"), b.ids())
         assertTrue(fs.listOrNull(b.work / "incoming").orEmpty().isEmpty())
@@ -739,7 +739,7 @@ class RestoreEdgeTest {
 
     @Test
     fun an_empty_drive_lists_nothing() = runTest {
-        assertEquals(emptyList(), b.controller(backgroundScope).backups())
+        assertEquals(emptyList(), b.controller(backgroundScope).backups().entriesOrNull)
     }
 
     @Test

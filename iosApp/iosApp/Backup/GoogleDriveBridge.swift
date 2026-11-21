@@ -11,53 +11,58 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
         (Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String)?.isEmpty == false
     }
 
-    func connect(hint: String?, done: @escaping (String?, String?, String?) -> Void) {
+    func connect(hint: String?, done: @escaping (String?, String?, String?, String?, KotlinLong) -> Void) {
+        let fail = { (kind: String, report: Report?) in done(nil, nil, kind, report?.domain, KotlinLong(value: report?.code ?? 0)) }
         DispatchQueue.main.async {
             // 클라이언트 ID 없이 부르면 GoogleSignIn이 앱을 종료함
             guard Self.hasClientID, let root = UIApplication.shared.connectedScenes
                 .compactMap({ ($0 as? UIWindowScene)?.keyWindow?.rootViewController }).first
             else {
-                done(nil, nil, "failed")
+                fail("failed", Report(domain: Self.hasClientID ? "app.noPresenter" : "app.noClientID"))
                 return
             }
             GIDSignIn.sharedInstance.signIn(withPresenting: root, hint: hint, additionalScopes: [self.driveScope]) { result, error in
                 if let error {
-                    done(nil, nil, Self.kind(error))
+                    let kind = Self.kind(error)
+                    fail(kind, kind == "failed" ? Report(error) : nil)
                     return
                 }
                 guard let user = result?.user, let key = user.userID, let email = user.profile?.email else {
-                    done(nil, nil, "failed")
+                    fail("failed", Report(domain: "app.noProfile"))
                     return
                 }
                 // 동의 화면에서 드라이브 권한을 뺀 경우
                 // 연결됐다고 하면 곧바로 다시 연결하라는 안내가 뜸
                 guard user.grantedScopes?.contains(self.driveScope) == true else {
                     GIDSignIn.sharedInstance.signOut()
-                    done(nil, nil, "failed")
+                    fail("noDriveAccess", Report(domain: "app.noDriveScope"))
                     return
                 }
-                done(key, email, nil)
+                done(key, email, nil, nil, KotlinLong(value: 0))
             }
         }
     }
 
-    func accessToken(done: @escaping (String?, String?, String?, String?) -> Void) {
+    func accessToken(done: @escaping (String?, String?, String?, String?, String?, KotlinLong) -> Void) {
+        let fail = { (kind: String, report: Report?) in done(nil, nil, nil, kind, report?.domain, KotlinLong(value: report?.code ?? 0)) }
         DispatchQueue.main.async {
             GIDSignIn.sharedInstance.restorePreviousSignIn { user, error in
                 guard let user else {
-                    done(nil, nil, nil, error.map { Self.restoreKind($0) } ?? "needsUser")
+                    let kind = error.map { Self.restoreKind($0) } ?? "needsUser"
+                    fail(kind, kind == "offline" ? nil : error.map { Report($0) } ?? Report(domain: "app.noUser"))
                     return
                 }
                 guard user.grantedScopes?.contains(self.driveScope) == true else {
-                    done(nil, nil, nil, "needsUser")
+                    fail("needsUser", Report(domain: "app.noDriveScope"))
                     return
                 }
                 user.refreshTokensIfNeeded { refreshed, error in
                     guard let refreshed, let key = refreshed.userID, let email = refreshed.profile?.email else {
-                        done(nil, nil, nil, error.map { Self.refreshKind($0) } ?? "failed")
+                        let kind = error.map { Self.refreshKind($0) } ?? "failed"
+                        fail(kind, kind == "offline" ? nil : error.map { Report($0) } ?? Report(domain: "app.noProfile"))
                         return
                     }
-                    done(refreshed.accessToken.tokenString, key, email, nil)
+                    done(refreshed.accessToken.tokenString, key, email, nil, nil, KotlinLong(value: 0))
                 }
             }
         }
@@ -110,5 +115,21 @@ final class GoogleDriveBridge: NSObject, GoogleDrive {
             current = found.userInfo[NSUnderlyingErrorKey] as? NSError
         }
         return false
+    }
+
+    /// Crashlytics에 남길 오류 종류 이름과 번호. 메시지와 userInfo에는 계정 정보가 섞일 수 있어 담지 않음
+    private struct Report {
+        let domain: String
+        let code: Int64
+
+        init(domain: String, code: Int64 = 0) {
+            self.domain = domain
+            self.code = code
+        }
+
+        init(_ error: Error) {
+            let nsError = error as NSError
+            self.init(domain: nsError.domain, code: Int64(nsError.code))
+        }
     }
 }

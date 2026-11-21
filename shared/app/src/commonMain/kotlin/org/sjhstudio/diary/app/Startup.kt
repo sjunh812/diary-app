@@ -28,6 +28,8 @@ class Startup(
     private val bootstrapLegacyLock: suspend () -> Unit = {},
     /** 옛 앱 설정 잇기(`LegacySettingsBootstrap`). 실패해도 기본 설정으로 열기 */
     private val bootstrapLegacySettings: suspend () -> Unit = {},
+    /** 옛 앱 "일기 3줄 보기" 잇기(`LegacyListPreview`, 스펙 008). 이전을 마친 기기도 한 번 */
+    private val bootstrapLegacyPreview: suspend () -> Unit = {},
     /** 플랫폼이 시작 화면 동안 뒤에서 할 일(Android 결제 준비). 화면 스레드를 막지 않게 */
     private val platformWork: suspend () -> Unit = {},
     /** 고른 글꼴 파일이 있는지 확인해 둠. 첫 화면이 화면 스레드에서 파일을 보지 않게 */
@@ -44,6 +46,22 @@ class Startup(
     val ready: Boolean
         get() = _state.value is StartupState.Ready
 
+    /**
+     * 첫 화면(앱 틀, 잠금, 이전, 편지·온보딩)이 그려졌는지
+     * 그 전 관문은 바탕뿐이라 Android 시작 화면이 이때까지 덮어 빈 화면이 스치지 않음
+     * 앱 화면을 새로 만들면(뒤로 가기로 나갔다 다시 켬) 다시 거짓. 앱 프로세스는 살아 있어도 새 화면은 관문부터 그림
+     */
+    var screenShown: Boolean = false
+        private set
+
+    fun screenShown() {
+        screenShown = true
+    }
+
+    fun screenGone() {
+        screenShown = false
+    }
+
     // 시작했는지는 끝나야 바뀌는 상태로 알 수 없음. 앱과 알림 수신기가 다른 스레드에서 거의 함께 불러도 한 번만 들어오게 따로 둠
     private val started = MutableStateFlow(false)
 
@@ -53,6 +71,7 @@ class Startup(
             attempt { prepareStorage() }
             val bootstrapped = attempt { bootstrapLegacyLock() } != null
             attempt { bootstrapLegacySettings() }
+            attempt { bootstrapLegacyPreview() }
             val lock = attempt { lockStore.lock.first() }
             val settings = attempt { settingsStore.settings.first() } ?: AppSettings()
             attempt { knowFont(settings) }

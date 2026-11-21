@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.core.testing
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okio.ByteString.Companion.toByteString
 import okio.FileSystem
 import okio.Path
@@ -25,12 +27,14 @@ enum class DriveFault { OFFLINE, UNAUTHORIZED, RATE_LIMIT, SERVER_ERROR, NO_SPAC
 /**
  * 메모리 드라이브(contracts/drive-gateway.md FakeDrive)
  * 실제 드라이브처럼 SHA-256·MD5를 계산하고 `appProperties` 질의와 쪽 넘김을 흉내 냄
+ * 백업·복원이 여러 장을 동시에 주고받아 호출 하나씩 차례로 처리
  */
 class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, private val pageSize: Int = 1000) : DriveApi {
     private class Stored(var meta: DriveFile, val bytes: ByteArray, var trashed: Boolean = false)
 
     private class Session(val meta: NewFile, val size: Long, var bytes: ByteArray = ByteArray(0), var expired: Boolean = false)
 
+    private val lock = Mutex()
     private val files = LinkedHashMap<String, Stored>()
     private val sessions = HashMap<String, Session>()
     private var nextId = 1
@@ -69,12 +73,12 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
         files.getValue(fileId).trashed = true
     }
 
-    override suspend fun about(): StorageQuota {
+    override suspend fun about(): StorageQuota = lock.withLock {
         gate()
-        return StorageQuota(limit, usage())
+        StorageQuota(limit, usage())
     }
 
-    override suspend fun list(query: DriveQuery, pageToken: String?): DrivePage {
+    override suspend fun list(query: DriveQuery, pageToken: String?): DrivePage = lock.withLock {
         gate()
         val matched =
             files.values.filter { !it.trashed }.map { it.meta }.filter { file ->
@@ -84,31 +88,33 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
             }
         val from = pageToken?.toInt() ?: 0
         val to = minOf(from + pageSize, matched.size)
-        return DrivePage(matched.subList(from, to), to.takeIf { it < matched.size }?.toString())
+        DrivePage(matched.subList(from, to), to.takeIf { it < matched.size }?.toString())
     }
 
-    override suspend fun createFolder(name: String, parentId: String?, props: Map<String, String>): DriveFile {
+    override suspend fun createFolder(name: String, parentId: String?, props: Map<String, String>): DriveFile = lock.withLock {
         gate()
-        return store(NewFile(name, parentId, "folder", props), ByteArray(0))
+        store(NewFile(name, parentId, "folder", props), ByteArray(0))
     }
 
     override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile {
-        gate()
+        lock.withLock { gate() }
+        // 시험이 여기서 드라이브를 다시 부를 수 있어 잠금 밖에서
         onUpload?.invoke(meta)
-        return store(meta, fileSystem.read(body) { readByteArray() })
+        val bytes = fileSystem.read(body) { readByteArray() }
+        return lock.withLock { store(meta, bytes) }
     }
 
-    override suspend fun startResumable(meta: NewFile, size: Long): UploadSession {
+    override suspend fun startResumable(meta: NewFile, size: Long): UploadSession = lock.withLock {
         gate()
         val uri = "session-${nextId++}"
         sessions[uri] = Session(meta, size)
-        return UploadSession(uri, size)
+        UploadSession(uri, size)
     }
 
-    override suspend fun uploadChunk(session: UploadSession, from: Long, body: Path): ChunkResult {
+    override suspend fun uploadChunk(session: UploadSession, from: Long, body: Path): ChunkResult = lock.withLock {
         gate()
         val state = sessions.getValue(session.uri)
-        if (state.expired) return ChunkResult.Expired
+        if (state.expired) return@withLock ChunkResult.Expired
         dropAfterChunks?.let {
             if (it <= 0) {
                 dropAfterChunks = null
@@ -119,26 +125,29 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
         val all = fileSystem.read(body) { readByteArray() }
         val end = minOf(from + UPLOAD_CHUNK, session.size).toInt()
         state.bytes = state.bytes.copyOf(from.toInt()) + all.copyOfRange(from.toInt(), end)
-        if (end.toLong() < session.size) return ChunkResult.Progress(end.toLong())
+        if (end.toLong() < session.size) return@withLock ChunkResult.Progress(end.toLong())
         sessions.remove(session.uri)
-        return ChunkResult.Done(store(state.meta, state.bytes))
+        ChunkResult.Done(store(state.meta, state.bytes))
     }
 
-    override suspend fun queryResumable(session: UploadSession): ChunkResult {
+    override suspend fun queryResumable(session: UploadSession): ChunkResult = lock.withLock {
         gate()
-        val state = sessions[session.uri] ?: return ChunkResult.Expired
-        return if (state.expired) ChunkResult.Expired else ChunkResult.Progress(state.bytes.size.toLong())
+        val state = sessions[session.uri] ?: return@withLock ChunkResult.Expired
+        if (state.expired) ChunkResult.Expired else ChunkResult.Progress(state.bytes.size.toLong())
     }
 
-    override suspend fun get(fileId: String): DriveFile {
+    override suspend fun get(fileId: String): DriveFile = lock.withLock {
         gate()
         val file = files[fileId]?.takeUnless { it.trashed } ?: throw DriveNotFound()
-        return file.meta
+        file.meta
     }
 
     override suspend fun download(fileId: String, to: Path, fromByte: Long): Long {
-        gate()
-        val file = files[fileId]?.takeUnless { it.trashed } ?: throw DriveNotFound()
+        val file =
+            lock.withLock {
+                gate()
+                files[fileId]?.takeUnless { it.trashed } ?: throw DriveNotFound()
+            }
         val rest = file.bytes.copyOfRange(fromByte.toInt(), file.bytes.size)
         if (fromByte >
             0
@@ -150,7 +159,7 @@ class FakeDrive(private val fileSystem: FileSystem, var limit: Long? = null, pri
         return file.bytes.size.toLong()
     }
 
-    override suspend fun trash(fileId: String) {
+    override suspend fun trash(fileId: String) = lock.withLock {
         gate()
         (files[fileId] ?: throw DriveNotFound()).trashed = true
     }

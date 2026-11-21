@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room3.Room
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -59,7 +60,7 @@ class BackupConcurrencyTest {
     private fun runner(gate: BackupGate = BackupGate(), dataReady: () -> Boolean = { true }) = BackupRunner(
         db, drive, FakeDriveAuthorizer(), store, FakeNetworkState(), DeviceName { "Galaxy S24" }, fs, dir / "media", dir / "backup",
         BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { TimeZone.UTC },
-        gate = gate, dataReady = dataReady
+        gate = gate, dataReady = dataReady, io = EmptyCoroutineContext
     )
 
     private fun entry(id: String, body: String = id) =

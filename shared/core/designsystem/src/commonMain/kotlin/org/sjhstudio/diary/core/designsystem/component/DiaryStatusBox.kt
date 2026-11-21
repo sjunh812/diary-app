@@ -25,7 +25,8 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
  * 상태 상자(`docs/design.md` 상태 상자, Figma "permission-needed")
  * 안내 상자와 같은 계열
  * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 6 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백)
- * 머리 줄은 아이콘 16 + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼
+ * 머리 줄은 아이콘 16(`textSecondary`) + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼
+ * [progress]가 있으면 설명 아래 낮은 진행 막대(0~1). 상자 안에서는 글이 주인공
  */
 @Composable
 fun DiaryStatusBox(
@@ -39,7 +40,8 @@ fun DiaryStatusBox(
     onSecondary: (() -> Unit)? = null,
     secondaryKind: DiaryButtonKind = DiaryButtonKind.Weak,
     quietLabel: String? = null,
-    onQuiet: (() -> Unit)? = null
+    onQuiet: (() -> Unit)? = null,
+    progress: Float? = null
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
@@ -55,7 +57,7 @@ fun DiaryStatusBox(
         // 머리가 두 줄이 되면 4로는 설명과 붙어 보여 6
         Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
             Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.Top) {
-                FirstLineIcon(icon, typography.bodyStrong, colors.textPrimary)
+                FirstLineIcon(icon, typography.bodyStrong, colors.textSecondary)
                 // 한글은 글자마다 줄이 바뀌어 마지막 줄에 "요" 한 글자만 남음
                 // 낱말 안 글자 사이를 묶어 띄어쓰기에서만 줄이 바뀌게 하고, 줄은 고르게 나눔
                 // 붙임 글자는 그릴 때만 쓰고, 화면 읽기와 시험에는 원래 머리를 줌
@@ -67,6 +69,7 @@ fun DiaryStatusBox(
             }
             PhraseText(body, style = typography.body.copy(color = colors.textSecondary))
         }
+        progress?.let { DiaryProgressBar(it, onSunken = true, size = DiaryProgressSize.Compact) }
         if (actionLabel != null && onAction != null) {
             // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 안 들어가면 아래 줄로 내려감
             // 줄 사이 16은 누르는 곳 48끼리 겹치지 않는 값

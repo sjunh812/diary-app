@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 측정 빌드에만 있다. 결제 없이 Plus로 재려고 요금제를 adb로 고른다(스펙 008 SC-003). -->
+    <application
+        android:name=".bench.BenchmarkApplication"
+        tools:ignore="MissingApplicationIcon"
+        tools:replace="android:name">
+        <activity
+            android:name=".bench.BenchPlanActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay" />
+    </application>
+</manifest>

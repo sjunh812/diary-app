@@ -35,6 +35,11 @@ final class FirebaseReporter: FirebaseReporting {
         RemoteConfig.remoteConfig().configValue(forKey: Self.interstitialKey).boolValue
     }
 
+    /// 새 버전 안내 원격 값(스펙 009). 없는 키는 빈 문자열
+    func remoteString(key: String) -> String {
+        RemoteConfig.remoteConfig().configValue(forKey: key).stringValue
+    }
+
     func log(event: String, params: [String: String]) {
         if event == AnalyticsEventScreenView, let screen = params["screen"] {
             Analytics.logEvent(event, parameters: [AnalyticsParameterScreenName: screen, AnalyticsParameterScreenClass: screen])
@@ -53,5 +58,10 @@ final class FirebaseReporter: FirebaseReporting {
         let model = ExceptionModel(name: kind, reason: "")
         model.stackTrace = addresses.map { StackFrame(address: UInt(truncatingIfNeeded: $0.int64Value)) }
         Crashlytics.crashlytics().record(exceptionModel: model)
+    }
+
+    /// 종류 이름과 번호만으로 만든 오류. 같은 종류·번호끼리 묶이고 건마다 기기와 시각이 붙음
+    func recordError(domain: String, code: Int64) {
+        Crashlytics.crashlytics().record(error: NSError(domain: domain, code: Int(code), userInfo: nil))
     }
 }

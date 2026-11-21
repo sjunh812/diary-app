@@ -29,6 +29,7 @@ import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.testing.FakeFontInstaller
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
+import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
@@ -64,7 +65,9 @@ class SettingsViewModelTest {
         val fonts = FakeFontInstaller()
         val settings = FakeSettingsRepository(AppSettings(font = DiaryFont.BUSAN_DANDI_MYEONGJO))
         val viewModel =
-            SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), { false }, fonts = fonts, notifications = notifications)
+            SettingsViewModel(settings, lock, flowOf(0), FakePlanRepository(Plan.FREE), {
+                false
+            }, fonts = fonts, notifications = notifications)
         advanceUntilIdle()
         assertEquals(null, viewModel.look.value.fontPath)
 
@@ -77,7 +80,7 @@ class SettingsViewModelTest {
     @Test
     fun the_report_row_follows_the_migration_state() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 true
             }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
@@ -90,7 +93,7 @@ class SettingsViewModelTest {
     @Test
     fun an_unreadable_migration_state_leaves_settings_usable() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 error("읽을 수 없음")
             }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
@@ -104,7 +107,7 @@ class SettingsViewModelTest {
     fun the_last_backup_time_comes_with_the_state() = runTest(dispatcher) {
         val at = Instant.parse("2026-11-13T10:48:00Z")
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(Plan.FREE), {
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
             }, fonts = FakeFontInstaller(), notifications = notifications, lastBackupAt = flowOf(at))
         backgroundScope.launch { viewModel.state.collect {} }
@@ -116,7 +119,7 @@ class SettingsViewModelTest {
     @Test
     fun the_trash_count_and_plan_come_with_the_state() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), flowOf(Plan.PLUS), {
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(3), FakePlanRepository(Plan.PLUS), {
                 false
             }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
@@ -130,7 +133,7 @@ class SettingsViewModelTest {
     @Test
     fun an_unconfirmed_plan_stays_unknown() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), flowOf(null), {
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE, known = false), {
                 false
             }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
@@ -144,7 +147,7 @@ class SettingsViewModelTest {
     @Test
     fun an_unreadable_trash_count_leaves_settings_usable() = runTest(dispatcher) {
         val viewModel =
-            SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), flowOf(Plan.FREE), {
+            SettingsViewModel(FakeSettingsRepository(), lock, emptyFlow(), FakePlanRepository(Plan.FREE), {
                 false
             }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
@@ -159,7 +162,7 @@ class SettingsViewModelTest {
     fun the_reminder_row_says_off_when_notifications_are_blocked() = runTest(dispatcher) {
         val settings = FakeSettingsRepository(AppSettings(reminderEnabled = true))
         val viewModel =
-            SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), {
+            SettingsViewModel(settings, lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
             }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
@@ -179,11 +182,47 @@ class SettingsViewModelTest {
     fun the_reminder_row_waits_for_the_notification_setting() = runTest(dispatcher) {
         val settings = FakeSettingsRepository(AppSettings(reminderEnabled = true))
         val viewModel =
-            SettingsViewModel(settings, lock, flowOf(0), flowOf(Plan.FREE), {
+            SettingsViewModel(settings, lock, flowOf(0), FakePlanRepository(Plan.FREE), {
                 false
             }, fonts = FakeFontInstaller(), notifications = notifications)
         backgroundScope.launch { viewModel.state.collect {} }
         advanceUntilIdle()
         assertNull(viewModel.state.value.reminderBlocked)
+    }
+
+    @Test
+    fun formatting_waits_for_the_plan_then_settles() = runTest {
+        val plans = FakePlanRepository(Plan.FREE, known = false)
+        val viewModel =
+            SettingsViewModel(
+                FakeSettingsRepository(),
+                lock,
+                flowOf(0),
+                plans,
+                { false },
+                fonts = FakeFontInstaller(),
+                notifications = notifications
+            )
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+        // 끝내 모르면 지금 값(무료)으로 정해 Plus 안내를 볼 수 있음
+        assertEquals(false, viewModel.state.value.canFormat)
+
+        plans.plan.value = Plan.PLUS
+        plans.known.value = true
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.value.canFormat)
+    }
+
+    /** 기기에 남긴 요금제는 설정을 다 읽기 전 첫 화면부터 씀. Plus 카드가 늦게 끼어들어 줄이 밀리지 않게 */
+    @Test
+    fun the_saved_plan_is_there_from_the_first_frame() = runTest(dispatcher) {
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.FREE), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+
+        assertFalse(viewModel.state.value.loaded)
+        assertEquals(Plan.FREE, viewModel.state.value.plan)
     }
 }

@@ -17,6 +17,8 @@ data class DiaryColors(
     val surface: Color,
     /** 편지지와 봉투. 라벤더 바탕에서 뜨지 않게 다크는 보랏빛 면 */
     val paper: Color,
+    /** 봉투 덮개. 면([paper])보다 보랏빛이 짙음 */
+    val envelopeFlap: Color,
     /** 입력칸, 보조 버튼, 칩, 진행 막대 트랙 */
     val sunken: Color,
     /** [sunken] 위에 떠오른 고른 칸(탭 한 줄). 다크도 바탕보다 밝게 */
@@ -116,6 +118,7 @@ internal val LightDiaryColors =
         surfaceCard = Color(0xFFF8F8FF),
         surface = Color(0xFFFFFFFF),
         paper = Color(0xFFFFFFFF),
+        envelopeFlap = Color(0xFFEBE4FF),
         sunken = Color(0xFFF3F4F5),
         raised = Color(0xFFFFFFFF),
         selected = Color(0xFFEBE4FF),
@@ -177,7 +180,8 @@ internal val DarkDiaryColors =
         canvas = Color(0xFF16171B),
         surfaceCard = Color(0xFF1D2025),
         surface = Color(0xFF1D2025),
-        paper = Color(0xFF2B2640),
+        paper = Color(0xFF433C5C),
+        envelopeFlap = Color(0xFF3A2F63),
         sunken = Color(0xFF2B2E35),
         raised = Color(0xFF393D46),
         selected = Color(0xFF291F43),

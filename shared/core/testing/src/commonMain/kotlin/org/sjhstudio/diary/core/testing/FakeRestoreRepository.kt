@@ -7,9 +7,11 @@ import kotlinx.coroutines.flow.StateFlow
 import okio.Sink
 import okio.Source
 import okio.buffer
+import org.sjhstudio.diary.core.data.BackupList
 import org.sjhstudio.diary.core.data.BundleFiles
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.PhotoRun
@@ -102,6 +104,9 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val b
         return preparation
     }
 
+    /** [entries]가 null일 때 목록 읽기의 실패 종류 */
+    var failure: BackupFailure = BackupFailure.OFFLINE
+
     /** 지난번에 읽어 둔 목록 */
     var saved: List<BackupEntry> = emptyList()
 
@@ -110,9 +115,9 @@ class FakeRestoreRepository(var entries: List<BackupEntry>? = emptyList(), val b
 
     override suspend fun savedBackups(): List<BackupEntry> = saved
 
-    override suspend fun backups(): List<BackupEntry>? {
+    override suspend fun backups(): BackupList {
         backupsGate?.await()
-        return entries
+        return entries?.let { BackupList.Loaded(it) } ?: BackupList.Failed(failure)
     }
 
     override suspend fun prepare(snapshotName: String): RestorePreparation = preparation

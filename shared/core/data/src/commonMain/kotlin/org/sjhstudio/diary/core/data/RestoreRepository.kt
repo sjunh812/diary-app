@@ -12,6 +12,7 @@ import okio.Sink
 import okio.Source
 import okio.use
 import org.sjhstudio.diary.core.model.BackupEntry
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BundleEstimate
 import org.sjhstudio.diary.core.model.PhotoProgress
 import org.sjhstudio.diary.core.model.PhotoRun
@@ -104,11 +105,8 @@ interface RestoreRepository :
     SavedBackups {
     val state: StateFlow<RestoreState>
 
-    /**
-     * 드라이브의 백업 목록
-     * 읽지 못하면 null
-     */
-    suspend fun backups(): List<BackupEntry>?
+    /** 드라이브의 백업 목록. 읽지 못하면 까닭과 함께 실패 */
+    suspend fun backups(): BackupList
 
     /** 스냅샷을 받아 확인하고 쓰기 없이 결과 숫자를 냄(FR-021, FR-023) */
     suspend fun prepare(snapshotName: String): RestorePreparation
@@ -216,4 +214,14 @@ suspend fun RestoreRepository.prepareFile(open: () -> Source, byteSize: () -> Lo
     } catch (_: Exception) {
         RestorePreparation.Failed(RestoreFailure.MISMATCH)
     }
+}
+
+/** 드라이브 백업 목록을 읽은 결과 */
+sealed interface BackupList {
+    data class Loaded(val entries: List<BackupEntry>) : BackupList
+
+    /** 화면이 까닭에 맞는 할 일을 말하게 실패 종류를 함께 둠 */
+    data class Failed(val kind: BackupFailure) : BackupList
+
+    val entriesOrNull: List<BackupEntry>? get() = (this as? Loaded)?.entries
 }

@@ -8,6 +8,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -31,6 +32,11 @@ class FakeSettingsRepository(initial: AppSettings = AppSettings()) : SettingsRep
         state.update { it.copy(reminderEnabled = enabled, reminderMinuteOfDay = minuteOfDay) }
 
     override suspend fun setListStyle(style: ListStyle) = state.update { it.copy(list = it.list.copy(listStyle = style)) }
+
+    override suspend fun setPreviewLength(length: PreviewLength, chosen: Boolean) =
+        state.update { it.copy(list = it.list.copy(previewLength = length, previewChosen = it.list.previewChosen || chosen)) }
+
+    override suspend fun setShowListFormatting(show: Boolean) = state.update { it.copy(list = it.list.copy(showFormatting = show)) }
 
     override suspend fun clearFontReplacedNotice() = state.update { it.copy(fontReplacedFrom = null) }
 }

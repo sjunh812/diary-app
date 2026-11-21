@@ -253,4 +253,32 @@ class MergeApplierTest {
     private companion object {
         const val DAY = 24L * 3600 * 1000
     }
+
+    // 미리보기 숫자는 홈에 보이는 변화만. 홈의 일기가 휴지통으로 가는 수정은 세고, 휴지통끼리는 세지 않음
+    @Test
+    fun counts_show_only_changes_on_home() {
+        val shown = MergeEntry(entry("a", 5), emptyList())
+        val trashed = MergeEntry(entry("a", 9, deletedAt = 9), emptyList())
+        val trashedOld = MergeEntry(entry("a", 5, deletedAt = 5), emptyList())
+        fun replaces(incoming: MergeEntry, local: MergeEntry) =
+            MergePlan(listOf(incoming to MergeAction.REPLACE), mapOf("a" to local)).count(MergeAction.REPLACE)
+
+        assertEquals(1, replaces(trashed, shown))
+        assertEquals(1, replaces(shown, trashedOld))
+        assertEquals(0, replaces(trashed, trashedOld))
+        assertEquals(0, MergePlan(listOf(trashed to MergeAction.ADD), emptyMap()).count(MergeAction.ADD))
+    }
+
+    /** 휴지통 안에서만 달라지는 일기도 합치면 바뀌는 것으로 셈. 홈 숫자와는 따로 */
+    @Test
+    fun trash_only_changes_count_on_their_own() {
+        val trashed = MergeEntry(entry("a", 9, deletedAt = 9), emptyList())
+        val trashedOld = MergeEntry(entry("a", 5, deletedAt = 5), emptyList())
+        val shown = MergeEntry(entry("a", 5), emptyList())
+
+        assertEquals(1, MergePlan(listOf(trashed to MergeAction.ADD), emptyMap()).toTrash())
+        assertEquals(1, MergePlan(listOf(trashed to MergeAction.REPLACE), mapOf("a" to trashedOld)).toTrash())
+        assertEquals(0, MergePlan(listOf(trashed to MergeAction.REPLACE), mapOf("a" to shown)).toTrash())
+        assertEquals(0, MergePlan(listOf(trashed to MergeAction.KEEP), mapOf("a" to trashed)).toTrash())
+    }
 }

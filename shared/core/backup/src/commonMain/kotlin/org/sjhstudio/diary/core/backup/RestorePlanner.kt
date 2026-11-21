@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.Channel
@@ -48,6 +49,13 @@ internal object RestoreNames {
      * 다른 사진의 이름이면 그 사진을 덮으니 해시도 맞아야 함
      */
     fun isPhoto(name: String, sha256: String?): Boolean = PHOTO.matches(name) && (sha256 == null || name.substringBefore('.') == sha256)
+
+    /**
+     * 드라이브 확인값이 이름(내용 확인값)과 다른 사진 사본
+     * 올린 뒤 확인값이 달라 지우기 전에 끊기면 남음
+     * 이름만 믿으면 백업됐다고 보고 복원에서 깨진 사진을 받음
+     */
+    fun isDamaged(file: DriveFile): Boolean = file.sha256 != null && file.sha256 != file.name.substringBefore('.')
 
     /**
      * 스냅샷 이름에는 기기 이름이 들어가 글자를 좁힐 수 없음
@@ -145,6 +153,7 @@ class RestorePlanner(
                 entriesUpdated = plan.count(MergeAction.REPLACE),
                 entriesKeptBoth = plan.count(MergeAction.KEEP_BOTH),
                 entriesUnchanged = plan.count(MergeAction.KEEP),
+                entriesToTrash = plan.toTrash(),
                 photosToDownload = needed.size,
                 bytesToDownload = needed.sumOf { it.byteSize },
                 photosNotInBackup = manifest.media.count { !it.inBackup },
@@ -199,16 +208,19 @@ class PhotoFetcher(
     private val fileSystem: FileSystem,
     private val mediaDir: Path,
     private val workDir: Path,
-    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE }
+    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE },
+    // 사진 받기 작업자의 디스패처
+    // 시험은 비워 두어 부르는 쪽 가상 시간에서 돎
+    private val io: CoroutineContext = Dispatchers.IO
 ) {
     /** 대기 사진이 드라이브에 있는지 찾아봄 */
     suspend fun look(): DrivePhotos {
         val pending = db.backupDao().pendingFiles()
         if (pending.isEmpty()) return DrivePhotos(emptyMap(), 0, 0)
         val onDrive: Map<String, DriveFile> =
-            drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO))).associateBy {
-                it.name.substringBefore('.')
-            }
+            drive.listAll(DriveQuery(props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
+                .filterNot(RestoreNames::isDamaged)
+                .associateBy { it.name.substringBefore('.') }
         val reachable = pending.count { it.sha256 in onDrive }
         return DrivePhotos(onDrive, reachable, pending.size - reachable)
     }
@@ -269,7 +281,7 @@ class PhotoFetcher(
         val gate = Semaphore(parallel)
         return coroutineScope {
             waiting.forEach { photo ->
-                launch(Dispatchers.IO) { gate.withPermit { results.send(settleOne(photo, copy)) } }
+                launch(io) { gate.withPermit { results.send(settleOne(photo, copy)) } }
             }
             repeat(waiting.size) { index ->
                 when (results.receive()) {

@@ -6,6 +6,7 @@ import kotlin.uuid.Uuid
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import org.sjhstudio.diary.feature.plus.PlusBenefit
 
 /**
  * 화면 키(contracts/app-shell.md 화면 키)
@@ -138,8 +139,11 @@ data object RestoreProgressKey : Screen
 @Serializable
 data object FileBackupKey : Screen
 
+/** [from]은 결제 화면에서 맨 위에 둘 다른 혜택(스펙 008 FR-020) */
 @Serializable
-data object PlusKey : Screen
+data class PlusKey(val from: PlusBenefit? = null) : Screen {
+    override fun toString(): String = "PlusKey"
+}
 
 @Serializable
 data object AdvancedStatsKey : Screen

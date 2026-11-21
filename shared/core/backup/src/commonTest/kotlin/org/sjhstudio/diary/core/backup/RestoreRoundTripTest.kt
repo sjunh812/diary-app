@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.backup
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room3.Room
 import kotlin.coroutines.ContinuationInterceptor
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -37,6 +38,7 @@ import org.sjhstudio.diary.core.database.configured
 import org.sjhstudio.diary.core.datastore.BackupStore
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.DriveException
+import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.DamageReason
@@ -101,7 +103,9 @@ class RestoreRoundTripTest {
                     "A"
                 },
                 fs,
-                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), {
+                    "README"
+                }, { ManifestSettings() }, io = EmptyCoroutineContext
             )
         assertIs<BackupOutcome.Done>(runner.run())
         return hash
@@ -131,7 +135,14 @@ class RestoreRoundTripTest {
 
         MergeApplier(phoneB, { false }).apply(prepared.plan, "drive")
         assertEquals("pending", phoneB.backupDao().allMedia().single().status)
-        val (fetched, broken) = PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        val (fetched, broken) = PhotoFetcher(
+            phoneB,
+            drive,
+            fs,
+            dir / "b" / "media",
+            dir / "b" / "backup",
+            io = EmptyCoroutineContext
+        ).fetch()
 
         assertEquals(1 to 0, fetched to broken)
         assertEquals("normal", phoneB.backupDao().allMedia().single().status)
@@ -147,6 +158,33 @@ class RestoreRoundTripTest {
             downloads++
             return drive.download(fileId, to, fromByte)
         }
+    }
+
+    // 올리다 끊겨 다시 보내 목록 파일이 둘이어도 백업은 한 줄. 같은 줄이 둘이면 목록 화면이 꺼짐
+    @Test
+    fun a_manifest_uploaded_twice_is_one_backup() = runTest {
+        backUp()
+        val manifest = drive.visible.single { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST }
+        val copy = dir / "manifest-copy.json"
+        fs.write(copy) { write(drive.bytes(manifest.id)) }
+        drive.uploadSmall(NewFile(manifest.name, manifest.parents.firstOrNull(), "application/json", manifest.props), copy)
+
+        assertEquals(1, catalog().list().size)
+        assertEquals(1, catalog().saved().size)
+    }
+
+    // 미리보기의 "추가할 일기"는 백업 목록의 편수와 같음. 휴지통 일기는 휴지통으로만 들어감
+    @Test
+    fun the_preview_counts_match_the_list_without_trash() = runTest {
+        phoneA.entryDao().insertAll(listOf(entry("gone").copy(deletedAt = (Clock.System.now() - 1.days).toEpochMilliseconds())))
+        backUp()
+
+        val candidate = catalog().list().single()
+        val prepared = planner().prepare(candidate)
+
+        assertEquals(candidate.entry.entryCount, prepared.preview.entriesAdded)
+        assertEquals(2, prepared.preview.entriesAdded)
+        assertEquals(1, prepared.preview.entriesToTrash)
     }
 
     /** 앱을 다시 열어도 받아 둔 목록 파일은 다시 받지 않음. 백업이 늘어도 목록이 느려지지 않음 */
@@ -221,7 +259,10 @@ class RestoreRoundTripTest {
         val work = dir / "b" / "backup"
         val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
         return RestoreController(
-            lazy { catalog() }, lazy { planner(api) }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
+            lazy {
+                catalog()
+            },
+            lazy { planner(api) }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work, io = EmptyCoroutineContext) },
             lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) },
             lazy {
                 rollback ?: RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {})
@@ -237,7 +278,7 @@ class RestoreRoundTripTest {
         backUp()
         val settings = mutableListOf<ManifestSettings>()
         val controller = controller(settings, backgroundScope)
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
         assertIs<RestorePreparation.Ready>(controller.prepare(name))
 
         controller.merge()
@@ -255,7 +296,7 @@ class RestoreRoundTripTest {
         backUp()
         val store = BackupStore(InMemoryDataStore(emptyPreferences()))
         val controller = controller(mutableListOf(), backgroundScope, store = store)
-        val entry = controller.backups()!!.single()
+        val entry = controller.backups().entriesOrNull!!.single()
         assertIs<RestorePreparation.Ready>(controller.prepare(entry.snapshotName))
 
         controller.merge()
@@ -270,7 +311,7 @@ class RestoreRoundTripTest {
         backUp()
         val scheduler = FakeBackupScheduler()
         val controller = controller(mutableListOf(), backgroundScope, scheduler = scheduler)
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
         assertIs<RestorePreparation.Ready>(controller.prepare(name))
 
         controller.merge()
@@ -285,7 +326,7 @@ class RestoreRoundTripTest {
         backUp()
         val gate = BackupGate()
         val controller = controller(mutableListOf(), backgroundScope, gate)
-        val name = controller.backups()!!.single().snapshotName
+        val name = controller.backups().entriesOrNull!!.single().snapshotName
         assertIs<RestorePreparation.Ready>(controller.prepare(name))
         assertTrue(gate.tryEnter())
 
@@ -355,14 +396,16 @@ class RestoreRoundTripTest {
                     "A"
                 },
                 fs,
-                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }
+                dir / "a" / "media", dir / "a" / "backup", BackupAppInfo("2.0.0", 37, "android"), {
+                    "README"
+                }, { ManifestSettings() }, io = EmptyCoroutineContext
             )
         assertIs<BackupOutcome.Done>(runner.run())
 
         val applier = applierB()
         val prepared = prepareFromDrive()
         applier.apply(prepared.plan, "drive")
-        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
 
         assertEquals(setOf(full, trashed), phoneB.backupDao().allEntries().toSet())
         assertEquals(rows, phoneB.backupDao().allMedia().sortedBy { it.sortOrder })
@@ -402,11 +445,13 @@ class RestoreRoundTripTest {
                 override suspend fun download(fileId: String, to: Path, fromByte: Long): Long = throw DriveException(BackupFailure.OFFLINE)
             }
 
-        assertFailsWith<DriveException> { PhotoFetcher(phoneB, broken, fs, dir / "b" / "media", dir / "b" / "backup").fetch() }
+        assertFailsWith<DriveException> {
+            PhotoFetcher(phoneB, broken, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
+        }
         assertEquals("pending", phoneB.backupDao().allMedia().single().status)
         assertEquals(2, phoneB.backupDao().allEntries().size)
 
-        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
 
         assertEquals("normal", phoneB.backupDao().allMedia().single().status)
     }
@@ -432,7 +477,7 @@ class RestoreRoundTripTest {
 
         assertEquals(0, again.preview.entriesAdded)
         assertEquals(1, again.preview.photosToDownload)
-        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
         assertTrue(fs.exists(dir / "b" / "media" / "$hash.jpg"))
     }
 
@@ -441,7 +486,7 @@ class RestoreRoundTripTest {
         backUp()
         val settings = mutableListOf<ManifestSettings>()
         val controller = controller(settings, backgroundScope)
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
 
         controller.merge()
         val done = withContext(Dispatchers.Default) { withTimeout(5_000) { controller.state.first { it is RestoreState.Done } } }
@@ -505,7 +550,7 @@ class RestoreRoundTripTest {
         backUp(listOf(MediaEntity("evil", "two", 0, "pending", "../../evil.jpg", "0".repeat(64), 1, 1, null, null, 1)))
         val controller = controller(mutableListOf(), backgroundScope)
 
-        val failed = assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups()!!.single().snapshotName))
+        val failed = assertIs<RestorePreparation.Failed>(controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName))
 
         assertEquals(RestoreFailure.MISMATCH, failed.reason)
         assertTrue(copiesLeft().isEmpty())
@@ -517,7 +562,7 @@ class RestoreRoundTripTest {
         val watching = WatchingDrive(drive)
         val controller = controller(mutableListOf(), backgroundScope, api = watching)
 
-        assertIs<RestorePreparation.Ready>(controller.prepare(controller.backups()!!.single().snapshotName))
+        assertIs<RestorePreparation.Ready>(controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName))
 
         assertEquals(Dispatchers.IO, watching.seen)
     }
@@ -559,7 +604,7 @@ class RestoreRoundTripTest {
     fun closing_the_preview_leaves_no_copy_of_the_diary() = runTest {
         backUp()
         val controller = controller(mutableListOf(), backgroundScope)
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
         assertTrue(copiesLeft().isNotEmpty())
 
         controller.dismiss()
@@ -574,7 +619,7 @@ class RestoreRoundTripTest {
         fs.write(incoming / "picked") { writeUtf8("지난번에 고른 파일") }
         val controller = controller(mutableListOf(), backgroundScope)
 
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
 
         assertFalse(fs.exists(incoming / "picked"))
     }
@@ -594,7 +639,7 @@ class RestoreRoundTripTest {
         backUp()
         val gate = BackupGate()
         val controller = controller(mutableListOf(), backgroundScope, gate)
-        controller.prepare(controller.backups()!!.single().snapshotName)
+        controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
         assertTrue(gate.tryEnter())
         controller.merge()
 

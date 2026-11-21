@@ -5,6 +5,7 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -26,6 +27,15 @@ interface SettingsRepository {
     suspend fun setReminder(enabled: Boolean, minuteOfDay: Int)
 
     suspend fun setListStyle(style: ListStyle)
+
+    /**
+     * 목록 미리보기 길이(스펙 008)
+     * [chosen]은 사람이 고른 값. 참이면 옛 설정을 다시 잇지 않음
+     */
+    suspend fun setPreviewLength(length: PreviewLength, chosen: Boolean = true)
+
+    /** 목록에서 서식 그대로 보기. 그리는지는 요금제와 함께 봄 */
+    suspend fun setShowListFormatting(show: Boolean)
 
     /** "글꼴이 바뀌었어요"를 한 번 알린 뒤 지움 */
     suspend fun clearFontReplacedNotice()

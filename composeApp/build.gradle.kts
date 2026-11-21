@@ -228,6 +228,11 @@ androidComponents {
         if (variant.buildType == "benchmarkRelease" || variant.buildType == "nonMinifiedRelease") {
             (testAds + mapOf("firebaseCollection" to "false")).forEach { (key, value) -> variant.manifestPlaceholders.put(key, value) }
         }
+        // 측정 빌드만 요금제를 adb로 고름(src/benchmarkRelease). 플러그인이 만든 빌드 타입이라 폴더를 직접 이음
+        if (variant.buildType == "benchmarkRelease") {
+            variant.sources.kotlin?.addStaticSourceDirectory("src/benchmarkRelease/kotlin")
+            variant.sources.manifests.addStaticManifestFile("src/benchmarkRelease/AndroidManifest.xml")
+        }
     }
 }
 

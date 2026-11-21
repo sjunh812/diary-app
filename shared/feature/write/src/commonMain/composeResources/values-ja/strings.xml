@@ -55,7 +55,7 @@
     <string name="write_place_recent">最近の場所</string>
     <string name="write_place_body">書いた場所を残しておくと、あとで見つけやすくなります。</string>
     <string name="write_limit_title">写真は1件に%1$d枚までです</string>
-    <string name="write_limit_body">Plusなら%1$d枚まで追加できます。選んだ写真と書いた内容はそのままです。</string>
+    <string name="write_limit_body">Plusなら%1$d枚まで追加できます。追加した写真と書いた内容はそのままです。</string>
     <string name="write_limit_plus">Plusを見る</string>
     <string name="write_limit_later">今はしない</string>
     <string name="write_place_current">現在地を使う</string>

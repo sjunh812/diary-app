@@ -28,8 +28,27 @@
     <string name="detail_missing_body">It may have been deleted or moved to Trash.</string>
     <string name="tip_home_list_style">View your diary list as cards or a photo grid.</string>
     <string name="tip_home_list_style_action">Change</string>
+    <string name="tip_home_full_preview">You can see whole diaries in the list too.</string>
+    <string name="tip_home_full_preview_action">Show full</string>
+    <string name="tip_home_full_preview_kept">The list shows whole diaries, just like before.</string>
+    <string name="tip_home_full_preview_kept_action">Show 3 lines</string>
     <string name="feedback_card_title">How are you finding 1 Day 1 Diary? 😊</string>
     <string name="feedback_card_body">We're running a survey to make the app better. Tell us what bothered you and what features you'd like.</string>
     <string name="feedback_card_action">Take the survey</string>
     <string name="feedback_card_close">Close</string>
+    <string name="update_card_title">A new version is available</string>
+    <string name="update_card_title_required">An important update is available</string>
+    <string name="update_card_default">We fixed bugs and improved stability.</string>
+    <string name="update_card_keep">Your diary stays as it is.</string>
+    <string name="update_card_keep_required">Please update. Your diary stays as it is.</string>
+    <string name="update_card_kept">Your diary stays as it is.</string>
+    <string name="update_card_failed">Couldn't download it. Please try again in a moment.</string>
+    <string name="update_card_update">Update</string>
+    <string name="update_card_later">Later</string>
+    <string name="update_card_downloading_title">Downloading the new version</string>
+    <string name="update_card_downloading_body">%1$d% · You can keep using the app meanwhile.</string>
+    <string name="update_card_downloading_body_unknown">You can keep using the app meanwhile.</string>
+    <string name="update_card_downloaded_title">The new version is ready</string>
+    <string name="update_card_downloaded_body">Restart to switch to the new version.</string>
+    <string name="update_card_restart">Restart</string>
 </resources>

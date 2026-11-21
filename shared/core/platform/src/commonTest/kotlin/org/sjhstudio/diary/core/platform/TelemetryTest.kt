@@ -12,6 +12,7 @@ class TelemetryTest {
     private class RecordingSink : TelemetrySink {
         val events = mutableListOf<Pair<String, Map<String, String>>>()
         val keys = mutableMapOf<String, String>()
+        val errors = mutableListOf<Pair<String, Long>>()
 
         override fun log(event: String, params: Map<String, String>) {
             events += event to params
@@ -20,6 +21,32 @@ class TelemetryTest {
         override fun setCustomKey(key: String, value: String) {
             keys[key] = value
         }
+
+        override fun recordError(domain: String, code: Long) {
+            errors += domain to code
+        }
+    }
+
+    @Test
+    fun an_error_is_reported_by_area_kind_and_code() {
+        val sink = RecordingSink()
+
+        Telemetry(sink, strict = true).report(ErrorArea.DRIVE_CONNECT, "com.google.GIDSignIn", -4)
+
+        assertEquals(listOf("drive.connect.com.google.GIDSignIn" to -4L), sink.errors)
+        assertTrue(sink.events.isEmpty() && sink.keys.isEmpty())
+    }
+
+    @Test
+    fun an_error_name_keeps_only_safe_characters() {
+        val sink = RecordingSink()
+
+        Telemetry(sink, strict = true).report(ErrorArea.DRIVE_TOKEN, "user@example.com failed: " + "x".repeat(200), 1)
+
+        val name = sink.errors.single().first
+        assertTrue(name.startsWith("drive.token.user_example.com_failed__"), name)
+        assertTrue(name.length <= "drive.token.".length + 80, name)
+        assertTrue(name.none { it == '@' || it == ' ' || it == ':' }, name)
     }
 
     @Test

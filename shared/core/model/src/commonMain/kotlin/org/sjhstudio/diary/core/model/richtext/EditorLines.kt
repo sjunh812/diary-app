@@ -5,7 +5,7 @@ package org.sjhstudio.diary.core.model.richtext
 // 그래야 줄바꿈 한 번이 읽기 화면에서 빈 줄로 보이지 않음
 //
 // 에디터가 낸 것은 아는 꼴이 아니어도 버리지 않음
-// 줄 맨 앞에 `1. `을 치면 에디터가 스스로 번호 목록을 만들고, 붙여넣기도 다른 태그를 들여옴
+// 번호 목록은 입력할 때 글자 줄로 풀지만, 붙여넣기는 다른 태그를 들여옴
 
 // 줄바꿈까지 넘는 `[\s\S]`. DOT_MATCHES_ALL은 공통 코드에 없음
 private val BLOCK = Regex("""<p\b[^>]*>([\s\S]*?)</p>|<(?:ul|ol)\b[^>]*>|<br\s*/?>""", RegexOption.IGNORE_CASE)
@@ -105,6 +105,25 @@ fun editorToBody(html: String): String {
     flush()
     return out.toString()
 }
+
+/** 글머리 목록을 `• `가 붙은 줄로. 서식 없는 글(`toPlainText`)과 같은 표시 */
+private fun bulletLines(list: String): List<String> =
+    list.split(LIST_ITEM).drop(1).map { it.replace(LIST_TAGS, "").trim() }.filter { it.isNotEmpty() }.map { "• $it" }
+
+/**
+ * 에디터 HTML을 복사용으로 바꿈. 줄은 `br`로만 잇고 문단·목록 태그는 남기지 않음
+ * 다른 앱은 HTML을 붙여넣을 때 문단·목록 사이를 빈 줄로 바꿔 줄바꿈이 두 번씩 들어감
+ * 에디터는 `br`로 이은 줄을 다시 문단으로 읽음
+ */
+fun editorToClipboard(html: String): String = blocksOf(html)
+    .flatMap { block ->
+        when (block) {
+            is Block.Bullets -> bulletLines(block.html)
+            is Block.Numbers -> numberedLines(block.html)
+            Block.Blank -> listOf("")
+            is Block.Line -> listOf(block.html.takeUnless { BREAK.matches(it.trim()) }.orEmpty())
+        }
+    }.joinToString("<br>")
 
 /** 저장 형식을 에디터에 넣을 HTML로 바꿈. 문단 안의 `br`은 줄로, 문단 사이는 빈 줄로 폄 */
 fun bodyToEditor(html: String): String {

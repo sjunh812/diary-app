@@ -7,11 +7,13 @@ import org.sjhstudio.diary.app.IosAds
 import org.sjhstudio.diary.app.IosDrive
 import org.sjhstudio.diary.app.IosReview
 import org.sjhstudio.diary.app.IosTelemetry
+import org.sjhstudio.diary.app.IosUpdate
 import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.ads.IosAdPlayer
 import org.sjhstudio.diary.app.billing.IosBilling
 import org.sjhstudio.diary.app.billing.iosBilling
 import org.sjhstudio.diary.app.review.IosStoreReview
+import org.sjhstudio.diary.app.update.IosStoreUpdates
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
@@ -19,7 +21,9 @@ import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.NoAdPlayer
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.RemoteValues
 import org.sjhstudio.diary.core.data.StoreReview
+import org.sjhstudio.diary.core.data.StoreUpdates
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.migration.EmptyLegacyArchive
 import org.sjhstudio.diary.core.migration.LegacyArchive
@@ -46,6 +50,7 @@ import org.sjhstudio.diary.core.platform.NoBackupScheduler
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
+import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import platform.Foundation.NSBundle
 
@@ -57,6 +62,9 @@ internal actual val platformModule: Module =
         single<AdSwitch> { IosAds.switch }
         // 리뷰 창은 Swift 다리로(StoreReviewBridge.swift). 다리 없이 켠 시험 앱은 요청하지 않음
         single<StoreReview> { IosReview.bridge?.let(::IosStoreReview) ?: StoreReview { false } }
+        // 새 버전은 App Store 공개 조회, 띄우기는 Swift 다리(AppUpdateBridge.swift, 스펙 009)
+        single<RemoteValues> { IosUpdate.remote }
+        single<StoreUpdates> { IosStoreUpdates(IosUpdate.bridge, get<BackupAppInfo>().versionName) }
         // 재설치 뒤 구매를 바로 가져오게 앱 시작 때 만듦
         single { iosBilling(appCoroutineScope(Dispatchers.Main.immediate)) }
         single<StartupWork> { StartupWork { get<IosBilling>() } }
@@ -69,7 +77,7 @@ internal actual val platformModule: Module =
         single<PlaceFinder> { IosPlaceFinder() }
         single<FontInstaller> { IosFontInstaller(get()) }
         single { DatabaseFactory(get()) }
-        single<DriveAuthorizer> { IosDriveAuthorizer { IosDrive.bridge } }
+        single<DriveAuthorizer> { IosDriveAuthorizer(get<Telemetry>()) { IosDrive.bridge } }
         // 시작 때 감시를 켬. 백업·복원이 처음 읽을 때는 실제 연결 값이 들어와 있게
         single<NetworkState>(createdAtStart = true) { IosNetworkState() }
         single<DeviceName> { IosDeviceName() }

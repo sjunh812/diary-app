@@ -13,10 +13,10 @@
     <string name="plus_start_price">年額%1$sで始める</string>
     <string name="plus_notice">1年ごとに自動更新され、いつでも解約できます。</string>
     <string name="plus_retry">もう一度試す</string>
-    <string name="plus_no_store">価格を読み込めませんでした。インターネット接続を確認してください。</string>
+    <string name="plus_no_store">価格を読み込めませんでした。しばらくしてからもう一度お試しください。</string>
     <string name="plus_failed">決済を完了できませんでした。支払い済みの場合は［購入を復元］をタップしてください。</string>
     <string name="plus_pending">支払いの承認を待っています。承認されると自動で有効になります。</string>
-    <string name="plus_restore_failed">購入履歴を確認できませんでした。インターネット接続を確認して、もう一度お試しください。</string>
+    <string name="plus_restore_failed">購入履歴を確認できませんでした。しばらくしてからもう一度お試しください。</string>
     <string name="plus_restored">購入を復元しました</string>
     <string name="plus_restore_none">復元できる購入がありません</string>
     <string name="plus_ad_free_owned">広告削除はすでに購入済みです。</string>
@@ -38,8 +38,13 @@
     <string name="plus_manage_benefits">ご利用中の特典</string>
     <string name="plus_manage_price">料金</string>
     <string name="plus_manage_store_body">次回の支払い日の確認や解約ができます。</string>
-    <string name="plus_checklist_title">チェックリスト</string>
+    <string name="plus_checklist_title">日記にチェックリストを入れる</string>
     <string name="plus_checklist_body">日記にやることを書いてチェックできます。</string>
     <string name="plus_terms">利用規約</string>
     <string name="plus_privacy">プライバシーポリシー</string>
+    <string name="plus_other_title">その他の特典</string>
+    <string name="plus_see_all">すべて見る</string>
+    <string name="plus_all_title">Plusの特典</string>
+    <string name="plus_format_title">一覧でも書式をそのまま表示</string>
+    <string name="plus_format_body">太字、下線、文字色、マーカーまで表示されます。</string>
 </resources>

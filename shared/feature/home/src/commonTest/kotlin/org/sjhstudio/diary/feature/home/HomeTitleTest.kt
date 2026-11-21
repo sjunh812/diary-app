@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.home
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import org.sjhstudio.diary.core.model.MonthCount
@@ -44,5 +45,11 @@ class HomeTitleTest {
     @Test
     fun an_empty_list_shows_today() {
         assertEquals(YearMonth(2026, 11), shownMonth(null, emptyList(), position = 0, today))
+    }
+
+    /** 줄도 달별 수도 읽기 전에는 달을 모름. 오늘 달을 먼저 보였다가 바꾸지 않게 */
+    @Test
+    fun nothing_read_yet_has_no_month() {
+        assertNull(shownMonth(null, null, 0, LocalDate(2026, 11, 20)))
     }
 }

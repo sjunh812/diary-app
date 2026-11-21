@@ -1,8 +1,13 @@
 package org.sjhstudio.diary.app.scaffold
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -22,6 +27,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.remember
@@ -153,6 +159,7 @@ import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.SearchFilter
+import org.sjhstudio.diary.core.ui.DiaryDismissSlot
 import org.sjhstudio.diary.core.ui.LocalTabReselect
 import org.sjhstudio.diary.core.ui.WriteFailures
 import org.sjhstudio.diary.core.ui.rememberReduceMotion
@@ -244,6 +251,17 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
         // 토스트가 떠 있는 동안 쓰기 버튼을 그 위로 올림. 토스트는 제자리에 뜨고 버튼은 가리지 않음
         var toastHeight by remember { mutableStateOf(Dp.Hairline) }
         val reduceMotion = rememberReduceMotion()
+        // 탭을 바꾸면 화면을 새로 그려 탭 바도 새로 생김. 옮겨 그려 누름 효과가 도중에 끊기지 않게 함
+        val barItems by rememberUpdatedState(items)
+        val barSelect by rememberUpdatedState(onSelect)
+        val bar = remember {
+            movableContentOf { selected: Int ->
+                val barDensity = LocalDensity.current
+                Box(Modifier.onSizeChanged { barHeight = with(barDensity) { it.height.toDp() } }) {
+                    DiaryNavigationBar(barItems, selected, barSelect)
+                }
+            }
+        }
         // 토스트와 같은 때, 같은 곡선으로 움직임. 토스트가 사라질 때는 같이 짧게 내려옴
         val toastShown = toast.current != null
         val writeLift by animateDpAsState(
@@ -264,19 +282,23 @@ fun AppScaffold(startTab: TabScreen = HomeKey) {
                         null
                     } else {
                         { root ->
-                            val hideOnHome = root == HomeKey && hasEntries != true
-                            if (root != SettingsKey && !hideOnHome) {
-                                DiaryWriteButton(
-                                    writeLabel,
-                                    onWrite,
+                            if (root != SettingsKey) {
+                                // 홈은 일기가 있을 때만. 빈 홈은 가운데 [쓰기]가 맡음
+                                // 앱을 켠 뒤 읽는 사이 생기면 튀어나오지 않고 커지며 나타남. 처음부터 알면 움직이지 않음
+                                AnimatedVisibility(
+                                    root != HomeKey || hasEntries == true,
                                     Modifier
                                         .align(Alignment.BottomEnd)
                                         .padding(end = LocalScreenGutter.current, bottom = DiarySpacing.x4 + barHeight)
-                                        .offset { IntOffset(0, -writeLift.roundToPx()) }
-                                )
+                                        .offset { IntOffset(0, -writeLift.roundToPx()) },
+                                    enter = writeButtonEnter,
+                                    exit = writeButtonExit
+                                ) {
+                                    DiaryWriteButton(writeLabel, onWrite)
+                                }
                             }
-                            Box(Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = with(density) { it.height.toDp() } }) {
-                                DiaryNavigationBar(items, TABS.indexOf(root), onSelect)
+                            Box(Modifier.align(Alignment.BottomCenter)) {
+                                bar(TABS.indexOf(root))
                             }
                         }
                     }
@@ -525,11 +547,16 @@ private fun Content(
                             })
                         },
                         // 맨 위 카드는 한 장. 어느 카드인지는 [HomeTopState]가 정함
-                        listTop = {
-                            when (val current = top) {
-                                is HomeTop.Backup -> BackupNudgeCard(current.nudge)
-                                HomeTop.Feedback -> HomeFeedbackCard(showText)
-                                HomeTop.Reading, HomeTop.Empty -> Unit
+                        listTop = { listRead ->
+                            // 백업 안내는 숫자가 바뀌어도 같은 카드. 목록을 읽는 동안 처음 정해진 카드는 바로 보임
+                            // 목록이 그려진 뒤 늦게 정해지면(앱을 켜고 스토어 확인이 늦을 때) 자리를 열며 들어옴
+                            DiaryDismissSlot(top, key = { it::class }, known = { it != HomeTop.Reading || listRead }) { current ->
+                                when (current) {
+                                    is HomeTop.Backup -> BackupNudgeCard(current.nudge)
+                                    is HomeTop.Update -> HomeUpdateCard(current.notice)
+                                    HomeTop.Feedback -> HomeFeedbackCard(showText)
+                                    HomeTop.Reading, HomeTop.Empty, HomeTop.Waiting -> Unit
+                                }
                             }
                         },
                         // 카드가 없을 때만 목록 보기 팁이 그 자리를 씀
@@ -596,7 +623,7 @@ private fun Content(
                             nav.push(SearchKey(listOf(mood.id), range?.start?.toString(), range?.end?.toString()))
                         },
                         onPeriod = { range -> nav.push(SearchKey(from = range.start.toString(), to = range.end.toString())) },
-                        onPlus = { nav.push(PlusKey) },
+                        onPlus = { nav.push(PlusKey()) },
                         onAdvanced = { nav.push(AdvancedStatsKey) },
                         onWrite = onWrite,
                         adSlot = { AdSlot("insight", AdShape.Card, shell.onAdClose) }
@@ -639,7 +666,7 @@ private fun Content(
                             pop()
                             if (kept) notify(Message.DraftKept)
                         },
-                        onPlus = { nav.push(PlusKey) }
+                        onPlus = { nav.push(PlusKey()) }
                     )
                 }
             }
@@ -745,3 +772,10 @@ internal fun FirstAdNoticeDialog(onConfirm: () -> Unit, onRemoveAds: () -> Unit)
         onSecondary = onRemoveAds
     )
 }
+
+/** 쓰기 단추가 생기고 사라질 때. M3 FAB처럼 커지며 나타나고 나갈 때는 짧게 */
+private val writeButtonEnter =
+    fadeIn(tween(DiaryMotion.QUICK_MILLIS)) + scaleIn(tween(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate), WRITE_BUTTON_FROM)
+private val writeButtonExit = fadeOut(tween(DiaryMotion.EXIT_MILLIS)) + scaleOut(tween(DiaryMotion.EXIT_MILLIS), WRITE_BUTTON_FROM)
+
+private const val WRITE_BUTTON_FROM = 0.8f

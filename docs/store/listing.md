@@ -43,7 +43,7 @@ Play는 목록 태그를 받지 않아 줄머리표(•)로 쓰고 묶음 제목
 
 <b>백업과 잠금</b>
 • 일기와 사진을 내 구글 드라이브에 백업해요. 드라이브 없이 파일 하나로 보관할 수도 있어요.
-• 비밀번호와 생체 인증으로 일기를 잠가요.
+• 비밀번호와 생체인증으로 일기를 잠가요.
 
 <b>글꼴과 화면</b>
 • 글꼴 10종, 본문 글자 크기, 다크 모드를 원하는 대로 골라요.
@@ -156,7 +156,7 @@ App Store는 `<b>`를 그리지 않아 묶음 제목을 그대로 두고, "태�
 
 백업과 잠금
 • 일기와 사진을 내 구글 드라이브에 백업해요. 드라이브 없이 파일 하나로 보관할 수도 있어요.
-• 비밀번호와 생체 인증으로 일기를 잠가요.
+• 비밀번호와 생체인증으로 일기를 잠가요.
 
 글꼴과 화면
 • 글꼴 10종, 본문 글자 크기, 다크 모드를 원하는 대로 골라요.
@@ -411,37 +411,65 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 
 ## 새로운 기능
 
-### 2.0.1 (44)
+### 2.1.0 (47)
 
-Android 사용자에게 보이는 변화만 적는다. 리뷰 창은 적지 않는다(스토어가 띄울지 정해서 약속이 될 수 있다).
+Android(2.0.1에서)와 iOS(2.0.2에서) 모두 이 노트를 쓴다. 이번 버전부터 두 스토어의 버전과 빌드 번호를 맞춘다(`docs/DECISIONS.md` 2026-11-21). 쓰는 법은 아래 2.0.1과 같다.
+
+```text
+<ko-KR>
+[버전 2.1.0]
+• 결제한 뒤에도 광고가 보이던 문제를 수정했어요
+• 목록에서 일기를 3줄, 5줄, 전체로 골라 볼 수 있어요
+• 새 버전이 나오면 홈과 설정에서 알려드려요
+• 앱을 켤 때 화면이 깜빡이지 않아요
+• 쓰기 화면과 백업·복원의 여러 문제를 수정했어요
+</ko-KR>
+<en-US>
+[Version 2.1.0]
+• Fixed ads still showing after purchase
+• Show 3 lines, 5 lines, or the full entry in your list
+• Home and Settings now tell you when a new version is out
+• No more screen flicker when opening the app
+• Fixed several issues in writing, backup, and restore
+</en-US>
+<ja-JP>
+[バージョン 2.1.0]
+• 購入後も広告が表示される問題を修正しました
+• 一覧で日記を3行・5行・全文から選んで表示できます
+• 新しいバージョンが出ると、ホームと設定でお知らせします
+• アプリを開くときに画面がちらつかなくなりました
+• 書く画面とバックアップ・復元の不具合を修正しました
+</ja-JP>
+```
+
+### 2.0.1 (45)
+
+Android 사용자에게 보이는 변화 가운데 중요한 다섯 줄만 적고, 맨 위에 버전을 쓴다. 길면 헷갈린다(사용자 요청 2026-11-17). 버전 표기와 한 줄에 한 가지는 카카오톡 Play "새로운 기능"([v26.9.2] ● …)을, 버전을 먼저 쓰는 것은 Day One(2026.23:)을 따랐다. 세부 동작 대신 "스크롤 성능을 개선했어요"처럼 체감 위주로 쓴다. 리뷰 창은 적지 않는다(스토어가 띄울지 정해서 약속이 될 수 있다).
 
 ```text
 <ko-KR>
 [버전 2.0.1]
-• 더 나은 앱을 만들기 위한 설문 안내를 홈에 추가했어요
-• 알림을 꺼두면 설정의 쓰기 알림도 알림 꺼짐으로 보여요
-• 다크 모드에서 기간 탭이 잘 보이게 했어요
-• 홈 탭을 다시 누르면 맨 위로 더 빨리 올라가고 달 제목도 바로 바뀌어요
 • 하루 한 번 나오는 전면 광고는 이제 일기를 저장한 직후에 나와요
-• 화면 문구를 읽기 쉽게 다듬었어요
+• 기기 저장 공간이 꽉 찼을 때 앱이 꺼지던 문제를 고쳤어요
+• 스크롤 성능을 개선했어요
+• 알림을 꺼두면 설정의 쓰기 알림도 알림 꺼짐으로 보여요
+• 생체인증을 쓸 수 없으면 잠금 설정에서 이유를 알려줘요
 </ko-KR>
 <en-US>
 [Version 2.0.1]
-• Added a survey invite on Home to help us improve the app
-• Daily reminder shows as off when notifications are blocked
-• Period tabs are easier to see in dark mode
-• Tapping Home again jumps to the top faster and shows the right month right away
 • The once-a-day full-screen ad now shows right after you save an entry
-• Clearer wording across the app
+• Fixed the app closing when your device storage is full
+• Improved scrolling performance
+• Daily reminder shows as off when notifications are blocked
+• Lock settings now explain why biometrics aren't available
 </en-US>
 <ja-JP>
 [バージョン 2.0.1]
-• より良いアプリにするためのアンケート案内をホームに追加しました
-• 通知をオフにすると、設定の毎日のリマインダーもオフと表示されます
-• ダークモードで期間タブが見やすくなりました
-• ホームタブをもう一度押すと、より速く一番上に戻り、月の表示もすぐ切り替わります
 • 1日1回の全画面広告は、日記を保存した直後に表示されるようになりました
-• 画面の文言を読みやすく整えました
+• 端末の空き容量がないときにアプリが終了する問題を修正しました
+• スクロールのパフォーマンスを改善しました
+• 通知をオフにすると、設定の毎日のリマインダーもオフと表示されます
+• 生体認証を使えないとき、ロック設定で理由を表示するようにしました
 </ja-JP>
 ```
 

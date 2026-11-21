@@ -13,10 +13,10 @@
     <string name="plus_start_price">Start for %1$s/year</string>
     <string name="plus_notice">Renews every year. Cancel anytime in the store.</string>
     <string name="plus_retry">Try again</string>
-    <string name="plus_no_store">Couldn't load the price. Check your connection.</string>
+    <string name="plus_no_store">Couldn't load the price. Try again in a moment.</string>
     <string name="plus_failed">Couldn't complete the payment. If you were charged, tap Restore purchases.</string>
     <string name="plus_pending">Waiting for payment approval. It turns on automatically once approved.</string>
-    <string name="plus_restore_failed">Couldn't check your purchases. Check your connection and try again.</string>
+    <string name="plus_restore_failed">Couldn't check your purchases. Try again in a moment.</string>
     <string name="plus_restored">Purchase restored</string>
     <string name="plus_restore_none">No purchases to restore</string>
     <string name="plus_ad_free_owned">You've already removed ads.</string>
@@ -38,8 +38,13 @@
     <string name="plus_manage_benefits">Your benefits</string>
     <string name="plus_manage_price">Price</string>
     <string name="plus_manage_store_body">See your next billing date or cancel.</string>
-    <string name="plus_checklist_title">Checklists</string>
+    <string name="plus_checklist_title">Add checklists to entries</string>
     <string name="plus_checklist_body">Add to-dos to your entries and check them off.</string>
     <string name="plus_terms">Terms of Use</string>
     <string name="plus_privacy">Privacy Policy</string>
+    <string name="plus_other_title">Other benefits</string>
+    <string name="plus_see_all">See all</string>
+    <string name="plus_all_title">Plus benefits</string>
+    <string name="plus_format_title">Keep formatting in the list</string>
+    <string name="plus_format_body">Bold, underline, text color, and highlights show too.</string>
 </resources>

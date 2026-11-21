@@ -47,6 +47,7 @@ import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.app.resources.Res
 import org.sjhstudio.diary.app.resources.detail_pick_hint
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.FreePlanRepository
@@ -71,15 +72,19 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
+import org.sjhstudio.diary.core.testing.FakeContextTips
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
+import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.core.testing.FakeStoreUpdates
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
 import org.sjhstudio.diary.feature.home.EntryDetailViewModel
+import org.sjhstudio.diary.feature.home.HomeMonths
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
 import platform.UIKit.UIViewController
@@ -115,7 +120,12 @@ class AdaptiveLayoutUiTest {
                     single<PlanRepository> { FreePlanRepository() }
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
                     single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, { false }) }
-                    single { HomeTopState(get(), get(), MainScope()) }
+                    single {
+                        AppUpdateRepository(FakeStoreUpdates(), {
+                            ""
+                        }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", MainScope()).also { runBlocking { it.refresh() } }
+                    }
+                    single { HomeTopState(get(), get(), get(), MainScope()) }
                     single { AdRemoval(MainScope()) { RewardResult.NotEarned } }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
@@ -127,8 +137,24 @@ class AdaptiveLayoutUiTest {
                     single { Telemetry(NoTelemetrySink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(moods, rows) }
-                    viewModel { (entryId: String) -> EntryDetailViewModel(entryId, get(), FakeSettingsRepository(), NoAdaptiveFonts) }
-                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts) }
+                    viewModel { (entryId: String) ->
+                        EntryDetailViewModel(
+                            entryId,
+                            get(),
+                            FakeSettingsRepository(),
+                            NoAdaptiveFonts
+                        )
+                    }
+                    viewModel {
+                        HomeViewModel(
+                            get(),
+                            FakeSettingsRepository(),
+                            NoAdaptiveFonts,
+                            FakePlanRepository(),
+                            FakeContextTips(),
+                            HomeMonths(get(), MainScope())
+                        )
+                    }
                     viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoAdaptiveFonts, saved = SavedStateHandle()) }
                 }
             )

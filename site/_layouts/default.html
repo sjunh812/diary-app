@@ -1,0 +1,358 @@
+{% assign lang = page.lang | default: 'ko' %}{% assign t = site.data.i18n[lang] %}<!doctype html>
+<html lang="{{ t.html }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% if page.home and lang == 'ko' %}<script>
+// 처음 온 사람은 기기 언어로. 고른 언어가 있으면 그대로, 검색 로봇은 넘기지 않음
+(function(){var s;try{s=localStorage.getItem('lang')}catch(e){}if(s==='ko'||/bot|crawl|spider|slurp|lighthouse/i.test(navigator.userAgent))return;
+if(s!=='en'&&s!=='ja'){s='en';var l=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];
+for(var i=0;i<l.length;i++){var c=String(l[i]).toLowerCase().slice(0,2);if(c==='ko')return;if(c==='ja'||c==='en'){s=c;break}}}
+location.replace('/'+s+'/1day1diary/'+location.hash)})();
+</script>{% endif %}
+<script>if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('motion')</script>
+<title>{% if page.title and page.title != site.title and page.title != t.name %}{{ page.title }} · {% endif %}{{ t.name }}</title>
+<meta name="description" content="{{ t.description }}">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16171B" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="{{ t.name }}">
+<meta property="og:description" content="{{ t.og }}">
+<meta property="og:locale" content="{{ t.locale }}">
+{% if page.home %}<link rel="canonical" href="{{ site.url }}{{ t.home }}">
+{% for l in site.data.i18n %}<link rel="alternate" hreflang="{{ l[0] }}" href="{{ site.url }}{{ l[1].home }}">
+{% endfor %}<link rel="alternate" hreflang="x-default" href="{{ site.url }}/1day1diary/">{% endif %}
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="{{ t.name }}">
+<meta property="og:url" content="{{ site.url }}{{ page.url }}">
+<!-- 링크 미리보기 카드(1200×630). 언어별 화면 -->
+<meta property="og:image" content="{{ site.url }}/assets/og-{{ lang }}.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="{{ t.name }}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ease:cubic-bezier(.05,.7,.1,1);--toast:#2A3038;--onToast:#fff;--canvas:#fff;--card:#F8F8FF;--sunken:#F3F4F5;--line:#EEEFF1;--text:#1A1C20;--text2:#555D6D;--text3:#868B94;--accent:#6E56CF;--accentText:#6550B9;--selected:#EBE4FF;--onAccent:#fff;--frame:#E9EAEE;--header:rgba(255,255,255,.82);--divider:#E6E8EB}
+@media (prefers-color-scheme:dark){:root{--canvas:#16171B;--card:#1D2025;--sunken:#2B2E35;--line:#2B2E35;--text:#F3F4F5;--text2:#DCDEE3;--text3:#9BA0AA;--accentText:#BAA7FF;--selected:#291F43;--frame:#2B2E35;--header:rgba(22,23,27,.82);--divider:#3A3E46;--toast:#393D46;--onToast:#F3F4F5}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{margin:0;overflow-x:hidden;background:var(--canvas);color:var(--text);font:16px/1.7 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Hiragino Sans","Noto Sans JP",sans-serif;word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+a{color:var(--accentText)}
+/* 일본어는 띄어쓰기가 없어 keep-all이면 줄이 넘침. 구절 단위로 줄바꿈 */
+html[lang=ja] body{word-break:normal;line-break:strict}
+@supports (word-break:auto-phrase){html[lang=ja] body{word-break:auto-phrase}}
+/* 제목은 줄 길이를 고르게, 설명은 마지막 줄에 한 단어만 남지 않게 */
+h1,h2,h3{text-wrap:balance}
+p{text-wrap:pretty}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+.wide{max-width:1040px}
+
+/* 머리: 스크롤해도 붙어 있고 뒤가 흐리게 비침 */
+header{position:sticky;top:0;z-index:10;background:var(--header);-webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:8px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;margin-left:-8px;padding:6px 8px;border-radius:12px;color:var(--text);text-decoration:none;font-weight:700;font-size:17px}
+.brand img{width:32px;height:32px;border-radius:8px}
+.get{margin-left:auto}
+
+/* 버튼: 토스·당근처럼 둥근 사각, 누르는 곳은 44px 이상 */
+.button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px;border-radius:12px;background:var(--accent);color:var(--onAccent);font-size:15px;font-weight:600;text-decoration:none;transition:background-color .15s}
+
+/* 누름: 앱과 같은 규격(docs/design.md "누름", DiaryPress.kt)
+   누르는 즉시(80ms) 글자색 10% 면을 깔고 6%(긴 줄은 양옆 6px)까지 줄임
+   떼면 크기는 살짝 튕기며(스프링 감쇠 0.5에 가까운 곡선) 돌아오고 면은 180ms에 옅어짐. 물결은 쓰지 않음 */
+.button,.brand,.faq summary,footer nav a,.badges a{position:relative;isolation:isolate}
+.button,.brand,.faq details,footer nav a,.badges a{transition:transform 420ms cubic-bezier(.3,1.7,.6,1)}
+.button::before,.brand::before,.faq summary::before,footer nav a::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--text);opacity:0;pointer-events:none;transition:opacity 180ms linear}
+:is(.button,.brand,.faq details,footer nav a,.badges a).is-shrunk{transform:scale(var(--press-scale,.94));transition:transform 80ms ease-out}
+.is-pressed::before{transition:opacity 80ms linear}
+/* 마우스일 때만 올렸을 때 바탕. 터치 기기에서 누른 뒤 색이 남지 않게 */
+@media (hover:hover){.button:hover::before,.brand:hover::before,.faq summary:hover::before,footer nav a:hover::before{opacity:.08}footer nav a:hover{color:var(--text)}}
+/* 누르는 중이면 올렸을 때 면보다 진하게 */
+.button.is-pressed::before,.brand.is-pressed::before,.faq summary.is-pressed::before,footer nav a.is-pressed::before{opacity:.1}
+.button.small{min-height:40px;padding:0 14px;font-size:14px;border-radius:10px}
+
+main{padding:32px 0 56px}
+.home main{padding:0}
+h1{font-size:26px;line-height:1.35;margin:0 0 16px;letter-spacing:-.02em}
+h2{font-size:19px;line-height:1.4;margin:40px 0 12px;letter-spacing:-.01em}
+h3{font-size:17px;margin:28px 0 8px}
+blockquote{margin:20px 0;padding:16px 20px;background:var(--card);border-radius:16px}
+blockquote p{margin:0}
+hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0;display:block;overflow-x:auto}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{background:var(--sunken);font-weight:600}
+
+/* 첫 화면: 넓은 화면은 글과 휴대폰을 나란히, 휴대폰 폭은 위아래로. 제목은 디자인 시스템이 이름난 앱들의 가운데값 72px(토스 60, 당근 64, 배민 72, 카카오뱅크 80) */
+.hero{position:relative;overflow-x:clip;padding:104px 0 0;background:linear-gradient(180deg,var(--card) 0%,var(--canvas) 100%)}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:48px}
+.hero h1{font-size:72px;line-height:1.16;font-weight:800;letter-spacing:-.035em;margin:0 0 20px}
+/* 첫 제목에서 한 곳만 브랜드색. 앱의 약속(하루 한 줄)을 짚음 */
+.hl{font-style:normal;color:var(--accentText)}
+.lead{font-size:20px;line-height:1.6;color:var(--text2);margin:0}
+.badges{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:36px}
+.badges a{display:block;line-height:0;border-radius:10px}
+.badge-apple{height:48px;width:auto}
+.badge-google{height:62px;width:auto;margin:-7px -7px -7px 0}
+.hero-visual{position:relative;display:flex;justify-content:center}
+/* 휴대폰 뒤 브랜드색을 옅게 번지게. 테두리 없이 한 곳만 강조 */
+.hero-visual::before{content:"";position:absolute;width:600px;height:600px;top:0;left:50%;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,var(--selected) 0%,transparent 68%);pointer-events:none}
+.phone.hero-shot{position:relative;width:320px;margin-bottom:-180px;-webkit-mask-image:linear-gradient(180deg,#000 42%,transparent 70%);mask-image:linear-gradient(180deg,#000 42%,transparent 70%)}
+
+/* 기분 얼굴(Headspace·Duolingo처럼 앱만의 얼굴로 첫인상): 첫 화면 폰 둘레에 여섯, 마지막 권유에 아홉. 움직이지 않음 */
+.ring{position:absolute;inset:0;z-index:2;pointer-events:none}
+.ring .face{position:absolute;width:64px;height:64px;filter:drop-shadow(0 8px 16px rgba(26,28,32,.12))}
+.ring .f0{left:2%;top:12%}.ring .f1{right:4%;top:4%;width:56px;height:56px}.ring .f2{left:-2%;top:46%;width:52px;height:52px}
+.ring .f3{right:0;top:38%}.ring .f4{left:12%;top:76%;width:48px;height:48px}.ring .f5{right:12%;top:70%;width:44px;height:44px}
+.face-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.face-row .face{width:48px;height:48px}
+/* 휴대폰 틀 */
+.phone{width:260px;padding:7px;border-radius:41px;background:var(--frame);box-shadow:0 1px 2px rgba(26,28,32,.06),0 24px 56px rgba(26,28,32,.14)}
+.phone img{display:block;width:100%;height:auto;border-radius:34px}
+/* 가상 상태바: 스크린샷의 안드로이드 상태바는 가장자리에 붙어 둥근 틀에 잘려서 지우고 다시 그림
+   폰 폭에 따라 같은 비율로 줄도록 폰 폭(cqw) 단위. 높이는 지운 띠(원본 1080 가운데 84px, 화면 폭의 7.8%)와 같음 */
+.phone{position:relative;container-type:inline-size}
+.statusbar{position:absolute;z-index:1;top:7px;left:7px;right:7px;display:flex;align-items:center;justify-content:space-between;height:7.8cqw;padding:0 9.5cqw 0 10cqw;color:#1A1C20;font-size:3.5cqw;font-weight:600;letter-spacing:-.01em;line-height:1;font-variant-numeric:tabular-nums}
+.statusbar svg{width:16.5cqw;height:auto}
+/* 시트 뒤가 어둡게 덮인 화면은 상태바도 같이 덮인 색 */
+.phone.dim .statusbar{color:rgba(26,28,32,.55)}
+
+/* 기능: 넓은 화면은 한 섹션에 하나, 글과 화면을 번갈아. 제목 44px(Day One 48, 토스 40) */
+.features{padding:120px 0 0}
+.feature{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:64px;padding:0 0 120px}
+.feature:nth-child(even) .feature-text{order:2}
+.label{margin:0 0 12px;font-size:16px;line-height:1.4;font-weight:700;color:var(--accentText)}
+.feature h2,.wide-card h2{font-size:44px;line-height:1.28;font-weight:800;margin:0 0 20px;letter-spacing:-.03em}
+.feature p,.wide-card p{margin:0;font-size:19px;line-height:1.65;color:var(--text2)}
+.feature-text{max-width:420px;justify-self:center}
+.feature-visual{position:relative;display:flex;justify-content:center}
+.feature .phone{width:280px}
+.features:focus-visible{outline-offset:4px}
+
+/* 태블릿: 넓은 화면이라 기기 하나를 크게 */
+.wide-card{text-align:center;padding:0}
+.wide-card p{max-width:560px;margin:0 auto}
+/* 사진 귀퉁이에 남은 기기 모서리(지름 약 30px)가 보이지 않게 둥글림. 틀은 사진 반지름 + 틀 두께 */
+.tablet{width:min(960px,100%);margin:56px auto 0;padding:10px;border-radius:34px;background:var(--frame);box-shadow:0 24px 56px rgba(26,28,32,.14)}
+.tablet img{display:block;width:100%;height:auto;border-radius:24px}
+
+/* 믿고 쓰는 까닭: 상자 없이 아이콘 원·제목·설명만 */
+.section-title{font-size:44px;line-height:1.28;font-weight:800;letter-spacing:-.03em;text-align:center;margin:0 0 56px}
+.trust{padding:140px 0 0}
+.trust-list{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;margin:0;padding:0;list-style:none;text-align:center}
+.trust-icon{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:var(--selected);color:var(--accentText)}
+/* 아이콘은 제목보다 가볍게: 24px, 선 1.75 */
+.trust-list svg{display:block;width:24px;height:24px;stroke-width:1.75}
+.trust-list h3{margin:20px 0 8px;font-size:20px;line-height:1.4}
+.trust-list p{margin:0 auto;max-width:280px;font-size:16px;line-height:1.6;color:var(--text2)}
+
+/* 자주 묻는 질문: 상자 대신 구분선. 줄 전체를 눌러 펼침 */
+.faq{padding:140px 0 0;max-width:760px;margin:0 auto}
+.faq details{border-bottom:1px solid var(--divider)}
+.faq details:first-of-type{border-top:1px solid var(--divider)}
+.faq summary{display:flex;align-items:center;gap:16px;min-height:72px;padding:22px 12px;font-size:18px;line-height:1.45;font-weight:600;cursor:pointer;list-style:none;border-radius:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:none;width:10px;height:10px;margin-left:auto;margin-right:4px;border-right:2px solid var(--text3);border-bottom:2px solid var(--text3);transform:translateY(-3px) rotate(45deg);transition:transform 200ms var(--ease)}
+.faq details[open] summary::after{transform:translateY(2px) rotate(-135deg)}
+.faq .answer{margin:0;padding:0 12px 24px;font-size:17px;line-height:1.65;color:var(--text2)}
+
+/* 마지막 권유 */
+.cta{margin:140px 0 0;padding:80px 24px;border-radius:32px;background:var(--selected);text-align:center}
+.cta h2{font-size:44px;line-height:1.28;font-weight:800;letter-spacing:-.03em;margin:24px 0 0}
+.cta p{margin:14px 0 0;font-size:18px;line-height:1.55;color:var(--text2)}
+.cta .badges{justify-content:center}
+
+/* 스크롤로 나타나기: 투명에서 48px 아래 → 제자리 1000ms(투명도 700ms). 레퍼런스를 시간별로 재서 맞춤
+   (카카오뱅크 20px·600ms, Apple 60px·700ms, 100ms 때 30~40% 진행). 처음이 덜 급한 감속 곡선. 한 번만
+   숨길 곳은 HTML에 적고 움직임 여부는 head에서 그리기 전에 정함(첫 진입 때 보였다 사라지지 않게). 스크립트가 없으면 처음부터 보임
+   움직이는 동안은 합성 레이어로 들고 움직여 사진을 1px보다 작게 옮길 때마다 다시 줄여 그리지 않게(우글거림) */
+.motion .reveal{opacity:0;transform:translate3d(0,48px,0);transition:opacity 700ms cubic-bezier(.22,1,.36,1),transform 1000ms cubic-bezier(.22,1,.36,1);will-change:opacity,transform}
+.motion .reveal.is-in{opacity:1;transform:none}
+.motion .reveal.is-done{will-change:auto}
+/* 토스트: 앱과 같은 규격(docs/design.md 토스트). 높이 48, 알약 모양, 아래에서 높이의 1/3만큼 떠오름 */
+.toast{position:fixed;z-index:20;left:50%;bottom:24px;display:flex;align-items:center;justify-content:center;width:min(calc(100% - 40px),400px);min-height:48px;padding:12px 20px;border-radius:24px;background:var(--toast);color:var(--onToast);font-size:15px;font-weight:600;line-height:1.4;text-align:center;opacity:0;transform:translate(-50%,16px);transition:opacity 150ms linear,transform 150ms linear;pointer-events:none}
+.toast.is-shown{opacity:1;transform:translate(-50%,0);transition:opacity 200ms var(--ease),transform 200ms var(--ease)}
+footer{margin-top:56px;border-top:1px solid var(--line);color:var(--text3);font-size:14px}
+.home footer{margin-top:80px}
+footer .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;padding:24px 20px 40px}
+footer nav{display:flex;flex-wrap:wrap;gap:4px;margin-left:-10px}
+footer nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;border-radius:10px;color:var(--text2);text-decoration:none}
+footer .copy{margin-left:auto}
+footer .langs{width:100%;order:3;margin-top:-4px}
+footer .copy{order:4}
+footer .langs a[aria-current]{color:var(--text);font-weight:600}
+
+@media (prefers-color-scheme:dark){.phone,.tablet{box-shadow:0 24px 56px rgba(0,0,0,.4)}}
+/* 태블릿 폭: 글과 화면은 나란히 두되 줄임 */
+@media (max-width:1024px){
+  .hero h1{font-size:56px}
+  .feature{gap:40px;padding-bottom:96px}
+  .feature h2,.wide-card h2,.section-title,.cta h2{font-size:38px}
+  .feature .phone{width:240px}
+  .phone.hero-shot{width:280px}
+  /* 폰 옆 여백이 좁아 얼굴이 화면을 덮지 않게 줄이고 바깥으로 */
+  .ring .face{width:48px;height:48px}.ring .f0{left:-4%;top:10%}.ring .f1{right:0}.ring .f2{left:-8%}.ring .f3{right:-3%}.ring .f4{left:0}.ring .f5{right:2%}
+}
+/* 휴대폰 폭: 첫 화면은 가운데로 쌓고, 기능은 옆으로 넘기는 카드(스크롤이 길어지지 않게) */
+@media (max-width:760px){
+  .hero{padding-top:48px;text-align:center}
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .badges{justify-content:center}
+  .hero h1{font-size:40px;margin:0 0 16px}
+  .lead{font-size:17px}
+  .badges{margin-top:28px}
+  .hero-visual::before{width:400px;height:400px;top:0}
+  .phone.hero-shot{width:240px;margin-bottom:-150px}
+  /* 옆으로 넘기면 다음 카드가 조금 보여 넘길 수 있다는 걸 알림 */
+  .features{display:grid;grid-auto-flow:column;grid-auto-columns:min(80%,320px);gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;margin:0 -16px;padding:72px 16px 4px;scrollbar-width:none}
+  .features::-webkit-scrollbar{display:none}
+  .feature{display:flex;flex-direction:column;scroll-snap-align:start;height:620px;gap:0;padding:36px 24px 0;overflow:hidden;border-radius:28px;background:var(--card);text-align:center}
+  .feature:nth-child(even) .feature-text{order:0}
+  .feature-visual{padding:0;margin-top:28px;background:none}
+  /* 쓰기 화면은 기분 시트가 아래쪽이라 기분 얼굴까지 보이게 카드를 높이고 폰을 줄임 */
+  .feature .phone{width:196px}
+  /* 넘기는 줄의 화면 밖 카드는 세로 스크롤로 보이지 않아 줄째 띄움 */
+  .motion .features .reveal{opacity:1;transform:none;transition:none}
+  .motion .features{opacity:0;transform:translate3d(0,48px,0);transition:opacity 700ms cubic-bezier(.22,1,.36,1),transform 1000ms cubic-bezier(.22,1,.36,1)}
+  .motion .features.is-in{opacity:1;transform:none}
+  .feature h2,.wide-card h2,.section-title,.cta h2{font-size:28px;line-height:1.32}
+  .feature h2{font-size:26px;margin-bottom:12px}
+  .feature p,.wide-card p,.trust-list p{font-size:16px;line-height:1.6}
+  .label{font-size:15px;margin-bottom:8px}
+  .wide-card{margin-top:88px}
+  .tablet{margin-top:36px;padding:6px;border-radius:18px}
+  .tablet img{border-radius:12px}
+  .trust,.faq{padding-top:96px}
+  .section-title{margin-bottom:36px}
+  .trust-list{grid-template-columns:1fr;gap:36px}
+  .trust-list h3{margin-top:16px;font-size:18px}
+  .faq summary{min-height:64px;padding:18px 8px;font-size:17px}
+  .faq .answer{padding:0 8px 20px;font-size:16px}
+  .cta{margin-top:96px;padding:56px 16px;border-radius:28px}
+  .ring .face{width:44px;height:44px}.ring .f0{left:6%}.ring .f2{left:2%}.ring .f3{right:2%}
+  /* 아홉 개가 한 줄에 들어가게(375 폭 카드 안쪽 311) */
+  .face-row{gap:4px}.face-row .face{width:30px;height:30px}
+  .cta p{font-size:16px}
+  .cta .badges{gap:8px}
+  .cta .badge-apple{height:40px}
+  .cta .badge-google{height:52px;margin:-6px -6px -6px 0}
+  footer .copy{margin-left:0;width:100%}
+}
+@media (max-width:640px){.wrap{padding:0 16px}}
+</style>
+</head>
+<body{% if page.home %} class="home"{% endif %}>
+{% if lang == 'ko' %}{% assign home = '/' %}{% else %}{% assign home = t.home %}{% endif %}<header><div class="wrap{% if page.home %} wide{% endif %}"><a class="brand" href="{{ home }}">
+<img src="/assets/icon.png" alt="">{{ t.name }}</a>
+<a class="button small get" href="{{ home }}#download">{{ t.get }}</a></div></header>
+<main>{% if page.home %}{{ content }}{% else %}<div class="wrap">
+{% if page.heading %}<h1>{{ page.heading }}</h1>{% endif %}
+{{ content }}
+</div>{% endif %}</main>
+<footer><div class="wrap{% if page.home %} wide{% endif %}">
+<nav><a href="/1day1diary/privacy/">{{ t.privacy }}</a><a href="/1day1diary/terms/">{{ t.terms }}</a><a href="mailto:sjunh812@naver.com" data-copy="sjunh812@naver.com" data-done="{{ t.copied }}" data-fail="{{ t.mail }}">{{ t.contact }}</a></nav>
+{% if page.home %}<nav class="langs" aria-label="{{ t.language }}">{% for l in site.data.i18n %}<a href="{{ l[1].home }}" hreflang="{{ l[0] }}" lang="{{ l[0] }}" data-lang="{{ l[0] }}"{% if l[0] == lang %} aria-current="page"{% endif %}>{% case l[0] %}{% when 'ko' %}한국어{% when 'en' %}English{% when 'ja' %}日本語{% endcase %}</a>{% endfor %}</nav>{% endif %}
+<span class="copy">© 서주냥</span>
+</div></footer>
+<script>
+// 스크롤로 나타나기와 질문 펼침. 움직임 줄이기를 켜면 둘 다 하지 않음
+(function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      var el = e.target;
+      el.classList.add('is-in');
+      io.unobserve(el);
+      // 다 움직인 뒤 레이어를 풀어 메모리를 돌려줌
+      setTimeout(function () { el.classList.add('is-done'); }, 1100);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.2 });
+  // 섹션 하나가 한 덩어리로 떠오름. 줄마다 따로 움직이면 어수선함
+  document.querySelectorAll('.reveal, .features').forEach(function (el) { io.observe(el); });
+
+  // 질문 펼침: 답의 높이를 300ms에 바꿈(앱 시트와 같은 시간·곡선)
+  var OPEN_MS = 300;
+  document.querySelectorAll('.faq details').forEach(function (d) {
+    var summary = d.querySelector('summary'), answer = d.querySelector('.answer');
+    var running = null;
+    summary.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (running) running.cancel();
+      var opening = !d.open;
+      if (opening) d.open = true;
+      // 아래 여백도 함께 줄여야 접힌 끝에서 툭 끊기지 않음
+      var pad = getComputedStyle(answer).paddingBottom, full = answer.offsetHeight;
+      var shut = { height: '0px', paddingBottom: '0px', opacity: 0 }, shown = { height: full + 'px', paddingBottom: pad, opacity: 1 };
+      answer.style.overflow = 'hidden';
+      running = answer.animate(
+        opening ? [shut, shown] : [shown, shut],
+        { duration: OPEN_MS, easing: 'cubic-bezier(.05,.7,.1,1)' }
+      );
+      running.onfinish = function () {
+        running = null;
+        answer.style.overflow = '';
+        if (!opening) d.open = false;
+      };
+    });
+  });
+})();
+// 문의하기: 메일 앱이 없으면 눌러도 아무 일이 없어 주소를 복사하고 토스트로 알림. 메일 앱이 있으면 그대로 열림
+(function () {
+  var toast, timer;
+  function show(text) {
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.setAttribute('role', 'status');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = text;
+    clearTimeout(timer);
+    requestAnimationFrame(function () { toast.classList.add('is-shown'); });
+    timer = setTimeout(function () { toast.classList.remove('is-shown'); }, 3000);
+  }
+  document.querySelectorAll('[data-copy]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      var mail = a.getAttribute('data-copy');
+      var done = function () { show(mail + (/^[a-z]/i.test(a.dataset.done) ? ' ' : '') + a.dataset.done); };
+      var fail = function () { show(a.dataset.fail + ' ' + mail); };
+      if (navigator.clipboard) navigator.clipboard.writeText(mail).then(done, fail); else fail();
+    });
+  });
+})();
+// 언어를 고르면 기억해 다음 방문에도 그 언어로
+document.querySelectorAll('[data-lang]').forEach(function (a) {
+  a.addEventListener('click', function () { try { localStorage.setItem('lang', a.dataset.lang); } catch (e) {} });
+});
+// 누름: 누르는 동안 is-pressed. 짧게 쳐도 다 눌린 뒤(80ms) 돌아오고, 스크롤로 취소되면 바로 돌아옴
+(function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var PRESS_MS = 80, MAX_RATIO = 0.06, MAX_SHRINK = 12;
+  document.addEventListener('pointerdown', function (e) {
+    var el = e.target.closest('.button, .brand, .faq summary, footer nav a, .badges a');
+    if (!el || e.button > 0) return;
+    // 긴 줄은 같은 비율이면 크게 오그라들어 양옆 6px까지만 줄임
+    // 질문 줄은 카드째 줄여 뒤 바탕이 테두리처럼 비치지 않게
+    var box = el.matches('summary') ? el.parentElement : el;
+    var ratio = Math.min(MAX_RATIO, MAX_SHRINK / box.offsetWidth);
+    box.style.setProperty('--press-scale', 1 - ratio);
+    el.classList.add('is-pressed');
+    box.classList.add('is-shrunk');
+    var start = performance.now();
+    function end(ev) {
+      removeEventListener('pointerup', end);
+      removeEventListener('pointercancel', end);
+      var wait = ev.type === 'pointercancel' ? 0 : Math.max(0, PRESS_MS - (performance.now() - start));
+      setTimeout(function () { el.classList.remove('is-pressed'); box.classList.remove('is-shrunk'); }, wait);
+    }
+    addEventListener('pointerup', end);
+    addEventListener('pointercancel', end);
+  });
+})();
+</script>
+</body>
+</html>

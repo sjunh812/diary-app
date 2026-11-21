@@ -39,8 +39,8 @@ private fun InsightKind.flowSlots(): Int = when (this) {
 
 /** 돌아보기 탭의 자리: 요약, 기분 흐름, 연간 지도(년만), 기분 막대 */
 @Composable
-internal fun InsightSkeleton(kind: InsightKind, modifier: Modifier = Modifier) {
-    DiarySkeleton(modifier) {
+internal fun InsightSkeleton(kind: InsightKind, modifier: Modifier = Modifier, delayed: Boolean = true) {
+    DiarySkeleton(modifier, delayed) {
         Column(Modifier.fillMaxWidth()) {
             SkeletonLine(Modifier.fillMaxWidth(SUMMARY_WIDTH), DiarySpacing.x6)
             Box(Modifier.height(DiarySpacing.x2))

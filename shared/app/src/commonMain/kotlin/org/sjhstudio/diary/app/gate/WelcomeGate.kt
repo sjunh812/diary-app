@@ -29,9 +29,14 @@ fun WelcomeGate(content: @Composable () -> Unit) {
 
         WelcomeStep.DONE -> content()
 
-        WelcomeStep.LETTER -> LetterScreen(entries, viewModel::letterRead)
+        WelcomeStep.LETTER -> {
+            FirstScreenShown()
+            LetterScreen(entries, viewModel::letterRead)
+        }
 
-        WelcomeStep.ONBOARDING_UPDATED, WelcomeStep.ONBOARDING_NEW ->
+        WelcomeStep.ONBOARDING_UPDATED, WelcomeStep.ONBOARDING_NEW -> {
+            FirstScreenShown()
             OnboardingScreen(step == WelcomeStep.ONBOARDING_UPDATED, viewModel::finish)
+        }
     }
 }

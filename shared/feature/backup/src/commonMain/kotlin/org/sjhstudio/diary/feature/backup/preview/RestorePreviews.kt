@@ -131,7 +131,15 @@ private fun ListEmptyLight() = List(false, RestoreListUi.Loaded(emptyList()))
 
 @Preview(locale = "ko")
 @Composable
-private fun ListFailedLight() = List(false, RestoreListUi.Failed)
+private fun ListFailedLight() = List(false, RestoreListUi.Failed(BackupFailure.OFFLINE))
+
+@Preview(locale = "ko")
+@Composable
+private fun ListFailedAccountDark() = List(true, RestoreListUi.Failed(BackupFailure.AUTH))
+
+@Preview(locale = "ko")
+@Composable
+private fun ListRetryingLight() = List(false, RestoreListUi.Failed(BackupFailure.UNKNOWN, retrying = true))
 
 @Preview(locale = "ko")
 @Composable

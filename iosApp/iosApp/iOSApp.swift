@@ -41,7 +41,8 @@ struct iOSApp: App {
             driveBridge: GoogleDriveBridge(),
             firebase: FirebaseReporter.start(),
             ads: GoogleAdsBridge(),
-            review: StoreReviewBridge()
+            review: StoreReviewBridge(),
+            update: AppUpdateBridge()
         )
         DailyBackupTask.register()
         KeychainLock.prepare()

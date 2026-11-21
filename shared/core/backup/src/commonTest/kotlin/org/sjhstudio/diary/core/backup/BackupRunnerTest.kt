@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.room3.Room
 import androidx.sqlite.SQLiteException
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -82,7 +83,8 @@ class BackupRunnerTest {
     ) = BackupRunner(
         db, api, authorizer, store, network, DeviceName { "Galaxy S24" }, fs, dir / "media", dir / "backup",
         BackupAppInfo("2.0.0", 37, "android"), { "README" }, settings, clock, { TimeZone.UTC },
-        BackupAlerts(notifier, { "폴더 제목" to "폴더 안내" }) { "제목" to (it?.name ?: "까닭 없음") }
+        BackupAlerts(notifier, { "폴더 제목" to "폴더 안내" }) { "제목" to (it?.name ?: "까닭 없음") },
+        io = EmptyCoroutineContext
     )
 
     private fun entry(id: String, date: String) =
@@ -528,7 +530,8 @@ class BackupRunnerTest {
         val gate = BackupGate()
         val failing = BackupRunner(
             db, ThrowingDrive(drive, IllegalStateException()), auth, store, network, DeviceName { "A" }, fs, dir / "media", dir / "backup",
-            BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }, clock, { TimeZone.UTC }, gate = gate
+            BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings() }, clock, { TimeZone.UTC }, gate = gate,
+            io = EmptyCoroutineContext
         )
 
         failing.run()

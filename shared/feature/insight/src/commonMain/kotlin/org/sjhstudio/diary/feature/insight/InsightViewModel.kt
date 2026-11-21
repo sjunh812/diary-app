@@ -262,7 +262,7 @@ internal fun moodBuckets(period: StatsPeriod, days: List<DayMood>): List<MoodBuc
 
     StatsPeriod.All -> {
         val byYear = days.groupBy { it.date.year }
-        // 일기 없는 해도 빈 칸으로 두어 흐름이 끊긴 게 보이게
+        // 일기 없는 해도 빈칸으로 두어 흐름이 끊긴 게 보이게
         val years = if (byYear.isEmpty()) IntRange.EMPTY else byYear.keys.min()..byYear.keys.max()
         years.map { year ->
             val range = DateRange(LocalDate(year, 1, 1), LocalDate(year, MONTHS, LAST_DAY_OF_DECEMBER))

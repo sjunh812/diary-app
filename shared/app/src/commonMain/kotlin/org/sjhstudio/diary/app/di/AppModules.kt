@@ -28,6 +28,7 @@ import org.sjhstudio.diary.core.backup.AutoBackupNotifier
 import org.sjhstudio.diary.core.backup.BackupAlerts
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.BackupController
+import org.sjhstudio.diary.core.backup.BackupFailureLog
 import org.sjhstudio.diary.core.backup.BackupGate
 import org.sjhstudio.diary.core.backup.BackupRunner
 import org.sjhstudio.diary.core.backup.BundleExporter
@@ -44,6 +45,7 @@ import org.sjhstudio.diary.core.backup.RollbackManager
 import org.sjhstudio.diary.core.backup.backupToOffer
 import org.sjhstudio.diary.core.backup.offerIfNew
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
@@ -81,6 +83,7 @@ import org.sjhstudio.diary.core.datastore.SettingsStore
 import org.sjhstudio.diary.core.datastore.WelcomeStore
 import org.sjhstudio.diary.core.drive.DriveApi
 import org.sjhstudio.diary.core.drive.createDriveApi
+import org.sjhstudio.diary.core.migration.LegacyListPreview
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
@@ -100,6 +103,7 @@ import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.backup.backupFolderText
 import org.sjhstudio.diary.feature.backup.backupReadme
 import org.sjhstudio.diary.feature.calendar.calendarFeatureModule
+import org.sjhstudio.diary.feature.home.HomeMonths
 import org.sjhstudio.diary.feature.home.homeFeatureModule
 import org.sjhstudio.diary.feature.insight.insightFeatureModule
 import org.sjhstudio.diary.feature.lock.lockFeatureModule
@@ -176,6 +180,7 @@ private fun coreModule(isDebug: Boolean) = module {
         // 옛 앱이 없는 iOS에는 잠금·설정 잇기 없음
         val legacyLock = getOrNull<LegacyLockBootstrap>()
         val legacySettings = getOrNull<LegacySettingsBootstrap>()
+        val legacyPreview = getOrNull<LegacyListPreview>()
         Startup(
             get<AppFiles>()::ensureDirectories,
             get(),
@@ -183,6 +188,7 @@ private fun coreModule(isDebug: Boolean) = module {
             get(APP_SCOPE),
             bootstrapLegacyLock = { legacyLock?.run() },
             bootstrapLegacySettings = { legacySettings?.run() },
+            bootstrapLegacyPreview = { legacyPreview?.run() },
             platformWork = { getOrNull<StartupWork>()?.run() },
             knowFont = { getOrNull<FontInstaller>()?.installedPath(it.font.id) },
             warmFont = { getOrNull<FontWarmup>()?.warm(it.font) },
@@ -209,15 +215,19 @@ private fun coreModule(isDebug: Boolean) = module {
     single<ContextTips> { get<WelcomeRepository>() }
     single { AdStore(get<DataStoreFactory>().ads()) }
     single { AdRepository(get(), get(), get(), get()) }
-    // 의견 카드와 리뷰 창(스펙 007). 일기 DB는 편 수를 셀 때 처음 엶
+    // 의견 카드·리뷰 창(스펙 007)과 새 버전 안내(스펙 009)가 같은 파일을 씀. 한 파일에 DataStore는 하나
+    single { PromptStore(get<DataStoreFactory>().prompt()) }
+    // 일기 DB는 편 수를 셀 때 처음 엶
     single {
         PromptRepository(
-            PromptStore(get<DataStoreFactory>().prompt()),
+            get(),
             writtenSince = { get<DiaryDatabase>().entryDao().countWrittenSince(it.toEpochMilliseconds()) },
             review = get()
         )
     }
-    single { HomeTopState(get(), get(), get(APP_SCOPE)) }
+    single { AppUpdateRepository(get(), get(), get(), get<BackupAppInfo>().versionName, get(APP_SCOPE)) }
+    single { HomeTopState(get(), get(), get(), get(APP_SCOPE)) }
+    single { HomeMonths(get(), get(APP_SCOPE)) }
     single { AdRemoval(get(APP_SCOPE), get<LockController>().appLocked, get<AdRepository>()::watchReward) }
 }
 
@@ -322,7 +332,7 @@ private val backupModule =
                 legacyAccount = { get<SettingsRepository>().settings.first().legacyBackup?.account },
                 findBackup = {
                     val restore = get<RestoreRepository>()
-                    val latest = backupToOffer(restore.backups(), get<LegacyMigration>().report() != null)
+                    val latest = backupToOffer(restore.backups().entriesOrNull, get<LegacyMigration>().report() != null)
                     // 권하지 않으면 확인하려고 받은 사본을 지움
                     offerIfNew(latest) { restore.prepare(it) }.also { if (it == null && latest != null) restore.dismiss() }
                 },
@@ -388,6 +398,7 @@ private val backupModule =
                     },
                 scheduler = get(),
                 freeSpace = freeSpace,
+                errors = get<Telemetry>(),
                 db = database,
                 store = store,
                 network = get(),
@@ -396,7 +407,8 @@ private val backupModule =
                 applySettings = applyBackup,
                 scope = get(APP_SCOPE),
                 gate = get(),
-                lockOnHere = { get<LockRepository>().settings.first().enabled }
+                lockOnHere = { get<LockRepository>().settings.first().enabled },
+                failures = BackupFailureLog(store, alerts = get())
             )
         }
     }

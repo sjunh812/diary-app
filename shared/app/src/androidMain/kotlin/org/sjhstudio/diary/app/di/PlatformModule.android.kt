@@ -17,26 +17,31 @@ import org.sjhstudio.diary.app.CurrentActivity
 import org.sjhstudio.diary.app.StartupWork
 import org.sjhstudio.diary.app.ads.AdMobPlayer
 import org.sjhstudio.diary.app.ads.AdUnits
-import org.sjhstudio.diary.app.ads.adSwitch
+import org.sjhstudio.diary.app.ads.FirebaseRemote
 import org.sjhstudio.diary.app.backup.AndroidBackupNotifier
 import org.sjhstudio.diary.app.backup.AndroidBackupScheduler
 import org.sjhstudio.diary.app.billing.Billing
 import org.sjhstudio.diary.app.billing.billing
 import org.sjhstudio.diary.app.review.PlayStoreReview
 import org.sjhstudio.diary.app.telemetry.telemetrySink
+import org.sjhstudio.diary.app.update.PlayStoreUpdates
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.backup.LegacyPhotoCopier
 import org.sjhstudio.diary.core.data.AdPlayer
 import org.sjhstudio.diary.core.data.AdSwitch
+import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.RemoteValues
 import org.sjhstudio.diary.core.data.StoreReview
+import org.sjhstudio.diary.core.data.StoreUpdates
 import org.sjhstudio.diary.core.data.photo.ThumbnailEncoder
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.database.DatabaseFactory
 import org.sjhstudio.diary.core.database.asEntity
 import org.sjhstudio.diary.core.migration.AndroidImageSizeReader
 import org.sjhstudio.diary.core.migration.LegacyArchive
+import org.sjhstudio.diary.core.migration.LegacyListPreview
 import org.sjhstudio.diary.core.migration.LegacyLockBootstrap
 import org.sjhstudio.diary.core.migration.LegacyMigration
 import org.sjhstudio.diary.core.migration.LegacySettingsBootstrap
@@ -52,6 +57,7 @@ import org.sjhstudio.diary.core.migration.SupportBundle
 import org.sjhstudio.diary.core.migration.SupportFiles
 import org.sjhstudio.diary.core.migration.freeBytes
 import org.sjhstudio.diary.core.migration.legacyFiles
+import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.platform.AndroidDeviceName
 import org.sjhstudio.diary.core.platform.AndroidDriveAuthorizer
 import org.sjhstudio.diary.core.platform.AndroidFontInstaller
@@ -72,6 +78,7 @@ import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NotificationPermission
 import org.sjhstudio.diary.core.platform.PlaceFinder
 import org.sjhstudio.diary.core.platform.ReminderScheduler
+import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.ui.AndroidFontWarmup
 import org.sjhstudio.diary.core.ui.FontWarmup
@@ -84,7 +91,10 @@ internal actual val platformModule: Module =
         single(createdAtStart = true) { CurrentActivity(androidContext().applicationContext as Application) }
         // 광고 SDK는 처음 부를 때 켜짐
         single<AdPlayer> { AdMobPlayer(androidContext(), AdUnits(androidContext()), get()) }
-        single<AdSwitch> { adSwitch(androidContext()) }
+        single { FirebaseRemote(androidContext()) }
+        single<AdSwitch> { get<FirebaseRemote>().adSwitch }
+        single<RemoteValues> { get<FirebaseRemote>().values }
+        single<StoreUpdates> { PlayStoreUpdates(androidContext(), get(), get<BackupAppInfo>().versionCode.toString()) }
         single<StoreReview> { PlayStoreReview(androidContext(), get()) }
         // 재설치 뒤 구매를 바로 복원하게 앱 시작 때 만듦. 디스크를 읽어 화면 스레드가 아니라 시작 단계에서
         single { billing(androidContext(), get()) }
@@ -98,7 +108,7 @@ internal actual val platformModule: Module =
         single<FontInstaller> { AndroidFontInstaller(androidContext(), get()) }
         single<FontWarmup> { AndroidFontWarmup(androidContext()) { font -> get<FontInstaller>().installedPath(font.id) } }
         single { DatabaseFactory(androidContext(), get()) }
-        single { AndroidDriveAuthorizer(androidContext()) }
+        single { AndroidDriveAuthorizer(androidContext(), get<Telemetry>()) }
         single<DriveAuthorizer> { get<AndroidDriveAuthorizer>() }
         single<NetworkState> { AndroidNetworkState(androidContext()) }
         single<DeviceName> { AndroidDeviceName(androidContext()) }
@@ -150,6 +160,11 @@ internal actual val platformModule: Module =
             LegacyLockBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get(), get())
         }
         single { LegacySettingsBootstrap(FileSystem.SYSTEM, get<MigrationPaths>().legacy, { get<LegacyMigration>().state().step }, get()) }
+        single {
+            LegacyListPreview(FileSystem.SYSTEM, get<MigrationPaths>().legacy, get()) {
+                get<ContextTips>().open(ContextTip.HOME_FULL_PREVIEW_KEPT)
+            }
+        }
         // 1.7.x 원본이 같은 패키지에 남아 있으면 옮김(docs/migration.md)
         single<LegacyMigration> {
             val files = get<AppFiles>()

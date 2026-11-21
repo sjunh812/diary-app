@@ -12,8 +12,10 @@ import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.app.review.IosStoreReviewBridge
+import org.sjhstudio.diary.app.update.IosUpdateBridge
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.data.RemoteValues
 import org.sjhstudio.diary.core.platform.IosDriveBridge
 import org.sjhstudio.diary.core.platform.IosReminderScheduler
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
@@ -21,14 +23,27 @@ import org.sjhstudio.diary.core.platform.TelemetrySink
 
 /** iosApp의 `iOSApp.init`에서 Koin을 켜고 시작 단계를 돌림(contracts/app-shell.md 시작 순서 1) */
 @OptIn(ExperimentalNativeApi::class)
-fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?, ads: IosAdBridge, review: IosStoreReviewBridge) {
+fun startApp(
+    driveBridge: GoogleDrive,
+    firebase: FirebaseReporting?,
+    ads: IosAdBridge,
+    review: IosStoreReviewBridge,
+    update: IosUpdateBridge
+) {
     IosDrive.bridge = driveBridge.asBridge()
     IosAds.bridge = ads
     IosReview.bridge = review
-    firebase?.let { IosAds.switch = AdSwitch(it::interstitialEnabled) }
+    IosUpdate.bridge = update
+    firebase?.let {
+        IosAds.switch = AdSwitch(it::interstitialEnabled)
+        IosUpdate.remote = RemoteValues(it::remoteString)
+    }
     IosTelemetry.sink = firebase?.asSink() ?: NoTelemetrySink
     initKoin(isDebug = Platform.isDebugBinary)
-    if (Platform.isDebugBinary) applyDebugPlan()
+    if (Platform.isDebugBinary) {
+        applyDebugPlan()
+        applyDebugUpdate()
+    }
     val koin = KoinPlatform.getKoin()
     koin.get<Startup>().start()
     BackgroundTime(koin.get()).start(koin.get(APP_SCOPE))
@@ -46,8 +61,14 @@ interface FirebaseReporting {
      */
     fun recordCaught(kind: String, addresses: List<Long>)
 
+    /** 받아 넘긴 오류를 Crashlytics "처리된 오류"로 남김. 오류 종류 이름과 번호만 */
+    fun recordError(domain: String, code: Long)
+
     /** 전면 광고 원격 스위치(Remote Config `interstitial_enabled`). 받지 못하면 마지막 값, 처음이면 켜짐 */
     fun interstitialEnabled(): Boolean
+
+    /** 새 버전 안내 원격 값(스펙 009). 받지 못했거나 없는 키는 빈 문자열 */
+    fun remoteString(key: String): String
 }
 
 internal object IosAds {
@@ -60,6 +81,14 @@ internal object IosAds {
 /** Swift 리뷰 창 다리. 앱 시작 때 받음 */
 internal object IosReview {
     var bridge: IosStoreReviewBridge? = null
+}
+
+/** 새 버전 안내(스펙 009). Swift App Store 화면 다리와 원격 값 */
+internal object IosUpdate {
+    var bridge: IosUpdateBridge? = null
+
+    /** Firebase 설정 파일 없이 만든 빌드는 빈 값 */
+    var remote: RemoteValues = RemoteValues { "" }
 }
 
 internal object IosTelemetry {
@@ -76,14 +105,16 @@ private fun FirebaseReporting.asSink(): TelemetrySink {
         @OptIn(ExperimentalNativeApi::class)
         override fun recordCaught(error: Throwable) =
             firebase.recordCaught(error::class.qualifiedName ?: "Exception", error.getStackTraceAddresses())
+
+        override fun recordError(domain: String, code: Long) = firebase.recordError(domain, code)
     }
 }
 
 /** Swift의 GoogleSignIn 구현이 맞추는 모양. 공유 프레임워크에 그대로 나감(스펙 003 research R2) */
 interface GoogleDrive {
-    fun connect(hint: String?, done: (key: String?, email: String?, error: String?) -> Unit)
+    fun connect(hint: String?, done: (key: String?, email: String?, error: String?, errorDomain: String?, errorCode: Long) -> Unit)
 
-    fun accessToken(done: (token: String?, key: String?, email: String?, error: String?) -> Unit)
+    fun accessToken(done: (token: String?, key: String?, email: String?, error: String?, errorDomain: String?, errorCode: Long) -> Unit)
 
     fun disconnect(done: () -> Unit)
 }
@@ -91,9 +122,9 @@ interface GoogleDrive {
 private fun GoogleDrive.asBridge(): IosDriveBridge {
     val drive = this
     return object : IosDriveBridge {
-        override fun connect(hint: String?, done: (String?, String?, String?) -> Unit) = drive.connect(hint, done)
+        override fun connect(hint: String?, done: (String?, String?, String?, String?, Long) -> Unit) = drive.connect(hint, done)
 
-        override fun accessToken(done: (String?, String?, String?, String?) -> Unit) = drive.accessToken(done)
+        override fun accessToken(done: (String?, String?, String?, String?, String?, Long) -> Unit) = drive.accessToken(done)
 
         override fun disconnect(done: () -> Unit) = drive.disconnect(done)
     }

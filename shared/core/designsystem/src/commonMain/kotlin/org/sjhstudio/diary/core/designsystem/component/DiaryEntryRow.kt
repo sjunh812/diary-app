@@ -22,7 +22,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -36,6 +36,9 @@ val DiaryEntryDateColumn = 36.dp
 
 /** 날짜 열과 글 사이 */
 val DiaryEntryDateGap = 14.dp
+
+/** 미리보기 기본 줄 수 */
+private const val DEFAULT_PREVIEW_LINES = 3
 
 /** 사진 칸 크기 */
 val DiaryPhotoCellSize = 64.dp
@@ -63,6 +66,9 @@ fun DiaryEntryRow(
  * @param day 날짜 숫자. 같은 날 두 번째 줄부터 null.
  * @param meta 기분 얼굴, 시각, 날씨, 장소 같은 덧붙임. 사이 6으로 한 줄에 놓임
  * @param dividerAbove 위 구분선 여부. 달 머리 바로 뒤와 첫 줄은 false.
+ * @param maxLines 미리보기 최대 줄 수. 기본 3, 목록 전체 보기면 상한(스펙 008)
+ * @param onPreviewClip 미리보기가 줄 수를 넘어 잘렸는지
+ * @param verticalPadding 줄 위아래 여백. 견본 상자처럼 바깥에 안쪽 여백이 있으면 뺌
  */
 @Composable
 fun DiaryEntryRow(
@@ -75,6 +81,9 @@ fun DiaryEntryRow(
     photo: (@Composable () -> Unit)? = null,
     previewStyle: TextStyle = DiaryTheme.typography.body,
     dateColumn: Boolean = true,
+    maxLines: Int = DEFAULT_PREVIEW_LINES,
+    onPreviewClip: ((Boolean) -> Unit)? = null,
+    verticalPadding: Dp = DiarySpacing.x4,
     meta: @Composable RowScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
@@ -94,7 +103,7 @@ fun DiaryEntryRow(
             )
         }
         Row(
-            Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = DiarySpacing.x4),
+            Modifier.fillMaxWidth().padding(horizontal = gutter, vertical = verticalPadding),
             horizontalArrangement = Arrangement.spacedBy(DiaryEntryDateGap)
         ) {
             if (dateColumn) {
@@ -128,11 +137,11 @@ fun DiaryEntryRow(
                     }
                 }
                 if (preview.isNotEmpty()) {
-                    BasicText(
+                    DiaryPreviewText(
                         preview,
                         style = previewStyle.copy(color = colors.textPrimary),
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis
+                        maxLines = maxLines,
+                        onClip = onPreviewClip
                     )
                 }
             }

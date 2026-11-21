@@ -61,6 +61,13 @@
     <string name="insight_adv_tab_place">장소</string>
     <string name="insight_adv_share">%1$d%</string>
     <string name="insight_adv_when_empty">일기가 더 쌓이면 보여드려요.</string>
+    <string name="insight_adv_when_good_time">%1$s에 긍정적인 기분이 가장 많았어요</string>
+    <string name="insight_adv_when_hard_time">부정적인 기분은 %1$s에 가장 많았어요</string>
+    <string name="insight_adv_when_good_weather">날씨가 %1$s일 때 긍정적인 기분이 가장 많았어요</string>
+    <string name="insight_adv_when_hard_weather">부정적인 기분은 날씨가 %1$s일 때 가장 많았어요</string>
+    <string name="insight_adv_when_good_place">%1$s에서 긍정적인 기분이 가장 많았어요</string>
+    <string name="insight_adv_when_hard_place">부정적인 기분은 %1$s에서 가장 많았어요</string>
+    <string name="insight_adv_legend_neutral">%1$s·%2$s</string>
     <string name="insight_adv_company">기분별 날씨·요일·장소</string>
     <string name="insight_adv_habit">내 기록</string>
     <string name="insight_adv_habit_entries">일기</string>

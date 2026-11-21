@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.ui
 
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -9,10 +10,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryEntryRow
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
+import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.ui.resources.Res
@@ -33,7 +36,9 @@ fun DiaryEntryLine(
     modifier: Modifier = Modifier,
     previewStyle: TextStyle = DiaryTheme.typography.body,
     dateColumn: Boolean = true,
-    highlight: String = ""
+    highlight: String = "",
+    onPreviewClip: ((Boolean) -> Unit)? = null,
+    verticalPadding: Dp = DiarySpacing.x4
 ) {
     val dates = rememberDiaryDateFormat()
     val colors = DiaryTheme.colors
@@ -41,13 +46,16 @@ fun DiaryEntryLine(
     DiaryEntryRow(
         weekday = if (showDate) dates.weekdayShort(row.date) else null,
         day = if (showDate) row.date.day.toString() else null,
-        preview = row.preview.highlighted(highlight, colors.accentText),
+        preview = rememberPreview(row, highlight),
         modifier = modifier,
         favorite = row.isFavorite,
         dividerAbove = dividerAbove,
         photo = if (row.photos.isEmpty()) null else ({ DiaryPhotoCell(row.photos) }),
         previewStyle = previewStyle,
         dateColumn = dateColumn,
+        maxLines = row.previewLines,
+        onPreviewClip = onPreviewClip,
+        verticalPadding = verticalPadding,
         meta = {
             row.mood?.let { MoodFace(it, DiaryEntryFaceSize, contentDescription = moodName(it)) }
             BasicText(
@@ -77,6 +85,22 @@ fun DiaryEntryLine(
             }
         }
     )
+}
+
+/**
+ * 목록 줄 미리보기 글. Plus 서식 보기면 서식을, 찾기면 찾은 글자 강조를 입힘
+ * 카드형도 같은 글을 씀
+ */
+@Composable
+fun rememberPreview(row: EntryRow, highlight: String = ""): AnnotatedString {
+    val colors = DiaryTheme.colors
+    return remember(row.preview, row.previewSpans, highlight, colors) {
+        if (row.previewSpans.isEmpty()) {
+            row.preview.highlighted(highlight, colors.accentText)
+        } else {
+            richAnnotated(row.preview, row.previewSpans, colors)
+        }
+    }
 }
 
 /** 일기 줄 메타의 기분 얼굴 크기 */

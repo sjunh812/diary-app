@@ -331,7 +331,7 @@ class RollbackEdgeTest {
             phone.write("before")
             val hash = phone.photo("before", 0, "내 사진")
             val controller = phone.controller(backgroundScope)
-            assertIs<RestorePreparation.Ready>(controller.prepare(controller.backups()!!.single().snapshotName))
+            assertIs<RestorePreparation.Ready>(controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName))
 
             controller.replace()
             val done = assertIs<RestoreState.Done>(controller.finished())
@@ -361,7 +361,7 @@ class RollbackEdgeTest {
             phone.write("before")
             val cut: DriveApi = CutDrive(drive, after = 0)
             val controller = phone.controller(backgroundScope, photos = cut)
-            controller.prepare(controller.backups()!!.single().snapshotName)
+            controller.prepare(controller.backups().entriesOrNull!!.single().snapshotName)
 
             controller.replace()
             val done = assertIs<RestoreState.Done>(controller.finished())

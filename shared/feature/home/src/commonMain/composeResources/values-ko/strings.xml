@@ -28,8 +28,27 @@
     <string name="detail_missing_body">삭제했거나 휴지통으로 옮긴 일기일 수 있어요.</string>
     <string name="tip_home_list_style">일기 목록을 카드나 사진 격자로도 볼 수 있어요.</string>
     <string name="tip_home_list_style_action">변경하기</string>
+    <string name="tip_home_full_preview">목록에서도 일기 전체를 볼 수 있어요.</string>
+    <string name="tip_home_full_preview_action">전체로 보기</string>
+    <string name="tip_home_full_preview_kept">예전처럼 목록에서 일기 전체를 보여드려요.</string>
+    <string name="tip_home_full_preview_kept_action">3줄로 보기</string>
     <string name="feedback_card_title">1일 1일기, 사용해 보니 어떠세요? 😊</string>
     <string name="feedback_card_body">더 나은 앱을 만들기 위해 설문을 받고 있어요. 불편했던 점과 원하시는 기능을 알려주세요.</string>
     <string name="feedback_card_action">설문 참여하기</string>
     <string name="feedback_card_close">닫기</string>
+    <string name="update_card_title">새 버전이 나왔어요</string>
+    <string name="update_card_title_required">중요한 업데이트가 나왔어요</string>
+    <string name="update_card_default">오류를 수정하고 안정성을 개선했어요.</string>
+    <string name="update_card_keep">업데이트해도 일기는 그대로 남아요.</string>
+    <string name="update_card_keep_required">꼭 업데이트해 주세요. 일기는 그대로 남아요.</string>
+    <string name="update_card_kept">일기는 그대로 남아요.</string>
+    <string name="update_card_failed">받지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
+    <string name="update_card_update">업데이트</string>
+    <string name="update_card_later">나중에</string>
+    <string name="update_card_downloading_title">새 버전을 받는 중이에요</string>
+    <string name="update_card_downloading_body">%1$d% · 받는 동안에도 앱을 그대로 쓸 수 있어요.</string>
+    <string name="update_card_downloading_body_unknown">받는 동안에도 앱을 그대로 쓸 수 있어요.</string>
+    <string name="update_card_downloaded_title">새 버전을 받았어요</string>
+    <string name="update_card_downloaded_body">다시 시작하면 새 버전으로 바뀌어요.</string>
+    <string name="update_card_restart">다시 시작하기</string>
 </resources>

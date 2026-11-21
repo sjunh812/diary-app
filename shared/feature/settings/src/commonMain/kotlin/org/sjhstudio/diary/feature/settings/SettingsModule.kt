@@ -6,7 +6,6 @@ import kotlinx.datetime.TimeZone
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import org.sjhstudio.diary.core.data.BackupRepository
-import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.diary.TrashRepository
 import org.sjhstudio.diary.core.migration.MigrationFollowUp
 
@@ -22,7 +21,7 @@ val settingsFeatureModule =
                 get(),
                 get(),
                 trashCount = get<TrashRepository>().count(),
-                plan = get<PlanRepository>().confirmed,
+                plans = get(),
                 showsMigrationReport = { showsMigrationReport(get()) },
                 fonts = get(),
                 notifications = get(),

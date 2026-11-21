@@ -37,9 +37,11 @@ for (const n of page.findAll((x) => x.visible !== false && !skip(x))) {
     const main = await n.getMainComponentAsync();
     const set = main && main.parent && main.parent.type === 'COMPONENT_SET' ? main.parent.name : '';
     if (set === '칩') {
-      const first = n.children.find((c) => c.visible);
-      const left = first && first.type === 'TEXT' ? 12 : 10;
-      if (n.paddingLeft !== left || n.paddingRight !== 12 || Math.round(n.height) !== 32) report('칩 규격', n, `${n.paddingLeft}/${n.paddingRight}`);
+      const shown = n.children.filter((c) => c.visible);
+      const left = shown[0] && shown[0].type === 'TEXT' ? 12 : 10;
+      // 아이콘만 있는 칩(초기화)은 양옆 10
+      const right = shown.some((c) => c.type === 'TEXT') ? 12 : 10;
+      if (n.paddingLeft !== left || n.paddingRight !== right || Math.round(n.height) !== 32) report('칩 규격', n, `${n.paddingLeft}/${n.paddingRight}`);
     }
     // 뒤로·닫기·아이콘 버튼·상자는 라이트 변형뿐이라 다크 화면에서는 색 변수를 덮어씀
     const oneTheme = /종류=(nav·back|icon-button|닫기|상자)/.test(main ? main.name : '');

@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,9 +72,11 @@ import org.sjhstudio.diary.core.model.ContextTip
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.MonthCount
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.monthAt
 import org.sjhstudio.diary.core.ui.ContextTipBar
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
+import org.sjhstudio.diary.core.ui.DiaryDismissSlot
 import org.sjhstudio.diary.core.ui.DiaryEntryLine
 import org.sjhstudio.diary.core.ui.DiaryMonthSheet
 import org.sjhstudio.diary.core.ui.DiaryTitleButton
@@ -91,6 +94,7 @@ import org.sjhstudio.diary.core.ui.loadMoreFailed
 import org.sjhstudio.diary.core.ui.monthHeader
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberFirstOpenTip
 import org.sjhstudio.diary.core.ui.rememberToday
 import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.home_empty_action
@@ -101,6 +105,10 @@ import org.sjhstudio.diary.feature.home.resources.home_favorites_only
 import org.sjhstudio.diary.feature.home.resources.home_favorites_show_all
 import org.sjhstudio.diary.feature.home.resources.home_month_sheet_title
 import org.sjhstudio.diary.feature.home.resources.home_search
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview_action
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview_kept
+import org.sjhstudio.diary.feature.home.resources.tip_home_full_preview_kept_action
 import org.sjhstudio.diary.feature.home.resources.tip_home_list_style
 import org.sjhstudio.diary.feature.home.resources.tip_home_list_style_action
 
@@ -119,7 +127,8 @@ fun HomeRoute(
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
     backupAlert: @Composable () -> Unit = {},
-    listTop: @Composable () -> Unit = {},
+    // 목록을 다 읽었는지 받음. 다 읽은 뒤 정해진 카드는 목록을 밀고 끼어들지 않게 자리를 열며 들어옴
+    listTop: @Composable (listRead: Boolean) -> Unit = {},
     adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> },
     onListStyle: (() -> Unit)? = null
 ) {
@@ -135,6 +144,8 @@ fun HomeRoute(
     val monthCounts = if (favoritesOnly) favoriteMonths else allMonths
     val look by viewModel.look.collectAsStateWithLifecycle()
     val style by viewModel.style.collectAsStateWithLifecycle()
+    val previewLength by viewModel.previewLength.collectAsStateWithLifecycle()
+    val fullPreviewKept by viewModel.fullPreviewKept.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
     val grid = rememberLazyGridState()
@@ -164,11 +175,14 @@ fun HomeRoute(
             val first = if (style == ListStyle.PHOTO_GRID) grid.firstVisibleItemIndex else list.firstVisibleItemIndex
             val position = (first - LIST_TOP_ITEMS).coerceAtLeast(0)
             val loaded = if (position < rows.itemCount) rows.peek(position)?.date else null
-            shownMonth(loaded, monthCounts, position, today)
+            // 달별 편수를 끝내 못 읽어도 목록 읽기가 끝나면 오늘 달로. 제목이 빈 채로 남지 않게
+            val counts = monthCounts ?: emptyList<MonthCount>().takeIf { rows.loadState.refresh !is LoadState.Loading }
+            shownMonth(loaded, counts, position, today)
         }
     }
     HomeScreen(
-        title = dates.yearMonth(shown.firstDay),
+        // 맨 위 달을 알기 전에는 자리만 둠. 오늘 달을 먼저 보였다가 바꾸지 않게
+        title = shown?.let { dates.yearMonth(it.firstDay) }.orEmpty(),
         rows = rows,
         list = list,
         grid = grid,
@@ -180,6 +194,7 @@ fun HomeRoute(
         onToggleFavorites = viewModel::toggleFavoritesOnly,
         onPickMonth = { picking = true },
         onOpen = onOpen,
+        onOpenClippedRow = viewModel::clippedOpened,
         onMenu = { menuFor = it },
         onWrite = onWrite,
         onSearch = onSearch,
@@ -188,18 +203,31 @@ fun HomeRoute(
         backupAlert = backupAlert,
         header = header,
         listTop = {
-            listTop()
-            // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
-            // 백업 안내가 떠 있으면 앱이 null을 넘겨 목록 위 안내가 겹치지 않음
-            if (onListStyle != null && style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) {
-                ContextTipBar(
-                    ContextTip.HOME_LIST_STYLE,
-                    stringResource(Res.string.tip_home_list_style),
-                    Modifier.padding(top = DiarySpacing.x2, bottom = DiarySpacing.x3),
-                    action = stringResource(Res.string.tip_home_list_style_action),
-                    onAction = onListStyle
-                )
-            }
+            val listRead = rows.loadState.refresh !is LoadState.Loading
+            listTop(listRead)
+            // 백업 안내가 떠 있으면 앱이 onListStyle에 null을 넘겨 목록 위 안내가 겹치지 않음
+            // 자리는 늘 두어 카드가 닫히고 팁이 생길 때도 처음 그리기로 보지 않고 같은 움직임을 씀
+            // 설정을 읽기 전에는 팁을 고르지 않음. 다른 팁이 먼저 그날의 팁으로 적힘
+            HomeTip(
+                listRead = listRead,
+                candidates =
+                    if (onListStyle == null || previewLength == null || fullPreviewKept == null) {
+                        emptyList()
+                    } else {
+                        buildList {
+                            // 사진 격자는 본문 길이를 따르지 않음
+                            if (style != ListStyle.PHOTO_GRID) {
+                                // 팁이 미뤄진 사이 길이를 직접 골랐으면 "예전처럼 전체"가 사실이 아님
+                                if (fullPreviewKept == true) add(ContextTip.HOME_FULL_PREVIEW_KEPT)
+                                if (previewLength != PreviewLength.FULL) add(ContextTip.HOME_FULL_PREVIEW)
+                            }
+                            // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
+                            if (style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) add(ContextTip.HOME_LIST_STYLE)
+                        }
+                    },
+                onListStyle = onListStyle ?: {},
+                onLength = viewModel::setPreviewLength
+            )
         },
         adSlot = adSlot
     )
@@ -219,12 +247,14 @@ fun HomeRoute(
             if (style == ListStyle.PHOTO_GRID) grid.scrollToItem(index) else list.scrollToItem(index)
         }
     }
-    if (picking) {
-        val months = remember(monthCounts) { monthCounts.mapTo(HashSet()) { it.month } }
+    // 고를 달이 있어야 제목을 누를 수 있어 열렸으면 맨 위 달도 앎
+    val current = shown
+    if (picking && current != null) {
+        val months = remember(monthCounts) { monthCounts.orEmpty().mapTo(HashSet()) { it.month } }
         DiaryMonthSheet(
             title = stringResource(Res.string.home_month_sheet_title),
-            initialYear = shown.year,
-            shown = shown,
+            initialYear = current.year,
+            shown = current,
             years = remember(months) { months.map { it.year }.distinct().sorted() },
             enabled = { it in months },
             onPick = { month ->
@@ -240,9 +270,10 @@ fun HomeRoute(
  * 제목에 보일 달
  * 맨 위 줄을 읽었으면 그 줄의 달, 아직 자리 표시 줄이면 달별 편수로 센 달
  * 건너뛰거나 맨 위로 갈 때 앞서 보던 달이 남지 않음. 일기가 없으면 오늘이 든 달
+ * 줄도 달별 편수도 아직 읽지 않았으면 null
  */
-internal fun shownMonth(loaded: LocalDate?, counts: List<MonthCount>, position: Int, today: LocalDate): YearMonth =
-    loaded?.yearMonth ?: counts.monthAt(position) ?: today.yearMonth
+internal fun shownMonth(loaded: LocalDate?, counts: List<MonthCount>?, position: Int, today: LocalDate): YearMonth? =
+    loaded?.yearMonth ?: counts?.let { it.monthAt(position) ?: today.yearMonth }
 
 @Composable
 internal fun HomeScreen(
@@ -262,6 +293,7 @@ internal fun HomeScreen(
     onWrite: () -> Unit,
     onSearch: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenClippedRow: () -> Unit = {},
     backupLine: @Composable () -> Unit = {},
     backupAlert: @Composable () -> Unit = {},
     header: DiaryCollapsingHeaderState = rememberDiaryCollapsingHeaderState(),
@@ -273,10 +305,11 @@ internal fun HomeScreen(
             // 일기가 없으면 고를 달도 없음
             // 불러오는 동안은 마지막으로 다 불러왔을 때의 답 유지. 즐겨찾기를 켜고 끌 때 화살표가 반짝이지 않게
             val loadedEmpty = if (rows.loadState.refresh is LoadState.NotLoading) rows.itemCount == 0 else null
-            // 처음 다 읽기 전에는 숨김. 보였다 숨기면 일기 없는 첫 실행에서 반짝이고, 숨겼다 보이면 목록과 같이 나옴
-            var lastEmpty by remember { mutableStateOf(true) }
+            // 처음 다 읽기 전에는 null이고 숨김. 보였다 숨기면 일기 없는 첫 실행에서 반짝이고, 숨겼다 보이면 목록과 같이 나옴
+            // 전체와 즐겨찾기 목록마다 따로. 즐겨찾기를 끄는 순간 즐겨찾기의 빈 안내가 전체 목록에 남지 않게
+            var lastEmpty by remember(rows) { mutableStateOf<Boolean?>(null) }
             SideEffect { loadedEmpty?.let { lastEmpty = it } }
-            val noMonths = loadedEmpty ?: lastEmpty
+            val noMonths = loadedEmpty ?: lastEmpty ?: true
             val pickMonth = onPickMonth.takeUnless { noMonths }
             // 스크롤하면 큰 제목과 백업 줄이 접히고 바에 작은 제목이 나타남(`docs/design.md` 탭 상단 바)
             // 백업 줄은 접힌 동안 감추고, 손봐야 할 때만 바에 경고 단추
@@ -307,28 +340,57 @@ internal fun HomeScreen(
                     rows.itemCount > 0 -> {
                         val dates = rememberDiaryDateFormat()
                         when (style) {
-                            ListStyle.FEED -> Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
-                            ListStyle.CARD -> CardList(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot)
+                            ListStyle.FEED ->
+                                Feed(rows, list, selectedId, today, previewStyle, dates, onOpen, onMenu, listTop, adSlot, onOpenClippedRow)
+
+                            ListStyle.CARD ->
+                                CardList(
+                                    rows,
+                                    list,
+                                    selectedId,
+                                    today,
+                                    previewStyle,
+                                    dates,
+                                    onOpen,
+                                    onMenu,
+                                    listTop,
+                                    adSlot,
+                                    onOpenClippedRow
+                                )
+
                             ListStyle.PHOTO_GRID -> PhotoGrid(rows, grid, selectedId, today, dates, onOpen, onMenu, listTop)
                         }
                     }
 
-                    refresh is LoadState.NotLoading -> {
-                        ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                        Empty(favoritesOnly, onWrite, onToggleFavorites)
-                    }
+                    // 목록 위 카드 아래로 차례로 쌓음. 겹쳐 두면 빈 안내나 뼈대가 카드를 덮음
+                    refresh is LoadState.NotLoading ->
+                        Column {
+                            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                            Box(Modifier.testTag(HOME_EMPTY_TAG)) { Empty(favoritesOnly, onWrite, onToggleFavorites) }
+                        }
 
                     refresh is LoadState.Error -> LoadFailed(rows::retry)
 
-                    else -> {
-                        ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
-                        // 곧 나올 목록과 같은 꼴
-                        when (style) {
-                            ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4))
-                            ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4))
-                            ListStyle.PHOTO_GRID -> SkeletonPhotoGrid()
+                    // 빈 홈에서 첫 일기를 쓰고 돌아와 다시 읽는 동안은 빈 안내를 그대로 둠. 뼈대가 스쳤다 목록이 되지 않게
+                    lastEmpty == true ->
+                        Column {
+                            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                            Box(Modifier.testTag(HOME_EMPTY_TAG)) { Empty(favoritesOnly, onWrite, onToggleFavorites) }
                         }
-                    }
+
+                    else ->
+                        Column {
+                            ListTop(listTop, Modifier.padding(horizontal = LocalScreenGutter.current))
+                            // 곧 나올 목록과 같은 꼴. 처음 읽기는 늘 늦어 기다리지 않고 바로, 다시 읽기는 0.3초 뒤
+                            val delayed = lastEmpty != null
+                            Box(Modifier.testTag(HOME_SKELETON_TAG)) {
+                                when (style) {
+                                    ListStyle.FEED -> SkeletonEntryRows(Modifier.padding(top = DiarySpacing.x4), delayed = delayed)
+                                    ListStyle.CARD -> SkeletonEntryCards(Modifier.padding(top = DiarySpacing.x4), delayed = delayed)
+                                    ListStyle.PHOTO_GRID -> SkeletonPhotoGrid(delayed = delayed)
+                                }
+                            }
+                        }
                 }
             }
         }
@@ -395,7 +457,8 @@ private fun Feed(
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
     listTop: @Composable () -> Unit,
-    adSlot: @Composable (Int, Modifier) -> Unit
+    adSlot: @Composable (Int, Modifier) -> Unit,
+    onOpenClippedRow: () -> Unit
 ) {
     val colors = DiaryTheme.colors
     // 마지막 줄이 쓰기 버튼에 가리지 않게 아래 여백
@@ -415,11 +478,14 @@ private fun Feed(
                     DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                 }
                 val interaction = remember { MutableInteractionSource() }
+                // 글을 그려 봐야 잘렸는지 앎. 그리는 데만 쓰여 다시 그리지 않음
+                val clipped = remember(row.id) { ClippedFlag() }
                 DiaryEntryLine(
                     row = row,
                     showDate = newDay,
                     dividerAbove = index > 0 && !newMonth,
                     previewStyle = previewStyle,
+                    onPreviewClip = { clipped.value = it },
                     modifier =
                         Modifier
                             .diaryPress(interaction, colors.textPrimary, DiaryShapes.r12)
@@ -429,7 +495,10 @@ private fun Feed(
                                 indication = null,
                                 role = Role.Button,
                                 onLongClick = { onMenu(row.id) },
-                                onClick = { onOpen(row.id) }
+                                onClick = {
+                                    if (row.previewCut || clipped.value) onOpenClippedRow()
+                                    onOpen(row.id)
+                                }
                             )
                 )
                 // 광고 없는 사람에게 빈 틈이 남지 않게 여백은 광고에만
@@ -470,8 +539,60 @@ internal const val LIST_TOP_ITEMS = 1
 private const val LIST_STYLE_TIP_AFTER = 1
 internal const val LIST_TOP_KEY = "list-top"
 
+/** 화면 시험이 뼈대와 빈 안내 자리를 찾는 이름표 */
+internal const val HOME_SKELETON_TAG = "home-skeleton"
+internal const val HOME_EMPTY_TAG = "home-empty"
+
 private const val FIRST_AD = 4
 private const val AD_EVERY = 10
 
 /** 탭을 다시 눌렀을 때 이보다 아래면 이 줄(첫 일기)까지 바로 옮긴 뒤 부드럽게 올림 */
 private const val RESELECT_JUMP = LIST_TOP_ITEMS
+
+/** 줄의 미리보기가 잘렸는지. 누를 때만 읽어 상태로 두지 않음 */
+internal class ClippedFlag(var value: Boolean = false)
+
+/**
+ * 목록 위 팁 자리. 열린 첫 팁 하나만(스펙 008 FR-011)
+ * 옛 설정 이음 > 전체 보기 > 목록 보기 순서
+ */
+@Composable
+private fun HomeTip(candidates: List<ContextTip>, listRead: Boolean, onListStyle: () -> Unit, onLength: (PreviewLength) -> Unit) {
+    val modifier = Modifier.padding(top = DiarySpacing.x2, bottom = DiarySpacing.x3)
+    // 목록을 읽기 전에 고른 팁은 목록과 함께 처음 정해지는 것이라 움직이지 않음
+    DiaryDismissSlot(TipSlot(rememberFirstOpenTip(candidates), listRead), key = { it.tip }, known = { it.listRead }) { slot ->
+        when (val tip = slot.tip) {
+            ContextTip.HOME_FULL_PREVIEW_KEPT ->
+                ContextTipBar(
+                    tip,
+                    stringResource(Res.string.tip_home_full_preview_kept),
+                    modifier,
+                    action = stringResource(Res.string.tip_home_full_preview_kept_action),
+                    onAction = { onLength(PreviewLength.THREE_LINES) }
+                )
+
+            ContextTip.HOME_FULL_PREVIEW ->
+                ContextTipBar(
+                    tip,
+                    stringResource(Res.string.tip_home_full_preview),
+                    modifier,
+                    action = stringResource(Res.string.tip_home_full_preview_action),
+                    onAction = { onLength(PreviewLength.FULL) }
+                )
+
+            ContextTip.HOME_LIST_STYLE ->
+                ContextTipBar(
+                    tip,
+                    stringResource(Res.string.tip_home_list_style),
+                    modifier,
+                    action = stringResource(Res.string.tip_home_list_style_action),
+                    onAction = onListStyle
+                )
+
+            else -> Unit
+        }
+    }
+}
+
+/** 팁 자리의 상태. 목록을 다 읽었는지까지 알아야 처음 정해지는 팁을 움직이지 않음 */
+private data class TipSlot(val tip: ContextTip?, val listRead: Boolean)

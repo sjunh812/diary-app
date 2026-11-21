@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.backup
 
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.room3.Room
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -132,7 +133,7 @@ class BundleTest {
         dir / "b" / "backup"
     )
 
-    private fun fetcher() = PhotoFetcher(phoneB, FakeDrive(fs), fs, dir / "b" / "media", dir / "b" / "backup")
+    private fun fetcher() = PhotoFetcher(phoneB, FakeDrive(fs), fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext)
 
     @Test
     fun saving_a_file_remembers_what_left_this_phone() = runTest {
@@ -250,7 +251,10 @@ class BundleTest {
     fun a_failed_photo_extraction_keeps_the_file_past_the_result_screen() = runTest {
         val zip = exportFromA()
         val controller =
-            controller(PhotoFetcher(phoneB, FakeDrive(fs), jammed, dir / "b" / "media", dir / "b" / "backup"), backgroundScope)
+            controller(
+                PhotoFetcher(phoneB, FakeDrive(fs), jammed, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext),
+                backgroundScope
+            )
         assertIs<RestorePreparation.Ready>(controller.prepareFile(fs.source(zip)))
 
         finish(controller)

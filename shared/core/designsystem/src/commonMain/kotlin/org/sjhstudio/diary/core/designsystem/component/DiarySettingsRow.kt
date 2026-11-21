@@ -17,6 +17,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +29,11 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -45,6 +50,9 @@ private const val VALUE_MAX_SHARE = 0.5f
 
 /** 오른쪽 값 최대 줄 수 */
 private const val VALUE_MAX_LINES = 2
+
+// 값과 할 일 사이
+private const val VALUE_ACTION_SEPARATOR = " · "
 
 /**
  * 이름 최대 줄 수
@@ -75,7 +83,10 @@ fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: B
     )
 }
 
-/** 누르면 다음 화면으로 가는 줄. 오른쪽에 지금 값과 화살표 */
+/**
+ * 누르면 다음 화면으로 가는 줄. 오른쪽에 지금 값과 화살표
+ * [valueAction]은 값 뒤 " · "에 붙는 할 일(예: "2.0.1 · 업데이트"). 그 말만 `accentText`
+ */
 @Composable
 fun DiarySettingsRow(
     title: String,
@@ -84,7 +95,8 @@ fun DiarySettingsRow(
     description: String? = null,
     value: String? = null,
     selected: Boolean = false,
-    leadingIcon: ImageVector? = null
+    leadingIcon: ImageVector? = null,
+    valueAction: String? = null
 ) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -105,17 +117,28 @@ fun DiarySettingsRow(
     ) {
         // 값은 화살표에 붙여 둠(Figma 설정 줄 4)
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
-            if (value != null) RowValue(value)
+            if (value != null || valueAction != null) RowValue(valueText(value, valueAction, colors.accentText))
             DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
         }
     }
 }
 
-/** 값만 보여 주는 줄. 누를 수 없어 화살표가 없음 */
+/**
+ * 값만 보여 주는 줄. 누를 수 없어 화살표가 없음
+ * [valueNote]는 값 뒤 " · "에 붙는 지금 상태(예: "2.0.1 · 받는 중 42%"). 누를 수 없어 같은 회색
+ */
 @Composable
-fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier) {
+fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier, valueNote: String? = null) {
     RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
-        RowValue(value)
+        RowValue(valueText(value, valueNote, DiaryTheme.colors.textSecondary))
+    }
+}
+
+private fun valueText(value: String?, action: String?, actionColor: Color): AnnotatedString = buildAnnotatedString {
+    if (value != null) append(value)
+    if (action != null) {
+        if (value != null) append(VALUE_ACTION_SEPARATOR)
+        withStyle(SpanStyle(color = actionColor)) { append(action) }
     }
 }
 
@@ -125,7 +148,7 @@ fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Mod
  * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정돼 값과 화살표가 줄 가운데에 뜸
  */
 @Composable
-private fun RowValue(value: String) {
+private fun RowValue(value: AnnotatedString) {
     BasicText(
         text = value,
         style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary),
@@ -267,5 +290,28 @@ private fun RowFrame(
             }
         }
         trailing()
+    }
+}
+
+/**
+ * 시트 안 고르기 목록 줄(`docs/design.md` 고르기 목록)
+ * 글은 시트 안쪽 선에 맞추고 누름 면만 양옆으로 12 나옴
+ */
+@Composable
+fun DiarySheetChoiceRow(title: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, description: String? = null) {
+    CompositionLocalProvider(LocalScreenGutter provides DiarySpacing.x3) {
+        DiarySettingsChoiceRow(
+            title = title,
+            selected = selected,
+            onClick = onClick,
+            description = description,
+            modifier =
+                modifier.layout { measurable, constraints ->
+                    val outset = DiarySpacing.x3.roundToPx()
+                    val width = constraints.maxWidth + outset * 2
+                    val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+                    layout(constraints.maxWidth, placeable.height) { placeable.place(-outset, 0) }
+                }
+        )
     }
 }

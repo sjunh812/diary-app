@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.data
 
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
@@ -39,9 +40,16 @@ interface StoreClient {
 /**
  * 스토어 답. [active]는 지금 켜진 권한 이름
  * [expiresAt]은 켜진 권한 가운데 가장 먼저 끝나는 시각. 평생 상품뿐이면 null
- * [answeredAt]은 서버가 답한 시각. 기기 시계와 달라도 남은 시간을 서버 시계로 잼
+ * [answeredAt]은 서버가 매긴 시각. 늦게 온 옛 답을 가리고, 기기 시계와 달라도 남은 시간을 서버 시계로 잼
+ * 서버 장애 때 결제 SDK가 기기에서 계산한 답은 null. 기기 시계라 앞뒤 기준이 될 수 없음
+ * [renewing]은 기간이 끝났지만 자동 갱신이 켜진 권한과 끝난 시각. Play가 갱신을 늦게 알려 잠깐 꺼져 보이는 때
  */
-data class StoreAnswer(val active: Set<String>, val expiresAt: Instant? = null, val answeredAt: Instant? = null)
+data class StoreAnswer(
+    val active: Set<String>,
+    val expiresAt: Instant? = null,
+    val answeredAt: Instant? = null,
+    val renewing: Map<String, Instant> = emptyMap()
+)
 
 /** 스토어가 거절했거나 닿지 못함 */
 class StoreFailure(val reason: Reason, cause: Throwable? = null) : Exception(cause) {
@@ -56,24 +64,17 @@ class StoreFailure(val reason: Reason, cause: Throwable? = null) : Exception(cau
  */
 class StoreBilling(
     private val client: StoreClient,
-    saved: Plan?,
+    saved: SavedPlan?,
     override val manageUrl: String,
     private val scope: CoroutineScope,
     private val clock: Clock = Clock.System,
-    remember: (Plan) -> Unit
+    remember: (SavedPlan) -> Unit
 ) : PlanRepository,
     PurchaseRepository {
     private val state = StorePlanState(saved, remember)
 
     /** 구독이 끝나는 시각에 다시 묻는 일. 앱을 켜 둔 채 만료돼도 혜택이 남지 않음 */
     private var expiryCheck: Job? = null
-
-    /**
-     * 구매·복원이 끝날 때마다 늘림
-     * 그 전에 보낸 확인이 늦게 오면 버림. 옛 답이 방금 산 요금제를 무료로 덮어 광고가 다시 나오지 않게
-     * 시계로 앞뒤를 재면 기기 시계가 틀릴 때 결제 답을 버릴 수 있어 차례 번호로 가림
-     */
-    private var purchases = 0
 
     override val plan: StateFlow<Plan> = state.plan
     override val known: StateFlow<Boolean> = state.known
@@ -90,17 +91,14 @@ class StoreBilling(
         }
     }
 
-    /** 스토어가 권한이 바뀌었다고 알려 올 때 호출. 요금제만 바꿈 */
+    /** 스토어가 권한이 바뀌었다고 알려 올 때 호출. 요금제만 바꿈. 늦게 온 옛 답은 버림 */
     fun onUpdate(answer: StoreAnswer) {
-        watchExpiry(answer)
-        state.onAnswer(StoreIds.planOf(answer.active))
+        if (state.onAnswer(planOf(answer), answer.answeredAt)) watchExpiry(answer)
     }
 
     internal suspend fun refresh() {
-        val asked = purchases
         try {
-            val answer = client.entitlements()
-            if (asked == purchases) onUpdate(answer)
+            onUpdate(client.entitlements())
         } catch (_: StoreFailure) {
             // 닿지 못하면 남긴 값 그대로. 없으면 모르는 채로
         }
@@ -108,12 +106,8 @@ class StoreBilling(
 
     /** 계정에 남은 구매를 가져옴(재설치 뒤 다시 사지 않게) */
     private suspend fun recover() {
-        val asked = purchases
         try {
-            val answer = client.sync()
-            if (asked != purchases) return
-            watchExpiry(answer)
-            state.onRecovered(StoreIds.planOf(answer.active))
+            recovered(client.sync())
         } catch (e: StoreFailure) {
             // 로그인 창을 닫은 것은 가져올 구매가 없다는 답
             if (e.reason == StoreFailure.Reason.CANCELLED) state.onRecovered(Plan.FREE)
@@ -121,16 +115,30 @@ class StoreBilling(
         }
     }
 
+    private fun recovered(answer: StoreAnswer) {
+        if (state.onRecovered(planOf(answer), answer.answeredAt)) watchExpiry(answer)
+    }
+
+    /**
+     * 지금 쓸 수 있는 요금제
+     * 갱신을 기다리는 권한은 끝난 뒤 [RENEWAL_WAIT] 동안 켬. Play 갱신이 늦게 반영되는 동안 구독자에게 광고가 나오지 않게
+     */
+    private fun planOf(answer: StoreAnswer): Plan {
+        val at = answer.answeredAt ?: clock.now()
+        return StoreIds.planOf(answer.active + answer.renewing.filterValues { at - it < RENEWAL_WAIT }.keys)
+    }
+
     private fun watchExpiry(answer: StoreAnswer) {
         expiryCheck?.cancel()
-        val at = answer.expiresAt ?: return
-        val left = at - (answer.answeredAt ?: clock.now())
+        val at = answer.answeredAt ?: clock.now()
+        // 켜진 권한이 끝나는 때와 갱신 기다림이 끝나는 때 가운데 가장 이른 때
         // 이미 지났는데 켜져 있으면 스토어가 처리 중. 바로 다시 묻지 않고 앱이 앞으로 올 때 물음
-        if (!left.isPositive()) return
+        val next =
+            (listOfNotNull(answer.expiresAt) + answer.renewing.values.map { it + RENEWAL_WAIT }).filter { it > at }.minOrNull() ?: return
         expiryCheck =
             scope.launch {
                 // 스토어가 만료를 처리할 틈을 두고 물음
-                delay(left + EXPIRY_GRACE)
+                delay(next - at + EXPIRY_GRACE)
                 refresh()
             }
     }
@@ -143,11 +151,9 @@ class StoreBilling(
     }
 
     override suspend fun buy(id: ProductId): PurchaseResult = try {
-        val answer = client.purchase(StoreIds.productOf(id))
-        purchases++
-        onUpdate(answer)
+        onUpdate(client.purchase(StoreIds.productOf(id)))
         // 결제가 끝나도 혜택이 켜지지 않았으면 성공으로 닫지 않음. 실패 안내가 [구매 복원]을 알려 줌
-        if (StoreIds.planOf(answer.active).includes(id)) PurchaseResult.DONE else PurchaseResult.FAILED
+        if (state.plan.value.includes(id)) PurchaseResult.DONE else PurchaseResult.FAILED
     } catch (e: StoreFailure) {
         when (e.reason) {
             StoreFailure.Reason.CANCELLED -> PurchaseResult.CANCELLED
@@ -162,11 +168,8 @@ class StoreBilling(
     }
 
     override suspend fun restore(): PurchaseResult = try {
-        val answer = client.restore()
-        watchExpiry(answer)
-        purchases++
-        state.onRecovered(StoreIds.planOf(answer.active))
-        if (StoreIds.planOf(answer.active) == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
+        recovered(client.restore())
+        if (state.plan.value == Plan.FREE) PurchaseResult.NOTHING else PurchaseResult.DONE
     } catch (e: StoreFailure) {
         // iOS는 복원 때 Apple 계정 로그인 창을 띄울 수 있음. 닫은 것은 실패가 아님
         if (e.reason == StoreFailure.Reason.CANCELLED) PurchaseResult.CANCELLED else PurchaseResult.FAILED
@@ -174,3 +177,6 @@ class StoreBilling(
 }
 
 private val EXPIRY_GRACE = 5.seconds
+
+/** 갱신을 기다리는 시간. RevenueCat 안내의 예(끝난 지 6시간 안이고 자동 갱신이 켜졌으면 갱신 대기로 봄) */
+private val RENEWAL_WAIT = 6.hours

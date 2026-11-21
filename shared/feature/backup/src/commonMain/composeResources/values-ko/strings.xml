@@ -71,8 +71,11 @@
     <string name="restore_empty_title">드라이브에 백업이 아직 없어요</string>
     <string name="restore_empty_body">이 기기에서 백업하면 여기에 보여요.</string>
     <string name="restore_list_failed">백업 목록을 읽지 못했어요</string>
+    <string name="restore_list_failed_auth">구글 계정 연결이 끊겼어요. 백업 화면에서 다시 연결해 주세요.</string>
+    <string name="restore_go_backup">백업 화면으로 가기</string>
     <string name="restore_list_failed_body">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="restore_retry">다시 시도</string>
+    <string name="restore_update_in_store">스토어에서 업데이트</string>
     <string name="restore_preview_top">복원하기</string>
     <string name="restore_preview_title">이 백업을 합칠게요</string>
     <string name="restore_preview_title_nothing">이 백업의 일기는 이미 모두 있어요</string>
@@ -81,7 +84,7 @@
     <string name="restore_value_updated">최근에 수정한 버전으로 바뀔 일기</string>
     <string name="restore_value_both">둘 다 남길 일기</string>
     <string name="restore_value_photos">받을 사진</string>
-    <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 알림 설정도 백업할 때의 설정으로 바뀌어요.</string>
+    <string name="restore_settings_note">글꼴, 본문 글자 크기, 화면 모드, 목록 보기, 알림 설정도 백업할 때의 설정으로 바뀌어요.</string>
     <string name="restore_no_space">사진을 받을 공간이 %1$s 부족해요. 기기 저장 공간을 비운 뒤 다시 시도해 주세요.</string>
     <string name="restore_merge">합치기</string>
     <string name="restore_size_gb">%1$sGB</string>
@@ -123,7 +126,8 @@
     <string name="restore_failed_mismatch_title">백업을 확인하지 못했어요</string>
     <string name="restore_failed_mismatch_body">받은 파일이 백업할 때와 달라서 멈췄어요. 이 기기의 기록은 그대로 있어요.</string>
     <string name="restore_failed_other_title">복원하지 못했어요</string>
-    <string name="restore_failed_other_body">인터넷 연결을 확인하고 다시 시도해 주세요. 이 기기의 기록은 그대로 있어요.</string>
+    <string name="restore_failed_other_body">잠시 뒤 다시 시도해 주세요. 이 기기의 기록은 그대로 있어요.</string>
+    <string name="restore_needs_update_body">스토어에서 앱을 업데이트한 뒤 다시 시도해 주세요. 이 기기의 기록은 그대로 있어요.</string>
     <string name="restore_pick_other">다른 백업 선택</string>
     <string name="restore_found_title">구글 드라이브에 백업이 있어요</string>
     <string name="restore_found_body">이 기기의 일기는 그대로 두고 합쳐요.</string>
@@ -134,6 +138,8 @@
     <plurals name="restore_unit_entries"><item quantity="other">%1$s편</item></plurals>
     <plurals name="restore_unit_photos"><item quantity="other">%1$s장</item></plurals>
     <plurals name="restore_done_added"><item quantity="other">일기 %1$s편을 추가했어요</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="other">일기 %1$s편을 휴지통에 복원했어요</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="other">일기 %1$s편은 휴지통에 복원돼요.</item></plurals>
     <plurals name="restore_done_updated"><item quantity="other">일기 %1$s편을 최신으로 바꿨어요</item></plurals>
     <plurals name="restore_done_photos"><item quantity="other">사진 %1$s장도 모두 받았어요.</item></plurals>
     <plurals name="restore_note_both"><item quantity="other">둘 다 남긴 일기 %1$s편</item></plurals>
@@ -255,6 +261,7 @@
     <string name="backup_connect_failed_title">구글 드라이브에 연결하지 못했어요</string>
     <string name="backup_connect_failed_offline">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="backup_connect_failed_auth">구글 계정을 확인하지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
+    <string name="backup_connect_failed_no_drive">구글 화면에서 드라이브 항목을 체크해야 연결돼요.</string>
     <string name="backup_connect_failed_other">잠시 뒤 다시 시도해 주세요.</string>
     <string name="backup_connect_failed_close">확인</string>
     <string name="restore_no_mail">메일 앱을 찾지 못했어요. %1$s 주소로 보내주세요.</string>

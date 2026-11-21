@@ -42,6 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -51,6 +52,7 @@ import org.sjhstudio.diary.app.ads.AdRemoval
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.FreePlanRepository
@@ -74,14 +76,18 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.platform.Telemetry
 import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
+import org.sjhstudio.diary.core.testing.FakeContextTips
 import org.sjhstudio.diary.core.testing.FakeEntryRepository
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
+import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.core.testing.FakeStoreUpdates
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
 import org.sjhstudio.diary.feature.calendar.CalendarViewModel
+import org.sjhstudio.diary.feature.home.HomeMonths
 import org.sjhstudio.diary.feature.home.HomeViewModel
 import org.sjhstudio.diary.feature.settings.FontReplacedNoticeViewModel
 
@@ -117,7 +123,12 @@ class AppScaffoldUiTest {
                     single<PlanRepository> { FreePlanRepository() }
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
                     single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, { false }) }
-                    single { HomeTopState(get(), get(), MainScope()) }
+                    single {
+                        AppUpdateRepository(FakeStoreUpdates(), {
+                            ""
+                        }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", MainScope()).also { runBlocking { it.refresh() } }
+                    }
+                    single { HomeTopState(get(), get(), get(), MainScope()) }
                     single { AdRemoval(MainScope()) { RewardResult.NotEarned } }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }
@@ -129,7 +140,19 @@ class AppScaffoldUiTest {
                     single { Telemetry(sink, strict = true) }
                     viewModel { FontReplacedNoticeViewModel(FakeSettingsRepository()) }
                     single<EntryRepository> { FakeEntryRepository(rows = rows) }
-                    viewModel { HomeViewModel(get(), FakeSettingsRepository(), NoFonts).also { homeModels += it } }
+                    viewModel {
+                        HomeViewModel(
+                            get(),
+                            FakeSettingsRepository(),
+                            NoFonts,
+                            FakePlanRepository(),
+                            FakeContextTips(),
+                            HomeMonths(get(), MainScope())
+                        ).also {
+                            homeModels +=
+                                it
+                        }
+                    }
                     viewModel { CalendarViewModel(get(), FakeSettingsRepository(), NoFonts, saved = SavedStateHandle()) }
                 }
             )
@@ -215,6 +238,18 @@ class AppScaffoldUiTest {
 
         assertEquals(1, homeModels.size)
         assertTrue(homeModels.single().favoritesOnly.value)
+    }
+
+    /** 탭을 옮겨도 탭 바는 그대로라 누른 칸의 효과가 도중에 끊기지 않음 */
+    @Test
+    fun changing_tabs_keeps_the_same_tab_bar() = shell(width = 400.dp) {
+        val tabs = isSelectable() and SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+        val before = onAllNodes(tabs).fetchSemanticsNodes().map { it.id }
+
+        tab(1)
+        waitForIdle()
+
+        assertEquals(before, onAllNodes(tabs).fetchSemanticsNodes().map { it.id })
     }
 
     /** 탭을 옮길 때 두 화면이 겹쳐 보이지 않음 */

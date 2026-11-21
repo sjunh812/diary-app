@@ -6,8 +6,10 @@
 
 1. **프로세스 시작** (Android `DiaryApplication.onCreate`, iOS `iOSApp.init`): Koin 시작, `Startup` 시작. `Startup`은 설정·잠금 DataStore와
    `migration/state.json`을 읽고(Android) 원본이 있으면 잠금·설정 잇기를 한다. 끝나면 `ready = true`. 목표 300ms 안, Room은 열지 않는다.
-2. **첫 액티비티** (Android `MainActivity`): `installSplashScreen()` → `setKeepOnScreenCondition { !startup.ready }` → `setContent { DiaryApp() }`.
-   고정 대기 없음. iOS는 `UILaunchScreen`이 첫 프레임까지 보인다.
+2. **첫 액티비티** (Android `MainActivity`): `installSplashScreen()` → `setKeepOnScreenCondition { !startup.ready || !startup.screenShown }` → `setContent { DiaryApp() }`.
+   첫 화면(앱 틀, 잠금, 이전, 편지·온보딩)이 `FirstScreenShown`으로 알릴 때까지 둔다. 그 사이 관문은 바탕뿐이라 빈 화면이 스치기 때문이다.
+   일기 목록은 기다리지 않는다(붙잡으면 목록 읽기도 같이 멈춰 늦어짐, 첫 목록은 뼈대가 맡음). 알리는 화면이 없는 길에 대비해 준비 뒤 0.5초가 상한이다(2026-11-20).
+   iOS는 `UILaunchScreen`이 첫 프레임까지 보인다.
 3. **`DiaryApp()`**: `DiaryTheme(settings)` → `LockGate` → `MigrationGate` → `AppScaffold`.
    - `LockGate`: 잠겼으면 `LockScreen`만 그린다. 안쪽 화면 키 목록과 저장 상태는 버리지 않는다.
    - `MigrationGate`: `contracts/migration-flow.md` 화면 상태. 이전이 없거나 끝났으면 통과.

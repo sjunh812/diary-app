@@ -164,7 +164,8 @@ REVENUECAT_IOS = appl_...
 
 - [ ] 개발자 계정 > 내 정보에 사업자등록번호, 전자상거래 라이선스 번호, 발급 기관을 넣는다. 한국 사용자에게 보인다([요구사항](https://support.google.com/googleplay/android-developer/answer/6223646?hl=ko)).
 - [x] 판매 계정은 결제 프로필 주소가 공개된다. 집 주소가 공개되어도 그대로 간다(2026-11-06 사용자 결정).
-- [ ] 결제 프로필 > 대한민국 세금 정보에 사업자등록번호를 넣는다. 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)). 2026-11-13 Google에 문의 중(사용자). 진행 상태는 콘솔에서 보이지 않는다.
+- [x] 결제 프로필 > 대한민국 세금 정보는 "개인" 그대로 둔다. 사업자등록번호가 없으면 수수료에 부가세 10%가 붙는다([세율](https://support.google.com/googleplay/android-developer/answer/138000?hl=ko)). 2026-11-18 Play Console 지원팀 답: 법인이 아닌 개인사업자는 개인 개발자 계정과 개인 결제 프로필을 쓰고, 연결된 결제 프로필은 바꿀 수 없다. 그래서 부가세 10%는 그대로 붙는다. 대한민국 양식에서 "세금 정보 업데이트"를 누르면 기존 양식이 지워지니 누르지 않는다.
+- [x] 결제 프로필 > 미국 세금 정보에 W-8BEN을 낸다. 2026-11-18 승인(기타 저작권 10%, 서비스 0% 조약 세율, 만료 2029-12-31). 만료 전에 새로 낸다.
 - [x] 수수료 프로그램에 등록한다. 첫 100만 달러 15%, 초과분 30%, 구독 갱신 15%다([수수료](https://support.google.com/googleplay/android-developer/answer/112622?hl=ko), [등록](https://support.google.com/googleplay/android-developer/answer/10632485?hl=ko)). 2026-11-12 Play 알림 "계정 그룹이 15% 서비스 수수료 프로그램에 등록됨"으로 확인.
 - [x] 정산 계좌를 시험 입금으로 인증한다([인증](https://support.google.com/googleplay/android-developer/answer/7161378?hl=ko)). 지급은 다음 달 15일쯤이다. 사용자 인증 완료(2026-11-13 확인).
 
@@ -180,6 +181,7 @@ REVENUECAT_IOS = appl_...
 **6. 해마다**
 
 - [ ] 부가세 신고: 일반과세자 1월·7월 25일, 간이과세자 1월 25일([기한](https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?mi=2273&cntntsId=7694)).
+- [ ] Play 수수료 인보이스를 매달 초 받아 모은다. 결제 센터 > 구독 및 서비스 > 관리 > 거래 보기에서 해당 달 오른쪽 다운로드. 이 인보이스로 수수료 부가세를 매입세액 공제받을 수 있는지는 부가세 신고 전에 세무사에게 묻는다 `[세무]`.
 - [ ] 한국 고객 부가세, 해외 매출 영세율, AdMob 수익 처리, 현금영수증 의무는 공식 답을 다 찾지 못했다 `[세무]`. AdMob 계정 유형은 바꿀 수 없으니 사업자로 만든다([AdMob](https://support.google.com/admob/answer/12835021?hl=ko)).
 
 ## 출시 국가
@@ -228,7 +230,8 @@ REVENUECAT_IOS = appl_...
 - [x] 교보손글씨 2019 사용자는 창원단감둥근체로 옮겨 가고 처음 열 때 한 번 알린다(2026-11-14, 교보손글씨 2020 박도연 자리를 온글잎 위씨리스트로 바꿈).
 - [ ] 777미니콩다방·777꼬마나비는 2.0.0에서 빠진다. 1.7.5로 먼저 빼는 안은 내지 않기로 했고(2026-11-01), 그때까지 1.7.4가 그대로 배포된다
 - [x] Play Console 포그라운드 서비스 신고: 지금 백업·복원이 `dataSync` 종류를 쓴다(스펙 003 research R14). 쓰는 까닭과 화면 영상을 낸다 2026-11-12 신고 완료(`FOREGROUND_SERVICE_DATA_SYNC`), 앱 코드도 `dataSync` 한 종류만 쓴다(2026-11-14 확인).
-- [ ] 구글 동의 화면 브랜드 검증: 앱 이름·로고를 띄우려면 필요하다(2~3영업일)
+- [x] 구글 동의 화면 브랜드 검증은 하지 않기로 했다(2026-11-17, 사용자 결정). 같은 날 GitHub 정지로 깨진 브랜딩 링크(홈·처리방침·약관)와 승인된 도메인을 `sjunh812.pages.dev`로 바꿔 저장했다. 저장하면서 열려 있던 인증 요청도 갱신됐다. Google 제3자 데이터 안전팀이 홈페이지·처리방침이 `sjunh812.github.io`(제3자 호스팅의 하위 주소)에 있어 소유 도메인으로 인정하지 않는다며 반려했다. 무료로 믿고 쓸 도메인이 없어 반려된 채로 둔다. 범위가 민감하지 않고(`drive.file`) 게시 상태가 프로덕션이라 로그인·백업은 그대로 되고, 로그인 창에 앱 이름·로고가 나오지 않을 뿐이다. 메일의 "취소 답장"은 범위를 더 쓰지 않을 때 보내는 것이라 보내지 않는다. 도메인이 생기면 GitHub Pages에 연결하고 DNS로 소유를 확인한 뒤 다시 낸다.
+- [ ] (옛 기록) 구글 동의 화면 브랜드 검증: 앱 이름·로고를 띄우려면 필요하다(2~3영업일)
       ([Google](https://support.google.com/cloud/answer/13463073), 스펙 003 근거).
       준비는 끝났다(2026-11-13). Search Console에서 `https://sjunh812.github.io/` 소유가 확인됐고, 브랜딩에 홈페이지 `https://sjunh812.github.io/1day1diary/`(앱 소개, 처리방침·약관 링크),
       처리방침 `https://sjunh812.github.io/1day1diary/privacy/`, 약관 `https://sjunh812.github.io/1day1diary/terms/`, 승인된 도메인 `sjunh812.github.io`를 넣어 저장했다.
@@ -236,7 +239,7 @@ REVENUECAT_IOS = appl_...
       같은 날 [브랜딩 확인]을 냈지만 자동 검사가 "홈페이지 웹사이트가 나에게 등록되어 있지 않다"로 막았다. 소유 확인이 시스템에 반영되기까지 24시간을 기다린 뒤
       브랜딩 페이지 [문제 보기] > "문제를 해결함"으로 다시 낸다(2026-11-14 이후). 범위는 민감하지 않은 것만 쓰고 게시 상태는 프로덕션이라, 검증 전에도 로그인 사용자 수 제한은 없다.
       2026-11-15 "문제를 해결함"으로 다시 냈지만 자동 검사가 같은 이유로 막았다. 검색 콘솔에서 `https://sjunh812.github.io/`는 2026-02-24부터 같은 계정의 인증된 소유자다. `github.io`는 공개 접미사라 DNS 도메인 속성을 만들 수 없어 자동 검사가 URL 접두어 인증을 소유로 보지 않는 것으로 짐작한다. 같은 날 "발견된 문제가 잘못되었다고 생각됨"으로 사람 검토를 요청했다(사유와 설명 입력, 인증 설문 모두 "아니요"). 승인된 도메인에 소유를 인증하지 않은 `sjhstudio.org`가 남아 있어 검토에서 걸리면 뺀다.
-- [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 구글 브랜딩이 거는 GitHub Pages(`sjunh812.github.io` 저장소 `1day1diary/`). 고치면 세 곳을 함께 고친다.
+- [ ] 약관과 처리방침은 세 곳에 있다: 원문 `docs/legal/`, 앱이 거는 Notion, 스토어 웹사이트가 거는 Cloudflare Pages(`https://sjunh812.pages.dev/1day1diary/`, 원본 `site/`, `site/build.sh deploy`로 `docs/legal/`에서 다시 만들어 올린다). 고치면 세 곳을 함께 고친다. GitHub 계정 정지로 `sjunh812.github.io`가 404가 되어 2026-11-17에 옮겼다.
 - [x] 기분·날씨 아이콘: 기분 얼굴은 우리가 Figma에서 그린 것을 코드로 옮겼다(`DiaryMoodFace`). 날씨와 화면 아이콘은 Lucide(ISC) 경로를 옮겼고, 빠져 있던 Lucide 고지를 오픈소스 라이선스 목록에 더했다. 같은 때 iOS에만 들어가는 SDK(GoogleSignIn, Firebase, Google Mobile Ads, RevenueCat KMP)도 목록에 더했다(`config/aboutlibraries/`, 2026-11-13)
 - [x] 공개 저장소에 올라간 네이버 지도 API 키를 콘솔에서 삭제하거나 막기(2026-11-01 해제, 시험 호출이 401 "Authentication Failed"). 네이버 지도 API는 유료로 바뀌어 리뉴얼에서 쓰지 않는다
 - [x] 위치정보지원센터 문의: 하지 않기로 함(2026-11-11 사용자 결정, `docs/DECISIONS.md`)
@@ -246,8 +249,8 @@ REVENUECAT_IOS = appl_...
 - [ ] Play 데이터 보안, App Store 개인정보 라벨(Privacy Manifest는 넣음, 위 "App Store 제출") Play 데이터 보안은 2026-11-13 검토 승인.
 - [x] Play Console 앱 콘텐츠의 광고 포함 선언, 광고 ID 선언(2026-11-12 선언, 2026-11-15 콘솔에서 확인: "앱에 광고가 있음", "광고 ID 사용"). iOS ATT 문구와 창은 넣음(2026-11-12, `SKAdNetworkItems` Google 목록 50개). 처리방침 3번에 iOS의 추적 끄는 곳을 더함(원문과 Notion, 2026-11-12), UMP 동의
 - [x] AdMob iOS 앱과 광고 단위 3개를 만들어 `Local.xcconfig`에 넣기(2026-11-11, 계정 승인 뒤)
-- [x] `app-ads.txt`를 `https://sjunh812.github.io/app-ads.txt`에 올리기(개발자 블로그 저장소 맨 앞, 2026-11-11)
-- [x] Play Console 스토어 설정의 개발자 웹사이트를 `https://sjunh812.github.io`로 바꿈(2026-11-11). AdMob 앱 인증은 크롤러가 새 주소를 읽을 때까지(최대 7일) 기다린 뒤 "업데이트 확인"
+- [x] `app-ads.txt`를 `https://sjunh812.pages.dev/app-ads.txt`에 올리기(처음엔 `sjunh812.github.io`, GitHub 계정 정지로 2026-11-17 Cloudflare Pages로 옮김)
+- [x] Play Console 스토어 설정의 개발자 웹사이트를 `https://sjunh812.pages.dev`로 바꿈(2026-11-17, 그 전엔 `sjunh812.github.io`). AdMob 앱 인증은 크롤러가 새 주소를 읽을 때까지(최대 7일) 기다린 뒤 "업데이트 확인"
 - [ ] App Store 출시 뒤 AdMob iOS 앱에 스토어를 연결하고, App Store의 마케팅 URL도 같은 주소로 둔다
 - [ ] Play "새로운 기능" 란과 App Store 설명에 광고와 광고 제거를 적기(Play 문구와 App Store 설명 끝 약관 줄은 `docs/store/listing.md`에 씀)
 - [ ] 스크린샷(폰 ✓, 7"·10" 태블릿 ✓, iPhone 6.3" ✓, iPad 13" ✓ 세 언어, 2026-11-13), 피처 그래픽 ✓, 아이콘 ✓. 영어·일본어 Play 스크린샷 ✓(원어민 검수 전)
@@ -266,7 +269,9 @@ REVENUECAT_IOS = appl_...
 - [x] 2026-11-15 게시 개요에서 변경사항 26개를 게시했다. 2.0.0 (43)이 8개 나라(한국, 일본, 미국, 캐나다, 오스트레일리아, 뉴질랜드, 아르헨티나, 인도)에 100% 출시됐고, 새 아이콘·스크린샷·설명·데이터 보안도 함께 나갔다. Play 안내로는 보통 1시간 안에 스토어에 보인다.
 - [ ] 출시 뒤 며칠 동안 Crashlytics 비정상 종료, 기록 이전 실패 수, Play 비정상 종료·ANR을 본다. 이전 실패가 하나라도 있으면 원인을 고쳐 다음 빌드로 낸다.
 - [x] 출시 국가에 미국, 캐나다, 오스트레일리아, 뉴질랜드를 더했다(2026-11-15 저장, D11). 원래 있던 아르헨티나, 인도는 1.7.4 사용자가 업데이트를 받도록 남겼다.
-- [ ] 출시 국가에 싱가포르, 홍콩을 더한다(2026-11-16 결정, D11). 광고 제거와 Plus 구독의 두 나라 가격을 정한다(자동 환산).
+- [x] **2.0.1 (45)를 프로덕션으로 승격할 때 꼭** 출시 국가에 싱가포르, 홍콩을 더한다(2026-11-16 결정, D11). 광고 제거와 Plus 구독의 두 나라 가격은 자동 환산이다. 2026-11-17에 미리 더했다가 되돌렸다. 게시 개요는 쌓인 변경을 한꺼번에 보내서, 내부 테스트를 낼 때 지금 프로덕션(2.0.0)이 두 나라에 먼저 나가기 때문이다.
+- [x] 2.0.1 (45)를 내부 테스트로 먼저 냈다(2026-11-17). 테스터 목록 "서준형"을 트랙에 연결하고 일시중지된 트랙을 다시 시작했다. Play에서 받은 앱으로만 되는 글꼴 받기, Play 결제, 리뷰 창을 확인한 뒤 같은 빌드를 프로덕션으로 승격한다. 출시 노트는 중요한 다섯 줄만 쓴다(사용자 요청).
+- [x] 2.0.1 (45)를 내부 테스트에서 프로덕션으로 100% 승격하고, 싱가포르·홍콩 추가와 함께 검토에 보냈다(2026-11-17). 휴대폰에서 Play 빌드로 글꼴 받기·결제를 확인하는 일은 사용자 결정으로 건너뛰었다. 관리형 게시라 승인되면 게시 개요에서 [게시]를 눌러야 나간다.
 - 일본 판매: 특정상거래법 표시는 Play가 결제 프로필 정보로 보여 주고, 자금결제법·할부판매법 확인은 Google 결제 센터가 요청할 때 답한다. 개발자가 따로 켜는 설정은 없다([Play](https://support.google.com/googleplay/android-developer/answer/6223646), [결제 센터](https://support.google.com/paymentscenter/answer/17595997)).
 - [x] Play "비트맵 다운샘플링으로 앱 성능을 개선하세요"(43): 2.0.0 CI 빌드 AAB의 매핑으로 풀면 `mzb`는 `com.google.android.gms.internal.ads.zzemc`(Google 광고 SDK 내부), `n2c`는 `com.android.billingclient.api.zzet`(Play 결제 라이브러리 내부)다. 우리 코드가 아니라 고칠 것이 없다. 두 SDK를 올릴 때 경고가 사라지는지만 본다(2026-11-15 확인).
 - [x] Play "일부 사용자에게는 더 넓은 화면이 표시되지 않을 수 있습니다"와 "앱에서 더 넓은 화면용으로 지원 중단된 API 또는 파라미터를 사용합니다"(43): 우리 코드 문제가 아니라 고칠 것이 없다(2026-11-15 확인).
@@ -278,6 +283,12 @@ REVENUECAT_IOS = appl_...
 - 관리형 게시가 켜져 있다. 검토를 통과해도 게시 개요에서 [게시]를 눌러야 사용자에게 나간다.
 - [ ] 스토어 리뷰 창(스펙 007)은 내부 테스트 트랙에서 시험한다. 테스터 목록에 있는 Gmail 계정이 기기 기본 계정이고, 그 계정으로 Play에서 앱을 받은 적이 있고, 이 앱에 리뷰를 남긴 적이 없어야 창이 뜬다. 내부 앱 공유로 받으면 제출 버튼이 꺼져 있다([Play](https://developer.android.com/guide/playcore/in-app-review/test)). iOS는 개발 빌드에서 늘 뜨고 TestFlight에서는 뜨지 않는다.
 
+- [x] Remote Config 업데이트 요약에 아래 값을 넣고 게시했다(2026-11-21, 구성 버전 3, 사용자 요청). 요약은 새 버전 카드가 있는 앱(2.1.0부터)이 더 높은 버전을 알릴 때만 보여, 이 값은 사용자에게 바로 보이지 않는다. 다음 판을 낼 때 버전과 문장을 바꾼다. 같은 문장을 2.1.0 스토어 "새로운 기능" 첫 줄에도 썼다. `update_min_version`은 빈 값 그대로다. 정한 문장(사용자 결정 2026-11-21, 2.0.2 이후 변경 기준 안 C):
+  - `update_note_version`: 2.1.0
+  - `update_note_ko`: 결제 뒤 광고 문제를 수정하고 목록을 더 보기 쉽게 바꿨어요.
+  - `update_note_en`: Fixed ads after purchase and made the list easier to read.
+  - `update_note_ja`: 購入後の広告を修正し、一覧を見やすくしました。
+- [ ] 새 버전 안내의 실제 Play 유연 업데이트는 내부 앱 공유 빌드로, iOS App Store 화면은 실기기로 확인한다(개발 빌드에서는 개발자 모드 "새 버전"으로만 봄).
 ## App Store 제출
 
 App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서 사람이 할 일을 나눠 적는다. 규격과 정책은 제출 직전에 다시 본다.
@@ -339,15 +350,16 @@ iOS 네이티브 광고 카드를 Android와 같은 모양으로 맞췄다(2026-
 - [x] Google Cloud(`diary-app`): iOS OAuth 클라이언트의 번들 ID가 `org.sjhstudio.diary`인 것을 확인했다(2026-11-13). App Store ID(6835116731)와 팀 ID(C5XA3NN9J6)를 넣은 것을 2026-11-16 확인했다. 동의 화면 브랜드 검증은 "출시 전 확인"에 있다.
 - [x] Firebase(`diary-app`): iOS 앱은 이미 있었고 `GoogleService-Info.plist`를 받아 `iosApp/iosApp/`에 두었다(2026-11-13). CD 비밀값 `GOOGLE_SERVICE_INFO_PLIST_BASE64`는 직접 넣는다. Remote Config의 `interstitial_enabled`는 Android와 함께 쓴다.
 - [x] 개인정보 라벨(2026-11-16 게시): 위 "스토어 신고" 표대로 답한다. 광고에 쓰는 기기 ID와 광고 데이터는 "추적에 사용"으로 답한다(ATT를 띄운다). 일기, 사진, 기분, 주소는 수집하지 않는다.
-- [x] 연령 등급 설문(4+), 카테고리(라이프스타일, 보조 생산성), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`).
+- [x] 연령 등급 설문(4+), 카테고리(라이프스타일, 보조 생산성), 개인정보처리방침 URL, 지원 URL, 마케팅 URL(`https://sjunh812.github.io`). 출시된 버전의 두 URL은 바꿀 수 없어, iOS 2.0.2를 낼 때 `https://sjunh812.pages.dev`로 바꾼다(2026-11-17).
 - [x] 이름·부제·홍보 문구·키워드·설명 넣기(2026-11-16): 문구는 `docs/store/listing.md`의 "App Store 이름·부제·홍보 문구·키워드"와 "App Store 설명"에 세 언어로 있다.
 - [x] 구독 앱은 설명에 이용약관 링크가 있어야 한다(3.1.2). 레퍼런스 앱 대부분처럼 설명 끝에 우리 약관과 처리방침 주소를 적고 EULA 칸은 비워 Apple 표준을 쓴다(2026-11-13 사용자 결정, 문구는 `docs/store/listing.md` "App Store 설명").
-- [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 같은 날 읽기 쉬운 말로 다시 쓴 글로 노션과 GitHub Pages를 함께 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인).
+- [x] 노션의 이용약관과 개인정보처리방침을 `docs/legal/` 원문(2026-11-13판)으로 바꿨다. 같은 날 읽기 쉬운 말로 다시 쓴 글로 노션과 GitHub Pages를 함께 바꿨다. 결제·환불·해지를 App Store까지 담았다(2026-11-13, 공개 페이지에서 확인). 앱 원문의 '휴대폰'→'기기'와 보조 용언 붙여 쓰기를 노션과 GitHub Pages에도 맞췄다(2026-11-17, 공개 페이지에서 확인).
 - [x] 스크린샷 올리기(2026-11-16): `docs/store/screens/ios/{ko,en,ja}/`의 iPhone 4장은 위 표의 medium(1206×2622) 칸, iPad 4장은 13" 칸에 올린다. App Store Connect가 6.9"(large) 칸을 따로 요구하면 1320×2868로 다시 만든다(확인 못 함).
 - [x] 심사 메모(2026-11-16, 영어로 넣음, 연락처 포함): 회원 계정이 없다. 구글 로그인은 백업을 사용자 본인의 구글 드라이브에 두는 권한만 받는다(4.8 Sign in with Apple, 5.1.1(v) 계정 삭제에 해당하지 않음). 백업을 시험할 구글 계정이 필요하면 심사용 계정을 따로 적는다. 구매 복원은 설정 > Plus 화면에 있다.
-- [ ] 심사 메모에 추적 허용 창 띄우는 순서를 더한다(사용자, App Store Connect): "The App Tracking Transparency prompt appears right before the first full-screen ad: write and save one entry, then tap OK on the ad notice." 2.0.1 (45)부터 광고를 받지 못했어도 이 순간에 뜬다(`docs/DECISIONS.md` 2026-11-16).
+- [x] 심사 메모에 추적 허용 창 띄우는 순서를 더했다(2026-11-17): "The App Tracking Transparency prompt appears right before the first full-screen ad: write and save one entry, then tap OK on the ad notice." 2.0.1 (45)부터 광고를 받지 못했어도 이 순간에 뜬다(`docs/DECISIONS.md` 2026-11-16).
 - [x] 출시 국가(2026-11-16): 한국, 일본, 미국, 캐나다, 호주, 뉴질랜드(D11). 미국 일부 주의 연령 확인 요구(위 "나라마다 걸리는 일")가 이 앱에 걸리는지 제출 직전에 다시 본다.
-- [ ] 출시 국가에 싱가포르, 홍콩을 더한다(2026-11-16 결정, D11). 앱과 인앱 구입 두 상품의 판매 국가에 모두 넣는다.
+- [x] 출시 국가에 싱가포르, 홍콩을 더했다(2026-11-17, 8곳). 인앱 구입 두 상품은 이미 175곳이라 따로 바꾸지 않았다.
+- [x] 2.0.1 (45)와 인앱 구입 `ad_free`, 구독 `plus_yearly`, 구독 그룹 Plus를 함께 심사에 냈다(2026-11-17). 첫 구독은 구독 그룹으로 넣어야 제출된다.
 - [ ] TestFlight 실기기: 샌드박스 계정으로 구매, 취소, 승인 대기(구입 요청), 복원, 재설치 뒤 자동 복원, 구독 만료. 함께 구글 드라이브 백업·복원, 카메라 촬영, 약관 링크, 잠금 가림 화면, 기기 글자 크기 반영을 본다. 시뮬레이터에서는 RevenueCat 키가 없거나 시뮬레이터가 못 해서 보지 못했다(2026-11-13, 2026-11-15).
 - [ ] 출시 뒤: AdMob iOS 앱에 스토어 연결.
 
@@ -363,11 +375,27 @@ Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
 파일이 있으면 빌드가 켜고, 없으면 아무것도 보내지 않는다. 개발 빌드는 보내지 않는다. 확인할 때는 `local.properties`에 `firebase.debug=true`를 넣고 `adb shell setprop debug.firebase.analytics.app org.sjhstudio.diary`로 DebugView를 켠다.
 출시 빌드는 Android 난독화 매핑과 iOS dSYM을 자동으로 올린다.
 
+### 새 버전 안내 원격 값(스펙 009)
+
+앱은 12시간에 한 번 값을 받는다. 키를 늘려도 받는 횟수는 같다. 받지 못하면 빈 값이라 기본 문구 카드가 되고 강제는 걸리지 않는다.
+Android와 iOS는 버전 번호를 맞추므로 값은 기본값 하나로 둔다. 카드는 그 기기의 스토어가 업데이트할 수 있다고 답할 때만 떠서, 한쪽 출시가 늦어도 먼저 뜨지 않는다. 고침이 한쪽에만 들어간 버전(예: Android 결제만 고침)일 때만 조건 "플랫폼 iOS"(또는 Android)를 더해 그쪽 요약을 비우거나 따로 쓴다(2026-11-21 사용자 결정).
+
+매개변수 다섯 개는 콘솔에 "인앱 기본값"(빈 값)으로 만들어 두었다(2026-11-21). 쓸 때는 값만 넣고 [변경사항 게시]를 누른다.
+
+| 키 | 값 | 언제 고치나 |
+| --- | --- | --- |
+| `update_note_version` | 업데이트 요약이 가리키는 버전 이름(예: `2.0.2`). 지금 앱보다 높을 때만 보인다 | 새 버전이 스토어에 열린 뒤 |
+| `update_note_ko`·`update_note_en`·`update_note_ja` | 그 버전에서 가장 좋아진 점 한 문장. 홈 카드 설명 첫 줄이라 태블릿 목록 칸에서도 두 줄을 넘지 않게(한국어 30자, 영어 60자, 일본어 25자 안팎) | 같은 때. 한국어는 `korean-humanizer`·맞춤법 검사 |
+| `update_min_version` | 강제 업데이트 기준 버전. 이보다 낮은 앱에는 닫을 수 없는 카드가 뜬다. 강제 업데이트가 없으면 빈 값 | 기록을 지키는 고침처럼 꼭 받아야 할 때만 |
+
+새 버전은 단계적 출시로 아직 열리지 않은 기기에는 알리지 않는다. Play가 업데이트할 수 있다고 답할 때, iOS는 App Store 조회가 새 버전을 돌려줄 때만 카드가 뜬다.
+
 ## 결제 콘솔 설정
 
 앱은 아래 이름을 쓴다(`StoreIds`).
 
 - Play 상품: 인앱 `ad_free`(광고 제거), 구독 `plus_yearly`(기본 요금제 연간).
+- 결제 유예: Play `plus_yearly` 기본 요금제 `yearly`는 유예 기간 14일(Google 권장값), 계정 보류 자동 계산 46일이다(2026-11-21 Play Console 확인). App Store "청구 유예 기간"은 16일, 모든 갱신, 프로덕션 및 샌드박스로 켰다(2026-11-21, 사용자 로그인 뒤 함께 확인). 16일은 Play 14일에 가장 가까운 선택지다.
 - RevenueCat 권한: `ad_free`는 `ad_free` 상품, `plus`는 `plus_yearly` 상품에 잇는다.
 - Google 실시간 개발자 알림(RTDN)은 켜져 있다: Play Console 수익 창출 설정의 주제 `projects/stone-rhythm-310608/topics/Play-Store-Notifications`, 알림 범위 "정기 결제, 무효화된 구매, 모든 일회성 제품", 그 주제에 RevenueCat 구독이 붙어 있다. Pub/Sub은 결제 계정 없이 쓴다. 2026-11-14 광고 제거 시험 주문을 환불(자격 삭제)하자 1분 뒤 RevenueCat에 환불이 찍히고 권한이 빠졌으며, 앱은 다음 포그라운드 때 광고를 다시 보였다(구매 복원을 누르지 않아도 됨).
 - RevenueCat Google 공개 키를 `local.properties`의 `revenuecat.android`와 CD 비밀값 `REVENUECAT_ANDROID`에 넣는다. 이 값이나 광고 ID가 없으면 CD가 멈춘다.

@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.insight
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,8 +30,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import kotlinx.datetime.DayOfWeek
 import org.jetbrains.compose.resources.StringResource
@@ -48,6 +53,7 @@ import org.sjhstudio.diary.core.model.AdvancedStats
 import org.sjhstudio.diary.core.model.DayPart
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.MoodTone
+import org.sjhstudio.diary.core.model.ToneLeaders
 import org.sjhstudio.diary.core.model.ToneShare
 import org.sjhstudio.diary.core.model.tone
 import org.sjhstudio.diary.core.ui.MoodFace
@@ -60,6 +66,7 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_afternoon
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_dawn
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_evening
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_day_morning
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_legend_neutral
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_share
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_part
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_tab_place
@@ -78,6 +85,12 @@ import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_tue
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_wd_wed
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_when
 import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_empty
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_good_place
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_good_time
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_good_weather
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_hard_place
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_hard_time
+import org.sjhstudio.diary.feature.insight.resources.insight_adv_when_hard_weather
 
 // 고급 통계의 상황별 기분(긍정적인·부정적인 기분 막대와 기준 시트)
 
@@ -137,10 +150,16 @@ internal fun MoodTimes(stats: AdvancedStats) {
                 else -> stats.places
             }
         Spacer(Modifier.height(DiarySpacing.x4))
+        val leaders = ToneLeaders.of(rows.map { it.second })
         // 범례는 막대 바로 위. 색을 읽을 곳과 뜻을 적은 곳이 붙어 있게
         if (rows.isNotEmpty()) {
+            ToneSummary(
+                good = leaders.good?.let { rows[it].first },
+                hard = leaders.hard?.let { rows[it].first },
+                phrases = summaryPhrases(tab)
+            )
             ToneLegend()
-            Spacer(Modifier.height(DiarySpacing.x3))
+            Spacer(Modifier.height(DiarySpacing.x4))
         }
         if (rows.isEmpty()) {
             PhraseText(
@@ -154,7 +173,7 @@ internal fun MoodTimes(stats: AdvancedStats) {
         val valueWidth = widestText(good + hard, DiaryTheme.typography.captionStrong)
         val goodName = stringResource(Res.string.insight_adv_change_good)
         val hardName = stringResource(Res.string.insight_adv_change_hard)
-        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
+        Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)) {
             rows.forEachIndexed { index, (label, share) ->
                 ToneRow(
                     label = label,
@@ -163,12 +182,71 @@ internal fun MoodTimes(stats: AdvancedStats) {
                     hard = hard[index],
                     description = "$label, $goodName ${good[index]}, $hardName ${hard[index]}",
                     labelWidth = labelWidth,
-                    valueWidth = valueWidth
+                    valueWidth = valueWidth,
+                    strongGood = index == leaders.good,
+                    strongHard = index == leaders.hard
                 )
             }
         }
     }
     if (explaining) ToneSheet(onDismiss = { explaining = false })
+}
+
+/** 결론 줄 문구. 조사 없이 이어지게 탭마다 꼴을 나눔 */
+private class SummaryPhrases(val good: StringResource, val hard: StringResource)
+
+private fun summaryPhrases(tab: Int): SummaryPhrases = when (tab) {
+    0, 1 -> SummaryPhrases(Res.string.insight_adv_when_good_time, Res.string.insight_adv_when_hard_time)
+    2 -> SummaryPhrases(Res.string.insight_adv_when_good_weather, Res.string.insight_adv_when_hard_weather)
+    else -> SummaryPhrases(Res.string.insight_adv_when_good_place, Res.string.insight_adv_when_hard_place)
+}
+
+/**
+ * 막대 위 한 줄 결론(`docs/design.md` 상황별 기분)
+ * 긍정적인 기분이 가장 많은 칸은 이름을 굵게, 부정적인 기분은 아래 작은 줄로
+ * 1등이 없으면 그 줄은 그리지 않음
+ */
+@Composable
+private fun ToneSummary(good: String?, hard: String?, phrases: SummaryPhrases) {
+    if (good == null && hard == null) return
+    val colors = DiaryTheme.colors
+    val typography = DiaryTheme.typography
+    // 결론은 범례·막대와 다른 묶음이라 위아래를 20으로 띄움. 위는 탭 뒤 16에 4를 더함
+    Column(
+        Modifier.padding(top = DiarySpacing.x1, bottom = DiarySpacing.x5),
+        verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
+    ) {
+        if (good != null) {
+            // 이름과 뒤 조사가 다른 줄로 갈리지 않게 단어 연결 문자
+            val line = stringResource(phrases.good, "$NAME_START$good$WORD_JOINER$NAME_END")
+            PhraseText(
+                strongName(line, typography.bodyStrong.toSpanStyle()),
+                style = typography.body.copy(color = colors.textPrimary)
+            )
+        }
+        if (hard != null) {
+            PhraseText(
+                stringResource(phrases.hard, "$hard$WORD_JOINER"),
+                style = typography.caption.copy(color = colors.textSecondary)
+            )
+        }
+    }
+}
+
+private const val NAME_START = '\uE000'
+private const val NAME_END = '\uE001'
+private const val WORD_JOINER = '\u2060'
+
+/** 자리 표시로 감싼 이름을 굵게. 어순이 언어마다 달라도 이름만 굵어짐 */
+private fun strongName(line: String, strong: SpanStyle): AnnotatedString {
+    val start = line.indexOf(NAME_START)
+    val end = line.indexOf(NAME_END)
+    if (start < 0 || end < start) return AnnotatedString(line)
+    return buildAnnotatedString {
+        append(line, 0, start)
+        withStyle(strong) { append(line, start + 1, end) }
+        append(line, end + 1, line.length)
+    }
 }
 
 /** 막대 색이 무엇인지 알려 주는 한 줄 */
@@ -183,13 +261,25 @@ internal fun ToneLegend() {
     ) {
         LegendItem(colors.toneGood, stringResource(Res.string.insight_adv_change_good))
         LegendItem(colors.toneHard, stringResource(Res.string.insight_adv_change_hard))
+        // 가운데 빈칸(트랙)의 뜻. 트랙 색은 바탕과 비슷해 테두리로 보이게
+        LegendItem(
+            colors.sunken,
+            stringResource(Res.string.insight_adv_legend_neutral, moodName(Mood.MEH), moodName(Mood.COOL)),
+            outline = colors.textTertiary
+        )
     }
 }
 
 @Composable
-internal fun LegendItem(color: Color, label: String) {
+internal fun LegendItem(color: Color, label: String, outline: Color? = null) {
     Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(DiarySpacing.x2).clip(DiaryShapes.full).background(color))
+        Box(
+            Modifier
+                .size(DiarySpacing.x2)
+                .clip(DiaryShapes.full)
+                .background(color)
+                .then(if (outline != null) Modifier.border(DiarySpacing.hairline, outline, DiaryShapes.full) else Modifier)
+        )
         BasicText(label, style = DiaryTheme.typography.caption.copy(color = DiaryTheme.colors.textSecondary))
     }
 }
@@ -198,9 +288,20 @@ internal fun LegendItem(color: Color, label: String) {
  * 이름 · 막대 · 좋은 기분 % · 힘든 기분 %.
  * 좋은 기분은 왼쪽부터, 힘든 기분은 오른쪽부터 채우고 가운데 빈 곳은 그 밖의 기분
  * 둘이 맞닿으면 2 띄워 경계가 보이게
+ * 결론 줄에 나온 칸만 이름과 그 값을 진하게([strongGood], [strongHard])
  */
 @Composable
-internal fun ToneRow(label: String, share: ToneShare, good: String, hard: String, description: String, labelWidth: Dp, valueWidth: Dp) {
+internal fun ToneRow(
+    label: String,
+    share: ToneShare,
+    good: String,
+    hard: String,
+    description: String,
+    labelWidth: Dp,
+    valueWidth: Dp,
+    strongGood: Boolean = false,
+    strongHard: Boolean = false
+) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
     Row(
@@ -208,20 +309,20 @@ internal fun ToneRow(label: String, share: ToneShare, good: String, hard: String
         horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x3),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val strong = typography.captionStrong.copy(color = colors.textPrimary)
+        val weak = typography.caption.copy(color = colors.textSecondary)
         BasicText(
             label,
             Modifier.width(labelWidth),
-            style = typography.caption.copy(color = colors.textSecondary),
+            style = if (strongGood || strongHard) strong else weak,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         ToneBar(share.rate.toFloat(), share.hardRate.toFloat(), Modifier.weight(1f))
-        // 둘 중 더 많은 쪽 값을 진하게. 같으면 둘 다 진하게
-        val strong = typography.captionStrong.copy(color = colors.textPrimary, textAlign = TextAlign.End)
-        val weak = typography.caption.copy(color = colors.textSecondary, textAlign = TextAlign.End)
+        val end = TextAlign.End
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-            BasicText(good, Modifier.width(valueWidth), style = if (share.rate >= share.hardRate) strong else weak, maxLines = 1)
-            BasicText(hard, Modifier.width(valueWidth), style = if (share.hardRate >= share.rate) strong else weak, maxLines = 1)
+            BasicText(good, Modifier.width(valueWidth), style = (if (strongGood) strong else weak).copy(textAlign = end), maxLines = 1)
+            BasicText(hard, Modifier.width(valueWidth), style = (if (strongHard) strong else weak).copy(textAlign = end), maxLines = 1)
         }
     }
 }

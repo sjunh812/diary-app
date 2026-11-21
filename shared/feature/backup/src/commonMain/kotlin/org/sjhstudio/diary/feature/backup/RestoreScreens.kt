@@ -2,6 +2,7 @@ package org.sjhstudio.diary.feature.backup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
@@ -32,8 +35,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
@@ -56,6 +61,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
+import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.PLATFORM_LEGACY
 import org.sjhstudio.diary.core.model.RestorePreparation
 import org.sjhstudio.diary.core.model.RestorePreview
@@ -64,9 +70,11 @@ import org.sjhstudio.diary.core.ui.SkeletonBlock
 import org.sjhstudio.diary.core.ui.SkeletonLine
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.feature.backup.resources.Res
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_other
 import org.sjhstudio.diary.feature.backup.resources.restore_damaged
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_body
 import org.sjhstudio.diary.feature.backup.resources.restore_empty_title
+import org.sjhstudio.diary.feature.backup.resources.restore_go_backup
 import org.sjhstudio.diary.feature.backup.resources.restore_keep_note
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_action
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_body
@@ -77,6 +85,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_legacy_recent_body
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_row
 import org.sjhstudio.diary.feature.backup.resources.restore_legacy_title
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed
+import org.sjhstudio.diary.feature.backup.resources.restore_list_failed_auth
 import org.sjhstudio.diary.feature.backup.resources.restore_list_failed_body
 import org.sjhstudio.diary.feature.backup.resources.restore_merge
 import org.sjhstudio.diary.feature.backup.resources.restore_more_backups
@@ -94,6 +103,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_replace_title
 import org.sjhstudio.diary.feature.backup.resources.restore_retry
 import org.sjhstudio.diary.feature.backup.resources.restore_row
 import org.sjhstudio.diary.feature.backup.resources.restore_settings_note
+import org.sjhstudio.diary.feature.backup.resources.restore_to_trash
 import org.sjhstudio.diary.feature.backup.resources.restore_unit_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_value_added
 import org.sjhstudio.diary.feature.backup.resources.restore_value_both
@@ -125,14 +135,33 @@ fun RestoreListScreen(
         when (state) {
             RestoreListUi.Loading -> LoadingList()
 
-            RestoreListUi.Failed -> {
-                Hero(
-                    DiaryIcons.CircleAlert,
-                    stringResource(Res.string.restore_list_failed),
-                    stringResource(Res.string.restore_list_failed_body)
-                )
+            is RestoreListUi.Failed -> {
+                // 까닭을 아는 때만 할 일을 말함. 모르면 인터넷 탓이라 하지 않음
+                val body =
+                    when (state.kind) {
+                        BackupFailure.OFFLINE -> Res.string.restore_list_failed_body
+                        BackupFailure.AUTH -> Res.string.restore_list_failed_auth
+                        else -> Res.string.backup_connect_failed_other
+                    }
+                Hero(DiaryIcons.CircleAlert, stringResource(Res.string.restore_list_failed), stringResource(body))
                 Bottom {
-                    DiaryButton(stringResource(Res.string.restore_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+                    // 연결이 끊기면 다시 시도해도 같아서 [다시 연결]이 있는 백업 화면으로
+                    if (state.kind == BackupFailure.AUTH) {
+                        DiaryButton(
+                            stringResource(Res.string.restore_go_backup),
+                            onBack,
+                            Modifier.fillMaxWidth(),
+                            size = DiaryButtonSize.XLarge
+                        )
+                    } else {
+                        DiaryButton(
+                            stringResource(Res.string.restore_retry),
+                            onRetry,
+                            Modifier.fillMaxWidth(),
+                            size = DiaryButtonSize.XLarge,
+                            loading = state.retrying
+                        )
+                    }
                 }
             }
 
@@ -149,49 +178,66 @@ fun RestoreListScreen(
 @Composable
 private fun Entries(entries: List<BackupEntry>, onPick: (String) -> Unit) {
     val colors = DiaryTheme.colors
-    Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
-        PhraseText(
-            stringResource(Res.string.restore_keep_note),
-            style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
-            modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
-        )
-        val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
-        // 보통 가장 최근 백업을 복원해 휴대폰마다 최근 것만 먼저 보임. 예전 앱 백업은 몇 개뿐이라 다 보임
-        // 펼친 휴대폰은 화면을 돌려도 펼친 채로. 같은 모델 두 대가 섞이지 않게 기기 ID로 묶음
-        var opened by rememberSaveable { mutableStateOf(listOf<String>()) }
-        ordered.groupBy { "${it.platform}/${it.deviceId}" }.entries.forEachIndexed { index, (device, group) ->
-            DiarySettingsHeader(deviceLabel(group.first()), gapAbove = index > 0)
+    val ordered = entries.sortedBy { it.platform == PLATFORM_LEGACY }
+    // 보통 가장 최근 백업을 복원해 휴대폰마다 최근 것만 먼저 보임. 예전 앱 백업은 몇 개뿐이라 다 보임
+    // 펼친 휴대폰은 화면을 돌려도 펼친 채로. 같은 모델 두 대가 섞이지 않게 기기 ID로 묶음
+    var opened by rememberSaveable { mutableStateOf(listOf<String>()) }
+    val groups = ordered.groupBy { "${it.platform}/${it.deviceId}" }.entries.toList()
+    // 기기에 둔 목록을 먼저 보이고 드라이브 답으로 바꿈. 새 백업이 끼어들면 줄이 뚝 밀리지 않고 옮겨 감
+    LazyColumn(Modifier.fillMaxWidth()) {
+        item(key = KEEP_NOTE_KEY) {
+            PhraseText(
+                stringResource(Res.string.restore_keep_note),
+                style = DiaryTheme.typography.caption.copy(color = colors.textSecondary),
+                modifier = Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2)
+            )
+        }
+        groups.forEachIndexed { index, (device, group) ->
+            item(key = "head/$device") {
+                DiarySettingsHeader(deviceLabel(group.first()), Modifier.animateItem(), gapAbove = index > 0)
+            }
             val all = group.first().platform == PLATFORM_LEGACY || device in opened
             val shown = if (all) group else group.take(RECENT_PER_DEVICE)
-            shown.forEach { entry ->
-                val problem = problemText(entry.state)
-                if (entry.platform == PLATFORM_LEGACY) {
-                    DiarySettingsRow(
-                        legacyDate(entry),
-                        onClick = { onPick(entry.snapshotName) },
-                        description = stringResource(Res.string.restore_legacy_row)
-                    )
-                } else if (problem == null) {
-                    DiarySettingsRow(whenText(entry), onClick = { onPick(entry.snapshotName) }, description = countsText(entry))
-                } else {
-                    Unavailable(whenText(entry), problem)
-                }
+            items(shown, key = { it.snapshotName }) { entry ->
+                Box(Modifier.animateItem()) { EntryRow(entry, onPick) }
             }
             val hidden = group.size - shown.size
             if (hidden > 0) {
-                DiaryButton(
-                    pluralStringResource(Res.plurals.restore_more_backups, hidden, hidden.grouped()),
-                    { opened = opened + device },
-                    // 버튼 안쪽 여백만큼 덜 띄워 글자를 위 줄과 맞춤
-                    Modifier.padding(start = LocalScreenGutter.current - DiarySpacing.x4),
-                    size = DiaryButtonSize.Medium,
-                    kind = DiaryButtonKind.Text
-                )
+                item(key = "more/$device") {
+                    DiaryButton(
+                        pluralStringResource(Res.plurals.restore_more_backups, hidden, hidden.grouped()),
+                        { opened = opened + device },
+                        // 버튼 안쪽 여백만큼 덜 띄워 글자를 위 줄과 맞춤
+                        Modifier.animateItem().padding(start = LocalScreenGutter.current - DiarySpacing.x4),
+                        size = DiaryButtonSize.Medium,
+                        kind = DiaryButtonKind.Text
+                    )
+                }
             }
         }
-        Spacer(Modifier.height(DiarySpacing.x8))
+        item(key = END_KEY) { Spacer(Modifier.height(DiarySpacing.x8)) }
     }
 }
+
+@Composable
+private fun EntryRow(entry: BackupEntry, onPick: (String) -> Unit) {
+    val problem = problemText(entry.state)
+    when {
+        entry.platform == PLATFORM_LEGACY ->
+            DiarySettingsRow(
+                legacyDate(entry),
+                onClick = { onPick(entry.snapshotName) },
+                description = stringResource(Res.string.restore_legacy_row)
+            )
+
+        problem == null -> DiarySettingsRow(whenText(entry), onClick = { onPick(entry.snapshotName) }, description = countsText(entry))
+
+        else -> Unavailable(whenText(entry), problem)
+    }
+}
+
+private const val KEEP_NOTE_KEY = "keep-note"
+private const val END_KEY = "end"
 
 /**
  * 값 줄 묶음
@@ -233,13 +279,14 @@ private fun problemText(state: BackupEntryState): String? = when (state) {
 fun RestorePreviewRoute(snapshotName: String, onBack: () -> Unit, onMerged: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestorePreviewViewModel>(key = snapshotName) { parametersOf(snapshotName) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val updates = koinInject<AppUpdateRepository>()
     RestorePreviewScreen(state, {
         viewModel.merge()
         onMerged()
     }, viewModel::load, onBack, modifier, onReplace = {
         viewModel.replace()
         onMerged()
-    })
+    }, onUpdate = updates::openStorePage)
 }
 
 @Composable
@@ -249,13 +296,14 @@ fun RestorePreviewScreen(
     onRetry: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    onReplace: () -> Unit = {}
+    onReplace: () -> Unit = {},
+    onUpdate: () -> Unit = {}
 ) {
     Page(stringResource(Res.string.restore_preview_top), onBack, modifier) {
         when (state) {
             null -> LoadingPreview()
 
-            is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack)
+            is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack, onUpdate)
 
             is RestorePreparation.Ready ->
                 if (state.entry.platform == PLATFORM_LEGACY) {
@@ -275,7 +323,7 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
         Hero(
             DiaryIcons.GitMerge,
             // 합칠 일기와 사진이 없으면 그렇다고 먼저 알림. 합치면 설정만 바뀜
-            stringResource(if (preview.nothingNew) Res.string.restore_preview_title_nothing else Res.string.restore_preview_title),
+            stringResource(if (!preview.bringsSomething()) Res.string.restore_preview_title_nothing else Res.string.restore_preview_title),
             stringResource(Res.string.restore_preview_body, deviceName(entry), whenText(entry)),
             fill = false
         )
@@ -301,6 +349,12 @@ private fun ColumnScope.Preview(entry: BackupEntry, preview: RestorePreview, onM
             }
             // 지금 막는 것부터 보이고, 뜻이 다르면 아이콘도 다르게 둠
             if (lacking > 0) DiaryNotice(stringResource(Res.string.restore_no_space, sizeText(lacking)), icon = DiaryIcons.CircleAlert)
+            if (preview.entriesToTrash > 0) {
+                DiaryNotice(
+                    pluralStringResource(Res.plurals.restore_to_trash, preview.entriesToTrash, preview.entriesToTrash.grouped()),
+                    icon = DiaryIcons.Trash
+                )
+            }
             if (preview.photosNotInBackup > 0) {
                 DiaryNotice(
                     pluralStringResource(Res.plurals.restore_not_in_backup, preview.photosNotInBackup, preview.photosNotInBackup.grouped()),
@@ -504,6 +558,3 @@ internal fun Bottom(content: @Composable ColumnScope.() -> Unit) {
 
 /** 휴대폰마다 먼저 보이는 최근 백업 수 */
 private const val RECENT_PER_DEVICE = 2
-
-private val RestorePreview.nothingNew: Boolean
-    get() = entriesAdded == 0 && entriesUpdated == 0 && entriesKeptBoth == 0 && photosToDownload == 0

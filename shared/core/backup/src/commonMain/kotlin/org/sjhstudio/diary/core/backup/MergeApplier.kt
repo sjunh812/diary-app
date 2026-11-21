@@ -15,13 +15,23 @@ import org.sjhstudio.diary.core.model.TRASH_KEEP_DAYS
 /**
  * 합치기 계획
  * 미리보기 숫자는 이 값이고, 확인하면 같은 값대로 씀
+ * 숫자는 홈에 보이는 변화만 셈. 휴지통으로만 들어가는 일기는 빼서 백업 목록의 편수와 같음
+ * 수정은 들어오는 쪽이나 이 기기 쪽 하나라도 휴지통 밖이면 홈이 바뀌어 셈
  */
 data class MergePlan(val items: List<Pair<MergeEntry, MergeAction>>, val local: Map<String, MergeEntry>) {
-    fun count(action: MergeAction): Int = items.count { it.second == action }
+    fun count(action: MergeAction): Int = items.count { (item, planned) -> planned == action && changesHome(item, planned) }
+
+    /** 휴지통 안에서만 더해지거나 바뀌는 일기. 홈 숫자에는 없지만 합치면 달라짐 */
+    fun toTrash(): Int = items.count { (item, planned) -> planned != MergeAction.KEEP && !changesHome(item, planned) }
+
+    private fun changesHome(item: MergeEntry, action: MergeAction): Boolean {
+        val incomingShown = item.entry.deletedAt == null
+        return if (action == MergeAction.REPLACE) incomingShown || local[item.entry.id]?.entry?.deletedAt == null else incomingShown
+    }
 }
 
 /** 합친 결과 숫자 */
-data class MergeCounts(val added: Int, val updated: Int, val keptBoth: Int)
+data class MergeCounts(val added: Int, val updated: Int, val keptBoth: Int, val toTrash: Int = 0)
 
 /**
  * 합치기를 계획하고 한 트랜잭션으로 씀
@@ -98,7 +108,7 @@ class MergeApplier(
                 }
             }
         }
-        return MergeCounts(plan.count(MergeAction.ADD), plan.count(MergeAction.REPLACE), plan.count(MergeAction.KEEP_BOTH))
+        return MergeCounts(plan.count(MergeAction.ADD), plan.count(MergeAction.REPLACE), plan.count(MergeAction.KEEP_BOTH), plan.toTrash())
     }
 
     /**

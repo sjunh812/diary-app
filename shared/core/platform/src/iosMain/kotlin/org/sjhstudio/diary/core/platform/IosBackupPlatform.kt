@@ -34,28 +34,34 @@ import platform.darwin.dispatch_get_global_queue
  * 값이 없으면 빈 문자열을 넘김
  */
 interface IosDriveBridge {
-    /** 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘김. 실패는 "cancelled", "offline", "failed" */
-    fun connect(hint: String?, done: (key: String?, email: String?, error: String?) -> Unit)
+    /**
+     * 끝나면 (계정 고유 ID, 이메일, 실패) 중 하나를 넘김. 실패는 "cancelled", "offline", "noDriveAccess", "failed"
+     * 보고할 실패면 오류 종류 이름과 번호도 넘김. 취소와 인터넷 끊김은 넘기지 않음
+     */
+    fun connect(hint: String?, done: (key: String?, email: String?, error: String?, errorDomain: String?, errorCode: Long) -> Unit)
 
-    /** 끝나면 (토큰, 계정 고유 ID, 이메일, 실패)를 넘김. 실패는 "needsUser", "offline", "failed" */
-    fun accessToken(done: (token: String?, key: String?, email: String?, error: String?) -> Unit)
+    /** 끝나면 (토큰, 계정 고유 ID, 이메일, 실패)를 넘김. 실패는 "needsUser", "offline", "failed". 오류 종류는 [connect]와 같음 */
+    fun accessToken(done: (token: String?, key: String?, email: String?, error: String?, errorDomain: String?, errorCode: Long) -> Unit)
 
     fun disconnect(done: () -> Unit)
 }
 
-class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAuthorizer {
+class IosDriveAuthorizer(private val errors: ErrorReporter = ErrorReporter.None, private val bridge: () -> IosDriveBridge?) :
+    DriveAuthorizer {
     private val tokens = DriveTokenCache(fetch = ::fetchToken)
 
     override suspend fun connect(hint: String?): ConnectResult {
         tokens.clear()
         val bridge = bridge() ?: return ConnectResult.Failed(BackupFailure.UNKNOWN)
         val result = suspendCancellableCoroutine { continuation ->
-            bridge.connect(hint) { key, email, error ->
+            bridge.connect(hint) { key, email, error, errorDomain, errorCode ->
+                errorDomain?.let { errors.report(ErrorArea.DRIVE_CONNECT, it, errorCode) }
                 continuation.resume(
                     when {
                         key != null && email != null -> ConnectResult.Connected(DriveAccount(key, email))
                         error == "cancelled" -> ConnectResult.Cancelled
                         error == "offline" -> ConnectResult.Failed(BackupFailure.OFFLINE)
+                        error == "noDriveAccess" -> ConnectResult.Failed(BackupFailure.NO_DRIVE_ACCESS)
                         else -> ConnectResult.Failed(BackupFailure.AUTH)
                     }
                 )
@@ -71,7 +77,8 @@ class IosDriveAuthorizer(private val bridge: () -> IosDriveBridge?) : DriveAutho
     private suspend fun fetchToken(): TokenResult {
         val bridge = bridge() ?: return TokenResult.NeedsUser
         return suspendCancellableCoroutine { continuation ->
-            bridge.accessToken { token, key, email, error ->
+            bridge.accessToken { token, key, email, error, errorDomain, errorCode ->
+                errorDomain?.let { errors.report(ErrorArea.DRIVE_TOKEN, it, errorCode) }
                 continuation.resume(
                     when {
                         token != null && key != null && email != null -> TokenResult.Token(token, DriveAccount(key, email))

@@ -18,6 +18,7 @@ import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LegacyBackupLink
 import org.sjhstudio.diary.core.model.ListPreferences
 import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -48,7 +49,15 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
                     ?: AppSettings.DEFAULT_REMINDER_MINUTE_OF_DAY,
             fontReplacedFrom = this[Keys.FONT_REPLACED_FROM],
             legacyBackup = account?.let { LegacyBackupLink(account = it, fileId = this[Keys.LEGACY_BACKUP_FILE_ID]) },
-            list = ListPreferences(ListStyle.fromId(this[Keys.LIST_STYLE]), this[Keys.FAVORITES_ONLY] ?: false)
+            list =
+                ListPreferences(
+                    listStyle = ListStyle.fromId(this[Keys.LIST_STYLE]),
+                    favoritesOnly = this[Keys.FAVORITES_ONLY] ?: false,
+                    previewLength = PreviewLength.fromId(this[Keys.PREVIEW_LENGTH]),
+                    showFormatting = this[Keys.SHOW_LIST_FORMATTING] ?: false,
+                    previewChosen = this[Keys.PREVIEW_CHOSEN] ?: false,
+                    legacyChecked = this[Keys.LEGACY_PREVIEW_CHECKED] ?: false
+                )
         )
     }
 
@@ -56,6 +65,10 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         this[Keys.FONT] = settings.font.id
         this[Keys.LIST_STYLE] = settings.list.listStyle.id
         this[Keys.FAVORITES_ONLY] = settings.list.favoritesOnly
+        this[Keys.PREVIEW_LENGTH] = settings.list.previewLength.id
+        this[Keys.SHOW_LIST_FORMATTING] = settings.list.showFormatting
+        this[Keys.PREVIEW_CHOSEN] = settings.list.previewChosen
+        this[Keys.LEGACY_PREVIEW_CHECKED] = settings.list.legacyChecked
         this[Keys.BODY_TEXT_SIZE] = settings.bodyTextSize.id
         this[Keys.THEME_MODE] = settings.themeMode.id
         this[Keys.ASK_LOCATION_AGAIN] = settings.askLocationAgain
@@ -70,6 +83,10 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         val FONT = stringPreferencesKey("font")
         val LIST_STYLE = stringPreferencesKey("list_style")
         val FAVORITES_ONLY = booleanPreferencesKey("favorites_only")
+        val PREVIEW_LENGTH = stringPreferencesKey("preview_length")
+        val SHOW_LIST_FORMATTING = booleanPreferencesKey("show_list_formatting")
+        val PREVIEW_CHOSEN = booleanPreferencesKey("preview_chosen")
+        val LEGACY_PREVIEW_CHECKED = booleanPreferencesKey("legacy_preview_checked")
         val BODY_TEXT_SIZE = stringPreferencesKey("body_text_size")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val ASK_LOCATION_AGAIN = booleanPreferencesKey("ask_location_again")

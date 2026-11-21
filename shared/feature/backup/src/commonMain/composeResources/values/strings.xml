@@ -74,8 +74,11 @@
     <string name="restore_empty_title">No backups on Drive yet</string>
     <string name="restore_empty_body">Backups from this device will show up here.</string>
     <string name="restore_list_failed">Couldn't read your backups</string>
+    <string name="restore_list_failed_auth">Your Google account was disconnected. Reconnect it on the Backup screen.</string>
+    <string name="restore_go_backup">Go to Backup</string>
     <string name="restore_list_failed_body">Check your connection and try again.</string>
     <string name="restore_retry">Try again</string>
+    <string name="restore_update_in_store">Update in the store</string>
     <string name="restore_preview_top">Restore</string>
     <string name="restore_preview_title">Merge this backup</string>
     <string name="restore_preview_title_nothing">Everything in this backup is already here</string>
@@ -84,7 +87,7 @@
     <string name="restore_value_updated">Entries updated to the newer version</string>
     <string name="restore_value_both">Entries kept in both versions</string>
     <string name="restore_value_photos">Photos to download</string>
-    <string name="restore_settings_note">Your font, diary text size, appearance, and reminder settings also change to those in the backup.</string>
+    <string name="restore_settings_note">Your font, diary text size, appearance, list view, and reminder settings also change to those in the backup.</string>
     <string name="restore_no_space">You need %1$s more space for the photos. Free up space on this device and try again.</string>
     <string name="restore_merge">Merge</string>
     <string name="restore_size_gb">%1$s GB</string>
@@ -126,7 +129,8 @@
     <string name="restore_failed_mismatch_title">Couldn't verify the backup</string>
     <string name="restore_failed_mismatch_body">The downloaded file differs from the backup, so we stopped. Nothing on this device changed.</string>
     <string name="restore_failed_other_title">Couldn't restore</string>
-    <string name="restore_failed_other_body">Check your connection and try again. Nothing on this device changed.</string>
+    <string name="restore_failed_other_body">Try again in a moment. Nothing on this device changed.</string>
+    <string name="restore_needs_update_body">Update the app from the store, then try again. Nothing on this device changed.</string>
     <string name="restore_pick_other">Choose another backup</string>
     <string name="restore_found_title">You have a backup on Google Drive</string>
     <string name="restore_found_body">Entries on this device are kept and the backup is merged in.</string>
@@ -137,6 +141,8 @@
     <plurals name="restore_unit_entries"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
     <plurals name="restore_unit_photos"><item quantity="one">%1$s</item><item quantity="other">%1$s</item></plurals>
     <plurals name="restore_done_added"><item quantity="one">Added %1$s entry</item><item quantity="other">Added %1$s entries</item></plurals>
+    <plurals name="restore_done_trash"><item quantity="one">Restored %1$s entry to Trash</item><item quantity="other">Restored %1$s entries to Trash</item></plurals>
+    <plurals name="restore_to_trash"><item quantity="one">%1$s entry will be restored to Trash.</item><item quantity="other">%1$s entries will be restored to Trash.</item></plurals>
     <plurals name="restore_done_updated"><item quantity="one">Updated %1$s entry</item><item quantity="other">Updated %1$s entries</item></plurals>
     <plurals name="restore_done_photos"><item quantity="one">The photo is back too.</item><item quantity="other">All %1$s photos are back too.</item></plurals>
     <plurals name="restore_note_both"><item quantity="one">%1$s entry kept in both versions</item><item quantity="other">%1$s entries kept in both versions</item></plurals>
@@ -258,6 +264,7 @@
     <string name="backup_connect_failed_title">Couldn't connect to Google Drive</string>
     <string name="backup_connect_failed_offline">Check your internet connection and try again.</string>
     <string name="backup_connect_failed_auth">Couldn't verify your Google account. Try again in a moment.</string>
+    <string name="backup_connect_failed_no_drive">Check the Google Drive item on the Google screen to connect.</string>
     <string name="backup_connect_failed_other">Try again in a moment.</string>
     <string name="backup_connect_failed_close">OK</string>
     <string name="restore_no_mail">No mail app found. Please write to %1$s.</string>

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -39,6 +40,7 @@ import org.sjhstudio.diary.core.model.Draft
 import org.sjhstudio.diary.core.model.DraftKey
 import org.sjhstudio.diary.core.model.DraftPhoto
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.PhotoLimit
 import org.sjhstudio.diary.core.model.PickedImage
 import org.sjhstudio.diary.core.model.Plan
 import org.sjhstudio.diary.core.model.Weather
@@ -69,11 +71,45 @@ data class ResumeOffer(val date: LocalDate, val time: LocalTime, val preview: St
 
 /** 사진을 추가한 뒤 한 번 알릴 일 */
 sealed interface PhotoNotice {
-    data class Limit(val limit: Int, val canUpgrade: Boolean) : PhotoNotice
+    /** [writing]은 사진 추가를 누른 순간 쓰던 중이었는지. 시트를 닫으면 커서와 키보드를 돌려줌 */
+    data class Limit(val limit: Int, val canUpgrade: Boolean, val writing: Boolean = false) : PhotoNotice
 
     data object NoSpace : PhotoNotice
 
     data object Unreadable : PhotoNotice
+}
+
+/** 사진을 어디서 고르는지 */
+enum class PhotoSource { LIBRARY, CAMERA }
+
+/**
+ * 사진 추가를 누른 뒤의 단계
+ * 재설치 직후 요금제를 모르면 [Waiting]으로 잠깐 기다리고, 칸이 남으면 [Open]의 장수로 고르기 화면을 한 번 엶
+ */
+sealed interface PhotoPick {
+    data class Waiting(val source: PhotoSource) : PhotoPick
+
+    data class Open(val source: PhotoSource, val limit: Int, val writing: Boolean = false) : PhotoPick
+}
+
+/**
+ * 체크리스트 도구를 누른 순간의 글과 고른 자리. 기다리는 사이 글이 바뀌면 엉뚱한 줄에 걸지 않게 견줌
+ * [writing]은 그때 본문에 커서가 있었는지. Plus 시트를 닫으면 커서와 키보드를 돌려줌
+ */
+data class ChecklistTarget(val text: String, val start: Int, val end: Int, val writing: Boolean = false)
+
+/**
+ * 체크리스트 도구로 새 표시를 넣는 단계
+ * 재설치 직후 요금제를 모르면 [Waiting]으로 확정을 기다리고, Plus면 [Allowed], 아니면 [Locked]로 Plus 시트를 엶
+ * 화면 모델이 기다려 화면 구성이 바뀌어도(회전, 넓은 화면 전환) 누름이 이어짐
+ */
+sealed interface ChecklistPick {
+    data class Waiting(val target: ChecklistTarget) : ChecklistPick
+
+    /** [unlocked]는 잠김 시트가 떠 있는 동안 Plus가 되어 시트 없이 넣는 경우. 시트가 거둔 커서를 돌려줌 */
+    data class Allowed(val target: ChecklistTarget, val unlocked: Boolean = false) : ChecklistPick
+
+    data class Locked(val target: ChecklistTarget) : ChecklistPick
 }
 
 /** 장소 이름 길이(FR-002) */
@@ -95,6 +131,8 @@ data class WriteUiState(
     val locating: PlaceLocating = PlaceLocating.Idle,
     val resume: ResumeOffer? = null,
     val photoNotice: PhotoNotice? = null,
+    val photoPick: PhotoPick? = null,
+    val checklistPick: ChecklistPick? = null,
     val saveFailed: Boolean = false,
     /** 수정할 일기를 불러오지 못함. 빈 글로 덮어쓰지 않게 저장도 막음 */
     val openFailed: Boolean = false,
@@ -171,7 +209,7 @@ class WriteViewModel(
      * 새 체크리스트를 지금 만들 수 있는지
      * 재설치 직후 요금제를 모르면 확정될 때까지 잠깐 기다림. Plus 사용자에게 Plus 권유가 스치지 않게
      */
-    suspend fun checklistAllowed(): Boolean = checklistOpen.value || plans.awaitConfirmed().checklist
+    private suspend fun checklistAllowed(): Boolean = checklistOpen.value || plans.awaitConfirmed().checklist
 
     /** 본문은 고른 글꼴과 글자 크기로 보임(FR-014) */
     val look: StateFlow<BodyLook> = settings.bodyLookIn(viewModelScope, fonts)
@@ -227,8 +265,18 @@ class WriteViewModel(
     /**
      * 화면을 떠나는 중. 저장, 닫기, 버리기는 모두 떠나는 길이라 먼저 시작한 하나만 감
      * 실패해 남게 되면 다시 해제
+     * 떠나기 시작하면 기다리던 사진·체크리스트 누름도 끝냄. 떠나는 화면에서 고르기를 열거나 표시를 넣지 않게
      */
     private var leaving = false
+        set(value) {
+            field = value
+            if (value) dropWaitingPicks()
+        }
+    private var photoWait: Job? = null
+
+    /** 마지막으로 연 고르기 화면을 쓰던 중에 눌렀는지 */
+    private var pickedWhileWriting = false
+    private var checklistWait: Job? = null
     private var lastRemoved: Instant? = null
 
     /** 마지막으로 뺀 사진과 자리. 되돌리기용 */
@@ -244,6 +292,15 @@ class WriteViewModel(
     private var stored = false
 
     init {
+        // 권유를 기다리거나 띄운 사이 Plus가 되면(다른 기기 구독, 사진 한도 시트에서 구매) 권하지 않고 그대로 넣음
+        viewModelScope.launchSafely {
+            checklistOpen.filter { it }.collect {
+                _state.update { state ->
+                    val locked = state.checklistPick as? ChecklistPick.Locked ?: return@update state
+                    state.copy(checklistPick = ChecklistPick.Allowed(locked.target, unlocked = true))
+                }
+            }
+        }
         viewModelScope.launchSafely {
             // 최근 장소는 곁일이라 읽지 못하면 비워 둠
             val places = orElseOnFailure(emptyList()) { drafts.recentPlaces() }
@@ -483,6 +540,8 @@ class WriteViewModel(
 
     fun addPhotos(picked: List<PickedImage>) {
         if (picked.isEmpty() || _state.value.saving || _state.value.openFailed) return
+        // 넣는 사이 사진 추가를 또 눌러도 이 사진을 고를 때의 값으로
+        val writing = pickedWhileWriting
         _state.update { it.copy(addingPhotos = true) }
         val work = viewModelScope.launchSafely {
             ready.await()
@@ -493,7 +552,7 @@ class WriteViewModel(
                     watchPhotos()
                     when (val result = drafts.addPhotos(key, picked)) {
                         is AddPhotosResult.Added -> if (result.failed > 0) PhotoNotice.Unreadable else null
-                        is AddPhotosResult.LimitReached -> PhotoNotice.Limit(result.limit, result.canUpgrade)
+                        is AddPhotosResult.LimitReached -> PhotoNotice.Limit(result.limit, result.canUpgrade, writing)
                         is AddPhotosResult.NoSpace -> PhotoNotice.NoSpace
                     }
                 } catch (e: CancellationException) {
@@ -544,6 +603,54 @@ class WriteViewModel(
     }
 
     fun photoNoticeShown() = _state.update { it.copy(photoNotice = null) }
+
+    /**
+     * 사진 추가를 누름. 칸이 남으면 고르기 화면을 열 단계로, 다 찼으면 한도부터 알림
+     * 재설치 직후 요금제를 모르면 확정될 때까지 잠깐 기다림. Plus 사용자에게 Plus 권유가 스치지 않게
+     * 기다리는 동안 다시 눌러도 한 번만 엶
+     */
+    fun requestPhotos(source: PhotoSource, writing: Boolean = false) {
+        if (_state.value.photoPick != null || leaving) return
+        _state.update { it.copy(photoPick = PhotoPick.Waiting(source)) }
+        photoWait = viewModelScope.launchSafely(onFailure = { _state.update { it.copy(photoPick = null) } }) {
+            val limit = plans.awaitConfirmed().photoLimit
+            _state.update {
+                if (it.photos.size >= limit) {
+                    it.copy(
+                        photoPick = null,
+                        photoNotice = PhotoNotice.Limit(limit, canUpgrade = limit < PhotoLimit.PLUS, writing = writing)
+                    )
+                } else {
+                    it.copy(photoPick = PhotoPick.Open(source, limit, writing))
+                }
+            }
+        }
+    }
+
+    /** 고르기 화면을 열었음. 고른 사진이 한도를 넘으면 그때 쓰던 중이었는지로 커서를 돌려줌 */
+    fun photoPickOpened() {
+        pickedWhileWriting = (_state.value.photoPick as? PhotoPick.Open)?.writing == true
+        _state.update { it.copy(photoPick = null) }
+    }
+
+    /** 체크리스트 도구로 새 표시를 넣으려 함. 기다리는 동안 다시 눌러도 한 번만 */
+    fun requestChecklist(target: ChecklistTarget) {
+        if (_state.value.checklistPick != null || leaving) return
+        _state.update { it.copy(checklistPick = ChecklistPick.Waiting(target)) }
+        checklistWait = viewModelScope.launchSafely(onFailure = { _state.update { it.copy(checklistPick = null) } }) {
+            val pick = if (checklistAllowed()) ChecklistPick.Allowed(target) else ChecklistPick.Locked(target)
+            _state.update { it.copy(checklistPick = pick) }
+        }
+    }
+
+    /** 화면이 표시를 넣었거나 Plus 시트를 열었음 */
+    fun checklistPickHandled() = _state.update { it.copy(checklistPick = null) }
+
+    private fun dropWaitingPicks() {
+        photoWait?.cancel()
+        checklistWait?.cancel()
+        _state.update { it.copy(photoPick = null, checklistPick = null) }
+    }
 
     /** iCloud에서 받지 못했거나 카메라를 열지 못함. 말없이 넘어가면 왜 사진이 없는지 모름 */
     fun photoPickFailed() = _state.update { it.copy(photoNotice = PhotoNotice.Unreadable) }

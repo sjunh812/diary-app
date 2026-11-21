@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.data
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,34 +54,44 @@ private val CONFIRM_WAIT = 3.seconds
 
 private val AlwaysKnown: StateFlow<Boolean> = MutableStateFlow(true).asStateFlow()
 
+/** 기기에 남기는 요금제와 그 답을 서버가 매긴 시각. 시각이 없으면 예전 버전이 남긴 값 */
+data class SavedPlan(val plan: Plan, val answeredAt: Instant? = null)
+
 /**
  * 스토어 답을 요금제로 옮기는 규칙
- * 재설치 직후 스토어의 첫 답은 구매를 가져오기 전이라 비어 있음
- * 이 답을 믿으면 산 사람에게 광고가 나가고, 무료가 저장돼 다시 가져오지도 않음
- * 그래서 요금제를 모를 때의 무료 답은 믿지 않고, 계정의 구매를 가져온 답([onRecovered])을 기다림
- * 못 가져오면 모르는 채로 두어 광고를 부르지 않고, 저장하지 않으니 다음에 다시 시도
+ * 재설치 직후 첫 답은 구매를 가져오기 전이라 비어 있음. 그 무료 답을 믿으면 산 사람에게 광고가 나감
+ * 그래서 요금제를 모를 때의 무료 답은 버리고, 계정의 구매를 가져온 답([onRecovered])을 기다림
+ * 못 가져오면 모르는 채로 두고 저장하지 않음. 다음에 다시 시도
  * 남긴 값이 있으면 스토어에 닿지 못해도 그 값을 씀
+ *
+ * 결제 전에 보낸 조회의 답이 결제 뒤에 올 수 있고, 결제 SDK는 그 답을 기기에 남겨 다음 실행에도 다시 보냄
+ * 그래서 서버가 매긴 시각([StoreAnswer.answeredAt])이 마지막 답보다 이른 답은 버리고, 그 시각을 요금제와 함께 남김
+ * 서버 시각이 없는 답(서버 장애 때 기기에서 계산한 답)은 앞뒤를 가리지 않고 받되 기준으로 삼지 않음
  */
-class StorePlanState(saved: Plan?, private val remember: (Plan) -> Unit) {
-    private val _plan = MutableStateFlow(saved ?: Plan.FREE)
+class StorePlanState(saved: SavedPlan?, private val remember: (SavedPlan) -> Unit) {
+    private val _plan = MutableStateFlow(saved?.plan ?: Plan.FREE)
     private val _known = MutableStateFlow(saved != null)
+
+    /** 받아들인 답 가운데 서버가 가장 늦게 매긴 시각 */
+    private var latest: Instant? = saved?.answeredAt
 
     val plan: StateFlow<Plan> = _plan.asStateFlow()
     val known: StateFlow<Boolean> = _known.asStateFlow()
 
-    /** 스토어 답 */
-    fun onAnswer(plan: Plan) {
-        if (!_known.value && plan == Plan.FREE) return
-        confirm(plan)
-    }
+    /** 조회·스토어 알림·결제의 답. 받아들였으면 참 */
+    fun onAnswer(plan: Plan, answeredAt: Instant? = null): Boolean = settle(plan, answeredAt, proven = _known.value || plan != Plan.FREE)
 
-    /** 계정의 구매를 가져온 답. 무료여도 믿음 */
-    fun onRecovered(plan: Plan) = confirm(plan)
+    /** 계정의 구매를 가져온 답(복원 포함). 무료여도 믿음 */
+    fun onRecovered(plan: Plan, answeredAt: Instant? = null): Boolean = settle(plan, answeredAt, proven = true)
 
-    private fun confirm(plan: Plan) {
+    private fun settle(plan: Plan, answeredAt: Instant?, proven: Boolean): Boolean {
+        val stale = answeredAt != null && latest?.let { answeredAt < it } == true
+        if (stale || !proven) return false
+        if (answeredAt != null) latest = answeredAt
         _plan.value = plan
         _known.value = true
-        remember(plan)
+        remember(SavedPlan(plan, latest))
+        return true
     }
 }
 

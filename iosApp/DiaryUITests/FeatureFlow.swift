@@ -211,7 +211,7 @@ final class FeatureFlow: DeviceTestCase {
         tap("화면 모드"); tapIfExists("시스템 설정"); tapIfExists("뒤로 가기", timeout: 2)
 
         // 잠금: 4자리 두 번, 뒤로 갔다 오면 잠김, 풀기, 끄기
-        tap("잠금")
+        tapRow("잠금,")
         sleep(1)
         shot("lock-settings")
         tapIfExists("잠금 사용")
@@ -382,9 +382,13 @@ final class FeatureFlow: DeviceTestCase {
 
     func tapRow(_ prefix: String) {
         let target = row(prefix)
-        guard target.waitForExistence(timeout: 5) else { XCTFail("못 찾음: \(prefix)"); shot("missing-\(prefix)"); return }
+        // 목록은 보이는 줄만 만들어 작은 화면에서는 내려야 생김
         var tries = 0
-        while !target.isHittable, tries < 6 { app.swipeUp(); tries += 1 }
+        while !target.waitForExistence(timeout: tries == 0 ? 5 : 1), tries < 6 { app.swipeUp(); tries += 1 }
+        guard target.exists else { XCTFail("못 찾음: \(prefix)"); shot("missing-\(prefix)"); return }
+        while !target.isHittable, tries < 12 { app.swipeUp(); tries += 1 }
+        // 내린 직후 누르면 스크롤만 멈춰 줄이 눌리지 않음
+        if tries > 0 { sleep(1) }
         target.tap()
     }
 
@@ -531,5 +535,88 @@ final class FeatureFlow: DeviceTestCase {
             return
         }
     }
-}
+    /** 목록 미리보기 팁: 3줄에서 잘린 일기를 세 번 열면 전체 보기 팁(스펙 008 US4). 팁은 하루 하나라 다른 팁이 뜬 날이면 안 뜸 */
+    func testPreviewTips() {
+        app.launch()
+        sleep(2)
+        shot("tips-launch")
+        // 3줄 보기로 맞춤
+        tap("설정")
+        tap("목록 보기")
+        tapIfExists("피드")
+        tap("본문 길이")
+        tap("3줄")
+        sleep(1)
+        shot("tips-three-lines")
+        tapIfExists("뒤로 가기", timeout: 2)
+        tap("홈")
+        sleep(1)
 
+        // 줄을 나눠 쓴 긴 일기
+        startNewEntry()
+        sleep(1)
+        if element("기분은 어땠나요?").waitForExistence(timeout: 3) { tap("좋음") }
+        typeBody("Tips line one\nTips line two\n\nTips line three\nTips line four\nTips line five")
+        tap("저장")
+        sleep(1)
+        if element("전면 광고는 하루 한 번이에요").waitForExistence(timeout: 3) { tap("확인") }
+        handleSystemAlert()
+        closeAdIfShown()
+        tapIfExists("뒤로 가기", timeout: 3)
+        sleep(1)
+        shot("tips-home-three-lines")
+        if !contains("Tips line three…").waitForExistence(timeout: 3) { XCTFail("3줄 미리보기 끝에 … 없음") }
+        if contains("Tips line four").exists { XCTFail("3줄 미리보기에 넷째 줄이 보임") }
+
+        // 잘린 일기를 세 번 열고 돌아옴
+        for i in 1...3 {
+            tapContains("Tips line one")
+            sleep(1)
+            shot("tips-open-\(i)")
+            tap("뒤로 가기")
+            sleep(1)
+        }
+        shot("tips-after-three-opens")
+        let tip = contains("목록에서도 일기 전체를 볼 수 있어요")
+        guard tip.waitForExistence(timeout: 3) else {
+            XCTFail("전체 보기 팁이 안 보임(같은 날 다른 팁이 떴거나 이미 본 팁일 수 있음)")
+            return
+        }
+        tap("전체로 보기")
+        sleep(1)
+        shot("tips-full")
+        if !contains("Tips line five").waitForExistence(timeout: 3) { XCTFail("전체 보기에서 마지막 줄이 안 보임") }
+        if tip.exists { XCTFail("전체로 보기 뒤에도 팁이 남음") }
+    }
+
+    /** 새 버전 카드(스펙 009). 개발 빌드의 흉내 인자로 띄우고 [업데이트]로 앱 위 App Store 화면을 엶. 일기는 만들지 않음 */
+    func testUpdateCard() {
+        app.launchArguments = ["-diaryUpdate", "note"]
+        app.launch()
+        sleep(3)
+        shot("update-home")
+        // 흉내 버전(99.0)을 앞선 실행에서 [나중에]로 닫았으면 카드는 다시 뜨지 않는 것이 맞음
+        if element("새 버전이 나왔어요").waitForExistence(timeout: 10) {
+            if !contains("결제 뒤에도 광고가 보이던 문제를 고쳤어요").exists { XCTFail("업데이트 요약이 안 보임") }
+            tap("업데이트")
+            sleep(4)
+            shot("update-store-sheet")
+            // App Store 화면은 다른 프로세스라 앱 화면 위에서 아래로 내려 닫음
+            app.swipeDown(velocity: .fast)
+            sleep(2)
+            shot("update-after-sheet")
+            tap("나중에")
+            sleep(1)
+            shot("update-later")
+            if element("새 버전이 나왔어요").exists { XCTFail("나중에 뒤에도 카드가 남음") }
+        }
+        // 설정 앱 버전 줄에는 계속 보임
+        tap("설정")
+        app.swipeUp()
+        sleep(1)
+        shot("update-settings-row")
+        // 줄 전체가 한 이름("2.0.2 · 업데이트")으로 읽힘
+        if !contains("· 업데이트").exists { XCTFail("설정 앱 버전 줄에 업데이트가 안 보임") }
+        tap("홈")
+    }
+}

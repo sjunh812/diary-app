@@ -225,26 +225,49 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
     val discardRow: @Composable () -> Unit = {
         if (state.canDiscard && imeHidden) DiscardButton(state.isEdit) { askDiscardHere = true }
     }
-    var checklistLocked by remember { mutableStateOf(false) }
     val photoLimit by vm.photoLimit.collectAsStateWithLifecycle()
-    (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }?.let { notice ->
-        PhotoLimitSheet(notice.limit, actions.onPlus, vm::photoNoticeShown)
-    }
-    // Plus 화면으로 가면 편집기에 초점을 되돌리지 않음. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
-    if (checklistLocked) {
-        ChecklistPlusSheet(
+    // 화면 모델이 띄우는 Plus 권유. 닫을 때까지 화면 모델이 가져 화면을 돌려도 닫히지 않음
+    val plusPrompt = plusPromptOf(state)
+    // 사용자가 연 창이 먼저. 권유는 다른 창이 없을 때 한 장씩
+    val othersOpen = sheet != null || state.resume != null || askDiscard || askDiscardHere || cameraOff
+    // Plus 화면으로 가면 남아 있던 되돌리기까지 지움. 되돌리면 Plus 화면 위에 키보드가 떠 첫 뒤로 가기가 키보드 내리기에 쓰임
+    // 닫으면 누른 순간 쓰던 중이었을 때 커서와 키보드를 돌려줌
+    when (val prompt = plusPrompt.takeUnless { othersOpen }) {
+        is PlusPrompt.PhotoLimit -> PhotoLimitSheet(
+            prompt.limit,
             onPlus = {
                 refocus = false
+                vm.photoNoticeShown()
                 actions.onPlus()
             },
-            onDismiss = { checklistLocked = false }
+            onDismiss = {
+                refocus = refocus || prompt.writing
+                vm.photoNoticeShown()
+            }
         )
+
+        is PlusPrompt.Checklist -> ChecklistPlusSheet(
+            onPlus = {
+                refocus = false
+                vm.checklistPickHandled()
+                actions.onPlus()
+            },
+            onDismiss = {
+                refocus = refocus || prompt.writing
+                vm.checklistPickHandled()
+            }
+        )
+
+        null -> Unit
     }
-    val remaining = (photoLimit - state.photos.size).coerceAtLeast(1)
+    val pickerLimitsCount = rememberPickerLimitsCount()
     val pick =
         rememberFilePickerLauncher(
             type = FileKitType.Image,
-            mode = FileKitMode.Multiple(maxItems = remaining),
+            // 여는 순간의 장수. 요금제를 기다렸다 열면 확정된 한도로
+            mode = FileKitMode.Multiple(
+                maxItems = pickMaxItems((state.photoPick as? PhotoPick.Open)?.limit ?: photoLimit, state.photos.size, pickerLimitsCount)
+            ),
             onError = {
                 ExpectedLeave.clear()
                 vm.photoPickFailed()
@@ -261,26 +284,48 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
             ExpectedLeave.clear()
             if (file != null) vm.addPhotos(listOf(file.picked()))
         }
-    val openPicker = {
-        ExpectedLeave.mark()
-        pick.launch()
-    }
-    val openCamera = {
-        if (cameraAccess.blocked()) {
-            cameraOff = true
-        } else {
-            ExpectedLeave.mark()
-            camera.launch()
+    // 화면 모델이 칸과 요금제를 확인한 뒤 연다고 정하면 한 번 엶
+    // 사용자가 연 창과 Plus 권유가 모두 닫힌 뒤에 엶
+    val pickToOpen = (state.photoPick as? PhotoPick.Open)?.takeUnless { othersOpen || plusPrompt != null }
+    LaunchedEffect(pickToOpen) {
+        val open = pickToOpen ?: return@LaunchedEffect
+        vm.photoPickOpened()
+        when {
+            open.source == PhotoSource.CAMERA && cameraAccess.blocked() -> cameraOff = true
+
+            open.source == PhotoSource.CAMERA -> {
+                ExpectedLeave.mark()
+                camera.launch()
+            }
+
+            else -> {
+                ExpectedLeave.mark()
+                pick.launch()
+            }
         }
     }
+    // 누르는 순간 쓰던 중이었는지 함께 보냄. 한도 시트를 닫으면 커서와 키보드를 돌려줌
+    val openPicker: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.LIBRARY, writing = editorFocused) } }
+    val openCamera: () -> Unit = remember(vm) { { vm.requestPhotos(PhotoSource.CAMERA, writing = editorFocused) } }
     val tools = remember(actions) {
-        WriteTools(actions.rich, actions.colors, vm::checklistAllowed, {
-            refocus = editorFocused
-            checklistLocked = true
-        })
+        // 누르는 순간 쓰던 중이었는지 함께 보냄. Plus 시트가 뜨며 초점을 거둔 뒤에는 알 수 없음
+        WriteTools(actions.rich, actions.colors) { text, start, end ->
+            vm.requestChecklist(ChecklistTarget(text, start, end, writing = editorFocused))
+        }
     }
-    LaunchedEffect(sheet, checklistLocked) {
-        if (sheet == null && !checklistLocked && refocus) {
+    LaunchedEffect(state.checklistPick) {
+        when (val pick = state.checklistPick) {
+            is ChecklistPick.Allowed -> {
+                tools.applyChecklist(pick.target)
+                if (pick.unlocked) refocus = refocus || pick.target.writing
+                vm.checklistPickHandled()
+            }
+
+            is ChecklistPick.Waiting, is ChecklistPick.Locked, null -> Unit
+        }
+    }
+    LaunchedEffect(sheet, plusPrompt) {
+        if (sheet == null && plusPrompt == null && refocus) {
             refocus = false
             // 다시 만든 화면은 한 프레임 뒤에 편집기가 붙음
             withFrameNanos {}
@@ -328,10 +373,15 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                         }
                         SaveFailedNotice(state)
                         discardRow()
-                        tools.Toolbar(onPhoto = { openPicker() }, onCamera = { openCamera() })
+                        tools.Toolbar(
+                            onPhoto = openPicker,
+                            onCamera = openCamera,
+                            photoWaiting = state.photoPick is PhotoPick.Waiting,
+                            checklistWaiting = state.checklistPick is ChecklistPick.Waiting
+                        )
                     }
                     Box(Modifier.width(DiarySpacing.hairline).fillMaxHeight().background(colors.line))
-                    SidePanel(state, actions, onPick = { openPicker() }, onPlace = { openSheet(Sheet.Place) })
+                    SidePanel(state, actions, onPick = openPicker, onPlace = { openSheet(Sheet.Place) })
                 }
             } else {
                 EditorScrollMargin(DiaryWriteSize.editorScrollMargin, Modifier.weight(1f).fillMaxWidth()) {
@@ -344,7 +394,7 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                             Chips(state, onMood = {
                                 openSheet(Sheet.Mood)
                             }, onWeather = { openSheet(Sheet.Weather) }, onPlace = { openSheet(Sheet.Place) })
-                            if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = { openPicker() })
+                            if (state.photos.isNotEmpty()) PhotoRow(state, actions, onPick = openPicker)
                             PhotoReorderTip(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                             Notices(state, Modifier.padding(horizontal = LocalScreenGutter.current, vertical = DiarySpacing.x2))
                             Editor(
@@ -359,7 +409,12 @@ internal fun WriteScreen(state: WriteUiState, actions: WriteActions, bodyStyle: 
                 }
                 SaveFailedNotice(state)
                 discardRow()
-                tools.Toolbar(onPhoto = { openPicker() }, onCamera = { openCamera() })
+                tools.Toolbar(
+                    onPhoto = openPicker,
+                    onCamera = openCamera,
+                    photoWaiting = state.photoPick is PhotoPick.Waiting,
+                    checklistWaiting = state.checklistPick is ChecklistPick.Waiting
+                )
             }
         }
         // 서식 도구 줄 위에 띄움
@@ -667,8 +722,9 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
             state = state,
             modifier =
                 Modifier
+                    // 최소 높이를 두지 않음. 키보드가 화면을 줄일 때 스크롤 칸이 초점 칸 전체를 보이려고 화면을 밀어 올림
+                    // 빈 곳 누르기는 바깥 스크롤 칸(tapToWrite)이 받음
                     .fillMaxWidth()
-                    .heightIn(min = DiaryWriteSize.editorMin)
                     .onGloballyPositioned { geometry.field = it }
                     .bringIntoViewRequester(reveal)
                     .focusRequester(focus)
@@ -754,5 +810,22 @@ private fun PlatformFile.picked() = PickedImage { write ->
             if (read < 0) break
             write(chunk, read)
         }
+    }
+}
+
+/** 화면 모델이 띄우는 Plus 권유. 한 번에 한 장이고 사진 한도가 먼저 */
+private sealed interface PlusPrompt {
+    data class PhotoLimit(val limit: Int, val writing: Boolean) : PlusPrompt
+
+    data class Checklist(val writing: Boolean) : PlusPrompt
+}
+
+private fun plusPromptOf(state: WriteUiState): PlusPrompt? {
+    val photo = (state.photoNotice as? PhotoNotice.Limit)?.takeIf { it.canUpgrade }
+    val pick = state.checklistPick
+    return when {
+        photo != null -> PlusPrompt.PhotoLimit(photo.limit, photo.writing)
+        pick is ChecklistPick.Locked -> PlusPrompt.Checklist(pick.target.writing)
+        else -> null
     }
 }

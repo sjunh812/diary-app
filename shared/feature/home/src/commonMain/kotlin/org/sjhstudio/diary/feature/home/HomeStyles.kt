@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,39 +17,29 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import kotlinx.datetime.LocalDate
-import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
 import org.sjhstudio.diary.core.designsystem.component.DiaryMonthHeader
 import org.sjhstudio.diary.core.designsystem.component.diaryPress
-import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryHomeSize
-import org.sjhstudio.diary.core.designsystem.theme.DiaryShapes
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.ui.DiaryDateFormat
-import org.sjhstudio.diary.core.ui.DiaryPhotoCell
-import org.sjhstudio.diary.core.ui.MoodFace
-import org.sjhstudio.diary.core.ui.WeatherIcon
+import org.sjhstudio.diary.core.ui.DiaryEntryCard
+import org.sjhstudio.diary.core.ui.DiaryGridCellContent
 import org.sjhstudio.diary.core.ui.entryMarks
 import org.sjhstudio.diary.core.ui.loadMoreFailed
 import org.sjhstudio.diary.core.ui.monthHeader
-import org.sjhstudio.diary.core.ui.moodName
-import org.sjhstudio.diary.core.ui.weatherName
 
 /**
  * 카드 목록(Figma "홈 · 카드"). 일기마다 카드 하나, 사진은 네 칸까지
@@ -67,7 +56,8 @@ internal fun CardList(
     onOpen: (String) -> Unit,
     onMenu: (String) -> Unit,
     listTop: @Composable () -> Unit,
-    adSlot: @Composable (Int, Modifier) -> Unit
+    adSlot: @Composable (Int, Modifier) -> Unit,
+    onOpenClippedRow: () -> Unit
 ) {
     LazyColumn(
         Modifier.fillMaxSize(),
@@ -92,115 +82,25 @@ internal fun CardList(
                         DiaryMonthHeader(dates.monthHeader(row.date, today.year, previous?.date))
                     }
                     Column(Modifier.padding(horizontal = DiarySpacing.x4), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
-                        EntryCard(row, row.id == selectedId, previewStyle, dates, { onOpen(row.id) }, { onMenu(row.id) })
+                        val clipped = remember(row.id) { ClippedFlag() }
+                        DiaryEntryCard(
+                            row,
+                            previewStyle,
+                            dates,
+                            selected = row.id == selectedId,
+                            onClick = {
+                                if (row.previewCut || clipped.value) onOpenClippedRow()
+                                onOpen(row.id)
+                            },
+                            onLongClick = { onMenu(row.id) },
+                            onPreviewClip = { clipped.value = it }
+                        )
                         if (isAdSlot(index)) adSlot(adOrder(index), Modifier)
                     }
                 }
             }
         }
         loadMoreFailed(rows.loadState.append is LoadState.Error, rows::retry)
-    }
-}
-
-@Composable
-private fun EntryCard(
-    row: EntryRow,
-    selected: Boolean,
-    previewStyle: TextStyle,
-    dates: DiaryDateFormat,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit
-) {
-    val colors = DiaryTheme.colors
-    val typography = DiaryTheme.typography
-    val interaction = remember { MutableInteractionSource() }
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .diaryPress(interaction, colors.textPrimary, DiaryShapes.r16)
-            .clip(DiaryShapes.r16)
-            .background(if (selected) colors.selected else colors.surfaceCard)
-            .combinedClickable(
-                interactionSource = interaction,
-                indication = null,
-                role = Role.Button,
-                onLongClick = onLongClick,
-                onClick = onClick
-            )
-            .padding(DiarySpacing.x4)
-    ) {
-        // 기분 얼굴은 날짜 줄과 시각 줄을 합친 높이의 가운데. 날짜 줄에만 맞추면 위로 떠 보임
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-            Column(Modifier.fillMaxWidth().padding(end = if (row.mood != null) DiaryHomeSize.cardFace + DiarySpacing.x2 else Dp.Hairline)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)) {
-                    // 카드는 달 머리가 없어 달까지 적음. 맨 위 제목만으로는 어느 달인지 헷갈림
-                    BasicText(
-                        dates.monthDay(row.date),
-                        modifier = Modifier.alignByBaseline(),
-                        style = typography.headline.copy(color = colors.textPrimary)
-                    )
-                    BasicText(
-                        dates.weekday(row.date),
-                        modifier = Modifier.alignByBaseline(),
-                        style = typography.captionStrong.copy(color = colors.textSecondary)
-                    )
-                }
-                Row(
-                    Modifier.padding(top = DiarySpacing.x1),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1_5)
-                ) {
-                    BasicText(
-                        dates.time(row.time),
-                        style = typography.captionStrong.copy(color = colors.textSecondary),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    row.weather?.let { WeatherIcon(it, DiaryHomeSize.cardIcon, colors.textSecondary, contentDescription = weatherName(it)) }
-                    row.placeName?.let {
-                        // 장소가 길어도 시각과 날씨를 밀어내지 않게
-                        BasicText(
-                            it,
-                            modifier = Modifier.weight(1f, fill = false),
-                            style = typography.caption.copy(color = colors.textSecondary),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    // 피드형과 같은 자리. 모양만 다른 같은 목록
-                    if (row.isFavorite) {
-                        DiaryIcon(
-                            DiaryIcons.StarFilled,
-                            contentDescription = null,
-                            tint = colors.accent,
-                            size = DiaryHomeSize.cardIcon
-                        )
-                    }
-                }
-            }
-            row.mood?.let { MoodFace(it, DiaryHomeSize.cardFace, contentDescription = moodName(it)) }
-        }
-        if (row.preview.isNotEmpty()) {
-            BasicText(
-                row.preview,
-                modifier = Modifier.padding(top = DiarySpacing.x2),
-                style = previewStyle.copy(color = colors.textPrimary),
-                maxLines = PREVIEW_LINES,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        if (row.photos.isNotEmpty()) {
-            // 글이 없어도 사진은 시각 줄과 같은 간격
-            Row(Modifier.padding(top = DiarySpacing.x3), horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-                val shown = row.photos.take(CARD_PHOTOS)
-                shown.forEachIndexed { index, photo ->
-                    // 피드 사진 칸과 같이 마지막 칸까지 더한 수
-                    val more = if (index == CARD_PHOTOS - 1 && row.photos.size > CARD_PHOTOS) row.photos.size - CARD_PHOTOS + 1 else 0
-                    Box(Modifier.weight(1f).aspectRatio(1f).clip(DiaryShapes.r12)) { DiaryPhotoCell(listOf(photo), more = more) }
-                }
-                repeat(CARD_PHOTOS - shown.size) { Box(Modifier.weight(1f)) }
-            }
-        }
     }
 }
 
@@ -247,25 +147,7 @@ internal fun PhotoGrid(
             ) {
                 when {
                     row == null -> Unit
-
-                    row.photos.isNotEmpty() -> DiaryPhotoCell(row.photos.take(1))
-
-                    else ->
-                        Column(Modifier.padding(DiarySpacing.x2), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x1)) {
-                            // 칸에 달 머리가 없어 올해가 아니면 연도까지
-                            BasicText(
-                                if (row.date.year == today.year) dates.monthDay(row.date) else dates.fullDate(row.date),
-                                style = DiaryTheme.typography.micro.copy(color = colors.textSecondary),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            BasicText(
-                                row.preview,
-                                style = DiaryTheme.typography.caption.copy(color = colors.textPrimary),
-                                maxLines = GRID_LINES,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
+                    else -> DiaryGridCellContent(row, today, dates)
                 }
             }
         }
@@ -273,7 +155,4 @@ internal fun PhotoGrid(
     }
 }
 
-private const val PREVIEW_LINES = 3
-private const val CARD_PHOTOS = 4
 private const val CARD_PLACEHOLDER_RATIO = 2f
-private const val GRID_LINES = 4

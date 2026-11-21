@@ -28,8 +28,27 @@
     <string name="detail_missing_body">削除したか、ゴミ箱に移動した可能性があります。</string>
     <string name="tip_home_list_style">日記の一覧はカードや写真グリッドでも見られます。</string>
     <string name="tip_home_list_style_action">変更する</string>
+    <string name="tip_home_full_preview">一覧でも日記の全文を表示できます。</string>
+    <string name="tip_home_full_preview_action">全文で表示</string>
+    <string name="tip_home_full_preview_kept">以前と同じく一覧で日記の全文を表示します。</string>
+    <string name="tip_home_full_preview_kept_action">3行で表示</string>
     <string name="feedback_card_title">1日1日記、使ってみていかがですか？😊</string>
     <string name="feedback_card_body">より良いアプリにするためにアンケートを行っています。不便だった点やご希望の機能を教えてください。</string>
     <string name="feedback_card_action">アンケートに答える</string>
     <string name="feedback_card_close">閉じる</string>
+    <string name="update_card_title">新しいバージョンが出ました</string>
+    <string name="update_card_title_required">重要なアップデートが出ました</string>
+    <string name="update_card_default">不具合を修正し、安定性を改善しました。</string>
+    <string name="update_card_keep">日記はそのまま残ります。</string>
+    <string name="update_card_keep_required">必ずアップデートしてください。日記はそのまま残ります。</string>
+    <string name="update_card_kept">日記はそのまま残ります。</string>
+    <string name="update_card_failed">ダウンロードできませんでした。しばらくしてからもう一度お試しください。</string>
+    <string name="update_card_update">アップデート</string>
+    <string name="update_card_later">あとで</string>
+    <string name="update_card_downloading_title">新しいバージョンをダウンロード中です</string>
+    <string name="update_card_downloading_body">%1$d% · ダウンロード中もアプリはそのまま使えます。</string>
+    <string name="update_card_downloading_body_unknown">ダウンロード中もアプリはそのまま使えます。</string>
+    <string name="update_card_downloaded_title">新しいバージョンの準備ができました</string>
+    <string name="update_card_downloaded_body">再起動すると新しいバージョンに切り替わります。</string>
+    <string name="update_card_restart">再起動する</string>
 </resources>

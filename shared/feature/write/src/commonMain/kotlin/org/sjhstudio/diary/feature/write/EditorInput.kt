@@ -2,13 +2,14 @@
 
 package org.sjhstudio.diary.feature.write
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import com.mohamedrejeb.richeditor.model.RichSpan
 import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.paragraph.type.DefaultParagraph
+import com.mohamedrejeb.richeditor.paragraph.type.OrderedList
+import com.mohamedrejeb.richeditor.paragraph.type.ParagraphType.Companion.startText
 import com.mohamedrejeb.richeditor.platform.currentPlatform
 
 private const val HANGUL_START = 'ㄱ'
@@ -28,27 +29,24 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
     /** 키보드가 다시 넣을 공백의 위치 */
     private var echoed: Int? = null
 
-    /**
-     * 선택 핸들을 끄는 중이면 늘어나는 수
-     * 편집기는 이 값이 멈춘 뒤에야 꾸밈을 바꿔 그림([DiaryRichEditor])
-     */
-    var dragTick by mutableIntStateOf(0)
-        private set
-
-    /** 선택 핸들을 끄는 중인지. 다른 입력이 오면 바로 풀림 */
-    var dragging by mutableStateOf(false)
-
     fun apply(new: TextFieldValue) {
+        applyInput(new)
+        state.flattenOrderedLists()
+    }
+
+    /** 하드웨어 키 입력(되돌리기·다시 하기 포함)을 편집기에 넘김. 기록이 되살린 번호 목록도 풂 */
+    fun key(event: KeyEvent): Boolean = state.onPreviewKeyEvent(event).also { afterKey() }
+
+    internal fun afterKey() = state.flattenOrderedLists()
+
+    private fun applyInput(new: TextFieldValue) {
         if (isHandleDrag(state.textFieldValue, new)) {
             // 선택 핸들을 끄는 중이면 일반 입력칸처럼 선택만 바꿈
             // 라이브러리는 선택마다 끌기 끝을 손가락 줄과 문단 시작에 맞춰 고치는데,
             // 그 보정이 끌던 끝을 붙잡아 핸들이 가다가 멈춤
             // 커서를 놓거나 새로 고를 때(길게 누르기)는 라이브러리 보정을 그대로 거침
-            dragging = true
-            dragTick++
             state.selection = new.selection
         } else {
-            dragging = false
             type(new)
         }
     }
@@ -124,4 +122,26 @@ internal class EditorInput(private val state: RichTextState, private val fixKeyb
  */
 internal fun RichTextState.commitComposition() {
     if (composition != null) onTextFieldValueChange(textFieldValue.copy(composition = null))
+}
+
+/**
+ * 번호 목록을 글자 줄로 풂. 줄 맨 앞에 `1. `을 치거나 번호 목록을 붙여넣으면 라이브러리가 번호 목록을 만듦
+ * 이 앱의 형식에는 번호 목록이 없어(contracts/rich-text-html.md) 그 자리에서 `1. 글`로 두고, 줄을 바꿔도 다음 번호가 붙지 않음
+ * 앞 글자가 문단의 글로 옮겨질 뿐 보이는 글과 길이는 같아 커서가 그대로임
+ */
+internal fun RichTextState.flattenOrderedLists() {
+    val numbered = richParagraphList.filter { it.type is OrderedList }
+    if (numbered.isEmpty()) return
+    for (paragraph in numbered) {
+        val marker = paragraph.type.startText
+        paragraph.type = DefaultParagraph()
+        val first = paragraph.children.firstOrNull()
+        if (first == null) {
+            paragraph.children.add(RichSpan(paragraph = paragraph, text = marker))
+        } else {
+            first.text = marker + first.text
+        }
+    }
+    // 글은 같고 문단 모양만 바뀌어 같은 선택을 다시 넣어 다시 그림
+    selection = selection
 }

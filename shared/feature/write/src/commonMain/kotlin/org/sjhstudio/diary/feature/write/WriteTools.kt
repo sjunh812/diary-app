@@ -23,7 +23,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,10 +37,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.mohamedrejeb.richeditor.model.RichTextState
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.sjhstudio.diary.core.designsystem.component.DiaryIcon
@@ -53,6 +52,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.model.Checklist
+import org.sjhstudio.diary.core.model.ChecklistEdit
 import org.sjhstudio.diary.core.model.InkColor
 import org.sjhstudio.diary.core.model.MarkColor
 import org.sjhstudio.diary.core.ui.icon
@@ -89,14 +89,19 @@ internal enum class PaletteKind { Ink, Mark }
 internal class WriteTools(
     val rich: RichTextState,
     val colors: EditorColors,
-    val checklistAllowed: suspend () -> Boolean,
-    val onChecklistLocked: () -> Unit
+    val requestChecklist: (text: String, start: Int, end: Int) -> Unit
 ) {
     /** 서식 없는 본문. 글이 바뀔 때만 다시 만듦 */
     private val plain = derivedStateOf { rich.annotatedString.let { rich.toText() } }
 
     @Composable
-    fun Toolbar(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, modifier: Modifier = Modifier) {
+    fun Toolbar(
+        onPhoto: (() -> Unit)?,
+        onCamera: (() -> Unit)?,
+        modifier: Modifier = Modifier,
+        photoWaiting: Boolean = false,
+        checklistWaiting: Boolean = false
+    ) {
         var palette by remember { mutableStateOf<PaletteKind?>(null) }
         val theme = DiaryTheme.colors
         Column(modifier.fillMaxWidth().background(theme.canvas), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -110,28 +115,36 @@ internal class WriteTools(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)
             ) {
-                val open = palette
-                if (open != null) Palette(open) { palette = null } else Tools(onPhoto, onCamera) { palette = it }
+                when (val open = palette) {
+                    null -> Tools(onPhoto, onCamera, photoWaiting, checklistWaiting) { palette = it }
+                    else -> Palette(open) { palette = null }
+                }
             }
         }
     }
 
     @Composable
-    private fun RowScope.Tools(onPhoto: (() -> Unit)?, onCamera: (() -> Unit)?, openPalette: (PaletteKind) -> Unit) {
+    private fun RowScope.Tools(
+        onPhoto: (() -> Unit)?,
+        onCamera: (() -> Unit)?,
+        photoWaiting: Boolean,
+        checklistWaiting: Boolean,
+        openPalette: (PaletteKind) -> Unit
+    ) {
         val theme = DiaryTheme.colors
         val style = rich.currentSpanStyle
         // 좁은 폰에서는 칸을 고르게 줄여 도구가 모두 보이게
         val slot = Modifier.weight(1f, fill = false)
-        val checked = Checklist.isItemAt(plain.value, rich.selection.min)
-        val scope = rememberCoroutineScope()
-        // 요금제를 기다리는 동안 다시 눌러도 쌓이지 않게
-        var deciding by remember { mutableStateOf(false) }
+        // 고른 줄이 모두 항목이어야 켜짐. 하나라도 일반 줄이면 누르면 표시가 생겨 Plus 확인을 거침
+        val checked = Checklist.picksOnlyItems(plain.value, rich.selection.min, rich.selection.max)
         fun tint(active: Boolean) = if (active) theme.accentText else theme.textPrimary
+        // 요금제를 기다려 사진 칸을 정하는 동안은 체크리스트 도구처럼 흐리게
+        val photoTint = if (photoWaiting) theme.textSecondary else theme.textPrimary
         onPhoto?.let {
-            ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), theme.textPrimary, modifier = slot, onClick = it)
+            ToolButton(DiaryIcons.Image, stringResource(Res.string.write_add_photo), photoTint, modifier = slot, onClick = it)
         }
         onCamera?.let {
-            ToolButton(DiaryIcons.Camera, stringResource(Res.string.write_camera), theme.textPrimary, modifier = slot, onClick = it)
+            ToolButton(DiaryIcons.Camera, stringResource(Res.string.write_camera), photoTint, modifier = slot, onClick = it)
         }
         val bold = style.fontWeight == FontWeight.Bold
         ToolButton(DiaryIcons.Bold, stringResource(Res.string.write_format_bold), tint(bold), modifier = slot, active = bold, onClick = {
@@ -184,9 +197,8 @@ internal class WriteTools(
             modifier = slot,
             active = rich.isUnorderedList,
             onClick = {
-                if (checked) toggleChecklist()
                 rich.commitComposition()
-                rich.toggleUnorderedList()
+                rich.toggleList()
             }
         )
         ToolButton(
@@ -195,29 +207,15 @@ internal class WriteTools(
                 Res.string.write_format_check
             ),
             // 요금제를 기다리는 동안은 흐리게
-            if (deciding) theme.textSecondary else tint(checked),
+            if (checklistWaiting) theme.textSecondary else tint(checked),
             modifier = slot,
             active = checked,
             onClick = {
-                // 이미 있는 항목을 푸는 것은 언제나 됨. 새로 만드는 것만 Plus
-                if (deciding) return@ToolButton
-                deciding = true
-                // 누른 순간의 글과 자리. 기다리는 사이 글을 고쳤으면 엉뚱한 줄에 걸지 않게 적용하지 않음
-                val before = plain.value
-                val at = rich.selection
-                scope.launch {
-                    try {
-                        if (!checked && !checklistAllowed()) {
-                            onChecklistLocked()
-                            return@launch
-                        }
-                        if (plain.value != before) return@launch
-                        if (rich.selection != at) rich.selection = at
-                        if (rich.isUnorderedList) rich.toggleUnorderedList()
-                        toggleChecklist()
-                    } finally {
-                        deciding = false
-                    }
+                // 이미 있는 항목을 푸는 것은 언제나 됨. 새로 만드는 것만 Plus라 화면 모델이 확인
+                if (checked) {
+                    toggleChecklist()
+                } else {
+                    requestChecklist(plain.value, rich.selection.start, rich.selection.end)
                 }
             }
         )
@@ -225,7 +223,15 @@ internal class WriteTools(
 
     private fun toggleChecklist() {
         rich.commitComposition()
-        Checklist.toggleLines(rich.toText(), rich.selection.min, rich.selection.max).forEach { rich.applyEdit(it) }
+        if (rich.isUnorderedList) rich.toggleUnorderedList()
+        rich.changeChecklistLines(Checklist::toggleLines)
+    }
+
+    /** 화면 모델이 허락한 체크리스트 누름을 누른 순간의 자리에 적용. 그사이 글이 바뀌었으면 넣지 않음 */
+    fun applyChecklist(target: ChecklistTarget) {
+        if (plain.value != target.text) return
+        rich.selection = TextRange(target.start, target.end)
+        toggleChecklist()
     }
 
     @Composable
@@ -283,6 +289,27 @@ internal class WriteTools(
             }
         }
     }
+}
+
+/**
+ * 고른 줄의 체크리스트 표시를 [change]대로 넣거나 뺌. 바꾼 줄이 있으면 참
+ * 편집기는 끼워 넣을 때 고른 범위를 풀어서, 표시를 넣고 뺀 만큼 옮겨 다시 고름
+ */
+internal fun RichTextState.changeChecklistLines(change: (text: String, start: Int, end: Int) -> List<ChecklistEdit>): Boolean {
+    val picked = selection
+    val edits = change(toText(), picked.min, picked.max)
+    if (edits.isEmpty()) return false
+    edits.forEach { applyEdit(it) }
+    selection = TextRange(Checklist.shifted(picked.start, edits), Checklist.shifted(picked.end, edits))
+    return true
+}
+
+/**
+ * 글머리 목록 도구. 고른 줄의 체크리스트 표시를 빼고 목록으로 바꾸거나 목록을 풂
+ * 체크리스트를 풀었으면 목록으로 바꾸려는 것이라 앞 줄이 이미 목록이어도 풀지 않음
+ */
+internal fun RichTextState.toggleList() {
+    if (changeChecklistLines(Checklist::removeLines)) addUnorderedList() else toggleUnorderedList()
 }
 
 internal fun InkColor.label(): StringResource = when (this) {

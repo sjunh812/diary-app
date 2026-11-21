@@ -60,6 +60,7 @@ fun MigrationGate(content: @Composable () -> Unit) {
         if (state == MigrationUiState.Passed) {
             content()
         } else if (reading && state is MigrationUiState.Failed) {
+            FirstScreenShown()
             BackHandler { reading = false }
             val reader = koinViewModel<LegacyReaderViewModel>()
             val readerState by reader.state.collectAsStateWithLifecycle()
@@ -70,6 +71,8 @@ fun MigrationGate(content: @Composable () -> Unit) {
                 onLoadMore = reader::loadMore
             )
         } else {
+            // 원본을 확인하는 동안은 바탕뿐이라 시작 화면이 덮음
+            if (state != MigrationUiState.Checking) FirstScreenShown()
             val actions = rememberMigrationActions(MigrationMessage { message -> scope.launch { toast.show(message) } })
             var asking by rememberSaveable { mutableStateOf(false) }
             MigrationScreen(

@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.ui
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -24,10 +25,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,28 +46,38 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 
 private const val SHOW_AFTER_MILLIS = 300L
+private const val FADE_IN_MILLIS = 250
+private const val FIRST_FADE_IN_MILLIS = 150
 private const val PULSE_MILLIS = 650
 private const val PULSE_LOW = 0.35f
 
 /**
  * 스켈레톤(`docs/design.md` 스켈레톤)
  * 자리 모양을 아는 목록이 네트워크나 많은 기록 때문에 늦을 때만 씀
- * 짧은 로딩에서 깜빡이지 않게 0.3초 뒤에 나타남. 끝없는 움직임을 줄이려 빛이 지나가는 대신 천천히 숨 쉼
+ * 화면을 처음 열 때의 읽기([delayed] 거짓)는 기다리지 않고 0.15초에 걸쳐 나타남
+ * 늦으면 빈 자리로 기다리지 않고, 일기가 적어 바로 읽히면 거의 투명한 채 지나가 번쩍이지 않음
+ * 다시 읽기처럼 짧을 수 있는 곳은 0.3초 뒤부터 서서히 나타남
+ * 끝없는 움직임을 줄이려 빛이 지나가는 대신 천천히 숨 쉼
  * 동작 줄이기를 켜면 멈춘 칸으로 보임
  * 그림일 뿐이라 화면 낭독기가 읽지 않음
  */
 @Composable
-fun DiarySkeleton(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun DiarySkeleton(modifier: Modifier = Modifier, delayed: Boolean = true, content: @Composable () -> Unit) {
     // 미리보기에는 시간이 흐르지 않아서 바로 보임
     val inspecting = LocalInspectionMode.current
-    var visible by remember { mutableStateOf(inspecting) }
+    val reduceMotion = rememberReduceMotion()
+    val shown = remember { Animatable(if (inspecting) 1f else 0f) }
     LaunchedEffect(Unit) {
-        delay(SHOW_AFTER_MILLIS)
-        visible = true
+        if (shown.value == 1f) return@LaunchedEffect
+        if (delayed) delay(SHOW_AFTER_MILLIS)
+        when {
+            reduceMotion -> shown.snapTo(1f)
+            delayed -> shown.animateTo(1f, tween(FADE_IN_MILLIS))
+            else -> shown.animateTo(1f, tween(FIRST_FADE_IN_MILLIS))
+        }
     }
-    if (!visible) return
     val pulse: () -> Float =
-        if (rememberReduceMotion()) {
+        if (reduceMotion) {
             { 1f }
         } else {
             val transition = rememberInfiniteTransition()
@@ -79,7 +87,7 @@ fun DiarySkeleton(modifier: Modifier = Modifier, content: @Composable () -> Unit
     // 숨 쉬는 것은 뼈대 칸뿐
     // 카드 바탕처럼 실제 화면에도 있는 면은 그대로 둬서 내용이 들어올 때 카드가 깜빡이지 않음
     CompositionLocalProvider(LocalSkeletonPulse provides pulse) {
-        Box(modifier.clearAndSetSemantics {}) { content() }
+        Box(modifier.graphicsLayer { alpha = shown.value }.clearAndSetSemantics {}) { content() }
     }
 }
 
@@ -108,8 +116,8 @@ fun SkeletonLine(modifier: Modifier = Modifier, height: Dp = DiarySpacing.x3) {
 
 /** 홈 피드 일기 줄 자리(날짜, 시각과 기분, 글 두 줄). 날짜 열, 사이, 얼굴은 실제 일기 줄과 같음 */
 @Composable
-fun SkeletonEntryRows(modifier: Modifier = Modifier, count: Int = 6) {
-    DiarySkeleton(modifier) {
+fun SkeletonEntryRows(modifier: Modifier = Modifier, count: Int = 6, delayed: Boolean = true) {
+    DiarySkeleton(modifier, delayed) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = LocalScreenGutter.current),
             verticalArrangement = Arrangement.spacedBy(DiarySpacing.x8)
@@ -140,8 +148,8 @@ fun SkeletonEntryRows(modifier: Modifier = Modifier, count: Int = 6) {
 
 /** 홈 카드 보기 자리. 카드 면과 여백은 실제 카드와 같음(`docs/design.md` 카드) */
 @Composable
-fun SkeletonEntryCards(modifier: Modifier = Modifier, count: Int = 4) {
-    DiarySkeleton(modifier) {
+fun SkeletonEntryCards(modifier: Modifier = Modifier, count: Int = 4, delayed: Boolean = true) {
+    DiarySkeleton(modifier, delayed) {
         Column(Modifier.fillMaxWidth().padding(horizontal = DiarySpacing.x4), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)) {
             repeat(count) { index ->
                 Column(
@@ -165,8 +173,8 @@ fun SkeletonEntryCards(modifier: Modifier = Modifier, count: Int = 4) {
 
 /** 홈 사진 격자 자리. 칸 수와 틈은 실제 격자와 같음 */
 @Composable
-fun SkeletonPhotoGrid(modifier: Modifier = Modifier, count: Int = 18) {
-    DiarySkeleton(modifier) {
+fun SkeletonPhotoGrid(modifier: Modifier = Modifier, count: Int = 18, delayed: Boolean = true) {
+    DiarySkeleton(modifier, delayed) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(DiaryHomeSize.gridCell),
             modifier = Modifier.fillMaxSize(),

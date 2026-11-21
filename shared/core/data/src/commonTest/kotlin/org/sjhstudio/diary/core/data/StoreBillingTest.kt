@@ -118,7 +118,7 @@ class StoreBillingTest {
             object : Clock {
                 override fun now() = Instant.fromEpochMilliseconds(testScheduler.currentTime)
             }
-        return StoreBilling(store, saved, "manage", backgroundScope, clock) { stored += it }
+        return StoreBilling(store, saved?.let(::SavedPlan), "manage", backgroundScope, clock) { stored += it.plan }
     }
 
     /** 앱처럼 앞으로 옴을 듣는 결제 */
@@ -362,15 +362,17 @@ class StoreBillingTest {
         assertFalse(billing.known.value)
     }
 
-    /** 켤 때 보낸 확인이 늦게 와도 그사이 산 광고 제거를 덮지 않음. 기기 시계와 상관없이 */
+    /** 켤 때 보낸 확인이 늦게 와도 그사이 산 광고 제거를 덮지 않음. 서버가 답한 시각으로 가림 */
     @Test
     fun a_late_answer_sent_before_a_purchase_does_not_undo_it() = runTest {
         val billing = billing(Plan.FREE)
         val gate = CompletableDeferred<Unit>()
         store.entitlementGate = gate
+        store.answeredAt = Instant.parse("2026-11-21T00:00:00Z")
         val slow = launch { billing.refresh() }
         runCurrent()
         store.entitlementGate = null
+        store.answeredAt = Instant.parse("2026-11-21T00:00:01Z")
         assertEquals(PurchaseResult.DONE, billing.buy(ProductId.AD_FREE))
         gate.complete(Unit)
         slow.join()

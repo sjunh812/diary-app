@@ -1,12 +1,20 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -107,8 +115,12 @@ class BackupRunner(
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
     private val alerts: BackupAlerts? = null,
     private val gate: BackupGate = BackupGate(),
-    private val dataReady: suspend () -> Boolean = { true }
+    private val dataReady: suspend () -> Boolean = { true },
+    // 사진 올리기 작업자의 디스패처
+    // 시험은 비워 두어 부르는 쪽 가상 시간에서 돎
+    private val io: CoroutineContext = Dispatchers.IO
 ) {
+    private val failures = BackupFailureLog(store, clock, alerts)
     private val _progress = MutableStateFlow<BackupProgress?>(null)
 
     /**
@@ -145,6 +157,7 @@ class BackupRunner(
         val prefs = store.current()
         val nothingToUpload = prefs.photosNotBackedUp == 0 || !mayUploadPhotos(prefs.photosOnCellular)
         if (nothingToUpload && !repaired(prefs.unusablePhotos) && sameAsLastBackup(prefs, fingerprint())) {
+            failures.unchanged()
             BackupOutcome.Unchanged
         } else {
             running(cellularOnce = false, automatic = true)
@@ -219,20 +232,7 @@ class BackupRunner(
     }
 
     private suspend fun fail(kind: BackupFailure): BackupOutcome {
-        try {
-            val now = clock.now()
-            store.update { it.copy(lastFailure = kind, failingSince = it.failingSince ?: now) }
-            val prefs = store.current()
-            val since = prefs.lastSuccessAt ?: prefs.failingSince ?: now
-            // 까닭이 바뀌면 문구만 바꿈
-            // 때가 지났으면 이미 한 번 알렸음
-            if (since + ALERT_AFTER > now) alerts?.schedule(since + ALERT_AFTER, kind)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (_: Exception) {
-            // 공간이 차면 실패 기록도 못 쓸 수 있음
-            // 그래도 실패는 실패로 돌려줌
-        }
+        failures.record(kind)
         return BackupOutcome.Failed(kind)
     }
 
@@ -256,14 +256,8 @@ class BackupRunner(
         val photos = sendPhotos(snapshot, folders, account, now, cellularOnce)
         // 사진을 더 올리지 못했고 글도 그대로면 같은 내용 백업
         if (automatic && photos.uploaded.isEmpty() && sameAsLastBackup(store.current(), fingerprint)) {
-            store.update {
-                it.copy(
-                    bytesShort = photos.bytesShort,
-                    lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 } ?: it.lastFailure,
-                    photosNotBackedUp = photos.left,
-                    unusablePhotos = photos.unusable
-                )
-            }
+            store.update { it.copy(photosNotBackedUp = photos.left, unusablePhotos = photos.unusable) }
+            failures.unchanged(photos.bytesShort)
             return BackupOutcome.Unchanged
         }
 
@@ -281,7 +275,6 @@ class BackupRunner(
                 bytesShort = photos.bytesShort,
                 failingSince = null,
                 lastFailure = BackupFailure.NO_SPACE.takeIf { photos.bytesShort > 0 },
-                failureNotifiedAt = null,
                 photosNotBackedUp = photos.left,
                 unusablePhotos = photos.unusable
             )
@@ -291,8 +284,8 @@ class BackupRunner(
         // 성공은 이미 적었음
         // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 함
         quietly {
-            alerts?.schedule(now + ALERT_AFTER, null)
-            prune(folders, deviceId, now)
+            failures.stillFine(now)
+            prune(folders, deviceId, now, photos.damaged)
         }
         return BackupOutcome.Done(photos.uploaded.size, photos.left, photos.unusable.size)
     }
@@ -322,7 +315,8 @@ class BackupRunner(
         val uploaded: Set<String>,
         val unusable: Set<String>,
         val left: Int,
-        val bytesShort: Long
+        val bytesShort: Long,
+        val damaged: List<DriveFile>
     )
 
     private suspend fun sendPhotos(
@@ -332,7 +326,9 @@ class BackupRunner(
         now: Instant,
         cellularOnce: Boolean
     ): PhotoRound {
-        val onDrive = drive.listAll(DriveQuery(parentId = folders.media, props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
+        val listed = drive.listAll(DriveQuery(parentId = folders.media, props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
+        // 깨진 사본은 없는 사진으로 보아 다시 올리고 뒷정리에서 휴지통에 넣음
+        val (damaged, onDrive) = listed.partition(RestoreNames::isDamaged)
         val driveHashes = onDrive.associateBy { it.name.substringBefore('.') }
         val dao = db.backupDao()
         // 드라이브가 원본
@@ -363,7 +359,17 @@ class BackupRunner(
         val inBackup = driveHashes.keys + uploaded
         // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보여 줌(FR-018, FR-019)
         val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusable }.sumOf { it.byteSize ?: 0 } else 0
-        return PhotoRound(local, inBackup, uploaded, unusable, local.count { it.sha256 !in inBackup && it.sha256 !in unusable }, short)
+        return PhotoRound(
+            local,
+            inBackup,
+            uploaded,
+            unusable,
+            local.count {
+                it.sha256 !in inBackup && it.sha256 !in unusable
+            },
+            short,
+            damaged
+        )
     }
 
     private suspend fun sendSnapshot(snapshot: Snapshot, folders: DriveFolders, deviceId: String): DriveFile {
@@ -426,33 +432,84 @@ class BackupRunner(
         val bytesTotal = photos.sumOf { it.byteSize ?: 0L }
         var bytesDone = 0L
         step(BackupStep.UploadingPhotos, 0, photos.size, 0, bytesTotal)
-        for (photo in photos) {
-            val path = mediaDir / requireNotNull(photo.fileName)
-            val hashes = if (fileSystem.exists(path)) fileSystem.hashes(path) else null
-            if (hashes == null || hashes.sha256 != photo.sha256) {
-                unusable += photo.sha256
-                continue
+        // 사진 한 장은 작아 기다리는 시간이 대부분이라 여러 장을 함께 올림
+        // 작업자 수만큼만 띄워 사진이 많아도 메모리가 그대로
+        val queue = Channel<LocalPhotoRow>(Channel.UNLIMITED)
+        photos.forEach(queue::trySend)
+        queue.close()
+        val results = Channel<Sent>()
+        // 드라이브가 차면 새로 올리지 않고 보내던 것만 끝냄(contracts/backup-format.md)
+        val full = MutableStateFlow(false)
+        // 큰 사진은 회선을 채워 함께 보내도 빨라지지 않고 조각 메모리만 늘어 한 장씩
+        val large = Mutex()
+        coroutineScope {
+            launch {
+                coroutineScope {
+                    repeat(PARALLEL_UPLOADS) {
+                        launch(io) {
+                            // 큰 사진은 차례를 기다리는 사이 드라이브가 찰 수 있어 차례를 받은 뒤에 봄
+                            suspend fun sendUnlessFull(photo: LocalPhotoRow) =
+                                if (full.value) null else sendPhoto(photo, folders, accountKey)
+                            for (photo in queue) {
+                                val sent =
+                                    if ((photo.byteSize ?: 0L) > SMALL_UPLOAD_LIMIT) {
+                                        large.withLock { sendUnlessFull(photo) }
+                                    } else {
+                                        sendUnlessFull(photo)
+                                    } ?: break
+                                if (sent == Sent.NoSpace) full.value = true
+                                results.send(sent)
+                            }
+                        }
+                    }
+                }
+                results.close()
             }
-            try {
-                val file =
-                    upload(
-                        path,
-                        NewFile(path.name, folders.media, mimeOf(path.name), mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)),
-                        hashes
-                    )
-                db.backupDao().confirm(
-                    listOf(BackupMediaEntity(accountKey, photo.sha256, file.id, hashes.byteSize, clock.now().toEpochMilliseconds()))
-                )
-                done += photo.sha256
-            } catch (error: DriveException) {
-                // 공간이 찼으면 올린 만큼으로 스냅샷과 목록 파일을 올려 봄(contracts/backup-format.md)
-                if (error.kind == BackupFailure.NO_SPACE) return done
-                throw error
+            // 숫자와 기록은 여기 한 곳에서 차례로 정함
+            for (sent in results) {
+                when (sent) {
+                    is Sent.Uploaded -> {
+                        done += sent.sha256
+                        bytesDone += sent.bytes
+                        step(BackupStep.UploadingPhotos, done.size, photos.size, bytesDone, bytesTotal)
+                    }
+
+                    is Sent.Unusable -> unusable += sent.sha256
+
+                    Sent.NoSpace -> Unit
+                }
             }
-            bytesDone += hashes.byteSize
-            step(BackupStep.UploadingPhotos, done.size, photos.size, bytesDone, bytesTotal)
         }
         return done
+    }
+
+    /** 사진 한 장. 공간 부족 말고 다른 드라이브 오류는 백업을 멈춤 */
+    private suspend fun sendPhoto(photo: LocalPhotoRow, folders: DriveFolders, accountKey: String): Sent {
+        val path = mediaDir / requireNotNull(photo.fileName)
+        val hashes = if (fileSystem.exists(path)) fileSystem.hashes(path) else null
+        if (hashes == null || hashes.sha256 != photo.sha256) return Sent.Unusable(photo.sha256)
+        return try {
+            val file =
+                upload(
+                    path,
+                    NewFile(path.name, folders.media, mimeOf(path.name), mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)),
+                    hashes
+                )
+            db.backupDao().confirm(
+                listOf(BackupMediaEntity(accountKey, photo.sha256, file.id, hashes.byteSize, clock.now().toEpochMilliseconds()))
+            )
+            Sent.Uploaded(photo.sha256, hashes.byteSize)
+        } catch (error: DriveException) {
+            if (error.kind == BackupFailure.NO_SPACE) Sent.NoSpace else throw error
+        }
+    }
+
+    private sealed interface Sent {
+        data class Uploaded(val sha256: String, val bytes: Long) : Sent
+
+        data class Unusable(val sha256: String) : Sent
+
+        data object NoSpace : Sent
     }
 
     /**
@@ -504,7 +561,7 @@ class BackupRunner(
      * 끝까지 된 내 백업만 정리
      * 지우지 않고 드라이브 휴지통에 넣고, 목록 파일을 먼저 넣음
      */
-    private suspend fun prune(folders: DriveFolders, deviceId: String, now: Instant) {
+    private suspend fun prune(folders: DriveFolders, deviceId: String, now: Instant, damaged: List<DriveFile>) {
         val mine = drive.listAll(DriveQuery(parentId = folders.snapshots, props = mapOf(DriveLayout.KEY_DEVICE to deviceId)))
         val manifests = mine.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST }
         val snapshots = mine.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_SNAPSHOT }
@@ -527,6 +584,8 @@ class BackupRunner(
         val named = manifests.map { it.name.removeSuffix(".json") }.toSet()
         val cutoff = (now - 7.days).toEpochMilliseconds()
         snapshots.filter { it.name.removeSuffix(".db") !in named && it.createdAt < cutoff }.forEach { drive.trash(it.id) }
+        // 가장 덜 급한 정리라 맨 끝. 실패해도 위의 보관 정리는 끝남
+        damaged.forEach { drive.trash(it.id) }
     }
 
     private fun stamp(t: LocalDateTime): String {
@@ -543,7 +602,7 @@ class BackupRunner(
         else -> "image/jpeg"
     }
 
-    private companion object {
+    internal companion object {
         const val OUTGOING = "outgoing"
         const val MANIFEST_RESERVE = 1024L * 1024
 
@@ -552,7 +611,8 @@ class BackupRunner(
 
         /** 조각을 보내도 받은 양이 늘지 않을 때 더 보내 보는 횟수 */
         const val MAX_STALLS = 3
+
+        /** 드라이브에 동시에 올리는 사진 수 */
+        const val PARALLEL_UPLOADS = 4
     }
 }
-
-private val ALERT_AFTER = 7.days

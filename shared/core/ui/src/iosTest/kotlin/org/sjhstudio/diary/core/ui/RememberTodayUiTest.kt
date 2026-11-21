@@ -9,6 +9,9 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 
 // 켜 둔 채 자정을 넘겨도 앱이 돌아오면 오늘이 바뀜
@@ -25,7 +28,10 @@ class RememberTodayUiTest {
         owner.registry.currentState = Lifecycle.State.RESUMED
         var clock = LocalDate(2026, 11, 7)
         var shown: LocalDate? = null
-        setContent { CompositionLocalProvider(LocalLifecycleOwner provides owner) { shown = rememberToday { clock } } }
+        // 자정 기다림은 이 시험과 상관없어 끝나지 않게 둠. 읽기만 바꾸고 실제 시계로 기다리면 지난 자정을 계속 다시 읽음
+        setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides owner) { shown = rememberToday({ awaitCancellation() }) { clock } }
+        }
         waitForIdle()
         assertEquals(LocalDate(2026, 11, 7), shown)
 
@@ -35,5 +41,25 @@ class RememberTodayUiTest {
         waitForIdle()
 
         assertEquals(LocalDate(2026, 11, 8), shown)
+    }
+
+    @Test
+    fun staying_open_past_midnight_reads_the_new_day() = runComposeUiTest {
+        val owner = Owner()
+        owner.registry.currentState = Lifecycle.State.RESUMED
+        var clock = LocalDate(2026, 11, 17)
+        val midnight = Channel<Unit>()
+        var shown: LocalDate? = null
+        setContent {
+            CompositionLocalProvider(LocalLifecycleOwner provides owner) { shown = rememberToday({ midnight.receive() }) { clock } }
+        }
+        waitForIdle()
+        assertEquals(LocalDate(2026, 11, 17), shown)
+
+        clock = LocalDate(2026, 11, 18)
+        runBlocking { midnight.send(Unit) }
+        waitForIdle()
+
+        assertEquals(LocalDate(2026, 11, 18), shown)
     }
 }

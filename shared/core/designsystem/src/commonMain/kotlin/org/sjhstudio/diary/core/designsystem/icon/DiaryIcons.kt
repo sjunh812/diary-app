@@ -70,6 +70,9 @@ object DiaryIcons {
         )
     }
     val Download: ImageVector by lazy { lucide("download", "M12 15V3", "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", "m7 10 5 5 5-5") }
+
+    /** 다시 시작. 받은 새 버전으로 바꿀 때(스펙 009) */
+    val RotateCw: ImageVector by lazy { lucide("rotate-cw", "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8", "M21 3v5h-5") }
     val ShieldCheck: ImageVector by lazy {
         lucide(
             "shield-check",

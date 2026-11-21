@@ -317,7 +317,7 @@ internal fun InsightScreen(
                     Modifier.fillMaxWidth().alpha(shade)
                 }
             if (shown?.counts?.total != 0) Spacer(Modifier.height(DiarySpacing.x3))
-            // 스켈레톤은 0.3초 뒤에 나타나 짧은 틈에는 안 보임
+            // 탭을 처음 열 때는 뼈대가 바로, 기간을 바꾸는 다시 읽기는 0.3초 뒤라 짧은 틈에는 안 보임
             Box {
                 when {
                     shown == null -> Unit
@@ -331,7 +331,7 @@ internal fun InsightScreen(
                 when {
                     data != null -> Unit
                     failed -> LoadFailedLine(onRetry)
-                    else -> InsightSkeleton(period.kind)
+                    else -> InsightSkeleton(period.kind, delayed = shown != null)
                 }
             }
             if (shown != null && shown.counts.total > 0) {

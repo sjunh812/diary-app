@@ -7,6 +7,9 @@ import org.sjhstudio.diary.core.backup.ManifestSettings
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
+import org.sjhstudio.diary.core.model.ListPreferences
+import org.sjhstudio.diary.core.model.ListStyle
+import org.sjhstudio.diary.core.model.PreviewLength
 import org.sjhstudio.diary.core.model.ThemeMode
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
 
@@ -49,5 +52,46 @@ class BackupSettingsBridgeTest {
         assertEquals(true, now.reminderEnabled)
         assertEquals(540, now.reminderMinuteOfDay)
         assertEquals(1, rescheduled)
+    }
+
+    /** 스펙 008: 모르는 목록 값은 기기 값을 덮지 않음 */
+    @Test
+    fun unknown_list_values_keep_the_device_settings() = runTest {
+        val settings =
+            FakeSettingsRepository(AppSettings(list = ListPreferences(listStyle = ListStyle.CARD, previewLength = PreviewLength.FULL)))
+        val bridge = BackupSettingsBridge(settings, lockEnabled = { false }, reschedule = {})
+
+        bridge.apply(ManifestSettings(listStyle = "carousel", previewLength = "expanded", showListFormatting = true))
+
+        val list = settings.settings.value.list
+        assertEquals(ListStyle.CARD, list.listStyle)
+        assertEquals(PreviewLength.FULL, list.previewLength)
+        assertEquals(false, list.previewChosen)
+        assertEquals(true, list.showFormatting)
+    }
+
+    @Test
+    fun list_values_round_trip() = runTest {
+        val from = FakeSettingsRepository(AppSettings(list = ListPreferences(previewLength = PreviewLength.FULL, showFormatting = true)))
+        val to = FakeSettingsRepository()
+
+        BackupSettingsBridge(to, lockEnabled = {
+            false
+        }, reschedule = {}).apply(BackupSettingsBridge(from, lockEnabled = { false }, reschedule = {}).current())
+
+        assertEquals(PreviewLength.FULL, to.settings.value.list.previewLength)
+        assertEquals(true, to.settings.value.list.showFormatting)
+    }
+
+    @Test
+    fun five_lines_round_trip() = runTest {
+        val from = FakeSettingsRepository(AppSettings(list = ListPreferences(previewLength = PreviewLength.FIVE_LINES)))
+        val to = FakeSettingsRepository()
+
+        BackupSettingsBridge(to, lockEnabled = {
+            false
+        }, reschedule = {}).apply(BackupSettingsBridge(from, lockEnabled = { false }, reschedule = {}).current())
+
+        assertEquals(PreviewLength.FIVE_LINES, to.settings.value.list.previewLength)
     }
 }

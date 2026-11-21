@@ -28,11 +28,13 @@ import kotlinx.coroutines.withContext
 import okio.ByteString
 import okio.ByteString.Companion.decodeHex
 import okio.FileSystem
+import okio.IOException
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.Sink
 import okio.Source
 import okio.openZip
+import org.sjhstudio.diary.core.data.BackupList
 import org.sjhstudio.diary.core.data.RestoreRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.BackupPrefs
@@ -57,6 +59,8 @@ import org.sjhstudio.diary.core.model.WaitingPhotos
 import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.model.quietly
 import org.sjhstudio.diary.core.platform.BackupScheduler
+import org.sjhstudio.diary.core.platform.ErrorArea
+import org.sjhstudio.diary.core.platform.ErrorReporter
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.platform.NetworkState
 import org.sjhstudio.diary.core.platform.NoBackupScheduler
@@ -84,7 +88,9 @@ class RestoreController(
     private val scheduler: BackupScheduler = NoBackupScheduler,
     private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE },
     private val clock: Clock = Clock.System,
-    private val lockOnHere: suspend () -> Boolean = { false }
+    private val lockOnHere: suspend () -> Boolean = { false },
+    private val errors: ErrorReporter = ErrorReporter.None,
+    private val failures: BackupFailureLog = BackupFailureLog(store, clock)
 ) : RestoreRepository {
     private val _photoProgress = MutableStateFlow<PhotoProgress?>(null)
     override val photoProgress: StateFlow<PhotoProgress?> = _photoProgress.asStateFlow()
@@ -142,11 +148,40 @@ class RestoreController(
     private val RollbackRun.isGoing: Boolean
         get() = this == RollbackRun.WAITING || this == RollbackRun.RUNNING
 
-    override suspend fun backups(): List<BackupEntry>? = orElseOnFailure(null) {
+    // 모르는 실패도 예외 종류 이름을 남겨야 원인을 찾음
+    @Suppress("TooGenericExceptionCaught")
+    override suspend fun backups(): BackupList = try {
         candidates = catalog.value.list()
         // 어느 계정의 목록인지 적어 다른 계정을 연결했을 때 먼저 보이지 않게 함
         store.update { it.copy(listedAccount = it.accountKey) }
-        candidates.map { it.entry }
+        BackupList.Loaded(candidates.map { it.entry })
+    } catch (error: CancellationException) {
+        throw error
+    } catch (error: Exception) {
+        val kind =
+            when (error) {
+                is DriveException -> error.kind
+                is IOException -> BackupFailure.LOCAL_IO
+                else -> BackupFailure.UNKNOWN
+            }
+        // 백업 화면이 [다시 연결]을 보이도록 백업 실패와 같은 자리에 기록
+        if (kind == BackupFailure.AUTH) failures.record(BackupFailure.AUTH)
+        // 인터넷 끊김은 고칠 것이 없어 남기지 않음. 메시지는 버리고 종류와 응답 코드만
+        if (kind != BackupFailure.OFFLINE) {
+            // 드라이브·입출력 예외만 정한 이름. 나머지는 클래스 이름 그대로(출시 빌드의 앱 예외는 난독화된 이름)
+            val source =
+                when (error) {
+                    is DriveException -> "drive"
+                    is IOException -> "io"
+                    else -> error::class.simpleName
+                }
+            errors.report(
+                ErrorArea.RESTORE_LIST,
+                "$source.${kind.name}",
+                (error as? DriveException)?.status?.toLong() ?: 0
+            )
+        }
+        BackupList.Failed(kind)
     }
 
     override suspend fun savedBackups(): List<BackupEntry> = orElseOnFailure(emptyList()) {
@@ -479,6 +514,7 @@ class RestoreController(
             entriesAdded = counts.added,
             entriesUpdated = counts.updated,
             entriesKeptBoth = counts.keptBoth,
+            entriesToTrash = counts.toTrash,
             photosRestored = tally.fetched,
             photosMissing = tally.broken,
             photosPending = left - onOriginal,
@@ -510,6 +546,8 @@ class RestoreController(
     /** 멈춘 까닭을 남겨 앱을 다시 열어도 화면이 사실을 말하게 함 */
     private suspend fun rememberStop(stop: PhotoStop?, notThere: Int) {
         store.update { it.copy(photoStop = stop, photosUnreachable = notThere) }
+        // 연결이 끊겨 멈췄으면 백업 화면에 [다시 연결]이 뜨게 함
+        if (stop == PhotoStop.ACCOUNT) failures.record(BackupFailure.AUTH)
         if (stop == PhotoStop.NETWORK) scheduler.waitForPhotoNetwork(wifiOnly = !store.current().photosOnCellular)
     }
 

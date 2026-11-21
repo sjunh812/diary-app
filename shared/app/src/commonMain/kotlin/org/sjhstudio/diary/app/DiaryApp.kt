@@ -3,6 +3,7 @@ package org.sjhstudio.diary.app
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -15,6 +16,7 @@ import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.app.gate.FirstScreenShown
 import org.sjhstudio.diary.app.gate.LockGate
 import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.app.gate.WelcomeGate
@@ -56,6 +58,8 @@ fun DiaryApp() {
     val thumbnails = koinInject<ThumbnailRepository>()
     ProvideDiaryImageLoader { thumbnails.thumbnail(it.toPath())?.toString() }
     val startup = koinInject<Startup>()
+    // 첫 화면 표시는 이 앱 화면의 것. 화면이 사라지면 되돌려 다음 화면도 첫 화면을 기다림
+    DisposableEffect(startup) { onDispose(startup::screenGone) }
     val repository = koinInject<SettingsRepository>()
     // 시작 단계에서 읽은 설정으로 첫 프레임부터 화면 모드를 맞춤
     val initial = (startup.state.value as? StartupState.Ready)?.settings ?: AppSettings()
@@ -79,7 +83,10 @@ fun DiaryApp() {
                                 root.resumed()
                                 onPauseOrDispose {}
                             }
-                            WelcomeGate { AppScaffold() }
+                            WelcomeGate {
+                                FirstScreenShown()
+                                AppScaffold()
+                            }
                         }
                     }
                 }

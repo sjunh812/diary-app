@@ -46,7 +46,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryEmptyLine
 import org.sjhstudio.diary.core.designsystem.component.DiaryNote
 import org.sjhstudio.diary.core.designsystem.component.DiaryNoteBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryNotice
-import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
 import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
@@ -86,6 +85,7 @@ import org.sjhstudio.diary.feature.backup.resources.backup_auto_body
 import org.sjhstudio.diary.feature.backup.resources.backup_connect
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_auth
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_close
+import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_no_drive
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_offline
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_other
 import org.sjhstudio.diary.feature.backup.resources.backup_connect_failed_title
@@ -266,6 +266,7 @@ fun BackupConnectFailedSheet(failure: BackupFailure, onDismiss: () -> Unit, modi
         when (failure) {
             BackupFailure.OFFLINE -> Res.string.backup_connect_failed_offline
             BackupFailure.AUTH -> Res.string.backup_connect_failed_auth
+            BackupFailure.NO_DRIVE_ACCESS -> Res.string.backup_connect_failed_no_drive
             else -> Res.string.backup_connect_failed_other
         }
     DiaryBottomSheet(
@@ -593,28 +594,26 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit) {
         running != null -> {
             // 화면이 꺼지면 iOS에서는 올리기가 멈춤
             KeepScreenOn()
-            Column(verticalArrangement = Arrangement.spacedBy(DiarySpacing.x2)) {
-                DiaryStatusBox(
-                    DiaryIcons.ShieldCheck,
-                    stringResource(Res.string.backup_running),
-                    if (running.photosTotal > 0) {
-                        val done =
-                            stringResource(Res.string.backup_running_photos, running.photosDone.grouped(), running.photosTotal.grouped())
-                        if (workContinuesInBackground) done else done + "\n" + stringResource(Res.string.backup_running_body_open)
-                    } else {
-                        stringResource(
-                            when {
-                                !workContinuesInBackground -> Res.string.backup_running_body_open
-                                notificationsAllowed() -> Res.string.backup_running_body
-                                else -> Res.string.backup_running_body_quiet
-                            }
-                        )
-                    }
-                )
+            DiaryStatusBox(
+                DiaryIcons.ShieldCheck,
+                stringResource(Res.string.backup_running),
+                if (running.photosTotal > 0) {
+                    val done =
+                        stringResource(Res.string.backup_running_photos, running.photosDone.grouped(), running.photosTotal.grouped())
+                    if (workContinuesInBackground) done else done + "\n" + stringResource(Res.string.backup_running_body_open)
+                } else {
+                    stringResource(
+                        when {
+                            !workContinuesInBackground -> Res.string.backup_running_body_open
+                            notificationsAllowed() -> Res.string.backup_running_body
+                            else -> Res.string.backup_running_body_quiet
+                        }
+                    )
+                },
                 // 올릴 양을 세기 전에는 막대를 그리지 않음
                 // 빈 막대는 멈춘 것처럼 보임
-                if (running.bytesTotal > 0) DiaryProgressBar(running.bytesDone.toFloat() / running.bytesTotal, onSunken = true)
-            }
+                progress = (running.bytesDone.toFloat() / running.bytesTotal).takeIf { running.bytesTotal > 0 }
+            )
         }
 
         status.connection == BackupConnection.NeedsReconnect ->

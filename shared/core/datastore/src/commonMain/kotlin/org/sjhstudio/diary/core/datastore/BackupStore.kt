@@ -51,7 +51,8 @@ data class BackupPrefs(
     val lastAttemptAt: Instant? = null,
     val failingSince: Instant? = null,
     val lastFailure: BackupFailure? = null,
-    val failureNotifiedAt: Instant? = null,
+    // 걸어 둔 7일 실패 알림 시각. 실패를 적을 때 이 시각을 그대로 두고 문구만 바꿈
+    val alertAt: Instant? = null,
     val photosNotBackedUp: Int = 0,
     val nudgeDismissCount: Int = 0,
     val nudgeHiddenUntil: Instant? = null,
@@ -130,7 +131,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         lastAttemptAt = instant(Keys.LAST_ATTEMPT_AT),
         failingSince = instant(Keys.FAILING_SINCE),
         lastFailure = BackupFailure.fromName(this[Keys.LAST_FAILURE]),
-        failureNotifiedAt = instant(Keys.FAILURE_NOTIFIED_AT),
+        alertAt = instant(Keys.ALERT_AT),
         photosNotBackedUp = this[Keys.PHOTOS_NOT_BACKED_UP] ?: 0,
         nudgeDismissCount = this[Keys.NUDGE_DISMISS_COUNT] ?: 0,
         nudgeHiddenUntil = instant(Keys.NUDGE_HIDDEN_UNTIL),
@@ -163,7 +164,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.LAST_ATTEMPT_AT, prefs.lastAttemptAt?.toEpochMilliseconds())
         setOrRemove(Keys.FAILING_SINCE, prefs.failingSince?.toEpochMilliseconds())
         setOrRemove(Keys.LAST_FAILURE, prefs.lastFailure?.name)
-        setOrRemove(Keys.FAILURE_NOTIFIED_AT, prefs.failureNotifiedAt?.toEpochMilliseconds())
+        setOrRemove(Keys.ALERT_AT, prefs.alertAt?.toEpochMilliseconds())
         this[Keys.PHOTOS_NOT_BACKED_UP] = prefs.photosNotBackedUp
         this[Keys.NUDGE_DISMISS_COUNT] = prefs.nudgeDismissCount
         setOrRemove(Keys.NUDGE_HIDDEN_UNTIL, prefs.nudgeHiddenUntil?.toEpochMilliseconds())
@@ -202,7 +203,7 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val LAST_ATTEMPT_AT = longPreferencesKey("last_attempt_at")
         val FAILING_SINCE = longPreferencesKey("failing_since")
         val LAST_FAILURE = stringPreferencesKey("last_failure")
-        val FAILURE_NOTIFIED_AT = longPreferencesKey("failure_notified_at")
+        val ALERT_AT = longPreferencesKey("failure_alert_at")
         val PHOTOS_NOT_BACKED_UP = intPreferencesKey("photos_not_backed_up")
         val NUDGE_DISMISS_COUNT = intPreferencesKey("nudge_dismiss_count")
         val NUDGE_HIDDEN_UNTIL = longPreferencesKey("nudge_hidden_until")

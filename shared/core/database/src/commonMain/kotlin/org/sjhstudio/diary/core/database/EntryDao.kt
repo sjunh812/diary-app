@@ -75,6 +75,17 @@ interface EntryDao {
     fun favoriteEntries(): PagingSource<Int, EntryListRow>
 
     /**
+     * 전체 보기 미리보기의 글(스펙 008)
+     * 목록 쿼리는 앞 [LIST_TEXT_CHARS]자만 읽어, 쪽마다 한 번에 더 읽음
+     */
+    @Query("SELECT id, substr(plain_text, 1, :chars) AS text FROM entry WHERE id IN (:ids)")
+    suspend fun previewTexts(ids: List<String>, chars: Int): List<EntryTextRow>
+
+    /** Plus 서식 보기 미리보기의 본문 HTML 앞부분(스펙 008) */
+    @Query("SELECT id, substr(body_html, 1, :chars) AS text FROM entry WHERE id IN (:ids)")
+    suspend fun previewHtmls(ids: List<String>, chars: Int): List<EntryTextRow>
+
+    /**
      * 최근에 쓴 장소
      * 같은 이름은 한 번만, 나중에 쓴 곳부터
      */
@@ -293,6 +304,9 @@ interface EntryDao {
                 "ORDER BY date DESC, time DESC, created_at DESC"
     }
 }
+
+/** 일기 하나의 글 한 칸. 미리보기를 쪽마다 더 읽을 때 씀 */
+data class EntryTextRow(val id: String, val text: String)
 
 /** 옛 일기를 옮겼는지 보는 데 쓰는 값 */
 data class LegacyEntryRow(val legacyId: Int?, val legacyCreateDate: String?, val plainText: String)

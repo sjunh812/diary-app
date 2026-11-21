@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.launch
 import okio.Path
-import org.sjhstudio.diary.core.database.EntryDao
 import org.sjhstudio.diary.core.database.EntryEntity
 import org.sjhstudio.diary.core.database.EntryListRow
 import org.sjhstudio.diary.core.database.MediaDao
@@ -28,19 +27,14 @@ import org.sjhstudio.diary.core.model.Checklist
 import org.sjhstudio.diary.core.model.EntryRow
 import org.sjhstudio.diary.core.model.MediaStatus
 import org.sjhstudio.diary.core.model.Mood
+import org.sjhstudio.diary.core.model.PreviewMode
+import org.sjhstudio.diary.core.model.RichText
 import org.sjhstudio.diary.core.model.Weather
-
-/**
- * 목록 미리보기에 넣는 최대 글자
- * 3줄을 넘지 않고, 긴 일기를 메모리에 다 올리지 않음
- */
-private const val PREVIEW_CHARS = 240
-
-/** 찾은 글자가 뒤에 있을 때 앞에 남기는 글자 */
-private const val PREVIEW_LEAD = 12
+import org.sjhstudio.diary.core.model.parseRichText
+import org.sjhstudio.diary.core.model.richtext.PreviewText
 
 /** `IN` 조건 한 번에 넘길 일기 수 */
-private const val MEDIA_CHUNK = 500
+internal const val MEDIA_CHUNK = 500
 
 /** 사진 상태가 바뀐 뒤 목록을 다시 읽기까지 묶는 시간 */
 internal val PHOTO_REFRESH_EVERY: Duration = 3.seconds
@@ -48,40 +42,54 @@ internal val PHOTO_REFRESH_EVERY: Duration = 3.seconds
 internal fun EntryEntity.toRow(media: List<MediaEntity>, mediaDir: Path, query: String = ""): EntryRow =
     asListRow().toRow(media, mediaDir, query)
 
-internal fun EntryListRow.toRow(media: List<MediaEntity>, mediaDir: Path, query: String = ""): EntryRow = EntryRow(
+/**
+ * [text]는 전체 보기에서 더 읽은 글, [html]은 서식 보기에서 읽은 본문 앞부분
+ * 없으면 목록 쿼리가 읽은 앞부분으로 만듦
+ */
+internal fun EntryListRow.toRow(
+    media: List<MediaEntity>,
+    mediaDir: Path,
+    query: String = "",
+    mode: PreviewMode = PreviewMode.DEFAULT,
+    text: String? = null,
+    html: String? = null
+): EntryRow {
+    val shaped =
+        when {
+            query.isNotEmpty() -> PreviewText.Shaped(preview(plainText, query), emptyList(), cut = false)
+
+            mode.formatting && html != null ->
+                PreviewText.shape(
+                    parseRichText(html.withoutCutTag()),
+                    mode.length,
+                    truncated = html.length >= previewHtmlChars(mode.length)
+                )
+
+            // 날별 목록·검색처럼 본문 전체가 와도 목록 쿼리와 같은 길이까지만 다듬음
+            else -> {
+                val source = text ?: plainText
+                val read = previewInputChars(mode.length)
+                PreviewText.shape(RichText(source.safePrefix(read), emptyList()), mode.length, truncated = source.length >= read)
+            }
+        }
+    return baseRow(media, mediaDir, Checklist.forPreview(shaped.text)).copy(
+        previewLines = if (query.isEmpty()) PreviewText.lines(mode.length) else PreviewText.THREE_LINES,
+        previewSpans = shaped.spans,
+        previewCut = shaped.cut
+    )
+}
+
+private fun EntryListRow.baseRow(media: List<MediaEntity>, mediaDir: Path, preview: String): EntryRow = EntryRow(
     id = id,
     date = localDate,
     time = localTime,
-    preview = Checklist.forPreview(preview(plainText, query)),
+    preview = preview,
     mood = Mood.fromId(mood),
     weather = Weather.fromId(weather),
     placeName = placeName,
     isFavorite = isFavorite,
     photos = media.map { if (it.status == MediaStatus.PENDING.id) EntryRow.PHOTO_PENDING else it.pathIn(mediaDir) }
 )
-
-private val WHITESPACE = Regex("\\s+")
-private const val SLICE_MARGIN = 40
-
-/** 찾은 글자가 잘리지 않게 그 앞에서부터 보여 줌(FR-025) */
-internal fun preview(source: String, query: String): String {
-    val found = if (query.isEmpty()) -1 else source.indexOf(query, ignoreCase = true)
-    // 긴 일기 전체를 다듬지 않게 보일 곳 근처만 잘라 냄
-    // 1만 편 찾기에서 이 비용이 가장 컸음
-    val from = (found - PREVIEW_LEAD - SLICE_MARGIN).coerceAtLeast(0)
-    val slice = source.substring(from, (from + EntryDao.LIST_TEXT_CHARS).coerceAtMost(source.length))
-    // 빈 줄이 미리보기 세 줄을 차지하지 않게 줄바꿈을 한 칸으로 줄임
-    val text = slice.replace(WHITESPACE, " ").trim()
-    val at = if (query.isEmpty()) -1 else text.indexOf(query, ignoreCase = true)
-    if (from == 0 && at < PREVIEW_CHARS - query.length - PREVIEW_LEAD && at <= 60) return text.safeTake(PREVIEW_CHARS)
-    return "…" + text.substring((at - PREVIEW_LEAD).coerceAtLeast(0)).safeTake(PREVIEW_CHARS)
-}
-
-/** 이모지를 반으로 자르지 않음 */
-private fun String.safeTake(count: Int): String {
-    if (length <= count) return this
-    return if (this[count - 1].isHighSurrogate()) take(count - 1) else take(count)
-}
 
 internal fun MediaEntity.pathIn(mediaDir: Path): String? =
     if (status == MediaStatus.NORMAL.id) fileName?.let { (mediaDir / it).toString() } else null

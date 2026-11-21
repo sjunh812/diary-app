@@ -46,6 +46,7 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryNumberPad
 import org.sjhstudio.diary.core.designsystem.component.DiaryPadKey
 import org.sjhstudio.diary.core.designsystem.component.DiaryPinDots
 import org.sjhstudio.diary.core.designsystem.component.DiaryProgressBar
+import org.sjhstudio.diary.core.designsystem.component.DiaryProgressSize
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
@@ -115,6 +116,7 @@ internal fun CatalogColors() {
             "surfaceCard" to c.surfaceCard,
             "surface" to c.surface,
             "paper" to c.paper,
+            "envelopeFlap" to c.envelopeFlap,
             "sunken" to c.sunken,
             "raised" to c.raised,
             "selected" to c.selected,
@@ -327,6 +329,7 @@ internal fun CatalogBoxes() {
         )
         DiaryNotice("예전 앱 파일 일부가 깨져 일기 12편을 읽지 못했어요. 원래 기록은 휴대폰 안에 그대로 있어요.", icon = DiaryIcons.ShieldCheck)
         DiaryProgressBar(0.62f)
+        DiaryProgressBar(0.62f, size = DiaryProgressSize.Compact)
     }
 }
 

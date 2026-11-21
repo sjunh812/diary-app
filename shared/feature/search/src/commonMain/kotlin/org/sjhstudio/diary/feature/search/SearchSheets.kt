@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,7 +12,6 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.layout
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.yearMonth
@@ -24,9 +22,8 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryButtonPair
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
 import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlot
 import org.sjhstudio.diary.core.designsystem.component.DiaryDateSlots
-import org.sjhstudio.diary.core.designsystem.component.DiarySettingsChoiceRow
+import org.sjhstudio.diary.core.designsystem.component.DiarySheetChoiceRow
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
-import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.DateRange
 import org.sjhstudio.diary.core.model.Mood
 import org.sjhstudio.diary.core.model.Weather
@@ -141,35 +138,15 @@ internal fun PeriodSheet(
                 val isCustom = period == SearchPeriod.Custom
                 // 직접 선택한 기간은 줄 아래에 짧게 보여 시트를 열면 무엇을 골랐는지 바로 알게
                 val description = if (isCustom && period == selected) customRange else null
-                PeriodRow(periodLabel(period), period == selected, description) {
+                DiarySheetChoiceRow(periodLabel(period), period == selected, onClick = {
                     when {
                         isCustom -> onCustom()
                         period == selected -> onPick(null)
                         else -> onPick(period)
                     }
-                }
+                }, description = description)
             }
         }
-    }
-}
-
-/** 고르기 목록 줄(`docs/design.md` 고르기 목록). 글은 시트 안쪽 선에 맞추고 누름 면만 양옆으로 12 나옴 */
-@Composable
-private fun PeriodRow(label: String, selected: Boolean, description: String?, onClick: () -> Unit) {
-    CompositionLocalProvider(LocalScreenGutter provides DiarySpacing.x3) {
-        DiarySettingsChoiceRow(
-            title = label,
-            selected = selected,
-            onClick = onClick,
-            description = description,
-            modifier =
-                Modifier.layout { measurable, constraints ->
-                    val outset = DiarySpacing.x3.roundToPx()
-                    val width = constraints.maxWidth + outset * 2
-                    val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
-                    layout(constraints.maxWidth, placeable.height) { placeable.place(-outset, 0) }
-                }
-        )
     }
 }
 

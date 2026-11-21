@@ -30,7 +30,10 @@ object Checklist {
 
     private val ITEM_IN_HTML = Regex("""(?:<p\b[^>]*>|<br\s*/?>)(?:<[a-z][^>]*>)*([$OPEN$DONE]) """, RegexOption.IGNORE_CASE)
 
-    fun isItem(line: String): Boolean = line.length >= PREFIX_LENGTH && isMark(line[0]) && line[1] == ' '
+    fun isItem(line: String): Boolean = startsItem(line, 0)
+
+    /** [at]에서 항목 표시가 시작하는지. 줄을 잘라 만들지 않고 봄 */
+    fun startsItem(text: CharSequence, at: Int): Boolean = at + 1 < text.length && isMark(text[at]) && text[at + 1] == ' '
 
     private fun isMark(char: Char) = char == OPEN || char == DONE
 
@@ -49,8 +52,9 @@ object Checklist {
         return items
     }
 
-    /** 커서가 있는 줄이 항목인지 */
-    fun isItemAt(text: String, cursor: Int): Boolean = isItem(text.substring(lineStart(text, cursor), lineEnd(text, cursor)))
+    /** 고른 줄이 모두 항목인지. 도구 버튼의 켜짐과 체크리스트 도구가 표시를 뺄지 넣을지가 같은 판단 */
+    fun picksOnlyItems(text: String, selectionStart: Int, selectionEnd: Int): Boolean =
+        pickedLines(text, selectionStart, selectionEnd).all { (_, line) -> isItem(line) }
 
     /** 표시 글자 하나를 뒤집는 편집. [start]는 항목 줄의 시작 */
     fun toggle(text: String, start: Int): ChecklistEdit =
@@ -76,22 +80,48 @@ object Checklist {
      * 앞 편집이 뒤 자리를 밀지 않게 뒤에서부터 돌려줌
      */
     fun toggleLines(text: String, selectionStart: Int, selectionEnd: Int): List<ChecklistEdit> {
-        val starts = ArrayList<Int>()
-        var start = lineStart(text, selectionStart)
-        while (true) {
-            starts += start
-            val end = lineEnd(text, start)
-            if (end >= selectionEnd || end >= text.length) break
-            start = end + 1
-        }
-        val lines = starts.map { it to text.substring(it, lineEnd(text, it)) }
-        val allItems = lines.all { (_, line) -> isItem(line) }
-        return lines.asReversed().mapNotNull { (at, line) ->
+        val allItems = picksOnlyItems(text, selectionStart, selectionEnd)
+        return pickedLines(text, selectionStart, selectionEnd).asReversed().mapNotNull { (at, line) ->
             when {
                 allItems -> ChecklistEdit(at, at + PREFIX_LENGTH, "")
                 isItem(line) -> null
                 else -> ChecklistEdit(at, at, PREFIX)
             }
+        }
+    }
+
+    /** 고른 줄의 표시만 뺌. 글머리 목록으로 바꿀 때 일반 줄에 표시가 생기지 않게 */
+    fun removeLines(text: String, selectionStart: Int, selectionEnd: Int): List<ChecklistEdit> =
+        pickedLines(text, selectionStart, selectionEnd).asReversed().mapNotNull { (at, line) ->
+            ChecklistEdit(at, at + PREFIX_LENGTH, "").takeIf { isItem(line) }
+        }
+
+    /**
+     * 고른 범위가 걸친 줄의 시작과 글
+     * 끝이 다음 줄 맨 앞이면 그 줄은 고르지 않은 것으로 봄(메모 앱과 같게)
+     */
+    private fun pickedLines(text: String, selectionStart: Int, selectionEnd: Int): List<Pair<Int, String>> {
+        val last = if (selectionEnd > selectionStart && text.getOrNull(selectionEnd - 1) == '\n') selectionEnd - 1 else selectionEnd
+        val lines = ArrayList<Pair<Int, String>>()
+        var start = lineStart(text, selectionStart)
+        while (true) {
+            val end = lineEnd(text, start)
+            lines += start to text.substring(start, end)
+            if (end >= last || end >= text.length) break
+            start = end + 1
+        }
+        return lines
+    }
+
+    /**
+     * [edits]를 차례로 고친 뒤의 [index] 자리. 고르던 범위가 표시를 넣고 빼도 같은 글을 가리키게 함
+     * 줄 맨 앞에 표시를 넣으면 그 뒤로 밀고, 빼는 표시 안에 있던 자리는 줄 맨 앞으로 옮김
+     */
+    fun shifted(index: Int, edits: List<ChecklistEdit>): Int = edits.fold(index) { at, edit ->
+        when {
+            at >= edit.end -> at + edit.text.length - (edit.end - edit.start)
+            at > edit.start -> edit.start
+            else -> at
         }
     }
 

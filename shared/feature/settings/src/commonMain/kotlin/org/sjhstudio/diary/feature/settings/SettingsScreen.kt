@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.data.percent
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
@@ -40,11 +41,15 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.model.ListPreferences
+import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.UpdateNotice
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
 import org.sjhstudio.diary.feature.settings.resources.Res
+import org.sjhstudio.diary.feature.settings.resources.list_value
 import org.sjhstudio.diary.feature.settings.resources.migration_report_title
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_blocked
 import org.sjhstudio.diary.feature.settings.resources.reminder_value_off
@@ -76,6 +81,10 @@ import org.sjhstudio.diary.feature.settings.resources.settings_title
 import org.sjhstudio.diary.feature.settings.resources.settings_trash
 import org.sjhstudio.diary.feature.settings.resources.settings_trash_count
 import org.sjhstudio.diary.feature.settings.resources.settings_version
+import org.sjhstudio.diary.feature.settings.resources.settings_version_downloading
+import org.sjhstudio.diary.feature.settings.resources.settings_version_downloading_unknown
+import org.sjhstudio.diary.feature.settings.resources.settings_version_restart
+import org.sjhstudio.diary.feature.settings.resources.settings_version_update
 
 /**
  * 설정 목록(Figma "설정 (S6)")
@@ -103,6 +112,8 @@ fun SettingsScreen(
     onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
     appVersion: String = "",
+    update: UpdateNotice = UpdateNotice.None,
+    onUpdate: () -> Unit = {},
     onFeedback: () -> Unit = {},
     onRate: (() -> Unit)? = null,
     selected: SettingsPane? = null
@@ -154,17 +165,24 @@ fun SettingsScreen(
             )
             // 설정은 살 마음이 생겼을 때 찾아오는 곳이라 첫자리에 혜택을 말하는 카드
             // 요금제를 안 뒤에만 그림. 재설치 직후 무료 문구가 먼저 보였다가 바뀌지 않게
-            if (state.plan != null && state.plan != Plan.PLUS) {
+            val inviting = state.plan != null && state.plan != Plan.PLUS
+            if (inviting) {
                 val inviteTitle = if (state.plan == Plan.AD_FREE) Res.string.settings_plus_title_ad_free else Res.string.settings_plus_title
                 DiaryInviteCard(
                     stringResource(inviteTitle),
                     stringResource(Res.string.settings_plus_body),
                     stringResource(Res.string.settings_plus_action),
                     onPlus,
-                    Modifier.padding(start = LocalScreenGutter.current, end = LocalScreenGutter.current, top = DiarySpacing.x5)
+                    // 카드 아래를 띄워 첫 머리가 카드가 아니라 아래 줄에 붙어 보이게
+                    Modifier.padding(
+                        start = LocalScreenGutter.current,
+                        end = LocalScreenGutter.current,
+                        top = DiarySpacing.x4,
+                        bottom = DiarySpacing.x4
+                    )
                 )
             }
-            DiarySettingsHeader(stringResource(Res.string.settings_group_diary))
+            DiarySettingsHeader(stringResource(Res.string.settings_group_diary), gapAbove = inviting)
             DiarySettingsRow(
                 stringResource(Res.string.settings_backup),
                 onClick = onBackup,
@@ -207,7 +225,7 @@ fun SettingsScreen(
                 stringResource(Res.string.settings_list_style),
                 onClick = onListStyle,
                 selected = selected == SettingsPane.LIST_STYLE,
-                value = if (state.loaded) stringResource(state.settings.list.listStyle.label()) else null
+                value = if (state.loaded) listValue(state.settings.list) else null
             )
             DiarySettingsHeader(stringResource(Res.string.settings_group_notification_security), gapAbove = true)
             val reminderValue =
@@ -236,7 +254,17 @@ fun SettingsScreen(
             DiarySettingsRow(stringResource(Res.string.settings_feedback), onClick = onFeedback)
             onRate?.let { DiarySettingsRow(stringResource(Res.string.settings_rate), onClick = it) }
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
-            DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
+            // 새 버전이 있으면 누를 수 있는 줄(스펙 009). 설정 위에서 스토어 창이 뜸
+            // 받는 중에는 할 일이 없어 회색 상태만 보임
+            val version = stringResource(Res.string.settings_version)
+            when (update) {
+                UpdateNotice.None -> DiarySettingsValueRow(version, appVersion)
+
+                is UpdateNotice.Downloading -> DiarySettingsValueRow(version, appVersion, valueNote = update.progressLabel())
+
+                is UpdateNotice.Available, is UpdateNotice.Downloaded ->
+                    DiarySettingsRow(version, onClick = onUpdate, value = appVersion, valueAction = update.actionLabel())
+            }
             DiarySettingsRow(
                 stringResource(Res.string.settings_licenses),
                 onClick = onLicenses,
@@ -257,3 +285,28 @@ fun SettingsScreen(
         }
     }
 }
+
+/** "피드 · 전체". 사진 격자는 길이와 상관없어 모양만(스펙 008 FR-006) */
+@Composable
+private fun listValue(list: ListPreferences): String {
+    val style = stringResource(list.listStyle.label())
+    return if (list.listStyle ==
+        ListStyle.PHOTO_GRID
+    ) {
+        style
+    } else {
+        stringResource(Res.string.list_value, style, stringResource(list.previewLength.label()))
+    }
+}
+
+/** 앱 버전 줄 값 뒤 할 일 */
+@Composable
+private fun UpdateNotice.actionLabel(): String = stringResource(
+    if (this is UpdateNotice.Downloaded) Res.string.settings_version_restart else Res.string.settings_version_update
+)
+
+/** 받는 중 진행률. 모르면 "받는 중"만 */
+@Composable
+private fun UpdateNotice.Downloading.progressLabel(): String =
+    percent()?.let { stringResource(Res.string.settings_version_downloading, it) }
+        ?: stringResource(Res.string.settings_version_downloading_unknown)

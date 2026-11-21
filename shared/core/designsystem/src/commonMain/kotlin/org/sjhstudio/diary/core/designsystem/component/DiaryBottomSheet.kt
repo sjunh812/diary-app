@@ -59,7 +59,8 @@ internal val LocalSheetButtonGap = staticCompositionLocalOf { 0.dp }
 
 /**
  * 떠 있는 바텀 시트(`docs/design.md` 바텀 시트, TDS BottomSheet, SEED 최대 폭 480)
- * 좌우·아래 10 띄움 · 모서리 28 · 손잡이 48×4 · 안쪽 24 · 제목 title2 · 폭 최대 480 · 높이 최대 90%.
+ * 좌우·아래 10 띄움 · 모서리 28 · 손잡이 48×4 · 안쪽 24, 아래 32 · 제목 title2 · 폭 최대 480 · 높이 최대 90%.
+ * 아래는 내용 사이(12~20)보다 넓어야 내용이 끝난 게 보임
  * 내용이 90%를 넘으면 손잡이는 두고 내용만 스크롤. 낮은 폰과 가로 화면에서 아래 버튼이 잘리지 않음
  * 내용 사이 12, 글과 두 버튼 사이 24.
  * 내용에 지연 목록이나 세로 `weight`를 넣지 않음
@@ -128,7 +129,7 @@ fun DiaryBottomSheet(
                             Modifier
                                 .weight(1f, fill = false)
                                 .verticalScroll(rememberScrollState())
-                                .padding(start = DiarySpacing.x6, end = DiarySpacing.x6, top = DiarySpacing.x5, bottom = DiarySpacing.x6),
+                                .padding(start = DiarySpacing.x6, end = DiarySpacing.x6, top = DiarySpacing.x5, bottom = DiarySpacing.x8),
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x3)
                     ) {
                         // 제목과 설명은 한 묶음이라 다른 내용보다 가깝게
