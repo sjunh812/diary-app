@@ -547,9 +547,10 @@ private fun Content(
                             })
                         },
                         // 맨 위 카드는 한 장. 어느 카드인지는 [HomeTopState]가 정함
-                        listTop = {
-                            // 백업 안내는 숫자가 바뀌어도 같은 카드. 앱을 켜고 처음 정해진 카드는 바로 보임
-                            DiaryDismissSlot(top, key = { it::class }, known = { it != HomeTop.Reading }) { current ->
+                        listTop = { listRead ->
+                            // 백업 안내는 숫자가 바뀌어도 같은 카드. 목록을 읽는 동안 처음 정해진 카드는 바로 보임
+                            // 목록이 그려진 뒤 늦게 정해지면(앱을 켜고 스토어 확인이 늦을 때) 자리를 열며 들어옴
+                            DiaryDismissSlot(top, key = { it::class }, known = { it != HomeTop.Reading || listRead }) { current ->
                                 when (current) {
                                     is HomeTop.Backup -> BackupNudgeCard(current.nudge)
                                     is HomeTop.Update -> HomeUpdateCard(current.notice)

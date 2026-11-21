@@ -127,7 +127,8 @@ fun HomeRoute(
     modifier: Modifier = Modifier,
     backupLine: @Composable () -> Unit = {},
     backupAlert: @Composable () -> Unit = {},
-    listTop: @Composable () -> Unit = {},
+    // 목록을 다 읽었는지 받음. 다 읽은 뒤 정해진 카드는 목록을 밀고 끼어들지 않게 자리를 열며 들어옴
+    listTop: @Composable (listRead: Boolean) -> Unit = {},
     adSlot: @Composable (Int, Modifier) -> Unit = { _, _ -> },
     onListStyle: (() -> Unit)? = null
 ) {
@@ -202,12 +203,13 @@ fun HomeRoute(
         backupAlert = backupAlert,
         header = header,
         listTop = {
-            listTop()
+            val listRead = rows.loadState.refresh !is LoadState.Loading
+            listTop(listRead)
             // 백업 안내가 떠 있으면 앱이 onListStyle에 null을 넘겨 목록 위 안내가 겹치지 않음
             // 자리는 늘 두어 카드가 닫히고 팁이 생길 때도 처음 그리기로 보지 않고 같은 움직임을 씀
             // 설정을 읽기 전에는 팁을 고르지 않음. 다른 팁이 먼저 그날의 팁으로 적힘
             HomeTip(
-                listRead = rows.loadState.refresh !is LoadState.Loading,
+                listRead = listRead,
                 candidates =
                     if (onListStyle == null || previewLength == null || fullPreviewKept == null) {
                         emptyList()
