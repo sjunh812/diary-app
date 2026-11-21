@@ -1,6 +1,7 @@
 #!/bin/sh
 # 1.7.4 → 새 앱 업그레이드를 에뮬레이터에서 시험(스펙 001 T050, quickstart §2)
 # 실기기 사용 금지
+# NEW_APK=<경로>: 다른 빌드로 올림(예: 출시본에서 만든 APK로 한 단계 올린 뒤 이번 빌드로 다시 올리기)
 #
 #   ANDROID_SERIAL=emulator-5554 sh scripts/legacy/upgrade-test.sh
 #
@@ -26,7 +27,7 @@ export ANDROID_SERIAL
 ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 PKG=org.sjhstudio.diary
 LEGACY_APK="$ROOT/scripts/legacy/out/diary-1.7.4-debug.apk"
-NEW_APK="$ROOT/composeApp/build/outputs/apk/debug/composeApp-debug.apk"
+NEW_APK="${NEW_APK:-$ROOT/composeApp/build/outputs/apk/debug/composeApp-debug.apk}"
 TEST_APK="$ROOT/composeApp/build/outputs/apk/androidTest/debug/composeApp-debug-androidTest.apk"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
