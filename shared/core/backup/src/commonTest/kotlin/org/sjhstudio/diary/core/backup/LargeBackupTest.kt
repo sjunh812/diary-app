@@ -10,6 +10,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.FileSystem
@@ -144,6 +146,8 @@ class LargeBackupTest {
      * 조각도 실제 드라이브처럼 나눠 받음
      */
     private class StreamingDrive(private val fileSystem: FileSystem, var onFile: suspend (Int) -> Unit) : DriveApi {
+        // 사진을 여러 장 함께 올려 기록은 차례로
+        private val lock = Mutex()
         private val files = LinkedHashMap<String, DriveFile>()
         private val pending = HashMap<String, NewFile>()
         private var nextId = 1
@@ -153,25 +157,25 @@ class LargeBackupTest {
 
         override suspend fun about() = StorageQuota(null, 0)
 
-        override suspend fun list(query: DriveQuery, pageToken: String?): DrivePage {
+        override suspend fun list(query: DriveQuery, pageToken: String?): DrivePage = lock.withLock {
             val matched =
                 files.values.filter {
                     (query.name == null || it.name == query.name) &&
                         (query.parentId == null || query.parentId in it.parents) &&
                         query.props.all { (key, value) -> it.props[key] == value }
                 }
-            return DrivePage(matched, null)
+            DrivePage(matched, null)
         }
 
         override suspend fun createFolder(name: String, parentId: String?, props: Map<String, String>) =
-            add(NewFile(name, parentId, "folder", props), null, 0)
+            lock.withLock { add(NewFile(name, parentId, "folder", props), null, 0) }
 
         override suspend fun uploadSmall(meta: NewFile, body: Path): DriveFile = accept(meta, body)
 
-        override suspend fun startResumable(meta: NewFile, size: Long): UploadSession {
+        override suspend fun startResumable(meta: NewFile, size: Long): UploadSession = lock.withLock {
             val uri = "session-${nextId++}"
             pending[uri] = meta
-            return UploadSession(uri, size)
+            UploadSession(uri, size)
         }
 
         override suspend fun uploadChunk(session: UploadSession, from: Long, body: Path): ChunkResult {
@@ -182,25 +186,28 @@ class LargeBackupTest {
                 it.readFully(sink, end - from)
             }
             if (end < session.size) return ChunkResult.Progress(end)
-            return ChunkResult.Done(accept(pending.getValue(session.uri), body))
+            return ChunkResult.Done(accept(lock.withLock { pending.getValue(session.uri) }, body))
         }
 
         override suspend fun queryResumable(session: UploadSession) = ChunkResult.Expired
 
-        override suspend fun get(fileId: String) = files.getValue(fileId)
+        override suspend fun get(fileId: String) = lock.withLock { files.getValue(fileId) }
 
         override suspend fun download(fileId: String, to: Path, fromByte: Long) = 0L
 
         override suspend fun trash(fileId: String) {
-            files.remove(fileId)
+            lock.withLock { files.remove(fileId) }
         }
 
         private suspend fun accept(meta: NewFile, body: Path): DriveFile {
             val hasher = HashingSink.sha256(blackholeSink())
             val size = fileSystem.source(body).buffer().use { it.readAll(hasher) }
-            if (meta.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO) photoBytes += size
-            val file = add(meta, hasher.hash.hex(), size)
-            onFile(++count)
+            val (file, number) =
+                lock.withLock {
+                    if (meta.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_PHOTO) photoBytes += size
+                    add(meta, hasher.hash.hex(), size) to ++count
+                }
+            onFile(number)
             return file
         }
 

@@ -284,6 +284,29 @@ class BackupFailureTest {
     }
 
     @Test
+    fun a_drive_filled_during_photos_stops_new_uploads_and_still_saves_the_text() = runTest {
+        phone.write("diary")
+        repeat(10) { phone.photo("diary", it, "사진 $it") }
+        var tries = 0
+        drive.onUpload = { meta ->
+            when (meta.props[DriveLayout.KEY_KIND]) {
+                // 다른 앱이 공간을 채웠다가 스냅샷을 올릴 때는 비움
+                DriveLayout.KIND_PHOTO -> if (tries++ == 0) drive.limit = drive.usage()
+
+                DriveLayout.KIND_SNAPSHOT -> drive.limit = null
+            }
+        }
+
+        val outcome = done()
+
+        assertTrue(tries <= BackupRunner.PARALLEL_UPLOADS, "공간이 찬 뒤에도 $tries 장을 보냄")
+        assertEquals(0, outcome.photosUploaded)
+        assertEquals(10, outcome.photosLeft)
+        assertEquals(1, manifests().size)
+        assertEquals(BackupFailure.NO_SPACE, phone.store.current().lastFailure)
+    }
+
+    @Test
     fun not_enough_room_for_the_text_by_one_byte_says_exactly_that() = runTest {
         phone.write("diary")
         done()
@@ -349,13 +372,13 @@ class BackupFailureTest {
         assertEquals(BackupOutcome.Failed(BackupFailure.AUTH), phone.runner().run())
 
         assertTrue(manifests().isEmpty())
+        // 여러 장을 함께 올려 몇 장째에서 끊길지는 정해지지 않음. 올라간 것은 남고 다음에 나머지만 올림
         val first = photos().map { it.id }
-        assertEquals(1, first.size)
         drive.onUpload = null
         val next = done()
-        assertEquals(1, next.photosUploaded)
+        assertEquals(2 - first.size, next.photosUploaded)
         assertEquals(2, photos().size)
-        assertTrue(first.single() in photos().map { it.id })
+        assertTrue(photos().map { it.id }.containsAll(first))
     }
 
     @Test

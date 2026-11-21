@@ -4,9 +4,16 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -408,33 +415,82 @@ class BackupRunner(
         val bytesTotal = photos.sumOf { it.byteSize ?: 0L }
         var bytesDone = 0L
         step(BackupStep.UploadingPhotos, 0, photos.size, 0, bytesTotal)
-        for (photo in photos) {
-            val path = mediaDir / requireNotNull(photo.fileName)
-            val hashes = if (fileSystem.exists(path)) fileSystem.hashes(path) else null
-            if (hashes == null || hashes.sha256 != photo.sha256) {
-                unusable += photo.sha256
-                continue
+        // 사진 한 장은 작아 기다리는 시간이 대부분이라 여러 장을 함께 올림
+        // 작업자 수만큼만 띄워 사진이 많아도 메모리가 그대로
+        val queue = Channel<LocalPhotoRow>(Channel.UNLIMITED)
+        photos.forEach(queue::trySend)
+        queue.close()
+        val results = Channel<Sent>()
+        // 드라이브가 차면 새로 올리지 않고 보내던 것만 끝냄(contracts/backup-format.md)
+        val full = MutableStateFlow(false)
+        // 큰 사진은 회선을 채워 함께 보내도 빨라지지 않고 조각 메모리만 늘어 한 장씩
+        val large = Mutex()
+        coroutineScope {
+            launch {
+                coroutineScope {
+                    repeat(PARALLEL_UPLOADS) {
+                        launch(Dispatchers.IO) {
+                            for (photo in queue) {
+                                if (full.value) break
+                                val sent =
+                                    if ((photo.byteSize ?: 0L) > SMALL_UPLOAD_LIMIT) {
+                                        large.withLock { sendPhoto(photo, folders, accountKey) }
+                                    } else {
+                                        sendPhoto(photo, folders, accountKey)
+                                    }
+                                if (sent == Sent.NoSpace) full.value = true
+                                results.send(sent)
+                            }
+                        }
+                    }
+                }
+                results.close()
             }
-            try {
-                val file =
-                    upload(
-                        path,
-                        NewFile(path.name, folders.media, mimeOf(path.name), mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)),
-                        hashes
-                    )
-                db.backupDao().confirm(
-                    listOf(BackupMediaEntity(accountKey, photo.sha256, file.id, hashes.byteSize, clock.now().toEpochMilliseconds()))
-                )
-                done += photo.sha256
-            } catch (error: DriveException) {
-                // 공간이 찼으면 올린 만큼으로 스냅샷과 목록 파일을 올려 봄(contracts/backup-format.md)
-                if (error.kind == BackupFailure.NO_SPACE) return done
-                throw error
+            // 숫자와 기록은 여기 한 곳에서 차례로 정함
+            for (sent in results) {
+                when (sent) {
+                    is Sent.Uploaded -> {
+                        done += sent.sha256
+                        bytesDone += sent.bytes
+                        step(BackupStep.UploadingPhotos, done.size, photos.size, bytesDone, bytesTotal)
+                    }
+
+                    is Sent.Unusable -> unusable += sent.sha256
+
+                    Sent.NoSpace -> Unit
+                }
             }
-            bytesDone += hashes.byteSize
-            step(BackupStep.UploadingPhotos, done.size, photos.size, bytesDone, bytesTotal)
         }
         return done
+    }
+
+    /** 사진 한 장. 공간 부족 말고 다른 드라이브 오류는 백업을 멈춤 */
+    private suspend fun sendPhoto(photo: LocalPhotoRow, folders: DriveFolders, accountKey: String): Sent {
+        val path = mediaDir / requireNotNull(photo.fileName)
+        val hashes = if (fileSystem.exists(path)) fileSystem.hashes(path) else null
+        if (hashes == null || hashes.sha256 != photo.sha256) return Sent.Unusable(photo.sha256)
+        return try {
+            val file =
+                upload(
+                    path,
+                    NewFile(path.name, folders.media, mimeOf(path.name), mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)),
+                    hashes
+                )
+            db.backupDao().confirm(
+                listOf(BackupMediaEntity(accountKey, photo.sha256, file.id, hashes.byteSize, clock.now().toEpochMilliseconds()))
+            )
+            Sent.Uploaded(photo.sha256, hashes.byteSize)
+        } catch (error: DriveException) {
+            if (error.kind == BackupFailure.NO_SPACE) Sent.NoSpace else throw error
+        }
+    }
+
+    private sealed interface Sent {
+        data class Uploaded(val sha256: String, val bytes: Long) : Sent
+
+        data class Unusable(val sha256: String) : Sent
+
+        data object NoSpace : Sent
     }
 
     /**
@@ -525,7 +581,7 @@ class BackupRunner(
         else -> "image/jpeg"
     }
 
-    private companion object {
+    internal companion object {
         const val OUTGOING = "outgoing"
         const val MANIFEST_RESERVE = 1024L * 1024
 
@@ -534,5 +590,8 @@ class BackupRunner(
 
         /** 조각을 보내도 받은 양이 늘지 않을 때 더 보내 보는 횟수 */
         const val MAX_STALLS = 3
+
+        /** 드라이브에 동시에 올리는 사진 수 */
+        const val PARALLEL_UPLOADS = 4
     }
 }
