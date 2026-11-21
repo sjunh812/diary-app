@@ -8,8 +8,10 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.model.AppVersion
@@ -52,6 +54,18 @@ class AppUpdateRepositoryTest {
         repo.refresh()
         assertEquals(UpdateNotice.Available(required = false, note = null), repo.homeCard.first())
         assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 앱 범위는 실제로 한 박자 늦게 돌아 상태가 늦게 따라와도, 카드는 처음부터 새 버전을 알림. 빈 칸이 먼저 그려지면 팁이 스침 */
+    @Test
+    fun the_home_card_never_reads_none_before_the_new_version() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = AppUpdateRepository(store, { "" }, PromptStore(dataStore), "2.0.1", backgroundScope, clock)
+        val seen = mutableListOf<UpdateNotice?>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { repo.homeCard.collect { seen += it } }
+        repo.refresh()
+        advanceUntilIdle()
+        assertEquals(listOf<UpdateNotice?>(UpdateNotice.Available(required = false, note = null)), seen)
     }
 
     @Test

@@ -94,29 +94,28 @@ class AppUpdateRepository(
     }
 
     /** 설정 줄이 보는 상태. 닫은 버전도 그대로 보임 */
-    val notice: StateFlow<UpdateNotice> =
-        combine(check, step, extras) { check, step, extras ->
-            when {
-                step is InstallStep.Downloading -> UpdateNotice.Downloading(step.progress)
-                step == InstallStep.Downloaded -> UpdateNotice.Downloaded
-                check is StoreCheck.Downloading -> UpdateNotice.Downloading(check.progress)
-                check == StoreCheck.Downloaded -> UpdateNotice.Downloaded
-                check is StoreCheck.Available -> UpdateNotice.Available(extras.required, extras.note, step == InstallStep.Failed)
-                else -> UpdateNotice.None
-            }
-        }.stateIn(scope, SharingStarted.Eagerly, UpdateNotice.None)
+    val notice: StateFlow<UpdateNotice> = combine(check, step, extras, ::noticeOf).stateIn(scope, SharingStarted.Eagerly, UpdateNotice.None)
 
     /**
      * 홈 맨 위 카드. 없으면 null
      * 처음 확인을 마친 뒤부터 알림. 그 전에는 백업 안내처럼 읽는 중
      * [나중에]로 닫은 버전은 꼭 필요하지 않으면 숨김. 받는 중·받음은 사용자가 시작한 일이라 닫았어도 보임
+     * [notice]는 한 박자 늦게 따라와 원래 값에서 바로 정함. 늦은 값을 섞으면 빈 칸이 먼저 그려짐
      */
     val homeCard: Flow<UpdateNotice?> =
         flow {
             checked.first { it }
             emitAll(
-                combine(notice, check, prompts.prefs.catch { emit(PromptPrefs()) }, laterThisRun) { notice, check, prefs, later ->
-                    when (notice) {
+                combine(
+                    check,
+                    step,
+                    extras,
+                    prompts.prefs.catch {
+                        emit(PromptPrefs())
+                    },
+                    laterThisRun
+                ) { check, step, extras, prefs, later ->
+                    when (val notice = noticeOf(check, step, extras)) {
                         UpdateNotice.None -> null
 
                         is UpdateNotice.Available -> notice.takeIf {
@@ -153,6 +152,15 @@ class AppUpdateRepository(
         } finally {
             checked.value = true
         }
+    }
+
+    private fun noticeOf(check: StoreCheck, step: InstallStep?, extras: Extras): UpdateNotice = when {
+        step is InstallStep.Downloading -> UpdateNotice.Downloading(step.progress)
+        step == InstallStep.Downloaded -> UpdateNotice.Downloaded
+        check is StoreCheck.Downloading -> UpdateNotice.Downloading(check.progress)
+        check == StoreCheck.Downloaded -> UpdateNotice.Downloaded
+        check is StoreCheck.Available -> UpdateNotice.Available(extras.required, extras.note, step == InstallStep.Failed)
+        else -> UpdateNotice.None
     }
 
     private fun settle(result: StoreCheck) {
