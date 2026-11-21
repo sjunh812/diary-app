@@ -40,17 +40,11 @@ class PlayStoreUpdates(context: Context, private val current: CurrentActivity, o
 
     override suspend fun check(): StoreCheck {
         val info = manager.appUpdateInfo.await()
+        val id = info.availableVersionCode().toString()
         return when (info.installStatus()) {
-            InstallStatus.DOWNLOADED -> StoreCheck.Downloaded
-
-            InstallStatus.PENDING, InstallStatus.DOWNLOADING -> StoreCheck.Downloading(info.progress())
-
-            else ->
-                if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                    StoreCheck.Available(info.availableVersionCode().toString())
-                } else {
-                    StoreCheck.None
-                }
+            InstallStatus.DOWNLOADED -> StoreCheck.Downloaded(id)
+            InstallStatus.PENDING, InstallStatus.DOWNLOADING -> StoreCheck.Downloading(id, info.progress())
+            else -> if (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) StoreCheck.Available(id) else StoreCheck.None
         }
     }
 

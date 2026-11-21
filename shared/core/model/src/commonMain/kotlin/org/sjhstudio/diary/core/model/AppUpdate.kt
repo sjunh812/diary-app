@@ -19,18 +19,18 @@ object AppVersion {
 
 /**
  * 스토어가 알려 준 새 버전 상태
- * [Available.id]는 Android 버전 코드, iOS 버전 이름
+ * id는 Android 버전 코드, iOS 버전 이름
  */
 sealed interface StoreCheck {
     data object None : StoreCheck
 
     data class Available(val id: String) : StoreCheck
 
-    /** 앱을 다시 열었을 때 이미 받는 중(Android) */
-    data class Downloading(val progress: Float?) : StoreCheck
+    /** 앱을 다시 열었을 때 이미 받는 중(Android). 취소·실패하면 [Available]로 내림 */
+    data class Downloading(val id: String, val progress: Float?) : StoreCheck
 
     /** 받기는 끝났고 다시 시작하면 바뀜(Android) */
-    data object Downloaded : StoreCheck
+    data class Downloaded(val id: String) : StoreCheck
 }
 
 /** 받기 진행(Android). iOS는 App Store가 받아 앱이 모름 */

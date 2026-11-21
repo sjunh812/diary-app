@@ -38,13 +38,15 @@ class DevStoreUpdates(private val context: Context, private val real: StoreUpdat
     private val chosen = MutableStateFlow(prefs.getString(KEY, null)?.let(DevUpdate::valueOf) ?: DevUpdate.REAL)
     val mode: StateFlow<DevUpdate> = chosen.asStateFlow()
     private val steps = MutableSharedFlow<InstallStep>(extraBufferCapacity = 16)
-    private var downloaded = false
+
+    // 흉내 받기 상태. 실제 Play처럼 받는 동안 물으면 받는 중, 다 받으면 받음
+    private var faked: StoreCheck? = null
 
     fun choose(mode: DevUpdate) {
         // 다시 시작하며 프로세스를 끝내도 남게 바로 씀
         prefs.edit(commit = true) { putString(KEY, mode.name) }
         chosen.value = mode
-        downloaded = false
+        faked = null
     }
 
     override val installed: String get() = real.installed
@@ -53,28 +55,41 @@ class DevStoreUpdates(private val context: Context, private val real: StoreUpdat
 
     override suspend fun check(): StoreCheck = when {
         chosen.value == DevUpdate.REAL -> real.check()
-        downloaded -> StoreCheck.Downloaded
-        else -> StoreCheck.Available(FAKE_VERSION_CODE)
+        else -> faked ?: StoreCheck.Available(FAKE_VERSION_CODE)
     }
 
     override val installs: Flow<InstallStep> = merge(real.installs, steps)
 
     override suspend fun start(): Boolean {
         val mode = chosen.value
-        if (mode == DevUpdate.REAL) return real.start()
+        return when {
+            mode == DevUpdate.REAL -> real.start()
+
+            // Play처럼 이미 받는 중이면 새로 받지 않음
+            faked != null -> true
+
+            else -> {
+                fakeDownload(mode)
+                true
+            }
+        }
+    }
+
+    private fun fakeDownload(mode: DevUpdate) {
         scope.launch {
             for (percent in 0..100 step STEP_PERCENT) {
                 if (mode == DevUpdate.FAIL && percent > FAIL_PERCENT) {
+                    faked = null
                     steps.emit(InstallStep.Failed)
                     return@launch
                 }
+                faked = StoreCheck.Downloading(FAKE_VERSION_CODE, percent / 100f)
                 steps.emit(InstallStep.Downloading(percent / 100f))
                 delay(STEP_MILLIS)
             }
-            downloaded = true
+            faked = StoreCheck.Downloaded(FAKE_VERSION_CODE)
             steps.emit(InstallStep.Downloaded)
         }
-        return true
     }
 
     override fun restart() {

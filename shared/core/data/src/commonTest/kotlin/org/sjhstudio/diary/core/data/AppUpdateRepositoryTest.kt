@@ -68,6 +68,150 @@ class AppUpdateRepositoryTest {
         assertEquals(listOf<UpdateNotice?>(UpdateNotice.Available(required = false, note = null)), seen)
     }
 
+    /** 앱을 다시 열어 "받는 중"으로 안 뒤 Play 알림에서 받기를 취소하면 남은 진행을 보이지 않음 */
+    @Test
+    fun canceling_a_download_found_on_reopen_does_not_leave_it_downloading() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloading("45", 0.4f) }
+        val repo = repo(store)
+        repo.refresh()
+        assertEquals(UpdateNotice.Downloading(0.4f), repo.notice.value)
+
+        store.answer = StoreCheck.Available("45")
+        store.installs.emit(InstallStep.Canceled)
+        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 받다 실패하면 앱을 다시 열어 안 "받는 중"보다 실패가 보임 */
+    @Test
+    fun a_failed_download_found_on_reopen_shows_the_failure() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloading("45", 0.4f) }
+        val repo = repo(store)
+        repo.refresh()
+
+        store.answer = StoreCheck.Available("45")
+        store.installs.emit(InstallStep.Failed)
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+    }
+
+    /** Play가 알림 없이 받기를 멈춰도 앱으로 돌아와 다시 물으면 "받는 중"이 풀림 */
+    @Test
+    fun a_download_that_stops_silently_recovers_on_return() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Downloading(0.3f))
+        assertEquals(UpdateNotice.Downloading(0.3f), repo.notice.value)
+
+        repo.refresh()
+        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 마지막 "받음" 알림을 놓쳐도 돌아와 다시 물으면 [다시 시작하기]가 나옴 */
+    @Test
+    fun a_missed_downloaded_event_is_found_on_return() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Downloading(0.9f))
+
+        store.answer = StoreCheck.Downloaded("45")
+        repo.refresh()
+        assertEquals(UpdateNotice.Downloaded, repo.notice.value)
+    }
+
+    /** 받은 뒤 설치가 실패하면 다시 받을 수 있는 카드가 되고 [나중에]로 닫힘 */
+    @Test
+    fun a_failed_install_after_download_can_be_dismissed() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded("45") }
+        val repo = repo(store)
+        repo.refresh()
+
+        store.installs.emit(InstallStep.Failed)
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        repo.dismiss()
+        assertNull(repo.homeCard.first())
+    }
+
+    /** 새 버전이 없는데 실패 알림이 와도 카드가 생기지 않음 */
+    @Test
+    fun a_stray_failure_without_an_update_shows_nothing() = runTest {
+        val store = FakeStoreUpdates()
+        val repo = repo(store)
+        repo.refresh()
+
+        store.installs.emit(InstallStep.Failed)
+        assertEquals(UpdateNotice.None, repo.notice.value)
+        assertNull(repo.homeCard.first())
+    }
+
+    /** 취소한 뒤 다시 묻기까지 실패해도(오프라인) 물어 둔 "받는 중"이 남지 않음 */
+    @Test
+    fun canceling_offline_does_not_leave_it_downloading() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloading("45", 0.4f) }
+        val repo = repo(store)
+        repo.refresh()
+
+        store.answer = null
+        store.installs.emit(InstallStep.Canceled)
+        repo.refresh()
+        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 실패한 뒤 다시 묻기까지 실패해도 [나중에]로 닫을 수 있음 */
+    @Test
+    fun a_failed_download_offline_can_still_be_dismissed() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloading("45", 0.4f) }
+        val repo = repo(store)
+        repo.refresh()
+
+        store.answer = null
+        store.installs.emit(InstallStep.Failed)
+        repo.refresh()
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        repo.dismiss()
+        assertNull(repo.homeCard.first())
+    }
+
+    /** 닫은 버전을 설정에서 받다가 실패해도 홈 카드로 실패를 알림. 사용자가 시작한 일 */
+    @Test
+    fun a_failed_download_of_a_dismissed_version_still_shows() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        repo.dismiss()
+        assertNull(repo.homeCard.first())
+
+        store.installs.emit(InstallStep.Downloading(0.4f))
+        store.installs.emit(InstallStep.Failed)
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.homeCard.first())
+    }
+
+    /** 묻는 사이 "받음" 알림이 먼저 오면 늦게 온 "받는 중" 답으로 되돌리지 않음 */
+    @Test
+    fun a_stale_downloading_answer_does_not_undo_downloaded() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Downloaded)
+
+        store.answer = StoreCheck.Downloading("45", 0.95f)
+        repo.refresh()
+        assertEquals(UpdateNotice.Downloaded, repo.notice.value)
+    }
+
+    /** 묻는 사이 실패 알림이 먼저 오면 늦게 온 "받는 중" 답으로 실패를 지우지 않음 */
+    @Test
+    fun a_stale_downloading_answer_does_not_hide_a_failure() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Failed)
+
+        store.answer = StoreCheck.Downloading("45", 0.4f)
+        repo.refresh()
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+    }
+
     @Test
     fun nothing_when_store_has_no_update_or_fails_first_time() = runTest {
         val store = FakeStoreUpdates()
@@ -160,7 +304,7 @@ class AppUpdateRepositoryTest {
 
     @Test
     fun later_after_download_hides_only_this_run() = runTest {
-        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded }
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded("45") }
         val repo = repo(store)
         repo.refresh()
         repo.dismiss()
@@ -197,7 +341,7 @@ class AppUpdateRepositoryTest {
 
     @Test
     fun reopening_while_downloaded_shows_restart() = runTest {
-        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded }
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded("45") }
         val repo = repo(store)
         repo.refresh()
         assertEquals(UpdateNotice.Downloaded, repo.homeCard.first())
