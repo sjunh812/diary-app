@@ -1,5 +1,7 @@
 package org.sjhstudio.diary.feature.home
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -9,8 +11,10 @@ import org.sjhstudio.diary.core.data.percent
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
+import org.sjhstudio.diary.core.designsystem.theme.DiaryMotion
 import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.model.UpdateNotice
+import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.feature.home.resources.Res
 import org.sjhstudio.diary.feature.home.resources.update_card_default
 import org.sjhstudio.diary.feature.home.resources.update_card_downloaded_body
@@ -35,7 +39,15 @@ import org.sjhstudio.diary.feature.home.resources.update_card_update
 @Composable
 fun UpdateCard(notice: UpdateNotice, onUpdate: () -> Unit, onLater: () -> Unit, onRestart: () -> Unit, modifier: Modifier = Modifier) {
     // 위아래 12. 백업·의견 카드와 같은 자리
-    val place = modifier.padding(vertical = DiarySpacing.x3)
+    // 받기를 시작하거나 다 받으면 버튼 줄이 생기고 사라져, 아래 목록이 덜컥 움직이지 않게 높이만 부드럽게
+    val resize = if (rememberReduceMotion()) {
+        modifier
+    } else {
+        modifier.animateContentSize(
+            tween(DiaryMotion.QUICK_MILLIS, easing = DiaryMotion.decelerate)
+        )
+    }
+    val place = resize.padding(vertical = DiarySpacing.x3)
     when (notice) {
         is UpdateNotice.Available -> {
             val first =

@@ -39,7 +39,7 @@
     <string name="update_card_title">A new version is available</string>
     <string name="update_card_title_required">An important update is available</string>
     <string name="update_card_default">We fixed bugs and improved stability.</string>
-    <string name="update_card_keep">Your diary stays as it is after updating.</string>
+    <string name="update_card_keep">Your diary stays as it is.</string>
     <string name="update_card_keep_required">Please update. Your diary stays as it is.</string>
     <string name="update_card_kept">Your diary stays as it is.</string>
     <string name="update_card_failed">Couldn't download it. Please try again in a moment.</string>

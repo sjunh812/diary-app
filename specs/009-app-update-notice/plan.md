@@ -12,7 +12,7 @@
 - 축은 스펙 001과 같다(Kotlin, CMP, Koin, DataStore). 새로 들이는 라이브러리는 Play 앱 안 업데이트 하나다.
 - Android: `com.google.android.play:app-update-ktx:2.1.0`(무료, `research.md` R1). `AppUpdateManager`로 확인·받기·설치. 동의 창은 Play가 그린다.
 - iOS: 새 버전은 App Store 공개 조회(`itunes.apple.com/lookup?id=6835116731&country=<기기 지역>`)를 Ktor(Darwin, 이미 `core/drive`가 씀)로 하루 한 번. App Store 화면은 StoreKit `SKStoreProductViewController`를 Swift 다리(`AppUpdateBridge.swift`)로 띄운다. 리뷰 창 다리(`StoreReviewBridge.swift`)와 같은 방식이다.
-- 원격 값: Firebase Remote Config(이미 전면 광고 스위치로 씀). 키 `update_min_version`, `update_note_version`, `update_note_ko`·`_en`·`_ja`(모두 문자열, 플랫폼 조건으로 나눔). JSON을 풀 필요가 없게 언어마다 키를 둔다. 기본값은 모두 빈 문자열. 받는 횟수는 지금처럼 12시간에 한 번이라 늘지 않는다(`research.md` R5).
+- 원격 값: Firebase Remote Config(이미 전면 광고 스위치로 씀). 키 `update_min_version`, `update_note_version`, `update_note_ko`·`_en`·`_ja`(모두 문자열, 기본값 하나. 한쪽만 고친 버전일 때만 플랫폼 조건). JSON을 풀 필요가 없게 언어마다 키를 둔다. 기본값은 모두 빈 문자열. 받는 횟수는 지금처럼 12시간에 한 번이라 늘지 않는다(`research.md` R5).
 - 시험: `commonTest`(저장소 판단·버전 비교·조회 응답 해석), `iosTest`(카드 화면), Android 플랫폼 코드는 공통 인터페이스를 가짜로 바꿔 시험한다.
 
 ## 헌법 점검

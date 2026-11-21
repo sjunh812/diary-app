@@ -255,11 +255,15 @@ fun SettingsScreen(
             onRate?.let { DiarySettingsRow(stringResource(Res.string.settings_rate), onClick = it) }
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
             // 새 버전이 있으면 누를 수 있는 줄(스펙 009). 설정 위에서 스토어 창이 뜸
-            val action = update.actionLabel()
-            if (action == null) {
-                DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
-            } else {
-                DiarySettingsRow(stringResource(Res.string.settings_version), onClick = onUpdate, value = appVersion, valueAction = action)
+            // 받는 중에는 할 일이 없어 회색 상태만 보임
+            val version = stringResource(Res.string.settings_version)
+            when (update) {
+                UpdateNotice.None -> DiarySettingsValueRow(version, appVersion)
+
+                is UpdateNotice.Downloading -> DiarySettingsValueRow(version, appVersion, valueNote = update.progressLabel())
+
+                is UpdateNotice.Available, UpdateNotice.Downloaded ->
+                    DiarySettingsRow(version, onClick = onUpdate, value = appVersion, valueAction = update.actionLabel())
             }
             DiarySettingsRow(
                 stringResource(Res.string.settings_licenses),
@@ -295,15 +299,14 @@ private fun listValue(list: ListPreferences): String {
     }
 }
 
-/** 앱 버전 줄 값 뒤 할 일. 새 버전이 없으면 null */
+/** 앱 버전 줄 값 뒤 할 일 */
 @Composable
-private fun UpdateNotice.actionLabel(): String? = when (this) {
-    UpdateNotice.None -> null
+private fun UpdateNotice.actionLabel(): String = stringResource(
+    if (this == UpdateNotice.Downloaded) Res.string.settings_version_restart else Res.string.settings_version_update
+)
 
-    is UpdateNotice.Available -> stringResource(Res.string.settings_version_update)
-
-    is UpdateNotice.Downloading -> percent()?.let { stringResource(Res.string.settings_version_downloading, it) }
+/** 받는 중 진행률. 모르면 "받는 중"만 */
+@Composable
+private fun UpdateNotice.Downloading.progressLabel(): String =
+    percent()?.let { stringResource(Res.string.settings_version_downloading, it) }
         ?: stringResource(Res.string.settings_version_downloading_unknown)
-
-    UpdateNotice.Downloaded -> stringResource(Res.string.settings_version_restart)
-}

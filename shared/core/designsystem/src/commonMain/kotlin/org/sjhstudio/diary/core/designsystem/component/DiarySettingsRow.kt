@@ -123,11 +123,14 @@ fun DiarySettingsRow(
     }
 }
 
-/** 값만 보여 주는 줄. 누를 수 없어 화살표가 없음 */
+/**
+ * 값만 보여 주는 줄. 누를 수 없어 화살표가 없음
+ * [valueNote]는 값 뒤 " · "에 붙는 지금 상태(예: "2.0.1 · 받는 중 42%"). 누를 수 없어 같은 회색
+ */
 @Composable
-fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier) {
+fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier, valueNote: String? = null) {
     RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
-        RowValue(AnnotatedString(value))
+        RowValue(valueText(value, valueNote, DiaryTheme.colors.textSecondary))
     }
 }
 

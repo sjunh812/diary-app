@@ -202,7 +202,7 @@ class AppUpdateRepository(
     private data class Extras(val required: Boolean = false, val note: ReleaseNote? = null)
 
     companion object {
-        /** 이보다 낮은 앱은 카드를 닫을 수 없음. 플랫폼 조건으로 나눔(`docs/release.md`) */
+        /** 이보다 낮은 앱은 카드를 닫을 수 없음(`docs/release.md` 새 버전 안내 원격 값) */
         const val KEY_MIN_VERSION = "update_min_version"
 
         /** 한 줄 소식이 가리키는 버전. 지금 앱보다 높을 때만 씀 */
