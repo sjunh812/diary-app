@@ -144,6 +144,7 @@ fun HomeRoute(
     val look by viewModel.look.collectAsStateWithLifecycle()
     val style by viewModel.style.collectAsStateWithLifecycle()
     val previewLength by viewModel.previewLength.collectAsStateWithLifecycle()
+    val fullPreviewKept by viewModel.fullPreviewKept.collectAsStateWithLifecycle()
     val family = rememberFileFontFamily(look.fontPath)
     val list = rememberLazyListState()
     val grid = rememberLazyGridState()
@@ -204,17 +205,19 @@ fun HomeRoute(
             listTop()
             // 백업 안내가 떠 있으면 앱이 onListStyle에 null을 넘겨 목록 위 안내가 겹치지 않음
             // 자리는 늘 두어 카드가 닫히고 팁이 생길 때도 처음 그리기로 보지 않고 같은 움직임을 씀
+            // 설정을 읽기 전에는 팁을 고르지 않음. 다른 팁이 먼저 그날의 팁으로 적힘
             HomeTip(
                 listRead = rows.loadState.refresh !is LoadState.Loading,
                 candidates =
-                    if (onListStyle == null) {
+                    if (onListStyle == null || previewLength == null || fullPreviewKept == null) {
                         emptyList()
                     } else {
                         buildList {
                             // 사진 격자는 본문 길이를 따르지 않음
                             if (style != ListStyle.PHOTO_GRID) {
-                                add(ContextTip.HOME_FULL_PREVIEW_KEPT)
-                                if (previewLength != null && previewLength != PreviewLength.FULL) add(ContextTip.HOME_FULL_PREVIEW)
+                                // 팁이 미뤄진 사이 길이를 직접 골랐으면 "예전처럼 전체"가 사실이 아님
+                                if (fullPreviewKept == true) add(ContextTip.HOME_FULL_PREVIEW_KEPT)
+                                if (previewLength != PreviewLength.FULL) add(ContextTip.HOME_FULL_PREVIEW)
                             }
                             // 목록 보기가 설정 안에만 있어 처음 한 번 알림. 일기가 생기고 아직 기본 피드일 때만
                             if (style == ListStyle.FEED && rows.itemCount >= LIST_STYLE_TIP_AFTER) add(ContextTip.HOME_LIST_STYLE)

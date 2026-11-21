@@ -73,6 +73,16 @@ class HomeViewModel(
             // 읽기 전에는 null. 기본값 3줄로 팁을 고르거나 횟수를 세지 않음
             .stateInSafely(viewModelScope, SharingStarted.Eagerly, null)
 
+    /**
+     * 옛 설정에서 이어 온 전체 보기가 그대로인지. 그 뒤 길이를 직접 고른 적이 있으면 이어 왔다고 알리지 않음
+     * 읽기 전에는 null. 다른 팁이 먼저 그날의 팁으로 적히지 않게 팁을 고르지 않음
+     */
+    val fullPreviewKept: StateFlow<Boolean?> =
+        settings.settings
+            .map { it.list.previewLength == PreviewLength.FULL && !it.list.previewChosen }
+            .distinctUntilChanged()
+            .stateInSafely(viewModelScope, SharingStarted.Eagerly, null)
+
     fun setPreviewLength(length: PreviewLength) {
         viewModelScope.launchWrite { settings.setPreviewLength(length) }
     }

@@ -62,9 +62,11 @@ class HomeTipsUiTest {
     private fun ComposeUiTest.home(
         open: Set<ContextTip>,
         length: PreviewLength,
-        style: ListStyle = ListStyle.FEED
+        style: ListStyle = ListStyle.FEED,
+        chosen: Boolean = false
     ): FakeSettingsRepository {
-        val settings = FakeSettingsRepository(AppSettings(list = ListPreferences(listStyle = style, previewLength = length)))
+        val settings =
+            FakeSettingsRepository(AppSettings(list = ListPreferences(listStyle = style, previewLength = length, previewChosen = chosen)))
         val tips = FakeContextTips(open)
         val rows = List(6) { fakeEntryRow("e$it", LocalDate(2026, 11, 10 - it), "일기 $it", false) }
         startKoin {
@@ -105,6 +107,22 @@ class HomeTipsUiTest {
         waitForIdle()
 
         assertEquals(PreviewLength.THREE_LINES, settings.settings.value.list.previewLength)
+    }
+
+    /** 팁이 미뤄진 사이 길이를 바꿨으면 "예전처럼 전체를 보여드려요"는 사실이 아니라 띄우지 않음 */
+    @Test
+    fun kept_tip_needs_the_full_preview() = runComposeUiTest {
+        home(setOf(ContextTip.HOME_FULL_PREVIEW_KEPT), PreviewLength.FIVE_LINES, chosen = true)
+
+        onAllNodes(hasText(text(Res.string.tip_home_full_preview_kept))).assertCountEquals(0)
+    }
+
+    /** 직접 다시 전체로 골랐으면 이어 온 것이 아니라 띄우지 않음 */
+    @Test
+    fun kept_tip_skips_a_full_preview_the_user_picked() = runComposeUiTest {
+        home(setOf(ContextTip.HOME_FULL_PREVIEW_KEPT), PreviewLength.FULL, chosen = true)
+
+        onAllNodes(hasText(text(Res.string.tip_home_full_preview_kept))).assertCountEquals(0)
     }
 
     @Test
