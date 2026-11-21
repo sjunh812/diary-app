@@ -81,7 +81,7 @@ class HomeTopStateTest {
         assertEquals(HomeTop.Backup(nudge), state.top.value)
     }
 
-    /** 새 버전 확인 전에 백업 안내를 닫으면, 닫은 카드를 남기지 않고 확인이 끝날 때까지 정해진 빈 칸 */
+    /** 새 버전 확인 전에 백업 안내를 닫으면, 닫은 카드를 남기지 않고 확인이 끝날 때까지 정해진 빈칸 */
     @Test
     fun a_closed_backup_nudge_does_not_stay_while_the_update_check_runs() = runTest(UnconfinedTestDispatcher()) {
         val updates =

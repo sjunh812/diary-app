@@ -130,11 +130,11 @@ private fun EntriesLight() = PreviewCanvas(dark = false) { CatalogEntries() }
 @Composable
 private fun EntriesDark() = PreviewCanvas(dark = true) { CatalogEntries() }
 
-@Preview(name = "빈 칸 한 줄 · 라이트", locale = "ko", widthDp = 390)
+@Preview(name = "빈칸 한 줄 · 라이트", locale = "ko", widthDp = 390)
 @Composable
 private fun EmptyLineLight() = PreviewCanvas(dark = false) { DiaryEmptyLine("이 기간에 쓴 일기가 없어요", "일기 쓰기", {}) }
 
-@Preview(name = "빈 칸 한 줄 · 다크", locale = "ko", widthDp = 390)
+@Preview(name = "빈칸 한 줄 · 다크", locale = "ko", widthDp = 390)
 @Composable
 private fun EmptyLineDark() = PreviewCanvas(dark = true) { DiaryEmptyLine("이 기간에 쓴 일기가 없어요", "일기 쓰기", {}) }
 

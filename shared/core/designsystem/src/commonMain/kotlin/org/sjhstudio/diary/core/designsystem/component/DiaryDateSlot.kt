@@ -64,7 +64,7 @@ private fun Slot(
     val typography = DiaryTheme.typography
     val interaction = remember { MutableInteractionSource() }
     // 고르는 칸은 바탕을 비우고 테두리만 둬 입력창에 초점이 간 것처럼 보이게 함
-    // 테두리는 숫자 키패드 빈 칸과 같은 1.5. 1이면 옅은 보라가 바탕에 묻힘
+    // 테두리는 숫자 키패드 빈칸과 같은 1.5. 1이면 옅은 보라가 바탕에 묻힘
     val shape = DiaryShapes.r12
     Column(
         modifier

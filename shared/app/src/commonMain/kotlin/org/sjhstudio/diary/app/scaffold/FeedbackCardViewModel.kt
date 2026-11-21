@@ -93,7 +93,7 @@ class HomeTopState(
             }
     }
 
-    // 앱을 켠 뒤 처음이면 읽는 중, 백업 안내를 닫은 뒤면 닫은 카드를 남기지 않고 정해진 빈 칸
+    // 앱을 켠 뒤 처음이면 읽는 중, 백업 안내를 닫은 뒤면 닫은 카드를 남기지 않고 정해진 빈칸
     private fun pending(): HomeTop = if (read.value == HomeTop.Reading) HomeTop.Reading else HomeTop.Waiting
 }
 

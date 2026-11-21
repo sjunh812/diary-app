@@ -104,7 +104,7 @@ private fun RowScope.PadKey(enabled: Boolean, label: String?, onClick: () -> Uni
 
 /**
  * 비밀번호 칸 점(Figma pin-dots, `docs/design.md` 숫자판)
- * 지름 14 · 사이 20. 빈 칸은 `textTertiary` 선 1.5, 찬 칸은 `textPrimary`
+ * 지름 14 · 사이 20. 빈칸은 `textTertiary` 선 1.5, 찬 칸은 `textPrimary`
  * [wrongCount]가 늘 때마다(틀렸을 때) 점 넷을 `danger`로 채워 좌우로 0.4초 흔들고 진동한 뒤 [filled]대로 돌아감
  * 틀린 입력은 바로 비워져 지우지 않고 다시 누름(AOSP 잠금 화면, GNOME 잠금 화면)
  * [error]는 흔들지 않고 빨간 점만 보이는 정지 화면용(미리보기, 디자인 견본)

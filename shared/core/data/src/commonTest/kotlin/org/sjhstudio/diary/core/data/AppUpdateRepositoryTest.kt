@@ -56,7 +56,7 @@ class AppUpdateRepositoryTest {
         assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
     }
 
-    /** 앱 범위는 실제로 한 박자 늦게 돌아 상태가 늦게 따라와도, 카드는 처음부터 새 버전을 알림. 빈 칸이 먼저 그려지면 팁이 스침 */
+    /** 앱 범위는 실제로 한 박자 늦게 돌아 상태가 늦게 따라와도, 카드는 처음부터 새 버전을 알림. 빈칸이 먼저 그려지면 팁이 스침 */
     @Test
     fun the_home_card_never_reads_none_before_the_new_version() = runTest {
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
