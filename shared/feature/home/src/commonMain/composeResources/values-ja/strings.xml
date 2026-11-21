@@ -37,9 +37,10 @@
     <string name="feedback_card_action">アンケートに答える</string>
     <string name="feedback_card_close">閉じる</string>
     <string name="update_card_title">新しいバージョンが出ました</string>
-    <string name="update_card_title_required">アップデートが必要です</string>
+    <string name="update_card_title_required">重要なアップデートが出ました</string>
     <string name="update_card_default">不具合を修正し、安定性を改善しました。</string>
     <string name="update_card_keep">アップデートしても日記はそのまま残ります。</string>
+    <string name="update_card_keep_required">必ずアップデートしてください。日記はそのまま残ります。</string>
     <string name="update_card_kept">日記はそのまま残ります。</string>
     <string name="update_card_failed">ダウンロードできませんでした。しばらくしてからもう一度お試しください。</string>
     <string name="update_card_update">アップデート</string>

@@ -37,9 +37,10 @@
     <string name="feedback_card_action">설문 참여하기</string>
     <string name="feedback_card_close">닫기</string>
     <string name="update_card_title">새 버전이 나왔어요</string>
-    <string name="update_card_title_required">업데이트가 꼭 필요해요</string>
+    <string name="update_card_title_required">중요한 업데이트가 나왔어요</string>
     <string name="update_card_default">오류를 수정하고 안정성을 개선했어요.</string>
     <string name="update_card_keep">업데이트해도 일기는 그대로 남아요.</string>
+    <string name="update_card_keep_required">꼭 업데이트해 주세요. 일기는 그대로 남아요.</string>
     <string name="update_card_kept">일기는 그대로 남아요.</string>
     <string name="update_card_failed">받지 못했어요. 잠시 뒤 다시 시도해 주세요.</string>
     <string name="update_card_update">업데이트</string>

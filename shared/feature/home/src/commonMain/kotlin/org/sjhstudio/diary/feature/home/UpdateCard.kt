@@ -20,6 +20,7 @@ import org.sjhstudio.diary.feature.home.resources.update_card_downloading_body_u
 import org.sjhstudio.diary.feature.home.resources.update_card_downloading_title
 import org.sjhstudio.diary.feature.home.resources.update_card_failed
 import org.sjhstudio.diary.feature.home.resources.update_card_keep
+import org.sjhstudio.diary.feature.home.resources.update_card_keep_required
 import org.sjhstudio.diary.feature.home.resources.update_card_kept
 import org.sjhstudio.diary.feature.home.resources.update_card_later
 import org.sjhstudio.diary.feature.home.resources.update_card_restart
@@ -46,7 +47,14 @@ fun UpdateCard(notice: UpdateNotice, onUpdate: () -> Unit, onLater: () -> Unit, 
             DiaryStatusBox(
                 DiaryIcons.Download,
                 stringResource(if (notice.required) Res.string.update_card_title_required else Res.string.update_card_title),
-                if (notice.failed) first else "$first\n${stringResource(Res.string.update_card_keep)}",
+                when {
+                    notice.failed -> first
+
+                    // 닫을 수 없는 카드라 할 일을 분명히 부탁함
+                    notice.required -> "$first\n${stringResource(Res.string.update_card_keep_required)}"
+
+                    else -> "$first\n${stringResource(Res.string.update_card_keep)}"
+                },
                 place,
                 actionLabel = stringResource(Res.string.update_card_update),
                 onAction = onUpdate,
