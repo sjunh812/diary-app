@@ -68,6 +68,13 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             }
         }
 
+        // Compose 리소스를 안드로이드 자산으로 옮기는 단계가 출력 폴더를 비우지 않음
+        // 지운 글꼴·그림이 계속 남아 로컬 출시 빌드가 커짐
+        tasks.matching { it.name.endsWith("ComposeResourcesToAndroidAssets") }.configureEach {
+            val output = outputs.files
+            doFirst { output.forEach { it.deleteRecursively() } }
+        }
+
         // Compose 모듈은 모델과 날짜 타입을 안정 타입으로 봄(research R10)
         // 그래야 상태가 안 바뀐 줄을 다시 그리지 않음
         pluginManager.withPlugin("org.jetbrains.kotlin.plugin.compose") {
