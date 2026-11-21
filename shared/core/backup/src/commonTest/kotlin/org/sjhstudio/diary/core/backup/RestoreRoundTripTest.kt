@@ -135,7 +135,14 @@ class RestoreRoundTripTest {
 
         MergeApplier(phoneB, { false }).apply(prepared.plan, "drive")
         assertEquals("pending", phoneB.backupDao().allMedia().single().status)
-        val (fetched, broken) = PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        val (fetched, broken) = PhotoFetcher(
+            phoneB,
+            drive,
+            fs,
+            dir / "b" / "media",
+            dir / "b" / "backup",
+            io = EmptyCoroutineContext
+        ).fetch()
 
         assertEquals(1 to 0, fetched to broken)
         assertEquals("normal", phoneB.backupDao().allMedia().single().status)
@@ -252,7 +259,10 @@ class RestoreRoundTripTest {
         val work = dir / "b" / "backup"
         val applier = lazy { MergeApplier(phoneB, { fs.exists(media / it) }) }
         return RestoreController(
-            lazy { catalog() }, lazy { planner(api) }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work) },
+            lazy {
+                catalog()
+            },
+            lazy { planner(api) }, applier, lazy { PhotoFetcher(phoneB, drive, fs, media, work, io = EmptyCoroutineContext) },
             lazy { LegacyBackupImporter(phoneB, drive, { _, _, _ -> null }, fs, work) },
             lazy {
                 rollback ?: RollbackManager(phoneB, applier.value, store, FreeSpace { 1_000_000_000 }, fs, work, { ManifestSettings() }, {})
@@ -395,7 +405,7 @@ class RestoreRoundTripTest {
         val applier = applierB()
         val prepared = prepareFromDrive()
         applier.apply(prepared.plan, "drive")
-        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
 
         assertEquals(setOf(full, trashed), phoneB.backupDao().allEntries().toSet())
         assertEquals(rows, phoneB.backupDao().allMedia().sortedBy { it.sortOrder })
@@ -435,11 +445,13 @@ class RestoreRoundTripTest {
                 override suspend fun download(fileId: String, to: Path, fromByte: Long): Long = throw DriveException(BackupFailure.OFFLINE)
             }
 
-        assertFailsWith<DriveException> { PhotoFetcher(phoneB, broken, fs, dir / "b" / "media", dir / "b" / "backup").fetch() }
+        assertFailsWith<DriveException> {
+            PhotoFetcher(phoneB, broken, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
+        }
         assertEquals("pending", phoneB.backupDao().allMedia().single().status)
         assertEquals(2, phoneB.backupDao().allEntries().size)
 
-        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
 
         assertEquals("normal", phoneB.backupDao().allMedia().single().status)
     }
@@ -465,7 +477,7 @@ class RestoreRoundTripTest {
 
         assertEquals(0, again.preview.entriesAdded)
         assertEquals(1, again.preview.photosToDownload)
-        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup").fetch()
+        PhotoFetcher(phoneB, drive, fs, dir / "b" / "media", dir / "b" / "backup", io = EmptyCoroutineContext).fetch()
         assertTrue(fs.exists(dir / "b" / "media" / "$hash.jpg"))
     }
 

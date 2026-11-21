@@ -1,6 +1,7 @@
 package org.sjhstudio.diary.core.backup
 
 import androidx.room3.Room
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -96,7 +97,7 @@ class PhotoFetcherTest {
         return photos
     }
 
-    private fun fetcher(drive: DriveApi) = PhotoFetcher(db, drive, fs, dir / "media", dir / "backup")
+    private fun fetcher(drive: DriveApi) = PhotoFetcher(db, drive, fs, dir / "media", dir / "backup", io = EmptyCoroutineContext)
 
     @Test
     fun photos_come_several_at_a_time_and_all_land() = runTest {

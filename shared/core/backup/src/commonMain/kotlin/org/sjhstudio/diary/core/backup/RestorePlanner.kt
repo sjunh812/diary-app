@@ -1,5 +1,6 @@
 package org.sjhstudio.diary.core.backup
 
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.Channel
@@ -207,7 +208,10 @@ class PhotoFetcher(
     private val fileSystem: FileSystem,
     private val mediaDir: Path,
     private val workDir: Path,
-    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE }
+    private val freeSpace: FreeSpace = FreeSpace { Long.MAX_VALUE },
+    // 사진 받기 작업자의 디스패처
+    // 시험은 비워 두어 부르는 쪽 가상 시간에서 돎
+    private val io: CoroutineContext = Dispatchers.IO
 ) {
     /** 대기 사진이 드라이브에 있는지 찾아봄 */
     suspend fun look(): DrivePhotos {
@@ -277,7 +281,7 @@ class PhotoFetcher(
         val gate = Semaphore(parallel)
         return coroutineScope {
             waiting.forEach { photo ->
-                launch(Dispatchers.IO) { gate.withPermit { results.send(settleOne(photo, copy)) } }
+                launch(io) { gate.withPermit { results.send(settleOne(photo, copy)) } }
             }
             repeat(waiting.size) { index ->
                 when (results.receive()) {

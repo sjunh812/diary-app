@@ -92,7 +92,17 @@ internal class TestPhone(
 
     fun catalog(api: DriveApi = drive) = RestoreCatalog(api, fs, work)
 
-    fun fetcher(api: DriveApi = drive, files: FileSystem = fs) = PhotoFetcher(db, api, files, media, work, FreeSpace { freeBytes })
+    fun fetcher(api: DriveApi = drive, files: FileSystem = fs) = PhotoFetcher(
+        db,
+        api,
+        files,
+        media,
+        work,
+        FreeSpace {
+            freeBytes
+        },
+        io = EmptyCoroutineContext
+    )
 
     fun manager(files: FileSystem = fs, applier: MergeApplier = applier()) = RollbackManager(
         db, applier, store, FreeSpace { freeBytes }, files, work, { ManifestSettings(font = "before") }, {
