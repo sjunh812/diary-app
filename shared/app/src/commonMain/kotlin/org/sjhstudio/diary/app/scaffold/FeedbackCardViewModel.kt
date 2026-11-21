@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -83,6 +84,8 @@ class HomeTopState(
                                 else -> HomeTop.Empty
                             }
                         }
+                            // 확인 전에 백업 안내를 닫으면 닫은 카드를 남기지 않음
+                            .onStart { if (!updates.firstChecked.value) emit(HomeTop.Reading) }
                     }
                 }.collect { read.value = it }
             }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -79,8 +80,10 @@ class AppUpdateRepository(
     // 받은 뒤 [나중에]. 이번 실행에서만 숨기고 앱을 다시 켜면 다시 알림
     private val laterThisRun = MutableStateFlow(false)
 
-    // 처음 확인을 마쳤는지. 그 전에는 홈 맨 위 칸이 다른 카드를 먼저 그렸다가 바꾸지 않게 기다림
     private val checked = MutableStateFlow(false)
+
+    /** 처음 확인을 마쳤는지. 그 전에는 홈 맨 위 칸이 다른 카드를 먼저 그렸다가 바꾸지 않게 기다림 */
+    val firstChecked: StateFlow<Boolean> = checked.asStateFlow()
 
     // 앱으로 돌아올 때가 겹쳐도 한 번에 하나만 물음
     private val refreshing = Mutex()

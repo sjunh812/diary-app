@@ -81,6 +81,25 @@ class HomeTopStateTest {
         assertEquals(HomeTop.Backup(nudge), state.top.value)
     }
 
+    /** 새 버전 확인 전에 백업 안내를 닫으면, 닫은 카드를 남기지 않고 확인이 끝날 때까지 읽는 중 */
+    @Test
+    fun a_closed_backup_nudge_does_not_stay_while_the_update_check_runs() = runTest(UnconfinedTestDispatcher()) {
+        val updates =
+            AppUpdateRepository(store, {
+                ""
+            }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", CoroutineScope(backgroundScope.coroutineContext))
+        val nudge = BackupNudge(10, 2, null)
+        backup.nudge.value = nudge
+        val state = HomeTopState(backup, prompts(), updates, backgroundScope)
+        state.start()
+        assertEquals(HomeTop.Backup(nudge), state.top.value)
+
+        backup.nudge.value = null
+        assertEquals(HomeTop.Reading, state.top.value)
+        updates.refresh()
+        assertEquals(HomeTop.Empty, state.top.value)
+    }
+
     @Test
     fun the_update_card_sits_between_backup_and_feedback() = runTest(UnconfinedTestDispatcher()) {
         val prompts = prompts()
