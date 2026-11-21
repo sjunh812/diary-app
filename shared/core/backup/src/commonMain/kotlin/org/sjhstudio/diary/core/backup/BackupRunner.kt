@@ -285,7 +285,7 @@ class BackupRunner(
         // 뒷정리가 실패해도 백업은 끝났고 정리는 다음 백업이 다시 함
         quietly {
             failures.stillFine(now)
-            prune(folders, deviceId, now)
+            prune(folders, deviceId, now, photos.damaged)
         }
         return BackupOutcome.Done(photos.uploaded.size, photos.left, photos.unusable.size)
     }
@@ -315,7 +315,8 @@ class BackupRunner(
         val uploaded: Set<String>,
         val unusable: Set<String>,
         val left: Int,
-        val bytesShort: Long
+        val bytesShort: Long,
+        val damaged: List<DriveFile>
     )
 
     private suspend fun sendPhotos(
@@ -326,9 +327,8 @@ class BackupRunner(
         cellularOnce: Boolean
     ): PhotoRound {
         val listed = drive.listAll(DriveQuery(parentId = folders.media, props = mapOf(DriveLayout.KEY_KIND to DriveLayout.KIND_PHOTO)))
-        // 깨진 사본은 휴지통에 넣고 없는 사진으로 보아 다시 올림
+        // 깨진 사본은 없는 사진으로 보아 다시 올리고 뒷정리에서 휴지통에 넣음
         val (damaged, onDrive) = listed.partition(RestoreNames::isDamaged)
-        damaged.forEach { drive.trash(it.id) }
         val driveHashes = onDrive.associateBy { it.name.substringBefore('.') }
         val dao = db.backupDao()
         // 드라이브가 원본
@@ -359,7 +359,17 @@ class BackupRunner(
         val inBackup = driveHashes.keys + uploaded
         // 글은 올렸지만 공간 때문에 사진이 남았으면 숫자와 할 일을 보여 줌(FR-018, FR-019)
         val short = if (allowed) missing.filter { it.sha256 !in uploaded && it.sha256 !in unusable }.sumOf { it.byteSize ?: 0 } else 0
-        return PhotoRound(local, inBackup, uploaded, unusable, local.count { it.sha256 !in inBackup && it.sha256 !in unusable }, short)
+        return PhotoRound(
+            local,
+            inBackup,
+            uploaded,
+            unusable,
+            local.count {
+                it.sha256 !in inBackup && it.sha256 !in unusable
+            },
+            short,
+            damaged
+        )
     }
 
     private suspend fun sendSnapshot(snapshot: Snapshot, folders: DriveFolders, deviceId: String): DriveFile {
@@ -551,7 +561,8 @@ class BackupRunner(
      * 끝까지 된 내 백업만 정리
      * 지우지 않고 드라이브 휴지통에 넣고, 목록 파일을 먼저 넣음
      */
-    private suspend fun prune(folders: DriveFolders, deviceId: String, now: Instant) {
+    private suspend fun prune(folders: DriveFolders, deviceId: String, now: Instant, damaged: List<DriveFile>) {
+        damaged.forEach { drive.trash(it.id) }
         val mine = drive.listAll(DriveQuery(parentId = folders.snapshots, props = mapOf(DriveLayout.KEY_DEVICE to deviceId)))
         val manifests = mine.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST }
         val snapshots = mine.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_SNAPSHOT }

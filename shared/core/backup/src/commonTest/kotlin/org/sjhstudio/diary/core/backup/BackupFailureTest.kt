@@ -343,6 +343,27 @@ class BackupFailureTest {
     }
 
     @Test
+    fun a_damaged_copy_that_cannot_be_trashed_does_not_stop_the_backup() = runTest {
+        phone.write("diary")
+        val hash = phone.photo("diary", 0, "사진")
+        done()
+        val good = photos().single()
+        drive.deleteByUser(good.id)
+        val wrong = dir / "wrong.jpg"
+        fs.write(wrong) { writeUtf8("깨진 내용") }
+        drive.uploadSmall(NewFile(good.name, good.parents.single(), "image/jpeg", good.props), wrong)
+        phone.clock.advance(1.days)
+        val stuck = object : DriveApi by drive {
+            override suspend fun trash(fileId: String) = throw DriveErrorMapper.map(500, "backendError")
+        }
+
+        val outcome = assertIs<BackupOutcome.Done>(phone.runner(stuck).run())
+
+        assertEquals(1, outcome.photosUploaded)
+        assertTrue(photos().any { it.sha256 == hash })
+    }
+
+    @Test
     fun a_restore_takes_the_good_copy_when_a_damaged_one_shares_its_name() = runTest {
         phone.write("diary")
         val hash = phone.photo("diary", 0, "사진")
