@@ -24,8 +24,8 @@ import org.sjhstudio.diary.core.model.StoreCheck
 enum class DevUpdate(val label: String, val summary: String) {
     REAL("실제", "Play 응답 그대로"),
     AVAILABLE("있음", "기본 문구"),
-    NOTE("소식 있음", "한 줄 소식 표시"),
-    REQUIRED("강제 업데이트", "[나중에] 없음"),
+    NOTE("요약 있음", "업데이트 요약 표시"),
+    REQUIRED("강제 업데이트", "닫을 수 없는 카드"),
     FAIL("받기 실패", "40%에서 실패")
 }
 

@@ -16,7 +16,7 @@
 - [x] T010 `shared/core/model/.../AppUpdate.kt`: StoreCheck, UpdateNotice, ReleaseNote, AppVersion 비교 + `commonTest` 버전 비교 시험
 - [x] T011 `shared/core/datastore/.../PromptStore.kt`: updateDismissed, updateKnown, updateCheckedAt
 - [x] T012 `shared/core/data/.../AppUpdateRepository.kt`: StoreUpdates·UpdateConfig 인터페이스, 상태 판단, refresh·start·restart·dismiss·openStorePage
-- [x] T013 `shared/core/data/src/commonTest/.../AppUpdateRepositoryTest.kt`: 닫은 버전, 더 새 버전, 꼭 필요, 받는 중·받음은 닫아도 보임, 실패 문구, 확인 실패는 None·마지막 값, iOS 24시간 간격, 소식 버전이 낮으면 안 씀
+- [x] T013 `shared/core/data/src/commonTest/.../AppUpdateRepositoryTest.kt`: 닫은 버전, 더 새 버전, 꼭 필요, 받는 중·받음은 닫아도 보임, 실패 문구, 확인 실패는 None·마지막 값, iOS 24시간 간격, 요약 버전이 낮으면 안 씀
 - [x] T014 `shared/core/testing/.../FakeStoreUpdates.kt`, `FakeUpdateConfig`
 
 ## 3단계: US1 홈 카드 (P1)

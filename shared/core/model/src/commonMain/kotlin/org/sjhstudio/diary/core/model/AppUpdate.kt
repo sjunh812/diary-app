@@ -45,7 +45,7 @@ sealed interface InstallStep {
     data object Canceled : InstallStep
 }
 
-/** 원격 한 줄 소식. 언어 코드("ko")별 문장 */
+/** 원격 업데이트 요약. 언어 코드("ko")별 문장 */
 data class ReleaseNote(val texts: Map<String, String>) {
     /** 앱 언어 문장, 없으면 영어(`docs/design.md` 여러 언어) */
     fun textFor(language: String): String? = texts[language] ?: texts[FALLBACK_LANGUAGE]

@@ -30,7 +30,7 @@
 - HIG에 업데이트 안내 항목은 없다. "앱이 시작할 때 알림 창을 띄우지 말라", "정보만 주는 알림 창은 피하라"([Alerts](https://developer.apple.com/design/human-interface-guidelines/alerts)).
 - iOS 자동 업데이트는 기본으로 켜져 있다([지원](https://support.apple.com/102629)). 끈 사람이 이 기능의 대상이다.
 
-**결정**: 새 버전 유무는 공개 조회(하루 한 번, 마지막 값 저장). 한 줄 소식과 꼭 필요한 업데이트 표시는 Remote Config. App Store 화면은 StoreKit의 앱 위 상품 화면(`SKStoreProductViewController`)으로 띄운다.
+**결정**: 새 버전 유무는 공개 조회(하루 한 번, 마지막 값 저장). 업데이트 요약과 꼭 필요한 업데이트 표시는 Remote Config. App Store 화면은 StoreKit의 앱 위 상품 화면(`SKStoreProductViewController`)으로 띄운다.
 
 ## R3 화면 레퍼런스
 
@@ -50,7 +50,7 @@
 - 이 프로젝트는 Spark다(`docs/release.md`). 결제 계정을 연결하지 않으면 Blaze로 바뀌지 않아 요금이 나갈 길이 없다.
 - 값을 12시간에 한 번만 받는다(`FirebaseAdSwitch.kt`, 기본 최소 간격도 12시간). 기기 하나가 하루 두 번 넘게 묻지 않으므로 하루 활성 기기 5만 대까지는 한도 안이다.
 - 받지 못하면 앱 안 기본값(`setDefaultsAsync`)을 쓴다. 문서는 네트워크에 기대지 말고 기본값을 꼭 두라고 한다.
-- 기본값: 한 줄 소식 없음, 최소 버전 없음. 받지 못하면 기본 문구 카드가 되고 강제는 걸리지 않는다. 덜 묻는 쪽으로 실패한다.
+- 기본값: 업데이트 요약 없음, 최소 버전 없음. 받지 못하면 기본 문구 카드가 되고 강제는 걸리지 않는다. 덜 묻는 쪽으로 실패한다.
 
 ## R4 꼭 필요한 업데이트
 
