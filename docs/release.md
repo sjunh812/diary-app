@@ -374,6 +374,7 @@ Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
 앱은 아래 이름을 쓴다(`StoreIds`).
 
 - Play 상품: 인앱 `ad_free`(광고 제거), 구독 `plus_yearly`(기본 요금제 연간).
+- 결제 유예: Play `plus_yearly` 기본 요금제 `yearly`는 유예 기간 14일(Google 권장값), 계정 보류 자동 계산 46일이다(2026-11-21 Play Console 확인). App Store "결제 유예 기간"은 로그인이 필요해 확인하지 못했다. 켜면 연 구독은 16일을 고른다(Play 14일에 가장 가까운 선택지).
 - RevenueCat 권한: `ad_free`는 `ad_free` 상품, `plus`는 `plus_yearly` 상품에 잇는다.
 - Google 실시간 개발자 알림(RTDN)은 켜져 있다: Play Console 수익 창출 설정의 주제 `projects/stone-rhythm-310608/topics/Play-Store-Notifications`, 알림 범위 "정기 결제, 무효화된 구매, 모든 일회성 제품", 그 주제에 RevenueCat 구독이 붙어 있다. Pub/Sub은 결제 계정 없이 쓴다. 2026-11-14 광고 제거 시험 주문을 환불(자격 삭제)하자 1분 뒤 RevenueCat에 환불이 찍히고 권한이 빠졌으며, 앱은 다음 포그라운드 때 광고를 다시 보였다(구매 복원을 누르지 않아도 됨).
 - RevenueCat Google 공개 키를 `local.properties`의 `revenuecat.android`와 CD 비밀값 `REVENUECAT_ANDROID`에 넣는다. 이 값이나 광고 ID가 없으면 CD가 멈춘다.
