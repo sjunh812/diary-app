@@ -92,7 +92,7 @@ fun UpdateCard(notice: UpdateNotice, onUpdate: () -> Unit, onLater: () -> Unit, 
             )
         }
 
-        UpdateNotice.Downloaded ->
+        is UpdateNotice.Downloaded ->
             DiaryStatusBox(
                 DiaryIcons.RotateCw,
                 stringResource(Res.string.update_card_downloaded_title),
@@ -100,7 +100,8 @@ fun UpdateCard(notice: UpdateNotice, onUpdate: () -> Unit, onLater: () -> Unit, 
                 place,
                 actionLabel = stringResource(Res.string.update_card_restart),
                 onAction = onRestart,
-                secondaryLabel = stringResource(Res.string.update_card_later),
+                // 꼭 필요한 업데이트는 받은 뒤에도 닫을 수 없음
+                secondaryLabel = stringResource(Res.string.update_card_later).takeUnless { notice.required },
                 onSecondary = onLater,
                 secondaryKind = DiaryButtonKind.Text
             )

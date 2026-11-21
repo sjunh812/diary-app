@@ -18,7 +18,7 @@ class UpdateCardViewModel(private val updates: AppUpdateRepository) : ViewModel(
 
     /** [업데이트]와 설정 줄. 받은 뒤라면 다시 시작 */
     fun act() {
-        if (notice.value == UpdateNotice.Downloaded) {
+        if (notice.value is UpdateNotice.Downloaded) {
             updates.restart()
         } else {
             viewModelScope.launchSafely { updates.start() }

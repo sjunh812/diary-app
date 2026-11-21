@@ -262,7 +262,7 @@ fun SettingsScreen(
 
                 is UpdateNotice.Downloading -> DiarySettingsValueRow(version, appVersion, valueNote = update.progressLabel())
 
-                is UpdateNotice.Available, UpdateNotice.Downloaded ->
+                is UpdateNotice.Available, is UpdateNotice.Downloaded ->
                     DiarySettingsRow(version, onClick = onUpdate, value = appVersion, valueAction = update.actionLabel())
             }
             DiarySettingsRow(
@@ -302,7 +302,7 @@ private fun listValue(list: ListPreferences): String {
 /** 앱 버전 줄 값 뒤 할 일 */
 @Composable
 private fun UpdateNotice.actionLabel(): String = stringResource(
-    if (this == UpdateNotice.Downloaded) Res.string.settings_version_restart else Res.string.settings_version_update
+    if (this is UpdateNotice.Downloaded) Res.string.settings_version_restart else Res.string.settings_version_update
 )
 
 /** 받는 중 진행률. 모르면 "받는 중"만 */

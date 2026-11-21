@@ -23,11 +23,15 @@ class FakeStoreUpdates(override val installed: String = "43", override val check
     /** 참이면 묻기가 끝나지 않음(답하지 않는 스토어) */
     var hangs = false
 
+    /** 묻는 중에 일어날 일. 묻는 사이 온 실시간 알림을 흉내 */
+    var duringCheck: (suspend () -> Unit)? = null
+
     override val installs = MutableSharedFlow<InstallStep>(extraBufferCapacity = 8)
 
     override suspend fun check(): StoreCheck {
         checks++
         if (hangs) awaitCancellation()
+        duringCheck?.invoke()
         return answer ?: throw IllegalStateException("store unavailable")
     }
 

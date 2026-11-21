@@ -64,5 +64,6 @@ sealed interface UpdateNotice {
 
     data class Downloading(val progress: Float?) : UpdateNotice
 
-    data object Downloaded : UpdateNotice
+    /** [required]면 꼭 필요한 업데이트라 [나중에]가 없음 */
+    data class Downloaded(val required: Boolean = false) : UpdateNotice
 }

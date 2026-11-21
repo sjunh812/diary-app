@@ -75,8 +75,9 @@ class AppUpdateRepository(
     scope: CoroutineScope,
     private val clock: Clock = Clock.System
 ) {
-    private val check = MutableStateFlow<StoreCheck>(StoreCheck.None)
-    private val step = MutableStateFlow<InstallStep?>(null)
+    // 받기 상태는 실시간 알림(IO)과 다시 묻기(화면 스레드)가 함께 바꿈
+    // 한 값에 묶어 한 번에 바꿔야 화면이 두 값 사이의 중간 상태를 보지 않음
+    private val state = MutableStateFlow(InstallState())
     private val extras = MutableStateFlow(Extras())
 
     // 받은 뒤 [나중에]. 이번 실행에서만 숨기고 앱을 다시 켜면 다시 알림
@@ -92,27 +93,12 @@ class AppUpdateRepository(
         scope.launch {
             store.installs
                 .catch { if (it !is Exception) throw it }
-                .collect(::onInstall)
-        }
-    }
-
-    // 앱을 켜 둔 동안은 Play 실시간 알림을 따름
-    // 취소·실패면 물어 둔 받는 중·받음을 그 자리에서 "받을 수 있음"으로 내림. 다시 묻기가 실패해도 남지 않음
-    private fun onInstall(next: InstallStep) {
-        step.value = next.takeUnless { it == InstallStep.Canceled }
-        if (next == InstallStep.Canceled || next == InstallStep.Failed) {
-            check.update {
-                when (it) {
-                    is StoreCheck.Downloading -> StoreCheck.Available(it.id)
-                    is StoreCheck.Downloaded -> StoreCheck.Available(it.id)
-                    else -> it
-                }
-            }
+                .collect { next -> state.update { it.on(next) } }
         }
     }
 
     /** 설정 줄이 보는 상태. 닫은 버전도 그대로 보임 */
-    val notice: StateFlow<UpdateNotice> = combine(check, step, extras, ::noticeOf).stateIn(scope, SharingStarted.Eagerly, UpdateNotice.None)
+    val notice: StateFlow<UpdateNotice> = combine(state, extras, ::noticeOf).stateIn(scope, SharingStarted.Eagerly, UpdateNotice.None)
 
     /**
      * 홈 맨 위 카드. 없으면 null
@@ -124,25 +110,17 @@ class AppUpdateRepository(
         flow {
             checked.first { it }
             emitAll(
-                combine(
-                    check,
-                    step,
-                    extras,
-                    prompts.prefs.catch {
-                        emit(PromptPrefs())
-                    },
-                    laterThisRun
-                ) { check, step, extras, prefs, later ->
-                    when (val notice = noticeOf(check, step, extras)) {
+                combine(state, extras, prompts.prefs.catch { emit(PromptPrefs()) }, laterThisRun) { state, extras, prefs, later ->
+                    when (val notice = noticeOf(state, extras)) {
                         UpdateNotice.None -> null
 
                         // 받다 실패한 것도 사용자가 시작한 일이라 닫은 버전이어도 알림
                         is UpdateNotice.Available -> notice.takeIf {
-                            notice.required || notice.failed ||
-                                (check as? StoreCheck.Available)?.id != prefs.updateDismissed
+                            val id = (state.check as? StoreCheck.Available)?.id
+                            notice.required || notice.failed || (id != prefs.updateDismissed && id != state.dismissed)
                         }
 
-                        UpdateNotice.Downloaded -> notice.takeUnless { later }
+                        is UpdateNotice.Downloaded -> notice.takeUnless { later && !notice.required }
 
                         is UpdateNotice.Downloading -> notice
                     }
@@ -160,45 +138,38 @@ class AppUpdateRepository(
             val checkedAt = prefs.updateCheckedAt
             if (remembers && known != null) {
                 // 기억한 값으로 먼저 정해 홈 맨 위 칸이 네트워크를 기다리지 않음
-                settle(known)
+                state.update { it.settle(known) }
                 checked.value = true
                 if (checkedAt != null && clock.now() - checkedAt < store.checkEvery) return@withLock
             }
             // 묻지 못하거나 답이 늦으면 마지막으로 안 값을 그대로 둠. 홈 맨 위 칸이 이 확인을 기다림
+            val eventsBefore = state.value.liveEvents
             val fresh = withTimeoutOrNull(CHECK_TIMEOUT) { orElseOnFailure<StoreCheck?>(null) { store.check() } } ?: return@withLock
             if (remembers) quietly { prompts.updateChecked((fresh as? StoreCheck.Available)?.id.orEmpty(), clock.now()) }
-            settle(fresh)
+            // 묻는 사이 실시간 알림이 왔으면 답의 받기 상태는 더 오래된 소식. 모르던 버전만 배움
+            state.update { if (it.liveEvents == eventsBefore) it.settle(fresh) else it.learn(fresh) }
         } finally {
             checked.value = true
         }
     }
 
-    private fun noticeOf(check: StoreCheck, step: InstallStep?, extras: Extras): UpdateNotice = when {
-        step is InstallStep.Downloading -> UpdateNotice.Downloading(step.progress)
-        step == InstallStep.Downloaded -> UpdateNotice.Downloaded
-        check is StoreCheck.Downloading -> UpdateNotice.Downloading(check.progress)
-        check is StoreCheck.Downloaded -> UpdateNotice.Downloaded
-        check is StoreCheck.Available -> UpdateNotice.Available(extras.required, extras.note, step == InstallStep.Failed)
-        else -> UpdateNotice.None
+    private fun noticeOf(state: InstallState, extras: Extras): UpdateNotice {
+        val (check, step) = state
+        return when {
+            step is InstallStep.Downloading -> UpdateNotice.Downloading(step.progress)
+            step == InstallStep.Downloaded -> UpdateNotice.Downloaded(extras.required)
+            check is StoreCheck.Downloading -> UpdateNotice.Downloading(check.progress)
+            check is StoreCheck.Downloaded -> UpdateNotice.Downloaded(extras.required)
+            check is StoreCheck.Available -> UpdateNotice.Available(extras.required, extras.note, step == InstallStep.Failed)
+            else -> UpdateNotice.None
+        }
     }
 
-    private fun settle(result: StoreCheck) {
-        // 묻는 사이 온 받음·실패 알림이 늦게 온 "받는 중" 답보다 새 소식
-        val fresh =
-            when {
-                result is StoreCheck.Downloading && step.value == InstallStep.Downloaded -> StoreCheck.Downloaded(result.id)
-                result is StoreCheck.Downloading && step.value == InstallStep.Failed -> StoreCheck.Available(result.id)
-                else -> result
-            }
-        // 다시 물은 값이 받기 상태까지 알려 줌. 실시간 알림이 끊긴 채 멈췄어도 돌아오면 풀림
-        // 실패 표시는 아직 받을 수 있으면 다시 받기를 누를 때까지 둠
-        if (!(step.value == InstallStep.Failed && fresh is StoreCheck.Available)) step.value = null
-        check.value = fresh
-    }
-
-    /** [업데이트]. 실패 표시를 지우고 스토어 창을 띄움 */
+    /** [업데이트]. 스토어 창을 띄움 */
     suspend fun start(): Boolean {
-        if (step.value == InstallStep.Failed) step.value = null
+        // 실패 표시는 받기가 실제로 시작되면 실시간 알림이 바꿈. 미리 지우면 닫은 버전의 카드가 사라졌다 다시 생김
+        // 새로 받으면 받은 뒤 [나중에]로 숨긴 것을 풀어 [다시 시작하기]를 다시 알림
+        laterThisRun.value = false
         return orElseOnFailure(false) { store.start() }
     }
 
@@ -210,12 +181,13 @@ class AppUpdateRepository(
 
     /** [나중에]. 그 버전은 다시 카드로 알리지 않음. 받은 뒤라면 이번 실행에서만 숨김. 실패 표시도 함께 닫음 */
     suspend fun dismiss() {
-        if (notice.value == UpdateNotice.Downloaded) {
+        if (notice.value is UpdateNotice.Downloaded) {
             laterThisRun.value = true
             return
         }
-        val id = (check.value as? StoreCheck.Available)?.id ?: return
-        if (step.value == InstallStep.Failed) step.value = null
+        val id = (state.value.check as? StoreCheck.Available)?.id ?: return
+        // 닫은 버전과 실패 지우기를 한 번에 바꿔 일반 카드가 한순간도 보이지 않음. 저장은 다음 실행을 위해 그 뒤에
+        state.update { it.copy(step = it.step.takeUnless { step -> step == InstallStep.Failed }, dismissed = id) }
         quietly { prompts.updateDismissed(id) }
     }
 
@@ -236,6 +208,52 @@ class AppUpdateRepository(
     }
 
     private data class Extras(val required: Boolean = false, val note: ReleaseNote? = null)
+
+    /**
+     * 받기 상태 한 벌
+     * [check]는 앱으로 돌아올 때 스토어에 물은 값, [step]은 앱을 켜 둔 동안 오는 Play 실시간 알림
+     * [liveEvents]는 받은 알림 수. 묻는 사이 알림이 왔는지 가림
+     * [dismissed]는 이번 실행에서 [나중에]로 닫은 버전. 저장한 값보다 먼저 화면에 반영
+     */
+    private data class InstallState(
+        val check: StoreCheck = StoreCheck.None,
+        val step: InstallStep? = null,
+        val liveEvents: Int = 0,
+        val dismissed: String? = null
+    ) {
+        // 취소·실패면 물어 둔 받는 중·받음을 그 자리에서 "받을 수 있음"으로 내림. 다시 묻기가 실패해도 남지 않음
+        fun on(next: InstallStep): InstallState {
+            val stale = next == InstallStep.Canceled || next == InstallStep.Failed
+            val lowered =
+                when {
+                    !stale -> check
+                    check is StoreCheck.Downloading -> StoreCheck.Available(check.id)
+                    check is StoreCheck.Downloaded -> StoreCheck.Available(check.id)
+                    else -> check
+                }
+            return copy(check = lowered, step = next.takeUnless { it == InstallStep.Canceled }, liveEvents = liveEvents + 1)
+        }
+
+        // 늦은 답의 받기 상태는 쓰지 않되 버전을 모르면 배움. 그래야 뒤이은 실패·취소를 그 버전으로 알림
+        fun learn(result: StoreCheck): InstallState {
+            val id =
+                when (result) {
+                    is StoreCheck.Available -> result.id
+                    is StoreCheck.Downloading -> result.id
+                    is StoreCheck.Downloaded -> result.id
+                    StoreCheck.None -> null
+                }
+            return if (check == StoreCheck.None && id != null) copy(check = StoreCheck.Available(id)) else this
+        }
+
+        // 다시 물은 값이 받기 상태까지 알려 줌. 실시간 알림이 끊긴 채 멈췄어도 돌아오면 풀림
+        // 실패는 그 버전의 일. 그 버전을 아직 받을 수 있으면 다시 받기를 누를 때까지 둠
+        fun settle(result: StoreCheck): InstallState {
+            val failedId = (check as? StoreCheck.Available)?.id?.takeIf { step == InstallStep.Failed }
+            val keepFailure = result is StoreCheck.Available && result.id == failedId
+            return copy(check = result, step = step.takeIf { keepFailure })
+        }
+    }
 
     companion object {
         /** 이보다 낮은 앱은 카드를 닫을 수 없음(`docs/release.md` 새 버전 안내 원격 값) */

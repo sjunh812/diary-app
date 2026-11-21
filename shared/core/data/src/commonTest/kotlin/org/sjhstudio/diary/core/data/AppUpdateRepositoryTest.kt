@@ -116,7 +116,7 @@ class AppUpdateRepositoryTest {
 
         store.answer = StoreCheck.Downloaded("45")
         repo.refresh()
-        assertEquals(UpdateNotice.Downloaded, repo.notice.value)
+        assertEquals(UpdateNotice.Downloaded(), repo.notice.value)
     }
 
     /** 받은 뒤 설치가 실패하면 다시 받을 수 있는 카드가 되고 [나중에]로 닫힘 */
@@ -192,11 +192,11 @@ class AppUpdateRepositoryTest {
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
         val repo = repo(store)
         repo.refresh()
-        store.installs.emit(InstallStep.Downloaded)
 
         store.answer = StoreCheck.Downloading("45", 0.95f)
+        store.duringCheck = { store.installs.emit(InstallStep.Downloaded) }
         repo.refresh()
-        assertEquals(UpdateNotice.Downloaded, repo.notice.value)
+        assertEquals(UpdateNotice.Downloaded(), repo.notice.value)
     }
 
     /** 묻는 사이 실패 알림이 먼저 오면 늦게 온 "받는 중" 답으로 실패를 지우지 않음 */
@@ -205,9 +205,9 @@ class AppUpdateRepositoryTest {
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
         val repo = repo(store)
         repo.refresh()
-        store.installs.emit(InstallStep.Failed)
 
         store.answer = StoreCheck.Downloading("45", 0.4f)
+        store.duringCheck = { store.installs.emit(InstallStep.Failed) }
         repo.refresh()
         assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
     }
@@ -220,6 +220,131 @@ class AppUpdateRepositoryTest {
         repo.refresh()
         // 처음 확인을 마쳐야 카드 값이 나옴
         assertNull(repo.homeCard.first())
+    }
+
+    /** 받은 뒤 [나중에]로 숨겨도 같은 실행에서 다시 받기를 시작해 끝내면 [다시 시작하기]를 알림 */
+    @Test
+    fun a_new_download_after_later_shows_downloaded_again() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Downloaded)
+        repo.dismiss()
+        assertNull(repo.homeCard.first())
+
+        store.installs.emit(InstallStep.Failed)
+        repo.start()
+        store.installs.emit(InstallStep.Downloaded)
+        assertEquals(UpdateNotice.Downloaded(), repo.homeCard.first())
+    }
+
+    /** 지난 버전의 받기 실패가 새로 나온 버전에 옮겨 붙지 않음 */
+    @Test
+    fun an_old_failure_does_not_stick_to_a_newer_version() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Failed)
+
+        store.answer = StoreCheck.Available("46")
+        repo.refresh()
+        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 꼭 필요한 업데이트는 받은 뒤에도 [나중에]로 숨길 수 없음 */
+    @Test
+    fun a_required_update_stays_after_download() = runTest {
+        remote[AppUpdateRepository.KEY_MIN_VERSION] = "9.0"
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded("45") }
+        val repo = repo(store)
+        repo.refresh()
+        assertEquals(UpdateNotice.Downloaded(required = true), repo.homeCard.first())
+
+        repo.dismiss()
+        assertEquals(UpdateNotice.Downloaded(required = true), repo.homeCard.first())
+    }
+
+    /** 실패 카드를 [나중에]로 닫을 때 한순간도 일반 새 버전 카드로 바뀌지 않음 */
+    @Test
+    fun dismissing_a_failed_card_goes_straight_to_nothing() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        store.installs.emit(InstallStep.Failed)
+        val seen = mutableListOf<UpdateNotice?>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { repo.homeCard.collect { seen += it } }
+
+        repo.dismiss()
+        assertEquals(listOf<UpdateNotice?>(UpdateNotice.Available(required = false, note = null, failed = true), null), seen)
+    }
+
+    /** 닫은 버전의 실패 카드에서 [업데이트]를 눌러도 받기가 시작될 때까지 카드가 사라지지 않음 */
+    @Test
+    fun retrying_a_failed_dismissed_version_keeps_the_card() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Available("45") }
+        val repo = repo(store)
+        repo.refresh()
+        repo.dismiss()
+        store.installs.emit(InstallStep.Downloading(0.1f))
+        store.installs.emit(InstallStep.Failed)
+
+        repo.start()
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.homeCard.first())
+        store.installs.emit(InstallStep.Downloading(0.2f))
+        assertEquals(UpdateNotice.Downloading(0.2f), repo.homeCard.first())
+    }
+
+    /** 묻는 사이 취소 알림이 먼저 오면 늦게 온 "받는 중" 답으로 되돌리지 않음 */
+    @Test
+    fun a_stale_downloading_answer_does_not_undo_a_cancel() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloading("45", 0.4f) }
+        val repo = repo(store)
+        repo.refresh()
+
+        store.duringCheck = { store.installs.emit(InstallStep.Canceled) }
+        repo.refresh()
+        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+    }
+
+    /** 묻는 사이 실패 알림이 오면 늦게 온 "받음" 답으로 실패를 지우지 않음 */
+    @Test
+    fun a_stale_downloaded_answer_does_not_hide_a_failure() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded("45") }
+        val repo = repo(store)
+        repo.refresh()
+
+        store.duringCheck = { store.installs.emit(InstallStep.Failed) }
+        repo.refresh()
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+    }
+
+    /** 앱을 다시 열어 안 "받는 중"에서 실패 알림이 와도 다른 카드가 한 번도 나가지 않음 */
+    @Test
+    fun a_failure_after_reopen_goes_straight_to_the_failure_card() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloading("45", 0.6f) }
+        val repo = repo(store)
+        repo.refresh()
+        val seen = mutableListOf<UpdateNotice?>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { repo.homeCard.collect { seen += it } }
+
+        store.installs.emit(InstallStep.Failed)
+        assertEquals(
+            listOf<UpdateNotice?>(UpdateNotice.Downloading(0.6f), UpdateNotice.Available(required = false, note = null, failed = true)),
+            seen
+        )
+    }
+
+    /** 앱을 새로 켠 첫 확인 사이 알림이 와도 그 답이 알려 준 버전은 배워, 뒤이은 실패를 카드로 알림 */
+    @Test
+    fun the_first_check_still_learns_the_version_when_an_event_arrives() = runTest {
+        val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloading("45", 0.5f) }
+        val repo = repo(store)
+        store.duringCheck = { store.installs.emit(InstallStep.Downloading(0.55f)) }
+        repo.refresh()
+        assertEquals(UpdateNotice.Downloading(0.55f), repo.notice.value)
+
+        store.installs.emit(InstallStep.Failed)
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.homeCard.first())
     }
 
     @Test
@@ -307,7 +432,7 @@ class AppUpdateRepositoryTest {
         store.installs.emit(InstallStep.Downloading(0.42f))
         assertEquals(UpdateNotice.Downloading(0.42f), repo.homeCard.first())
         store.installs.emit(InstallStep.Downloaded)
-        assertEquals(UpdateNotice.Downloaded, repo.homeCard.first())
+        assertEquals(UpdateNotice.Downloaded(), repo.homeCard.first())
         repo.restart()
         assertEquals(1, store.restarts)
     }
@@ -319,10 +444,10 @@ class AppUpdateRepositoryTest {
         repo.refresh()
         repo.dismiss()
         assertNull(repo.homeCard.first())
-        assertEquals(UpdateNotice.Downloaded, repo.notice.value)
+        assertEquals(UpdateNotice.Downloaded(), repo.notice.value)
         val reopened = repo(store)
         reopened.refresh()
-        assertEquals(UpdateNotice.Downloaded, reopened.homeCard.first())
+        assertEquals(UpdateNotice.Downloaded(), reopened.homeCard.first())
     }
 
     @Test
@@ -345,7 +470,10 @@ class AppUpdateRepositoryTest {
         repo.refresh()
         assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
         repo.start()
-        assertEquals(UpdateNotice.Available(required = false, note = null), repo.notice.value)
+        // 받기가 실제로 시작될 때 실패 표시가 바뀜
+        assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
+        store.installs.emit(InstallStep.Downloading(0.05f))
+        assertEquals(UpdateNotice.Downloading(0.05f), repo.notice.value)
         assertEquals(1, store.starts)
     }
 
@@ -354,7 +482,7 @@ class AppUpdateRepositoryTest {
         val store = FakeStoreUpdates().apply { answer = StoreCheck.Downloaded("45") }
         val repo = repo(store)
         repo.refresh()
-        assertEquals(UpdateNotice.Downloaded, repo.homeCard.first())
+        assertEquals(UpdateNotice.Downloaded(), repo.homeCard.first())
     }
 
     @Test

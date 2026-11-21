@@ -82,6 +82,21 @@ class UpdateCardUiTest {
     }
 
     @Test
+    fun required_downloaded_card_has_no_later() = runComposeUiTest {
+        var restart = ""
+        var later = ""
+        setContent {
+            restart = stringResource(Res.string.update_card_restart)
+            later = stringResource(Res.string.update_card_later)
+            DiaryTheme(darkTheme = false) {
+                UpdateCard(UpdateNotice.Downloaded(required = true), onUpdate = {}, onLater = {}, onRestart = {})
+            }
+        }
+        onNode(hasText(restart)).assertExists()
+        onNode(hasText(later)).assertDoesNotExist()
+    }
+
+    @Test
     fun download_shows_progress_then_restart() = runComposeUiTest {
         var notice: UpdateNotice by mutableStateOf(UpdateNotice.Downloading(0.42f))
         var restarts = 0
@@ -100,7 +115,7 @@ class UpdateCardUiTest {
         // 받는 동안에는 누를 버튼이 없음
         onNode(hasText(update)).assertDoesNotExist()
 
-        notice = UpdateNotice.Downloaded
+        notice = UpdateNotice.Downloaded()
         onNode(progressBar).assertDoesNotExist()
         onNode(hasText(restart)).performClick()
         assertEquals(1, restarts)

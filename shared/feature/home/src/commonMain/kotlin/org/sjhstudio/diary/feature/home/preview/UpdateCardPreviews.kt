@@ -47,7 +47,11 @@ private fun UpdateCardDownloadingDark() = Card(UpdateNotice.Downloading(0.42f), 
 
 @Preview(name = "새 버전 카드 · 받았어요", locale = "ko", widthDp = 390)
 @Composable
-private fun UpdateCardDownloaded() = Card(UpdateNotice.Downloaded)
+private fun UpdateCardDownloaded() = Card(UpdateNotice.Downloaded())
+
+@Preview(name = "새 버전 카드 · 받았어요 · 꼭 필요", locale = "ko", widthDp = 390)
+@Composable
+private fun UpdateCardDownloadedRequired() = Card(UpdateNotice.Downloaded(required = true))
 
 @Preview(name = "새 버전 카드 · 받기 실패", locale = "ko", widthDp = 390)
 @Composable
