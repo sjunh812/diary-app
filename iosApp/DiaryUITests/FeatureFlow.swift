@@ -584,4 +584,35 @@ final class FeatureFlow: DeviceTestCase {
         if !contains("Tips line five").waitForExistence(timeout: 3) { XCTFail("전체 보기에서 마지막 줄이 안 보임") }
         if tip.exists { XCTFail("전체로 보기 뒤에도 팁이 남음") }
     }
+
+    /** 새 버전 카드(스펙 009). 개발 빌드의 흉내 인자로 띄우고 [업데이트]로 앱 위 App Store 화면을 엶. 일기는 만들지 않음 */
+    func testUpdateCard() {
+        app.launchArguments = ["-diaryUpdate", "note"]
+        app.launch()
+        sleep(3)
+        shot("update-home")
+        // 흉내 버전(99.0)을 앞선 실행에서 [나중에]로 닫았으면 카드는 다시 뜨지 않는 것이 맞음
+        if element("새 버전이 나왔어요").waitForExistence(timeout: 10) {
+            if !contains("결제 뒤에도 광고가 보이던 문제를 고쳤어요").exists { XCTFail("업데이트 요약이 안 보임") }
+            tap("업데이트")
+            sleep(4)
+            shot("update-store-sheet")
+            // App Store 화면은 다른 프로세스라 앱 화면 위에서 아래로 내려 닫음
+            app.swipeDown(velocity: .fast)
+            sleep(2)
+            shot("update-after-sheet")
+            tap("나중에")
+            sleep(1)
+            shot("update-later")
+            if element("새 버전이 나왔어요").exists { XCTFail("나중에 뒤에도 카드가 남음") }
+        }
+        // 설정 앱 버전 줄에는 계속 보임
+        tap("설정")
+        app.swipeUp()
+        sleep(1)
+        shot("update-settings-row")
+        // 줄 전체가 한 이름("2.0.2 · 업데이트")으로 읽힘
+        if !contains("· 업데이트").exists { XCTFail("설정 앱 버전 줄에 업데이트가 안 보임") }
+        tap("홈")
+    }
 }
