@@ -2,7 +2,6 @@ package org.sjhstudio.diary.app.update
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
@@ -32,13 +31,7 @@ interface IosUpdateBridge {
  * 조회에는 앱 번호와 기기 지역만 보냄(헌법 II)
  */
 class IosStoreUpdates(private val bridge: IosUpdateBridge?, override val installed: String) : StoreUpdates {
-    // 처음 확인을 마칠 때까지 홈 맨 위 칸이 기다려 오래 걸리지 않게 끊음
-    private val client by lazy {
-        HttpClient(Darwin) {
-            expectSuccess = true
-            install(HttpTimeout) { requestTimeoutMillis = TIMEOUT_MILLIS }
-        }
-    }
+    private val client by lazy { HttpClient(Darwin) { expectSuccess = true } }
 
     // 네트워크로 묻고 분당 약 20회 한도가 있어 하루 한 번
     override val checkEvery: Duration = 1.days
@@ -67,6 +60,5 @@ class IosStoreUpdates(private val bridge: IosUpdateBridge?, override val install
 
     private companion object {
         const val DEFAULT_COUNTRY = "us"
-        const val TIMEOUT_MILLIS = 10_000L
     }
 }

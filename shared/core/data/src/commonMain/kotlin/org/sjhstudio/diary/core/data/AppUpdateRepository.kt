@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.data
 
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
 import org.sjhstudio.diary.core.datastore.PromptPrefs
 import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.model.AppVersion
@@ -165,8 +167,8 @@ class AppUpdateRepository(
                 checked.value = true
                 if (checkedAt != null && clock.now() - checkedAt < store.checkEvery) return@withLock
             }
-            // 묻지 못하면 마지막으로 안 값을 그대로 둠
-            val fresh = orElseOnFailure<StoreCheck?>(null) { store.check() } ?: return@withLock
+            // 묻지 못하거나 답이 늦으면 마지막으로 안 값을 그대로 둠. 홈 맨 위 칸이 이 확인을 기다림
+            val fresh = withTimeoutOrNull(CHECK_TIMEOUT) { orElseOnFailure<StoreCheck?>(null) { store.check() } } ?: return@withLock
             if (remembers) quietly { prompts.updateChecked((fresh as? StoreCheck.Available)?.id.orEmpty(), clock.now()) }
             settle(fresh)
         } finally {
@@ -246,6 +248,8 @@ class AppUpdateRepository(
         const val KEY_NOTE_VERSION = "update_note_version"
         const val KEY_NOTE_PREFIX = "update_note_"
         val NOTE_LANGUAGES = listOf("ko", "en", "ja")
+
+        private val CHECK_TIMEOUT = 10.seconds
     }
 }
 

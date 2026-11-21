@@ -212,6 +212,16 @@ class AppUpdateRepositoryTest {
         assertEquals(UpdateNotice.Available(required = false, note = null, failed = true), repo.notice.value)
     }
 
+    /** 스토어가 끝내 답하지 않아도 처음 확인은 끝나 홈 맨 위 칸이 계속 기다리지 않음 */
+    @Test
+    fun a_store_that_never_answers_still_finishes_the_first_check() = runTest {
+        val store = FakeStoreUpdates().apply { hangs = true }
+        val repo = repo(store)
+        repo.refresh()
+        // 처음 확인을 마쳐야 카드 값이 나옴
+        assertNull(repo.homeCard.first())
+    }
+
     @Test
     fun nothing_when_store_has_no_update_or_fails_first_time() = runTest {
         val store = FakeStoreUpdates()
