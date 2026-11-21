@@ -27,7 +27,7 @@ import org.sjhstudio.diary.core.model.BackupFailure
 
 /** 동의 창을 띄우는 쪽. 화면이 있는 `MainActivity`가 걸고, 백그라운드에서는 비어 있음 */
 fun interface DriveConsentLauncher {
-    /** 동의 창을 띄우고 돌아온 결과. 취소하면 null */
+    /** 동의 창을 띄우고 돌아온 결과. 결과 없이 닫히면 null. 취소와 실패는 결과 안의 상태로 가림 */
     suspend fun launch(intent: PendingIntent): Intent?
 }
 

@@ -39,9 +39,10 @@ class MainActivity : FragmentActivity() {
     // 구글 드라이브 동의 창
     // 돌아온 결과를 기다리는 쪽에 넘김
     // 창을 보는 동안 화면을 돌리면 결과는 새 화면으로 오니 기다림은 앱과 함께 사는 곳에 둠
+    // 실패도 취소 코드로 오고 까닭은 결과에 담겨 와 코드와 관계없이 넘김
     private val consent =
         registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-            get<AndroidDriveAuthorizer>().consentResult.finish(result.data.takeIf { result.resultCode == RESULT_OK })
+            get<AndroidDriveAuthorizer>().consentResult.finish(result.data)
         }
 
     @Volatile private var insetsKnown = false
