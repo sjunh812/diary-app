@@ -413,32 +413,26 @@ App Store는 상품 설명 칸이 짧아(비소모품 45자, 구독 55자 안팎
 
 ### 2.1.0 (47)
 
-Android(2.0.1에서)와 iOS(2.0.2에서) 모두 이 노트를 쓴다. 이번 버전부터 두 스토어의 버전과 빌드 번호를 맞춘다(`docs/DECISIONS.md` 2026-11-21). 쓰는 법은 아래 2.0.1과 같다.
+Android(2.0.1에서)와 iOS(2.0.2에서) 모두 이 노트를 쓴다. 이번 버전부터 두 스토어의 버전과 빌드 번호를 맞춘다(`docs/DECISIONS.md` 2026-11-21). 버전 줄 아래 세 줄 안으로, 해요체로 쓰고 줄 끝에 마침표를 찍는다(사용자 요청 2026-11-22).
 
 ```text
 <ko-KR>
 [버전 2.1.0]
-• 결제한 뒤에도 광고가 보이던 문제를 수정했어요
-• 목록에서 일기를 3줄, 5줄, 전체로 골라 볼 수 있어요
-• 새 버전이 나오면 홈과 설정에서 알려드려요
-• 앱을 켤 때 화면이 깜빡이지 않아요
-• 쓰기 화면과 백업·복원의 여러 문제를 수정했어요
+• 결제한 뒤에도 광고가 보이던 문제를 수정했어요.
+• 목록에서 일기를 3줄, 5줄, 전체로 골라 볼 수 있어요.
+• 사진이 많아도 백업이 더 빨라졌어요.
 </ko-KR>
 <en-US>
 [Version 2.1.0]
-• Fixed ads still showing after purchase
-• Show 3 lines, 5 lines, or the full entry in your list
-• Home and Settings now tell you when a new version is out
-• No more screen flicker when opening the app
-• Fixed several issues in writing, backup, and restore
+• Fixed ads still showing after purchase.
+• Choose 3 lines, 5 lines, or the full entry in your list.
+• Backups with lots of photos are now faster.
 </en-US>
 <ja-JP>
 [バージョン 2.1.0]
-• 購入後も広告が表示される問題を修正しました
-• 一覧で日記を3行・5行・全文から選んで表示できます
-• 新しいバージョンが出ると、ホームと設定でお知らせします
-• アプリを開くときに画面がちらつかなくなりました
-• 書く画面とバックアップ・復元の不具合を修正しました
+• 購入後も広告が表示される問題を修正しました。
+• 一覧で日記を3行・5行・全文から選んで表示できます。
+• 写真が多くてもバックアップが速くなりました。
 </ja-JP>
 ```
 
