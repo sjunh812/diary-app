@@ -283,6 +283,12 @@ REVENUECAT_IOS = appl_...
 - 관리형 게시가 켜져 있다. 검토를 통과해도 게시 개요에서 [게시]를 눌러야 사용자에게 나간다.
 - [ ] 스토어 리뷰 창(스펙 007)은 내부 테스트 트랙에서 시험한다. 테스터 목록에 있는 Gmail 계정이 기기 기본 계정이고, 그 계정으로 Play에서 앱을 받은 적이 있고, 이 앱에 리뷰를 남긴 적이 없어야 창이 뜬다. 내부 앱 공유로 받으면 제출 버튼이 꺼져 있다([Play](https://developer.android.com/guide/playcore/in-app-review/test)). iOS는 개발 빌드에서 늘 뜨고 TestFlight에서는 뜨지 않는다.
 
+- [ ] 다음 버전이 스토어에 열리면 Remote Config 업데이트 요약을 넣고 게시한다(키는 2026-11-21에 빈 값으로 만들어 둠). 정한 문장(사용자 결정 2026-11-21, 2.0.2 이후 변경 기준 안 C):
+  - `update_note_version`: 새 버전 이름
+  - `update_note_ko`: 결제 뒤 광고 문제를 수정하고 목록을 더 보기 쉽게 바꿨어요.
+  - `update_note_en`: Fixed ads after purchase and made the list easier to read.
+  - `update_note_ja`: 購入後の広告を修正し、一覧を見やすくしました。
+- [ ] 새 버전 안내의 실제 Play 유연 업데이트는 내부 앱 공유 빌드로, iOS App Store 화면은 실기기로 확인한다(개발 빌드에서는 개발자 모드 "새 버전"으로만 봄).
 ## App Store 제출
 
 App Store는 새 출시다(조사일 2026-11-13). 앱 쪽 준비와 콘솔에서 사람이 할 일을 나눠 적는다. 규격과 정책은 제출 직전에 다시 본다.
