@@ -420,19 +420,19 @@ Android(2.0.1에서)와 iOS(2.0.2에서) 모두 이 노트를 쓴다. 이번 버
 [버전 2.1.0]
 • 결제한 뒤에도 광고가 보이던 문제를 수정했어요.
 • 목록에서 일기를 3줄, 5줄, 전체로 골라 볼 수 있어요.
-• 사진이 많아도 백업이 더 빨라졌어요.
+• 사진 백업이 더 빨라졌어요.
 </ko-KR>
 <en-US>
 [Version 2.1.0]
 • Fixed ads still showing after purchase.
 • Choose 3 lines, 5 lines, or the full entry in your list.
-• Backups with lots of photos are now faster.
+• Photo backups are now faster.
 </en-US>
 <ja-JP>
 [バージョン 2.1.0]
 • 購入後も広告が表示される問題を修正しました。
 • 一覧で日記を3行・5行・全文から選んで表示できます。
-• 写真が多くてもバックアップが速くなりました。
+• 写真のバックアップが速くなりました。
 </ja-JP>
 ```
 
