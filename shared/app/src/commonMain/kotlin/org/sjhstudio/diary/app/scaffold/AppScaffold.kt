@@ -554,7 +554,7 @@ private fun Content(
                                     is HomeTop.Backup -> BackupNudgeCard(current.nudge)
                                     is HomeTop.Update -> HomeUpdateCard(current.notice)
                                     HomeTop.Feedback -> HomeFeedbackCard(showText)
-                                    HomeTop.Reading, HomeTop.Empty -> Unit
+                                    HomeTop.Reading, HomeTop.Empty, HomeTop.Waiting -> Unit
                                 }
                             }
                         },

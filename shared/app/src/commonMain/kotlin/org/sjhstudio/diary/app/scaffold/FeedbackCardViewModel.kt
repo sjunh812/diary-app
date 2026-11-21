@@ -9,12 +9,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -45,6 +47,9 @@ sealed interface HomeTop {
 
     /** 카드 없음. 목록 보기 팁이 이 자리를 씀 */
     data object Empty : HomeTop
+
+    /** 백업 안내를 닫았는데 다음 카드를 아직 모름. 그리지는 않지만 정해진 칸이라 다음 카드가 움직이며 들어옴 */
+    data object Waiting : HomeTop
 }
 
 /**
@@ -72,24 +77,24 @@ class HomeTopState(
         if (reading != null) return
         reading =
             scope.launch {
-                // 백업 안내는 새 버전 확인(iOS는 네트워크)을 기다리지 않음
-                backup.nudge.flatMapLatest { nudge ->
-                    if (nudge != null) {
-                        flowOf(HomeTop.Backup(nudge))
-                    } else {
-                        combine(updates.homeCard, prompts.feedbackCard) { update, card ->
-                            when {
-                                update != null -> HomeTop.Update(update)
-                                card -> HomeTop.Feedback
-                                else -> HomeTop.Empty
-                            }
+                // 새 버전과 의견은 한 번 읽어 두고 함께 씀. 백업 안내를 닫으면 다시 읽지 않고 바로 다음 카드. 모르면 null
+                val next =
+                    combine(updates.homeCard, prompts.feedbackCard) { update, card ->
+                        when {
+                            update != null -> HomeTop.Update(update)
+                            card -> HomeTop.Feedback
+                            else -> HomeTop.Empty
                         }
-                            // 확인 전에 백업 안내를 닫으면 닫은 카드를 남기지 않음
-                            .onStart { if (!updates.firstChecked.value) emit(HomeTop.Reading) }
-                    }
-                }.collect { read.value = it }
+                    }.stateIn(this, SharingStarted.Eagerly, null)
+                // 백업 안내는 새 버전 확인(iOS는 네트워크)을 기다리지 않음
+                backup.nudge
+                    .flatMapLatest { nudge -> if (nudge != null) flowOf(HomeTop.Backup(nudge)) else next.map { it ?: pending() } }
+                    .collect { read.value = it }
             }
     }
+
+    // 앱을 켠 뒤 처음이면 읽는 중, 백업 안내를 닫은 뒤면 닫은 카드를 남기지 않고 정해진 빈 칸
+    private fun pending(): HomeTop = if (read.value == HomeTop.Reading) HomeTop.Reading else HomeTop.Waiting
 }
 
 /** 홈 의견 카드에서 누르는 일(스펙 007). 언제 보일지는 [HomeTopState]가 정함 */

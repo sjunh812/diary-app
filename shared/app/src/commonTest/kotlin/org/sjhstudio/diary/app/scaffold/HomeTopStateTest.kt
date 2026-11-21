@@ -81,7 +81,7 @@ class HomeTopStateTest {
         assertEquals(HomeTop.Backup(nudge), state.top.value)
     }
 
-    /** 새 버전 확인 전에 백업 안내를 닫으면, 닫은 카드를 남기지 않고 확인이 끝날 때까지 읽는 중 */
+    /** 새 버전 확인 전에 백업 안내를 닫으면, 닫은 카드를 남기지 않고 확인이 끝날 때까지 정해진 빈 칸 */
     @Test
     fun a_closed_backup_nudge_does_not_stay_while_the_update_check_runs() = runTest(UnconfinedTestDispatcher()) {
         val updates =
@@ -95,9 +95,22 @@ class HomeTopStateTest {
         assertEquals(HomeTop.Backup(nudge), state.top.value)
 
         backup.nudge.value = null
-        assertEquals(HomeTop.Reading, state.top.value)
+        assertEquals(HomeTop.Waiting, state.top.value)
         updates.refresh()
         assertEquals(HomeTop.Empty, state.top.value)
+    }
+
+    /** 백업 안내 값이 같은 "없음"을 되풀이해도 일기 수를 다시 세지 않음 */
+    @Test
+    fun repeated_empty_nudges_do_not_count_again() = runTest(UnconfinedTestDispatcher()) {
+        val prompts = prompts()
+        val slow = SlowNudgeBackup()
+        val state = HomeTopState(slow, prompts, updates(), backgroundScope)
+        state.start()
+        slow.read.emit(null)
+        val before = counted
+        repeat(3) { slow.read.emit(null) }
+        assertEquals(before, counted)
     }
 
     @Test
