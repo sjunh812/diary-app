@@ -531,5 +531,57 @@ final class FeatureFlow: DeviceTestCase {
             return
         }
     }
-}
+    /** 목록 미리보기 팁: 3줄에서 잘린 일기를 세 번 열면 전체 보기 팁(스펙 008 US4). 팁은 하루 하나라 다른 팁이 뜬 날이면 안 뜸 */
+    func testPreviewTips() {
+        app.launch()
+        sleep(2)
+        shot("tips-launch")
+        // 3줄 보기로 맞춤
+        tap("설정")
+        tap("목록 보기")
+        tapIfExists("피드")
+        tap("본문 길이")
+        tap("3줄")
+        sleep(1)
+        shot("tips-three-lines")
+        tapIfExists("뒤로 가기", timeout: 2)
+        tap("홈")
+        sleep(1)
 
+        // 줄을 나눠 쓴 긴 일기
+        startNewEntry()
+        sleep(1)
+        if element("기분은 어땠나요?").waitForExistence(timeout: 3) { tap("좋음") }
+        typeBody("Tips line one\nTips line two\n\nTips line three\nTips line four\nTips line five")
+        tap("저장")
+        sleep(1)
+        if element("전면 광고는 하루 한 번이에요").waitForExistence(timeout: 3) { tap("확인") }
+        handleSystemAlert()
+        closeAdIfShown()
+        tapIfExists("뒤로 가기", timeout: 3)
+        sleep(1)
+        shot("tips-home-three-lines")
+        if !contains("Tips line three…").waitForExistence(timeout: 3) { XCTFail("3줄 미리보기 끝에 … 없음") }
+        if contains("Tips line four").exists { XCTFail("3줄 미리보기에 넷째 줄이 보임") }
+
+        // 잘린 일기를 세 번 열고 돌아옴
+        for i in 1...3 {
+            tapContains("Tips line one")
+            sleep(1)
+            shot("tips-open-\(i)")
+            tap("뒤로 가기")
+            sleep(1)
+        }
+        shot("tips-after-three-opens")
+        let tip = contains("목록에서도 일기 전체를 볼 수 있어요")
+        guard tip.waitForExistence(timeout: 3) else {
+            XCTFail("전체 보기 팁이 안 보임(같은 날 다른 팁이 떴거나 이미 본 팁일 수 있음)")
+            return
+        }
+        tap("전체로 보기")
+        sleep(1)
+        shot("tips-full")
+        if !contains("Tips line five").waitForExistence(timeout: 3) { XCTFail("전체 보기에서 마지막 줄이 안 보임") }
+        if tip.exists { XCTFail("전체로 보기 뒤에도 팁이 남음") }
+    }
+}
