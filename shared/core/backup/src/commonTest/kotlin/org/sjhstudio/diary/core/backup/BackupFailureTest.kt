@@ -343,6 +343,28 @@ class BackupFailureTest {
     }
 
     @Test
+    fun a_restore_takes_the_good_copy_when_a_damaged_one_shares_its_name() = runTest {
+        phone.write("diary")
+        val hash = phone.photo("diary", 0, "사진")
+        done()
+        // 멀쩡한 사본 뒤에 같은 이름의 깨진 사본. 이름만 보면 뒤의 것을 고름
+        val good = photos().single()
+        val wrong = dir / "wrong.jpg"
+        fs.write(wrong) { writeUtf8("깨진 내용") }
+        drive.uploadSmall(NewFile(good.name, good.parents.single(), "image/jpeg", good.props), wrong)
+        val other = TestPhone(dir / "other", drive, name = "Other")
+        try {
+            val prepared = other.planner().prepare(other.catalog().list().single())
+            other.applier().apply(prepared.plan, "drive")
+
+            assertEquals(PhotoTally(fetched = 1, broken = 0), other.fetcher().fetch())
+            assertEquals(hash, fs.hashes(other.media / "$hash.jpg").sha256)
+        } finally {
+            other.close()
+        }
+    }
+
+    @Test
     fun not_enough_room_for_the_text_by_one_byte_says_exactly_that() = runTest {
         phone.write("diary")
         done()

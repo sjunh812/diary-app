@@ -116,7 +116,8 @@ class BackupRunner(
     private val alerts: BackupAlerts? = null,
     private val gate: BackupGate = BackupGate(),
     private val dataReady: suspend () -> Boolean = { true },
-    // 사진을 올리는 작업자 자리. 시험은 비워 두어 부르는 쪽 디스패처(가상 시간)에서 돎
+    // 사진 올리기 작업자의 디스패처
+    // 시험은 비워 두어 부르는 쪽 가상 시간에서 돎
     private val io: CoroutineContext = Dispatchers.IO
 ) {
     private val failures = BackupFailureLog(store, clock, alerts)

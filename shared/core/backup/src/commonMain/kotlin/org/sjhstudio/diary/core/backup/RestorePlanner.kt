@@ -51,7 +51,8 @@ internal object RestoreNames {
 
     /**
      * 드라이브 확인값이 이름(내용 확인값)과 다른 사진 사본
-     * 올린 뒤 확인값이 달라 지우기 전에 끊기면 남음. 이름만 믿으면 백업됐다고 보고 복원에서 깨진 사진을 받음
+     * 올린 뒤 확인값이 달라 지우기 전에 끊기면 남음
+     * 이름만 믿으면 백업됐다고 보고 복원에서 깨진 사진을 받음
      */
     fun isDamaged(file: DriveFile): Boolean = file.sha256 != null && file.sha256 != file.name.substringBefore('.')
 
