@@ -562,7 +562,6 @@ class BackupRunner(
      * 지우지 않고 드라이브 휴지통에 넣고, 목록 파일을 먼저 넣음
      */
     private suspend fun prune(folders: DriveFolders, deviceId: String, now: Instant, damaged: List<DriveFile>) {
-        damaged.forEach { drive.trash(it.id) }
         val mine = drive.listAll(DriveQuery(parentId = folders.snapshots, props = mapOf(DriveLayout.KEY_DEVICE to deviceId)))
         val manifests = mine.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_MANIFEST }
         val snapshots = mine.filter { it.props[DriveLayout.KEY_KIND] == DriveLayout.KIND_SNAPSHOT }
@@ -585,6 +584,8 @@ class BackupRunner(
         val named = manifests.map { it.name.removeSuffix(".json") }.toSet()
         val cutoff = (now - 7.days).toEpochMilliseconds()
         snapshots.filter { it.name.removeSuffix(".db") !in named && it.createdAt < cutoff }.forEach { drive.trash(it.id) }
+        // 가장 덜 급한 정리라 맨 끝. 실패해도 위의 보관 정리는 끝남
+        damaged.forEach { drive.trash(it.id) }
     }
 
     private fun stamp(t: LocalDateTime): String {
