@@ -24,7 +24,7 @@ import org.sjhstudio.diary.core.testing.FakeBackupRepository
 import org.sjhstudio.diary.core.testing.FakeStoreUpdates
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
-// 홈 맨 위 칸은 백업 안내와 의견 카드를 둘 다 읽은 뒤에 한 장으로 정함
+// 홈 맨 위 칸은 앞 순위 카드를 다 읽은 뒤에 한 장으로 정함
 class HomeTopStateTest {
     private val start = Instant.parse("2026-11-10T01:00:00Z")
     private var now = start
@@ -65,6 +65,20 @@ class HomeTopStateTest {
         assertEquals(HomeTop.Reading, state.top.value)
         updates.refresh()
         assertEquals(HomeTop.Empty, state.top.value)
+    }
+
+    /** 백업 안내는 기록을 지키는 카드라 새 버전 확인(iOS는 네트워크)이 늦어도 바로 보임 */
+    @Test
+    fun the_backup_nudge_does_not_wait_for_the_update_check() = runTest(UnconfinedTestDispatcher()) {
+        val updates =
+            AppUpdateRepository(store, {
+                ""
+            }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", CoroutineScope(backgroundScope.coroutineContext))
+        val nudge = BackupNudge(10, 2, null)
+        backup.nudge.value = nudge
+        val state = HomeTopState(backup, prompts(), updates, backgroundScope)
+        state.start()
+        assertEquals(HomeTop.Backup(nudge), state.top.value)
     }
 
     @Test

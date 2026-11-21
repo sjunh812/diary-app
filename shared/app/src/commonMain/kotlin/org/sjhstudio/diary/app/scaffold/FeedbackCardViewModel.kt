@@ -6,11 +6,14 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -45,7 +48,7 @@ sealed interface HomeTop {
 
 /**
  * 홈 맨 위 칸을 한 곳에서 정함. 기록을 지키는 백업 안내 > 새 버전 > 의견
- * 셋 다 읽은 뒤에 정해서 읽는 동안 다른 카드가 잠깐 그려지지 않음
+ * 앞 순위를 다 읽은 뒤에 정해서 읽는 동안 다른 카드가 잠깐 그려지지 않음
  * 잠깐 그려진 카드도 본 것으로 적혀 리뷰 창을 막음
  * 앱 범위에 두어 탭을 오가도 다시 읽는 중이 되지 않음
  */
@@ -63,16 +66,23 @@ class HomeTopState(
      * 기록 이전 관문을 지난 뒤 한 번 읽기 시작. 홈보다 먼저라 첫 화면에 맞음
      * 일기 DB를 세므로 관문 전에 부르면 이전이 실패함
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
         if (reading != null) return
         reading =
             scope.launch {
-                combine(backup.nudge, updates.homeCard, prompts.feedbackCard) { nudge, update, card ->
-                    when {
-                        nudge != null -> HomeTop.Backup(nudge)
-                        update != null -> HomeTop.Update(update)
-                        card -> HomeTop.Feedback
-                        else -> HomeTop.Empty
+                // 백업 안내는 새 버전 확인(iOS는 네트워크)을 기다리지 않음
+                backup.nudge.flatMapLatest { nudge ->
+                    if (nudge != null) {
+                        flowOf(HomeTop.Backup(nudge))
+                    } else {
+                        combine(updates.homeCard, prompts.feedbackCard) { update, card ->
+                            when {
+                                update != null -> HomeTop.Update(update)
+                                card -> HomeTop.Feedback
+                                else -> HomeTop.Empty
+                            }
+                        }
                     }
                 }.collect { read.value = it }
             }
