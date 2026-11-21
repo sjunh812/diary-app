@@ -15,9 +15,11 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.sjhstudio.diary.core.backup.BackupAppInfo
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.UpdateNotice
 import org.sjhstudio.diary.core.platform.deviceInfo
 import org.sjhstudio.diary.core.ui.launchSafely
 import org.sjhstudio.diary.core.ui.rememberOpenLink
@@ -32,6 +34,9 @@ sealed interface HomeTop {
 
     data class Backup(val nudge: BackupNudge) : HomeTop
 
+    /** 새 버전(스펙 009). 받는 중에는 같은 카드가 바뀜 */
+    data class Update(val notice: UpdateNotice) : HomeTop
+
     data object Feedback : HomeTop
 
     /** 카드 없음. 목록 보기 팁이 이 자리를 씀 */
@@ -39,12 +44,17 @@ sealed interface HomeTop {
 }
 
 /**
- * 홈 맨 위 칸을 한 곳에서 정함. 기록을 지키는 백업 안내가 먼저
- * 둘 다 읽은 뒤에 정해서 읽는 동안 다른 카드가 잠깐 그려지지 않음
+ * 홈 맨 위 칸을 한 곳에서 정함. 기록을 지키는 백업 안내 > 새 버전 > 의견
+ * 셋 다 읽은 뒤에 정해서 읽는 동안 다른 카드가 잠깐 그려지지 않음
  * 잠깐 그려진 카드도 본 것으로 적혀 리뷰 창을 막음
  * 앱 범위에 두어 탭을 오가도 다시 읽는 중이 되지 않음
  */
-class HomeTopState(private val backup: BackupRepository, private val prompts: PromptRepository, private val scope: CoroutineScope) {
+class HomeTopState(
+    private val backup: BackupRepository,
+    private val prompts: PromptRepository,
+    private val updates: AppUpdateRepository,
+    private val scope: CoroutineScope
+) {
     private val read = MutableStateFlow<HomeTop>(HomeTop.Reading)
     val top: StateFlow<HomeTop> = read.asStateFlow()
     private var reading: Job? = null
@@ -57,9 +67,10 @@ class HomeTopState(private val backup: BackupRepository, private val prompts: Pr
         if (reading != null) return
         reading =
             scope.launch {
-                combine(backup.nudge, prompts.feedbackCard) { nudge, card ->
+                combine(backup.nudge, updates.homeCard, prompts.feedbackCard) { nudge, update, card ->
                     when {
                         nudge != null -> HomeTop.Backup(nudge)
+                        update != null -> HomeTop.Update(update)
                         card -> HomeTop.Feedback
                         else -> HomeTop.Empty
                     }

@@ -25,6 +25,10 @@
     <string name="settings_feedback">ご意見を送る</string>
     <string name="settings_rate">レビューを書く</string>
     <string name="settings_version">アプリのバージョン</string>
+    <string name="settings_version_update">アップデート</string>
+    <string name="settings_version_downloading">ダウンロード中 %1$d%</string>
+    <string name="settings_version_downloading_unknown">ダウンロード中</string>
+    <string name="settings_version_restart">再起動する</string>
     <string name="settings_plus_badge">Plus 利用中</string>
     <string name="settings_feedback_subject">1日1日記へのフィードバック</string>
     <string name="settings_feedback_body">アプリのバージョン: %1$s\nOS: %2$s\n機種: %3$s\n\n皆さまの貴重なご意見をお待ちしております ☺️\n</string>

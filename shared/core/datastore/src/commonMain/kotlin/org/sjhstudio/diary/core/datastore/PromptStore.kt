@@ -11,14 +11,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /**
- * `prompt.preferences_pb`. 의견 카드와 리뷰 창 기록(스펙 007)
+ * `prompt.preferences_pb`. 의견 카드와 리뷰 창(스펙 007), 새 버전 안내(스펙 009) 기록
  * 기기 것이라 백업에 넣지 않음
  */
 data class PromptPrefs(
     val firstUseAt: Instant? = null,
     val feedbackDone: Boolean = false,
     val feedbackShownDay: String? = null,
-    val reviewAskedDay: String? = null
+    val reviewAskedDay: String? = null,
+    /** [나중에]를 누른 새 버전 */
+    val updateDismissed: String? = null,
+    /** 마지막으로 스토어에서 안 새 버전. 없었으면 빈 문자열 */
+    val updateKnown: String? = null,
+    val updateCheckedAt: Instant? = null
 )
 
 class PromptStore(dataStore: DataStore<Preferences>) {
@@ -31,7 +36,10 @@ class PromptStore(dataStore: DataStore<Preferences>) {
                 firstUseAt = it[FIRST_USE_AT]?.let(Instant::fromEpochMilliseconds),
                 feedbackDone = it[FEEDBACK_DONE] == true,
                 feedbackShownDay = it[FEEDBACK_SHOWN_DAY],
-                reviewAskedDay = it[REVIEW_ASKED_DAY]
+                reviewAskedDay = it[REVIEW_ASKED_DAY],
+                updateDismissed = it[UPDATE_DISMISSED],
+                updateKnown = it[UPDATE_KNOWN],
+                updateCheckedAt = it[UPDATE_CHECKED_AT]?.let(Instant::fromEpochMilliseconds)
             )
         }
 
@@ -46,10 +54,20 @@ class PromptStore(dataStore: DataStore<Preferences>) {
 
     suspend fun reviewAsked(day: String) = store.edit { it[REVIEW_ASKED_DAY] = day }
 
+    suspend fun updateDismissed(id: String) = store.edit { it[UPDATE_DISMISSED] = id }
+
+    suspend fun updateChecked(known: String, at: Instant) = store.edit {
+        it[UPDATE_KNOWN] = known
+        it[UPDATE_CHECKED_AT] = at.toEpochMilliseconds()
+    }
+
     private companion object {
         val FIRST_USE_AT = longPreferencesKey("first_use_at")
         val FEEDBACK_DONE = booleanPreferencesKey("feedback_done")
         val FEEDBACK_SHOWN_DAY = stringPreferencesKey("feedback_shown_day")
         val REVIEW_ASKED_DAY = stringPreferencesKey("review_asked_day")
+        val UPDATE_DISMISSED = stringPreferencesKey("update_dismissed")
+        val UPDATE_KNOWN = stringPreferencesKey("update_known")
+        val UPDATE_CHECKED_AT = longPreferencesKey("update_checked_at")
     }
 }

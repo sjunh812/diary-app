@@ -12,8 +12,10 @@ import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.lock.LockState
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.app.review.IosStoreReviewBridge
+import org.sjhstudio.diary.app.update.IosUpdateBridge
 import org.sjhstudio.diary.core.data.AdSwitch
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.data.RemoteValues
 import org.sjhstudio.diary.core.platform.IosDriveBridge
 import org.sjhstudio.diary.core.platform.IosReminderScheduler
 import org.sjhstudio.diary.core.platform.NoTelemetrySink
@@ -21,14 +23,27 @@ import org.sjhstudio.diary.core.platform.TelemetrySink
 
 /** iosApp의 `iOSApp.init`에서 Koin을 켜고 시작 단계를 돌림(contracts/app-shell.md 시작 순서 1) */
 @OptIn(ExperimentalNativeApi::class)
-fun startApp(driveBridge: GoogleDrive, firebase: FirebaseReporting?, ads: IosAdBridge, review: IosStoreReviewBridge) {
+fun startApp(
+    driveBridge: GoogleDrive,
+    firebase: FirebaseReporting?,
+    ads: IosAdBridge,
+    review: IosStoreReviewBridge,
+    update: IosUpdateBridge
+) {
     IosDrive.bridge = driveBridge.asBridge()
     IosAds.bridge = ads
     IosReview.bridge = review
-    firebase?.let { IosAds.switch = AdSwitch(it::interstitialEnabled) }
+    IosUpdate.bridge = update
+    firebase?.let {
+        IosAds.switch = AdSwitch(it::interstitialEnabled)
+        IosUpdate.remote = RemoteValues(it::remoteString)
+    }
     IosTelemetry.sink = firebase?.asSink() ?: NoTelemetrySink
     initKoin(isDebug = Platform.isDebugBinary)
-    if (Platform.isDebugBinary) applyDebugPlan()
+    if (Platform.isDebugBinary) {
+        applyDebugPlan()
+        applyDebugUpdate()
+    }
     val koin = KoinPlatform.getKoin()
     koin.get<Startup>().start()
     BackgroundTime(koin.get()).start(koin.get(APP_SCOPE))
@@ -51,6 +66,9 @@ interface FirebaseReporting {
 
     /** 전면 광고 원격 스위치(Remote Config `interstitial_enabled`). 받지 못하면 마지막 값, 처음이면 켜짐 */
     fun interstitialEnabled(): Boolean
+
+    /** 새 버전 안내 원격 값(스펙 009). 받지 못했거나 없는 키는 빈 문자열 */
+    fun remoteString(key: String): String
 }
 
 internal object IosAds {
@@ -63,6 +81,14 @@ internal object IosAds {
 /** Swift 리뷰 창 다리. 앱 시작 때 받음 */
 internal object IosReview {
     var bridge: IosStoreReviewBridge? = null
+}
+
+/** 새 버전 안내(스펙 009). Swift App Store 화면 다리와 원격 값 */
+internal object IosUpdate {
+    var bridge: IosUpdateBridge? = null
+
+    /** Firebase 설정 파일 없이 만든 빌드는 빈 값 */
+    var remote: RemoteValues = RemoteValues { "" }
 }
 
 internal object IosTelemetry {

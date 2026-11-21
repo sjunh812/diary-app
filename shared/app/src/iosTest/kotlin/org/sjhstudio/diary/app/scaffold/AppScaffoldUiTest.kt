@@ -42,6 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -51,6 +52,7 @@ import org.sjhstudio.diary.app.ads.AdRemoval
 import org.sjhstudio.diary.app.lock.LockController
 import org.sjhstudio.diary.app.navigation.AppLaunch
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.DefaultWelcomeRepository
 import org.sjhstudio.diary.core.data.FreePlanRepository
@@ -80,6 +82,7 @@ import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.FakePlanRepository
 import org.sjhstudio.diary.core.testing.FakeRestoreRepository
 import org.sjhstudio.diary.core.testing.FakeSettingsRepository
+import org.sjhstudio.diary.core.testing.FakeStoreUpdates
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.fakeEntryRow
 import org.sjhstudio.diary.feature.backup.backupFeatureModule
@@ -120,7 +123,12 @@ class AppScaffoldUiTest {
                     single<PlanRepository> { FreePlanRepository() }
                     single { AdRepository(get(), AdStore(InMemoryDataStore(emptyPreferences())), NoAdPlayer) }
                     single { PromptRepository(PromptStore(InMemoryDataStore(emptyPreferences())), { flowOf(0) }, { false }) }
-                    single { HomeTopState(get(), get(), MainScope()) }
+                    single {
+                        AppUpdateRepository(FakeStoreUpdates(), {
+                            ""
+                        }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", MainScope()).also { runBlocking { it.refresh() } }
+                    }
+                    single { HomeTopState(get(), get(), get(), MainScope()) }
                     single { AdRemoval(MainScope()) { RewardResult.NotEarned } }
                     single<BackupRepository> { FakeBackupRepository() }
                     single<RestoreRepository> { FakeRestoreRepository() }

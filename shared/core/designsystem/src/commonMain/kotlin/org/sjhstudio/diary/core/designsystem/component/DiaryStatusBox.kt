@@ -26,6 +26,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
  * 안내 상자와 같은 계열
  * 바탕 sunken · 모서리 16 · 안쪽 20 · 머리와 설명 사이 6 · 버튼은 설명과 사이 16(`docs/design.md` 상자 여백)
  * 머리 줄은 아이콘 16(`textSecondary`) + 사이 8 + `bodyStrong`, 아래 설명 `body`, 있으면 작은 약한 버튼
+ * [progress]가 있으면 설명 아래 진행 막대(0~1)
  */
 @Composable
 fun DiaryStatusBox(
@@ -39,7 +40,8 @@ fun DiaryStatusBox(
     onSecondary: (() -> Unit)? = null,
     secondaryKind: DiaryButtonKind = DiaryButtonKind.Weak,
     quietLabel: String? = null,
-    onQuiet: (() -> Unit)? = null
+    onQuiet: (() -> Unit)? = null,
+    progress: Float? = null
 ) {
     val colors = DiaryTheme.colors
     val typography = DiaryTheme.typography
@@ -67,6 +69,7 @@ fun DiaryStatusBox(
             }
             PhraseText(body, style = typography.body.copy(color = colors.textSecondary))
         }
+        progress?.let { DiaryProgressBar(it, onSunken = true) }
         if (actionLabel != null && onAction != null) {
             // 큰 글자나 긴 언어에서 두 버튼이 한 줄에 안 들어가면 아래 줄로 내려감
             // 줄 사이 16은 누르는 곳 48끼리 겹치지 않는 값

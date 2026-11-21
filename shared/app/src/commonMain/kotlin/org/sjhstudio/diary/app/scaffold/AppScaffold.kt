@@ -552,6 +552,7 @@ private fun Content(
                             DiaryDismissSlot(top, key = { it::class }, known = { it != HomeTop.Reading }) { current ->
                                 when (current) {
                                     is HomeTop.Backup -> BackupNudgeCard(current.nudge)
+                                    is HomeTop.Update -> HomeUpdateCard(current.notice)
                                     HomeTop.Feedback -> HomeFeedbackCard(showText)
                                     HomeTop.Reading, HomeTop.Empty -> Unit
                                 }

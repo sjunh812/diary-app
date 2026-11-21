@@ -49,6 +49,7 @@ import org.sjhstudio.diary.app.navigation.ThemeSettingsKey
 import org.sjhstudio.diary.app.navigation.TrashKey
 import org.sjhstudio.diary.app.navigation.tabRoot
 import org.sjhstudio.diary.app.scaffold.FeedbackCardViewModel
+import org.sjhstudio.diary.app.scaffold.UpdateCardViewModel
 import org.sjhstudio.diary.core.backup.BackupAppInfo
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
@@ -123,10 +124,14 @@ fun EntryProviderScope<NavKey>.settingsEntries(
         val device = remember { deviceInfo() }
         val feedback = rememberFeedbackLink(app.versionName, device.os, device.model)
         val openLink = rememberOpenLink()
+        val updates = koinViewModel<UpdateCardViewModel>()
+        val update by updates.notice.collectAsStateWithLifecycle()
         Box(Modifier.fillMaxSize()) {
             SettingsScreen(
                 state,
                 appVersion = app.versionName,
+                update = update,
+                onUpdate = updates::act,
                 onFeedback = {
                     // 메일 앱이 없는 기기에서도 보낼 곳을 알 수 있게
                     if (!openLink(feedback.url)) scope.launch { toast.show(feedback.noMail) }

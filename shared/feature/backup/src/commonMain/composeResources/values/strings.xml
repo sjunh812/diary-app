@@ -78,6 +78,7 @@
     <string name="restore_go_backup">Go to Backup</string>
     <string name="restore_list_failed_body">Check your connection and try again.</string>
     <string name="restore_retry">Try again</string>
+    <string name="restore_update_in_store">Update in the store</string>
     <string name="restore_preview_top">Restore</string>
     <string name="restore_preview_title">Merge this backup</string>
     <string name="restore_preview_title_nothing">Everything in this backup is already here</string>

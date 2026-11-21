@@ -369,6 +369,19 @@ Spark 무료 요금제. 설정 파일은 저장소에 두지 않는다.
 파일이 있으면 빌드가 켜고, 없으면 아무것도 보내지 않는다. 개발 빌드는 보내지 않는다. 확인할 때는 `local.properties`에 `firebase.debug=true`를 넣고 `adb shell setprop debug.firebase.analytics.app org.sjhstudio.diary`로 DebugView를 켠다.
 출시 빌드는 Android 난독화 매핑과 iOS dSYM을 자동으로 올린다.
 
+### 새 버전 안내 원격 값(스펙 009)
+
+앱은 12시간에 한 번 값을 받는다. 키를 늘려도 받는 횟수는 같다. 받지 못하면 빈 값이라 기본 문구 카드가 되고 강제는 걸리지 않는다.
+Android와 iOS는 버전이 달라 Remote Config 조건 "플랫폼 Android"·"플랫폼 iOS"로 값을 나눈다.
+
+| 키 | 값 | 언제 고치나 |
+| --- | --- | --- |
+| `update_note_version` | 한 줄 소식이 가리키는 버전 이름(예: `2.0.2`). 지금 앱보다 높을 때만 보인다 | 새 버전이 스토어에 열린 뒤 |
+| `update_note_ko`·`update_note_en`·`update_note_ja` | 그 버전에서 가장 좋아진 점 한 문장. 홈 카드 설명 첫 줄이라 폰에서 두 줄을 넘지 않게(한국어 30자 안팎) | 같은 때. 한국어는 `korean-humanizer`·맞춤법 검사 |
+| `update_min_version` | 이보다 낮은 앱은 카드를 닫을 수 없다(앱은 막지 않음). 보통 빈 값 | 기록을 지키는 고침처럼 꼭 받아야 할 때만 |
+
+새 버전은 단계적 출시로 아직 열리지 않은 기기에는 알리지 않는다. Play가 업데이트할 수 있다고 답할 때, iOS는 App Store 조회가 새 버전을 돌려줄 때만 카드가 뜬다.
+
 ## 결제 콘솔 설정
 
 앱은 아래 이름을 쓴다(`StoreIds`).

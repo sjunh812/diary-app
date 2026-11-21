@@ -30,6 +30,10 @@
     <string name="settings_feedback">Send feedback</string>
     <string name="settings_rate">Write a review</string>
     <string name="settings_version">App version</string>
+    <string name="settings_version_update">Update</string>
+    <string name="settings_version_downloading">Downloading %1$d%</string>
+    <string name="settings_version_downloading_unknown">Downloading</string>
+    <string name="settings_version_restart">Restart</string>
     <string name="settings_plus_badge">Plus active</string>
     <string name="settings_feedback_subject">1 Day 1 Diary feedback</string>
     <string name="settings_feedback_body">App version: %1$s\nOS: %2$s\nDevice: %3$s\n\nWe'd love to hear your thoughts ☺️\n</string>

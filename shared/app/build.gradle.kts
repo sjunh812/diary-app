@@ -69,6 +69,8 @@ kotlin {
             implementation(libs.jb.lifecycle.viewmodel.compose)
             implementation(libs.jb.lifecycle.viewmodel.navigation3)
             implementation(libs.kotlinx.serialization.core)
+            // App Store 조회 응답 읽기(AppStoreLookup, 스펙 009)
+            implementation(libs.kotlinx.serialization.json)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -85,6 +87,8 @@ kotlin {
             implementation(libs.play.services.ads)
             // 스토어 리뷰 창(PlayStoreReview, 스펙 007)
             implementation(libs.play.review.ktx)
+            // 새 버전 받기(PlayStoreUpdates, 스펙 009)
+            implementation(libs.play.app.update.ktx)
             // 사용 통계와 비정상 종료 보고(FirebaseTelemetrySink, research R21)
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.analytics)
@@ -97,6 +101,9 @@ kotlin {
         iosMain.dependencies {
             // 구매와 구독 확인(IosBilling). iOS SDK가 들어 있어 Xcode에 따로 넣지 않음
             implementation(libs.revenuecat.kmp.core)
+            // App Store 공개 조회(IosStoreUpdates, 스펙 009)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(projects.shared.core.testing)

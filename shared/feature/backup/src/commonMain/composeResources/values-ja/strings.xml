@@ -75,6 +75,7 @@
     <string name="restore_go_backup">バックアップ画面へ</string>
     <string name="restore_list_failed_body">接続を確認して、もう一度お試しください。</string>
     <string name="restore_retry">もう一度試す</string>
+    <string name="restore_update_in_store">ストアでアップデート</string>
     <string name="restore_preview_top">復元</string>
     <string name="restore_preview_title">このバックアップを統合します</string>
     <string name="restore_preview_title_nothing">このバックアップの日記はすべてそろっています</string>

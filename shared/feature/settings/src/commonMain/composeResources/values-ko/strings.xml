@@ -25,6 +25,10 @@
     <string name="settings_feedback">의견 보내기</string>
     <string name="settings_rate">리뷰 남기기</string>
     <string name="settings_version">앱 버전</string>
+    <string name="settings_version_update">업데이트</string>
+    <string name="settings_version_downloading">받는 중 %1$d%</string>
+    <string name="settings_version_downloading_unknown">받는 중</string>
+    <string name="settings_version_restart">다시 시작하기</string>
     <string name="settings_plus_badge">Plus 이용 중</string>
     <string name="settings_feedback_subject">1일 1일기 피드백</string>
     <string name="settings_feedback_body">앱 버전: %1$s\nOS: %2$s\n기기: %3$s\n\n여러분의 소중한 의견 부탁드립니다 ☺️\n</string>

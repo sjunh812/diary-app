@@ -35,8 +35,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
@@ -277,13 +279,14 @@ private fun problemText(state: BackupEntryState): String? = when (state) {
 fun RestorePreviewRoute(snapshotName: String, onBack: () -> Unit, onMerged: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<RestorePreviewViewModel>(key = snapshotName) { parametersOf(snapshotName) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val updates = koinInject<AppUpdateRepository>()
     RestorePreviewScreen(state, {
         viewModel.merge()
         onMerged()
     }, viewModel::load, onBack, modifier, onReplace = {
         viewModel.replace()
         onMerged()
-    })
+    }, onUpdate = updates::openStorePage)
 }
 
 @Composable
@@ -293,13 +296,14 @@ fun RestorePreviewScreen(
     onRetry: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    onReplace: () -> Unit = {}
+    onReplace: () -> Unit = {},
+    onUpdate: () -> Unit = {}
 ) {
     Page(stringResource(Res.string.restore_preview_top), onBack, modifier) {
         when (state) {
             null -> LoadingPreview()
 
-            is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack)
+            is RestorePreparation.Failed -> Failure(state.reason, onRetry, onBack, onUpdate)
 
             is RestorePreparation.Ready ->
                 if (state.entry.platform == PLATFORM_LEGACY) {

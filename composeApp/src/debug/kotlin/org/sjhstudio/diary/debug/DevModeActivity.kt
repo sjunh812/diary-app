@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -85,6 +86,7 @@ class DevModeActivity : ComponentActivity() {
                         DiarySettingsHeader("광고", gapAbove = true)
                         DiarySettingsRow("오늘 전면 광고 다시 받기", onClick = { reset { ads.interstitialShown("") } })
                         DiarySettingsRow("보상 광고 혜택 지우기", onClick = { reset { ads.rewardUntil(Clock.System.now()) } })
+                        UpdateRows(get())
                         DiarySettingsHeader("화면 견본", gapAbove = true)
                         SCREENS.forEach { (name, screen) -> DiarySettingsRow(name, onClick = { open(screen) }) }
                         DiarySettingsHeader("시험", gapAbove = true)
@@ -159,3 +161,13 @@ private val Plan.summary: String
         Plan.AD_FREE -> "광고만 없어짐"
         Plan.PLUS -> "광고 없음, 사진 30장, 체크리스트, 고급 통계, 목록 서식"
     }
+
+/** 새 버전 흉내(스펙 009). 고른 값은 앱으로 돌아갈 때 홈 카드와 설정 줄에 보임 */
+@Composable
+private fun UpdateRows(updates: DevStoreUpdates) {
+    val update by updates.mode.collectAsStateWithLifecycle()
+    DiarySettingsHeader("새 버전 흉내", gapAbove = true)
+    DevUpdate.entries.forEach { each ->
+        DiarySettingsChoiceRow(each.label, each == update, { updates.choose(each) }, description = each.summary)
+    }
+}

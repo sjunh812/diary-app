@@ -21,6 +21,7 @@
 		445C052442747365B7CB2124 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1359B5E3E79A6103CB63C864 /* FirebaseAnalytics */; };
 		47A150204EBF9E2799632D13 /* nanum_jeomggol.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 95256A5D7C780D7BBF11A1F0 /* nanum_jeomggol.ttf */; settings = {ASSET_TAGS = (nanum_jeomggol, ); }; };
 		4A5DBA83376222DB0B0119CC /* StoreReviewBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC073EB68EA1A383E339E31B /* StoreReviewBridge.swift */; };
+		D82707C64548212945C31A4D /* AppUpdateBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4620BDB64EC58C3B9B63C34 /* AppUpdateBridge.swift */; };
 		56B0305B5D3847FC6B326502 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */; };
 		6B2031D9196667F65FD358E5 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */; };
 		86A6000310FA931D64BB4C68 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7F3482AB68B54C1CB27AB9D /* Localizable.strings */; };
@@ -52,6 +53,7 @@
 		AC8763BE2505E1BB74D35DF8 /* GoogleAdsBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleAdsBridge.swift; sourceTree = "<group>"; };
 		AF08BA0251C94AD4CD0B4B56 /* GoogleDriveBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveBridge.swift; sourceTree = "<group>"; };
 		BC073EB68EA1A383E339E31B /* StoreReviewBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreReviewBridge.swift; sourceTree = "<group>"; };
+		A4620BDB64EC58C3B9B63C34 /* AppUpdateBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateBridge.swift; sourceTree = "<group>"; };
 		C117AD187833E2513BD2F553 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C35CD2C849A242A9332863DC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -142,6 +144,7 @@
 				D6111777718F5751E749AACD /* PrivacyCover.swift */,
 				C6D2DD7FE2E0BF5DB2A96B4B /* PrivacyInfo.xcprivacy */,
 				BC073EB68EA1A383E339E31B /* StoreReviewBridge.swift */,
+				A4620BDB64EC58C3B9B63C34 /* AppUpdateBridge.swift */,
 				2987522560EBD04F5F94FA64 /* Backup */,
 				37A6BA4C5AAF06904D9C889E /* InfoPlist.strings */,
 				A7F3482AB68B54C1CB27AB9D /* Localizable.strings */,
@@ -543,6 +546,7 @@
 				C116126A0D40FD6BA0083649 /* KeychainLock.swift in Sources */,
 				9FE7668650337D06261A28C9 /* PrivacyCover.swift in Sources */,
 				4A5DBA83376222DB0B0119CC /* StoreReviewBridge.swift in Sources */,
+				D82707C64548212945C31A4D /* AppUpdateBridge.swift in Sources */,
 				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

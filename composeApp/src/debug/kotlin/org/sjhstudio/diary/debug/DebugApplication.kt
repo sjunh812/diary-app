@@ -3,12 +3,20 @@ package org.sjhstudio.diary.debug
 import android.content.Intent
 import android.os.StrictMode
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.android.get
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.module
+import org.sjhstudio.diary.BuildConfig
 import org.sjhstudio.diary.DiaryApplication
+import org.sjhstudio.diary.app.ads.FirebaseRemote
+import org.sjhstudio.diary.app.update.PlayStoreUpdates
 import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.PurchaseRepository
+import org.sjhstudio.diary.core.data.RemoteValues
+import org.sjhstudio.diary.core.data.StoreUpdates
 import org.sjhstudio.diary.core.migration.MigrationEvents
 import org.sjhstudio.diary.core.platform.DevMenu
 
@@ -34,6 +42,14 @@ class DebugApplication : DiaryApplication() {
                 single { DevPlanRepository(this@DebugApplication) }
                 single<PlanRepository> { get<DevPlanRepository>() }
                 single<PurchaseRepository> { FakePurchases(get()) }
+                // 개발자 모드의 새 버전 흉내(스펙 009)
+                // 처음 쓸 때 만들어 앱 시작을 늦추지 않음
+                single {
+                    val play = PlayStoreUpdates(this@DebugApplication, get(), BuildConfig.VERSION_CODE.toString())
+                    DevStoreUpdates(this@DebugApplication, play, CoroutineScope(SupervisorJob() + Dispatchers.Main))
+                }
+                single<StoreUpdates> { get<DevStoreUpdates>() }
+                single<RemoteValues> { get<DevStoreUpdates>().remote(get<FirebaseRemote>().values) }
                 single<DevMenu> {
                     DevMenu {
                         startActivity(Intent(this@DebugApplication, DevModeActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

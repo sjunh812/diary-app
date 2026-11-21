@@ -29,7 +29,11 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.sjhstudio.diary.core.designsystem.icon.DiaryIcons
 import org.sjhstudio.diary.core.designsystem.theme.DiaryIconSize
@@ -46,6 +50,9 @@ private const val VALUE_MAX_SHARE = 0.5f
 
 /** 오른쪽 값 최대 줄 수 */
 private const val VALUE_MAX_LINES = 2
+
+// 값과 할 일 사이
+private const val VALUE_ACTION_SEPARATOR = " · "
 
 /**
  * 이름 최대 줄 수
@@ -76,7 +83,10 @@ fun DiarySettingsHeader(text: String, modifier: Modifier = Modifier, gapAbove: B
     )
 }
 
-/** 누르면 다음 화면으로 가는 줄. 오른쪽에 지금 값과 화살표 */
+/**
+ * 누르면 다음 화면으로 가는 줄. 오른쪽에 지금 값과 화살표
+ * [valueAction]은 값 뒤 " · "에 붙는 할 일(예: "2.0.1 · 업데이트"). 그 말만 `accentText`
+ */
 @Composable
 fun DiarySettingsRow(
     title: String,
@@ -85,7 +95,8 @@ fun DiarySettingsRow(
     description: String? = null,
     value: String? = null,
     selected: Boolean = false,
-    leadingIcon: ImageVector? = null
+    leadingIcon: ImageVector? = null,
+    valueAction: String? = null
 ) {
     val colors = DiaryTheme.colors
     val interaction = remember { MutableInteractionSource() }
@@ -106,7 +117,7 @@ fun DiarySettingsRow(
     ) {
         // 값은 화살표에 붙여 둠(Figma 설정 줄 4)
         Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x1), verticalAlignment = Alignment.CenterVertically) {
-            if (value != null) RowValue(value)
+            if (value != null || valueAction != null) RowValue(valueText(value, valueAction, colors.accentText))
             DiaryIcon(DiaryIcons.ChevronRight, contentDescription = null, tint = colors.textTertiary, size = DiaryIconSize.i20)
         }
     }
@@ -116,7 +127,15 @@ fun DiarySettingsRow(
 @Composable
 fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Modifier) {
     RowFrame(modifier = modifier, title = title, description = null, leadingIcon = null) {
-        RowValue(value)
+        RowValue(AnnotatedString(value))
+    }
+}
+
+private fun valueText(value: String?, action: String?, actionColor: Color): AnnotatedString = buildAnnotatedString {
+    if (value != null) append(value)
+    if (action != null) {
+        if (value != null) append(VALUE_ACTION_SEPARATOR)
+        withStyle(SpanStyle(color = actionColor)) { append(action) }
     }
 }
 
@@ -126,7 +145,7 @@ fun DiarySettingsValueRow(title: String, value: String, modifier: Modifier = Mod
  * `weight`로 나누면 짧은 값일 때 이름 칸이 반으로 고정돼 값과 화살표가 줄 가운데에 뜸
  */
 @Composable
-private fun RowValue(value: String) {
+private fun RowValue(value: AnnotatedString) {
     BasicText(
         text = value,
         style = DiaryTheme.typography.body.copy(color = DiaryTheme.colors.textSecondary),

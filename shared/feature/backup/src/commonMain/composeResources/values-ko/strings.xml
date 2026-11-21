@@ -75,6 +75,7 @@
     <string name="restore_go_backup">백업 화면으로 가기</string>
     <string name="restore_list_failed_body">인터넷 연결을 확인하고 다시 시도해 주세요.</string>
     <string name="restore_retry">다시 시도</string>
+    <string name="restore_update_in_store">스토어에서 업데이트</string>
     <string name="restore_preview_top">복원하기</string>
     <string name="restore_preview_title">이 백업을 합칠게요</string>
     <string name="restore_preview_title_nothing">이 백업의 일기는 이미 모두 있어요</string>

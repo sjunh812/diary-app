@@ -35,6 +35,11 @@ final class FirebaseReporter: FirebaseReporting {
         RemoteConfig.remoteConfig().configValue(forKey: Self.interstitialKey).boolValue
     }
 
+    /// 새 버전 안내 원격 값(스펙 009). 없는 키는 빈 문자열
+    func remoteString(key: String) -> String {
+        RemoteConfig.remoteConfig().configValue(forKey: key).stringValue
+    }
+
     func log(event: String, params: [String: String]) {
         if event == AnalyticsEventScreenView, let screen = params["screen"] {
             Analytics.logEvent(event, parameters: [AnalyticsParameterScreenName: screen, AnalyticsParameterScreenClass: screen])

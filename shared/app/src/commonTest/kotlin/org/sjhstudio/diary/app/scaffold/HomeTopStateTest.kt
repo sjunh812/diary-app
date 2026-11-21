@@ -6,16 +6,22 @@ import kotlin.test.assertEquals
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.PromptRepository
 import org.sjhstudio.diary.core.datastore.PromptStore
 import org.sjhstudio.diary.core.model.BackupNudge
+import org.sjhstudio.diary.core.model.StoreCheck
+import org.sjhstudio.diary.core.model.UpdateNotice
 import org.sjhstudio.diary.core.testing.FakeBackupRepository
+import org.sjhstudio.diary.core.testing.FakeStoreUpdates
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 
 // 홈 맨 위 칸은 백업 안내와 의견 카드를 둘 다 읽은 뒤에 한 장으로 정함
@@ -40,9 +46,53 @@ class HomeTopStateTest {
         timeZone = { TimeZone.UTC }
     ).also { it.start() }
 
+    private val store = FakeStoreUpdates()
+
+    // 처음 확인을 마친 상태. 그 전에는 맨 위 칸이 읽는 중
+    private suspend fun TestScope.updates() = AppUpdateRepository(store, {
+        ""
+    }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", CoroutineScope(backgroundScope.coroutineContext))
+        .also { it.refresh() }
+
+    @Test
+    fun the_top_waits_until_the_first_update_check() = runTest(UnconfinedTestDispatcher()) {
+        val updates =
+            AppUpdateRepository(store, {
+                ""
+            }, PromptStore(InMemoryDataStore(emptyPreferences())), "2.0.1", CoroutineScope(backgroundScope.coroutineContext))
+        val state = HomeTopState(backup, prompts(), updates, backgroundScope)
+        state.start()
+        assertEquals(HomeTop.Reading, state.top.value)
+        updates.refresh()
+        assertEquals(HomeTop.Empty, state.top.value)
+    }
+
+    @Test
+    fun the_update_card_sits_between_backup_and_feedback() = runTest(UnconfinedTestDispatcher()) {
+        val prompts = prompts()
+        now = start + 4.days
+        written.value = 3
+        val updates = updates()
+        val state = HomeTopState(backup, prompts, updates, backgroundScope)
+        state.start()
+        assertEquals(HomeTop.Feedback, state.top.value)
+
+        store.answer = StoreCheck.Available("45")
+        updates.refresh()
+        assertEquals(HomeTop.Update(UpdateNotice.Available(required = false, note = null)), state.top.value)
+
+        val nudge = BackupNudge(10, 2, null)
+        backup.nudge.value = nudge
+        assertEquals(HomeTop.Backup(nudge), state.top.value)
+
+        backup.nudge.value = null
+        updates.dismiss()
+        assertEquals(HomeTop.Feedback, state.top.value)
+    }
+
     @Test
     fun nothing_is_read_before_start() = runTest(UnconfinedTestDispatcher()) {
-        val state = HomeTopState(backup, prompts(), backgroundScope)
+        val state = HomeTopState(backup, prompts(), updates(), backgroundScope)
         assertEquals(0, counted)
         assertEquals(HomeTop.Reading, state.top.value)
 
@@ -57,7 +107,7 @@ class HomeTopStateTest {
         val prompts = prompts()
         now = start + 4.days
         written.value = 3
-        val state = HomeTopState(backup, prompts, backgroundScope)
+        val state = HomeTopState(backup, prompts, updates(), backgroundScope)
         state.start()
         assertEquals(HomeTop.Feedback, state.top.value)
 
@@ -76,7 +126,7 @@ class HomeTopStateTest {
         now = start + 4.days
         written.value = 3
         val slow = SlowNudgeBackup()
-        val state = HomeTopState(slow, prompts, backgroundScope)
+        val state = HomeTopState(slow, prompts, updates(), backgroundScope)
         state.start()
         assertEquals(HomeTop.Reading, state.top.value)
 

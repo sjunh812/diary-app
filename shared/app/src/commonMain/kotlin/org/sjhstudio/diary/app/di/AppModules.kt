@@ -45,6 +45,7 @@ import org.sjhstudio.diary.core.backup.RollbackManager
 import org.sjhstudio.diary.core.backup.backupToOffer
 import org.sjhstudio.diary.core.backup.offerIfNew
 import org.sjhstudio.diary.core.data.AdRepository
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.ContextTips
 import org.sjhstudio.diary.core.data.DefaultSettingsRepository
@@ -214,15 +215,18 @@ private fun coreModule(isDebug: Boolean) = module {
     single<ContextTips> { get<WelcomeRepository>() }
     single { AdStore(get<DataStoreFactory>().ads()) }
     single { AdRepository(get(), get(), get(), get()) }
-    // 의견 카드와 리뷰 창(스펙 007). 일기 DB는 편 수를 셀 때 처음 엶
+    // 의견 카드·리뷰 창(스펙 007)과 새 버전 안내(스펙 009)가 같은 파일을 씀. 한 파일에 DataStore는 하나
+    single { PromptStore(get<DataStoreFactory>().prompt()) }
+    // 일기 DB는 편 수를 셀 때 처음 엶
     single {
         PromptRepository(
-            PromptStore(get<DataStoreFactory>().prompt()),
+            get(),
             writtenSince = { get<DiaryDatabase>().entryDao().countWrittenSince(it.toEpochMilliseconds()) },
             review = get()
         )
     }
-    single { HomeTopState(get(), get(), get(APP_SCOPE)) }
+    single { AppUpdateRepository(get(), get(), get(), get<BackupAppInfo>().versionName, get(APP_SCOPE)) }
+    single { HomeTopState(get(), get(), get(), get(APP_SCOPE)) }
     single { HomeMonths(get(), get(APP_SCOPE)) }
     single { AdRemoval(get(APP_SCOPE), get<LockController>().appLocked, get<AdRepository>()::watchReward) }
 }

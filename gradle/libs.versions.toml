@@ -35,6 +35,8 @@ androidxFragment = "1.8.9"
 playFeatureDelivery = "2.1.0"
 # 저장해 작성 화면이 닫힐 때 한 번 띄우는 스토어 리뷰 창(스펙 007)
 playReview = "2.0.2"
+# 새 버전을 앱 안에서 받는 Play 유연 업데이트(스펙 009)
+playAppUpdate = "2.1.0"
 # 오픈소스 고지 목록(KotlinConf 앱과 같은 방식, 2026-11-04)
 aboutlibraries = "15.3.0"
 androidxCoreKtx = "1.19.0"
@@ -161,6 +163,7 @@ androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 play-feature-delivery = { module = "com.google.android.play:feature-delivery", version.ref = "playFeatureDelivery" }
 play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "playReview" }
+play-app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "playAppUpdate" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestExtJunit" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
 android-desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }

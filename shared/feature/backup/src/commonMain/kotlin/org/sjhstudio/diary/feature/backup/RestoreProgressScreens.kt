@@ -32,7 +32,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.sjhstudio.diary.core.data.AppUpdateRepository
 import org.sjhstudio.diary.core.designsystem.component.DiaryBadgeTone
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
@@ -110,6 +112,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_see_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_start
 import org.sjhstudio.diary.feature.backup.resources.restore_unit_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_unit_photos
+import org.sjhstudio.diary.feature.backup.resources.restore_update_in_store
 import org.sjhstudio.diary.feature.backup.resources.restore_value_entries
 import org.sjhstudio.diary.feature.backup.resources.restore_value_merged
 import org.sjhstudio.diary.feature.backup.resources.restore_value_photo
@@ -145,7 +148,8 @@ fun RestoreProgressRoute(onHome: () -> Unit, onLock: () -> Unit, onPickOther: ()
     // 할 일 없이 열렸을 때만 바로 나감. 결과를 닫아 비었을 때는 이미 나가는 중
     LaunchedEffect(state) { if (state == RestoreState.Idle && !leaving) home() }
     BackHandler(onBack = if (state is RestoreState.Done) finish else onHome)
-    RestoreProgressScreen(shown, onHome, finish, onLock, viewModel::retry, onPickOther, modifier)
+    val updates = koinInject<AppUpdateRepository>()
+    RestoreProgressScreen(shown, onHome, finish, onLock, viewModel::retry, onPickOther, modifier, onUpdate = updates::openStorePage)
 }
 
 /** 나가는 동안 그릴 마지막 상태. 그리기 상태가 아니라 다시 그리지 않음 */
@@ -161,7 +165,8 @@ fun RestoreProgressScreen(
     onLock: () -> Unit,
     onRetry: () -> Unit,
     onPickOther: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onUpdate: () -> Unit = {}
 ) {
     Box(modifier.fillMaxSize().background(DiaryTheme.colors.canvas).statusBarsPadding(), contentAlignment = Alignment.TopCenter) {
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxSize()) {
@@ -171,7 +176,7 @@ fun RestoreProgressScreen(
                 RestoreState.Merging -> Running(null, onSeeEntries, Res.string.restore_merging_body)
                 is RestoreState.FetchingPhotos -> Running(state, onSeeEntries, Res.string.restore_fetching_body)
                 is RestoreState.Done -> Result(state.result, onLock, onStart)
-                is RestoreState.Failed -> Failure(state.reason, onRetry, onPickOther)
+                is RestoreState.Failed -> Failure(state.reason, onRetry, onPickOther, onUpdate)
             }
         }
     }
@@ -376,9 +381,10 @@ internal fun pendingBody(result: RestoreResult): StringResource = when {
 /**
  * Figma "B6 · 백업을 확인하지 못했어요"
  * 어떤 실패든 기기의 기록은 그대로
+ * 새 버전이 필요하면 다시 시도 대신 스토어의 이 앱 화면을 엶. 받기 진행은 두지 않음(스펙 009 US3)
  */
 @Composable
-internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onPickOther: () -> Unit) {
+internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, onPickOther: () -> Unit, onUpdate: () -> Unit) {
     val (title, body) =
         when (reason) {
             RestoreFailure.MISMATCH -> Res.string.restore_failed_mismatch_title to Res.string.restore_failed_mismatch_body
@@ -411,5 +417,16 @@ internal fun ColumnScope.Failure(reason: RestoreFailure, onRetry: () -> Unit, on
             )
         }
     }
-    Bottom { DiaryButton(stringResource(Res.string.restore_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge) }
+    Bottom {
+        if (reason == RestoreFailure.NEEDS_UPDATE) {
+            DiaryButton(
+                stringResource(Res.string.restore_update_in_store),
+                onUpdate,
+                Modifier.fillMaxWidth(),
+                size = DiaryButtonSize.XLarge
+            )
+        } else {
+            DiaryButton(stringResource(Res.string.restore_retry), onRetry, Modifier.fillMaxWidth(), size = DiaryButtonSize.XLarge)
+        }
+    }
 }

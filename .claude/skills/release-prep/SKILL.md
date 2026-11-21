@@ -70,6 +70,7 @@ am instrument -w -e class org.sjhstudio.diary.benchmarks.BaselineProfileGenerato
 
 `docs/release.md` "출시 전 확인"을 위에서부터 본다. 체크되지 않은 줄을 사용자에게 보여 주고 이번 판에 필요한 것을 묻는다.
 Play "새로운 기능" 문구는 한국어, 영어, 일본어로 쓰고 `korean-humanizer`와 `korean-spell-check`로 다듬는다.
+새 버전이 스토어에 열리면 Remote Config 새 버전 안내 값(`update_note_*`, 필요할 때만 `update_min_version`)을 `docs/release.md` "새 버전 안내 원격 값"대로 적을지 사용자에게 묻는다.
 
 ## 7. 커밋과 태그
 

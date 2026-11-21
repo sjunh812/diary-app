@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import org.sjhstudio.diary.core.data.percent
 import org.sjhstudio.diary.core.designsystem.component.DiaryButton
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonKind
 import org.sjhstudio.diary.core.designsystem.component.DiaryButtonSize
@@ -43,6 +44,7 @@ import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
 import org.sjhstudio.diary.core.model.ListPreferences
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.UpdateNotice
 import org.sjhstudio.diary.core.ui.OnTabReselected
 import org.sjhstudio.diary.core.ui.grouped
 import org.sjhstudio.diary.core.ui.rememberDiaryDateFormat
@@ -79,6 +81,10 @@ import org.sjhstudio.diary.feature.settings.resources.settings_title
 import org.sjhstudio.diary.feature.settings.resources.settings_trash
 import org.sjhstudio.diary.feature.settings.resources.settings_trash_count
 import org.sjhstudio.diary.feature.settings.resources.settings_version
+import org.sjhstudio.diary.feature.settings.resources.settings_version_downloading
+import org.sjhstudio.diary.feature.settings.resources.settings_version_downloading_unknown
+import org.sjhstudio.diary.feature.settings.resources.settings_version_restart
+import org.sjhstudio.diary.feature.settings.resources.settings_version_update
 
 /**
  * 설정 목록(Figma "설정 (S6)")
@@ -106,6 +112,8 @@ fun SettingsScreen(
     onDevMode: (() -> Unit)? = null,
     backupValue: String? = null,
     appVersion: String = "",
+    update: UpdateNotice = UpdateNotice.None,
+    onUpdate: () -> Unit = {},
     onFeedback: () -> Unit = {},
     onRate: (() -> Unit)? = null,
     selected: SettingsPane? = null
@@ -246,7 +254,13 @@ fun SettingsScreen(
             DiarySettingsRow(stringResource(Res.string.settings_feedback), onClick = onFeedback)
             onRate?.let { DiarySettingsRow(stringResource(Res.string.settings_rate), onClick = it) }
             DiarySettingsHeader(stringResource(Res.string.settings_group_info), gapAbove = true)
-            DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
+            // 새 버전이 있으면 누를 수 있는 줄(스펙 009). 설정 위에서 스토어 창이 뜸
+            val action = update.actionLabel()
+            if (action == null) {
+                DiarySettingsValueRow(stringResource(Res.string.settings_version), appVersion)
+            } else {
+                DiarySettingsRow(stringResource(Res.string.settings_version), onClick = onUpdate, value = appVersion, valueAction = action)
+            }
             DiarySettingsRow(
                 stringResource(Res.string.settings_licenses),
                 onClick = onLicenses,
@@ -279,4 +293,17 @@ private fun listValue(list: ListPreferences): String {
     } else {
         stringResource(Res.string.list_value, style, stringResource(list.previewLength.label()))
     }
+}
+
+/** 앱 버전 줄 값 뒤 할 일. 새 버전이 없으면 null */
+@Composable
+private fun UpdateNotice.actionLabel(): String? = when (this) {
+    UpdateNotice.None -> null
+
+    is UpdateNotice.Available -> stringResource(Res.string.settings_version_update)
+
+    is UpdateNotice.Downloading -> percent()?.let { stringResource(Res.string.settings_version_downloading, it) }
+        ?: stringResource(Res.string.settings_version_downloading_unknown)
+
+    UpdateNotice.Downloaded -> stringResource(Res.string.settings_version_restart)
 }
