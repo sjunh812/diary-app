@@ -40,6 +40,7 @@ import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeNetworkState
 import org.sjhstudio.diary.core.testing.InMemoryDataStore
 import org.sjhstudio.diary.core.testing.TestClock
+import org.sjhstudio.diary.core.testing.connectedBackupStore
 
 /**
  * 시험용 기기 하나
@@ -49,13 +50,14 @@ internal class TestPhone(
     val root: Path,
     val drive: FakeDrive,
     start: Instant = Instant.parse("2026-11-05T01:00:00Z"),
-    private val name: String = "Galaxy S24"
+    private val name: String = "Galaxy S24",
+    connected: Boolean = false
 ) {
     val fs: FileSystem = FileSystem.SYSTEM
     val media = root / "media"
     val work = root / "backup"
     val clock = TestClock(start)
-    val store = BackupStore(InMemoryDataStore(emptyPreferences()))
+    val store = if (connected) connectedBackupStore() else BackupStore(InMemoryDataStore(emptyPreferences()))
     val auth = FakeDriveAuthorizer()
     val network = FakeNetworkState()
     val gate = BackupGate()

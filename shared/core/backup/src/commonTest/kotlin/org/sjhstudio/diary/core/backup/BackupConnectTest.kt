@@ -1,14 +1,20 @@
 package org.sjhstudio.diary.core.backup
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Instant
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -45,18 +51,19 @@ class BackupConnectTest {
 
     private val gate = BackupGate()
 
-    private fun controller(found: BackupEntry? = null) = BackupController(
-        store,
-        lazy { error("쓰지 않는다") },
-        lazy { error("쓰지 않는다") },
-        authorizer,
-        scheduler,
-        FakeBackupNotifier(),
-        CoroutineScope(Dispatchers.Unconfined),
-        findBackup = { found },
-        running = { running },
-        gate = gate
-    )
+    private fun controller(found: BackupEntry? = null, find: suspend () -> BackupEntry? = { found }, backupStore: BackupStore = store) =
+        BackupController(
+            backupStore,
+            lazy { error("쓰지 않는다") },
+            lazy { error("쓰지 않는다") },
+            authorizer,
+            scheduler,
+            FakeBackupNotifier(),
+            CoroutineScope(Dispatchers.Unconfined),
+            findBackup = find,
+            running = { running },
+            gate = gate
+        )
 
     @Test
     fun no_backup_on_drive_starts_the_first_backup() = runTest {
@@ -323,6 +330,104 @@ class BackupConnectTest {
         assertFalse(backupGotIn)
         assertTrue(gate.tryEnter())
         gate.leave()
+    }
+
+    /** 새 계정 드라이브에서 백업을 찾는 동안 또 바꾸면 앞 계정의 결과가 새 계정에 섞임 */
+    @Test
+    fun a_change_waits_while_the_new_drive_is_searched() = runTest {
+        backedUp()
+        val searching = CompletableDeferred<BackupEntry?>()
+        val controller = controller(find = { searching.await() })
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+        assertEquals(AccountChange.CHANGED, controller.changeAccount())
+
+        authorizer.account = DriveAccount("sub-3", "home@gmail.com")
+        assertEquals(AccountChange.BUSY, controller.changeAccount())
+
+        assertEquals(1, authorizer.connects)
+        assertEquals("sub-2", store.current().accountKey)
+        searching.complete(null)
+    }
+
+    /** 찾은 백업에 답하기 전에는 계정을 바꾸지 않음. 답하지 않은 권유가 다른 계정에 남지 않게 */
+    @Test
+    fun a_change_waits_for_the_found_backup_answer() = runTest {
+        backedUp()
+        val controller = controller(found = entry)
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+        controller.changeAccount()
+
+        authorizer.account = DriveAccount("sub-3", "home@gmail.com")
+        assertEquals(AccountChange.BUSY, controller.changeAccount())
+        assertEquals("sub-2", store.current().accountKey)
+    }
+
+    /**
+     * 오프라인이라 찾기가 끝나지 못해 남은 '찾은 백업 기다림'은 계정을 막지 않음
+     * 막으면 아무 일도 돌지 않는데 "끝나면 바꿀 수 있어요"만 뜸. 새 계정은 바꾼 뒤 그 드라이브를 다시 찾음
+     */
+    @Test
+    fun an_unfinished_search_left_from_before_does_not_block_the_change() = runTest {
+        backedUp()
+        store.update { it.copy(foundBackupWaiting = true) }
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+
+        assertEquals(AccountChange.CHANGED, controller().changeAccount())
+
+        assertEquals("sub-2", store.current().accountKey)
+        assertEquals(1, scheduler.startedNow)
+    }
+
+    /** 드라이브를 찾는 중에 백업 화면을 나가도 찾기와 첫 백업은 끝까지 감. 멈추면 '찾은 백업 기다림'만 남아 백업과 계정 바꾸기가 막힘 */
+    @Test
+    fun leaving_the_screen_while_finding_still_finishes() = runTest {
+        val searching = CompletableDeferred<BackupEntry?>()
+        val controller = controller(find = { searching.await() })
+
+        val screen = launch(UnconfinedTestDispatcher(testScheduler)) { controller.connect() }
+        screen.cancel()
+        searching.complete(null)
+
+        assertFalse(store.current().foundBackupWaiting)
+        assertEquals(1, scheduler.startedNow)
+    }
+
+    /** 설정을 못 읽어도 잠금은 풀림. 안 풀리면 앱을 다시 켤 때까지 백업·복원이 멈춤 */
+    @Test
+    fun a_change_that_cannot_read_settings_releases_the_lock() = runTest {
+        val broken = BackupStore(object : DataStore<Preferences> {
+            override val data: Flow<Preferences> = flow { throw IllegalStateException("읽을 수 없음") }
+            override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences = error("쓰지 않음")
+        })
+
+        assertFails { controller(backupStore = broken).changeAccount() }
+
+        assertTrue(gate.tryEnter())
+        gate.leave()
+    }
+
+    /** 같은 계정을 다시 골라도 공간 부족 같은 드라이브 실패는 그대로. 다시 연결로 풀리는 실패만 지움 */
+    @Test
+    fun picking_the_same_account_keeps_a_drive_failure() = runTest {
+        backedUp()
+        val since = Instant.parse("2026-11-01T00:00:00Z")
+        store.update { it.copy(lastFailure = BackupFailure.NO_SPACE, failingSince = since) }
+
+        controller().changeAccount()
+
+        assertEquals(BackupFailure.NO_SPACE, store.current().lastFailure)
+        assertEquals(since, store.current().failingSince)
+    }
+
+    @Test
+    fun picking_the_same_account_clears_a_sign_in_failure() = runTest {
+        backedUp()
+        store.update { it.copy(lastFailure = BackupFailure.AUTH, failingSince = Instant.parse("2026-11-01T00:00:00Z")) }
+
+        controller().changeAccount()
+
+        assertNull(store.current().lastFailure)
+        assertNull(store.current().failingSince)
     }
 
     /** 재시도를 기다리는 동안 다시 눌러도 그 요청과 "이번만 모바일 데이터"가 시스템까지 감 */

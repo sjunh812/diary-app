@@ -45,7 +45,7 @@ import org.sjhstudio.diary.core.testing.FakeBackupNotifier
 import org.sjhstudio.diary.core.testing.FakeDrive
 import org.sjhstudio.diary.core.testing.FakeDriveAuthorizer
 import org.sjhstudio.diary.core.testing.FakeNetworkState
-import org.sjhstudio.diary.core.testing.InMemoryDataStore
+import org.sjhstudio.diary.core.testing.connectedBackupStore
 
 class BackupRunnerTest {
     private val fs = FileSystem.SYSTEM
@@ -67,7 +67,7 @@ class BackupRunnerTest {
         fs.createDirectories(dir / "media")
         db = Room.databaseBuilder<DiaryDatabase>((dir / "diary.db").toString()).configured().build()
         drive = FakeDrive(fs)
-        store = BackupStore(InMemoryDataStore(androidx.datastore.preferences.core.emptyPreferences()))
+        store = connectedBackupStore()
     }
 
     @AfterTest
@@ -583,6 +583,40 @@ class BackupRunnerTest {
 
         assertEquals(now, store.current().lastSuccessAt)
         assertNull(store.current().lastFailure)
+    }
+
+    /** 끝나 가던 백업은 끊은 계정의 기록을 다시 적지 않음. 다른 계정을 이으면 그 계정의 백업처럼 보임 */
+    @Test
+    fun a_backup_finishing_after_disconnect_does_not_record_success() = runTest {
+        seed()
+        drive.onUpload = { meta ->
+            if (meta.mimeType == "application/json") store.update { it.copy(accountKey = null, lastSuccessAt = null) }
+        }
+
+        runner().run()
+
+        assertNull(store.current().lastSuccessAt)
+    }
+
+    /** 자동 백업은 잠금을 쥔 뒤 올려도 되는지 다시 봄. 그 사이 계정이 바뀌어도 새 드라이브를 찾기 전에 올리지 않게 */
+    @Test
+    fun an_automatic_backup_checks_again_after_taking_the_lock() = runTest {
+        seed()
+
+        assertIs<BackupOutcome.Unchanged>(runner().runIfChanged { false })
+
+        assertTrue(names(DriveLayout.KIND_MANIFEST).isEmpty())
+    }
+
+    /** 지금 백업과 재시도도 찾은 백업에 답하기 전에는 올리지 않음 */
+    @Test
+    fun a_manual_backup_waits_for_the_found_backup_answer() = runTest {
+        seed()
+        store.update { it.copy(foundBackupWaiting = true) }
+
+        assertIs<BackupOutcome.Unchanged>(runner().run())
+
+        assertTrue(names(DriveLayout.KIND_MANIFEST).isEmpty())
     }
 
     private companion object {

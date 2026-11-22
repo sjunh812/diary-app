@@ -6,6 +6,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -172,16 +173,20 @@ class BackupController(
         // 연결이 끊긴 동안의 백업은 곧 권한 오류로 끝나 오래 기다리지 않음
         gate.enter()
         val result = authorizeHolding(hint)
-        if (result is ConnectResult.Connected) settle()
+        // 찾기는 앱 범위에서 끝까지 감. 화면은 찾기가 끝날 때까지 연결 중을 보이고, 나가면 기다림만 취소
+        // 화면에서 돌리면 찾다 취소돼 '찾은 백업 기다림'만 남고 백업과 계정 바꾸기가 멈춤
+        if (result is ConnectResult.Connected) scope.async { settle() }.await()
         return result
     }
 
     override suspend fun changeAccount(): AccountChange {
         if (!gate.tryEnter()) return AccountChange.BUSY
-        val before = store.current().accountKey
-        val picked = (authorizeHolding(null) as? ConnectResult.Connected)?.account?.key
-        return when (picked) {
-            null, before -> AccountChange.KEPT
+        val before = leavingUnlessReady { store.current().takeUnless { busyWithAccount() } }
+        val picked = before?.let { (authorizeHolding(null) as? ConnectResult.Connected)?.account?.key }
+        return when {
+            before == null -> AccountChange.BUSY
+
+            picked == null || picked == before.accountKey -> AccountChange.KEPT
 
             else -> {
                 // 백업 설정이 닫혀도 찾기와 첫 백업은 이어서 함
@@ -190,6 +195,27 @@ class BackupController(
             }
         }
     }
+
+    /**
+     * 잠금을 쥔 채 [block]을 부르고, 값이 없거나 실패하면 잠금을 놓음
+     * 놓지 않으면 앱을 다시 켤 때까지 백업·복원이 멈춤
+     */
+    private suspend fun <T : Any> leavingUnlessReady(block: suspend () -> T?): T? {
+        var ready: T? = null
+        try {
+            ready = block()
+        } finally {
+            if (ready == null) gate.leave()
+        }
+        return ready
+    }
+
+    /**
+     * 앞 계정에서 하던 일이 끝나지 않음. 바꾸면 그 결과가 새 계정에 섞임
+     * 드라이브에서 백업 찾기, 답하지 않은 찾은 백업
+     * 저장된 '찾은 백업 기다림'만 남은 것은 끝나지 못한 찾기라 막지 않음. 새 계정은 바꾼 뒤 다시 찾음
+     */
+    private fun busyWithAccount(): Boolean = finding.value || _foundBackup.value != null
 
     /**
      * 잠금을 쥔 채 불러 권한 받기와 계정 적기를 하고 잠금을 놓음
@@ -216,15 +242,19 @@ class BackupController(
         // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킴
         // 다른 계정을 고르면 앞 계정의 백업 기록은 이 계정의 것이 아님
         store.update {
-            val kept = if (it.accountKey == null || it.accountKey == result.account.key) it else it.withoutBackupRecord()
+            val same = it.accountKey == result.account.key
+            val kept = if (it.accountKey == null || same) it else it.withoutBackupRecord()
+            // 다시 연결로 풀리는 실패만 끝난 일. 같은 계정의 드라이브 실패(공간 부족 등)는 그대로
+            val cleared = !same || it.lastFailure == BackupFailure.AUTH
             kept.copy(
                 accountKey = result.account.key,
                 accountLabel = result.account.email,
                 autoEnabled = it.accountKey == null || it.autoEnabled,
                 userDisconnected = false,
-                // 다시 이었으면 끊긴 동안의 실패는 끝난 일. 7일 알림도 새로 셈
-                lastFailure = null,
-                failingSince = null
+                lastFailure = if (cleared) null else it.lastFailure,
+                failingSince = if (cleared) null else it.failingSince,
+                // 새 계정은 그 드라이브를 찾기 전에 올리지 않음. 찾기가 시작되기 전 깬 자동 백업도 막음
+                foundBackupWaiting = it.foundBackupWaiting || !same
             )
         }
         result
@@ -252,19 +282,19 @@ class BackupController(
      * 찾는 도중 앱이 꺼져도 다음에 열 때 다시 찾고 나서 올림
      */
     private suspend fun settle() {
-        if (store.current().autoEnabled) scheduler.scheduleDaily()
-        failures.stillFine(clock.now())
-        store.update { it.copy(foundBackupWaiting = true) }
         finding.value = true
         val found =
             try {
+                if (store.current().autoEnabled) scheduler.scheduleDaily()
+                failures.stillFine(clock.now())
+                store.update { it.copy(foundBackupWaiting = true) }
                 findBackup()
             } finally {
                 finding.value = false
             }
-        if (found != null) {
-            _foundBackup.value = found
-        } else {
+        // 없을 때도 비움. 앞 계정에서 찾은 권유가 새 계정 화면에 남지 않게
+        _foundBackup.value = found
+        if (found == null) {
             store.update { it.copy(foundBackupWaiting = false) }
             backUpNow()
         }
@@ -277,8 +307,11 @@ class BackupController(
     override fun skipFoundBackup() {
         if (_foundBackup.value == null) return
         _foundBackup.value = null
-        scope.launch { store.update { it.copy(foundBackupWaiting = false) } }
-        backUpNow()
+        // 기다림을 푼 뒤에 올림. 백업은 기다림이 남아 있으면 올리지 않음
+        scope.launch {
+            store.update { it.copy(foundBackupWaiting = false) }
+            backUpNow()
+        }
     }
 
     override fun takeFoundBackup() {
@@ -316,7 +349,9 @@ class BackupController(
         if (isDue()) scope.launch { runAutomatic() }
     }
 
+    /** 찾는 동안은 계정 바꾸기를 막음. 끝난 결과가 바꾼 계정 화면에 섞이지 않게 */
     private suspend fun findBackupAgain() {
+        finding.value = true
         val found =
             try {
                 findBackup()
@@ -325,6 +360,8 @@ class BackupController(
             } catch (_: Exception) {
                 // 오프라인이면 다음에 앱을 열 때 다시 봄
                 return
+            } finally {
+                finding.value = false
             }
         if (found != null) _foundBackup.value = found else store.update { it.copy(foundBackupWaiting = false) }
     }
@@ -337,10 +374,13 @@ class BackupController(
      */
     suspend fun runAutomatic(): BackupOutcome {
         // 끄거나 끊은 뒤에 남아 있던 시스템 작업이 깨워도 올리지 않음
-        val prefs = store.current()
-        if (prefs.accountKey == null || !prefs.autoEnabled || prefs.foundBackupWaiting) return BackupOutcome.Unchanged
-        return runner.value.runIfChanged()
+        if (!store.current().autoAllowed()) return BackupOutcome.Unchanged
+        // 잠금을 쥔 뒤 한 번 더 봄. 그 사이 계정이 바뀌어도 새 드라이브를 찾기 전에 올리지 않게
+        return runner.value.runIfChanged { store.current().autoAllowed() }
     }
+
+    /** 자동 백업이 올려도 되는지. 끄거나 끊었거나 그 드라이브를 아직 찾지 못했으면 아님 */
+    private fun BackupPrefs.autoAllowed(): Boolean = accountKey != null && autoEnabled && !foundBackupWaiting
 
     private suspend fun isDue(): Boolean {
         val prefs = store.current()
