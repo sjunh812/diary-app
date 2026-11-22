@@ -30,5 +30,5 @@
 
 - [x] T015 `docs/backup.md`(계정 변경 절), `docs/DECISIONS.md`(2026-11-22 계정 변경·SELECT_ACCOUNT), 스펙 003 엣지 케이스에서 이 스펙 잇기
 - [x] T016 CI 묶음(`spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck unusedImportCheck detekt :composeApp:lint allTests assembleDebug`)
-- [x] T017 (에뮬레이터 한국어·다크에서 백업 중 토스트, 취소, 같은 계정, 오프라인 실패, 끊은 뒤 다시 연결 확인. 다른 계정 전환·큰 글자·태블릿·iOS 시뮬레이터 실제 동작은 못 봄) `/backup-roundtrip`, `/emulator-check`(한국어·다크·큰 글자·태블릿), iOS 시뮬레이터 `quickstart.md` 순서
+- [x] T017 (Android 에뮬레이터 한국어·다크: 백업 중 토스트, 취소, 같은 계정, 오프라인 실패, 끊은 뒤 다시 연결. iOS 시뮬레이터 한국어·다크·가장 큰 글자: 연결 뒤 찾은 백업 시트, 백업 중 토스트, 취소, 같은 계정, 끊은 뒤 다시 연결. 다른 계정 실제 전환·태블릿은 못 봄. 가장 큰 글자에서 이메일 값이 두 줄로 글자 단위로 끊김(값 줄 부품의 원래 동작)) `/backup-roundtrip`, `/emulator-check`(한국어·다크·큰 글자·태블릿), iOS 시뮬레이터 `quickstart.md` 순서
 - [ ] T018 문구 humanizer·맞춤법, `/self-review`, 커밋·푸시(`git push gitlab`)·MR
