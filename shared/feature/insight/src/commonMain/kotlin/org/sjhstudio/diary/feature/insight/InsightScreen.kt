@@ -439,6 +439,8 @@ private fun PeriodLabel(label: String) {
     val text =
         buildAnnotatedString {
             append(label)
+            // 화살표만 다음 줄로 떨어지지 않게 마지막 낱말에 붙임
+            append(WORD_JOINER)
             appendInlineContent(CHEVRON_ID, " ")
         }
     val inline =
@@ -574,6 +576,8 @@ private fun String.withFaces(): AnnotatedString = buildAnnotatedString {
         val index = rest.substring(start + 1, end)
         // 대체 글자가 비면 Compose가 예외를 던져 빈칸 하나로 둠(화면 읽기·복사용)
         appendInlineContent(faceId(index), " ")
+        // 얼굴만 윗줄 끝에 남지 않게 이름에 붙임
+        append(WORD_JOINER)
         rest = rest.substring(end + 1)
     }
 }
