@@ -38,9 +38,10 @@ data class DriveAccount(val key: String, val email: String)  // key = 구글 계
 | 범위 | `drive.file`, `openid`, `email` | 기본 프로필 + `addScopes([drive.file])` |
 | 계정 알기 | 받은 토큰으로 userinfo를 불러 `sub`, `email`을 얻는다(응답에 계정이 없다) | `GIDGoogleUser.userID`, `profile.email` |
 | 계정 먼저 보이기 | `AuthorizationRequest.Builder.setAccount(Account(hint, "com.google"))` | 없음(옛 백업 계정은 iOS에 없다) |
+| 계정 고르기(hint 없음) | `setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT)`. 없으면 허락한 계정으로 바로 붙음(스펙 011) | `signIn`이 구글 계정 선택 화면을 띄움 |
 | 화면 없이 토큰 | `authorize()`를 다시 부르면 이미 허락했을 때 화면 없이 토큰. 허락이 없으면 PendingIntent → `NeedsUser` | `restorePreviousSignIn` 뒤 `refreshTokensIfNeeded` |
 | 토큰 보관 | 기기에 두지 않는다. 1시간짜리를 그때그때 받는다 | GoogleSignIn이 키체인(이 기기 전용)에 둔다 |
-| 끊기 | `revokeAccess`, `clearToken` | `disconnect` |
+| 끊기 | 기기에 둔 계정 이메일만 지움. 구글 권한은 거두지 않음(2026-11-06, 스펙 011 R3) | `signOut` |
 
 - 토큰과 계정 이메일은 로그, 사용 통계, 오류 보고에 넣지 않는다.
 - 클라이언트 ID는 저장소에 올리지 않고 빌드 설정에서 넣는다. Android 클라이언트는 패키지 이름과 서명 지문으로 묶이므로 비밀값은 아니지만 함께 다룬다.
