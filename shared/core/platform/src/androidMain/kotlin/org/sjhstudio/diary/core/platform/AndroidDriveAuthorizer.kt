@@ -128,9 +128,17 @@ class AndroidDriveAuthorizer(context: Context, private val errors: ErrorReporter
         // drive.file을 취소하면 다시 연결해도 앱이 만든 백업이 안 보일 수 있어(헌법 I), 확인 전까지 이 기기 연결만 끊음
     }
 
+    /**
+     * 계정을 모르면 고르게 함
+     * 고르게 하지 않으면 한 번 허락한 계정으로 바로 붙어 끊은 뒤에도 다른 계정을 고를 수 없음
+     */
     private fun request(email: String?): AuthorizationRequest {
         val builder = AuthorizationRequest.builder().setRequestedScopes(SCOPES)
-        email?.let { builder.setAccount(Account(it, ACCOUNT_TYPE)) }
+        if (email == null) {
+            builder.setPrompt(AuthorizationRequest.Prompt.SELECT_ACCOUNT)
+        } else {
+            builder.setAccount(Account(email, ACCOUNT_TYPE))
+        }
         return builder.build()
     }
 
