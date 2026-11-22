@@ -160,7 +160,7 @@ internal fun attentionOf(status: BackupStatus, receivingPhotos: Boolean, now: In
     val last = status.lastSuccessAt
     return when {
         receivingPhotos || status.connection == BackupConnection.NotConnected -> null
-        status.connection == BackupConnection.NeedsReconnect -> BackupAttention.Reconnect
+        status.connection is BackupConnection.NeedsReconnect -> BackupAttention.Reconnect
         status.running != null || status.findingBackup -> null
         last != null && now - (status.failingSince ?: now) >= LONG_FAILURE -> BackupAttention.LongFailure
         else -> null
@@ -210,7 +210,7 @@ private fun lineFor(status: BackupStatus, photos: PhotoProgress?): Line {
         status.connection == BackupConnection.NotConnected ->
             Line(DiaryIcons.CloudOff, stringResource(Res.string.backup_line_off), action = stringResource(Res.string.backup_line_on))
 
-        status.connection == BackupConnection.NeedsReconnect ->
+        status.connection is BackupConnection.NeedsReconnect ->
             Line(DiaryIcons.LinkOff, stringResource(Res.string.backup_line_reconnect), alert = true)
 
         running != null -> Line(

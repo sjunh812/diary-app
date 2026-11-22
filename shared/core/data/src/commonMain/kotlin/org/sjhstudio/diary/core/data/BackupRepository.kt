@@ -2,6 +2,7 @@ package org.sjhstudio.diary.core.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
@@ -13,6 +14,7 @@ import org.sjhstudio.diary.core.platform.ConnectResult
  * 화면이 쓰는 백업 입구
  * 홈과 설정이 같은 상태를 봄(contracts/backup-flow.md 상태 표시)
  */
+@Suppress("TooManyFunctions") // 연결·백업·권하기가 같은 연결 상태와 잠금을 함께 봄
 interface BackupRepository {
     val status: Flow<BackupStatus>
 
@@ -34,6 +36,12 @@ interface BackupRepository {
      * 드라이브에 백업이 없으면 바로 백업. 있으면 [foundBackup]으로 알리고 사용자가 고를 때까지 올리지 않음
      */
     suspend fun connect(hint: String? = null): ConnectResult
+
+    /**
+     * 연결된 채 다른 구글 계정을 고름(스펙 011)
+     * 다른 계정을 고르면 [connect]와 같지만, 찾기와 첫 백업은 화면이 닫혀도 이어서 함
+     */
+    suspend fun changeAccount(): AccountChange
 
     /**
      * 방금 연결에 실패한 까닭

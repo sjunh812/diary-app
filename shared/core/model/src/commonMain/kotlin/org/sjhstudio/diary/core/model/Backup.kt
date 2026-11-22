@@ -20,6 +20,18 @@ enum class BackupFailure {
     }
 }
 
+/** 백업 계정 변경의 결과(스펙 011). 실패 까닭은 연결 실패 안내가 따로 알림 */
+enum class AccountChange {
+    /** 다른 계정으로 바뀜 */
+    CHANGED,
+
+    /** 같은 계정을 골랐거나 취소·실패해 앞 계정 그대로 */
+    KEPT,
+
+    /** 백업·복원이 도는 중이라 묻지 않음 */
+    BUSY
+}
+
 /** 지금 백업을 눌렀는데 올리지 않고 끝난 까닭 */
 enum class BackupSkip {
     /** 백업할 일기 없음 */
@@ -35,7 +47,8 @@ sealed interface BackupConnection {
 
     data class Connected(val accountLabel: String) : BackupConnection
 
-    data object NeedsReconnect : BackupConnection
+    /** [accountLabel]은 끊기기 전 계정. 백업 설정이 그대로 보임 */
+    data class NeedsReconnect(val accountLabel: String) : BackupConnection
 }
 
 /** 백업 상태 기계의 단계(data-model.md). 이름이 `backup/state.json`에 그대로 저장됨 */

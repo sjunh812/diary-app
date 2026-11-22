@@ -187,7 +187,8 @@ class ScreenCatalogActivity : ComponentActivity() {
                             SAMPLE_STATUS.copy(lastFailure = BackupFailure.NO_SPACE, bytesShort = 1_200_000_000, photosNotBackedUp = 340)
                         )
 
-                    BACKUP_OPTIONS -> BackupOptionsScreen(SAMPLE_STATUS, onPhotosOnCellular = {}, onDisconnect = {}, onBack = ::finish)
+                    BACKUP_OPTIONS -> BackupOptionsScreen(SAMPLE_STATUS, onChangeAccount = {
+                    }, onPhotosOnCellular = {}, onDisconnect = {}, onBack = ::finish)
 
                     BACKUP_LINES -> BackupLines()
 
@@ -227,7 +228,7 @@ class ScreenCatalogActivity : ComponentActivity() {
             ),
             onOpen = {}
         )
-        BackupStatusLine(SAMPLE_STATUS.copy(connection = BackupConnection.NeedsReconnect), onOpen = {})
+        BackupStatusLine(SAMPLE_STATUS.copy(connection = BackupConnection.NeedsReconnect("diary@gmail.com")), onOpen = {})
         BackupStatusLine(BackupStatus(), onOpen = {})
     }
 

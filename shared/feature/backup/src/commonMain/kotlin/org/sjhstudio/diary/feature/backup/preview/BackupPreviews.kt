@@ -9,6 +9,7 @@ import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.feature.backup.BackupNudgeContent
+import org.sjhstudio.diary.feature.backup.BackupOptionsScreen
 import org.sjhstudio.diary.feature.backup.BackupSettingsScreen
 import org.sjhstudio.diary.feature.backup.BackupStatusFailedLine
 import org.sjhstudio.diary.feature.backup.BackupStatusRead
@@ -44,7 +45,7 @@ private fun PhotosWaitingLight() = Screen(Connected.copy(photosNotBackedUp = 3),
 
 @Preview(locale = "ko")
 @Composable
-private fun NeedsReconnectLight() = Screen(Connected.copy(connection = BackupConnection.NeedsReconnect), dark = false)
+private fun NeedsReconnectLight() = Screen(Connected.copy(connection = BackupConnection.NeedsReconnect("diary@gmail.com")), dark = false)
 
 @Preview(locale = "ko")
 @Composable
@@ -93,3 +94,21 @@ private fun StatusFailedLineLight() = DiaryTheme(darkTheme = false) { BackupStat
 @Preview(name = "홈 줄 · 상태를 읽지 못함 · 다크", locale = "ko")
 @Composable
 private fun StatusFailedLineDark() = DiaryTheme(darkTheme = true) { BackupStatusFailedLine({}) }
+
+@Composable
+private fun Options(status: BackupStatus, dark: Boolean) = DiaryTheme(darkTheme = dark) {
+    BackupOptionsScreen(status, onChangeAccount = {}, onPhotosOnCellular = {}, onDisconnect = {}, onBack = {})
+}
+
+@Preview(name = "백업 설정", locale = "ko")
+@Composable
+private fun OptionsLight() = Options(Connected, dark = false)
+
+@Preview(name = "백업 설정 · 다크", locale = "ko")
+@Composable
+private fun OptionsDark() = Options(Connected, dark = true)
+
+@Preview(name = "백업 설정 · 다시 연결 필요", locale = "ko")
+@Composable
+private fun OptionsNeedsReconnectLight() =
+    Options(Connected.copy(connection = BackupConnection.NeedsReconnect("diary@gmail.com")), dark = false)

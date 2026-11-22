@@ -33,6 +33,7 @@
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">계정</string>
     <string name="backup_account">구글 계정</string>
+    <string name="backup_account_busy">백업이나 복원이 끝나면 바꿀 수 있어요.</string>
     <string name="backup_group_upload">올리기</string>
     <string name="backup_wifi_only">사진은 Wi-Fi에서만</string>
     <string name="backup_wifi_only_body">끄면 모바일 데이터로도 사진을 올려요.</string>

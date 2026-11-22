@@ -33,6 +33,7 @@
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">Account</string>
     <string name="backup_account">Google account</string>
+    <string name="backup_account_busy">You can switch accounts once the backup or restore is done.</string>
     <string name="backup_group_upload">Upload</string>
     <string name="backup_wifi_only">Photos on Wi-Fi only</string>
     <string name="backup_wifi_only_body">Turn off to upload photos on mobile data too.</string>

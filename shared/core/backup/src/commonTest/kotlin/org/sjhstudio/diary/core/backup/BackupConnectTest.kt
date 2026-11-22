@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
 import org.sjhstudio.diary.core.model.BackupFailure
@@ -42,6 +43,8 @@ class BackupConnectTest {
 
     private var running = false
 
+    private val gate = BackupGate()
+
     private fun controller(found: BackupEntry? = null) = BackupController(
         store,
         lazy { error("쓰지 않는다") },
@@ -51,7 +54,8 @@ class BackupConnectTest {
         FakeBackupNotifier(),
         CoroutineScope(Dispatchers.Unconfined),
         findBackup = { found },
-        running = { running }
+        running = { running },
+        gate = gate
     )
 
     @Test
@@ -195,6 +199,130 @@ class BackupConnectTest {
 
         assertEquals(entry.createdAt, store.current().lastSuccessAt)
         assertEquals("folder", store.current().rootFolderId)
+    }
+
+    /** 백업 설정에서 다른 계정을 고르면 처음 연결처럼 이어짐(스펙 011 US2) */
+    @Test
+    fun changing_to_another_account_starts_over_on_that_drive() = runTest {
+        backedUp()
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+
+        assertEquals(AccountChange.CHANGED, controller().changeAccount())
+
+        assertEquals("sub-2", store.current().accountKey)
+        assertEquals("work@gmail.com", store.current().accountLabel)
+        assertNoBackupRecord(store.current())
+        assertTrue(store.current().autoEnabled)
+        assertEquals(1, scheduler.startedNow)
+    }
+
+    @Test
+    fun changing_to_an_account_with_a_backup_asks_before_uploading() = runTest {
+        backedUp()
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+        val controller = controller(found = entry)
+
+        controller.changeAccount()
+
+        assertEquals(entry, controller.foundBackup.value)
+        assertTrue(store.current().foundBackupWaiting)
+        assertEquals(0, scheduler.startedNow)
+    }
+
+    /** 꺼 둔 자동 백업은 계정을 바꿔도 꺼진 채 */
+    @Test
+    fun changing_accounts_keeps_auto_backup_off() = runTest {
+        backedUp()
+        store.update { it.copy(autoEnabled = false) }
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+
+        controller().changeAccount()
+
+        assertFalse(store.current().autoEnabled)
+        assertFalse(scheduler.daily)
+    }
+
+    @Test
+    fun picking_the_same_account_changes_nothing() = runTest {
+        backedUp()
+
+        assertEquals(AccountChange.KEPT, controller().changeAccount())
+
+        assertEquals(entry.createdAt, store.current().lastSuccessAt)
+        assertEquals("folder", store.current().rootFolderId)
+        assertEquals(0, scheduler.startedNow)
+    }
+
+    @Test
+    fun cancelling_a_change_keeps_the_old_account() = runTest {
+        backedUp()
+        authorizer.connectResult = ConnectResult.Cancelled
+        val controller = controller()
+
+        assertEquals(AccountChange.KEPT, controller.changeAccount())
+
+        assertEquals("sub-1", store.current().accountKey)
+        assertEquals(entry.createdAt, store.current().lastSuccessAt)
+        assertNull(controller.connectFailure.value)
+        assertNull(store.current().lastFailure)
+    }
+
+    @Test
+    fun a_failed_change_keeps_the_old_account() = runTest {
+        backedUp()
+        authorizer.connectResult = ConnectResult.Failed(BackupFailure.OFFLINE)
+        val controller = controller()
+
+        controller.changeAccount()
+
+        assertEquals("sub-1", store.current().accountKey)
+        assertEquals(BackupFailure.OFFLINE, controller.connectFailure.value)
+        assertNull(store.current().lastFailure)
+    }
+
+    /** iOS: 드라이브 권한을 뺀 새 계정이 앞 계정 로그인을 덮으면 연결된 척하지 않음 */
+    @Test
+    fun a_change_that_lost_the_old_sign_in_asks_to_reconnect() = runTest {
+        backedUp()
+        authorizer.connectResult = ConnectResult.Failed(BackupFailure.NO_DRIVE_ACCESS)
+        authorizer.account = null
+        val controller = controller()
+
+        controller.changeAccount()
+
+        assertEquals("sub-1", store.current().accountKey)
+        assertEquals(BackupFailure.AUTH, store.current().lastFailure)
+    }
+
+    /** 백업·복원이 잠금을 쥐고 있으면 계정 선택 창을 띄우지 않음 */
+    @Test
+    fun a_running_backup_blocks_the_change() = runTest {
+        backedUp()
+        assertTrue(gate.tryEnter())
+
+        assertEquals(AccountChange.BUSY, controller().changeAccount())
+
+        assertEquals(0, authorizer.connects)
+        assertEquals("sub-1", store.current().accountKey)
+        gate.leave()
+    }
+
+    /** 계정을 고르는 동안 깬 백업은 기다림. 앞 계정 폴더에 새 계정으로 올리지 않음 */
+    @Test
+    fun a_backup_waits_while_the_account_changes() = runTest {
+        backedUp()
+        authorizer.account = DriveAccount("sub-2", "work@gmail.com")
+        var backupGotIn = true
+        authorizer.whilePicking = {
+            backupGotIn = gate.tryEnter()
+            if (backupGotIn) gate.leave()
+        }
+
+        controller().changeAccount()
+
+        assertFalse(backupGotIn)
+        assertTrue(gate.tryEnter())
+        gate.leave()
     }
 
     /** 재시도를 기다리는 동안 다시 눌러도 그 요청과 "이번만 모바일 데이터"가 시스템까지 감 */

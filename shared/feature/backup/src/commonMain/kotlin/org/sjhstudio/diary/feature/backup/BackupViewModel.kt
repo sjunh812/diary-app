@@ -3,6 +3,7 @@ package org.sjhstudio.diary.feature.backup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,9 +12,11 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.data.RestoreRepository
+import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupSkip
@@ -120,6 +123,26 @@ class BackupViewModel(private val controller: BackupRepository, private val rest
 
     fun setPhotosOnCellular(enabled: Boolean) {
         viewModelScope.launchSafely { quietly { controller.setPhotosOnCellular(enabled) } }
+    }
+
+    private val _accountChanges = Channel<AccountChange>(Channel.BUFFERED)
+
+    /**
+     * 계정 변경이 끝날 때 한 번 옴. 백업 설정이 바뀌면 닫고, 백업 중이면 까닭을 알림
+     * 계정 선택 창이 떠 있는 동안 화면을 돌려도 놓치지 않게 쌓아 둠
+     */
+    val accountChanges: Flow<AccountChange> = _accountChanges.receiveAsFlow()
+
+    /** 백업 설정의 구글 계정 줄. 계정 선택 창이 떠 있는 동안 다시 눌러도 한 번만 물음 */
+    fun changeAccount() {
+        if (!_connecting.compareAndSet(expect = false, update = true)) return
+        viewModelScope.launchSafely {
+            try {
+                _accountChanges.send(controller.changeAccount())
+            } finally {
+                _connecting.value = false
+            }
+        }
     }
 
     fun disconnect() {

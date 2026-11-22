@@ -50,7 +50,6 @@ import org.sjhstudio.diary.core.designsystem.component.DiaryResultHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsHeader
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsRow
 import org.sjhstudio.diary.core.designsystem.component.DiarySettingsSwitchRow
-import org.sjhstudio.diary.core.designsystem.component.DiarySettingsValueRow
 import org.sjhstudio.diary.core.designsystem.component.DiaryStatusBox
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastHost
 import org.sjhstudio.diary.core.designsystem.component.DiaryToastState
@@ -61,6 +60,7 @@ import org.sjhstudio.diary.core.designsystem.theme.DiarySpacing
 import org.sjhstudio.diary.core.designsystem.theme.DiaryTheme
 import org.sjhstudio.diary.core.designsystem.theme.DiaryWriteSize
 import org.sjhstudio.diary.core.designsystem.theme.LocalScreenGutter
+import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
@@ -79,6 +79,7 @@ import org.sjhstudio.diary.core.ui.rememberReduceMotion
 import org.sjhstudio.diary.core.ui.workContinuesInBackground
 import org.sjhstudio.diary.feature.backup.resources.Res
 import org.sjhstudio.diary.feature.backup.resources.backup_account
+import org.sjhstudio.diary.feature.backup.resources.backup_account_busy
 import org.sjhstudio.diary.feature.backup.resources.backup_all_done
 import org.sjhstudio.diary.feature.backup.resources.backup_auto
 import org.sjhstudio.diary.feature.backup.resources.backup_auto_body
@@ -391,7 +392,7 @@ fun BackupSettingsScreen(
                         verticalArrangement = Arrangement.spacedBy(DiarySpacing.x4)
                     ) {
                         Status(status, onCellular)
-                        if (status.running == null && status.connection != BackupConnection.NeedsReconnect) {
+                        if (status.running == null && status.connection !is BackupConnection.NeedsReconnect) {
                             // 다른 기기의 백업을 고르기 전에 이 기기 것을 올리지 않게 찾는 동안 막음
                             DiaryButton(
                                 stringResource(Res.string.backup_now),
@@ -401,7 +402,7 @@ fun BackupSettingsScreen(
                                 enabled = !status.findingBackup
                             )
                         }
-                        if (status.connection == BackupConnection.NeedsReconnect) {
+                        if (status.connection is BackupConnection.NeedsReconnect) {
                             DiaryButton(
                                 stringResource(Res.string.backup_reconnect),
                                 onConnect,
@@ -616,7 +617,7 @@ private fun Status(status: BackupStatus, onCellular: () -> Unit) {
             )
         }
 
-        status.connection == BackupConnection.NeedsReconnect ->
+        status.connection is BackupConnection.NeedsReconnect ->
             DiaryStatusBox(
                 DiaryIcons.ShieldCheck,
                 stringResource(Res.string.backup_reconnect_title),
@@ -697,22 +698,45 @@ private fun lastBackupText(at: Instant): String = stringResource(Res.string.back
 fun BackupOptionsRoute(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<BackupViewModel>()
     val status by viewModel.status.collectAsStateWithLifecycle()
-    BackupOptionsScreen(
-        status = status,
-        onPhotosOnCellular = viewModel::setPhotosOnCellular,
-        onDisconnect = {
-            viewModel.disconnect()
-            onBack()
-        },
-        onBack = onBack,
-        modifier = modifier
-    )
+    val connectFailure by viewModel.connectFailure.collectAsStateWithLifecycle()
+    val toast = remember { DiaryToastState() }
+    val busy = stringResource(Res.string.backup_account_busy)
+    val back by rememberUpdatedState(onBack)
+    // 바뀐 계정의 백업 찾기와 첫 백업은 백업 화면이 보여 줌
+    LaunchedEffect(viewModel) {
+        viewModel.accountChanges.collect { change ->
+            when (change) {
+                AccountChange.CHANGED -> back()
+                AccountChange.BUSY -> toast.show(busy)
+                AccountChange.KEPT -> Unit
+            }
+        }
+    }
+    Box(modifier.fillMaxSize()) {
+        BackupOptionsScreen(
+            status = status,
+            onChangeAccount = viewModel::changeAccount,
+            onPhotosOnCellular = viewModel::setPhotosOnCellular,
+            onDisconnect = {
+                viewModel.disconnect()
+                onBack()
+            },
+            onBack = onBack
+        )
+        DiaryToastHost(
+            toast,
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = DiarySpacing.x4),
+            reduceMotion = rememberReduceMotion()
+        )
+    }
+    connectFailure?.let { BackupConnectFailedSheet(it, viewModel::connectFailureShown) }
 }
 
 /** 상태만 받아 그림. 화면 견본에서도 씀 */
 @Composable
 fun BackupOptionsScreen(
     status: BackupStatus,
+    onChangeAccount: () -> Unit,
     onPhotosOnCellular: (Boolean) -> Unit,
     onDisconnect: () -> Unit,
     onBack: () -> Unit,
@@ -724,9 +748,16 @@ fun BackupOptionsScreen(
         DiaryTopBar(stringResource(Res.string.backup_options), onBack = onBack)
         Column(Modifier.widthIn(max = DiaryWriteSize.settingsMax).fillMaxWidth().verticalScroll(rememberScrollState())) {
             DiarySettingsHeader(stringResource(Res.string.backup_group_account))
-            DiarySettingsValueRow(
+            // 누르면 다른 계정을 고름(스펙 011)
+            DiarySettingsRow(
                 stringResource(Res.string.backup_account),
-                (status.connection as? BackupConnection.Connected)?.accountLabel.orEmpty()
+                onClick = onChangeAccount,
+                value =
+                    when (val connection = status.connection) {
+                        is BackupConnection.Connected -> connection.accountLabel
+                        is BackupConnection.NeedsReconnect -> connection.accountLabel
+                        BackupConnection.NotConnected -> null
+                    }
             )
             DiarySettingsHeader(stringResource(Res.string.backup_group_upload), gapAbove = true)
             DiarySettingsSwitchRow(

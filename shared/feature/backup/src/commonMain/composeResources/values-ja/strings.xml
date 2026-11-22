@@ -33,6 +33,7 @@
     <string name="backup_when_day_time">%1$s %2$s</string>
     <string name="backup_group_account">アカウント</string>
     <string name="backup_account">Google アカウント</string>
+    <string name="backup_account_busy">バックアップや復元が終わると切り替えられます。</string>
     <string name="backup_group_upload">アップロード</string>
     <string name="backup_wifi_only">写真はWi-Fiのみ</string>
     <string name="backup_wifi_only_body">オフにするとモバイルデータでも写真をアップロードします。</string>

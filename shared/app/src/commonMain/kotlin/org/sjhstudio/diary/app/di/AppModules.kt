@@ -336,7 +336,8 @@ private val backupModule =
                     // 권하지 않으면 확인하려고 받은 사본을 지움
                     offerIfNew(latest) { restore.prepare(it) }.also { if (it == null && latest != null) restore.dismiss() }
                 },
-                alerts = get()
+                alerts = get(),
+                gate = get()
             )
         }
         single<RestoreRepository> {

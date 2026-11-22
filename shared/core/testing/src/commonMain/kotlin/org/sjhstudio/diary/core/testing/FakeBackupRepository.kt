@@ -3,6 +3,7 @@ package org.sjhstudio.diary.core.testing
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.sjhstudio.diary.core.data.BackupRepository
+import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.BackupNudge
@@ -10,6 +11,7 @@ import org.sjhstudio.diary.core.model.BackupSkip
 import org.sjhstudio.diary.core.model.BackupStatus
 import org.sjhstudio.diary.core.platform.ConnectResult
 
+@Suppress("TooManyFunctions") // 저장소 약속을 그대로 흉내 내는 시험 대역
 class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepository {
     override val status = MutableStateFlow(initial)
     override val nudge = MutableStateFlow<BackupNudge?>(null)
@@ -30,6 +32,17 @@ class FakeBackupRepository(initial: BackupStatus = BackupStatus()) : BackupRepos
     override suspend fun connect(hint: String?): ConnectResult {
         connectFailure.value = (connectResult as? ConnectResult.Failed)?.kind
         return connectResult
+    }
+
+    /** 다음 [changeAccount]의 결과 */
+    var accountChange = AccountChange.KEPT
+
+    var accountChanges = 0
+        private set
+
+    override suspend fun changeAccount(): AccountChange {
+        accountChanges++
+        return accountChange
     }
 
     override fun connectFailureShown() {

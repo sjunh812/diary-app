@@ -24,6 +24,7 @@ import org.sjhstudio.diary.core.data.BackupRepository
 import org.sjhstudio.diary.core.database.DiaryDatabase
 import org.sjhstudio.diary.core.datastore.BackupPrefs
 import org.sjhstudio.diary.core.datastore.BackupStore
+import org.sjhstudio.diary.core.model.AccountChange
 import org.sjhstudio.diary.core.model.BackupConnection
 import org.sjhstudio.diary.core.model.BackupEntry
 import org.sjhstudio.diary.core.model.BackupEntryState
@@ -37,6 +38,7 @@ import org.sjhstudio.diary.core.platform.BackupNotifier
 import org.sjhstudio.diary.core.platform.BackupScheduler
 import org.sjhstudio.diary.core.platform.ConnectResult
 import org.sjhstudio.diary.core.platform.DriveAuthorizer
+import org.sjhstudio.diary.core.platform.TokenResult
 
 /**
  * 연결한 드라이브에서 권할 백업
@@ -91,7 +93,9 @@ class BackupController(
     /** 7일 실패 알림을 다시 걸 때 씀 */
     private val alerts: BackupAlerts? = null,
     /** 지금 백업이나 자동 백업이 올리는 중인지 */
-    private val running: () -> Boolean = { runner.value.progress.value != null }
+    private val running: () -> Boolean = { runner.value.progress.value != null },
+    /** 백업·복원과 함께 쓰는 잠금. 계정이 바뀌는 사이 한 번의 백업이 두 계정에 걸치지 않게 함 */
+    private val gate: BackupGate = BackupGate()
 ) : BackupRepository {
     private val _foundBackup = MutableStateFlow<BackupEntry?>(null)
     override val foundBackup: StateFlow<BackupEntry?> = _foundBackup.asStateFlow()
@@ -115,7 +119,7 @@ class BackupController(
                     connection =
                         when {
                             prefs.accountKey == null -> BackupConnection.NotConnected
-                            prefs.lastFailure == BackupFailure.AUTH -> BackupConnection.NeedsReconnect
+                            prefs.lastFailure == BackupFailure.AUTH -> BackupConnection.NeedsReconnect(prefs.accountLabel.orEmpty())
                             else -> BackupConnection.Connected(prefs.accountLabel.orEmpty())
                         },
                     lastSuccessAt = prefs.lastSuccessAt,
@@ -164,6 +168,34 @@ class BackupController(
     }
 
     override suspend fun connect(hint: String?): ConnectResult {
+        // 다시 이을 때도 다른 계정을 고를 수 있어 잠금을 기다림
+        // 연결이 끊긴 동안의 백업은 곧 권한 오류로 끝나 오래 기다리지 않음
+        gate.enter()
+        val result = authorizeHolding(hint)
+        if (result is ConnectResult.Connected) settle()
+        return result
+    }
+
+    override suspend fun changeAccount(): AccountChange {
+        if (!gate.tryEnter()) return AccountChange.BUSY
+        val before = store.current().accountKey
+        val picked = (authorizeHolding(null) as? ConnectResult.Connected)?.account?.key
+        return when (picked) {
+            null, before -> AccountChange.KEPT
+
+            else -> {
+                // 백업 설정이 닫혀도 찾기와 첫 백업은 이어서 함
+                scope.launch { settle() }
+                AccountChange.CHANGED
+            }
+        }
+    }
+
+    /**
+     * 잠금을 쥔 채 불러 권한 받기와 계정 적기를 하고 잠금을 놓음
+     * 둘 사이에 백업이 끼면 앞 계정 폴더에 새 계정 토큰으로 올림
+     */
+    private suspend fun authorizeHolding(hint: String?): ConnectResult = try {
         val result =
             try {
                 authorizer.connect(hint)
@@ -174,21 +206,12 @@ class BackupController(
             }
         // 취소는 사용자가 고른 일이라 말없이 넘어감
         _connectFailure.value = (result as? ConnectResult.Failed)?.kind
-        if (result !is ConnectResult.Connected) return result
-        return try {
-            start(result)
-            result
-        } catch (error: CancellationException) {
-            throw error
-        } catch (_: Exception) {
-            // 공간이 차서 연결을 적지 못함
-            // 연결되지 않은 것이라 실패로 알림
-            _connectFailure.value = BackupFailure.UNKNOWN
-            ConnectResult.Failed(BackupFailure.UNKNOWN)
-        }
+        if (result is ConnectResult.Connected) record(result) else result.also { stillConnected() }
+    } finally {
+        gate.leave()
     }
 
-    private suspend fun start(result: ConnectResult.Connected) {
+    private suspend fun record(result: ConnectResult.Connected): ConnectResult = try {
         // 자동 백업은 처음 연결할 때만 켬
         // 끊긴 연결을 다시 이을 때는 사용자가 정해 둔 값을 지킴
         // 다른 계정을 고르면 앞 계정의 백업 기록은 이 계정의 것이 아님
@@ -204,9 +227,34 @@ class BackupController(
                 failingSince = null
             )
         }
+        result
+    } catch (error: CancellationException) {
+        throw error
+    } catch (_: Exception) {
+        // 공간이 차서 연결을 적지 못함
+        // 연결되지 않은 것이라 실패로 알림
+        _connectFailure.value = BackupFailure.UNKNOWN
+        ConnectResult.Failed(BackupFailure.UNKNOWN)
+    }
+
+    /**
+     * 고르다 실패해도 앞 계정 연결이 남았는지 봄
+     * iOS는 권한을 뺀 새 계정이 앞 계정 로그인을 덮어 백업 설정이 연결된 채로 보이면 사실과 다름
+     */
+    private suspend fun stillConnected() {
+        if (store.current().accountKey == null) return
+        if (authorizer.accessToken() is TokenResult.NeedsUser) failures.record(BackupFailure.AUTH)
+    }
+
+    /**
+     * 연결한 계정의 드라이브에서 백업을 찾고, 없으면 첫 백업
+     * 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않음(US2 시나리오 7)
+     * 찾는 도중 앱이 꺼져도 다음에 열 때 다시 찾고 나서 올림
+     */
+    private suspend fun settle() {
         if (store.current().autoEnabled) scheduler.scheduleDaily()
         failures.stillFine(clock.now())
-        // 다른 기기의 백업이 있으면 사용자가 고르기 전에 올리지 않음(US2 시나리오 7)
+        store.update { it.copy(foundBackupWaiting = true) }
         finding.value = true
         val found =
             try {
@@ -215,9 +263,9 @@ class BackupController(
                 finding.value = false
             }
         if (found != null) {
-            store.update { it.copy(foundBackupWaiting = true) }
             _foundBackup.value = found
         } else {
+            store.update { it.copy(foundBackupWaiting = false) }
             backUpNow()
         }
     }
