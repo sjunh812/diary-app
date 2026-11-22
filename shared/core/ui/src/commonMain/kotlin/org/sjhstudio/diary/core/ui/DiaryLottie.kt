@@ -48,6 +48,7 @@ private fun lottiePalette(): Map<String, Color> {
     val colors = DiaryTheme.colors
     return mapOf(
         "@surface" to colors.surface,
+        "@raised" to colors.raised,
         "@sunken" to colors.sunken,
         "@selected" to colors.selected,
         "@line" to colors.line,

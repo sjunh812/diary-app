@@ -42,11 +42,11 @@
     <string name="plus_checklist_body">日記にやることを書いてチェックできます。</string>
     <string name="plus_terms">利用規約</string>
     <string name="plus_privacy">プライバシーポリシー</string>
-    <string name="plus_other_title">その他の特典</string>
+    <string name="plus_others_in_all">その他の特典は「すべて見る」で確認できます。</string>
     <string name="plus_see_all">すべて見る</string>
     <string name="plus_all_title">Plusの特典</string>
     <string name="plus_format_title">一覧でも書式をそのまま表示</string>
     <string name="plus_format_body">太字、下線、文字色、マーカーまで表示されます。</string>
-    <string name="plus_theme_title">テーマカラーのカスタム</string>
+    <string name="plus_theme_title">テーマカラーを自由に選ぶ</string>
     <string name="plus_theme_body">好きな色を選んでテーマにできます。</string>
 </resources>

@@ -6,27 +6,18 @@ import kotlin.test.assertEquals
 // 결제 화면 혜택 묶음(스펙 008 US6)
 class PlusBenefitTest {
     @Test
-    fun core_is_ads_photos_theme_stats_in_order() {
-        assertEquals(listOf(PlusBenefit.AD_FREE, PlusBenefit.PHOTOS, PlusBenefit.THEME, PlusBenefit.STATS), coreBenefits)
+    fun core_is_ads_photos_stats_theme_in_order() {
+        assertEquals(listOf(PlusBenefit.AD_FREE, PlusBenefit.PHOTOS, PlusBenefit.STATS, PlusBenefit.THEME), coreBenefits)
     }
 
     @Test
-    fun other_keeps_order_without_entry() {
-        assertEquals(listOf(PlusBenefit.CHECKLIST, PlusBenefit.LIST_FORMATTING), otherBenefits(from = null))
+    fun entered_other_benefit_is_shown() {
+        assertEquals(PlusBenefit.LIST_FORMATTING, enteredOther(PlusBenefit.LIST_FORMATTING))
     }
 
     @Test
-    fun entry_benefit_comes_first() {
-        assertEquals(listOf(PlusBenefit.LIST_FORMATTING, PlusBenefit.CHECKLIST), otherBenefits(from = PlusBenefit.LIST_FORMATTING))
-    }
-
-    @Test
-    fun core_entry_does_not_move_other() {
-        assertEquals(listOf(PlusBenefit.CHECKLIST, PlusBenefit.LIST_FORMATTING), otherBenefits(from = PlusBenefit.PHOTOS))
-    }
-
-    @Test
-    fun lines_are_capped_and_keep_the_entry() {
-        assertEquals(listOf(PlusBenefit.LIST_FORMATTING), otherBenefits(from = PlusBenefit.LIST_FORMATTING, limit = 1))
+    fun core_or_no_entry_shows_nothing_extra() {
+        assertEquals(null, enteredOther(PlusBenefit.THEME))
+        assertEquals(null, enteredOther(null))
     }
 }

@@ -401,11 +401,12 @@ def plus():
                 anchor=(PLUS_CX, stage_y),
                 scale=keys([(shown, [92, 92, 100]), (shown + 8, [100, 100, 100]), (gone, [100, 100, 100]), (gone + 6, [96, 96, 100])]),
                 opacity=keys([(shown, 0), (shown + 6, 100), (gone, 100), (gone + 6, 0)], LINEAR))
-        # 혜택 아이콘: 회색으로 있다가 켜짐(혜택 목록의 아이콘 칸처럼 selected 원 + accent 아이콘)
+        # 혜택 아이콘: 꺼진 동안 raised 원(라이트 흰 원, 다크 밝은 회색)에 회색 아이콘, 켜지면 혜택 목록처럼 selected 원 + accentText 아이콘
+        # sunken 원은 그림 칸 바탕(selected 40%)과 거의 같아 흑백에서 사라졌음
         lit = grp(*benefit_icon(kind, x, icon_y, 20, "@accentText"), grp(ellipse(x, icon_y, 20), fill("@selected")),
                   t=transform((x, icon_y), keys([(t, [70, 70]), (t + 6, [112, 112]), (t + 10, [100, 100])]),
                               o=keys([(t, 0), (t + 3, 100)], LINEAR)))
-        c.layer(f"아이콘 {i}", [lit, *benefit_icon(kind, x, icon_y, 20, "@textTertiary"), grp(ellipse(x, icon_y, 20), fill("@sunken"))],
+        c.layer(f"아이콘 {i}", [lit, *benefit_icon(kind, x, icon_y, 20, "@textTertiary"), grp(ellipse(x, icon_y, 20), fill("@raised"))],
                 anchor=(x, icon_y), scale=pop(0, 10))
     # 끝: 카드가 줄며 사라지는 사이 가운데에 Plus 배지(사용자 테마 색)
     end = starts[-1] + hold + 4

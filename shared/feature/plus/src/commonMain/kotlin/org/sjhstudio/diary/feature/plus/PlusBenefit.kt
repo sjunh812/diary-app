@@ -2,25 +2,21 @@ package org.sjhstudio.diary.feature.plus
 
 /**
  * Plus 혜택
- * 핵심은 결제 화면에 설명까지, 다른 혜택은 이름만
- * 핵심을 바꾸면 결제 화면 그림(`plus_benefits.json`)도 함께 고침
+ * 결제 화면은 핵심만 설명까지, 다른 혜택은 [모두 보기] 시트에서
+ * 핵심을 바꾸면 결제 화면 그림(`plus_benefits.json`)도 함께 고침. 핵심 차례는 그림의 아이콘 차례와 같음
  */
 enum class PlusBenefit(internal val core: Boolean) {
     AD_FREE(core = true),
     PHOTOS(core = true),
+    STATS(core = true),
 
     /** 테마 색 직접 고르기(스펙 010) */
     THEME(core = true),
-    STATS(core = true),
     CHECKLIST(core = false),
     LIST_FORMATTING(core = false)
 }
 
-/** 결제 화면에 보이는 다른 혜택 줄 수. 넘치면 [모두 보기] 시트에서 봄 */
-internal const val OTHER_BENEFIT_LINES = 3
-
 internal val coreBenefits: List<PlusBenefit> = PlusBenefit.entries.filter { it.core }
 
-/** 결제 화면의 다른 혜택. 들어온 혜택을 맨 위로 */
-internal fun otherBenefits(from: PlusBenefit?, limit: Int = OTHER_BENEFIT_LINES): List<PlusBenefit> =
-    PlusBenefit.entries.filterNot { it.core }.sortedByDescending { it == from }.take(limit)
+/** 다른 혜택에서 들어왔으면 그 혜택. 누르고 온 것이 결제 화면에 보이게. 핵심은 이미 보여 null */
+internal fun enteredOther(from: PlusBenefit?): PlusBenefit? = from?.takeUnless { it.core }
