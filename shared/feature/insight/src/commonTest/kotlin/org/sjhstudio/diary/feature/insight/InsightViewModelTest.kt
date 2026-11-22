@@ -27,7 +27,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.onDay
+import kotlinx.datetime.yearMonth
 import org.sjhstudio.diary.core.data.ContextTips
+import org.sjhstudio.diary.core.data.diary.EntryRepository
 import org.sjhstudio.diary.core.data.diary.StatsRepository
 import org.sjhstudio.diary.core.model.AdvancedPeriod
 import org.sjhstudio.diary.core.model.ContextTip
@@ -401,6 +404,35 @@ class InsightViewModelTest {
         runCurrent()
 
         assertEquals(LocalDate(2021, 12, 1), model.first.value)
+    }
+
+    /** 달 목록을 읽기 전에는 첫날을 모름. 이번 달 1일로 두면 ‹ 화살표가 잠깐 꺼짐으로 보임 */
+    @Test
+    fun the_first_day_is_unknown_until_months_are_read() = runTest(dispatcher) {
+        val model = testInsightViewModel(NoStats, { today }, entries = entriesOn(LocalDate(2023, 5, 2)))
+
+        assertNull(model.first.value)
+        runCurrent()
+        assertEquals(LocalDate(2023, 5, 1), model.first.value)
+    }
+
+    /** 달 목록을 못 읽으면 이번 달 1일로 두고, 다시 시도에서 다시 읽음 */
+    @Test
+    fun the_first_day_falls_back_to_this_month_and_rereads_on_retry() = runTest(dispatcher) {
+        var reads = 0
+        val written = entriesOn(LocalDate(2023, 5, 2))
+        val flaky =
+            object : EntryRepository by written {
+                override fun months(): Flow<Set<YearMonth>> =
+                    if (reads++ == 0) flow { throw IllegalStateException("읽을 수 없음") } else written.months()
+            }
+        val model = testInsightViewModel(NoStats, { today }, entries = flaky)
+        runCurrent()
+        assertEquals(today.yearMonth.onDay(1), model.first.value)
+
+        model.retry()
+        runCurrent()
+        assertEquals(LocalDate(2023, 5, 1), model.first.value)
     }
 
     /** 3월·7월에만 일기가 있으면 화살표는 사이 빈 달까지 넘기고 3월에서 멈춤 */

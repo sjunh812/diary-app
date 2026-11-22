@@ -15,7 +15,7 @@ class DiaryDateFormatIosTest {
 
     // 오전·오후 앞뒤에 좁은 공백(U+202F)을 쓰는 버전이 있어 보통 공백으로 맞춰 비교
     // 기간의 띄어쓰기는 운영체제 버전마다 달라 빼고, 줄바꿈 자리(U+200B)도 빼고 비교
-    private fun String.bare() = filterNot { it.isWhitespace() || it == '\u200B' }
+    private fun String.bare() = filterNot { it.isWhitespace() || it == '\u200B' || it == '\u2060' }
 
     private fun String.plain() = replace(' ', ' ').replace(' ', ' ')
 

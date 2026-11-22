@@ -46,6 +46,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -209,7 +210,7 @@ internal fun InsightScreen(
     onPrevious: () -> Unit,
     onNext: () -> Unit,
     onMood: (Mood) -> Unit,
-    first: LocalDate,
+    first: LocalDate?,
     modifier: Modifier = Modifier,
     onJump: (StatsPeriod) -> Unit = {},
     failed: Boolean = false,
@@ -295,7 +296,7 @@ internal fun InsightScreen(
                 Spacer(Modifier.height(DiarySpacing.x1))
                 PeriodNav(
                     periodLabel(period, dates, today),
-                    period.previous(first) != null,
+                    first?.let { period.previous(it) != null },
                     period.next(today) != null,
                     onPrevious,
                     onNext,
@@ -310,12 +311,10 @@ internal fun InsightScreen(
             // 처음 보는 기간을 잠깐 읽는 동안 하얗게 번쩍이지 않게 천천히 옅어짐
             val reduceMotion = rememberReduceMotion()
             val shade by animateFloatAsState(if (data == null) 0f else 1f, tween(if (reduceMotion) 0 else DiaryMotion.QUICK_MILLIS))
-            val hidden =
-                if (data == null) {
-                    Modifier.fillMaxWidth().alpha(shade).clearAndSetSemantics {}
-                } else {
-                    Modifier.fillMaxWidth().alpha(shade)
-                }
+            // 옅어지는 값은 그리기 단계에서만 읽음. 화면을 짤 때 읽으면 옅어지는 동안 화면 전체를 프레임마다 다시 짬
+            // 숨긴 앞 기간 숫자는 화면 낭독기도 읽지 않음
+            val unread = if (data == null) Modifier.clearAndSetSemantics {} else Modifier
+            val hidden = Modifier.fillMaxWidth().graphicsLayer { alpha = shade }.then(unread)
             if (shown?.counts?.total != 0) Spacer(Modifier.height(DiarySpacing.x3))
             // 탭을 처음 열 때는 뼈대가 바로, 기간을 바꾸는 다시 읽기는 0.3초 뒤라 짧은 틈에는 안 보임
             Box {
@@ -346,7 +345,7 @@ internal fun InsightScreen(
             }
         }
     }
-    if (picking) {
+    if (picking && first != null) {
         InsightPeriodSheet(
             period,
             today,
@@ -376,7 +375,7 @@ private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat, today: Loca
 @Composable
 private fun PeriodNav(
     label: String,
-    hasPrevious: Boolean,
+    hasPrevious: Boolean?,
     hasNext: Boolean,
     onPrevious: () -> Unit,
     onNext: () -> Unit,
@@ -384,14 +383,16 @@ private fun PeriodNav(
 ) {
     val colors = DiaryTheme.colors
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        // 넘길 곳이 없으면 자리는 두고 흐리게
+        // 넘길 곳이 없으면 자리는 두고 흐리게. 첫날을 읽기 전([hasPrevious]가 null)에는 꺼짐이라 하지 않고 자리만
         // 누르는 칸 안쪽 여백만큼 밀어 화살표를 위아래 내용과 같은 선에 맞춤
         DiaryIconButton(
             DiaryIcons.ChevronLeft,
             stringResource(Res.string.insight_previous),
             onPrevious,
-            Modifier.offset(x = -DiarySpacing.x3),
-            enabled = hasPrevious
+            Modifier
+                .offset(x = -DiarySpacing.x3)
+                .then(if (hasPrevious == null) Modifier.alpha(0f).clearAndSetSemantics {} else Modifier),
+            enabled = hasPrevious == true
         )
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
             // 이름과 아래 화살표를 한 덩어리로 가운데에. 누르는 면은 달력 시트 제목과 같음

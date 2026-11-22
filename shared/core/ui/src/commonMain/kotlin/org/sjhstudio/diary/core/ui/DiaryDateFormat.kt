@@ -109,17 +109,24 @@ internal fun formatLocaleTag(language: String, deviceTag: String): String {
 internal fun String.keepTogether(): String = replace(' ', ' ')
 
 /**
- * 기간은 이음표 뒤에서만 줄을 바꿈. 날짜 안에서는 "27 / 일"처럼 끊기지 않게
- * 영어의 이음표 앞뒤 가는 공백(U+2009)도 줄바꿈 없는 공백으로 바꿔 이음표가 줄 첫머리에 오지 않게
+ * 기간 줄바꿈. 뒤 날짜는 한 덩어리라 이음표 뒤에서 먼저 바꿈
+ * 앞 날짜는 성분 사이에서도 바꿀 수 있게 둠. 다 붙이면 큰 글자에서 앞 날짜가 한 줄을 넘어 날짜 한가운데가 끊기고 잘림
+ * 숫자와 단위("27일")는 어디서나 붙이고, 이음표는 줄 첫머리에 오지 않게 앞 공백을 붙임
  */
 internal fun String.keepRangeTogether(): String {
-    val text = keepTogether().replace('\u2009', '\u202F')
+    val text = replace(NUMBER_THEN_UNIT, "$1\u2060").replace('\u2009', '\u202F')
     val dash = text.indexOfFirst { it in RANGE_DASHES }
     if (dash < 0) return text
+    val head = text.substring(0, dash).trimEnd(' ')
+    val glue = text.substring(head.length, dash).replace(' ', '\u00a0')
     var after = dash + 1
-    while (after < text.length && (text[after] == '\u00a0' || text[after] == '\u202F')) after++
-    return text.substring(0, after) + '\u200B' + text.substring(after)
+    while (after < text.length && (text[after] == ' ' || text[after] == '\u202F')) after++
+    val gap = text.substring(dash + 1, after).replace(' ', '\u00a0')
+    return head + glue + text[dash] + gap + '\u200B' + text.substring(after).keepTogether()
 }
+
+/** 숫자 바로 뒤의 글자 단위(년·월·일, 年·月·日) */
+private val NUMBER_THEN_UNIT = Regex("(\\d)(?=\\p{L})")
 
 /** 플랫폼 기간 형식이 쓰는 이음표: en dash, 물결표, 전각 물결표, 물결 대시, 하이픈 */
 private const val RANGE_DASHES = "\u2013~\uFF5E\u301C-"
