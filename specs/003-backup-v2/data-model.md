@@ -115,6 +115,8 @@ Android 시스템 백업(클라우드 자동 백업, 기기 간 이전)에는 �
 | `nudge_hidden_until` | Long? | 없음 | 이때까지 카드를 숨긴다 |
 | `user_disconnected` | Boolean | false | 스스로 연결을 끊었으면 true. 카드를 다시 띄우지 않는다 |
 | `rollback_until` | Long? | 없음 | 되돌리기 사본이 남는 마지막 시각(FR-027) |
+| `photo_account` | String? | 없음 | 드라이브에서 복원한 사진이 온 계정. 이 계정이 연결돼 있을 때만 남은 사진을 받는다. 없으면 지금 계정(스펙 011 FR-014, 2026-11-22) |
+| `photo_account_label` | String? | 없음 | 그 계정 이메일. 다른 계정일 때 백업 화면에 보인다 |
 
 ## 진행 상태 파일
 

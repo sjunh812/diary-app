@@ -79,6 +79,13 @@ data class BackupPrefs(
      * 남은 장수와 이어 받기에서 뺌
      */
     val photosUnreachable: Int = 0,
+    /**
+     * 드라이브에서 복원한 사진이 온 계정. 남은 사진은 이 계정 드라이브에만 있음
+     * 없으면 지금 계정으로 봄(이 값이 생기기 전에 복원한 사람)
+     */
+    val photoAccount: String? = null,
+    /** [photoAccount]의 이메일 */
+    val photoAccountLabel: String? = null,
     /** 묶음 파일을 만드는 중. 앱이 꺼진 뒤에도 남아 있으면 끝나지 못한 것 */
     val bundleWriting: Boolean = false,
     /**
@@ -86,7 +93,11 @@ data class BackupPrefs(
      * 기다려도 올라가지 않으니 남은 사진으로 세지 않음
      */
     val unusablePhotos: Set<String> = emptySet()
-)
+) {
+    /** 남은 복원 사진이 온 계정이 연결돼 있지 않음 */
+    val photosOnOtherAccount: Boolean
+        get() = photoAccount != null && photoAccount != accountKey
+}
 
 class BackupStore(private val dataStore: DataStore<Preferences>) {
     // 파일을 읽지 못하면 연결 전 상태로 읽음. 예외가 흐름을 끊으면 백업 화면과 진행 표시가 멈춤
@@ -143,6 +154,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         unpackUntil = instant(Keys.UNPACK_UNTIL),
         photoStop = PhotoStop.fromName(this[Keys.PHOTO_STOP]),
         photosUnreachable = this[Keys.PHOTOS_UNREACHABLE] ?: 0,
+        photoAccount = this[Keys.PHOTO_ACCOUNT],
+        photoAccountLabel = this[Keys.PHOTO_ACCOUNT_LABEL],
         bundleWriting = this[Keys.BUNDLE_WRITING] ?: false,
         unusablePhotos = this[Keys.UNUSABLE_PHOTOS].orEmpty()
     )
@@ -176,6 +189,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         setOrRemove(Keys.UNPACK_UNTIL, prefs.unpackUntil?.toEpochMilliseconds())
         setOrRemove(Keys.PHOTO_STOP, prefs.photoStop?.name)
         this[Keys.PHOTOS_UNREACHABLE] = prefs.photosUnreachable
+        setOrRemove(Keys.PHOTO_ACCOUNT, prefs.photoAccount)
+        setOrRemove(Keys.PHOTO_ACCOUNT_LABEL, prefs.photoAccountLabel)
         this[Keys.BUNDLE_WRITING] = prefs.bundleWriting
         this[Keys.UNUSABLE_PHOTOS] = prefs.unusablePhotos
     }
@@ -212,6 +227,8 @@ class BackupStore(private val dataStore: DataStore<Preferences>) {
         val UNPACK_UNTIL = longPreferencesKey("unpack_until")
         val PHOTO_STOP = stringPreferencesKey("photo_stop")
         val PHOTOS_UNREACHABLE = intPreferencesKey("photos_unreachable")
+        val PHOTO_ACCOUNT = stringPreferencesKey("photo_account")
+        val PHOTO_ACCOUNT_LABEL = stringPreferencesKey("photo_account_label")
         val BUNDLE_WRITING = booleanPreferencesKey("bundle_writing")
         val UNUSABLE_PHOTOS = stringSetPreferencesKey("unusable_photos")
     }

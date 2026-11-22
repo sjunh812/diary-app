@@ -112,6 +112,18 @@ private fun WaitingFileDark() = Waiting(true, WaitingPhotos(12, PhotoStop.FILE))
 
 @Preview(locale = "ko")
 @Composable
+private fun WaitingOtherAccountLight() = Waiting(false, WaitingPhotos(12, PhotoStop.OTHER_ACCOUNT, "diary@gmail.com"))
+
+@Preview(locale = "ko")
+@Composable
+private fun WaitingOtherAccountDark() = Waiting(true, WaitingPhotos(12, PhotoStop.OTHER_ACCOUNT, "diary@gmail.com"))
+
+@Preview(locale = "en")
+@Composable
+private fun WaitingOtherAccountEnglish() = Waiting(false, WaitingPhotos(12, PhotoStop.OTHER_ACCOUNT, "diary.backup.account@gmail.com"))
+
+@Preview(locale = "ko")
+@Composable
 private fun WaitingRunningLight() = Waiting(false, WaitingPhotos(12, null))
 
 private val Listed =

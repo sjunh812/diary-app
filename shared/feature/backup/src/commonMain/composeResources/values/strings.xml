@@ -117,6 +117,7 @@
     <string name="restore_wait_network">They'll finish downloading when you're back online.</string>
     <string name="restore_wait_wifi">They'll finish downloading on Wi-Fi. To use mobile data, tap Download now.</string>
     <string name="restore_wait_account">Google Drive was disconnected. Reconnect to finish downloading.</string>
+    <string name="restore_wait_other_account">These photos are in the Google Drive of %1$s. Connect that account to download them.</string>
     <string name="restore_wait_file">Pick the file you restored from again to get the remaining photos.</string>
     <string name="restore_wait_now">Download now</string>
     <string name="restore_wait_pick">Pick file</string>

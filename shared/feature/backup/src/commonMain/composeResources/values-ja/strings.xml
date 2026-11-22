@@ -114,6 +114,7 @@
     <string name="restore_wait_network">インターネットに接続すると続きからダウンロードします。</string>
     <string name="restore_wait_wifi">Wi-Fiに接続すると続きからダウンロードします。モバイルデータを使うには「今すぐダウンロード」を押してください。</string>
     <string name="restore_wait_account">ドライブの接続が切れたため止まりました。接続し直すと続きからダウンロードします。</string>
+    <string name="restore_wait_other_account">%1$sのドライブにある写真です。このアカウントで接続するとダウンロードできます。</string>
     <string name="restore_wait_file">復元したファイルをもう一度選ぶと残りの写真をダウンロードします。</string>
     <string name="restore_wait_now">今すぐダウンロード</string>
     <string name="restore_wait_pick">ファイルを選ぶ</string>

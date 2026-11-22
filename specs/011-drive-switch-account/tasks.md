@@ -32,3 +32,12 @@
 - [x] T016 CI 묶음(`spotlessCheck designTokenCheck coroutineSafetyCheck stringResourceCheck unusedImportCheck detekt :composeApp:lint allTests assembleDebug`)
 - [x] T017 (Android 에뮬레이터 한국어·다크: 백업 중 토스트, 취소, 같은 계정, 오프라인 실패, 끊은 뒤 다시 연결. iOS 시뮬레이터 한국어·다크·가장 큰 글자: 연결 뒤 찾은 백업 시트, 백업 중 토스트, 취소, 같은 계정, 끊은 뒤 다시 연결. 다른 계정 실제 전환·태블릿은 못 봄. 가장 큰 글자에서 이메일 값이 두 줄로 글자 단위로 끊김(값 줄 부품의 원래 동작)) `/backup-roundtrip`, `/emulator-check`(한국어·다크·큰 글자·태블릿), iOS 시뮬레이터 `quickstart.md` 순서
 - [ ] T018 문구 humanizer·맞춤법, `/self-review`, 커밋·푸시(`git push gitlab`)·MR
+
+## 5단계: 복원 사진 계정(후속, 2026-11-22 앱 테마 리뷰에서 나옴)
+
+- [x] T019 시험 먼저: 복원 뒤 사진이 남은 채 계정 바꾸기·끊고 다른 계정·다시 연결에서 다른 계정이면 새 계정 드라이브 요청 0번, 받을 수 없음으로 세지 않음, 앞 계정 이메일과 함께 멈춤. 앞 계정으로 돌아가면 받고 잊음. 같은 계정 요청 수 그대로. 옛 사용자, 새 드라이브 복원, 파일 복원 `shared/core/backup/src/commonTest/kotlin/org/sjhstudio/diary/core/backup/RestorePhotoAccountTest.kt`
+- [x] T020 `BackupPrefs.photoAccount`·`photoAccountLabel`, `PhotoStop.OTHER_ACCOUNT`, `WaitingPhotos.account`, `RestoreController`의 복원·이어 받기·남은 사진 `shared/core/datastore`, `shared/core/model`, `shared/core/backup`
+- [x] T021 백업 화면 아래 줄 문구 세 언어, 프리뷰, 화면 시험 `shared/feature/backup`
+- [x] T022 Figma 화면 페이지 "백업 상태"에 "B1 · 사진이 다른 계정에 있음", `/backup-roundtrip` 자동 시험(Android·iOS 시뮬레이터), 에뮬레이터(Diary_API31) 한국어 라이트·다크·글자 1.3배에서 백업 화면 아래 줄 확인(저장 값과 받을 사진 줄을 직접 넣어 만든 상태). 실제 두 구글 계정 전환, 두 기기 왕복, 영어·일본어 기기 화면, 태블릿, iOS 화면은 못 봄
+- [x] T023 커밋·푸시(`git push gitlab`)·MR
+

@@ -471,9 +471,16 @@ class RestoreController(
         // 설정을 쓰지 못해도 복원이 실패했다고 하지 않고 사진을 마저 받음
         quietly { applySettings(ready.manifest.settings) }
         // 파일에서 복원한 것은 드라이브 백업이 있다는 뜻이 아님
-        if (ready.bundle == null) {
-            val at = Instant.fromEpochMilliseconds(ready.manifest.createdAt)
-            quietly { store.update { it.copy(restoredBackupAt = at) } }
+        // 드라이브에서 복원했으면 남은 사진은 그 계정 드라이브에만 있음
+        quietly {
+            store.update {
+                if (ready.bundle == null) {
+                    val at = Instant.fromEpochMilliseconds(ready.manifest.createdAt)
+                    it.copy(restoredBackupAt = at, photoAccount = it.accountKey, photoAccountLabel = it.accountLabel)
+                } else {
+                    it.copy(photoAccount = null, photoAccountLabel = null)
+                }
+            }
         }
         // 받아 둔 사본 지우기도 곁일. 실패라고 하면 다시 시도로 같은 백업을 또 합침
         quietly { fileSystem.delete(ready.snapshot, mustExist = false) }
@@ -543,9 +550,20 @@ class RestoreController(
         cut
     }
 
-    /** 멈춘 까닭을 남겨 앱을 다시 열어도 화면이 사실을 말하게 함 */
+    /**
+     * 멈춘 까닭을 남겨 앱을 다시 열어도 화면이 사실을 말하게 함
+     * 다 받았으면 사진이 온 계정도 잊음
+     */
     private suspend fun rememberStop(stop: PhotoStop?, notThere: Int) {
-        store.update { it.copy(photoStop = stop, photosUnreachable = notThere) }
+        val done = db.value.backupDao().pendingFiles().isEmpty()
+        store.update {
+            it.copy(
+                photoStop = stop,
+                photosUnreachable = notThere,
+                photoAccount = it.photoAccount.takeUnless { done },
+                photoAccountLabel = it.photoAccountLabel.takeUnless { done }
+            )
+        }
         // 연결이 끊겨 멈췄으면 백업 화면에 [다시 연결]이 뜨게 함
         if (stop == PhotoStop.ACCOUNT) failures.record(BackupFailure.AUTH)
         if (stop == PhotoStop.NETWORK) scheduler.waitForPhotoNetwork(wifiOnly = !store.current().photosOnCellular)
@@ -601,7 +619,13 @@ class RestoreController(
         val nothingLeft = db.value.backupDao().pendingFiles().isEmpty()
         return when {
             nothingLeft -> {
-                if (prefs.photoStop != null || prefs.photosUnreachable != 0) rememberStop(null, 0)
+                if (prefs.photoStop != null || prefs.photosUnreachable != 0 || prefs.photoAccount != null) rememberStop(null, 0)
+                false
+            }
+
+            // 다른 계정 드라이브에는 없는 사진이라 묻지 않음
+            prefs.photosOnOtherAccount -> {
+                store.update { it.copy(photoStop = PhotoStop.OTHER_ACCOUNT) }
                 false
             }
 
@@ -693,9 +717,18 @@ class RestoreController(
 
     private fun waitingOf(pending: Int, prefs: BackupPrefs, running: PhotoProgress?): WaitingPhotos? {
         val left = if (running != null) running.total - running.done else pending - prefs.photosUnreachable
-        // 드라이브를 쓰지 않으면 남은 사진은 파일에서만 옴
-        val stopped = prefs.photoStop ?: if (prefs.accountKey == null) PhotoStop.FILE else PhotoStop.INTERRUPTED
-        return WaitingPhotos(left, stopped.takeIf { running == null }).takeIf { left > 0 }
+        val stopped =
+            when {
+                prefs.photosOnOtherAccount -> PhotoStop.OTHER_ACCOUNT
+
+                // 사진이 온 계정을 다시 연결함. 앱을 다시 열거나 지금 받기로 이어 받음
+                prefs.photoStop == PhotoStop.OTHER_ACCOUNT -> PhotoStop.INTERRUPTED
+
+                // 드라이브를 쓰지 않으면 남은 사진은 파일에서만 옴
+                else -> prefs.photoStop ?: if (prefs.accountKey == null) PhotoStop.FILE else PhotoStop.INTERRUPTED
+            }
+        val account = prefs.photoAccountLabel.takeIf { stopped == PhotoStop.OTHER_ACCOUNT }
+        return WaitingPhotos(left, stopped.takeIf { running == null }, account).takeIf { left > 0 }
     }
 
     /**

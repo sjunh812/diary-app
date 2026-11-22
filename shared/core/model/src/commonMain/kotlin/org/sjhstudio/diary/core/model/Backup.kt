@@ -184,15 +184,21 @@ enum class PhotoStop {
     ACCOUNT,
 
     /** 남은 사진이 든 파일을 다시 골라야 함 */
-    FILE;
+    FILE,
+
+    /** 사진이 온 구글 계정이 아닌 계정이 연결됨. 그 계정을 연결하면 받음 */
+    OTHER_ACCOUNT;
 
     companion object {
         fun fromName(name: String?): PhotoStop? = entries.firstOrNull { it.name == name }
     }
 }
 
-/** 아직 받지 못한 복원 사진. [stop]이 null이면 지금 받는 중 */
-data class WaitingPhotos(val count: Int, val stop: PhotoStop?)
+/**
+ * 아직 받지 못한 복원 사진. [stop]이 null이면 지금 받는 중
+ * [account]는 [PhotoStop.OTHER_ACCOUNT]일 때 사진이 온 계정 이메일
+ */
+data class WaitingPhotos(val count: Int, val stop: PhotoStop?, val account: String? = null)
 
 enum class RestoreFailure {
     MISMATCH,

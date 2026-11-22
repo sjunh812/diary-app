@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -53,6 +52,7 @@ import org.sjhstudio.diary.feature.backup.resources.restore_wait_account
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_file
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_network
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_now
+import org.sjhstudio.diary.feature.backup.resources.restore_wait_other_account
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_pick
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_running
 import org.sjhstudio.diary.feature.backup.resources.restore_wait_wifi
@@ -188,8 +188,8 @@ private fun Rollback(run: RollbackRun, onRollBack: () -> Unit, modifier: Modifie
 private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () -> Unit, modifier: Modifier = Modifier) {
     val (label, action) =
         when (waiting.stop) {
-            // 받는 중이거나 연결이 풀렸으면 눌러도 나아지지 않음
-            null, PhotoStop.ACCOUNT -> null to null
+            // 받는 중이거나 연결이 풀렸거나 다른 계정이면 눌러도 나아지지 않음
+            null, PhotoStop.ACCOUNT, PhotoStop.OTHER_ACCOUNT -> null to null
 
             PhotoStop.FILE -> Res.string.restore_wait_pick to onPickFile
 
@@ -198,7 +198,7 @@ private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () 
     DiaryStatusBox(
         DiaryIcons.Download,
         pluralStringResource(Res.plurals.restore_note_pending, waiting.count, waiting.count.grouped()),
-        stringResource(waitingBody(waiting.stop)),
+        waitingBody(waiting),
         modifier,
         actionLabel = label?.let { stringResource(it) },
         onAction = action
@@ -206,12 +206,23 @@ private fun Waiting(waiting: WaitingPhotos, onFetch: () -> Unit, onPickFile: () 
 }
 
 /** 시스템이 깨워 주지 않는 플랫폼에서는 앱을 다시 열어야 이어짐 */
-private fun waitingBody(stop: PhotoStop?): StringResource = when (stop) {
-    null -> Res.string.restore_wait_running
-    PhotoStop.NO_SPACE -> Res.string.restore_note_pending_space_body
-    PhotoStop.ACCOUNT -> Res.string.restore_wait_account
-    PhotoStop.FILE -> Res.string.restore_wait_file
-    PhotoStop.NETWORK -> if (workContinuesInBackground) Res.string.restore_wait_network else Res.string.restore_note_pending_body
-    PhotoStop.WIFI -> if (workContinuesInBackground) Res.string.restore_wait_wifi else Res.string.restore_note_pending_body
-    PhotoStop.INTERRUPTED -> Res.string.restore_note_pending_body
+@Composable
+private fun waitingBody(waiting: WaitingPhotos): String = when (waiting.stop) {
+    null -> stringResource(Res.string.restore_wait_running)
+
+    PhotoStop.NO_SPACE -> stringResource(Res.string.restore_note_pending_space_body)
+
+    PhotoStop.ACCOUNT -> stringResource(Res.string.restore_wait_account)
+
+    PhotoStop.OTHER_ACCOUNT -> stringResource(Res.string.restore_wait_other_account, waiting.account.orEmpty())
+
+    PhotoStop.FILE -> stringResource(Res.string.restore_wait_file)
+
+    PhotoStop.NETWORK -> stringResource(
+        if (workContinuesInBackground) Res.string.restore_wait_network else Res.string.restore_note_pending_body
+    )
+
+    PhotoStop.WIFI -> stringResource(if (workContinuesInBackground) Res.string.restore_wait_wifi else Res.string.restore_note_pending_body)
+
+    PhotoStop.INTERRUPTED -> stringResource(Res.string.restore_note_pending_body)
 }
