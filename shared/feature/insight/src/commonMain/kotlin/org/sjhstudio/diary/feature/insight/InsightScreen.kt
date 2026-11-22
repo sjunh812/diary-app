@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -330,8 +331,13 @@ internal fun InsightScreen(
                 }
                 when {
                     data != null -> Unit
+
                     failed -> LoadFailedLine(onRetry)
-                    else -> InsightSkeleton(period.kind, delayed = shown != null)
+
+                    // 다시 읽는 동안은 앞 기간 자리 안에서만 그림. 뼈대 크기를 따르면 아래 광고가 밀렸다 돌아오며 깜빡임
+                    shown != null -> InsightSkeleton(period.kind, Modifier.matchParentSize().clipToBounds())
+
+                    else -> InsightSkeleton(period.kind, delayed = false)
                 }
             }
             if (shown != null && shown.counts.total > 0) {
