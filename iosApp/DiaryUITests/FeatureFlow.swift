@@ -619,4 +619,26 @@ final class FeatureFlow: DeviceTestCase {
         if !contains("· 업데이트").exists { XCTFail("설정 앱 버전 줄에 업데이트가 안 보임") }
         tap("홈")
     }
+
+    /** 돌아보기 기간 넘기기: 주 이름의 연도와 줄바꿈, 넘길 때 아래 광고 자리. 일기가 있는 기기에서. 일기는 만들지 않음 */
+    func testInsightPeriods() {
+        app.launch()
+        sleep(2)
+        tap("돌아보기")
+        tapIfExists("월")
+        sleep(1)
+        shot("insight-month")
+        tap("주")
+        sleep(1)
+        shot("insight-week-now")
+        // 첫 일기보다 앞이면 이전 기간이 흐려 그 자리에 멈춤
+        for week in 1...48 {
+            tap("이전 기간", timeout: 3)
+            usleep(400_000)
+            if [1, 8, 47, 48].contains(week) { shot("insight-week-\(week)") }
+        }
+        tapContains("~")
+        sleep(1)
+        shot("insight-week-sheet")
+    }
 }
