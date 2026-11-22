@@ -113,7 +113,7 @@ fun DiaryEntryCard(
                         DiaryIcon(
                             DiaryIcons.StarFilled,
                             contentDescription = null,
-                            tint = colors.accent,
+                            tint = colors.accentIcon,
                             size = DiaryHomeSize.cardIcon
                         )
                     }

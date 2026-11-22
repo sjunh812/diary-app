@@ -12,10 +12,13 @@ import kotlin.test.assertTrue
 import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -26,7 +29,10 @@ import org.sjhstudio.diary.core.datastore.LockStore
 import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.Plan
+import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.platform.NotificationPermission
+import org.sjhstudio.diary.core.platform.Telemetry
+import org.sjhstudio.diary.core.platform.TelemetrySink
 import org.sjhstudio.diary.core.testing.FakeFontInstaller
 import org.sjhstudio.diary.core.testing.FakePinKeyStore
 import org.sjhstudio.diary.core.testing.FakePlanRepository
@@ -224,5 +230,83 @@ class SettingsViewModelTest {
 
         assertFalse(viewModel.state.value.loaded)
         assertEquals(Plan.FREE, viewModel.state.value.plan)
+    }
+
+    /** 스펙 010: 테마 색 저장과 통계(허용한 이름만, 직접 고른 색 값은 보내지 않음) */
+    @Test
+    fun theme_colors_are_saved_and_custom_follows_the_plan() = runTest(dispatcher) {
+        val settings = FakeSettingsRepository()
+        val sent = mutableListOf<Map<String, String>>()
+        val sink =
+            object : TelemetrySink {
+                override fun log(event: String, params: Map<String, String>) {
+                    sent += params
+                }
+
+                override fun setCustomKey(key: String, value: String) = Unit
+            }
+        val viewModel =
+            SettingsViewModel(settings, lock, flowOf(0), FakePlanRepository(Plan.PLUS), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications, telemetry = Telemetry(sink, strict = true))
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.value.canCustomTheme)
+
+        viewModel.setThemeColor(ThemeColor.SEA)
+        advanceUntilIdle()
+        assertEquals(ThemeColor.SEA, settings.settings.value.theme.color)
+
+        viewModel.setCustomThemeColor(0xC2185B)
+        advanceUntilIdle()
+        assertEquals(ThemeColor.CUSTOM, settings.settings.value.theme.color)
+        assertEquals(0xC2185B, settings.settings.value.theme.customRgb)
+        // 고른 색 값은 어떤 꼴로도 보내지 않고 이름만
+        assertEquals(
+            listOf(mapOf("name" to "theme_color", "value" to "sea"), mapOf("name" to "theme_color", "value" to "custom")),
+            sent.filter { it["name"] == "theme_color" }
+        )
+    }
+
+    @Test
+    fun free_plan_cannot_pick_a_custom_theme_color() = runTest(dispatcher) {
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.AD_FREE), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        backgroundScope.launch { viewModel.state.collect {} }
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.state.value.canCustomTheme)
+    }
+
+    /** 테마 화면은 휴지통 개수·백업 상태처럼 늦게 오는 값을 기다리지 않음 */
+    @Test
+    fun theme_screen_does_not_wait_for_unrelated_reads() = runTest(dispatcher) {
+        val never = flow<Int> { awaitCancellation() }
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, never, FakePlanRepository(Plan.PLUS), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        backgroundScope.launch { viewModel.theme.collect {} }
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.theme.value?.canCustom)
+    }
+
+    /** 이미 아는 요금제를 들어올 때 모름으로 되돌리지 않음. 직접 고른 색이 잠깐 라벤더로 보이지 않게 */
+    @Test
+    fun a_known_plan_is_never_shown_as_unknown() = runTest(dispatcher) {
+        val viewModel =
+            SettingsViewModel(FakeSettingsRepository(), lock, flowOf(0), FakePlanRepository(Plan.PLUS), {
+                false
+            }, fonts = FakeFontInstaller(), notifications = notifications)
+        val seen = mutableListOf<Boolean?>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.theme.collect { state -> state?.let { seen += it.canCustom } }
+        }
+        advanceUntilIdle()
+
+        assertEquals(listOf<Boolean?>(true), seen.distinct())
     }
 }

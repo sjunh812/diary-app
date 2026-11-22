@@ -6,6 +6,7 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.PreviewLength
+import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -20,6 +21,9 @@ interface SettingsRepository {
     suspend fun setBodyTextSize(size: BodyTextSize)
 
     suspend fun setThemeMode(mode: ThemeMode)
+
+    /** 테마 색 설정을 한 번에 바꿈(정한 색 고르기, 직접 고른 색 쓰기·지우기) */
+    suspend fun updateTheme(transform: (ThemeChoice) -> ThemeChoice)
 
     suspend fun setAskLocationAgain(ask: Boolean)
 

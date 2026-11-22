@@ -589,7 +589,7 @@ private fun TopRow(state: WriteUiState, onClose: () -> Unit, onDate: () -> Unit,
                     Modifier.alpha(if (slowSave) 0f else 1f),
                     enabled = state.canSave && !state.saving
                 )
-                if (slowSave) DiaryLoadingDots(colors.accent)
+                if (slowSave) DiaryLoadingDots(colors.accentIcon)
             }
         },
         modifier = Modifier.fillMaxWidth().height(DiarySpacing.x14)
@@ -758,7 +758,7 @@ private fun Editor(state: RichTextState, style: TextStyle, focus: FocusRequester
                         }
                     },
             textStyle = style.copy(color = colors.textPrimary),
-            cursorBrush = SolidColor(colors.accent),
+            cursorBrush = SolidColor(colors.accentIcon),
             onTextLayout = {
                 layout = it
                 geometry.layout = it

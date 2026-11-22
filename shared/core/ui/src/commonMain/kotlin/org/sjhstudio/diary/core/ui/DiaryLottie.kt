@@ -36,7 +36,11 @@ fun DiaryLottie(read: suspend () -> ByteArray, millis: Int, active: Boolean, mod
     LaunchedEffect(active, still, composition) {
         if (active && !still && composition != null) progress.animateTo(1f, tween(millis, easing = LinearEasing))
     }
-    Image(rememberLottiePainter(composition = composition, progress = { progress.value }), contentDescription = null, modifier = modifier)
+    Image(
+        rememberLottiePainter(composition = composition, progress = { progress.value }),
+        contentDescription = null,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -48,6 +52,8 @@ private fun lottiePalette(): Map<String, Color> {
         "@selected" to colors.selected,
         "@line" to colors.line,
         "@accent" to colors.accent,
+        // 바탕 위 선과 그림. 아주 옅은 테마 색에서도 보이게(목록 아이콘과 같은 토큰)
+        "@accentText" to colors.accentText,
         "@onAccent" to colors.onAccent,
         "@textPrimary" to colors.textPrimary,
         "@textTertiary" to colors.textTertiary,

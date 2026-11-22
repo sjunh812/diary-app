@@ -69,7 +69,10 @@ data class ManifestSettings(
     val previewLength: String? = null,
     val showListFormatting: Boolean? = null,
     val askLocationAgain: Boolean? = null,
-    @SerialName("lockEnabled") val lockEnabled: Boolean = false
+    @SerialName("lockEnabled") val lockEnabled: Boolean = false,
+    /** 있어도 그만인 칸(스펙 010). 테마 색 이름과 직접 고른 색 `#RRGGBB` */
+    val themeColor: String? = null,
+    val customThemeColor: String? = null
 )
 
 /**

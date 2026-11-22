@@ -49,7 +49,7 @@
     <string name="license_sejong">Sejong Geulggot ライセンス</string>
     <string name="license_ownglyph">Ownglyph フォントライセンス</string>
     <string name="settings_text_size">本文の文字サイズ</string>
-    <string name="settings_theme">表示モード</string>
+    <string name="settings_theme">テーマ</string>
     <string name="settings_lock">ロック</string>
     <string name="lock_value_off">オフ</string>
     <string name="lock_value_immediately">すぐに</string>
@@ -110,7 +110,7 @@
     <string name="theme_system">システム設定</string>
     <string name="theme_light">ライト</string>
     <string name="theme_dark">ダーク</string>
-    <string name="theme_note">システム設定にすると、デバイスがダークモードのときアプリも暗くなります。</string>
+    <string name="theme_note">システム設定に合わせると、デバイスがダークモードのときアプリも暗くなります。</string>
     <string name="migration_deferred_title">以前の日記をまだ移行できていません</string>
     <string name="migration_deferred_body">もう一度試すと、今の日記はそのままで以前の日記を追加します。</string>
     <string name="migration_deferred_failed">今回も移行できませんでした。アプリをアップデートすると、もう一度試します。</string>
@@ -134,7 +134,6 @@
     <string name="list_length_full">全文</string>
     <string name="list_formatting">書式をそのまま表示</string>
     <string name="list_formatting_body">太字、下線、文字色、マーカーが一覧にも表示されます。</string>
-    <string name="list_formatting_body_free">Plusなら太字、下線、文字色、マーカーが一覧にも表示されます。</string>
     <string name="list_formatting_plus_title">書式の表示はPlusで使えます</string>
     <string name="list_formatting_plus_body">日記を開くと書式がそのまま表示されます。</string>
     <string name="list_plus_later">今はしない</string>
@@ -146,8 +145,30 @@
     <string name="settings_plus_title">広告なしで、もっと快適に使えます</string>
     <string name="settings_plus_title_ad_free">Plusでもっと便利に</string>
     <string name="settings_dev_mode">開発者モード</string>
-    <string name="settings_plus_body">日記ごとに写真30枚、チェックリスト、詳しい統計が使えます。</string>
+    <string name="settings_plus_body">1件に写真30枚、詳しい統計、テーマカラーを自由に選ぶ機能が使えます。</string>
     <string name="settings_plus_action">Plusを見る</string>
     <string name="settings_terms">利用規約</string>
     <string name="settings_privacy">プライバシーポリシー</string>
+    <string name="theme_group_mode">表示モード</string>
+    <string name="theme_follow_system">システム設定に合わせる</string>
+    <string name="theme_group_color">テーマカラー</string>
+    <string name="theme_color_lavender">ラベンダー</string>
+    <string name="theme_color_plum">プラム</string>
+    <string name="theme_color_rose">ローズ</string>
+    <string name="theme_color_maple">メープル</string>
+    <string name="theme_color_forest">フォレスト</string>
+    <string name="theme_color_sea">オーシャン</string>
+    <string name="theme_color_black">モノクロ</string>
+    <string name="theme_custom">カスタム</string>
+    <string name="theme_custom_value">カスタムカラー</string>
+    <string name="theme_row_value">%1$s · %2$s</string>
+    <string name="theme_custom_apply">この色にする</string>
+    <string name="theme_custom_cancel">キャンセル</string>
+    <string name="theme_custom_pad">彩度と明るさ</string>
+    <string name="theme_custom_hue">色相</string>
+    <string name="theme_custom_hex">カラーコード</string>
+    <string name="plus_badge">Plus</string>
+    <string name="theme_swatch_plus">%1$s、Plus</string>
+    <string name="theme_plus_title">テーマカラーを自由に選ぶ機能はPlusで使えます</string>
+    <string name="theme_plus_body">好きな色を選んでテーマにできます。</string>
 </resources>

@@ -153,7 +153,7 @@ def image_icon(cx, cy, size, color):
 
 def pen_layer(c, points, tilt, start, finish, k=1.5):
     """펜 끝(왼쪽 아래)이 글 끝에 닿게 둔다. 레퍼런스처럼 큼직하게 그리고, 쓰는 동안 손목처럼 기울인다."""
-    c.layer("펜", [group([path(PEN, k, -5 * k, -19 * k), fill("@accent")])],
+    c.layer("펜", [group([path(PEN, k, -5 * k, -19 * k), fill("@accentText")])],
             pos=keys(points, LINEAR), rotation=keys(tilt, LINEAR),
             opacity=keys([(start - 4, 0), (start, 100), (finish, 100), (finish + 4, 0)]))
 
@@ -211,7 +211,7 @@ def backup():
     bump = keys([(0, [100, 100, 100]), (32, [100, 100, 100]), (38, [107, 107, 100]), (46, [100, 100, 100]),
                  (52, [100, 100, 100]), (58, [107, 107, 100]), (66, [100, 100, 100]), (72, [100, 100, 100]),
                  (78, [107, 107, 100]), (86, [100, 100, 100])])
-    c.layer("구름", [group([path(CLOUD, 44 / 24, end[0] - 22, end[1] - 21), stroke("@accent", 3.2)]),
+    c.layer("구름", [group([path(CLOUD, 44 / 24, end[0] - 22, end[1] - 21), stroke("@accentText", 3.2)]),
                    group([ellipse(*end, 48), fill("@selected")])], anchor=end, scale=bump)
     c.layer("휴대폰", [
         *face(28, 46, 10),
@@ -224,30 +224,199 @@ def backup():
     c.save()
 
 
+# 결제 화면 그림(스펙 010). 핵심 혜택 넷을 하나씩: 아래 혜택 아이콘이 켜지고 → 가운데 카드에 그 혜택 그림 → 넷이 다 켜지면 Plus 배지
+# 아래 아이콘은 결제 화면 혜택 목록(DiaryIcons)과 같은 모양, 가운데는 아이콘 대신 혜택이 실제로 어떻게 보이는지
+# 그림 칸에 맞춰 통째로 줄고 늘어 가운데에 놓임(PlusScreen의 Fit). 한 번 재생 뒤 끝 모습(배지 + 켜진 아이콘 넷)이 완성 그림
+PLUS_W, PLUS_H, PLUS_FRAMES = 330, 160, 210
+PLUS_CX = PLUS_W / 2
+# 견본 셋(정한 색 로즈·바다·숲). 테마 색을 고르는 시연이라 사용자 테마와 상관없이 고정
+LAVENDER = [0.431, 0.337, 0.812, 1]
+ROSE = [0.667, 0.290, 0.376, 1]
+SEA = [0.251, 0.431, 0.588, 1]
+FOREST = [0.251, 0.459, 0.322, 1]
+WHITE = [1, 1, 1, 1]
+BLACK = [0, 0, 0, 1]
+# 기분 색 아픔(통계 막대 셋째). 자리표시가 없는 기분 색이라 값으로
+MOOD_SICK = [0.745, 0.914, 0.706, 1]
+# 앱 Plus 아이콘(DiaryIcons.SparklesSolid, 24 격자)과 같은 큰 별 + 작은 별. 가운데 0,0
+SPARKLES = ("M -1.5 -8 C -0.567 -2.933 2.433 0.067 7.5 1 C 2.433 1.933 -0.567 4.933 -1.5 10 "
+            "C -2.433 4.933 -5.433 1.933 -10.5 1 C -5.433 0.067 -2.433 -2.933 -1.5 -8 Z "
+            "M 7 -10.2 C 7.333 -8.4 8.4 -7.333 10.2 -7 C 8.4 -6.667 7.333 -5.6 7 -3.8 "
+            "C 6.667 -5.6 5.6 -6.667 3.8 -7 C 5.6 -7.333 6.667 -8.4 7 -10.2 Z")
+# 선으로 그린 글자 AD(가운데 0,0). A와 D 사이를 넓혀 붙어 보이지 않게
+AD_MARK = "M -5.6 3.5 L -3.6 -3.5 L -1.6 3.5 M -4.9 1.4 L -2.3 1.4 M 1.8 -3.5 L 1.8 3.5 L 3.2 3.5 C 5 3.5 6 2.3 6 0 C 6 -2.3 5 -3.5 3.2 -3.5 Z"
+MOUNTAINS = "M -17 12 L -7 1 L -1 7 L 5 1 L 17 12 Z"
+# 선으로 그린 숫자(높이 14, 폭 9). 글자가 아니라 언어와 상관없음
+DIGIT_PATHS = {
+    "3": "M 1 2 C 2 0.7 3.4 0 5 0 C 7.3 0 8.7 1.5 8.7 3.5 C 8.7 5.6 7 6.9 4.6 6.9 C 7.4 6.9 9 8.4 9 10.5 C 9 12.6 7.3 14 4.8 14 "
+         "C 3.2 14 1.6 13.4 0.6 12.2",
+    "0": "M 4.5 0 C 7.2 0 9 2.7 9 7 C 9 11.3 7.2 14 4.5 14 C 1.8 14 0 11.3 0 7 C 0 2.7 1.8 0 4.5 0 Z",
+}
+# 결제 화면 혜택 목록 아이콘(DiaryIcons ShieldCheck·Image·TabInsight·Palette)과 같은 모양. 호(arc)는 같은 모양의 곡선으로 옮김
+BENEFIT_ICONS = {
+    "ad": ["M 20 13 C 20 18 16.5 20.5 12.34 21.95 L 11.67 21.94 C 7.5 20.5 4 18 4 13 L 4 6 C 4 5.45 4.45 5 5 5 "
+           "C 7 5 9.5 3.8 11.24 2.28 C 11.68 1.9 12.32 1.9 12.76 2.28 C 14.51 3.81 17 5 19 5 C 19.55 5 20 5.45 20 6 L 20 13 Z",
+           "M 9 12 L 11 14 L 15 10"],
+    "photo": ["M 6.5 5 L 17.5 5 C 18.88 5 20 6.12 20 7.5 L 20 16.5 C 20 17.88 18.88 19 17.5 19 L 6.5 19 C 5.12 19 4 17.88 4 16.5 "
+              "L 4 7.5 C 4 6.12 5.12 5 6.5 5 Z",
+              "M 10.6 10 C 10.6 10.88 9.88 11.6 9 11.6 C 8.12 11.6 7.4 10.88 7.4 10 C 7.4 9.12 8.12 8.4 9 8.4 C 9.88 8.4 10.6 9.12 10.6 10 Z",
+              "M 5 17 L 9.5 12.5 L 12.5 15.5 L 15 13 L 19 16.6"],
+    "stats": ["M 5 20 L 5 11 M 12 20 L 12 5 M 19 20 L 19 14"],
+    "theme": ["M 12 22 C 6.48 22 2 17.52 2 12 C 2 6.48 6.48 2 12 2 C 17.52 2 22 6.03 22 11 C 22 13.76 19.76 16 17 16 L 14.75 16 "
+              "C 13.6 16 12.7 17.9 13.35 18.8 L 13.65 19.2 C 14.3 20.1 13.6 22 12.25 22 Z"],
+}
+PALETTE_DOTS = ((13.5, 6.5), (17.5, 10.5), (6.5, 12.5), (8.5, 7.5))
+
+
+def color_keys(frames):
+    """[(프레임, 색)]. 색은 "@accent" 같은 자리표시나 [r, g, b, 1]
+    색 사이를 섞으면 중간에 회색이 비쳐 다음 키까지 그 색을 그대로 둠"""
+    return {"a": 1, "k": [{"t": t, "s": v, "h": 1} for t, v in frames]}
+
+
+def grp(*items, t=None):
+    """여러 도형 무리. t를 주면 그 변형(움직임)을 씀"""
+    flat = []
+    for it in items:
+        flat.extend(it if isinstance(it, list) else [it])
+    if t is None:
+        return group(flat)
+    return {"ty": "gr", "it": flat + [t]}
+
+
+def transform(p=(0, 0), s=None, o=None, a=None):
+    return {"ty": "tr", "p": static(list(p)), "a": static(list(a if a is not None else p)), "s": s or static([100, 100]),
+            "r": static(0), "o": o or static(100)}
+
+
+def fill_o(color, opacity):
+    return {"ty": "fl", "c": color if isinstance(color, dict) else static(color), "o": static(opacity), "r": 1}
+
+
+def pop_in(start, dur=10):
+    """무리 안에서 톡 나타나는 크기(2차원)"""
+    return keys([(start, [0, 0]), (start + dur * 0.6, [110, 110]), (start + dur, [100, 100])])
+
+
+def digits(text, cx, cy, height, color, width):
+    k = height / 14
+    gap = 3.6 * k
+    x = cx - (len(text) * 9 * k + (len(text) - 1) * gap) / 2
+    shapes = []
+    for ch in text:
+        p = path(DIGIT_PATHS[ch], k, x, cy - height / 2)
+        shapes.extend(p if isinstance(p, list) else [p])
+        x += 9 * k + gap
+    return grp(*shapes, stroke(color, width))
+
+
+def benefit_icon(kind, cx, cy, size, color):
+    k = size / 24
+    dx, dy = cx - 12 * k, cy - 12 * k
+    shapes = []
+    for d in BENEFIT_ICONS[kind]:
+        p = path(d, k, dx, dy)
+        shapes.extend(p if isinstance(p, list) else [p])
+    out = [grp(*shapes, stroke(color, 1.9 * k))]
+    if kind == "theme":
+        out += [grp(ellipse(dx + x * k, dy + y * k, 1.25 * k), fill(color)) for x, y in PALETTE_DOTS]
+    return out
+
+
+# 혜택 그림(1배에서 44×28 칸 안, 가운데 cx, cy). t는 그림 안 움직임 시작
+def art_ad(cx, cy, s, t):
+    """일기 화면(글 두 줄) 아래 'AD ✕' 띠. ✕가 눌리면 띠가 내려가며 사라짐"""
+    line = lambda d: grp(path(d, s, cx, cy), stroke("@line", 2.2 * s))
+    by = cy + 9 * s
+    xb = (cx + 12.2 * s, by)
+    press = keys([(t, [100, 100]), (t + 3, [82, 82]), (t + 6, [100, 100])])
+    close = grp(grp(path("M -1.8 -1.8 L 1.8 1.8 M 1.8 -1.8 L -1.8 1.8", s, *xb), stroke("@textTertiary", 1.3 * s)),
+                t=transform(xb, press))
+    banner = {"ty": "gr", "it": [
+        close,
+        grp(path(AD_MARK, s * 0.6, cx - 10 * s, by), stroke("@textTertiary", 1.3 * s)),
+        grp(rect(cx, by, 40 * s, 13 * s, 6.5 * s), fill("@sunken")),
+        {"ty": "tr", "p": keys([(t + 8, [cx, by]), (t + 18, [cx, by + 6 * s])]), "a": static([cx, by]), "s": static([100, 100]),
+         "r": static(0), "o": keys([(t + 8, 100), (t + 18, 0)], LINEAR)}]}
+    return [banner, line("M -20 -10 L 16 -10"), line("M -20 -3 L 4 -3")]
+
+
+def art_photo(cx, cy, s, t):
+    """사진 두 장(앞은 해와 산)과 '30' 알약"""
+    def sheet(x, y, color, start, extra=()):
+        items = [*extra, grp(rect(x, y, 30 * s, 22 * s, 5 * s), stroke("@surface", 1.4 * s), fill(color))]
+        return grp(*items, t=transform((x, y), pop_in(start)))
+    fx, fy = cx - 6 * s, cy + 2 * s
+    front = sheet(fx, fy, "@moodA", t + 3, extra=[grp(path(MOUNTAINS, s * 0.75, fx, fy - 0.5 * s), fill_o(WHITE, 92)),
+                                                   grp(ellipse(fx - 7.5 * s, fy - 3.5 * s, 2.4 * s), fill_o(WHITE, 92))])
+    px, py = cx + 14 * s, cy + 9 * s
+    pill = grp(digits("30", px, py, 5 * s, WHITE, 1.05 * s), grp(rect(px, py, 20 * s, 12 * s, 6 * s), fill_o(BLACK, 70)),
+               grp(rect(px, py, 20 * s, 12 * s, 6 * s), stroke("@surface", 1.6 * s)), t=transform((px, py), pop_in(t + 8, 12)))
+    return [pill, front, sheet(cx + 1 * s, cy - 5 * s, "@moodB", t)]
+
+
+def art_stats(cx, cy, s, t):
+    """돌아보기 기분 그래프처럼 기분 점 + 같은 색 가로 막대, 많은 차례"""
+    out = []
+    for i, (dy, color, length) in enumerate(((-9, "@face", 32), (0, "@moodC", 22), (9, MOOD_SICK, 13))):
+        y = cy + dy * s
+        grow = keys([(t + i * 3, [0, 100]), (t + i * 3 + 8, [100, 100])])
+        out.append(grp(rect(length * s / 2, 0, length * s, 5 * s, 2.5 * s), fill(color), t=transform((cx - 14 * s, y), grow, a=(0, 0))))
+        out.append(grp(ellipse(cx - 20 * s, y, 3 * s), fill(color)))
+    return out
+
+
+def art_theme(cx, cy, s, t):
+    """카드가 곧 일기 화면: 제목 줄과 글 줄 셋, 오른쪽 세로 견본. 고름 고리가 옮겨 갈 때마다 제목 줄이 그 색으로"""
+    sx = cx + 17 * s
+    # 견본 3.4, 고리 5.2. 사이 9.5라 고리가 옆 견본에 닿지 않음
+    ys = [cy - 9.5 * s, cy, cy + 9.5 * s]
+    ring_pos = keys([(0, [sx, ys[0], 0]), (t + 4, [sx, ys[0], 0]), (t + 9, [sx, ys[1], 0]), (t + 13, [sx, ys[1], 0]), (t + 18, [sx, ys[2], 0])])
+    accent = color_keys([(0, LAVENDER), (t + 4, ROSE), (t + 13, SEA), (t + 22, FOREST)])
+    ring = {"ty": "gr", "it": [ellipse(0, 0, 5.2 * s), stroke("@textPrimary", 1.1 * s),
+                                {"ty": "tr", "p": ring_pos, "a": static([0, 0]), "s": static([100, 100]), "r": static(0), "o": static(100)}]}
+    line = lambda d: grp(path(d, s, cx, cy), stroke("@line", 2.2 * s))
+    return [ring, *[grp(ellipse(sx, y, 3.4 * s), fill(color)) for y, color in zip(ys, (ROSE, SEA, FOREST))],
+            line("M -20 -2 L 6 -2"), line("M -20 4.5 L 2 4.5"), line("M -20 11 L -6 11"),
+            grp(rect(cx - 10 * s, cy - 10 * s, 20 * s, 4.4 * s, 2.2 * s), {"ty": "fl", "c": accent, "o": static(100), "r": 1})]
+
+
 def plus():
-    """결제 화면 머리 그림. 일기 한 장이 칸을 채우고, 광고 자리가 접힌 뒤 사진이 차고 통계가 붙는다. 카드 아래는 칸 밖으로 잘린다."""
-    c = Comp("plus_benefits", 84, "shared/feature/plus/src/commonMain/composeResources/files", 350, 220)
-    for i, (x, h, start) in enumerate([(264, 20, 58), (282, 34, 62), (300, 50, 66)]):
-        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 14, h, 4.5), fill("@accent")])], pos=static([x, 204, 0]),
-                scale=keys([(start, [100, 0, 100]), (start + 12, [100, 100, 100])]))
-    c.layer("통계 칸", [group([rect(282, 170, 92, 84, 18), stroke("@line", 1), fill("@surface")])], anchor=(282, 170),
-            scale=pop(50, 62))
-    for i, (x, color, start) in enumerate([(97.5, "@moodA", 22), (175, "@moodB", 30), (252.5, "@moodC", 38)]):
-        c.layer(f"사진 {i + 1}", [*image_icon(x, 143, 28, "@surface"), group([rect(x, 143, 67, 67, 12), fill(color)])],
-                anchor=(x, 143), scale=pop(start, start + 14))
-    c.layer("광고 자리", [
-        group([path("M 84 134 L 214 134"), stroke("@line", 7)]),
-        group([path("M 84 152 L 160 152"), stroke("@line", 7)]),
-        group([rect(175, 143, 222, 67, 12), fill("@sunken")]),
-    ], anchor=(175, 143), scale=keys([(0, [100, 100, 100]), (8, [100, 100, 100]), (22, [100, 0, 100])]),
-        opacity=keys([(8, 100), (22, 0)], LINEAR))
-    c.layer("일기 머리", [
-        *face(82, 70, 18),
-        group([path("M 114 61 L 262 61"), stroke("@line", 8)]),
-        group([path("M 114 80 L 208 80"), stroke("@line", 8)]),
-    ])
-    c.layer("일기 카드", [group([path("M 64 200 L 196 200"), stroke("@line", 8)]),
-                       group([rect(175, 150, 262, 240, 22), stroke("@line", 1), fill("@surface")])])
+    c = Comp("plus_benefits", PLUS_FRAMES, "shared/feature/plus/src/commonMain/composeResources/files", PLUS_W, PLUS_H)
+    kinds = ("ad", "photo", "stats", "theme")
+    arts = (art_ad, art_photo, art_stats, art_theme)
+    # 혜택 하나에 46프레임(1.5초). 아이콘 원 40, 사이 8
+    # 카드와 아이콘 줄 사이 10, 위아래 여백 18로 가운데
+    xs, icon_y = (93, 141, 189, 237), 122
+    starts, hold = (10, 56, 102, 148), 40
+    stage_y, k = 55, 1.7
+    # 그림마다 내용 테두리를 재서 44×28 안에 가운데로(가운데 카드 60×44, 안쪽 여백 8). (가로 옮김, 세로 옮김, 배율)
+    fit = {"ad": (0, -2.25, 1.0), "photo": (-1.35, 0.45, 0.9), "stats": (2.5, 0, 1.0), "theme": (-0.5, -0.6, 1.0)}
+    for i, (kind, art, x, t) in enumerate(zip(kinds, arts, xs, starts)):
+        # 아이콘이 먼저 켜지고(t), 가운데 카드에 그 혜택 그림이 나옴(t+4). 그림 안 움직임은 t+8부터
+        # 카드는 그대로 두고 안의 그림만 바뀜. 장면마다 카드가 꺼졌다 켜지면 깜빡여 보임
+        shown, gone = t + 4, t + hold
+        fx, fy, fk = fit[kind]
+        c.layer(f"그림 {i}", art(PLUS_CX + fx * k, stage_y + fy * k, k * fk, t + 8),
+                anchor=(PLUS_CX, stage_y),
+                scale=keys([(shown, [92, 92, 100]), (shown + 8, [100, 100, 100]), (gone, [100, 100, 100]), (gone + 6, [96, 96, 100])]),
+                opacity=keys([(shown, 0), (shown + 6, 100), (gone, 100), (gone + 6, 0)], LINEAR))
+        # 혜택 아이콘: 회색으로 있다가 켜짐(혜택 목록의 아이콘 칸처럼 selected 원 + accent 아이콘)
+        lit = grp(*benefit_icon(kind, x, icon_y, 20, "@accentText"), grp(ellipse(x, icon_y, 20), fill("@selected")),
+                  t=transform((x, icon_y), keys([(t, [70, 70]), (t + 6, [112, 112]), (t + 10, [100, 100])]),
+                              o=keys([(t, 0), (t + 3, 100)], LINEAR)))
+        c.layer(f"아이콘 {i}", [lit, *benefit_icon(kind, x, icon_y, 20, "@textTertiary"), grp(ellipse(x, icon_y, 20), fill("@sunken"))],
+                anchor=(x, icon_y), scale=pop(0, 10))
+    # 끝: 카드가 줄며 사라지는 사이 가운데에 Plus 배지(사용자 테마 색)
+    end = starts[-1] + hold + 4
+    first = starts[0] + 4
+    c.layer("배지", [grp(*path(SPARKLES, 1.25, PLUS_CX, stage_y), fill("@onAccent")),
+                   grp(rect(PLUS_CX, stage_y, 52, 52, 16), fill("@accent"))], anchor=(PLUS_CX, stage_y), scale=pop(end, end + 12))
+    # 나중에 더한 층이 아래. 카드는 그림·배지 밑에
+    c.layer("카드", [grp(rect(PLUS_CX, stage_y, 60 * k, 44 * k, 20), stroke("@line", 1), fill("@surface"))],
+            anchor=(PLUS_CX, stage_y),
+            scale=keys([(first, [80, 80, 100]), (first + 10, [100, 100, 100]), (end - 4, [100, 100, 100]), (end + 4, [70, 70, 100])]),
+            opacity=keys([(first, 0), (first + 6, 100), (end - 4, 100), (end + 4, 0)], LINEAR))
     c.save()
 
 
@@ -274,7 +443,7 @@ def style():
     x1, x2, y = rows[1]
     c.layer("글자색", [group([path(f"M {x1} {y} L {x2} {y}"),
                               {"ty": "tm", "s": static(0), "e": keys([(steps[1][0], 0), (steps[1][1], 100)], LINEAR), "o": static(0), "m": 1},
-                              stroke("@accent", 5)])])
+                              stroke("@accentText", 5)])])
     lines_static(c, "글줄", rows)
     x1, x2, y = rows[2]
     c.layer("형광펜", [group([path(f"M {x1 - 4} {y} L {x2 + 4} {y}"),
@@ -286,7 +455,7 @@ def style():
         [group([path("M 6 12 L 15 12 C 17.2 12 19 13.8 19 16 C 19 18.2 17.2 20 15 20 L 6 20 L 6 4 L 14 4 C 16.2 4 18 5.8 18 8 "
                       "C 18 10.2 16.2 12 14 12", k, tools[0] - 8, ty - 8), stroke("@textTertiary", 2.2)])],
         [group([path("M 7 18 L 12 5 L 17 18 M 9 13 L 15 13", k, tools[1] - 8, ty - 9), stroke("@textTertiary", 2)]),
-         group([path(f"M {tools[1] - 7} {ty + 8} L {tools[1] + 7} {ty + 8}"), stroke("@accent", 3)])],
+         group([path(f"M {tools[1] - 7} {ty + 8} L {tools[1] + 7} {ty + 8}"), stroke("@accentText", 3)])],
         [group([path("M 14 4 L 20 10 L 11 19 L 5 19 L 5 13 Z", k, tools[2] - 8, ty - 9), stroke("@textTertiary", 2)]),
          group([path(f"M {tools[2] - 7} {ty + 8} L {tools[2] + 7} {ty + 8}"), stroke("@moodB", 3)])],
         [group([path(f"M {tools[3] - 3} {ty - 5} L {tools[3] + 7} {ty - 5} M {tools[3] - 3} {ty} L {tools[3] + 7} {ty} "
@@ -307,7 +476,7 @@ def find():
     """찾기와 돌아보기. 기분·날씨 조건을 고르면 목록이 걸러지고, 기분 막대가 올라온다."""
     c = Comp("onboarding_find", 100)
     for i, (x, h, start) in enumerate([(208, 22, 60), (226, 38, 64), (244, 54, 68)]):
-        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 12, h, 4), fill("@accent")])], pos=static([x, 172, 0]),
+        c.layer(f"막대 {i + 1}", [group([rect(0, -h / 2, 12, h, 4), fill("@accentText")])], pos=static([x, 172, 0]),
                 scale=keys([(start, [100, 0, 100]), (start + 12, [100, 100, 100])]))
     c.layer("통계 칸", [group([rect(226, 142, 78, 74, 16), stroke("@line", 1), fill("@surface")])], anchor=(226, 142),
             scale=pop(52, 64))
@@ -320,12 +489,12 @@ def find():
     w, left1 = 53, 44
     left2 = left1 + w + 8
     sx = left2 + 9 + 7
-    sun = [group([ellipse(sx, 74, 3), stroke("@accent", 1.6)])] + [
+    sun = [group([ellipse(sx, 74, 3), stroke("@accentText", 1.6)])] + [
         group([path(f"M {sx + 5 * math.cos(a)} {74 + 5 * math.sin(a)} L {sx + 7 * math.cos(a)} {74 + 7 * math.sin(a)}"),
-               stroke("@accent", 1.6)]) for a in [k * math.pi / 4 for k in range(8)]]
-    c.layer("날씨 칩", [*sun, group([path(f"M {left2 + 29} 74 L {left2 + 43} 74"), stroke("@accent", 3)]),
+               stroke("@accentText", 1.6)]) for a in [k * math.pi / 4 for k in range(8)]]
+    c.layer("날씨 칩", [*sun, group([path(f"M {left2 + 29} 74 L {left2 + 43} 74"), stroke("@accentText", 3)]),
                        group([rect(left2 + w / 2, 74, w, 26, 13), fill("@selected")])], anchor=(left2 + w / 2, 74), scale=pop(20, 32))
-    c.layer("기분 칩", [*face(left1 + 16, 74, 7), group([path(f"M {left1 + 29} 74 L {left1 + 43} 74"), stroke("@accent", 3)]),
+    c.layer("기분 칩", [*face(left1 + 16, 74, 7), group([path(f"M {left1 + 29} 74 L {left1 + 43} 74"), stroke("@accentText", 3)]),
                        group([rect(left1 + w / 2, 74, w, 26, 13), fill("@selected")])], anchor=(left1 + w / 2, 74), scale=pop(10, 22))
     k = 14 / 24
     c.layer("찾기 칸", [
@@ -349,11 +518,11 @@ def trash():
     dx, dy = bin_y[0] - 20, bin_y[1] - 20
     c.layer("뚜껑", [
         group([path("M 3 6 L 21 6", k, dx, dy), path("M 8 6 L 8 4 C 8 3 9 2 10 2 L 14 2 C 15 2 16 3 16 4 L 16 6", k, dx, dy),
-               stroke("@accent", 3.2)]),
+               stroke("@accentText", 3.2)]),
     ], anchor=(dx + 3 * k, dy + 6 * k), rotation=lid)
     c.layer("통", [
         group([path("M 19 6 L 19 20 C 19 21 18 22 17 22 L 7 22 C 6 22 5 21 5 20 L 5 6", k, dx, dy),
-               path("M 10 11 L 10 17 M 14 11 L 14 17", k, dx, dy), stroke("@accent", 3.2)]),
+               path("M 10 11 L 10 17 M 14 11 L 14 17", k, dx, dy), stroke("@accentText", 3.2)]),
     ])
     c.layer("원", [group([ellipse(*bin_y, 48), fill("@selected")])])
     pos = keys([(0, [*top, 0]), (16, [*top, 0]), (34, [*bin_y, 0]), (54, [*bin_y, 0]), (74, [*top, 0])])

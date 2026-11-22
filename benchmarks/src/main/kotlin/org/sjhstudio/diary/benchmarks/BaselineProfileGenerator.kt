@@ -146,7 +146,7 @@ class BaselineProfileGenerator {
 
         // 줄 화면들에는 없는 설정 목록 줄
         val SETTINGS_LIST_ANCHOR: Pattern = Pattern.compile("글꼴|Font|フォント")
-        val THEME_ROW: Pattern = Pattern.compile("화면 모드|Appearance|表示モード")
+        val THEME_ROW: Pattern = Pattern.compile("테마|Theme|テーマ")
 
         // shared/app write_new, feature/write write_new_entry·write_mood·write_close와 같다
         val WRITE_BUTTON: Pattern = Pattern.compile("일기 쓰기|New entry|日記を書く")

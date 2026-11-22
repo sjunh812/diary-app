@@ -172,10 +172,12 @@ fun DiarySettingsSwitchRow(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     description: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    badge: String? = null
 ) {
     val interaction = remember { MutableInteractionSource() }
     RowFrame(
+        badge = badge,
         modifier =
             modifier.diaryPress(interaction, DiaryTheme.colors.textPrimary, DiaryShapes.r12).toggleable(
                 value = checked,
@@ -269,6 +271,7 @@ private fun RowFrame(
     title: String,
     description: String?,
     leadingIcon: ImageVector? = null,
+    badge: String? = null,
     trailing: @Composable RowScope.() -> Unit
 ) {
     val colors = DiaryTheme.colors
@@ -279,12 +282,17 @@ private fun RowFrame(
     ) {
         if (leadingIcon != null) DiaryIcon(leadingIcon, contentDescription = null, tint = colors.textPrimary)
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DiarySpacing.x0_5)) {
-            BasicText(
-                text = title,
-                style = DiaryTheme.typography.reading.copy(color = colors.textPrimary),
-                maxLines = TITLE_MAX_LINES,
-                overflow = TextOverflow.Ellipsis
-            )
+            // 제목 옆 Plus 칩. 제목이 길어도 칩은 밀려나지 않음
+            Row(horizontalArrangement = Arrangement.spacedBy(DiarySpacing.x2), verticalAlignment = Alignment.CenterVertically) {
+                BasicText(
+                    text = title,
+                    modifier = Modifier.weight(1f, fill = false),
+                    style = DiaryTheme.typography.reading.copy(color = colors.textPrimary),
+                    maxLines = TITLE_MAX_LINES,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (badge != null) DiaryPlusChip(badge)
+            }
             if (description != null) {
                 PhraseText(text = description, style = DiaryTheme.typography.caption.copy(color = colors.textSecondary))
             }

@@ -357,7 +357,7 @@ internal fun Swatch(
             Modifier
                 .size(DiaryWriteSize.swatch + DiarySpacing.x2)
                 .diaryPress(interaction, theme.textPrimary, ring)
-                .then(if (selected) Modifier.border(DiarySpacing.x0_5, theme.accent, ring) else Modifier),
+                .then(if (selected) Modifier.border(DiarySpacing.x0_5, theme.accentIcon, ring) else Modifier),
             contentAlignment = Alignment.Center
         ) { chip() }
     }

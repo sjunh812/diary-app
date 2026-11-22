@@ -19,6 +19,7 @@ import org.sjhstudio.diary.core.model.LegacyBackupLink
 import org.sjhstudio.diary.core.model.ListPreferences
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.PreviewLength
+import org.sjhstudio.diary.core.model.ThemeChoice
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -42,6 +43,7 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
             font = DiaryFont.fromId(this[Keys.FONT]) ?: DiaryFont.DEFAULT,
             bodyTextSize = BodyTextSize.fromId(this[Keys.BODY_TEXT_SIZE]) ?: BodyTextSize.DEFAULT,
             themeMode = ThemeMode.fromId(this[Keys.THEME_MODE]) ?: ThemeMode.DEFAULT,
+            theme = ThemeChoice(colorId = this[Keys.THEME_COLOR], customHex = this[Keys.CUSTOM_THEME_COLOR]),
             askLocationAgain = this[Keys.ASK_LOCATION_AGAIN] ?: true,
             reminderEnabled = this[Keys.REMINDER_ENABLED] ?: false,
             reminderMinuteOfDay =
@@ -71,6 +73,9 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         this[Keys.LEGACY_PREVIEW_CHECKED] = settings.list.legacyChecked
         this[Keys.BODY_TEXT_SIZE] = settings.bodyTextSize.id
         this[Keys.THEME_MODE] = settings.themeMode.id
+        // 원문 그대로 다시 써 모르는 색 이름이나 깨진 값을 지우지 않음
+        setOrRemove(Keys.THEME_COLOR, settings.theme.colorId)
+        setOrRemove(Keys.CUSTOM_THEME_COLOR, settings.theme.customHex)
         this[Keys.ASK_LOCATION_AGAIN] = settings.askLocationAgain
         this[Keys.REMINDER_ENABLED] = settings.reminderEnabled
         this[Keys.REMINDER_MINUTE_OF_DAY] = settings.reminderMinuteOfDay
@@ -81,6 +86,8 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
 
     private object Keys {
         val FONT = stringPreferencesKey("font")
+        val THEME_COLOR = stringPreferencesKey("theme_color")
+        val CUSTOM_THEME_COLOR = stringPreferencesKey("custom_theme_color")
         val LIST_STYLE = stringPreferencesKey("list_style")
         val FAVORITES_ONLY = booleanPreferencesKey("favorites_only")
         val PREVIEW_LENGTH = stringPreferencesKey("preview_length")

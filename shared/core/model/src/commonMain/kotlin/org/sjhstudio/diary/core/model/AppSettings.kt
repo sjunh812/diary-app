@@ -5,6 +5,8 @@ data class AppSettings(
     val font: DiaryFont = DiaryFont.DEFAULT,
     val bodyTextSize: BodyTextSize = BodyTextSize.DEFAULT,
     val themeMode: ThemeMode = ThemeMode.DEFAULT,
+    /** 테마 색(스펙 010) */
+    val theme: ThemeChoice = ThemeChoice(),
     /** 레거시 `ask_location`. 위치를 쓸 때 다시 물을지 */
     val askLocationAgain: Boolean = true,
     val reminderEnabled: Boolean = false,

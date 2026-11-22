@@ -182,7 +182,7 @@ final class FeatureFlow: DeviceTestCase {
         tapIfExists("뒤로 가기", timeout: 2)
 
         // 화면 설정
-        tap("화면 모드")
+        tap("테마")
         sleep(1)
         shot("theme-sheet")
         tapIfExists("라이트")
@@ -208,7 +208,7 @@ final class FeatureFlow: DeviceTestCase {
         tap("설정")
         tap("목록 보기"); tapIfExists("피드"); tapIfExists("뒤로 가기", timeout: 2)
         tap("본문 글자 크기"); tapIfExists("보통"); tapIfExists("뒤로 가기", timeout: 2)
-        tap("화면 모드"); tapIfExists("시스템 설정"); tapIfExists("뒤로 가기", timeout: 2)
+        tap("테마"); tapIfExists("시스템 설정 따르기"); tapIfExists("뒤로 가기", timeout: 2)
 
         // 잠금: 4자리 두 번, 뒤로 갔다 오면 잠김, 풀기, 끄기
         tapRow("잠금,")

@@ -8,6 +8,9 @@ package org.sjhstudio.diary.feature.plus
 enum class PlusBenefit(internal val core: Boolean) {
     AD_FREE(core = true),
     PHOTOS(core = true),
+
+    /** 테마 색 직접 고르기(스펙 010) */
+    THEME(core = true),
     STATS(core = true),
     CHECKLIST(core = false),
     LIST_FORMATTING(core = false)

@@ -49,7 +49,7 @@
 | 이벤트 | 값 |
 | --- | --- |
 | `screen_view` | `screen`(화면 키 이름) |
-| `settings_changed` | `name`(`font`·`text_size`·`theme`·`reminder`·`lock`·`biometric`·`relock_after`), `value`(열거형 ID 또는 참·거짓) |
+| `settings_changed` | `name`(`font`·`text_size`·`theme`·`theme_color`·`reminder`·`lock`·`biometric`·`relock_after`), `value`(열거형 ID 또는 참·거짓) |
 | `lock_result` | `result`(`ok`·`wrong`·`waiting`·`biometric_ok`·`biometric_cancel`) |
 | `migration_*` | `contracts/migration-flow.md` |
 

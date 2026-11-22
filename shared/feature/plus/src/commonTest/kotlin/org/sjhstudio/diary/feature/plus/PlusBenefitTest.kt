@@ -6,8 +6,8 @@ import kotlin.test.assertEquals
 // 결제 화면 혜택 묶음(스펙 008 US6)
 class PlusBenefitTest {
     @Test
-    fun core_is_ads_photos_stats_in_order() {
-        assertEquals(listOf(PlusBenefit.AD_FREE, PlusBenefit.PHOTOS, PlusBenefit.STATS), coreBenefits)
+    fun core_is_ads_photos_theme_stats_in_order() {
+        assertEquals(listOf(PlusBenefit.AD_FREE, PlusBenefit.PHOTOS, PlusBenefit.THEME, PlusBenefit.STATS), coreBenefits)
     }
 
     @Test

@@ -194,12 +194,12 @@ internal fun PhotoCell(
                 Modifier
                     .padding(DiarySpacing.x1)
                     .size(DiaryWriteSize.removeBadge)
-                    .diaryPress(interaction, colors.onAccent, DiaryShapes.full)
+                    .diaryPress(interaction, colors.onPhotoContent, DiaryShapes.full)
                     .clip(DiaryShapes.full)
                     .background(colors.onPhoto),
                 contentAlignment = Alignment.Center
             ) {
-                DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onAccent, size = DiaryIconSize.i12)
+                DiaryIcon(DiaryIcons.Close, stringResource(Res.string.write_photo_remove), colors.onPhotoContent, size = DiaryIconSize.i12)
             }
         }
     }

@@ -7,6 +7,9 @@ import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.ListStyle
 import org.sjhstudio.diary.core.model.PreviewLength
+import org.sjhstudio.diary.core.model.ThemeChoice
+import org.sjhstudio.diary.core.model.ThemeColor
+import org.sjhstudio.diary.core.model.ThemeHex
 import org.sjhstudio.diary.core.model.ThemeMode
 
 /**
@@ -31,7 +34,10 @@ class BackupSettingsBridge(
             previewLength = now.list.previewLength.id,
             showListFormatting = now.list.showFormatting,
             askLocationAgain = now.askLocationAgain,
-            lockEnabled = lockEnabled()
+            lockEnabled = lockEnabled(),
+            // 한 번도 고르지 않았어도 라벤더를 적음. 다른 기기에 복원하면 라벤더로 돌아오게
+            themeColor = now.theme.colorId ?: ThemeColor.DEFAULT.id,
+            customThemeColor = now.theme.customHex
         )
     }
 
@@ -40,6 +46,7 @@ class BackupSettingsBridge(
         DiaryFont.fromId(backup.font)?.let { settings.setFont(it) }
         BodyTextSize.fromId(backup.bodyTextSize)?.let { settings.setBodyTextSize(it) }
         ThemeMode.fromId(backup.themeMode)?.let { settings.setThemeMode(it) }
+        applyTheme(backup)
         ListStyle.idOrNull(backup.listStyle)?.let { settings.setListStyle(it) }
         PreviewLength.idOrNull(backup.previewLength)?.let { settings.setPreviewLength(it) }
         backup.showListFormatting?.let { settings.setShowListFormatting(it) }
@@ -48,5 +55,27 @@ class BackupSettingsBridge(
         val enabled = backup.reminderEnabled
         if (enabled != null && minute != null) settings.setReminder(enabled, minute)
         reschedule()
+    }
+
+    /**
+     * 테마를 한 번에 씀. 나눠 쓰면 앱이 잠깐 다른 색으로 칠해짐
+     * 직접 고른 색은 값이 바를 때만 기억하고, 고른 색은 아는 이름일 때만 바꿈. 옛 백업처럼 칸이 없으면 이 기기 값 그대로
+     */
+    private suspend fun applyTheme(backup: ManifestSettings) {
+        val rgb = ThemeHex.parse(backup.customThemeColor)
+        val color = ThemeColor.fromId(backup.themeColor)
+        if (rgb == null && color == null) return
+        settings.updateTheme { now ->
+            val remembered = rgb?.let(ThemeHex::format) ?: now.customHex
+            val shown = when {
+                color == null -> now.colorId
+
+                // 직접 고른 색은 백업에 값이 함께 있을 때만
+                color == ThemeColor.CUSTOM && rgb == null -> now.colorId
+
+                else -> color.id
+            }
+            ThemeChoice(colorId = shown, customHex = remembered)
+        }
     }
 }

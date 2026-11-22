@@ -63,7 +63,6 @@ import org.sjhstudio.diary.feature.settings.resources.Res
 import org.sjhstudio.diary.feature.settings.resources.font_preview_label
 import org.sjhstudio.diary.feature.settings.resources.list_formatting
 import org.sjhstudio.diary.feature.settings.resources.list_formatting_body
-import org.sjhstudio.diary.feature.settings.resources.list_formatting_body_free
 import org.sjhstudio.diary.feature.settings.resources.list_formatting_plus_body
 import org.sjhstudio.diary.feature.settings.resources.list_formatting_plus_title
 import org.sjhstudio.diary.feature.settings.resources.list_group_body
@@ -75,6 +74,7 @@ import org.sjhstudio.diary.feature.settings.resources.list_sample_body
 import org.sjhstudio.diary.feature.settings.resources.list_sample_photo_mountain
 import org.sjhstudio.diary.feature.settings.resources.list_sample_photo_sea
 import org.sjhstudio.diary.feature.settings.resources.list_sample_place
+import org.sjhstudio.diary.feature.settings.resources.plus_badge
 import org.sjhstudio.diary.feature.settings.resources.settings_list_style
 
 /**
@@ -130,16 +130,10 @@ fun ListStyleSettingsScreen(
                     stringResource(Res.string.list_formatting),
                     checked = formatting,
                     onCheckedChange = { checked -> if (canFormat == true) onFormatting(checked) else askPlus = true },
-                    description = stringResource(
-                        if (canFormat ==
-                            false
-                        ) {
-                            Res.string.list_formatting_body_free
-                        } else {
-                            Res.string.list_formatting_body
-                        }
-                    ),
-                    enabled = canFormat != null
+                    description = stringResource(Res.string.list_formatting_body),
+                    enabled = canFormat != null,
+                    // 무료면 제목 옆 Plus 칩. 요금제를 모를 때는 산 사람에게 칩이 스치지 않게 두지 않음
+                    badge = if (canFormat == false) stringResource(Res.string.plus_badge) else null
                 )
             }
         }

@@ -47,4 +47,6 @@
     <string name="plus_all_title">Plus benefits</string>
     <string name="plus_format_title">Keep formatting in the list</string>
     <string name="plus_format_body">Bold, underline, text color, and highlights show too.</string>
+    <string name="plus_theme_title">Custom theme colors</string>
+    <string name="plus_theme_body">Pick any color you like for your theme.</string>
 </resources>

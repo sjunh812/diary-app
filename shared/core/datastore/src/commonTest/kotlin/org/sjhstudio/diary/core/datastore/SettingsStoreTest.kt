@@ -11,6 +11,8 @@ import org.sjhstudio.diary.core.model.AppSettings
 import org.sjhstudio.diary.core.model.BodyTextSize
 import org.sjhstudio.diary.core.model.DiaryFont
 import org.sjhstudio.diary.core.model.LegacyBackupLink
+import org.sjhstudio.diary.core.model.ThemeChoice
+import org.sjhstudio.diary.core.model.ThemeColor
 import org.sjhstudio.diary.core.model.ThemeMode
 
 class SettingsStoreTest {
@@ -31,6 +33,7 @@ class SettingsStoreTest {
                     font = DiaryFont.OWNGLYPH_WISEELIST,
                     bodyTextSize = BodyTextSize.XLARGE,
                     themeMode = ThemeMode.DARK,
+                    theme = ThemeChoice(colorId = "custom", customHex = "#C2185B"),
                     askLocationAgain = false,
                     reminderEnabled = true,
                     reminderMinuteOfDay = 8 * 60 + 30,
@@ -53,6 +56,8 @@ class SettingsStoreTest {
                     "legacy_preview_checked",
                     "body_text_size",
                     "theme_mode",
+                    "theme_color",
+                    "custom_theme_color",
                     "ask_location_again",
                     "reminder_enabled",
                     "reminder_minute_of_day",
@@ -63,6 +68,25 @@ class SettingsStoreTest {
                 raw.keys
             )
             assertEquals("ownglyph_wiseelist", raw["font"])
+        }
+    }
+
+    @Test
+    fun unknown_theme_values_survive_other_updates() = runTest {
+        TestDataStores().use { stores ->
+            val dataStore = stores.factory.settings()
+            dataStore.edit {
+                it[stringPreferencesKey("theme_color")] = "mauve"
+                it[stringPreferencesKey("custom_theme_color")] = "broken"
+            }
+            val store = SettingsStore(dataStore)
+
+            store.update { it.copy(themeMode = ThemeMode.LIGHT) }
+
+            val theme = store.settings.first().theme
+            assertEquals(ThemeChoice(colorId = "mauve", customHex = "broken"), theme)
+            assertEquals(ThemeColor.LAVENDER, theme.color)
+            assertEquals(null, theme.customRgb)
         }
     }
 

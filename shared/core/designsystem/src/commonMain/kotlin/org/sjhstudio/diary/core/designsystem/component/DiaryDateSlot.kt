@@ -70,7 +70,7 @@ private fun Slot(
         modifier
             .clip(shape)
             .background(if (active) colors.surface else colors.sunken)
-            .then(if (active) Modifier.border(ACTIVE_BORDER, colors.accent, shape) else Modifier)
+            .then(if (active) Modifier.border(ACTIVE_BORDER, colors.accentIcon, shape) else Modifier)
             .diaryPress(interaction, colors.textPrimary, shape)
             .semantics { selected = active }
             .clickable(enabled = onClick != null, interactionSource = interaction, indication = null, role = Role.Button) {

@@ -124,6 +124,7 @@ internal fun CatalogColors() {
             "lineStrong" to c.lineStrong,
             "lilac" to c.lilac,
             "accent" to c.accent,
+            "accentIcon" to c.accentIcon,
             "accentText" to c.accentText,
             "onAccent" to c.onAccent,
             "textPrimary" to c.textPrimary,

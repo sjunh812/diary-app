@@ -34,7 +34,7 @@ fun DiarySwitchMark(checked: Boolean, modifier: Modifier = Modifier, enabled: Bo
                 .size(width = 52.dp, height = 32.dp)
                 .alpha(if (enabled) 1f else DiaryStateAlpha.DISABLED_CONTENT)
                 .clip(DiaryShapes.full)
-                .background(if (checked) colors.accent else colors.textTertiary)
+                .background(if (checked) colors.accentIcon else colors.textTertiary)
                 .padding(3.dp)
     ) {
         Box(Modifier.offset(x = knobOffset).size(26.dp).clip(DiaryShapes.full).background(colors.surface))

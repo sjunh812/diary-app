@@ -22,6 +22,7 @@ import org.sjhstudio.diary.app.gate.MigrationGate
 import org.sjhstudio.diary.app.gate.WelcomeGate
 import org.sjhstudio.diary.app.navigation.ProvideTabViewModelStores
 import org.sjhstudio.diary.app.scaffold.AppScaffold
+import org.sjhstudio.diary.core.data.PlanRepository
 import org.sjhstudio.diary.core.data.SettingsRepository
 import org.sjhstudio.diary.core.data.photo.ThumbnailRepository
 import org.sjhstudio.diary.core.designsystem.component.ProvideScreenGutter
@@ -33,6 +34,7 @@ import org.sjhstudio.diary.core.platform.FontInstaller
 import org.sjhstudio.diary.core.ui.ProvideDiaryImageLoader
 import org.sjhstudio.diary.core.ui.diaryBodyFontFamily
 import org.sjhstudio.diary.core.ui.rememberFileFontFamily
+import org.sjhstudio.diary.core.ui.rememberThemeBrand
 
 /** 고른 글꼴은 앱 전체에 씀(헌법 V). 기본 글꼴이면 null이라 테마가 언어에 맞는 글꼴을 고름 */
 @Composable
@@ -70,7 +72,10 @@ fun DiaryApp() {
             ThemeMode.LIGHT -> false
             ThemeMode.DARK -> true
         }
-    DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font)) {
+    // 요금제는 기기에 남긴 값이라 첫 프레임부터 Plus의 직접 고른 색이 보임
+    val plan by koinInject<PlanRepository>().plan.collectAsStateWithLifecycle()
+    val brand = rememberThemeBrand(settings.theme, customAllowed = plan.customTheme)
+    DiaryTheme(darkTheme = darkTheme, fontFamily = chosenFontFamily(settings.font), brand = brand) {
         ApplyPlatformTheme(settings.themeMode, darkTheme)
         CompositionLocalProvider(LocalChosenFont provides settings.font) {
             ProvideScreenGutter {
