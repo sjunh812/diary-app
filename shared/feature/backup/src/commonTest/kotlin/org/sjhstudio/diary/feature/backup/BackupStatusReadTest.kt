@@ -7,12 +7,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -44,6 +48,14 @@ class BackupStatusReadTest {
                 failures--
                 throw IOException("읽을 수 없음")
             }
+            emit(on)
+        }
+    }
+
+    /** 기기처럼 읽는 데 시간이 걸림 */
+    private class Slow(private val fake: FakeBackupRepository, private val on: BackupStatus) : BackupRepository by fake {
+        override val status: Flow<BackupStatus> = flow {
+            delay(100)
             emit(on)
         }
     }
@@ -86,5 +98,22 @@ class BackupStatusReadTest {
         backgroundScope.launch { viewModel.loadedStatus.collect {} }
         advanceUntilIdle()
         assertEquals(on, viewModel.loadedStatus.value)
+    }
+
+    @Test
+    fun coming_back_keeps_the_status_while_reading_again() = runTest(dispatcher) {
+        val viewModel = viewModel(Slow(FakeBackupRepository(), on))
+        val first = backgroundScope.launch { viewModel.loadedStatus.collect {} }
+        advanceUntilIdle()
+        first.cancel()
+        // 다른 화면에 오래 있어 읽기가 멈춤
+        advanceTimeBy(10.seconds)
+
+        val seen = mutableListOf<BackupStatus?>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.loadedStatus.collect { seen += it } }
+        advanceUntilIdle()
+
+        // 돌아와 다시 읽는 동안 줄이 사라졌다 나오지 않음
+        assertEquals(listOf<BackupStatus?>(on), seen)
     }
 }

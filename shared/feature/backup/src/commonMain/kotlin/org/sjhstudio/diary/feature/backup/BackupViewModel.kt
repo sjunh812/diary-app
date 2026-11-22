@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import org.sjhstudio.diary.core.data.BackupRepository
@@ -32,11 +31,11 @@ import org.sjhstudio.diary.core.ui.stateInSafely
 class BackupViewModel(private val controller: BackupRepository, private val restore: RestoreRepository) : ViewModel() {
     private val statusAttempt = MutableStateFlow(0)
 
+    // 다시 읽을 때 읽는 중으로 돌리지 않음. 화면에 돌아올 때마다 줄이 사라졌다 나오지 않게
     private val statusRead: StateFlow<StatusRead> =
         statusAttempt.flatMapLatest {
             controller.status
                 .map<BackupStatus, StatusRead> { StatusRead.Loaded(it) }
-                .onStart { emit(StatusRead.Loading) }
                 .catch { if (it is Exception) emit(StatusRead.Failed) else throw it }
         }.stateInSafely(viewModelScope, WhileUiSubscribed, StatusRead.Loading)
 
