@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
 import org.sjhstudio.diary.core.designsystem.resources.Res as DsRes
 import org.sjhstudio.diary.core.model.orElseOnFailure
 import org.sjhstudio.diary.core.ui.WhileUiSubscribed
@@ -78,10 +79,13 @@ class LicensesViewModel(
     // 읽지 못하면 null
     // 화면이 그리는 중에 부르므로 예외를 넘기면 앱이 꺼짐
     internal suspend fun fontText(notice: FontLicenseNotice): String? =
-        orElseOnFailure(null) { readFont(notice.file).replace(SOFT_BREAK, " ") }
+        orElseOnFailure(null) { withContext(background) { readFont(notice.file).replace(SOFT_BREAK, " ") } }
 
-    /** 목록에 없거나 읽지 못하면 null. */
-    suspend fun libraryText(id: String): LibraryText? = orElseOnFailure(null) { findLibraryText(id) }
+    /**
+     * 목록에 없거나 읽지 못하면 null
+     * 화면이 부르는 곳은 화면 스레드라 큰 목록 해석과 정렬을 여기서 옮김
+     */
+    suspend fun libraryText(id: String): LibraryText? = orElseOnFailure(null) { withContext(background) { findLibraryText(id) } }
 
     private suspend fun findLibraryText(id: String): LibraryText? {
         val library = load().firstOrNull { it.uniqueId == id } ?: return null
