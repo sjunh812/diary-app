@@ -8,6 +8,7 @@ import platform.Foundation.NSCalendar
 import platform.Foundation.NSCalendarIdentifierGregorian
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
+import platform.Foundation.NSDateIntervalFormatter
 import platform.Foundation.NSLocale
 import platform.Foundation.NSLocaleCalendar
 import platform.Foundation.NSTimeZone
@@ -52,6 +53,8 @@ internal class IosDateFormat(private val locale: NSLocale, override val is24Hour
     private val weekdayFullFormat = formatter(DateSkeleton.WEEKDAY)
     private val weekdayFormat = formatter(DateSkeleton.WEEKDAY_SHORT)
     private val timeFormat = formatter(if (is24Hour) DateSkeleton.TIME_24 else DateSkeleton.TIME_12)
+    private val rangeFormat = intervalFormatter(DateSkeleton.FULL_DATE)
+    private val monthDayRangeFormat = intervalFormatter(DateSkeleton.MONTH_DAY)
 
     override fun month(date: LocalDate): String = monthFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
@@ -67,6 +70,12 @@ internal class IosDateFormat(private val locale: NSLocale, override val is24Hour
 
     override fun fullDate(date: LocalDate): String = fullDateFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
+    override fun dateRange(start: LocalDate, end: LocalDate, withYear: Boolean): String =
+        (if (withYear) rangeFormat else monthDayRangeFormat).stringFromDate(
+            nsDate(start.utcMillis()),
+            nsDate(end.utcMillis())
+        ).keepRangeTogether()
+
     override fun dayWithWeekday(date: LocalDate): String = dayWeekdayFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
 
     override fun weekdayShort(date: LocalDate): String = weekdayFormat.stringFromDate(nsDate(date.utcMillis())).keepTogether()
@@ -78,6 +87,13 @@ internal class IosDateFormat(private val locale: NSLocale, override val is24Hour
         gregorian?.let { calendar -> it.calendar = calendar }
         it.timeZone = utc
         it.setLocalizedDateFormatFromTemplate(template)
+    }
+
+    private fun intervalFormatter(template: String) = NSDateIntervalFormatter().also {
+        it.locale = locale
+        gregorian?.let { calendar -> it.calendar = calendar }
+        it.timeZone = utc
+        it.dateTemplate = template
     }
 
     private fun nsDate(millis: Long) = NSDate.dateWithTimeIntervalSince1970(millis / 1000.0)

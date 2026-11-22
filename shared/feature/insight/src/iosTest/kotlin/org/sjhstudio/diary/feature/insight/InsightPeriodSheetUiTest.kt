@@ -98,7 +98,7 @@ class InsightPeriodSheetUiTest {
         assertEquals(
             StatsPeriod.Week(LocalDate(2026, 11, 1)),
             pick(StatsPeriod.Week(LocalDate(2026, 11, 8)), {
-                it.monthDay(LocalDate(2026, 11, 8))
+                it.dateRange(LocalDate(2026, 11, 8), LocalDate(2026, 11, 14), withYear = false)
             }) { "4" }
         )
     }

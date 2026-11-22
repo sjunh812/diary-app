@@ -146,7 +146,6 @@ import org.sjhstudio.diary.feature.insight.resources.insight_top_past
 import org.sjhstudio.diary.feature.insight.resources.insight_top_week
 import org.sjhstudio.diary.feature.insight.resources.insight_top_year
 import org.sjhstudio.diary.feature.insight.resources.insight_week_number
-import org.sjhstudio.diary.feature.insight.resources.insight_week_range
 import org.sjhstudio.diary.feature.insight.resources.insight_write
 import org.sjhstudio.diary.feature.insight.resources.insight_year_map
 import org.sjhstudio.diary.feature.insight.resources.tip_insight_open
@@ -295,7 +294,7 @@ internal fun InsightScreen(
             } else {
                 Spacer(Modifier.height(DiarySpacing.x1))
                 PeriodNav(
-                    periodLabel(period, dates),
+                    periodLabel(period, dates, today),
                     period.previous(first) != null,
                     period.next(today) != null,
                     onPrevious,
@@ -361,13 +360,9 @@ internal fun InsightScreen(
     }
 }
 
-@Composable
-private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat): String = when (period) {
-    is StatsPeriod.Week -> stringResource(
-        Res.string.insight_week_range,
-        dates.monthDay(period.range.start),
-        dates.monthDay(period.range.end)
-    )
+/** 주는 올해면 연도를 뺌(홈 달 머리글과 같음). 해가 바뀌는 주는 형식이 양쪽에 연도를 붙임. 월·년은 늘 연도 */
+private fun periodLabel(period: StatsPeriod, dates: DiaryDateFormat, today: LocalDate): String = when (period) {
+    is StatsPeriod.Week -> dates.dateRange(period.range.start, period.range.end, withYear = period.range.start.year != today.year)
 
     is StatsPeriod.Month -> dates.yearMonth(period.month.onDay(1))
 

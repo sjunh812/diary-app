@@ -8,7 +8,6 @@
     <string name="insight_previous">Previous period</string>
     <string name="insight_next">Next period</string>
     <string name="insight_period_sheet_title">Choose a period</string>
-    <string name="insight_week_range">%1$s – %2$s</string>
     <string name="insight_empty">No entries in this period</string>
     <string name="insight_write">New entry</string>
     <string name="insight_no_moods">No moods in this period</string>
