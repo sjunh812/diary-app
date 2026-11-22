@@ -31,6 +31,7 @@ import org.sjhstudio.diary.core.drive.NewFile
 import org.sjhstudio.diary.core.model.BackupFailure
 import org.sjhstudio.diary.core.model.RestoreState
 import org.sjhstudio.diary.core.platform.DeviceName
+import org.sjhstudio.diary.core.platform.DriveAuthorizer
 import org.sjhstudio.diary.core.platform.ErrorReporter
 import org.sjhstudio.diary.core.platform.FreeSpace
 import org.sjhstudio.diary.core.testing.FakeBackupScheduler
@@ -80,11 +81,12 @@ internal class TestPhone(
 
     fun close() = db.close()
 
-    fun runner(api: DriveApi = drive, deviceName: String = name, alerts: BackupAlerts? = null) = BackupRunner(
-        db, api, auth, store, network, DeviceName { deviceName }, fs, media, work,
-        BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate,
-        io = EmptyCoroutineContext
-    )
+    fun runner(api: DriveApi = drive, deviceName: String = name, alerts: BackupAlerts? = null, authorizer: DriveAuthorizer = auth) =
+        BackupRunner(
+            db, api, authorizer, store, network, DeviceName { deviceName }, fs, media, work,
+            BackupAppInfo("2.0.0", 37, "android"), { "README" }, { ManifestSettings(font = "pretendard") }, clock, { zone }, alerts, gate,
+            io = EmptyCoroutineContext
+        )
 
     fun applier() = MergeApplier(db, { fs.exists(media / it) }, clock)
 

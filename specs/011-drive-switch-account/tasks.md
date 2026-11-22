@@ -40,4 +40,4 @@
 - [x] T021 백업 화면 아래 줄 문구 세 언어, 프리뷰, 화면 시험 `shared/feature/backup`
 - [x] T022 Figma 화면 페이지 "백업 상태"에 "B1 · 사진이 다른 계정에 있음", `/backup-roundtrip` 자동 시험(Android·iOS 시뮬레이터), 에뮬레이터(Diary_API31) 한국어 라이트·다크·글자 1.3배에서 백업 화면 아래 줄 확인(저장 값과 받을 사진 줄을 직접 넣어 만든 상태). 실제 두 구글 계정 전환, 두 기기 왕복, 영어·일본어 기기 화면, 태블릿, iOS 화면은 못 봄
 - [x] T023 커밋·푸시(`git push gitlab`)·MR
-
+- [x] T024 드라이브 토큰을 연결 계정 것만 내주는 확인을 한 곳으로(`ConnectedAccountAuthorizer`, DI에서 드라이브 API·백업 실행·백업 연결이 함께 씀). 시험 먼저: 로그인이 다른 계정이면 복원 목록이 그 드라이브 백업을 보이지 않고 백업도 올리지 않음 `shared/core/backup/src/commonTest/kotlin/org/sjhstudio/diary/core/backup/ConnectedAccountTokenTest.kt`. MR !3이 머지되면 `BackupRunner.signedIn()`의 같은 확인을 이 한 곳으로 합침
